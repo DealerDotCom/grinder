@@ -1,3 +1,16 @@
+2001-03-31  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/ConsoleUI.java: New console layout.
+
+	* src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/SampleListener.java:
+	Report average TPS.
+
+	* TODO: More ideas.
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java:
+	Don't spin uselessly when not reporting to the console. The worker
+	threads now notify the master thread when they exit.
+
 2001-03-27  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/util/FilenameFactory.java:
