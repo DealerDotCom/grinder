@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.FileUtilities;
 
 
 /**
@@ -85,7 +86,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     m_stringSet.put("-83*(&(*991(*&(*", "\n\r\n");
     m_stringSet.put("Another_empty_string_test", ""); 
 
-    // A couple of properties that are almots in m_grinderSet.
+    // A couple of properties that are almost in m_grinderSet.
     m_stringSet.put("grinder", ".no_dot_suffix"); 
     m_stringSet.put("grinder_", "blah"); 
 
@@ -409,12 +410,11 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     }
   }
     
-  public void XtestPropertiesFileHanding() throws Exception {
-
+  public void testPropertiesFileHanding() throws Exception {
     setSystemProperties();
-	
+
     try {
-      final File file = File.createTempFile("testing", "123", getDirectory());
+      final File file = File.createTempFile("testing", "12", getDirectory());
 
       final PrintWriter writer =
         new PrintWriter(new FileWriter(file), true);
@@ -425,7 +425,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
           }
         }
        ).run();
-	
+
       (new IterateOverProperties(m_stringSet) {
           void match(String key, String value) throws Exception {
             writer.println(key + ":" + "not overridden");
@@ -433,26 +433,36 @@ public class TestGrinderProperties extends AbstractFileTestCase {
         }
        ).run();
 
+      writer.close();
+
       // Constructor that takes a file adds system properties
       // beginning with "grinder.", and nothing else.
-      final GrinderProperties properties2 = new GrinderProperties(file);
+      final GrinderProperties properties = new GrinderProperties(file);
 
-      assertEquals(m_grinderSet.size() + m_stringSet.size(),
-                   properties2.size());
-	    
       (new IterateOverProperties(m_grinderSet) {
           void match(String key, String value) throws Exception {
-            assertEquals(value, properties2.getProperty(key, null));
+            assertEquals(value, properties.getProperty(key, null));
+            properties.remove(key);
           }
         }
        ).run();
 
       (new IterateOverProperties(m_stringSet) {
           void match(String key, String value) throws Exception {
-            assertEquals("not overridden", properties2.getProperty(key, null));
+            assertEquals("not overridden", properties.getProperty(key, null));
+            properties.remove(key);
           }
         }
        ).run();
+
+      // All other properties must have been picked up from other
+      // System grinder.properties.
+      (new IterateOverProperties(properties) {
+          void match(String key, String value) throws Exception {
+            assertTrue(key.startsWith("grinder."));
+            assertEquals(value, System.getProperty(key));
+          }
+        }).run();
     }
     finally {
       restoreSystemProperties();
@@ -507,7 +517,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     catch (GrinderException e) {
     }
 
-    final File file = File.createTempFile("testing", "123", getDirectory());
+    final File file = File.createTempFile("testing", "1234", getDirectory());
 
     final Properties plainProperties = new Properties();
     plainProperties.setProperty("existing", "property");
@@ -547,9 +557,41 @@ public class TestGrinderProperties extends AbstractFileTestCase {
      ).run();
   }
 
+  public void testFileHandingWithBadFiles() throws Exception {
+    final File readOnlyFile =
+      File.createTempFile("testing", "", getDirectory());
+
+    final GrinderProperties properties1 = new GrinderProperties(readOnlyFile);
+
+    FileUtilities.setCanAccess(readOnlyFile, false);
+
+    try {
+      properties1.save();
+      fail("Expected GrinderException");
+    }
+    catch (GrinderException e) {
+    }
+
+    try {
+      properties1.saveSingleProperty("foo");
+      fail("Expected GrinderException");
+    }
+    catch (GrinderException e) {
+    }
+
+    try {
+      final GrinderProperties properties2 =
+        new GrinderProperties(readOnlyFile);
+
+      fail("Expected GrinderException");
+    }
+    catch (GrinderException e) {
+    }
+  }    
+
   private void restoreSystemProperties() {
     // Do nothing! When run under Ant, System.getProperties()
-    // returns an empty object, so we can't cach/restore the old
+    // returns an empty object, so we can't cache/restore the old
     // properties.
   }
     
