@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,7 @@ package net.grinder.engine.process;
 
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.script.ScriptContext;
@@ -32,86 +33,82 @@ import net.grinder.script.ScriptContext;
  * @author Philip Aston
  * @version $Revision$
  */
-class ScriptContextImplementation implements ScriptContext
+final class ScriptContextImplementation implements ScriptContext
 {
-    private final ProcessContext m_processContext;
+  private final ProcessContext m_processContext;
 
-    public ScriptContextImplementation(ProcessContext processContext)
-    {
-	m_processContext = processContext;
-    }
+  public ScriptContextImplementation(ProcessContext processContext) {
+    m_processContext = processContext;
+  }
     
-    public String getGrinderID()
-    {
-	return m_processContext.getGrinderID();
+  public final String getGrinderID() {
+    return m_processContext.getGrinderID();
+  }
+
+  public final int getThreadID() {
+    final ThreadContext threadContext = ThreadContext.getThreadInstance();
+
+    if (threadContext != null) {
+      return threadContext.getThreadID();
     }
 
-    public int getThreadID()
-    {
-	final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    return -1;
+  }
 
-	if (threadContext != null) {
-	    return threadContext.getThreadID();
-	}
+  public final int getRunNumber() {
+    final ThreadContext threadContext =
+      ThreadContext.getThreadInstance();
 
-	return -1;
+    if (threadContext != null) {
+      return threadContext.getCurrentRunNumber();
     }
 
-    public int getRunNumber()
-    {
-	final ThreadContext threadContext =
-	    ThreadContext.getThreadInstance();
+    return -1;
+  }
 
-	if (threadContext != null) {
-	    return threadContext.getCurrentRunNumber();
-	}
+  public final Logger getLogger() {
+    final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
-	return -1;
+    if (threadContext != null) {
+      return threadContext;
     }
 
-    public Logger getLogger()
-    {
-	final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    return m_processContext.getLogger();
+  }
 
-	if (threadContext != null) {
-	    return threadContext;
-	}
+  public final void sleep(long meanTime) throws GrinderException {
+    final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
-	return m_processContext.getLogger();
+    if (threadContext == null) {
+      throw new EngineException(
+	"sleep is currently only supported for worker threads");
     }
 
-    public void sleep(long meanTime) throws GrinderException
-    {
-	final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    threadContext.getSleeper().sleepNormal(meanTime);
+  }
 
-	if (threadContext == null) {
-	    throw new EngineException(
-		"sleep is currently only supported for worker threads");
-	}
+  public final void sleep(long meanTime, long sigma) throws GrinderException {
+    final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
-	threadContext.getSleeper().sleepNormal(meanTime);
+    if (threadContext == null) {
+      throw new EngineException(
+	"sleep is currently only supported for worker threads");
     }
 
-    public void sleep(long meanTime, long sigma) throws GrinderException
-    {
-	final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    threadContext.getSleeper().sleepNormal(meanTime, sigma);
+  }
 
-	if (threadContext == null) {
-	    throw new EngineException(
-		"sleep is currently only supported for worker threads");
-	}
+  public final FilenameFactory getFilenameFactory() {
+    final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
-	threadContext.getSleeper().sleepNormal(meanTime, sigma);
+    if (threadContext != null) {
+      return threadContext;
     }
 
-    public FilenameFactory getFilenameFactory()
-    {
-	final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    return m_processContext.getLoggerImplementation().getFilenameFactory();
+  }
 
-	if (threadContext != null) {
-	    return threadContext;
-	}
-
-	return m_processContext.getLoggerImplementation().getFilenameFactory();
-    }
+  public final GrinderProperties getProperties() {
+    return m_processContext.getProperties();
+  }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,8 +23,8 @@ package net.grinder.script;
 
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.common.Test;
 
 
 /**
@@ -34,8 +34,8 @@ import net.grinder.common.Test;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface ScriptContext
-{
+public interface ScriptContext {
+
     /**
      * Get an unique ID value for this worker process.
      *
@@ -99,4 +99,11 @@ public interface ScriptContext
      * @return A <code>FilenameFactory</code>.
      */
     FilenameFactory getFilenameFactory();
+
+    /**
+     * Get the global properties for this agent/worker process set.
+     *
+     * @return The properties.
+     */
+    GrinderProperties getProperties();
 }
