@@ -46,12 +46,11 @@ import net.grinder.util.DelayedCreationFileWriter;
 final class LoggerImplementation {
   private static final PrintWriter s_stdoutWriter;
   private static final PrintWriter s_stderrWriter;
-  private static final String s_lineSeparator =
-    System.getProperty("line.separator");
-  private static final int s_lineSeparatorLength = s_lineSeparator.length();
+  private static final char[] s_lineSeparator =
+    System.getProperty("line.separator").toCharArray();
   private static final DateFormat s_dateFormat =
     DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
-  private static long s_nextTime = System.currentTimeMillis();
+
   private static String s_dateString;
 
   static {
@@ -59,13 +58,22 @@ final class LoggerImplementation {
     s_stderrWriter = new PrintWriter(System.err);
   }
 
-  /** Use our DateFormat at most once a second. **/
-  private static final synchronized String getDateString() {
-    final long now = System.currentTimeMillis();
+  private static int s_currentTick = 0;
+  private static int s_lastTick = -1;
+
+  /** Regularly incremented by GrinderProcess. */
+  static final void tick() {
+    ++s_currentTick;
+  }
+
+  /** Use our DateFormat at most once a tick. Don't synchronise, who
+   * cares if its wrong?
+   */
+  private static final /* synchronized */ String getDateString() {
 	
-    if (now > s_nextTime) {
-      s_nextTime = now + 1000;
-      s_dateString = s_dateFormat.format(new Date());
+    if (s_lastTick != s_currentTick) {
+	s_dateString = s_dateFormat.format(new Date());
+	s_lastTick = s_currentTick;
     }
 
     return s_dateString;
@@ -77,8 +85,8 @@ final class LoggerImplementation {
   private final PrintWriter m_outputWriter;
   private final PrintWriter m_errorWriter;
   private final PrintWriter m_dataWriter;
+  private final Logger m_processLogger;
   private boolean m_errorOccurred = false;
-  private Logger m_processLogger = null;
 
   LoggerImplementation(String grinderID, String logDirectoryString, 
 		       boolean logProcessStreams, boolean appendLog)
@@ -112,6 +120,8 @@ final class LoggerImplementation {
 
     // Don't autoflush, we explictly control flushing of this writer.
     m_dataWriter = new PrintWriter(createWriter("data", appendLog), false);
+
+    m_processLogger = createThreadLogger(-1);
   }
 
   private Writer createWriter(String prefix, boolean appendLog)
@@ -131,15 +141,11 @@ final class LoggerImplementation {
       new DelayedCreationFileWriter(file, appendLog));
   }
 
-  final synchronized Logger getProcessLogger() throws EngineException {
-    if (m_processLogger == null) {
-      m_processLogger = createThreadLogger(-1);
-    }
-
+  final Logger getProcessLogger() throws EngineException {
     return m_processLogger;
   }
 
-  final ThreadLogger createThreadLogger(int threadID) throws EngineException {
+  final ThreadLogger createThreadLogger(int threadID) {
     return new ThreadState(threadID);
   }
 
@@ -158,7 +164,7 @@ final class LoggerImplementation {
     }
 
     if (where != 0) {
-      final int lineLength = formatMessage(state, message);
+      final int lineLength = state.formatMessage(message);
 
       if ((where & Logger.LOG) != 0) {
 	m_outputWriter.write(state.m_outputLine, 0, lineLength);
@@ -179,7 +185,7 @@ final class LoggerImplementation {
     }
 
     if (where != 0) {
-      final int lineLength = formatMessage(state, message);
+      final int lineLength = state.formatMessage(message);
 
       if ((where & Logger.LOG) != 0) {
 	m_errorWriter.write(state.m_outputLine, 0, lineLength);
@@ -212,50 +218,6 @@ final class LoggerImplementation {
     }
   }
 
-  private final int formatMessage(ThreadState state, String message) {
-    final StringBuffer buffer = state.m_buffer;
-    final char[] outputLine = state.m_outputLine;
-
-    buffer.setLength(0);
-
-    buffer.append(getDateString());
-
-    if (state.m_threadID == -1) {
-      buffer.append(" (process ");
-      buffer.append(m_grinderID);
-    }
-    else {
-      buffer.append(" (thread ");
-      buffer.append(state.m_threadID);
-
-      if (state.m_currentRunNumber >= 0) {
-	buffer.append(" run " + state.m_currentRunNumber);
-      }
-	
-      if (state.m_currentTestNumber >= 0) {
-	buffer.append(" test " + state.m_currentTestNumber);
-      }
-    }
-
-    buffer.append("): ");
-    buffer.append(message);
-
-    // Sadly this is the most efficient way to get something we
-    // can println from the StringBuffer. getString() creates an
-    // extra string, getValue() is package scope.
-    final int bufferLength = buffer.length();
-    final int outputLineSpace = outputLine.length - s_lineSeparatorLength;
-	
-    final int lineLength =
-      bufferLength > outputLineSpace ? outputLineSpace : bufferLength;
-
-    buffer.getChars(0, lineLength, outputLine, 0);
-    s_lineSeparator.getChars(0, s_lineSeparatorLength, outputLine,
-			     lineLength);
-
-    return lineLength + s_lineSeparatorLength;
-  }
-
   /**
    * Thread specific state.
    *
@@ -274,8 +236,34 @@ final class LoggerImplementation {
     private final StringBuffer m_buffer = new StringBuffer();
     private final char[] m_outputLine = new char[512];
 
+    // Reused for optimisation.
+    private final char[] m_processOrThreadIDCharacters;
+    private char[] m_currentRunNumberCharacters = null;
+
     public ThreadState(int threadID) {
       m_threadID = threadID;
+
+      m_buffer.setLength(0);
+
+      if (m_threadID == -1) {
+	m_buffer.append(" (process ");
+	m_buffer.append(m_grinderID);
+	m_buffer.append("): ");
+      }
+      else {
+	m_buffer.append(" (thread ");
+	m_buffer.append(m_threadID);
+      }
+      
+      m_processOrThreadIDCharacters = getBufferCharacters(0);
+    }
+
+    private final char[] getBufferCharacters(int start) {
+      
+      final int length = m_buffer.length();
+      final char[] result = new char[length - start];
+      m_buffer.getChars(start, length, result, 0);
+      return result;
     }
 
     public final int getThreadID() {
@@ -287,6 +275,10 @@ final class LoggerImplementation {
     }
 
     public final void setCurrentRunNumber(int runNumber) {
+      if (runNumber != m_currentRunNumber) {
+	m_currentRunNumberCharacters = null;
+      }
+
       m_currentRunNumber = runNumber;
     }
 
@@ -320,6 +312,57 @@ final class LoggerImplementation {
 
     public final PrintWriter getErrorLogWriter() {
       return m_errorWriter;
+    }
+
+    final int formatMessage(String message) {
+      m_buffer.setLength(0);
+
+      m_buffer.append(getDateString());
+
+      m_buffer.append(m_processOrThreadIDCharacters);
+
+      if (m_threadID != -1) {
+	// We're a real thread, bolt on the rest of the context.
+
+	if (m_currentRunNumber >= 0) {
+	  if (m_currentRunNumberCharacters == null) {
+	    final int start = m_buffer.length();
+	    m_buffer.append(" run ");
+	    m_buffer.append(Integer.toString(m_currentRunNumber));
+	    m_currentRunNumberCharacters = getBufferCharacters(start);
+	  }
+	  else {
+	    m_buffer.append(m_currentRunNumberCharacters);
+	  }
+	}
+
+	if (m_currentTestNumber >= 0) {
+	  // We don't cache the test number part of the string because
+	  // it is rarely used twice.
+	  m_buffer.append(" test ");
+	  m_buffer.append(Integer.toString(m_currentTestNumber));
+	}
+
+	m_buffer.append("): ");
+      }
+
+      m_buffer.append(message);
+
+      // Sadly this is the most efficient way to get something we can
+      // println from the StringBuffer. getString() creates an extra
+      // string, getValue() is package scope.
+      final int bufferLength = m_buffer.length();
+      final int outputLineSpace = m_outputLine.length - s_lineSeparator.length;
+	
+      final int lineLength =
+	bufferLength > outputLineSpace ? outputLineSpace : bufferLength;
+
+      m_buffer.getChars(0, lineLength, m_outputLine, 0);
+
+      System.arraycopy(s_lineSeparator, 0, m_outputLine, lineLength,
+		       s_lineSeparator.length);
+
+      return lineLength + s_lineSeparator.length;
     }
   }
 }

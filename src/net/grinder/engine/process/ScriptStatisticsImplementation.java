@@ -72,6 +72,8 @@ final class ScriptStatisticsImplementation implements Statistics {
   }
 
   private final ThreadContext m_threadContext;
+  private final StringBuffer m_buffer = new StringBuffer();
+  private final int m_bufferAfterThreadIDIndex;
   private final PrintWriter m_dataWriter;
   private final boolean m_recordTime;
   private final ExpressionView[] m_detailExpressionViews =
@@ -83,6 +85,8 @@ final class ScriptStatisticsImplementation implements Statistics {
   private TestData m_currentTestData = null;
   private boolean m_noTests = true;
   private boolean m_delayReports = false;
+  private int m_lastRunNumber = -1;
+  private int m_bufferAfterRunNumberIndex = -1;
 
   public ScriptStatisticsImplementation(ThreadContext threadContext,
 					PrintWriter dataWriter,
@@ -90,6 +94,10 @@ final class ScriptStatisticsImplementation implements Statistics {
     m_threadContext = threadContext;
     m_dataWriter = dataWriter;
     m_recordTime = recordTime;
+
+    m_buffer.append(m_threadContext.getThreadID());
+    m_buffer.append(", ");
+    m_bufferAfterThreadIDIndex = m_buffer.length();
   }
 
   public final void setDelayReports(boolean b) {
@@ -239,28 +247,37 @@ final class ScriptStatisticsImplementation implements Statistics {
 
     if (m_currentTestData != null) {
       if (m_dataWriter != null) {
-	final StringBuffer buffer = new StringBuffer(32);
-	buffer.append(m_threadContext.getThreadID());
-	buffer.append(", ");
-	buffer.append(m_threadContext.getRunNumber());
-	buffer.append(", " );
-	buffer.append(m_currentTestData.getTest().getNumber());
+	final int runNumber = m_threadContext.getRunNumber();
+	
+	if (runNumber == m_lastRunNumber) {
+	  m_buffer.setLength(m_bufferAfterRunNumberIndex);
+	}
+	else {
+	  m_lastRunNumber = runNumber;
+
+	  m_buffer.setLength(m_bufferAfterThreadIDIndex);
+	  m_buffer.append(runNumber);
+	  m_buffer.append(", " );
+	  m_bufferAfterRunNumberIndex = m_buffer.length();
+	}
+
+	m_buffer.append(m_currentTestData.getTest().getNumber());
 
 	for (int i=0; i<m_detailExpressionViews.length; ++i) {
-	  buffer.append(", ");
+	  m_buffer.append(", ");
 
 	  final StatisticExpression expression =
 	    m_detailExpressionViews[i].getExpression();
 
 	  if (expression.isDouble()) {
-	    buffer.append(expression.getDoubleValue(m_testStatistics));
+	    m_buffer.append(expression.getDoubleValue(m_testStatistics));
 	  }
 	  else {
-	    buffer.append(expression.getLongValue(m_testStatistics));
+	    m_buffer.append(expression.getLongValue(m_testStatistics));
 	  }
 	}
 		
-	m_dataWriter.println(buffer);
+	m_dataWriter.println(m_buffer);
       }
 
       m_currentTestData.getStatistics().add(m_testStatistics);

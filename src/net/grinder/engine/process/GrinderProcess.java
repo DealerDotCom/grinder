@@ -418,6 +418,8 @@ public final class GrinderProcess implements Monitor {
     public void run() {
       m_dataWriter.flush();
 
+      LoggerImplementation.tick();
+
       final Sender consoleSender = m_context.getConsoleSender();
 
       try {
