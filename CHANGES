@@ -14,7 +14,6 @@ Grinder 2.6.6
    - Reworked HTTP proxy, added new HTTPS proxy
  
    - TCPSniffer changes:
-     -output to specify output files for stderr, stdout when sniffing;
      -timeout to set the proxy to timeout;
      -localSSLPort for use with the HTTPS proxy;
      doesn't barf if you set remote host/port with proxy;

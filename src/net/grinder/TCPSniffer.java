@@ -28,10 +28,6 @@ import net.grinder.tools.tcpsniffer.SnifferEngine;
 import net.grinder.tools.tcpsniffer.SnifferEngineImpl;
 import net.grinder.tools.tcpsniffer.SnifferFilter;
 
-import java.io.PrintStream;
-import java.io.FileOutputStream;
-
-
 
 /**
  *
@@ -74,8 +70,6 @@ public class TCPSniffer
 	    "\n   [-colour]                      Be pretty on ANSI terminals" +
 	    "\n" +
 	    "\n   [-timeout]                     Sniffer engine timeout" +
-	    "\n" +
-	    "\n   [-output fileroot]             Write stdout & stderr to file" +
 	    "\n" +
 	    "\n <filter> can be the name of a class that implements " +
 	    "\n " + SnifferFilter.class.getName() + " or " +
@@ -143,7 +137,6 @@ public class TCPSniffer
 
 	boolean useColour = false;
 
-
 	int i = 0;
 
 	try {
@@ -192,13 +185,6 @@ public class TCPSniffer
 		}
 		else if (args[i].equals("-timeout")) {
 		    timeout = Integer.parseInt(args[++i])*1000;
-		}
-		else if (args[i].equals("-output")) {
-		    String outputFile = args[++i];
-		    System.setOut(new PrintStream(
-			new FileOutputStream(outputFile + ".out"), true));
-		    System.setErr(new PrintStream(
-			new FileOutputStream(outputFile + ".err"), true));
 		}
 		else if (args[i].equals("-colour")) {
 		    useColour = true;
@@ -286,7 +272,6 @@ public class TCPSniffer
 	}
 
 	System.err.println(startMessage);
-
 
 	try {
 	    if (proxy && useSSL) {

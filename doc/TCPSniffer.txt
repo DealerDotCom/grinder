@@ -42,10 +42,10 @@ say something like:
 You should then point your browser at "localhost:8001" and exercise
 the application.
 
-If you want the output to go to a file rather than stdout, you can
-specify the filename root with "-output":
+If you want the output to go to a file rather than the terminal, you
+can use standard command line redirection, for example:
 
-  java net.grinder.TCPSniffer -output SimpleTest
+  java net.grinder.TCPSniffer >SimpleTest.out 2>SimpleTest.err
 
 will redirect stdout to SimpleTest.out and stderr to SimpleTest.err.
 
