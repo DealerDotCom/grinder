@@ -36,8 +36,8 @@ public class EngineException extends GrinderException
 	super(s);
     }
 
-    public EngineException(String s, Exception e)
+    public EngineException(String s, Throwable t)
     {
-	super(s, e);
+	super(s, t);
     }
 }
