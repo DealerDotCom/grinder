@@ -32,7 +32,7 @@ import net.grinder.util.GrinderProperties;
  * @version $Revision$
  */ 
 public abstract class SimplePluginBase
-    implements GrinderPlugin, ThreadCallbacks, Cloneable
+    implements GrinderPlugin, ThreadCallbacks
 {
     /**
      * This method is executed when the process starts. It is only
@@ -51,12 +51,12 @@ public abstract class SimplePluginBase
 	throws PluginException
     {
 	try {
-	    return (ThreadCallbacks)clone();
+	    return (ThreadCallbacks)getClass().newInstance();
 	}
-	catch (CloneNotSupportedException e) {
-	    throw new PluginException("Plugin classes that implement " +
-				      getClass().getName() +
-				      " must support clone()", e);
+	catch (Exception e) {
+	    throw new PluginException(
+		"Could not create new insatnce of plugin class " +
+		getClass().getName(), e);
 	}
     }
 
