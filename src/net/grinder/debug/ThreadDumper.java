@@ -26,7 +26,7 @@ package net.grinder.debug;
  * Thread dump debug utility.
  *
  * @author <a href="mailto:philipa@mail.com">Philip Aston</a>
- * @version 1.0
+ * @version $Revision$
  */
 public final class ThreadDumper {
 
