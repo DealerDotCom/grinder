@@ -1,5 +1,9 @@
 2001-01-28  Philip Aston  <paston@beasys.com>
 
+	* build.xml: 
+	* src/net/grinder/util/GrinderProperties.java: 
+		Fix javadoc.
+
 	* CHANGES:
 	* README: 
 	* TODO:  
