@@ -19,6 +19,24 @@ file) as building instructions. For more information refer to
 "http://jakarta.apache.org/ant/".
 
 
+What do I need?
+===============
+
+To build The Grinder you need:
+
+  - J2SE 1.3.1 or later
+  - JSSE 1.0.2 (SSL support, this is included in JSE 1.4.1)
+
+The following additional packages are necesary to run The Grinder unit
+tests and to create the documentation:
+
+  - JUnit 3.7
+  - XWeb 1.0RC3
+  - Xalan 2.3.1
+
+  (You might not need these exact versions, 
+
+
 What do I do?
 =============
 
@@ -44,8 +62,6 @@ classes the module depends on. You may have to modify
 etc/localpaths.properties or unset your CLASSPATH if this doesn't do
 what you want. Currently the conditionally built modules are:
 
-   HTTP SSL plugin (Needs JSSE 1.0.2)
-   TCPSniffer SSL engine (Needs JSSE 1.0.2)
    JUnit test cases (Needs JUnit 3.7)
 -->
 
@@ -274,7 +290,8 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Compilation rules                                    -->
   <!-- =================================================================== -->
-  <target name="compile" depends="init" description="Compiles the source.">
+  <target name="compile" depends="init" description="Compiles the source."
+    depends="assert-have-jsse">
     <mkdir dir="${classes.dir}"/>
 
     <echo message="Compiling third party code, ignore deprecation warnings..."/>
@@ -296,7 +313,6 @@ what you want. Currently the conditionally built modules are:
            optimize="${optimize}"
 	   deprecation="${deprecation}">
        <include name="net/grinder/**"/>
-       <exclude name="**/SnifferSSLSocketFactory.java" unless="have.jsse"/>
        <exclude name="**/snifferwebapp/**" unless="have.servlet"/>
        <classpath refid="build.classpath"/>
     </javac>
