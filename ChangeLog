@@ -1,4 +1,68 @@
-2004-02-01  Philip Aston  <paston@bea.com>
+2004-02-08  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, TODO: Document progress.
+
+	* src/net/grinder/script/Grinder.java:
+	getLogger() is no longer context sensitive.
+
+	* xdoc/g3/scripts-xhtml.xml: Update for explicit import of 'grinder'.
+
+	* src/net/grinder/engine/process/ExternalLogger.java:
+	Logger that can be safely shared between the process thread and worker
+	threads. Fixes bug 820481.
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/PluginRegistry.java:
+	ProcessContext.getLogger() is now ProcessContext.getProcessLogger().
+
+	* src/net/grinder/engine/process/JythonScript.java:
+	Use the thread safe logger.
+
+	* src/net/grinder/engine/process/GrinderThread.java:
+	ThreadContext no longer has a Sleeper. Use the process Sleeper.
+
+	* src/net/grinder/engine/process/AbstractLogger.java, src/net/grinder/engine/process/LoggerImplementation.java:
+	Extract out an AbstractLogger that implements the convenience versions
+	of output() and error().
+
+	* src/net/grinder/engine/process/ScriptContextImplementation.java:
+	Only need one Sleeper and one Logger now we have a thread safe Logger.
+
+	* src/net/grinder/engine/process/ProcessContext.java:
+	Only need one Sleeper now we have a thread safe Logger.
+	ScriptContextImplementation updates.
+
+	* src/net/grinder/engine/process/RegisteredPlugin.java:
+	Remove getLogger() and getFilenameFactory() from PluginProcessContext.
+
+	* src/net/grinder/script/Grinder.java:
+	sleep() now no longer throws InvalidContextException, whereas
+	registerDetailStatisticsView() now does.
+
+	* src/net/grinder/engine/process/ThreadContext.java:
+	Remove getLogger() and getFilenameFactory() from PluginThreadContext.
+	Plug-ins can get these from the script context object.
+	We don't need our own Sleeper.
+
+	* src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/PluginThreadContext.java, src/net/grinder/plugin/http/HTTPRequest.java:
+	Remove getLogger() and getFilenameFactory() from PluginProcessContext
+	and PluginThreadContext. Plug-ins can get these from the script
+	context object.
+
+	* src/net/grinder/util/Sleeper.java: Fix JavaDoc.
+
+2004-02-07  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/ThreadContext.java:
+	Break circular references.
+
+	* src/net/grinder/engine/process/RegisteredPlugin.java:
+	Correct error message.
+
+2004-02-02  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, build.xml: Next is beta19.
+
+2004-02-01  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta18 is released.
 
@@ -7,7 +71,7 @@
 	* src/net/grinder/common/GrinderException.java, tests-src/net/grinder/common/TestGrinderException.java:
 	Test with different line separators.
 
-2004-01-31  Philip Aston  <paston@bea.com>
+2004-01-31  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/Table.java:
 	Allow table cells to be copied to clipboard and (with J2SE 1.4 and
@@ -61,18 +125,18 @@
 	Fix property change notification for script distribution files and
 	lookAndFeel.
 
-2004-01-30  Philip Aston  <paston@bea.com>
+2004-01-30  Philip Aston  <philipa@mail.com>
 
 	* TODO: To do.
 
 	* xdoc/g3/tcpproxy-xhtml.xml: Link to the JSSE samples.
 
-2004-01-28  Philip Aston  <paston@bea.com>
+2004-01-28  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/model/ConsoleProperties.java, tests-src/net/grinder/console/model/TestConsoleProperties.java:
 	Add LAF to console properties.
 
-2004-01-27  Philip Aston  <paston@bea.com>
+2004-01-27  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties:
 	More playing with layout.
@@ -81,7 +145,7 @@
 	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/SamplingControlPanel.java:
 	More playing with layout.
 
-2004-01-26  Philip Aston  <paston@bea.com>
+2004-01-26  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/SamplingControlPanel.java:
 	Tweak layout.
@@ -98,7 +162,7 @@
 
 	* TODO: Thoughts.
 
-2004-01-19  Philip Aston  <paston@bea.com>
+2004-01-19  Philip Aston  <philipa@mail.com>
 
 	* TODO: More ideas.
 
@@ -135,7 +199,7 @@
 
 	* build.xml: Next is beta18.
 
-2004-01-18  Philip Aston  <paston@bea.com>
+2004-01-18  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta17 is released.
 
@@ -145,7 +209,7 @@
 	* CHANGES, src/net/grinder/console/swingui/resources/Console_es.properties:
 	Spanish translation updates.
 
-2004-01-17  Philip Aston  <paston@bea.com>
+2004-01-17  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/ConsoleUI.java:
 	Use a JEditorPane for the about dialog; it has better resize behaviour
@@ -1087,7 +1151,7 @@
 
 	* build.xml: Next is beta 14.
 
-2003-11-23  Philip Aston  <paston@bea.com>
+2003-11-23  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta13 is released.
 
@@ -1096,7 +1160,7 @@
 	* CHANGES, src/net/grinder/console/common/Resources.java:
 	Fix bug 847571 - console does not display image icons.
 
-2003-11-22  Philip Aston  <paston@bea.com>
+2003-11-22  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Next is beta 13.
 
@@ -1131,7 +1195,7 @@
 
 	* TODO: Progress.
 
-2003-11-21  Philip Aston  <paston@bea.com>
+2003-11-21  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java:
 	Optimise TCPProxy SSL initialisation for speed rather than
@@ -1140,7 +1204,7 @@
 	* CHANGES, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/PortForwarderTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxySocketFactoryImplementation.java, src/net/grinder/TCPProxy.java:
 	Finish chained proxy work for HTTP Proxy mode.
 
-2003-11-20  Philip Aston  <paston@bea.com>
+2003-11-20  Philip Aston  <philipa@mail.com>
 
 	* TODO, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
 	Quick hack to provide chained HTTPS proxy support.
@@ -1149,7 +1213,7 @@
 	Checkpoint chained proxy work. Currently only implemented for HTTP
 	Proxy mode / HTTP connections.
 
-2003-11-19  Philip Aston  <paston@bea.com>
+2003-11-19  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/tcpproxy-xhtml.xml, CHANGES, TODO, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/JSSEConstants.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactory.java:
 	Display SSL key store configuration at start up. Don't use system
@@ -1158,13 +1222,13 @@
 	* src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java:
 	Swallow fewer exceptions.
 
-2003-11-18  Philip Aston  <paston@bea.com>
+2003-11-18  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/EndPoint.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/PortForwarderTCPProxyEngine.java:
 	More EndPoint rework so that addresses and ports are correct in the
 	logs.
 
-2003-11-17  Philip Aston  <paston@bea.com>
+2003-11-17  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, tests-src/net/grinder/plugin/http/TestHTTPPluginTCPProxyFilter.java, tests-src/net/grinder/tools/tcpproxy/TestConnectionDetails.java, tests-src/net/grinder/tools/tcpproxy/TestEndPoint.java, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/ConnectionDetails.java, src/net/grinder/tools/tcpproxy/EndPoint.java:
 	Modify ConnectionDetails to use EndPoint.
@@ -1172,7 +1236,7 @@
 	* tests-src/net/grinder/tools/tcpproxy/TestEndPoint.java, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/ConnectionDetails.java, src/net/grinder/tools/tcpproxy/EchoFilter.java, src/net/grinder/tools/tcpproxy/EndPoint.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/PortForwarderTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxyPlainSocketFactory.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactory.java, src/net/grinder/tools/tcpproxy/TCPProxySocketFactory.java, tests-src/net/grinder/tools/tcpproxy/TestConnectionDetails.java:
 	Introduce EndPoint class to encapsulate host/port pairs.
 
-2003-11-16  Philip Aston  <paston@bea.com>
+2003-11-16  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, TODO, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/CompositeTCPProxyFilter.java, xdoc/g3/faq-xhtml.xml, xdoc/g3/tcpproxy-xhtml.xml:
 	Allow TCPProxy filters to be chained.
@@ -1373,7 +1437,7 @@
 
 	* src/net/grinder/engine/process/GrinderProcess.java: Attribution.
 
-2003-10-01  Philip Aston  <paston@bea.com>
+2003-10-01  Philip Aston  <philipa@mail.com>
 
 	* AUTHORS, CHANGES, src/net/grinder/engine/process/GrinderProcess.java, xdoc/g3/getting-started-xhtml.xml, xdoc/welcome-xhtml.xml:
 	grinder.duration from Kalyanaraman Venkatasubramaniy.
@@ -1381,7 +1445,7 @@
 	* src/net/grinder/communication/SocketSet.java:
 	Fix checkstyle zealotry.
 
-2003-09-30  Philip Aston  <paston@bea.com>
+2003-09-30  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/communication/UnicastSender.java, src/net/grinder/communication/AbstractReceiver.java, src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/CloseCommunicationMessage.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/communication/CommunicationException.java, src/net/grinder/communication/Message.java, src/net/grinder/communication/MessageQueue.java, src/net/grinder/communication/MulticastReceiver.java, src/net/grinder/communication/MulticastSender.java, src/net/grinder/communication/Receiver.java, src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/ReportStatusMessage.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/communication/Sender.java, src/net/grinder/communication/SocketSet.java:
 	Checkstyle compliance.
@@ -1479,22 +1543,22 @@
 	Updates from Bertrand.
 	Rely on default image specification.
 
-2003-07-06  Philip Aston  <paston@bea.com>
+2003-07-06  Philip Aston  <philipa@mail.com>
 	
 	* The Grinder 3.0-beta10 is released.
 	
-2003-07-04  Philip Aston  <paston@bea.com>
+2003-07-04  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java:
 	Fix saving of console data. (Bug 749461).
 
 	* TODO: Correction.
 
-2003-06-24  Philip Aston  <paston@bea.com>
+2003-06-24  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/Resources.java: Fix error message.
 
-2003-06-13  Philip Aston  <paston@bea.com>
+2003-06-13  Philip Aston  <philipa@mail.com>
 
 	* examples/jms-sender.py, xdoc/g3/script-gallery-xhtml.xml:
 	Update JMS sender example to remove multi-threaded access to Messages.
@@ -1856,20 +1920,20 @@
 
 	* build.xml: Next is beta8.
 
-2003-03-01  Philip Aston  <paston@bea.com>
+2003-03-01  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta7 is released.
 
 	* etc/localpaths.properties: Refer to new WLS installation.
 
-2003-02-28  Philip Aston  <paston@bea.com>
+2003-02-28  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, TODO: Update documentation.
 
 	* src/net/grinder/console/model/Model.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/communication/RegisterTestsMessage.java, src/net/grinder/console/Console.java:
 	Coalesce test registration messages to reduce strain on console.
 
-2003-02-27  Philip Aston  <paston@bea.com>
+2003-02-27  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/GrinderThread.java:
 	Fix handling of Sleeper.Shutdown exceptions.
@@ -1881,7 +1945,7 @@
 	* src/net/grinder/console/model/Model.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
 	More rigourous synchronisation for TestStatisticsMap.
 
-2003-02-26  Philip Aston  <paston@bea.com>
+2003-02-26  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/GrinderProcess.java:
 	Don't disable the scheduled reports until the threads have completed.
@@ -1900,27 +1964,27 @@
 	* src/net/grinder/console/model/SampleListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/SwingDispatchedModelListener.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelListener.java, src/net/grinder/console/model/ModelTestIndex.java, src/net/grinder/console/model/ProcessStatusSet.java, src/net/grinder/console/model/ProcessStatusSetListener.java, src/net/grinder/console/model/SampleAccumulator.java, src/net/grinder/console/model/ConsoleProperties.java:
 	Fix console synchronisation issue that was causing NPE's.
 
-2003-02-25  Philip Aston  <paston@bea.com>
+2003-02-25  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/statistics/TestStatisticsFactory.java:
 	Remove unnecessary synchronisation.
 
-2003-02-19  Philip Aston  <paston@bea.com>
+2003-02-19  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/scripts-xhtml.xml: Fix link.
 
-2003-02-15  Philip Aston  <paston@bea.com>
+2003-02-15  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Next is beta 7.
 
-2003-02-15  Philip Aston  <paston@bea.com>
+2003-02-15  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta6 is released.
 
 	* src/net/grinder/script/NotWrappableTypeException.java, src/net/grinder/script/ScriptContext.java, src/net/grinder/script/Statistics.java, src/net/grinder/script/Test.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/PeakStatisticExpression.java, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpression.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/statistics/TestStatistics.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/statistics/TestStatisticsMap.java, TODO, etc/checkstyle.properties:
 	Checkstyle.
 
-2003-02-14  Philip Aston  <paston@bea.com>
+2003-02-14  Philip Aston  <philipa@mail.com>
 
 	* TODO, xdoc/g3/scripts-xhtml.xml: More script documentation.
 
@@ -1933,7 +1997,7 @@
 	* etc/checkstyle.properties, src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/engine/process/ExitProcessException.java, src/net/grinder/engine/process/FilenameFactoryImplementation.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/Monitor.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestPyFinalizableInstance.java, src/net/grinder/engine/process/TestPyInstance.java, src/net/grinder/engine/process/TestPyJavaInstance.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ThreadLogger.java, src/prj.el, etc/buildenv.sh:
 	Checkstyle.
 
-2003-02-13  Philip Aston  <paston@bea.com>
+2003-02-13  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/faq-xhtml.xml, xdoc/g3/future-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/g3/scripts-xhtml.xml, xdoc/g3/welcome-xhtml.xml, xdoc/manual/properties-xhtml.xml, xdoc/stylesheets/add-toc.xsl, xdoc/stylesheets/grinder.xsl, TODO, xdoc/documentation.xweb, xdoc/download-xhtml.xml, xdoc/welcome-xhtml.xml:
 	More documentation.
@@ -1966,7 +2030,7 @@
 	Add hook so ScriptStatisticsImplementation can detect the end of the
 	run.
 
-2003-02-12  Philip Aston  <paston@bea.com>
+2003-02-12  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/scripts-xhtml.xml: Typo.
 
@@ -1994,11 +2058,11 @@
 	* build.xml: Scripts no longer access TestStatistics directly.
 	Next is beta6.
 
-2003-02-10  Philip Aston  <paston@bea.com>
+2003-02-10  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/script-gallery-xhtml.xml: Unique anchor for cookies example.
 
-2003-02-09  Philip Aston  <paston@bea.com>
+2003-02-09  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta5 is released.
 
@@ -2023,7 +2087,7 @@
 
 	* build.xml: Javadoc tweaks to reduce number of warnings.
 
-2003-02-06  Philip Aston  <paston@bea.com>
+2003-02-06  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/ExpressionView.java:
 	Fix a couple of javadoc warnings.
@@ -2044,7 +2108,7 @@
 
 	* xdoc/g3/script-gallery-xhtml.xml: Add JMS examples.
 
-2003-02-04  Philip Aston  <paston@bea.com>
+2003-02-04  Philip Aston  <philipa@mail.com>
 
 	* etc/setenv.sh: Turn off the rocket.
 
@@ -2065,7 +2129,7 @@
 
 	* src/net/grinder/statistics/StatisticsView.java: Correct javadoc.
 
-2003-02-02  Philip Aston  <paston@bea.com>
+2003-02-02  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta4 is released.
 	
@@ -2102,7 +2166,7 @@
 	Fix HTTPPlugin static initialisation order so that script settings are
 	not overridden by default initialisation.
 
-2003-01-24  Philip Aston  <paston@bea.com>
+2003-01-24  Philip Aston  <philipa@mail.com>
 
 	* CHANGES: Doc.
 
@@ -2110,12 +2174,12 @@
 	Correct implementation to read grinder.consolePort rather than
 	grinder.console.consolePort.
 
-2003-01-06  Philip Aston  <paston@bea.com>
+2003-01-06  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/resources/about.html, LICENSE, README, build.xml, xdoc/license-xhtml.xml:
 	Happy new year.
 
-2002-12-09  Philip Aston  <paston@bea.com>
+2002-12-09  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Next is beta 4.
 
@@ -2130,7 +2194,7 @@
 	* src/net/grinder/communication/MulticastSender.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/communication/UnicastSender.java, src/net/grinder/communication/MulticastReceiver.java:
 	Quote addresses in exception messages.
 
-2002-12-05  Philip Aston  <paston@bea.com>
+2002-12-05  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/tcpproxy-xhtml.xml: Minor typo.
 
@@ -2163,18 +2227,18 @@
 	* src/net/grinder/plugin/http/HTTPPluginConnection.java:
 	Fix cut and paste.
 
-2002-11-24  Philip Aston  <paston@bea.com>
+2002-11-24  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta2 is released.
 
-2002-11-21  Philip Aston  <paston@bea.com>
+2002-11-21  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/script-gallery-xhtml.xml: Update tests.
 
 	* xdoc/g3/script-gallery-xhtml.xml, examples/scenario.py, examples/fba.py, examples/form.py, examples/grinder.properties, examples/hello-world-functions.py, examples/hello-world.py, examples/jaxrpc.py, examples/jdbc.py, examples/amazon.py:
 	Update examples.
 
-2002-11-20  Philip Aston  <paston@bea.com>
+2002-11-20  Philip Aston  <philipa@mail.com>
 
 	* build.xml:
 	Remove HTTPPluginTCPProxyFilter test until I can be bothered to
@@ -2193,7 +2257,7 @@
 	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/NullFilter.java, src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java, src/net/grinder/tools/tcpproxy/TCPProxyFilter.java, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/tools/tcpproxy/EchoFilter.java:
 	Go back to passing output PrintWriter to Filter constructor.
 
-2002-11-19  Philip Aston  <paston@bea.com>
+2002-11-19  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java:
 	Refer to common header sets with common variables.
@@ -2211,19 +2275,19 @@
 	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java:
 	Don't include transaction time in sleep time.
 
-2002-11-18  Philip Aston  <paston@bea.com>
+2002-11-18  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/TCPProxy.java:
 	Be more relaxed about command line options.
 
-2002-11-17  Philip Aston  <paston@bea.com>
+2002-11-17  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, ChangeLog: Commit.
 
 	* src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, src/net/grinder/engine/process/ThreadContext.java:
 	Improved exception handling.
 
-2002-11-14  Philip Aston  <paston@bea.com>
+2002-11-14  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/script/NotWrappableTypeException.java, src/net/grinder/script/Test.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java:
 	Throw an exception for types it doesn't make sense to wrap.
@@ -2241,7 +2305,7 @@
 	Jython objects to call themselves without a recursive death.
 	Don't swallow exceptions thrown by the test.
 
-2002-11-12  Philip Aston  <paston@bea.com>
+2002-11-12  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java:
 	Checkpoint.
@@ -2255,13 +2319,13 @@
 
 	* src/net/grinder/plugin/http/HTTPRequest.java: Fix.
 
-2002-11-11  Philip Aston  <paston@bea.com>
+2002-11-11  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HTTPRequest.java:
 	Add GET and HEAD methods that take query string NVPair[]'s.
 	Fix javadoc.
 
-2002-11-10  Philip Aston  <paston@bea.com>
+2002-11-10  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/welcome-xhtml.xml: Add download link.
 
@@ -2272,7 +2336,7 @@
 
 	* examples/runtests.py: Dead.
 
-2002-11-09  Philip Aston  <paston@bea.com>
+2002-11-09  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/script-gallery-xhtml.xml: Correct.
 
@@ -2291,11 +2355,11 @@
 
 	* etc/setenv.sh: Update GRINDER_HOME.
 
-2002-11-05  Philip Aston  <paston@bea.com>
+2002-11-05  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/tools/tcpproxy/StreamThread.java: Correct comment.
 
-2002-11-03  Philip Aston  <paston@bea.com>
+2002-11-03  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta1 is released.
 
@@ -2314,27 +2378,27 @@
 	* CHANGES, src/net/grinder/console/swingui/ConsoleUI.java, TODO:
 	Fix 608392.
 
-2002-11-02  Philip Aston  <paston@bea.com>
+2002-11-02  Philip Aston  <philipa@mail.com>
 
 	* CHANGES: Doc bug fix.
 
-2002-11-01  Philip Aston  <paston@bea.com>
+2002-11-01  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Next is beta 1.
 
 	* src/net/grinder/Grinder.java:
 	Don't add empty strings to command line array.
 
-2002-10-31  Philip Aston  <paston@bea.com>
+2002-10-31  Philip Aston  <philipa@mail.com>
 
 	* xdoc/stylesheets/grinder.xsl: Fix css.
 
-2002-10-28  Philip Aston  <paston@bea.com>
+2002-10-28  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/properties-xhtml.xml, xdoc/manual/properties-xhtml.xml:
 	Fix doc for grinder.consoleAddress.
 
-2002-10-27  Philip Aston  <paston@bea.com>
+2002-10-27  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/welcome-xhtml.xml: Fix list.
 
@@ -2368,7 +2432,7 @@
 	* src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/script/ScriptContext.java:
 	Allow scripts to get filename factories.
 
-2002-10-26  Philip Aston  <paston@bea.com>
+2002-10-26  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/http-plugin-xhtml.xml, xdoc/g3/scripts-xhtml.xml: More doc.
 
@@ -2411,14 +2475,14 @@
 
 	* src/net/grinder/engine/process/TestPyJavaInstance.java: Fix.
 
-2002-10-25  Philip Aston  <paston@bea.com>
+2002-10-25  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HTTPRequest.java: Fix URI overriding.
 
 	* src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestPyJavaInstance.java:
 	Wrap exceptions in a PyException.
 
-2002-10-24  Philip Aston  <paston@bea.com>
+2002-10-24  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/PluginProcessContextImplementation.java:
 	Dead.
@@ -2438,7 +2502,7 @@
 	* xdoc/g3/script-gallery-xhtml.xml, xdoc/stylesheets/add-g3-decoration.xsl, xdoc/stylesheets/grinder.xsl:
 	More doc.
 
-2002-10-23  Philip Aston  <paston@bea.com>
+2002-10-23  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/script-gallery-xhtml.xml, xdoc/g3/scripts-xhtml.xml, xdoc/g3/welcome-xhtml.xml, xdoc/documentation.xweb, xdoc/g3/getting-started-xhtml.xml, xdoc/images/script-logo.png, xdoc/images/script-logo.xcf, xdoc/stylesheets/add-g3-decoration.xsl, xdoc/g3/future-xhtml.xml, xdoc/g3/properties-xhtml.xml:
 	More docs.
@@ -2460,7 +2524,7 @@
 	* xdoc/stylesheets/grinder3.xsl, xdoc/manual/console-xhtml.xml, xdoc/manual/manual-xhtml.xml, xdoc/stylesheets/add-g3-decoration.xsl, xdoc/stylesheets/grinder.xsl, xdoc/images/console-es.png, xdoc/images/console-screenshot.gif, xdoc/images/console-screenshot.png, xdoc/g3/script-gallery-xhtml.xml, xdoc/g3/scripts-xhtml.xml, xdoc/g3/tcpsniffer-xhtml.xml, xdoc/g3/timing-xhtml.xml, xdoc/g3/welcome-xhtml.xml, xdoc/g3/faq-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/g3/http-plugin-xhtml.xml, xdoc/g3/java-plugin-xhtml.xml, xdoc/g3/properties-xhtml.xml, xdoc/documentation.xweb, xdoc/g3/console-xhtml.xml:
 	More documentation.
 
-2002-10-22  Philip Aston  <paston@bea.com>
+2002-10-22  Philip Aston  <philipa@mail.com>
 
 	* xdoc/stylesheets/grinder.xsl, xdoc/stylesheets/grinder3.xsl, xdoc/g3/future-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/g3/script-gallery-xhtml.xml, xdoc/g3/welcome-xhtml.xml, xdoc/images/PythonPoweredSmall.gif, xdoc/documentation.xweb, xdoc/welcome-xhtml.xml:
 	Start of G3 documentation changes.
@@ -2478,7 +2542,7 @@
 	* tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/plugininterface/StubGrinderPlugin.java, tests-src/net/grinder/plugininterface/TestPluginTest.java:
 	Update tests.
 
-2002-10-21  Philip Aston  <paston@bea.com>
+2002-10-21  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/plugininterface/PluginTest.java, src/net/grinder/plugin/http/HTTPPlugin.java:
 	No need to keep track of the run number, the engine does this for us.
@@ -2489,7 +2553,7 @@
 	* src/net/grinder/plugin/http/ConnectionDefaults.java, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java:
 	Checkpoint connection control support.
 
-2002-10-20  Philip Aston  <paston@bea.com>
+2002-10-20  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugininterface/PluginTest.java, src/net/grinder/common/Test.java:
 	Tests no longer have properties.
@@ -2522,7 +2586,7 @@
 	The InvokeableTest interface is dead. Plugins define test call
 	inteface.
 
-2002-10-19  Philip Aston  <paston@bea.com>
+2002-10-19  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/JythonScript.java:
 	Rename "TestCase" to "TestRunnable".
@@ -2568,7 +2632,7 @@
 	need to be able to return arbitrary things; allow optional parameters
 	to be passed through the engine)
 
-2002-10-17  Philip Aston  <paston@bea.com>
+2002-10-17  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/LoggerImplementation.java:
 	Log message to terminal if anything is written to the error log.
@@ -2630,7 +2694,7 @@
 	* src/net/grinder/engine/process/ThreadContext.java:
 	TestResult is now created by the plugin.
 
-2002-10-16  Philip Aston  <paston@bea.com>
+2002-10-16  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpsPlugin.java, src/net/grinder/plugin/http/StringBean.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/CookieHandler.java:
 	Remove HttpURLConnection implementation.
@@ -2652,7 +2716,7 @@
 	* tests-src/net/grinder/communication/TestMessageQueue.java:
 	Fix for GrinderException changes.
 
-2002-10-15  Philip Aston  <paston@bea.com>
+2002-10-15  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/script/ScriptContext.java:
 	Scripts can no longer get a collection of all registered tests.
@@ -2690,14 +2754,14 @@
 	Support nested Throwables (not just Exceptions).
 	Truncated common parts of nested stack trace.
 
-2002-10-14  Philip Aston  <paston@bea.com>
+2002-10-14  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/TestRegistry.java: Javadoc.
 
 	* src/net/grinder/plugininterface/ThreadCallbacks.java, tests-src/net/grinder/engine/process/StubTestRegistryInitialisation.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/plugininterface/StubGrinderPlugin.java, tests-src/net/grinder/plugininterface/TestPluginTest.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/plugin/http/HttpsPlugin.java, src/net/grinder/plugininterface/GrinderPlugin.java, src/net/grinder/plugininterface/PluginTest.java, src/net/grinder/plugininterface/PluginThreadCallbacks.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/GrinderProcess.java:
 	Add plugin registry and support for multiple activated plugins.
 
-2002-10-13  Philip Aston  <paston@bea.com>
+2002-10-13  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/common/TestImplementation.java, tests-src/net/grinder/common/TestTestImplementation.java:
 	Dead.
@@ -2709,7 +2773,7 @@
 
 	* xdoc/future/future-xhtml.xml: Organise the future.
 
-2002-10-10  Philip Aston  <paston@bea.com>
+2002-10-10  Philip Aston  <philipa@mail.com>
 
 	* TODO: *** empty log message ***
 
@@ -2718,7 +2782,7 @@
 	* build.xml, etc/grinder-manifest.mf, etc/localpaths.properties, etc/setenv.sh, src/net/grinder/console/swingui/resources/about.html, xdoc/license-xhtml.xml, LICENSE, LICENSE-HTTPClient, LICENSE-Jakarta-ORO, LICENSE-Jython:
 	Ship Jython.
 
-2002-10-09  Philip Aston  <paston@bea.com>
+2002-10-09  Philip Aston  <philipa@mail.com>
 
 	* README: "doc"->"docs".
 
@@ -2730,7 +2794,7 @@
 
 	* README: Moved README information to xdocs.
 
-2002-10-08  Philip Aston  <paston@bea.com>
+2002-10-08  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Add XWeb.
 	Rework distribution.
@@ -2764,27 +2828,27 @@
 	* xdoc/manual/tcpsniffer-xhtml.xml, src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/PluginThreadContext.java, src/net/grinder/script/AbortRunException.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/BSFProcessContext.java, src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/Redirector.java, src/net/grinder/engine/agent/LauncherThread.java, src/net/grinder/engine/agent/Redirector.java, src/net/grinder/engine/process/AbortRunException.java, src/net/grinder/Grinder.java, src/net/grinder/engine/LauncherThread.java, src/prj.el, etc/buildenv.sh, etc/localpaths.properties, etc/setenv.sh, examples/http/grinder.properties, examples/http/runtests.py, TODO, build.xml:
 	Checkpoint: Finished initial rework for Jython scripts.
 
-2002-10-06  Philip Aston  <paston@bea.com>
+2002-10-06  Philip Aston  <philipa@mail.com>
 
 	* xdoc/stylesheets/relative-urls.xsl, xdoc/stylesheets/identity.xsl, xdoc/stylesheets/add-toc.xsl, xdoc/stylesheets/grinder.xsl, xdoc/manual/timing-xhtml.xml, xdoc/manual/sniff-n-grind-xhtml.xml, xdoc/manual/tcpsniffer-xhtml.xml, xdoc/manual/manual-xhtml.xml, xdoc/manual/properties-xhtml.xml, xdoc/manual/junit-plugin-xhtml.xml, xdoc/manual/getting-started-xhtml.xml, xdoc/manual/http-plugin-xhtml.xml, xdoc/manual/faq-xhtml-toc.xml, xdoc/manual/console-xhtml.xml, xdoc/images/grinder.gif, xdoc/images/grinder3.jpg, xdoc/images/console-screenshot.gif, xdoc/images/.cvsignore, xdoc/images/book-cover.jpg, xdoc/future/future-xhtml.xml, xdoc/development/development-xhtml.xml, xdoc/welcome-xhtml.xml, xdoc/license-xhtml.xml, xdoc/support-xhtml.xml, xdoc/book-xhtml.xml, xdoc/documentation.xweb, xdoc/download-xhtml.xml, web/publish.sh, web/screenshot.gif, web/index.html, web/grinder-neon.gif, web/cover.jpg, src/net/grinder/tools/tcpsniffer/HTTPSProxySnifferEngine.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImplementation.java, src/net/grinder/tools/tcpsniffer/HTTPProxySnifferEngine.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/TCPSniffer.java, src/net/grinder/Grinder.java, etc/publish.sh, etc/localpaths.properties, doc/TCPSniffer.txt, doc/GrinderVLoadRunner.txt, TODO, build.xml, ChangeLog, README, CHANGES:
 	Latest merge from G2.
 
-2002-06-27  Philip Aston  <paston@bea.com>
+2002-06-27  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/util/TestSerialiser.java, tests-src/net/grinder/util/TestSleeper.java, web/cover.jpg, web/index.html, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, tests-src/net/grinder/statistics/TestTestStatisticsImplementation.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java, tests-src/net/grinder/tools/tcpsniffer/TestConnectionDetails.java, tests-src/net/grinder/util/AllTests.java, tests-src/net/grinder/statistics/TestCommonStatisticsViews.java, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticsView.java, tests-src/net/grinder/plugin/http/TestHttpPluginSnifferFilter.java, tests-src/net/grinder/plugin/http/data/goodGET1, tests-src/net/grinder/plugin/http/data/goodGET2, tests-src/net/grinder/plugin/http/data/goodPOST1, tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/engine/process/AllTests.java, tests-src/net/grinder/engine/process/TestConsoleListener.java, tests-src/net/grinder/plugin/http/AllTests.java, tests-src/net/grinder/plugin/http/TestCookieHandler.java, tests-src/net/grinder/console/swingui/AllTests.java, tests-src/net/grinder/console/swingui/ImageTest.java, tests-src/net/grinder/console/swingui/TestImage.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedProcessStatusSetListener.java, tests-src/net/grinder/communication/AllTests.java, tests-src/net/grinder/communication/TestMessage.java, tests-src/net/grinder/communication/TestMessageQueue.java, tests-src/net/grinder/console/model/AllTests.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, tests-src/net/grinder/AllTests.java, tests-src/net/grinder/common/AllTests.java, tests-src/net/grinder/common/TestGrinderProperties.java, tests-src/net/grinder/common/TestTestImplementation.java, tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, src/net/grinder/tools/tcpsniffer/SnifferSocketFactory.java, src/net/grinder/tools/tcpsniffer/StreamThread.java, src/net/grinder/util/CopyStreamRunnable.java, tests-src/prj.el, src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImplementation.java, src/net/grinder/tools/tcpsniffer/SnifferFilter.java, src/net/grinder/tools/tcpsniffer/SnifferPlainSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferSSLSocketFactory.java, src/net/grinder/tools/tcpsniffer/HTTPSProxySnifferEngine.java, src/net/grinder/tools/tcpsniffer/JSSEConstants.java, src/net/grinder/tools/tcpsniffer/NullFilter.java, src/net/grinder/tools/tcpsniffer/SSLSnifferEngineImpl.java, src/net/grinder/tools/tcpsniffer/SnifferEngine.java, src/net/grinder/tools/snifferwebapp/SniffingServlet.java, src/net/grinder/tools/tcpsniffer/ConnectionDetails.java, src/net/grinder/tools/tcpsniffer/EchoFilter.java, src/net/grinder/tools/tcpsniffer/HTTPProxySnifferEngine.java, src/net/grinder/plugin/http/HttpsPluginSnifferFilter.java, src/net/grinder/plugin/http/URLRewriteFilter.java, src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, src/net/grinder/plugin/http/HttpPluginSnifferResponseFilter.java, src/net/grinder/plugin/http/HttpProxySnifferEngineImpl.java, etc/localpaths.properties, etc/setenv.sh, src/net/grinder/TCPSniffer.java, src/net/grinder/communication/MessageQueue.java, src/net/grinder/console/swingui/resources/about.html, src/prj.el, doc/Jakarta-ORO-license.txt, doc/Problems.txt, doc/TCPSniffer.txt, doc/proxy.txt, etc/buildenv.sh, etc/grinder-manifest.mf, LICENSE, README, TODO, build.xml, doc/HTTPClient-license.txt, doc/HTTPPlugin.txt, AUTHORS, CHANGES:
 	Latest changes from G2 stream.
 
-2002-06-24  Philip Aston  <paston@bea.com>
+2002-06-24  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HttpsPlugin.java, web/index.html, web/screenshot.gif, AUTHORS, CHANGES, README, TODO, build.xml, doc/HTTPPlugin.txt, etc/buildenv.sh, src/net/grinder/Console.java, src/net/grinder/Grinder.java, src/net/grinder/TCPSniffer.java, src/net/grinder/common/ProcessStatus.java, src/net/grinder/communication/AbstractReceiver.java:
 	Commit the results of the last merge before doing the next one.
 
-2002-01-06  Philip Aston  <paston@bea.com>
+2002-01-06  Philip Aston  <philipa@mail.com>
 
 	* web/index.html, webapps/sniff-n-grind/WEB-INF/web.xml, webapps/sniff-n-grind/error.jsp, webapps/sniff-n-grind/grndresults.jsp, webapps/sniff-n-grind/index.jsp, webapps/sniff-n-grind/results.jsp, webapps/sniff-n-grind/start.jsp, webapps/sniff-n-grind/startgrnd.jsp, webapps/sniff-n-grind/wait.jsp, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestStatisticsView.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, tests-src/net/grinder/statistics/TestTestStatisticsImplementation.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java, tests-src/net/grinder/util/AllTests.java, tests-src/net/grinder/util/TestFixedWidthFormatter.java, tests-src/net/grinder/util/TestSerialiser.java, tests-src/net/grinder/util/TestSignificantFigureFormat.java, tests-src/net/grinder/util/TestSleeper.java, tests-src/net/grinder/statistics/TestCommonStatisticsViews.java, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedProcessStatusSetListener.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedSampleListener.java, tests-src/net/grinder/engine/process/AllTests.java, tests-src/net/grinder/engine/process/TestConsoleListener.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/plugin/http/AllTests.java, tests-src/net/grinder/plugin/http/TestCookieHandler.java, tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/common/TestTestImplementation.java, tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/AllTests.java, tests-src/net/grinder/communication/TestMessage.java, tests-src/net/grinder/communication/TestMessageQueue.java, tests-src/net/grinder/communication/TestMulticastSenderAndReceiver.java, tests-src/net/grinder/communication/TestUnicastSenderAndReceiver.java, tests-src/net/grinder/console/model/AllTests.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, tests-src/net/grinder/console/swingui/AllTests.java, tests-src/net/grinder/console/swingui/TestGraph.java, tests-src/net/grinder/console/swingui/TestImage.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java, src/net/grinder/tools/tcpsniffer/SnifferFilter.java, src/net/grinder/tools/tcpsniffer/StreamThread.java, src/net/grinder/util/DelayedCreationFileWriter.java, src/net/grinder/util/FixedWidthFormatter.java, src/net/grinder/util/Serialiser.java, src/net/grinder/util/SignificantFigureFormat.java, src/net/grinder/util/Sleeper.java, src/net/grinder/util/TerminalColour.java, tests-src/net/grinder/AllTests.java, tests-src/net/grinder/common/AllTests.java, tests-src/net/grinder/common/LogCounter.java, tests-src/net/grinder/common/TestGrinderProperties.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/tools/proxy/HttpProxySnifferEngineImpl.java, src/net/grinder/tools/proxy/HttpsProxySnifferEngineImpl.java, src/net/grinder/tools/snifferwebapp/GrindingServlet.java, src/net/grinder/tools/snifferwebapp/SniffingServlet.java, src/net/grinder/tools/snifferwebapp/util/NoFreePortException.java, src/net/grinder/tools/snifferwebapp/util/PortManager.java, src/net/grinder/tools/tcpsniffer/ConnectionDetails.java, src/net/grinder/tools/tcpsniffer/EchoFilter.java, src/net/grinder/tools/tcpsniffer/NullFilter.java, src/net/grinder/tools/tcpsniffer/SSLSnifferEngineImpl.java, src/net/grinder/tools/tcpsniffer/SnifferEngine.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/PeakStatisticExpression.java, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpression.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/statistics/TestStatistics.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/plugin/junit/JUnitPlugin.java, src/net/grinder/plugin/socket/SocketPlugin.java, src/net/grinder/plugininterface/GrinderPlugin.java, src/net/grinder/plugininterface/PluginException.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/PluginThreadContext.java, src/net/grinder/plugininterface/RegisteredTest.java, src/net/grinder/plugininterface/ThreadCallbacks.java, src/net/grinder/script/AbortRunException.java, src/net/grinder/script/InvokeableTest.java, src/net/grinder/script/ScriptContext.java, src/net/grinder/script/ScriptException.java, src/net/grinder/script/TestResult.java, src/net/grinder/plugin/http/HTTPHandlerException.java, src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, src/net/grinder/plugin/http/HttpProxySnifferEngineImpl.java, src/net/grinder/plugin/http/HttpsPlugin.java, src/net/grinder/plugin/http/HttpsPluginSnifferFilter.java, src/net/grinder/plugin/http/StringBean.java, src/net/grinder/plugin/http/URLRewriteFilter.java, src/net/grinder/plugin/http/example/ExampleStringBean.java, src/net/grinder/plugin/http/example/ExampleStringBean2.java, src/net/grinder/engine/process/FilenameFactoryImplementation.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/Monitor.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ThreadLogger.java, src/net/grinder/plugin/http/CookieHandler.java, src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HTTPHandler.java, src/net/grinder/console/swingui/SwingDispatchedProcessStatusSetListener.java, src/net/grinder/console/swingui/SwingDispatchedSampleListener.java, src/net/grinder/console/swingui/Table.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/about.html, src/net/grinder/engine/EngineException.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/engine/Redirector.java, src/net/grinder/engine/process/AbortRunException.java, src/net/grinder/engine/process/BSFProcessContext.java, src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/console/model/SampleListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/Graph.java, src/net/grinder/console/swingui/IntegerField.java, src/net/grinder/console/swingui/JOptionPaneDialog.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/Resources.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/SamplingControlPanel.java, src/net/grinder/console/swingui/SwingDispatchedModelListener.java, src/net/grinder/communication/UnicastSender.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/common/ConsoleException.java, src/net/grinder/console/common/ConsoleExceptionHandler.java, src/net/grinder/console/common/DisplayMessageConsoleException.java, src/net/grinder/console/common/Resources.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelListener.java, src/net/grinder/console/model/ProcessStatusSet.java, src/net/grinder/console/model/ProcessStatusSetListener.java, src/net/grinder/communication/MulticastReceiver.java, src/net/grinder/communication/MulticastSender.java, src/net/grinder/communication/Receiver.java, src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/communication/RegisterTestsMessage.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/ReportStatusMessage.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/communication/Sender.java, src/net/grinder/communication/SocketSet.java, src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/common/FilenameFactory.java, src/net/grinder/common/GrinderException.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/common/Logger.java, src/net/grinder/common/ProcessStatus.java, src/net/grinder/common/Test.java, src/net/grinder/common/TestImplementation.java, src/net/grinder/communication/AbstractReceiver.java, src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/CloseCommunicationMessage.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/communication/CommunicationException.java, src/net/grinder/communication/Message.java, src/net/grinder/communication/MessageQueue.java, LICENSE, README, build.xml, etc/munge-license.pl, src/HTTPClient/CookieModule.java, src/HTTPClient/HTTPConnection.java, src/HTTPClient/RespInputStream.java, src/net/grinder/Console.java, src/net/grinder/Grinder.java, src/net/grinder/TCPSniffer.java, src/net/grinder/common/AbstractTestSemantics.java:
 	More relicensing.
 
-2002-01-05  Philip Aston  <paston@bea.com>
+2002-01-05  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/communication/TestMulticastSenderAndReceiver.java, tests-src/net/grinder/communication/TestSenderAndReceiver.java, tests-src/net/grinder/communication/TestUnicastSenderAndReceiver.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, tests-src/net/grinder/console/swingui/AllTests.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedProcessStatusSetListener.java, tests-src/net/grinder/engine/process/TestConsoleListener.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/socket/SocketPlugin.java, src/net/grinder/statistics/CommonStatisticsViews.java, tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/AllTests.java, tests-src/net/grinder/communication/TestMessage.java, tests-src/net/grinder/communication/TestMessageQueue.java, src/net/grinder/console/swingui/SwingDispatchedProcessStatusSetListener.java, src/net/grinder/console/swingui/Table.java, src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/about.html, src/net/grinder/console/swingui/resources/process-status.gif, src/net/grinder/console/swingui/resources/process-status.xcf, src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/console/model/ProcessStatusSetListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/communication/SocketSet.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/communication/UnicastSender.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ProcessStatusSet.java, src/net/grinder/communication/MulticastReceiver.java, src/net/grinder/communication/MulticastSender.java, src/net/grinder/communication/Receiver.java, src/net/grinder/communication/ReportStatusMessage.java, src/net/grinder/communication/Sender.java, src/net/grinder/communication/SenderImplementation.java, src/net/grinder/common/ProcessStatus.java, src/net/grinder/communication/AbstractReceiver.java, src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/CloseCommunicationMessage.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/communication/Message.java, src/net/grinder/communication/MessageQueue.java, LICENSE, README, build.xml, doc/.cvsignore, doc/HTTPClient-license.txt, examples/http/grinder.properties, examples/junit/grinder.properties, examples/socket/grinder.properties, src/HTTPClient/HTTPConnection.java, AUTHORS, CHANGES, COPYING:
 	Merge changes from Grinder 2 stream. (Process status UI, unicast
@@ -2792,7 +2856,7 @@
 
 	* TODO: Latest plans.
 
-2001-11-03  Philip Aston  <paston@bea.com>
+2001-11-03  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/statistics/TestCommonStatisticsViews.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, CHANGES, TODO, doc/HTTPClient-license.txt, etc/HTTPClient-license.txt, src/net/grinder/console/model/Model.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ThreadContext.java:
 	Latest merge from Grinder 2 stream.
@@ -2802,12 +2866,12 @@
 	* src/net/grinder/console/swingui/resources/grinder-2.xcf, src/net/grinder/console/swingui/resources/grinder.gif, src/net/grinder/console/swingui/resources/grinder.jpg, src/net/grinder/console/swingui/resources/grinder.xcf:
 	G3 logos.
 
-2001-10-26  Philip Aston  <paston@bea.com>
+2001-10-26  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, tests-src/net/grinder/statistics/TestTestStatisticsImplementation.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java, tests-src/net/grinder/statistics/testdata, tests-src/net/grinder/util/AllTests.java, tests-src/net/grinder/util/TestFixedWidthFormatter.java, tests-src/net/grinder/util/TestSerialiser.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestStatisticsImplementation.java, tests-src/net/grinder/statistics/TestStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestStatisticsView.java, tests-src/net/grinder/AllTests.java, tests-src/net/grinder/console/swingui/TestGraph.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedSampleListener.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/util/DelayedCreationFileWriter.java, src/net/grinder/util/FixedWidthFormatter.java, src/net/grinder/util/Serialiser.java, tests-src/prj.el, src/net/grinder/statistics/Statistics.java, src/net/grinder/statistics/StatisticsImplementation.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/statistics/TestStatistics.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/IntervalStatistics.java, src/net/grinder/statistics/PeakStatisticExpression.java, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpression.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/PluginThreadContext.java, src/net/grinder/statistics/CumulativeStatistics.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/SwingDispatchedModelListener.java, src/net/grinder/console/swingui/SwingDispatchedSampleListener.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/Sender.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelListener.java, src/net/grinder/console/model/SampleListener.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, .cvsignore, CHANGES, TODO, build.xml, doc/HTTPPlugin.txt, src/net/grinder/common/AbstractTestSemantics.java, src/net/grinder/communication/Message.java:
 	Merge new statistics engine from Grinder 2 branch.
 
-2001-10-16  Philip Aston  <paston@bea.com>
+2001-10-16  Philip Aston  <philipa@mail.com>
 
 	* TODO, src/net/grinder/common/AbstractTestSemantics.java, src/net/grinder/common/TestImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/ThreadContext.java:
 	TestData doesn't need to implement AbstractTestSemantics. This means
@@ -2849,7 +2913,7 @@
 
 	* src/net/grinder/plugininterface/SimplePluginBase.java: Dead.
 
-2001-10-15  Philip Aston  <paston@bea.com>
+2001-10-15  Philip Aston  <philipa@mail.com>
 
 	* src/prj.el, tests-src/prj.el: JDE now handles relative paths.
 
@@ -2858,7 +2922,7 @@
 	* src/net/grinder/common/TestImplementation.java, src/net/grinder/engine/process/BSFProcessContext.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugin/http/HttpPlugin.java, tests-src/net/grinder/engine/process/TestTestData.java, examples/http/grinder.properties, src/net/grinder/common/AbstractTestSemantics.java:
 	Start dynamic registration.
 
-2001-10-14  Philip Aston  <paston@bea.com>
+2001-10-14  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3 begins.
 
@@ -2882,7 +2946,7 @@
 	* src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/util/DelayedCreationFileWriter.java:
 	Repackage DelayedCreationFileWriter.
 
-2001-10-13  Philip Aston  <paston@bea.com>
+2001-10-13  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Add build information to about dialog.
 	Next is 2.7.3.
@@ -2903,7 +2967,7 @@
 	GrinderThread to ThreadContext with an eye on the inverted control of
 	G3.
 
-2001-10-12  Philip Aston  <paston@bea.com>
+2001-10-12  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Ahem.
 
@@ -2916,7 +2980,7 @@
 	* src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/SwingDispatchedModelListener.java, src/net/grinder/console/swingui/SwingDispatchedSampleListener.java, src/net/grinder/console/swingui/TestGraphPanel.java, tests-src/net/grinder/console/swingui/AllTests.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedSampleListener.java:
 	Correctly dispatch Swing work in Swing thread.
 
-2001-10-08  Philip Aston  <paston@bea.com>
+2001-10-08  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/ConsoleCommunication.java:
 	Fix race condition.
@@ -2952,7 +3016,7 @@
 	Must ignore 1 or more.
 	Can collect 0 or more.
 
-2001-10-07  Philip Aston  <paston@bea.com>
+2001-10-07  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties, tests-src/net/grinder/console/model/TestConsoleProperties.java, src/net/grinder/console/common/ConsoleException.java, src/net/grinder/console/common/DisplayMessageConsoleException.java, src/net/grinder/console/common/Resources.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/IntegerField.java, src/net/grinder/console/swingui/Resources.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/SamplingControlPanel.java, src/net/grinder/common/GrinderException.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/console/ConsoleCommunication.java:
 	Introduce range checking for ConsoleProperties.
@@ -2982,7 +3046,7 @@
 	* src/net/grinder/communication/CommunicationException.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/communication/Sender.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/ResetGrinderMessage.java:
 	Doc.
 
-2001-10-06  Philip Aston  <paston@bea.com>
+2001-10-06  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/ConsoleCommunication.java:
 	Reinstate missing return statement.
@@ -3018,7 +3082,7 @@
 	* tests-src/net/grinder/console/model/AllTests.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, src/net/grinder/console/model/ConsoleProperties.java, tests-src/net/grinder/AllTests.java:
 	Add property change support.
 
-2001-10-04  Philip Aston  <paston@bea.com>
+2001-10-04  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/ConsoleUI.java:
 	Work around for "swing goes deaf" bug.
@@ -3032,7 +3096,7 @@
 	* src/net/grinder/console/swingui/TestGraphPanel.java:
 	Repaint when model changes.
 
-2001-10-03  Philip Aston  <paston@bea.com>
+2001-10-03  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/common/TestGrinderProperties.java:
 	Type safe setters.
@@ -3061,7 +3125,7 @@
 	* src/net/grinder/statistics/TestStatisticsMap.java:
 	Implement Externalizable for efficiency.
 
-2001-10-02  Philip Aston  <paston@bea.com>
+2001-10-02  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/communication/Sender.java:
 	Fix bug where extraneous bytes where transmitted with every packet.
@@ -3098,12 +3162,12 @@
 	eh? Guess its not the worse atrocity in the JDK. Anyway, remove some
 	superfluous BufferedOutputStreams.
 
-2001-10-01  Philip Aston  <paston@bea.com>
+2001-10-01  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/GrinderProcess.java:
 	Fix the maximum timeout on shutdown.
 
-2001-09-30  Philip Aston  <paston@bea.com>
+2001-09-30  Philip Aston  <philipa@mail.com>
 
 	* build.xml: "all" target.
 
@@ -3130,7 +3194,7 @@
 	* tests-src/net/grinder/communication/TestSenderAndReceiver.java:
 	Update for new communications API.
 
-2001-09-29  Philip Aston  <paston@bea.com>
+2001-09-29  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/communication/RegisterTestsMessage.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/Model.java, src/net/grinder/engine/process/GrinderProcess.java:
 	RegisterTestsMessage - first step towards a dynamic console.
@@ -3163,7 +3227,7 @@
 	* src/net/grinder/plugin/http/example/ExampleStringBean.java:
 	Don't need to import anything for simple string bean.
 
-2001-09-23  Philip Aston  <paston@bea.com>
+2001-09-23  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Next is 2.7.2.
 
@@ -3171,7 +3235,7 @@
 	Test.getIndex() was a bad idea, poluting a key interface with
 	implementation concerns. Do it right.
 
-2001-09-22  Philip Aston  <paston@bea.com>
+2001-09-22  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 2.7.1 is released.
 
@@ -3190,11 +3254,11 @@
 	Require none or all of the basic authentication parameters to be
 	specified.
 
-2001-09-22  Philip Aston  <paston@bea.com>
+2001-09-22  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 2.7 is released.
 
-2001-09-21  Philip Aston  <paston@bea.com>
+2001-09-21  Philip Aston  <philipa@mail.com>
 
 	* etc/HTTPClient-license.txt, src/HTTPClient/HTTPConnection.java, src/net/grinder/plugin/http/HTTPClientHandler.java:
 	Remove disabling of trailers hack to HTTPClient. This was added
@@ -3208,7 +3272,7 @@
 	* src/HTTPClient/Util.java:
 	Revert our hack to expose parseHttpDate, no longer needed.
 
-2001-09-20  Philip Aston  <paston@bea.com>
+2001-09-20  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties:
 	New sample statistics console tab.
@@ -3223,13 +3287,13 @@
 	Split Statistics into a Statistics interface and
 	StatisticsImplementation class.
 
-2001-09-17  Philip Aston  <paston@bea.com>
+2001-09-17  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, CHANGES, TODO, src/net/grinder/TCPSniffer.java:
 	Switch to HTTP plugin sniffer filter which specifies the initial test
 	number.
 
-2001-09-16  Philip Aston  <paston@bea.com>
+2001-09-16  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Don't distribute javadoc in pre-releases.
 
@@ -3267,7 +3331,7 @@
 
 	* tests-src/net/grinder/console/swingui/TestGraph.java: Fix test.
 
-2001-09-15  Philip Aston  <paston@bea.com>
+2001-09-15  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/model/CumulativeStatistics.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/SampleListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/StatisticsTableModel.java, src/net/grinder/console/swingui/TestGraphPanel.java:
 	Console table view now shows the average TPS and peak TPS.
@@ -3299,12 +3363,12 @@
 	* src/net/grinder/plugin/http/BookHttpPlugin.java:
 	Removed. Use StringBeans instead.
 
-2001-09-10  Philip Aston  <paston@bea.com>
+2001-09-10  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, doc/TCPSniffer.txt, src/net/grinder/TCPSniffer.java:
 	Remove -output sniffer option, shell redirection is fine.
 
-2001-09-09  Philip Aston  <paston@bea.com>
+2001-09-09  Philip Aston  <philipa@mail.com>
 
 	* examples/http/grinder.properties:
 	Test additional headers functionality.
@@ -3320,14 +3384,14 @@
 	Allow arbitrary headers with HTTPClient.
 	Remove mutator interface from CallData.
 
-2001-09-03  Philip Aston  <paston@bea.com>
+2001-09-03  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HTTPClientHandler.java:
 	Fix broken query string handling - thanks to Mikael Suokas.
 
 	* README: Multicast advice.
 
-2001-09-02  Philip Aston  <paston@bea.com>
+2001-09-02  Philip Aston  <philipa@mail.com>
 
 	* examples/junit/grinder.properties: Update property.
 
@@ -3392,7 +3456,7 @@
 	
 	* doc/TCPSniffer.txt: added -output info
 	
-2001-08-30  Philip Aston  <paston@bea.com>
+2001-08-30  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, doc/HTTPPlugin.txt: Document Content-Type changes.
 
@@ -3423,7 +3487,7 @@
 	     multipart forms.
 	   - HTTP plugin sniffer filter now generates test descriptions.
 
-2001-08-02  Philip Aston  <paston@bea.com>
+2001-08-02  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/Grinder.java:
 	Set any value of grinder.jvm.arguments before the classpath to allow
@@ -3431,21 +3495,21 @@
 
 	* build.xml: Next is 2.6.6.
 
-2001-07-30  Philip Aston  <paston@bea.com>
+2001-07-30  Philip Aston  <philipa@mail.com>
 
 	* build.xml, etc/testimage.mf, tests-src/net/grinder/console/swingui/TestImage.java:
 	Simple test application to investigate the "corrupt images" problem.
 
-2001-07-27  Philip Aston  <paston@bea.com>
+2001-07-27  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/Grinder.java:
 	Respect platform path separator differences.
 
-2001-07-27  Philip Aston  <paston@bea.com>
+2001-07-27  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 2.6.5 is released.
 	
-2001-07-22  Philip Aston  <paston@bea.com>
+2001-07-22  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/console/swingui/TestGraph.java, CHANGES, TODO, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/StatisticsTableModel.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/util/SignificantFigureFormat.java:
 	Significant Figures control.
@@ -3455,7 +3519,7 @@
 	* src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/TestGraphPanel.java:
 	Graph colour is now based on response time.
 
-2001-07-21  Philip Aston  <paston@bea.com>
+2001-07-21  Philip Aston  <philipa@mail.com>
 
 	* TODO, doc/HTTPPlugin.txt, src/net/grinder/plugin/http/HTTPClientHandler.java:
 	HTTPClientHandler can now cope with multiple servers.
@@ -3466,23 +3530,23 @@
 	* README, src/net/grinder/Grinder.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java:
 	Improve reset behaviour, and document.
 
-2001-07-17  Philip Aston  <paston@bea.com>
+2001-07-17  Philip Aston  <philipa@mail.com>
 
 	* doc/HTTPPlugin.txt: Fix doc. Thanks stephan@purple-lizard.com.
 
-2001-07-13  Philip Aston  <paston@bea.com>
+2001-07-13  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/util/GrinderProperties.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/reset-processes.gif, src/net/grinder/console/swingui/resources/reset-processes.xcf, README, TODO:
 	Grinder processes are now resetable from the console.
 
-2001-07-12  Philip Aston  <paston@bea.com>
+2001-07-12  Philip Aston  <philipa@mail.com>
 
 	* TODO, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties:
 	Merge arm/stop into single control.
 
 	* src/prj.el: WLS weblogicaux.jar contains rotting swing classes.
 
-2001-07-11  Philip Aston  <paston@bea.com>
+2001-07-11  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Next is 2.6.5.
 
@@ -3499,13 +3563,13 @@
 
 	* src/HTTPClient/Util.java: Expose parseHttpDate.
 
-2001-07-10  Philip Aston  <paston@bea.com>
+2001-07-10  Philip Aston  <philipa@mail.com>
 
 	* doc/HTTPPlugin.txt, src/HTTPClient/HTTPConnection.java, src/net/grinder/plugin/http/HTTPClientHandler.java:
 	Based on e-mail from Ronald Tschalär, revert changes to HTTPConnection
 	and explicitly construct path + "?" + query.
 
-2001-07-09  Philip Aston  <paston@bea.com>
+2001-07-09  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 2.6.4 is released.
 
@@ -3534,21 +3598,21 @@
 	* doc/HTTPPlugin.txt, etc/HTTPClient-license.txt, src/HTTPClient/HTTPConnection.java:
 	Fix HTTPClient handling of query strings.
 
-2001-07-06  Philip Aston  <paston@bea.com>
+2001-07-06  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java: Fix -colour.
 
-2001-07-02  Philip Aston  <paston@bea.com>
+2001-07-02  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Add HTTPClient classes to grinder.jar.
 
-2001-06-29  Philip Aston  <paston@bea.com>
+2001-06-29  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 2.6.3 is released.
 	
 	* examples/http/grinder.properties: Example HTTPClient parameter.
 
-2001-06-28  Philip Aston  <paston@bea.com>
+2001-06-28  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/socket/SocketPlugin.java: Latest from David.
 
@@ -3565,20 +3629,20 @@
 	* src/net/grinder/plugin/http/HTTPClientHandler.java:
 	Close connections and discard cookies at end of cycle.
 
-2001-06-21  Philip Aston  <paston@bea.com>
+2001-06-21  Philip Aston  <philipa@mail.com>
 
 	* AUTHORS, CHANGES, examples/socket/grinder.properties, src/net/grinder/plugin/socket/SocketPlugin.java:
 	Socket plugin from David Freels.
 
 	* build.xml: 2.6.3 will be next.
 
-2001-06-20  Philip Aston  <paston@bea.com>
+2001-06-20  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, TODO, doc/HTTPPlugin.txt: Latest.
 
 	* src/net/grinder/plugin/http/HTTPClientHandler.java: Remove debug.
 
-2001-06-12  Philip Aston  <paston@bea.com>
+2001-06-12  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, src/net/grinder/plugin/http/URLRewriteFilter.java, src/net/grinder/tools/tcpsniffer/EchoFilter.java, src/net/grinder/tools/tcpsniffer/NullFilter.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java, src/net/grinder/tools/tcpsniffer/SnifferFilter.java:
 	Sniffer filters now get connection open/close events.
@@ -3598,7 +3662,7 @@
 	* README, doc/HTTPPlugin.txt, doc/JUnitPlugin.txt, doc/TCPSniffer.txt:
 	Split the documentation into separate files.
 
-2001-06-11  Philip Aston  <paston@bea.com>
+2001-06-11  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, doc/Problems.txt:
 	Add new file doc/Problems.txt to hold wisdom from Mikael Suokas.
@@ -3609,17 +3673,17 @@
 	Fix basic authentication property names. Thanks to Andrew Sliwkowski
 	for reporting this.
 
-2001-06-08  Philip Aston  <paston@bea.com>
+2001-06-08  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/util/ProcessContextImplementation.java, AUTHORS, CHANGES:
 	ProcessContextImplementation thread safety fix from Mikael Suokas.
 
-2001-06-05  Philip Aston  <paston@bea.com>
+2001-06-05  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/StatisticsTableModel.java, src/net/grinder/console/swingui/SummaryFrame.java, src/net/grinder/statistics/TestStatisticsMap.java, CHANGES, TODO:
 	Console summary now uses a JTable.
 
-2001-06-03  Philip Aston  <paston@bea.com>
+2001-06-03  Philip Aston  <philipa@mail.com>
 
 	* examples/http/grinder.properties:
 	Added example grinder.plugin.parameter.timeIncludesTransaction line.
@@ -3627,7 +3691,7 @@
 	* CHANGES, src/net/grinder/engine/process/ThreadContextImplementation.java:
 	Fix to recording of short response times from Mikael Suokas.
 
-2001-05-25  Philip Aston  <paston@bea.com>
+2001-05-25  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 2.6.2 is released.
 	
@@ -3641,7 +3705,7 @@
 	* src/net/grinder/console/swingui/ConsoleUI.java:
 	Fix allignment of TPS label.
 
-2001-05-24  Philip Aston  <paston@bea.com>
+2001-05-24  Philip Aston  <philipa@mail.com>
 
 	* src/w3c/tools/codec/Base64Decoder.java, src/w3c/tools/codec/Base64Encoder.java, src/w3c/tools/codec/Base64FormatException.java, CHANGES, README, TODO, build.xml, etc/w3c-license.html, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/http/HttpRequestData.java:
 	Support for HTTP basic authentication.
@@ -3649,7 +3713,7 @@
 	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/util/ProcessContextImplementation.java:
 	Only read the "appendLog" parameter once.
 
-2001-05-23  Philip Aston  <paston@bea.com>
+2001-05-23  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugininterface/Logger.java, src/net/grinder/util/ProcessContextImplementation.java, src/net/grinder/Grinder.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/engine/Redirector.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/plugin/http/HttpsPlugin.java, CHANGES, TODO:
 	Rework logging.
@@ -3661,7 +3725,7 @@
 	Remove grinder.thread.beginCycleSleepTime.
 	Add grinder.thread.initialSleepTime.
 
-2001-05-14  Philip Aston  <paston@bea.com>
+2001-05-14  Philip Aston  <philipa@mail.com>
 
 	* examples/http/grinder.properties, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/plugin/http/example/ExampleStringBean2.java, src/net/grinder/plugininterface/PluginThreadContext.java:
 	Add PluginProcessContext.getCurrentCycleID().
@@ -3673,7 +3737,7 @@
 	* src/net/grinder/statistics/StatisticsTable.java:
 	Remove spurious "Total" header.
 
-2001-05-01  Philip Aston  <paston@bea.com>
+2001-05-01  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, README, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java:
 	New HTTP plugin parameter, "timeIncludesTransaction".
@@ -3696,7 +3760,7 @@
 	* AUTHORS, src/net/grinder/plugin/http/HttpMsg.java:
 	Handle multiple Set-Cookie headers, courtesy of Christian Nedregard.
 
-2001-04-13  Philip Aston  <paston@bea.com>
+2001-04-13  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContextImplementation.java:
 	Yield in startTimer(). This makes it more likely that the thread has a
@@ -3715,15 +3779,15 @@
 	* src/net/grinder/console/model/Model.java:
 	Reset stats when waiting for trigger for more obvious interaction.
 
-2001-04-07  Philip Aston  <paston@bea.com>
+2001-04-07  Philip Aston  <philipa@mail.com>
 
 	* build.xml, etc/buildenv.sh: Ant 1.3 groks cygwin - hurrah.
 
-2001-04-06  Philip Aston  <paston@bea.com>
+2001-04-06  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 2.6 is released.
 
-2001-04-05  Philip Aston  <paston@bea.com>
+2001-04-05  Philip Aston  <philipa@mail.com>
 
 	* README: Document console controls.
 	
@@ -3758,7 +3822,7 @@
 	urls to remote host is now default behaviour added proxy cmd args
 	and associated code
 
-2001-04-03  Philip Aston  <paston@bea.com>
+2001-04-03  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/console/swingui/TestGraph.java: Cheesy fix.
 
@@ -3782,7 +3846,7 @@
 	Make the properties part of the Test implementation transient. This
 	dramatically reduces the size of the multicast packets.
 
-2001-03-31  Philip Aston  <paston@bea.com>
+2001-03-31  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/ConsoleUI.java: New console layout.
 
@@ -3795,7 +3859,7 @@
 	Don't spin uselessly when not reporting to the console. The worker
 	threads now notify the master thread when they exit.
 
-2001-03-27  Philip Aston  <paston@bea.com>
+2001-03-27  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/util/FilenameFactory.java:
 	Log directory is no longer mandatory.
@@ -3803,7 +3867,7 @@
 	* src/net/grinder/console/swingui/resources/stop-processes.gif, src/net/grinder/console/swingui/resources/stop-processes.xcf, src/net/grinder/console/swingui/resources/stop.gif, src/net/grinder/console/swingui/resources/stop.xcf, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/pause.gif, src/net/grinder/console/swingui/resources/pause.xcf, src/net/grinder/console/swingui/resources/start-processes.gif, src/net/grinder/console/swingui/resources/start-processes.xcf, src/net/grinder/console/swingui/resources/start.gif, src/net/grinder/console/swingui/resources/start.xcf:
 	Support for defining capture interval.
 
-2001-03-26  Philip Aston  <paston@bea.com>
+2001-03-26  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 2.5 is released.
 
@@ -3812,7 +3876,7 @@
 	* src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java:
 	Explicitly close both streams when one fails.
 
-2001-03-26  Philip Aston  <paston@bea.com>
+2001-03-26  Philip Aston  <philipa@mail.com>
 	
 	* build.xml: *** empty log message ***
 
@@ -3828,11 +3892,11 @@
 	* src/net/grinder/plugin/http/example/ExampleStringBean.java, src/net/grinder/plugin/http/example/ExampleStringBean2.java:
 	Improve examples.
 
-2001-03-24  Philip Aston  <paston@bea.com>
+2001-03-24  Philip Aston  <philipa@mail.com>
 
 	* examples/http/grinder.properties: Use example string bean.
 
-2001-03-23  Philip Aston  <paston@bea.com>
+2001-03-23  Philip Aston  <philipa@mail.com>
 
 	* README: Minor fix.
 
