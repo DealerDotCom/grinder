@@ -1,4 +1,4 @@
-// Copyright (C) 2002 Philip Aston
+// Copyright (C) 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,8 +22,6 @@
 package net.grinder.script;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
@@ -35,7 +33,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.engine.process.StubProcessContext;
 
 
 /**
@@ -43,86 +40,73 @@ import net.grinder.engine.process.StubProcessContext;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
-public class TestTest extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestTest.class);
+ */
+public class TestTest extends TestCase {
+
+  public TestTest(String name) {
+    super(name);
+  }
+
+  public void testGetters() throws Exception {
+    final Test test  = new Test(1, "description");
+
+    assertEquals(1, test.getNumber());
+    assertEquals("description", test.getDescription());
+  }
+
+  public void testOrdering() throws Exception {
+    final int size = 100;
+
+    final Set sorted = new TreeSet();
+    final List keys = new ArrayList(size);
+
+    for (int i=0; i<size; i++) {
+      keys.add(new Integer(i));
     }
-
-    public TestTest(String name)
-    {
-	super(name);
-    }
-
-    protected void setUp() throws Exception 
-    {
-	StubProcessContext.get();
-    }
-
-    public void testGetters() throws Exception
-    {
-	final Test test  = new Test(1, "description");
-
-	assertEquals(1, test.getNumber());
-	assertEquals("description", test.getDescription());
-    }
-
-    public void testOrdering() throws Exception
-    {
-	final int size = 100;
-
-	final Set sorted = new TreeSet();
-	final List keys = new ArrayList(size);
-
-	for (int i=0; i<size; i++) {
-	    keys.add(new Integer(i));
-	}
 	
-	Collections.shuffle(keys);
+    Collections.shuffle(keys);
 
-	final Iterator keyIterator = keys.iterator();
+    final Iterator keyIterator = keys.iterator();
 
-	while (keyIterator.hasNext()) {
-	    final int i = ((Integer)keyIterator.next()).intValue();
-	    sorted.add(new Test(i, Integer.toString(i)));
-	}
+    while (keyIterator.hasNext()) {
+      final int i = ((Integer)keyIterator.next()).intValue();
+      sorted.add(new Test(i, Integer.toString(i)));
+    }
 	
-	final Iterator sortedIterator = sorted.iterator();
-	int i = 0;
+    final Iterator sortedIterator = sorted.iterator();
+    int i = 0;
 
-	while (keyIterator.hasNext()) {
-	    final Test test = (Test)sortedIterator.next();
-	    assertEquals(i++, test.getNumber());
-	}
+    while (keyIterator.hasNext()) {
+      final Test test = (Test)sortedIterator.next();
+      assertEquals(i++, test.getNumber());
     }
+  }
 
-    public void testEquality() throws Exception
-    {
-	// Equality depends only on test number.
-	final Test t1 = new Test(57, "one thing");
-	final Test t2 = new Test(57, "leads to");
-	final Test t3 = new Test(58, "another");
+  public void testEquality() throws Exception {
 
-	assertEquals(t1, t2);
-	assertEquals(t2, t1);
-	assertTrue(!t1.equals(t3));
-	assertTrue(!t3.equals(t1));
-	assertTrue(!t2.equals(t3));
-	assertTrue(!t3.equals(t2));
-    }
+    // Equality depends only on test number.
+    final Test t1 = new Test(57, "one thing");
+    final Test t2 = new Test(57, "leads to");
+    final Test t3 = new Test(58, "another");
 
-    public void testIsSerializable() throws Exception
-    {
-	final Test test = new Test(123, "test");
+    assertEquals(t1, t2);
+    assertEquals(t2, t1);
+    assertTrue(!t1.equals(t3));
+    assertTrue(!t3.equals(t1));
+    assertTrue(!t2.equals(t3));
+    assertTrue(!t3.equals(t2));
+  }
 
-	final ByteArrayOutputStream byteArrayOutputStream =
-	    new ByteArrayOutputStream();
+  public void testIsSerializable() throws Exception {
 
-	final ObjectOutputStream objectOutputStream =
-	    new ObjectOutputStream(byteArrayOutputStream);
+    final Test test = new Test(123, "test");
 
-	objectOutputStream.writeObject(test);
-    }
+    final ByteArrayOutputStream byteArrayOutputStream =
+      new ByteArrayOutputStream();
+
+    final ObjectOutputStream objectOutputStream =
+      new ObjectOutputStream(byteArrayOutputStream);
+
+    objectOutputStream.writeObject(test);
+  }
 }
