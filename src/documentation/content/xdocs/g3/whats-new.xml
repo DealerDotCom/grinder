@@ -16,7 +16,7 @@
   <section>
     <title>Jython</title>
 
-    <p><icon src="images/PythonPoweredSmall.gif" alt="Python
+    <p><icon src="../images/PythonPoweredSmall.gif" alt="Python
     powered"/> The most significant change that The Grinder 3
     introduces is a <a href="ext:jython">Jython</a> (the Java
     implementation of Python) scripting engine that is used to execute
