@@ -34,8 +34,8 @@ import net.grinder.util.Serialiser;
  *
  * @author Philip Aston
  * @version $Revision$
- */
-public final class RawStatistics
+ **/
+public class RawStatistics
 {
     // Implementation notes
     // 1. The public interface only allows the values to be increased.

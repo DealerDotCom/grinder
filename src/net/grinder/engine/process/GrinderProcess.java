@@ -45,8 +45,10 @@ import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.ThreadCallbacks;
-import net.grinder.statistics.StatisticsImplementation;
+import net.grinder.statistics.CommonStatistics;
+import net.grinder.statistics.ProcessStatisticsIndexMap;
 import net.grinder.statistics.StatisticsTable;
+import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatisticsMap;
 
 
@@ -82,7 +84,7 @@ public class GrinderProcess
      * The application's entry point.
      * 
      */    
-    public static void main(String args[])
+    public static void main(String[] args)
     {
 	if (args.length < 1 || args.length > 2) {
 	    System.err.println("Usage: java " +
@@ -125,6 +127,7 @@ public class GrinderProcess
 
     /** A map of Tests to Statistics for passing elsewhere. */
     private final TestStatisticsMap m_testStatisticsMap;
+    private final CommonStatistics m_commonStatistics;
 
     public GrinderProcess(String grinderID, File propertiesFile)
 	throws GrinderException
@@ -135,6 +138,10 @@ public class GrinderProcess
 	m_context = new ProcessContext(grinderID, properties);
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
+
+	final ProcessStatisticsIndexMap indexMap =
+	    new ProcessStatisticsIndexMap();
+	m_commonStatistics = CommonStatistics.getInstance(indexMap);
 
 	// Parse plugin class.
 	m_plugin = instantiatePlugin();
@@ -218,8 +225,9 @@ public class GrinderProcess
 	    final long sleepTime =
 		properties.getInt(sleepTimePropertyName, -1);
 
-	    final StatisticsImplementation statistics =
-		new StatisticsImplementation();
+	    final CommonStatistics.TestStatistics statistics =
+		m_commonStatistics.new TestStatistics();
+
 	    m_testSet.put(test, new TestData(test, sleepTime, statistics));
 	    m_testStatisticsMap.put(test, statistics);
 	}
@@ -420,7 +428,8 @@ public class GrinderProcess
  	m_context.logMessage("Final statistics for this process:");
 
 	final StatisticsTable statisticsTable =
-	    new StatisticsTable(m_testStatisticsMap);
+	    new StatisticsTable(m_commonStatistics.getStatisticsView(),
+				m_testStatisticsMap);
 
 	statisticsTable.print(m_context.getOutputLogWriter());
 

@@ -28,6 +28,7 @@ import net.grinder.common.GrinderException;
  *
  * @author Philip Aston
  * @version $Revision$
+ * @stereotype singleton
  */
 final class StatisticExpressionFactory
 {

@@ -40,6 +40,7 @@ public class AllTests
     public static Test suite()
     {
 	final TestSuite suite = new TestSuite();
+	suite.addTest(new TestSuite(TestCommonStatistics.class));
 	suite.addTest(new TestSuite(TestExpressionView.class));
 	suite.addTest(new TestSuite(TestProcessStatisticsIndexMap.class));
 	suite.addTest(new TestSuite(TestRawStatistics.class));
