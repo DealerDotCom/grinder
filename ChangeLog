@@ -1,4 +1,61 @@
+2005-03-09  Philip Aston  <philipa@mail.com>
+
+	* src/documentation/content/xdocs/faq.xml:
+	FAQ prompted by Gareth Western.
+
+2005-03-08  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/debug/CreateInitialisationMessage.java:
+	Utility for running worker process standalone.
+
+	* etc/variance.py: Vary distribution used.
+
+	* etc/no80.patch, etc/setenv.cmd: Odds and ends.
+
+	* src/net/grinder/engine/process/ThreadContextImplementation.java:
+	Formatting.
+
+2005-03-07  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/ThreadContextImplementation.java:
+	Fix defect - the engine no longer overrides the plugin's marking of a test as erroneous.
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/plugin/http/HTTPPlugin.java:
+	Correct typos. Thanks to Henry Chan for pointing them out.
+
+2005-03-03  Philip Aston  <philipa@mail.com>
+
+	* etc/variance.py: Add a normal value generator.
+
+	* etc/variance.py: Prove distributed variance calculation.
+
+2005-02-27  Philip Aston  <philipa@mail.com>
+
+	* src/documentation/content/xdocs/g3/whats-new.xml:
+	Fix reference to image so Forrest doesn't create spurious temporary directories.
+
+	* src/documentation/content/xdocs/faq.xml, src/documentation/content/xdocs/site.xml, src/documentation/content/xdocs/support.xml:
+	How to subscribe/unsubscribe.
+
+	* etc/.cvsignore: Ignore generated file.
+
+	* .cvsignore: Ignore eclipse things.
+
+2005-02-26  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/common/DisplayMessageConsoleException.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/engine/process/SSLControlImplementation.java, src/net/grinder/script/SSLControl.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/util/InsecureSSLContextFactory.java, src/net/grinder/util/thread/Kernel.java:
+	Minor clean ups.
+
+2005-02-10  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java:
+	Change the HTTPlugin TCPProxy filters so that they no longer interpret
+	';' as a query string separator. Thanks to Nichole Holthoefer for the
+	problem report.
+
 2005-02-07  Philip Aston  <philipa@mail.com>
+
+	* build.xml: Next is beta 25.
 
 	* The Grinder 3.0-beta24 is released.
 

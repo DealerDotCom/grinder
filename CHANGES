@@ -5,6 +5,11 @@ Grinder 3.0-beta25 (Not yet released)
   interpret ';' as a query string separator. Thanks to Nichole
   Holthoefer for the problem report.
 
+  Fix a bug where the engine would incorrectly override the plugin if
+  the plugin had marked a test as an error.
+
+  Correct a few typos. Thanks to Henry Chan for pointing then out.
+
 
 Grinder 3.0-beta24
 ------------------
