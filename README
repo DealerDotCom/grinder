@@ -28,10 +28,20 @@ plug-ins for testing HTTP services are provided. It is particularly
 suitable for testing BEA WebLogic Server based applications.
 
 
+Where do I get it?
+******************
+
+The Grinder's home is currently at
+
+	http://sourceforge.net/projects/grinder/
+
+There are also some mailing lists you might like to join.
+
+
 What else do I need?
 ********************
 
-To build and run The Grinder:
+To run The Grinder:
 
   JDK 1.3
 
