@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,8 +37,6 @@ import javax.swing.JComponent;
  */
 class Graph extends JComponent {
 
-  private final int m_numberOfValues;
-
   private final double[] m_values;
   private double m_maximum = 0d;
   private int m_cursor = 0;
@@ -50,18 +48,11 @@ class Graph extends JComponent {
 
   Graph(int numberOfValues) {
 
-    if (numberOfValues <= 0) {
-      throw new IllegalArgumentException(
-        "Invalid number of values (" + numberOfValues + ")");
-    }
-
-    m_numberOfValues = numberOfValues;
-
     m_values = new double[numberOfValues];
 
     // Add 2 for the end points of the polygon.
-    m_polygonX = new int[2 * m_numberOfValues + 2];
-    m_polygonY = new int[2 * m_numberOfValues + 2];
+    m_polygonX = new int[2 * m_values.length + 2];
+    m_polygonY = new int[2 * m_values.length + 2];
 
     // Set default so we're visable.
     setPreferredSize(new Dimension(200, 100));
@@ -71,7 +62,7 @@ class Graph extends JComponent {
 
     m_values[m_cursor] = newValue;
 
-    if (++m_cursor >= m_numberOfValues) {
+    if (++m_cursor >= m_values.length) {
       m_cursor = 0;
     }
 
@@ -93,9 +84,9 @@ class Graph extends JComponent {
     graphics.setColor(m_color);
 
     if (m_recalculate) {
-      final double xScale = (getWidth() / (double)m_numberOfValues);
+      final double xScale = (getWidth() / (double)m_values.length);
 
-      for (int i = 0; i <= m_numberOfValues; i++) {
+      for (int i = 0; i <= m_values.length; i++) {
         final int x = (int)(i * xScale);
         m_polygonX[2 * i] = x;
         m_polygonX[2 * i + 1] = x;
@@ -106,7 +97,7 @@ class Graph extends JComponent {
 
       int cursor = m_cursor;
 
-      for (int i = 0; i < m_numberOfValues; i++) {
+      for (int i = 0; i < m_values.length; i++) {
         int y = (int)((m_maximum - m_values[cursor]) * yScale);
 
         if (y == 0 && m_maximum > m_values[cursor]) {
@@ -116,17 +107,17 @@ class Graph extends JComponent {
         m_polygonY[2 * i + 1] = y;
         m_polygonY[2 * i + 2] = y;
 
-        if (++cursor >= m_numberOfValues) {
+        if (++cursor >= m_values.length) {
           cursor = 0;
         }
       }
 
       m_polygonY[0] = (int)(m_maximum * yScale);
-      m_polygonY[2 * m_numberOfValues + 1] = m_polygonY[0];
+      m_polygonY[2 * m_values.length + 1] = m_polygonY[0];
 
       m_recalculate = false;
     }
 
-    graphics.fillPolygon(m_polygonX, m_polygonY, 2 * m_numberOfValues + 2);
+    graphics.fillPolygon(m_polygonX, m_polygonY, 2 * m_values.length + 2);
   }
 }
