@@ -45,7 +45,7 @@ final class ProcessContext {
   private final Logger m_processLogger;
   private final QueuedSender m_consoleSender;
   private final ThreadContextLocator m_threadContextLocator;
-  private final PluginRegistry m_pluginRegistry;
+  private final PluginRegistryImplementation m_pluginRegistry;
   private final TestRegistry m_testRegistry;
   private final Grinder.ScriptContext m_scriptContext;
   private final Sleeper m_sleeper;
@@ -86,9 +86,9 @@ final class ProcessContext {
       externalFilenameFactory,
       m_sleeper);
 
-    m_pluginRegistry = new PluginRegistry(externalLogger, m_scriptContext,
-                                          m_threadContextLocator);
-    PluginRegistry.setInstance(m_pluginRegistry);
+    m_pluginRegistry =
+      new PluginRegistryImplementation(externalLogger, m_scriptContext,
+                                       m_threadContextLocator);
 
     m_testRegistry = new TestRegistry(m_threadContextLocator);
     TestRegistry.setInstance(m_testRegistry);
@@ -112,7 +112,7 @@ final class ProcessContext {
     return m_processLogger;
   }
 
-  public PluginRegistry getPluginRegistry() {
+  public PluginRegistryImplementation getPluginRegistry() {
     return m_pluginRegistry;
   }
 

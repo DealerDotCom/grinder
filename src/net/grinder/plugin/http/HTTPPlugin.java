@@ -27,11 +27,12 @@ package net.grinder.plugin.http;
 import HTTPClient.CookieModule;
 import HTTPClient.DefaultAuthHandler;
 import HTTPClient.HTTPConnection;
+
 import net.grinder.common.GrinderException;
-import net.grinder.engine.process.PluginRegistry;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.plugininterface.PluginRegistry;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.script.Grinder;

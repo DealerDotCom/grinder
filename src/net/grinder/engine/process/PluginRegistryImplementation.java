@@ -31,6 +31,7 @@ import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.PluginRegistry;
 import net.grinder.script.Grinder.ScriptContext;
 
 
@@ -41,8 +42,7 @@ import net.grinder.script.Grinder.ScriptContext;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class PluginRegistry {
-  private static PluginRegistry s_instance;
+public final class PluginRegistryImplementation extends PluginRegistry {
 
   private final Logger m_logger;
   private final ScriptContext m_scriptContext;
@@ -50,36 +50,15 @@ public final class PluginRegistry {
   private final Map m_plugins = new HashMap();
 
   /**
-   * Singleton accessor.
-   *
-   * <p>This is called by plug-in implementations. In future I may
-   * create an API package to avoid the circular package
-   * dependencies.</p>
-   *
-   * @return The singleton.
-   */
-  public static PluginRegistry getInstance() {
-    return s_instance;
-  }
-
-  /**
-   * Set the singleton.
-   */
-  static void setInstance(PluginRegistry pluginRegistry) {
-    s_instance = pluginRegistry;
-  }
-
-  /**
    * Constructor.
    */
-  PluginRegistry(Logger logger, ScriptContext scriptContext,
-                 ThreadContextLocator threadContextLocator) {
-
-    s_instance = this;
-
+  PluginRegistryImplementation(Logger logger, ScriptContext scriptContext,
+                               ThreadContextLocator threadContextLocator) {
     m_logger = logger;
     m_scriptContext = scriptContext;
     m_threadContextLocator = threadContextLocator;
+
+    setInstance(this);
   }
 
   /**

@@ -12,6 +12,9 @@ Grinder 3.0-beta20
    - DELETE() mistakenly invoked a Trace() method.
    - GET() and OPTIONS() could pass header values to query strings.
 
+  The PluginRegistry class that a plugin must use has been moved to
+  the plugininterface package.
+
 
 Grinder 3.0-beta19
 ------------------
