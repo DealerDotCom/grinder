@@ -21,6 +21,7 @@ package net.grinder.plugin.http;
 import java.text.DecimalFormat;
 
 import net.grinder.plugininterface.PluginContext;
+import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.TestDefinition;
 
 
@@ -38,6 +39,7 @@ public class BookHttpPlugin extends HttpPlugin {
 	private DecimalFormat m_twoDigitsFormat = new DecimalFormat("00");
 
 	public CallData(PluginContext pluginContext, TestDefinition test)
+	    throws PluginException
 	{
 	    super(test);
 
@@ -66,6 +68,7 @@ public class BookHttpPlugin extends HttpPlugin {
 
     protected HttpPlugin.CallData createCallData(PluginContext gc,
 						 TestDefinition test)
+	throws PluginException
     {
 	return new CallData(gc, test);
     }

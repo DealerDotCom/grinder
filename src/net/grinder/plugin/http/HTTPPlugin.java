@@ -34,6 +34,7 @@ import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.TestDefinition;
 import net.grinder.util.FilenameFactory;
+import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 
 
@@ -65,11 +66,19 @@ public class HttpPlugin implements GrinderPlugin
 	private long m_ifModifiedSince = -1;
 	private String m_postString = null;
     
-	public CallData(TestDefinition test)
+	public CallData(TestDefinition test) throws PluginException
 	{
 	    final GrinderProperties testParameters = test.getParameters();
 
-	    m_urlString = testParameters.getProperty("url", null);
+	    try {
+		m_urlString = testParameters.getMandatoryProperty("url");
+	    }
+	    catch (GrinderException e) {
+		throw new PluginException(
+		    "URL for Test " + test.getTestNumber() + " not specified",
+		    e);
+	    }
+
 	    m_okString = testParameters.getProperty("ok", null);
 
 	    final String ifModifiedSinceString =
@@ -221,6 +230,7 @@ public class HttpPlugin implements GrinderPlugin
       */
     protected CallData createCallData(PluginContext pluginContext,
  				      TestDefinition test)
+	throws PluginException
     {
  	return new CallData(test);
     }
