@@ -51,6 +51,9 @@
              targetFile="console.html" type="g3-xhtml-1"/>
       <entry name="Script Gallery" sourceFile="script-gallery-xhtml.xml" 
              targetFile="script-gallery.html" type="g3-xhtml-toc-1"/>
+      <!-- Dummy entry which is overwritten with the real javadoc. -->
+      <entry name="Script API" sourceFile="script-gallery-xhtml.xml" 
+             targetFile="./script-javadoc/index.html" type="g3-xhtml-1"/>
       <entry name="TCPProxy" sourceFile="tcpproxy-xhtml.xml" 
              targetFile="tcpproxy.html" type="g3-xhtml-1"/>
       <entry name="Tutorial" sourceFile="tutorial-perks-xhtml.xml" 

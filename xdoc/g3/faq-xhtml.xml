@@ -111,7 +111,7 @@ like:</p>
 text = response.text</pre>
 </blockquote>
 
-<p>See the <a href="/script-javadoc/index.html">script API</a> for
+<p>See the <a href="script-javadoc/index.html">script API</a> for
 other things you can do with the <code>HTTPResponse</code> object.</p>
 
 <p>Now you have the choice of using Java or Python to extract the

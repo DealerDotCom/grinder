@@ -17,7 +17,7 @@ The Grinder 3.</p>
 delimited by lexical indentation.</p>
 
 <p>The scripts make use of The Grinder <a
-href="../script-javadoc/index.html">script API</a>. The
+href="script-javadoc/index.html">script API</a>. The
 <code>grinder</code> object in the scripts is an instance of
 <code>ScriptContext</code> through which the script can obtain
 contextual information (such as the worker process ID) and services
@@ -532,6 +532,7 @@ logTest = test1.wrap(grinder.logger.output)
 # import all the modules, set up shared data structures, and declare
 # all the Test objects you will use.
 </span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> java.lang <span class="keyword">import</span> System
 
 <span class="comment"># The totalNumberOfRuns variable is shared by all worker threads.

@@ -94,11 +94,6 @@ what you want. Currently the conditionally built modules are:
   <!-- local settings -->
   <property file="${etc.dir}/localpaths.properties"/>
 
-  <!-- javadoc -->
-  <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
-  <property name="script-javadoc.dir" value="${doc.dir}/script-javadoc"/>
-  <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
-
   <!-- webapps, in general and specific -->
   <property name="webapps.dir" value="webapps"/>
   <property name="sniffer.webapp.dir" value="${webapps.dir}/sniff-n-grind"/>
@@ -111,6 +106,13 @@ what you want. Currently the conditionally built modules are:
   <property name="lib.jar" value="${name}.jar"/>
   <property name="dist.root" value="${build.dir}/distribution"/>
   <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
+
+  <!-- javadoc -->
+  <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
+  <property name="script-javadoc-working.dir"
+            value="${build.dir}/script-javadoc"/>
+  <property name="script-javadoc.dir" value="${doc.dir}/g3/script-javadoc"/>
+  <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
 
   <!-- distribution patternsets -->
   <patternset id="sources.patternset">
@@ -411,6 +413,10 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Rules to create the documentation                               -->
   <!-- =================================================================== -->
+
+  <!-- This should really depend on script-javadoc, but we don't for
+     speed when testing documentation. The "Release" targets always
+     call script-javadoc first. -->
   <target name="xweb" depends="init,assert-have-xweb"
     description="Generates the HTML docs.">
     <java classname="net.sourceforge.xweb.backend.WebsiteProcessor"
@@ -418,9 +424,15 @@ what you want. Currently the conditionally built modules are:
      <arg line="-silent"/>
      <arg path="${xdoc.dir}/documentation.xweb"/>
     </java>
+
     <delete>
       <fileset dir="${doc.dir}" includes="**/*.svg"/>
+      <fileset dir="${script-javadoc.dir}"/>
     </delete>
+
+    <copy todir="${script-javadoc.dir}">
+      <fileset dir="${script-javadoc-working.dir}"/>
+    </copy>
   </target>
 
   <target name="javadoc" depends="init" description="Generates the javadoc.">
@@ -449,13 +461,13 @@ what you want. Currently the conditionally built modules are:
 
   <target name="script-javadoc" depends="init"
           description="Generates the javadoc for classes used by scripts.">
-    <property name="script-javadoc-working.dir"
+    <property name="script-javadoc-src.dir"
 	      value="${build.dir}/script-javadoc-src"/>
 
     <!-- Sigh, I'm tired of convincing the javadoc task to do the right thing
          so instead lets create a copy of the source it should process.
          This is faster too. -->
-    <copy todir="${script-javadoc-working.dir}">
+    <copy todir="${script-javadoc-src.dir}">
       <fileset dir="${src.dir}">
 	<include name="HTTPClient/*.java"/>
 	<exclude name="HTTPClient/HttpURLConnection.java"/>
@@ -478,9 +490,9 @@ what you want. Currently the conditionally built modules are:
       </fileset>
     </copy>
 
-    <mkdir dir="${script-javadoc.dir}"/>
+    <mkdir dir="${script-javadoc-working.dir}"/>
 
-    <javadoc destdir="${script-javadoc.dir}"
+    <javadoc destdir="${script-javadoc-working.dir}"
              packagenames="net.grinder.*,HTTPClient.*"
              author="true"
              version="false"
@@ -490,10 +502,8 @@ what you want. Currently the conditionally built modules are:
              doctitle="${Name}"
              stylesheetfile="${javadoc.css}"
 	     public="true"
-             overview="${script-javadoc-working.dir}/net/grinder/script/overview.html"
-             sourcepath="${script-javadoc-working.dir}">
-        <footer><![CDATA[<img src='../images/grinder3.jpg'></img>]]>
-        </footer>
+             overview="${script-javadoc-src.dir}/net/grinder/script/overview.html"
+             sourcepath="${script-javadoc-src.dir}">
         <group title="The Grinder Scripting API"
                packages="net.grinder.common,net.grinder.script,net.grinder.statistics"/>
         <group title="HTTP Plug-in"
