@@ -18,34 +18,38 @@
 
 package net.grinder.statistics;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Map;
 import java.util.TreeMap;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 
 
 /**
- * A map of Test's to StatisticsImplementation.
+ * A map of test numbers to {@link StatisticsImplementation}s.
  *
  * Unsynchronised.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestStatisticsMap implements java.io.Serializable
+public class TestStatisticsMap implements java.io.Externalizable
 {
     private static final long serialVersionUID = -8058790429635766121L;
 
-    /** Use a TreeMap so we store in Test order. */
+    /** Use a TreeMap so we store in test number order. */
     private final Map m_data = new TreeMap();
 
-    public void put(Test test, StatisticsImplementation statistics)
+    public final void put(Test test, StatisticsImplementation statistics)
     {
 	m_data.put(test, statistics);
     }
 
-    public TestStatisticsMap getDelta(boolean updateSnapshot)
+    public final TestStatisticsMap getDelta(boolean updateSnapshot)
     {
 	final TestStatisticsMap result = new TestStatisticsMap();
 
@@ -62,7 +66,7 @@ public class TestStatisticsMap implements java.io.Serializable
 	return result;
     }
 
-    public StatisticsImplementation getTotal()
+    public final StatisticsImplementation getTotal()
     {
 	final StatisticsImplementation result = new StatisticsImplementation();
 
@@ -75,12 +79,12 @@ public class TestStatisticsMap implements java.io.Serializable
 	return result;
     }
 
-    public int getSize()
+    public final int getSize()
     {
 	return m_data.size();
     }
 
-    public void add(TestStatisticsMap operand)
+    public final void add(TestStatisticsMap operand)
     {
 	final Iterator iterator = operand.new Iterator();
 
@@ -105,7 +109,7 @@ public class TestStatisticsMap implements java.io.Serializable
     /**
      * A type safe iterator.
      */
-    public class Iterator
+    public final class Iterator
     {
 	private final java.util.Iterator m_iterator;
 
@@ -114,12 +118,12 @@ public class TestStatisticsMap implements java.io.Serializable
 	    m_iterator = m_data.entrySet().iterator();
 	}
 
-	public boolean hasNext()
+	public final boolean hasNext()
 	{
 	    return m_iterator.hasNext();
 	}
 
-	public Pair next()
+	public final Pair next()
 	{
 	    final Map.Entry entry = (Map.Entry)m_iterator.next();
 	    final Test test = (Test)entry.getKey();
@@ -130,7 +134,7 @@ public class TestStatisticsMap implements java.io.Serializable
 	}
     }
 
-    public class Pair
+    public final class Pair
     {
 	private final Test m_test;
 	private final StatisticsImplementation m_statistics;
@@ -141,14 +145,101 @@ public class TestStatisticsMap implements java.io.Serializable
 	    m_statistics = statistics;
 	}
 
-	public Test getTest()
+	public final Test getTest()
 	{
 	    return m_test;
 	}
 
-	public StatisticsImplementation getStatistics()
+	public final StatisticsImplementation getStatistics()
 	{
 	    return m_statistics;
+	}
+    }
+
+    public void writeExternal(ObjectOutput out)
+	throws IOException
+    {
+	out.writeInt(m_data.size());
+
+	final Iterator iterator = new Iterator();
+
+	while (iterator.hasNext()) {
+	    final Pair pair = iterator.next();
+
+	    out.writeInt(pair.getTest().getNumber());
+	    out.writeObject(pair.getStatistics());
+	}
+    }
+
+    public void readExternal(ObjectInput in)
+	throws IOException, ClassNotFoundException
+    {
+	final int n = in.readInt();
+
+	m_data.clear();
+
+	for (int i=0; i<n; i++) {
+	    m_data.put(new LightweightTest(in.readInt()),
+		       (Statistics)in.readObject());
+	}
+    }
+
+    private final static class LightweightTest implements Test
+    {
+	private final int m_number;
+
+	public LightweightTest(int number)
+	{
+	    m_number = number;
+	}
+
+	public final int getNumber()
+	{
+	    return m_number;
+	}
+
+	public final String getDescription()
+	{
+	    throw new RuntimeException(
+		getClass().getName() +
+		".LightweightTest.getDescription() should never be called");	    
+	}
+
+	public final GrinderProperties getParameters()
+	{
+	    throw new RuntimeException(
+		getClass().getName() + ".LightweightTest.getParameters()");
+	}
+
+	public final int compareTo(Object o) 
+	{
+	    final int other = ((Test)o).getNumber();
+	    return m_number<other ? -1 : (m_number==other ? 0 : 1);
+	}
+
+	/**
+	 * The test number is used as the hash code. Wondered whether
+	 * it was worth distributing the hash codes more evenly across
+	 * the range of an int, but using the value is good enough for
+	 * <code>java.lang.Integer</code> so its good enough for us.
+	 **/
+	public final int hashCode()
+	{
+	    return m_number;
+	}
+
+	public final boolean equals(Object o)
+	{
+	    if (o instanceof Test) {
+		return m_number == ((Test)o).getNumber();
+	    }
+
+	    return false;
+	}
+
+	public final String toString()
+	{
+	    return "Test " + getNumber();
 	}
     }
 }
