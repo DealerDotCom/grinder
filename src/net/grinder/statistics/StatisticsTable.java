@@ -68,7 +68,6 @@ public class StatisticsTable
 	heading2.append(blankField);
 	heading2.append(formatField("Transactions"));
 	heading2.append(formatField("Errors"));
-	heading2.append(formatField("Abortions"));
 	heading2.append(formatField("Average (ms)"));
 	
 	out.println(heading2.toString());
@@ -127,8 +126,6 @@ public class StatisticsTable
 	    formatField(String.valueOf(statistics.getTransactions())));
 
 	result.append(formatField(String.valueOf(statistics.getErrors())));
-
-	result.append(formatField(String.valueOf(statistics.getAbortions())));
 
 	result.append(
 	    formatField(m_twoDPFormat.format(

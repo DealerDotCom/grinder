@@ -64,6 +64,4 @@ test suite, you should say
 JUnit has the concept of "Failures" (which occur due to assertions
 failing) and "Errors" (which occur when tests throw exceptions). If a
 test causes _either_ a Failure or an Error, the Grinder "Errors" count
-for that test is incremented by one. Currently running tests should
-not cause Grinder "Abortions".
-
+for that test is incremented by one.

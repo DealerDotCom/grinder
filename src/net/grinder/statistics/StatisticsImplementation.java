@@ -32,7 +32,6 @@ public class Statistics implements Cloneable, java.io.Serializable
     private long m_totalTime = 0;
 
     private long m_errors = 0;
-    private long m_abortions = 0;
 
     private Statistics m_snapshot = null;
 
@@ -41,13 +40,12 @@ public class Statistics implements Cloneable, java.io.Serializable
     }
     
     private Statistics(long transactions, long timedTransactions,
-		       long totalTime, long errors, long abortions)
+		       long totalTime, long errors)
     {
 	m_untimedTransactions = transactions;
 	m_timedTransactions = timedTransactions;
 	m_totalTime = totalTime;
 	m_errors = errors;
-	m_abortions = abortions;
     }
 
     public synchronized void addTransaction()
@@ -64,11 +62,6 @@ public class Statistics implements Cloneable, java.io.Serializable
     public synchronized void addError()
     {
 	m_errors++;
-    }
-
-    public synchronized void addAbortion()
-    {
-	m_abortions++;
     }
 
     /**
@@ -103,8 +96,7 @@ public class Statistics implements Cloneable, java.io.Serializable
 			       m_timedTransactions -
 			       m_snapshot.m_timedTransactions,
 			       m_totalTime - m_snapshot.m_totalTime,
-			       m_errors - m_snapshot.m_errors,
-			       m_abortions - m_snapshot.m_abortions);
+			       m_errors - m_snapshot.m_errors);
 	}
 
 	if (updateSnapshot) {
@@ -124,7 +116,6 @@ public class Statistics implements Cloneable, java.io.Serializable
 	m_timedTransactions += operand.m_timedTransactions;
 	m_totalTime += operand.m_totalTime;
 	m_errors += operand.m_errors;
-	m_abortions += operand.m_abortions;
     }
 
     /** Accessor. N.B. Use clone() to get a consistent snapshot of a
@@ -139,13 +130,6 @@ public class Statistics implements Cloneable, java.io.Serializable
     public long getErrors()
     {
 	return m_errors;
-    }
-
-    /** Accessor. N.B. Use clone() to get a consistent snapshot of a
-     * changing Statistics */
-    public long getAbortions()
-    {
-	return m_abortions;
     }
 
     public synchronized double getAverageTransactionTime()
@@ -174,7 +158,6 @@ public class Statistics implements Cloneable, java.io.Serializable
 	    m_untimedTransactions == theOther.m_untimedTransactions &&
 	    m_timedTransactions == theOther.m_timedTransactions &&
 	    m_totalTime == theOther.m_totalTime &&
-	    m_errors == theOther.m_errors &&
-	    m_abortions == theOther.m_abortions;
+	    m_errors == theOther.m_errors;
     }
 }

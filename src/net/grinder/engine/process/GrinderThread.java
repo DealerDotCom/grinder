@@ -188,7 +188,7 @@ class GrinderThread implements java.lang.Runnable
 			}
 		    }
 		    catch (PluginException e) {
-			statistics.addAbortion();
+			statistics.addError();
 			m_context.logError(
 			    "Aborting cycle - plug-in threw " + e);
 			e.printStackTrace(m_context.getErrorLogWriter());
@@ -196,13 +196,13 @@ class GrinderThread implements java.lang.Runnable
 		    }
 
 		    if (m_context.getAborted()) {
-			statistics.addAbortion();
+			statistics.addError();
 			m_context.logError("Plug-in aborted thread");
 			break CYCLE_LOOP;
 		    }
 
 		    if (m_context.getAbortedCycle()) {
-			statistics.addAbortion();
+			statistics.addError();
 			m_context.logError("Plug-in aborted cycle");
 			continue CYCLE_LOOP;
 		    }

@@ -126,20 +126,24 @@ The output
 The final statistics summary looks something like this:
 
  Final statistics for this process:
-            Successful
-            Transactions  Errors     Abortions  Average (ms)  
- Test 0     100           0          0          0.30
- Test 1     100           0          0          0.20
- Test 2     100           0          0          0.00
- Test 3     100           0          0          0.10
- Test 4     100           0          0          0.10
- Test 5     100           0          0          0.10
- Test 6     100           0          0          0.00
- Test 7     100           0          0          0.00
- Test 8     100           0          0          0.50
- Test 9     100           0          0          0.30
 
-Each test has one of 3 possible outcomes:
+              Successful
+              Transactions  Errors        Average (ms)  
+Test 0        25            0             255.52        
+Test 1        25            0             213.40        
+Test 2        25            0             156.80         "Image"
+Test 3        25            0             90.48         
+Test 4        25            0             228.68         "Login page"
+Test 5        25            0             86.12          "Security check"
+Test 6        25            0             216.20        
+Test 7        25            0             73.20         
+Test 8        25            0             141.92        
+Test 9        25            0             104.68         "Logout page"
+
+Totals        250           0             156.70     
+
+
+Each test has one of 2 possible outcomes:
 
 	1. Success. The number of Successful Transactions for that test is
 	   incremented The time taken to perform the test is added to
@@ -148,10 +152,6 @@ Each test has one of 3 possible outcomes:
 	2. Error - "false" is returned from doTest(). The exact
 	   interpretation of this depends on the plugin. The number of
 	   Errors for the test is incremented.
-
-	3. Abortion. The plugin chooses to abort the cycle or thread.
-	   Again, when this might happen depends on the plugin. The
-	   number of Abortions for the test is incremented.
 
 The Total and Average figures are calculated based only on successful
 transactions.
