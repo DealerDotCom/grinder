@@ -21,14 +21,13 @@
 
 package net.grinder.engine.process;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
-import net.grinder.communication.RegisterTestsMessage;
-import net.grinder.communication.Sender;
 import net.grinder.engine.EngineException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.TestStatisticsMap;
@@ -43,7 +42,6 @@ import net.grinder.statistics.TestStatisticsMap;
 public final class TestRegistry {
 
   private static TestRegistry s_instance;
-  private final Sender m_consoleSender;
 
   /**
    * A map of Test to TestData's. (TestData is the class this
@@ -51,6 +49,12 @@ public final class TestRegistry {
    * instance when accessesing.
    **/
   private final Map m_testMap = new TreeMap();
+
+  /**
+   * Tests received since {@link #getNewTests} was last called.
+   * Synchronise on this <code>TestRegistry</code> before accessing.
+   */
+  private Collection m_newTests = null;
 
   /**
    * A map of Tests to Statistics for passing elsewhere.
@@ -69,14 +73,12 @@ public final class TestRegistry {
   /**
    * Constructor.
    */
-  TestRegistry(Sender consoleSender) throws EngineException {
+  TestRegistry() throws EngineException {
     if (s_instance != null) {
       throw new EngineException("Already initialised");
     }
 
     s_instance = this;
-
-    m_consoleSender = consoleSender;
   }
 
   /**
@@ -100,19 +102,37 @@ public final class TestRegistry {
       newTestData = new TestData(test);
       m_testMap.put(test, newTestData);
       m_testStatisticsMap.put(test, newTestData.getStatistics());
+
+      if (m_newTests == null) {
+	m_newTests = new ArrayList();
+      }
+
+      // To avoid many minor console updates we store a collection of
+      // the new tests which is periodically read and sent to the
+      // console by the scheduled reporter task.
+      m_newTests.add(test);
     }
 	
-    // Queue up, will get flushed with next process status or
-    // statistics report.
-    m_consoleSender.queue(
-      new RegisterTestsMessage(Collections.singleton(test)));
-
     return newTestData;
   }
 
   final TestStatisticsMap getTestStatisticsMap() {
     return m_testStatisticsMap;
   }
+
+  /**
+   * Return any tests registered since the last time
+   * <code>getNewTests</code> was called.
+   */
+  final synchronized Collection getNewTests() {
+    try {
+      return m_newTests;
+    }
+    finally {
+      m_newTests = null;
+    }
+  }
+  
 
   /**
    * Interface for test handles.

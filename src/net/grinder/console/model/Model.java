@@ -24,6 +24,7 @@ package net.grinder.console.model;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -255,7 +256,7 @@ public class Model {
    *
    * @param tests The new tests.
    */
-  public final void registerTests(Set tests) {
+  public final void registerTests(Collection tests) {
     // Need to copy collection, might be immutable.
     final HashSet newTests = new HashSet(tests);
 

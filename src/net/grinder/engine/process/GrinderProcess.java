@@ -24,6 +24,7 @@ package net.grinder.engine.process;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,6 +34,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.ProcessStatus;
 import net.grinder.communication.CommunicationException;
+import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ReportStatusMessage;
 import net.grinder.communication.Sender;
@@ -419,13 +421,19 @@ public final class GrinderProcess implements Monitor {
       final Sender consoleSender = m_context.getConsoleSender();
 
       try {
-	consoleSender.queue(new ReportStatisticsMessage(
-			      m_testStatisticsMap.getDelta(true)));
+	final Collection newTests = m_context.getTestRegistry().getNewTests();
+	
+	if (newTests != null) {
+	  consoleSender.queue(new RegisterTestsMessage(newTests));
+	}
 
-	consoleSender.send(new ReportStatusMessage(
-			     ProcessStatus.STATE_RUNNING,
-			     GrinderThread.getNumberOfThreads(),
-			     m_numberOfThreads));
+	consoleSender.queue(
+	  new ReportStatisticsMessage(m_testStatisticsMap.getDelta(true)));
+
+	consoleSender.send(
+	  new ReportStatusMessage(ProcessStatus.STATE_RUNNING,
+				  GrinderThread.getNumberOfThreads(),
+				  m_numberOfThreads));
       }
       catch (CommunicationException e) {
 	final Logger logger = m_context.getLogger();

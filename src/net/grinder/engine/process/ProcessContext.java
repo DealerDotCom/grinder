@@ -116,7 +116,7 @@ class ProcessContext {
     }
 
     m_pluginRegistry = new PluginRegistry(this);
-    m_testRegistry = new TestRegistry(getConsoleSender());
+    m_testRegistry = new TestRegistry();
     m_scriptContext = new ScriptContextImplementation(this);
   }
 

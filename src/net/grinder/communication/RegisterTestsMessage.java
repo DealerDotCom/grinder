@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +21,7 @@
 
 package net.grinder.communication;
 
-import java.util.Set;
+import java.util.Collection;
 
 
 /**
@@ -31,27 +30,27 @@ import java.util.Set;
  * @author Philip Aston
  * @version $Revision$
  */
-public class RegisterTestsMessage extends Message
-{
-    private static final long serialVersionUID = -7078786346425431655L;
+public final class RegisterTestsMessage extends Message {
 
-    private final Set m_tests;
+  private static final long serialVersionUID = -5373242586585432471L;
 
-    /**
-     * Constructor.
-     *
-     * @param tests The test set to register.
-     **/
-    public RegisterTestsMessage(Set tests)
-    {
-	m_tests = tests;
-    }
+  private final Collection m_tests;
 
-    /**
-     * Get the test set.
-     **/
-    public Set getTests()
-    {
-	return m_tests;
-    }
+  /**
+   * Constructor.
+   *
+   * @param tests The test set to register.
+   **/
+  public RegisterTestsMessage(Collection tests) {
+    m_tests = tests;
+  }
+
+  /**
+   * Get the test set.
+   *
+   * @return The test set.
+   */
+  public final Collection getTests() {
+    return m_tests;
+  }
 }
