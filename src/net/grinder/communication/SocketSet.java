@@ -22,6 +22,7 @@
 package net.grinder.communication;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -212,7 +213,7 @@ final class SocketSet {
 
       try {
         inputStream = new BufferedInputStream(m_socket.getInputStream());
-        outputStream = m_socket.getOutputStream();
+        outputStream = new BufferedOutputStream(m_socket.getOutputStream());
       }
       catch (IOException e) {
         close();
