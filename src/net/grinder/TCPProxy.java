@@ -97,7 +97,7 @@ public final class TCPProxy {
       "\n Other options:" +
       "\n   [-remotehost <host name>]    Default is localhost" +
       "\n   [-remoteport <port>]         Default is 7001" +
-      "\n   [-timeout]                   Proxy engine timeout" +
+      "\n   [-timeout <seconds>]         Proxy engine timeout" +
       "\n   [-colour]                    Be pretty on ANSI terminals" +
       "\n   [-console]                   Display the console" +
       "\n   [-proxy <host> <port>]       Route via HTTP/HTTPS proxy" +
@@ -121,10 +121,9 @@ public final class TCPProxy {
       "\n to produce a test script suitable for use with the" +
       "\n HTTP plugin." +
       "\n" +
-      "\n -timeout is how long (in seconds) the TCPProxy will wait" +
-      "\n for a request before timing out and freeing the local" +
-      "\n port. The TCPProxy will not time out if there are active" +
-      "\n connections." +
+      "\n -timeout is how long the TCPProxy will wait for a request before" +
+      "\n timing out and freeing the local port. The TCPProxy will not time" +
+      "\n out if there are active connections." +
       "\n" +
       "\n -console displays a simple console that allows the TCPProxy" +
       "\n to be shutdown cleanly." +
