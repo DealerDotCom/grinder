@@ -5,13 +5,6 @@ it too :-). The list is roughly in priority order.]
 
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 
-  Make console indepenedent of grinder.properties. Grinder processes
-  should register tests with a new type of message. TestImplementation
-  should set a serialisation id to prevent breaking old consoles.
-
-  Clean up the plug in interface. Split GrinderProperties into
-  interface and implementation.
-
   Update HTTPClient to measure "time to first byte" and "Time to last
   byte" as an alternative to implementing timeIncludesTransaction.
 
@@ -24,9 +17,6 @@ it too :-). The list is roughly in priority order.]
 
   Get the communications tests and the swing tests running under the
   JUnit plugin.
-
-  Allow String Beans to optionally capture request results. (Would
-  invoke "set" methods).
 
   Add an assertion for the expected status code to the HTTP plugin.
   HTTP Plugin "not ok".
