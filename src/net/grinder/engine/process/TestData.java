@@ -46,9 +46,16 @@ final class TestData implements TestRegistry.RegisteredTest
     TestData(PluginRegistry.RegisteredPlugin registeredPlugin,
 	     Test testDefinition)
     {
+	this(registeredPlugin, testDefinition,
+	     TestStatisticsFactory.getInstance().create());
+    }
+
+    TestData(PluginRegistry.RegisteredPlugin registeredPlugin,
+	     Test testDefinition, TestStatistics testStatistics)
+    {
 	m_registeredPlugin = registeredPlugin;
 	m_test = testDefinition;
-	m_statistics = TestStatisticsFactory.getInstance().create();
+	m_statistics = testStatistics;
     }
 
     final PluginRegistry.RegisteredPlugin getRegisteredPlugin() 

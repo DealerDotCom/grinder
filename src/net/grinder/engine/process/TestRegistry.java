@@ -95,18 +95,23 @@ public final class TestRegistry
     public RegisteredTest register(Class pluginClass, InvokeableTest test)
 	throws GrinderException
     {
+	PluginRegistry.RegisteredPlugin registeredPlugin =
+	    m_pluginRegistry.register(pluginClass);
+
 	final TestData newTestData;
-	
+
 	synchronized (this) {
 	    final TestData existing = (TestData)m_testMap.get(test);
 
 	    if (existing != null) {
-		return existing;
+		return new TestData(registeredPlugin, test,
+				    existing.getStatistics());
+
+		// Might optionally do this one day:
+		//throw new EngineException("Test " + test.getNumber() +
+		//  " has already been registered");
 	    }
 	    else {
-		PluginRegistry.RegisteredPlugin registeredPlugin =
-		    m_pluginRegistry.register(pluginClass);
-
 		newTestData = new TestData(registeredPlugin, test);
 		m_testMap.put(test, newTestData);
 		m_testStatisticsMap.put(test, newTestData.getStatistics());
