@@ -21,6 +21,9 @@ import java.io.*;
 import java.net.*;
 import java.util.Hashtable;
 
+import net.grinder.plugininterface.PluginContext;
+
+
 /**
  * Util class for sending HTTP requests.
  *
@@ -31,9 +34,17 @@ import java.util.Hashtable;
  * @author Philip Aston
  * @version $Revision$
  */
-public class HttpMsg{
- 
-    public HttpMsg(boolean useCookie, boolean followRedirects) {
+public class HttpMsg
+{
+    private final PluginContext m_pluginContext;
+    private boolean m_useCookie;
+    private boolean m_followRedirects;
+    private String m_cookie;
+
+    public HttpMsg(PluginContext pluginContext, boolean useCookie,
+		   boolean followRedirects)
+    {
+	m_pluginContext = pluginContext;
 	m_useCookie = useCookie;
 	m_followRedirects = followRedirects;
 	reset();
@@ -42,13 +53,8 @@ public class HttpMsg{
     public String sendRequest(HttpRequestData requestData)
 	throws java.io.IOException
     {
-	// do not forget to include in the the classpath
-	// the following class:
-	//  sun.net.www.protocol 
-	// it is included in c:\jdk1.1.7B\lib\classes.zip
-
+	final String urlString = requestData.getURLString();
 	URL url = null;
-	String urlString = requestData.getURLString();
 
 	try {
 	    url = new URL(urlString);
@@ -60,19 +66,32 @@ public class HttpMsg{
 	    url = new URL(contextURL, urlString); // Let this one fail.
 	}
 
-	urlString = url.toString();
-
 	final String postString = requestData.getPostString();
 
-	HttpURLConnection connection = 
-	    (HttpURLConnection) url.openConnection();
+
+	m_pluginContext.startTimer();
+
+	HttpURLConnection connection;
+
+	try {
+	    connection = (HttpURLConnection) url.openConnection();
+	}
+	finally {
+	    m_pluginContext.stopTimer();
+	}
+
+	final long ifModifiedSince = requestData.getIfModifiedSince();
+
+	if (ifModifiedSince >= 0) {
+	    connection.setIfModifiedSince(ifModifiedSince);
+	}
 
 	// Optionally stop URLConnection from handling http 302
 	// forwards, because these contain the cookie when handling
 	// web app form based authentication.
 	connection.setInstanceFollowRedirects(m_followRedirects);
             
-	if (m_useCookie) {
+	if (m_useCookie && m_cookie != null) {
 	    connection.setRequestProperty("Cookie", m_cookie);
 	}
 
@@ -98,36 +117,62 @@ public class HttpMsg{
 		m_cookie = s;
 	    }
 	}
-            
-	// Slurp the response into a StringWriter.
-	final InputStreamReader isr =
-	    new InputStreamReader(connection.getInputStream());
-	final BufferedReader in = new BufferedReader(isr);
 
+	final int responseCode = connection.getResponseCode();
 
-	// Default StringWriter buffer size is usually 16 which is way small.
-	final StringWriter stringWriter = new StringWriter(512);
+	if (responseCode == HttpURLConnection.HTTP_OK) {          
+	    // Slurp the response into a StringWriter.
+	    final InputStreamReader isr =
+		new InputStreamReader(connection.getInputStream());
+	    final BufferedReader in = new BufferedReader(isr);
 
-	char[] buffer = new char[512];
-	int charsRead = 0;
+	    // Default StringWriter buffer size is usually 16 which is way small.
+	    final StringWriter stringWriter = new StringWriter(512);
 
-	while ((charsRead = in.read(buffer, 0, buffer.length)) > 0) {
-	    stringWriter.write(buffer, 0, charsRead);
-	}    
+	    char[] buffer = new char[512];
+	    int charsRead = 0;
 
-	in.close();
-	stringWriter.close();
+	    while ((charsRead = in.read(buffer, 0, buffer.length)) > 0) {
+		stringWriter.write(buffer, 0, charsRead);
+	    }    
 
-	final String result = stringWriter.toString();
+	    in.close();
+	    stringWriter.close();
+	    
+	    m_pluginContext.logMessage(urlString + " OK");
 
-	return result;
+	    return stringWriter.toString();
+	}
+	else if (responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
+	    m_pluginContext.logMessage(urlString + " was not modified");
+	}
+	else if (responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
+		 responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
+		 responseCode == 307) {
+	    // It would be possible to perform the check
+	    // automatically, but for now just chuck out some
+	    // information.
+	    m_pluginContext.logMessage(urlString +
+				       " returned a redirect (" +
+				       responseCode + "). " +
+				       "Ensure the next URL is " +
+				       connection.getHeaderField("Location"));
+
+	    // I've seen the code that slurps the body block for non
+	    // 200 responses. Can't think off the top of my head how
+	    // to code to poll for a body, so for now just ignore the
+	    // problem.
+	    return null;
+	}
+	else {
+	    m_pluginContext.logError("Unknown response code: " + responseCode +
+			       " for " + urlString);
+	}
+
+	return null;
     }
 
     public void reset(){
-        m_cookie = "";
+        m_cookie = null;
     }
-
-    private boolean m_useCookie;
-    private boolean m_followRedirects;
-    private String m_cookie;
 }

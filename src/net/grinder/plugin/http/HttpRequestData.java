@@ -17,6 +17,7 @@
 
 package net.grinder.plugin.http;
 
+
 /**
  * Interface to obtain the data needed to make a particular HTTP
  * request.
@@ -28,5 +29,6 @@ public interface HttpRequestData {
     public String getURLString();
     public String getContextURLString();
     public String getPostString();
+    public long getIfModifiedSince();
 }
 

@@ -20,7 +20,7 @@
 
 package net.grinder.plugin.http;
 
-import net.grinder.plugininterface.GrinderContext;
+import net.grinder.plugininterface.PluginContext;
 import net.grinder.util.GrinderProperties;
 import net.grinder.plugininterface.PluginException;
 
@@ -42,82 +42,91 @@ import java.io.FileInputStream;
  * @author Phil Dawes
  * @version $Revision$
  */
-public class HttpsPlugin extends HttpPlugin {
-
-	private static final String KEYSTORE_TYPE = "PKCS12";
+public class HttpsPlugin extends HttpPlugin
+{
+    private static final String KEYSTORE_TYPE = "PKCS12";
 
     /**
      * This method initializes SSL the plug-in.
      *
      */    
-    public void initialize(GrinderContext grinderContext)
+    public void initialize(PluginContext pluginContext)
 	throws PluginException
     {
-		System.setProperty("java.protocol.handler.pkgs",
-						   "com.sun.net.ssl.internal.www.protocol");
-		java.security.Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
+	System.setProperty("java.protocol.handler.pkgs",
+			   "com.sun.net.ssl.internal.www.protocol");
+	java.security.Security.addProvider(new com.sun.net.ssl.internal.ssl.Provider());
 
-		GrinderProperties parameters = grinderContext.getParameters();
+	final GrinderProperties parameters =
+	    pluginContext.getPluginParameters();
 
-		// optional parameters
-	    String clientCertFilename = parameters.getProperty("clientCert");
-	    String passwordStr = parameters.getProperty("clientCertPassword");
+	// optional parameters
+	String clientCertFilename = parameters.getProperty("clientCert");
+	String passwordStr = parameters.getProperty("clientCertPassword");
 		
-		try {
-			KeyStore ks = KeyStore.getInstance(KEYSTORE_TYPE);
-			X509TrustManager tm = new TrustEveryone();
-			TrustManager []tma = {tm};
-			KeyManagerFactory kmf = 
-				KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+	try {
+	    KeyStore ks = KeyStore.getInstance(KEYSTORE_TYPE);
+	    X509TrustManager tm = new TrustEveryone();
+	    TrustManager []tma = {tm};
+	    KeyManagerFactory kmf = 
+		KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 			
-			if(clientCertFilename != null) {
-				if(passwordStr == null) {
-					throw new PluginException("You need to set property grinder.plugin.parameter.clientCertPassword");
-				}
-				char password[] = new char[passwordStr.length()];
-				passwordStr.getChars(0,passwordStr.length(),password,0);
-				ks.load(new FileInputStream(clientCertFilename),password);
-				kmf.init(ks,password);
-			}
-
-			SSLContext sCtx = SSLContext.getInstance("SSL");
-			sCtx.init(kmf.getKeyManagers(),tma,new java.security.SecureRandom());
-			SSLSocketFactory sFactory = sCtx.getSocketFactory();
-			HttpsURLConnection.setDefaultSSLSocketFactory(sFactory);
-			HttpsURLConnection.setDefaultHostnameVerifier(new VerifyAll());
-		} catch(Exception ex) {
-			ex.printStackTrace();
-			throw new PluginException(ex.toString());
+	    if(clientCertFilename != null) {
+		if(passwordStr == null) {
+		    throw new PluginException("You need to set property grinder.plugin.parameter.clientCertPassword");
 		}
+		char password[] = new char[passwordStr.length()];
+		passwordStr.getChars(0,passwordStr.length(),password,0);
+		ks.load(new FileInputStream(clientCertFilename),password);
+		kmf.init(ks,password);
+	    }
 
-		super.initialize(grinderContext);
+	    SSLContext sCtx = SSLContext.getInstance("SSL");
+	    sCtx.init(kmf.getKeyManagers(),tma,new java.security.SecureRandom());
+	    SSLSocketFactory sFactory = sCtx.getSocketFactory();
+	    HttpsURLConnection.setDefaultSSLSocketFactory(sFactory);
+	    HttpsURLConnection.setDefaultHostnameVerifier(new VerifyAll());
+	} catch(Exception ex) {
+	    ex.printStackTrace();
+	    throw new PluginException(ex.toString());
+	}
+
+	super.initialize(pluginContext);
     }
 }
+
 
 /**
  * For the purposes of grinding, we don't care whether the cert chain
  * is trusted or not, so here's an implementation which accepts everything -PD
  */
-class TrustEveryone implements X509TrustManager {
+class TrustEveryone implements X509TrustManager
+{
 
-	public boolean isClientTrusted (X509Certificate[] chain) {
-		return true;
-	}
+    public boolean isClientTrusted (X509Certificate[] chain)
+    {
+	return true;
+    }
 	
-	public boolean isServerTrusted (X509Certificate[] chain) {
-		return true;
-	}
-	public java.security.cert.X509Certificate[] getAcceptedIssuers()
-	{
-		return null;
-	}
-};
+    public boolean isServerTrusted (X509Certificate[] chain)
+    {
+	return true;
+    }
+
+    public java.security.cert.X509Certificate[] getAcceptedIssuers()
+    {
+	return null;
+    }
+}
+
 
 /**
  * Ditto here - we don't care if the cert name doesn't match the hostname
  */
-class VerifyAll implements HostnameVerifier {
-	public boolean verify(String urlHostname, String certHostName) {
-		return true;
-	}
-};
+class VerifyAll implements HostnameVerifier
+{
+    public boolean verify(String urlHostname, String certHostName)
+    {
+	return true;
+    }
+}

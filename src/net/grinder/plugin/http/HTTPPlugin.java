@@ -18,17 +18,18 @@
 
 package net.grinder.plugin.http;
 
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.List;
-import net.grinder.plugininterface.GrinderContext;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.HashMap;
+
+import net.grinder.plugininterface.PluginContext;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.TestDefinition;
 import net.grinder.util.FilenameFactory;
-import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 
 
@@ -39,7 +40,14 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-public class HttpPlugin implements GrinderPlugin {
+public class HttpPlugin implements GrinderPlugin
+{
+    private PluginContext m_pluginContext = null;
+    private FilenameFactory m_filenameFactory = null;
+    private HashMap m_callData = new HashMap();
+    private boolean m_logHTML = true;
+    private HttpMsg m_httpMsg = null;
+    private int m_currentIteration = 0; // How many times we've done all the URL's
 
     /**
      * Inner class that holds the data for a call.
@@ -49,21 +57,25 @@ public class HttpPlugin implements GrinderPlugin {
 	private String m_urlString;
 	private String m_postString;
 	private String m_okString;
+	private long m_ifModifiedSince;
     
-	public CallData(final int n)
+	public CallData(TestDefinition test)
 	{
-	    m_urlString = m_parameters.getProperty("url" + n, null);
-	    m_okString = m_parameters.getProperty("ok" + n, null);
+	    final GrinderProperties testParameters = test.getParameters();
 
-	    final String postFilename = m_parameters.getProperty("post" + n,
-								 null);
+	    m_urlString = testParameters.getProperty("url", null);
+	    m_okString = testParameters.getProperty("ok", null);
+	    m_ifModifiedSince = testParameters.getLong("ifModifiedSince", -1);
+
+	    final String postFilename =
+		testParameters.getProperty("post", null);
 
 	    if (postFilename != null) {
 		try {
 		    final FileReader in = new FileReader(postFilename);
 		    final StringWriter writer = new StringWriter(512);
 		    
-		    char[] buffer = new char[512];
+		    char[] buffer = new char[4096];
 		    int charsRead = 0;
 
 		    while ((charsRead = in.read(buffer, 0, buffer.length)) > 0)
@@ -76,8 +88,8 @@ public class HttpPlugin implements GrinderPlugin {
 		    m_postString = writer.toString();
 		}
 		catch (IOException e) {
-		    System.err.println("Could not read post data from " +
-				       postFilename);
+		    m_pluginContext.logError(
+			"Could not read post data from " + postFilename);
 
 		    e.printStackTrace(System.err);
 		}
@@ -87,6 +99,7 @@ public class HttpPlugin implements GrinderPlugin {
 	public String getURLString() { return m_urlString; }
 	public String getContextURLString() { return null; }
 	public String getPostString() { return m_postString; }
+	public long getIfModifiedSince() { return m_ifModifiedSince; }
 	public String getOKString() { return m_okString; }
 
 	protected void setURLString(String s) { m_urlString = s; }
@@ -96,150 +109,101 @@ public class HttpPlugin implements GrinderPlugin {
 
     /**
      * This method initializes the plug-in.
-     *
      */    
-    public void initialize(GrinderContext grinderContext)
+    public void initialize(PluginContext pluginContext)
 	throws PluginException
     {
-	m_grinderContext = grinderContext;
-	m_parameters = grinderContext.getParameters();
-	m_filenameFactory = grinderContext.getFilenameFactory();
+	m_pluginContext = pluginContext;
 
-	m_callData = new CallData[m_maxURLs];
+	final GrinderProperties parameters =
+	    pluginContext.getPluginParameters();
+
+	m_filenameFactory = pluginContext.getFilenameFactory();
     
-	for (int i=0; i<m_maxURLs; i++){
-	    m_callData[i] = createCallData(grinderContext, i);
-	}     
-    
-	m_httpMsg = new HttpMsg(m_parameters.getBoolean("keepSession", false),
-				m_parameters.getBoolean("followRedirects", false));
-	m_logHTML = m_parameters.getBoolean("logHTML", false);
+	m_httpMsg = new HttpMsg(pluginContext,
+				parameters.getBoolean("keepSession", false),
+				parameters.getBoolean("followRedirects",
+						      false));
+
+	m_logHTML = parameters.getBoolean("logHTML", false);
     }
 
-    /**
-     * Give derived classes a chance to be interesting.
-     */
-    protected CallData createCallData(GrinderContext grinderContext,
-				      int urlNumber)
+    public void beginCycle() throws PluginException
     {
-	return new CallData(urlNumber);
+	// Reset cookie if necessary.
+	m_httpMsg.reset();      
     }
-    
 
     /**
      * This method processes the URLs.
-     *
      */    
-    protected boolean processUrl(int i) throws Exception {
-
-	if (i < 0 || i >= m_maxURLs) {
-	    throw new PluginException("Invalid URL: " + i);
+    public boolean doTest(TestDefinition test) throws PluginException
+    {
+	final Integer testNumber = test.getTestNumber();
+	
+	CallData callData = (CallData)m_callData.get(testNumber);
+	
+	if (callData == null) {
+	    callData = createCallData(m_pluginContext, test);
+	    m_callData.put(testNumber, callData);
 	}
-    
+	
 	// Do the call.
-	String page = null;
+	final String page;
 
-	m_grinderContext.startTimer();
+	m_pluginContext.startTimer();
 
 	try {
-	    page = m_httpMsg.sendRequest(m_callData[i]);
+	    page = m_httpMsg.sendRequest(callData);
 	}
-	finally {
-	    m_grinderContext.stopTimer();
+	catch (IOException e) {
+	    throw new PluginException("HTTP IOException: " + e, e);
 	}
 
-	final String okString = m_callData[i].getOKString();
+	final String okString = callData.getOKString();
 
 	final boolean error =
-	    okString != null  && page.indexOf(okString) == -1;
+	    okString != null && page != null && page.indexOf(okString) == -1;
 	
 	if (m_logHTML || error) {
 	    final String filename =
 		m_filenameFactory.createFilename("page",
 						 "_" + m_currentIteration +
-						 "_" + i + ".html");
-	    final BufferedWriter htmlFile =
-		new BufferedWriter(new FileWriter(filename, false));
-	    htmlFile.write(page);
-	    htmlFile.close();
+						 "_" + testNumber + ".html");
+	    try {
+		final BufferedWriter htmlFile =
+		    new BufferedWriter(new FileWriter(filename, false));
+
+		htmlFile.write(page);
+		htmlFile.close();
+	    }
+	    catch (IOException e) {
+		throw new PluginException("Error writing to " + filename +
+					  ": " + e, e);
+	    }
 
 	    if (error) {
-		System.err.println("The 'ok' string ('" + okString +
-				   "') was not found in the page received.");
-		System.err.println("The output has been written to '" +
-				   filename + "'");
+		m_pluginContext.logError(
+		    "The 'ok' string ('" + okString +
+		    "') was not found in the page received. " +
+		    "The output has been written to '" + filename + "'");
 	    }
 	}
 
 	return !error;
     }
 
-    public void beginCycle() throws PluginException {
-	// Reset cookie if necessary.
-	m_httpMsg.reset();      
+    /**
+      * Give derived classes a chance to be interesting.
+      */
+    protected CallData createCallData(PluginContext pluginContext,
+ 				      TestDefinition test)
+    {
+ 	return new CallData(test);
     }
 
-    public void endCycle()throws PluginException {
+    public void endCycle() throws PluginException
+    {
 	m_currentIteration++;
     }
-
-    public boolean url0() throws Exception { return processUrl(0); }
-    public boolean url1() throws Exception { return processUrl(1); }
-    public boolean url2() throws Exception { return processUrl(2); }
-    public boolean url3() throws Exception { return processUrl(3); }
-    public boolean url4() throws Exception { return processUrl(4); }
-    public boolean url5() throws Exception { return processUrl(5); }
-    public boolean url6() throws Exception { return processUrl(6); }
-    public boolean url7() throws Exception { return processUrl(7); }
-    public boolean url8() throws Exception { return processUrl(8); }
-    public boolean url9() throws Exception { return processUrl(9); }
-    public boolean url10() throws Exception { return processUrl(10); }
-    public boolean url11() throws Exception { return processUrl(11); }
-    public boolean url12() throws Exception { return processUrl(12); }
-    public boolean url13() throws Exception { return processUrl(13); }
-    public boolean url14() throws Exception { return processUrl(14); }
-    public boolean url15() throws Exception { return processUrl(15); }
-    public boolean url16() throws Exception { return processUrl(16); }
-    public boolean url17() throws Exception { return processUrl(17); }
-    public boolean url18() throws Exception { return processUrl(18); }
-    public boolean url19() throws Exception { return processUrl(19); }
-    public boolean url20() throws Exception { return processUrl(20); }
-    public boolean url21() throws Exception { return processUrl(21); }
-    public boolean url22() throws Exception { return processUrl(22); }
-    public boolean url23() throws Exception { return processUrl(23); }
-    public boolean url24() throws Exception { return processUrl(24); }
-    public boolean url25() throws Exception { return processUrl(25); }
-    public boolean url26() throws Exception { return processUrl(26); }
-    public boolean url27() throws Exception { return processUrl(27); }
-    public boolean url28() throws Exception { return processUrl(28); }
-    public boolean url29() throws Exception { return processUrl(29); }
-    public boolean url30() throws Exception { return processUrl(30); }
-    public boolean url31() throws Exception { return processUrl(31); }
-    public boolean url32() throws Exception { return processUrl(32); }
-    public boolean url33() throws Exception { return processUrl(33); }
-    public boolean url34() throws Exception { return processUrl(34); }
-    public boolean url35() throws Exception { return processUrl(35); }
-    public boolean url36() throws Exception { return processUrl(36); }
-    public boolean url37() throws Exception { return processUrl(37); }
-    public boolean url38() throws Exception { return processUrl(38); }
-    public boolean url39() throws Exception { return processUrl(39); }
-    public boolean url40() throws Exception { return processUrl(40); }
-    public boolean url41() throws Exception { return processUrl(41); }
-    public boolean url42() throws Exception { return processUrl(42); }
-    public boolean url43() throws Exception { return processUrl(43); }
-    public boolean url44() throws Exception { return processUrl(44); }
-    public boolean url45() throws Exception { return processUrl(45); }
-    public boolean url46() throws Exception { return processUrl(46); }
-    public boolean url47() throws Exception { return processUrl(47); }
-    public boolean url48() throws Exception { return processUrl(48); }
-    public boolean url49() throws Exception { return processUrl(49); }
-
-    private GrinderContext m_grinderContext = null;
-    private GrinderProperties m_parameters = null;
-    private FilenameFactory m_filenameFactory = null;
-    private CallData[] m_callData = null;
-    private final int m_maxURLs = 50;
-    private boolean m_logHTML = true;
-    private HttpMsg m_httpMsg = null;
-    private int m_currentIteration = 0; // How many times we've done all the URL's
 }

@@ -20,7 +20,8 @@ package net.grinder.plugin.http;
 
 import java.text.DecimalFormat;
 
-import net.grinder.plugininterface.GrinderContext;
+import net.grinder.plugininterface.PluginContext;
+import net.grinder.plugininterface.TestDefinition;
 
 
 /**
@@ -36,9 +37,9 @@ public class BookHttpPlugin extends HttpPlugin {
 	private String m_phone = "2000";
 	private DecimalFormat m_twoDigitsFormat = new DecimalFormat("00");
 
-	public CallData(GrinderContext grinderContext, String methodName)
+	public CallData(PluginContext pluginContext, TestDefinition test)
 	{
-	    super(methodName);
+	    super(test);
 
 	    final String original = getURLString();
 
@@ -50,24 +51,22 @@ public class BookHttpPlugin extends HttpPlugin {
 		    
 		    buffer.append(original.substring(0, index));
 		    buffer.append("555");
-		    buffer.append(grinderContext.getHostIDString());
-		    buffer.append(grinderContext.getProcessIDString());
+		    buffer.append(pluginContext.getHostIDString());
+		    buffer.append(pluginContext.getProcessIDString());
 		    buffer.append(m_twoDigitsFormat.format(
-				      grinderContext.getThreadID()));
+				      pluginContext.getThreadID()));
 		    buffer.append(original.substring(
 				      index + TEMPLATE_STRING.length()));
 
 		    setURLString(buffer.toString());
-
-		    System.out.println("New url=" + buffer);
 		}
 	    }
 	}
     }
 
-    protected HttpPlugin.CallData createCallData(GrinderContext gc,
-						 String methodName)
+    protected HttpPlugin.CallData createCallData(PluginContext gc,
+						 TestDefinition test)
     {
-	return new CallData(gc, methodName);
+	return new CallData(gc, test);
     }
 }
