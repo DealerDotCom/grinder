@@ -71,7 +71,7 @@ public final class Resources {
    *
    * @param writer The writer.
    */
-  public final void setErrorWriter(PrintWriter writer) {
+  public void setErrorWriter(PrintWriter writer) {
     m_errorWriter = writer;
   }
 
