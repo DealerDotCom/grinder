@@ -22,7 +22,6 @@
 package net.grinder.engine.agent;
 
 import java.io.File;
-import java.io.IOException;
 
 import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
@@ -44,45 +43,74 @@ import net.grinder.util.FileContents;
  */
 final class FileStore {
 
-  /** Should make this a Directory one day. */
-  private final File m_directory;
   private final Logger m_logger;
+
+  private final File m_rootDirectory;
+  private Directory m_currentDirectory;
+  private Directory m_incomingDirectory;
+  private int m_nextDirectoryIndex = 0;
 
   public FileStore(File directory, Logger logger) throws FileStoreException {
 
-    m_directory = directory.getAbsoluteFile();
+    m_rootDirectory = directory.getAbsoluteFile();
     m_logger = logger;
 
-    if (m_directory.exists()) {
-      if (!m_directory.isDirectory()) {
+    if (m_rootDirectory.exists()) {
+      if (!m_rootDirectory.isDirectory()) {
         throw new FileStoreException(
-          "Can't write to directory '" + m_directory +
+          "Could not write to directory '" + m_rootDirectory +
           "' as file with that name already exists");
       }
-    }
-    else {
-      if (!m_directory.mkdir()) {
+
+      if (!m_rootDirectory.canWrite()) {
         throw new FileStoreException(
-          "Can't create directory '" + m_directory + "'");
+          "Could not write to directory '" + m_rootDirectory + "'");
       }
-    }
-
-    if (!m_directory.canWrite()) {
-      throw new FileStoreException(
-        "Can't write to directory '" + m_directory + "'");
-    }
-
-    try {
-      new Directory(m_directory).deleteContents();
-    }
-    catch (IOException e) {
-      throw new FileStoreException(
-        "Can't delete contents of directory '" + m_directory + "'", e);
     }
   }
 
-  public File getDirectory() {
-    return m_directory;
+  private Directory createDirectory() throws FileStoreException {
+    if (!m_rootDirectory.exists()) {
+      if (!m_rootDirectory.mkdir()) {
+        throw new FileStoreException(
+          "Could not create directory '" + m_rootDirectory + "'");
+      }
+    }
+
+    final File file =
+      new File(m_rootDirectory, "distribution-" + m_nextDirectoryIndex);
+    ++m_nextDirectoryIndex;
+
+    try {
+      final Directory result = new Directory(file);
+      result.create();
+      result.deleteContents();
+      return result;
+    }
+    catch (Directory.DirectoryException e) {
+      throw new FileStoreException("Could not create file store directory", e);
+    }
+  }
+
+  public Directory getDirectory() throws FileStoreException {
+    try {
+      synchronized (m_rootDirectory) {
+        if (m_incomingDirectory != null) {
+          if (m_currentDirectory != null) {
+            m_currentDirectory.deleteContents();
+            m_currentDirectory.delete();
+          }
+
+          m_currentDirectory = m_incomingDirectory;
+          m_incomingDirectory = null;
+        }
+
+        return m_currentDirectory;
+      }
+    }
+    catch (Directory.DirectoryException e) {
+      throw new FileStoreException("Could not create file store directory", e);
+    }
   }
 
   public Sender getSender(final Sender delegate) {
@@ -91,31 +119,38 @@ final class FileStore {
         public void send(Message message) throws CommunicationException {
           if (message instanceof ClearCacheMessage) {
             m_logger.output("Clearing file store");
-            try {
-              new Directory(m_directory).deleteContents();
-            }
-            catch (Directory.DirectoryException e) {
-              m_logger.error("Could not clear file store: " + e.getMessage());
 
-              // Throwing an exception causes the agent to silently
-              // exit.
+            try {
+              synchronized (m_rootDirectory) {
+                m_incomingDirectory = createDirectory();
+              }
+            }
+            catch (FileStoreException e) {
               throw new CommunicationException(e.getMessage(), e);
             }
           }
           else if (message instanceof DistributeFileMessage) {
-            final FileContents fileContents =
-              ((DistributeFileMessage)message).getFileContents();
-
-            m_logger.output("Updating file store: " + fileContents);
 
             try {
-              fileContents.create(m_directory);
+              synchronized (m_rootDirectory) {
+                if (m_incomingDirectory == null) {
+                  m_incomingDirectory = createDirectory();
+                }
+
+                final FileContents fileContents =
+                  ((DistributeFileMessage)message).getFileContents();
+
+                m_logger.output("Updating file store: " + fileContents);
+
+                fileContents.create(m_incomingDirectory);
+              }
             }
             catch (FileContents.FileContentsException e) {
-              m_logger.error("Could not write file: " + e.getMessage());
-
-              // Throwing an exception causes the agent to silently
-              // exit.
+              m_logger.error(e.getMessage());
+              throw new CommunicationException(e.getMessage(), e);
+            }
+            catch (FileStoreException e) {
+              m_logger.error(e.getMessage());
               throw new CommunicationException(e.getMessage(), e);
             }
           }
