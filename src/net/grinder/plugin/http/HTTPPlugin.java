@@ -40,8 +40,10 @@ import HTTPClient.ParseException;
 import HTTPClient.ProtocolNotSuppException;
 import HTTPClient.URI;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
+import net.grinder.script.ScriptPluginContext;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
@@ -88,10 +90,16 @@ public class HTTPPlugin implements GrinderPlugin
 	DefaultAuthHandler.setAuthorizationPrompter(null);
     }
 
+    static final Class getRedirectionModule() 
+    {
+	return s_redirectionModule;
+    }
+
     private PluginProcessContext m_processContext;
+    private final ScriptPluginContext m_scriptPluginContext =
+	new HTTPPluginScriptPluginContext();
 
     private boolean m_disablePersistentConnections;
-    private boolean m_followRedirects;
     private boolean m_logHTML;
     private boolean m_useCookies;
 
@@ -105,7 +113,6 @@ public class HTTPPlugin implements GrinderPlugin
 
 	m_disablePersistentConnections =
 	    parameters.getBoolean("disablePersistentConnections", false);
-	m_followRedirects = parameters.getBoolean("followRedirects", false);
 	m_logHTML = parameters.getBoolean("logHTML", false);
 	m_useCookies = parameters.getBoolean("useCookies", true);
     }
@@ -148,13 +155,6 @@ public class HTTPPlugin implements GrinderPlugin
 		    connection.removeModule(CookieModule.class);
 		}
 
-		if (m_followRedirects) {
-		    connection.addModule(s_redirectionModule, 0);
-		}
-		else {
-		    connection.removeModule(s_redirectionModule);
-		}
-
 		if (m_disablePersistentConnections) {
 		    NVPair[] def_hdrs = { new NVPair("Connection", "close") };
 		    connection.setDefaultHeaders(def_hdrs);
@@ -176,6 +176,8 @@ public class HTTPPlugin implements GrinderPlugin
 	{
 	    // Discard our cookies.
 	    CookieModule.discardAllCookies(HTTPPlugin.this);
+
+	    // SHOULD ALSO REMOVE OLD AUTHORIZATIONS.
 
 	    // Close connections from previous run.
 	    final Iterator i = m_httpConnections.values().iterator();
@@ -274,6 +276,28 @@ public class HTTPPlugin implements GrinderPlugin
 	public void endRun() throws PluginException
 	{
 	    m_currentIteration++;
+	}
+    }
+
+    public final ScriptPluginContext getScriptPluginContext()
+    {
+	return m_scriptPluginContext;
+    }
+
+    public final class HTTPPluginScriptPluginContext
+	implements ScriptPluginContext
+    {
+	public final HTTPPluginConnection getConnection(URI uri)
+	    throws GrinderException, ParseException, ProtocolNotSuppException
+	{
+	    final HTTPPluginThreadCallbacks threadCallbacks =
+		(HTTPPluginThreadCallbacks)
+		m_processContext.getPluginThreadCallbacks();
+	    
+	    final HTTPConnection httpConnection =
+		threadCallbacks.getConnection(uri);
+	    
+	    return new HTTPConnectionWrapper(httpConnection);
 	}
     }
 }
