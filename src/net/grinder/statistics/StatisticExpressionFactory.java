@@ -53,7 +53,17 @@ final class StatisticExpressionFactory
 	createExpression(String expression, ProcessStatisticsIndexMap indexMap)
 	throws GrinderException
     {
-	return createExpression(new ParseContext(expression), indexMap);
+	final ParseContext parseContext = new ParseContext(expression);
+
+	try {
+	    return createExpression(parseContext, indexMap);
+	}
+	finally {
+	    if (parseContext.hasMoreCharacters()) {
+		throw parseContext.new ParseException(
+		    "Additional characters found");
+	    }
+	}
     }
 
     private final StatisticExpression
@@ -112,7 +122,7 @@ final class StatisticExpressionFactory
     public StatisticExpression
 	createSum(final StatisticExpression[] operands)
     {
-	return new VariableArgumentsExpression(operands) {
+	return new VariableArgumentsExpression(0, operands) {
 		public final double doDoubleOperation(
 		    double result, StatisticExpression operand,
 		    RawStatistics rawStatistics) {
@@ -130,7 +140,7 @@ final class StatisticExpressionFactory
     public StatisticExpression
 	createProduct(final StatisticExpression[] operands)
     {
-	return new VariableArgumentsExpression(operands) {
+	return new VariableArgumentsExpression(1, operands) {
 		public final double doDoubleOperation(
 		    double result, StatisticExpression operand,
 		    RawStatistics rawStatistics) {
@@ -282,13 +292,14 @@ final class StatisticExpressionFactory
     {
 	final StatisticExpression m_expression;
 
-	VariableArgumentsExpression(final StatisticExpression[] operands) 
+	VariableArgumentsExpression(final double initialValue,
+				    final StatisticExpression[] operands) 
 	{
 	    if (shouldPromoteResultToDouble(operands)) {
 		m_expression = new DoubleStatistic() {
 			public final double getValue(
 			    RawStatistics rawStatistics) {
-			    double result = 0;
+			    double result = initialValue;
 
 			    for (int i=0; i<operands.length; ++i) {
 				result =
@@ -304,7 +315,7 @@ final class StatisticExpressionFactory
 		m_expression = new LongStatistic() {
 			public final long getValue(
 			    RawStatistics rawStatistics) {
-			    long result = 0;
+			    long result = (long)initialValue;
 
 			    for (int i=0; i<operands.length; ++i) {
 				result =
@@ -334,18 +345,20 @@ final class StatisticExpressionFactory
 
     private final static class ParseContext
     {
+	private static final char EOS_SENTINEL = 0;
 	private final char[] m_expression;
 	private int m_index;
-	private boolean m_eos = false;
 
 	public ParseContext(String expression)
 	{
 	    m_expression = expression.toCharArray();
 	    m_index = 0;
+	}
 
-	    if (m_expression.length == 0) {
-		m_eos = true;
-	    }
+	public final boolean hasMoreCharacters()
+	{
+	    eatWhiteSpace();
+	    return m_index < m_expression.length;
 	}
 
 	public final char peekCharacter()
@@ -357,11 +370,7 @@ final class StatisticExpressionFactory
 	private final char peekCharacterNoEat()
 	{
 	    if (m_index >= m_expression.length) {
-		m_eos = true;
-	    }
-
-	    if (m_eos) {
-		return 0;	// Better sentinel?
+		return EOS_SENTINEL;
 	    }
 
 	    return m_expression[m_index];
@@ -370,7 +379,11 @@ final class StatisticExpressionFactory
 	public final char readCharacter()
 	{
 	    final char result = peekCharacter();
-	    ++m_index;
+
+	    if (result != EOS_SENTINEL) {
+		++m_index;
+	    }
+
 	    return result;
 	}
 
@@ -396,7 +409,7 @@ final class StatisticExpressionFactory
 	private final boolean isTokenCharacter(char c)
 	{
 	    return
-		c != 0 &&
+		c != EOS_SENTINEL &&
 		c != '(' &&
 		c != ')' &&
 		!Character.isWhitespace(c);

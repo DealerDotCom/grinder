@@ -22,6 +22,7 @@ import junit.framework.TestCase;
 import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
+import net.grinder.common.GrinderException;
 import net.grinder.statistics.ProcessStatisticsIndexMap;
 import net.grinder.statistics.RawStatistics;
 
@@ -69,6 +70,20 @@ public class TestStatisticExpressionFactory extends TestCase
 	myAssertEquals(0, m_factory.createExpression("  Test ", m_indexMap));
 
 	myAssertEquals(2, m_factory.createExpression("Two", m_indexMap));
+
+	try {
+	    m_factory.createExpression("", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
+
+	try {
+	    m_factory.createExpression("One Two", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
     }
 
     public void testSum() throws Exception
@@ -81,6 +96,46 @@ public class TestStatisticExpressionFactory extends TestCase
 
 	myAssertEquals(5, m_factory.createExpression(
 			   "(+ One (+ One Two) One)", m_indexMap));
+
+	try {
+	    m_factory.createExpression("(+)", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
+
+	try {
+	    m_factory.createExpression("(+ One)", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
+    }
+
+    public void testProduct() throws Exception
+    {
+	myAssertEquals(1, m_factory.createExpression(
+			   "(* One One)", m_indexMap));
+
+	myAssertEquals(4, m_factory.createExpression(
+			   "(* One Two Two)", m_indexMap));
+
+	myAssertEquals(8, m_factory.createExpression(
+			   "(* Two (* Two Two) One)", m_indexMap));
+
+	try {
+	    m_factory.createExpression("(*)", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
+
+	try {
+	    m_factory.createExpression("(* One)", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
     }
 
     public void testDivision() throws Exception
@@ -93,6 +148,27 @@ public class TestStatisticExpressionFactory extends TestCase
 
 	myAssertEquals(2d, m_factory.createExpression(
 			   "(/ Two One)", m_indexMap));
+
+	try {
+	    m_factory.createExpression("(/)", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
+
+	try {
+	    m_factory.createExpression("(/ One)", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
+
+	try {
+	    m_factory.createExpression("(/ One One One)", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
     }
 
     public void testLongPeak() throws Exception
@@ -173,6 +249,24 @@ public class TestStatisticExpressionFactory extends TestCase
 		       m_factory.createExpression(
 			   "(+ One (/ One (+ Two Two)) One)", m_indexMap));
 
+	myAssertEquals(2.25d,
+		       m_factory.createExpression(
+			   "(+ One (/ One (* Two Two)) One)", m_indexMap));
+
+
+	try {
+	    m_factory.createExpression("(+", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
+
+	try {
+	    m_factory.createExpression("+)", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
     }
 
     private void myAssertEquals(long expected, StatisticExpression expression)

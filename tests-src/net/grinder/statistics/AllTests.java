@@ -41,7 +41,7 @@ public class AllTests
     {
 	final TestSuite suite = new TestSuite();
 	suite.addTest(new TestSuite(TestRawStatistics.class));
-	suite.addTest(new TestSuite(TestStatisticExpression.class));
+	suite.addTest(new TestSuite(TestStatisticExpressionFactory.class));
 	suite.addTest(new TestSuite(TestTestStatisticsMap.class));
 	return suite;
     }
