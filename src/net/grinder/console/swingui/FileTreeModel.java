@@ -141,9 +141,21 @@ final class FileTreeModel implements TreeModel {
   public abstract class Node {
 
     private final File m_file;
+    private final TreePath m_path;
 
     protected Node(File file) {
+      this(null, file);
+    }
+
+    protected Node(Node parentNode, File file) {
       m_file = file;
+
+      if (parentNode != null) {
+        m_path = parentNode.getPath().pathByAddingChild(this);
+      }
+      else {
+        m_path = new TreePath(this);
+      }
     }
 
     public String toString() {
@@ -152,6 +164,10 @@ final class FileTreeModel implements TreeModel {
 
     public final File getFile() {
       return m_file;
+    }
+
+    public final TreePath getPath() {
+      return m_path;
     }
   }
 
@@ -162,8 +178,8 @@ final class FileTreeModel implements TreeModel {
 
     private Buffer m_buffer = null;
 
-    private FileNode(File file) {
-      super(file);
+    private FileNode(DirectoryNode parentNode, File file) {
+      super(parentNode, file);
     }
 
     public void setBuffer(Buffer buffer) {
@@ -195,6 +211,10 @@ final class FileTreeModel implements TreeModel {
     public boolean isDirty() {
       return getBuffer() != null && getBuffer().isDirty();
     }
+
+    public boolean isActive() {
+      return getBuffer() != null && getBuffer().isActive();
+    }
   }
 
   /**
@@ -205,8 +225,8 @@ final class FileTreeModel implements TreeModel {
     private final File[] m_childDirectories;
     private final File[] m_childFiles;
 
-    DirectoryNode(File file) {
-      super(file);
+    DirectoryNode(DirectoryNode parentNode, File file) {
+      super(parentNode, file);
 
       m_childDirectories = file.listFiles(s_directoryFilter);
       m_childFiles = file.listFiles(s_fileFilter);
@@ -214,10 +234,11 @@ final class FileTreeModel implements TreeModel {
 
     public final Node getChild(int index) {
       if (index < m_childDirectories.length) {
-        return new DirectoryNode(m_childDirectories[index]);
+        return new DirectoryNode(this, m_childDirectories[index]);
       }
       else {
-        return new FileNode(m_childFiles[index - m_childDirectories.length]);
+        return new FileNode(this,
+                            m_childFiles[index - m_childDirectories.length]);
       }
     }
 
@@ -248,7 +269,7 @@ final class FileTreeModel implements TreeModel {
   private final class RootNode extends DirectoryNode {
 
     private RootNode(File file) {
-      super(file);
+      super(null, file);
     }
 
     public String toString() {
