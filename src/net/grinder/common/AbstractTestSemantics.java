@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,53 +23,73 @@ package net.grinder.common;
 
 
 /**
+ * Base class which provides equality and ordering semantics for
+ * {@link Test} implementations.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public abstract class AbstractTestSemantics implements Test
-{
-    public abstract int getNumber();
+public abstract class AbstractTestSemantics implements Test {
 
-    public final int compareTo(Object o) 
-    {
-	final int ours = getNumber();
-	final int others = ((AbstractTestSemantics)o).getNumber();
-	return ours<others ? -1 : (ours==others ? 0 : 1);
+  /**
+   * Define ordering.
+   *
+   * @param o <code>Object</code> to compare.
+   * @return <code>-1</code> if <code>o</code> is less, <code>0</code>
+   * if its equal, <code>1<code> if its greater.
+   */
+  public final int compareTo(Object o) {
+    final int ours = getNumber();
+    final int others = ((AbstractTestSemantics)o).getNumber();
+    return ours<others ? -1 : (ours==others ? 0 : 1);
+  }
+
+  /**
+   * Define hash semantics. The test number is used as the hash code.
+   * I wondered whether it was worth distributing the hash codes more
+   * evenly across the range of an int, but using the value is good
+   * enough for <code>java.lang.Integer</code> so its good enough for
+   * us.
+   *
+   * @return The hash code.
+   */
+  public final int hashCode() {
+    return getNumber();
+  }
+
+  /**
+   * Define equality.
+   *
+   * @param o <code>Object</code> to compare.
+   * @return <code>true</code> if and only if its equal to this object.
+   */
+  public final boolean equals(Object o) {
+
+    if (o == this) {
+      return true;
     }
 
-    /**
-     * The test number is used as the hash code. Wondered whether it
-     * was worth distributing the hash codes more evenly across the
-     * range of an int, but using the value is good enough for
-     * <code>java.lang.Integer</code> so its good enough for us.
-     **/
-    public final int hashCode()
-    {
-	return getNumber();
+    if (!(o instanceof Test)) {
+      return false;
     }
-
-    public final boolean equals(Object o)
-    {
-	if (o == this) {
-	    return true;
-	}
-
-	if (!(o instanceof Test)) {
-	    return false;
-	}
 	
-	return getNumber() == ((Test)o).getNumber();
-    }
+    return getNumber() == ((Test)o).getNumber();
+  }
 
-    public final String toString()
-    {
-	final String description = getDescription();
+  /**
+   * Define a useful string representation.
+   *
+   * @return A description of the test.
+   */
+  public final String toString() {
 
-	if (description == null) {
-	    return "Test " + getNumber();
-	}
-	else {
-	    return "Test " + getNumber() + " (" + description + ")";
-	}
+    final String description = getDescription();
+
+    if (description == null) {
+      return "Test " + getNumber();
     }
+    else {
+      return "Test " + getNumber() + " (" + description + ")";
+    }
+  }
 }

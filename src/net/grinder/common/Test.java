@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,9 +30,17 @@ package net.grinder.common;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface Test extends Comparable
-{
-    /** Test number, defines test identity and ordering. **/
-    public int getNumber();
-    public String getDescription();
+public interface Test extends Comparable {
+  /**
+   * Test number. Defines test identity and ordering.
+   * @return The test number.
+   */
+  public int getNumber();
+
+  /**
+   * Test description.
+   *
+   * @return The test description.
+   */
+  public String getDescription();
 }

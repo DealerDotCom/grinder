@@ -46,9 +46,8 @@ public final class HTTPPluginControl {
   }
 
   /**
-   * Get an {@link net.grinder.plugin.http.HTTPPluginConnnection}
-   * that can be used to set the default behaviour of new
-   * connections.
+   * Returns an {@link net.grinder.plugin.http.HTTPPluginConnnection}
+   * that can be used to set the default behaviour of new connections.
    * @return An <code>HTTPPluginConnection</code>.
    */
   public static final HTTPPluginConnection getConnectionDefaults() {
@@ -56,7 +55,7 @@ public final class HTTPPluginControl {
   }
 
   /**
-   * Get an {@link net.grinder.plugin.http.HTTPPluginConnnection}
+   * Returns an {@link net.grinder.plugin.http.HTTPPluginConnnection}
    * for a particular URL.
    *
    * <p>This method will throw a GrinderException if not called from
@@ -76,5 +75,23 @@ public final class HTTPPluginControl {
       (HTTPPluginThreadState)s_pluginProcessContext.getPluginThreadListener();
 	    
     return threadState.getConnectionWrapper(new URI(url));
+  }
+
+  /**
+   * Returns an object that is used as the HTTPClient context for the
+   * calling thread. This is useful when calling HTTPClient methods
+   * directly, e.g. {@link
+   * HTTPClient.CookieModule#listAllCookies(Object)}.
+   *
+   * <p>This method will throw a GrinderException if not called from
+   * a worker thread.</p>
+   *
+   * @return The context object used for
+   * <code>HTTPClient.HTTPConnections</code> created by this thread.
+   * @exception GrinderException If an error occurs.
+   */
+  public static final Object getThreadHTTPClientContext()
+    throws GrinderException {
+    return s_pluginProcessContext.getPluginThreadListener();
   }
 }
