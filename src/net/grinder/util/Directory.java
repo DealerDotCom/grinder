@@ -23,6 +23,8 @@ package net.grinder.util;
 
 import java.io.IOException;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -84,12 +86,11 @@ public final class Directory  {
    * List the files in the hierarchy below the directory.
    *
    * @return The list of files. Files are relative to the directory,
-   * not absolute.
+   * not absolute. More deeply nested files are later in the list.
    */
   public File[] listContents() {
     return listContents(-1);
   }
-
 
   /**
    * List the files in the hierarchy below the directory that have
@@ -99,7 +100,7 @@ public final class Directory  {
    * that are older than this. Specify <code>-1</code> to return all
    * files.
    * @return The list of files. Files are relative to the directory,
-   * not absolute.
+   * not absolute. More deeply nested files are later in the list.
    */
   public File[] listContents(long since) {
     return listContents(false, false, since);
@@ -125,7 +126,7 @@ public final class Directory  {
         final File relativeDirectory = directories[i];
         final File absoluteDirectory =
           relativeDirectory != null ?
-          new File(m_directory, relativeDirectory.getPath()) : m_directory;
+          new File(getAsFile(), relativeDirectory.getPath()) : getAsFile();
 
         directoriesToVisit.remove(relativeDirectory);
         visited.add(relativeDirectory);
@@ -196,6 +197,99 @@ public final class Directory  {
   }
 
   /**
+   * Find the given file in the directory and return a File
+   * representing its path relative to the root of the directory.
+   *
+   * @param absoluteFile The file to search for.
+   * @return The relatvie file, or <code>null</code> if the file was
+   * not found.
+   */
+  public File getRelativePath(File absoluteFile) {
+
+    final File[] contents = listContents();
+
+    for (int i = 0; i < contents.length; ++i) {
+      if (new File(getAsFile(), contents[i].getPath()).equals(absoluteFile)) {
+        return contents[i];
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Copy contents of the directory to the target directory.
+   *
+   * @param target Target directory.
+   * @param incremental <code>true</code> => copy newer files to the
+   * directory. <code>false</code> => overwrite the target directory.
+   * @throws IOException If a file could not be copied. The contents
+   * of the target directory are left in an indeterminate state.
+   */
+  public void copyTo(Directory target, boolean incremental)
+    throws IOException {
+
+    target.create();
+
+    if (!incremental) {
+      target.deleteContents();
+    }
+
+    final File[] files = listContents(true, false, -1);
+    final byte[] buffer = new byte[8196];
+
+    for (int i = 0; i < files.length; ++i) {
+      final String relativePath = files[i].getPath();
+      final File source = new File(getAsFile(), relativePath);
+      final File destination = new File(target.getAsFile(), relativePath);
+
+      if (source.isDirectory()) {
+        destination.mkdirs();
+      }
+      else {
+        // Copy file.
+        if (!incremental ||
+            !destination.exists() ||
+            source.lastModified() > destination.lastModified()) {
+
+          FileInputStream in = null;
+          FileOutputStream out = null;
+
+          try {
+            in = new FileInputStream(source);
+            out = new FileOutputStream(destination);
+
+            int n;
+
+            while ((n = in.read(buffer)) != -1) {
+              out.write(buffer, 0, n);
+            }
+          }
+          finally {
+            if (in != null) {
+              try {
+                in.close();
+              }
+              catch (IOException e) {
+                // Ignore;
+              }
+            }
+
+            if (out != null) {
+              try {
+                out.close();
+              }
+              catch (IOException e) {
+                // Ignore;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Return a list of warnings that have occured since the last time
    * {@link #getWarnings} was called.
    *
@@ -208,27 +302,6 @@ public final class Directory  {
     finally {
       m_warnings.clear();
     }
-  }
-
-  /**
-   * Find the given file in the directory and return a File
-   * representing its path relative to the root of the directory.
-   *
-   * @param absoluteFile The file to search for.
-   * @return The relatvie file, , or <code>null</code> if the file was
-   * not found.
-   */
-  public File getRelativePath(File absoluteFile) {
-
-    final File[] contents = listContents();
-
-    for (int i = 0; i < contents.length; ++i) {
-      if (new File(m_directory, contents[i].getPath()).equals(absoluteFile)) {
-        return contents[i];
-      }
-    }
-
-    return null;
   }
 
   /**
@@ -246,7 +319,7 @@ public final class Directory  {
    * @return The hash code.
    */
   public int hashCode() {
-    return m_directory.hashCode();
+    return getAsFile().hashCode();
   }
 
   /**
