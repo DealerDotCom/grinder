@@ -96,7 +96,7 @@ conditionally built modules are:
 
     <!-- source of all evil -->
     <property name="src.dir" value="src"/>
-    <property name="tests.src.dir" value="tests-src"/>
+    <property name="test-src.dir" value="tests-src"/>
     <property name="etc.dir" value="etc"/>
     <property name="examples.dir" value="examples"/>
 
@@ -112,11 +112,11 @@ conditionally built modules are:
 
     <!-- output -->
     <property name="build.dir" value="build"/>
-    <property name="build.src" value="${build.dir}/src"/>
-    <property name="build.classes" value="${build.dir}/classes"/>
-    <property name="build.webapps" value="${build.dir}/webapps"/>
-    <property name="tests.src" value="${build.dir}/tests-src"/>
-    <property name="tests.classes" value="${build.dir}/tests-classes"/>
+    <property name="prepared-src.dir" value="${build.dir}/src"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="webapp-build.dir" value="${build.dir}/webapps"/>
+    <property name="prepared-test-src.dir" value="${build.dir}/test-src"/>
+    <property name="test-classes.dir" value="${build.dir}/tests-classes"/>
     <property name="lib.dir" value="lib"/>
     <property name="lib.jar" value="${name}.jar"/>
     <property name="dist.root" value="${build.dir}/distribution"/>
@@ -173,18 +173,19 @@ conditionally built modules are:
   <!-- Rules that prepare a filtered copy of the appropriate source code   -->
   <!-- =================================================================== -->
   <target name="prepare-src" depends="init">
-    <copy todir="${build.src}" filtering="on">
+    <copy todir="${prepared-src.dir}" filtering="on">
       <fileset dir="${src.dir}">
-        <exclude name="**/resources/*.gif"/>
-        <exclude name="**/resources/*.html"/>
-        <exclude name="**/resources/*.properties"/>
+        <include name="**/*.java"/>
       </fileset>
     </copy>
   </target>
 
   <target name="prepare-test-src" depends="init">
-    <copy todir="${tests.src}" filtering="on">
-      <fileset dir="${tests.src.dir}"/>
+    <copy todir="${prepared-test-src.dir}" filtering="on">
+      <fileset dir="${test-src.dir}">
+        <include name="**/*.java"/>
+        <exclude name="**/data/*"/>
+      </fileset>
     </copy>
   </target>
 
@@ -194,15 +195,20 @@ conditionally built modules are:
   <!-- =================================================================== -->
   <target name="copy-resources" depends="init"
 	  description="Copies the resource files into build output">
-    <copy todir="${build.classes}" filtering="off">
+    <copy todir="${classes.dir}" filtering="off">
       <fileset dir="${src.dir}">
         <include name="**/resources/*.gif"/>
       </fileset>
     </copy>
-    <copy todir="${build.classes}" filtering="on">
+    <copy todir="${classes.dir}" filtering="on">
       <fileset dir="${src.dir}">
         <include name="**/resources/*.html"/>
         <include name="**/resources/*.properties*"/>
+      </fileset>
+    </copy>
+    <copy todir="${test-classes.dir}" filtering="off">
+      <fileset dir="${test-src.dir}">
+        <include name="**/data/*"/>
       </fileset>
     </copy>
   </target>
@@ -213,12 +219,12 @@ conditionally built modules are:
   <!-- =================================================================== -->
   <target name="compile" depends="prepare-src"
 	  description="Compiles the source.">
-    <mkdir dir="${build.classes}"/>
+    <mkdir dir="${classes.dir}"/>
 
     <echo message="Compiling HTTPClient code, ignore deprecation warnings..."/>
 
-    <javac srcdir="${build.src}"
-           destdir="${build.classes}"
+    <javac srcdir="${prepared-src.dir}"
+           destdir="${classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
 		   deprecation="false"> <!-- Uses deprecated API's -->
@@ -227,8 +233,8 @@ conditionally built modules are:
 
     <echo message="... HTTPClient code compiled."/>
 
-    <javac srcdir="${build.src}"
-           destdir="${build.classes}"
+    <javac srcdir="${prepared-src.dir}"
+           destdir="${classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
 	   deprecation="${deprecation}">
@@ -250,11 +256,11 @@ conditionally built modules are:
   <target name="compile-tests"
 	  depends="assert-have-junit,prepare-test-src,compile"
 	  description="Compiles the tests source">
-    <mkdir dir="${tests.classes}"/>
+    <mkdir dir="${test-classes.dir}"/>
 
-    <javac srcdir="${tests.src}"
-           destdir="${tests.classes}"
-	   classpath="${build.classes}"
+    <javac srcdir="${prepared-test-src.dir}"
+           destdir="${test-classes.dir}"
+	   classpath="${classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
 	   deprecation="${deprecation}">
@@ -270,7 +276,7 @@ conditionally built modules are:
     <mkdir dir="${lib.dir}"/>
 
     <jar jarfile="${lib.dir}/${lib.jar}"
-         basedir="${build.classes}">
+         basedir="${classes.dir}">
         <include name="net/grinder/"/>
         <include name="HTTPClient/"/>
         <exclude name="**/snifferwebapp"/>
@@ -282,14 +288,14 @@ conditionally built modules are:
   <!-- =================================================================== -->
   <target name="sniff-war" depends="compile, copy-resources"
 	  description="Creates webapps/sniff-n-grind.war">
-	<mkdir dir="${build.webapps}"/>
+	<mkdir dir="${webapp-build.dir}"/>
 
-	<war warfile="${build.webapps}/sniff-n-grind.war" 
+	<war warfile="${webapp-build.dir}/sniff-n-grind.war" 
 		 webxml="${sniffer.webapp.dir}/WEB-INF/web.xml">
 	  <fileset dir="${sniffer.webapp.dir}">
 		<include name="*.jsp"/>
 	  </fileset>
-	  <classes dir="${build.classes}"
+	  <classes dir="${classes.dir}"
 			   includes="**/snifferwebapp/**"/>
 	</war>
   </target>
@@ -299,11 +305,11 @@ conditionally built modules are:
 
     <jar jarfile="${lib.dir}/testimage.jar"
          manifest="etc/testimage.mf">
-        <fileset dir="${build.classes}"
+        <fileset dir="${classes.dir}"
 		 includes="net/grinder/console/swingui/resources/"/>
-        <fileset dir="${tests.classes}"
+        <fileset dir="${test-classes.dir}"
 		 includes="net/grinder/console/swingui/TestImage*.class"/>
-        <fileset dir="${tests.src}"
+        <fileset dir="${prepared-test-src.dir}"
 		 includes="net/grinder/console/swingui/TestImage*.java"/>
     </jar>
   </target>
@@ -316,11 +322,11 @@ conditionally built modules are:
 	  depends="compile-tests,copy-resources,assert-have-junit-task"
 	  description="Run the unit-tests.">
   <junit printsummary="false" haltonfailure="true">
-    <classpath path="${tests.classes};${build.classes}"/>
+    <classpath path="${test-classes.dir};${classes.dir}"/>
 
     <batchtest>
       <formatter type="plain" usefile="false"/>
-      <fileset dir="${tests.src}" includes="**/Test*.java"/>
+      <fileset dir="${prepared-test-src.dir}" includes="**/Test*.java"/>
     </batchtest>
   </junit>
 
@@ -345,7 +351,7 @@ conditionally built modules are:
 	     package="true">
 	    <sourcepath>
 	      <pathelement path="${src.dir}"/>
-	      <pathelement path="${tests.src.dir}"/>
+	      <pathelement path="${test-src.dir}"/>
 	    </sourcepath>
     </javadoc>
   </target>
@@ -369,8 +375,8 @@ conditionally built modules are:
       </fileset>
     </copy>
 
-    <copy todir="${dist.dir}/${tests.src.dir}" filtering="on">
-      <fileset dir="${tests.src.dir}">
+    <copy todir="${dist.dir}/${test-src.dir}" filtering="on">
+      <fileset dir="${test-src.dir}">
 	<exclude name="TAGS"/>
 	<exclude name="**/.xvpics/**"/>
       </fileset>
