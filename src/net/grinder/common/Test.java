@@ -25,7 +25,7 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface Test extends Comparable
+public interface Test extends Comparable, java.io.Serializable
 {
     /** Test number is returned as an Integer so it can be used it as
      * a Map key. */
