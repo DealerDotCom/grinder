@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003. 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,7 +37,7 @@ public class ConsoleException extends GrinderException {
    * Constructor.
    *
    * @param message The exception message.
-   **/
+   */
   public ConsoleException(String message) {
     super(message);
   }
@@ -46,9 +46,9 @@ public class ConsoleException extends GrinderException {
    * Constructor.
    *
    * @param message The exception message.
-   * @param e Nested exception
-   **/
-  public ConsoleException(String message, Exception e) {
+   * @param e Nested exception.
+   */
+  public ConsoleException(String message, Throwable e) {
     super(message, e);
   }
 }
