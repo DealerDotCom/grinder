@@ -29,9 +29,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -116,6 +116,9 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
     private final Map m_handlers = new HashMap();
 
     private int m_currentRequestNumber;
+
+    private final Map m_previousHeaders =
+	Collections.synchronizedMap(new HashMap());
 
     /**
      * Constructor.
@@ -598,14 +601,12 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	    }
 
 	    testOutput.append(s_newLine);
-	    testOutput.append(s_newLine);
-	    testOutput.append("request");
-	    testOutput.append(m_requestNumber);
-	    testOutput.append(" = HTTPRequest(");
+
+	    final String requestVariable = "request" + m_requestNumber;
+	    final String headerAssignment;
 
 	    if (m_headers.size() > 0) {
-		appendNewLineAndIndent(testOutput, 1);
-		testOutput.append("headers = ( ");
+		final StringBuffer headerStringBuffer = new StringBuffer();
 
 		final Iterator iterator = m_headers.iterator();
 		boolean first = true;
@@ -614,18 +615,42 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		    final NVPair entry = (NVPair)iterator.next();
 		    
 		    if (!first) {
-			appendNewLineAndIndent(testOutput, 4);
+			appendNewLineAndIndent(headerStringBuffer, 3);
 		    }
 		    else {
 			first = false;
 		    }
 
-		    appendNVPair(testOutput, entry);
+		    appendNVPair(headerStringBuffer, entry);
 		}
 
-		testOutput.append(")");
+		final String headerString = headerStringBuffer.toString();
+
+		String headerVariable =
+		    (String)m_previousHeaders.get(headerString);
+
+		if (headerVariable == null) {
+		    headerVariable = "headers" + m_requestNumber;
+
+		    testOutput.append(s_newLine);
+		    testOutput.append(headerVariable);
+		    testOutput.append(" = ( ");
+		    testOutput.append(headerString);
+		    testOutput.append(")");
+
+		    m_previousHeaders.put(headerString, headerVariable);
+		}
+
+		headerAssignment = "headers = " + headerVariable;
+	    }
+	    else {
+		headerAssignment = "";
 	    }
 
+	    testOutput.append(s_newLine);
+	    testOutput.append(requestVariable);
+	    testOutput.append(" = HTTPRequest(");
+	    testOutput.append(headerAssignment);
 	    testOutput.append(")");
 
 	    // Base default description on method and URL.
