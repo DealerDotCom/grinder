@@ -53,8 +53,8 @@ what you want. Currently the conditionally built modules are:
 
   <property name="Name" value="The Grinder"/>
   <property name="name" value="grinder"/>
-  <property name="version" value="3.0-beta4"/> <!-- AND THE NEXT LINE -->
-  <property name="cvs.tag" value="release_3_0_beta4"/>
+  <property name="version" value="3.0-beta5"/> <!-- AND THE NEXT LINE -->
+  <property name="cvs.tag" value="release_3_0_beta5"/>
 
   <property name="year" value="2003"/>
 
@@ -461,9 +461,6 @@ what you want. Currently the conditionally built modules are:
 	<include name="HTTPClient/SocksException.java"/>
 	<include name="HTTPClient/URI.java"/>
 	<include name="HTTPClient/Util.java"/>
-	<include name="net/grinder/plugin/http/HTTPPluginConnection.java"/>
-	<exclude name="net/grinder/plugin/http/HTTPPlugin.java"/>
-	<exclude name="net/grinder/plugin/http/HTTPRequest.java"/>
         <include name="net/grinder/common/AbstractTestSemantics.java"/>
         <include name="net/grinder/common/FilenameFactory.java"/>
         <include name="net/grinder/common/GrinderBuild.java"/>
@@ -471,7 +468,14 @@ what you want. Currently the conditionally built modules are:
         <include name="net/grinder/common/GrinderProperties.java"/>
         <include name="net/grinder/common/Logger.java"/>
         <include name="net/grinder/common/Test.java"/>
+	<include name="net/grinder/plugin/http/HTTPPluginConnection.java"/>
+	<exclude name="net/grinder/plugin/http/HTTPPlugin.java"/>
+	<exclude name="net/grinder/plugin/http/HTTPRequest.java"/>
         <include name="net/grinder/script/*.java"/>
+        <include name="net/grinder/statistics/ExpressionView.java"/>
+        <include name="net/grinder/statistics/StatisticsIndexMap.java"/>
+        <include name="net/grinder/statistics/StatisticsView.java"/>
+        <include name="net/grinder/statistics/TestStatistics.java"/>
         <include name="**/*.html"/>
       </fileset>
     </copy>
