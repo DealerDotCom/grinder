@@ -87,15 +87,16 @@ public class HTTPRequest {
   /**
    * Gets the default URL.
    *
-   * @return The default URL to be used for this request.
+   * @return The default URL to be used for this request, or
+   * <code>null</code> if the default URL has not been set.
    */
   public final String getUrl() {
-    return m_defaultURL.toString();
+    return m_defaultURL != null ? m_defaultURL.toString() : null;
   }
 
   /**
-   * Sets the default URL. The value given must be an absolut URL,
-   * including protoocl and the server information.
+   * Sets the default URL. The value given must be an absolute URL,
+   * including protocol and the server information.
    *
    * @param url The URL to be used for this request.
    * @exception ParseException If the URL cannot be parsed.
@@ -167,29 +168,26 @@ public class HTTPRequest {
   }
 
   /**
-   * Returns a string representation of the objet.
-   * URL
-   * headers
+   * Returns a string representation of the object and URL headers.
    *
    * @return a string representation of the object
    */
   public String toString() {
     final StringBuffer result = new StringBuffer("");
 
-    // add URL
     if (m_defaultURL == null) {
-      result.append ("<Undefined URL>" + "\n");
+      result.append ("<Undefined URL>\n");
     }
     else {
       result.append (m_defaultURL.toString() + "\n");
     }
 
-    // add headers
     for (int i = 0; i < m_defaultHeaders.length; i++) {
       result.append (m_defaultHeaders[i].getName() + ": " +
-        m_defaultHeaders[i].getValue() + "\n");
+                     m_defaultHeaders[i].getValue() + "\n");
     }
-  return result.toString();
+
+    return result.toString();
   }
 
   /**
