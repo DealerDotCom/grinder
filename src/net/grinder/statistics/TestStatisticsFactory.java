@@ -53,7 +53,7 @@ public final class TestStatisticsFactory {
    *
    * @return The singleton.
    */
-  public static final synchronized TestStatisticsFactory getInstance() {
+  public static final TestStatisticsFactory getInstance() {
     return s_instance;
   }
 
