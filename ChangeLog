@@ -1,3 +1,87 @@
+2001-12-29  Philip Aston  <paston@bea.com>
+
+	* CHANGES, TODO: Thoughts.
+
+	* src/net/grinder/communication/UnicastSender.java:
+	Be more forgiving of IO errors in shutdown().
+
+	* AUTHORS: Welcome Dirk.
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	Report worker process status.
+	Cleanly shutdown console sender when finished.
+
+	* src/net/grinder/communication/ReportStatusMessage.java: New file.
+
+	* src/net/grinder/communication/ReportStatusMessage.java, src/net/grinder/engine/process/GrinderThread.java:
+	Report worker process status.
+
+	* tests-src/net/grinder/console/swingui/TestSwingDispatchedProcessStatusSetListener.java:
+	New file.
+
+	* tests-src/net/grinder/console/swingui/TestSwingDispatchedProcessStatusSetListener.java:
+	UI for worker process status.
+
+	* src/net/grinder/console/swingui/SwingDispatchedProcessStatusSetListener.java, src/net/grinder/console/swingui/resources/process-status.gif, src/net/grinder/console/swingui/resources/process-status.xcf:
+	New file.
+
+	* src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/SwingDispatchedProcessStatusSetListener.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/process-status.gif, src/net/grinder/console/swingui/resources/process-status.xcf, tests-src/net/grinder/console/swingui/AllTests.java:
+	UI for worker process status.
+
+	* src/net/grinder/console/swingui/ProcessStatusTableModel.java:
+	New file.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	UI for worker process status.
+
+	* src/net/grinder/console/model/ProcessStatusSetListener.java:
+	Model of worker process status.
+
+	* src/net/grinder/console/model/ProcessStatusSetListener.java:
+	New file.
+
+	* src/net/grinder/common/ProcessStatus.java, src/net/grinder/console/model/ProcessStatusSet.java:
+	Model of worker process status.
+
+	* src/net/grinder/common/ProcessStatus.java, src/net/grinder/console/model/ProcessStatusSet.java:
+	New file.
+
+	* src/net/grinder/console/model/Model.java: Own a ProcessStatusSet.
+
+	* src/net/grinder/console/Console.java: Handle ReportStatusMessage's.
+	Notify our ProcessStatusSet when a process control event occurs.
+
+	* src/net/grinder/console/swingui/resources/about.html:
+	The Grinder is no longer "simple".
+
+	* src/net/grinder/console/swingui/Table.java: New file.
+
+	* src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/Table.java, src/net/grinder/console/swingui/TestTable.java:
+	Rework TestTable into more generic Table class that adds simple cell
+	formatting to a JTable.
+
+	* src/net/grinder/communication/UnicastReceiver.java:
+	Sleep only if we didn't do any work for any of the socket handles we
+	managed to reserve in this pass.
+	Close our socket if we receive a CloseCommunicationMessage.
+
+	* src/net/grinder/communication/SocketSet.java:
+	Add a sentinel Handle so that UnicastReceiver can determine when to
+	sleep.
+
+	* src/net/grinder/communication/CloseCommunicationMessage.java:
+	New file.
+
+	* src/net/grinder/communication/CloseCommunicationMessage.java, src/net/grinder/communication/Sender.java, src/net/grinder/communication/UnicastSender.java:
+	UnicastSender.shutdown() now sends a CloseCommunicationMessage,
+	flushes the send queue and finally closes its socket.
+
+	* src/net/grinder/communication/Message.java, tests-src/net/grinder/communication/TestMessage.java:
+	Throw RuntimeException's instead of CommunicationException's for
+	assertion failures.
+
+	* build.xml: Next is 2.8.2.
+
 2001-12-21  Philip Aston  <paston@bea.com>
 
 	* CHANGES, src/net/grinder/plugin/socket/SocketPlugin.java:
