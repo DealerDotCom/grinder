@@ -40,14 +40,14 @@ import javax.swing.JPanel;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestImage{
+public class ImageTest{
     
     public static void main(String[] args)
     {
-	new TestImage();
+	new ImageTest();
     }
 
-    public TestImage()
+    public ImageTest()
     {
 	final JFrame frame = new JFrame("Test images");
 	final Container topLevelPane = frame.getContentPane();
@@ -104,4 +104,4 @@ public class TestImage{
 	    System.exit(0);
 	}
     }
-} // TestImage
+} // ImageTest

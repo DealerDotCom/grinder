@@ -103,10 +103,10 @@ public class TestTestImplementation extends TestCase
 
 	assertEquals(t1, t2);
 	assertEquals(t2, t1);
-	assert(!t1.equals(t3));
-	assert(!t3.equals(t1));
-	assert(!t2.equals(t3));
-	assert(!t3.equals(t2));
+	assertTrue(!t1.equals(t3));
+	assertTrue(!t3.equals(t1));
+	assertTrue(!t2.equals(t3));
+	assertTrue(!t3.equals(t2));
     }
 }
 

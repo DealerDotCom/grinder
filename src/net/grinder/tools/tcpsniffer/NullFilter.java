@@ -22,17 +22,25 @@
 
 package net.grinder.tools.tcpsniffer;
 
+import java.io.PrintWriter;
+
 
 /**
+ * Filter that does nothing.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public class NullFilter implements SnifferFilter
 {
-    public void handle(ConnectionDetails connectionDetails, byte[] buffer,
-		       int bytesRead)
+    public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
     {
+    }
+
+    public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
+			 int bytesRead)
+    {
+	return null;
     }
 
     public void connectionOpened(ConnectionDetails connectionDetails)

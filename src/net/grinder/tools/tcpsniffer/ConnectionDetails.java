@@ -23,25 +23,54 @@
 package net.grinder.tools.tcpsniffer;
 
 
+/**
+ * Class that represents a TCP connection.
+ *
+ * @author <a href="mailto:paston@bea.com">Philip Aston</a>
+ * @version 1.0
+ */
 public class ConnectionDetails
 {
+    private final int m_hashCode;
+
     private String m_localHost;
     private int m_localPort;
     private String m_remoteHost;
     private int m_remotePort;
     private boolean m_isSecure;
 
+    /**
+     * Creates a new <code>ConnectionDetails</code> instance.
+     *
+     * @param localHost a <code>String</code> value
+     * @param localPort an <code>int</code> value
+     * @param remoteHost a <code>String</code> value
+     * @param remotePort an <code>int</code> value
+     * @param isSecure a <code>boolean</code> value
+     */
     public ConnectionDetails(String localHost, int localPort,
 			     String remoteHost, int remotePort,
 			     boolean isSecure)
     {
-	m_localHost = localHost;
+	m_localHost = localHost.toLowerCase();
 	m_localPort = localPort;
-	m_remoteHost = remoteHost;
+	m_remoteHost = remoteHost.toLowerCase();
 	m_remotePort = remotePort;
 	m_isSecure = isSecure;
+
+	m_hashCode =
+	    m_localHost.hashCode() ^
+	    m_remoteHost.hashCode() ^
+	    m_localPort ^
+	    m_remotePort ^
+	    (m_isSecure ? 0x55555555 : 0);
     }
 
+    /**
+     * Return a description of the connection.
+     *
+     * @return a <code>String</code> value
+     */
     public String getDescription()
     {
 	return
@@ -49,6 +78,12 @@ public class ConnectionDetails
 	    m_remoteHost + ":" + m_remotePort;
     }
 
+    /**
+     * Describe <code>getURLBase</code> method here.
+     *
+     * @param protocol a <code>String</code> value
+     * @return a <code>String</code> value
+     */
     public String getURLBase(String protocol)
     {
 	// Hackety do dah..
@@ -58,39 +93,133 @@ public class ConnectionDetails
 	    m_remoteHost + ":" + m_remotePort;
     }
 
-    public boolean isSecure() {
+    /**
+     * Accessor.
+     *
+     * @return a <code>boolean</code> value
+     */
+    public boolean isSecure()
+    {
 	return m_isSecure;
     }
 
-    public String getRemoteHost() {
+    /**
+     * Accessor.
+     *
+     * @return a <code>String</code> value
+     */
+    public String getRemoteHost() 
+    {
 	return m_remoteHost;
     }
 
-    public String getLocalHost() {
+    /**
+     * Accessor.
+     *
+     * @return a <code>String</code> value
+     */
+    public String getLocalHost()
+    {
 	return m_localHost;
     }
 
-    public int getRemotePort() {
+    /**
+     * Accessor.
+     *
+     * @return an <code>int</code> value
+     */
+    public int getRemotePort()
+    {
 	return m_remotePort;
     }
 
-    public int getLocalPort() {
+    /**
+     * Accessor.
+     *
+     * @return an <code>int</code> value
+     */
+    public int getLocalPort()
+    {
 	return m_localPort;
     }
 
-    public void setRemoteHost(String p) {
+    /**
+     * Mutator.
+     *
+     * @param p a <code>String</code> value
+     */
+    public void setRemoteHost(String p)
+    {
 	m_remoteHost = p;
     }
 
-    public void setLocalHost(String p) {
+    /**
+     * Mutator.
+     *
+     * @param p a <code>String</code> value
+     */
+    public void setLocalHost(String p)
+    {
 	m_localHost = p;
     }
 
-    public void setRemotePort(int p) {
+    /**
+     * Mutator.
+     *
+     * @param p an <code>int</code> value
+     */
+    public void setRemotePort(int p)
+    {
 	m_remotePort = p;
     }
 
-    public void setLocalPort(int p) {
+    /**
+     * Mutator.
+     *
+     * @param p an <code>int</code> value
+     */
+    public void setLocalPort(int p)
+    {
 	m_localPort = p;
     }
+
+    /**
+     * Value based equality.
+     *
+     * @param other an <code>Object</code> value
+     * @return <code>true</code> => <code>other</code> is equal to this object.
+     *
+     */
+    public boolean equals(Object other) 
+    {
+	if (other == this) {
+	    return true;
+	}
+	
+	if (!(other instanceof ConnectionDetails)) {
+	    return false;
+	}
+
+	final ConnectionDetails otherConnectionDetails =
+	    (ConnectionDetails)other;
+
+	return
+	    hashCode() == otherConnectionDetails.hashCode() &&
+	    getLocalPort() == otherConnectionDetails.getLocalPort() &&
+	    getRemotePort() == otherConnectionDetails.getRemotePort() &&
+	    isSecure() == otherConnectionDetails.isSecure() &&
+	    getLocalHost().equals(otherConnectionDetails.getLocalHost()) &&
+	    getRemoteHost().equals(otherConnectionDetails.getRemoteHost());
+    }
+
+    /**
+     * Implement {@link Object#hashCode}.
+     *
+     * @return an <code>int</code> value
+     */
+    public final int hashCode()
+    {
+	return m_hashCode;
+    }
+
 }

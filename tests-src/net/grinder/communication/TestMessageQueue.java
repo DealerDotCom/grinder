@@ -108,8 +108,8 @@ public class TestMessageQueue extends TestCase
 	m_queue.shutdown();
 
 	dequeuerThread.join();
-	assert(dequeuerThread.getException() instanceof
-	       MessageQueue.ShutdownException);
+	assertTrue(dequeuerThread.getException() instanceof
+		   MessageQueue.ShutdownException);
 
 	try {
 	    m_queue.queue(new SimpleMessage(0));

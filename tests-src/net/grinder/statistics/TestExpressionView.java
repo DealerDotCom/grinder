@@ -68,7 +68,7 @@ public class TestExpressionView extends TestCase
 
 	assertEquals("My view", view.getDisplayName());
 	assertEquals("my.view", view.getDisplayNameResourceKey());
-	assert(view.getExpression() != null);
+	assertTrue(view.getExpression() != null);
 
 	final StatisticExpressionFactory statisticExpressionFactory =
 	    StatisticExpressionFactory.getInstance();
@@ -79,7 +79,7 @@ public class TestExpressionView extends TestCase
 
 	assertEquals("My view2", view2.getDisplayName());
 	assertEquals("my.view", view2.getDisplayNameResourceKey());
-	assert(view.getExpression() != null);
+	assertTrue(view.getExpression() != null);
     }
 
     public void testEquality() throws Exception
@@ -99,9 +99,9 @@ public class TestExpressionView extends TestCase
 
 	assertEquals(views[0], views[1]);
 	assertEquals(views[1], views[0]);
-	assert(!views[0].equals(views[2]));
-	assert(!views[1].equals(views[3]));
-	assert(!views[1].equals(views[4]));
+	assertTrue(!views[0].equals(views[2]));
+	assertTrue(!views[1].equals(views[3]));
+	assertTrue(!views[1].equals(views[4]));
     }
 
     public void testExternalisation() throws Exception

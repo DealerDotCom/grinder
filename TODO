@@ -36,30 +36,26 @@ containing embedded script.
 Code clean up:
 	- All files should use DOS format.
 
-
-
-  TCPSniffer in -proxy mode shouldn't need -remoteHost.
-
-  TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
-
-  Update HTTPClient to support "mean time to first byte".
-
-  Write more JUnit tests.
-
   Find out how to stop net.grinder.console.swing.TestGraph from
   preventing parent process from detecting exit status. (For example,
   when used with the JUnit plugin). Surely System.exit() is not the
   answer?
 
-  Get the communications tests and the swing tests running under the
-  JUnit plugin.
+  Convert docs to xml and xslt->html.
 
   Add an assertion for the expected status code to the HTTP plugin.
   HTTP Plugin "not ok".
 
-  TCPSniffer enhancements: proxying works on a per-protocol basis, so
-  write some plugins for the proxy to handle different protocols, and
-  integrate it more fully into the TCPSniffer
+  Change TCP sniffer filters to a stream oriented model. This should
+  cure another one of the TCPSniffer/HTTPPlugin bug when recording
+  large outputs with posts? Also, consider having a filter instance
+  pair per connection.
+
+  TCPSniffer and HTTP plugin should be able to work through proxies.
+
+  Update HTTPClient to support "mean time to first byte".
+
+  Write more JUnit tests.
 
   Measure test variance. This would involve the console broadcasting
   the total mean, and then listening for the reported variance.
@@ -73,15 +69,13 @@ Code clean up:
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
 	
-  Minor fixes to HttpPluginSnifferFilter:
-	Respect charset information.
-	Sanity check the processing against RFC 2616
+  Alter console and engine to use Timer.scheduleAtFixedRate for more
+  accuracy.
 
-  Efficiency: TestStatisticsMap.getDelta() to be able to reuse delta
-  object.
-
-  Alter console to use Timer.scheduleAtFixedRate for more accuracy.
+  The HTTPClient plugin implementation interprets basicAuthentication
+  properties wrongly. It first sends a request without the
+  authentication headers, then catches the 401 and automatically
+  resends a request with the authentication headers.
 
   Tidy up logging of plugin initialisation.
 
-  TCPSniffer should record 401 iteractions.

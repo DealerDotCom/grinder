@@ -71,13 +71,13 @@ public class TestStatisticExpressionFactory extends TestCase
 	    m_factory.createConstant(-22);
 
 	myAssertEquals(-22, longExpression);
-	assert(!longExpression.isDouble());
+	assertTrue(!longExpression.isDouble());
 
 	final StatisticExpression doubleExpression =
 	    m_factory.createConstant(2.3);
 
 	myAssertEquals(2.3d, doubleExpression);
-	assert(doubleExpression.isDouble());
+	assertTrue(doubleExpression.isDouble());
 
 	myAssertEquals(0, m_factory.createExpression("0"));
 	myAssertEquals(99d, m_factory.createExpression("99f"));
@@ -96,7 +96,7 @@ public class TestStatisticExpressionFactory extends TestCase
 	    m_factory.createPrimitive(m_indexMap.getIndexForLong("userLong0"));
 
 	myAssertEquals(1, expression);
-	assert(!expression.isDouble());
+	assertTrue(!expression.isDouble());
 
 	final StatisticsIndexMap.DoubleIndex anotherIndex =
 	    m_indexMap.getIndexForDouble("userDouble4");
@@ -105,7 +105,7 @@ public class TestStatisticExpressionFactory extends TestCase
 	    m_factory.createExpression("  userDouble4");
 
 	myAssertEquals(0d, doubleExpresson);
-	assert(doubleExpresson.isDouble());
+	assertTrue(doubleExpresson.isDouble());
 
 	myAssertEquals(2, m_factory.createExpression("userLong1"));
 
@@ -143,7 +143,7 @@ public class TestStatisticExpressionFactory extends TestCase
 	    m_factory.createSum(expressions);
 
 	myAssertEquals(5, expression);
-	assert(!expression.isDouble());
+	assertTrue(!expression.isDouble());
 
 	myAssertEquals(2,
 		       m_factory.createExpression("(+ userLong0 userLong0)"));
@@ -183,7 +183,7 @@ public class TestStatisticExpressionFactory extends TestCase
 	    m_factory.createProduct(expressions);
 
 	myAssertEquals(4, expression);
-	assert(!expression.isDouble());
+	assertTrue(!expression.isDouble());
 
 	myAssertEquals(1,
 		       m_factory.createExpression("(* userLong0 userLong0)"));
@@ -218,7 +218,7 @@ public class TestStatisticExpressionFactory extends TestCase
 				     m_factory.createExpression("userLong1"));
 
 	myAssertEquals(1, expression);
-	assert(expression.isDouble());
+	assertTrue(expression.isDouble());
 
 	myAssertEquals(1d,
 		       m_factory.createExpression("(/ userLong0 userLong0)"));
@@ -264,7 +264,7 @@ public class TestStatisticExpressionFactory extends TestCase
 				 m_factory.createExpression("userLong1"));
 
 	myAssertEquals(0, expression);
-	assert(!expression.isDouble());
+	assertTrue(!expression.isDouble());
 
 	final StatisticsIndexMap.LongIndex statIndex =
 	    m_indexMap.getIndexForLong("userLong4");
@@ -303,7 +303,7 @@ public class TestStatisticExpressionFactory extends TestCase
 				     "(/ userLong1 userLong0)"));
 
 	myAssertEquals(0, expression);
-	assert(expression.isDouble());
+	assertTrue(expression.isDouble());
 
 	final StatisticsIndexMap.DoubleIndex statIndex =
 	    m_indexMap.getIndexForDouble("userDouble4");

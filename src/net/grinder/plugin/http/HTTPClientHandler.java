@@ -90,13 +90,17 @@ class HTTPClientHandler implements HTTPHandler
     private final PluginThreadContext m_threadContext;
     private final boolean m_useCookies;
     private final boolean m_followRedirects;
+    private final boolean m_disablePersistentConnections;
 
-    public HTTPClientHandler(PluginThreadContext threadContext,
-			     boolean useCookies, boolean followRedirects)
+    public HTTPClientHandler(
+	PluginThreadContext threadContext,
+	boolean useCookies, boolean followRedirects,
+	boolean disablePersistentConnections)
     {
 	m_threadContext = threadContext;
 	m_useCookies = useCookies;
 	m_followRedirects = followRedirects;
+	m_disablePersistentConnections = disablePersistentConnections;
     }
 
     private Map m_httpConnections = new HashMap();
@@ -128,6 +132,11 @@ class HTTPClientHandler implements HTTPHandler
 		connection.removeModule(s_redirectionModule);
 	    }
 
+	    if (m_disablePersistentConnections) {
+	        NVPair[] def_hdrs = { new NVPair("Connection", "close") };
+	        connection.setDefaultHeaders(def_hdrs);
+	    }
+	    
 	    m_httpConnections.put(keyURI, connection);
 	}
 
@@ -247,6 +256,8 @@ class HTTPClientHandler implements HTTPHandler
 					 ") for " + uri);
 	    }
 
+	    // Should really use HTTPResponse.getText so that
+	    // Content-Type is respected.
 	    return data != null? new String(data) : null;
 	}
 	catch (Exception e) {

@@ -153,10 +153,10 @@ public class TestStatisticsView extends TestCase
 	
 	assertEquals(original1.getExpressionViews().length,
 		     received1.getExpressionViews().length);
-	assert(original1 != received1);
+	assertTrue(original1 != received1);
 
 	assertEquals(original2.getExpressionViews().length,
 		     received2.getExpressionViews().length);
-	assert(original2 != received2);
+	assertTrue(original2 != received2);
     }
 }

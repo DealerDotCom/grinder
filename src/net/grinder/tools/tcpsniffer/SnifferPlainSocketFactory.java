@@ -1,4 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
+// Copyright (C) 2000 Phil Dawes
 // Copyright (C) 2000, 2001, 2002 Philip Aston
 // All rights reserved.
 //
@@ -20,32 +20,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.tools.tcpsniffer;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 
 
 /**
+ * {@link SnifferSocketFactory} for plain connections.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public class AllTests
+public final class SnifferPlainSocketFactory implements SnifferSocketFactory
 {
-    public static void main(String[] args)
+    public final ServerSocket createServerSocket(String localHost,
+						 int localPort,
+						 int timeout)
+	throws IOException
     {
-	TestRunner.run(AllTests.class);
+	final ServerSocket socket =
+	    new ServerSocket(localPort, 50, InetAddress.getByName(localHost));
+
+	socket.setSoTimeout(timeout);
+
+	return socket;
     }
 
-    public static Test suite()
+    public final Socket createClientSocket(String remoteHost, int remotePort)
+	throws IOException
     {
-	final TestSuite suite = new TestSuite();
-	suite.addTest(new TestSuite(TestMessage.class));
-	suite.addTest(new TestSuite(TestMessageQueue.class));
-	suite.addTest(new TestSuite(TestMulticastSenderAndReceiver.class));
-	suite.addTest(new TestSuite(TestUnicastSenderAndReceiver.class));
-	return suite;
+	return new Socket(remoteHost, remotePort);
     }
 }
+

@@ -78,14 +78,14 @@ public class TestSleeper extends TestCase
 	// Now do the tests.
 	final Sleeper sleep1 = new Sleeper(1, 0, null);
 
-	assert(
+	assertTrue(
 	    new Time(50, 70) {
 		void doIt() throws Exception  { sleep1.sleepNormal(50); }
 	    }.run());
 
 	final Sleeper sleep2 = new Sleeper(2, 0, null);
 
-	assert(
+	assertTrue(
 	    new Time(100, 120) {
 		void doIt() throws Exception  { sleep2.sleepNormal(50); }
 	    }.run());
@@ -103,7 +103,7 @@ public class TestSleeper extends TestCase
 	    }
 	}
 
-	assert(in > 20);
+	assertTrue(in > 20);
     }
 
     public void testSleepFlat() throws Exception
@@ -121,14 +121,14 @@ public class TestSleeper extends TestCase
 	// Now do the tests.
 	final Sleeper sleep1 = new Sleeper(1, 0, null);
 
-	assert(
+	assertTrue(
 	    new Time(0, 70) {
 		void doIt() throws Exception  { sleep1.sleepFlat(50); }
 	    }.run());
 
 	final Sleeper sleep2 = new Sleeper(2, 0, null);
 
-	assert(
+	assertTrue(
 	    new Time(0, 120) {
 		void doIt() throws Exception  { sleep2.sleepFlat(50); }
 	    }.run());
@@ -138,7 +138,7 @@ public class TestSleeper extends TestCase
     {
 	final TakeFifty t1 = new TakeFifty();
 
-	assert(
+	assertTrue(
 	    new Time(1000, 1100)
 	    {
 		void doIt() throws Exception
@@ -156,7 +156,7 @@ public class TestSleeper extends TestCase
 	final Thread t1 = new TakeFifty();
 	final Thread t2 = new TakeFifty();
 
-	assert(
+	assertTrue(
 	    new Time(1000, 1100)
 	    {
 		void doIt() throws Exception

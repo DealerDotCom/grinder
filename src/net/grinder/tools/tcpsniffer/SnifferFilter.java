@@ -22,20 +22,57 @@
 
 package net.grinder.tools.tcpsniffer;
 
+import java.io.PrintWriter;
+
 
 /**
+ * Interface that TCP Sniffer filters implement.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public interface SnifferFilter
 {
-    void handle(ConnectionDetails connectionDetails, byte[] buffer,
-		int bytesRead)
+    /**
+     * Set the {@link PrintWriter} that the filter should use for
+     * output.
+     *
+     * @param outputPrintWriter a <code>PrintWriter</code> value
+     */
+    void setOutputPrintWriter(PrintWriter outputPrintWriter);
+
+    /**
+     * Handle a message fragment.
+     *
+     * @param connectionDetails a <code>ConnectionDetails</code> value
+     * @param buffer a <code>byte[]</code> value
+     * @param bytesRead an <code>int</code> value
+     * @return Filters can optionally return a <code>byte[]</code>
+     * which will be transmitted to the server instead of
+     * <code>buffer</code.
+     * @exception Exception if an error occurs
+     */
+    byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
+		  int bytesRead)
 	throws Exception;
 
-    void connectionOpened(ConnectionDetails connectionDetails);
-    void connectionClosed(ConnectionDetails connectionDetails);
+    /**
+     * A new connection has been opened.
+     *
+     * @param connectionDetails a <code>ConnectionDetails</code> value
+     * @exception Exception if an error occurs
+     */
+    void connectionOpened(ConnectionDetails connectionDetails)
+	throws Exception;
+
+    /**
+     * A connection has been closed.
+     *
+     * @param connectionDetails a <code>ConnectionDetails</code> value
+     * @exception Exception if an error occurs
+     */
+    void connectionClosed(ConnectionDetails connectionDetails)
+	throws Exception;
 }
 
 

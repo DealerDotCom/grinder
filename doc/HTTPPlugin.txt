@@ -4,10 +4,13 @@ This file contains notes about the use of The Grinder HTTP Plugin.
 What can I set in grinder.properties for the HTTP plugin?
 *********************************************************
 
-    grinder.plugin.parameter.useCookies -
-				Set to false to disable cookie
-				handling (it defaults to true).
-
+    grinder.plugin.parameter.disablePersistentConnections -
+				Set to true to send a "Connection: close"
+				message with every request. See
+				http://www.innovation.ch/java/HTTPClient/advanced_info.html#pers_con
+				Only works with the default HTTPClient
+				implementation, see "HTTPClient" below.
+				
     grinder.plugin.parameter.followRedirects -
 				Set to true to automatically follow
 				redirects, so you don't have to have
@@ -32,6 +35,10 @@ What can I set in grinder.properties for the HTTP plugin?
 				bean that can provide dynamic strings
 				for URL's and POST data. See "What's a
 				String Bean?" below.
+
+    grinder.plugin.parameter.useCookies -
+				Set to false to disable cookie
+				handling (it defaults to true).
 
     grinder.test0.parameter.url -
 				The URL to call. The HTTP GET method
@@ -91,6 +98,9 @@ What can I set in grinder.properties for the HTTP plugin?
 				String Bean, see "What's a String
 				Bean?" below.
 
+See also TCPSniffer.txt for how to automatically record a script for
+use with the HTTP plugin.
+
 
 What's a String Bean?
 *********************
@@ -127,9 +137,17 @@ Alter the test URL parameter as follows:
   grinder.test0.parameter.url=http://myhost/test.jsp?n=<getRandomInteger>
 
 
-The <beanMethodName> syntax can be used in any URL string or POST data
-file. It must correspond to a public method of the string bean that
-takes no parameters and returns a String.
+The <beanMethodName> syntax can be used in any URL string, POST data
+file, HTTP headers and in OK strings. It must correspond to a public
+method of the string bean that takes no parameters and returns a
+String.
+
+The HTTP plugin is relaxed about a partial string bean tag matchess,
+for example "<notAMethod> or "<abc<def>xyz>" it simply outputs the
+literal text. This allows string bean tags to be used within XML POST
+data. If you find that your StringBean is not invoked when you expect
+it to be, use the TCPSniffer to find out what is actually being sent
+and check your spelling.
 
 Each string bean instance is instantiated per thread, and maintains
 its state between invocations. If your bean needs additional
@@ -137,6 +155,12 @@ information regarding the test lifecycle (for example, to reset a
 counter and the beginning of a cycle), it can implement the
 net.grinder.plugin.http.StringBean interface. See the examples in
 net.grinder.plugin.http.example.
+
+Advanced StringBeans can implement the
+net.grinder.plugin.http.StringBean and/or
+net.grinder.plugin.http.HTTPClientResponseListener interfaces to
+receive callbacks about the test lifecycle. See the examples in
+src/net/grinder/plugin/http/example.
 
 
 HTTPClient

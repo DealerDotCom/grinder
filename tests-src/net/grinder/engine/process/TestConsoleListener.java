@@ -100,7 +100,7 @@ public class TestConsoleListener extends TestCase
 	m_sender.send(new ReportStatisticsMessage(null));
 
 	t1.join();
-	assert(t1.getTimerExpired());
+	assertTrue(t1.getTimerExpired());
     }
 
     public void testListener() throws Exception
@@ -121,7 +121,7 @@ public class TestConsoleListener extends TestCase
 	m_sender.send(new ResetGrinderMessage());
 	m_sender.send(new StartGrinderMessage());
 	t1.join();
-	assert(!t1.getTimerExpired());
+	assertTrue(!t1.getTimerExpired());
 	assertEquals(0, listener.received(ConsoleListener.ANY));
 
 	final MyMonitor.WaitForMessages t2 =
@@ -132,7 +132,7 @@ public class TestConsoleListener extends TestCase
 	m_sender.send(new StartGrinderMessage());
 	m_sender.send(new StopGrinderMessage());
 	t2.join();
-	assert(!t2.getTimerExpired());
+	assertTrue(!t2.getTimerExpired());
 
 	assertEquals(0, listener.received(ConsoleListener.RESET));
 

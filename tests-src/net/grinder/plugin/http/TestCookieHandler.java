@@ -77,7 +77,7 @@ public class TestCookieHandler extends TestCase
 	assertNull(cookie.getComment());
 	assertEquals(m_domain, cookie.getDomain());
 	assertEquals(m_path, cookie.getPath());
-	assert(!cookie.getSecure());
+	assertTrue(!cookie.getSecure());
 	assertEquals(-1, cookie.getVersion());
 
 	assertEquals(0, m_logCounter.getNumberOfErrors());
@@ -100,7 +100,7 @@ public class TestCookieHandler extends TestCase
 	assertEquals("comment", cookie.getComment());
 	assertEquals(".grinder.net", cookie.getDomain());
 	assertEquals("/xx", cookie.getPath());
-	assert(cookie.getSecure());
+	assertTrue(cookie.getSecure());
 	assertEquals(-1, cookie.getVersion());
 
 	assertEquals(0, m_logCounter.getNumberOfErrors());
@@ -366,7 +366,7 @@ public class TestCookieHandler extends TestCase
 	final String expectedCookie2String =
 	    "; Part_Number=\"Rocket_Launcher_0001\"; $Path=\"/acme\"";
 
-	assert(cookieString2.equals(expectedVersionString +
+	assertTrue(cookieString2.equals(expectedVersionString +
 				    expectedCookie1String + 
 				    expectedCookie2String) ||
 	       cookieString2.equals(expectedVersionString +
@@ -395,10 +395,10 @@ public class TestCookieHandler extends TestCase
 		     expectedCookie3String.length(),
 		     cookieString3.length());
 
-	assert(cookieString3.indexOf(expectedVersionString) != -1);
-	assert(cookieString3.indexOf(expectedCookie1String) != -1);
-	assert(cookieString3.indexOf(expectedCookie2String) != -1);
-	assert(cookieString3.indexOf(expectedCookie3String) != -1);
+	assertTrue(cookieString3.indexOf(expectedVersionString) != -1);
+	assertTrue(cookieString3.indexOf(expectedCookie1String) != -1);
+	assertTrue(cookieString3.indexOf(expectedCookie2String) != -1);
+	assertTrue(cookieString3.indexOf(expectedCookie3String) != -1);
     }
 
     public void testRFC2109Example2() throws Exception

@@ -69,6 +69,7 @@ public class HttpPlugin implements GrinderPlugin
     private boolean m_useCookies;
     private boolean m_useCookiesVersionString;
     private boolean m_useHTTPClient;
+    private boolean m_disablePersistentConnections;
     private Class m_stringBeanClass;
     private Map m_beanMethodMap = null;
     private StatisticsIndexMap.LongIndex m_timeToFirstByteIndex;
@@ -90,6 +91,8 @@ public class HttpPlugin implements GrinderPlugin
 	m_useCookiesVersionString =
 	    parameters.getBoolean("useCookiesVersionString", true);
 	m_useHTTPClient = parameters.getBoolean("useHTTPClient", true);
+	m_disablePersistentConnections =
+	    parameters.getBoolean("disablePersistentConnections", false);
 
 	if (!m_useHTTPClient && processContext.getRecordTime()) {
 	    try {
@@ -346,37 +349,62 @@ public class HttpPlugin implements GrinderPlugin
 		    int p = 0;
 		    int lastP = p;
 
+		    // Look for <methodName> and replace with
+		    // m_bean.methodName(). If we don't find an exact
+		    // match, just chuck out the literal text -
+		    // otherwise string bean tags are a pain in XML
+		    // POST data.
+		    OUTER:
 		    while (true) {
 			if ((p = original.indexOf('<', lastP)) == -1) {
+			    // No more <'s, we're done.
 			    m_buffer.append(original.substring(lastP));
-			    break;
+			    break OUTER;
 			}
 			else {
-			    m_buffer.append(original.substring(lastP, p));
+			    // We've found a <, loop while there are
+			    // more <'s before a <.
+			    while (true) {
+				m_buffer.append(original.substring(lastP, p));
 
-			    lastP = p + 1;
+				lastP = p;
 		    
-			    p = original.indexOf('>', lastP);
+				p = original.indexOf('>', lastP + 1);
 			    
-			    if (p == -1) {
-				throw new HTTPHandlerException(
-				    "URL for Test " +
-				    getTest().getNumber() +
-				    " malformed");    
+				if (p == -1) {
+				    // No more >'s, no point looking
+				    // for any more matches.
+				    m_buffer.append(
+					original.substring(lastP));
+				    break OUTER;
+				}
+
+				final int q = original.indexOf('<', lastP + 1);
+
+				if (q > 0 && q < p) {
+				    // Found an earlier <.
+				    p = q;
+
+				}
+				else {
+				    // Found <[^<>]*>.
+				    break;
+				}
 			    }
 
 			    final String methodName =
-				original.substring(lastP, p);
+				original.substring(lastP + 1, p);
+
+			    lastP = p + 1;
 
 			    final Method method =
 				(Method)m_beanMethodMap.get(methodName);
 
-			    if (method == null ) {
-				throw new HTTPHandlerException(
-				    "URL for Test " +
-				    getTest().getNumber() +
-				    " refers to unknown string bean method '" +
-				    methodName + "'");
+			    if (method == null) {
+				m_buffer.append('<');
+				m_buffer.append(methodName);
+				m_buffer.append('>');
+				continue OUTER;
 			    }
 
 			    try {
@@ -388,8 +416,6 @@ public class HttpPlugin implements GrinderPlugin
 				    "Failure invoking string bean method '" +
 				    methodName + "'", e);
 			    }
-
-			    lastP = p + 1;
 			}
 		    }
 
@@ -421,9 +447,11 @@ public class HttpPlugin implements GrinderPlugin
 	    m_threadContext = threadContext;
 	    
 	    if (m_useHTTPClient) {
-		m_httpHandler = new HTTPClientHandler(m_threadContext,
-						      m_useCookies,
-						      m_followRedirects);
+		m_httpHandler =
+		    new HTTPClientHandler(m_threadContext,
+					  m_useCookies,
+					  m_followRedirects,
+					  m_disablePersistentConnections);
 	    }
 	    else {
 		m_httpHandler = new HttpMsg(m_threadContext,

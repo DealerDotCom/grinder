@@ -1,4 +1,3 @@
-// Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002 Philip Aston
 // All rights reserved.
 //
@@ -20,29 +19,19 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.model;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
-
+package net.grinder.tools.tcpsniffer;
 
 /**
+ * Define constants used by JSSE.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public class AllTests
+public interface JSSEConstants
 {
-    public static void main(String[] args)
-    {
-	TestRunner.run(AllTests.class);
-    }
-
-    public static Test suite()
-    {
-	final TestSuite suite = new TestSuite();
-	suite.addTest(new TestSuite(TestConsoleProperties.class));
-	return suite;
-    }
+    public final static String KEYSTORE_PROPERTY = "javax.net.ssl.keyStore";
+    public final static String KEYSTORE_PASSWORD_PROPERTY =
+	"javax.net.ssl.keyStorePassword";
+    public final static String KEYSTORE_TYPE_PROPERTY =
+	"javax.net.ssl.keyStoreType";
 }

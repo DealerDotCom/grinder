@@ -27,10 +27,22 @@ package net.grinder.plugin.http;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.text.DateFormat;
 
-import org.apache.regexp.RE;
-import org.apache.regexp.RESyntaxException;
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.MatchResult;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.PatternCompiler;
+import org.apache.oro.text.regex.PatternMatcher;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
+
+import HTTPClient.Codecs;
 
 import net.grinder.TCPSniffer;
 import net.grinder.tools.tcpsniffer.ConnectionDetails;
@@ -39,23 +51,27 @@ import net.grinder.tools.tcpsniffer.SnifferFilter;
 
 
 /**
+ * {@link SnifferFilter} that outputs session in a form that can be
+ * reused by the HTTP plugin.
+ *
+ * <p>Bugs:
+ * <ul>
+ * <li>Assumes Request-Line (GET ...) is first line of packet, and that
+ * every packet that starts with such a line is the start of a request.
+ * <li>Should filter chunked transfer coding from POST data.
+ * <li>Doesn't handle line continuations.
+ * <li>Doesn't parse correctly if lines are broken accross message
+ * fragments.
+ * </ul>
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public class HttpPluginSnifferFilter implements SnifferFilter
 {
-    /**
-     * Initially I used the connection ID to create a SessionState for
-     * each unique set of host and port names. However, browsers map
-     * one logical session over a number of connections, so for now
-     * I've assumed that everything belongs to the same session and
-     * synchronised all HttpPluginSnifferFilters on it. It would be
-     * better to have a SessionState per unique set of { serverHost,
-     * serverPort, clientHost}, or to interpret application cookies.
-     */
-    private static SessionState s_sessionState = new SessionState();
-    private EchoFilter m_echoFilter = new EchoFilter();
+    private final static String FILENAME_PREFIX = "http-plugin-sniffer-post-";
+    private final static String s_newLine =
+	System.getProperty("line.separator");
 
     private static final String[] s_mirroredHeaders = {
 	"Content-Type",
@@ -63,404 +79,429 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	"If-Modified-Since",
     };
 
-    /** REs holds state, so this can't be static. **/
-    private final RE m_mirroredHeaderExpressions[] =
-	new RE[s_mirroredHeaders.length];
+    private PrintWriter m_out = new PrintWriter(System.out);
 
-    public HttpPluginSnifferFilter() throws RESyntaxException
+    private final Pattern m_basicAuthorizationHeaderPattern;
+    private final Pattern m_contentLengthPattern;
+    private final Pattern m_messageBodyPattern;
+    private final Pattern m_mirroredHeaderPatterns[] =
+	new Pattern[s_mirroredHeaders.length];
+    private final Pattern m_lastURLPathElementPattern;
+    private final Pattern m_requestLinePattern;
+
+    /**
+     * Map of {@link ConnectionDetails} to handlers.
+     */
+    private final Map m_handlers = new HashMap();
+
+    private int m_currentRequestNumber;
+    private long m_lastTime;
+
+    /**
+     * Constructor.
+     *
+     * @exception MalformedPatternException 
+     */
+    public HttpPluginSnifferFilter() throws MalformedPatternException
     {
-	for (int i=0; i<s_mirroredHeaders.length; i++) {
-	    m_mirroredHeaderExpressions[i] =
-		getHeaderExpression(s_mirroredHeaders[i]);
-	}
-    }
+	m_currentRequestNumber =
+	    Integer.getInteger(TCPSniffer.INITIAL_TEST_PROPERTY, 0).intValue()
+	    - 1;
 
-    public void handle(ConnectionDetails connectionDetails, byte[] buffer,
-		       int bytesRead)
-	throws IOException, RESyntaxException
-    {
-	synchronized (s_sessionState) // See JavaDoc for s_sessionState.
-	{
-	    // We dumbly assume the entire message, including the
-	    // body, is US-ASCII encoded. This is a bug.
-	    final String string = new String(buffer, 0, bytesRead, "US-ASCII");
+	final PatternCompiler compiler = new Perl5Compiler();
 
-	    final SessionState sessionState = s_sessionState;
+	m_messageBodyPattern =
+	    compiler.compile(
+		"\\r\\n\\r\\n(.*)",
+		Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
 
-	    final RE methodLineExpresion = getMethodLineExpression();
+	// From RFC 2616:
+	//
+	// Request-Line = Method SP Request-URI SP HTTP-Version CRLF
+	// HTTP-Version = "HTTP" "/" 1*DIGIT "." 1*DIGIT
+	// http_URL = "http:" "//" host [ ":" port ] [ abs_path [ "?" query ]]
+	//  
+	// We're flexible about SP and CRLF, see RFC 2616, 19.3.
 
-	    if (methodLineExpresion.match(string)) {
-		// Message is start of new method.
-		outputEntityData(sessionState);
+	m_requestLinePattern =
+	    compiler.compile(
+		"^([A-Z]+)[ \\t]+(.+)[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?$", 
+		Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
 
-		final String method = methodLineExpresion.getParen(1);
-		final String url;
-
-		// if we're running as a proxy, we get the full url in
-		// the header, not just the filepath part
-		if (methodLineExpresion.getParen(2).startsWith("http")) {
-		    url = methodLineExpresion.getParen(2);
-		} else {
-		    url = connectionDetails.getURLBase("http") +
-			methodLineExpresion.getParen(2);
-		}
-
-		if (method.equals("GET")) {
-		    handleMethod(string, sessionState, url);
-		}
-		else if (method.equals("POST")) {
-		    sessionState.resetEntityData();
-		    sessionState.setHandlingPost(true);
-		    handleMethod(string, sessionState, url);
-		    addToEntityData(string, sessionState, true);
-		}
-		else {
-		    System.err.println("Ignoring '" + method + "' from " +
-				       connectionDetails.getDescription());
-		}
-	    }
-	    else if (sessionState.getHandlingPost()) {
-		addToEntityData(string, sessionState, false);
-	    }
-	    else {
-		outputEntityData(sessionState);
-		System.err.println("Ignoring request from " +
-				   connectionDetails.getDescription() +
-				   ":");
-		m_echoFilter.handle(connectionDetails, buffer, bytesRead);
-	    }
-	}
-    }
-
-    private void handleMethod(String request, SessionState sessionState,
-			      String url)
-	throws RESyntaxException
-    {
-	sessionState.incrementRequestNumber();
-
-	final int requestNumber = sessionState.getRequestNumber();
-
-	outputProperty(requestNumber, "sleepTime",
-		       Long.toString(sessionState.markTime()));
-	outputProperty(requestNumber, "parameter.url", url);
+	m_contentLengthPattern =
+	    compiler.compile(
+		getHeaderExpression("Content-Length"),
+		Perl5Compiler.READ_ONLY_MASK |
+		Perl5Compiler.MULTILINE_MASK |
+		Perl5Compiler.CASE_INSENSITIVE_MASK // Sigh.
+		);
 
 	for (int i=0; i<s_mirroredHeaders.length; i++) {
-	    if (m_mirroredHeaderExpressions[i].match(request)) {
-		outputProperty(requestNumber,
-			       "parameter.header." + s_mirroredHeaders[i],
-			       m_mirroredHeaderExpressions[i].getParen(1).
-			       trim());
-	    }
+	    m_mirroredHeaderPatterns[i] =
+		compiler.compile(
+		    getHeaderExpression(s_mirroredHeaders[i]),
+		    Perl5Compiler.READ_ONLY_MASK |
+		    Perl5Compiler.MULTILINE_MASK);
 	}
 
-	// Base default description on test URL.
-	final String description;
-	final RE descriptionExpresion = getLastURLPathElementExpression();
+	m_basicAuthorizationHeaderPattern =
+	    compiler.compile(
+		"^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?$",
+		Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
 
-	if (descriptionExpresion.match(url)) {
-	    description = descriptionExpresion.getParen(1);
-	}
-	else {
-	    description = "";
-	}
+	// Ignore maximum amount of stuff thats not a '?' followed by
+	// a '/', then grab the next until the first '?'.
+	m_lastURLPathElementPattern =
+	    compiler.compile(
+		"^[^\\?]*/([^\\?]*)",
+		Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
 
-	outputProperty(requestNumber, "description", description);
+	markTime();
     }
 
-    protected final void outputEntityData(SessionState sessionState)
+    /**
+     * Set the {@link PrintWriter} that the filter should use for
+     * output.
+     *
+     * @param out The PrintWriter.
+     */
+    public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
+    {
+	m_out.flush();
+	m_out = outputPrintWriter;
+
+	m_out.println("");
+	m_out.println("#");
+	m_out.println("# The Grinder version @version@");
+	m_out.println("#");
+	m_out.println("# Script generated by the TCPSniffer at " + 
+		      DateFormat.getDateTimeInstance().format(
+			  Calendar.getInstance().getTime()));
+	m_out.println("#");
+	m_out.println("");
+	m_out.println("grinder.processes=1");
+	m_out.println("grinder.threads=1");
+	m_out.println("# Change to grinder.cycles=0 to continue until console sends stop.");
+	m_out.println("grinder.cycles=1");
+	m_out.println("");
+	m_out.println("grinder.receiveConsoleSignals=true");
+	m_out.println("grinder.reportToConsole=true");
+	m_out.println("");
+	m_out.println("grinder.plugin=net.grinder.plugin.http.HttpPlugin");
+    }
+
+    /**
+     * The main handler method called by the sniffer engine.
+     *
+     * <p>NOTE, this is called for message fragments, don't assume
+     * that its passed a complete HTTP message at a time.</p>
+     *
+     * @param connectionDetails The TCP connection.
+     * @param buffer The message fragment buffer.
+     * @param bytesRead The number of bytes of buffer to process.
+     * @return Filters can optionally return a <code>byte[]</code>
+     * which will be transmitted to the server instead of
+     * <code>buffer</code.
+     * @exception IOException if an error occurs
+     */
+    public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
+			 int bytesRead)
 	throws IOException
     {
-	if (sessionState.getHandlingPost()) {
-	    final int requestNumber = sessionState.getRequestNumber();
-
-	    final PostOutput postOutput = new PostOutput(requestNumber);
-	    
-	    postOutput.write(sessionState.getEntityData());
-
-	    outputProperty(sessionState.getRequestNumber(), "parameter.post",
-			   postOutput.getFilename());
-	}
-
-	sessionState.setHandlingPost(false);
+	getHandler(connectionDetails).handle(buffer, bytesRead);
+	return null;
     }
 
-    private void outputProperty(int testNumber, String name, String value)
+    /**
+     * A connection has been opened.
+     *
+     * @param connectionDetails a <code>ConnectionDetails</code> value
+     */
+    public void connectionOpened(ConnectionDetails connectionDetails)
     {
-	System.out.println("grinder.test" + testNumber + "." + name +
-			   "=" + value);
+	getHandler(connectionDetails);
     }
 
-    protected void addToEntityData(String request,
-				   SessionState sessionState,
-				   boolean thisMessageHasPOSTHeader)
-	throws IOException, RESyntaxException
+    /**
+     * A connection has been closed.
+     *
+     * @param connectionDetails a <code>ConnectionDetails</code> value
+     * @exception IOException if an error occurs
+     */
+    public void connectionClosed(ConnectionDetails connectionDetails)
+	throws IOException
     {
-	// Look for the content length in the header. Probably should
-	// assert that we haven't already set the content length nor
-	// added any entity data.
-	final RE contentLengthExpession = getContentLengthExpression();
+	removeHandler(connectionDetails).endMessage();
+    }
 
-	if (contentLengthExpession.match(request)) {
-	    final int length =
-		Integer.parseInt(contentLengthExpession.getParen(1).trim());
+    private Handler getHandler(ConnectionDetails connectionDetails)
+    {
+	synchronized (m_handlers) {
+	    final Handler oldHandler =
+		(Handler)m_handlers.get(connectionDetails);
 
-	    sessionState.setContentLength(length);
-	}
-
-	// If multipart content type, set sessionState to boundary.
-	final RE contentTypeMultipartExpression =
-	    getContentTypeMultipartExpression();
-
-	if (contentTypeMultipartExpression.match(request)) {
-	    sessionState.setMultipartBoundary(
-		contentTypeMultipartExpression.getParen(1).trim());
-	}
-
-	// Find and add the data.
-	final RE messageBodyExpression =
-	    getMessageBodyExpression(sessionState.getMultipartBoundary());
-
-	if (messageBodyExpression.match(request)) {
-	    sessionState.addEntityData(messageBodyExpression.getParen(1));
-	
-	    final int contentLength = sessionState.getContentLength();
-
-	    // We flush our entity data output now if either
-	    //    1. No Content-Length header was specified and this body belonged to the same
-	    //        message as the POST method.
-	    // or
-	    //    2. We've reached or exceeded the specified Content-Length.
-	    if (contentLength == -1 && thisMessageHasPOSTHeader ||
-		contentLength != -1 &&
-		sessionState.getEntityDataLength() >= contentLength) {
-
-		outputEntityData(sessionState);
+	    if (oldHandler != null) {
+		return oldHandler;
+	    }
+	    else {
+		final Handler newHandler = new Handler(connectionDetails);
+		m_handlers.put(connectionDetails, newHandler);
+		return newHandler;
 	    }
 	}
     }
 
-    /**
-     * Regexp is not synchronised, so for now compile new objects
-     * every time. If it becomes a bottleneck, the "get*Expression
-     * methods should be implemented with object pools.
-     *
-     * From RFC 2616:
-     *
-     * Request-Line = Method SP Request-URI SP HTTP-Version CRLF
-     * HTTP-Version = "HTTP" "/" 1*DIGIT "." 1*DIGIT http_URL =
-     * "http:" "//" host [ ":" port ] [ abs_path [ "?" query ]]
-     *  
-     * We're flexible about CRLF.
-    */
-    protected final RE getMethodLineExpression() throws RESyntaxException
+    private Handler removeHandler(ConnectionDetails connectionDetails)
     {
-	return new RE("^([:upper:]+) (.+) HTTP/\\d.\\d\\r?$", 
-		      RE.MATCH_MULTILINE);
-    }
-
-   /**
-    *
-    * Regexp is not synchronised, so for now compile new objects
-    * every time. If it becomes a bottleneck, the "get*Expression
-    * methods should be implemented with object pools.
-   */
-   private RE getContentTypeMultipartExpression() throws RESyntaxException
-   {
-      return new RE("^Content-Type: multipart/form-data; boundary=(.*)$",
-		    RE.MATCH_MULTILINE | RE.MATCH_CASEINDEPENDENT);
-   }
-
-   /**
-    *
-    * Regexp is not synchronised, so for now compile new objects
-    * every time. If it becomes a bottleneck, the "get*Expression
-    * methods should be implemented with object pools.
-   */
-   private RE getLastURLPathElementExpression() throws RESyntaxException
-   {
-       return new RE("^[^\\?]*/([^\\?]*)", RE.MATCH_MULTILINE);
-    }
-
-    /**
-     * Regexp is not synchronised, so for now compile new objects
-     * every time. If it becomes a bottleneck, the "get*Expression
-     * methods should be implemented with object pools.
-    */
-    protected final RE getHeaderExpression(String headerName)
-	throws RESyntaxException
-    {
-	return new RE("^" + headerName + ": (.*)$", RE.MATCH_MULTILINE);
-    }
-
-    /**
-     * Regexp is not synchronised, so for now compile new objects
-     * every time. If it becomes a bottleneck, the "get*Expression
-     * methods should be implemented with object pools.
-    */
-    protected final RE getContentLengthExpression() throws RESyntaxException
-    {
-	final RE contentLengthExpession =
-	    getHeaderExpression("Content-Length");
-
-	// Sigh.
-	contentLengthExpession.setMatchFlags(
-	    contentLengthExpession.getMatchFlags() | RE.MATCH_CASEINDEPENDENT);
-
-	return contentLengthExpession;
-    }
-
-    /**
-     * Regexp is not synchronised, so for now compile new objects
-     * every time. If it becomes a bottleneck, the "get*Expression
-     * methods should be implemented with object pools.
-    */
-    private RE getMessageBodyExpression(String boundary)
-	throws RESyntaxException
-    {
-	if (boundary == null) {
-	    return new RE("\r\n\r\n(.*)");
+	final Handler handler;
+	
+	synchronized (m_handlers) {
+	    handler = (Handler)m_handlers.remove(connectionDetails);
 	}
-	else {
-	    //If multipart contentType
-	    return new RE("(--" + boundary + "(.*)--" + boundary +
-			  "--(\r\n)?)",
-			  RE.MATCH_SINGLELINE);
+
+	if (handler == null) {
+	    throw new IllegalArgumentException(
+		"Unknown connection " + connectionDetails);
 	}
+
+	return handler;
     }
 
-    protected final static class SessionState
+    private synchronized int getRequestNumber()
     {
+	return m_currentRequestNumber;
+    }
+
+    private synchronized int incrementRequestNumber() 
+    {
+	return ++m_currentRequestNumber;
+    }
+
+    private synchronized long markTime()
+    {
+	final long currentTime = System.currentTimeMillis();
+	final long result = currentTime - m_lastTime;
+	m_lastTime = currentTime;
+	return result;
+    }
+
+    /**
+     * Factory for regular expression patterns that match HTTP headers.
+     *
+     * @param headerName a <code>String</code> value
+     * @return The expression.
+     */
+    private final String getHeaderExpression(String headerName)
+    {
+	return "^" + headerName + ":[ \\t]*(.*)\\r?$";
+    }
+
+    /**
+     * Class that handles a particular connection.
+     *
+     * <p>Multithreaded calls for a given connection are
+     * serialised.</p>
+     **/
+    private final class Handler
+    {
+	private final ConnectionDetails m_connectionDetails;
+
+	private final StringBuffer m_outputBuffer = new StringBuffer();
+
+	// Parse state.
 	private int m_requestNumber;
+	private boolean m_parsingHeaders = false;
 	private boolean m_handlingPost = false;
-	private StringBuffer m_entityDataBuffer;
-	private int m_contentLength;
-	private long m_lastTime;
-	private String m_multipartBoundary;
-	private boolean m_finishedHeaders = false;
+	private final StringBuffer m_entityBodyBuffer = new StringBuffer();
+	private int m_contentLength = -1;
 
-	SessionState()
+	private final Perl5Matcher m_matcher = new Perl5Matcher();
+
+	public Handler(ConnectionDetails connectionDetails)
 	{
-	    m_requestNumber =
-		Integer.getInteger(TCPSniffer.INITIAL_TEST_PROPERTY, 0).
-		intValue() - 1;
+	    m_connectionDetails = connectionDetails;
 
-	    resetEntityData();
-	    markTime();
+
+	    m_out.println(s_newLine +
+			  "# New connection: " +
+			  connectionDetails.getDescription());
 	}
 
-	public int getRequestNumber()
+	public synchronized void handle(byte[] buffer, int bufferBytes)
+	    throws IOException
 	{
-	    return m_requestNumber;
+	    // String used to parse headers - header names are
+	    // US-ASCII encoded and anchored to start of line.
+	    final String asciiString =
+		new String(buffer, 0, bufferBytes, "US-ASCII");
+
+	    if (m_matcher.contains(asciiString, m_requestLinePattern)) {
+		// Packet is start of new request message.
+
+		endMessage();
+		m_parsingHeaders = true;
+
+		final MatchResult matchResult = m_matcher.getMatch();
+		final String method = matchResult.group(1);
+
+		if (method.equals("GET")) {
+		    m_handlingPost = false;
+		}
+		else if (method.equals("POST")) {
+		    m_handlingPost = true;
+		    m_entityBodyBuffer.setLength(0);
+		    m_contentLength = -1;
+		}
+		else {
+		    warn("Ignoring '" + method + "' from " +
+			 m_connectionDetails.getDescription());
+		    return;
+		}
+
+		String url = matchResult.group(2);
+
+		if (!url.startsWith("http")) {
+		    // Relative URL given, calculate absolute URL.
+		    url = m_connectionDetails.getURLBase("http") + url;
+		}
+
+		// Stuff we do at start of request only.
+		m_outputBuffer.append(s_newLine);
+		m_requestNumber = incrementRequestNumber();
+		outputProperty("parameter.url", url);
+		outputProperty("sleepTime", Long.toString(markTime()));
+
+		// Base default description on test URL.
+		final String description;
+
+		if (m_matcher.contains(url, m_lastURLPathElementPattern)) {
+		    description = m_matcher.getMatch().group(1);
+		}
+		else {
+		    description = "";
+		}
+
+		outputProperty("description", description);
+	    }
+
+	    // Stuff we do whatever.
+	    if (m_parsingHeaders) {
+		for (int i=0; i<s_mirroredHeaders.length; i++) {
+		    if (m_matcher.contains(asciiString,
+					   m_mirroredHeaderPatterns[i])) {
+			outputProperty(
+			    "parameter.header." + s_mirroredHeaders[i],
+			    m_matcher.getMatch().group(1).trim());
+		    }
+		}
+
+		if (m_matcher.contains(asciiString,
+				       m_basicAuthorizationHeaderPattern)) {
+
+		    final String decoded =
+			Codecs.base64Decode(
+			    m_matcher.getMatch().group(1).trim());
+		    
+		    final int colon = decoded.indexOf(":");
+		    
+		    if (colon < 0) {
+			warn("Could not decode Authorization header");
+		    }
+		    else {
+			outputProperty(
+			    "parameter.basicAuthenticationUser",
+			    decoded.substring(0, colon));
+			
+			outputProperty(
+			    "parameter.basicAuthenticationPassword",
+			    decoded.substring(colon+1));
+
+			outputProperty(
+			    "parameter.basicAuthenticationRealm",
+			    HttpPluginSnifferResponseFilter.
+			    getLastAuthenticationRealm());
+		    }
+		}
+
+		if (m_handlingPost) {
+		    // Look for the content length in the header.
+		    if (m_matcher.contains(asciiString,
+					   m_contentLengthPattern)) {
+			m_contentLength =
+			    Integer.parseInt(
+				m_matcher.getMatch().group(1).trim());
+		    }
+
+		    if (m_matcher.contains(asciiString,
+					   m_messageBodyPattern)) {
+
+			m_parsingHeaders = false;
+			addToEntityBody(m_matcher.getMatch().group(1));
+		    }
+		}
+	    }
+	    else {
+		if (m_handlingPost) {
+		    addToEntityBody(asciiString);
+		}
+		else {
+		    warn("UNEXPECTED - Not parsing headers or handling POST");
+		}
+	    }
 	}
 
-	public void incrementRequestNumber() 
+	private void addToEntityBody(String request)
+	    throws IOException
 	{
-	    ++m_requestNumber;
+	    m_entityBodyBuffer.append(request);
+	
+	    // We flush our entity data output now if we've reached or
+	    // exceeded the specified Content-Length. If no
+	    // contentLength was specified we rely on next message or
+	    // connection close event to flush the data.
+	    if (m_contentLength != -1 ) {
+		final int bytesRead = m_entityBodyBuffer.length();
+
+		if (bytesRead == m_contentLength) {
+		    endMessage();
+		}
+		else if (bytesRead > m_contentLength) {
+		    warn("Expected content length exceeded");
+		    endMessage();
+		}
+	    }
 	}
 
-	public boolean getHandlingPost() 
+	private void outputProperty(String name, String value)
 	{
-	    return m_handlingPost;
+	    m_outputBuffer.append(
+		"grinder.test" + m_requestNumber + "." + name + "=" + value +
+		s_newLine);
 	}
 
-	public void setHandlingPost(boolean b)
+	private void warn(String message)
 	{
-	    m_handlingPost = b;
+	    m_outputBuffer.append(
+		"# WARNING request " + m_requestNumber + ": " + message +
+		s_newLine);
 	}
 
-	public void setMultipartBoundary(String boundary)
+	public synchronized final void endMessage() throws IOException
 	{
-	    m_multipartBoundary = boundary;
+	    if (!m_parsingHeaders && m_handlingPost) {
+		final String filename = FILENAME_PREFIX + m_requestNumber;
+		final Writer writer =
+		    new BufferedWriter(new FileWriter(filename));
+
+		writer.write(m_entityBodyBuffer.toString());
+		writer.close();
+
+		outputProperty("parameter.post", filename);
+		m_handlingPost = false;
+	    }
+
+	    m_out.print(m_outputBuffer.toString());
+	    m_outputBuffer.setLength(0);
 	}
-
-	public String getMultipartBoundary()
-	{
-	    return m_multipartBoundary;
-	}
-
-	public boolean isFinishedHeaders()
-	{
-	    return m_finishedHeaders;
-	}
-
-	public void setFinishedHeaders(boolean b)
-	{
-	    m_finishedHeaders = b;
-	}
-
-	public String getEntityData() 
-	{
-	    return m_entityDataBuffer.toString();
-	}
-
-	public int getEntityDataLength() 
-	{
-	    return m_entityDataBuffer.length();
-	}
-
-	public void resetEntityData()
-	{
-	    m_entityDataBuffer = new StringBuffer();
-	    m_contentLength = -1;
-	    m_multipartBoundary = null;
-	}
-
-	public void addEntityData(String s) 
-	{
-	    m_entityDataBuffer.append(s);
-	}
-
-	public int getContentLength()
-	{
-	    return m_contentLength;
-	}
-
-	public void setContentLength(int length)
-	{
-	    m_contentLength = length;
-	}
-
-	public long markTime()
-	{
-	    final long currentTime = System.currentTimeMillis();
-	    final long result = currentTime - m_lastTime;
-	    m_lastTime = currentTime;
-	    return result;
-	}
-    }
-
-    public void connectionOpened(ConnectionDetails connectionDetails) 
-    {
-    }
-
-    public void connectionClosed(ConnectionDetails connectionDetails) 
-    {
     }
 }
-
-
-class PostOutput
-{
-    private final static String FILENAME_PREFIX = "http-plugin-sniffer-post-";
-
-    private final String m_filename;
-    private final Writer m_writer;
-
-    public PostOutput(int n) throws IOException
-    {
-	m_filename = FILENAME_PREFIX + n;
-	m_writer = new BufferedWriter(new FileWriter(m_filename));
-    }
-
-    public String getFilename()
-    {
-	return m_filename;
-    }
-    
-    public void write(String data) throws IOException
-    {
-	m_writer.write(data);
-	m_writer.flush();
-    }
-}
-

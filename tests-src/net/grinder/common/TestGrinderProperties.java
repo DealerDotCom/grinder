@@ -444,14 +444,14 @@ public class TestGrinderProperties extends TestCase
 
     public void testGetBoolean() throws Exception
     {
-	assert(m_grinderProperties.getBoolean("Not there", true));
-	assert(!m_grinderProperties.getBoolean("Not there", false));
+	assertTrue(m_grinderProperties.getBoolean("Not there", true));
+	assertTrue(!m_grinderProperties.getBoolean("Not there", false));
 
 	(new IterateOverProperties(m_booleanSet) {
 		void match(String key, String value) throws Exception
 		{
-		    assert(!(Boolean.valueOf(value).booleanValue() ^
-			     m_grinderProperties.getBoolean(key, false)));
+		    assertTrue(!(Boolean.valueOf(value).booleanValue() ^
+				 m_grinderProperties.getBoolean(key, false)));
 		}
 	    }
 	 ).run();
@@ -461,7 +461,7 @@ public class TestGrinderProperties extends TestCase
 		{
 		    // If the key exists, the boolean will always
 		    // parse as false.
-		    assert(!m_grinderProperties.getBoolean(key, false));
+		    assertTrue(!m_grinderProperties.getBoolean(key, false));
 		}
 	    }
 	 ).run();
@@ -479,8 +479,8 @@ public class TestGrinderProperties extends TestCase
 	(new IterateOverProperties(m_booleanSet) {
 		void match(String key, String value) throws Exception
 		{
-		    assert(!(Boolean.valueOf(value).booleanValue() ^
-			     m_grinderProperties.getMandatoryBoolean(key)));
+		    assertTrue(!(Boolean.valueOf(value).booleanValue() ^
+				 m_grinderProperties.getMandatoryBoolean(key)));
 		}
 	    }
 	 ).run();
@@ -490,7 +490,7 @@ public class TestGrinderProperties extends TestCase
 		{
 		    // If the key exists, the boolean will always
 		    // parse as false.
-		    assert(!m_grinderProperties.getMandatoryBoolean(key));
+		    assertTrue(!m_grinderProperties.getMandatoryBoolean(key));
 		}
 	    }
 	 ).run();

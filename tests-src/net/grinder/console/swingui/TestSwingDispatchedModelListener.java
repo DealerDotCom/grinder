@@ -66,19 +66,19 @@ public class TestSwingDispatchedModelListener extends TestCase
 	// queue.
 	SwingUtilities.invokeAndWait(m_voidRunnable);
 
-	assert(listener.m_updateCalled);
+	assertTrue(listener.m_updateCalled);
 
 	final Set myTests = new HashSet();
 	listener.reset(myTests);
 	SwingUtilities.invokeAndWait(m_voidRunnable);
-	assert(listener.m_resetCalled);
+	assertTrue(listener.m_resetCalled);
 	assertSame(myTests, listener.m_resetSet);
 
 	final StatisticsView view1 = new StatisticsView();
 	final StatisticsView view2 = new StatisticsView();
 	listener.newStatisticsViews(view1, view2);
 	SwingUtilities.invokeAndWait(m_voidRunnable);
-	assert(listener.m_updateCalled);
+	assertTrue(listener.m_updateCalled);
 	assertSame(view1, listener.m_intervalStatisticsView);
 	assertSame(view2, listener.m_cumulativeStatisticsView);
     }

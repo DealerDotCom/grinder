@@ -1,4 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
+// Copyright (C) 2000 Phil Dawes
 // Copyright (C) 2000, 2001, 2002 Philip Aston
 // All rights reserved.
 //
@@ -20,36 +20,24 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder;
+package net.grinder.tools.tcpsniffer;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 
 /**
  * @author Philip Aston
  * @version $Revision$
  */
-public class AllTests
+public interface SnifferSocketFactory
 {
-    public static void main(String[] args)
-    {
-	TestRunner.run(AllTests.class);
-    }
+    ServerSocket createServerSocket(String localHost, int localPort,
+				    int timeout)
+	throws IOException;
 
-    public static Test suite()
-    {
-	final TestSuite suite = new TestSuite();
-	suite.addTest(net.grinder.common.AllTests.suite());
-	suite.addTest(net.grinder.communication.AllTests.suite());
-	suite.addTest(net.grinder.console.model.AllTests.suite());
-	suite.addTest(net.grinder.console.swingui.AllTests.suite());
-	suite.addTest(net.grinder.engine.process.AllTests.suite());
-	suite.addTest(net.grinder.plugin.http.AllTests.suite());
-	suite.addTest(net.grinder.statistics.AllTests.suite());
-	suite.addTest(net.grinder.util.AllTests.suite());
-	return suite;
-    }
+    Socket createClientSocket(String remoteHost, int remotePort)
+	throws IOException;
 }
+

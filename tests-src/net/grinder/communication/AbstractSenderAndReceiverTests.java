@@ -61,8 +61,8 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase
 
 	final Message receivedMessage = m_receiver.waitForMessage();
 	assertEquals(sentMessage, receivedMessage);
-	assert(sentMessage.payloadEquals(receivedMessage));
-	assert(sentMessage != receivedMessage);
+	assertTrue(sentMessage.payloadEquals(receivedMessage));
+	assertTrue(sentMessage != receivedMessage);
     }
 
     public void testSendManyMessages() throws Exception
@@ -89,8 +89,8 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase
 
 		sequenceNumber = receivedMessage.getSequenceNumber();
 
-		assert(sentMessages[j].payloadEquals(receivedMessage));
-		assert(sentMessages[j] != receivedMessage);
+		assertTrue(sentMessages[j].payloadEquals(receivedMessage));
+		assertTrue(sentMessages[j] != receivedMessage);
 	    }
 	}
     }
@@ -154,8 +154,8 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase
 	    (SimpleMessage)m_receiver.waitForMessage();
 
 	assertEquals(sentMessage, receivedMessage);
-	assert(sentMessage.payloadEquals(receivedMessage));
-	assert(sentMessage != receivedMessage);
+	assertTrue(sentMessage.payloadEquals(receivedMessage));
+	assertTrue(sentMessage != receivedMessage);
     }
 
     public void testShutdownReceiver() throws Exception
@@ -194,8 +194,8 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase
 	    sequenceNumber = receivedMessage.getSequenceNumber();
 
 	    assertEquals(messages[i], receivedMessage);
-	    assert(messages[i].payloadEquals(receivedMessage));
-	    assert(messages[i] != receivedMessage);
+	    assertTrue(messages[i].payloadEquals(receivedMessage));
+	    assertTrue(messages[i] != receivedMessage);
 	}
     }
 
@@ -230,8 +230,8 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase
 	    sequenceNumber = receivedMessage.getSequenceNumber();
 
 	    assertEquals(messages[i], receivedMessage);
-	    assert(messages[i].payloadEquals(receivedMessage));
-	    assert(messages[i] != receivedMessage);
+	    assertTrue(messages[i].payloadEquals(receivedMessage));
+	    assertTrue(messages[i] != receivedMessage);
 	}
 
 	final Message receivedFinalMessage = m_receiver.waitForMessage();
@@ -239,8 +239,8 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase
 	assertEquals(sequenceNumber+1,
 		     receivedFinalMessage.getSequenceNumber());
 	assertEquals(finalMessage, receivedFinalMessage);
-	assert(finalMessage.payloadEquals(receivedFinalMessage));
-	assert(finalMessage != receivedFinalMessage);
+	assertTrue(finalMessage.payloadEquals(receivedFinalMessage));
+	assertTrue(finalMessage != receivedFinalMessage);
     }
 
     private class ReceiverThread extends Thread
