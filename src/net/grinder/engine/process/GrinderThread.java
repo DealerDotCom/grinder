@@ -58,12 +58,14 @@ class GrinderThread implements java.lang.Runnable
     private final Map m_testSet;
     private final PrintWriter m_dataPrintWriter;
 
-    private long m_defaultSleepTime;
-    private double m_sleepTimeVariation;
-    private double m_sleepTimeFactor;
-    private long m_beginCycleSleepTime;
+    private final long m_defaultSleepTime;
+    private final double m_sleepTimeVariation;
+    private final double m_sleepTimeFactor;
+    private final long m_beginCycleSleepTime;
 
-    private int m_numberOfCycles;
+    private final int m_numberOfCycles;
+
+    private final boolean m_recordTime;
 
     /** This is a member so that ThreadContextImplementation can
      * generate context sensitive log messages. */
@@ -102,6 +104,8 @@ class GrinderThread implements java.lang.Runnable
 	    properties.getLong("grinder.thread.beginCycleSleepTime", 0);
 
 	m_numberOfCycles = properties.getInt("grinder.cycles", 1);
+
+	m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
 	incrementThreadCount();	// See m_numberOfThreads javadoc.
   }
@@ -197,7 +201,12 @@ class GrinderThread implements java.lang.Runnable
 		    final long time = m_context.getElapsedTime();
 
 		    if (success) {
-			statistics.addTransaction(time);
+			if (m_recordTime) {
+			    statistics.addTransaction(time);
+			}
+			else {
+			    statistics.addTransaction();
+			}
 		    }
 		    else {
 			statistics.addError();
