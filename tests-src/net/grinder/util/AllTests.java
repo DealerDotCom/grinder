@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder;
+package net.grinder.util;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -38,8 +38,7 @@ public class AllTests
     public static Test suite()
     {
 	final TestSuite suite = new TestSuite();
-	suite.addTest(net.grinder.engine.process.AllTests.suite());
-	suite.addTest(net.grinder.util.AllTests.suite());
+	suite.addTest(new TestSuite(TestGrinderProperties.class));
 	return suite;
     }
 }
