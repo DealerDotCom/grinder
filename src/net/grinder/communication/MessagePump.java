@@ -71,9 +71,14 @@ public final class MessagePump {
    */
   public void shutdown() throws InterruptedException {
 
+    // Asynchronously signal the thread pool to stop.
+    // m_threadPool.isStopped() will now be true.
+    m_threadPool.stop();
+
     m_receiver.shutdown();
     m_sender.shutdown();
 
+    // Now wait for the thread pool to finish.
     m_threadPool.stopAndWait();
   }
 
