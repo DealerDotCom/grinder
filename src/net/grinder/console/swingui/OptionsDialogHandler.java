@@ -24,6 +24,7 @@ package net.grinder.console.swingui;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -76,8 +77,7 @@ abstract class OptionsDialogHandler {
     m_frame = frame;
     m_properties = new ConsoleProperties(properties);
 
-    final GridLayout addressLayout = new GridLayout(0, 2, 0, 1);
-    addressLayout.setHgap(5);
+    final GridLayout addressLayout = new GridLayout(0, 2, 10, 5);
     final JPanel addressPanel = new JPanel(addressLayout);
     addressPanel.add(new JLabel(resources.getString("consoleHost.label")));
     addressPanel.add(m_consoleHost);
@@ -89,11 +89,12 @@ abstract class OptionsDialogHandler {
     final JPanel communicationTab =
       new JPanel(new FlowLayout(FlowLayout.LEFT));
     communicationTab.add(addressPanel);
+    communicationTab.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
 
     m_samplingControlPanel = new SamplingControlPanel(resources);
 
-    final JPanel samplingControlTab =
-      new JPanel(new FlowLayout(FlowLayout.LEFT));
+    final JPanel samplingControlTab = new JPanel(new GridLayout());
+    samplingControlTab.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
     samplingControlTab.add(m_samplingControlPanel);
 
     m_sfSlider.setMajorTickSpacing(1);
