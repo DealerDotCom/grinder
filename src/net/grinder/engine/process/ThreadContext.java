@@ -20,6 +20,7 @@ package net.grinder.engine.process;
 
 import java.io.PrintWriter;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.plugininterface.PluginException;
@@ -35,15 +36,16 @@ import net.grinder.util.Sleeper;
  * @author Philip Aston
  * @version $Revision$
  */
-class ThreadContext extends ProcessContext implements PluginThreadContext
+final class ThreadContext extends ProcessContext implements PluginThreadContext
 {
     private GrinderThread m_grinderThread = null;
     private final int m_threadID;
     private final Sleeper m_sleeper;
     private final ThreadCallbacks m_threadCallbackHandler;
+    private final TestResult m_testResult = new TestResult();
 
+    private TestData m_currentTestData = null;
     private boolean m_abortedRun;
-    private boolean m_errorOccurred;
     private long m_startTime;
     private long m_elapsedTime;
 
@@ -63,8 +65,6 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	    properties.getDouble("grinder.thread.sleepTimeFactor", 1.0d),
 	    properties.getDouble("grinder.thread.sleepTimeVariation", 0.2d),
 	    this);
-
-	reset();
     }
 
     /** Package scope */
@@ -73,12 +73,6 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	m_grinderThread = grinderThread;
     }
     
-    private void reset()
-    {
-	m_abortedRun = false;
-	m_errorOccurred = false;
-    }
-
     public boolean getAbortedRun() {
 	return m_abortedRun;
     } 
@@ -108,7 +102,7 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 
     public void abortRun()
     {
-	m_abortedRun = true;
+	m_testResult.abortRun();
     }
 
     public void startTimer()
@@ -134,23 +128,24 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	buffer.append(getThreadID());
 
 	final int currentRun = getCurrentRunID();
-	final TestData currentTestData = m_grinderThread.getCurrentTestData();
 
 	if (currentRun >= 0) {
-	    buffer.append(" cycle " + currentRun);
+	    buffer.append(" run " + currentRun);
 	}
 	
-	if (currentTestData != null) {
-	    buffer.append(" test " + currentTestData.getTest().getNumber());
+	if (m_currentTestData != null) {
+	    buffer.append(" test " + m_currentTestData.getTest().getNumber());
 	}
 
 	buffer.append(") ");
     }
 
-    void invokeTest(TestData testData)
-	throws Sleeper.ShutdownException
+    TestResult invokeTest(TestData testData)
+	throws AbortRunException, Sleeper.ShutdownException
     {
-	reset();
+	m_currentTestData = testData; // For the logging.
+
+	m_testResult.reset();
 
 	final Test test = testData.getTest();
 	final StatisticsImplementation statistics = testData.getStatistics();
@@ -158,26 +153,24 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	m_sleeper.sleepNormal(testData.getSleepTime());
 
 	try {
-	    final boolean success;
-
 	    startTimer();
 
 	    try {
-		success = m_threadCallbackHandler.doTest(test);
+		m_testResult.setSuccess(m_threadCallbackHandler.doTest(test));
 	    }
 	    finally {
 		stopTimer();
 	    }
 
-	    if (getAbortedRun()) {
+	    if (m_testResult.getAbortedRun()) {
 		statistics.addError();
-		logError("Plug-in aborted run");
+		throw new AbortRunException("Plugin aborted run");
 	    }
 	    else {
 		final long time = getElapsedTime();
 		final boolean recordTime = getRecordTime();
 
-		if (success) {
+		if (m_testResult.isSuccessful()) {
 		    if (recordTime) {
 			statistics.addTransaction(time);
 		    }
@@ -211,15 +204,51 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	}
 	catch (PluginException e) {
 	    statistics.addError();
-	    logError("Aborting run - plug-in threw " + e);
-	    e.printStackTrace(getErrorLogWriter());
-	    abortRun();
+	    throw new AbortRunException("Plugin threw exception", e);
 	}
+	finally {
+	    m_currentTestData = null;
+	}
+
+	return m_testResult;
     }
 
     Sleeper getSleeper()
     {
 	return m_sleeper;
+    }
+    
+    private final static class TestResult
+	implements net.grinder.script.TestResult
+    {
+	private boolean m_successful;
+	private boolean m_abortRun;
+
+	public final boolean isSuccessful()
+	{
+	    return m_successful;
+	}
+
+	final void setSuccess(boolean b)
+	{
+	    m_successful = b;
+	}
+
+	final void reset()
+	{
+	    m_abortRun = false;
+	    m_successful = false;
+	}
+
+	final void abortRun()
+	{
+	    m_abortRun = true;
+	}
+
+	final boolean getAbortedRun()
+	{
+	    return m_abortRun;
+	}
     }
 }
 

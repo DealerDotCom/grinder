@@ -98,7 +98,7 @@ class BSFFacade
 	m_bsfManager = new BSFManager();
 
 	try {
-	    m_bsfManager.declareBean("context", new BSFScriptContext(),
+	    m_bsfManager.declareBean("grinder", new BSFScriptContext(),
 				     ScriptContext.class);
 	}
 	catch (BSFException e) {
@@ -180,15 +180,17 @@ class BSFFacade
 	    return m_testData.getTest().getParameters();
 	}
 
-	public TestResult invoke()
+	public TestResult invoke() throws net.grinder.script.AbortRunException
 	{
 	    try {
-		m_threadContext.invokeTest(m_testData);
+		return m_threadContext.invokeTest(m_testData);
+	    }
+	    catch (AbortRunException e) {
+		throw new net.grinder.script.AbortRunException("Aborted", e);
 	    }
 	    catch (Sleeper.ShutdownException e) {
+		throw new net.grinder.script.AbortRunException("Shut down", e);
 	    }
-	    
-	    return null;
 	}
     }
 }

@@ -342,11 +342,13 @@ public class GrinderProcess
      */        
     protected int run() throws GrinderException
     {
+	m_context.logMessage("The Grinder version @version@");
+
 	m_context.logMessage(System.getProperty("java.vm.vendor") + " " + 
 			     System.getProperty("java.vm.name") + " " +
-			     System.getProperty("java.vm.version"));
-
-	m_context.logMessage(System.getProperty("os.name") + " " +
+			     System.getProperty("java.vm.version") +
+			     " on " +
+			     System.getProperty("os.name") + " " +
 			     System.getProperty("os.arch") + " " +
 			     System.getProperty("os.version"));
 

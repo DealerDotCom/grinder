@@ -64,12 +64,6 @@ class GrinderThread implements java.lang.Runnable
     private int m_currentRun = -1;
 
     /**
-     * This is a member so that ThreadContextImplementation can
-     * generate context sensitive log messages.
-     **/
-    private TestData m_currentTestData = null;
-
-    /**
      * The constructor.
      */        
     public GrinderThread(GrinderProcess grinderProcess,
@@ -99,7 +93,6 @@ class GrinderThread implements java.lang.Runnable
     public void run()
     {
 	m_currentRun = -1;
-	m_currentTestData = null;
 
 	try {
 	    final ThreadCallbacks threadCallbackHandler =
@@ -123,7 +116,7 @@ class GrinderThread implements java.lang.Runnable
 		m_context.logMessage("About to run forever");
 	    }
 	    else {
-		m_context.logMessage("About to run " + m_numberOfRuns +
+		m_context.logMessage("About to do " + m_numberOfRuns +
 				     " runs");
 	    }
 
@@ -139,7 +132,7 @@ class GrinderThread implements java.lang.Runnable
 		    m_context.logError(
 			"Aborting run - plug-in beginRun() threw " + e);
 		    e.printStackTrace(m_context.getErrorLogWriter());
-		    continue RUN_LOOP;
+		    continue RUN_LOOP; // .. or should we abort the thread?
 		}
 
 		if (m_bsfFacade != null) {
@@ -151,17 +144,12 @@ class GrinderThread implements java.lang.Runnable
 
 		    TEST_LOOP:
 		    while (testIterator.hasNext()) {
-			m_currentTestData = (TestData)testIterator.next();
+			final TestData testData =
+			    (TestData)testIterator.next();
 
-			m_context.invokeTest(m_currentTestData);
-
-			if (m_context.getAbortedRun()) {
-			    continue RUN_LOOP;
-			}
+			m_context.invokeTest(testData);
 		    }
 		}
-
-		m_currentTestData = null;
 
 		try {
 		    threadCallbackHandler.endRun();
@@ -176,6 +164,11 @@ class GrinderThread implements java.lang.Runnable
 	    m_currentRun = -1;
 
 	    m_context.logMessage("Finished " + numberOfRuns + " runs");
+	}
+	catch (AbortRunException e) {
+	    m_context.logError("Aborting run");
+	    e.printStackTrace(m_context.getErrorLogWriter());
+	    
 	}
 	catch (Sleeper.ShutdownException e) {
 	    m_currentRun = -1;
@@ -200,14 +193,6 @@ class GrinderThread implements java.lang.Runnable
     int getCurrentRun() 
     {
 	return m_currentRun;
-    }
-
-    /**
-     * Package scope.
-     */
-    TestData getCurrentTestData() 
-    {
-	return m_currentTestData;
     }
 
     private static synchronized void incrementThreadCount() 

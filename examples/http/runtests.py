@@ -1,17 +1,22 @@
 from random import random
 
-logger = context.getLogger()
+logger = grinder.getLogger()
 
 logger.logMessage("Hello from Grinder Thread " +
-                  context.getGrinderID() + "-" +
-                  `context.getThreadID()`)
+                  grinder.getGrinderID() + "-" +
+                  `grinder.getThreadID()`)
 
-tests = context.getTests()
+tests = grinder.getTests()
 
 for test in tests:
     logger.logMessage(`test`)
 
-tests[0].invoke();
+result = tests[0].invoke();
+
+if result.isSuccessful():
+    print("The test worked")
+else:
+    print("The test failed")
 
 for test in tests:
     test.invoke()

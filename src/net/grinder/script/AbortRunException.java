@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2001  Paco Gomez
-// Copyright (C) 2001  Philip Aston
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,17 +18,35 @@
 
 package net.grinder.script;
 
-import net.grinder.common.Test;
+import net.grinder.common.GrinderException;
 
 
 /**
- * Represents the results of a test invocation.
+ * Exception indicating that the current run should be aborted.
  *
  * @author Philip Aston
  * @version $Revision$
- * @see InvokeableTest
  */ 
-public interface TestResult
+public class AbortRunException extends GrinderException
 {
-    boolean isSuccessful();
+    /**
+     * Constructor.
+     *
+     * @param message The exception message.
+     **/
+    public AbortRunException(String message)
+    {
+	super(message);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param message The exception message.
+     * @param e Nested exception
+     **/
+    public AbortRunException(String message, Exception e)
+    {
+	super(message, e);
+    }
 }
