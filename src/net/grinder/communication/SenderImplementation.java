@@ -123,9 +123,18 @@ public class SenderImplementation implements Sender
 	throws CommunicationException
     {
 	queue(message);
+	flush();
+    }
 
+    /**
+     * Flush any pending messages queued with {@link #queue}.
+     *
+     * @exception CommunicationException if an error occurs
+     **/
+    public final synchronized void flush() throws CommunicationException
+    {
 	try {
-	    do {
+	    while (m_pendingMessages.size() > 0) {
 		final Message nextMessage =
 		    (Message)m_pendingMessages.removeFirst();
 
@@ -144,7 +153,6 @@ public class SenderImplementation implements Sender
 				 m_byteStream.size());
 		m_localSocket.send(m_packet);
 	    }
-	    while (m_pendingMessages.size() > 0);
 	}
 	catch (IOException e) {
 	    throw new CommunicationException(
@@ -153,9 +161,11 @@ public class SenderImplementation implements Sender
     }
 
     /**
-     * Queue the given message for later sending with {@link #send}.
+     * Queue the given message for later sending.
      *
      * @param message A {@link Message}.
+     * @see #flush
+     * @see #send
      **/
     public final synchronized void queue(Message message)
     {

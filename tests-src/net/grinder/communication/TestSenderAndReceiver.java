@@ -158,7 +158,53 @@ public class TestSenderAndReceiver extends TestCase
 	assert(r1.getException() == null ^ r2.getException() == null);
     }
 
-    public void testQueue() throws Exception
+    public void testQueueAndFlush() throws Exception
+    {
+	long sequenceNumber = -1;
+
+	// This number is deliberately low. Tests show that the
+	// multicast buffer on my NT machine only holds between about
+	// 30 and 70 SimpleMessage(0)'s before dropping the least
+	// recent message. Really need something more reliable than
+	// this.
+	SimpleMessage[] messages = new SimpleMessage[25];
+
+	for (int i=0; i<messages.length; ++i)
+	{
+	    messages[i] = new SimpleMessage(0);
+	    m_sender.queue(messages[i]);
+	}
+
+	final ReceiveNMessagesThread receiverThread =
+	    new ReceiveNMessagesThread(messages.length);
+
+	receiverThread.start();
+
+	m_sender.flush();
+
+	receiverThread.join();
+
+	final SimpleMessage[] receivedMessages =
+	    (SimpleMessage[])
+	    receiverThread.getMessages().toArray(new SimpleMessage[0]);
+
+	assertEquals(messages.length, receivedMessages.length);
+
+	for (int i=0; i<messages.length; ++i) {
+	    if (sequenceNumber != -1) {
+		assertEquals(sequenceNumber+1,
+			     receivedMessages[i].getSequenceNumber());
+	    }
+
+	    sequenceNumber = receivedMessages[i].getSequenceNumber();
+
+	    assertEquals(messages[i], receivedMessages[i]);
+	    assert(messages[i].payloadEquals(receivedMessages[i]));
+	    assert(messages[i] != receivedMessages[i]);
+	}
+    }
+
+    public void testQueueAndSend() throws Exception
     {
 	long sequenceNumber = -1;
 

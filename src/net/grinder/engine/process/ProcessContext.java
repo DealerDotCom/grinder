@@ -219,7 +219,7 @@ class ProcessContext implements PluginProcessContext
 	CommonStatisticsViews.getSummaryStatisticsView().add(statisticsView);
 
 	if (m_consoleSender != null) {
-	    m_consoleSender.send(
+	    m_consoleSender.queue(
 		new RegisterStatisticsViewMessage(statisticsView));
 	}
     }

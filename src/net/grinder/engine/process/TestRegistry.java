@@ -79,7 +79,7 @@ final class TestRegistry
 	}
 	
 	if (newTests.size() > 0) {
-	    m_consoleSender.send(new RegisterTestsMessage(newTests));
+	    m_consoleSender.queue(new RegisterTestsMessage(newTests));
 	}
     }
 
@@ -98,7 +98,7 @@ final class TestRegistry
 	    }
 	}
 	
-	m_consoleSender.send(
+	m_consoleSender.queue(
 	    new RegisterTestsMessage(Collections.singleton(test)));
 
 	return newTestData;

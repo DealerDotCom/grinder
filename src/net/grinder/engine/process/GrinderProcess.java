@@ -196,6 +196,8 @@ public class GrinderProcess
 	    // Null Sender implementation.
 	    m_consoleSender = new Sender() {
 		    public void send(Message message) {}
+		    public void flush() {}
+		    public void queue(Message message) {}
 		};
 	}
 
@@ -338,6 +340,8 @@ public class GrinderProcess
 		new GrinderThread(this, m_context, m_bsfContext, i, 
 				  threadCallbacks);
 	}
+
+	m_consoleSender.flush();
 
 	if (m_listener.shouldWait() &&
 	    !Boolean.getBoolean(DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME)) {

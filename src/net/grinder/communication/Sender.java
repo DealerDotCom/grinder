@@ -37,9 +37,18 @@ public interface Sender
     void send(Message message) throws CommunicationException;
 
     /**
-     * Queue the given message for later sending with {@link #send}.
+     * Flush any pending messages queued with {@link #queue}.
+     *
+     * @exception CommunicationException if an error occurs
+     **/
+    void flush() throws CommunicationException;
+
+    /**
+     * Queue the given message for later sending.
      *
      * @param message A {@link Message}.
+     * @see #flush
+     * @see #send
      **/
-    void queue(Message message) throws CommunicationException;
+    void queue(Message message);
 }
