@@ -106,8 +106,7 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 
  	m_connectPattern =
  	    compiler.compile(
-		//TODO - recut from spec.
- 		"^CONNECT ([^:]+):(\\d+)",
+ 		"^CONNECT[ \\t]+([^:]+):(\\d+)",
  		Perl5Compiler.MULTILINE_MASK | Perl5Compiler.READ_ONLY_MASK);
 
 	m_serverSocket =
@@ -190,7 +189,7 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 		    response.append("HTTP/1. 200 OK\r\n");
 		    response.append("Host: " + remoteHost + ":" +
 				    remotePort + "\r\n");
-		    response.append("Proxy-Auth: The Grinder @version@\r\n");
+		    response.append("Proxy-agent: The Grinder/@version@\r\n");
 		    response.append("\r\n");
 
 		    out.write(response.toString().getBytes());

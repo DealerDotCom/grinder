@@ -64,7 +64,7 @@ public class HTTPProxySnifferEngine extends SnifferEngineImplementation
 
 	    s_proxyConnectPattern =
 		compiler.compile(
-		    "^([A-Z]+) http://([^/:]+):?(\\d*)(/.*)",
+		    "^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
 		    Perl5Compiler.MULTILINE_MASK |
 		    Perl5Compiler.READ_ONLY_MASK);
 	}
