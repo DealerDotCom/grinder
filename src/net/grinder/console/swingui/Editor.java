@@ -64,8 +64,6 @@ final class Editor {
   private final JEditTextArea m_scriptTextArea;
   private final TitledBorder m_titledBorder;
 
-  private Buffer m_viewedBuffer;
-
   /**
    * Constructor.
    *
@@ -111,11 +109,7 @@ final class Editor {
 
     m_editorModel.addListener(new EditorModel.Listener() {
         public void bufferChanged(Buffer buffer) {
-          if (buffer == m_editorModel.getSelectedBuffer() &&
-              buffer != m_viewedBuffer) {
-
-            m_viewedBuffer = buffer;
-
+          if (buffer == m_editorModel.getSelectedBuffer()) {
             final File file = buffer.getFile();
 
             m_titledBorder.setTitle(

@@ -31,6 +31,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
@@ -154,6 +155,33 @@ final class FileTree {
 
     m_editorModel.addListener(new EditorModel.Listener() {
         public void bufferChanged(Buffer buffer) {
+
+          final File file = buffer.getFile();
+
+          if (file != null) {
+            final FileTreeModel.FileNode oldFileNodeForBuffer =
+              m_fileTreeModel.findFileNode(buffer);
+
+            final FileTreeModel.Node node = m_fileTreeModel.findNode(file);
+
+            if (oldFileNodeForBuffer != null &&
+                !oldFileNodeForBuffer.equals(node)) {
+              oldFileNodeForBuffer.setBuffer(null);
+            }
+
+            if (node instanceof FileTreeModel.FileNode) {
+              final FileTreeModel.FileNode fileNode =
+                (FileTreeModel.FileNode)node;
+
+              fileNode.setBuffer(buffer);
+
+              m_tree.scrollPathToVisible(fileNode.getPath());
+            }
+            else {
+              // TODO - need to refresh the tree here and look for the node.
+            }
+          }
+
           // Couldn't find a nice way to repaint a single node. This:
           //    m_tree.getSelectionModel().setSelectionPath(fileNode.getPath());
           // doesn't work if the node is already selected. Give up and

@@ -79,7 +79,7 @@ public final class EditorModel {
    * Select the default buffer.
    */
   public void selectDefaultBuffer() {
-    selectBuffer(m_defaultBuffer);
+    setSelectedBuffer(m_defaultBuffer);
   }
 
   /**
@@ -91,7 +91,7 @@ public final class EditorModel {
 
     addBufferListener(buffer);
 
-    selectBuffer(buffer);
+    setSelectedBuffer(buffer);
   }
 
   /**
@@ -117,12 +117,48 @@ public final class EditorModel {
       m_fileBuffers.put(file, buffer);
     }
 
-    selectBuffer(buffer);
+    setSelectedBuffer(buffer);
 
     return buffer;
   }
 
-  private void selectBuffer(Buffer buffer) {
+  /**
+   * Return whether there is a buffer for the given file.
+   *
+   * @param file The file.
+   * @return <code>true</code> => there is a buffer for the file.
+   */
+  public boolean hasBufferForFile(File file) {
+    return m_fileBuffers.get(file) != null;
+  }
+
+  /**
+   * Save selected buffer as another file.
+   *
+   * @param file The file.
+   * @throws ConsoleException If a buffer could not be saved as the file.
+   */
+  public void saveSelectedBufferAs(File file) throws ConsoleException {
+
+    // TODO consider redoing this with EditorModel responding to a
+    // notification from the Buffer.
+    final Buffer selectedBuffer = getSelectedBuffer();
+    final File oldFile = selectedBuffer.getFile();
+
+    selectedBuffer.save(file);
+
+    if (!file.equals(oldFile)) {
+      if (oldFile != null) {
+        m_fileBuffers.remove(oldFile);
+      }
+
+      m_fileBuffers.put(file, selectedBuffer);
+
+      fireBufferChanged(selectedBuffer);
+    }
+  }
+
+  private void setSelectedBuffer(Buffer buffer) {
     if (buffer != m_selectedBuffer) {
       final Buffer oldBuffer = m_selectedBuffer;
 
@@ -176,7 +212,7 @@ public final class EditorModel {
     /**
      * Called when a buffer's state has changed - i.e. the buffer has
      * become dirty, or become clean, or has been selected, or has
-     * been unselected.
+     * been unselected, or has become associated with a new file.
      *
      * @param buffer The buffer.
      */

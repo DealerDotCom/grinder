@@ -850,9 +850,17 @@ public final class ConsoleUI implements ModelListener {
       final Buffer selectedBuffer = m_editorModel.getSelectedBuffer();
       final File currentFile = selectedBuffer.getFile();
 
-      m_fileChooser.setSelectedFile(currentFile);
+      if (currentFile != null) {
+        m_fileChooser.setSelectedFile(currentFile);
+      }
+      else {
+        final File distributionDirectory =
+          m_model.getProperties().getDistributionDirectory();
 
-      // TODO fallback to selected root directory.
+        if (distributionDirectory != null) {
+          m_fileChooser.setCurrentDirectory(distributionDirectory);
+        }
+      }
 
       try {
         if (m_fileChooser.showSaveDialog(m_frame) ==
@@ -870,9 +878,19 @@ public final class ConsoleUI implements ModelListener {
             return;
           }
 
-          // TODO
-          m_editorModel.getSelectedBuffer().save();
+          if (!file.equals(currentFile) &&
+              m_editorModel.hasBufferForFile(file) &&
+              JOptionPane.showConfirmDialog(
+                m_frame,
+                m_model.getResources().getString(
+                  "ignoreExistingBufferConfirmation.text"),
+                file.toString(), JOptionPane.YES_NO_OPTION) ==
+              JOptionPane.NO_OPTION
+              ) {
+            return;
+          }
 
+          m_editorModel.saveSelectedBufferAs(file);
         }
       }
       catch (Exception e) {

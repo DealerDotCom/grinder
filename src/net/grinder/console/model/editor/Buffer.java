@@ -94,7 +94,7 @@ public final class Buffer {
 
   private final Resources m_resources;
   private final TextSource m_textSource;
-  private final File m_file;
+  private File m_file;
 
   /** Synchronise on m_listeners before accessing. */
   private final List m_listeners = new LinkedList();
@@ -185,7 +185,7 @@ public final class Buffer {
   }
 
   /**
-   * Update the file from the text source.
+   * Update the buffer's file from the text source.
    *
    * @exception DisplayMessageConsoleException If the file could not
    * be written to.
@@ -199,15 +199,29 @@ public final class Buffer {
         "Can't save a buffer that has no associated file");
     }
 
+    save(m_file);
+  }
+
+  /**
+   * Update a file from the text source and, if successful, associate
+   * the buffer with the new file.
+   *
+   * @param file The file.
+   * @exception DisplayMessageConsoleException If the file could not
+   * be written to.
+   */
+  public void save(File file) throws DisplayMessageConsoleException {
     Writer writer = null;
 
     try {
-      writer = new FileWriter(m_file);
+      writer = new FileWriter(file);
       writer.write(m_textSource.getText());
+      m_file = file;
+      m_lastModified = m_file.lastModified();
     }
     catch (IOException e) {
       throw new DisplayMessageConsoleException(
-        m_resources, "fileWriteError.text", new Object[] { m_file }, e);
+        m_resources, "fileWriteError.text", new Object[] { file }, e);
     }
     finally {
       if (writer != null) {
@@ -219,8 +233,6 @@ public final class Buffer {
         }
       }
     }
-
-    m_lastModified = m_file.lastModified();
   }
 
   /**
