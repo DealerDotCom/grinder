@@ -1,4 +1,20 @@
+2003-11-23  Philip Aston  <paston@bea.com>
+
+	* The Grinder 3.0-beta13 is released.
+
+	* xdoc/welcome-xhtml.xml: Add poll.
+
+	* CHANGES, src/net/grinder/console/common/Resources.java:
+	Fix bug 847571 - console does not display image icons.
+
 2003-11-22  Philip Aston  <paston@bea.com>
+
+	* build.xml: Next is beta 13.
+
+	* xdoc/g3/tcpproxy-xhtml.xml: Correct formatting.
+
+	* TODO: Progress.
+	Idea.
 
 	* The Grinder 3.0-beta12 is released.
 
