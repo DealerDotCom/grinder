@@ -271,12 +271,12 @@ public class ProcessContextImplementation implements PluginProcessContext
 	// Sadly this is the most efficient way to get something we
 	// can println from the StringBuffer. getString() creates an
 	// extra string, getValue() is package scope.
-	final int buffferLength = m_buffer.length();
+	final int bufferLength = m_buffer.length();
 	final int outputLineSpace =
 	    m_outputLine.length - s_lineSeparatorLength;
 	
 	final int lineLength =
-	    buffferLength > outputLineSpace ? outputLineSpace : buffferLength;
+	    bufferLength > outputLineSpace ? outputLineSpace : bufferLength;
 
 	m_buffer.getChars(0, lineLength, m_outputLine, 0);
 	s_lineSeparator.getChars(0, s_lineSeparatorLength, m_outputLine,
