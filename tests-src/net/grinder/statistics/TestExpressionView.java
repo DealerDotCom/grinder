@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,8 +23,6 @@
 package net.grinder.statistics;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -44,100 +42,105 @@ import net.grinder.common.GrinderException;
  * @version $Revision$
  * @see RawStatistics
  */
-public class TestExpressionView extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestExpressionView.class);
+public class TestExpressionView extends TestCase {
+
+  public TestExpressionView(String name) {
+    super(name);
+  }
+
+  public void testConstruction() throws Exception {
+    final ExpressionView view =
+      new ExpressionView("My view", "my.view",
+                         "(+ userLong0 userLong1)");
+
+    assertEquals("My view", view.getDisplayName());
+    assertEquals("my.view", view.getDisplayNameResourceKey());
+    assertTrue(view.getExpression() != null);
+
+    final StatisticExpressionFactory statisticExpressionFactory =
+      StatisticExpressionFactory.getInstance();
+    final ExpressionView view2 =
+      new ExpressionView("My view2", "my.view", 
+                         statisticExpressionFactory.createExpression(
+                           "userLong0"));
+
+    assertEquals("My view2", view2.getDisplayName());
+    assertEquals("my.view", view2.getDisplayNameResourceKey());
+    assertTrue(view.getExpression() != null);
+  }
+
+  public void testEquality() throws Exception {
+    final ExpressionView[] views = {
+      new ExpressionView("My view", "my.view", 
+                         "(+ userLong0 userLong1)"),
+      new ExpressionView("My view", "my.view",
+                         "(+ userLong0 userLong1)"),
+      new ExpressionView("My view", "my.view",
+                         "(+ userLong0 userLong2)"),
+      new ExpressionView("My View", "my.view",
+                         "(+ userLong0 userLong1)"),
+      new ExpressionView("My view", "my view",
+                         "(+ userLong0 userLong1)"),
+    };
+
+    assertEquals(views[0], views[1]);
+    assertEquals(views[1], views[0]);
+    assertTrue(!views[0].equals(views[2]));
+    assertTrue(!views[1].equals(views[3]));
+    assertTrue(!views[1].equals(views[4]));
+
+    assertTrue(!views[0].equals(new Object()));
+  }
+
+  public void testExternalisation() throws Exception {
+    final ExpressionView original =
+      new ExpressionView("My view", "my.view", "(+ userLong0 userLong1)");
+
+    final ByteArrayOutputStream byteOutputStream =
+      new ByteArrayOutputStream();
+
+    final ObjectOutputStream objectOutputStream =
+      new ObjectOutputStream(byteOutputStream);
+
+    original.myWriteExternal(objectOutputStream);
+    objectOutputStream.close();
+
+    final ObjectInputStream objectInputStream =
+      new ObjectInputStream(
+        new ByteArrayInputStream(byteOutputStream.toByteArray()));
+
+    final ExpressionView received = new ExpressionView(objectInputStream);
+
+    assertEquals(original, received);
+
+    final StatisticExpressionFactory statisticExpressionFactory =
+      StatisticExpressionFactory.getInstance();
+    final ExpressionView cantStreamThis =
+      new ExpressionView("My view2", "my.view", 
+                         statisticExpressionFactory.createExpression(
+                           "userLong0"));
+
+    try {
+      cantStreamThis.myWriteExternal(objectOutputStream);
+      fail("Expected an IOException");
     }
-
-    public TestExpressionView(String name)
-    {
-	super(name);
+    catch (IOException e) {
     }
+  }
 
-    protected void setUp() throws Exception
-    {
-    }
+  public void testToString() throws Exception {
+    final String displayName = "My view";
+    final String displayNameResourceKey = "my.view";
+    final String expressionString = "(+ userLong0 userLong1)";
 
-    public void testConstruction() throws Exception
-    {
-	final ExpressionView view =
-	    new ExpressionView("My view", "my.view",
-			       "(+ userLong0 userLong1)");
+    final ExpressionView expressionView =
+      new ExpressionView(
+        displayName, displayNameResourceKey, expressionString);
 
-	assertEquals("My view", view.getDisplayName());
-	assertEquals("my.view", view.getDisplayNameResourceKey());
-	assertTrue(view.getExpression() != null);
+    final String string = expressionView.toString();
 
-	final StatisticExpressionFactory statisticExpressionFactory =
-	    StatisticExpressionFactory.getInstance();
-	final ExpressionView view2 =
-	    new ExpressionView("My view2", "my.view", 
-			       statisticExpressionFactory.createExpression(
-				   "userLong0"));
-
-	assertEquals("My view2", view2.getDisplayName());
-	assertEquals("my.view", view2.getDisplayNameResourceKey());
-	assertTrue(view.getExpression() != null);
-    }
-
-    public void testEquality() throws Exception
-    {
-	final ExpressionView[] views = {
-	    new ExpressionView("My view", "my.view", 
-			       "(+ userLong0 userLong1)"),
-	    new ExpressionView("My view", "my.view",
-			       "(+ userLong0 userLong1)"),
-	    new ExpressionView("My view", "my.view",
-			       "(+ userLong0 userLong2)"),
-	    new ExpressionView("My View", "my.view",
-			       "(+ userLong0 userLong1)"),
-	    new ExpressionView("My view", "my view",
-			       "(+ userLong0 userLong1)"),
-	};
-
-	assertEquals(views[0], views[1]);
-	assertEquals(views[1], views[0]);
-	assertTrue(!views[0].equals(views[2]));
-	assertTrue(!views[1].equals(views[3]));
-	assertTrue(!views[1].equals(views[4]));
-    }
-
-    public void testExternalisation() throws Exception
-    {
-	final ExpressionView original =
-	    new ExpressionView("My view", "my.view", "(+ userLong0 userLong1)");
-
-	final ByteArrayOutputStream byteOutputStream =
-	    new ByteArrayOutputStream();
-
-	final ObjectOutputStream objectOutputStream =
-	    new ObjectOutputStream(byteOutputStream);
-
-	original.myWriteExternal(objectOutputStream);
-	objectOutputStream.close();
-
-	final ObjectInputStream objectInputStream =
-	    new ObjectInputStream(
-		new ByteArrayInputStream(byteOutputStream.toByteArray()));
-
-	final ExpressionView received = new ExpressionView(objectInputStream);
-
-	assertEquals(original, received);
-
-	final StatisticExpressionFactory statisticExpressionFactory =
-	    StatisticExpressionFactory.getInstance();
-	final ExpressionView cantStreamThis =
-	    new ExpressionView("My view2", "my.view", 
-			       statisticExpressionFactory.createExpression(
-				   "userLong0"));
-
-	try {
-	    cantStreamThis.myWriteExternal(objectOutputStream);
-	    fail("Expected an IOException");
-	}
-	catch (IOException e) {
-	}
-    }
+    assertTrue(string.indexOf(displayName) >= 0);
+    assertTrue(string.indexOf(displayNameResourceKey) >= 0);
+    assertTrue(string.indexOf(expressionString) >= 0);
+  }
 }

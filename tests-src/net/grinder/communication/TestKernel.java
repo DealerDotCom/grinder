@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -88,5 +88,12 @@ public class TestKernel extends TestCase {
     kernel.forceShutdown();
 
     assertTrue(m_counter != 50);
+
+    try {
+      kernel.execute(new IncrementCounter(10));
+      fail("Expected ShutdownException");
+    }
+    catch (Kernel.ShutdownException e) {
+    }
   }
 }
