@@ -63,7 +63,7 @@ black box. Look to other tools such as <code>sar</code> and
 <p><em>New answer required for G3.</em></p>
 
 <h3><a name="use-the-tcpproxy">My server works fine with a browser but
-has errors when I use the HTTP Plugin?</a></h3>
+has errors when I use the HTTP plugin?</a></h3>
 
 <p>This is probably down to one of the following:</p>
 
@@ -78,7 +78,7 @@ those that The Grinder sends.</li>
 
 </ul>
 
-<p>The HTTP Plugin sends requests that will have minor differences
+<p>The HTTP plugin sends requests that will have minor differences
 between those that a browser send, but which rarely affect server
 behaviour. Its worth knowing how to examine the differences with the
 TCPProxy. First <a href="tcpproxy.html#http-proxy">set the TCPProxy as
@@ -99,6 +99,22 @@ very pretty.</p>
 with the <code>CMD.EXE</code> window unless you're using <a
 href="http://cygwin.com">Cygwin</a>. (Of course, if you're using
 Cygwin you'd use <code>rxvt</code> in preference :-)).</p>
+
+<h3><a name="junit">What happened to the JUnit plugin?</a></h3>
+
+<p>The Grinder 2 had a JUnit plugin which allowed JUnit test cases to
+be called. There is no JUnit plugin in The Grinder 3 but you can call
+arbitrary Java code so you should be able to invoke your JUnit test
+cases directly.</p>
+
+<p>If you have a lot of JUnit test cases, it would be appropriate to
+wrap up the steps necessary to invoke a test case in a Jython library.
+Contributions to the <a href="script-gallery.html">script gallery</a>
+are welcome.</p>
+
+<p>See also <a
+href='http://sourceforge.net/mailarchive/forum.php?thread_id=1687434&amp;forum_id=2650'>
+this article</a> on <em>grinder-use</em>.</p>
 
 <h3><a name="statistics">How does the Grinder calculate the mean time
 and TPS?</a></h3>

@@ -51,10 +51,10 @@
              targetFile="script-gallery.html" type="g3-xhtml-toc-1"/>
       <entry name="TCPProxy" sourceFile="tcpproxy-xhtml.xml" 
              targetFile="tcpproxy.html" type="g3-xhtml-1"/>
-      <entry name="FAQ" sourceFile="faq-xhtml.xml" 
-             targetFile="faq.html" type="g3-xhtml-toc-1"/>
       <entry name="Tutorial" sourceFile="tutorial-perks-xhtml.xml" 
              targetFile="tutorial-perks.html" type="g3-xhtml-toc-1"/>
+      <entry name="FAQ" sourceFile="faq-xhtml.xml" 
+             targetFile="faq.html" type="g3-xhtml-toc-1"/>
     </section>
     <section name="Development" sourceDir="development" targetDir="development"
              type="section">
