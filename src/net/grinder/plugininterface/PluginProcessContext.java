@@ -53,13 +53,6 @@ public interface PluginProcessContext {
   FilenameFactory getFilenameFactory();
 
   /**
-   * Returns the script context.
-   *
-   * @return The script context.
-   */
-  ScriptContext getScriptContext();
-
-  /**
    * Returns the {@link PluginThreadListener} for the current
    * thread.
    *

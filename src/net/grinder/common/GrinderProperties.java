@@ -40,7 +40,7 @@ import java.util.Properties;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see net.grinder.script.ScriptContext#getProperties
+ * @see net.grinder.script.Grinder#getProperties
  */
 public class GrinderProperties extends Properties {
   private static final String DEFAULT_FILENAME = "grinder.properties";

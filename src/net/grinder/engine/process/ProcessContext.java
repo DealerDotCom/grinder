@@ -51,7 +51,6 @@ class ProcessContext {
   private final Sender m_consoleSender;
   private final PluginRegistry m_pluginRegistry;
   private final TestRegistry m_testRegistry;
-  private final ScriptContext m_scriptContext;
 
   private boolean m_shouldWriteTitleToDataWriter;
   private long m_executionStartTime;
@@ -118,7 +117,7 @@ class ProcessContext {
 
     m_pluginRegistry = new PluginRegistry(this);
     m_testRegistry = new TestRegistry();
-    m_scriptContext = new ScriptContextImplementation(this);
+    ScriptContext.setImplementation(new ScriptContextImplementation(this));
   }
 
   final void initialiseDataWriter() {
@@ -170,10 +169,6 @@ class ProcessContext {
 
   public final boolean getRecordTime() {
     return m_recordTime;
-  }
-
-  public final ScriptContext getScriptContext() {
-    return m_scriptContext;
   }
 
   /**

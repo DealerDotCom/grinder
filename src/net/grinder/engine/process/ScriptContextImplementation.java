@@ -38,7 +38,7 @@ import net.grinder.communication.RegisterStatisticsViewMessage;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ScriptContextImplementation implements ScriptContext {
+final class ScriptContextImplementation implements ScriptContext.Interface {
 
   private final ProcessContext m_processContext;
 

@@ -39,6 +39,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.script.Grinder;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.script.StatisticsAlreadyReportedException;
@@ -787,8 +788,7 @@ public class HTTPRequest {
       }
 
       try {
-	final Statistics statistics = 
-	  s_pluginProcessContext.getScriptContext().getStatistics();
+	final Statistics statistics = Grinder.getStatistics();
 
 	if (statistics.availableForUpdate()) {
 	  //Log the response code if we have a statistics context. If
