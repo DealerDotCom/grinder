@@ -132,7 +132,7 @@ class ProcessContext implements PluginProcessContext
 	    final PrintWriter dataWriter =
 		m_loggerImplementation.getDataWriter();
 
-	    dataWriter.print("Thread, Cycle, Test");
+	    dataWriter.print("Thread, Run, Test");
 
 	    final ExpressionView[] detailExpressionViews =
 		CommonStatisticsViews.getDetailStatisticsView()
