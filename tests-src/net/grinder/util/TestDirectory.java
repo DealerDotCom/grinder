@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.FileUtilities;
 
 
 /**
@@ -133,7 +134,7 @@ public class TestDirectory extends AbstractFileTestCase {
 
     final Map expected = new HashMap();
 
-    for (int i=0; i<files.length; ++i) {
+    for (int i = 0; i < files.length; ++i) {
       final File file = new File(getDirectory(), files[i]);
       file.getParentFile().mkdirs();
       final FileOutputStream out = new FileOutputStream(file);
@@ -145,15 +146,53 @@ public class TestDirectory extends AbstractFileTestCase {
       expected.put(new File(files[i]), contents);
     }
 
+    final File[] badFiles = {
+      new File(getDirectory(), "directory/foo/bah/blah.cantread"),
+      new File(getDirectory(), "readonly"),
+      new File(getDirectory(), "a/new/face/in/hell"),
+    };
+
+    for (int i = 0; i < badFiles.length; ++i) {
+      badFiles[i].getParentFile().mkdirs();
+
+      if (i % 2 == 0) {
+        badFiles[i].createNewFile();
+      }
+      else {
+        badFiles[i].mkdir();
+      }
+
+      FileUtilities.setCanRead(badFiles[i], false);
+    }
+
     final FileContents[] fileContentsList = directory.toFileContentsArray();
 
-    for (int i=0; i<fileContentsList.length; ++i) {
+    for (int i = 0; i < fileContentsList.length; ++i) {
       final FileContents fileContents = fileContentsList[i];
 
       final String expectedContents =
         (String)expected.get(fileContents.getFilename());
       assertNotNull(expectedContents);
       assertEquals(expectedContents, new String(fileContents.getContents()));
+    }
+
+    final String[] warnings = directory.getWarnings();
+    assertEquals(badFiles.length, warnings.length);
+
+    final StringBuffer warningsBuffer = new StringBuffer();
+
+    for (int i = 0; i < warnings.length; ++i) {
+      warningsBuffer.append(warnings[i]);
+      warningsBuffer.append("\n");
+    }
+
+    final String warningsString = warningsBuffer.toString();
+
+    for (int i = 0; i < badFiles.length; ++i) {
+      assertTrue(warningsBuffer + " contains " + badFiles[i].getPath(),
+                 warningsString.indexOf(badFiles[i].getPath()) > -1);
+
+      FileUtilities.setCanRead(badFiles[i], true);
     }
   }
 }
