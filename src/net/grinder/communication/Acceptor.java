@@ -72,6 +72,8 @@ final class Acceptor {
     }
 
     new AcceptorThread().start();
+
+    m_threadGroup.setDaemon(true);
   }
 
   /**
