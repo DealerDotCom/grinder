@@ -24,12 +24,9 @@ package net.grinder.plugin.http;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternCompiler;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
@@ -47,7 +44,6 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  */
 public class HTTPPluginTCPProxyResponseFilter2 implements TCPProxyFilter {
   private final Pattern m_wwwAuthenticateHeaderPattern;
-  private final Perl5Matcher m_matcher = new Perl5Matcher();
 
   private static String s_lastAuthenticationRealm;
 
@@ -55,17 +51,16 @@ public class HTTPPluginTCPProxyResponseFilter2 implements TCPProxyFilter {
    * Constructor.
    *
    * @param outputWriter PrintWriter to terminal.
-   * @throws MalformedPatternException If a regular expression error occurs.
+   * @throws PatternSyntaxException If a regular expression error occurs.
    */
   public HTTPPluginTCPProxyResponseFilter2(PrintWriter outputWriter)
-    throws MalformedPatternException {
-    final PatternCompiler compiler = new Perl5Compiler();
+    throws PatternSyntaxException {
 
     m_wwwAuthenticateHeaderPattern =
-      compiler.compile(
+      Pattern.compile(
         "^WWW-Authenticate:[ \\t]*Basic realm[  \\t]*=" +
         "[ \\t]*\"([^\"]*)\".*\\r?$",
-        Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
+        Pattern.MULTILINE | Pattern.UNIX_LINES);
   }
 
   /**
@@ -93,10 +88,12 @@ public class HTTPPluginTCPProxyResponseFilter2 implements TCPProxyFilter {
     final String asciiString =
       new String(buffer, 0, bytesRead, "US-ASCII");
 
-    if (m_matcher.contains(asciiString, m_wwwAuthenticateHeaderPattern)) {
+    final Matcher matcher = m_wwwAuthenticateHeaderPattern.matcher(asciiString);
+
+    if (matcher.find()) {
       // Packet is start of new request message.
 
-      s_lastAuthenticationRealm = m_matcher.getMatch().group(1).trim();
+      s_lastAuthenticationRealm = matcher.group(1).trim();
     }
 
     return null;

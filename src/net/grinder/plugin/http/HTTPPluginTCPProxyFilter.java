@@ -39,13 +39,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternCompiler;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import HTTPClient.Codecs;
 import HTTPClient.NVPair;
@@ -131,23 +127,19 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
    *
    * @param outputPrintWriter a <code>PrintWriter</code> value
    * @exception IOException If an I/O error occurs.
-   * @exception MalformedPatternException If a regular expression
+   * @exception PatternSyntaxException If a regular expression
    * could not be compiled.
    */
   public HTTPPluginTCPProxyFilter(PrintWriter outputPrintWriter)
-    throws IOException, MalformedPatternException {
+    throws IOException, PatternSyntaxException {
 
     m_out = outputPrintWriter;
 
     m_currentRequestNumber =
       Integer.getInteger(INITIAL_TEST_PROPERTY, 0).intValue() - 1;
 
-    final PatternCompiler compiler = new Perl5Compiler();
-
-    m_messageBodyPattern =
-      compiler.compile(
-        "\\r\\n\\r\\n(.*)",
-        Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
+    m_messageBodyPattern = Pattern.compile("\\r\\n\\r\\n(.*)",
+                                           Pattern.DOTALL);
 
     // From RFC 2616:
     //
@@ -158,45 +150,42 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     // We're flexible about SP and CRLF, see RFC 2616, 19.3.
 
     m_requestLinePattern =
-      compiler.compile(
+      Pattern.compile(
         "^([A-Z]+)[ \\t]+([^\\?]+)(\\?.+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?$",
-        Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
+        Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     m_contentLengthPattern =
-      compiler.compile(
+      Pattern.compile(
         getHeaderExpression("Content-Length"),
-        Perl5Compiler.READ_ONLY_MASK |
-        Perl5Compiler.MULTILINE_MASK |
-        Perl5Compiler.CASE_INSENSITIVE_MASK // Sigh...
+        Pattern.MULTILINE |
+        Pattern.UNIX_LINES |
+        Pattern.CASE_INSENSITIVE // Sigh...
         );
 
     m_contentTypePattern =
-      compiler.compile(
+      Pattern.compile(
         getHeaderExpression("Content-Type"),
-        Perl5Compiler.READ_ONLY_MASK |
-        Perl5Compiler.MULTILINE_MASK |
-        Perl5Compiler.CASE_INSENSITIVE_MASK // and sigh again.
+        Pattern.MULTILINE |
+        Pattern.UNIX_LINES |
+        Pattern.CASE_INSENSITIVE // and sigh again.
         );
 
     for (int i = 0; i < s_mirroredHeaders.length; i++) {
       m_mirroredHeaderPatterns[i] =
-        compiler.compile(
+        Pattern.compile(
           getHeaderExpression(s_mirroredHeaders[i]),
-          Perl5Compiler.READ_ONLY_MASK |
-          Perl5Compiler.MULTILINE_MASK);
+          Pattern.MULTILINE | Pattern.UNIX_LINES);
     }
 
     m_basicAuthorizationHeaderPattern =
-      compiler.compile(
+      Pattern.compile(
         "^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?$",
-        Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
+        Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     // Ignore maximum amount of stuff thats not a '?' followed by
     // a '/', then grab the next until the first '?'.
     m_lastURLPathElementPattern =
-      compiler.compile(
-        "^[^\\?]*/([^\\?]*)",
-        Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
+      Pattern.compile("^[^\\?]*/([^\\?]*)");
 
     // Should generate unique file names?
     m_scriptFileName = "httpscript.py";
@@ -377,8 +366,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     private final ByteArrayOutputStream m_entityBodyByteStream =
       new ByteArrayOutputStream();
 
-    private final Perl5Matcher m_matcher = new Perl5Matcher();
-
     public Handler(ConnectionDetails connectionDetails) {
       m_connectionDetails = connectionDetails;
 
@@ -399,16 +386,16 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       // characters above 0xFF to '?').
       final String asciiString = new String(buffer, 0, length, "ISO8859_1");
 
-      if (m_matcher.contains(asciiString, m_requestLinePattern)) {
-        // Packet is start of new request message.
+      final Matcher matcher = m_requestLinePattern.matcher(asciiString);
 
-        final MatchResult matchResult = m_matcher.getMatch();
+      if (matcher.find()) {
+        // Packet is start of new request message.
 
         // Grab match results because endMessage plays with
         // out Matcher.
-        final String newMethod = matchResult.group(1);
-        final String newURL = matchResult.group(2);
-        final String newQueryString = matchResult.group(3);
+        final String newMethod = matcher.group(1);
+        final String newURL = matcher.group(2);
+        final String newQueryString = matcher.group(3);
 
         endMessage();
 
@@ -470,12 +457,14 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
       if (m_parsingHeaders) {
         for (int i = 0; i < s_mirroredHeaders.length; i++) {
-          if (m_matcher.contains(asciiString,
-                                 m_mirroredHeaderPatterns[i])) {
+          final Matcher headerMatcher =
+            m_mirroredHeaderPatterns[i].matcher(asciiString);
+
+          if (headerMatcher.find()) {
 
             m_headers.add(
               new NVPair(s_mirroredHeaders[i],
-                         m_matcher.getMatch().group(1).trim()));
+                         headerMatcher.group(1).trim()));
           }
         }
         /*
@@ -509,28 +498,31 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
         */
 
         if (m_handlingBody) {
+          final Matcher contentLengthMatcher =
+            m_contentLengthPattern.matcher(asciiString);
+
           // Look for the content length and type in the header.
-          if (m_matcher.contains(asciiString,
-                                 m_contentLengthPattern)) {
+          if (contentLengthMatcher.find()) {
             m_contentLength =
-              Integer.parseInt(
-                m_matcher.getMatch().group(1).trim());
+              Integer.parseInt(contentLengthMatcher.group(1).trim());
           }
 
-          if (m_matcher.contains(asciiString,
-                                 m_contentTypePattern)) {
-            m_contentType = m_matcher.getMatch().group(1).trim();
-            m_headers.add(
-              new NVPair("Content-Type", m_contentType));
+          final Matcher contentTypeMatcher =
+            m_contentTypePattern.matcher(asciiString);
+
+          if (contentTypeMatcher.find()) {
+            m_contentType = contentTypeMatcher.group(1).trim();
+            m_headers.add(new NVPair("Content-Type", m_contentType));
           }
 
-          if (m_matcher.contains(asciiString,
-                                 m_messageBodyPattern)) {
+          final Matcher messageBodyMatcher =
+            m_messageBodyPattern.matcher(asciiString);
+
+          if (messageBodyMatcher.find()) {
 
             m_parsingHeaders = false;
-            final MatchResult matchResult = m_matcher.getMatch();
-            final int beginOffset = matchResult.beginOffset(1);
-            final int endOffset = matchResult.endOffset(1);
+            final int beginOffset = messageBodyMatcher.start(1);
+            final int endOffset = messageBodyMatcher.end(1);
             addToEntityBody(buffer, beginOffset, endOffset - beginOffset);
           }
         }
@@ -658,8 +650,11 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       // Base default description on method and URL.
       final String description;
 
-      if (m_matcher.contains(m_url, m_lastURLPathElementPattern)) {
-        description = m_method + " " + m_matcher.getMatch().group(1);
+      final Matcher lastURLPathElementMatcher =
+        m_lastURLPathElementPattern.matcher(m_url);
+
+      if (lastURLPathElementMatcher.find()) {
+        description = m_method + " " + lastURLPathElementMatcher.group(1);
       }
       else {
         description = m_method;
