@@ -92,36 +92,47 @@ Its easy:
 	1. Set your classpath to include the grinder.jar file in the
 	   lib directory.
 
-	2. Change to a test directory and set up a grinder.properties
+	2. Say
+		java net.grind.Console
+
+	3. Change to a test directory and set up a grinder.properties
 	   file which defines the test you want to perform. See the
 	   examples directory for inspiration.
 
-	3. Say
+	4. Say
 		java net.grinder.Grinder
 
-This starts a master process that forks child Java processes to do the
-work. You can also specify an explicit properties file the Grinder as
-the first argument. For example:
+This starts an agent process that forks child Java processes to do the
+work. You can also specify an explicit properties file as the first
+argument. For example:
 
 	java net.grinder.Grinder myproperties
 
-If you want to use the Console, (and you probably do), set the
-following properties before starting the Grinder
+For heavy duty testing, you can start an agent process on each of
+several client machines. The child processes they launch can be
+controlled and monitored using the Grinder Console. There is little
+reason to run more than one agent on a single machine, but you can if
+you wish.
 
-	grinder.receiveConsoleSignals
+If the default mulicast addresses (228.1.1.1:1234, 228.1.1.1:1235) are
+not valid, alter following properties before starting the Grinder
+agents
+
 	grinder.multicastAddress
 	grinder.multicastPort
-
-	grinder.reportToConsole
 	grinder.console.multicastPort
 
-Start the Console with
+The Console does not read the grinder.properties file. It has its own
+options dialog (choose the File/Options menu option), which you should
+use to set the multicast address and ports to match those in the
+grinder.properties files.
 
-	java net.grinder.Console
-
-The Console does not read the grinder.properties file. The multicast
-address and ports must also be configured using the Console user
-interface (choose the File/Options menu option).
+When the child processes start, they inform the Console of the tests
+they will run. If you start the Console after the Grinder processes,
+you should press the "Reset processes" button. This will cause the
+existing Grinder child processes to exit and the Grinder agent to
+start new child processes, which will update the Console with the new
+test information.
 
 
 The output
@@ -359,11 +370,11 @@ The process controls:
   The "Start processes" button signals to child processes that they
   should move into the running state. Processes that are already
   running ignore this signal. Processes that are in the finished state
-  exit; the master process will then reread the properties file and
+  exit; the agent process will then reread the properties file and
   launch new child processes in the running state.
 
   The "Reset processes" control signals all the child processes to
-  exit. The master process will then reread the properties file and
+  exit. The agent process will then reread the properties file and
   launch new child processes.
 
   The "Stop processes" contol signals all processes to exit.
@@ -423,9 +434,9 @@ Console.
 
 Multicast addresses lie in the range 224.0.0.0 to 239.255.255.255.
 Ports lie in the range 0 to 65535. The same multicast address is used
-by The Grinder for commands from the console to the grinder processes
+by The Grinder for commands from the Console to the grinder processes
 (on the port specified by grinder.multicastPort) and for reports from
-the grinder processes to the console (on the port specified by
+the grinder processes to the Console (on the port specified by
 grinder.console.multicastPort).
 
 You should ensure that the address and ports you chose does not clash
