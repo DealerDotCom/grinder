@@ -32,8 +32,6 @@ import java.net.UnknownHostException;
  */
 abstract class BlockingActionThread extends Thread {
 
-  private boolean m_started = false;
-  private boolean m_finished = false;
   private Exception m_exception = null;
 
   public BlockingActionThread() throws Exception {
@@ -43,41 +41,30 @@ abstract class BlockingActionThread extends Thread {
   
   public void run() {
 
-    m_started = true;
-
     try {
       blockingAction();
     }
     catch (Exception e) {
       m_exception = e;
     }
-
-    synchronized (this) {
-      m_finished = true;
-      notifyAll();
-    }
   }
 
   public Exception getException() throws Exception {
 
     // Spin rather than block on a mutex as blockingAction() cannot
-    // release our mutex whilst waiting. We want it to be highly
-    // likely that run() falls straight through from setting m_started
-    // into blockingAction().
-    while (!m_started) {
-      Thread.sleep(10);
+    // release our mutex whilst waiting.
+    while (!isAlive()) {
+      sleep(10);
     }
 
     // Increase chance that we're in blockingAction().
-    Thread.sleep(10);
+    sleep(10);
     
-    // Now wait for notfication that we've finished.
-    synchronized (this) {
-      if (!m_finished) {
-        interrupt();
-        wait();
-      }
+    if (isAlive()) {
+      interrupt();
     }
+
+    join();
 
     return m_exception;
   }
