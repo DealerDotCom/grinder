@@ -46,8 +46,8 @@ public final class HTTPPluginControl {
   }
 
   /**
-   * Returns an {@link net.grinder.plugin.http.HTTPPluginConnnection}
-   * that can be used to set the default behaviour of new connections.
+   * Returns a {@link HTTPPluginConnection} that can be used to set
+   * the default behaviour of new connections.
    * @return An <code>HTTPPluginConnection</code>.
    */
   public static final HTTPPluginConnection getConnectionDefaults() {
@@ -55,11 +55,10 @@ public final class HTTPPluginControl {
   }
 
   /**
-   * Returns an {@link net.grinder.plugin.http.HTTPPluginConnnection}
-   * for a particular URL.
+   * Returns a {@link HTTPPluginConnection} for a particular URL.
    *
-   * <p>This method will throw a GrinderException if not called from
-   * a worker thread.</p>
+   * <p>This method will throw a {@link GrinderException} if not
+   * called from a worker thread.</p>
    *
    * @param url An absolute URL that specifies the connection.
    * @return a <code>HTTPPluginConnection</code> value
@@ -78,13 +77,12 @@ public final class HTTPPluginControl {
   }
 
   /**
-   * Returns an object that is used as the HTTPClient context for the
-   * calling thread. This is useful when calling HTTPClient methods
-   * directly, e.g. {@link
-   * HTTPClient.CookieModule#listAllCookies(Object)}.
+   * Returns the HTTPClient context object for the calling worker
+   * thread. This is useful when calling HTTPClient methods directly,
+   * e.g. {@link HTTPClient.CookieModule#listAllCookies(Object)}.
    *
-   * <p>This method will throw a GrinderException if not called from
-   * a worker thread.</p>
+   * <p>This method will throw a {@link GrinderException} if not
+   * called from a worker thread.</p>
    *
    * @return The context object used for
    * <code>HTTPClient.HTTPConnections</code> created by this thread.

@@ -443,8 +443,9 @@ what you want. Currently the conditionally built modules are:
         <include name="net/grinder/common/Logger.java"/>
         <include name="net/grinder/common/Test.java"/>
 	<include name="net/grinder/plugin/http/HTTPPluginConnection.java"/>
-	<exclude name="net/grinder/plugin/http/HTTPPlugin.java"/>
-	<exclude name="net/grinder/plugin/http/HTTPRequest.java"/>
+	<include name="net/grinder/plugin/http/HTTPPluginControl.java"/>
+	<include name="net/grinder/plugin/http/HTTPRequest.java"/>
+	<include name="net/grinder/plugin/http/URLException.java"/>
         <include name="net/grinder/script/*.java"/>
         <include name="net/grinder/statistics/ExpressionView.java"/>
         <include name="net/grinder/statistics/RawStatistics.java"/>
