@@ -71,7 +71,7 @@ public final class Resources {
    * parameter.
    */
   static final Resources getSingleton() {
-    return m_singleton;
+    return s_singleton;
   }
 
   /**
