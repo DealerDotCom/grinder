@@ -329,18 +329,21 @@ public class GrinderProcess
 		GrinderThread.shutdown();
 
 		final long time = System.currentTimeMillis();
+		final long maxShutdownTime = 10000;
 
 		while (GrinderThread.numberOfUncompletedThreads() > 0) {
 		    synchronized (this) {
 			try {
-			    if (System.currentTimeMillis() - time > 10000) {
+			    if (System.currentTimeMillis() - time >
+				maxShutdownTime) {
 				m_context.logMessage(
 				    "threads not terminating, " +
-				    "continuing anyway");
+				    "continuing anyway",
+				    Logger.LOG | Logger.TERMINAL);
 				break;
 			    }
 
-			    wait();
+			    wait(maxShutdownTime);
 			}
 			catch (InterruptedException e) {
 			}
