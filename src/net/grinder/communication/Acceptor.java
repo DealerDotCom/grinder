@@ -32,7 +32,7 @@ import java.net.ServerSocket;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 final class Acceptor {
 
   private final ServerSocket m_serverSocket;
@@ -44,10 +44,10 @@ final class Acceptor {
    *
    * @param addressString The TCP address to listen on. Zero-length
    * string => listen on all interfaces.
-   * @param port The TCP port to listen to.
+   * @param port The TCP port to listen to. 0 => use any free port.
    * @throws CommunicationException If server socket could not be
    * bound.
-   **/
+   */
   public Acceptor(String addressString, int port)
     throws CommunicationException {
 
@@ -78,7 +78,7 @@ final class Acceptor {
    * Shut down this acceptor.
    *
    * @throws CommunicationException If an IO exception occurs.
-   **/
+   */
   public void shutdown() throws CommunicationException {
 
     try {
