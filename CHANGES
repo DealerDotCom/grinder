@@ -26,6 +26,8 @@ Grinder 3.0-beta23
   new statistics measuring time to resolve host names (DNS), time to
   establish the connection, and time to first byte.
 
+  XML-RPC example from Sebastián Fontana.
+
 
 Grinder 3.0-beta22
 ------------------

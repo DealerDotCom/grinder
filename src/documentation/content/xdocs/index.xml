@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
 
@@ -6,7 +6,7 @@
 <header>
   <title>Introduction</title>
 </header>
-<body>
+  <body>
 
     <section>
     <title>What is The Grinder?</title>
@@ -46,50 +46,51 @@
     </section>
 
     <section>
-    <title>Authors</title>
-    <table class="noborder">
-      <tr><td>Paco G&#xf3;mez</td></tr>
-      <tr><td>Philip Aston</td></tr>
-      <tr><td>Phil Dawes</td></tr>
-      <tr><td>Paddy Spencer</td></tr>
-      <tr><td>Richard Wallace</td></tr>
-      <tr><td>Stuart Tily</td></tr>
-      <tr><td>Phillip Burgess</td></tr>
-      <tr><td>Christian Nedregard</td></tr>
-      <tr><td>Mikael Suokas</td></tr>
-      <tr><td>David Freels</td></tr>
-      <tr><td>Kalle Burbeck</td></tr>
-      <tr><td>Dirk Feufel</td></tr>
-      <tr><td>Kjetil JD</td></tr>
-      <tr><td>Todd Wasson</td></tr>
-      <tr><td>Jose Antonio Zapata Rey</td></tr>
-      <tr><td>Richard Perks</td></tr>
-      <tr><td>Manuel Silva</td></tr>
-      <tr><td>Bill Schnellinger</td></tr>
-      <tr><td>Bertrand Ave</td></tr>
-      <tr><td>Huibert Alblas</td></tr>
-      <tr><td>Kalyanaraman Venkatasubramaniy</td></tr>
-      <tr><td>John Stanford White</td></tr>
-      <tr><td>Slavik Gnatenko</td></tr>
-      <tr><td>Marc Born</td></tr>
-      <tr><td>Andreas Schmidt</td></tr>
-      <tr><td>Calum Fitzgerald</td></tr>
-    </table>
+      <title>Authors</title>
+      <table class="noborder">
+	<tr><td>Paco Gómez</td></tr>
+	<tr><td>Philip Aston</td></tr>
+	<tr><td>Phil Dawes</td></tr>
+	<tr><td>Paddy Spencer</td></tr>
+	<tr><td>Richard Wallace</td></tr>
+	<tr><td>Stuart Tily</td></tr>
+	<tr><td>Phillip Burgess</td></tr>
+	<tr><td>Christian Nedregard</td></tr>
+	<tr><td>Mikael Suokas</td></tr>
+	<tr><td>David Freels</td></tr>
+	<tr><td>Kalle Burbeck</td></tr>
+	<tr><td>Dirk Feufel</td></tr>
+	<tr><td>Kjetil JD</td></tr>
+	<tr><td>Todd Wasson</td></tr>
+	<tr><td>Jose Antonio Zapata Rey</td></tr>
+	<tr><td>Richard Perks</td></tr>
+	<tr><td>Manuel Silva</td></tr>
+	<tr><td>Bill Schnellinger</td></tr>
+	<tr><td>Bertrand Ave</td></tr>
+	<tr><td>Huibert Alblas</td></tr>
+	<tr><td>Kalyanaraman Venkatasubramaniy</td></tr>
+	<tr><td>John Stanford White</td></tr>
+	<tr><td>Slavik Gnatenko</td></tr>
+	<tr><td>Marc Born</td></tr>
+	<tr><td>Andreas Schmidt</td></tr>
+	<tr><td>Calum Fitzgerald</td></tr>
+	<tr><td>Sebastián Fontana</td></tr>
+      </table>
     </section>
 
     <section>
-    <title>Credits</title>
+      <title>Credits</title>
 
-    <p>I wish to thank Paco G&#xf3;mez and Peter Zadrozny for the key
-    ideas embodied in the original version of The Grinder.</p>
+      <p>I wish to thank Paco Gómez and Peter Zadrozny for the
+      key ideas embodied in the original version of The Grinder.</p>
 
-    <p>I am grateful to VA Software for SourceForge.net.</p>
+      <p>I am grateful to VA Software for SourceForge.net.</p>
 
-    <p>This site was put together with <code>txt2html</code>, <a
-    href="ext:xemacs" class="external">XEmacs</a> and <a
-    href="ext:forrest">Apache Forrest</a>.</p>
+      <p>This site was put together with <code>txt2html</code>, <a
+      href="ext:xemacs" class="external">XEmacs</a> and <a
+      href="ext:forrest">Apache Forrest</a>.</p>
 
-    <p><strong>Philip Aston</strong></p>
+      <p><strong>Philip Aston</strong></p>
    </section>
 </body>
 </document>
