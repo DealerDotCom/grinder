@@ -1,3 +1,7 @@
+2001-07-02  Philip Aston  <paston@bea.com>
+
+	* build.xml: Add HTTPClient classes to grinder.jar.
+
 2001-06-29  Philip Aston  <paston@bea.com>
 
 	* The Grinder 2.6.3 is released.
