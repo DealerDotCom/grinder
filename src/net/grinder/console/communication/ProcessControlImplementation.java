@@ -110,8 +110,10 @@ final class ProcessControlImplementation implements ProcessControl {
   public FileDistributionHandler getFileDistributionHandler(
     Directory directory) {
 
-    return new FileDistributionHandlerImplementation(directory.getAsFile(),
-                                                     directory.listContents());
+    return new FileDistributionHandlerImplementation(
+      directory.getAsFile(),
+      directory.listContents(
+        m_distributionStatus.getEarliestLastModifiedTime()));
   }
 
   private final class FileDistributionHandlerImplementation
