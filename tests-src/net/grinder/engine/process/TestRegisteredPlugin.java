@@ -108,8 +108,17 @@ public class TestRegisteredPlugin extends TestCase {
     catch (EngineException e) {
     }
 
-    // Fix me.
+    threadContextStubFactory.assertSuccess(
+      "getPluginThreadContext", new Object[0]);
+    threadContextStubFactory.assertSuccess("getThreadLogger", new Object[0]);
+    threadContextStubFactory.assertNotCalled();
 
+    grinderPluginStubFactory.assertFailed(
+      "createThreadListener",
+      new Class[] { PluginThreadContext.class },
+      PluginException.class);
+
+    grinderPluginStubFactory.assertNotCalled();
 
     grinderPluginStubFactory.setThrowExceptionFromCreateThreadListener(false);
 
@@ -117,7 +126,7 @@ public class TestRegisteredPlugin extends TestCase {
       registeredPlugin.getPluginThreadListener();
 
     threadContextStubFactory.assertSuccess(
-      "getPluginThreadContext", new Object[] {});
+      "getPluginThreadContext", new Object[0]);
     grinderPluginStubFactory.assertSuccess(
       "createThreadListener", new Class[] { PluginThreadContext.class });
 
