@@ -36,6 +36,7 @@ tests, reports, and to create the documentation:
   - XWeb 1.0RC3
   - Xalan 2.3.1
   - Checkstyle 3.1
+  - Glass JAR Tool Kit V2.2.9A
 
   (You might not need these exact versions, 
 
@@ -96,12 +97,6 @@ what you want. Currently the conditionally built modules are:
   <!-- local settings -->
   <property file="${etc.dir}/localpaths.properties"/>
 
-  <taskdef resource="checkstyletask.properties">
-    <classpath>
-      <pathelement path="${checkstyle.classpath}"/>
-    </classpath>
-  </taskdef>
-
   <!-- output -->
   <property name="build.dir" value="build"/>
   <property name="classes.dir" value="${build.dir}/classes"/>
@@ -110,6 +105,8 @@ what you want. Currently the conditionally built modules are:
   <property name="lib.jar" value="${name}.jar"/>
   <property name="dist.root" value="${build.dir}/distribution"/>
   <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
+  <property name="gj-coverage.dir" value="gjtk"/>
+  <property name="gj-instrumented.jar" value="${build.dir}/instrumented.jar"/>
 
   <!-- javadoc -->
   <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
@@ -215,10 +212,6 @@ what you want. Currently the conditionally built modules are:
     <available classpathref="xweb.classpath"
                classname="net.sourceforge.xweb.backend.WebsiteProcessor"
                property="have.xweb"/>
-
-    <available classpathref="build.classpath"
-               classname="com.puppycrawl.tools.checkstyle.Main"
-               property="have.checkstyle"/>
 
     <!-- filter tokens -->
     <filter token="version" value="${version}"/>
@@ -368,6 +361,12 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <target name="checkstyle" description="Check code formatting">
 
+    <taskdef resource="checkstyletask.properties">
+      <classpath>
+        <pathelement path="${checkstyle.classpath}"/>
+      </classpath>
+    </taskdef>
+
     <mkdir dir="${build.dir}"/>
 
     <checkstyle config="etc/checkstyle.xml">
@@ -395,6 +394,7 @@ what you want. Currently the conditionally built modules are:
     <junit printsummary="false" haltonfailure="true">
       <classpath>
 	<pathelement path="${test-classes.dir}"/>
+	<pathelement path="${gj-instrumented.jar}"/>
 	<path refid="build.classpath"/>
       </classpath>
       <batchtest>
@@ -409,6 +409,39 @@ what you want. Currently the conditionally built modules are:
 	</fileset>
       </batchtest>
     </junit>
+  </target>
+
+  <target name="gj-instrument"
+          depends="compile"
+          description="Instruments the code for Glass JAR">
+
+    <taskdef name="iclass"
+             classname="com.glassjartoolkit.ant.InstrumentTask"
+             classpath="${gjtk.home}/WEB-INF/lib/gjtk.jar"/>
+
+    <iclass file="${gj-instrumented.jar}" cvgdir="${gj-coverage.dir}">
+      <classpath refid="build.classpath"/>
+      <include name="net.grinder.**" mode="branch"/>
+    </iclass>
+
+  </target>
+
+  <target name="gj-test"
+          depends="gj-instrument,test"
+          description="Unit test run of Glass JAR instrumented code">
+
+    <taskdef name="gjreport"
+             classname="com.glassjartoolkit.ant.CovReportTask"
+             classpath="${gjtk.home}/WEB-INF/lib/gjtk.jar"/>
+
+    <gjreport cvgdir="${gj-coverage.dir}"
+              htmldir="${gj-coverage.dir}/html"
+              testcase="no"
+              method="yes">
+      <sourcepath>
+	<pathelement path="${src.dir}"/>
+      </sourcepath>
+    </gjreport>
   </target>
 
   <!-- =================================================================== -->
