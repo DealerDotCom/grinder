@@ -1,3 +1,17 @@
+2003-11-26  Philip Aston  <philipa@mail.com>
+
+	* TODO: More work.
+
+	* CHANGES, examples/grinder.properties, examples/scriptlifecycle.py, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/JythonScript.java, xdoc/g3/script-gallery-xhtml.xml:
+	Guarantee that the TestRunner __del__ call is called on shutdown so
+	that scripts can use it to tidy up per-thread state.
+
+	* CHANGES, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/JythonScript.java:
+	Clean up the Jython interpreter correctly so that scripts can use exit
+	functions.
+
+	* TODO: More work.
+
 2003-11-24  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, TODO: Document fix for the "Premature EOF" problem.
