@@ -79,6 +79,12 @@ will collect before stopping capture.</p>
 <em>Save statistics</em> control to save the current set of statistics
 to a file.</p>
 
+<h3>Display</h3>
+
+<p>The colours are based on the relative response time. Long response
+times are more red, short response times are more yellow. This acts as
+an eye-catcher, allowing expensive tests to be easily spotted.</p>
+
 <h3>Internationalisation help wanted</h3>
 
 <p>If you are bilingual and fancy translating the console into a
