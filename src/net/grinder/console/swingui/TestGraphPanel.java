@@ -21,7 +21,9 @@
 
 package net.grinder.console.swingui;
 
-import java.awt.GridLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Insets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -46,6 +48,11 @@ import net.grinder.statistics.TestStatistics;
  */
 public class TestGraphPanel extends JPanel implements ModelListener {
 
+  private final JComponent m_parentComponent;
+  private final FlowLayout m_layout = new FlowLayout(FlowLayout.LEFT);
+
+  private final Dimension m_preferredSize = new Dimension();
+
   private final Model m_model;
   private final Resources m_resources;
   private final String m_testLabel;
@@ -56,8 +63,13 @@ public class TestGraphPanel extends JPanel implements ModelListener {
    **/
   private final Map m_components = new HashMap();
 
-  TestGraphPanel(final Model model, Resources resources) {
-    setLayout(new GridLayout(0, 2, 20, 0));
+  TestGraphPanel(final JComponent parentComponent, final Model model,
+		 Resources resources) {
+
+    setLayout(m_layout);
+
+    m_parentComponent = parentComponent;
+
     m_model = model;
     m_resources = resources;
 
@@ -84,7 +96,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
   public void newTests(Set newTests, ModelTestIndex modelTestIndex) {
 
     final Iterator newTestIterator = newTests.iterator();
-	
+
     while (newTestIterator.hasNext()) {
       final Test test = (Test)newTestIterator.next();
 
@@ -120,6 +132,77 @@ public class TestGraphPanel extends JPanel implements ModelListener {
     for (int i=0; i<numberOfTests; i++) {
       add((JComponent)m_components.get(modelTestIndex.getTest(i)));
     }
+
+    // Invalidate preferred size cache.
+    m_preferredSize.width = -1;
+
+    validate();
+  }
+
+  /**
+   * Specify our preferred size to prevent our FlowLayout from laying
+   * us out horizontally. We fix our width to that of our containing
+   * tab, and calculate our vertical height. The intermediate scroll
+   * pane uses the preferred size.
+   *
+   * @return a <code>Dimension</code> value
+   */
+  public final Dimension getPreferredSize() {
+
+    // Width is whatever our parent says.
+    final Insets parentComponentInsets = m_parentComponent.getInsets();
+
+    final int preferredWidth =
+      m_parentComponent.getWidth() -
+      parentComponentInsets.left - parentComponentInsets.right;
+
+    if (m_preferredSize.width == preferredWidth) {
+      // Nothing's changed.
+      return m_preferredSize;
+    }
+
+    m_preferredSize.width = preferredWidth;
+
+    // Now ape the FlowLayout algorithm to calculate desired height,
+    // *sigh*.
+    final int n = getComponentCount();
+    final int hgap = m_layout.getHgap();
+
+    final Insets insets = getInsets();
+
+    final int fudgeFactor = 6;	// I've no idea where this extra space
+				// comes from, but we need it.
+
+    int availableWidth =
+      preferredWidth - insets.left - insets.right - hgap + fudgeFactor;
+
+    if (n > 0) {
+      // Assume we have a homogeneous set of fixed size components.
+      final int componentWidth = getComponent(0).getWidth();
+      final int componentHeight = getComponent(0).getHeight();
+
+      int numberAcross = -1;
+
+      while (componentWidth > 0 && availableWidth > 0) {
+	++numberAcross;
+	availableWidth -= componentWidth;
+	availableWidth -= hgap;
+      }
+
+      if (numberAcross > 0) {
+	final int numberDown = (n + numberAcross -1)/numberAcross;
+
+	// numberDown is always >= 1.
+	m_preferredSize.height =
+	  numberDown * componentHeight + (numberDown-1) * m_layout.getVgap();
+
+	System.err.println("getPreferredSize() called, numberAcross=" +
+			   numberAcross + " numberDown=" + numberDown +
+			   " hgap=" + hgap);
+      }
+    }
+
+    return m_preferredSize;
   }
 
   /**
