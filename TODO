@@ -72,16 +72,7 @@ System.err for warnings.
 Linear initial sleep time to allow thread's to ramp up. (Feature
 Request 801129).
 
-Consider forcing TestRunner to be registered with grinder.
-
 There should be an ExternalFilenameFactory, cf ExternalLogger.
-
-Factor out a ThreadContext interface so that it can be stubbed for
-unit tests.
-
-Use StubInvocationHandler for ThreadLogger.
-Consider extending LogCounter from CallRecorder.
-
 
 ** Statistics
 *** Measure variance (Ambitious)
@@ -124,6 +115,8 @@ Pablo Estades Fernández says:
  > client cert. 
 
 ** Scripting
+
+Consider forcing TestRunner to be registered with grinder.
 
 The Grinder should have error handling for attempts to call the
 ScriptStatistics report() or delayStatistics() methods from within
