@@ -51,6 +51,14 @@ class BasicValueGenerator:
     def __call__(self):
         return self.bias + random.randint(0, self.bias/2)
 
+class NormalValueGenerator:
+    def __init__(self):
+        self.mean = random.randint(-100, 100)
+        self.sigma = random.randint(0, 100)        
+
+    def __call__(self):
+         return random.normalvariate(self.mean, self.sigma)
+
 def _mean(values):
     if len(values) == 0:
         return 0 # Really NaN, but this is easier to work with.
