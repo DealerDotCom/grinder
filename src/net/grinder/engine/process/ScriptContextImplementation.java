@@ -25,8 +25,9 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.communication.QueuedSender;
 import net.grinder.communication.RegisterStatisticsViewMessage;
-import net.grinder.script.Grinder;
+import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.CommonStatisticsViews;
@@ -40,26 +41,38 @@ import net.grinder.util.Sleeper;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ScriptContextImplementation implements Grinder.ScriptContext {
+final class ScriptContextImplementation implements ScriptContext {
 
-  private final ProcessContext m_processContext;
+  private final String m_grinderID;
+  private final ThreadContextLocator m_threadContextLocator;
+  private final GrinderProperties m_properties;
+  private final QueuedSender m_consoleSender;
   private final Logger m_logger;
+  private final FilenameFactory m_processFilenameFactory;
   private final Sleeper m_sleeper;
 
-  public ScriptContextImplementation(ProcessContext processContext,
+  public ScriptContextImplementation(String grinderID,
+                                     ThreadContextLocator threadContextLocator,
+                                     GrinderProperties properties,
+                                     QueuedSender consoleSender,
                                      Logger logger,
+                                     FilenameFactory processFilenameFactory,
                                      Sleeper sleeper) {
-    m_processContext = processContext;
+    m_grinderID = grinderID;
+    m_threadContextLocator = threadContextLocator;
+    m_properties = properties;
+    m_consoleSender = consoleSender;
     m_logger = logger;
+    m_processFilenameFactory = processFilenameFactory;
     m_sleeper = sleeper;
   }
 
   public String getGrinderID() {
-    return m_processContext.getGrinderID();
+    return m_grinderID;
   }
 
   public int getThreadID() {
-    final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext != null) {
       return threadContext.getThreadID();
@@ -69,7 +82,7 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
   }
 
   public int getRunNumber() {
-    final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext != null) {
       return threadContext.getRunNumber();
@@ -91,17 +104,17 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
   }
 
   public FilenameFactory getFilenameFactory() {
-    final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext != null) {
       return threadContext.getFilenameFactory();
     }
 
-    return m_processContext.getLoggerImplementation().getFilenameFactory();
+    return m_processFilenameFactory;
   }
 
   public GrinderProperties getProperties() {
-    return m_processContext.getProperties();
+    return m_properties;
   }
 
   public void registerSummaryStatisticsView(StatisticsView statisticsView)
@@ -110,14 +123,13 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
 
     // Queue up, will get flushed with next process status or
     // statistics report.
-    m_processContext.getConsoleSender().queue(
-      new RegisterStatisticsViewMessage(statisticsView));
+    m_consoleSender.queue(new RegisterStatisticsViewMessage(statisticsView));
   }
 
   public void registerDetailStatisticsView(StatisticsView statisticsView)
     throws GrinderException {
 
-    if (ThreadContext.getThreadInstance() != null) {
+    if (m_threadContextLocator.get() != null) {
       throw new InvalidContextException(
         "registerDetailStatisticsView() is not supported from worker threads");
     }
@@ -128,7 +140,7 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
   }
 
   public Statistics getStatistics() throws InvalidContextException {
-    final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext == null) {
       throw new InvalidContextException(

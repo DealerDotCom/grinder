@@ -47,7 +47,9 @@ final class ProcessContext {
   private final boolean m_recordTime;
   private final LoggerImplementation m_loggerImplementation;
   private final QueuedSender m_consoleSender;
+  private final ThreadContextLocator m_threadContextLocator;
   private final PluginRegistry m_pluginRegistry;
+  private final TestRegistry m_testRegistry;
   private final Grinder.ScriptContext m_scriptContext;
   private final Sleeper m_sleeper;
 
@@ -66,22 +68,31 @@ final class ProcessContext {
     m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
     m_loggerImplementation = loggerImplementation;
-
     m_consoleSender = consoleSender;
-
-    m_pluginRegistry = new PluginRegistry(this);
+    m_threadContextLocator = new ThreadContextLocatorImplementation();
 
     final Logger externalLogger =
-      new ExternalLogger(m_loggerImplementation.getProcessLogger());
+      new ExternalLogger(m_loggerImplementation.getProcessLogger(),
+                         m_threadContextLocator);
 
     m_sleeper = new Sleeper(
       properties.getDouble("grinder.sleepTimeFactor", 1.0d),
       properties.getDouble("grinder.sleepTimeVariation", 0.2d),
       externalLogger);
 
-    m_scriptContext = new ScriptContextImplementation(this,
-                                                      externalLogger,
-                                                      m_sleeper);
+    m_scriptContext = new ScriptContextImplementation(
+      m_grinderID,
+      m_threadContextLocator,
+      properties,
+      m_consoleSender,
+      externalLogger,
+      m_loggerImplementation.getFilenameFactory(),
+      m_sleeper);
+
+    m_pluginRegistry = new PluginRegistry(externalLogger, m_scriptContext,
+                                          m_threadContextLocator);
+
+    m_testRegistry = new TestRegistry(m_threadContextLocator);
 
     Grinder.grinder = m_scriptContext;
     m_shutdown = false;
@@ -110,7 +121,7 @@ final class ProcessContext {
   public ReportStatusMessage createStatusMessage(
     short state, short numberOfThreads, short totalNumberOfThreads) {
 
-    return new ReportStatusMessage(m_uniqueProcessID, getGrinderID(), state,
+    return new ReportStatusMessage(m_uniqueProcessID, m_grinderID, state,
                                    numberOfThreads, totalNumberOfThreads);
   }
 
@@ -127,11 +138,7 @@ final class ProcessContext {
   }
 
   public TestRegistry getTestRegistry() {
-    return TestRegistry.getInstance();
-  }
-
-  public String getGrinderID() {
-    return m_grinderID;
+    return m_testRegistry;
   }
 
   public GrinderProperties getProperties() {
@@ -144,6 +151,10 @@ final class ProcessContext {
 
   public Grinder.ScriptContext getScriptContext() {
     return m_scriptContext;
+  }
+
+  public ThreadContextLocator getThreadContextLocator() {
+    return m_threadContextLocator;
   }
 
   /**
@@ -182,5 +193,19 @@ final class ProcessContext {
 
   public Sleeper getSleeper() {
     return m_sleeper;
+  }
+
+  private static final class ThreadContextLocatorImplementation
+    implements ThreadContextLocator  {
+
+    private final ThreadLocal m_threadContextThreadLocal = new ThreadLocal();
+
+    public ThreadContext get() {
+      return (ThreadContext)m_threadContextThreadLocal.get();
+    }
+
+    public void set(ThreadContext threadContext) {
+      m_threadContextThreadLocal.set(threadContext);
+    }
   }
 }

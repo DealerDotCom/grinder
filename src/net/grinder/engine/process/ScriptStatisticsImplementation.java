@@ -71,9 +71,10 @@ final class ScriptStatisticsImplementation implements Statistics {
     }
   }
 
+  private final ThreadContextLocator m_threadContextLocator;
+  private final PrintWriter m_dataWriter;
   private final StringBuffer m_buffer = new StringBuffer();
   private final int m_bufferAfterThreadIDIndex;
-  private final PrintWriter m_dataWriter;
   private final boolean m_recordTime;
   private final ExpressionView[] m_detailExpressionViews =
     CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
@@ -89,9 +90,13 @@ final class ScriptStatisticsImplementation implements Statistics {
   private int m_lastRunNumber = -1;
   private int m_bufferAfterRunNumberIndex = -1;
 
-  public ScriptStatisticsImplementation(int threadID,
-                                        PrintWriter dataWriter,
-                                        boolean recordTime) {
+  public ScriptStatisticsImplementation(
+    ThreadContextLocator threadContextLocator,
+    PrintWriter dataWriter,
+    int threadID,
+    boolean recordTime) {
+
+    m_threadContextLocator = threadContextLocator;
     m_dataWriter = dataWriter;
     m_recordTime = recordTime;
 
@@ -114,8 +119,7 @@ final class ScriptStatisticsImplementation implements Statistics {
   }
 
   private void checkCallContext() throws InvalidContextException {
-
-    final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext == null) {
       throw new InvalidContextException(
@@ -146,8 +150,7 @@ final class ScriptStatisticsImplementation implements Statistics {
   }
 
   public boolean availableForUpdate() {
-
-    final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    final ThreadContext threadContext = m_threadContextLocator.get();
 
     return
       threadContext != null &&

@@ -37,8 +37,6 @@ import net.grinder.script.Statistics;
  */
 final class ThreadContext implements PluginThreadContext {
 
-  private static final ThreadLocal s_threadInstance = new ThreadLocal();
-
   private final ProcessContext m_processContext;
   private final ThreadLogger m_threadLogger;
   private final FilenameFactory m_filenameFactory;
@@ -64,19 +62,13 @@ final class ThreadContext implements PluginThreadContext {
       createSubContextFilenameFactory(Integer.toString(threadID));
 
     m_scriptStatistics =
-      new ScriptStatisticsImplementation(threadID,
-                                         loggerImplementation.getDataWriter(),
-                                         processContext.getRecordTime());
+      new ScriptStatisticsImplementation(
+        processContext.getThreadContextLocator(),
+        loggerImplementation.getDataWriter(),
+        threadID,
+        processContext.getRecordTime());
 
     final GrinderProperties properties = processContext.getProperties();
-  }
-
-  void setThreadInstance() {
-    s_threadInstance.set(this);
-  }
-
-  static ThreadContext getThreadInstance() {
-    return (ThreadContext)s_threadInstance.get();
   }
 
   FilenameFactory getFilenameFactory() {

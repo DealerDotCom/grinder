@@ -85,7 +85,7 @@ class GrinderThread implements java.lang.Runnable {
    */
   public void run() {
 
-    m_context.setThreadInstance();
+    m_processContext.getThreadContextLocator().set(m_context);
 
     final ThreadLogger logger = m_context.getThreadLogger();
     final PrintWriter errorWriter = logger.getErrorLogWriter();

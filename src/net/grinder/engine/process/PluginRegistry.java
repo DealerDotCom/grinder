@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003 Philip Aston
+// Copyright (C) 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,8 +27,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
+import net.grinder.script.Grinder.ScriptContext;
 
 
 /**
@@ -41,11 +43,18 @@ import net.grinder.plugininterface.GrinderPlugin;
 public final class PluginRegistry {
   private static PluginRegistry s_instance;
 
-  private final ProcessContext m_processContext;
+  private final Logger m_logger;
+  private final ScriptContext m_scriptContext;
+  private final ThreadContextLocator m_threadContextLocator;
   private final Map m_plugins = new HashMap();
 
   /**
    * Singleton accessor.
+   *
+   * <p>This is called by plug-in implementations. In future I may
+   * create an API package to avoid the circular package
+   * dependencies.</p>
+   *
    * @return The singleton.
    */
   public static PluginRegistry getInstance() {
@@ -55,14 +64,19 @@ public final class PluginRegistry {
   /**
    * Constructor.
    */
-  PluginRegistry(ProcessContext processContext) throws EngineException {
+  PluginRegistry(Logger logger, ScriptContext scriptContext,
+                 ThreadContextLocator threadContextLocator)
+    throws EngineException {
+
     if (s_instance != null) {
       throw new EngineException("Already initialised");
     }
 
     s_instance = this;
 
-    m_processContext = processContext;
+    m_logger = logger;
+    m_scriptContext = scriptContext;
+    m_threadContextLocator = threadContextLocator;
   }
 
   /**
@@ -93,14 +107,14 @@ public final class PluginRegistry {
           (GrinderPlugin)pluginClass.newInstance();
 
         final RegisteredPlugin registeredPlugin =
-          new RegisteredPlugin(plugin, m_processContext);
+          new RegisteredPlugin(plugin, m_scriptContext,
+                               m_threadContextLocator);
 
         plugin.initialize(registeredPlugin);
 
         m_plugins.put(pluginClass, registeredPlugin);
 
-        m_processContext.getProcessLogger().output(
-          "registered plug-in " + pluginClass.getName());
+        m_logger.output("registered plug-in " + pluginClass.getName());
 
         return registeredPlugin;
       }

@@ -28,7 +28,7 @@ import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadListener;
-import net.grinder.script.Grinder;
+import net.grinder.script.Grinder.ScriptContext;
 
 
 /**
@@ -40,22 +40,25 @@ import net.grinder.script.Grinder;
 final class RegisteredPlugin implements PluginProcessContext {
 
   private final GrinderPlugin m_plugin;
-  private final ProcessContext m_processContext;
+  private final ScriptContext m_scriptContext;
+  private final ThreadContextLocator m_threadContextLocator;
   private final ThreadLocal m_threadListenerThreadLocal = new ThreadLocal();
 
-  public RegisteredPlugin(GrinderPlugin plugin,
-                          ProcessContext processContext) {
+  public RegisteredPlugin(GrinderPlugin plugin, ScriptContext scriptContext,
+                          ThreadContextLocator threadContextLocator) {
     m_plugin = plugin;
-    m_processContext = processContext;
+    m_scriptContext = scriptContext;
+    m_threadContextLocator = threadContextLocator;
   }
 
-  public Grinder.ScriptContext getScriptContext() {
-    return m_processContext.getScriptContext();
+  public ScriptContext getScriptContext() {
+    return m_scriptContext;
   }
 
   public PluginThreadListener getPluginThreadListener()
     throws EngineException {
-    final ThreadContext threadContext = ThreadContext.getThreadInstance();
+
+    final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext == null) {
       throw new EngineException("Must be called from worker thread");

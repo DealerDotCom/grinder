@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,9 +43,10 @@ import net.grinder.statistics.TestStatisticsFactory;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 final class TestData implements TestRegistry.RegisteredTest {
 
+  private final ThreadContextLocator m_threadContextLocator;
   private final Test m_test;
 
   /**
@@ -55,7 +56,8 @@ final class TestData implements TestRegistry.RegisteredTest {
   private final TestStatistics m_statistics =
     TestStatisticsFactory.getInstance().create();
 
-  TestData(Test testDefinition) {
+  TestData(ThreadContextLocator threadContextLocator, Test testDefinition) {
+    m_threadContextLocator = threadContextLocator;
     m_test = testDefinition;
   }
 
@@ -68,7 +70,7 @@ final class TestData implements TestRegistry.RegisteredTest {
   }
 
   Object dispatch(Invokeable invokeable) throws Exception {
-    final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext == null) {
       throw new EngineException("Only Worker Threads can invoke tests");

@@ -40,9 +40,13 @@ import java.io.PrintWriter;
 final class ExternalLogger extends AbstractLogger {
 
   private final Logger m_processLogger;
+  private final ThreadContextLocator m_threadContextLocator;
 
-  public ExternalLogger(Logger processLogger) {
+  public ExternalLogger(Logger processLogger,
+                        ThreadContextLocator threadContextLocator) {
+
     m_processLogger = processLogger;
+    m_threadContextLocator = threadContextLocator;
   }
 
   public void output(String message, int where) {
@@ -62,7 +66,7 @@ final class ExternalLogger extends AbstractLogger {
   }
 
   private Logger getLogger() {
-    final ThreadContext threadContext = ThreadContext.getThreadInstance();
+    final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext != null) {
       return threadContext.getThreadLogger();

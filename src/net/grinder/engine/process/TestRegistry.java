@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,6 +28,7 @@ import java.util.TreeMap;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
+import net.grinder.engine.EngineException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.TestStatisticsMap;
 
@@ -40,13 +41,15 @@ import net.grinder.statistics.TestStatisticsMap;
  */
 public final class TestRegistry {
 
-  private static TestRegistry s_instance = new TestRegistry();
+  private static TestRegistry s_instance;
+
+  private final ThreadContextLocator m_threadContextLocator;
 
   /**
    * A map of Test to TestData's. (TestData is the class this
    * package uses to store information about Tests). Synchronize on
    * instance when accessesing.
-   **/
+   */
   private final Map m_testMap = new TreeMap();
 
   /**
@@ -57,12 +60,16 @@ public final class TestRegistry {
 
   /**
    * A map of Tests to Statistics for passing elsewhere.
-   **/
+   */
   private final TestStatisticsMap m_testStatisticsMap =
     new TestStatisticsMap();
 
   /**
    * Singleton accessor.
+   *
+   * <p>This is called by net.grinder.script.Test. In future I may
+   * create an API package to avoid the circular package dependencies.</p>
+   *
    * @return The singleton.
    */
   public static TestRegistry getInstance() {
@@ -72,7 +79,16 @@ public final class TestRegistry {
   /**
    * Constructor.
    */
-  private TestRegistry() {
+  TestRegistry(ThreadContextLocator threadContextLocator)
+    throws EngineException {
+
+    if (s_instance != null) {
+      throw new EngineException("Already initialised");
+    }
+
+    s_instance = this;
+
+    m_threadContextLocator = threadContextLocator;
   }
 
   /**
@@ -93,7 +109,7 @@ public final class TestRegistry {
         return existing;
       }
 
-      newTestData = new TestData(test);
+      newTestData = new TestData(m_threadContextLocator, test);
       m_testMap.put(test, newTestData);
       m_testStatisticsMap.put(test, newTestData.getStatistics());
 
