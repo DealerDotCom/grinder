@@ -25,6 +25,7 @@ package net.grinder.engine.agent;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.grinder.common.Logger;
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
@@ -49,6 +51,8 @@ import net.grinder.communication.Message;
 import net.grinder.communication.MessagePump;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.StreamSender;
+import net.grinder.communication.TeeSender;
+import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.GrinderProcess;
 
@@ -64,6 +68,9 @@ import net.grinder.engine.process.GrinderProcess;
 public final class Agent {
 
   private final File m_alternateFile;
+
+  private final Logger m_logger =
+    new AgentLogger(new PrintWriter(System.out), new PrintWriter(System.err));
 
   /**
    * Constructor.
@@ -91,7 +98,7 @@ public final class Agent {
   public void run() throws GrinderException, InterruptedException {
 
     final String version = GrinderBuild.getVersionString();
-    System.out.println("The Grinder version " + version);
+    m_logger.output("The Grinder version " + version);
 
     boolean startImmediately = false;
 
@@ -114,7 +121,7 @@ public final class Agent {
           receiver = ClientReceiver.connect(connector);
         }
         catch (CommunicationException e) {
-          System.out.println(
+          m_logger.error(
             e.getMessage() + ", proceeding without the console; set " +
             "grinder.useConsole=false to disable this warning.");
         }
@@ -124,8 +131,16 @@ public final class Agent {
 
       final boolean haveConsole = receiver != null;
 
+      final ConsoleListener consoleListener =
+        new ConsoleListener(this, m_logger);
+
       final MessagePump messagePump =
-        haveConsole ? new MessagePump(receiver, fanOutStreamSender, 1) : null;
+        haveConsole ?
+        new MessagePump(receiver,
+                        new TeeSender(
+                          consoleListener.getSender(), fanOutStreamSender),
+                        1) :
+        null;
 
       final ProcessStarter processStarter =
         new ProcessStarter(properties, fanOutStreamSender, haveConsole);
@@ -178,7 +193,7 @@ public final class Agent {
       }
     }
 
-    System.out.println("The Grinder version " + version + " finished");
+    m_logger.output("The Grinder version " + version + " finished");
   }
 
   private class ProcessStarter {
@@ -258,6 +273,18 @@ public final class Agent {
       }
 
       m_commandArray = (String[])command.toArray(new String[0]);
+
+      m_commandArray[m_grinderIDIndex] = "<grinderID>";
+
+      final StringBuffer buffer = new StringBuffer(m_commandArray.length * 10);
+      buffer.append("Worker process command line:");
+
+      for (int j = 0; j < m_commandArray.length; ++j) {
+        buffer.append(" ");
+        buffer.append(m_commandArray[j]);
+      }
+
+      m_logger.output(buffer.toString());
     }
 
     public void startAllProcesses() {
@@ -287,30 +314,20 @@ public final class Agent {
           m_fanOutStreamSender.add(processStdin);
         }
         catch (EngineException e) {
-          System.err.println("Failed to create process");
-          e.printStackTrace(System.err);
+          m_logger.error("Failed to create process");
+          e.printStackTrace(m_logger.getErrorLogWriter());
           return false;
         }
         catch (CommunicationException e) {
-          System.err.println("Failed to communicate with process");
-          e.printStackTrace(System.err);
+          m_logger.error("Failed to communicate with process");
+          e.printStackTrace(m_logger.getErrorLogWriter());
           return false;
         }
 
         ++m_nextProcessIndex;
 
-        final StringBuffer buffer =
-          new StringBuffer(m_commandArray.length * 10);
-        buffer.append("Worker processes (");
-        buffer.append(grinderID);
-        buffer.append(") started with command line:");
-
-        for (int j = 0; j < m_commandArray.length; ++j) {
-          buffer.append(" ");
-          buffer.append(m_commandArray[j]);
-        }
-
-        System.out.println(buffer.toString());
+        final StringBuffer buffer = new StringBuffer();
+        m_logger.output("Process " + grinderID + " started");
       }
 
       return m_processes.length > m_nextProcessIndex;
@@ -329,7 +346,7 @@ public final class Agent {
             combinedExitStatus = exitStatus;
           }
           else if (combinedExitStatus != exitStatus) {
-            System.err.println(
+            m_logger.error(
               "WARNING, worker processes disagree on exit status");
           }
         }
