@@ -3,6 +3,10 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
+  Alter header stuff so IfModifiedSince comes from additionalHeaders
+  for HTTPClient. Add backward compatible thing for HttpURLConnection
+  implementation. Document. Headers should support string beans?
+
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 
   Update HTTPClient to measure "time to first byte" and "Time to last
