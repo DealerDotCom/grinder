@@ -193,39 +193,48 @@ public class ConsoleUI implements ModelListener
 
 	m_intervalLabel = new JLabel();
 
-	final JSlider ignoreSampleSlider =
-	    new JSlider(0, 9, m_model.getIgnoreSampleCount());
-	ignoreSampleSlider.setMajorTickSpacing(1);
-	ignoreSampleSlider.setSnapToTicks(true);
-	ignoreSampleSlider.setPaintTicks(true);
+	final IntegerField ignoreSampleField = new IntegerField(0, 999999);
+	ignoreSampleField.setValue(m_model.getIgnoreSampleCount());
 
 	m_ignoreSampleLabel = new JLabel();
 
-	ignoreSampleSlider.addChangeListener(
+	ignoreSampleField.addChangeListener(
 	    new ChangeListener() {
 		    public void stateChanged(ChangeEvent e) {
 			m_model.setIgnoreSampleCount(
-			    ignoreSampleSlider.getValue());
+			    ignoreSampleField.getValue());
 		    }
 		}
 	    );
 
-	final JSlider collectSampleSlider =
-	    new JSlider(0, 50, m_model.getCollectSampleCount());
-	collectSampleSlider.setMajorTickSpacing(1);
-	collectSampleSlider.setSnapToTicks(true);
-	collectSampleSlider.setPaintTicks(true);
+	final IntegerField collectSampleField = new IntegerField(0, 999999);
+	collectSampleField.setValue(m_model.getCollectSampleCount());
 
 	m_collectSampleLabel = new JLabel();
 
-	collectSampleSlider.addChangeListener(
+	collectSampleField.addChangeListener(
 	    new ChangeListener() {
 		    public void stateChanged(ChangeEvent e) {
 			m_model.setCollectSampleCount(
-			    collectSampleSlider.getValue());
+			    collectSampleField.getValue());
 		    }
 		}
 	    );
+
+	final JPanel textFieldLabelPanel = new JPanel();
+	textFieldLabelPanel.setLayout(new GridLayout(0, 1));
+	textFieldLabelPanel.add(m_ignoreSampleLabel);
+	textFieldLabelPanel.add(m_collectSampleLabel);
+
+	final JPanel textFieldControlPanel = new JPanel();
+	textFieldControlPanel.setLayout(new GridLayout(0, 1));
+	textFieldControlPanel.add(ignoreSampleField);
+	textFieldControlPanel.add(collectSampleField);
+
+	final JPanel textFieldPanel = new JPanel();
+	textFieldPanel.setLayout(new BorderLayout());
+	textFieldPanel.add(textFieldLabelPanel, BorderLayout.CENTER);
+	textFieldPanel.add(textFieldControlPanel, BorderLayout.EAST);
 
 	m_stateLabel = new JLabel();
 
@@ -233,10 +242,7 @@ public class ConsoleUI implements ModelListener
 	controlPanel.setLayout(new GridLayout(0, 1));
 	controlPanel.add(m_intervalLabel);
 	controlPanel.add(intervalSlider);
-	controlPanel.add(m_ignoreSampleLabel);
-	controlPanel.add(ignoreSampleSlider);
-	controlPanel.add(m_collectSampleLabel);
-	controlPanel.add(collectSampleSlider);
+	controlPanel.add(textFieldPanel);
 	controlPanel.add(m_stateLabel);
 	controlPanel.setBorder(new EmptyBorder(0, 10, 0, 10));
 
@@ -245,9 +251,9 @@ public class ConsoleUI implements ModelListener
 	    new BoxLayout(controlAndTotalPanel, BoxLayout.Y_AXIS));
 
 	controlAndTotalPanel.add(controlPanel);
-	controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 50)));
+	controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 	controlAndTotalPanel.add(tpsLabel);
-	controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 30)));
+	controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 	controlAndTotalPanel.add(totalGraph);
 
 	// Really wanted this left alligned, but doesn't really work
@@ -297,11 +303,16 @@ public class ConsoleUI implements ModelListener
         frame.pack();
 
 	// Arbitary sizing that looks good for Phil.
-	final int maxHeight = 600;
+	final int minHeight = 480;
+	final int maxHeight = 800;
 	final Dimension d = frame.getSize();
 
 	if (d.height > maxHeight) {
 	    d.height = maxHeight;
+	    frame.setSize(d);
+	}
+	else if (d.height < minHeight) {
+	    d.height = minHeight;
 	    frame.setSize(d);
 	}
 
@@ -599,7 +610,7 @@ public class ConsoleUI implements ModelListener
 	}
     }
 
-    static void getResources()
+    private static void getResources()
 	throws ConsoleException
     {
 	try {
