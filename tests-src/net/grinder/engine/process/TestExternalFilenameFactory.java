@@ -24,7 +24,7 @@ package net.grinder.engine.process;
 import junit.framework.TestCase;
 
 import net.grinder.common.FilenameFactory;
-import net.grinder.testutility.StubInvocationHandler;
+import net.grinder.testutility.RandomStubFactory;
 
 
 /**
@@ -40,10 +40,10 @@ public class TestExternalFilenameFactory extends TestCase {
   }
 
   public void testProcessFilenameFactory() throws Exception {
-    final StubInvocationHandler filenameFactoryStubFactory =
-      new StubInvocationHandler(FilenameFactory.class);
+    final RandomStubFactory filenameFactoryStubFactory =
+      new RandomStubFactory(FilenameFactory.class);
     final FilenameFactory processFilenameFactory =
-      (FilenameFactory)filenameFactoryStubFactory.getProxy();
+      (FilenameFactory)filenameFactoryStubFactory.getStub();
 
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
@@ -67,20 +67,20 @@ public class TestExternalFilenameFactory extends TestCase {
   }
 
   public void testSeveralFilenameFactories() throws Exception {
-    final StubInvocationHandler processFilenameFactoryStubFactory =
-      new StubInvocationHandler(FilenameFactory.class);
+    final RandomStubFactory processFilenameFactoryStubFactory =
+      new RandomStubFactory(FilenameFactory.class);
     final FilenameFactory processFilenameFactory =
-      (FilenameFactory)processFilenameFactoryStubFactory.getProxy();
+      (FilenameFactory)processFilenameFactoryStubFactory.getStub();
 
-    final StubInvocationHandler threadFilenameFactoryStubFactory1 =
-      new StubInvocationHandler(FilenameFactory.class);
+    final RandomStubFactory threadFilenameFactoryStubFactory1 =
+      new RandomStubFactory(FilenameFactory.class);
     final FilenameFactory threadFilenameFactory1 =
-      (FilenameFactory)threadFilenameFactoryStubFactory1.getProxy();
+      (FilenameFactory)threadFilenameFactoryStubFactory1.getStub();
 
-    final StubInvocationHandler threadFilenameFactoryStubFactory2 =
-      new StubInvocationHandler(FilenameFactory.class);
+    final RandomStubFactory threadFilenameFactoryStubFactory2 =
+      new RandomStubFactory(FilenameFactory.class);
     final FilenameFactory threadFilenameFactory2 =
-      (FilenameFactory)threadFilenameFactoryStubFactory2.getProxy();
+      (FilenameFactory)threadFilenameFactoryStubFactory2.getStub();
 
     final ThreadContextStubFactory threadContextFactory1 =
       new ThreadContextStubFactory(threadFilenameFactory1);
@@ -127,10 +127,10 @@ public class TestExternalFilenameFactory extends TestCase {
   }
 
   public void testMultithreaded() throws Exception {
-    final StubInvocationHandler processFilenameFactoryStubFactory =
-      new StubInvocationHandler(FilenameFactory.class);
+    final RandomStubFactory processFilenameFactoryStubFactory =
+      new RandomStubFactory(FilenameFactory.class);
     final FilenameFactory processFilenameFactory =
-      (FilenameFactory)processFilenameFactoryStubFactory.getProxy();
+      (FilenameFactory)processFilenameFactoryStubFactory.getStub();
 
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
@@ -168,10 +168,10 @@ public class TestExternalFilenameFactory extends TestCase {
     }
 
     public void run() {
-      final StubInvocationHandler threadFilenameFactoryStubFactory =
-        new StubInvocationHandler(FilenameFactory.class);
+      final RandomStubFactory threadFilenameFactoryStubFactory =
+        new RandomStubFactory(FilenameFactory.class);
       final FilenameFactory threadFilenameFactory =
-        (FilenameFactory)threadFilenameFactoryStubFactory.getProxy();
+        (FilenameFactory)threadFilenameFactoryStubFactory.getStub();
 
       final ThreadContextStubFactory threadContextFactory =
         new ThreadContextStubFactory(threadFilenameFactory);
@@ -206,7 +206,7 @@ public class TestExternalFilenameFactory extends TestCase {
    * Must be public so that override_ methods can be called
    * externally.
    */
-  public static class ThreadContextStubFactory extends StubInvocationHandler {
+  public static class ThreadContextStubFactory extends RandomStubFactory {
 
     private final FilenameFactory m_filenameFactory;
 
@@ -216,7 +216,7 @@ public class TestExternalFilenameFactory extends TestCase {
     }
 
     public final ThreadContext getThreadContext() {
-      return (ThreadContext)getProxy();
+      return (ThreadContext)getStub();
     }
 
     public FilenameFactory override_getFilenameFactory(Object proxy) {

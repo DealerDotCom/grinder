@@ -21,32 +21,38 @@
 
 package net.grinder.testutility;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+
 /**
- *  {@link AssertingInvocationHandler} that intercepts and records
+ *  {@link AbstractStubFactory} that intercepts and records
  *  invocations to a delegate.
  *
  * @author    Philip Aston
  */
-public final class DelegatingInvocationHandler
-  extends AssertingInvocationHandler {
+public final class DelegatingStubFactory extends AbstractStubFactory {
 
-  private final Object m_delegate;
-
-  public DelegatingInvocationHandler(Object delegate) {
-    super(delegate.getClass());
-
-    m_delegate = delegate;
+  public DelegatingStubFactory(Object delegate) {
+    super(delegate.getClass(), new DelegatingInvocationHandler(delegate));
   }
 
-  public Object invoke(Object proxy, Method method, Object[] parameters)
-    throws Throwable {
+  private static final class DelegatingInvocationHandler
+    implements InvocationHandler {
 
-    final Method delegateMethod =
-      m_delegate.getClass().getMethod(
-        method.getName(), method.getParameterTypes());
+    private final Object m_delegate;
 
-    return delegateMethod.invoke(m_delegate, parameters);
+    public DelegatingInvocationHandler(Object delegate) {
+      m_delegate = delegate;
+    }
+    public Object invoke(Object proxy, Method method, Object[] parameters)
+      throws Throwable {
+
+      final Method delegateMethod =
+        m_delegate.getClass().getMethod(
+          method.getName(), method.getParameterTypes());
+
+      return delegateMethod.invoke(m_delegate, parameters);
+    }
   }
 }

@@ -24,7 +24,7 @@ package net.grinder.engine.process;
 import junit.framework.TestCase;
 
 import net.grinder.common.Test;
-import net.grinder.testutility.StubInvocationHandler;
+import net.grinder.testutility.RandomStubFactory;
 
 
 /**
@@ -59,9 +59,9 @@ public class TestTestRegistry extends TestCase {
 
     assertNull(testRegistry.getNewTests());
 
-    final StubInvocationHandler testStubFactory =
-      new StubInvocationHandler(Test.class);
-    final Test test = (Test)testStubFactory.getProxy();
+    final RandomStubFactory testStubFactory =
+      new RandomStubFactory(Test.class);
+    final Test test = (Test)testStubFactory.getStub();
 
     final TestRegistry.RegisteredTest registeredTest1 =
       testRegistry.register(test);

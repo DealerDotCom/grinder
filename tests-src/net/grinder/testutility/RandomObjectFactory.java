@@ -141,16 +141,15 @@ public final class RandomObjectFactory {
 
     private final Object m_proxy;
 
-    public NullInvocationHandler(Class simulatedInterface) {
+    public NullInvocationHandler(Class stubbedInterface) {
 
-      final ObjectDecoration objectDecoration =
-        new ObjectDecoration("a null " + simulatedInterface.getName());
+      final SimpleEqualityDecoration equalityDecoration =
+        new SimpleEqualityDecoration("a null " + stubbedInterface.getName());
       
       m_proxy = Proxy.newProxyInstance(
-        simulatedInterface.getClassLoader(),
-        AssertingInvocationHandler.getAllInterfaces(simulatedInterface),
-        new OverrideInvocationHandlerDecorator(this, objectDecoration));
-
+        stubbedInterface.getClassLoader(),
+        AbstractStubFactory.getAllInterfaces(stubbedInterface),
+        new OverrideInvocationHandlerDecorator(equalityDecoration, this));
     }
 
     public Object invoke(Object proxy, Method method, Object[] parameters)
@@ -160,26 +159,6 @@ public final class RandomObjectFactory {
 
     public Object getProxy() {
       return m_proxy;
-    }
-
-    public final class ObjectDecoration {
-      private final String m_name;
-
-      public ObjectDecoration(String name) {
-        m_name = name;
-      }
-
-      public String override_toString(Object proxy) {
-        return m_name + ":" + System.identityHashCode(proxy);
-      }
-
-      public boolean override_equals(Object proxy, Object o) {
-        return proxy == o;
-      }
-
-      public int override_hashCode(Object proxy) {
-        return System.identityHashCode(proxy);
-      }
     }
   }
 }

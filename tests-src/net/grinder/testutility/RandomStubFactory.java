@@ -19,24 +19,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process;
+package net.grinder.testutility;
 
-import net.grinder.common.LoggerStubFactory;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 
 
 /**
- * Factory for <code>ThreadLogger</code> stubs.
+ *  {@link AbstractStubFactory} that takes a
+ *  <code>Class</code> and generates stubs that support all the
+ *  interface of the given class and have methods that return random
+ *  primitive results and null objects for complex results.
  *
- * @author Philip Aston
- * @version $Revision$
+ * @author    Philip Aston
  */
-public class ThreadLoggerStubFactory extends LoggerStubFactory {
+public class RandomStubFactory extends AbstractStubFactory {
 
-  public ThreadLoggerStubFactory() {
-    super(ThreadLogger.class);
+  public RandomStubFactory(Class stubbedInterface) {
+    super(stubbedInterface,
+          new OverrideInvocationHandlerDecorator(
+            new SimpleEqualityDecoration(
+              "a stub " + stubbedInterface.getName()),
+            new RandomResultInvocationHandler()));
   }
 
-  public final ThreadLogger getThreadLogger() {
-    return (ThreadLogger)getStub();
+  private static final class RandomResultInvocationHandler
+    implements InvocationHandler {
+
+    private final RandomObjectFactory m_randomObjectFactory =
+      new RandomObjectFactory();
+
+    public Object invoke(Object proxy, Method method, Object[] parameters)
+      throws Throwable {
+
+      return m_randomObjectFactory.generateParameter(method.getReturnType());
+    }
   }
 }

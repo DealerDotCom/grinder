@@ -21,30 +21,18 @@
 
 package net.grinder.testutility;
 
-import java.lang.reflect.Method;
 
 /**
- *  {@link AssertingInvocationHandler} that takes a <code>Class</code>
- *  and generates stubs that support all the interface of the given
- *  class and have "null" implementations.
+ * Stub that provides simple equality and <code>Comparable</code>
+ * sematics. For use with {@link OverrideInvocationHandlerDecorator}.
  *
  * @author    Philip Aston
  */
-public class StubInvocationHandler extends AssertingInvocationHandler {
-
-  private final RandomObjectFactory m_randomObjectFactory =
-    new RandomObjectFactory();
+public final class SimpleEqualityDecoration {
   private final String m_name;
 
-  public StubInvocationHandler(Class simulatedInterface) {
-    super(simulatedInterface);
-    m_name = "a stub " + simulatedInterface.getName();
-  }
-
-  public Object invoke(Object proxy, Method method, Object[] parameters)
-    throws Throwable {
-
-    return m_randomObjectFactory.generateParameter(method.getReturnType());
+  public SimpleEqualityDecoration(String name) {
+    m_name = name;
   }
 
   public String override_toString(Object proxy) {

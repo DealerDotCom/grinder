@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.Logger;
-import net.grinder.testutility.StubInvocationHandler;
+import net.grinder.testutility.RandomStubFactory;
 
 
 /**
@@ -221,7 +221,7 @@ public class TestExternalLogger extends TestCase {
    * Must be public so that override_ methods can be called
    * externally.
    */
-  public static class ThreadContextStubFactory extends StubInvocationHandler {
+  public static class ThreadContextStubFactory extends RandomStubFactory {
 
     private final ThreadLogger m_threadLogger;
 
@@ -231,7 +231,7 @@ public class TestExternalLogger extends TestCase {
     }
 
     public final ThreadContext getThreadContext() {
-      return (ThreadContext)getProxy();
+      return (ThreadContext)getStub();
     }
 
     public ThreadLogger override_getThreadLogger(Object proxy) {

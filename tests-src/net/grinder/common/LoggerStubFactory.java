@@ -24,10 +24,10 @@ package net.grinder.common;
 import java.io.PrintWriter;
 import java.io.Writer;
 
-import net.grinder.testutility.StubInvocationHandler;
+import net.grinder.testutility.RandomStubFactory;
 
 
-public class LoggerStubFactory extends StubInvocationHandler {
+public class LoggerStubFactory extends RandomStubFactory {
 
   private CountingPrintWriter m_errorLineCounter =
     new CountingPrintWriter(new NullWriter());
@@ -44,7 +44,7 @@ public class LoggerStubFactory extends StubInvocationHandler {
   }
 
   public Logger getLogger() {
-    return (Logger) getProxy();
+    return (Logger) getStub();
   }
 
   public PrintWriter override_getErrorLogWriter(Object proxy) {

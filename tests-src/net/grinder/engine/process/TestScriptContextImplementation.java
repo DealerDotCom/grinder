@@ -38,7 +38,7 @@ import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.testutility.CallRecorder.CallData;
-import net.grinder.testutility.StubInvocationHandler;
+import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.Time;
 import net.grinder.util.Sleeper;
 
@@ -60,20 +60,20 @@ public class TestScriptContextImplementation extends TestCase {
     final String grinderID = "test grinder ID";
     final GrinderProperties properties = new GrinderProperties();
 
-    final StubInvocationHandler queuedSenderStubFactory =
-      new StubInvocationHandler(QueuedSender.class);
+    final RandomStubFactory queuedSenderStubFactory =
+      new RandomStubFactory(QueuedSender.class);
     final QueuedSender queuedSender =
-      (QueuedSender)queuedSenderStubFactory.getProxy();
+      (QueuedSender)queuedSenderStubFactory.getStub();
 
-    final StubInvocationHandler loggerStubFactory =
-      new StubInvocationHandler(Logger.class);
-    final Logger logger = (Logger)loggerStubFactory.getProxy();
+    final RandomStubFactory loggerStubFactory =
+      new RandomStubFactory(Logger.class);
+    final Logger logger = (Logger)loggerStubFactory.getStub();
 
-    final StubInvocationHandler filenameFactoryStubFactory =
-      new StubInvocationHandler(FilenameFactory.class);
+    final RandomStubFactory filenameFactoryStubFactory =
+      new RandomStubFactory(FilenameFactory.class);
 
     final FilenameFactory filenameFactory =
-      (FilenameFactory)filenameFactoryStubFactory.getProxy();
+      (FilenameFactory)filenameFactoryStubFactory.getStub();
 
     final int threadID = 99;
     final int runNumber = 3;
@@ -88,9 +88,9 @@ public class TestScriptContextImplementation extends TestCase {
     threadContextStubFactory.setPluginThreadContext(
       pluginContextStubFactory.getPluginThreadContext());
 
-    final StubInvocationHandler statisticsStubFactory =
-      new StubInvocationHandler(Statistics.class);
-    final Statistics statistics = (Statistics)statisticsStubFactory.getProxy();
+    final RandomStubFactory statisticsStubFactory =
+      new RandomStubFactory(Statistics.class);
+    final Statistics statistics = (Statistics)statisticsStubFactory.getStub();
     threadContextStubFactory.setScriptStatistics(statistics);
 
     final Sleeper sleeper = new Sleeper(1, 0, logger);
@@ -122,9 +122,9 @@ public class TestScriptContextImplementation extends TestCase {
 
   public void testSleep() throws Exception {
 
-    final StubInvocationHandler loggerStubFactory =
-      new StubInvocationHandler(Logger.class);
-    final Logger logger = (Logger)loggerStubFactory.getProxy();
+    final RandomStubFactory loggerStubFactory =
+      new RandomStubFactory(Logger.class);
+    final Logger logger = (Logger)loggerStubFactory.getStub();
 
     final Sleeper sleeper = new Sleeper(1, 0, logger);
 
@@ -145,10 +145,10 @@ public class TestScriptContextImplementation extends TestCase {
 
   public void testRegisterStatisticsViews() throws Exception {
 
-    final StubInvocationHandler queuedSenderStubFactory =
-      new StubInvocationHandler(QueuedSender.class);
+    final RandomStubFactory queuedSenderStubFactory =
+      new RandomStubFactory(QueuedSender.class);
     final QueuedSender queuedSender =
-      (QueuedSender)queuedSenderStubFactory.getProxy();
+      (QueuedSender)queuedSenderStubFactory.getStub();
 
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
@@ -200,7 +200,7 @@ public class TestScriptContextImplementation extends TestCase {
    * Must be public so that override_ methods can be called
    * externally.
    */
-  public static class ThreadContextStubFactory extends StubInvocationHandler {
+  public static class ThreadContextStubFactory extends RandomStubFactory {
 
     private PluginThreadContext m_pluginThreadContext;
     private Statistics m_scriptStatistics;
@@ -210,7 +210,7 @@ public class TestScriptContextImplementation extends TestCase {
     }
 
     final ThreadContext getThreadContext() {
-      return (ThreadContext)getProxy();
+      return (ThreadContext)getStub();
     }
 
     public final PluginThreadContext override_getPluginThreadContext(
@@ -233,7 +233,7 @@ public class TestScriptContextImplementation extends TestCase {
   }
 
   public static class PluginThreadContextStubFactory
-    extends StubInvocationHandler {
+    extends RandomStubFactory {
 
     private final int m_threadID;
     private final int m_runNumber;
@@ -245,7 +245,7 @@ public class TestScriptContextImplementation extends TestCase {
     }
 
     public final PluginThreadContext getPluginThreadContext() {
-      return (PluginThreadContext)getProxy();
+      return (PluginThreadContext)getStub();
     }
 
     public int override_getThreadID(Object proxy) {

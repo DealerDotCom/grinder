@@ -39,7 +39,7 @@ import net.grinder.common.Test;
 import net.grinder.common.StubTest;
 import net.grinder.engine.EngineException;
 import net.grinder.script.NotWrappableTypeException;
-import net.grinder.testutility.StubInvocationHandler;
+import net.grinder.testutility.RandomStubFactory;
 
 
 /**
@@ -80,7 +80,7 @@ public class TestTestData extends TestCase {
 
     final TestData.Invokeable invokeable =
       (TestData.Invokeable)
-      (new StubInvocationHandler(TestData.Invokeable.class)).getProxy();
+      (new RandomStubFactory(TestData.Invokeable.class)).getStub();
 
     try {
       testData.dispatch(invokeable);
@@ -89,11 +89,11 @@ public class TestTestData extends TestCase {
     catch (EngineException e) {
     }
 
-    final StubInvocationHandler threadContextStubFactory =
-      new StubInvocationHandler(ThreadContext.class);
+    final RandomStubFactory threadContextStubFactory =
+      new RandomStubFactory(ThreadContext.class);
 
     threadContextLocator.set(
-      (ThreadContext)threadContextStubFactory.getProxy());
+      (ThreadContext)threadContextStubFactory.getStub());
 
     final Object o = testData.dispatch(invokeable);
 
@@ -108,7 +108,7 @@ public class TestTestData extends TestCase {
    * delegating directly to the invokeable. Must be public so
    * override_ methods can be invoked.
    */
-  public static class ThreadContextStubFactory extends StubInvocationHandler {
+  public static class ThreadContextStubFactory extends RandomStubFactory {
     private final TestData m_expectedTestData;
 
     public ThreadContextStubFactory(TestData expectedTestData) {
@@ -124,7 +124,7 @@ public class TestTestData extends TestCase {
     }
 
     public ThreadContext getThreadContext() {
-      return (ThreadContext) getProxy();
+      return (ThreadContext)getStub();
     }
   }
 

@@ -37,8 +37,8 @@ public final class OverrideInvocationHandlerDecorator
   private final Object m_overrider;
   private final String m_overridePrefix;
 
-  public OverrideInvocationHandlerDecorator(InvocationHandler delegate,
-                                            Object overrider) {
+  public OverrideInvocationHandlerDecorator(Object overrider,
+                                            InvocationHandler delegate) {
     this(delegate, overrider, "override_");
   }
 

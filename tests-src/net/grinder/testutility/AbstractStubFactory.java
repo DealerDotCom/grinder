@@ -38,20 +38,20 @@ import java.util.List;
  *
  * @author    Philip Aston
  */
-public abstract class AssertingInvocationHandler
-     extends CallRecorder implements InvocationHandler {
+public abstract class AbstractStubFactory extends CallRecorder {
 
-  private final Object m_proxy;
+  private final Object m_stub;
 
-  public AssertingInvocationHandler(Class simulatedInterface) {
+  public AbstractStubFactory(Class stubbedInterface,
+                             InvocationHandler invocationHandler) {
 
-    final InvocationHandler invocationHandler =
+    final InvocationHandler decoratedInvocationHandler =
       new RecordingInvocationHandler(
-        new OverrideInvocationHandlerDecorator(this, this));
+        new OverrideInvocationHandlerDecorator(this, invocationHandler));
 
-    m_proxy = Proxy.newProxyInstance(simulatedInterface.getClassLoader(),
-                                     getAllInterfaces(simulatedInterface),
-                                     invocationHandler);
+    m_stub = Proxy.newProxyInstance(stubbedInterface.getClassLoader(),
+                                    getAllInterfaces(stubbedInterface),
+                                    decoratedInvocationHandler);
   }
 
   private final class RecordingInvocationHandler implements InvocationHandler {
@@ -77,8 +77,8 @@ public abstract class AssertingInvocationHandler
     }
   }
 
-  public final Object getProxy() {
-    return m_proxy;
+  public final Object getStub() {
+    return m_stub;
   }
 
   public static Class[] getAllInterfaces(Class c) {
