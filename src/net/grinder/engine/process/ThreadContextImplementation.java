@@ -23,8 +23,12 @@
 package net.grinder.engine.process;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.grinder.common.FilenameFactory;
+import net.grinder.common.SSLContextFactory;
+import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Statistics;
@@ -39,11 +43,15 @@ import net.grinder.script.Statistics;
 final class ThreadContextImplementation
   implements ThreadContext, PluginThreadContext {
 
+  private final List m_threadLifeCycleListeners = new ArrayList();
+
   private final ProcessContext m_processContext;
   private final ThreadLogger m_threadLogger;
   private final FilenameFactory m_filenameFactory;
 
   private final ScriptStatisticsImplementation m_scriptStatistics;
+
+  private SSLContextFactory m_sslContextFactory;
 
   private boolean m_startTimeOverridenByPlugin;
   private long m_startTime;
@@ -65,6 +73,8 @@ final class ThreadContextImplementation
         dataWriter,
         m_threadLogger.getThreadID(),
         processContext.getRecordTime());
+
+    registerThreadLifeCycleListener(m_scriptStatistics);
   }
 
   public FilenameFactory getFilenameFactory() {
@@ -185,5 +195,21 @@ final class ThreadContextImplementation
   public PluginThreadContext getPluginThreadContext() {
     return this;
   }
-}
 
+  public SSLContextFactory getThreadSSLContextFactory() {
+    return m_sslContextFactory;
+  }
+
+  public void setThreadSSLContextFactory(SSLContextFactory sslContextFactory) {
+    m_sslContextFactory = sslContextFactory;
+  }
+
+  public List getThreadLifeCycleListeners() {
+    return m_threadLifeCycleListeners;
+  }
+
+  public void registerThreadLifeCycleListener(
+    ThreadLifeCycleListener listener) {
+    m_threadLifeCycleListeners.add(listener);
+  }
+}

@@ -21,7 +21,11 @@
 
 package net.grinder.engine.process;
 
+import java.util.List;
+
 import net.grinder.common.FilenameFactory;
+import net.grinder.common.ThreadLifeCycleListener;
+import net.grinder.common.SSLContextFactory;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Statistics;
 
@@ -40,11 +44,17 @@ interface ThreadContext {
 
   Statistics getScriptStatistics();
 
-  void endRun();
-
   PluginThreadContext getPluginThreadContext();
 
   Object invokeTest(TestData testData, TestData.Invokeable invokeable)
     throws JythonScriptExecutionException, ShutdownException;
+
+  SSLContextFactory getThreadSSLContextFactory();
+
+  void setThreadSSLContextFactory(SSLContextFactory threadSSLFactory);
+
+  List getThreadLifeCycleListeners();
+
+  void registerThreadLifeCycleListener(ThreadLifeCycleListener listener);
 }
 
