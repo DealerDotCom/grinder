@@ -99,7 +99,7 @@ public final class PluginRegistry {
 
         m_plugins.put(pluginClass, registeredPlugin);
 
-        m_processContext.getLogger().output(
+        m_processContext.getProcessLogger().output(
           "registered plug-in " + pluginClass.getName());
 
         return registeredPlugin;

@@ -122,7 +122,7 @@ public final class GrinderProcess implements Monitor {
       return;
     }
 
-    final Logger logger = grinderProcess.m_context.getLogger();
+    final Logger logger = grinderProcess.m_context.getProcessLogger();
 
     try {
       final int status = grinderProcess.run();
@@ -210,7 +210,7 @@ public final class GrinderProcess implements Monitor {
     m_scriptFile =
       new File(properties.getProperty("grinder.script", "grinder.py"));
 
-    final Logger logger = m_context.getLogger();
+    final Logger logger = m_context.getProcessLogger();
 
     // Check that the script file is readable so we can chuck out
     // a nicer error message up front.
@@ -250,7 +250,7 @@ public final class GrinderProcess implements Monitor {
    * @returns exit status to be indicated to parent process.
    */
   private int run() throws GrinderException, InterruptedException {
-    final Logger logger = m_context.getLogger();
+    final Logger logger = m_context.getProcessLogger();
 
     logger.output("The Grinder version " + GrinderBuild.getVersionString());
 
@@ -487,7 +487,7 @@ public final class GrinderProcess implements Monitor {
                                           m_numberOfThreads));
         }
         catch (CommunicationException e) {
-          final Logger logger = m_context.getLogger();
+          final Logger logger = m_context.getProcessLogger();
 
           logger.output("Report to console failed: " + e.getMessage(),
                         Logger.LOG | Logger.TERMINAL);
