@@ -128,7 +128,7 @@ class HTTPMethodRelativeURIFilterDecorator implements TCPProxyFilter {
 
     final Matcher matcher = s_httpMethodLine.matcher(original);
 
-    if (matcher.matches()) {
+    if (matcher.find()) {
       final String result = matcher.group(1) + " " + matcher.group(2);
 
       final byte[] resultBytes = result.getBytes();
