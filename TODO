@@ -12,10 +12,6 @@ patches against that too :-). The list is roughly in priority order.]
 
   SSL HTTP plugin (PhilD is working on this)
 
-  Build environment - should makefile be part of distribution or not?
-  (Effort in making it portable - I've removed the original as it
-  was windows specific).
-
   Documenatation, in text format. Volunteers please!
 
   Test harness
@@ -28,5 +24,9 @@ patches against that too :-). The list is roughly in priority order.]
   Add option to ignore the first 5 cycles so that hotspot has chance
   to work.
 
-  Do something sensible with the version string.
+  Minor fixes to build.xml:
+	Fix the permissions in the distribution files.
+	Just include the current version in distjar target.
+	Optionally build the weblogic dependent classes.
+	Fix javadoc warnings.
 
