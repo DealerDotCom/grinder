@@ -84,7 +84,7 @@ public class SignificantFigureFormat extends DecimalFormat {
   }
 
   /**
-   * Almost certainly doesn't set position correctly
+   * Almost certainly doesn't set position correctly.
    *
    * @param number Number to format.
    * @param buffer Buffer to append result to.
@@ -113,7 +113,7 @@ public class SignificantFigureFormat extends DecimalFormat {
   }
 
   /**
-   * Almost certainly doesn't set position correctly
+   * Almost certainly doesn't set position correctly.
    *
    * @param number Number to format.
    * @param buffer Buffer to append result to.

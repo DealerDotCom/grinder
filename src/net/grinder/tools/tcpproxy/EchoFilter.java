@@ -55,7 +55,7 @@ public class EchoFilter implements TCPProxyFilter {
    * @param bytesRead How many bytes of data in <code>buffer</code>.
    * @return Filters can optionally return a <code>byte[]</code>
    * which will be transmitted to the server instead of
-   * <code>buffer</code.
+   * <code>buffer</code>.
    * @exception IOException If an error occurs.
    */
   public byte[] handle(ConnectionDetails connectionDetails,

@@ -37,7 +37,7 @@ import net.grinder.plugininterface.PluginThreadListener;
 
 
 /**
- * HTTP plugin thread state
+ * HTTP plugin thread state.
  *
  * @author Philip Aston
  * @version $Revision$

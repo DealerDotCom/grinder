@@ -167,7 +167,8 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
     m_model.addTotalSampleListener(
       new SampleListener() {
-        private final String suffix = " " + m_resources.getString("tps.units");
+        private final String m_suffix =
+          " " + m_resources.getString("tps.units");
 
         public void update(TestStatistics intervalStatistics,
                            TestStatistics cumulativeStatistics) {
@@ -176,7 +177,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
           tpsLabel.setText(
             format.format(
               m_model.getTPSExpression().getDoubleValue(intervalStatistics)) +
-            suffix);
+            m_suffix);
 
           totalGraph.add(intervalStatistics, cumulativeStatistics, format);
         }
@@ -572,7 +573,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
   /**
    * {@link net.grinder.console.model.ModelListener} interface.
-   * Existing <code>Test</code<s and <code>StatisticsView</code>s have
+   * Existing <code>Test</code>s and <code>StatisticsView</code>s have
    * been discarded. We need do nothing.
    */
   public final void resetTestsAndStatisticsViews() {
@@ -673,7 +674,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       JLabel text =
         new JLabel() {
           public final Dimension getPreferredSize() {
-            Dimension d = super.getPreferredSize();
+            final Dimension d = super.getPreferredSize();
             d.width = 450;
             return d;
           }
@@ -688,7 +689,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
                         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER) {
           public Dimension getPreferredSize() {
-            Dimension d = super.getPreferredSize();
+            final Dimension d = super.getPreferredSize();
             d.width = 500;
             d.height = 400;
             return d;

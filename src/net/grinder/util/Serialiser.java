@@ -39,9 +39,9 @@ public class Serialiser {
   /**
    * Write a <code>long</code> to a stream in such a way it can be
    * read by {@link #readUnsignedLong}. The value of the
-   * <code>long<code> must be greater than zero. Values between 0
-   * and 127 inclusive require only one byte. Other values require
-   * eight bytes.
+   * <code>long</code> must be greater than zero. Values between 0 and
+   * 127 inclusive require only one byte. Other values require eight
+   * bytes.
    *
    * @param output The stream.
    * @param l a <code>long</code> value
@@ -147,7 +147,7 @@ public class Serialiser {
    */
   public final long readLong(DataInput input) throws IOException {
 
-    byte b = input.readByte();
+    final byte b = input.readByte();
     long length = (b & 0xF0) >>> 4;
     long result = (long)(b & 0x0F);
 

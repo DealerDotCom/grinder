@@ -66,7 +66,7 @@ public final class HTTPPluginControl {
    * @param url An absolute URL that specifies the connection.
    * @return a <code>HTTPPluginConnection</code> value
    * @exception GrinderException If an error occurs.
-   * @exception ParseException If <code>url</coder> can not be parsed.
+   * @exception ParseException If <code>url</code> can not be parsed.
    * @exception ProtocolNotSuppException If <code>url</code>
    * specifies an unsupported protocol.
    */

@@ -65,7 +65,7 @@ public class JOptionPaneDialog extends JDialog {
 
     addWindowListener(
       new WindowAdapter() {
-        private boolean gotFocus = false;
+        private boolean m_gotFocus = false;
 
         public void windowClosing(WindowEvent e) {
           optionPane.setValue(null);
@@ -73,9 +73,9 @@ public class JOptionPaneDialog extends JDialog {
 
         public void windowActivated(WindowEvent e) {
           // Once window gets focus, set initial focus
-          if (!gotFocus) {
+          if (!m_gotFocus) {
             optionPane.selectInitialValue();
-            gotFocus = true;
+            m_gotFocus = true;
           }
         }
       });
@@ -83,12 +83,12 @@ public class JOptionPaneDialog extends JDialog {
     optionPane.addPropertyChangeListener(
       new PropertyChangeListener() {
 
-        private boolean disable = false;
+        private boolean m_disable = false;
 
         public void propertyChange(PropertyChangeEvent e) {
           if (isVisible() &&
               e.getSource() == optionPane &&
-              !disable &&
+              !m_disable &&
               (e.getPropertyName().equals(JOptionPane.VALUE_PROPERTY) ||
                e.getPropertyName().equals(JOptionPane.INPUT_VALUE_PROPERTY))) {
 
@@ -103,9 +103,9 @@ public class JOptionPaneDialog extends JDialog {
               }
             }
             finally {
-              disable = true;
+              m_disable = true;
               optionPane.setValue(null);
-              disable = false;
+              m_disable = false;
               setCursor(oldCursor);
             }
           }

@@ -159,19 +159,21 @@ final class LoggerImplementation {
 
   private final void outputInternal(ThreadState state, String message,
                                     int where) {
+    int w = where;
+
     if (!m_logProcessStreams) {
-      where &= ~Logger.LOG;
+      w &= ~Logger.LOG;
     }
 
-    if (where != 0) {
+    if (w != 0) {
       final int lineLength = state.formatMessage(message);
 
-      if ((where & Logger.LOG) != 0) {
+      if ((w & Logger.LOG) != 0) {
         m_outputWriter.write(state.m_outputLine, 0, lineLength);
         m_outputWriter.flush();
       }
 
-      if ((where & Logger.TERMINAL) != 0) {
+      if ((w & Logger.TERMINAL) != 0) {
         s_stdoutWriter.write(state.m_outputLine, 0, lineLength);
         s_stdoutWriter.flush();
       }
@@ -180,19 +182,22 @@ final class LoggerImplementation {
 
   private final void errorInternal(ThreadState state, String message,
                                    int where) {
+
+    int w = where;
+
     if (!m_logProcessStreams) {
-      where &= ~Logger.LOG;
+      w &= ~Logger.LOG;
     }
 
-    if (where != 0) {
+    if (w != 0) {
       final int lineLength = state.formatMessage(message);
 
-      if ((where & Logger.LOG) != 0) {
+      if ((w & Logger.LOG) != 0) {
         m_errorWriter.write(state.m_outputLine, 0, lineLength);
         m_errorWriter.flush();
       }
 
-      if ((where & Logger.TERMINAL) != 0) {
+      if ((w & Logger.TERMINAL) != 0) {
         s_stderrWriter.write(state.m_outputLine, 0, lineLength);
         s_stderrWriter.flush();
       }
@@ -208,7 +213,7 @@ final class LoggerImplementation {
                      "\"), see error log for details",
                      Logger.LOG);
 
-      if (!m_errorOccurred && (where | Logger.TERMINAL) != 0) {
+      if (!m_errorOccurred && (w | Logger.TERMINAL) != 0) {
         m_processLogger.output(
           "There were errors, see error log for details",
           Logger.TERMINAL);

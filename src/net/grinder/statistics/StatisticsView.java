@@ -78,11 +78,6 @@ public final class StatisticsView implements Externalizable {
    **/
   private final transient Set m_unique = new HashSet();
 
-  /**
-   * @link aggregation
-   * @associates <{net.grinder.statistics.ExpressionView}>
-   * @supplierCardinality 0..*
-   **/
   private final SortedSet m_columns;
 
   /**

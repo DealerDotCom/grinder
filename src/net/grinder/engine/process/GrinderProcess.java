@@ -81,7 +81,9 @@ public final class GrinderProcess implements Monitor {
    */
   public static final int EXIT_STOP_SIGNAL = 18;
 
-  /** Hack extra information from parent process in system properties **/
+  /**
+   * Hack extra information from parent process in system properties.
+   */
   public static final String DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME =
     "grinder.dontWaitForSignal";
 

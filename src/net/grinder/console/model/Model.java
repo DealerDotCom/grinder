@@ -269,7 +269,7 @@ public class Model {
    */
   public final void registerTests(Collection tests) {
     // Need to copy collection, might be immutable.
-    final HashSet newTests = new HashSet(tests);
+    final Set newTests = new HashSet(tests);
 
     final Test[] testArray;
 

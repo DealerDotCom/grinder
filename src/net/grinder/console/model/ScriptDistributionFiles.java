@@ -69,7 +69,7 @@ public final class ScriptDistributionFiles implements Serializable {
     final GrinderProperties ourProperties =
       properties.getPropertySubset(propertyPrefix);
 
-    String rootDirectoryString =
+    final String rootDirectoryString =
       ourProperties.getProperty(ROOT_DIRECTORY_PROPERTY, null);
 
     if (rootDirectoryString != null) {

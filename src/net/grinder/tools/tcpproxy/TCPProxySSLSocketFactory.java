@@ -162,7 +162,7 @@ public final class TCPProxySSLSocketFactory implements TCPProxySocketFactory {
   /**
    * For the purposes of sniffing, we don't care whether the cert
    * chain is trusted or not, so here's an implementation which
-   * accepts everything -PD
+   * accepts everything.
    */
   private static class TrustEveryone implements X509TrustManager {
 

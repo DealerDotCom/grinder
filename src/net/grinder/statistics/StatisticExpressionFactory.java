@@ -39,16 +39,6 @@ public final class StatisticExpressionFactory {
   private static final StatisticExpressionFactory s_instance =
     new StatisticExpressionFactory();
 
-  /**
-   * @link dependency
-   * @stereotype instantiate
-   **/
-  /*#StatisticExpression lnkStatisticExpression;*/
-
-  /**
-   * @link aggregation
-   * @supplierCardinality 1
-   */
   private final StatisticsIndexMap m_indexMap =
     StatisticsIndexMap.getInstance();
 

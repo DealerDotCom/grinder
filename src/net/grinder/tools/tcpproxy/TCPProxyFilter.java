@@ -42,7 +42,7 @@ public interface TCPProxyFilter {
    * @param bytesRead How many bytes of data in <code>buffer</code>.
    * @return Filters can optionally return a <code>byte[]</code>
    * which will be transmitted to the server instead of
-   * <code>buffer</code.
+   * <code>buffer</code>.
    * @exception Exception If an error occurs.
    */
   byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,

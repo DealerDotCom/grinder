@@ -62,14 +62,14 @@ public interface ProcessStatus {
   short getState();
 
   /**
-   * Get the number of running threads
+   * Get the number of running threads.
    *
    * @return The number of threads that are stull running.
    **/
   short getNumberOfRunningThreads();
 
   /**
-   * Get the total number of threads
+   * Get the total number of threads.
    *
    * @return The total number of threads.
    **/

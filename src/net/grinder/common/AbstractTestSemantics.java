@@ -36,7 +36,7 @@ public abstract class AbstractTestSemantics implements Test {
    *
    * @param o <code>Object</code> to compare.
    * @return <code>-1</code> if <code>o</code> is less, <code>0</code>
-   * if its equal, <code>1<code> if its greater.
+   * if its equal, <code>1</code> if its greater.
    */
   public final int compareTo(Object o) {
     final int ours = getNumber();

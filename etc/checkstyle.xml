@@ -12,8 +12,12 @@
     <module name="Translation"/>
 
     <module name="TreeWalker">
+
         <property name="cacheFile" value="${checkstyle.cache.file}"/>
         <property name="tabWidth" value="4"/>
+
+        <!-- Modules are grouped and in the same order as the
+        Checkstyle documentation. -->
 
         <module name="JavadocType">
           <property name="scope" value="package"/>
@@ -27,6 +31,7 @@
         <module name="JavadocVariable">
           <property name="scope" value="package"/>
         </module>
+        <module name="JavadocStyle"/>
 
         <module name="ConstantName">
           <property name="format"
@@ -50,14 +55,6 @@
         <module name="TabCharacter"/>
         <module name="TypeName"/>
 
-        <!-- There are currently problems with multi-line headers and
-        RegexpHeader.
-        <module name="RegexpHeader">
-            <property name="headerFile"
-                      value="${basedir}/etc/header.txt"/>
-        </module>
-        -->
-
         <module name="AvoidStarImport"/>
         <module name="IllegalImport"/>
         <module name="RedundantImport"/>
@@ -69,10 +66,12 @@
           <property name="tokens" value="METHOD_DEF"/>
           <property name="max" value="200"/>
         </module>
-        <!-- Allow constructors to be slightly longer. -->
         <module name="MethodLength">
           <property name="tokens" value="CTOR_DEF"/>
           <property name="max" value="300"/>
+        </module>
+        <module name="AnonInnerLength">
+          <property name="max" value="50"/>
         </module>
         <module name="ParameterNumber"/>
 
@@ -92,9 +91,7 @@
         <module name="WhitespaceAround"/>
 
         <module name="ModifierOrder"/>
-        <module name="RedundantModifier"/>
 
-        <module name="AvoidNestedBlocks"/>
         <module name="EmptyBlock">
           <property name="option" value="text"/>
         </module>
@@ -103,23 +100,39 @@
         <module name="RightCurly">
           <property name="option" value="alone"/>
         </module>
+        <module name="AvoidNestedBlocks"/>
 
+        <module name="ArrayTrailingComma"/>
+        <module name="CovariantEquals"/>
         <module name="DoubleCheckedLocking"/>
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
+        <module name="FinalLocalVariable"/>
         <module name="HiddenField"/>
         <module name="IllegalInstantiation">
           <property name="classes" value="java.lang.Boolean"/>
         </module>
         <module name="InnerAssignment"/>
         <module name="MissingSwitchDefault"/>
+        <module name="NestedIfDepth">
+          <property name="max" value="2"/>
+        </module>
+        <module name="NestedTryDepth"/>
+        <module name="PackageDeclaration"/>
+        <module name="ParameterAssignment"/>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
+        <module name="SuperClone"/>
+        <module name="SuperFinalize"/>
 
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
         <module name="VisibilityModifier"/>
+
+        <module name="CyclomaticComplexity">
+            <property name="severity" value="ignore"/>
+        </module>
 
         <module name="ArrayTypeStyle"/>
         <module name="GenericIllegalRegexp">
@@ -129,12 +142,52 @@
         <module name="TodoComment"/>
         <module name="UpperEll"/>
 
+
+
+        <!-- May fix code for the following some day. -->
+        <!-- <module name="IllegalCatch"/> -->
+
+        <!-- Would like to use the following, but they appear broken.
+        Get NoClassDefFoundError. -->
+        <!-- <module name="MutableException"/> -->
+        <!-- <module name="usage.OneMethodPrivateField"/> -->
+        <!-- <module name="usage.UnusedLocalVariable"/> -->
+        <!-- <module name="usage.UnusedParameter"/> -->
+        <!-- <module name="usage.UnusedPrivateField"/> -->
+        <!-- <module name="usage.UnusedPrivateMethod"/> -->
+
+        <!-- There are currently problems with multi-line headers and
+        RegexpHeader. -->
+        <!-- <module name="RegexpHeader"> -->
+        <!--  <property name="headerFile" value="${basedir}/etc/header.txt"/> -->
+        <!-- </module> -->
+
+        <!-- Sadly Checkstyle 3.2 has made this stricter such that
+        methods in final classes can't be declared final. No way to
+        select the older, less strict approach. -->
+        <!-- <module name="RedundantModifier"/> -->
+
+        <!-- Nice idea, but need finer grained control for use with
+        broken JDK API. (In particular, AbstractButton and LinkedList
+        also specify interface.) -->
+        <!-- <module name="IllegalType"/> -->
+
+        <!-- Doesn't support my preferred "all static, then
+        non-static" rule. -->
+        <!-- <module name="DeclarationOrder"/> -->
+
+        <!-- Not flexible enough to cope with my preferred
+        indentation. -->
+        <!-- <module name="Indentation"/> -->
+
         <!-- I disagree with the following... -->
         <!-- <module name="AvoidInlineConditionals"/> -->
         <!-- <module name="DesignForExtension"/> -->
+        <!-- <module name="ExplicitInitialization"/> -->
         <!-- <module name="FinalParameters"/> -->
         <!-- <module name="MagicNumber"/> -->
         <!-- <module name="RedundantThrows"/> -->
+        <!-- <module name="ReturnCount"/> -->
 
     </module>
 

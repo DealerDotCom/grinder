@@ -157,14 +157,14 @@ public class Sleeper {
   private final void doSleep(long time) throws ShutdownException {
 
     if (time > 0) {
-      time = (long)(time * m_factor);
+      final long factoredTime = (long)(time * m_factor);
 
       if (m_logger != null) {
-        m_logger.output("sleeping for " + time + " ms");
+        m_logger.output("sleeping for " + factoredTime + " ms");
       }
 
       long currentTime = System.currentTimeMillis();
-      final long wakeUpTime = currentTime + time;
+      final long wakeUpTime = currentTime + factoredTime;
 
       while (currentTime < wakeUpTime) {
         try {

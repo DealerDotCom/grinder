@@ -27,6 +27,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -79,7 +80,7 @@ public final class Grinder {
       final GrinderProperties properties =
         new GrinderProperties(m_alternateFile);
 
-      final ArrayList command = new ArrayList();
+      final List command = new ArrayList();
 
       command.add(properties.getProperty("grinder.jvm", "java"));
 

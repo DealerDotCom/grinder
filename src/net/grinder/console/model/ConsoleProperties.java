@@ -41,47 +41,47 @@ import net.grinder.console.common.DisplayMessageConsoleException;
  */
 public final class ConsoleProperties {
 
-  /** Property name **/
+  /** Property name. **/
   public static final String COLLECT_SAMPLES_PROPERTY =
     "grinder.console.numberToCollect";
 
-  /** Property name **/
+  /** Property name. **/
   public static final String IGNORE_SAMPLES_PROPERTY =
     "grinder.console.numberToIgnore";
 
-  /** Property name **/
+  /** Property name. **/
   public static final String SAMPLE_INTERVAL_PROPERTY =
     "grinder.console.sampleInterval";
 
-  /** Property name **/
+  /** Property name. **/
   public static final String SIG_FIG_PROPERTY =
     "grinder.console.significantFigures";
 
-  /** Property name **/
+  /** Property name. **/
   public static final String CONSOLE_ADDRESS_PROPERTY =
     "grinder.console.consoleAddress";
 
-  /** Property name **/
+  /** Property name. **/
   public static final String CONSOLE_PORT_PROPERTY =
     "grinder.console.consolePort";
 
-  /** Property name **/
+  /** Property name. **/
   public static final String GRINDER_ADDRESS_PROPERTY =
     "grinder.console.grinderAddress";
 
-  /** Property name **/
+  /** Property name. **/
   public static final String GRINDER_PORT_PROPERTY =
     "grinder.console.grinderPort";
 
-  /** Property name **/
+  /** Property name. **/
   public static final String RESET_CONSOLE_WITH_PROCESSES_PROPERTY =
     "grinder.console.resetConsoleWithProcesses";
 
-  /** Property name **/
+  /** Property name. **/
   public static final String RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY =
     "grinder.console.resetConsoleWithProcessesDontAsk";
 
-  /** Property name **/
+  /** Property name. **/
   public static final String SCRIPT_DISTRIBUTION_FILES_PROPERTY =
     "grinder.console.scriptDistribution.";
 

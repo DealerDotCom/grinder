@@ -66,7 +66,7 @@ public class ExpressionView {
   static {
     // Ensure that the standard ExpressionViews are initialised
     // before any user ExpressionViews.
-    Class dummy = CommonStatisticsViews.class;
+    final Class dummy = CommonStatisticsViews.class;
   }
 
   /**

@@ -31,7 +31,10 @@ import net.grinder.util.FixedWidthFormatter;
 
 
 /**
- * Package scope
+ * <p>Format a textual table of a {@link TestStatisticsMap} using a
+ * {@link StatisticsView}.</p>
+ *
+ * <p>Package scope</p>.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -98,7 +101,7 @@ public class StatisticsTable {
   }
 
   /**
-   * Write the table out an output writer
+   * Write the table out an output writer.
    *
    * @param out The output writer
    * @exception GrinderException if an error occurs
@@ -160,9 +163,9 @@ public class StatisticsTable {
         final Test test = pair.getTest();
         totals.add(pair.getStatistics());
 
-        StringBuffer output = formatLine("Test " + test.getNumber(),
-                                         pair.getStatistics(),
-                                         expressionViews);
+        final StringBuffer output = formatLine("Test " + test.getNumber(),
+                                               pair.getStatistics(),
+                                               expressionViews);
 
         final String testDescription = test.getDescription();
 

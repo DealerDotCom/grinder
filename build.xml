@@ -409,6 +409,7 @@ what you want. Currently the conditionally built modules are:
         <exclude name="**/net/grinder/script/Grinder.java"/>
 
         <!-- Exclude the following whilst Bernard is working on them. -->
+        <exclude name="**/HTTPRequest.java"/>
         <exclude name="**/TCPProxyEngine.java"/>
         <exclude name="**/TCPProxyEngineImplementation.java"/>
         <exclude name="**/HTTPProxyTCPProxyEngine.java"/>
