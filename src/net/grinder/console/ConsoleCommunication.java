@@ -118,6 +118,7 @@ final class ConsoleCommunication {
     String host;
 
     try {
+      // TODO - review
       host = InetAddress.getLocalHost().getHostName();
     }
     catch (UnknownHostException e) {
