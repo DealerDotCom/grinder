@@ -100,7 +100,8 @@ conditionally built modules are:
     <property name="examples.dir" value="examples"/>
 
     <!-- javadoc -->
-    <property name="javadoc.dir" value="doc/javadoc"/>
+    <property name="doc.dir" value="doc"/>
+    <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
     <property name="javadoc.packages" value="net.grinder.*"/>
     <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
 
@@ -283,9 +284,9 @@ conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Creates the distribution hierachy                                   -->
   <!-- =================================================================== -->
-  <target name="distribute-javadoc" depends="javadoc">
-    <copy todir="${dist.dir}/${javadoc.dir}">
-      <fileset dir="${javadoc.dir}"/>
+  <target name="distribute-doc" depends="javadoc">
+    <copy todir="${dist.dir}/${doc.dir}">
+      <fileset dir="${doc.dir}"/>
     </copy>
   </target>
 
@@ -326,7 +327,7 @@ conditionally built modules are:
 	 basedir="${dist.root}"/>
   </target>
 
-  <target name="release" depends="assert-have-everything,realclean,test,distribution-hierarchy,distribute-javadoc"
+  <target name="release" depends="assert-have-everything,realclean,test,distribution-hierarchy,distribute-doc"
 	  description="Generates a release jar.">
 <!--      <cvs command="tag -R release_${version}" noexec="true"/> -->
     <jar jarfile="releases/${name}-${version}.jar" basedir="${dist.root}"/>
