@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,12 +28,11 @@ import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
-// Use old sun package for J2SE 1.3/JSSE 1.0.2 compatibility.
-import com.sun.net.ssl.KeyManager;
-import com.sun.net.ssl.KeyManagerFactory;
-import com.sun.net.ssl.SSLContext;
-import com.sun.net.ssl.TrustManager;
-import com.sun.net.ssl.X509TrustManager;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import net.grinder.common.SSLContextFactory;
 
@@ -131,9 +130,13 @@ public final class InsecureSSLContextFactory implements SSLContextFactory {
 
   private static class TrustEveryone implements X509TrustManager {
 
-    public boolean isClientTrusted(X509Certificate[] chain) { return true; }
+    public void checkClientTrusted(X509Certificate[] chain,
+                                      String authenticationType) {
+    }
 
-    public boolean isServerTrusted(X509Certificate[] chain) { return true; }
+    public void checkServerTrusted(X509Certificate[] chain,
+                                      String authenticationType) {
+    }
 
     public X509Certificate[] getAcceptedIssuers() { return null; }
   }

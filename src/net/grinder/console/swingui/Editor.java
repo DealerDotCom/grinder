@@ -300,7 +300,7 @@ final class Editor {
       setRequestFocusEnabled(b);
     }
 
-    public boolean isFocusTraversable() {
+    public boolean isFocusable() {
       return isEnabled();
     }
   }

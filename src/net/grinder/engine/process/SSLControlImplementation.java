@@ -27,9 +27,8 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 
-// Use old sun package for J2SE 1.3/JSSE 1.0.2 compatibility.
-import com.sun.net.ssl.KeyManager;
-import com.sun.net.ssl.SSLContext;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
 
 import net.grinder.common.SSLContextFactory;
 import net.grinder.common.ThreadLifeCycleListener;

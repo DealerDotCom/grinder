@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,11 +21,10 @@
 
 package net.grinder.util;
 
-import junit.framework.TestCase;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
 
-// Use old sun package for J2SE 1.3/JSSE 1.0.2 compatibility.
-import com.sun.net.ssl.KeyManager;
-import com.sun.net.ssl.SSLContext;
+import junit.framework.TestCase;
 
 
 /**
