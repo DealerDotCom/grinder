@@ -68,11 +68,14 @@
 <blockquote>
 <table>
  <tr>
-  <td valign="top"><code><a name="grinder.test0.parameter.url">grinder.test0.parameter.url</a></code></td>
-  <td>The URL to call. The HTTP <code>GET</code> method is used unless <a
+  <td valign="top"><code><a
+  name="grinder.test0.parameter.url">grinder.test0.parameter.url</a></code></td>
+  <td>The URL to call. The HTTP <code>GET</code> method is used unless
+  <a
   href="#grinder.test0.parameter.post">grinder.test0.parameter.post</a>
-  is specified. The value can be varied using a <a
-  href="#string-bean">string bean</a>.</td>
+  is specified. The contents of the file can be varied using a <a
+  href="#string-bean">string bean</a>, see this <a
+  href="file:///e:/src/grinder3/doc/manual/faq.html#post-and-string-beans">FAQ</a>.</td>
  </tr>
 
  <tr>
