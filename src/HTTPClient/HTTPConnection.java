@@ -28,6 +28,12 @@
  *
  *  http://www.innovation.ch/java/HTTPClient/ 
  *
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL.
+ * Modifications made by Philip Aston on 9th July 2001. They are
+ * marked below with the comment "GRINDER MODIFICATION". See the file
+ * doc/HTTPPlugin.txt in The Grinder distribution for more details.
+ *
  */
 
 package HTTPClient;
@@ -804,7 +810,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     {
 	String File = stripRef(file);
 	if (query != null  &&  query.length() > 0)
-	    File += "?" + Codecs.URLEncode(query);
+	    // ++GRINDER MODIFICATION
+	    // File += "?" + Codecs.URLEncode(query);
+	    File += "?" + query;
+	    // --GRINDER MODIFICATION
 
 	return setupRequest("HEAD", File, headers, null, null);
     }
@@ -900,7 +909,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     {
 	String File = stripRef(file);
 	if (query != null  &&  query.length() > 0)
-	    File += "?" + Codecs.URLEncode(query);
+	    // ++GRINDER MODIFICATION
+	    // File += "?" + Codecs.URLEncode(query);
+	    File += "?" + query;
+	    // --GRINDER MODIFICATION
 
 	return setupRequest("GET", File, headers, null, null);
     }

@@ -4,6 +4,9 @@ HTTPClient library
 distributed under the GNU Lesser Public License and repackaged in The
 Grinder distribution under the GNU Public License.
 
+Modifications have been made to the file HTTPConnection.java, and are
+marked as such in that file.
+
 
  GNU LESSER GENERAL PUBLIC LICENSE
 		       Version 2.1, February 1999
