@@ -94,7 +94,6 @@ public final class Buffer {
   private final TextSource m_textSource;
   private final File m_file;
   private long m_lastModified;
-  private int m_savedRevision;
 
   /**
    * Constructor for buffers with no associated file.
@@ -117,9 +116,6 @@ public final class Buffer {
     m_resources = resources;
     m_textSource = textSource;
     m_file = file;
-
-    // Assume dirty.
-    m_savedRevision = -1;
     m_lastModified = -1;
   }
 
@@ -166,7 +162,7 @@ public final class Buffer {
     }
 
     m_textSource.setText(stringWriter.toString());
-    markNotDirty();
+    m_lastModified = m_file.lastModified();
   }
 
   /**
@@ -189,7 +185,7 @@ public final class Buffer {
     try {
       writer = new FileWriter(m_file);
       writer.write(m_textSource.getText());
-      markNotDirty();
+      m_lastModified = m_file.lastModified();
     }
     catch (IOException e) {
       throw new DisplayMessageConsoleException(
@@ -207,13 +203,6 @@ public final class Buffer {
     }
   }
 
-  private void markNotDirty() {
-    m_savedRevision = m_textSource.getRevision();
-
-    // We know we have an associated file.
-    m_lastModified = m_file.lastModified();
-  }
-
   /**
    * Return whether the buffer's text has been changed since the last
    * save.
@@ -221,7 +210,7 @@ public final class Buffer {
    * @return <code>true</code> => the text has changed.
    */
   public boolean isDirty() {
-    return m_savedRevision != m_textSource.getRevision();
+    return m_textSource.isDirty();
   }
 
   /**
@@ -266,6 +255,13 @@ public final class Buffer {
     }
 
     return UNKNOWN_BUFFER;
+  }
+
+  /**
+   * Tell the buffer it is active.
+   */
+  public void setActive() {
+    m_textSource.setActive();
   }
 
   /**

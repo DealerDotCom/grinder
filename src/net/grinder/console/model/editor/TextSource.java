@@ -29,6 +29,7 @@ package net.grinder.console.model.editor;
  * @version $Revision$
  */
 public interface TextSource {
+
   /**
    * Return the current text.
    *
@@ -44,10 +45,15 @@ public interface TextSource {
   void setText(String text);
 
   /**
-   * Return a revision number. Each change to the text should alter
-   * the revision number.
+   * Return whether the text has changed since the last call to {@link
+   * #getText} or {@link #setText}.
    *
-   * @return The revision number.
+   * @return <code>true</code> => the text has changed.
    */
-  int getRevision();
+  boolean isDirty();
+
+  /**
+   * Tell the text source it is active.
+   */
+  void setActive();
 }
