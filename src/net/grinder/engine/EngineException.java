@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,18 +26,28 @@ import net.grinder.common.GrinderException;
 
 
 /**
+ * Base for exceptions thrown by the engine.
+ *
  * @author Philip Aston
  * @version $Revision$
  */ 
-public class EngineException extends GrinderException
-{
-    public EngineException(String s)
-    {
-	super(s);
-    }
+public class EngineException extends GrinderException {
+  /**
+   * Creates a new <code>EngineException</code> instance.
+   *
+   * @param s Message.
+   */
+  public EngineException(String s) {
+    super(s);
+  }
 
-    public EngineException(String s, Throwable t)
-    {
-	super(s, t);
-    }
+  /**
+   * Creates a new <code>EngineException</code> instance.
+   *
+   * @param s Message.
+   * @param t Nested <code>Throwable</code>.
+   */
+  public EngineException(String s, Throwable t)  {
+    super(s, t);
+  }
 }

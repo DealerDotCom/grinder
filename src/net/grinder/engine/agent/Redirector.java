@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,42 +35,39 @@ import java.io.PrintWriter;
  * @author Philip Aston
  * @version $Revision$
  */
-class Redirector implements java.lang.Runnable
-{
-    private final PrintWriter m_printWriter;
-    private final BufferedReader m_bufferedReader;
+class Redirector implements java.lang.Runnable {
+  private final PrintWriter m_printWriter;
+  private final BufferedReader m_bufferedReader;
 
-    /**
-     * The constructor. It starts a thread that executes 
-     * the <tt>run</tt> method.
-     * 
-     */      
-    public Redirector(PrintWriter printWriter, BufferedReader bufferedReader)
-    {
-	m_printWriter = printWriter;
-	m_bufferedReader = bufferedReader;
+  /**
+   * The constructor. It starts a thread that executes 
+   * the <tt>run</tt> method.
+   * 
+   */      
+  public Redirector(PrintWriter printWriter, BufferedReader bufferedReader) {
+    m_printWriter = printWriter;
+    m_bufferedReader = bufferedReader;
 
-	final Thread t = new Thread(this, m_printWriter.toString());
-	t.start(); 
-    }
+    final Thread t = new Thread(this, m_printWriter.toString());
+    t.start(); 
+  }
     
-    /**
-     * This method reads characters from a BufferedReader and prints
-     * them out in a PrintWriter.
-     */    
-    public void run(){
-       
-	try{
-	    String s;
+  /**
+   * This method reads characters from a BufferedReader and prints
+   * them out in a PrintWriter.
+   */    
+  public void run() {
+    try{
+      String s;
 
-	    while ((s = m_bufferedReader.readLine()) != null) {
-		m_printWriter.println(s);
-	    }
+      while ((s = m_bufferedReader.readLine()) != null) {
+	m_printWriter.println(s);
+      }
 
-	    m_bufferedReader.close();
-	}
-	catch(Exception e){
-	    System.err.println(e);
-	}
+      m_bufferedReader.close();
     }
+    catch(Exception e){
+      System.err.println(e);
+    }
+  }
 }

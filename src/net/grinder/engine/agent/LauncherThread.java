@@ -34,12 +34,12 @@ import net.grinder.common.GrinderException;
  * The virtual machine will execute the class GrinderProcess.
  * It redirects the standard ouput and error to disk files.
  *
- * @see net.grinder.Grinder
- * @see net.grinder.engine.process.GrinderProcess
- *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
+ * @see net.grinder.Grinder
+ * @see net.grinder.engine.process.GrinderProcess
+ *
  */
 public class LauncherThread extends Thread {
   private final String m_grinderID;
@@ -50,7 +50,10 @@ public class LauncherThread extends Thread {
   /**
    * The constructor.
    * It starts a new thread that will execute the run method.
-   */    
+   * @param grinderID Process identity.
+   * @param commandArray Command line arguments.
+   * @exception GrinderException if an error occurs
+   */
   public LauncherThread(String grinderID, String[] commandArray)
     throws GrinderException {
     super(grinderID);
@@ -117,6 +120,12 @@ public class LauncherThread extends Thread {
     }
   }
 
+  /**
+   * Return the exit status.
+   *
+   * @return See {@link net.grinder.engine.process.GrinderProcess} for
+   * valid values.
+   */
   public int getExitStatus() {
     return m_exitStatus;
   }
