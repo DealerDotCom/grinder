@@ -79,6 +79,9 @@ There should be an ExternalFilenameFactory, cf ExternalLogger.
 Factor out a ThreadContext interface so that it can be stubbed for
 unit tests.
 
+Use StubInvocationHandler for ThreadLogger.
+Consider extending LogCounter from CallRecorder.
+
 
 ** Statistics
 *** Measure variance (Ambitious)
