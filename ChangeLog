@@ -1,5 +1,15 @@
 2004-02-08  Philip Aston  <philipa@mail.com>
 
+	* src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestRegistry.java:
+	TestRegistry needs to be a singleton so that Test can find it. Remove
+	public default constructor.
+
+	* tests-src/net/grinder/engine/process/StubProcessContext.java, tests-src/net/grinder/script/TestTest.java:
+	No longer need to create a ProcessContext to ensure that a
+	TestRegistry is available.
+
+	* src/net/grinder/script/Grinder.java: Checkstyle.
+
 	* CHANGES, TODO: Document progress.
 
 	* src/net/grinder/script/Grinder.java:
