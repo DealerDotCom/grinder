@@ -474,13 +474,15 @@ public class HttpPlugin implements GrinderPlugin
 		error = okString != null && page.indexOf(okString) == -1;
 		
 		if (m_logHTML || error) {
+		    final String description = test.getDescription();
+
 		    final String filename =
 			m_pluginThreadContext.getFilenameFactory().
 			createFilename(
 			    "page",
 			    "_" + m_currentIteration + "_" +
 			    m_threeFiguresFormat.format(test.getNumber()) +
-			    "_" + test.getDescription());
+			    (description != null ? "_" + description : ""));
 
 		    try {
 			final BufferedWriter htmlFile =
