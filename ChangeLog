@@ -1,3 +1,9 @@
+2001-06-09  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/plugin/http/HttpPlugin.java:
+	Fix basic authentication property names. Thanks to Andrew Sliwkowski
+	for reporting this.
+
 2001-06-08  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/util/ProcessContextImplementation.java, AUTHORS, CHANGES:
