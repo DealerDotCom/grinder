@@ -1,3 +1,24 @@
+2003-11-01  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugininterface/GrinderPlugin.java, src/net/grinder/plugininterface/PluginException.java, src/net/grinder/plugininterface/PluginThreadListener.java, src/net/grinder/util/FixedWidthFormatter.java, src/net/grinder/util/SignificantFigureFormat.java, src/net/grinder/util/Sleeper.java, src/net/grinder/util/TerminalColour.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/FileTreeModel.java, src/net/grinder/console/swingui/Graph.java, src/net/grinder/console/swingui/IntegerField.java, src/net/grinder/console/swingui/JOptionPaneDialog.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/Resources.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/SwingDispatchedProcessStatusSetListener.java, src/net/grinder/console/swingui/SwingDispatchedSampleListener.java, src/net/grinder/plugin/http/HTTPPlugin.java, TODO, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/common/ConsoleException.java, src/net/grinder/console/common/ConsoleExceptionHandler.java, src/net/grinder/console/common/DisplayMessageConsoleException.java, src/net/grinder/console/common/Resources.java:
+	Checkstyle.
+
+	* CHANGES, src/HTTPClient/HTTPConnection.java:
+	If the User-Agent header is specified, don't append the HTTPClient
+	version string.
+
+	* src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, CHANGES, src/net/grinder/plugin/http/HTTPConnectionWrapper.java:
+	Enhancement from Richard Perks that allows scripts to specify the
+	local interface to use for HTTP connections.
+
+	* src/HTTPClient/HTTPConnection.java:
+	Allow local interface to be specified after HTTPConnection has been
+	constructed.
+
+2003-10-31  Philip Aston  <philipa@mail.com>
+
+	* TODO: Add URL for HTTP library discussion.
+
 2003-10-30  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Next is beta-11.
@@ -5,7 +26,7 @@
 	* src/net/grinder/TCPProxy.java:
 	Barf helpfully if user tries to use -initialTest.
 
-	* src/net/grinder/tools/tcpproxy/TCPProxyConsole.java, src/net/grinder/tools/tcpproxy/TCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java, src/net/grinder/tools/tcpproxy/TCPProxyFilter.java, CHANGES, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/tools/tcpproxy/EchoFilter.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/NullFilter.java:
+	* src/net/grinder/tools/tcpproxy/TCPProxyConsole.java, src/net/grinder/tools/tcpproxy/TCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java, src/net/griXnder/tools/tcpproxy/TCPProxyFilter.java, CHANGES, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/tools/tcpproxy/EchoFilter.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/NullFilter.java:
 	First set of enhancements to the TCPProxy from Bernard:
 	   - Added a "-console" switch. When used, the TCPProxy creates a
 	     simple Swing dialog that allows it to be cleanly interrupted.
