@@ -223,8 +223,8 @@ public class GrinderProcess
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
 
 	for (int i=0; i<m_numberOfThreads; i++) {
-	    final PluginThreadContextImplementation pluginThreadContext =
-		new PluginThreadContextImplementation(m_pluginParameters,
+	    final ThreadContextImplementation pluginThreadContext =
+		new ThreadContextImplementation(m_pluginParameters,
 						m_hostID, m_jvmID, i);
 
 	    final ThreadCallbacks threadCallbackHandler =

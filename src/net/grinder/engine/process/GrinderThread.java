@@ -52,7 +52,7 @@ class GrinderThread implements java.lang.Runnable
     private static Random m_random = new Random();
 
     private final ThreadCallbacks m_threadCallbacks;
-    private final PluginThreadContextImplementation m_pluginThreadContext;
+    private final ThreadContextImplementation m_pluginThreadContext;
     private final Map m_tests;
     private final PrintWriter m_dataPrintWriter;
 
@@ -63,11 +63,11 @@ class GrinderThread implements java.lang.Runnable
 
     private int m_numberOfCycles;
 
-    /** This is a member so that PluginThreadContextImplementation can
+    /** This is a member so that ThreadContextImplementation can
      * generate context sensitive log messages. */
     private int m_currentCycle = -1;
 
-    /** This is a member so that PluginThreadContextImplementation can
+    /** This is a member so that ThreadContextImplementation can
      * generate context sensitive log messages. */
     private TestData m_currentTest = null;
 
@@ -75,7 +75,7 @@ class GrinderThread implements java.lang.Runnable
      * The constructor.
      */        
     public GrinderThread(ThreadCallbacks threadCallbacks,
-			 PluginThreadContextImplementation pluginThreadContext,
+			 ThreadContextImplementation pluginThreadContext,
 			 PrintWriter dataPrintWriter, Map tests)
     {
 	m_threadCallbacks = threadCallbacks;

@@ -29,7 +29,7 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-class PluginThreadContextImplementation implements PluginThreadContext
+class ThreadContextImplementation implements PluginThreadContext
 {
     private GrinderThread m_grinderThread = null;
     private final GrinderProperties m_pluginParameters;
@@ -45,7 +45,7 @@ class PluginThreadContextImplementation implements PluginThreadContext
     private long m_startTime;
     private long m_elapsedTime;
 
-    public PluginThreadContextImplementation(GrinderProperties pluginParameters,
+    public ThreadContextImplementation(GrinderProperties pluginParameters,
 				       String hostIDString,
 				       String processIDString,
 				       int threadID)
