@@ -64,7 +64,7 @@ import net.grinder.statistics.TestStatisticsMap;
  * @version $Revision$
  * @see net.grinder.engine.process.GrinderThread
  **/
-public final class GrinderProcess implements Monitor {
+public final class GrinderProcess {
 
   /**
    * Return value used to indicate to the parent process that we
@@ -147,6 +147,7 @@ public final class GrinderProcess implements Monitor {
   private final ConsoleListener m_consoleListener;
   private final int m_reportToConsoleInterval;
   private final int m_duration;
+  private final Monitor m_eventSynchronisation = new Monitor() { };
 
   private boolean m_shutdownTriggered;
   private boolean m_communicationShutdown;
@@ -238,7 +239,8 @@ public final class GrinderProcess implements Monitor {
     try { java.net.InetAddress.getLocalHost(); }
     catch (Exception e) { /* Ignore */ }
 
-    m_consoleListener = new ConsoleListener(receiver, this, logger);
+    m_consoleListener =
+      new ConsoleListener(receiver, m_eventSynchronisation, logger);
   }
 
   /**
@@ -274,7 +276,8 @@ public final class GrinderProcess implements Monitor {
     final GrinderThread[] runnable = new GrinderThread[m_numberOfThreads];
 
     for (int i = 0; i < m_numberOfThreads; i++) {
-      runnable[i] = new GrinderThread(this, m_context, jythonScript, i);
+      runnable[i] =
+        new GrinderThread(m_eventSynchronisation, m_context, jythonScript, i);
     }
 
     final QueuedSender consoleSender = m_context.getConsoleSender();
@@ -321,7 +324,7 @@ public final class GrinderProcess implements Monitor {
         }
 
         // Wait for a termination event.
-        synchronized (this) {
+        synchronized (m_eventSynchronisation) {
           while (GrinderThread.getNumberOfThreads() > 0) {
 
             if (checkForMessage(ConsoleListener.ANY ^ ConsoleListener.START)) {
@@ -338,7 +341,7 @@ public final class GrinderProcess implements Monitor {
           }
         }
 
-        synchronized (this) {
+        synchronized (m_eventSynchronisation) {
           if (GrinderThread.getNumberOfThreads() > 0) {
 
             logger.output("waiting for threads to terminate",
@@ -428,7 +431,7 @@ public final class GrinderProcess implements Monitor {
   }
 
   private void waitForMessage() throws InterruptedException {
-    synchronized (this) {
+    synchronized (m_eventSynchronisation) {
       while (!checkForMessage(ConsoleListener.ANY)) {
         wait();
       }
@@ -502,9 +505,9 @@ public final class GrinderProcess implements Monitor {
 
   private class ShutdownTimerTask extends TimerTask {
     public void run() {
-      synchronized (GrinderProcess.this) {
+      synchronized (m_eventSynchronisation) {
         m_shutdownTriggered = true;
-        GrinderProcess.this.notifyAll();
+        m_eventSynchronisation.notifyAll();
       }
     }
   }
