@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<website baseURL="BASE" sourceDir="." targetDir="../doc/html">
+<website baseURL="BASE" sourceDir="." targetDir="../doc">
   <structure>
     <section name="Welcome" title="The Grinder" type="section">
       <entry name="What is The Grinder?" sourceFile="welcome-xhtml.xml"
