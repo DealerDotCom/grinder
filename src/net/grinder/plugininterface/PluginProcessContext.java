@@ -18,27 +18,32 @@
 
 package net.grinder.plugininterface;
 
+import java.util.Set;
+
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.common.Test;
 
 
 /**
- * This class is used to share data between the Grinder and the 
- * plug-in.
+ * <p>This class is used to share process information between the
+ * Grinder and the plug-in.</p>
  * 
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  */
-public interface PluginProcessContext extends Logger
-{    
+public interface PluginProcessContext extends Logger, FilenameFactory
+{
     public String getGrinderID();
 
-    public FilenameFactory getFilenameFactory();
-    
     /**
      * Returns the parameters specified with "grinder.plugin.parameter="
      */
     public GrinderProperties getPluginParameters();
+
+    public void registerTest(Test test) throws PluginException;
+
+    public void registerTests(Set test) throws PluginException;
 }

@@ -18,26 +18,32 @@
 
 package net.grinder.plugininterface;
 
+import net.grinder.common.FilenameFactory;
+import net.grinder.common.Logger;
+
 
 /**
- * This class is used to share data between the Grinder and the 
- * plug-in.
+ * <p>This class is used to share thread information between the
+ * Grinder and the plug-in. </p>
+ *
+ * <p>Note, the {@link Logger} implementation isn't guaranteed to be
+ * thread safe.</p>
  * 
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  */
-public interface PluginThreadContext extends PluginProcessContext
+public interface PluginThreadContext extends Logger, FilenameFactory
 {    
-    /**
-     * Return the current run ID.
-     */
-    public int getCurrentRunID();
-
     /**
      * Return the thread ID.
      */ 
     public int getThreadID();
+
+    /**
+     * Return the current run ID.
+     */
+    public int getCurrentRunNumber();
 
     public void abortRun();
 
