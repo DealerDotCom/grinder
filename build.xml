@@ -73,8 +73,8 @@ what you want. Currently the conditionally built modules are:
 
   <property name="Name" value="The Grinder"/>
   <property name="name" value="grinder"/>
-  <property name="version" value="3.0-beta21"/> <!-- AND THE NEXT LINE -->
-  <property name="cvs.tag" value="release_3_0_beta21"/>
+  <property name="version" value="3.0-beta22"/> <!-- AND THE NEXT LINE -->
+  <property name="cvs.tag" value="release_3_0_beta22"/>
 
   <property name="year" value="2003"/>
 
