@@ -13,6 +13,7 @@ FILES=$(find . \
 -o -name 'sniffer-output*' -prune \
 -o -name '*.dat' -prune \
 -o -name '.cvsignore' -prune \
+-o -name '.*~' -prune \
 -o -name 'prj.el' -prune \
 -o \( -type f -a -print \) )
 
