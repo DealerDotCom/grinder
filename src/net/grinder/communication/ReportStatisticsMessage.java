@@ -18,16 +18,39 @@
 
 package net.grinder.communication;
 
+import net.grinder.statistics.TestStatisticsMap;
+
 
 /**
  * @author Philip Aston
  * @version $Revision$
  */
-public interface TestStatistics
+public class ReportStatisticsMessage implements Message
 {
-    public long getTransactions();
-    public long getTotalTime();
-    public long getErrors();
-    public long getAbortions();
-    public double getAverageTransactionTime();
+    final String m_hostID;
+    final String m_processID;
+    final TestStatisticsMap m_statisticsDelta;
+
+    public ReportStatisticsMessage(String hostID, String processID,
+				   TestStatisticsMap statisticsDelta)
+    {
+	m_hostID = hostID;
+	m_processID = processID;
+	m_statisticsDelta = statisticsDelta;
+    }
+
+    public String getHostID()
+    {
+	return m_hostID;
+    }
+
+    public String getProcessID()
+    {
+	return m_processID;
+    }
+
+    public TestStatisticsMap getStatisticsDelta()
+    {
+	return m_statisticsDelta;
+    }
 }
