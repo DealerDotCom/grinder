@@ -165,7 +165,7 @@ authenticationTest = Test(2, &quot;<span class="string">POST to j_security_check
 <h3><a name="scenario">Recording many HTTP interactions as one test</a></h3>
 
 <p class="script-description">This example shows how many HTTP
-interactions can be grouped as a single test by wrapping a
+interactions can be grouped as a single test by wrapping them in a
 function.</p>
 
 <blockquote>
