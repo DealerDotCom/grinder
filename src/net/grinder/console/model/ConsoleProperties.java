@@ -66,14 +66,6 @@ public final class ConsoleProperties {
     "grinder.console.consolePort";
 
   /** Property name. **/
-  public static final String GRINDER_ADDRESS_PROPERTY =
-    "grinder.console.grinderAddress";
-
-  /** Property name. **/
-  public static final String GRINDER_PORT_PROPERTY =
-    "grinder.console.grinderPort";
-
-  /** Property name. **/
   public static final String RESET_CONSOLE_WITH_PROCESSES_PROPERTY =
     "grinder.console.resetConsoleWithProcesses";
 
@@ -103,13 +95,11 @@ public final class ConsoleProperties {
   private ScriptDistributionFiles m_scriptDistributionFiles;
 
   /**
-   *We hang onto the addresses as strings so we can copy and
-   *externalise them reasonably.
+   *We hang onto the address as a string so we can copy and
+   *externalise it reasonably.
    **/
   private String m_consoleAddressString;
   private int m_consolePort;
-  private String m_grinderAddressString;
-  private int m_grinderPort;
 
   /**
    * Use to save and load properties, and to keep track of the
@@ -144,14 +134,6 @@ public final class ConsoleProperties {
     setConsolePort(
       m_properties.getInt(CONSOLE_PORT_PROPERTY,
                           CommunicationDefaults.CONSOLE_PORT));
-
-    setGrinderAddress(
-      m_properties.getProperty(GRINDER_ADDRESS_PROPERTY,
-                               CommunicationDefaults.GRINDER_ADDRESS));
-
-    setGrinderPort(
-      m_properties.getInt(GRINDER_PORT_PROPERTY,
-                          CommunicationDefaults.GRINDER_PORT));
 
     setResetConsoleWithProcesses(
       m_properties.getBoolean(RESET_CONSOLE_WITH_PROCESSES_PROPERTY, false));
@@ -191,8 +173,6 @@ public final class ConsoleProperties {
     setSignificantFiguresInternal(properties.m_significantFigures);
     setConsoleAddressInternal(properties.m_consoleAddressString);
     setConsolePortInternal(properties.m_consolePort);
-    setGrinderAddressInternal(properties.m_grinderAddressString);
-    setGrinderPortInternal(properties.m_grinderPort);
     setResetConsoleWithProcesses(properties.m_resetConsoleWithProcesses);
     setResetConsoleWithProcessesDontAskInternal(
       properties.m_resetConsoleWithProcessesDontAsk);
@@ -236,9 +216,6 @@ public final class ConsoleProperties {
     m_properties.setProperty(CONSOLE_ADDRESS_PROPERTY,
                              m_consoleAddressString);
     m_properties.setInt(CONSOLE_PORT_PROPERTY, m_consolePort);
-    m_properties.setProperty(GRINDER_ADDRESS_PROPERTY,
-                             m_grinderAddressString);
-    m_properties.setInt(GRINDER_PORT_PROPERTY, m_grinderPort);
     m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_PROPERTY,
                             m_resetConsoleWithProcesses);
     m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
@@ -471,82 +448,6 @@ public final class ConsoleProperties {
       m_consolePort = i;
       m_changeSupport.firePropertyChange(CONSOLE_PORT_PROPERTY,
                                          old, m_consolePort);
-    }
-  }
-
-  /**
-   * Get the grinder process multicast address as a string.
-   *
-   * @return The address.
-   **/
-  public String getGrinderAddress() {
-    return m_grinderAddressString;
-  }
-
-  /**
-   * Set the grinder process multicast address.
-   *
-   * @param s Either a machine name or the IP address.
-   * @throws DisplayMessageConsoleException If the multicast address is
-   * not valid.
-   **/
-  public void setGrinderAddress(String s)
-    throws DisplayMessageConsoleException {
-    final InetAddress newAddress;
-
-    try {
-      newAddress = InetAddress.getByName(s);
-    }
-    catch (UnknownHostException e) {
-      throw new DisplayMessageConsoleException(
-        "unknownHostError.text", "Unknown hostname");
-    }
-
-    if (!newAddress.isMulticastAddress()) {
-      throw new DisplayMessageConsoleException(
-        "invalidGrinderAddressError.text",
-        "Invalid multicast address");
-    }
-
-    setGrinderAddressInternal(s);
-  }
-
-  private void setGrinderAddressInternal(String s) {
-    if (!s.equals(m_grinderAddressString)) {
-      final String old = m_grinderAddressString;
-      m_grinderAddressString = s;
-      m_changeSupport.firePropertyChange(GRINDER_ADDRESS_PROPERTY,
-                                         old, m_grinderAddressString);
-    }
-  }
-
-  /**
-   * Get the grinder process multicast port.
-   *
-   * @return The port.
-   **/
-  public int getGrinderPort() {
-    return m_grinderPort;
-  }
-
-  /**
-   * Set the grinder process multicast port.
-   *
-   * @param port The port number.
-   * @throws DisplayMessageConsoleException If the port number is not sensible.
-   **/
-  public void setGrinderPort(int port)
-    throws DisplayMessageConsoleException {
-    assertValidPort(port);
-    setGrinderPortInternal(port);
-  }
-
-  private void setGrinderPortInternal(int port) {
-    if (port != m_grinderPort) {
-      final int old = m_grinderPort;
-      m_grinderPort = port;
-      m_changeSupport.firePropertyChange(GRINDER_PORT_PROPERTY,
-                                         old, m_grinderPort);
     }
   }
 

@@ -69,14 +69,11 @@ final class ConsoleCommunication {
         public void propertyChange(PropertyChangeEvent event) {
           final String property = event.getPropertyName();
 
+          // TODO - REVIEW
           if (property.equals(ConsoleProperties.CONSOLE_ADDRESS_PROPERTY) ||
               property.equals(ConsoleProperties.CONSOLE_PORT_PROPERTY)) {
-            resetReceiver();
-          }
-          else if (
-            property.equals(ConsoleProperties.GRINDER_ADDRESS_PROPERTY) ||
-            property.equals(ConsoleProperties.GRINDER_PORT_PROPERTY)) {
             resetSender();
+            resetReceiver();
           }
         }
       });

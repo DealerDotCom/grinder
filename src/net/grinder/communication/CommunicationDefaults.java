@@ -36,12 +36,6 @@ public final class CommunicationDefaults {
   /** Default console port. */
   public static final int CONSOLE_PORT = 6372;
 
-  /** Default worker process address. */
-  public static final String GRINDER_ADDRESS = "228.1.1.1";
-
-  /** Default worker process port. */
-  public static final int GRINDER_PORT = 1234;
-
   /** Maximum value for ports. */
   public static final int MAX_PORT = 0xFFFF;
 }
