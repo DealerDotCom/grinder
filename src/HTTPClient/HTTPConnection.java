@@ -3093,10 +3093,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		// get a new response.
 		// Note: this does not do a read on the socket.
 
-		if (resp == null) {
+		if (resp == null)
                   /** GRINDER MODIFICATION++ **/
-
-                  // If the server decides to close the socket, we may
+                {
+                  // If the server decides to close the socket we may
                   // not learn about it until we read from the input
                   // stream. Previously this was done by the
                   // ResponseHandler: too late for our connection
@@ -3105,14 +3105,20 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
                   // physical read on the socket, forcing an
                   // IOException if the connection now stinks and
                   // hence kicking off connection re-establishment.
+                  // This breaks pipelining, but The Grinder doesn't
+                  // use that.
 
-                  input_demux.peekStream();
-                  /** --GRINDER MODIFICATION **/
+		    final Response r =
+                      new Response(req, (Proxy_Host != null &&
+                                         Protocol != HTTPS),
+                                   input_demux);
+                    r.getVersion();
 
-		    resp = new Response(req, (Proxy_Host != null &&
-					     Protocol != HTTPS),
-					input_demux);
-                  /** GRINDER MODIFICATION++ **/
+                    resp = r;
+
+                    //resp = new Response(req, (Proxy_Host != null &&
+                    //                                              Protocol != HTTPS),
+                    // 					input_demux);
                 }
                   /** --GRINDER MODIFICATION **/
 	    }
