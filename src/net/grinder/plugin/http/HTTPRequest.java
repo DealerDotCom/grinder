@@ -284,7 +284,7 @@ public class HTTPRequest {
     return new AbstractRequest(uri) {
         HTTPResponse doRequest(HTTPConnection connection, String path)
           throws IOException, ModuleException {
-          return connection.Trace(path, headers);
+          return connection.Delete(path, headers);
         }
       }
       .getHTTPResponse();
@@ -297,7 +297,7 @@ public class HTTPRequest {
    * @exception Exception If an error occurs.
    */
   public final HTTPResponse GET() throws Exception {
-    return GET(null, getHeaders());
+    return GET((String)null);
   }
 
   /**
@@ -457,7 +457,7 @@ public class HTTPRequest {
    * @exception Exception If an error occurs.
    */
   public final HTTPResponse OPTIONS() throws Exception {
-    return OPTIONS(null, getHeaders(), getData());
+    return OPTIONS(null, getData(), getHeaders());
   }
 
   /**
@@ -471,24 +471,7 @@ public class HTTPRequest {
    * @exception Exception If an error occurs.
    */
   public final HTTPResponse OPTIONS(String uri) throws Exception {
-    return OPTIONS(uri, getHeaders(), getData());
-  }
-
-  /**
-   * Makes an HTTP <code>OPTIONS</code> request.
-   *
-   * @param uri The URI. If a default URL has been specified with
-   * {@link #setUrl}, this value need not be absolute and, if
-   * relative, it will be resolved relative to the default URL.
-   * Otherwise this value must be an absolute URL.
-   * @param headers Request headers. Replaces all the values set by
-   * {@link #setHeaders}.
-   * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
-   */
-  public final HTTPResponse OPTIONS(final String uri, final NVPair[] headers)
-    throws Exception {
-    return OPTIONS(uri, headers, getData());
+    return OPTIONS(uri, getData(), getHeaders());
   }
 
   /**
@@ -505,7 +488,7 @@ public class HTTPRequest {
    */
   public final HTTPResponse OPTIONS(final String uri, final byte[] data)
     throws Exception {
-    return OPTIONS(uri, getHeaders(), data);
+    return OPTIONS(uri, data, getHeaders());
   }
 
   /**
@@ -515,16 +498,16 @@ public class HTTPRequest {
    * {@link #setUrl}, this value need not be absolute and, if
    * relative, it will be resolved relative to the default URL.
    * Otherwise this value must be an absolute URL.
-   * @param headers Request headers. Replaces all the values set by
-   * {@link #setHeaders}.
    * @param data Data to be submitted in the body of the request.
    * Overrides the value set with {@link #setData}.
+   * @param headers Request headers. Replaces all the values set by
+   * {@link #setHeaders}.
    * @return Contains details of the server's response.
    * @exception Exception If an error occurs.
    */
   public final HTTPResponse OPTIONS(final String uri,
-                                    final NVPair[] headers,
-                                    final byte[] data) throws Exception {
+                                    final byte[] data,
+                                    final NVPair[] headers) throws Exception {
 
     return new AbstractRequest(uri) {
         HTTPResponse doRequest(HTTPConnection connection, String path)
@@ -706,23 +689,6 @@ public class HTTPRequest {
    */
   public final HTTPResponse PUT(String uri, byte[] data) throws Exception {
     return PUT(uri, data, getHeaders());
-  }
-
-  /**
-   * Makes an HTTP <code>PUT</code> request.
-   *
-   * @param uri The URI. If a default URL has been specified with
-   * {@link #setUrl}, this value need not be absolute and, if
-   * relative, it will be resolved relative to the default URL.
-   * Otherwise this value must be an absolute URL.
-   * @param headers Request headers. Replaces all the values set by
-   * {@link #setHeaders}.
-   * @return Contains details of the server's response.
-   * @exception Exception If an error occurs.
-   */
-  public final HTTPResponse PUT(String uri, NVPair[] headers)
-    throws Exception {
-    return PUT(uri, getData(), headers);
   }
 
   /**
