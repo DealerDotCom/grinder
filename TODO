@@ -24,6 +24,8 @@ a request with the authentication headers.
 
 ** Console
 
+Should be able to copy and paste from results tables.
+
 *** Script editing
 
 Add file tree control, rooted at root directory.
