@@ -104,12 +104,12 @@ public class GrindingServlet extends HttpServlet {
 	HttpSession session = request.getSession(false);
 	if (session == null) {
 	    // we got a problem - this should only be called after
-	    // running the sniffer.
+	    // running the proxy.
 	    session = request.getSession(true);
 	    session.setAttribute(
-		ERROR_TAG, "You need to have run the Sniffer before running " +
+		ERROR_TAG, "You need to have run the Proxy before running " +
 		"the Grinder. Go to <a href=\"/index.jsp\">the start page</a> " +
-		" to run the Sniffer.");
+		" to run the Proxy.");
 	    rd = ctx.getRequestDispatcher(ERROR_JSP);
 	} else {
 

@@ -20,7 +20,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.tools.tcpsniffer;
+package net.grinder.tools.tcpproxy;
 
 
 /**
@@ -221,5 +221,4 @@ public class ConnectionDetails
     {
 	return m_hashCode;
     }
-
 }

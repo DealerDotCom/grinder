@@ -41,22 +41,22 @@ import org.apache.oro.text.regex.Perl5Matcher;
 
 import HTTPClient.Codecs;
 
-import net.grinder.TCPSniffer;
-import net.grinder.tools.tcpsniffer.ConnectionDetails;
-import net.grinder.tools.tcpsniffer.EchoFilter;
-import net.grinder.tools.tcpsniffer.SnifferFilter;
+import net.grinder.TCPProxy;
+import net.grinder.tools.tcpproxy.ConnectionDetails;
+import net.grinder.tools.tcpproxy.EchoFilter;
+import net.grinder.tools.tcpproxy.TCPProxyFilter;
 
 
 /**
- * {@link SnifferFilter} that collects data from server responses.
+ * {@link TCPProxyFilter} that collects data from server responses.
  * Should be installed as a response filter. Used by
- * HttpPluginSnifferFilter to determine things such as the basic
+ * HttpPluginTCPProxyFilter to determine things such as the basic
  * authentication realm.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class HttpPluginSnifferResponseFilter implements SnifferFilter
+public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
 {
     private final Pattern m_wwwAuthenticateHeaderPattern;
     private final Perl5Matcher m_matcher = new Perl5Matcher();
@@ -68,7 +68,7 @@ public class HttpPluginSnifferResponseFilter implements SnifferFilter
      *
      * @exception MalformedPatternException 
      */
-    public HttpPluginSnifferResponseFilter() throws MalformedPatternException
+    public HTTPPluginTCPProxyResponseFilter() throws MalformedPatternException
     {
 	final PatternCompiler compiler = new Perl5Compiler();
 
@@ -79,7 +79,7 @@ public class HttpPluginSnifferResponseFilter implements SnifferFilter
     }
 
     /**
-     * The main handler method called by the sniffer engine.
+     * The main handler method called by the proxy engine.
      *
      * <p>NOTE, this is called for message fragments, don't assume
      * that its passed a complete HTTP message at a time.</p>

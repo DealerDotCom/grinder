@@ -22,7 +22,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.tools.tcpsniffer;
+package net.grinder.tools.tcpproxy;
 
 import java.io.BufferedInputStream;
 import java.io.InterruptedIOException;
@@ -63,13 +63,13 @@ import net.grinder.util.CopyStreamRunnable;
  * oriented rather than socket oriented, a lot of problems would go
  * away). To hack around this, we accept the CONNECT then blindly
  * proxy the rest of the stream through a special
- * SnifferEngineImplementation which instantiated to handle SSL.</p>
+ * TCPProxyEngineImplementation which instantiated to handle SSL.</p>
  *
  * @author Paddy Spencer
  * @author Philip Aston
  * @version $Revision$
  */
-public class HTTPProxySnifferEngine extends SnifferEngineImplementation
+public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 {
     private String m_tempRemoteHost;
     private int m_tempRemotePort;
@@ -97,14 +97,15 @@ public class HTTPProxySnifferEngine extends SnifferEngineImplementation
 	return s_httpConnectPattern;
     }
 
-    public HTTPProxySnifferEngine(SnifferPlainSocketFactory plainSocketFactory,
-				  SnifferSocketFactory sslSocketFactory,
-				  SnifferFilter requestFilter,
-				  SnifferFilter responseFilter,
-				  String localHost,
-				  int localPort,
-				  boolean useColour,
-				  int timeout)
+    public HTTPProxyTCPProxyEngine(
+	TCPProxyPlainSocketFactory plainSocketFactory,
+	TCPProxySocketFactory sslSocketFactory,
+	TCPProxyFilter requestFilter,
+	TCPProxyFilter responseFilter,
+	String localHost,
+	int localPort,
+	boolean useColour,
+	int timeout)
         throws IOException, MalformedPatternException
     {
 	// We set this engine up for handling plain HTTP and delegate
@@ -266,16 +267,16 @@ public class HTTPProxySnifferEngine extends SnifferEngineImplementation
         }
     }
 
-    private class ProxySSLEngine extends SnifferEngineImplementation {
+    private class ProxySSLEngine extends TCPProxyEngineImplementation {
 
-	ProxySSLEngine(SnifferSocketFactory socketFactory,
-		       SnifferFilter requestFilter,
-		       SnifferFilter responseFilter,
+	ProxySSLEngine(TCPProxySocketFactory socketFactory,
+		       TCPProxyFilter requestFilter,
+		       TCPProxyFilter responseFilter,
 		       boolean useColour) 
 	    throws IOException
 	{
 	    super(socketFactory, requestFilter, responseFilter,
-		  new ConnectionDetails(HTTPProxySnifferEngine.this.
+		  new ConnectionDetails(HTTPProxyTCPProxyEngine.this.
 					getConnectionDetails().getLocalHost(),
 					0, "", -1, true),
 		  useColour, 0);
@@ -307,15 +308,15 @@ public class HTTPProxySnifferEngine extends SnifferEngineImplementation
      * HTTP 1.0 servers don't expect them.
      */
     private static class StripAbsoluteURIFilterDecorator
-	implements SnifferFilter
+	implements TCPProxyFilter
     {
 	private static final Perl5Substitution m_substition =
 	    new Perl5Substitution("$1 $4");
 
-	private final SnifferFilter m_delegate;
+	private final TCPProxyFilter m_delegate;
 	private final PatternMatcher m_matcher = new Perl5Matcher();
 
-	public StripAbsoluteURIFilterDecorator(SnifferFilter delegate) 
+	public StripAbsoluteURIFilterDecorator(TCPProxyFilter delegate) 
 	    throws MalformedPatternException
 	{
 	    m_delegate = delegate;

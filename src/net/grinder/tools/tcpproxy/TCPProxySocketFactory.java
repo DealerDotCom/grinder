@@ -20,7 +20,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.tools.tcpsniffer;
+package net.grinder.tools.tcpproxy;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -31,7 +31,7 @@ import java.net.Socket;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface SnifferSocketFactory
+public interface TCPProxySocketFactory
 {
     ServerSocket createServerSocket(String localHost, int localPort,
 				    int timeout)

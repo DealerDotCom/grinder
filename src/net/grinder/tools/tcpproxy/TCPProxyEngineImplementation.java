@@ -20,7 +20,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.tools.tcpsniffer;
+package net.grinder.tools.tcpproxy;
 
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -39,25 +39,25 @@ import net.grinder.util.TerminalColour;
  * @author Philip Aston
  * @version $Revision$
  */
-public class SnifferEngineImplementation implements SnifferEngine
+public class TCPProxyEngineImplementation implements TCPProxyEngine
 {
-    private final SnifferFilter m_requestFilter;
-    private final SnifferFilter m_responseFilter;
+    private final TCPProxyFilter m_requestFilter;
+    private final TCPProxyFilter m_responseFilter;
     private final ConnectionDetails m_connectionDetails;
     private final String m_requestColour;
     private final String m_responseColour;
 
     private final PrintWriter m_outputWriter;
 
-    private final SnifferSocketFactory m_socketFactory;
+    private final TCPProxySocketFactory m_socketFactory;
     private final ServerSocket m_serverSocket;
 
-    public SnifferEngineImplementation(SnifferSocketFactory socketFactory,
-				       SnifferFilter requestFilter,
-				       SnifferFilter responseFilter,
-				       ConnectionDetails connectionDetails,
-				       boolean useColour,
-				       int timeout)
+    public TCPProxyEngineImplementation(TCPProxySocketFactory socketFactory,
+					TCPProxyFilter requestFilter,
+					TCPProxyFilter responseFilter,
+					ConnectionDetails connectionDetails,
+					boolean useColour,
+					int timeout)
 	throws IOException
     {
 	m_socketFactory = socketFactory;
@@ -120,7 +120,7 @@ public class SnifferEngineImplementation implements SnifferEngine
 	return m_serverSocket;
     }
 
-    protected final SnifferSocketFactory getSocketFactory() 
+    protected final TCPProxySocketFactory getSocketFactory() 
     {
 	return m_socketFactory;
     }

@@ -70,7 +70,7 @@ public class SniffingServlet extends HttpServlet {
 	"java", 
 	"-classpath"};		
     private final static String[] SNIFFER_PROCESS = {
-	"net.grinder.TCPSniffer",
+	"net.grinder.TCPProxy",
 	"-httpPluginFilter",
 	"-proxy",
 	"-output",
@@ -81,7 +81,7 @@ public class SniffingServlet extends HttpServlet {
     private final static String START_TAG = "start";
     private final static String STOP_TAG = "stop";
     private final static String START_URL_TAG = "StartURL";
-    private final static String PROCESS_TAG = "SnifferProcess";
+    private final static String PROCESS_TAG = "ProxyProcess";
     private final static String OUTPUT_TAG = "ResultsDir";
     private final static String PORT_TAG = "port";
     private final static String ERROR_MSG_TAG = "ErrorMsg";

@@ -20,18 +20,18 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.tools.tcpsniffer;
+package net.grinder.tools.tcpproxy;
 
 import java.io.PrintWriter;
 
 
 /**
- * Interface that TCP Sniffer filters implement.
+ * Interface that TCP Proxy filters implement.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface SnifferFilter
+public interface TCPProxyFilter
 {
     /**
      * Set the {@link PrintWriter} that the filter should use for

@@ -20,40 +20,37 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.tools.tcpsniffer;
+package net.grinder.tools.tcpproxy;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-
+import java.io.PrintWriter;
 
 
 /**
- * {@link SnifferSocketFactory} for plain connections.
+ * Filter that does nothing.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class SnifferPlainSocketFactory implements SnifferSocketFactory
+public class NullFilter implements TCPProxyFilter
 {
-    public final ServerSocket createServerSocket(String localHost,
-						 int localPort,
-						 int timeout)
-	throws IOException
+    public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
     {
-	final ServerSocket socket =
-	    new ServerSocket(localPort, 50, InetAddress.getByName(localHost));
-
-	socket.setSoTimeout(timeout);
-
-	return socket;
     }
 
-    public final Socket createClientSocket(String remoteHost, int remotePort)
-	throws IOException
+    public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
+			 int bytesRead)
     {
-	return new Socket(remoteHost, remotePort);
+	return null;
+    }
+
+    public void connectionOpened(ConnectionDetails connectionDetails)
+    {
+    }
+
+    public void connectionClosed(ConnectionDetails connectionDetails)
+    {
     }
 }
+
+
 

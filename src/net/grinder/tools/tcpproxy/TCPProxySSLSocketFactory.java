@@ -20,7 +20,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.tools.tcpsniffer;
+package net.grinder.tools.tcpproxy;
 
 import com.sun.net.ssl.KeyManagerFactory;
 import com.sun.net.ssl.SSLContext;
@@ -43,7 +43,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 
 /**
- * {@link SnifferSocketFactory} for SSL connections.
+ * {@link TCPProxySocketFactory} for SSL connections.
  *
  * <p>The JSSE docs rabbit on about being able to create factories
  * with the required parameters, this is a lie. Where is
@@ -54,7 +54,7 @@ import javax.net.ssl.SSLSocketFactory;
  * @author Phil Dawes
  * @version $Revision$
  */
-public final class SnifferSSLSocketFactory implements SnifferSocketFactory
+public final class TCPProxySSLSocketFactory implements TCPProxySocketFactory
 {
     final ServerSocketFactory m_serverSocketFactory;
     final SocketFactory m_clientSocketFactory;
@@ -80,8 +80,8 @@ public final class SnifferSSLSocketFactory implements SnifferSocketFactory
      *
      * - PhilA
      */
-    public SnifferSSLSocketFactory()
-	throws IOException,GeneralSecurityException
+    public TCPProxySSLSocketFactory()
+	throws IOException, GeneralSecurityException
     {
 	final SSLContext sslContext = SSLContext.getInstance("SSL");
 

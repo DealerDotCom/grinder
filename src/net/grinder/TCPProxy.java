@@ -25,20 +25,19 @@ package net.grinder;
 
 import java.io.PrintStream;
 import java.io.FileOutputStream;
-import java.lang.reflect.Constructor;
 
-import net.grinder.plugin.http.HttpPluginSnifferFilter;
-import net.grinder.plugin.http.HttpPluginSnifferResponseFilter;
-import net.grinder.tools.tcpsniffer.ConnectionDetails;
-import net.grinder.tools.tcpsniffer.EchoFilter;
-import net.grinder.tools.tcpsniffer.HTTPProxySnifferEngine;
-import net.grinder.tools.tcpsniffer.JSSEConstants;
-import net.grinder.tools.tcpsniffer.NullFilter;
-import net.grinder.tools.tcpsniffer.SnifferEngine;
-import net.grinder.tools.tcpsniffer.SnifferEngineImplementation;
-import net.grinder.tools.tcpsniffer.SnifferFilter;
-import net.grinder.tools.tcpsniffer.SnifferPlainSocketFactory;
-import net.grinder.tools.tcpsniffer.SnifferSocketFactory;
+import net.grinder.plugin.http.HTTPPluginTCPProxyFilter;
+import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter;
+import net.grinder.tools.tcpproxy.ConnectionDetails;
+import net.grinder.tools.tcpproxy.EchoFilter;
+import net.grinder.tools.tcpproxy.HTTPProxyTCPProxyEngine;
+import net.grinder.tools.tcpproxy.JSSEConstants;
+import net.grinder.tools.tcpproxy.NullFilter;
+import net.grinder.tools.tcpproxy.TCPProxyEngine;
+import net.grinder.tools.tcpproxy.TCPProxyEngineImplementation;
+import net.grinder.tools.tcpproxy.TCPProxyFilter;
+import net.grinder.tools.tcpproxy.TCPProxyPlainSocketFactory;
+import net.grinder.tools.tcpproxy.TCPProxySocketFactory;
 
 
 /**
@@ -47,18 +46,17 @@ import net.grinder.tools.tcpsniffer.SnifferSocketFactory;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TCPSniffer
+public class TCPProxy
 {
-    public static final String INITIAL_TEST_PROPERTY =
-	"TCPSniffer.initialTest";
+    public static final String INITIAL_TEST_PROPERTY = "TCPProxy.initialTest";
 
     private static final String SSL_SOCKET_FACTORY_CLASS =
-	"net.grinder.tools.tcpsniffer.SnifferSSLSocketFactory";
+	"net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory";
 
     public static void main(String[] args)
     {
-	final TCPSniffer tcpSniffer = new TCPSniffer(args);
-	tcpSniffer.run();
+	final TCPProxy tcpProxy = new TCPProxy(args);
+	tcpProxy.run();
     }
 
     private Error barfUsage()
@@ -66,7 +64,7 @@ public class TCPSniffer
 	System.err.println(
 	    "\n" +
 	    "Usage: " +
-	    "\n java " + TCPSniffer.class + " <options>" +
+	    "\n java " + TCPProxy.class + " <options>" +
 	    "\n" +
 	    "\n Where options can include:" +
 	    "\n" +
@@ -86,10 +84,10 @@ public class TCPSniffer
 	    "\n     [-keyStoreType <type>]     javax.net.ssl.XXX properties" +
 	    "\n   ]" +
 	    "\n   [-colour]                    Be pretty on ANSI terminals" +
-	    "\n   [-timeout]                   Sniffer engine timeout" +
+	    "\n   [-timeout]                   Proxy engine timeout" +
 	    "\n" +
 	    "\n <filter> can be the name of a class that implements" +
-	    "\n " + SnifferFilter.class.getName() + " or" +
+	    "\n " + TCPProxyFilter.class.getName() + " or" +
 	    "\n one of NONE, ECHO. Default is ECHO." +
 	    "\n" +
 	    "\n When -proxy is specified, -remoteHost and -remotePort" +
@@ -99,7 +97,7 @@ public class TCPSniffer
 	    "\n to produce a grinder.properties file suitable for use" +
 	    "\n with the HTTP plugin." +
 	    "\n" +
-	    "\n -timeout is how long (in seconds) the sniffer will wait" +
+	    "\n -timeout is how long (in seconds) the proxy will wait" +
 	    "\n for a request before timing out and freeing the local" +
 	    "\n port." +
 	    "\n"
@@ -116,13 +114,13 @@ public class TCPSniffer
 	throw barfUsage();
     }
 
-    private SnifferEngine m_snifferEngine = null;
+    private TCPProxyEngine m_proxyEngine = null;
 
-    private TCPSniffer(String[] args)
+    private TCPProxy(String[] args)
     {
 	// Default values.
-	SnifferFilter requestFilter = new EchoFilter();
-	SnifferFilter responseFilter = new EchoFilter();
+	TCPProxyFilter requestFilter = new EchoFilter();
+	TCPProxyFilter responseFilter = new EchoFilter();
 	int localPort = 8001;
 	String remoteHost = "localhost";
 	String localHost = "localhost";
@@ -157,8 +155,8 @@ public class TCPSniffer
 		    responseFilter = instantiateFilter(args[++i]);
 		}
 		else if (args[i].equals("-httpPluginFilter")) {
-		    requestFilter = new HttpPluginSnifferFilter();
-		    responseFilter = new HttpPluginSnifferResponseFilter();
+		    requestFilter = new HTTPPluginTCPProxyFilter();
+		    responseFilter = new HTTPPluginTCPProxyResponseFilter();
 		}
 		else if (args[i].equals("-localHost")) {
 		    localHost = args[++i];
@@ -194,7 +192,7 @@ public class TCPSniffer
 		    timeout = Integer.parseInt(args[++i]) * 1000;
 		}
 		else if (args[i].equals("-output")) {
-		    // -output is used by the TCPSniffer web app only
+		    // -output is used by the TCPProxy web app only
 		    // and is not publicised, users are expected to
 		    // use shell redirection.
 		    final String outputFile = args[++i];
@@ -227,7 +225,7 @@ public class TCPSniffer
 
 	startMessage.append(
 	    "Initialising " + (useSSL ? "SSL" : "standard") +
-	    " sniffer engine with the parameters:" +
+	    " proxy engine with the parameters:" +
 	    "\n   Request filter:  " + requestFilter.getClass().getName() +
 	    "\n   Response filter: " + responseFilter.getClass().getName() +
 	    "\n   Local host:       " + localHost + 
@@ -251,37 +249,38 @@ public class TCPSniffer
 	System.err.println(startMessage);
 
 	try {
-	    final SnifferSocketFactory sslSocketFactory;
+	    final TCPProxySocketFactory sslSocketFactory;
 
 	    if (useSSL) {
-		// SnifferSSLSocketFactory depends on JSSE, load
+		// TCPProxySSLSocketFactory depends on JSSE, load
 		// dynamically.
 		final Class socketFactoryClass =
 		    Class.forName(SSL_SOCKET_FACTORY_CLASS);
 
 		sslSocketFactory =
-		    (SnifferSocketFactory)socketFactoryClass.newInstance();
+		    (TCPProxySocketFactory)socketFactoryClass.newInstance();
 	    }
 	    else {
 		sslSocketFactory = null;
 	    }
 
 	    if (proxy) {
-		m_snifferEngine = 
-		    new HTTPProxySnifferEngine(new SnifferPlainSocketFactory(),
-					       sslSocketFactory,
-					       requestFilter,
-					       responseFilter,
-					       localHost,
-					       localPort,
-					       useColour,
-					       timeout);
+		m_proxyEngine = 
+		    new HTTPProxyTCPProxyEngine(
+			new TCPProxyPlainSocketFactory(),
+			sslSocketFactory,
+			requestFilter,
+			responseFilter,
+			localHost,
+			localPort,
+			useColour,
+			timeout);
 	    }
 	    else {
-		m_snifferEngine =
-		    new SnifferEngineImplementation(
+		m_proxyEngine =
+		    new TCPProxyEngineImplementation(
 			useSSL ?
-			sslSocketFactory : new SnifferPlainSocketFactory(),
+			sslSocketFactory : new TCPProxyPlainSocketFactory(),
 			requestFilter,
 			responseFilter,
 			new ConnectionDetails(localHost, localPort,
@@ -301,7 +300,7 @@ public class TCPSniffer
 	}
     }
 
-    private SnifferFilter instantiateFilter(String filterClassName)
+    private TCPProxyFilter instantiateFilter(String filterClassName)
 	throws Exception
     {
 	if (filterClassName.equals("NONE")) {
@@ -320,16 +319,16 @@ public class TCPSniffer
 	    throw barfUsage("Class '" + filterClassName + "' not found");
 	}
 
-	if (!SnifferFilter.class.isAssignableFrom(filterClass)) {
+	if (!TCPProxyFilter.class.isAssignableFrom(filterClass)) {
 	    throw barfUsage("The specified filter class ('" +
 			    filterClass.getName() +
 			    "') does not implement the interface: '" +
-			    SnifferFilter.class.getName() + "'");
+			    TCPProxyFilter.class.getName() + "'");
 	}
 
 	// Instantiate a filter.
 	try {
-	    return (SnifferFilter)filterClass.newInstance();
+	    return (TCPProxyFilter)filterClass.newInstance();
 	}
 	catch (IllegalAccessException e) {
 	    throw barfUsage("The default constructor of class '" +
@@ -343,7 +342,7 @@ public class TCPSniffer
 	
     public void run() 
     {
-	m_snifferEngine.run();
+	m_proxyEngine.run();
 	System.err.println("Engine exited");
 	System.exit(0);
     }

@@ -1,3 +1,4 @@
+// Copyright (C) 2000 Phil Dawes
 // Copyright (C) 2000, 2001, 2002 Philip Aston
 // All rights reserved.
 //
@@ -19,19 +20,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.tools.tcpsniffer;
+package net.grinder.tools.tcpproxy;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+
 
 /**
- * Define constants used by JSSE.
+ * {@link TCPProxySocketFactory} for plain connections.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface JSSEConstants
+public final class TCPProxyPlainSocketFactory implements TCPProxySocketFactory
 {
-    public final static String KEYSTORE_PROPERTY = "javax.net.ssl.keyStore";
-    public final static String KEYSTORE_PASSWORD_PROPERTY =
-	"javax.net.ssl.keyStorePassword";
-    public final static String KEYSTORE_TYPE_PROPERTY =
-	"javax.net.ssl.keyStoreType";
+    public final ServerSocket createServerSocket(String localHost,
+						 int localPort,
+						 int timeout)
+	throws IOException
+    {
+	final ServerSocket socket =
+	    new ServerSocket(localPort, 50, InetAddress.getByName(localHost));
+
+	socket.setSoTimeout(timeout);
+
+	return socket;
+    }
+
+    public final Socket createClientSocket(String remoteHost, int remotePort)
+	throws IOException
+    {
+	return new Socket(remoteHost, remotePort);
+    }
 }
+

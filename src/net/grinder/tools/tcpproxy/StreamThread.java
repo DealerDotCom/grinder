@@ -20,7 +20,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.tools.tcpsniffer;
+package net.grinder.tools.tcpproxy;
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -50,14 +50,14 @@ public class StreamThread implements Runnable
     private final ConnectionDetails m_connectionDetails;
     private final InputStream m_in;
     private final OutputStream m_out;
-    private final SnifferFilter m_filter;
+    private final TCPProxyFilter m_filter;
     private final PrintWriter m_outputWriter;
     private final String m_colour;
     private final String m_resetColour;
 
     public StreamThread(ConnectionDetails connectionDetails,
 			InputStream in, OutputStream out,
-			SnifferFilter filter,
+			TCPProxyFilter filter,
 			PrintWriter outputWriter, String colourString)
     {
 	m_connectionDetails = connectionDetails;
