@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 
 /**
@@ -157,6 +158,9 @@ class StreamThread implements Runnable
 		// and write in out
 		m_out.write(buffer, 0, bytesRead);
 	    }
+	}
+	catch (SocketException e) {
+	    // Be silent about SocketExceptions.
 	}
 	catch (Exception e) {
 	    e.printStackTrace(System.err);
