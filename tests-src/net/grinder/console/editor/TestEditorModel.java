@@ -411,4 +411,20 @@ public class TestEditorModel extends AbstractFileTestCase {
     assertNull(editorModel.getBufferForFile(file1));
     assertEquals(buffer, editorModel.getBufferForFile(file2));
   }
+
+  public void testGetAndSetMarkedScript() throws Exception {
+    final StringTextSource.Factory stringTextSourceFactory =
+      new StringTextSource.Factory();
+
+    final EditorModel editorModel =
+      new EditorModel(s_resources, stringTextSourceFactory);
+
+    assertNull(editorModel.getMarkedScript());
+
+    final File f = new File(".");
+    editorModel.setMarkedScript(f);
+    assertSame(f, editorModel.getMarkedScript());
+    editorModel.setMarkedScript(null);
+    assertNull(editorModel.getMarkedScript());
+  }
 }
