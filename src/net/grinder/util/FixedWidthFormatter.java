@@ -289,8 +289,12 @@ public class FixedWidthFormatter {
     while (buffer.length() > 0) {
       final StringBuffer remainder = new StringBuffer();
       transform(buffer, remainder);
+
+      if (result.length() > 0) {
+        result.append("\n");
+      }
+
       result.append(buffer);
-      result.append("\n");
 
       buffer = remainder;
     }
