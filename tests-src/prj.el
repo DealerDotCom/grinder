@@ -9,5 +9,7 @@
 
  '(jde-run-option-classpath jde-global-classpath)
 
+ '(jde-db-source-directories (quote ("../src")))
+
  '(jde-compile-option-directory "../build/tests-classes")
 )
