@@ -1,5 +1,10 @@
 2001-05-25  Philip Aston  <paston@bea.com>
 
+	* tests-src/net/grinder/plugininterface/LogCounter.java: "Fix" test.
+
+	* ChangeLog, TODO, CHANGES, src/net/grinder/TCPSniffer.java:
+	norewriteURLs->rewriteURLs
+
 	* src/net/grinder/console/swingui/ConsoleUI.java:
 	Fix allignment of TPS label.
 
