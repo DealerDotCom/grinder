@@ -874,6 +874,10 @@ public final class ConsoleUI implements ModelListener {
     }
   }
 
+  /**
+   * In J2SE 1.4, this is <code>return java.util.Collections.list(new
+   * StringTokenizer(string));</code>.
+   */
   private static Iterator tokenise(String string) {
     final LinkedList list = new LinkedList();
 
