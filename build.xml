@@ -315,14 +315,14 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   <!-- =================================================================== -->
   <target name="dist" depends="distribution-hierarchy,test"
 	  description="Generates a distribution jar.">
-    <jar jarfile="releases/${name}-pre-${version}-${DSTAMP}.jar"
+    <jar jarfile="${name}-pre-${version}-${DSTAMP}.jar"
 	 basedir="${dist.root}"/>
   </target>
 
   <target name="release" depends="assert-have-everything,realclean,test,distribution-hierarchy,distribute-javadoc"
 	  description="Generates a release jar.">
 <!--      <cvs command="tag -R release_${version}" noexec="true"/> -->
-    <jar jarfile="${name}-${version}.jar" basedir="${dist.root}"/>
+    <jar jarfile="releases/${name}-${version}.jar" basedir="${dist.root}"/>
 
     <echo message="****************************************************"/>
     <echo message="*** Now say 'cvs tag -R release_${version}"/>
