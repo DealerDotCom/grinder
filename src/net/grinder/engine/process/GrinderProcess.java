@@ -121,7 +121,6 @@ public final class GrinderProcess {
   private final ProcessContext m_context;
   private final LoggerImplementation m_loggerImplementation;
   private final short m_numberOfThreads;
-  private final File m_scriptFile;
   private final InitialiseGrinderMessage m_initialisationMessage;
   private final ConsoleListener m_consoleListener;
   private final int m_reportToConsoleInterval;
@@ -187,19 +186,7 @@ public final class GrinderProcess {
                          m_loggerImplementation.getFilenameFactory(),
                          consoleSender);
 
-    m_scriptFile =
-      new File(properties.getProperty("grinder.script", "grinder.py"));
-
     final Logger logger = m_context.getProcessLogger();
-
-    // Check that the script file is readable so we can chuck out
-    // a nicer error message up front.
-    if (!m_scriptFile.canRead()) {
-      logger.error("The script file '" + m_scriptFile +
-                   "' does not exist or is not readable",
-                   Logger.LOG | Logger.TERMINAL);
-      throw new ExitProcessException();
-    }
 
     m_numberOfThreads = properties.getShort("grinder.threads", (short)1);
 
@@ -244,7 +231,9 @@ public final class GrinderProcess {
     timer.schedule(new TickLoggerTimerTask(), 0, 1000);
 
     final JythonScript jythonScript =
-      new JythonScript(m_context, m_scriptFile);
+      new JythonScript(m_context,
+                       m_initialisationMessage.getScriptFile(),
+                       m_initialisationMessage.getScriptDirectory());
 
     // Don't initialise the data writer until now as the script may
     // declare new statistics.

@@ -29,20 +29,29 @@ a request with the authentication headers.
 
 * Enhancements
 
-** Console
+** Script Distribution
 
-*** Script editing
+*** Model
+
+Agent process to manage file cache.
+(Need files as Jython can't have python path into memory).
+Agent is responsible for local file store below a directory based on
+the agent name.
+
+Console marks state as "dirty" on a new agent, or on an edit.
+Broadcasts marked files to all agents on "distribute", or
+automatically on play.
+
+Root directory is part of python path.
+
+No delta management for now.
+
+*** Console Script editing
 
 Add file tree control, rooted at root directory.
 Allow files to be marked for distribution. Any file.
 Automatically detect, and indicate, scripts.
 When new script is selected, unselect other script.
-
-Agent is responsible for local file store below a directory based on
-the agent name. On establishing comms, agent should send new
-"AgentInitialisedMessage" to console. Contains date of latest file in
-file store. In future this could indicate state of local file store to
-a finer degree.
 
 Console keeps track of scripts that are up to date.
 Dirty flag is actually a temporary uptodate file.
@@ -55,7 +64,7 @@ On "play", a ScriptDistributionFiles message is sent if necessary.
 User can also broadcast distribution by hand.
 
 
-**** Plans
+*** Plans
 
 Feature to automark script dependencies.
 
@@ -82,6 +91,10 @@ its license terms are acceptable. Apparently now available.
     decision will be guided by the two goals of preserving the free
     status of all derivatives of our free software and of promoting
     the sharing and reuse of software generally.
+
+** Console
+
+Refactor Console/ConsoleUI/ConsoleCommunication/Model split.
 
 *** Add log panel
 

@@ -25,6 +25,8 @@ package net.grinder.engine.agent;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -103,6 +105,11 @@ public final class Agent {
 
       Receiver receiver = null;
 
+      final String hostID =
+        properties.getProperty("grinder.hostID", getHostName());
+
+      final File fileStoreDirectory = new File("./" + hostID + "-file-store");
+
       if (properties.getBoolean("grinder.useConsole", true)) {
         final Connector connector =
           new Connector(
@@ -112,7 +119,7 @@ public final class Agent {
                               CommunicationDefaults.CONSOLE_PORT),
             ConnectionType.CONTROL);
 
-        final FileCache fileCache = new FileCache();
+        final FileStore fileStore = new FileStore(fileStoreDirectory, logger);
 
         try {
           receiver = ClientReceiver.connect(connector);
@@ -120,7 +127,7 @@ public final class Agent {
           // Ordering of the TeeSender is important so the child
           // processes get the signals before our console listener.
           final Sender sender =
-            fileCache.getSender(
+            fileStore.getSender(
               new TeeSender(fanOutStreamSender, consoleListener.getSender()));
 
           new MessagePump(receiver, sender, 1);
@@ -132,13 +139,40 @@ public final class Agent {
         }
       }
 
+      // For now we read script file from properties, even when we use
+      // the console.
+
+      final File scriptFile =
+        new File(properties.getProperty("grinder.script", "grinder.py"));
+
+      // Check that the script file is readable so we can chuck out a
+      // nicer error message up front.
+      if (!scriptFile.canRead()) {
+        logger.error("The script file '" + scriptFile +
+                     "' does not exist or is not readable",
+                     Logger.LOG | Logger.TERMINAL);
+        return;
+      }
+
+      final InitialiseGrinderMessage initialiseGrinderMessage;
+
+      if (receiver != null) {
+        initialiseGrinderMessage =
+          new InitialiseGrinderMessage(true, scriptFile, fileStoreDirectory);
+      }
+      else {
+        initialiseGrinderMessage =
+          new InitialiseGrinderMessage(
+            false, scriptFile, scriptFile.getParentFile());
+      }
+
       final ProcessFactory workerProcessFactory =
         new WorkerProcessFactory(properties,
                                  System.getProperties(),
+                                 hostID,
                                  m_alternateFile,
                                  fanOutStreamSender,
-                                 new InitialiseGrinderMessage(
-                                   receiver != null));
+                                 initialiseGrinderMessage);
 
       logger.output("Worker process command line: " +
                     workerProcessFactory.getCommandLine());
@@ -235,6 +269,15 @@ public final class Agent {
     }
 
     logger.output("finished");
+  }
+
+  private static String getHostName() {
+    try {
+      return InetAddress.getLocalHost().getHostName();
+    }
+    catch (UnknownHostException e) {
+      return "UNNAMED HOST";
+    }
   }
 
   private class RampUpTimerTask extends TimerTask {

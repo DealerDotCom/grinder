@@ -21,29 +21,39 @@
 
 package net.grinder.engine.messages;
 
+import java.io.File;
+
 import net.grinder.communication.Message;
 
 
 /**
- * Message used to initialise the worker processes.
+ * Message used by the agent to initialise the worker processes.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public final class InitialiseGrinderMessage implements Message {
 
-  private static final long serialVersionUID = -2558283395728307206L;
+  private static final long serialVersionUID = 4655717028320911832L;
 
   private final boolean m_reportToConsole;
+  private final File m_scriptFile;
+  private final File m_scriptDirectory;
 
   /**
    * Constructor.
    *
    * @param reportToConsole Whether or not the worker process should
    * report to the console.
+   * @param scriptFile The script file to run.
+   * @param scriptDirectory The script root directory.
    */
-  public InitialiseGrinderMessage(boolean reportToConsole) {
+  public InitialiseGrinderMessage(boolean reportToConsole,
+                                  File scriptFile,
+                                  File scriptDirectory) {
     m_reportToConsole = reportToConsole;
+    m_scriptFile = scriptFile;
+    m_scriptDirectory = scriptDirectory;
   }
 
   /**
@@ -54,5 +64,23 @@ public final class InitialiseGrinderMessage implements Message {
    */
   public boolean getReportToConsole() {
     return m_reportToConsole;
+  }
+
+  /**
+   * Accessor.
+   *
+   * @return The script file to run.
+   */
+  public File getScriptFile() {
+    return m_scriptFile;
+  }
+
+  /**
+   * Accessor.
+   *
+   * @return The script root directory.
+   */
+  public File getScriptDirectory() {
+    return m_scriptDirectory;
   }
 }

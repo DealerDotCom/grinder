@@ -15,3 +15,6 @@
 )
 
 (setq indent-tabs-mode nil)
+
+; Redo this as JDE appears to override things set up in c-mode-hook.
+(my-c-mode-hook-stuff)

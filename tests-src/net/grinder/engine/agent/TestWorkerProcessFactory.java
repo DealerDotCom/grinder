@@ -54,6 +54,7 @@ public class TestWorkerProcessFactory extends TestCase {
     final WorkerProcessFactory workerProcessFactory =
       new WorkerProcessFactory(new GrinderProperties(),
                                new Properties(),
+                               "myhost",
                                null,
                                null,
                                null);
@@ -77,6 +78,7 @@ public class TestWorkerProcessFactory extends TestCase {
     final WorkerProcessFactory workerProcessFactory =
       new WorkerProcessFactory(grinderProperties,
                                overrideProperties,
+                               "myhost",
                                alternateFile,
                                null,
                                null);
@@ -110,6 +112,7 @@ public class TestWorkerProcessFactory extends TestCase {
     final WorkerProcessFactory workerProcessFactory =
       new WorkerProcessFactory(grinderProperties,
                                overrideProperties,
+                               "myhost",
                                null,
                                null,
                                null);
@@ -164,6 +167,7 @@ public class TestWorkerProcessFactory extends TestCase {
     final WorkerProcessFactory workerProcessFactory =
       new WorkerProcessFactory(grinderProperties,
                                overrideProperties,
+                               "myhost",
                                alternateFile,
                                fanOutStreamSender,
                                initialisationMessage);

@@ -23,6 +23,8 @@ package net.grinder.engine.messages;
 
 import junit.framework.TestCase;
 
+import java.io.File;
+
 import net.grinder.communication.Message;
 import net.grinder.testutility.Serializer;
 import net.grinder.util.FileContents;
@@ -42,18 +44,26 @@ public class TestEngineMessages extends TestCase {
   }
 
   public void testInitialiseGrinderMessage() throws Exception {
+
+    final File file0 = new File("/foo");
+    final File file1 = new File("d:/foo/bah");
+
     final InitialiseGrinderMessage original =
-      new InitialiseGrinderMessage(false);
+      new InitialiseGrinderMessage(false, file0, file1);
 
     final InitialiseGrinderMessage recevied =
       (InitialiseGrinderMessage) serialise(original);
 
     assertTrue(!original.getReportToConsole());
+    assertEquals(file0, original.getScriptFile());
+    assertEquals(file1, original.getScriptDirectory());
 
     final InitialiseGrinderMessage another =
-      new InitialiseGrinderMessage(true);
+      new InitialiseGrinderMessage(true, file1, file0);
 
     assertTrue(another.getReportToConsole());
+    assertEquals(file1, another.getScriptFile());
+    assertEquals(file0, another.getScriptDirectory());
   }
 
   public void testResetGrinderMessage() throws Exception {

@@ -21,6 +21,11 @@
 
 package net.grinder.engine.agent;
 
+import java.io.File;
+import java.util.Arrays;
+
+import net.grinder.common.Logger;
+import net.grinder.engine.common.EngineException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
@@ -29,22 +34,64 @@ import net.grinder.util.FileContents;
 
 
 /**
- * Process {@link DistributeFilesMessage}s from the console.
+ * Process {@link DistributeFilesMessage}s received from the console.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-final class FileCache {
+final class FileStore {
+
+  private final File m_directory;
+  private final Logger m_logger;
+
+  public FileStore(File directory, Logger logger) throws FileStoreException {
+
+    m_directory = directory.getAbsoluteFile();
+    m_logger = logger;
+
+    if (m_directory.exists()) {
+      if (!m_directory.isDirectory()) {
+        throw new FileStoreException(
+          "Can't write to directory '" + m_directory +
+          "' as file with that name already exists");
+      }
+    }
+    else {
+      if (!m_directory.mkdir()) {
+        throw new FileStoreException(
+          "Could not create directory '" + m_directory + "'");
+      }
+    }
+
+    if (!m_directory.canWrite()) {
+      throw new FileStoreException(
+        "Can not write to directory '" + m_directory + "'");
+    }
+  }
 
   public Sender getSender(final Sender delegate) {
+
     return new Sender() {
         public void send(Message message) throws CommunicationException {
           if (message instanceof DistributeFilesMessage) {
             final FileContents[] files =
               ((DistributeFilesMessage)message).getFiles();
 
-            for (int i = 0; i < files.length; ++i) {
-              System.out.println("Received " + files[i].getFilename());
+            if (files.length > 0) {
+              m_logger.output("Updating file store: " + Arrays.asList(files));
+
+              for (int i = 0; i < files.length; ++i) {
+                try {
+                  files[i].create(m_directory);
+                }
+                catch (FileContents.FileContentsException e) {
+                  m_logger.error("Could not write file: " + e.getMessage());
+
+                  // Throwing an exception causes the agent to
+                  // silently exit.
+                  throw new CommunicationException(e.getMessage(), e);
+                }
+              }
             }
           }
           else {
@@ -56,5 +103,15 @@ final class FileCache {
           delegate.shutdown();
         }
       };
+  }
+
+  /**
+   * Exception that indicates a <code>FileStore</code> related
+   * problem.
+   */
+  public static final class FileStoreException extends EngineException {
+    FileStoreException(String message) {
+      super(message);
+    }
   }
 }

@@ -24,9 +24,13 @@ package net.grinder.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
+
+import net.grinder.common.GrinderException;
 
 
 /**
@@ -37,7 +41,7 @@ import java.io.Serializable;
  */
 public final class FileContents implements Serializable {
 
-  private static final long serialVersionUID = 8373961429207921091L;
+  private static final long serialVersionUID = -3140708892260600117L;
 
   private final File m_filename;
   private final byte[] m_contents;
@@ -46,39 +50,123 @@ public final class FileContents implements Serializable {
    * Constructor. Builds a FileContents from local filesystem.
    *
    * @param baseDirectory Base directory used to resolve relative filenames.
-   * @param originalFile Relative filename.
-   * @exception IOException if an error occurs
+   * @param file Relative filename.
+   * @exception FileContentsException If an error occurs.
    */
-  public FileContents(File baseDirectory, File originalFile)
-    throws IOException {
+  public FileContents(File baseDirectory, File file)
+    throws FileContentsException {
 
-    m_filename = originalFile;
+    if (file.isAbsolute()) {
+      throw new FileContentsException(
+        "Original file name '" + file + "' is not relative");
+    }
 
-    final InputStream inputStream =
-      new FileInputStream(new File(baseDirectory, originalFile.getPath()));
+    m_filename = file;
+
+    final File localFile = new File(baseDirectory, file.getPath());
+
+    InputStream inputStream = null;
 
     final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-    new CopyStreamRunnable(inputStream, byteOutputStream, true).run();
+
+    try {
+      inputStream = new FileInputStream(localFile);
+
+      final byte[] buffer = new byte[4096];
+      int n;
+
+      while ((n = inputStream.read(buffer)) != -1) {
+        byteOutputStream.write(buffer, 0, n);
+      }
+    }
+    catch (IOException e) {
+      throw new FileContentsException(
+        "Failed to read file: " + e.getMessage(), e);
+    }
+    finally {
+      if (inputStream != null) {
+        try {
+          inputStream.close();
+        }
+        catch (IOException e) {
+          // Ignore.
+        }
+      }
+
+      try {
+        byteOutputStream.close();
+      }
+      catch (IOException e) {
+        // Ignore.
+      }
+    }
 
     m_contents = byteOutputStream.toByteArray();
   }
 
 
   /**
-   * Return the relative filename.
+   * Allow unit tests access to the relative file name.
    *
-   * @return a <code>File</code> value
+   * @return The file name.
    */
-  public File getFilename() {
+  File getFilename() {
     return m_filename;
   }
 
   /**
-   * Return the file contents.
+   * Allow unit tests access to the file contents.
    *
    * @return a <code>byte[]</code> value
    */
-  public byte[] getContents() {
+  byte[] getContents() {
     return m_contents;
+  }
+
+  /**
+   * Write the <code>FileContents</code> to the given directory,
+   * overwriting any existing content.
+   *
+   * @param baseDirectory The base directory.
+   * @exception FileContentsException If an error occurs.
+   */
+  public void create(File baseDirectory) throws FileContentsException {
+
+    final File localFile = new File(baseDirectory, getFilename().getPath());
+
+    localFile.getParentFile().mkdirs();
+
+    try {
+      final OutputStream outputStream = new FileOutputStream(localFile);
+      outputStream.write(getContents());
+      outputStream.close();
+    }
+    catch (IOException e) {
+      throw new FileContentsException(
+        "Failed to create file: " + e.getMessage(), e);
+    }
+  }
+
+  /**
+   * Return a description of the <code>FileContents</code>.
+   *
+   * @return The description.
+   */
+  public String toString() {
+    return "\"" + getFilename() + "\" (" + getContents().length + " bytes)";
+  }
+
+  /**
+   * Exception that indicates a <code>FileContents</code> related
+   * problem.
+   */
+  public static final class FileContentsException extends GrinderException {
+    FileContentsException(String message) {
+      super(message);
+    }
+
+    FileContentsException(String message, Throwable nested) {
+      super(message, nested);
+    }
   }
 }

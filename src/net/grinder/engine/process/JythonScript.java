@@ -52,7 +52,8 @@ final class JythonScript {
   private final PythonInterpreter m_interpreter;
   private final PyObject m_testRunnerFactory;
 
-  public JythonScript(ProcessContext processContext, File scriptFile)
+  public JythonScript(ProcessContext processContext, File scriptFile,
+                      File scriptDirectory)
     throws EngineException {
 
     PySystemState.initialize();
@@ -64,10 +65,9 @@ final class JythonScript {
       "grinder",
       new ImplicitGrinderIsDeprecated(processContext.getScriptContext()));
 
-    final String parentPath = scriptFile.getParent();
-
-    m_systemState.path.insert(0, new PyString(parentPath != null ?
-                                              parentPath : ""));
+    if (scriptDirectory != null) {
+      m_systemState.path.insert(0, new PyString(scriptDirectory.getPath()));
+    }
 
     processContext.getProcessLogger().output(
       "executing \"" + scriptFile.getPath() + "\"");

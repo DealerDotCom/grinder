@@ -297,9 +297,10 @@ public final class ScriptDistributionFiles implements Serializable {
    * Return the files as an array of {@link FileContents}.
 
    * @return The array.
-   * @exception IOException if an error occurs.
+   * @exception FileContents.FileContentsException If an error occurs.
    */
-  public FileContents[] toFileContentsArray() throws IOException {
+  public FileContents[] toFileContentsArray()
+    throws FileContents.FileContentsException {
 
     final List files = new ArrayList();
 

@@ -23,8 +23,6 @@ package net.grinder.engine.agent;
 
 import java.io.File;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -57,10 +55,12 @@ final class WorkerProcessFactory implements ProcessFactory {
 
   public WorkerProcessFactory(GrinderProperties properties,
                               Properties systemProperties,
+                              String hostID,
                               File alternateFile,
                               FanOutStreamSender fanOutStreamSender,
                               Message initialisationMessage) {
 
+    m_hostIDPrefix = hostID;
     m_fanOutStreamSender = fanOutStreamSender;
     m_initialisationMessage = initialisationMessage;
 
@@ -126,8 +126,6 @@ final class WorkerProcessFactory implements ProcessFactory {
     if (alternateFile != null) {
       m_command.add(alternateFile.getPath());
     }
-
-    m_hostIDPrefix = properties.getProperty("grinder.hostID", getHostName());
   }
 
   private String[] getCommandArray(String grinderID) {
@@ -140,15 +138,6 @@ final class WorkerProcessFactory implements ProcessFactory {
    */
   List getCommandList() {
     return m_command;
-  }
-
-  private String getHostName() {
-    try {
-      return InetAddress.getLocalHost().getHostName();
-    }
-    catch (UnknownHostException e) {
-      return "UNNAMED HOST";
-    }
   }
 
   public ChildProcess create(int processIndex,

@@ -402,6 +402,8 @@ what you want. Currently the conditionally built modules are:
 	  <exclude name="**/TestHTTPPluginTCPProxyFilter.java"/>
 
 	  <include name="**/Test*.java"/>
+	  <include name="**/TestFileCache.java"/>
+	  <include name="**/TestFileContents.java"/>
 	  <exclude name="**/TestSleeper.java"/>
 	</fileset>
       </batchtest>
