@@ -6,6 +6,9 @@ Grinder 3.0-beta15
   grinder" in your scripts to ensure they remain compatible with
   future releases.
 
+  You can now wrap Jython objects that are subclassed from Java
+  objects. Thanks to John Stanford White for requesting this.
+
 
 Grinder 3.0-beta14
 ------------------

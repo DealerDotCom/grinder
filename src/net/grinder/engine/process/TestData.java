@@ -27,6 +27,7 @@ import org.python.core.PyFunction;
 import org.python.core.PyInstance;
 import org.python.core.PyMethod;
 import org.python.core.PyObject;
+import org.python.core.PyProxy;
 
 import net.grinder.common.Test;
 import net.grinder.engine.EngineException;
@@ -132,6 +133,10 @@ final class TestData implements TestRegistry.RegisteredTest {
       else if (o instanceof PyMethod) {
         return new TestPyJavaInstance(this, o);
       }
+    }
+    else if (o instanceof PyProxy) {
+      // Jython object that extends a Java class.
+      return new TestPyInstance(this, ((PyProxy)o)._getPyInstance());
     }
     else {
       // Java object.
