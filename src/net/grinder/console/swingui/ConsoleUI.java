@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import javax.swing.AbstractButton;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -76,6 +77,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
+import net.grinder.console.communication.AgentStatus;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.distribution.AgentCacheState;
 import net.grinder.console.distribution.FileDistribution;
@@ -117,6 +119,7 @@ public final class ConsoleUI implements ModelListener {
   private final SaveFileAsAction m_saveFileAsAction;
 
   private final Model m_model;
+  private final AgentStatus m_agentStatus;
   private final ProcessControl m_processControl;
   private final FileDistribution m_fileDistribution;
   private final EditorModel m_editorModel;
@@ -144,16 +147,19 @@ public final class ConsoleUI implements ModelListener {
    * @param model The console model.
    * @param processControl Process control.
    * @param fileDistribution File distribution.
+   * @param agentStatus Agent status.
    * @exception ConsoleException if an error occurs
    */
   public ConsoleUI(Model model,
                    ProcessControl processControl,
-                   FileDistribution fileDistribution)
+                   FileDistribution fileDistribution,
+                   AgentStatus agentStatus)
     throws ConsoleException {
 
     m_model = model;
     m_processControl = processControl;
     m_fileDistribution = fileDistribution;
+    m_agentStatus = agentStatus;
 
     final Resources resources = m_model.getResources();
     m_editorModel =
@@ -1027,10 +1033,30 @@ public final class ConsoleUI implements ModelListener {
     }
   }
 
+  private class EnableIfAgentsConnected
+    implements AgentStatus.ConnectionListener {
+
+    private final Action m_action;
+
+    EnableIfAgentsConnected(Action action) {
+      m_action = action;
+      m_action.setEnabled(m_agentStatus.isAnAgentConnected());
+    }
+
+    public void agentConnected() {
+      m_action.setEnabled(true);
+    }
+
+    public void agentDisconnected() {
+      m_action.setEnabled(m_agentStatus.isAnAgentConnected());
+    }
+  }
+
   private class StartProcessesAction extends CustomAction {
 
     StartProcessesAction() {
       super(m_model.getResources(), "start-processes");
+      m_agentStatus.addConnectionListener(new EnableIfAgentsConnected(this));
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1074,6 +1100,16 @@ public final class ConsoleUI implements ModelListener {
         m_processControl.startWorkerProcesses(null);
       }
       else {
+        if (m_fileDistribution.getAgentCacheState().getOutOfDate()) {
+          JOptionPane.showMessageDialog(
+            m_frame,
+            m_model.getResources().getString("cachesOutOfDateWarning.text"),
+            (String) getValue(NAME),
+            JOptionPane.WARNING_MESSAGE);
+
+          return;
+        }
+
         final File directoryFile = properties.getDistributionDirectory();
 
         final Directory directory;
@@ -1104,6 +1140,7 @@ public final class ConsoleUI implements ModelListener {
   private final class ResetProcessesAction extends CustomAction {
     ResetProcessesAction() {
       super(m_model.getResources(), "reset-processes");
+      m_agentStatus.addConnectionListener(new EnableIfAgentsConnected(this));
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1164,6 +1201,7 @@ public final class ConsoleUI implements ModelListener {
   private final class StopProcessesAction extends CustomAction {
     StopProcessesAction() {
       super(m_model.getResources(), "stop-processes");
+      m_agentStatus.addConnectionListener(new EnableIfAgentsConnected(this));
     }
 
     public void actionPerformed(ActionEvent event) {

@@ -85,8 +85,10 @@ public class Console {
     final FileDistribution fileDistribution =
       new FileDistribution(m_communication.getDistributionControl());
 
-    m_communication.getAgentStatus().addConnectionListener(
-      new AgentStatus.AgentConnectionListener() {
+    final AgentStatus agentStatus = m_communication.getAgentStatus();
+
+    agentStatus.addConnectionListener(
+      new AgentStatus.ConnectionListener() {
         public void agentConnected() {
           fileDistribution.getAgentCacheState().setOutOfDate();
         }
@@ -112,7 +114,8 @@ public class Console {
     m_userInterface =
       new ConsoleUI(m_model,
                     m_communication.getProcessControl(),
-                    fileDistribution);
+                    fileDistribution,
+                    agentStatus);
 
     m_communication.setErrorHandler(m_userInterface.getErrorHandler());
 
