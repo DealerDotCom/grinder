@@ -248,7 +248,7 @@ final class ResourcePool {
    *
    * @param listener The listener.
    */
-  public final void addListener(Listener listener) {
+  public void addListener(Listener listener) {
     synchronized (m_listeners) {
       m_listeners.add(listener);
     }
