@@ -1,5 +1,5 @@
 /*
- * @(#)SocksClient.java                    0.3-3 06/05/2001
+ * @(#)SocksClient.java					0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -57,8 +57,8 @@ import java.net.UnknownHostException;
  * (where <var>socks_client</var> is the above created SocksClient instance).
  * That's all.
  *
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
  */
 class SocksClient
 {
@@ -73,19 +73,19 @@ class SocksClient
 
     /** socks commands */
     private final static byte CONNECT = 1,
-                  BIND    = 2,
-                  UDP_ASS = 3;
+			      BIND    = 2,
+			      UDP_ASS = 3;
 
     /** socks version 5 authentication methods */
     private final static byte NO_AUTH = 0,
-                  GSSAPI  = 1,
-                  USERPWD = 2,
-                  NO_ACC  = (byte) 0xFF;
+			      GSSAPI  = 1,
+			      USERPWD = 2,
+			      NO_ACC  = (byte) 0xFF;
 
     /** socks version 5 address types */
     private final static byte IP_V4   = 1,
-                  DMNAME  = 3,
-                  IP_V6   = 4;
+			      DMNAME  = 3,
+			      IP_V6   = 4;
 
 
     // Constructors
@@ -100,9 +100,9 @@ class SocksClient
      */
     SocksClient(String host, int port)
     {
-    this.socks_host    = host;
-    this.socks_port    = port;
-    this.socks_version = -1;    // as yet unknown
+	this.socks_host    = host;
+	this.socks_port    = port;
+	this.socks_version = -1;	// as yet unknown
     }
 
     /**
@@ -117,12 +117,12 @@ class SocksClient
      */
     SocksClient(String host, int port, int version)  throws SocksException
     {
-    this.socks_host    = host;
-    this.socks_port    = port;
+	this.socks_host    = host;
+	this.socks_port    = port;
 
-    if (version != 4  &&  version != 5)
-        throw new SocksException("SOCKS Version not supported: "+version);
-    this.socks_version = version;
+	if (version != 4  &&  version != 5)
+	    throw new SocksException("SOCKS Version not supported: "+version);
+	this.socks_version = version;
     }
 
 
@@ -139,7 +139,7 @@ class SocksClient
      */
     Socket getSocket(String host, int port)  throws IOException
     {
-    return getSocket(host, port, null, -1);
+	return getSocket(host, port, null, -1);
     }
 
     /**
@@ -154,74 +154,74 @@ class SocksClient
      * @exception IOException if any socket operation fails
      */
     Socket getSocket(String host, int port, InetAddress localAddr,
-             int localPort)  throws IOException
+		     int localPort)  throws IOException
     {
-    Socket sock = null;
+	Socket sock = null;
 
-    try
-    {
-        Log.write(Log.SOCKS, "Socks: contacting server on " +
-                 socks_host + ":" + socks_port);
-
-
-        // create socket and streams
-
-        sock = connect(socks_host, socks_port, localAddr, localPort);
-        InputStream  inp = sock.getInputStream();
-        OutputStream out = sock.getOutputStream();
+	try
+	{
+	    Log.write(Log.SOCKS, "Socks: contacting server on " +
+				 socks_host + ":" + socks_port);
 
 
-        // setup connection depending on socks version
+	    // create socket and streams
 
-        switch (socks_version)
-        {
-        case 4:
-            v4ProtExchg(inp, out, host, port);
-            break;
-        case 5:
-            v5ProtExchg(inp, out, host, port);
-            break;
-        case -1:
-            // Ok, let's try and figure it out
-            try
-            {
-            v4ProtExchg(inp, out, host, port);
-            socks_version = 4;
-            }
-            catch (SocksException se)
-            {
-            Log.write(Log.SOCKS, "Socks: V4 request failed: " +
-                         se.getMessage());
+	    sock = connect(socks_host, socks_port, localAddr, localPort);
+	    InputStream  inp = sock.getInputStream();
+	    OutputStream out = sock.getOutputStream();
 
-            sock.close();
-            sock = connect(socks_host, socks_port, localAddr,
-                       localPort);
-            inp = sock.getInputStream();
-            out = sock.getOutputStream();
 
-            v5ProtExchg(inp, out, host, port);
-            socks_version = 5;
-            }
-            break;
-        default:
-            throw new Error("SocksClient internal error: unknown " +
-                    "version "+socks_version);
-        }
+	    // setup connection depending on socks version
 
-        Log.write(Log.SOCKS, "Socks: connection established.");
+	    switch (socks_version)
+	    {
+		case 4:
+		    v4ProtExchg(inp, out, host, port);
+		    break;
+		case 5:
+		    v5ProtExchg(inp, out, host, port);
+		    break;
+		case -1:
+		    // Ok, let's try and figure it out
+		    try
+		    {
+			v4ProtExchg(inp, out, host, port);
+			socks_version = 4;
+		    }
+		    catch (SocksException se)
+		    {
+			Log.write(Log.SOCKS, "Socks: V4 request failed: " +
+					     se.getMessage());
 
-        return sock;
-    }
-    catch (IOException ioe)
-    {
-        if (sock != null)
-        {
-        try { sock.close(); }
-        catch (IOException ee) {}
-        }
+			sock.close();
+			sock = connect(socks_host, socks_port, localAddr,
+				       localPort);
+			inp = sock.getInputStream();
+			out = sock.getOutputStream();
 
-        throw ioe;
-    }
+			v5ProtExchg(inp, out, host, port);
+			socks_version = 5;
+		    }
+		    break;
+		default:
+		    throw new Error("SocksClient internal error: unknown " +
+				    "version "+socks_version);
+	    }
+
+	    Log.write(Log.SOCKS, "Socks: connection established.");
+
+	    return sock;
+	}
+	catch (IOException ioe)
+	{
+	    if (sock != null)
+	    {
+		try { sock.close(); }
+		catch (IOException ee) {}
+	    }
+
+	    throw ioe;
+	}
     }
 
 
@@ -237,139 +237,139 @@ class SocksClient
      * @exception IOException if the connection could not be established
      */
     private static final Socket connect(String host, int port,
-                    InetAddress localAddr, int localPort)
-        throws IOException
+					InetAddress localAddr, int localPort)
+	    throws IOException
     {
-    InetAddress[] addr_list = InetAddress.getAllByName(host);
-    for (int idx=0; idx<addr_list.length; idx++)
-    {
-        try
-        {
-        if (localAddr == null)
-            return new Socket(addr_list[idx], port);
-        else
-            return new Socket(addr_list[idx], port, localAddr, localPort);
-        }
-        catch (SocketException se)
-        {
-        if (idx < addr_list.length-1)
-            continue;    // try next IP address
-        else
-            throw se;    // none of them worked
-        }
+	InetAddress[] addr_list = InetAddress.getAllByName(host);
+	for (int idx=0; idx<addr_list.length; idx++)
+	{
+	    try
+	    {
+		if (localAddr == null)
+		    return new Socket(addr_list[idx], port);
+		else
+		    return new Socket(addr_list[idx], port, localAddr, localPort);
+	    }
+	    catch (SocketException se)
+	    {
+		if (idx < addr_list.length-1)
+		    continue;	// try next IP address
+		else
+		    throw se;	// none of them worked
+	    }
+	}
+
+	return null;	// never reached - just here to shut up the compiler
     }
 
-    return null;    // never reached - just here to shut up the compiler
-    }
 
-
-    private boolean v4A  = false;    // SOCKS version 4A
+    private boolean v4A  = false;	// SOCKS version 4A
     private byte[]  user = null;
 
     /**
      * Does the protocol exchange for a version 4 SOCKS connection.
      */
     private void v4ProtExchg(InputStream inp, OutputStream out, String host,
-                 int port)
-    throws SocksException, IOException
+			     int port)
+	throws SocksException, IOException
     {
-    ByteArrayOutputStream buffer = new ByteArrayOutputStream(100);
+	ByteArrayOutputStream buffer = new ByteArrayOutputStream(100);
 
-    Log.write(Log.SOCKS, "Socks: Beginning V4 Protocol Exchange for host "
-                 + host + ":" + port);
+	Log.write(Log.SOCKS, "Socks: Beginning V4 Protocol Exchange for host "
+			     + host + ":" + port);
 
-    // get ip addr and user name
+	// get ip addr and user name
 
-    byte[] addr = { 0, 0, 0, 42 };
-    if (!v4A)
-    {
-        try
-        { addr = InetAddress.getByName(host).getAddress(); }
-        // if we can't translate, let's try the server
-        catch (UnknownHostException uhe)
-        { v4A = true; }
-        catch (SecurityException se)
-        { v4A = true; }
-        if (v4A)
-        Log.write(Log.SOCKS, "Socks: Switching to version 4A");
-    }
+	byte[] addr = { 0, 0, 0, 42 };
+	if (!v4A)
+	{
+	    try
+		{ addr = InetAddress.getByName(host).getAddress(); }
+	    // if we can't translate, let's try the server
+	    catch (UnknownHostException uhe)
+		{ v4A = true; }
+	    catch (SecurityException se)
+		{ v4A = true; }
+	    if (v4A)
+		Log.write(Log.SOCKS, "Socks: Switching to version 4A");
+	}
 
-    if (user == null)    // I see no reason not to cache this
-    {
-        String user_str;
-        try
-        { user_str = System.getProperty("user.name", ""); }
-        catch (SecurityException se)
-        { user_str = "";    /* try it anyway */ }
-        byte[] tmp = user_str.getBytes();
-        user = new byte[tmp.length+1];
-        System.arraycopy(tmp, 0, user, 0, tmp.length);
-        user[user_str.length()] = 0;    // 0-terminated string
-    }
-
-
-    // send version 4 request
-
-    Log.write(Log.SOCKS, "Socks: Sending connect request for user " +
-                 new String(user, 0, user.length-1));
-
-    buffer.reset();
-    buffer.write(4);                // version
-    buffer.write(CONNECT);                // command
-    buffer.write((port >> 8) & 0xff);        // port
-    buffer.write(port & 0xff);
-    buffer.write(addr);                // address
-    buffer.write(user);                // user
-    if (v4A)
-    {
-        buffer.write(host.getBytes("8859_1"));    // host name
-        buffer.write(0);                // terminating 0
-    }
-    buffer.writeTo(out);
+	if (user == null)	// I see no reason not to cache this
+	{
+	    String user_str;
+	    try
+		{ user_str = System.getProperty("user.name", ""); }
+	    catch (SecurityException se)
+		{ user_str = "";	/* try it anyway */ }
+	    byte[] tmp = user_str.getBytes();
+	    user = new byte[tmp.length+1];
+	    System.arraycopy(tmp, 0, user, 0, tmp.length);
+	    user[user_str.length()] = 0;	// 0-terminated string
+	}
 
 
-    // read response
+	// send version 4 request
 
-    int version = inp.read();
-    if (version == -1)
-        throw new SocksException("Connection refused by server");
-    else if (version == 4)    // not all socks4 servers are correct...
-        Log.write(Log.SOCKS, "Socks: Warning: received version 4 " +
-                 "instead of 0");
-    else if (version != 0)
-        throw new SocksException("Received invalid version: " + version +
-                     "; expected: 0");
+	Log.write(Log.SOCKS, "Socks: Sending connect request for user " +
+			     new String(user, 0, user.length-1));
 
-    int sts = inp.read();
+	buffer.reset();
+	buffer.write(4);				// version
+	buffer.write(CONNECT);				// command
+	buffer.write((port >> 8) & 0xff);		// port
+	buffer.write(port & 0xff);
+	buffer.write(addr);				// address
+	buffer.write(user);				// user
+	if (v4A)
+	{
+	    buffer.write(host.getBytes("8859_1"));	// host name
+	    buffer.write(0);				// terminating 0
+	}
+	buffer.writeTo(out);
 
-    Log.write(Log.SOCKS, "Socks: Received response; version: " + version +
-                 "; status: " + sts);
 
-    switch (sts)
-    {
-        case 90:    // request granted
-        break;
-        case 91:    // request rejected
-        throw new SocksException("Connection request rejected");
-        case 92:    // request rejected: can't connect to identd
-        throw new SocksException("Connection request rejected: " +
-                     "can't connect to identd");
-        case 93:    // request rejected: identd reports diff uid
-        throw new SocksException("Connection request rejected: " +
-                     "identd reports different user-id " +
-                     "from "+
-                     new String(user, 0, user.length-1));
-        default:    // unknown status
-        throw new SocksException("Connection request rejected: " +
-                     "unknown error " + sts);
-    }
+	// read response
 
-    byte[] skip = new byte[2+4];        // skip port + address
-    int rcvd = 0,
-        tot  = 0;
-    while (tot < skip.length  &&
-        (rcvd = inp.read(skip, 0, skip.length-tot)) != -1)
-        tot += rcvd;
+	int version = inp.read();
+	if (version == -1)
+	    throw new SocksException("Connection refused by server");
+	else if (version == 4)	// not all socks4 servers are correct...
+	    Log.write(Log.SOCKS, "Socks: Warning: received version 4 " +
+				 "instead of 0");
+	else if (version != 0)
+	    throw new SocksException("Received invalid version: " + version +
+				     "; expected: 0");
+
+	int sts = inp.read();
+
+	Log.write(Log.SOCKS, "Socks: Received response; version: " + version +
+			     "; status: " + sts);
+
+	switch (sts)
+	{
+	    case 90:	// request granted
+		break;
+	    case 91:	// request rejected
+		throw new SocksException("Connection request rejected");
+	    case 92:	// request rejected: can't connect to identd
+		throw new SocksException("Connection request rejected: " +
+					 "can't connect to identd");
+	    case 93:	// request rejected: identd reports diff uid
+		throw new SocksException("Connection request rejected: " +
+					 "identd reports different user-id " +
+					 "from "+
+					 new String(user, 0, user.length-1));
+	    default:	// unknown status
+		throw new SocksException("Connection request rejected: " +
+					 "unknown error " + sts);
+	}
+
+	byte[] skip = new byte[2+4];		// skip port + address
+	int rcvd = 0,
+	    tot  = 0;
+	while (tot < skip.length  &&
+		(rcvd = inp.read(skip, 0, skip.length-tot)) != -1)
+	    tot += rcvd;
     }
 
 
@@ -378,143 +378,143 @@ class SocksClient
      * (rfc-1928)
      */
     private void v5ProtExchg(InputStream inp, OutputStream out, String host,
-                 int port)
-    throws SocksException, IOException
+			     int port)
+	throws SocksException, IOException
     {
-    int                   version;
-    ByteArrayOutputStream buffer = new ByteArrayOutputStream(100);
+	int                   version;
+	ByteArrayOutputStream buffer = new ByteArrayOutputStream(100);
 
-    Log.write(Log.SOCKS, "Socks: Beginning V5 Protocol Exchange for host "
-                 + host + ":" + port);
+	Log.write(Log.SOCKS, "Socks: Beginning V5 Protocol Exchange for host "
+			     + host + ":" + port);
 
-    // send version 5 verification methods
+	// send version 5 verification methods
 
-    Log.write(Log.SOCKS, "Socks: Sending authentication request; methods"
-                 + " No-Authentication, Username/Password");
+	Log.write(Log.SOCKS, "Socks: Sending authentication request; methods"
+			     + " No-Authentication, Username/Password");
 
-    buffer.reset();
-    buffer.write(5);        // version
-    buffer.write(2);        // number of verification methods
-    buffer.write(NO_AUTH);        // method: no authentication
-    buffer.write(USERPWD);        // method: username/password
-    //buffer.write(GSSAPI);        // method: gssapi
-    buffer.writeTo(out);
-
-
-    // receive servers repsonse
-
-    version = inp.read();
-    if (version == -1)
-        throw new SocksException("Connection refused by server");
-    else if (version != 5)
-        throw new SocksException("Received invalid version: " + version +
-                     "; expected: 5");
-
-    int method = inp.read();
-
-    Log.write(Log.SOCKS, "Socks: Received response; version: " + version +
-                 "; method: " + method);
+	buffer.reset();
+	buffer.write(5);		// version
+	buffer.write(2);		// number of verification methods
+	buffer.write(NO_AUTH);		// method: no authentication
+	buffer.write(USERPWD);		// method: username/password
+	//buffer.write(GSSAPI);		// method: gssapi
+	buffer.writeTo(out);
 
 
-    // enter sub-negotiation for authentication
+	// receive servers repsonse
 
-    switch(method)
-    {
-        case NO_AUTH:
-        break;
-        case GSSAPI:
-        negotiate_gssapi(inp, out);
-        break;
-        case USERPWD:
-        negotiate_userpwd(inp, out);
-        break;
-        case NO_ACC:
-        throw new SocksException("Server unwilling to accept any " +
-                     "standard authentication methods");
-        default:
-        throw new SocksException("Cannot handle authentication method "
-                     + method);
-    }
+	version = inp.read();
+	if (version == -1)
+	    throw new SocksException("Connection refused by server");
+	else if (version != 5)
+	    throw new SocksException("Received invalid version: " + version +
+				     "; expected: 5");
+
+	int method = inp.read();
+
+	Log.write(Log.SOCKS, "Socks: Received response; version: " + version +
+			     "; method: " + method);
 
 
-    // send version 5 request
+	// enter sub-negotiation for authentication
 
-    Log.write(Log.SOCKS, "Socks: Sending connect request");
+	switch(method)
+	{
+	    case NO_AUTH:
+		break;
+	    case GSSAPI:
+		negotiate_gssapi(inp, out);
+		break;
+	    case USERPWD:
+		negotiate_userpwd(inp, out);
+		break;
+	    case NO_ACC:
+		throw new SocksException("Server unwilling to accept any " +
+					 "standard authentication methods");
+	    default:
+		throw new SocksException("Cannot handle authentication method "
+					 + method);
+	}
 
-    buffer.reset();
-    buffer.write(5);                // version
-    buffer.write(CONNECT);                // command
-    buffer.write(0);                // reserved - must be 0
-    buffer.write(DMNAME);                // address type
-    buffer.write(host.length() & 0xff);        // address length
-    buffer.write(host.getBytes("8859_1"));        // address
-    buffer.write((port >> 8) & 0xff);        // port
-    buffer.write(port & 0xff);
-    buffer.writeTo(out);
+
+	// send version 5 request
+
+	Log.write(Log.SOCKS, "Socks: Sending connect request");
+
+	buffer.reset();
+	buffer.write(5);				// version
+	buffer.write(CONNECT);				// command
+	buffer.write(0);				// reserved - must be 0
+	buffer.write(DMNAME);				// address type
+	buffer.write(host.length() & 0xff);		// address length
+	buffer.write(host.getBytes("8859_1"));		// address
+	buffer.write((port >> 8) & 0xff);		// port
+	buffer.write(port & 0xff);
+	buffer.writeTo(out);
 
 
-    // read response
+	// read response
 
-    version = inp.read();
-    if (version != 5)
-        throw new SocksException("Received invalid version: " + version +
-                     "; expected: 5");
+	version = inp.read();
+	if (version != 5)
+	    throw new SocksException("Received invalid version: " + version +
+				     "; expected: 5");
 
-    int sts = inp.read();
+	int sts = inp.read();
 
-    Log.write(Log.SOCKS, "Socks: Received response; version: " + version +
-                 "; status: " + sts);
+	Log.write(Log.SOCKS, "Socks: Received response; version: " + version +
+			     "; status: " + sts);
 
-    switch (sts)
-    {
-        case 0:    // succeeded
-        break;
-        case 1:
-        throw new SocksException("General SOCKS server failure");
-        case 2:
-        throw new SocksException("Connection not allowed");
-        case 3:
-        throw new SocksException("Network unreachable");
-        case 4:
-        throw new SocksException("Host unreachable");
-        case 5:
-        throw new SocksException("Connection refused");
-        case 6:
-        throw new SocksException("TTL expired");
-        case 7:
-        throw new SocksException("Command not supported");
-        case 8:
-        throw new SocksException("Address type not supported");
-        default:
-        throw new SocksException("Unknown reply received from server: "
-                     + sts);
-    }
+	switch (sts)
+	{
+	    case 0:	// succeeded
+		break;
+	    case 1:
+		throw new SocksException("General SOCKS server failure");
+	    case 2:
+		throw new SocksException("Connection not allowed");
+	    case 3:
+		throw new SocksException("Network unreachable");
+	    case 4:
+		throw new SocksException("Host unreachable");
+	    case 5:
+		throw new SocksException("Connection refused");
+	    case 6:
+		throw new SocksException("TTL expired");
+	    case 7:
+		throw new SocksException("Command not supported");
+	    case 8:
+		throw new SocksException("Address type not supported");
+	    default:
+		throw new SocksException("Unknown reply received from server: "
+					 + sts);
+	}
 
-    inp.read();            // Reserved
-    int atype = inp.read(),        // address type
-        alen;            // address length
-    switch(atype)
-    {
-        case IP_V6:
-        alen = 16;
-        break;
-        case IP_V4:
-        alen = 4;
-        break;
-        case DMNAME:
-        alen = inp.read();
-        break;
-        default:
-        throw new SocksException("Invalid address type received from" +
-                     " server: "+atype);
-    }
+	inp.read();			// Reserved
+	int atype = inp.read(),		// address type
+	    alen;			// address length
+	switch(atype)
+	{
+	    case IP_V6:
+		alen = 16;
+		break;
+	    case IP_V4:
+		alen = 4;
+		break;
+	    case DMNAME:
+		alen = inp.read();
+		break;
+	    default:
+		throw new SocksException("Invalid address type received from" +
+					 " server: "+atype);
+	}
 
-    byte[] skip = new byte[alen+2];        // skip address + port
-    int rcvd = 0,
-        tot  = 0;
-    while (tot < skip.length  &&
-        (rcvd = inp.read(skip, 0, skip.length-tot)) != -1)
-        tot += rcvd;
+	byte[] skip = new byte[alen+2];		// skip address + port
+	int rcvd = 0,
+	    tot  = 0;
+	while (tot < skip.length  &&
+		(rcvd = inp.read(skip, 0, skip.length-tot)) != -1)
+	    tot += rcvd;
     }
 
 
@@ -526,10 +526,10 @@ class SocksClient
      *       Java provides the necessary access to the system routines.
      */
     private void negotiate_gssapi(InputStream inp, OutputStream out)
-    throws SocksException, IOException
+	throws SocksException, IOException
     {
-    throw new
-        SocksException("GSSAPI authentication protocol not implemented");
+	throw new
+	    SocksException("GSSAPI authentication protocol not implemented");
     }
 
 
@@ -538,76 +538,76 @@ class SocksClient
      * (rfc-1929). The username and password should previously have been
      * stored using the scheme "SOCKS5" and realm "USER/PASS"; e.g.
      * AuthorizationInfo.addAuthorization(socks_host, socks_port, "SOCKS5",
-     *                      "USER/PASS", null,
-     *                      { new NVPair(username, password) });
+     *					  "USER/PASS", null,
+     *					  { new NVPair(username, password) });
      *
      */
     private void negotiate_userpwd(InputStream inp, OutputStream out)
-    throws SocksException, IOException
+	throws SocksException, IOException
     {
-    byte[] buffer;
+	byte[] buffer;
 
 
-    Log.write(Log.SOCKS, "Socks: Entering authorization subnegotiation" +
-                 "; method: Username/Password");
+	Log.write(Log.SOCKS, "Socks: Entering authorization subnegotiation" +
+			     "; method: Username/Password");
 
-    // get username/password
+	// get username/password
 
-    AuthorizationInfo auth_info;
-    try
-    {
-        auth_info =
-        AuthorizationInfo.getAuthorization(socks_host, socks_port,
-                           "SOCKS5", "USER/PASS",
-                           null, null, true);
-    }
-    catch (AuthSchemeNotImplException atnie)
-        { auth_info = null; }
+	AuthorizationInfo auth_info;
+	try
+	{
+	    auth_info =
+		AuthorizationInfo.getAuthorization(socks_host, socks_port,
+						   "SOCKS5", "USER/PASS",
+						   null, null, true);
+	}
+	catch (AuthSchemeNotImplException atnie)
+	    { auth_info = null; }
 
-    if (auth_info == null)
-        throw new SocksException("No Authorization info for SOCKS found " +
-                     "(server requested username/password).");
+	if (auth_info == null)
+	    throw new SocksException("No Authorization info for SOCKS found " +
+				     "(server requested username/password).");
 
-    NVPair[] unpw = auth_info.getParams();
-    if (unpw == null  ||  unpw.length == 0)
-        throw new SocksException("No Username/Password found in " +
-                     "authorization info for SOCKS.");
+	NVPair[] unpw = auth_info.getParams();
+	if (unpw == null  ||  unpw.length == 0)
+	    throw new SocksException("No Username/Password found in " +
+				     "authorization info for SOCKS.");
 
-    String user_str = unpw[0].getName();
-    String pass_str = unpw[0].getValue();
-
-
-    // send them to server
-
-    Log.write(Log.SOCKS, "Socks: Sending authorization request for user "+
-                 user_str);
-
-    byte[] utmp = user_str.getBytes();
-    byte[] ptmp = pass_str.getBytes();
-    buffer = new byte[1+1+utmp.length+1+ptmp.length];
-    buffer[0] = 1;                // version 1 (subnegotiation)
-    buffer[1] = (byte) utmp.length;                // Username length
-    System.arraycopy(utmp, 0, buffer, 2, utmp.length);    // Username
-    buffer[2+buffer[1]] = (byte) ptmp.length;        // Password length
-    System.arraycopy(ptmp, 0, buffer, 2+buffer[1]+1, ptmp.length);    // Password
-    out.write(buffer);
+	String user_str = unpw[0].getName();
+	String pass_str = unpw[0].getValue();
 
 
-    // get reply
+	// send them to server
 
-    int version = inp.read();
-    if (version != 1)
-        throw new SocksException("Wrong version received in username/" +
-                     "password subnegotiation response: " +
-                     version + "; expected: 1");
+	Log.write(Log.SOCKS, "Socks: Sending authorization request for user "+
+			     user_str);
 
-    int sts = inp.read();
-    if (sts != 0)
-        throw new SocksException("Username/Password authentication " +
-                     "failed; status: "+sts);
+	byte[] utmp = user_str.getBytes();
+	byte[] ptmp = pass_str.getBytes();
+	buffer = new byte[1+1+utmp.length+1+ptmp.length];
+	buffer[0] = 1;				// version 1 (subnegotiation)
+	buffer[1] = (byte) utmp.length;				// Username length
+	System.arraycopy(utmp, 0, buffer, 2, utmp.length);	// Username
+	buffer[2+buffer[1]] = (byte) ptmp.length;		// Password length
+	System.arraycopy(ptmp, 0, buffer, 2+buffer[1]+1, ptmp.length);	// Password
+	out.write(buffer);
 
-    Log.write(Log.SOCKS, "Socks: Received response; version: " + version +
-                 "; status: " + sts);
+
+	// get reply
+
+	int version = inp.read();
+	if (version != 1)
+	    throw new SocksException("Wrong version received in username/" +
+				     "password subnegotiation response: " +
+				     version + "; expected: 1");
+
+	int sts = inp.read();
+	if (sts != 0)
+	    throw new SocksException("Username/Password authentication " +
+				     "failed; status: "+sts);
+
+	Log.write(Log.SOCKS, "Socks: Received response; version: " + version +
+			     "; status: " + sts);
     }
 
 
@@ -617,6 +617,6 @@ class SocksClient
      */
     public String toString()
     {
-    return getClass().getName() + "[" + socks_host + ":" + socks_port + "]";
+	return getClass().getName() + "[" + socks_host + ":" + socks_port + "]";
     }
 }

@@ -1,5 +1,5 @@
 /*
- * @(#)RoRequest.java                    0.3-3 06/05/2001
+ * @(#)RoRequest.java					0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -38,8 +38,8 @@ package HTTPClient;
  * It is the compile-time type passed to various handlers which might
  * need the request info but musn't modify the request.
  *
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
  */
 public interface RoRequest
 {

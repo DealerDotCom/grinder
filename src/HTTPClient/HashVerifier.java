@@ -1,5 +1,5 @@
 /*
- * @(#)HashVerifier.java                0.3-3 06/05/2001
+ * @(#)HashVerifier.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -37,8 +37,8 @@ import java.io.IOException;
 /**
  * This interface defines a hash verifier.
  *
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
  */
 interface HashVerifier
 {

@@ -1,5 +1,5 @@
 /*
- * @(#)ModuleException.java                0.3-3 06/05/2001
+ * @(#)ModuleException.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -36,9 +36,9 @@ package HTTPClient;
 /**
  * Signals that an exception occured in a module.
  *
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
- * @since    V0.3
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
+ * @since	V0.3
  */
 public class ModuleException extends Exception
 {
@@ -49,7 +49,7 @@ public class ModuleException extends Exception
      */
     public ModuleException()
     {
-    super();
+	super();
     }
 
 
@@ -61,6 +61,6 @@ public class ModuleException extends Exception
      */
     public ModuleException(String msg)
     {
-    super(msg);
+	super(msg);
     }
 }

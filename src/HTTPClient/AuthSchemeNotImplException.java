@@ -1,5 +1,5 @@
 /*
- * @(#)AuthSchemeNotImplException.java            0.3-3 06/05/2001
+ * @(#)AuthSchemeNotImplException.java			0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -36,8 +36,8 @@ package HTTPClient;
 /**
  * Signals that the handling of a authorization scheme is not implemented.
  *
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
  */
 public class AuthSchemeNotImplException extends ModuleException
 {
@@ -48,7 +48,7 @@ public class AuthSchemeNotImplException extends ModuleException
      */
     public AuthSchemeNotImplException()
     {
-    super();
+	super();
     }
 
 
@@ -61,6 +61,6 @@ public class AuthSchemeNotImplException extends ModuleException
      */
     public AuthSchemeNotImplException(String msg)
     {
-    super(msg);
+	super(msg);
     }
 }

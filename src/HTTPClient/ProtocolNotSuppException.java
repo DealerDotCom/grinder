@@ -1,5 +1,5 @@
 /*
- * @(#)ProtocolNotSuppException.java            0.3-3 06/05/2001
+ * @(#)ProtocolNotSuppException.java			0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -37,8 +37,8 @@ import java.io.IOException;
 /**
  * Signals that the protocol is not supported.
  *
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
  */
 public class ProtocolNotSuppException extends IOException
 {
@@ -49,7 +49,7 @@ public class ProtocolNotSuppException extends IOException
      */
     public ProtocolNotSuppException()
     {
-    super();
+	super();
     }
 
 
@@ -61,7 +61,7 @@ public class ProtocolNotSuppException extends IOException
      */
     public ProtocolNotSuppException(String s)
     {
-    super(s);
+	super(s);
     }
 
 }

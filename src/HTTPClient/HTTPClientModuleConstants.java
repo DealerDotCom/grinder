@@ -1,5 +1,5 @@
 /*
- * @(#)HTTPClientModuleConstants.java            0.3-3 06/05/2001
+ * @(#)HTTPClientModuleConstants.java			0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -38,9 +38,9 @@ package HTTPClient;
  * may return.
  *
  * @see HTTPClientModule
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
- * @since    V0.3
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
+ * @since	V0.3
  */
 public interface HTTPClientModuleConstants
 {

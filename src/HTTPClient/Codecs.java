@@ -1,5 +1,5 @@
 /*
- * @(#)Codecs.java                    0.3-3 06/05/2001
+ * @(#)Codecs.java					0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -50,8 +50,8 @@ import java.net.URLConnection;
 /**
  * This class collects various encoders and decoders.
  *
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
  */
 public class Codecs
 {
@@ -72,61 +72,61 @@ public class Codecs
 
     static
     {
-    // rfc-2046 & rfc-2045: (bcharsnospace & token)
-    // used for multipart codings
-    BoundChar = new BitSet(256);
-    for (int ch='0'; ch <= '9'; ch++)  BoundChar.set(ch);
-    for (int ch='A'; ch <= 'Z'; ch++)  BoundChar.set(ch);
-    for (int ch='a'; ch <= 'z'; ch++)  BoundChar.set(ch);
-    BoundChar.set('+');
-    BoundChar.set('_');
-    BoundChar.set('-');
-    BoundChar.set('.');
+	// rfc-2046 & rfc-2045: (bcharsnospace & token)
+	// used for multipart codings
+	BoundChar = new BitSet(256);
+	for (int ch='0'; ch <= '9'; ch++)  BoundChar.set(ch);
+	for (int ch='A'; ch <= 'Z'; ch++)  BoundChar.set(ch);
+	for (int ch='a'; ch <= 'z'; ch++)  BoundChar.set(ch);
+	BoundChar.set('+');
+	BoundChar.set('_');
+	BoundChar.set('-');
+	BoundChar.set('.');
 
-    // EBCDIC unsafe characters to be quoted in quoted-printable
-    // See first NOTE in section 6.7 of rfc-2045
-    EBCDICUnsafeChar = new BitSet(256);
-    EBCDICUnsafeChar.set('!');
-    EBCDICUnsafeChar.set('"');
-    EBCDICUnsafeChar.set('#');
-    EBCDICUnsafeChar.set('$');
-    EBCDICUnsafeChar.set('@');
-    EBCDICUnsafeChar.set('[');
-    EBCDICUnsafeChar.set('\\');
-    EBCDICUnsafeChar.set(']');
-    EBCDICUnsafeChar.set('^');
-    EBCDICUnsafeChar.set('`');
-    EBCDICUnsafeChar.set('{');
-    EBCDICUnsafeChar.set('|');
-    EBCDICUnsafeChar.set('}');
-    EBCDICUnsafeChar.set('~');
+	// EBCDIC unsafe characters to be quoted in quoted-printable
+	// See first NOTE in section 6.7 of rfc-2045
+	EBCDICUnsafeChar = new BitSet(256);
+	EBCDICUnsafeChar.set('!');
+	EBCDICUnsafeChar.set('"');
+	EBCDICUnsafeChar.set('#');
+	EBCDICUnsafeChar.set('$');
+	EBCDICUnsafeChar.set('@');
+	EBCDICUnsafeChar.set('[');
+	EBCDICUnsafeChar.set('\\');
+	EBCDICUnsafeChar.set(']');
+	EBCDICUnsafeChar.set('^');
+	EBCDICUnsafeChar.set('`');
+	EBCDICUnsafeChar.set('{');
+	EBCDICUnsafeChar.set('|');
+	EBCDICUnsafeChar.set('}');
+	EBCDICUnsafeChar.set('~');
 
-    // rfc-2045: Base64 Alphabet
-    byte[] map = {
-        (byte)'A', (byte)'B', (byte)'C', (byte)'D', (byte)'E', (byte)'F',
-        (byte)'G', (byte)'H', (byte)'I', (byte)'J', (byte)'K', (byte)'L',
-        (byte)'M', (byte)'N', (byte)'O', (byte)'P', (byte)'Q', (byte)'R',
-        (byte)'S', (byte)'T', (byte)'U', (byte)'V', (byte)'W', (byte)'X',
-        (byte)'Y', (byte)'Z',
-        (byte)'a', (byte)'b', (byte)'c', (byte)'d', (byte)'e', (byte)'f',
-        (byte)'g', (byte)'h', (byte)'i', (byte)'j', (byte)'k', (byte)'l',
-        (byte)'m', (byte)'n', (byte)'o', (byte)'p', (byte)'q', (byte)'r',
-        (byte)'s', (byte)'t', (byte)'u', (byte)'v', (byte)'w', (byte)'x',
-        (byte)'y', (byte)'z',
-        (byte)'0', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'5',
-        (byte)'6', (byte)'7', (byte)'8', (byte)'9', (byte)'+', (byte)'/' };
-    Base64EncMap = map;
-    Base64DecMap = new byte[128];
-    for (int idx=0; idx<Base64EncMap.length; idx++)
-        Base64DecMap[Base64EncMap[idx]] = (byte) idx;
+	// rfc-2045: Base64 Alphabet
+	byte[] map = {
+	    (byte)'A', (byte)'B', (byte)'C', (byte)'D', (byte)'E', (byte)'F',
+	    (byte)'G', (byte)'H', (byte)'I', (byte)'J', (byte)'K', (byte)'L',
+	    (byte)'M', (byte)'N', (byte)'O', (byte)'P', (byte)'Q', (byte)'R',
+	    (byte)'S', (byte)'T', (byte)'U', (byte)'V', (byte)'W', (byte)'X',
+	    (byte)'Y', (byte)'Z',
+	    (byte)'a', (byte)'b', (byte)'c', (byte)'d', (byte)'e', (byte)'f',
+	    (byte)'g', (byte)'h', (byte)'i', (byte)'j', (byte)'k', (byte)'l',
+	    (byte)'m', (byte)'n', (byte)'o', (byte)'p', (byte)'q', (byte)'r',
+	    (byte)'s', (byte)'t', (byte)'u', (byte)'v', (byte)'w', (byte)'x',
+	    (byte)'y', (byte)'z',
+	    (byte)'0', (byte)'1', (byte)'2', (byte)'3', (byte)'4', (byte)'5',
+	    (byte)'6', (byte)'7', (byte)'8', (byte)'9', (byte)'+', (byte)'/' };
+	Base64EncMap = map;
+	Base64DecMap = new byte[128];
+	for (int idx=0; idx<Base64EncMap.length; idx++)
+	    Base64DecMap[Base64EncMap[idx]] = (byte) idx;
 
-    // uuencode'ing maps
-    UUEncMap = new char[64];
-    for (int idx=0; idx<UUEncMap.length; idx++)
-        UUEncMap[idx] = (char) (idx + 0x20);
-    UUDecMap = new byte[128];
-    for (int idx=0; idx<UUEncMap.length; idx++)
-        UUDecMap[UUEncMap[idx]] = (byte) idx;
+	// uuencode'ing maps
+	UUEncMap = new char[64];
+	for (int idx=0; idx<UUEncMap.length; idx++)
+	    UUEncMap[idx] = (char) (idx + 0x20);
+	UUDecMap = new byte[128];
+	for (int idx=0; idx<UUEncMap.length; idx++)
+	    UUDecMap[UUEncMap[idx]] = (byte) idx;
     }
 
 
@@ -150,12 +150,12 @@ public class Codecs
      */
     public final static String base64Encode(String str)
     {
-    if (str == null)  return  null;
+	if (str == null)  return  null;
 
-    try
-        { return new String(base64Encode(str.getBytes("8859_1")), "8859_1"); }
-    catch (UnsupportedEncodingException uee)
-        { throw new Error(uee.toString()); }
+	try
+	    { return new String(base64Encode(str.getBytes("8859_1")), "8859_1"); }
+	catch (UnsupportedEncodingException uee)
+	    { throw new Error(uee.toString()); }
     }
 
 
@@ -168,40 +168,40 @@ public class Codecs
      */
     public final static byte[] base64Encode(byte[] data)
     {
-    if (data == null)  return  null;
+	if (data == null)  return  null;
 
-    int sidx, didx;
-    byte dest[] = new byte[((data.length+2)/3)*4];
+	int sidx, didx;
+	byte dest[] = new byte[((data.length+2)/3)*4];
 
 
-    // 3-byte to 4-byte conversion + 0-63 to ascii printable conversion
-    for (sidx=0, didx=0; sidx < data.length-2; sidx += 3)
-    {
-        dest[didx++] = Base64EncMap[(data[sidx] >>> 2) & 077];
-        dest[didx++] = Base64EncMap[(data[sidx+1] >>> 4) & 017 |
-                    (data[sidx] << 4) & 077];
-        dest[didx++] = Base64EncMap[(data[sidx+2] >>> 6) & 003 |
-                    (data[sidx+1] << 2) & 077];
-        dest[didx++] = Base64EncMap[data[sidx+2] & 077];
-    }
-    if (sidx < data.length)
-    {
-        dest[didx++] = Base64EncMap[(data[sidx] >>> 2) & 077];
-        if (sidx < data.length-1)
-        {
-        dest[didx++] = Base64EncMap[(data[sidx+1] >>> 4) & 017 |
-                        (data[sidx] << 4) & 077];
-        dest[didx++] = Base64EncMap[(data[sidx+1] << 2) & 077];
-        }
-        else
-        dest[didx++] = Base64EncMap[(data[sidx] << 4) & 077];
-    }
+	// 3-byte to 4-byte conversion + 0-63 to ascii printable conversion
+	for (sidx=0, didx=0; sidx < data.length-2; sidx += 3)
+	{
+	    dest[didx++] = Base64EncMap[(data[sidx] >>> 2) & 077];
+	    dest[didx++] = Base64EncMap[(data[sidx+1] >>> 4) & 017 |
+					(data[sidx] << 4) & 077];
+	    dest[didx++] = Base64EncMap[(data[sidx+2] >>> 6) & 003 |
+					(data[sidx+1] << 2) & 077];
+	    dest[didx++] = Base64EncMap[data[sidx+2] & 077];
+	}
+	if (sidx < data.length)
+	{
+	    dest[didx++] = Base64EncMap[(data[sidx] >>> 2) & 077];
+	    if (sidx < data.length-1)
+	    {
+		dest[didx++] = Base64EncMap[(data[sidx+1] >>> 4) & 017 |
+					    (data[sidx] << 4) & 077];
+		dest[didx++] = Base64EncMap[(data[sidx+1] << 2) & 077];
+	    }
+	    else
+		dest[didx++] = Base64EncMap[(data[sidx] << 4) & 077];
+	}
 
-    // add padding
-    for ( ; didx < dest.length; didx++)
-        dest[didx] = (byte) '=';
+	// add padding
+	for ( ; didx < dest.length; didx++)
+	    dest[didx] = (byte) '=';
 
-    return dest;
+	return dest;
     }
 
 
@@ -214,12 +214,12 @@ public class Codecs
      */
     public final static String base64Decode(String str)
     {
-    if (str == null)  return  null;
+	if (str == null)  return  null;
 
-    try
-        { return new String(base64Decode(str.getBytes("8859_1")), "8859_1"); }
-    catch (UnsupportedEncodingException uee)
-        { throw new Error(uee.toString()); }
+	try
+	    { return new String(base64Decode(str.getBytes("8859_1")), "8859_1"); }
+	catch (UnsupportedEncodingException uee)
+	    { throw new Error(uee.toString()); }
     }
 
 
@@ -232,37 +232,37 @@ public class Codecs
      */
     public final static byte[] base64Decode(byte[] data)
     {
-    if (data == null)  return  null;
+	if (data == null)  return  null;
 
-    int tail = data.length;
-    while (data[tail-1] == '=')  tail--;
+	int tail = data.length;
+	while (data[tail-1] == '=')  tail--;
 
-    byte dest[] = new byte[tail - data.length/4];
+	byte dest[] = new byte[tail - data.length/4];
 
 
-    // ascii printable to 0-63 conversion
-    for (int idx = 0; idx <data.length; idx++)
-        data[idx] = Base64DecMap[data[idx]];
+	// ascii printable to 0-63 conversion
+	for (int idx = 0; idx <data.length; idx++)
+	    data[idx] = Base64DecMap[data[idx]];
 
-    // 4-byte to 3-byte conversion
-    int sidx, didx;
-    for (sidx = 0, didx=0; didx < dest.length-2; sidx += 4, didx += 3)
-    {
-        dest[didx]   = (byte) ( ((data[sidx] << 2) & 255) |
-                ((data[sidx+1] >>> 4) & 003) );
-        dest[didx+1] = (byte) ( ((data[sidx+1] << 4) & 255) |
-                ((data[sidx+2] >>> 2) & 017) );
-        dest[didx+2] = (byte) ( ((data[sidx+2] << 6) & 255) |
-                (data[sidx+3] & 077) );
-    }
-    if (didx < dest.length)
-        dest[didx]   = (byte) ( ((data[sidx] << 2) & 255) |
-                ((data[sidx+1] >>> 4) & 003) );
-    if (++didx < dest.length)
-        dest[didx]   = (byte) ( ((data[sidx+1] << 4) & 255) |
-                ((data[sidx+2] >>> 2) & 017) );
+	// 4-byte to 3-byte conversion
+	int sidx, didx;
+	for (sidx = 0, didx=0; didx < dest.length-2; sidx += 4, didx += 3)
+	{
+	    dest[didx]   = (byte) ( ((data[sidx] << 2) & 255) |
+			    ((data[sidx+1] >>> 4) & 003) );
+	    dest[didx+1] = (byte) ( ((data[sidx+1] << 4) & 255) |
+			    ((data[sidx+2] >>> 2) & 017) );
+	    dest[didx+2] = (byte) ( ((data[sidx+2] << 6) & 255) |
+			    (data[sidx+3] & 077) );
+	}
+	if (didx < dest.length)
+	    dest[didx]   = (byte) ( ((data[sidx] << 2) & 255) |
+			    ((data[sidx+1] >>> 4) & 003) );
+	if (++didx < dest.length)
+	    dest[didx]   = (byte) ( ((data[sidx+1] << 4) & 255) |
+			    ((data[sidx+2] >>> 2) & 017) );
 
-    return dest;
+	return dest;
     }
 
 
@@ -281,77 +281,77 @@ public class Codecs
      */
     public final static char[] uuencode(byte[] data)
     {
-    if (data == null)      return  null;
-    if (data.length == 0)  return  new char[0];
+	if (data == null)      return  null;
+	if (data.length == 0)  return  new char[0];
 
-    int line_len = 45;    // line length, in octets
+	int line_len = 45;	// line length, in octets
 
-    int sidx, didx;
-    char nl[]   = System.getProperty("line.separator", "\n").toCharArray(),
-         dest[] = new char[(data.length+2)/3*4 +
-                ((data.length+line_len-1)/line_len)*(nl.length+1)];
+	int sidx, didx;
+	char nl[]   = System.getProperty("line.separator", "\n").toCharArray(),
+	     dest[] = new char[(data.length+2)/3*4 +
+			    ((data.length+line_len-1)/line_len)*(nl.length+1)];
 
-    // split into lines, adding line-length and line terminator
-    for (sidx=0, didx=0; sidx+line_len < data.length; )
-    {
-        // line length
-        dest[didx++] = UUEncMap[line_len];
+	// split into lines, adding line-length and line terminator
+	for (sidx=0, didx=0; sidx+line_len < data.length; )
+	{
+	    // line length
+	    dest[didx++] = UUEncMap[line_len];
 
-        // 3-byte to 4-byte conversion + 0-63 to ascii printable conversion
-        for (int end = sidx+line_len; sidx < end; sidx += 3)
-        {
-        dest[didx++] = UUEncMap[(data[sidx] >>> 2) & 077];
-        dest[didx++] = UUEncMap[(data[sidx+1] >>> 4) & 017 |
-                        (data[sidx] << 4) & 077];
-        dest[didx++] = UUEncMap[(data[sidx+2] >>> 6) & 003 |
-                        (data[sidx+1] << 2) & 077];
-        dest[didx++] = UUEncMap[data[sidx+2] & 077];
-        }
+	    // 3-byte to 4-byte conversion + 0-63 to ascii printable conversion
+	    for (int end = sidx+line_len; sidx < end; sidx += 3)
+	    {
+		dest[didx++] = UUEncMap[(data[sidx] >>> 2) & 077];
+		dest[didx++] = UUEncMap[(data[sidx+1] >>> 4) & 017 |
+					    (data[sidx] << 4) & 077];
+		dest[didx++] = UUEncMap[(data[sidx+2] >>> 6) & 003 |
+					    (data[sidx+1] << 2) & 077];
+		dest[didx++] = UUEncMap[data[sidx+2] & 077];
+	    }
 
-        // line terminator
-        for (int idx=0; idx<nl.length; idx++)  dest[didx++] = nl[idx];
-    }
+	    // line terminator
+	    for (int idx=0; idx<nl.length; idx++)  dest[didx++] = nl[idx];
+	}
 
-    // last line
+	// last line
 
-    // line length
-    dest[didx++] = UUEncMap[data.length-sidx];
+	// line length
+	dest[didx++] = UUEncMap[data.length-sidx];
 
-    // 3-byte to 4-byte conversion + 0-63 to ascii printable conversion
-    for (; sidx+2 < data.length; sidx += 3)
-    {
-        dest[didx++] = UUEncMap[(data[sidx] >>> 2) & 077];
-        dest[didx++] = UUEncMap[(data[sidx+1] >>> 4) & 017 |
-                    (data[sidx] << 4) & 077];
-        dest[didx++] = UUEncMap[(data[sidx+2] >>> 6) & 003 |
-                    (data[sidx+1] << 2) & 077];
-        dest[didx++] = UUEncMap[data[sidx+2] & 077];
-    }
+	// 3-byte to 4-byte conversion + 0-63 to ascii printable conversion
+	for (; sidx+2 < data.length; sidx += 3)
+	{
+	    dest[didx++] = UUEncMap[(data[sidx] >>> 2) & 077];
+	    dest[didx++] = UUEncMap[(data[sidx+1] >>> 4) & 017 |
+					(data[sidx] << 4) & 077];
+	    dest[didx++] = UUEncMap[(data[sidx+2] >>> 6) & 003 |
+					(data[sidx+1] << 2) & 077];
+	    dest[didx++] = UUEncMap[data[sidx+2] & 077];
+	}
 
-    if (sidx < data.length-1)
-    {
-        dest[didx++] = UUEncMap[(data[sidx] >>> 2) & 077];
-        dest[didx++] = UUEncMap[(data[sidx+1] >>> 4) & 017 |
-                    (data[sidx] << 4) & 077];
-        dest[didx++] = UUEncMap[(data[sidx+1] << 2) & 077];
-        dest[didx++] = UUEncMap[0];
-    }
-    else if (sidx < data.length)
-    {
-        dest[didx++] = UUEncMap[(data[sidx] >>> 2) & 077];
-        dest[didx++] = UUEncMap[(data[sidx] << 4) & 077];
-        dest[didx++] = UUEncMap[0];
-        dest[didx++] = UUEncMap[0];
-    }
+	if (sidx < data.length-1)
+	{
+	    dest[didx++] = UUEncMap[(data[sidx] >>> 2) & 077];
+	    dest[didx++] = UUEncMap[(data[sidx+1] >>> 4) & 017 |
+					(data[sidx] << 4) & 077];
+	    dest[didx++] = UUEncMap[(data[sidx+1] << 2) & 077];
+	    dest[didx++] = UUEncMap[0];
+	}
+	else if (sidx < data.length)
+	{
+	    dest[didx++] = UUEncMap[(data[sidx] >>> 2) & 077];
+	    dest[didx++] = UUEncMap[(data[sidx] << 4) & 077];
+	    dest[didx++] = UUEncMap[0];
+	    dest[didx++] = UUEncMap[0];
+	}
 
-    // line terminator
-    for (int idx=0; idx<nl.length; idx++)  dest[didx++] = nl[idx];
+	// line terminator
+	for (int idx=0; idx<nl.length; idx++)  dest[didx++] = nl[idx];
 
-    // sanity check
-    if (didx != dest.length)
-        throw new Error("Calculated "+dest.length+" chars but wrote "+didx+" chars!");
+	// sanity check
+	if (didx != dest.length)
+	    throw new Error("Calculated "+dest.length+" chars but wrote "+didx+" chars!");
 
-    return dest;
+	return dest;
     }
 
 
@@ -364,53 +364,53 @@ public class Codecs
      * @exception IOException if the <var>rdr</var> throws an IOException
      */
     private final static byte[] uudecode(BufferedReader rdr)
-        throws ParseException, IOException
+		throws ParseException, IOException
     {
-    String line, file_name;
-    int    file_mode;
+	String line, file_name;
+	int    file_mode;
 
 
-    // search for beginning
+	// search for beginning
 
-    while ((line = rdr.readLine()) != null  &&  !line.startsWith("begin "))
-        ;
-    if (line == null)
-        throw new ParseException("'begin' line not found");
-
-
-    // parse 'begin' line
-
-    StringTokenizer tok = new StringTokenizer(line);
-    tok.nextToken();        // throw away 'begin'
-    try                // extract mode
-        { file_mode = Integer.parseInt(tok.nextToken(), 8); }
-    catch (Exception e)
-        { throw new ParseException("Invalid mode on line: " + line); }
-    try                // extract name
-        { file_name = tok.nextToken(); }
-    catch (java.util.NoSuchElementException e)
-        { throw new ParseException("No file name found on line: " + line); }
+	while ((line = rdr.readLine()) != null  &&  !line.startsWith("begin "))
+	    ;
+	if (line == null)
+	    throw new ParseException("'begin' line not found");
 
 
-    // read and parse body
+	// parse 'begin' line
 
-    byte[] body = new byte[1000];
-    int    off  = 0;
-
-    while ((line = rdr.readLine()) != null  &&  !line.equals("end"))
-    {
-        byte[] tmp = uudecode(line.toCharArray());
-        if (off + tmp.length > body.length)
-        body = Util.resizeArray(body, off+1000);
-        System.arraycopy(tmp, 0, body, off, tmp.length);
-        off += tmp.length;
-    }
-
-    if (line == null)
-        throw new ParseException("'end' line not found");
+	StringTokenizer tok = new StringTokenizer(line);
+	tok.nextToken();		// throw away 'begin'
+	try				// extract mode
+	    { file_mode = Integer.parseInt(tok.nextToken(), 8); }
+	catch (Exception e)
+	    { throw new ParseException("Invalid mode on line: " + line); }
+	try				// extract name
+	    { file_name = tok.nextToken(); }
+	catch (java.util.NoSuchElementException e)
+	    { throw new ParseException("No file name found on line: " + line); }
 
 
-    return Util.resizeArray(body, off);
+	// read and parse body
+
+	byte[] body = new byte[1000];
+	int    off  = 0;
+
+	while ((line = rdr.readLine()) != null  &&  !line.equals("end"))
+	{
+	    byte[] tmp = uudecode(line.toCharArray());
+	    if (off + tmp.length > body.length)
+		body = Util.resizeArray(body, off+1000);
+	    System.arraycopy(tmp, 0, body, off, tmp.length);
+	    off += tmp.length;
+	}
+
+	if (line == null)
+	    throw new ParseException("'end' line not found");
+
+
+	return Util.resizeArray(body, off);
     }
 
 
@@ -426,55 +426,55 @@ public class Codecs
      */
     public final static byte[] uudecode(char[] data)
     {
-    if (data == null)  return  null;
+	if (data == null)  return  null;
 
-    int sidx, didx;
-    byte dest[] = new byte[data.length/4*3];
+	int sidx, didx;
+	byte dest[] = new byte[data.length/4*3];
 
 
-    for (sidx=0, didx=0; sidx < data.length; )
-    {
-        // get line length (in number of encoded octets)
-        int len = UUDecMap[data[sidx++]];
+	for (sidx=0, didx=0; sidx < data.length; )
+	{
+	    // get line length (in number of encoded octets)
+	    int len = UUDecMap[data[sidx++]];
 
-        // ascii printable to 0-63 and 4-byte to 3-byte conversion
-        int end = didx+len;
-        for (; didx < end-2; sidx += 4)
-        {
-        byte A = UUDecMap[data[sidx]],
-             B = UUDecMap[data[sidx+1]],
-             C = UUDecMap[data[sidx+2]],
-             D = UUDecMap[data[sidx+3]];
-        dest[didx++] = (byte) ( ((A << 2) & 255) | ((B >>> 4) & 003) );
-        dest[didx++] = (byte) ( ((B << 4) & 255) | ((C >>> 2) & 017) );
-        dest[didx++] = (byte) ( ((C << 6) & 255) | (D & 077) );
-        }
+	    // ascii printable to 0-63 and 4-byte to 3-byte conversion
+	    int end = didx+len;
+	    for (; didx < end-2; sidx += 4)
+	    {
+		byte A = UUDecMap[data[sidx]],
+		     B = UUDecMap[data[sidx+1]],
+		     C = UUDecMap[data[sidx+2]],
+		     D = UUDecMap[data[sidx+3]];
+		dest[didx++] = (byte) ( ((A << 2) & 255) | ((B >>> 4) & 003) );
+		dest[didx++] = (byte) ( ((B << 4) & 255) | ((C >>> 2) & 017) );
+		dest[didx++] = (byte) ( ((C << 6) & 255) | (D & 077) );
+	    }
 
-        if (didx < end)
-        {
-        byte A = UUDecMap[data[sidx]],
-             B = UUDecMap[data[sidx+1]];
-        dest[didx++] = (byte) ( ((A << 2) & 255) | ((B >>> 4) & 003) );
-        }
-        if (didx < end)
-        {
-        byte B = UUDecMap[data[sidx+1]],
-             C = UUDecMap[data[sidx+2]];
-        dest[didx++] = (byte) ( ((B << 4) & 255) | ((C >>> 2) & 017) );
-        }
+	    if (didx < end)
+	    {
+		byte A = UUDecMap[data[sidx]],
+		     B = UUDecMap[data[sidx+1]];
+		dest[didx++] = (byte) ( ((A << 2) & 255) | ((B >>> 4) & 003) );
+	    }
+	    if (didx < end)
+	    {
+		byte B = UUDecMap[data[sidx+1]],
+		     C = UUDecMap[data[sidx+2]];
+		dest[didx++] = (byte) ( ((B << 4) & 255) | ((C >>> 2) & 017) );
+	    }
 
-        // skip padding
-        while (sidx < data.length  &&
-           data[sidx] != '\n'  &&  data[sidx] != '\r')
-        sidx++;
+	    // skip padding
+	    while (sidx < data.length  &&
+		   data[sidx] != '\n'  &&  data[sidx] != '\r')
+		sidx++;
 
-        // skip end of line
-        while (sidx < data.length  &&
-           (data[sidx] == '\n'  ||  data[sidx] == '\r'))
-        sidx++;
-    }
+	    // skip end of line
+	    while (sidx < data.length  &&
+		   (data[sidx] == '\n'  ||  data[sidx] == '\r'))
+		sidx++;
+	}
 
-    return Util.resizeArray(dest, didx);
+	return Util.resizeArray(dest, didx);
     }
 
 
@@ -488,78 +488,78 @@ public class Codecs
      */
     public final static String quotedPrintableEncode(String str)
     {
-    if (str == null)  return  null;
+	if (str == null)  return  null;
 
-    char map[] =
-        {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'},
-         nl[]  = System.getProperty("line.separator", "\n").toCharArray(),
-         res[] = new char[(int) (str.length()*1.5)],
-         src[] = str.toCharArray();
-    char ch;
-    int  cnt  = 0,
-         didx = 1,
-         last = 0,
-         slen = str.length();
+	char map[] =
+	    {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'},
+	     nl[]  = System.getProperty("line.separator", "\n").toCharArray(),
+	     res[] = new char[(int) (str.length()*1.5)],
+	     src[] = str.toCharArray();
+	char ch;
+	int  cnt  = 0,
+	     didx = 1,
+	     last = 0,
+	     slen = str.length();
 
 
-    for (int sidx=0; sidx < slen; sidx++)
-    {
-        ch = src[sidx];
+	for (int sidx=0; sidx < slen; sidx++)
+	{
+	    ch = src[sidx];
 
-        if (ch == nl[0]   &&  match(src, sidx, nl))        // Rule #4
-        {
-        if (res[didx-1] == ' ')            // Rule #3
-        {
-            res[didx-1] = '=';
-            res[didx++] = '2';
-            res[didx++] = '0';
-        }
-        else if (res[didx-1] == '\t')        // Rule #3
-        {
-            res[didx-1] = '=';
-            res[didx++] = '0';
-            res[didx++] = '9';
-        }
+	    if (ch == nl[0]   &&  match(src, sidx, nl))		// Rule #4
+	    {
+		if (res[didx-1] == ' ')			// Rule #3
+		{
+		    res[didx-1] = '=';
+		    res[didx++] = '2';
+		    res[didx++] = '0';
+		}
+		else if (res[didx-1] == '\t')		// Rule #3
+		{
+		    res[didx-1] = '=';
+		    res[didx++] = '0';
+		    res[didx++] = '9';
+		}
 
-        res[didx++] = '\r';
-        res[didx++] = '\n';
-        sidx += nl.length - 1;
-        cnt = didx;
-        }
-        else if (ch > 126  ||  (ch < 32  &&  ch != '\t')  ||  ch == '='  ||
-             EBCDICUnsafeChar.get((int) ch))
-        {                            // Rule #1, #2
-        res[didx++] = '=';
-        res[didx++] = map[(ch & 0xf0) >>> 4];
-        res[didx++] = map[ch & 0x0f];
-        }
-        else                        // Rule #1
-        {
-        res[didx++] = ch;
-        }
+		res[didx++] = '\r';
+		res[didx++] = '\n';
+		sidx += nl.length - 1;
+		cnt = didx;
+	    }
+	    else if (ch > 126  ||  (ch < 32  &&  ch != '\t')  ||  ch == '='  ||
+		     EBCDICUnsafeChar.get((int) ch))
+	    {							// Rule #1, #2
+		res[didx++] = '=';
+		res[didx++] = map[(ch & 0xf0) >>> 4];
+		res[didx++] = map[ch & 0x0f];
+	    }
+	    else						// Rule #1
+	    {
+		res[didx++] = ch;
+	    }
 
-        if (didx > cnt+70)                    // Rule #5
-        {
-        res[didx++] = '=';
-        res[didx++] = '\r';
-        res[didx++] = '\n';
-        cnt = didx;
-        }
+	    if (didx > cnt+70)					// Rule #5
+	    {
+		res[didx++] = '=';
+		res[didx++] = '\r';
+		res[didx++] = '\n';
+		cnt = didx;
+	    }
 
-        if (didx > res.length-5)
-        res = Util.resizeArray(res, res.length+500);
-    }
+	    if (didx > res.length-5)
+		res = Util.resizeArray(res, res.length+500);
+	}
 
-    return String.valueOf(res, 1, didx-1);
+	return String.valueOf(res, 1, didx-1);
     }
 
     private final static boolean match(char[] str, int start, char[] arr)
     {
-    if (str.length < start + arr.length)  return false;
+	if (str.length < start + arr.length)  return false;
 
-    for (int idx=1; idx < arr.length; idx++)
-        if (str[start+idx] != arr[idx])  return false;
-    return true;
+	for (int idx=1; idx < arr.length; idx++)
+	    if (str[start+idx] != arr[idx])  return false;
+	return true;
     }
 
 
@@ -574,74 +574,74 @@ public class Codecs
      *                           2-digit hex number or '\r\n'.
      */
     public final static String quotedPrintableDecode(String str)
-        throws ParseException
+	    throws ParseException
     {
-    if (str == null)  return  null;
+	if (str == null)  return  null;
 
-    char res[] = new char[(int) (str.length()*1.1)],
-         src[] = str.toCharArray(),
-         nl[]  = System.getProperty("line.separator", "\n").toCharArray();
-    int last   = 0,
-        didx   = 0,
-        slen   = str.length();
+	char res[] = new char[(int) (str.length()*1.1)],
+	     src[] = str.toCharArray(),
+	     nl[]  = System.getProperty("line.separator", "\n").toCharArray();
+	int last   = 0,
+	    didx   = 0,
+	    slen   = str.length();
 
 
-    for (int sidx=0; sidx<slen; )
-    {
-        char ch = src[sidx++];
+	for (int sidx=0; sidx<slen; )
+	{
+	    char ch = src[sidx++];
 
-        if (ch == '=')
-        {
-        if (sidx >= slen-1)
-            throw new ParseException("Premature end of input detected");
+	    if (ch == '=')
+	    {
+		if (sidx >= slen-1)
+		    throw new ParseException("Premature end of input detected");
 
-        if (src[sidx] == '\n'  ||  src[sidx] == '\r')
-        {                    // Rule #5
-            sidx++;
+		if (src[sidx] == '\n'  ||  src[sidx] == '\r')
+		{					// Rule #5
+		    sidx++;
 
-            if (src[sidx-1] == '\r'  &&
-            src[sidx] == '\n')
-            sidx++;
-        }
-        else                    // Rule #1
-        {
-            char repl;
-            int hi = Character.digit(src[sidx], 16),
-            lo = Character.digit(src[sidx+1], 16);
+		    if (src[sidx-1] == '\r'  &&
+			src[sidx] == '\n')
+			sidx++;
+		}
+		else					// Rule #1
+		{
+		    char repl;
+		    int hi = Character.digit(src[sidx], 16),
+			lo = Character.digit(src[sidx+1], 16);
 
-            if ((hi | lo) < 0)
-            throw new ParseException(new String(src, sidx-1, 3) +
-                        " is an invalid code");
-            else
-            {
-            repl = (char) (hi << 4 | lo);
-            sidx += 2;
-            }
+		    if ((hi | lo) < 0)
+			throw new ParseException(new String(src, sidx-1, 3) +
+						" is an invalid code");
+		    else
+		    {
+			repl = (char) (hi << 4 | lo);
+			sidx += 2;
+		    }
 
-            res[didx++] = repl;
-        }
-        last = didx;
-        }
-        else if (ch == '\n'  ||  ch == '\r')    // Rule #4
-        {
-        if (ch == '\r'  &&  sidx < slen  &&  src[sidx] == '\n')
-            sidx++;
-        for (int idx=0; idx<nl.length; idx++)
-            res[last++] = nl[idx];
-        didx = last;
-        }
-        else                    // Rule #1, #2
-        {
-        res[didx++] = ch;
-        if (ch != ' '  &&  ch != '\t')        // Rule #3
-            last = didx;
-        }
+		    res[didx++] = repl;
+		}
+		last = didx;
+	    }
+	    else if (ch == '\n'  ||  ch == '\r')	// Rule #4
+	    {
+		if (ch == '\r'  &&  sidx < slen  &&  src[sidx] == '\n')
+		    sidx++;
+		for (int idx=0; idx<nl.length; idx++)
+		    res[last++] = nl[idx];
+		didx = last;
+	    }
+	    else					// Rule #1, #2
+	    {
+		res[didx++] = ch;
+		if (ch != ' '  &&  ch != '\t')		// Rule #3
+		    last = didx;
+	    }
 
-        if (didx > res.length-nl.length-2)
-        res = Util.resizeArray(res, res.length+500);
-    }
+	    if (didx > res.length-nl.length-2)
+		res = Util.resizeArray(res, res.length+500);
+	}
 
-    return new String(res, 0, didx);
+	return new String(res, 0, didx);
     }
 
 
@@ -654,9 +654,9 @@ public class Codecs
      */
     public final static String URLEncode(String str)
     {
-    if (str == null)  return  null;
+	if (str == null)  return  null;
 
-    return java.net.URLEncoder.encode(str);
+	return java.net.URLEncoder.encode(str);
     }
 
 
@@ -670,35 +670,35 @@ public class Codecs
      */
     public final static String URLDecode(String str) throws ParseException
     {
-    if (str == null)  return  null;
+	if (str == null)  return  null;
 
-    char[] res  = new char[str.length()];
-    int    didx = 0;
+	char[] res  = new char[str.length()];
+	int    didx = 0;
 
-    for (int sidx=0; sidx<str.length(); sidx++)
-    {
-        char ch = str.charAt(sidx);
-        if (ch == '+')
-        res[didx++] = ' ';
-        else if (ch == '%')
-        {
-        try
-        {
-            res[didx++] = (char)
-            Integer.parseInt(str.substring(sidx+1,sidx+3), 16);
-            sidx += 2;
-        }
-        catch (NumberFormatException e)
-        {
-            throw new ParseException(str.substring(sidx,sidx+3) +
-                        " is an invalid code");
-        }
-        }
-        else
-        res[didx++] = ch;
-    }
+	for (int sidx=0; sidx<str.length(); sidx++)
+	{
+	    char ch = str.charAt(sidx);
+	    if (ch == '+')
+		res[didx++] = ' ';
+	    else if (ch == '%')
+	    {
+		try
+		{
+		    res[didx++] = (char)
+			Integer.parseInt(str.substring(sidx+1,sidx+3), 16);
+		    sidx += 2;
+		}
+		catch (NumberFormatException e)
+		{
+		    throw new ParseException(str.substring(sidx,sidx+3) +
+					    " is an invalid code");
+		}
+	    }
+	    else
+		res[didx++] = ch;
+	}
 
-    return String.valueOf(res, 0, didx);
+	return String.valueOf(res, 0, didx);
     }
 
 
@@ -707,7 +707,7 @@ public class Codecs
      *
      * @param     data        the form-data to decode.
      * @param     cont_type   the content type header (must contain the
-     *                  boundary string).
+     *			      boundary string).
      * @param     dir         the directory to create the files in.
      * @return                an array of name/value pairs, one for each part;
      *                        the name is the 'name' attribute given in the
@@ -719,10 +719,10 @@ public class Codecs
      * @see #mpFormDataDecode(byte[], java.lang.String, java.lang.String, HTTPClient.FilenameMangler)
      */
     public final static NVPair[] mpFormDataDecode(byte[] data, String cont_type,
-                          String dir)
-        throws IOException, ParseException
+						  String dir)
+	    throws IOException, ParseException
     {
-    return mpFormDataDecode(data, cont_type, dir, null);
+	return mpFormDataDecode(data, cont_type, dir, null);
     }
 
 
@@ -768,7 +768,7 @@ public class Codecs
      *
      * @param     data        the form-data to decode.
      * @param     cont_type   the content type header (must contain the
-     *                  boundary string).
+     *			      boundary string).
      * @param     dir         the directory to create the files in.
      * @param     mangler     the filename mangler, or null if no mangling is
      *                        to be done. This is invoked just before each
@@ -783,136 +783,136 @@ public class Codecs
      * @exception ParseException If an error during parsing occurs.
      */
     public final static NVPair[] mpFormDataDecode(byte[] data, String cont_type,
-                          String dir,
-                          FilenameMangler mangler)
-        throws IOException, ParseException
+						  String dir,
+						  FilenameMangler mangler)
+	    throws IOException, ParseException
     {
-    // Find and extract boundary string
+	// Find and extract boundary string
 
-    String bndstr = Util.getParameter("boundary", cont_type);
-    if (bndstr == null)
-        throw new ParseException("'boundary' parameter not found in Content-type: " + cont_type);
+	String bndstr = Util.getParameter("boundary", cont_type);
+	if (bndstr == null)
+	    throw new ParseException("'boundary' parameter not found in Content-type: " + cont_type);
 
-    byte[] srtbndry = (    "--" + bndstr + "\r\n").getBytes("8859_1"),
-           boundary = ("\r\n--" + bndstr + "\r\n").getBytes("8859_1"),
-           endbndry = ("\r\n--" + bndstr + "--"  ).getBytes("8859_1");
-
-
-    // setup search routines
-
-    int[] bs = Util.compile_search(srtbndry),
-          bc = Util.compile_search(boundary),
-          be = Util.compile_search(endbndry);
+	byte[] srtbndry = (    "--" + bndstr + "\r\n").getBytes("8859_1"),
+	       boundary = ("\r\n--" + bndstr + "\r\n").getBytes("8859_1"),
+	       endbndry = ("\r\n--" + bndstr + "--"  ).getBytes("8859_1");
 
 
-    // let's start parsing the actual data
+	// setup search routines
 
-    int start = Util.findStr(srtbndry, bs, data, 0, data.length);
-    if (start == -1)    // didn't even find the start
-        throw new ParseException("Starting boundary not found: " +
-                     new String(srtbndry, "8859_1"));
-    start += srtbndry.length;
+	int[] bs = Util.compile_search(srtbndry),
+	      bc = Util.compile_search(boundary),
+	      be = Util.compile_search(endbndry);
 
-    NVPair[] res  = new NVPair[10];
-    boolean  done = false;
-    int      idx;
 
-    for (idx=0; !done; idx++)
-    {
-        // find end of this part
+	// let's start parsing the actual data
 
-        int end = Util.findStr(boundary, bc, data, start, data.length);
-        if (end == -1)        // must be the last part
-        {
-        end = Util.findStr(endbndry, be, data, start, data.length);
-        if (end == -1)
-            throw new ParseException("Ending boundary not found: " +
-                         new String(endbndry, "8859_1"));
-        done = true;
-        }
+	int start = Util.findStr(srtbndry, bs, data, 0, data.length);
+	if (start == -1)	// didn't even find the start
+	    throw new ParseException("Starting boundary not found: " +
+				     new String(srtbndry, "8859_1"));
+	start += srtbndry.length;
 
-        // parse header(s)
+	NVPair[] res  = new NVPair[10];
+	boolean  done = false;
+	int      idx;
 
-        String hdr, name=null, value, filename=null, cont_disp = null;
+	for (idx=0; !done; idx++)
+	{
+	    // find end of this part
 
-        while (true)
-        {
-        int next = findEOL(data, start) + 2;
-        if (next-2 <= start)  break;    // empty line -> end of headers
-        hdr      = new String(data, start, next-2-start, "8859_1");
-        start    = next;
+	    int end = Util.findStr(boundary, bc, data, start, data.length);
+	    if (end == -1)		// must be the last part
+	    {
+		end = Util.findStr(endbndry, be, data, start, data.length);
+		if (end == -1)
+		    throw new ParseException("Ending boundary not found: " +
+					     new String(endbndry, "8859_1"));
+		done = true;
+	    }
 
-        // handle line continuation
-        byte ch;
-        while (next < data.length-1  &&
-               ((ch = data[next]) == ' '  ||  ch == '\t'))
-        {
-            next   = findEOL(data, start) + 2;
-            hdr   += new String(data, start, next-2-start, "8859_1");
-            start  = next;
-        }
+	    // parse header(s)
 
-        if (!hdr.regionMatches(true, 0, "Content-Disposition", 0, 19))
-            continue;
-        Vector pcd =
-            Util.parseHeader(hdr.substring(hdr.indexOf(':')+1));
-        HttpHeaderElement elem = Util.getElement(pcd, "form-data");
+	    String hdr, name=null, value, filename=null, cont_disp = null;
 
-        if (elem == null)
-            throw new ParseException("Expected 'Content-Disposition: form-data' in line: "+hdr);
+	    while (true)
+	    {
+		int next = findEOL(data, start) + 2;
+		if (next-2 <= start)  break;	// empty line -> end of headers
+		hdr      = new String(data, start, next-2-start, "8859_1");
+		start    = next;
 
-        NVPair[] params = elem.getParams();
-        name = filename = null;
-        for (int pidx=0; pidx<params.length; pidx++)
-        {
-            if (params[pidx].getName().equalsIgnoreCase("name"))
-            name = params[pidx].getValue();
-            if (params[pidx].getName().equalsIgnoreCase("filename"))
-            filename = params[pidx].getValue();
-        }
-        if (name == null)
-            throw new ParseException("'name' parameter not found in header: "+hdr);
+		// handle line continuation
+		byte ch;
+		while (next < data.length-1  &&
+		       ((ch = data[next]) == ' '  ||  ch == '\t'))
+		{
+		    next   = findEOL(data, start) + 2;
+		    hdr   += new String(data, start, next-2-start, "8859_1");
+		    start  = next;
+		}
 
-        cont_disp = hdr;
-        }
+		if (!hdr.regionMatches(true, 0, "Content-Disposition", 0, 19))
+		    continue;
+		Vector pcd =
+			Util.parseHeader(hdr.substring(hdr.indexOf(':')+1));
+		HttpHeaderElement elem = Util.getElement(pcd, "form-data");
 
-        start += 2;
-        if (start > end)
-        throw new ParseException("End of header not found at offset "+end);
+		if (elem == null)
+		    throw new ParseException("Expected 'Content-Disposition: form-data' in line: "+hdr);
 
-        if (cont_disp == null)
-        throw new ParseException("Missing 'Content-Disposition' header at offset "+start);
+		NVPair[] params = elem.getParams();
+		name = filename = null;
+		for (int pidx=0; pidx<params.length; pidx++)
+		{
+		    if (params[pidx].getName().equalsIgnoreCase("name"))
+			name = params[pidx].getValue();
+		    if (params[pidx].getName().equalsIgnoreCase("filename"))
+			filename = params[pidx].getValue();
+		}
+		if (name == null)
+		    throw new ParseException("'name' parameter not found in header: "+hdr);
 
-        // handle data for this part
+		cont_disp = hdr;
+	    }
 
-        if (filename != null)            // It's a file
-        {
-        if (mangler != null)
-            filename = mangler.mangleFilename(filename, name);
-        if (filename != null  &&  filename.length() > 0)
-        {
-            File file = new File(dir, filename);
-            FileOutputStream out = new FileOutputStream(file);
+	    start += 2;
+	    if (start > end)
+		throw new ParseException("End of header not found at offset "+end);
 
-            out.write(data, start, end-start);
-            out.close();
-        }
+	    if (cont_disp == null)
+		throw new ParseException("Missing 'Content-Disposition' header at offset "+start);
 
-        value = filename;
-        }
-        else                    // It's simple data
-        {
-        value = new String(data, start, end-start, "8859_1");
-        }
+	    // handle data for this part
 
-        if (idx >= res.length)
-        res = Util.resizeArray(res, idx+10);
-        res[idx] = new NVPair(name, value);
+	    if (filename != null)			// It's a file
+	    {
+		if (mangler != null)
+		    filename = mangler.mangleFilename(filename, name);
+		if (filename != null  &&  filename.length() > 0)
+		{
+		    File file = new File(dir, filename);
+		    FileOutputStream out = new FileOutputStream(file);
 
-        start = end + boundary.length;
-    }
+		    out.write(data, start, end-start);
+		    out.close();
+		}
 
-    return Util.resizeArray(res, idx);
+		value = filename;
+	    }
+	    else					// It's simple data
+	    {
+		value = new String(data, start, end-start, "8859_1");
+	    }
+
+	    if (idx >= res.length)
+		res = Util.resizeArray(res, idx+10);
+	    res[idx] = new NVPair(name, value);
+
+	    start = end + boundary.length;
+	}
+
+	return Util.resizeArray(res, idx);
     }
 
 
@@ -925,9 +925,9 @@ public class Codecs
      */
     private final static int findEOL(byte[] arr, int off)
     {
-    while (off < arr.length-1  &&
-           !(arr[off++] == '\r'  &&  arr[off] == '\n'));
-    return off-1;
+	while (off < arr.length-1  &&
+	       !(arr[off++] == '\r'  &&  arr[off] == '\n'));
+	return off-1;
     }
 
     /**
@@ -946,22 +946,22 @@ public class Codecs
      *                        part).
      * @param     ct_hdr      this returns a new NVPair in the 0'th element
      *                        which contains name = "Content-Type",
-     *                  value = "multipart/form-data; boundary=..."
+     *			      value = "multipart/form-data; boundary=..."
      *                        (the reason this parameter is an array is
      *                        because a) that's the only way to simulate
      *                        pass-by-reference and b) you need an array for
      *                        the headers parameter to the Post() or Put()
      *                        anyway).
      * @return                an encoded byte array containing all the opts
-     *                  and files.
+     *			      and files.
      * @exception IOException If any file operation fails.
      * @see #mpFormDataEncode(HTTPClient.NVPair[], HTTPClient.NVPair[], HTTPClient.NVPair[], HTTPClient.FilenameMangler)
      */
     public final static byte[] mpFormDataEncode(NVPair[] opts, NVPair[] files,
-                        NVPair[] ct_hdr)
-        throws IOException
+						NVPair[] ct_hdr)
+	    throws IOException
     {
-    return mpFormDataEncode(opts, files, ct_hdr, null);
+	return mpFormDataEncode(opts, files, ct_hdr, null);
     }
 
 
@@ -1023,7 +1023,7 @@ public class Codecs
      *                        are ingored.
      * @param     ct_hdr      this returns a new NVPair in the 0'th element
      *                        which contains name = "Content-Type",
-     *                  value = "multipart/form-data; boundary=..."
+     *			      value = "multipart/form-data; boundary=..."
      *                        (the reason this parameter is an array is
      *                        because a) that's the only way to simulate
      *                        pass-by-reference and b) you need an array for
@@ -1037,211 +1037,211 @@ public class Codecs
      *                        Content-Disposition header. Note: the mangler
      *                        will be invoked twice for each filename.
      * @return                an encoded byte array containing all the opts
-     *                  and files.
+     *			      and files.
      * @exception IOException If any file operation fails.
      */
     public final static byte[] mpFormDataEncode(NVPair[] opts, NVPair[] files,
-                        NVPair[] ct_hdr,
-                        FilenameMangler mangler)
-        throws IOException
+						NVPair[] ct_hdr,
+						FilenameMangler mangler)
+	    throws IOException
     {
-    byte[] boundary  = Boundary.getBytes("8859_1"),
-           cont_disp = ContDisp.getBytes("8859_1"),
-           cont_type = ContType.getBytes("8859_1"),
-           filename  = FileName.getBytes("8859_1");
-    int len = 0,
-        hdr_len = boundary.length + cont_disp.length+1 + 2 +  2;
-        //        \r\n --  bnd      \r\n C-D: ..; n=".." \r\n \r\n
+	byte[] boundary  = Boundary.getBytes("8859_1"),
+	       cont_disp = ContDisp.getBytes("8859_1"),
+	       cont_type = ContType.getBytes("8859_1"),
+	       filename  = FileName.getBytes("8859_1");
+	int len = 0,
+	    hdr_len = boundary.length + cont_disp.length+1 + 2 +  2;
+	    //        \r\n --  bnd      \r\n C-D: ..; n=".." \r\n \r\n
 
-    if (opts == null)   opts  = dummy;
-    if (files == null)  files = dummy;
-
-
-    // Calculate the length of the data
-
-    for (int idx=0; idx<opts.length; idx++)
-    {
-        if (opts[idx] == null)  continue;
-
-        len += hdr_len + opts[idx].getName().length() +
-           opts[idx].getValue().length();
-    }
-
-    for (int idx=0; idx<files.length; idx++)
-    {
-        if (files[idx] == null)  continue;
-
-        File file = new File(files[idx].getValue());
-        String fname = file.getName();
-        if (mangler != null)
-        fname = mangler.mangleFilename(fname, files[idx].getName());
-        if (fname != null)
-        {
-        len += hdr_len + files[idx].getName().length() + filename.length;
-        len += fname.length() + file.length();
-
-        String ct = CT.getContentType(file.getName());
-        if (ct != null)
-            len += cont_type.length + ct.length();
-        }
-    }
-
-    if (len == 0)
-    {
-        ct_hdr[0] = new NVPair("Content-Type", "application/octet-stream");
-        return new byte[0];
-    }
-
-    len -= 2;            // first CR LF is not written
-    len += boundary.length + 2 + 2;    // \r\n -- bnd -- \r\n
+	if (opts == null)   opts  = dummy;
+	if (files == null)  files = dummy;
 
 
-    // Now fill array
+	// Calculate the length of the data
 
-    byte[] res = new byte[len];
-    int    pos = 0;
+	for (int idx=0; idx<opts.length; idx++)
+	{
+	    if (opts[idx] == null)  continue;
 
-    NewBound: for (int new_c=0x30303030; new_c!=0x7A7A7A7A; new_c++)
-    {
-        pos = 0;
+	    len += hdr_len + opts[idx].getName().length() +
+		   opts[idx].getValue().length();
+	}
 
-        // modify boundary in hopes that it will be unique
-        while (!BoundChar.get(new_c     & 0xff)) new_c += 0x00000001;
-        while (!BoundChar.get(new_c>>8  & 0xff)) new_c += 0x00000100;
-        while (!BoundChar.get(new_c>>16 & 0xff)) new_c += 0x00010000;
-        while (!BoundChar.get(new_c>>24 & 0xff)) new_c += 0x01000000;
-        boundary[40] = (byte) (new_c     & 0xff);
-        boundary[42] = (byte) (new_c>>8  & 0xff);
-        boundary[44] = (byte) (new_c>>16 & 0xff);
-        boundary[46] = (byte) (new_c>>24 & 0xff);
+	for (int idx=0; idx<files.length; idx++)
+	{
+	    if (files[idx] == null)  continue;
 
-        int off = 2;
-        int[] bnd_cmp = Util.compile_search(boundary);
+	    File file = new File(files[idx].getValue());
+	    String fname = file.getName();
+	    if (mangler != null)
+		fname = mangler.mangleFilename(fname, files[idx].getName());
+	    if (fname != null)
+	    {
+		len += hdr_len + files[idx].getName().length() + filename.length;
+		len += fname.length() + file.length();
 
-        for (int idx=0; idx<opts.length; idx++)
-        {
-        if (opts[idx] == null)  continue;
+		String ct = CT.getContentType(file.getName());
+		if (ct != null)
+		    len += cont_type.length + ct.length();
+	    }
+	}
 
-        System.arraycopy(boundary, off, res, pos, boundary.length-off);
-        pos += boundary.length - off;
-        off  = 0;
-        int  start = pos;
+	if (len == 0)
+	{
+	    ct_hdr[0] = new NVPair("Content-Type", "application/octet-stream");
+	    return new byte[0];
+	}
 
-        System.arraycopy(cont_disp, 0, res, pos, cont_disp.length);
-        pos += cont_disp.length;
+	len -= 2;			// first CR LF is not written
+	len += boundary.length + 2 + 2;	// \r\n -- bnd -- \r\n
 
-        int nlen = opts[idx].getName().length();
-        System.arraycopy(opts[idx].getName().getBytes("8859_1"), 0, res, pos, nlen);
-        pos += nlen;
 
-        res[pos++] = (byte) '"';
-        res[pos++] = (byte) '\r';
-        res[pos++] = (byte) '\n';
-        res[pos++] = (byte) '\r';
-        res[pos++] = (byte) '\n';
+	// Now fill array
 
-        int vlen = opts[idx].getValue().length();
-        System.arraycopy(opts[idx].getValue().getBytes("8859_1"), 0, res, pos, vlen);
-        pos += vlen;
+	byte[] res = new byte[len];
+	int    pos = 0;
 
-        if ((pos-start) >= boundary.length  &&
-            Util.findStr(boundary, bnd_cmp, res, start, pos) != -1)
-            continue NewBound;
-        }
+	NewBound: for (int new_c=0x30303030; new_c!=0x7A7A7A7A; new_c++)
+	{
+	    pos = 0;
 
-        for (int idx=0; idx<files.length; idx++)
-        {
-        if (files[idx] == null)  continue;
+	    // modify boundary in hopes that it will be unique
+	    while (!BoundChar.get(new_c     & 0xff)) new_c += 0x00000001;
+	    while (!BoundChar.get(new_c>>8  & 0xff)) new_c += 0x00000100;
+	    while (!BoundChar.get(new_c>>16 & 0xff)) new_c += 0x00010000;
+	    while (!BoundChar.get(new_c>>24 & 0xff)) new_c += 0x01000000;
+	    boundary[40] = (byte) (new_c     & 0xff);
+	    boundary[42] = (byte) (new_c>>8  & 0xff);
+	    boundary[44] = (byte) (new_c>>16 & 0xff);
+	    boundary[46] = (byte) (new_c>>24 & 0xff);
 
-        File file = new File(files[idx].getValue());
-        String fname = file.getName();
-        if (mangler != null)
-            fname = mangler.mangleFilename(fname, files[idx].getName());
-        if (fname == null)  continue;
+	    int off = 2;
+	    int[] bnd_cmp = Util.compile_search(boundary);
 
-        System.arraycopy(boundary, off, res, pos, boundary.length-off);
-        pos += boundary.length - off;
-        off  = 0;
-        int start = pos;
+	    for (int idx=0; idx<opts.length; idx++)
+	    {
+		if (opts[idx] == null)  continue;
 
-        System.arraycopy(cont_disp, 0, res, pos, cont_disp.length);
-        pos += cont_disp.length;
+		System.arraycopy(boundary, off, res, pos, boundary.length-off);
+		pos += boundary.length - off;
+		off  = 0;
+		int  start = pos;
 
-        int nlen = files[idx].getName().length();
-        System.arraycopy(files[idx].getName().getBytes("8859_1"), 0, res, pos, nlen);
-        pos += nlen;
+		System.arraycopy(cont_disp, 0, res, pos, cont_disp.length);
+		pos += cont_disp.length;
 
-        System.arraycopy(filename, 0, res, pos, filename.length);
-        pos += filename.length;
+		int nlen = opts[idx].getName().length();
+		System.arraycopy(opts[idx].getName().getBytes("8859_1"), 0, res, pos, nlen);
+		pos += nlen;
 
-        nlen = fname.length();
-        System.arraycopy(fname.getBytes("8859_1"), 0, res, pos, nlen);
-        pos += nlen;
+		res[pos++] = (byte) '"';
+		res[pos++] = (byte) '\r';
+		res[pos++] = (byte) '\n';
+		res[pos++] = (byte) '\r';
+		res[pos++] = (byte) '\n';
 
-        res[pos++] = (byte) '"';
+		int vlen = opts[idx].getValue().length();
+		System.arraycopy(opts[idx].getValue().getBytes("8859_1"), 0, res, pos, vlen);
+		pos += vlen;
 
-        String ct = CT.getContentType(file.getName());
-        if (ct != null)
-        {
-            System.arraycopy(cont_type, 0, res, pos, cont_type.length);
-            pos += cont_type.length;
-            System.arraycopy(ct.getBytes("8859_1"), 0, res, pos, ct.length());
-            pos += ct.length();
-        }
+		if ((pos-start) >= boundary.length  &&
+		    Util.findStr(boundary, bnd_cmp, res, start, pos) != -1)
+		    continue NewBound;
+	    }
 
-        res[pos++] = (byte) '\r';
-        res[pos++] = (byte) '\n';
-        res[pos++] = (byte) '\r';
-        res[pos++] = (byte) '\n';
+	    for (int idx=0; idx<files.length; idx++)
+	    {
+		if (files[idx] == null)  continue;
 
-        nlen = (int) file.length();
-        FileInputStream fin = new FileInputStream(file);
-        while (nlen > 0)
-        {
-            int got = fin.read(res, pos, nlen);
-            nlen -= got;
-            pos += got;
-        }
-        fin.close();
+		File file = new File(files[idx].getValue());
+		String fname = file.getName();
+		if (mangler != null)
+		    fname = mangler.mangleFilename(fname, files[idx].getName());
+		if (fname == null)  continue;
 
-        if ((pos-start) >= boundary.length  &&
-            Util.findStr(boundary, bnd_cmp, res, start, pos) != -1)
-            continue NewBound;
-        }
+		System.arraycopy(boundary, off, res, pos, boundary.length-off);
+		pos += boundary.length - off;
+		off  = 0;
+		int start = pos;
 
-        break NewBound;
-    }
+		System.arraycopy(cont_disp, 0, res, pos, cont_disp.length);
+		pos += cont_disp.length;
 
-    System.arraycopy(boundary, 0, res, pos, boundary.length);
-    pos += boundary.length;
-    res[pos++] = (byte) '-';
-    res[pos++] = (byte) '-';
-    res[pos++] = (byte) '\r';
-    res[pos++] = (byte) '\n';
+		int nlen = files[idx].getName().length();
+		System.arraycopy(files[idx].getName().getBytes("8859_1"), 0, res, pos, nlen);
+		pos += nlen;
 
-    if (pos != len)
-        throw new Error("Calculated "+len+" bytes but wrote "+pos+" bytes!");
+		System.arraycopy(filename, 0, res, pos, filename.length);
+		pos += filename.length;
 
-    /* the boundary parameter should be quoted (rfc-2046, section 5.1.1)
-     * but too many script authors are not capable of reading specs...
-     * So, I give up and don't quote it.
-     */
-    ct_hdr[0] = new NVPair("Content-Type",
-                   "multipart/form-data; boundary=" +
-                   new String(boundary, 4, boundary.length-4, "8859_1"));
+		nlen = fname.length();
+		System.arraycopy(fname.getBytes("8859_1"), 0, res, pos, nlen);
+		pos += nlen;
 
-    return res;
+		res[pos++] = (byte) '"';
+
+		String ct = CT.getContentType(file.getName());
+		if (ct != null)
+		{
+		    System.arraycopy(cont_type, 0, res, pos, cont_type.length);
+		    pos += cont_type.length;
+		    System.arraycopy(ct.getBytes("8859_1"), 0, res, pos, ct.length());
+		    pos += ct.length();
+		}
+
+		res[pos++] = (byte) '\r';
+		res[pos++] = (byte) '\n';
+		res[pos++] = (byte) '\r';
+		res[pos++] = (byte) '\n';
+
+		nlen = (int) file.length();
+		FileInputStream fin = new FileInputStream(file);
+		while (nlen > 0)
+		{
+		    int got = fin.read(res, pos, nlen);
+		    nlen -= got;
+		    pos += got;
+		}
+		fin.close();
+
+		if ((pos-start) >= boundary.length  &&
+		    Util.findStr(boundary, bnd_cmp, res, start, pos) != -1)
+		    continue NewBound;
+	    }
+
+	    break NewBound;
+	}
+
+	System.arraycopy(boundary, 0, res, pos, boundary.length);
+	pos += boundary.length;
+	res[pos++] = (byte) '-';
+	res[pos++] = (byte) '-';
+	res[pos++] = (byte) '\r';
+	res[pos++] = (byte) '\n';
+
+	if (pos != len)
+	    throw new Error("Calculated "+len+" bytes but wrote "+pos+" bytes!");
+
+	/* the boundary parameter should be quoted (rfc-2046, section 5.1.1)
+	 * but too many script authors are not capable of reading specs...
+	 * So, I give up and don't quote it.
+	 */
+	ct_hdr[0] = new NVPair("Content-Type",
+			       "multipart/form-data; boundary=" +
+			       new String(boundary, 4, boundary.length-4, "8859_1"));
+
+	return res;
     }
 
     private static class CT extends URLConnection
     {
-    protected static final String getContentType(String fname)
-    {
-        return guessContentTypeFromName(fname);
-    }
+	protected static final String getContentType(String fname)
+	{
+	    return guessContentTypeFromName(fname);
+	}
 
-    private CT() { super(null); }
-    public void connect() { }
+	private CT() { super(null); }
+	public void connect() { }
     }
 
 
@@ -1256,24 +1256,24 @@ public class Codecs
      */
     public final static String nv2query(NVPair pairs[])
     {
-    if (pairs == null)
-        return null;
+	if (pairs == null)
+	    return null;
 
 
-    int          idx;
-    StringBuffer qbuf = new StringBuffer();
+	int          idx;
+	StringBuffer qbuf = new StringBuffer();
 
-    for (idx = 0; idx < pairs.length; idx++)
-    {
-        if (pairs[idx] != null)
-        qbuf.append(URLEncode(pairs[idx].getName()) + "=" +
-                URLEncode(pairs[idx].getValue()) + "&");
-    }
+	for (idx = 0; idx < pairs.length; idx++)
+	{
+	    if (pairs[idx] != null)
+		qbuf.append(URLEncode(pairs[idx].getName()) + "=" +
+			    URLEncode(pairs[idx].getValue()) + "&");
+	}
 
-    if (qbuf.length() > 0)
-        qbuf.setLength(qbuf.length()-1);    // remove trailing '&'
+	if (qbuf.length() > 0)
+	    qbuf.setLength(qbuf.length()-1);	// remove trailing '&'
 
-    return qbuf.toString();
+	return qbuf.toString();
     }
 
 
@@ -1286,36 +1286,36 @@ public class Codecs
      * @param query the query string containing the encoded name/value pairs
      * @return an array of NVPairs
      * @exception ParseException If the '=' is missing in any field, or if
-     *                 the urldecoding of the name or value fails
+     *				 the urldecoding of the name or value fails
      */
     public final static NVPair[] query2nv(String query)  throws ParseException
     {
-    if (query == null) return null;
+	if (query == null) return null;
 
-    int idx = -1,
-        cnt = 1;
-    while ((idx = query.indexOf('&', idx+1)) != -1)  cnt ++;
-    NVPair[] pairs = new NVPair[cnt];
+	int idx = -1,
+	    cnt = 1;
+	while ((idx = query.indexOf('&', idx+1)) != -1)  cnt ++;
+	NVPair[] pairs = new NVPair[cnt];
 
-    for (idx=0, cnt=0; cnt<pairs.length; cnt++)
-    {
-        int eq  = query.indexOf('=', idx);
-        int end = query.indexOf('&', idx);
+	for (idx=0, cnt=0; cnt<pairs.length; cnt++)
+	{
+	    int eq  = query.indexOf('=', idx);
+	    int end = query.indexOf('&', idx);
 
-        if (end == -1)  end = query.length();
+	    if (end == -1)  end = query.length();
 
-        if (eq == -1  ||  eq >= end)
-        throw new ParseException("'=' missing in " +
-                     query.substring(idx, end));
+	    if (eq == -1  ||  eq >= end)
+		throw new ParseException("'=' missing in " +
+					 query.substring(idx, end));
 
-        pairs[cnt] =
-            new  NVPair(URLDecode(query.substring(idx,eq)),
-                URLDecode(query.substring(eq+1,end)));
+	    pairs[cnt] =
+		    new  NVPair(URLDecode(query.substring(idx,eq)),
+				URLDecode(query.substring(eq+1,end)));
 
-        idx = end + 1;
-    }
+	    idx = end + 1;
+	}
 
-    return pairs;
+	return pairs;
     }
 
 
@@ -1331,10 +1331,10 @@ public class Codecs
      * @return an array of bytes containing the chunk
      */
     public final static byte[] chunkedEncode(byte[] data, NVPair[] ftrs,
-                         boolean last)
+					     boolean last)
     {
-    return
-        chunkedEncode(data, 0, data == null ? 0 : data.length, ftrs, last);
+	return
+	    chunkedEncode(data, 0, data == null ? 0 : data.length, ftrs, last);
     }
 
 
@@ -1352,98 +1352,98 @@ public class Codecs
      * @return an array of bytes containing the chunk
      */
     public final static byte[] chunkedEncode(byte[] data, int off, int len,
-                         NVPair[] ftrs, boolean last)
+					     NVPair[] ftrs, boolean last)
     {
-    if (data == null)
-    {
-        data = new byte[0];
-        len  = 0;
-    }
-    if (last  &&  ftrs == null) ftrs = new NVPair[0];
+	if (data == null)
+	{
+	    data = new byte[0];
+	    len  = 0;
+	}
+	if (last  &&  ftrs == null) ftrs = new NVPair[0];
 
-    // get length of data as hex-string
-    String hex_len = Integer.toString(len, 16);
-
-
-    // calculate length of chunk
-
-    int res_len = 0;
-    if (len > 0)    // len CRLF data CRLF
-        res_len += hex_len.length() + 2 + len + 2;
-
-    if (last)
-    {
-        res_len += 1 + 2;    // 0 CRLF
-        for (int idx=0; idx<ftrs.length; idx++)
-        res_len += ftrs[idx].getName().length() + 2 +    // name ": "
-               ftrs[idx].getValue().length() + 2;    // value CRLF
-        res_len += 2;    // CRLF
-    }
-
-    // allocate result
-
-    byte[] res = new byte[res_len];
-    int    r_off = 0;
+	// get length of data as hex-string
+	String hex_len = Integer.toString(len, 16);
 
 
-    // fill result
+	// calculate length of chunk
 
-    if (len > 0)
-    {
-        int hlen = hex_len.length();
-        try
-        { System.arraycopy(hex_len.getBytes("8859_1"), 0, res, r_off, hlen); }
-        catch (UnsupportedEncodingException uee)
-        { throw new Error(uee.toString()); }
-        r_off += hlen;
-        res[r_off++] = (byte) '\r';
-        res[r_off++] = (byte) '\n';
+	int res_len = 0;
+	if (len > 0)	// len CRLF data CRLF
+	    res_len += hex_len.length() + 2 + len + 2;
 
-        System.arraycopy(data, off, res, r_off, len);
-        r_off += len;
-        res[r_off++] = (byte) '\r';
-        res[r_off++] = (byte) '\n';
-    }
+	if (last)
+	{
+	    res_len += 1 + 2;	// 0 CRLF
+	    for (int idx=0; idx<ftrs.length; idx++)
+		res_len += ftrs[idx].getName().length() + 2 +	// name ": "
+			   ftrs[idx].getValue().length() + 2;	// value CRLF
+	    res_len += 2;	// CRLF
+	}
 
-    if (last)
-    {
-        res[r_off++] = (byte) '0';
-        res[r_off++] = (byte) '\r';
-        res[r_off++] = (byte) '\n';
+	// allocate result
 
-        for (int idx=0; idx<ftrs.length; idx++)
-        {
-        int nlen = ftrs[idx].getName().length();
-        try
-            { System.arraycopy(ftrs[idx].getName().getBytes("8859_1"),
-                       0, res, r_off, nlen); }
-        catch (UnsupportedEncodingException uee)
-            { throw new Error(uee.toString()); }
-        r_off += nlen;
+	byte[] res = new byte[res_len];
+	int    r_off = 0;
 
-        res[r_off++] = (byte) ':';
-        res[r_off++] = (byte) ' ';
 
-        int vlen = ftrs[idx].getValue().length();
-        try
-            { System.arraycopy(ftrs[idx].getValue().getBytes("8859_1"),
-                       0, res, r_off, vlen); }
-        catch (UnsupportedEncodingException uee)
-            { throw new Error(uee.toString()); }
-        r_off += vlen;
+	// fill result
 
-        res[r_off++] = (byte) '\r';
-        res[r_off++] = (byte) '\n';
-        }
+	if (len > 0)
+	{
+	    int hlen = hex_len.length();
+	    try
+		{ System.arraycopy(hex_len.getBytes("8859_1"), 0, res, r_off, hlen); }
+	    catch (UnsupportedEncodingException uee)
+		{ throw new Error(uee.toString()); }
+	    r_off += hlen;
+	    res[r_off++] = (byte) '\r';
+	    res[r_off++] = (byte) '\n';
 
-        res[r_off++] = (byte) '\r';
-        res[r_off++] = (byte) '\n';
-    }
+	    System.arraycopy(data, off, res, r_off, len);
+	    r_off += len;
+	    res[r_off++] = (byte) '\r';
+	    res[r_off++] = (byte) '\n';
+	}
 
-    if (r_off != res.length)
-        throw new Error("Calculated "+res.length+" bytes but wrote "+r_off+" bytes!");
+	if (last)
+	{
+	    res[r_off++] = (byte) '0';
+	    res[r_off++] = (byte) '\r';
+	    res[r_off++] = (byte) '\n';
 
-    return res;
+	    for (int idx=0; idx<ftrs.length; idx++)
+	    {
+		int nlen = ftrs[idx].getName().length();
+		try
+		    { System.arraycopy(ftrs[idx].getName().getBytes("8859_1"),
+				       0, res, r_off, nlen); }
+		catch (UnsupportedEncodingException uee)
+		    { throw new Error(uee.toString()); }
+		r_off += nlen;
+
+		res[r_off++] = (byte) ':';
+		res[r_off++] = (byte) ' ';
+
+		int vlen = ftrs[idx].getValue().length();
+		try
+		    { System.arraycopy(ftrs[idx].getValue().getBytes("8859_1"),
+				       0, res, r_off, vlen); }
+		catch (UnsupportedEncodingException uee)
+		    { throw new Error(uee.toString()); }
+		r_off += vlen;
+
+		res[r_off++] = (byte) '\r';
+		res[r_off++] = (byte) '\n';
+	    }
+
+	    res[r_off++] = (byte) '\r';
+	    res[r_off++] = (byte) '\n';
+	}
+
+	if (r_off != res.length)
+	    throw new Error("Calculated "+res.length+" bytes but wrote "+r_off+" bytes!");
+
+	return res;
     }
 
 
@@ -1461,57 +1461,57 @@ public class Codecs
      * @exception IOException    If any exception during reading occured.
      */
     public final static Object chunkedDecode(InputStream input)
-        throws ParseException, IOException
+	    throws ParseException, IOException
     {
-    long clen = getChunkLength(input);
+	long clen = getChunkLength(input);
 
-    if (clen > Integer.MAX_VALUE)        // Huston, what the hell are you sending?
-        throw new ParseException("Can't deal with chunk lengths greater " +
-                     "Integer.MAX_VALUE: " + clen + " > " +
-                     Integer.MAX_VALUE);
+	if (clen > Integer.MAX_VALUE)		// Huston, what the hell are you sending?
+	    throw new ParseException("Can't deal with chunk lengths greater " +
+				     "Integer.MAX_VALUE: " + clen + " > " +
+				     Integer.MAX_VALUE);
 
-    if (clen > 0)            // it's a chunk
-    {
-        byte[] res = new byte[(int) clen];
+	if (clen > 0)			// it's a chunk
+	{
+	    byte[] res = new byte[(int) clen];
 
-        int off = 0, len = 0;
-        while (len != -1  &&  off < res.length)
-        {
-        len  = input.read(res, off, res.length-off);
-        off += len;
-        }
+	    int off = 0, len = 0;
+	    while (len != -1  &&  off < res.length)
+	    {
+		len  = input.read(res, off, res.length-off);
+		off += len;
+	    }
 
-        if (len == -1)
-        throw new ParseException("Premature EOF while reading chunk;" +
-                     "Expected: "+res.length+" Bytes, " +
-                     "Received: "+(off+1)+" Bytes");
+	    if (len == -1)
+		throw new ParseException("Premature EOF while reading chunk;" +
+					 "Expected: "+res.length+" Bytes, " +
+					 "Received: "+(off+1)+" Bytes");
 
-        input.read();    // CR
-        input.read();    // LF
+	    input.read();	// CR
+	    input.read();	// LF
 
-        return res;
-    }
-    else                // it's the end
-    {
-        NVPair[] res = new NVPair[0];
+	    return res;
+	}
+	else				// it's the end
+	{
+	    NVPair[] res = new NVPair[0];
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(input, "8859_1"));
-        String line;
+	    BufferedReader reader = new BufferedReader(new InputStreamReader(input, "8859_1"));
+	    String line;
 
-        // read and parse footer
-        while ((line = reader.readLine()) != null  &&  line.length() > 0)
-        {
-        int colon = line.indexOf(':');
-        if (colon == -1)
-            throw new ParseException("Error in Footer format: no "+
-                         "':' found in '" + line + "'");
-        res = Util.resizeArray(res, res.length+1);
-        res[res.length-1] = new NVPair(line.substring(0, colon).trim(),
-                           line.substring(colon+1).trim());
-        }
+	    // read and parse footer
+	    while ((line = reader.readLine()) != null  &&  line.length() > 0)
+	    {
+		int colon = line.indexOf(':');
+		if (colon == -1)
+		    throw new ParseException("Error in Footer format: no "+
+					     "':' found in '" + line + "'");
+		res = Util.resizeArray(res, res.length+1);
+		res[res.length-1] = new NVPair(line.substring(0, colon).trim(),
+					       line.substring(colon+1).trim());
+	    }
 
-        return res;
-    }
+	    return res;
+	}
 
     }
 
@@ -1525,42 +1525,42 @@ public class Codecs
      * @exception IOException    If any exception during reading occured.
      */
     final static long getChunkLength(InputStream input)
-        throws ParseException, IOException
+	    throws ParseException, IOException
     {
-    byte[] hex_len = new byte[16];    // if they send more than 8EB chunks...
-    int    off     = 0,
-           ch;
+	byte[] hex_len = new byte[16];	// if they send more than 8EB chunks...
+	int    off     = 0,
+	       ch;
 
 
-    // read chunk length
+	// read chunk length
 
-    while ((ch = input.read()) > 0  &&  (ch == ' '  ||  ch == '\t')) ;
-    if (ch < 0)
-        throw new EOFException("Premature EOF while reading chunk length");
-    hex_len[off++] = (byte) ch;
-    while ((ch = input.read()) > 0  &&  ch != '\r'  &&  ch != '\n'  &&
-        ch != ' '  &&  ch != '\t'  &&  ch != ';'  &&
-        off < hex_len.length)
-        hex_len[off++] = (byte) ch;
+	while ((ch = input.read()) > 0  &&  (ch == ' '  ||  ch == '\t')) ;
+	if (ch < 0)
+	    throw new EOFException("Premature EOF while reading chunk length");
+	hex_len[off++] = (byte) ch;
+	while ((ch = input.read()) > 0  &&  ch != '\r'  &&  ch != '\n'  &&
+		ch != ' '  &&  ch != '\t'  &&  ch != ';'  &&
+		off < hex_len.length)
+	    hex_len[off++] = (byte) ch;
 
-    while ((ch == ' '  ||  ch == '\t')  &&  (ch = input.read()) > 0) ;
-    if (ch == ';')        // chunk-ext (ignore it)
-        while ((ch = input.read()) > 0  &&  ch != '\r'  &&  ch != '\n') ;
+	while ((ch == ' '  ||  ch == '\t')  &&  (ch = input.read()) > 0) ;
+	if (ch == ';')		// chunk-ext (ignore it)
+	    while ((ch = input.read()) > 0  &&  ch != '\r'  &&  ch != '\n') ;
 
-    if (ch < 0)
-        throw new EOFException("Premature EOF while reading chunk length");
-    if (ch != '\n'  &&  (ch != '\r'  ||  input.read() != '\n'))
-        throw new ParseException("Didn't find valid chunk length: " +
-                     new String(hex_len, 0, off, "8859_1"));
+	if (ch < 0)
+	    throw new EOFException("Premature EOF while reading chunk length");
+	if (ch != '\n'  &&  (ch != '\r'  ||  input.read() != '\n'))
+	    throw new ParseException("Didn't find valid chunk length: " +
+				     new String(hex_len, 0, off, "8859_1"));
 
-    // parse chunk length
+	// parse chunk length
 
-    try
-        { return Long.parseLong(new String(hex_len, 0, off, "8859_1").trim(),
-                    16); }
-    catch (NumberFormatException nfe)
-        { throw new ParseException("Didn't find valid chunk length: " +
-                    new String(hex_len, 0, off, "8859_1") ); }
+	try
+	    { return Long.parseLong(new String(hex_len, 0, off, "8859_1").trim(),
+				    16); }
+	catch (NumberFormatException nfe)
+	    { throw new ParseException("Didn't find valid chunk length: " +
+					new String(hex_len, 0, off, "8859_1") ); }
     }
 
 }

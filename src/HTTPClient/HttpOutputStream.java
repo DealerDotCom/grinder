@@ -1,5 +1,5 @@
 /*
- * @(#)HttpOutputStream.java                0.3-3 06/05/2001
+ * @(#)HttpOutputStream.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -88,9 +88,9 @@ import java.io.IOException;
  * HTTPResponse#retryRequest() HTTPResponse.retryRequest} for a partial
  * solution.
  *
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
- * @since    V0.3
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
+ * @since	V0.3
  */
 public class HttpOutputStream extends OutputStream
 {
@@ -136,7 +136,7 @@ public class HttpOutputStream extends OutputStream
      */
     public HttpOutputStream()
     {
-    length = -1;
+	length = -1;
     }
 
 
@@ -148,9 +148,9 @@ public class HttpOutputStream extends OutputStream
      */
     public HttpOutputStream(int length)
     {
-    if (length < 0)
-       throw new IllegalArgumentException("Length must be greater equal 0");
-    this.length = length;
+	if (length < 0)
+	   throw new IllegalArgumentException("Length must be greater equal 0");
+	this.length = length;
     }
 
 
@@ -168,17 +168,17 @@ public class HttpOutputStream extends OutputStream
      */
     void goAhead(Request req, OutputStream os, int con_to)
     {
-    this.req    = req;
-    this.os     = os;
-    this.con_to = con_to;
+	this.req    = req;
+	this.os     = os;
+	this.con_to = con_to;
 
-    if (os == null)
-        bos = new ByteArrayOutputStream();
+	if (os == null)
+	    bos = new ByteArrayOutputStream();
 
-    Log.write(Log.CONN, "OutS:  Stream ready for writing");
-    if (bos != null)
-        Log.write(Log.CONN, "OutS:  Buffering all data before sending " +
-                    "request");
+	Log.write(Log.CONN, "OutS:  Stream ready for writing");
+	if (bos != null)
+	    Log.write(Log.CONN, "OutS:  Buffering all data before sending " +
+			        "request");
     }
 
 
@@ -190,8 +190,8 @@ public class HttpOutputStream extends OutputStream
      */
     void ignoreData(Request req)
     {
-    this.req = req;
-    ignore = true;
+	this.req = req;
+	ignore = true;
     }
 
 
@@ -203,10 +203,10 @@ public class HttpOutputStream extends OutputStream
      */
     synchronized Response getResponse()
     {
-    while (resp == null)
-        try { wait(); } catch (InterruptedException ie) { }
+	while (resp == null)
+	    try { wait(); } catch (InterruptedException ie) { }
 
-    return resp;
+	return resp;
     }
 
 
@@ -218,7 +218,7 @@ public class HttpOutputStream extends OutputStream
      */
     public int getLength()
     {
-    return length;
+	return length;
     }
 
 
@@ -230,7 +230,7 @@ public class HttpOutputStream extends OutputStream
      */
     public NVPair[] getTrailers()
     {
-    return trailers;
+	return trailers;
     }
 
 
@@ -252,10 +252,10 @@ public class HttpOutputStream extends OutputStream
      */
     public void setTrailers(NVPair[] trailers)
     {
-    if (trailers != null)
-        this.trailers = trailers;
-    else
-        this.trailers = empty;
+	if (trailers != null)
+	    this.trailers = trailers;
+	else
+	    this.trailers = empty;
     }
 
 
@@ -266,13 +266,13 @@ public class HttpOutputStream extends OutputStream
      */
     public void reset()
     {
-    rcvd     = 0;
-    req      = null;
-    resp     = null;
-    os       = null;
-    bos      = null;
-    con_to   = 0;
-    ignore   = false;
+	rcvd     = 0;
+	req      = null;
+	resp     = null;
+	os       = null;
+	bos      = null;
+	con_to   = 0;
+	ignore   = false;
     }
 
 
@@ -286,8 +286,8 @@ public class HttpOutputStream extends OutputStream
      */
     public void write(int b)  throws IOException, IllegalAccessError
     {
-    byte[] tmp = { (byte) b };
-    write(tmp, 0, 1);
+	byte[] tmp = { (byte) b };
+	write(tmp, 0, 1);
     }
 
 
@@ -306,40 +306,40 @@ public class HttpOutputStream extends OutputStream
      *            with a request yet
      */
     public synchronized void write(byte[] buf, int off, int len)
-        throws IOException, IllegalAccessError
+	    throws IOException, IllegalAccessError
     {
-    if (req == null)
-        throw new IllegalAccessError("Stream not associated with a request");
+	if (req == null)
+	    throw new IllegalAccessError("Stream not associated with a request");
 
-    if (ignore) return;
+	if (ignore) return;
 
-    if (length != -1  &&  rcvd+len > length)
-    {
-        IOException ioe =
-        new IOException("Tried to write too many bytes (" + (rcvd+len) +
-                " > " + length + ")");
-        req.getConnection().closeDemux(ioe, false);
-        req.getConnection().outputFinished();
-        throw ioe;
-    }
+	if (length != -1  &&  rcvd+len > length)
+	{
+	    IOException ioe =
+		new IOException("Tried to write too many bytes (" + (rcvd+len) +
+				" > " + length + ")");
+	    req.getConnection().closeDemux(ioe, false);
+	    req.getConnection().outputFinished();
+	    throw ioe;
+	}
 
-    try
-    {
-        if (bos != null)
-        bos.write(buf, off, len);
-        else if (length != -1)
-        os.write(buf, off, len);
-        else
-        os.write(Codecs.chunkedEncode(buf, off, len, null, false));
-    }
-    catch (IOException ioe)
-    {
-        req.getConnection().closeDemux(ioe, true);
-        req.getConnection().outputFinished();
-        throw ioe;
-    }
+	try
+	{
+	    if (bos != null)
+		bos.write(buf, off, len);
+	    else if (length != -1)
+		os.write(buf, off, len);
+	    else
+		os.write(Codecs.chunkedEncode(buf, off, len, null, false));
+	}
+	catch (IOException ioe)
+	{
+	    req.getConnection().closeDemux(ioe, true);
+	    req.getConnection().outputFinished();
+	    throw ioe;
+	}
 
-    rcvd += len;
+	rcvd += len;
     }
 
 
@@ -355,92 +355,92 @@ public class HttpOutputStream extends OutputStream
      */
     public synchronized void close()  throws IOException, IllegalAccessError
     {
-    if (req == null)
-        throw new IllegalAccessError("Stream not associated with a request");
+	if (req == null)
+	    throw new IllegalAccessError("Stream not associated with a request");
 
-    if (ignore) return;
+	if (ignore) return;
 
-    if (bos != null)
-    {
-        req.setData(bos.toByteArray());
-        req.setStream(null);
+	if (bos != null)
+	{
+	    req.setData(bos.toByteArray());
+	    req.setStream(null);
 
-        if (trailers.length > 0)
-        {
-        NVPair[] hdrs = req.getHeaders();
+	    if (trailers.length > 0)
+	    {
+		NVPair[] hdrs = req.getHeaders();
 
-        // remove any Trailer header field
+		// remove any Trailer header field
 
-        int len = hdrs.length;
-        for (int idx=0; idx<len; idx++)
-        {
-            if (hdrs[idx].getName().equalsIgnoreCase("Trailer"))
-            {
-            System.arraycopy(hdrs, idx+1, hdrs, idx, len-idx-1);
-            len--;
-            }
-        }
+		int len = hdrs.length;
+		for (int idx=0; idx<len; idx++)
+		{
+		    if (hdrs[idx].getName().equalsIgnoreCase("Trailer"))
+		    {
+			System.arraycopy(hdrs, idx+1, hdrs, idx, len-idx-1);
+			len--;
+		    }
+		}
 
 
-        // add the trailers to the headers
+		// add the trailers to the headers
 
-        hdrs = Util.resizeArray(hdrs, len+trailers.length);
-        System.arraycopy(trailers, 0, hdrs, len, trailers.length);
+		hdrs = Util.resizeArray(hdrs, len+trailers.length);
+		System.arraycopy(trailers, 0, hdrs, len, trailers.length);
 
-        req.setHeaders(hdrs);
-        }
+		req.setHeaders(hdrs);
+	    }
 
-        Log.write(Log.CONN, "OutS:  Sending request");
+	    Log.write(Log.CONN, "OutS:  Sending request");
 
-        try
-        { resp = req.getConnection().sendRequest(req, con_to); }
-        catch (ModuleException me)
-        { throw new IOException(me.toString()); }
-        notify();
-    }
-    else
-    {
-        if (rcvd < length)
-        {
-        IOException ioe =
-            new IOException("Premature close: only " + rcvd +
-                    " bytes written instead of the " +
-                    "expected " + length);
-        req.getConnection().closeDemux(ioe, false);
-        req.getConnection().outputFinished();
-        throw ioe;
-        }
+	    try
+		{ resp = req.getConnection().sendRequest(req, con_to); }
+	    catch (ModuleException me)
+		{ throw new IOException(me.toString()); }
+	    notify();
+	}
+	else
+	{
+	    if (rcvd < length)
+	    {
+		IOException ioe =
+		    new IOException("Premature close: only " + rcvd +
+				    " bytes written instead of the " +
+				    "expected " + length);
+		req.getConnection().closeDemux(ioe, false);
+		req.getConnection().outputFinished();
+		throw ioe;
+	    }
 
-        try
-        {
-        if (length == -1)
-        {
-            if (Log.isEnabled(Log.CONN)  &&  trailers.length > 0)
-            {
-            Log.write(Log.CONN, "OutS:  Sending trailers:");
-            for (int idx=0; idx<trailers.length; idx++)
-                Log.write(Log.CONN, "       " +
-                        trailers[idx].getName() + ": " +
-                        trailers[idx].getValue());
-            }
+	    try
+	    {
+		if (length == -1)
+		{
+		    if (Log.isEnabled(Log.CONN)  &&  trailers.length > 0)
+		    {
+			Log.write(Log.CONN, "OutS:  Sending trailers:");
+			for (int idx=0; idx<trailers.length; idx++)
+			    Log.write(Log.CONN, "       " +
+						trailers[idx].getName() + ": " +
+						trailers[idx].getValue());
+		    }
 
-            os.write(Codecs.chunkedEncode(null, 0, 0, trailers, true));
-        }
+		    os.write(Codecs.chunkedEncode(null, 0, 0, trailers, true));
+		}
 
-        os.flush();
+		os.flush();
 
-        Log.write(Log.CONN, "OutS:  All data sent");
-        }
-        catch (IOException ioe)
-        {
-        req.getConnection().closeDemux(ioe, true);
-        throw ioe;
-        }
-        finally
-        {
-        req.getConnection().outputFinished();
-        }
-    }
+		Log.write(Log.CONN, "OutS:  All data sent");
+	    }
+	    catch (IOException ioe)
+	    {
+		req.getConnection().closeDemux(ioe, true);
+		throw ioe;
+	    }
+	    finally
+	    {
+		req.getConnection().outputFinished();
+	    }
+	}
     }
 
 
@@ -451,6 +451,6 @@ public class HttpOutputStream extends OutputStream
      */
     public String toString()
     {
-    return getClass().getName() + "[length=" + length + "]";
+	return getClass().getName() + "[length=" + length + "]";
     }
 }

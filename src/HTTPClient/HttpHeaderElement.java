@@ -1,5 +1,5 @@
 /*
- * @(#)HttpHeaderElement.java                0.3-3 06/05/2001
+ * @(#)HttpHeaderElement.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -40,8 +40,8 @@ package HTTPClient;
  * @see Util#parseHeader(java.lang.String)
  * @see Util#getElement(java.util.Vector, java.lang.String)
  * @see Util#assembleHeader(java.util.Vector)
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
  */
 public class HttpHeaderElement
 {
@@ -66,9 +66,9 @@ public class HttpHeaderElement
      */
     public HttpHeaderElement(String name)
     {
-    this.name  = name;
-    this.value = null;
-    parameters = new NVPair[0];
+	this.name  = name;
+	this.value = null;
+	parameters = new NVPair[0];
     }
 
 
@@ -79,15 +79,15 @@ public class HttpHeaderElement
      */
     public HttpHeaderElement(String name, String value, NVPair[] params)
     {
-    this.name  = name;
-    this.value = value;
-    if (params != null)
-    {
-        parameters = new NVPair[params.length];
-        System.arraycopy(params, 0, parameters, 0, params.length);
-    }
-    else
-        parameters = new NVPair[0];
+	this.name  = name;
+	this.value = value;
+	if (params != null)
+	{
+	    parameters = new NVPair[params.length];
+	    System.arraycopy(params, 0, parameters, 0, params.length);
+	}
+	else
+	    parameters = new NVPair[0];
     }
 
 
@@ -98,7 +98,7 @@ public class HttpHeaderElement
      */
     public String getName()
     {
-    return name;
+	return name;
     }
 
 
@@ -107,7 +107,7 @@ public class HttpHeaderElement
      */
     public String getValue()
     {
-    return value;
+	return value;
     }
 
 
@@ -116,7 +116,7 @@ public class HttpHeaderElement
      */
     public NVPair[] getParams()
     {
-    return parameters;
+	return parameters;
     }
 
 
@@ -130,13 +130,13 @@ public class HttpHeaderElement
      */
     public boolean equals(Object obj)
     {
-    if ((obj != null) && (obj instanceof HttpHeaderElement))
-    {
-        String other = ((HttpHeaderElement) obj).name;
-        return name.equalsIgnoreCase(other);
-    }
+	if ((obj != null) && (obj instanceof HttpHeaderElement))
+	{
+	    String other = ((HttpHeaderElement) obj).name;
+	    return name.equalsIgnoreCase(other);
+	}
 
-    return false;
+	return false;
     }
 
 
@@ -146,9 +146,9 @@ public class HttpHeaderElement
      */
     public String toString()
     {
-    StringBuffer buf = new StringBuffer();
-    appendTo(buf);
-    return buf.toString();
+	StringBuffer buf = new StringBuffer();
+	appendTo(buf);
+	return buf.toString();
     }
 
 
@@ -162,42 +162,42 @@ public class HttpHeaderElement
      */
     public void appendTo(StringBuffer buf)
     {
-    buf.append(name);
+	buf.append(name);
 
-    if (value != null)
-    {
-        if (Util.needsQuoting(value))
-        {
-        buf.append("=\"");
-        buf.append(Util.quoteString(value, "\\\""));
-        buf.append('"');
-        }
-        else
-        {
-        buf.append('=');
-        buf.append(value);
-        }
-    }
+	if (value != null)
+	{
+	    if (Util.needsQuoting(value))
+	    {
+		buf.append("=\"");
+		buf.append(Util.quoteString(value, "\\\""));
+		buf.append('"');
+	    }
+	    else
+	    {
+		buf.append('=');
+		buf.append(value);
+	    }
+	}
 
-    for (int idx=0; idx<parameters.length; idx++)
-    {
-        buf.append(";");
-        buf.append(parameters[idx].getName());
-        String pval = parameters[idx].getValue();
-        if (pval != null)
-        {
-        if (Util.needsQuoting(pval))
-        {
-            buf.append("=\"");
-            buf.append(Util.quoteString(pval, "\\\""));
-            buf.append('"');
-        }
-        else
-        {
-            buf.append('=');
-            buf.append(pval);
-        }
-        }
-    }
+	for (int idx=0; idx<parameters.length; idx++)
+	{
+	    buf.append(";");
+	    buf.append(parameters[idx].getName());
+	    String pval = parameters[idx].getValue();
+	    if (pval != null)
+	    {
+		if (Util.needsQuoting(pval))
+		{
+		    buf.append("=\"");
+		    buf.append(Util.quoteString(pval, "\\\""));
+		    buf.append('"');
+		}
+		else
+		{
+		    buf.append('=');
+		    buf.append(pval);
+		}
+	    }
+	}
     }
 }

@@ -1,5 +1,5 @@
 /*
- * @(#)ParseException.java                0.3-3 06/05/2001
+ * @(#)ParseException.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -37,8 +37,8 @@ package HTTPClient;
  * Signals that something went wrong while parsing data. Usually means the
  * input data was invalid.
  *
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
  */
 public class ParseException extends Exception
 {
@@ -49,7 +49,7 @@ public class ParseException extends Exception
      */
     public ParseException()
     {
-    super();
+	super();
     }
 
 
@@ -61,7 +61,7 @@ public class ParseException extends Exception
      */
     public ParseException(String s)
     {
-    super(s);
+	super(s);
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * @(#)LinkedList.java                    0.3-3 06/05/2001
+ * @(#)LinkedList.java					0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -36,8 +36,8 @@ package HTTPClient;
 /**
  * This class implements a singly linked list.
  *
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
  */
 class LinkedList
 {
@@ -55,10 +55,10 @@ class LinkedList
      */
     public synchronized void addToHead(Object elem)
     {
-    head = new LinkElement(elem, head);
+	head = new LinkElement(elem, head);
 
-    if (head.next == null)
-        tail = head;
+	if (head.next == null)
+	    tail = head;
     }
 
 
@@ -69,10 +69,10 @@ class LinkedList
      */
     public synchronized void addToEnd(Object elem)
     {
-    if (head == null)
-        head = tail = new LinkElement(elem, null);
-    else
-        tail = (tail.next = new LinkElement(elem, null));
+	if (head == null)
+	    head = tail = new LinkElement(elem, null);
+	else
+	    tail = (tail.next = new LinkElement(elem, null));
     }
 
 
@@ -84,25 +84,25 @@ class LinkedList
      */
     public synchronized void remove(Object elem)
     {
-    if (head == null)  return;
+	if (head == null)  return;
 
-    if (head.element == elem)
-    {
-        head = head.next;
-        return;
-    }
+	if (head.element == elem)
+	{
+	    head = head.next;
+	    return;
+	}
 
-    LinkElement curr = head;
-    while (curr.next != null)
-    {
-        if (curr.next.element == elem)
-        {
-        if (curr.next == tail)  tail = curr;
-        curr.next = curr.next.next;
-        return;
-        }
-        curr = curr.next;
-    }
+	LinkElement curr = head;
+	while (curr.next != null)
+	{
+	    if (curr.next.element == elem)
+	    {
+		if (curr.next == tail)  tail = curr;
+		curr.next = curr.next.next;
+		return;
+	    }
+	    curr = curr.next;
+	}
     }
 
 
@@ -114,8 +114,8 @@ class LinkedList
      */
     public synchronized Object getFirst()
     {
-    if (head == null)  return null;
-    return head.element;
+	if (head == null)  return null;
+	return head.element;
     }
 
 
@@ -129,10 +129,10 @@ class LinkedList
      */
     public synchronized Object enumerate()
     {
-    if (head == null)  return null;
+	if (head == null)  return null;
 
-    next_enum = head.next;
-    return head.element;
+	next_enum = head.next;
+	return head.element;
     }
 
 
@@ -145,80 +145,80 @@ class LinkedList
      */
     public synchronized Object next()
     {
-    if (next_enum == null)  return null;
+	if (next_enum == null)  return null;
 
-    Object elem = next_enum.element;
-    next_enum = next_enum.next;
+	Object elem = next_enum.element;
+	next_enum = next_enum.next;
 
-    return elem;
+	return elem;
     }
 
 
     public static void main(String args[])  throws Exception
     {
-    // LinkedList Test Suite
+	// LinkedList Test Suite
 
-    System.err.println("\n*** Linked List Tests ...");
+	System.err.println("\n*** Linked List Tests ...");
 
-    LinkedList list = new LinkedList();
-    list.addToHead("One");
-    list.addToEnd("Last");
-    if (!list.getFirst().equals("One"))
-        throw new Exception("First element wrong");
-    if (!list.enumerate().equals("One"))
-        throw new Exception("First element wrong");
-    if (!list.next().equals("Last"))
-        throw new Exception("Last element wrong");
-    if (list.next() != null)
-        throw new Exception("End of list wrong");
-    list.remove("One");
-    if (!list.getFirst().equals("Last"))
-        throw new Exception("First element wrong");
-    list.remove("Last");
-    if (list.getFirst() != null)
-        throw new Exception("End of list wrong");
+	LinkedList list = new LinkedList();
+	list.addToHead("One");
+	list.addToEnd("Last");
+	if (!list.getFirst().equals("One"))
+	    throw new Exception("First element wrong");
+	if (!list.enumerate().equals("One"))
+	    throw new Exception("First element wrong");
+	if (!list.next().equals("Last"))
+	    throw new Exception("Last element wrong");
+	if (list.next() != null)
+	    throw new Exception("End of list wrong");
+	list.remove("One");
+	if (!list.getFirst().equals("Last"))
+	    throw new Exception("First element wrong");
+	list.remove("Last");
+	if (list.getFirst() != null)
+	    throw new Exception("End of list wrong");
 
-    list = new LinkedList();
-    list.addToEnd("Last");
-    list.addToHead("One");
-    if (!list.getFirst().equals("One"))
-        throw new Exception("First element wrong");
-    if (!list.enumerate().equals("One"))
-        throw new Exception("First element wrong");
-    if (!list.next().equals("Last"))
-        throw new Exception("Last element wrong");
-    if (list.next() != null)
-        throw new Exception("End of list wrong");
-    if (!list.enumerate().equals("One"))
-        throw new Exception("First element wrong");
-    list.remove("One");
-    if (!list.next().equals("Last"))
-        throw new Exception("Last element wrong");
-    list.remove("Last");
-    if (list.next() != null)
-        throw new Exception("End of list wrong");
+	list = new LinkedList();
+	list.addToEnd("Last");
+	list.addToHead("One");
+	if (!list.getFirst().equals("One"))
+	    throw new Exception("First element wrong");
+	if (!list.enumerate().equals("One"))
+	    throw new Exception("First element wrong");
+	if (!list.next().equals("Last"))
+	    throw new Exception("Last element wrong");
+	if (list.next() != null)
+	    throw new Exception("End of list wrong");
+	if (!list.enumerate().equals("One"))
+	    throw new Exception("First element wrong");
+	list.remove("One");
+	if (!list.next().equals("Last"))
+	    throw new Exception("Last element wrong");
+	list.remove("Last");
+	if (list.next() != null)
+	    throw new Exception("End of list wrong");
 
-    list = new LinkedList();
-    list.addToEnd("Last");
-    list.addToHead("Two");
-    list.addToHead("One");
-    if (!list.getFirst().equals("One"))
-        throw new Exception("First element wrong");
-    if (!list.enumerate().equals("One"))
-        throw new Exception("First element wrong");
-    if (!list.next().equals("Two"))
-        throw new Exception("Second element wrong");
-    if (!list.next().equals("Last"))
-        throw new Exception("Last element wrong");
-    if (list.next() != null)
-        throw new Exception("End of list wrong");
-    list.remove("Last");
-    list.remove("Two");
-    list.remove("One");
-    if (list.getFirst() != null)
-        throw new Exception("Empty list wrong");
+	list = new LinkedList();
+	list.addToEnd("Last");
+	list.addToHead("Two");
+	list.addToHead("One");
+	if (!list.getFirst().equals("One"))
+	    throw new Exception("First element wrong");
+	if (!list.enumerate().equals("One"))
+	    throw new Exception("First element wrong");
+	if (!list.next().equals("Two"))
+	    throw new Exception("Second element wrong");
+	if (!list.next().equals("Last"))
+	    throw new Exception("Last element wrong");
+	if (list.next() != null)
+	    throw new Exception("End of list wrong");
+	list.remove("Last");
+	list.remove("Two");
+	list.remove("One");
+	if (list.getFirst() != null)
+	    throw new Exception("Empty list wrong");
 
-    System.err.println("\n*** Tests finished successfuly");
+	System.err.println("\n*** Tests finished successfuly");
     }
 }
 
@@ -233,7 +233,7 @@ class LinkElement
 
     LinkElement(Object elem, LinkElement next)
     {
-    this.element = elem;
-    this.next    = next;
+	this.element = elem;
+	this.next    = next;
     }
 }

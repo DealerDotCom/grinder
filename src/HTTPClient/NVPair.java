@@ -1,5 +1,5 @@
 /*
- * @(#)NVPair.java                    0.3-3 06/05/2001
+ * @(#)NVPair.java					0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -37,8 +37,8 @@ package HTTPClient;
  * This class holds a Name/Value pair of strings. It's used for headers,
  * form-data, attribute-lists, etc. This class is immutable.
  *
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
  */
 public final class NVPair
 {
@@ -60,8 +60,8 @@ public final class NVPair
      */
     public NVPair(String name, String value)
     {
-    this.name  = name;
-    this.value = value;
+	this.name  = name;
+	this.value = value;
     }
 
     /**
@@ -71,7 +71,7 @@ public final class NVPair
      */
     public NVPair(NVPair p)
     {
-    this(p.name, p.value);
+	this(p.name, p.value);
     }
 
 
@@ -84,7 +84,7 @@ public final class NVPair
      */
     public final String getName()
     {
-    return name;
+	return name;
     }
 
     /**
@@ -94,7 +94,7 @@ public final class NVPair
      */
     public final String getValue()
     {
-    return value;
+	return value;
     }
 
 
@@ -105,6 +105,6 @@ public final class NVPair
      */
     public String toString()
     {
-    return getClass().getName() + "[name=" + name + ",value=" + value + "]";
+	return getClass().getName() + "[name=" + name + ",value=" + value + "]";
     }
 }

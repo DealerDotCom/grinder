@@ -1,5 +1,5 @@
 /*
- * @(#)HttpURLConnection.java                0.3-3 06/05/2001
+ * @(#)HttpURLConnection.java				0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -104,9 +104,9 @@ import java.util.Enumeration;
  * and B) Sun's implementation will exhibit the same problem if they ever
  * switch to HTTP/1.1.
  *
- * @version    0.3-3  06/05/2001
- * @author    Ronald Tschalär
- * @since    V0.3
+ * @version	0.3-3  06/05/2001
+ * @author	Ronald Tschalär
+ * @since	V0.3
  */
 public class HttpURLConnection extends java.net.HttpURLConnection
 {
@@ -149,31 +149,31 @@ public class HttpURLConnection extends java.net.HttpURLConnection
 
     static
     {
-    // The default allowUserAction in java.net.URLConnection is
-    // false.
-    try
-    {
-        if (Boolean.getBoolean("HTTPClient.HttpURLConnection.AllowUI"))
-        setDefaultAllowUserInteraction(true);
-    }
-    catch (SecurityException se)
-        { }
+	// The default allowUserAction in java.net.URLConnection is
+	// false.
+	try
+	{
+	    if (Boolean.getBoolean("HTTPClient.HttpURLConnection.AllowUI"))
+		setDefaultAllowUserInteraction(true);
+	}
+	catch (SecurityException se)
+	    { }
 
-    // get the RedirectionModule class
-    try
-        { redir_mod = Class.forName("HTTPClient.RedirectionModule"); }
-    catch (ClassNotFoundException cnfe)
-        { throw new NoClassDefFoundError(cnfe.getMessage()); }
+	// get the RedirectionModule class
+	try
+	    { redir_mod = Class.forName("HTTPClient.RedirectionModule"); }
+	catch (ClassNotFoundException cnfe)
+	    { throw new NoClassDefFoundError(cnfe.getMessage()); }
 
-    // Set the User-Agent if the http.agent property is set
-    try
-    {
-        String agent = System.getProperty("http.agent");
-        if (agent != null)
-        setDefaultRequestProperty("User-Agent", agent);
-    }
-    catch (SecurityException se)
-        { }
+	// Set the User-Agent if the http.agent property is set
+	try
+	{
+	    String agent = System.getProperty("http.agent");
+	    if (agent != null)
+		setDefaultRequestProperty("User-Agent", agent);
+	}
+	catch (SecurityException se)
+	    { }
     }
 
 
@@ -194,53 +194,53 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      * @exception ProtocolNotSuppException if the protocol is not supported
      */
     public HttpURLConnection(URL url)
-        throws ProtocolNotSuppException, IOException
+	    throws ProtocolNotSuppException, IOException
     {
-    super(url);
+	super(url);
 
-    // first read proxy properties and set
+	// first read proxy properties and set
         try
         {
             String hosts = System.getProperty("http.nonProxyHosts", "");
-        if (!hosts.equalsIgnoreCase(non_proxy_hosts))
-        {
-        connections.clear();
-        non_proxy_hosts = hosts;
-        String[] list = Util.splitProperty(hosts);
-        for (int idx=0; idx<list.length; idx++)
-            HTTPConnection.dontProxyFor(list[idx]);
-        }
+	    if (!hosts.equalsIgnoreCase(non_proxy_hosts))
+	    {
+		connections.clear();
+		non_proxy_hosts = hosts;
+		String[] list = Util.splitProperty(hosts);
+		for (int idx=0; idx<list.length; idx++)
+		    HTTPConnection.dontProxyFor(list[idx]);
+	    }
         }
         catch (ParseException pe)
-        { throw new IOException(pe.toString()); }
+	    { throw new IOException(pe.toString()); }
         catch (SecurityException se)
             { }
 
-    try
-    {
-        String host = System.getProperty("http.proxyHost", "");
-        int port = Integer.getInteger("http.proxyPort", -1).intValue();
-        if (!host.equalsIgnoreCase(proxy_host)  ||  port != proxy_port)
-        {
-        connections.clear();
-        proxy_host = host;
-        proxy_port = port;
-        HTTPConnection.setProxyServer(host, port);
-        }
-    }
-    catch (SecurityException se)
-        { }
+	try
+	{
+	    String host = System.getProperty("http.proxyHost", "");
+	    int port = Integer.getInteger("http.proxyPort", -1).intValue();
+	    if (!host.equalsIgnoreCase(proxy_host)  ||  port != proxy_port)
+	    {
+		connections.clear();
+		proxy_host = host;
+		proxy_port = port;
+		HTTPConnection.setProxyServer(host, port);
+	    }
+	}
+	catch (SecurityException se)
+	    { }
 
-    // now setup stuff
-    con           = getConnection(url);
-    method        = "GET";
-    method_set    = false;
-    resource      = url.getFile();
-    headers       = default_headers;
-    do_redir      = getFollowRedirects();
-    output_stream = null;
+	// now setup stuff
+	con           = getConnection(url);
+	method        = "GET";
+	method_set    = false;
+	resource      = url.getFile();
+	headers       = default_headers;
+	do_redir      = getFollowRedirects();
+	output_stream = null;
 
-    urlString     = url.toString();
+	urlString     = url.toString();
     }
 
 
@@ -254,25 +254,25 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      * @exception ProtocolNotSuppException if the protocol is not supported
      */
     protected HTTPConnection getConnection(URL url)
-        throws ProtocolNotSuppException
+	    throws ProtocolNotSuppException
     {
-    // try the cache, using the host name
+	// try the cache, using the host name
 
-    String php = url.getProtocol() + ":" + url.getHost() + ":" +
-             ((url.getPort() != -1) ? url.getPort() :
-                    URI.defaultPort(url.getProtocol()));
-    php = php.toLowerCase();
+	String php = url.getProtocol() + ":" + url.getHost() + ":" +
+		     ((url.getPort() != -1) ? url.getPort() :
+					URI.defaultPort(url.getProtocol()));
+	php = php.toLowerCase();
 
-    HTTPConnection con = (HTTPConnection) connections.get(php);
-    if (con != null)  return con;
+	HTTPConnection con = (HTTPConnection) connections.get(php);
+	if (con != null)  return con;
 
 
-    // Not in cache, so create new one and cache it
+	// Not in cache, so create new one and cache it
 
-    con = new HTTPConnection(url);
-    connections.put(php, con);
+	con = new HTTPConnection(url);
+	connections.put(php, con);
 
-    return con;
+	return con;
     }
 
 
@@ -287,14 +287,14 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public void setRequestMethod(String method)  throws ProtocolException
     {
-    if (connected)
-        throw new ProtocolException("Already connected!");
+	if (connected)
+	    throw new ProtocolException("Already connected!");
 
-    Log.write(Log.URLC, "URLC:  (" + urlString + ") Setting request method: " +
-                method);
+	Log.write(Log.URLC, "URLC:  (" + urlString + ") Setting request method: " +
+			    method);
 
-    this.method = method.trim().toUpperCase();
-    method_set  = true;
+	this.method = method.trim().toUpperCase();
+	method_set  = true;
     }
 
 
@@ -305,7 +305,7 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public String getRequestMethod()
     {
-    return method;
+	return method;
     }
 
 
@@ -316,12 +316,12 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public int getResponseCode()  throws IOException
     {
-    if (!connected)  connect();
+	if (!connected)  connect();
 
-    try
-        { return resp.getStatusCode(); }
-    catch (ModuleException me)
-        { throw new IOException(me.toString()); }
+	try
+	    { return resp.getStatusCode(); }
+	catch (ModuleException me)
+	    { throw new IOException(me.toString()); }
     }
 
 
@@ -333,12 +333,12 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public String getResponseMessage()  throws IOException
     {
-    if (!connected)  connect();
+	if (!connected)  connect();
 
-    try
-        { return resp.getReasonLine(); }
-    catch (ModuleException me)
-        { throw new IOException(me.toString()); }
+	try
+	    { return resp.getReasonLine(); }
+	catch (ModuleException me)
+	    { throw new IOException(me.toString()); }
     }
 
 
@@ -350,13 +350,13 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public String getHeaderField(String name)
     {
-    try
-    {
-        if (!connected)  connect();
-        return resp.getHeader(name);
-    }
-    catch (Exception e)
-        { return null; }
+	try
+	{
+	    if (!connected)  connect();
+	    return resp.getHeader(name);
+	}
+	catch (Exception e)
+	    { return null; }
     }
 
 
@@ -371,13 +371,13 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public int getHeaderFieldInt(String name, int def)
     {
-    try
-    {
-        if (!connected)  connect();
-        return resp.getHeaderAsInt(name);
-    }
-    catch (Exception e)
-        { return def; }
+	try
+	{
+	    if (!connected)  connect();
+	    return resp.getHeaderAsInt(name);
+	}
+	catch (Exception e)
+	    { return def; }
     }
 
 
@@ -393,13 +393,13 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public long getHeaderFieldDate(String name, long def)
     {
-    try
-    {
-        if (!connected)  connect();
-        return resp.getHeaderAsDate(name).getTime();
-    }
-    catch (Exception e)
-        { return def; }
+	try
+	{
+	    if (!connected)  connect();
+	    return resp.getHeaderAsDate(name).getTime();
+	}
+	catch (Exception e)
+	    { return def; }
     }
 
 
@@ -415,13 +415,13 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public String getHeaderFieldKey(int n)
     {
-    if (hdr_keys == null)
-        fill_hdr_arrays();
+	if (hdr_keys == null)
+	    fill_hdr_arrays();
 
-    if (n >= 0  &&  n < hdr_keys.length)
-        return hdr_keys[n];
-    else
-        return null;
+	if (n >= 0  &&  n < hdr_keys.length)
+	    return hdr_keys[n];
+	else
+	    return null;
     }
 
 
@@ -434,13 +434,13 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public String getHeaderField(int n)
     {
-    if (hdr_values == null)
-        fill_hdr_arrays();
+	if (hdr_values == null)
+	    fill_hdr_arrays();
 
-    if (n >= 0  &&  n < hdr_values.length)
-        return hdr_values[n];
-    else
-        return null;
+	if (n >= 0  &&  n < hdr_values.length)
+	    return hdr_values[n];
+	else
+	    return null;
     }
 
 
@@ -449,37 +449,37 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     private void fill_hdr_arrays()
     {
-    try
-    {
-        if (!connected)  connect();
+	try
+	{
+	    if (!connected)  connect();
 
-        // count number of headers
-        int num = 1;
-        Enumeration enum = resp.listHeaders();
-        while (enum.hasMoreElements())
-        {
-        num++;
-        enum.nextElement();
-        }
+	    // count number of headers
+	    int num = 1;
+	    Enumeration enum = resp.listHeaders();
+	    while (enum.hasMoreElements())
+	    {
+		num++;
+		enum.nextElement();
+	    }
 
-        // allocate arrays
-        hdr_keys   = new String[num];
-        hdr_values = new String[num];
+	    // allocate arrays
+	    hdr_keys   = new String[num];
+	    hdr_values = new String[num];
 
-        // fill arrays
-        enum = resp.listHeaders();
-        for (int idx=1; idx<num; idx++)
-        {
-        hdr_keys[idx]   = (String) enum.nextElement();
-        hdr_values[idx] = resp.getHeader(hdr_keys[idx]);
-        }
+	    // fill arrays
+	    enum = resp.listHeaders();
+	    for (int idx=1; idx<num; idx++)
+	    {
+		hdr_keys[idx]   = (String) enum.nextElement();
+		hdr_values[idx] = resp.getHeader(hdr_keys[idx]);
+	    }
 
-        // the 0'th field is special
-        hdr_values[0] = resp.getVersion() + " " + resp.getStatusCode() +
-                " " + resp.getReasonLine();
-    }
-    catch (Exception e)
-        { hdr_keys = hdr_values = new String[0]; }
+	    // the 0'th field is special
+	    hdr_values[0] = resp.getVersion() + " " + resp.getStatusCode() +
+			    " " + resp.getReasonLine();
+	}
+	catch (Exception e)
+	    { hdr_keys = hdr_values = new String[0]; }
     }
 
 
@@ -493,18 +493,18 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public InputStream getInputStream()  throws IOException
     {
-    if (!doInput)
-        throw new ProtocolException("Input not enabled! (use setDoInput(true))");
+	if (!doInput)
+	    throw new ProtocolException("Input not enabled! (use setDoInput(true))");
 
-    if (!connected)  connect();
+	if (!connected)  connect();
 
-    InputStream stream;
-    try
-        { stream = resp.getInputStream(); }
-    catch (ModuleException e)
-        { throw new IOException(e.toString()); }
+	InputStream stream;
+	try
+	    { stream = resp.getInputStream(); }
+	catch (ModuleException e)
+	    { throw new IOException(e.toString()); }
 
-    return stream;
+	return stream;
     }
 
 
@@ -521,16 +521,16 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public InputStream getErrorStream()
     {
-    try
-    {
-        if (!doInput  ||  !connected  ||  resp.getStatusCode() < 300  ||
-        resp.getHeaderAsInt("Content-length") <= 0)
-        return null;
+	try
+	{
+	    if (!doInput  ||  !connected  ||  resp.getStatusCode() < 300  ||
+		resp.getHeaderAsInt("Content-length") <= 0)
+		return null;
 
-        return resp.getInputStream();
-    }
-    catch (Exception e)
-        { return null; }
+	    return resp.getInputStream();
+	}
+	catch (Exception e)
+	    { return null; }
     }
 
 
@@ -557,45 +557,45 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public synchronized OutputStream getOutputStream()  throws IOException
     {
-    if (connected)
-        throw new ProtocolException("Already connected!");
+	if (connected)
+	    throw new ProtocolException("Already connected!");
 
-    if (!doOutput)
-        throw new ProtocolException("Output not enabled! (use setDoOutput(true))");
-    if (!method_set)
-        method = "POST";
-    else if (method.equals("HEAD")  ||  method.equals("GET")  ||
-         method.equals("TRACE"))
-        throw new ProtocolException("Method "+method+" does not support output!");
+	if (!doOutput)
+	    throw new ProtocolException("Output not enabled! (use setDoOutput(true))");
+	if (!method_set)
+	    method = "POST";
+	else if (method.equals("HEAD")  ||  method.equals("GET")  ||
+		 method.equals("TRACE"))
+	    throw new ProtocolException("Method "+method+" does not support output!");
 
-    if (getRequestProperty("Content-type") == null)
-        setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+	if (getRequestProperty("Content-type") == null)
+	    setRequestProperty("Content-type", "application/x-www-form-urlencoded");
 
-    if (output_stream == null)
-    {
-        Log.write(Log.URLC, "URLC:  (" + urlString + ") creating output stream");
+	if (output_stream == null)
+	{
+	    Log.write(Log.URLC, "URLC:  (" + urlString + ") creating output stream");
 
-        String cl = getRequestProperty("Content-Length");
-        if (cl != null)
-        output_stream = new HttpOutputStream(Integer.parseInt(cl.trim()));
-        else
-        {
-        // Hack: because of restrictions when using true output streams
-        // and because form-data is usually quite limited in size, we
-        // first collect all data before sending it if this is
-        // form-data.
-        if (getRequestProperty("Content-type").equals(
-            "application/x-www-form-urlencoded"))
-            output_stream = new ByteArrayOutputStream(300);
-        else
-            output_stream = new HttpOutputStream();
-        }
+	    String cl = getRequestProperty("Content-Length");
+	    if (cl != null)
+		output_stream = new HttpOutputStream(Integer.parseInt(cl.trim()));
+	    else
+	    {
+		// Hack: because of restrictions when using true output streams
+		// and because form-data is usually quite limited in size, we
+		// first collect all data before sending it if this is
+		// form-data.
+		if (getRequestProperty("Content-type").equals(
+			"application/x-www-form-urlencoded"))
+		    output_stream = new ByteArrayOutputStream(300);
+		else
+		    output_stream = new HttpOutputStream();
+	    }
 
-        if (output_stream instanceof HttpOutputStream)
-        connect();
-    }
+	    if (output_stream instanceof HttpOutputStream)
+		connect();
+	}
 
-    return output_stream;
+	return output_stream;
     }
 
 
@@ -607,15 +607,15 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public URL getURL()
     {
-    if (connected)
-    {
-        try
-        { return resp.getEffectiveURI().toURL(); }
-        catch (Exception e)
-        { return null; }
-    }
+	if (connected)
+	{
+	    try
+		{ return resp.getEffectiveURI().toURL(); }
+	    catch (Exception e)
+		{ return null; }
+	}
 
-    return url;
+	return url;
     }
 
 
@@ -626,8 +626,8 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public void setIfModifiedSince(long time)
     {
-    super.setIfModifiedSince(time);
-    setRequestProperty("If-Modified-Since", Util.httpDate(new Date(time)));
+	super.setIfModifiedSince(time);
+	setRequestProperty("If-Modified-Since", Util.httpDate(new Date(time)));
     }
 
 
@@ -639,20 +639,20 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public void setRequestProperty(String name, String value)
     {
-    Log.write(Log.URLC, "URLC:  (" + urlString + ") Setting request property: " +
-                name + " : " + value);
+	Log.write(Log.URLC, "URLC:  (" + urlString + ") Setting request property: " +
+			    name + " : " + value);
 
-    int idx;
-    for (idx=0; idx<headers.length; idx++)
-    {
-        if (headers[idx].getName().equalsIgnoreCase(name))
-        break;
-    }
+	int idx;
+	for (idx=0; idx<headers.length; idx++)
+	{
+	    if (headers[idx].getName().equalsIgnoreCase(name))
+		break;
+	}
 
-    if (idx == headers.length)
-        headers = Util.resizeArray(headers, idx+1);
+	if (idx == headers.length)
+	    headers = Util.resizeArray(headers, idx+1);
 
-    headers[idx] = new NVPair(name, value);
+	headers[idx] = new NVPair(name, value);
     }
 
 
@@ -664,13 +664,13 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public String getRequestProperty(String name)
     {
-    for (int idx=0; idx<headers.length; idx++)
-    {
-        if (headers[idx].getName().equalsIgnoreCase(name))
-        return headers[idx].getValue();
-    }
+	for (int idx=0; idx<headers.length; idx++)
+	{
+	    if (headers[idx].getName().equalsIgnoreCase(name))
+		return headers[idx].getValue();
+	}
 
-    return null;
+	return null;
     }
 
 
@@ -683,20 +683,20 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public static void setDefaultRequestProperty(String name, String value)
     {
-    Log.write(Log.URLC, "URLC:  Setting default request property: " +
-                name + " : " + value);
+	Log.write(Log.URLC, "URLC:  Setting default request property: " +
+			    name + " : " + value);
 
-    int idx;
-    for (idx=0; idx<default_headers.length; idx++)
-    {
-        if (default_headers[idx].getName().equalsIgnoreCase(name))
-        break;
-    }
+	int idx;
+	for (idx=0; idx<default_headers.length; idx++)
+	{
+	    if (default_headers[idx].getName().equalsIgnoreCase(name))
+		break;
+	}
 
-    if (idx == default_headers.length)
-        default_headers = Util.resizeArray(default_headers, idx+1);
+	if (idx == default_headers.length)
+	    default_headers = Util.resizeArray(default_headers, idx+1);
 
-    default_headers[idx] = new NVPair(name, value);
+	default_headers[idx] = new NVPair(name, value);
     }
 
 
@@ -708,13 +708,13 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public static String getDefaultRequestProperty(String name)
     {
-    for (int idx=0; idx<default_headers.length; idx++)
-    {
-        if (default_headers[idx].getName().equalsIgnoreCase(name))
-        return default_headers[idx].getValue();
-    }
+	for (int idx=0; idx<default_headers.length; idx++)
+	{
+	    if (default_headers[idx].getName().equalsIgnoreCase(name))
+		return default_headers[idx].getValue();
+	}
 
-    return null;
+	return null;
     }
 
 
@@ -726,10 +726,10 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public void setInstanceFollowRedirects(boolean set)
     {
-    if (connected)
-        throw new IllegalStateException("Already connected!");
+	if (connected)
+	    throw new IllegalStateException("Already connected!");
 
-    do_redir = set;
+	do_redir = set;
     }
 
 
@@ -739,7 +739,7 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public boolean getInstanceFollowRedirects()
     {
-    return do_redir;
+	return do_redir;
     }
 
 
@@ -749,35 +749,35 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public synchronized void connect()  throws IOException
     {
-    if (connected)  return;
+	if (connected)  return;
 
-    Log.write(Log.URLC, "URLC:  (" + urlString + ") Connecting ...");
+	Log.write(Log.URLC, "URLC:  (" + urlString + ") Connecting ...");
 
-    // useCaches TBD!!!
+	// useCaches TBD!!!
 
-    synchronized (con)
-    {
-        con.setAllowUserInteraction(allowUserInteraction);
-        if (do_redir)
-        con.addModule(redir_mod, 2);
-        else
-        con.removeModule(redir_mod);
+	synchronized (con)
+	{
+	    con.setAllowUserInteraction(allowUserInteraction);
+	    if (do_redir)
+		con.addModule(redir_mod, 2);
+	    else
+		con.removeModule(redir_mod);
 
-        try
-        {
-        if (output_stream instanceof ByteArrayOutputStream)
-            resp = con.ExtensionMethod(method, resource,
-            ((ByteArrayOutputStream) output_stream).toByteArray(),
-                         headers);
-        else
-            resp = con.ExtensionMethod(method, resource,
-                    (HttpOutputStream) output_stream, headers);
-        }
-        catch (ModuleException e)
-        { throw new IOException(e.toString()); }
-    }
+	    try
+	    {
+		if (output_stream instanceof ByteArrayOutputStream)
+		    resp = con.ExtensionMethod(method, resource,
+			((ByteArrayOutputStream) output_stream).toByteArray(),
+					     headers);
+		else
+		    resp = con.ExtensionMethod(method, resource,
+				    (HttpOutputStream) output_stream, headers);
+	    }
+	    catch (ModuleException e)
+		{ throw new IOException(e.toString()); }
+	}
 
-    connected = true;
+	connected = true;
     }
 
 
@@ -786,9 +786,9 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public void disconnect()
     {
-    Log.write(Log.URLC, "URLC:  (" + urlString + ") Disconnecting ...");
+	Log.write(Log.URLC, "URLC:  (" + urlString + ") Disconnecting ...");
 
-    con.stop();
+	con.stop();
     }
 
 
@@ -799,7 +799,7 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public boolean usingProxy()
     {
-    return (con.getProxyHost() != null);
+	return (con.getProxyHost() != null);
     }
 
 
@@ -809,6 +809,6 @@ public class HttpURLConnection extends java.net.HttpURLConnection
      */
     public String toString()
     {
-    return getClass().getName() + "[" + url + "]";
+	return getClass().getName() + "[" + url + "]";
     }
 }
