@@ -107,7 +107,7 @@ public class Console {
         }
       };
 
-    // TODO - tidy up.
+    // This needs tidying up.
     final ActionListener distributeFilesHandler =
       new ActionListener() {
         public void actionPerformed(ActionEvent event) {
