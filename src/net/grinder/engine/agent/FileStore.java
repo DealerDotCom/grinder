@@ -22,6 +22,7 @@
 package net.grinder.engine.agent;
 
 import java.io.File;
+import java.io.IOException;
 
 import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
@@ -88,7 +89,7 @@ final class FileStore {
 
       return m_currentDirectory;
     }
-    catch (Directory.DirectoryException e) {
+    catch (IOException e) {
       throw new FileStoreException("Could not create file store directory", e);
     }
   }
