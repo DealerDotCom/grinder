@@ -349,7 +349,7 @@ public final class GrinderProcess {
               break;
             }
 
-            wait();
+            m_eventSynchronisation.wait();
           }
         }
 
@@ -371,7 +371,7 @@ public final class GrinderProcess {
                 break;
               }
 
-              wait(maxShutdownTime);
+              m_eventSynchronisation.wait(maxShutdownTime);
             }
           }
         }
@@ -445,7 +445,7 @@ public final class GrinderProcess {
   private void waitForMessage() throws InterruptedException {
     synchronized (m_eventSynchronisation) {
       while (!checkForMessage(ConsoleListener.ANY)) {
-        wait();
+        m_eventSynchronisation.wait();
       }
     }
   }
