@@ -179,18 +179,15 @@ section for why. I'm planning to drop support for HttpURLConnection in
 future versions. However, there are some limitations you should be
 aware of: 
 
- 1. Currently the HTTPClient integration can only use a single server
-    per cycle.
-
- 2. The timeIncludesTransaction parameter is ignored. Instead the
+ 1. The timeIncludesTransaction parameter is ignored. Instead the
     reported time is as if timeIncludesTransaction=true.
 
- 3. HTTPS almost certainly doesn't work.
+ 2. HTTPS almost certainly doesn't work.
 
- 4. The useCookiesVersionString parameter is ignored. The HTTPClient
+ 3. The useCookiesVersionString parameter is ignored. The HTTPClient
     cookie support is damn good, so this probably isn't a problem.
 
-1 to 3 will be fixed in a future version. 4 will be fixed if it turns
+1 and 2 will be fixed in a future version. 3 will be fixed if it turns
 out to be a problem.
 
 

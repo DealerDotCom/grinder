@@ -25,6 +25,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection; // For the (incomplete!) status code definitions only.
+import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 
 import HTTPClient.Cookie;
 import HTTPClient.CookieModule;
@@ -35,6 +38,7 @@ import HTTPClient.HttpOutputStream;
 import HTTPClient.HTTPResponse;
 import HTTPClient.ModuleException;
 import HTTPClient.NVPair;
+import HTTPClient.ParseException;
 import HTTPClient.ProtocolNotSuppException;
 import HTTPClient.RoRequest;
 import HTTPClient.RoResponse;
@@ -97,31 +101,39 @@ class HTTPClientHandler implements HTTPHandler
     }
 
     // For now, just handle a single server.
-    private HTTPConnection m_httpConnection;
+    private Map m_httpConnections = new HashMap();
 
     private HTTPConnection getConnection(URI uri)
-	throws ProtocolNotSuppException
+	throws ParseException, ProtocolNotSuppException
     {
-	if (m_httpConnection == null) {
-	    m_httpConnection = new HTTPConnection(uri);
-	    m_httpConnection.setContext(HTTPClientHandler.this);
+	final URI keyURI =
+	    new URI(uri.getScheme(), uri.getHost(), uri.getPort(), "");
+
+	HTTPConnection connection =
+	    (HTTPConnection)m_httpConnections.get(keyURI);
+
+	if (connection == null) {
+	    connection = new HTTPConnection(uri);
+	    connection.setContext(HTTPClientHandler.this);
 
 	    if (m_useCookies) {
-		m_httpConnection.addModule(CookieModule.class, 0);
+		connection.addModule(CookieModule.class, 0);
 	    }
 	    else {
-		m_httpConnection.removeModule(CookieModule.class);
+		connection.removeModule(CookieModule.class);
 	    }
 
 	    if (m_followRedirects) {
-		m_httpConnection.addModule(s_redirectionModule, 0);
+		connection.addModule(s_redirectionModule, 0);
 	    }
 	    else {
-		m_httpConnection.removeModule(s_redirectionModule);
+		connection.removeModule(s_redirectionModule);
 	    }
+
+	    m_httpConnections.put(keyURI, connection);
 	}
 
-	return m_httpConnection;
+	return connection;
     }
 
     public String sendRequest(HTTPHandler.RequestData requestData)
@@ -244,10 +256,14 @@ class HTTPClientHandler implements HTTPHandler
     }
 
     public void reset() {
-	if (m_httpConnection != null) {
-	    m_httpConnection.stop();
-	    CookieModule.discardAllCookies(HTTPClientHandler.this);
+	final Iterator i = m_httpConnections.values().iterator();
+	
+	while (i.hasNext()) {
+	    ((HTTPConnection)i.next()).stop();
 	}
-        m_httpConnection = null;
+
+	CookieModule.discardAllCookies(HTTPClientHandler.this);
+
+        m_httpConnections.clear();
     }
 }
