@@ -75,4 +75,13 @@ public class TestInsecureSSLContextFactory extends TestCase {
     assertNotNull(context2);
     assertTrue(context != context2);
   }
+
+  public void testCreateException() throws Exception {
+    final Exception nested = new Exception("");
+    final InsecureSSLContextFactory.CreateException e =
+      new InsecureSSLContextFactory.CreateException("bite me", nested);
+
+    assertEquals(nested, e.getNestedThrowable());
+  }
+
 }
