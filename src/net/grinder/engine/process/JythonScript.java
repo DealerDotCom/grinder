@@ -30,13 +30,9 @@ import org.python.core.PyString;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
-import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.common.Test;
 import net.grinder.engine.EngineException;
-import net.grinder.script.InvokeableTest;
 import net.grinder.script.ScriptContext;
-import net.grinder.script.TestResult;
 
 
 /**

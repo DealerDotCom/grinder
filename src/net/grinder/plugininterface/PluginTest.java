@@ -28,7 +28,6 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.engine.process.TestRegistry;
 import net.grinder.script.InvokeableTest;
-import net.grinder.script.TestResult;
 
 
 /**
@@ -78,8 +77,14 @@ public abstract class PluginTest
 	return m_parameters;
     }
 
-    public TestResult invoke() throws GrinderException
+    public Object invoke() throws GrinderException
     {
-	return TestRegistry.getInstance().invoke(m_registeredTest);
+	return invokeTest(null);
+    }
+
+    protected final Object invokeTest(Object parameters)
+	throws GrinderException
+    {
+	return TestRegistry.getInstance().invoke(m_registeredTest, parameters);
     }
 }

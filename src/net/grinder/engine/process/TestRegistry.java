@@ -31,7 +31,6 @@ import net.grinder.communication.Sender;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.script.InvokeableTest;
-import net.grinder.script.TestResult;
 import net.grinder.statistics.TestStatisticsMap;
 
 
@@ -118,7 +117,7 @@ public final class TestRegistry
 	return newTestData;
     }
 
-    public TestResult invoke(RegisteredTest registeredTest)
+    public Object invoke(RegisteredTest registeredTest, Object parameters)
 	throws GrinderException
     {
 	final TestData testData = (TestData)registeredTest;
@@ -129,7 +128,7 @@ public final class TestRegistry
 	    throw new EngineException("Only Worker Threads can invoke tests");
 	}
 	
-	return threadContext.invokeTest(testData);
+	return threadContext.invokeTest(testData, parameters);
     }
 
     final TestStatisticsMap getTestStatisticsMap()

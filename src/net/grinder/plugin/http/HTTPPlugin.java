@@ -47,7 +47,6 @@ import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadCallbacks;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.script.TestResult;
 
 
 /**
@@ -191,7 +190,8 @@ public class HTTPPlugin implements GrinderPlugin
 	    m_httpConnections.clear();
 	}
 
-	public TestResult invokeTest(Test test) throws PluginException
+	public Object invokeTest(Test test, Object parameters)
+	    throws PluginException
 	{
 	    final HTTPTest httpTest = (HTTPTest)test;
 

@@ -23,8 +23,6 @@ package net.grinder.plugin.http;
 
 import HTTPClient.HTTPResponse;
 
-import net.grinder.script.TestResult;
-
 
 /**
  * {@link net.grinder.script.TestResult} for the HTTP plugin.
@@ -32,7 +30,7 @@ import net.grinder.script.TestResult;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public class HTTPPluginTestResult implements TestResult
+public class HTTPPluginTestResult
 {
     private final HTTPResponse m_httpResponse;
 

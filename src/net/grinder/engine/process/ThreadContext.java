@@ -31,7 +31,6 @@ import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadCallbacks;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.script.TestResult;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpression;
@@ -188,7 +187,7 @@ final class ThreadContext implements PluginThreadContext
      * startTimer/stopTimer/getElapsedTime interface is part of the
      * PluginThreadContext interface.
      */
-    final TestResult invokeTest(TestData testData)
+    final Object invokeTest(TestData testData, Object parameters)
 	throws EngineException, Sleeper.ShutdownException
     {
 	m_currentTestStatistics.reset();
@@ -203,12 +202,13 @@ final class ThreadContext implements PluginThreadContext
 	    final PluginThreadCallbacks pluginThreadCallbacks =
 		testData.getRegisteredPlugin().getPluginThreadCallbacks(this);
 
-	    final TestResult testResult;
+	    final Object testResult;
 
 	    startTimer();
 
 	    try {
-		testResult = pluginThreadCallbacks.invokeTest(test);
+		testResult =
+		    pluginThreadCallbacks.invokeTest(test, parameters);
 	    }
 	    finally {
 		stopTimer();
