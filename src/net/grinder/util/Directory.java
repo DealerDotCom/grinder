@@ -201,6 +201,14 @@ public final class Directory  {
    * @return <code>true</code> => equal.
    */
   public boolean equals(Object o) {
-    return m_directory.equals(o);
+    if (o == this) {
+      return true;
+    }
+
+    if (!(o instanceof Directory)) {
+      return false;
+    }
+
+    return getAsFile().equals(((Directory)o).getAsFile());
   }
 }
