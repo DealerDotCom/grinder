@@ -298,6 +298,7 @@ public final class ConsoleUI implements ModelListener {
                               m_editorModel);
 
     addAction(m_fileTree.getOpenFileAction());
+    addAction(m_fileTree.getSetScriptAction());
 
     // Place JEditTextArea in JPanel so border background is correct.
     final JPanel editorPanel = new JPanel();

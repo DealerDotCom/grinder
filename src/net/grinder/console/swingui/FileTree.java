@@ -72,6 +72,7 @@ final class FileTree {
   // Can't initialise tree until model has a valid directory.
   private final JTree m_tree;
   private final CustomAction m_openFileAction;
+  private final CustomAction m_setScriptAction;
   private final JScrollPane m_scrollPane;
 
   public FileTree(final ConsoleProperties consoleProperties,
@@ -170,6 +171,7 @@ final class FileTree {
       });
 
     m_openFileAction = new OpenFileAction();
+    m_setScriptAction = new SetScriptAction();
 
     // J2SE 1.4 drops the mapping from "ENTER" -> "toggle"
     // (expand/collapse) that J2SE 1.3 has. I like it this mapping, so
@@ -263,6 +265,10 @@ final class FileTree {
     return m_openFileAction;
   }
 
+  public CustomAction getSetScriptAction() {
+    return m_setScriptAction;
+  }
+
   /**
    * Action for opening the currently selected file in the tree.
    */
@@ -283,6 +289,15 @@ final class FileTree {
     }
   }
 
+  private final class SetScriptAction extends CustomAction {
+    public SetScriptAction() {
+      super(m_resources, "set-script");
+    }
+
+    public void actionPerformed(ActionEvent event) {
+    }
+  }
+
   private void updateActionState() {
     if (m_tree.isEnabled()) {
       final Object node = m_tree.getLastSelectedPathComponent();
@@ -293,6 +308,10 @@ final class FileTree {
         m_openFileAction.setEnabled(fileNode.getBuffer() == null ||
                                     !fileNode.getBuffer().equals(
                                       m_editorModel.getSelectedBuffer()));
+
+        m_setScriptAction.setEnabled(
+          m_editorModel.isPythonFile(fileNode.getFile()));
+
         return;
       }
       else if (node instanceof BufferTreeModel.BufferNode) {
@@ -301,11 +320,16 @@ final class FileTree {
 
         m_openFileAction.setEnabled(!bufferNode.getBuffer().equals(
                                       m_editorModel.getSelectedBuffer()));
+
+        m_setScriptAction.setEnabled(
+          m_editorModel.isPythonFile(bufferNode.getBuffer().getFile()));
+
         return;
       }
     }
 
     m_openFileAction.setEnabled(false);
+    m_setScriptAction.setEnabled(false);
   }
 
   /**
