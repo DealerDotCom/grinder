@@ -70,8 +70,7 @@ public final class QueuedSenderDecorator implements QueuedSender {
       m_messageQueue.queue(message);
     }
     catch (ThreadSafeQueue.ShutdownException e) {
-      // Assertion failure.
-      throw new RuntimeException("MessageQueue unexpectedly shutdown");
+      throw new CommunicationException("Shut down");
     }
   }
 
