@@ -25,7 +25,7 @@ java -Duser.language="es" net.grinder.Console
 </blockquote>
 
 <p>Bertrand Ave has produced a translation for French speaking users
-(<code>user.language="fr"</code>) and Alblas Huibert has produced a
+(<code>user.language="fr"</code>) and Huibert Alblas has produced a
 German translation (<code>user.language="de"</code>).</p>
 
 <h2>How to provide a translation</h2>
