@@ -11,10 +11,102 @@
 
 <p>Yes.</p>
 
-<h3><a name="strin-beans">How do I simulate different users?</a></h3>
+<h3><a name="string-beans">How do I simulate different users?</a></h3>
 
 <p>You probably want to use a <a
 href="../manual/http-plugin.html#string-bean">String Bean</a>.</p>
+
+<h3><a name="post-and-string-beans">How do I generate POST data with a String Bean?</a></h3>
+
+<p>Sean Kroah writes:</p>
+
+<blockquote>
+
+<p><code>grinder.test0.parameter.post=&lt;getPostData&gt;</code>
+doesn't work.</p>
+
+<p>I didn't really see this in the docs anywhere so if anyone is
+interested. I needed dynamic post data and the HTTP plugin post
+parameter only took a file name. The key was that the file can
+optionally contain a reference to a <a
+href="../manual/http-plugin.html#string-bean">String Bean</a> method.
+I tried it on a fluke and it worked.</p>
+
+<blockquote>
+<pre>
+grinder.test0.parameter.url=&lt;getLoginUrl&gt;
+grinder.test0.parameter.post=getPostData.dat
+</pre> 
+</blockquote>
+
+<code>getPostData.dat</code> has one line in it:
+<blockquote>
+<pre>
+&lt;getPostData&gt;
+</pre> 
+</blockquote>
+
+<p>This tells The Grinder to call my String Bean method which returns
+my dynamic POST content based on the test description. I'm pretty
+pleased with that.</p>
+
+</blockquote>
+
+
+<h3><a name="use-the-tcpsniffer">My server works fine with a browser but
+has errors when I use the HTTP Plugin?</a></h3>
+
+<p>This is probably down to one of the following:</p>
+
+<ul>
+<li><p>Bugs in your server code. Particularly, those due to the way it
+handles multiple concurrent requests. Don't be disheartened, you did
+good; finding bugs like this is a key reason to use The
+Grinder.</p></li>
+
+<li>Differences between the HTTP requests that the browser uses and
+those that The Grinder sends.</li>
+
+</ul>
+
+<p>The HTTP Plugin sends requests that will have minor differences
+between those that a browser send, but which rarely affect server
+behaviour. Its worth knowing how to examine the differences with the
+TCPSniffer. First <a href="tcpsniffer.html#http-proxy">set the TCP
+Sniffer as a browser proxy</a> and record the output to a file.
+Secondly set the TCP Sniffer up in stand alone mode and alter your
+<code>grinder.properties</code> so that all requests go via the
+TCPSniffer; again record the output to a file. Now grab a coffee and
+compare.</p>
+
+<p>If you are testing against multiple servers you will need to use
+multiple TCP Sniffers running on different ports. The Grinder doesn't
+(yet) support sending requests via an HTTP proxy.</p>
+
+
+<h3><a name="multiple-scripts">Can I run different test scripts against
+the same console?</a></h3>
+
+<p>Yes.</p>
+
+<p>The console receives reports and updates the graph based on test
+number. Thus it is possible to have different agent processes
+running scripts with different test numbers (e.g. one process running
+tests 1 to 5 and another running tests 6 to 10)., reporting to the
+same console.</p>
+
+<h3><a name="tcpsniffer-colour-codes">What are all those funny ^[[31
+characters in the TCPSniffer output?</a></h3>
+
+<p>Did you use the <code>-colour</code> switch? If so, the TCPSniffer
+generates escape codes which work on ANSI compliant terminals and look
+very pretty.</p>
+
+<p>For those of you on Windows platforms, this <em>doesn't work</em>
+with the <code>CMD.EXE</code> window unless you're using <a
+href="http://cygwin.com">Cygwin</a>. (Of course, if you're using
+Cygwin you'd use <code>rxvt</code> in preference :-)).</p>
+
 
 <h3><a name="multicast">What do I need to do to set up
 multicast?</a></h3>
@@ -151,61 +243,7 @@ standard that the client used to measure LoadRunner.</p>
 <p>Its worth adding to this that many companies <em>are</em> using The
 Grinder for production load testing.</p>
 
-<h3><a name="multiple-scripts">Can I run different test scripts against
-the same console?</a></h3>
-
-<p>Yes.</p>
-
-<p>The console receives reports and updates the graph based on test
-number. Thus it is possible to have different agent processes
-running scripts with different test numbers (e.g. one process running
-tests 1 to 5 and another running tests 6 to 10)., reporting to the
-same console.</p>
-
-<h3><a name="use-the-tcpsniffer">My server works fine with a browser but
-has errors when I use the HTTP Plugin?</a></h3>
-
-<p>This is probably down to one of the following:</p>
-
-<ul>
-<li><p>Bugs in your server code. Particularly, those due to the way it
-handles multiple concurrent requests. Don't be disheartened, you did
-good; finding bugs like this is a key reason to use The
-Grinder.</p></li>
-
-<li>Differences between the HTTP requests that the browser uses and
-those that The Grinder sends.</li>
-
-</ul>
-
-<p>The HTTP Plugin sends requests that will have minor differences
-between those that a browser send, but which rarely affect server
-behaviour. Its worth knowing how to examine the differences with the
-TCPSniffer. First <a href="tcpsniffer.html#http-proxy">set the TCP
-Sniffer as a browser proxy</a> and record the output to a file.
-Secondly set the TCP Sniffer up in stand alone mode and alter your
-<code>grinder.properties</code> so that all requests go via the
-TCPSniffer; again record the output to a file. Now grab a coffee and
-compare.</p>
-
-<p>If you are testing against multiple servers you will need to use
-multiple TCP Sniffers running on different ports. The Grinder doesn't
-(yet) support sending requests via an HTTP proxy.</p>
-
-
-<h3><a name="tcpsniffer-colour-codes">What are all those funny ^[[31
-characters in the TCPSniffer output?</a></h3>
-
-<p>Did you use the <code>-colour</code> switch? If so, the TCPSniffer
-generates escape codes which work on ANSI compliant terminals and look
-very pretty.</p>
-
-<p>For those of you on Windows platforms, this <em>doesn't work</em>
-with the <code>CMD.EXE</code> window unless you're using <a
-href="http://cygwin.com">Cygwin</a>. (Of course, if you're using
-Cygwin you'd use <code>rxvt</code> in preference :-)).</p>
-
-<h3><a name="negative-times">I've seen The Grinder reports negative
+<h3><a name="negative-times">I've seen The Grinder report negative
 transaction times?!</a></h3>
 
 <p>Are you running Linux kernel 2.2.18? Mikael Suokas reports:</p>
