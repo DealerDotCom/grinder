@@ -76,8 +76,8 @@ Consider forcing TestRunner to be registered with grinder.
 
 There should be an ExternalFilenameFactory, cf ExternalLogger.
 
-Factor out a ThreadContextFinder interface so that dependencies on it
-can be better captured.
+Factor out a ThreadContext interface so that it can be stubbed for
+unit tests.
 
 
 ** Statistics
