@@ -184,6 +184,23 @@ public final class EditorModel {
   }
 
   /**
+   * Return whether one of our buffers is dirty.
+   *
+   * @return <code>true</code> => a buffer is dirty.
+   */
+  public boolean isABufferDirty() {
+    final Buffer[] buffers = getBuffers();
+
+    for (int i = 0; i < buffers.length; ++i) {
+      if (buffers[i].isDirty()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Select a buffer.
    *
    * @param buffer The buffer.

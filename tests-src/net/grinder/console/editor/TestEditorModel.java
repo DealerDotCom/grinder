@@ -318,7 +318,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     }
   }
 
-  public void testCloseBuffer() throws Exception {
+  public void testCloseBufferAndIsABufferDirty() throws Exception {
     final EditorModel editorModel =
       new EditorModel(s_resources, new StringTextSource.Factory(), null);
 
@@ -341,6 +341,8 @@ public class TestEditorModel extends AbstractFileTestCase {
 
     assertEquals(3, editorModel.getBuffers().length);
 
+    assertTrue(!editorModel.isABufferDirty());
+
     editorModel.addListener(listener);
 
     editorModel.closeBuffer(defaultBuffer);
@@ -354,8 +356,17 @@ public class TestEditorModel extends AbstractFileTestCase {
 
     assertEquals(buffer2, editorModel.getSelectedBuffer());
 
+    assertTrue(!editorModel.isABufferDirty());
+
+    ((StringTextSource)buffer1.getTextSource()).markDirty();
+
+    assertTrue(editorModel.isABufferDirty());
+    listenerStubFactory.assertSuccess("bufferChanged", buffer1);
+    listenerStubFactory.assertNoMoreCalls();
+
     editorModel.closeBuffer(buffer1);
 
+    assertTrue(!editorModel.isABufferDirty());
     listenerStubFactory.assertSuccess("bufferRemoved", buffer1);
     listenerStubFactory.assertNoMoreCalls();
 
@@ -365,6 +376,8 @@ public class TestEditorModel extends AbstractFileTestCase {
 
     editorModel.closeBuffer(buffer2);
     assertEquals(0, editorModel.getBuffers().length);
+
+    assertTrue(!editorModel.isABufferDirty());
 
     listenerStubFactory.assertSuccess("bufferChanged", buffer2);
     listenerStubFactory.assertSuccess("bufferRemoved", buffer2);
