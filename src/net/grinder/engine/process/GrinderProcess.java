@@ -253,6 +253,9 @@ public final class GrinderProcess implements Monitor {
                   System.getProperty("os.arch") + " " +
                   System.getProperty("os.version"));
 
+    final Timer timer = new Timer(true);
+    timer.schedule(new TickLoggerTimerTask(), 0, 1000);
+
     final JythonScript jythonScript =
       new JythonScript(m_context, m_scriptFile);
 
@@ -271,15 +274,6 @@ public final class GrinderProcess implements Monitor {
     consoleSender.send(
       m_context.createStatusMessage(
         ProcessStatus.STATE_STARTED, (short)0, m_numberOfThreads));
-
-    final Timer timer = new Timer(true);
-    final TimerTask reportToConsoleTimerTask = new ReportToConsoleTimerTask();
-
-    // Schedule a regular statistics report to the console. We don't
-    // need to schedule this at a fixed rate. Each report contains the
-    // work done since the last report. We start the task here as it
-    // also ticks the logger.
-    timer.schedule(reportToConsoleTimerTask, 0, m_reportToConsoleInterval);
 
     if (m_initialisationMessage.getWaitForStartMessage()) {
       logger.output("waiting for console signal",
@@ -302,12 +296,20 @@ public final class GrinderProcess implements Monitor {
         t.start();
       }
 
+      final TimerTask reportTimerTask = new ReportToConsoleTimerTask();
+      final TimerTask shutdownTimerTask = new ShutdownTimerTask();
+
+      // Schedule a regular statistics report to the console. We don't
+      // need to schedule this at a fixed rate. Each report contains
+      // the work done since the last report.
+      timer.schedule(reportTimerTask, 0, m_reportToConsoleInterval);
+
       try {
         if (m_duration > 0) {
           logger.output("will shutdown after " + m_duration + " ms",
                         Logger.LOG | Logger.TERMINAL);
 
-          timer.schedule(new ShutdownTimerTask(), m_duration);
+          timer.schedule(shutdownTimerTask, m_duration);
         }
 
         // Wait for a termination event.
@@ -351,12 +353,15 @@ public final class GrinderProcess implements Monitor {
           }
         }
       }
-      finally { timer.cancel(); }
+      finally {
+        reportTimerTask.cancel();
+        shutdownTimerTask.cancel();
+      }
 
       jythonScript.shutdown();
 
       // Final report to the console.
-      reportToConsoleTimerTask.run();
+      reportTimerTask.run();
     }
 
     m_dataWriter.close();
@@ -385,6 +390,8 @@ public final class GrinderProcess implements Monitor {
 
       waitForMessage();
     }
+
+    timer.cancel();
 
     // Sadly it appears its impossible to interrupt a read() on stdin,
     // so we can't shut down the console listener cleanly. It runs in
@@ -452,8 +459,6 @@ public final class GrinderProcess implements Monitor {
     public void run() {
       m_dataWriter.flush();
 
-      LoggerImplementation.tick();
-
       if (!m_communicationShutdown) {
         final QueuedSender consoleSender = m_context.getConsoleSender();
 
@@ -488,12 +493,17 @@ public final class GrinderProcess implements Monitor {
   }
 
   private class ShutdownTimerTask extends TimerTask {
-
     public void run() {
       synchronized (GrinderProcess.this) {
         m_shutdownTriggered = true;
         GrinderProcess.this.notifyAll();
       }
+    }
+  }
+
+  private class TickLoggerTimerTask extends TimerTask {
+    public void run() {
+      LoggerImplementation.tick();
     }
   }
 }
