@@ -1,3 +1,17 @@
+2001-10-28  Philip Aston  <paston@bea.com>
+
+	* tests-src/net/grinder/statistics/TestCommonStatisticsViews.java:
+	New file.
+
+	* src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/statistics/TestCommonStatisticsViews.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java:
+	Use the new statistics engine to add views to the data file.
+
+	* src/net/grinder/statistics/CommonStatisticsViews.java: New file.
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/console/model/Model.java:
+	Use the new statistics engine to add views to the data file.
+
+
 2001-10-26  Philip Aston  <paston@bea.com>
 
 	* .cvsignore: Boring.

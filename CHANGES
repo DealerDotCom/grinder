@@ -2,7 +2,7 @@ Grinder 2.8
 -----------
 
    New heavy iron statistics engine. Allows plugins to dynamically
-   update the Console with new statistics and derived statistic views.
+   add new statistics and derived statistic views.
 
    As an example, I've used the new statistic engine to implement an
    additional "mean time to first byte" for the HttpURLConnection
