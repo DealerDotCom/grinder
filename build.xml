@@ -36,9 +36,9 @@ tests, reports, and to create the documentation:
   - XWeb 1.0RC3
   - Xalan 2.3.1
   - Checkstyle 3.3
-  - Glass JAR Tool Kit V2.2.9A
+  - Clover 1.3.02
 
-  (You might not need these exact versions, 
+  (You might not need these exact versions). 
 
 
 What do I do?
@@ -105,8 +105,7 @@ what you want. Currently the conditionally built modules are:
   <property name="lib.jar" value="${name}.jar"/>
   <property name="dist.root" value="${build.dir}/distribution"/>
   <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
-  <property name="gj-coverage.dir" value="gjtk"/>
-  <property name="gj-instrumented.jar" value="${build.dir}/instrumented.jar"/>
+  <property name="clover.dir" value="clover"/>
   <property name="lasttest.timestamp" value="last-test-run.timestamp"/>
 
   <!-- javadoc -->
@@ -212,6 +211,7 @@ what you want. Currently the conditionally built modules are:
     <filter token="version" value="${version}"/>
     <filter token="date" value="${TODAY}"/>
 
+    <mkdir dir="${clover.dir}"/>
     <mkdir dir="${lib.dir}"/>
   </target>
 
@@ -376,13 +376,19 @@ what you want. Currently the conditionally built modules are:
 	  depends="compile-tests,copy-resources,assert-have-optional-tasks"
 	  description="Run the unit-tests.">
 
-    <property name="singletest" value="TestCompositeTreeModel.java"/>
+    <path id="test.classpath">
+      <pathelement path="${test-classes.dir}"/>
+      <pathelement path="${clover.home}/lib/clover.jar"/>
+      <path refid="build.classpath"/>
+    </path>
+
+    <pathconvert pathsep=":"
+                 property="test-classpath.line"
+                 refid="test.classpath"/>
 
     <junit printsummary="false" haltonfailure="true">
       <classpath>
-	<pathelement path="${test-classes.dir}"/>
-	<pathelement path="${gj-instrumented.jar}"/>
-	<path refid="build.classpath"/>
+	<path refid="test.classpath"/>
       </classpath>
 
       <!-- Put Jython droppings in one place. -->
@@ -391,6 +397,8 @@ what you want. Currently the conditionally built modules are:
       <!-- Things the tests find useful. -->
       <sysproperty key="classes.dir" path="${classes.dir}"/>
       <sysproperty key="test-classes.dir" path="${test-classes.dir}"/>
+
+      <sysproperty key="test.classpath" path="${test-classpath.line}"/>
       <sysproperty key="grinder.version" value="${version}"/>
       <sysproperty key="grinder.date" value="${TODAY}"/>
 
@@ -413,7 +421,7 @@ what you want. Currently the conditionally built modules are:
 
       <!-- Fork a separate JVM for the Sleeper test to make the timings
       more consistent. -->
-      <batchtest fork="true" unless="singletest">
+      <batchtest fork="true">
 	<formatter type="plain" usefile="false"/>
 
 	<fileset dir="${test-src.dir}">
@@ -428,48 +436,18 @@ what you want. Currently the conditionally built modules are:
     <touch file="${build.dir}/${lasttest.timestamp}"/>
   </target>
 
-  <target name="gj-instrument-uptodate">
-    <uptodate property="gj-instrument.uptodate"
-              targetfile="${gj-instrumented.jar}">
-      <srcfiles dir="${classes.dir}" includes="net/grinder/**/*.class"/>
-    </uptodate>
+  <target name="with.clover">
+    <taskdef resource="clovertasks"/>
+
+    <clover-setup initstring="${clover.dir}/coverage.db">
+      <fileset dir="${src.dir}">
+       <include name="net/grinder/**"/>
+      </fileset>
+    </clover-setup>
   </target>
 
-  <target name="gj-instrument"
-          depends="compile,gj-instrument-uptodate"
-          description="Instruments the code for Glass JAR"
-          unless="gj-instrument.uptodate">
-
-    <taskdef name="iclass"
-             classname="com.glassjartoolkit.ant.InstrumentTask"
-             classpath="${gjtk.home}/WEB-INF/lib/gjtk.jar"/>
-
-    <iclass file="${gj-instrumented.jar}" cvgdir="${gj-coverage.dir}">
-      <classpath refid="build.classpath"/>
-      <include name="net.grinder.**" mode="branch"/>
-    </iclass>
-
-  </target>
-
-  <target name="gj-test" depends="gj-instrument,test"/>
-
-  <!-- Unfortunately this can't depend on gj-test as it then runs
-       in the same JVM and GJTK reports "no test cases were found". -->
-  <target name="gj-report"
-          description="Unit test run of Glass JAR instrumented code">
-
-    <taskdef name="gjreport"
-             classname="com.glassjartoolkit.ant.CovReportTask"
-             classpath="${gjtk.home}/WEB-INF/lib/gjtk.jar"/>
-
-    <gjreport cvgdir="${gj-coverage.dir}"
-              htmldir="${gj-coverage.dir}/html"
-              testcase="no"
-              method="yes">
-      <sourcepath>
-	<pathelement path="${src.dir}"/>
-      </sourcepath>
-    </gjreport>
+  <target name="clover.swing" depends="with.clover">
+    <clover-view/>
   </target>
 
   <!-- =================================================================== -->
