@@ -437,7 +437,9 @@ public class Model {
     m_receivedReport = true;
 
     if (getState() == STATE_CAPTURING) {
-      final TestStatisticsMap.Iterator iterator =
+      // TestStatisticsMap doesn't change within the console so we
+      // don't need to synchronise.
+      final TestStatisticsMap.Iterator iterator = 
 	testStatisticsMap.new Iterator();
 
       while (iterator.hasNext()) {

@@ -47,7 +47,6 @@ public class StatisticsTable {
    * @supplierCardinality 1
    * @link aggregation
    **/
-  private final RawStatistics m_totals;
   private final DecimalFormat m_twoDPFormat = new DecimalFormat("0.00");
   private final int m_columnWidth = 12;
   private final String m_columnSeparator = " ";
@@ -82,8 +81,6 @@ public class StatisticsTable {
 			 TestStatisticsMap testStatisticsMap) {
     m_statisticsView = statisticsView;
     m_testStatisticsMap = testStatisticsMap;
-
-    m_totals = m_testStatisticsMap.getTotal();
   }
 
   /**
@@ -147,29 +144,36 @@ public class StatisticsTable {
 
     out.println();
 
-    final TestStatisticsMap.Iterator iterator =
-      m_testStatisticsMap.new Iterator();
+    final TestStatisticsImplementation totals =
+      TestStatisticsFactory.getInstance().createImplementation();
 
-    while (iterator.hasNext()) {
-      final TestStatisticsMap.Pair pair = iterator.next();
+    synchronized (m_testStatisticsMap) {
 
-      final Test test = pair.getTest();
+      final TestStatisticsMap.Iterator iterator =
+	m_testStatisticsMap.new Iterator();
 
-      StringBuffer output = formatLine("Test " + test.getNumber(),
-				       pair.getStatistics(),
-				       expressionViews);
+      while (iterator.hasNext()) {
+	final TestStatisticsMap.Pair pair = iterator.next();
 
-      final String testDescription = test.getDescription();
+	final Test test = pair.getTest();
+	totals.add(pair.getStatistics());
 
-      if (testDescription != null) {
-	output.append(" \"" + testDescription + "\"");
+	StringBuffer output = formatLine("Test " + test.getNumber(),
+					 pair.getStatistics(),
+					 expressionViews);
+
+	final String testDescription = test.getDescription();
+
+	if (testDescription != null) {
+	  output.append(" \"" + testDescription + "\"");
+	}
+
+	out.println(output.toString());
       }
 
-      out.println(output.toString());
+      out.println();
+      out.println(formatLine("Totals", totals, expressionViews));
     }
-
-    out.println();
-    out.println(formatLine("Totals", m_totals, expressionViews));
   }
 
   private StringBuffer formatLine(String rowLabel,

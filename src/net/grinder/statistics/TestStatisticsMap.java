@@ -35,8 +35,9 @@ import net.grinder.common.Test;
 /**
  * A map of test numbers to {@link TestStatistics}s.
  *
- * <p>Unsynchronised. Synchronisation tends to occur at the
- * granularity of the contained {@link RawStatistics} instances.</p>
+ * <p>Test statistics synchronisation occurs at the granularity of the
+ * contained {@link RawStatistics} instances. The map is synchronised
+ * on the <code>TestStatisticsMap</code> itself.</p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -46,19 +47,14 @@ public class TestStatisticsMap implements java.io.Externalizable {
   private static final long serialVersionUID = 3781345128009455699L;
 
   /**
-   * Use a TreeMap so we store in test number order.
+   * Use a TreeMap so we store in test number order. Synchronise on
+   * this TestStatisticsMap before accessing.
    *
    * @supplierCardinality 0..*
    * @link aggregation 
    * @associates <{TestStatisticsImplementation}>
    **/
   private final Map m_data = new TreeMap();
-
-  /**
-   * @supplierCardinality 1 
-   **/
-  private final TestStatisticsFactory m_testStatisticsFactory =
-    TestStatisticsFactory.getInstance();
 
   /**
    * Creates a new <code>TestStatisticsMap</code> instance.
@@ -78,7 +74,9 @@ public class TestStatisticsMap implements java.io.Externalizable {
 	"TestStatistics implementation not supported");
     }
 
-    m_data.put(test, statistics);
+    synchronized (this) {
+      m_data.put(test, statistics);
+    }
   }
 
   /**
@@ -94,38 +92,25 @@ public class TestStatisticsMap implements java.io.Externalizable {
    * difference between our values and the snapshot's values.
    **/
   public final TestStatisticsMap getDelta(boolean updateSnapshot) {
+
     final TestStatisticsMap result = new TestStatisticsMap();
 
-    final Iterator iterator = new Iterator();
+    final TestStatisticsFactory testStatisticsFactory =
+      TestStatisticsFactory.getInstance();
 
-    while (iterator.hasNext()) {
-      final Pair pair = iterator.next();
+    synchronized (this) {
+      final Iterator iterator = new Iterator();
 
-      final TestStatisticsImplementation testStatistics =
-	m_testStatisticsFactory.createImplementation();
+      while (iterator.hasNext()) {
+	final Pair pair = iterator.next();
 
-      testStatistics.add(pair.getStatistics().getDelta(updateSnapshot));
+	final TestStatisticsImplementation testStatistics =
+	  testStatisticsFactory.getInstance().createImplementation();
 
-      result.put(pair.getTest(), testStatistics);
-    }
+	testStatistics.add(pair.getStatistics().getDelta(updateSnapshot));
 
-    return result;
-  }
-
-  /**
-   * Get a new <code>TestStatistics</code> containing the totals of
-   * all our entries.
-   *
-   * @return The totals <code>TestStatistics</code>.
-   **/
-  public final TestStatistics getTotal() {
-    final TestStatisticsImplementation result =
-      m_testStatisticsFactory.createImplementation();
-
-    final java.util.Iterator iterator = m_data.values().iterator();
-
-    while (iterator.hasNext()) {
-      result.add((TestStatistics)iterator.next());
+	result.put(pair.getTest(), testStatistics);
+      }
     }
 
     return result;
@@ -133,46 +118,17 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
   /**
    * Return the number of entries in the
-   * <code>TestStatisticsMap</code>.
+   * <code>TestStatisticsMap</code>. For use by the unit tests.
    *
    * @return an <code>int</code> value
    **/
-  public final int size() {
+  final int size() {
     return m_data.size();
   }
 
   /**
-   * Add <code>operand</code> to our values.
-   *
-   * @param operand The <code>TestStatisticsMap</code> containing
-   * values to add.
-   **/
-  public final void add(TestStatisticsMap operand) {
-    final Iterator iterator = operand.new Iterator();
-
-    while (iterator.hasNext()) {
-      final Pair pair = iterator.next();
-
-      final Test test = pair.getTest();
-      final TestStatistics statistics =
-	(TestStatistics)m_data.get(pair.getTest());
-
-      if (statistics == null) {
-	final TestStatisticsImplementation newStatistics =
-	  m_testStatisticsFactory.createImplementation();
-
-	newStatistics.add(pair.getStatistics());
-
-	put(test, newStatistics);
-      }
-      else {
-	statistics.add(pair.getStatistics());
-      }
-    }
-  }
-
-  /**
-   * Implement value based equality. Mainly used by unit tests.
+   * Implement value based equality. Used by unit tests, so we don't
+   * bother with synchronisation.
    *
    * <p><em>Note, no <code>hashCode()</code> method is defined by
    * this class.</em></p>.
@@ -191,7 +147,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
     final TestStatisticsMap otherMap = (TestStatisticsMap)o;
 
-    if (size() != otherMap.size()) {
+    if (m_data.size() != otherMap.m_data.size()) {
       return false;
     }
 
@@ -222,16 +178,18 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
     result.append("TestStatisticsMap = {");
 
-    final Iterator iterator = new Iterator();
+    synchronized (this) {
+      final Iterator iterator = new Iterator();
 
-    while (iterator.hasNext()) {
-      final Pair pair = iterator.next();
+      while (iterator.hasNext()) {
+	final Pair pair = iterator.next();
 
-      result.append("(");
-      result.append(pair.getTest());
-      result.append(", ");
-      result.append(pair.getStatistics());
-      result.append(")");
+	result.append("(");
+	result.append(pair.getTest());
+	result.append(", ");
+	result.append(pair.getStatistics());
+	result.append(")");
+      }
     }
 
     result.append("}");
@@ -246,36 +204,47 @@ public class TestStatisticsMap implements java.io.Externalizable {
    * @exception IOException If an I/O error occurs.
    **/
   public void writeExternal(ObjectOutput out) throws IOException {
-    out.writeInt(m_data.size());
 
-    final Iterator iterator = new Iterator();
+    final TestStatisticsFactory testStatisticsFactory =
+      TestStatisticsFactory.getInstance();
 
-    while (iterator.hasNext()) {
-      final Pair pair = iterator.next();
+    synchronized (this) {
+      out.writeInt(m_data.size());
 
-      out.writeInt(pair.getTest().getNumber());
+      final Iterator iterator = new Iterator();
 
-      // Its a class invariant that our TestStatistics are all
-      // TestStatisticsImplementations.
-      m_testStatisticsFactory.writeStatisticsExternal(
-	out, (TestStatisticsImplementation)pair.getStatistics());
+      while (iterator.hasNext()) {
+	final Pair pair = iterator.next();
+
+	out.writeInt(pair.getTest().getNumber());
+
+	// Its a class invariant that our TestStatistics are all
+	// TestStatisticsImplementations.
+	testStatisticsFactory.writeStatisticsExternal(
+	  out, (TestStatisticsImplementation)pair.getStatistics());
+      }
     }
   }
 
   /**
-   * Efficient externalisation method.
+   * Efficient externalisation method. No synchronisation, assume that
+   * we're being read into a new instance.
    *
    * @param in Handle to the input stream.
    * @exception IOException If an I/O error occurs.
    **/
   public void readExternal(ObjectInput in) throws IOException {
+
     final int n = in.readInt();
+
+    final TestStatisticsFactory testStatisticsFactory =
+      TestStatisticsFactory.getInstance();
 
     m_data.clear();
 
     for (int i=0; i<n; i++) {
       m_data.put(new LightweightTest(in.readInt()),
-		 m_testStatisticsFactory.readStatisticsExternal(in));
+		 testStatisticsFactory.readStatisticsExternal(in));
     }
   }
 
@@ -304,7 +273,8 @@ public class TestStatisticsMap implements java.io.Externalizable {
   }
 
   /**
-   * A type safe iterator.
+   * A type safe iterator. Should synchronize on the
+   * <code>TestStatisticsMap</code> around use.
    **/
   public final class Iterator {
     private final java.util.Iterator m_iterator;
