@@ -454,7 +454,7 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 	useful modules. For example the regular expression module
 	<code>re</code> and the threading module
 	<code>threading</code>. To use these modules you must <a
-	href="site:scripts/jython-installation">install
+	href="site:g3/scripts/jython-installation">install
 	Jython</a>.</p>
       </answer>
     </faq>
@@ -509,9 +509,9 @@ response = myrequest.GET(&quot;/carindex.html&quot;)
 text = response.text
 </source>
 
-	<p>See the <a href="script-javadoc/index.html">script API</a>
-	for other things you can do with the <code>HTTPResponse</code>
-	object.</p>
+	<p>See the <a href="g3/script-javadoc/index.html">script
+	API</a> for other things you can do with the
+	<code>HTTPResponse</code> object.</p>
 
 	<p>Now you have the choice of using Java or Python to extract
 	the appropriate ID. Lets do it in Python. Rather than write

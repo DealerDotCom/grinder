@@ -41,11 +41,13 @@ See http://forrest.apache.org/docs/linking.html for more info
 
   <g2 label="The Grinder 2" href="g2/" tab="manual">
     <getting-started label="Getting started" href="getting-started.html"/>    
-    <console label="Properties" href="properties.html"/>
-    <console label="HTTP Plug-in" href="http-plugin.html"/>
-    <console label="JUnit Plug-in" href="junit-plugin.html"/>
+    <properties label="Properties" href="properties.html"/>
+    <http-plugin label="HTTP Plug-in" href="http-plugin.html">
+      <string-bean href="#string-bean"/>
+    </http-plugin>  
+    <junit-plugin label="JUnit Plug-in" href="junit-plugin.html"/>
     <console label="The Console" href="console.html"/>
-    <console label="TCPSniffer" href="tcpsniffer.html"/>
+    <tcpsniffer label="TCPSniffer" href="tcpsniffer.html"/>
   </g2>
 
   <g3 label="The Grinder 3" href="g3/" tab="manual">
@@ -61,10 +63,10 @@ See http://forrest.apache.org/docs/linking.html for more info
     </http-plugin>
     <ssl label="SSL support" href="ssl-support.html"/>
     <console label="The Console" href="console.html">
-      <process-controls ref="#process-controls"/>
+      <process-controls href="#process-controls"/>
     </console>
     <script-gallery label="Script Gallery" href="script-gallery.html">
-      <helloworldfunctions ref="#helloworldfunctions"/>
+      <helloworldfunctions href="#helloworldfunctions"/>
     </script-gallery>
     <tcpproxy label="TCPProxy" href="tcpproxy.html"/>
     <tutorial label="Tutorial" href="tutorial-perks.html"/>
