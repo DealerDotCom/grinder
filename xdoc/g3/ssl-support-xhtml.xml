@@ -136,7 +136,7 @@ href="#own-key-manager">provide your own
 <li>
 <p><em><code>setKeyStoreFile</code> has a parameter for the key store
 password. What about the pass phrase that protects the private key in
-the keystore?</em></p>
+the key store?</em></p>
 
 <p>The pass phrases for keys must be the same as the key store
 password. This is a restriction of the default
