@@ -62,7 +62,7 @@ Task: Agent shouldn't create filestore directory until necessary.
 Task: Setting a new directory should require agents to refresh their
 cache.
 
-***** Release 2a
+***** Release 2 (done)
 
 Task: File Store directory should have a README describing what its
 for.
@@ -71,42 +71,25 @@ Task: Guard against distributing agent cache directory. Can mark with
 a special file - maybe the README? Also prevent distribution of
 temporary files, CVS directories, grinder log files.
 
-***** Release 2b
+***** Release 3 (done)
 
 Task: Mature FileDistributionHandler model. Extract from comms
 package, leaving the comms bit of it behind.
 
+Task: Model agent cache state.
+
 Task: Console to indicate global dirty state. (Distinct from buffer
 "dirty" state).
 
-      Files in model later than last distributed time.
+Task: Console to check dirty state on play and warn.
 
-      3 states: File update in progress
-		Clean
-		Dirty
-				[Done]
+Task: Console should not enable worker process controls if no agent is
+connected.
 
-      Where should this be stored?
-	within editor package. AgentCacheState.
-
-      Should be reset when:
-		File distribution completes,
-		unless file saved in meantime. 
-				[Done].
-
-      Should be set when:
-		Buffer saved.
-				[Done]
-
-      Fix reset when a new agent connects.
-				[To do]
+Task: If dirty buffers on play, optionally warn.
 
 
-Task: Console to check dirty state on play and auto broadcast. Need
-some way of synchronising before starting run.
-
-	If dirty buffers, prompt to save.
-
+***** Release 4
 
 Task: Console to watch local file system for edits. 
 
@@ -115,7 +98,13 @@ Task: Add warning if saving outside of distribution.
 Task: The agent should pick up secondary grinder.properties from file
 cache.
 
-***** Release 3
+Task: Merge worker and agent process status models. Update process tab
+to show both.
+
+Task: Console to optionall auto broadcast on play. Need some way of
+synchronising before starting run.
+
+***** Release 6
 
 Task: Addressed messaging. Every Acceptor.SocketResource to know its
 remote EndPoint. Add FilteredFanOutServerSender (Extend
@@ -295,8 +284,6 @@ To do this, might have to behave differently with 1 thread vs many.
 Perhaps JasperReports?
 
 ** Code
-
-Add an AbstractListenerSupport class? 
 
 Review use of Kernel. Probably want to share them.
 
