@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,8 +22,6 @@
 package net.grinder.util;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 
 /**
@@ -35,86 +32,104 @@ import junit.swingui.TestRunner;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestFixedWidthFormatter extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestFixedWidthFormatter.class);
+public class TestFixedWidthFormatter extends TestCase {
+
+  public TestFixedWidthFormatter(String name) {
+    super(name);
+  }
+
+  public void testBadConstruction() throws Exception {
+    try {
+      new FixedWidthFormatter(-1, FixedWidthFormatter.FLOW_WRAP, 10);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
     }
 
-    public TestFixedWidthFormatter(String name)
-    {
-	super(name);
+    try {
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT, -1, 10);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
     }
 
-    public void testTruncate() throws Exception
-    {
-	final String text = "They walked in a line, they wallked in a line";
-	final String text2 = "Be on my side and I'll be on your side";
-
-	for (int width=1; width<20; ++width) {
-	    final FixedWidthFormatter leftFormatter =
-		new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-					FixedWidthFormatter.FLOW_TRUNCATE,
-					width);
-	    
-	    for (int i=0; i<text.length(); ++i) {
-		final StringBuffer buffer =
-		    new StringBuffer(text.substring(0, i));
-		final StringBuffer remainder = new StringBuffer(text2);
-		
-		leftFormatter.transform(buffer, remainder);
-		
-		final String result = buffer.toString();
-		
-		assertEquals(width, result.length());
-
-		if (i<width) {
-		    assertEquals(text.substring(0, i), result.substring(0, i));
-
-		    for (int j=i; j<width; ++j) {
-			assertEquals(' ', result.charAt(j));
-		    }
-		}
-		else {
-		    assertEquals(text.substring(0, width),
-				 result.substring(0, width));
-		}
-	    
-		assertEquals(text2, remainder.toString());
-	    }
-
-	    final FixedWidthFormatter rightFormatter =
-		new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT,
-					FixedWidthFormatter.FLOW_TRUNCATE,
-					width);
-
-	    for (int i=1; i<text.length(); ++i) {
-		final StringBuffer buffer =
-		    new StringBuffer(text.substring(0, i));
-		final StringBuffer remainder = new StringBuffer(text2);
-
-		rightFormatter.transform(buffer, remainder);
-
-		final String result = buffer.toString();
-
-		assertEquals(width, result.length());
-
-		if (i<width) {
-		    assertEquals(text.substring(0, i),
-				 result.substring(width-i));
-
-		    for (int j=0; j<width-i; ++j) {
-			assertEquals(' ', result.charAt(j));
-		    }
-		}
-		else {
-		    assertEquals(text.substring(0, width),
-				 result.substring(0, width));
-		}
-	    
-		assertEquals(text2, remainder.toString());
-	    }
-	}
+    try {
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
+                              FixedWidthFormatter.FLOW_WRAP,
+                              0);
+      fail("Expected IllegalArgumentException");
     }
+    catch (IllegalArgumentException e) {
+    }
+  }
+
+  public void testTruncate() throws Exception {
+    final String text = "They walked in a line, they wallked in a line";
+    final String text2 = "Be on my side and I'll be on your side";
+
+    for (int width=1; width<20; ++width) {
+      final FixedWidthFormatter leftFormatter =
+        new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
+                                FixedWidthFormatter.FLOW_TRUNCATE,
+                                width);
+	    
+      for (int i=0; i<text.length(); ++i) {
+        final StringBuffer buffer =
+          new StringBuffer(text.substring(0, i));
+        final StringBuffer remainder = new StringBuffer(text2);
+		
+        leftFormatter.transform(buffer, remainder);
+		
+        final String result = buffer.toString();
+		
+        assertEquals(width, result.length());
+
+        if (i<width) {
+          assertEquals(text.substring(0, i), result.substring(0, i));
+
+          for (int j=i; j<width; ++j) {
+            assertEquals(' ', result.charAt(j));
+          }
+        }
+        else {
+          assertEquals(text.substring(0, width),
+                       result.substring(0, width));
+        }
+
+        assertEquals(text2, remainder.toString());
+      }
+
+      final FixedWidthFormatter rightFormatter =
+        new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT,
+                                FixedWidthFormatter.FLOW_TRUNCATE,
+                                width);
+
+      for (int i=1; i<text.length(); ++i) {
+        final StringBuffer buffer =
+          new StringBuffer(text.substring(0, i));
+        final StringBuffer remainder = new StringBuffer(text2);
+
+        rightFormatter.transform(buffer, remainder);
+
+        final String result = buffer.toString();
+
+        assertEquals(width, result.length());
+
+        if (i<width) {
+          assertEquals(text.substring(0, i),
+                       result.substring(width-i));
+
+          for (int j=0; j<width-i; ++j) {
+            assertEquals(' ', result.charAt(j));
+          }
+        }
+        else {
+          assertEquals(text.substring(0, width),
+                       result.substring(0, width));
+        }
+	    
+        assertEquals(text2, remainder.toString());
+      }
+    }
+  }
 }
