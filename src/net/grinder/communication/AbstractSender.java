@@ -119,5 +119,13 @@ abstract class AbstractSender implements Sender {
    * @throws CommunicationException If an error occurs.
    */
   public void shutdown() throws CommunicationException {
+    try {
+      final Message message = new CloseCommunicationMessage();
+      message.setSenderInformation("internal", "internal", -1);
+      send(message);
+    }
+    catch (CommunicationException e) {
+      // Ignore.
+    }
   }
 }

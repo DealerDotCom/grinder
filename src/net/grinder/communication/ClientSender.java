@@ -141,13 +141,6 @@ public class ClientSender extends AbstractSender {
    */
   public void shutdown() throws CommunicationException {
 
-    try {
-      send(new CloseCommunicationMessage());
-    }
-    catch (CommunicationException e) {
-      // Ignore.
-    }
-
     super.shutdown();
 
     try {

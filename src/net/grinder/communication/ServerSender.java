@@ -108,6 +108,8 @@ public final class ServerSender extends AbstractSender {
    */
   public void shutdown() throws CommunicationException {
 
+    super.shutdown();
+
     m_workQueue.shutdown();
 
     // Will also shut down our SenderThreads.
