@@ -34,14 +34,14 @@ import junit.framework.TestCase;
 
 
 /**
- *  Unit tests for <code>ServerSender</code>.
+ *  Unit tests for <code>ServerFanOutSender</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestServerSender extends TestCase {
+public class TestServerFanOutSender extends TestCase {
 
-  public TestServerSender(String name) {
+  public TestServerFanOutSender(String name) {
     super(name);
   }
 
@@ -52,8 +52,11 @@ public class TestServerSender extends TestCase {
     final int port = serverSocket.getLocalPort();
     serverSocket.close();
 
-    final ServerSender serverSender1 = ServerSender.bindTo("Test", "", port);
-    final ServerSender serverSender2 = ServerSender.bindTo("Test", "", 0);
+    final ServerFanOutSender serverSender1 =
+      ServerFanOutSender.bindTo("Test", "", port);
+
+    final ServerFanOutSender serverSender2 =
+      ServerFanOutSender.bindTo("Test", "", 0);
 
     serverSender1.shutdown();
     serverSender2.shutdown();
@@ -61,7 +64,8 @@ public class TestServerSender extends TestCase {
 
   public void testSend() throws Exception {
 
-    final ServerSender serverSender = ServerSender.bindTo("Test", "", 0);
+    final ServerFanOutSender serverSender =
+      ServerFanOutSender.bindTo("Test", "", 0);
 
     final Acceptor acceptor = serverSender.getAcceptor();
 
@@ -73,7 +77,9 @@ public class TestServerSender extends TestCase {
 
     // Sleep until we've accepted all connections. Give up after a few
     // seconds.
-    for (int i=0; acceptor.getSocketSet().countActiveSockets() != 5 && i<10; ++i) {
+    for (int i=0;
+         acceptor.getSocketSet().countActiveSockets() != 5 && i<10;
+         ++i) {
       Thread.sleep(i * i * 10);
     }
 
@@ -117,7 +123,8 @@ public class TestServerSender extends TestCase {
 
   public void testShutdown() throws Exception {
 
-    final ServerSender serverSender = ServerSender.bindTo("Test", "", 0);
+    final ServerFanOutSender serverSender =
+      ServerFanOutSender.bindTo("Test", "", 0);
 
     final Acceptor acceptor = serverSender.getAcceptor();
 
@@ -128,7 +135,9 @@ public class TestServerSender extends TestCase {
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
-    for (int i=0; acceptor.getSocketSet().countActiveSockets() != 1 && i<10; ++i) {
+    for (int i=0;
+         acceptor.getSocketSet().countActiveSockets() != 1 && i<10;
+         ++i) {
       Thread.sleep(i * i * 10);
     }
 

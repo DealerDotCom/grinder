@@ -34,25 +34,26 @@ import java.util.Iterator;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ServerSender extends AbstractSender {
+public final class ServerFanOutSender extends AbstractSender {
 
   private final Acceptor m_acceptor;
   private final ThreadSafeQueue m_workQueue = new ThreadSafeQueue();
 
   /**
-   * Factory method that creates a <code>ServerSender</code> that
-   * listens on the given address.
+   * Factory method that creates a <code>ServerFanOutSender</code>
+   * that listens on the given address.
    *
    * @param grinderID A string describing our Grinder process.
    * @param addressString The TCP address to listen on. Zero-length
    * string => listen on all interfaces.
    * @param port The TCP port to listen to. 0 => any local port.
-   * @return The ServerSender.
+   * @return The ServerFanOutSender.
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  public static ServerSender bindTo(String grinderID, String addressString,
-                                    int port)
+  public static ServerFanOutSender bindTo(String grinderID,
+                                          String addressString,
+                                          int port)
     throws CommunicationException {
 
     final Acceptor acceptor = new Acceptor(addressString, port);
@@ -62,7 +63,7 @@ public final class ServerSender extends AbstractSender {
         addressString + ":" + acceptor.getPort() + ":" +
         InetAddress.getLocalHost().getHostName();
 
-      return new ServerSender(grinderID, senderID, acceptor, 3);
+      return new ServerFanOutSender(grinderID, senderID, acceptor, 3);
     }
     catch (UnknownHostException e) {
       throw new CommunicationException("Can't get local host", e);
@@ -79,8 +80,8 @@ public final class ServerSender extends AbstractSender {
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  private ServerSender(String grinderID, String senderID, Acceptor acceptor,
-                       int numberOfThreads)
+  private ServerFanOutSender(String grinderID, String senderID,
+                             Acceptor acceptor, int numberOfThreads)
     throws CommunicationException {
 
     super(grinderID, senderID);
