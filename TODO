@@ -14,14 +14,6 @@ that too :-). The list is roughly in priority order.]
   Write more JUnit tests. In particular, TestStatisticsMap, new
   console components.
 
-  Add option to ignore the first 5 cycles so that hotspot has chance
-  to work.
-
-  Abstract out a TestScheduler interface to allow other algorithms.
-  Add a "random order" algorithm, which might work well with the JUnit
-  plugin. Flesh out the API so custom script schedulers can be
-  supported.
-
   Add a switch to the HttpPluginSnifferFilter which specifies the
   initial test number for the output.
 
@@ -48,3 +40,15 @@ that too :-). The list is roughly in priority order.]
   Minor fixes to HttpPluginSnifferFilter:
 	Respect charset information.
 	Sanity check the processing agains RFC 2616
+
+
+The following are scheduled for Grinder 3:
+
+  Abstract out a TestScheduler interface to allow other algorithms.
+  Add a "random order" algorithm, which might work well with the JUnit
+  plugin. Flesh out the API so custom script schedulers can be
+  supported.
+
+  Resolve the dependency of the console on a particular configuration
+  file. Or use the console to broadcast configuration to the grinder
+  processes.
