@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.FileUtilities;
 
 
@@ -53,6 +54,27 @@ public class TestDirectory extends AbstractFileTestCase {
     assertEquals(0, directory.getWarnings().length);
 
     assertEquals(getDirectory(), directory.getAsFile());
+  }
+
+  public void testEquality() throws Exception {
+
+    final Directory d1 = new Directory(getDirectory());
+    final Directory d2 = new Directory(getDirectory());
+
+    final File f = new File(getDirectory(), "comeonpilgrimyouknowhelovesyou");
+    f.mkdir();
+
+    final Directory d3 = new Directory(f);
+
+    assertEquals(d1, d1);
+    assertEquals(d1, d2);
+    AssertUtilities.assertNotEquals(d2, d3);
+
+    assertEquals(d1.hashCode(), d1.hashCode());
+    assertEquals(d1.hashCode(), d2.hashCode());
+
+    AssertUtilities.assertNotEquals(d1, null);
+    AssertUtilities.assertNotEquals(d1, f);
   }
 
   public void testListContents() throws Exception {
