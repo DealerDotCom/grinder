@@ -48,7 +48,6 @@ final class ProcessContext {
   private final LoggerImplementation m_loggerImplementation;
   private final QueuedSender m_consoleSender;
   private final PluginRegistry m_pluginRegistry;
-  private final TestRegistry m_testRegistry;
   private final Grinder.ScriptContext m_scriptContext;
   private final Sleeper m_sleeper;
 
@@ -71,7 +70,6 @@ final class ProcessContext {
     m_consoleSender = consoleSender;
 
     m_pluginRegistry = new PluginRegistry(this);
-    m_testRegistry = new TestRegistry();
 
     final Logger externalLogger =
       new ExternalLogger(m_loggerImplementation.getProcessLogger());
@@ -129,7 +127,7 @@ final class ProcessContext {
   }
 
   public TestRegistry getTestRegistry() {
-    return m_testRegistry;
+    return TestRegistry.getInstance();
   }
 
   public String getGrinderID() {

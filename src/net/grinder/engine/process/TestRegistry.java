@@ -28,7 +28,6 @@ import java.util.TreeMap;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
-import net.grinder.engine.EngineException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.TestStatisticsMap;
 
@@ -41,7 +40,7 @@ import net.grinder.statistics.TestStatisticsMap;
  */
 public final class TestRegistry {
 
-  private static TestRegistry s_instance;
+  private static TestRegistry s_instance = new TestRegistry();
 
   /**
    * A map of Test to TestData's. (TestData is the class this
@@ -73,12 +72,7 @@ public final class TestRegistry {
   /**
    * Constructor.
    */
-  TestRegistry() throws EngineException {
-    if (s_instance != null) {
-      throw new EngineException("Already initialised");
-    }
-
-    s_instance = this;
+  private TestRegistry() {
   }
 
   /**
