@@ -38,15 +38,8 @@ import junit.framework.TestCase;
  */
 public class TestChildProcess extends TestCase {
 
-  public TestChildProcess(String name) throws Exception {
-    super(name);
-  }
-
   private ByteArrayOutputStream m_outputStream = new ByteArrayOutputStream();
   private ByteArrayOutputStream m_errorStream = new ByteArrayOutputStream();
-
-  protected void setUp() throws Exception {
-  }
 
   public void testWithInvalidProcess() throws Exception {
     final String[] commandArray = {
