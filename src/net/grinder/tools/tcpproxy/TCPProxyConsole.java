@@ -1,4 +1,5 @@
-// Copyright (C) 2003 Betrand Ave
+// Copyright (C) 2003 Bertrand Ave
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,26 +37,24 @@ import javax.swing.SwingConstants;
 /**
  * Console for the TCPProxy.
  *
- * @author Betrand Ave
+ * @author Bertrand Ave
  * @version $Revision$
  */
 public final class TCPProxyConsole extends JFrame {
-
-  private static final String STOP_BUTTON_LABEL = "Stop";
 
   /**
    * Constructor.
    *
    * @param proxyEngine The <code>TCPProxyEngine</code> we control.
    */
-  public TCPProxyConsole(TCPProxyEngine proxyEngine) {
+  public TCPProxyConsole(final TCPProxyEngine proxyEngine) {
     super("TCPProxy Console");
 
     setResizable(false);
 
     addWindowListener(new WindowAdapter() {
         public void windowClosing(WindowEvent e) {
-          System.exit(0);
+          proxyEngine.stop();
         }
       });
 
@@ -64,34 +63,20 @@ public final class TCPProxyConsole extends JFrame {
     content.setLayout(new FlowLayout());
 
     final JButton button1 = new JButton("Recording");
-    button1.addActionListener(new ButtonActionListener(proxyEngine));
     button1.setEnabled(false);
     content.add(button1);
 
-    final JButton button2 = new JButton(STOP_BUTTON_LABEL);
-    button2.addActionListener(new ButtonActionListener(proxyEngine));
+    final JButton button2 = new JButton("Stop");
+    button2.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+           proxyEngine.stop();
+         }
+      });
+
     button2.setHorizontalTextPosition(SwingConstants.LEFT);
     content.add(button2);
 
     pack();
     setVisible(true);
-  }
-
-  /**
-   * Listener for all buttons.
-   */
-  private final class ButtonActionListener implements ActionListener {
-
-    private final TCPProxyEngine m_proxyEngine;
-
-    public ButtonActionListener(TCPProxyEngine proxyEngine) {
-      m_proxyEngine = proxyEngine;
-    }
-
-    public void actionPerformed(ActionEvent e) {
-      if (e.getActionCommand().equals(STOP_BUTTON_LABEL)) {
-        System.exit(0);
-      }
-    }
   }
 }
