@@ -1,8 +1,7 @@
 export ANT_HOME=/opt/ant/apache-ant-1.6.2
-export JAVA_HOME=/opt/jdk1.3.1_02/
+export JAVA_HOME=/system/bea-8.1.4/jdk142_05
 export PATH=${ANT_HOME}/bin:${JAVA_HOME}/bin:$PATH
 
-JAKARTA_REGEXP=/opt/jakarta-regexp/jakarta-regexp-1.2/jakarta-regexp-1.2.jar
 JSSE_HOME=/opt/jsse/jsse1.0.2/lib/
 JSSE=${JSSE_HOME}/jsse.jar:${JSSE_HOME}/jnet.jar:${JSSE_HOME}/jcert.jar
 JUNIT=/opt/junit/junit3.8.1/junit.jar

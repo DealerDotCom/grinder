@@ -6,14 +6,13 @@ GRINDER=${GRINDER_HOME}/build/tests-classes:${GRINDER} # for testing JUnit plugi
 
 XALAN=/opt/xalan/xalan-j_2_3_1/bin/xalan.jar:/opt/xalan/xalan-j_2_3_1/bin/xml-apis.jar
 
-BEA_HOME=/system/bea-8.1.3
+BEA_HOME=/system/bea-8.1.4
 WLS=${BEA_HOME}/weblogic81/server/lib/weblogic.jar
 #WLS=/opt/bea/weblogic700/server/lib/webserviceclient.jar
 WLS_EXAMPLES_DIR=${BEA_HOME}/weblogic81/samples/server/examples/build/clientclasses
 WLS_EXAMPLES=${WLS_EXAMPLES_DIR}/ejb20_basic_statefulSession_client.jar:${WLS_EXAMPLES_DIR}/HelloWorld_client.jar
 
-#JAVA_HOME=/opt/jdk1.3.1_02/
-JAVA_HOME=${BEA_HOME}/jdk142_04
+JAVA_HOME=${BEA_HOME}/jdk142_05
 export PATH=${JAVA_HOME}/bin:$PATH
 
 export CLASSPATH=$(cygpath -w -p "${GRINDER}:${WLS}:${WLS_EXAMPLES}")
