@@ -55,13 +55,26 @@ public interface PluginProcessContext extends Logger, FilenameFactory
     void registerTests(Set test) throws PluginException;
 
     /**
-     * Plugins can use this method to register a new statistics view
-     * with the Grinder and the Console.
+     * Plugins can use this method to register a new "summary"
+     * statistics view. These views appear in the Grinder summary
+     * table and the Console.
      *
      * @param view The new view.
      * @exception GrinderException If the view cannot be registered.
      **/
-    void registerStatisticsView(StatisticsView view) throws GrinderException;
+    void registerSummaryStatisticsView(StatisticsView view)
+	throws GrinderException;
+
+    /**
+     * Plugins can use this method to register a new "detail"
+     * statistics view. These views appear in the individual process
+     * data files.
+     *
+     * @param view The new view.
+     * @exception GrinderException If the view cannot be registered.
+     **/
+    void registerDetailStatisticsView(StatisticsView view)
+	throws GrinderException;
 
     /**
      * Check whether this process is reporting times to the console or

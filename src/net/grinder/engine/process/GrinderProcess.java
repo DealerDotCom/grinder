@@ -43,6 +43,7 @@ import net.grinder.communication.StopGrinderMessage;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
@@ -199,6 +200,8 @@ public class GrinderProcess
 
 	// Parse plugin class. Do after setting up console Sender.
 	m_plugin = instantiatePlugin();
+
+	m_context.initialiseDataWriter();
 
 	final String scriptFilename = properties.getProperty("grinder.script");
 
@@ -406,7 +409,7 @@ public class GrinderProcess
 
 	final StatisticsTable statisticsTable =
 	    new StatisticsTable(
-		m_context.getTestStatisticsFactory().getStatisticsView(),
+		CommonStatisticsViews.getSummaryStatisticsView(),
 		m_context.getTestRegistry().getTestStatisticsMap());
 
 	statisticsTable.print(m_context.getOutputLogWriter());

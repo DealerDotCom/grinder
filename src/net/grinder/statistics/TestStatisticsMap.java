@@ -40,6 +40,8 @@ import net.grinder.common.Test;
  **/
 public class TestStatisticsMap implements java.io.Externalizable
 {
+    private static final long serialVersionUID = 3781345128009455699L;
+
     /**
      * Use a TreeMap so we store in test number order.
      *

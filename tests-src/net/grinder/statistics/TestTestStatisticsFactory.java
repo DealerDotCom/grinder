@@ -56,13 +56,6 @@ public class TestTestStatisticsFactory extends TestCase
 	    TestStatisticsFactory.getInstance();
 
 	assertSame(factory, TestStatisticsFactory.getInstance());
-
-	final StatisticsView statisticsView = factory.getStatisticsView();
-
-	final ExpressionView[] expressionViews =
-	    statisticsView.getExpressionViews();
-
-	assert(expressionViews.length > 0);
     }
 
     public void testFactory() throws Exception

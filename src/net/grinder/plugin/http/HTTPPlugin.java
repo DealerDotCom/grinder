@@ -42,7 +42,6 @@ import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatisticsFactory;
 
 
 /**
@@ -93,15 +92,21 @@ public class HttpPlugin implements GrinderPlugin
 		    StatisticsIndexMap.getInstance().getIndexForLong(
 			"userLong0");
 
-		final StatisticsView statisticsView = new StatisticsView();
+		final StatisticsView summaryView = new StatisticsView();
 
-		statisticsView.add(
-		    new ExpressionView(
-			"Mean time to first byte",
-			"statistic.timeToFirstByte",
-			"(/ userLong0 timedTransactions)"));
+		summaryView.add(
+		    new ExpressionView("Mean time to first byte",
+				       "statistic.timeToFirstByte",
+				       "(/ userLong0 timedTransactions)"));
 
-		processContext.registerStatisticsView(statisticsView);
+		processContext.registerSummaryStatisticsView(summaryView);
+
+		final StatisticsView detailView = new StatisticsView();
+
+		detailView.add(new ExpressionView("Time to first byte", "",
+						  "userLong0"));
+
+		processContext.registerDetailStatisticsView(detailView);
 	    }
 	    catch (GrinderException e) {
 		throw new PluginException(

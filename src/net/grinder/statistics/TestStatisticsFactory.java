@@ -33,58 +33,20 @@ import net.grinder.util.Serialiser;
  **/
 public final class TestStatisticsFactory
 {
-    private static TestStatisticsFactory s_instance;
+    private final static TestStatisticsFactory s_instance =
+	new TestStatisticsFactory();
 
     private final Serialiser m_serialiser = new Serialiser();
 
     /**
-     * @link aggregation
-     * @supplierCardinality 1 
-     */
-    private final StatisticsView m_statisticsView = new StatisticsView();
-
-    /** @link dependency 
-     * @stereotype instantiate*/
+     * @link dependency 
+     * @stereotype instantiate
+     **/
     /*#TestStatisticsImplementation lnkTestStatistics;*/
 
     public final synchronized static TestStatisticsFactory getInstance()
     {
-	if (s_instance == null) {
-	    s_instance = new TestStatisticsFactory();
-	}
-
 	return s_instance;
-    }
-
-    private TestStatisticsFactory()
-    {
-	try {
-	    final ExpressionView[] expressionViews = {
-		new ExpressionView("Transactions", "statistic.transactions", 
-				   "(+ timedTransactions untimedTransactions)"
-				   ),
-		new ExpressionView("Errors", "statistic.errors", "errors"),
-		new ExpressionView(
-		    "Average Response Time (ms)",
-		    "statistic.averageResponseTime",
-		    "(/ timedTransactionTime timedTransactions)"),
-	    };
-
-	    for (int i=0; i<expressionViews.length; ++i) {
-		m_statisticsView.add(expressionViews[i]);
-	    }
-	}
-	catch (GrinderException e) {
-	    throw new RuntimeException(
-		"Assertion failure, " +
-		"TestStatisticsFactory could not initialise: " +
-		e.getMessage());
-	}
-    }
-
-    public final StatisticsView getStatisticsView()
-    {
-	return m_statisticsView;
     }
 
     public final TestStatistics create()

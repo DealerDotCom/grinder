@@ -34,6 +34,7 @@ import java.util.TreeSet;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.console.common.ConsoleException;
+import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.PeakStatisticExpression;
 import net.grinder.statistics.StatisticExpression;
@@ -152,12 +153,13 @@ public class Model
 	    new ExpressionView("Peak TPS", "statistic.peakTPS",
 			       m_peakTPSExpression);
 
-	m_intervalStatisticsView.add(
-	    m_testStatisticsFactory.getStatisticsView());
+	final StatisticsView summaryStatisticsView =
+	    CommonStatisticsViews.getSummaryStatisticsView();
+
+	m_intervalStatisticsView.add(summaryStatisticsView);
 	m_intervalStatisticsView.add(m_tpsExpressionView);
 
-	m_cumulativeStatisticsView.add(
-	    m_testStatisticsFactory.getStatisticsView());
+	m_cumulativeStatisticsView.add(summaryStatisticsView);
 	m_cumulativeStatisticsView.add(m_tpsExpressionView);
 	m_cumulativeStatisticsView.add(m_peakTPSExpressionView);
 

@@ -28,7 +28,11 @@ import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.statistics.CommonStatisticsViews;
+import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.TestStatistics;
+import net.grinder.statistics.TestStatisticsFactory;
 import net.grinder.util.Sleeper;
 
 
@@ -50,9 +54,14 @@ final class ThreadContext implements PluginThreadContext
     private final TestResult m_testResult = new TestResult();
 
     private boolean m_abortedRun;
+
+    private final TestStatistics m_currentTestStatistics =
+	TestStatisticsFactory.getInstance().create();
+    private final ExpressionView[] m_detailExpressionViews =
+	CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
+
     private long m_startTime;
     private long m_elapsedTime;
-    private TestStatistics m_currentTestStatistics;
 
     private StringBuffer m_scratchBuffer = new StringBuffer();
 
@@ -178,10 +187,9 @@ final class ThreadContext implements PluginThreadContext
 	throws AbortRunException, Sleeper.ShutdownException
     {
 	m_testResult.reset();
+	m_currentTestStatistics.reset();
 
 	final Test test = testData.getTest();
-	m_currentTestStatistics = testData.getStatistics();
-	
 	m_threadLogger.setCurrentTestNumber(test.getNumber());
 	
 	m_sleeper.sleepNormal(
@@ -225,9 +233,22 @@ final class ThreadContext implements PluginThreadContext
 		    m_scratchBuffer.append(", " );
 		    m_scratchBuffer.append(test.getNumber());
 
-		    if (m_recordTime) {
+		    for (int i=0; i<m_detailExpressionViews.length; ++i) {
 			m_scratchBuffer.append(", ");
-			m_scratchBuffer.append(time);
+
+			final StatisticExpression expression =
+			    m_detailExpressionViews[i].getExpression();
+
+			if (expression.isDouble()) {
+			    m_scratchBuffer.append(
+				expression.getDoubleValue(
+				    m_currentTestStatistics));
+			}
+			else {
+			    m_scratchBuffer.append(
+				expression.getLongValue(
+				    m_currentTestStatistics));
+			}
 		    }
 
 		    m_dataWriter.println(m_scratchBuffer);
@@ -240,6 +261,7 @@ final class ThreadContext implements PluginThreadContext
 	}
 	finally {
 	    m_threadLogger.setCurrentTestNumber(-1);
+	    testData.getStatistics().add(m_currentTestStatistics);
 	}
 
 	return m_testResult;

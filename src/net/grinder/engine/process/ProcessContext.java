@@ -30,6 +30,8 @@ import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.communication.Sender;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.statistics.CommonStatisticsViews;
+import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatisticsFactory;
 
@@ -49,6 +51,8 @@ class ProcessContext implements PluginProcessContext
     private final Logger m_processLogger;
 
     private TestRegistry m_testRegistry;
+
+    private boolean m_shouldWriteTitleToDataWriter;
 
     private final TestStatisticsFactory m_testStatisticsFactory =
 	TestStatisticsFactory.getInstance();
@@ -77,16 +81,27 @@ class ProcessContext implements PluginProcessContext
 
 	m_processLogger = m_loggerImplementation.createProcessLogger();
 
-	if (!appendLog) {
+	m_shouldWriteTitleToDataWriter = !appendLog;
+    }
+
+    public void initialiseDataWriter()
+    {
+	if (m_shouldWriteTitleToDataWriter) {
 	    final PrintWriter dataWriter =
 		m_loggerImplementation.getDataWriter();
 
-	    if (m_recordTime) {
-		dataWriter.println("Thread, Cycle, Method, Time");
+	    dataWriter.print("Thread, Cycle, Test");
+
+	    final ExpressionView[] detailExpressionViews =
+		CommonStatisticsViews.getDetailStatisticsView()
+		.getExpressionViews();
+
+	    for (int i=0; i<detailExpressionViews.length; ++i) {
+		dataWriter.print(", " +
+				 detailExpressionViews[i].getDisplayName());
 	    }
-	    else {
-		dataWriter.println("Thread, Cycle, Method");
-	    }
+
+	    dataWriter.println();
 	}
     }
 
@@ -198,14 +213,20 @@ class ProcessContext implements PluginProcessContext
     /** A quick and dirty hack. We do the right thing in G3. **/
     Sender m_consoleSender;
 
-    public void registerStatisticsView(StatisticsView statisticsView)
+    public void registerSummaryStatisticsView(StatisticsView statisticsView)
 	throws GrinderException
     {
-	m_testStatisticsFactory.getStatisticsView().add(statisticsView);
+	CommonStatisticsViews.getSummaryStatisticsView().add(statisticsView);
 
 	if (m_consoleSender != null) {
 	    m_consoleSender.send(
 		new RegisterStatisticsViewMessage(statisticsView));
 	}
+    }
+
+    public void registerDetailStatisticsView(StatisticsView statisticsView)
+	throws GrinderException
+    {
+	CommonStatisticsViews.getDetailStatisticsView().add(statisticsView);
     }
 }

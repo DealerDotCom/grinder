@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000, 2001  Paco Gomez
-// Copyright (C) 2000, 2001  Philip Aston
+// Copyright (C) 2001  Paco Gomez
+// Copyright (C) 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,38 +18,46 @@
 
 package net.grinder.statistics;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import junit.framework.TestCase;
 import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
 
 /**
- * Statistics unit tests.
+ * Unit test case for <code>TestStatisticsFactory</code>.
  *
  * @author Philip Aston
  * @version $Revision$
+ * @see RawStatistics
  */
-public class AllTests
+public class TestCommonStatisticsViews extends TestCase
 {
     public static void main(String[] args)
     {
-	TestRunner.run(AllTests.class);
+	TestRunner.run(TestCommonStatisticsViews.class);
     }
 
-    public static Test suite()
+    public TestCommonStatisticsViews(String name)
     {
-	final TestSuite suite = new TestSuite();
-	suite.addTest(new TestSuite(TestCommonStatisticsViews.class));
-	suite.addTest(new TestSuite(TestExpressionView.class));
-	suite.addTest(new TestSuite(TestRawStatisticsImplementation.class));
-	suite.addTest(new TestSuite(TestStatisticExpressionFactory.class));
-	suite.addTest(new TestSuite(TestStatisticsTable.class));
-	suite.addTest(new TestSuite(TestStatisticsView.class));
-	suite.addTest(new TestSuite(TestTestStatisticsFactory.class));
-	suite.addTest(new TestSuite(TestTestStatisticsImplementation.class));
-	suite.addTest(new TestSuite(TestStatisticsIndexMap.class));
-	suite.addTest(new TestSuite(TestTestStatisticsMap.class));
-	return suite;
+	super(name);
+    }
+
+    public void testGetViews() throws Exception
+    {
+	final StatisticsView detail =
+	    CommonStatisticsViews.getDetailStatisticsView();
+
+	final ExpressionView[] detailExpressionViews =
+	    detail.getExpressionViews();
+
+	assert(detailExpressionViews.length > 0);
+
+	final StatisticsView summary =
+	    CommonStatisticsViews.getSummaryStatisticsView();
+
+	final ExpressionView[] summaryExpressionViews =
+	    summary.getExpressionViews();
+
+	assert(summaryExpressionViews.length > 0);
     }
 }

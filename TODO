@@ -61,3 +61,8 @@ containing embedded script.
 
   Efficiency: TestStatisticsMap.getDelta() to be able to reuse delta
   object.
+
+  Alter console and engine to use Timer.scheduleAtFixedRater for more
+  accuracy.
+
+  Tidy up logging of plugin initialisation.
