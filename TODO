@@ -78,6 +78,9 @@ Request 801129).
 
 Consider forcing TestRunner to be registered with grinder.
 
+Warn that it won't affect the log files if attempting to register
+detail statistics after threads have started.
+
 ** Statistics
 *** Measure variance (Ambitious)
 
