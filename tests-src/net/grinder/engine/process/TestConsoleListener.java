@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -107,13 +107,40 @@ public class TestConsoleListener extends TestCase {
     t2.join();
     assertTrue(!t2.getTimerExpired());
 
-    assertEquals(0, listener.received(ConsoleListener.RESET));
+    assertEquals(0, listener.received(ConsoleListener.RESET |
+                                      ConsoleListener.SHUTDOWN));
 
     assertEquals(ConsoleListener.START,
                  listener.received(ConsoleListener.START |
                                    ConsoleListener.STOP));
 
     assertEquals(4, m_logger.getNumberOfMessages());
+    assertEquals(0, m_logger.getNumberOfErrors());
+  }
+
+  public void testShutdown() throws Exception {
+    final MyMonitor myMonitor = new MyMonitor();
+
+    final ConsoleListener listener =
+      new ConsoleListener(m_receiver, myMonitor, m_logger);
+
+    assertEquals(0, listener.received(ConsoleListener.ANY));
+
+    final MyMonitor.WaitForMessages t1 =
+      myMonitor.new WaitForMessages(1000, listener, ConsoleListener.SHUTDOWN);
+
+    t1.start();
+
+    m_sender.shutdown();
+
+    t1.join();
+    assertTrue(!t1.getTimerExpired());
+
+    assertEquals(0, listener.received(ConsoleListener.START |
+                                      ConsoleListener.STOP |
+                                      ConsoleListener.RESET));
+
+    assertEquals(1, m_logger.getNumberOfMessages());
     assertEquals(0, m_logger.getNumberOfErrors());
   }
 
