@@ -24,11 +24,13 @@ package net.grinder.engine.process;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.Serializable;
 
 import junit.framework.TestCase;
 
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
+import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
@@ -101,11 +103,15 @@ public class TestConsoleListener extends TestCase {
     assertTrue(!t1.getTimerExpired());
     assertEquals(0, listener.received(ConsoleListener.ANY));
 
+    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+
     final MyMonitor.WaitForMessages t2 =
       myMonitor.new WaitForMessages(1000, listener, ConsoleListener.STOP);
     t2.start();
 
     m_sender.send(new StartGrinderMessage());
+    m_sender.send(new MyMessage()); // Unknown message.
     m_sender.send(new StopGrinderMessage());
     t2.join();
     assertTrue(!t2.getTimerExpired());
@@ -118,11 +124,13 @@ public class TestConsoleListener extends TestCase {
                                    ConsoleListener.STOP));
 
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
-    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
-    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerFactory.assertSuccess("error", new Class[] { String.class });
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
 
     m_loggerFactory.assertNotCalled();
+  }
+
+  private static final class MyMessage implements Message, Serializable {
   }
 
   public void testShutdown() throws Exception {
