@@ -1,5 +1,9 @@
 2004-10-13  Philip Aston  <philipa@mail.com>
 
+	* src/net/grinder/script/SSLControl.java: Javadoc.
+
+	* ChangeLog: *** empty log message ***
+
 	* TODO: Notes on script SSL client context state of play.
 
 	* src/net/grinder/script/SSLControl.java:
