@@ -71,7 +71,7 @@ doesn't matter.
     <!-- what -->
     <property name="Name" value="Grinder"/>
     <property name="name" value="grinder"/>
-    <property name="version" value="0.7"/>
+    <property name="version" value="0.8"/>
     <property name="year" value="2000"/>
 
     <!-- how -->
@@ -216,7 +216,7 @@ doesn't matter.
 
     <copydir src="${etc.dir}"
 	     dest="${dist.dir}/${etc.dir}"
-	     excludes="ant/**"/>
+	     excludes="ant/**,setenv.sh"/>
 
     <copydir src="${examples.dir}"
 	     dest="${dist.dir}/${examples.dir}"
