@@ -150,7 +150,7 @@ public class Model {
 
     final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
-    m_periodIndex = StatisticsIndexMap.getInstance().getIndexForLong("period");
+    m_periodIndex = indexMap.getIndexForLong("period");
 
     final StatisticExpressionFactory statisticExpressionFactory =
       StatisticExpressionFactory.getInstance();
@@ -433,11 +433,13 @@ public class Model {
    * Reset the model.
    */
   public final void reset() {
+
     synchronized(m_tests) {
       m_tests.clear();
     }
 
     m_accumulators.clear();
+    m_totalSampleAccumulator.zero();
 
     createStatisticsViews();
 
