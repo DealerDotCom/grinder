@@ -67,14 +67,12 @@ public class TestStatisticExpressionFactory extends TestCase
 	    m_factory.createConstant(-22);
 
 	myAssertEquals(-22, longExpression);
-	assert(!longExpression.isPrimitive());
 	assert(!longExpression.isDouble());
 
 	final StatisticExpression doubleExpression =
 	    m_factory.createConstant(2.3);
 
 	myAssertEquals(2.3d, doubleExpression);
-	assert(!doubleExpression.isPrimitive());
 	assert(doubleExpression.isDouble());
 
 	myAssertEquals(0, m_factory.createExpression("0", m_indexMap));
@@ -94,7 +92,6 @@ public class TestStatisticExpressionFactory extends TestCase
 	    m_factory.createPrimitive(m_indexMap.getIndexForLong("One"));
 
 	myAssertEquals(1, expression);
-	assert(expression.isPrimitive());
 	assert(!expression.isDouble());
 
 	final StatisticsIndexMap.DoubleIndex anotherIndex =
@@ -104,7 +101,6 @@ public class TestStatisticExpressionFactory extends TestCase
 	    m_factory.createExpression("  Test", m_indexMap);
 
 	myAssertEquals(0d, doubleExpresson);
-	assert(doubleExpresson.isPrimitive());
 	assert(doubleExpresson.isDouble());
 
 	myAssertEquals(2, m_factory.createExpression("Two", m_indexMap));
@@ -143,7 +139,6 @@ public class TestStatisticExpressionFactory extends TestCase
 	    m_factory.createSum(expressions);
 
 	myAssertEquals(5, expression);
-	assert(!expression.isPrimitive());
 	assert(!expression.isDouble());
 
 	myAssertEquals(2, m_factory.createExpression(
@@ -182,7 +177,6 @@ public class TestStatisticExpressionFactory extends TestCase
 	    m_factory.createProduct(expressions);
 
 	myAssertEquals(4, expression);
-	assert(!expression.isPrimitive());
 	assert(!expression.isDouble());
 
 	myAssertEquals(1, m_factory.createExpression(
@@ -217,7 +211,6 @@ public class TestStatisticExpressionFactory extends TestCase
 		m_factory.createExpression("Two", m_indexMap));
 
 	myAssertEquals(1, expression);
-	assert(!expression.isPrimitive());
 	assert(expression.isDouble());
 
 	myAssertEquals(1d, m_factory.createExpression(
@@ -253,94 +246,87 @@ public class TestStatisticExpressionFactory extends TestCase
 
     public void testLongPeak() throws Exception
     {
+	final StatisticsIndexMap.LongIndex peakIndex1 =
+	    m_indexMap.getIndexForLong("myPeak");
+
+	final StatisticsIndexMap.LongIndex peakIndex2 =
+	    m_indexMap.getIndexForLong("myOtherPeak");
+
 	final StatisticExpression expression =
 	    m_factory.createPeak(
-		m_factory.createExpression("Two", m_indexMap));
+		peakIndex1, m_factory.createExpression("Two", m_indexMap));
 
 	myAssertEquals(0, expression);
-	assert(!expression.isPrimitive());
 	assert(!expression.isDouble());
 
 	final StatisticsIndexMap.LongIndex statIndex =
 	    m_indexMap.getIndexForLong("testPeak");
 
-	final RawStatistics rawStatistics2 =
-	    new RawStatisticsImplementation();
-
-	rawStatistics2.addValue(statIndex, 2);
-
-	final RawStatistics rawStatistics9 =
-	    new RawStatisticsImplementation();
-	rawStatistics9.addValue(statIndex, 9);
-
-	final RawStatistics rawStatistics33 =
-	    new RawStatisticsImplementation();
-	rawStatistics33.addValue(statIndex, 33);
-
 	final PeakStatisticExpression peak = 
-	    m_factory.createPeak(m_factory.createExpression("testPeak",
+	    m_factory.createPeak(peakIndex2,
+				 m_factory.createExpression("testPeak",
 							    m_indexMap));
-	myAssertEquals(0, peak, rawStatistics9);
-	peak.update(rawStatistics9);
-	myAssertEquals(9, peak, rawStatistics9);
 
-	myAssertEquals(9, peak, rawStatistics33);
-	peak.update(rawStatistics33);
-	myAssertEquals(33, peak, rawStatistics33);
+	final RawStatistics rawStatistics = new RawStatisticsImplementation();
 
-	myAssertEquals(33, peak, rawStatistics2);
-	peak.update(rawStatistics2);
-	myAssertEquals(33, peak, rawStatistics2);
-	peak.reset(rawStatistics2);
-	myAssertEquals(2, peak, rawStatistics2);
+	rawStatistics.setValue(statIndex, 2);
+	myAssertEquals(0, peak, rawStatistics);
+	peak.update(rawStatistics);
+	myAssertEquals(2, peak, rawStatistics);
+
+	rawStatistics.setValue(statIndex, 33);
+	peak.update(rawStatistics);
+	myAssertEquals(33, peak, rawStatistics);
+
+	rawStatistics.setValue(statIndex, 2);
+	peak.update(rawStatistics);
+	myAssertEquals(33, peak, rawStatistics);
+
+	peak.reset(rawStatistics);
+	myAssertEquals(2, peak, rawStatistics);
     }
 
     public void testDoublePeak() throws Exception
     {
+	final StatisticsIndexMap.DoubleIndex peakIndex1 =
+	    m_indexMap.getIndexForDouble("myPeak");
+
+	final StatisticsIndexMap.DoubleIndex peakIndex2 =
+	    m_indexMap.getIndexForDouble("myOtherPeak");
+
 	final StatisticExpression expression =
 	    m_factory.createPeak(
+		peakIndex1,
 		m_factory.createExpression("(/ Two One)", m_indexMap));
 
 	myAssertEquals(0, expression);
-	assert(!expression.isPrimitive());
 	assert(expression.isDouble());
 
-	final StatisticsIndexMap.LongIndex xIndex =
-	    m_indexMap.getIndexForLong("x");
-	final StatisticsIndexMap.LongIndex yIndex =
-	    m_indexMap.getIndexForLong("y");
-
-	final RawStatistics rawStatisticsHalf =
-	    new RawStatisticsImplementation();
-	rawStatisticsHalf.addValue(xIndex, 1);
-	rawStatisticsHalf.addValue(yIndex, 2);
-
-	final RawStatistics rawStatistics9 =
-	    new RawStatisticsImplementation();
-	rawStatistics9.addValue(xIndex, 9);
-	rawStatistics9.addValue(yIndex, 1);
-
-	final RawStatistics rawStatistics33 =
-	    new RawStatisticsImplementation();
-	rawStatistics33.addValue(xIndex, 33);
-	rawStatistics33.addValue(yIndex, 1);
+	final StatisticsIndexMap.DoubleIndex statIndex =
+	    m_indexMap.getIndexForDouble("testPeak");
 
 	final PeakStatisticExpression peak = 
-	    m_factory.createPeak(m_factory.createExpression("(/ x y)",
+	    m_factory.createPeak(peakIndex2,
+				 m_factory.createExpression("testPeak",
 							    m_indexMap));
-	myAssertEquals(0d, peak, rawStatistics9);
-	peak.update(rawStatistics9);
-	myAssertEquals(9d, peak, rawStatistics9);
 
-	myAssertEquals(9d, peak, rawStatistics33);
-	peak.update(rawStatistics33);
-	myAssertEquals(33d, peak, rawStatistics33);
+	final RawStatistics rawStatistics = new RawStatisticsImplementation();
 
-	myAssertEquals(33d, peak, rawStatisticsHalf);
-	peak.update(rawStatisticsHalf);
-	myAssertEquals(33d, peak, rawStatisticsHalf);
-	peak.reset(rawStatisticsHalf);
-	myAssertEquals(0.5d, peak, rawStatisticsHalf);
+	rawStatistics.setValue(statIndex, 0.5);
+	myAssertEquals(0d, peak, rawStatistics);
+	peak.update(rawStatistics);
+	myAssertEquals(0.5d, peak, rawStatistics);
+
+	rawStatistics.setValue(statIndex, 33d);
+	peak.update(rawStatistics);
+	myAssertEquals(33d, peak, rawStatistics);
+
+	rawStatistics.setValue(statIndex, -2d);
+	peak.update(rawStatistics);
+	myAssertEquals(33d, peak, rawStatistics);
+
+	peak.reset(rawStatistics);
+	myAssertEquals(-2d, peak, rawStatistics);
     }
 
     public void testParseCompoundExpessions() throws Exception

@@ -106,9 +106,9 @@ public class TestExpressionView extends TestCase
 	final ExpressionView[] sorted =
 	    (ExpressionView[])sortedSet.toArray(new ExpressionView[0]);
 
-	assertEquals("Two", sorted[0].getDisplayName());
-	assertEquals("Four", sorted[1].getDisplayName());
-	assertEquals("One", sorted[2].getDisplayName());
-	assertEquals("Three", sorted[3].getDisplayName());
+	assertEquals("One", sorted[0].getDisplayName());
+	assertEquals("Two", sorted[1].getDisplayName());
+	assertEquals("Three", sorted[2].getDisplayName());
+	assertEquals("Four", sorted[3].getDisplayName());
     }    
 }

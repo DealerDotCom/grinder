@@ -132,15 +132,6 @@ public class ExpressionView implements Comparable
     {
 	final ExpressionView other = (ExpressionView)otherObject;
 
-	if (m_expression.isPrimitive() &&
-	    !other.m_expression.isPrimitive()) {
-	    return -1;
-	}
-	else if (!m_expression.isPrimitive() &&
-		 other.m_expression.isPrimitive()) {
-	    return 1;
-	}
-
 	if (m_creationOrder < other.m_creationOrder) {
 	    return -1;
 	}

@@ -246,46 +246,17 @@ public final class StatisticExpressionFactory
     }
 
     public final PeakStatisticExpression
-	createPeak(final StatisticExpression operand)
+	createPeak(StatisticsIndexMap.DoubleIndex peakIndex,
+		   StatisticExpression monitoredStatistic)
     {
-	if (operand.isDouble()) {
-	    return new PeakDoubleStatistic() {
-		    private double m_value = 0;
+	return new PeakDoubleStatistic(peakIndex, monitoredStatistic);
+    }
 
-		    public double getValue(RawStatistics rawStatistics) {
-			return m_value;
-		    }
-
-		    public void reset(RawStatistics rawStatistics) {
-			m_value = operand.getDoubleValue(rawStatistics);
-		    }
-
-		    public void update(RawStatistics rawStatistics) {
-			m_value =
-			    Math.max(m_value,
-				     operand.getDoubleValue(rawStatistics));
-		    }
-		};
-	}
-	else {
-	    return new PeakLongStatistic() {
-		    private long m_value = 0;
-
-		    public long getValue(RawStatistics rawStatistics) {
-			return m_value;
-		    }
-
-		    public void reset(RawStatistics rawStatistics) {
-			m_value = operand.getLongValue(rawStatistics);
-		    }
-
-		    public void update(RawStatistics rawStatistics) {
-			m_value =
-			    Math.max(m_value,
-				     operand.getLongValue(rawStatistics));
-		    }
-		};
-	}
+    public final PeakStatisticExpression
+	createPeak(StatisticsIndexMap.LongIndex peakIndex,
+		   StatisticExpression monitoredStatistic)
+    {
+	return new PeakLongStatistic(peakIndex, monitoredStatistic);
     }
 
     private final StatisticExpression[]
@@ -326,16 +297,10 @@ public final class StatisticExpressionFactory
 	    return true;
 	}
 
-	/** Default to false so only PrimitiveStatistic needs to override. **/
-	public boolean isPrimitive()
-	{
-	    return false;
-	}
-
 	protected abstract double getValue(RawStatistics rawStatistics);
     }
 
-    private final static class PrimitiveDoubleStatistic extends DoubleStatistic
+    private static class PrimitiveDoubleStatistic extends DoubleStatistic
     {
 	private final StatisticsIndexMap.DoubleIndex m_index;
 
@@ -348,15 +313,36 @@ public final class StatisticExpressionFactory
 	    return rawStatistics.getValue(m_index);
 	}
 
-	public boolean isPrimitive()
+	protected final void setValue(RawStatistics rawStatistics,
+				      double value)
 	{
-	    return true;
+	    rawStatistics.setValue(m_index, value);
 	}
     }
 
-    private static abstract class PeakDoubleStatistic
-	extends DoubleStatistic implements PeakStatisticExpression 
+    private static class PeakDoubleStatistic
+	extends PrimitiveDoubleStatistic implements PeakStatisticExpression 
     {
+	private final StatisticExpression m_monitoredStatistic;
+
+	public PeakDoubleStatistic(StatisticsIndexMap.DoubleIndex peakIndex,
+				   StatisticExpression monitoredStatistic)
+	{
+	    super(peakIndex);
+	    m_monitoredStatistic = monitoredStatistic;
+	}
+
+	public void reset(RawStatistics rawStatistics) {
+	    setValue(rawStatistics,
+		     m_monitoredStatistic.getDoubleValue(rawStatistics));
+	}
+
+	public void update(RawStatistics rawStatistics) {
+	    setValue(rawStatistics,
+		     Math.max(getValue(rawStatistics),
+			      m_monitoredStatistic.getDoubleValue(
+				  rawStatistics)));
+	}
     }
 
     private static abstract class LongStatistic implements StatisticExpression
@@ -376,16 +362,10 @@ public final class StatisticExpressionFactory
 	    return false;
 	}
 
-	/** Default to false so only PrimitiveStatistic needs to override. **/
-	public boolean isPrimitive()
-	{
-	    return false;
-	}
-
 	protected abstract long getValue(RawStatistics rawStatistics);
     }
 
-    private final static class PrimitiveLongStatistic extends LongStatistic
+    private static class PrimitiveLongStatistic extends LongStatistic
     {
 	private final StatisticsIndexMap.LongIndex m_index;
 
@@ -398,15 +378,35 @@ public final class StatisticExpressionFactory
 	    return rawStatistics.getValue(m_index);
 	}
 
-	public boolean isPrimitive()
+	protected final void setValue(RawStatistics rawStatistics, long value)
 	{
-	    return true;
+	    rawStatistics.setValue(m_index, value);
 	}
     }
 
-    private static abstract class PeakLongStatistic
-	extends LongStatistic implements PeakStatisticExpression 
+    private static class PeakLongStatistic
+	extends PrimitiveLongStatistic implements PeakStatisticExpression 
     {
+	private final StatisticExpression m_monitoredStatistic;
+
+	public PeakLongStatistic(StatisticsIndexMap.LongIndex peakIndex,
+				 StatisticExpression monitoredStatistic)
+	{
+	    super(peakIndex);
+	    m_monitoredStatistic = monitoredStatistic;
+	}
+
+	public void reset(RawStatistics rawStatistics) {
+	    setValue(rawStatistics,
+		     m_monitoredStatistic.getLongValue(rawStatistics));
+	}
+
+	public void update(RawStatistics rawStatistics) {
+	    setValue(rawStatistics,
+		     Math.max(getValue(rawStatistics),
+			      m_monitoredStatistic.getLongValue(
+				  rawStatistics)));
+	}
     }
 
     private static abstract class VariableArgumentsExpression

@@ -79,9 +79,9 @@ public class TestStatisticsView extends TestCase
 
 	assertEquals(m_views.length, expressionViews.length);
 
-	assertEquals(m_views[1], expressionViews[0]);
-	assertEquals(m_views[3], expressionViews[1]);
-	assertEquals(m_views[0], expressionViews[2]);
-	assertEquals(m_views[2], expressionViews[3]);
+	assertEquals(m_views[0], expressionViews[0]);
+	assertEquals(m_views[1], expressionViews[1]);
+	assertEquals(m_views[2], expressionViews[2]);
+	assertEquals(m_views[3], expressionViews[3]);
     }
 }

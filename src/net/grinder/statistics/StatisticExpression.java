@@ -29,6 +29,5 @@ public interface StatisticExpression
     double getDoubleValue(RawStatistics rawStatistics);
     long getLongValue(RawStatistics rawStatistics);
 
-    boolean isPrimitive();
     boolean isDouble();
 }

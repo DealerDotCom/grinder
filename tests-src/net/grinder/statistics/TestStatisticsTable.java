@@ -54,7 +54,7 @@ public class TestStatisticsTable extends TestCase
     private StatisticsView m_statisticsView;
 
     protected void setUp() throws Exception
-    {    
+    {
 	m_testStatisticsMap = new TestStatisticsMap();
 
 	final StatisticsIndexMap indexMap = new StatisticsIndexMap();
@@ -65,10 +65,10 @@ public class TestStatisticsTable extends TestCase
 	    indexMap.getIndexForLong("b");
 
 	final ExpressionView[] expressionViews = {
-	    new ExpressionView("A plus B", "", "(+ a b)", indexMap),
-	    new ExpressionView("A divided by B", "", "(/ a b)", indexMap),
 	    new ExpressionView("A", "", "a", indexMap),
 	    new ExpressionView("B", "", "b", indexMap),
+	    new ExpressionView("A plus B", "", "(+ a b)", indexMap),
+	    new ExpressionView("A divided by B", "", "(/ a b)", indexMap),
 	};
 
 	m_statisticsView = new StatisticsView();
