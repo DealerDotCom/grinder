@@ -37,9 +37,10 @@ public class NullFilter implements SnifferFilter
     {
     }
 
-    public void handle(ConnectionDetails connectionDetails, byte[] buffer,
-		       int bytesRead)
+    public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
+			 int bytesRead)
     {
+	return null;
     }
 
     public void connectionOpened(ConnectionDetails connectionDetails)

@@ -40,8 +40,8 @@ public class EchoFilter implements SnifferFilter
 	m_out = outputPrintWriter;
     }
 
-    public void handle(ConnectionDetails connectionDetails,
-		       byte[] buffer, int bytesRead)
+    public byte[] handle(ConnectionDetails connectionDetails,
+			 byte[] buffer, int bytesRead)
 	throws java.io.IOException
     {
 	final StringBuffer stringBuffer = new StringBuffer();
@@ -79,6 +79,8 @@ public class EchoFilter implements SnifferFilter
 	m_out.println("------ "+ connectionDetails.getDescription() +
 		      " ------");
 	m_out.println(stringBuffer);
+
+	return null;
     }
 
     public void connectionOpened(ConnectionDetails connectionDetails)

@@ -3,7 +3,14 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-  TCPSniffer in -proxy mode shouldn't need -remoteHost.
+  Change TCP sniffer filters to a stream oriented model. Also,
+  consider having a filter instance pair per connection.
+
+  zip distribution, add ORO
+
+  BUG, problems when post split across fragments.
+
+  <<> quoting
 
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 

@@ -22,14 +22,22 @@
 
 package net.grinder.tools.tcpsniffer;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+
 /**
  * @author Philip Aston
  * @version $Revision$
  */
-public interface SnifferEngine extends Runnable
+public interface SocketFactory
 {
-    // void run();
+    ServerSocket createServerSocket(String localHost, int localPort,
+				    int timeout)
+	throws IOException;
+
+    Socket createClientSocket(String remoteHost, int remotePort)
+	throws IOException;
 }
-
-
 

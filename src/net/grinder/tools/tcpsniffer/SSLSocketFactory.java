@@ -29,58 +29,54 @@ import com.sun.net.ssl.TrustManager;
 import com.sun.net.ssl.X509TrustManager;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.KeyStore;
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
+
 
 
 /**
+ * {@link SocketFactory} for SSL connections.
  *
- * @author Phil Dawes
  * @author Philip Aston
+ * @author Phil Dawes
  * @version $Revision$
  */
-public class SSLSnifferEngineImpl extends SnifferEngineImpl
+public final class SSLSocketFactory implements SocketFactory
 {
-    final SSLSocketFactory m_sslSocketFactory;
+    final SSLServerSocketFactory m_serverSocketFactory;
+    final javax.net.ssl.SSLSocketFactory m_clientSocketFactory;
 
     // Should probably parameterise this.
     private static final String KEYSTORE_TYPE = "PKCS12";
 
-    public SSLSnifferEngineImpl(SnifferFilter requestFilter,
-				SnifferFilter responseFilter,
-				String localHost,
-				int localPort,
-				String remoteHost, int remotePort,
-				boolean useColour,
-				String keystoreName, String keystorePassword)
-	throws Exception
+    static 
     {
-	super(requestFilter, responseFilter, localHost, remoteHost, remotePort,
-	      useColour);
-
 	System.setProperty("java.protocol.handler.pkgs",
 			   "com.sun.net.ssl.internal.www.protocol");
 
 	java.security.Security.addProvider(
 	    new com.sun.net.ssl.internal.ssl.Provider());
+    }
 
+    public SSLSocketFactory(String keystoreName, String keystorePassword)
+	throws IOException, GeneralSecurityException
+    {
 	final KeyManagerFactory keyManagerFactory = 
 	    KeyManagerFactory.getInstance(
 		KeyManagerFactory.getDefaultAlgorithm());
-
 
 	if (keystorePassword != null) {
 	    final KeyStore keystore = KeyStore.getInstance(KEYSTORE_TYPE);
 	    final char password[] = keystorePassword.toCharArray();
 
 	    keystore.load(new FileInputStream(keystoreName), password);
-
 	    keyManagerFactory.init(keystore, password);
 	}
 	
@@ -88,36 +84,42 @@ public class SSLSnifferEngineImpl extends SnifferEngineImpl
 	final TrustManager[] trustManagerArray = { new TrustEveryone() };
 
 	sslContext.init(keyManagerFactory.getKeyManagers(),
-			trustManagerArray,
-			new java.security.SecureRandom());
+			trustManagerArray, new SecureRandom());
 
-	m_sslSocketFactory = sslContext.getSocketFactory();
+	m_clientSocketFactory = sslContext.getSocketFactory();
 
-	final ServerSocketFactory serverFactory =
-	    sslContext.getServerSocketFactory(); 
-	
-	setServerSocket(serverFactory.createServerSocket(localPort));
+	m_serverSocketFactory = sslContext.getServerSocketFactory(); 
     }
 
-    protected Socket createRemoteSocket() throws IOException
+    public final ServerSocket createServerSocket(String localHost,
+						 int localPort,
+						 int timeout)
+	throws IOException
     {
-	final SSLSocket remoteSocket =
-	    (SSLSocket)m_sslSocketFactory.createSocket(getRemoteHost(),
-						       getRemotePort());
+	final ServerSocket socket =
+	    m_serverSocketFactory.createServerSocket(
+		localPort, 50, InetAddress.getByName(localHost));
 
-	remoteSocket.startHandshake();
-	
-	return remoteSocket;
+	socket.setSoTimeout(timeout);
+	return socket;
     }
 
-    protected boolean getIsSecure() 
+    public final Socket createClientSocket(String remoteHost, int remotePort)
+	throws IOException
     {
-	return true;
+	final SSLSocket socket =
+	    (SSLSocket)m_clientSocketFactory.createSocket(remoteHost,
+							  remotePort);
+
+	socket.startHandshake();
+
+	return socket;
     }
 
     /**
-     * For the purposes of sniffing, we don't care whether the cert chain
-     * is trusted or not, so here's an implementation which accepts everything -PD
+     * For the purposes of sniffing, we don't care whether the cert
+     * chain is trusted or not, so here's an implementation which
+     * accepts everything -PD
      */
     private static class TrustEveryone implements X509TrustManager
     {
@@ -128,15 +130,6 @@ public class SSLSnifferEngineImpl extends SnifferEngineImpl
 	
 	public boolean isServerTrusted (X509Certificate[] chain)
 	{
-	    /*
-	      System.out.println("--- Certificate Chain:");
-
-	      for (int i=0;i<chain.length;i++) {
-	      System.out.println("--- Certificate " + i);
-	      System.out.println(chain[i]);
-	      }
-	    */
-
 	    return true;
 	}
 

@@ -40,7 +40,12 @@ import net.grinder.util.TerminalColour;
  */
 public class StreamThread implements Runnable
 {
-    private final static int BUFFER_SIZE=65536;
+    // For simplicity, the filters take a buffer oriented approach.
+    // This means that they all break at buffer boundaries. Our buffer
+    // is huge, so we shouldn't practically cause a problem, but the
+    // network clearly can by giving us message fragments. I consider
+    // this a bug, we really ought to take a stream oriented approach.
+    private final static int BUFFER_SIZE = 65536;
 
     private final ConnectionDetails m_connectionDetails;
     private final InputStream m_in;
@@ -50,21 +55,10 @@ public class StreamThread implements Runnable
     private final String m_colour;
     private final String m_resetColour;
 
-    /**
-     * this ctor exists as a kind of "init" method - we can't call
-     * init() and have final members, but if we have a protected ctor,
-     * we can call it as the first line of each public ctor, thereby
-     * setting our members and keeping them final and not duplicating
-     * code. We need an init-style method as we want to push some
-     * bytes down the pipe before starting the Thread in one case.  Of
-     * course, we need to make it have a different signature from
-     * every other ctor otherwise it ain't gonna work...
-     * 
-     */
-    protected StreamThread(Object dummy, ConnectionDetails connectionDetails,
-			   InputStream in, OutputStream out,
-			   SnifferFilter filter,
-			   String colourString) 
+    public StreamThread(ConnectionDetails connectionDetails,
+			InputStream in, OutputStream out,
+			SnifferFilter filter,
+			PrintWriter outputWriter, String colourString)
     {
 	m_connectionDetails = connectionDetails;
 	m_in = in;
@@ -72,19 +66,7 @@ public class StreamThread implements Runnable
 	m_filter = filter;
 	m_colour = colourString;
 	m_resetColour = m_colour.length() > 0 ? TerminalColour.NONE : "";
-
-	m_outputWriter = new PrintWriter(System.out);
-	m_filter.setOutputPrintWriter(m_outputWriter);
-    }
-
-    public StreamThread(ConnectionDetails connectionDetails,
-			InputStream in, OutputStream out,
-			SnifferFilter filter,
-			String colourString)
-    {
-	// see above
-	this(null, connectionDetails, in, out, filter, colourString);
-
+	m_outputWriter = outputWriter;
 	
 	final Thread t = new Thread(this,
 				    m_connectionDetails.getDescription());
@@ -99,39 +81,6 @@ public class StreamThread implements Runnable
 	t.start();
     }
 
-
-    /**
-     * this ctor is used by (at least) the proxies, which parse the
-     * incoming request to determine remote host/port details. This
-     * means that some of the data (potentially quite a lot) has been
-     * sucked off the socket before the connection is made. This needs
-     * to be squirted down the pipt before the thread is started off,
-     * which is what this ctor does.
-     */
-    public StreamThread(ConnectionDetails connectionDetails,
-			InputStream in, OutputStream out,
-			SnifferFilter filter, String colourString,
-			byte[] request)
-    {
-	this(null, connectionDetails, in, out, filter, colourString);
-
-	try {
-	    m_filter.handle(m_connectionDetails, request, request.length);
-	    m_out.write(request);
-
-	    final Thread t = new Thread(this,
-					m_connectionDetails.getDescription());
-	    t.start();
-	} catch (IOException e) {
-	    // no point continuing if we can't write to the
-	    // remoteSocket
-	    e.printStackTrace();
-	} catch (Exception e) {
-	    e.printStackTrace();
-	}
-    }
-
-
     public void run()
     {
 	try {
@@ -145,12 +94,19 @@ public class StreamThread implements Runnable
 		}
 
 		m_outputWriter.print(m_colour);
-		m_filter.handle(m_connectionDetails, buffer, bytesRead);
+
+		final byte[] newBytes =
+		    m_filter.handle(m_connectionDetails, buffer, bytesRead);
+
 		m_outputWriter.print(m_resetColour);
 		m_outputWriter.flush();
 
-		// and write in out
-		m_out.write(buffer, 0, bytesRead);
+		if (newBytes != null) {
+		    m_out.write(newBytes);
+		}
+		else {
+		    m_out.write(buffer, 0, bytesRead);
+		}
 	    }
 	}
 	catch (SocketException e) {

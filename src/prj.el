@@ -14,9 +14,11 @@
        "/work/src/grinder/src"
        "/opt/wls5.1/lib/weblogicaux.jar"
        "/opt/jakarta-oro/jakarta-oro-2.0.6/jakarta-oro-2.0.6.jar"
-       "/opt/jakarta-regexp/jakarta-regexp-1.2/jakarta-regexp-1.2.jar"
        "/opt/junit/junit3.7/junit.jar"
-       "/opt/jdk1.3.1_02/jre/lib/rt.jar")
+       "/opt/jdk1.3.1_02/jre/lib/rt.jar"
+       "/opt/jdk1.3.1_02/jre/lib/ext/jcert.jar"
+       "/opt/jdk1.3.1_02/jre/lib/ext/jnet.jar"
+       "/opt/jdk1.3.1_02/jre/lib/ext/jsse.jar")
      ":")))
 
  '(jde-run-option-classpath (cons "../build/classes" jde-global-classpath));

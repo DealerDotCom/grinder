@@ -189,13 +189,17 @@ public class HttpPluginSnifferFilter implements SnifferFilter
      * @param connectionDetails The TCP connection.
      * @param buffer The message fragment buffer.
      * @param bytesRead The number of bytes of buffer to process.
+     * @return Filters can optionally return a <code>byte[]</code>
+     * which will be transmitted to the server instead of
+     * <code>buffer</code.
      * @exception IOException if an error occurs
      */
-    public void handle(ConnectionDetails connectionDetails, byte[] buffer,
+    public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
 		       int bytesRead)
 	throws IOException
     {
 	getHandler(connectionDetails).handle(buffer, bytesRead);
+	return null;
     }
 
     /**

@@ -45,7 +45,6 @@ conditionally built modules are:
 
    HTTP SSL plugin (Needs the JSSE 1.0.2)
    TCPSniffer SSL engine (Needs the JSSE 1.0.2)
-   TCPSniffer HTTP plugin filter (Needs Apache Jakarta Regexp 1.2)
    JUnit test cases (Needs JUnit 3.7 and Ant 1.3 optional.jar)
    ExampleJTidyStringBean (Needs JTidy and Xalan XPath support)
 -->
@@ -72,8 +71,6 @@ conditionally built modules are:
 
     <available classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
 	       property="have.junit.task" />
-
-    <available classname="org.apache.regexp.RE" property="have.regexp" />
 
     <available classname="javax.servlet.http.HttpServletRequest"
 	       property="have.servlet"/>
@@ -148,10 +145,6 @@ conditionally built modules are:
    <fail message="Install the Ant optional.jar to build this target"/>
   </target>
 
-  <target name="assert-have-regexp" depends="init" unless="have.regexp">
-   <fail message="Add Apache Regexp 1.2 to your CLASSPATH to build this target"/>
-  </target>
-
   <target name="assert-have-servlet" depends="init" unless="have.servlet">
    <fail message="Add Servlet classes to your CLASSPATH to build this target"/>
   </target>
@@ -165,7 +158,7 @@ conditionally built modules are:
   </target>
 
   <target name="assert-have-everything"
-	  depends="assert-have-jsse,assert-have-junit,assert-have-junit-task,assert-have-regexp,assert-have-servlet,assert-have-jtidy,assert-have-xpath">
+	  depends="assert-have-jsse,assert-have-junit,assert-have-junit-task,assert-have-servlet,assert-have-jtidy,assert-have-xpath">
   </target>
 
 
@@ -240,15 +233,11 @@ conditionally built modules are:
 	   deprecation="${deprecation}">
        <exclude name="HTTPClient/**"/>
        <exclude name="**/HttpsPlugin.java" unless="have.jsse"/>
-       <exclude name="**/SSLSnifferEngineImpl.java" unless="have.jsse"/>
-       <exclude name="**/HttpPluginSnifferFilter.java" unless="have.regexp"/>
-       <exclude name="**/HttpProxySnifferEngineImpl.java" unless="have.regexp"/>
-       <exclude name="**/HttpsProxySnifferEngineImpl.java" unless="have.regexp,have.jsse"/>
-       <exclude name="**/HttpsProxySnifferEngineImpl.java" unless="have.jsse"/>
-       <exclude name="**/URLRewriteFilter.java" unless="have.regexp"/>
+       <exclude name="**/SSLSocketFactory.java" unless="have.jsse"/>
        <exclude name="**/JUnitPlugin.java" unless="have.junit"/>
        <exclude name="**/snifferwebapp" unless="have.servlet"/>
-       <exclude name="**/ExampleJTidyStringBean.java" unless="have.jtidy-and-xpath"/>
+       <exclude name="**/ExampleJTidyStringBean.java"
+		unless="have.jtidy-and-xpath"/>
     </javac>
 
   </target>

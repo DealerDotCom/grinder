@@ -20,16 +20,61 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.tools.tcpsniffer;
+package net.grinder.util;
+
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
+ * Runnable that actively copies from an <code>InputStream</code> to
+ * an <code>OutputStream</code>.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface SnifferEngine extends Runnable
+public class CopyStreamRunnable implements Runnable
 {
-    // void run();
+    private final InputStream m_in;
+    private final OutputStream m_out;
+
+    public CopyStreamRunnable(InputStream in, OutputStream out)
+	throws IOException
+    {
+	m_in = in;
+	m_out = out;
+    }
+
+    public void run()
+    {
+	final byte[] buffer = new byte[4096];
+
+	try {
+	    while (true) {
+		int length;
+
+		while ((length = m_in.read(buffer, 0, buffer.length)) > -1) {
+		    m_out.write(buffer, 0, length);
+		}
+	    }
+	}
+	catch (IOException e) {
+	    // Be silent about IOExceptions.
+	}
+
+	// We're exiting, usually because the in stream has been
+	// closed. Whatever, close our streams. This will cause the
+	// paired thread to exit to.
+	try {
+	    m_out.close();
+	}
+	catch (IOException e) {
+	}
+	
+	try {
+	    m_in.close();
+	}
+	catch (IOException e) {
+	}
+    }
 }
-
-
-

@@ -22,14 +22,38 @@
 
 package net.grinder.tools.tcpsniffer;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+
+
 /**
+ * {@link SocketFactory} for plain connections.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface SnifferEngine extends Runnable
+public final class PlainSocketFactory implements SocketFactory
 {
-    // void run();
+    public final ServerSocket createServerSocket(String localHost,
+						 int localPort,
+						 int timeout)
+	throws IOException
+    {
+	final ServerSocket socket =
+	    new ServerSocket(localPort, 50, InetAddress.getByName(localHost));
+
+	socket.setSoTimeout(timeout);
+
+	return socket;
+    }
+
+    public final Socket createClientSocket(String remoteHost, int remotePort)
+	throws IOException
+    {
+	return new Socket(remoteHost, remotePort);
+    }
 }
-
-
 

@@ -32,6 +32,11 @@ Grinder 2.8.3
    into the POST file, which is what it now does. And no Cynthia, we
    don't support multipart/byteranges.)
 
+   I've removed the TCP Sniffer URL rewriting filter; use -proxy
+   instead.
+
+   The TCP Sniffer -proxy mode can now be used with any filters.
+
    Other miscellaneous fixes and documentation.
 
 

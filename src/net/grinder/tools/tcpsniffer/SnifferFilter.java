@@ -37,7 +37,7 @@ public interface SnifferFilter
      * Set the {@link PrintWriter} that the filter should use for
      * output.
      *
-     * @param out The PrintWriter.
+     * @param outputPrintWriter a <code>PrintWriter</code> value
      */
     void setOutputPrintWriter(PrintWriter outputPrintWriter);
 
@@ -47,10 +47,13 @@ public interface SnifferFilter
      * @param connectionDetails a <code>ConnectionDetails</code> value
      * @param buffer a <code>byte[]</code> value
      * @param bytesRead an <code>int</code> value
+     * @return Filters can optionally return a <code>byte[]</code>
+     * which will be transmitted to the server instead of
+     * <code>buffer</code.
      * @exception Exception if an error occurs
      */
-    void handle(ConnectionDetails connectionDetails, byte[] buffer,
-		int bytesRead)
+    byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
+		  int bytesRead)
 	throws Exception;
 
     /**
