@@ -25,13 +25,13 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.script.InvalidContextException;
+import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.script.Grinder;
+import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.communication.RegisterStatisticsViewMessage;
-
+import net.grinder.util.Sleeper;
 
 
 /**
@@ -80,28 +80,26 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
     return m_processContext.getLogger();
   }
 
-  public void sleep(long meanTime)
-    throws GrinderException, InvalidContextException {
+  private Sleeper getSleeper() {
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
-    if (threadContext == null) {
-      throw new InvalidContextException(
-        "sleep() is currently only supported for worker threads");
+    if (threadContext != null) {
+      return threadContext.getSleeper();
     }
 
-    threadContext.getSleeper().sleepNormal(meanTime);
+    return m_processContext.getSleeper();
+  }
+
+  public void sleep(long meanTime)
+    throws GrinderException, InvalidContextException {
+
+    getSleeper().sleepNormal(meanTime);
   }
 
   public void sleep(long meanTime, long sigma)
     throws GrinderException, InvalidContextException {
-    final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
-    if (threadContext == null) {
-      throw new InvalidContextException(
-        "sleep is currently only supported for worker threads");
-    }
-
-    threadContext.getSleeper().sleepNormal(meanTime, sigma);
+    getSleeper().sleepNormal(meanTime, sigma);
   }
 
   public FilenameFactory getFilenameFactory() {

@@ -39,18 +39,18 @@ import net.grinder.util.Sleeper;
  * @author Philip Aston
  * @version $Revision$
  * @stereotype singleton
- **/
+ */
 class ProcessContext {
   private final String m_grinderID;
   private final String m_uniqueProcessID;
   private final GrinderProperties m_properties;
   private final boolean m_recordTime;
   private final LoggerImplementation m_loggerImplementation;
-  private final Logger m_processLogger;
   private final QueuedSender m_consoleSender;
   private final PluginRegistry m_pluginRegistry;
   private final TestRegistry m_testRegistry;
   private final Grinder.ScriptContext m_scriptContext;
+  private final Sleeper m_sleeper;
 
   private long m_executionStartTime;
   private boolean m_shutdown;
@@ -67,15 +67,26 @@ class ProcessContext {
     m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
     m_loggerImplementation = loggerImplementation;
-    m_processLogger = loggerImplementation.getProcessLogger();
 
     m_consoleSender = consoleSender;
 
     m_pluginRegistry = new PluginRegistry(this);
     m_testRegistry = new TestRegistry();
     m_scriptContext = new ScriptContextImplementation(this);
+    m_sleeper = createSleeper(properties, getLogger());
+
     Grinder.grinder = m_scriptContext;
     m_shutdown = false;
+  }
+
+  /**
+   * Factory for Sleepers. Also used by {@link ThreadContext}.
+   */
+  public Sleeper createSleeper(GrinderProperties properties, Logger logger) {
+    return new Sleeper(
+      properties.getDouble("grinder.sleepTimeFactor", 1.0d),
+      properties.getDouble("grinder.sleepTimeVariation", 0.2d),
+      logger);
   }
 
   public final void initialiseDataWriter() {
@@ -110,7 +121,7 @@ class ProcessContext {
   }
 
   public final Logger getLogger() {
-    return m_processLogger;
+    return m_loggerImplementation.getProcessLogger();
   }
 
   public final PluginRegistry getPluginRegistry() {
@@ -169,5 +180,9 @@ class ProcessContext {
 
     // Worker threads poll this before each test execution.
     m_shutdown = true;
+  }
+
+  public Sleeper getSleeper() {
+    return m_sleeper;
   }
 }

@@ -73,10 +73,7 @@ final class ThreadContext implements PluginThreadContext {
 
     final GrinderProperties properties = processContext.getProperties();
 
-    m_sleeper =
-      new Sleeper(properties.getDouble("grinder.sleepTimeFactor", 1.0d),
-                  properties.getDouble("grinder.sleepTimeVariation", 0.2d),
-                  m_threadLogger);
+    m_sleeper = m_processContext.createSleeper(properties, m_threadLogger);
   }
 
   void setThreadInstance() {
