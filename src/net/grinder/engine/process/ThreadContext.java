@@ -27,6 +27,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.script.Statistics;
 import net.grinder.util.Sleeper;
 
 
@@ -177,6 +178,10 @@ final class ThreadContext implements PluginThreadContext {
     }
   }
 
+  final void endRun() {
+    m_scriptStatistics.endRun();
+  }
+
   final Sleeper getSleeper() {
     return m_sleeper;
   }
@@ -185,7 +190,7 @@ final class ThreadContext implements PluginThreadContext {
     return m_startTime;
   }
 
-  final ScriptStatisticsImplementation getScriptStatistics() {
+  final Statistics getScriptStatistics() {
     return m_scriptStatistics;
   }
 }

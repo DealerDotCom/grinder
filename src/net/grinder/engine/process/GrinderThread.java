@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -39,182 +39,177 @@ import net.grinder.util.Sleeper;
  * @author Philip Aston
  * @version $Revision$
  **/
-class GrinderThread implements java.lang.Runnable
-{
-    /**
-     * m_numberOfThreads is incremented in constructor
-     * rather than in run to avoid pathological race conditions. Hence
-     * it really means "the number of GrinderThread's that have been
-     * created but not run to completion"
-     **/
+class GrinderThread implements java.lang.Runnable {
 
-    private static short m_numberOfThreads = 0;
+  /**
+   * m_numberOfThreads is incremented in constructor
+   * rather than in run to avoid pathological race conditions. Hence
+   * it really means "the number of GrinderThread's that have been
+   * created but not run to completion"
+   **/
+  private static short m_numberOfThreads = 0;
 
-    private final Monitor m_notifyOnCompletion;
-    private final ProcessContext m_processContext;
-    private final ThreadContext m_context;
-    private final JythonScript.JythonRunnable m_jythonRunnable;
+  private final Monitor m_notifyOnCompletion;
+  private final ProcessContext m_processContext;
+  private final ThreadContext m_context;
+  private final JythonScript.JythonRunnable m_jythonRunnable;
 
-    private final long m_initialSleepTime;
-    private final int m_numberOfRuns;
+  private final long m_initialSleepTime;
+  private final int m_numberOfRuns;
 
-    /**
-     * The constructor.
-     */        
-    public GrinderThread(Monitor notifyOnCompletion,
-			 ProcessContext processContext,
-			 JythonScript jythonScript,
-			 int threadID)
-	throws EngineException
-    {
-	m_notifyOnCompletion = notifyOnCompletion;
+  /**
+   * The constructor.
+   */        
+  public GrinderThread(Monitor notifyOnCompletion,
+		       ProcessContext processContext,
+		       JythonScript jythonScript,
+		       int threadID)
+    throws EngineException {
 
-	m_processContext = processContext;
-	m_context = new ThreadContext(processContext, threadID);
+    m_notifyOnCompletion = notifyOnCompletion;
 
-	m_jythonRunnable = jythonScript.new JythonRunnable();
+    m_processContext = processContext;
+    m_context = new ThreadContext(processContext, threadID);
 
-	final GrinderProperties properties = processContext.getProperties();
+    m_jythonRunnable = jythonScript.new JythonRunnable();
 
-	m_initialSleepTime = properties.getLong("grinder.initialSleepTime", 0);
+    final GrinderProperties properties = processContext.getProperties();
 
-	m_numberOfRuns = properties.getInt("grinder.runs", 1);
+    m_initialSleepTime = properties.getLong("grinder.initialSleepTime", 0);
 
-	incrementThreadCount();	// See m_numberOfThreads javadoc.
-    }
+    m_numberOfRuns = properties.getInt("grinder.runs", 1);
+
+    incrementThreadCount();	// See m_numberOfThreads javadoc.
+  }
     
-    /**
-     * The thread's main loop.
-     */     
-    public void run()
-    {
-	m_context.setThreadInstance();
+  /**
+   * The thread's main loop.
+   */     
+  public void run() {
 
-	final ThreadLogger logger = m_context.getThreadLogger();
-	final PrintWriter errorWriter = logger.getErrorLogWriter();
+    m_context.setThreadInstance();
 
-	logger.setCurrentRunNumber(-1);
+    final ThreadLogger logger = m_context.getThreadLogger();
+    final PrintWriter errorWriter = logger.getErrorLogWriter();
+
+    logger.setCurrentRunNumber(-1);
+
+    try {
+      m_context.getSleeper().sleepFlat(m_initialSleepTime);
+
+      if (m_numberOfRuns == 0) {
+	logger.output("about to run forever");
+      }
+      else {
+	logger.output("about to do " + m_numberOfRuns + " run" +
+		      (m_numberOfRuns == 1 ? "" : "s"));
+      }
+
+      int currentRun;	    
+
+      for (currentRun = 0;
+	   (m_numberOfRuns == 0 || currentRun < m_numberOfRuns);
+	   currentRun++) {
+
+	logger.setCurrentRunNumber(currentRun);
+
+	m_beginRunPluginThreadCaller.run();
 
 	try {
-	    m_context.getSleeper().sleepFlat(m_initialSleepTime);
-
-	    if (m_numberOfRuns == 0) {
-		logger.output("about to run forever");
-	    }
-	    else {
-		logger.output("about to do " + m_numberOfRuns + " run" +
-			      (m_numberOfRuns == 1 ? "" : "s"));
-	    }
-
-	    int currentRun;	    
-
-	    for (currentRun = 0;
-		 (m_numberOfRuns == 0 || currentRun < m_numberOfRuns);
-		 currentRun++)
-	    {
-		logger.setCurrentRunNumber(currentRun);
-
-		m_beginRunPluginThreadCaller.run();
-
-		try {
-		    m_jythonRunnable.run();
-		}
-		catch (JythonScriptExecutionException e) {
-		    final Throwable unwrapped = e.unwrap();
+	  m_jythonRunnable.run();
+	}
+	catch (JythonScriptExecutionException e) {
+	  final Throwable unwrapped = e.unwrap();
 		    
-		    // Sadly PrintWriter only exposes its lock object
-		    // to subclasses.
-		    synchronized(errorWriter) {
-			logger.error("Aborted run, script threw " +
-				     unwrapped.getClass() + ": " +
-				     unwrapped.getMessage());
+	  // Sadly PrintWriter only exposes its lock object
+	  // to subclasses.
+	  synchronized(errorWriter) {
+	    logger.error("Aborted run, script threw " +
+			 unwrapped.getClass() + ": " +
+			 unwrapped.getMessage());
 
-			unwrapped.printStackTrace(errorWriter);
-		    }
-		}
+	    unwrapped.printStackTrace(errorWriter);
+	  }
+	}
 
-		m_endRunPluginThreadCaller.run();
-	    }
+	m_endRunPluginThreadCaller.run();
+	m_context.endRun();
+      }
 
-	    logger.setCurrentRunNumber(-1);
+      logger.setCurrentRunNumber(-1);
 
-	    logger.output("finished " + currentRun +
-			  (currentRun == 1 ? " run" : " runs"));
-	}
-	catch (Sleeper.ShutdownException e) {
-	    logger.output("shutdown");
-	}
-	catch(Exception e) {
-	    synchronized(errorWriter) {
-		logger.error("Aborting thread due to " + e);
-		e.printStackTrace(errorWriter);
-	    }
-	}
-	finally {
-	    logger.setCurrentRunNumber(-1);
-	    decrementThreadCount();
-	}
+      logger.output("finished " + currentRun +
+		    (currentRun == 1 ? " run" : " runs"));
+    }
+    catch (Sleeper.ShutdownException e) {
+      logger.output("shutdown");
+    }
+    catch(Exception e) {
+      synchronized(errorWriter) {
+	logger.error("Aborting thread due to " + e);
+	e.printStackTrace(errorWriter);
+      }
+    }
+    finally {
+      logger.setCurrentRunNumber(-1);
+      decrementThreadCount();
+    }
 	
-	synchronized (m_notifyOnCompletion) {
-	    m_notifyOnCompletion.notifyAll();
-	}
+    synchronized (m_notifyOnCompletion) {
+      m_notifyOnCompletion.notifyAll();
     }
+  }
 
-    private static synchronized void incrementThreadCount() 
-    {
-	m_numberOfThreads++;
-    }
+  private static final synchronized void incrementThreadCount() {
+    m_numberOfThreads++;
+  }
 
-    private static synchronized void decrementThreadCount() 
-    {
-	m_numberOfThreads--;
-    }
+  private static final synchronized void decrementThreadCount() {
+    m_numberOfThreads--;
+  }
 
-    public static short getNumberOfThreads()
-    {
-	return m_numberOfThreads;
-    }
+  public static final short getNumberOfThreads() {
+    return m_numberOfThreads;
+  }
 
-    public static synchronized void shutdown()
-    {
-	// We rely on everyone picking this up next time they sleep.
-	Sleeper.shutdownAllCurrentSleepers();
-    }
+  public static synchronized void shutdown()
+  {
+    // We rely on everyone picking this up next time they sleep.
+    Sleeper.shutdownAllCurrentSleepers();
+  }
 
-    private abstract class PluginThreadCaller
-    {
-	public void run() throws EngineException, PluginException
-	{
-	    final Iterator iterator =
-		m_processContext.getPluginRegistry().
-		getPluginThreadListenerList(m_context).iterator();
+  private abstract class PluginThreadCaller {
 
-	    while (iterator.hasNext()) {
-		final PluginThreadListener pluginThreadListener =
-		    (PluginThreadListener)iterator.next();
+    public void run() throws EngineException, PluginException {
+      final Iterator iterator =
+	m_processContext.getPluginRegistry().
+	getPluginThreadListenerList(m_context).iterator();
+
+      while (iterator.hasNext()) {
+	final PluginThreadListener pluginThreadListener =
+	  (PluginThreadListener)iterator.next();
 		
-		doOne(pluginThreadListener);
-	    }
-	}
-
-	protected abstract void doOne(
-	    PluginThreadListener pluginThreadListener)
-	    throws PluginException;
+	doOne(pluginThreadListener);
+      }
     }
 
-    private final PluginThreadCaller m_beginRunPluginThreadCaller =
-	new PluginThreadCaller() {
-	    protected void doOne(PluginThreadListener pluginThreadListener)
-		throws PluginException {
-		pluginThreadListener.beginRun();
-	    }
-	};
+    protected abstract void doOne(PluginThreadListener pluginThreadListener)
+      throws PluginException;
+  }
 
-    private final PluginThreadCaller m_endRunPluginThreadCaller =
-	new PluginThreadCaller() {
-	    protected void doOne(PluginThreadListener pluginThreadListener)
-		throws PluginException {
-		pluginThreadListener.endRun();
-	    }
-	};
+  private final PluginThreadCaller m_beginRunPluginThreadCaller =
+    new PluginThreadCaller() {
+      protected void doOne(PluginThreadListener pluginThreadListener)
+	throws PluginException {
+	pluginThreadListener.beginRun();
+      }
+    };
+
+  private final PluginThreadCaller m_endRunPluginThreadCaller =
+    new PluginThreadCaller() {
+      protected void doOne(PluginThreadListener pluginThreadListener)
+	throws PluginException {
+	pluginThreadListener.endRun();
+      }
+    };
 }
