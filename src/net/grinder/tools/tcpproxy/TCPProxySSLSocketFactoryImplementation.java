@@ -36,9 +36,10 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-import com.sun.net.ssl.KeyManagerFactory;
+// Use old sun package for J2SE 1.3/JSSE 1.0.2 compatibility.
 import com.sun.net.ssl.SSLContext;
 
+import net.grinder.common.SSLContextFactory.SSLContextFactoryException;
 import net.grinder.util.InsecureSSLContextFactory;
 
 
@@ -79,14 +80,12 @@ public final class TCPProxySSLSocketFactoryImplementation
    * default keystore type should be used.
    * @exception IOException If an I/O error occurs.
    * @exception GeneralSecurityException If a security error occurs.
-   * @exception InsecureSSLContextFactory.CreateException If
-   * SSLContext could not be created.
+   * @exception SSLContextFactoryException If SSLContext could not be created.
    */
   public TCPProxySSLSocketFactoryImplementation(File keyStoreFile,
                                                 char[] keyStorePassword,
                                                 String keyStoreType)
-    throws IOException, GeneralSecurityException,
-           InsecureSSLContextFactory.CreateException {
+    throws IOException, GeneralSecurityException, SSLContextFactoryException {
 
     this(new FileInputStream(keyStoreFile),
          keyStoreType != null ? keyStoreType : KeyStore.getDefaultType(),
@@ -99,12 +98,10 @@ public final class TCPProxySSLSocketFactoryImplementation
    *
    * @exception IOException If an I/O error occurs.
    * @exception GeneralSecurityException If a security error occurs.
-   * @exception InsecureSSLContextFactory.CreateException If
-   * SSLContext could not be created.
+   * @exception SSLContextFactoryException If SSLContext could not be created.
    */
   public TCPProxySSLSocketFactoryImplementation()
-    throws IOException, GeneralSecurityException,
-           InsecureSSLContextFactory.CreateException {
+    throws IOException, GeneralSecurityException, SSLContextFactoryException {
 
     this(TCPProxySSLSocketFactoryImplementation.class.getResourceAsStream(
            "resources/default.keystore"),
@@ -116,22 +113,13 @@ public final class TCPProxySSLSocketFactoryImplementation
     InputStream keyStoreInputStream,
     String keyStoreType,
     char[] keyStorePassword)
-    throws IOException, GeneralSecurityException,
-           InsecureSSLContextFactory.CreateException {
-
-    final KeyStore keyStore = KeyStore.getInstance(keyStoreType);
-    keyStore.load(keyStoreInputStream, keyStorePassword);
-
-    final KeyManagerFactory keyManagerFactory =
-      KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-
-    keyManagerFactory.init(keyStore, keyStorePassword);
+    throws IOException, GeneralSecurityException, SSLContextFactoryException {
 
     final InsecureSSLContextFactory sslContextFactory =
-      new InsecureSSLContextFactory();
+      new InsecureSSLContextFactory(keyStoreInputStream, keyStorePassword,
+                                    keyStoreType);
 
-    final SSLContext sslContext =
-      sslContextFactory.create(keyManagerFactory.getKeyManagers());
+    final SSLContext sslContext = sslContextFactory.getSSLContext();
 
     m_clientSocketFactory = sslContext.getSocketFactory();
     m_serverSocketFactory = sslContext.getServerSocketFactory();

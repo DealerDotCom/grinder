@@ -21,17 +21,22 @@
 
 package net.grinder.util;
 
+import java.io.InputStream;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
 // Use old sun package for J2SE 1.3/JSSE 1.0.2 compatibility.
 import com.sun.net.ssl.KeyManager;
+import com.sun.net.ssl.KeyManagerFactory;
 import com.sun.net.ssl.SSLContext;
 import com.sun.net.ssl.TrustManager;
 import com.sun.net.ssl.X509TrustManager;
 
-import net.grinder.common.GrinderException;
+import net.grinder.common.SSLContextFactory;
+import net.grinder.common.SSLContextFactory.SSLContextFactoryException;
 
 
 /**
@@ -45,7 +50,7 @@ import net.grinder.common.GrinderException;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class InsecureSSLContextFactory {
+public final class InsecureSSLContextFactory implements SSLContextFactory {
 
   private static final TrustManager[] s_trustManagers = {
     new TrustEveryone(),
@@ -62,40 +67,66 @@ public final class InsecureSSLContextFactory {
     s_insecureRandom.setSeed(new byte[0]);
   }
 
+  private final KeyManager[] m_keyManagers;
+
   /**
-   * Constructor.
+   * Constructor. Uses the default key manager.
    */
   public InsecureSSLContextFactory() {
+    this(null);
   }
 
   /**
-   * Factory method. Uses default {@link KeyManager}.
+   * Constructor.
    *
-   * @return An SSLContext.
-   * @exception CreateException If SSLContext couldn't be created.
+   * @param keyManagers The sources of authentication keys.
    */
-  public SSLContext create() throws CreateException {
-    return create(null);
+  public InsecureSSLContextFactory(KeyManager[] keyManagers) {
+    m_keyManagers = keyManagers;
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param keyStoreStream Key Store input stream. A key store is read
+   * from the stream, but the stream is not closed.
+   * @param keyStorePassword Key Store password, or <code>null</code>.
+   * @param keyStoreType Key Store type.
+   * @exception GeneralSecurityException If the JSSE could not load
+   * the key store.
+   * @exception IOException If the key store stream could not be read.
+   */
+  public InsecureSSLContextFactory(InputStream keyStoreStream,
+                                   char[] keyStorePassword,
+                                   String keyStoreType)
+    throws GeneralSecurityException, IOException {
+
+    final KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+    keyStore.load(keyStoreStream, keyStorePassword);
+
+    final KeyManagerFactory keyManagerFactory =
+      KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+    keyManagerFactory.init(keyStore, keyStorePassword);
+
+    m_keyManagers = keyManagerFactory.getKeyManagers();
   }
 
   /**
    * Factory method.
    *
-   * @param keyManagers The sources of authentication keys.
-   *
    * @return An SSLContext.
-   * @exception CreateException If SSLContext couldn't be created.
+   * @exception SSLContextFactoryException If the SSLContext could not
+   * be created.
    */
-  public SSLContext create(KeyManager[] keyManagers) throws CreateException {
+  public SSLContext getSSLContext() throws SSLContextFactoryException {
     try {
       final SSLContext sslContext = SSLContext.getInstance("SSL");
-
-      sslContext.init(keyManagers, s_trustManagers, s_insecureRandom);
-
+      sslContext.init(m_keyManagers, s_trustManagers, s_insecureRandom);
       return sslContext;
     }
     catch (GeneralSecurityException e) {
-      throw new CreateException("Failed to create SSLContext", e);
+      throw new SSLContextFactoryException(
+        "The JSSE could not create the SSLContext", e);
     }
   }
 
@@ -106,21 +137,5 @@ public final class InsecureSSLContextFactory {
     public boolean isServerTrusted(X509Certificate[] chain) { return true; }
 
     public X509Certificate[] getAcceptedIssuers() { return null; }
-  }
-
-  /**
-   * Exception that indicates problem creating an SSLContext.
-   */
-  public static final class CreateException extends GrinderException {
-
-    /**
-     * Constructor.
-     *
-     * @param message Helpfull message.
-     * @param t A nested <code>Throwable</code>
-     */
-    public CreateException(String message, Throwable t) {
-      super(message, t);
-    }
   }
 }
