@@ -115,8 +115,8 @@ final class ProcessControlImplementation implements ProcessControl {
   }
 
   /**
-   * Get a {@link ProcessControl.FileDistributionHandler} which will
-   * handle the distribution of files from the given directory.
+   * Get a {@link FileDistributionHandler} which will handle the
+   * distribution of files from the given directory.
    *
    * @param  directory The directory.
    * @return The distribution handler.

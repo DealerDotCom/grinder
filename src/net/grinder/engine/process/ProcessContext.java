@@ -33,6 +33,8 @@ import net.grinder.util.Sleeper;
 
 
 /**
+ * Process wide state.
+ *
  * @author Philip Aston
  * @version $Revision$
  * @stereotype singleton

@@ -39,6 +39,8 @@ import net.grinder.console.model.ConsoleProperties;
 
 
 /**
+ * Panel containing sampling controls.
+ *
  * @author Philip Aston
  * @version $Revision$
  */

@@ -710,7 +710,7 @@ public final class ConsoleProperties {
    * Get the distribution file filter pattern.
    *
    * <p>The original regular expresion can be obtained with
-   * <code>getDistributionFileFilterPattern().getPattern().</p>
+   * <code>getDistributionFileFilterPattern().getPattern</code>.</p>
    *
    * @return The pattern.
    * @sett #setDistributionFileFilterExpression
