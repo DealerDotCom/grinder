@@ -151,6 +151,13 @@ public class TCPProxy {
 	  properties.load(new FileInputStream(new File(args[++i])));
 	  System.getProperties().putAll(properties);
 	}
+	else if (args[i].equalsIgnoreCase("-initialtest")) {
+	  final String argument = i + 1 < args.length ? args[++i] : "123";
+
+	  barfUsage("-initialTest is no longer supported.\n\n" +
+		    "Use -DHTTPPlugin.initialTest=" + argument +
+		    " or the -properties option instead.");
+	}
       }
       
       // Parse 2.
