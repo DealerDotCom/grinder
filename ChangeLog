@@ -1,3 +1,9 @@
+2005-02-07  Philip Aston  <philipa@mail.com>
+
+	* CHANGES: Update for release.
+
+	* TODO: Updates.
+
 2005-02-06  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java:
