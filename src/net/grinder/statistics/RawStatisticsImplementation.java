@@ -25,7 +25,11 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
+import java.util.Iterator;
 
+import net.grinder.statistics.StatisticsIndexMap.DoubleSampleIndex;
+import net.grinder.statistics.StatisticsIndexMap.LongSampleIndex;
+import net.grinder.statistics.StatisticsIndexMap.SampleIndex;
 import net.grinder.util.Serialiser;
 
 
@@ -47,11 +51,10 @@ class RawStatisticsImplementation implements RawStatistics {
    */
   public RawStatisticsImplementation() {
     m_longData =
-      new long[
-        StatisticsIndexMap.getInstance().getNumberOfLongIndicies()];
+      new long[StatisticsIndexMap.getInstance().getNumberOfLongs()];
 
-    m_doubleData = new double[StatisticsIndexMap.getInstance().
-                              getNumberOfDoubleIndicies()];
+    m_doubleData =
+      new double[StatisticsIndexMap.getInstance().getNumberOfDoubles()];
   }
 
   /**
@@ -129,8 +132,14 @@ class RawStatisticsImplementation implements RawStatistics {
    * @param index The process specific index.
    * @param value The value.
    */
-  public final synchronized
-    void setValue(StatisticsIndexMap.LongIndex index, long value) {
+  public final synchronized void setValue(StatisticsIndexMap.LongIndex index,
+                                          long value) {
+
+    if (index.isReadOnly()) {
+      // TODO fix exceptions.
+      throw new RuntimeException("This statistic cannot be set directly");
+    }
+
     m_longData[index.getValue()] = value;
   }
 
@@ -143,8 +152,14 @@ class RawStatisticsImplementation implements RawStatistics {
    * @param index The process specific index.
    * @param value The value.
    */
-  public final synchronized
-    void setValue(StatisticsIndexMap.DoubleIndex index, double value) {
+  public final synchronized void setValue(StatisticsIndexMap.DoubleIndex index,
+                                          double value) {
+
+    if (index.isReadOnly()) {
+      // TODO fix exceptions.
+      throw new RuntimeException("This statistic cannot be set directly");
+    }
+
     m_doubleData[index.getValue()] = value;
   }
 
@@ -159,6 +174,11 @@ class RawStatisticsImplementation implements RawStatistics {
    */
   public final synchronized void addValue(StatisticsIndexMap.LongIndex index,
                                           long value) {
+    if (index.isReadOnly()) {
+      // TODO fix exceptions.
+      throw new RuntimeException("This statistic cannot be set directly");
+    }
+
     m_longData[index.getValue()] += value;
   }
 
@@ -173,35 +193,248 @@ class RawStatisticsImplementation implements RawStatistics {
    */
   public final synchronized void
     addValue(StatisticsIndexMap.DoubleIndex index, double value) {
+
+    if (index.isReadOnly()) {
+      // TODO fix exceptions.
+      throw new RuntimeException("This statistic cannot be set directly");
+    }
+
     m_doubleData[index.getValue()] += value;
   }
 
   /**
-   * Equivalent to <code>addValue(index, 1)</code>.
+   * Add sample <code>value</code> to the sample statistic specified by
+   * <code>index</code>.
    *
-   * @param index The process specific index.
-   *
-   * @see #addValue
+   * @param index The index.
+   * @param value The value.
    */
-  public final void incrementValue(StatisticsIndexMap.LongIndex index) {
-    addValue(index, 1);
+  public final synchronized void addSample(LongSampleIndex index, long value) {
+
+    // We don't use setValue() as we want to avoid the read-only check.
+    m_doubleData[index.getVarianceIndex().getValue()] =
+        calculateVariance(getValue(index.getSumIndex()),
+                          getValue(index.getCountIndex()),
+                          getValue(index.getVarianceIndex()),
+                          value);
+
+    m_longData[index.getSumIndex().getValue()] += value;
+    ++m_longData[index.getCountIndex().getValue()];
   }
 
   /**
-   * Add the values of another <code>RawStatistics</code> to ours.
-   * Assumes we don't need to synchronise access to operand.
+   * Add sample <code>value</code> to the sample statistic specified by
+   * <code>index</code>.
    *
-   * <p><strong>Currently the implementation assumes that the
-   * argument is actually a
-   * <code>RawStatisticsImplementation</code></strong>.</p>
+   * @param index The index.
+   * @param value The value.
+   */
+  public final synchronized void addSample(DoubleSampleIndex index,
+                                           double value) {
+    // We don't use setValue() as we want to avoid the read-only check.
+    m_doubleData[index.getVarianceIndex().getValue()] =
+        calculateVariance(getValue(index.getSumIndex()),
+                          getValue(index.getCountIndex()),
+                          getValue(index.getVarianceIndex()),
+                          value);
+
+    m_doubleData[index.getSumIndex().getValue()] += value;
+    ++m_longData[index.getCountIndex().getValue()];
+  }
+
+  /**
+   * Reset the sample statistic specified by <code>index</code>.
    *
-   * <p>Synchronised to ensure we don't lose information.</p>.
+   * @param index
+   */
+  public final synchronized void reset(LongSampleIndex index) {
+    // We don't use setValue() as we want to avoid the read-only check.
+    m_longData[index.getSumIndex().getValue()] = 0;
+    m_longData[index.getCountIndex().getValue()] = 0;
+    m_doubleData[index.getVarianceIndex().getValue()] = 0;
+  }
+
+  /**
+   * Reset the sample statistic specified by <code>index</code>.
    *
-   * @param operand The <code>RawStatistics</code> value to add.
+   * @param index
+   */
+  public final synchronized void reset(DoubleSampleIndex index) {
+    // We don't use setValue() as we want to avoid the read-only check.
+    m_doubleData[index.getSumIndex().getValue()] = 0;
+    m_longData[index.getCountIndex().getValue()] = 0;
+    m_doubleData[index.getVarianceIndex().getValue()] = 0;
+  }
+
+  /**
+   * Calculate the variance resulting from adding the sample value
+   * <code>newValue</code> to the a population with original attributes (
+   * <code>sum</code>, <code>count</code>, <code>variance</code>).
+   *
+   * @param sum Original total of sample values.
+   * @param count Original number of sample values.
+   * @param variance Original sample variance.
+   * @param newValue New value.
+   * @return New sample variance.
+   */
+  private double calculateVariance(double sum,
+                                   long count,
+                                   double variance,
+                                   double newValue) {
+    if (count == 0) {
+      return 0;
+    }
+
+    final long t1 = count + 1;
+    final double t2 = newValue - sum / (double)count;
+
+    return
+      (count * variance) / (count + 1) +
+      (count / (double)(t1 * t1)) * t2 * t2;
+  }
+
+  /**
+   * Calculate the variance resulting from combining two sample populations.
+   *
+   * @param s1 Total of samples in first poulation.
+   * @param n1 Count of samples in first poulation.
+   * @param v1 Variance of samples in first poulation.
+   * @param s2 Total of samples in second poulation.
+   * @param n2 Count of samples in second poulation.
+   * @param v2 Variance of samples in second poulation.
+   * @return Variance of combined population.
+   */
+  private double calculateVariance(double s1, long n1, double v1,
+                                   double s2, long n2, double v2) {
+    if (n1 == 0) {
+      return v2;
+    }
+    else if (n2 == 0) {
+      return v1;
+    }
+
+    final double s = s1 + s2;
+    final long n = n1 + n2;
+
+    final double term1 = s1 / n1 - s / n;
+    final double term2 = s2 / n2 - s / n;
+
+    return (n1 * (term1 * term1 + v1) + n2 * (term2 * term2 + v2)) / n;
+  }
+
+  /**
+   * Get the total sample value for the sample statistic specified by
+   * <code>index</code>.
+   *
+   * @param index The index.
+   * @return The sum.
+   */
+  public final synchronized long getSum(LongSampleIndex index) {
+    return getValue(index.getSumIndex());
+  }
+
+  /**
+   * Get the total sample value for the sample statistic specified by
+   * <code>index</code>.
+   *
+   * @param index The index.
+   * @return The sum.
+   */
+  public double getSum(DoubleSampleIndex index) {
+    return getValue(index.getSumIndex());
+  }
+
+  /**
+   * Get the number of samples for the sample statistic specified by
+   * <code>index</code>.
+   *
+   * @param index The index.
+   * @retun The count.
+   */
+  public long getCount(SampleIndex index) {
+    return getValue(index.getCountIndex());
+  }
+
+  /**
+   * Get the sample variance for the sample statistic specified by
+   * <code>index</code>.
+   *
+   * @param index The index.
+   * @retun The count.
+   */
+  public double getVariance(SampleIndex index) {
+    return getValue(index.getVarianceIndex());
+  }
+
+  /**
+   * Add the values of another <code>RawStatistics</code> to ours. Assumes we
+   * don't need to synchronise access to operand.
+   *
+   * <p>
+   * <strong>Currently the implementation assumes that the argument is actually
+   * a <code>RawStatisticsImplementation</code> </strong>.
+   * </p>
+   *
+   * <p>
+   * Synchronised to ensure we don't lose information.
+   * </p>.
+   *
+   * @param operand
+   *          The <code>RawStatistics</code> value to add.
    */
   public final synchronized void add(RawStatistics operand) {
     final RawStatisticsImplementation operandImplementation =
       (RawStatisticsImplementation)operand;
+
+    final boolean[] isVarianceIndex = new boolean[m_doubleData.length];
+
+    final Iterator longSampleIndexIterator =
+      StatisticsIndexMap.getInstance().getLongSampleIndicies().iterator();
+
+    while (longSampleIndexIterator.hasNext()) {
+      final StatisticsIndexMap.LongSampleIndex index =
+        (StatisticsIndexMap.LongSampleIndex)longSampleIndexIterator.next();
+
+      final StatisticsIndexMap.LongIndex sumIndex = index.getSumIndex();
+      final StatisticsIndexMap.LongIndex countIndex = index.getCountIndex();
+      final StatisticsIndexMap.DoubleIndex varianceIndex =
+        index.getVarianceIndex();
+
+      // We don't use setValue() as we want to avoid the read-only check.
+      m_doubleData[varianceIndex.getValue()] =
+        calculateVariance(getValue(sumIndex),
+                          getValue(countIndex),
+                          getValue(varianceIndex),
+                          operand.getValue(sumIndex),
+                          operand.getValue(countIndex),
+                          operand.getValue(varianceIndex));
+
+      isVarianceIndex[varianceIndex.getValue()] = true;
+    }
+
+    final Iterator doubleSampleIndexIterator =
+      StatisticsIndexMap.getInstance().getDoubleSampleIndicies().iterator();
+
+    while (doubleSampleIndexIterator.hasNext()) {
+      final StatisticsIndexMap.DoubleSampleIndex index =
+        (StatisticsIndexMap.DoubleSampleIndex)longSampleIndexIterator.next();
+
+      final StatisticsIndexMap.DoubleIndex sumIndex = index.getSumIndex();
+      final StatisticsIndexMap.LongIndex countIndex = index.getCountIndex();
+      final StatisticsIndexMap.DoubleIndex varianceIndex =
+        index.getVarianceIndex();
+
+      // We don't use setValue() as we want to avoid the read-only check.
+      m_doubleData[varianceIndex.getValue()] =
+               calculateVariance(getValue(sumIndex),
+                                 getValue(countIndex),
+                                 getValue(varianceIndex),
+                                 operand.getValue(sumIndex),
+                                 operand.getValue(countIndex),
+                                 operand.getValue(varianceIndex));
+
+      isVarianceIndex[varianceIndex.getValue()] = true;
+    }
 
     final long[] longData = operandImplementation.m_longData;
 
@@ -212,7 +445,9 @@ class RawStatisticsImplementation implements RawStatistics {
     final double[] doubleData = operandImplementation.m_doubleData;
 
     for (int i = 0; i < doubleData.length; i++) {
-      m_doubleData[i] += doubleData[i];
+      if (!isVarianceIndex[i]) {
+        m_doubleData[i] += doubleData[i];
+      }
     }
   }
 

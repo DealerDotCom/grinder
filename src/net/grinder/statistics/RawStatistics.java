@@ -50,7 +50,7 @@ public interface RawStatistics {
   /**
    * Return the value specified by <code>index</code>.
    *
-   * @param index The process specific index.
+   * @param index The index.
    * @return The value.
    */
   long getValue(StatisticsIndexMap.LongIndex index);
@@ -58,7 +58,7 @@ public interface RawStatistics {
   /**
    * Return the value specified by <code>index</code>.
    *
-   * @param index The process specific index.
+   * @param index The index.
    * @return The value.
    */
   double getValue(StatisticsIndexMap.DoubleIndex index);
@@ -66,7 +66,7 @@ public interface RawStatistics {
   /**
    * Set the value specified by <code>index</code>.
    *
-   * @param index The process specific index.
+   * @param index The index.
    * @param value The value.
    */
   void setValue(StatisticsIndexMap.LongIndex index, long value);
@@ -74,7 +74,7 @@ public interface RawStatistics {
   /**
    * Set the value specified by <code>index</code>.
    *
-   * @param index The process specific index.
+   * @param index The index.
    * @param value The value.
    */
   void setValue(StatisticsIndexMap.DoubleIndex index, double value);
@@ -83,7 +83,7 @@ public interface RawStatistics {
    * Add <code>value</code> to the value specified by
    * <code>index</code>.
    *
-   * @param index The process specific index.
+   * @param index The index.
    * @param value The value.
    */
   void addValue(StatisticsIndexMap.LongIndex index, long value);
@@ -92,18 +92,78 @@ public interface RawStatistics {
    * Add <code>value</code> to the value specified by
    * <code>index</code>.
    *
-   * @param index The process specific index.
+   * @param index The index.
    * @param value The value.
    */
   void addValue(StatisticsIndexMap.DoubleIndex index, double value);
 
   /**
-   * Equivalent to <code>addValue(index, 1)</code>.
+   * Add sample <code>value</code> to the sample statistic specified by
+   * <code>index</code>.
    *
-   * @param index The process specific index.
-   * @see #addValue
+   * @param index The index.
+   * @param value The value.
    */
-  void incrementValue(StatisticsIndexMap.LongIndex index);
+  void addSample(StatisticsIndexMap.LongSampleIndex index, long value);
+
+  /**
+   * Add sample <code>value</code> to the sample statistic specified by
+   * <code>index</code>.
+   *
+   * @param index The index.
+   * @param value The value.
+   */
+  void addSample(StatisticsIndexMap.DoubleSampleIndex index, double value);
+
+  /**
+   * Reset the sample statistic specified by <code>index</code>.
+   *
+   * @param index Index of sample statistic.
+   */
+  void reset(StatisticsIndexMap.LongSampleIndex index);
+
+  /**
+   * Reset the sample statistic specified by <code>index</code>.
+   *
+   * @param index Index of sample statistic.
+   */
+  void reset(StatisticsIndexMap.DoubleSampleIndex index);
+
+  /**
+   * Get the total sample value for the sample statistic specified by
+   * <code>index</code>.
+   *
+   * @param index The index.
+   * @return The sum.
+   */
+  long getSum(StatisticsIndexMap.LongSampleIndex index);
+
+  /**
+   * Get the total sample value for the sample statistic specified by
+   * <code>index</code>.
+   *
+   * @param index The index.
+   * @return The sum.
+   */
+  double getSum(StatisticsIndexMap.DoubleSampleIndex index);
+
+  /**
+   * Get the number of samples for the sample statistic specified by
+   * <code>index</code>.
+   *
+   * @param index The index.
+   * @return The count.
+   */
+  long getCount(StatisticsIndexMap.SampleIndex index);
+
+  /**
+   * Get the sample variance for the sample statistic specified by
+   * <code>index</code>.
+   *
+   * @param index The index.
+   * @return The count.
+   */
+  double getVariance(StatisticsIndexMap.SampleIndex index);
 
   /**
    * Add the values of another {@link RawStatistics} to ours.
