@@ -402,7 +402,10 @@ public class ConsoleUI
 	{
 	    m_model.reset();
 	    LabelledGraph.resetPeak();
-	    m_summaryFrame.hide();
+
+	    if (m_summaryFrame != null) {
+		m_summaryFrame.hide();
+	    }
 	}
     }
 
