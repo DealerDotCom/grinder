@@ -20,6 +20,8 @@ package net.grinder.engine.process;
 
 import java.io.PrintStream;
 import java.text.DecimalFormat;
+import java.util.Iterator;
+import java.util.Map;
 
 import net.grinder.engine.EngineException;
 
@@ -30,27 +32,21 @@ import net.grinder.engine.EngineException;
  * @author Philip Aston
  * @version $Revision$
  */
-class MethodStatisticsTable
+class TestStatisticsTable
 {
-    private final String[] m_methodNames;
-    private final MethodStatistics[] m_methodStatistics;
-    private final MethodStatistics m_totals = new MethodStatistics();
+    private final Map m_tests;
+    private final TestStatistics m_totals = new TestStatistics();
     private DecimalFormat m_twoDPFormat = new DecimalFormat("0.00");
     
-    public MethodStatisticsTable(String[] methodNames,
-				 MethodStatistics[] methodStatistics)
-	throws EngineException
+    public TestStatisticsTable(Map tests)
     {
-	if (methodNames.length != methodStatistics.length) {
-	    throw new EngineException(
-		"Number of method names differs from the number of methods");
-	}
+	m_tests = tests;
 
-	m_methodNames = methodNames;
-	m_methodStatistics = methodStatistics;
+	final Iterator testIterator = m_tests.values().iterator();
 
-	for (int i=0; i< m_methodStatistics.length; i++) {
-	    m_totals.add(m_methodStatistics[i]);
+	while (testIterator.hasNext()) {
+	    final Test test = (Test)testIterator.next();
+	    m_totals.add(test.getStatistics());
 	}
     }
 
@@ -65,8 +61,23 @@ class MethodStatisticsTable
 	
 	out.println(heading.toString());
 
-	for (int i=0; i<m_methodStatistics.length; i++) {
-	    out.println(formatLine(m_methodNames[i], m_methodStatistics[i]));
+	final Iterator testIterator = m_tests.entrySet().iterator();
+
+	while (testIterator.hasNext()) {
+	    final Map.Entry entry = (Map.Entry)testIterator.next();
+	    final Integer testNumber = (Integer)entry.getKey();
+	    final Test test = (Test)entry.getValue();
+
+	    StringBuffer output = formatLine(test.toString(),
+					     test.getStatistics());
+
+	    final String testDescription = test.getDescription();
+
+	    if (testDescription != null) {
+		output.append(" (\"" + testDescription + "\")");
+	    }
+
+	    out.println(output.toString());
 	}
 
 	out.println();
@@ -93,8 +104,8 @@ class MethodStatisticsTable
 	}
     }
 
-    private String formatLine(String methodName,
-			      MethodStatistics methodStatistics)
+    private StringBuffer formatLine(String methodName,
+				    TestStatistics methodStatistics)
     {
 	final StringBuffer result = new StringBuffer();
 
@@ -113,6 +124,6 @@ class MethodStatisticsTable
 	    formatField(m_twoDPFormat.format(
 			    methodStatistics.getAverageTransactionTime())));
 
-	return result.toString();
+	return result;
     }
 }

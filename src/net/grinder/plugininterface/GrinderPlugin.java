@@ -18,6 +18,8 @@
 
 package net.grinder.plugininterface;
 
+import net.grinder.util.GrinderProperties;
+
 
 /**
  * The interface a valid Grinder plug-in must implement.
@@ -26,21 +28,34 @@ package net.grinder.plugininterface;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface GrinderPlugin {
+public interface GrinderPlugin
+{
+    public interface Test
+    {
+	public String getDescription();
+	public GrinderProperties getParameters();
+    }
+    
+    /**
+     * This method is executed the first time the plug-in is loaded. It
+     * is only executed once.
+     */
+    public void initialize(PluginContext pluginContext)
+	throws PluginException;
+    
+    /**
+     * This method is executed at the beginning of evey cycle.
+     */
+    public void beginCycle() throws PluginException;
 
-  /**
-   * This method is executed the first time the plug-in is loaded. It
-   * is only executed once.
-   */
-  public void initialize(GrinderContext grinderContext) throws PluginException;
-
-  /**
-   * This method is executed at the beginning of evey cycle.
-   */
-  public void beginCycle() throws PluginException;
-
-  /**
-   * This method is executed at the end of every cycle.
-   */  
-  public void endCycle() throws PluginException;
+    /**
+     * This is called for each method name in grinder.plugin.methods.
+     */
+    public boolean doTest(TestDefinition testDefinition)
+	throws PluginException;
+    
+    /**
+     * This method is executed at the end of every cycle.
+     */  
+    public void endCycle() throws PluginException;
 }

@@ -24,14 +24,22 @@ package net.grinder.engine.process;
  * @author Philip Aston
  * @version $Revision$
  */
-class MethodStatistics
+class TestStatistics
 {
     private long m_transactions = 0;
     private long m_totalTime = 0;
     private long m_errors = 0;
+    private TestStatistics m_snapshot = null;
 
-    public MethodStatistics()
+    public TestStatistics()
     {
+    }
+    
+    private TestStatistics(long transactions, long totalTime, long errors)
+    {
+	m_transactions = transactions;
+	m_totalTime = totalTime;
+	m_errors = errors;
     }
 
     public synchronized void addTransaction(long time)
@@ -45,21 +53,38 @@ class MethodStatistics
 	m_errors++;
     }
 
-    /**
-     * Assumes we don't need to synchronise access to snapshot.
-     */
-    public synchronized MethodStatistics getDelta(MethodStatistics snapshot,
-						  boolean updateSnapshot)
+    private synchronized TestStatistics getClone()
     {
-	final MethodStatistics result = new MethodStatistics(
-	    m_transactions - snapshot.m_transactions,
-	    m_totalTime - snapshot.m_totalTime,
-	    m_errors - snapshot.m_errors);
+	try {
+	    return (TestStatistics)clone();
+	}
+	catch (CloneNotSupportedException e) {
+	    throw new Error("0==1,TestStatistics does not support clone");
+	}
+    }
+
+    /**
+     * Return a TestStatistics representing the change since the last
+     * snapshot. This is the only method that accesses the m_snapshot
+     * object so we don't worry about the synchronisation to it.
+     */
+    public synchronized TestStatistics getDelta(boolean updateSnapshot)
+    {
+	final TestStatistics result;
+
+	if (m_snapshot == null) {
+	    result = getClone();
+	}
+	else {
+	    result =
+		new TestStatistics(m_transactions - m_snapshot.m_transactions,
+				   m_totalTime - m_snapshot.m_totalTime,
+				   m_errors - m_snapshot.m_errors);
+	}
 
 	if (updateSnapshot) {
-	    snapshot.m_transactions = m_transactions;
-	    snapshot.m_totalTime = m_totalTime;
-	    snapshot.m_errors = m_errors;
+	    m_snapshot = null;	// Discard history.
+	    m_snapshot = getClone();
 	}
 
 	return result;
@@ -68,37 +93,29 @@ class MethodStatistics
     /**
      * Assumes we don't need to synchronise access to operand.
      */
-    public synchronized void add(MethodStatistics operand)
+    public synchronized void add(TestStatistics operand)
     {
 	m_transactions += operand.m_transactions;
 	m_totalTime += operand.m_totalTime;
 	m_errors += operand.m_errors;
     }
-    
-    private MethodStatistics(long transactions, long totalTime,
-			     long errors)
-    {
-	m_transactions = transactions;
-	m_totalTime = totalTime;
-	m_errors = errors;
-    }
 
     /** Accessor. N.B. Use clone() to get a consistent snapshot of a
-     * changing MethodStatistics */
+     * changing TestStatistics */
     public long getTransactions() 
     {
 	return m_transactions;
     }
 
     /** Accessor. N.B. Use clone() to get a consistent snapshot of a
-     * changing MethodStatistics */
+     * changing TestStatistics */
     public long getTotalTime()
     {
 	return m_totalTime;
     }
 
     /** Accessor. N.B. Use clone() to get a consistent snapshot of a
-     * changing MethodStatistics */
+     * changing TestStatistics */
     public long getErrors()
     {
 	return m_errors;

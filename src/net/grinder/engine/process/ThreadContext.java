@@ -18,7 +18,7 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.plugininterface.GrinderContext;
+import net.grinder.plugininterface.PluginContext;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderProperties;
 
@@ -29,9 +29,10 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-class GrinderContextImplementation implements GrinderContext
+class PluginContextImplementation implements PluginContext
 {
-    private final GrinderProperties m_parameters;
+    private GrinderThread m_grinderThread = null;
+    private final GrinderProperties m_pluginParameters;
     private final String m_hostIDString;
     private final String m_processIDString;
     private final int m_threadID;
@@ -44,12 +45,12 @@ class GrinderContextImplementation implements GrinderContext
     private long m_startTime;
     private long m_elapsedTime;
 
-    public GrinderContextImplementation(GrinderProperties parameters,
-					String hostIDString,
-					String processIDString,
-					int threadID)
+    public PluginContextImplementation(GrinderProperties pluginParameters,
+				       String hostIDString,
+				       String processIDString,
+				       int threadID)
     {
-	m_parameters = parameters;
+	m_pluginParameters = pluginParameters;
 
 	m_hostIDString = hostIDString;
 	m_processIDString = processIDString;
@@ -59,6 +60,12 @@ class GrinderContextImplementation implements GrinderContext
 						Integer.toString(threadID));
 
 	reset();
+    }
+
+    /** Package scope */
+    void setGrinderThread(GrinderThread grinderThread) 
+    {
+	m_grinderThread = grinderThread;
     }
     
     public void reset()
@@ -81,7 +88,7 @@ class GrinderContextImplementation implements GrinderContext
     }
 
     /*
-     * Implementation of GrinderContext follows
+     * Implementation of PluginContext follows
      */
     public String getHostIDString()
     {
@@ -113,9 +120,9 @@ class GrinderContextImplementation implements GrinderContext
 	m_abortedCycle = true;
     }
 
-    public GrinderProperties getParameters()
+    public GrinderProperties getPluginParameters()
     {
-	return m_parameters;
+	return m_pluginParameters;
     }
 
     public void startTimer()
@@ -130,6 +137,16 @@ class GrinderContextImplementation implements GrinderContext
 	{
 	    m_elapsedTime = System.currentTimeMillis() - m_startTime;
 	}
+    }
+
+    public void logMessage(String message)
+    {
+	m_grinderThread.logMessage(message);
+    }
+
+    public void logError(String message)
+    {
+	m_grinderThread.logError(message);
     }
 }
 

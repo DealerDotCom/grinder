@@ -18,8 +18,9 @@
 
 package net.grinder.engine.process;
 
-import java.util.StringTokenizer;
-import java.util.Vector;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -77,22 +78,24 @@ public class GrinderProcess
 
     private final String m_hostID;
     private final String m_jvmID;
-    private final FilenameFactory m_filenameFactory;
     private final int m_numberOfThreads;
+    private final String m_logDirectory;
+    private final boolean m_appendToLog;
+    private final FilenameFactory m_filenameFactory;
+
     private final boolean m_waitForConsoleSignal;
-    private final boolean m_reportToConsole;
     private InetAddress m_grinderAddress = null;
     private int m_grinderPort = 0;
+
+    private final boolean m_reportToConsole;
+    private int m_reportToConsoleInterval = 0;
     private InetAddress m_consoleAddress = null;
     private int m_consolePort = 0;
     private DatagramSocket m_datagramSocket = null;
-    private final int m_reportToConsoleInterval;
-    private final String m_logDirectory;
-    private final boolean m_appendToLog;
-    private Class m_pluginClass;
+
+    private final Class m_pluginClass;
     private final GrinderProperties m_pluginParameters;
-    private Method[] m_methods;
-    private String[] m_methodNames;
+    private final TreeMap m_tests;
 
     public GrinderProcess() throws GrinderException
     {
@@ -100,10 +103,15 @@ public class GrinderProcess
 
 	m_hostID = properties.getProperty("grinder.hostID", "UNNAMED HOST");
 	m_jvmID = properties.getMandatoryProperty("grinder.jvmID");
+	m_numberOfThreads = properties.getInt("grinder.threads", 1);
+	m_logDirectory =
+	    properties.getMandatoryProperty("grinder.logDirectory");
+	m_appendToLog = properties.getBoolean("grinder.appendLog", false);
 
 	m_filenameFactory = new FilenameFactory(m_jvmID, null);
 
-	m_numberOfThreads = properties.getInt("grinder.threads", 1);
+
+	// Parse console configuration.
 	m_waitForConsoleSignal =
 	    properties.getBoolean("grinder.waitForConsoleSignal", false);
 
@@ -125,14 +133,11 @@ public class GrinderProcess
 
 	m_reportToConsole =
 	    properties.getBoolean("grinder.reportToConsole", false);
-	m_reportToConsoleInterval =
-	    properties.getInt("grinder.reportToConsole.interval", 500);
-
-	m_logDirectory =
-	    properties.getMandatoryProperty("grinder.logDirectory");
-	m_appendToLog = properties.getBoolean("grinder.appendLog", false);
 
 	if (m_reportToConsole) {
+	    m_reportToConsoleInterval =
+		properties.getInt("grinder.reportToConsole.interval", 500);
+
 	    try{
 		m_consoleAddress =
 		    InetAddress.getByName(
@@ -173,33 +178,46 @@ public class GrinderProcess
 	m_pluginParameters =
 	    properties.getPropertySubset("grinder.plugin.parameter.");
 
-	// Parse plug-in methods.
-	final String pluginMethods =
-	    properties.getMandatoryProperty("grinder.plugin.methods");
+	// Parse tests.
+	m_tests = new TreeMap();
 
-	final StringTokenizer methodTokeniser =
-	    new StringTokenizer(pluginMethods,"\t\n\r,");
+	final String TEST_PREFIX = "grinder.test";
 
-	final Vector methodNames = new java.util.Vector();
+	final Iterator nameIterator = properties.keySet().iterator();
 
-	while(methodTokeniser.hasMoreElements()) {
-	    methodNames.addElement(methodTokeniser.nextElement());
-	}
+	while (nameIterator.hasNext()) {
+	    final String name = (String)nameIterator.next();
 
-	m_methods = new Method[methodNames.size()];
-	m_methodNames = new String[methodNames.size()];
-            
-	for (int i=0; i<methodNames.size(); i++){
-	    m_methodNames[i] = (String)methodNames.get(i);
-
-	    try{
-		m_methods[i] = m_pluginClass.getMethod(m_methodNames[i], null);
+	    if (!name.startsWith(TEST_PREFIX)) {
+		continue;	// Not a test property.
 	    }
-	    catch(Exception e){
+
+	    final int nextSeparator = name.indexOf('.',
+						   TEST_PREFIX.length());
+
+	    final Integer testNumber;
+
+	    try {
+		testNumber =
+		    new Integer(name.substring(TEST_PREFIX.length(),
+					       nextSeparator));
+	    }
+	    catch (Exception e) {
 		throw new EngineException(
-		    "Could not initialize the plug-in method: " +
-		    m_methodNames[i], e);
+		    "Could not resolve test number from property '" + name +
+		    ".");
 	    }
+
+	    if (m_tests.containsKey(testNumber)) {
+		continue;	// Already parsed.
+	    }
+
+	    final Test test =
+		new Test(testNumber,
+			 properties.getPropertySubset(
+			     name.substring(0,nextSeparator + 1)));
+
+	    m_tests.put(testNumber, test);
 	}
     }
     
@@ -213,7 +231,7 @@ public class GrinderProcess
     protected void run() throws GrinderException
     {
 	final String dataFilename = m_filenameFactory.createFilename("data");
-	PrintWriter dataPrintWriter = null;
+	final PrintWriter dataPrintWriter;
 
 	try {
 	    dataPrintWriter =
@@ -230,26 +248,15 @@ public class GrinderProcess
 				      dataFilename + "'", e);
 	}
 
-	final MethodStatistics[]  methodStatistics =
-	    new MethodStatistics[m_methods.length];
-	final MethodStatistics[]  lastMethodStatistics =
-	    new MethodStatistics[m_methods.length];
-
-	for (int i=0; i<m_methods.length; i++){
-	    methodStatistics[i] = new MethodStatistics();
-	    lastMethodStatistics[i] = new MethodStatistics();
-	}
-
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
 
 	for (int i=0; i<m_numberOfThreads; i++) {
-	    final GrinderContextImplementation grinderContext =
-		new GrinderContextImplementation(m_pluginParameters,
-						 m_hostID, m_jvmID, i);
+	    final PluginContextImplementation pluginContext =
+		new PluginContextImplementation(m_pluginParameters,
+						m_hostID, m_jvmID, i);
 
-	    runnable[i] = new GrinderThread(m_pluginClass, grinderContext,
-					    dataPrintWriter, m_methods,
-					    methodStatistics);
+	    runnable[i] = new GrinderThread(m_pluginClass, pluginContext,
+					    dataPrintWriter, m_tests);
 	}
         
 	if (m_waitForConsoleSignal) {
@@ -277,16 +284,21 @@ public class GrinderProcess
 	    }
 
 	    if (m_reportToConsole) {
-		for (int i=0; i<m_methods.length; i++) {
-		    final MethodStatistics delta =
-			methodStatistics[i].getDelta(
-			    lastMethodStatistics[i], true);
+		final Iterator testIterator = m_tests.entrySet().iterator();
+
+		while (testIterator.hasNext()) {
+		    final Map.Entry entry = (Map.Entry)testIterator.next();
+		    final Integer testNumber = (Integer)entry.getKey();
+		    final Test test = (Test)entry.getValue();
+
+		    final TestStatistics delta =
+			test.getStatistics().getDelta(true);
 
 		    final String msg =
 			m_hostID + "," + 
 			m_jvmID + "," + 
 			m_numberOfThreads + "," + 
-			i + "," +
+			testNumber + "," +
 			delta.getTotalTime() + "," +
 			delta.getTransactions() + "," +
 			delta.getAverageTransactionTime();
@@ -322,8 +334,8 @@ public class GrinderProcess
 
  	System.out.println("Final statistics for this process:");
 
-	final MethodStatisticsTable statisticsTable =
-	    new MethodStatisticsTable(m_methodNames, methodStatistics);
+	final TestStatisticsTable statisticsTable =
+	    new TestStatisticsTable(m_tests);
 
 	statisticsTable.print(System.out);
     }

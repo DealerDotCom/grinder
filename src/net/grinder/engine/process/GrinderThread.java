@@ -19,9 +19,9 @@
 package net.grinder.engine.process;
 
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Properties;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
 
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
@@ -49,37 +49,53 @@ class GrinderThread implements java.lang.Runnable
      * not run to completion" */
     private static int m_numberOfThreads = 0;
 
+    private static Random m_random = new Random();
+
     private final Class m_pluginClass;
-    private final Method[] m_methods;
-    private final MethodStatistics[] m_methodStatistics;
+    private final PluginContextImplementation m_pluginContext;
+    private final Map m_tests;
     private final PrintWriter m_dataPrintWriter;
 
-    private final GrinderContextImplementation m_grinderContext;
-    private int m_sleepTime;
-    private int m_initialSleepTime;
+    private long m_defaultSleepTime;
+    private double m_sleepTimeVariation;
+    private double m_sleepTimeFactor;
+    private long m_initialSleepTime;
+
     private int m_numberOfCycles;
+
+    /** This is a member so that PluginContextImplementation can
+     * generate context sensitive log messages. */
+    private int m_currentCycle = -1;
+
+    /** This is a member so that PluginContextImplementation can
+     * generate context sensitive log messages. */
+    private Test m_currentTest = null;
 
     /**
      * The constructor.
      */        
     public GrinderThread(Class pluginClass,
-			 GrinderContextImplementation grinderContext,
-			 PrintWriter dataPrintWriter, Method[] methods,
-			 MethodStatistics[] methodStatistics)
+			 PluginContextImplementation pluginContext,
+			 PrintWriter dataPrintWriter, Map tests)
     {
 	m_pluginClass = pluginClass;
-	m_grinderContext = grinderContext;
+	m_pluginContext = pluginContext;
 	m_dataPrintWriter = dataPrintWriter;
-	m_methods = methods;
-	m_methodStatistics = methodStatistics;
+	m_tests = tests;
 
+	m_pluginContext.setGrinderThread(this);
 
 	// Should really wrap all of this in a configuration class.
 	final GrinderProperties properties = GrinderProperties.getProperties();
 	
-	m_sleepTime = properties.getInt("grinder.thread.sleepTime", 0);
+	m_defaultSleepTime =
+	    properties.getLong("grinder.thread.sleepTime", 0);
+	m_sleepTimeFactor =
+	    properties.getDouble("grinder.thread.sleepTimeFactor", 1.0d);
+	m_sleepTimeVariation =
+	    properties.getDouble("grinder.thread.sleepTimeVariation", 0.2d);
 	m_initialSleepTime =
-	    properties.getInt("grinder.thread.initialSleepTime", 0);
+	    properties.getLong("grinder.thread.initialSleepTime", 0);
 
 	m_numberOfCycles = properties.getInt("grinder.cycles", 1);
 
@@ -91,22 +107,18 @@ class GrinderThread implements java.lang.Runnable
      */     
     public void run()
     {
+	m_currentCycle = -1;
+	m_currentTest = null;
+
 	try{
 	    final GrinderPlugin pluginInstance =
 		(GrinderPlugin)m_pluginClass.newInstance();
             
 	    // Random initial wait
-	    if (m_initialSleepTime != 0) {
-		final int randomTime =
-		    (int)(m_initialSleepTime * Math.random());
-
-		logMessage("waiting for " + randomTime + " milliseconds");
-
-		Thread.sleep(randomTime);
-	    }               
+	    sleep(m_initialSleepTime);
 
 	    try {
-		pluginInstance.initialize(m_grinderContext);
+		pluginInstance.initialize(m_pluginContext);
 	    }
 	    catch (PluginException e) {
 		logError("Plug-in initialize() threw " + e);
@@ -114,87 +126,96 @@ class GrinderThread implements java.lang.Runnable
 		return;
 	    }
 	    
-	    logMessage("initilized plug-in, starting cycles");
+	    logMessage("initialized plug-in, starting cycles");
 
 	    CYCLE_LOOP:
-	    for (int cycle=0; cycle<m_numberOfCycles; cycle++) {
+	    for (m_currentCycle=0; m_currentCycle<m_numberOfCycles;
+		 m_currentCycle++)
+	    {
 
 		try {
 		    pluginInstance.beginCycle();
 		}
 		catch (PluginException e) {
 		    logError("Aborting cycle - plug-in beginCycle() threw " +
-			     e, cycle);
+			     e);
 		    e.printStackTrace();
 		    continue CYCLE_LOOP;
 		}
 		
-		METHOD_LOOP:
-		for (int method=0; method<m_methods.length; method++) {
-		    m_grinderContext.reset();
+		final Iterator testIterator = m_tests.entrySet().iterator();
+
+		TEST_LOOP:
+		while (testIterator.hasNext()) {
+		    final Map.Entry entry = (Map.Entry)testIterator.next();
+		    final Integer testNumber = (Integer)entry.getKey();
+		    m_currentTest = (Test)entry.getValue();
+
+		    m_pluginContext.reset();
+
+		    final long sleepTime = m_currentTest.getSleepTime();
+		    sleep(sleepTime >= 0 ? sleepTime : m_defaultSleepTime);
 
 		    boolean success = false;
 			
-		    m_grinderContext.startTimer();
+		    m_pluginContext.startTimer();
 
 		    try {
 			try {
-			    final Boolean successBoolean = (Boolean)
-				m_methods[method].invoke(pluginInstance, null);
-
-			    success = successBoolean.booleanValue();
+			    success = pluginInstance.doTest(m_currentTest);
 			}
 			finally {
-			    m_grinderContext.stopTimer();		
+			    m_pluginContext.stopTimer();		
 			}
 		    }
-		    catch (InvocationTargetException e) {
-			logError("Aborting cycle - plug-in threw " +
-				 e.getTargetException(), cycle, method);
+		    catch (PluginException e) {
+			logError("Aborting cycle - plug-in threw " + e);
 			e.printStackTrace();
 			continue CYCLE_LOOP;
 		    }
 
-		    if (m_grinderContext.getAborted()){
-			logError("Plug-in aborted thread", cycle, method);
+		    if (m_pluginContext.getAborted()) {
+			logError("Plug-in aborted thread");
 			break CYCLE_LOOP;
 		    }
 
-		    if (m_grinderContext.getAbortedCycle()){
-			logError("Plug-in aborted cycle", cycle, method);
+		    if (m_pluginContext.getAbortedCycle()) {
+			logError("Plug-in aborted cycle");
 			continue CYCLE_LOOP;
 		    }
 
-		    final long time = m_grinderContext.getElapsedTime();
-			
+		    final long time = m_pluginContext.getElapsedTime();
+		    final TestStatistics statistics =
+			m_currentTest.getStatistics();
+
 		    if (success) {
-			m_methodStatistics[method].addTransaction(time);
+			statistics.addTransaction(time);
 		    }
 		    else {
 			// Abortions don't count as errors.
-			m_methodStatistics[method].addError();
-			logError("Plug-in reported an error", cycle, method);
+			statistics.addError();
+			logError("Plug-in reported an error");
 		    }
 
 		    if (m_dataPrintWriter != null) {
 			m_dataPrintWriter.println(
-			    m_grinderContext.getThreadID() + ", " +
-			    cycle + ", " + method + ", " + time);
-		    }
-                    
-		    if (m_sleepTime != 0) {
-			Thread.sleep(m_sleepTime);
+			    m_pluginContext.getThreadID() + ", " +
+			    m_currentCycle + ", " + testNumber + ", " + time);
 		    }
 		}
+
+		m_currentTest = null;
 
 		try {
 		    pluginInstance.endCycle();
 		}
 		catch (PluginException e) {
-		    logError("Plugin endCycle() threw: " + e, cycle);
+		    logError("Plugin endCycle() threw: " + e);
 		    e.printStackTrace();
 		}
 	    }
+
+	    m_currentCycle = -1;
 
 	    logMessage("finished");
 	}
@@ -207,55 +228,67 @@ class GrinderThread implements java.lang.Runnable
 	}
     }
 
-    private String formatMessage(String message, int cycle, int method) 
+    /**
+     * Sleep for a time based on the meanTime parameter.
+     *
+     * The actual time is taken from a pseudo normal distribution.
+     * Approximately 99.75% of times will be within (100*
+     * m_sleepTimeVariation) percent of the meanTime.
+     */
+    private void sleep(long meanTime) throws InterruptedException
     {
-	final StringBuffer buffer = new StringBuffer(
-	    "Thread (Host " + m_grinderContext.getHostIDString() +
-	    " Process " + m_grinderContext.getProcessIDString() +
-	    " Thread " + m_grinderContext.getThreadID());
+	if (meanTime > 0) {
+	    meanTime = (long)(meanTime * m_sleepTimeFactor);
 
-	if (cycle > 0) {
-	    buffer.append(" Cycle " + cycle);
+	    final long sleepTime;
+
+	    if (m_sleepTimeVariation > 0) {
+		final double sigma = (meanTime * m_sleepTimeVariation)/3.0;
+
+		sleepTime = meanTime + (long)(m_random.nextGaussian() * sigma);
+	    }
+	    else {
+		sleepTime = meanTime;
+	    }
+
+	    if (sleepTime > 0) {
+		logMessage("Sleeping for " + sleepTime + " ms");
+		Thread.sleep(sleepTime);
+	    }
+	}
+    }
+
+    private String formatMessage(String message) 
+    {
+	final StringBuffer buffer = new StringBuffer();
+	
+	buffer.append("(thread ");
+	buffer.append(m_pluginContext.getThreadID());
+
+	if (m_currentCycle >= 0) {
+	    buffer.append(" cycle " + m_currentCycle);
 	}
 	
-	if (method > 0) {
-	    buffer.append(" Method " + m_methods[method].getName());
+	if (m_currentTest != null) {
+	    buffer.append(" test " + m_currentTest.getTestNumber());
 	}
 
-	buffer.append("): " + message);
+	buffer.append(") ");
+	buffer.append(message);
 
 	return buffer.toString();
     }
 
-    private void logMessage(String message, int cycle, int method)
+    /** Package scope. */
+    void logMessage(String message)
     {
-	System.out.println(formatMessage(message, cycle, method));
+	System.out.println(formatMessage(message));
     }
 
-    private void logMessage(String message, int cycle) 
+    /** Package scope. */
+    void logError(String message) 
     {
-	System.out.println(formatMessage(message, cycle, -1));
-    }
-
-    private void logMessage(String message) 
-    {
-	System.out.println(formatMessage(message, -1, -1));
-    }
-
-
-    private void logError(String message, int cycle, int method)
-    {
-	System.err.println(formatMessage(message, cycle, method));
-    }
-
-    private void logError(String message, int cycle) 
-    {
-	System.err.println(formatMessage(message, cycle, -1));
-    }
-
-    private void logError(String message) 
-    {
-	System.err.println(formatMessage(message, -1, -1));
+	System.err.println(formatMessage(message));
     }
 
     private static synchronized void incrementThreadCount() 
