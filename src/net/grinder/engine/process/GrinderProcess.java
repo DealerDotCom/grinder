@@ -67,18 +67,17 @@ public class GrinderProcess
      */    
     public static void main(String args[])
     {
-	GrinderProcess grinderProcess = null;
-
 	try {
-	    grinderProcess = new GrinderProcess();
-	}
-	catch (GrinderException e) {
-	    System.err.println("Error initialising grinder process: " + e);
-	    e.printStackTrace();
-	    System.exit(1);
-	}
+	    if (args.length != 2) {
+		System.err.println("Usage: java " +
+				   GrinderProcess.class.getName() +
+				   " <hostID> <processID>");
+		System.exit(1);
+	    }
 
-	try {
+	    final GrinderProcess grinderProcess =
+		new GrinderProcess(args[0], args[1]);
+
 	    grinderProcess.run();
 	}
 	catch (GrinderException e) {
@@ -106,12 +105,13 @@ public class GrinderProcess
     /** A map of Tests to Statistics for passing elsewhere. */
     private final TestStatisticsMap m_testStatisticsMap;
 
-    public GrinderProcess() throws GrinderException
+    public GrinderProcess(String hostID, String processID)
+	throws GrinderException
     {
 	final GrinderProperties properties = GrinderProperties.getProperties();
 	final PropertiesHelper propertiesHelper = new PropertiesHelper();
 
-	m_context = new ProcessContextImplementation();
+	m_context = new ProcessContextImplementation(hostID, processID);
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 	m_logDirectory =
