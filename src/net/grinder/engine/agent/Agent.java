@@ -128,11 +128,20 @@ public final class Agent {
         }
       }
 
+      final WorkerProcessCommandLine workerProcessCommandLine =
+        new WorkerProcessCommandLine(
+          properties, System.getProperties(), m_alternateFile);
+
+      logger.output("Worker process command line: " +
+                    workerProcessCommandLine);
+
       final ProcessLauncher processLauncher =
-        new ProcessLauncher(logger, properties, m_alternateFile,
+        new ProcessLauncher(properties.getInt("grinder.processes", 1),
+                            workerProcessCommandLine,
                             fanOutStreamSender,
                             new InitialiseGrinderMessage(receiver != null),
-                            eventSynchronisation);
+                            eventSynchronisation,
+                            logger);
 
       if (!startImmediately && receiver != null) {
         logger.output("waiting for console signal");

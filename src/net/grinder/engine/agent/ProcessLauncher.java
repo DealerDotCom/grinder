@@ -21,24 +21,14 @@
 
 package net.grinder.engine.agent;
 
-import java.io.File;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 import net.grinder.common.Logger;
-import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.Message;
 import net.grinder.communication.StreamSender;
 import net.grinder.engine.common.EngineException;
-import net.grinder.engine.process.GrinderProcess;
 import net.grinder.util.thread.Kernel;
 
 
@@ -52,13 +42,10 @@ final class ProcessLauncher {
 
   private final Kernel m_kernel = new Kernel(1);
   private final Logger m_logger;
+  private final WorkerProcessCommandLine m_commandLine;
   private final FanOutStreamSender m_fanOutStreamSender;
   private final Message m_initialisationMessage;
   private final Object m_notifyOnFinish;
-
-  private final String[] m_commandArray;
-  private final int m_grinderIDIndex;
-  private final String m_hostIDString;
 
   /**
    * Fixed size array with a slot for all potential processes.
@@ -74,87 +61,20 @@ final class ProcessLauncher {
    */
   private int m_nextProcessIndex = 0;
 
-  public ProcessLauncher(Logger logger,
-                         GrinderProperties properties,
-                         File alternateFile,
+  public ProcessLauncher(int numberOfProcesses,
+                         WorkerProcessCommandLine workerProcessCommandLine,
                          FanOutStreamSender fanOutStreamSender,
                          Message initialisationMessage,
-                         Object notifyOnFinish) {
+                         Object notifyOnFinish,
+                         Logger logger) {
 
     m_logger = logger;
     m_fanOutStreamSender = fanOutStreamSender;
     m_initialisationMessage = initialisationMessage;
     m_notifyOnFinish = notifyOnFinish;
+    m_commandLine = workerProcessCommandLine;
 
-    m_processes =
-      new ChildProcess[properties.getInt("grinder.processes", 1)];
-
-    final List command = new ArrayList();
-    command.add(properties.getProperty("grinder.jvm", "java"));
-
-    final String jvmArguments =
-      properties.getProperty("grinder.jvm.arguments");
-
-    if (jvmArguments != null) {
-      // Really should allow whitespace to be escaped/quoted.
-      final StringTokenizer tokenizer = new StringTokenizer(jvmArguments);
-
-      while (tokenizer.hasMoreTokens()) {
-        command.add(tokenizer.nextToken());
-      }
-    }
-
-    // Pass through any "grinder" system properties.
-    final Iterator systemProperties =
-      System.getProperties().entrySet().iterator();
-
-    while (systemProperties.hasNext()) {
-      final Map.Entry entry = (Map.Entry)systemProperties.next();
-      final String key = (String)entry.getKey();
-      final String value = (String)entry.getValue();
-
-      if (key.startsWith("grinder.")) {
-        command.add("-D" + key + "=" + value);
-      }
-    }
-
-    final String additionalClasspath =
-      properties.getProperty("grinder.jvm.classpath", null);
-
-    final String classpath =
-      (additionalClasspath != null ?
-       additionalClasspath + File.pathSeparatorChar : "") +
-      System.getProperty("java.class.path");
-
-    if (classpath.length() > 0) {
-      command.add("-classpath");
-      command.add(classpath);
-    }
-
-    command.add(GrinderProcess.class.getName());
-
-    m_hostIDString = properties.getProperty("grinder.hostID", getHostName());
-
-    m_grinderIDIndex = command.size();
-    command.add("");    // Place holder for grinder ID.
-
-    if (alternateFile != null) {
-      command.add(alternateFile.getPath());
-    }
-
-    m_commandArray = (String[])command.toArray(new String[0]);
-
-    m_commandArray[m_grinderIDIndex] = "<grinderID>";
-
-    final StringBuffer buffer = new StringBuffer(m_commandArray.length * 10);
-    buffer.append("Worker process command line:");
-
-    for (int j = 0; j < m_commandArray.length; ++j) {
-      buffer.append(" ");
-      buffer.append(m_commandArray[j]);
-    }
-
-    m_logger.output(buffer.toString());
+    m_processes = new ChildProcess[numberOfProcesses];
   }
 
   public void startAllProcesses() {
@@ -169,12 +89,12 @@ final class ProcessLauncher {
     for (int i = 0; i < numberToStart; ++i) {
       final int processIndex = m_nextProcessIndex;
 
-      final String grinderID = m_hostIDString + "-" + processIndex;
-      m_commandArray[m_grinderIDIndex] = grinderID;
+      final String grinderID = m_commandLine.getGrinderID(processIndex);
 
       try {
         final ChildProcess process =
-          new ChildProcess(m_commandArray, System.out, System.err);
+          new ChildProcess(m_commandLine.getCommandArray(grinderID),
+                           System.out, System.err);
 
         final OutputStream processStdin = process.getStdinStream();
 
@@ -288,13 +208,6 @@ final class ProcessLauncher {
       }
     }
   }
-
-  private String getHostName() {
-    try {
-      return InetAddress.getLocalHost().getHostName();
-    }
-    catch (UnknownHostException e) {
-      return "UNNAMED HOST";
-    }
-  }
 }
+
+
