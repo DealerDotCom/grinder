@@ -178,11 +178,11 @@ public class GrinderProcess
 
 	if (properties.getBoolean("grinder.reportToConsole", true)) {
 	    final String consoleAddress =
-		properties.getProperty("grinder.console.consoleAddress",
+		properties.getProperty("grinder.consoleAddress",
 				       CommunicationDefaults.CONSOLE_ADDRESS);
 
 	    final int consolePort =
-		properties.getInt("grinder.console.consolePort",
+		properties.getInt("grinder.consolePort",
 				  CommunicationDefaults.CONSOLE_PORT);
 
 	    if (consoleAddress != null && consolePort > 0) {

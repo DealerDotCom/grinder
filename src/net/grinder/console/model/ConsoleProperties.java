@@ -56,19 +56,19 @@ public class ConsoleProperties
 
     /** Property name **/
     public final static String CONSOLE_ADDRESS_PROPERTY =
-	"grinder.address";
+	"grinder.console.consoleAddress";
 
     /** Property name **/
     public final static String CONSOLE_PORT_PROPERTY = 
-	"grinder.console.port";
+	"grinder.console.consolePort";
 
     /** Property name **/
     public final static String GRINDER_ADDRESS_PROPERTY =
-	"grinder.grinderAddress";
+	"grinder.console.grinderAddress";
 
     /** Property name **/
     public final static String GRINDER_PORT_PROPERTY =
-	"grinder.grinderPort";
+	"grinder.console.grinderPort";
 
     private final PropertyChangeSupport m_changeSupport =
 	new PropertyChangeSupport(this);
