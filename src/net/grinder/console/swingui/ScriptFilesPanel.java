@@ -136,7 +136,7 @@ final class ScriptFilesPanel extends JPanel {
           final FileTreeModel.Node node =
             (FileTreeModel.Node)tree.getLastSelectedPathComponent();
 
-          if (node != null && node.getFile().isFile()) {
+          if (node != null && node.isLeaf()) {
             fireFileSelected(node.getFile());
           }
         }

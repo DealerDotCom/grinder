@@ -125,43 +125,47 @@ final class FileTreeModel implements TreeModel {
   public class Node {
 
     private final File m_file;
-    private final File[] m_children;
+    private final boolean m_isDirectory;
+    private final File[] m_childDirectories;
+    private final File[] m_childFiles;
 
-    protected Node(File file) {
+    protected Node(File file, boolean isDirectory) {
       m_file = file;
+      m_isDirectory = isDirectory;
       final File[] childDirectories = file.listFiles(s_directoryFilter);
+
+      m_childDirectories =
+        childDirectories != null ? childDirectories : new File[0];
+
       final File[] childFiles = file.listFiles(s_fileFilter);
 
-      final int numberOfDirectories =
-        childDirectories != null ? childDirectories.length : 0;
-
-      final int numberOfFiles = childFiles != null ? childFiles.length : 0;
-
-      m_children = new File[numberOfDirectories + numberOfFiles];
-
-      if (numberOfDirectories != 0) {
-        System.arraycopy(childDirectories, 0, m_children, 0,
-                         numberOfDirectories);
-      }
-
-      if (numberOfFiles != 0) {
-        System.arraycopy(childFiles, 0, m_children, numberOfDirectories,
-                         numberOfFiles);
-      }
+      m_childFiles = childFiles != null ? childFiles : new File[0];
     }
 
     public final Node getChild(int index) {
-      return new Node(m_children[index]);
+      if (index < m_childDirectories.length) {
+        return new Node(m_childDirectories[index], true);
+      }
+      else {
+        return new Node(m_childFiles[index - m_childDirectories.length],
+                        false);
+      }
     }
 
     public final int getChildCount() {
-      return m_children.length;
+      return m_childDirectories.length + m_childFiles.length;
     }
 
     public final int getIndexOfChild(Node child) {
-      for (int i = 0; i < m_children.length; ++i) {
-        if (m_children[i].equals(child.getFile())) {
+      for (int i = 0; i < m_childDirectories.length; ++i) {
+        if (m_childDirectories[i].equals(child.getFile())) {
           return i;
+        }
+      }
+
+      for (int i = 0; i < m_childFiles.length; ++i) {
+        if (m_childFiles[i].equals(child.getFile())) {
+          return m_childDirectories.length + i;
         }
       }
 
@@ -169,17 +173,17 @@ final class FileTreeModel implements TreeModel {
     }
 
     public final boolean isLeaf() {
-      return !m_file.isDirectory();
+      return !m_isDirectory;
     }
 
     public final boolean isPythonFile() {
-      return m_file.isFile() && m_file.getName().endsWith(".py");
+      return !m_isDirectory && m_file.getName().endsWith(".py");
     }
 
     public final boolean isBoringFile() {
       final String name = m_file.getName();
 
-      return m_file.isFile() &&
+      return !m_isDirectory &&
         (m_file.isHidden() ||
          name.endsWith(".class") ||
          name.endsWith("~") ||
@@ -201,7 +205,7 @@ final class FileTreeModel implements TreeModel {
   public final class RootNode extends Node {
 
     private RootNode(File file) {
-      super(file);
+      super(file, true);
     }
 
     public String toString() {

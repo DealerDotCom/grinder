@@ -65,11 +65,6 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import org.syntax.jedit.JEditTextArea;
-import org.syntax.jedit.SyntaxStyle;
-import org.syntax.jedit.TextAreaPainter;
-import org.syntax.jedit.tokenmarker.PythonTokenMarker;
-import org.syntax.jedit.tokenmarker.Token;
 
 import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
@@ -82,7 +77,6 @@ import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
-import net.grinder.util.FileUtilities;
 
 
 /**
@@ -333,41 +327,17 @@ public final class ConsoleUI implements ModelListener {
 
     scriptFilesPanel.refresh();
 
-    final JEditTextArea scriptTextArea = new JEditTextArea();
-    scriptTextArea.setTokenMarker(new PythonTokenMarker());
-
-    // Override ugly default colours.
-    final TextAreaPainter painter = scriptTextArea.getPainter();
-
-    final SyntaxStyle[] styles = painter.getStyles();
-    styles[Token.KEYWORD1] = new SyntaxStyle(Colours.RED, false, false);
-    styles[Token.KEYWORD2] = styles[Token.KEYWORD1];
-    styles[Token.KEYWORD3] = styles[Token.KEYWORD1];
-    styles[Token.COMMENT1] = new SyntaxStyle(Colours.DARK_GREEN, true, false);
-    styles[Token.LITERAL1] = new SyntaxStyle(Colours.BLUE, false, false);
-    styles[Token.LITERAL2] = styles[Token.LITERAL1];
-
-    painter.setCaretColor(Colours.DARK_RED);
-    painter.setLineHighlightColor(Colours.FAINT_YELLOW);
-    painter.setBracketHighlightColor(Colours.GREY);
-    painter.setSelectionColor(Colours.GREY);
-    // Initial focus?
-
-    scriptTextArea.setMinimumSize(new Dimension(200, 100));
-    scriptTextArea.setText(
-      resources.getStringFromFile("scriptSupportUnderConstruction.text",
-                                  true));
-    scriptTextArea.setFirstLine(0);
+    final Editor editor = new Editor(resources);
 
     scriptFilesPanel.addListener(
       new ScriptFilesPanel.Listener() {
-        public void newFileSelection(File f) {
+        public void newFileSelection(File file) {
           try {
-            scriptTextArea.setText(FileUtilities.fileToString(f));
-            scriptTextArea.setFirstLine(0);
+            editor.newFileSelection(file);
           }
-          catch (IOException e) {
-            // TODO.
+          catch (ConsoleException e) {
+            getErrorHandler().handleException(
+              e, m_model.getResources().getString("fileError.title"));
           }
         }
       });
@@ -375,7 +345,7 @@ public final class ConsoleUI implements ModelListener {
     final JSplitPane scriptPane =
       new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                      scriptFilesPanel,
-                     scriptTextArea);
+                     editor.getComponent());
 
     scriptPane.setOneTouchExpandable(true);
     scriptPane.setBorder(BorderFactory.createEmptyBorder());
