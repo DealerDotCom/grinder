@@ -195,7 +195,7 @@ final class ScriptStatisticsImplementation
   }
 
   public boolean getSuccess() {
-    return m_statistics.getValue(s_errorsIndex) != 0;
+    return m_statistics.getValue(s_errorsIndex) == 0;
   }
 
   public long getTime() {
