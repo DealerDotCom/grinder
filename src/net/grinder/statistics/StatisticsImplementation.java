@@ -24,7 +24,7 @@ package net.grinder.statistics;
  * @author Philip Aston
  * @version $Revision$
  */
-public class Statistics implements Cloneable
+public class Statistics implements Cloneable, java.io.Serializable
 {
     private long m_transactions = 0;
     private long m_totalTime = 0;
