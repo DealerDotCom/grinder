@@ -129,7 +129,7 @@ public class Model {
   private final ProcessStatusSet m_processStatusSet = new ProcessStatusSet();
 
   /**
-   * System.currentTimeMillis() is expensive. This is acurate to one
+   * System.currentTimeMillis() is expensive. This is accurate to one
    * sample interval.
    **/
   private long m_currentTime;
