@@ -20,7 +20,6 @@ package net.grinder.engine.process;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.util.Date;
@@ -127,28 +126,38 @@ public class ProcessContextImplementation implements PluginProcessContext
 	    throw new GrinderException(e.getMessage(), e);
 	}
 
+	if (!logDirectory.canWrite()) {
+	    throw new GrinderException("Cannot write to log directory '" +
+				       logDirectory.getPath() + "'");
+	}
+
 	m_filenameFactory = new FilenameFactoryImplementation(logDirectory);
 
-	try {
-	    // Although we manage the flushing ourselves and don't
-	    // call printn, we set auto flush on our PrintWriters
-	    // because clients can get direct access to them.
+	m_outputWriter = createStream("out");
+	m_errorWriter = createStream("error");
+    }
 
-	    m_outputWriter =
-		new PrintWriter(new FileOutputStream(
-				    m_filenameFactory.createFilename("out"),
-				    m_appendToLog),
-				true);
+    private PrintWriter createStream(String prefix)
+	throws GrinderException
+    {
+	final File file = new File(m_filenameFactory.createFilename(prefix));
 
-	    m_errorWriter =
-		new PrintWriter(new FileOutputStream(
-				    m_filenameFactory.createFilename("error"),
-				    m_appendToLog),
-				true);
+	// Check we can write to the file and moan now. We won't see
+	// the problem later because PrintWriters eat exceptions. If
+	// the file doesn't exist, we're pretty sure we can create it
+	// because we checked we can write to the log directory.
+	if (file.exists() && !file.canWrite()) {
+	    throw new GrinderException("Cannot write to '" + file.getPath() +
+				       "'");
 	}
-	catch (FileNotFoundException e) {
-	    throw new GrinderException("Could not create output streams", e);
-	}
+
+	// Although we manage the flushing ourselves and don't call
+	// printn, we set auto flush on our PrintWriters because
+	// clients can get direct access to them.
+	return
+	    new PrintWriter(new DelayedCreationFileOutputStream(file,
+								m_appendToLog),
+			    true);
     }
 
     public String getGrinderID()
