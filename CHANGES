@@ -1,4 +1,4 @@
-Grinder 3.0-beta13
+Grinder 3.0-beta14
 ------------------
 
   Hack HTTPClient to provide a tentative fix to the "premature EOF"
@@ -6,6 +6,9 @@ Grinder 3.0-beta13
   and closes a connection, after which writes to the connection
   silently fail and we don't learn about the problem until we read
   from the connection.
+
+  Clean up the Jython interpreter correctly so that scripts can use
+  exit functions. (See the standard Python atexit module).
 
 
 Grinder 3.0-beta13

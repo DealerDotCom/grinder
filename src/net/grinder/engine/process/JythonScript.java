@@ -70,8 +70,7 @@ final class JythonScript {
       m_interpreter.execfile(scriptFile.getPath());
     }
     catch (PyException e) {
-      throw new JythonScriptExecutionException(
-        "initialising test runner", e);
+      throw new JythonScriptExecutionException("initialising test script", e);
     }
 
     // Find the callable that acts as a factory for test runner instances.
@@ -81,6 +80,26 @@ final class JythonScript {
       throw new EngineException(
         "There is no callable (class or function) named '" +
         TEST_RUNNER_CALLABLE_NAME + "' in " + scriptFile);
+    }
+  }
+
+  public void shutdown() throws EngineException {
+
+    // We don't use m_interpreter.cleanup(), which delegates to
+    // PySystemState.callExitFunc, as callExitFunc logs problems to
+    // stderr. Instead we duplicate the callExitFunc behaviour raise
+    // our own exceptions.
+
+    final PyObject exitfunc = m_systemState.__findattr__("exitfunc");
+
+    if (exitfunc != null) {
+      try {
+        exitfunc.__call__();
+      }
+      catch (PyException e) {
+        throw new JythonScriptExecutionException(
+          "calling script exit function", e);
+      }
     }
   }
 

@@ -337,6 +337,8 @@ public final class GrinderProcess implements Monitor {
       }
       finally { timer.cancel(); }
 
+      jythonScript.shutdown();
+
       // Final report to the console.
       reportToConsoleTimerTask.run();
     }
