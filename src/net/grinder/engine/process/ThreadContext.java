@@ -100,6 +100,9 @@ class ThreadContextImplementation
 
     public void startTimer()
     {
+	// This is to make it more likely that the timed section has a
+	// "clear run".
+	Thread.yield();
 	m_startTime = System.currentTimeMillis();
 	m_elapsedTime = 0;
     }

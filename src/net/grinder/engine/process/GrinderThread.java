@@ -162,9 +162,9 @@ class GrinderThread implements java.lang.Runnable
 
 		    boolean success = false;
 			
-		    m_context.startTimer();
-
 		    try {
+			m_context.startTimer();
+
 			try {
 			    success =
 				m_threadCallbacks.doTest(
