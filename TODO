@@ -1,18 +1,5 @@
 -*- mode:outline; minor-mode:outl-mouse -*-
 
-FIX SSL STUFF:
-	multiple password issue
-		- Need separate password for keystore & key
-		- Can specify None for both?
-
-	alias support? 
-		- what's the API
-
-grinder.jvm.arguments=-Djavax.net.debug=ssl
-
-Probably need to provide own KeyManager for both.
-
-
 If anyone wants to pick something off this wish list, let me know
 first. There are instructions on how to contribute at
 http://grinder.sourceforge.net/development/contributing.html.
