@@ -58,12 +58,9 @@ public class Console {
    */
   public Console() throws GrinderException {
 
-    String homeDirectory = System.getProperty("user.home");
-
-    if (homeDirectory == null) {
-      // Some platforms do not have user home directories.
-      homeDirectory = System.getProperty("java.home");
-    }
+    // Some platforms do not have user home directories.
+    final String homeDirectory =
+      System.getProperty("user.home", System.getProperty("java.home"));
 
     final Resources resources =
       new Resources("net.grinder.console.swingui.resources.Console");
