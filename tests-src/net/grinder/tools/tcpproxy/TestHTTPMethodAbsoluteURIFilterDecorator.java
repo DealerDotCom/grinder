@@ -23,8 +23,6 @@ package net.grinder.tools.tcpproxy;
 
 import junit.framework.TestCase;
 
-import net.grinder.testutility.RandomStubFactory;
-
 
 /**
  * Unit test case for {@link HTTPMethodAbsoluteURIFilterDecorator}.
