@@ -31,6 +31,9 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.grinder.console.common.DisplayMessageConsoleException;
+import net.grinder.console.common.Resources;
+
 
 /**
  * Buffer state.
@@ -87,6 +90,7 @@ public final class Buffer {
     }
   };
 
+  private final Resources m_resources;
   private final TextSource m_textSource;
   private final File m_file;
   private long m_lastModified;
@@ -95,19 +99,22 @@ public final class Buffer {
   /**
    * Constructor for buffers with no associated file.
    *
+   * @param resources Console resources.
    * @param textSource The text editor.
    */
-  public Buffer(TextSource textSource) {
-    this(textSource, null);
+  public Buffer(Resources resources, TextSource textSource) {
+    this(resources, textSource, null);
   }
 
   /**
    * Constructor for buffers with an associated file.
    *
+   * @param resources Console resources.
    * @param textSource The text editor.
    * @param file The file.
    */
-  public Buffer(TextSource textSource, File file) {
+  public Buffer(Resources resources, TextSource textSource, File file) {
+    m_resources = resources;
     m_textSource = textSource;
     m_file = file;
 
@@ -119,9 +126,11 @@ public final class Buffer {
   /**
    * Update the text source from the file.
    *
-   * @exception EditorException If the file could not be read.
+   * @exception DisplayMessageConsoleException If the file could not
+   * be read from.
+   * @exception EditorException If an unexpected problem occurs.
    */
-  public void load() throws EditorException {
+  public void load() throws DisplayMessageConsoleException, EditorException {
     // The UI should never call save if there is no associated file,
     // but check anyway.
     if (!hasAssociatedFile()) {
@@ -142,7 +151,8 @@ public final class Buffer {
       }
     }
     catch (IOException e) {
-      throw new EditorException("Could not write file", e);
+      throw new DisplayMessageConsoleException(
+        m_resources, "fileReadError.text", new Object[] { m_file }, e);
     }
     finally {
       if (reader != null) {
@@ -162,9 +172,11 @@ public final class Buffer {
   /**
    * Update the file from the text source.
    *
-   * @exception EditorException If the file could not be written to.
+   * @exception DisplayMessageConsoleException If the file could not
+   * be written to.
+   * @exception EditorException If an unexpected problem occurs.
    */
-  public void save() throws EditorException {
+  public void save() throws DisplayMessageConsoleException, EditorException {
     // The UI should never call save if there is no associated file,
     // but check anyway.
     if (!hasAssociatedFile()) {
@@ -180,7 +192,8 @@ public final class Buffer {
       markNotDirty();
     }
     catch (IOException e) {
-      throw new EditorException("Could not write file", e);
+      throw new DisplayMessageConsoleException(
+        m_resources, "fileWriteError.text", new Object[] { m_file }, e);
     }
     finally {
       if (writer != null) {
