@@ -1,3 +1,40 @@
+2001-03-26  Phillip Burgess <phillip_burgess@mail.com>
+
+	* src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java:
+	Explicitly close both streams when one fails.
+
+2001-03-26  Philip Aston  <paston@bea.com>
+	
+	* build.xml: *** empty log message ***
+
+	* src/net/grinder/plugin/http/BookHttpPlugin.java: Deprecate.
+
+	* README: Document string beans.
+
+	* TODO: Yet another TODO.
+
+	* src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/http/StringBean.java:
+	StringBean now extends ThreadCallbacks.
+
+	* src/net/grinder/plugin/http/example/ExampleStringBean.java, src/net/grinder/plugin/http/example/ExampleStringBean2.java:
+	Improve examples.
+
+2001-03-24  Philip Aston  <paston@bea.com>
+
+	* examples/http/grinder.properties: Use example string bean.
+
+2001-03-23  Philip Aston  <paston@bea.com>
+
+	* README: Minor fix.
+
+	* src/net/grinder/plugin/http/HttpRequestData.java, src/net/grinder/plugin/http/StringBean.java, src/net/grinder/plugin/http/example/ExampleStringBean.java, src/net/grinder/plugin/http/HttpPlugin.java:
+	Add support for "StringBean" helper objects which allow URL strings
+	and POST data to be dynamically generated.
+
+	* src/net/grinder/plugininterface/SimplePluginBase.java:
+	Don't clone(), we don't want shallow copy semantics. Insted create a
+	new instance of ourselves.
+
 2001-03-05  Philip Aston  <paston@beasys.com>
 
 	* src/net/grinder/communication/Receiver.java: 

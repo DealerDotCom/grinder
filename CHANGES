@@ -1,6 +1,9 @@
 Grinder 2.5
 -----------
 
+  The HTTP plugin now supports "string beans". These allow URL's and
+  POST data to be easily parameterised.
+
   I've up'ed the read buffer size to 64K to allow more test statistics
   to be sent in a single multicast message. If this is too low you'll get
   exceptions - either null pointer exceptions in the Receiver or
@@ -9,6 +12,8 @@ Grinder 2.5
   grinder-use@lists.sourceforge.net.
 
   JRun friendly patch from Stuart Tily.
+
+  Better socket handling for TCPSniffer from Phillip Burgess.
 
 
 Grinder 2.4
