@@ -61,10 +61,9 @@ public class TestServerSender extends TestCase {
 
   public void testSend() throws Exception {
 
-    final Acceptor acceptor = new Acceptor("", 0);
+    final ServerSender serverSender = ServerSender.bindTo("Test", "", 0);
 
-    final ServerSender serverSender =
-      new ServerSender("Test", "TestSenderID", acceptor, 3);
+    final Acceptor acceptor = serverSender.getAcceptor();
 
     final Socket[] socket = new Socket[5];
 
@@ -74,21 +73,8 @@ public class TestServerSender extends TestCase {
 
     // Sleep until we've accepted all connections. Give up after a few
     // seconds.
-    final SocketSet socketSet = acceptor.getSocketSet();
-
-    for (int i=0; i<10; ++i) {
+    for (int i=0; acceptor.getSocketSet().countActiveSockets() != 5 && i<10; ++i) {
       Thread.sleep(i * i * 10);
-      final List handles = socketSet.reserveAllHandles();
-
-      final Iterator iterator = handles.iterator();
-
-      while (iterator.hasNext()) {
-        ((SocketSet.Handle)iterator.next()).free();
-      }
-
-      if (handles.size() == 5) {
-        break;
-      }
     }
 
     final SimpleMessage message1 = new SimpleMessage();
@@ -130,10 +116,10 @@ public class TestServerSender extends TestCase {
   }
 
   public void testShutdown() throws Exception {
-    final Acceptor acceptor = new Acceptor("", 0);
 
-    final ServerSender serverSender =
-      new ServerSender("Test", "TestSenderID", acceptor, 3);
+    final ServerSender serverSender = ServerSender.bindTo("Test", "", 0);
+
+    final Acceptor acceptor = serverSender.getAcceptor();
 
     assertEquals(4, acceptor.getThreadGroup().activeCount());
 
@@ -142,21 +128,12 @@ public class TestServerSender extends TestCase {
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
-    final SocketSet socketSet = acceptor.getSocketSet();
-    SocketSet.Handle handle = socketSet.reserveNextHandle();
-
-    for (int i=0; handle.isSentinel() && i<10; ++i) {
+    for (int i=0; acceptor.getSocketSet().countActiveSockets() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
-      handle = socketSet.reserveNextHandle();
     }
-
-    assertTrue(!handle.isSentinel());
-    assertTrue(socketSet.reserveNextHandle().isSentinel());
-    handle.free();
 
     final Message message = new SimpleMessage();
     serverSender.send(message);
-
 
     final InputStream socketStream = socket.getInputStream();
 

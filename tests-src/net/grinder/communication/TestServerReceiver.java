@@ -62,9 +62,8 @@ public class TestServerReceiver extends TestCase {
 
   public void testWaitForMessage() throws Exception {
 
-    final Acceptor acceptor = new Acceptor("", 0);
-
-    final ServerReceiver serverReceiver = new ServerReceiver(acceptor, 3);
+    final ServerReceiver serverReceiver = ServerReceiver.bindTo("", 0);
+    final Acceptor acceptor = serverReceiver.getAcceptor();
 
     final Socket[] socket = new Socket[5];
 
@@ -74,21 +73,8 @@ public class TestServerReceiver extends TestCase {
 
     // Sleep until we've accepted all connections. Give up after a few
     // seconds.
-    final SocketSet socketSet = acceptor.getSocketSet();
-
-    for (int i=0; i<10; ++i) {
+    for (int i=0; acceptor.getSocketSet().countActiveSockets() != 5 && i<10; ++i) {
       Thread.sleep(i * i * 10);
-      final List handles = socketSet.reserveAllHandles();
-
-      final Iterator iterator = handles.iterator();
-
-      while (iterator.hasNext()) {
-        ((SocketSet.Handle)iterator.next()).free();
-      }
-
-      if (handles.size() == 5) {
-        break;
-      }
     }
 
     final SimpleMessage message1 = new SimpleMessage();
@@ -150,28 +136,20 @@ public class TestServerReceiver extends TestCase {
   }
 
   public void testShutdown() throws Exception {
-    final Acceptor acceptor = new Acceptor("", 0);
 
-    final ServerReceiver serverReceiver = new ServerReceiver(acceptor, 3);
+    final ServerReceiver serverReceiver = ServerReceiver.bindTo("", 0);
+    final Acceptor acceptor = serverReceiver.getAcceptor();
 
-    assertEquals(4, acceptor.getThreadGroup().activeCount());
+    assertEquals(6, acceptor.getThreadGroup().activeCount());
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
-    final SocketSet socketSet = acceptor.getSocketSet();
-    SocketSet.Handle handle = socketSet.reserveNextHandle();
-
-    for (int i=0; handle.isSentinel() && i<10; ++i) {
+    for (int i=0; acceptor.getSocketSet().countActiveSockets() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
-      handle = socketSet.reserveNextHandle();
     }
-
-    assertTrue(!handle.isSentinel());
-    assertTrue(socketSet.reserveNextHandle().isSentinel());
-    handle.free();
 
     final SimpleMessage message = new SimpleMessage();
     message.setSenderInformation("Test", getClass().getName(), 1);
@@ -189,28 +167,20 @@ public class TestServerReceiver extends TestCase {
   }
 
   public void testCloseCommunicationMessage() throws Exception {
-    final Acceptor acceptor = new Acceptor("", 0);
 
-    final ServerReceiver serverReceiver = new ServerReceiver(acceptor, 3);
+    final ServerReceiver serverReceiver = ServerReceiver.bindTo("", 0);
+    final Acceptor acceptor = serverReceiver.getAcceptor();
 
-    assertEquals(4, acceptor.getThreadGroup().activeCount());
+    assertEquals(6, acceptor.getThreadGroup().activeCount());
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
-    final SocketSet socketSet = acceptor.getSocketSet();
-    SocketSet.Handle handle = socketSet.reserveNextHandle();
-
-    for (int i=0; handle.isSentinel() && i<10; ++i) {
+    for (int i=0; acceptor.getSocketSet().countActiveSockets() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
-      handle = socketSet.reserveNextHandle();
     }
-
-    assertTrue(!handle.isSentinel());
-    assertTrue(socketSet.reserveNextHandle().isSentinel());
-    handle.free();
 
     final SimpleMessage message = new SimpleMessage();
     message.setSenderInformation("Test", getClass().getName(), 1);
