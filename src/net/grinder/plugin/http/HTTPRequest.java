@@ -66,18 +66,9 @@ import net.grinder.statistics.StatisticsIndexMap;
  */
 public class HTTPRequest {
 
-  private static final PluginProcessContext s_pluginProcessContext;
-  private static final StatisticsIndexMap.LongIndex s_responseStatusIndex;
-  private static final StatisticsIndexMap.LongIndex s_responseLengthIndex;
-  private static final StatisticsIndexMap.LongIndex s_responseErrorsIndex;
-
   static {
     // Ensure that the HTTPPlugin is registered.
-    final HTTPPlugin plugin = HTTPPlugin.getPlugin();
-    s_pluginProcessContext = plugin.getPluginProcessContext();
-    s_responseStatusIndex = plugin.getResponseStatusIndex();
-    s_responseLengthIndex = plugin.getResponseLengthIndex();
-    s_responseErrorsIndex = plugin.getResponseErrorsIndex();
+    HTTPPlugin.getPlugin();
   }
 
   private URI m_defaultURL;
@@ -819,60 +810,66 @@ public class HTTPRequest {
   }
 
   private abstract class AbstractRequest {
-    private final HTTPResponse m_httpResponse;
+    private final URI m_url;
 
-    public AbstractRequest(String uri)
-      throws GrinderException, IOException, ModuleException, ParseException,
-             ProtocolNotSuppException {
-
-      final HTTPPluginThreadState threadState = (HTTPPluginThreadState)
-        s_pluginProcessContext.getPluginThreadListener();
-
-      final URI url;
+    public AbstractRequest(String uri) throws ParseException, URLException {
 
       if (uri == null) {
         if (m_defaultURL == null) {
           throw new URLException("URL not specified");
         }
 
-        url = m_defaultURL;
+        m_url = m_defaultURL;
       }
       else if (isAbsolute(uri)) {
-        url = new URI(uri);
+        m_url = new URI(uri);
       }
       else {
         if (m_defaultURL == null) {
           throw new URLException("URL must be absolute");
         }
 
-        url = new URI(m_defaultURL, uri);
+        m_url = new URI(m_defaultURL, uri);
       }
+    }
+
+    public final HTTPResponse getHTTPResponse()
+      throws GrinderException, IOException, ModuleException, ParseException,
+             ProtocolNotSuppException {
+
+      final HTTPPlugin plugin = HTTPPlugin.getPlugin();
+
+      final PluginProcessContext pluginProcessContext =
+        plugin.getPluginProcessContext();
+
+      final HTTPPluginThreadState threadState = (HTTPPluginThreadState)
+        pluginProcessContext.getPluginThreadListener();
 
       // And for fragment, parameters?
-      final String path = url.getPathAndQuery();
+      final String path = m_url.getPathAndQuery();
 
       final PluginThreadContext threadContext = threadState.getThreadContext();
       threadContext.startTimedSection();
 
       final HTTPConnection connection =
-        threadState.getConnectionWrapper(url).getConnection();
+        threadState.getConnectionWrapper(m_url).getConnection();
 
-      m_httpResponse = doRequest(connection, path);
+      final HTTPResponse httpResponse = doRequest(connection, path);
 
       // Read the entire response.
-      final int responseLength = m_httpResponse.getData().length;
-      m_httpResponse.getInputStream().close();
+      final int responseLength = httpResponse.getData().length;
+      httpResponse.getInputStream().close();
 
       threadContext.stopTimedSection();
 
-      final int statusCode = m_httpResponse.getStatusCode();
+      final int statusCode = httpResponse.getStatusCode();
 
       final String message =
-        m_httpResponse.getOriginalURI() + " -> " + statusCode + " " +
-        m_httpResponse.getReasonLine() + ", " + responseLength + " bytes";
+        httpResponse.getOriginalURI() + " -> " + statusCode + " " +
+        httpResponse.getReasonLine() + ", " + responseLength + " bytes";
 
       final ScriptContext scriptContext =
-        s_pluginProcessContext.getScriptContext();
+        pluginProcessContext.getScriptContext();
 
       final Logger logger = scriptContext.getLogger();
 
@@ -884,7 +881,7 @@ public class HTTPRequest {
         // but for now just chuck out some information.
         logger.output(message +
                       " [Redirect, ensure the next URL is " +
-                      m_httpResponse.getHeader("Location") + "]");
+                      httpResponse.getHeader("Location") + "]");
         break;
 
       default:
@@ -898,14 +895,14 @@ public class HTTPRequest {
         if (statistics.availableForUpdate()) {
           //Log the custom statistics if we have a statistics context.
 
-          statistics.addValue(s_responseLengthIndex, responseLength);
+          statistics.addValue(plugin.getResponseLengthIndex(), responseLength);
 
           //If many HTTPRequests are wrapped in the same test, the
           //last one wins.
-          statistics.setValue(s_responseStatusIndex, statusCode);
+          statistics.setValue(plugin.getResponseStatusIndex(), statusCode);
 
           if (statusCode >= HttpURLConnection.HTTP_BAD_REQUEST) {
-            statistics.addValue(s_responseErrorsIndex, 1);
+            statistics.addValue(plugin.getResponseErrorsIndex(), 1);
           }
         }
       }
@@ -916,15 +913,13 @@ public class HTTPRequest {
         throw new PluginException("Failed to set statistic", e);
       }
 
-      processResponse(m_httpResponse);
+      processResponse(httpResponse);
+
+      return httpResponse;
     }
 
     abstract HTTPResponse doRequest(HTTPConnection connection, String path)
       throws IOException, ModuleException;
-
-    public final HTTPResponse getHTTPResponse() {
-      return m_httpResponse;
-    }
   }
 
   private static boolean isAbsolute(String uri) {
