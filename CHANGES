@@ -1,9 +1,9 @@
 Grinder 3.0-beta1
 -----------------
 
-   Fix bug 608392 - data file field separator conflicts with localised
-   decimal points. Fields are now tab separated. Thanks to Martin
-   Vilcans for the report.
+   Fix bug 608392 - console data file field separator conflicts with
+   localised decimal points. Fields are now tab separated. Thanks to
+   Martin Vilcans for the report.
 
    Fix bug 631144 - worker processes sometimes fail to launch on real
    operating systems. Thanks to Martin Voss for the report.
