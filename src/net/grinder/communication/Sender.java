@@ -124,12 +124,15 @@ public Sender(String grinderID, String multicastAddressString,
 	    objectStream.flush();
 	
 	    final byte[] bytes = m_byteStream.getBytes();
+	    final int count = m_byteStream.size();
 
 	    final DatagramPacket packet
-		= new DatagramPacket(bytes, bytes.length, m_multicastAddress,
+		= new DatagramPacket(bytes, count, m_multicastAddress,
 				     m_multicastPort);
 
 	    m_localSocket.send(packet);
+
+	    System.out.println("Sent " + count);
 	}
 	catch (IOException e) {
 	    throw new CommunicationException(
