@@ -5,8 +5,9 @@
 
 <h1>The TCPProxy</h1>
 
-<p><strong>The TCPProxy <a href="future.html#TCPProxyUpdate">does not
-currently support</a> The Grinder 3 HTTP plug-in.</strong></p>
+<p><strong>The TCPProxy now supports The Grinder 3 HTTP plug-in and
+generates a Jython test script, but this page has not yet been updated
+to reflect the changes.</strong></p>
 
 <p>The TCPProxy is a <em>proxy</em> that you can place in a TCP
 stream. It filters the request and response streams, sending the
