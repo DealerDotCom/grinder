@@ -372,7 +372,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	    String[] list = Util.splitProperty(hosts);
 	    dontProxyFor(list);
 	}
-	catch (RuntimeException e)
+	catch (Exception e)
 	    { }
 
 
@@ -450,7 +450,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	    if (neverPipeline)
 		Log.write(Log.CONN, "Conn:  disabling pipelining");
 	}
-	catch (RuntimeException e)
+	catch (Exception e)
 	    { }
 
 	/*
@@ -462,7 +462,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	    if (noKeepAlives)
 		Log.write(Log.CONN, "Conn:  disabling keep-alives");
 	}
-	catch (RuntimeException e)
+	catch (Exception e)
 	    { }
 
 	/*
@@ -474,7 +474,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	    if (force_1_0)
 		Log.write(Log.CONN, "Conn:  forcing HTTP/1.0 requests");
 	}
-	catch (RuntimeException e)
+	catch (Exception e)
 	    { }
 
 	/*
@@ -486,7 +486,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	    if (no_chunked)
 		Log.write(Log.CONN, "Conn:  never chunking requests");
 	}
-	catch (RuntimeException e)
+	catch (Exception e)
 	    { }
 
 	/*
@@ -530,7 +530,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		Log.write(Log.CONN, "Conn:  enabling defered handling of " +
 				    "responses to streamed requests");
 	}
-	catch (RuntimeException e)
+	catch (Exception e)
 	    { }
     }
 
