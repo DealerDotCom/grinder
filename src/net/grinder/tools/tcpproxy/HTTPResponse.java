@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,7 +21,6 @@
 
 package net.grinder.tools.tcpproxy;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -93,9 +92,5 @@ final class HTTPResponse {
     result.append(m_responseBody);
 
     return result.toString();
-  }
-
-  public byte[] toByteArray() throws UnsupportedEncodingException {
-    return toString().getBytes("US-ASCII");
   }
 }

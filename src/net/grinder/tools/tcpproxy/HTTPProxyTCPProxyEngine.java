@@ -319,7 +319,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     response.setStatus(status);
     response.setMessage(status, message);
 
-    outputStream.write(response.toByteArray());
+    outputStream.write(response.toString().getBytes("US-ASCII"));
   }
 
   /**
