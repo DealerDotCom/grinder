@@ -22,14 +22,17 @@
 
 package net.grinder.tools.tcpsniffer;
 
+import com.sun.net.ssl.KeyManagerFactory;
 import com.sun.net.ssl.SSLContext;
 import com.sun.net.ssl.TrustManager;
 import com.sun.net.ssl.X509TrustManager;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
@@ -44,9 +47,8 @@ import javax.net.ssl.SSLSocketFactory;
  *
  * <p>The JSSE docs rabbit on about being able to create factories
  * with the required parameters, this is a lie. Where is
- * "SSL[Server]SocketFactory.setEnabledCipherSuites()" and how would
- * you ensure SSLSocket.startHandshake() is called for new client
- * sockets? Hence the need for our own abstract factories.</p>
+ * "SSL[Server]SocketFactory.setEnabledCipherSuites()"? Hence the need
+ * for our own abstract factories.</p>
  *
  * @author Philip Aston
  * @author Phil Dawes
@@ -55,19 +57,63 @@ import javax.net.ssl.SSLSocketFactory;
 public final class SnifferSSLSocketFactory implements SnifferSocketFactory
 {
     final ServerSocketFactory m_serverSocketFactory;
-
     final SocketFactory m_clientSocketFactory;
 
-    public SnifferSSLSocketFactory() throws GeneralSecurityException
+
+    /**
+     * ARGHH. I hate JSSE.
+     *
+     * <p>The JSSE docs rabbit on about being able to create factories
+     * with the required parameters, this is a lie. Where is
+     * "SSL[Server]SocketFactory.setEnabledCipherSuites()"? Hence the
+     * need for our own abstract factories.</p>
+     *
+     * <p>We can't install our own TrustManagerFactory without messing
+     * with the security properties file. Hence we create our own
+     * SSLContext and initialise it. Passing null as the keystore
+     * parameter to SSLContext.init() results in a empty keystore
+     * being used, as does passing the key manager array obtain from
+     * keyManagerFactory.getInstance().getKeyManagers(). To pick up
+     * the "default" keystore system properties, we have to read them
+     * explicitly. UGLY, but necessary so we understand the expected
+     * properties.</p>
+     *
+     * - PhilA
+     */
+    public SnifferSSLSocketFactory()
+	throws IOException,GeneralSecurityException
     {
 	final SSLContext sslContext = SSLContext.getInstance("SSL");
 
-	sslContext.init(null,
+	final KeyManagerFactory keyManagerFactory =
+	    KeyManagerFactory.getInstance(
+		KeyManagerFactory.getDefaultAlgorithm());
+
+	final String keyStoreFile =
+	    System.getProperty(JSSEConstants.KEYSTORE_PROPERTY);
+	final char[] keyStorePassword =
+	    System.getProperty(JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, "")
+	    .toCharArray();
+	final String keyStoreType =
+	    System.getProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY, "jks");
+
+	final KeyStore keyStore;
+	
+	if (keyStoreFile != null) {
+	    keyStore = KeyStore.getInstance(keyStoreType);
+	    keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
+	}
+	else {
+	    keyStore = null;
+	}
+
+	keyManagerFactory.init(keyStore, keyStorePassword);
+
+	sslContext.init(keyManagerFactory.getKeyManagers(),
 			new TrustManager[] { new TrustEveryone() },
 			null);
 
 	m_clientSocketFactory = sslContext.getSocketFactory();
-
 	m_serverSocketFactory = sslContext.getServerSocketFactory(); 
     }
 
@@ -95,9 +141,6 @@ public final class SnifferSSLSocketFactory implements SnifferSocketFactory
 							  remotePort);
 
 	socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
-
-	socket.startHandshake();
-
 	return socket;
     }
 

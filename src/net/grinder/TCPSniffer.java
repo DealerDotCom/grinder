@@ -32,6 +32,7 @@ import net.grinder.tools.tcpsniffer.ConnectionDetails;
 import net.grinder.tools.tcpsniffer.EchoFilter;
 import net.grinder.tools.tcpsniffer.HTTPProxySnifferEngine;
 import net.grinder.tools.tcpsniffer.HTTPSProxySnifferEngine;
+import net.grinder.tools.tcpsniffer.JSSEConstants;
 import net.grinder.tools.tcpsniffer.NullFilter;
 import net.grinder.tools.tcpsniffer.SnifferEngine;
 import net.grinder.tools.tcpsniffer.SnifferEngineImplementation;
@@ -79,7 +80,11 @@ public class TCPSniffer
 	    "\n   [-remoteHost <host name>]    Default is localhost" +
 	    "\n   [-remotePort <port>]         Default is 7001" +
 	    "\n   [-proxy]                     Be an HTTP or HTTPS proxy" +
-	    "\n   [-ssl]                       Use SSL" +
+	    "\n   [-ssl                        Use SSL" +
+	    "\n     [-keyStore <file>]         Key store details for" +
+	    "\n     [-keyStorePassword <pass>] certificates. Equivalent to" +
+	    "\n     [-keyStoreType <type>]     javax.net.ssl.XXX properties" +
+	    "\n   ]" +
 	    "\n   [-colour]                    Be pretty on ANSI terminals" +
 	    "\n   [-timeout]                   Sniffer engine timeout" +
 	    "\n" +
@@ -169,17 +174,16 @@ public class TCPSniffer
 		else if (args[i].equals("-ssl")) {
 		    useSSL = true;
 		}
-		else if (args[i].equals("-certificate")) {
-		    // -certificate is used by the TCPSniffer web app
-		    // only and is not publicised, users are expected
-		    // to use system property or JSSE configuration.
-		    System.setProperty("javax.net.ssl.keyStore", args[++i]);
+		else if (args[i].equals("-keyStore")) {
+		    System.setProperty(JSSEConstants.KEYSTORE_PROPERTY,
+				       args[++i]);
 		}
-		else if (args[i].equals("-password")) {
-		    // -password is used by the TCPSniffer web app
-		    // only and is not publicised, users are expected
-		    // to use system property or JSSE configuration.
-		    System.setProperty("javax.net.ssl.keyStorePassword",
+		else if (args[i].equals("-keyStorePassword")) {
+		    System.setProperty(
+			JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, args[++i]);
+		}
+		else if (args[i].equals("-keyStoreType")) {
+		    System.setProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY,
 				       args[++i]);
 		}
 		else if (args[i].equals("-proxy")) {
@@ -215,7 +219,7 @@ public class TCPSniffer
 	}
 
 	if (timeout < 0) {
-	    throw barfUsage("Proxy timeout must be non-negative");
+	    throw barfUsage("Timeout must be non-negative");
 	}
 
 	final StringBuffer startMessage = new StringBuffer();
