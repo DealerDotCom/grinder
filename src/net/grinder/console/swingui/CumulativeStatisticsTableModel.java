@@ -44,8 +44,6 @@ final class CumulativeStatisticsTableModel
 
     m_includeTotals = includeTotals;
     m_totalString = resources.getString("table.total.label");
-
-    //    addColumns(model.getCumulativeStatisticsView());
   }
 
   /**

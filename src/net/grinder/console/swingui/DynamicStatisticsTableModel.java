@@ -87,8 +87,7 @@ abstract class DynamicStatisticsTableModel
 
     final int originalNumberOfColumns = m_columnViews.length;
 
-    final ExpressionView[] newViews =
-      m_statisticsView.getExpressionViews();
+    final ExpressionView[] newViews = m_statisticsView.getExpressionViews();
 
     if (newViews.length != originalNumberOfColumns) {
       m_columnViews = newViews;
