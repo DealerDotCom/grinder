@@ -177,15 +177,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     // Should be more than adequate.
     final byte[] buffer = new byte[4096];
 
-    while (true) {
-      try {
+    try {
+      while (true) {
         final Socket localSocket = getServerSocket().accept();
 
         // Grab the first upstream packet and grep it for the
         // remote server and port in the method line.
         final BufferedInputStream in =
-          new BufferedInputStream(localSocket.getInputStream(),
-                                  buffer.length);
+          new BufferedInputStream(localSocket.getInputStream(), buffer.length);
 
         in.mark(buffer.length);
 
@@ -193,8 +192,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         final int bytesRead = in.read(buffer);
 
         final String line =
-          bytesRead > 0 ?
-          new String(buffer, 0, bytesRead, "US-ASCII") : "";
+          bytesRead > 0 ? new String(buffer, 0, bytesRead, "US-ASCII") : "";
 
         if (m_matcher.contains(line, getHTTPConnectPattern())) {
           // HTTP proxy request.
@@ -226,8 +224,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           // to " + target);
 
           if (m_proxySSLEngine == null) {
-            System.err.println(
-              "Specify -ssl for HTTPS proxy support");
+            System.err.println("Specify -ssl for HTTPS proxy support");
             continue;
           }
 
@@ -244,15 +241,15 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           // Now set up a couple of threads to punt
           // everything we receive over localSocket to
           // sslProxySocket, and vice versa.
-          new Thread(new CopyStreamRunnable(
-                       in, sslProxySocket.getOutputStream()),
-                     "Copy to proxy engine for " + target).start();
+          new Thread(
+            new CopyStreamRunnable(in, sslProxySocket.getOutputStream()),
+            "Copy to proxy engine for " + target).start();
 
           final OutputStream out = localSocket.getOutputStream();
 
-          new Thread(new CopyStreamRunnable(
-                       sslProxySocket.getInputStream(), out),
-                     "Copy from proxy engine for " + target).start();
+          new Thread(
+            new CopyStreamRunnable(sslProxySocket.getInputStream(), out),
+            "Copy from proxy engine for " + target).start();
 
           // Send a 200 response to send to client. Client
           // will now start sending SSL data to localSocket.
@@ -277,16 +274,18 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           System.err.println(line);
         }
       }
-      catch (SocketException e) {
-        // Most likely "socket closed" - ignore.
-      }
-      catch (InterruptedIOException e) {
-        System.err.println("Listen time out");
-        break;
-      }
-      catch (Exception e) {
-        e.printStackTrace(System.err);
-      }
+    }
+    catch (SocketException e) {
+      // Most likely "socket closed" - ignore.
+    }
+    catch (InterruptedIOException e) {
+      System.err.println("Listen time out");
+    }
+    catch (IOException e) {
+      e.printStackTrace(System.err);
+    }
+    catch (MalformedPatternException e) {
+      e.printStackTrace(System.err);
     }
   }
 
