@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,145 +37,138 @@ import net.grinder.common.GrinderException;
 
 
 /**
- * An ordered collection of {@link ExpressionView}.
+ * An ordered collection of {@link ExpressionView}s.
  *
  * @author Philip Aston
  * @version $Revision$
  **/
-public final class StatisticsView implements Externalizable 
-{
-    private static final long serialVersionUID = -4846650473903375223L;
+public final class StatisticsView implements Externalizable {
 
-    /**
-     * We define a <code>Comparator</code> for {@link ExpressionView}s
-     * rather than having the <code>ExpressionView</code> implement
-     * <code>Comparable</code> because our sort order is inconsistent with equals.
-     **/
-    private final static Comparator s_expressionViewComparator =
-	new Comparator() {
-	    public final int compare(Object a, Object b) {
-		final ExpressionView viewA = (ExpressionView)a;
-		final ExpressionView viewB = (ExpressionView)b;
+  private static final long serialVersionUID = -4846650473903375223L;
 
-		if (viewA.getCreationOrder() < viewB.getCreationOrder()) {
-		    return -1;
-		}
-		else if (viewA.getCreationOrder() > viewB.getCreationOrder()) {
-		    return 1;
-		}
-		else {
-		    // Should assert ? Same creation order => same instance.
-		    return 0;
-		}
-	    }
-	};
+  /**
+   * We define a <code>Comparator</code> for {@link ExpressionView}s
+   * rather than having the <code>ExpressionView</code> implement
+   * <code>Comparable</code> because our sort order is inconsistent with equals.
+   **/
+  private final static Comparator s_expressionViewComparator =
+    new Comparator() {
+      public final int compare(Object a, Object b) {
+	final ExpressionView viewA = (ExpressionView)a;
+	final ExpressionView viewB = (ExpressionView)b;
 
-    static
-    {
-	// Ensure that the standard ExpressionViews are initialised
-	// before any user ExpressionViews.
-	Class dummy = CommonStatisticsViews.class;
-    }
-
-    /**
-     * We use this set to ensure that new views are unique. We can't
-     * do this with a SortedSet because our sort order is inconsistent
-     * with equals.
-     **/
-    private final transient Set m_unique = new HashSet();
-
-    /**
-     * @link aggregation
-     * @associates <{net.grinder.statistics.ExpressionView}>
-     * @supplierCardinality 0..*
-     **/
-    private final SortedSet m_columns;
-
-    /**
-     * Creates a new <code>StatisticsView</code> instance.
-     **/
-    public StatisticsView()
-    {
-	m_columns = new TreeSet(s_expressionViewComparator);
-    }
-
-    /**
-     * Add all the {@link ExpressionView}s in <code>other</code> to
-     * this <code>StatisticsView</code>.
-     *
-     * @param other Another <code>StatisticsView</code>.
-     **/
-    public final synchronized void add(StatisticsView other)
-    {
-	final Iterator iterator = other.m_columns.iterator();
-
-	while (iterator.hasNext()) {
-	    add((ExpressionView)iterator.next());
+	if (viewA.getCreationOrder() < viewB.getCreationOrder()) {
+	  return -1;
 	}
-    }
-
-    /**
-     * Add the specified {@link ExpressionView} to this
-     * <code>StatisticsView</code>.
-     *
-     * @param statistic An {@link ExpressionView}.
-     **/
-    public final synchronized void add(ExpressionView statistic)
-    {
-	if (!m_unique.contains(statistic)) {
-	    m_unique.add(statistic);
-	    m_columns.add(statistic);
+	else if (viewA.getCreationOrder() > viewB.getCreationOrder()) {
+	  return 1;
 	}
-    }
-
-    /**
-     * Return our {@link ExpressionView}s as an array.
-     *
-     * @return The {@link ExpressionView}s.
-     **/
-    public final synchronized ExpressionView[] getExpressionViews()
-    {
-	return (ExpressionView[])m_columns.toArray(new ExpressionView[0]);
-    }
-
-    /**
-     * Externalisation method.
-     *
-     * @param out Handle to the output stream.
-     * @exception IOException If an I/O error occurs.
-     **/
-    public synchronized void writeExternal(ObjectOutput out) throws IOException
-    {
-	out.writeInt(m_columns.size());
-
-	final Iterator iterator = m_columns.iterator();
-
-	while (iterator.hasNext()) {
-	    final ExpressionView view = (ExpressionView)iterator.next();
-	    view.myWriteExternal(out);
+	else {
+	  // Should assert ? Same creation order => same instance.
+	  return 0;
 	}
+      }
+    };
+
+  static {
+    // Ensure that the standard ExpressionViews are initialised
+    // before any user ExpressionViews.
+    Class dummy = CommonStatisticsViews.class;
+  }
+
+  /**
+   * We use this set to ensure that new views are unique. We can't
+   * do this with a SortedSet because our sort order is inconsistent
+   * with equals.
+   **/
+  private final transient Set m_unique = new HashSet();
+
+  /**
+   * @link aggregation
+   * @associates <{net.grinder.statistics.ExpressionView}>
+   * @supplierCardinality 0..*
+   **/
+  private final SortedSet m_columns;
+
+  /**
+   * Creates a new <code>StatisticsView</code> instance.
+   **/
+  public StatisticsView() {
+    m_columns = new TreeSet(s_expressionViewComparator);
+  }
+
+  /**
+   * Add all the {@link ExpressionView}s in <code>other</code> to
+   * this <code>StatisticsView</code>.
+   *
+   * @param other Another <code>StatisticsView</code>.
+   **/
+  public final synchronized void add(StatisticsView other) {
+    final Iterator iterator = other.m_columns.iterator();
+
+    while (iterator.hasNext()) {
+      add((ExpressionView)iterator.next());
     }
+  }
 
-    /**
-     * Externalisation method.
-     *
-     * @param in Handle to the input stream.
-     * @exception IOException If an I/O error occurs.
-     **/
-    public synchronized void readExternal(ObjectInput in) throws IOException
-    {
-	final int n = in.readInt();
-
-	m_columns.clear();
-
-	for (int i=0; i<n; i++) {
-	    try {
-		add(new ExpressionView(in));
-	    }
-	    catch (GrinderException e) {
-		throw new IOException(
-		    "Could not instantiate ExpressionView: " + e.getMessage());
-	    }
-	}
+  /**
+   * Add the specified {@link ExpressionView} to this
+   * <code>StatisticsView</code>.
+   *
+   * @param statistic An {@link ExpressionView}.
+   **/
+  public final synchronized void add(ExpressionView statistic) {
+    if (!m_unique.contains(statistic)) {
+      m_unique.add(statistic);
+      m_columns.add(statistic);
     }
+  }
+
+  /**
+   * Return our {@link ExpressionView}s as an array.
+   *
+   * @return The {@link ExpressionView}s.
+   **/
+  public final synchronized ExpressionView[] getExpressionViews() {
+    return (ExpressionView[])m_columns.toArray(new ExpressionView[0]);
+  }
+
+  /**
+   * Externalisation method.
+   *
+   * @param out Handle to the output stream.
+   * @exception IOException If an I/O error occurs.
+   **/
+  public synchronized void writeExternal(ObjectOutput out) throws IOException {
+    out.writeInt(m_columns.size());
+
+    final Iterator iterator = m_columns.iterator();
+
+    while (iterator.hasNext()) {
+      final ExpressionView view = (ExpressionView)iterator.next();
+      view.myWriteExternal(out);
+    }
+  }
+
+  /**
+   * Externalisation method.
+   *
+   * @param in Handle to the input stream.
+   * @exception IOException If an I/O error occurs.
+   **/
+  public synchronized void readExternal(ObjectInput in) throws IOException {
+    final int n = in.readInt();
+
+    m_columns.clear();
+
+    for (int i=0; i<n; i++) {
+      try {
+	add(new ExpressionView(in));
+      }
+      catch (GrinderException e) {
+	throw new IOException(
+	  "Could not instantiate ExpressionView: " + e.getMessage());
+      }
+    }
+  }
 }
