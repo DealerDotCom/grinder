@@ -114,8 +114,6 @@ final class TestData implements TestRegistry.RegisteredTest
      */
     public final Object createProxy(Object o) 
     {
-	System.err.println("Wrapping " + o.getClass());
-
 	if (o instanceof PyFinalizableInstance) {
 	    return new TestPyFinalizableInstance(this,
 						 (PyFinalizableInstance)o);
