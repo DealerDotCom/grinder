@@ -1,3 +1,9 @@
+2001-06-20  Philip Aston  <paston@bea.com>
+
+	* CHANGES, TODO, doc/HTTPPlugin.txt: Latest.
+
+	* src/net/grinder/plugin/http/HTTPClientHandler.java: Remove debug.
+
 2001-06-12  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, src/net/grinder/plugin/http/URLRewriteFilter.java, src/net/grinder/tools/tcpsniffer/EchoFilter.java, src/net/grinder/tools/tcpsniffer/NullFilter.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java, src/net/grinder/tools/tcpsniffer/SnifferFilter.java:
