@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,10 +29,8 @@ import org.python.core.PyJavaInstance;
 import org.python.core.PyMethod;
 import org.python.core.PyObject;
 
-import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.engine.EngineException;
-import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.TestStatistics;
 import net.grinder.statistics.TestStatisticsFactory;
@@ -47,112 +45,106 @@ import net.grinder.statistics.TestStatisticsFactory;
  * @author Philip Aston
  * @version $Revision$
  **/
-final class TestData implements TestRegistry.RegisteredTest
-{
-    private final Test m_test;
-    private final TestStatistics m_statistics;
+final class TestData implements TestRegistry.RegisteredTest {
 
-    TestData(Test testDefinition)
-    {
-	this(testDefinition, TestStatisticsFactory.getInstance().create());
-    }
+  private final Test m_test;
 
-    TestData(Test testDefinition, TestStatistics testStatistics)
-    {
-	m_test = testDefinition;
-	m_statistics = testStatistics;
-    }
+  /**
+   * Cumulative statistics for our test that haven't yet been set to
+   * the console.
+   */
+  private final TestStatistics m_statistics =
+    TestStatisticsFactory.getInstance().create();
 
-    final Test getTest()
-    {
-	return m_test;
-    }
+  TestData(Test testDefinition) {
+    m_test = testDefinition;
+  }
 
-    final TestStatistics getStatistics() 
-    {
-	return m_statistics;
-    }
+  final Test getTest() {
+    return m_test;
+  }
 
-    final Object dispatch(Invokeable invokeable) throws Exception
-    {
-	final ThreadContext threadContext = ThreadContext.getThreadInstance();
+  final TestStatistics getStatistics() {
+    return m_statistics;
+  }
+
+  final Object dispatch(Invokeable invokeable) throws Exception {
+    final ThreadContext threadContext = ThreadContext.getThreadInstance();
 	
-	if (threadContext == null) {
-	    throw new EngineException("Only Worker Threads can invoke tests");
-	}
-
-	return threadContext.invokeTest(this, invokeable);
+    if (threadContext == null) {
+      throw new EngineException("Only Worker Threads can invoke tests");
     }
 
-    interface Invokeable 
-    {
-	public Object call();
+    return threadContext.invokeTest(this, invokeable);
+  }
+
+  interface Invokeable {
+    public Object call();
+  }
+
+
+  /**
+   * We could have defined overloaded createProxy methods that
+   * take a PyInstance, PyFunction etc., and return decorator
+   * PyObjects. There's no obvious way of doing this in a
+   * polymorphic way, so we would be forced to have n factories,
+   * n types of decorator, and probably run into identity
+   * issues. Instead we lean on Jython and force it to give us
+   * Java proxy which we then dynamically subclass with our own
+   * type of PyJavaInstance.
+   *
+   * <p>Later....
+   * <br>This works fine for wrapping the following:
+   * <ul>
+   *   <li>Java instances and classes</li>
+   *   <li>PyClass</li>
+   *   <li>PyFunction</li>
+   *   <li>PyMethod</li>
+   *   <li>Python primitive types (integers, strings, floats, complexes, ...)</li>
+   *   <li>Python tuples, lists, dictionaries</li>
+   *  </ul>
+   * </p>
+   *
+   * <p>Of course we're only really interested in the things we can
+   * invoke in some way. We throw NotWrappableTypeException for the
+   * things we don't want to handle.</p>
+   *
+   * <p>The specialised PyJavaInstance works suprisingly well for
+   * everything bar PyInstances. It can't work for PyInstances,
+   * because invoking on the PyJavaInstance calls the PyInstance
+   * which in turn attempts to call back on the PyJavaInstance. Use
+   * specialised PyInstance objects to handle this case.</p>
+   */
+  public final Object createProxy(Object o) throws NotWrappableTypeException {
+
+    if (o instanceof PyObject) {
+      // Jython object.
+      if (o instanceof PyFinalizableInstance) {
+	return new TestPyFinalizableInstance(this, (PyFinalizableInstance)o);
+      }
+      else if (o instanceof PyInstance) {
+	return new TestPyInstance(this, (PyInstance)o);
+      }
+      else if (o instanceof PyFunction) {
+	return new TestPyJavaInstance(this, o);
+      }
+      else if (o instanceof PyMethod) {
+	return new TestPyJavaInstance(this, o);
+      }
     }
+    else {
+      // Java object.
 
-
-    /**
-     * We could have defined overloaded createProxy methods that
-     * take a PyInstance, PyFunction etc., and return decorator
-     * PyObjects. There's no obvious way of doing this in a
-     * polymorphic way, so we would be forced to have n factories,
-     * n types of decorator, and probably run into identity
-     * issues. Instead we lean on Jython and force it to give us
-     * Java proxy which we then dynamically subclass with our own
-     * type of PyJavaInstance.
-     *
-     * <p>Later....
-     * <br>This works fine for wrapping the following:
-     * <ul>
-     *   <li>Java instances and classes</li>
-     *   <li>PyClass</li>
-     *   <li>PyFunction</li>
-     *   <li>PyMethod</li>
-     *   <li>Python primitive types (integers, strings, floats, complexes, ...)</li>
-     *   <li>Python tuples, lists, dictionaries</li>
-     *  </ul>
-     * </p>
-     *
-     * <p>Of course we're only really interested in the things we can
-     * invoke in some way. We throw NotWrappableTypeException for the
-     * things we don't want to handle.</p>
-     *
-     * <p>The specialised PyJavaInstance works suprisingly well for
-     * everything bar PyInstances. It can't work for PyInstances,
-     * because invoking on the PyJavaInstance calls the PyInstance
-     * which in turn attempts to call back on the PyJavaInstance. Use
-     * specialised PyInstance objects to handle this case.</p>
-     */
-    public final Object createProxy(Object o) throws NotWrappableTypeException
-    {
-	if (o instanceof PyObject) {
-	    // Jython object.
-	    if (o instanceof PyFinalizableInstance) {
-		return new TestPyFinalizableInstance(this,
-						     (PyFinalizableInstance)o);
-	    }
-	    else if (o instanceof PyInstance) {
-		return new TestPyInstance(this, (PyInstance)o);
-	    }
-	    else if (o instanceof PyFunction) {
-		return new TestPyJavaInstance(this, o);
-	    }
-	    else if (o instanceof PyMethod) {
-		return new TestPyJavaInstance(this, o);
-	    }
-	}
-	else {
-	    // Java object.
-
-	    final Class c = o.getClass();
+      final Class c = o.getClass();
 	    
-	    // NB Jython uses Java types for some primitives and strings.
-	    if (!c.isArray() &&
-		!(o instanceof Number) &&
-		!(o instanceof String)) {
-		return new TestPyJavaInstance(this, o);
-	    }
-	}
-
-	throw new NotWrappableTypeException(o.getClass().getName());
+      // NB Jython uses Java types for some primitives and strings.
+      if (!c.isArray() &&
+	  !(o instanceof Number) &&
+	  !(o instanceof String)) {
+	return new TestPyJavaInstance(this, o);
+      }
     }
+
+    throw new NotWrappableTypeException(o.getClass().getName());
+  }
 }
