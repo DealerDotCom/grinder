@@ -27,6 +27,9 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.ServerSocket;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**
@@ -38,7 +41,7 @@ import java.net.ServerSocket;
 public final class Acceptor {
 
   private final ServerSocket m_serverSocket;
-  private final ResourcePool[] m_socketSets;
+  private final Map m_socketSets = new HashMap();
   private final ThreadPool m_threadPool;
 
   /**
@@ -74,12 +77,6 @@ public final class Acceptor {
       }
     }
 
-    m_socketSets = new ResourcePool[ConnectionType.NUMBER_OF_CONNECTION_TYPES];
-
-    for (int i = 0; i < m_socketSets.length; ++i) {
-      m_socketSets[i] = new ResourcePool();
-    }
-
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
         public Runnable create() {
@@ -109,8 +106,13 @@ public final class Acceptor {
       throw new CommunicationException("Error closing socket", e);
     }
     finally {
-      for (int i = 0; i < m_socketSets.length; ++i) {
-        m_socketSets[i].close();
+      synchronized (m_socketSets) {
+        final Iterator iterator = m_socketSets.values().iterator();
+
+        while (iterator.hasNext()) {
+          final ResourcePool resourcePool = (ResourcePool)iterator.next();
+          resourcePool.close();
+        }
       }
 
       m_threadPool.stop();
@@ -135,7 +137,20 @@ public final class Acceptor {
    * SocketResource}.
    */
   ResourcePool getSocketSet(ConnectionType connectionType) {
-    return m_socketSets[connectionType.toInteger()];
+
+    synchronized (m_socketSets) {
+      final ResourcePool original =
+        (ResourcePool)m_socketSets.get(connectionType);
+
+      if (original != null) {
+        return original;
+      }
+      else {
+        final ResourcePool newSocketSet = new ResourcePool();
+        m_socketSets.put(connectionType, newSocketSet);
+        return newSocketSet;
+      }
+    }
   }
 
   /**
@@ -148,35 +163,32 @@ public final class Acceptor {
     return m_threadPool.getThreadGroup();
   }
 
+  private void discriminateConnection(Socket localSocket) throws IOException {
+    try {
+      final ConnectionType connectionType =
+        ConnectionType.read(localSocket.getInputStream());
+
+      synchronized (m_socketSets) {
+        getSocketSet(connectionType).add(new SocketResource(localSocket));
+      }
+    }
+    catch (CommunicationException e) {
+      e.printStackTrace();
+
+      try {
+        localSocket.close();
+      }
+      catch (IOException ioException) {
+        // Ignore.
+      }
+    }
+  }
+
   private void process() {
     try {
       while (true) {
         final Socket localSocket = m_serverSocket.accept();
-
-        final int connectionType;
-
-        try {
-          connectionType = localSocket.getInputStream().read();
-        }
-        catch (IOException e) {
-          e.printStackTrace();
-          continue;
-        }
-
-        if (connectionType < 0 ||
-            connectionType >= ConnectionType.NUMBER_OF_CONNECTION_TYPES) {
-          System.err.println("Unknown connection type: " + connectionType);
-
-          try {
-            localSocket.close();
-          }
-          catch (IOException e) {
-            // Ignore.
-          }
-        }
-        else {
-          m_socketSets[connectionType].add(new SocketResource(localSocket));
-        }
+        discriminateConnection(localSocket);
       }
     }
     catch (IOException e) {

@@ -22,7 +22,6 @@
 package net.grinder.communication;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.Socket;
 
 
@@ -66,12 +65,10 @@ public final class Connector {
   Socket connect() throws CommunicationException {
 
     try {
-      // Our socket - bind to any local port.
+      // Bind to any local port.
       final Socket socket = new Socket(m_addressString, m_port);
 
-      final OutputStream outputStream = socket.getOutputStream();
-      outputStream.write(m_connectionType.toInteger());
-      outputStream.flush();
+      m_connectionType.write(socket.getOutputStream());
 
       return socket;
     }

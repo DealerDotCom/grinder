@@ -60,8 +60,7 @@ public class TestClientSender extends TestCase {
     final InputStream socketInput =
       socketAcceptor.getAcceptedSocket().getInputStream();
 
-    // Discard connection type indication byte.
-    socketInput.read();
+    assertEquals(ConnectionType.CONTROL, ConnectionType.read(socketInput));
 
     // Need an ObjectInputStream for every message. See note in
     // ClientSender.writeMessage.
@@ -114,8 +113,7 @@ public class TestClientSender extends TestCase {
     final InputStream socketInput =
       socketAcceptor.getAcceptedSocket().getInputStream();
 
-    // Discard connection type indication byte.
-    socketInput.read();
+    assertEquals(ConnectionType.CONTROL, ConnectionType.read(socketInput));
 
     final ObjectInputStream inputStream1 = new ObjectInputStream(socketInput);
     final Object o1 = inputStream1.readObject();

@@ -21,16 +21,9 @@
 
 package net.grinder.communication;
 
-import java.io.InputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.StreamCorruptedException;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -69,9 +62,8 @@ public class TestServerReceiver extends TestCase {
 
     for (int i=0; i<socket.length; ++i) {
       socket[i] = new Socket(InetAddress.getByName(null), acceptor.getPort());
-      final OutputStream outputStream = socket[i].getOutputStream();
-      outputStream.write(ConnectionType.CONTROL.toInteger());
-      outputStream.flush();
+
+      ConnectionType.CONTROL.write(socket[i].getOutputStream());
     }
 
     // Sleep until we've accepted all connections. Give up after a few
@@ -148,9 +140,7 @@ public class TestServerReceiver extends TestCase {
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
-    final OutputStream outputStream = socket.getOutputStream();
-    outputStream.write(ConnectionType.CONTROL.toInteger());
-    outputStream.flush();
+    ConnectionType.CONTROL.write(socket.getOutputStream());
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
@@ -164,7 +154,7 @@ public class TestServerReceiver extends TestCase {
     final SimpleMessage message = new SimpleMessage();
 
     final ObjectOutputStream objectStream =
-      new ObjectOutputStream(outputStream);
+      new ObjectOutputStream(socket.getOutputStream());
     objectStream.writeObject(message);
     objectStream.flush();
 
@@ -190,9 +180,7 @@ public class TestServerReceiver extends TestCase {
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
-    final OutputStream outputStream = socket.getOutputStream();
-    outputStream.write(ConnectionType.CONTROL.toInteger());
-    outputStream.flush();
+    ConnectionType.CONTROL.write(socket.getOutputStream());
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
@@ -206,7 +194,7 @@ public class TestServerReceiver extends TestCase {
     final SimpleMessage message = new SimpleMessage();
 
     final ObjectOutputStream objectStream1 =
-      new ObjectOutputStream(outputStream);
+      new ObjectOutputStream(socket.getOutputStream());
     objectStream1.writeObject(message);
     objectStream1.flush();
 

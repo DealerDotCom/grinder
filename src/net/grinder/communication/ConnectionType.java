@@ -21,6 +21,10 @@
 
 package net.grinder.communication;
 
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 
 /**
  * Constants that are used to discriminate between different types of
@@ -37,8 +41,34 @@ public final class ConnectionType {
   /** Connection type constant. */
   public static final ConnectionType REPORT = new ConnectionType(1);
 
-  /** Number of connection types. */
-  static final int NUMBER_OF_CONNECTION_TYPES = 2;
+  /**
+   * Serialisation method that reads a ConnectionType from a stream.
+   * Package scope.
+   *
+   * @param in The stream.
+   * @return The ConnectionType.
+   */
+  static ConnectionType read(InputStream in)
+    throws CommunicationException {
+
+    try {
+      final int b = in.read();
+
+      switch (b) {
+      case 0:
+        return ConnectionType.CONTROL;
+
+      case 1:
+        return ConnectionType.REPORT;
+
+      default:
+        throw new CommunicationException("Unknown connection type");
+      }
+    }
+    catch (IOException e) {
+      throw new CommunicationException("Failed to read connection type", e);
+    }
+  }
 
   private final int m_identity;
 
@@ -46,8 +76,21 @@ public final class ConnectionType {
     m_identity = identity;
   }
 
-  int toInteger() {
-    return m_identity;
+  /**
+   * Serialisation method that writes a ConnectionType to a stream.
+   * Package scope.
+   *
+   * @param out The stream.
+   * @throws CommunicationException If write failed.
+   */
+  public void write(OutputStream out) throws CommunicationException {
+    try {
+      out.write(m_identity);
+      out.flush();
+    }
+    catch (IOException e) {
+      throw new CommunicationException("Write failed", e);
+    }
   }
 
   /**

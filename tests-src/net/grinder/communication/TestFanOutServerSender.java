@@ -68,9 +68,7 @@ public class TestFanOutServerSender extends TestCase {
 
     for (int i=0; i<socket.length; ++i) {
       socket[i] = new Socket(InetAddress.getByName(null), acceptor.getPort());
-      final OutputStream outputStream = socket[i].getOutputStream();
-      outputStream.write(ConnectionType.CONTROL.toInteger());
-      outputStream.flush();
+      ConnectionType.CONTROL.write(socket[i].getOutputStream());
     }
 
     // Sleep until we've accepted all connections. Give up after a few
@@ -123,9 +121,7 @@ public class TestFanOutServerSender extends TestCase {
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
-    final OutputStream outputStream = socket.getOutputStream();
-    outputStream.write(ConnectionType.CONTROL.toInteger());
-    outputStream.flush();
+    ConnectionType.CONTROL.write(socket.getOutputStream());
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
