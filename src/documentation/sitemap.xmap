@@ -13,21 +13,21 @@
   <map:pipelines>
 
     <map:pipeline>
-      <map:match pattern="todo.xml">
+      <map:match pattern="**changes.xml">
+	<map:generate type="file" src="{project:temp-dir}/changes.xml"/>
+        <map:transform src="changes2doc.xsl"/>
+        <map:serialize type="xml"/>
+      </map:match>
+    </map:pipeline>
+
+    <map:pipeline>
+      <map:match pattern="**todo.xml">
 	<map:generate type="file" src="{project:temp-dir}/todo.xml"/>
         <map:transform src="todo2doc.xsl"/>
+        <map:serialize type="xml"/>
+      </map:match>
+    </map:pipeline>
 
-        <map:serialize type="xml"/>
-      </map:match>
-    </map:pipeline>
-<!--
-    <map:pipeline>
-      <map:match pattern="**.dir">
-	<map:generate src="cocoon:/index.xml"/>
-        <map:serialize type="xml"/>
-      </map:match>
-    </map:pipeline>
--->
   </map:pipelines>
 
 

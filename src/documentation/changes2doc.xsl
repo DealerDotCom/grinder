@@ -6,10 +6,10 @@
 
   <xsl:preserve-space elements = "*"/>
 
-  <xsl:template match="todo">
+  <xsl:template match="changes">
     <document>
       <header>
-	<title>The Grinder To Do list</title>
+	<title>The Grinder Change Log</title>
       </header>
       <body>
 	<xsl:apply-templates select="*"/>

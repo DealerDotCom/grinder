@@ -89,6 +89,7 @@ what you want. Currently the conditionally built modules are:
   <property name="test-src.dir" value="tests-src"/>
   <property name="etc.dir" value="etc"/>
   <property name="manifest.mf" value="etc/grinder-manifest.mf"/>
+  <property name="changes2xml.py" value="etc/changes2xml.py"/>
   <property name="outline2xml.py" value="etc/outline2xml.py"/>
   <property name="examples.dir" value="examples"/>
   <property name="contrib.dir" value="contrib"/>
@@ -485,7 +486,19 @@ what you want. Currently the conditionally built modules are:
     <property name="forrest.tmpdir" value="${build.dir}/tmp"/>
     <mkdir dir="${forrest.tmpdir}"/>
 
-    <java classname="org.python.util.jython"
+    <java classname="org.python.util.jython" logError="true"
+      output="${forrest.tmpdir}/changes.xml">
+
+      <sysproperty key="python.cachedir" path="${python.cachedir}"/>
+
+      <classpath>
+	<pathelement path="${jython.dir}/${jython.jar}"/>
+      </classpath>
+      <arg path="${changes2xml.py}"/>
+      <arg value="CHANGES"/>
+    </java>
+
+    <java classname="org.python.util.jython" logError="true"
       output="${forrest.tmpdir}/todo.xml">
 
       <sysproperty key="python.cachedir" path="${python.cachedir}"/>
@@ -495,7 +508,6 @@ what you want. Currently the conditionally built modules are:
       </classpath>
       <arg path="${outline2xml.py}"/>
       <arg value="TODO"/>
-
     </java>
 
   </target>

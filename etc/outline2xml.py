@@ -2,90 +2,33 @@
 
 # Inspiration drawn from o2x (http://www.sabren.com/code/python/)
 
-class ElementStack:
-    _data = []
+from changes2xml import XMLOutput, quote
 
-    def open(self, tag, **attributes):
-        self._data.append(tag)
-        result = "<%s" % tag
-        for key,value in attributes.items():
-            result += " %s='%s'" % (key.replace("_", ":"), value)
-        return result + ">\n"
+def outline2xml(file):
+    output = XMLOutput("todo")
 
-    def ensureOpen(self, tag):
-        if self._data[-1] != tag:
-            return self.open(tag)
-        else:
-            return ""
+    for line in file.readlines():
+        line = quote(line)
 
-    def perhapsClose(self, tag):
-        if self._data[-1] == tag:
-            return self.close()
-        else:
-            return ""
-
-    def close(self):
-        tag  = self._data.pop()
-        return "</%s>\n" % tag
-
-    def depth(self):
-        return len(self._data)
-
-def outline2xml(text):
-    stack = ElementStack()
-    forceParagraph = 1
-
-    result = '<?xml version="1.0"  encoding="iso-8859-1"?>\n\n'
-    result += stack.open("todo")
-    
-    for line in text.split("\n"):
-        if line[:3] == "-*-": continue
-        
-        line = line.replace("&", "&amp;");
-        line = line.replace("<", "&lt;");
-        line = line.replace(">", "&gt;");
+        if line[:3] == "-*-": continue        
 
         if line and line[0] == "*":
-
             depth = 0
             while line[depth] == "*": depth = depth + 1
 
-            for difference in range(stack.depth(), depth):
-                result += stack.open("section", depth=difference)
-
-            for difference in range(depth, stack.depth()):
-                result += stack.close()
+            output.closeToDepth(depth)
+            
+#            for difference in range(output._stack.depth(), depth):
+#                output.openSection("", depth=difference)
 				
-            result += stack.open("section",
-                                 name = line[depth:].strip(),
-                                 depth = depth)
-            forceParagraph = 1
+            output.openSection(line[depth:].strip(), depth = depth)
         else:
-            if not line:
-                forceParagraph = 1
-            else:
-                if forceParagraph:
-                    forceParagraph = 0
-                    result += stack.perhapsClose("p")
-                    result += stack.ensureOpen("p")
-
-                if line[0] == " " or line[0] == "\t":
-                    result += "<br/>"
-                    result += line
-                else:
-                    result += line
-                result += " "
+            output.addLine(line)
 			
-    while 1:
-        try:
-            result += stack.close()
-        except IndexError:
-            break
-
-    return result
-
-
+    return output.result()
+    
 
 if __name__ == "__main__":
     import sys
-    print outline2xml(open(sys.argv[1], "r").read())
+    for f in sys.argv[1:]:
+        print outline2xml(open(f, "r"))

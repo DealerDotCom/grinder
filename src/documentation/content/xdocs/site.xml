@@ -31,7 +31,8 @@ See http://forrest.apache.org/docs/linking.html for more info
   </project>
 
   <development label="Development" tab="project" href="development/">
-    <todo label="To Do" href="../todo.html"/>
+    <changes label="Changes" href="changes.html"/>
+    <todo label="To Do" href="todo.html"/>
     <contributing label="Contributing" href="contributing.html">
       <translating href="#translating"/>
     </contributing>
