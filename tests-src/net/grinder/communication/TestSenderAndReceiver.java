@@ -22,13 +22,17 @@ import junit.framework.TestCase;
 import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 
 /**
+ *  Unit test case for <code>Sender</code> and <code>Receiver</code>.
+ *
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 public class TestSenderAndReceiver extends TestCase
 {
     public static void main(String[] args)
@@ -76,19 +80,28 @@ public class TestSenderAndReceiver extends TestCase
 
     public void testSendManyMessages() throws Exception
     {
+	long sequenceNumber = -1;
+
 	for (int i=0; i<100; i++)
 	{
 	    final ReceiverThread receiverThread = new ReceiverThread();
 
 	    receiverThread.start();
 
-	    final SimpleMessage sentMessage = new SimpleMessage(0);
+	    final SimpleMessage sentMessage = new SimpleMessage(i);
 	    m_sender.send(sentMessage);
 
 	    receiverThread.join();
 
 	    final SimpleMessage receivedMessage =
 		(SimpleMessage)receiverThread.getMessage();
+
+	    if (sequenceNumber != -1) {
+		assertEquals(sequenceNumber+1,
+			     receivedMessage.getSequenceNumber());
+	    }
+
+	    sequenceNumber = receivedMessage.getSequenceNumber();
 
 	    assertEquals(sentMessage, receivedMessage);
 	    assert(sentMessage.payloadEquals(receivedMessage));
@@ -145,6 +158,62 @@ public class TestSenderAndReceiver extends TestCase
 	assert(r1.getException() == null ^ r2.getException() == null);
     }
 
+    public void testQueue() throws Exception
+    {
+	long sequenceNumber = -1;
+
+	// This number is deliberately low. Tests show that the
+	// multicast buffer on my NT machine only holds between about
+	// 30 and 70 SimpleMessage(0)'s before dropping the least
+	// recent message. Really need something more reliable than
+	// this.
+	SimpleMessage[] messages = new SimpleMessage[25];
+
+	for (int i=0; i<messages.length; ++i)
+	{
+	    messages[i] = new SimpleMessage(0);
+	    m_sender.queue(messages[i]);
+	}
+
+	final ReceiveNMessagesThread receiverThread =
+	    new ReceiveNMessagesThread(messages.length+1);
+
+	receiverThread.start();
+
+	final SimpleMessage finalMessage = new SimpleMessage(0);
+	m_sender.send(finalMessage);
+
+	receiverThread.join();
+
+	final SimpleMessage[] receivedMessages =
+	    (SimpleMessage[])
+	    receiverThread.getMessages().toArray(new SimpleMessage[0]);
+
+	assertEquals(messages.length + 1, receivedMessages.length);
+
+	for (int i=0; i<messages.length; ++i) {
+	    if (sequenceNumber != -1) {
+		assertEquals(sequenceNumber+1,
+			     receivedMessages[i].getSequenceNumber());
+	    }
+
+	    sequenceNumber = receivedMessages[i].getSequenceNumber();
+
+	    assertEquals(messages[i], receivedMessages[i]);
+	    assert(messages[i].payloadEquals(receivedMessages[i]));
+	    assert(messages[i] != receivedMessages[i]);
+	}
+
+	final SimpleMessage receivedFinalMessage =
+	    receivedMessages[messages.length];
+
+	assertEquals(sequenceNumber+1,
+		     receivedFinalMessage.getSequenceNumber());
+	assertEquals(finalMessage, receivedFinalMessage);
+	assert(finalMessage.payloadEquals(receivedFinalMessage));
+	assert(finalMessage != receivedFinalMessage);
+    }
+
     private class ReceiverThread extends Thread
     {
 	private Message m_message;
@@ -167,6 +236,42 @@ public class TestSenderAndReceiver extends TestCase
 
 	    try {
 		m_message = m_receiver.waitForMessage();
+	    }
+	    catch (Exception e) {
+		m_exception = e;
+	    }
+	}
+    }
+
+    private class ReceiveNMessagesThread extends Thread
+    {
+	private List m_messages = new LinkedList();
+	private Exception m_exception;
+	private int m_howMany;
+
+	public ReceiveNMessagesThread(int howMany) 
+	{
+	    m_howMany = howMany;
+	}
+
+	public List getMessages()
+	{
+	    return m_messages;
+	}
+
+	public Exception getException()
+	{
+	    return m_exception;
+	}
+
+	public void run()
+	{
+	    m_exception = null;
+
+	    try {
+		while (m_howMany-- > 0) {
+		    m_messages.add(m_receiver.waitForMessage());
+		}
 	    }
 	    catch (Exception e) {
 		m_exception = e;

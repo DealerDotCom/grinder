@@ -28,12 +28,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.LinkedList;
 import java.security.MessageDigest;
 
 
 /**
  * Class that manages the sending of multicast messages.
- * <em>Not thread safe.</em>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -47,6 +47,7 @@ public class SenderImplementation implements Sender
     private final String m_grinderID;
     private final String m_senderID;
     private long m_nextSequenceID = 0;
+    private LinkedList m_pendingMessages = new LinkedList();
 
     private final MyByteArrayOutputStream m_byteStream =
 	new MyByteArrayOutputStream();
@@ -112,34 +113,56 @@ public class SenderImplementation implements Sender
     }
 
     /**
-     * Send the given message. Should replace synchronized by a better
-     * concurrency pattern.
+     * First flush any pending messages queued with {@link #queue} and
+     * then send the given message.
+     *
+     * @param message A {@link Message}.
+     * @exception CommunicationException if an error occurs
      **/
-    public synchronized void send(Message message)
+    public final synchronized void send(Message message)
 	throws CommunicationException
     {
-	message.setSenderInformation(m_grinderID, m_senderID,
-				     m_nextSequenceID++);
+	queue(message);
 
 	try {
-	    // Hang onto byte stream object and reset it rather than
-	    // creating garbage.
-	    m_byteStream.reset();
+	    do {
+		final Message nextMessage =
+		    (Message)m_pendingMessages.removeFirst();
 
-	    // Sadly reuse isn't possible with an ObjectOutputStream.
-	    final ObjectOutputStream objectStream =
-		new ObjectOutputStream(m_byteStream);
+		// Hang onto byte stream object and reset it rather
+		// than creating garbage.
+		m_byteStream.reset();
 
-	    objectStream.writeObject(message);
-	    objectStream.flush();
+		// Sadly reuse isn't possible with an ObjectOutputStream.
+		final ObjectOutputStream objectStream =
+		    new ObjectOutputStream(m_byteStream);
 
-	    m_packet.setData(m_byteStream.getBytes(), 0, m_byteStream.size());
-	    m_localSocket.send(m_packet);
+		objectStream.writeObject(nextMessage);
+		objectStream.flush();
+
+		m_packet.setData(m_byteStream.getBytes(), 0,
+				 m_byteStream.size());
+		m_localSocket.send(m_packet);
+	    }
+	    while (m_pendingMessages.size() > 0);
 	}
 	catch (IOException e) {
 	    throw new CommunicationException(
 		"Exception whilst sending message", e);
 	}
+    }
+
+    /**
+     * Queue the given message for later sending with {@link #send}.
+     *
+     * @param message A {@link Message}.
+     **/
+    public final synchronized void queue(Message message)
+    {
+	message.setSenderInformation(m_grinderID, m_senderID,
+				     m_nextSequenceID++);
+
+	m_pendingMessages.add(message);
     }
 }
 
@@ -149,7 +172,7 @@ public class SenderImplementation implements Sender
  * objects.
  * @author Philip Aston
  **/
-class MyByteArrayOutputStream extends ByteArrayOutputStream
+final class MyByteArrayOutputStream extends ByteArrayOutputStream
 {
     public byte[] getBytes() 
     {

@@ -28,7 +28,18 @@ package net.grinder.communication;
 public interface Sender
 {
     /**
-     * Send the given message. 
+     * First flush any pending messages queued with {@link #queue} and
+     * then send the given message.
+     *
+     * @param message A {@link Message}.
+     * @exception CommunicationException if an error occurs
      **/
     void send(Message message) throws CommunicationException;
+
+    /**
+     * Queue the given message for later sending with {@link #send}.
+     *
+     * @param message A {@link Message}.
+     **/
+    void queue(Message message) throws CommunicationException;
 }
