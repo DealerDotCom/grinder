@@ -135,9 +135,9 @@ public class JUnitPlugin implements GrinderPlugin
 
     private class JUnitThreadCallbacks implements ThreadCallbacks
     {
-	PluginThreadContext m_context = null;
-	final TestListener m_testListener = new TestListener();
-	final TestResult m_testResult = new TestResult();
+	private PluginThreadContext m_context = null;
+	private final TestListener m_testListener = new TestListener();
+	private final TestResult m_testResult = new TestResult();
 
 	public JUnitThreadCallbacks()
 	{
@@ -155,13 +155,15 @@ public class JUnitPlugin implements GrinderPlugin
 
 	public boolean doTest(Test testDefinition) throws PluginException
 	{
+	    m_context.logMessage("performing test");
+
+	    final TestWrapper testWrapper = (TestWrapper)testDefinition;
+	    final TestCase testCase = testWrapper.getJUnitTestCase();
+
 	    m_context.startTimer();
 
 	    try {
-		m_context.logMessage("performing test");
-
-		final TestWrapper testWrapper = (TestWrapper)testDefinition;
-		testWrapper.getJUnitTestCase().run(m_testResult);
+		testCase.run(m_testResult);
 	    }
 	    finally {
 		m_context.stopTimer();
