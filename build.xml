@@ -72,7 +72,7 @@ conditionally built modules are:
     <!-- what -->
     <property name="Name" value="The Grinder"/>
     <property name="name" value="grinder"/>
-    <property name="version" value="2.7.3"/>
+    <property name="version" value="3.0.beta0"/>
     <property name="year" value="2001"/>
 
     <!--options-->
