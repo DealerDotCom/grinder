@@ -26,7 +26,7 @@
 	  <br/>
 	  <xsl:copy-of select="."/>
 	</td>
-	<td valign="top" align="center">
+	<td valign="bottom" align="center">
 	  <img align="center" src="../images/grinder3.jpg" alt="The Grinder 3" height="116" width="111"/>
 	  <br/>
 	  <img align="center" src="../images/PythonPoweredSmall.gif" alt="Python Powered" height="22" width="55"/>

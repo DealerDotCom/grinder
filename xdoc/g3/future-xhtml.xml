@@ -6,7 +6,17 @@
 <h1>The Grinder 3</h1>
 
 <p>This page documents things that are planned for The Grinder 3.
-There is currently no release date for these features.</p>
+There are no current release dates for these features.</p>
+
+<h3>Automatic HTTP test script recording</h3>
+
+<p>Recording of HTTP test scripts using the TCPSniffer, analogous to
+the <a
+href="../manual/tcpsniffer.html#HttpPluginSnifferFilter">automatic
+recording of <code>grinder.properties</code></a> in The Grinder 2. A
+simplified Jython script will be generated which the user can then
+edit. This is a key feature required before The Grinder 3 can move out
+of beta release.</p>
 
 <h3>Test script distribution</h3>
 

@@ -81,6 +81,8 @@
             targetFile="console-screenshot.png" type="copy"/>
       <file sourceFile="console-es.png" targetFile="console-es.png"
             type="copy"/>
+      <file sourceFile="script-logo.png" targetFile="script-logo.png"
+            type="copy"/>
     </directory>
 
   </structure>

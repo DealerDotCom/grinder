@@ -3,6 +3,8 @@
 <html>
 <body>
 
+<image src="../images/script-logo.png"/>
+
 <h1>What's new in The Grinder 3?</h1>
 
 <p>The key change introduced by The Grinder 3 is a full scripting
@@ -54,15 +56,26 @@ the need to write custom plug-ins.</p>
 
 <p>A single script can use multiple plug-ins.</p>
 
+<h2>New plug-in SPI</h2>
+
+<p>The interface that plug-ins must implement has changed
+significantly. Plug-ins written for The Grinder 2 will not work with
+The Grinder 3 without significant modification.</p>
+
 <h2>New distribution packaging</h2>
 
 <p>The Grinder is distributed in separate binary and source
 <code>zip</code> files.</p>
 
-<h2>Minor enhancements</h2>
+<h2>Other changes</h2>
 
 <ul>
 <li>The HTTP plug-in can now be used through an HTTP proxy.</li>
+<li>Many <a
+href="./properties.html"><code>grinder.properties</code></a> have been
+removed. The features formally set through properties are now set by
+making calls to the plug-in from the test script. Some of the
+remaining property names have been renamed.</li>
 </ul>
 
 <h1>What's gone?</h1>
@@ -75,11 +88,12 @@ plug-in.</p>
 
 <h2>HTTP plug-in features</h2>
 
-<p>String beans, OK strings have been removed from the HTTP plug-in.
-String beans and OK strings are very limited in comparison to to the
-flexibility now provided by the Jython scripting engine.</p>
+<p>String beans and OK strings have been removed from the HTTP
+plug-in. String beans and OK strings are very limited in comparison to
+to the flexibility now provided by the Jython scripting engine.</p>
 
-<p>The HttpURLConnection implementation has been removed.</p>
+<p>The <code>HttpURLConnection</code> implementation has been
+removed.</p>
 
 </body>
 </html>
