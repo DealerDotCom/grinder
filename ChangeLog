@@ -1,3 +1,41 @@
+2004-08-26  Philip Aston  <philipa@mail.com>
+
+	* TODO, src/net/grinder/engine/agent/FileStore.java, src/net/grinder/engine/agent/resources/FileStoreReadme.txt, tests-src/net/grinder/engine/agent/TestFileStore.java:
+	Each file store directory now has a README describing what its for.
+
+	* src/net/grinder/util/Directory.java, src/net/grinder/util/FileContents.java:
+	Use StreamCopier.
+
+	* src/net/grinder/util/CopyStream.java, src/net/grinder/util/StreamCopier.java, src/net/grinder/engine/agent/ChildProcess.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Rename CopyStream to StreamCopier.
+
+	* src/net/grinder/engine/agent/ChildProcess.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/util/CopyStream.java, src/net/grinder/util/CopyStreamRunnable.java:
+	CopyStreamRunnable becomes CopyStream and supports passive copying of
+	streams.
+
+	* tests-src/net/grinder/engine/agent/TestFileStore.java:
+	FileStore no longer creates directories before they are required.
+
+	* src/net/grinder/util/Directory.java: Improve JavaDoc.
+	listContents: don't issue "no access" warning if directory does not
+	exist.
+	copyTo: don't create a target directory if source directory does not
+	exist.
+
+	* src/net/grinder/console/common/Resources.java: Checkstyle.
+
+	* tests-src/net/grinder/console/common/TestResources.java, src/net/grinder/console/common/Resources.java:
+	Coverage.
+
+2004-08-25  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/console/common/TestErrorQueue.java: Coverage.
+
+	* tests-src/net/grinder/common/TestGrinderProperties.java:
+	More file tests.
+
+	* TODO: More.
+
 2004-08-24  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/engine/agent/TestProcessLauncher.java, tests-src/net/grinder/engine/agent/TestWorkerProcessFactory.java, tests-src/net/grinder/engine/agent/TestChildProcess.java:
