@@ -1,3 +1,11 @@
+2001-08-02  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/Grinder.java:
+	Set any value of grinder.jvm.arguments before the classpath to allow
+	-classic to be specified (-classic must be the first argument).
+
+	* build.xml: Next is 2.6.6.
+
 2001-07-30  Philip Aston  <paston@bea.com>
 
 	* build.xml, etc/testimage.mf, tests-src/net/grinder/console/swingui/TestImage.java:
