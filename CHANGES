@@ -1,7 +1,27 @@
 Grinder 2.6
 -----------
 
-  grinder.waitForConsoleSignal is now grinder.receiveConsoleSignals
+  Console rework. Extra knobs and dials which allow the console to be
+  set to capture a certain number of samples - see README for details.
+  New average TPS reporting.
+
+  You can now use the Console to request that Grinder processes exit.
+  ** IMPORTANT** The property "grinder.waitForConsoleSignal" has been
+  renamed to "grinder.receiveConsoleSignals".
+
+  Cool HttpPluginSnifferFilter enhancements from Dr Paddy Spencer that
+  rewrite absolute URLs on the fly. This makes creating test scripts
+  for sites that use absolute URL's much less painful. The solution
+  includes a new way of running the sniffer by defining it as a proxy
+  to the browser. Paddy promises to document all of this RSN.
+
+  Several bug fixes including:
+   - Don't spin uselessly when not reporting to the console.
+   - Don't broadcast needless cruft in the statistics report messages.
+     (read: your network will no longer creak, this explains the need
+      to up the buffer in 2.5).
+   - Log directory is no longer mandatory.
+
 
 Grinder 2.5
 -----------
