@@ -1,4 +1,5 @@
 // Copyright (C) 2002, 2003 Philip Aston
+// Copyright (C) 2003 Richard Perks
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +22,8 @@
 
 package net.grinder.plugin.http;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +32,11 @@ import HTTPClient.NVPair;
  
 
 /**
+ * A {@link HTTPPluginConnection} that can be used to set the default
+ * behaviour of new connections.
+ *
  * @author Philip Aston
+ * @author Richard Perks
  * @version $Revision$
  **/
 final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
@@ -43,6 +50,7 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
   private String m_proxyHost;
   private int m_proxyPort;
   private boolean m_verifyServerDistinguishedName = false;
+  private InetAddress m_localAddress;
 
   public final void setFollowRedirects(boolean followRedirects) {
     m_followRedirects = followRedirects;
@@ -134,6 +142,21 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
 
   public final synchronized void clearAllDigestAuthorizations() {
     m_digestAuthorizations.clear();
+  }
+  
+  public final synchronized void setLocalAddress(String localAddress) 
+    throws URLException {
+
+    try {
+      m_localAddress = InetAddress.getByName(localAddress);
+    }
+    catch (UnknownHostException e) {
+      throw new URLException(e.getMessage(), e);
+    }
+  }
+  
+  final InetAddress getLocalAddress() {
+    return m_localAddress;
   }
 
   /**

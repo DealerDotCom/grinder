@@ -1,4 +1,5 @@
 // Copyright (C) 2002, 2003 Philip Aston
+// Copyright (C) 2003 Richard Perks
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,6 +32,7 @@ import HTTPClient.NVPair;
  * verbatim from the HTTPClient documentation.</em></p>
  * 
  * @author Philip Aston
+ * @author Richard Perks
  * @version $Revision$
  * @see HTTPPluginControl
  **/
@@ -192,4 +194,26 @@ public interface HTTPPluginConnection {
    * scheme.
    */
   void clearAllDigestAuthorizations();
+  
+  /**
+   * Set the client IP address to use for outbound connections.
+   *
+   * <p>The default client IP address, and hence the network
+   * interface, used for outbound HTTP requests is the first returned
+   * to the Java VM by the operating system. This method allows a
+   * different network interface to be specified that will be used for
+   * connactions that are subsequently created. It does not affect
+   * existing socket connections that may have already been created
+   * for this <code>HTTPPluginConnection</code>.</p>
+   *
+   * <p><code>localAddress</code> should correspond to a local network
+   * interface.If it doesn't a <code>java.net.BindException</code>
+   * will be thrown when the connection is first used.</p>
+   *
+   * @param localAddress The local host name or IP address to bind to.
+   * Pass <code>null</code> to set the default local interface.
+   * @exception URLException If <code>localAddress</code> could not be
+   * resolved. 
+   */
+  void setLocalAddress(String localAddress) throws URLException;
 }

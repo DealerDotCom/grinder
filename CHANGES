@@ -12,6 +12,10 @@ Grinder 3.0-beta12
 
    - Added a shutdown hook to increase chance of clean shutdown.
 
+  Enhancement from Richard Perks that allows scripts to specify the
+  local interface to use for HTTP connections. See
+  HTTPPluginConnection.setLocalAddress().
+
 
 Grinder 3.0-beta11
 ------------------

@@ -1,4 +1,5 @@
 // Copyright (C) 2002, 2003 Philip Aston
+// Copyright (C) 2003 Richard Perks
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +22,8 @@
 
 package net.grinder.plugin.http;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 
 import HTTPClient.CookieModule;
@@ -33,6 +36,7 @@ import HTTPClient.NVPair;
  * HTTPClient.HTTPConnection}.
  *
  * @author Philip Aston
+ * @author Richard Perks
  * @version $Revision$
  **/
 final class HTTPConnectionWrapper implements HTTPPluginConnection {
@@ -66,6 +70,7 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
       setVerifyServerDistinguishedName(
 	defaults.getVerifyServerDistinguishedName());
       setProxyServer(defaults.getProxyHost(), defaults.getProxyPort());
+      setLocalAddress(defaults.getLocalAddress());
 
       final Iterator basicAuthenticationIterator = 
 	defaults.getBasicAuthorizations().iterator();
@@ -163,6 +168,20 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
 
   public final void clearAllDigestAuthorizations() {
     // TODO
+  }
+  
+  public final void setLocalAddress(String localAddress) throws URLException {
+
+    try {
+      setLocalAddress(InetAddress.getByName(localAddress));
+    }
+    catch (UnknownHostException e) {
+      throw new URLException(e.getMessage(), e);
+    }
+  }
+
+  private final void setLocalAddress(InetAddress localAddress) {
+    m_httpConnection.setLocalAddress(localAddress, 0);
   }
 }
 
