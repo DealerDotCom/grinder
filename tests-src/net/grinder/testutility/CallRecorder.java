@@ -22,6 +22,7 @@
 package net.grinder.testutility;
 
 import java.util.Iterator;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import junit.framework.Assert;
@@ -138,7 +139,6 @@ public class CallRecorder extends Assert {
 				 Class throwableType) {
 
     final CallData callData = assertCalledInternal(methodName, parameterTypes);
-    System.err.println(callData);
     assertNotNull(callData.getThrowable());
     assertTrue(
       throwableType.isAssignableFrom(callData.getThrowable().getClass()));
@@ -188,7 +188,11 @@ public class CallRecorder extends Assert {
 
       for (int i = 0; i < parameterTypes.length; ++i) {
         assertTrue("Parameter  " + i + " is instance of  " +
-                   parameterTypes[i].getClass().getName(),
+                   actualParameterTypes[i].getName() +
+                   " which supports the interfaces " +
+                   Arrays.asList(actualParameterTypes[i].getInterfaces()) +
+                   " and is not assignable from " +
+                   parameterTypes[i].getName(),
                    parameterTypes[i].isAssignableFrom(
                      actualParameterTypes[i]));
       }
