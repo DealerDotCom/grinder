@@ -608,21 +608,14 @@ initialContext.close()
 </span>connection = connectionFactory.createQueueConnection()
 connection.start()
 
-<span class="comment"># Create a couple of BytesMessages.
-</span>session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
-
 random = Random()
 
-<span class="keyword">def</span> <span class="function-name">createBytesMessage</span>(size):
+<span class="keyword">def</span> <span class="function-name">createBytesMessage</span>(session, size):
     bytes = zeros(size, '<span class="string">b</span>')
     random.nextBytes(bytes)
     message = session.createBytesMessage()
     message.writeBytes(bytes)
     <span class="keyword">return</span> message
-
-message = createBytesMessage(100)
-
-session.close()
 
 <span class="keyword">class</span> <span class="type">TestRunner</span>:
     <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
@@ -633,6 +626,8 @@ session.close()
 
         sender = session.createSender(queue)
         instrumentedSender = Test(1, &quot;<span class="string">Send a message</span>&quot;).wrap(sender)
+
+        message = createBytesMessage(session, 100)
 
         log(&quot;<span class="string">Sending ten messages</span>&quot;)
 

@@ -31,21 +31,14 @@ initialContext.close()
 connection = connectionFactory.createQueueConnection()
 connection.start()
 
-# Create a couple of BytesMessages.
-session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
-
 random = Random()
 
-def createBytesMessage(size):
+def createBytesMessage(session, size):
     bytes = zeros(size, 'b')
     random.nextBytes(bytes)
     message = session.createBytesMessage()
     message.writeBytes(bytes)
     return message
-
-message = createBytesMessage(100)
-
-session.close()
 
 class TestRunner:
     def __call__(self):
@@ -56,6 +49,8 @@ class TestRunner:
 
         sender = session.createSender(queue)
         instrumentedSender = Test(1, "Send a message").wrap(sender)
+
+        message = createBytesMessage(session, 100)
 
         log("Sending ten messages")
 
