@@ -1,3 +1,11 @@
+2000-12-07  Philip Aston  <paston@beasys.com>
+
+	* Grinder version 0.4 is released.
+
+	* Distribute as jar instead of tar.gz.
+
+	* Add COPYING.
+
 2000-12-05  Philip Aston  <paston@beasys.com>
 
 	* Grinder version 0.3 is released.
