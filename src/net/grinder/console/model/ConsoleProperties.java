@@ -568,7 +568,8 @@ public final class ConsoleProperties {
    * with the worker processes.
    *
    * @param value <code>true</code> => the user wants to be asked.
-   * @exception DisplayMessageConsoleException If the property couldn't be persisted.
+   * @exception DisplayMessageConsoleException If the property
+   * couldn't be persisted
    */
   public void setResetConsoleWithProcessesAsk(boolean value)
     throws DisplayMessageConsoleException {
@@ -591,7 +592,8 @@ public final class ConsoleProperties {
    * with the worker processes.
    *
    * @param value <code>true</code> => the user wants to be asked.
-   * @exception DisplayMessageConsoleException If the property couldn't be persisted.
+   * @exception DisplayMessageConsoleException If the property
+   * couldn't be persisted.
    */
   public void setScriptNotSetAsk(boolean value)
     throws DisplayMessageConsoleException {
@@ -615,7 +617,8 @@ public final class ConsoleProperties {
    * with unsaved buffers.
    *
    * @param value <code>true</code> => the user wants to be warned.
-   * @exception DisplayMessageConsoleException If the property couldn't be persisted.
+   * @exception DisplayMessageConsoleException If the property
+   * couldn't be persisted.
    */
   public void setStartWithUnsavedBuffersAsk(boolean value)
     throws DisplayMessageConsoleException {
@@ -638,7 +641,8 @@ public final class ConsoleProperties {
    * should be stopped.
    *
    * @param value <code>true</code> => the user wants to be asked.
-   * @exception DisplayMessageConsoleException If the property couldn't be persisted.
+   * @exception DisplayMessageConsoleException If the property
+   * couldn't be persisted.
    */
   public void setStopProcessesAsk(boolean value)
     throws DisplayMessageConsoleException {
