@@ -234,6 +234,10 @@ Idea from Nurul Choudhury:
  > Is this what you're after?
 ^^ To do this, might have to behave differently with 1 thread vs many.
 
+** Reports
+
+Perhaps JasperReports?
+
 ** Code
 
 Review use of Kernel. Probably want to share them.
@@ -329,8 +333,14 @@ Also http://www.nogoop.com/product_16.html#compare
 Convert all sources back to unix file encoding so that diff etc. are
 happier?
 
-Build clover tree separately?
-Publish clover reports. Include history?
+How to build clover reports during full build?
+ - currently "with.clover" only works if clover is first thing on
+ path, we need to do two "compile", "test" runs with different
+ classes.dir.
+ - could have with ant-call, modify compile, compile-tests, test
+ - better to ant ourself?
+
+Include Clover history?
 
 * Documentation
 
