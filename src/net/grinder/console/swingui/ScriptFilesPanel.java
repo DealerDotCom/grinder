@@ -26,7 +26,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
+import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -36,9 +39,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.util.EventListener;
 import java.util.Iterator;
@@ -132,18 +136,33 @@ final class ScriptFilesPanel extends JPanel {
     tree.getSelectionModel().setSelectionMode(
       TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-    tree.addTreeSelectionListener(
-      new TreeSelectionListener() {
-        public void valueChanged(TreeSelectionEvent e) {
-          final FileTreeModel.Node node =
-            (FileTreeModel.Node)tree.getLastSelectedPathComponent();
+    // Left double-click -> open file.
+    tree.addMouseListener(new MouseAdapter() {
+        public void mousePressed(MouseEvent e) {
+          if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+            final TreePath path = tree.getPathForLocation(e.getX(), e.getY());
 
-          if (node != null && node instanceof FileTreeModel.FileNode) {
-            fireFileSelected((FileTreeModel.FileNode) node);
+            if (path != null) {
+              final Object node = path.getLastPathComponent();
+
+              if (node instanceof FileTreeModel.FileNode) {
+                fireFileSelected((FileTreeModel.FileNode) node);
+              }
+            }
           }
         }
-      }
-      );
+      });
+
+    // J2SE 1.4 drops the mapping from "ENTER" -> "toggle"
+    // (expand/collapse) that J2SE 1.3 has. I like it this mapping, so
+    // we combine the "toggle" action with our OpenFileAction and let
+    // TeeAction figure out which to call based on what's enabled.
+    tree.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "activateNode");
+
+    final ActionMap actionMap = tree.getActionMap();
+    actionMap.put("activateNode",
+                  new TeeAction(actionMap.get("toggle"),
+                                new OpenFileAction(tree)));
 
     final JScrollPane fileTreePane = new JScrollPane(tree);
     fileTreePane.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -153,27 +172,50 @@ final class ScriptFilesPanel extends JPanel {
     add(fileTreePane);
   }
 
+  /**
+   * Action for opening the currently selected file in the tree.
+   */
+  private final class OpenFileAction extends CustomAction {
+    private final JTree m_tree;
+
+    public OpenFileAction(JTree tree) {
+      super(m_resources, "open-file");
+      m_tree = tree;
+    }
+
+    public void actionPerformed(ActionEvent e) {
+      final FileTreeModel.FileNode fileNode = getSelectedFileNode();
+
+      if (fileNode != null) {
+        fireFileSelected(fileNode);
+      }
+    }
+
+    public boolean isEnabled() {
+      return m_tree.isEnabled() && getSelectedFileNode() != null;
+    }
+
+    private FileTreeModel.FileNode getSelectedFileNode() {
+      final Object node = m_tree.getLastSelectedPathComponent();
+
+      if (node instanceof FileTreeModel.FileNode) {
+        return (FileTreeModel.FileNode)node;
+      }
+      else {
+        return null;
+      }
+    }
+  }
+
   public void refresh() {
     m_fileChooser.setCurrentDirectory(m_distributionDirectory);
     m_fileTreeModel.setRootDirectory(m_distributionDirectory);
   }
 
-  private String limitLength(String s) {
-
-    final String ellipses = "...";
-    final int maximumLength = 25 - ellipses.length();
-
-    if (s.length() > maximumLength) {
-      return ellipses + s.substring(s.length() - maximumLength);
-    }
-
-    return s;
-  }
-
   /**
    * Custom cell renderer.
    */
-  final class CustomTreeCellRenderer extends DefaultTreeCellRenderer {
+  private final class CustomTreeCellRenderer extends DefaultTreeCellRenderer {
     private final DefaultTreeCellRenderer m_defaultRenderer =
       new DefaultTreeCellRenderer();
 
