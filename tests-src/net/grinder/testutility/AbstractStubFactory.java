@@ -72,16 +72,16 @@ public abstract class AbstractStubFactory extends CallRecorder {
 
       try {
         final Object result = m_delegate.invoke(proxy, method, parameters);
-        recordSuccess(method.getName(), parameters, result);
+        recordSuccess(method, parameters, result);
         return result;
       }
       catch (InvocationTargetException t) {
         final Throwable targetException = t.getTargetException();
-        recordFailure(method.getName(), parameters, targetException);
+        recordFailure(method, parameters, targetException);
         throw targetException;
       }
       catch (Throwable t) {
-        recordFailure(method.getName(), parameters, t);
+        recordFailure(method, parameters, t);
         throw t;
       }
     }

@@ -21,6 +21,8 @@
 
 package net.grinder.testutility;
 
+import java.lang.reflect.Method;
+
 import junit.framework.Assert;
 
 
@@ -30,28 +32,31 @@ import junit.framework.Assert;
  * @author    Philip Aston
  */
 public final class CallData extends Assert {
-  private final String m_methodName;
+  private final Method m_method;
   private final Object[] m_parameters;
   private final Object m_result;
   private final Throwable m_throwable;
 
-  public CallData(String methodName, Object[] parameters, Object result) {
-    m_methodName = methodName;
+  public CallData(Method method, Object[] parameters, Object result) {
+    m_method = method;
     m_parameters = parameters;
     m_result = result;
     m_throwable = null;
   }
 
-  public CallData(String methodName, Object[] parameters,
-                  Throwable throwable) {
-    m_methodName = methodName;
+  public CallData(Method method, Object[] parameters, Throwable throwable) {
+    m_method = method;
     m_parameters = parameters;
     m_result = null;
     m_throwable = throwable;
   }
 
+  public Method getMethod() {
+    return m_method;
+  }
+
   public String getMethodName() {
-    return m_methodName;
+    return getMethod().getName();
   }
 
   public Object[] getParameters() {

@@ -21,6 +21,7 @@
 
 package net.grinder.testutility;
 
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -36,6 +37,7 @@ import junit.framework.Assert;
 public class CallRecorder extends Assert {
 
   private final LinkedList m_callDataList = new LinkedList();
+  private boolean m_ignoreObjectMethods = false;
 
   /**
    *  Reset the call data.
@@ -61,16 +63,30 @@ public class CallRecorder extends Assert {
     return result.toString();
   }
 
-  public final void recordSuccess(String methodName, Object[] parameters,
+  public void setIgnoreObjectMethods(boolean b) {
+    m_ignoreObjectMethods = b;
+  }
+
+  private boolean shouldRecord(Method method) {
+    return
+      !m_ignoreObjectMethods ||
+      method.getDeclaringClass() != Object.class;
+  }
+
+  public final void recordSuccess(Method method, Object[] parameters,
 				  Object result) {
 
-    m_callDataList.add(new CallData(methodName, parameters, result));
+    if (shouldRecord(method)) {
+      m_callDataList.add(new CallData(method, parameters, result));
+    }
   }
 
   public final void recordFailure(
-    String methodName, Object[] parameters, Throwable throwable) {
+    Method method, Object[] parameters, Throwable throwable) {
 
-    m_callDataList.add(new CallData(methodName, parameters, throwable));
+    if (shouldRecord(method)) {
+      m_callDataList.add(new CallData(method, parameters, throwable));
+    }
   }
 
   /**

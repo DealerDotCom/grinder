@@ -53,16 +53,15 @@ public class TestErrorQueue extends TestCase {
 
     // Call without delegate.
     for (int i = 0; i < methods.length; ++i) {
-      final String methodName = methods[i].getName();
+      final Method method = methods[i];
 
-      if (methodName.startsWith("handle")) {
+      if (method.getName().startsWith("handle")) {
         final Object[] parameters =
-          randomObjectFactory.generateParameters(
-            methods[i].getParameterTypes());
+          randomObjectFactory.generateParameters(method.getParameterTypes());
 
-        callData.add(new CallData(methodName, parameters, null));
+        callData.add(new CallData(method, parameters, null));
 
-        methods[i].invoke(errorQueue, parameters);
+        method.invoke(errorQueue, parameters);
       }
     }
 
