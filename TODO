@@ -33,8 +33,7 @@ Sniffer vs redirection. Think there are some bugs here.
 
 Recording \n's?
 
-When visting xweb.sf.net via proxy and then going back to main page,
-the target servers get foobared.
+HTTP Proxy mode should support HTTP 1.1.
 
 Fix the proxy to record Authorization again. Can use connection ID.
 The G2 HTTPClient plugin implementation interprets basicAuthentication
