@@ -83,13 +83,32 @@ public final class TCPProxy {
       return;
     }
 
-    final TCPProxy tcpProxy = new TCPProxy(args, logger);
-    tcpProxy.run();
+    try {
+      final TCPProxy tcpProxy = new TCPProxy(args, logger);
+      tcpProxy.run();
+    }
+    catch (LoggedInitialisationException e) {
+      System.exit(1);
+    }
+    catch (Throwable e) {
+      logger.error("Could not initialise engine:");
+      e.printStackTrace(logger.getErrorLogWriter());
+      System.exit(2);
+    }
+
+    logger.output("Engine exited");
+    System.exit(0);
   }
 
-  private Error barfUsage() {
-    System.err.println(
-      "\n" +
+  private LoggedInitialisationException barfError(String message) {
+    m_logger.error("Error: " + message);
+    return new LoggedInitialisationException(message);
+  }
+
+  private LoggedInitialisationException barfUsage() {
+    return barfError(
+      "unrecognised option." +
+      "\n\n" +
       "Usage: " +
       "\n java " + TCPProxy.class + " <options>" +
       "\n" +
@@ -115,50 +134,42 @@ public final class TCPProxy {
       "\n                                HTTPS." +
       "\n   [-ssl]                       Use SSL when port forwarding." +
       "\n" +
-      "\n <filter> can be the name of a class that implements" +
-      "\n " + TCPProxyFilter.class.getName() + " or" +
-      "\n one of NONE, ECHO. Default is ECHO." +
-      "\n Multiple filters can be specified for each stream." +
-      "\n" +
-      "\n If neither -remotehost nor -remoteport is specified, the " +
-      "\n TCPProxy listens as an HTTP/HTTPS Proxy on <localhost:localport>." +
-      "\n" +
-      "\n If either -remotehost or -remoteport is specified, the TCPProxy" +
-      "\n acts a simple port forwarder between <localhost:localport> and" +
-      "\n <remotehost:remoteport>. Specify -ssl for SSL support." +
-      "\n" +
-      "\n -httpplugin sets the request and response filters to produce a" +
-      "\n test script suitable for use with the HTTP plugin. New versions" +
-      "\n of these filters are currently under development; use" +
-      "\n -newhttpplugin to try these out." +
-      "\n" +
-      "\n -timeout is how long the TCPProxy will wait for a request" +
-      "\n before timing out and freeing the local port. The TCPProxy will" +
-      "\n not time out if there are active connections." +
-      "\n" +
-      "\n -console displays a simple console that allows the TCPProxy" +
-      "\n to be shutdown cleanly." +
-      "\n" +
-      "\n -httpproxy and -httpsproxy allow output to be directed through" +
-      "\n another HTTP/HTTPS proxy; this may help you reach the Internet." +
-      "\n These options are not supported in port forwarding mode." +
+      "\n <filter> can be the name of a class that implements " +
+      TCPProxyFilter.class.getName() + " or one of NONE, ECHO. The default " +
+      "is ECHO. Multiple filters can be specified for each stream." +
+      "\n\n" +
+      "If neither -remotehost nor -remoteport is specified, the " +
+      "TCPProxy listens as an HTTP/HTTPS Proxy on <localhost:localport>." +
+      "\n\n" +
+      "If either -remotehost or -remoteport is specified, the TCPProxy " +
+      "acts a simple port forwarder between <localhost:localport> and " +
+      "<remotehost:remoteport>. Specify -ssl for SSL support." +
+      "\n\n" +
+      "-httpplugin sets the request and response filters to produce a " +
+      "test script suitable for use with the HTTP plugin. New versions " +
+      "of these filters are currently under development; use " +
+      "-newhttpplugin to try these out." +
+      "\n\n" +
+      "-timeout is how long the TCPProxy will wait for a request " +
+      "before timing out and freeing the local port. The TCPProxy will " +
+      "not time out if there are active connections." +
+      "\n\n" +
+      "-console displays a simple console that allows the TCPProxy " +
+      "to be shutdown cleanly." +
+      "\n\n" +
+      "-httpproxy and -httpsproxy allow output to be directed through " +
+      "another HTTP/HTTPS proxy; this may help you reach the Internet. " +
+      "These options are not supported in port forwarding mode." +
       "\n"
       );
-
-    System.exit(1);
-
-    return null;
   }
 
-  private Error barfUsage(String s) {
-    System.err.println("\n" + "Error: " + s);
-    throw barfUsage();
-  }
+  private final TCPProxyEngine m_proxyEngine;
+  private final Logger m_logger;
 
-  private TCPProxyEngine m_proxyEngine = null;
-
-  private TCPProxy(String[] args, Logger logger)  {
-    final PrintWriter outputWriter = logger.getOutputLogWriter();
+  private TCPProxy(String[] args, Logger logger) throws Exception {
+    m_logger = logger;
+    final PrintWriter outputWriter = m_logger.getOutputLogWriter();
 
     // Default values.
     TCPProxyFilter requestFilter = new EchoFilter(outputWriter);
@@ -191,9 +202,9 @@ public final class TCPProxy {
         else if (args[i].equalsIgnoreCase("-initialtest")) {
           final String argument = i + 1 < args.length ? args[++i] : "123";
 
-          barfUsage("-initialTest is no longer supported.\n\n" +
-                    "Use -DHTTPPlugin.initialTest=" + argument +
-                    " or the -properties option instead.");
+          throw barfError("-initialTest is no longer supported. " +
+                          "Use -DHTTPPlugin.initialTest=" + argument +
+                          " or the -properties option instead.");
         }
       }
 
@@ -292,12 +303,15 @@ public final class TCPProxy {
         }
       }
     }
-    catch (Exception e) {
+    catch (IndexOutOfBoundsException e) {
+      throw barfUsage();
+    }
+    catch (NumberFormatException e) {
       throw barfUsage();
     }
 
     if (timeout < 0) {
-      throw barfUsage("Timeout must be non-negative.");
+      throw barfError("timeout must be non-negative.");
     }
 
     final EndPoint localEndPoint = new EndPoint(localHost, localPort);
@@ -308,8 +322,8 @@ public final class TCPProxy {
     }
 
     if (chainedHTTPSProxy != null && !isHTTPProxy) {
-      barfUsage("Routing through a HTTP/HTTPS proxy is not supported " +
-                "\nin port forwarding mode.");
+      throw barfError("routing through a HTTP/HTTPS proxy is not supported " +
+                      "in port forwarding mode.");
     }
 
     final StringBuffer startMessage = new StringBuffer();
@@ -367,60 +381,53 @@ public final class TCPProxy {
       }
     }
 
-    System.err.println(startMessage);
+    m_logger.error(startMessage.toString());
 
-    try {
-      final TCPProxySSLSocketFactory sslSocketFactory =
-        keyStoreFile != null ?
-        new TCPProxySSLSocketFactoryImplementation(keyStoreFile,
-                                                   keyStorePassword,
-                                                   keyStoreType) :
-        new TCPProxySSLSocketFactoryImplementation();
+    final TCPProxySSLSocketFactory sslSocketFactory =
+      keyStoreFile != null ?
+      new TCPProxySSLSocketFactoryImplementation(keyStoreFile,
+                                                 keyStorePassword,
+                                                 keyStoreType) :
+      new TCPProxySSLSocketFactoryImplementation();
 
-      if (isHTTPProxy) {
+    if (isHTTPProxy) {
+      m_proxyEngine =
+        new HTTPProxyTCPProxyEngine(
+          sslSocketFactory,
+          requestFilter, responseFilter,
+          outputWriter,
+          localEndPoint,
+          useColour,
+          timeout,
+          chainedHTTPProxy, chainedHTTPSProxy);
+    }
+    else {
+      if (useSSLPortForwarding) {
         m_proxyEngine =
-          new HTTPProxyTCPProxyEngine(
+          new PortForwarderTCPProxyEngine(
             sslSocketFactory,
             requestFilter, responseFilter,
             outputWriter,
-            localEndPoint,
+            new ConnectionDetails(localEndPoint, remoteEndPoint, true),
             useColour,
-            timeout,
-            chainedHTTPProxy, chainedHTTPSProxy);
+            timeout);
       }
       else {
-        if (useSSLPortForwarding) {
-          m_proxyEngine =
-            new PortForwarderTCPProxyEngine(
-              sslSocketFactory,
-              requestFilter, responseFilter,
-              outputWriter,
-              new ConnectionDetails(localEndPoint, remoteEndPoint, true),
-              useColour,
-              timeout);
-        }
-        else {
-          m_proxyEngine =
-            new PortForwarderTCPProxyEngine(
-              requestFilter, responseFilter,
-              outputWriter,
-              new ConnectionDetails(localEndPoint, remoteEndPoint, false),
-              useColour,
-              timeout);
-        }
+        m_proxyEngine =
+          new PortForwarderTCPProxyEngine(
+            requestFilter, responseFilter,
+            outputWriter,
+            new ConnectionDetails(localEndPoint, remoteEndPoint, false),
+            useColour,
+            timeout);
       }
-
-      if (console) {
-        new TCPProxyConsole(m_proxyEngine);
-      }
-
-      System.err.println("Engine initialised, listening on port " + localPort);
     }
-    catch (Throwable e) {
-      System.err.println("Could not initialise engine:");
-      e.printStackTrace();
-      System.exit(2);
+
+    if (console) {
+      new TCPProxyConsole(m_proxyEngine);
     }
+
+    m_logger.error("Engine initialised, listening on port " + localPort);
   }
 
   private TCPProxyFilter instantiateFilter(
@@ -439,12 +446,12 @@ public final class TCPProxy {
       filterClass = Class.forName(filterClassName);
     }
     catch (ClassNotFoundException e) {
-      throw barfUsage("Class '" + filterClassName + "' not found.");
+      throw barfError("class '" + filterClassName + "' not found.");
     }
 
     if (!TCPProxyFilter.class.isAssignableFrom(filterClass)) {
-      throw barfUsage("The specified filter class ('" + filterClass.getName() +
-                      "') does not implement the interface: '" +
+      throw barfError("the class '" + filterClass.getName() +
+                      "' does not implement the interface: '" +
                       TCPProxyFilter.class.getName() + "'.");
     }
 
@@ -457,16 +464,15 @@ public final class TCPProxy {
         new Object[] {outputWriter});
     }
     catch (NoSuchMethodException e) {
-      throw barfUsage(
-        "The class '" + filterClass.getName() +
-        "' does not have a constructor that takes a PrintWriter.");
+      throw barfError("the class '" + filterClass.getName() + "' does not " +
+                      "have a constructor that takes a PrintWriter.");
     }
     catch (IllegalAccessException e) {
-      throw barfUsage("The constructor of class '" + filterClass.getName() +
+      throw barfError("the constructor of class '" + filterClass.getName() +
                       "' is not public.");
     }
     catch (InstantiationException e) {
-      throw barfUsage("The class '" + filterClass.getName() +
+      throw barfError("the class '" + filterClass.getName() +
                       "' is abstract.");
     }
   }
@@ -532,7 +538,11 @@ public final class TCPProxy {
       });
 
     m_proxyEngine.run();
-    System.err.println("Engine exited");
-    System.exit(0);
+  }
+
+  private class LoggedInitialisationException extends GrinderException {
+    public LoggedInitialisationException(String message) {
+      super(message);
+    }
   }
 }
