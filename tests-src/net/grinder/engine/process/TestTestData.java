@@ -129,6 +129,9 @@ public class TestTestData extends TestCase {
   }
 
   public void testCreateProxy() throws Exception {
+
+    System.setProperty("python.verbose", "warning");
+
     PySystemState.initialize();
 
     final PySystemState systemState = new PySystemState();
