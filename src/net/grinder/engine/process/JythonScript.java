@@ -60,17 +60,16 @@ final class JythonScript {
     m_systemState = new PySystemState();
     m_interpreter = new PythonInterpreter(null, m_systemState);
 
-    m_interpreter.set("grinder",
-                      new ImplicitGrinderIsDeprecated(
-                        processContext.getScriptContext(),
-                        processContext.getLogger()).getScriptContext());
+    m_interpreter.set(
+      "grinder",
+      new ImplicitGrinderIsDeprecated(processContext.getScriptContext()));
 
     final String parentPath = scriptFile.getParent();
 
     m_systemState.path.insert(0, new PyString(parentPath != null ?
                                               parentPath : ""));
 
-    processContext.getLogger().output(
+    processContext.getProcessLogger().output(
       "executing \"" + scriptFile.getPath() + "\"");
 
     try {
@@ -199,13 +198,10 @@ final class JythonScript {
     implements InvocationHandler {
 
     private final Grinder.ScriptContext m_delegate;
-    private final Logger m_logger;
     private boolean m_warned = false;
 
-    public ImplicitGrinderIsDeprecated(Grinder.ScriptContext delegate,
-                                       Logger logger) {
+    public ImplicitGrinderIsDeprecated(Grinder.ScriptContext delegate) {
       m_delegate = delegate;
-      m_logger = logger;
     }
 
     public Object invoke(Object proxy, Method method, Object[] parameters)
@@ -213,12 +209,13 @@ final class JythonScript {
 
       if (!m_warned) {
         m_warned = true;
-        m_logger.output("The implicit 'grinder' object is deprecated. " +
-                        "Add the following line to the start of your script " +
-                        "to ensure it is compatible with future versions of " +
-                        "The Grinder:" +
-                        "\n\tfrom net.grinder.script.Grinder import grinder",
-                        Logger.LOG | Logger.TERMINAL);
+
+        m_delegate.getLogger().output(
+          "The implicit 'grinder' object is deprecated. Add the following " +
+          "line to the start of your script to ensure it is compatible " +
+          "with future versions of The Grinder:" +
+          "\n\tfrom net.grinder.script.Grinder import grinder",
+          Logger.LOG | Logger.TERMINAL);
       }
 
       final Method delegateMethod =
