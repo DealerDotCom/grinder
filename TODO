@@ -22,11 +22,6 @@ a request with the authentication headers.
 
 * Enhancements
 
-** Measure variance (Ambitious)
-
-Measure test variance. This would involve the console broadcasting the
-total mean, and then listening for the reported variance.
-
 ** Console
 
 *** Script editing
@@ -61,6 +56,17 @@ Linear initial sleep time to allow thread's to ramp up. (Feature
 Request 801129).
 
 Consider forcing TestRunner to be registered with grinder.
+
+** Statistics
+*** Measure variance (Ambitious)
+
+Measure test variance. This would involve the console broadcasting the
+total mean, and then listening for the reported variance.
+
+*** Separate out console statistics views from summary statistics views
+
+Needed for custom statistics that use 'period' so are valid in the
+console but not in the process logs.
 
 ** TCPProxy
 
@@ -114,7 +120,6 @@ Idea from Nurul Choudhury:
  > Event counting - The Jython code can create a named event and fire
  > the event when some condition was met. When the console polls for
  > statistics the events and their count would be sent to the console.
-
 
 *** Error reporting
 
