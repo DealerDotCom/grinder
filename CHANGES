@@ -15,7 +15,15 @@ Grinder 3.0-beta18
 
    - Minor updates to HTTPPluginTCPProxyFilter2.
 
-  The Sniffer web app has been removed.
+  Remvoe the Sniffer web app.
+
+  Fail hard if script attempts to register detail statistics view from
+  worker thread.
+
+  Support scripts that sleep outside of worker threads.
+
+  Allow table cells to be copied to clipboard and (with J2SE 1.4 and
+  later) copy dragged.
 
 
 Grinder 3.0-beta17

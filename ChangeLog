@@ -1,4 +1,103 @@
-2004-01-19  Philip Aston  <philipa@mail.com>
+2004-01-31  Philip Aston  <philipa@paston01>
+
+	* src/net/grinder/console/swingui/Table.java:
+	Allow table cells to be copied to clipboard and (with J2SE 1.4 and
+	later) copy dragged.
+
+	* src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ThreadContext.java:
+	Support scripts that sleep in process context.
+
+	* src/net/grinder/engine/process/LoggerImplementation.java:
+	No need for getProcessLogger() to throw anything.
+
+	* build.xml, CHANGES: Remove Sniffer web app.
+
+	* src/net/grinder/script/Grinder.java:
+	Document registerSummaryStatisticsView restriction.
+
+	* src/net/grinder/engine/process/ScriptContextImplementation.java:
+	Fail hard if script attempts to register detail statistics view from
+	worker thread.
+
+	* src/net/grinder/common/GrinderException.java:
+	Fix for platform specific line separator.
+
+	* CHANGES, contrib/httpplugin/TCPProxy.properties, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java:
+	Updates from Bertrand:
+	 - Provide access to HTTPClient content and transfer decoding support.
+	 - Minor updates to HTTPPluginTCPProxyFilter2.
+
+	* src/net/grinder/console/swingui/LookAndFeel.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/SwingDispatchedPropertyChangeListener.java, src/net/grinder/console/swingui/resources/Console.properties, tests-src/net/grinder/console/swingui/TestSwingDispatchedPropertyChangeListener.java, CHANGES, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/ErrorDialogHandler.java:
+	Look and Feel UI.
+
+	* src/net/grinder/console/swingui/LabelledGraph.java:
+	Dynamically calculate default colour.
+	Resize so that the error count again can be seen.
+
+	* src/net/grinder/console/swingui/Table.java:
+	Dynamically calculate default colour.
+
+	* src/net/grinder/console/swingui/ErrorDialogHandler.java:
+	Handle font colour in the HTML.
+
+	* LICENSE, src/net/grinder/console/swingui/resources/about.html, xdoc/license-xhtml.xml:
+	s/Jum/Jim/g.
+
+	* src/net/grinder/console/model/ConsoleProperties.java: Checkstyle.
+
+	* tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Assert that listeners are called.
+
+	* src/net/grinder/console/model/ConsoleProperties.java:
+	Fix property change notification for script distribution files and
+	lookAndFeel.
+
+2004-01-30  Philip Aston  <philipa@paston01>
+
+	* TODO: To do.
+
+	* xdoc/g3/tcpproxy-xhtml.xml: Link to the JSSE samples.
+
+2004-01-28  Philip Aston  <philipa@paston01>
+
+	* src/net/grinder/console/model/ConsoleProperties.java, tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Add LAF to console properties.
+
+2004-01-27  Philip Aston  <philipa@paston01>
+
+	* src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties:
+	More playing with layout.
+	LAF UI.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/SamplingControlPanel.java:
+	More playing with layout.
+
+2004-01-26  Philip Aston  <philipa@paston01>
+
+	* src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/SamplingControlPanel.java:
+	Tweak layout.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java: Comment.
+
+	* CHANGES, src/net/grinder/util/InsecureSSLContextFactory.java:
+	Fix TCPProxy SSL support.
+
+	* src/net/grinder/communication/ResourcePool.java: No need to cast.
+
+	* examples/email.py, xdoc/g3/script-gallery-xhtml.xml:
+	Correct spelling.
+
+	* TODO: Thoughts.
+
+2004-01-19  Philip Aston  <philipa@paston01>
+
+	* TODO: More ideas.
+
+	* src/net/grinder/console/swingui/resources/logo-large.png, src/net/grinder/console/swingui/resources/logo-transparent.png, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/swingui/resources/Console.properties:
+	Make the large logo transparent and rename resource to
+	logo-large.image.
+
+	* TODO: Statistics work to do.
 
 	* TODO: Progress.
 

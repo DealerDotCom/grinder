@@ -24,9 +24,7 @@ a request with the authentication headers.
 
 ** Console
 
-Should be able to copy and paste from results tables.
-
-L&F options. Consider adding support for Skinit.
+Consider adding support for Skinit.
 
 *** Script editing
 
@@ -77,9 +75,6 @@ Linear initial sleep time to allow thread's to ramp up. (Feature
 Request 801129).
 
 Consider forcing TestRunner to be registered with grinder.
-
-Warn that it won't affect the log files if attempting to register
-detail statistics after threads have started.
 
 ** Statistics
 *** Measure variance (Ambitious)
@@ -137,8 +132,6 @@ to be recorded.
 
 Script access to global statistics.
 
-Support scripts that sleep up front.
-
 *** Events
 Idea from Nurul Choudhury:
  > Event counting - The Jython code can create a named event and fire
@@ -158,8 +151,6 @@ Idea from Nurul Choudhury:
 ** Code
 
 Review use of InterruptedException
-
-Remove SnifferWebApp.
 
 Shouldn't really throw GrinderException anywhere.
 
