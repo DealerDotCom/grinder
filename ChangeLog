@@ -1,3 +1,11 @@
+2001-09-23  Philip Aston  <paston@bea.com>
+
+	* build.xml: Next is 2.7.2.
+
+	* src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/junit/JUnitPlugin.java, src/net/grinder/plugininterface/Test.java, src/net/grinder/plugininterface/TestImplementation.java, src/net/grinder/util/PropertiesHelper.java, tests-src/net/grinder/engine/process/TestTestData.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java:
+	Test.getIndex() was a bad idea, poluting a key interface with
+	implementation concerns. Do it right.
+
 2001-09-22  Philip Aston  <paston@bea.com>
 
 	* The Grinder 2.7.1 is released.
