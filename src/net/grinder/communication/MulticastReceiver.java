@@ -62,8 +62,9 @@ public final class MulticastReceiver extends AbstractReceiver
 	}
 	catch (IOException e) {
 	    throw new CommunicationException(
-		"Could not bind to multicast address " +
-		multicastAddressString + ":" + multicastPort, e);
+		"Could not bind to multicast address '" +
+		multicastAddressString + ":" + multicastPort + "'",
+		e);
 	}
 
 	m_packet = new DatagramPacket(m_buffer, m_buffer.length);

@@ -70,8 +70,9 @@ public final class UnicastReceiver extends AbstractReceiver
 	    }
 	    catch (IOException e) {
 		throw new CommunicationException(
-		    "Could not bind to TCP address " + addressString + ":" + 
-		    port, e);
+		    "Could not bind to TCP address '" + addressString + ":" + 
+		    port + "'",
+		    e);
 	    }
 	}
 	else {
@@ -80,7 +81,8 @@ public final class UnicastReceiver extends AbstractReceiver
 	    }
 	    catch (IOException e) {
 		throw new CommunicationException(
-		    "Could not bind to port " + port + " on local interfaces",
+		    "Could not bind to port '" + port +
+		    "' on local interfaces",
 		    e);
 	    }
 	}

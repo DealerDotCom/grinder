@@ -71,7 +71,8 @@ public class UnicastSender extends AbstractSender
 	}
 	catch (IOException e) {
 	    throw new CommunicationException(
-		"Could not bind to TCP address " + addressString + ":" + port,
+		"Could not bind to TCP address '" + addressString + ":" +
+		port + "'",
 		e);
 	}
 

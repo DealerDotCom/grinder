@@ -73,8 +73,9 @@ public class MulticastSender extends AbstractSender
 	}
 	catch (IOException e) {
 	    throw new CommunicationException(
-		"Could not bind to multicast address " +
-		multicastAddressString);
+		"Could not bind to multicast address '" +
+		multicastAddressString + "'",
+		e);
 	}
 
 	m_packet = new DatagramPacket(getScratchByteStream().getBytes(), 0,
