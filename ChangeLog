@@ -1,3 +1,20 @@
+2003-09-28  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/script/Grinder.java, src/net/grinder/script/ScriptContext.java, src/net/grinder/script/overview.html, src/net/grinder/common/GrinderProperties.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/RegisteredPlugin.java, src/net/grinder/engine/process/ScriptContextImplementation.java:
+	Change mind. Go back to 'grinder' context object, and allow modules to
+	import it from net.grinder.script.Grinder.
+
+	* src/net/grinder/common/GrinderProperties.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/RegisteredPlugin.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/script/Grinder.java, src/net/grinder/script/ScriptContext.java, src/net/grinder/script/overview.html:
+	Replace implicit "grinder" object with Grinder class containing static
+	facade.
+
+	* TODO: Another bug to fix.
+
+	* xdoc/development/contributing-xhtml.xml, xdoc/documentation.xweb:
+	Notes for contributers.
+
+	* xdoc/book-xhtml.xml: Update for APress.
+
 2003-09-25  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, TODO, xdoc/documentation.xweb, xdoc/g3/tcpproxy-xhtml.xml, xdoc/images/tcpproxy-ssl.gif, xdoc/images/tcpproxy.gif, xdoc/images/tcpproxy.vsd:
