@@ -247,13 +247,6 @@ public class GrinderProperties extends Properties
 		       "net.grinder.plugin.simple.SimpleBmk");
 	defaults.put("grinder.cycleParams",
 		       "[paramA]a,[paramB]500,[paramC]10.2");
-	defaults.put("grinder.jvm.path", "c:\\jdk1.2.2\\bin\\java");        
-	defaults.put("grinder.jvm.args", "");
-	defaults.put("grinder.jvms", "1");
-	defaults.put("grinder.ms.arg", "-ms");
-	defaults.put("grinder.ms", "16");
-	defaults.put("grinder.mx.arg", "-mx");
-	defaults.put("grinder.mx", "32");
 	defaults.put("grinder.threads", "2");
 	defaults.put("grinder.times", "3");
 	defaults.put("grinder.initialWait", "false");
