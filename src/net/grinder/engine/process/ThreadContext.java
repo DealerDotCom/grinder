@@ -24,11 +24,9 @@ package net.grinder.engine.process;
 
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderProperties;
-import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Statistics;
-import net.grinder.util.Sleeper;
 
 
 /**
@@ -44,7 +42,6 @@ final class ThreadContext implements PluginThreadContext {
   private final ProcessContext m_processContext;
   private final ThreadLogger m_threadLogger;
   private final FilenameFactory m_filenameFactory;
-  private final Sleeper m_sleeper;
 
   private final ScriptStatisticsImplementation m_scriptStatistics;
 
@@ -72,8 +69,6 @@ final class ThreadContext implements PluginThreadContext {
                                          processContext.getRecordTime());
 
     final GrinderProperties properties = processContext.getProperties();
-
-    m_sleeper = m_processContext.createSleeper(properties, m_threadLogger);
   }
 
   void setThreadInstance() {
@@ -84,11 +79,7 @@ final class ThreadContext implements PluginThreadContext {
     return (ThreadContext)s_threadInstance.get();
   }
 
-  public Logger getLogger() {
-    return m_threadLogger;
-  }
-
-  public FilenameFactory getFilenameFactory() {
+  FilenameFactory getFilenameFactory() {
     return m_filenameFactory;
   }
 
@@ -193,10 +184,6 @@ final class ThreadContext implements PluginThreadContext {
 
   void endRun() {
     m_scriptStatistics.endRun();
-  }
-
-  Sleeper getSleeper() {
-    return m_sleeper;
   }
 
   public long getStartTime() {
