@@ -1,3 +1,14 @@
+2002-04-14  Philip Aston  <paston@bea.com>
+
+	* doc/HTTPPlugin.txt: Document HTTPClientResponseListener.
+
+	* src/net/grinder/plugin/http/HTTPClientResponseListener.java, src/net/grinder/plugin/http/example/ExampleStringBean3.java:
+	New file.
+
+	* src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HTTPClientResponseListener.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/http/example/ExampleStringBean3.java:
+	Quick hack to allow StringBeans to access the HTTPClient HTTPResponse
+	object.
+
 2002-03-18  Philip Aston  <paston@bea.com>
 
 	* AUTHORS, CHANGES, src/net/grinder/plugin/http/HTTPClientHandler.java:
