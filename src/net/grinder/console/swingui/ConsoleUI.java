@@ -1033,22 +1033,40 @@ public final class ConsoleUI implements ModelListener {
     }
   }
 
-  private class EnableIfAgentsConnected
+  private abstract class AbstractEnableIfAgentsConnected
     implements AgentStatus.ConnectionListener {
 
     private final Action m_action;
 
-    EnableIfAgentsConnected(Action action) {
+    AbstractEnableIfAgentsConnected(Action action) {
       m_action = action;
-      m_action.setEnabled(m_agentStatus.isAnAgentConnected());
     }
 
-    public void agentConnected() {
-      m_action.setEnabled(true);
+    public final void agentConnected() {
+      enableOrDisable();
     }
 
-    public void agentDisconnected() {
-      m_action.setEnabled(m_agentStatus.isAnAgentConnected());
+    public final void agentDisconnected() {
+      m_action.setEnabled(shouldEnable());
+    }
+
+    protected final void enableOrDisable() {
+      m_action.setEnabled(shouldEnable());
+    }
+
+    protected abstract boolean shouldEnable();
+  }
+
+  private final class EnableIfAgentsConnected
+    extends AbstractEnableIfAgentsConnected {
+
+    EnableIfAgentsConnected(Action action) {
+      super(action);
+      enableOrDisable();
+    }
+
+    protected boolean shouldEnable() {
+      return m_agentStatus.isAnAgentConnected();
     }
   }
 
@@ -1305,9 +1323,22 @@ public final class ConsoleUI implements ModelListener {
 
       agentCacheState.addListener(new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent ignored) {
-            setEnabled(agentCacheState.getOutOfDate());
+            setEnabled(shouldEnable());
           }
         });
+
+      m_agentStatus.addConnectionListener(
+        new AbstractEnableIfAgentsConnected(this) {
+          protected boolean shouldEnable() {
+            return DistributeFilesAction.this.shouldEnable();
+          }
+        });
+    }
+
+    private boolean shouldEnable() {
+      return
+        m_fileDistribution.getAgentCacheState().getOutOfDate() &&
+        m_agentStatus.isAnAgentConnected();
     }
 
     public void actionPerformed(ActionEvent event) {
