@@ -2814,6 +2814,21 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     {
 	return check_certificates;
     }
+
+    
+     /**
+      * Allow local address and port to be modified after
+      * HTTPConnection has been created. Will only affect new socket
+      * connections, so you may want to call stop() first.
+      *
+      * @param localAddress an <code>InetAddress</code> value
+      * @param localPort an <code>int</code> value
+      */
+    public final void setLocalAddress(InetAddress localAddress,
+				      int localPort) {
+      LocalAddr = localAddress;
+      LocalPort = localPort;
+    }
     /** --GRINDER MODIFICATION **/
 
     /**
