@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -222,7 +222,7 @@ final class FileTree {
               (FileTreeModel.FileNode)node;
 
             fileNode.setBuffer(buffer);
-            scrollFileTreePathToVisible(fileNode.getPath());
+            m_tree.scrollPathToVisible(treePathForFileNode(fileNode));
           }
         }
       }
@@ -247,15 +247,6 @@ final class FileTree {
         m_fileTreeModel.valueForPathChanged(fileNode.getPath(), fileNode);
       }
     }
-  }
-
-  private void scrollFileTreePathToVisible(TreePath fileTreePath) {
-    final Object[] filePath = fileTreePath.getPath();
-    final Object[] path = new Object[filePath.length + 1];
-    System.arraycopy(filePath, 0, path, 1, filePath.length);
-    path[0] = m_tree.getModel().getRoot();
-
-    m_tree.scrollPathToVisible(new TreePath(path));
   }
 
   public JComponent getComponent() {
@@ -511,6 +502,21 @@ final class FileTree {
     }
   }
 
+  /**
+   * Hard to see how this could be easily incorporated into
+   * CompositeTreeModel without having the child models know about the
+   * composite model.
+   */
+  private TreePath treePathForFileNode(FileTreeModel.FileNode fileNode) {
+    final Object[] original = fileNode.getPath().getPath();
+    final Object[] result = new Object[original.length + 1];
+    System.arraycopy(original, 0, result, 1, original.length);
+
+    result[0] = m_tree.getModel().getRoot();
+
+    return new TreePath(result);
+  }
+
   private void selectBufferNode(BufferTreeModel.BufferNode bufferNode) {
     m_editorModel.selectBuffer(bufferNode.getBuffer());
   }
@@ -519,6 +525,13 @@ final class FileTree {
     try {
       fileNode.setBuffer(
         m_editorModel.selectBufferForFile(fileNode.getFile()));
+
+      // The above line can add the buffer to the editor model which
+      // causes the BufferTreeModel to fire a top level structure
+      // change, which in turn causes the selection to clear. We
+      // reselect the original node so our actions are enabled
+      // correctly.
+      m_tree.setSelectionPath(treePathForFileNode(fileNode));
     }
     catch (ConsoleException e) {
       m_errorHandler.handleException(
