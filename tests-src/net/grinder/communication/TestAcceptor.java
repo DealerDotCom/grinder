@@ -137,8 +137,10 @@ public class TestAcceptor extends TestCase {
     acceptor2.shutdown();
 
     assertEquals(threadGroup, acceptor1.getThreadGroup());
-    Thread.yield();
-    assertTrue(threadGroup.isDestroyed());
+
+    while (!threadGroup.isDestroyed()) {
+      Thread.sleep(10);
+    }
   } 
 
   public void testShutdown() throws Exception {
