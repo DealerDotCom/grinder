@@ -22,6 +22,9 @@
 package net.grinder.engine.process;
 
 import java.io.File;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import org.python.core.PyException;
 import org.python.core.PyObject;
@@ -29,7 +32,9 @@ import org.python.core.PyString;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
+import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
+import net.grinder.script.Grinder;
 
 
 /**
@@ -55,7 +60,10 @@ final class JythonScript {
     m_systemState = new PySystemState();
     m_interpreter = new PythonInterpreter(null, m_systemState);
 
-    m_interpreter.set("grinder", processContext.getScriptContext());
+    m_interpreter.set("grinder",
+                      new ImplicitGrinderIsDeprecated(
+                        processContext.getScriptContext(),
+                        processContext.getLogger()).getScriptContext());
 
     final String parentPath = scriptFile.getParent();
 
@@ -184,6 +192,47 @@ final class JythonScript {
       // it impossible to turn it off at a class level. Instead we do
       // this:
       m_testRunner.__class__ = null;
+    }
+  }
+
+  private static final class ImplicitGrinderIsDeprecated
+    implements InvocationHandler {
+
+    private final Grinder.ScriptContext m_delegate;
+    private final Logger m_logger;
+    private boolean m_warned = false;
+
+    public ImplicitGrinderIsDeprecated(Grinder.ScriptContext delegate,
+                                       Logger logger) {
+      m_delegate = delegate;
+      m_logger = logger;
+    }
+
+    public Object invoke(Object proxy, Method method, Object[] parameters)
+      throws Throwable {
+
+      if (!m_warned) {
+        m_warned = true;
+        m_logger.output("The implicit 'grinder' object is deprecated. " +
+                        "Add the following line to the start of your script " +
+                        "to ensure it is compatible with future versions of " +
+                        "The Grinder:" +
+                        "\n\tfrom net.grinder.Grinder import grinder",
+                        Logger.LOG | Logger.TERMINAL);
+      }
+
+      final Method delegateMethod =
+        m_delegate.getClass().getMethod(method.getName(),
+                                        method.getParameterTypes());
+
+      return delegateMethod.invoke(m_delegate, parameters);
+    }
+
+    public Grinder.ScriptContext getScriptContext() {
+      return (Grinder.ScriptContext)Proxy.newProxyInstance(
+        m_delegate.getClass().getClassLoader(),
+        new Class[] {Grinder.ScriptContext.class},
+        this);
     }
   }
 }

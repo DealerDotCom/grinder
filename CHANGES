@@ -1,3 +1,12 @@
+Grinder 3.0-beta15
+------------------
+
+  The use of the implicit 'grinder' script context object is
+  deprecated. You should explicitly "from net.grinder.Grinder import
+  grinder" in your scripts to ensure they remain compatible with
+  future releases.
+
+
 Grinder 3.0-beta14
 ------------------
 

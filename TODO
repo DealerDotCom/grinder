@@ -1,8 +1,8 @@
 -*- mode:outline; minor-mode:outl-mouse -*-
 
 If anyone wants to pick something off this wish list, let me know
-first. I prefer unified diff patches. Mail them to
-grinder-development@lists.sourceforge.net.
+first. There are instructions on how to contribute at
+http://grinder.sourceforge.net/development/contributing.html.
 
 The wish list is part of the distribution, I'll accept patches against
 it too :-).
@@ -60,8 +60,6 @@ test runs etc.
 
 Linear initial sleep time to allow thread's to ramp up. (Feature
 Request 801129).
-
-Add deprecation warning for use of grinder without import.
 
 Consider forcing TestRunner to be registered with grinder.
 
