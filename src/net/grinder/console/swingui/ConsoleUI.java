@@ -215,7 +215,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 
 	tabbedPane.addTab(m_resources.getString("cumulativeTableTab.title"),
 			  m_resources.getImageIcon("cumulativeTableTab.image"),
-			  new JScrollPane(new TestTable(cumulativeModel)),
+			  new JScrollPane(new Table(cumulativeModel)),
 			  m_resources.getString("cumulativeTableTab.tip"));
 
 	final SampleStatisticsTableModel sampleModel =
@@ -223,8 +223,17 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 
 	tabbedPane.addTab(m_resources.getString("sampleTableTab.title"),
 			  m_resources.getImageIcon("sampleTableTab.image"),
-			  new JScrollPane(new TestTable(sampleModel)),
+			  new JScrollPane(new Table(sampleModel)),
 			  m_resources.getString("sampleTableTab.tip"));
+
+	final ProcessStatusTableModel processStatusModel =
+	    new ProcessStatusTableModel(model, m_resources);
+
+	tabbedPane.addTab(m_resources.getString("processStatusTableTab.title"),
+			  m_resources.getImageIcon(
+			      "processStatusTableTab.image"),
+			  new JScrollPane(new Table(processStatusModel)),
+			  m_resources.getString("processStatusTableTab.tip"));
 
 	final JPanel contentPanel = new JPanel(new BorderLayout());
 	contentPanel.add(hackToFixLayout, BorderLayout.WEST);

@@ -18,31 +18,37 @@
 
 package net.grinder.console.swingui;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
+import javax.swing.SwingUtilities;
+
+import net.grinder.common.ProcessStatus;
+import net.grinder.console.model.ProcessStatusSetListener;
 
 
 /**
+ * ProcessStatusSetListener Decorator that disptaches the update()
+ * notifications via a Swing thread.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public class AllTests
+class SwingDispatchedProcessStatusSetListener
+    implements ProcessStatusSetListener
 {
-    public static void main(String[] args)
+    private final ProcessStatusSetListener m_delegate;
+
+    public SwingDispatchedProcessStatusSetListener(
+	ProcessStatusSetListener delegate)
     {
-	TestRunner.run(AllTests.class);
+	m_delegate = delegate;
     }
 
-    public static Test suite()
+    public void update(final ProcessStatus[] data, final int running,
+		       final int total)
     {
-	final TestSuite suite = new TestSuite();
-	suite.addTest(new TestSuite(TestGraph.class));
-	suite.addTest(new TestSuite(TestSwingDispatchedModelListener.class));
-	suite.addTest(new TestSuite(
-			  TestSwingDispatchedProcessStatusSetListener.class));
-	suite.addTest(new TestSuite(TestSwingDispatchedSampleListener.class));
-	return suite;
+	SwingUtilities.invokeLater(
+	    new Runnable() {
+		public void run() { m_delegate.update(data, running, total); }
+	    }
+	    );
     }
 }
