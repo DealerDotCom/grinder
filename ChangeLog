@@ -1,3 +1,9 @@
+2002-05-26  Philip Aston  <paston@bea.com>
+
+	* The Grinder 2.8.3 is released.
+
+	* build.xml: Include multicast tests again.
+
 2002-05-24  Philip Aston  <paston@bea.com>
 
 	* TODO, doc/TCPSniffer.txt: Update doc.
