@@ -88,64 +88,6 @@ public class TestFanOutStreamSender extends TestCase {
     serverSender.shutdown();
   }
 
-  public void testRemove() throws Exception {
-
-    final FanOutStreamSender serverSender = new FanOutStreamSender();
-
-    final PipedInputStream[] inputStreams = new PipedInputStream[10];
-    final PipedOutputStream[] outputStreams =
-      new PipedOutputStream[inputStreams.length];
-
-    for (int i=0; i<outputStreams.length; ++i) {
-      inputStreams[i] = new PipedInputStream();
-      outputStreams[i] = new PipedOutputStream(inputStreams[i]);
-      serverSender.add(outputStreams[i]);
-    }
-
-    final SimpleMessage message1 = new SimpleMessage();
-    final SimpleMessage message2 = new SimpleMessage();
-
-    message1.setSenderInformation("Grinder ID", getClass().getName(), 1);
-    message2.setSenderInformation("Grinder ID", getClass().getName(), 2);
-
-    serverSender.send(message1);
-
-    for (int i=0; i<outputStreams.length; ++i) {
-
-      final ObjectInputStream inputStream =
-        new ObjectInputStream(inputStreams[i]);
-      final Object o1 = inputStream.readObject();
-
-      assertEquals(message1, o1);
-      assertTrue(message1.payloadEquals((Message) o1));
-
-      assertEquals(0, inputStreams[i].available());
-    }
-
-    // Remove every other stream.
-    for (int i=0; i<outputStreams.length; i+=2) {
-      serverSender.remove(outputStreams[i]);
-    }
-
-    serverSender.send(message2);
-
-    for (int i=0; i<outputStreams.length; ++i) {
-
-      if (i % 2 != 0) {
-        final ObjectInputStream inputStream =
-          new ObjectInputStream(inputStreams[i]);
-        final Object o2 = inputStream.readObject();
-
-        assertEquals(message2, o2);
-        assertTrue(message2.payloadEquals((Message) o2));
-      }
-
-      assertEquals(0, inputStreams[i].available());
-    }
-    
-    serverSender.shutdown();
-  }
-
   public void testShutdown() throws Exception {
 
     final FanOutStreamSender serverSender = new FanOutStreamSender();

@@ -23,9 +23,7 @@ package net.grinder.communication;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 
 /**
@@ -37,7 +35,7 @@ import java.util.Set;
 public final class FanOutStreamSender extends AbstractSender {
 
   private final Kernel m_kernel;
-  private final Set m_outputStreams = new HashSet();
+  private final ResourcePool m_streamSet = new ResourcePool();
 
   /**
    * Constructor.
@@ -61,20 +59,7 @@ public final class FanOutStreamSender extends AbstractSender {
    * @param stream The stream.
    */
   public void add(OutputStream stream) {
-    synchronized (m_outputStreams) {
-      m_outputStreams.add(stream);
-    }
-  }
-
-  /**
-   * Remove a stream.
-   *
-   * @param stream The stream.
-   */
-  public void remove(OutputStream stream) {
-    synchronized (m_outputStreams) {
-      m_outputStreams.remove(stream);
-    }
+    m_streamSet.add(new OutputStreamResource(stream));
   }
 
   /**
@@ -86,18 +71,21 @@ public final class FanOutStreamSender extends AbstractSender {
   protected void writeMessage(Message message) throws IOException {
 
     try {
-      synchronized (m_outputStreams) {
-        final Iterator iterator = m_outputStreams.iterator();
+      final Iterator iterator = m_streamSet.reserveAll().iterator();
 
-        while (iterator.hasNext()) {
-          m_kernel.execute(
-            new WriteMessageToStream(message, (OutputStream) iterator.next()));
-        }
+      while (iterator.hasNext()) {
+        m_kernel.execute(
+          new WriteMessageToStream(
+            message, (ResourcePool.Reservation) iterator.next()));
       }
     }
     catch (Kernel.ShutdownException e) {
       // Assertion failure.
       throw new RuntimeException("Kernel unexpectedly shutdown");
+    }
+    catch (InterruptedException e) {
+      // Assertion failure.
+      throw new RuntimeException("Unexpectedly shutdown");
     }
   }
 
@@ -109,24 +97,55 @@ public final class FanOutStreamSender extends AbstractSender {
   public void shutdown() throws CommunicationException {
     super.shutdown();
     m_kernel.forceShutdown();
+    m_streamSet.close();
   }
 
   private static final class WriteMessageToStream implements Runnable {
     private final Message m_message;
-    private final OutputStream m_stream;
+    private final ResourcePool.Reservation m_reservation;
 
-    public WriteMessageToStream(Message message, OutputStream stream) {
+    public WriteMessageToStream(Message message,
+                                ResourcePool.Reservation reservation) {
       m_message = message;
-      m_stream = stream;
+      m_reservation = reservation;
     }
 
     public void run() {
       try {
-        writeMessageToStream(m_message, m_stream);
+        final OutputStreamResource streamResource =
+          (OutputStreamResource)m_reservation.getResource();
+
+        writeMessageToStream(m_message, streamResource.getOutputStream());
       }
       catch (IOException e) {
+        m_reservation.close();
         //            m_messageQueue.queue(e);
         e.printStackTrace();
+      }
+      finally {
+        m_reservation.free();
+      }
+    }
+  }
+
+  private final class OutputStreamResource implements ResourcePool.Resource {
+
+    private final OutputStream m_outputStream;
+
+    public OutputStreamResource(OutputStream outputStream) {
+      m_outputStream = outputStream;
+    }
+
+    public OutputStream getOutputStream() {
+      return m_outputStream;
+    }
+
+    public void close() {
+      try {
+        m_outputStream.close();
+      }
+      catch (IOException e) {
+        // Ignore.
       }
     }
   }
