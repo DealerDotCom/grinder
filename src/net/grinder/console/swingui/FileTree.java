@@ -199,6 +199,8 @@ final class FileTree extends JPanel {
 
     private final Font m_boldFont;
     private final Font m_boldItalicFont;
+    private final ImageIcon m_pythonIcon =
+      m_resources.getImageIcon("script.pythonfile.image");
 
     private boolean m_active;
 
@@ -216,10 +218,8 @@ final class FileTree extends JPanel {
       if (node instanceof FileTreeModel.FileNode) {
         final FileTreeModel.FileNode fileNode = (FileTreeModel.FileNode)node;
 
-        setLeafIcon(
-          fileNode.isPythonFile() ?
-          m_resources.getImageIcon("script.pythonfile.image") :
-          m_defaultRenderer.getLeafIcon());
+        setLeafIcon(fileNode.isPythonFile() ?
+                    m_pythonIcon : m_defaultRenderer.getLeafIcon());
 
         setTextNonSelectionColor(
           fileNode.isBoringFile() && !fileNode.isOpen() ?
