@@ -34,6 +34,7 @@ import java.util.TreeSet;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.console.common.ConsoleException;
+import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.PeakStatisticExpression;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticExpressionFactory;
@@ -110,7 +111,9 @@ public class Model
 
     private final StatisticsIndexMap.LongIndex m_periodIndex;
     private final StatisticExpression m_tpsExpression;
+    private final ExpressionView m_tpsExpressionView;
     private final PeakStatisticExpression m_peakTPSExpression;
+    private final ExpressionView m_peakTPSExpressionView;
 
     /**
      * System.currentTimeMillis is expensive. This is acurate to one
@@ -132,10 +135,17 @@ public class Model
 	    statisticExpressionFactory.createExpression(
 		"(* 1000 (/(+ untimedTransactions timedTransactions) period))",
 		indexMap);
+	
+	m_tpsExpressionView =
+	    new ExpressionView("TPS", "statistic.tps", m_tpsExpression);
 
 	m_peakTPSExpression =
 	    statisticExpressionFactory.createPeak(
 		indexMap.getIndexForDouble("peakTPS"), m_tpsExpression);
+	
+	m_peakTPSExpressionView =
+	    new ExpressionView("Peak TPS", "statistic.peakTPS",
+			       m_peakTPSExpression);
 
 	m_properties = properties;
 
@@ -171,9 +181,19 @@ public class Model
 	    });
     }
 
+    public ExpressionView getTPSExpressionView()
+    {
+	return m_tpsExpressionView;
+    }
+
     public StatisticExpression getTPSExpression()
     {
 	return m_tpsExpression;
+    }
+
+    public ExpressionView getPeakTPSExpressionView()
+    {
+	return m_peakTPSExpressionView;
     }
 
     public StatisticExpression getPeakTPSExpression()

@@ -70,6 +70,8 @@ public class TestStatisticsView extends TestCase
     {
 	final StatisticsView statisticsView = new StatisticsView();
 
+	assertEquals(0, statisticsView.getExpressionViews().length);
+
 	for (int i=0; i<m_views.length; ++i) {
 	    statisticsView.add(m_views[i]);
 	}
@@ -83,5 +85,30 @@ public class TestStatisticsView extends TestCase
 	assertEquals(m_views[1], expressionViews[1]);
 	assertEquals(m_views[2], expressionViews[2]);
 	assertEquals(m_views[3], expressionViews[3]);
+    }
+
+    public void testAddStatisticsView() throws Exception
+    {
+	final StatisticsView statisticsView = new StatisticsView();
+
+	statisticsView.add(statisticsView);
+	assertEquals(0, statisticsView.getExpressionViews().length);
+
+	final StatisticsView statisticsView2 = new StatisticsView();
+
+	statisticsView.add(statisticsView);
+	assertEquals(0, statisticsView.getExpressionViews().length);	
+
+	for (int i=0; i<m_views.length; ++i) {
+	    statisticsView.add(m_views[i]);
+	}
+
+	statisticsView2.add(statisticsView);
+	assertEquals(m_views.length,
+		     statisticsView2.getExpressionViews().length);
+
+	statisticsView2.add(statisticsView);
+	assertEquals(m_views.length,
+		     statisticsView2.getExpressionViews().length);
     }
 }

@@ -55,16 +55,29 @@ public class ExpressionView implements Comparable
 			  StatisticsIndexMap indexMap)
 	throws GrinderException
     {
+	this(displayName, displayNameResourceKey,
+	     s_statisticExpressionFactory.normaliseExpressionString(
+		 expressionString),
+	     s_statisticExpressionFactory.createExpression(expressionString,
+							   indexMap));
+    }
+
+    public ExpressionView(String displayName, String displayNameResourceKey,
+			  StatisticExpression expression)
+	throws GrinderException
+    {
+	this(displayName, displayNameResourceKey, "", expression);
+    }
+
+    private ExpressionView(String displayName, String displayNameResourceKey,
+			   String expressionString,
+			   StatisticExpression expression)
+	throws GrinderException
+    {
 	m_displayName = displayName;
 	m_displayNameResourceKey = displayNameResourceKey;
-
-	m_expressionString =
-	    s_statisticExpressionFactory.normaliseExpressionString(
-		expressionString);
-
-	m_expression =
-	    s_statisticExpressionFactory.createExpression(expressionString,
-							  indexMap);
+	m_expressionString = expressionString;
+	m_expression = expression;
 
 	synchronized(ExpressionView.class) {
 	    m_creationOrder = s_creationOrder++;
@@ -80,6 +93,11 @@ public class ExpressionView implements Comparable
 
     public final void myWriteExternal(ObjectOutput out) throws IOException
     {
+	if (m_expressionString == "") {
+	    throw new IOException(
+		"This expression view is not externalisable");
+	}
+
 	out.writeUTF(m_displayName);
 	out.writeUTF(m_displayNameResourceKey);
 	out.writeUTF(m_expressionString);
@@ -116,10 +134,16 @@ public class ExpressionView implements Comparable
 	final ExpressionView otherView = (ExpressionView)other;
 
 	return
-	    m_expressionString.equals(otherView.m_expressionString) &&
 	    m_displayName.equals(otherView.m_displayName) &&
 	    m_displayNameResourceKey.equals(
-		otherView.m_displayNameResourceKey);
+		otherView.m_displayNameResourceKey) &&
+
+	    // If either expression string is null, one of the views
+	    // is not externalisable. We then only compare on the
+	    // display names.
+	    (m_expressionString.length() == 0 ||
+	     otherView.m_expressionString.length() == 0 ||
+	     m_expressionString.equals(otherView.m_expressionString));
     }
 
     /**

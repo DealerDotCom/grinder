@@ -25,8 +25,6 @@ import net.grinder.common.GrinderException;
 
 
 /**
- * Unsynchronised.
- *
  * @author Philip Aston
  * @version $Revision$
  **/

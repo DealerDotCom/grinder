@@ -22,6 +22,11 @@ import junit.framework.TestCase;
 import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -65,6 +70,17 @@ public class TestExpressionView extends TestCase
 	assertEquals("My view", view.getDisplayName());
 	assertEquals("my.view", view.getDisplayNameResourceKey());
 	assert(view.getExpression() != null);
+
+	final StatisticExpressionFactory statisticExpressionFactory =
+	    StatisticExpressionFactory.getInstance();
+	final ExpressionView view2 =
+	    new ExpressionView("My view2", "my.view", 
+			       statisticExpressionFactory.createExpression(
+				   "one", m_indexMap));
+
+	assertEquals("My view2", view2.getDisplayName());
+	assertEquals("my.view", view2.getDisplayNameResourceKey());
+	assert(view.getExpression() != null);
     }
 
     public void testEquality() throws Exception
@@ -81,7 +97,6 @@ public class TestExpressionView extends TestCase
 	    new ExpressionView("My view", "my view", "(+ one two)",
 			       m_indexMap),
 	};
-	
 
 	assertEquals(views[0], views[1]);
 	assertEquals(views[1], views[0]);
@@ -110,5 +125,44 @@ public class TestExpressionView extends TestCase
 	assertEquals("Two", sorted[1].getDisplayName());
 	assertEquals("Three", sorted[2].getDisplayName());
 	assertEquals("Four", sorted[3].getDisplayName());
-    }    
+    }   
+
+    public void testExternalisation() throws Exception
+    {
+	final ExpressionView original =
+	    new ExpressionView("My view", "my.view", "(+ one two)",
+			       m_indexMap);
+
+	final ByteArrayOutputStream byteOutputStream =
+	    new ByteArrayOutputStream();
+
+	final ObjectOutputStream objectOutputStream =
+	    new ObjectOutputStream(byteOutputStream);
+
+	original.myWriteExternal(objectOutputStream);
+	objectOutputStream.close();
+
+	final ObjectInputStream objectInputStream =
+	    new ObjectInputStream(
+		new ByteArrayInputStream(byteOutputStream.toByteArray()));
+
+	final ExpressionView received = 
+	    new ExpressionView(objectInputStream, m_indexMap);
+
+	assertEquals(original, received);
+
+	final StatisticExpressionFactory statisticExpressionFactory =
+	    StatisticExpressionFactory.getInstance();
+	final ExpressionView cantStreamThis =
+	    new ExpressionView("My view2", "my.view", 
+			       statisticExpressionFactory.createExpression(
+				   "one", m_indexMap));
+
+	try {
+	    cantStreamThis.myWriteExternal(objectOutputStream);
+	    fail("Expected an IOException");
+	}
+	catch (IOException e) {
+	}
+    }
 }

@@ -34,7 +34,17 @@ public final class StatisticsView
      * @associates <{net.grinder.statistics.ExpressionView}>
      * @supplierCardinality 0..*
      */
-    private final SortedSet m_columns = new TreeSet();
+    private final SortedSet m_columns;
+
+    public StatisticsView()
+    {
+	m_columns = new TreeSet();
+    }
+
+    public void add(StatisticsView other)
+    {
+	m_columns.addAll(other.m_columns);
+    }
 
     public final void add(ExpressionView statistic)
     {
