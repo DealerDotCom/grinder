@@ -43,26 +43,30 @@ File cache should be up to date with directory structure below
 directory chosen by console. The root directory is part of python
 path.
 
+**** Tasks
 
 Task: Agent receives asynchronously.
 Task: Console to broadcast. Remove ScriptDistributionFiles work. 
 Task: Allow editing in the console.
 Task: DistributeFilesMessage -> DistributeFileMessage (send a single
 file). Send in a background thread with a progress bar.      
-
 Task: Console to maintain map of remote agent address to last update
 time. For now assume that agent cache should be overwritten. For now,
 find the oldest time and broadcast since then. Null -> send the lot.
 Task: Console to clear cache state on root change -> broadcast full
 cache on distribution. Need a special "clear cache" message.
+
 Task: Console to allow selection of script. Warn if no script
 selected.
+	- Should FileTree own actions?
+Task: Agent to receive selection of script.
 Task: Agent FileStore to update copy of cache asynchronously. Main
 agent thread to move it into place at good point in lifecycle to
 prevent locking of stale files by worker processes.
 
 - RELEASE - 
 
+Task: Console to indicate dirty state.
 Task: Console to check dirty state on play and auto broadcast. Need
 some way of synchronising before starting run.
 Task: Console to watch local file system for edits. 
@@ -85,6 +89,8 @@ Task: Better CRLF handling.
 
 Bug: Agent doesn't hang onto last start message when starting
 immediately.
+Bug: Reseting the agent causes a new connection -> files are
+distributed again.
 Bug: Each time L&F changes, the saveAs dialog gets another All
 Files filter!
 
