@@ -56,7 +56,6 @@ public class TestExternalLogger extends TestCase {
                                        new Object[] { "Hello" }, null);
     processLoggerFactory.assertNotCalled();
 
-    processLoggerFactory.resetCallHistory();
     externalLogger.error("Hello again", Logger.TERMINAL);
 
     processLoggerFactory.assertSuccess(
@@ -107,11 +106,16 @@ public class TestExternalLogger extends TestCase {
     externalLogger.output("Testing", Logger.LOG | Logger.TERMINAL);
     threadLoggerFactory1.assertSuccess(
       "output",
-      new Object[] { "Testing", new Integer(Logger.LOG | Logger.TERMINAL) });
+      new Object[] { "Testing", new Integer(Logger.LOG | Logger.TERMINAL) },
+      null);
+
+    processLoggerFactory.assertNotCalled();
+    threadLoggerFactory1.assertNotCalled();
+    threadLoggerFactory2.assertNotCalled();
 
     final Object errorLogWriter = externalLogger.getErrorLogWriter();
-    threadLoggerFactory1.assertSuccess("getErrorLogWriter", new Object[] {},
-                                       errorLogWriter);
+    threadLoggerFactory1.assertSuccess(
+      "getErrorLogWriter", new Object[] {}, errorLogWriter);
 
     processLoggerFactory.assertNotCalled();
     threadLoggerFactory1.assertNotCalled();
@@ -120,8 +124,8 @@ public class TestExternalLogger extends TestCase {
     threadContextLocator.set(null);
 
     externalLogger.error("Another test");
-    processLoggerFactory.assertSuccess("error",
-                                       new Object[] { "Another test" });
+    processLoggerFactory.assertSuccess(
+      "error", new Object[] { "Another test" }, null);
 
     processLoggerFactory.assertNotCalled();
     threadLoggerFactory1.assertNotCalled();
@@ -134,12 +138,12 @@ public class TestExternalLogger extends TestCase {
     final Logger processLogger = processLoggerFactory.getLogger();
 
     final ThreadContextLocator threadContextLocator =
-      new ThreadContextLocatorImplementation();
+      new StubThreadContextLocator();
 
     final ExternalLogger externalLogger =
       new ExternalLogger(processLogger, threadContextLocator);
 
-    TestThread threads[] = new TestThread[10];
+    final TestThread threads[] = new TestThread[10];
 
     for (int i=0; i<threads.length; ++i) {
       threads[i] = new TestThread(externalLogger, threadContextLocator);
