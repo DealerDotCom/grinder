@@ -43,11 +43,14 @@ import HTTPClient.HTTPResponse;
 import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 
+import net.grinder.common.Logger;
+import net.grinder.common.LoggerStubFactory;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.Statistics;
 import net.grinder.testutility.AssertUtilities;
+import net.grinder.testutility.CallRecorder;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -77,6 +80,12 @@ public class TestHTTPRequest extends TestCase {
     }
   }
 
+  private final RandomStubFactory m_scriptContextStubFactory =
+    new RandomStubFactory(ScriptContext.class);
+
+  private final RandomStubFactory m_statisticsStubFactory =
+    new RandomStubFactory(Statistics.class);
+
   protected void setUp() throws Exception {
     final PluginThreadContext threadContext =
       (PluginThreadContext)
@@ -85,16 +94,13 @@ public class TestHTTPRequest extends TestCase {
     final HTTPPluginThreadState threadState =
       new HTTPPluginThreadState(threadContext);
 
-    final RandomStubFactory statisticsStubFactory =
-      new RandomStubFactory(Statistics.class);
-    statisticsStubFactory.setResult("availableForUpdate", Boolean.FALSE);
-    final Statistics statistics = (Statistics)statisticsStubFactory.getStub();
+    m_statisticsStubFactory.setResult("availableForUpdate", Boolean.FALSE);
+    final Statistics statistics =
+      (Statistics)m_statisticsStubFactory.getStub();
 
-    final RandomStubFactory scriptContextStubFactory =
-      new RandomStubFactory(ScriptContext.class);
-    scriptContextStubFactory.setResult("getStatistics", statistics);
+    m_scriptContextStubFactory.setResult("getStatistics", statistics);
     final ScriptContext scriptContext =
-      (ScriptContext)scriptContextStubFactory.getStub();
+      (ScriptContext)m_scriptContextStubFactory.getStub();
 
     final RandomStubFactory pluginProcessContextStubFactory =
       new RandomStubFactory(PluginProcessContext.class);
@@ -216,6 +222,7 @@ public class TestHTTPRequest extends TestCase {
     private final ServerSocket m_serverSocket;
     private String m_lastRequestHeaders;
     private byte[] m_lastRequestBody;
+    private String m_statusString = "200 OK";
 
     public HTTPRequestHandler() throws Exception {
       m_serverSocket = new ServerSocket(0);
@@ -224,6 +231,10 @@ public class TestHTTPRequest extends TestCase {
 
     public void shutdown() throws Exception {
       m_serverSocket.close();
+    }
+
+    public void setStatusString(String statusString) {
+      m_statusString = statusString;
     }
 
     public String getURL() {
@@ -349,7 +360,7 @@ public class TestHTTPRequest extends TestCase {
           final OutputStream out = localSocket.getOutputStream();
 
           final StringBuffer response = new StringBuffer();
-          response.append("HTTP/1.0 200 OK\r\n");
+          response.append("HTTP/1.0 " + m_statusString + "\r\n");
           response.append("\r\n");
           out.write(response.toString().getBytes());
           out.flush();
@@ -373,7 +384,6 @@ public class TestHTTPRequest extends TestCase {
 
   public void testDELETE() throws Exception {
     final HTTPRequestHandler handler = new HTTPRequestHandler();
-
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -419,7 +429,6 @@ public class TestHTTPRequest extends TestCase {
 
   public void testGET() throws Exception {
     final HTTPRequestHandler handler = new HTTPRequestHandler();
-
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -551,7 +560,6 @@ public class TestHTTPRequest extends TestCase {
 
   public void testOPTIONS() throws Exception {
     final HTTPRequestHandler handler = new HTTPRequestHandler();
-
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -612,7 +620,6 @@ public class TestHTTPRequest extends TestCase {
 
   public void testPOST() throws Exception {
     final HTTPRequestHandler handler = new HTTPRequestHandler();
-
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -713,7 +720,6 @@ public class TestHTTPRequest extends TestCase {
 
   public void testPUT() throws Exception {
     final HTTPRequestHandler handler = new HTTPRequestHandler();
-
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -774,7 +780,6 @@ public class TestHTTPRequest extends TestCase {
 
   public void testTRACE() throws Exception {
     final HTTPRequestHandler handler = new HTTPRequestHandler();
-
     final HTTPRequest request = new HTTPRequest();
 
     try {
@@ -854,5 +859,99 @@ public class TestHTTPRequest extends TestCase {
 
     AssertUtilities.assertArraysEqual(data5, request.getData());
 
+  }
+
+  public final void testResponseProcessing() throws Exception {
+    final HTTPRequestHandler handler = new HTTPRequestHandler();
+    final HTTPRequest request = new HTTPRequest();
+
+    final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
+
+    m_scriptContextStubFactory.setResult("getLogger",
+                                         loggerStubFactory.getLogger());
+
+    request.GET(handler.getURL());
+
+    final CallRecorder.CallData loggerCall = loggerStubFactory.getCallData();
+    assertEquals("output", loggerCall.getMethodName());
+    final String message = (String)loggerCall.getParameters()[0];
+    assertTrue(message.indexOf("200") >= 0);
+    assertEquals(-1, message.indexOf("Redirect"));
+    loggerStubFactory.assertNotCalled();
+
+    m_statisticsStubFactory.assertSuccess(
+      "availableForUpdate", new Object[0], Boolean.FALSE);
+    m_statisticsStubFactory.assertNotCalled();
+
+    handler.setStatusString("302 Moved Temporarily");
+    m_statisticsStubFactory.setResult("availableForUpdate", Boolean.TRUE);
+
+    final HTTPResponse response2 = request.GET(handler.getURL());
+
+    final CallRecorder.CallData loggerCall2 = loggerStubFactory.getCallData();
+    assertEquals("output", loggerCall2.getMethodName());
+    final String message2 = (String)loggerCall2.getParameters()[0];
+    assertTrue(message2.indexOf("302") >= 0);
+    assertTrue(message2.indexOf("Redirect") >= 0);
+    loggerStubFactory.assertNotCalled();
+
+    final HTTPPlugin httpPlugin = HTTPPlugin.getPlugin();
+
+    m_statisticsStubFactory.assertSuccess(
+      "availableForUpdate", new Object[0], Boolean.TRUE);
+
+    m_statisticsStubFactory.assertSuccess(
+      "addValue",
+      new Object[] { httpPlugin.getResponseLengthIndex(), new Long(0), });
+
+    m_statisticsStubFactory.assertSuccess(
+      "setValue",
+      new Object[] { httpPlugin.getResponseStatusIndex(), new Long(302), });
+
+    m_statisticsStubFactory.assertNotCalled();
+
+    handler.setStatusString("400 Bad Request");
+
+    final HTTPResponse response3 = request.GET(handler.getURL());
+
+    final CallRecorder.CallData loggerCall3 = loggerStubFactory.getCallData();
+    assertEquals("output", loggerCall3.getMethodName());
+    final String message3 = (String)loggerCall3.getParameters()[0];
+    assertTrue(message3.indexOf("400") >= 0);
+    loggerStubFactory.assertNotCalled();
+
+    m_statisticsStubFactory.assertSuccess(
+      "availableForUpdate", new Object[0], Boolean.TRUE);
+
+    m_statisticsStubFactory.assertSuccess(
+      "addValue",
+      new Object[] { httpPlugin.getResponseLengthIndex(), new Long(0), });
+
+    m_statisticsStubFactory.assertSuccess(
+      "setValue",
+      new Object[] { httpPlugin.getResponseStatusIndex(), new Long(400), });
+
+    m_statisticsStubFactory.assertSuccess(
+      "addValue",
+      new Object[] { httpPlugin.getResponseErrorsIndex(), new Long(1), });
+
+    m_statisticsStubFactory.assertNotCalled();
+  }
+
+  public final void testSubclassProcessResponse() throws Exception {
+
+    final HTTPRequestHandler handler = new HTTPRequestHandler();
+
+    final Object[] resultHolder = new Object[1];
+
+    final HTTPRequest request = new HTTPRequest() {
+        public void processResponse(HTTPResponse response) {
+          resultHolder[0] = response;
+        }
+      };
+
+    final HTTPResponse response = request.GET(handler.getURL());
+
+    assertSame(response, resultHolder[0]);
   }
 }
