@@ -37,6 +37,14 @@
 	    {
 	    .layout { visibility: hidden; height: 0px; width: 0px; }
 	    }
+	    .script-description { background-color: rgb(240,240.240); font-style: italic }
+
+	    /* HTMLize */
+	    .string { color: #008b00; background-color: #ffffff; } /* font-lock-string-face */
+	    .type { color: #4682b4; background-color: #ffffff; } /* font-lock-type-face */
+	    .function-name { color: #ff0000; background-color: #ffffff; } /* font-lock-function-name-face */
+	    .keyword { color: #ff0000; background-color: #ffffff; } /* font-lock-keyword-face */
+	    .comment { color: #00008b; background-color: #ffffff; } /* font-lock-comment-face */
 	  </xsl:comment>
 	</style>
 

@@ -10,7 +10,7 @@
 <ul>
   <li><strong>Worker processes</strong>
     <ul>
-      <li>Interprets Jython test scripts and performs tests using plug-ins</li>
+      <li>Interprets Jython test scripts and performs tests</li>
     </ul>
     <p/>
   </li>
@@ -36,22 +36,17 @@ Java Virtual Machine (JVM).</p>
 <p>For heavy duty testing, you can start an agent process on each of
 several client machines. The worker processes they launch can be
 controlled and monitored using the console. There is little reason to
-run more than one agent on a single machine, but if you wish to you
-can.</p>
+run more than one agent on a single machine, but if you can if you
+wish.</p>
 
 
-<h1>Tests and Plug-ins</h1>
+<h1>Tests</h1>
 
 <p>A <em>test</em> is a unit of work against which statistics are
 recorded. Tests are uniquely defined by a <em>test number</em> and may
 also have a <em>description</em>. Scripts can report many different
-types of thing against the same test number, The Grinder will
-aggregate the results.</p>
-
-<p>A <em>plug-in</em> provides a paticular type of test. The Grinder 3
-comes with two standard plug-ins: the <em>Java plug-in</em>, which
-allows arbitrary Java and Jython code to be tested, and the <em>HTTP
-plug-in</em> for testing HTTP servers.</p>
+types of thing against the same test, The Grinder will aggregate the
+results.</p>
 
 <h1>How do I start The Grinder?</h1>
 
@@ -163,8 +158,8 @@ collected from all the worker processes.</p>
 test is incremented The time taken to perform the test is added to the
 <em>Total</em>.</li>
 
-<li>Error. The exact interpretation of an error depends on the plug-in.
-The number of <em>Errors</em> for the test is incremented.</li>
+<li>Error. The execution of a test raised an exception. The number of
+<em>Errors</em> for the test is incremented.</li>
 </ol>
 
 <p>The <em>Total</em> and <em>Average</em> figures are calculated based only on

@@ -25,11 +25,11 @@
 <br/>
 <h1>What's new in The Grinder 3?</h1>
 
-<p>The key change introduced by The Grinder 3 is a full scripting
-engine to define test scripts. This replaces the specification of
-tests in the <code>grinder.properties</code> file. Most of the other
-key features of The Grinder 2, such as the console and the process
-architecture, are unchanged.</p>
+<p>The Grinder 3 introduces a scripting engine, which is used to
+define test scripts. Test scripts replace the specification of tests
+in the <code>grinder.properties</code> file. Many other key features
+of The Grinder 2, such as the console and the process architecture,
+remain unchanged.</p>
 
 <h2>Jython</h2>
 
@@ -38,18 +38,24 @@ implementation of the Python scripting language. A Jython engine has
 been introduced into The Grinder to address the following.</p>
 
 <blockquote>
+<h4>Test any Java code</h4>
+
+<p>The Grinder 3 allows any Java (or Jython) code to be encapsulated
+as a test. This practically removes the need to write custom plug-ins.
+Although plug-ins are no longer responsible for performing tests, they
+can still be useful to manage state that the tests use. For example,
+the HTTP plug-in manages a pool of connections for each worker thread,
+and provides an <code>HTTPRequest</code> object that makes use of
+these connections.</p>
+
 <h4>Dynamic test scripting</h4>
 
-<p>The Grinder 2 is limited in that each worker process executes the
-tests in the test script sequentially, in a fixed order. The Grinder 3
-uses Jython scripts to allow arbitrary branching and looping.</p>
-
-<p>There is very limited support in some of the The Grinder 2 plug-ins
-for checking the results of tests. The Grinder 3 makes these results
-directly available to the test script, allowing various test paths to
-be taken depending on the responses returned by the server.</p>
-
-<h4>Dynamic data</h4>
+<p>The Grinder 2 worker process execute tests in the test script
+sequentially in a fixed order, and there is limited support in some of
+the The Grinder 2 plug-ins for checking test results. The Grinder 3
+allows arbitrary branching and looping and makes test results directly
+available to the test script, allowing different test paths to be
+taken depending on the responses returned by the server.</p>
 
 <p>The Grinder 2 HTTP plug-in's <a
 href="../manual/http-plugin.html#string-bean">string bean</a> feature
@@ -64,22 +70,6 @@ what was wrong with the old <code>grinder.properties</code> approach
 then skip ahead to the <a href="./script-gallery.html">Script
 Gallery</a> to sample the power of The Grinder 3.</p>
 
-<h2>New Java plug-in</h2>
-
-<p>A powerful new "Java" plug-in has been introduced which allows
-arbitrary Java and Jython code to be tested. This practically removes
-the need to write custom plug-ins.</p>
-
-<h2>Support for multiple plug-ins</h2>
-
-<p>A single script can use multiple plug-ins.</p>
-
-<h2>New plug-in SPI</h2>
-
-<p>The interface that plug-ins must implement has changed
-significantly. Plug-ins written for The Grinder 2 will not work with
-The Grinder 3 without significant modification.</p>
-
 <h2>New distribution packaging</h2>
 
 <p>The Grinder is distributed in separate binary and source
@@ -88,27 +78,36 @@ The Grinder 3 without significant modification.</p>
 <h2>Other changes</h2>
 
 <ul>
-<li>The HTTP plug-in can now be used through an HTTP proxy.</li>
+<li>The TCPSniffer has been renamed <em>TCPProxy</em> for correctness.</li>
+<li>The interface that plug-ins must implement has changed
+significantly. Plug-ins written for The Grinder 2 will not work with
+The Grinder 3.</li>
 <li>Many <a
 href="./properties.html"><code>grinder.properties</code></a> have been
 removed. The features formally set through properties are now set by
 making calls to the plug-in from the test script. Some of the
 remaining property names have been renamed.</li>
+<li>HTTP tests can now be directed through an HTTP proxy.</li>
 </ul>
+
+<h1>Roadmap</h1>
+
+<p>Look to <a href="future.html">the future</a>, The Grinder 3 has
+only just begun.</p>
 
 <h1>What's gone?</h1>
 
 <h2>The JUnit and Socket plug-ins</h2>
 
-<p>The JUnit and Socket plug-ins have been removed. There
-functionality can be achieved with the new, more general, Java
-plug-in.</p>
+<p>The JUnit and Socket plug-ins have been removed. Their
+functionality can be achieved through directly using the appropriate
+Java objects in scripts.</p>
 
 <h2>HTTP plug-in features</h2>
 
 <p>String beans and OK strings have been removed from the HTTP
 plug-in. String beans and OK strings are very limited in comparison to
-to the flexibility now provided by the Jython scripting engine.</p>
+to the flexibility now provided by Jython scripts.</p>
 
 <p>The <code>HttpURLConnection</code> implementation has been
 removed.</p>

@@ -33,8 +33,8 @@ is also running other active processes (such as other worker
 processes), it is <em>highly</em> likely that the JVM will swap the
 process out in the critical section, again causing an erroneously
 large transaction time to be reported. If The Grinder is co-hosted
-with the target server, and the plug-in uses a synchronous protocol,
-(e.g. the HTTP plug-in), such swapping is a <em>certainty</em>.</p>
+with the target server, and the test uses a synchronous protocol,
+(e.g. HTTP), such swapping is a <em>certainty</em>.</p>
 
 <p>Further, as the CPU utilisation rises the contention on the
 critical section rises non-linearly and in a way that is difficult to

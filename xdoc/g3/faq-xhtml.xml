@@ -13,47 +13,9 @@
 
 <h3><a name="string-beans">How do I simulate different users?</a></h3>
 
-<p>You probably want to use a <a
-href="../manual/http-plugin.html#string-bean">String Bean</a>.</p>
+<p><em>New answer required for G3.</em></p>
 
-<h3><a name="post-and-string-beans">How do I generate POST data with a String Bean?</a></h3>
-
-<p>Sean Kroah writes:</p>
-
-<blockquote>
-
-<p><code>grinder.test0.parameter.post=&lt;getPostData&gt;</code>
-doesn't work.</p>
-
-<p>I didn't really see this in the docs anywhere so if anyone is
-interested. I needed dynamic post data and the HTTP plugin post
-parameter only took a file name. The key was that the file can
-optionally contain a reference to a <a
-href="../manual/http-plugin.html#string-bean">String Bean</a> method.
-I tried it on a fluke and it worked.</p>
-
-<blockquote>
-<pre>
-grinder.test0.parameter.url=&lt;getLoginUrl&gt;
-grinder.test0.parameter.post=getPostData.dat
-</pre> 
-</blockquote>
-
-<code>getPostData.dat</code> has one line in it:
-<blockquote>
-<pre>
-&lt;getPostData&gt;
-</pre> 
-</blockquote>
-
-<p>This tells The Grinder to call my String Bean method which returns
-my dynamic POST content based on the test description. I'm pretty
-pleased with that.</p>
-
-</blockquote>
-
-
-<h3><a name="use-the-tcpsniffer">My server works fine with a browser but
+<h3><a name="use-the-tcpproxy">My server works fine with a browser but
 has errors when I use the HTTP Plugin?</a></h3>
 
 <p>This is probably down to one of the following:</p>
@@ -72,17 +34,12 @@ those that The Grinder sends.</li>
 <p>The HTTP Plugin sends requests that will have minor differences
 between those that a browser send, but which rarely affect server
 behaviour. Its worth knowing how to examine the differences with the
-TCPSniffer. First <a href="tcpsniffer.html#http-proxy">set the TCP
-Sniffer as a browser proxy</a> and record the output to a file.
-Secondly set the TCP Sniffer up in stand alone mode and alter your
-<code>grinder.properties</code> so that all requests go via the
-TCPSniffer; again record the output to a file. Now grab a coffee and
-compare.</p>
-
-<p>If you are testing against multiple servers you will need to use
-multiple TCP Sniffers running on different ports. The Grinder doesn't
-(yet) support sending requests via an HTTP proxy.</p>
-
+TCPProxy. First <a href="tcpproxy.html#http-proxy">set the TCPProxy as
+a browser proxy</a> and record the output to a file. Secondly alter
+your tests so that all requests go via the TCPProxy (the best way is
+to set the test script connections to direct requests via the TCPProxy
+acting an HTTP proxy); again record the output to a file. Now grab a
+coffee and compare.</p>
 
 <h3><a name="multiple-scripts">Can I run different test scripts against
 the same console?</a></h3>
@@ -95,10 +52,10 @@ running scripts with different test numbers (e.g. one process running
 tests 1 to 5 and another running tests 6 to 10)., reporting to the
 same console.</p>
 
-<h3><a name="tcpsniffer-colour-codes">What are all those funny ^[[31
-characters in the TCPSniffer output?</a></h3>
+<h3><a name="tcpproxy-colour-codes">What are all those funny ^[[31
+characters in the TCPProxy output?</a></h3>
 
-<p>Did you use the <code>-colour</code> switch? If so, the TCPSniffer
+<p>Did you use the <code>-colour</code> switch? If so, the TCPProxy
 generates escape codes which work on ANSI compliant terminals and look
 very pretty.</p>
 
@@ -151,9 +108,9 @@ and a 10.2 second repsonse time.</p>
 
 <p><em>This is only true assuming we have infinite server side
 threads. In practice, the size of a server side thread pool has a
-significant effect on the behaviour of a system. I hope you can see
-that there is no direct connection between TPS and test time
-though.</em></p>
+significant effect on the behaviour of a system. I hope that this
+discusssion helps you see that there is no direct connection between
+TPS and test time.</em></p>
 
 <h3><a name="multicast">What do I need to do to set up
 multicast?</a></h3>

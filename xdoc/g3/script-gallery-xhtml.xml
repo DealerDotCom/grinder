@@ -17,15 +17,209 @@ href="mailto:grinder-use@lists.sf.net">grinder-use@lists.sf.net</a>.</p>
 
 <toc/>
 
+<hr/>
+
+<h3><a name="hello-world">Hello world</a></h3>
+
+<p class="script-description">A minimal script that tests The Grinder
+logging facility.</p>
+
+<blockquote>
+
+    <pre>
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+
+log = grinder.getLogger().output
+
+test1 = Test(1, &quot;<span class="string">Log method</span>&quot;)
+
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        logTest = test1.wrap(log)
+        logTest(&quot;<span class="string">Hello World</span>&quot;)
+</pre>
+</blockquote>
+
+
+<hr/>
+
 <h3><a name="fba">J2EE form-based authentication</a></h3>
 
 <p class="script-description">The J2EE Servlet specification defines a
-common model for form-based authentication. When users try to access a
-protected resource, they are challenged with a logon page. The logon
-page contains a form that POSTs username and password fields to a
-special <code>j_security_check</code> page.</p>
+common model for form-based authentication. When unauthenticated users
+try to access a protected resource, they are challenged with a logon
+page. The logon page contains a form that <code>POST</code>s username
+and password fields to a special <code>j_security_check</code>
+page.</p>
+
+<blockquote>
+    <pre>
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+<span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
+<span class="keyword">from</span> HTTPClient <span class="keyword">import</span> NVPair
+
+log = grinder.getLogger().output
+
+protectedResourceTest = Test(1, &quot;<span class="string">Request resource</span>&quot;)
+authenticationTest = Test(2, &quot;<span class="string">POST to j_security_check</span>&quot;)
+
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        request = protectedResourceTest.wrap(
+            HTTPRequest(url=&quot;<span class="string">http://localhost:7001/console</span>&quot;))
+
+        result = request.GET()
+
+        result = maybeAuthenticate(result)
+
+        result = request.GET()
+
+<span class="keyword">def</span> <span class="function-name">maybeAuthenticate</span>(lastResult):
+    &quot;&quot;&quot;<span class="string">Function that checks the given result and performs J2EE Form
+    Based authentication if necessary.</span>&quot;&quot;&quot;
+
+    <span class="keyword">if</span> lastResult.statusCode == 401 \
+    <span class="keyword">or</span> lastResult.text.find(&quot;<span class="string">j_security_check</span>&quot;) != -1:
+        
+        log(&quot;<span class="string">Challenged, authenticating</span>&quot;)
+
+        authenticationFormData = ( NVPair(&quot;<span class="string">j_username</span>&quot;, &quot;<span class="string">weblogic</span>&quot;),
+                                   NVPair(&quot;<span class="string">j_password</span>&quot;, &quot;<span class="string">weblogic</span>&quot;),)
+
+        request = authenticationTest.wrap(
+            HTTPRequest(url=&quot;<span class="string">%s/j_security_check</span>&quot; % lastResult.originalURI))
+            
+        <span class="keyword">return</span> request.POST(authenticationFormData)
+</pre>
+</blockquote>
+
+<hr/>
 
 <h3><a name="jdbc">Grinding a database with JDBC</a></h3>
+
+<p class="script-description">Some simple database playing with JDBC. </p>
+
+<blockquote>
+    <pre>
+<span class="keyword">from</span> java.sql <span class="keyword">import</span> DriverManager
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+<span class="keyword">from</span> oracle.jdbc <span class="keyword">import</span> OracleDriver
+
+log = grinder.getLogger().output
+
+test1 = Test(1, &quot;<span class="string">Database insert</span>&quot;)
+test2 = Test(2, &quot;<span class="string">Database query</span>&quot;)
+
+<span class="comment"># Load the Oracle JDBC driver
+</span>DriverManager.registerDriver(OracleDriver());
+
+<span class="keyword">def</span> <span class="function-name">getConnection</span>():
+    <span class="keyword">return</span> DriverManager.getConnection(
+        &quot;<span class="string">jdbc:oracle:thin:@127.0.0.1:1521:mysid</span>&quot;, &quot;<span class="string">scott</span>&quot;, &quot;<span class="string">tiger</span>&quot;)
+
+<span class="keyword">def</span> <span class="function-name">ensureClosed</span>(object):
+    <span class="keyword">try:</span> object.close()
+    <span class="keyword">except:</span> <span class="keyword">pass</span>
+
+connection = getConnection()
+statement = connection.createStatement()
+
+<span class="keyword">try:</span> statement.execute(&quot;<span class="string">drop table grinder_fun</span>&quot;)
+<span class="keyword">except:</span> <span class="keyword">pass</span>
+
+statement.execute(&quot;<span class="string">create table grinder_fun(thread number, run number)</span>&quot;)
+
+ensureClosed(statement)
+ensureClosed(connection)
+    
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        connection = None
+        statement = None
+
+        <span class="keyword">try:</span>
+	    connection = getConnection()
+	    statement = connection.createStatement()
+            
+            testInsert = test1.wrap(statement)
+            testInsert.execute(&quot;<span class="string">insert into grinder_fun values(%d, %d)</span>&quot; %
+                               (grinder.threadID, grinder.runNumber))
+
+            testQuery = test2.wrap(statement)
+            testQuery.execute(&quot;<span class="string">select * from grinder_fun where thread=%d</span>&quot; %
+                              grinder.threadID)
+
+	<span class="keyword">finally:</span>
+            ensureClosed(statement)
+	    ensureClosed(connection)
+</pre>
+</blockquote>
+
+<hr/>
+
+<h3><a name="ejb">Enterprise Java Beans</a></h3>
+
+<p class="script-description">Exercise a stateful session EJB from the
+BEA WebLogic Server 7.0 examples.</p>
+
+<blockquote>
+    <pre>
+<span class="keyword">from</span> java.lang <span class="keyword">import</span> String
+<span class="keyword">from</span> java.util <span class="keyword">import</span> Properties,Random,HashMap
+<span class="keyword">from</span> javax.naming <span class="keyword">import</span> Context,InitialContext
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+<span class="keyword">from</span> weblogic.jndi <span class="keyword">import</span> WLInitialContextFactory
+
+log = grinder.logger.output
+
+tests = {
+    &quot;<span class="string">home</span>&quot; : Test(1, &quot;<span class="string">TraderHome</span>&quot;),
+    &quot;<span class="string">trade</span>&quot; : Test(2, &quot;<span class="string">Trader buy/sell</span>&quot;),
+    &quot;<span class="string">query</span>&quot; : Test(3, &quot;<span class="string">Trader getBalance</span>&quot;),   
+    }
+
+<span class="comment"># Initial context lookup for EJB home.
+</span>p = Properties()
+p[Context.INITIAL_CONTEXT_FACTORY] = WLInitialContextFactory.name
+
+home = InitialContext(p).lookup(&quot;<span class="string">ejb20-statefulSession-TraderHome</span>&quot;)
+homeTest = tests[&quot;<span class="string">home</span>&quot;].wrap(home)
+
+random = Random()
+
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        trader = homeTest.create()
+
+        tradeTest = tests[&quot;<span class="string">trade</span>&quot;].wrap(trader)
+
+        stocksToSell = { &quot;<span class="string">BEAS</span>&quot; : 100, &quot;<span class="string">MSFT</span>&quot; : 999 }
+        <span class="keyword">for</span> stock, amount <span class="keyword">in</span> stocksToSell.items():
+            tradeResult = tradeTest.sell(&quot;<span class="string">John</span>&quot;, stock, amount)
+            log(&quot;<span class="string">Result of tradeTest.sell(): %s</span>&quot; % tradeResult)
+
+        grinder.sleep(100)              <span class="comment"># Idle a while
+</span>
+        stocksToBuy = { &quot;<span class="string">BEAS</span>&quot; : abs(random.nextInt()) % 1000 }
+        <span class="keyword">for</span> stock, amount <span class="keyword">in</span> stocksToBuy.items():
+            tradeResult = tradeTest.buy(&quot;<span class="string">Phil</span>&quot;, stock, amount)
+            log(&quot;<span class="string">Result of tradeTest.buy(): %s</span>&quot; % tradeResult)            
+
+        queryTest = tests[&quot;<span class="string">query</span>&quot;].wrap(trader)
+        balance = queryTest.getBalance();
+        log(&quot;<span class="string">Balance is $%.2f</span>&quot; % balance)
+
+        trader.remove()                 <span class="comment"># We don't record the remove() as a test
+</span>
+        <span class="comment"># Can obtain information about the thread context...
+</span>        <span class="keyword">if</span> grinder.threadID == 0 <span class="keyword">and</span> grinder.runNumber == 0:
+            <span class="comment"># ...and navigate from the proxy back to the test
+</span>            d = queryTest.__test__
+            log(&quot;<span class="string">Query test is test %d, (%s)</span>&quot; % (d.number, d.description))            
+</pre>
+</blockquote>
+
+<hr/>
 
 <h3><a name="web_service">Web Services</a></h3>
 
