@@ -25,6 +25,7 @@ package net.grinder.tools.tcpsniffer;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -45,6 +46,7 @@ public class StreamThread implements Runnable
     private final InputStream m_in;
     private final OutputStream m_out;
     private final SnifferFilter m_filter;
+    private final PrintWriter m_outputWriter;
     private final String m_colour;
     private final String m_resetColour;
 
@@ -70,6 +72,9 @@ public class StreamThread implements Runnable
 	m_filter = filter;
 	m_colour = colourString;
 	m_resetColour = m_colour.length() > 0 ? TerminalColour.NONE : "";
+
+	m_outputWriter = new PrintWriter(System.out);
+	m_filter.setOutputPrintWriter(m_outputWriter);
     }
 
     public StreamThread(ConnectionDetails connectionDetails,
@@ -139,9 +144,10 @@ public class StreamThread implements Runnable
 		    break;
 		}
 
-		System.out.print(m_colour);
+		m_outputWriter.print(m_colour);
 		m_filter.handle(m_connectionDetails, buffer, bytesRead);
-		System.out.print(m_resetColour);
+		m_outputWriter.print(m_resetColour);
+		m_outputWriter.flush();
 
 		// and write in out
 		m_out.write(buffer, 0, bytesRead);
@@ -154,7 +160,7 @@ public class StreamThread implements Runnable
 	    e.printStackTrace(System.err);
 	}
 
-	System.out.print(m_colour);
+	m_outputWriter.print(m_colour);
 
 	try {
 	    m_filter.connectionClosed(m_connectionDetails);
@@ -163,7 +169,8 @@ public class StreamThread implements Runnable
 	    e.printStackTrace(System.err);
 	}
 
-	System.out.print(m_resetColour);
+	m_outputWriter.print(m_resetColour);
+	m_outputWriter.flush();
 
 	// We're exiting, usually because the in stream has been
 	// closed. Whatever, close our streams. This will cause the

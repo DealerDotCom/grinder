@@ -22,6 +22,8 @@
 
 package net.grinder.tools.tcpsniffer;
 
+import java.io.PrintWriter;
+
 
 /**
  *
@@ -30,6 +32,14 @@ package net.grinder.tools.tcpsniffer;
  */
 public class EchoFilter implements SnifferFilter
 {
+    private PrintWriter m_out = new PrintWriter(System.out, true);
+
+    public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
+    {
+	m_out.flush();
+	m_out = outputPrintWriter;
+    }
+
     public void handle(ConnectionDetails connectionDetails,
 		       byte[] buffer, int bytesRead)
 	throws java.io.IOException
@@ -66,21 +76,21 @@ public class EchoFilter implements SnifferFilter
 	    }
 	}
 
-	System.out.println("------ "+ connectionDetails.getDescription() +
-			   " ------");
-	System.out.println(stringBuffer);
+	m_out.println("------ "+ connectionDetails.getDescription() +
+		      " ------");
+	m_out.println(stringBuffer);
     }
 
     public void connectionOpened(ConnectionDetails connectionDetails)
     {
-	System.out.println("--- " +  connectionDetails.getDescription() +
-			   " opened --");
+	m_out.println("--- " +  connectionDetails.getDescription() +
+		      " opened --");
     }
 
     public void connectionClosed(ConnectionDetails connectionDetails)
     {
-	System.out.println("--- " +  connectionDetails.getDescription() +
-			   " closed --");
+	m_out.println("--- " +  connectionDetails.getDescription() +
+		      " closed --");
     }
 }
 
