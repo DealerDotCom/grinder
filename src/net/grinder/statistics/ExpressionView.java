@@ -63,6 +63,12 @@ public class ExpressionView {
    **/
   private final StatisticExpression m_expression;
 
+  static {
+    // Ensure that the standard ExpressionViews are initialised
+    // before any user ExpressionViews.
+    Class dummy = CommonStatisticsViews.class;
+  }
+
   /**
    * Creates a new <code>ExpressionView</code> instance.
    *

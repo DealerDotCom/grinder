@@ -71,12 +71,6 @@ public final class StatisticsView implements Externalizable {
       }
     };
 
-  static {
-    // Ensure that the standard ExpressionViews are initialised
-    // before any user ExpressionViews.
-    Class dummy = CommonStatisticsViews.class;
-  }
-
   /**
    * We use this set to ensure that new views are unique. We can't
    * do this with a SortedSet because our sort order is inconsistent
