@@ -49,7 +49,7 @@ class GrinderThread implements java.lang.Runnable
 
     private static Random m_random = new Random();
 
-    private final Object m_notifyOnCompletion;
+    private final Monitor m_notifyOnCompletion;
     private final ThreadContext m_context;
     private final BSFProcessContext.BSFThreadContext m_bsfThreadContext;
     private final int m_threadID;
@@ -62,7 +62,7 @@ class GrinderThread implements java.lang.Runnable
     /**
      * The constructor.
      */        
-    public GrinderThread(Object notifyOnCompletion,
+    public GrinderThread(Monitor notifyOnCompletion,
 			 ProcessContext processContext,
 			 BSFProcessContext bsfProcessContext, int threadID, 
 			 ThreadCallbacks threadCallbacks)
@@ -188,7 +188,7 @@ class GrinderThread implements java.lang.Runnable
 	    decrementThreadCount();
 	}
 	
-	synchronized(m_notifyOnCompletion) {
+	synchronized (m_notifyOnCompletion) {
 	    m_notifyOnCompletion.notifyAll();
 	}
     }
@@ -211,6 +211,6 @@ class GrinderThread implements java.lang.Runnable
     public static synchronized void shutdown()
     {
 	// We rely on everyone picking this up next time they sleep.
-	Sleeper.shutdown();
+	Sleeper.shutdownAllCurrentSleepers();
     }
 }

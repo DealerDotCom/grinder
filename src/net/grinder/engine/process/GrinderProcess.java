@@ -31,16 +31,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
 import net.grinder.common.TestImplementation;
-import net.grinder.communication.CommunicationDefaults;
-import net.grinder.communication.CommunicationException;
-import net.grinder.communication.Message;
-import net.grinder.communication.Receiver;
-import net.grinder.communication.ReportStatisticsMessage;
-import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
-import net.grinder.communication.SenderImplementation;
-import net.grinder.communication.StartGrinderMessage;
-import net.grinder.communication.StopGrinderMessage;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.ThreadCallbacks;
@@ -55,16 +46,14 @@ import net.grinder.statistics.TestStatisticsMap;
  * The class executed by the main thread of each JVM.
  * The total number of JVM is specified in the property "grinder.jvms".
  * This class is responsible for creating as many threads as configured in the
- * property "grinder.threads". Each thread is an object of class "CycleRunnable".
- * It is responsible for storing the statistical information from the threads
- * and also for send it to the console and print it at the end.
+ * property "grinder.threads".
  * 
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  * @see net.grinder.engine.process.GrinderThread
- */
-public class GrinderProcess
+ **/
+public final class GrinderProcess implements Monitor
 {
     // Return values used to indicate to the parent process the
     // last console signal that has been received.
@@ -113,11 +102,12 @@ public class GrinderProcess
     private final int m_numberOfThreads;
     private final BSFProcessContext m_bsfContext;
 
-    private final Listener m_listener;
-    private final Sender m_consoleSender;
-    private int m_reportToConsoleInterval = 0;
+    private final ConsoleListener m_consoleListener;
+    private final int m_reportToConsoleInterval;
 
     private final GrinderPlugin m_plugin;
+
+    private int m_lastMessagesReceived = 0;
 
     public GrinderProcess(String grinderID, File propertiesFile)
 	throws GrinderException
@@ -134,78 +124,10 @@ public class GrinderProcess
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 
-	// Parse console configuration.
-	final String multicastAddress =
-	    properties.getProperty("grinder.multicastAddress",
-				   CommunicationDefaults.MULTICAST_ADDRESS);
+	m_reportToConsoleInterval =
+	    properties.getInt("grinder.reportToConsole.interval", 500);
 
-	if (properties.getBoolean("grinder.receiveConsoleSignals", true)) {
-	    final int grinderPort =
-		properties.getInt("grinder.multicastPort",
-				  CommunicationDefaults.GRINDER_PORT);
-
-	    if (multicastAddress != null && grinderPort > 0) {
-		final ConsoleListener listener =
-		    new ConsoleListener(m_context, multicastAddress,
-					grinderPort);
-
-		final Thread t = new Thread(listener, "Console Listener");
-		t.setDaemon(true);
-		t.start();
-
-		m_listener = listener;
-	    }
-	    else {
-		throw new EngineException(
-		    "Unable to receive console signals: " +
-		    "multicast address or port not specified");
-	    }
-	}
-	else {
-	    // Null Listener implementation.
-	    m_listener =
-		new Listener() {
-		    public boolean shouldWait() { return false; }
-		    public void reset() {}
-		    public boolean messageReceived(int mask) { return false; }
-		};
-	}
-
-	if (properties.getBoolean("grinder.reportToConsole", true)) {
-	    final int consolePort =
-		properties.getInt("grinder.console.multicastPort",
-				  CommunicationDefaults.CONSOLE_PORT);
-
-	    if (multicastAddress != null && consolePort > 0) {
-		m_consoleSender = 
-		    new SenderImplementation(m_context.getGrinderID(),
-					     multicastAddress, consolePort);
-
-		m_context.m_consoleSender = m_consoleSender;
-
-		m_reportToConsoleInterval =
-		    properties.getInt("grinder.reportToConsole.interval", 500);
-	    }
-	    else {
-		throw new EngineException(
-		    "Unable to report to console: " +
-		    "multicast address or console port not specified");
-	    }
-	}
-	else {
-	    // Null Sender implementation.
-	    m_consoleSender = new Sender() {
-		    public void send(Message message) {}
-		    public void flush() {}
-		    public void queue(Message message) {}
-		};
-	}
-
-	final TestRegistry testRegistry = new TestRegistry(m_consoleSender);
-
-	m_context.setTestRegistry(testRegistry);
-
-	// Parse plugin class. Do after setting up console Sender.
+	// Parse plugin class.
 	m_plugin = instantiatePlugin();
 
 	m_context.initialiseDataWriter();
@@ -215,10 +137,11 @@ public class GrinderProcess
 	m_bsfContext =
 	    scriptFilename != null ?
 	    new BSFProcessContext(m_context, new File(scriptFilename)) : null;
+
+	m_consoleListener = new ConsoleListener(properties, this, m_context);
     }
 
-    public GrinderPlugin instantiatePlugin()
-	throws GrinderException
+    private final GrinderPlugin instantiatePlugin() throws GrinderException
     {
 	final String pluginClassName =
 	    m_context.getProperties().getMandatoryProperty("grinder.plugin");
@@ -251,7 +174,7 @@ public class GrinderProcess
 	}
     }
 
-    private Set getPropertiesTestSet() throws GrinderException
+    private final Set getPropertiesTestSet() throws GrinderException
     {
 	final Map tests = new HashMap();
 	final GrinderProperties properties = m_context.getProperties();
@@ -302,8 +225,8 @@ public class GrinderProcess
 	return new HashSet(tests.values());
     }
 
-    private static String getTestPropertyName(int testNumber,
-					      String unqualifiedName)
+    private final static String getTestPropertyName(int testNumber,
+						    String unqualifiedName)
     {
 	return TEST_PREFIX + testNumber + '.' + unqualifiedName;
     }
@@ -316,7 +239,7 @@ public class GrinderProcess
      *
      * @returns exit status to be indicated to parent process.
      **/        
-    protected int run() throws GrinderException
+    private final int run() throws GrinderException
     {
 	m_context.logMessage("The Grinder version @version@");
 
@@ -341,56 +264,69 @@ public class GrinderProcess
 				  threadCallbacks);
 	}
 
-	m_consoleSender.flush();
+	m_context.getConsoleSender().flush();
 
-	if (m_listener.shouldWait() &&
-	    !Boolean.getBoolean(DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME)) {
+	if (!Boolean.getBoolean(DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME)) {
 	    m_context.logMessage("waiting for console signal",
 				 Logger.LOG | Logger.TERMINAL);
 
 	    waitForMessage();
 	}
 
-	if (!m_listener.messageReceived(Listener.STOP | Listener.RESET)) {
+	if (!received(ConsoleListener.STOP | ConsoleListener.RESET)) {
 
 	    m_context.logMessage("starting threads",
 				 Logger.LOG | Logger.TERMINAL);
 	    
-	    //   Start the threads
+	    // Start the threads
 	    for (int i=0; i<m_numberOfThreads; i++) {
 		final Thread t = new Thread(runnable[i],
 					    "Grinder thread " + i);
 		t.setDaemon(true);
 		t.start();
 	    }
-	    
-	    do {		// We want at least one report.
-		m_dataWriter.flush();
 
-		waitForMessage(m_reportToConsoleInterval,
-			       Listener.RESET | Listener.STOP);
-		
-		m_consoleSender.send(
-		    new ReportStatisticsMessage(
-			m_context.getTestRegistry().getTestStatisticsMap()
-			.getDelta(true)));
-	    }
-	    while (GrinderThread.numberOfUncompletedThreads() > 0 &&
-		   !m_listener.messageReceived(Listener.RESET |
-					       Listener.STOP));
-	    
-	    if (GrinderThread.numberOfUncompletedThreads() > 0) {
-
-		m_context.logMessage("waiting for threads to terminate",
-				     Logger.LOG | Logger.TERMINAL);
-
-		GrinderThread.shutdown();
-
-		final long time = System.currentTimeMillis();
-		final long maxShutdownTime = 10000;
-
+	    // Wait for a termination event.
+	    synchronized (this) {
 		while (GrinderThread.numberOfUncompletedThreads() > 0) {
-		    synchronized (this) {
+
+		    m_lastMessagesReceived =
+			m_consoleListener.received(ConsoleListener.RESET |
+						   ConsoleListener.STOP);
+
+		    if (m_lastMessagesReceived != 0) {
+			break;
+		    }
+
+		    try {
+			wait();
+		    }
+		    catch (InterruptedException e) {
+		    }
+		}
+	    }
+
+	    /*
+	      m_dataWriter.flush();
+
+	      m_context.getConsoleSender().send(
+	      new ReportStatisticsMessage(
+	      m_context.getTestRegistry().getTestStatisticsMap()
+	      .getDelta(true)));
+	    */
+
+	    synchronized (this) {
+		if (GrinderThread.numberOfUncompletedThreads() > 0) {
+
+		    m_context.logMessage("waiting for threads to terminate",
+					 Logger.LOG | Logger.TERMINAL);
+
+		    GrinderThread.shutdown();
+
+		    final long time = System.currentTimeMillis();
+		    final long maxShutdownTime = 10000;
+
+		    while (GrinderThread.numberOfUncompletedThreads() > 0) {
 			try {
 			    if (System.currentTimeMillis() - time >
 				maxShutdownTime) {
@@ -421,23 +357,23 @@ public class GrinderProcess
 
 	statisticsTable.print(m_context.getOutputLogWriter());
 
-	if (m_listener.shouldWait() &&
-	    !m_listener.messageReceived(Listener.ANY)) {
+	if (m_lastMessagesReceived == 0) {
 	    // We've got here naturally, without a console signal.
 	    m_context.logMessage("finished, waiting for console signal",
 				 Logger.LOG | Logger.TERMINAL);
+	    
 	    waitForMessage();
 	}
 
-	if (m_listener.messageReceived(Listener.START)) {
+	if (received(ConsoleListener.START)) {
 	    m_context.logMessage("requesting reset and start");
 	    return EXIT_START_SIGNAL;
 	}
-	else if (m_listener.messageReceived(Listener.RESET)) {
+	else if (received(ConsoleListener.RESET)) {
 	    m_context.logMessage("requesting reset");
 	    return EXIT_RESET_SIGNAL;
 	}
-	else if (m_listener.messageReceived(Listener.STOP)) {
+	else if (received(ConsoleListener.STOP)) {
 	    m_context.logMessage("requesting stop");
 	    return EXIT_STOP_SIGNAL;
 	}
@@ -447,126 +383,33 @@ public class GrinderProcess
 	}
     }
 
-    /**
-     * Wait for the given time, or until a console message arrives.
-     *
-     * @param period How long to wait. 0 => forever.
-     * @throws IllegalArgumentException if period is negative.
-     **/
-    private void waitForMessage(long period, int mask)
+    private final boolean received(int mask)
     {
-	m_listener.reset();
+	return (m_lastMessagesReceived & mask) != 0;
+    }
 
-	long currentTime = System.currentTimeMillis();
-	final long wakeUpTime = currentTime + period;
+    /**
+     * Wait for until a console message matching the requirement
+     * arrives.
+     * @param mask The mask of constants defined by {@link Listener}
+     * which specify the messages to wait for.
+     * @returns A mask representing the messages actually received.
+     **/
+    private final synchronized void waitForMessage()
+    {
+	while (true) {
+	    m_lastMessagesReceived =
+		m_consoleListener.received(ConsoleListener.ANY);
 
-	final boolean forever = period == 0;
-
-	while (forever || currentTime < wakeUpTime) {
-	    try {
-		synchronized(this) {
-		    wait(forever ? 0 : wakeUpTime - currentTime);
-		}
-			
+	    if (m_lastMessagesReceived != 0) {
 		break;
 	    }
+
+	    try {
+		wait();
+	    }
 	    catch (InterruptedException e) {
-		if (m_listener.messageReceived(mask)) {
-		    break;
-		}
-		else {
-		    currentTime = System.currentTimeMillis();
-		}
 	    }
-	}
-    }
-
-    /**
-     * Equivalent to waitForMessage(0, 0);
-     **/
-    private void waitForMessage()
-    {
-	waitForMessage(0, 0);
-    }
-
-    private interface Listener
-    {
-	public final static int START = 1 << 0;
-	public final static int RESET = 1 << 1;
-	public final static int STOP =  1 << 2;
-	public final static int ANY = START | RESET | STOP;
-
-	boolean shouldWait();
-	void reset();
-	boolean messageReceived(int mask);
-    }
-
-    /**
-     * Runnable that receives event messages from the Console.
-     * Currently no point in synchronising access.
-     **/
-    private class ConsoleListener implements Runnable, Listener
-    {
-	private final Logger m_logger;
-	private final Receiver m_receiver;
-	private int m_message = 0;
-
-	public ConsoleListener(Logger context, String address, int port)
-	    throws CommunicationException
-	{
-	    m_logger = context;
-	    m_receiver = new Receiver(address, port);
-	}
-	
-	public void run()
-	{
-	    while (true) {
-		final Message message;
-		
-		try {
-		    message = m_receiver.waitForMessage();
-		}
-		catch (CommunicationException e) {
-		    m_logger.logError("error receiving console signal: " + e,
-				      Logger.LOG | Logger.TERMINAL);
-		    continue;
-		}
-
-		if (message instanceof StartGrinderMessage) {
-		    m_logger.logMessage("got a start message from console");
-		    m_message |= START;
-		}
-		else if (message instanceof StopGrinderMessage) {
-		    m_logger.logMessage("got a stop message from console");
-		    m_message |= STOP;
-		}
-		else if (message instanceof ResetGrinderMessage) {
-		    m_logger.logMessage("got a reset message from console");
-		    m_message |= RESET;
-		}
-		else {
-		    m_logger.logMessage("got an unknown message from console");
-		}
-
-		synchronized(GrinderProcess.this) {
-		    GrinderProcess.this.notifyAll();
-		}
-	    }
-	}
-
-	public boolean shouldWait()
-	{
-	    return true;
-	}
-
-	public boolean messageReceived(int mask)
-	{
-	    return (m_message & mask) != 0;
-	}
-
-	public void reset()
-	{
-	    m_message = 0;
 	}
     }
 }

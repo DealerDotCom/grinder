@@ -26,8 +26,11 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
+import net.grinder.communication.CommunicationDefaults;
+import net.grinder.communication.Message;
 import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.communication.Sender;
+import net.grinder.communication.SenderImplementation;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.statistics.CommonStatisticsViews;
@@ -49,8 +52,8 @@ class ProcessContext implements PluginProcessContext
     private final boolean m_recordTime;
     private final LoggerImplementation m_loggerImplementation;
     private final Logger m_processLogger;
-
-    private TestRegistry m_testRegistry;
+    private final Sender m_consoleSender;
+    private final TestRegistry m_testRegistry;
 
     private boolean m_shouldWriteTitleToDataWriter;
 
@@ -82,9 +85,47 @@ class ProcessContext implements PluginProcessContext
 	m_processLogger = m_loggerImplementation.createProcessLogger();
 
 	m_shouldWriteTitleToDataWriter = !appendLog;
+
+	if (properties.getBoolean("grinder.reportToConsole", true)) {
+	    // Currently reading of the multicast address is
+	    // duplicated here and when we read the console listener
+	    // communication settings. Not worried, one day we'll
+	    // change this to be unicast and it'll be a different
+	    // setting.
+	    final String multicastAddress =
+		properties.getProperty(
+		    "grinder.multicastAddress",
+		    CommunicationDefaults.MULTICAST_ADDRESS);
+
+	    final int consolePort =
+		properties.getInt("grinder.console.multicastPort",
+				  CommunicationDefaults.CONSOLE_PORT);
+
+	    if (multicastAddress != null && consolePort > 0) {
+		m_consoleSender =
+		    new SenderImplementation(getGrinderID(), multicastAddress,
+					     consolePort);
+	    }
+	    else {
+		throw new EngineException(
+		    "Unable to report to console: " +
+		    "multicast address or console port not specified");
+	    }
+	}
+	else {
+	    // Null Sender implementation.
+	    m_consoleSender =
+		new Sender() {
+		    public void send(Message message) {}
+		    public void flush() {}
+		    public void queue(Message message) {}
+		};
+	}
+
+	m_testRegistry = new TestRegistry(getConsoleSender());
     }
 
-    public void initialiseDataWriter()
+    void initialiseDataWriter()
     {
 	if (m_shouldWriteTitleToDataWriter) {
 	    final PrintWriter dataWriter =
@@ -105,12 +146,27 @@ class ProcessContext implements PluginProcessContext
 	}
     }
 
-    public String getGrinderID()
+    final Sender getConsoleSender()
+    {
+	return m_consoleSender;
+    }
+
+    final LoggerImplementation getLoggerImplementation()
+    {
+	return m_loggerImplementation;
+    }
+
+    final TestRegistry getTestRegistry()
+    {
+	return m_testRegistry;
+    }
+
+    public final String getGrinderID()
     {
 	return m_grinderID;
     }
 
-    public GrinderProperties getProperties()
+    public final GrinderProperties getProperties()
     {
 	return m_properties;
     }
@@ -185,21 +241,6 @@ class ProcessContext implements PluginProcessContext
 								       suffix);
     }
 
-    final LoggerImplementation getLoggerImplementation()
-    {
-	return m_loggerImplementation;
-    }
-
-    final void setTestRegistry(TestRegistry testRegistry)
-    {
-	m_testRegistry = testRegistry;
-    }
-
-    final TestRegistry getTestRegistry()
-    {
-	return m_testRegistry;
-    }
-
     public final boolean getRecordTime()
     {
 	return m_recordTime;
@@ -210,18 +251,13 @@ class ProcessContext implements PluginProcessContext
 	return m_testStatisticsFactory;
     }
 
-    /** A quick and dirty hack. We do the right thing in G3. **/
-    Sender m_consoleSender;
-
     public void registerSummaryStatisticsView(StatisticsView statisticsView)
 	throws GrinderException
     {
 	CommonStatisticsViews.getSummaryStatisticsView().add(statisticsView);
 
-	if (m_consoleSender != null) {
-	    m_consoleSender.queue(
-		new RegisterStatisticsViewMessage(statisticsView));
-	}
+	getConsoleSender().queue(
+	    new RegisterStatisticsViewMessage(statisticsView));
     }
 
     public void registerDetailStatisticsView(StatisticsView statisticsView)
