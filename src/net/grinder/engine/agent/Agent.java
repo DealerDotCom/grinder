@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,6 +42,7 @@ import net.grinder.communication.Connector;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.MessagePump;
 import net.grinder.communication.Receiver;
+import net.grinder.communication.StartGrinderMessage;
 import net.grinder.engine.process.GrinderProcess;
 
 
@@ -84,7 +85,7 @@ public final class Agent {
     final String version = GrinderBuild.getVersionString();
     System.out.println("The Grinder version " + version);
 
-    boolean ignoreInitialSignal = false;
+    boolean startImmediately = false;
 
     while (true) {
       final GrinderProperties properties =
@@ -116,10 +117,6 @@ public final class Agent {
             "grinder.useConsole=false to disable this warning.");
         }
       }
-
-      final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(3);
-      final MessagePump messagePump =
-        new MessagePump(receiver, fanOutStreamSender, 1);
 
       final List command = new ArrayList();
 
@@ -164,11 +161,6 @@ public final class Agent {
         command.add(classpath);
       }
 
-      if (ignoreInitialSignal) {
-        command.add(
-          "-D" + GrinderProcess.DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME + "=true");
-      }
-
       command.add(GrinderProcess.class.getName());
 
       final String hostIDString =
@@ -183,6 +175,7 @@ public final class Agent {
 
       final int numberOfProcesses = properties.getInt("grinder.processes", 1);
 
+      final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(3);
       final ChildProcess[] processes = new ChildProcess[numberOfProcesses];
 
       final String[] stringArray = new String[0];
@@ -211,6 +204,13 @@ public final class Agent {
         System.out.println(buffer.toString());
       }
 
+      if (startImmediately) {
+        fanOutStreamSender.send(new StartGrinderMessage());
+      }
+
+      final MessagePump messagePump =
+        new MessagePump(receiver, fanOutStreamSender, 1);
+
       int combinedExitStatus = 0;
 
       for (int i = 0; i < numberOfProcesses; ++i) {
@@ -230,10 +230,10 @@ public final class Agent {
       messagePump.shutdown();
 
       if (combinedExitStatus == GrinderProcess.EXIT_START_SIGNAL) {
-        ignoreInitialSignal = true;
+        startImmediately = true;
       }
       else if (combinedExitStatus == GrinderProcess.EXIT_RESET_SIGNAL) {
-        ignoreInitialSignal = false;
+        startImmediately = false;
       }
       else {
         break;

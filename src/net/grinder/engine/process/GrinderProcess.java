@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2003 Kalyanaraman Venkatasubramaniy
 // All rights reserved.
 //
@@ -80,14 +80,6 @@ public final class GrinderProcess implements Monitor {
    * received a "stop" signal.
    */
   public static final int EXIT_STOP_SIGNAL = 18;
-
-  /**
-   * Hack extra information from parent process in system properties.
-   */
-  public static final String DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME =
-    "grinder.dontWaitForSignal";
-
-  private static final String TEST_PREFIX = "grinder.test";
 
   /**
    * The application's entry point.
@@ -229,8 +221,7 @@ public final class GrinderProcess implements Monitor {
       m_context.createStatusMessage(
         ProcessStatus.STATE_STARTED, (short)0, m_numberOfThreads));
 
-    if (m_consoleListener != null &&
-        !Boolean.getBoolean(DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME)) {
+    if (m_consoleListener != null) {
       logger.output("waiting for console signal",
                     Logger.LOG | Logger.TERMINAL);
 
