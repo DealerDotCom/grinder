@@ -166,6 +166,7 @@ public final class ConsoleUI implements ModelListener {
     final JLabel tpsLabel = new JLabel();
     tpsLabel.setForeground(Colours.BLACK);
     tpsLabel.setFont(s_tpsFont);
+    tpsLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
     m_model.addTotalSampleListener(
       new SampleListener() {
@@ -190,31 +191,34 @@ public final class ConsoleUI implements ModelListener {
     stateButton.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
     m_stopAction.registerButton(stateButton);
     m_stateLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
-    final Box statePanel = Box.createHorizontalBox();
+
+    final JPanel statePanel = new JPanel();
+    statePanel.setLayout(new BoxLayout(statePanel, BoxLayout.X_AXIS));
     statePanel.add(stateButton);
     statePanel.add(m_stateLabel);
 
     m_samplingControlPanel = new SamplingControlPanel(resources);
-
+    statePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    m_samplingControlPanel.add(Box.createRigidArea(new Dimension(0, 40)));
     m_samplingControlPanel.add(statePanel);
 
     m_samplingControlPanel.setBorder(
-      BorderFactory.createEmptyBorder(0, 10, 0, 10));
+      BorderFactory.createEmptyBorder(10, 10, 0, 10));
     m_samplingControlPanel.setProperties(m_model.getProperties());
 
     final JPanel controlAndTotalPanel = new JPanel();
     controlAndTotalPanel.setLayout(
       new BoxLayout(controlAndTotalPanel, BoxLayout.Y_AXIS));
 
+    m_samplingControlPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    tpsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    totalGraph.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     controlAndTotalPanel.add(m_samplingControlPanel);
-    controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 80)));
+    controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 100)));
     controlAndTotalPanel.add(tpsLabel);
     controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 20)));
     controlAndTotalPanel.add(totalGraph);
-
-    // Really wanted this left alligned, but doesn't really work
-    // with a box layout.
-    tpsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
     final JPanel hackToFixLayout = new JPanel();
     hackToFixLayout.add(controlAndTotalPanel);

@@ -22,7 +22,11 @@
 package net.grinder.console.swingui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -157,9 +161,16 @@ class SamplingControlPanel extends JPanel {
     textFieldPanel.add(textFieldLabelPanel, BorderLayout.WEST);
     textFieldPanel.add(textFieldControlPanel, BorderLayout.EAST);
 
-    setLayout(new GridLayout(0, 1));
+    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+    intervalLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    m_intervalSlider.setAlignmentX(Component.LEFT_ALIGNMENT);
+    textFieldPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
     add(intervalLabel);
+    add(Box.createRigidArea(new Dimension(0, 5)));
     add(m_intervalSlider);
+    add(Box.createRigidArea(new Dimension(0, 10)));
     add(textFieldPanel);
   }
 
