@@ -37,16 +37,25 @@ import java.util.Map;
 public class Receiver
 {
     private final byte[] m_buffer = new byte[65536];
+    private final String m_multicastAddressString;
+    private final int m_multicastPort;
     private final MulticastSocket m_socket;
     private final DatagramPacket m_packet;
     private final Map m_sequenceValues = new HashMap();
+    private boolean m_shuttingDown = false;
+    private boolean m_shutDown = false;
+    private boolean m_listening = false;
 
     public Receiver(String multicastAddressString, int multicastPort)
 	throws CommunicationException
     {
+	m_multicastAddressString = multicastAddressString;
+	m_multicastPort = multicastPort;
+
 	try {
-	    m_socket = new MulticastSocket(multicastPort);
-	    m_socket.joinGroup(InetAddress.getByName(multicastAddressString));
+	    m_socket = new MulticastSocket(m_multicastPort);
+	    m_socket.joinGroup(
+		InetAddress.getByName(m_multicastAddressString));
 	}
 	catch (IOException e) {
 	    throw new CommunicationException(
@@ -56,42 +65,119 @@ public class Receiver
 
 	m_packet = new DatagramPacket(m_buffer, m_buffer.length);
     }
-    
+
+    /**
+     * Only one thread should call this method at any one time.
+     * Typically called from a message dispatch loop.
+     *
+     * @return The message or null if shutting down.
+     **/
     public Message waitForMessage() throws CommunicationException
     {
-	final Message message;
+	synchronized (this) {
+	    if (m_listening) {
+		throw new CommunicationException(
+		    "More than one thread called waitForMessage()");
+	    }
+
+	    m_listening = true;
+	}
 
 	try {
-	    m_packet.setData(m_buffer, 0, m_buffer.length);
-	    m_socket.receive(m_packet);
+	    final Message message;
 
-	    final ByteArrayInputStream byteStream =
-		new ByteArrayInputStream(m_buffer, 0, m_buffer.length);
+	    if (m_shuttingDown) {
+		shutdownComplete();
+		return null;
+	    }
+	
+	    try {
+		m_packet.setData(m_buffer, 0, m_buffer.length);
+		m_socket.receive(m_packet);
 
-	    final ObjectInputStream objectStream =
-		new ObjectInputStream(byteStream);
+		final ByteArrayInputStream byteStream =
+		    new ByteArrayInputStream(m_buffer, 0, m_buffer.length);
 
-	    message = (Message)objectStream.readObject();
-	}
-	catch (Exception e) {
-	    throw new CommunicationException(
-		"Error receving multicast packet", e);
-	}
+		final ObjectInputStream objectStream =
+		    new ObjectInputStream(byteStream);
 
-	final String senderID = message.getSenderUniqueID();
-	final long sequenceNumber = message.getSequenceNumber();
+		message = (Message)objectStream.readObject();
+	    }
+	    catch (Exception e) {
+		throw new CommunicationException(
+		    "Error receving multicast packet", e);
+	    }
 
-	final SequenceValue sequenceValue =
-	    (SequenceValue)m_sequenceValues.get(senderID);
+	    if (message instanceof ShutdownMessage) {
+		shutdownComplete();
+		return null;
+	    }
 
-	if (sequenceValue != null) {
-	    sequenceValue.nextValue(sequenceNumber);
-	}
-	else {
-	    m_sequenceValues.put(senderID, new SequenceValue(sequenceNumber));
-	}
+	    final String senderID = message.getSenderUniqueID();
+	    final long sequenceNumber = message.getSequenceNumber();
+
+	    final SequenceValue sequenceValue =
+		(SequenceValue)m_sequenceValues.get(senderID);
+
+	    if (sequenceValue != null) {
+		sequenceValue.nextValue(sequenceNumber);
+	    }
+	    else {
+		m_sequenceValues.put(senderID,
+				     new SequenceValue(sequenceNumber));
+	    }
 	    
-	return message;
+	    return message;
+	}
+	finally {
+	    synchronized (this) {
+		m_listening = false;
+	    }
+	}
+    }
+
+    /**
+     * Shut down this reciever. Assumes some other thread is blocked
+     * in, or will call, waitForMessage.
+     **/
+    public void shutdown() throws CommunicationException
+    {
+	if (!m_shutDown) {
+	    m_shuttingDown = true;
+
+	    final boolean needSuicideMessage;
+
+	    synchronized(this) {
+		needSuicideMessage = m_listening;
+	    }
+
+	    if (needSuicideMessage) {
+		// Pretty hacky way of shutting down the receiver. The
+		// packet goes out on the wire. Can't do much else
+		// with the DatagramSocket API though.
+		new Sender("suicide is painless", m_multicastAddressString,
+			   m_multicastPort).send(new ShutdownMessage());
+	    }
+	    else {
+		shutdownComplete();
+	    }
+
+	    while (!m_shutDown) {
+		try {
+		    synchronized (this) {
+			wait();
+		    }
+		}
+		catch (InterruptedException e) {
+		}
+	    }
+	}
+    }
+
+    private synchronized void shutdownComplete()
+    {
+	m_shutDown = true;
+	notifyAll();
     }
 
     private class SequenceValue
@@ -117,5 +203,9 @@ public class Receiver
 		throw e;
 	    }
 	}
+    }
+
+    private static final class ShutdownMessage extends Message
+    {
     }
 }
