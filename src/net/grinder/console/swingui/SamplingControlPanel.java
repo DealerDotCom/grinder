@@ -154,7 +154,7 @@ class SamplingControlPanel extends JPanel {
     textFieldControlPanel.add(m_collectSampleField);
 
     final JPanel textFieldPanel = new JPanel(new BorderLayout());
-    textFieldPanel.add(textFieldLabelPanel, BorderLayout.CENTER);
+    textFieldPanel.add(textFieldLabelPanel, BorderLayout.WEST);
     textFieldPanel.add(textFieldControlPanel, BorderLayout.EAST);
 
     setLayout(new GridLayout(0, 1));
