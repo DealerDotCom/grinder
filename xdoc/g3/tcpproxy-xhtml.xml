@@ -204,24 +204,24 @@ specify key store details:</p>
 <blockquote>
 <table>
 <tr>
- <td><code>-keyStore <em>file</em></code></td>
- <td>The key store file.</td>
+ <td valign="top"><code>-keyStore <em>file</em></code></td>
+ <td>The key store file name.</td>
 </tr>
 <tr>
- <td><code>-keyStorePassword <em>password</em></code></td>
- <td>The password for the key store.</td>
+ <td valign="top"><code>-keyStorePassword <em>password</em></code></td>
+ <td>The key store password. Optional for some key store types.</td>
 </tr>
 <tr>
- <td><code>-keyStoreType <em>type</em></code></td>
- <td>The type, defaults to <code>jks</code>.</td>
+ <td valign="top"><code>-keyStoreType <em>type</em></code></td>
+ <td>The key store type. If not specified, the default value depends
+ on JSSE configuration but is usually <code>jks</code>.</td>
 </tr>
 </table>
 </blockquote>
 
-<p>You can also specify these with the corresponding
-<code>javax.net.ssl.XXX</code> properties. Here's an example of
-starting the TCPProxy as an HTTP/HTTPS proxy using the
-<em>testkeys</em> key store provided with the JSSE samples:</p>
+<p>Here's an example of starting the TCPProxy as an HTTP/HTTPS proxy
+using the <em>testkeys</em> key store provided with the JSSE
+samples:</p>
 
 <blockquote>
 <pre>
@@ -234,9 +234,17 @@ client certificates. This is because the proxy needs a server
 certificate of its own. You need to start the proxy with a key store
 containing a self-signed server certificate. This is the certificate
 that the browser will be presented with. If you fail to provide a
-server certificate, you will get a <em>No available certificate
-corresponds to the SSL cipher suites which are enabled</em> exception.
-The easiest way to provide a certificate is to copy the
+keystore with a valid server certificate, you may get a <em>No
+available certificate corresponds to the SSL cipher suites which are
+enabled</em> exception, and your browser may report that it cannot
+communicate as it has no common encryption algorithms. Internet
+Explorer likes to be different. If start the TCPProxy without a valid
+server certificate and then connect through it using Internet
+Explorer, the TCPProxy will report "SSL peer shut down incorrectly.
+The browser will just spin away until it times out.
+</p>
+
+<p>The easiest way to provide a certificate is to copy the
 <em>testkeys</em> file from the JSSE samples distribution and start
 the proxy using:</p>
 
@@ -246,8 +254,8 @@ java net.grinder.TCPProxy -ssl -keyStore testkeys -keyStorePassword passphrase
 </pre>
 </blockquote>
 
-<p>Alternatively you might want to generate your own. Here's an
-example:</p>
+<p>Alternatively you might want to generate your own certificate.
+Here's an example:</p>
 
 <blockquote>
 <pre>

@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -43,7 +44,6 @@ import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EchoFilter;
 import net.grinder.tools.tcpproxy.EndPoint;
 import net.grinder.tools.tcpproxy.HTTPProxyTCPProxyEngine;
-import net.grinder.tools.tcpproxy.JSSEConstants;
 import net.grinder.tools.tcpproxy.NullFilter;
 import net.grinder.tools.tcpproxy.PortForwarderTCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyConsole;
@@ -91,8 +91,8 @@ public final class TCPProxy {
       "\n   [-localport <port>]          Default is 8001" +
       "\n   [-ssl                        Use SSL" +
       "\n     [-keystore <file>]         Key store details for" +
-      "\n     [-keystorepassword <pass>] certificates. Equivalent to" +
-      "\n     [-keystoretype <type>]     javax.net.ssl.XXX properties" +
+      "\n     [-keystorepassword <pass>] certificates." +
+      "\n     [-keystoretype <type>]     Default is JSSE dependent." +
       "\n   ]" +
       "\n" +
       "\n Other options:" +
@@ -152,6 +152,9 @@ public final class TCPProxy {
     String localHost = "localhost";
     int remotePort = 7001;
     boolean useSSL = false;
+    File keyStoreFile = null;
+    char[] keyStorePassword = null;
+    String keyStoreType = null;
     boolean proxy = true;
     boolean console = false;
 
@@ -215,14 +218,13 @@ public final class TCPProxy {
           useSSL = true;
         }
         else if (args[i].equalsIgnoreCase("-keystore")) {
-          System.setProperty(JSSEConstants.KEYSTORE_PROPERTY, args[++i]);
+          keyStoreFile = new File(args[++i]);
         }
         else if (args[i].equalsIgnoreCase("-keystorepassword")) {
-          System.setProperty(
-            JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, args[++i]);
+          keyStorePassword = args[++i].toCharArray();
         }
         else if (args[i].equalsIgnoreCase("-keystoretype")) {
-          System.setProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY, args[++i]);
+          keyStoreType = args[++i];
         }
         else if (args[i].equalsIgnoreCase("-timeout")) {
           timeout = Integer.parseInt(args[++i]) * 1000;
@@ -282,19 +284,39 @@ public final class TCPProxy {
       }
     }
 
-    startMessage.append(" with the parameters:" + "\n   Request filters:  ");
+    startMessage.append(" with the parameters:");
+    startMessage.append("\n   Request filters:    ");
     appendFilterList(startMessage, requestFilter);
-    startMessage.append("\n   Response filters: ");
+    startMessage.append("\n   Response filters:   ");
     appendFilterList(startMessage, responseFilter);
-    startMessage.append("\n   Local host:       " + localHost);
-    startMessage.append("\n   Local port:       " + localPort);
+    startMessage.append("\n   Local host:         " + localHost);
+    startMessage.append("\n   Local port:         " + localPort);
 
     if (!proxy) {
-      startMessage.append("\n   Remote host:      " + remoteHost +
-                          "\n   Remote port:      " + remotePort);
+      startMessage.append("\n   Remote host:        " + remoteHost +
+                          "\n   Remote port:        " + remotePort);
     }
 
     if (useSSL) {
+      startMessage.append("\n   Key store:          ");
+      startMessage.append(keyStoreFile != null ?
+                          keyStoreFile.toString() : "NOT SET");
+
+      // Key store password is optional.
+      if (keyStorePassword != null) {
+        startMessage.append("\n   Key store password: ");
+        for (int i = 0; i < keyStorePassword.length; ++i) {
+          startMessage.append('*');
+        }
+      }
+
+      // Key store type can be null => use whatever
+      // KeyStore.getDefaultType() says (we can't print the default
+      // here without loading the JSSE).
+      if (keyStoreType != null) {
+        startMessage.append("\n   Key store type:     " + keyStoreType);
+      }
+
       startMessage.append(
         "\n   (SSL setup could take a few seconds)");
     }
@@ -305,13 +327,24 @@ public final class TCPProxy {
       final TCPProxySocketFactory sslSocketFactory;
 
       if (useSSL) {
-        // TCPProxySSLSocketFactory depends on JSSE, load
-        // dynamically.
-        final Class socketFactoryClass =
-          Class.forName(SSL_SOCKET_FACTORY_CLASS);
+        try {
+          // TCPProxySSLSocketFactory depends on JSSE, load
+          // dynamically.
+          final Class socketFactoryClass =
+            Class.forName(SSL_SOCKET_FACTORY_CLASS);
 
-        sslSocketFactory =
-          (TCPProxySocketFactory)socketFactoryClass.newInstance();
+          final Constructor socketFactoryConstructor =
+            socketFactoryClass.getConstructor(
+              new Class[] { File.class, new char[0].getClass(),
+                            String.class, });
+
+          sslSocketFactory = (TCPProxySocketFactory)
+            socketFactoryConstructor.newInstance(
+              new Object[] { keyStoreFile, keyStorePassword, keyStoreType, });
+        }
+        catch (InvocationTargetException e) {
+          throw e.getTargetException();
+        }
       }
       else {
         sslSocketFactory = null;
@@ -351,7 +384,7 @@ public final class TCPProxy {
 
       System.err.println("Engine initialised, listening on port " + localPort);
     }
-    catch (Exception e) {
+    catch (Throwable e) {
       System.err.println("Could not initialise engine:");
       e.printStackTrace();
       System.exit(2);

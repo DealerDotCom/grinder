@@ -27,7 +27,7 @@ hour, e.g. sleep(4348063)
 http://sourceforge.net/mailarchive/message.php?msg_id=2027628
 http://sourceforge.net/mailarchive/message.php?msg_id=3626264
 
-** TCP Proxy
+** TCPProxy
 
 Recording \n's?
 
@@ -37,13 +37,8 @@ properties wrongly. It first sends a request without the
 authentication headers, then catches the 401 and automatically resends
 a request with the authentication headers.
 
-Tim McNerney writes:
- > Obviously, I could edit the scripts by hand. But I'd like to have
- > TCPProxy do this for me. So is there some existing method for doing
- > such filtering? Say on target suffix ("filter=.gif,.js,.css")
-
-Allow "chained proxying", where details of real proxy server can be
-specified.
+Fix bug where no exception is reported with SSL and empty keystore.
+Try behaviour with B11.
 
 * Enhancements
 
@@ -83,9 +78,15 @@ test runs etc.
 
 ** TCPProxy
 
-TCPProxy should be able to work through proxies.
+Tim McNerney writes:
+ > Obviously, I could edit the scripts by hand. But I'd like to have
+ > TCPProxy do this for me. So is there some existing method for doing
+ > such filtering? Say on target suffix ("filter=.gif,.js,.css")
 
-Change TCP sniffer filters to a stream oriented model. This should
+Allow "chained proxying", where details of real proxy server can be
+specified.
+
+Change TCPProxy filters to a stream oriented model. This should
 cure another one of the TCPSniffer/HTTPPlugin bug when recording large
 outputs with posts? Also, consider having a filter instance pair per
 connection.

@@ -23,6 +23,10 @@ Grinder 3.0-beta12
   The TCPProxy now supports chains of filters. Some may find
   "-httpPlugin -requestFilter ECHO -responseFilter ECHO" useful.
 
+  The TCPProxy now displays key store configuration when starting in
+  SSL mode. Support for setting the key store using system properties
+  has been removed.
+
   Enhancement from Richard Perks that allows scripts to specify the
   local interface to use for HTTP connections. See
   HTTPPluginConnection.setLocalAddress().

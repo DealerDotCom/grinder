@@ -22,10 +22,7 @@
 
 package net.grinder.tools.tcpproxy;
 
-import com.sun.net.ssl.KeyManagerFactory;
-import com.sun.net.ssl.SSLContext;
-import com.sun.net.ssl.TrustManager;
-import com.sun.net.ssl.X509TrustManager;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -38,6 +35,11 @@ import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocket;
+
+import com.sun.net.ssl.KeyManagerFactory;
+import com.sun.net.ssl.SSLContext;
+import com.sun.net.ssl.TrustManager;
+import com.sun.net.ssl.X509TrustManager;
 
 
 /**
@@ -67,20 +69,25 @@ public final class TCPProxySSLSocketFactory implements TCPProxySocketFactory {
    *
    * <p>We can't install our own TrustManagerFactory without messing
    * with the security properties file. Hence we create our own
-   * SSLContext and initialise it. Passing null as the keystore
-   * parameter to SSLContext.init() results in a empty keystore
-   * being used, as does passing the key manager array obtain from
-   * keyManagerFactory.getInstance().getKeyManagers(). To pick up
-   * the "default" keystore system properties, we have to read them
-   * explicitly. UGLY, but necessary so we understand the expected
-   * properties.</p>
+   * SSLContext and initialise it. Passing null as the first parameter
+   * to SSLContext.init() results in a empty keystore being used, as
+   * does passing the key manager array obtain from
+   * keyManagerFactory.getInstance().getKeyManagers(). </p>
    *
    * - PhilA
    *
+   * @param keyStoreFile Key store file, or <code>null</code> for no
+   * key store.
+   * @param keyStorePassword Key store password, or <code>null</code>
+   * if no password.
+   * @param keyStoreType Key store type, or <code>null</code> if the
+   * default keystore type should be used.
    * @exception IOException If an I/O error occurs.
    * @exception GeneralSecurityException If a security error occurs.
    */
-  public TCPProxySSLSocketFactory()
+  public TCPProxySSLSocketFactory(File keyStoreFile,
+                                  char[] keyStorePassword,
+                                  String keyStoreType)
     throws IOException, GeneralSecurityException {
 
     final SSLContext sslContext = SSLContext.getInstance("SSL");
@@ -88,18 +95,13 @@ public final class TCPProxySSLSocketFactory implements TCPProxySocketFactory {
     final KeyManagerFactory keyManagerFactory =
       KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 
-    final String keyStoreFile =
-      System.getProperty(JSSEConstants.KEYSTORE_PROPERTY);
-    final char[] keyStorePassword =
-      System.getProperty(JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, "")
-      .toCharArray();
-    final String keyStoreType =
-      System.getProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY, "jks");
-
     final KeyStore keyStore;
 
     if (keyStoreFile != null) {
-      keyStore = KeyStore.getInstance(keyStoreType);
+      keyStore =
+        KeyStore.getInstance(keyStoreType != null ?
+                             keyStoreType : KeyStore.getDefaultType());
+
       keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
     }
     else {
