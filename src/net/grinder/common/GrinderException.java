@@ -73,4 +73,9 @@ public class GrinderException extends Exception
     {
 	printStackTrace(new PrintWriter(s));
     }
+
+    public Exception getNestedException()
+    {
+	return m_nestedException;
+    }
 }

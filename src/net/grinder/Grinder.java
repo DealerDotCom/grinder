@@ -26,7 +26,6 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.engine.LauncherThread;
 import net.grinder.engine.process.GrinderProcess;
-import net.grinder.util.PropertiesHelper;
 
 
 /**
@@ -66,11 +65,8 @@ public class Grinder
 	boolean ignoreInitialSignal = false;
 
 	while (true) {
-	    final PropertiesHelper propertiesHelper =
-		new PropertiesHelper(m_alternateFilename);
-
 	    final GrinderProperties properties =
-		propertiesHelper.getProperties();
+		new GrinderProperties(m_alternateFilename);
 
 	    final int numberOfProcesses =
 		properties.getInt("grinder.processes", 1);

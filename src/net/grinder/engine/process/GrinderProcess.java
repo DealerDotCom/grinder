@@ -18,6 +18,8 @@
 
 package net.grinder.engine.process;
 
+import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +33,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
+import net.grinder.common.TestImplementation;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
@@ -48,7 +51,6 @@ import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
-import net.grinder.util.PropertiesHelper;
 
 
 /**
@@ -77,6 +79,8 @@ public class GrinderProcess
     public static String DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME =
 	"grinder.dontWaitForSignal";
 
+    private static final String TEST_PREFIX = "grinder.test";
+
     /**
      * The application's entry point.
      * 
@@ -91,12 +95,8 @@ public class GrinderProcess
 	}
 
 	try {
-	    final PropertiesHelper propertiesHelper =
-		args.length == 2 ?
-		new PropertiesHelper(args[1]) : new PropertiesHelper();
-
 	    final GrinderProcess grinderProcess =
-		new GrinderProcess(args[0], propertiesHelper);
+		new GrinderProcess(args[0], args.length == 2 ? args[1] : null);
 
 	    final int status = grinderProcess.run();
 	    
@@ -126,10 +126,11 @@ public class GrinderProcess
     /** A map of Tests to Statistics for passing elsewhere. */
     private final TestStatisticsMap m_testStatisticsMap;
 
-    public GrinderProcess(String grinderID, PropertiesHelper propertiesHelper)
+    public GrinderProcess(String grinderID, String propertiesFileName)
 	throws GrinderException
     {
-	final GrinderProperties properties = propertiesHelper.getProperties();
+	final GrinderProperties properties =
+	    new GrinderProperties(propertiesFileName);
 
 	m_context = new ProcessContextImplementation(grinderID, properties);
 
@@ -137,7 +138,7 @@ public class GrinderProcess
 	m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
 	// Parse plugin class.
-	m_plugin = propertiesHelper.instantiatePlugin(m_context);
+	m_plugin = instantiatePlugin();
 
 	// Get defined tests.
 	final Set tests = m_plugin.getTests();
@@ -213,8 +214,7 @@ public class GrinderProcess
 	    final Test test = (Test)testSetIterator.next();
 
 	    final String sleepTimePropertyName =
-		propertiesHelper.getTestPropertyName(test.getNumber(),
-						     "sleepTime");
+		getTestPropertyName(test.getNumber(), "sleepTime");
 
 	    final long sleepTime =
 		properties.getInt(sleepTimePropertyName, -1);
@@ -224,6 +224,97 @@ public class GrinderProcess
 	    m_testSet.put(test, new TestData(test, sleepTime, statistics));
 	    m_testStatisticsMap.put(test, statistics);
 	}
+    }
+
+    public GrinderPlugin instantiatePlugin()
+	throws GrinderException
+    {
+	final String pluginClassName =
+	    m_context.getProperties().getMandatoryProperty("grinder.plugin");
+
+	try {
+	    final Class pluginClass = Class.forName(pluginClassName);
+
+	    if (!GrinderPlugin.class.isAssignableFrom(pluginClass)) {
+		throw new GrinderException(
+		    "The specified plugin class ('" + pluginClass.getName() +
+		    "') does not implement the interface '" +
+		    GrinderPlugin.class.getName() + "'");
+	    }
+
+	    final GrinderPlugin plugin =
+		(GrinderPlugin)pluginClass.newInstance();
+
+	    plugin.initialize(m_context, getPropertiesTestSet());
+
+	    return plugin;
+	}
+	catch(ClassNotFoundException e){
+	    throw new GrinderException(
+		"The specified plug-in class was not found.", e);
+	}
+	catch (Exception e){
+	    throw new GrinderException(
+		"An instance of the specified plug-in class " +
+		"could not be created.", e);
+	}
+    }
+
+    private Set getPropertiesTestSet() throws GrinderException
+    {
+	final Map tests = new HashMap();
+	final GrinderProperties properties = m_context.getProperties();
+
+	final Iterator nameIterator = properties.keySet().iterator();
+
+	while (nameIterator.hasNext()) {
+	    final String name = (String)nameIterator.next();
+		
+	    if (!name.startsWith(TEST_PREFIX)) {
+		continue;	// Not a test property.
+	    }
+
+	    final int nextSeparator = name.indexOf('.', TEST_PREFIX.length());
+
+	    final int testNumber;
+
+	    try {
+		testNumber =
+		    Integer.parseInt(name.substring(TEST_PREFIX.length(),
+						    nextSeparator));
+	    }
+	    catch (Exception e) {
+		throw new GrinderException(
+		    "Could not resolve test number from property '" +
+		    name + ".");
+	    }
+
+	    final Integer testNumberInteger = new Integer(testNumber);
+
+	    if (tests.containsKey(testNumberInteger)) {
+		continue;	// Already parsed.
+	    }
+
+	    final String description =
+		properties.getProperty(
+		    getTestPropertyName(testNumber, "description"), null);
+
+	    final GrinderProperties parameters =
+		properties.getPropertySubset(
+		    getTestPropertyName(testNumber, "parameter") + '.');
+
+	    tests.put(testNumberInteger, new TestImplementation(testNumber,
+								description,
+								parameters));
+	}
+
+	return new HashSet(tests.values());
+    }
+
+    private static String getTestPropertyName(int testNumber,
+					      String unqualifiedName)
+    {
+	return TEST_PREFIX + testNumber + '.' + unqualifiedName;
     }
 
     /**

@@ -69,6 +69,7 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import net.grinder.common.GrinderException;
 import net.grinder.console.ConsoleException;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
@@ -660,9 +661,12 @@ public class ConsoleUI implements ModelListener
 		    try {
 			properties.save();
 		    }
-		    catch (IOException e) {
+		    catch (GrinderException e) {
+			final Exception nested = e.getNestedException();
+
 			JOptionPane.showMessageDialog(
-			    m_frame, e.getMessage(),
+			    m_frame,
+			    (nested != null ? nested : e).getMessage(),
 			    m_resources.getString("fileError.title"),
 			    JOptionPane.ERROR_MESSAGE);
 		    }

@@ -18,6 +18,12 @@
 
 package net.grinder.common;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -25,23 +31,90 @@ import java.util.Properties;
 
 /**
  * Extend {@link java.util.Properties} to add typesafe accessors.
+ * Has an optional associated file.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public class GrinderProperties extends Properties
 {
+    private static final String DEFAULT_FILENAME = "grinder.properties";
+
     private PrintWriter m_errorWriter = new PrintWriter(System.err, true);
+    private final File m_file;
+
+    /**
+     * Construct a GrinderProperties with no associated file.
+     **/
+    public GrinderProperties()
+    {
+	m_file = null;
+    }
+
+    /**
+     * Construct a GrinderProperties, reading initial values from the specified file. System properties
+     * are also added to allow values to be overriden on the command line.
+     * @param filename The file to read the properties from. null => use grinder.properties.
+     **/
+    public GrinderProperties(String filename) throws GrinderException
+    {
+	m_file = new File(filename != null ? filename : DEFAULT_FILENAME);
+
+	if (m_file.exists()) {
+	    try {
+		final InputStream propertiesInputStream =
+		    new FileInputStream(m_file);
+
+		load(propertiesInputStream);
+	    }
+	    catch (IOException e) {
+		throw new GrinderException(
+		    "Error loading properties file '" + m_file.getPath() + "'",
+		    e);
+	    }
+	}
+
+	putAll(System.getProperties());
+    }
+
+    /**
+     * Save our properties to our file.
+     *
+     * @throws GrinderException If there is no file associated with this {@link GrinderProperties}.
+     * @throws GrinderProperties With an nested IOException if there was an error writing to the file.
+     **/
+    public final void save() throws GrinderException
+    {
+	if (m_file == null) {
+	    throw new GrinderException("No associated file");
+	}
+
+	try {
+	    final OutputStream outputStream = new FileOutputStream(m_file);
+	    store(outputStream, "Grinder Console Properties");
+	    outputStream.close();
+	}
+	catch (IOException e) {
+	    throw new GrinderException(
+		"Error writing properties file '" + m_file.getPath() + "'", e);
+	}
+    }
+    
 
     /**
      * Set a writer to report warnings to.
      **/
-    public void setErrorWriter(PrintWriter writer)
+    public final void setErrorWriter(PrintWriter writer)
     {
 	m_errorWriter = writer;
     }
 
-    public synchronized GrinderProperties getPropertySubset(String prefix)
+    /**
+     * Return a new GrinderProperties that contains the subset of our Properties which begin with the specified prefix.
+     * @param prefix The prefix.
+     **/
+    public final synchronized GrinderProperties
+	getPropertySubset(String prefix)
     {
 	final GrinderProperties result = new GrinderProperties();
 
@@ -59,7 +132,12 @@ public class GrinderProperties extends Properties
 	return result;	
     }
 
-    public String getMandatoryProperty(String propertyName)
+    /**
+     * Get the value of the property with the given name.
+     * @param propertyName The property name.
+     * @throws GrinderException If a property with the given name does not exist.
+     **/
+    public final String getMandatoryProperty(String propertyName)
 	throws GrinderException
     {
 	final String s = getProperty(propertyName);
@@ -72,7 +150,14 @@ public class GrinderProperties extends Properties
 	return s;	
     }
 
-    public int getInt(String propertyName, int defaultValue)
+    /**
+     * Get the value of the property with the given name, return the
+     * value as an <code>int</code>.
+     * @param propertyName The property name.
+     * @param defaultValue The value to return if a property with the
+     * given name does not exist or is not an integer.
+     **/
+    public final int getInt(String propertyName, int defaultValue)
     {
 	final String s = getProperty(propertyName);
 
@@ -89,7 +174,14 @@ public class GrinderProperties extends Properties
 	return defaultValue;
     }
 
-    public int getMandatoryInt(String propertyName)
+    /**
+     * Get the value of the property with the given name, return the
+     * value as an <code>int</code>.
+     * @param propertyName The property name.
+     * @throws GrinderException If a property with the given name does
+     * not exist or is not an integer.
+     **/
+    public final int getMandatoryInt(String propertyName)
 	throws GrinderException
     {
 	final String s = getProperty(propertyName);
@@ -108,12 +200,26 @@ public class GrinderProperties extends Properties
 	}
     }
 
-    public void setInt(String propertyName, int value)
+    /**
+     * Set the property with the given name to an <code>int</code>
+     * value.
+     * @param propertyName The property name.
+     * @param value The value to set.
+     **/
+    public final void setInt(String propertyName, int value)
     {
 	setProperty(propertyName, Integer.toString(value));
     }
 
-    public long getLong(String propertyName, long defaultValue)
+
+    /**
+     * Get the value of the property with the given name, return the
+     * value as a <code>long</code>.
+     * @param propertyName The property name.
+     * @param defaultValue The value to return if a property with the
+     * given name does not exist or is not a long.
+     **/
+    public final long getLong(String propertyName, long defaultValue)
     {
 	final String s = getProperty(propertyName);
 
@@ -130,7 +236,14 @@ public class GrinderProperties extends Properties
 	return defaultValue;
     }
 
-    public long getMandatoryLong(String propertyName)
+    /**
+     * Get the value of the property with the given name, return the
+     * value as a <code>long</code>.
+     * @param propertyName The property name.
+     * @throws GrinderException If a property with the given name does
+     * not exist or is not a long.
+     **/
+    public final long getMandatoryLong(String propertyName)
 	throws GrinderException
     {
 	final String s = getProperty(propertyName);
@@ -149,12 +262,25 @@ public class GrinderProperties extends Properties
 	}
     }
 
-    public void setLong(String propertyName, long value)
+    /**
+     * Set the property with the given name to a <code>long</code>
+     * value.
+     * @param propertyName The property name.
+     * @param value The value to set.
+     **/
+    public final void setLong(String propertyName, long value)
     {
 	setProperty(propertyName, Long.toString(value));
     }
 
-    public short getShort(String propertyName, short defaultValue)
+    /**
+     * Get the value of the property with the given name, return the
+     * value as a <code>short</code>.
+     * @param propertyName The property name.
+     * @param defaultValue The value to return if a property with the
+     * given name does not exist or is not a short.
+     **/
+    public final short getShort(String propertyName, short defaultValue)
     {
 	final String s = getProperty(propertyName);
 
@@ -171,7 +297,14 @@ public class GrinderProperties extends Properties
 	return defaultValue;
     }
 
-    public short getMandatoryShort(String propertyName)
+    /**
+     * Get the value of the property with the given name, return the
+     * value as a <code>short</code>.
+     * @param propertyName The property name.
+     * @throws GrinderException If a property with the given name does
+     * not exist or is not a short.
+     **/
+    public final short getMandatoryShort(String propertyName)
 	throws GrinderException
     {
 	final String s = getProperty(propertyName);
@@ -190,12 +323,25 @@ public class GrinderProperties extends Properties
 	}
     }
 
-    public void setShort(String propertyName, short value)
+    /**
+     * Set the property with the given name to a <code>short</code>
+     * value.
+     * @param propertyName The property name.
+     * @param value The value to set.
+     **/
+    public final void setShort(String propertyName, short value)
     {
 	setProperty(propertyName, Short.toString(value));
     }
 
-    public double getDouble(String propertyName, double defaultValue)
+    /**
+     * Get the value of the property with the given name, return the
+     * value as a <code>double</code>.
+     * @param propertyName The property name.
+     * @param defaultValue The value to return if a property with the
+     * given name does not exist or is not a double.
+     **/
+    public final double getDouble(String propertyName, double defaultValue)
     {
 	final String s = getProperty(propertyName);
 
@@ -212,7 +358,14 @@ public class GrinderProperties extends Properties
 	return defaultValue;
     }
 
-    public double getMandatoryDouble(String propertyName)
+    /**
+     * Get the value of the property with the given name, return the
+     * value as a <code>double</code>.
+     * @param propertyName The property name.
+     * @throws GrinderException If a property with the given name does
+     * not exist or is not a double.
+     **/
+    public final double getMandatoryDouble(String propertyName)
 	throws GrinderException
     {
 	final String s = getProperty(propertyName);
@@ -231,12 +384,25 @@ public class GrinderProperties extends Properties
 	}
     }
 
-    public void setDouble(String propertyName, double value)
+    /**
+     * Set the property with the given name to a <code>double</code>
+     * value.
+     * @param propertyName The property name.
+     * @param value The value to set.
+     **/
+    public final void setDouble(String propertyName, double value)
     {
 	setProperty(propertyName, Double.toString(value));
     }
 
-    public boolean getBoolean(String propertyName, boolean defaultValue)
+    /**
+     * Get the value of the property with the given name, return the
+     * value as a <code>boolean</code>.
+     * @param propertyName The property name.
+     * @param defaultValue The value to return if a property with the
+     * given name does not exist.
+     **/
+    public final boolean getBoolean(String propertyName, boolean defaultValue)
     {
 	final String s = getProperty(propertyName);
 
@@ -247,7 +413,15 @@ public class GrinderProperties extends Properties
 	return defaultValue;
     }
 
-    public boolean getMandatoryBoolean(String propertyName)
+
+    /**
+     * Get the value of the property with the given name, return the
+     * value as a <code>boolean</code>.
+     * @param propertyName The property name.
+     * @throws GrinderException If a property with the given name does
+     * not exist.
+     **/
+    public final boolean getMandatoryBoolean(String propertyName)
 	throws GrinderException
     {
 	final String s = getProperty(propertyName);
@@ -260,7 +434,13 @@ public class GrinderProperties extends Properties
 	return Boolean.valueOf(s).booleanValue();
     }
 
-    public void setBoolean(String propertyName, boolean value)
+    /**
+     * Set the property with the given name to a <code>boolean</code>
+     * value.
+     * @param propertyName The property name.
+     * @param value The value to set.
+     **/
+    public final void setBoolean(String propertyName, boolean value)
     {
 	setProperty(propertyName, new Boolean(value).toString());
     }
