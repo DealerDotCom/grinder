@@ -2,7 +2,7 @@
 
 	* The Grinder 3.0-beta25 is released.
 
-	* TODO, build.xml, src/documentation/content/xdocs/g3/scripts.xml:
+	* CHANGES, ChangeLog, TODO, build.xml, src/documentation/content/xdocs/g3/scripts.xml:
 	Documentation updates.
 
 	* src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticsIndexMap.java:
