@@ -290,7 +290,7 @@ public class FixedWidthFormatter {
         result.append("\n");
       }
 
-      result.append(buffer);
+      result.append(buffer.toString());
 
       buffer = remainder;
     }
