@@ -25,7 +25,6 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 
-import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.util.FixedWidthFormatter;
 
@@ -92,9 +91,8 @@ public class StatisticsTable {
    * Write the table out an output stream.
    *
    * @param out The output stream.
-   * @exception GrinderException if an error occurs
    */
-  public final void print(PrintStream out) throws GrinderException {
+  public final void print(PrintStream out) {
     final PrintWriter writer = new PrintWriter(out);
     print(writer);
     writer.flush();
@@ -104,9 +102,8 @@ public class StatisticsTable {
    * Write the table out an output writer.
    *
    * @param out The output writer
-   * @exception GrinderException if an error occurs
    */
-  public final void print(PrintWriter out) throws GrinderException {
+  public final void print(PrintWriter out) {
     final ExpressionView[] expressionViews =
       m_statisticsView.getExpressionViews();
 
@@ -183,8 +180,7 @@ public class StatisticsTable {
 
   private StringBuffer formatLine(String rowLabel,
                                   RawStatistics rawStatistics,
-                                  ExpressionView[] expressionViews)
-    throws GrinderException {
+                                  ExpressionView[] expressionViews) {
     final StringBuffer result = new StringBuffer();
 
     final StringBuffer cell = new StringBuffer(rowLabel);
