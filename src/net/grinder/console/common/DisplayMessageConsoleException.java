@@ -31,8 +31,6 @@ package net.grinder.console.common;
  */
 public class DisplayMessageConsoleException extends ConsoleException {
 
-  //  private final Resources m_resources;
-
   /**
    * Constructor.
    *
@@ -43,6 +41,20 @@ public class DisplayMessageConsoleException extends ConsoleException {
   public DisplayMessageConsoleException(String resourceKey,
                                         String defaultMessage) {
     super(getMessage(resourceKey, defaultMessage));
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param resourceKey Resource key that specifies message.
+   * @param defaultMessage Default message to use if
+   * <code>resourceKey</code> not found.
+   * @param e Nested exception.
+   */
+  public DisplayMessageConsoleException(String resourceKey,
+                                        String defaultMessage,
+                                        Exception e) {
+    super(getMessage(resourceKey, defaultMessage), e);
   }
 
   private static String getMessage(String resourceKey, String defaultMessage) {
