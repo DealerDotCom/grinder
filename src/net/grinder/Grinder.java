@@ -86,12 +86,12 @@ public class Grinder
 
 	    // Need to tokenize?
 	    final String jvmArguments =
-		properties.getProperty("grinder.jvm.arguments", "");
+		properties.getProperty("grinder.jvm.arguments");
 
-	    command.add(jvmArguments);
+	    if (jvmArguments != null) {
+		command.add(jvmArguments);
+	    }
 	    
-	    command.add("-classpath");
-
 	    final String additionalClasspath =
 		properties.getProperty("grinder.jvm.classpath", null);
 
@@ -102,7 +102,10 @@ public class Grinder
 	    classpath.replace(';', File.pathSeparatorChar);
 	    classpath.replace(':', File.pathSeparatorChar);
 
-	    command.add(classpath);
+	    if (classpath.length() > 0) {
+		command.add("-classpath");
+		command.add(classpath);
+	    }
 
 	    if (ignoreInitialSignal) {
 		command.add(
