@@ -38,9 +38,9 @@ public class RandomStubFactory extends AbstractStubFactory {
   public RandomStubFactory(Class stubbedInterface) {
     super(stubbedInterface,
           new OverrideInvocationHandlerDecorator(
+            new RandomResultInvocationHandler(),
             new SimpleEqualityDecoration(
-              "a stub " + stubbedInterface.getName()),
-            new RandomResultInvocationHandler()));
+              "a stub " + stubbedInterface.getName())));
   }
 
   private static final class RandomResultInvocationHandler

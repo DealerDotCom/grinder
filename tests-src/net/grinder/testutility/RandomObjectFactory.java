@@ -115,7 +115,12 @@ public final class RandomObjectFactory {
     }
 
     // Resort to something that supports same interfaces as type.
-    return new NullInvocationHandler(type).getProxy();
+    return Proxy.newProxyInstance(
+      type.getClassLoader(),
+      AbstractStubFactory.getAllInterfaces(type),
+      new OverrideInvocationHandlerDecorator(
+        new NullInvocationHandler(),
+        new SimpleEqualityDecoration("a null " + type.getName())));
   }
 
   public Object[] generateParameters(Class[] parameterTypes) {
@@ -134,31 +139,11 @@ public final class RandomObjectFactory {
     }
   }
 
-  /**
-   *  Factory for null objects that support a particular interface.
-   */
   public static class NullInvocationHandler implements InvocationHandler {
-
-    private final Object m_proxy;
-
-    public NullInvocationHandler(Class stubbedInterface) {
-
-      final SimpleEqualityDecoration equalityDecoration =
-        new SimpleEqualityDecoration("a null " + stubbedInterface.getName());
-      
-      m_proxy = Proxy.newProxyInstance(
-        stubbedInterface.getClassLoader(),
-        AbstractStubFactory.getAllInterfaces(stubbedInterface),
-        new OverrideInvocationHandlerDecorator(equalityDecoration, this));
-    }
 
     public Object invoke(Object proxy, Method method, Object[] parameters)
          throws Throwable {
       return null;
-    }
-
-    public Object getProxy() {
-      return m_proxy;
     }
   }
 }

@@ -48,7 +48,7 @@ public abstract class AbstractStubFactory extends CallRecorder {
 
     final InvocationHandler decoratedInvocationHandler =
       new RecordingInvocationHandler(
-        new OverrideInvocationHandlerDecorator(this, invocationHandler));
+        new OverrideInvocationHandlerDecorator(invocationHandler, this));
 
     m_stub = Proxy.newProxyInstance(stubbedInterface.getClassLoader(),
                                     getAllInterfaces(stubbedInterface),
