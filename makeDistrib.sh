@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TAR=grinder.tar.gz
+JAR=grinder.jar
 
 FILES=$(find . \
 -name original -prune \
@@ -18,4 +18,4 @@ FILES=$(find . \
 -o \( -type f -a -print \) )
 
 
-tar cvzf ${TAR} ${FILES}
+jar cvf ${JAR} ${FILES}
