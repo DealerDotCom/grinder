@@ -88,10 +88,10 @@ public class TestRegisteredPlugin extends TestCase {
     catch (EngineException e) {
     }
 
-    final RandomStubFactory threadLoggerStubFactory =
-      new RandomStubFactory(ThreadLogger.class);
+    final ThreadLoggerStubFactory threadLoggerStubFactory =
+      new ThreadLoggerStubFactory();
     final ThreadLogger threadLogger =
-      (ThreadLogger)threadLoggerStubFactory.getStub();
+      threadLoggerStubFactory.getThreadLogger();
 
     final ThreadContextStubFactory threadContextStubFactory =
       new ThreadContextStubFactory(threadLogger);
@@ -101,16 +101,15 @@ public class TestRegisteredPlugin extends TestCase {
 
     grinderPluginStubFactory.setThrowExceptionFromCreateThreadListener(true);
 
-    /*
-      Why does this throw an UndeclaredThrowableException? Its declared!
-
     try {
       registeredPlugin.getPluginThreadListener();
       fail("Expected EngineException");
     }
     catch (EngineException e) {
     }
-    */
+
+    // Fix me.
+
 
     grinderPluginStubFactory.setThrowExceptionFromCreateThreadListener(false);
 
