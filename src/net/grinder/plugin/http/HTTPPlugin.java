@@ -56,9 +56,6 @@ public class HttpPlugin extends SimplePluginBase
     private boolean m_logHTML = true;
     private HTTPHandler m_httpHandler = null;
     private int m_currentIteration = 0; // How many times we've done all the URL's
-    private final DateFormat m_dateFormat =
-	new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss zzz");
-
     private Object m_bean = null;
     private StringBean m_stringBean = null;
     private Map m_beanMethodMap = null;
@@ -101,15 +98,8 @@ public class HttpPlugin extends SimplePluginBase
 		testParameters.getProperty("ifModifiedSince", null);
 
 	    if (m_ifModifiedSince != null) {
-		try {
-		    final Date date = m_dateFormat.parse(m_ifModifiedSince);
-		    m_ifModifiedSinceLong = date.getTime();
-		}
-		catch (ParseException e) {
-		    m_pluginThreadContext.logError(
-			"Couldn't parse ifModifiedSince date '" +
-			m_ifModifiedSince + "'");
-		}
+		m_ifModifiedSinceLong =
+		    HTTPClient.Util.parseHttpDate(m_ifModifiedSince).getTime();
 	    }
 
 	    final String postFilename =
