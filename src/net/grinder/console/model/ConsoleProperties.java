@@ -81,6 +81,11 @@ public final class ConsoleProperties {
   public static final String RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY =
     "grinder.console.resetConsoleWithProcessesDontAsk";
 
+  /** Property name **/
+  public static final String SCRIPT_DISTRIBUTION_FILES_PROPERTY =
+    "grinder.console.scriptDistribution.";
+
+
   private final PropertyChangeSupport m_changeSupport =
     new PropertyChangeSupport(this);
 
@@ -90,6 +95,7 @@ public final class ConsoleProperties {
   private int m_significantFigures;
   private boolean m_resetConsoleWithProcesses;
   private boolean m_resetConsoleWithProcessesDontAsk;
+  private ScriptDistributionFiles m_scriptDistributionFiles;
 
   /**
    *We hang onto the addresses as strings so we can copy and
@@ -148,6 +154,10 @@ public final class ConsoleProperties {
     setResetConsoleWithProcessesDontAskInternal(
       m_properties.getBoolean(RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
 			      false));
+
+    setScriptDistributionFiles(
+      new ScriptDistributionFiles(SCRIPT_DISTRIBUTION_FILES_PROPERTY,
+				  m_properties));
   }
 
   /**
@@ -178,6 +188,7 @@ public final class ConsoleProperties {
     setResetConsoleWithProcesses(properties.m_resetConsoleWithProcesses);
     setResetConsoleWithProcessesDontAskInternal(
       properties.m_resetConsoleWithProcessesDontAsk);
+    setScriptDistributionFiles(properties.m_scriptDistributionFiles);
   }
 
   /**
@@ -223,6 +234,8 @@ public final class ConsoleProperties {
 			    m_resetConsoleWithProcesses);
     m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
 			    m_resetConsoleWithProcessesDontAsk);
+
+    m_scriptDistributionFiles.addToProperties(m_properties);
 
     m_properties.save();
   }
@@ -598,6 +611,22 @@ public final class ConsoleProperties {
       m_changeSupport.firePropertyChange(
 	RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
 	old, m_resetConsoleWithProcessesDontAsk);
+    }
+  }
+
+  public final ScriptDistributionFiles getScriptDistributionFiles() {
+    return m_scriptDistributionFiles;
+  }
+
+  public final void setScriptDistributionFiles(
+    ScriptDistributionFiles scriptDistributionFiles) {
+
+    if (!scriptDistributionFiles.equals(m_scriptDistributionFiles)) {
+      final ScriptDistributionFiles old = scriptDistributionFiles;
+      m_scriptDistributionFiles = scriptDistributionFiles;
+      
+      m_changeSupport.firePropertyChange(
+	SCRIPT_DISTRIBUTION_FILES_PROPERTY, old, m_scriptDistributionFiles);
     }
   }
 }

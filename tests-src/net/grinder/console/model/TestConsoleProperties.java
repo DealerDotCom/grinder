@@ -29,10 +29,12 @@ import junit.swingui.TestRunner;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.util.Random;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.DisplayMessageConsoleException;
 
@@ -272,8 +274,43 @@ public class TestConsoleProperties extends TestCase {
     assertTrue(properties2.getResetConsoleWithProcessesDontAsk());    
   }
 
-  public void testCopyConstructor() throws Exception
-  {
+  public void testScriptDistributionFiles() throws Exception {
+    final String propertyName =
+      ConsoleProperties.SCRIPT_DISTRIBUTION_FILES_PROPERTY;
+
+    final ScriptDistributionFiles scriptDistributionFiles =
+      new ScriptDistributionFiles(propertyName, new GrinderProperties());
+
+    final GrinderProperties grinderProperties = new GrinderProperties();
+    scriptDistributionFiles.addToProperties(grinderProperties);
+
+    final FileOutputStream outputStream = new FileOutputStream(m_file);
+    grinderProperties.store(outputStream, "");
+    outputStream.close();
+
+    final ConsoleProperties properties = new ConsoleProperties(m_file);
+    assertEquals(scriptDistributionFiles,
+		 properties.getScriptDistributionFiles());
+
+    final ScriptDistributionFiles scriptDistributionFiles2 =
+      new ScriptDistributionFiles(propertyName, new GrinderProperties());
+    scriptDistributionFiles2.setRootDirectory(new File("blah"));
+
+    final PropertyChangeEvent expected =
+      new PropertyChangeEvent(properties, propertyName, 
+			      scriptDistributionFiles,
+			      scriptDistributionFiles2);
+
+    final MyListener listener = new MyListener(expected);
+    final MyListener listener2 = new MyListener(expected);
+
+    properties.addPropertyChangeListener(listener);
+    properties.addPropertyChangeListener(propertyName, listener2);
+
+    properties.setScriptDistributionFiles(scriptDistributionFiles2);
+  }
+
+  public void testCopyConstructor() throws Exception {
     final ConsoleProperties p1 = new ConsoleProperties(m_file);
     final ConsoleProperties p2 = new ConsoleProperties(p1);
 
@@ -289,6 +326,8 @@ public class TestConsoleProperties extends TestCase {
 		 p2.getResetConsoleWithProcesses());
     assertEquals(p1.getResetConsoleWithProcessesDontAsk(),
 		 p2.getResetConsoleWithProcessesDontAsk());
+    assertEquals(p1.getScriptDistributionFiles(),
+		 p2.getScriptDistributionFiles());
   }
 
   public void testAssignment() throws Exception {
@@ -304,6 +343,7 @@ public class TestConsoleProperties extends TestCase {
     p2.setGrinderPort(99);
     p2.setResetConsoleWithProcesses(true);
     p2.setResetConsoleWithProcessesDontAsk();
+    p2.getScriptDistributionFiles().setRootDirectory(new File("foo"));
 
     assertTrue(p1.getCollectSampleCount() != p2.getCollectSampleCount());
     assertTrue(p1.getIgnoreSampleCount() != p2.getIgnoreSampleCount());
@@ -317,6 +357,8 @@ public class TestConsoleProperties extends TestCase {
 	       p2.getResetConsoleWithProcesses());
     assertTrue(p1.getResetConsoleWithProcessesDontAsk() !=
 	       p2.getResetConsoleWithProcessesDontAsk());
+    assertTrue(p1.getScriptDistributionFiles() !=
+	       p2.getScriptDistributionFiles());
 
     p2.set(p1);
 
@@ -332,6 +374,8 @@ public class TestConsoleProperties extends TestCase {
 	       p2.getResetConsoleWithProcesses());
     assertTrue(p1.getResetConsoleWithProcessesDontAsk() ==
 	       p2.getResetConsoleWithProcessesDontAsk());
+    assertEquals(p1.getScriptDistributionFiles(),
+		 p2.getScriptDistributionFiles());
   }
 
   private abstract class TestIntTemplate {
