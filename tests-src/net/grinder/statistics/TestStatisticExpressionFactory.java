@@ -62,7 +62,34 @@ public class TestStatisticExpressionFactory extends TestCase
 	m_rawStatistics.addValue(m_indexMap.getIndexFor("Two"), 2);
     }
 
-    public void testPrimitiveStatistic() throws Exception
+    public void testConstant() throws Exception
+    {
+	final StatisticExpression longExpression =
+	    m_factory.createConstantExpression(-22);
+
+	myAssertEquals(-22, longExpression);
+	assert(!longExpression.isPrimitive());
+	assert(!longExpression.isDouble());
+
+	final StatisticExpression doubleExpression =
+	    m_factory.createConstantExpression(2.3);
+
+	myAssertEquals(2.3d, doubleExpression);
+	assert(!doubleExpression.isPrimitive());
+	assert(doubleExpression.isDouble());
+
+	myAssertEquals(0, m_factory.createExpression("0", m_indexMap));
+	myAssertEquals(99d, m_factory.createExpression("99f", m_indexMap));
+
+	try {
+	    m_factory.createExpression("1 2", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
+    }
+
+    public void testPrimitive() throws Exception
     {
 	final StatisticExpression expression =
 	    m_factory.createPrimitiveStatistic(m_indexMap.getIndexFor("One"));
@@ -305,6 +332,11 @@ public class TestStatisticExpressionFactory extends TestCase
 	myAssertEquals(2.25d,
 		       m_factory.createExpression(
 			   "(+ One (/ One (* Two Two)) One)", m_indexMap));
+
+	myAssertEquals(9d,
+		       m_factory.createExpression(
+			   "(* 4 (+ One (/ One (* Two Two)) One))",
+			   m_indexMap));
 
 	try {
 	    m_factory.createExpression("(+", m_indexMap);

@@ -111,51 +111,80 @@ final class StatisticExpressionFactory
 			 ProcessStatisticsIndexMap indexMap)
 	throws GrinderException
     {
-	final StatisticExpression result;
-
 	if (parseContext.peekCharacter() == '(') {
 	    parseContext.readCharacter();
 
 	    final String operation = parseContext.readToken();
 
-	    if ("+".equals(operation)) {
-		result = createSum(readOperands(parseContext, indexMap, 2));
+	    try {
+		if ("+".equals(operation)) {
+		    return createSum(readOperands(parseContext, indexMap, 2));
+		}
+		else if ("*".equals(operation)) {
+		    return
+			createProduct(readOperands(parseContext, indexMap, 2));
+		}
+		else if ("/".equals(operation)) {
+		    return
+			createDivision(
+			    createExpression(parseContext, indexMap),
+			    createExpression(parseContext, indexMap));
+		}
 	    }
-	    else if ("*".equals(operation)) {
-		result =
-		    createProduct(readOperands(parseContext, indexMap, 2));
-	    }
-	    else if ("/".equals(operation)) {
-		result = createDivision(
-		    createExpression(parseContext, indexMap),
-		    createExpression(parseContext, indexMap));
-	    }
-	    else {
-		throw parseContext.new ParseException(
-		    "Unknown operation '" + operation + "'");
+	    finally {
+		if (parseContext.readCharacter() != ')') {
+		    throw parseContext.new ParseException("Expecting ')'");
+		}
 	    }
 
-	    if (parseContext.readCharacter() != ')') {
-		throw parseContext.new ParseException("Expecting ')'");
-	    }
+	    throw parseContext.new ParseException(
+		"Unknown operation '" + operation + "'");
 	}
 	else {
-	    // Raw statistic name. Should extend to handle constants.
-	    result =
-		createPrimitiveStatistic(
-		    indexMap.getIndexFor(parseContext.readToken()));
-	}
+	    final String token = parseContext.readToken();
 
-	return result;
+	    try {
+		return createConstantExpression(Long.parseLong(token));
+	    }
+	    catch (NumberFormatException e) {
+		try {
+		    return createConstantExpression(Double.parseDouble(token));
+		}
+		catch (NumberFormatException e2) {
+		    // Raw statistic name.
+		    return createPrimitiveStatistic(
+			indexMap.getIndexFor(token));
+		}
+	    }
+	}
     }
 
-    public StatisticExpression
+    public final StatisticExpression createConstantExpression(final long value)
+    {
+	return new LongStatistic() {
+		public final long getValue(RawStatistics rawStatistics) {
+		    return value;
+		}
+	    };
+    }
+
+    public final StatisticExpression
+	createConstantExpression(final double value)
+    {
+	return new DoubleStatistic() {
+		public final double getValue(RawStatistics rawStatistics) {
+		    return value;
+		}
+	    };
+    }
+
+    public final StatisticExpression
 	createPrimitiveStatistic(final int processStatisticsIndex) 
     {
 	return new PrimitiveStatistic(processStatisticsIndex);
     }
 
-    public StatisticExpression
+    public final StatisticExpression
 	createSum(final StatisticExpression[] operands)
     {
 	return new VariableArgumentsExpression(0, operands) {
@@ -173,7 +202,7 @@ final class StatisticExpressionFactory
 	    }.getExpression();
     }
 
-    public StatisticExpression
+    public final StatisticExpression
 	createProduct(final StatisticExpression[] operands)
     {
 	return new VariableArgumentsExpression(1, operands) {
@@ -191,7 +220,7 @@ final class StatisticExpressionFactory
 	    }.getExpression();
     }
 
-    public StatisticExpression
+    public final StatisticExpression
 	createDivision(final StatisticExpression numerator,
 		       final StatisticExpression denominator)
     {
@@ -247,7 +276,7 @@ final class StatisticExpressionFactory
 	}
     }
 
-    private StatisticExpression[]
+    private final StatisticExpression[]
 	readOperands(ParseContext parseContext,
 		     ProcessStatisticsIndexMap indexMap, int minimumSize)
 	throws GrinderException
@@ -347,10 +376,6 @@ final class StatisticExpressionFactory
     private static abstract class PeakLongStatistic
 	extends LongStatistic implements PeakStatisticExpression 
     {
-	public boolean isPrimitive()
-	{
-	    return false;
-	}
     }
 
     private static abstract class VariableArgumentsExpression
