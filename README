@@ -82,8 +82,8 @@ support I provide will vary.
 How do I use the HTTPS plugin?
 ******************************
 
-1) Install JSSE1.0.2 and add the relevant jars to your classpath.
-   See http://java.sun.com/products/jsse/INSTALL.html
+1) Install JSSE1.0.2. See
+   http://java.sun.com/products/jsse/INSTALL.html
 
 2) In your grinder.properties, use the HttpsPlugin rather than
    HttpPlugin:
