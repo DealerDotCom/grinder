@@ -57,11 +57,8 @@ class GrinderThread implements java.lang.Runnable
     private final Monitor m_notifyOnCompletion;
     private final ThreadContext m_context;
     private final BSFProcessContext.BSFThreadContext m_bsfThreadContext;
-    private final int m_threadID;
-    private final TestRegistry m_testRegistry;
 
     private final long m_initialSleepTime;
-
     private final int m_numberOfRuns;
 
     /**
@@ -80,9 +77,6 @@ class GrinderThread implements java.lang.Runnable
 
 	m_bsfThreadContext =
 	    bsfProcessContext.new BSFThreadContext(m_context);
-
-	m_threadID = threadID;
-	m_testRegistry = processContext.getTestRegistry();
 
 	final GrinderProperties properties = processContext.getProperties();
 
@@ -126,8 +120,7 @@ class GrinderThread implements java.lang.Runnable
 		logger.logMessage("About to run forever");
 	    }
 	    else {
-		logger.logMessage("About to do " + m_numberOfRuns +
-				    " runs");
+		logger.logMessage("About to do " + m_numberOfRuns + " runs");
 	    }
 
 	    int currentRun;	    
