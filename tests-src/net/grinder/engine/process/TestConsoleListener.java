@@ -27,7 +27,8 @@ import java.io.PipedOutputStream;
 
 import junit.framework.TestCase;
 
-import net.grinder.common.LogCounter;
+import net.grinder.common.Logger;
+import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
@@ -49,7 +50,8 @@ public class TestConsoleListener extends TestCase {
     super(name);
   }
 
-  private final LogCounter m_logger = new LogCounter();
+  private final LoggerStubFactory m_loggerFactory = new LoggerStubFactory();
+  private final Logger m_logger = m_loggerFactory.getLogger();
   private Receiver m_receiver;
   private Sender m_sender;
 
@@ -59,6 +61,8 @@ public class TestConsoleListener extends TestCase {
 
     m_receiver = new StreamReceiver(inputStream);
     m_sender = new StreamSender(outputStream);
+
+    m_loggerFactory.resetCallHistory();
   }
 
   protected void tearDown() throws Exception {
@@ -74,8 +78,7 @@ public class TestConsoleListener extends TestCase {
     final ConsoleListener listener1 =
       new ConsoleListener(m_receiver, myMonitor, m_logger);
 
-    assertEquals(0, m_logger.getNumberOfMessages());
-    assertEquals(0, m_logger.getNumberOfErrors());
+    m_loggerFactory.assertNotCalled();
   }
 
   public void testListener() throws Exception {
@@ -114,8 +117,12 @@ public class TestConsoleListener extends TestCase {
                  listener.received(ConsoleListener.START |
                                    ConsoleListener.STOP));
 
-    assertEquals(4, m_logger.getNumberOfMessages());
-    assertEquals(0, m_logger.getNumberOfErrors());
+    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+
+    m_loggerFactory.assertNotCalled();
   }
 
   public void testShutdown() throws Exception {
@@ -140,8 +147,10 @@ public class TestConsoleListener extends TestCase {
                                       ConsoleListener.STOP |
                                       ConsoleListener.RESET));
 
-    assertEquals(1, m_logger.getNumberOfMessages());
-    assertEquals(0, m_logger.getNumberOfErrors());
+    m_loggerFactory.assertSuccess("output",
+                                  new Class[] { String.class, Integer.class });
+
+    m_loggerFactory.assertNotCalled();
   }
 
   private final static class MyMonitor implements Monitor {
