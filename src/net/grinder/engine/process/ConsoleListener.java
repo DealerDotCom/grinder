@@ -108,22 +108,6 @@ final class ConsoleListener {
   }
 
   /**
-   * Shutdown this listener.
-   */
-  public void shutdown() {
-    m_receiverThread.shutdown();
-  }
-
-  /**
-   * Accessor for unit tests. Package scope.
-   *
-   * @returns The receiver thread.
-   */
-  Thread getReceiverThread() {
-    return m_receiverThread;
-  }
-
-  /**
    * Thread that uses a {@link net.grinder.communication.Receiver}
    * to receive console messages.
    */
@@ -139,11 +123,6 @@ final class ConsoleListener {
       super("Console Listener");
       m_receiver = receiver;
       setDaemon(true);
-    }
-
-    public void shutdown() {
-      m_receiver.shutdown();
-      interrupt();
     }
 
     /**

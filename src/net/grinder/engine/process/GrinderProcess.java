@@ -353,7 +353,9 @@ public final class GrinderProcess implements Monitor {
       waitForMessage();
     }
 
-    m_consoleListener.shutdown();
+    // Sadly it appears its impossible to interrupt a read() on stdin,
+    // so we can't shut down the console listener cleanly. It runs in
+    // a daemon thread, so this isn't a big deal.
 
     if (received(ConsoleListener.START)) {
       logger.output("requesting reset and start");
