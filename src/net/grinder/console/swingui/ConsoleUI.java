@@ -31,6 +31,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -75,6 +77,7 @@ import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ProcessControl;
+import net.grinder.console.distribution.AgentCacheState;
 import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.distribution.FileDistributionHandler;
 import net.grinder.console.editor.Buffer;
@@ -1258,6 +1261,15 @@ public final class ConsoleUI implements ModelListener {
 
     DistributeFilesAction() {
       super(m_model.getResources(), "distribute-files");
+
+      final AgentCacheState agentCacheState =
+        m_fileDistribution.getAgentCacheState();
+
+      agentCacheState.addListener(new PropertyChangeListener() {
+          public void propertyChange(PropertyChangeEvent ignored) {
+            setEnabled(agentCacheState.getOutOfDate());
+          }
+        });
     }
 
     public void actionPerformed(ActionEvent event) {
