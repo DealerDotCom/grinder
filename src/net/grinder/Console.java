@@ -35,10 +35,10 @@ public final class Console {
   }
 
   /**
-   * Describe <code>main</code> method here.
+   * Entry point for console.
    *
    * @param args Command line arguments.
-   * @exception Exception if an error occurs
+   * @exception Exception If an error occurs.
    */
   public static void main(String[] args) throws Exception {
     if (args.length > 0) {
