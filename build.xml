@@ -269,6 +269,11 @@ what you want. Currently the conditionally built modules are:
 
     <copy todir="${test-classes.dir}">
       <fileset dir="${test-src.dir}" includes="**/data/*"/>
+      <fileset dir="${test-src.dir}" includes="**/resources/*"/>
+    </copy>
+
+    <copy todir="${test-classes.dir}" filtering="on">
+      <fileset dir="${test-src.dir}" includes="**/*.properties"/>
     </copy>
 
     <copy todir="${lib.dir}">
@@ -407,7 +412,7 @@ what you want. Currently the conditionally built modules are:
 	  <exclude name="**/TestHTTPPluginTCPProxyFilter.java"/>
 
 	  <include name="**/Test*.java"/>
-	  <include name="**/TestAbstractTestSemantics.java"/>
+	  <include name="**/TestDisplayMessageConsoleException.java"/>
 
 	  <exclude name="**/TestSleeper.java"/>
 	</fileset>
