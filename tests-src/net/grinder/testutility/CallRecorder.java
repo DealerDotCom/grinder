@@ -123,18 +123,36 @@ public class CallRecorder extends Assert {
     return assertCalledInternal(methodName, new Object[] { object1 });
   }
 
-  public final CallData assertSuccess(String methodName, Object object1,
-                                  Object object2) {
+  public final CallData assertSuccess(String methodName,
+                                      Object object1,
+                                      Object object2) {
     return assertCalledInternal(methodName, new Object[] { object1, object2 });
+  }
+
+  public final CallData assertSuccess(String methodName,
+                                      Object object1,
+                                      Object object2,
+                                      Object object3) {
+    return assertCalledInternal(methodName,
+                                new Object[] { object1, object2, object3 });
   }
 
   public final CallData assertSuccess(String methodName, Class class1) {
     return assertCalledInternal(methodName, new Class[] { class1 });
   }
 
-  public final CallData assertSuccess(String methodName, Class class1,
+  public final CallData assertSuccess(String methodName,
+                                      Class class1,
                                       Class class2) {
     return assertCalledInternal(methodName, new Class[] { class1, class2 });
+  }
+
+  public final CallData assertSuccess(String methodName,
+                                      Class class1,
+                                      Class class2,
+                                      Class class3) {
+    return assertCalledInternal(methodName,
+                                new Class[] { class1, class2, class3 });
   }
 
   /**
