@@ -1,3 +1,12 @@
+2001-04-03  Philip Aston  <paston@bea.com>
+
+	* CHANGES, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/engine/process/GrinderProcess.java:
+	Support for stopping the grinder processes from the console.
+
+	* src/net/grinder/util/PropertiesHelper.java:
+	Make the properties part of the Test implementation transient. This
+	dramatically reduces the size of the multicast packets.
+
 2001-03-31  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/console/swingui/ConsoleUI.java: New console layout.
