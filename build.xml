@@ -253,6 +253,8 @@ conditionally built modules are:
 		 includes="net/grinder/console/swingui/resources/"/>
         <fileset dir="${tests.classes}"
 		 includes="net/grinder/console/swingui/TestImage*.class"/>
+        <fileset dir="${tests.src}"
+		 includes="net/grinder/console/swingui/TestImage*.java"/>
     </jar>
   </target>
 
