@@ -51,7 +51,8 @@ public final class ServerSender extends AbstractSender {
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  public static ServerSender bindTo(String grinderID, String addressString, int port)
+  public static ServerSender bindTo(String grinderID, String addressString,
+                                    int port)
     throws CommunicationException {
 
     final Acceptor acceptor = new Acceptor(addressString, port);
