@@ -10,7 +10,13 @@
 	* README:
 	* TODO:
 		Latest hints
+		Update for HTTPS support..
 
+2000-12-18  Phil Dawes  <pdawes@beasys.com>
+	
+	* HttpsPlugin:
+		HTTPS support.
+	
 2000-12-14  Phil Dawes  <pdawes@beasys.com>
 
 	* src/net/grinder/plugin/http/HttpMsg.java:
