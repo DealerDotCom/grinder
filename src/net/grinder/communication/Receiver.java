@@ -34,7 +34,7 @@ import java.net.MulticastSocket;
  */
 public class Receiver
 {
-    private final byte[] m_buffer = new byte[4096];
+    private final byte[] m_buffer = new byte[65536];
     private final MulticastSocket m_socket;
 
     public Receiver(String multicastAddressString, int multicastPort)

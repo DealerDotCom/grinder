@@ -62,7 +62,7 @@ public class TestSenderAndReceiver extends TestCase
 	// Hmm.. can't think of an easy way to ensure the
 	// receiverThread is listening before we do this. Test seems
 	// to work anyway. Hey ho.
-	final Message sentMessage = new SimpleMessage();
+	final Message sentMessage = new SimpleMessage(0);
 	m_sender.send(sentMessage);
 
 	receiverThread.join();
@@ -80,7 +80,7 @@ public class TestSenderAndReceiver extends TestCase
 
 	    receiverThread.start();
 
-	    final SimpleMessage sentMessage = new SimpleMessage();
+	    final SimpleMessage sentMessage = new SimpleMessage(0);
 	    m_sender.send(sentMessage);
 
 	    receiverThread.join();
@@ -90,6 +90,25 @@ public class TestSenderAndReceiver extends TestCase
 
 	    assertEquals(sentMessage, receivedMessage);
 	}
+    }
+
+    public void testSendLargeMessage() throws Exception
+    {
+	final ReceiverThread receiverThread = new ReceiverThread();
+
+	receiverThread.start();
+
+	// This causes a message size of about 38K. Should be limited
+	// by the buffer size in Receiver.
+	final SimpleMessage sentMessage = new SimpleMessage(8000);
+	m_sender.send(sentMessage);
+
+	receiverThread.join();
+
+	final SimpleMessage receivedMessage =
+	    (SimpleMessage)receiverThread.getMessage();
+
+	assertEquals(sentMessage, receivedMessage);
     }
 
     private class ReceiverThread extends Thread
@@ -127,6 +146,16 @@ public class TestSenderAndReceiver extends TestCase
 
 	private final String m_text = "Some message";
 	private final int m_random = s_random.nextInt();
+	private final int[] m_padding;
+
+	public SimpleMessage(int paddingSize)
+	{
+	    m_padding = new int[paddingSize];
+
+	    for (int i=0; i<paddingSize; i++) {
+		m_padding[i] = i;
+	    }
+	}
 
 	public boolean equals(Object o) 
 	{
