@@ -197,6 +197,19 @@ to set the test script connections to direct requests via the TCPProxy
 acting an HTTP proxy); again record the output to a file. Now grab a
 coffee and compare.</p>
 
+<h3><a name="tcpproxy-http1.1">Why does the TCPProxy have trouble with cross-site links?</a></h3>
+
+<p>If you expect this to work, you must be using <code>-proxy</code>
+to specify HTTP Proxy mode. Unfortunately the HTTP Proxy mode does not
+support <code>HTTP/1.1</code>, and often does not correctly determine
+a request to a new site should cause a new proxy connection to be
+established.</p>
+
+<p>This problem will be fixed in a future version of The Grinder. As a
+work around, alter your browser settings to use <code>HTTP/1.0</code>
+when communicating via a proxy.</p>
+
+
 <h3><a name="tcpproxy-colour-codes">What are all those funny ^[[31
 characters in the TCPProxy output?</a></h3>
 
