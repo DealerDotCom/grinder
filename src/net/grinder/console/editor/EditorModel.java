@@ -54,6 +54,7 @@ public final class EditorModel {
   private int m_nextNewBufferNameIndex = 0;
 
   private Buffer m_selectedBuffer;
+  private File m_markedScript;
 
   /**
    * Constructor.
@@ -227,6 +228,24 @@ public final class EditorModel {
 
       fireBufferRemoved(buffer);
     }
+  }
+
+  /**
+   * Get the currently marked script.
+   *
+   * @return The active buffer.
+   */
+  public File getMarkedScript() {
+    return m_markedScript;
+  }
+
+  /**
+   * Get the currently marked script.
+   *
+   * @param markedScript The marked script.
+   */
+  public void setMarkedScript(File markedScript) {
+    m_markedScript = markedScript;
   }
 
   private void addBuffer(final Buffer buffer) {

@@ -33,6 +33,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import javax.swing.ActionMap;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
@@ -295,6 +296,25 @@ final class FileTree {
     }
 
     public void actionPerformed(ActionEvent event) {
+      final Object selectedNode = m_tree.getLastSelectedPathComponent();
+
+      if (selectedNode instanceof BufferTreeModel.BufferNode) {
+        final BufferTreeModel.BufferNode bufferNode =
+          (BufferTreeModel.BufferNode)selectedNode;
+
+        m_editorModel.setMarkedScript(bufferNode.getBuffer().getFile());
+
+        m_bufferTreeModel.valueForPathChanged(bufferNode.getPath(),
+                                              bufferNode);
+      }
+      else if (selectedNode instanceof FileTreeModel.FileNode) {
+        final FileTreeModel.FileNode fileNode =
+          (FileTreeModel.FileNode)selectedNode;
+
+        m_editorModel.setMarkedScript(fileNode.getFile());
+
+        m_fileTreeModel.valueForPathChanged(fileNode.getPath(), fileNode);
+      }
     }
   }
 
@@ -341,6 +361,8 @@ final class FileTree {
 
     private final Font m_boldFont;
     private final Font m_boldItalicFont;
+    private final ImageIcon m_markedScriptIcon =
+      m_resources.getImageIcon("script.markedscript.image");
     private final ImageIcon m_pythonIcon =
       m_resources.getImageIcon("script.pythonfile.image");
 
@@ -382,8 +404,19 @@ final class FileTree {
 
     private void setForFileAndBuffer(File file, Buffer buffer) {
 
-      setLeafIcon(m_editorModel.isPythonFile(file) ?
-                  m_pythonIcon : m_defaultRenderer.getLeafIcon());
+      final Icon icon;
+
+      if (file != null && file.equals(m_editorModel.getMarkedScript())) {
+        icon = m_markedScriptIcon;
+      }
+      else if (m_editorModel.isPythonFile(file)) {
+        icon = m_pythonIcon;
+      }
+      else {
+        icon = m_defaultRenderer.getLeafIcon();
+      }
+
+      setLeafIcon(icon);
 
       setTextNonSelectionColor(
         buffer == null && m_editorModel.isBoringFile(file) ?

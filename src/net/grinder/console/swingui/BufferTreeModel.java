@@ -180,9 +180,7 @@ final class BufferTreeModel implements TreeModel {
       (BufferNode)m_buffersToNodes.get(buffer);
 
     if (node != null) {
-      final Object[] path = { getRoot(), node };
-
-      valueForPathChanged(new TreePath(path), node);
+      valueForPathChanged(node.getPath(), node);
     }
   }
 
@@ -192,9 +190,11 @@ final class BufferTreeModel implements TreeModel {
   public final class BufferNode {
 
     private final Buffer m_buffer;
+    private TreePath m_path;
 
     protected BufferNode(Buffer buffer) {
       m_buffer = buffer;
+      m_path = new TreePath(new Object[] { getRoot(), this });
     }
 
     public String toString() {
@@ -203,6 +203,10 @@ final class BufferTreeModel implements TreeModel {
 
     public Buffer getBuffer() {
       return m_buffer;
+    }
+
+    public TreePath getPath() {
+      return m_path;
     }
 
     boolean belongsToModel(BufferTreeModel model) {
