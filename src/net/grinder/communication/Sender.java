@@ -32,6 +32,7 @@ import java.security.MessageDigest;
 
 
 /**
+ * Class that manages the sending of multicast messages.
  * <em>Not thread safe.</em>
  *
  * @author Philip Aston
@@ -56,9 +57,9 @@ public class Sender
      * @param grinderID A string describing our Grinder process.
      * @param multicastAddressString Multicast address to send to.
      * @param multicastPort Multicast port to send to.
-     * @throws CommunicationException If failed to bind to socket or failed to generate a unique process identifer.
-     **/
-    
+     * @throws CommunicationException If failed to bind to socket or
+     * failed to generate a unique process identifer.
+     **/    
     public Sender(String grinderID, String multicastAddressString,
 	      int multicastPort)
 	throws CommunicationException
@@ -109,6 +110,9 @@ public class Sender
 	}
     }
 
+    /**
+     * Send the given message.
+     **/
     public void send(Message message)
 	throws CommunicationException
     {
@@ -126,7 +130,7 @@ public class Sender
 
 	    objectStream.writeObject(message);
 	    objectStream.flush();
-	
+
 	    m_packet.setData(m_byteStream.getBytes(), 0, m_byteStream.size());
 	    m_localSocket.send(m_packet);
 	}

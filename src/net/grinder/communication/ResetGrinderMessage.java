@@ -19,6 +19,8 @@
 package net.grinder.communication;
 
 /**
+ * Message used to reset the Grinder processes.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
