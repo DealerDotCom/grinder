@@ -67,7 +67,8 @@ public final class TestRegistry {
    * Singleton accessor.
    *
    * <p>This is called by net.grinder.script.Test. In future I may
-   * create an API package to avoid the circular package dependencies.</p>
+   * create an API package to avoid the circular package
+   * dependencies.</p>
    *
    * @return The singleton.
    */
