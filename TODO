@@ -3,6 +3,8 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
+  TCPSniffer in -proxy mode shouldn't need -remoteHost.
+
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 
   Update HTTPClient to support "mean time to first byte".
