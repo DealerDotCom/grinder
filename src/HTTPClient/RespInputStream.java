@@ -87,7 +87,7 @@ final class RespInputStream extends InputStream implements GlobalConstants
 		Log.write(Log.DEMUX, "RspIS: disabling timeouts when " +
 				     "reading response body");
 	}
-	catch (RuntimeException e)
+	catch (Exception e)
 	    { }
     }
 
