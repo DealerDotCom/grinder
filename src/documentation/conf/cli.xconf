@@ -203,9 +203,13 @@
        | dev@cocoon.apache.org.
        +-->
 
+<!--
    <exclude pattern="**/"/>
    <exclude pattern="**apidocs**"/>
    <exclude pattern="api/**"/>
+-->
+
+   <exclude pattern="**/script-javadoc/**"/>
    
    <exclude pattern="site:**"/>
    <exclude pattern="ext:**"/>
@@ -308,5 +312,4 @@
    <uri-file>uris.txt</uri-file>
    -->
 
-   <exclude pattern="**/script-javadoc/**"/>
 </cocoon>
