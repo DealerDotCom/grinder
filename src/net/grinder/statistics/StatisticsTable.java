@@ -131,8 +131,6 @@ public class StatisticsTable
 
 	result.append(formatField(String.valueOf(statistics.getAbortions())));
 
-	result.append(formatField(String.valueOf(statistics.getTotalTime())));
-
 	result.append(
 	    formatField(m_twoDPFormat.format(
 			    statistics.getAverageTransactionTime())));

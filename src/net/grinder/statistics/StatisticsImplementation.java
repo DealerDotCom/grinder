@@ -26,28 +26,38 @@ package net.grinder.statistics;
  */
 public class Statistics implements Cloneable, java.io.Serializable
 {
-    private long m_transactions = 0;
+    private long m_untimedTransactions = 0;
+
+    private long m_timedTransactions = 0;
     private long m_totalTime = 0;
+
     private long m_errors = 0;
     private long m_abortions = 0;
+
     private Statistics m_snapshot = null;
 
     public Statistics()
     {
     }
     
-    private Statistics(long transactions, long totalTime, long errors,
-		       long abortions)
+    private Statistics(long transactions, long timedTransactions,
+		       long totalTime, long errors, long abortions)
     {
-	m_transactions = transactions;
+	m_untimedTransactions = transactions;
+	m_timedTransactions = timedTransactions;
 	m_totalTime = totalTime;
 	m_errors = errors;
 	m_abortions = abortions;
     }
 
+    public synchronized void addTransaction()
+    {
+	m_untimedTransactions++;
+    }
+	
     public synchronized void addTransaction(long time)
     {
-	m_transactions++;
+	m_timedTransactions++;
 	m_totalTime += time;
     }
 	
@@ -88,7 +98,10 @@ public class Statistics implements Cloneable, java.io.Serializable
 	}
 	else {
 	    result =
-		new Statistics(m_transactions - m_snapshot.m_transactions,
+		new Statistics(m_untimedTransactions -
+			       m_snapshot.m_untimedTransactions,
+			       m_timedTransactions -
+			       m_snapshot.m_timedTransactions,
 			       m_totalTime - m_snapshot.m_totalTime,
 			       m_errors - m_snapshot.m_errors,
 			       m_abortions - m_snapshot.m_abortions);
@@ -107,7 +120,8 @@ public class Statistics implements Cloneable, java.io.Serializable
      */
     public synchronized void add(Statistics operand)
     {
-	m_transactions += operand.m_transactions;
+	m_untimedTransactions += operand.m_untimedTransactions;
+	m_timedTransactions += operand.m_timedTransactions;
 	m_totalTime += operand.m_totalTime;
 	m_errors += operand.m_errors;
 	m_abortions += operand.m_abortions;
@@ -117,14 +131,7 @@ public class Statistics implements Cloneable, java.io.Serializable
      * changing Statistics */
     public long getTransactions() 
     {
-	return m_transactions;
-    }
-
-    /** Accessor. N.B. Use clone() to get a consistent snapshot of a
-     * changing Statistics */
-    public long getTotalTime()
-    {
-	return m_totalTime;
+	return m_untimedTransactions + m_timedTransactions;
     }
 
     /** Accessor. N.B. Use clone() to get a consistent snapshot of a
@@ -143,11 +150,11 @@ public class Statistics implements Cloneable, java.io.Serializable
 
     public synchronized double getAverageTransactionTime()
     {
-	if (m_transactions == 0) {
+	if (m_timedTransactions == 0) {
 	    return Double.NaN;
 	}
 	else {
-	    return m_totalTime/(double)m_transactions;
+	    return m_totalTime/(double)m_timedTransactions;
 	}
     }
 
@@ -164,8 +171,9 @@ public class Statistics implements Cloneable, java.io.Serializable
 	final Statistics theOther = (Statistics)o;
 
 	return
+	    m_untimedTransactions == theOther.m_untimedTransactions &&
+	    m_timedTransactions == theOther.m_timedTransactions &&
 	    m_totalTime == theOther.m_totalTime &&
-	    m_transactions == theOther.m_transactions &&
 	    m_errors == theOther.m_errors &&
 	    m_abortions == theOther.m_abortions;
     }
