@@ -516,7 +516,7 @@ what you want. Currently the conditionally built modules are:
   <!-- This should really depend on script-javadoc, but we don't for
      speed when testing documentation. The "Release" targets always
      call script-javadoc first. -->
-  <target name="forrest" depends="init"
+  <target name="forrest" depends="init,generate-project-xml"
     description="Generates the documentation.">
 
     <delete quiet="true">
@@ -534,8 +534,6 @@ what you want. Currently the conditionally built modules are:
     <exec executable="${forrest.home}/bin/forrest.bat">
      <env key="FORREST_HOME" path="${forrest.home}"/>
     </exec>
-
-
   </target>
 
   <target name="javadoc" depends="init" description="Generates the javadoc.">
