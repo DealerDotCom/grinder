@@ -58,6 +58,9 @@ public class GrinderBuild {
     }
   }
 
+  private GrinderBuild() {
+  }
+
   /**
    * Return the build version.
    *
