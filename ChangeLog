@@ -1,3 +1,45 @@
+2001-02-12  Philip Aston  <paston@beasys.com>
+
+	* src/net/grinder/engine/process/GrinderProcess.java: 
+	* src/net/grinder/engine/process/GrinderThread.java: 
+	* src/net/grinder/engine/process/TestData.java: 
+	* src/net/grinder/plugininterface/Test.java: 
+	* src/net/grinder/statistics/Statistics.java: 
+	* src/net/grinder/statistics/StatisticsTable.java: 
+	* src/net/grinder/statistics/TestStatisticsMap.java: 
+	* src/net/grinder/util/PropertiesHelper.java: 
+	* tests-src/net/grinder/engine/process/AllTests.java: 
+	* tests-src/net/grinder/engine/process/TestTestData.java: 
+	* tests-src/net/grinder/statistics/AllTests.java: 
+	* tests-src/net/grinder/statistics/TestStatistics.java: 
+		Repackage statistics handling. Add TestStatisticsMap.
+		Tests now have an ordering.
+
+	* src/net/grinder/console/Console.java: 
+	* src/net/grinder/console/ConsoleException.java: 
+	* src/net/grinder/console/swing/ConsoleUI.java: 
+	* src/net/grinder/console/swing/Graph.java: 
+	* src/net/grinder/console/swing/LabelledGraph.java: 
+	* tests-src/net/grinder/console/swing/AllTests.java: 
+	* tests-src/net/grinder/console/swing/TestGraph.java: 
+		Rework console.
+
+	* src/net/grinder/communication/CommunicationException.java:
+	* src/net/grinder/communication/Message.java: 
+	* src/net/grinder/communication/Receiver.java: 
+	* src/net/grinder/communication/ReportStatisticsMessage.java: 	
+	* src/net/grinder/communication/Sender.java: 
+	* src/net/grinder/communication/StartGrinderMessage.java: 
+	* src/net/grinder/console/ConsoleCommunication.java: 
+	* tests-src/net/grinder/AllTests.java: 
+	* tests-src/net/grinder/communication/AllTests.java: 
+	* tests-src/net/grinder/communication/TestSenderAndReceiver.java: 
+		Rework communications.
+
+	* build.xml:
+		Need different encoding for Paco's name.	
+		Tidy start message.
+
 2001-02-09  Philip Aston  <paston@beasys.com>
 
 	* build.xml: 
