@@ -67,6 +67,7 @@ public class HttpPlugin implements GrinderPlugin
     private boolean m_useCookies;
     private boolean m_useCookiesVersionString;
     private boolean m_useHTTPClient;
+    private boolean m_disablePersistentConnections;
     private Class m_stringBeanClass;
     private Map m_beanMethodMap = null;
     private StatisticsIndexMap.LongIndex m_timeToFirstByteIndex;
@@ -95,6 +96,8 @@ public class HttpPlugin implements GrinderPlugin
 	m_useCookiesVersionString =
 	    parameters.getBoolean("useCookiesVersionString", true);
 	m_useHTTPClient = parameters.getBoolean("useHTTPClient", true);
+	m_disablePersistentConnections =
+	    parameters.getBoolean("disablePersistentConnections", false);
 
 	if (!m_useHTTPClient && processContext.getRecordTime()) {
 	    try {
@@ -504,6 +507,7 @@ public class HttpPlugin implements GrinderPlugin
 		    new HTTPClientHandler(pluginThreadContext,
 					  m_useCookies,
 					  m_followRedirects,
+					  m_disablePersistentConnections,
 					  httpClientResponseListener);
 	    }
 	    else {

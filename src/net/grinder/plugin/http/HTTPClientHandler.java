@@ -90,16 +90,19 @@ class HTTPClientHandler implements HTTPHandler
     private final PluginThreadContext m_pluginThreadContext;
     private final boolean m_useCookies;
     private final boolean m_followRedirects;
+    private final boolean m_disablePersistentConnections;
     private final HTTPClientResponseListener m_httpClientResponseListener;
 
     public HTTPClientHandler(
 	PluginThreadContext pluginThreadContext,
 	boolean useCookies, boolean followRedirects,
+	boolean disablePersistentConnections,
 	HTTPClientResponseListener httpClientResponseListener)
     {
 	m_pluginThreadContext = pluginThreadContext;
 	m_useCookies = useCookies;
 	m_followRedirects = followRedirects;
+	m_disablePersistentConnections = disablePersistentConnections;
 	m_httpClientResponseListener = httpClientResponseListener;
     }
 
@@ -132,6 +135,11 @@ class HTTPClientHandler implements HTTPHandler
 		connection.removeModule(s_redirectionModule);
 	    }
 
+	    if (m_disablePersistentConnections) {
+	        NVPair[] def_hdrs = { new NVPair("Connection", "close") };
+	        connection.setDefaultHeaders(def_hdrs);
+	    }
+	    
 	    m_httpConnections.put(keyURI, connection);
 	}
 

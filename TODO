@@ -3,8 +3,11 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-Fix HTTPS proxy.
-Test SSL proxy.
+Proxy messages should be prefixed with comment lines, or removed?
+
+Strange unexpected content length messages when using IE
+
+Test: TCPSniffer should record 401 iteractions. 
 
   Find out how to stop net.grinder.console.swing.TestGraph from
   preventing parent process from detecting exit status. (For example,
@@ -22,8 +25,6 @@ Test SSL proxy.
   Update HTTPClient to support "mean time to first byte".
 
   Write more JUnit tests.
-
-  TCPSniffer could record 401 iteractions.
 
   Measure test variance. This would involve the console broadcasting
   the total mean, and then listening for the reported variance.

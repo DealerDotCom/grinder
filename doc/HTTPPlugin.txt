@@ -4,10 +4,13 @@ This file contains notes about the use of The Grinder HTTP Plugin.
 What can I set in grinder.properties for the HTTP plugin?
 *********************************************************
 
-    grinder.plugin.parameter.useCookies -
-				Set to false to disable cookie
-				handling (it defaults to true).
-
+    grinder.plugin.parameter.disablePersistentConnections -
+				Set to true to send a "Connection: close"
+				message with every request. See
+				http://www.innovation.ch/java/HTTPClient/advanced_info.html#pers_con
+				Only works with the default HTTPClient
+				implementation, see "HTTPClient" below.
+				
     grinder.plugin.parameter.followRedirects -
 				Set to true to automatically follow
 				redirects, so you don't have to have
@@ -32,6 +35,10 @@ What can I set in grinder.properties for the HTTP plugin?
 				bean that can provide dynamic strings
 				for URL's and POST data. See "What's a
 				String Bean?" below.
+
+    grinder.plugin.parameter.useCookies -
+				Set to false to disable cookie
+				handling (it defaults to true).
 
     grinder.test0.parameter.url -
 				The URL to call. The HTTP GET method

@@ -34,6 +34,7 @@ Grinder 2.8.3
 	  this required moving to Jakarta ORO because Jakarta Regexp
 	  bombed with a trivial regexp.
 	- Removed multipart form handling.
+	- Records 401 (authentication) exchanges.
 
    (A note is necessary on the multipart form handling. The more I
    looked at the existing support in the sniffer, the more dubious it
@@ -46,6 +47,9 @@ Grinder 2.8.3
    This means that the sniffer should just chuck the data directly
    into the POST file, which is what it now does. And no Cynthia, we
    do not support multipart/byteranges.)
+
+   Support for disabling persistent connections with the HTTPClient
+   plugin courtesy of Todd Wasson.
 
    Other miscellaneous fixes and documentation.
 
