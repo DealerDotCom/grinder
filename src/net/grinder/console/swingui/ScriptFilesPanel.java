@@ -89,8 +89,7 @@ final class ScriptFilesPanel extends JPanel {
             }
           }
           catch (Exception e) {
-            new ErrorDialogHandler(frame, resources).handleException(
-              e, resources.getString("unexpectedError.title"));
+            new ErrorDialogHandler(frame, resources).handleException(e);
           }
         }
       }
