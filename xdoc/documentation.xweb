@@ -76,6 +76,10 @@
             targetFile="console-screenshot.png" type="copy"/>
       <file sourceFile="console-es.png" targetFile="console-es.png"
             type="copy"/>
+      <file sourceFile="console-screenshot-g3.png"
+            targetFile="console-screenshot-g3.png" type="copy"/>
+      <file sourceFile="console-es-g3.png" targetFile="console-es-g3.png"
+            type="copy"/>
       <file sourceFile="script-logo.png" targetFile="script-logo.png"
             type="copy"/>
       <file sourceFile="grinder.swf" targetFile="grinder.swf" type="copy"/>
