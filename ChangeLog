@@ -1,3 +1,8 @@
+2001-06-08  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/util/ProcessContextImplementation.java, AUTHORS, CHANGES:
+	ProcessContextImplementation thread safety fix from Mikael Suokas.
+
 2001-06-05  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/console/swingui/StatisticsTableModel.java, src/net/grinder/console/swingui/SummaryFrame.java, src/net/grinder/statistics/TestStatisticsMap.java, CHANGES, TODO:
