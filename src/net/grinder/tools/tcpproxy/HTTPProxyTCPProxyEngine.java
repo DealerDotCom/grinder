@@ -464,7 +464,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                    boolean useColour)
     throws IOException {
       super(socketFactory, requestFilter, responseFilter, outputWriter,
-            new EndPoint(InetAddress.getLocalHost(), 0), useColour, 0);
+            new EndPoint(InetAddress.getByName(null), 0), useColour, 0);
     }
 
     public void run() {
