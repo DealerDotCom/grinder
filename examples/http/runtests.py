@@ -15,20 +15,15 @@ moreTests = [
     HTTPTest(2, "", "http://localhost:9001/security/welcome.jsp"),
     ]
 
-tests = grinder.getTests()
-
-for test in tests:
+for test in moreTests:
     logger.logMessage(`test`)
 
-result = tests[0].invoke();
+result = moreTests[0].invoke();
 
 if result.isSuccessful():
     print("The test worked")
 else:
     print("The test failed")
-
-for test in tests:
-    test.invoke()
 
 for x in range(10):
     if random() > 0.8:

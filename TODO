@@ -6,6 +6,8 @@ Crisis:
 	Probably need to split into lifecycle events.
 	This probably means distching BSF and going pure Jython.
 
+Whats jython like for implementing interfaces?
+
 
 New notes
 *********
