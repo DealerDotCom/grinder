@@ -138,6 +138,8 @@ public class CallRecorder extends Assert {
 				 Class throwableType) {
 
     final CallData callData = assertCalledInternal(methodName, parameterTypes);
+    System.err.println(callData);
+    assertNotNull(callData.getThrowable());
     assertTrue(
       throwableType.isAssignableFrom(callData.getThrowable().getClass()));
   }
@@ -225,6 +227,10 @@ public class CallRecorder extends Assert {
     }
 
     public Class[] getParameterTypes() {
+      if (m_parameters == null) {
+        return new Class[0];
+      };
+
       final Class[] types = new Class[m_parameters.length];
 
       for (int i=0; i<types.length; ++i) {
