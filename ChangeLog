@@ -1,4 +1,86 @@
+2005-02-06  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java:
+	Coverage.
+
+	* src/net/grinder/util/BooleanProperty.java:
+	Don't handle exception that can't happen.
+
+	* tests-src/net/grinder/util/TestBooleanProperty.java:
+	Test BooleanProperty.
+
+	* tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java:
+	Test isAnAgentConnected().
+
+	* tests-src/net/grinder/communication/TestClientSender.java, tests-src/net/grinder/communication/TestFanOutServerSender.java, tests-src/net/grinder/communication/TestSocketWrapper.java:
+	Test isPeerShutdown() methods.
+
+	* src/net/grinder/util/BooleanProperty.java:
+	PropertyDescriptor lies about read-only and write-only properties.
+
+	* src/net/grinder/communication/ClientSender.java:
+	ClientSender now has a wider interface than Sender. Change connect()
+	to return a ClientSender.
+
+	* src/net/grinder/communication/Acceptor.java: Remove dead code.
+
+	* src/net/grinder/console/model/ConsoleProperties.java, tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Reverse sense of "DontAsk" properties to "Ask" properties.
+	Factor out common implementation of "Ask" properties.
+
+	* src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/OptionalConfirmDialog.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties:
+	Extract out code which deals with optional dialogs.
+	Reverse sense of "DontAsk" properties to "Ask" properties.
+	Optionally warn if starting processes with dirty buffers.
+
+	* src/net/grinder/util/BooleanProperty.java:
+	Utility for introspecting boolean properties of Java Beans.
+
+	* src/net/grinder/console/editor/EditorModel.java, tests-src/net/grinder/console/editor/TestEditorModel.java:
+	Add isABufferDirty().
+
+	* src/net/grinder/common/GrinderProperties.java:
+	Use specific exception for persistence problems.
+
+	* TODO: Record progress.
+
+2005-02-05  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/Acceptor.java, src/net/grinder/console/editor/AbstractTextSource.java, src/net/grinder/console/editor/Buffer.java, src/net/grinder/console/editor/EditorModel.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/SampleAccumulator.java, src/net/grinder/communication/ResourcePool.java, src/net/grinder/console/communication/ConsoleCommunicationImplementation.java, src/net/grinder/console/communication/ProcessStatusSetImplementation.java:
+	Use ListenerSupport.
+
+	* src/net/grinder/communication/SocketWrapper.java, src/net/grinder/util/ListenerSupport.java:
+	Change ListenerSupport to use the Adapter pattern rather than Template
+	Method.
+
+	* src/net/grinder/console/communication/ConsoleCommunicationImplementation.java:
+	Regularly check whether the agents have shutdown their Receivers.
+
+	* src/net/grinder/communication/AbstractFanOutSender.java, src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/Acceptor.java, src/net/grinder/communication/CheckIfPeerShutdown.java, src/net/grinder/communication/ClientReceiver.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/ResourcePool.java, src/net/grinder/communication/ServerReceiver.java, src/net/grinder/communication/SocketWrapper.java:
+	A socket based Sender can now be asked whether its peer has been
+	closed.
+
+	* tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java:
+	Update for changes to AgentStatus interface.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	Only enable the file distribution button if we have connected agents.
+
+	* src/net/grinder/util/ListenerSupport.java: Generic listener support.
+
+2005-02-04  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/Console.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties:
+	Warn on play if caches not up to date.
+	Enable worker controls depending on whether agents are connected.
+
+	* src/net/grinder/console/communication/AgentStatus.java, src/net/grinder/console/communication/ConsoleCommunicationImplementation.java, src/net/grinder/console/communication/DistributionControl.java, tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java:
+	Refine AgentStatus interface.
+
 2005-02-03  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/communication/AgentStatus.java, src/net/grinder/console/communication/ConsoleCommunication.java, src/net/grinder/console/communication/ConsoleCommunicationImplementation.java, src/net/grinder/console/communication/DistributionControl.java, tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java, src/net/grinder/console/Console.java:
+	Extract AgentStatus interface.
 
 	* src/net/grinder/console/Console.java:
 	Wire up ConsoleProperties and ConsoleCommunication listeners to
