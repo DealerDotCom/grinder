@@ -99,7 +99,7 @@ what you want. Currently the conditionally built modules are:
 
   <!-- output -->
   <!-- classes.dir is calcuated in init. -->
-  <property name="build.dir" value="build"/>
+  <property name="build.dir" value="${basedir}/build"/>
   <property name="test-classes.dir" value="${build.dir}/tests-classes"/>
   <property name="lib.dir" value="lib"/>
   <property name="lib.jar" value="${name}.jar"/>
