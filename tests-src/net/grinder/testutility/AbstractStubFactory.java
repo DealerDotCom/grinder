@@ -27,7 +27,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -42,13 +44,15 @@ import java.util.List;
 public abstract class AbstractStubFactory extends CallRecorder {
 
   private final Object m_stub;
+  private final Map m_resultMap = new HashMap();
 
   public AbstractStubFactory(Class stubbedInterface,
                              InvocationHandler invocationHandler) {
 
     final InvocationHandler decoratedInvocationHandler =
       new RecordingInvocationHandler(
-        new OverrideInvocationHandlerDecorator(invocationHandler, this));
+        new StubResultInvocationHandler(
+          new OverrideInvocationHandlerDecorator(invocationHandler, this)));
 
     m_stub = Proxy.newProxyInstance(stubbedInterface.getClassLoader(),
                                     getAllInterfaces(stubbedInterface),
@@ -83,8 +87,34 @@ public abstract class AbstractStubFactory extends CallRecorder {
     }
   }
 
+  private final class StubResultInvocationHandler
+    implements InvocationHandler {
+
+    private final InvocationHandler m_delegate;
+
+    public StubResultInvocationHandler(InvocationHandler delegate) {
+      m_delegate = delegate;
+    }
+
+    public Object invoke(Object proxy, Method method, Object[] parameters)
+      throws Throwable {
+
+      final String methodName = method.getName();
+
+      if (m_resultMap.containsKey(methodName)) {
+        return m_resultMap.get(methodName);
+      }
+
+      return m_delegate.invoke(proxy, method, parameters);
+    }
+  }
+
   public final Object getStub() {
     return m_stub;
+  }
+
+  public final void setResult(String methodName, Object result) {
+    m_resultMap.put(methodName, result);
   }
 
   public static Class[] getAllInterfaces(Class c) {
