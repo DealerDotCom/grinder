@@ -149,7 +149,7 @@ final class BufferTreeModel implements TreeModel {
     final Object[] listeners = m_listeners.getListenerList();
 
     final TreeModelEvent event =
-      new TreeModelEvent(this, new Object[] { getRoot() }, null, null);
+      new TreeModelEvent(this, new Object[] { getRoot() });
 
     for (int i = listeners.length - 2; i >= 0; i -= 2) {
       if (listeners[i] == TreeModelListener.class) {
