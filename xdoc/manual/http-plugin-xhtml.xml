@@ -122,7 +122,7 @@
       as a browser would, and the specified basicAuthenticationRealm
       must match the realm required by the WWW-Authenticate header in
       the challenge. The values can be varied using a <a
-      href="#string-bean">string bean</a></p>.
+      href="#string-bean">string bean</a>.</p>
   </td>
  </tr>
 
