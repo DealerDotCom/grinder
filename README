@@ -114,8 +114,8 @@ Start the Console against the same properties file with
 
 	java net.grinder.Console
 
-You can also specify an explicit properties file to both the Grinder
-and the Console as the first argument. For example:
+You can also specify an explicit properties file the Grinder as the
+first argument. For example:
 
 	java net.grinder.Grinder myproperties
 
@@ -123,7 +123,17 @@ and the Console as the first argument. For example:
 The output
 **********
 
-The final statistics summary looks something like this:
+Each Grinder child process writes logging information to a file called
+out-host-n.log, where host is hostname and n is the process number.
+Errors will be written to error-host-n.log. If no errors occur, an
+error file will not be created.
+
+Data about individual test invocations is written into a file called
+data-host-n.log. This can be imported into a spreadsheet tool such as
+Microsoft Excel for further analysis.
+
+The final statistics summary (in the out-* files of each process)
+looks something like this:
 
  Final statistics for this process:
 
@@ -141,6 +151,10 @@ Test 8        25            0             141.92
 Test 9        25            0             104.68         "Logout page"
 
 Totals        250           0             156.70     
+
+
+The Console gives a similar dynamic display of information collected
+from all Grinder processes.
 
 
 Each test has one of 2 possible outcomes:
@@ -192,8 +206,11 @@ What can I set in grinder.properties?
     grinder.jvm.arguments -	Additional arguments to child JVM's.
 
     grinder.hostID	-	Override the "host" string used in log
-   				filenames and logs. Defaults to the
-    				host name.
+ 				filenames and logs. Defaults to the
+				host name.
+
+    grinder.logDirectory -	Directory to write log files to. Created
+				if it doesn't already exist.
 
     grinder.appendLog	-	Append to, rather than overwrite,
 				existing log files.
@@ -222,7 +239,8 @@ What can I set in grinder.properties?
     grinder.reportToConsole.interval -
 				The period at which each process sends
 				updates to the Console (default 500
-				ms).
+				ms). This also controls the frequency
+				at which the data files are flushed.
 
     grinder.thread.initialSleepTime	-
 				The maxmimum time in milliseconds that
