@@ -40,8 +40,6 @@ abstract class AbstractSender implements Sender {
   private final String m_senderID;
   private long m_nextSequenceID = 0;
 
-  private MessageQueue m_messageQueue = new MessageQueue(false);
-
   /**
    * Constructor.
    *
@@ -88,24 +86,9 @@ abstract class AbstractSender implements Sender {
    * then send the given message.
    *
    * @param message A {@link Message}.
-   * @exception CommunicationException If an error occurs.
-   **/
+   * @exceptio nCommunicationException If an error occurs.
+   */
   public final void send(Message message) throws CommunicationException {
-    synchronized (m_messageQueue.getMutex()) {
-      queue(message);
-      flush();
-    }
-  }
-
-  /**
-   * Queue the given message for later sending.
-   *
-   * @param message A {@link Message}.
-   * @exception CommunicationException If an error occurs.
-   * @see #flush
-   * @see #send
-   **/
-  public final void queue(Message message) throws CommunicationException {
 
     if (!message.isInitialised()) {
       if (m_grinderID == null || m_senderID == null) {
@@ -121,35 +104,10 @@ abstract class AbstractSender implements Sender {
     }
 
     try {
-      m_messageQueue.queue(message);
-    }
-    catch (MessageQueue.ShutdownException e) {
-      // Assertion failure.
-      throw new RuntimeException("MessageQueue unexpectedly shutdown");
-    }
-  }
-
-  /**
-   * Flush any pending messages queued with {@link #queue}.
-   *
-   * @exception CommunicationException if an error occurs
-   **/
-  public final void flush() throws CommunicationException {
-    try {
-      synchronized (m_messageQueue.getMutex()) {
-        Message message;
-
-        while ((message = m_messageQueue.dequeue(false)) != null) {
-          writeMessage(message);
-        }
-      }
+      writeMessage(message);
     }
     catch (IOException e) {
       throw new CommunicationException("Exception whilst sending message", e);
-    }
-    catch (MessageQueue.ShutdownException e) {
-      // Assertion failure.
-      throw new RuntimeException("MessageQueue unexpectedly shutdown");
     }
   }
 
@@ -158,11 +116,8 @@ abstract class AbstractSender implements Sender {
   /**
    * Cleanly shutdown the <code>Sender</code>.
    *
-   * <p>Any queued messages are discarded.</p>
-   *
-   * @exception CommunicationException If an error occurs.
-   **/
+   * @throws CommunicationException If an error occurs.
+   */
   public void shutdown() throws CommunicationException {
-    m_messageQueue.shutdown();
   }
 }
