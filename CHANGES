@@ -7,7 +7,8 @@ Grinder 3.0-beta19
   threads.
 
   The PluginRegistry.register() method now takes an instance of
-  GrinderPlugin, rather than a class that implements GrinderPlugin.
+  GrinderPlugin, rather than a class that implements GrinderPlugin,
+  and no longer returns a PluginProcessContext.
 
   Fix bug 820481 - StringIndexOutOfBoundsException when logging.
   Thanks to Dragos Cernahoschi and Gordon Reid for reports.

@@ -86,36 +86,29 @@ public final class PluginRegistry {
    * Used to register a new plugin.
    *
    * @param plugin The plugin instance.
-   * @return A handle to the plugin.
    * @exception EngineException if an error occurs
    */
-  public RegisteredPlugin register(GrinderPlugin plugin)
-    throws EngineException {
+  public void register(GrinderPlugin plugin) throws EngineException {
 
     synchronized (m_plugins) {
-      final RegisteredPlugin existingRegisteredPlugin =
-        (RegisteredPlugin)m_plugins.get(plugin);
+      if (!m_plugins.containsKey(plugin)) {
 
-      if (existingRegisteredPlugin != null) {
-        return existingRegisteredPlugin;
-      }
+        final RegisteredPlugin registeredPlugin =
+          new RegisteredPlugin(plugin, m_scriptContext,
+                               m_threadContextLocator);
 
-      final RegisteredPlugin registeredPlugin =
-        new RegisteredPlugin(plugin, m_scriptContext, m_threadContextLocator);
-
-      try {
-        plugin.initialize(registeredPlugin);
-      }
-      catch (PluginException e) {
-        throw new EngineException("An instance of the plug-in class '" +
-                                  plugin.getClass().getName() +
-                                  "' could not be initialised.", e);
-      }
+        try {
+          plugin.initialize(registeredPlugin);
+        }
+        catch (PluginException e) {
+          throw new EngineException("An instance of the plug-in class '" +
+                                    plugin.getClass().getName() +
+                                    "' could not be initialised.", e);
+        }
         
-      m_plugins.put(plugin, registeredPlugin);
-      m_logger.output("registered plug-in " + plugin.getClass().getName());
-
-      return registeredPlugin;
+        m_plugins.put(plugin, registeredPlugin);
+        m_logger.output("registered plug-in " + plugin.getClass().getName());
+      }
     }
   }
 
