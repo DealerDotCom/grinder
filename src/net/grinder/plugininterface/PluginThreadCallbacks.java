@@ -23,6 +23,7 @@
 package net.grinder.plugininterface;
 
 import net.grinder.common.Test;
+import net.grinder.script.TestResult;
 
 
 /**
@@ -54,7 +55,7 @@ public interface PluginThreadCallbacks
     /**
      * This is called for each test.
      **/
-    public boolean doTest(Test testDefinition) throws PluginException;
+    public TestResult invokeTest(Test testDefinition) throws PluginException;
     
     /**
      * This method is executed at the end of every run.
