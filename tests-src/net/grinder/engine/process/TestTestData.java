@@ -22,11 +22,8 @@ import junit.framework.TestCase;
 import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-
 import net.grinder.plugininterface.Test;
+import net.grinder.statistics.Statistics;
 import net.grinder.util.GrinderProperties;
 
 
@@ -78,16 +75,13 @@ public class TestTestData extends TestCase
 	{
 	    return m_parameters;
 	}
+
+	public int compareTo(Object o) 
+	{
+	    return m_testNumber.compareTo(((MyTest)o).m_testNumber);
+	}
     }
 
-    private void applyCommonAssertions(TestData testData, Test test, 
-				       long sleepTime)
-    {
-	assertEquals(test, testData.getTest());
-	assertEquals(sleepTime, testData.getSleepTime());
-	assertNotNull(testData.getStatistics());
-	assertNotNull(testData.toString());
-    }
 
     public void test0() throws Exception
     {
@@ -95,9 +89,13 @@ public class TestTestData extends TestCase
 				       new GrinderProperties());
 	
 	final long sleepTime = 1234;
-	final TestData testData = new TestData(test, sleepTime);
+	final Statistics statistics = new Statistics();
 
-	applyCommonAssertions(testData, test, sleepTime);
+	final TestData testData = new TestData(test, sleepTime, statistics);
+
+	assertEquals(test, testData.getTest());
+	assertEquals(sleepTime, testData.getSleepTime());
+	assertNotNull(testData.getStatistics());
     }
 
     public void test1() throws Exception
@@ -106,10 +104,13 @@ public class TestTestData extends TestCase
 	properties.put("Something", "blah");
 
 	final MyTest test = new MyTest(new Integer(-33), "", properties);
-	
 	final long sleepTime = 1234;
-	final TestData testData = new TestData(test, sleepTime);
+	final Statistics statistics = new Statistics();
 
-	applyCommonAssertions(testData, test, sleepTime);
+	final TestData testData = new TestData(test, sleepTime, statistics);
+
+	assertEquals(test, testData.getTest());
+	assertEquals(sleepTime, testData.getSleepTime());
+	assertNotNull(testData.getStatistics());
     }
 }

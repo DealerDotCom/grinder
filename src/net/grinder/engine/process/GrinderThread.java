@@ -25,6 +25,7 @@ import java.util.Random;
 
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.statistics.Statistics;
 import net.grinder.util.GrinderProperties;
 
 
@@ -53,7 +54,7 @@ class GrinderThread implements java.lang.Runnable
 
     private final ThreadCallbacks m_threadCallbacks;
     private final ThreadContextImplementation m_context;
-    private final Map m_tests;
+    private final Map m_testSet;
     private final PrintWriter m_dataPrintWriter;
 
     private long m_defaultSleepTime;
@@ -81,7 +82,7 @@ class GrinderThread implements java.lang.Runnable
 	m_threadCallbacks = threadCallbacks;
 	m_context = threadContext;
 	m_dataPrintWriter = dataPrintWriter;
-	m_tests = tests;
+	m_testSet = tests;
 
 	m_context.setGrinderThread(this);
 
@@ -142,20 +143,18 @@ class GrinderThread implements java.lang.Runnable
 		    continue CYCLE_LOOP;
 		}
 		
-		final Iterator testIterator = m_tests.entrySet().iterator();
+		final Iterator testIterator = m_testSet.values().iterator();
 
 		TEST_LOOP:
 		while (testIterator.hasNext()) {
-		    final Map.Entry entry = (Map.Entry)testIterator.next();
-		    final Integer testNumber = (Integer)entry.getKey();
-		    m_currentTestData = (TestData)entry.getValue();
+		    m_currentTestData = (TestData)testIterator.next();
 
 		    m_context.reset();
 
 		    final long sleepTime = m_currentTestData.getSleepTime();
 		    sleep(sleepTime >= 0 ? sleepTime : m_defaultSleepTime);
 
-		    final TestStatistics statistics =
+		    final Statistics statistics =
 			m_currentTestData.getStatistics();
 
 		    boolean success = false;
@@ -205,7 +204,9 @@ class GrinderThread implements java.lang.Runnable
 		    if (m_dataPrintWriter != null) {
 			m_dataPrintWriter.println(
 			    m_context.getThreadID() + ", " +
-			    m_currentCycle + ", " + testNumber + ", " + time);
+			    m_currentCycle + ", " + 
+			    m_currentTestData.getTest().getTestNumber() +
+			    ", " + time);
 		    }
 		}
 

@@ -20,6 +20,7 @@ package net.grinder.engine.process;
 
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.Test;
+import net.grinder.statistics.Statistics;
 import net.grinder.util.GrinderProperties;
 
 
@@ -37,12 +38,13 @@ class TestData
     private final Test m_test;
     
     private final long m_sleepTime;
-    private final TestStatistics m_statistics = new TestStatistics();
+    private final Statistics m_statistics;
 
-    TestData(Test testDefinition, long sleepTime)
+    TestData(Test testDefinition, long sleepTime, Statistics statistics)
     {
 	m_test = testDefinition;
 	m_sleepTime = sleepTime;
+	m_statistics = statistics;
     }
 
     long getSleepTime()
@@ -50,7 +52,7 @@ class TestData
 	return m_sleepTime;
     }
 
-    TestStatistics getStatistics() 
+    Statistics getStatistics() 
     {
 	return m_statistics;
     }
