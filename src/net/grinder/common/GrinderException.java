@@ -22,210 +22,30 @@
 
 package net.grinder.common;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-
 /**
- * Base exception class for The Grinder. Includes support for chained
- * (or "nested") exceptions.
+ * Base exception class for The Grinder.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public class GrinderException extends Exception {
 
-  private final Throwable m_nestedThrowable;
-
   /**
-   * Creates a new <code>GrinderException</code> instance with no
-   * nested <code>Throwable</code>.
+   * Constructor.
    *
-   * @param message Helpfull message.
+   * @param message Helpful message.
    */
   public GrinderException(String message) {
-    this(message, null);
-  }
-
-  /**
-   * Creates a new <code>GrinderException</code> instance.
-   *
-   * @param message Helpfull message.
-   * @param nestedThrowable A nested <code>Throwable</code>
-   */
-  public GrinderException(String message, Throwable nestedThrowable) {
     super(message);
-    m_nestedThrowable = nestedThrowable;
   }
 
   /**
-   * Print a stack trace to the given <code>PrintWriter</code>.
+   * Constructor.
    *
-   * @param s a <code>PrintWriter</code> value
+   * @param message Helpful message.
+   * @param cause A nested <code>Throwable</code>
    */
-  public void printStackTrace(PrintWriter s) {
-    printNestedTrace(s);
-    printImmediateTrace(s);
-    s.println();
-    s.flush();
-  }
-
-  /**
-   * Print the stack trace excluding information about nested
-   * exceptions.
-   *
-   * @param s a <code>PrintWriter</code> value
-   */
-  private void printImmediateTrace(PrintWriter s) {
-    super.printStackTrace(s);
-  }
-
-  /**
-   * Recursively print the nested exception stack trace. Where
-   * possible, nested exception stack traces are shortened to remove
-   * common stack frames that they share with their parent.
-   *
-   * @param s a <code>PrintWriter</code> value
-   */
-  private void printNestedTrace(PrintWriter s) {
-    if (m_nestedThrowable != null) {
-
-      final StringWriter stringWriter = new StringWriter(256);
-      final PrintWriter printWriter = new PrintWriter(stringWriter);
-      printImmediateTrace(printWriter);
-      printWriter.flush();
-      final StringBuffer immediateTrace = stringWriter.getBuffer();
-
-      final StringWriter stringWriter2 = new StringWriter(256);
-      final PrintWriter printWriter2 = new PrintWriter(stringWriter2);
-
-      if (m_nestedThrowable instanceof GrinderException) {
-        final GrinderException nestedGrinderException =
-          (GrinderException)m_nestedThrowable;
-
-        nestedGrinderException.printNestedTrace(s);
-        nestedGrinderException.printImmediateTrace(printWriter2);
-      }
-      else {
-        m_nestedThrowable.printStackTrace(printWriter2);
-      }
-
-      printWriter2.flush();
-      final StringBuffer nestedTrace = stringWriter2.getBuffer();
-      final boolean truncatedNestedTrace =
-        removeCommonSuffix(nestedTrace, immediateTrace);
-
-      s.print("(Nested exception) ");
-      s.println(nestedTrace);
-      if (truncatedNestedTrace) {
-        s.println("\t<truncated>");
-      }
-      s.println();
-    }
-  }
-
-  /**
-   * If <code>original</code> shares a common suffix that begins
-   * with a line feed with <code>other</code>, truncate
-   * <code>original</code> to remove the suffix. Otherwise return
-   * <code>original</code> unchanged.
-   *
-   * Package scope so the unit tests can access it.
-   *
-   * @param original The original string. Changed in-place.
-   * @param other String to compare suffixes with. Unchanged.
-   * @return Whether non-white space characters were removed from the
-   * end of the original or not.
-   */
-  static boolean removeCommonSuffix(StringBuffer original,
-                                    StringBuffer other) {
-
-    int p = original.length();
-    int otherP = other.length();
-
-    // Search backwards for first difference, ignoring white
-    // space.
-    OUTER:
-    do {
-      do {
-        if (--p < 0) {
-          // original is contained at end of other.
-          break OUTER;
-        }
-      }
-      while (Character.isWhitespace(original.charAt(p)));
-
-      do {
-        if (--otherP < 0) {
-          break OUTER;
-        }
-      }
-      while (Character.isWhitespace(other.charAt(otherP)));
-    }
-    while (original.charAt(p) == other.charAt(otherP));
-
-    // p is now the index of the last character that differs.
-
-    // Now wind forward to first new line.
-    final char[] lineSeparator =
-      System.getProperty("line.separator").toCharArray();
-
-    do {
-      ++p;
-
-      if (p == original.length()) {
-        return false;
-      }
-    }
-    while (!atNewLine(original, p, lineSeparator));
-
-    final boolean nonWhiteSpaceRemoved =
-      original.substring(p).trim().length() > 0;
-
-    original.setLength(p);
-    return nonWhiteSpaceRemoved;
-  }
-
-  private static boolean atNewLine(StringBuffer buffer, int position,
-                                   char[] lineSeparator) {
-
-    final int length = buffer.length();
-
-    for (int i = 0; i < lineSeparator.length; ++i) {
-      final int offset = position + i;
-
-      if (offset >= length || buffer.charAt(offset) != lineSeparator[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  /**
-   * Print a stack trace to the standard error stream.
-   */
-  public void printStackTrace() {
-    printStackTrace(System.err);
-  }
-
-  /**
-   * Print a stack trace to the given <code>PrintStream</code>.
-   *
-   * @param s a <code>PrintStream</code> value
-   */
-  public void printStackTrace(PrintStream s) {
-    printStackTrace(new PrintWriter(s));
-  }
-
-  /**
-   * Return any nested <code>Throwable</code>.
-   *
-   * @return A <code>Throwable</code> value, or <code>null</code> if
-   * none.
-   */
-  public Throwable getNestedThrowable() {
-    return m_nestedThrowable;
+  public GrinderException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

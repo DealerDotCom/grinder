@@ -196,6 +196,6 @@ public class TestFileStore extends AbstractFileTestCase {
     final FileStore.FileStoreException e =
       new FileStore.FileStoreException("bite me", nested);
 
-    assertEquals(nested, e.getNestedThrowable());
+    assertEquals(nested, e.getCause());
   }
 }

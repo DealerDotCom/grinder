@@ -66,7 +66,7 @@ public class JythonScriptExecutionException extends EngineException {
     Throwable result = this;
 
     do {
-      result = ((EngineException)result).getNestedThrowable();
+      result = ((EngineException)result).getCause();
     }
     while (result instanceof JythonScriptExecutionException ||
            result instanceof BriefPyException);
@@ -92,15 +92,15 @@ public class JythonScriptExecutionException extends EngineException {
 
     public void printStackTrace(PrintWriter s) {
       s.println(m_where);
-      getNestedThrowable().printStackTrace(s);
+      getCause().printStackTrace(s);
     }
 
     public String getMessage() {
-      return getNestedThrowable().getMessage();
+      return getCause().getMessage();
     }
 
     public String toString() {
-      return getNestedThrowable().toString();
+      return getCause().toString();
     }
   }
 }

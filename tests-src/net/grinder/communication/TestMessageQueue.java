@@ -58,10 +58,10 @@ public class TestMessageQueue extends TestCase {
     for (int i=0; i<messages.length; ++i) {
       assertSame(messages[i], m_queue.dequeue(false));
     }
-	
+
     assertNull(m_queue.dequeue(false));
   }
-    
+
   public void testWithActiveDequeuer() throws Exception {
     final Message[] messages = {
       new SimpleMessage(10),
@@ -186,12 +186,12 @@ public class TestMessageQueue extends TestCase {
         fail("Expected a CommunicationException");
       }
       catch (CommunicationException e) {
-        assertSame(exceptions[i], e.getNestedThrowable());
+        assertSame(exceptions[i], e.getCause());
       }
 
       assertSame(messages[i], exceptionQueue.dequeue(false));
     }
-	
+
     assertNull(m_queue.dequeue(false));
   }
 

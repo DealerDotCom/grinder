@@ -61,15 +61,15 @@ public class TestConsoleProperties extends TestCase {
   public void testCollectSamples() throws Exception {
 
     new TestIntTemplate(ConsoleProperties.COLLECT_SAMPLES_PROPERTY, 0,
-			Integer.MAX_VALUE) {
+      Integer.MAX_VALUE) {
 
       protected int get(ConsoleProperties properties) {
-	return properties.getCollectSampleCount();
+  return properties.getCollectSampleCount();
       }
 
       protected void set(ConsoleProperties properties, int i)
-	throws DisplayMessageConsoleException {
-	properties.setCollectSampleCount(i);
+  throws DisplayMessageConsoleException {
+  properties.setCollectSampleCount(i);
       }
     }.doTest();
   }
@@ -77,15 +77,15 @@ public class TestConsoleProperties extends TestCase {
   public void testIgnoreSamples() throws Exception {
 
     new TestIntTemplate(ConsoleProperties.IGNORE_SAMPLES_PROPERTY, 0,
-			Integer.MAX_VALUE) {
+      Integer.MAX_VALUE) {
 
       protected int get(ConsoleProperties properties) {
-	return properties.getIgnoreSampleCount();
+  return properties.getIgnoreSampleCount();
       }
 
       protected void set(ConsoleProperties properties, int i)
-	throws DisplayMessageConsoleException {
-	properties.setIgnoreSampleCount(i);
+  throws DisplayMessageConsoleException {
+  properties.setIgnoreSampleCount(i);
       }
     }.doTest();
   }
@@ -93,15 +93,15 @@ public class TestConsoleProperties extends TestCase {
   public void testSampleInterval() throws Exception {
 
     new TestIntTemplate(ConsoleProperties.SAMPLE_INTERVAL_PROPERTY, 1,
-			Integer.MAX_VALUE) {
+      Integer.MAX_VALUE) {
 
       protected int get(ConsoleProperties properties) {
-	return properties.getSampleInterval();
+  return properties.getSampleInterval();
       }
 
       protected void set(ConsoleProperties properties, int i)
-	throws DisplayMessageConsoleException {
-	properties.setSampleInterval(i);
+  throws DisplayMessageConsoleException {
+  properties.setSampleInterval(i);
       }
     }.doTest();
   }
@@ -109,15 +109,15 @@ public class TestConsoleProperties extends TestCase {
   public void testSignificantFigures() throws Exception {
 
     new TestIntTemplate(ConsoleProperties.SIG_FIG_PROPERTY, 0,
-			Integer.MAX_VALUE) {
+      Integer.MAX_VALUE) {
 
       protected int get(ConsoleProperties properties) {
-	return properties.getSignificantFigures();
+  return properties.getSignificantFigures();
       }
 
       protected void set(ConsoleProperties properties, int i)
-	throws DisplayMessageConsoleException {
-	properties.setSignificantFigures(i);
+  throws DisplayMessageConsoleException {
+  properties.setSignificantFigures(i);
       }
     }.doTest();
   }
@@ -182,15 +182,15 @@ public class TestConsoleProperties extends TestCase {
 
     new TestIntTemplate(ConsoleProperties.CONSOLE_PORT_PROPERTY,
                         CommunicationDefaults.MIN_PORT,
-			CommunicationDefaults.MAX_PORT) {
+      CommunicationDefaults.MAX_PORT) {
 
       protected int get(ConsoleProperties properties) {
-	return properties.getConsolePort();
+  return properties.getConsolePort();
       }
 
       protected void set(ConsoleProperties properties, int i)
-	throws DisplayMessageConsoleException {
-	properties.setConsolePort(i);
+  throws DisplayMessageConsoleException {
+  properties.setConsolePort(i);
       }
     }.doTest();
   }
@@ -200,11 +200,11 @@ public class TestConsoleProperties extends TestCase {
       ConsoleProperties.RESET_CONSOLE_WITH_PROCESSES_PROPERTY) {
 
       protected boolean get(ConsoleProperties properties) {
-	return properties.getResetConsoleWithProcesses();
+  return properties.getResetConsoleWithProcesses();
       }
 
       protected void set(ConsoleProperties properties, boolean b) {
-	properties.setResetConsoleWithProcesses(b);
+  properties.setResetConsoleWithProcesses(b);
       }
 
     }.doTest();
@@ -277,11 +277,11 @@ public class TestConsoleProperties extends TestCase {
     new TestFileTemplate(ConsoleProperties.SCRIPT_FILE_PROPERTY) {
 
       protected File get(ConsoleProperties properties) {
-	return properties.getScriptFile();
+  return properties.getScriptFile();
       }
 
       protected void set(ConsoleProperties properties, File file) {
-	properties.setScriptFile(file);
+  properties.setScriptFile(file);
       }
     }.doTest();
   }
@@ -291,11 +291,11 @@ public class TestConsoleProperties extends TestCase {
     new TestFileTemplate(ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY) {
 
       protected File get(ConsoleProperties properties) {
-	return properties.getDistributionDirectory();
+  return properties.getDistributionDirectory();
       }
 
       protected void set(ConsoleProperties properties, File file) {
-	properties.setDistributionDirectory(file);
+  properties.setDistributionDirectory(file);
       }
     }.doTest();
 
@@ -324,11 +324,11 @@ public class TestConsoleProperties extends TestCase {
     new TestStringTemplate(ConsoleProperties.LOOK_AND_FEEL_PROPERTY, true) {
 
       protected String get(ConsoleProperties properties) {
-	return properties.getLookAndFeel();
+  return properties.getLookAndFeel();
       }
 
       protected void set(ConsoleProperties properties, String name) {
-	properties.setLookAndFeel(name);
+  properties.setLookAndFeel(name);
       }
     }.doTest();
   }
@@ -344,7 +344,7 @@ public class TestConsoleProperties extends TestCase {
 
       protected void set(ConsoleProperties properties, String expression)
         throws DisplayMessageConsoleException {
-	properties.setDistributionFileFilterExpression(expression);
+  properties.setDistributionFileFilterExpression(expression);
       }
     }.doTest();
 
@@ -361,9 +361,9 @@ public class TestConsoleProperties extends TestCase {
     assertEquals(p1.getConsoleHost(), p2.getConsoleHost());
     assertEquals(p1.getConsolePort(), p2.getConsolePort());
     assertEquals(p1.getResetConsoleWithProcesses(),
-		 p2.getResetConsoleWithProcesses());
+     p2.getResetConsoleWithProcesses());
     assertEquals(p1.getResetConsoleWithProcessesAsk(),
-		 p2.getResetConsoleWithProcessesAsk());
+     p2.getResetConsoleWithProcessesAsk());
     assertEquals(p1.getScriptNotSetAsk(), p2.getScriptNotSetAsk());
     assertEquals(p1.getStartWithUnsavedBuffersAsk(),
                  p2.getStartWithUnsavedBuffersAsk());
@@ -398,9 +398,9 @@ public class TestConsoleProperties extends TestCase {
     assertTrue(!p1.getConsoleHost().equals(p2.getConsoleHost()));
     assertTrue(p1.getConsolePort() != p2.getConsolePort());
     assertTrue(p1.getResetConsoleWithProcesses() !=
-	       p2.getResetConsoleWithProcesses());
+         p2.getResetConsoleWithProcesses());
     assertTrue(p1.getResetConsoleWithProcessesAsk() !=
-	       p2.getResetConsoleWithProcessesAsk());
+         p2.getResetConsoleWithProcessesAsk());
     assertTrue(p1.getScriptNotSetAsk() != p2.getScriptNotSetAsk());
     assertTrue(p1.getStartWithUnsavedBuffersAsk() !=
                p2.getStartWithUnsavedBuffersAsk());
@@ -419,12 +419,12 @@ public class TestConsoleProperties extends TestCase {
     assertEquals(p1.getConsoleHost(), p2.getConsoleHost());
     assertEquals(p1.getConsolePort(), p2.getConsolePort());
     assertTrue(p1.getResetConsoleWithProcesses() ==
-	       p2.getResetConsoleWithProcesses());
+         p2.getResetConsoleWithProcesses());
     assertTrue(p1.getResetConsoleWithProcessesAsk() ==
-	       p2.getResetConsoleWithProcessesAsk());
+         p2.getResetConsoleWithProcessesAsk());
     assertTrue(p1.getScriptNotSetAsk() == p2.getScriptNotSetAsk());
     assertTrue(p1.getStartWithUnsavedBuffersAsk() ==
-	       p2.getStartWithUnsavedBuffersAsk());
+         p2.getStartWithUnsavedBuffersAsk());
     assertTrue(p1.getStopProcessesAsk() == p2.getStopProcessesAsk());
     assertEquals(p1.getScriptFile(), p2.getScriptFile());
     assertEquals(p1.getDistributionDirectory(), p2.getDistributionDirectory());
@@ -438,8 +438,8 @@ public class TestConsoleProperties extends TestCase {
 
     public TestIntTemplate(String propertyName, int minimum, int maximum) {
       if (maximum <= minimum) {
-	throw new IllegalArgumentException(
-	  "Minimum not less than maximum");
+  throw new IllegalArgumentException(
+    "Minimum not less than maximum");
       }
 
       m_propertyName = propertyName;
@@ -490,8 +490,8 @@ public class TestConsoleProperties extends TestCase {
       while (i3 == i2);
 
       final PropertyChangeEvent expected =
-	new PropertyChangeEvent(properties2, m_propertyName,
-				new Integer(i2), new Integer(i3));
+  new PropertyChangeEvent(properties2, m_propertyName,
+        new Integer(i2), new Integer(i3));
 
       final ChangeListener listener = new ChangeListener(expected);
       final ChangeListener listener2 = new ChangeListener(expected);
@@ -502,51 +502,51 @@ public class TestConsoleProperties extends TestCase {
       set(properties2, i3);
 
       if (m_minimum > Integer.MIN_VALUE) {
-	try {
-	  set(properties, m_minimum - 1);
-	  fail("Should not reach");
-	}
-	catch (DisplayMessageConsoleException e) {
-	}
+  try {
+    set(properties, m_minimum - 1);
+    fail("Should not reach");
+  }
+  catch (DisplayMessageConsoleException e) {
+  }
 
-	try {
-	  set(properties, Integer.MIN_VALUE);
-	  fail("Should not reach");
-	}
-	catch (DisplayMessageConsoleException e) {
-	}
+  try {
+    set(properties, Integer.MIN_VALUE);
+    fail("Should not reach");
+  }
+  catch (DisplayMessageConsoleException e) {
+  }
 
-	try {
-	  set(properties, getRandomInt(Integer.MIN_VALUE,
-				       m_minimum - 1));
-	  fail("Should not reach");
-	}
-	catch (DisplayMessageConsoleException e) {
-	}
+  try {
+    set(properties, getRandomInt(Integer.MIN_VALUE,
+               m_minimum - 1));
+    fail("Should not reach");
+  }
+  catch (DisplayMessageConsoleException e) {
+  }
       }
 
       if (m_maximum < Integer.MAX_VALUE) {
-	try {
-	  set(properties, m_maximum + 1);
-	  fail("Should not reach");
-	}
-	catch (DisplayMessageConsoleException e) {
-	}
+  try {
+    set(properties, m_maximum + 1);
+    fail("Should not reach");
+  }
+  catch (DisplayMessageConsoleException e) {
+  }
 
-	try {
-	  set(properties, Integer.MAX_VALUE);
-	  fail("Should not reach");
-	}
-	catch (DisplayMessageConsoleException e) {
-	}
+  try {
+    set(properties, Integer.MAX_VALUE);
+    fail("Should not reach");
+  }
+  catch (DisplayMessageConsoleException e) {
+  }
 
-	try {
-	  set(properties, getRandomInt(m_maximum + 1,
-				       Integer.MAX_VALUE));
-	  fail("Should not reach");
-	}
-	catch (DisplayMessageConsoleException e) {
-	}
+  try {
+    set(properties, getRandomInt(m_maximum + 1,
+               Integer.MAX_VALUE));
+    fail("Should not reach");
+  }
+  catch (DisplayMessageConsoleException e) {
+  }
       }
 
       listener.assertCalled();
@@ -586,8 +586,8 @@ public class TestConsoleProperties extends TestCase {
       assertTrue(get(properties2));
 
       final PropertyChangeEvent expected =
-	new PropertyChangeEvent(properties2, m_propertyName,
-				new Boolean(true), new Boolean(false));
+  new PropertyChangeEvent(properties2, m_propertyName,
+        new Boolean(true), new Boolean(false));
 
       final ChangeListener listener = new ChangeListener(expected);
       final ChangeListener listener2 = new ChangeListener(expected);
@@ -692,7 +692,7 @@ public class TestConsoleProperties extends TestCase {
       while (s3.equals(s2));
 
       final PropertyChangeEvent expected =
-	new PropertyChangeEvent(properties2, m_propertyName, s2, s3);
+  new PropertyChangeEvent(properties2, m_propertyName, s2, s3);
 
       final ChangeListener listener = new ChangeListener(expected);
       final ChangeListener listener2 = new ChangeListener(expected);
@@ -755,7 +755,7 @@ public class TestConsoleProperties extends TestCase {
       while (f3.equals(f2));
 
       final PropertyChangeEvent expected =
-	new PropertyChangeEvent(properties2, m_propertyName, f2, f3);
+  new PropertyChangeEvent(properties2, m_propertyName, f2, f3);
 
       final ChangeListener listener = new ChangeListener(expected);
       final ChangeListener listener2 = new ChangeListener(expected);
@@ -808,7 +808,7 @@ public class TestConsoleProperties extends TestCase {
       final String s3 = "^abc$";
 
       final PropertyChangeEvent expected =
-	new PropertyChangeEvent(properties2, m_propertyName, s2, s3);
+  new PropertyChangeEvent(properties2, m_propertyName, s2, s3);
 
       final ChangeListener listener = new PatternChangeListener(expected);
       final ChangeListener listener2 = new PatternChangeListener(expected);
@@ -831,7 +831,7 @@ public class TestConsoleProperties extends TestCase {
       }
       catch (DisplayMessageConsoleException e) {
         assertTrue("Nested exception is a PatternSyntaxException",
-                   e.getNestedThrowable()
+                   e.getCause()
                    instanceof PatternSyntaxException);
       }
 

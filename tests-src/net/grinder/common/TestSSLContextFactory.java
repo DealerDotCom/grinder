@@ -36,10 +36,10 @@ public class TestSSLContextFactory extends TestCase {
     final GrinderException e1 =
       new SSLContextFactory.SSLContextFactoryException("constructor 1");
     assertEquals("constructor 1", e1.getMessage());
-    assertNull(e1.getNestedThrowable());
-    
+    assertNull(e1.getCause());
+
     final GrinderException e2 =
       new SSLContextFactory.SSLContextFactoryException("constructor 2", e1);
-    assertEquals(e1, e2.getNestedThrowable());
+    assertEquals(e1, e2.getCause());
   }
 }

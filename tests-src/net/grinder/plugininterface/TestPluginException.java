@@ -36,11 +36,11 @@ public class TestPluginException extends TestCase {
     final PluginException e1 = new PluginException("a message");
 
     assertEquals("a message", e1.getMessage());
-    assertNull(e1.getNestedThrowable());
+    assertNull(e1.getCause());
 
     final PluginException e2 = new PluginException("another message", e1);
 
     assertEquals("another message", e2.getMessage());
-    assertEquals(e1, e2.getNestedThrowable());
+    assertEquals(e1, e2.getCause());
   }
 }

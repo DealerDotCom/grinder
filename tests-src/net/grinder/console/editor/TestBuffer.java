@@ -130,7 +130,7 @@ public class TestBuffer extends AbstractFileTestCase {
     for (int i=0; i<wordsOfExpectation.length; ++i) {
       final Expectation expectation = wordsOfExpectation[i];
 
-      final Buffer buffer = 
+      final Buffer buffer =
         new Buffer(s_resources, textSource, expectation.getFile());
 
       assertEquals(expectation.getType(), buffer.getType());
@@ -246,7 +246,7 @@ public class TestBuffer extends AbstractFileTestCase {
       fail("Expected DisplayMessageConsoleException");
     }
     catch (DisplayMessageConsoleException e) {
-      assertTrue(e.getNestedThrowable() instanceof IOException);
+      assertTrue(e.getCause() instanceof IOException);
     }
 
     try {
@@ -254,7 +254,7 @@ public class TestBuffer extends AbstractFileTestCase {
       fail("Expected DisplayMessageConsoleException");
     }
     catch (DisplayMessageConsoleException e) {
-      assertTrue(e.getNestedThrowable() instanceof IOException);
+      assertTrue(e.getCause() instanceof IOException);
     }
   }
 
@@ -292,7 +292,7 @@ public class TestBuffer extends AbstractFileTestCase {
         new FileNotFoundException("Blah (a different message) (blah)"),
         "a different message"),
     };
-    
+
     for (int i = 0; i < wordsOfExpectation.length; ++i) {
       final ExtractReasonExpectation expectation = wordsOfExpectation[i];
 

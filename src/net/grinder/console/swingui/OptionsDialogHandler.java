@@ -211,10 +211,10 @@ abstract class OptionsDialogHandler {
                 m_properties.save();
               }
               catch (GrinderException e) {
-                final Throwable nested = e.getNestedThrowable();
+                final Throwable cause = e.getCause();
 
                 final String messsage =
-                  (nested != null ? nested : e).getMessage();
+                  (cause != null ? cause : e).getMessage();
 
                 new ErrorDialogHandler(m_dialog, resources).
                   handleErrorMessage(messsage,

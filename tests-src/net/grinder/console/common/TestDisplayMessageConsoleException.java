@@ -43,19 +43,19 @@ public class TestDisplayMessageConsoleException extends TestCase {
 
     assertTrue(e1.getMessage().startsWith("No message"));
     assertTrue(e1.getMessage().indexOf("notthere") >= 0);
-    assertNull(e1.getNestedThrowable());
+    assertNull(e1.getCause());
 
     final DisplayMessageConsoleException e2 =
       new DisplayMessageConsoleException(resources, "helloworld");
 
     assertEquals("Hello world", e2.getMessage());
-    assertNull(e2.getNestedThrowable());
+    assertNull(e2.getCause());
 
     final DisplayMessageConsoleException e3 =
       new DisplayMessageConsoleException(resources, "sum");
 
     assertEquals("{0} plus {1} is {2}", e3.getMessage());
-    assertNull(e2.getNestedThrowable());
+    assertNull(e2.getCause());
 
     final DisplayMessageConsoleException e4 =
       new DisplayMessageConsoleException(resources, "sum",
@@ -66,20 +66,20 @@ public class TestDisplayMessageConsoleException extends TestCase {
                                          });
 
     assertEquals("1 plus 2 is three", e4.getMessage());
-    assertNull(e2.getNestedThrowable());
+    assertNull(e2.getCause());
 
     final DisplayMessageConsoleException e5 =
       new DisplayMessageConsoleException(resources, "notthere", e4);
 
     assertTrue(e5.getMessage().startsWith("No message"));
     assertTrue(e5.getMessage().indexOf("notthere") >= 0);
-    assertSame(e4, e5.getNestedThrowable());
+    assertSame(e4, e5.getCause());
 
     final DisplayMessageConsoleException e6 =
       new DisplayMessageConsoleException(resources, "helloworld", e5);
 
     assertEquals("Hello world", e6.getMessage());
-    assertSame(e5, e6.getNestedThrowable());
+    assertSame(e5, e6.getCause());
 
     final DisplayMessageConsoleException e7 =
       new DisplayMessageConsoleException(resources,
@@ -88,6 +88,6 @@ public class TestDisplayMessageConsoleException extends TestCase {
                                          e6);
 
     assertEquals("There are 2 files", e7.getMessage());
-    assertSame(e6, e7.getNestedThrowable());
+    assertSame(e6, e7.getCause());
   }
 }

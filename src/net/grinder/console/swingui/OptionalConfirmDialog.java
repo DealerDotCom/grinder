@@ -110,10 +110,10 @@ final class OptionalConfirmDialog {
       askProperty.set(!dontAskMeAgainCheckBox.isSelected());
     }
     catch (BooleanProperty.PropertyException e) {
-      final Throwable nested = e.getNestedThrowable();
+      final Throwable cause = e.getCause();
 
-      if (nested instanceof DisplayMessageConsoleException) {
-        throw (DisplayMessageConsoleException)nested;
+      if (cause instanceof DisplayMessageConsoleException) {
+        throw (DisplayMessageConsoleException)cause;
       }
 
       throw e;

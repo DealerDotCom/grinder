@@ -62,14 +62,14 @@ public class TestBooleanProperty extends TestCase {
       badProperty.set(true);
     }
     catch (BooleanProperty.PropertyException e) {
-      assertTrue(e.getNestedThrowable() instanceof BeanException);
+      assertTrue(e.getCause() instanceof BeanException);
     }
 
     try {
       badProperty.get();
     }
     catch (BooleanProperty.PropertyException e) {
-      assertTrue(e.getNestedThrowable() instanceof BeanException);
+      assertTrue(e.getCause() instanceof BeanException);
     }
   }
 

@@ -37,82 +37,10 @@ import java.io.StringWriter;
  */
 public class TestGrinderException extends TestCase {
 
-  public void testRemoveCommonSuffix() throws Exception {
-    final String oldLineSeparator = System.getProperty("line.separator");
-
-    try {
-
-      final String[] lineSeparators = {
-        "\n",
-        "\n\r",
-        "\r",
-      };
-      
-      for (int i = 0; i <lineSeparators.length; ++i) {
-        final String lineSeparator = lineSeparators[i];
-        System.setProperty("line.separator", lineSeparator);
-
-        StringBuffer b1 = new StringBuffer(
-          "Hello there" + lineSeparator + "world");
-
-        StringBuffer b2 = new StringBuffer(
-          "Goodbye there" + lineSeparator + "world");
-
-        assertTrue(GrinderException.removeCommonSuffix(b1, b2));
-        assertEquals("Hello there", b1.toString());
-
-        b1 = new StringBuffer("Hello world");
-        b2 = new StringBuffer("Goodbye world  ");
-
-        assertFalse(GrinderException.removeCommonSuffix(b1, b2));
-        assertEquals("Hello world", b1.toString());
-
-        b1 = new StringBuffer("Hello world");
-        b2 = new StringBuffer("");
-
-        assertFalse(GrinderException.removeCommonSuffix(b1, b2));
-        assertEquals("Hello world", b1.toString());
-
-        b1 = new StringBuffer("");
-        b2 = new StringBuffer("Goodbye");
-
-        assertFalse(GrinderException.removeCommonSuffix(b1, b2));
-        assertEquals("", b1.toString());
-
-        b1 = new StringBuffer("foo" + lineSeparator + "bah");
-        b2 = new StringBuffer("Goodbye");
-
-        assertFalse(GrinderException.removeCommonSuffix(b1, b2));
-        assertEquals("foo" + lineSeparator + "bah", b1.toString());
-
-        b1 = new StringBuffer("foo" + lineSeparator + "  ");
-        b2 = new StringBuffer("Goodbye");
-
-        assertFalse("White space terminator so should return false",
-                    GrinderException.removeCommonSuffix(b1, b2));
-        assertEquals("foo", b1.toString());
-
-        b1 = new StringBuffer(
-          "Several more" + lineSeparator + lineSeparator + "lines   of" +
-          lineSeparator + "fun to ponder");
-
-        b2 = new StringBuffer(
-          "Many" + lineSeparator + lineSeparator + "more" + lineSeparator +
-          "lines of" + lineSeparator + "fun to ponder  ");
-
-        assertTrue(GrinderException.removeCommonSuffix(b1, b2));
-        assertEquals("Several more", b1.toString());
-      }
-    }
-    finally {
-        System.setProperty("line.separator", oldLineSeparator);
-    }
-  }
-
   public void testPrintStackTrace() throws Exception {
     final StringWriter stringWriter = new StringWriter();
     final PrintWriter printWriter = new PrintWriter(stringWriter);
-	
+
     final GrinderException e1 = createDeeperException();
     final GrinderException e2 = new GrinderException("Exception 2", e1);
 
@@ -130,7 +58,7 @@ public class TestGrinderException extends TestCase {
 
     final StringWriter stringWriter = new StringWriter();
     final PrintWriter printWriter = new PrintWriter(stringWriter);
-	
+
     final Exception e1 = new RuntimeException();
     final GrinderException e2 = new GrinderException("Exception 2", e1);
 
@@ -155,24 +83,24 @@ public class TestGrinderException extends TestCase {
 
     final StringWriter stringWriter = new StringWriter();
     final PrintWriter printWriter = new PrintWriter(stringWriter);
-	
+
     final Exception e1 = new WeirdException();
     final GrinderException e2 = new GrinderException("Exception 2", e1);
 
     e2.printStackTrace(printWriter);
     final String s = stringWriter.toString();
 
-    assertEquals(1, countOccurrences(
+    assertEquals(2, countOccurrences(
                    "testPrintStackTraceWithNestedUnconventionalException", s));
     assertEquals(1, countOccurrences("Method.invoke", s));
-    assertEquals(0, countOccurrences("truncated", s));
+    assertEquals(1, countOccurrences("...", s));
   }
 
   public void testPrintStackTraceWithPrintStream() throws Exception {
     final ByteArrayOutputStream byteArrayOutputStream =
       new ByteArrayOutputStream();
     final PrintStream printStream = new PrintStream(byteArrayOutputStream);
-	
+
     final GrinderException e1 = createDeeperException();
     final GrinderException e2 = new GrinderException("Exception 2", e1);
 
