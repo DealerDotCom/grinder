@@ -1,0 +1,12 @@
+Annoying that it doesn't inherit the class path.
+Need to have grinder.properties file in classpath
+
+
+** Bugs
+
+Why doesn't console show end() being invoked for HttpClient example?
+
+
+** Enhamncements
+
+Can run for "2 minutes" instead of "3 cycles"

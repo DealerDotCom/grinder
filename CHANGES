@@ -1,0 +1,21 @@
+1/1/2000 - version 0.1
+
+  Reorgansised distribution and repackaged:
+	net.grinder
+	net.grinder.console
+	net.grinder.engine
+	net.grinder.plugin
+	net.grinder.plugin.http
+	net.grinder.plugin.http.tools
+	net.grinder.plugin.simple
+	net.grinder.plugin.weblogic
+	net.grinder.plugin.weblogic.ejb
+	net.grinder.plugin.weblogic.util
+
+  Renamed *Bmk.java to *Plugin.java
+
+  GrinderProcess: Used isAssignableFrom to check plugin, rather than
+  string comparison on interface names.
+
+  Removed my extension that made the HTTP plugin simulate a browser
+  cache. Better done by SnifferServlet.
