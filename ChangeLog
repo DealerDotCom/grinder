@@ -1,3 +1,156 @@
+2003-04-05  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta8 is released.
+
+	* CHANGES, TODO: Situation update.
+
+	* xdoc/g3/faq-xhtml.xml: A couple more answers.
+
+	* examples/grinder.properties: Use the console by default.
+
+	* xdoc/documentation.xweb, xdoc/g3/console-xhtml.xml, xdoc/images/console-es-g3.png, xdoc/images/console-screenshot-g3.png:
+	New console screenshots.
+
+	* src/net/grinder/console/swingui/resources/Console_es.properties:
+	Images are specified by default properties file.
+
+	* examples/console.py: Console test script.
+
+	* src/net/grinder/console/swingui/TestGraphPanel.java:
+	Gratuitous badging.
+
+	* src/net/grinder/console/swingui/resources/Console.properties:
+	New logo images.
+	Option to reset the console with the worker processes.
+
+	* src/net/grinder/console/swingui/resources/grinder.gif, src/net/grinder/console/swingui/resources/logo-transparent.png, src/net/grinder/console/swingui/resources/logo.png:
+	New logo images.
+	Final death to GIFs.
+
+	* src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Option reset the console with the worker processes.
+
+	* tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java:
+	Update.
+
+	* src/net/grinder/common/GrinderProperties.java:
+	Allow a single property to be saved to our file.
+
+2003-04-04  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	Constants for common colours.
+	Test graphs are now layed out with a flow manager and a fixed width.
+	Remove ResetAction.
+
+	* src/net/grinder/console/swingui/TestGraphPanel.java:
+	Test graphs are now layed out with a flow manager and a fixed width.
+
+	* src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java:
+	Formatting.
+
+	* src/net/grinder/console/swingui/Colours.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/Table.java:
+	Constants for common colours.
+
+	* src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticsView.java:
+	Ensure the common ExpressionViews are initialised before any
+	user ExpressionViews are created.
+
+	* src/net/grinder/console/swingui/resources/start-rollover.png, src/net/grinder/console/swingui/resources/stop-processes-rollover.png, src/net/grinder/console/swingui/resources/stop-rollover.png, src/net/grinder/console/swingui/resources/icons.xcf, src/net/grinder/console/swingui/resources/start-processes-rollover.png:
+	More messing with colours.
+
+	* src/net/grinder/console/model/Model.java:
+	Go back to zero'ing when armed.
+
+2003-04-03  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/resources/graphs.xcf, src/net/grinder/console/swingui/resources/icons.xcf, src/net/grinder/console/swingui/resources/options.xcf, src/net/grinder/console/swingui/resources/pause.xcf, src/net/grinder/console/swingui/resources/process-status.xcf, src/net/grinder/console/swingui/resources/reset-processes.xcf, src/net/grinder/console/swingui/resources/reset-rollover.png, src/net/grinder/console/swingui/resources/reset.png, src/net/grinder/console/swingui/resources/reset.xcf, src/net/grinder/console/swingui/resources/save.xcf, src/net/grinder/console/swingui/resources/start-processes-rollover.png, src/net/grinder/console/swingui/resources/start-processes.png, src/net/grinder/console/swingui/resources/start-processes.xcf, src/net/grinder/console/swingui/resources/start-rollover.png, src/net/grinder/console/swingui/resources/start.png, src/net/grinder/console/swingui/resources/start.xcf, src/net/grinder/console/swingui/resources/stop-processes.xcf, src/net/grinder/console/swingui/resources/stop-rollover.png, src/net/grinder/console/swingui/resources/stop.png, src/net/grinder/console/swingui/resources/stop.xcf, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/graphs-rollover.png:
+	More tweaking of colours.
+
+2003-04-02  Philip Aston  <philipa@mail.com>
+
+	* TODO: More to do.
+
+	* build.xml: Include PNG resources.
+
+	* src/net/grinder/console/swingui/OptionsDialogHandler.java: Widen.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	New rollover button images.
+	Reset action.
+
+	* src/net/grinder/console/swingui/resources/reset.png, src/net/grinder/console/swingui/resources/reset.xcf, src/net/grinder/console/swingui/resources/save-rollover.png, src/net/grinder/console/swingui/resources/save.gif, src/net/grinder/console/swingui/resources/save.png, src/net/grinder/console/swingui/resources/save.xcf, src/net/grinder/console/swingui/resources/start-processes-rollover.png, src/net/grinder/console/swingui/resources/start-processes.gif, src/net/grinder/console/swingui/resources/start-processes.png, src/net/grinder/console/swingui/resources/start-processes.xcf, src/net/grinder/console/swingui/resources/start-rollover.png, src/net/grinder/console/swingui/resources/start.gif, src/net/grinder/console/swingui/resources/start.png, src/net/grinder/console/swingui/resources/start.xcf, src/net/grinder/console/swingui/resources/stop-processes-rollover.png, src/net/grinder/console/swingui/resources/stop-processes.gif, src/net/grinder/console/swingui/resources/stop-processes.png, src/net/grinder/console/swingui/resources/stop-processes.xcf, src/net/grinder/console/swingui/resources/stop-rollover.png, src/net/grinder/console/swingui/resources/stop.gif, src/net/grinder/console/swingui/resources/stop.png, src/net/grinder/console/swingui/resources/stop.xcf, src/net/grinder/console/swingui/resources/summary.gif, src/net/grinder/console/swingui/resources/summary.png, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/graphs-rollover.png, src/net/grinder/console/swingui/resources/graphs.gif, src/net/grinder/console/swingui/resources/graphs.png, src/net/grinder/console/swingui/resources/graphs.xcf, src/net/grinder/console/swingui/resources/options-rollover.png, src/net/grinder/console/swingui/resources/options.gif, src/net/grinder/console/swingui/resources/options.png, src/net/grinder/console/swingui/resources/options.xcf, src/net/grinder/console/swingui/resources/pause.gif, src/net/grinder/console/swingui/resources/process-status.gif, src/net/grinder/console/swingui/resources/process-status.png, src/net/grinder/console/swingui/resources/reset-processes-rollover.png, src/net/grinder/console/swingui/resources/reset-processes.gif, src/net/grinder/console/swingui/resources/reset-processes.png, src/net/grinder/console/swingui/resources/reset-processes.xcf, src/net/grinder/console/swingui/resources/reset-rollover.png, src/net/grinder/console/swingui/resources/reset.gif:
+	New rollover button images.
+	gif->png.
+
+2003-03-31  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, xdoc/g3/script-gallery-xhtml.xml: Correct JMS examples.
+
+	* examples/jms-sender.py: Use thread logger.
+
+	* examples/jms-receiver.py: Use thread logger.
+	Use correct scope for instance variables.
+
+2003-03-26  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/LabelledGraph.java:
+	Tweak graph colours and border.
+
+	* src/net/grinder/console/swingui/SwingDispatchedModelListener.java, src/net/grinder/console/swingui/TestGraphPanel.java:
+	Use the model reset functionality.
+
+	* src/net/grinder/console/swingui/SamplingControlPanel.java, src/net/grinder/console/swingui/OptionsDialogHandler.java:
+	Tweak some layout.
+
+	* src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java:
+	Use the model reset functionality.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	Use the model reset functionality.
+	Tweak some layout.
+
+	* src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelListener.java, src/net/grinder/console/model/SampleAccumulator.java:
+	Allow the model to be reset.
+
+2003-03-24  Philip Aston  <philipa@mail.com>
+
+	* TODO, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, CHANGES:
+	Tentative fix to bug 690639. (TCPProxy recorded HTTP script refers to
+	header array before declaration.)
+
+	* xdoc/documentation.xweb, xdoc/g3/faq-xhtml.xml: Another FAQ.
+
+2003-03-17  Philip Aston  <philipa@mail.com>
+
+	* AUTHORS, xdoc/documentation.xweb, xdoc/g3/http-plugin-xhtml.xml, xdoc/g3/scripts-xhtml.xml, xdoc/g3/tutorial-perks-xhtml.xml, xdoc/welcome-xhtml.xml:
+	Richard Perk's tutorial.
+
+2003-03-16  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, TODO, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java:
+	Cope with form data and query strings that are not name-value pairs.
+
+	* TODO: Another bug.
+
+	* xdoc/g3/console-xhtml.xml: What the colours mean.
+
+	* xdoc/g3/faq-xhtml.xml: A couple more questions.
+
+	* xdoc/images/grinder.swf: Viewlet.
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java:
+	Cope better with 8-bit POST data.
+
+2003-03-03  Philip Aston  <philipa@mail.com>
+
+	* xdoc/viewlet/images/grinder.vsd, xdoc/viewlet/images/6.gif, xdoc/viewlet/images/7.gif, xdoc/viewlet/images/8.gif, xdoc/viewlet/images/9.gif, xdoc/viewlet/images/2.gif, xdoc/viewlet/images/3.gif, xdoc/viewlet/images/4.gif, xdoc/viewlet/images/5.gif, xdoc/viewlet/grinder.viewlet/grinder.swf, xdoc/viewlet/grinder.viewlet/grinder_viewlet_swf.html, xdoc/viewlet/images/1.gif, xdoc/documentation.xweb, xdoc/g3/getting-started-viewlet-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/viewlet/grinder.qvp:
+	Viewlet.
+
+2003-03-02  Philip Aston  <philipa@mail.com>
+
+	* build.xml: Next is beta8.
+
 2003-03-01  Philip Aston  <paston@bea.com>
 
 	* The Grinder 3.0-beta7 is released.
