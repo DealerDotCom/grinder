@@ -1,3 +1,18 @@
+Grinder 3.0-beta20
+------------------
+
+  Fix bug 912050 - gr3-b19 doesn't playback recorded URL params.
+  Fix bug 911966 - gr3-b19 doesn't playback User-Agent: header.
+  Thanks to Koen Debruyckere for the timely reports.
+
+  Simplify HTTPRequest API slightly by removing some redundant
+  overloaded methods and ordering parameters for consistently.
+
+  Other fixes to HTTPRequest:
+   - DELETE() mistakenly invoked a Trace() method.
+   - GET() and OPTIONS() could pass header values to query strings.
+
+
 Grinder 3.0-beta19
 ------------------
 
