@@ -944,6 +944,9 @@ public class HTTPResponse implements HTTPClientModuleConstants
 		do
 		{
 		    off  += rcvd;
+                    /** ++GRINDER MODIFICATION **/
+                    inc *= 2;
+                    /** --GRINDER MODIFICATION **/
 		    Data  = Util.resizeArray(Data, off+inc);
 		} while ((rcvd = inp.read(Data, off, inc)) != -1);
 

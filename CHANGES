@@ -8,6 +8,10 @@ Grinder 3.0-beta19
   Fix bug 820481 - StringIndexOutOfBoundsException when logging.
   Thanks to Dragos Cernahoschi and Gordon Reid for reports.
 
+  Fix bug 805013 - mean time is not correct. Thanks to all who
+  reported this, and to Jan Wilmaers and Bart Bauwens for their
+  investigation and analysis.
+
 
 Grinder 3.0-beta18
 ------------------
