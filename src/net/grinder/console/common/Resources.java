@@ -40,8 +40,6 @@ import javax.swing.ImageIcon;
  */
 public final class Resources {
 
-  private static Resources s_singleton = null;
-
   private final ResourceBundle m_resources;
   private final String m_package;
 
@@ -51,20 +49,8 @@ public final class Resources {
    * @param bundleName Name of resource bundle. The package part of
    * the name is used to resolve the location of resources referred to
    * in the resource bundle.
-   * @exception ConsoleException If an error occurs.
    */
-  public Resources(String bundleName) throws ConsoleException {
-
-    synchronized (Resources.class) {
-      if (s_singleton == null) {
-        try {
-          s_singleton = this;
-        }
-        catch (MissingResourceException e) {
-          throw new ConsoleException("Resource bundle not found");
-        }
-      }
-    }
+  public Resources(String bundleName) {
 
     m_resources = ResourceBundle.getBundle(bundleName);
 
@@ -76,15 +62,6 @@ public final class Resources {
     else {
       m_package = "/";
     }
-  }
-
-  /**
-   * Package scope accessor for DisplayMessageConsoleException. Would
-   * be better if DisplayMessageConsoleException took a Resources as a
-   * parameter.
-   */
-  static Resources getSingleton() {
-    return s_singleton;
   }
 
   /**

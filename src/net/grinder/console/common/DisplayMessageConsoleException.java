@@ -21,6 +21,8 @@
 
 package net.grinder.console.common;
 
+import java.text.MessageFormat;
+
 
 /**
  * Exception that can be displayed through the user interface.
@@ -34,40 +36,65 @@ public class DisplayMessageConsoleException extends ConsoleException {
   /**
    * Constructor.
    *
+   * @param resources Resources to use.
    * @param resourceKey Resource key that specifies message.
-   * @param defaultMessage Default message to use if
-   * <code>resourceKey</code> not found.
    */
-  public DisplayMessageConsoleException(String resourceKey,
-                                        String defaultMessage) {
-    super(getMessage(resourceKey, defaultMessage));
+  public DisplayMessageConsoleException(Resources resources,
+                                        String resourceKey) {
+    super(getMessage(resources, resourceKey));
   }
 
   /**
    * Constructor.
    *
+   * @param resources Resources to use.
    * @param resourceKey Resource key that specifies message.
-   * @param defaultMessage Default message to use if
-   * <code>resourceKey</code> not found.
    * @param e Nested exception.
    */
-  public DisplayMessageConsoleException(String resourceKey,
-                                        String defaultMessage,
+  public DisplayMessageConsoleException(Resources resources,
+                                        String resourceKey,
                                         Exception e) {
-    super(getMessage(resourceKey, defaultMessage), e);
+    super(getMessage(resources, resourceKey), e);
   }
 
-  private static String getMessage(String resourceKey, String defaultMessage) {
-    final Resources resources = Resources.getSingleton();
+  /**
+   * Constructor.
+   *
+   * @param resources Resources to use.
+   * @param resourceKey Resource key that specifies message.
+   * @param arguments Message arguments.
+   */
+  public DisplayMessageConsoleException(Resources resources,
+                                        String resourceKey,
+                                        Object[] arguments) {
+    super(MessageFormat.format(getMessage(resources, resourceKey), arguments));
+  }
 
-    if (resources != null) {
-      final String resourceValue = resources.getString(resourceKey, false);
+  /**
+   * Constructor.
+   *
+   * @param resources Resources to use.
+   * @param resourceKey Resource key that specifies message.
+   * @param arguments Message arguments.
+   * @param e Nested exception.
+   */
+  public DisplayMessageConsoleException(Resources resources,
+                                        String resourceKey,
+                                        Object[] arguments,
+                                        Exception e) {
+    super(MessageFormat.format(getMessage(resources, resourceKey), arguments),
+          e);
+  }
 
-      if (resourceValue != null) {
-        return resourceValue;
-      }
+  private static String getMessage(Resources resources, String resourceKey) {
+
+    final String resourceValue = resources.getString(resourceKey);
+
+    if (resourceValue != null) {
+      return resourceValue;
     }
-
-    return defaultMessage;
+    else {
+      return "No message found for key \"" + resourceKey + "\"";
+    }
   }
 }

@@ -72,11 +72,12 @@ public class Console {
       homeDirectory = System.getProperty("java.home");
     }
 
-    final ConsoleProperties properties =
-      new ConsoleProperties(new File(homeDirectory, ".grinder_console"));
-
     final Resources resources =
       new Resources("net.grinder.console.swingui.resources.Console");
+
+    final ConsoleProperties properties =
+      new ConsoleProperties(resources,
+                            new File(homeDirectory, ".grinder_console"));
 
     m_model = new Model(properties, resources);
 
@@ -127,7 +128,9 @@ public class Console {
                     distributeFilesHandler);
 
     m_communication =
-      new ConsoleCommunication(properties, m_userInterface.getErrorHandler());
+      new ConsoleCommunication(resources,
+                               properties,
+                               m_userInterface.getErrorHandler());
   }
 
   /**

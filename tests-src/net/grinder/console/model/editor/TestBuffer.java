@@ -26,6 +26,8 @@ import junit.framework.TestCase;
 import java.io.File;
 import java.io.IOException;
 
+import net.grinder.console.common.DisplayMessageConsoleException;
+import net.grinder.console.common.Resources;
 import net.grinder.testutility.AbstractFileTestCase;
 
 
@@ -37,10 +39,13 @@ import net.grinder.testutility.AbstractFileTestCase;
  */
 public class TestBuffer extends AbstractFileTestCase {
 
+  private static final Resources s_resources =
+      new Resources("net.grinder.console.swingui.resources.Console");
+
   public void testBufferWithNoFile() throws Exception {
     final String text = "Some text for testing with";
 
-    final Buffer buffer = new Buffer(new StringTextSource(text));
+    final Buffer buffer = new Buffer(s_resources, new StringTextSource(text));
 
     try {
       buffer.load();
@@ -126,8 +131,10 @@ public class TestBuffer extends AbstractFileTestCase {
     for (int i=0; i<wordsOfExpectation.length; ++i) {
       final Expectation expectation = wordsOfExpectation[i];
 
-      assertEquals(expectation.getType(),
-                   new Buffer(textSource, expectation.getFile()).getType());
+      final Buffer buffer = 
+        new Buffer(s_resources, textSource, expectation.getFile());
+
+      assertEquals(expectation.getType(), buffer.getType());
     }
 
     assertEquals(Buffer.HTML_BUFFER, Buffer.HTML_BUFFER);
@@ -152,7 +159,7 @@ public class TestBuffer extends AbstractFileTestCase {
 
     final File file = new File(getDirectory(), "myfile.txt");
 
-    final Buffer buffer = new Buffer(textSource, file);
+    final Buffer buffer = new Buffer(s_resources, textSource, file);
 
     assertEquals(Buffer.TEXT_BUFFER, buffer.getType());
     assertTrue(buffer.isDirty());
@@ -192,13 +199,21 @@ public class TestBuffer extends AbstractFileTestCase {
 
     final TextSource textSource = new StringTextSource("");
 
-    final Buffer buffer = new Buffer(textSource, getDirectory());
+    final Buffer buffer = new Buffer(s_resources, textSource, getDirectory());
 
     try {
       buffer.load();
-      fail("Expected EditorException");
+      fail("Expected DisplayMessageConsoleException");
     }
-    catch (EditorException e) {
+    catch (DisplayMessageConsoleException e) {
+      assertTrue(e.getNestedThrowable() instanceof IOException);
+    }
+
+    try {
+      buffer.save();
+      fail("Expected DisplayMessageConsoleException");
+    }
+    catch (DisplayMessageConsoleException e) {
       assertTrue(e.getNestedThrowable() instanceof IOException);
     }
   }

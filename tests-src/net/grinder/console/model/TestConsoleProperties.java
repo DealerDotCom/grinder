@@ -30,20 +30,21 @@ import java.io.FileOutputStream;
 import java.util.Properties;
 import java.util.Random;
 
-import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.DisplayMessageConsoleException;
+import net.grinder.console.common.Resources;
 
 
 /**
+ * Unit test for {@link ConsoleProperties}.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
 public class TestConsoleProperties extends TestCase {
 
-  public TestConsoleProperties(String name) {
-    super(name);
-  }
+  private static final Resources s_resources =
+      new Resources("net.grinder.console.swingui.resources.Console");
 
   private File m_file;
   private Random m_random = new Random();
@@ -125,7 +126,9 @@ public class TestConsoleProperties extends TestCase {
 
     writePropertyToFile(propertyName, s1);
 
-    final ConsoleProperties properties = new ConsoleProperties(m_file);
+    final ConsoleProperties properties =
+      new ConsoleProperties(s_resources, m_file);
+
     assertEquals(s1, properties.getConsoleHost());
 
     final String s2 = "123.99.33.11";
@@ -135,7 +138,9 @@ public class TestConsoleProperties extends TestCase {
 
     properties.save();
 
-    final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+    final ConsoleProperties properties2 =
+      new ConsoleProperties(s_resources, m_file);
+
     assertEquals(s2, properties2.getConsoleHost());
 
     final String s3 = "1.46.68.80";
@@ -194,7 +199,9 @@ public class TestConsoleProperties extends TestCase {
 
     writePropertyToFile(propertyName, "false");
 
-    final ConsoleProperties properties = new ConsoleProperties(m_file);
+    final ConsoleProperties properties =
+      new ConsoleProperties(s_resources, m_file);
+
     assertTrue(!properties.getResetConsoleWithProcessesDontAsk());
 
     final PropertyChangeEvent expected =
@@ -209,7 +216,9 @@ public class TestConsoleProperties extends TestCase {
 
     properties.setResetConsoleWithProcessesDontAsk();
     
-    final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+    final ConsoleProperties properties2 =
+      new ConsoleProperties(s_resources, m_file);
+
     assertTrue(properties2.getResetConsoleWithProcessesDontAsk());
 
     listener.assertCalledOnce();
@@ -223,7 +232,9 @@ public class TestConsoleProperties extends TestCase {
 
     writePropertyToFile(propertyName, "false");
 
-    final ConsoleProperties properties = new ConsoleProperties(m_file);
+    final ConsoleProperties properties =
+      new ConsoleProperties(s_resources, m_file);
+
     assertTrue(!properties.getStopProcessesDontAsk());
 
     final PropertyChangeEvent expected =
@@ -238,7 +249,9 @@ public class TestConsoleProperties extends TestCase {
 
     properties.setStopProcessesDontAsk();
     
-    final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+    final ConsoleProperties properties2 =
+      new ConsoleProperties(s_resources, m_file);
+
     assertTrue(properties2.getStopProcessesDontAsk());
 
     listener.assertCalledOnce();
@@ -276,7 +289,9 @@ public class TestConsoleProperties extends TestCase {
     final File file = File.createTempFile("testing", "123");
     file.deleteOnExit();
 
-    final ConsoleProperties properties = new ConsoleProperties(file);
+    final ConsoleProperties properties =
+      new ConsoleProperties(s_resources, file);
+
     properties.setDistributionDirectory(null);
     assertNotNull(properties.getDistributionDirectory());
   }
@@ -296,7 +311,7 @@ public class TestConsoleProperties extends TestCase {
   }
 
   public void testCopyConstructor() throws Exception {
-    final ConsoleProperties p1 = new ConsoleProperties(m_file);
+    final ConsoleProperties p1 = new ConsoleProperties(s_resources, m_file);
     final ConsoleProperties p2 = new ConsoleProperties(p1);
 
     assertEquals(p1.getCollectSampleCount(), p2.getCollectSampleCount());
@@ -327,8 +342,8 @@ public class TestConsoleProperties extends TestCase {
   }
 
   public void testAssignment() throws Exception {
-    final ConsoleProperties p1 = new ConsoleProperties(m_file);
-    final ConsoleProperties p2 = new ConsoleProperties(m_file);
+    final ConsoleProperties p1 = new ConsoleProperties(s_resources, m_file);
+    final ConsoleProperties p2 = new ConsoleProperties(s_resources, m_file);
     p2.setCollectSampleCount(99);
     p2.setIgnoreSampleCount(99);
     p2.setSampleInterval(99);
@@ -410,7 +425,9 @@ public class TestConsoleProperties extends TestCase {
 
       writePropertyToFile(m_propertyName, Integer.toString(i1));
 
-      final ConsoleProperties properties = new ConsoleProperties(m_file);
+      final ConsoleProperties properties =
+        new ConsoleProperties(s_resources, m_file);
+
       assertEquals(i1, get(properties));
 
       final int i2 = getRandomInt();
@@ -420,7 +437,9 @@ public class TestConsoleProperties extends TestCase {
 
       properties.save();
 
-      final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+      final ConsoleProperties properties2 =
+        new ConsoleProperties(s_resources, m_file);
+
       assertEquals(i2, get(properties2));
 
       int i3;
@@ -511,7 +530,9 @@ public class TestConsoleProperties extends TestCase {
 
       writePropertyToFile(m_propertyName, "false");
 
-      final ConsoleProperties properties = new ConsoleProperties(m_file);
+      final ConsoleProperties properties =
+        new ConsoleProperties(s_resources, m_file);
+
       assertTrue(!get(properties));
 
       set(properties, true);
@@ -519,7 +540,9 @@ public class TestConsoleProperties extends TestCase {
 
       properties.save();
 
-      final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+      final ConsoleProperties properties2 =
+        new ConsoleProperties(s_resources, m_file);
+
       assertTrue(get(properties2));
 
       final PropertyChangeEvent expected =
@@ -566,7 +589,9 @@ public class TestConsoleProperties extends TestCase {
     public void doTest() throws Exception {
 
       if (m_allowNulls) {
-        final ConsoleProperties properties = new ConsoleProperties(m_file);
+        final ConsoleProperties properties =
+          new ConsoleProperties(s_resources, m_file);
+
         assertNull(get(properties));
 
         final String s = getRandomString();
@@ -578,11 +603,14 @@ public class TestConsoleProperties extends TestCase {
 
         properties.save();
 
-        final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+        final ConsoleProperties properties2 =
+          new ConsoleProperties(s_resources, m_file);
+
         assertNull(get(properties2));
       }
       else {
-        final ConsoleProperties properties = new ConsoleProperties(m_file);
+        final ConsoleProperties properties =
+          new ConsoleProperties(s_resources, m_file);
 
         try {
           set(properties, null);
@@ -597,7 +625,9 @@ public class TestConsoleProperties extends TestCase {
 
       writePropertyToFile(m_propertyName, s1);
 
-      final ConsoleProperties properties = new ConsoleProperties(m_file);
+      final ConsoleProperties properties =
+        new ConsoleProperties(s_resources, m_file);
+
       assertEquals(s1, get(properties));
 
       final String s2 = getRandomString();
@@ -607,7 +637,9 @@ public class TestConsoleProperties extends TestCase {
 
       properties.save();
 
-      final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+      final ConsoleProperties properties2 =
+        new ConsoleProperties(s_resources, m_file);
+
       assertEquals(s2, get(properties2));
 
       String s3 = getRandomString();
@@ -656,7 +688,9 @@ public class TestConsoleProperties extends TestCase {
 
       writePropertyToFile(m_propertyName, f1.getPath());
 
-      final ConsoleProperties properties = new ConsoleProperties(m_file);
+      final ConsoleProperties properties =
+        new ConsoleProperties(s_resources, m_file);
+
       assertEquals(f1, get(properties));
 
       final File f2 = getRandomFile();
@@ -666,7 +700,9 @@ public class TestConsoleProperties extends TestCase {
 
       properties.save();
 
-      final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+      final ConsoleProperties properties2 =
+        new ConsoleProperties(s_resources, m_file);
+
       assertEquals(f2, get(properties2));
 
       File f3 = getRandomFile();

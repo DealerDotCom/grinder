@@ -34,6 +34,7 @@ import net.grinder.communication.Sender;
 import net.grinder.communication.ServerReceiver;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
+import net.grinder.console.common.Resources;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.model.ConsoleProperties;
 
@@ -46,6 +47,7 @@ import net.grinder.console.model.ConsoleProperties;
  */
 final class ConsoleCommunication {
 
+  private final Resources m_resources;
   private final ConsoleProperties m_properties;
   private final ErrorHandler m_errorHandler;
 
@@ -54,8 +56,10 @@ final class ConsoleCommunication {
   private Sender m_sender = null;
   private boolean m_deaf = true;
 
-  public ConsoleCommunication(ConsoleProperties properties,
+  public ConsoleCommunication(Resources resources,
+                              ConsoleProperties properties,
                               ErrorHandler errorHandler) {
+    m_resources = resources;
     m_properties = properties;
     m_errorHandler = errorHandler;
 
@@ -113,7 +117,7 @@ final class ConsoleCommunication {
     catch (CommunicationException e) {
       m_errorHandler.handleException(
         new DisplayMessageConsoleException(
-          "localBindError.text", "Failed to bind to local address", e));
+          m_resources, "localBindError.text", e));
 
       return;
     }
@@ -160,7 +164,7 @@ final class ConsoleCommunication {
       catch (CommunicationException e) {
         m_errorHandler.handleException(
           new DisplayMessageConsoleException(
-            "sendError.text", "Failed to send message", e));
+            m_resources, "sendError.text", e));
       }
     }
   }

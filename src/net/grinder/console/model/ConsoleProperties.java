@@ -32,6 +32,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.DisplayMessageConsoleException;
+import net.grinder.console.common.Resources;
 
 
 /**
@@ -111,6 +112,8 @@ public final class ConsoleProperties {
   private String m_consoleHostString;
   private int m_consolePort;
 
+  private final Resources m_resources;
+
   /**
    * Use to save and load properties, and to keep track of the
    * associated file.
@@ -119,16 +122,19 @@ public final class ConsoleProperties {
 
   /**
    * Construct a ConsoleProperties backed by the given file.
-   * @param file The properties file.
    *
+   * @param resources Console resources.
+   * @param file The properties file.
    * @exception GrinderException If the properties file cannot be
    * read. In particular a {@link
    * net.grinder.console.common.DisplayMessageConsoleException} If the
    * properties file contains invalid data.
    *
    */
-  public ConsoleProperties(File file) throws GrinderException {
+  public ConsoleProperties(Resources resources, File file)
+    throws GrinderException {
 
+    m_resources = resources;
     m_properties = new GrinderProperties(file);
 
     setCollectSampleCount(
@@ -169,6 +175,7 @@ public final class ConsoleProperties {
    * @param properties The properties to copy.
    */
   public ConsoleProperties(ConsoleProperties properties) {
+    m_resources = properties.m_resources;
     m_properties = properties.m_properties;
     set(properties);
   }
@@ -270,8 +277,7 @@ public final class ConsoleProperties {
     throws DisplayMessageConsoleException {
     if (n < 0) {
       throw new DisplayMessageConsoleException(
-        "collectNegativeError.text",
-        "You must collect at least one sample, zero means \"forever\"");
+        m_resources, "collectNegativeError.text");
     }
 
     setCollectSampleCountInternal(n);
@@ -305,8 +311,7 @@ public final class ConsoleProperties {
     throws DisplayMessageConsoleException {
     if (n < 0) {
       throw new DisplayMessageConsoleException(
-        "ignoreSamplesNegativeError.text",
-        "The number of samples to ignore cannot be negative");
+        m_resources, "ignoreSamplesNegativeError.text");
     }
 
     setIgnoreSampleCountInternal(n);
@@ -340,8 +345,7 @@ public final class ConsoleProperties {
     throws DisplayMessageConsoleException {
     if (interval <= 0) {
       throw new DisplayMessageConsoleException(
-        "intervalLessThanOneError.text",
-        "Minimum sample interval is 1 ms");
+        m_resources, "intervalLessThanOneError.text");
     }
 
     setSampleIntervalInternal(interval);
@@ -375,8 +379,7 @@ public final class ConsoleProperties {
     throws DisplayMessageConsoleException {
     if (n <= 0) {
       throw new DisplayMessageConsoleException(
-        "significantFiguresNegativeError.text",
-        "Number of significant figures cannot be negative");
+        m_resources, "significantFiguresNegativeError.text");
     }
 
     setSignificantFiguresInternal(n);
@@ -420,12 +423,12 @@ public final class ConsoleProperties {
       }
       catch (UnknownHostException e) {
         throw new DisplayMessageConsoleException(
-          "unknownHostError.text", "Unknown host name");
+          m_resources, "unknownHostError.text");
       }
 
       if (newAddress.isMulticastAddress()) {
         throw new DisplayMessageConsoleException(
-          "invalidConsoleHostError.text", "Invalid console address");
+          m_resources, "invalidConsoleHostError.text");
       }
     }
 
@@ -476,10 +479,12 @@ public final class ConsoleProperties {
     if (port < CommunicationDefaults.MIN_PORT ||
         port > CommunicationDefaults.MAX_PORT) {
       throw new DisplayMessageConsoleException(
+        m_resources,
         "invalidPortNumberError.text",
-        "Port numbers should be in the range [" +
-        CommunicationDefaults.MIN_PORT + ", " +
-        CommunicationDefaults.MAX_PORT + "]");
+        new Object[] {
+          new Integer(CommunicationDefaults.MIN_PORT),
+          new Integer(CommunicationDefaults.MAX_PORT), }
+        );
     }
   }
 
