@@ -107,6 +107,7 @@ what you want. Currently the conditionally built modules are:
   <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
   <property name="gj-coverage.dir" value="gjtk"/>
   <property name="gj-instrumented.jar" value="${build.dir}/instrumented.jar"/>
+  <property name="lasttest.timestamp" value="last-test-run.timestamp"/>
 
   <!-- javadoc -->
   <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
@@ -374,6 +375,9 @@ what you want. Currently the conditionally built modules are:
   <target name="test"
 	  depends="compile-tests,copy-resources,assert-have-optional-tasks"
 	  description="Run the unit-tests.">
+
+    <property name="singletest" value="TestCompositeTreeModel.java"/>
+
     <junit printsummary="false" haltonfailure="true">
       <classpath>
 	<pathelement path="${test-classes.dir}"/>
@@ -398,23 +402,30 @@ what you want. Currently the conditionally built modules are:
 	  <!-- Until I can be bothered to rewrite it. -->
 	  <exclude name="**/TestHTTPPluginTCPProxyFilter.java"/>
 
-	  <include name="**/Test*.java"/>
-	  <include name="**/TestDirectory.java"/>
+	  <depend targetdir="${build.dir}">
+	    <mapper type="merge" to="${lasttest.timestamp}"/>
+	  </depend>
 
+	  <include name="**/Test*.java"/>
 	  <exclude name="**/TestSleeper.java"/>
 	</fileset>
       </batchtest>
 
       <!-- Fork a separate JVM for the Sleeper test to make the timings
       more consistent. -->
-      <batchtest fork="true">
+      <batchtest fork="true" unless="singletest">
 	<formatter type="plain" usefile="false"/>
 
 	<fileset dir="${test-src.dir}">
+	  <depend targetdir="${build.dir}">
+	    <mapper type="merge" to="${lasttest.timestamp}"/>
+	  </depend>
 	  <include name="**/TestSleeper.java"/>
 	</fileset>
       </batchtest>
     </junit>
+
+    <touch file="${build.dir}/${lasttest.timestamp}"/>
   </target>
 
   <target name="gj-instrument-uptodate">
