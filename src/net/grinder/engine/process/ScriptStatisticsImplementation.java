@@ -82,7 +82,7 @@ final class ScriptStatisticsImplementation implements Statistics {
 
   private TestData m_currentTestData = null;
   private boolean m_noTests = true;
-  private boolean m_autoReport = true;
+  private boolean m_delayReports = false;
 
   public ScriptStatisticsImplementation(ThreadContext threadContext,
 					PrintWriter dataWriter,
@@ -92,34 +92,24 @@ final class ScriptStatisticsImplementation implements Statistics {
     m_recordTime = recordTime;
   }
 
-  public final void setAutoReport(boolean b) {
-    if (b) {
+  public final void setDelayReports(boolean b) {
+    if (!b) {
       reportInternal();
     }
 
-    m_autoReport = b;
+    m_delayReports = b;
   }
   
-  public final void report()
-    throws InvalidContextException, StatisticsAlreadyReportedException {
-
+  public final void report() throws InvalidContextException {
     checkCallContext();
     reportInternal();
   }
 
-  private void checkCallContext()
-    throws InvalidContextException, StatisticsAlreadyReportedException {
+  private final void checkCallContext() throws InvalidContextException {
 
     if (m_noTests) {
       throw new InvalidContextException(
 	"This worker thread as not yet perfomed any tests.");
-    }
-
-    if (m_currentTestData == null) {
-      throw new StatisticsAlreadyReportedException(
-	"The statistics for the last test performed by this thread have " +
-	"already been reported. Perhaps you should have called " +
-	"setAutoReport(false)?");
     }
 
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
@@ -135,11 +125,23 @@ final class ScriptStatisticsImplementation implements Statistics {
 	"which they are acquired.");
     }
   }
+
+  private final void checkNotAlreadyReported()
+    throws StatisticsAlreadyReportedException {
+
+    if (m_currentTestData == null) {
+      throw new StatisticsAlreadyReportedException(
+	"The statistics for the last test performed by this thread have " +
+	"already been reported. Perhaps you should have called " +
+	"setDelayReports(true)?");
+    }
+  }
   
   public final void setValue(StatisticsIndexMap.LongIndex index, long value)
     throws InvalidContextException, StatisticsAlreadyReportedException {
 
     checkCallContext();
+    checkNotAlreadyReported();
     m_testStatistics.setValue(index, value);
   }
 
@@ -148,6 +150,7 @@ final class ScriptStatisticsImplementation implements Statistics {
     throws InvalidContextException, StatisticsAlreadyReportedException {
 
     checkCallContext();
+    checkNotAlreadyReported();
     m_testStatistics.setValue(index, value);
   }
 
@@ -165,6 +168,7 @@ final class ScriptStatisticsImplementation implements Statistics {
     throws InvalidContextException, StatisticsAlreadyReportedException {
 
     checkCallContext();
+    checkNotAlreadyReported();
 
     if (success) {
       setSuccessNoChecks();
@@ -222,9 +226,13 @@ final class ScriptStatisticsImplementation implements Statistics {
   }
 
   final void endTest() {
-    if (m_autoReport) {
+    if (!m_delayReports) {
       reportInternal();
     }
+  }
+
+  final void endRun() {
+    reportInternal();
   }
 
   private final void reportInternal() {

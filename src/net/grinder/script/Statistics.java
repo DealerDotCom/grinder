@@ -35,43 +35,42 @@ import net.grinder.statistics.StatisticsIndexMap;
  * <pre>
  *   result1 = test1.doSometing()
  *   timeTaken1 = grinder.statistics.time
+ *
  *   if grinder.statistics.success:
  *     # ...
  * </pre>
  * </blockquote>
  *
- * <p>{@link #setAutoReport} can used to turn off automatic reporting
- * of the last test statistics. Having done this, the script body can
- * modify or set the statistics before sending them to the log and the
- * console using {@link report}.
+ * <p>{@link #setDelayReports} can used to turn off automatic
+ * reporting of the last test statistics for a worker thread. Having
+ * done this, the script body can modify or set the statistics before
+ * sending them to the log and the console using {@link #report}.
  *
  * <blockquote>
  * <pre>
- *   grinder.statistics.autoReport = 0
+ *   grinder.statistics.delayReports = 1
+ *
  *   result1 = test1.doSometing()
+ *
  *   if isFailed(result1): 
  *
  *      # Mark test as failure. The appropriate failure detection
  *      # depends on the type of test.
  *     grinder.statistics.success = 0
- *
- *   # Now send the report.
- *   grinder.statistics.report()
  * </pre>
  * </blockquote>
  *
- * <p>With auto-reporting enabled, statistics reports are sent to the
+ * <p>With the default behaviour, statistics reports are sent to the
  * console and data log automatically and the script cannot alter the
- * statistics after the test has been invoked. With auto-reporting
- * disabled, statistics reports are not sent until the script
- * explicitly calls {@link report} or the next test is invoked.
+ * statistics after the test has been invoked. With statistics reports
+ * delayed, statistics reports are sent as described {@linkplain
+ * #setDelayReports below}.
  *
  * <p>It is possible to set the statistics from within test
- * implementation itself. This is probably more useful for user
- * statsitics rather than standard statistics
- * (<em>[un]timedTransactions</em>, <em>errors</em>,
- * <em>transactionTime</em>) which may be overridden by The Grinder
- * engine when the test finishes. 
+ * implementation itself. This is more useful for user statsitics
+ * rather than standard statistics (<em>[un]timedTransactions</em>,
+ * <em>errors</em>, <em>transactionTime</em>) which may be overridden
+ * by The Grinder engine when the test finishes.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -80,32 +79,41 @@ import net.grinder.statistics.StatisticsIndexMap;
 public interface Statistics  {
 
   /**
-   * Use to turn off automatic reporting of the last test statistics.
-   * Having done this, the script body can update/set the statistics
-   * before sending them to the log and the console using {@link
-   * report}.
+   * Use to delay reporting of the last test statistics to the log and
+   * the console so that the script can modify them. Normally test
+   * statistics are reported automatically when the test
+   * implementation returns.
    *
-   * @param b <code>true</code> => enable automatic reporting (the
-   * default behaviour); <code>false</code> => disable automatic
+   * <p>With this set to <code>true</code> the test statistics will be
+   * reported at the following times:
+   * <ol>
+   * <li>When the next test is invoked.</li>
+   * <li>When the current run completes.</li>
+   * <li>When the script calls {@link #report}.</li>
+   * <li>When the script calls <code>setDelayReports(false)</code>.</li>
+   * </ol>
+   * </p>
+   *
+   * @param b <code>false</code> => enable automatic reporting when
+   * tests retrun (the default behaviour); <code>true</code> => delay
    * reporting.
    * @see #report
    */
-  void setAutoReport(boolean b);
+  void setDelayReports(boolean b);
 
   /**
    * Send the last test statistics to the data log and the console. If
    * called from within the test implementation, this will cause the
    * statistics to be sent when the test returns.
    *
+   * <p>Calling this does nothing if the statistics have already been
+   * reported.</p>
+   *
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
    * acquired, or before the first test.
-   * @exception StatisticsAlreadyReportedException If the statistics
-   * have already been sent.
-   * @see #setAutoReport
    */
-  void report()
-    throws InvalidContextException, StatisticsAlreadyReportedException;
+  void report() throws InvalidContextException;
 
   /**
    * Sets the long statistic with index <code>index</code> to the
@@ -118,7 +126,7 @@ public interface Statistics  {
    * acquired, or before the first test.
    * @exception StatisticsAlreadyReportedException If the statistics
    * have already been sent for the last test performed by this thread
-   * - see {@link #setAutoReport}.
+   * - see {@link #setDelayReports}.
    **/
   void setValue(StatisticsIndexMap.LongIndex index, long value)
     throws InvalidContextException, StatisticsAlreadyReportedException;
@@ -134,7 +142,7 @@ public interface Statistics  {
    * acquired, or before the first test.
    * @exception StatisticsAlreadyReportedException If the statistics
    * have already been sent for the last test performed by this thread
-   * - see {@link #setAutoReport}.
+   * - see {@link #setDelayReports}.
    **/
   void setValue(StatisticsIndexMap.DoubleIndex index, double value)
     throws InvalidContextException, StatisticsAlreadyReportedException;
@@ -169,7 +177,7 @@ public interface Statistics  {
    * acquired, or before the first test.
    * @exception StatisticsAlreadyReportedException If the statistics
    * have already been sent for the last test performed by this thread
-   * - see {@link #setAutoReport}.
+   * - see {@link #setDelayReports}.
    */
   void setSuccess(boolean success)
     throws InvalidContextException, StatisticsAlreadyReportedException;
