@@ -24,7 +24,6 @@ package net.grinder.statistics;
 import java.io.IOException;
 import java.io.ObjectInput;
 
-import net.grinder.common.GrinderException;
 import net.grinder.util.Serialiser;
 
 
@@ -48,17 +47,9 @@ final class TestStatisticsImplementation
   static {
     final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
-    try {
-      s_errorsIndex = indexMap.getIndexForLong("errors");
-      s_untimedTestsIndex = indexMap.getIndexForLong("untimedTests");
-      s_timedTestsIndex = indexMap.getIndexForLongSample("timedTests");
-    }
-    catch (GrinderException e) {
-      throw new ExceptionInInitializerError(
-        "Assertion failure, " +
-        "TestStatisticsImplementation could not initialise: " +
-        e.getMessage());
-    }
+    s_errorsIndex = indexMap.getLongIndex("errors");
+    s_untimedTestsIndex = indexMap.getLongIndex("untimedTests");
+    s_timedTestsIndex = indexMap.getLongSampleIndex("timedTests");
   }
 
   /**
