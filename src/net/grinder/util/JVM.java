@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -63,22 +63,9 @@ public final class JVM {
 
     final String name = "The Grinder " + GrinderBuild.getVersionString();
 
-    if (!isAtLeastVersion(1, 3)) {
+    if (!isAtLeastVersion(1, 4)) {
       logger.error("Fatal Error - incompatible version of Java (" + this +
-                   ")\n" + name + " requires at least Java 1.3.");
-      return false;
-    }
-
-    try {
-      Class.forName("com.sun.net.ssl.SSLContext");
-    }
-    catch (ClassNotFoundException e) {
-      logger.error(
-        "Fatal Error - no SSL support." +
-        "\n" + name + " requires the Java Secure Sockets Extension " +
-        "(JSSE). The JSSE is included with Java 1.4 and higher, and a " +
-        "separate download for Java 1.3 is available from JavaSoft.");
-
+                   ")\n" + name + " requires at least Java 1.4.");
       return false;
     }
 

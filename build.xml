@@ -24,10 +24,7 @@ What do I need?
 
 As well as Ant, to build and run The Grinder you need:
 
-  - J2SE 1.3.1 or later
-  - JSSE 1.0.2 (SSL support)
-
-(JSSE is included as standard in J2SE 1.4.1 and later).
+  - J2SE 1.4.1 or later
 
 The following additional packages are necesary to run The Grinder unit
 tests, reports, and to create the documentation:
@@ -35,7 +32,7 @@ tests, reports, and to create the documentation:
   - JUnit 3.8.1
   - Xalan 2.3.1
   - Checkstyle 3.4
-  - Clover 1.3.02
+  - Clover 1.3.5
   - Apache Forrest 0.6
 
   (You might not need these exact versions).
@@ -187,9 +184,6 @@ what you want. Currently the conditionally built modules are:
     <echo message="** Building ${Name} ${version} on ${TODAY} **"/>
 
     <path id="build.classpath">
-      <!-- Place a newer vesion of ORO before the one shipped with
-      Jython. -->
-      <pathelement path="${jakarta-oro.dir}/${jakarta-oro.jar}"/>
       <pathelement path="${jython.dir}/${jython.jar}"/>
       <pathelement path="${classes.dir}"/>
     </path>
@@ -206,12 +200,6 @@ what you want. Currently the conditionally built modules are:
     <available classpathref="build.classpath"
                classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
 	       property="have.optional.tasks" />
-
-    <!-- We test on a class that's in our later version of ORO but not
-    the version shipped with Jython. -->
-    <available classpathref="build.classpath"
-               classname="org.apache.oro.text.PatternCache"
-               property="have.oro"/>
 
     <available classpathref="build.classpath"
                classname="org.python.core.PyObject"
@@ -241,10 +229,6 @@ what you want. Currently the conditionally built modules are:
     <fail message="Install the Ant optional.jar to build this target"/>
   </target>
 
-  <target name="assert-have-oro" depends="init" unless="have.oro">
-    <fail message="Define jakarta-oro.dir and jakarta-oro.jar in etc/localpaths.properties to build this target"/>
-  </target>
-
   <target name="assert-have-jython" depends="init" unless="have.jython">
     <fail message="Define jython.dir and jython.jar in etc/localpaths.properties to build this target"/>
   </target>
@@ -257,7 +241,7 @@ what you want. Currently the conditionally built modules are:
   <!-- Copy resources into the classes hierarchy, and bundled libraries.    -->
   <!-- =================================================================== -->
   <target name="copy-resources"
-	  depends="init,assert-have-jython,assert-have-oro"
+	  depends="init,assert-have-jython"
 	  description="Copies the resource files into build output">
 
     <copy todir="${classes.dir}">
@@ -284,7 +268,6 @@ what you want. Currently the conditionally built modules are:
     </copy>
 
     <copy todir="${lib.dir}">
-      <fileset dir="${jakarta-oro.dir}" includes="${jakarta-oro.jar}"/>
       <fileset dir="${jython.dir}" includes="${jython.jar}"/>
     </copy>
 
