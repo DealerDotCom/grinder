@@ -18,26 +18,66 @@
 
 package net.grinder.communication;
 
+import java.io.Serializable;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import net.grinder.statistics.TestStatisticsMap;
 
 
 /**
+ * Message used to report test statistics to the console.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public class ReportStatisticsMessage extends Message
+public class ReportStatisticsMessage extends Message implements Serializable
 {
     private static final long serialVersionUID = 171863391515128541L;
 
-    final TestStatisticsMap m_statisticsDelta;
+    private transient TestStatisticsMap m_statisticsDelta;
 
+    /**
+     * Constructor.
+     *
+     * @param statisticsDelta The test statistics.
+     **/
     public ReportStatisticsMessage(TestStatisticsMap statisticsDelta)
     {
 	m_statisticsDelta = statisticsDelta;
     }
 
+    /**
+     * Get the test statistics.
+     **/
     public TestStatisticsMap getStatisticsDelta()
     {
 	return m_statisticsDelta;
+    }
+
+    /**
+     * Customise serialisation for efficiency.
+     *
+     * @param in The stream to write our data to.
+     **/
+    private void writeObject(ObjectOutputStream out)
+	throws IOException
+    {
+	out.defaultWriteObject();
+	m_statisticsDelta.writeExternal(out);
+    }
+
+    /**
+     * Customise serialisation for efficiency.
+     *
+     * @param in The stream to read our data from.
+     **/
+    private void readObject(ObjectInputStream in)
+	throws IOException, ClassNotFoundException
+    {
+	in.defaultReadObject();
+	m_statisticsDelta = new TestStatisticsMap();
+	m_statisticsDelta.readExternal(in);
     }
 }

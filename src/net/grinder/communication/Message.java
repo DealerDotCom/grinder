@@ -18,6 +18,11 @@
 
 package net.grinder.communication;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 
 /**
  * Base class for messages.
@@ -25,16 +30,18 @@ package net.grinder.communication;
  * @author Philip Aston
  * @version $Revision$
  */
-public abstract class Message implements java.io.Serializable
+public abstract class Message implements Serializable
 {
+    private static final long serialVersionUID = 6389542594440493966L;
+
     /**  The ID of the Grinder process which owns this {@link Sender}. **/
-    private String m_senderGrinderID = null;
+    private transient String m_senderGrinderID = null;
 
     /** Unique ID of {@link Sender}. **/
-    private String m_senderUniqueID = null;
+    private transient String m_senderUniqueID = null;
 
     /** Sequence ID of message. **/
-    private long m_sequenceNumber = -1;
+    private transient long m_sequenceNumber = -1;
 
     /**
      * Called by {@link Sender} before dispatching the Message.
@@ -88,5 +95,33 @@ public abstract class Message implements java.io.Serializable
 	if (m_senderUniqueID == null) {
 	    throw new CommunicationException("Message not initialised");
 	}
+    }
+
+    /**
+     * Customise serialisation for efficiency.
+     *
+     * @param out The stream to write our data to.
+     **/
+    private void writeObject(ObjectOutputStream out)
+	throws IOException
+    {
+	out.defaultWriteObject();
+	out.writeUTF(m_senderGrinderID);
+	out.writeUTF(m_senderUniqueID);
+	out.writeLong(m_sequenceNumber);
+    }
+
+    /**
+     * Customise serialisation for efficiency.
+     *
+     * @param in The stream to read our data from.
+     **/
+    private void readObject(ObjectInputStream in)
+	throws IOException, ClassNotFoundException
+    {
+	in.defaultReadObject();
+	m_senderGrinderID = in.readUTF();
+	m_senderUniqueID = in.readUTF();
+	m_sequenceNumber = in.readLong();
     }
 }

@@ -27,6 +27,7 @@ import java.util.TreeMap;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
+import net.grinder.util.Serialiser;
 
 
 /**
@@ -161,13 +162,16 @@ public class TestStatisticsMap implements java.io.Externalizable
     {
 	out.writeInt(m_data.size());
 
+	final Serialiser serialiser = new Serialiser();
+
 	final Iterator iterator = new Iterator();
 
 	while (iterator.hasNext()) {
 	    final Pair pair = iterator.next();
 
 	    out.writeInt(pair.getTest().getNumber());
-	    out.writeObject(pair.getStatistics());
+	    pair.getStatistics().myWriteExternal(out, serialiser);
+	    //	    out.writeObject(pair.getStatistics());
 	}
     }
 
@@ -178,9 +182,12 @@ public class TestStatisticsMap implements java.io.Externalizable
 
 	m_data.clear();
 
+	final Serialiser serialiser = new Serialiser();
+
 	for (int i=0; i<n; i++) {
 	    m_data.put(new LightweightTest(in.readInt()),
-		       (Statistics)in.readObject());
+		       //		       (Statistics)in.readObject());
+		       new StatisticsImplementation(in, serialiser));
 	}
     }
 

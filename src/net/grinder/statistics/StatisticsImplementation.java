@@ -18,14 +18,20 @@
 
 package net.grinder.statistics;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.Serializable;
+
+import net.grinder.util.Serialiser;
+
+
 /**
- * Package scope
- *
  * @author Philip Aston
  * @version $Revision$
  */
 public class StatisticsImplementation
-    implements Statistics, Cloneable, java.io.Serializable
+    implements Statistics, Cloneable, Serializable
 {
     private static final long serialVersionUID = -8055876976127793454L;
 
@@ -166,5 +172,35 @@ public class StatisticsImplementation
 	    m_timedTransactions == theOther.m_timedTransactions &&
 	    m_totalTime == theOther.m_totalTime &&
 	    m_errors == theOther.m_errors;
+    }
+
+    /**
+     * Efficient externalisation method used by {@link TestStatisticsMap.
+     *
+     * @param out Stream to write to.
+     * @param A Serialiser that the current thread can safely use.
+     **/
+    void myWriteExternal(ObjectOutput out, Serialiser serialiser)
+	throws IOException
+    {
+	serialiser.writeUnsignedLong(out, m_untimedTransactions);
+	serialiser.writeUnsignedLong(out, m_timedTransactions);
+	serialiser.writeUnsignedLong(out, m_totalTime);
+	serialiser.writeUnsignedLong(out, m_errors);
+    }
+
+    /**
+     * Efficient externalisation method used by {@link TestStatisticsMap.
+     *
+     * @param out Stream to read from.
+     * @param A Serialiser that the current thread can safely use.
+     **/
+    public StatisticsImplementation(ObjectInput in, Serialiser serialiser)
+	throws IOException
+    {
+	m_untimedTransactions = serialiser.readUnsignedLong(in);
+	m_timedTransactions = serialiser.readUnsignedLong(in);
+	m_totalTime = serialiser.readUnsignedLong(in);
+	m_errors = serialiser.readUnsignedLong(in);
     }
 }
