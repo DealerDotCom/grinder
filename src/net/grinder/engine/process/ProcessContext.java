@@ -18,7 +18,6 @@
 
 package net.grinder.engine.process;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -55,8 +54,8 @@ public class ProcessContextImplementation implements PluginProcessContext
 
     static
     {
-	s_stdoutWriter = new PrintWriter(System.out, true);
-	s_stderrWriter = new PrintWriter(System.err, true);
+	s_stdoutWriter = new PrintWriter(System.out);
+	s_stderrWriter = new PrintWriter(System.err);
     }
 
     private synchronized static String getDateString()
@@ -84,7 +83,7 @@ public class ProcessContextImplementation implements PluginProcessContext
     private final PrintWriter m_outputWriter;
     private final PrintWriter m_errorWriter;
 
-    private final FilenameFactory m_filenameFactory;
+    private final FilenameFactoryImplementation m_filenameFactory;
 
     protected ProcessContextImplementation(
 	ProcessContextImplementation processContext, String contextSuffix)
@@ -97,7 +96,10 @@ public class ProcessContextImplementation implements PluginProcessContext
 	m_outputWriter = processContext.m_outputWriter;
 	m_errorWriter = processContext.m_errorWriter;
 
-	m_filenameFactory = new FilenameFactoryImplementation(contextSuffix);
+	m_filenameFactory =
+	    new FilenameFactoryImplementation(
+		processContext.m_filenameFactory.getLogDirectory(),
+		contextSuffix);
     }
 
     public ProcessContextImplementation(String grinderID,
@@ -114,27 +116,35 @@ public class ProcessContextImplementation implements PluginProcessContext
 
 	m_pluginParameters =
 	    properties.getPropertySubset("grinder.plugin.parameter.");
-
-	m_filenameFactory = new FilenameFactoryImplementation();
+	    
+	final File logDirectory =
+	    new File(properties.getProperty("grinder.logDirectory", "."), "");
 
 	try {
+	    logDirectory.mkdirs();
+	}
+	catch (Exception e) {
+	    throw new GrinderException(e.getMessage(), e);
+	}
+
+	m_filenameFactory = new FilenameFactoryImplementation(logDirectory);
+
+	try {
+	    // Although we manage the flushing ourselves and don't
+	    // call printn, we set auto flush on our PrintWriters
+	    // because clients can get direct access to them.
+
 	    m_outputWriter =
-		new PrintWriter(
-		    new BufferedOutputStream(
-			new FileOutputStream(
-			    m_filenameFactory.createFilename("out"),
-			    m_appendToLog)),
-		    true);
+		new PrintWriter(new FileOutputStream(
+				    m_filenameFactory.createFilename("out"),
+				    m_appendToLog),
+				true);
 
 	    m_errorWriter =
-		new PrintWriter(
-		    new BufferedOutputStream(
-			new FileOutputStream(
-			    m_filenameFactory.createFilename("error"),
-			    m_appendToLog)),
-		    true);
-
-
+		new PrintWriter(new FileOutputStream(
+				    m_filenameFactory.createFilename("error"),
+				    m_appendToLog),
+				true);
 	}
 	catch (FileNotFoundException e) {
 	    throw new GrinderException("Could not create output streams", e);
@@ -273,26 +283,33 @@ public class ProcessContextImplementation implements PluginProcessContext
 	buffer.append(") ");
     }
 
-    private class FilenameFactoryImplementation implements FilenameFactory
+    private final class FilenameFactoryImplementation
+	implements FilenameFactory
     {
-	private final String m_logDirectory;
+	private final File m_logDirectory;
 	private final String m_contextString;
 
-	private FilenameFactoryImplementation()
+	public FilenameFactoryImplementation(File logDirectory)
 	{
-	    this(null);
+	    this(logDirectory, null);
 	}
 
-	private FilenameFactoryImplementation(String suffix)
+	public FilenameFactoryImplementation(File logDirectory,
+					     String subContext)
 	{
-	    m_logDirectory =
-		m_properties.getProperty("grinder.logDirectory", ".");
+	    m_logDirectory = logDirectory;
 
 	    m_contextString =
-		"_" + m_grinderID + (suffix != null ? "_" + suffix : "");
+		"_" + m_grinderID +
+		(subContext != null ? "_" + subContext : "");
 	}
 
-	public String createFilename(String prefix, String suffix)
+	public final File getLogDirectory()
+	{
+	    return m_logDirectory;
+	}
+
+	public final String createFilename(String prefix, String suffix)
 	{
 	    final StringBuffer result = new StringBuffer();
 
@@ -305,7 +322,7 @@ public class ProcessContextImplementation implements PluginProcessContext
 	    return result.toString();
 	}
 
-	public String createFilename(String prefix)
+	public final String createFilename(String prefix)
 	{
 	    return createFilename(prefix, ".log");
 	}
