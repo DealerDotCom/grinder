@@ -56,8 +56,6 @@ public interface Sender
     /**
      * Cleanly shutdown the <code>Sender</code>.
      *
-     * <p>Any queued messages are discarded.</p>
-     *
      * @exception CommunicationException If an error occurs.
      **/
     void shutdown() throws CommunicationException;

@@ -36,6 +36,7 @@ import java.util.LinkedList;
 public class UnicastSender extends AbstractSender
 {
     private OutputStream m_outputStream;
+    private final Socket m_socket;
 
     /**
      * Constructor.
@@ -56,13 +57,13 @@ public class UnicastSender extends AbstractSender
 
 	try {
 	    // Our socket - bind to any local port.
-	    final Socket socket = new Socket(addressString, port);
+	    m_socket = new Socket(addressString, port);
 
 	    m_outputStream =
-		new BufferedOutputStream(socket.getOutputStream());
+		new BufferedOutputStream(m_socket.getOutputStream());
 
 	    localHost = InetAddress.getLocalHost().getHostName();
-	    localPort = socket.getLocalPort();
+	    localPort = m_socket.getLocalPort();
 	}
 	catch (IOException e) {
 	    throw new CommunicationException(
@@ -96,20 +97,26 @@ public class UnicastSender extends AbstractSender
     /**
      * Cleanly shutdown the <code>Sender</code>.
      *
-     * <p>Any queued messages are discarded.</p>
-     *
      * @exception CommunicationException If an error occurs.
      **/
     public void shutdown() throws CommunicationException
     {
+	send(new CloseCommunicationMessage());
+	flush();
+
 	super.shutdown();
 
+	// Ignore errors. Connection has probably been reset by peer.
 	try {
-	    m_outputStream.close();
+	    m_socket.close();
 	}
 	catch (IOException e) {
-	    // Ignore errors. Connection has probably been reset by
-	    // peer.
+	}
+
+	try {
+	    m_socket.close();
+	}
+	catch (IOException e) {
 	}
     }
 }
