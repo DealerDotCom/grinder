@@ -82,6 +82,9 @@
             targetFile="console-screenshot-g3.png" type="copy"/>
       <file sourceFile="console-es-g3.png" targetFile="console-es-g3.png"
             type="copy"/>
+      <file sourceFile="tcpproxy.gif" targetFile="tcpproxy.gif" type="copy"/>
+      <file sourceFile="tcpproxy-ssl.gif" targetFile="tcpproxy-ssl.gif"
+	    type="copy"/>
       <file sourceFile="script-logo.png" targetFile="script-logo.png"
             type="copy"/>
       <file sourceFile="grinder.swf" targetFile="grinder.swf" type="copy"/>

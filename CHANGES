@@ -19,6 +19,8 @@ Grinder 3.0-beta11
   Fix bug 804272 - console results table column order varies according
   to how classes are packaged. Thanks to Karl Wyer for the report.
 
+  Updated TCPProxy documentation.
+
 
 Grinder 3.0-beta10
 ------------------
