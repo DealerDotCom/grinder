@@ -91,6 +91,9 @@ import net.grinder.util.FileContents;
 /**
  * Swing UI for console.
  *
+ * Thinking about hacking this? See
+ * http://madbean.com/blog/2004/17/totallygridbag.html first.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
