@@ -136,21 +136,6 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 	m_startAction = new StartAction();
 	m_stopAction = new StopAction();
 
-	final MyAction[] actions = {
-	    new StartProcessesGrinderAction(startProcessesHandler),
-	    new ResetProcessesGrinderAction(resetProcessesHandler),
-	    new StopProcessesGrinderAction(stopProcessesHandler),
-	    m_startAction,
-	    m_stopAction,
-	    new SaveAction(),
-	    new OptionsAction(),
-	    new ExitAction(),
-	};
-
-	for (int i=0; i<actions.length; i++) {
-	    m_actionTable.put(actions[i].getKey(), actions[i]);
-	}
-
 	final LabelledGraph totalGraph =
 	    new LabelledGraph(m_resources.getString("totalGraph.title"),
 			      m_resources, Color.darkGray);
@@ -241,13 +226,21 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 	contentPanel.add(tabbedPane, BorderLayout.CENTER);
 
 	final ImageIcon logoIcon = m_resources.getImageIcon("logo.image");
-	Image logoImage = null;
 
-	if (logoIcon != null) {
-	    final JLabel logo = new JLabel(logoIcon, SwingConstants.LEADING);
-	    contentPanel.add(logo, BorderLayout.EAST);
+	final MyAction[] actions = {
+	    new StartProcessesGrinderAction(startProcessesHandler),
+	    new ResetProcessesGrinderAction(resetProcessesHandler),
+	    new StopProcessesGrinderAction(stopProcessesHandler),
+	    m_startAction,
+	    m_stopAction,
+	    new SaveAction(),
+	    new OptionsAction(),
+	    new ExitAction(),
+	    new AboutAction(logoIcon),
+	};
 
-	    logoImage = logoIcon.getImage();
+	for (int i=0; i<actions.length; i++) {
+	    m_actionTable.put(actions[i].getKey(), actions[i]);
 	}
 
 	// Create a panel to hold the tool bar and the test pane.
@@ -260,8 +253,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 	topLevelPane.add(createMenuBar(), BorderLayout.NORTH);
         topLevelPane.add(toolBarPanel, BorderLayout.CENTER);
 
-	if (logoImage != null) {
-	    m_frame.setIconImage(logoImage);
+	if (logoIcon != null) {
+	    final Image logoImage = logoIcon.getImage();
+
+	    if (logoImage != null) {	    
+		m_frame.setIconImage(logoImage);
+	    }
 	}
 
 	m_model.addModelListener(new SwingDispatchedModelListener(this));
@@ -289,26 +286,32 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 	
 	while (menuBarIterator.hasNext()) {
 	    final String menuKey = (String)menuBarIterator.next();
-	    final JMenu menu =
-		new JMenu(m_resources.getString(menuKey + ".menu.label"));
 
-	    final Iterator menuIterator =
-		tokenise(m_resources.getString(menuKey + ".menu"));
-
-	    while (menuIterator.hasNext()) {
-		final String menuItemKey = (String)menuIterator.next();
-
-		if ("-".equals(menuItemKey)) {
-		    menu.addSeparator();
-		}
-		else {
-		    final JMenuItem menuItem = new JMenuItem();
-		    setAction(menuItem, menuItemKey);
-		    menu.add(menuItem);
-		}
+	    if (">".equals(menuKey)) {
+		menuBar.add(Box.createHorizontalGlue());
 	    }
+	    else {
+		final JMenu menu =
+		    new JMenu(m_resources.getString(menuKey + ".menu.label"));
 
-	    menuBar.add(menu);
+		final Iterator menuIterator =
+		    tokenise(m_resources.getString(menuKey + ".menu"));
+
+		while (menuIterator.hasNext()) {
+		    final String menuItemKey = (String)menuIterator.next();
+
+		    if ("-".equals(menuItemKey)) {
+			menu.addSeparator();
+		    }
+		    else {
+			final JMenuItem menuItem = new JMenuItem();
+			setAction(menuItem, menuItemKey);
+			menu.add(menuItem);
+		    }
+		}
+
+		menuBar.add(menu);
+	    }
 	}
 
 	return menuBar;
@@ -426,6 +429,11 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 
 	public MyAction(String key) 
 	{
+	    this(key, false);
+	}
+	
+	public MyAction(String key, boolean isDialogAction) 
+	{
 	    super();
 
 	    m_key = key;
@@ -434,7 +442,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 		m_resources.getString(m_key + ".label", false);
 
 	    if (label != null) {
-		putValue(Action.NAME, label);
+		if (isDialogAction) {
+		    putValue(Action.NAME, label + "...");
+		}
+		else {
+		    putValue(Action.NAME, label);
+		}
 	    }
 
 	    final String tip = m_resources.getString(m_key + ".tip", false);
@@ -546,7 +559,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 
 	OptionsAction()
 	{
-	    super("options");
+	    super("options", true);
 
 	    m_optionsDialogHandler =
 		new OptionsDialogHandler(m_frame, m_model.getProperties(),
@@ -562,7 +575,56 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 
         public void actionPerformed(ActionEvent event)
 	{
-	    m_optionsDialogHandler.showOptionsDialog(m_model.getProperties());
+	    m_optionsDialogHandler.showDialog(m_model.getProperties());
+	}
+    }
+
+    private final class AboutAction extends MyAction
+    {
+	private final ImageIcon m_logoIcon;
+	private final String m_title;
+	private final Component m_contents;
+
+	AboutAction(ImageIcon logoIcon)
+	{
+	    super("about", true);
+
+	    m_logoIcon = logoIcon;
+	    m_title = m_resources.getString("about.label");
+
+	    JLabel text =
+		new JLabel()
+		{
+		    public Dimension getPreferredSize() {
+			Dimension d = super.getPreferredSize();
+			d.width = 450;
+			return d;
+		    }
+		};
+
+	    text.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+	    text.setForeground(Color.black);
+	    text.setText(m_resources.getStringFromFile("about.text", true));
+
+	    m_contents =
+		new JScrollPane(text,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER)
+		{
+		    public Dimension getPreferredSize() {
+			Dimension d = super.getPreferredSize();
+			d.width = 500;
+			d.height = 400;
+			return d;
+		    }
+		};
+	}
+
+        public final void actionPerformed(ActionEvent event)
+	{
+	    JOptionPane.showMessageDialog(m_frame, m_contents, m_title,
+					  JOptionPane.PLAIN_MESSAGE,
+					  m_logoIcon);
 	}
     }
     

@@ -18,6 +18,11 @@
 
 package net.grinder.console.swingui;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -81,7 +86,7 @@ public class Resources implements net.grinder.console.common.Resources
 	    if (warnIfMissing) {
 		System.err.println(
 		    "Warning - resource " + key + " not specified");
-		return "?";
+		return "";
 	    }
 
 	    return null;
@@ -112,17 +117,48 @@ public class Resources implements net.grinder.console.common.Resources
 	return resource != null ? new ImageIcon(resource) : null;
     }
 
+    public String getStringFromFile(String key, boolean warnIfMissing)
+    {
+	final URL resource = get(key, warnIfMissing);
+
+	if (resource != null) {
+	    try {
+		final Reader in =
+		    new BufferedReader(
+			new InputStreamReader(resource.openStream()));
+
+		final StringWriter out = new StringWriter();
+
+		int c;
+
+		while ((c = in.read()) > 0) {
+		    out.write(c);
+		}
+
+		in.close();
+		out.close();
+
+		return out.toString();
+	    }
+	    catch (IOException e) {
+		System.err.println("Warning - could not reading " + resource);
+	    }
+	}
+
+	return null;
+    }
+
     private URL get(String key, boolean warnIfMissing)
     {
-	final String name = getString(key, true);
+	final String name = getString(key, warnIfMissing);
 
-	if (name.length() == 0) {
+	if (name == null || name.length() == 0) {
 	    return null;
 	}
 	
 	final URL url = this.getClass().getResource("resources/" + name);
 
-	if (warnIfMissing && url == null) {
+	if (url == null) {
 	    System.err.println("Warning - could not load resource " + name);
 	}
 

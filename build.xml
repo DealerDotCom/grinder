@@ -168,6 +168,7 @@ conditionally built modules are:
     <copy todir="${build.src}" filtering="on">
       <fileset dir="${src.dir}">
         <exclude name="**/resources/*.gif"/>
+        <exclude name="**/resources/*.html"/>
       </fileset>
     </copy>
   </target>
@@ -187,6 +188,7 @@ conditionally built modules are:
     <copy todir="${build.classes}" filtering="off">
       <fileset dir="${src.dir}">
         <include name="**/resources/*.gif"/>
+        <include name="**/resources/*.html"/>
         <include name="**/resources/*.properties*"/>
       </fileset>
     </copy>

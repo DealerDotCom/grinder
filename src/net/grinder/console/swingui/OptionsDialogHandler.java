@@ -139,8 +139,7 @@ abstract class OptionsDialogHandler
 	};
 
 	m_optionPane = new JOptionPane(tabbedPane, JOptionPane.PLAIN_MESSAGE,
-				       JOptionPane.YES_NO_OPTION, null,
-				       options);
+				       0, null, options);
 
 	// The SamplingControlPanel will automatically update m_properties.
 	m_samplingControlPanel.setProperties(m_properties);
@@ -206,7 +205,7 @@ abstract class OptionsDialogHandler
      *
      * @param initialProperties A set of properties to initialise the options with.
      **/
-    public void showOptionsDialog(ConsoleProperties initialProperties)
+    public void showDialog(ConsoleProperties initialProperties)
     {
 	m_properties.set(initialProperties);
 
