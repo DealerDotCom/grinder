@@ -1,3 +1,62 @@
+2004-11-21  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta23 is released.
+
+	* examples/xml-rpc.py, AUTHORS, CHANGES, src/documentation/content/xdocs/g3/script-gallery.xml, src/documentation/content/xdocs/index.xml:
+	XML-RPC example from Sebastián Fontana.
+
+	* src/documentation/content/xdocs/index.xml, AUTHORS, CHANGES, TODO, src/HTTPClient/HTTPConnection.java, src/HTTPClient/HTTPResponse.java, src/HTTPClient/Response.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/statistics/StatisticsIndexMap.java:
+	New HTTP statistics from Calum Fitzgerald.
+
+	* src/documentation/content/xdocs/development/contributing.xml:
+	Abbrev.s are evil.
+
+	* src/documentation/skinconf.xml: Adjust bread crumb link.
+
+2004-11-20  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, TODO: Progress.
+
+	* src/documentation/content/xdocs/support.xml, src/documentation/content/xdocs/site.xml, src/documentation/content/xdocs/links.xml:
+	More links.
+
+	* src/documentation/skinconf.xml: Favicon.
+
+	* src/documentation/content/xdocs/development/contributing.xml, src/documentation/content/xdocs/g3/whats-new.xml, src/documentation/content/xdocs/images/PythonPoweredSmall.gif, src/documentation/content/xdocs/images/book-cover.jpg, src/documentation/content/xdocs/images/console-es-g3.png, src/documentation/content/xdocs/images/console-es.png, src/documentation/content/xdocs/images/console-screenshot-g3.png, src/documentation/content/xdocs/images/console-screenshot.png, src/documentation/content/xdocs/images/grinder-logo.png, src/documentation/content/xdocs/images/grinder.gif, src/documentation/content/xdocs/images/grinder3.jpg, src/documentation/content/xdocs/images/proxy-preferences.png, src/documentation/content/xdocs/images/tcpproxy-proxy.gif, src/documentation/content/xdocs/images/tcpproxy-ssl.gif, src/documentation/content/xdocs/images/tcpproxy.gif:
+	Duplicate copies of images and munged URL's to cope with Forrest/FOP's
+	problems with URLs.
+
+	* src/documentation/skinconf.xml: Comply with DTD.
+
+	* src/documentation/skinconf.xml:
+	A group URL must be specified or the inclusion of external link images
+	is broken.
+
+	* src/documentation/content/xdocs/g2/properties.ihtml: Dead.
+
+	* src/documentation/content/xdocs/g2/console.xml: Title.
+
+	* src/documentation/skinconf.xml: Add search box.
+
+2004-11-19  Philip Aston  <philipa@mail.com>
+
+	* src/documentation/content/xdocs/g2/junit-plugin.ihtml, src/documentation/content/xdocs/g2/junit-plugin.xml, src/documentation/content/xdocs/g2/properties.xml, src/documentation/content/xdocs/g2/sniff-n-grind.ihtml, src/documentation/content/xdocs/g2/tcpsniffer.ihtml, src/documentation/content/xdocs/g2/tcpsniffer.xml, src/documentation/content/xdocs/g2/console.ihtml, src/documentation/content/xdocs/g2/console.xml, src/documentation/content/xdocs/g2/faq.ihtml, src/documentation/content/xdocs/g2/getting-started.ihtml, src/documentation/content/xdocs/g2/getting-started.xml, src/documentation/content/xdocs/g2/http-plugin.ihtml, src/documentation/content/xdocs/g2/http-plugin.xml, src/documentation/content/xdocs/site.xml:
+	Convert g2 docs to Forrest format.
+
+	* forrest.properties: Fix site directory.
+
+2004-11-18  Philip Aston  <philipa@mail.com>
+
+	* src/documentation/content/xdocs/g3/whats-new.xml, src/documentation/content/xdocs/site.xml, src/documentation/content/xdocs/faq.xml:
+	Fix links.
+
+	* src/documentation/conf/cli.xconf: Tweak.
+
+	* forrest.properties: Fix reference to custom cli.xconf.
+
+	* src/documentation/resources/images/grinder.gif, src/documentation/resources/images/grinder3.jpg, src/documentation/resources/images/proxy-preferences.png, src/documentation/resources/images/tcpproxy-proxy.gif, src/documentation/resources/images/tcpproxy-ssl.gif, src/documentation/resources/images/tcpproxy.gif, src/documentation/resources/images/tcpproxy.vsd, src/documentation/content/xdocs/g2/properties.ihtml, src/documentation/content/xdocs/g2/sniff-n-grind.ihtml, src/documentation/content/xdocs/g2/tcpsniffer.ihtml, src/documentation/content/xdocs/g3/console.xml, src/documentation/content/xdocs/g3/features.xml, src/documentation/content/xdocs/g3/getting-started.xml, src/documentation/content/xdocs/g3/http-plugin.xml, src/documentation/content/xdocs/g3/script-gallery.xml, src/documentation/content/xdocs/g3/scripts.xml, src/documentation/content/xdocs/g3/ssl-support.xml, src/documentation/content/xdocs/g3/tcpproxy.xml, src/documentation/content/xdocs/g3/tutorial-perks.xml, src/documentation/content/xdocs/g3/whats-new.xml, src/documentation/resources/images/PythonPoweredSmall.gif, src/documentation/resources/images/book-cover.jpg, src/documentation/resources/images/console-es-g3.png, src/documentation/resources/images/console-es.png, src/documentation/resources/images/console-screenshot-g3.png, src/documentation/resources/images/console-screenshot.png, src/documentation/resources/images/grinder-logo.png, src/documentation/resources/images/grinder-logo.xcf, etc/localpaths.properties, src/documentation/conf/cli.xconf, src/documentation/content/xdocs/development/contributing.xml, src/documentation/content/xdocs/development/timing.xml, src/documentation/content/xdocs/download.xml, src/documentation/content/xdocs/faq.xml, src/documentation/content/xdocs/g2/console.ihtml, src/documentation/content/xdocs/g2/faq.ihtml, src/documentation/content/xdocs/g2/getting-started.ihtml, src/documentation/content/xdocs/g2/http-plugin.ihtml, src/documentation/content/xdocs/g2/junit-plugin.ihtml, src/documentation/content/xdocs/g2/manual.ihtml, src/documentation/content/xdocs/index.xml, src/documentation/content/xdocs/license.xml, src/documentation/content/xdocs/links.xml, src/documentation/content/xdocs/site.xml, src/documentation/content/xdocs/support.xml, src/documentation/content/xdocs/tabs.xml, src/documentation/skinconf.xml, build.xml, forrest.properties:
+	Replace xweb with Apache Forrest.
+
 2004-11-09  Philip Aston  <philipa@mail.com>
 
 	* xdoc/g3/console-xhtml.xml:
