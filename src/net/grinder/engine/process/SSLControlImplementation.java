@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 
 // Use old sun package for J2SE 1.3/JSSE 1.0.2 compatibility.
 import com.sun.net.ssl.KeyManager;
@@ -94,7 +95,7 @@ final class SSLControlImplementation implements SSLControl {
 
   public void setKeyStore(InputStream keyStoreInputStream, String password)
     throws GeneralSecurityException, InvalidContextException, IOException {
-    setKeyStore(keyStoreInputStream, password, "jks");
+    setKeyStore(keyStoreInputStream, password, KeyStore.getDefaultType());
   }
 
   public void setKeyStoreFile(String keyStoreFileName,
@@ -122,7 +123,7 @@ final class SSLControlImplementation implements SSLControl {
 
   public void setKeyStoreFile(String keyStoreFileName, String password)
     throws GeneralSecurityException, InvalidContextException, IOException {
-    setKeyStoreFile(keyStoreFileName, password, "jks");
+    setKeyStoreFile(keyStoreFileName, password, KeyStore.getDefaultType());
   }
 
   public SSLContext getSSLContext() throws SSLContextFactoryException {
