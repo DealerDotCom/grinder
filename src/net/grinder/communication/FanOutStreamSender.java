@@ -47,7 +47,7 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
   /**
    * Constructor.
    *
-   * @param Kernel Kernel to use.
+   * @param kernel Kernel to use.
    */
   private FanOutStreamSender(Kernel kernel) {
     super(kernel, new ResourcePool());
