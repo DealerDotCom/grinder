@@ -1,3 +1,23 @@
+2004-01-15  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, examples/email.py, examples/grinder.properties, xdoc/g3/script-gallery-xhtml.xml:
+	Email script example from Tom Pittard.
+
+	* xdoc/g3/tcpproxy-xhtml.xml, CHANGES, src/net/grinder/plugin/http/HTTPPluginThreadState.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java, src/net/grinder/util/InsecureSSLContextFactory.java, tests-src/net/grinder/util/TestInsecureSSLContextFactory.java, xdoc/g3/http-plugin-xhtml.xml:
+	Session per run.
+
+	* TODO: Thought.
+
+2004-01-14  Philip Aston  <philipa@mail.com>
+
+	* contrib/httpplugin/WebUtils.py, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java:
+	Updates to the HTTPPluginTCPProxyFilters from Bertrand.
+
+	* src/net/grinder/engine/process/JythonScript.java: Update copyright.
+
+	* CHANGES, src/net/grinder/engine/process/JythonScript.java:
+	Fix deprecation message.
+
 2004-01-13  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, build.xml:
