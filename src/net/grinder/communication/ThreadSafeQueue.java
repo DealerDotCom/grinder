@@ -139,9 +139,5 @@ final class ThreadSafeQueue {
     private ShutdownException(String s) {
       super(s);
     }
-
-    private ShutdownException(String s, Exception e) {
-      super(s, e);
-    }
   }
 }
