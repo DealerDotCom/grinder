@@ -1,6 +1,9 @@
 2002-10-27  Philip Aston  <paston@bea.com>
 
 	* The Grinder 3.0-beta0 is released.
+	
+	* build.xml, src/net/grinder/console/swingui/resources/about.html, README:
+	More updates for publication.	
 
 	* src/net/grinder/plugin/http/HTTPPluginControl.java:
 	Fix javadoc references.
