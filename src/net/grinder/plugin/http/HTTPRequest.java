@@ -45,6 +45,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
@@ -288,10 +289,14 @@ public class HTTPRequest {
    */
   public final HTTPResponse DELETE(final String uri, final NVPair[] headers)
     throws Exception {
-    final RequestState requestState = new RequestState(uri);
 
-    return requestState.processResponse(
-      requestState.getConnection().Delete(requestState.getPath(), headers));
+    return new AbstractRequest(uri) {
+        HTTPResponse doRequest(HTTPConnection connection, String path)
+          throws IOException, ModuleException {
+          return connection.Trace(path, headers);
+        }
+      }
+      .getHTTPResponse();
   }
 
   /**
@@ -364,11 +369,14 @@ public class HTTPRequest {
   public final HTTPResponse GET(final String uri,
                                 final NVPair[] queryData,
                                 final NVPair[] headers) throws Exception {
-    final RequestState requestState = new RequestState(uri);
 
-    return requestState.processResponse(
-      requestState.getConnection().Get(
-        requestState.getPath(), queryData, headers));
+    return new AbstractRequest(uri) {
+        HTTPResponse doRequest(HTTPConnection connection, String path)
+          throws IOException, ModuleException {
+          return connection.Get(path, queryData, headers);
+        }
+      }
+      .getHTTPResponse();
   }
 
   /**
@@ -441,11 +449,14 @@ public class HTTPRequest {
   public final HTTPResponse HEAD(final String uri,
                                  final NVPair[] queryData,
                                  final NVPair[] headers) throws Exception {
-    final RequestState requestState = new RequestState(uri);
 
-    return requestState.processResponse(
-      requestState.getConnection().Head(
-        requestState.getPath(), queryData, headers));
+    return new AbstractRequest(uri) {
+        HTTPResponse doRequest(HTTPConnection connection, String path)
+          throws IOException, ModuleException {
+          return connection.Head(path, queryData, headers);
+        }
+      }
+      .getHTTPResponse();
   }
 
   /**
@@ -523,11 +534,14 @@ public class HTTPRequest {
   public final HTTPResponse OPTIONS(final String uri,
                                     final NVPair[] headers,
                                     final byte[] data) throws Exception {
-    final RequestState requestState = new RequestState(uri);
 
-    return requestState.processResponse(
-      requestState.getConnection().Options(
-        requestState.getPath(), headers, data));
+    return new AbstractRequest(uri) {
+        HTTPResponse doRequest(HTTPConnection connection, String path)
+          throws IOException, ModuleException {
+          return connection.Options(path, headers, data);
+        }
+      }
+      .getHTTPResponse();
   }
 
   /**
@@ -610,11 +624,14 @@ public class HTTPRequest {
   public final HTTPResponse POST(final String uri,
                                  final NVPair[] formData,
                                  final NVPair[] headers) throws Exception {
-    final RequestState requestState = new RequestState(uri);
 
-    return requestState.processResponse(
-      requestState.getConnection().Post(
-        requestState.getPath(), formData, headers));
+    return new AbstractRequest(uri) {
+        HTTPResponse doRequest(HTTPConnection connection, String path)
+          throws IOException, ModuleException {
+          return connection.Post(path, formData, headers);
+        }
+      }
+      .getHTTPResponse();
   }
 
   /**
@@ -650,11 +667,14 @@ public class HTTPRequest {
   public final HTTPResponse POST(final String uri,
                                  final byte[] data,
                                  final NVPair[] headers) throws Exception {
-    final RequestState requestState = new RequestState(uri);
 
-    return requestState.processResponse(
-      requestState.getConnection().Post(
-        requestState.getPath(), data, headers));
+    return new AbstractRequest(uri) {
+        HTTPResponse doRequest(HTTPConnection connection, String path)
+          throws IOException, ModuleException {
+          return connection.Post(path, data, headers);
+        }
+      }
+      .getHTTPResponse();
   }
 
   /**
@@ -731,10 +751,14 @@ public class HTTPRequest {
   public final HTTPResponse PUT(final String uri,
                                 final byte[] data,
                                 final NVPair[] headers) throws Exception {
-    final RequestState requestState = new RequestState(uri);
 
-    return requestState.processResponse(
-      requestState.getConnection().Put(requestState.getPath(), data, headers));
+    return new AbstractRequest(uri) {
+        HTTPResponse doRequest(HTTPConnection connection, String path)
+          throws IOException, ModuleException {
+          return connection.Put(path, data, headers);
+        }
+      }
+      .getHTTPResponse();
   }
 
   /**
@@ -775,22 +799,33 @@ public class HTTPRequest {
    */
   public final HTTPResponse TRACE(final String uri, final NVPair[] headers)
     throws Exception {
-    final RequestState requestState = new RequestState(uri);
 
-    return requestState.processResponse(
-      requestState.getConnection().Trace(requestState.getPath(), headers));
+    return new AbstractRequest(uri) {
+        HTTPResponse doRequest(HTTPConnection connection, String path)
+          throws IOException, ModuleException {
+          return connection.Trace(path, headers);
+        }
+      }
+      .getHTTPResponse();
   }
 
-  private final class RequestState {
-    private final HTTPPluginThreadState m_threadState;
-    private final HTTPConnectionWrapper m_connectionWrapper;
-    private final String m_path;
+  /**
+   * Subclasses of HTTPRequest that wish to post-process responses
+   * should override this method.
+   *
+   * @param response The response.
+   */
+  protected void processResponse(HTTPResponse response) {
+  }
 
-    public RequestState(String uri)
-      throws GrinderException, ParseException, ProtocolNotSuppException {
+  private abstract class AbstractRequest {
+    private final HTTPResponse m_httpResponse;
 
-      m_threadState =
-        (HTTPPluginThreadState)
+    public AbstractRequest(String uri)
+      throws GrinderException, IOException, ModuleException, ParseException,
+             ProtocolNotSuppException {
+
+      final HTTPPluginThreadState threadState = (HTTPPluginThreadState)
         s_pluginProcessContext.getPluginThreadListener();
 
       final URI url;
@@ -813,34 +848,28 @@ public class HTTPRequest {
         url = new URI(m_defaultURL, uri);
       }
 
-      m_path = url.getPathAndQuery(); // And for fragment, paramaters?
+      // And for fragment, parameters?
+      final String path = url.getPathAndQuery();
 
-      m_threadState.getThreadContext().startTimedSection();
-      m_connectionWrapper = m_threadState.getConnectionWrapper(url);
-    }
+      final PluginThreadContext threadContext = threadState.getThreadContext();
+      threadContext.startTimedSection();
 
-    public HTTPConnection getConnection() {
-      return m_connectionWrapper.getConnection();
-    }
+      final HTTPConnection connection =
+        threadState.getConnectionWrapper(url).getConnection();
 
-    public String getPath() {
-      return m_path;
-    }
-
-    public HTTPResponse processResponse(HTTPResponse httpResponse)
-      throws IOException, ModuleException, PluginException {
+      m_httpResponse = doRequest(connection, path);
 
       // Read the entire response.
-      final int responseLength = httpResponse.getData().length;
-      httpResponse.getInputStream().close();
+      final int responseLength = m_httpResponse.getData().length;
+      m_httpResponse.getInputStream().close();
 
-      m_threadState.getThreadContext().stopTimedSection();
+      threadContext.stopTimedSection();
 
-      final int statusCode = httpResponse.getStatusCode();
+      final int statusCode = m_httpResponse.getStatusCode();
 
       final String message =
-        httpResponse.getOriginalURI() + " -> " + statusCode + " " +
-        httpResponse.getReasonLine() + ", " + responseLength + " bytes";
+        m_httpResponse.getOriginalURI() + " -> " + statusCode + " " +
+        m_httpResponse.getReasonLine() + ", " + responseLength + " bytes";
 
       final ScriptContext scriptContext =
         s_pluginProcessContext.getScriptContext();
@@ -851,12 +880,11 @@ public class HTTPRequest {
       case HttpURLConnection.HTTP_MOVED_PERM:
       case HttpURLConnection.HTTP_MOVED_TEMP:
       case 307:
-        // It would be possible to perform the check
-        // automatically, but for now just chuck out some
-        // information.
+        // It would be possible to perform the check automatically,
+        // but for now just chuck out some information.
         logger.output(message +
                       " [Redirect, ensure the next URL is " +
-                      httpResponse.getHeader("Location") + "]");
+                      m_httpResponse.getHeader("Location") + "]");
         break;
 
       default:
@@ -888,7 +916,14 @@ public class HTTPRequest {
         throw new PluginException("Failed to set statistic", e);
       }
 
-      return httpResponse;
+      processResponse(m_httpResponse);
+    }
+
+    abstract HTTPResponse doRequest(HTTPConnection connection, String path)
+      throws IOException, ModuleException;
+
+    public final HTTPResponse getHTTPResponse() {
+      return m_httpResponse;
     }
   }
 
