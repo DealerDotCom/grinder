@@ -33,10 +33,10 @@ import net.grinder.common.GrinderException;
 /**
  * A register of statistic index objects. Each statistic has a unique
  * index object and a name. The index objects are used with {@link
- * RawStatistics} and the names can be used in expressions (see {@link
- * ExpressionView}). Statistics can either be <em>long</em> integer
- * values (see {@link #getIndexForLong}) or <em>double</em>
- * floating-point values ({@link #getIndexForDouble}).
+ * net.grinder.script.Statistics} and the names can be used in
+ * expressions (see {@link ExpressionView}). Statistics can either be
+ * <em>long</em> integer values (see {@link #getIndexForLong}) or
+ * <em>double</em> floating-point values ({@link #getIndexForDouble}).
  *
  * <p>The standard long statistics used by The Grinder are:
  * <ul>
