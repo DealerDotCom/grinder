@@ -73,9 +73,8 @@ public class StreamCopier {
         }
 
         out.write(m_buffer, 0, bytesRead);
+        out.flush();
       }
-
-      out.flush();
     }
     finally {
       if (m_closeStreams) {
