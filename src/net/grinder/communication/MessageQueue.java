@@ -96,7 +96,7 @@ class MessageQueue {
   public final Message dequeue(boolean block)
     throws CommunicationException, ThreadSafeQueue.ShutdownException {
 
-    final Object result = (Message)m_queue.dequeue(block);
+    final Object result = m_queue.dequeue(block);
 
     if (m_passExceptions && result instanceof Exception) {
       throw new CommunicationException("Queued exception", (Exception) result);
