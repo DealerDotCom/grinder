@@ -637,7 +637,8 @@ public final class ConsoleProperties {
   /**
    * Get the script distribution directory.
    *
-   * @return The directory.
+   * @return The directory. This is guaranteed never to be
+   * <code>null</code>.
    */
   public File getDistributionDirectory() {
     return m_distributionDirectory;
