@@ -1,4 +1,27 @@
-2003-11-16  Philip Aston  <philipa@mail.com>
+2003-11-16  Philip Aston  <paston@bea.com>
+
+	* CHANGES, TODO, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/CompositeTCPProxyFilter.java, xdoc/g3/faq-xhtml.xml, xdoc/g3/tcpproxy-xhtml.xml:
+	Allow TCPProxy filters to be chained.
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Formatting.
+
+	* xdoc/g3/tcpproxy-xhtml.xml, xdoc/images/proxy-preferences.png, CHANGES, TODO, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/PortForwarderTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/SingleServerTCPProxyEngine.java, xdoc/documentation.xweb, xdoc/g3/faq-xhtml.xml:
+	Remove the -proxy option from the TCPProxy. The TCPProxy now listens
+	as an HTTP proxy by default unless either -remoteHost or -remotePort
+	is specified.
+
+	* src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Be more quiet about socket problems.
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Ignore socket closes.
+
+	* src/net/grinder/TCPProxy.java: Fix console switch name.
+
+	* TODO: Done.
+
+	* ChangeLog, CHANGES: Fix spelling.
 
 	* CHANGES, ChangeLog, TODO, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/SingleServerTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/StreamThread.java, src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java:
 	Fix TCPProxy -proxy mode so that it supports HTTP/1.1 from the
