@@ -33,11 +33,23 @@ final class SampleStatisticsTableModel extends DynamicStatisticsTableModel
     public SampleStatisticsTableModel(Model model, Resources resources)
 	throws ConsoleException
     {
-	super(model, resources);
+	super(model, resources, true);
     }
 
     protected final TestStatistics getStatistics(int row)
     {
 	return getModel().getLastSampleStatistics(row);
+    }
+
+    /**
+     * {@link ModelListener} interface. New
+     * <code>StatisticsView</code>s have been added. We need do
+     * nothing
+     **/
+    public synchronized void newStatisticsViews(
+	StatisticsView intervalStatisticsView,
+	StatisticsView cumulativeStatisticsView)
+    {
+	addColumns(cumulativeStatisticsView);
     }
 }

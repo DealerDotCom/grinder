@@ -39,6 +39,7 @@ import net.grinder.statistics.PeakStatisticExpression;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticExpressionFactory;
 import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
 import net.grinder.statistics.TestStatisticsFactory;
 import net.grinder.statistics.TestStatisticsMap;
@@ -236,6 +237,13 @@ public class Model
 	}
     }
 
+    public void registerStatisticsViews(
+	StatisticsView intervalStatisticsView,
+	StatisticsView cumulativeStatisticsView)
+    {
+	fireModelNewViews(intervalStatisticsView, cumulativeStatisticsView);
+    }
+
     /**
      * See note on sychronisation in {@link Model} class
      * description. 
@@ -325,6 +333,19 @@ public class Model
 	while (iterator.hasNext()) {
 	    final ModelListener listener = (ModelListener)iterator.next();
 	    listener.update();
+	}
+    }
+
+    private synchronized void fireModelNewViews(
+	StatisticsView intervalStatisticsView,
+	StatisticsView cumulativeStatisticsView)
+    {
+	final Iterator iterator = m_modelListeners.iterator();
+
+	while (iterator.hasNext()) {
+	    final ModelListener listener = (ModelListener)iterator.next();
+	    listener.newStatisticsViews(intervalStatisticsView,
+					cumulativeStatisticsView);
 	}
     }
 

@@ -192,6 +192,7 @@ class ConsoleCommunication
 		return message;
 	    }
 	    catch (CommunicationException e) {
+		e.printStackTrace();
 		m_exceptionHandler.consoleExceptionOccurred(
 		    new ConsoleException(e.getMessage(), e));
 	    }

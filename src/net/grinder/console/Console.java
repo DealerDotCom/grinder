@@ -30,6 +30,7 @@ import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.swingui.ConsoleUI;
+import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -126,7 +127,12 @@ public class Console
 	    }
 	    
 	    if (message instanceof RegisterStatisticsViewMessage) {
-		System.err.println("Got a RegisterStatisticsViewMessage");
+		final StatisticsView statisticsView =
+		    ((RegisterStatisticsViewMessage)message)
+		    .getStatisticsView();
+
+		m_model.registerStatisticsViews(statisticsView,
+						statisticsView);
 	    }
         } 
     }

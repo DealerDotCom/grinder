@@ -22,6 +22,7 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 
 import net.grinder.console.model.ModelListener;
+import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -58,5 +59,19 @@ class SwingDispatchedModelListener implements ModelListener
     public void update()
     {
 	SwingUtilities.invokeLater(m_updateRunnable);
+    }
+
+    public void newStatisticsViews(
+	final StatisticsView intervalStatisticsView,
+	final StatisticsView cumulativeStatisticsView)
+    {
+	SwingUtilities.invokeLater(
+	    new Runnable() {
+		public void run() {
+		    m_delegate.newStatisticsViews(intervalStatisticsView,
+						  cumulativeStatisticsView);
+		}
+	    }
+	    );
     }
 }

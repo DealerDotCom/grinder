@@ -21,6 +21,8 @@ package net.grinder.console.model;
 import java.util.EventListener;
 import java.util.Set;
 
+import net.grinder.statistics.StatisticsView;
+
 
 /**
  * @author Philip Aston
@@ -36,6 +38,14 @@ public interface ModelListener extends EventListener
      **/
     public void reset(Set newTests);
 
-    /** Called when the model has new information. **/
+    /**
+     * Called when the model has new information.
+     **/
     public void update();
+
+    /**
+     * Called when new views have been added to the model.
+     **/
+    public void newStatisticsViews(StatisticsView intervalStatisticsView,
+				   StatisticsView cumulativeStatisticsView);
 }

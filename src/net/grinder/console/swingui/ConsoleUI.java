@@ -77,6 +77,7 @@ import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
 import net.grinder.statistics.StatisticExpression;
+import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
 
 
@@ -414,6 +415,16 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 	if (state == Model.STATE_STOPPED) {
 	    m_stopAction.stopped();
 	}
+    }
+
+    /**
+     * {@link ModelListener} interface. New
+     * <code>StatisticsView</code>s have been added. We need do
+     * nothing
+     **/
+    public void newStatisticsViews(StatisticsView intervalStatisticsView,
+				   StatisticsView cumulativeStatisticsView)
+    {
     }
 
     private static final class WindowCloseAdapter extends WindowAdapter

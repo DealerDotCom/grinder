@@ -31,6 +31,7 @@ import net.grinder.common.Test;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
+import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
 
 
@@ -126,5 +127,15 @@ public class TestGraphPanel extends JPanel implements ModelListener
 		add((JComponent)m_components.get(m_model.getTest(i)));
 	    }
 	}
+    }
+
+    /**
+     * {@link ModelListener} interface. New
+     * <code>StatisticsView</code>s have been added. We need do
+     * nothing
+     **/
+    public void newStatisticsViews(StatisticsView intervalStatisticsView,
+				   StatisticsView cumulativeStatisticsView)
+    {
     }
 }

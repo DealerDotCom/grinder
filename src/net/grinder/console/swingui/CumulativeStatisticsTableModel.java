@@ -37,7 +37,7 @@ final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel
 					  boolean includeTotals)
 	throws ConsoleException
     {
-	super(model, resources);
+	super(model, resources, false);
 
 	m_includeTotals = includeTotals;
 	m_totalString = resources.getString("table.total.label");
@@ -105,5 +105,17 @@ final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel
 		column == 3 &&
 		model.getTotalCumulativeStatistics().getErrors() > 0;
 	}
+    }
+
+    /**
+     * {@link ModelListener} interface. New
+     * <code>StatisticsView</code>s have been added. We need do
+     * nothing
+     **/
+    public synchronized void newStatisticsViews(
+	StatisticsView intervalStatisticsView,
+	StatisticsView cumulativeStatisticsView)
+    {
+	addColumns(cumulativeStatisticsView);
     }
 }

@@ -52,10 +52,11 @@ abstract class DynamicStatisticsTableModel
     private final String m_testDescriptionColumnString;
 
     private StatisticsView m_statisticsView = new StatisticsView();
-    private ExpressionView[] m_columnViews;
+    private ExpressionView[] m_columnViews = new ExpressionView[0];
     private String[] m_columnLabels;
 
-    protected DynamicStatisticsTableModel(Model model, Resources resources)
+    protected DynamicStatisticsTableModel(Model model, Resources resources,
+					  boolean setColumns)
 	throws ConsoleException
     {
 	m_model = model;
@@ -78,7 +79,12 @@ abstract class DynamicStatisticsTableModel
 
 	statisticsView.add(m_model.getTPSExpressionView());
 
-	addColumns(statisticsView);
+	if (setColumns) {
+	    addColumns(statisticsView);
+	}
+	else {
+	    m_statisticsView.add(statisticsView);
+	}
     }
 
     protected abstract TestStatistics getStatistics(int row);
@@ -97,22 +103,28 @@ abstract class DynamicStatisticsTableModel
     {
 	m_statisticsView.add(statisticsView);
 
-	m_columnViews = m_statisticsView.getExpressionViews();
+	final int originalNumberOfColumns = m_columnViews.length;
 
-	final String[] columnLabels =
-	    new String[m_columnViews.length];
+	final ExpressionView[] newViews =
+	    m_statisticsView.getExpressionViews();
 
-	for (int i=0; i<columnLabels.length; ++i) {
-	    final String resource =
-		m_resources.getString(
-		    m_columnViews[i].getDisplayNameResourceKey(), false);
+	if (newViews.length != originalNumberOfColumns) {
+	    m_columnViews = newViews;
 
-	    columnLabels[i] =
-		resource != null ?
-		resource : m_columnViews[i].getDisplayName();
+	    m_columnLabels = new String[m_columnViews.length];
+
+	    for (int i=0; i<m_columnLabels.length; ++i) {
+		final String resource =
+		    m_resources.getString(
+			m_columnViews[i].getDisplayNameResourceKey(), false);
+
+		m_columnLabels[i] =
+		    resource != null ?
+		    resource : m_columnViews[i].getDisplayName();
+	    }
+
+	    fireTableStructureChanged();
 	}
-	
-	m_columnLabels = columnLabels;
     }
 
     public synchronized void reset(Set newTests)

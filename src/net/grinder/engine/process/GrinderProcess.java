@@ -137,12 +137,6 @@ public class GrinderProcess
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 
-	// Parse plugin class.
-	m_plugin = instantiatePlugin();
-
-	// Get defined tests.
-	final Set tests = m_plugin.getTests();
-
 	// Parse console configuration.
 	final String multicastAddress = 
 	    properties.getProperty("grinder.multicastAddress",
@@ -192,8 +186,6 @@ public class GrinderProcess
 
 		m_reportToConsoleInterval =
 		    properties.getInt("grinder.reportToConsole.interval", 500);
-
-		m_consoleSender.send(new RegisterTestsMessage(tests));
 	    }
 	    else {
 		throw new EngineException(
@@ -203,6 +195,16 @@ public class GrinderProcess
 	}
 	else {
 	    m_consoleSender = null;
+	}
+
+	// Parse plugin class. Do after setting up console Sender.
+	m_plugin = instantiatePlugin();
+
+	// Get defined tests.
+	final Set tests = m_plugin.getTests();
+
+	if (m_consoleSender != null) {
+	    m_consoleSender.send(new RegisterTestsMessage(tests));
 	}
 
 	// Wrap tests with our information.
