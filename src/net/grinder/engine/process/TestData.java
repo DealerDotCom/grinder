@@ -26,6 +26,7 @@ import org.python.core.PyFinalizableInstance;
 import org.python.core.PyFunction;
 import org.python.core.PyInstance;
 import org.python.core.PyJavaInstance;
+import org.python.core.PyMethod;
 import org.python.core.PyObject;
 
 import net.grinder.common.GrinderException;
@@ -105,6 +106,7 @@ final class TestData implements TestRegistry.RegisteredTest
      *   <li>Java instances and classes</li>
      *   <li>PyClass</li>
      *   <li>PyFunction</li>
+     *   <li>PyMethod</li>
      *   <li>Python primitive types (integers, strings, floats, complexes, ...)</li>
      *   <li>Python tuples, lists, dictionaries</li>
      *  </ul>
@@ -132,6 +134,9 @@ final class TestData implements TestRegistry.RegisteredTest
 		return new TestPyInstance(this, (PyInstance)o);
 	    }
 	    else if (o instanceof PyFunction) {
+		return new TestPyJavaInstance(this, o);
+	    }
+	    else if (o instanceof PyMethod) {
 		return new TestPyJavaInstance(this, o);
 	    }
 	}
