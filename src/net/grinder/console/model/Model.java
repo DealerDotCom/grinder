@@ -93,13 +93,13 @@ public class Model {
 
   /**
      * The current test set. A TreeSet is used to maintain the test
-     * order. Never shrinks. Should synchronise on <code>m_test</code>
-     * before accessing it.
+     * order. Should synchronise on <code>m_test</code> before
+     * accessing it.
      **/
   private final Set m_tests = new TreeSet();
 
   /** 
-   * A {@link SampleAccumulator} for each test. Never shrinks. 
+   * A {@link SampleAccumulator} for each test.
    **/
   private final Map m_accumulators =
     Collections.synchronizedMap(new HashMap());
@@ -123,9 +123,8 @@ public class Model {
   private final ExpressionView m_tpsExpressionView;
   private final PeakStatisticExpression m_peakTPSExpression;
   private final ExpressionView m_peakTPSExpressionView;
-  private final StatisticsView m_intervalStatisticsView = new StatisticsView();
-  private final StatisticsView m_cumulativeStatisticsView =
-    new StatisticsView();
+  private StatisticsView m_intervalStatisticsView;
+  private StatisticsView m_cumulativeStatisticsView;
 
   private final ProcessStatusSet m_processStatusSet = new ProcessStatusSet();
 
@@ -151,7 +150,7 @@ public class Model {
 
     final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
-    m_periodIndex = indexMap.getIndexForLong("period");
+    m_periodIndex = StatisticsIndexMap.getInstance().getIndexForLong("period");
 
     final StatisticExpressionFactory statisticExpressionFactory =
       StatisticExpressionFactory.getInstance();
@@ -173,15 +172,7 @@ public class Model {
     m_totalSampleAccumulator =
       new SampleAccumulator(m_peakTPSExpression, m_periodIndex);
 
-    final StatisticsView summaryStatisticsView =
-      CommonStatisticsViews.getSummaryStatisticsView();
-
-    m_intervalStatisticsView.add(summaryStatisticsView);
-    m_intervalStatisticsView.add(m_tpsExpressionView);
-
-    m_cumulativeStatisticsView.add(summaryStatisticsView);
-    m_cumulativeStatisticsView.add(m_tpsExpressionView);
-    m_cumulativeStatisticsView.add(m_peakTPSExpressionView);
+    createStatisticsViews();
 
     setState(STATE_WAITING_FOR_TRIGGER);
 
@@ -204,6 +195,21 @@ public class Model {
 	  m_sampleInterval = ((Integer)event.getNewValue()).intValue();
 	}
       });
+  }
+
+  private final void createStatisticsViews() {
+
+    final StatisticsView summaryStatisticsView =
+      CommonStatisticsViews.getSummaryStatisticsView();
+
+    m_intervalStatisticsView = new StatisticsView();
+    m_intervalStatisticsView.add(summaryStatisticsView);
+    m_intervalStatisticsView.add(m_tpsExpressionView);
+
+    m_cumulativeStatisticsView = new StatisticsView();
+    m_cumulativeStatisticsView.add(summaryStatisticsView);
+    m_cumulativeStatisticsView.add(m_tpsExpressionView);
+    m_cumulativeStatisticsView.add(m_peakTPSExpressionView);
   }
 
   /**
@@ -411,8 +417,35 @@ public class Model {
     }
   }
 
+  private final void fireModelResetTestsAndStatisticsViews() {
+
+    synchronized (m_modelListeners) {
+      final Iterator iterator = m_modelListeners.iterator();
+
+      while (iterator.hasNext()) {
+	final ModelListener listener = (ModelListener)iterator.next();
+	listener.resetTestsAndStatisticsViews();
+      }
+    }
+  }
+
   /**
-   * Start the model.
+   * Reset the model.
+   */
+  public final void reset() {
+    synchronized(m_tests) {
+      m_tests.clear();
+    }
+
+    m_accumulators.clear();
+
+    createStatisticsViews();
+
+    fireModelResetTestsAndStatisticsViews();
+  }
+
+  /**
+   * Start  the model.
    */
   public final void start() {
     setState(STATE_WAITING_FOR_TRIGGER);
@@ -581,7 +614,7 @@ public class Model {
     return m_state;
   }
 
-  private final void reset() {
+  private final void zero() {
 
     synchronized (m_accumulators) {
       final Iterator iterator = m_accumulators.values().iterator();
@@ -589,11 +622,11 @@ public class Model {
       while (iterator.hasNext()) {
 	final SampleAccumulator sampleAccumulator =
 	  ((SampleAccumulator)iterator.next());
-	sampleAccumulator.reset();
+	sampleAccumulator.zero();
       }
     }
 
-    m_totalSampleAccumulator.reset();
+    m_totalSampleAccumulator.zero();
 
     m_startTime = m_currentTime;
 
@@ -609,11 +642,11 @@ public class Model {
 
     if (i == STATE_WAITING_FOR_TRIGGER) {
       // Zero everything because it looks pretty.
-      reset();
+      zero();
     }
 
     if (i == STATE_CAPTURING) {
-      reset();
+      zero();
     }
 
     if (m_state != STATE_STOPPED && i == STATE_STOPPED) {

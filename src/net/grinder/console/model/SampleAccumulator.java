@@ -92,7 +92,7 @@ final class SampleAccumulator {
     m_intervalStatistics = TestStatisticsFactory.getInstance().create();
   }
 
-  public final void reset() {
+  public final void zero() {
     m_intervalStatistics.reset();
     m_lastSampleStatistics.reset();
     m_cumulativeStatistics.reset();

@@ -56,4 +56,10 @@ public interface ModelListener extends EventListener {
    */
   void newStatisticsViews(StatisticsView intervalStatisticsView,
 			  StatisticsView cumulativeStatisticsView);
+
+  /**
+   * Called when existing tests and statistics views should be
+   * discarded.
+   */
+  void resetTestsAndStatisticsViews();
 }
