@@ -85,6 +85,7 @@ public class Model
 
 	final GrinderPlugin grinderPlugin =
 	    propertiesHelper.instantiatePlugin(
+		// Want to get rid of the ctor when we scrap this.
 		new ProcessContextImplementation());
 
 	final Set orderedTests = new TreeSet(grinderPlugin.getTests());
