@@ -1,3 +1,27 @@
+Grinder 2.6.4
+-------------
+
+  Fix -colour.
+
+  Fix distribution: add HTTPClient classes to grinder.jar.
+
+  Patch HTTP to fix handling of query strings.
+
+  Fix: don't throw NPE when using HTTPClient to retrieve zero length
+  body response.
+
+  Make the console "ignore samples" and "collect samples" controls
+  text fields rather than sliders - allows big numbers for power
+  users.
+
+  Hack a switch onto HTTPClient to disable the use of
+  trailer-related headers, and use it in HTTPClientHandler. Better for
+  the less well-travelled server implementations.
+
+  Extra documentation. The changes to doc/Timing.txt are particular
+  worth a scan.
+
+
 Grinder 2.6.3
 -------------
 

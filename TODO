@@ -5,16 +5,17 @@ it too :-). The list is roughly in priority order.]
 
   Update HTTPClient to allow multiple servers per client.
 
+  Allow the saving of results from the console.
+
   Update HTTPClient to measure "time to first byte" and "Time to last
   byte" as an alternitive to implementing timeIncludesTransaction.
+
+  Get HTTPS support working with HTTPClient.
 
   Do something realistic with the basicAuthenticationRealm for HTTP
   plugin.
 
-  More documentation - both user level and javadoc. Volunteers please!
-
-  Write more JUnit tests. In particular, TestStatisticsMap, new
-  console components.
+  Write more JUnit tests.
 
   Add a switch to the HttpPluginSnifferFilter which specifies the
   initial test number for the output.
@@ -32,9 +33,10 @@ it too :-). The list is roughly in priority order.]
   Allow String Beans to optionally capture request results. (Would
   invoke "set" methods).
 
-  Allow the saving of results from the console.
-
   Add an assertion for the expected status code to the HTTP plugin.
+
+  TCPSniffer enhancements: Should be able to use -proxy without HTTP
+  plugin. Should be able to use different remote ports.
 
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.

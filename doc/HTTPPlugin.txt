@@ -86,6 +86,7 @@ What can I set in grinder.properties for the HTTP plugin?
 				can be varied using a String Bean, see
 				"What's a String Bean?" below.
 
+
 What's a String Bean?
 *********************
 
@@ -167,14 +168,30 @@ HTTPClient
 The HTTP plugin now has *experimental* support for Ronald Tschalär's
 excellent HTTPClient library instead of HttpURLConnection.
 
-Unfortunately experimentation shows HTTPClient sometimes does not
-perform well in a multithreaded environment. I'm guessing this should
-be straightforward to fix.
-
 To use specify that the HTTP plugin should use HTTPClient instead of
 HttpURLConnection, say
 
     grinder.plugin.parameter.useHTTPClient=true
+
+
+I highly recomend trying the HTTPClient integration, see the next
+section for why. I'm planning to drop support for HttpURLConnection in
+future versions. However, there are some limitations you should be
+aware of: 
+
+ 1. Currently the HTTPClient integration can only use a single server
+    per cycle.
+
+ 2. The timeIncludesTransaction parameter is ignored. Instead the
+    reported time is as if timeIncludesTransaction=true.
+
+ 3. HTTPS almost certainly doesn't work.
+
+ 4. The useCookiesVersionString parameter is ignored. The HTTPClient
+    cookie support is damn good, so this probably isn't a problem.
+
+1 to 3 will be fixed in a future version. 4 will be fixed if it turns
+out to be a problem.
 
 
 HTTPClient versus HttpURLConnection
@@ -191,12 +208,17 @@ One of the key advantages for The Grinder is that HTTPClient allows
 explicit control of connection management, whereas HttpURLConnection
 uses connection pooling "under the covers".
 
+Because HTTPClient uses extra connections, it may appear slower -
+particularly if the client and server are co-hosted (see Timing.txt).
+However, its a closer modell of reality (one cycle equals one browser
+session).
+
 In my experience, HTTPClient is _much_ more RFC compliant, and less
 buggy than HttpURLConnection.
 
-I do know of one thing which IMHO is an non-compliance however. I have
-fixed this in The Grinder version. Here's my description from my bug
-report to Ronald Tschalär:
+I do know of one thing in HTTPClient which IMHO is a bug. I have fixed
+this in The Grinder version. Here's my description from my bug report
+to Ronald Tschalär:
 
   I've encountered a problem with how HTTPClient 0.3.3 encodes query
   strings, e.g:
