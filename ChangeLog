@@ -1,3 +1,43 @@
+2004-05-12  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/agent/FileCache.java, src/net/grinder/engine/agent/FileStore.java, src/net/grinder/engine/agent/WorkerProcessFactory.java, src/net/grinder/engine/messages/InitialiseGrinderMessage.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/util/FileContents.java, tests-src/net/grinder/engine/agent/TestFileStore.java, tests-src/net/grinder/engine/agent/TestWorkerProcessFactory.java, tests-src/net/grinder/engine/messages/TestEngineMessages.java, tests-src/net/grinder/testutility/AbstractFileTestCase.java, tests-src/net/grinder/util/TestFileContents.java, tests-src/prj.el, TODO, build.xml, src/net/grinder/console/model/ScriptDistributionFiles.java, src/net/grinder/engine/agent/Agent.java:
+	More script distribution work.
+
+2004-05-10  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/FileCache.java, src/net/grinder/engine/messages/DistributeFilesMessage.java, src/net/grinder/util/FileContents.java, tests-src/net/grinder/engine/messages/TestEngineMessages.java, src/net/grinder/console/Console.java, src/net/grinder/console/model/ScriptDistributionFiles.java:
+	More work on file distribution.
+
+	* src/net/grinder/engine/messages/StopGrinderMessage.java, src/net/grinder/console/messages/RegisterStatisticsViewMessage.java, src/net/grinder/console/messages/RegisterTestsMessage.java, src/net/grinder/console/messages/ReportStatisticsMessage.java, src/net/grinder/console/messages/ReportStatusMessage.java, src/net/grinder/engine/messages/DistributeFilesMessage.java, src/net/grinder/engine/messages/InitialiseGrinderMessage.java, src/net/grinder/engine/messages/ResetGrinderMessage.java, src/net/grinder/engine/messages/StartGrinderMessage.java:
+	Update serialVersionUIDs.
+
+	* tests-src/net/grinder/console/messages/TestConsoleMessages.java, tests-src/net/grinder/engine/common/TestConsoleListener.java, tests-src/net/grinder/engine/messages/TestEngineMessages.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, src/net/grinder/console/messages/ReportStatisticsMessage.java, src/net/grinder/console/messages/ReportStatusMessage.java, src/net/grinder/console/messages/package.html, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/common/ConsoleListener.java, src/net/grinder/engine/messages/DistributeFilesMessage.java, src/net/grinder/engine/messages/InitialiseGrinderMessage.java, src/net/grinder/engine/messages/ResetGrinderMessage.java, src/net/grinder/engine/messages/StartGrinderMessage.java, src/net/grinder/engine/messages/StopGrinderMessage.java, src/net/grinder/engine/messages/package.html, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/console/Console.java, src/net/grinder/console/messages/RegisterStatisticsViewMessage.java, src/net/grinder/console/messages/RegisterTestsMessage.java:
+	Further repackage application messages.
+
+	* tests-src/net/grinder/engine/common/TestConsoleListener.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, tests-src/net/grinder/testutility/Serializer.java, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/common/ConsoleListener.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ScriptContextImplementation.java, tests-src/net/grinder/communication/TestInternalMessages.java, tests-src/net/grinder/communication/TestMessage.java, tests-src/net/grinder/communication/TestMessagePump.java, tests-src/net/grinder/communication/TestTeeSender.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/console/Console.java, src/net/grinder/communication/InitialiseGrinderMessage.java, src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/communication/RegisterTestsMessage.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/ReportStatusMessage.java:
+	Move application messages to their own package.
+
+2004-05-09  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/tools/tcpproxy/resources/default.keystore, xdoc/g3/tcpproxy-xhtml.xml, CHANGES, build.xml, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java:
+	The TCPProxy now uses a built-in default key store if none is
+	specified.
+
+	* TODO: Idea.
+
+	* src/net/grinder/util/InsecureSSLContextFactory.java:
+	Remove erroneous comment.
+
+	* tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java, tests-src/net/grinder/engine/process/TestRegisteredPlugin.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java, tests-src/net/grinder/testutility/CallRecorder.java, TODO, tests-src/net/grinder/communication/TestTeeSender.java, tests-src/net/grinder/engine/agent/TestProcessLauncher.java, tests-src/net/grinder/engine/common/TestConsoleListener.java, tests-src/net/grinder/engine/process/TestExternalFilenameFactory.java, tests-src/net/grinder/engine/process/TestExternalLogger.java:
+	Rename CallRecorder.assertNotCalled() to
+	CallRecorder.assertNoMoreCalls().
+
+	* examples/grinder.properties: Default to 1 run to help newbies.
+
+2004-05-04  Philip Aston  <philipa@mail.com>
+
+	* examples/helloworld.py: Undo bad commit.
+
 2004-04-30  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, src/net/grinder/plugin/http/HTTPRequest.java:
