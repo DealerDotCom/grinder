@@ -250,7 +250,7 @@ public class HTTPRequest
 
     public final HTTPResponse POST() throws Exception
     {
-	return POST(null);
+	return POST((String)null);
     }
 
     public final HTTPResponse POST(String uri) throws Exception
@@ -263,6 +263,12 @@ public class HTTPRequest
 	else {
 	    return POST(uri, getFormData(), getHeaders());
 	}
+    }
+
+    public final HTTPResponse POST(NVPair[] formData)
+	throws Exception
+    {
+	return POST(null, formData, getHeaders());
     }
 
     public final HTTPResponse POST(String uri, NVPair[] formData)
