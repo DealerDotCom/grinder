@@ -1,5 +1,14 @@
 2001-09-20  Philip Aston  <paston@bea.com>
 
+	* CHANGES, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties:
+	New sample statistics console tab.
+
+	* src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/statistics/CumulativeStatistics.java, src/net/grinder/statistics/IntervalStatistics.java, tests-src/net/grinder/console/swingui/TestGraph.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/SampleListener.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java:
+	Add IntervalStatistics interface.
+
+	* src/net/grinder/statistics/CumulativeStatistics.java, tests-src/net/grinder/console/swingui/TestGraph.java, src/net/grinder/console/model/CumulativeStatistics.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/SampleListener.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/TestGraphPanel.java:
+	Repackage CumulativeStatistics.
+
 	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/statistics/Statistics.java, src/net/grinder/statistics/StatisticsImplementation.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/TestGraphPanel.java:
 	Split Statistics into a Statistics interface and
 	StatisticsImplementation class.
