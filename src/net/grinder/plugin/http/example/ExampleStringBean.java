@@ -1,5 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2001  Paco Gomez
+// Copyright (C) 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,23 +16,26 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.plugin.http;
-
-import net.grinder.plugininterface.PluginException;
+package net.grinder.plugin.http.example;
 
 
 /**
- * Interface to obtain the data needed to make a particular HTTP
- * request.
+ * Example StringBean.
  * 
- * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  */
-public interface HttpRequestData {
-    public String getURLString() throws PluginException;
-    public String getContextURLString();
-    public String getPostString() throws PluginException;
-    public long getIfModifiedSince();
-}
+public class ExampleStringBean
+{
+    private int m_count=0;
+    
+    public String getCount()
+    {
+	return Integer.toString(m_count++);
+    }
 
+    public String getTime()
+    {
+	return Long.toString(System.currentTimeMillis());
+    }
+}

@@ -1,5 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2001  Paco Gomez
+// Copyright (C) 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,20 +19,22 @@
 package net.grinder.plugin.http;
 
 import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.PluginThreadContext;
 
 
 /**
- * Interface to obtain the data needed to make a particular HTTP
- * request.
- * 
- * @author Paco Gomez
+ * This interface can be optionally implemented by "StringBean"
+ * classes used by the HTTP plugin.
+ *
  * @author Philip Aston
  * @version $Revision$
- */
-public interface HttpRequestData {
-    public String getURLString() throws PluginException;
-    public String getContextURLString();
-    public String getPostString() throws PluginException;
-    public long getIfModifiedSince();
+ */ 
+public interface StringBean
+{
+    /**
+     * This method is executed when the process starts. It is only
+     * executed once.
+     */
+    public void initialize(PluginThreadContext pluginThreadContext)
+	throws PluginException;
 }
-

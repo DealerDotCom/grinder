@@ -23,11 +23,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginException;
@@ -50,12 +52,15 @@ public class HttpPlugin extends SimplePluginBase
 {
     private PluginThreadContext m_pluginThreadContext = null;
     private FilenameFactory m_filenameFactory = null;
-    private HashMap m_callData = new HashMap();
+    private Map m_callData = new HashMap();
     private boolean m_logHTML = true;
     private HttpMsg m_httpMsg = null;
     private int m_currentIteration = 0; // How many times we've done all the URL's
     private final DateFormat m_dateFormat =
 	new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss zzz");
+
+    private Object m_stringBean = null;
+    private final Map m_stringBeanMethodMap = new HashMap();
 
     /**
      * Inner class that holds the data for a call.
@@ -66,18 +71,23 @@ public class HttpPlugin extends SimplePluginBase
 	private  String m_okString;
 	private long m_ifModifiedSince = -1;
 	private String m_postString = null;
-    
+	private final StringBuffer m_buffer = new StringBuffer();
+	private final Test m_test;
+	private Object[] m_noArgs = new Object[0];
+
 	public CallData(Test test) throws PluginException
 	{
-	    final GrinderProperties testParameters = test.getParameters();
+	    m_test = test;
+	    
+	    final GrinderProperties testParameters = m_test.getParameters();
 
 	    try {
 		m_urlString = testParameters.getMandatoryProperty("url");
 	    }
 	    catch (GrinderException e) {
-		throw new PluginException(
-		    "URL for Test " + test.getTestNumber() + " not specified",
-		    e);
+		throw new PluginException("URL for Test " +
+					  m_test.getTestNumber() +
+					  " not specified", e);
 	    }
 
 	    m_okString = testParameters.getProperty("ok", null);
@@ -128,9 +138,82 @@ public class HttpPlugin extends SimplePluginBase
 	    }	    
 	}
 
-	public String getURLString() { return m_urlString; }
+	private String replaceDynamicKeys(String original) 
+	    throws PluginException
+	{
+	    if (original == null || m_stringBean == null) {
+		return original;
+	    }
+	    else {
+		// CallData's belong to a HttpPlugin, and there's a
+		// plugin per thread so we can safely reuse our
+		// StringBuffer.
+		m_buffer.delete(0, m_buffer.length());
+		
+		int p = 0;
+		int lastP = p;
+
+		while (true) {
+		    if ((p = original.indexOf('<', lastP)) == -1) {
+			m_buffer.append(original.substring(lastP));
+			break;
+		    }
+		    else {
+			m_buffer.append(original.substring(lastP, p));
+
+			lastP = p + 1;
+		    
+			p = original.indexOf('>', lastP);
+
+			if (p == -1) {
+			    throw new PluginException(
+				"URL for Test " + m_test.getTestNumber() +
+				" malformed");    
+			}
+			
+			final String methodName = original.substring(lastP, p);
+
+			final Method method =
+			    (Method)m_stringBeanMethodMap.get(methodName);
+
+			if (method == null ) {
+			    throw new PluginException(
+				"URL for Test " + m_test.getTestNumber() +
+				" refers to unknown string bean method '" +
+				methodName + "'");
+			}
+
+			try {
+			    m_buffer.append((String)method.invoke(m_stringBean,
+								  m_noArgs));
+			}
+			catch (Exception e) {
+			    throw new PluginException(
+				"Failure invoking string bean method '" +
+				methodName + "'", e);
+			}
+
+			lastP = p + 1;
+		    }
+		}
+
+		return m_buffer.toString();
+	    }
+	}
+
+	public String getURLString()
+	    throws PluginException
+	{
+	    return replaceDynamicKeys(m_urlString);
+	}
+
+	public String getPostString()
+	    throws PluginException
+	{
+	    return replaceDynamicKeys(m_postString);
+	}
+
 	public String getContextURLString() { return null; }
-	public String getPostString() { return m_postString; }
 	public long getIfModifiedSince() { return m_ifModifiedSince; }
 	public String getOKString() { return m_okString; }
 
@@ -175,6 +258,54 @@ public class HttpPlugin extends SimplePluginBase
 						      false));
 
 	m_logHTML = parameters.getBoolean("logHTML", false);
+
+	final String stringBeanClassName =
+	    parameters.getProperty("stringBean", null);
+
+	if (stringBeanClassName != null) {
+	    try {
+		m_pluginThreadContext.logMessage("Instantiating " +
+						 stringBeanClassName);
+
+		final Class stringBeanClass =
+		    Class.forName(stringBeanClassName);
+
+		m_stringBean = stringBeanClass.newInstance();
+
+		if (StringBean.class.isAssignableFrom(stringBeanClass)) {
+		    ((StringBean)m_stringBean).initialize(
+			m_pluginThreadContext);
+		}
+		else {
+		    m_pluginThreadContext.logMessage(
+			stringBeanClassName + " does not implement " +
+			StringBean.class.getName() +
+			", skipping initialisation");
+		}
+
+		final Method[] methods = stringBeanClass.getMethods();
+
+		for (int i=0; i<methods.length; i++) {
+		    final String name = methods[i].getName();
+
+		    if (name.startsWith("get") &&
+			methods[i].getReturnType() == String.class &&
+			methods[i].getParameterTypes().length == 0) {
+			m_stringBeanMethodMap.put(name, methods[i]);
+		    }
+		}
+	    }
+	    catch(ClassNotFoundException e) {
+		throw new PluginException(
+		    "The specified string bean class '" +
+		    stringBeanClassName + "' was not found.", e);
+	    }
+	    catch (Exception e){
+		throw new PluginException (
+		"An instance of the string bean class '" +
+		stringBeanClassName + "' could not be created.", e);
+	    }
+	}
     }
 
     public void beginCycle() throws PluginException
