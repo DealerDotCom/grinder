@@ -1,3 +1,32 @@
+2002-12-02  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta3 is released.
+
+	* xdoc/g3/future-xhtml.xml, xdoc/g3/tcpproxy-xhtml.xml:
+	TCPProxy now supports G3.
+
+	* xdoc/g3/script-gallery-xhtml.xml: How to get amazon.py working.
+
+	* xdoc/g3/welcome-xhtml.xml:
+	Don't make it sound like grinder.properties has gone away entirely.
+
+	* CHANGES: Notes.
+
+	* xdoc/manual/junit-plugin-xhtml.xml:
+	Document initialTestNumber property.
+
+	* src/net/grinder/engine/process/TestData.java:
+	Allow PyMethods to be wrapped again.
+
+	* build.xml: Next is 3.0 beta3.
+
+	* xdoc/documentation.xweb: Thc -> The.
+
+2002-11-26  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/HTTPPluginConnection.java:
+	Fix cut and paste.
+
 2002-11-24  Philip Aston  <paston@bea.com>
 
 	* The Grinder 3.0-beta2 is released.
