@@ -91,7 +91,7 @@ public final class Agent {
     final Logger logger = new AgentLogger(new PrintWriter(System.out),
                                           new PrintWriter(System.err));
 
-    boolean startImmediately = false;
+    StartGrinderMessage nextStartMessage = null;
 
     // We use one file store throughout an agent's life, but can't
     // initialise it until we've read the properties.
@@ -145,7 +145,7 @@ public final class Agent {
 
           new MessagePump(receiver, sender, 1);
 
-          if (!startImmediately) {
+          if (nextStartMessage == null) {
             logger.output("waiting for console signal");
             consoleListener.waitForMessage();
           }
@@ -157,45 +157,72 @@ public final class Agent {
         }
       }
 
+      final InitialiseGrinderMessage initialiseMessage;
+
       if (receiver == null ||
-          startImmediately ||
+          nextStartMessage != null ||
           consoleListener.received(ConsoleListener.START)) {
 
-        final StartGrinderMessage lastStartMessage =
-          consoleListener.getLastStartGrinderMessage();
+        File scriptFromConsole = null;
 
-        final File scriptFromConsole =
-          lastStartMessage != null ? lastStartMessage.getScriptFile() : null;
-
-        final File scriptFromProperties =
-          new File(properties.getProperty("grinder.script", "grinder.py"));
-
-        final InitialiseGrinderMessage initialiseGrinderMessage;
-
-        if (scriptFromConsole != null) {
-          initialiseGrinderMessage =
-            new InitialiseGrinderMessage(true, scriptFromConsole,
-                                         fileStore.getDirectory());
+        if (nextStartMessage != null) {
+          scriptFromConsole = nextStartMessage.getScriptFile();
         }
         else {
-          if (!scriptFromProperties.canRead()) {
-            logger.error("The script file '" + scriptFromProperties +
-                         "' does not exist or is not readable",
-                         Logger.LOG | Logger.TERMINAL);
-            break;
-          }
+          final StartGrinderMessage lastStartMessage =
+            consoleListener.getLastStartGrinderMessage();
 
-          initialiseGrinderMessage =
-            new InitialiseGrinderMessage(
-              receiver != null, scriptFromProperties,
-              scriptFromProperties.getAbsoluteFile().getParentFile());
+          if (lastStartMessage != null) {
+            scriptFromConsole = lastStartMessage.getScriptFile();
+          }
         }
 
+        if (scriptFromConsole != null) {
+          if (scriptFromConsole.canRead()) {
+            initialiseMessage =
+              new InitialiseGrinderMessage(true, scriptFromConsole,
+                                           fileStore.getDirectory());
+          }
+          else {
+            logger.error("The script file '" + scriptFromConsole +
+                         "' requested by the console does not exist " +
+                         "or is not readable.",
+                         Logger.LOG | Logger.TERMINAL);
+
+            initialiseMessage = null;
+          }
+        }
+        else {
+          final File scriptFromProperties =
+            new File(properties.getProperty("grinder.script", "grinder.py"));
+
+          if (scriptFromProperties.canRead()) {
+            initialiseMessage =
+              new InitialiseGrinderMessage(
+                receiver != null,
+                scriptFromProperties,
+                scriptFromProperties.getAbsoluteFile().getParentFile());
+          }
+          else {
+            logger.error("The script file '" + scriptFromProperties +
+                         "' does not exist or is not readable. " +
+                         "Check grinder.properties.",
+                         Logger.LOG | Logger.TERMINAL);
+
+            initialiseMessage = null;
+          }
+        }
+      }
+      else {
+        initialiseMessage = null;
+      }
+
+      if (initialiseMessage != null) {
         final ProcessFactory workerProcessFactory =
           new WorkerProcessFactory(workerCommandLine,
                                    hostID,
                                    fanOutStreamSender,
-                                   initialiseGrinderMessage);
+                                   initialiseMessage);
 
         final ProcessLauncher processLauncher =
           new ProcessLauncher(properties.getInt("grinder.processes", 1),
@@ -256,6 +283,9 @@ public final class Agent {
         break;
       }
       else {
+        // Ignore any pending start messages.
+        consoleListener.discardMessages(ConsoleListener.START);
+
         if (!consoleListener.received(ConsoleListener.ANY)) {
           // We've got here naturally, without a console signal.
           logger.output("finished, waiting for console signal");
@@ -266,7 +296,7 @@ public final class Agent {
         receiver.shutdown();
 
         if (consoleListener.received(ConsoleListener.START)) {
-          startImmediately = true;
+          nextStartMessage = consoleListener.getLastStartGrinderMessage();
         }
         else if (consoleListener.received(ConsoleListener.STOP |
                                           ConsoleListener.SHUTDOWN)) {
@@ -274,7 +304,7 @@ public final class Agent {
         }
         else {
           // ConsoleListener.RESET or natural death.
-          startImmediately = false;
+          nextStartMessage = null;
         }
       }
     }
