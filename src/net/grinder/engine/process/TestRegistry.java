@@ -42,7 +42,8 @@ import net.grinder.statistics.TestStatisticsMap;
 
 
 /**
- * Registry of Tests.
+ * Registry of Tests. Also facade to Test-related behaviour that is
+ * used by {@link net.grinder.plugininterface.PluginTest}.
  *
  * @author Philip Aston
  * @version $Revision$
