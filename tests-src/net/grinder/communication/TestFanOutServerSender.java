@@ -23,6 +23,7 @@ package net.grinder.communication;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.OutputStream;
 import java.io.StreamCorruptedException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -45,39 +46,38 @@ public class TestFanOutServerSender extends TestCase {
     super(name);
   }
 
-  public void testBindTo() throws Exception {
+  public void testConstructor() throws Exception {
 
-    // Figure out a free local port.
-    final ServerSocket serverSocket = new ServerSocket(0);
-    final int port = serverSocket.getLocalPort();
-    serverSocket.close();
+    final ResourcePool socketSet = new ResourcePool();
 
-    final FanOutServerSender serverSender1 = 
-      FanOutServerSender.bindTo("", port);
+    final FanOutServerSender serverSender =
+      new FanOutServerSender(socketSet, 3);
 
-    final FanOutServerSender serverSender2 =
-      FanOutServerSender.bindTo("", 0);
-
-    serverSender1.shutdown();
-    serverSender2.shutdown();
+    serverSender.shutdown();
   }
 
   public void testSend() throws Exception {
 
-    final FanOutServerSender serverSender =
-      FanOutServerSender.bindTo("", 0);
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
-    final Acceptor acceptor = serverSender.getAcceptor();
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
+
+    final FanOutServerSender serverSender =
+      new FanOutServerSender(socketSet, 3);
 
     final Socket[] socket = new Socket[5];
 
     for (int i=0; i<socket.length; ++i) {
       socket[i] = new Socket(InetAddress.getByName(null), acceptor.getPort());
+      final OutputStream outputStream = socket[i].getOutputStream();
+      outputStream.write(ConnectionType.CONTROL.toInteger());
+      outputStream.flush();
     }
 
     // Sleep until we've accepted all connections. Give up after a few
     // seconds.
-    for (int i=0; acceptor.getSocketSet().countActive() != 5 && i<10; ++i) {
+    for (int i=0; socketSet.countActive() != 5 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
 
@@ -107,22 +107,31 @@ public class TestFanOutServerSender extends TestCase {
     }
     
     serverSender.shutdown();
+    acceptor.shutdown();
   }
 
   public void testShutdown() throws Exception {
 
-    final FanOutServerSender serverSender = FanOutServerSender.bindTo("", 0);
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
-    final Acceptor acceptor = serverSender.getAcceptor();
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
+
+    final FanOutServerSender serverSender =
+      new FanOutServerSender(socketSet, 3);
 
     assertEquals(1, acceptor.getThreadGroup().activeCount());
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
+    final OutputStream outputStream = socket.getOutputStream();
+    outputStream.write(ConnectionType.CONTROL.toInteger());
+    outputStream.flush();
+
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
-    for (int i=0; acceptor.getSocketSet().countActive() != 1 && i<10; ++i) {
+    for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
 
@@ -144,10 +153,6 @@ public class TestFanOutServerSender extends TestCase {
     catch (CommunicationException e) {
     }
     
-    while (acceptor.getThreadGroup().activeCount() != 0) {
-      Thread.sleep(10);
-    }
-
     try {
       final ObjectInputStream inputStream2 =
         new ObjectInputStream(socketStream);
@@ -159,5 +164,7 @@ public class TestFanOutServerSender extends TestCase {
       // Occasionally this occurs because the connection is shutdown.
       // Whatever.
     }
+
+    acceptor.shutdown();
   }
 }

@@ -43,7 +43,7 @@ public class TestFanOutStreamSender extends TestCase {
 
   public void testAddAndSend() throws Exception {
 
-    final FanOutStreamSender serverSender = new FanOutStreamSender();
+    final FanOutStreamSender serverSender = new FanOutStreamSender(3);
 
     final PipedInputStream[] inputStreams = new PipedInputStream[10];
     final PipedOutputStream[] outputStreams =
@@ -81,7 +81,7 @@ public class TestFanOutStreamSender extends TestCase {
 
   public void testShutdown() throws Exception {
 
-    final FanOutStreamSender serverSender = new FanOutStreamSender();
+    final FanOutStreamSender serverSender = new FanOutStreamSender(3);
 
     final PipedInputStream inputStream = new PipedInputStream();
     final PipedOutputStream outputStream = new PipedOutputStream(inputStream);

@@ -41,11 +41,11 @@ public class TestClientSenderAndServerReceiver
   }
 
   private Receiver createReceiver() throws Exception {
-    return ServerReceiver.bindTo(getHostName(), getPort());
+    return new ServerReceiver(getAcceptedSocketSet(), 3);
   }
 
   private Sender createSender() throws Exception {
-    return ClientSender.connectTo(getHostName(), getPort());
+    return ClientSender.connect(getConnector());
   }
 
   /**

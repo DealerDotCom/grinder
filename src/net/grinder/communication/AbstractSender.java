@@ -81,10 +81,8 @@ abstract class AbstractSender implements Sender {
 
   /**
    * Cleanly shutdown the <code>Sender</code>.
-   *
-   * @throws CommunicationException If an error occurs.
    */
-  public void shutdown() throws CommunicationException {
+  public void shutdown() {
     try {
       send(new CloseCommunicationMessage());
     }

@@ -21,53 +21,63 @@
 
 package net.grinder.communication;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.Socket;
 
 
 /**
- * Class that manages the sending of messages to a server.
+ * Connection factory.
  *
  * @author Philip Aston
  * @version $Revision$
- **/
-public class StreamSender extends AbstractSender {
+ */
+public final class Connector {
 
-  private final OutputStream m_outputStream;
+  private final String m_addressString;
+  private final int m_port;
+  private final ConnectionType m_connectionType;
 
   /**
    * Constructor.
    *
-   * @param outputStream The output stream to write to.
+   * @param addressString TCP address to connect to.
+   * @param port TCP port to connect to.
+   * @param connectionType Connection type.
    */
-  public StreamSender(OutputStream outputStream) {
-    m_outputStream = new BufferedOutputStream(outputStream);
+  public Connector(String addressString, int port,
+                   ConnectionType connectionType) {
+    m_addressString = addressString;
+    m_port = port;
+    m_connectionType = connectionType;
   }
 
   /**
-   * Send a message.
+   * Factory method that makes a TCP connection and returns a
+   * corresponding socket.
    *
-   * @param message The message.
-   * @throws IOException If an error occurs.
+   * @param addressString TCP address to connect to.
+   * @param port TCP port to connect to.
+   * @param connectionType The connection type.
+   * @return A socket wired to the connection.
+   * @throws CommunicationException If connection could not be
+   * establish.
    */
-  protected final void writeMessage(Message message) throws IOException {
-    writeMessageToStream(message, m_outputStream);
-  }
-
-  /**
-   * Cleanly shutdown the <code>Sender</code>. Ignore most errors,
-   * connection has probably been reset by peer.
-   */
-  public void shutdown() {
-
-    super.shutdown();
+  Socket connect() throws CommunicationException {
 
     try {
-      m_outputStream.close();
+      // Our socket - bind to any local port.
+      final Socket socket = new Socket(m_addressString, m_port);
+
+      final OutputStream outputStream = socket.getOutputStream();
+      outputStream.write(m_connectionType.toInteger());
+      outputStream.flush();
+
+      return socket;
     }
     catch (IOException e) {
-      // Ignore.
+      throw new CommunicationException(
+        "Could not connect to '" + m_addressString + ":" + m_port + "'", e);
     }
   }
 }

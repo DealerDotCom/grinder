@@ -30,6 +30,8 @@ import net.grinder.common.Logger;
 import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
+import net.grinder.communication.Connector;
+import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Message;
 import net.grinder.communication.QueuedSender;
 import net.grinder.communication.QueuedSenderDecorator;
@@ -91,12 +93,14 @@ class ProcessContext {
 
       final int consolePort =
         properties.getInt("grinder.consolePort",
-                          CommunicationDefaults.CONSOLE_PORT) + 1;
+                          CommunicationDefaults.CONSOLE_PORT);
+
+      final Connector connector =
+        new Connector(consoleAddress, consolePort, ConnectionType.REPORT);
 
       try {
         consoleSender =
-          new QueuedSenderDecorator(
-            ClientSender.connectTo(consoleAddress, consolePort));
+          new QueuedSenderDecorator(ClientSender.connect(connector));
       }
       catch (CommunicationException e) {
         m_processLogger.output(

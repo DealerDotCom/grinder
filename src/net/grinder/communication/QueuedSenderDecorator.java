@@ -101,10 +101,8 @@ public final class QueuedSenderDecorator implements QueuedSender {
    * Cleanly shutdown the <code>Sender</code>.
    *
    * <p>Any queued messages are discarded.</p>
-   *
-   * @exception CommunicationException If an error occurs.
    */
-  public void shutdown() throws CommunicationException {
+  public void shutdown() {
     m_messageQueue.shutdown();
     m_delegate.shutdown();
   }

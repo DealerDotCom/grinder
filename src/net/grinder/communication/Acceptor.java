@@ -35,10 +35,10 @@ import java.net.ServerSocket;
  * @author Philip Aston
  * @version $Revision$
  */
-final class Acceptor {
+public final class Acceptor {
 
   private final ServerSocket m_serverSocket;
-  private final ResourcePool m_socketSet = new ResourcePool();
+  private final ResourcePool[] m_socketSets;
   private final ThreadPool m_threadPool;
 
   /**
@@ -74,6 +74,12 @@ final class Acceptor {
       }
     }
 
+    m_socketSets = new ResourcePool[ConnectionType.NUMBER_OF_CONNECTION_TYPES];
+
+    for (int i = 0; i < m_socketSets.length; ++i) {
+      m_socketSets[i] = new ResourcePool();
+    }
+
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
         public Runnable create() {
@@ -103,7 +109,10 @@ final class Acceptor {
       throw new CommunicationException("Error closing socket", e);
     }
     finally {
-      m_socketSet.close();
+      for (int i = 0; i < m_socketSets.length; ++i) {
+        m_socketSets[i].close();
+      }
+
       m_threadPool.stop();
     }
   }
@@ -118,13 +127,15 @@ final class Acceptor {
   }
 
   /**
-   * Get the set of accepted connections.
+   * Get a set of accepted connections.
    *
+   * @param connectionType Identifies the set of connections to
+   * return.
    * @return A set of sockets, each wrapped in a {@link
    * SocketResource}.
    */
-  public ResourcePool getSocketSet() {
-    return m_socketSet;
+  public ResourcePool getSocketSet(ConnectionType connectionType) {
+    return m_socketSets[connectionType.toInteger()];
   }
 
   /**
@@ -141,7 +152,18 @@ final class Acceptor {
     try {
       while (true) {
         final Socket localSocket = m_serverSocket.accept();
-        m_socketSet.add(new SocketResource(localSocket));
+
+        final InputStream inputStream = localSocket.getInputStream();
+
+        final int connectionType = inputStream.read();
+
+        if (connectionType < 0 ||
+            connectionType >= ConnectionType.NUMBER_OF_CONNECTION_TYPES) {
+          System.err.println("Unknown connection type: " + connectionType);
+        }
+        else {
+          m_socketSets[connectionType].add(new SocketResource(localSocket));
+        }
       }
     }
     catch (IOException e) {
@@ -162,7 +184,7 @@ final class Acceptor {
   /**
    * Wrapper for sockets that are returned by {@link getSocketSet}.
    */
-  public static final class SocketResource implements ResourcePool.Resource {
+  static final class SocketResource implements ResourcePool.Resource {
     private final Socket m_socket;
 
     private SocketResource(Socket socket) {

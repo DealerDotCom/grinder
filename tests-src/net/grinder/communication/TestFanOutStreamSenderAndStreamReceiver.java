@@ -53,7 +53,7 @@ public class TestFanOutStreamSenderAndStreamReceiver
     final InputStream inputStream =
       new PipedInputStream(outputStream) {{ buffer = new byte[32768]; }};
 
-    final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender();
+    final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(3);
     fanOutStreamSender.add(outputStream);
     
     m_sender = fanOutStreamSender;

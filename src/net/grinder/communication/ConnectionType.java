@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,28 +23,58 @@ package net.grinder.communication;
 
 
 /**
- * Interface for classes that manage the receipt of  messages.
+ * Constants that are used to discriminate between different types of
+ * connections.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface Receiver {
-  /**
-   * Block until a message is available, or another thread has
-   * called {@link #shutdown}. Typically called from a message
-   * dispatch loop.
-   *
-   * <p>Multiple threads can call this method, but only one thread
-   * will receive a given message.</p>
-   *
-   * @return The message or <code>null</code> if shut down.
-   * @throws CommunicationException If an IO exception occurs
-   * reading the mesage.
-   */
-  Message waitForMessage() throws CommunicationException;
+public final class ConnectionType {
+
+  /** Connection type constant. */
+  public static final ConnectionType CONTROL = new ConnectionType(0);
+
+  /** Connection type constant. */
+  public static final ConnectionType REPORT = new ConnectionType(1);
+
+  /** Number of connection types. */
+  static final int NUMBER_OF_CONNECTION_TYPES = 2;
+
+  private final int m_identity;
+
+  private ConnectionType(int identity) {
+    m_identity = identity;
+  }
+
+  int toInteger() {
+    return m_identity;
+  }
 
   /**
-   * Shut down this reciever.
+   * Implement {@link Object#hashCode}.
+   *
+   * @return The hash code.
    */
-  void shutdown();
+  public int hashCode() {
+    return m_identity;
+  }
+
+  /**
+   * Equality.
+   *
+   * @param other An <code>Object</code> to compare.
+   * @return <code>true</code> => <code>other</code> is equal to this object.
+   */
+  public boolean equals(Object other) {
+    if (other == this) {
+      return true;
+    }
+
+    if (!(other instanceof ConnectionType)) {
+      return false;
+    }
+
+    final ConnectionType otherConnectionType = (ConnectionType)other;
+    return m_identity == otherConnectionType.m_identity;
+  }
 }

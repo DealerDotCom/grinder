@@ -104,10 +104,8 @@ public abstract class AbstractFanOutSender extends AbstractSender {
 
   /**
    * Shut down this sender.
-   *
-   * @throws CommunicationException If an IO exception occurs.
    */
-  public void shutdown() throws CommunicationException {
+  public void shutdown() {
     super.shutdown();
     m_kernel.forceShutdown();
     m_resourcePool.close();

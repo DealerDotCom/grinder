@@ -46,9 +46,11 @@ public class TestClientReceiver extends TestCase {
 
     final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
 
-    final Receiver clientReceiver =
-      ClientReceiver.connectTo(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
+    final Connector connector =
+      new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
+                    ConnectionType.CONTROL);
+
+    final Receiver clientReceiver = ClientReceiver.connect(connector);
 
     socketAcceptor.join();
 
@@ -78,9 +80,7 @@ public class TestClientReceiver extends TestCase {
     socketAcceptor.close();
 
     try {
-      ClientReceiver.connectTo(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
-
+      ClientReceiver.connect(connector);
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
@@ -91,9 +91,11 @@ public class TestClientReceiver extends TestCase {
 
     final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
 
-    final Receiver clientReceiver =
-      ClientReceiver.connectTo(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
+    final Connector connector =
+      new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
+                    ConnectionType.CONTROL);
+
+    final Receiver clientReceiver = ClientReceiver.connect(connector);
 
     socketAcceptor.join();
 
@@ -120,9 +122,11 @@ public class TestClientReceiver extends TestCase {
 
     final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
 
-    final Receiver clientReceiver =
-      ClientReceiver.connectTo(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
+    final Connector connector =
+      new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
+                    ConnectionType.CONTROL);
+
+    final Receiver clientReceiver = ClientReceiver.connect(connector);
 
     socketAcceptor.join();
 

@@ -37,21 +37,21 @@ public final class ClientReceiver extends StreamReceiver {
    * Factory method that makes a TCP connection and returns a
    * corresponding <code>Receiver</code>.
    *
-   * @param addressString TCP address to connect to.
-   * @param port TCP port to connect to.
+   * @param connector Connector to use to make the connection to the
+   * server.
    * @return The ClientReceiver.
-   * @throws CommunicationException If failed to connect to socket.
+   * @throws CommunicationException If failed to connect.
    */
-  public static Receiver connectTo(String addressString, int port)
+  public static Receiver connect(Connector connector)
     throws CommunicationException {
 
+    final Socket socket = connector.connect();
+
     try {
-      // Bind to any local port.
-      return new ClientReceiver(new Socket(addressString, port));
+      return new ClientReceiver(socket);
     }
     catch (IOException e) {
-      throw new CommunicationException(
-        "Could not connect to '" + addressString + ":" + port + "'", e);
+      throw new CommunicationException("Connection failed", e);
     }
   }
 

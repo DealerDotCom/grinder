@@ -34,39 +34,19 @@ import java.io.ObjectInputStream;
  */
 public final class ServerReceiver implements Receiver {
 
-  private final Acceptor m_acceptor;
+  private final ResourcePool m_acceptedSocketSet;
   private final MessageQueue m_messageQueue = new MessageQueue(true);
   private final ThreadPool m_threadPool;
 
   /**
-   * Factory method that creates a <code>ServerReceiver</code> that
-   * listens on the given address.
-   *
-   * @param addressString The TCP address to listen on. Zero-length
-   * string => listen on all interfaces.
-   * @param port The TCP port to listen to.
-   * @return The ServerReceiver.
-   * @throws CommunicationException If server socket could not be
-   * bound.
-   */
-  public static ServerReceiver bindTo(String addressString, int port)
-    throws CommunicationException {
-
-    return new ServerReceiver(new Acceptor(addressString, port, 1), 5);
-  }
-
-  /**
    * Constructor.
    *
-   * @param acceptor Acceptor that manages connections to our server socket.
+   * @param acceptedSocketSet Resource pool that contains accepted sockets.
    * @param numberOfThreads Number of listen threads to use.
-   * @throws CommunicationException If server socket could not be
-   * bound.
    */
-  private ServerReceiver(Acceptor acceptor, int numberOfThreads)
-    throws CommunicationException {
+  public ServerReceiver(ResourcePool acceptedSocketSet, int numberOfThreads) {
 
-    m_acceptor = acceptor;
+    m_acceptedSocketSet = acceptedSocketSet;
 
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
@@ -105,23 +85,12 @@ public final class ServerReceiver implements Receiver {
 
   /**
    * Shut down this receiver.
-   *
-   * @throws CommunicationException If an IO exception occurs.
    */
-  public void shutdown() throws CommunicationException {
+  public void shutdown() {
 
     m_messageQueue.shutdown();
-    m_acceptor.shutdown();
+    m_acceptedSocketSet.close();
     m_threadPool.stop();
-  }
-
-  /**
-   * Return the Acceptor. Package scope; used by the unit tests.
-   *
-   * @return The acceptor.
-   */
-  Acceptor getAcceptor() {
-    return m_acceptor;
   }
 
   /**
@@ -142,7 +111,7 @@ public final class ServerReceiver implements Receiver {
 
       while (true) {
         final ResourcePool.Reservation reservation =
-          m_acceptor.getSocketSet().reserveNext();
+          m_acceptedSocketSet.reserveNext();
 
         try {
           if (reservation.isSentinel()) {

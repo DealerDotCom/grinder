@@ -23,10 +23,10 @@ package net.grinder.console;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
+import net.grinder.communication.Acceptor;
 import net.grinder.communication.CommunicationException;
+import net.grinder.communication.ConnectionType;
 import net.grinder.communication.FanOutServerSender;
 import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
@@ -52,6 +52,7 @@ final class ConsoleCommunication {
   private final ConsoleProperties m_properties;
   private final ErrorHandler m_errorHandler;
 
+  private Acceptor m_acceptor = null;
   private Receiver m_receiver = null;
   private Sender m_sender = null;
   private boolean m_deaf = true;
@@ -61,77 +62,76 @@ final class ConsoleCommunication {
     m_properties = properties;
     m_errorHandler = errorHandler;
 
-    resetReceiver();
-    resetSender();
+    reset();
 
     properties.addPropertyChangeListener(
       new PropertyChangeListener() {
         public void propertyChange(PropertyChangeEvent event) {
           final String property = event.getPropertyName();
 
-          // TODO - REVIEW
           if (property.equals(ConsoleProperties.CONSOLE_ADDRESS_PROPERTY) ||
               property.equals(ConsoleProperties.CONSOLE_PORT_PROPERTY)) {
-            resetSender();
-            resetReceiver();
+            reset();
           }
         }
       });
   }
 
-  private void resetReceiver() {
+  private void reset() {
     try {
-      if (m_receiver != null) {
-         m_receiver.shutdown();
+      if (m_acceptor != null) {
+         m_acceptor.shutdown();
       }
+    }
+    catch (CommunicationException e) {
+      m_errorHandler.handleException(e);
+      return;
+    }
 
-      synchronized (this) {
-        while (!m_deaf) {
-          try {
-            wait();
-          }
-          catch (InterruptedException e) {
-            // Ignore because its a pain to propagate.
-          }
+    if (m_sender != null) {
+      m_sender.shutdown();
+    }
+
+    if (m_receiver != null) {
+      m_receiver.shutdown();
+    }
+
+    synchronized (this) {
+      while (!m_deaf) {
+        try {
+          wait();
+        }
+        catch (InterruptedException e) {
+          m_errorHandler.handleException(e);
+          return;
         }
       }
+    }
 
-      m_receiver = ServerReceiver.bindTo(m_properties.getConsoleAddress(),
-                                         m_properties.getConsolePort() + 1);
+    final Acceptor acceptor;
 
-      synchronized (this) {
-        m_deaf = false;
-        notifyAll();
-      }
+    try {
+      acceptor = new Acceptor(m_properties.getConsoleAddress(),
+                              m_properties.getConsolePort(),
+                              1);
     }
     catch (CommunicationException e) {
       m_errorHandler.handleException(
         new DisplayMessageConsoleException(
           "localBindError.text", "Failed to bind to local address", e));
-    }
-  }
 
-  private void resetSender() {
-    String host;
-
-    try {
-      // TODO - review
-      host = InetAddress.getLocalHost().getHostName();
-    }
-    catch (UnknownHostException e) {
-      host = "UNNAMED HOST";
+      return;
     }
 
-    try {
-      m_sender = FanOutServerSender.bindTo(m_properties.getConsoleAddress(),
-                                           m_properties.getConsolePort());
-    }
-    catch (CommunicationException e) {
-      m_errorHandler.handleException(
-        new DisplayMessageConsoleException(
-          "multicastConnectError.text",
-          "Failed to connect to multicast address",
-          e));
+    m_receiver =
+      new ServerReceiver(acceptor.getSocketSet(ConnectionType.REPORT), 5);
+
+    m_sender =
+      new FanOutServerSender(acceptor.getSocketSet(ConnectionType.CONTROL), 3);
+
+    synchronized (this) {
+      m_deaf = false;
+      notifyAll();
     }
   }
 

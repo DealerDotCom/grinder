@@ -37,27 +37,21 @@ public final class ClientSender extends StreamSender {
    * Factory method that makes a TCP connection and returns a
    * corresponding <code>Sender</code>.
    *
-   * @param addressString TCP address to connect to.
-   * @param port TCP port to connect to.
+   * @param connector Connector to use to make the connection to the
+   * server.
    * @return The ClientSender.
-   * @throws CommunicationException If <code>Sender</code> could not
-   * be created.
+   * @throws CommunicationException If failed to connect.
    */
-  public static Sender connectTo(String addressString, int port)
+  public static Sender connect(Connector connector)
     throws CommunicationException {
 
+    final Socket socket = connector.connect();
+
     try {
-      // Our socket - bind to any local port.
-      final Socket socket = new Socket(addressString, port);
-
-      final String localHost = socket.getLocalAddress().getHostName();
-      final int localPort = socket.getLocalPort();
-
       return new ClientSender(socket);
     }
     catch (IOException e) {
-      throw new CommunicationException(
-        "Could not connect to '" + addressString + ":" + port + "'", e);
+      throw new CommunicationException("Connection failed", e);
     }
   }
 
@@ -73,10 +67,8 @@ public final class ClientSender extends StreamSender {
   /**
    * Cleanly shutdown the <code>Sender</code>. Ignore most errors,
    * connection has probably been reset by peer.
-   *
-   * @throws CommunicationException If an error occurs.
    */
-  public void shutdown() throws CommunicationException {
+  public void shutdown() {
 
     super.shutdown();
 

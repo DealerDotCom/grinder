@@ -71,19 +71,8 @@ public final class MessagePump {
    */
   public void shutdown() throws InterruptedException {
 
-    try {
-      m_receiver.shutdown();
-    }
-    catch (CommunicationException e) {
-      // Ignore.
-    }
-
-    try {
-      m_sender.shutdown();
-    }
-    catch (CommunicationException e) {
-      // Ignore.
-    }
+    m_receiver.shutdown();
+    m_sender.shutdown();
 
     m_threadPool.stopAndWait();
   }

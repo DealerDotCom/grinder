@@ -23,6 +23,7 @@ package net.grinder.communication;
 
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.StreamCorruptedException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -46,34 +47,36 @@ public class TestServerReceiver extends TestCase {
     super(name);
   }
 
-  public void testBindTo() throws Exception {
+  public void testConstructor() throws Exception {
 
-    // Figure out a free local port.
-    final ServerSocket serverSocket = new ServerSocket(0);
-    final int port = serverSocket.getLocalPort();
-    serverSocket.close();
+    final ResourcePool socketSet = new ResourcePool();
 
-    final ServerReceiver serverReceiver1 = ServerReceiver.bindTo("", port);
-    final ServerReceiver serverReceiver2 = ServerReceiver.bindTo("", 0);
+    final ServerReceiver serverReceiver = new ServerReceiver(socketSet, 3);
 
-    serverReceiver1.shutdown();
-    serverReceiver2.shutdown();
+    serverReceiver.shutdown();
   }
 
   public void testWaitForMessage() throws Exception {
 
-    final ServerReceiver serverReceiver = ServerReceiver.bindTo("", 0);
-    final Acceptor acceptor = serverReceiver.getAcceptor();
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
+
+    final ServerReceiver serverReceiver = new ServerReceiver(socketSet, 3);
 
     final Socket[] socket = new Socket[5];
 
     for (int i=0; i<socket.length; ++i) {
       socket[i] = new Socket(InetAddress.getByName(null), acceptor.getPort());
+      final OutputStream outputStream = socket[i].getOutputStream();
+      outputStream.write(ConnectionType.CONTROL.toInteger());
+      outputStream.flush();
     }
 
     // Sleep until we've accepted all connections. Give up after a few
     // seconds.
-    for (int i=0; acceptor.getSocketSet().countActive() != 5 && i<10; ++i) {
+    for (int i=0; socketSet.countActive() != 5 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
 
@@ -126,29 +129,38 @@ public class TestServerReceiver extends TestCase {
     assertEquals(message3, receivedMessage3);
 
     serverReceiver.shutdown();
+    acceptor.shutdown();
   }
 
   public void testShutdown() throws Exception {
 
-    final ServerReceiver serverReceiver = ServerReceiver.bindTo("", 0);
-    final Acceptor acceptor = serverReceiver.getAcceptor();
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
+
+    final ServerReceiver serverReceiver = new ServerReceiver(socketSet, 3);
 
     assertEquals(1, acceptor.getThreadGroup().activeCount());
-    assertEquals(5, serverReceiver.getThreadGroup().activeCount());
+    assertEquals(3, serverReceiver.getThreadGroup().activeCount());
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
+    final OutputStream outputStream = socket.getOutputStream();
+    outputStream.write(ConnectionType.CONTROL.toInteger());
+    outputStream.flush();
+
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
-    for (int i=0; acceptor.getSocketSet().countActive() != 1 && i<10; ++i) {
+    for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
 
     final SimpleMessage message = new SimpleMessage();
 
     final ObjectOutputStream objectStream =
-      new ObjectOutputStream(socket.getOutputStream());
+      new ObjectOutputStream(outputStream);
     objectStream.writeObject(message);
     objectStream.flush();
 
@@ -157,12 +169,18 @@ public class TestServerReceiver extends TestCase {
     serverReceiver.shutdown();
 
     assertNull(serverReceiver.waitForMessage());
+
+    acceptor.shutdown();
   }
 
   public void testCloseCommunicationMessage() throws Exception {
 
-    final ServerReceiver serverReceiver = ServerReceiver.bindTo("", 0);
-    final Acceptor acceptor = serverReceiver.getAcceptor();
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
+
+    final ServerReceiver serverReceiver = new ServerReceiver(socketSet, 5);
 
     assertEquals(1, acceptor.getThreadGroup().activeCount());
     assertEquals(5, serverReceiver.getThreadGroup().activeCount());
@@ -170,16 +188,20 @@ public class TestServerReceiver extends TestCase {
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
+    final OutputStream outputStream = socket.getOutputStream();
+    outputStream.write(ConnectionType.CONTROL.toInteger());
+    outputStream.flush();
+
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
-    for (int i=0; acceptor.getSocketSet().countActive() != 1 && i<10; ++i) {
+    for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
 
     final SimpleMessage message = new SimpleMessage();
 
     final ObjectOutputStream objectStream1 =
-      new ObjectOutputStream(socket.getOutputStream());
+      new ObjectOutputStream(outputStream);
     objectStream1.writeObject(message);
     objectStream1.flush();
 
@@ -202,5 +224,7 @@ public class TestServerReceiver extends TestCase {
       }.getException());
 
     serverReceiver.shutdown();
+
+    acceptor.shutdown();
   }
 }

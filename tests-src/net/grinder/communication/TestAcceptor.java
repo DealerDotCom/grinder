@@ -80,26 +80,46 @@ public class TestAcceptor extends TestCase {
 
     final Acceptor acceptor = createAcceptor(2);
 
-    final ResourcePool socketSet = acceptor.getSocketSet();
-    assertNotNull(socketSet);
-    assertTrue(socketSet.reserveNext().isSentinel());
+    final ResourcePool controlSocketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
 
-    final Socket socket1 =
-      new Socket(InetAddress.getByName(null), acceptor.getPort());
+    assertNotNull(controlSocketSet);
+    assertTrue(controlSocketSet.reserveNext().isSentinel());
 
-    final Socket socket2 =
-      new Socket(InetAddress.getByName(null), acceptor.getPort());
+    final Connector controlConnector =
+      new Connector("localhost", acceptor.getPort(), ConnectionType.CONTROL);
 
-    // Sleep until we've accepted both connections. Give up after a
-    // few seconds.
-    for (int i=0; socketSet.countActive() != 2 && i<10; ++i) {
+    final Connector reportConnector =
+      new Connector("localhost", acceptor.getPort(), ConnectionType.REPORT);
+
+    controlConnector.connect();
+    controlConnector.connect();
+    reportConnector.connect();
+
+    // Sleep until we've accepted both control connections. Give up
+    // after a few seconds.
+    for (int i=0; controlSocketSet.countActive() != 2 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
     
-    assertSame(socketSet, acceptor.getSocketSet());
+    assertSame(controlSocketSet,
+               acceptor.getSocketSet(ConnectionType.CONTROL));
 
-    final List socketResources = socketSet.reserveAll();
-    assertEquals(2, socketResources.size());
+    final List controlSocketResources = controlSocketSet.reserveAll();
+    assertEquals(2, controlSocketResources.size());
+
+    // Now do a similar checks with report socket set.
+    final ResourcePool reportSocketSet =
+      acceptor.getSocketSet(ConnectionType.REPORT);
+
+    for (int i=0; reportSocketSet.countActive() != 1 && i<10; ++i) {
+      Thread.sleep(i * i * 10);
+    }
+
+    assertSame(reportSocketSet, acceptor.getSocketSet(ConnectionType.REPORT));
+
+    final List reportSocketResources = reportSocketSet.reserveAll();
+    assertEquals(1, reportSocketResources.size());
 
     acceptor.shutdown();
   }
@@ -138,14 +158,17 @@ public class TestAcceptor extends TestCase {
 
     final Acceptor acceptor = createAcceptor(3);
 
-    final ResourcePool socketSet = acceptor.getSocketSet();
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
 
-    final Socket socket =
-      new Socket(InetAddress.getByName(null), acceptor.getPort());
+    final Connector connector =
+      new Connector("localhost", acceptor.getPort(), ConnectionType.CONTROL);
+
+    connector.connect();
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
-    for (int i=0; acceptor.getSocketSet().countActive() != 1 && i<10; ++i) {
+    for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
 

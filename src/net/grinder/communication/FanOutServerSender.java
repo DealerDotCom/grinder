@@ -34,24 +34,16 @@ import java.io.OutputStream;
 public final class FanOutServerSender extends AbstractFanOutSender {
 
   /**
-   * Factory method that creates a <code>FanOutServerSender</code>
-   * that listens on the given address.
+   * Constructor.
    *
-   * @param addressString The TCP address to listen on. Zero-length
-   * string => listen on all interfaces.
-   * @param port The TCP port to listen to. 0 => any local port.
-   * @return The FanOutServerSender.
-   * @throws CommunicationException If server socket could not be
-   * bound.
+   * @param acceptedSocketSet Resource pool that contains accepted sockets.
+   * @param numberOfThreads Number of sender threads to use.
    */
-  public static FanOutServerSender bindTo(String addressString, int port)
-    throws CommunicationException {
+  public FanOutServerSender(ResourcePool acceptedSocketSet,
+                            int numberOfThreads) {
 
-    return new FanOutServerSender(new Acceptor(addressString, port, 1),
-                                  new Kernel(3));
+    this(acceptedSocketSet, new Kernel(numberOfThreads));
   }
-
-  private final Acceptor m_acceptor;
 
   /**
    * Constructor.
@@ -61,12 +53,9 @@ public final class FanOutServerSender extends AbstractFanOutSender {
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  private FanOutServerSender(Acceptor acceptor, Kernel kernel)
-    throws CommunicationException {
+  private FanOutServerSender(ResourcePool acceptedSocketSet, Kernel kernel) {
 
-    super(kernel, acceptor.getSocketSet());
-
-    m_acceptor = acceptor;
+    super(kernel, acceptedSocketSet);
   }
 
   /**
@@ -85,20 +74,8 @@ public final class FanOutServerSender extends AbstractFanOutSender {
 
   /**
    * Shut down this sender.
-   *
-   * @throws CommunicationException If an IO exception occurs.
    */
-  public void shutdown() throws CommunicationException {
+  public void shutdown() {
     super.shutdown();
-    m_acceptor.shutdown();
-  }
-
-   /**
-    * Return the Acceptor. Package scope, used by the unit tests.
-    *
-    * @return The acceptor.
-    */
-  Acceptor getAcceptor() {
-    return m_acceptor;
   }
 }

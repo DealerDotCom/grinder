@@ -48,7 +48,7 @@ public class TestQueuedSenderDecorator extends TestCase {
       m_messagesReceived.add(message);
     }
 
-    public void shutdown() throws CommunicationException {
+    public void shutdown() {
       m_shutdown = true;
     }
 

@@ -27,7 +27,7 @@ package net.grinder.communication;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 public interface Sender {
 
   /**
@@ -35,13 +35,11 @@ public interface Sender {
    *
    * @param message A {@link Message}.
    * @exception CommunicationException If an error occurs.
-   **/
+   */
   void send(Message message) throws CommunicationException;
 
   /**
-   * Cleanly shutdown the <code>Sender</code>.
-   *
-   * @exception CommunicationException If an error occurs.
-   **/
-  void shutdown() throws CommunicationException;
+   * Cleanly shut down the <code>Sender</code>.
+   */
+  void shutdown();
 }

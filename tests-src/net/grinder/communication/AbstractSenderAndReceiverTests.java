@@ -37,8 +37,9 @@ import junit.framework.TestCase;
 public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
   private final boolean m_messagesNeedInitialising;
-  private final String m_hostName;
-  private final int m_port;
+
+  private Acceptor m_acceptor;
+  private Connector m_connector;
 
   protected Receiver m_receiver;
   protected Sender m_sender;
@@ -52,25 +53,32 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
   public AbstractSenderAndReceiverTests(String name,
                                         boolean messagesNeedInitialising) 
     throws Exception {
-    
     super(name);
 
     m_messagesNeedInitialising = messagesNeedInitialising;
-
-    m_hostName = InetAddress.getByName(null).getHostName();
-
-    // Find a free port.
-    final ServerSocket socket = new ServerSocket(0);
-    m_port = socket.getLocalPort();
-    socket.close();
   }
 
-  protected final String getHostName() {
-    return m_hostName;
+  private final void initialiseSockets() throws Exception {
+
+    if (m_connector == null) {
+      // Find a free port.
+      final ServerSocket socket = new ServerSocket(0);
+      final int port = socket.getLocalPort();
+      socket.close();
+
+      m_connector = new Connector("localhost", port, ConnectionType.CONTROL);
+      m_acceptor = new Acceptor("localhost", port, 1);
+    }
   }
 
-  protected final int getPort() {
-    return m_port;
+  protected final ResourcePool getAcceptedSocketSet() throws Exception {
+    initialiseSockets();
+    return m_acceptor.getSocketSet(ConnectionType.CONTROL);
+  }
+
+  protected final Connector getConnector() throws Exception {
+    initialiseSockets();
+    return m_connector;
   }
 
   protected void setUp() throws Exception {
@@ -79,6 +87,10 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
   protected void tearDown() throws Exception {
     m_executeThread.shutdown();
+
+    if (m_acceptor != null) {
+      m_acceptor.shutdown();
+    }
   }
   
 

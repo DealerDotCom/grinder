@@ -35,9 +35,11 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
 
   /**
    * Constructor.
+   *
+   * @param numberOfThreads Number of sender threads to use.
    */
-  public FanOutStreamSender() {
-    this(new Kernel(3));
+  public FanOutStreamSender(int numberOfThreads) {
+    this(new Kernel(numberOfThreads));
   }
 
   /**

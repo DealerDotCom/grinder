@@ -43,9 +43,11 @@ public class TestClientSender extends TestCase {
 
     final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
 
-    final Sender clientSender =
-      ClientSender.connectTo(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
+    final Connector connector =
+      new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
+                    ConnectionType.CONTROL);
+
+    final Sender clientSender = ClientSender.connect(connector);
 
     socketAcceptor.join();
 
@@ -57,6 +59,9 @@ public class TestClientSender extends TestCase {
 
     final InputStream socketInput =
       socketAcceptor.getAcceptedSocket().getInputStream();
+
+    // Discard connection type indication byte.
+    socketInput.read();
 
     // Need an ObjectInputStream for every message. See note in
     // ClientSender.writeMessage.
@@ -74,9 +79,7 @@ public class TestClientSender extends TestCase {
     socketAcceptor.close();
     
     try {
-      ClientReceiver.connectTo(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
-
+      ClientReceiver.connect(connector);
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
@@ -87,9 +90,11 @@ public class TestClientSender extends TestCase {
 
     final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
 
-    final Sender clientSender =
-      ClientSender.connectTo(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
+    final Connector connector =
+      new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
+                    ConnectionType.CONTROL);
+
+    final Sender clientSender = ClientSender.connect(connector);
 
     socketAcceptor.join();
 
@@ -108,6 +113,9 @@ public class TestClientSender extends TestCase {
 
     final InputStream socketInput =
       socketAcceptor.getAcceptedSocket().getInputStream();
+
+    // Discard connection type indication byte.
+    socketInput.read();
 
     final ObjectInputStream inputStream1 = new ObjectInputStream(socketInput);
     final Object o1 = inputStream1.readObject();
