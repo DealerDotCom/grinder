@@ -1,3 +1,47 @@
+2004-01-18  Philip Aston  <paston@bea.com>
+
+	* The Grinder 3.0-beta17 is released.
+
+	* TODO, CHANGES, src/net/grinder/console/swingui/Table.java:
+	Results of first round of arguing with JTable.
+
+	* CHANGES, src/net/grinder/console/swingui/resources/Console_es.properties:
+	Spanish translation updates.
+
+2004-01-17  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	Use a JEditorPane for the about dialog; it has better resize behaviour
+	and allows text (e.g. URLs) to be copied to the clipboard.
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/statistics/StatisticsIndexMap.java:
+	Record response length.
+
+	* CHANGES, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/script/Statistics.java:
+	addValue() methods.
+
+2004-01-16  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, TODO, examples/grinder.properties, examples/httpunit.py, xdoc/g3/script-gallery-xhtml.xml:
+	HTTPUnit example from Tony Lodge.
+
+	* examples/email.py, xdoc/g3/script-gallery-xhtml.xml:
+	Fix copyright message.
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java:
+	HTTPPluginConnection.removeDigestAuthorization(). The parameters to
+	this method, and semantics of the corresponding add methods, have been
+	changed to match HTTPClient. The clearAll methods have been removed
+	from the API.
+
+	* etc/checkstyle.xml: Block all TODO's. Thanks Bertrand.
+
+	* build.xml, etc/buildenv.sh:
+	Passing the Checkstyle classpath to <taskdef> means we don't need it
+	in the system classpath. Thanks Bertrand.
+
+	* CHANGES: Give a bug a name.
+
 2004-01-15  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, examples/email.py, examples/grinder.properties, xdoc/g3/script-gallery-xhtml.xml:
