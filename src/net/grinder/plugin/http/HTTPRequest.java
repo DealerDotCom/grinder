@@ -240,7 +240,7 @@ public class HTTPRequest
      */
     public final HTTPResponse GET(String uri) throws Exception
     {
-	return GET(uri, getHeaders());
+	return GET(uri, getFormData(), getHeaders());
     }
 
     /**
@@ -307,7 +307,7 @@ public class HTTPRequest
      */
     public final HTTPResponse HEAD() throws Exception
     {
-	return HEAD(null, getHeaders());
+	return HEAD(null, getFormData(), getHeaders());
     }
 
     /**
