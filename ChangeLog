@@ -1,3 +1,26 @@
+2001-07-11  Philip Aston  <paston@bea.com>
+
+	* build.xml: Next is 2.6.5.
+
+	* README: Corrections.
+
+	* src/net/grinder/plugin/http/HttpPlugin.java:
+	Use HTTP.parseHttpDate, rather than duplicating functionality.
+
+	* src/net/grinder/console/swingui/resources/save.xcf, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/StatisticsTableModel.java, src/net/grinder/console/swingui/SummaryFrame.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/graphs.gif, src/net/grinder/console/swingui/resources/graphs.xcf, src/net/grinder/console/swingui/resources/save.gif, TODO, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/Graph.java:
+	New tabbed Console layout.
+	Can now save data from console.
+
+	* src/HTTPClient/HTTPConnection.java: Correct comment.
+
+	* src/HTTPClient/Util.java: Expose parseHttpDate.
+
+2001-07-10  Philip Aston  <paston@bea.com>
+
+	* doc/HTTPPlugin.txt, src/HTTPClient/HTTPConnection.java, src/net/grinder/plugin/http/HTTPClientHandler.java:
+	Based on e-mail from Ronald Tschalär, revert changes to HTTPConnection
+	and explicitly construct path + "?" + query.
+
 2001-07-09  Philip Aston  <paston@bea.com>
 
 	* The Grinder 2.6.4 is released.
