@@ -138,6 +138,12 @@ counter and the beginning of a cycle), it can implement the
 net.grinder.plugin.http.StringBean interface. See the examples in
 net.grinder.plugin.http.example.
 
+Advanced StringBeans can implement the
+net.grinder.plugin.http.StringBean and/or
+net.grinder.plugin.http.HTTPClientResponseListener interfaces to
+receive callbacks about the test lifecycle. See the examples in
+src/net/grinder/plugin/http/example.
+
 
 HTTPClient
 **********
