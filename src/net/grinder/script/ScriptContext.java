@@ -136,8 +136,8 @@ public interface ScriptContext {
     throws GrinderException;
 
   /**
-   * Get the Statistics the calling worker thread. This holds the
-   * statistics of the last test invoked by the thread.
+   * Get the Statistics for the calling worker thread. This provides
+   * access to the statistics of the last test invoked by the thread.
    *
    * @return The statistics.
    * @exception InvalidContextException If called from a non-worker

@@ -28,12 +28,12 @@ import net.grinder.statistics.StatisticsIndexMap;
  * Script statisistics reporting API.
  *
  * <p>An instance of this interface can be obtained using {@link
- * ScriptContext#getStatistics}. This can be used in the main script
- * body to query the result of the last test. For example:
+ * ScriptContext#getStatistics}. This can be used in a script to query
+ * the result of the last test. For example:
  *
  * <blockquote>
  * <pre>
- *   result1 = test1.doSometing()
+ *   result1 = test1.doSomething()
  *   timeTaken1 = grinder.statistics.time
  *
  *   if grinder.statistics.success:
@@ -41,16 +41,22 @@ import net.grinder.statistics.StatisticsIndexMap;
  * </pre>
  * </blockquote>
  *
- * <p>{@link #setDelayReports} can used to turn off automatic
- * reporting of the last test statistics for a worker thread. Having
- * done this, the script body can modify or set the statistics before
- * sending them to the log and the console using {@link #report}.
+ *  <p>By default, test statistics reports are automatically sent to
+ *  the console and data log when the test implementation returns to
+ *  the script, and so the script cannot modify the test statistics.
+ *  By using {@link #setDelayReports}, scripts can turn off this
+ *  automatic reporting for the current worker thread. Having done
+ *  this, the script can modify or set the statistics before they are
+ *  sent to the log and the console. The statistics reports are sent
+ *  at a later time as described {@linkplain #setDelayReports below}.
+ *  For example:
+ *
  *
  * <blockquote>
  * <pre>
  *   grinder.statistics.delayReports = 1
  *
- *   result1 = test1.doSometing()
+ *   result1 = test1.doSomething()
  *
  *   if isFailed(result1): 
  *
@@ -60,17 +66,12 @@ import net.grinder.statistics.StatisticsIndexMap;
  * </pre>
  * </blockquote>
  *
- * <p>With the default behaviour, statistics reports are sent to the
- * console and data log automatically and the script cannot alter the
- * statistics after the test has been invoked. With statistics reports
- * delayed, statistics reports are sent as described {@linkplain
- * #setDelayReports below}.
- *
  * <p>It is possible to set the statistics from within test
- * implementation itself. This is more useful for user statsitics
- * rather than standard statistics (<em>[un]timedTransactions</em>,
- * <em>errors</em>, <em>transactionTime</em>) which may be overridden
- * by The Grinder engine when the test finishes.
+ * implementation itself. This is more useful for user statsitics than
+ * for the standard statistics (<em>[un]timedTransactions</em>,
+ * <em>errors</em>, <em>transactionTime</em>) as the standard
+ * statistics may be overridden by The Grinder engine when the test
+ * finishes.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -116,8 +117,8 @@ public interface Statistics  {
   void report() throws InvalidContextException;
 
   /**
-   * Sets the long statistic with index <code>index</code> to the
-   * specified <code>value</code>.
+   * Sets the long statistic for the last test with index
+   * <code>index</code> to the specified <code>value</code>.
    * 
    * @param index The statistic index.
    * @param value The value.
@@ -132,8 +133,8 @@ public interface Statistics  {
     throws InvalidContextException, StatisticsAlreadyReportedException;
 
   /**
-   * Sets the double statistic with index <code>index</code> to the
-   * specified <code>value</code>.
+   * Sets the double statistic for the last test with index
+   * <code>index</code> to the specified <code>value</code>.
    * 
    * @param index The statistic index.
    * @param value The value.
@@ -148,7 +149,8 @@ public interface Statistics  {
     throws InvalidContextException, StatisticsAlreadyReportedException;
 
   /**
-   * Return the long value specified by <code>index</code>.
+   * Return the long value for the last test specified by
+   * <code>index</code>.
    *
    * @param index The statistic index.
    * @return The value.
@@ -156,7 +158,8 @@ public interface Statistics  {
   long getValue(StatisticsIndexMap.LongIndex index);
 
   /**
-   * Return the double value specified by <code>index</code>.
+   * Return the double value for the last test specified by
+   * <code>index</code>.
    *
    * @param index The statistic index.
    * @return The value.
@@ -164,7 +167,7 @@ public interface Statistics  {
   double getValue(StatisticsIndexMap.DoubleIndex index);
 
   /**
-   * Convenience method that sets whether the current test should be
+   * Convenience method that sets whether the last test should be
    * considered a success or not.
    *
    * @param success If <code>true</code>, <em>timedTransactions</em>
@@ -183,8 +186,8 @@ public interface Statistics  {
     throws InvalidContextException, StatisticsAlreadyReportedException;
 
   /**
-   * Convenience method that returns whether the test was a success
-   * (<em>errors</em> is zero) or not.
+   * Convenience method that returns whether the last test was a
+   * success (<em>errors</em> is zero) or not.
    *
    * @return Whether the last test was a success.
    */

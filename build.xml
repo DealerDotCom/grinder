@@ -442,10 +442,10 @@ what you want. Currently the conditionally built modules are:
         <include name="net/grinder/common/GrinderProperties.java"/>
         <include name="net/grinder/common/Logger.java"/>
         <include name="net/grinder/common/Test.java"/>
-	<include name="net/grinder/plugin/http/HTTPPluginConnection.java"/>
-	<include name="net/grinder/plugin/http/HTTPPluginControl.java"/>
-	<include name="net/grinder/plugin/http/HTTPRequest.java"/>
-	<include name="net/grinder/plugin/http/URLException.java"/>
+	<include name="net/grinder/plugin/http/*.java"/>
+	<exclude name="net/grinder/plugin/http/HTTPPlugin.java"/>
+	<exclude name="net/grinder/plugin/http/HTTPPluginThreadState.java"/>
+	<exclude name="net/grinder/plugin/http/HTTPPluginTCPProxy*.java"/>
         <include name="net/grinder/script/*.java"/>
         <include name="net/grinder/statistics/ExpressionView.java"/>
         <include name="net/grinder/statistics/StatisticsIndexMap.java"/>
@@ -456,7 +456,6 @@ what you want. Currently the conditionally built modules are:
 
     <mkdir dir="${script-javadoc.dir}"/>
 
-    <mkdir dir="${script-javadoc.dir}"/>
     <javadoc destdir="${script-javadoc.dir}"
              packagenames="net.grinder.*,HTTPClient.*"
              author="true"
@@ -467,6 +466,7 @@ what you want. Currently the conditionally built modules are:
              doctitle="${Name}"
              stylesheetfile="${javadoc.css}"
 	     public="true"
+             overview="${script-javadoc-working.dir}/net/grinder/script/overview.html"
              sourcepath="${script-javadoc-working.dir}">
         <footer><![CDATA[<img src='../images/grinder3.jpg'></img>]]>
         </footer>
