@@ -426,8 +426,11 @@ what you want. Currently the conditionally built modules are:
 
   </target>
 
-  <target name="gj-test"
-          depends="gj-instrument,test"
+  <target name="gj-test" depends="gj-instrument,test"/>
+
+  <!-- Unfortunately this can't depend on gj-test as it then runs
+       in the same JVM and GJTK reports "no test cases were found". -->
+  <target name="gj-report"
           description="Unit test run of Glass JAR instrumented code">
 
     <taskdef name="gjreport"
@@ -441,10 +444,6 @@ what you want. Currently the conditionally built modules are:
       <sourcepath>
 	<pathelement path="${src.dir}"/>
       </sourcepath>
-      <include name="net.grinder.**"/>
-      <cvgset dir="${gj-coverage.dir}">
-        <include name="*.cvg"/>
-      </cvgset>
     </gjreport>
   </target>
 
