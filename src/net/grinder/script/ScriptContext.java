@@ -25,6 +25,7 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -36,74 +37,96 @@ import net.grinder.common.Logger;
  */ 
 public interface ScriptContext {
 
-    /**
-     * Get an unique ID value for this worker process.
-     *
-     * @return The id.
-     */
-    String getGrinderID();
+  /**
+   * Get an unique ID value for this worker process.
+   *
+   * @return The id.
+   */
+  String getGrinderID();
 
-    /**
-     * Return the thread ID, or -1 if not called from a worker thread.
-     * @return The thread ID.
-     */
-    int getThreadID();
+  /**
+   * Return the thread ID, or -1 if not called from a worker thread.
+   * @return The thread ID.
+   */
+  int getThreadID();
 
-    /**
-     * Return the current run number, or -1 if not called from a
-     * worker thread.
-     *
-     * @return An <code>int</code> value.
-     */
-    int getRunNumber();
+  /**
+   * Return the current run number, or -1 if not called from a
+   * worker thread.
+   *
+   * @return An <code>int</code> value.
+   */
+  int getRunNumber();
 
-    /**
-     * Get an appropriate {@link net.grinder.common.Logger}
-     * implementation. The value returned when invoked from script
-     * initialisation differs from the value returned when called from
-     * a worker thread, so its best not to keep references to the
-     * result.
-     *
-     * @return A <code>Logger</code>.
-     */
-    Logger getLogger();
+  /**
+   * Get an appropriate {@link net.grinder.common.Logger}
+   * implementation. The value returned when invoked from script
+   * initialisation differs from the value returned when called from
+   * a worker thread, so its best not to keep references to the
+   * result.
+   *
+   * @return A <code>Logger</code>.
+   */
+  Logger getLogger();
 
-    /**
-     * Sleep for a time based on the meanTime parameter. The actual
-     * time may be greater or less than meanTime, and is distributed
-     * according to a pseudo normal distribution.
-     *
-     * @param meanTime Mean time in milliseconds.
-     * @exception GrinderException If an error occurs.
-     */
-    void sleep(long meanTime) throws GrinderException;
+  /**
+   * Sleep for a time based on the meanTime parameter. The actual
+   * time may be greater or less than meanTime, and is distributed
+   * according to a pseudo normal distribution.
+   *
+   * @param meanTime Mean time in milliseconds.
+   * @exception GrinderException If an error occurs.
+   */
+  void sleep(long meanTime) throws GrinderException;
 
-    /**
-     * Sleep for a time based on the meanTime parameter. The actual
-     * time may be greater or less than meanTime, and is distributed
-     * according to a pseudo normal distribution.
-     *
-     * @param meanTime Mean time in milliseconds.
-     * @param sigma The standard deviation, in milliseconds.
-     * @exception GrinderException If an error occurs.
-     **/
-    void sleep(long meanTime, long sigma) throws GrinderException;
+  /**
+   * Sleep for a time based on the meanTime parameter. The actual
+   * time may be greater or less than meanTime, and is distributed
+   * according to a pseudo normal distribution.
+   *
+   * @param meanTime Mean time in milliseconds.
+   * @param sigma The standard deviation, in milliseconds.
+   * @exception GrinderException If an error occurs.
+   **/
+  void sleep(long meanTime, long sigma) throws GrinderException;
 
-    /**
-     * Get a {@link net.grinder.common.FilenameFactory} that can be
-     * used to create unique filenames. The value returned when invoked from script
-     * initialisation differs from the value returned when called from
-     * a worker thread, so its best not to keep references to the
-     * result.
-     *
-     * @return A <code>FilenameFactory</code>.
-     */
-    FilenameFactory getFilenameFactory();
+  /**
+   * Get a {@link net.grinder.common.FilenameFactory} that can be
+   * used to create unique filenames. The value returned when invoked from script
+   * initialisation differs from the value returned when called from
+   * a worker thread, so its best not to keep references to the
+   * result.
+   *
+   * @return A <code>FilenameFactory</code>.
+   */
+  FilenameFactory getFilenameFactory();
 
-    /**
-     * Get the global properties for this agent/worker process set.
-     *
-     * @return The properties.
-     */
-    GrinderProperties getProperties();
+  /**
+   * Get the global properties for this agent/worker process set.
+   *
+   * @return The properties.
+   */
+  GrinderProperties getProperties();
+  
+  /**
+   * Register a new "summary" statistics view. These views appear in
+   * the worker process output log summaries and are displayed in the
+   * console.
+   *
+   * @param statisticsView The new statistics view.
+   * @exception GrinderException If the view could not be registered.
+   */
+  void registerSummaryStatisticsView(StatisticsView statisticsView)
+    throws GrinderException;
+
+  /**
+   * Register a new "detail" statistics view which appears in the
+   * worker process data logs. Each test invocation will have an entry
+   * displayed for the detail statistics views.
+   *
+   * @param statisticsView The new statistics view.
+   * @exception GrinderException If the view could not be registered.
+   */
+  void registerDetailStatisticsView(StatisticsView statisticsView)
+    throws GrinderException;
 }

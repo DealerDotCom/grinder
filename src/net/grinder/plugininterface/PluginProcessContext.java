@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,13 +22,10 @@
 
 package net.grinder.plugininterface;
 
-import java.util.Set;
-
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
-import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.statistics.StatisticsView;
+import net.grinder.script.ScriptContext;
 
 
 /**
@@ -39,41 +36,35 @@ import net.grinder.statistics.StatisticsView;
  * @author Philip Aston
  * @version $Revision$
  **/
-public interface PluginProcessContext extends Logger, FilenameFactory
-{
-    /**
-     * Returns the name of this Grinder Process.
-     *
-     * @return The name.
-     **/
-    String getGrinderID();
+public interface PluginProcessContext {
 
-    /**
-     * Plugins can use this method to register a new "summary"
-     * statistics view. These views appear in the worker process
-     * summary table and the console.
-     *
-     * @param view The new view.
-     * @exception GrinderException If the view cannot be registered.
-     **/
-    void registerSummaryStatisticsView(StatisticsView view)
-	throws GrinderException;
+  /**
+   * Get the process {@link net.grinder.common.Logger}.
+   *
+   * @return A <code>Logger</code>.
+   */
+  Logger getLogger();
 
-    /**
-     * Plugins can use this method to register a new "detail"
-     * statistics view. These views appear in the individual process
-     * data files.
-     *
-     * @param view The new view.
-     * @exception GrinderException If the view cannot be registered.
-     **/
-    void registerDetailStatisticsView(StatisticsView view)
-	throws GrinderException;
+  /**
+   * Get the process {@link net.grinder.common.FilenameFactory}.
+   *
+   * @return A <code>Logger</code>.
+   */
+  FilenameFactory getFilenameFactory();
 
-    /**
-     * Return the {@link PluginThreadListener} for the current
-     * thread.
-     */
-    PluginThreadListener getPluginThreadListener()
-	throws GrinderException;
+  /**
+   * Returns the script context.
+   *
+   * @return The script context.
+   */
+  ScriptContext getScriptContext();
+
+  /**
+   * Returns the {@link PluginThreadListener} for the current
+   * thread.
+   *
+   * @return The thread listener for the current thread.
+   * @exception GrinderException If the thread listener could not be obtained.
+   */
+  PluginThreadListener getPluginThreadListener() throws GrinderException;
 }

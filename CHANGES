@@ -1,3 +1,12 @@
+Grinder 3.0-beta5
+-----------------
+
+  Script API to allow scripts to register new statistics views.
+
+  Rationalise the plugin API so that PluginProcessContext and
+  PluginThreadContext no longer extend Logger and FilenameFactory.
+
+
 Grinder 3.0-beta4
 -----------------
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,7 +33,7 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
 import net.grinder.communication.UnicastSender;
-import net.grinder.engine.EngineException;
+import net.grinder.script.ScriptContext;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 
@@ -43,142 +43,139 @@ import net.grinder.statistics.ExpressionView;
  * @version $Revision$
  * @stereotype singleton
  **/
-class ProcessContext
-{
-    private final String m_grinderID;
-    private final GrinderProperties m_properties;
-    private final boolean m_recordTime;
-    private final LoggerImplementation m_loggerImplementation;
-    private final Logger m_processLogger;
-    private final Sender m_consoleSender;
-    private final PluginRegistry m_pluginRegistry;
-    private final TestRegistry m_testRegistry;
+class ProcessContext {
+  private final String m_grinderID;
+  private final GrinderProperties m_properties;
+  private final boolean m_recordTime;
+  private final LoggerImplementation m_loggerImplementation;
+  private final Logger m_processLogger;
+  private final Sender m_consoleSender;
+  private final PluginRegistry m_pluginRegistry;
+  private final TestRegistry m_testRegistry;
+  private final ScriptContext m_scriptContext;
 
-    private boolean m_shouldWriteTitleToDataWriter;
+  private boolean m_shouldWriteTitleToDataWriter;
 
-    ProcessContext(String grinderID, GrinderProperties properties)
-	throws GrinderException
-    {
-	m_grinderID = grinderID;
-	m_properties = properties;
+  ProcessContext(String grinderID, GrinderProperties properties)
+    throws GrinderException {
 
-	m_recordTime = properties.getBoolean("grinder.recordTime", true);
+    m_grinderID = grinderID;
+    m_properties = properties;
 
-	final boolean appendLog =
-	    properties.getBoolean("grinder.appendLog", false);
+    m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
-	m_loggerImplementation =
-	    new LoggerImplementation(m_grinderID, 
-				     properties.getProperty(
-					 "grinder.logDirectory", "."),
-				     properties.getBoolean(
-					 "grinder.logProcessStreams", true),
-				     appendLog);
+    final boolean appendLog =
+      properties.getBoolean("grinder.appendLog", false);
 
-	m_processLogger = m_loggerImplementation.getProcessLogger();
+    m_loggerImplementation =
+      new LoggerImplementation(m_grinderID, 
+			       properties.getProperty(
+				 "grinder.logDirectory", "."),
+			       properties.getBoolean(
+				 "grinder.logProcessStreams", true),
+			       appendLog);
 
-	m_shouldWriteTitleToDataWriter = !appendLog;
+    m_processLogger = m_loggerImplementation.getProcessLogger();
 
-	Sender consoleSender = null;
+    m_shouldWriteTitleToDataWriter = !appendLog;
 
-	if (properties.getBoolean("grinder.reportToConsole", true)) {
-	    final String consoleAddress =
-		properties.getProperty("grinder.consoleAddress",
-				       CommunicationDefaults.CONSOLE_ADDRESS);
+    Sender consoleSender = null;
 
-	    final int consolePort =
-		properties.getInt("grinder.consolePort",
-				  CommunicationDefaults.CONSOLE_PORT);
+    if (properties.getBoolean("grinder.reportToConsole", true)) {
+      final String consoleAddress =
+	properties.getProperty("grinder.consoleAddress",
+			       CommunicationDefaults.CONSOLE_ADDRESS);
 
-	    try {
-		consoleSender =
-		    new UnicastSender(getGrinderID(), consoleAddress,
-				      consolePort);
-	    }
-	    catch (CommunicationException e) {
-		m_processLogger.output(
-		    "Unable to report to console (" + e.getMessage() +
-		    "); proceeding regardless. Set " +
-		    "grinder.reportToConsole=false to disable this warning.",
-		    Logger.LOG | Logger.TERMINAL);
-	    }
-	}
+      final int consolePort =
+	properties.getInt("grinder.consolePort",
+			  CommunicationDefaults.CONSOLE_PORT);
 
-	if (consoleSender != null) {
-	    m_consoleSender = consoleSender;
-	}
-	else {
-	    // Null Sender implementation.
-	    m_consoleSender = new Sender() {
-		    public void send(Message message) {}
-		    public void flush() {}
-		    public void queue(Message message) {}
-		    public void shutdown() {}
-		};
-	}
-
-	m_pluginRegistry = new PluginRegistry(this);
-	m_testRegistry = new TestRegistry(getConsoleSender());
+      try {
+	consoleSender =
+	  new UnicastSender(getGrinderID(), consoleAddress,
+			    consolePort);
+      }
+      catch (CommunicationException e) {
+	m_processLogger.output(
+	  "Unable to report to console (" + e.getMessage() +
+	  "); proceeding regardless. Set " +
+	  "grinder.reportToConsole=false to disable this warning.",
+	  Logger.LOG | Logger.TERMINAL);
+      }
     }
 
-    void initialiseDataWriter()
-    {
-	if (m_shouldWriteTitleToDataWriter) {
-	    final PrintWriter dataWriter =
-		m_loggerImplementation.getDataWriter();
-
-	    dataWriter.print("Thread, Run, Test");
-
-	    final ExpressionView[] detailExpressionViews =
-		CommonStatisticsViews.getDetailStatisticsView()
-		.getExpressionViews();
-
-	    for (int i=0; i<detailExpressionViews.length; ++i) {
-		dataWriter.print(", " +
-				 detailExpressionViews[i].getDisplayName());
-	    }
-
-	    dataWriter.println();
-	}
+    if (consoleSender != null) {
+      m_consoleSender = consoleSender;
+    }
+    else {
+      // Null Sender implementation.
+      m_consoleSender = new Sender() {
+	  public void send(Message message) {}
+	  public void flush() {}
+	  public void queue(Message message) {}
+	  public void shutdown() {}
+	};
     }
 
-    public final Sender getConsoleSender()
-    {
-	return m_consoleSender;
-    }
+    m_pluginRegistry = new PluginRegistry(this);
+    m_testRegistry = new TestRegistry(getConsoleSender());
+    m_scriptContext = new ScriptContextImplementation(this);
+  }
 
-    public final LoggerImplementation getLoggerImplementation()
-    {
-	return m_loggerImplementation;
-    }
+  final void initialiseDataWriter() {
 
-    public final Logger getLogger()
-    {
-	return m_processLogger;
-    }
+    if (m_shouldWriteTitleToDataWriter) {
+      final PrintWriter dataWriter =
+	m_loggerImplementation.getDataWriter();
 
-    public final PluginRegistry getPluginRegistry()
-    {
-	return m_pluginRegistry;
-    }
+      dataWriter.print("Thread, Run, Test");
 
-    public final TestRegistry getTestRegistry()
-    {
-	return m_testRegistry;
-    }
+      final ExpressionView[] detailExpressionViews =
+	CommonStatisticsViews.getDetailStatisticsView()
+	.getExpressionViews();
 
-    public final String getGrinderID()
-    {
-	return m_grinderID;
-    }
+      for (int i=0; i<detailExpressionViews.length; ++i) {
+	dataWriter.print(", " +
+			 detailExpressionViews[i].getDisplayName());
+      }
 
-    public final GrinderProperties getProperties()
-    {
-	return m_properties;
+      dataWriter.println();
     }
+  }
 
-    public final boolean getRecordTime()
-    {
-	return m_recordTime;
-    }
+  public final Sender getConsoleSender() {
+    return m_consoleSender;
+  }
+
+  public final LoggerImplementation getLoggerImplementation() {
+    return m_loggerImplementation;
+  }
+
+  public final Logger getLogger() {
+    return m_processLogger;
+  }
+
+  public final PluginRegistry getPluginRegistry() {
+    return m_pluginRegistry;
+  }
+
+  public final TestRegistry getTestRegistry() {
+    return m_testRegistry;
+  }
+
+  public final String getGrinderID() {
+    return m_grinderID;
+  }
+
+  public final GrinderProperties getProperties() {
+    return m_properties;
+  }
+
+  public final boolean getRecordTime() {
+    return m_recordTime;
+  }
+
+  public final ScriptContext getScriptContext() {
+    return m_scriptContext;
+  }
 }

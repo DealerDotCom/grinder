@@ -27,14 +27,18 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.script.ScriptContext;
+import net.grinder.statistics.CommonStatisticsViews;
+import net.grinder.statistics.StatisticsView;
+import net.grinder.communication.RegisterStatisticsViewMessage;
+
 
 
 /**
  * @author Philip Aston
  * @version $Revision$
  */
-final class ScriptContextImplementation implements ScriptContext
-{
+final class ScriptContextImplementation implements ScriptContext {
+
   private final ProcessContext m_processContext;
 
   public ScriptContextImplementation(ProcessContext processContext) {
@@ -60,7 +64,7 @@ final class ScriptContextImplementation implements ScriptContext
       ThreadContext.getThreadInstance();
 
     if (threadContext != null) {
-      return threadContext.getCurrentRunNumber();
+      return threadContext.getRunNumber();
     }
 
     return -1;
@@ -70,7 +74,7 @@ final class ScriptContextImplementation implements ScriptContext
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
     if (threadContext != null) {
-      return threadContext;
+      return threadContext.getThreadLogger();
     }
 
     return m_processContext.getLogger();
@@ -102,7 +106,7 @@ final class ScriptContextImplementation implements ScriptContext
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
     if (threadContext != null) {
-      return threadContext;
+      return threadContext.getFilenameFactory();
     }
 
     return m_processContext.getLoggerImplementation().getFilenameFactory();
@@ -110,5 +114,21 @@ final class ScriptContextImplementation implements ScriptContext
 
   public final GrinderProperties getProperties() {
     return m_processContext.getProperties();
+  }
+
+  public final void registerSummaryStatisticsView(
+    StatisticsView statisticsView)
+    throws GrinderException {
+    CommonStatisticsViews.getSummaryStatisticsView().add(statisticsView);
+
+    m_processContext.getConsoleSender().queue(
+      new RegisterStatisticsViewMessage(statisticsView));
+  }
+
+  public final void registerDetailStatisticsView(StatisticsView statisticsView)
+    throws GrinderException {
+    // DetailStatisticsViews are only for the data logs, so we don't
+    // register the view with the console.
+    CommonStatisticsViews.getDetailStatisticsView().add(statisticsView);
   }
 }

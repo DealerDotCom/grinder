@@ -736,7 +736,7 @@ public class HTTPRequest {
 	httpResponse.getOriginalURI() + " -> " + statusCode + " " +
 	httpResponse.getReasonLine();
 
-      final Logger logger = m_threadState.getThreadContext();
+      final Logger logger = m_threadState.getThreadContext().getLogger();
 	    
       switch (statusCode) {
       case HttpURLConnection.HTTP_MOVED_PERM:

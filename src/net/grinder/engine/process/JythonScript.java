@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,6 @@
 package net.grinder.engine.process;
 
 import java.io.File;
-import java.util.Properties;
 
 import org.python.core.PyException;
 import org.python.core.PyObject;
@@ -30,10 +29,7 @@ import org.python.core.PyString;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
-import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
-import net.grinder.script.ScriptContext;
 
 
 /**
@@ -44,86 +40,84 @@ import net.grinder.script.ScriptContext;
  * @author Philip Aston
  * @version $Revision$
  */
-class JythonScript
-{
-    private static final String TEST_RUNNER_CALLABLE_NAME = "TestRunner";
+final class JythonScript {
+  private static final String TEST_RUNNER_CALLABLE_NAME = "TestRunner";
 
-    private final ProcessContext m_processContext;
-    private final PySystemState m_systemState;
-    private final PythonInterpreter m_interpreter;
-    private final PyObject m_testRunnerFactory;
+  private final ProcessContext m_processContext;
+  private final PySystemState m_systemState;
+  private final PythonInterpreter m_interpreter;
+  private final PyObject m_testRunnerFactory;
 
-    public JythonScript(ProcessContext processContext, File scriptFile)
-	throws EngineException
-    {
-	m_processContext = processContext;
+  public JythonScript(ProcessContext processContext, File scriptFile)
+    throws EngineException {
 
-	PySystemState.initialize();
+    m_processContext = processContext;
 
-	m_systemState = new PySystemState();
-	m_interpreter = new PythonInterpreter(null, m_systemState);
+    PySystemState.initialize();
+
+    m_systemState = new PySystemState();
+    m_interpreter = new PythonInterpreter(null, m_systemState);
 	
-	m_interpreter.set("grinder",
-			  new ScriptContextImplementation(processContext));
+    m_interpreter.set("grinder", processContext.getScriptContext());
 
-	final String parentPath = scriptFile.getParent();
+    final String parentPath = scriptFile.getParent();
 
-	m_systemState.path.insert(0, new PyString(parentPath != null ?
-						  parentPath : ""));
+    m_systemState.path.insert(0, new PyString(parentPath != null ?
+					      parentPath : ""));
 
-	processContext.getLogger().output(
-	    "executing \"" + scriptFile.getPath() + "\"");
+    processContext.getLogger().output(
+      "executing \"" + scriptFile.getPath() + "\"");
 
-        try {
-	    // Run the test script, script does global set up here.
-            m_interpreter.execfile(scriptFile.getPath());
-        }
-	catch (PyException e) {
-            throw new JythonScriptExecutionException(
-		"initialising test runner", e);
-        }
-
-	// Find the callable that acts as a factory for test runner instances.
-	m_testRunnerFactory = m_interpreter.get(TEST_RUNNER_CALLABLE_NAME);
-
-	if (m_testRunnerFactory == null || !m_testRunnerFactory.isCallable()) {
-	    throw new EngineException(
-		"There is no callable (class or function) named '" +
-		TEST_RUNNER_CALLABLE_NAME + "' in " + scriptFile);
-	}
+    try {
+      // Run the test script, script does global set up here.
+      m_interpreter.execfile(scriptFile.getPath());
+    }
+    catch (PyException e) {
+      throw new JythonScriptExecutionException(
+	"initialising test runner", e);
     }
 
-    class JythonRunnable
-    {
-	private final PyObject m_testRunner;
+    // Find the callable that acts as a factory for test runner instances.
+    m_testRunnerFactory = m_interpreter.get(TEST_RUNNER_CALLABLE_NAME);
 
-	public JythonRunnable() throws EngineException
-	{
-	    try {
-		// Script does per-thread initialisation here and
-		// returns a callable object.
-		m_testRunner = m_testRunnerFactory.__call__();
-	    }
-	    catch (PyException e) {
-		throw new JythonScriptExecutionException(
-		    "creating per-thread test runner object", e);
-	    }	    
-
-            if (!m_testRunner.isCallable()) {
-                throw new EngineException(
-		    "The result of '" + TEST_RUNNER_CALLABLE_NAME +
-		    "()' is not callable");
-	    }
-	}
-
-	public void run() throws EngineException
-	{
-	    try {
-		m_testRunner.__call__();
-	    }
-	    catch (PyException e) {
-		throw new JythonScriptExecutionException("invoking script", e);
-	    }
-	}
+    if (m_testRunnerFactory == null || !m_testRunnerFactory.isCallable()) {
+      throw new EngineException(
+	"There is no callable (class or function) named '" +
+	TEST_RUNNER_CALLABLE_NAME + "' in " + scriptFile);
     }
+  }
+
+  final class JythonRunnable {
+
+    private final PyObject m_testRunner;
+
+    public JythonRunnable() throws EngineException {
+
+      try {
+	// Script does per-thread initialisation here and
+	// returns a callable object.
+	m_testRunner = m_testRunnerFactory.__call__();
+      }
+      catch (PyException e) {
+	throw new JythonScriptExecutionException(
+	  "creating per-thread test runner object", e);
+      }	    
+
+      if (!m_testRunner.isCallable()) {
+	throw new EngineException(
+	  "The result of '" + TEST_RUNNER_CALLABLE_NAME +
+	  "()' is not callable");
+      }
+    }
+
+    public final void run() throws EngineException {
+
+      try {
+	m_testRunner.__call__();
+      }
+      catch (PyException e) {
+	throw new JythonScriptExecutionException("invoking script", e);
+      }
+    }
+  }
 }

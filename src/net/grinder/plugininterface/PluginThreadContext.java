@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,27 +30,38 @@ import net.grinder.statistics.TestStatistics;
 /**
  * <p>This class is used to share thread information between the
  * Grinder and the plug-in. </p>
- *
- * <p>Note, the {@link Logger} implementation isn't guaranteed to be
- * thread safe.</p>
  * 
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  **/
-public interface PluginThreadContext extends Logger, FilenameFactory
-{    
-    /**
-     * Return the thread ID.
-     */ 
-    public int getThreadID();
+public interface PluginThreadContext {    
 
-    /**
-     * Return the current run number.
-     */
-    public int getCurrentRunNumber();
+  /**
+   * Return the thread ID.
+   */ 
+  int getThreadID();
+ 
+  /**
+   * Return the current run number.
+   */
+  int getRunNumber();
+  
+  /**
+   * Get the thread {@link net.grinder.common.Logger}.
+   *
+   * @return A <code>Logger</code>.
+   */
+  Logger getLogger();
 
-    public long getStartTime();
+  /**
+   * Get the thread {@link net.grinder.common.FilenameFactory}.
+   *
+   * @return A <code>Logger</code>.
+   */
+  FilenameFactory getFilenameFactory();
 
-    public TestStatistics getCurrentTestStatistics();
+  long getStartTime();
+
+  TestStatistics getCurrentTestStatistics();
 }
