@@ -1,7 +1,16 @@
 2004-11-21  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta23 is released.
-	
+
+	* tests-src/net/grinder/plugin/http/TestHTTPRequest.java:
+	Update for new stats.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java:
+	Include 0ms in the boundary condition for whether to add connect time
+	stats - this allows unit tests to be deterministic.
+
+	* TODO: Another Forrest TODO.
+
 	* TODO, src/documentation/content/xdocs/faq.xml, src/documentation/content/xdocs/g2/getting-started.xml, src/documentation/content/xdocs/g3/whats-new.xml, src/documentation/content/xdocs/site.xml:
 	Document G2 vs G3.
 
