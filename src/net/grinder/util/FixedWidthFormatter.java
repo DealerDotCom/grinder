@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,8 +20,6 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder.util;
-
-import net.grinder.common.GrinderException;
 
 
 /**
@@ -77,9 +75,10 @@ public class FixedWidthFormatter {
    * @param flow Flow policy. One of { <code>FLOW_TRUNCATE</code>,
    * <code>FLOW_WRAP</code>, <code>FLOW_WORD_WRAP</code> }
    * @param width The cell width.
-   * @throws IllegalArgumentException If <code>alignment</code>,
+   * @exception IllegalArgumentException If <code>alignment</code>,
    * <code>flow</code> or <code>width</code> are invalid.
-   **/
+   *
+   */
   public FixedWidthFormatter(int alignment, int flow, int width) {
     if (alignment != ALIGN_LEFT &&
         alignment != ALIGN_CENTRE &&
@@ -156,10 +155,8 @@ public class FixedWidthFormatter {
    *
    * @param buffer Buffer to transform to a single line.
    * @param remainder Left overs.
-   * @exception GrinderException If an error occurs.
    */
-  public final void transform(StringBuffer buffer, StringBuffer remainder)
-    throws GrinderException {
+  public final void transform(StringBuffer buffer, StringBuffer remainder) {
 
     int length = buffer.length();
 
@@ -242,7 +239,7 @@ public class FixedWidthFormatter {
       break;
 
     default:
-      throw new GrinderException("Assertion failed: invalid flow");
+      throw new RuntimeException("Assertion failed: invalid flow");
     }
 
     length = buffer.length();
@@ -274,8 +271,30 @@ public class FixedWidthFormatter {
         break;
 
       default:
-        throw new GrinderException("Assertion failed: invalid alignment");
+        throw new RuntimeException("Assertion failed: invalid alignment");
       }
     }
+  }
+
+  /**
+   * Convenience method.
+   *
+   * @param input Input text.
+   * @return Formatted result.
+   */
+  public String format(String input) {
+    final StringBuffer result = new StringBuffer();
+    StringBuffer buffer = new StringBuffer(input);
+
+    while (buffer.length() > 0) {
+      final StringBuffer remainder = new StringBuffer();
+      transform(buffer, remainder);
+      result.append(buffer);
+      result.append("\n");
+
+      buffer = remainder;
+    }
+
+    return result.toString();
   }
 }
