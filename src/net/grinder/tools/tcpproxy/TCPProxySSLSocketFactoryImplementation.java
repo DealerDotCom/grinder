@@ -71,10 +71,7 @@ public final class TCPProxySSLSocketFactoryImplementation
    *
    * <p>We can't install our own TrustManagerFactory without messing
    * with the security properties file. Hence we create our own
-   * SSLContext and initialise it. Passing null as the first parameter
-   * to SSLContext.init() results in a empty keystore being used, as
-   * does passing the key manager array obtain from
-   * keyManagerFactory.getInstance().getKeyManagers(). </p>
+   * SSLContext and initialise it. </p>
    *
    * - PhilA
    *
