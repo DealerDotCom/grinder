@@ -88,11 +88,14 @@ public class TestStatisticsTable extends TestCase
 	    TestStatisticsFactory.getInstance();
 
 	for (int i=0; i<tests.length; ++i) {
-	    rawStatistics[i] = new RawStatistics();
+	    rawStatistics[i] = new RawStatisticsImplementation();
 	    rawStatistics[i].addValue(aIndex, i);
 	    rawStatistics[i].addValue(bIndex, i+1);
-	    m_testStatisticsMap.put(tests[i],
-				    factory.create(rawStatistics[i]));
+
+	    final TestStatistics testStatistics = factory.create();
+	    testStatistics.add(rawStatistics[i]);
+
+	    m_testStatisticsMap.put(tests[i], testStatistics);
 	}
     }
 

@@ -23,13 +23,13 @@ package net.grinder.statistics;
  * @author Philip Aston
  * @version $Revision$
  **/
-public abstract class TestStatistics extends RawStatistics
+public interface TestStatistics extends RawStatistics
 {
-    public abstract void addError();
-    public abstract void addTransaction();
-    public abstract void addTransaction(long time);
+    void addError();
+    void addTransaction();
+    void addTransaction(long time);
 
-    public abstract long getTransactions();
-    public abstract long getErrors();
-    public abstract double getAverageTransactionTime();
+    long getTransactions();
+    long getErrors();
+    double getAverageTransactionTime();
 }

@@ -30,7 +30,7 @@ import net.grinder.common.GrinderException;
  * @version $Revision$
  * @stereotype singleton
  */
-final class StatisticExpressionFactory
+public final class StatisticExpressionFactory
 {
     private final static StatisticExpressionFactory s_instance =
 	new StatisticExpressionFactory();

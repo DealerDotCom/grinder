@@ -18,66 +18,24 @@
 
 package net.grinder.statistics;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.io.Serializable;
-
-import net.grinder.util.Serialiser;
-
 
 /**
  * Store an array of raw statistics as unsigned long values. Clients
  * can access individual values using a process specific index
- * obtained from a {@link ProcessStatisticsMap}. Effectively a cheap
- * array list.
+ * obtained from a {@link ProcessStatisticsIndexMap}. Effectively a
+ * cheap array list.
  *
  * @author Philip Aston
  * @version $Revision$
  **/
-public class RawStatistics
+public interface RawStatistics
 {
-    // Implementation notes
-    // 1. The public interface only allows the values to be increased.
-    //     We rely on the fact that the values are non-negative to
-    //     implement efficient serialisation.
-    // 2. Our array of values grows in size to accomodate new process
-    //     index values. It never shrinks.
-
-    private final static long serialVersionUID = -8055876976127793454L;
-    private final static long[] s_emptyLongArray = new long[0];
-
-    private long[] m_data = s_emptyLongArray;
-
-    /**
-     * @clientRole snapshot 
-     * @supplierCardinality 0..1
-     * @link aggregation
-     **/
-    private transient RawStatistics m_snapshot = null;
-
-    /**
-     * Creates a new <code>RawStatistics</code> instance.
-     **/
-    public RawStatistics()
-    {
-    }
-
     /**
      * Add the values of another <code>RawStatistics</code> to ours.
      * Assumes we don't need to synchronise access to operand.
      * @param operand The <code>RawStatistics</code> value to add.
      **/
-    public final synchronized void add(RawStatistics operand)
-    {
-	final long[] data = operand.m_data;
-
-	expandToSize(data.length);
-
-	for (int i=0; i<data.length; i++) {
-	    m_data[i] += data[i];
-	}
-    }
+    void add(RawStatistics operand);
 
     /**
      * Add <code>value</code> to the value specified by
@@ -88,20 +46,7 @@ public class RawStatistics
      * @throws IllegalArgumentException If the <code>processStatisticsIndex</code> is negative. 
      * @throws IllegalArgumentException If the <code>value</code> is negative. 
      **/
-    public final synchronized void addValue(int processStatisticsIndex,
-					    long value)
-    {
-	if (processStatisticsIndex < 0) {
-	    throw new IllegalArgumentException("Negative value");
-	}
-
-	if (value < 0) {
-	    throw new IllegalArgumentException("Negative value");
-	}
-
-	expandToSize(processStatisticsIndex + 1);
-	m_data[processStatisticsIndex] += value;
-    }
+    void addValue(int processStatisticsIndex, long value);
 
     /**
      * Equivalent to <code>addValue(processStatisticsIndex, 1)</code>.
@@ -111,10 +56,7 @@ public class RawStatistics
      *
      * @see {@link #addValue}
      */
-    public final synchronized void incrementValue(int processStatisticsIndex)
-    {
-	addValue(processStatisticsIndex, 1);
-    }
+    void incrementValue(int processStatisticsIndex);
 
     /**
      * Return the value specified by
@@ -124,15 +66,7 @@ public class RawStatistics
      * @return The value.
      * @throws IllegalArgumentException If the <code>processStatisticsIndex</code> is negative. 
      */
-    public final long getValue(int processStatisticsIndex)
-    {
-	if (processStatisticsIndex < 0) {
-	    throw new IllegalArgumentException("Negative value");
-	}
-
-	expandToSize(processStatisticsIndex + 1);
-	return m_data[processStatisticsIndex];
-    }
+    long getValue(int processStatisticsIndex);
 
     /**
      * Return a <code>RawStatistics</code> representing the change
@@ -142,137 +76,5 @@ public class RawStatistics
      * @return A <code>RawStatistics</code> representing the
      * difference between our values and the snapshot's values.
      **/
-    public final synchronized RawStatistics getDelta(boolean updateSnapshot)
-    {
-	// This is the only method that accesses m_snapshot so we
-	// don't worry about the synchronisation of it.
-
-	final RawStatistics result = new RawStatistics();
-	result.add(this);
-
-	if (m_snapshot != null) {
-	    if (m_data.length < m_snapshot.m_data.length) {
-		throw new IllegalStateException(
-		    "Assertion failure: " +
-		    "Snapshot data size is larger than ours");
-	    }
-
-	    final long[] data = m_snapshot.m_data;
-
-	    for (int i=0; i<data.length; i++) {
-		result.m_data[i] -= data[i];
-	    }
-	}
-
-	if (updateSnapshot) {
-	    m_snapshot = new RawStatistics();
-	    m_snapshot.add(this);
-	}
-
-	return result;
-    }
-
-    /**
-     * Implement value based equality.
-     *
-     * @param o <code>Object</code> to compare to.
-     * @return <code>true</code> if and only if the two objects are equal.
-     **/
-    public final boolean equals(Object o)
-    {
-	if (o == this) {
-	    return true;
-	}
-	
-	if (!(o instanceof RawStatistics)) {
-	    return false;
-	}
-
-	final RawStatistics otherRawStatistics = (RawStatistics)o;
-
-	expandToSize(otherRawStatistics.m_data.length);
-	otherRawStatistics.expandToSize(m_data.length);
-
-	final long[] otherData = otherRawStatistics.m_data;
-
-	for (int i=0; i<m_data.length; i++) {
-	    if (m_data[i] != otherData[i]) {
-		return false;
-	    }
-	}
-
-	return true;
-    }
-
-    /**
-     * Return a <code>String</code> representation of this
-     * <code>RawStatistics</code>.
-     *
-     * @return The <code>String</code>
-     **/
-    public final String toString()
-    {
-	final StringBuffer result = new StringBuffer();
-
-	result.append("RawStatistics = {");
-
-	for (int i=0; i<m_data.length; i++) {
-	    result.append(m_data[i]);
-
-	    if (i!= m_data.length-1) {
-		result.append(", ");
-	    }
-	}
-
-	result.append("}");
-
-	return result.toString();
-    }
-
-    /**
-     * Efficient externalisation method used by {@link TestStatisticsMap}.
-     *
-     * @param out Handle to the output stream.
-     * @param serialiser <code>Serialiser</code> helper object.
-     * @exception IOException If an error occurs.
-     **/
-    final void myWriteExternal(ObjectOutput out, Serialiser serialiser)
-	throws IOException
-    {
-	out.writeInt(m_data.length);
-
-	for (int i=0; i<m_data.length; i++) {
-	    serialiser.writeUnsignedLong(out, m_data[i]);
-	}
-    }
-
-    /**
-     * Efficient externalisation method used by {@link TestStatisticsMap}.
-     *
-     * @param in Handle to the input stream.
-     * @param serialiser <code>Serialiser</code> helper object.
-     * @exception IOException If an error occurs.
-     **/
-    RawStatistics(ObjectInput in, Serialiser serialiser) throws IOException
-    {
-	final int length = in.readInt();
-
-	m_data = new long[length];
-
-	for (int i=0; i<m_data.length; i++) {
-	    m_data[i] = serialiser.readUnsignedLong(in);
-	}
-    }
-
-    private final void expandToSize(int size)
-    {
-	if (m_data.length < size) {
-	    final long[] newStatistics = new long[size];
-
-	    System.arraycopy(m_data, 0, newStatistics, 0,
-			     m_data.length);
-
-	    m_data = newStatistics;
-	}
-    }
+    RawStatistics getDelta(boolean updateSnapshot);
 }

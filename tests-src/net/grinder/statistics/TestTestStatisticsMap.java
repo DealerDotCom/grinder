@@ -180,7 +180,7 @@ public class TestTestStatisticsMap extends TestCase
     {
 	final TestStatisticsMap map = new TestStatisticsMap();
 
-	assertEquals(new RawStatistics(), map.getTotal());
+	assertEquals(new RawStatisticsImplementation(), map.getTotal());
 
 	map.put(m_test0, m_statistics0);
 
@@ -189,7 +189,7 @@ public class TestTestStatisticsMap extends TestCase
 
 	map.put(m_test1, m_statistics1);
 
-	final RawStatistics sum = new RawStatistics();
+	final RawStatistics sum = new RawStatisticsImplementation();
 	sum.add(m_statistics0);
 	sum.add(m_statistics1);
 

@@ -52,7 +52,8 @@ public class TestStatisticExpressionFactory extends TestCase
     private final ProcessStatisticsIndexMap m_indexMap =
 	new ProcessStatisticsIndexMap();
 
-    private final RawStatistics m_rawStatistics = new RawStatistics();
+    private final RawStatistics m_rawStatistics =
+	new RawStatisticsImplementation();
 
     private final double m_accuracy = 0.00001d;
 
@@ -249,13 +250,17 @@ public class TestStatisticExpressionFactory extends TestCase
 
 	final int statIndex = m_indexMap.getIndexFor("testPeak");
 
-	final RawStatistics rawStatistics2 = new RawStatistics();
+	final RawStatistics rawStatistics2 =
+	    new RawStatisticsImplementation();
+
 	rawStatistics2.addValue(statIndex, 2);
 
-	final RawStatistics rawStatistics9 = new RawStatistics();
+	final RawStatistics rawStatistics9 =
+	    new RawStatisticsImplementation();
 	rawStatistics9.addValue(statIndex, 9);
 
-	final RawStatistics rawStatistics33 = new RawStatistics();
+	final RawStatistics rawStatistics33 =
+	    new RawStatisticsImplementation();
 	rawStatistics33.addValue(statIndex, 33);
 
 	final PeakStatisticExpression peak = 
@@ -289,15 +294,18 @@ public class TestStatisticExpressionFactory extends TestCase
 	final int xIndex = m_indexMap.getIndexFor("x");
 	final int yIndex = m_indexMap.getIndexFor("y");
 
-	final RawStatistics rawStatisticsHalf = new RawStatistics();
+	final RawStatistics rawStatisticsHalf =
+	    new RawStatisticsImplementation();
 	rawStatisticsHalf.addValue(xIndex, 1);
 	rawStatisticsHalf.addValue(yIndex, 2);
 
-	final RawStatistics rawStatistics9 = new RawStatistics();
+	final RawStatistics rawStatistics9 =
+	    new RawStatisticsImplementation();
 	rawStatistics9.addValue(xIndex, 9);
 	rawStatistics9.addValue(yIndex, 1);
 
-	final RawStatistics rawStatistics33 = new RawStatistics();
+	final RawStatistics rawStatistics33 =
+	    new RawStatisticsImplementation();
 	rawStatistics33.addValue(xIndex, 33);
 	rawStatistics33.addValue(yIndex, 1);
 

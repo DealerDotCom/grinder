@@ -27,7 +27,6 @@ import java.util.TreeMap;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
-import net.grinder.util.Serialiser;
 
 
 /**
@@ -82,6 +81,11 @@ public class TestStatisticsMap implements java.io.Externalizable
      **/
     public final void put(Test test, TestStatistics statistics)
     {
+	if (!(statistics instanceof TestStatisticsImplementation)) {
+	    throw new RuntimeException(
+		"TestStatistics implementation not supported");
+	}
+
 	m_data.put(test, statistics);
     }
 
@@ -104,9 +108,12 @@ public class TestStatisticsMap implements java.io.Externalizable
 
 	    final Pair pair = iterator.next();
 
-	    result.put(pair.getTest(),
-		       m_testStatisticsFactory.create(
-			   pair.getStatistics().getDelta(updateSnapshot)));
+	    final TestStatistics testStatistics =
+		m_testStatisticsFactory.create();
+
+	    testStatistics.add(pair.getStatistics().getDelta(updateSnapshot));
+
+	    result.put(pair.getTest(), testStatistics);
 	}
 
 	return result;
@@ -160,8 +167,12 @@ public class TestStatisticsMap implements java.io.Externalizable
 		(TestStatistics)m_data.get(pair.getTest());
 
 	    if (statistics == null) {
-		put(test,
-		    m_testStatisticsFactory.create(pair.getStatistics()));
+		final TestStatistics newStatistics =
+		    m_testStatisticsFactory.create();
+
+		newStatistics.add(pair.getStatistics());
+
+		put(test, newStatistics);
 	    }
 	    else {
 		statistics.add(pair.getStatistics());
@@ -246,15 +257,17 @@ public class TestStatisticsMap implements java.io.Externalizable
     {
 	out.writeInt(m_data.size());
 
-	final Serialiser serialiser = new Serialiser();
-
 	final Iterator iterator = new Iterator();
 
 	while (iterator.hasNext()) {
 	    final Pair pair = iterator.next();
 
 	    out.writeInt(pair.getTest().getNumber());
-	    pair.getStatistics().myWriteExternal(out, serialiser);
+
+	    // Its a class invariant that our TestStatistics are all
+	    // TestStatisticsImplementations.
+	    m_testStatisticsFactory.writeStatisticsExternal(
+		out, (TestStatisticsImplementation)pair.getStatistics());
 	}
     }
 
@@ -270,12 +283,9 @@ public class TestStatisticsMap implements java.io.Externalizable
 
 	m_data.clear();
 
-	final Serialiser serialiser = new Serialiser();
-
 	for (int i=0; i<n; i++) {
 	    m_data.put(new LightweightTest(in.readInt()),
-		       m_testStatisticsFactory.create(
-			   new RawStatistics(in, serialiser)));
+		       m_testStatisticsFactory.readStatisticsExternal(in));
 	}
     }
 

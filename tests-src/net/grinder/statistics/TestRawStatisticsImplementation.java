@@ -32,35 +32,35 @@ import net.grinder.util.Serialiser;
 
 
 /**
- * Unit test case for <code>RawStatistics</code>.
+ * Unit test case for <code>RawStatisticsImplementation</code>.
  *
  * @author Philip Aston
  * @version $Revision$
- * @see RawStatistics
+ * @see RawStatisticsImplementation
  */
-public class TestRawStatistics extends TestCase
+public class TestRawStatisticsImplementation extends TestCase
 {
     public static void main(String[] args)
     {
-	TestRunner.run(TestRawStatistics.class);
+	TestRunner.run(TestRawStatisticsImplementation.class);
     }
 
-    public TestRawStatistics(String name)
+    public TestRawStatisticsImplementation(String name)
     {
 	super(name);
     }
 
     public void testCreation() 
     {
-	final RawStatistics statistics = new RawStatistics();
+	final RawStatisticsImplementation statistics = new RawStatisticsImplementation();
 
 	assertEquals(0, statistics.getValue(10));
     }
 
     public void testAddValueIncrementAndEquals() 
     {
-	final RawStatistics statistics0 = new RawStatistics();
-	final RawStatistics statistics1 = new RawStatistics();
+	final RawStatisticsImplementation statistics0 = new RawStatisticsImplementation();
+	final RawStatisticsImplementation statistics1 = new RawStatisticsImplementation();
 
 	assertEquals(statistics0, statistics0);
 	assertEquals(statistics0, statistics1);
@@ -113,8 +113,8 @@ public class TestRawStatistics extends TestCase
 
     public void testAdd() throws Exception
     {
-	final RawStatistics statistics0 = new RawStatistics();
-	final RawStatistics statistics1 = new RawStatistics();
+	final RawStatisticsImplementation statistics0 = new RawStatisticsImplementation();
+	final RawStatisticsImplementation statistics1 = new RawStatisticsImplementation();
 
 	// 0 + 0 = 0
 	statistics0.add(statistics1);
@@ -140,7 +140,7 @@ public class TestRawStatistics extends TestCase
 
     public void testGetDelta() throws Exception
     {
-	final RawStatistics statistics0 = new RawStatistics();
+	final RawStatisticsImplementation statistics0 = new RawStatisticsImplementation();
 	statistics0.addValue(0, 1234);
 
 	final RawStatistics statistics1 = statistics0.getDelta(false);
@@ -170,12 +170,12 @@ public class TestRawStatistics extends TestCase
     {
 	final Random random = new Random();
 
-	final RawStatistics original0 = new RawStatistics();
+	final RawStatisticsImplementation original0 = new RawStatisticsImplementation();
 	original0.addValue(0, Math.abs(random.nextLong()));
 	original0.addValue(1, Math.abs(random.nextLong()));
 	original0.addValue(5, Math.abs(random.nextLong()));
 
-	final RawStatistics original1 = new RawStatistics();
+	final RawStatisticsImplementation original1 = new RawStatisticsImplementation();
 
 	final ByteArrayOutputStream byteOutputStream =
 	    new ByteArrayOutputStream();
@@ -194,11 +194,11 @@ public class TestRawStatistics extends TestCase
 	    new ObjectInputStream(
 		new ByteArrayInputStream(byteOutputStream.toByteArray()));
 
-	final RawStatistics received0 =
-	    new RawStatistics(objectInputStream, serialiser);
+	final RawStatisticsImplementation received0 =
+	    new RawStatisticsImplementation(objectInputStream, serialiser);
 
-	final RawStatistics received1 =
-	    new RawStatistics(objectInputStream, serialiser);
+	final RawStatisticsImplementation received1 =
+	    new RawStatisticsImplementation(objectInputStream, serialiser);
 
 	assertEquals(original0, received0);
 	assertEquals(original1, received1);

@@ -18,7 +18,12 @@
 
 package net.grinder.statistics;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import net.grinder.common.GrinderException;
+import net.grinder.util.Serialiser;
 
 
 /**
@@ -37,10 +42,7 @@ public final class TestStatisticsFactory
     private final ProcessStatisticsIndexMap m_indexMap =
 	new ProcessStatisticsIndexMap();
 
-    private final int m_errorsIndex;
-    private final int m_timedTransactionsIndex;
-    private final int m_untimedTransactionsIndex;
-    private final int m_totalTimeIndex;
+    private final Serialiser m_serialiser = new Serialiser();
 
     /**
      * @link aggregation
@@ -50,10 +52,9 @@ public final class TestStatisticsFactory
 
     /** @link dependency 
      * @stereotype instantiate*/
-    /*#TestStatistics lnkTestStatistics;*/
+    /*#TestStatisticsImplementation lnkTestStatistics;*/
 
     public final synchronized static TestStatisticsFactory getInstance()
-	throws GrinderException
     {
 	if (s_instance == null) {
 	    s_instance = new TestStatisticsFactory();
@@ -62,29 +63,32 @@ public final class TestStatisticsFactory
 	return s_instance;
     }
 
-    private TestStatisticsFactory() throws GrinderException
+    private TestStatisticsFactory()
     {
-	m_errorsIndex = m_indexMap.getIndexFor("errors");
-	m_timedTransactionsIndex = m_indexMap.getIndexFor("timedTransactions");
-	m_untimedTransactionsIndex =
-	    m_indexMap.getIndexFor("untimedTransactions");
-	m_totalTimeIndex = m_indexMap.getIndexFor("totalTime");
-
-	final ExpressionView[] expressionViews = {
-	    new ExpressionView("Transactions", "statistic.transactions", 
-			       "(+ timedTransactions untimedTransactions)",
-			       m_indexMap),
-	    new ExpressionView("Errors", "statistic.errors", "errors",
-			       m_indexMap),
-	    new ExpressionView("Average Response Time (ms)",
-			       "statistic.averageResponseTime",
-			       "(/ totalTime timedTransactions)", m_indexMap),
-	};
-
 	final StatisticsView statisticsView = new StatisticsView();
 
-	for (int i=0; i<expressionViews.length; ++i) {
-	    statisticsView.add(expressionViews[i]);
+	try {
+	    final ExpressionView[] expressionViews = {
+		new ExpressionView("Transactions", "statistic.transactions", 
+				   "(+ timedTransactions untimedTransactions)",
+				   m_indexMap),
+		new ExpressionView("Errors", "statistic.errors", "errors",
+				   m_indexMap),
+		new ExpressionView("Average Response Time (ms)",
+				   "statistic.averageResponseTime",
+				   "(/ totalTime timedTransactions)",
+				   m_indexMap),
+	    };
+
+	    for (int i=0; i<expressionViews.length; ++i) {
+		statisticsView.add(expressionViews[i]);
+	    }
+	}
+	catch (GrinderException e) {
+	    throw new RuntimeException(
+		"Assertion failure, " +
+		"TestStatisticsFactory could not initialise: " +
+		e.getMessage());
 	}
     }
 
@@ -103,57 +107,16 @@ public final class TestStatisticsFactory
 	return new TestStatisticsImplementation();
     }
 
-    public final TestStatistics create(RawStatistics rawStatistics)
+    final void writeStatisticsExternal(ObjectOutput out,
+				       TestStatisticsImplementation statistics)
+	throws IOException
     {
-	return new TestStatisticsImplementation(rawStatistics);
+	statistics.myWriteExternal(out, m_serialiser);
     }
 
-    private final class TestStatisticsImplementation extends TestStatistics
+    final TestStatistics readStatisticsExternal(ObjectInput in)
+	throws IOException
     {
-	private TestStatisticsImplementation()
-	{
-	}
-
-	private TestStatisticsImplementation(RawStatistics rawStatistics)
-	{
-	    add(rawStatistics);
-	}
-
-	public final void addError()
-	{
-	    addValue(m_errorsIndex, 1);
-	}
-    
-	public final void addTransaction()
-	{
-	    addValue(m_untimedTransactionsIndex, 1);
-	}
-    
-	public final void addTransaction(long time)
-	{
-	    addValue(m_timedTransactionsIndex, 1);
-	    addValue(m_totalTimeIndex, time);
-	}
-
-	public final long getTransactions()
-	{
-	    return
-		getValue(m_timedTransactionsIndex) +
-		getValue(m_untimedTransactionsIndex);
-	}
-
-	public final long getErrors()
-	{
-	    return getValue(m_errorsIndex);
-	}
-
-	public final double getAverageTransactionTime()
-	{
-	    final long timedTransactions = getValue(m_timedTransactionsIndex);
-
-	    return
-		timedTransactions == 0 ?
-		Double.NaN : getValue(m_totalTimeIndex)/timedTransactions;
-	}
+	return new TestStatisticsImplementation(in, m_serialiser);
     }
 }
