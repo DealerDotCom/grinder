@@ -1,4 +1,4 @@
-x-*- mode:outline; minor-mode:outl-mouse -*-
+-*- mode:outline; minor-mode:outl-mouse -*-
 
 If anyone wants to pick something off this wish list, let me know
 first. I prefer unified diff patches. Mail them to
@@ -10,23 +10,100 @@ it too :-).
 - Phil
 
 
+* Bugs
 
-* Scripting
+** Sourceforge 690639
+http://sourceforge.net/tracker/index.php?func=detail&aid=690639&group_id=18598&atid=118598
+
+    request175 = HTTPRequest(headers = headers174)
+
+    tests[175] = Test(175, 'GET leftarrow.gif').wrap(request175)
+
+    headers174 = ( NVPair('Accept', '*/*'),
+    # ...
+
+headers174 should have been flushed to the output before test 175.
+
+Its down to the multithread nature of the recording (there is usually more than one connection and we handle each connection with a thread).  Smarter synchronisation is required.
+
+** Sourceforge 611114 
+http://sourceforge.net/tracker/index.php?func=detail&aid=611114&group_id=18598&atid=118598
+
+- use tomcat 4.1.10
+- use grinder 2.8.3
+- nt plattform
+- use TCPSniffer to record login into tomcat's admin
+console (admin/login.jsp)
+- then playback via grinder
+
+it cannot deal with j_security_check: 18.09.02 16:14:03: (thread 0
+cycle 24 test 6) Unknown response code: 400 (Invalid direct reference
+to form login page) for http://localhost/admin/j_security_check
+
+** Sourceforge 691728
+http://sourceforge.net/tracker/index.php?func=detail&aid=691728&group_id=18598&atid=118598
+
+Grinder script was auto-generated with TCPProxy, when
+creating script typical delay on the user side was 1-10
+seconds, however, in the script, there are commands
+inserted that make the Grinder to fall asleep even for an
+hour, e.g. sleep(4348063)
+
+** That EOF and retries thing
+
+http://sourceforge.net/mailarchive/message.php?msg_id=2027628
+http://sourceforge.net/mailarchive/message.php?msg_id=3626264
+
+** TCP Proxy
+
+Sniffer vs redirection. Think there are some bugs here.
+
+Recording \n's?
+
+When visting xweb.sf.net via proxy and then going back to main page,
+the target servers get foobared.
+
+Fix the proxy to record Authorization again. Can use connection ID.
+The G2 HTTPClient plugin implementation interprets basicAuthentication
+properties wrongly. It first sends a request without the
+authentication headers, then catches the 401 and automatically resends
+a request with the authentication headers.
+
+
+* Enhancements
+
+** Ambitious
+Measure test variance. This would involve the console broadcasting the
+total mean, and then listening for the reported variance.
+
+** Console
+
+Respond to change of test description and so on.
+
+** TCPProxy
+
+TCPProxy should be able to work through proxies.
+
+Change TCP sniffer filters to a stream oriented model. This should
+cure another one of the TCPSniffer/HTTPPlugin bug when recording large
+outputs with posts? Also, consider having a filter instance pair per
+connection.
+
+** HTTP Plugin
+
+Authorisation tear down
+
+HTTP plugin to support "mean time to first byte".
+
+** Scripting
 
 Add per-run statistics. This would also allow number of aborted runs
 to be recorded.
 
 Script access to global statistics.
 
-** Examples
 
-Using grinder.properties from scripts.
-
-HTTPS.
-
-Basic authentication.
-
-** Error reporting
+*** Error reporting
 
  > It would be possible for certain classes of error (AttributeError
  > being a good example) to spew out just
@@ -36,40 +113,6 @@ Basic authentication.
  > Is this what you're after?
 ^^ To do this, might have to behave differently with 1 thread vs many.
 
-* HTTP Plugin
-
-HTTP plugin to support "mean time to first byte".
-
-Authorisation tear down
-
-** TCPProxy filter
-
-Fix the proxy to record Authorization again. Can use connection ID.
-
-The G2 HTTPClient plugin implementation interprets basicAuthentication
-properties wrongly. It first sends a request without the
-authentication headers, then catches the 401 and automatically resends
-a request with the authentication headers.
-
-* TCPProxy
-
-TCPProxy should be able to work through proxies.
-
-Sniffer vs redirection. Think there are some bugs here.
-
-Change TCP sniffer filters to a stream oriented model. This should
-cure another one of the TCPSniffer/HTTPPlugin bug when recording large
-outputs with posts? Also, consider having a filter instance pair per
-connection.
-
-* Bugs?
-
-** TCP Proxy
-
-Recording \n's?
-
-When visting xweb.sf.net via proxy and then going back to main page,
-the target servers get foobared.
 
 * Build
 
@@ -77,6 +120,7 @@ Incorporate checkstyle.
  Compliant packages:
 	net.grinder
 	net.grinder.common
+	net.grinder.console.model
 	net.grinder.engine
 	net.grinder.engine.agent
 	net.grinder.engine.process
@@ -88,13 +132,21 @@ preventing parent process from detecting exit status. (For example,
 when used with the JUnit plugin). Surely System.exit() is not the
 answer?
 
+
 * Documentation
 
 Overview process diagram. Animated?
 HTTP plug-in.
 TCPProxy and G3.
 
-* Ambitious enhancements
+Viewlet demo?
 
-Measure test variance. This would involve the console broadcasting the
-total mean, and then listening for the reported variance.
+** Examples
+
+Using grinder.properties from scripts.
+
+HTTPS.
+
+Basic authentication.
+
+

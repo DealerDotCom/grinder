@@ -1,3 +1,18 @@
+Grinder 3.0-beta7
+-----------------
+
+  Fix synchronisation of the console new tests event which was causing
+  null pointer exceptions.
+
+  Fix synchronisation of TestStatisticsMap that caused potential data
+  loss and worker process stack traces.
+
+  Fix handling of thread shutdown exceptions. Threads again now
+  respond correctly to shutdown/reset requests.
+
+  Improve console handling of large numbers of tests.
+
+
 Grinder 3.0-beta6
 -----------------
 
