@@ -2,6 +2,9 @@
 
 	* The Grinder 3.0-beta18 is released.
 
+	* src/net/grinder/common/GrinderException.java, tests-src/net/grinder/common/TestGrinderException.java:
+	Test with different line separators.
+
 2004-01-31  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/console/swingui/Table.java:
