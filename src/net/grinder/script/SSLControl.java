@@ -97,7 +97,8 @@ public interface SSLControl extends SSLContextFactory {
    * href="#set_methods">the note above</a>} for details.</p>
    *
    * @param keyStoreInputStream Input stream to key store.
-   * @param password Key store password.
+   * @param password Key store password. Also used as the private key
+   * password.
    * @param keyStoreType Key store type.
    * @exception GeneralSecurityException If JSSE could not load the key store.
    * @exception InvalidContextException If called from a non-worker
@@ -116,7 +117,8 @@ public interface SSLControl extends SSLContextFactory {
    * type <code>jks</code>.
    *
    * @param keyStoreInputStream Input stream to key store.
-   * @param password Key store password.
+   * @param password Key store password. Also used as the private key
+   * password.
    * @exception GeneralSecurityException If JSSE could not load the key store.
    * @exception InvalidContextException If called from a non-worker
    * thread.
@@ -134,7 +136,8 @@ public interface SSLControl extends SSLContextFactory {
    * href="#set_methods">the note above</a>} for details.</p>
    *
    * @param keyStoreFileName Key store file name.
-   * @param password Key store password.
+   * @param password Key store password. Also used as the private key
+   * password.
    * @param keyStoreType Key store type.
    * @exception GeneralSecurityException If JSSE could not load the key store.
    * @exception InvalidContextException If called from a non-worker
@@ -152,14 +155,15 @@ public interface SSLControl extends SSLContextFactory {
    * type <code>jks</code>.
    *
    * @param keyStoreFileName Key store file name.
-   * @param password Key store password.
+   * @param password Key store password. Also used as the private key
+   * password.
    * @exception GeneralSecurityException If JSSE could not load the key store.
    * @exception InvalidContextException If called from a non-worker
    * thread.
    * @exception IOException If key store could not be read.
    * @see #setKeyStoreFile(String, String, String)
    */
-  void setKeyStoreFile(String keyStoreFile, String password)
+  void setKeyStoreFile(String keyStoreFileName, String password)
     throws GeneralSecurityException, InvalidContextException, IOException;
 
   /**
