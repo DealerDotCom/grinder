@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.util.thread;
 
 import java.util.LinkedList;
 
@@ -32,7 +32,7 @@ import net.grinder.common.GrinderException;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ThreadSafeQueue {
+public final class ThreadSafeQueue {
 
   private LinkedList m_messages = new LinkedList();
   private boolean m_shutdown = false;
@@ -66,6 +66,7 @@ final class ThreadSafeQueue {
    * available, <code>false</code => return <code>null</code> if no
    * message is available.
    * @exception ShutdownException If the queue has been shutdown.
+   * @return The dequeued object.
    * @see #shutdown
    */
   public Object dequeue(boolean block) throws ShutdownException {
@@ -135,7 +136,7 @@ final class ThreadSafeQueue {
    * <code>ShutdownException</code>s but handle
    * <code>CommunicationException</code>s locally.
    */
-  static final class ShutdownException extends GrinderException {
+  public static final class ShutdownException extends GrinderException {
     private ShutdownException(String s) {
       super(s);
     }

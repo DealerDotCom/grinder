@@ -21,6 +21,8 @@
 
 package net.grinder.communication;
 
+import net.grinder.util.thread.ThreadPool;
+
 
 /**
  * Active object that copies messages from a {@link Receiver} to a

@@ -36,8 +36,6 @@ public final class InitialiseGrinderMessage implements Message {
   /**
    * Constructor.
    *
-   * @param waitForStopMessage Whether or not the worker process
-   * should wait for a stop message.
    * @param reportToConsole Whether or not the worker process should
    * report to the console.
    */

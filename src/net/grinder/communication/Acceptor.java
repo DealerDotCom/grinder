@@ -31,6 +31,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.grinder.util.thread.ThreadPool;
+import net.grinder.util.thread.ThreadSafeQueue;
+
 
 /**
  * Active object that accepts connections on a ServerSocket.

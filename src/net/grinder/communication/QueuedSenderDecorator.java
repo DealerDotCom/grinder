@@ -21,6 +21,8 @@
 
 package net.grinder.communication;
 
+import net.grinder.util.thread.ThreadSafeQueue;
+
 
 /**
  * QueuedSender implementation.

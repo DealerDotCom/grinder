@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.util.thread;
 
 
 /**
@@ -28,7 +28,7 @@ package net.grinder.communication;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ThreadPool {
+public final class ThreadPool {
 
   private final ThreadGroup m_threadGroup;
   private final Thread[] m_threads;

@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 
+import net.grinder.util.thread.Kernel;
+
 
 /**
  * Manages the sending of messages to many Receivers.

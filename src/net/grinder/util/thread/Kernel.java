@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.util.thread;
 
 import net.grinder.common.GrinderException;
 
@@ -30,7 +30,7 @@ import net.grinder.common.GrinderException;
  * @author Philip Aston
  * @version $Revision$
  */
-final class Kernel {
+public final class Kernel {
 
   private final ThreadSafeQueue m_workQueue = new ThreadSafeQueue();
   private final ThreadPool m_threadPool;
@@ -121,10 +121,6 @@ final class Kernel {
 
   /**
    * Exception that indicates <code>Kernel</code> has been shutdown.
-   * It doesn't extend {@link CommunicationException} because
-   * typically callers want to propagate
-   * <code>ShutdownException</code>s but handle
-   * <code>CommunicationException</code>s locally.
    */
   public static final class ShutdownException extends GrinderException {
 

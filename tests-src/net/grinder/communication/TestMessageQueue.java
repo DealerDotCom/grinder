@@ -27,6 +27,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import net.grinder.util.thread.ThreadSafeQueue;
+
 
 /**
  *  Unit test case for <code>MessageQueue</code>.

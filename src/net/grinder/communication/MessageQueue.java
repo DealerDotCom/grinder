@@ -21,6 +21,8 @@
 
 package net.grinder.communication;
 
+import net.grinder.util.thread.ThreadSafeQueue;
+
 
 /**
  * Thread-safe queue of {@link Message}s.
@@ -52,8 +54,7 @@ final class MessageQueue {
    * been shutdown.
    * @see #shutdown
    */
-  public void queue(Message message)
-    throws ThreadSafeQueue.ShutdownException {
+  public void queue(Message message) throws ThreadSafeQueue.ShutdownException {
 
     m_queue.queue(message);
   }
