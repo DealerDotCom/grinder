@@ -21,6 +21,8 @@
 
 package net.grinder.communication;
 
+import net.grinder.common.GrinderException;
+
 
 /**
  * Work queue and worker threads.
@@ -32,6 +34,7 @@ final class Kernel {
 
   private final ThreadSafeQueue m_workQueue = new ThreadSafeQueue();
   private final ThreadGroup m_threadGroup = new ThreadGroup("Kernel");
+  private boolean m_shutdown = false;
 
   /**
    * Constructor.
@@ -51,15 +54,51 @@ final class Kernel {
    * Queue some work.
    *
    * @param work The work.
+   * @throws ShutdownException If the Kernel has been stopped.
    */
-  public void execute(Runnable work) throws ThreadSafeQueue.ShutdownException {
-    m_workQueue.queue(work);
+  public void execute(Runnable work) throws ShutdownException {
+    if (m_shutdown) {
+      throw new ShutdownException("Kernel is stopped");
+    }
+
+    try {
+      m_workQueue.queue(work);
+    }
+    catch (ThreadSafeQueue.ShutdownException e) {
+      throw new ShutdownException("Kernel is stopped", e);
+    }
   }
 
   /**
-   * Shut down this kernel.
+   * Shut down this kernel, waiting for work to complete.
+   *
+   * @throws InterruptedException If our thread is interrupted whilst
+   * we are waiting for work to complete.
    */
-  public void shutdown() {
+  public void gracefulShutdown() throws InterruptedException {
+
+    m_shutdown = true;
+
+    try {
+      synchronized (m_workQueue.getMutex()) {
+        while (m_workQueue.getSize() > 0) {
+          m_workQueue.getMutex().wait();
+        }
+      }
+    }
+    finally {
+      forceShutdown();
+    }
+  }
+
+
+  /**
+   * Shut down this kernel, discarding any outstanding work.
+   */
+  public void forceShutdown() {
+
+    m_shutdown = true;
+
     m_workQueue.shutdown();
     m_threadGroup.interrupt();
   }
@@ -82,6 +121,23 @@ final class Kernel {
       catch (ThreadSafeQueue.ShutdownException e) {
         // We've been shutdown, exit this thread.
       }
+    }
+  }
+
+  /**
+   * Exception that indicates <code>Kernel</code> has been shutdown.
+   * It doesn't extend {@link CommunicationException} because
+   * typically callers want to propagate
+   * <code>ShutdownException</code>s but handle
+   * <code>CommunicationException</code>s locally.
+   **/
+  static final class ShutdownException extends GrinderException {
+    private ShutdownException(String s) {
+      super(s);
+    }
+
+    private ShutdownException(String s, Exception e) {
+      super(s, e);
     }
   }
 }
