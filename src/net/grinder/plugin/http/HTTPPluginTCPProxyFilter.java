@@ -658,26 +658,58 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       scriptOutput.append(m_method);
       scriptOutput.append("('");
       scriptOutput.append(m_url);
-      scriptOutput.append("'");
+
+      if (m_queryString != null && m_queryString.length() > 1) {
+	
+	try {
+	  final String queryStringAsNameValuePairs = 
+	    parseNameValueString(m_queryString.substring(1), 3);
+
+	  scriptOutput.append("'");
+	  scriptOutput.append(",");
+	  appendNewLineAndIndent(scriptOutput, 2);
+	  scriptOutput.append("  ( ");
+	  scriptOutput.append(queryStringAsNameValuePairs);
+	  scriptOutput.append(")");
+	}
+	catch (ParseException e) {
+	  // Failed to split query string into name-value pairs. Oh
+	  // well, bolt it back onto the URL.
+	  scriptOutput.append(m_queryString);
+	  scriptOutput.append("'");
+	}
+      }
+      else {
+	scriptOutput.append("'");
+      }
 
       if (!m_parsingHeaders && m_handlingBody) {
 	m_handlingBody = false;
 
-	if ("application/x-www-form-urlencoded".
-	    equals(m_contentType)) {
+	boolean parsedFormData = false;
 
-	  scriptOutput.append(",");
-	  appendNewLineAndIndent(scriptOutput, 2);
-	  scriptOutput.append("  ( ");
+	if ("application/x-www-form-urlencoded".equals(m_contentType)) {
 
-	  parseNameValueString(
-	    scriptOutput,
-	    m_entityBodyByteStream.toString("US-ASCII"),
-	    3);
+	  try {
+	    final String nameValueString = 
+	      parseNameValueString(m_entityBodyByteStream.toString("US-ASCII"),
+				   3);
 
-	  scriptOutput.append(")");
+	    parsedFormData = true;
+
+	    scriptOutput.append(",");
+	    appendNewLineAndIndent(scriptOutput, 2);
+	    scriptOutput.append("  ( ");
+	    scriptOutput.append(nameValueString);
+	    scriptOutput.append(")");
+	  }
+	  catch (ParseException e) {
+	    // Failed to parse form data as name-value pairs, we'll
+	    // treat it as raw data instead.
+	  }
 	}
-	else {
+	
+	if (!parsedFormData) {
 	  final String dataParameter = "data" + requestNumber;
 
 	  testOutput.append(s_newLine);
@@ -697,15 +729,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 	  scriptOutput.append(", ");
 	  scriptOutput.append(dataParameter);
 	}
-      }
-	    
-      if (m_queryString != null && m_queryString.length() > 1) {
-	scriptOutput.append(",");
-	appendNewLineAndIndent(scriptOutput, 2);
-	scriptOutput.append("  ( ");
-	parseNameValueString(
-	  scriptOutput, m_queryString.substring(1), 3);
-	scriptOutput.append(")");
       }
 
       scriptOutput.append(")");
@@ -730,26 +753,22 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     }
   }
 
-  private final void parseNameValueString(StringBuffer resultBuffer,
-					  String input,
-					  int indentLevel) throws IOException {
-    final NVPair[] pairs;
-	
-    try {
-      pairs = Codecs.query2nv(input);
-    }
-    catch (ParseException e) {
-      throw new IOException("Failed to parse query string: " +
-			    e.getMessage());
-    }
+  private final String parseNameValueString(String input, int indentLevel)
+    throws IOException, ParseException {
+
+    final StringBuffer result = new StringBuffer();
+
+    final NVPair[] pairs = Codecs.query2nv(input);
 
     for (int i=0; i<pairs.length; ++i) {
       if (i != 0) {
-	appendNewLineAndIndent(resultBuffer, indentLevel);
+	appendNewLineAndIndent(result, indentLevel);
       }
 	    
-      appendNVPair(resultBuffer, pairs[i]);
+      appendNVPair(result, pairs[i]);
     }
+
+    return result.toString();
   }
 
   private final void appendNVPair(StringBuffer resultBuffer, NVPair pair) {

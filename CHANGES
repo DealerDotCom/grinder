@@ -1,3 +1,13 @@
+Grinder 3.0-beta8
+-----------------
+
+  Fix a bug in the TCPProxy which prevented the recording of 8-bit
+  POST data. Thanks to Joakim Suarez for the report.
+
+  The TCPProxy now copes with query strings and form data that are not
+  name value pairs. Thanks to Ryan Balsam for the report.
+
+
 Grinder 3.0-beta7
 -----------------
 
