@@ -1,3 +1,13 @@
+Grinder 3.0-beta21
+------------------
+
+  New process ramp-up feature from Bertand Ave and Phil Aston. New
+  properties: grinder.initialProcesses, grinder.processIncrement, and
+  grinder.processIncrementInterval. (Whilst this new feature is useful,
+  process ramp-up and other scheduling will eventually be implemented
+  by the console.)
+
+
 Grinder 3.0-beta20
 ------------------
 

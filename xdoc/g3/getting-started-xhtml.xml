@@ -224,13 +224,14 @@ engine.</p>
 <table>
  <tr>
   <td valign="top"><code><a name="grinder.processes">grinder.processes</a></code></td>
-  <td>The number of worker processes to start. Default is 1.</td>
+  <td>The number of worker processes the agent should start. Default
+  is <code>1</code>.</td>
  </tr>
 
  <tr>
   <td valign="top"><code><a name="grinder.threads">grinder.threads</a></code></td>
   <td>The number of worker threads that each worker process spawns.
-  Default is 1.</td>
+  Default is <code>1</code>.</td>
  </tr>
 
  <tr>
@@ -238,14 +239,41 @@ engine.</p>
   name="grinder.runs">grinder.runs</a></code></td> <td>The number of
   runs of the test script each thread performs. 0 means "run forever",
   and should be used when you are using the console to control your
-  test runs. Default is 1.</td>
+  test runs. Default is <code>1</code>.</td>
+ </tr>
+
+ <tr>
+  <td valign="top"><code><a
+  name="grinder.processIncrement">grinder.processIncrement</a></code></td>
+  <td>If set, the agent will <em>ramp up</em> the number of worker
+  processes, starting the number specified every <a
+  href="#grinder.processesIncrementInterval">grinder.processesIncrementInterval</a>
+  milliseconds. The default behaviour is to start all worker processes
+  together.</td>
+ </tr>
+
+ <tr>
+  <td valign="top"><code><a name="grinder.processIncrementInterval">grinder.processIncrementInterval</a></code></td>
+  <td>Used in conjunction with <a
+  href="#grinder.processIncrement">grinder.processIncrement</a>, this
+  property sets the interval in milliseconds at which the agent starts
+  new worker processes. Default is <code>60000</code> ms.</td>
+ </tr>
+
+ <tr>
+  <td valign="top"><code><a
+  name="grinder.initialProcesses">grinder.initialProcesses</a></code></td>
+  <td>Used in conjunction with <a
+  href="#grinder.processIncrement">grinder.processIncrement</a>, this
+  property sets the initial number of worker processes to start.
+  Default is the value of <a
+  href="#grinder.processIncrement">grinder.processIncrement</a>.</td>
  </tr>
 
  <tr>
   <td valign="top"><code><a name="grinder.duration">grinder.duration</a></code></td>
-
   <td>The maximum length of time in milliseconds that each worker
-  process should run for. Default is to run forever.
+  process should run for. The default behaviour is to run forever.
   <code>grinder.duration</code> can be specified in conjunction with
   <a href="#grinder.runs">grinder.runs</a>, in which case the worker
   processes will terminate if either the duration time or the number
@@ -323,7 +351,7 @@ engine.</p>
   <td valign="top"><code><a name="grinder.reportToConsole.interval">grinder.reportToConsole.interval</a></code></td>
   <td>The period at which each process sends updates to the console.
   This also controls the frequency at which the data files are
-  flushed. Default is 500 ms.</td>
+  flushed. Default is <code>500</code> ms.</td>
  </tr>
 
  <tr>
@@ -333,8 +361,10 @@ engine.</p>
   starting. Unlike the sleep times specified in scripts, this is
   varied according to a flat random distribution. The actual sleep
   time will be a random value between 0 and the specified value.
-  Affected by <code>grinder.sleepTimeFactor</code>, but not
-  <code>grinder.sleepTimeVariation</code>. Default is 0 ms.</td>
+  Affected by <a
+  href="#grinder.sleepTimeFactor">grinder.sleepTimeFactor</a>, but not
+  <a href="grinder.sleepTimeVariation">grinder.sleepTimeVariation</a>.
+  Default is <code>0</code> ms.</td>
  </tr>
 
  <tr>
