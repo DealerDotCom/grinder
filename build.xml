@@ -151,19 +151,34 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   </target>
 
 
-
   <!-- =================================================================== -->
   <!-- Rules that prepare a filtered copy of the appropriate source code   -->
   <!-- =================================================================== -->
   <target name="prepare-src" depends="init">
     <copy todir="${build.src}" filtering="on">
-      <fileset dir="${src.dir}"/>
+      <fileset dir="${src.dir}">
+        <exclude name="**/resources/*.gif"/>
+      </fileset>
     </copy>
   </target>
 
   <target name="prepare-test-src" depends="init">
     <copy todir="${tests.src}" filtering="on">
       <fileset dir="${tests.src.dir}"/>
+    </copy>
+  </target>
+
+
+  <!-- =================================================================== -->
+  <!-- Copy resources into the classes hierarcy                            -->
+  <!-- =================================================================== -->
+  <target name="copy-resources" depends="init"
+	  description="Copies the resource files into build output">
+    <copy todir="${build.classes}" filtering="off">
+      <fileset dir="${src.dir}">
+        <include name="**/resources/*.gif"/>
+        <include name="**/resources/*.properties*"/>
+      </fileset>
     </copy>
   </target>
 
@@ -200,10 +215,11 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
 	   deprecation="${deprecation}"/>
   </target>
 
+
   <!-- =================================================================== -->
   <!-- Creates the jar                                                     -->
   <!-- =================================================================== -->
-  <target name="jar" depends="compile"
+  <target name="jar" depends="compile, copy-resources"
 	  description="Default target, creates lib/grinder.jar.">
     <mkdir dir="${lib.dir}"/>
 

@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.console.swing;
+package net.grinder.console.swingui;
 
 import junit.framework.TestCase;
 import junit.swingui.TestRunner;
@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Random;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+
+import net.grinder.statistics.Statistics;
 
 
 /**
@@ -70,8 +72,10 @@ public class TestGraph extends TestCase
 
     public void testRamp() throws Exception
     {
-	final Graph graph = new Graph(200, 200, 25, 100);
+	final Graph graph = new Graph(200, 200, 25);
 	createUI(graph);
+
+	graph.setMaximum(150);
 
 	for (int i=0; i<150; i++) {
 	    graph.add(i);
@@ -81,8 +85,10 @@ public class TestGraph extends TestCase
 
     public void testRandom() throws Exception
     {
-	final Graph graph = new Graph(500, 100, 100, 1);
+	final Graph graph = new Graph(500, 100, 100);
 	createUI(graph);
+
+	graph.setMaximum(1);
 
 	for (int i=0; i<500; i++) {
 	    graph.add(s_random.nextDouble());
@@ -96,9 +102,23 @@ public class TestGraph extends TestCase
 
 	createUI(labelledGraph);
 
+	double peak = 0d;
+	final Statistics statistics = new Statistics();
+	statistics.addAbortion();
+	statistics.addError();
+	statistics.addTransaction(1);
+
 	for (int i=0; i<500; i++) {
-	    labelledGraph.add(s_random.nextDouble(), i);
+	    final double random = s_random.nextDouble();
+
+	    if (random > peak) {
+		peak = random;
+	    }
+
+	    labelledGraph.add(random, peak, statistics);
 	    pause();
+
+	    statistics.add(statistics);
 	}
     }
 
