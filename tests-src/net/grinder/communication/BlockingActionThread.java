@@ -36,7 +36,6 @@ abstract class BlockingActionThread extends Thread {
 
   public BlockingActionThread() throws Exception {
     super("BlockingActionThread");
-    start();
   }
   
   public void run() {
@@ -51,19 +50,13 @@ abstract class BlockingActionThread extends Thread {
 
   public Exception getException() throws Exception {
 
-    // Spin rather than block on a mutex as blockingAction() cannot
-    // release our mutex whilst waiting.
-    while (!isAlive()) {
-      sleep(10);
-    }
+    start();
 
-    // Increase chance that we're in blockingAction().
-    sleep(10);
+    if (!isAlive()) {
+      throw new Exception("Didn't block");
+    }
     
-    if (isAlive()) {
-      interrupt();
-    }
-
+    interrupt();
     join();
 
     return m_exception;
