@@ -1,3 +1,25 @@
+2000-12-11  Philip Aston  <paston@beasys.com>
+
+	* Grinder 0.6 is released.
+
+	* GrinderProcess.java:
+		Alter the message sent to the console.
+	
+	* MethodStatistics.java (getDelta): 
+		Do the calculation the right way around.
+
+	* Console.java:
+	* GraphStatInfo.java:
+	* MsgReader.java:
+		Show all the methods in the method list. Remove bogus TPS,
+		graph ART until I rework the TPS calculation.
+
+	* makeDistrib.sh: Don't distribute classes hierarchy.
+
+	* MethodStatistics.java: 
+	* MethodStatisticsTable.java:
+		Fix statistics totals reporting.
+
 2000-12-10  Philip Aston  <paston@beasys.com>
 
 	* Grinder 0.5 is released.
