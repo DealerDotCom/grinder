@@ -151,7 +151,7 @@ public class Sleeper
 	    time = (long)(time * m_factor);
 
 	    if (m_logger != null) {
-		m_logger.output("Sleeping for " + time + " ms");
+		m_logger.output("sleeping for " + time + " ms");
 	    }
 
 	    long currentTime = System.currentTimeMillis();
