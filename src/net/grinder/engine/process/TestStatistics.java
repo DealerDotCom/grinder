@@ -18,7 +18,12 @@
 
 package net.grinder.engine.process;
 
-/** Package scope */
+/**
+ * Package scope
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
 class MethodStatistics
 {
     private long m_transactions = 0;

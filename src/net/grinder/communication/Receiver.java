@@ -24,7 +24,12 @@ import java.io.Serializable;
 import java.net.MulticastSocket;
 
 
-/** Not thread safe */
+/**
+ * <em>Not thread safe.</em>
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
 public class Receiver
 {
     /*

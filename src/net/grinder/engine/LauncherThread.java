@@ -30,9 +30,10 @@ import net.grinder.util.FilenameFactory;
  * @see net.grinder.Grinder
  * @see net.grinder.engine.Redirector
  * @see net.grinder.engine.GrinderProcess
- * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
- * @author Copyright © 2000
- * @version 1.6.0
+ *
+ * @author Paco Gomez
+ * @author Philip Aston
+ * @version $Revision$
  */
 public class LauncherThread implements java.lang.Runnable {
     

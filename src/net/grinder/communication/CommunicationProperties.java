@@ -18,6 +18,10 @@
 
 package net.grinder.engine.communication;
 
+/**
+ * @author Philip Aston
+ * @version $Revision$
+ */
 public class CommunicationProperties
 {
     public static String getMulticastAddressString() 

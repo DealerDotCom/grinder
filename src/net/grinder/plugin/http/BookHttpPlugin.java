@@ -24,7 +24,8 @@ import net.grinder.plugininterface.GrinderContext;
 
 
 /**
- * 
+ * @author Philip Aston
+ * @version $Revision$
  */
 public class BookHttpPlugin extends HttpPlugin {
 

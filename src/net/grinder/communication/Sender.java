@@ -29,6 +29,9 @@ import java.net.MulticastSocket;
 
 /**
  * Abuse Java API to avoid a proliferation of temporary objects.
+*
+ * @author Philip Aston
+ * @version $Revision$
  */
 class Serialiser
 {
@@ -65,7 +68,12 @@ class Serialiser
 }
 
 
-/** Not thread safe */
+/**
+ * <em>Not thread safe.</em>
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
 public class Sender
 {
     private MulticastSocket m_localSocket;

@@ -25,9 +25,8 @@ import java.util.*;
 /**
  * This class reads performance data from the Grinder processes.
  * 
- * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
- * @author Copyright © 2000
- * @version 1.6.0
+ * @author Paco Gomez
+ * @version $Revision$
  */
 public class MsgReader implements java.lang.Runnable{
         

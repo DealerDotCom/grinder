@@ -37,9 +37,9 @@ import net.grinder.util.GrinderProperties;
  * The elapsed time is printed out in the "dat" file and stored in the shared space 
  * of the GrinderProcess object, shared by all threads.
  * 
- * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
- * @author Copyright © 2000
- * @version 1.6.0
+ * @author Paco Gomez
+ * @author Philip Aston
+ * @version $Revision$
  */
 class GrinderThread implements java.lang.Runnable
 {

@@ -18,6 +18,12 @@
 
 package net.grinder.engine.communication;
 
+/**
+ * Marker interface for messages.
+ * 
+ * @author Philip Aston
+ * @version $Revision$
+ */
 public interface Message extends java.io.Serializable
 {
 };

@@ -21,6 +21,8 @@ package net.grinder.engine;
 import net.grinder.util.GrinderException;
 
 /**
+ * @author Philip Aston
+ * @version $Revision$
  */ 
 public class EngineException extends GrinderException
 {

@@ -24,8 +24,12 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
-
-
+/**
+ * Base class for messages sent to the Grinder.
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
 public abstract class GrinderCommand
 {
     final static String MULTICAST_ADDRESS_PROPERTY =

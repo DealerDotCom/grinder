@@ -29,9 +29,9 @@ import java.util.Date;
  * It reads characters from a BufferedRead and prints them out
  * in a PrintStream.
  * 
- * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
- * @author Copyright © 2000
- * @version 1.6.0
+ * @author Paco Gomez
+ * @author Philip Aston
+ * @version $Revision$
  */
 class Redirector implements java.lang.Runnable
 {

@@ -20,7 +20,10 @@ package net.grinder.util;
 
 import java.io.File;
 
-
+/**
+ * @author Philip Aston
+ * @version $Revision$
+ */
 public class FilenameFactory
 {
     private final String m_logDirectory;

@@ -25,13 +25,9 @@ import java.io.PrintWriter;
 /**
  * GrinderException.java
  *
- *
- * Created: Sat Dec  9 13:48:28 2000
- *
  * @author Philip Aston
  * @version $Revision$
  */
-
 public class GrinderException extends Exception
 {
     private final String m_message;

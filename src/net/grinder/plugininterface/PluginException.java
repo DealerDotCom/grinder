@@ -21,6 +21,8 @@ package net.grinder.plugininterface;
 import net.grinder.util.GrinderException;
 
 /**
+ * @author Philip Aston
+ * @version $Revision$
  */ 
 public class PluginException extends GrinderException
 {

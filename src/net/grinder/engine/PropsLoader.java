@@ -23,9 +23,8 @@ import java.io.*;
 /**
  * This class knows how to load properties from a property file.
  * 
- * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
- * @author Copyright © 2000
- * @version 1.6.0
+ * @author Paco Gomez
+ * @version $Revision$
  * @deprecated Use GrinderProperties instead.
  */
 public class PropsLoader{

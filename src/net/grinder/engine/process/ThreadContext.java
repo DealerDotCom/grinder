@@ -25,6 +25,9 @@ import net.grinder.util.GrinderProperties;
 
 /**
  * Package scope.
+ *
+ * @author Philip Aston
+ * @version $Revision$
  */
 class GrinderContextImplementation implements GrinderContext
 {

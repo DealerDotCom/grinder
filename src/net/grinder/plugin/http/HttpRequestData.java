@@ -21,9 +21,8 @@ package net.grinder.plugin.http;
  * Interface to obtain the data needed to make a particular HTTP
  * request.
  * 
- * @author <a href="mailto:paston@bea.com">Philip Aston</a>.
- * @author Copyright © 2000
- * @version 1.6.0
+ * @author Paco Gomez
+ * @version $Revision$
  */
 public interface HttpRequestData {
     public String getURLString();

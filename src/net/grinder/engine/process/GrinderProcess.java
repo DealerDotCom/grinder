@@ -41,9 +41,9 @@ import net.grinder.util.GrinderProperties;
  * It is responsible for storing the statistical information from the threads
  * and also for send it to the console and print it at the end.
  * 
- * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
- * @author Copyright © 2000
- * @version 1.6.0
+ * @author Paco Gomez
+ * @author Philip Aston
+ * @version $Revision$
  * @see net.grinder.engine.GrinderThread
  * @see net.grinder.engine.CycleRunnable
  */

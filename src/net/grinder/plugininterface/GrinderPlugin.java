@@ -22,9 +22,9 @@ package net.grinder.plugininterface;
 /**
  * The interface a valid Grinder plug-in must implement.
  *
- * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
- * @author Copyright © 2000
- * @version 1.6.0
+ * @author Paco Gomez
+ * @author Philip Aston
+ * @version $Revision$
  */ 
 public interface GrinderPlugin {
 

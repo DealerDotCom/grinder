@@ -23,8 +23,10 @@ import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Properties;
 
-
-
+/**
+ * @author Philip Aston
+ * @version $Revision$
+ */
 public class GrinderProperties extends Properties
 {
     private static final String PROPERTIES_FILENAME = "grinder.properties";

@@ -25,9 +25,8 @@ import javax.swing.border.*;
 /**
  * This class is used graphically show statistics.
  * 
- * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
- * @author Copyright © 2000
- * @version 1.6.0
+ * @author Paco Gomez
+ * @version $Revision$
  */
 public class GraphStatInfo extends javax.swing.JPanel{
     

@@ -27,10 +27,9 @@ import java.util.Hashtable;
  * Wrap up HTTP requests, cache a cookie across a number of calls,
  * simulate a browser cache.
  * 
- * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
- * @author <a href="mailto:paston@bea.com">Philip Aston</a>.
- * @author Copyright © 2000
- * @version 1.6.0
+ * @author Paco Gomez
+ * @author Philip Aston
+ * @version $Revision$
  */
 public class HttpMsg{
  

@@ -24,7 +24,12 @@ import java.text.DecimalFormat;
 import net.grinder.engine.EngineException;
 
 
-/** Package scope */
+/**
+ * Package scope
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
 class MethodStatisticsTable
 {
     private final String[] m_methodNames;

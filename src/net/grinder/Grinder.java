@@ -26,9 +26,8 @@ import net.grinder.util.FilenameFactory;
 /**
  * This is the entry point of The Grinder.
  * 
- * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
- * @author Copyright © 2000
- * @version 1.6.0
+ * @author Paco Gomez
+ * @version $Revision$
  */
 public class Grinder extends PropsLoader{
 
