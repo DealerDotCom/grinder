@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,90 +33,80 @@ import net.grinder.util.Serialiser;
  * @version $Revision$
  **/
 final class TestStatisticsImplementation
-    extends RawStatisticsImplementation implements TestStatistics
-{
-    private final static StatisticsIndexMap.LongIndex s_errorsIndex;
-    private final static StatisticsIndexMap.LongIndex s_timedTransactionsIndex;
-    private final static StatisticsIndexMap.LongIndex
-	s_untimedTransactionsIndex;
-    private final static StatisticsIndexMap.LongIndex s_totalTimeIndex;
+  extends RawStatisticsImplementation implements TestStatistics {
 
-    static
-    {
-	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
+  private final static StatisticsIndexMap.LongIndex s_errorsIndex;
+  private final static StatisticsIndexMap.LongIndex s_timedTransactionsIndex;
+  private final static StatisticsIndexMap.LongIndex s_untimedTransactionsIndex;
+  private final static StatisticsIndexMap.LongIndex s_totalTimeIndex;
 
-	try {
-	    s_errorsIndex = indexMap.getIndexForLong("errors");
-	    s_timedTransactionsIndex =
-		indexMap.getIndexForLong("timedTransactions");
-	    s_untimedTransactionsIndex =
-		indexMap.getIndexForLong("untimedTransactions");
-	    s_totalTimeIndex =
-		indexMap.getIndexForLong("timedTransactionTime");
-	}
-	catch (GrinderException e) {
-	    throw new RuntimeException(
-		"Assertion failure, " +
-		"TestStatisticsImplementation could not initialise: " +
-		e.getMessage());
-	}
+  static {
+    final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
+
+    try {
+      s_errorsIndex = indexMap.getIndexForLong("errors");
+      s_timedTransactionsIndex =
+	indexMap.getIndexForLong("timedTransactions");
+      s_untimedTransactionsIndex =
+	indexMap.getIndexForLong("untimedTransactions");
+      s_totalTimeIndex =
+	indexMap.getIndexForLong("timedTransactionTime");
     }
-
-    /**
-     * Creates a new <code>TestStatisticsImplementation</code> instance.
-     **/
-    public TestStatisticsImplementation()
-    {
+    catch (GrinderException e) {
+      throw new ExceptionInInitializerError(
+	"Assertion failure, " +
+	"TestStatisticsImplementation could not initialise: " +
+	e.getMessage());
     }
+  }
 
-    /**
-     * Efficient externalisation method used by {@link
-     * TestStatisticsFactory#writeStatisticsExternal}.
-     *
-     * @param out Handle to the output stream.
-     * @param serialiser <code>Serialiser</code> helper object.
-     * @exception IOException If an error occurs.
-     **/
-    public TestStatisticsImplementation(ObjectInput in, Serialiser serialiser)
-	throws IOException
-    {
-	super(in, serialiser);
-    }
+  /**
+   * Creates a new <code>TestStatisticsImplementation</code> instance.
+   **/
+  public TestStatisticsImplementation() {
+  }
 
-    public final void addError()
-    {
-	addValue(s_errorsIndex, 1);
-    }
+  /**
+   * Efficient externalisation method used by {@link
+   * TestStatisticsFactory#writeStatisticsExternal}.
+   *
+   * @param out Handle to the output stream.
+   * @param serialiser <code>Serialiser</code> helper object.
+   * @exception IOException If an error occurs.
+   **/
+  public TestStatisticsImplementation(ObjectInput in, Serialiser serialiser)
+    throws IOException {
+    super(in, serialiser);
+  }
+
+  public final void addError() {
+    addValue(s_errorsIndex, 1);
+  }
     
-    public final void addTransaction()
-    {
-	addValue(s_untimedTransactionsIndex, 1);
-    }
+  public final void addTransaction() {
+    addValue(s_untimedTransactionsIndex, 1);
+  }
     
-    public final void addTransaction(long time)
-    {
-	addValue(s_timedTransactionsIndex, 1);
-	addValue(s_totalTimeIndex, time);
-    }
+  public final void addTransaction(long time) {
+    addValue(s_timedTransactionsIndex, 1);
+    addValue(s_totalTimeIndex, time);
+  }
 
-    public final long getTransactions()
-    {
-	return
-	    getValue(s_timedTransactionsIndex) +
-	    getValue(s_untimedTransactionsIndex);
-    }
+  public final long getTransactions() {
+    return
+      getValue(s_timedTransactionsIndex) +
+      getValue(s_untimedTransactionsIndex);
+  }
 
-    public final long getErrors()
-    {
-	return getValue(s_errorsIndex);
-    }
+  public final long getErrors() {
+    return getValue(s_errorsIndex);
+  }
 
-    public final double getAverageTransactionTime()
-    {
-	final long timedTransactions = getValue(s_timedTransactionsIndex);
+  public final double getAverageTransactionTime() {
+    final long timedTransactions = getValue(s_timedTransactionsIndex);
 
-	return
-	    timedTransactions == 0 ?
-	    Double.NaN : getValue(s_totalTimeIndex)/(double)timedTransactions;
-    }
+    return
+      timedTransactions == 0 ?
+      Double.NaN : getValue(s_totalTimeIndex)/(double)timedTransactions;
+  }
 }
