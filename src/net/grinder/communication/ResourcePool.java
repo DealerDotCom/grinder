@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.LinkedList;
 
 
 /**
@@ -46,6 +47,23 @@ final class ResourcePool {
   private int m_lastReservable = 0;
   private int m_nextPurge = 0;
 
+  /** Synchronise on m_modelListeners before accessing. */
+  private final List m_listeners = new LinkedList();
+
+  private final ListenerNotification m_notifyAdd =
+    new ListenerNotification() {
+      protected void doNotification(Listener listener, Resource resource) {
+        listener.resourceAdded(resource);
+      }
+    };
+
+  private final ListenerNotification m_notifyClose =
+    new ListenerNotification() {
+      protected void doNotification(Listener listener, Resource resource) {
+        listener.resourceClosed(resource);
+      }
+    };
+
   /**
    * Constructor.
    */
@@ -62,6 +80,8 @@ final class ResourcePool {
     synchronized (m_reservableListMutex) {
       m_reservables.add(new ResourceWrapper(resource));
     }
+
+    m_notifyAdd.notify(resource);
   }
 
   /**
@@ -214,6 +234,42 @@ final class ResourcePool {
   }
 
   /**
+   * Listener interface.
+   */
+  public interface Listener {
+
+    void resourceAdded(Resource resource);
+
+    void resourceClosed(Resource resource);
+  }
+
+  /**
+   * Add a new listener.
+   *
+   * @param listener The listener.
+   */
+  public final void addListener(Listener listener) {
+    synchronized (m_listeners) {
+      m_listeners.add(listener);
+    }
+  }
+
+  private abstract class ListenerNotification {
+    public final void notify(Resource resource) {
+      synchronized (m_listeners) {
+        final Iterator iterator = m_listeners.iterator();
+
+        while (iterator.hasNext()) {
+          doNotification((Listener)iterator.next(), resource);
+        }
+      }
+    }
+
+    protected abstract void doNotification(Listener listener,
+                                           Resource resource);
+  }
+
+  /**
    * Public interface to a resource reservation.
    */
   public interface Reservation {
@@ -324,6 +380,8 @@ final class ResourcePool {
           m_reservableMutex.notifyAll();
         }
       }
+
+      m_notifyClose.notify(m_resource);
     }
 
     public synchronized boolean isClosed() {
