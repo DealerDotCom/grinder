@@ -45,11 +45,13 @@ public class AssertUtilities extends Assert {
 
     if (a != null || b != null) {
       assertNotNull(message + "first is not null", a);
-      assertNotNull(message = "second is not null", b);
+      assertNotNull(message + "second is not null", b);
 
       assertEquals(message + "arrays of equal length", a.length, b.length);
 
       for (int i = 0; i < a.length; ++i) {
+        assertEquals(message + "element " + i + " types equal",
+                     a[i].getClass(), b[i].getClass());
         assertEquals(message + "element " + i + " equal", a[i], b[i]);
       }
     }
@@ -67,7 +69,7 @@ public class AssertUtilities extends Assert {
 
     if (a != null || b != null) {
       assertNotNull(message + "first is not null", a);
-      assertNotNull(message = "second is not null", b);
+      assertNotNull(message + "second is not null", b);
 
 
       assertEquals(message + "arrays of equal length", a.length, b.length);
@@ -91,7 +93,7 @@ public class AssertUtilities extends Assert {
 
     if (a != null || b != null) {
       assertNotNull(message + "first is not null", a);
-      assertNotNull(message = "second is not null", b);
+      assertNotNull(message + "second is not null", b);
 
       assertEquals(message + "arrays of equal length", a.length, b.length);
  
