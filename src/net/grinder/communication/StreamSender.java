@@ -23,7 +23,6 @@ package net.grinder.communication;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
 
@@ -69,18 +68,7 @@ public class StreamSender extends AbstractSender {
    * @throws IOException If an error occurs.
    */
   protected final void writeMessage(Message message) throws IOException {
-
-    // I tried the model of using a single ObjectOutputStream for the
-    // lifetime of the socket and a single ObjectInputStream. However,
-    // the corresponding ObjectInputStream would get occasional EOF's
-    // during readObject. Seems like voodoo to me, but creating a new
-    // ObjectOutputStream for every message fixes this.
-
-    final ObjectOutputStream objectStream =
-      new ObjectOutputStream(m_outputStream);
-
-    objectStream.writeObject(message);
-    objectStream.flush();
+    writeMessageToStream(message, m_outputStream);
   }
 
   /**

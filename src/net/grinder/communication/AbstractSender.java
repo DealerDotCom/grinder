@@ -23,6 +23,8 @@ package net.grinder.communication;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.security.MessageDigest;
@@ -118,6 +120,22 @@ abstract class AbstractSender implements Sender {
   }
 
   protected abstract void writeMessage(Message message) throws IOException;
+
+  protected static void writeMessageToStream(Message message, 
+                                             OutputStream stream)
+    throws IOException {
+
+    // I tried the model of using a single ObjectOutputStream for the
+    // lifetime of the Sender and a single ObjectInputStream for each
+    // Reader. However, the corresponding ObjectInputStream would get
+    // occasional EOF's during readObject. Seems like voodoo to me,
+    // but creating a new ObjectOutputStream for every message fixes
+    // this.
+
+    final ObjectOutputStream objectStream = new ObjectOutputStream(stream);
+    objectStream.writeObject(message);
+    objectStream.flush();
+  }
 
   /**
    * Cleanly shutdown the <code>Sender</code>.
