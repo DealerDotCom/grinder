@@ -41,7 +41,6 @@ public class TestHTTPResponse extends TestCase {
     final String result0 = response.toString();
     AssertUtilities.assertStartsWith(result0,
                                      "HTTP/1.0 500 Internal Server Error\r\n");
-    AssertUtilities.assertContainsHeader(result0, "Host", "TODO");
     AssertUtilities.assertContainsHeader(result0,
                                          "Proxy-agent", "The Grinder .*");
     AssertUtilities.assertEndsWith(result0, "\r\n\r\n");

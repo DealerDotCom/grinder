@@ -43,7 +43,6 @@ final class HTTPResponse {
   private final StringBuffer m_responseBody = new StringBuffer();
 
   public HTTPResponse() {
-    setHeader("Host", "TODO");
     setHeader("Proxy-agent", GrinderBuild.getName());
   }
 
