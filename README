@@ -277,6 +277,12 @@ What can I set in grinder.properties for the HTTP plugin?
 				the cookie from being picked up by the
 				plugin.
 
+    grinder.plugin.parameter.stringBean -
+				Fully qualified classname of a Java
+				bean that can provide dynamic strings
+				for URL's and POST data. See "What's a
+				String Bean?" below.
+
     grinder.test0.parameter.url -
 				The URL to call. The HTTP GET method
 				is used unless
@@ -298,6 +304,52 @@ What can I set in grinder.properties for the HTTP plugin?
 			 	a browser's caching of pages. Its value
 				should be a date of the form
 				Sat, 06 Jan 2001 13:36:39 GMT.
+
+
+What's a String Bean?
+*********************
+
+When using the HTTP plugin, it is often necessary to parametise parts
+of URL's and POST data. The easy way to do this is to use a "String
+Bean" - a Java Bean that returns Strings from its "get" methods.
+
+For example, supporse you wanted to modify the URL
+"http://myhost/test.jsp?n=1" such that n is set to a random number
+each time? Easy! Here's how.
+
+Write a simple bean:
+
+  // MyStringBean.java
+  package mystuff;
+
+  public class MyStringBean {
+    private Random m_random = new Random();
+
+    public String getRandomInteger() {
+      return Integer.toString(m_random.nextInt());
+    }
+  }
+
+Compile this and put it in your classpath. Then alter your
+grinder.properties to include this line:
+
+  grinder.plugin.parameter.stringBean=mystuff.MyStringBean
+
+Alter the test URL parameter as follows:
+
+  grinder.test0.parameter.url=http://myhost/test.jsp?n=<getRandomInteger>
+
+
+The <beanMethodName> syntax can be used in any URL string or POST data
+file. It must correspond to a public method of the string bean that
+takes no parameters and returns a String.
+
+Each string bean instance is instantiated per thread, and maintains
+its state between invocations. If your bean needs additional
+information regarding the test lifecycle (for example, to reset a
+counter and the beginning of a cycle), it can implement the
+net.grinder.http.plugin.StringBean interface. See the examples in
+net.grinder.http.plugin.example.
 
 
 How do I use the HTTPS plugin?
