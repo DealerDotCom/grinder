@@ -36,7 +36,6 @@ import com.sun.net.ssl.TrustManager;
 import com.sun.net.ssl.X509TrustManager;
 
 import net.grinder.common.SSLContextFactory;
-import net.grinder.common.SSLContextFactory.SSLContextFactoryException;
 
 
 /**

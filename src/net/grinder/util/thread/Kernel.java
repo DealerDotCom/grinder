@@ -62,7 +62,7 @@ public final class Kernel {
           return new Runnable() {
               public void run() { process(); }
             };
-        };
+        }
       };
 
     m_threadPool = new ThreadPool("Kernel", numberOfThreads, runnableFactory);

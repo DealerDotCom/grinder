@@ -32,7 +32,6 @@ import com.sun.net.ssl.KeyManager;
 import com.sun.net.ssl.SSLContext;
 
 import net.grinder.common.SSLContextFactory;
-import net.grinder.common.SSLContextFactory.SSLContextFactoryException;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.SSLControl;

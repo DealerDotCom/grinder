@@ -144,7 +144,7 @@ public final class ConsoleProperties {
    * Use to save and load properties, and to keep track of the
    * associated file.
    */
-  private final GrinderProperties m_properties;;
+  private final GrinderProperties m_properties;
 
   /**
    * Construct a ConsoleProperties backed by the given file.

@@ -580,7 +580,7 @@ public final class StatisticExpressionFactory {
 
       public ParseException(String message, int where) {
         super("Parse exception: " + message + ", at character " + where +
-              " of '" + m_expression + "'");
+              " of '" + new String(m_expression) + "'");
       }
     }
   }
