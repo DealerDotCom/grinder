@@ -30,7 +30,7 @@ import net.grinder.statistics.TestStatisticsMap;
  * @author Philip Aston
  * @version $Revision$
  */
-public class ReportStatisticsMessage extends Message {
+public final class ReportStatisticsMessage extends Message {
 
   private static final long serialVersionUID = 171863391515128541L;
 

@@ -28,5 +28,5 @@ package net.grinder.communication;
  * @author Philip Aston
  * @version $Revision$
  **/
-class CloseCommunicationMessage extends Message {
+final class CloseCommunicationMessage extends Message {
 }

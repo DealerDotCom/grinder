@@ -32,7 +32,7 @@ import net.grinder.common.GrinderException;
  * @author Philip Aston
  * @version $Revision$
  **/
-class ThreadSafeQueue {
+final class ThreadSafeQueue {
 
   private LinkedList m_messages = new LinkedList();
   private boolean m_shutdown = false;
