@@ -7,6 +7,9 @@ Grinder 2.1
   tests are specified by a number of "grinder.testX" properties (where
   test is any number). See README for details.
 
+  [Support for testing classes using reflection will be provided by a
+  JUnit plugin which will come in 2.2].
+
   The "initial sleep time" has been removed, a "begin cycle sleep
   time" has been added in its place. Individual method sleep times can
   now be specified. All sleep times are now randomly varied according
@@ -15,14 +18,17 @@ Grinder 2.1
   The HttpPluginSnifferFilter has been updated to record sleep times
   and reflect the property format changes.
 
-  The loggin of the HTTP plugin has been improved.
+  The logging of the HTTP plugin has been improved.
 
   The output and error log format is now more useful. There was no
   point in displaying the host and process for each line (each process
   gets its own output file). I've added the current cycle and test
   number instead.
 
-  I've removed the "simple" plugin as I got fed up of maintaining it.
+  I've removed the "simple" and "ejb" plugins as they are not useful
+  in their own right and I got fed up of maintaining them. Both would
+  be best addressed using the planned JUnit plugin. Examples will come
+  with Grinder 2.2.
 
   We have our first JUnit test case. We need more.
 

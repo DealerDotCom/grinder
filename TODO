@@ -26,6 +26,9 @@ is roughly in priority order.]
   Add option to ignore the first 5 cycles so that hotspot has chance
   to work.
 
+  Add a switch to the HttpPluginSnifferFilter which specifies the
+  initial test number for the output.
+
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
 	Fix javadoc warnings.

@@ -1,3 +1,12 @@
+2001-01-23  Philip Aston  <paston@beasys.com>
+
+	* build.xml: 
+		Simplify and update.
+
+	* src/net/grinder/engine/process/GrinderThread.java: 
+		Log number of cycles.
+		"Initial sleep time" is now "begin cycle time".
+
 2001-01-22  Philip Aston  <paston@beasys.com>
 
 	* src/net/grinder/TCPSniffer.java: 
