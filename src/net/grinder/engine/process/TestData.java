@@ -65,22 +65,15 @@ final class TestData implements TestRegistry.RegisteredTest
 	return m_statistics;
     }
 
-    Object dispatch(Invokeable invokeable) //throws GrinderException
+    Object dispatch(Invokeable invokeable) throws GrinderException
     {
-	try {	
-	    final ThreadContext threadContext =
-		ThreadContext.getThreadInstance();
+	final ThreadContext threadContext = ThreadContext.getThreadInstance();
 	
-	    if (threadContext == null) {
-		throw new EngineException(
-		    "Only Worker Threads can invoke tests");
-	    }
+	if (threadContext == null) {
+	    throw new EngineException("Only Worker Threads can invoke tests");
+	}
 
-	    return threadContext.invokeTest(this, invokeable);
-	}
-	catch (GrinderException e) {
-	    throw new RuntimeException("FIX ME" + e);
-	}
+	return threadContext.invokeTest(this, invokeable);
     }
 
     interface Invokeable 

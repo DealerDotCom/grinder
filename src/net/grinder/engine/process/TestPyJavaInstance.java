@@ -43,6 +43,16 @@ class TestPyJavaInstance extends PyJavaInstance
 	m_pyTest = new PyJavaInstance(testData.getTest());
     }
 
+    private final PyObject dispatch(TestData.Invokeable invokeable)
+    {
+	try {
+	    return (PyObject)m_testData.dispatch(invokeable);
+	}
+	catch (Exception e) {
+	    throw Py.JavaError(t);
+	}
+    }
+
     protected PyObject ifindlocal(String name) {
         if (name == "__test__") { // Valid because name is interned.
 	    return m_pyTest;
@@ -51,9 +61,9 @@ class TestPyJavaInstance extends PyJavaInstance
 	return super.ifindlocal(name);
     }
 
-    public PyObject invoke(final String name) 
+    public PyObject invoke(final String name)
     {
-	return (PyObject)m_testData.dispatch(
+	return dispatch(
 	    new TestData.Invokeable() {
 		public Object call() {
 		    return TestPyJavaInstance.super.invoke(name);
@@ -62,7 +72,7 @@ class TestPyJavaInstance extends PyJavaInstance
 
     public PyObject invoke(final String name, final PyObject arg1) 
     {
-	return (PyObject)m_testData.dispatch(
+	return dispatch(
 	    new TestData.Invokeable() {
 		public Object call() {
 		    return TestPyJavaInstance.super.invoke(name, arg1);
@@ -72,7 +82,7 @@ class TestPyJavaInstance extends PyJavaInstance
     public PyObject invoke(final String name, final PyObject arg1,
 			   final PyObject arg2) 
     {
-	return (PyObject)m_testData.dispatch(
+	return dispatch(
 	    new TestData.Invokeable() {
 		public Object call() {
 		    return TestPyJavaInstance.super.invoke(name, arg1, arg2);
@@ -81,7 +91,7 @@ class TestPyJavaInstance extends PyJavaInstance
 
     public PyObject invoke(final String name, final PyObject[] args) 
     {
-	return (PyObject)m_testData.dispatch(
+	return dispatch(
 	    new TestData.Invokeable() {
 		public Object call() {
 		    return TestPyJavaInstance.super.invoke(name, args);
@@ -91,7 +101,7 @@ class TestPyJavaInstance extends PyJavaInstance
     public PyObject invoke(final String name, final PyObject[] args,
 			   final String[] keywords) 
     {
-	return (PyObject)m_testData.dispatch(
+	return dispatch(
 	    new TestData.Invokeable() {
 		public Object call() {
 		    return TestPyJavaInstance.super.invoke(name, args,
