@@ -21,6 +21,8 @@
 
 package net.grinder.console.distribution;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
@@ -132,23 +134,60 @@ public class TestFileDistribution extends AbstractFileTestCase {
   }
 
   public void testAgentCacheStateImplementation() throws Exception {
-    final FileDistribution.AgentCacheStateImplementation
-      cacheState = new FileDistribution.AgentCacheStateImplementation();
+
+    final FileDistribution fileDistribution = new FileDistribution(null);
+
+    final FileDistribution.AgentCacheStateImplementation cacheState =
+      (FileDistribution.AgentCacheStateImplementation)
+      fileDistribution.getAgentCacheState();
+
+    final RandomStubFactory propertyChangeListenerStubFactory =
+      new RandomStubFactory(PropertyChangeListener.class);
+    final PropertyChangeListener propertyChangeListener =
+      (PropertyChangeListener)propertyChangeListenerStubFactory.getStub();
+
+    cacheState.addListener(propertyChangeListener);
 
     assertEquals(-1, cacheState.getEarliestFileTime());
     assertTrue(cacheState.getOutOfDate());
+    propertyChangeListenerStubFactory.assertNoMoreCalls();
 
     cacheState.updateStarted();
     assertEquals(-1, cacheState.getEarliestFileTime());
     assertTrue(cacheState.getOutOfDate());
+    propertyChangeListenerStubFactory.assertNoMoreCalls();
 
     cacheState.updateComplete();
     assertFalse(cacheState.getOutOfDate());
-    assertFalse(cacheState.getEarliestFileTime() == -1);
+    final long earliestFileTime = cacheState.getEarliestFileTime();
+    assertFalse(earliestFileTime == -1);
+    propertyChangeListenerStubFactory.assertSuccess("propertyChange",
+                                                    PropertyChangeEvent.class);
+    propertyChangeListenerStubFactory.assertNoMoreCalls();
 
     cacheState.setOutOfDate();
     assertTrue(cacheState.getOutOfDate());
-    assertFalse(cacheState.getEarliestFileTime() == -1);
+    assertEquals(earliestFileTime, earliestFileTime);
+    propertyChangeListenerStubFactory.assertSuccess("propertyChange",
+                                                    PropertyChangeEvent.class);
+    propertyChangeListenerStubFactory.assertNoMoreCalls();
+
+    Thread.sleep(10);
+
+    cacheState.updateStarted();
+    assertTrue(cacheState.getOutOfDate());
+    assertEquals(earliestFileTime, earliestFileTime);
+    propertyChangeListenerStubFactory.assertNoMoreCalls();
+
+    cacheState.setOutOfDate();
+    assertTrue(cacheState.getOutOfDate());
+    assertEquals(earliestFileTime, earliestFileTime);
+    propertyChangeListenerStubFactory.assertNoMoreCalls();
+
+    cacheState.updateComplete();
+    assertTrue(cacheState.getOutOfDate());
+    assertFalse(earliestFileTime == cacheState.getEarliestFileTime());
+    propertyChangeListenerStubFactory.assertNoMoreCalls();
   }
 
   public static class DistributionControlStubFactory

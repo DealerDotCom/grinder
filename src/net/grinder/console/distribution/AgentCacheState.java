@@ -21,6 +21,8 @@
 
 package net.grinder.console.distribution;
 
+import java.beans.PropertyChangeListener;
+
 
 /**
  * Simplistic model of remote caches.
@@ -42,4 +44,11 @@ public interface AgentCacheState {
    * changing.
    */
   void setOutOfDate();
+
+  /**
+   * Allow other parties to register their interest in changes to our state.
+   *
+   * @param listener Listener to notify on a state change.
+   */
+  void addListener(PropertyChangeListener listener);
 }

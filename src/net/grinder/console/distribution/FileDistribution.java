@@ -21,6 +21,8 @@
 
 package net.grinder.console.distribution;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.Set;
 
 import org.apache.oro.text.regex.Pattern;
@@ -112,6 +114,9 @@ public final class FileDistribution {
     private static final int UPDATING = 1;
     private static final int OUT_OF_DATE = 2;
 
+    private final PropertyChangeSupport m_propertyChangeSupport =
+      new PropertyChangeSupport(this);
+
     private Directory m_directory;
     private Pattern m_fileFilterPattern;
     private Set m_connectedAgents;
@@ -156,12 +161,12 @@ public final class FileDistribution {
     }
 
     public void setOutOfDate() {
-      m_state = OUT_OF_DATE;
+      setState(OUT_OF_DATE);
     }
 
     public void updateStarted() {
-      m_state = UPDATING;
       m_updateStartTime = System.currentTimeMillis();
+      setState(UPDATING);
     }
 
     public void updateComplete() {
@@ -169,12 +174,25 @@ public final class FileDistribution {
       if (m_state == UPDATING) {
         // Only mark clean if we haven't been marked out of date
         // during the update.
-        m_state = UP_TO_DATE;
+        setState(UP_TO_DATE);
       }
 
       // Even if we're not up to date, we've at least transfered all
       // files older than this time.
       m_earliestFileTime = m_updateStartTime;
+    }
+
+    private void setState(int newState) {
+      final boolean oldOutOfDate = getOutOfDate();
+      m_state = newState;
+
+      m_propertyChangeSupport.firePropertyChange("outOfDate",
+                                                 oldOutOfDate,
+                                                 getOutOfDate());
+    }
+
+    public void addListener(PropertyChangeListener listener) {
+      m_propertyChangeSupport.addPropertyChangeListener(listener);
     }
   }
 }
