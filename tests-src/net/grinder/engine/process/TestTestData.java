@@ -28,6 +28,8 @@ import net.grinder.common.TestImplementation;
 
 
 /**
+ * Unit test case for <code>TestTestData</code>.
+ *
  * @author Philip Aston
  * @version $Revision$
  **/
