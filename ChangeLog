@@ -1,3 +1,27 @@
+2003-10-07  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, xdoc/documentation.xweb, xdoc/g3/features-xhtml.xml, xdoc/stylesheets/grinder.xsl:
+	Feature matrix.
+
+	* TODO: Progress.
+
+	* src/net/grinder/util/CopyStreamRunnable.java, src/net/grinder/util/DelayedCreationFileWriter.java, src/net/grinder/util/FixedWidthFormatter.java, src/net/grinder/util/Serialiser.java:
+	Checkstyle.
+
+	* src/net/grinder/util/Sleeper.java: Correct comment.
+
+	* src/net/grinder/plugin/http/HTTPPlugin.java:
+	Simplify registration of StatisticsView.
+
+2003-10-02  Philip Aston  <philipa@mail.com>
+
+	* TODO: Thought.
+
+	* CHANGES, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ShutdownException.java, src/net/grinder/engine/process/ThreadContext.java:
+	Be more agressive about interrupting workers.
+
+	* src/net/grinder/engine/process/GrinderProcess.java: Attribution.
+
 2003-10-01  Philip Aston  <paston@bea.com>
 
 	* AUTHORS, CHANGES, src/net/grinder/engine/process/GrinderProcess.java, xdoc/g3/getting-started-xhtml.xml, xdoc/welcome-xhtml.xml:
