@@ -78,7 +78,7 @@ final class TestRegistry
 	    }
 	}
 	
-	if (m_consoleSender != null && newTests.size() > 0) {
+	if (newTests.size() > 0) {
 	    m_consoleSender.send(new RegisterTestsMessage(newTests));
 	}
     }
@@ -98,10 +98,8 @@ final class TestRegistry
 	    }
 	}
 	
-	if (m_consoleSender != null) {
-	    m_consoleSender.send(
-		new RegisterTestsMessage(Collections.singleton(test)));
-	}
+	m_consoleSender.send(
+	    new RegisterTestsMessage(Collections.singleton(test)));
 
 	return newTestData;
     }

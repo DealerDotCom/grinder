@@ -50,8 +50,8 @@ public class TestSenderAndReceiver extends TestCase
     protected void setUp() throws Exception
     {
 	m_receiver = new Receiver(MULTICAST_ADDRESS, MULTICAST_PORT);
-	m_sender = new Sender("Test Sender", MULTICAST_ADDRESS,
-			      MULTICAST_PORT);
+	m_sender = new SenderImplementation("Test Sender", MULTICAST_ADDRESS,
+					    MULTICAST_PORT);
     }
 
     public void testSendSimpleMessage() throws Exception

@@ -184,9 +184,9 @@ public final class Receiver
 			// else with the DatagramSocket API though.
 			m_shutdownMessage = new ShutdownMessage();
 
-			new Sender("suicide is painless",
-				   m_multicastAddressString,
-				   m_multicastPort).send(m_shutdownMessage);
+			new SenderImplementation(
+			    "suicide is painless", m_multicastAddressString,
+			    m_multicastPort).send(m_shutdownMessage);
 		    }
 		    catch (CommunicationException e) {
 			// We made our best effort.

@@ -38,6 +38,7 @@ import net.grinder.communication.Receiver;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
+import net.grinder.communication.SenderImplementation;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
 import net.grinder.engine.EngineException;
@@ -80,8 +81,7 @@ public class GrinderProcess
 
     /**
      * The application's entry point.
-     * 
-     */    
+     **/    
     public static void main(String[] args)
     {
 	if (args.length < 1 || args.length > 2) {
@@ -135,7 +135,7 @@ public class GrinderProcess
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 
 	// Parse console configuration.
-	final String multicastAddress = 
+	final String multicastAddress =
 	    properties.getProperty("grinder.multicastAddress",
 				   CommunicationDefaults.MULTICAST_ADDRESS);
 
@@ -162,6 +162,7 @@ public class GrinderProcess
 	    }
 	}
 	else {
+	    // Null Listener implementation.
 	    m_listener =
 		new Listener() {
 		    public boolean shouldWait() { return false; }
@@ -176,7 +177,8 @@ public class GrinderProcess
 				  CommunicationDefaults.CONSOLE_PORT);
 
 	    if (multicastAddress != null && consolePort > 0) {
-		m_consoleSender = new Sender(m_context.getGrinderID(),
+		m_consoleSender = 
+		    new SenderImplementation(m_context.getGrinderID(),
 					     multicastAddress, consolePort);
 
 		m_context.m_consoleSender = m_consoleSender;
@@ -191,7 +193,10 @@ public class GrinderProcess
 	    }
 	}
 	else {
-	    m_consoleSender = null;
+	    // Null Sender implementation.
+	    m_consoleSender = new Sender() {
+		    public void send(Message message) {}
+		};
 	}
 
 	final TestRegistry testRegistry = new TestRegistry(m_consoleSender);
@@ -308,7 +313,7 @@ public class GrinderProcess
      * single execution.
      *
      * @returns exit status to be indicated to parent process.
-     */        
+     **/        
     protected int run() throws GrinderException
     {
 	m_context.logMessage("The Grinder version @version@");
@@ -361,12 +366,10 @@ public class GrinderProcess
 		waitForMessage(m_reportToConsoleInterval,
 			       Listener.RESET | Listener.STOP);
 		
-		if (m_consoleSender != null) {
-		    m_consoleSender.send(
-			new ReportStatisticsMessage(
-			    m_context.getTestRegistry().getTestStatisticsMap()
-			    .getDelta(true)));
-		}
+		m_consoleSender.send(
+		    new ReportStatisticsMessage(
+			m_context.getTestRegistry().getTestStatisticsMap()
+			.getDelta(true)));
 	    }
 	    while (GrinderThread.numberOfUncompletedThreads() > 0 &&
 		   !m_listener.messageReceived(Listener.RESET |
@@ -497,7 +500,7 @@ public class GrinderProcess
     /**
      * Runnable that receives event messages from the Console.
      * Currently no point in synchronising access.
-     */
+     **/
     private class ConsoleListener implements Runnable, Listener
     {
 	private final Logger m_logger;
