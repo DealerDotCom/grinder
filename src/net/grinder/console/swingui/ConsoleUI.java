@@ -162,7 +162,7 @@ public class ConsoleUI implements ModelListener
 	final LabelledGraph totalGraph = new LabelledGraph("Total",
 							   Color.darkGray);
 
-	final JLabel tpsLabel = new JLabel("", SwingConstants.CENTER);
+	final JLabel tpsLabel = new JLabel();
 	tpsLabel.setForeground(Color.black);
 	tpsLabel.setFont(s_tpsFont);
 
@@ -243,12 +243,16 @@ public class ConsoleUI implements ModelListener
 	final JPanel controlAndTotalPanel = new JPanel();
 	controlAndTotalPanel.setLayout(
 	    new BoxLayout(controlAndTotalPanel, BoxLayout.Y_AXIS));
-	
+
 	controlAndTotalPanel.add(controlPanel);
 	controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 50)));
 	controlAndTotalPanel.add(tpsLabel);
 	controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 	controlAndTotalPanel.add(totalGraph);
+
+	// Really wanted this left alligned, but doesn't really work
+	// with a box layout.
+	tpsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 	final JPanel hackToFixLayout = new JPanel();
 	hackToFixLayout.add(controlAndTotalPanel);
