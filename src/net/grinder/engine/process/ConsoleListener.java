@@ -39,9 +39,28 @@ import net.grinder.engine.EngineException;
  **/
 final class ConsoleListener
 {
+    /**
+     * Constant that represents start message.
+     * @see #received
+     **/
     public final static int START = 1 << 0;
+
+    /**
+     * Constant that represents a a reset message.
+     * @see #received
+     **/
     public final static int RESET = 1 << 1;
+
+    /**
+     * Constant that represents a stop message.
+     * @see #received
+     **/
     public final static int STOP =  1 << 2;
+
+    /**
+     * Constant that represent any message.
+     * @see #received
+     **/
     public final static int ANY = START | RESET | STOP;
 
     private final Monitor m_notifyOnMessage;
