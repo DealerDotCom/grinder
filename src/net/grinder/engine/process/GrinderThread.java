@@ -75,8 +75,7 @@ class GrinderThread implements java.lang.Runnable
 
 	final GrinderProperties properties = processContext.getProperties();
 
-	m_initialSleepTime =
-	    properties.getLong("grinder.thread.initialSleepTime", 0);
+	m_initialSleepTime = properties.getLong("grinder.initialSleepTime", 0);
 
 	m_numberOfRuns = properties.getInt("grinder.runs", 1);
 

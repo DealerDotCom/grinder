@@ -53,7 +53,6 @@ final class ThreadContext implements PluginThreadContext
     private final PrintWriter m_dataWriter;
     private final FilenameFactory m_filenameFactory;
     private final boolean m_recordTime;
-    private final long m_defaultSleepTime;
     private final Sleeper m_sleeper;
 
     private Test m_currentTest;
@@ -84,11 +83,9 @@ final class ThreadContext implements PluginThreadContext
 
 	final GrinderProperties properties = processContext.getProperties();
 
-	m_defaultSleepTime = properties.getLong("grinder.thread.sleepTime", 0);
-
 	m_sleeper = new Sleeper(
-	    properties.getDouble("grinder.thread.sleepTimeFactor", 1.0d),
-	    properties.getDouble("grinder.thread.sleepTimeVariation", 0.2d),
+	    properties.getDouble("grinder.sleepTimeFactor", 1.0d),
+	    properties.getDouble("grinder.sleepTimeVariation", 0.2d),
 	    m_threadLogger);
     }
 
