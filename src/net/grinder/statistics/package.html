@@ -41,7 +41,7 @@ summaryView = StatisticsView()
 summaryView.add(ExpressionView(
     "Mean delivery time",
     "statistic.deliveryTime",
-    "(/ userLong0(+ timedTests untimedTests))"))
+    "(/ userLong0(+ (count timedTests) untimedTests))"))
 	    
 grinder.registerDetailStatisticsView(detailView)
 grinder.registerSummaryStatisticsView(summaryView)
