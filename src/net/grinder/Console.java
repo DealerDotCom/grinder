@@ -35,6 +35,12 @@ public class Console
 	    System.exit(1);
 	}
 
-	new net.grinder.console.Console().run();
+	try {
+	    new net.grinder.console.Console().run();
+	}
+	catch (Throwable t) {
+	    t.printStackTrace();
+	    System.exit(2);
+	}
     }
 }
