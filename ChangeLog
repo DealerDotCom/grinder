@@ -1,3 +1,49 @@
+2001-10-16  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java:
+	More rudimentary dynamic registration.
+
+	* src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ThreadLogger.java, src/net/grinder/engine/process/BSFProcessContext.java, src/net/grinder/engine/process/FilenameFactoryImplementation.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestRegistry.java:
+	Refactor engine to reflect changes to plugin interface.
+
+	* src/net/grinder/plugininterface/ThreadCallbacks.java: Documentation.
+
+	* src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/PluginThreadContext.java:
+	Plugins are now responsible for registering their tests.
+	PluginThreadContext no longer extends PluginProcessContext; both are
+	now FilenameFactory's and Loggers.
+
+	* src/net/grinder/plugininterface/GrinderPlugin.java, src/net/grinder/plugin/junit/JUnitPlugin.java, src/net/grinder/plugin/socket/SocketPlugin.java:
+	Plugins are now responsible for registering their tests.
+
+	* tests-src/net/grinder/engine/process/TestTestData.java: Update.
+
+	* src/net/grinder/communication/Sender.java:
+	Synchronise sending. Should really be an active object.
+
+	* examples/http/grinder.properties: I use 9001 these days...
+
+	* examples/http/runtests.py, src/net/grinder/script/ScriptContext.java, src/net/grinder/script/ScriptException.java:
+	Interface to register tests. This is an interim hack and won't last
+	long.
+
+	* src/net/grinder/plugin/http/example/ExampleStringBean2.java:
+	StringBean interface has changed.
+
+	* src/net/grinder/plugin/http/StringBean.java:
+	Our interface is subtely different to ThreadCallbacks, don't reuse it.
+
+	* src/net/grinder/plugininterface/SimplePluginBase.java: Dead.
+
+2001-10-15  Philip Aston  <paston@bea.com>
+
+	* src/prj.el, tests-src/prj.el: JDE now handles relative paths.
+
+	* src/net/grinder/Grinder.java: Javadoc.
+
+	* src/net/grinder/common/TestImplementation.java, src/net/grinder/engine/process/BSFProcessContext.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugin/http/HttpPlugin.java, tests-src/net/grinder/engine/process/TestTestData.java, examples/http/grinder.properties, src/net/grinder/common/AbstractTestSemantics.java:
+	Start dynamic registration.
+
 2001-10-14  Philip Aston  <paston@bea.com>
 
 	* The Grinder 3 begins.
