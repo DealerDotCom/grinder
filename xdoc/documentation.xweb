@@ -89,6 +89,8 @@
             targetFile="console-screenshot-g3.png" type="copy"/>
       <file sourceFile="console-es-g3.png" targetFile="console-es-g3.png"
             type="copy"/>
+      <file sourceFile="proxy-preferences.png"
+            targetFile="proxy-preferences.png" type="copy"/>
       <file sourceFile="tcpproxy.gif" targetFile="tcpproxy.gif" type="copy"/>
       <file sourceFile="tcpproxy-ssl.gif" targetFile="tcpproxy-ssl.gif"
 	    type="copy"/>

@@ -39,7 +39,7 @@ import net.grinder.tools.tcpproxy.EchoFilter;
 import net.grinder.tools.tcpproxy.HTTPProxyTCPProxyEngine;
 import net.grinder.tools.tcpproxy.JSSEConstants;
 import net.grinder.tools.tcpproxy.NullFilter;
-import net.grinder.tools.tcpproxy.SingleServerTCPProxyEngine;
+import net.grinder.tools.tcpproxy.PortForwarderTCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyConsole;
 import net.grinder.tools.tcpproxy.TCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
@@ -76,32 +76,38 @@ public final class TCPProxy {
       "Usage: " +
       "\n java " + TCPProxy.class + " <options>" +
       "\n" +
-      "\n Where options can include:" +
-      "\n" +
-      "\n   [-requestFilter <filter>]    Add request filter" +
-      "\n   [-responseFilter <filter>]   Add response filter" +
-      "\n   [-httpPlugin]                See below" +
+      "\n Commonly used options:" +
+      "\n   [-requestfilter <filter>]    Specify request filter" +
+      "\n   [-responsefilter <filter>]   Specify response filter" +
+      "\n   [-httpplugin]                See below" +
       "\n   [-properties <file>]         Properties passed to the filters" +
-      "\n   [-localHost <host name/ip>]  Default is localhost" +
-      "\n   [-localPort <port>]          Default is 8001" +
-      "\n   [-remoteHost <host name>]    Default is localhost" +
-      "\n   [-remotePort <port>]         Default is 7001" +
-      "\n   [-proxy]                     Be an HTTP proxy" +
+      "\n   [-localhost <host name/ip>]  Default is localhost" +
+      "\n   [-localport <port>]          Default is 8001" +
       "\n   [-ssl                        Use SSL" +
-      "\n     [-keyStore <file>]         Key store details for" +
-      "\n     [-keyStorePassword <pass>] certificates. Equivalent to" +
-      "\n     [-keyStoreType <type>]     javax.net.ssl.XXX properties" +
+      "\n     [-keystore <file>]         Key store details for" +
+      "\n     [-keystorepassword <pass>] certificates. Equivalent to" +
+      "\n     [-keystoretype <type>]     javax.net.ssl.XXX properties" +
       "\n   ]" +
-      "\n   [-colour]                    Be pretty on ANSI terminals" +
+      "\n" +
+      "\n Other options:" +
+      "\n   [-remotehost <host name>]    Default is localhost" +
+      "\n   [-remoteport <port>]         Default is 7001" +
       "\n   [-timeout]                   Proxy engine timeout" +
+      "\n   [-colour]                    Be pretty on ANSI terminals" +
       "\n   [-console]                   Display the console" +
       "\n" +
       "\n <filter> can be the name of a class that implements" +
       "\n " + TCPProxyFilter.class.getName() + " or" +
       "\n one of NONE, ECHO. Default is ECHO." +
       "\n" +
-      "\n When -proxy is specified, -remoteHost and -remotePort" +
-      "\n are ignored. Specify -ssl for HTTPS support." +
+      "\n If neither -remotehost nor -remoteport is specified," +
+      "\n the TCPProxy listens as an HTTP Proxy on <localhost:localport>." +
+      "\n Specify -ssl for HTTPS proxy support." +
+      "\n" +
+      "\n If either -remotehost or -remoteport is specified," +
+      "\n the TCPProxy acts a simple port forwarder between" +
+      "\n <localhost:localport> and <remotehost:remoteport>." +
+      "\n Specify -ssl for HTTPS support." +
       "\n" +
       "\n -httpPlugin sets the request and response filters" +
       "\n to produce a test script suitable for use with the" +
@@ -110,6 +116,9 @@ public final class TCPProxy {
       "\n -timeout is how long (in seconds) the proxy will wait" +
       "\n for a request before timing out and freeing the local" +
       "\n port." +
+      "\n" +
+      "\n -console displays a simple console that allows the TCPProxy" +
+      "\n to be shutdown cleanly." +
       "\n"
       );
 
@@ -136,7 +145,7 @@ public final class TCPProxy {
     String localHost = "localhost";
     int remotePort = 7001;
     boolean useSSL = false;
-    boolean proxy = false;
+    boolean proxy = true;
     boolean console = false;
 
     int timeout = 0;
@@ -182,9 +191,11 @@ public final class TCPProxy {
         }
         else if (args[i].equalsIgnoreCase("-remotehost")) {
           remoteHost = args[++i];
+          proxy = false;
         }
         else if (args[i].equalsIgnoreCase("-remoteport")) {
           remotePort = Integer.parseInt(args[++i]);
+          proxy = false;
         }
         else if (args[i].equalsIgnoreCase("-ssl")) {
           useSSL = true;
@@ -200,9 +211,6 @@ public final class TCPProxy {
         else if (args[i].equalsIgnoreCase("-keystoretype")) {
           System.setProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY,
                              args[++i]);
-        }
-        else if (args[i].equalsIgnoreCase("-proxy")) {
-          proxy = true;
         }
         else if (args[i].equalsIgnoreCase("-timeout")) {
           timeout = Integer.parseInt(args[++i]) * 1000;
@@ -243,23 +251,34 @@ public final class TCPProxy {
 
     final StringBuffer startMessage = new StringBuffer();
 
-    startMessage.append(
-      "Initialising " + (useSSL ? "SSL" : "standard") +
-      " proxy engine with the parameters:" +
+    startMessage.append("Initialising as ");
+
+    if (proxy) {
+      if (useSSL) {
+        startMessage.append("an HTTP/HTTPS proxy");
+      }
+      else {
+        startMessage.append("an HTTP proxy");
+      }
+    }
+    else {
+      if (useSSL) {
+        startMessage.append("an SSL port forwarder");
+      }
+      else {
+        startMessage.append("a TCP port forwarder");
+      }
+    }
+
+    startMessage.append(" with the parameters:" +
       "\n   Request filter:  " + requestFilter.getClass().getName() +
       "\n   Response filter: " + responseFilter.getClass().getName() +
       "\n   Local host:       " + localHost +
       "\n   Local port:       " + localPort);
 
-    if (proxy) {
-      startMessage.append(
-        "\n   Listening as " + (useSSL ? "an HTTP/HTTPS" : "an HTTP") +
-        " proxy");
-    }
-    else {
-      startMessage.append(
-        "\n   Remote host:      " + remoteHost +
-        "\n   Remote port:      " + remotePort);
+    if (!proxy) {
+      startMessage.append("\n   Remote host:      " + remoteHost +
+                          "\n   Remote port:      " + remotePort);
     }
 
     if (useSSL) {
@@ -300,7 +319,7 @@ public final class TCPProxy {
       }
       else {
         m_proxyEngine =
-          new SingleServerTCPProxyEngine(
+          new PortForwarderTCPProxyEngine(
             useSSL ?
             sslSocketFactory : new TCPProxyPlainSocketFactory(),
             requestFilter,

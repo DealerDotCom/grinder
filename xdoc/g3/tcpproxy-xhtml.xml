@@ -5,20 +5,20 @@
 
 <h1>The TCPProxy</h1>
 
-<p>The TCPProxy is a <em>proxy</em> that you can place in a TCP
-stream, such as the HTTP connection between your browser and a server.
-It filters the request and response streams, sending the results to
-the terminal window (<code>stdout</code>). You can control its
-behaviour by specifying different filters.</p>
+<p>The TCPProxy is a proxy process that you can place in a TCP stream,
+such as the HTTP connection between your browser and a server. It
+filters the request and response streams, sending the results to the
+terminal window (<code>stdout</code>). You can control its behaviour
+by specifying different filters.</p>
 
 <blockquote>
 <img src="../images/tcpproxy.gif" width="762" height="340"/>
 </blockquote>
 
-<p>The TCPProxy lets you see what's going on at a network level and is
-very useful in its own right as a debugging tool. Its main purpose as
-far as The Grinder goes is to automatically generate HTTP test scripts
-that can be replayed with the HTTP plugin.</p>
+<p>The TCPProxy's main purpose is to automatically generate HTTP test
+scripts that can be replayed with The Grinder's HTTP plugin. Because
+the TCPProxy lets you see what's going on at a network level it is
+also very useful as a debugging tool in its own right.</p>
 
 <h3>Starting the TCPProxy</h3>
 
@@ -33,91 +33,52 @@ java net.grinder.TCPProxy
 </pre>
 </blockquote>
 
-<br/>
-
-<p>Say <code>java net.grinder.TCPProxy -?</code> to get a list of
+<p>Say <code>java net.grinder.TCPProxy -?</code> to get a full list of
 the command line options.</p>
 
-<p>Suppose you want to capture a conversation with a server on host
-<em>server</em>, port <em>7001</em>, you should say something
-like:</p>
+<p>With no additional options, the TCPProxy will start and display the
+following information:</p>
 
 <blockquote>
 <pre>
-java net.grinder.TCPProxy -remoteHost server -remotePort 7001
-</pre>
-</blockquote>
-
-<p>The TCPProxy will start and display the following information:</p>
-
-<blockquote>
-<pre>
-Initialising standard proxy  engine with the parameters:
+Initialising as an HTTP proxy with the parameters:
    Request filter:  net.grinder.tools.tcpproxy.EchoFilter
    Response filter: net.grinder.tools.tcpproxy.EchoFilter
    Local host:       localhost
    Local port:       8001
-   Remote host:      localhost
-   Remote port:      7001
 Engine initialised, listening on port 8001
 </pre>
 </blockquote>
 
-<p>You can then point your web browser at
-<code>http://localhost:8001/</code> and exercise the application
-through the browser. The TCPProxy will echo your requests to the
-terminal and forward the requests to <code>localhost:7001</code>, as
-well as echoing response from the server the terminal and returning
-them to the browser. <code>8001</code> is the default port that the
-TCPProxy listens on; you can specifiy an alternative port with
-<code>-localPort</code>.</p>
-
-<h3><a name="http-proxy">Using the TCPProxy as an HTTP proxy</a></h3>
-
-<p>One problem of running the TCPProxy as described above is that it
-only forwards to a single remote host. Another problem is that any
-links or redirects to other hosts that the target application may
-return to the browser will bypass the TCPProxy, meaning that these
-requests will not feature in the test script. This also applies to any
-absolute URLs returned by the server.</p>
-
-<p>When recording browser traffic, a much better way to use the
-TCPProxy is to run it as an HTTP proxy:</p>
+<p>This indicates that the TCPProxy is listening as an HTTP proxy on
+port <code>8001</code> (the default, but you can change it with
+<code>-localPort</code>). You must now set your browser connection
+settings to specify the TCPProxy as the HTTP proxy. In the browser
+options dialog, set the proxy host to be the host on which the
+TCPProxy is running and proxy port to be <code>8001</code>).</p>
 
 <blockquote>
-<pre>
-java net.grinder.TCPProxy -proxy
-</pre>
+<img src="../images/proxy-preferences.png" width="562" height="462"/>
 </blockquote>
 
-<p>This will make the TCPProxy listen as an HTTP proxy on port
-<code>8001</code> (the default, but you can change it with
-<code>-localPort</code>), and forward requests onto the relevant
-remote host, while echoing out the HTTP interactions. When
-<code>-proxy</code> is specified, <code>-remoteHost</code> and
-<code>-remotePort</code> are ignored. </p>
+<p>The TCPProxy appears to your browser just like any other HTTP proxy
+server, and you can use your browser as normal. If you type
+<code>http://grinder.sourceforge.net</code> into your browser it will
+display The Grinder home page and the TCPProxy will output all of the
+HTTP interactions between the browser and the SourceForge site.</p>
 
-<p>You should set your browser connection settings to specify the
-TCPProxy as the HTTP proxy (in the browser options dialog, set
-<em>host</em> to be the host on which the TCPProxy is running and
-<em>port</em> to be <code>8001</code>). You then use your browser as
-normal, e.g. in the example in the previous section you should use the
-direct address <code>http://localhost:7001</code> in your browser. The
-TCPProxy appears to your browser just like any other HTTP proxy server
-would.</p>
-
-<p>The TCPProxy will run proxy both HTTP and HTTPS if you specify
+<p>The TCPProxy will proxy both HTTP and HTTPS if you specify
 <code>-ssl</code>. See <a href="#ssl">below</a> for details on setting
 up SSL.</p>
 
 <h3><a name="HTTPPluginTCPProxyFilter">Using the HTTPPluginTCPProxyFilter</a></h3>
 
-<p>You can use the TCPProxy to generate an HTTP plugin script segment
-suitable for use with The Grinder.</p>
+<p>You can use the TCPProxy to generate an HTTP plugin script suitable
+for use with The Grinder.</p>
 
 <blockquote>
 <pre>
-java net.grinder.TCPProxy -proxy -httpPlugin
+java net.grinder.TCPProxy -httpplugin
 </pre>
 </blockquote>
 
@@ -126,12 +87,11 @@ java net.grinder.TCPProxy -proxy -httpPlugin
 <blockquote>
 <pre>
 Script will be generated to the files 'httpscript.py' and 'httpscript_tests.py'
-Initialising standard proxy engine with the parameters:
+Initialising as an HTTP proxy with the parameters:
    Request filter:  net.grinder.plugin.http.HTTPPluginTCPProxyFilter
    Response filter: net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter
    Local host:       localhost
    Local port:       8001
-   Listening as an HTTP proxy
 Engine initialised, listening on port 8001
 </pre>
 </blockquote>
@@ -214,20 +174,20 @@ file and you can replay the recorded scenario with The Grinder. Your
 properties file should at least set <a
 href="./getting-started.html#grinder.script">grinder.script</a> to
 <code>"httpscript.py"</code>. The recorded scripts can be edited by
-hand to suite your needs.</p>
+hand to suit your needs.</p>
 
 
 <h3><a name="ssl">SSL and HTTPS support</a></h3>
 
 <p>The TCPProxy has SSL support based on the <a
 href="http://java.sun.com/products/jsse/">JSSE</a>. The JSSE is
-required to use The Grinder, but is now part of Java 2 Standard
-Edition 1.4.1, see the <a href="../download.html">Download page</a>
-for further details.</p>
+required by The Grinder, and is now part of Java 2 Standard Edition
+1.4.1, see the <a href="../download.html">Download page</a> for
+further details.</p>
 
 <p>SSL relationships are necessarily point to point. When you
 interpose the TCPProxy in SSL communications between a browser and a
-server, you end up with two SSL connections. Each SSL connection has
+server you end up with two SSL connections. Each SSL connection has
 its own set of client and server certificates (both of which are
 optional).</p>
 
@@ -265,7 +225,7 @@ starting the TCPProxy as an HTTP/HTTPS proxy using the
 
 <blockquote>
 <pre>
-java net.grinder.TCPProxy -ssl -proxy -keyStore testkeys -keyStorePassword passphrase
+java net.grinder.TCPProxy -ssl -keyStore testkeys -keyStorePassword passphrase
 </pre>
 </blockquote>
 
@@ -282,7 +242,7 @@ the proxy using:</p>
 
 <blockquote>
 <pre>
-java net.grinder.TCPProxy -ssl -proxy -keyStore testkeys -keyStorePassword passphrase
+java net.grinder.TCPProxy -ssl -keyStore testkeys -keyStorePassword passphrase
 </pre>
 </blockquote>
 
@@ -323,6 +283,25 @@ more tricks.</p>
 files generated by some tools, e.g. <code>openssl</code>. Use the Java
 <code>keytool</code> utility to maintain key stores and you'll be
 all right.</p>
+
+<h3><a name="PortForwarder">Using the TCPProxy as a port forwarder</a></h3>
+
+<p>It is normally most useful to use the TCPProxy in its HTTP Proxy
+mode as described above.</p>
+
+<p>When using the TCPProxy as a debugging tool it occasionally is
+useful to use it in <em>port forwarding</em> mode. This mode is
+enabled when one or more of <code>-remotehost</code> and
+<code>-remoteport</code> are specfied. In port forwarding mode, the
+TCPProxy simply listens on <code>localhost:localport</code> and forwards
+to <code>remotehost:remoteport</code>.</p>
+
+<p>To see why HTTP Proxy mode is usually better than port forwarding
+mode when using a browser, consider what happens if the remote server
+returns a page with an absolute URL link back to itself. If you click
+on the link, the browser will contact the server directly, bypassing
+the TCPProxy. Another disadvantage is that you can't use the TCPProxy
+with more than one remote sever.</p>
 
 </body>
 </html>

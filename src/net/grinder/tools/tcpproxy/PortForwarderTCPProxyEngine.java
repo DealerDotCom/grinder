@@ -36,7 +36,7 @@ import java.net.Socket;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class SingleServerTCPProxyEngine extends AbstractTCPProxyEngine {
+public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
 
   private final ConnectionDetails m_connectionDetails;
 
@@ -53,13 +53,13 @@ public final class SingleServerTCPProxyEngine extends AbstractTCPProxyEngine {
    *
    * @exception IOException If an I/O error occurs.
    */
-  public SingleServerTCPProxyEngine(TCPProxySocketFactory socketFactory,
-                                    TCPProxyFilter requestFilter,
-                                    TCPProxyFilter responseFilter,
-                                    PrintWriter outputWriter,
-                                    ConnectionDetails connectionDetails,
-                                    boolean useColour,
-                                    int timeout)
+  public PortForwarderTCPProxyEngine(TCPProxySocketFactory socketFactory,
+                                     TCPProxyFilter requestFilter,
+                                     TCPProxyFilter responseFilter,
+                                     PrintWriter outputWriter,
+                                     ConnectionDetails connectionDetails,
+                                     boolean useColour,
+                                     int timeout)
     throws IOException {
 
     super(socketFactory, requestFilter, responseFilter, outputWriter,
