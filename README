@@ -105,3 +105,21 @@ How do I use the HTTPS plugin?
 The JSSE SSL implementation isn't quick. This should be taken into
 account when comparing round trip times, as a compiled browser version
 is likely to be a *lot* faster.
+
+
+What can I set in grinder.properties?
+*************************************
+
+[This is not complete - volunteer work required!]
+
+    grinder.jvm.path	-	Specifies the java executable used for
+				the child JVMs. Defaults to "java" so
+				you do not need to specify this if
+				your path is sensible.
+
+    grinder.jvm.classpath -	Use to adjust the classpath used for
+				the child VMs. Anything specified here
+				will be prepended to the classpath
+				used to start the grinder itself.
+
+    grinder.jvm.arguments -	Additional arguments to child JVM's.
