@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
-// Copyright (C) 2000  Philip Aston
+// Copyright (C) 2001  Paco Gomez
+// Copyright (C) 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -52,7 +52,7 @@ class GrinderThread implements java.lang.Runnable
     private static Random m_random = new Random();
 
     private final ThreadCallbacks m_threadCallbacks;
-    private final ThreadContextImplementation m_pluginThreadContext;
+    private final ThreadContextImplementation m_context;
     private final Map m_tests;
     private final PrintWriter m_dataPrintWriter;
 
@@ -75,15 +75,15 @@ class GrinderThread implements java.lang.Runnable
      * The constructor.
      */        
     public GrinderThread(ThreadCallbacks threadCallbacks,
-			 ThreadContextImplementation pluginThreadContext,
+			 ThreadContextImplementation threadContext,
 			 PrintWriter dataPrintWriter, Map tests)
     {
 	m_threadCallbacks = threadCallbacks;
-	m_pluginThreadContext = pluginThreadContext;
+	m_context = threadContext;
 	m_dataPrintWriter = dataPrintWriter;
 	m_tests = tests;
 
-	m_pluginThreadContext.setGrinderThread(this);
+	m_context.setGrinderThread(this);
 
 	// Should really wrap all of this in a configuration class.
 	final GrinderProperties properties = GrinderProperties.getProperties();
@@ -112,16 +112,18 @@ class GrinderThread implements java.lang.Runnable
 
 	try{
 	    try {
-		m_threadCallbacks.initialize(m_pluginThreadContext);
+		m_threadCallbacks.initialize(m_context);
 	    }
 	    catch (PluginException e) {
-		logError("Plug-in initialize() threw " + e);
+		m_context.logError("Plug-in initialize() threw " + e);
 		e.printStackTrace();
 		return;
 	    }
 	    
-	    logMessage("Initialized " + m_threadCallbacks.getClass().getName());
-	    logMessage("About to run " + m_numberOfCycles + " cycles");
+	    m_context.logMessage("Initialized " +
+				 m_threadCallbacks.getClass().getName());
+	    m_context.logMessage("About to run " + m_numberOfCycles +
+				 " cycles");
 
 	    CYCLE_LOOP:
 	    for (m_currentCycle=0; m_currentCycle<m_numberOfCycles;
@@ -134,8 +136,8 @@ class GrinderThread implements java.lang.Runnable
 		    m_threadCallbacks.beginCycle();
 		}
 		catch (PluginException e) {
-		    logError("Aborting cycle - plug-in beginCycle() threw " +
-			     e);
+		    m_context.logError(
+			"Aborting cycle - plug-in beginCycle() threw " + e);
 		    e.printStackTrace();
 		    continue CYCLE_LOOP;
 		}
@@ -148,40 +150,41 @@ class GrinderThread implements java.lang.Runnable
 		    final Integer testNumber = (Integer)entry.getKey();
 		    m_currentTest = (TestData)entry.getValue();
 
-		    m_pluginThreadContext.reset();
+		    m_context.reset();
 
 		    final long sleepTime = m_currentTest.getSleepTime();
 		    sleep(sleepTime >= 0 ? sleepTime : m_defaultSleepTime);
 
 		    boolean success = false;
 			
-		    m_pluginThreadContext.startTimer();
+		    m_context.startTimer();
 
 		    try {
 			try {
 			    success = m_threadCallbacks.doTest(m_currentTest);
 			}
 			finally {
-			    m_pluginThreadContext.stopTimer();		
+			    m_context.stopTimer();		
 			}
 		    }
 		    catch (PluginException e) {
-			logError("Aborting cycle - plug-in threw " + e);
+			m_context.logError(
+			    "Aborting cycle - plug-in threw " + e);
 			e.printStackTrace();
 			continue CYCLE_LOOP;
 		    }
 
-		    if (m_pluginThreadContext.getAborted()) {
-			logError("Plug-in aborted thread");
+		    if (m_context.getAborted()) {
+			m_context.logError("Plug-in aborted thread");
 			break CYCLE_LOOP;
 		    }
 
-		    if (m_pluginThreadContext.getAbortedCycle()) {
-			logError("Plug-in aborted cycle");
+		    if (m_context.getAbortedCycle()) {
+			m_context.logError("Plug-in aborted cycle");
 			continue CYCLE_LOOP;
 		    }
 
-		    final long time = m_pluginThreadContext.getElapsedTime();
+		    final long time = m_context.getElapsedTime();
 		    final TestStatistics statistics =
 			m_currentTest.getStatistics();
 
@@ -191,12 +194,12 @@ class GrinderThread implements java.lang.Runnable
 		    else {
 			// Abortions don't count as errors.
 			statistics.addError();
-			logError("Plug-in reported an error");
+			m_context.logError("Plug-in reported an error");
 		    }
 
 		    if (m_dataPrintWriter != null) {
 			m_dataPrintWriter.println(
-			    m_pluginThreadContext.getThreadID() + ", " +
+			    m_context.getThreadID() + ", " +
 			    m_currentCycle + ", " + testNumber + ", " + time);
 		    }
 		}
@@ -207,17 +210,17 @@ class GrinderThread implements java.lang.Runnable
 		    m_threadCallbacks.endCycle();
 		}
 		catch (PluginException e) {
-		    logError("Plugin endCycle() threw: " + e);
+		    m_context.logError("Plugin endCycle() threw: " + e);
 		    e.printStackTrace();
 		}
 	    }
 
 	    m_currentCycle = -1;
 
-	    logMessage("Finished " + m_numberOfCycles + " cycles");
+	    m_context.logMessage("Finished " + m_numberOfCycles + " cycles");
 	}
 	catch(Exception e) {
-	    logError(" threw an exception:");
+	    m_context.logError(" threw an exception:");
 	    e.printStackTrace(System.err);
 	}
 	finally {
@@ -249,10 +252,27 @@ class GrinderThread implements java.lang.Runnable
 	    }
 
 	    if (sleepTime > 0) {
-		logMessage("Sleeping for " + sleepTime + " ms");
+		m_context.logMessage("Sleeping for " + sleepTime +
+					   " ms");
 		Thread.sleep(sleepTime);
 	    }
 	}
+    }
+
+    /**
+     * Package scope.
+     */
+    int getCurrentCycle() 
+    {
+	return m_currentCycle;
+    }
+
+    /**
+     * Package scope.
+     */
+    TestData getCurrentTest() 
+    {
+	return m_currentTest;
     }
 
     private String formatMessage(String message) 
@@ -260,7 +280,7 @@ class GrinderThread implements java.lang.Runnable
 	final StringBuffer buffer = new StringBuffer();
 	
 	buffer.append("(thread ");
-	buffer.append(m_pluginThreadContext.getThreadID());
+	buffer.append(m_context.getThreadID());
 
 	if (m_currentCycle >= 0) {
 	    buffer.append(" cycle " + m_currentCycle);
@@ -274,18 +294,6 @@ class GrinderThread implements java.lang.Runnable
 	buffer.append(message);
 
 	return buffer.toString();
-    }
-
-    /** Package scope. */
-    void logMessage(String message)
-    {
-	System.out.println(formatMessage(message));
-    }
-
-    /** Package scope. */
-    void logError(String message) 
-    {
-	System.err.println(formatMessage(message));
     }
 
     private static synchronized void incrementThreadCount() 

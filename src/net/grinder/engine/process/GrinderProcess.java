@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
-// Copyright (C) 2000  Philip Aston
+// Copyright (C) 2001  Paco Gomez
+// Copyright (C) 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -36,6 +36,7 @@ import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
+import net.grinder.util.ProcessContextImplementation;
 import net.grinder.util.PropertiesHelper;
 
 
@@ -81,12 +82,10 @@ public class GrinderProcess
 	}
     }
 
-    private final String m_hostID;
-    private final String m_jvmID;
+    private final ProcessContextImplementation m_context;
     private final int m_numberOfThreads;
     private final String m_logDirectory;
     private final boolean m_appendToLog;
-    private final FilenameFactory m_filenameFactory;
 
     private final boolean m_waitForConsoleSignal;
     private InetAddress m_grinderAddress = null;
@@ -99,24 +98,19 @@ public class GrinderProcess
     private DatagramSocket m_datagramSocket = null;
 
     private final GrinderPlugin m_plugin;
-    private final GrinderProperties m_pluginParameters;
     private final Map m_tests;
 
     public GrinderProcess() throws GrinderException
     {
 	final GrinderProperties properties = GrinderProperties.getProperties();
-	final PropertiesHelper propertiesHelper =
-	    new PropertiesHelper(properties);
+	final PropertiesHelper propertiesHelper = new PropertiesHelper();
 
-	m_hostID = properties.getProperty("grinder.hostID", "UNNAMED HOST");
-	m_jvmID = properties.getMandatoryProperty("grinder.jvmID");
+	m_context =  new ProcessContextImplementation();
+
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 	m_logDirectory =
 	    properties.getMandatoryProperty("grinder.logDirectory");
 	m_appendToLog = properties.getBoolean("grinder.appendLog", false);
-
-	m_filenameFactory = new FilenameFactory(m_jvmID, null);
-
 
 	// Parse console configuration.
 	m_waitForConsoleSignal =
@@ -164,11 +158,7 @@ public class GrinderProcess
 	}
 
 	// Parse plugin class.
-	m_plugin = propertiesHelper.getPlugin();
-
-	// Plugin parameters.
-	m_pluginParameters =
-	    properties.getPropertySubset("grinder.plugin.parameter.");
+	m_plugin = propertiesHelper.instantiatePlugin(m_context);
 
 	// Get defined tests.
 	final Set tests = m_plugin.getTests();
@@ -191,8 +181,7 @@ public class GrinderProcess
 
 	    m_tests.put(test.getTestNumber(), new TestData(test, sleepTime));
 	}
-    }
-    
+    }    
 
     /**
      * The application's main loop. This is split from the constructor
@@ -202,7 +191,9 @@ public class GrinderProcess
      */        
     protected void run() throws GrinderException
     {
-	final String dataFilename = m_filenameFactory.createFilename("data");
+	final String dataFilename =
+	    m_context.getFilenameFactory().createFilename("data");
+
 	final PrintWriter dataPrintWriter;
 
 	try {
@@ -224,8 +215,7 @@ public class GrinderProcess
 
 	for (int i=0; i<m_numberOfThreads; i++) {
 	    final ThreadContextImplementation pluginThreadContext =
-		new ThreadContextImplementation(m_pluginParameters,
-						m_hostID, m_jvmID, i);
+		new ThreadContextImplementation(m_context, i);
 
 	    final ThreadCallbacks threadCallbackHandler =
 		m_plugin.createThreadCallbackHandler();
@@ -236,12 +226,11 @@ public class GrinderProcess
 	}
         
 	if (m_waitForConsoleSignal) {
-	    System.out.println(getContextString() +
-			       " waiting for console signal");
+	    m_context.logMessage("waiting for console signal");
 	    waitForSignal();
 	}
 
-	System.out.println(getContextString() + ") starting threads");
+	m_context.logMessage("starting threads");
 
 	//   Start the threads
 	for (int i=0; i<m_numberOfThreads; i++) {
@@ -270,8 +259,8 @@ public class GrinderProcess
 			test.getStatistics().getDelta(true);
 
 		    final String msg =
-			m_hostID + "," + 
-			m_jvmID + "," + 
+			m_context.getHostIDString() + "," + 
+			m_context.getProcessIDString() + "," + 
 			m_numberOfThreads + "," + 
 			testNumber + "," +
 			delta.getTotalTime() + "," +
@@ -304,8 +293,7 @@ public class GrinderProcess
 	    dataPrintWriter.close();
 	}
 
-	System.out.println(getContextString() +
-			   ") finished");
+	m_context.logMessage("finished");
 
  	System.out.println("Final statistics for this process:");
 
@@ -333,11 +321,6 @@ public class GrinderProcess
 	    System.err.println(e);
 	    e.printStackTrace();
 	}
-    }	
-
-    private String getContextString()
-    {
-	return "Grinder (host " + m_hostID + " JVM " + m_jvmID + ")";
     }
 }
 

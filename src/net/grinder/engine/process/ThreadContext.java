@@ -18,9 +18,12 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.util.FilenameFactory;
+import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
+import net.grinder.util.ProcessContextImplementation;
 
 
 /**
@@ -29,35 +32,25 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-class ThreadContextImplementation implements PluginThreadContext
+class ThreadContextImplementation
+    extends ProcessContextImplementation
+    implements PluginThreadContext
 {
     private GrinderThread m_grinderThread = null;
-    private final GrinderProperties m_pluginParameters;
-    private final String m_hostIDString;
-    private final String m_processIDString;
     private final int m_threadID;
 
-    private final FilenameFactory m_filenameFactory;
-    
     private boolean m_aborted;
     private boolean m_abortedCycle;
     private boolean m_errorOccurred;
     private long m_startTime;
     private long m_elapsedTime;
 
-    public ThreadContextImplementation(GrinderProperties pluginParameters,
-				       String hostIDString,
-				       String processIDString,
+    public ThreadContextImplementation(PluginProcessContext processContext,
 				       int threadID)
     {
-	m_pluginParameters = pluginParameters;
+	super(processContext, Integer.toString(threadID));
 
-	m_hostIDString = hostIDString;
-	m_processIDString = processIDString;
 	m_threadID = threadID;
-
-	m_filenameFactory = new FilenameFactory(processIDString,
-						Integer.toString(threadID));
 
 	reset();
     }
@@ -90,24 +83,9 @@ class ThreadContextImplementation implements PluginThreadContext
     /*
      * Implementation of PluginThreadContext follows
      */
-    public String getHostIDString()
-    {
-	return m_hostIDString;
-    }
-    
-    public String getProcessIDString()
-    {
-	return m_processIDString;
-    }
-    
     public int getThreadID()
     {
 	return m_threadID;
-    }
-
-    public FilenameFactory getFilenameFactory()
-    {
-	return m_filenameFactory;
     }
 
     public void abort()
@@ -118,11 +96,6 @@ class ThreadContextImplementation implements PluginThreadContext
     public void abortCycle()
     {
 	m_abortedCycle = true;
-    }
-
-    public GrinderProperties getPluginParameters()
-    {
-	return m_pluginParameters;
     }
 
     public void startTimer()
@@ -139,14 +112,28 @@ class ThreadContextImplementation implements PluginThreadContext
 	}
     }
 
-    public void logMessage(String message)
+    protected String formatMessage(String message) 
     {
-	m_grinderThread.logMessage(message);
-    }
+	final StringBuffer buffer = new StringBuffer();
+	
+	buffer.append("(thread ");
+	buffer.append(getThreadID());
 
-    public void logError(String message)
-    {
-	m_grinderThread.logError(message);
+	final int currentCycle = m_grinderThread.getCurrentCycle();
+	final TestData currentTest = m_grinderThread.getCurrentTest();
+
+	if (currentCycle >= 0) {
+	    buffer.append(" cycle " + currentCycle);
+	}
+	
+	if (currentTest != null) {
+	    buffer.append(" test " + currentTest.getTestNumber());
+	}
+
+	buffer.append(") ");
+	buffer.append(message);
+
+	return buffer.toString();
     }
 }
 
