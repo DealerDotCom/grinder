@@ -32,7 +32,7 @@ import net.grinder.common.GrinderException;
  */
 public final class Kernel {
 
-  private final ThreadSafeQueue m_workQueue = new ThreadSafeQueue();
+  private final ThreadSafeQueue m_workQueue;
   private final ThreadPool m_threadPool;
 
   /**
@@ -41,6 +41,20 @@ public final class Kernel {
    * @param numberOfThreads Number of worker threads to use.
    */
   public Kernel(int numberOfThreads) {
+
+    this(new ThreadSafeQueue(), numberOfThreads);
+  }
+
+  /**
+   * Constructor. Allows unit tests to provide different work queue
+   * implementation.
+   *
+   * @param workQueue Queue to use.
+   * @param numberOfThreads Number of worker threads to use.
+   */
+  Kernel(ThreadSafeQueue workQueue, int numberOfThreads) {
+
+    m_workQueue = workQueue;
 
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
