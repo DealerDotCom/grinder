@@ -148,15 +148,20 @@ public final class Resources {
 
     if (resource != null) {
       try {
-        final Reader in =
-          new BufferedReader(new InputStreamReader(resource.openStream()));
+        final Reader in = new InputStreamReader(resource.openStream());
 
         final StringWriter out = new StringWriter();
 
-        int c;
+        final char[] buffer = new char[128];
 
-        while ((c = in.read()) > 0) {
-          out.write(c);
+        while (true) {
+          final int n = in.read(buffer);
+
+          if (n == -1) {
+            break;
+          }
+          
+          out.write(buffer, 0, n);
         }
 
         in.close();

@@ -23,8 +23,10 @@ package net.grinder.console.common;
 
 import junit.framework.TestCase;
 
-import net.grinder.testutility.CountingPrintWriter;
+import java.io.File;
 
+import net.grinder.testutility.CountingPrintWriter;
+import net.grinder.testutility.FileUtilities;
 
 
 /**
@@ -105,5 +107,17 @@ public class TestResources extends TestCase {
     final String helloWorld = resources.getStringFromFile("aFile", true);
     assertTrue(!m_errorWriter.called());
     assertEquals("Hello world\n", helloWorld);
+
+    final File file =
+      new File(
+        Resources.class.getResource("resources/helloWorld.txt").getFile());
+
+    FileUtilities.setCanAccess(file, false);
+
+    final String noResource = resources.getStringFromFile("aFile", false);
+    assertNull(noResource);
+    assertTrue(m_errorWriter.called());
+
+    FileUtilities.setCanAccess(file, true);;
   }
 }
