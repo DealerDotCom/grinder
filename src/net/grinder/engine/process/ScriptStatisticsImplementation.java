@@ -23,11 +23,9 @@ package net.grinder.engine.process;
 
 import java.io.PrintWriter;
 
-import net.grinder.common.GrinderException;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
-import net.grinder.script.StatisticsAlreadyReportedException;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpression;
@@ -54,17 +52,9 @@ final class ScriptStatisticsImplementation
   static {
     final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
-    try {
-      s_errorsIndex = indexMap.getIndexForLong("errors");
-      s_untimedTestsIndex = indexMap.getIndexForLong("untimedTests");
-      s_timedTestsIndex = indexMap.getIndexForLongSample("timedTests");
-    }
-    catch (GrinderException e) {
-      throw new ExceptionInInitializerError(
-        "Assertion failure, " +
-        "ScriptStatisticsImplementation could not initialise: " +
-        e.getMessage());
-    }
+    s_errorsIndex = indexMap.getLongIndex("errors");
+    s_untimedTestsIndex = indexMap.getLongIndex("untimedTests");
+    s_timedTestsIndex = indexMap.getLongSampleIndex("timedTests");
   }
 
   private final ThreadContextLocator m_threadContextLocator;
@@ -135,10 +125,10 @@ final class ScriptStatisticsImplementation
   }
 
   private void checkNotAlreadyReported()
-    throws StatisticsAlreadyReportedException {
+    throws InvalidContextException {
 
     if (m_currentTestData == null) {
-      throw new StatisticsAlreadyReportedException(
+      throw new InvalidContextException(
         "The statistics for the last test performed by this thread have " +
         "already been reported. Perhaps you should have called " +
         "setDelayReports(true)?");
@@ -155,7 +145,7 @@ final class ScriptStatisticsImplementation
   }
 
   public void setValue(StatisticsIndexMap.LongIndex index, long value)
-    throws InvalidContextException, StatisticsAlreadyReportedException {
+    throws InvalidContextException {
 
     checkCallContext();
     checkNotAlreadyReported();
@@ -163,7 +153,7 @@ final class ScriptStatisticsImplementation
   }
 
   public void setValue(StatisticsIndexMap.DoubleIndex index, double value)
-    throws InvalidContextException, StatisticsAlreadyReportedException {
+    throws InvalidContextException {
 
     checkCallContext();
     checkNotAlreadyReported();
@@ -171,7 +161,7 @@ final class ScriptStatisticsImplementation
   }
 
   public void addValue(StatisticsIndexMap.LongIndex index, long value)
-    throws InvalidContextException, StatisticsAlreadyReportedException {
+    throws InvalidContextException {
 
     checkCallContext();
     checkNotAlreadyReported();
@@ -179,7 +169,7 @@ final class ScriptStatisticsImplementation
   }
 
   public void addValue(StatisticsIndexMap.DoubleIndex index, double value)
-    throws InvalidContextException, StatisticsAlreadyReportedException {
+    throws InvalidContextException {
 
     checkCallContext();
     checkNotAlreadyReported();
@@ -196,8 +186,7 @@ final class ScriptStatisticsImplementation
     return m_testStatistics.getValue(index);
   }
 
-  public void setError()
-    throws InvalidContextException, StatisticsAlreadyReportedException {
+  public void setError() throws InvalidContextException {
 
     checkCallContext();
     checkNotAlreadyReported();
@@ -214,7 +203,6 @@ final class ScriptStatisticsImplementation
   }
 
   void setSuccessNoChecks(long time) {
-
     if (m_recordTime) {
       m_testStatistics.reset(s_timedTestsIndex);
       m_testStatistics.addSample(s_timedTestsIndex, time);

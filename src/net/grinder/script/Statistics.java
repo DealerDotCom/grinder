@@ -43,14 +43,13 @@ import net.grinder.statistics.StatisticsIndexMap;
  *
  *  <p>By default, test statistics reports are automatically sent to
  *  the console and data log when the test implementation returns to
- *  the script, and so the script cannot modify the test statistics.
+ *  the script, so the script cannot modify the test statistics.
  *  By using {@link #setDelayReports}, scripts can turn off this
  *  automatic reporting for the current worker thread. Having done
  *  this, the script can modify or set the statistics before they are
  *  sent to the log and the console. The statistics reports are sent
  *  at a later time as described in {@link #setDelayReports} below.
  *  For example:
- *
  *
  * <blockquote>
  * <pre>
@@ -135,14 +134,14 @@ public interface Statistics  {
    * @param value The value.
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
-   * acquired, or before the first test.
-   * @exception StatisticsAlreadyReportedException If the statistics
+   * acquired.
+   * @exception InvalidContextException If called before the first test.
+   * @exception InvalidContextException If called when the statistics
    * have already been sent for the last test performed by this thread
-   * - see {@link #setDelayReports}.
-   *  @see #availableForUpdate
+   * - see {@link #setDelayReports} and {@link #availableForUpdate}.
    */
   void setValue(StatisticsIndexMap.LongIndex index, long value)
-    throws InvalidContextException, StatisticsAlreadyReportedException;
+    throws InvalidContextException;
 
   /**
    * Sets the double statistic with index <code>index</code> to the
@@ -152,14 +151,14 @@ public interface Statistics  {
    * @param value The value.
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
-   * acquired, or before the first test.
-   * @exception StatisticsAlreadyReportedException If the statistics
+   * acquired.
+   * @exception InvalidContextException If called before the first test.
+   * @exception InvalidContextException If called when the statistics
    * have already been sent for the last test performed by this thread
-   * - see {@link #setDelayReports}.
-   *  @see #availableForUpdate
+   * - see {@link #setDelayReports} and {@link #availableForUpdate}.
    */
   void setValue(StatisticsIndexMap.DoubleIndex index, double value)
-    throws InvalidContextException, StatisticsAlreadyReportedException;
+    throws InvalidContextException;
 
   /**
    * Add <code>value</code> to the long statistic with index
@@ -169,14 +168,14 @@ public interface Statistics  {
    * @param value The value.
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
-   * acquired, or before the first test.
-   * @exception StatisticsAlreadyReportedException If the statistics
+   * acquired.
+   * @exception InvalidContextException If called before the first test.
+   * @exception InvalidContextException If called when the statistics
    * have already been sent for the last test performed by this thread
-   * - see {@link #setDelayReports}.
-   *  @see #availableForUpdate
+   * - see {@link #setDelayReports} and {@link #availableForUpdate}.
    */
   void addValue(StatisticsIndexMap.LongIndex index, long value)
-    throws InvalidContextException, StatisticsAlreadyReportedException;
+    throws InvalidContextException;
 
   /**
    * Add <code>value</code> to the double statistic with index
@@ -186,14 +185,14 @@ public interface Statistics  {
    * @param value The value.
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
-   * acquired, or before the first test.
-   * @exception StatisticsAlreadyReportedException If the statistics
+   * acquired.
+   * @exception InvalidContextException If called before the first test.
+   * @exception InvalidContextException If called when the statistics
    * have already been sent for the last test performed by this thread
-   * - see {@link #setDelayReports}.
-   *  @see #availableForUpdate
+   * - see {@link #setDelayReports} and {@link #availableForUpdate}.
    */
   void addValue(StatisticsIndexMap.DoubleIndex index, double value)
-    throws InvalidContextException, StatisticsAlreadyReportedException;
+    throws InvalidContextException;
 
   /**
    * Return the long value specified by <code>index</code> for the
@@ -221,14 +220,13 @@ public interface Statistics  {
    *
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
-   * acquired, or before the first test.
-   * @exception StatisticsAlreadyReportedException If the statistics
+   * acquired.
+   * @exception InvalidContextException If called before the first test.
+   * @exception InvalidContextException If called when the statistics
    * have already been sent for the last test performed by this thread
-   * - see {@link #setDelayReports}.
-   *  @see #availableForUpdate
+   * - see {@link #setDelayReports} and {@link #availableForUpdate}.
    */
-  void setError()
-    throws InvalidContextException, StatisticsAlreadyReportedException;
+  void setError() throws InvalidContextException;
 
   /**
    * Convenience method that returns whether the last test was a
