@@ -19,18 +19,17 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.agent;
+package net.grinder.util;
 
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.util.Date;
 
 import net.grinder.common.Logger;
-import net.grinder.util.FixedWidthFormatter;
 
 
 /**
- * Simple logger implementation for agent processes.
+ * Simple logger implementation.
  *
  * <p>Only supports the {@link Logger#TERMINAL} destination, ignores
  * instructions to write to {@link Logger#LOG}.</p>
@@ -38,7 +37,7 @@ import net.grinder.util.FixedWidthFormatter;
  * @author Philip Aston
  * @version $Revision$
  */
-final class AgentLogger implements Logger {
+public final class SimpleLogger implements Logger {
 
   private static final FixedWidthFormatter s_formatter =
     new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
@@ -48,34 +47,74 @@ final class AgentLogger implements Logger {
   private static final DateFormat s_dateFormat =
     DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
 
+  private final String m_identifier;
   private final PrintWriter m_outputWriter;
   private final PrintWriter m_errorWriter;
 
-  public AgentLogger(PrintWriter outputWriter, PrintWriter errorWriter) {
+  /**
+   * Constructor.
+   *
+   * @param identifier Short description of process that owns the logger.
+   * @param outputWriter Where to write normal output.
+   * @param errorWriter Where to write error output.
+   */
+  public SimpleLogger(String identifier, PrintWriter outputWriter,
+                      PrintWriter errorWriter) {
+    m_identifier = identifier;
     m_outputWriter = outputWriter;
     m_errorWriter = errorWriter;
   }
 
+  /**
+   * Log a message with context information.
+   * @param message The message
+   * @param where Destination mask
+   */
   public void output(String message, int where) {
     writeMessage(m_outputWriter, message, where);
   }
 
+  /**
+   * Log a message to the output log with context information.
+   * <p>Equivalent to <code>output(message, Logger.LOG)</code>.</p>
+   * @param message The message
+   */
   public void output(String message) {
     output(message, Logger.TERMINAL);
   }
 
+  /**
+   * Log an error with context information.
+   * @param message The message
+   * @param where Destination mask
+   */
   public void error(String message, int where) {
     writeMessage(m_errorWriter, message, where);
   }
 
+  /**
+   * Log an error to the error log  with context information.
+   * <p>Equivalent to <code>error(message, Logger.LOG)</code>.</p>
+   * @param message The message
+   */
   public void error(String message) {
     error(message, Logger.TERMINAL);
   }
 
+  /**
+   * Get a <code>PrintWriter</code> that can be used to write to the
+   * output log file.
+   * @return a <code>PrintWriter</code>
+   */
   public PrintWriter getOutputLogWriter() {
     return m_outputWriter;
   }
 
+  /**
+   * Get a <code>PrintWriter</code> that can be used to write to the
+   * error log file.
+   * @return a <code>PrintWriter</code>
+   */
   public PrintWriter getErrorLogWriter() {
     return m_errorWriter;
   }
@@ -85,7 +124,9 @@ final class AgentLogger implements Logger {
       final StringBuffer formattedMessage = new StringBuffer();
 
       formattedMessage.append(s_dateFormat.format(new Date()));
-      formattedMessage.append(" (agent): ");
+      formattedMessage.append(" (");
+      formattedMessage.append(m_identifier);
+      formattedMessage.append("): ");
       formattedMessage.append(message);
 
       if ((where & Logger.TERMINAL) != 0) {

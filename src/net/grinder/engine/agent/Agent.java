@@ -49,6 +49,7 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.util.JVM;
+import net.grinder.util.SimpleLogger;
 
 
 /**
@@ -87,8 +88,9 @@ public final class Agent {
    * interrupted whilst waiting.
    */
   public void run() throws GrinderException, InterruptedException {
-    final Logger logger = new AgentLogger(new PrintWriter(System.out),
-                                          new PrintWriter(System.err));
+    final Logger logger = new SimpleLogger("agent",
+                                           new PrintWriter(System.out),
+                                           new PrintWriter(System.err));
 
     if (!JVM.getInstance().haveRequisites(logger)) {
       return;
@@ -312,7 +314,6 @@ public final class Agent {
         if (!consoleListener.received(ConsoleListener.ANY)) {
           // We've got here naturally, without a console signal.
           logger.output("finished, waiting for console signal");
-
           consoleListener.waitForMessage();
         }
 
