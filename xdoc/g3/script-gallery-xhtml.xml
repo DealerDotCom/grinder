@@ -78,6 +78,7 @@ href="mailto:grinder-use@lists.sf.net">grinder-use@lists.sf.net</a>.</p>
 #
 # More complex HTTP scripts are best created with the TCPProxy.
 </span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
 
@@ -343,10 +344,9 @@ random = Random()
 # Oracle thin driver classes to your CLASSPATH.
 </span>
 <span class="keyword">from</span> java.sql <span class="keyword">import</span> DriverManager
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> oracle.jdbc <span class="keyword">import</span> OracleDriver
-
-log = grinder.logger.output
 
 test1 = Test(1, &quot;<span class="string">Database insert</span>&quot;)
 test2 = Test(2, &quot;<span class="string">Database query</span>&quot;)
@@ -472,6 +472,7 @@ parser = javadom.XercesDomImplementation()
 # Before running this example you will need to add the generated
 # JAX-RPC client classes and webserviceclient.jar to your CLASSPATH.
 </span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> examples.webservices.basic.javaclass <span class="keyword">import</span> HelloWorld_Impl
 <span class="keyword">from</span> java.lang <span class="keyword">import</span> System
@@ -659,109 +660,111 @@ random = Random()
 #
 # This script demonstrates the use of The Grinder statistics API to
 # record a &quot;delivery time&quot; custom statistic.
-</span>
-<span class="keyword">from</span> java.lang <span class="keyword">import</span> System
-<span class="keyword">from</span> java.util <span class="keyword">import</span> Properties
-<span class="keyword">from</span> javax.jms <span class="keyword">import</span> MessageListener, Session
-<span class="keyword">from</span> javax.naming <span class="keyword">import</span> Context, InitialContext
-<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
-<span class="keyword">from</span> net.grinder.statistics <span class="keyword">import</span> ExpressionView, StatisticsIndexMap, StatisticsView
-<span class="keyword">from</span> threading <span class="keyword">import</span> Condition
-<span class="keyword">from</span> weblogic.jndi <span class="keyword">import</span> WLInitialContextFactory
+</span><span class="zmacs-region">
+</span><span class="keyword">from</span><span class="zmacs-region"> java.lang </span><span class="keyword">import</span><span class="zmacs-region"> System
+</span><span class="keyword">from</span><span class="zmacs-region"> java.util </span><span class="keyword">import</span><span class="zmacs-region"> Properties
+</span><span class="keyword">from</span><span class="zmacs-region"> javax.jms </span><span class="keyword">import</span><span class="zmacs-region"> MessageListener, Session
+</span><span class="keyword">from</span><span class="zmacs-region"> javax.naming </span><span class="keyword">import</span><span class="zmacs-region"> Context, InitialContext
+</span><span class="keyword">from</span><span class="zmacs-region"> net.grinder.script.Grinder </span><span class="keyword">import</span><span class="zmacs-region"> grinder
+</span><span class="keyword">from</span><span class="zmacs-region"> net.grinder.script </span><span class="keyword">import</span><span class="zmacs-region"> Test
+</span><span class="keyword">from</span><span class="zmacs-region"> net.grinder.statistics </span><span class="keyword">import</span><span class="zmacs-region"> ExpressionView, StatisticsIndexMap, StatisticsView
+</span><span class="keyword">from</span><span class="zmacs-region"> threading </span><span class="keyword">import</span><span class="zmacs-region"> Condition
+</span><span class="keyword">from</span><span class="zmacs-region"> weblogic.jndi </span><span class="keyword">import</span><span class="zmacs-region"> WLInitialContextFactory
 
-<span class="comment"># Look up connection factory and queue in JNDI. 
-</span>properties = Properties()
-properties[Context.PROVIDER_URL] = &quot;<span class="string">t3://localhost:7001</span>&quot;
+</span><span class="comment"># Look up connection factory and queue in JNDI. 
+</span><span class="zmacs-region">properties = Properties()
+properties[Context.PROVIDER_URL] = &quot;</span><span class="string">t3://localhost:7001</span><span class="zmacs-region">&quot;
 properties[Context.INITIAL_CONTEXT_FACTORY] = WLInitialContextFactory.name
 
 initialContext = InitialContext(properties)
 
-connectionFactory = initialContext.lookup(&quot;<span class="string">weblogic.examples.jms.QueueConnectionFactory</span>&quot;)
-queue = initialContext.lookup(&quot;<span class="string">weblogic.examples.jms.exampleQueue</span>&quot;)
+connectionFactory = initialContext.lookup(&quot;</span><span class="string">weblogic.examples.jms.QueueConnectionFactory</span><span class="zmacs-region">&quot;)
+queue = initialContext.lookup(&quot;</span><span class="string">weblogic.examples.jms.exampleQueue</span><span class="zmacs-region">&quot;)
 initialContext.close()
 
-<span class="comment"># Create a connection.
-</span>connection = connectionFactory.createQueueConnection()
+</span><span class="comment"># Create a connection.
+</span><span class="zmacs-region">connection = connectionFactory.createQueueConnection()
 connection.start()
 
-<span class="comment"># Use userLong0 statistic to represent the &quot;delivery time&quot;.
-</span>deliveryTimeIndex = StatisticsIndexMap.getInstance().getIndexForLong(&quot;<span class="string">userLong0</span>&quot;)
+</span><span class="comment"># Use userLong0 statistic to represent the &quot;delivery time&quot;.
+</span><span class="zmacs-region">deliveryTimeIndex = StatisticsIndexMap.getInstance().getIndexForLong(&quot;</span><span class="string">userLong0</span><span class="zmacs-region">&quot;)
 
-<span class="comment"># Add two statistics views:
+</span><span class="comment"># Add two statistics views:
 # 1. Delivery time:- the mean time taken between the server sending
 # the message and the receiver receiving the message.
 # 2. Mean delivery time:- the delivery time averaged over all
 # transactions.
-</span>
+</span><span class="zmacs-region">
 detailView = StatisticsView()
-detailView.add(ExpressionView(&quot;<span class="string">Delivery time</span>&quot;, &quot;&quot;, &quot;<span class="string">userLong0</span>&quot;))
+detailView.add(ExpressionView(&quot;</span><span class="string">Delivery time</span><span class="zmacs-region">&quot;, &quot;&quot;, &quot;</span><span class="string">userLong0</span><span class="zmacs-region">&quot;))
 	    
 summaryView = StatisticsView()
 summaryView.add(ExpressionView(
-    &quot;<span class="string">Mean delivery time</span>&quot;,
-    &quot;<span class="string">statistic.deliveryTime</span>&quot;,
-    &quot;<span class="string">(/ userLong0(+ timedTransactions untimedTransactions))</span>&quot;))
+    &quot;</span><span class="string">Mean delivery time</span><span class="zmacs-region">&quot;,
+    &quot;</span><span class="string">statistic.deliveryTime</span><span class="zmacs-region">&quot;,
+    &quot;</span><span class="string">(/ userLong0(+ timedTransactions untimedTransactions))</span><span class="zmacs-region">&quot;))
 	    
 grinder.registerDetailStatisticsView(detailView)
 grinder.registerSummaryStatisticsView(summaryView)
 
-<span class="comment"># We record each message receipt against a single test. The
+</span><span class="comment"># We record each message receipt against a single test. The
 # transaction time is meaningless.
-</span><span class="keyword">def</span> <span class="function-name">recordDeliveryTime</span>(deliveryTime):
+</span><span class="keyword">def</span><span class="zmacs-region"> </span><span class="function-name">recordDeliveryTime</span><span class="zmacs-region">(deliveryTime):
     grinder.statistics.setValue(deliveryTimeIndex, deliveryTime)
 
-recordTest = Test(1, &quot;<span class="string">Receive messages</span>&quot;).wrap(recordDeliveryTime)
+recordTest = Test(1, &quot;</span><span class="string">Receive messages</span><span class="zmacs-region">&quot;).wrap(recordDeliveryTime)
 
-<span class="keyword">class</span> <span class="type">TestRunner</span>(MessageListener):
+</span><span class="keyword">class</span><span class="zmacs-region"> </span><span class="type">TestRunner</span><span class="zmacs-region">(MessageListener):
 
-    <span class="keyword">def</span> <span class="function-name">__init__</span>(self):
+    </span><span class="keyword">def</span><span class="zmacs-region"> </span><span class="function-name">__init__</span><span class="zmacs-region">(self):
         self.receivedMessages = 0    
-        self.cv = Condition()           <span class="comment"># Used to synchronise thread activity.
-</span>
-    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        self.cv = Condition()           </span><span class="comment"># Used to synchronise thread activity.
+</span><span class="zmacs-region">
+    </span><span class="keyword">def</span><span class="zmacs-region"> </span><span class="function-name">__call__</span><span class="zmacs-region">(self):
         log = grinder.logger.output
 
-        log(&quot;<span class="string">Creating queue session and a receiver</span>&quot;)
+        log(&quot;</span><span class="string">Creating queue session and a receiver</span><span class="zmacs-region">&quot;)
         session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
 
         receiver = session.createReceiver(queue)
         receiver.messageListener = self
 
-        <span class="comment"># Read 10 messages from the queue.
-</span>        <span class="keyword">for</span> i <span class="keyword">in</span> range(0, 10):
+        </span><span class="comment"># Read 10 messages from the queue.
+</span><span class="zmacs-region">        </span><span class="keyword">for</span><span class="zmacs-region"> i </span><span class="keyword">in</span><span class="zmacs-region"> range(0, 10):
 
-            <span class="comment"># Wait until we have received a message.            
-</span>            self.cv.acquire()
-            <span class="keyword">while</span> self.receivedMessages == 0: self.cv.wait()
+            </span><span class="comment"># Wait until we have received a message.            
+</span><span class="zmacs-region">            self.cv.acquire()
+            </span><span class="keyword">while</span><span class="zmacs-region"> self.receivedMessages == 0: self.cv.wait()
             self.receivedMessages -= 1
             self.cv.release()
 
-            log(&quot;<span class="string">Received message</span>&quot;)
+            log(&quot;</span><span class="string">Received message</span><span class="zmacs-region">&quot;)
 
-            <span class="comment"># We record the test a here rather than in onMessage
-</span>            <span class="comment"># because we must do so from a worker thread.
-</span>            recordTest(self.lastDeliveryTime)
+            </span><span class="comment"># We record the test a here rather than in onMessage
+</span><span class="zmacs-region">            </span><span class="comment"># because we must do so from a worker thread.
+</span><span class="zmacs-region">            recordTest(self.lastDeliveryTime)
 
-        log(&quot;<span class="string">Closing queue session</span>&quot;)
+        log(&quot;</span><span class="string">Closing queue session</span><span class="zmacs-region">&quot;)
         session.close()
 
-        <span class="comment"># Rather than over complicate things with explict message
-</span>        <span class="comment"># acknowledgement, we simply discard any additional messages
-</span>        <span class="comment"># we may have read.
-</span>        log(&quot;<span class="string">Received %d additional messages</span>&quot; % self.receivedMessages)
+        </span><span class="comment"># Rather than over complicate things with explict message
+</span><span class="zmacs-region">        </span><span class="comment"># acknowledgement, we simply discard any additional messages
+</span><span class="zmacs-region">        </span><span class="comment"># we may have read.
+</span><span class="zmacs-region">        log(&quot;</span><span class="string">Received %d additional messages</span><span class="zmacs-region">&quot; % self.receivedMessages)
 
-    <span class="comment"># Called asynchronously by JMS when a message arrives.
-</span>    <span class="keyword">def</span> <span class="function-name">onMessage</span>(self, message):
+    </span><span class="comment"># Called asynchronously by JMS when a message arrives.
+</span><span class="zmacs-region">    </span><span class="keyword">def</span><span class="zmacs-region"> </span><span class="function-name">onMessage</span><span class="zmacs-region">(self, message):
         self.cv.acquire()
 
         self.receivedMessages += 1
 
-        <span class="comment"># In WebLogic Server JMS, the JMS timestamp is set by the
-</span>        <span class="comment"># sender session. All we need to do is ensure our clocks are
-</span>        <span class="comment"># synchronised...
-</span>        self.lastDeliveryTime = System.currentTimeMillis() - message.getJMSTimestamp()
+        </span><span class="comment"># In WebLogic Server JMS, the JMS timestamp is set by the
+</span><span class="zmacs-region">        </span><span class="comment"># sender session. All we need to do is ensure our clocks are
+</span><span class="zmacs-region">        </span><span class="comment"># synchronised...
+</span><span class="zmacs-region">        self.lastDeliveryTime = System.currentTimeMillis() - message.getJMSTimestamp()
         self.cv.notifyAll()
         self.cv.release()
+</span>
 </pre>
 </blockquote>
 
