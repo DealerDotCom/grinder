@@ -115,11 +115,6 @@ final class ScriptStatisticsImplementation implements Statistics {
 
   private final void checkCallContext() throws InvalidContextException {
 
-    if (m_noTests) {
-      throw new InvalidContextException(
-	"This worker thread as not yet perfomed any tests.");
-    }
-
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
     if (threadContext == null) {
@@ -129,8 +124,13 @@ final class ScriptStatisticsImplementation implements Statistics {
 
     if (threadContext != m_threadContext) {
       throw new InvalidContextException(
-	"Statistics objects must be used from the worker thread from"+
+	"Statistics objects must be used from the worker thread from" +
 	"which they are acquired.");
+    }
+
+    if (m_noTests) {
+      throw new InvalidContextException(
+	"This worker thread has not yet perfomed any tests.");
     }
   }
 
