@@ -134,6 +134,13 @@ public class TestSleeper extends TestCase {
           t1.join();
         }
       }.run());
+
+    try {
+      t1.getSleeper().sleepFlat(10);
+      fail("Expected ShutdownException");
+    }
+    catch (Sleeper.ShutdownException e) {
+    }
   }
 
   public void testShutdownAllCurrentSleepers() throws Exception {
