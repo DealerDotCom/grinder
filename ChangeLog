@@ -1,5 +1,7 @@
 2001-11-18  Philip Aston  <paston@bea.com>
 
+	* The Grinder 2.8.1 is released.
+	
 	* src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/console/model/ConsoleProperties.java:
 	Fix bind to all interfaces.
 
