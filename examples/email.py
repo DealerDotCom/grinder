@@ -6,8 +6,9 @@
 # violating the law and should be exiled to a very bad place for a
 # very long time.
 #
-# Copyright (C) Tom Pittard, 2004
-# Copyright (C) Philip Aston, 2004
+# Copyright (C) 2004 Tom Pittard
+# Copyright (C) 2004 Philip Aston
+# All rights reserved.
 
 from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
