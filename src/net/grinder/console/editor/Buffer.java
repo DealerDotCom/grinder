@@ -223,6 +223,8 @@ public final class Buffer {
       writer = new FileWriter(file);
       writer.write(m_textSource.getText());
       setFile(file);
+      writer.close();           // Close necessary to ensure last
+                                // modified time is updated?
       m_lastModified = m_file.lastModified();
     }
     catch (IOException e) {

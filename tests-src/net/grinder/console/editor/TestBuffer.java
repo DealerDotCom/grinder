@@ -172,11 +172,6 @@ public class TestBuffer extends AbstractFileTestCase {
     buffer.save();
 
     assertTrue(!buffer.isDirty());
-
-    // Sometimes the following isUpToDate fails. Maybe a little sleep
-    // will help.
-    Thread.sleep(50);
-
     assertTrue(buffer.isUpToDate());
 
     assertSame(s0, textSource.getText());
