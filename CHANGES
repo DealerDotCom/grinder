@@ -11,6 +11,8 @@ Grinder 2.3.1
   The HTTP plugin parameter 'grinder.plugin.parameter.keepSession' has
   been renamed to 'grinder.plugin.parameter.useCookies'.
 
+  The Grinder now has a logo, courtesy of Richard Wallace.
+
 
 Grinder 2.3
 -----------

@@ -1,3 +1,12 @@
+2001-02-06  Philip Aston  <paston@beasys.com>
+
+	* AUTHORS: 
+		Welcome Richard Wallace.
+
+	* web/index.html: 
+	* web/grinder-neon.gif: 
+		Add web page to repository.
+
 2001-02-05  Philip Aston  <paston@beasys.com>
 
 	* src/net/grinder/plugin/http/CookieHandler.java: 
