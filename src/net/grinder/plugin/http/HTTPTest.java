@@ -39,8 +39,8 @@ public class HTTPTest extends PluginTest
     public HTTPTest(int number, String description)
 	throws GrinderException
     {
-	super(HttpPlugin.class, number, description);
-	((HttpPlugin)getPlugin()).registerTest(this); 	// Temporary.
+	super(HTTPPlugin.class, number, description);
+	((HTTPPlugin)getPlugin()).registerTest(this); 	// Temporary.
     }
 
     public final String getUrl() throws PluginException
