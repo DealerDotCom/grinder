@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -452,10 +452,13 @@ public final class ConsoleProperties {
 
   private void assertValidPort(int port)
     throws DisplayMessageConsoleException {
-    if (port < 0 || port > CommunicationDefaults.MAX_PORT) {
+    if (port < CommunicationDefaults.MIN_PORT ||
+        port > CommunicationDefaults.MAX_PORT) {
       throw new DisplayMessageConsoleException(
         "invalidPortNumberError.text",
-        "Port numbers should be in the range [0, 65535]");
+        "Port numbers should be in the range [" +
+        CommunicationDefaults.MIN_PORT + ", " +
+        CommunicationDefaults.MAX_PORT + "]");
     }
   }
 

@@ -166,7 +166,8 @@ public class TestConsoleProperties extends TestCase {
 
   public void testConsolePort() throws Exception {
 
-    new TestIntTemplate(ConsoleProperties.CONSOLE_PORT_PROPERTY, 0,
+    new TestIntTemplate(ConsoleProperties.CONSOLE_PORT_PROPERTY,
+                        CommunicationDefaults.MIN_PORT,
 			CommunicationDefaults.MAX_PORT) {
 
       protected int get(ConsoleProperties properties) {

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,7 +54,8 @@ abstract class OptionsDialogHandler {
 
   private final JTextField m_consoleAddress = new JTextField();
   private final IntegerField m_consolePort =
-    new IntegerField(0, CommunicationDefaults.MAX_PORT);
+    new IntegerField(CommunicationDefaults.MIN_PORT,
+                     CommunicationDefaults.MAX_PORT);
   private final SamplingControlPanel m_samplingControlPanel;
   private final JSlider m_sfSlider = new JSlider(1, 6, 1);
   private final JCheckBox m_resetConsoleWithProcessesCheckBox;
