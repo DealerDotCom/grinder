@@ -102,7 +102,6 @@ public class ConsoleUI implements ModelListener
 	final Action[] actions = {
 	    new StartProcessesGrinderAction(startProcessesHandler),
 	    new StopProcessesGrinderAction(stopProcessesHandler),
-	    new ResetAction(),
 	    new StartAction(),
 	    new StopAction(),
 	    new SummaryAction(),
@@ -385,15 +384,28 @@ public class ConsoleUI implements ModelListener
 	// Ignoring synchronisation issues for now.
 	final int state = m_model.getState();
 	final long sampleInterval = m_model.getSampleInterval();
-	final int sampleCount = m_model.getSampleCount();
+	final long sampleCount = m_model.getSampleCount();
 	final int ignoreCount = m_model.getIgnoreSampleCount();
 	final int collectCount = m_model.getCollectSampleCount();
+	final boolean receivedSample = m_model.getRecievedSample();
 
 	if (state == Model.STATE_WAITING_FOR_TRIGGER) {
-	    m_stateLabel.setText("Ignoring samples: " + sampleCount);
+	    if (receivedSample) {
+		m_stateLabel.setText(
+		    "Waiting for samples (ignoring: " + sampleCount + ")");
+	    }
+	    else {
+		m_stateLabel.setText("Waiting for samples");
+	    }
 	}
 	else if (state == Model.STATE_STOPPED) {
-	    m_stateLabel.setText("Collection stopped");
+	    if (receivedSample) {
+		m_stateLabel.setText(
+		    "Collection stopped, ignoring samples");
+	    }
+	    else {
+		m_stateLabel.setText("Collection stopped");
+	    }
 	}
 	else if (state == Model.STATE_CAPTURING) {
 	    m_stateLabel.setText("Collecting samples: " + sampleCount);
@@ -472,24 +484,6 @@ public class ConsoleUI implements ModelListener
         public void actionPerformed(ActionEvent e)
 	{
 	    System.exit(0);
-	}
-    }
-
-    private class ResetAction extends AbstractAction
-    {
-	ResetAction()
-	{
-	    super("reset");
-	}
-
-        public void actionPerformed(ActionEvent e)
-	{
-	    m_model.reset();
-	    LabelledGraph.resetPeak();
-
-	    if (m_summaryFrame != null) {
-		m_summaryFrame.hide();
-	    }
 	}
     }
 

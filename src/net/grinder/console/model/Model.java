@@ -47,6 +47,9 @@ public class Model
     public final static int STATE_STOPPED = 1;
     public final static int STATE_CAPTURING = 2;
 
+    private long m_startTime;
+    private long m_stopTime;
+
     private final Map m_tests = new TreeMap();
     private final HashMap m_samples = new HashMap();
     private final Sample m_totalSample = new Sample();
@@ -57,7 +60,7 @@ public class Model
     private int m_collectSampleCount = 0;
     private boolean m_stopSampler = false;
     private int m_state = 0;
-    private int m_sampleCount = 0;
+    private long m_sampleCount = 0;
     private boolean m_receivedSample = false;
     private final List m_modelListeners = new LinkedList();
 
@@ -141,21 +144,6 @@ public class Model
 	m_totalSample.addSampleListener(listener);
     }
 
-    public void reset()
-    {
-	final Iterator iterator = m_samples.values().iterator();
-
-	while (iterator.hasNext()) {
-	    final Sample sample = (Sample)iterator.next();
-	    sample.reset();
-	}
-
-	m_totalSample.reset();
-	m_summaryStatistics = new TestStatisticsMap();
-
-	fireModelUpdate();
-    }
-
     private void setInitialState()
     {
 	if (getIgnoreSampleCount() != 0) {
@@ -183,25 +171,21 @@ public class Model
     {
 	m_receivedSample = true;
 
-	final boolean addToTotals = getState() == STATE_CAPTURING;
+	if (getState() == STATE_CAPTURING) {
+	    final TestStatisticsMap.Iterator iterator =
+		testStatisticsMap.new Iterator();
 
-	final TestStatisticsMap.Iterator iterator =
-	    testStatisticsMap.new Iterator();
+	    while (iterator.hasNext()) {
+		final TestStatisticsMap.Pair pair = iterator.next();
 
-	while (iterator.hasNext()) {
-	    final TestStatisticsMap.Pair pair = iterator.next();
+		final Integer testNumber = pair.getTest().getTestNumber();
+		final Statistics statistics = pair.getStatistics();
 
-	    final Integer testNumber = pair.getTest().getTestNumber();
-	    final Statistics statistics = pair.getStatistics();
+		getSample(testNumber).add(statistics);
 
-	    getSample(testNumber).add(statistics);
-
-	    if (addToTotals) {
 		m_totalSample.add(statistics);
 	    }
-	}
 
-	if (addToTotals) {
 	    m_summaryStatistics.add(testStatisticsMap);
 	}
     }
@@ -212,7 +196,6 @@ public class Model
 	private Statistics m_total;
 	private long m_transactionsInInterval;
 	private double m_peakTPS;
-	private long m_startTime;
 	
 	{
 	    reset();
@@ -234,7 +217,9 @@ public class Model
 	    final double tps =
 		1000d*m_transactionsInInterval/(double)m_sampleInterval;
 
-	    final long totalTime = m_currentTime-m_startTime;
+	    final long totalTime =
+		(getState() == STATE_STOPPED ? m_stopTime : m_currentTime) -
+		m_startTime;
 
 	    final double averageTPS =
 		1000d*m_total.getTransactions()/(double)totalTime;
@@ -259,7 +244,6 @@ public class Model
 	    m_transactionsInInterval = 0;
 	    m_peakTPS = 0;
 	    m_total = new Statistics();
-	    m_startTime = m_currentTime;
 	}
     }
 
@@ -292,7 +276,7 @@ public class Model
 
 		final int state = getState();
 
-		if (state != STATE_STOPPED && m_receivedSample) {
+		if (m_receivedSample) {
 		    ++m_sampleCount;
 		}
 		
@@ -330,9 +314,15 @@ public class Model
 	fireModelUpdate();
     }
 
-    public int getSampleCount()
+    public long getSampleCount()
     {
 	return m_sampleCount;
+    }
+
+    /** Whether or not a sample was received in the last period. */
+    public boolean getRecievedSample()
+    {
+	return m_receivedSample;
     }
 
     public int getIgnoreSampleCount()
@@ -367,12 +357,37 @@ public class Model
 	return m_state;
     }
 
+    private void reset()
+    {
+	final Iterator iterator = m_samples.values().iterator();
+
+	while (iterator.hasNext()) {
+	    final Sample sample = (Sample)iterator.next();
+	    sample.reset();
+	}
+
+	m_totalSample.reset();
+	m_summaryStatistics = new TestStatisticsMap();
+
+	m_startTime = m_currentTime;
+
+	fireModelUpdate();
+    }
+
     private void setState(int i)
     {
 	if (i != STATE_WAITING_FOR_TRIGGER &&
 	    i != STATE_STOPPED &&
 	    i != STATE_CAPTURING) {
 	    throw new IllegalArgumentException("Unknown state: " + i);
+	}
+
+	if (m_state != STATE_CAPTURING && i == STATE_CAPTURING) {
+	    reset();
+	}
+
+	if (m_state != STATE_STOPPED && i == STATE_STOPPED) {
+	    m_stopTime = m_currentTime;
 	}
 
 	m_state = i;

@@ -105,10 +105,10 @@ class LabelledGraph extends JPanel
 	}
     }
 
+    private final Label m_responseTimeLabel = new Label("", " ms");
     private final Label m_tpsLabel = new Label(" ", " tps");
     private final Label m_averageTPSLabel = new Label("Avg: ", " tps");
     private final Label m_peakTPSLabel = new Label("Peak: ", " tps");
-    private final Label m_averageTimeLabel = new Label("", " ms (avg)");
     private final Label m_transactionsLabel = new Label("", " transactions");
     private final Label m_errorsLabel = new Label("", " errors");
     private final Label m_abortionsLabel = new Label("", " abortions");
@@ -135,10 +135,10 @@ class LabelledGraph extends JPanel
 	titleLabel.setText(title);
 	titleLabel.setForeground(Color.black);
 
+	labelPanel.add(m_responseTimeLabel);
 	labelPanel.add(m_tpsLabel);
 	labelPanel.add(m_averageTPSLabel);
 	labelPanel.add(m_peakTPSLabel);
-	labelPanel.add(m_averageTimeLabel);
 	labelPanel.add(m_transactionsLabel);
 	labelPanel.add(m_errorsLabel);
 	labelPanel.add(m_abortionsLabel);
@@ -167,18 +167,18 @@ class LabelledGraph extends JPanel
 	m_graph.setColor(calculateColour(tps));
 	m_graph.add(tps);
 
-	final double averageTime = total.getAverageTransactionTime();
+	final double responseTime = total.getAverageTransactionTime();
+
+	if (!Double.isNaN(responseTime)) {
+	    m_responseTimeLabel.set(responseTime);
+	}
+	else {
+	    m_responseTimeLabel.set("----");
+	}
 
 	m_tpsLabel.set(tps);
 	m_averageTPSLabel.set(averageTPS);
 	m_peakTPSLabel.set(peakTPS);
-
-	if (!Double.isNaN(averageTime)) {
-	    m_averageTimeLabel.set(averageTime);
-	}
-	else {
-	    m_averageTimeLabel.set("----");
-	}
 
 	m_transactionsLabel.set(total.getTransactions());
 	m_errorsLabel.set(total.getErrors());
