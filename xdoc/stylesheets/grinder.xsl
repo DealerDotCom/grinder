@@ -20,6 +20,7 @@
 	<style type="text/css">
 	  <xsl:comment>
 	    p,ul,dl,ol,td,dd { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif; font-size: 10pt; }
+	    .beta-warning { background-color: rgb(240,240,240); font-weight: bold}
 	    pre { color: rgb(80,80,80); font-family:Courier, monospace; font-size: 10pt; }
             code ( background-color: red; font-family:Courier, monospace; font-size: 10pt; )
 	    h1 { color: rgb(80,80,80); font-family:Arial,Helvetica,sans-serif; font-size: 16pt; }
@@ -84,7 +85,7 @@
 	   <tr bgcolor="#000080" style="background-color:rgb(00,00,128);" class="layout">
 	     <td>&#160;</td>
 	     <td align="center" valign="bottom">
-	       <img src="{//file[@id='logo']/@src}" border="0" alt="The Grinder Logo"/>
+	       <img src="{//file[@id='logo']/@src}" border="0" alt="The Grinder Logo" width="72" height="96"/>
 	     </td>
 	     <td>&#160;</td>
 	     <td align="center" valign="middle">

@@ -26,7 +26,7 @@
              targetFile="http-plugin.html" type="xhtml-1"/>
       <entry name="JUnit Plug-in" sourceFile="junit-plugin-xhtml.xml" 
              targetFile="junit-plugin.html" type="xhtml-1"/>
-      <entry name="Console" sourceFile="console-xhtml.xml" 
+      <entry name="The Console" sourceFile="console-xhtml.xml" 
              targetFile="console.html" type="xhtml-1"/>
       <entry name="Timing" sourceFile="timing-xhtml.xml" 
              targetFile="timing.html" type="xhtml-1"/>
@@ -41,8 +41,24 @@
              targetFile="index.html" type="g3-xhtml-1"/>
       <entry name="Getting Started" sourceFile="getting-started-xhtml.xml" 
              targetFile="getting-started.html" type="g3-xhtml-1"/>
+      <entry name="Properties" sourceFile="properties-xhtml.xml" 
+             targetFile="properties.html" type="g3-xhtml-1"/>
+      <entry name="Scripts" sourceFile="scripts-xhtml.xml" 
+             targetFile="scripts.html" type="g3-xhtml-1"/>
+      <entry name="Java Plug-in" sourceFile="java-plugin-xhtml.xml" 
+             targetFile="java-plugin.html" type="g3-xhtml-1"/>
+      <entry name="HTTP Plug-in" sourceFile="http-plugin-xhtml.xml" 
+             targetFile="http-plugin.html" type="g3-xhtml-1"/>
+      <entry name="Thc Console" sourceFile="console-xhtml.xml" 
+             targetFile="console.html" type="g3-xhtml-1"/>
       <entry name="Script Gallery" sourceFile="script-gallery-xhtml.xml" 
              targetFile="script-gallery.html" type="g3-xhtml-1"/>
+      <entry name="Timing" sourceFile="timing-xhtml.xml" 
+             targetFile="timing.html" type="g3-xhtml-1"/>
+      <entry name="TCPSniffer" sourceFile="tcpsniffer-xhtml.xml" 
+             targetFile="tcpsniffer.html" type="g3-xhtml-1"/>
+      <entry name="FAQ" sourceFile="faq-xhtml.xml" 
+             targetFile="faq.html" type="g3-xhtml-toc-1"/>
       <entry name="The Future" sourceFile="future-xhtml.xml" 
              targetFile="future.html" type="g3-xhtml-1"/>
 
@@ -56,11 +72,14 @@
     <directory sourceDir="images" targetDir="images" type="copy">
       <file sourceFile="grinder.gif" targetFile="grinder.gif"
             type="copy" id="logo"/>
-      <file sourceFile="grinder3.jpg" targetFile="grinder3.jpg"
-            type="copy"/>
+      <file sourceFile="grinder3.jpg" targetFile="grinder3.jpg" type="copy"/>
       <file sourceFile="PythonPoweredSmall.gif"
             targetFile="PythonPoweredSmall.gif" type="copy"/>
       <file sourceFile="book-cover.jpg" targetFile="book-cover.jpg"
+            type="copy"/>
+      <file sourceFile="console-screenshot.png"
+            targetFile="console-screenshot.png" type="copy"/>
+      <file sourceFile="console-es.png" targetFile="console-es.png"
             type="copy"/>
     </directory>
 
@@ -98,10 +117,11 @@
     </documentStyle>
 
     <documentStyle type="g3-xhtml-1">
-      <xsl stylesheet="stylesheets/grinder3.xsl">
+      <xsl stylesheet="stylesheets/grinder.xsl">
         <xsl stylesheet="stylesheets/relative-urls.xsl">
           <parameter name="base" value=".."/>
-          <xsl stylesheet="stylesheets/identity.xsl" navigationElement="html"/>
+          <xsl stylesheet="stylesheets/add-g3-decoration.xsl"
+               navigationElement="html"/>
         </xsl>
       </xsl>
       <imageGroup name="pageButtons"/>
@@ -112,6 +132,19 @@
         <xsl stylesheet="stylesheets/relative-urls.xsl">
           <parameter name="base" value=".."/>
           <xsl stylesheet="stylesheets/add-toc.xsl" navigationElement="html"/>
+        </xsl>
+      </xsl>
+      <imageGroup name="pageButtons"/>
+    </documentStyle>
+
+    <documentStyle type="g3-xhtml-toc-1">
+      <xsl stylesheet="stylesheets/grinder.xsl">
+        <xsl stylesheet="stylesheets/relative-urls.xsl">
+          <parameter name="base" value=".."/>
+          <xsl stylesheet="stylesheets/add-g3-decoration.xsl">
+            <xsl stylesheet="stylesheets/add-toc.xsl"
+                 navigationElement="html"/>
+          </xsl>
         </xsl>
       </xsl>
       <imageGroup name="pageButtons"/>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html>
+<body>
+<h1>How The Grinder records transaction times - a problem?</h1>
+
+<p>The Grinder records transaction times for each successful test.
+By default, this is done by a section of code that looks like:</p>
+
+<blockquote>
+<pre>
+m_context.startTimer(); // Critical section starts
+
+try {
+    // do test
+}
+finally {
+    m_context.stopTimer();  // Critical section ends            
+}
+</pre>
+</blockquote>
+
+<p>This is repeated for each test.</p>
+
+<p>If there are many threads within the worker process, (and the sleep
+time is small or the test takes a long time or the test performs I/O),
+it is <em>highly</em> likely that the JVM will swap the thread out in
+the critical section causing an erroneously large transaction time to
+be reported.</p>
+
+<p>Similarly, if the host machine that you are running The Grinder on
+is also running other active processes (such as other worker
+processes), it is <em>highly</em> likely that the JVM will swap the
+process out in the critical section, again causing an erroneously
+large transaction time to be reported. If The Grinder is co-hosted
+with the target server, and the plug-in uses a synchronous protocol,
+(e.g. the HTTP plug-in), such swapping is a <em>certainty</em>.</p>
+
+<p>Further, as the CPU utilisation rises the contention on the
+critical section rises non-linearly and in a way that is difficult to
+quantify. The recorded time becomes more a measure of how the OS and
+JVM can swap between multiple threads and less a measure of server
+performance.</p>
+
+<em>This is a generic problem with all test harnesses and is not
+limited to The Grinder or Java</em>. Within the scope of a single
+machine there is little that can be done about this whilst
+realistically using multiple threads and processes.
+
+<h3>Fiddling with Thread scheduling - a partial fix</h3>
+
+<p>From The Grinder 2.6.1, the call to <code>startTimer</code> makes a
+<code>Thread.yield()</code> call before recording the start time which
+means that a thread is more likely to be swapped out/in just before
+the critical sections. It dramatically reduced the response times I
+measured (e.g. 30 ms to 3 ms). I consider this only an approximate fix
+to the problem - it does not prevent the OS from swapping the process
+out.</p>
+
+<p>The recorded response time should always be considered an upper
+bound on the actual response time. Doing the <code>yield()</code>
+makes that bound more accurate.</p>
+
+<p>An argument against doing this is that it slightly alters the
+statistical distribution of the client invocations. I'd counter that
+without the <code>yield()</code> the distribution is not even; its
+down to the OS and JVM scheduling so threads/processes are far likely
+to be swapped at some points (e.g. waiting on I/O) than others.
+Because of this I decided there is little point in making the
+<code>yield()</code> optional.</p>
+
+<h3>The <em>Timer Client</em> model - a solution?</h3>
+
+<p>One solution to this problem is to dedicate a single machine to the
+measuring of response times. I call this the "timer client" model.</p>
+
+<p>As of The Grinder 2.6.1 you can set the property <a
+href="properties.html#grinder.recordTime">grinder.recordTime</a> to be
+<code>false</code> which will cause the worker processes that use that
+<code>grinder.properties</code> file to not record the transaction
+times nor report them to the console. You should run all but one of
+your worker processes with this property set to <code>false</code>.
+These are the <em>load clients</em>.</p>
+
+<p>You should copy the grinder.properties file to a dedicated
+<em>timer client</em> machine, change <a
+href="properties.html#grinder.recordTime">grinder.recordTime</a> to be
+<code>true</code>, and set <a
+href="properties.html#grinder.processes">grinder.processes</a> and <a
+href="grinder.threads">grinder.threads</a> to <code>1</code>. The
+single worker process will run on the timing client, record all timing
+information and (optionally) report it to the console. The less other
+stuff you run on the timing client, the better.</p>
+
+<p>Its messy that you have to use a modified
+<code>grinder.properties</code> file. I considered implementing this
+using a property like "<a
+href="properties.html#grinder.recordTime.host">grinder.recordTime.host</a>",
+which you would set to the timing client host name. Instead, I've done
+the simplest thing, we will revisit this as part of The Grinder 3.</p>
+
+<p>The disadvantage of this method is that the statistical sample
+of the transaction times is much smaller.</p>
+
+<h3>An update after some experimentation</h3>
+
+<p>Testing has shown that the difference the timer client model makes
+is only measurable when those clients are co-hosted with the server.
+When you have separate server and client machines its better to not
+use the timer client model because it decreases the sample size of
+transaction times.</p>
+
+<p>I recommend trying both models. If you discover something
+interesting, please report it to <a
+href="mailto:grinder-use@lists.sourceforge.net">grinder-use@lists.sourceforge.net</a>.</p>
+
+</body>
+</html>

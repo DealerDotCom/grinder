@@ -36,8 +36,8 @@ Java Virtual Machine (JVM).</p>
 <p>For heavy duty testing, you can start an agent process on each of
 several client machines. The worker processes they launch can be
 controlled and monitored using the console. There is little reason to
-run more than one agent on a single machine, but you can if you
-wish.</p>
+run more than one agent on a single machine, but if you wish to you
+can.</p>
 
 <h1>How do I start The Grinder?</h1>
 
@@ -51,20 +51,20 @@ wish.</p>
 <p><code>java net.grinder.Console</code></p>
 </li>
 
-<li>Create a <code>grinder.properties</code> file which specifes
-general control information (how to contact the console, how many
-worker processes to use, ..), as well as the name of the Jython script
-that will be used to run the tests. See the <code>examples</code>
-directory for inspiration.<p/></li>
+<li>Create a <a
+href="./properties.html"><code>grinder.properties</code></a> file
+which specifes general control information (how to contact the
+console, how many worker processes to use, ..), as well as the name of
+the Jython script that will be used to run the tests.<p/></li>
 
 <li>Start an agent process:
 <p><code>java net.grinder.Grinder</code></p>
 </li>
 </ol>
 
-<p>The agent process forks child Java processes to do the work. You
-can also specify an explicit properties file as the first argument.
-For example:</p>
+<p>The console can be used to start a test run. The agent process then
+forks child Java processes to do the work. You can also specify an
+explicit properties file as the first argument. For example:</p>
 
 <blockquote><code>java net.grinder.Grinder
 myproperties</code></blockquote>
@@ -100,6 +100,14 @@ the Grinder agents</p>
         grinder.grinderAddress  (Multicast address)
         grinder.grinderPort
 </pre>
+
+<h1>Tests</h1>
+
+<p>A test is a unit of work against which statistics are recorded.
+Tests are uniquely defined by a <em>test number</em> and may also have
+a <em>description</em>. Scripts can report many different types of
+thing against the same test number, The Grinder will aggregate the
+results.</p>
 
 <h1>Output</h1>
 
