@@ -11,7 +11,7 @@
      '("/opt/xalan/xalan-j_2_3_1/bin/xalan.jar"
        "/opt/xalan/xalan-j_2_3_1/bin/xml-apis.jar"
        "/opt/jtidy/jtidy-04aug2000r7-dev/build/Tidy.jar"
-       "/work/src/grinder/src"
+       "/work/src/grinder3/src"
        "/opt/wls5.1/lib/weblogicaux.jar"
        "/opt/jakarta-oro/jakarta-oro-2.0.6/jakarta-oro-2.0.6.jar"
        "/opt/junit/junit3.7/junit.jar"
@@ -19,7 +19,7 @@
        "/opt/jdk1.3.1_02/jre/lib/ext/jcert.jar"
        "/opt/jdk1.3.1_02/jre/lib/ext/jnet.jar"
        "/opt/jdk1.3.1_02/jre/lib/ext/jsse.jar"
-       "/opt/bsf/bsf-2_2-jython/build/lib/bsf.jar"
+       "/opt/bsf/bsf-2_2-jython/build/lib/bsf.jar")
      ":")))
 
  '(jde-run-option-classpath (cons "../build/classes" jde-global-classpath));
