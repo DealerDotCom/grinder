@@ -324,7 +324,7 @@ public final class GrinderProcess {
 
       // Schedule a regular statistics report to the console. We don't
       // need to schedule this at a fixed rate. Each report contains
-      // the work done since the last report. 
+      // the work done since the last report.
 
       // First (empty) report to console to start it recording if its
       // not already.
