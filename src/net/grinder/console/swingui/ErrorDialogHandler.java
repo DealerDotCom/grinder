@@ -52,6 +52,7 @@ final class ErrorDialogHandler implements ErrorHandler {
   private JOptionPaneDialog m_dialog;
   private final String m_errorTitle;
   private final String m_errorDetailsTitle;
+  private final Resources m_resources;
   private final Object[] m_okOptions;
   private final Object[] m_okDetailsOptions;
   private final Object[] m_detailsOptions;
@@ -93,6 +94,8 @@ final class ErrorDialogHandler implements ErrorHandler {
   }
 
   private ErrorDialogHandler(Resources resources) {
+
+    m_resources = resources;
 
     m_errorTitle = resources.getString("error.title");
     m_errorDetailsTitle = resources.getString("errorDetails.title");
@@ -146,7 +149,7 @@ final class ErrorDialogHandler implements ErrorHandler {
             public Dimension getPreferredSize() {
               final Dimension d = super.getPreferredSize();
               d.width = 600;
-              d.height = 400;
+              d.height = 250;
               return d;
             }
           };
@@ -192,7 +195,7 @@ final class ErrorDialogHandler implements ErrorHandler {
       finally {
         System.setProperty("line.separator", oldLineSeparator);
       }
-    }    
+    }
 
     // OK
     return true;
@@ -223,6 +226,38 @@ final class ErrorDialogHandler implements ErrorHandler {
     showDialog(title);
   }
 
+
+  /**
+   * Method that handles error messages.
+   *
+   * @param resourceKey Resource key that specifies message.
+   * @param defaultMessage Default message to use if
+   * <code>resourceKey</code> not found.
+   */
+  public void handleResourceErrorMessage(String resourceKey,
+                                         String defaultMessage) {
+    handleErrorMessage(getResourceString(resourceKey, defaultMessage));
+  }
+
+  /**
+   * Method that handles error messages.
+   *
+   * @param resourceKey Resource key that specifies message.
+   * @param defaultMessage Default message to use if
+   * <code>resourceKey</code> not found.
+   * @param title A title to use.
+   */
+  public void handleResourceErrorMessage(String resourceKey,
+                                         String defaultMessage,
+                                         String title) {
+    handleErrorMessage(getResourceString(resourceKey, defaultMessage), title);
+  }
+
+  private String getResourceString(String resourceKey, String defaultMessage) {
+    final String resourceValue = m_resources.getString(resourceKey, false);
+
+    return resourceValue != null ? resourceValue : defaultMessage;
+  }
 
   /**
    * Method that handles exceptions.

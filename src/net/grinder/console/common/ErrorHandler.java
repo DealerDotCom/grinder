@@ -47,6 +47,26 @@ public interface ErrorHandler {
   void handleErrorMessage(String errorMessage, String title);
 
   /**
+   * Method that handles error messages.
+   *
+   * @param resourceKey Resource key that specifies message.
+   * @param defaultMessage Default message to use if
+   * <code>resourceKey</code> not found.
+   */
+  void handleResourceErrorMessage(String resourceKey, String defaultMessage);
+
+  /**
+   * Method that handles error messages.
+   *
+   * @param resourceKey Resource key that specifies message.
+   * @param defaultMessage Default message to use if
+   * <code>resourceKey</code> not found.
+   * @param title A title to use.
+   */
+  void handleResourceErrorMessage(String resourceKey, String defaultMessage,
+                                  String title);
+
+  /**
    * Method that handles exceptions.
    *
    * @param exception The exception.
