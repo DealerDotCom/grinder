@@ -38,7 +38,7 @@ final class MessageQueue {
   /**
    * Creates a new <code>MessageQueue</code> instance.
    *
-   * @param passExceptions <code>true</code> => allow exceptionss to
+   * @param passExceptions <code>true</code> => allow exceptions to
    * be inserted into the queue and rethrown to callers of {@link
    * #dequeue}.
    */
