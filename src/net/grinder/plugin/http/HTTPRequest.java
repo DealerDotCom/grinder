@@ -154,7 +154,7 @@ public class HTTPRequest {
 
     final List list = new ArrayList(Arrays.asList(m_defaultHeaders));
     final ListIterator iterator = list.listIterator();
-    
+
     while (iterator.hasNext()) {
       final NVPair pair = (NVPair)iterator.next();
 

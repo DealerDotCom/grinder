@@ -52,7 +52,7 @@ public class HTTPPlugin implements GrinderPlugin {
     try {
       final PluginRegistry registry = PluginRegistry.getInstance();
 
-      if (registry != null ) {
+      if (registry != null) {
         registry.register(HTTPPlugin.class);
       }
       else {
