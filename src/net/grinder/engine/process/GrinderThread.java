@@ -62,6 +62,7 @@ class GrinderThread implements java.lang.Runnable {
    */
   public GrinderThread(Monitor notifyOnCompletion,
                        ProcessContext processContext,
+                       LoggerImplementation loggerImplementation,
                        JythonScript jythonScript,
                        int threadID)
     throws EngineException {
@@ -69,7 +70,14 @@ class GrinderThread implements java.lang.Runnable {
     m_notifyOnCompletion = notifyOnCompletion;
     m_processContext = processContext;
     m_jythonScript = jythonScript;
-    m_context = new ThreadContextImplementation(processContext, threadID);
+
+    m_context =
+      new ThreadContextImplementation(
+        processContext,
+        loggerImplementation.createThreadLogger(threadID),
+        loggerImplementation.getFilenameFactory().
+        createSubContextFilenameFactory(Integer.toString(threadID)),
+        loggerImplementation.getDataWriter());
 
     final GrinderProperties properties = processContext.getProperties();
 

@@ -22,16 +22,13 @@
 
 package net.grinder.engine.process;
 
-import java.io.PrintWriter;
-
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
+import net.grinder.common.FilenameFactory;
 import net.grinder.common.Logger;
 import net.grinder.communication.QueuedSender;
 import net.grinder.communication.ReportStatusMessage;
 import net.grinder.script.Grinder;
-import net.grinder.statistics.CommonStatisticsViews;
-import net.grinder.statistics.ExpressionView;
 import net.grinder.util.Sleeper;
 
 
@@ -45,7 +42,7 @@ final class ProcessContext {
   private final String m_uniqueProcessID;
   private final GrinderProperties m_properties;
   private final boolean m_recordTime;
-  private final LoggerImplementation m_loggerImplementation;
+  private final Logger m_processLogger;
   private final QueuedSender m_consoleSender;
   private final ThreadContextLocator m_threadContextLocator;
   private final PluginRegistry m_pluginRegistry;
@@ -57,23 +54,23 @@ final class ProcessContext {
   private boolean m_shutdown;
 
   ProcessContext(String grinderID, GrinderProperties properties,
-                 LoggerImplementation loggerImplementation,
+                 Logger logger, FilenameFactory filenameFactory,
                  QueuedSender consoleSender)
     throws GrinderException {
 
     m_grinderID = grinderID;
     m_uniqueProcessID = grinderID + ":" + System.currentTimeMillis();
     m_properties = properties;
-
     m_recordTime = properties.getBoolean("grinder.recordTime", true);
-
-    m_loggerImplementation = loggerImplementation;
+    m_processLogger = logger;
     m_consoleSender = consoleSender;
     m_threadContextLocator = new ThreadContextLocatorImplementation();
 
     final Logger externalLogger =
-      new ExternalLogger(m_loggerImplementation.getProcessLogger(),
-                         m_threadContextLocator);
+      new ExternalLogger(m_processLogger, m_threadContextLocator);
+
+    final FilenameFactory externalFilenameFactory =
+      new ExternalFilenameFactory(filenameFactory, m_threadContextLocator);
 
     m_sleeper = new Sleeper(
       properties.getDouble("grinder.sleepTimeFactor", 1.0d),
@@ -86,7 +83,7 @@ final class ProcessContext {
       properties,
       m_consoleSender,
       externalLogger,
-      m_loggerImplementation.getFilenameFactory(),
+      externalFilenameFactory,
       m_sleeper);
 
     m_pluginRegistry = new PluginRegistry(externalLogger, m_scriptContext,
@@ -97,22 +94,6 @@ final class ProcessContext {
 
     Grinder.grinder = m_scriptContext;
     m_shutdown = false;
-  }
-
-  public void initialiseDataWriter() {
-
-    final PrintWriter dataWriter = m_loggerImplementation.getDataWriter();
-
-    dataWriter.print("Thread, Run, Test, Milliseconds since start");
-
-    final ExpressionView[] detailExpressionViews =
-      CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
-
-    for (int i = 0; i < detailExpressionViews.length; ++i) {
-      dataWriter.print(", " + detailExpressionViews[i].getDisplayName());
-    }
-
-    dataWriter.println();
   }
 
   public QueuedSender getConsoleSender() {
@@ -126,12 +107,8 @@ final class ProcessContext {
                                    numberOfThreads, totalNumberOfThreads);
   }
 
-  public LoggerImplementation getLoggerImplementation() {
-    return m_loggerImplementation;
-  }
-
   public Logger getProcessLogger() {
-    return m_loggerImplementation.getProcessLogger();
+    return m_processLogger;
   }
 
   public PluginRegistry getPluginRegistry() {

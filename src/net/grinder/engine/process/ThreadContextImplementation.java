@@ -22,8 +22,9 @@
 
 package net.grinder.engine.process;
 
+import java.io.PrintWriter;
+
 import net.grinder.common.FilenameFactory;
-import net.grinder.common.GrinderProperties;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Statistics;
@@ -49,28 +50,21 @@ final class ThreadContextImplementation
   private long m_elapsedTime;
 
   public ThreadContextImplementation(ProcessContext processContext,
-                                     int threadID)
+                                     ThreadLogger threadLogger,
+                                     FilenameFactory filenameFactory,
+                                     PrintWriter dataWriter)
     throws EngineException {
 
     m_processContext = processContext;
-
-    final LoggerImplementation loggerImplementation =
-      processContext.getLoggerImplementation();
-
-    m_threadLogger = loggerImplementation.createThreadLogger(threadID);
-
-    m_filenameFactory =
-      loggerImplementation.getFilenameFactory().
-      createSubContextFilenameFactory(Integer.toString(threadID));
+    m_threadLogger = threadLogger;
+    m_filenameFactory = filenameFactory;
 
     m_scriptStatistics =
       new ScriptStatisticsImplementation(
         processContext.getThreadContextLocator(),
-        loggerImplementation.getDataWriter(),
-        threadID,
+        dataWriter,
+        m_threadLogger.getThreadID(),
         processContext.getRecordTime());
-
-    final GrinderProperties properties = processContext.getProperties();
   }
 
   public FilenameFactory getFilenameFactory() {

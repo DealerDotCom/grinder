@@ -48,7 +48,7 @@ final class ScriptContextImplementation implements ScriptContext {
   private final GrinderProperties m_properties;
   private final QueuedSender m_consoleSender;
   private final Logger m_logger;
-  private final FilenameFactory m_processFilenameFactory;
+  private final FilenameFactory m_filenameFactory;
   private final Sleeper m_sleeper;
 
   public ScriptContextImplementation(String grinderID,
@@ -56,14 +56,14 @@ final class ScriptContextImplementation implements ScriptContext {
                                      GrinderProperties properties,
                                      QueuedSender consoleSender,
                                      Logger logger,
-                                     FilenameFactory processFilenameFactory,
+                                     FilenameFactory filenameFactory,
                                      Sleeper sleeper) {
     m_grinderID = grinderID;
     m_threadContextLocator = threadContextLocator;
     m_properties = properties;
     m_consoleSender = consoleSender;
     m_logger = logger;
-    m_processFilenameFactory = processFilenameFactory;
+    m_filenameFactory = filenameFactory;
     m_sleeper = sleeper;
   }
 
@@ -104,13 +104,7 @@ final class ScriptContextImplementation implements ScriptContext {
   }
 
   public FilenameFactory getFilenameFactory() {
-    final ThreadContext threadContext = m_threadContextLocator.get();
-
-    if (threadContext != null) {
-      return threadContext.getFilenameFactory();
-    }
-
-    return m_processFilenameFactory;
+    return m_filenameFactory;
   }
 
   public GrinderProperties getProperties() {

@@ -49,6 +49,7 @@ import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.StreamReceiver;
 import net.grinder.engine.EngineException;
 import net.grinder.statistics.CommonStatisticsViews;
+import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
 
@@ -140,7 +141,7 @@ public final class GrinderProcess {
   }
 
   private final ProcessContext m_context;
-  private final PrintWriter m_dataWriter;
+  private final LoggerImplementation m_loggerImplementation;
   private final short m_numberOfThreads;
   private final File m_scriptFile;
   private final InitialiseGrinderMessage m_initialisationMessage;
@@ -173,12 +174,11 @@ public final class GrinderProcess {
 
     final GrinderProperties properties = new GrinderProperties(propertiesFile);
 
-    final LoggerImplementation loggerImplementation =
-      new LoggerImplementation(
-        grinderID,
-        properties.getProperty("grinder.logDirectory", "."),
-        properties.getBoolean("grinder.logProcessStreams", true),
-        properties.getInt("grinder.numberOfOldLogs", 1));
+    m_loggerImplementation = new LoggerImplementation(
+      grinderID,
+      properties.getProperty("grinder.logDirectory", "."),
+      properties.getBoolean("grinder.logProcessStreams", true),
+      properties.getInt("grinder.numberOfOldLogs", 1));
 
     final QueuedSender consoleSender;
 
@@ -205,7 +205,9 @@ public final class GrinderProcess {
     }
 
     m_context =
-      new ProcessContext(grinderID, properties, loggerImplementation,
+      new ProcessContext(grinderID, properties,
+                         m_loggerImplementation.getProcessLogger(),
+                         m_loggerImplementation.getFilenameFactory(),
                          consoleSender);
 
     m_scriptFile =
@@ -221,8 +223,6 @@ public final class GrinderProcess {
                    Logger.LOG | Logger.TERMINAL);
       throw new ExitProcessException();
     }
-
-    m_dataWriter = loggerImplementation.getDataWriter();
 
     m_numberOfThreads = properties.getShort("grinder.threads", (short)1);
 
@@ -271,13 +271,25 @@ public final class GrinderProcess {
 
     // Don't initialise the data writer until now as the script may
     // declare new statistics.
-    m_context.initialiseDataWriter();
+    final PrintWriter dataWriter = m_loggerImplementation.getDataWriter();
+
+    dataWriter.print("Thread, Run, Test, Milliseconds since start");
+
+    final ExpressionView[] detailExpressionViews =
+      CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
+
+    for (int i = 0; i < detailExpressionViews.length; ++i) {
+      dataWriter.print(", " + detailExpressionViews[i].getDisplayName());
+    }
+
+    dataWriter.println();
 
     final GrinderThread[] runnable = new GrinderThread[m_numberOfThreads];
 
     for (int i = 0; i < m_numberOfThreads; i++) {
       runnable[i] =
-        new GrinderThread(m_eventSynchronisation, m_context, jythonScript, i);
+        new GrinderThread(m_eventSynchronisation, m_context,
+                          m_loggerImplementation, jythonScript, i);
     }
 
     final QueuedSender consoleSender = m_context.getConsoleSender();
@@ -375,7 +387,7 @@ public final class GrinderProcess {
       reportTimerTask.run();
     }
 
-    m_dataWriter.close();
+    m_loggerImplementation.getDataWriter().close();
 
     if (!m_communicationShutdown) {
       consoleSender.send(
@@ -468,7 +480,7 @@ public final class GrinderProcess {
     }
 
     public void run() {
-      m_dataWriter.flush();
+      m_loggerImplementation.getDataWriter().flush();
 
       if (!m_communicationShutdown) {
         final QueuedSender consoleSender = m_context.getConsoleSender();
