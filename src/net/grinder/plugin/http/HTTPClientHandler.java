@@ -123,9 +123,6 @@ class HTTPClientHandler implements HTTPHandler
     public String sendRequest(HTTPHandler.RequestData requestData)
 	throws HTTPHandlerException
     {
-	long startTime = System.currentTimeMillis();
-
-
 	try {
 	    final URI uri = new URI(requestData.getURLString());
 	    final String postString = requestData.getPostString();
@@ -164,8 +161,6 @@ class HTTPClientHandler implements HTTPHandler
 	    }
 	    
 	    final HTTPResponse response;
-	
-	    System.out.println("1 " + (System.currentTimeMillis() - startTime));
 
 	    if (postString == null) {
 		response = httpConnection.Get(uri.getPath(),
@@ -182,12 +177,11 @@ class HTTPClientHandler implements HTTPHandler
 					       headers);
 	    }
 
-	    System.out.println("2 " + (System.currentTimeMillis() - startTime));
-	
 	    final int statusCode = response.getStatusCode();
-
+	
 	    if (statusCode == HttpURLConnection.HTTP_OK) {
 		final String body = new String(response.getData());
+
 		m_pluginThreadContext.stopTimer();
 
 		m_pluginThreadContext.logMessage(uri + " OK");
@@ -238,7 +232,6 @@ class HTTPClientHandler implements HTTPHandler
 	finally {
 	    // Back stop.
 	    m_pluginThreadContext.stopTimer();
-	    System.out.println("3 " + (System.currentTimeMillis() - startTime));
 	}
     }
 
