@@ -86,10 +86,10 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
         timeout);
   }
 
-
   /* Stop the engine and flush filter buffer. */
   public void stop()
   {
+    m_requestFilter.stop();
     m_responseFilter.stop();
 
     // Close socket to stop engine.
