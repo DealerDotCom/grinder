@@ -53,7 +53,7 @@ public interface ScriptContext
      *
      * @return an <code>int</code> value
      */
-    public int getCurrentRunNumber();
+    public int getRunNumber();
 
     /**
      * Get an appropriate {@link net.grinder.Logger} implementation.

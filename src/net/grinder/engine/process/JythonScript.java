@@ -144,7 +144,7 @@ class JythonScript
 	    return -1;
 	}
 
-	public int getCurrentRunNumber()
+	public int getRunNumber()
 	{
 	    final ThreadContext threadContext =
 		ThreadContext.getThreadInstance();
