@@ -1,3 +1,8 @@
+2001-05-01  Philip Aston  <paston@bea.com>
+
+	* CHANGES, README, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java:
+	New HTTP plugin parameter, "timeIncludesTransaction".
+
 2001-04-22  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 2.6.1 is released.
