@@ -20,6 +20,8 @@ package net.grinder.communication;
 
 
 /**
+ * Default communication constants.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
