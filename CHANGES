@@ -1,3 +1,10 @@
+Grinder 3.0-beta3
+-----------------
+
+  Fix bug in wrapping code that broke the hello-world examples. Thanks
+  to Simon Cousins for finding this.
+
+
 Grinder 3.0-beta2
 -----------------
 
