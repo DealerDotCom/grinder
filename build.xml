@@ -67,7 +67,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <!-- what -->
     <property name="Name" value="Grinder"/>
     <property name="name" value="grinder"/>
-    <property name="version" value="0.8"/>
+    <property name="version" value="0.9"/>
     <property name="year" value="2000"/>
 
     <!--options-->
