@@ -429,7 +429,15 @@ introspection - the method names must begin with "test".
 junit.framework.TestSuite; this is a JUnit thing, so take any
 complaints there).
 
-Why would you want to do this? Three possible reasons spring to mind:
+You can also set
+
+    grinder.plugin.parameter.logStackTraces -
+				Set to true to produce stack traces
+				for failures and errors in the error
+				log.
+
+Why would you want to do use the JUnit plugin? Three possible reasons
+spring to mind:
 
  - To write a simple test case around arbitrary Java code, rather than
    defining a new Grinder plugin. This is the recommended way to
