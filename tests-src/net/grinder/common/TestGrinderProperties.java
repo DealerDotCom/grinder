@@ -48,6 +48,8 @@ public class TestGrinderProperties extends TestCase
     protected void setUp()
     {
 	m_emptyGrinderProperties = new GrinderProperties();
+	m_emptyGrinderProperties.setErrorWriter(
+	    m_logCounter.getErrorLogWriter());
 
 	m_prefixSet.put(s_prefix + "A string", "Some more text");
 	m_prefixSet.put(s_prefix + "An int", "9");
@@ -111,12 +113,14 @@ public class TestGrinderProperties extends TestCase
 
 	m_grinderProperties = new GrinderProperties();
 	m_grinderProperties.putAll(m_allSet);
+	m_grinderProperties.setErrorWriter(m_logCounter.getErrorLogWriter());
     }
 
     private final static String s_prefix = "prefix.";
 
     private GrinderProperties m_emptyGrinderProperties;
     private GrinderProperties m_grinderProperties;
+    private LogCounter m_logCounter = new LogCounter();
 
     private final Properties m_allSet = new Properties();
     private final Properties m_prefixSet = new Properties();
@@ -193,6 +197,8 @@ public class TestGrinderProperties extends TestCase
 	    }
 	 ).run();
 
+	final int oldErrorLines = m_logCounter.getNumberOfErrorLines();
+
 	(new IterateOverProperties(m_brokenIntSet) {
 		void match(String key, String value)
 		{
@@ -200,6 +206,9 @@ public class TestGrinderProperties extends TestCase
 		}
 	    }
 	 ).run();
+
+	assertEquals(oldErrorLines + m_brokenIntSet.size(),
+		     m_logCounter.getNumberOfErrorLines());
     }
 
     public void testGetMandatoryInt() throws Exception
@@ -247,6 +256,8 @@ public class TestGrinderProperties extends TestCase
 	    }
 	 ).run();
 
+	final int oldErrorLines = m_logCounter.getNumberOfErrorLines();
+
 	(new IterateOverProperties(m_brokenLongSet) {
 		void match(String key, String value)
 		{
@@ -254,6 +265,9 @@ public class TestGrinderProperties extends TestCase
 		}
 	    }
 	 ).run();
+
+	assertEquals(oldErrorLines + m_brokenLongSet.size(),
+		     m_logCounter.getNumberOfErrorLines());
     }
 
     public void testGetMandatoryLong() throws Exception
@@ -302,6 +316,8 @@ public class TestGrinderProperties extends TestCase
 	    }
 	 ).run();
 
+	final int oldErrorLines = m_logCounter.getNumberOfErrorLines();
+
 	(new IterateOverProperties(m_brokenShortSet) {
 		void match(String key, String value)
 		{
@@ -310,6 +326,9 @@ public class TestGrinderProperties extends TestCase
 		}
 	    }
 	 ).run();
+
+	assertEquals(oldErrorLines + m_brokenShortSet.size(),
+		     m_logCounter.getNumberOfErrorLines());
     }
 
     public void testGetMandatoryShort() throws Exception
@@ -357,6 +376,8 @@ public class TestGrinderProperties extends TestCase
 	    }
 	 ).run();
 
+	final int oldErrorLines = m_logCounter.getNumberOfErrorLines();
+
 	(new IterateOverProperties(m_brokenDoubleSet) {
 		void match(String key, String value)
 		{
@@ -366,6 +387,9 @@ public class TestGrinderProperties extends TestCase
 		}
 	    }
 	 ).run();
+
+	assertEquals(oldErrorLines + m_brokenDoubleSet.size(),
+		     m_logCounter.getNumberOfErrorLines());
     }
 
     public void testGetMandatoryDouble() throws Exception
@@ -424,7 +448,6 @@ public class TestGrinderProperties extends TestCase
 		}
 	    }
 	 ).run();
-
     }
 
     public void testGetMandatoryBoolean() throws Exception
@@ -451,6 +474,86 @@ public class TestGrinderProperties extends TestCase
 		    // If the key exists, the boolean will always
 		    // parse as false.
 		    assert(!m_grinderProperties.getMandatoryBoolean(key));
+		}
+	    }
+	 ).run();
+    }
+
+    public void testSetInt() throws Exception
+    {
+	final GrinderProperties properties = new GrinderProperties();
+	
+	(new IterateOverProperties(m_intSet) {
+		void match(String key, String value) throws Exception
+		{
+		    properties.setInt(key, Integer.parseInt(value));
+		    assertEquals(value,
+				 properties.getMandatoryProperty(key));
+		}
+	    }
+	 ).run();
+    }
+
+    public void testSetLong() throws Exception
+    {
+	final GrinderProperties properties = new GrinderProperties();
+	
+	(new IterateOverProperties(m_longSet) {
+		void match(String key, String value) throws Exception
+		{
+		    properties.setLong(key, Long.parseLong(value));
+		    assertEquals(value,
+				 properties.getMandatoryProperty(key));
+		}
+	    }
+	 ).run();
+    }
+
+    public void testSetShort() throws Exception
+    {
+	final GrinderProperties properties = new GrinderProperties();
+	
+	(new IterateOverProperties(m_shortSet) {
+		void match(String key, String value) throws Exception
+		{
+		    properties.setShort(key, Short.parseShort(value));
+		    assertEquals(value,
+				 properties.getMandatoryProperty(key));
+		}
+	    }
+	 ).run();
+    }
+
+    public void testSetDouble() throws Exception
+    {
+	final GrinderProperties properties = new GrinderProperties();
+	
+	(new IterateOverProperties(m_doubleSet) {
+		void match(String key, String value) throws Exception
+		{
+		    properties.setDouble(key, Double.parseDouble(value));
+		    assertEquals(Double.parseDouble(value),
+				 Double.parseDouble(
+				     properties.getMandatoryProperty(key)),
+				 0);
+		}
+	    }
+	 ).run();
+    }
+
+
+    public void testSetBoolean() throws Exception
+    {
+	final GrinderProperties properties = new GrinderProperties();
+	
+	(new IterateOverProperties(m_booleanSet) {
+		void match(String key, String value) throws Exception
+		{
+		    properties.setBoolean(key,
+					  Boolean.valueOf(value).
+					  booleanValue());
+		    assertEquals(new Boolean(value).toString(),
+				 properties.getMandatoryProperty(key));
 		}
 	    }
 	 ).run();

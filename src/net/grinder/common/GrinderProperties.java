@@ -18,6 +18,7 @@
 
 package net.grinder.common;
 
+import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -30,6 +31,16 @@ import java.util.Properties;
  */
 public class GrinderProperties extends Properties
 {
+    private PrintWriter m_errorWriter = new PrintWriter(System.err, true);
+
+    /**
+     * Set a writer to report warnings to.
+     **/
+    public void setErrorWriter(PrintWriter writer)
+    {
+	m_errorWriter = writer;
+    }
+
     public synchronized GrinderProperties getPropertySubset(String prefix)
     {
 	final GrinderProperties result = new GrinderProperties();
@@ -70,8 +81,8 @@ public class GrinderProperties extends Properties
 		return Integer.parseInt(s);
 	    }
 	    catch (NumberFormatException e) {
-		System.err.println("Warning, property '" + propertyName +
-				   "' does not specify an integer value");
+		m_errorWriter.println("Warning, property '" + propertyName +
+				      "' does not specify an integer value");
 	    }
 	}
 
@@ -97,6 +108,11 @@ public class GrinderProperties extends Properties
 	}
     }
 
+    public void setInt(String propertyName, int value)
+    {
+	setProperty(propertyName, Integer.toString(value));
+    }
+
     public long getLong(String propertyName, long defaultValue)
     {
 	final String s = getProperty(propertyName);
@@ -106,8 +122,8 @@ public class GrinderProperties extends Properties
 		return Long.parseLong(s);
 	    }
 	    catch (NumberFormatException e) {
-		System.err.println("Warning, property '" + propertyName +
-				   "' does not specify an integer value");
+		m_errorWriter.println("Warning, property '" + propertyName +
+				      "' does not specify an integer value");
 	    }
 	}
 
@@ -133,6 +149,11 @@ public class GrinderProperties extends Properties
 	}
     }
 
+    public void setLong(String propertyName, long value)
+    {
+	setProperty(propertyName, Long.toString(value));
+    }
+
     public short getShort(String propertyName, short defaultValue)
     {
 	final String s = getProperty(propertyName);
@@ -142,8 +163,8 @@ public class GrinderProperties extends Properties
 		return Short.parseShort(s);
 	    }
 	    catch (NumberFormatException e) {
-		System.err.println("Warning, property '" + propertyName +
-				   "' does not specify a short value");
+		m_errorWriter.println("Warning, property '" + propertyName +
+				      "' does not specify a short value");
 	    }
 	}
 
@@ -169,6 +190,28 @@ public class GrinderProperties extends Properties
 	}
     }
 
+    public void setShort(String propertyName, short value)
+    {
+	setProperty(propertyName, Short.toString(value));
+    }
+
+    public double getDouble(String propertyName, double defaultValue)
+    {
+	final String s = getProperty(propertyName);
+
+	if (s != null) {
+	    try {
+		return Double.parseDouble(s);
+	    }
+	    catch (NumberFormatException e) {
+		m_errorWriter.println("Warning, property '" + propertyName +
+				      "' does not specify a double value");
+	    }
+	}
+
+	return defaultValue;
+    }
+
     public double getMandatoryDouble(String propertyName)
 	throws GrinderException
     {
@@ -188,21 +231,9 @@ public class GrinderProperties extends Properties
 	}
     }
 
-    public double getDouble(String propertyName, double defaultValue)
+    public void setDouble(String propertyName, double value)
     {
-	final String s = getProperty(propertyName);
-
-	if (s != null) {
-	    try {
-		return Double.parseDouble(s);
-	    }
-	    catch (NumberFormatException e) {
-		System.err.println("Warning, property '" + propertyName +
-				   "' does not specify a double value");
-	    }
-	}
-
-	return defaultValue;
+	setProperty(propertyName, Double.toString(value));
     }
 
     public boolean getBoolean(String propertyName, boolean defaultValue)
@@ -227,5 +258,10 @@ public class GrinderProperties extends Properties
 	}
 
 	return Boolean.valueOf(s).booleanValue();
+    }
+
+    public void setBoolean(String propertyName, boolean value)
+    {
+	setProperty(propertyName, new Boolean(value).toString());
     }
 }
