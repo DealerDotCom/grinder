@@ -520,7 +520,61 @@ logTest = test1.wrap(log)
 
 <hr/>
 
-<h3><a name="jms">Java Message Service - Queue Sender</a></h3>
+<h3><a name="statistics">Accessing test statistics</a></h3>
+
+<blockquote>
+    <pre><span class="comment"># Examples of using The Grinder statistics API with standard
+# statistics.
+</span>
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+<span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
+
+log = grinder.logger.output
+logError = grinder.logger.error
+
+test1 = Test(1, &quot;<span class="string">Request resource</span>&quot;)
+request1 = test1.wrap(HTTPRequest())
+
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        statistics = grinder.statistics
+
+        <span class="comment"># Example 1. You can get the time of the last test as follows.
+</span>        result = request1.GET(&quot;<span class="string">http://localhost:7001/</span>&quot;)
+        log(&quot;<span class="string">The last test took %d milliseconds</span>&quot; % statistics.time)
+
+        
+        <span class="comment"># Example 2. Normally test results are reported automatically
+</span>        <span class="comment"># when the test returns. If you want to alter the statistics
+</span>        <span class="comment"># after a test has completed, you must disable the automatic
+</span>        <span class="comment"># reporting before performing the test. This only affects the
+</span>        <span class="comment"># current worker thread.        
+</span>        statistics.autoReport = 0
+
+        result = request1.GET(&quot;<span class="string">http://localhost:7001/</span>&quot;)
+
+        <span class="keyword">if</span> statistics.time &gt; 5:
+            <span class="comment"># We set success = 0 to mark the test as a failure. This
+</span>            <span class="comment"># discards the transaction time to comply with the
+</span>            <span class="comment"># convention of only recording time for successful tests,
+</span>            <span class="comment"># so lets log the actual time to the error log.
+</span>            logError(&quot;<span class="string">The last test took too long (%d milliseconds)</span>&quot; %
+                     statistics.time)
+            statistics.success = 0
+
+        <span class="comment"># If you set autoReport = 0 you must remember to call report()
+</span>        <span class="comment"># or the current statistics will not be sent until the thread
+</span>        <span class="comment"># begins the next test .        
+</span>        statistics.report()
+
+        <span class="comment"># Now we turn auto-reporting back on.
+</span>        statistics.autoReport = 1
+</pre>
+</blockquote>
+
+<hr/>
+
+<h3><a name="jms-sender">Java Message Service - Queue Sender</a></h3>
 
 <blockquote>
 <pre><span class="comment"># An example JMS sender.
@@ -596,13 +650,13 @@ session.close()
 
 <hr/>
 
-<h3><a name="jms">Java Message Service - Queue Receiver</a></h3>
+<h3><a name="jms-receiver">Java Message Service - Queue Receiver</a></h3>
 
 <blockquote>
 <pre><span class="comment"># An example JMS receiver.
 #
 # JMS objects are looked up and messages are created once during
-# initialisation. This default JNDI names are for the WebLogoic Server
+# initialisation. This default JNDI names are for the WebLogic Server
 # 7.0 examples domain - change accordingly.
 #
 # Each worker thread:
@@ -611,7 +665,7 @@ session.close()
 #  - Closes the queue session
 #
 # This script demonstrates the use of The Grinder statistics API to
-# record a &quot;delivery time&quot; statistic.
+# record a &quot;delivery time&quot; custom statistic.
 </span>
 <span class="keyword">from</span> java.lang <span class="keyword">import</span> System
 <span class="keyword">from</span> java.util <span class="keyword">import</span> Properties
@@ -663,16 +717,15 @@ grinder.registerSummaryStatisticsView(summaryView)
 <span class="comment"># We record each message receipt against a single test. The
 # transaction time is meaningless.
 </span><span class="keyword">def</span> <span class="function-name">recordDeliveryTime</span>(deliveryTime):
-    grinder.currentTestStatistics.addValue(deliveryTimeIndex, deliveryTime)
+    grinder.statistics.setValue(deliveryTimeIndex, deliveryTime)
 
 recordTest = Test(1, &quot;<span class="string">Receive messages</span>&quot;).wrap(recordDeliveryTime)
-        
-<span class="keyword">class</span> <span class="type">TestRunner</span>(MessageListener):
-    <span class="keyword">def</span> <span class="function-name">__init__</span>(self):
-        self.receivedMessages = 0
-        <span class="comment"># Use a Condition to synchronise thread activity.              
-</span>        self.cv = Condition()
 
+<span class="keyword">class</span> <span class="type">TestRunner</span>(MessageListener):
+
+    receivedMessages = 0    
+    cv = Condition()                    <span class="comment"># Used to synchronise thread activity.
+</span>
     <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
         log(&quot;<span class="string">Creating queue session and a receiver</span>&quot;)
         session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
@@ -680,7 +733,7 @@ recordTest = Test(1, &quot;<span class="string">Receive messages</span>&quot;).w
         receiver = session.createReceiver(queue)
         receiver.messageListener = self
 
-        <span class="comment"># Read ten messages from the queue.
+        <span class="comment"># Read 10 messages from the queue.
 </span>        <span class="keyword">for</span> i <span class="keyword">in</span> range(0, 10):
 
             <span class="comment"># Wait until we have received a message.            
@@ -689,19 +742,24 @@ recordTest = Test(1, &quot;<span class="string">Receive messages</span>&quot;).w
             self.receivedMessages -= 1
             self.cv.release()
 
-            log(&quot;<span class="string">Received message</span>&quot;)            
+            log(&quot;<span class="string">Received message</span>&quot;)
 
             <span class="comment"># We record the test a here rather than in onMessage
 </span>            <span class="comment"># because we must do so from a worker thread.
-</span>            recordTest(self.lastDeliveryTime)            
-            
+</span>            recordTest(self.lastDeliveryTime)
+
         log(&quot;<span class="string">Closing queue session</span>&quot;)
-        session.close()        
+        session.close()
+
+        <span class="comment"># Rather than over complicate things with explict message
+</span>        <span class="comment"># acknowledgement, we simply discard any additional messages
+</span>        <span class="comment"># we may have read.
+</span>        log(&quot;<span class="string">Received %d additional messages</span>&quot; % self.receivedMessages)
 
     <span class="comment"># Called asynchronously by JMS when a message arrives.
 </span>    <span class="keyword">def</span> <span class="function-name">onMessage</span>(self, message):
         self.cv.acquire()
-        
+
         self.receivedMessages += 1
 
         <span class="comment"># In WebLogic Server JMS, the JMS timestamp is set by the
