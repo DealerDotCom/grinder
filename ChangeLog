@@ -1,4 +1,130 @@
+2004-05-27  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/close-file-rollover.png, src/net/grinder/console/swingui/resources/close-file.png, src/net/grinder/console/swingui/resources/distribute-files-rollover.png, src/net/grinder/console/swingui/resources/distribute-files.png, src/net/grinder/console/swingui/resources/icons.xcf, src/net/grinder/console/swingui/resources/open-file-rollover.png, src/net/grinder/console/swingui/resources/open-file.png, src/net/grinder/console/swingui/resources/save-file-as-rollover.png, src/net/grinder/console/swingui/resources/save-file-as.png, src/net/grinder/console/swingui/resources/save-file-rollover.png, src/net/grinder/console/swingui/resources/save-file.png, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/swingui/FileTreeModel.java:
+	More UI changes for script editing.
+
+	* src/net/grinder/console/model/ConsoleProperties.java:
+	File("") is not a directory.
+
+	* src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/script-small.png, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/ScriptFilesPanel.java:
+	Tweaks to look and feel.
+
+	* src/net/grinder/console/swingui/FileTreeModel.java:
+	Nodes know their path.
+
+	* src/net/grinder/console/swingui/Editor.java:
+	Can now listen to an Editor.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	Rewire editor<->file tree listeners.
+
+	* tests-src/net/grinder/console/model/editor/TestBuffer.java, src/net/grinder/console/model/editor/Buffer.java:
+	Buffer can be deactivated.
+	Allow access to buffer's file.
+
+	* src/net/grinder/console/Console.java: Downgrade TODO.
+
+2004-05-26  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/AbstractSender.java: Insight.
+
+	* src/net/grinder/console/model/ConsoleProperties.java:
+	Don't need to check for differences, PropertyChangeSupport does that
+	for us.
+
+2004-05-25  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/ScriptFilesPanel.java:
+	Map "open-file" to double-click and the ENTER key press.
+
+	* src/net/grinder/console/swingui/Graph.java:
+	Remove redundant bounds check and field.
+
+	* src/net/grinder/console/model/editor/Buffer.java: Fix race condition.
+
+	* src/net/grinder/console/swingui/TeeAction.java, tests-src/net/grinder/console/swingui/TestTeeAction.java:
+	Composite Action which fans out events to two delegates.
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/Editor.java, src/net/grinder/console/swingui/FileTreeModel.java, src/net/grinder/console/swingui/ScriptFilesPanel.java:
+	Checkpoint UI changes.
+
+	* build.xml: Copy test resources.
+
+	* TODO: Changes to the plan.
+
+2004-05-24  Philip Aston  <philipa@mail.com>
+
+	* tests-src/TestResources.properties: Resources for TestResources.java.
+
+	* src/net/grinder/console/model/editor/Buffer.java, src/net/grinder/console/model/editor/TextSource.java, tests-src/net/grinder/console/model/editor/TestBuffer.java:
+	Buffers can now be notified when they become active. They delegate the
+	event to their TextSource.
+
+	* src/net/grinder/console/model/editor/EditorModel.java, tests-src/net/grinder/console/model/editor/TestEditorModel.java:
+	Unused.
+
+	* src/net/grinder/console/common/Resources.java: Checkstyle.
+
+2004-05-22  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/console/common/TestDisplayMessageConsoleException.java, tests-src/net/grinder/console/common/TestDisplayMessageConsoleException.properties, tests-src/net/grinder/console/common/TestResources.java, tests-src/net/grinder/console/common/TestResources.properties, tests-src/net/grinder/console/common/resources/helloworld.txt, tests-src/net/grinder/console/common/resources/image.png:
+	More tests.
+
+	* tests-src/net/grinder/common/LoggerStubFactory.java, tests-src/net/grinder/testutility/CountingPrintWriter.java:
+	Extract CountingPrintWriter.
+
+	* src/net/grinder/console/model/editor/EditorException.java:
+	Remove redundant constructor.
+
+	* src/net/grinder/console/common/Resources.java:
+	Allow error writer to be set.
+
+	* src/net/grinder/console/common/DisplayMessageConsoleException.java:
+	Fix case where resource doesn't exist.
+
+	* src/net/grinder/console/swingui/Editor.java:
+	Use appropriate token marker.
+
+	* src/net/grinder/console/swingui/FileTreeModel.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/Editor.java:
+	Use new editor model.
+
+	* tests-src/net/grinder/console/model/TestConsoleProperties.java, tests-src/net/grinder/console/model/editor/TestBuffer.java:
+	DisplayMessageConsoleException changes:
+	 - Take a Resources rather than referring to a singleton.
+	 - Remove default message.
+	 - Add support for MessageFormat style arguments.
+
+	* src/net/grinder/util/FileUtilities.java: Redundant.
+
+	* src/net/grinder/console/model/editor/Buffer.java:
+	Throw DisplayMessageConsoleExceptions for file errors.
+
+	* src/net/grinder/console/common/DisplayMessageConsoleException.java, src/net/grinder/console/common/Resources.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java:
+	DisplayMessageConsoleException changes:
+	 - Take a Resources rather than referring to a singleton.
+	 - Remove default message.
+	 - Add support for MessageFormat style arguments.
+
+2004-05-21  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/model/editor/Buffer.java, src/net/grinder/console/model/editor/EditorException.java, src/net/grinder/console/model/editor/EditorModel.java, src/net/grinder/console/model/editor/TextSource.java, src/net/grinder/console/model/editor/package.html, tests-src/net/grinder/console/model/editor/TestBuffer.java, tests-src/net/grinder/console/model/editor/TestEditorModel.java:
+	Buffer model.
+
+	* src/net/grinder/console/common/ConsoleException.java:
+	Support nested throwables.
+
 2004-05-18  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/Colours.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/FileTreeModel.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/util/FileUtilities.java:
+	Basic file selection.
+
+	* build.xml, tests-src/net/grinder/common/TestAbstractTestSemantics.java, tests-src/net/grinder/common/TestGrinderBuild.java, tests-src/net/grinder/common/TestGrinderProperties.java:
+	More test coverage.
+
+	* tests-src/net/grinder/testutility/AbstractFileTestCase.java:
+	setUp(), tearDown() should be protected.
+
+	* ChangeLog: *** empty log message ***
 
 	* src/net/grinder/common/GrinderProperties.java, tests-src/net/grinder/common/TestGrinderProperties.java:
 	Test coverage.
