@@ -2,8 +2,8 @@
 
 GRINDER_HOME=/src/grinder
 
-#GRINDER_JAR=${GRINDER_HOME}/lib/grinder.jar
-GRINDER_JAR=${GRINDER_HOME}/classes
+GRINDER_JAR=${GRINDER_HOME}/lib/grinder.jar
+#GRINDER_JAR=${GRINDER_HOME}/build/classes
 
 addToWindowsClasspath CLASSPATH \
     ${GRINDER_JAR} \
