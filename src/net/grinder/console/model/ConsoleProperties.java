@@ -284,12 +284,10 @@ public final class ConsoleProperties {
   }
 
   private void setCollectSampleCountInternal(int n) {
-    if (n != m_collectSampleCount) {
-      final int old = m_collectSampleCount;
-      m_collectSampleCount = n;
-      m_changeSupport.firePropertyChange(COLLECT_SAMPLES_PROPERTY,
-                                         old, m_collectSampleCount);
-    }
+    final int old = m_collectSampleCount;
+    m_collectSampleCount = n;
+    m_changeSupport.firePropertyChange(COLLECT_SAMPLES_PROPERTY,
+                                       old, m_collectSampleCount);
   }
 
   /**
@@ -318,12 +316,10 @@ public final class ConsoleProperties {
   }
 
   private void setIgnoreSampleCountInternal(int n) {
-    if (n != m_ignoreSampleCount) {
-      final int old = m_ignoreSampleCount;
-      m_ignoreSampleCount = n;
-      m_changeSupport.firePropertyChange(IGNORE_SAMPLES_PROPERTY,
-                                         old, m_ignoreSampleCount);
-    }
+    final int old = m_ignoreSampleCount;
+    m_ignoreSampleCount = n;
+    m_changeSupport.firePropertyChange(IGNORE_SAMPLES_PROPERTY,
+                                       old, m_ignoreSampleCount);
   }
 
   /**
@@ -352,12 +348,10 @@ public final class ConsoleProperties {
   }
 
   private void setSampleIntervalInternal(int interval) {
-    if (interval != m_sampleInterval) {
-      final int old = m_sampleInterval;
-      m_sampleInterval = interval;
-      m_changeSupport.firePropertyChange(SAMPLE_INTERVAL_PROPERTY,
-                                         old, m_sampleInterval);
-    }
+    final int old = m_sampleInterval;
+    m_sampleInterval = interval;
+    m_changeSupport.firePropertyChange(SAMPLE_INTERVAL_PROPERTY,
+                                       old, m_sampleInterval);
   }
 
   /**
@@ -386,12 +380,10 @@ public final class ConsoleProperties {
   }
 
   private void setSignificantFiguresInternal(int n) {
-    if (n != m_significantFigures) {
-      final int old = m_significantFigures;
-      m_significantFigures = n;
-      m_changeSupport.firePropertyChange(SIG_FIG_PROPERTY,
-                                         old, m_significantFigures);
-    }
+    final int old = m_significantFigures;
+    m_significantFigures = n;
+    m_changeSupport.firePropertyChange(SIG_FIG_PROPERTY,
+                                       old, m_significantFigures);
   }
 
   /**
@@ -436,12 +428,10 @@ public final class ConsoleProperties {
   }
 
   private void setConsoleHostInternal(String s) {
-    if (!s.equals(m_consoleHostString)) {
-      final String old = m_consoleHostString;
-      m_consoleHostString = s;
-      m_changeSupport.firePropertyChange(CONSOLE_HOST_PROPERTY,
-                                         old, m_consoleHostString);
-    }
+    final String old = m_consoleHostString;
+    m_consoleHostString = s;
+    m_changeSupport.firePropertyChange(CONSOLE_HOST_PROPERTY,
+                                       old, m_consoleHostString);
   }
 
   /**
@@ -466,12 +456,10 @@ public final class ConsoleProperties {
   }
 
   private void setConsolePortInternal(int i) {
-    if (i != m_consolePort) {
-      final int old = m_consolePort;
-      m_consolePort = i;
-      m_changeSupport.firePropertyChange(CONSOLE_PORT_PROPERTY,
-                                         old, m_consolePort);
-    }
+    final int old = m_consolePort;
+    m_consolePort = i;
+    m_changeSupport.firePropertyChange(CONSOLE_PORT_PROPERTY,
+                                       old, m_consolePort);
   }
 
   private void assertValidPort(int port)
@@ -508,13 +496,11 @@ public final class ConsoleProperties {
    */
   public void setResetConsoleWithProcesses(boolean b) {
 
-    if (b != m_resetConsoleWithProcesses) {
-      final boolean old = m_resetConsoleWithProcesses;
-      m_resetConsoleWithProcesses = b;
+    final boolean old = m_resetConsoleWithProcesses;
+    m_resetConsoleWithProcesses = b;
 
-      m_changeSupport.firePropertyChange(RESET_CONSOLE_WITH_PROCESSES_PROPERTY,
-                                         old, m_resetConsoleWithProcesses);
-    }
+    m_changeSupport.firePropertyChange(RESET_CONSOLE_WITH_PROCESSES_PROPERTY,
+                                       old, m_resetConsoleWithProcesses);
   }
 
   /**
@@ -544,14 +530,12 @@ public final class ConsoleProperties {
 
   private void setResetConsoleWithProcessesDontAskInternal(boolean b) {
 
-    if (b != m_resetConsoleWithProcessesDontAsk) {
-      final boolean old = m_resetConsoleWithProcessesDontAsk;
-      m_resetConsoleWithProcessesDontAsk = b;
+    final boolean old = m_resetConsoleWithProcessesDontAsk;
+    m_resetConsoleWithProcessesDontAsk = b;
 
-      m_changeSupport.firePropertyChange(
-        RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
-        old, m_resetConsoleWithProcessesDontAsk);
-    }
+    m_changeSupport.firePropertyChange(
+      RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
+      old, m_resetConsoleWithProcessesDontAsk);
   }
   /**
    * Get whether the user wants to be asked to confirm that processes
@@ -580,13 +564,11 @@ public final class ConsoleProperties {
 
   private void setStopProcessesDontAskInternal(boolean b) {
 
-    if (b != m_stopProcessesDontAsk) {
-      final boolean old = m_stopProcessesDontAsk;
-      m_stopProcessesDontAsk = b;
+    final boolean old = m_stopProcessesDontAsk;
+    m_stopProcessesDontAsk = b;
 
-      m_changeSupport.firePropertyChange(
-        STOP_PROCESSES_DONT_ASK_PROPERTY, old, m_stopProcessesDontAsk);
-    }
+    m_changeSupport.firePropertyChange(
+      STOP_PROCESSES_DONT_ASK_PROPERTY, old, m_stopProcessesDontAsk);
   }
 
   /**
@@ -606,12 +588,10 @@ public final class ConsoleProperties {
    */
   public void setScriptFile(File scriptFile) {
 
-    if (different(scriptFile, m_scriptFile)) {
-      final File old = m_scriptFile;
-      m_scriptFile = scriptFile;
-      m_changeSupport.firePropertyChange(
-        SCRIPT_FILE_PROPERTY, old, m_scriptFile);
-    }
+    final File old = m_scriptFile;
+    m_scriptFile = scriptFile;
+    m_changeSupport.firePropertyChange(
+      SCRIPT_FILE_PROPERTY, old, m_scriptFile);
   }
 
   /**
@@ -631,26 +611,23 @@ public final class ConsoleProperties {
    */
   public void setDistributionDirectory(File distributionDirectory) {
 
-    if (m_distributionDirectory == null ||
-        different(distributionDirectory, m_distributionDirectory)) {
-      final File old = m_distributionDirectory;
+    final File old = m_distributionDirectory;
 
-      if (distributionDirectory != null) {
-        m_distributionDirectory = distributionDirectory;
-      }
-      else {
-        try {
-          m_distributionDirectory = new File(".").getCanonicalFile();
-        }
-        catch (IOException e) {
-          // Oh well...
-          m_distributionDirectory = new File("");
-        }
-      }
-
-      m_changeSupport.firePropertyChange(
-        DISTRIBUTION_DIRECTORY_PROPERTY, old, m_distributionDirectory);
+    if (distributionDirectory != null) {
+      m_distributionDirectory = distributionDirectory;
     }
+    else {
+      try {
+        m_distributionDirectory = new File(".").getCanonicalFile();
+      }
+      catch (IOException e) {
+        // Oh well...
+        m_distributionDirectory = new File("");
+      }
+    }
+
+    m_changeSupport.firePropertyChange(
+      DISTRIBUTION_DIRECTORY_PROPERTY, old, m_distributionDirectory);
   }
 
   /**
@@ -671,17 +648,9 @@ public final class ConsoleProperties {
    */
   public void setLookAndFeel(String lookAndFeel) {
 
-    if (different(lookAndFeel, m_lookAndFeel)) {
-      final String old = m_lookAndFeel;
-      m_lookAndFeel = lookAndFeel;
-      m_changeSupport.firePropertyChange(LOOK_AND_FEEL_PROPERTY, old,
-                                         m_lookAndFeel);
-    }
-  }
-
-  private boolean different(Object o1, Object o2) {
-    return (o1 == null && o2 != null ||
-            o1 != null && o2 == null ||
-            o1 != null && !o1.equals(o2));
+    final String old = m_lookAndFeel;
+    m_lookAndFeel = lookAndFeel;
+    m_changeSupport.firePropertyChange(
+      LOOK_AND_FEEL_PROPERTY, old, m_lookAndFeel);
   }
 }
