@@ -25,13 +25,12 @@ import junit.swingui.TestRunner;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.common.TestImplementation;
-import net.grinder.statistics.StatisticsImplementation;
 
 
 /**
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 public class TestTestData extends TestCase
 {
     public static void main(String[] args)
@@ -54,7 +53,6 @@ public class TestTestData extends TestCase
 						 new GrinderProperties());
 	
 	final TestData testData = new TestData(test);
-
 	assertEquals(test, testData.getTest());
 	assertNotNull(testData.getStatistics());
     }
@@ -67,7 +65,6 @@ public class TestTestData extends TestCase
 	final Test test = new TestImplementation(-33, "", properties);
 
 	final TestData testData = new TestData(test);
-
 	assertEquals(test, testData.getTest());
 	assertNotNull(testData.getStatistics());
     }

@@ -18,6 +18,10 @@
 
 package net.grinder.util;
 
+import junit.framework.TestCase;
+import junit.swingui.TestRunner;
+//import junit.textui.TestRunner;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,12 +29,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
 
-import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
-
 
 /**
+ * Unit test case for {@link Serialiser}.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -48,7 +50,7 @@ public class TestSerialiser extends TestCase
 
     private final Random m_random = new Random();
 
-    public void testUnsignedLongSerialiser() throws Exception
+    public void testUnsignedLongs() throws Exception
     {
 	final ByteArrayOutputStream byteArrayOutputStream =
 	    new ByteArrayOutputStream();
@@ -90,6 +92,88 @@ public class TestSerialiser extends TestCase
 	for (int i=0; i<longs.length; i++) {
 	    assertEquals(longs[i],
 			 serialiser.readUnsignedLong(objectInputStream));
+	}
+    }
+
+    public void testLongs() throws Exception
+    {
+	final ByteArrayOutputStream byteArrayOutputStream =
+	    new ByteArrayOutputStream();
+
+	final ObjectOutputStream objectOutputStream =
+	    new ObjectOutputStream(byteArrayOutputStream);
+
+	final long[] longs = new long[3002];
+
+	final Serialiser serialiser = new Serialiser();
+
+	for (int i=0; i<longs.length; i++) {
+	    if (i < 1000) {
+		longs[i] = i;
+	    }
+	    else if (i <2000) {
+		longs[i] = i - 2000;
+	    }
+	    else {
+		longs[i] = m_random.nextLong();
+	    }
+
+	    longs[3000] = Long.MIN_VALUE;
+	    longs[3001] = Long.MAX_VALUE;
+
+	    serialiser.writeLong(objectOutputStream, longs[i]);
+	}
+
+	objectOutputStream.close();
+
+	final byte[] bytes = byteArrayOutputStream.toByteArray();
+
+	assert("We should compress", bytes.length < 8 * longs.length);
+
+	final ObjectInputStream objectInputStream =
+	    new ObjectInputStream(new ByteArrayInputStream(bytes));
+
+	for (int i=0; i<longs.length; i++) {
+	    assertEquals(longs[i], serialiser.readLong(objectInputStream));
+	}
+    }
+
+    public void testDoubles() throws Exception
+    {
+	final ByteArrayOutputStream byteArrayOutputStream =
+	    new ByteArrayOutputStream();
+
+	final ObjectOutputStream objectOutputStream =
+	    new ObjectOutputStream(byteArrayOutputStream);
+
+	final double[] doubles = new double[10000];
+
+	final Serialiser serialiser = new Serialiser();
+
+	for (int i=0; i<doubles.length; i++) {
+	    if (i < 1000) {
+		doubles[i] = i;
+	    }
+	    else {
+		doubles[i] = m_random.nextDouble();
+	    }
+
+	    serialiser.writeDouble(objectOutputStream, doubles[i]);
+	}
+
+	objectOutputStream.close();
+
+	final byte[] bytes = byteArrayOutputStream.toByteArray();
+
+	// To do, make this work.
+	//assert("We should compress", bytes.length < 8 * doubles.length);
+
+	final ObjectInputStream objectInputStream =
+	    new ObjectInputStream(new ByteArrayInputStream(bytes));
+
+	for (int i=0; i<doubles.length; i++) {
+	    assertEquals(doubles[i], serialiser.readDouble(objectInputStream),
+			 0.00001);
 	}
     }
 }

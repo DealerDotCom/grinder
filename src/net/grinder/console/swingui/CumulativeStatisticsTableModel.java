@@ -18,45 +18,36 @@
 
 package net.grinder.console.swingui;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.text.NumberFormat;
-import javax.swing.table.AbstractTableModel;
-
-import net.grinder.console.model.Model;
-import net.grinder.console.model.ModelListener;
-import net.grinder.statistics.CumulativeStatistics;
-
 import net.grinder.console.common.ConsoleException;
+import net.grinder.console.model.Model;
+import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
  * @author Philip Aston
  * @version $Revision$
  */
-class CumulativeStatisticsTableModel extends AbstractStatisticsTableModel
+final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel
 {
     private final boolean m_includeTotals;
     private final String m_totalString;
 
-    private static final String[] s_columnTitleResourceNames = {
-	"table.testColumn.label",
-	"table.descriptionColumn.label",
-	"table.transactionColumn.label",
-	"table.errorColumn.label",
-	"table.averageTimeColumn.label",
-	"table.tpsColumn.label",
-	"table.peakTPSColumn.label",
-    };
-
-    public CumulativeStatisticsTableModel(Model model, boolean includeTotals,
-					  Resources resources)
+    public CumulativeStatisticsTableModel(Model model, Resources resources,
+					  boolean includeTotals)
 	throws ConsoleException
     {
-	super(model, resources, s_columnTitleResourceNames);
+	super(model, resources, false);
 
 	m_includeTotals = includeTotals;
 	m_totalString = resources.getString("table.total.label");
+
+	addColumns(model.getCumulativeStatisticsView());
+    }
+
+    protected final TestStatistics getStatistics(int row)
+    {
+	return getModel().getCumulativeStatistics(row);
     }
 
     public int getRowCount()
@@ -66,25 +57,14 @@ class CumulativeStatisticsTableModel extends AbstractStatisticsTableModel
 
     public synchronized Object getValueAt(int row, int column)
     {
-	if (isModelInvalid()) {
-	    return "";
+	final Model model = getModel();
+
+	if (row < model.getNumberOfTests()) {
+	    return super.getValueAt(row, column);
 	}
 	else {
-	    final Model model = getModel();
-
-	    if (row < model.getNumberOfTests()) {
-		if (column == 0) {
-		    return getTestString() + model.getTest(row).getNumber();
-		}
-		else if (column == 1) {
-		    return model.getTest(row).getDescription();
-		}
-		else
-		{
-		    return
-			getStatisticsField(
-			    model.getCumulativeStatistics(row), column);
-		}
+	    if (isModelInvalid()) {
+		return "";
 	    }
 	    else {
 		if (column == 0) {
@@ -94,63 +74,46 @@ class CumulativeStatisticsTableModel extends AbstractStatisticsTableModel
 		    return "";
 		}
 		else {
-		    return
-			getStatisticsField(
-			    model.getTotalCumulativeStatistics(), column);
+		    return getDynamicField(
+			model.getTotalCumulativeStatistics(), column - 2);
 		}
 	    }
 	}
     }
 
-    private String getStatisticsField(CumulativeStatistics statistics,
-				      int column)
-    {
-	switch (column) {
-	case 2:
-	    return String.valueOf(statistics.getTransactions());
-
-	case 3:
-	    return String.valueOf(statistics.getErrors());
-
-	case 4:
-	    final double average = statistics.getAverageTransactionTime();
-
-	    if (Double.isNaN(average)) {
-		return "";
-	    }
-	    else {
-		return getNumberFormat().format(average);
-	    }
-
-	case 5:
-	    return getNumberFormat().format(statistics.getTPS());
-
-	case 6:
-	    return getNumberFormat().format(statistics.getPeakTPS());
-
-	default:
-	    return "?";
-	}
-    }
-
     public boolean isBold(int row, int column) 
     {
-	return row >= getModel().getNumberOfTests() || isRed(row, column);
+	if (row < getModel().getNumberOfTests()) {
+	    return super.isBold(row, column);
+	}
+	else {
+	    return true;
+	}
     }
 
     public boolean isRed(int row, int column)
     {
 	final Model model = getModel();
 
-	if (column == 3) {
-	    if (row < model.getNumberOfTests()) {
-		return model.getCumulativeStatistics(row).getErrors() > 0;
-	    }
-	    else {
-		return model.getTotalCumulativeStatistics().getErrors() > 0;
-	    }
+	if (row < model.getNumberOfTests()) {
+	    return super.isRed(row, column);
 	}
+	else {
+	    return
+		column == 3 &&
+		model.getTotalCumulativeStatistics().getErrors() > 0;
+	}
+    }
 
-	return false;
+    /**
+     * {@link net.grinder.console.model.ModelListener} interface. New
+     * <code>StatisticsView</code>s have been added. We need do
+     * nothing
+     **/
+    public synchronized void newStatisticsViews(
+	StatisticsView intervalStatisticsView,
+	StatisticsView cumulativeStatisticsView)
+    {
+	addColumns(cumulativeStatisticsView);
     }
 }

@@ -21,14 +21,19 @@ package net.grinder.console;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
+import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.swingui.ConsoleUI;
+import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -120,8 +125,17 @@ public class Console
 	    }
 	    
 	    if (message instanceof ReportStatisticsMessage) {
-		m_model.add(
+		m_model.addTestReport(
 		    ((ReportStatisticsMessage)message).getStatisticsDelta());
+	    }
+	    
+	    if (message instanceof RegisterStatisticsViewMessage) {
+		final StatisticsView statisticsView =
+		    ((RegisterStatisticsViewMessage)message)
+		    .getStatisticsView();
+
+		m_model.registerStatisticsViews(statisticsView,
+						statisticsView);
 	    }
         } 
     }

@@ -76,8 +76,9 @@ import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
-import net.grinder.statistics.CumulativeStatistics;
-import net.grinder.statistics.IntervalStatistics;
+import net.grinder.statistics.StatisticExpression;
+import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -138,7 +139,9 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 
 	final LabelledGraph totalGraph =
 	    new LabelledGraph(m_resources.getString("totalGraph.title"),
-			      m_resources, Color.darkGray);
+			      m_resources, Color.darkGray,
+			      m_model.getTPSExpression(),
+			      m_model.getPeakTPSExpression());
 
 	final JLabel tpsLabel = new JLabel();
 	tpsLabel.setForeground(Color.black);
@@ -149,12 +152,14 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 		private final String m_suffix =
 		    " " + m_resources.getString("tps.units");
 
-		public void update(IntervalStatistics intervalStatistics,
-				   CumulativeStatistics cumulativeStatistics) {
+		public void update(TestStatistics intervalStatistics,
+				   TestStatistics cumulativeStatistics) {
 		    final NumberFormat format = m_model.getNumberFormat();
 		    
 		    tpsLabel.setText(
-			format.format(intervalStatistics.getTPS()) + m_suffix);
+			format.format(m_model.getTPSExpression().
+				      getDoubleValue(intervalStatistics)) +
+			m_suffix);
 
 		    totalGraph.add(intervalStatistics, cumulativeStatistics,
 				   format);
@@ -206,7 +211,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 			  m_resources.getString("graphTab.tip"));
 
 	final CumulativeStatisticsTableModel cumulativeModel =
-	    new CumulativeStatisticsTableModel(model, true, m_resources);
+	    new CumulativeStatisticsTableModel(model, m_resources, true);
 
 	tabbedPane.addTab(m_resources.getString("cumulativeTableTab.title"),
 			  m_resources.getImageIcon("cumulativeTableTab.image"),
@@ -393,7 +398,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
     }
 
     /**
-     * {@link ModelListener} interface. The test set has probably
+     * {@link net.grinder.console.model.ModelListener} interface. The test set has probably
      * changed. We need do nothing
      **/
     public void reset(Set newTests)
@@ -401,7 +406,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
     }
 
     /**
-     * {@link ModelListener} interface.
+     * {@link net.grinder.console.model.ModelListener} interface.
      **/
     public void update()
     {
@@ -410,6 +415,16 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 	if (state == Model.STATE_STOPPED) {
 	    m_stopAction.stopped();
 	}
+    }
+
+    /**
+     * {@link net.grinder.console.model.ModelListener} interface. New
+     * <code>StatisticsView</code>s have been added. We need do
+     * nothing
+     **/
+    public void newStatisticsViews(StatisticsView intervalStatisticsView,
+				   StatisticsView cumulativeStatisticsView)
+    {
     }
 
     private static final class WindowCloseAdapter extends WindowAdapter
@@ -526,8 +541,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 
 		    final CumulativeStatisticsTableModel model =
 			new CumulativeStatisticsTableModel(m_model,
-							   false,
-							   m_resources);
+							   m_resources, false);
 		    model.update();
 
 		    try {

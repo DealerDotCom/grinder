@@ -34,9 +34,14 @@ import java.util.TreeSet;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.console.common.ConsoleException;
-import net.grinder.statistics.CumulativeStatistics;
-import net.grinder.statistics.IntervalStatistics;
-import net.grinder.statistics.StatisticsImplementation;
+import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.PeakStatisticExpression;
+import net.grinder.statistics.StatisticExpression;
+import net.grinder.statistics.StatisticExpressionFactory;
+import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatistics;
+import net.grinder.statistics.TestStatisticsFactory;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.SignificantFigureFormat;
 
@@ -71,6 +76,9 @@ public class Model
     private long m_startTime;
     private long m_stopTime;
 
+    private final TestStatisticsFactory m_testStatisticsFactory =
+	TestStatisticsFactory.getInstance();
+
     /**
      * The current test set. A TreeSet is used to maintain the test
      * order.
@@ -102,6 +110,16 @@ public class Model
     private boolean m_receivedReport = false;
     private final List m_modelListeners = new LinkedList();
 
+    private final StatisticsIndexMap.LongIndex m_periodIndex;
+    private final StatisticExpression m_tpsExpression;
+    private final ExpressionView m_tpsExpressionView;
+    private final PeakStatisticExpression m_peakTPSExpression;
+    private final ExpressionView m_peakTPSExpressionView;
+    private final StatisticsView m_intervalStatisticsView =
+	new StatisticsView();
+    private final StatisticsView m_cumulativeStatisticsView =
+	new StatisticsView();
+
     /**
      * System.currentTimeMillis is expensive. This is acurate to one
      * sample period.
@@ -110,6 +128,38 @@ public class Model
 
     public Model(ConsoleProperties properties) throws GrinderException
     {
+	final StatisticExpressionFactory statisticExpressionFactory =
+	    StatisticExpressionFactory.getInstance();
+
+	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
+
+	m_periodIndex = indexMap.getIndexForLong("period");
+
+	m_tpsExpression =
+	    statisticExpressionFactory.createExpression(
+		"(* 1000 (/ (+ untimedTransactions timedTransactions) period))"
+		);
+	
+	m_tpsExpressionView =
+	    new ExpressionView("TPS", "statistic.tps", m_tpsExpression);
+
+	m_peakTPSExpression =
+	    statisticExpressionFactory.createPeak(
+		indexMap.getIndexForDouble("peakTPS"), m_tpsExpression);
+	
+	m_peakTPSExpressionView =
+	    new ExpressionView("Peak TPS", "statistic.peakTPS",
+			       m_peakTPSExpression);
+
+	m_intervalStatisticsView.add(
+	    m_testStatisticsFactory.getStatisticsView());
+	m_intervalStatisticsView.add(m_tpsExpressionView);
+
+	m_cumulativeStatisticsView.add(
+	    m_testStatisticsFactory.getStatisticsView());
+	m_cumulativeStatisticsView.add(m_tpsExpressionView);
+	m_cumulativeStatisticsView.add(m_peakTPSExpressionView);
+
 	m_properties = properties;
 
 	m_sampleInterval = m_properties.getSampleInterval();
@@ -138,12 +188,30 @@ public class Model
 	    ConsoleProperties.SAMPLE_INTERVAL_PROPERTY,
 	    new PropertyChangeListener() {
 		public void propertyChange(PropertyChangeEvent event) {
-		    // Should really wait until the next sample boundary before
-		    // changing sample interval.
 		    m_sampleInterval =
 			((Integer)event.getNewValue()).intValue();
 		}
 	    });
+    }
+
+    public ExpressionView getTPSExpressionView()
+    {
+	return m_tpsExpressionView;
+    }
+
+    public StatisticExpression getTPSExpression()
+    {
+	return m_tpsExpression;
+    }
+
+    public ExpressionView getPeakTPSExpressionView()
+    {
+	return m_peakTPSExpressionView;
+    }
+
+    public StatisticExpression getPeakTPSExpression()
+    {
+	return m_peakTPSExpression;
     }
 
     public synchronized void registerTests(Set tests)
@@ -181,6 +249,16 @@ public class Model
 	}
     }
 
+    public void registerStatisticsViews(
+	StatisticsView intervalStatisticsView,
+	StatisticsView cumulativeStatisticsView)
+    {
+	m_intervalStatisticsView.add(intervalStatisticsView);
+	m_cumulativeStatisticsView.add(cumulativeStatisticsView);
+
+	fireModelNewViews(intervalStatisticsView, cumulativeStatisticsView);
+    }
+
     /**
      * See note on sychronisation in {@link Model} class
      * description. 
@@ -208,15 +286,15 @@ public class Model
      * description. 
      * @throws IllegalStateException if called when model structure is changing.
      **/
-    public CumulativeStatistics getCumulativeStatistics(int testIndex)
+    public TestStatistics getCumulativeStatistics(int testIndex)
     {
 	assertIndiciesValid();
-	return m_accumulatorArray[testIndex];
+	return m_accumulatorArray[testIndex].getCumulativeStatistics();
     }
 
-    public CumulativeStatistics getTotalCumulativeStatistics()
+    public TestStatistics getTotalCumulativeStatistics()
     {
-	return m_totalSampleAccumulator;
+	return m_totalSampleAccumulator.getCumulativeStatistics();
     }
 
     /**
@@ -224,10 +302,20 @@ public class Model
      * description. 
      * @throws IllegalStateException if called when model structure is changing.
      **/
-    public IntervalStatistics getLastSampleStatistics(int testIndex)
+    public TestStatistics getLastSampleStatistics(int testIndex)
     {
 	assertIndiciesValid();
 	return m_accumulatorArray[testIndex].getLastSampleStatistics();
+    }
+
+    public final StatisticsView getCumulativeStatisticsView()
+    {
+	return m_cumulativeStatisticsView;
+    }
+
+    public final StatisticsView getIntervalStatisticsView()
+    {
+	return m_intervalStatisticsView;
     }
 
     public synchronized void addModelListener(ModelListener listener)
@@ -273,6 +361,19 @@ public class Model
 	}
     }
 
+    private synchronized void fireModelNewViews(
+	StatisticsView intervalStatisticsView,
+	StatisticsView cumulativeStatisticsView)
+    {
+	final Iterator iterator = m_modelListeners.iterator();
+
+	while (iterator.hasNext()) {
+	    final ModelListener listener = (ModelListener)iterator.next();
+	    listener.newStatisticsViews(intervalStatisticsView,
+					cumulativeStatisticsView);
+	}
+    }
+
     public void start()
     {
 	setState(STATE_WAITING_FOR_TRIGGER);
@@ -285,7 +386,7 @@ public class Model
 	fireModelUpdate();
     }
 
-    public void add(TestStatisticsMap testStatisticsMap)
+    public void addTestReport(TestStatisticsMap testStatisticsMap)
 	throws ConsoleException
     {
 	m_receivedReport = true;
@@ -297,8 +398,7 @@ public class Model
 	    while (iterator.hasNext()) {
 		final TestStatisticsMap.Pair pair = iterator.next();
 
-		final StatisticsImplementation statistics =
-		    pair.getStatistics();
+		final TestStatistics statistics = pair.getStatistics();
 
 		final SampleAccumulator sampleAccumulator =
 		    (SampleAccumulator)m_accumulators.get(pair.getTest());
@@ -315,25 +415,16 @@ public class Model
 	}
     }
 
-    private class IntervalStatisticsImplementation
-	extends StatisticsImplementation implements IntervalStatistics
-    {
-	public synchronized double getTPS()
-	{
-	    return 1000d*getTransactions()/(double)m_sampleInterval;
-	}
-    }
-
-    private class SampleAccumulator implements CumulativeStatistics
+    private class SampleAccumulator
     {
 	private final List m_listeners = new LinkedList();
-	private IntervalStatisticsImplementation m_intervalStatistics =
-	    new IntervalStatisticsImplementation();
-	private IntervalStatistics m_lastSampleStatistics =
-	    new IntervalStatisticsImplementation();
-	private StatisticsImplementation m_total;
-	private double m_tps;
-	private double m_peakTPS;
+
+	private TestStatistics m_intervalStatistics =
+	    m_testStatisticsFactory.create();
+	private TestStatistics m_lastSampleStatistics =
+	    m_testStatisticsFactory.create();
+	private TestStatistics m_cumulativeStatistics =
+	    m_testStatisticsFactory.create();
 	
 	{
 	    reset();
@@ -344,75 +435,53 @@ public class Model
 	    m_listeners.add(listener);
 	}
 
-	private void add(StatisticsImplementation report)
+	private void add(TestStatistics report)
 	{
 	    m_intervalStatistics.add(report);
-	    m_total.add(report);
+	    m_cumulativeStatistics.add(report);
 	}
 
 	private synchronized void fireSample()
 	{
-	    final double tps = m_intervalStatistics.getTPS();
+	    m_intervalStatistics.setValue(m_periodIndex, m_sampleInterval);
 
-	    if (tps > m_peakTPS) {
-		m_peakTPS = tps;
-	    }
+	    m_cumulativeStatistics.setValue(m_periodIndex, 
+			     (getState() == STATE_STOPPED ?
+			      m_stopTime : m_currentTime) - m_startTime);
 
-	    final double totalTime =
-		(getState() == STATE_STOPPED ? m_stopTime : m_currentTime) -
-		m_startTime;
-
-	    m_tps = 1000d * m_total.getTransactions()/totalTime;
+	    m_peakTPSExpression.update(m_intervalStatistics,
+				       m_cumulativeStatistics);
 
 	    final Iterator iterator = m_listeners.iterator();
 
 	    while (iterator.hasNext()) {
 		final SampleListener listener =
 		    (SampleListener)iterator.next();
-		listener.update(m_intervalStatistics, this);
+		listener.update(m_intervalStatistics, m_cumulativeStatistics);
 	    }
 
 	    m_lastSampleStatistics = m_intervalStatistics;
-	    m_intervalStatistics = new IntervalStatisticsImplementation();
+
+	    // We create new statistics each time to ensure that
+	    // m_lastSampleStatistics is always valid and fixed.
+	    m_intervalStatistics = m_testStatisticsFactory.create();
 	}
 
 	private void reset()
 	{
-	    m_intervalStatistics = new IntervalStatisticsImplementation();
-	    m_lastSampleStatistics = new IntervalStatisticsImplementation();
-	    m_tps = 0;
-	    m_peakTPS = 0;
-	    m_total = new StatisticsImplementation();
+	    m_intervalStatistics.reset();
+	    m_lastSampleStatistics.reset();
+	    m_cumulativeStatistics.reset();
 	}
 
-	public double getAverageTransactionTime()
-	{
-	    return m_total.getAverageTransactionTime();
-	}
-
-	public long getTransactions()
-	{
-	    return m_total.getTransactions();
-	}
-
-	public long getErrors()
-	{
-	    return m_total.getErrors();
-	}
-
-	public double getTPS()
-	{
-	    return m_tps;
-	}
-
-	public double getPeakTPS()
-	{
-	    return m_peakTPS;
-	}
-
-	public IntervalStatistics getLastSampleStatistics()
+	private TestStatistics getLastSampleStatistics()
 	{
 	    return m_lastSampleStatistics;
+	}
+
+	private TestStatistics getCumulativeStatistics()
+	{
+	    return m_cumulativeStatistics;
 	}
     }
 

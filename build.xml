@@ -248,7 +248,8 @@ conditionally built modules are:
 	   classpath="${build.classes}"
            debug="${debug}"
            optimize="${optimize}"
-	   deprecation="${deprecation}"/>
+	   deprecation="${deprecation}">
+    </javac>
   </target>
 
 
@@ -351,11 +352,17 @@ conditionally built modules are:
   <target name="distribution-hierarchy" depends="compile,jar">
 
     <copy todir="${dist.dir}/${src.dir}" filtering="on">
-      <fileset dir="${src.dir}"/>
+      <fileset dir="${src.dir}">
+	<exclude name="TAGS"/>
+	<exclude name="**/.xvpics/**"/>
+      </fileset>
     </copy>
 
     <copy todir="${dist.dir}/${tests.src.dir}" filtering="on">
-      <fileset dir="${tests.src.dir}"/>
+      <fileset dir="${tests.src.dir}">
+	<exclude name="TAGS"/>
+	<exclude name="**/.xvpics/**"/>
+      </fileset>
     </copy>
 
     <copy todir="${dist.dir}/${webapps.dir}" filtering="on">

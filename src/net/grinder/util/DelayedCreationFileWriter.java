@@ -30,7 +30,7 @@ import java.io.IOException;
  *
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 public class DelayedCreationFileWriter extends Writer
 {
     private final File m_file;

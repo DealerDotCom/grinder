@@ -18,99 +18,40 @@
 
 package net.grinder.console.swingui;
 
-import java.io.IOException;
-import java.io.Writer;
-import java.text.NumberFormat;
-import javax.swing.table.AbstractTableModel;
-
-import net.grinder.console.model.Model;
-import net.grinder.console.model.ModelListener;
-import net.grinder.statistics.IntervalStatistics;
-
 import net.grinder.console.common.ConsoleException;
+import net.grinder.console.model.Model;
+import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
  * @author Philip Aston
  * @version $Revision$
  */
-class SampleStatisticsTableModel extends AbstractStatisticsTableModel
+final class SampleStatisticsTableModel extends DynamicStatisticsTableModel
 {
-    private static final String[] s_columnTitleResourceNames = {
-	"table.testColumn.label",
-	"table.descriptionColumn.label",
-	"table.transactionColumn.label",
-	"table.errorColumn.label",
-	"table.averageTimeColumn.label",
-	"table.tpsColumn.label"
-    };
-
     public SampleStatisticsTableModel(Model model, Resources resources)
 	throws ConsoleException
     {
-	super(model, resources, s_columnTitleResourceNames);
+	super(model, resources, true);
+
+	addColumns(model.getIntervalStatisticsView());
     }
 
-    public synchronized Object getValueAt(int row, int column)
+    protected final TestStatistics getStatistics(int row)
     {
-	if (isModelInvalid()) {
-	    return "";
-	}
-	else {
-	    final Model model = getModel();
-
-	    if (column == 0) {
-		return getTestString() + model.getTest(row).getNumber();
-	    }
-	    else if (column == 1) {
-		return model.getTest(row).getDescription();
-	    }
-	    else {
-		return getStatisticsField(model.getLastSampleStatistics(row),
-					  column);
-	    }
-	}
+	return getModel().getLastSampleStatistics(row);
     }
 
-    private String getStatisticsField(IntervalStatistics statistics,
-				      int column)
+    /**
+     * {@link net.grinder.console.model.ModelListener} interface. New
+     * <code>StatisticsView</code>s have been added. We need do
+     * nothing
+     **/
+    public synchronized void newStatisticsViews(
+	StatisticsView intervalStatisticsView,
+	StatisticsView cumulativeStatisticsView)
     {
-	switch (column) {
-	case 2:
-	    return String.valueOf(statistics.getTransactions());
-
-	case 3:
-	    return String.valueOf(statistics.getErrors());
-
-	case 4:
-	    final double average = statistics.getAverageTransactionTime();
-
-	    if (Double.isNaN(average)) {
-		return "";
-	    }
-	    else {
-		return getNumberFormat().format(average);
-	    }
-
-	case 5:
-	    return getNumberFormat().format(statistics.getTPS());
-
-	default:
-	    return "?";
-	}
-    }
-
-    public boolean isBold(int row, int column) 
-    {
-	return isRed(row, column);
-    }
-
-    public boolean isRed(int row, int column)
-    {
-	if (column == 3) {
-	    return getModel().getLastSampleStatistics(row).getErrors() > 0;
-	}
-
-	return false;
+	addColumns(cumulativeStatisticsView);
     }
 }

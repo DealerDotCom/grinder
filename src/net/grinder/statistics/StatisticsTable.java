@@ -22,7 +22,9 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
+import net.grinder.util.FixedWidthFormatter;
 
 
 /**
@@ -33,55 +35,112 @@ import net.grinder.common.Test;
  */
 public class StatisticsTable
 {
+    /**
+     * @supplierCardinality 1
+     **/
     private final TestStatisticsMap m_testStatisticsMap;
-    private final Statistics m_totals;
+
+    /**
+     * @clientRole totals 
+     * @supplierCardinality 1
+     * @link aggregation
+     **/
+    private final RawStatistics m_totals;
     private final DecimalFormat m_twoDPFormat = new DecimalFormat("0.00");
+    private final int m_columnWidth = 12;
+    private final String m_columnSeparator = " ";
+
+    private final FixedWidthFormatter m_headingFormatter =
+	new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
+				FixedWidthFormatter.FLOW_WORD_WRAP,
+				m_columnWidth);
+
+    private final FixedWidthFormatter m_rowLabelFormatter =
+	new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
+				FixedWidthFormatter.FLOW_TRUNCATE,
+				m_columnWidth);
+
+    private final FixedWidthFormatter m_rowCellFormatter =
+	new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
+				FixedWidthFormatter.FLOW_TRUNCATE,
+				m_columnWidth);
+
+    /**
+     * @supplierCardinality 1
+     **/
+    private final StatisticsView m_statisticsView;
     
-    public StatisticsTable(TestStatisticsMap testStatisticsMap)
+    public StatisticsTable(StatisticsView statisticsView,
+			   TestStatisticsMap testStatisticsMap)
     {
+	m_statisticsView = statisticsView;
 	m_testStatisticsMap = testStatisticsMap;
+
 	m_totals = m_testStatisticsMap.getTotal();
     }
 
-    public void print(PrintStream out)
+    public final void print(PrintStream out) throws GrinderException
     {
 	final PrintWriter writer = new PrintWriter(out);
 	print(writer);
 	writer.flush();
     }
 
-    public void print(PrintWriter out)
+    public final void print(PrintWriter out) throws GrinderException
     {
-	final String blankField = formatField("");
+	final ExpressionView[] expressionViews =
+	    m_statisticsView.getExpressionViews();
 
-	final StringBuffer heading1 = new StringBuffer();
-	heading1.append(blankField);
-	heading1.append(formatField("Successful"));
-	heading1.append(blankField);
-	heading1.append(blankField);
-	heading1.append(blankField);
-	heading1.append(blankField);
-	
-	out.println(heading1.toString());
+	final int numberOfHeaderColumns = expressionViews.length + 1;
 
-	final StringBuffer heading2 = new StringBuffer();
-	heading2.append(blankField);
-	heading2.append(formatField("Transactions"));
-	heading2.append(formatField("Errors"));
-	heading2.append(formatField("Average (ms)"));
-	
-	out.println(heading2.toString());
+	StringBuffer[] cells = new StringBuffer[numberOfHeaderColumns];
+	StringBuffer[] remainders = new StringBuffer[numberOfHeaderColumns];
+
+	for (int i=0; i<numberOfHeaderColumns; i++) {
+	    cells[i] = new StringBuffer(
+		i == 0 ? "" : expressionViews[i-1].getDisplayName());
+
+	    remainders[i] = new StringBuffer();
+	}
+
+	boolean wrapped = false;
+
+	do {
+	    wrapped = false;
+
+	    for (int i=0; i<numberOfHeaderColumns; ++i) {
+		remainders[i].setLength(0);
+		m_headingFormatter.transform(cells[i], remainders[i]);
+
+		out.print(cells[i].toString());
+		out.print(m_columnSeparator);
+
+		if (remainders[i].length() > 0) {
+		    wrapped = true;
+		}
+	    }
+
+	    out.println();
+
+	    final StringBuffer[] otherArray = cells;
+	    cells = remainders;
+	    remainders = otherArray;
+	}
+	while (wrapped);
+
+	out.println();
 
 	final TestStatisticsMap.Iterator iterator =
 	    m_testStatisticsMap.new Iterator();
 
 	while (iterator.hasNext()) {
-	    final TestStatisticsMap.Pair pair= iterator.next();
+	    final TestStatisticsMap.Pair pair = iterator.next();
 
 	    final Test test = pair.getTest();
 
 	    StringBuffer output = formatLine("Test " + test.getNumber(),
-					     pair.getStatistics());
+					     pair.getStatistics(),
+					     expressionViews);
 
 	    final String testDescription = test.getDescription();
 
@@ -93,44 +152,43 @@ public class StatisticsTable
 	}
 
 	out.println();
-	out.println(formatLine("Totals", m_totals));
+	out.println(formatLine("Totals", m_totals, expressionViews));
     }
 
-    private String formatField(String string)
-    {
-	final int width = 14;
-
-	if (string.length() >= width) {
-	    return string.substring(0, width);
-	}
-	else {
-	    StringBuffer result = new StringBuffer(string);
-
-	    final int padding = width - string.length();
-
-	    for (int i=0; i<padding; i++) {
-		result.append(" ");
-	    }
-
-	    return result.toString();
-	}
-    }
-
-    private StringBuffer formatLine(String methodName,
-				    Statistics statistics)
+    private StringBuffer formatLine(String rowLabel,
+				    RawStatistics rawStatistics,
+				    ExpressionView[] expressionViews)
+	throws GrinderException
     {
 	final StringBuffer result = new StringBuffer();
 
-	result.append(formatField(methodName));
+	final StringBuffer cell = new StringBuffer(rowLabel);
+	final StringBuffer remainder = new StringBuffer();
 
-	result.append(
-	    formatField(String.valueOf(statistics.getTransactions())));
+	m_rowLabelFormatter.transform(cell, remainder);
+	result.append(cell.toString());
+	result.append(m_columnSeparator);
 
-	result.append(formatField(String.valueOf(statistics.getErrors())));
+	for (int i=0; i<expressionViews.length; ++i) {
 
-	result.append(
-	    formatField(m_twoDPFormat.format(
-			    statistics.getAverageTransactionTime())));
+	    final StatisticExpression expression =
+		expressionViews[i].getExpression();
+
+	    final String text;
+
+	    if (expression.isDouble()) {
+		text = m_twoDPFormat.format(expression.getDoubleValue(
+						rawStatistics));
+	    }
+	    else {
+		text = String.valueOf(expression.getLongValue(rawStatistics));
+	    }
+
+	    cell.replace(0, cell.length(), text);
+	    m_rowCellFormatter.transform(cell, remainder);
+	    result.append(cell.toString());
+	    result.append(m_columnSeparator);
+	}
 
 	return result;
     }

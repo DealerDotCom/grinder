@@ -20,8 +20,7 @@ package net.grinder.console.model;
 
 import java.util.EventListener;
 
-import net.grinder.statistics.CumulativeStatistics;
-import net.grinder.statistics.IntervalStatistics;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -30,6 +29,6 @@ import net.grinder.statistics.IntervalStatistics;
  */
 public interface SampleListener extends EventListener
 {
-    public void update(IntervalStatistics intervalStatistics,
-		       CumulativeStatistics cumulativeStatistics);
+    public void update(TestStatistics intervalStatistics,
+		       TestStatistics cumulativeStatistics);
 }

@@ -51,11 +51,11 @@ public abstract class AbstractTestSemantics implements Test
 	    return true;
 	}
 
-	if (!(o instanceof AbstractTestSemantics)) {
+	if (!(o instanceof Test)) {
 	    return false;
 	}
 	
-	return getNumber() == ((AbstractTestSemantics)o).getNumber();
+	return getNumber() == ((Test)o).getNumber();
     }
 
     public final String toString()

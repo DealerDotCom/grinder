@@ -156,8 +156,9 @@ instead of HTTPClient, say
 
 I highly recomend the HTTPClient implementation, see the next section
 for why. However the HttpURLConnection implementation has two features
-that the HTTPClient implementation doesn't, controlled by the
-following parameters.
+that the HTTPClient implementation doesn't.
+
+The first feature is an additional parameter:
 
     grinder.plugin.parameter.useCookiesVersionString -
 				Set to false to remove $Version string
@@ -165,25 +166,16 @@ following parameters.
 				This is to work around broken (?)
 				JRun 2.3.3. behavour.
 
-    grinder.plugin.parameter.timeIncludesTransaction -
-				By default the time that the HTTP
-				plugin reports is the time the entire
-				HTTP transaction takes, including the
-				time required to read the entire HTTP
-				response over the network.
-
-				Sometimes however you are more
-				interested in the time or the remote
-				server to accept the connection
-				request If so, set this parameter to
-				false.
+The second feature is the reporting of the "mean time to first byte"
+statistic in addition to the normal total transaction time statistic.
+    
 
 The HTTPClient cookie support is damn good, so the first feature
 probably isn't an issue. It will be fixed if it turns out to be a
 problem.
 
-The timeIncludesTransaction feature will be address in a future
-release.
+The second feature will be supported by the HTTPClient implementation
+in a future release.
 
 
 HTTPClient versus HttpURLConnection

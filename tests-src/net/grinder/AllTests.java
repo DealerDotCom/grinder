@@ -44,6 +44,7 @@ public class AllTests
 	suite.addTest(net.grinder.console.swingui.AllTests.suite());
 	suite.addTest(net.grinder.engine.process.AllTests.suite());
 	suite.addTest(net.grinder.plugin.http.AllTests.suite());
+	suite.addTest(net.grinder.statistics.AllTests.suite());
 	suite.addTest(net.grinder.util.AllTests.suite());
 	return suite;
     }

@@ -37,7 +37,7 @@ import java.security.MessageDigest;
  *
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 public class Sender
 {
     private final MulticastSocket m_localSocket;
@@ -147,8 +147,7 @@ public class Sender
  * Abuse Java API to avoid needless proliferation of temporary
  * objects.
  * @author Philip Aston
- * @version $Revision$
- */
+ **/
 class MyByteArrayOutputStream extends ByteArrayOutputStream
 {
     public byte[] getBytes() 

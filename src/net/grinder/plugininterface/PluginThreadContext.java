@@ -20,6 +20,7 @@ package net.grinder.plugininterface;
 
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.Logger;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -32,7 +33,7 @@ import net.grinder.common.Logger;
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 public interface PluginThreadContext extends Logger, FilenameFactory
 {    
     /**
@@ -67,4 +68,8 @@ public interface PluginThreadContext extends Logger, FilenameFactory
      * @see #startTimer
      */
     public void stopTimer();
+
+    public long getStartTime();
+
+    public TestStatistics getCurrentTestStatistics();
 }

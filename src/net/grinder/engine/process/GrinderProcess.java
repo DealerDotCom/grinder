@@ -43,8 +43,9 @@ import net.grinder.communication.StopGrinderMessage;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.ThreadCallbacks;
-import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.statistics.StatisticsTable;
+import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatistics;
 import net.grinder.statistics.TestStatisticsMap;
 
 
@@ -80,7 +81,7 @@ public class GrinderProcess
      * The application's entry point.
      * 
      */    
-    public static void main(String args[])
+    public static void main(String[] args)
     {
 	if (args.length < 1 || args.length > 2) {
 	    System.err.println("Usage: java " +
@@ -177,6 +178,8 @@ public class GrinderProcess
 		m_consoleSender = new Sender(m_context.getGrinderID(),
 					     multicastAddress, consolePort);
 
+		m_context.m_consoleSender = m_consoleSender;
+
 		m_reportToConsoleInterval =
 		    properties.getInt("grinder.reportToConsole.interval", 500);
 	    }
@@ -194,7 +197,7 @@ public class GrinderProcess
 
 	m_context.setTestRegistry(testRegistry);
 
-	// Parse plugin class.
+	// Parse plugin class. Do after setting up console Sender.
 	m_plugin = instantiatePlugin();
 
 	final String scriptFilename = properties.getProperty("grinder.script");
@@ -403,6 +406,7 @@ public class GrinderProcess
 
 	final StatisticsTable statisticsTable =
 	    new StatisticsTable(
+		m_context.getTestStatisticsFactory().getStatisticsView(),
 		m_context.getTestRegistry().getTestStatisticsMap());
 
 	statisticsTable.print(m_context.getOutputLogWriter());

@@ -21,9 +21,11 @@ package net.grinder.plugininterface;
 import java.util.Set;
 
 import net.grinder.common.FilenameFactory;
+import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
+import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -33,17 +35,40 @@ import net.grinder.common.Test;
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 public interface PluginProcessContext extends Logger, FilenameFactory
 {
-    public String getGrinderID();
-
+    /**
+     * Returns the name of this Grinder Process.
+     *
+     * @return The name.
+     **/
+    String getGrinderID();
+    
     /**
      * Returns the parameters specified with "grinder.plugin.parameter="
-     */
-    public GrinderProperties getPluginParameters();
+     **/
+    GrinderProperties getPluginParameters();
 
-    public void registerTest(Test test) throws PluginException;
+    void registerTest(Test test) throws PluginException;
 
-    public void registerTests(Set test) throws PluginException;
+    void registerTests(Set test) throws PluginException;
+
+    /**
+     * Plugins can use this method to register a new statistics view
+     * with the Grinder and the Console.
+     *
+     * @param view The new view.
+     * @exception GrinderException If the view cannot be registered.
+     **/
+    void registerStatisticsView(StatisticsView view) throws GrinderException;
+
+    /**
+     * Check whether this process is reporting times to the console or
+     * not. Refer to the <code>grinder.recordTime</code> property for
+     * more information.
+     *
+     * @return <code>true => this process should report times.
+     **/
+    boolean getRecordTime();
 }

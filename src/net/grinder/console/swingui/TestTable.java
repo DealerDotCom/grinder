@@ -40,7 +40,7 @@ public class TestTable extends JTable
     private final Font m_boldFont;
     private final Font m_defaultFont;
 
-    public TestTable(AbstractStatisticsTableModel model)
+    public TestTable(DynamicStatisticsTableModel model)
 	throws ConsoleException
     {
 	super(model);
@@ -56,8 +56,8 @@ public class TestTable extends JTable
 
     public TableCellRenderer getCellRenderer(int row, int column)
     {
-	final AbstractStatisticsTableModel model =
-	    (AbstractStatisticsTableModel)getModel();
+	final DynamicStatisticsTableModel model =
+	    (DynamicStatisticsTableModel)getModel();
 
 	final boolean red = model.isRed(row, column);
 	final boolean bold = model.isBold(row, column);

@@ -18,11 +18,9 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.AbstractTestSemantics;
-import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
-import net.grinder.engine.EngineException;
-import net.grinder.statistics.StatisticsImplementation;
+import net.grinder.statistics.TestStatistics;
+import net.grinder.statistics.TestStatisticsFactory;
 
 
 /**
@@ -33,17 +31,16 @@ import net.grinder.statistics.StatisticsImplementation;
  * 
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 final class TestData
 {
     private final Test m_test;
-    
-    private final StatisticsImplementation m_statistics;
+    private final TestStatistics m_statistics;
 
     TestData(Test testDefinition)
     {
 	m_test = testDefinition;
-	m_statistics = new StatisticsImplementation();
+	m_statistics = TestStatisticsFactory.getInstance().create();
     }
 
     final Test getTest()
@@ -51,7 +48,7 @@ final class TestData
 	return m_test;
     }
 
-    final StatisticsImplementation getStatistics() 
+    final TestStatistics getStatistics() 
     {
 	return m_statistics;
     }

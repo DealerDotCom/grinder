@@ -28,7 +28,7 @@ import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.ThreadCallbacks;
-import net.grinder.statistics.StatisticsImplementation;
+import net.grinder.statistics.TestStatistics;
 import net.grinder.util.Sleeper;
 
 
@@ -37,7 +37,7 @@ import net.grinder.util.Sleeper;
  *
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 final class ThreadContext implements PluginThreadContext
 {
     private final ThreadCallbacks m_threadCallbackHandler;
@@ -52,6 +52,7 @@ final class ThreadContext implements PluginThreadContext
     private boolean m_abortedRun;
     private long m_startTime;
     private long m_elapsedTime;
+    private TestStatistics m_currentTestStatistics;
 
     private StringBuffer m_scratchBuffer = new StringBuffer();
 
@@ -179,11 +180,10 @@ final class ThreadContext implements PluginThreadContext
 	m_testResult.reset();
 
 	final Test test = testData.getTest();
-
+	m_currentTestStatistics = testData.getStatistics();
+	
 	m_threadLogger.setCurrentTestNumber(test.getNumber());
-
-	final StatisticsImplementation statistics = testData.getStatistics();
-
+	
 	m_sleeper.sleepNormal(
 	    test.getParameters().getLong("sleepTime", m_defaultSleepTime));
 
@@ -198,7 +198,7 @@ final class ThreadContext implements PluginThreadContext
 	    }
 
 	    if (m_testResult.getAbortedRun()) {
-		statistics.addError();
+		m_currentTestStatistics.addError();
 		throw new AbortRunException("Plugin aborted run");
 	    }
 	    else {
@@ -206,14 +206,14 @@ final class ThreadContext implements PluginThreadContext
 
 		if (m_testResult.isSuccessful()) {
 		    if (m_recordTime) {
-			statistics.addTransaction(time);
+			m_currentTestStatistics.addTransaction(time);
 		    }
 		    else {
-			statistics.addTransaction();
+			m_currentTestStatistics.addTransaction();
 		    }
 		}
 		else {
-		    statistics.addError();
+		    m_currentTestStatistics.addError();
 		    m_threadLogger.logError("Plug-in reported an error");
 		}
 
@@ -235,7 +235,7 @@ final class ThreadContext implements PluginThreadContext
 	    }
 	}
 	catch (PluginException e) {
-	    statistics.addError();
+	    m_currentTestStatistics.addError();
 	    throw new AbortRunException("Plugin threw exception", e);
 	}
 	finally {
@@ -281,6 +281,16 @@ final class ThreadContext implements PluginThreadContext
 	{
 	    return m_abortRun;
 	}
+    }
+
+    public long getStartTime()
+    {
+	return m_startTime;
+    }
+
+    public TestStatistics getCurrentTestStatistics()
+    {
+	return m_currentTestStatistics;
     }
 }
 

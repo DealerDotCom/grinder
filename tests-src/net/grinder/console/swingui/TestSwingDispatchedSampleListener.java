@@ -28,9 +28,8 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 
 import net.grinder.console.model.SampleListener;
-import net.grinder.statistics.CumulativeStatistics;
-import net.grinder.statistics.IntervalStatistics;
-import net.grinder.statistics.StatisticsImplementation;
+import net.grinder.statistics.TestStatistics;
+import net.grinder.statistics.TestStatisticsFactory;
 
 
 /**
@@ -58,11 +57,14 @@ public class TestSwingDispatchedSampleListener extends TestCase
 	final SampleListener swingDispatchedListener =
 	    new SwingDispatchedSampleListener(listener);
 
-	final IntervalStatistics intervalStatistics =
-	    new MyCumulativeStatisticsImplementation();
+	final TestStatisticsFactory testStatisticsFactory =
+	    TestStatisticsFactory.getInstance();
 
-	final CumulativeStatistics cumulativeStatistics =
-	    new MyCumulativeStatisticsImplementation();
+	final TestStatistics intervalStatistics =
+	    testStatisticsFactory.create();
+
+	final TestStatistics cumulativeStatistics =
+	    testStatisticsFactory.create();
 
 	listener.update(intervalStatistics, cumulativeStatistics);
 
@@ -76,43 +78,14 @@ public class TestSwingDispatchedSampleListener extends TestCase
 
     private class MySampleListener implements SampleListener
     {
-	public IntervalStatistics m_intervalStatistics;
-	public IntervalStatistics m_cumulativeStatistics;
+	public TestStatistics m_intervalStatistics;
+	public TestStatistics m_cumulativeStatistics;
 	
-	public void update(IntervalStatistics intervalStatistics,
-			   CumulativeStatistics cumulativeStatistics)
+	public void update(TestStatistics intervalStatistics,
+			   TestStatistics cumulativeStatistics)
 	{
 	    m_intervalStatistics = intervalStatistics;
 	    m_cumulativeStatistics = cumulativeStatistics;
-	}
-    }
-
-    private class MyCumulativeStatisticsImplementation
-	implements CumulativeStatistics 
-    {
-	public double getAverageTransactionTime()
-	{
-	    return 77d;
-	}
-
-	public long getTransactions()
-	{
-	    return 66;
-	}
-
-	public long getErrors()
-	{
-	    return 55;
-	}
-
-	public double getTPS()
-	{
-	    return 88d;
-	}
-
-	public double getPeakTPS()
-	{
-	    return 99d; 
 	}
     }
 }

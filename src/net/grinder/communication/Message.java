@@ -70,7 +70,7 @@ public abstract class Message implements Serializable
      *
      * @throws CommunicationException If {@link #setSenderInformation} has not been called.
      **/
-    final String getSenderUniqueID() throws CommunicationException
+    public final String getSenderUniqueID() throws CommunicationException
     {
 	assertInitialised();
 	return m_senderUniqueID;

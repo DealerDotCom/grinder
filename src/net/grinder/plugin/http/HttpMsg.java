@@ -33,8 +33,10 @@ import java.util.Map;
 
 import HTTPClient.Codecs;
 
+import net.grinder.common.GrinderException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.statistics.StatisticsIndexMap;
 
 
 /**
@@ -46,7 +48,7 @@ import net.grinder.plugininterface.PluginThreadContext;
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 class HttpMsg implements HTTPHandler
 {
     private final PluginThreadContext m_threadContext;
@@ -54,17 +56,17 @@ class HttpMsg implements HTTPHandler
     private final boolean m_useCookiesVersionString;
     private final boolean m_followRedirects;
     private CookieHandler m_cookieHandler;
-    private final boolean m_timeIncludesTransaction;
+    private final StatisticsIndexMap.LongIndex m_timeToFirstByteIndex;
 
-    public HttpMsg(PluginThreadContext threadContext,
-		   boolean useCookies, boolean useCookiesVersionString,
-		   boolean followRedirects, boolean timeIncludesTransaction)
+    public HttpMsg(PluginThreadContext pluginThreadContext, boolean useCookies,
+		   boolean useCookiesVersionString, boolean followRedirects,
+		   StatisticsIndexMap.LongIndex timeToFirstByteIndex)
     {
-	m_threadContext = threadContext;
+	m_threadContext = pluginThreadContext;
 	m_useCookies = useCookies;
 	m_useCookiesVersionString = useCookiesVersionString;
 	m_followRedirects = followRedirects;
-	m_timeIncludesTransaction = timeIncludesTransaction;
+	m_timeToFirstByteIndex = timeToFirstByteIndex;
     }
 
     public String sendRequest(HTTPHandler.RequestData requestData)
@@ -78,16 +80,8 @@ class HttpMsg implements HTTPHandler
 
 	    m_threadContext.startTimer();
 
-	    HttpURLConnection connection;
-
-	    try {
-		connection = (HttpURLConnection)url.openConnection();
-	    }
-	    finally {
-		if (!m_timeIncludesTransaction) {
-		    m_threadContext.stopTimer();
-		}
-	    }
+	    final HttpURLConnection connection =
+		(HttpURLConnection)url.openConnection();
 
 	    final Iterator headersIterator =
 		requestData.getHeaders().entrySet().iterator();
@@ -150,12 +144,19 @@ class HttpMsg implements HTTPHandler
 	    }
 	
 	    connection.connect();
-
+	    
 	    // This is before the getHeaderField for a good reason.
 	    // Otherwise the %^(*$ HttpURLConnection API silently catches
 	    // the exception in getHeaderField and rethrows it in the
 	    // getResponseCode (with the original stack trace). - PAGA
 	    final int responseCode = connection.getResponseCode();
+
+	    if (m_timeToFirstByteIndex != null) {
+		m_threadContext.getCurrentTestStatistics().addValue(
+		    m_timeToFirstByteIndex,
+		    System.currentTimeMillis() -
+		    m_threadContext.getStartTime());
+	    }
 
 	    if (m_useCookies) {
 		// set to 1 because we're skipping the HTTP status line

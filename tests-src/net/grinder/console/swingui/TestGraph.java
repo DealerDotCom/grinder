@@ -31,8 +31,13 @@ import java.util.Random;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import net.grinder.statistics.CumulativeStatistics;
-import net.grinder.statistics.IntervalStatistics;
+import net.grinder.statistics.PeakStatisticExpression;
+import net.grinder.statistics.StatisticExpression;
+import net.grinder.statistics.StatisticExpressionFactory;
+import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.TestStatistics;
+import net.grinder.statistics.TestStatisticsFactory;
+
 
 
 /**
@@ -92,7 +97,7 @@ public class TestGraph extends TestCase
 
 	graph.setMaximum(1);
 
-	for (int i=0; i<500; i++) {
+	for (int i=0; i<200; i++) {
 	    graph.add(s_random.nextDouble());
 	    pause();
 	}
@@ -100,21 +105,67 @@ public class TestGraph extends TestCase
 
     public void testLabelledGraph() throws Exception
     {
+	final TestStatisticsFactory testStatisticsFactory
+	    = TestStatisticsFactory.getInstance();
+
+	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
+
+	final StatisticsIndexMap.LongIndex periodIndex =
+	    indexMap.getIndexForLong("period");
+
+	final StatisticExpressionFactory statisticExpressionFactory =
+	    StatisticExpressionFactory.getInstance();
+
+	final StatisticExpression tpsExpression =
+	    statisticExpressionFactory.createExpression(
+		"(* 1000 (/(+ untimedTransactions timedTransactions) period))"
+		);
+
+	final PeakStatisticExpression peakTPSExpression =
+	    statisticExpressionFactory.createPeak(
+		indexMap.getIndexForDouble("peakTPS"), tpsExpression);
+
 	final LabelledGraph labelledGraph =
-	    new LabelledGraph("Test", new Resources());
+	    new LabelledGraph("Test", new Resources(), tpsExpression,
+			      peakTPSExpression);
 
 	createUI(labelledGraph);
 
 	double peak = 0d;
 
-	final MyCumulativeStatistics myCS = new MyCumulativeStatistics();
+	final TestStatistics cumulativeStatistics =
+	    testStatisticsFactory.create();
 
 	final DecimalFormat format = new DecimalFormat();
 
-	for (int i=0; i<500; i++) {
-	    myCS.next();
-	    labelledGraph.add(myCS.getIntervalStatistics(),
-			      myCS, format);
+	final int period = 1000;
+
+	for (int i=0; i<200; i++) {
+	    final TestStatistics intervalStatistics =
+		testStatisticsFactory.create();
+
+	    intervalStatistics.setValue(periodIndex, period);
+
+	    while (s_random.nextInt() > 0) {
+		intervalStatistics.addTransaction();
+	    }
+
+	    long time;
+
+	    while ((time = s_random.nextInt()) > 0) {
+		intervalStatistics.addTransaction(time % 10000);
+	    }
+
+	    while (s_random.nextFloat() > 0.95) {
+		intervalStatistics.addError();
+	    }
+
+	    cumulativeStatistics.add(intervalStatistics);
+	    cumulativeStatistics.setValue(periodIndex, (1+i)*period);
+
+	    peakTPSExpression.update(intervalStatistics, cumulativeStatistics);
+	    labelledGraph.add(intervalStatistics, cumulativeStatistics,
+			      format);
 	    pause();
 	}
     }
@@ -123,95 +174,6 @@ public class TestGraph extends TestCase
     {
 	if (m_pauseTime > 0) {
 	    Thread.sleep(m_pauseTime);
-	}
-    }
-
-    private class MyCumulativeStatistics implements CumulativeStatistics
-    {
-	private long m_samples = 0;
-	private long m_transactions = 0;
-	private long m_errors = 0;
-	private double m_totalTime = 0;
-	private double m_totalTPS = 0;
-	private double m_peakTPS = 0;
-	private IntervalStatisticsImplementation m_intervalStatistics;
-
-	public double getAverageTransactionTime()
-	{
-	    return m_totalTime/m_samples;
-	}
-	
-	public long getTransactions()
-	{
-	    return m_transactions;
-	}
-	
-	public long getErrors()
-	{
-	    return m_errors;
-	}
-
-	public double getTPS()
-	{
-	    return m_totalTPS/m_samples;
-	}
-	
-	public double getPeakTPS()
-	{
-	    return m_peakTPS;
-	}
-
-	public IntervalStatistics getIntervalStatistics()
-	{
-	    return m_intervalStatistics;
-	}
-
-	public void next()
-	{
-	    m_intervalStatistics = new IntervalStatisticsImplementation();
-
-	    double tps = m_intervalStatistics.getTPS();
-	    
-	    if (tps > m_peakTPS) {
-		m_peakTPS = tps;
-	    }
-
-	    m_totalTPS += tps;
-	    m_transactions += m_intervalStatistics.getTransactions();
-	    m_errors += m_intervalStatistics.getErrors();
-	    m_totalTime += m_intervalStatistics.getAverageTransactionTime();
-
-	    ++m_samples;
-	}
-
-	private class IntervalStatisticsImplementation
-	    implements IntervalStatistics
-	{
-	    private double m_tps = s_random.nextDouble() * 100;
-	    private long m_transactions = s_random.nextInt(10);
-	    private long m_errors = s_random.nextInt(20)/19;
-	    private double m_averageTransactionTime =
-		s_random.nextDouble() * 20 * m_transactions;
-
-	    public double getAverageTransactionTime() 
-	    {
-		return m_averageTransactionTime;
-	    }
-
-	    public long getTransactions()
-	    {
-		return m_transactions;
-	    }
-
-	    public long getErrors()
-	    {
-		return m_errors;
-	    }
-
-	    public double getTPS()
-	    {
-		return m_tps;
-	    }
 	}
     }
 }

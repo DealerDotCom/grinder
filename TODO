@@ -3,6 +3,9 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
+Fix "quick and dirty hack" in ProcessContext.
+
+PluginProcessContext - should through GE's at the plugin.
 
 When HTTPTest etc know about the plugin, where do the lifecycle (begin
 run etc) callbacks go? To all known plugins? Split script into
@@ -27,8 +30,7 @@ containing embedded script.
 
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 
-  Update HTTPClient to measure "time to first byte" and "Time to last
-  byte" as an alternative to implementing timeIncludesTransaction.
+  Update HTTPClient to support "mean time to first byte".
 
   Write more JUnit tests.
 
@@ -57,3 +59,5 @@ containing embedded script.
 	Respect charset information.
 	Sanity check the processing against RFC 2616
 
+  Efficiency: TestStatisticsMap.getDelta() to be able to reuse delta
+  object.

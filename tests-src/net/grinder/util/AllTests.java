@@ -27,7 +27,7 @@ import junit.swingui.TestRunner;
 /**
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 public class AllTests
 {
     public static void main(String[] args)
@@ -38,8 +38,9 @@ public class AllTests
     public static Test suite()
     {
 	final TestSuite suite = new TestSuite();
-	suite.addTest(new TestSuite(TestSignificantFigureFormat.class));
+	suite.addTest(new TestSuite(TestFixedWidthFormatter.class));
 	suite.addTest(new TestSuite(TestSerialiser.class));
+	suite.addTest(new TestSuite(TestSignificantFigureFormat.class));
 	suite.addTest(new TestSuite(TestSleeper.class));
 	return suite;
     }

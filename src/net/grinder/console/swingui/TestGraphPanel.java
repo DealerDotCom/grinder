@@ -31,8 +31,8 @@ import net.grinder.common.Test;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
-import net.grinder.statistics.CumulativeStatistics;
-import net.grinder.statistics.IntervalStatistics;
+import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -67,8 +67,8 @@ public class TestGraphPanel extends JPanel implements ModelListener
 
 	m_model.addTotalSampleListener(
 	    new SampleListener() {
-		public void update(IntervalStatistics intervalStatistics,
-				   CumulativeStatistics cumulativeStatistics) {
+		public void update(TestStatistics intervalStatistics,
+				   TestStatistics cumulativeStatistics) {
 		    // No requirement to dispatch in Swing thread.
 		    LabelledGraph.resetPeak();
 		}
@@ -91,15 +91,17 @@ public class TestGraphPanel extends JPanel implements ModelListener
 		(description != null ? " (" + description + ")" : "");
 
 	    final LabelledGraph testGraph =
-		new LabelledGraph(label, m_resources);
+		new LabelledGraph(label, m_resources,
+				  m_model.getTPSExpression(),
+				  m_model.getPeakTPSExpression());
 
 	    m_model.addSampleListener(
 		test,
 		new SwingDispatchedSampleListener(
 		    new SampleListener() {
 			public void update(
-			    final IntervalStatistics intervalStatistics,
-			    final CumulativeStatistics cumulativeStatistics) {
+			    final TestStatistics intervalStatistics,
+			    final TestStatistics cumulativeStatistics) {
 			    testGraph.add(intervalStatistics,
 					  cumulativeStatistics,
 					  m_model.getNumberFormat());
@@ -125,5 +127,15 @@ public class TestGraphPanel extends JPanel implements ModelListener
 		add((JComponent)m_components.get(m_model.getTest(i)));
 	    }
 	}
+    }
+
+    /**
+     * {@link net.grinder.console.model.ModelListener} interface. New
+     * <code>StatisticsView</code>s have been added. We need do
+     * nothing
+     **/
+    public void newStatisticsViews(StatisticsView intervalStatisticsView,
+				   StatisticsView cumulativeStatisticsView)
+    {
     }
 }
