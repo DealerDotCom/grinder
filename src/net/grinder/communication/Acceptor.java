@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,6 +43,7 @@ public final class Acceptor {
   private final ServerSocket m_serverSocket;
   private final Map m_socketSets = new HashMap();
   private final ThreadPool m_threadPool;
+  private final ThreadSafeQueue m_exceptionQueue = new ThreadSafeQueue();
 
   /**
    * Constructor.
@@ -117,6 +118,8 @@ public final class Acceptor {
 
       m_threadPool.stop();
     }
+
+    m_exceptionQueue.shutdown();
   }
 
   /**
@@ -126,6 +129,23 @@ public final class Acceptor {
    */
   public int getPort() {
     return m_serverSocket.getLocalPort();
+  }
+
+  /**
+   * Asynchronous exception handling.
+   * @param block <code>true</code> => block until an exception is
+   * available, <code>false</code => return <code>null</code> if no
+   * exception is available.
+   * @return The exception, or <code>null</code> if no exception is
+   * available or this Acceptor has been shut down.
+   */
+  public Exception getPendingException(boolean block) {
+    try {
+      return (Exception) m_exceptionQueue.dequeue(block);
+    }
+    catch (ThreadSafeQueue.ShutdownException e) {
+      return null;
+    }
   }
 
   /**
@@ -173,7 +193,13 @@ public final class Acceptor {
       }
     }
     catch (CommunicationException e) {
-      e.printStackTrace();
+      try {
+        m_exceptionQueue.queue(e);
+      }
+      catch (ThreadSafeQueue.ShutdownException shutdownException) {
+        // Should never happen.
+        shutdownException.printStackTrace();
+      }
 
       try {
         localSocket.close();

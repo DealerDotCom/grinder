@@ -105,12 +105,10 @@ final class ConsoleCommunication {
       }
     }
 
-    final Acceptor acceptor;
-
     try {
-      acceptor = new Acceptor(m_properties.getConsoleAddress(),
-                              m_properties.getConsolePort(),
-                              1);
+      m_acceptor = new Acceptor(m_properties.getConsoleAddress(),
+                                m_properties.getConsolePort(),
+                                1);
     }
     catch (CommunicationException e) {
       m_errorHandler.handleException(
@@ -120,8 +118,28 @@ final class ConsoleCommunication {
       return;
     }
 
-    m_receiver = new ServerReceiver(acceptor, ConnectionType.REPORT, 5);
-    m_sender = new FanOutServerSender(acceptor, ConnectionType.CONTROL, 3);
+    final Thread acceptorProblemListener =
+      new Thread("Acceptor problem listener") {
+
+        public void run() {
+          while (true) {
+            final Exception exception = m_acceptor.getPendingException(true);
+
+            if (exception == null) {
+              // Acceptor is shutting down.
+              break;
+            }
+
+            m_errorHandler.handleException(exception);
+          }
+        }
+      };
+
+    acceptorProblemListener.setDaemon(true);
+    acceptorProblemListener.start();
+
+    m_receiver = new ServerReceiver(m_acceptor, ConnectionType.REPORT, 5);
+    m_sender = new FanOutServerSender(m_acceptor, ConnectionType.CONTROL, 3);
 
     synchronized (this) {
       m_deaf = false;

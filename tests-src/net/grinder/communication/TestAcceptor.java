@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -67,11 +67,13 @@ public class TestAcceptor extends TestCase {
     for (int i=0; i<testAddresses.length; ++i) {
       final Acceptor acceptor = new Acceptor(testAddresses[i], port, 2);
       assertEquals(port, acceptor.getPort());
+      assertNull(acceptor.getPendingException(false));
       acceptor.shutdown();
 
       // Should also be able to use a Random port.
       final Acceptor acceptor2 = new Acceptor(testAddresses[i], 0, 2);
       assertEquals(port, acceptor.getPort());
+      assertNull(acceptor2.getPendingException(false));
       acceptor2.shutdown();
     }
   }
@@ -172,6 +174,8 @@ public class TestAcceptor extends TestCase {
       Thread.sleep(i * i * 10);
     }
 
+    assertNull(acceptor.getPendingException(false));
+
     acceptor.shutdown();
 
     final ThreadGroup threadGroup = acceptor.getThreadGroup();
@@ -182,4 +186,35 @@ public class TestAcceptor extends TestCase {
 
     assertTrue(socketSet.reserveNext().isSentinel());
   } 
+
+  public void testGetPendingException() throws Exception {
+
+    final Acceptor acceptor = createAcceptor(3);
+
+    // Non blocking.
+    assertNull(acceptor.getPendingException(false));
+
+    // Create a couple of problems.
+    final Socket socket = new Socket("localhost", acceptor.getPort());
+    socket.getOutputStream().write(123);
+    socket.getOutputStream().flush();
+
+    final Socket socket2 = new Socket("localhost", acceptor.getPort());
+    socket2.getOutputStream().write(99);
+    socket2.getOutputStream().flush();
+
+    // Blocking, so we don't need to do fancy synchronisation to
+    // ensure acceptor has encountered the problems.
+    assertTrue(acceptor.getPendingException(true)
+               instanceof CommunicationException);
+
+    assertTrue(acceptor.getPendingException(true)
+               instanceof CommunicationException);
+
+    assertNull(acceptor.getPendingException(false));
+
+    acceptor.shutdown();
+
+    assertNull(acceptor.getPendingException(true));
+  }
 }
