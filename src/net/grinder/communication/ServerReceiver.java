@@ -81,7 +81,7 @@ public final class ServerReceiver implements Receiver {
    *
    * @return The message or <code>null</code> if shut down.
    * @throws CommunicationException If an error occured receiving a message.
-   **/
+   */
   public Message waitForMessage() throws CommunicationException {
 
     try {
