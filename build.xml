@@ -232,7 +232,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   <!-- =================================================================== -->
   <!-- Rules to run the tests                                              -->
   <!-- =================================================================== -->
-  <target name="test" depends="compile-tests,assert-have-junit-task"
+  <target name="test" depends="compile-tests,copy-resources,assert-have-junit-task"
 	  description="Run the unit-tests.">
   <junit printsummary="false" haltonfailure="true">
     <formatter type="plain" usefile="false"/>
