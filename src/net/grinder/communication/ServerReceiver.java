@@ -89,7 +89,7 @@ public final class ServerReceiver implements Receiver {
     try {
       return m_messageQueue.dequeue(true);
     }
-    catch (MessageQueue.ShutdownException e) {
+    catch (ThreadSafeQueue.ShutdownException e) {
       return null;
     }
   }
@@ -110,7 +110,7 @@ public final class ServerReceiver implements Receiver {
   private final class ListenThread extends Thread {
 
     public ListenThread(ThreadGroup threadGroup, int listenThreadIndex) {
-      super(threadGroup, "Unicast listen thread " + listenThreadIndex);
+      super(threadGroup, "Listen thread " + listenThreadIndex);
       setDaemon(true);
     }
 
@@ -166,7 +166,7 @@ public final class ServerReceiver implements Receiver {
           }
         }
       }
-      catch (MessageQueue.ShutdownException e) {
+      catch (ThreadSafeQueue.ShutdownException e) {
         // We've been shutdown, exit this thread.
       }
       catch (InterruptedException e) {

@@ -21,10 +21,6 @@
 
 package net.grinder.communication;
 
-import java.util.LinkedList;
-
-import net.grinder.common.GrinderException;
-
 
 /**
  * Thread-safe queue of {@link Message}s.
@@ -34,9 +30,8 @@ import net.grinder.common.GrinderException;
  **/
 class MessageQueue {
 
+  private final ThreadSafeQueue m_queue = new ThreadSafeQueue();
   private final boolean m_passExceptions;
-  private LinkedList m_messages = new LinkedList();
-  private boolean m_shutdown = false;
 
   /**
    * Creates a new <code>MessageQueue</code> instance.
@@ -53,11 +48,14 @@ class MessageQueue {
    * Queue the given message.
    *
    * @param message A {@link Message}.
-   * @exception ShutdownException If the queue has been shutdown.
+   * @exception ThreadSafeQueue.ShutdownException If the queue has
+   * been shutdown.
    * @see #shutdown
    **/
-  public final void queue(Message message) throws ShutdownException {
-    doQueue(message);
+  public final void queue(Message message)
+    throws ThreadSafeQueue.ShutdownException {
+
+    m_queue.queue(message);
   }
 
   /**
@@ -66,25 +64,20 @@ class MessageQueue {
    * @param exception An exception.
    * @exception RuntimeException If the queue does not allow
    * exceptions to be propagated..
-   * @exception ShutdownException If the queue has been shutdown.
+   * @exception ThreadSafeQueue.ShutdownException If the queue has
+   * been shutdown.
    * @see #shutdown
    **/
-  public final void queue(Exception exception) throws ShutdownException {
+  public final void queue(Exception exception)
+    throws ThreadSafeQueue.ShutdownException {
+
     if (!m_passExceptions) {
       // Assertion failure.
       throw new RuntimeException(
         "This MessageQueue does not allow Exceptions to be queued");
     }
 
-    doQueue(exception);
-  }
-
-  private void doQueue(Object o) throws ShutdownException {
-    synchronized (getMutex()) {
-      assertNotShutdown();
-      m_messages.add(o);
-      m_messages.notifyAll();
-    }
+    m_queue.queue(exception);
   }
 
   /**
@@ -96,35 +89,20 @@ class MessageQueue {
    * @exception CommunicationException If the queue allows
    * exceptions to be propagated, queued CommunicationExceptions are
    * rethrown to callers of this method.
-   * @exception ShutdownException If the queue has been shutdown.
+   * @exception ThreadSafeQueue.ShutdownException If the queue has
+   * been shutdown.
    * @see #shutdown
    **/
   public final Message dequeue(boolean block)
-    throws CommunicationException, ShutdownException {
-    synchronized (getMutex()) {
-      while (!m_shutdown && block && m_messages.size() == 0) {
-        try {
-          getMutex().wait();
-        }
-        catch (InterruptedException e) {
-          // Probably being shutdown, fall through.
-        }
-      }
+    throws CommunicationException, ThreadSafeQueue.ShutdownException {
 
-      assertNotShutdown();
+    final Object result = (Message)m_queue.dequeue(block);
 
-      if (m_messages.size() == 0) {
-        return null;
-      }
-      else {
-        final Object o = m_messages.removeFirst();
-
-        if (m_passExceptions && o instanceof Exception) {
-          throw new CommunicationException("Queued exception", (Exception)o);
-        }
-        return (Message)o;
-      }
+    if (m_passExceptions && result instanceof Exception) {
+      throw new CommunicationException("Queued exception", (Exception) result);
     }
+
+    return (Message) result;
   }
 
   /**
@@ -132,37 +110,10 @@ class MessageQueue {
    * the queue are discarded.
    **/
   public final void shutdown() {
-    synchronized (getMutex()) {
-      m_shutdown = true;
-      m_messages.clear();
-      m_messages.notifyAll();
-    }
+    m_queue.shutdown();
   }
 
   public final Object getMutex() {
-    return m_messages;
-  }
-
-  private void assertNotShutdown() throws ShutdownException {
-    if (m_shutdown) {
-      throw new ShutdownException("MessageQueue shutdown");
-    }
-  }
-
-  /**
-   * Exception that indicates <code>MessageQueue</code> has been
-   * shutdown. It doesn't extend {@link CommunicationException}
-   * because typically callers want to propagate
-   * <code>ShutdownException</code>s but handle
-   * <code>CommunicationException</code>s locally.
-   **/
-  static final class ShutdownException extends GrinderException {
-    public ShutdownException(String s) {
-      super(s);
-    }
-
-    public ShutdownException(String s, Exception e) {
-      super(s, e);
-    }
+    return m_queue.getMutex();
   }
 }
