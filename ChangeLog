@@ -1,3 +1,101 @@
+2004-03-22  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/communication/TestTeeSender.java:
+	Test TeeSender.
+
+	* tests-src/net/grinder/engine/agent/TestProcessReaper.java, tests-src/net/grinder/engine/agent/TestChildProcess.java:
+	More tests.
+
+	* src/net/grinder/engine/agent/ProcessReaper.java: Formatting.
+
+	* tests-src/net/grinder/engine/agent/TestChildProcess.java:
+	Don't need a constructor with JUnit 3.8.1.
+
+	* tests-src/net/grinder/engine/agent/TestChildProcess.java:
+	Test destroy().
+
+	* tests-src/net/grinder/communication/TestMessagePump.java, tests-src/net/grinder/util/thread/TestKernel.java:
+	Coverage.
+
+	* src/net/grinder/util/thread/Kernel.java:
+	Allow unit test to set work queue implementation.
+
+	* src/net/grinder/engine/agent/ProcessLauncher.java, src/net/grinder/engine/agent/Agent.java:
+	Split ProcessLauncher out to top level class.
+
+	* src/net/grinder/communication/FanOutStreamSender.java: Javadoc.
+
+	* CHANGES, xdoc/g3/getting-started-xhtml.xml: Document ramp up.
+
+2004-03-21  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/agent/Agent.java:
+	Fix ProcessLauncher.allFinished().
+
+	* src/net/grinder/engine/agent/Agent.java: Tidy up somewhat.
+
+	* src/net/grinder/engine/agent/ChildProcess.java:
+	Allow processes to be destroyed.
+
+	* tests-src/net/grinder/util/thread/TestKernel.java, tests-src/net/grinder/util/thread/TestThreadPool.java, tests-src/net/grinder/util/thread/TestThreadSafeQueue.java, src/net/grinder/util/thread/Kernel.java, src/net/grinder/util/thread/ThreadPool.java, src/net/grinder/util/thread/ThreadSafeQueue.java, src/net/grinder/util/thread/package.html, tests-src/net/grinder/communication/TestKernel.java, tests-src/net/grinder/communication/TestMessageQueue.java, tests-src/net/grinder/communication/TestThreadPool.java, tests-src/net/grinder/communication/TestThreadSafeQueue.java, src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/FanOutStreamSender.java, src/net/grinder/communication/InitialiseGrinderMessage.java, src/net/grinder/communication/Kernel.java, src/net/grinder/communication/MessagePump.java, src/net/grinder/communication/MessageQueue.java, src/net/grinder/communication/QueuedSenderDecorator.java, src/net/grinder/communication/ServerReceiver.java, src/net/grinder/communication/ThreadPool.java, src/net/grinder/communication/ThreadSafeQueue.java, src/net/grinder/communication/AbstractFanOutSender.java, src/net/grinder/communication/Acceptor.java:
+	Move Kernel, ThreadPool, ThreadSafeQueue to new threading utility
+	package.
+
+	* src/net/grinder/engine/common/ConsoleListener.java, src/net/grinder/engine/process/GrinderProcess.java, tests-src/net/grinder/engine/common/TestConsoleListener.java, src/net/grinder/engine/agent/Agent.java:
+	Now the agent, rather than worker processes, waits for console
+	signals.
+
+	* src/net/grinder/engine/agent/ProcessReaper.java:
+	Allow multiple reapings.
+
+	* src/net/grinder/communication/MessagePump.java:
+	Guard against recursive shutdown.
+
+	* tests-src/net/grinder/communication/TestMessage.java, src/net/grinder/communication/InitialiseGrinderMessage.java:
+	The worker process no longer waits for console signals.
+
+	* tests-src/net/grinder/engine/common/TestConsoleListener.java:
+	Update unit tests.
+
+	* src/net/grinder/engine/agent/Agent.java:
+	ConsoleListener now needs to be used with a MessagePump.
+	Use AgentLogger.
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	ConsoleListener now needs to be used with a MessagePump.
+
+	* src/net/grinder/communication/TeeSender.java:
+	Fork a Sender invocation.
+
+	* src/net/grinder/engine/common/ConsoleListener.java:
+	Change to be passive.
+
+	* src/net/grinder/engine/agent/AgentLogger.java:
+	Simple Logger implementation for agent.
+
+	* src/net/grinder/communication/Receiver.java, src/net/grinder/communication/ThreadSafeQueue.java:
+	Correct JavaDoc.
+
+	* src/net/grinder/communication/MessageQueue.java: Class can be final.
+
+	* src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/PluginRegistryImplementation.java, src/net/grinder/engine/process/RegisteredPlugin.java, src/net/grinder/engine/process/ShutdownException.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/ThreadContextImplementation.java, tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java, tests-src/net/grinder/engine/process/TestRegisteredPlugin.java, tests-src/net/grinder/engine/process/TestTestData.java, src/net/grinder/engine/EngineException.java, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/ChildProcess.java, src/net/grinder/engine/common/EngineException.java, src/net/grinder/engine/process/GrinderProcess.java:
+	Move EngineException to the common package.
+
+	* tests-src/net/grinder/engine/process/TestConsoleListener.java, src/net/grinder/engine/common/ConsoleListener.java, src/net/grinder/engine/common/package.html, src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/Monitor.java, tests-src/net/grinder/engine/common/TestConsoleListener.java:
+	Create a package for common engine implementation classes.
+
+	* src/net/grinder/engine/agent/Agent.java:
+	Process ramp-up from Bertrand Ave.
+
+	* src/net/grinder/engine/agent/ChildProcess.java:
+	Shouldn't throw GrinderException.
+
+2004-03-20  Philip Aston  <philipa@mail.com>
+
+	* build.xml: Next is beta 21.
+
+	* xdoc/commercials-xhtml.xml: Commercial for swtest-discuss.
+
 2004-03-13  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta20 is released.
