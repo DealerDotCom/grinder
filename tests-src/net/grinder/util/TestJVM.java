@@ -23,6 +23,10 @@ package net.grinder.util;
 
 import junit.framework.TestCase;
 
+import net.grinder.common.Logger;
+
+import net.grinder.testutility.RandomStubFactory;
+
 
 /**
  * Unit test case for {@link JVM}.
@@ -61,6 +65,30 @@ public class TestJVM extends TestCase {
         catch (JVM.VersionException e) {
         }
       }
+    }
+    finally {
+      System.setProperty("java.version", oldVersion);
+    }
+  }
+
+  public void testHaveRequisites() throws Exception {
+    final RandomStubFactory loggerFactory =
+      new RandomStubFactory(Logger.class);
+    final Logger logger = (Logger)loggerFactory.getStub();
+
+    final JVM jvm = JVM.getInstance();
+
+    assertTrue(jvm.haveRequisites(logger));
+    loggerFactory.assertNoMoreCalls();
+
+    final String oldVersion = System.getProperty("java.version");
+
+    try {
+      System.setProperty("java.version", "1.2");
+
+      assertFalse(jvm.haveRequisites(logger));
+      loggerFactory.assertSuccess("error", String.class);
+      loggerFactory.assertNoMoreCalls();
     }
     finally {
       System.setProperty("java.version", oldVersion);
