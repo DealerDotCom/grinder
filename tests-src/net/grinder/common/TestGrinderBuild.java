@@ -34,6 +34,7 @@ public class TestGrinderBuild extends TestCase {
   public void testGrinderBuildStrings() throws Exception {
     assertEquals(System.getProperty("grinder.version"),
                  GrinderBuild.getVersionString());
+    assertTrue(GrinderBuild.getName().indexOf("The Grinder") >= 0);
     assertEquals(System.getProperty("grinder.date"),
                  GrinderBuild.getDateString());
   }

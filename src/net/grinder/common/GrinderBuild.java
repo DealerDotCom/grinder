@@ -62,6 +62,15 @@ public final class GrinderBuild {
   }
 
   /**
+   * Return the public name of this build.
+   *
+   * @return The name as a String.
+   */
+  public static String getName() {
+    return "The Grinder " + getVersionString();
+  }
+
+  /**
    * Return the build version.
    *
    * @return The build version as a String.
