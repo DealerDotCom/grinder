@@ -21,8 +21,6 @@ from net.grinder.statistics import ExpressionView, StatisticsIndexMap, Statistic
 from threading import Condition
 from weblogic.jndi import WLInitialContextFactory
 
-log = grinder.logger.output
-
 # Look up connection factory and queue in JNDI. 
 properties = Properties()
 properties[Context.PROVIDER_URL] = "t3://localhost:7001"
@@ -68,10 +66,13 @@ recordTest = Test(1, "Receive messages").wrap(recordDeliveryTime)
 
 class TestRunner(MessageListener):
 
-    receivedMessages = 0    
-    cv = Condition()                    # Used to synchronise thread activity.
+    def __init__(self):
+        self.receivedMessages = 0    
+        self.cv = Condition()           # Used to synchronise thread activity.
 
     def __call__(self):
+        log = grinder.logger.output
+
         log("Creating queue session and a receiver")
         session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
 
