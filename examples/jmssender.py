@@ -16,8 +16,6 @@ from javax.jms import Session
 from javax.naming import Context, InitialContext
 from weblogic.jndi import WLInitialContextFactory
 
-log = grinder.logger.output
-
 # Look up connection factory and queue in JNDI. 
 properties = Properties()
 properties[Context.PROVIDER_URL] = "t3://localhost:7001"
@@ -51,6 +49,8 @@ session.close()
 
 class TestRunner:
     def __call__(self):
+        log = grinder.logger.output
+
         log("Creating queue session")
         session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
 
