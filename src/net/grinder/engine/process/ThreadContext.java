@@ -195,9 +195,6 @@ final class ThreadContext implements PluginThreadContext
 	final Test test = testData.getTest();
 	m_threadLogger.setCurrentTestNumber(test.getNumber());
 	
-	m_sleeper.sleepNormal(
-	    test.getParameters().getLong("sleepTime", m_defaultSleepTime));
-
 	try {
 	    final PluginThreadCallbacks pluginThreadCallbacks =
 		testData.getRegisteredPlugin().getPluginThreadCallbacks(this);
