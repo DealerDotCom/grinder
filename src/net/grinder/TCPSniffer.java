@@ -21,7 +21,6 @@ package net.grinder;
 
 import java.lang.reflect.Constructor;
 
-import net.grinder.plugin.http.HttpPluginSnifferFilter;
 import net.grinder.tools.tcpsniffer.EchoFilter;
 import net.grinder.tools.tcpsniffer.NullFilter;
 import net.grinder.tools.tcpsniffer.SnifferEngine;
@@ -87,6 +86,8 @@ public class TCPSniffer
     private SnifferEngine m_snifferEngine = null;
     private final String SSL_ENGINE_CLASS =
 	"net.grinder.tools.tcpsniffer.SSLSnifferEngineImpl";
+    private final String HTTP_PLUGIN_FILTER_CLASS =
+	"net.grinder.plugin.http.HttpPluginSnifferFilter";
 
     private TCPSniffer(String args[])
     {
@@ -112,7 +113,7 @@ public class TCPSniffer
 		    responseFilter = instantiateFilter(args[++i]);
 		}
 		else if (args[i].equals("-httpPluginFilter")) {
-		    requestFilter = new HttpPluginSnifferFilter();
+		    requestFilter = httpPluginFilterInstance();
 		    responseFilter = new NullFilter();
 		}
 		else if (args[i].equals("-localPort")) {
@@ -245,7 +246,7 @@ public class TCPSniffer
 	    return new EchoFilter();
 	}
 	else if (filterClassName.equals("HTTP_PLUGIN")) {
-	    return new HttpPluginSnifferFilter();
+	    return httpPluginFilterInstance();
 	}
 
 	final Class filterClass;
@@ -284,7 +285,23 @@ public class TCPSniffer
 	m_snifferEngine.run();
 	System.err.println("Engine exited");
     }
+
+    /**
+     * The HttpPluginSnifferFilter depends on Jakarta Regexp. Load it
+     * *dynamically so we can build without it.
+     */
+    private SnifferFilter httpPluginFilterInstance() 
+    {
+	try {
+	    final Class httpPluginFilter =
+		Class.forName(HTTP_PLUGIN_FILTER_CLASS);
+
+	    return (SnifferFilter)httpPluginFilter.newInstance();
+	}
+	catch (Exception e) {
+	    throw barfUsage("HTTP Plugin Filter '" + HTTP_PLUGIN_FILTER_CLASS +
+			    "' not found." +
+			    "\n(You must have Jakarta Regexp to build it).");
+	}
+    }
 }
-
-
-
