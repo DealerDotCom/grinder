@@ -1,4 +1,142 @@
+2005-03-19  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestStatisticsView.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, tests-src/net/grinder/statistics/TestTestStatisticsImplementation.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
+	Update tests.
+
+	* .cvsignore: Ignore Eclipse plugin artefacts.
+
+	* src/net/grinder/console/model/Model.java, src/net/grinder/plugin/http/HTTPPlugin.java, tests-src/net/grinder/console/swingui/TestGraph.java:
+	Update for changes to StatisticsIndexMap interface.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java:
+	Replace StatisticsAlreadyReportedException with
+	InvalidContextException.
+
+	* src/net/grinder/script/StatisticsAlreadyReportedException.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/script/Statistics.java:
+	Replace StatisticsAlreadyReportedException with
+	InvalidContextException.
+	Update for changes to StatisticsIndexMap interface.
+
+	* tests-src/net/grinder/common/StubTest.java:
+	Remove unused getParameters() method.
+
+	* src/net/grinder/statistics/package.html: Update.
+
+	* src/net/grinder/statistics/TestStatisticsMap.java:
+	Remove unused code from LightWeightTest.
+
+	* src/net/grinder/statistics/TestStatisticsImplementation.java:
+	StatisticsIndexMap no longer throws exceptions from getIndexFor...
+	methods.
+
+	* src/net/grinder/statistics/StatisticsView.java:
+	Replace use of GrinderException with StatisticsException.
+	Change comparator to be a nested class for unit tests.
+
+	* src/net/grinder/statistics/StatisticsTable.java:
+	Remove unused print() method.
+
+	* src/net/grinder/statistics/StatisticsIndexMap.java:
+	Remove concept of a read-only statistic index; use Java
+	package scope to prevent write access to sample statistic
+	attributes.
+	Javadoc.
+	Reasonable hash code.
+	Simpler toString().
+
+	* src/net/grinder/statistics/StatisticExpressionFactory.java:
+	Replace use of GrindeExcepion with StatisticsException.
+	Factor out nested if's from createExpression.
+
+	* src/net/grinder/statistics/RawStatisticsImplementation.java:
+	Remove concept of a read-only statistic index; use Java
+	package scope to prevent write access to sample statistic
+	attributes.
+	Reasonable hash code.
+	Simpler toString().
+
+	* src/net/grinder/statistics/RawStatistics.java: Formatting.
+
+	* src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticsException.java:
+	Replace use of GrindeExcepion with StatisticsException.
+
+2005-03-15  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties:
+	Standard deviation statistic.
+
+	* src/net/grinder/console/model/Model.java:
+	Update statistic expressions as timedTests is now a sample statistic.
+
+	* tests-src/net/grinder/console/swingui/TestGraph.java, tests-src/net/grinder/statistics/TestStatisticsView.java, tests-src/net/grinder/statistics/TestCommonStatisticsViews.java, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, tests-src/net/grinder/statistics/TestStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, tests-src/net/grinder/statistics/TestTestStatisticsImplementation.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
+	Update for sample statistics.
+
+	* tests-src/net/grinder/console/common/TestResources.java:
+	Fix case of filename.
+
+	* src/net/grinder/statistics/TestStatistics.java, src/net/grinder/statistics/TestStatisticsImplementation.java:
+	Update statistic expressions as timedTests is now a sample statistic.
+	Remove setters - RawStatistics interface is fine for this.
+
+	* src/net/grinder/statistics/TestStatisticsMap.java: Fix checkstyle.
+
+	* src/net/grinder/statistics/ExpressionView.java: Update javadoc.
+
+	* src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/script/Statistics.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/statistics/CommonStatisticsViews.java:
+	Update statistic expressions as timedTests is now a sample statistic.
+
+	* src/net/grinder/statistics/StatisticsIndexMap.java:
+	Support for sample statistics.
+
+	* src/net/grinder/statistics/StatisticExpressionFactory.java:
+	Add sum, count, variance, sqrt functions.
+
+	* src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/RawStatisticsImplementation.java:
+	Remove incrementValue().
+	Add addSample(), reset(), getSum(), getCount(), getVariance()
+	methods for working with sample statistics.
+
+	* build.xml: Fix JUnit assertion message.
+
+2005-03-12  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/ScriptStatisticsImplementation.java:
+	Don't lose CRLF encoding.
+
+	* CHANGES, src/net/grinder/engine/process/ScriptStatisticsImplementation.java:
+	Fix to cope with Test invocation outside of a run. (I.e. from __init__
+	or __del__). Thanks to Bertrand for the bug report.
+
+2005-03-11  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	The TestStatisticsMap owned by the TestRegistry (which owns the
+	statistics that the Tests use) is now reset every report period. A
+	separate TestStatisticsMap is used to hold the accumulated statistics.
+
+	* src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsFactory.java:
+	TestStatisticsFactory.createImplementation() is not needed;
+	create() is good enough.
+
+	* src/net/grinder/statistics/TestStatisticsMap.java: Remove getDelta().
+	Add add() and reset().
+	Change serialVersionUID.
+
+	* src/net/grinder/statistics/TestStatisticsImplementation.java:
+	Implement clone() correctly.
+	Place holder for standard deviation statistic.
+
+	* src/net/grinder/statistics/RawStatisticsImplementation.java:
+	Add snapshot().
+	Remove getDelta().
+	Remove premature optimisation of double array allocation.
+
+	* src/net/grinder/statistics/RawStatistics.java: Add snapshot().
+	Remove getDelta().
+
 2005-03-09  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, ChangeLog: Documentation.
 
 	* src/documentation/content/xdocs/faq.xml:
 	FAQ prompted by Gareth Western.
