@@ -71,7 +71,8 @@ public class CallRecorder extends Assert {
    *  Check that no methods have been called.
    */
   public final void assertNotCalled() {
-    assertEquals(0, m_callDataList.size());
+    assertEquals("Call history:\n" + getCallHistory(),
+                 0, m_callDataList.size());
   }
 
   /**
@@ -150,7 +151,10 @@ public class CallRecorder extends Assert {
     // Just check method names match. Don't worry about modifiers
     // etc., or even which class the method belongs to.
     assertEquals(methodName, callData.getMethodName());
-    assertArraysEqual(parameters, callData.getParameters());
+    assertArraysEqual("Expected " + parametersToString(parameters) +
+                      " but was " +
+                      parametersToString(callData.getParameters()),
+                      parameters, callData.getParameters());
 
     return callData;
   }
@@ -221,26 +225,7 @@ public class CallRecorder extends Assert {
       final StringBuffer result = new StringBuffer();
 
       result.append(getMethodName());
-      result.append('(');
-
-      final Object[] parameters = getParameters();
-
-      for (int i = 0; i < parameters.length; ++i) {
-        if (i != 0) {
-          result.append(", ");
-        }
-
-        if (!parameters[i].getClass().isPrimitive()) {
-          result.append("\"");
-          result.append(parameters[i]);
-          result.append("\"");
-        }
-        else {
-          result.append(parameters[i]);
-        }
-      }
-
-      result.append(')');
+      result.append(parametersToString(getParameters()));
 
       final Throwable throwable = getThrowable();
 
@@ -255,19 +240,51 @@ public class CallRecorder extends Assert {
     }
   }
 
+  private final static String parametersToString(Object[] parameters) {
+    
+    final StringBuffer result = new StringBuffer();
+
+    result.append('(');
+
+    for (int i = 0; i < parameters.length; ++i) {
+      if (i != 0) {
+        result.append(", ");
+      }
+
+      if (!parameters[i].getClass().isPrimitive()) {
+        result.append("\"");
+        result.append(parameters[i]);
+        result.append("\"");
+      }
+      else {
+        result.append(parameters[i]);
+      }
+    }
+
+    result.append(')');
+
+    return result.toString();
+  }
+
   /**
    * Assert that two arrays are equal.
    */
   public static void assertArraysEqual(Object[] array1, Object[] array2) {
+    assertArraysEqual("", array1, array2);
+  }
+    
+
+  public static void assertArraysEqual(String message, Object[] array1,
+                                       Object[] array2) {
 
     if (array1 != null || array2 != null) {
-      assertNotNull(array1);
-      assertNotNull(array2);
+      assertNotNull(message, array1);
+      assertNotNull(message, array2);
 
-      assertEquals(array1.length, array2.length);
+      assertEquals(message, array1.length, array2.length);
 
       for (int i = 0; i < array1.length; ++i) {
-        assertEquals(array1[i], array2[i]);
+        assertEquals(message, array1[i], array2[i]);
       }
     }
   }
