@@ -22,6 +22,7 @@
 package net.grinder.engine.agent;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 import net.grinder.common.Logger;
@@ -31,6 +32,7 @@ import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
 import net.grinder.engine.messages.DistributeFilesMessage;
 import net.grinder.util.FileContents;
+import net.grinder.util.FileUtilities;
 
 
 /**
@@ -59,14 +61,26 @@ final class FileStore {
     else {
       if (!m_directory.mkdir()) {
         throw new FileStoreException(
-          "Could not create directory '" + m_directory + "'");
+          "Can't create directory '" + m_directory + "'");
       }
     }
 
     if (!m_directory.canWrite()) {
       throw new FileStoreException(
-        "Can not write to directory '" + m_directory + "'");
+        "Can't write to directory '" + m_directory + "'");
     }
+
+    try {
+      FileUtilities.deleteContents(m_directory);
+    }
+    catch (IOException e) {
+      throw new FileStoreException(
+        "Can't delete contents of directory '" + m_directory + "'", e);
+    }
+  }
+
+  public File getDirectory() {
+    return m_directory;
   }
 
   public Sender getSender(final Sender delegate) {
@@ -112,6 +126,10 @@ final class FileStore {
   public static final class FileStoreException extends EngineException {
     FileStoreException(String message) {
       super(message);
+    }
+
+    FileStoreException(String message, Throwable e) {
+      super(message, e);
     }
   }
 }

@@ -48,18 +48,25 @@ public class TestFileStore extends AbstractFileTestCase {
 
   public void testConstruction() throws Exception {
 
+    final File file0 = File.createTempFile("file", "", getDirectory());
+    assertEquals(1, getDirectory().list().length);
+
     final FileStore fileStore = new FileStore(getDirectory(), null);
     assertNotNull(fileStore.getSender(null));
+    assertEquals(getDirectory(), fileStore.getDirectory());
+    assertEquals(0, getDirectory().list().length);
 
-    final File aFile = File.createTempFile("file", "", getDirectory());
+    // Can't use a plain file.
+    final File file1 = File.createTempFile("file", "", getDirectory());
 
     try {
-      new FileStore(aFile, null);
+      new FileStore(file1, null);
       fail("Expected FileStoreException");
     }
     catch (FileStore.FileStoreException e) {
     }
 
+    // Can't use a read-only directory.
     final File readOnlyDirectory = new File(getDirectory(), "directory");
     readOnlyDirectory.mkdir();
     readOnlyDirectory.setReadOnly();
@@ -71,8 +78,9 @@ public class TestFileStore extends AbstractFileTestCase {
     catch (FileStore.FileStoreException e) {
     }
 
+    // Can't create a directory below a file.
     try {
-      new FileStore(new File(aFile, "foo"), null);
+      new FileStore(new File(file1, "foo"), null);
       fail("Expected FileStoreException");
     }
     catch (FileStore.FileStoreException e) {
@@ -154,5 +162,13 @@ public class TestFileStore extends AbstractFileTestCase {
     loggerStubFactory.assertSuccess("error", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
     delegateSenderStubFactory.assertNoMoreCalls();
+  }
+
+  public void testFileStoreException() throws Exception {
+    final Exception nested = new Exception("");
+    final FileStore.FileStoreException e =
+      new FileStore.FileStoreException("bite me", nested);
+
+    assertEquals(nested, e.getNestedThrowable());
   }
 }
