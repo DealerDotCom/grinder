@@ -133,7 +133,7 @@ class LabelledGraph extends JPanel
 	{
 	    final Dimension d = super.getPreferredSize();
 	    d.width = 120;
-	    d.height -= 2;
+	    d.height -= 3;
 	    return d;
 	}
 
@@ -160,7 +160,7 @@ class LabelledGraph extends JPanel
     private final Label m_peakTPSLabel;
     private final Label m_transactionsLabel;
     private final Label m_errorsLabel;
-    private final Dimension m_preferredSize = new Dimension(300, 130);
+    private final Dimension m_preferredSize = new Dimension(250, 110);
 
     public LabelledGraph(String title, Resources resources)
     {

@@ -376,19 +376,7 @@ public class ConsoleUI implements ModelListener
         m_frame.pack();
 
 	// Arbitary sizing that looks good for Phil.
-	final int minHeight = 480;
-	final int maxHeight = 800;
-	final Dimension d = m_frame.getSize();
-
-	if (d.height > maxHeight) {
-	    d.height = maxHeight;
-	    m_frame.setSize(d);
-	}
-	else if (d.height < minHeight) {
-	    d.height = minHeight;
-	    m_frame.setSize(d);
-	}
-
+	m_frame.setSize(new Dimension(900, 600));
         m_frame.show();
     }
 
