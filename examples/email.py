@@ -8,7 +8,7 @@
 #
 # Copyright (C) 2004 Tom Pittard
 # Copyright (C) 2004 Philip Aston
-# All rights reserved.
+# Distributed under the terms of The Grinder license.
 
 from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
