@@ -151,7 +151,7 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 	    }
 
 	case 3:
-	    return m_numberFormat.format(statistics.getAverageTPS());
+	    return m_numberFormat.format(statistics.getTPS());
 
 	case 4:
 	    return m_numberFormat.format(statistics.getPeakTPS());

@@ -27,6 +27,7 @@ import net.grinder.console.model.Model;
 import net.grinder.console.model.SampleListener;
 import net.grinder.plugininterface.Test;
 import net.grinder.statistics.CumulativeStatistics;
+import net.grinder.statistics.IntervalStatistics;
 
 
 /**
@@ -65,9 +66,10 @@ public class TestGraphPanel extends JPanel
 		testNumber,
 		new SampleListener() {
 		    public void update(
-			CumulativeStatistics cumulativeStatistics,
-			double tps) {
-			testGraph.add(cumulativeStatistics, tps,
+			IntervalStatistics intervalStatistics,
+			CumulativeStatistics cumulativeStatistics) {
+			testGraph.add(intervalStatistics,
+				      cumulativeStatistics,
 				      model.getNumberFormat());
 		    }
 		}
@@ -78,8 +80,8 @@ public class TestGraphPanel extends JPanel
 
 	model.addTotalSampleListener(
 	    new SampleListener() {
-		public void update(CumulativeStatistics cumulativeStatistics,
-				   double tps) {
+		public void update(IntervalStatistics intervalStatistics,
+				   CumulativeStatistics cumulativeStatistics) {
 		    LabelledGraph.resetPeak();
 		}
 	    });

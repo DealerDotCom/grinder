@@ -25,8 +25,7 @@ package net.grinder.statistics;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface CumulativeStatistics extends Statistics
+public interface CumulativeStatistics extends IntervalStatistics
 {
-    public double getAverageTPS();
     public double getPeakTPS();
 }

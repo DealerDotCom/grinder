@@ -34,6 +34,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.grinder.console.ConsoleException;
 import net.grinder.statistics.CumulativeStatistics;
+import net.grinder.statistics.IntervalStatistics;
 
 
 /**
@@ -226,8 +227,9 @@ class LabelledGraph extends JPanel
 	return m_preferredSize;
     }
 
-    public void add(CumulativeStatistics cumulativeStatistics,
-		    double tps, NumberFormat numberFormat)
+    public void add(IntervalStatistics intervalStatistics,
+		    CumulativeStatistics cumulativeStatistics,
+		    NumberFormat numberFormat)
     {
 	final double averageTime =
 	    cumulativeStatistics.getAverageTransactionTime();
@@ -235,8 +237,8 @@ class LabelledGraph extends JPanel
 	final double peakTPS = cumulativeStatistics.getPeakTPS();
 
 	m_graph.setMaximum(peakTPS);
+	m_graph.add(intervalStatistics.getTPS());
 	m_graph.setColor(calculateColour(averageTime));
-	m_graph.add(tps);
 
 	if (!Double.isNaN(averageTime)) {
 	    m_averageTimeLabel.set(averageTime, numberFormat);
@@ -245,8 +247,7 @@ class LabelledGraph extends JPanel
 	    m_averageTimeLabel.set("----");
 	}
 
-	m_averageTPSLabel.set(cumulativeStatistics.getAverageTPS(),
-			      numberFormat);
+	m_averageTPSLabel.set(cumulativeStatistics.getTPS(), numberFormat);
 	m_peakTPSLabel.set(peakTPS, numberFormat);
 
 	m_transactionsLabel.set(cumulativeStatistics.getTransactions());

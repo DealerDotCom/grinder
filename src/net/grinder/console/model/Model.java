@@ -30,6 +30,7 @@ import net.grinder.console.ConsoleException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.Test;
 import net.grinder.statistics.CumulativeStatistics;
+import net.grinder.statistics.IntervalStatistics;
 import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.GrinderException;
@@ -192,12 +193,53 @@ public class Model
 	}
     }
 
+    private class IntervalStatisticsImplementation
+	implements IntervalStatistics
+    {
+	private StatisticsImplementation m_statistics;
+
+	{
+	    reset();
+	}
+
+	public void reset()
+	{
+	    m_statistics = new StatisticsImplementation();
+	}
+
+	public void add(StatisticsImplementation sample)
+	{
+	    m_statistics.add(sample);
+	}
+
+	public double getAverageTransactionTime()
+	{
+	    return m_statistics.getAverageTransactionTime();
+	}
+	
+	public long getTransactions()
+	{
+	    return m_statistics.getTransactions();
+	}
+	
+	public long getErrors()
+	{
+	    return m_statistics.getErrors();
+	}
+	
+	public synchronized double getTPS()
+	{
+	    return 1000d*getTransactions()/(double)m_sampleInterval;
+	}
+    }
+
     private class SampleAccumulator implements CumulativeStatistics
     {
 	private final List m_listeners = new LinkedList();
+	private IntervalStatisticsImplementation m_intervalStatistics =
+	    new IntervalStatisticsImplementation();
 	private StatisticsImplementation m_total;
-	private long m_transactionsInInterval;
-	private double m_averageTPS;
+	private double m_tps;
 	private double m_peakTPS;
 	
 	{
@@ -209,16 +251,15 @@ public class Model
 	    m_listeners.add(listener);
 	}
 
-	private void add(StatisticsImplementation statistics)
+	private void add(StatisticsImplementation sample)
 	{
-	    m_transactionsInInterval += statistics.getTransactions();
-	    m_total.add(statistics);
+	    m_intervalStatistics.add(sample);
+	    m_total.add(sample);
 	}
 
 	private synchronized void fireSample()
 	{
-	    final double tps =
-		1000d*m_transactionsInInterval/(double)m_sampleInterval;
+	    final double tps = m_intervalStatistics.getTPS();
 
 	    if (tps > m_peakTPS) {
 		m_peakTPS = tps;
@@ -228,23 +269,23 @@ public class Model
 		(getState() == STATE_STOPPED ? m_stopTime : m_currentTime) -
 		m_startTime;
 
-	    m_averageTPS = 1000d*m_total.getTransactions()/totalTime;
+	    m_tps = 1000d*m_total.getTransactions()/totalTime;
 
 	    final Iterator iterator = m_listeners.iterator();
 
 	    while (iterator.hasNext()) {
 		final SampleListener listener =
 		    (SampleListener)iterator.next();
-		listener.update(this, tps);
+		listener.update(m_intervalStatistics, this);
 	    }
 
-	    m_transactionsInInterval = 0;
+	    m_intervalStatistics.reset();
 	}
 
 	private void reset()
 	{
-	    m_transactionsInInterval = 0;
-	    m_averageTPS = 0;
+	    m_intervalStatistics.reset();
+	    m_tps = 0;
 	    m_peakTPS = 0;
 	    m_total = new StatisticsImplementation();
 	}
@@ -264,9 +305,9 @@ public class Model
 	    return m_total.getErrors();
 	}
 
-	public double getAverageTPS()
+	public double getTPS()
 	{
-	    return m_averageTPS;
+	    return m_tps;
 	}
 
 	public double getPeakTPS()
@@ -334,6 +375,8 @@ public class Model
 	return m_sampleInterval;
     }
 
+    /** Should really wait until the next sample boundary before
+     * changing. **/
     public void setSampleInterval(int i)
     {
 	m_sampleInterval = i;

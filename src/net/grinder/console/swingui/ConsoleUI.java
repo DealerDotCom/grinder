@@ -73,6 +73,7 @@ import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
 import net.grinder.statistics.CumulativeStatistics;
+import net.grinder.statistics.IntervalStatistics;
 
 
 /**
@@ -180,12 +181,15 @@ public class ConsoleUI implements ModelListener
 		private final String m_suffix =
 		    " " + m_resources.getString("tps.units");
 
-		public void update(CumulativeStatistics cumulativeStatistics,
-				   double tps) {
+		public void update(IntervalStatistics intervalStatistics,
+				   CumulativeStatistics cumulativeStatistics) {
 		    final NumberFormat format = m_model.getNumberFormat();
 		    
-		    tpsLabel.setText(format.format(tps) + m_suffix);
-		    totalGraph.add(cumulativeStatistics, tps, format);
+		    tpsLabel.setText(
+			format.format(intervalStatistics.getTPS()) + m_suffix);
+
+		    totalGraph.add(intervalStatistics, cumulativeStatistics,
+				   format);
 		}
 	    });
 

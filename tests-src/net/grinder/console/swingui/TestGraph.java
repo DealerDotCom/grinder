@@ -32,6 +32,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import net.grinder.statistics.CumulativeStatistics;
+import net.grinder.statistics.IntervalStatistics;
 
 
 /**
@@ -111,7 +112,9 @@ public class TestGraph extends TestCase
 	final DecimalFormat format = new DecimalFormat();
 
 	for (int i=0; i<500; i++) {
-	    labelledGraph.add(myCS, myCS.getInstantTPS(), format);
+	    myCS.next();
+	    labelledGraph.add(myCS.getIntervalStatistics(),
+			      myCS, format);
 	    pause();
 	}
     }
@@ -125,29 +128,32 @@ public class TestGraph extends TestCase
 
     private class MyCumulativeStatistics implements CumulativeStatistics
     {
-	private int m_number = 0;
+	private long m_samples = 0;
+	private long m_transactions = 0;
+	private long m_errors = 0;
 	private double m_totalTime = 0;
 	private double m_totalTPS = 0;
 	private double m_peakTPS = 0;
+	private IntervalStatisticsImplementation m_intervalStatistics;
 
 	public double getAverageTransactionTime()
 	{
-	    return m_totalTime/m_number;
+	    return m_totalTime/m_samples;
 	}
 	
 	public long getTransactions()
 	{
-	    return m_number;
+	    return m_transactions;
 	}
 	
 	public long getErrors()
 	{
-	    return 0;
+	    return m_errors;
 	}
 
-	public double getAverageTPS()
+	public double getTPS()
 	{
-	    return m_totalTPS/m_number;
+	    return m_totalTPS/m_samples;
 	}
 	
 	public double getPeakTPS()
@@ -155,18 +161,57 @@ public class TestGraph extends TestCase
 	    return m_peakTPS;
 	}
 
-	public double getInstantTPS()
+	public IntervalStatistics getIntervalStatistics()
 	{
-	    final double tps = s_random.nextDouble() * 100;
-	    m_totalTPS += tps;
-	    m_totalTime += s_random.nextDouble() * 20;
-	    ++m_number;
+	    return m_intervalStatistics;
+	}
 
+	public void next()
+	{
+	    m_intervalStatistics = new IntervalStatisticsImplementation();
+
+	    double tps = m_intervalStatistics.getTPS();
+	    
 	    if (tps > m_peakTPS) {
 		m_peakTPS = tps;
 	    }
 
-	    return tps;
+	    m_totalTPS += tps;
+	    m_transactions += m_intervalStatistics.getTransactions();
+	    m_errors += m_intervalStatistics.getErrors();
+	    m_totalTime += m_intervalStatistics.getAverageTransactionTime();
+
+	    ++m_samples;
+	}
+
+	private class IntervalStatisticsImplementation
+	    implements IntervalStatistics
+	{
+	    private double m_tps = s_random.nextDouble() * 100;
+	    private long m_transactions = s_random.nextInt(10);
+	    private long m_errors = s_random.nextInt(20)/19;
+	    private double m_averageTransactionTime =
+		s_random.nextDouble() * 20 * m_transactions;
+
+	    public double getAverageTransactionTime() 
+	    {
+		return m_averageTransactionTime;
+	    }
+
+	    public long getTransactions()
+	    {
+		return m_transactions;
+	    }
+
+	    public long getErrors()
+	    {
+		return m_errors;
+	    }
+
+	    public double getTPS()
+	    {
+		return m_tps;
+	    }
 	}
     }
 }

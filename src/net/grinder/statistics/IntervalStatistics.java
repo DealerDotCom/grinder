@@ -16,20 +16,16 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.console.model;
-
-import java.util.EventListener;
-
-import net.grinder.statistics.CumulativeStatistics;
-import net.grinder.statistics.IntervalStatistics;
+package net.grinder.statistics;
 
 
 /**
+ * Statistics interface.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface SampleListener extends EventListener
+public interface IntervalStatistics extends Statistics
 {
-    public void update(IntervalStatistics intervalStatistics,
-		       CumulativeStatistics cumulativeStatistics);
+    public double getTPS();
 }
