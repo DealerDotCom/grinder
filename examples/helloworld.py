@@ -12,14 +12,14 @@ from net.grinder.script import Test
 log = grinder.logger.output
 
 # Create a Test with a test number and a description. The test will be
-# automatically registered. with The Grinder console if you are using
+# automatically registered with The Grinder console if you are using
 # it.
 test1 = Test(1, "Log method")
 
-# Wrap the log() method with our Test and call the result
-# logTest. Calls to logTest() will be recorded and forwarded
-# on to the real log() method.
-logTest = test1.wrap(log)
+# Wrap the log() method with our Test and call the result logWrapper.
+# Calls to logWrapper() will be recorded and forwarded on to the real
+# log() method.
+logWrapper = test1.wrap(log)
 
 # A TestRunner instance is created for each thread. It can be used to
 # store thread-specific data.
@@ -27,4 +27,4 @@ class TestRunner:
     
     # This method is called for every run.
     def __call__(self):
-        logTest("Hello World")
+        logWrapper("Hello World")

@@ -28,8 +28,6 @@
              targetFile="junit-plugin.html" type="xhtml-1"/>
       <entry name="The Console" sourceFile="console-xhtml.xml" 
              targetFile="console.html" type="xhtml-1"/>
-      <entry name="Timing" sourceFile="timing-xhtml.xml" 
-             targetFile="timing.html" type="xhtml-1"/>
       <entry name="TCPSniffer" sourceFile="tcpsniffer-xhtml.xml" 
              targetFile="tcpsniffer.html" type="xhtml-1"/>
       <entry name="FAQ" sourceFile="faq-xhtml-toc.xml" 
@@ -41,8 +39,6 @@
              targetFile="index.html" type="g3-xhtml-1"/>
       <entry name="Getting Started" sourceFile="getting-started-xhtml.xml" 
              targetFile="getting-started.html" type="g3-xhtml-1"/>
-      <entry name="Properties" sourceFile="properties-xhtml.xml" 
-             targetFile="properties.html" type="g3-xhtml-1"/>
       <entry name="Scripts" sourceFile="scripts-xhtml.xml" 
              targetFile="scripts.html" type="g3-xhtml-1"/>
       <entry name="HTTP Plug-in" sourceFile="http-plugin-xhtml.xml" 
@@ -55,16 +51,15 @@
              targetFile="tcpproxy.html" type="g3-xhtml-1"/>
       <entry name="FAQ" sourceFile="faq-xhtml.xml" 
              targetFile="faq.html" type="g3-xhtml-toc-1"/>
-      <entry name="Timing" sourceFile="timing-xhtml.xml" 
-             targetFile="timing.html" type="g3-xhtml-1"/>
       <entry name="The Future" sourceFile="future-xhtml.xml" 
              targetFile="future.html" type="g3-xhtml-1"/>
-
     </section>
     <section name="Development" sourceDir="development" targetDir="development"
              type="section">
       <entry name="Building" sourceFile="development-xhtml.xml" 
              targetFile="index.html" type="xhtml-1"/>
+      <entry name="Timing" sourceFile="timing-xhtml.xml" 
+             targetFile="timing.html" type="xhtml-1"/>
     </section>
 
     <directory sourceDir="images" targetDir="images" type="copy">

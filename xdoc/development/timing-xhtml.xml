@@ -75,29 +75,30 @@ Because of this I decided there is little point in making the
 measuring of response times. I call this the "timer client" model.</p>
 
 <p>As of The Grinder 2.6.1 you can set the property <a
-href="properties.html#grinder.recordTime">grinder.recordTime</a> to be
-<code>false</code> which will cause the worker processes that use that
-<code>grinder.properties</code> file to not record the transaction
-times nor report them to the console. You should run all but one of
-your worker processes with this property set to <code>false</code>.
-These are the <em>load clients</em>.</p>
+href="../manual/properties.html#grinder.recordTime">grinder.recordTime</a>
+to be <code>false</code> which will cause the worker processes that
+use that <code>grinder.properties</code> file to not record the
+transaction times nor report them to the console. You should run all
+but one of your worker processes with this property set to
+<code>false</code>. These are the <em>load clients</em>.</p>
 
 <p>You should copy the grinder.properties file to a dedicated
 <em>timer client</em> machine, change <a
-href="properties.html#grinder.recordTime">grinder.recordTime</a> to be
-<code>true</code>, and set <a
-href="properties.html#grinder.processes">grinder.processes</a> and <a
-href="grinder.threads">grinder.threads</a> to <code>1</code>. The
-single worker process will run on the timing client, record all timing
-information and (optionally) report it to the console. The less other
-stuff you run on the timing client, the better.</p>
+href="../manual/properties.html#grinder.recordTime">grinder.recordTime</a>
+to be <code>true</code>, and set <a
+href="../manual/properties.html#grinder.processes">grinder.processes</a>
+and <a
+href="../manual/properties.html#grinder.threads">grinder.threads</a>
+to <code>1</code>. The single worker process will run on the timing
+client, record all timing information and (optionally) report it to
+the console. The less other stuff you run on the timing client, the
+better.</p>
 
 <p>Its messy that you have to use a modified
 <code>grinder.properties</code> file. I considered implementing this
-using a property like "<a
-href="properties.html#grinder.recordTime.host">grinder.recordTime.host</a>",
-which you would set to the timing client host name. Instead, I've done
-the simplest thing, we will revisit this as part of The Grinder 3.</p>
+using a property like <code>grinder.recordTime.host</code>, which you
+would set to the timing client host name. Instead, I've done the
+simplest thing, we will revisit this as part of The Grinder 3.</p>
 
 <p>The disadvantage of this method is that the statistical sample
 of the transaction times is much smaller.</p>

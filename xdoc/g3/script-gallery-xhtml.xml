@@ -9,9 +9,9 @@
 that can be used with The Grinder 3. The scripts can also be found in
 the <code>examples</code> directory of the distribution. To use one of
 these scripts, you'll need to set up a <a
-href="./properties.html"><code>grinder.properties</code></a> file.
-Please also make sure you are using the latest beta version of The
-Grinder 3.</p>
+href="./getting-started.html#properties"><code>grinder.properties</code></a>
+file. Please also make sure you are using the latest beta version of
+The Grinder 3.</p>
 
 <p>If you're new to Python, it might help to know that that blocks are
 delimited by lexical indentation.</p>
@@ -48,14 +48,14 @@ href="mailto:grinder-use@lists.sf.net">grinder-use@lists.sf.net</a>.</p>
 </span>log = grinder.logger.output
 
 <span class="comment"># Create a Test with a test number and a description. The test will be
-# automatically registered. with The Grinder console if you are using
+# automatically registered with The Grinder console if you are using
 # it.
 </span>test1 = Test(1, &quot;<span class="string">Log method</span>&quot;)
 
-<span class="comment"># Wrap the log() method with our Test and call the result
-# logTest. Calls to logTest() will be recorded and forwarded
-# on to the real log() method.
-</span>logTest = test1.wrap(log)
+<span class="comment"># Wrap the log() method with our Test and call the result logWrapper.
+# Calls to logWrapper() will be recorded and forwarded on to the real
+# log() method.
+</span>logWrapper = test1.wrap(log)
 
 <span class="comment"># A TestRunner instance is created for each thread. It can be used to
 # store thread-specific data.
@@ -63,7 +63,7 @@ href="mailto:grinder-use@lists.sf.net">grinder-use@lists.sf.net</a>.</p>
     
     <span class="comment"># This method is called for every run.
 </span>    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
-        logTest(&quot;<span class="string">Hello World</span>&quot;)
+        logWrapper(&quot;<span class="string">Hello World</span>&quot;)
 </pre>
 </blockquote>
 

@@ -91,10 +91,10 @@ significantly. Plug-ins written for The Grinder 2 will not work with
 The Grinder 3.</li>
 
 <li>Many <a
-href="./properties.html"><code>grinder.properties</code></a> have been
-removed. The features formally accessed through setting properties are
-now set by making calls to the plug-in from the test script. Some of
-the remaining property names have been renamed.</li>
+href="./getting-started.html#properties"><code>grinder.properties</code></a>
+have been removed. The features formally accessed through setting
+properties are now set by making calls to the plug-in from the test
+script. Some of the remaining property names have been renamed.</li>
 
 <li>HTTP tests can now be directed through an HTTP proxy.</li>
 

@@ -13,11 +13,11 @@
 
 <p><em>Start processes</em>, <em>Reset processes</em> and <em>Stop
 processes</em> send signals to Grinder processes that are listening.
-(See <a href="properties.html#grinder.receiveConsoleSignals">
+(See <a href="getting-started.html#grinder.receiveConsoleSignals">
 grinder.receiveConsoleSignals</a>, <a
-href="properties.html#grinder.grinderAddress">grinder.grinderAddress</a>
+href="getting-started.html#grinder.grinderAddress">grinder.grinderAddress</a>
 and <a
-href="properties.html#grinder.grinderPort">grinder.grinderPort</a>.)</p>
+href="getting-started.html#grinder.grinderPort">grinder.grinderPort</a>.)</p>
 
 <p>Worker processes that are configured to receive console signals go
 through three states:</p>
@@ -43,7 +43,7 @@ file and launch new worker processes.</p>
 <p>The <em>Stop processes</em> control signals all processes to exit.</p>
 
 <p><em><strong>Warning</strong> - unless <a
-href="properties.html#grinder.appendLog">grinder.appendLog</a> is
+href="getting-started.html#grinder.appendLog">grinder.appendLog</a> is
 true, new worker process logs will overwrite those from previous
 runs.</em></p>
 
@@ -54,7 +54,7 @@ the worker processes. capture. It is important to understand that
 these only control the console behaviour. For example, they do not
 adjust the frequency at which the worker processes send reports (see
 <a
-href="properties.html#grinder.reportToConsole.interval">grinder.reportToConsole.interval</a>
+href="getting-started.html#grinder.reportToConsole.interval">grinder.reportToConsole.interval</a>
 for that). Additionally, the sample controls do not interact in any
 way with the process controls.</p>
 
