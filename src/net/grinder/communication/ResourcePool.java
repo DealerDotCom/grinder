@@ -47,7 +47,7 @@ final class ResourcePool {
   private int m_lastReservable = 0;
   private int m_nextPurge = 0;
 
-  /** Synchronise on m_modelListeners before accessing. */
+  /** Synchronise on m_listeners before accessing. */
   private final List m_listeners = new LinkedList();
 
   private final ListenerNotification m_notifyAdd =
