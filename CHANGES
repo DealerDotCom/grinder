@@ -1,3 +1,16 @@
+Grinder 2.5
+-----------
+
+  I've up'ed the read buffer size to 64K to allow more test statistics
+  to be sent in a single multicast message. If this is too low you'll get
+  exceptions - either null pointer exceptions in the Receiver or
+  "can't bind to socket" exceptions in the Sender code. If any one is
+  still running into problems, please mail
+  grinder-use@lists.sourceforge.net.
+
+  JRun friendly patch from Stuart Tily.
+
+
 Grinder 2.4
 -----------
 
