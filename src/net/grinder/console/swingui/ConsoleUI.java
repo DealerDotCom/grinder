@@ -88,6 +88,9 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 {
     private final static Font s_tpsFont =
 	new Font("helvetica", Font.ITALIC | Font.BOLD, 40);
+    private final static Color s_defaultLabelForeground =
+	new JLabel().getForeground();
+    private final static Color s_darkGreen = new Color(0, 0x80, 00);
 
     private final Map m_actionTable = new HashMap();
     private final StartAction m_startAction;
@@ -125,7 +128,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 	m_stateWaitingString = m_resources.getString("state.waiting.label");
 	m_stateStoppedString = m_resources.getString("state.stopped.label");
 	m_stateStoppedAndIgnoringString =
-	    m_resources.getString("state.stoppedAndIgnoring.label");
+	    m_resources.getString("state.stoppedAndIgnoring.label") + " ";
 	m_stateCapturingString =
 	    m_resources.getString("state.capturing.label") + " ";
 	m_stateUnknownString = m_resources.getString("state.unknown.label");
@@ -362,17 +365,22 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 	    else {
 		m_stateLabel.setText(m_stateWaitingString);
 	    }
+	    m_stateLabel.setForeground(s_defaultLabelForeground);
 	}
 	else if (state == Model.STATE_STOPPED) {
 	    if (receivedReport) {
-		m_stateLabel.setText(m_stateStoppedAndIgnoringString);
+		m_stateLabel.setText(m_stateStoppedAndIgnoringString +
+				     sampleCount);
 	    }
 	    else {
 		m_stateLabel.setText(m_stateStoppedString);
 	    }
+
+	    m_stateLabel.setForeground(Color.red);
 	}
 	else if (state == Model.STATE_CAPTURING) {
 	    m_stateLabel.setText(m_stateCapturingString + sampleCount);
+	    m_stateLabel.setForeground(s_darkGreen);
 	}
 	else {
 	    m_stateLabel.setText(m_stateUnknownString);
