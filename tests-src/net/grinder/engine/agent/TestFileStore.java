@@ -54,15 +54,17 @@ public class TestFileStore extends AbstractFileTestCase {
 
     final FileStore fileStore = new FileStore(getDirectory(), null);
     assertNotNull(fileStore.getSender(null));
-
     final File currentDirectory = fileStore.getDirectory().getAsFile();
     assertNotNull(currentDirectory);
 
     assertTrue(
       currentDirectory.getPath().startsWith(getDirectory().getPath()));
 
-    assertEquals(2, getDirectory().list().length);
-    assertEquals(0, currentDirectory.list().length);
+    // No messages have been received, so no physical directories will
+    // have been created yet.
+
+    assertEquals(1, getDirectory().list().length);
+    assertTrue(!currentDirectory.exists());
 
     // Can't use a plain file.
     final File file1 = File.createTempFile("file", "", getDirectory());
