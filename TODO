@@ -5,6 +5,13 @@ it too :-). The list is roughly in priority order.]
 
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 
+  Make console indepenedent of grinder.properties. Grinder processes
+  should register tests with a new type of message. TestImplementation
+  should set a serialisation id to prevent breaking old consoles.
+
+  Clean up the plug in interface. Split GrinderProperties into
+  interface and implementation.
+
   Update HTTPClient to measure "time to first byte" and "Time to last
   byte" as an alternative to implementing timeIncludesTransaction.
 
