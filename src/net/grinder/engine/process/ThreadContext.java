@@ -57,8 +57,6 @@ final class ThreadContext implements PluginThreadContext
     private final Sleeper m_sleeper;
     private final TestResult m_testResult = new TestResult();
 
-    private boolean m_abortedRun;
-
     private final TestStatistics m_currentTestStatistics =
 	TestStatisticsFactory.getInstance().create();
     private final ExpressionView[] m_detailExpressionViews =
@@ -104,7 +102,8 @@ final class ThreadContext implements PluginThreadContext
 	return (ThreadContext)s_threadInstance.get();
     }
     
-    public final long getElapsedTime() {
+    public final long getElapsedTime() 
+    {
 	return m_elapsedTime;
     }
 
@@ -180,8 +179,17 @@ final class ThreadContext implements PluginThreadContext
 	return m_threadLogger;
     }
 
+    /**
+     * This could be factored out to a separate "TestInvoker" class.
+     * Most of the members used (m_currentTestStatistics,
+     * m_testResult, m_scratchBuffer) are reused purely to prevent
+     * object proliferation. However, the sensible owner for a
+     * TestInvoker would be ThreadContext, so keep it here for now.
+     * Also, all the startTimer/stopTimer/getElapsedTime interface is
+     * part of the PluginThreadContext interface.
+     */
     final TestResult invokeTest(TestData testData)
-	throws EngineException, PluginException, Sleeper.ShutdownException
+	throws EngineException, Sleeper.ShutdownException
     {
 	m_testResult.reset();
 	m_currentTestStatistics.reset();
@@ -220,7 +228,16 @@ final class ThreadContext implements PluginThreadContext
 		m_currentTestStatistics.addError();
 		m_threadLogger.logError("Plug-in reported an error");
 	    }
+	}
+	catch (PluginException e) {
+	    m_currentTestStatistics.addError();
+	    m_testResult.setSuccess(false);
+	    m_testResult.setException(e);
 
+	    m_threadLogger.logError("Plug-in threw: " + e);
+	    e.printStackTrace(m_threadLogger.getErrorLogWriter());
+	}
+	finally {
 	    if (m_dataWriter != null) {
 		m_scratchBuffer.setLength(0);
 		m_scratchBuffer.append(getThreadID());
@@ -249,12 +266,7 @@ final class ThreadContext implements PluginThreadContext
 		
 		m_dataWriter.println(m_scratchBuffer);
 	    }
-	}
-	catch (PluginException e) {
-	    m_currentTestStatistics.addError();
-	    throw e;
-	}
-	finally {
+
 	    m_threadLogger.setCurrentTestNumber(-1);
 	    testData.getStatistics().add(m_currentTestStatistics);
 	}
@@ -271,6 +283,7 @@ final class ThreadContext implements PluginThreadContext
 	implements net.grinder.script.TestResult
     {
 	private boolean m_successful;
+	private Exception m_exception;
 
 	public final boolean isSuccessful()
 	{
@@ -282,9 +295,20 @@ final class ThreadContext implements PluginThreadContext
 	    m_successful = b;
 	}
 
+	public final Exception getException() 
+	{
+	    return m_exception;
+	}
+
+	final void setException(Exception e)
+	{
+	    m_exception = e;
+	}
+
 	final void reset()
 	{
 	    m_successful = false;
+	    m_exception = null;
 	}
     }
 

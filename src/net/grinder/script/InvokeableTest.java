@@ -26,12 +26,24 @@ import net.grinder.common.Test;
 
 
 /**
- * 
+ * Interface that represents a test that can be invoked by a script.
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public interface InvokeableTest extends Test
 {
+    /**
+     * Invoked the test.
+     *
+     * @return The test result.
+     * @exception GrinderException If a fatal error occurs. Scripts
+     * should not usuall catch this exception.{@link
+     * net.grinder.plugininterface.PluginException}s reported by the
+     * test implementation are not thrown by this method; instead in
+     * {@link TestResult.isSuccessful} returns <code>false</code> and
+     * any exception can be retrieved with {@link
+     * TestResult.getException}.
+     */
     TestResult invoke() throws GrinderException;
 }
