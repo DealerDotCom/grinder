@@ -324,10 +324,29 @@ random = Random()
 <h3><a name="amazon">Simple HTTP Web Service</a></h3>
 
 <p class="script-description">Call an Amazon.com web service to obtain
-information about a book. Before running this example you will need to
-obtain your own Amazon.com web service license and replace the script
-text <code>&lt;insert license key here&gt;</code> with the license
-key.</p>
+information about a book. To run this script you must install the
+standard Python <code>xml</code> module. Here's one way to do that:
+
+<ol class="script-description">
+
+<li>Download and install Jython 2.1</li>
+
+<li>Add the following line to <code>grinder.properties</code>
+(changing the path appropriately):
+<pre>grinder.jvm.arguments=-Dpython.home=c:/jython-2.1</pre>
+</li>
+
+<li>Add Jakarta Xerces (or one of the other parsers supported by the
+<code>xml</code> module) to your <code>CLASSPATH</code>.</li>
+
+</ol>
+</p>
+
+<p class="script-description">
+You will also need to obtain your own Amazon.com web service license
+and replace the script text <code>&lt;insert license key
+here&gt;</code> with the license key.
+</p>
 
 <blockquote>
 <pre>
