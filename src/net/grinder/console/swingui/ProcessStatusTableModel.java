@@ -27,7 +27,8 @@ import javax.swing.table.AbstractTableModel;
 import net.grinder.common.ProcessStatus;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
-import net.grinder.console.communication.ProcessStatusSet;
+import net.grinder.console.communication.ProcessControl;
+import net.grinder.console.communication.ProcessStatusListener;
 
 
 /**
@@ -59,7 +60,7 @@ class ProcessStatusTableModel
   private String m_totalDataString = "";
 
   public ProcessStatusTableModel(Resources resources,
-                                 ProcessStatusSet processStatusSet)
+                                 ProcessControl processControl)
     throws ConsoleException {
 
     m_processIDString = resources.getString("processTable.idColumn.label");
@@ -71,9 +72,9 @@ class ProcessStatusTableModel
     m_stateRunningString = resources.getString("processState.running.label");
     m_stateFinishedString = resources.getString("processState.finished.label");
 
-    processStatusSet.addListener(
-      new SwingDispatchedProcessStatusSetListener(
-        new ProcessStatusSet.Listener() {
+    processControl.addProcessStatusListener(
+      new SwingDispatchedProcessStatusListener(
+        new ProcessStatusListener() {
           public void update(ProcessStatus[] data,
                              int runningSum, int totalSum) {
             m_data = data;

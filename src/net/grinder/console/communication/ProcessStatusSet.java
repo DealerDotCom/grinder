@@ -24,7 +24,6 @@ package net.grinder.console.communication;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.EventListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,14 +44,24 @@ import net.grinder.common.ProcessStatus;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ProcessStatusSet {
+final class ProcessStatusSet {
 
-  private static final long REFRESH_TIME = 500;
-  private static final long FLUSH_TIME = 2000;
+  /**
+   * Period at which to update the listeners.
+   */
+  private static final long UPDATE_PERIOD = 500;
 
-  private final Timer m_timer = new Timer(true);
+  /**
+   * Every FLUSH_PERIOD, process statuses are checked. Those that
+   * haven't reported since a {start|stop|reset} event are marked, and
+   * are discarded if they still haven't been updated by the next
+   * FLUSH_PERIOD.
+   */
+  private static final long FLUSH_PERIOD = 2000;
+
   private final Map m_processes = new HashMap();
-  private final Comparator m_sorter;
+  private final Timer m_timer = new Timer(true);
+  private final Comparator m_sorter = new ProcessStatusComparator();
 
   /**
    * Synchronise on m_listeners before accessing.
@@ -66,51 +75,26 @@ public final class ProcessStatusSet {
   private int m_currentGeneration = 0;
 
   /**
-   * Creates a new <code>ProcessStatusSet</code> instance.
+   * Constructor.
    */
   public ProcessStatusSet() {
-    m_sorter = new Comparator() {
-        public int compare(Object o1, Object o2) {
-          final ProcessStatus p1 = (ProcessStatus)o1;
-          final ProcessStatus p2 = (ProcessStatus)o2;
-
-          final int compareState = p1.getState() - p2.getState();
-
-          if (compareState != 0) {
-            return compareState;
-          }
-          else {
-            return p1.getName().compareTo(p2.getName());
-          }
-        }
-      };
-
-    m_timer.scheduleAtFixedRate(
-      new TimerTask() {
-        public void run() { fireUpdate(); }
-      },
-      0, REFRESH_TIME);
-
-    m_timer.scheduleAtFixedRate(
-      new TimerTask() {
-        public void run() { flush(); }
-      },
-      0, FLUSH_TIME);
   }
 
   /**
-   * Listener interface for receiving updates.
+   * Separate from the constructor for the unit tests.
    */
-  public interface Listener extends EventListener {
+  void startProcessing() {
+    m_timer.schedule(
+      new TimerTask() {
+        public void run() { update(); }
+      },
+      0, ProcessStatusSet.UPDATE_PERIOD);
 
-    /**
-     * Called when the ProcessStatusSet has new data.
-     *
-     * @param data The new process status data.
-     * @param runningThreads The total number of running threads.
-     * @param totalThreads The total number of potential threads.
-     */
-    void update(ProcessStatus[] data, int runningThreads, int totalThreads);
+    m_timer.schedule(
+      new TimerTask() {
+        public void run() { flush(); }
+      },
+      0, ProcessStatusSet.FLUSH_PERIOD);
   }
 
   /**
@@ -118,14 +102,16 @@ public final class ProcessStatusSet {
    *
    * @param listener A listener.
    */
-  public void addListener(Listener listener) {
+  public void addListener(ProcessStatusListener listener) {
     synchronized (m_listeners) {
       m_listeners.add(listener);
     }
   }
 
-  private void fireUpdate() {
-
+  /**
+   * Package scope for unit tests.
+   */
+  void update() {
     if (!m_newData) {
       return;
     }
@@ -153,7 +139,9 @@ public final class ProcessStatusSet {
       final Iterator iterator = m_listeners.iterator();
 
       while (iterator.hasNext()) {
-        final Listener listener = (Listener)iterator.next();
+        final ProcessStatusListener listener =
+          (ProcessStatusListener)iterator.next();
+
         listener.update(data, runningThreads, totalThreads);
       }
     }
@@ -163,7 +151,7 @@ public final class ProcessStatusSet {
    * Use to notify this object of a start/reset/stop event.
    */
   public void processEvent() {
-    m_lastProcessEventGeneration = m_currentGeneration;
+    m_lastProcessEventGeneration = ++m_currentGeneration;
   }
 
   /**
@@ -193,7 +181,10 @@ public final class ProcessStatusSet {
     m_newData = true;
   }
 
-  private void flush() {
+  /**
+   * Package scope for unit tests.
+   */
+  void flush() {
     final Set zombies = new HashSet();
 
     synchronized (this) {
@@ -215,8 +206,6 @@ public final class ProcessStatusSet {
         m_newData = true;
       }
     }
-
-    ++m_currentGeneration;
   }
 
   private final class ProcessStatusImplementation implements ProcessStatus {
@@ -232,7 +221,6 @@ public final class ProcessStatusSet {
     ProcessStatusImplementation(String identity, String name) {
       m_identity = identity;
       m_name = name;
-      touch();
     }
 
     void set(ProcessStatus processStatus) {
@@ -240,25 +228,22 @@ public final class ProcessStatusSet {
       m_totalNumberOfThreads = processStatus.getTotalNumberOfThreads();
       m_numberOfRunningThreads =
         processStatus.getNumberOfRunningThreads();
-      touch();
+
+      m_lastTouchedGeneration = m_currentGeneration;
+      m_reapable = false;
     }
 
     boolean shouldPurge() {
       if (m_reapable) {
         return true;
       }
-      else if (m_lastTouchedGeneration <= m_lastProcessEventGeneration) {
-        // Processes have a short time to report after a
-        // {start|reset|stop} event.
+      else if (m_lastTouchedGeneration < m_lastProcessEventGeneration) {
+        // Processes have a short time to report after an event - see
+        // the javadoc for FLUSH_PERIOD.
         m_reapable = true;
       }
 
       return false;
-    }
-
-    private void touch() {
-      m_lastTouchedGeneration = m_currentGeneration;
-      m_reapable = false;
     }
 
     public String getIdentity() {
@@ -279,6 +264,32 @@ public final class ProcessStatusSet {
 
     public short getTotalNumberOfThreads() {
       return m_totalNumberOfThreads;
+    }
+
+    public String toString() {
+      return
+        "ProcessStatusImplementation(" +
+        getIdentity() + ", " +
+        getName() + ", " +
+        getState() + ", " +
+        getNumberOfRunningThreads() + ", " +
+        getTotalNumberOfThreads() + ")";
+    }
+  }
+
+  private static final class ProcessStatusComparator implements Comparator {
+    public int compare(Object o1, Object o2) {
+      final ProcessStatus p1 = (ProcessStatus)o1;
+      final ProcessStatus p2 = (ProcessStatus)o2;
+
+      final int compareState = p1.getState() - p2.getState();
+
+      if (compareState != 0) {
+        return compareState;
+      }
+      else {
+        return p1.getName().compareTo(p2.getName());
+      }
     }
   }
 }

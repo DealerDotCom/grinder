@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 import javax.swing.SwingUtilities;
 
 import net.grinder.common.ProcessStatus;
-import net.grinder.console.communication.ProcessStatusSet;
+import net.grinder.console.communication.ProcessStatusListener;
 
 
 /**
@@ -36,16 +36,15 @@ import net.grinder.console.communication.ProcessStatusSet;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestSwingDispatchedProcessStatusSetListener extends TestCase {
+public class TestSwingDispatchedProcessStatusListener extends TestCase {
 
   private Runnable m_voidRunnable = new Runnable() { public void run() {} };
 
   public void testDispatch() throws Exception {
-    final MyProcessStatusSetListener listener =
-      new MyProcessStatusSetListener();
+    final MyProcessStatusListener listener = new MyProcessStatusListener();
 
-    final ProcessStatusSet.Listener swingDispatchedListener =
-      new SwingDispatchedProcessStatusSetListener(listener);
+    final ProcessStatusListener swingDispatchedListener =
+      new SwingDispatchedProcessStatusListener(listener);
 
     final ProcessStatus[] data = new ProcessStatus[0];
     final int running = 1;
@@ -63,8 +62,7 @@ public class TestSwingDispatchedProcessStatusSetListener extends TestCase {
     assertEquals(total, listener.m_updateTotal);
   }
 
-  private class MyProcessStatusSetListener
-    implements ProcessStatusSet.Listener {
+  private class MyProcessStatusListener implements ProcessStatusListener {
     public boolean m_updateCalled = false;
     public ProcessStatus[] m_updateData;
     public int m_updateRunning;

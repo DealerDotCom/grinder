@@ -21,6 +21,8 @@
 
 package net.grinder.console.communication;
 
+import net.grinder.communication.Message;
+import net.grinder.console.messages.ReportStatusMessage;
 import net.grinder.engine.messages.DistributeFilesMessage;
 import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
@@ -29,7 +31,7 @@ import net.grinder.util.FileContents;
 
 
 /**
- * Interface for issuing commands to the agent and worker processes.
+ * Issue commands to the agent and worker processes.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -37,16 +39,31 @@ import net.grinder.util.FileContents;
 final class ProcessControlImplementation implements ProcessControl {
 
   private final ConsoleCommunication m_communication;
+  private final ProcessStatusSet m_processStatusSet = new ProcessStatusSet();
 
   ProcessControlImplementation(ConsoleCommunication consoleCommunication) {
     m_communication = consoleCommunication;
+
+    consoleCommunication.addMessageHandler(
+      new ConsoleCommunication.MessageHandler() {
+        public boolean process(Message message) {
+          if (message instanceof ReportStatusMessage) {
+            m_processStatusSet.addStatusReport((ReportStatusMessage)message);
+            return true;
+          }
+
+          return false;
+        }
+      });
+
+    m_processStatusSet.startProcessing();
   }
 
   /**
    * Signal the worker processes to start.
    */
   public void startWorkerProcesses() {
-    m_communication.getProcessStatusSet().processEvent();
+    m_processStatusSet.processEvent();
     m_communication.send(new StartGrinderMessage(null));
   }
 
@@ -54,7 +71,7 @@ final class ProcessControlImplementation implements ProcessControl {
    * Signal the worker processes to reset.
    */
   public void resetWorkerProcesses() {
-    m_communication.getProcessStatusSet().processEvent();
+    m_processStatusSet.processEvent();
     m_communication.send(new ResetGrinderMessage());
   }
 
@@ -62,7 +79,7 @@ final class ProcessControlImplementation implements ProcessControl {
    * Signal the worker processes to stop.
    */
   public void stopWorkerProcesses() {
-    m_communication.getProcessStatusSet().processEvent();
+    m_processStatusSet.processEvent();
     m_communication.send(new StopGrinderMessage());
   }
 
@@ -73,5 +90,14 @@ final class ProcessControlImplementation implements ProcessControl {
    */
   public void distributeFiles(FileContents[] files) {
     m_communication.send(new DistributeFilesMessage(files));
+  }
+
+  /**
+   * Add a listener for process status data.
+   *
+   * @param listener The listener.
+   */
+  public void addProcessStatusListener(ProcessStatusListener listener) {
+    m_processStatusSet.addListener(listener);
   }
 }

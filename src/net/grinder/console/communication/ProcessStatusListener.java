@@ -21,43 +21,26 @@
 
 package net.grinder.console.communication;
 
-import net.grinder.util.FileContents;
+import java.util.EventListener;
+
+import net.grinder.common.ProcessStatus;
 
 
 /**
- * Interface for issuing commands to the agent and worker processes.
+ * Listener interface for receiving updates about worker process
+ * status.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface ProcessControl {
+public interface ProcessStatusListener extends EventListener {
 
-  /**
-   * Signal the worker processes to start.
-   */
-  void startWorkerProcesses();
-
-  /**
-   * Signal the worker processes to reset.
-   */
-  void resetWorkerProcesses();
-
-  /**
-   * Signal the worker processes to stop.
-   */
-  void stopWorkerProcesses();
-
-  /**
-   * Distribute a list of {@link FileContents}.
-   *
-   * @param files The {@link FileContents} list.
-   */
-  void distributeFiles(FileContents[] files);
-
-  /**
-   * Add a listener for process status data.
-   *
-   * @param listener The listener.
-   */
-  void addProcessStatusListener(ProcessStatusListener listener);
+    /**
+     * Called with updates about process status.
+     *
+     * @param data The new process status data.
+     * @param runningThreads The total number of running threads.
+     * @param totalThreads The total number of potential threads.
+     */
+  void update(ProcessStatus[] data, int runningThreads, int totalThreads);
 }

@@ -24,7 +24,7 @@ package net.grinder.console.swingui;
 import javax.swing.SwingUtilities;
 
 import net.grinder.common.ProcessStatus;
-import net.grinder.console.communication.ProcessStatusSet;
+import net.grinder.console.communication.ProcessStatusListener;
 
 
 /**
@@ -34,17 +34,16 @@ import net.grinder.console.communication.ProcessStatusSet;
  * @author Philip Aston
  * @version $Revision$
  **/
-class SwingDispatchedProcessStatusSetListener
-  implements ProcessStatusSet.Listener {
+class SwingDispatchedProcessStatusListener implements ProcessStatusListener {
 
-  private final ProcessStatusSet.Listener m_delegate;
+  private final ProcessStatusListener m_delegate;
 
-  public SwingDispatchedProcessStatusSetListener(
-    ProcessStatusSet.Listener delegate) {
+  public SwingDispatchedProcessStatusListener(ProcessStatusListener delegate) {
     m_delegate = delegate;
   }
 
-  public void update(final ProcessStatus[] data, final int running,
+  public void update(final ProcessStatus[] data,
+                     final int running,
                      final int total) {
 
     SwingUtilities.invokeLater(

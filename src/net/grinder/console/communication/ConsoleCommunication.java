@@ -23,6 +23,9 @@ package net.grinder.console.communication;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import net.grinder.communication.Acceptor;
 import net.grinder.communication.CommunicationException;
@@ -52,7 +55,11 @@ public final class ConsoleCommunication {
   private final ConsoleProperties m_properties;
   private final ErrorQueue m_errorQueue = new ErrorQueue();
 
-  private final ProcessStatusSet m_processStatusSet = new ProcessStatusSet();
+  /**
+   * Synchronise on m_messageHandlers before accessing.
+   */
+  private final List m_messageHandlers = new LinkedList();
+
   private final ProcessControl m_processControl =
     new ProcessControlImplementation(this);
 
@@ -195,11 +202,48 @@ public final class ConsoleCommunication {
   }
 
   /**
-   * Wait for a message from the worker processes.
+   * Get the ProcessControl.
    *
-   * @return The message.
+   * @return The <code>ProcessControl</code>.
    */
-  public Message waitForMessage() {
+  public ProcessControl getProcessControl() {
+    return m_processControl;
+  }
+
+  /**
+   * Interface for things that can handle messages.
+   */
+  public interface MessageHandler {
+
+    /**
+     * The handler implements this to receive a message.
+     *
+     * @param message The message.
+     * @return <code>true</code> => The handler processed the message.
+     * @throws ConsoleException If the handler attempted to process
+     * the message, but failed.
+     */
+    boolean process(Message message) throws ConsoleException;
+  }
+
+  /**
+   * Add a message hander.
+   *
+   * @param messageHandler The message handler.
+   */
+  public void addMessageHandler(MessageHandler messageHandler) {
+    synchronized (m_messageHandlers) {
+      m_messageHandlers.add(messageHandler);
+    }
+  }
+
+  /**
+   * Wait to receive a message, then process it.
+   *
+   * @return <code>true</code> => the message was processed by a handler.
+   * @exception ConsoleException If an error occurred in message processing.
+   */
+  public boolean processOneMessage() throws ConsoleException  {
     while (true) {
       synchronized (this) {
         while (m_deaf) {
@@ -221,31 +265,28 @@ public final class ConsoleCommunication {
             m_deaf = true;
             notifyAll();
           }
+
+          return false;
         }
 
-        return message;
+        synchronized (m_messageHandlers) {
+          final Iterator iterator = m_messageHandlers.iterator();
+
+          while (iterator.hasNext()) {
+            final MessageHandler messageHandler =
+              (MessageHandler)iterator.next();
+
+            if (messageHandler.process(message)) {
+              return true;
+            }
+          }
+          return false;
+        }
       }
       catch (CommunicationException e) {
         m_errorQueue.handleException(new ConsoleException(e.getMessage(), e));
       }
     }
-  }
 
-  /**
-   * Get the ProcessStatusSet.
-   *
-   * @return The <code>ProcessStatusSet</code>.
-   */
-  public ProcessStatusSet getProcessStatusSet() {
-    return m_processStatusSet;
-  }
-
-  /**
-   * Get the ProcessControl.
-   *
-   * @return The <code>ProcessControl</code>.
-   */
-  public ProcessControl getProcessControl() {
-    return m_processControl;
   }
 }

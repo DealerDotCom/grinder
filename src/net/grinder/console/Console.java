@@ -26,12 +26,12 @@ import java.io.File;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
+import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
 import net.grinder.console.messages.ReportStatisticsMessage;
-import net.grinder.console.messages.ReportStatusMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.swingui.ConsoleUI;
@@ -77,43 +77,46 @@ public class Console {
     m_communication = new ConsoleCommunication(resources, properties);
 
     m_userInterface =
-      new ConsoleUI(m_model, m_communication.getProcessControl(),
-                    m_communication.getProcessStatusSet());
+      new ConsoleUI(m_model, m_communication.getProcessControl());
 
     m_communication.setErrorHandler(m_userInterface.getErrorHandler());
+
+    m_communication.addMessageHandler(
+      new ConsoleCommunication.MessageHandler() {
+        public boolean process(Message message) throws ConsoleException {
+          if (message instanceof RegisterTestsMessage) {
+            m_model.registerTests(((RegisterTestsMessage)message).getTests());
+            return true;
+          }
+
+          if (message instanceof ReportStatisticsMessage) {
+            m_model.addTestReport(
+              ((ReportStatisticsMessage)message).getStatisticsDelta());
+            return true;
+          }
+
+          if (message instanceof RegisterStatisticsViewMessage) {
+            final StatisticsView statisticsView =
+              ((RegisterStatisticsViewMessage)message).getStatisticsView();
+
+            m_model.registerStatisticsViews(statisticsView, statisticsView);
+            return true;
+          }
+
+          return false;
+        }
+      });
   }
 
   /**
    * Console message event loop. Dispatches communication messages
-   * appropriately to the console model.
+   * appropriately.
    *
-   * @exception GrinderException If an error occurs.
+   * @exception ConsoleException If an error occurs.
    */
-  public void run() throws GrinderException {
-
+  public void run() throws ConsoleException {
     while (true) {
-      final Message message = m_communication.waitForMessage();
-
-      if (message instanceof RegisterTestsMessage) {
-        m_model.registerTests(((RegisterTestsMessage)message).getTests());
-      }
-
-      if (message instanceof ReportStatisticsMessage) {
-        m_model.addTestReport(
-          ((ReportStatisticsMessage)message).getStatisticsDelta());
-      }
-
-      if (message instanceof RegisterStatisticsViewMessage) {
-        final StatisticsView statisticsView =
-          ((RegisterStatisticsViewMessage)message).getStatisticsView();
-
-        m_model.registerStatisticsViews(statisticsView, statisticsView);
-      }
-
-      if (message instanceof ReportStatusMessage) {
-        m_communication.getProcessStatusSet().addStatusReport(
-          (ReportStatusMessage)message);
-      }
+      m_communication.processOneMessage();
     }
   }
 }
