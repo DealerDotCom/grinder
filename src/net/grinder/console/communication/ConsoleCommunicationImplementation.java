@@ -53,6 +53,7 @@ import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.util.FileContents;
+import net.grinder.util.ListenerSupport;
 
 
 /**
@@ -88,10 +89,8 @@ public final class ConsoleCommunicationImplementation
    */
   private final List m_messageHandlers = new LinkedList();
 
-  /**
-   * Synchronise on m_agentConnectionListeners before accessing.
-   */
-  private final List m_agentConnectionListeners = new LinkedList();
+  private final ListenerSupport m_agentConnectionListeners =
+    new ListenerSupport();
 
   private Acceptor m_acceptor = null;
   private Receiver m_receiver = null;
@@ -211,7 +210,14 @@ public final class ConsoleCommunicationImplementation
                                          ConnectionIdentity connection) {
             synchronized (m_connectedAgents) {
               m_connectedAgents.add(connection);
-              fireAgentConnected();
+
+              m_agentConnectionListeners.apply(
+                new ListenerSupport.Informer() {
+                  public void inform(Object listener) {
+                    ((AgentStatus.ConnectionListener)listener)
+                      .agentConnected();
+                  }
+                });
             }
           }
 
@@ -222,7 +228,14 @@ public final class ConsoleCommunicationImplementation
             // correctly on reset.
             synchronized (m_connectedAgents) {
               m_connectedAgents.remove(connection);
-              fireAgentDisconnected();
+
+              m_agentConnectionListeners.apply(
+                new ListenerSupport.Informer() {
+                  public void inform(Object listener) {
+                    ((AgentStatus.ConnectionListener)listener)
+                      .agentDisconnected();
+                  }
+                });
             }
           }
         });
@@ -441,9 +454,7 @@ public final class ConsoleCommunicationImplementation
      * @param listener The listener.
      */
     public void addConnectionListener(ConnectionListener listener) {
-      synchronized (m_agentConnectionListeners) {
-        m_agentConnectionListeners.add(listener);
-      }
+      m_agentConnectionListeners.add(listener);
     }
   }
 
@@ -463,31 +474,4 @@ public final class ConsoleCommunicationImplementation
       }
     }
   }
-
-  private void fireAgentConnected() {
-    synchronized (m_agentConnectionListeners) {
-      final Iterator iterator = m_agentConnectionListeners.iterator();
-
-      while (iterator.hasNext()) {
-        final AgentStatus.ConnectionListener listener =
-          (AgentStatus.ConnectionListener)iterator.next();
-
-        listener.agentConnected();
-      }
-    }
-  }
-
-  private void fireAgentDisconnected() {
-    synchronized (m_agentConnectionListeners) {
-      final Iterator iterator = m_agentConnectionListeners.iterator();
-
-      while (iterator.hasNext()) {
-        final AgentStatus.ConnectionListener listener =
-          (AgentStatus.ConnectionListener)iterator.next();
-
-        listener.agentDisconnected();
-      }
-    }
-  }
-
 }

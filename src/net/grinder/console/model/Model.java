@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,8 +29,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -49,6 +47,7 @@ import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.SignificantFigureFormat;
+import net.grinder.util.ListenerSupport;
 
 
 /**
@@ -117,8 +116,7 @@ public final class Model {
   private boolean m_receivedReport = false;
   private boolean m_receivedReportInLastInterval = false;
 
-  /** Synchronise on m_modelListeners before accessing. */
-  private final List m_modelListeners = new LinkedList();
+  private final ListenerSupport m_modelListeners = new ListenerSupport();
 
   private final StatisticsIndexMap.LongIndex m_periodIndex;
   private final StatisticExpression m_tpsExpression;
@@ -301,8 +299,15 @@ public final class Model {
       }
     }
 
-    fireModelNewTests(newTests,
-                      new ModelTestIndex(testArray, accumulatorArray));
+    final ModelTestIndex modelTestIndex =
+      new ModelTestIndex(testArray, accumulatorArray);
+
+    m_modelListeners.apply(
+      new ListenerSupport.Informer() {
+        public void inform(Object listener) {
+          ((ModelListener)listener).newTests(newTests, modelTestIndex);
+        }
+      });
   }
 
   /**
@@ -312,14 +317,22 @@ public final class Model {
    * @param cumulativeStatisticsView a <code>StatisticsView</code> value
    */
   public void registerStatisticsViews(
-    StatisticsView intervalStatisticsView,
-    StatisticsView cumulativeStatisticsView) {
+    final StatisticsView intervalStatisticsView,
+    final StatisticsView cumulativeStatisticsView) {
 
     // The StatisticsView objects are responsible for synchronisation.
     m_intervalStatisticsView.add(intervalStatisticsView);
     m_cumulativeStatisticsView.add(cumulativeStatisticsView);
 
-    fireModelNewViews(intervalStatisticsView, cumulativeStatisticsView);
+    m_modelListeners.apply(
+      new ListenerSupport.Informer() {
+        public void inform(Object listener) {
+          final ModelListener modelListener = (ModelListener)listener;
+
+          modelListener.newStatisticsViews(intervalStatisticsView,
+                                           cumulativeStatisticsView);
+        }
+      });
   }
 
   /**
@@ -355,9 +368,7 @@ public final class Model {
    * @param listener The listener.
    */
   public void addModelListener(ModelListener listener) {
-    synchronized (m_modelListeners) {
-      m_modelListeners.add(listener);
-    }
+    m_modelListeners.add(listener);
   }
 
   /**
@@ -380,54 +391,12 @@ public final class Model {
   }
 
   private void fireModelUpdate() {
-    synchronized (m_modelListeners) {
-      final Iterator iterator = m_modelListeners.iterator();
-
-      while (iterator.hasNext()) {
-        final ModelListener listener = (ModelListener)iterator.next();
-        listener.update();
-      }
-    }
-  }
-
-  private void fireModelNewTests(Set newTests,
-                                       ModelTestIndex modelTestIndex) {
-
-    synchronized (m_modelListeners) {
-      final Iterator iterator = m_modelListeners.iterator();
-
-      while (iterator.hasNext()) {
-        final ModelListener listener = (ModelListener)iterator.next();
-        listener.newTests(newTests, modelTestIndex);
-      }
-    }
-  }
-
-  private void fireModelNewViews(
-    StatisticsView intervalStatisticsView,
-    StatisticsView cumulativeStatisticsView) {
-
-    synchronized (m_modelListeners) {
-      final Iterator iterator = m_modelListeners.iterator();
-
-      while (iterator.hasNext()) {
-        final ModelListener listener = (ModelListener)iterator.next();
-        listener.newStatisticsViews(intervalStatisticsView,
-                                    cumulativeStatisticsView);
-      }
-    }
-  }
-
-  private void fireModelResetTestsAndStatisticsViews() {
-
-    synchronized (m_modelListeners) {
-      final Iterator iterator = m_modelListeners.iterator();
-
-      while (iterator.hasNext()) {
-        final ModelListener listener = (ModelListener)iterator.next();
-        listener.resetTestsAndStatisticsViews();
-      }
-    }
+    m_modelListeners.apply(
+      new ListenerSupport.Informer() {
+        public void inform(Object listener) {
+          ((ModelListener)listener).update();
+        }
+      });
   }
 
   /**
@@ -444,7 +413,12 @@ public final class Model {
 
     createStatisticsViews();
 
-    fireModelResetTestsAndStatisticsViews();
+    m_modelListeners.apply(
+      new ListenerSupport.Informer() {
+        public void inform(Object listener) {
+          ((ModelListener)listener).resetTestsAndStatisticsViews();
+        }
+      });
   }
 
   /**

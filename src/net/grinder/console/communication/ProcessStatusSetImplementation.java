@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // Copyright (C) 2001, 2002 Dirk Feufel
 // All rights reserved.
 //
@@ -27,14 +27,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import net.grinder.common.ProcessStatus;
+import net.grinder.util.ListenerSupport;
 
 
 /**
@@ -62,10 +61,7 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
   private final Map m_processes = new HashMap();
   private final Comparator m_sorter = new ProcessStatusComparator();
 
-  /**
-   * Synchronise on m_listeners before accessing.
-   */
-  private final List m_listeners = new LinkedList();
+  private final ListenerSupport m_listeners = new ListenerSupport();
 
   // No need to synchronise access to these; operations are atomic on
   // booleans and ints.
@@ -98,9 +94,7 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
    * @param listener A listener.
    */
   public void addListener(ProcessStatusListener listener) {
-    synchronized (m_listeners) {
-      m_listeners.add(listener);
-    }
+    m_listeners.add(listener);
   }
 
   private void update() {
@@ -127,16 +121,17 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
       totalThreads += data[i].getTotalNumberOfThreads();
     }
 
-    synchronized (m_listeners) {
-      final Iterator iterator = m_listeners.iterator();
+    final int finalRunningThreads = runningThreads;
+    final int finalTotalThreads = totalThreads;
 
-      while (iterator.hasNext()) {
-        final ProcessStatusListener listener =
-          (ProcessStatusListener)iterator.next();
-
-        listener.update(data, runningThreads, totalThreads);
-      }
-    }
+    m_listeners.apply(
+      new ListenerSupport.Informer() {
+        public void inform(Object listener) {
+          ((ProcessStatusListener)listener).update(data,
+                                                   finalRunningThreads,
+                                                   finalTotalThreads);
+        }
+      });
   }
 
   /**

@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,9 +23,10 @@ package net.grinder.communication;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+
+import net.grinder.util.ListenerSupport;
 
 
 /**
@@ -47,22 +48,7 @@ final class ResourcePool {
   private int m_lastReservable = 0;
   private int m_nextPurge = 0;
 
-  /** Synchronise on m_listeners before accessing. */
-  private final List m_listeners = new LinkedList();
-
-  private final ListenerNotification m_notifyAdd =
-    new ListenerNotification() {
-      protected void doNotification(Listener listener, Resource resource) {
-        listener.resourceAdded(resource);
-      }
-    };
-
-  private final ListenerNotification m_notifyClose =
-    new ListenerNotification() {
-      protected void doNotification(Listener listener, Resource resource) {
-        listener.resourceClosed(resource);
-      }
-    };
+  private final ListenerSupport m_listeners = new ListenerSupport();
 
   /**
    * Constructor.
@@ -78,14 +64,19 @@ final class ResourcePool {
    * @return Allows the client to notify the resource pool if the
    * resource has been closed.
    */
-  public Closeable add(Resource resource) {
+  public Closeable add(final Resource resource) {
     final ResourceWrapper resourceWrapper = new ResourceWrapper(resource);
 
     synchronized (m_reservableListMutex) {
       m_reservables.add(resourceWrapper);
     }
 
-    m_notifyAdd.notify(resource);
+    m_listeners.apply(
+      new ListenerSupport.Informer() {
+        public void inform(Object listener) {
+          ((Listener)listener).resourceAdded(resource);
+        }
+      });
 
     return resourceWrapper;
   }
@@ -255,24 +246,7 @@ final class ResourcePool {
    * @param listener The listener.
    */
   public void addListener(Listener listener) {
-    synchronized (m_listeners) {
-      m_listeners.add(listener);
-    }
-  }
-
-  private abstract class ListenerNotification {
-    public final void notify(Resource resource) {
-      synchronized (m_listeners) {
-        final Iterator iterator = m_listeners.iterator();
-
-        while (iterator.hasNext()) {
-          doNotification((Listener)iterator.next(), resource);
-        }
-      }
-    }
-
-    protected abstract void doNotification(Listener listener,
-                                           Resource resource);
+    m_listeners.add(listener);
   }
 
   /**
@@ -395,7 +369,12 @@ final class ResourcePool {
           m_reservableMutex.notifyAll();
         }
 
-        m_notifyClose.notify(m_resource);
+        m_listeners.apply(
+          new ListenerSupport.Informer() {
+            public void inform(Object listener) {
+              ((Listener)listener).resourceClosed(m_resource);
+            }
+          });
       }
     }
 

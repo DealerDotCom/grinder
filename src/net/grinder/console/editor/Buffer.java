@@ -31,13 +31,11 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.EventListener;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
+import net.grinder.util.ListenerSupport;
 
 
 /**
@@ -98,8 +96,7 @@ public final class Buffer {
   private final Resources m_resources;
   private final TextSource m_textSource;
 
-  /** Synchronise on m_listeners before accessing. */
-  private final List m_listeners = new LinkedList();
+  private final ListenerSupport m_listeners = new ListenerSupport();
 
   private String m_name;
   private File m_file;
@@ -237,7 +234,12 @@ public final class Buffer {
                                 // modified time is updated?
       m_lastModified = m_file.lastModified();
 
-      fireBufferSaved();
+      m_listeners.apply(
+        new ListenerSupport.Informer() {
+          public void inform(Object listener) {
+            ((Listener)listener).bufferSaved(Buffer.this);
+          }
+        });
     }
     catch (IOException e) {
       throw new DisplayMessageConsoleException(
@@ -337,26 +339,13 @@ public final class Buffer {
     return "<Buffer " + hashCode() + " '" + getDisplayName() + "'>";
   }
 
-  private void fireBufferSaved() {
-    synchronized (m_listeners) {
-      final Iterator iterator = m_listeners.iterator();
-
-      while (iterator.hasNext()) {
-        final Listener listener = (Listener)iterator.next();
-        listener.bufferSaved(this);
-      }
-    }
-  }
-
   /**
    * Add a new listener.
    *
    * @param listener The listener.
    */
   public void addListener(Listener listener) {
-    synchronized (m_listeners) {
-      m_listeners.add(listener);
-    }
+    m_listeners.add(listener);
   }
 
   /**

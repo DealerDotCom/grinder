@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,9 +21,7 @@
 
 package net.grinder.console.editor;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import net.grinder.util.ListenerSupport;
 
 
 /**
@@ -39,8 +37,7 @@ public abstract class AbstractTextSource implements TextSource {
   /** We are born into this world dirty. */
   private boolean m_dirty = true;
 
-  /** Synchronise on m_listeners before accessing. */
-  private final List m_listeners = new LinkedList();
+  private final ListenerSupport m_listeners = new ListenerSupport();
 
   /**
    * Return whether the text has changed since the last call to {@link
@@ -82,19 +79,15 @@ public abstract class AbstractTextSource implements TextSource {
    * @param listener The listener.
    */
   public void addListener(TextSource.Listener listener) {
-    synchronized (m_listeners) {
-      m_listeners.add(listener);
-    }
+    m_listeners.add(listener);
   }
 
-  private void fireTextSourceChanged(boolean firstEdit) {
-    synchronized (m_listeners) {
-      final Iterator iterator = m_listeners.iterator();
-
-      while (iterator.hasNext()) {
-        final Listener listener = (Listener)iterator.next();
-        listener.textSourceChanged(firstEdit);
-      }
-    }
+  private void fireTextSourceChanged(final boolean firstEdit) {
+    m_listeners.apply(
+      new ListenerSupport.Informer() {
+        public void inform(Object listener) {
+          ((Listener)listener).textSourceChanged(firstEdit);
+        }
+      });
   }
 }

@@ -24,14 +24,13 @@ package net.grinder.console.editor;
 import java.io.File;
 import java.util.EventListener;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.distribution.AgentCacheState;
+import net.grinder.util.ListenerSupport;
 
 
 /**
@@ -47,8 +46,7 @@ public final class EditorModel {
   private final AgentCacheState m_agentCacheState;
   private final Buffer m_defaultBuffer;
 
-  /** Synchronise on m_listeners before accessing. */
-  private final List m_listeners = new LinkedList();
+  private final ListenerSupport m_listeners = new ListenerSupport();
 
   private final LinkedList m_bufferList = new LinkedList();
   private final Map m_fileBuffers = new HashMap();
@@ -212,7 +210,7 @@ public final class EditorModel {
    *
    * @param buffer The buffer.
    */
-  public void closeBuffer(Buffer buffer) {
+  public void closeBuffer(final Buffer buffer) {
     if (m_bufferList.remove(buffer)) {
       final File file = buffer.getFile();
 
@@ -231,7 +229,12 @@ public final class EditorModel {
         }
       }
 
-      fireBufferRemoved(buffer);
+      m_listeners.apply(
+        new ListenerSupport.Informer() {
+          public void inform(Object listener) {
+            ((Listener)listener).bufferRemoved(buffer);
+          }
+        });
     }
   }
 
@@ -272,40 +275,21 @@ public final class EditorModel {
 
     m_bufferList.add(buffer);
 
-    fireBufferAdded(buffer);
+    m_listeners.apply(
+      new ListenerSupport.Informer() {
+        public void inform(Object listener) {
+          ((Listener)listener).bufferAdded(buffer);
+        }
+      });
   }
 
-  private void fireBufferAdded(Buffer buffer) {
-    synchronized (m_listeners) {
-      final Iterator iterator = m_listeners.iterator();
-
-      while (iterator.hasNext()) {
-        final Listener listener = (Listener)iterator.next();
-        listener.bufferAdded(buffer);
-      }
-    }
-  }
-
-  private void fireBufferChanged(Buffer buffer) {
-    synchronized (m_listeners) {
-      final Iterator iterator = m_listeners.iterator();
-
-      while (iterator.hasNext()) {
-        final Listener listener = (Listener)iterator.next();
-        listener.bufferChanged(buffer);
-      }
-    }
-  }
-
-  private void fireBufferRemoved(Buffer buffer) {
-    synchronized (m_listeners) {
-      final Iterator iterator = m_listeners.iterator();
-
-      while (iterator.hasNext()) {
-        final Listener listener = (Listener)iterator.next();
-        listener.bufferRemoved(buffer);
-      }
-    }
+  private void fireBufferChanged(final Buffer buffer) {
+    m_listeners.apply(
+      new ListenerSupport.Informer() {
+        public void inform(Object listener) {
+          ((Listener)listener).bufferChanged(buffer);
+        }
+      });
   }
 
   private String createNewBufferName() {
@@ -331,9 +315,7 @@ public final class EditorModel {
    * @param listener The listener.
    */
   public void addListener(Listener listener) {
-    synchronized (m_listeners) {
-      m_listeners.add(listener);
-    }
+    m_listeners.add(listener);
   }
 
   /**

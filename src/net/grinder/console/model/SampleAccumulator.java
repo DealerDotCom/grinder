@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,14 +21,11 @@
 
 package net.grinder.console.model;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 import net.grinder.statistics.PeakStatisticExpression;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.TestStatistics;
 import net.grinder.statistics.TestStatisticsFactory;
+import net.grinder.util.ListenerSupport;
 
 
 /**
@@ -39,7 +36,7 @@ import net.grinder.statistics.TestStatisticsFactory;
  */
 final class SampleAccumulator {
 
-  private final List m_listeners = new LinkedList();
+  private final ListenerSupport m_listeners = new ListenerSupport();
 
   private final PeakStatisticExpression m_peakTPSExpression;
   private final StatisticsIndexMap.LongIndex m_periodIndex;
@@ -78,12 +75,13 @@ final class SampleAccumulator {
 
     m_peakTPSExpression.update(m_intervalStatistics, m_cumulativeStatistics);
 
-    final Iterator iterator = m_listeners.iterator();
-
-    while (iterator.hasNext()) {
-      final SampleListener listener = (SampleListener)iterator.next();
-      listener.update(m_intervalStatistics, m_cumulativeStatistics);
-    }
+    m_listeners.apply(
+      new ListenerSupport.Informer() {
+        public void inform(Object listener) {
+          ((SampleListener)listener).update(m_intervalStatistics,
+                                            m_cumulativeStatistics);
+        }
+      });
 
     m_lastSampleStatistics = m_intervalStatistics;
 
