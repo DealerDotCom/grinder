@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process;
+package net.grinder.engine.common;
 
 import net.grinder.common.Logger;
 import net.grinder.communication.CommunicationException;
@@ -37,7 +37,7 @@ import net.grinder.communication.StopGrinderMessage;
  * @version $Revision$
  * @see net.grinder.engine.process.GrinderProcess
  */
-final class ConsoleListener {
+public final class ConsoleListener {
 
   /**
    * Constant that represents start message.
@@ -69,7 +69,7 @@ final class ConsoleListener {
    */
   public static final int ANY = START | RESET | STOP | SHUTDOWN;
 
-  private final Monitor m_notifyOnMessage;
+  private final Object m_notifyOnMessage;
   private final Logger m_logger;
   private final ReceiverThread m_receiverThread;
   private int m_messagesReceived = 0;
@@ -78,12 +78,12 @@ final class ConsoleListener {
    * Constructor.
    *
    * @param receiver Receiver connected to the console.
-   * @param notifyOnMessage A {@link Monitor} to notify when a
+   * @param notifyOnMessage An <code>Object</code> to notify when a
    * message arrives.
    * @param logger A {@link net.grinder.common.Logger} to log received
    * event messages to.
    */
-  public ConsoleListener(Receiver receiver, Monitor notifyOnMessage,
+  public ConsoleListener(Receiver receiver, Object notifyOnMessage,
                          Logger logger) {
     m_notifyOnMessage = notifyOnMessage;
     m_logger = logger;

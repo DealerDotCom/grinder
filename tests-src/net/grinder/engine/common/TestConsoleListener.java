@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process;
+package net.grinder.engine.common;
 
 import java.io.InputStream;
 import java.io.PipedInputStream;
@@ -161,7 +161,7 @@ public class TestConsoleListener extends TestCase {
     m_loggerFactory.assertNotCalled();
   }
 
-  private final static class MyMonitor implements Monitor {
+  private final static class MyMonitor {
     private final class WaitForMessages extends Thread {
       private final long m_time;
       private final ConsoleListener m_listener;

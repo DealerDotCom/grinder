@@ -49,7 +49,7 @@ class GrinderThread implements java.lang.Runnable {
    */
   private static short s_numberOfThreads = 0;
 
-  private final Monitor m_notifyOnCompletion;
+  private final Object m_notifyOnCompletion;
   private final ProcessContext m_processContext;
   private final JythonScript m_jythonScript;
   private final ThreadContext m_context;
@@ -60,7 +60,7 @@ class GrinderThread implements java.lang.Runnable {
   /**
    * The constructor.
    */
-  public GrinderThread(Monitor notifyOnCompletion,
+  public GrinderThread(Object notifyOnCompletion,
                        ProcessContext processContext,
                        LoggerImplementation loggerImplementation,
                        JythonScript jythonScript,

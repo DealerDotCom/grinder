@@ -47,6 +47,7 @@ import net.grinder.communication.Receiver;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.StreamReceiver;
+import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.EngineException;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
@@ -148,7 +149,7 @@ public final class GrinderProcess {
   private final ConsoleListener m_consoleListener;
   private final int m_reportToConsoleInterval;
   private final int m_duration;
-  private final Monitor m_eventSynchronisation = new Monitor() { };
+  private final Object m_eventSynchronisation = new Object();
 
   private boolean m_shutdownTriggered;
   private boolean m_communicationShutdown;
