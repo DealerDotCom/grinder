@@ -56,9 +56,19 @@ To run The Grinder:
 and optionally:
 
   JSSE 1.0.2			for SSL support
-  Apache Jakarta Regexp 1.2	for the TCPSniffer HTTP plugin 
-  Apache Jakarta Ant 1.2	to build The Grinder from source
-  JUnit 3.4			to test The Grinder itself
+  HTTPClient                    for HttpPlugin HTTPClient support
+  Apache Jakarta Regexp 1.2	for the TCPSniffer HTTP plugin
+  Apache Jakarta Ant 1.3	to build The Grinder from source
+  JUnit 3.5			to test The Grinder itself
+
+
+These can be obtained from the following places.
+
+ http://java.sun.com/products/jsse/
+ http://www.innovation.ch/java/HTTPClient/
+ http://jakarta.apache.org/ant/index.html
+ http://jakarta.apache.org/regexp/index.html
+ http://sourceforge.net/projects/junit/
 
 
 How do I build it?
@@ -152,7 +162,7 @@ Please send bug fixes and enhancements you make to
 grinder-development@lists.sourceforge.net.
 
 BEA keeps me very busy so the timeliness and quality of any email
-support I provide will vary.
+support I provide may vary.
 
 
 What can I set in grinder.properties?
@@ -255,7 +265,8 @@ What can I set in grinder.properties?
 
     grinder.plugin.parameter -	Prefix for properties interpreted by
 				the plugin. See the documentation for
-				the HTTP plugin below for examples.
+				the HTTP plugin in doc directory for
+				examples.
 
     grinder.test0	- 	Prefix for test 0 properties. Test 1 
 				properties have a prefix of
@@ -289,319 +300,8 @@ What can I set in grinder.properties?
 				are still reported. Default is true.
 				See doc/Timing.txt.
 
-
-What can I set in grinder.properties for the HTTP plugin?
-*********************************************************
-
-    grinder.plugin.parameter.useCookies -
-				Set to false to disable cookie
-				handling (it defaults to true).
-
-    grinder.plugin.parameter.useCookiesVersionString -
-				Set to false to remove $Version string
-				from cookies (it defaults to true).
-				This is to work around broken (?)
-				JRun 2.3.3. behavour.
-
-    grinder.plugin.parameter.followRedirects -
-				Set to true to automatically follow
-				redirects, so you don't have to have
-				additional URL's in you scripts. The
-				default is false.
-
-				You should always set this to false for
-				TCPSnffer generated scripts.
-
-				If you are using WebLogic Server and
-				Web Application form-based
-				authentication you leave this property
-				set to false. This is because a
-				redirect request that follows
-				authentication contains a key cookie -
-				setting the property to true prevents
-				the cookie from being picked up by the
-				plugin.
-
-    grinder.plugin.parameter.timeIncludesTransaction -
-
-				By default the time that the HTTP
-				plugin reports is the time it takes
-				for the remote server to accept the
-				connection request. When using the
-				times as an indicator of user
-				experience, this is usually what you
-				want.
-
-				Sometimes however you are more
-				interested in the time the entire HTTP
-				transaction takes, including the time
-				required to read the entire HTTP
-				response over the network. If so, set
-				this parameter to true.
-
-    grinder.plugin.parameter.stringBean -
-				Fully qualified classname of a Java
-				bean that can provide dynamic strings
-				for URL's and POST data. See "What's a
-				String Bean?" below.
-
-    grinder.test0.parameter.url -
-				The URL to call. The HTTP GET method
-				is used unless
-			 	grinder.test0.parameter.post is
-			 	specified.
-
-    grinder.test0.parameter.ok	-
-				Fail if the returned page doesn't
-			 	contain this string.
-
-    grinder.test0.parameter.post -
-				Specify a file containing POST data to
-			 	send.
-
-    grinder.test0.parameter.ifModifiedSince -
-				This appears in the HTTP
-			 	"If-Modified-Since" request header,
-			 	allowing the grinder to simulate the
-			 	a browser's caching of pages. Its value
-				should be a date of the form
-				Sat, 06 Jan 2001 13:36:39 GMT.
-
-    grinder.test0.parameter.basicAuthenticationUser -
-    grinder.test0.parameter.basicAuthenticationPassword -
-				Used togther, these specify an HTTP
-				basic authentication header that will
-				be sent with the request. The values
-				can be varied using a String Bean, see
-				"What's a String Bean?" below.
-
-What's a String Bean?
-*********************
-
-When using the HTTP plugin, it is often necessary to parametrise parts
-of URL's, POST data, and other request strings. The easy way to do
-this is to use a "String Bean" - a Java Bean that returns Strings from
-its "get" methods.
-
-For example, supporse you wanted to modify the URL
-"http://myhost/test.jsp?n=1" such that n is set to a random number
-each time? Easy! Here's how.
-
-Write a simple bean:
-
-  // MyStringBean.java
-  package mystuff;
-
-  public class MyStringBean {
-    private Random m_random = new Random();
-
-    public String getRandomInteger() {
-      return Integer.toString(m_random.nextInt());
-    }
-  }
-
-Compile this and put it in your classpath. Then alter your
-grinder.properties to include this line:
-
-  grinder.plugin.parameter.stringBean=mystuff.MyStringBean
-
-Alter the test URL parameter as follows:
-
-  grinder.test0.parameter.url=http://myhost/test.jsp?n=<getRandomInteger>
-
-
-The <beanMethodName> syntax can be used in any URL string or POST data
-file. It must correspond to a public method of the string bean that
-takes no parameters and returns a String.
-
-Each string bean instance is instantiated per thread, and maintains
-its state between invocations. If your bean needs additional
-information regarding the test lifecycle (for example, to reset a
-counter and the beginning of a cycle), it can implement the
-net.grinder.http.plugin.StringBean interface. See the examples in
-net.grinder.http.plugin.example.
-
-
-How do I use the HTTPS plugin?
-******************************
-
-1) Install JSSE1.0.2. See
-   http://java.sun.com/products/jsse/INSTALL.html
-
-2) In your grinder.properties, use the HttpsPlugin rather than
-   HttpPlugin:
-
-	grinder.plugin=net.grinder.plugin.http.HttpsPlugin
-
-3) You can then use https:// in your URLs
-
-	grinder.plugin.parameter.url0=https://localhost:7002/snoop
-	grinder.plugin.parameter.ok0=Requested URL:
-
-4) If you want two-way authentication, add the following lines
-
-	grinder.plugin.parameter.clientCert=./philclient.p12
-	grinder.plugin.parameter.clientCertPassword=acrobat
-
-	(export p12 from netscape)
-
-The JSSE SSL implementation isn't quick. This should be taken into
-account when comparing round trip times, as a compiled browser version
-is likely to be a *lot* faster.
-
-
-What is the TCPSniffer and how do I use it?
-*******************************************
-
-The TCPSniffer is a proxy that you can place between in a TCP stream.
-It filters the request and response streams, sending the results to
-stdout. You can control its behaviour by specifying different filters.
-
-Whilst its very useful in its own right, its main purpose as far as
-the Grinder goes is to automatically generate scripts for the HTTP
-plugin.
-
-You invoke the sniffer with something like:
-
-  CLASSPATH=/opt/grinder/lib/grinder.jar;
-  CLASSPATH=$CLASSPATH:/opt/jakarta-regexp-1.2/jakarta-regexp-1.2.jar
-  export CLASSPATH
-
-  java net.grinder.TCPSniffer
-
-Say "java net.grinder.TCPSniffer -?" to get a list of the command line
-options.
-
-To use it to generate a HTTP plugin script segment of a conversation
-with a server on host "server", port "7001", you should say something
-like:
-
-  java net.grinder.TCPSniffer -httpPluginFilter -remoteHost server
-
-  Initialising standard sniffer engine with the parameters:
-     Request filter:  net.grinder.plugin.http.HttpPluginSnifferFilter
-     Response filter: net.grinder.tools.tcpsniffer.NullFilter
-     Local port:       8001
-     Remote host:      server
-     Remote port:      7001
-  Engine initialised, listening on port 8001
-  Starting engine
-
-You should then point your browser at "localhost:8001" and exercise
-the application.
-
-You should obtain the Jakarta Regexp package from
-http://jakarta.apache.org/. We don't include it with the Grinder
-distribution due to the restrictions of the GPL, see
-http://www.gnu.org/philosophy/license-list.html for details.
-
-
-Using the HttpPluginSnifferFilter
-*********************************
-
-The output of the HttpPluginSnifferFilter looks like:
-
-  java net.grinder.TCPSniffer -httpPluginFilter
-
-  Initialising standard sniffer engine with the parameters:
-     Request filter:  net.grinder.plugin.http.HttpPluginSnifferFilter
-     Response filter: net.grinder.tools.tcpsniffer.NullFilter
-     Local port:       8001
-     Remote host:      localhost
-     Remote port:      7001
-  Engine initialised, listening on port 8001
-  Starting engine
-  grinder.test0.sleepTime=11336
-  grinder.test0.parameter.url=http://localhost:7001/
-  grinder.test1.sleepTime=12168
-  grinder.test1.parameter.url=http://localhost:7001/lah.html
-  grinder.test2.sleepTime=411
-  grinder.test2.parameter.url=http://localhost:7001/test.gif
-  grinder.test3.sleepTime=4786
-  grinder.test3.parameter.url=http://localhost:7001/lah.html
-  grinder.test3.parameter.ifModifiedSince=Tue, 16 Jan 2001 16:26:42 GMT
-  grinder.test4.sleepTime=311
-  grinder.test4.parameter.url=http://localhost:7001/test.gif
-  grinder.test4.parameter.ifModifiedSince=Mon, 06 Nov 2000 08:35:58 GMT
-
-The script part of this is sent to the stdout stream, whereas the
-information messages are sent to stderr. You can redirect the script
-part to a file if you wish:
-
-  java net.grinder.TCPSniffer -httpPluginFilter > myscript
-
-The HttpPluginSnifferFilter does not produce a complete
-grinder.properties script. Additionaly, the parsing of HTTP messages
-probably contains bugs. Don't let this put you off, using the
-HttpPluginSnifferFilter is a very quick way of doing 95% of a tedious
-job.
-
-
-How should I use the JUnit Plugin?
-**********************************
-
-Set grinder.plugin to "net.grinder.plugin.junit.JUnitPlugin" and set
-the following plugin parameter property:
-
-    grinder.plugin.parameter.testSuite -
-				The fully qualified name of the JUnit
-				Test Suite class.
-
-The class can be anything you can normally pass to a JUnit TestRunner.
-A quick summary: it can either have a method, "public static
-junit.framework.Test suite()" which returns the TestSuite _or_ it can
-define a number of tests methods which will be discovered through
-introspection - the method names must begin with "test".
-
-(Confusingly, it matters not whether the class directly implements
-junit.framework.TestSuite; this is a JUnit thing, so take any
-complaints there).
-
-You can also set
-
-    grinder.plugin.parameter.logStackTraces -
-				Set to true to produce stack traces
-				for failures and errors in the error
-				log.
-
-Why would you want to do use the JUnit plugin? Three possible reasons
-spring to mind:
-
- - To write a simple test case around arbitrary Java code, rather than
-   defining a new Grinder plugin. This is the recommended way to
-   replace the functionallity of the old "TraderEJBPlugin". (As an
-   added bonus you end up with some JUnit test cases which you can use
-   to impresses your boss _and_ to bug people with tales of what an
-   extreeeeme ...err.. doood you are).
-
- - To thrash the heck out of your code in an attempt to discover race
-   conditions (bugs).
-
- - To investigate the statistical effects of subatomic particles
-   passing through your hardware.
-
-Looking for race conditions requires that each instance of the JUnit
-tests should run against a common fixture - how to achieve in general
-this is left as an exercise. Please send any useful patterns to
-grinder-use@lists.sourceforge.net. Additionally, because The Grinder
-currently runs each test cycle in the same order, most race conditions
-will be hidden. The fix for this is to implement a test scheduler
-abstraction, see TODO. Patches welcome.
-
-
-The tests to run are automatically sucked out of the test suite class
-- you shouldn't specify them individually in grinder.properties.
-However, you can tweak with individual tests' sleep time as normal.
-For example, if you want to wait a second before the 6th test in the
-test suite, you should say
-
-   grinder.test5.sleepTime=1000
-
-JUnit has the concept of "Failures" (which occur due to assertions
-failing) and "Errors" (which occur when tests throw exceptions). If a
-test causes _either_ a Failure or an Error, the Grinder "Errors" count
-for that test is incremented by one. Currently running tests should
-not cause Grinder "Abortions".
+You should read the files doc/HTTPPlugin.txt and doc/JUnitPlugin.txt
+for details on the properties for individual plugins.
 
 
 What do I need to do to set up multicast?

@@ -1,0 +1,69 @@
+This file contains notes about the use of The Grinder JUnit Plugin.
+
+
+How should I use the JUnit Plugin?
+**********************************
+
+Set grinder.plugin to "net.grinder.plugin.junit.JUnitPlugin" and set
+the following plugin parameter property:
+
+    grinder.plugin.parameter.testSuite -
+				The fully qualified name of the JUnit
+				Test Suite class.
+
+The class can be anything you can normally pass to a JUnit TestRunner.
+A quick summary: it can either have a method, "public static
+junit.framework.Test suite()" which returns the TestSuite _or_ it can
+define a number of tests methods which will be discovered through
+introspection - the method names must begin with "test".
+
+(Confusingly, it matters not whether the class directly implements
+junit.framework.TestSuite; this is a JUnit thing, so take any
+complaints there).
+
+You can also set
+
+    grinder.plugin.parameter.logStackTraces -
+				Set to true to produce stack traces
+				for failures and errors in the error
+				log.
+
+Why would you want to do use the JUnit plugin? Three possible reasons
+spring to mind:
+
+ - To write a simple test case around arbitrary Java code, rather than
+   defining a new Grinder plugin. This is the recommended way to
+   replace the functionallity of the old "TraderEJBPlugin". (As an
+   added bonus you end up with some JUnit test cases which you can use
+   to impresses your boss _and_ to bug people with tales of what an
+   extreeeeme ...err.. doood you are).
+
+ - To thrash the heck out of your code in an attempt to discover race
+   conditions (bugs).
+
+ - To investigate the statistical effects of subatomic particles
+   passing through your hardware.
+
+Looking for race conditions requires that each instance of the JUnit
+tests should run against a common fixture - how to achieve in general
+this is left as an exercise. Please send any useful patterns to
+grinder-use@lists.sourceforge.net. Additionally, because The Grinder
+currently runs each test cycle in the same order, most race conditions
+will be hidden. The fix for this is to implement a test scheduler
+abstraction, see TODO. Patches welcome.
+
+
+The tests to run are automatically sucked out of the test suite class
+- you shouldn't specify them individually in grinder.properties.
+However, you can tweak with individual tests' sleep time as normal.
+For example, if you want to wait a second before the 6th test in the
+test suite, you should say
+
+   grinder.test5.sleepTime=1000
+
+JUnit has the concept of "Failures" (which occur due to assertions
+failing) and "Errors" (which occur when tests throw exceptions). If a
+test causes _either_ a Failure or an Error, the Grinder "Errors" count
+for that test is incremented by one. Currently running tests should
+not cause Grinder "Abortions".
+
