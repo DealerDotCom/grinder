@@ -28,6 +28,7 @@ import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadCallbacks;
 import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.plugininterface.PluginTest;
 import net.grinder.script.ScriptPluginContext;
 
 
@@ -72,7 +73,7 @@ public class JavaPlugin implements GrinderPlugin
 	public Object invokeTest(Test test, Object parameters)
 	    throws PluginException
 	{
-	    return ((TestPyJavaInstance.Closure)parameters).invoke();
+	    return ((TestPyJavaInstance.Invokeable)parameters).invoke();
 	}
 
 	public void endRun() throws PluginException
@@ -100,7 +101,32 @@ public class JavaPlugin implements GrinderPlugin
 				       Object target)
 	    throws GrinderException
 	{
-	    return new JavaTest(number, description, target).getProxy();
+	    return new TestPyJavaInstance(new JavaTest(number, description),
+					  target);
+	}
+    }
+
+    /**
+     * Represents an individual Java test. Scripts don't access this
+     * directly, instead they get a proxy from <code>JavaPlugin</code>;
+     * see {@link JavaPlugin#createTest}.
+     *
+     * @author Philip Aston
+     * @version $Revision$
+     */ 
+    static class JavaTest extends PluginTest
+    {
+	public JavaTest(int number, String description) throws GrinderException
+	{
+	    super(JavaPlugin.class, number, description);
+	}
+
+	/**
+	 * Expose dispatch method to our package.
+	 */
+	public Object dispatch(Object parameters) throws GrinderException
+	{
+	    return super.dispatch(parameters);
 	}
     }
 }

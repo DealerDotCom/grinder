@@ -21,7 +21,7 @@
 
 package net.grinder.plugin.java;
 
-import net.grinder.plugininterface.PluginException;
+import net.grinder.common.GrinderException;
 
 import org.python.core.PyJavaInstance;
 import org.python.core.PyObject;
@@ -32,29 +32,41 @@ import org.python.core.PyObject;
  * @author Philip Aston
  * @version $Revision$
  */ 
-abstract class TestPyJavaInstance extends PyJavaInstance
+class TestPyJavaInstance extends PyJavaInstance
 {
-    private final PyObject m_test;
+    private final JavaPlugin.JavaTest m_test;
+    private final PyObject m_pyTest;
     
-    public TestPyJavaInstance(PyObject test, Object proxy)
+    public TestPyJavaInstance(JavaPlugin.JavaTest test, Object target)
     {
-        super(proxy);
+        super(target);
 
 	m_test = test;
+	m_pyTest = new PyJavaInstance(test);
     }
 
     protected PyObject ifindlocal(String name) {
         if (name == "__test__") { // Valid because name is interned.
-	    return m_test;
+	    return m_pyTest;
 	}
 
 	return super.ifindlocal(name);
     }
 
+    private final PyObject dispatch(Invokeable invokeable) 
+    {
+	try {
+	    return (PyObject)m_test.dispatch(invokeable);
+	}
+	catch (GrinderException e) {
+	    throw new RuntimeException("FIX ME" + e);
+	}
+    }
+
     public PyObject invoke(final String name) 
     {
 	return dispatch(
-	    new Closure() {
+	    new Invokeable() {
 		public PyObject invoke() {
 		    return TestPyJavaInstance.super.invoke(name);
 		}});
@@ -63,7 +75,7 @@ abstract class TestPyJavaInstance extends PyJavaInstance
     public PyObject invoke(final String name, final PyObject arg1) 
     {
 	return dispatch(
-	    new Closure() {
+	    new Invokeable() {
 		public PyObject invoke() {
 		    return TestPyJavaInstance.super.invoke(name, arg1);
 		}});
@@ -73,7 +85,7 @@ abstract class TestPyJavaInstance extends PyJavaInstance
 			   final PyObject arg2) 
     {
 	return dispatch(
-	    new Closure() {
+	    new Invokeable() {
 		public PyObject invoke() {
 		    return TestPyJavaInstance.super.invoke(name, arg1, arg2);
 		}});
@@ -82,7 +94,7 @@ abstract class TestPyJavaInstance extends PyJavaInstance
     public PyObject invoke(final String name, final PyObject[] args) 
     {
 	return dispatch(
-	    new Closure() {
+	    new Invokeable() {
 		public PyObject invoke() {
 		    return TestPyJavaInstance.super.invoke(name, args);
 		}});
@@ -92,16 +104,15 @@ abstract class TestPyJavaInstance extends PyJavaInstance
 			   final String[] keywords) 
     {
 	return dispatch(
-	    new Closure() {
+	    new Invokeable() {
 		public PyObject invoke() {
 		    return TestPyJavaInstance.super.invoke(name, args,
 							   keywords);
 		}});
     }
 
-    protected abstract PyObject dispatch(Closure closure);
-
-    public interface Closure {
+    public interface Invokeable 
+    {
 	public PyObject invoke();
     }
 }
