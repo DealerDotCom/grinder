@@ -1,3 +1,5 @@
+/TheGrinder/.clover/.*
+/TheGrinder/build/.*
 /TheGrinder/tests-src/.*
 /TheGrinder/src/org/.*
 /TheGrinder/src/HTTPClient/.*
