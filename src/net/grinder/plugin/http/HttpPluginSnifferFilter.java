@@ -2,6 +2,7 @@
 // Copyright (C) 2000  Paco Gomez
 // Copyright (C) 2000  Phil Dawes
 // Copyright (C) 2001  Phil Aston
+// Copyright (C) 2001  Kalle Burbeck
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -85,9 +86,9 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 		    handleMethod(string, sessionState, url);
 		}
 		else if (method.equals("POST")) {
-		    handleMethod(string, sessionState, url);
-		    sessionState.setHandlingPost(true);
 		    sessionState.resetEntityData();
+		    sessionState.setHandlingPost(true);
+		    handleMethod(string, sessionState, url);
 		    addToEntityData(string, sessionState, true);
 		}
 		else {
@@ -120,14 +121,47 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 		       Long.toString(sessionState.markTime()));
 	outputProperty(requestNumber, "parameter.url", url);
 
-
-	final RE ifModifiedExpression = 
+	final RE ifModifiedExpression =
 	    getHeaderExpression("If-Modified-Since");
 
 	if (ifModifiedExpression.match(request)) {
 	    outputProperty(requestNumber, "parameter.ifModifiedSince",
 			   ifModifiedExpression.getParen(1));
 	}
+
+	final RE contentTypeExpression = getHeaderExpression("Content-Type");
+
+	if (contentTypeExpression.match(request)) {
+            outputProperty(requestNumber, "parameter.contentType",
+			   contentTypeExpression.getParen(1).trim());
+
+	    // If multipart content type, set sessionState to
+	    // boundary.
+	    final RE contentTypeMultipartExpression =
+		getContentTypeMultipartExpression();
+
+	    if (contentTypeMultipartExpression.match(request)) {
+		sessionState.setMultipartBoundary(
+		    contentTypeMultipartExpression.getParen(1).trim());
+	    }
+	}
+
+	// Description for a test should always be included so why
+	// write the property by hand? The default is to use the
+	// filename from the url as description. If no filename is
+	// found, use emptystring and let user fill in.
+	final RE descriptionExpresion = getLastURLPathElementExpression();
+
+	final String description;
+	
+	if (descriptionExpresion.match(url)) {
+	    description = descriptionExpresion.getParen(2);
+	}
+	else {
+	    description = "";
+	}
+
+	outputProperty(requestNumber, "description", description);
     }
 
     private void outputEntityData(SessionState sessionState)
@@ -171,7 +205,8 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	}
 
 	// Find and add the data.
-	final RE messageBodyExpression = getMessageBodyExpression();
+	final RE messageBodyExpression =
+	    getMessageBodyExpression(sessionState.getMultipartBoundary());
 
 	if (messageBodyExpression.match(request)) {
 	    sessionState.addEntityData(messageBodyExpression.getParen(1));
@@ -222,6 +257,29 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 		      RE.MATCH_MULTILINE);
     }
 
+   /**
+    *
+    * Regexp is not synchronised, so for now compile new objects
+    * every time. If it becomes a bottleneck, the "get*Expression
+    * methods should be implemented with object pools.
+   */
+   private RE getContentTypeMultipartExpression() throws RESyntaxException
+   {
+      return new RE("^Content-Type: multipart/form-data; boundary=(.*)$",
+		    RE.MATCH_MULTILINE);
+   }
+
+   /**
+    *
+    * Regexp is not synchronised, so for now compile new objects
+    * every time. If it becomes a bottleneck, the "get*Expression
+    * methods should be implemented with object pools.
+   */
+   private RE getLastURLPathElementExpression() throws RESyntaxException
+   {
+       return new RE("^(.*)/(.*?)(\\?(.*))?$", RE.MATCH_MULTILINE);
+    }
+
     /**
      * Regexp is not synchronised, so for now compile new objects
      * every time. If it becomes a bottleneck, the "get*Expression
@@ -237,9 +295,18 @@ public class HttpPluginSnifferFilter implements SnifferFilter
      * every time. If it becomes a bottleneck, the "get*Expression
      * methods should be implemented with object pools.
     */
-    private RE getMessageBodyExpression() throws RESyntaxException
+    private RE getMessageBodyExpression(String boundary)
+	throws RESyntaxException
     {
-	return new RE("\r\n\r\n(.*)");
+	if (boundary == null) {
+	    return new RE("\r\n\r\n(.*)");
+	}
+	else {
+	    //If multipart contentType
+	    return new RE("(--" + boundary + "(.*)--" + boundary +
+			  "--(\r\n)?)",
+			  RE.MATCH_SINGLELINE);
+	}
     }
 
     private static class SessionState
@@ -249,6 +316,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	private StringBuffer m_entityDataBuffer;
 	private int m_contentLength;
 	private long m_lastTime;
+	private String m_multipartBoundary;
 
 	SessionState()
 	{
@@ -276,6 +344,16 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	    m_handlingPost = b;
 	}
 
+	public void setMultipartBoundary(String boundary)
+	{
+	    m_multipartBoundary = boundary;
+	}
+
+	public String getMultipartBoundary()
+	{
+	    return m_multipartBoundary;
+	}
+
 	public String getEntityData() 
 	{
 	    return m_entityDataBuffer.toString();
@@ -290,6 +368,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	{
 	    m_entityDataBuffer = new StringBuffer();
 	    m_contentLength = -1;
+	    m_multipartBoundary = null;
 	}
 
 	public void addEntityData(String s) 
