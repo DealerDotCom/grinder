@@ -32,10 +32,14 @@ import java.util.List;
 
 
 /**
- * Class that manages the a set of TCP sockets. Currently only alows
- * for polling the sockets for received {@link Message}s, but might be
- * extended in the future to support broadcast of a {@link Message} to
- * all the sockets.
+ * Class that manages the a set of TCP sockets.
+ *
+ * <p>The sockets belong to connections accepted by an {@link
+ * Acceptor}.</p>
+ *
+ * <p>Currently only alows for polling the sockets for received {@link
+ * Message}s, but might be extended in the future to support broadcast
+ * of a {@link Message} to all the sockets.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -48,11 +52,19 @@ final class SocketSet {
   private int m_lastHandle = 0;
   private int m_nextPurge = 0;
 
+  /**
+   * Constructor.
+   */
   public SocketSet() {
     m_handles.add(new SentinelHandle());
   }
 
-  public void add(Socket socket) throws IOException {
+  /**
+   * Adds a <code>Socket</code> to this set.
+   *
+   * @param socket The socket to add.
+   */
+  public void add(Socket socket) {
     final Handle handle = new HandleImplementation(socket);
 
     synchronized (m_mutex) {
@@ -73,9 +85,8 @@ final class SocketSet {
         }
 
         if (checked++ >= m_handles.size()) {
-          // All current Handles are busy => too many
-          // threads. Put this one to sleep until we have
-          // more work.
+          // All current Handles are busy => too many threads. Put
+          // this one to sleep until we have more work.
           m_mutex.wait();
 
           checked = 0;
@@ -168,13 +179,27 @@ final class SocketSet {
   private static final class HandleImplementation implements Handle {
     private final Socket m_socket;
     private final InputStream m_inputStream;
-    private ObjectInputStream m_objectStream;
+    private final IOException m_deferredIOException;
+
     private boolean m_busy = false;
     private boolean m_closed = false;
 
-    HandleImplementation(Socket socket) throws IOException {
+    HandleImplementation(Socket socket) {
       m_socket = socket;
-      m_inputStream = new BufferedInputStream(m_socket.getInputStream());
+
+      InputStream inputStream = null;
+      IOException deferredIOException = null;
+
+      try {
+        inputStream = new BufferedInputStream(m_socket.getInputStream());
+      }
+      catch (IOException e) {
+        close();
+        deferredIOException = e;
+      }
+
+      m_inputStream = inputStream;
+      m_deferredIOException = deferredIOException;
     }
 
     public boolean isSentinel() {
@@ -184,15 +209,20 @@ final class SocketSet {
     public Message pollForMessage()
       throws ClassNotFoundException, IOException {
 
-      // Don't synchronise, assume caller has correctly reserved
-      // this Handle.
+      if (m_deferredIOException != null) {
+        throw m_deferredIOException;
+      }
+
+      // Don't synchronise, assume caller has correctly reserved this
+      // Handle.
       if (m_inputStream.available() == 0) {
         return null;
       }
 
-      m_objectStream = new ObjectInputStream(m_inputStream);
+      final ObjectInputStream objectStream =
+        new ObjectInputStream(m_inputStream);
 
-      return (Message)m_objectStream.readObject();
+      return (Message)objectStream.readObject();
     }
 
     public synchronized boolean reserve() {

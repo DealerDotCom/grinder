@@ -22,9 +22,6 @@
 package net.grinder.communication;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.ServerSocket;
 
 
 /**
@@ -32,125 +29,66 @@ import java.net.ServerSocket;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 public final class UnicastReceiver extends AbstractReceiver {
 
-  private int m_listenThreadIndex = 0;
-  private final ServerSocket m_serverSocket;
-  private final SocketSet m_connections = new SocketSet();
-  private final ThreadGroup m_threadGroup =
-    new ThreadGroup("UnicastReceiver");
+  private final Acceptor m_acceptor;
 
   /**
    * Constructor.
    *
-   * @param addressString The TCP address to listen on.
+   * @param addressString The TCP address to listen on. Zero-length
+   * string => listen on all interfaces.
    * @param port The TCP port to listen to.
-   *
-   * @throws CommunicationException If socket could not be bound to.
-   **/
+   * @throws CommunicationException If server socket could not be
+   * bound.
+   */
   public UnicastReceiver(String addressString, int port)
     throws CommunicationException {
 
-    super(false);        // TCP guarantees message sequence so
-    // we don't have to.
+    this(new Acceptor(addressString, port), 5);
+  }
 
-    if (addressString.length() > 0) {
-      try {
-        m_serverSocket =
-          new ServerSocket(port, 50,
-                           InetAddress.getByName(addressString));
-      }
-      catch (IOException e) {
-        throw new CommunicationException(
-          "Could not bind to TCP address '" + addressString + ":" +
-          port + "'",
-          e);
-      }
-    }
-    else {
-      try {
-        m_serverSocket = new ServerSocket(port, 50);
-      }
-      catch (IOException e) {
-        throw new CommunicationException(
-          "Could not bind to port '" + port +
-          "' on local interfaces",
-          e);
-      }
-    }
+  /**
+   * Constructor.
+   *
+   * @param acceptor Acceptor that manages connections to our server socket.
+   * @param numberOfThreads Number of listen threads to use.
+   * @throws CommunicationException If server socket could not be
+   * bound.
+   */
+  UnicastReceiver(Acceptor acceptor, int numberOfThreads)
+    throws CommunicationException {
 
-    new AcceptorThread().start();
+    super(false);        // TCP guarantees message sequence so we
+                         // don't have to.
 
-    for (int i = 0; i < 5; ++i) {
-      new ListenThread().start();
+    m_acceptor = acceptor;
+
+    final ThreadGroup threadGroup = acceptor.getThreadGroup();
+
+    for (int i = 0; i < numberOfThreads; ++i) {
+      new ListenThread(threadGroup, i).start();
     }
   }
 
   /**
    * Shut down this reciever.
+   *
    * @throws CommunicationException If an IO exception occurs.
-   **/
+   */
   public void shutdown() throws CommunicationException {
 
     super.shutdown();
 
-    try {
-      m_serverSocket.close();
-    }
-    catch (IOException e) {
-      throw new CommunicationException("Error closing socket", e);
-    }
-
-    m_connections.close();
-
-    m_threadGroup.interrupt();
-  }
-
-  private final class AcceptorThread extends Thread {
-
-    public AcceptorThread() {
-      super(m_threadGroup, "Acceptor thread");
-    }
-
-    public void run() {
-      try {
-        while (true) {
-          final Socket localSocket = m_serverSocket.accept();
-
-          try {
-            m_connections.add(localSocket);
-          }
-          catch (Exception e) {
-            // Propagate exceptions to threads calling
-            // waitForMessage.
-            getMessageQueue().queue(e);
-          }
-        }
-      }
-      catch (IOException e) {
-        // Treat accept socket errors as fatal - we've
-        // probably been shutdown.
-      }
-      catch (MessageQueue.ShutdownException e) {
-        // We've been shutdown, exit this thread.
-      }
-      finally {
-        // Best effort to ensure our server socket is closed.
-        try {
-          shutdown();
-        }
-        catch (CommunicationException ce) {
-          // Ignore.
-        }
-      }
-    }
+    // Will also shut down our ListenThreads.
+    m_acceptor.shutdown();
   }
 
   private final class ListenThread extends Thread {
 
-    public ListenThread() {
-      super(m_threadGroup, "Unicast listen thread " + m_listenThreadIndex++);
+    public ListenThread(ThreadGroup threadGroup, int listenThreadIndex) {
+      super(threadGroup, "Unicast listen thread " + listenThreadIndex);
       setDaemon(true);
     }
 
@@ -163,7 +101,7 @@ public final class UnicastReceiver extends AbstractReceiver {
 
         while (true) {
           final SocketSet.Handle socketHandle =
-            m_connections.reserveNextHandle();
+            m_acceptor.getSocketSet().reserveNextHandle();
 
           try {
             if (socketHandle.isSentinel()) {
@@ -178,12 +116,12 @@ public final class UnicastReceiver extends AbstractReceiver {
 
               if (m instanceof CloseCommunicationMessage) {
                 socketHandle.close();
-                idle = false;
               }
               else if (m != null) {
                 messageQueue.queue(m);
-                idle = false;
               }
+
+              idle = false;
             }
           }
           catch (IOException e) {
