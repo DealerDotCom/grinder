@@ -1,3 +1,21 @@
+2003-12-02  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/engine/process/TestData.java:
+	Correct wrapping of Jython objects that are subclassed from Java
+	objects.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java:
+	getUrl() now returns null if no url has been set rather than throwing
+	an NPE.
+	Tidy up javadoc.
+
+	* CHANGES, TODO, src/net/grinder/engine/process/JythonScript.java:
+	Deprecate implicit grinder object.
+
+2003-12-01  Philip Aston  <philipa@mail.com>
+
+	* build.xml: Next is beta 15.
+
 2003-11-29  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta14 is released.
