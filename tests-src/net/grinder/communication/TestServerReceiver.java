@@ -145,6 +145,8 @@ public class TestServerReceiver extends TestCase {
     assertTrue(message2.payloadEquals(receivedMessage2));
     assertEquals(message3, receivedMessage3);
     assertTrue(message3.payloadEquals(receivedMessage3));
+
+    serverReceiver.shutdown();
   }
 
   public void testShutdown() throws Exception {
@@ -237,5 +239,7 @@ public class TestServerReceiver extends TestCase {
           serverReceiver.waitForMessage();
         }
       }.getException());
+
+    serverReceiver.shutdown();
   }
 }
