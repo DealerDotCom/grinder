@@ -1,4 +1,48 @@
+2004-06-06  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/Editor.java, src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/model/editor/Buffer.java, src/net/grinder/console/model/editor/EditorModel.java:
+	SaveAs work.
+
+	* src/net/grinder/console/swingui/FileTreeModel.java:
+	Find a FileNode by Buffer.
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties:
+	More resources.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/Editor.java, src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/swingui/FileTreeModel.java:
+	Even more refactoring.
+	Additional editor actions.
+
+	* tests-src/net/grinder/console/model/editor/TestEditorModel.java, tests-src/net/grinder/console/model/editor/TestBuffer.java, tests-src/net/grinder/console/model/editor/TestAbstractTextSource.java, src/net/grinder/console/model/editor/TextSource.java, src/net/grinder/console/model/editor/EditorModel.java, src/net/grinder/console/model/editor/Buffer.java, src/net/grinder/console/model/editor/AbstractTextSource.java:
+	Even more refactoring.
+
+	* src/net/grinder/console/swingui/resources/save-all-files.png, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/close-file-rollover.png, src/net/grinder/console/swingui/resources/close-file.png, src/net/grinder/console/swingui/resources/icons.xcf, src/net/grinder/console/swingui/resources/new-file-rollover.png, src/net/grinder/console/swingui/resources/new-file.png, src/net/grinder/console/swingui/resources/save-all-files-rollover.png:
+	Resources for new editor actions.
+
+2004-06-05  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/Editor.java, src/net/grinder/console/swingui/FileTree.java, tests-src/net/grinder/console/model/editor/TestAbstractTextSource.java, tests-src/net/grinder/console/model/editor/TestBuffer.java, tests-src/net/grinder/console/model/editor/TestEditorModel.java, src/net/grinder/console/model/editor/AbstractTextSource.java, src/net/grinder/console/model/editor/Buffer.java, src/net/grinder/console/model/editor/EditorModel.java, src/net/grinder/console/model/editor/TextSource.java, src/net/grinder/console/swingui/ConsoleUI.java:
+	Further reworking of editor model listeners.
+	Add save action.
+
+	* tests-src/net/grinder/console/model/editor/StringTextSource.java, tests-src/net/grinder/console/model/editor/TestAbstractTextSource.java, tests-src/net/grinder/console/model/editor/TestBuffer.java, tests-src/net/grinder/console/model/editor/TestEditorModel.java, src/net/grinder/console/model/editor/AbstractTextSource.java, src/net/grinder/console/model/editor/Buffer.java, src/net/grinder/console/model/editor/EditorModel.java, src/net/grinder/console/model/editor/TextSource.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/Editor.java, src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/swingui/FileTreeModel.java:
+	Refactor editor model.
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	Convenience methods.
+
+	* src/net/grinder/console/swingui/FileTree.java:
+	Don't look up icon resource every time.
+
+2004-05-28  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/resources/save-file-rollover.png, src/net/grinder/console/swingui/resources/save-file.png, src/net/grinder/console/swingui/resources/save-results-rollover.png, src/net/grinder/console/swingui/resources/save-results.png, src/net/grinder/console/swingui/resources/start-rollover.png, src/net/grinder/console/swingui/resources/start.png, src/net/grinder/console/swingui/resources/stop-rollover.png, src/net/grinder/console/swingui/resources/stop.png, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/icons.xcf, src/net/grinder/console/swingui/resources/open-file-rollover.png, src/net/grinder/console/swingui/resources/open-file.png, src/net/grinder/console/swingui/resources/save-file-as-rollover.png, src/net/grinder/console/swingui/resources/save-file-as.png:
+	Icons.
+
 2004-05-27  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/FileTree.java:
+	Fix enabling of open action/button.
 
 	* src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/close-file-rollover.png, src/net/grinder/console/swingui/resources/close-file.png, src/net/grinder/console/swingui/resources/distribute-files-rollover.png, src/net/grinder/console/swingui/resources/distribute-files.png, src/net/grinder/console/swingui/resources/icons.xcf, src/net/grinder/console/swingui/resources/open-file-rollover.png, src/net/grinder/console/swingui/resources/open-file.png, src/net/grinder/console/swingui/resources/save-file-as-rollover.png, src/net/grinder/console/swingui/resources/save-file-as.png, src/net/grinder/console/swingui/resources/save-file-rollover.png, src/net/grinder/console/swingui/resources/save-file.png, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/swingui/FileTreeModel.java:
 	More UI changes for script editing.
