@@ -159,3 +159,18 @@ How do I use the HTTPS plugin?
 The JSSE SSL implementation isn't quick. This should be taken into
 account when comparing round trip times, as a compiled browser version
 is likely to be a *lot* faster.
+
+
+
+TO DO:
+
+WHY HTTPCLIENT IS BETTER
+Explicit connection model
+Can be used to support:
+	Proxies
+	Connection timeouts
+	Persistent cookies
+
+basicAuthenticationRealm
+
+timeIncludesTransaction

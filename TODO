@@ -3,6 +3,8 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
+  Update HTTPClient to allow multiple servers per client.
+
   More documentation - both user level and javadoc. Volunteers please!
 
   Write more JUnit tests. In particular, TestStatisticsMap, new
