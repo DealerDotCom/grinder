@@ -10,6 +10,8 @@ Grinder 2.6.3
   Fix basic authentication property names. Thanks to Andrew
   Sliwkowski for reporting this.
 
+  Add new file doc/Problems.txt to hold wisdom from Mikael Suokas.
+
 
 Grinder 2.6.2
 -------------

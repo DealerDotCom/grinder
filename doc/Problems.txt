@@ -1,0 +1,29 @@
+This file contains notes about problems (with some solutions) that
+have been reported by users of The Grinder.
+
+
+The Grinder sometimes reports negative transaction times
+********************************************************
+
+ Are you running linux kernel 2.2.18? Mikael Suokas reports:
+
+   In some load situations, on some hardware, older linux kernels can
+   generate system times that jump backwards. I have experienced this
+   problem on one machine (Intel Pentium/150, 128M RAM, Adaptec
+   AHA-2940, SCSI disks) running the stock Red Hat Linux 7.0 kernel
+   (2.2.16).
+
+   The grinder occasionally reported negative response times in the
+   -900 to -700 ms range whenever the load became high. Interestingly,
+   the same OS+kernel version on several other machines never showed
+   these negative response times.
+
+   The problem was not Grinder or Java specific: a C program polling
+   gettimeofday() also showed system time jumping backwards.
+
+   Upgrading to kernel 2.2.19 fixed this issue for me. Since the
+   release notes for linux 2.2.18 mention timekeeping locking fixes, I
+   don't think that was a coincidence.
+
+   Of course, you should upgrade any 2.2.x kernel to 2.2.19 anyway,
+   because because of the many security fixes.
