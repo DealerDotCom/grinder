@@ -27,6 +27,11 @@
  *  The HTTPClient's home page is located at:
  *
  *  http://www.innovation.ch/java/HTTPClient/ 
+ *
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL. They
+ * are marked below with the comment "GRINDER MODIFICATION".
+ *
  */
 
 package HTTPClient;
@@ -936,6 +941,9 @@ public final class Response implements RoResponse, GlobalConstants, Cloneable
     private boolean      reading_lines = false;
     private boolean      bol     = true;
     private boolean      got_cr  = false;
+    /** ++GRINDER MODIFICATION **/
+    private long         ttfb    = 0;
+    /** --GRINDER MODIFICATION **/
 
     /**
      * Reads the response headers received, folding continued lines.
@@ -966,11 +974,18 @@ public final class Response implements RoResponse, GlobalConstants, Cloneable
 		if (buf_pos == 0)
 		{
 		    int c;
+		    boolean gotFirstByte = false;
 		    do
 		    {
-			if ((c = inp.read()) == -1)
-			    throw new EOFException("Encountered premature EOF "
-						   + "while reading Version");
+			    if ((c = inp.read()) == -1)
+				    throw new EOFException("Encountered premature EOF "
+				    	+ "while reading Version");
+			/** ++GRINDER MODIFICATION **/
+			    if (!gotFirstByte) {
+				    gotFirstByte = true;
+				    ttfb = System.currentTimeMillis();
+			    }
+			/** --GRINDER MODIFICATION **/
 		    } while (Character.isWhitespace((char) c)) ;
 		    buf[0] = (byte) c;
 		    buf_pos = 1;
@@ -1013,8 +1028,11 @@ public final class Response implements RoResponse, GlobalConstants, Cloneable
 	hdrs.setLength(0);
 	return tmp;
     }
-
-
+    /** ++GRINDER MODIFICATION **/
+    public long getTtfb(){
+	    return ttfb;
+    }
+    /** --GRINDER MODIFICATION **/
     boolean trailers_read = false;
 
     /**

@@ -2,6 +2,7 @@
 // Copyright (C) 2003 Bill Schnellinger
 // Copyright (C) 2003 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
+// Copyright (C) 2004 Calum Fitzgerald
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -830,6 +831,13 @@ public class HTTPRequest {
 
       threadContext.stopTimedSection();
 
+      final long startTime = threadContext.getStartTime();
+
+      final long dnsTime = connection.getDnsTime() - startTime;
+      final long connectTime = connection.getConnectTime() - startTime;
+      final long timeToFirstByte =
+        httpResponse.getTimeToFirstByte() - startTime;
+
       final int statusCode = httpResponse.getStatusCode();
 
       final String message =
@@ -865,9 +873,19 @@ public class HTTPRequest {
 
           statistics.addValue(plugin.getResponseLengthIndex(), responseLength);
 
-          //If many HTTPRequests are wrapped in the same test, the
-          //last one wins.
+          // If many HTTPRequests are wrapped in the same test, the
+          // last one wins.
           statistics.setValue(plugin.getResponseStatusIndex(), statusCode);
+
+          if (dnsTime > 0) {
+            statistics.addValue(plugin.getDnsTimeIndex(), dnsTime);
+          }
+
+          if (connectTime > 0) {
+            statistics.addValue(plugin.getConnnectionTimeIndex(), connectTime);
+          }
+
+          statistics.addValue(plugin.getFirstByteTimeIndex(), timeToFirstByte);
 
           if (statusCode >= HttpURLConnection.HTTP_BAD_REQUEST) {
             statistics.addValue(plugin.getResponseErrorsIndex(), 1);

@@ -22,6 +22,10 @@ Grinder 3.0-beta23
 
   New documentation built with Apache Forrest.
 
+  Additional HTTP instrumentation from Calumn Fitzgerald. This adds
+  new statistics measuring time to resolve host names (DNS), time to
+  establish the connection, and time to first byte.
+
 
 Grinder 3.0-beta22
 ------------------

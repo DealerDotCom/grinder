@@ -1,5 +1,6 @@
 // Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2004 John Stanford White
+// Copyright (C) 2004 Calum Fitzgerald
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -92,6 +93,27 @@ public final class StatisticsIndexMap implements Serializable {
     "httpplugin.responseErrorsKey";
 
   /**
+   * Special slot for the HTTP plugin so it doesn't steal "user"
+   * indices.
+   */
+  public static final String HTTP_PLUGIN_DNS_TIME_KEY =
+    "httpplugin.dnsTimeKey";
+
+  /**
+   * Special slot for the HTTP plugin so it doesn't steal "user"
+   * indices.
+   */
+  public static final String HTTP_PLUGIN_CONNECT_TIME_KEY =
+    "httpplugin.connectTimeKey";
+
+  /**
+   * Special slot for the HTTP plugin so it doesn't steal "user"
+   * indices.
+   */
+  public static final String HTTP_PLUGIN_FIRST_BYTE_TIME_KEY =
+    "httpplugin.firstByteTimeKey";
+
+  /**
    * Singleton accessor.
    *
    * @return The singleton <code>StatisticsIndexMap</code>.
@@ -116,6 +138,9 @@ public final class StatisticsIndexMap implements Serializable {
     m_map.put(HTTP_PLUGIN_RESPONSE_STATUS_KEY, new LongIndex(nextLongIndex++));
     m_map.put(HTTP_PLUGIN_RESPONSE_LENGTH_KEY, new LongIndex(nextLongIndex++));
     m_map.put(HTTP_PLUGIN_RESPONSE_ERRORS_KEY, new LongIndex(nextLongIndex++));
+    m_map.put(HTTP_PLUGIN_DNS_TIME_KEY, new LongIndex(nextLongIndex++));
+    m_map.put(HTTP_PLUGIN_CONNECT_TIME_KEY, new LongIndex(nextLongIndex++));
+    m_map.put(HTTP_PLUGIN_FIRST_BYTE_TIME_KEY, new LongIndex(nextLongIndex++));
 
     m_numberOfLongIndicies = nextLongIndex;
 

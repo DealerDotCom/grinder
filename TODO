@@ -193,8 +193,6 @@ the client.
 
 Remove ParseException, ProtocolNotSuppException from public APIs.
 
-HTTP plugin to support "mean time to first byte".
-
 Script support for HTTP "system property" options.
 
 Pablo Estades Fernández says:

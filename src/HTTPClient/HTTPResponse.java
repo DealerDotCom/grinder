@@ -29,9 +29,8 @@
  *  http://www.innovation.ch/java/HTTPClient/ 
  *
  * This file contains modifications for use with "The Grinder"
- * (http://grinder.sourceforge.net) under the terms of the LGPL.
- * Modifications made by Philip Aston on 9th July 2001. They are
- * marked below with the comment "GRINDER MODIFICATION". 
+ * (http://grinder.sourceforge.net) under the terms of the LGPL. They
+ * are marked below with the comment "GRINDER MODIFICATION".
  *
  */
 
@@ -118,6 +117,10 @@ public class HTTPResponse implements HTTPClientModuleConstants
     /** the method used in the request */
     private String       method = null;
 
+    /** ++GRINDER MODIFICATION **/
+    /** The time to first byte */
+    private long         ttfb;
+    /** --GRINDER MODIFICATION **/
 
     // Constructors
 
@@ -376,6 +379,11 @@ public class HTTPResponse implements HTTPClientModuleConstants
 	return Headers.keys();
     }
 
+    /** ++GRINDER MODIFICATION **/
+    public long getTimeToFirstByte(){
+            return ttfb;
+    }
+    /** --GRINDER MODIFICATION **/
 
     /**
      * Retrieves the value for a given trailer. This should not be invoked
@@ -827,6 +835,7 @@ public class HTTPResponse implements HTTPClientModuleConstants
 	this.inp_stream    = resp.inp_stream;
 	this.Data          = resp.Data;
 	this.retry         = resp.retry;
+	this.ttfb          = resp.getTtfb();
 	initialized        = true;
     }
 

@@ -29,9 +29,8 @@
  *  http://www.innovation.ch/java/HTTPClient/ 
  *
  * This file contains modifications for use with "The Grinder"
- * (http://grinder.sourceforge.net) under the terms of the LGPL.
- * Modifications made by Philip Aston on 9th July 2001. They are
- * marked below with the comment "GRINDER MODIFICATION". 
+ * (http://grinder.sourceforge.net) under the terms of the LGPL. They
+ * are marked below with the comment "GRINDER MODIFICATION".
  *
  */
 
@@ -306,6 +305,16 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     /** ++GRINDER MODIFICATION **/
     /** hack to disable trailers */
     private static boolean       noTrailers = false;
+    /** --GRINDER MODIFICATION **/
+
+    /** ++GRINDER MODIFICATION **/
+    /** hack to capture DNS lookup time */
+    private        long          DNS_time = 0;
+    /** --GRINDER MODIFICATION **/
+
+    /** ++GRINDER MODIFICATION **/
+    /** hack to capture Initial Connection time */
+    private        long          con_time = 0;
     /** --GRINDER MODIFICATION **/
 
     /** the default timeout to use for new connections */
@@ -3243,6 +3252,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	    {
 		// try all A records
 		InetAddress[] addr_list = InetAddress.getAllByName(actual_host);
+                /** ++GRINDER MODIFICATION **/
+                // capture time for DNS Lookup
+                DNS_time = System.currentTimeMillis();
+                /** --GRINDER MODIFICATION **/
 		for (int idx=0; idx<addr_list.length; idx++)
 		{
 		    try
@@ -3252,6 +3265,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 			else
 			    sock = new Socket(addr_list[idx], actual_port,
 					      LocalAddr, LocalPort);
+                        /** ++GRINDER MODIFICATION **/
+			// capture time for initial connection
+			con_time = System.currentTimeMillis();
+			/** --GRINDER MODIFICATION **/
 			break;		// success
 		    }
 		    catch (SocketException se)
@@ -3285,6 +3302,17 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	return sock;
     }
 
+    /** ++GRINDER-MODIFICATION++ */
+    public long getDnsTime(){
+           return DNS_time;
+    }
+    /** --GRINDER-MODIFICATION++ */
+
+    /** ++GRINDER-MODIFICATION++ */
+    public long getConnectTime(){
+           return con_time;
+    }
+    /** --GRINDER-MODIFICATION++ */
 
     /**
      * Enable SSL Tunneling if we're talking to a proxy. See ietf draft
@@ -3881,6 +3909,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		{
 		    // try all A records
 		    InetAddress[] addr_list = InetAddress.getAllByName(actual_host);
+                    /** ++GRINDER MODIFICATION **/
+                    // capture time for DNS Lookup
+                    DNS_time = System.currentTimeMillis();
+                    /** --GRINDER MODIFICATION **/
 		    for (int idx=0; idx<addr_list.length; idx++)
 		    {
 			try
@@ -3890,6 +3922,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 			    else
 				sock = new Socket(addr_list[idx], actual_port,
 						  LocalAddr, LocalPort);
+                            /** ++GRINDER MODIFICATION */
+                            // capture time for initial connection
+                            con_time = System.currentTimeMillis();
+                            /** --GRINDER MODIFICATION */
 			    break;		// success
 			}
 			catch (SocketException se)
