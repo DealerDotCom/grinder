@@ -140,7 +140,7 @@ public final class Directory  {
           // This can happen if the user does not have permision to
           // list the directory.
           m_warnings.add("Could not list '" + absoluteDirectory);
-          break;
+          continue;
         }
 
         for (int j = 0; j < children.length; ++j) {
