@@ -31,7 +31,7 @@ import java.util.Random;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import net.grinder.statistics.Statistics;
+import net.grinder.console.model.CumulativeStatistics;
 
 
 /**
@@ -105,23 +105,14 @@ public class TestGraph extends TestCase
 	createUI(labelledGraph);
 
 	double peak = 0d;
-	final Statistics statistics = new Statistics();
-	statistics.addError();
-	statistics.addTransaction(1);
+
+	final MyCumulativeStatistics myCS = new MyCumulativeStatistics();
 
 	final DecimalFormat format = new DecimalFormat();
 
 	for (int i=0; i<500; i++) {
-	    final double random = s_random.nextDouble();
-
-	    if (random > peak) {
-		peak = random;
-	    }
-
-	    labelledGraph.add(random, peak, peak, statistics, format);
+	    labelledGraph.add(myCS, myCS.getInstantTPS(), format);
 	    pause();
-
-	    statistics.add(statistics);
 	}
     }
 
@@ -129,6 +120,53 @@ public class TestGraph extends TestCase
     {
 	if (m_pauseTime > 0) {
 	    Thread.sleep(m_pauseTime);
+	}
+    }
+
+    private class MyCumulativeStatistics implements CumulativeStatistics
+    {
+	private int m_number = 0;
+	private double m_totalTime = 0;
+	private double m_totalTPS = 0;
+	private double m_peakTPS = 0;
+
+	public double getAverageTransactionTime()
+	{
+	    return m_totalTime/m_number;
+	}
+	
+	public long getTransactions()
+	{
+	    return m_number;
+	}
+	
+	public long getErrors()
+	{
+	    return 0;
+	}
+
+	public double getAverageTPS()
+	{
+	    return m_totalTPS/m_number;
+	}
+	
+	public double getPeakTPS()
+	{
+	    return m_peakTPS;
+	}
+
+	public double getInstantTPS()
+	{
+	    final double tps = s_random.nextDouble() * 100;
+	    m_totalTPS += tps;
+	    m_totalTime += s_random.nextDouble() * 20;
+	    ++m_number;
+
+	    if (tps > m_peakTPS) {
+		m_peakTPS = tps;
+	    }
+
+	    return tps;
 	}
     }
 }
