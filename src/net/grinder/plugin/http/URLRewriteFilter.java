@@ -43,8 +43,8 @@ public class URLRewriteFilter implements SnifferFilter
     public void handle(ConnectionDetails connectionDetails, byte[] buffer,
 		       int bytesRead)
         throws IOException, RESyntaxException
-	final String ENCODING = "US-ASCII";
     {
+	final String ENCODING = "US-ASCII";
 
 	// as Phil would say: hackety do dah
 	final String protocol = connectionDetails.isSecure() ? "https" : "http";
