@@ -256,14 +256,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           // over localSocket to sslProxySocket, and vice versa.
           new Thread(
             getStreamHandlerThreadGroup(),
-            new CopyStreamRunnable(in, sslProxySocket.getOutputStream()),
+            new CopyStreamRunnable(in, sslProxySocket.getOutputStream(), true),
             "Copy to proxy engine for " + remoteEndPoint).start();
 
           final OutputStream out = localSocket.getOutputStream();
 
           new Thread(
             getStreamHandlerThreadGroup(),
-            new CopyStreamRunnable(sslProxySocket.getInputStream(), out),
+            new CopyStreamRunnable(sslProxySocket.getInputStream(), out, true),
             "Copy from proxy engine for " + remoteEndPoint).start();
 
           if (m_httpsProxySocketFactory != null) {

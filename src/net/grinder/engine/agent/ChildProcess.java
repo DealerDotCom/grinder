@@ -104,7 +104,7 @@ final class ChildProcess {
                                       OutputStream outputStream) {
 
     final Thread thread =
-      new Thread(new CopyStreamRunnable(inputStream, outputStream),
+      new Thread(new CopyStreamRunnable(inputStream, outputStream, false),
                  "Stream redirector");
 
     thread.setDaemon(true);
