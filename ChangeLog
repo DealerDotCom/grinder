@@ -1,3 +1,15 @@
+2001-05-14  Philip Aston  <paston@bea.com>
+
+	* examples/http/grinder.properties, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/plugin/http/example/ExampleStringBean2.java, src/net/grinder/plugininterface/PluginThreadContext.java:
+	Add PluginProcessContext.getCurrentCycleID().
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java:
+	Tidy up some layout issues. Still looks poor when there's only one or
+	two tests, and window needs to have a minimum size.
+
+	* src/net/grinder/statistics/StatisticsTable.java:
+	Remove spurious "Total" header.
+
 2001-05-01  Philip Aston  <paston@bea.com>
 
 	* CHANGES, README, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java:
