@@ -252,6 +252,7 @@ public class GrinderProcess
 	try {
 	    final boolean appendToLog = m_context.getAppendToLog();
 
+	    // Don't autoflush, we explictly control flushing of the writer.
 	    dataPrintWriter =
 		new PrintWriter(
 		    new BufferedWriter(
@@ -266,7 +267,7 @@ public class GrinderProcess
 		}
 	    }
 	}
-	catch(Exception e){
+	catch(Exception e) {
 	    throw new EngineException("Cannot open process data file '" +
 				      dataFilename + "'", e);
 	}
@@ -308,6 +309,8 @@ public class GrinderProcess
 	    }
 	    
 	    do {		// We want at least one report.
+		dataPrintWriter.flush();
+
 		waitForMessage(m_reportToConsoleInterval,
 			       Listener.RESET | Listener.STOP);
 		
@@ -352,9 +355,7 @@ public class GrinderProcess
 	    }
 	}
 
-        if (dataPrintWriter != null) {
-	    dataPrintWriter.close();
-	}
+	dataPrintWriter.close();
 
  	m_context.logMessage("Final statistics for this process:");
 
