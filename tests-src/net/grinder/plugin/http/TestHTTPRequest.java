@@ -49,6 +49,7 @@ import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.Statistics;
+import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.CallRecorder;
@@ -913,6 +914,15 @@ public class TestHTTPRequest extends TestCase {
     m_statisticsStubFactory.assertSuccess(
       "setValue", httpPlugin.getResponseStatusIndex(), new Long(302));
 
+    m_statisticsStubFactory.assertSuccess(
+      "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+
+    m_statisticsStubFactory.assertSuccess(
+      "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+
+    m_statisticsStubFactory.assertSuccess(
+      "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+
     m_statisticsStubFactory.assertNoMoreCalls();
 
     handler.setStatusString("400 Bad Request");
@@ -934,6 +944,15 @@ public class TestHTTPRequest extends TestCase {
 
     m_statisticsStubFactory.assertSuccess(
       "setValue", httpPlugin.getResponseStatusIndex(), new Long(400));
+
+    m_statisticsStubFactory.assertSuccess(
+      "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+
+    m_statisticsStubFactory.assertSuccess(
+      "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+
+    m_statisticsStubFactory.assertSuccess(
+      "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
 
     m_statisticsStubFactory.assertSuccess(
       "addValue", httpPlugin.getResponseErrorsIndex(), new Long(1));
