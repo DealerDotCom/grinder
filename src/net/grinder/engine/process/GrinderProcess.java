@@ -39,6 +39,7 @@ import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
+import net.grinder.communication.SenderImplementation;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
 import net.grinder.engine.EngineException;
@@ -180,7 +181,8 @@ public class GrinderProcess
 				  CommunicationDefaults.CONSOLE_PORT);
 
 	    if (multicastAddress != null && consolePort > 0) {
-		m_consoleSender = new Sender(m_context.getGrinderID(),
+		m_consoleSender =
+		    new SenderImplementation(m_context.getGrinderID(),
 					     multicastAddress, consolePort);
 
 		m_context.m_consoleSender = m_consoleSender;

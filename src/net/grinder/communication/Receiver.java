@@ -138,7 +138,7 @@ public final class Receiver
 		(SequenceValue)m_sequenceValues.get(senderID);
 
 	    if (sequenceValue != null) {
-		sequenceValue.nextValue(sequenceNumber);
+		sequenceValue.nextValue(sequenceNumber, senderID);
 	    }
 	    else {
 		m_sequenceValues.put(senderID,
@@ -184,9 +184,9 @@ public final class Receiver
 			// else with the DatagramSocket API though.
 			m_shutdownMessage = new ShutdownMessage();
 
-			new Sender("suicide is painless",
-				   m_multicastAddressString,
-				   m_multicastPort).send(m_shutdownMessage);
+			new SenderImplementation(
+			    "suicide is painless", m_multicastAddressString,
+			    m_multicastPort).send(m_shutdownMessage);
 		    }
 		    catch (CommunicationException e) {
 			// We made our best effort.
@@ -238,18 +238,16 @@ public final class Receiver
 	 * @param newValue The next value.
 	 * @throws CommunicationException If the message is out of sequence.
 	 **/
-	public final void nextValue(long newValue)
+	public final void nextValue(long newValue, String senderID)
 	    throws CommunicationException
 	{
 	    if (newValue != ++m_value) {
-		final CommunicationException e =
-		    new CommunicationException(
-			"Out of sequence message (received " + newValue + 
-			", expected " + m_value + ")");
+		System.err.println(
+		    "Out of sequence message from Sender '" +
+		    senderID + "' (received " + newValue + 
+		    ", expected " + m_value + ")");
 
 		m_value = newValue;
-
-		throw e;
 	    }
 	}
     }

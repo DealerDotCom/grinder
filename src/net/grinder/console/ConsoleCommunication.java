@@ -30,6 +30,7 @@ import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
+import net.grinder.communication.SenderImplementation;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
 import net.grinder.console.common.ConsoleException;
@@ -127,9 +128,10 @@ class ConsoleCommunication
 	}
 
 	try {
-	    m_sender = new Sender("Console (" + host + ")",
-				  m_properties.getMulticastAddress(),
-				  m_properties.getGrinderPort());
+	    m_sender =
+		new SenderImplementation("Console (" + host + ")",
+					 m_properties.getMulticastAddress(),
+					 m_properties.getGrinderPort());
 	}
 	catch(CommunicationException e) {
 	    handleBindException();
