@@ -89,7 +89,6 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     new Font("helvetica", Font.ITALIC | Font.BOLD, 40);
   private static final Color s_defaultLabelForeground =
     new JLabel().getForeground();
-  private static final Color s_darkGreen = new Color(0, 0x80, 00);
 
   private final Map m_actionTable = new HashMap();
   private final StartAction m_startAction;
@@ -216,8 +215,13 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     // Create the tabbed test display.
     final JTabbedPane tabbedPane = new JTabbedPane();
 
+    final JPanel graphPanel =
+      new TestGraphPanel(tabbedPane, model, m_resources);
+
     final JScrollPane graphTabPane =
-      new JScrollPane(new TestGraphPanel(model, m_resources));
+      new JScrollPane(graphPanel,
+		      JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+		      JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
     graphTabPane.setBorder(BorderFactory.createEmptyBorder());
 
@@ -276,7 +280,6 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       new StartProcessesGrinderAction(startProcessesHandler),
       new ResetProcessesGrinderAction(resetProcessesHandler),
       new StopProcessesGrinderAction(stopProcessesHandler),
-      new ResetAction(),
       m_startAction,
       m_stopAction,
       new SaveAction(),
@@ -429,11 +432,11 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	m_stateLabel.setText(m_stateStoppedString);
       }
 
-      m_stateLabel.setForeground(Color.red);
+      m_stateLabel.setForeground(Colours.RED);
     }
     else if (state == Model.STATE_CAPTURING) {
       m_stateLabel.setText(m_stateCapturingString + sampleCount);
-      m_stateLabel.setForeground(s_darkGreen);
+      m_stateLabel.setForeground(Colours.GREEN);
     }
     else {
       m_stateLabel.setText(m_stateUnknownString);
@@ -673,7 +676,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
       JLabel text =
 	new JLabel() {
-	  public Dimension getPreferredSize() {
+	  public final Dimension getPreferredSize() {
 	    Dimension d = super.getPreferredSize();
 	    d.width = 450;
 	    return d;
@@ -711,16 +714,6 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
     public void actionPerformed(ActionEvent e) {
       System.exit(0);
-    }
-  }
-
-  private final class ResetAction extends MyAction {
-    ResetAction() {
-      super("reset");
-    }
-
-    public void actionPerformed(ActionEvent e) {
-      m_model.reset();
     }
   }
 
@@ -819,5 +812,5 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     JOptionPane.showMessageDialog(m_frame, e.getMessage(),
 				  m_resources.getString("error.title"),
 				  JOptionPane.ERROR_MESSAGE);
-  }    
+  }
 }
