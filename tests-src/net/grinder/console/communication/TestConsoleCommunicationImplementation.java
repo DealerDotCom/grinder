@@ -328,6 +328,59 @@ public class TestConsoleCommunicationImplementation
     errorHandlerStubFactory2.assertNoMoreCalls();
   }
 
+  public void testAgentConnectionListeners() throws Exception {
+
+    final RandomStubFactory listenerStubFactory =
+      new RandomStubFactory(
+        ConsoleCommunicationImplementation.AgentConnectionListener.class);
+    final ConsoleCommunicationImplementation.AgentConnectionListener
+      listener = (ConsoleCommunicationImplementation.AgentConnectionListener)
+      listenerStubFactory.getStub();
+
+    m_consoleCommunication.addAgentConnectionListener(listener);
+
+    final Socket socket =
+      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
+    ConnectionType.CONTROL.write(socket.getOutputStream());
+
+    listenerStubFactory.assertSuccess("agentConnected");
+    listenerStubFactory.assertNoMoreCalls();
+
+    final Socket socket2 =
+      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
+    ConnectionType.CONTROL.write(socket2.getOutputStream());
+
+    listenerStubFactory.assertSuccess("agentConnected");
+    listenerStubFactory.assertNoMoreCalls();
+
+    socket.close();
+
+    // We send a message to force the connection close to be detected.
+    final DistributionControl distributionControl =
+      m_consoleCommunication.getDistributionControl();
+    distributionControl.clearFileCaches();
+
+    for (int retry = 0;
+         distributionControl.getConnectedAgents().size() != 1 && retry < 10;
+         ++retry) {
+      Thread.sleep(10);
+    }
+
+    listenerStubFactory.assertSuccess("agentDisconnected");
+    listenerStubFactory.assertNoMoreCalls();
+
+    // Needed so the receiver shuts down.
+    m_processMessagesThread.start();
+
+    // Force the receiver to drop the remaining connections.
+    final ServerSocket freeServerSocket = new ServerSocket(0);
+    freeServerSocket.close();
+    m_properties.setConsolePort(freeServerSocket.getLocalPort());
+
+    listenerStubFactory.assertSuccess("agentDisconnected");
+    listenerStubFactory.assertNoMoreCalls();
+  }
+
   private static final class MyMessage implements Message, Serializable { }
 
   private static final class NullTimer extends Timer {

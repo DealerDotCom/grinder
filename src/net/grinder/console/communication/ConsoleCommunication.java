@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -87,4 +87,27 @@ public interface ConsoleCommunication {
    * @param errorHandler Where to report errors.
    */
   void setErrorHandler(ErrorHandler errorHandler);
+
+  /**
+   * Register an {@link AgentConnectionListener}.
+   *
+   * @param listener The listener.
+   */
+  void addAgentConnectionListener(AgentConnectionListener listener);
+
+  /**
+   * Interface that clients can use to listen for agent connection
+   * events.
+   */
+  interface AgentConnectionListener {
+    /**
+     * Called when one or more agents connect.
+     */
+    void agentConnected();
+
+    /**
+     * Called when one or more agents disconnect.
+     */
+    void agentDisconnected();
+  }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -84,6 +84,11 @@ public final class ConsoleCommunicationImplementation
    * Synchronise on m_messageHandlers before accessing.
    */
   private final List m_messageHandlers = new LinkedList();
+
+  /**
+   * Synchronise on m_agentConnectionListeners before accessing.
+   */
+  private final List m_agentConnectionListeners = new LinkedList();
 
   private Acceptor m_acceptor = null;
   private Receiver m_receiver = null;
@@ -181,10 +186,6 @@ public final class ConsoleCommunicationImplementation
       }
     }
 
-    synchronized (m_connectedAgents) {
-      m_connectedAgents.clear();
-    }
-
     try {
       m_acceptor = new Acceptor(m_properties.getConsoleHost(),
                                 m_properties.getConsolePort(),
@@ -197,13 +198,18 @@ public final class ConsoleCommunicationImplementation
                                          ConnectionIdentity connection) {
             synchronized (m_connectedAgents) {
               m_connectedAgents.add(connection);
+              fireAgentConnected();
             }
           }
 
           public void connectionClosed(ConnectionType connectionType,
                                        ConnectionIdentity connection) {
+            // If the acceptor is shutdown, this will fire for each
+            // connection - m_connectedAgents will be updated
+            // correctly on reset.
             synchronized (m_connectedAgents) {
               m_connectedAgents.remove(connection);
+              fireAgentDisconnected();
             }
           }
         });
@@ -386,8 +392,7 @@ public final class ConsoleCommunicationImplementation
      * Get a Set&lt;ConnectionIdentity&gt; of connected agent
      * processes.
      *
-     * @return Set of connection identities. Caller can freely modify
-     * the set.
+     * @return Copy of the set of connection identities.
      */
     public Set getConnectedAgents() {
       synchronized (m_connectedAgents) {
@@ -412,4 +417,42 @@ public final class ConsoleCommunicationImplementation
       }
     }
   }
+
+  /**
+   * Register an {@link AgentConnectionListener}.
+   *
+   * @param listener The listener.
+   */
+  public void addAgentConnectionListener(AgentConnectionListener listener) {
+    synchronized (m_agentConnectionListeners) {
+      m_agentConnectionListeners.add(listener);
+    }
+  }
+
+  private void fireAgentConnected() {
+    synchronized (m_agentConnectionListeners) {
+      final Iterator iterator = m_agentConnectionListeners.iterator();
+
+      while (iterator.hasNext()) {
+        final AgentConnectionListener listener =
+          (AgentConnectionListener)iterator.next();
+
+        listener.agentConnected();
+      }
+    }
+  }
+
+  private void fireAgentDisconnected() {
+    synchronized (m_agentConnectionListeners) {
+      final Iterator iterator = m_agentConnectionListeners.iterator();
+
+      while (iterator.hasNext()) {
+        final AgentConnectionListener listener =
+          (AgentConnectionListener)iterator.next();
+
+        listener.agentDisconnected();
+      }
+    }
+  }
+
 }
