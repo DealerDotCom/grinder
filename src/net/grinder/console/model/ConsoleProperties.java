@@ -192,9 +192,7 @@ public final class ConsoleProperties {
    *
    * @param listener The listener.
    */
-  public void addPropertyChangeListener(
-    PropertyChangeListener listener) {
-
+  public void addPropertyChangeListener(PropertyChangeListener listener) {
     m_changeSupport.addPropertyChangeListener(listener);
   }
 
@@ -589,7 +587,7 @@ public final class ConsoleProperties {
     ScriptDistributionFiles scriptDistributionFiles) {
 
     if (!scriptDistributionFiles.equals(m_scriptDistributionFiles)) {
-      final ScriptDistributionFiles old = scriptDistributionFiles;
+      final ScriptDistributionFiles old = m_scriptDistributionFiles;
       m_scriptDistributionFiles = scriptDistributionFiles;
 
       m_changeSupport.firePropertyChange(
@@ -611,16 +609,16 @@ public final class ConsoleProperties {
   /**
    * Set the name of the chosen Look and Feel.
    *
-   * @param name The Look and Feel name. <code>null</code> => use default.
+   * @param lookAndFeel The Look and Feel name. <code>null</code> => use default.
    */
-  public void setLookAndFeel(String name) {
+  public void setLookAndFeel(String lookAndFeel) {
 
-    if (name == null && m_lookAndFeel != null ||
-        name != null && m_lookAndFeel == null ||
-        name != null && !name.equals(m_lookAndFeel)) {
+    if (lookAndFeel == null && m_lookAndFeel != null ||
+        lookAndFeel != null && m_lookAndFeel == null ||
+        lookAndFeel != null && !lookAndFeel.equals(m_lookAndFeel)) {
 
-      final String old = name;
-      m_lookAndFeel = name;
+      final String old = m_lookAndFeel;
+      m_lookAndFeel = lookAndFeel;
       m_changeSupport.firePropertyChange(LOOK_AND_FEEL_PROPERTY, old,
                                          m_lookAndFeel);
     }
