@@ -920,7 +920,7 @@ emailSendTest1 = Test(1, &quot;<span class="string">Email Send Engine</span>&quo
                                                             grinder.threadID)
 
         <span class="comment"># One could vary this by pointing to various files for content
-</span>        message.setText(&quot;<span class="string">SNTPTransport Email works from The Grinder!</span>&quot;)
+</span>        message.setText(&quot;<span class="string">SMTPTransport Email works from The Grinder!</span>&quot;)
 
         <span class="comment"># Wrap transport object in a Grinder Jython Test Wrapper
 </span>        transport = emailSendTest1.wrap(session.getTransport(&quot;<span class="string">smtp</span>&quot;))

@@ -37,7 +37,7 @@ class TestRunner:
                                                             grinder.threadID)
 
         # One could vary this by pointing to various files for content
-        message.setText("SNTPTransport Email works from The Grinder!")
+        message.setText("SMTPTransport Email works from The Grinder!")
 
         # Wrap transport object in a Grinder Jython Test Wrapper
         transport = emailSendTest1.wrap(session.getTransport("smtp"))
