@@ -23,7 +23,10 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Hashtable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
@@ -52,6 +55,9 @@ public class HttpPluginSnifferFilter implements SnifferFilter
     private static SessionState s_sessionState = new SessionState();
     private EchoFilter m_echoFilter = new EchoFilter();
 
+    private final DateFormat m_dateFormat =
+	new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss zzz");
+
     public void handle(ConnectionDetails connectionDetails, byte[] buffer,
 		       int bytesRead)
 	throws IOException, RESyntaxException
@@ -76,10 +82,10 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 		    methodLineExpresion.getParen(2);
 
 		if (method.equals("GET")) {
-		    outputMethod(sessionState, url);
+		    handleMethod(string, sessionState, url);
 		}
 		else if (method.equals("POST")) {
-		    outputMethod(sessionState, url);
+		    handleMethod(string, sessionState, url);
 		    sessionState.setHandlingPost(true);
 		    sessionState.resetEntityData();
 		    addToEntityData(string, sessionState, true);
@@ -102,12 +108,34 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	}
     }
 
-    private void outputMethod(SessionState sessionState, String url)
+    private void handleMethod(String request, SessionState sessionState,
+			      String url)
+	throws RESyntaxException
     {
 	sessionState.incrementRequestNumber();
-	System.out.println("grinder.plugin.parameter.url" +
-			   sessionState.getRequestNumber() + "=" + url);
+
+	final int requestNumber = sessionState.getRequestNumber();
+
+	outputProperty(requestNumber, "sleepTime",
+		       Long.toString(sessionState.markTime()));
+	outputProperty(requestNumber, "parameter.url", url);
+
+
+	final RE ifModifiedExpression = 
+	    getHeaderExpression("If-Modified-Since");
+
+	if (ifModifiedExpression.match(request)) {
+	    try {
+		final Date date =
+		    m_dateFormat.parse(ifModifiedExpression.getParen(1));
 	
+		outputProperty(requestNumber, "parameter.ifModifiedSince",
+			       Long.toString(date.getTime()));
+	    }
+	    catch (ParseException e) {
+		System.err.println(e);
+	    }
+	}
     }
 
     private void outputEntityData(SessionState sessionState)
@@ -120,12 +148,17 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	    
 	    postOutput.write(sessionState.getEntityData());
 
-	    System.out.println("grinder.plugin.parameter.post" +
-			       sessionState.getRequestNumber() + "=" +
-			       postOutput.getFilename());
+	    outputProperty(sessionState.getRequestNumber(), "parameter.post",
+			   postOutput.getFilename());
 	}
 
 	sessionState.setHandlingPost(false);
+    }
+
+    private void outputProperty(int testNumber, String name, String value)
+    {
+	System.out.println("grinder.test" + testNumber + "." + name +
+			   "=" + value);
     }
 
     private void addToEntityData(String request,
@@ -202,6 +235,16 @@ public class HttpPluginSnifferFilter implements SnifferFilter
      * every time. If it becomes a bottleneck, the "get*Expression
      * methods should be implemented with object pools.
     */
+    private RE getHeaderExpression(String headerName) throws RESyntaxException
+    {
+	return new RE("^" + headerName + ": (.*)$", RE.MATCH_MULTILINE);
+    }
+
+    /**
+     * Regexp is not synchronised, so for now compile new objects
+     * every time. If it becomes a bottleneck, the "get*Expression
+     * methods should be implemented with object pools.
+    */
     private RE getMessageBodyExpression() throws RESyntaxException
     {
 	return new RE("\r\n\r\n(.*)");
@@ -213,10 +256,12 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	private boolean m_handlingPost = false;
 	private StringBuffer m_entityDataBuffer;
 	private int m_contentLength;
+	private long m_lastTime;
 
 	SessionState()
 	{
 	    resetEntityData();
+	    markTime();
 	}
 
 	public int getRequestNumber()
@@ -268,6 +313,14 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	public void setContentLength(int length)
 	{
 	    m_contentLength = length;
+	}
+
+	public long markTime()
+	{
+	    final long currentTime = System.currentTimeMillis();
+	    final long result = currentTime - m_lastTime;
+	    m_lastTime = currentTime;
+	    return result;
 	}
     }
 }
