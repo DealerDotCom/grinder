@@ -37,6 +37,9 @@ import net.grinder.tools.tcpsniffer.SnifferFilter;
  */
 public class TCPSniffer
 {
+    public static final String INITIAL_TEST_PROPERTY =
+	"TCPSniffer.initialTest";
+
     public static void main(String args[])
     {
 	final TCPSniffer tcpSniffer = new TCPSniffer(args);
@@ -57,6 +60,7 @@ public class TCPSniffer
 	    "\n   [-httpPluginFilter             See below" +
 	    "\n     [-rewriteURLs]               See below" +
 	    "\n     [-proxy]                     See below" +
+	    "\n     [-initialTest <n>]           Number tests from n" +
 	    "\n   ]" +
 	    "\n   [-localHost <host name/ip>]    Default is localhost" +
 	    "\n   [-localPort <port>]            Default is 8001" +
@@ -132,15 +136,26 @@ public class TCPSniffer
 	int localSSLPort = 9001;
 	boolean rewriteURLs = false;
 	boolean proxy = false;
+	int initialTest = 0;
 
 	int timeout = 0; 
 
 	boolean useColour = false;
 
-	int i = 0;
-
 	try {
-	    while (i < args.length)
+	    // Parse 1.
+	    for (int i=0; i < args.length; i++)
+	    {
+		if (args[i].equals("-initialTest")) {
+		    initialTest = Integer.parseInt(args[++i]);
+		}
+	    }
+
+	    System.setProperty(INITIAL_TEST_PROPERTY,
+			       Integer.toString(initialTest));
+
+	    // Parse 2
+	    for (int i=0; i<args.length; i++)
 	    {
 		if (args[i].equals("-requestFilter")) {
 		    requestFilter = instantiateFilter(args[++i]);
@@ -189,11 +204,13 @@ public class TCPSniffer
 		else if (args[i].equals("-colour")) {
 		    useColour = true;
 		}
+		else if (args[i].equals("-initialTest")) {
+		    /* Already handled */
+		    ++i;
+		}
 		else {
 		    throw barfUsage();
 		}
-
-		++i;
 	    }
 	}
 	catch (Exception e) {
@@ -239,6 +256,8 @@ public class TCPSniffer
 		    "Specify both -keystore and -keystorePassword or neither");
 	    }
 	}
+
+    
 
 	final StringBuffer startMessage = new StringBuffer();
 

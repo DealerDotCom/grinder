@@ -15,6 +15,8 @@ Grinder 2.7
 
   Minor changes to the plugin interface.
 
+  New HTTP plugin sniffer filter option, -initialTest.
+
   HTTPPlugin enhancements
    - Can now send arbitrary headers. Note, the specific
      If-Modified-Since property has been removed, use the arbitrary

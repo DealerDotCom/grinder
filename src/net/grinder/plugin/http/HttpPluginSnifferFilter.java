@@ -28,6 +28,7 @@ import java.io.Writer;
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
 
+import net.grinder.TCPSniffer;
 import net.grinder.tools.tcpsniffer.ConnectionDetails;
 import net.grinder.tools.tcpsniffer.EchoFilter;
 import net.grinder.tools.tcpsniffer.SnifferFilter;
@@ -325,7 +326,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 
     protected final static class SessionState
     {
-	private int m_requestNumber = -1;
+	private int m_requestNumber;
 	private boolean m_handlingPost = false;
 	private StringBuffer m_entityDataBuffer;
 	private int m_contentLength;
@@ -335,6 +336,10 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 
 	SessionState()
 	{
+	    m_requestNumber =
+		Integer.getInteger(TCPSniffer.INITIAL_TEST_PROPERTY, 0).
+		intValue() - 1;
+
 	    resetEntityData();
 	    markTime();
 	}

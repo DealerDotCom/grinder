@@ -3,10 +3,6 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-  Alter header stuff so IfModifiedSince comes from additionalHeaders
-  for HTTPClient. Add backward compatible thing for HttpURLConnection
-  implementation. Document. Headers should support string beans?
-
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 
   Update HTTPClient to measure "time to first byte" and "Time to last
@@ -18,9 +14,6 @@ it too :-). The list is roughly in priority order.]
   plugin.
 
   Write more JUnit tests.
-
-  Add a switch to the HttpPluginSnifferFilter which specifies the
-  initial test number for the output.
 
   Find out how to stop net.grinder.console.swing.TestGraph from
   preventing parent process from detecting exit status. (For example,
