@@ -61,7 +61,7 @@ public final class BooleanProperty {
     catch (IntrospectionException e) {
       throw new PropertyException(
         "Could not find property '" + propertyName + "' in class '" +
-        m_beanClass + "'");
+        m_beanClass + "'", e);
     }
 
     final Class propertyType = m_propertyDescriptor.getPropertyType();
@@ -79,11 +79,11 @@ public final class BooleanProperty {
    * @throws PropertyException If the value could not be read.
    */
   public boolean get() throws PropertyException {
-    final Method readMethod = m_propertyDescriptor.getReadMethod();
 
-    if (readMethod == null) {
-      throw new PropertyException(toString() + ": property is write only");
-    }
+    // Despite what the JavaDoc for PropertyDescriptor.getReadMethod()
+    // says, this is guaranteed to be non-null if the property name is
+    // non-null.
+    final Method readMethod = m_propertyDescriptor.getReadMethod();
 
     try {
       final Boolean result = (Boolean)readMethod.invoke(m_bean, new Object[0]);
@@ -101,7 +101,6 @@ public final class BooleanProperty {
     }
   }
 
-
   /**
    * Setter method.
    *
@@ -109,11 +108,10 @@ public final class BooleanProperty {
    * @throws PropertyException If the value could not be writen.
    */
   public void set(boolean value) throws PropertyException {
+    // Despite what the JavaDoc for
+    // PropertyDescriptor.getWriteMethod() says, this is guaranteed to
+    // be non-null if the property name is non-null.
     final Method writeMethod = m_propertyDescriptor.getWriteMethod();
-
-    if (writeMethod == null) {
-      throw new PropertyException(toString() + ": property is read only");
-    }
 
     try {
       writeMethod.invoke(
