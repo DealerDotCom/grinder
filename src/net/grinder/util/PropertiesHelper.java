@@ -147,7 +147,7 @@ public class PropertiesHelper
     {
 	private final Integer m_testNumber;
 	private final String m_description;
-	private final GrinderProperties m_parameters;
+	private transient final GrinderProperties m_parameters;
 
 	public PropertiesTest(Integer testNumber, String description,
 			      GrinderProperties parameters)
