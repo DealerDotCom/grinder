@@ -1,4 +1,3 @@
-// Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // Copyright (C) 2000, 2001 Phil Dawes
 // Copyright (C) 2001 Paddy Spencer
@@ -26,11 +25,16 @@
 package net.grinder.tools.tcpproxy;
 
 import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.MatchResult;
@@ -69,16 +73,17 @@ import net.grinder.util.CopyStreamRunnable;
  * @author Bertrand Ave
  * @version $Revision$
  */
-public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation {
-
-  private String m_tempRemoteHost;
-  private int m_tempRemotePort;
+public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
   private final PatternMatcher m_matcher = new Perl5Matcher();
   private final Pattern m_httpsConnectPattern;
 
   private final ProxySSLEngine m_proxySSLEngine;
 
+  /**
+   * Static so it can be used by {@link
+   * StripAbsoluteURIFilterDecorator} as well.
+   */
   private static Pattern s_httpConnectPattern;
 
   private static synchronized Pattern getHTTPConnectPattern()
@@ -132,8 +137,10 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation {
           new StripAbsoluteURIFilterDecorator(requestFilter),
           responseFilter,
           outputWriter,
-          new ConnectionDetails(localHost, localPort, "", -1, false),
-          useColour, timeout);
+          localHost,
+          localPort,
+          useColour,
+          timeout);
 
     final PatternCompiler compiler = new Perl5Compiler();
 
@@ -195,24 +202,9 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation {
           // Reset stream to beginning of request.
           in.reset();
 
-          final MatchResult match = m_matcher.getMatch();
-          final String remoteHost = match.group(2);
-
-          int remotePort = 80;
-
-          try {
-            remotePort = Integer.parseInt(match.group(3));
-          }
-          catch (NumberFormatException e) {
-            // remotePort = 80;
-          }
-
-          //System.err.println("New HTTP proxy connection to " +
-          //  remoteHost + ":" + remotePort);
-
-          launchThreadPair(localSocket, in,
-                           localSocket.getOutputStream(),
-                           remoteHost, remotePort);
+          new Thread(
+            new HTTPProxyStreamDemultiplexor(in, localSocket),
+            "HTTPProxy stream demultiplexor for " + localSocket).start();
         }
         else if (m_matcher.contains(line, m_httpsConnectPattern)) {
           // HTTPS proxy request.
@@ -239,14 +231,14 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation {
             continue;
           }
 
-          m_tempRemoteHost = remoteHost;
-          m_tempRemotePort = remotePort;
+          // Set our proxy engine up to create connections to
+          // remoteHost:remotePort.
+          m_proxySSLEngine.proxyTo(remoteHost, remotePort);
 
-          // Create a new proxy connection to our proxy
-          // engine.
+          // Create a new proxy connection to the proxy engine.
           final Socket sslProxySocket =
             getSocketFactory().createClientSocket(
-              getConnectionDetails().getLocalHost(),
+              getLocalHost(),
               m_proxySSLEngine.getServerSocket().getLocalPort());
 
           // Now set up a couple of threads to punt
@@ -295,7 +287,135 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation {
     }
   }
 
-  private class ProxySSLEngine extends TCPProxyEngineImplementation {
+  /**
+   * Runnable that actively reads from an Input stream, greps every
+   * outgoing packet, and directs appropriately. This is necessary to
+   * support HTTP/1.1 between browser and proxy.
+   */
+  private final class HTTPProxyStreamDemultiplexor implements Runnable {
+
+    private final InputStream m_in;
+    private final Socket m_localSocket;
+    private final PatternMatcher m_matcher = new Perl5Matcher();
+    private final Map m_remoteStreamMap = new HashMap();
+    private OutputStreamFilterTee m_lastRemoteStream;
+
+    HTTPProxyStreamDemultiplexor(InputStream in, Socket localSocket) {
+      m_in = in;
+      m_localSocket = localSocket;
+    }
+
+    public void run() {
+
+      final byte[] buffer = new byte[4096];
+
+      try {
+        while (true) {
+          // Read a buffer full. We're relying on the world conspiring
+          // to place request at start of buffer.
+          final int bytesRead = m_in.read(buffer);
+
+          if (bytesRead == -1) {
+            break;
+          }
+
+          final String bytesReadAsString =
+            new String(buffer, 0, bytesRead, "US-ASCII");
+
+          if (m_matcher.contains(bytesReadAsString, getHTTPConnectPattern())) {
+
+            final MatchResult match = m_matcher.getMatch();
+            final String remoteHost = match.group(2);
+
+            int remotePort = 80;
+
+            try {
+              remotePort = Integer.parseInt(match.group(3));
+            }
+            catch (NumberFormatException e) {
+              // remotePort = 80;
+            }
+
+            final String key = remoteHost + ":" + remotePort;
+
+            m_lastRemoteStream =
+              (OutputStreamFilterTee) m_remoteStreamMap.get(key);
+
+            if (m_lastRemoteStream == null) {
+
+              // New connection.
+              final Socket remoteSocket =
+                getSocketFactory().createClientSocket(remoteHost, remotePort);
+
+              final ConnectionDetails connectionDetails =
+                new ConnectionDetails(getLocalHost(), m_localSocket.getPort(),
+                                      remoteHost, remotePort, false);
+
+              m_lastRemoteStream =
+                new OutputStreamFilterTee(connectionDetails,
+                                          remoteSocket.getOutputStream(),
+                                          getRequestFilter(),
+                                          getRequestColour());
+
+              m_lastRemoteStream.connectionOpened();
+
+              m_remoteStreamMap.put(key, m_lastRemoteStream);
+
+              // Spawn a thread to handle everything coming back from
+              // the remote server.
+              new FilteredStreamThread(
+                remoteSocket.getInputStream(),
+                new OutputStreamFilterTee(connectionDetails.getOtherEnd(),
+                                          m_localSocket.getOutputStream(),
+                                          getResponseFilter(),
+                                          getResponseColour()));
+            }
+          }
+          else if (m_lastRemoteStream == null) {
+            throw new IOException("Assertion failure - no last stream");
+          }
+
+          // Should do filtering etc.
+          m_lastRemoteStream.handle(buffer, bytesRead);
+        }
+      }
+      catch (SocketException e) {
+        // Most likely socket closed. Ignore.
+      }
+      catch (IOException e) {
+        e.printStackTrace(System.err);
+      }
+      catch (MalformedPatternException e) {
+        e.printStackTrace(System.err);
+      }
+      finally {
+        // When exiting close all our outgoing streams. This will
+        // force all the FilteredStreamThreads we've launched to
+        // handle the paired streams to shut down.
+        final Iterator iterator = m_remoteStreamMap.values().iterator();
+
+        while (iterator.hasNext()) {
+          ((OutputStreamFilterTee)iterator.next()).connectionClosed();
+        }
+
+        // We may not have any FilteredStreamThreads, so ensure the
+        // local socket is closed. The local socket is shutdown on any
+        // error, any browser using us will open up a new connection
+        // for new work.
+        try {
+          m_localSocket.close();
+        }
+        catch (IOException e) {
+          // Ignore.
+        }
+      }
+    }
+  }
+
+  private final class ProxySSLEngine extends AbstractTCPProxyEngine {
+
+    private String m_remoteHost;
+    private int m_remotePort;
 
     ProxySSLEngine(TCPProxySocketFactory socketFactory,
                    TCPProxyFilter requestFilter,
@@ -304,30 +424,35 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation {
                    boolean useColour)
       throws IOException {
       super(socketFactory, requestFilter, responseFilter, outputWriter,
-            new ConnectionDetails(HTTPProxyTCPProxyEngine.this.
-                                  getConnectionDetails().getLocalHost(),
-                                  0, "", -1, true),
-            useColour, 0);
+            HTTPProxyTCPProxyEngine.this.getLocalHost(), 0, useColour, 0);
     }
 
     public void run() {
 
       while (true) {
         try {
-          final Socket localSocket = this.getServerSocket().accept();
+          final Socket localSocket = getServerSocket().accept();
 
           // System.err.println("New proxy proxy connection to " +
-          //   m_tempRemoteHost + ":" + m_tempRemotePort);
+          //   m_remoteHost + ":" + m_remotePort);
 
-          this.launchThreadPair(localSocket,
-                                localSocket.getInputStream(),
-                                localSocket.getOutputStream(),
-                                m_tempRemoteHost, m_tempRemotePort);
+          launchThreadPair(localSocket, localSocket.getInputStream(),
+                           localSocket.getOutputStream(),
+                           m_remoteHost, m_remotePort, true);
         }
         catch (IOException e) {
           e.printStackTrace(System.err);
         }
       }
+    }
+
+    /**
+     * Set the ProxySSLEngine up so that the next connection will be
+     * wired through to <code>remoteHost:remotePort</code>.
+     */
+    public void proxyTo(String remoteHost, int remotePort) {
+      m_remoteHost = remoteHost;
+      m_remotePort = remotePort;
     }
   }
 

@@ -39,9 +39,9 @@ import net.grinder.tools.tcpproxy.EchoFilter;
 import net.grinder.tools.tcpproxy.HTTPProxyTCPProxyEngine;
 import net.grinder.tools.tcpproxy.JSSEConstants;
 import net.grinder.tools.tcpproxy.NullFilter;
+import net.grinder.tools.tcpproxy.SingleServerTCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyConsole;
 import net.grinder.tools.tcpproxy.TCPProxyEngine;
-import net.grinder.tools.tcpproxy.TCPProxyEngineImplementation;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 import net.grinder.tools.tcpproxy.TCPProxyPlainSocketFactory;
 import net.grinder.tools.tcpproxy.TCPProxySocketFactory;
@@ -300,7 +300,7 @@ public final class TCPProxy {
       }
       else {
         m_proxyEngine =
-          new TCPProxyEngineImplementation(
+          new SingleServerTCPProxyEngine(
             useSSL ?
             sslSocketFactory : new TCPProxyPlainSocketFactory(),
             requestFilter,
