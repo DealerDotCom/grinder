@@ -1,3 +1,9 @@
+2001-06-29  Philip Aston  <paston@bea.com>
+
+	* The Grinder 2.6.3 is released.
+	
+	* examples/http/grinder.properties: Example HTTPClient parameter.
+
 2001-06-28  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/plugin/socket/SocketPlugin.java: Latest from David.
