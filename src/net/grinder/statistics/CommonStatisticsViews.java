@@ -68,8 +68,8 @@ public final class CommonStatisticsViews
 				   ),
 		new ExpressionView("Errors", "statistic.errors", "errors"),
 		new ExpressionView(
-		    "Average Response Time (ms)",
-		    "statistic.averageResponseTime",
+		    "Mean Transaction Time (ms)",
+		    "statistic.meanTransactionTime",
 		    "(/ timedTransactionTime timedTransactions)"),
 	    };
 

@@ -40,6 +40,8 @@ public class AllTests
 	final TestSuite suite = new TestSuite();
 	suite.addTest(new TestSuite(TestGraph.class));
 	suite.addTest(new TestSuite(TestSwingDispatchedModelListener.class));
+	suite.addTest(new TestSuite(
+			  TestSwingDispatchedProcessStatusSetListener.class));
 	suite.addTest(new TestSuite(TestSwingDispatchedSampleListener.class));
 	return suite;
     }

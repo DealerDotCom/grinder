@@ -40,7 +40,7 @@ import net.grinder.statistics.TestStatistics;
  * @version $Revision$
  */
 abstract class DynamicStatisticsTableModel
-    extends AbstractTableModel implements ModelListener
+    extends AbstractTableModel implements ModelListener, Table.TableModel
 {
     private final Model m_model;
     private final Resources m_resources;
@@ -127,6 +127,17 @@ abstract class DynamicStatisticsTableModel
 	else {
 	    fireTableRowsUpdated(0, getRowCount());
 	}
+    }
+
+    /**
+     * {@link net.grinder.console.model.ModelListener} interface. New
+     * <code>StatisticsView</code>s have been added. 
+     **/
+    public final synchronized void newStatisticsViews(
+	StatisticsView intervalStatisticsView,
+	StatisticsView cumulativeStatisticsView)
+    {
+	addColumns(cumulativeStatisticsView);
     }
 
     public synchronized int getColumnCount()

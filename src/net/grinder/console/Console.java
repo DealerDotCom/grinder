@@ -29,8 +29,10 @@ import net.grinder.communication.Message;
 import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
+import net.grinder.communication.ReportStatusMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
+import net.grinder.console.model.ProcessStatusSet;
 import net.grinder.console.swingui.ConsoleUI;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsView;
@@ -42,7 +44,7 @@ import net.grinder.statistics.StatisticsView;
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 public class Console
 {
     private final ConsoleCommunication m_communication;
@@ -64,11 +66,14 @@ public class Console
 					   ".grinder_console"));
 
 	m_model = new Model(properties);
+	final ProcessStatusSet processStatusSet = 
+	    m_model.getProcessStatusSet();
 
 	final ActionListener startHandler =
 	    new ActionListener() {
 		    public void actionPerformed(ActionEvent event) {
 			try {
+			    processStatusSet.processEvent();
 			    m_communication.sendStartMessage();
 			}
 			catch (GrinderException e) {
@@ -83,6 +88,7 @@ public class Console
 	    new ActionListener() {
 		    public void actionPerformed(ActionEvent event) {
 			try {
+			    processStatusSet.processEvent();
 			    m_communication.sendResetMessage();
 			}
 			catch (GrinderException e) {
@@ -97,6 +103,7 @@ public class Console
 	    new ActionListener() {
 		    public void actionPerformed(ActionEvent event) {
 			try {
+			    processStatusSet.processEvent();
 			    m_communication.sendStopMessage();
 			}
 			catch (GrinderException e) {
@@ -137,6 +144,12 @@ public class Console
 		m_model.registerStatisticsViews(statisticsView,
 						statisticsView);
 	    }
+
+            if (message instanceof ReportStatusMessage) {
+		m_model.getProcessStatusSet().addStatusReport(
+		    message.getSenderUniqueID(), (ReportStatusMessage)message);
+            }
         } 
     }
+
 }

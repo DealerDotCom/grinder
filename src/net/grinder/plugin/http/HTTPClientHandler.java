@@ -50,7 +50,7 @@ import net.grinder.plugininterface.PluginThreadContext;
 /**
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 class HTTPClientHandler implements HTTPHandler
 {
     private final static Class s_redirectionModule;
@@ -95,7 +95,6 @@ class HTTPClientHandler implements HTTPHandler
 	m_followRedirects = followRedirects;
     }
 
-    // For now, just handle a single server.
     private Map m_httpConnections = new HashMap();
 
     private HTTPConnection getConnection(URI uri)

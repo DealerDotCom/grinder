@@ -383,7 +383,7 @@ conditionally built modules are:
 
     <copy todir="${dist.dir}" filtering="on">
       <fileset dir="."
-	       includes="build.xml, AUTHORS, ChangeLog, CHANGES, COPYING, README, TODO"
+	       includes="build.xml, AUTHORS, ChangeLog, CHANGES, LICENSE, README, TODO"
 	       excludes="prj.el"/>
     </copy>
   </target>

@@ -42,16 +42,4 @@ final class SampleStatisticsTableModel extends DynamicStatisticsTableModel
     {
 	return getModel().getLastSampleStatistics(row);
     }
-
-    /**
-     * {@link net.grinder.console.model.ModelListener} interface. New
-     * <code>StatisticsView</code>s have been added. We need do
-     * nothing
-     **/
-    public synchronized void newStatisticsViews(
-	StatisticsView intervalStatisticsView,
-	StatisticsView cumulativeStatisticsView)
-    {
-	addColumns(cumulativeStatisticsView);
-    }
 }

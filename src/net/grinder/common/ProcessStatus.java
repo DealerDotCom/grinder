@@ -1,6 +1,7 @@
 // The Grinder
 // Copyright (C) 2000, 2001  Paco Gomez
 // Copyright (C) 2000, 2001  Philip Aston
+// Copyright (C) 2000, 2001  Dirk Feufel
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,34 +17,45 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.communication;
+package net.grinder.common;
 
 
 /**
- * Interface that manages the receipt of multicast messages.
- *
  * @author Philip Aston
- * @version $Revision$
- */
-public interface Receiver
+ **/
+public interface ProcessStatus
 {
-    /**
-     * Block until a message is available, or another thread has
-     * called {@link #shutdown}. Typically called from a message
-     * dispatch loop.
-     *
-     * <p>Multiple threads can call this method, but only one thread
-     * will receive a given message.</p>
-     *
-     * @return The message or <code>null</code> if shut down.
-     * @throws CommunicationException If an IO exception occurs
-     * reading the mesage.
-     **/
-    Message waitForMessage() throws CommunicationException;
+    public static final short STATE_STARTED = 1;
+    public static final short STATE_RUNNING = 2;
+    public static final short STATE_FINISHED = 3;
 
     /**
-     * Shut down this reciever.
-     * @throws CommunicationException If an IO exception occurs.
+     * Return the process name.
+     *
+     * @return The process name.
      **/
-    void shutdown() throws CommunicationException;
+    String getName();
+
+    /**
+     * Return the process status.
+     *
+     * @return One of {@link STATE_STARTED}, {@link
+     * STATE_RUNNING}, {@link STATE_FINISHED}, {@link STATE_DEAD}.
+     **/
+    short getState();
+
+    /**
+     * Get the number of running threads
+     *
+     * @return The number of threads that are stull running.
+     **/
+    short getNumberOfRunningThreads();
+
+    /**
+     * Get the total number of threads
+     *
+     * @return The total number of threads.
+     **/
+    short getTotalNumberOfThreads();
 }
+

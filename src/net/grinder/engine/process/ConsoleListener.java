@@ -23,6 +23,7 @@ import net.grinder.common.Logger;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
+import net.grinder.communication.MulticastReceiver;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.StartGrinderMessage;
@@ -91,17 +92,17 @@ final class ConsoleListener
 	if (properties.getBoolean("grinder.receiveConsoleSignals", true)) {
 
 	    // Parse console configuration.
-	    final String multicastAddress =
+	    final String grinderAddress =
 		properties.getProperty(
-		    "grinder.multicastAddress",
-		    CommunicationDefaults.MULTICAST_ADDRESS);
+		    "grinder.grinderAddress",
+		    CommunicationDefaults.GRINDER_ADDRESS);
 
 	    final int grinderPort =
-		properties.getInt("grinder.multicastPort",
+		properties.getInt("grinder.grinderPort",
 				  CommunicationDefaults.GRINDER_PORT);
 
 	    final ReceiverThread receiverThread =
-		new ReceiverThread(multicastAddress, grinderPort);
+		new ReceiverThread(grinderAddress, grinderPort);
 
 	    receiverThread.setDaemon(true);
 	    receiverThread.start();
@@ -113,7 +114,7 @@ final class ConsoleListener
      * messages received but not acknowledged. This method returns a
      * bit mask representing the messages received that match the
      * <code>mask</code> parameter and acknowledges the messages
-     * representingt by <code>mask</code>.
+     * represented by <code>mask</code>.
      *
      * @param mask The messages to check for.
      * @return The subset of <code>mask</code> received.
@@ -150,7 +151,7 @@ final class ConsoleListener
 	{
 	    super("Console Listener");
 
-	    m_receiver = new Receiver(address, port);
+	    m_receiver = new MulticastReceiver(address, port);
 	}
 
 	/**

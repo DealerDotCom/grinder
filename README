@@ -1,38 +1,58 @@
 The Grinder
-Copyright (C) 2001 Paco Gómez
-Copyright (C) 2001 Philip Aston
+Copyright (c) 2000       Paco Gomez
+Copyright (c) 2000-2002  Philip Aston
+All rights reserved.
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
-your option) any later version.
+Additional contributions have been made by individuals listed in the
+AUTHORS file supplied with this distribution. Each individual's claim
+to copyright is asserted in the files to which they contributed.
 
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-General Public License for more details.
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
 
-Please see the file COPYING for details of the General Public License.
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+      copyright notice, this list of conditions and the following
+      disclaimer in the documentation and/or other materials provided
+      with the distribution.
+    * Neither the names of the copyright holders nor the names of the
+      contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
 
-The Grinder incorporates software from the Ronald Tschalär's
-HTTPClient library
-(http://www.innovation.ch/java/HTTPClient/index.html) which is
-distributed under the GNU Lesser Public License and repackaged in the
-Grinder distribution under the GNU Public License. See
-etc/HTTPClient-license.txt for details of the GNU Lesser Public
-License.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+The Grinder uses Ronald Tschalär's HTTPClient library
+(http://www.innovation.ch/java/HTTPClient/index.html). The HTTPClient
+library is distributed under the GNU Lesser Public License. Under the
+term 6 of the GNU Lesser Public License, The Grinder is a "work that
+uses the Library". See doc/HTTPClient-license.txt for details of the
+GNU Lesser Public License.
+
 
 
 
 What is it?
 ***********
 
-The Grinder is a simple, pure Java load-testing framework released
-under the GNU Public License. It was originally developed for the book
-"Professional Java 2 Enterprise Edition with BEA WebLogic Server" by
-Paco Gómez and Peter Zadrozny. Philip Aston took ownership of the code
-and reworked it to create The Grinder 2. Philip continues to enhance
-and maintain The Grinder.
+The Grinder is a pure Java load-testing framework that is freely
+available under a BSD style open-source license. It was originally
+developed for the book "Professional Java 2 Enterprise Edition with
+BEA WebLogic Server" by Paco Gómez and Peter Zadrozny. Philip Aston
+took ownership of the code and reworked it to create The Grinder 2.
+Philip continues to enhance and maintain The Grinder.
 
 Test client code is written in the form Java "plug-ins". Sample
 plug-ins for testing HTTP services are provided. It is particularly
@@ -93,7 +113,7 @@ Its easy:
 	   lib directory.
 
 	2. Say
-		java net.grind.Console
+		java net.grinder.Console
 
 	3. Change to a test directory and set up a grinder.properties
 	   file which defines the test you want to perform. See the
@@ -114,17 +134,23 @@ controlled and monitored using the Grinder Console. There is little
 reason to run more than one agent on a single machine, but you can if
 you wish.
 
-If the default mulicast addresses (228.1.1.1:1234, 228.1.1.1:1235) are
-not valid, alter following properties before starting the Grinder
-agents
+The worker processes listen for Console signals on a multicast
+address, by default this is 228.1.1.1:1235. Each worker process sets
+up a TCP network connection to the Console to report statistics. By
+default, the console listens on port 6372 on all local network
+interfaces of the machine running the Console.
 
-	grinder.multicastAddress
-	grinder.multicastPort
-	grinder.console.multicastPort
+If the default mulicast addresses are not valid, alter following
+properties before starting the Grinder agents
+
+	grinder.consoleAddress	(Address of machine running Console)
+	grinder.consolePort
+	grinder.grinderAddress	(Multicast address)
+	grinder.grinderPort
 
 The Console does not read the grinder.properties file. It has its own
 options dialog (choose the File/Options menu option), which you should
-use to set the multicast address and ports to match those in the
+use to set the communication addresses and ports to match those in the
 grinder.properties files.
 
 When the child processes start, they inform the Console of the tests
@@ -201,7 +227,7 @@ Here's a minimal grinder.properties file that uses the HttpPlugin:
 	grinder.test0.parameter.url=http://localhost:80/index.html
 
 If you start a Grinder process using this properties file it will
-communicate with the Console using default ports, use one child
+communicate with the Console using default addresses, use one child
 process, one thread, and runs on cycle which contains once test. This
 is not too much use, so read on... (and see doc/HTTPPlugin.txt).
 
@@ -251,20 +277,25 @@ is not too much use, so read on... (and see doc/HTTPPlugin.txt).
     grinder.reportToConsole -	Set to true to send statistics to the
 				Console. Default true.
 
-    grinder.multicastAddress -  The multicast address to use for
-				communication between the Grinder
-				processes and the Console. (See "What
-				do I need to do to set up multicast?"
-				below). Default 228.1.1.1.
+    grinder.consoleAddress -	The IP address or hostname to use
+    				for communication from the Grinder
+    				processes to the Console. Default is
+    				all the network interfaces of the
+    				console machine.
 
-    grinder.multicastPort -     The multicast port to use for communication
+    grinder.consolePort -	The IP port to use for communication
+				from the Grinder processes to the
+				Console. Default is 6372.
+
+    grinder.grinderAddress - 	The multicast address to use for
+				communication between the Console and
+				the Grinder processes and the Console.
+				(See "What do I need to do to set up
+				multicast?" below). Default 228.1.1.1.
+
+    grinder.grinderPort -       The multicast port to use for communication
 				from the Console to the Grinder processes.
 				Default 1234.
-
-    grinder.console.multicastPort -
-				The multicast port to use for communication
-				from the Grinder processes to the Console.
-				Default 1235.
 
     grinder.reportToConsole.interval -
 				The period at which each process sends
@@ -358,7 +389,7 @@ The process controls:
   The controls "Start processes", "Reset processes" and "Stop
   processes" send signals to Grinder processes that are listening.
   (See the properties grinder.receiveConsoleSignals,
-  grinder.multicastAddress and grinder.multicastPort.)
+  grinder.grinderAddress and grinder.grinderPort.)
 
   Grinder child processes that are configured to receive console
   signals go through three states:
@@ -429,8 +460,7 @@ What do I need to do to set up multicast?
 
 You must set up multicast if you want to use the Console. It is used
 to send signals from the Console to the Grinder processes (start,
-stop) and to send statistics reports from the Grinder processes to the
-Console.
+stop).
 
 Multicast addresses lie in the range 224.0.0.0 to 239.255.255.255.
 Ports lie in the range 0 to 65535. The same multicast address is used
@@ -444,11 +474,8 @@ with other applications running on your LAN. The Grinder example files
 uses the address 228.1.1.1 and the ports 1234 and 1235:
 
     grinder.receiveConsoleSignals=true
-    grinder.multicastAddress=228.1.1.1
-    grinder.multicastPort=1234
-
-    grinder.reportToConsole=true
-    grinder.console.multicastPort=1235
+    grinder.grinderAddress=228.1.1.1
+    grinder.grinderPort=1234
 
 
 For most modern TCP stacks, e.g Windows 95/98/NT, Linux, multicast

@@ -30,7 +30,7 @@ import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.Message;
 import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.communication.Sender;
-import net.grinder.communication.SenderImplementation;
+import net.grinder.communication.UnicastSender;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.RegisteredTest;
@@ -110,29 +110,23 @@ class ProcessContext implements PluginProcessContext
 	m_shouldWriteTitleToDataWriter = !appendLog;
 
 	if (properties.getBoolean("grinder.reportToConsole", true)) {
-	    // Currently reading of the multicast address is
-	    // duplicated here and when we read the console listener
-	    // communication settings. Not worried, one day we'll
-	    // change this to be unicast and it'll be a different
-	    // setting.
-	    final String multicastAddress =
-		properties.getProperty(
-		    "grinder.multicastAddress",
-		    CommunicationDefaults.MULTICAST_ADDRESS);
+	    final String consoleAddress =
+		properties.getProperty("grinder.consoleAddress",
+				       CommunicationDefaults.CONSOLE_ADDRESS);
 
 	    final int consolePort =
-		properties.getInt("grinder.console.multicastPort",
+		properties.getInt("grinder.console.consolePort",
 				  CommunicationDefaults.CONSOLE_PORT);
 
-	    if (multicastAddress != null && consolePort > 0) {
+	    if (consoleAddress != null && consolePort > 0) {
 		m_consoleSender =
-		    new SenderImplementation(getGrinderID(), multicastAddress,
-					     consolePort);
+		    new UnicastSender(getGrinderID(), consoleAddress,
+				      consolePort);
 	    }
 	    else {
 		throw new EngineException(
 		    "Unable to report to console: " +
-		    "multicast address or console port not specified");
+		    "console address or console port not specified");
 	    }
 	}
 	else {
@@ -142,6 +136,7 @@ class ProcessContext implements PluginProcessContext
 		    public void send(Message message) {}
 		    public void flush() {}
 		    public void queue(Message message) {}
+		    public void shutdown() {}
 		};
 	}
 

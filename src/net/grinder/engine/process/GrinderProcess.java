@@ -31,10 +31,12 @@ import java.util.TimerTask;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.common.ProcessStatus;
 import net.grinder.common.Test;
 import net.grinder.common.TestImplementation;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ReportStatisticsMessage;
+import net.grinder.communication.ReportStatusMessage;
 import net.grinder.communication.Sender;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
@@ -103,7 +105,7 @@ public final class GrinderProcess implements Monitor
 
     private final ProcessContext m_context;
     private final PrintWriter m_dataWriter;
-    private final int m_numberOfThreads;
+    private final short m_numberOfThreads;
     private final BSFProcessContext m_bsfContext;
 
     private final ConsoleListener m_consoleListener;
@@ -128,7 +130,7 @@ public final class GrinderProcess implements Monitor
 
 	m_dataWriter = loggerImplementation.getDataWriter();
 
-	m_numberOfThreads = properties.getInt("grinder.threads", 1);
+	m_numberOfThreads = properties.getShort("grinder.threads", (short)1);
 
 	m_reportToConsoleInterval =
 	    properties.getInt("grinder.reportToConsole.interval", 500);
@@ -213,7 +215,11 @@ public final class GrinderProcess implements Monitor
 				  threadCallbacks);
 	}
 
-	m_context.getConsoleSender().flush();
+	final Sender consoleSender = m_context.getConsoleSender();
+
+	consoleSender.send(
+	    new ReportStatusMessage(ProcessStatus.STATE_STARTED,
+				    (short)0, m_numberOfThreads));
 
 	if (!Boolean.getBoolean(DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME)) {
 	    m_context.logMessage("waiting for console signal",
@@ -249,7 +255,7 @@ public final class GrinderProcess implements Monitor
 
 		// Wait for a termination event.
 		synchronized (this) {
-		    while (GrinderThread.numberOfUncompletedThreads() > 0) {
+		    while (GrinderThread.getNumberOfThreads() > 0) {
 
 			m_lastMessagesReceived =
 			    m_consoleListener.received(ConsoleListener.RESET |
@@ -272,7 +278,7 @@ public final class GrinderProcess implements Monitor
 	    }
 
 	    synchronized (this) {
-		if (GrinderThread.numberOfUncompletedThreads() > 0) {
+		if (GrinderThread.getNumberOfThreads() > 0) {
 		    
 		    m_context.logMessage(
 			"waiting for threads to terminate",
@@ -283,7 +289,7 @@ public final class GrinderProcess implements Monitor
 		    final long time = System.currentTimeMillis();
 		    final long maxShutdownTime = 10000;
 
-		    while (GrinderThread.numberOfUncompletedThreads() > 0) {
+		    while (GrinderThread.getNumberOfThreads() > 0) {
 			try {
 			    if (System.currentTimeMillis() - time >
 				maxShutdownTime) {
@@ -307,6 +313,12 @@ public final class GrinderProcess implements Monitor
 	}
 	
 	m_dataWriter.close();
+
+	consoleSender.send(
+	    new ReportStatusMessage(ProcessStatus.STATE_FINISHED,
+				    (short)0, (short)0));
+
+	consoleSender.shutdown();
 
  	m_context.logMessage("Final statistics for this process:");
 
@@ -387,10 +399,16 @@ public final class GrinderProcess implements Monitor
 	public void run() {
 	    m_dataWriter.flush();
 
+	    final Sender consoleSender = m_context.getConsoleSender();
+
 	    try {
-		m_context.getConsoleSender().send(
-		    new ReportStatisticsMessage(
-			m_testStatiticsMap.getDelta(true)));
+		consoleSender.send(new ReportStatisticsMessage(
+				       m_testStatiticsMap.getDelta(true)));
+
+		consoleSender.send(new ReportStatusMessage(
+				       ProcessStatus.STATE_RUNNING,
+				       GrinderThread.getNumberOfThreads(),
+				       m_numberOfThreads));
 	    }
 	    catch (CommunicationException e) {
 		m_context.logMessage(

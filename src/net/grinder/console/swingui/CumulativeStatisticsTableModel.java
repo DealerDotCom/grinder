@@ -81,7 +81,7 @@ final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel
 	}
     }
 
-    public boolean isBold(int row, int column) 
+    public final boolean isBold(int row, int column) 
     {
 	if (row < getModel().getNumberOfTests()) {
 	    return super.isBold(row, column);
@@ -91,7 +91,7 @@ final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel
 	}
     }
 
-    public boolean isRed(int row, int column)
+    public final boolean isRed(int row, int column)
     {
 	final Model model = getModel();
 
@@ -103,17 +103,5 @@ final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel
 		column == 3 &&
 		model.getTotalCumulativeStatistics().getErrors() > 0;
 	}
-    }
-
-    /**
-     * {@link net.grinder.console.model.ModelListener} interface. New
-     * <code>StatisticsView</code>s have been added. We need do
-     * nothing
-     **/
-    public synchronized void newStatisticsViews(
-	StatisticsView intervalStatisticsView,
-	StatisticsView cumulativeStatisticsView)
-    {
-	addColumns(cumulativeStatisticsView);
     }
 }

@@ -16,22 +16,39 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.communication;
+package net.grinder.console.swingui;
+
+import javax.swing.SwingUtilities;
+
+import net.grinder.common.ProcessStatus;
+import net.grinder.console.model.ProcessStatusSetListener;
 
 
 /**
- * Default communication constants.
+ * ProcessStatusSetListener Decorator that disptaches the update()
+ * notifications via a Swing thread.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface CommunicationDefaults
+class SwingDispatchedProcessStatusSetListener
+    implements ProcessStatusSetListener
 {
-    final String CONSOLE_ADDRESS = ""; // Bind to all interfaces by default.
-    final int CONSOLE_PORT = 6372;
+    private final ProcessStatusSetListener m_delegate;
 
-    final String GRINDER_ADDRESS = "228.1.1.1";
-    final int GRINDER_PORT = 1234;
+    public SwingDispatchedProcessStatusSetListener(
+	ProcessStatusSetListener delegate)
+    {
+	m_delegate = delegate;
+    }
 
-    final int MAX_PORT = 0xFFFF;
+    public void update(final ProcessStatus[] data, final int running,
+		       final int total)
+    {
+	SwingUtilities.invokeLater(
+	    new Runnable() {
+		public void run() { m_delegate.update(data, running, total); }
+	    }
+	    );
+    }
 }

@@ -30,34 +30,43 @@ import net.grinder.console.common.ConsoleException;
 
 
 /**
+ * A read-only JTable that works in conjunction with an extended
+ * TableModel specifies some cell rendering.
+ *
  * @author Philip Aston
  * @version $Revision$
- */
-public class TestTable extends JTable
+ **/
+final class Table extends JTable
 {
+    public interface TableModel extends javax.swing.table.TableModel
+    {
+	boolean isBold(int row, int column);
+	boolean isRed(int row, int column);
+    }
+
     private final MyCellRenderer m_myCellRenderer;
     private final Color m_defaultForeground;
+    private final Color m_defaultBackground;
     private final Font m_boldFont;
     private final Font m_defaultFont;
 
-    public TestTable(DynamicStatisticsTableModel model)
-	throws ConsoleException
+    public Table(TableModel tableModel) throws ConsoleException
     {
-	super(model);
+	super(tableModel);
 
 	setRowSelectionAllowed(false);
 
 	m_myCellRenderer = new MyCellRenderer();
 
 	m_defaultForeground = m_myCellRenderer.getForeground();
+	m_defaultBackground = m_myCellRenderer.getBackground();
 	m_defaultFont = m_myCellRenderer.getFont();
 	m_boldFont = m_defaultFont.deriveFont(Font.BOLD);
     }
 
-    public TableCellRenderer getCellRenderer(int row, int column)
+    public final TableCellRenderer getCellRenderer(int row, int column)
     {
-	final DynamicStatisticsTableModel model =
-	    (DynamicStatisticsTableModel)getModel();
+	final TableModel model = (TableModel)getModel();
 
 	final boolean red = model.isRed(row, column);
 	final boolean bold = model.isBold(row, column);
@@ -75,26 +84,32 @@ public class TestTable extends JTable
 	}
     }
 
-    private class MyCellRenderer extends DefaultTableCellRenderer
+    private final class MyCellRenderer extends DefaultTableCellRenderer
     {
 	private Font m_font;
 
-	public Component getTableCellRendererComponent(JTable table,
-						       Object value,
-						       boolean isSelected,
-						       boolean hasFocus,
-						       int row,
-						       int column) {
+	public final
+	    Component getTableCellRendererComponent(JTable table,
+						    Object value,
+						    boolean isSelected,
+						    boolean hasFocus,
+						    int row,
+						    int column)
+	{
 	    final DefaultTableCellRenderer defaultRenderer =
 		(DefaultTableCellRenderer)
 		super.getTableCellRendererComponent(table, value, isSelected,
 						    hasFocus, row, column);
+
+	    // DefaultTableCellRenderer strangely only supports a
+	    // single font per Table. We override to set font on a per
+	    // cell basis.
 	    defaultRenderer.setFont(m_font);
 
 	    return defaultRenderer;
 	}
 
-	public void setTheFont(Font f) 
+	public final void setTheFont(Font f) 
 	{
 	    m_font = f;
 	}

@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000, 2001  Paco Gomez
-// Copyright (C) 2000, 2001  Philip Aston
+// Copyright (C) 2000, 2001 Paco Gomez
+// Copyright (C) 2000, 2001 Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,22 +16,28 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.communication;
+package net.grinder.console.model;
+
+import java.util.EventListener;
+
+import net.grinder.common.ProcessStatus;
 
 
 /**
- * Default communication constants.
+ * Listener interface for receiving updates form {@link ProcessStatusSet}.
  *
  * @author Philip Aston
  * @version $Revision$
- */
-public interface CommunicationDefaults
+ **/
+public interface ProcessStatusSetListener extends EventListener
 {
-    final String CONSOLE_ADDRESS = ""; // Bind to all interfaces by default.
-    final int CONSOLE_PORT = 6372;
-
-    final String GRINDER_ADDRESS = "228.1.1.1";
-    final int GRINDER_PORT = 1234;
-
-    final int MAX_PORT = 0xFFFF;
+    /**
+     * Called when the ProcessStatusSet has new data.
+     *
+     * @param data The new process status data.
+     * @param runningThreadsSum The total number of running threads.
+     * @param totalThreadsSum The total number of potential threads.
+     **/
+    void update(ProcessStatus[] data, int runningThreadsSum,
+		int totalThreadsSum);
 }

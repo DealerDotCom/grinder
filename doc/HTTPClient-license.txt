@@ -1,8 +1,8 @@
-The Grinder incorporates software from the Ronald Tschalär's
-HTTPClient library
-(http://www.innovation.ch/java/HTTPClient/index.html) which is
-distributed under the GNU Lesser Public License and repackaged in The
-Grinder distribution under the GNU Public License.
+The Grinder uses Ronald Tschalär's HTTPClient library
+(http://www.innovation.ch/java/HTTPClient/index.html). The HTTPClient
+library is distributed under the GNU Lesser Public License. Under the
+term 6 of the GNU Lesser Public License, The Grinder is a "work that
+uses the Library".
 
 
  GNU LESSER GENERAL PUBLIC LICENSE

@@ -32,14 +32,14 @@ public interface Sender
      * then send the given message.
      *
      * @param message A {@link Message}.
-     * @exception CommunicationException if an error occurs
+     * @exception CommunicationException If an error occurs.
      **/
     void send(Message message) throws CommunicationException;
 
     /**
      * Flush any pending messages queued with {@link #queue}.
      *
-     * @exception CommunicationException if an error occurs
+     * @exception CommunicationException If an error occurs.
      **/
     void flush() throws CommunicationException;
 
@@ -47,8 +47,16 @@ public interface Sender
      * Queue the given message for later sending.
      *
      * @param message A {@link Message}.
+     * @exception CommunicationException If an error occurs.
      * @see #flush
      * @see #send
      **/
-    void queue(Message message);
+    void queue(Message message) throws CommunicationException;
+
+    /**
+     * Cleanly shutdown the <code>Sender</code>.
+     *
+     * @exception CommunicationException If an error occurs.
+     **/
+    void shutdown() throws CommunicationException;
 }

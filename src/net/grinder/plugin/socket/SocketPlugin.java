@@ -133,7 +133,7 @@ public class SocketPlugin implements GrinderPlugin
 		i++;
 
 		//Get the next request file
-		requestFile = parameters.getProperty("request"+i, "nofile");
+		requestFile = parameters.getProperty("request"+i, null);
 	    }
 
 	    return true;

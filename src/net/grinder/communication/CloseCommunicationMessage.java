@@ -18,20 +18,13 @@
 
 package net.grinder.communication;
 
-
 /**
- * Default communication constants.
+ * Message used to cleanly indicate that a unicast communication
+ * channel should be terminated.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface CommunicationDefaults
+class CloseCommunicationMessage extends Message
 {
-    final String CONSOLE_ADDRESS = ""; // Bind to all interfaces by default.
-    final int CONSOLE_PORT = 6372;
-
-    final String GRINDER_ADDRESS = "228.1.1.1";
-    final int GRINDER_PORT = 1234;
-
-    final int MAX_PORT = 0xFFFF;
 }

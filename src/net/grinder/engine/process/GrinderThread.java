@@ -36,16 +36,17 @@ import net.grinder.util.Sleeper;
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 class GrinderThread implements java.lang.Runnable
 {
     /**
-     * m_numberOfThreads is incremented in constructor rather than in
-     * run to avoid pathological race conditions. Hence it really
-     * means "the number of GrinderThread's that have been created but
-     * not run to completion"
+     * m_numberOfThreads is incremented in constructor
+     * rather than in run to avoid pathological race conditions. Hence
+     * it really means "the number of GrinderThread's that have been
+     * created but not run to completion"
      **/
-    private static int m_numberOfThreads = 0;
+
+    private static short m_numberOfThreads = 0;
 
     private static Random m_random = new Random();
 
@@ -191,7 +192,7 @@ class GrinderThread implements java.lang.Runnable
 	m_numberOfThreads--;
     }
 
-    public static int numberOfUncompletedThreads()
+    public static short getNumberOfThreads()
     {
 	return m_numberOfThreads;
     }

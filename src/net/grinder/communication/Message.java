@@ -57,9 +57,9 @@ public abstract class Message implements Serializable
     /**
      * Returns a string describing the Grinder process associated of the {@link Sender}.
      *
-     * @throws CommunicationException If {@link #setSenderInformation} has not been called.
+     * @throws RuntimeException If {@link #setSenderInformation} has not been called.
      **/
-    final String getSenderGrinderID() throws CommunicationException
+    final String getSenderGrinderID()
     {
 	assertInitialised();
 	return m_senderGrinderID;
@@ -68,9 +68,9 @@ public abstract class Message implements Serializable
     /**
      * Returns a unique ID for the {@link Sender}.
      *
-     * @throws CommunicationException If {@link #setSenderInformation} has not been called.
+     * @throws RuntimeException If {@link #setSenderInformation} has not been called.
      **/
-    public final String getSenderUniqueID() throws CommunicationException
+    public final String getSenderUniqueID()
     {
 	assertInitialised();
 	return m_senderUniqueID;
@@ -79,21 +79,21 @@ public abstract class Message implements Serializable
     /**
      * Get the message sequence ID.
      *
-     * @throws CommunicationException If {@link #setSenderInformation} has not been called.
+     * @throws RuntimeException If {@link #setSenderInformation} has not been called.
      **/
-    final long getSequenceNumber() throws CommunicationException
+    final long getSequenceNumber()
     {
 	assertInitialised();
 	return m_sequenceNumber;
     }
 
   /**
-     * @throws CommunicationException If {@link #setSenderInformation} has not been called.
+     * @throws RuntimeException If {@link #setSenderInformation} has not been called.
      **/
-    private final void assertInitialised() throws CommunicationException
+    private final void assertInitialised()
     {
 	if (m_senderUniqueID == null) {
-	    throw new CommunicationException("Message not initialised");
+	    throw new RuntimeException("Message not initialised");
 	}
     }
 
