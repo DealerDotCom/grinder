@@ -78,20 +78,29 @@ public final class MessagePump {
     m_threadPool.stopAndWait();
   }
 
+  private void shutdownInternal() {
+    try {
+      shutdown();
+    }
+    catch (InterruptedException e) {
+      // Ignore.
+    }
+  }
+
   private void process() {
     try {
       while (!m_threadPool.isStopped()) {
         final Message message = m_receiver.waitForMessage();
+
+        if (message == null) {
+          shutdownInternal();
+        }
+
         m_sender.send(message);
       }
     }
     catch (CommunicationException e) {
-      try {
-        shutdown();
-      }
-      catch (InterruptedException interruptedException) {
-        // Ignore.
-      }
+      shutdownInternal();
     }
   }
 }

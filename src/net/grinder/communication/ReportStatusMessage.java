@@ -34,7 +34,7 @@ import net.grinder.common.ProcessStatus;
  */
 public final class ReportStatusMessage implements Message, ProcessStatus {
 
-  private static final long serialVersionUID = 111833598590121547L;
+  private static final long serialVersionUID = -6396659281675246288L;
 
   private final String m_identity;
   private final String m_name;

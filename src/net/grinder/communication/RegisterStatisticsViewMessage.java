@@ -33,7 +33,7 @@ import net.grinder.statistics.StatisticsView;
  */
 public final class RegisterStatisticsViewMessage implements Message {
 
-  private static final long serialVersionUID = -7078786346425431655L;
+  private static final long serialVersionUID = 5933280542822877937L;
 
   private StatisticsView m_statisticsView;
 

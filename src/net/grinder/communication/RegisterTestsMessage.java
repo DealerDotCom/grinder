@@ -32,7 +32,7 @@ import java.util.Collection;
  */
 public final class RegisterTestsMessage implements Message {
 
-  private static final long serialVersionUID = -5373242586585432471L;
+  private static final long serialVersionUID = 1669221760771622994L;
 
   private final Collection m_tests;
 
