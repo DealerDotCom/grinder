@@ -125,7 +125,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
   /**
    * Reset all our statistics and return a snapshot.
-   * 
+   *
    * @return The snapshot.
    */
   public TestStatisticsMap reset() {
