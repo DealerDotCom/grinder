@@ -560,6 +560,23 @@ Grinder 3.0-beta0
    Jython meets The Grinder and the magic starts to happen.
 
 
+Grinder 2.8.6
+-------------
+
+   Fix bug 608392 - console data file field separator conflicts with
+   localised decimal points. Fields are now tab separated. Thanks to
+   Martin Vilcans for the report.
+
+   Fix bug 631144 - worker processes sometimes fail to launch on real
+   operating systems. Thanks to Martin Voss for the report.
+
+
+Grinder 2.8.5
+-------------
+
+   Fix TCPSniffer bug for non-proxy, non-ssl startup.
+
+
 Grinder 2.8.4
 -------------
 
