@@ -4,8 +4,8 @@
 <body>
 
 <em>More material to come! For now see the <a
-href="../script-javadoc/index.html" target="_top_">script API</a> and
-the <a href="script-gallery.html">script gallery</a>.</em>
+href="../script-javadoc/index.html">script API</a> and the <a
+href="script-gallery.html">script gallery</a>.</em>
 
 <h1>Scripts</h1>
 
@@ -69,10 +69,9 @@ the worker thread calls its TestRunner instance.</p></li>
 
 <p>The engine makes an object called <code>grinder</code> available to
 the script. This is an instance of the <a
-href="../script-javadoc/net/grinder/script/ScriptContext.html"
-target="_top_">ScriptContext</a> class and provides access to context
-information (such as the worker thread ID) and services (such as
-logging).</p></li>
+href="../script-javadoc/net/grinder/script/ScriptContext.html">ScriptContext</a>
+class and provides access to context information (such as the worker
+thread ID) and services (such as logging).</p></li>
 </ol>
 
 
@@ -97,10 +96,10 @@ output log.</p>
 <p>Although our simple test script can be used with The Grinder
 framework and can easily be started in many threads on many machines,
 it does record any statistics. For this we need to create some tests.
-A <a href="../script-javadoc/net/grinder/script/Test.html"
-target="_top_">Test</a> has a unique test number and description. If
-you are using the <a href="./console.html">console</a>, it will
-automatically update to display new tests as they are created.</p>
+A <a href="../script-javadoc/net/grinder/script/Test.html">Test</a>
+has a unique test number and description. If you are using the <a
+href="./console.html">console</a>, it will automatically update to
+display new tests as they are created.</p>
 
 <p>Let's add a <code>Test</code> to our script.</p>
 
@@ -182,9 +181,8 @@ request1 = test1.wrap(HTTPRequest())
 your finger tips. You can use practically <em>any</em> Java or Python
 code in your test scripts.</p>
 
-<p>The Grinder <a href="../script-javadoc/index.html"
-target="_top_">script API</a> can be used to access services from The
-Grinder.</p>
+<p>The Grinder <a href="../script-javadoc/index.html">script API</a>
+can be used to access services from The Grinder.</p>
 
 <h3>The Grinder statistics API</h3>
 
