@@ -100,8 +100,9 @@ public final class TCPProxy {
       "\n   [-timeout <seconds>]         Proxy engine timeout" +
       "\n   [-colour]                    Be pretty on ANSI terminals" +
       "\n   [-console]                   Display the console" +
-      "\n   [-proxy <host> <port>]       Route via HTTP/HTTPS proxy" +
-      "\n   [-httpsproxy <host> <port>]  Override -proxy settings for HTTPS" +
+      "\n   [-httpproxy <host> <port>]   Route via HTTP/HTTPS proxy" +
+      "\n   [-httpsproxy <host> <port>]  Override -httpproxy settings for" +
+      "\n                                HTTPS" +
       "\n" +
       "\n <filter> can be the name of a class that implements" +
       "\n " + TCPProxyFilter.class.getName() + " or" +
@@ -128,7 +129,7 @@ public final class TCPProxy {
       "\n -console displays a simple console that allows the TCPProxy" +
       "\n to be shutdown cleanly." +
       "\n" +
-      "\n -proxy and -httpsproxy allow output to be directed through" +
+      "\n -httpproxy and -httpsproxy allow output to be directed through" +
       "\n another HTTP/HTTPS proxy; this may help you reach the Internet." +
       "\n These options are not supported in port forwarding mode." +
       "\n"
@@ -259,7 +260,7 @@ public final class TCPProxy {
           /* Already handled */
           ++i;
         }
-        else if (args[i].equalsIgnoreCase("-proxy")) {
+        else if (args[i].equalsIgnoreCase("-httproxy")) {
           chainedHTTPProxy =
             new EndPoint(args[++i], Integer.parseInt(args[++i]));
         }

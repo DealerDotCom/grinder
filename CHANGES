@@ -20,12 +20,11 @@ Grinder 3.0-beta12
   as an HTTP proxy by default unless either -remoteHost or -remotePort
   is specified.
 
-  Add a new -proxy option to the TCPProxy. This new option has a
-  *completely different* meaning to the old -proxy option. The new
-  option specifies that output should to be directed through another
-  HTTP/HTTPS proxy; this may help you reach the Internet. There is
-  also a -sslproxy option which allows you to have a different HTTPS
-  proxy. These options are not supported in port forwarding mode.
+  Add a new -httpproxy option to the TCPProxy. This option specifies
+  that output should to be directed through another HTTP/HTTPS proxy;
+  this may help you reach the Internet. There is also a -httpsproxy
+  option which allows you to have a different HTTPS proxy. These
+  options are not supported in port forwarding mode.
 
   The TCPProxy now supports chains of filters. Some may find
   "-httpPlugin -requestFilter ECHO -responseFilter ECHO" useful.
