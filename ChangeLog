@@ -1,5 +1,10 @@
 2001-07-22  Philip Aston  <paston@bea.com>
 
+	* tests-src/net/grinder/console/swingui/TestGraph.java, CHANGES, TODO, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/StatisticsTableModel.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/util/SignificantFigureFormat.java:
+	Significant Figures control.
+
+	* build.xml: Correct Regexp dependencies.
+
 	* src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/TestGraphPanel.java:
 	Graph colour is now based on response time.
 
