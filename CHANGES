@@ -1,3 +1,14 @@
+Grinder 3.0-beta24 (Not yet released)
+-------------------------------------
+
+  The TCPProxy now returns friendly error messages to the browser
+  where it can.
+
+  When used in the default HTTP proxy mode, the TCPProxy always
+  listens as an HTTPS proxy as well. The TCPProxy -ssl option now only
+  applies to port forwarding mode.
+
+
 Grinder 3.0-beta23
 ------------------
 
