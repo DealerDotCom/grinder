@@ -2,6 +2,8 @@
 
 	* The Grinder 2.8.1 is released.
 	
+	* src/net/grinder/communication/SocketSet.java: Fix javadoc.
+
 	* src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/console/model/ConsoleProperties.java:
 	Fix bind to all interfaces.
 
