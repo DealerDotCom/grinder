@@ -30,18 +30,18 @@ import java.util.Random;
 
 
 /**
- *  Unit tests for <code>ClientSender</code> and
- *  <code>ClientReceiver</code>.
+ *  Unit tests for <code>StreamSender</code> and
+ *  <code>StreamReceiver</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestClientSenderAndClientReceiver
+public class TestStreamSenderAndStreamReceiver
   extends AbstractSenderAndReceiverTests {
 
   private final static Random s_random = new Random();
 
-  public TestClientSenderAndClientReceiver(String name) throws Exception {
+  public TestStreamSenderAndStreamReceiver(String name) throws Exception {
     super(name, true);
   }
 
@@ -59,8 +59,8 @@ public class TestClientSenderAndClientReceiver
         }
       };
 
-    m_receiver = new ClientReceiver(inputStream);
-    m_sender = new ClientSender(outputStream);
+    m_receiver = new StreamReceiver(inputStream);
+    m_sender = new StreamSender(outputStream);
   }
 
   protected void tearDown() throws Exception {

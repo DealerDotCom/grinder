@@ -21,8 +21,10 @@
 
 package net.grinder.communication;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 
 
 /**
@@ -31,49 +33,54 @@ import java.net.Socket;
  * @author Philip Aston
  * @version $Revision$
  **/
-public final class ClientSender extends StreamSender {
+public class StreamSender extends AbstractSender {
+
+  private final OutputStream m_outputStream;
 
   /**
-   * Factory method that makes a TCP connection and returns a
-   * corresponding <code>Sender</code>.
+   * Constructor.
    *
    * @param grinderID A string describing our Grinder process.
-   * @param addressString TCP address to connect to.
-   * @param port TCP port to connect to.
-   * @return The ClientSender.
-   * @throws CommunicationException If <code>Sender</code> could not
-   * be created.
+   * @param senderID Unique string identifying sender.
+   * @param outputStream The output stream to write to.
+   * @throws CommunicationException If Sender could not be created.
    */
-  public static Sender connectTo(String grinderID, String addressString,
-                                 int port)
+  protected StreamSender(String grinderID, String senderID,
+                         OutputStream outputStream)
     throws CommunicationException {
 
-    try {
-      // Our socket - bind to any local port.
-      final Socket socket = new Socket(addressString, port);
-
-      final String localHost = socket.getLocalAddress().getHostName();
-      final int localPort = socket.getLocalPort();
-
-      // Calculate a globally unique string for this sender.
-      final String senderID =
-        addressString + ":" + port + ":" + localHost + ":" + localPort;
-
-      return new ClientSender(grinderID, senderID, socket);
-    }
-    catch (IOException e) {
-      throw new CommunicationException(
-        "Could not connect to '" + addressString + ":" + port + "'", e);
-    }
+    super(grinderID, senderID);
+    m_outputStream = new BufferedOutputStream(outputStream);
   }
 
-  private final Socket m_socket;
+  /**
+   * Constructor.
+   *
+   * @param outputStream The output stream to write to.
+   */
+  public StreamSender(OutputStream outputStream) {
+    m_outputStream = new BufferedOutputStream(outputStream);
+  }
 
-  private ClientSender(String grinderID, String senderID, Socket socket)
-    throws CommunicationException, IOException {
+  /**
+   * Send a message.
+   *
+   * @param message The message.
+   * @throws IOException If an error occurs.
+   */
+  protected final void writeMessage(Message message) throws IOException {
 
-    super(grinderID, senderID, socket.getOutputStream());
-    m_socket = socket;
+    // I tried the model of using a single ObjectOutputStream for the
+    // lifetime of the socket and a single ObjectInputStream. However,
+    // the corresponding ObjectInputStream would get occasional EOF's
+    // during readObject. Seems like voodoo to me, but creating a new
+    // ObjectOutputStream for every message fixes this.
+
+    final ObjectOutputStream objectStream =
+      new ObjectOutputStream(m_outputStream);
+
+    objectStream.writeObject(message);
+    objectStream.flush();
   }
 
   /**
@@ -87,7 +94,7 @@ public final class ClientSender extends StreamSender {
     super.shutdown();
 
     try {
-      m_socket.close();
+      m_outputStream.close();
     }
     catch (IOException e) {
       // Ignore.

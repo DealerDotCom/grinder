@@ -31,49 +31,52 @@ import junit.framework.TestCase;
 
 
 /**
- *  Unit test case for <code>ClientSender</code>.
+ *  Unit test case for <code>StreamSender</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestClientSender extends TestCase {
+public class TestStreamSender extends TestCase {
 
-  public TestClientSender(String name) {
+  public TestStreamSender(String name) {
     super(name);
   }
 
   public void testSend() throws Exception {
 
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+    final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 
-    final Sender clientSender =
-      ClientSender.connectTo(
-        "Test", socketAcceptor.getHostName(), socketAcceptor.getPort());
-
-    socketAcceptor.join();
+    final StreamSender streamSender =
+      new StreamSender((OutputStream)byteOutputStream);
 
     final SimpleMessage message1 = new SimpleMessage();
     final SimpleMessage message2 = new SimpleMessage();
 
-    // A socket ClientSender should be able to both route messages
-    // from other Senders and originate their own.
-    message1.setSenderInformation("Grinder ID", getClass().getName(), 1);
+    // StreamSender doesn't support message initialisation.
+    try {
+      streamSender.send(message1);
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+    
+    message1.setSenderInformation("Test", getClass().getName(), 1);
+    message2.setSenderInformation("Test", getClass().getName(), 2);
 
-    clientSender.send(message1);
-    clientSender.send(message2);
-
-    assertEquals("Grinder ID", message1.getSenderGrinderID());
-    assertEquals("Test", message2.getSenderGrinderID());
-
-    final InputStream socketInput =
-      socketAcceptor.getAcceptedSocket().getInputStream();
+    streamSender.send(message1);
+    streamSender.send(message2);
+    
+    final ByteArrayInputStream byteInputStream =
+      new ByteArrayInputStream(byteOutputStream.toByteArray());
 
     // Need an ObjectInputStream for every message. See note in
-    // ClientSender.writeMessage.
-    final ObjectInputStream inputStream1 = new ObjectInputStream(socketInput);
+    // StreamSender.writeMessage.
+    final ObjectInputStream inputStream1 =
+      new ObjectInputStream(byteInputStream);
     final Object o1 = inputStream1.readObject();
 
-    final ObjectInputStream inputStream2 = new ObjectInputStream(socketInput);
+    final ObjectInputStream inputStream2 =
+      new ObjectInputStream(byteInputStream);
     final Object o2 = inputStream2.readObject();
 
     assertEquals(message1, o1);
@@ -82,55 +85,41 @@ public class TestClientSender extends TestCase {
     assertEquals(message2, o2);
     assertTrue(message2.payloadEquals((Message) o2));
 
-    assertEquals(0, socketInput.available());
-
-    socketAcceptor.close();
-    
-    try {
-      ClientReceiver.connectTo(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
-
-      fail("Expected CommunicationException");
-    }
-    catch (CommunicationException e) {
-    }
+    assertEquals(0, byteInputStream.available());
   }
 
   public void testShutdown() throws Exception {
 
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+    final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 
-    final Sender clientSender =
-      ClientSender.connectTo(
-        "Test", socketAcceptor.getHostName(), socketAcceptor.getPort());
-
-    socketAcceptor.join();
+    final StreamSender streamSender =
+      new StreamSender((OutputStream)byteOutputStream);
 
     final Message message = new SimpleMessage();
     message.setSenderInformation("Test", getClass().getName(), 99);
 
-    clientSender.send(message);
+    streamSender.send(message);
 
-    clientSender.shutdown();
+    streamSender.shutdown();
 
     try {
-      clientSender.send(message);
+      streamSender.send(message);
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
     }
 
-    final InputStream socketInput =
-      socketAcceptor.getAcceptedSocket().getInputStream();
+    final ByteArrayInputStream byteInputStream =
+      new ByteArrayInputStream(byteOutputStream.toByteArray());
 
-    final ObjectInputStream inputStream1 = new ObjectInputStream(socketInput);
+    final ObjectInputStream inputStream1 =
+      new ObjectInputStream(byteInputStream);
     final Object o1 = inputStream1.readObject();
 
-    final ObjectInputStream inputStream2 = new ObjectInputStream(socketInput);
+    final ObjectInputStream inputStream2 =
+      new ObjectInputStream(byteInputStream);
     final Object o2 = inputStream2.readObject();
 
     assertTrue(o2 instanceof CloseCommunicationMessage);
-
-    socketAcceptor.close();
   }
 }

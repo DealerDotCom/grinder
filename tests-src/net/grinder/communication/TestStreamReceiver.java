@@ -31,35 +31,29 @@ import junit.framework.TestCase;
 
 
 /**
- *  Unit test case for <code>ClientReceiver</code>.
+ *  Unit test case for <code>StreamReceiver</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestClientReceiver extends TestCase {
+public class TestStreamReceiver extends TestCase {
 
-  public TestClientReceiver(String name) {
+  public TestStreamReceiver(String name) {
     super(name);
   }
 
   public void testReceive() throws Exception {
 
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+    final PipedOutputStream outputStream = new PipedOutputStream();
+    final InputStream inputStream = new PipedInputStream(outputStream);
 
-    final Receiver clientReceiver =
-      ClientReceiver.connectTo(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
-
-    socketAcceptor.join();
-
-    final OutputStream socketOutput =
-      socketAcceptor.getAcceptedSocket().getOutputStream();
+    final StreamReceiver streamReceiver = new StreamReceiver(inputStream);
 
     final SimpleMessage message1 = new SimpleMessage();
     message1.setSenderInformation("Test", getClass().getName(), 1);
-    
+
     final ObjectOutputStream objectStream1 =
-      new ObjectOutputStream(socketOutput);
+      new ObjectOutputStream(outputStream);
     objectStream1.writeObject(message1);
     objectStream1.flush();
 
@@ -67,24 +61,30 @@ public class TestClientReceiver extends TestCase {
     message2.setSenderInformation("Test", getClass().getName(), 2);
 
     final ObjectOutputStream objectStream2 =
-      new ObjectOutputStream(socketOutput);
+      new ObjectOutputStream(outputStream);
     objectStream2.writeObject(message2);
     objectStream2.flush();
 
-    final Message receivedMessage1 = clientReceiver.waitForMessage();
-    final Message receivedMessage2 = clientReceiver.waitForMessage();
+    final Message receivedMessage1 = streamReceiver.waitForMessage();
+    final Message receivedMessage2 = streamReceiver.waitForMessage();
 
     assertEquals(message1, receivedMessage1);
     assertTrue(message1.payloadEquals(receivedMessage1));
     assertEquals(message2, receivedMessage2);
     assertTrue(message2.payloadEquals(receivedMessage2));
 
-    socketAcceptor.close();
+    assertEquals(
+      CommunicationException.class,
+      new BlockingActionThread() {
+        protected void blockingAction() throws CommunicationException {
+          streamReceiver.waitForMessage();
+        }
+      }.getException().getClass());
 
+    outputStream.close();
+    
     try {
-      ClientReceiver.connectTo(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
-
+      streamReceiver.waitForMessage();
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
@@ -93,69 +93,53 @@ public class TestClientReceiver extends TestCase {
 
   public void testShutdown() throws Exception {
 
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+    final PipedOutputStream outputStream = new PipedOutputStream();
+    final InputStream inputStream = new PipedInputStream(outputStream);
 
-    final Receiver clientReceiver =
-      ClientReceiver.connectTo(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
+    final StreamReceiver streamReceiver = new StreamReceiver(inputStream);
 
-    socketAcceptor.join();
+    final SimpleMessage message = new SimpleMessage();
+    message.setSenderInformation("Test", getClass().getName(), 1);
 
-    final OutputStream socketOutput =
-      socketAcceptor.getAcceptedSocket().getOutputStream();
+    final ObjectOutputStream objectStream =
+      new ObjectOutputStream(outputStream);
+    objectStream.writeObject(message);
+    objectStream.flush();
 
-    final SimpleMessage message1 = new SimpleMessage();
-    message1.setSenderInformation("Test", getClass().getName(), 1);
-    
-    final ObjectOutputStream objectStream1 =
-      new ObjectOutputStream(socketOutput);
-    objectStream1.writeObject(message1);
-    objectStream1.flush();
+    final Message receivedMessage = streamReceiver.waitForMessage();
 
-    final Message receivedMessage = clientReceiver.waitForMessage();
+    streamReceiver.shutdown();
 
-    clientReceiver.shutdown();
-
-    assertNull(clientReceiver.waitForMessage());
-
-    socketAcceptor.close();
+    assertNull(streamReceiver.waitForMessage());
   }
 
   public void testCloseCommunicationMessage() throws Exception {
 
-    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+    final PipedOutputStream outputStream = new PipedOutputStream();
+    final InputStream inputStream = new PipedInputStream(outputStream);
 
-    final Receiver clientReceiver =
-      ClientReceiver.connectTo(
-        socketAcceptor.getHostName(), socketAcceptor.getPort());
+    final StreamReceiver streamReceiver = new StreamReceiver(inputStream);
 
-    socketAcceptor.join();
+    final SimpleMessage message = new SimpleMessage();
+    message.setSenderInformation("Test", getClass().getName(), 1);
 
-    final OutputStream socketOutput =
-      socketAcceptor.getAcceptedSocket().getOutputStream();
-
-    final SimpleMessage message1 = new SimpleMessage();
-    message1.setSenderInformation("Test", getClass().getName(), 1);
-    
     final ObjectOutputStream objectStream1 =
-      new ObjectOutputStream(socketOutput);
-    objectStream1.writeObject(message1);
+      new ObjectOutputStream(outputStream);
+    objectStream1.writeObject(message);
     objectStream1.flush();
 
-    final Message receivedMessage = clientReceiver.waitForMessage();
+    final Message receivedMessage = streamReceiver.waitForMessage();
 
     final Message closeCommunicationMessage = new CloseCommunicationMessage();
     closeCommunicationMessage.setSenderInformation(
       "Test", getClass().getName(), 1);
 
     final ObjectOutputStream objectStream2 =
-      new ObjectOutputStream(socketOutput);
+      new ObjectOutputStream(outputStream);
     objectStream2.writeObject(closeCommunicationMessage);
     objectStream2.flush();
 
-    assertNull(clientReceiver.waitForMessage());
-
-    socketAcceptor.close();
+    assertNull(streamReceiver.waitForMessage());
   }
 }
   

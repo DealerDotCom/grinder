@@ -50,6 +50,7 @@ abstract class AbstractSender implements Sender {
    *
    * @param grinderID Process identity.
    * @param senderID Unique sender identity.
+   * @throws CommunicationException If Sender could not be created.
    */
   protected AbstractSender(String grinderID, String senderID)
     throws CommunicationException {
