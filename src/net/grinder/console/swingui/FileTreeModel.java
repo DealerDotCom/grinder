@@ -24,6 +24,9 @@ package net.grinder.console.swingui;
 import java.io.File;
 import java.io.FilenameFilter;
 
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -43,6 +46,17 @@ final class FileTreeModel implements TreeModel {
 
   private RootNode m_rootNode;
   private final EventListenerList m_listeners = new EventListenerList();
+
+  /**
+   * Map from a File value to the latest Node to be created for the File.
+   */
+  private final WeakValueHashMap m_filesToNodes = new WeakValueHashMap();
+
+  /**
+   * Map from a Buffer to the FileNode that is associated with the
+   * buffer.
+   */
+  private final WeakValueHashMap m_buffersToFileNodes = new WeakValueHashMap();
 
   FileTreeModel() {
   }
@@ -87,6 +101,14 @@ final class FileTreeModel implements TreeModel {
     else {
       return -1;
     }
+  }
+
+  public Node findNode(File file) {
+    return (Node)m_filesToNodes.get(file);
+  }
+
+  public FileNode findFileNode(Buffer buffer) {
+    return (FileNode)m_buffersToFileNodes.get(buffer);
   }
 
   public boolean isLeaf(Object node) {
@@ -155,6 +177,8 @@ final class FileTreeModel implements TreeModel {
       else {
         m_path = new TreePath(this);
       }
+
+      m_filesToNodes.put(file, this);
     }
 
     public String toString() {
@@ -183,6 +207,10 @@ final class FileTreeModel implements TreeModel {
 
     public void setBuffer(Buffer buffer) {
       m_buffer = buffer;
+
+      if (buffer != null) {
+        m_buffersToFileNodes.put(buffer, this);
+      }
     }
 
     public Buffer getBuffer() {
@@ -261,6 +289,19 @@ final class FileTreeModel implements TreeModel {
 
     public String toString() {
       return getFile().getPath();
+    }
+  }
+
+  private static final class WeakValueHashMap  {
+    private Map m_map = new HashMap();
+
+    public void put(Object key, Object value) {
+      m_map.put(key, new WeakReference(value));
+    }
+
+    public Object get(Object key) {
+      final WeakReference reference = (WeakReference)m_map.get(key);
+      return reference != null ? reference.get() : null;
     }
   }
 }
