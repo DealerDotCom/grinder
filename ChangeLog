@@ -1,3 +1,59 @@
+2001-11-18  Philip Aston  <paston@bea.com>
+
+	* examples/http/grinder.properties, examples/junit/grinder.properties, examples/socket/grinder.properties:
+	Update examples.
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/console/model/ConsoleProperties.java:
+	Fix property names.
+
+	* CHANGES, README: Documentation.
+
+	* src/net/grinder/communication/AbstractReceiver.java, src/net/grinder/communication/MulticastReceiver.java, src/net/grinder/communication/UnicastReceiver.java:
+	Make sequence checking optional and disable it for TCP connections.
+
+	* src/net/grinder/communication/SocketSet.java: Remove debug.
+
+	* tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Fix test.
+
+	* tests-src/net/grinder/communication/TestUnicastSenderAndReceiver.java, tests-src/net/grinder/communication/java.exe.stackdump:
+	Communication to the Console is now unicast TCP.
+
+	* tests-src/net/grinder/communication/java.exe.stackdump: New file.
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/engine/process/GrinderProcess.java, tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/AllTests.java, tests-src/net/grinder/communication/TestMessageQueue.java, tests-src/net/grinder/communication/TestMulticastSenderAndReceiver.java, tests-src/net/grinder/communication/TestSenderAndReceiver.java:
+	Communication to the Console is now unicast TCP.
+
+	* tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/TestMessageQueue.java, tests-src/net/grinder/communication/TestMulticastSenderAndReceiver.java, tests-src/net/grinder/communication/TestUnicastSenderAndReceiver.java:
+	New file.
+
+	* src/net/grinder/communication/SenderImplementation.java, src/net/grinder/communication/SocketSet.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/communication/UnicastSender.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/swingui/OptionsDialogHandler.java:
+	Communication to the Console is now unicast TCP.
+
+	* src/net/grinder/communication/SocketSet.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/communication/UnicastSender.java:
+	New file.
+
+	* src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/communication/MessageQueue.java, src/net/grinder/communication/MulticastReceiver.java, src/net/grinder/communication/MulticastSender.java, src/net/grinder/communication/Receiver.java, src/net/grinder/communication/Sender.java:
+	Communication to the Console is now unicast TCP.
+
+	* src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/MessageQueue.java, src/net/grinder/communication/MulticastReceiver.java, src/net/grinder/communication/MulticastSender.java:
+	New file.
+
+	* src/net/grinder/communication/AbstractReceiver.java, src/prj.el:
+	Communication to the Console is now unicast TCP.
+
+	* src/net/grinder/communication/AbstractReceiver.java: New file.
+
+2001-11-16  Philip Aston  <paston@bea.com>
+
+	* src/HTTPClient/HTTPConnection.java:
+	Sigh, reinstate disable trailers hack.
+
+2001-11-15  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/engine/process/GrinderProcess.java, tests-src/net/grinder/communication/AllTests.java, tests-src/net/grinder/communication/TestMessage.java, tests-src/net/grinder/communication/TestSenderAndReceiver.java, src/net/grinder/communication/Receiver.java, src/net/grinder/communication/Sender.java, src/net/grinder/communication/SenderImplementation.java:
+	Backport Sender/SenderImplementation split from G3..
+
 2001-11-03  Philip Aston  <paston@bea.com>
 
 	* TODO: More to do.
