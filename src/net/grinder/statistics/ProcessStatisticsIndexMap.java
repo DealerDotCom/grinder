@@ -18,31 +18,31 @@
 
 package net.grinder.statistics;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
- * Statistics unit tests.
+ * Unsynchronised.
  *
  * @author Philip Aston
  * @version $Revision$
- */
-public class AllTests
+ **/
+public class ProcessStatisticsIndexMap
 {
-    public static void main(String[] args)
-    {
-	TestRunner.run(AllTests.class);
-    }
+    private int m_nextIndex = 0;
 
-    public static Test suite()
+    private final Map m_map = new HashMap();
+
+    public final synchronized int getIndexFor(String statisticKey)
     {
-	final TestSuite suite = new TestSuite();
-	suite.addTest(new TestSuite(TestRawStatistics.class));
-	suite.addTest(new TestSuite(TestStatisticExpression.class));
-	suite.addTest(new TestSuite(TestTestStatisticsMap.class));
-	return suite;
+	Integer result = (Integer)m_map.get(statisticKey);
+
+	if (result == null) {
+	    result = new Integer(m_nextIndex++);
+	    m_map.put(statisticKey, result);
+	}
+
+	return result.intValue();
     }
 }
