@@ -23,6 +23,8 @@ package net.grinder.common;
 
 import junit.framework.TestCase;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -34,10 +36,6 @@ import java.io.StringWriter;
  * @version $Revision$
  */
 public class TestGrinderException extends TestCase {
-
-  public TestGrinderException(String name) {
-    super(name);
-  }
 
   public void testRemoveCommonSuffix() throws Exception {
     final String oldLineSeparator = System.getProperty("line.separator");
@@ -66,20 +64,33 @@ public class TestGrinderException extends TestCase {
         b1 = new StringBuffer("Hello world");
         b2 = new StringBuffer("Goodbye world  ");
 
-        assertTrue(!GrinderException.removeCommonSuffix(b1, b2));
+        assertFalse(GrinderException.removeCommonSuffix(b1, b2));
         assertEquals("Hello world", b1.toString());
 
         b1 = new StringBuffer("Hello world");
         b2 = new StringBuffer("");
 
-        assertTrue(!GrinderException.removeCommonSuffix(b1, b2));
+        assertFalse(GrinderException.removeCommonSuffix(b1, b2));
         assertEquals("Hello world", b1.toString());
 
         b1 = new StringBuffer("");
         b2 = new StringBuffer("Goodbye");
 
-        assertTrue(!GrinderException.removeCommonSuffix(b1, b2));
+        assertFalse(GrinderException.removeCommonSuffix(b1, b2));
         assertEquals("", b1.toString());
+
+        b1 = new StringBuffer("foo" + lineSeparator + "bah");
+        b2 = new StringBuffer("Goodbye");
+
+        assertFalse(GrinderException.removeCommonSuffix(b1, b2));
+        assertEquals("foo" + lineSeparator + "bah", b1.toString());
+
+        b1 = new StringBuffer("foo" + lineSeparator + "  ");
+        b2 = new StringBuffer("Goodbye");
+
+        assertFalse("White space terminator so should return false",
+                    GrinderException.removeCommonSuffix(b1, b2));
+        assertEquals("foo", b1.toString());
 
         b1 = new StringBuffer(
           "Several more" + lineSeparator + lineSeparator + "lines   of" +
@@ -107,6 +118,93 @@ public class TestGrinderException extends TestCase {
 
     e2.printStackTrace(printWriter);
     final String s = stringWriter.toString();
+
+    assertEquals(1, countOccurrences("createException", s));
+    assertEquals(1, countOccurrences("createDeeperException", s));
+    assertEquals(2, countOccurrences("testPrintStackTrace", s));
+    assertEquals(1, countOccurrences("Method.invoke", s));
+  }
+
+  public void testPrintStackTraceWithNestedNonGrinderException()
+    throws Exception {
+
+    final StringWriter stringWriter = new StringWriter();
+    final PrintWriter printWriter = new PrintWriter(stringWriter);
+	
+    final Exception e1 = new RuntimeException();
+    final GrinderException e2 = new GrinderException("Exception 2", e1);
+
+    e2.printStackTrace(printWriter);
+    final String s = stringWriter.toString();
+
+    assertEquals(1, countOccurrences("RuntimeException", s));
+    assertEquals(2, countOccurrences(
+                   "testPrintStackTraceWithNestedNonGrinderException", s));
+    assertEquals(1, countOccurrences("Method.invoke", s));
+  }
+
+  private class WeirdException extends RuntimeException {
+    public void printStackTrace(PrintWriter w) {
+      w.println("Unconventional stack trace");
+      w.flush();
+    }
+  }
+
+  public void testPrintStackTraceWithNestedUnconventionalException()
+    throws Exception {
+
+    final StringWriter stringWriter = new StringWriter();
+    final PrintWriter printWriter = new PrintWriter(stringWriter);
+	
+    final Exception e1 = new WeirdException();
+    final GrinderException e2 = new GrinderException("Exception 2", e1);
+
+    e2.printStackTrace(printWriter);
+    final String s = stringWriter.toString();
+
+    assertEquals(1, countOccurrences(
+                   "testPrintStackTraceWithNestedUnconventionalException", s));
+    assertEquals(1, countOccurrences("Method.invoke", s));
+    assertEquals(0, countOccurrences("truncated", s));
+  }
+
+  public void testPrintStackTraceWithPrintStream() throws Exception {
+    final ByteArrayOutputStream byteArrayOutputStream =
+      new ByteArrayOutputStream();
+    final PrintStream printStream = new PrintStream(byteArrayOutputStream);
+	
+    final GrinderException e1 = createDeeperException();
+    final GrinderException e2 = new GrinderException("Exception 2", e1);
+
+    e2.printStackTrace(printStream);
+    final String s = new String(byteArrayOutputStream.toByteArray());
+
+    assertEquals(1, countOccurrences("createException", s));
+    assertEquals(1, countOccurrences("createDeeperException", s));
+    assertEquals(2, countOccurrences("testPrintStackTrace", s));
+    assertEquals(1, countOccurrences("Method.invoke", s));
+  }
+
+  public void testPrintStackTraceWithDefaultStream() throws Exception {
+
+    final ByteArrayOutputStream byteArrayOutputStream =
+      new ByteArrayOutputStream();
+    final PrintStream printStream = new PrintStream(byteArrayOutputStream);
+
+    final GrinderException e1 = createDeeperException();
+    final GrinderException e2 = new GrinderException("Exception 2", e1);
+
+    final PrintStream oldStderr = System.err;
+    System.setErr(printStream);
+
+    try {
+      e2.printStackTrace();
+    }
+    finally {
+      System.setErr(oldStderr);
+    }
+
+    final String s = new String(byteArrayOutputStream.toByteArray());
 
     assertEquals(1, countOccurrences("createException", s));
     assertEquals(1, countOccurrences("createDeeperException", s));
