@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Build Grinder jar.
+GRINDER_JAR=lib/grinder.jar
+jar cvf ${GRINDER_JAR} $(find classes -type f)
+
+# Build distribution.
 JAR=grinder.jar
 
 FILES=$(find . \

@@ -21,7 +21,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import net.grinder.engine.StatInfo;
 
 /**
  * This class reads performance data from the Grinder processes.

@@ -15,40 +15,24 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.engine;
+package net.grinder.console;
 
 /**
- * This class is used to get the elapsed time of each method call.
+ * This class is used to share data for statistics.
  * 
  * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
  * @author Copyright © 2000
  * @version 1.6.0
  */
-public class Chronus{
+public class StatInfo{
     
-  public void begin(){
-    _msBegin = System.currentTimeMillis();
-    _begin = true;
-    _end = false;
+  public StatInfo(long time, long trans){
+    _time = time;
+    _trans = trans;
   }
     
-  public void end(){
-    if (_begin){
-      _msEnd = System.currentTimeMillis();
-      _end = true;
-      _begin = false;
-    }
-  }
-    
-  public long getElapsed(){
-    if (_begin){
-       end();
-    }
-    return (_msEnd - _msBegin);
-  }
-    
-  private long _msBegin = 0;
-  private long _msEnd = 0;
-  private boolean _begin = false;
-  private boolean _end = true;
+  public long _time = 0;
+  public long _trans = 0;
+  public float _tps = 0.0f;
+  public float _art = 0.0f;
 }

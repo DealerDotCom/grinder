@@ -20,6 +20,8 @@ package net.grinder;
 import java.util.*;
 import java.io.*;
 import net.grinder.engine.*;
+import net.grinder.engine.process.GrinderProcess;
+import net.grinder.util.FilenameFactory;
 
 /**
  * This is the entry point of The Grinder.
@@ -43,45 +45,35 @@ public class Grinder extends PropsLoader{
     
   /**
    * Starts as many threads as JVM especified.
-   * Each thread is a GrinderThread object.
+   * Each thread is a LauncherThread object.
    *
    */
   protected void run(){
     String propsCL = getGrinderPropertiesFromCommandLine();
     loadProperties();
     String s = new java.util.Date().toString() + ": ";
-    System.out.println(s + "Grinder (v" + _version + 
-                           ") started with the following properties:");        
-    showProperties();
+    System.out.println(s + "Grinder (v" + _version + ") started.");        
         
-    String sArgs = "";
     String sExe = "";
         
-    int jvms = 1;
-    s = System.getProperty("grinder.jvms");
+    int processes = 1;
+    s = System.getProperty("grinder.processes");
     if (s != null){
-      jvms = Integer.parseInt(s);
+      processes = Integer.parseInt(s);
     }
 
-    GrinderThread gt[] = new GrinderThread[jvms];
+    LauncherThread gt[] = new LauncherThread[processes];
       
     sExe = System.getProperty("grinder.jvm.path", 
                               "c:\\jdk1.1.7B\\bin\\java") + " ";
-    for (int i=0; i<jvms; i++){
-      sArgs  = "";
-      sArgs += System.getProperty("grinder.jvm.args", "") + " ";
-      sArgs += System.getProperty("grinder.ms.arg", "-ms");
-      sArgs += System.getProperty("grinder.ms", "16") + "m" + " ";
-      sArgs += System.getProperty("grinder.mx.arg", "-mx");            
-      sArgs += System.getProperty("grinder.mx", "32") + "m" + " ";
-      sArgs += "-Dgrinder.jvmId=" + i + " ";
-      sArgs += propsCL;
-      sArgs += GrinderProcess.class.getName();
+    for (int i=0; i<processes; i++){
+	final String sArgs = System.getProperty("grinder.jvm.args", "") +
+	  " -Dgrinder.jvmID=" + i + " " + propsCL +
+	    GrinderProcess.class.getName();
             
-      s = System.getProperty("grinder.logDir")+ "/grinder_log_" +
-          System.getProperty("grinder.hostId") + "_" + i;
-            
-      gt[i] = new GrinderThread(sExe + sArgs, s);
+      gt[i] = new LauncherThread(sExe + sArgs,
+				 new FilenameFactory(Integer.toString(i),
+						     null));
     }
   }
  

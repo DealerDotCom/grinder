@@ -22,8 +22,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import net.grinder.engine.StatInfo;
-
 /**
  * This class is used graphically show statistics.
  * 

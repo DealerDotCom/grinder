@@ -26,6 +26,7 @@ import java.io.*;
  * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
  * @author Copyright © 2000
  * @version 1.6.0
+ * @deprecated Use GrinderProperties instead.
  */
 public class PropsLoader{
  
@@ -35,9 +36,6 @@ public class PropsLoader{
    */ 
   protected void run(){
     loadProperties();
-    String s = new java.util.Date().toString() + ": ";
-    System.out.println(s + "Program started with the following properties:");        
-    showProperties();
   }
    
   /**
@@ -78,22 +76,6 @@ public class PropsLoader{
   }
     
   /**
-   * This method shows the loaded properties.
-   *
-   */      
-  protected void showProperties(){
-            
-    Properties p = System.getProperties();
-    for (Enumeration e = p.propertyNames() ; e.hasMoreElements() ;){
-      String pn = (String)e.nextElement();
-      if (pn.startsWith("grinder")){
-        System.out.println(" " + pn + ": " + p.getProperty(pn));
-      }
-    }
-        
-  }
-    
-  /**
    * This method returns the default values for the properties.
    *
    */  
@@ -105,11 +87,7 @@ public class PropsLoader{
     p.put("grinder.cycleParams", "[paramA]a,[paramB]500,[paramC]10.2");
     p.put("grinder.jvm.path", "c:\\jdk1.2.2\\bin\\java");        
     p.put("grinder.jvm.args", "");
-    p.put("grinder.jvms", "1");
-    p.put("grinder.ms.arg", "-ms");
-    p.put("grinder.ms", "16");
-    p.put("grinder.mx.arg", "-mx");
-    p.put("grinder.mx", "32");
+    p.put("grinder.processes", "1");
     p.put("grinder.threads", "2");
     p.put("grinder.times", "3");
     p.put("grinder.initialWait", "false");
@@ -118,7 +96,7 @@ public class PropsLoader{
     p.put("grinder.reportToConsole", "false");
     p.put("grinder.console.multicastAddress", "228.1.1.2");
     p.put("grinder.console.multicastPort", "1234");
-    p.put("grinder.logDir", ".");
+    p.put("grinder.logDirectory", ".");
     p.put("grinder.appendLog", "false");
     p.put("grinder.fileStats", "true");       
     p.put("grinder.sleepMillis", "0"); 

@@ -7,13 +7,10 @@ patches against that too :-). The list is roughly in priority order.]
   Console should collect the total number of transactions and do the
   calculation.
 
-  Format the statistics. Output them in a separate file. Tidy up other
-  output.
+  The sniffer servlet probably has to reencode post data before
+  writing to file.
 
-  SSL HTTP plugin
-
-  Add i/f so that plugin can control the start and end of the timing of
-  instrumented code.
+  SSL HTTP plugin (PhilD is working on this)
 
   Build environment - should makefile be part of distribution or not?
   (Effort in making it portable - I've removed the original as it
@@ -23,12 +20,6 @@ patches against that too :-). The list is roughly in priority order.]
 
   Test harness
 
-  Better parsing of the properties file. Perhaps separate out each set
-  of cycle parameters into their own properties file.
-
-  Shouldn't need to specify the init method or end methods in the
-  cycle list.
-
   Fix deprecated call in GrinderProcess
 
   Child VM's should inherit classpath, optionally overridable.
@@ -37,5 +28,5 @@ patches against that too :-). The list is roughly in priority order.]
   Add option to ignore the first 5 cycles so that hotspot has chance
   to work.
 
-  Separate engine code into interfaces that the plugins use, and
-  implementation
+  Do something sensible with the version string.
+

@@ -1,5 +1,6 @@
 // The Grinder
 // Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2000  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +18,9 @@
 
 package net.grinder.engine;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
+import java.text.DateFormat;
 import java.util.Date;
 
 /**
@@ -30,44 +33,45 @@ import java.util.Date;
  * @author Copyright © 2000
  * @version 1.6.0
  */
-class Redirector implements java.lang.Runnable{
-    
-  /**
-   * The constructor. It starts a thread that executes 
-   * the <tt>run</tt> method.
-   * 
-   */      
-  public Redirector(PrintStream ps, BufferedReader br){
-    _ps = ps;
-    _br = br;
-    Thread t = new Thread(this, _ps.toString());
-    t.start(); 
-  }
-    
-  /**
-   * This method reads characters from a BufferedRead and prints 
-   * them out in a PrintStream.
-   */    
-  public void run(){
-       
-    String s = "";            
-       
-      try{
-        while (s != null){
-          s = _br.readLine();
-          if (s != null){
-            _ps.println(new Date() + ": " + s);
-          }
-        }
-        _ps.flush();
-        _br.close();
-      }
-      catch(Exception e){
-        System.err.println(e);
-      }
-                  
-  }
+class Redirector implements java.lang.Runnable
+{
+    /**
+     * The constructor. It starts a thread that executes 
+     * the <tt>run</tt> method.
+     * 
+     */      
+    public Redirector(PrintWriter printWriter, BufferedReader bufferedReader)
+    {
+	m_printWriter = printWriter;
+	m_bufferedReader = bufferedReader;
 
-  protected PrintStream _ps;
-  protected BufferedReader _br;
+	final Thread t = new Thread(this, m_printWriter.toString());
+	t.start(); 
+    }
+    
+    /**
+     * This method reads characters from a BufferedReader and prints
+     * them out in a PrintWriter.
+     */    
+    public void run(){
+       
+	try{
+	    String s;
+
+	    while ((s = m_bufferedReader.readLine()) != null) {
+		m_printWriter.println(m_dateFormat.format(new Date()) +
+				      ": " + s);
+	    }
+
+	    m_bufferedReader.close();
+	}
+	catch(Exception e){
+	    System.err.println(e);
+	}
+    }
+
+    private final PrintWriter m_printWriter;
+    private final BufferedReader m_bufferedReader;
+    private final DateFormat m_dateFormat =
+	DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
 }

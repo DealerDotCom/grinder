@@ -1,4 +1,4 @@
-. ~/bin/wls5.1-client.bash
+. /src/scripts/wls/wls5.1-client.bash
 
 GRINDER_HOME=/src/grinder
 

@@ -1,5 +1,6 @@
 // The Grinder
 // Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2000  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +20,8 @@ package net.grinder.engine;
 
 import java.io.*;
 
+import net.grinder.util.FilenameFactory;
+
 /**
  * This class knows how to start a Java Virtual Machine with parameters.
  * The virtual machine will execute the class GrinderProcess.
@@ -31,16 +34,16 @@ import java.io.*;
  * @author Copyright © 2000
  * @version 1.6.0
  */
-public class GrinderThread implements java.lang.Runnable{
+public class LauncherThread implements java.lang.Runnable {
     
   /**
    * The constructor.
    * It starts a new thread that will execute the run method.
    */    
-  public GrinderThread(String execArgs, String fileName){
-    _execArgs = execArgs;
-    _fileName = fileName;
-    Thread t = new Thread(this, _execArgs);
+  public LauncherThread(String execArgs, FilenameFactory filenameFactory){
+    m_execArguments = execArgs;
+    m_filenameFactory = filenameFactory;
+    Thread t = new Thread(this, m_execArguments);
     t.start(); 
   }
   
@@ -56,38 +59,41 @@ public class GrinderThread implements java.lang.Runnable{
 
     try{
       boolean b = Boolean.getBoolean("grinder.appendLog");
-      p = Runtime.getRuntime().exec(_execArgs); 
+      p = Runtime.getRuntime().exec(m_execArguments); 
       String s = new java.util.Date().toString() + ": ";
-      System.out.println(s + "[" + _execArgs + "]"+ " [Started]");       
+      System.out.println(s + "[" + m_execArguments + "]"+ " [Started]");       
       
       in = new BufferedReader(new InputStreamReader(p.getInputStream()));
       er = new BufferedReader(new InputStreamReader(p.getErrorStream()));
       
-      OutputStream outFile;
-      outFile = new PrintStream(
-        new BufferedOutputStream(
-        new FileOutputStream(_fileName + ".out", b)));      
+      final PrintWriter outFile =
+	  new PrintWriter(
+	      new BufferedOutputStream(
+		  new FileOutputStream(
+		      m_filenameFactory.createFilename("out"), b)), true);  
 
-      OutputStream errFile;
-      errFile = new PrintStream(
-        new BufferedOutputStream(
-        new FileOutputStream(_fileName + ".err", b)));      
+      final PrintWriter errFile =
+	  new PrintWriter(
+	      new BufferedOutputStream(
+		  new FileOutputStream(
+		      m_filenameFactory.createFilename("error"), b)), true);
       
-      Redirector rOut = new Redirector((java.io.PrintStream)outFile, in);
-      Redirector rErr = new Redirector((java.io.PrintStream)errFile, er);
+      Redirector rOut = new Redirector(outFile, in);
+      Redirector rErr = new Redirector(errFile, er);
 
       p.waitFor();
       int completionStatus = p.exitValue(); 
       s = new java.util.Date().toString() + ": ";
       
-      System.out.println(s + "[" + _execArgs + "]"+ " [Exit Status: " + completionStatus + "]"); 
+      System.out.println(s + "[" + m_execArguments + "]" +
+			 " [Exit Status: " + completionStatus + "]"); 
                
     }
-    catch(Exception _){
-      _.printStackTrace();
+    catch(Exception e){
+      e.printStackTrace();
     }
   }
 
-  protected String _execArgs = "";
-  protected String _fileName = "";
+    private final String m_execArguments;
+    private final FilenameFactory m_filenameFactory;
 }

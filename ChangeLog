@@ -1,3 +1,9 @@
+2000-12-10  Philip Aston  <paston@beasys.com>
+
+	* Grinder 0.5 is released.
+
+	* Major rework of process code and plugin interface.
+
 2000-12-07  Philip Aston  <paston@beasys.com>
 
 	* Grinder version 0.4 is released.

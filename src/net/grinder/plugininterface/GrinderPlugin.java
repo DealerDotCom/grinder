@@ -1,5 +1,6 @@
 // The Grinder
 // Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2000  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,24 +16,31 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.engine;
+package net.grinder.plugininterface;
+
 
 /**
- * This class is used to share data for statistics.
- * 
+ * The interface a valid Grinder plug-in must implement.
+ *
  * @author <a href="mailto:paco.gomez@terra.com">Paco Gomez</a>.
  * @author Copyright © 2000
  * @version 1.6.0
- */
-public class StatInfo{
-    
-  public StatInfo(long time, long trans){
-    _time = time;
-    _trans = trans;
-  }
-    
-  public long _time = 0;
-  public long _trans = 0;
-  public float _tps = 0.0f;
-  public float _art = 0.0f;
+ */ 
+public interface GrinderPlugin {
+
+  /**
+   * This method is executed the first time the plug-in is loaded. It
+   * is only executed once.
+   */
+  public void initialize(GrinderContext grinderContext) throws PluginException;
+
+  /**
+   * This method is executed at the beginning of evey cycle.
+   */
+  public void beginCycle() throws PluginException;
+
+  /**
+   * This method is executed at the end of every cycle.
+   */  
+  public void endCycle() throws PluginException;
 }

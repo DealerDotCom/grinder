@@ -44,8 +44,7 @@ public class Console extends PropsLoader
     public void run(){
         loadProperties();
         String s = new java.util.Date().toString() + ": ";
-        System.out.println(s + "Grinder Console started with the following properties:");        
-        showProperties();
+        System.out.println(s + "Grinder Console started.");        
         createFrame();        
         MsgReader mr = new MsgReader(_si);
         
@@ -82,7 +81,7 @@ public class Console extends PropsLoader
         
 	    StringTokenizer st;
 	    
-	    st = new StringTokenizer(System.getProperty("grinder.cycleMethods"), "\t\n\r,");
+	    st = new StringTokenizer(System.getProperty("grinder.plugin.methods"), "\t\n\r,");
 	    int n = st.countTokens() - 1;
 	    //skip init
 	    if (st.hasMoreElements())
@@ -120,6 +119,7 @@ public class Console extends PropsLoader
                 System.getProperty("grinder.multicastAddress"));
             DatagramPacket packet = new DatagramPacket(outbuf, outbuf.length, groupAddr, 
                 Integer.getInteger("grinder.multicastPort").intValue());
+
             socket.send(packet);
             System.out.println("Grinder started at " + new Date());
         }
