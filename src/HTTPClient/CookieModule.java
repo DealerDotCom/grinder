@@ -120,7 +120,7 @@ public class CookieModule implements HTTPClientModule
 	boolean persist;
 	try
 	    { persist = Boolean.getBoolean("HTTPClient.cookies.save"); }
-	catch (Exception e)
+	catch (RuntimeException e)
 	    { persist = false; }
 
 	if (persist)
@@ -206,7 +206,7 @@ public class CookieModule implements HTTPClientModule
 
 	try
 	    { file = System.getProperty("HTTPClient.cookies.jar"); }
-	catch (Exception e)
+	catch (RuntimeException e)
 	    { }
 
 	if (file == null)
@@ -703,7 +703,7 @@ class DefaultCookiePolicyHandler implements CookiePolicyHandler
 
 	try
 	    { list = System.getProperty("HTTPClient.cookies.hosts.accept"); }
-	catch (Exception e)
+	catch (RuntimeException e)
 	    { list = null; }
 	String[] domains = Util.splitProperty(list);
 	for (int idx=0; idx<domains.length; idx++)
@@ -711,7 +711,7 @@ class DefaultCookiePolicyHandler implements CookiePolicyHandler
 
 	try
 	    { list = System.getProperty("HTTPClient.cookies.hosts.reject"); }
-	catch (Exception e)
+	catch (RuntimeException e)
 	    { list = null; }
 	domains = Util.splitProperty(list);
 	for (int idx=0; idx<domains.length; idx++)
