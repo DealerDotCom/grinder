@@ -38,7 +38,7 @@ tests, reports, and to create the documentation:
   - Clover 1.3.02
   - Apache Forrest 0.6
 
-  (You might not need these exact versions). 
+  (You might not need these exact versions).
 
 
 What do I do?
@@ -54,7 +54,7 @@ Do the following:
 
        	3. Type ant (or ant.bat on Windows platforms)
 
-Say 
+Say
 	ant -projecthelp
 
 for details of other targets. The compilation targets don't depend on
@@ -73,8 +73,8 @@ what you want. Currently the conditionally built modules are:
 
   <property name="Name" value="The Grinder"/>
   <property name="name" value="grinder"/>
-  <property name="version" value="3.0-beta25"/> <!-- AND THE NEXT LINE -->
-  <property name="cvs.tag" value="release_3_0_beta25"/>
+  <property name="version" value="3.0-beta26"/> <!-- AND THE NEXT LINE -->
+  <property name="cvs.tag" value="release_3_0_beta26"/>
 
   <property name="year" value="2005"/>
 
@@ -675,7 +675,7 @@ what you want. Currently the conditionally built modules are:
 
     <echo message="Running cvs tag"/>
     <cvs command="tag -R -F ${cvs.tag}" quiet="true"/>
- 
+
     <echo message="Building release"/>
     <mkdir dir="${release.dir}"/>
 
