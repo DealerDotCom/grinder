@@ -86,7 +86,7 @@ final class ResourcePool {
         final Reservable reservable =
           (Reservable)m_reservables.get(m_lastReservable);
 
-        if (((Reservable)reservable).reserve()) {
+        if (reservable.reserve()) {
           return reservable;
         }
       }
