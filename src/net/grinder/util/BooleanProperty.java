@@ -92,9 +92,6 @@ public final class BooleanProperty {
     catch (IllegalAccessException e) {
       throw new PropertyException(toString() + ": could not read", e);
     }
-    catch (IllegalArgumentException e) {
-      throw new PropertyException(toString() + ": could not read", e);
-    }
     catch (InvocationTargetException e) {
       throw new PropertyException(toString() + ": could not read",
                                   e.getTargetException());
@@ -118,9 +115,6 @@ public final class BooleanProperty {
         m_bean, new Object[] { value ? Boolean.TRUE : Boolean.FALSE });
     }
     catch (IllegalAccessException e) {
-      throw new PropertyException(toString() + ": could not write", e);
-    }
-    catch (IllegalArgumentException e) {
       throw new PropertyException(toString() + ": could not write", e);
     }
     catch (InvocationTargetException e) {
