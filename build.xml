@@ -198,7 +198,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
        <exclude name="**/HttpsPlugin.java" unless="have.jsse"/>
        <exclude name="**/SSLSnifferEngineImpl.java" unless="have.jsse"/>
        <exclude name="**/HttpPluginSnifferFilter.java" unless="have.regexp"/>
-
+       <exclude name="**/JUnitPlugin.java" unless="have.junit"/>
     </javac>
   </target>
 
