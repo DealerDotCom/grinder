@@ -138,6 +138,9 @@ class StreamThread implements Runnable
 	    
 	final Thread t = new Thread(this,
 				    m_connectionDetails.getDescription());
+
+	m_filter.connectionOpened(m_connectionDetails);
+
 	t.start();
     }
 	
@@ -165,6 +168,8 @@ class StreamThread implements Runnable
 	catch (Exception e) {
 	    e.printStackTrace(System.err);
 	}
+
+	m_filter.connectionClosed(m_connectionDetails);
 
 	// We're exiting, usually because the in stream has been
 	// closed. Whatever, close our streams. This will cause the

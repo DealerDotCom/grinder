@@ -109,7 +109,14 @@ public class URLRewriteFilter implements SnifferFilter
 	} else {
 	    // nothing matched so no need to do anything.
 	}
+    }
 
+    public void connectionOpened(ConnectionDetails connectionDetails)
+    {
+    }
+
+    public void connectionClosed(ConnectionDetails connectionDetails)
+    {
     }
 }
 

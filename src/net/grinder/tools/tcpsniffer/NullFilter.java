@@ -31,6 +31,14 @@ public class NullFilter implements SnifferFilter
 		       int bytesRead)
     {
     }
+
+    public void connectionOpened(ConnectionDetails connectionDetails)
+    {
+    }
+
+    public void connectionClosed(ConnectionDetails connectionDetails)
+    {
+    }
 }
 
 

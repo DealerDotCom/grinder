@@ -67,6 +67,18 @@ public class EchoFilter implements SnifferFilter
 			   " ------");
 	System.out.println(stringBuffer);
     }
+
+    public void connectionOpened(ConnectionDetails connectionDetails)
+    {
+	System.out.println("--- " +  connectionDetails.getDescription() +
+			   " opened --");
+    }
+
+    public void connectionClosed(ConnectionDetails connectionDetails)
+    {
+	System.out.println("--- " +  connectionDetails.getDescription() +
+			   " closed --");
+    }
 }
 
 

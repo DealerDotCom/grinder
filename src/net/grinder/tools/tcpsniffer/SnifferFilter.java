@@ -30,6 +30,9 @@ public interface SnifferFilter
     void handle(ConnectionDetails connectionDetails, byte[] buffer,
 		int bytesRead)
 	throws Exception;
+
+    void connectionOpened(ConnectionDetails connectionDetails);
+    void connectionClosed(ConnectionDetails connectionDetails);
 }
 
 

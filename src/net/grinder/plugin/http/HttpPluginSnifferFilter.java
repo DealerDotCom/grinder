@@ -315,6 +315,14 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	    return result;
 	}
     }
+
+    public void connectionOpened(ConnectionDetails connectionDetails) 
+    {
+    }
+
+    public void connectionClosed(ConnectionDetails connectionDetails) 
+    {
+    }
 }
 
 
