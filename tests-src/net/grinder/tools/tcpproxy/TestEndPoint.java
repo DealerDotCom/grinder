@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,13 +21,16 @@
 
 package net.grinder.tools.tcpproxy;
 
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Random;
 
 import junit.framework.TestCase;
 
 
 /**
- * Unit test case for <code>EndPoint</code>.
+ * Unit test case for {@link EndPoint}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -62,9 +65,11 @@ public class TestEndPoint extends TestCase {
     assertEquals(endPoint[0], endPoint[0]);
     assertEquals(endPoint[0], endPoint[1]);
     assertEquals(endPoint[1], endPoint[0]);
-    assertTrue(!endPoint[0].equals(endPoint[2]));
-    assertTrue(!endPoint[1].equals(endPoint[3]));
-    assertTrue(!endPoint[1].equals(endPoint[4]));
+    assertFalse(endPoint[0].equals(endPoint[2]));
+    assertFalse(endPoint[1].equals(endPoint[3]));
+    assertFalse(endPoint[1].equals(endPoint[4]));
+
+    assertFalse(endPoint[0].equals(this));
   }
 
   public void testComparable() throws Exception {
@@ -75,7 +80,7 @@ public class TestEndPoint extends TestCase {
       new EndPoint("X", 132),
       new EndPoint("X", 91321),
     };
-    
+
     for (int i=0; i<ordered.length; ++i) {
       for (int j=0; j<i; ++j) {
         assertTrue("EndPoint " + i + " is greater than EndPoint " + j,
@@ -93,5 +98,22 @@ public class TestEndPoint extends TestCase {
     // Check two different but equal EndPoint's.
     assertEquals(0, new EndPoint("blah", 999).compareTo(
                    new EndPoint("blah", 999)));
+  }
+
+  public void testServerEndPoint() throws Exception {
+    final ServerSocket serverSocket = new ServerSocket(0);
+    final EndPoint endPoint = EndPoint.serverEndPoint(serverSocket);
+    assertNotNull(endPoint);
+    serverSocket.close();
+  }
+
+  public void testClientEndPoint() throws Exception {
+    final ServerSocket serverSocket = new ServerSocket(0);
+    final Socket socket = new Socket(serverSocket.getInetAddress(),
+                                     serverSocket.getLocalPort());
+    final EndPoint endPoint = EndPoint.clientEndPoint(socket);
+    assertNotNull(endPoint);
+    socket.close();
+    serverSocket.close();
   }
 }
