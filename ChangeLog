@@ -1,4 +1,129 @@
+2002-05-07  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/tools/tcpsniffer/SocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImplementation.java, src/net/grinder/tools/tcpsniffer/SnifferPlainSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferSSLSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferSocketFactory.java:
+	Continue rationalisation of sniffer SSL support.
+
+	* src/net/grinder/tools/tcpsniffer/SnifferPlainSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferSSLSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferSocketFactory.java:
+	New file.
+
+	* src/net/grinder/TCPSniffer.java, src/net/grinder/tools/proxy/HTTPProxySnifferEngine.java, src/net/grinder/tools/proxy/HTTPSProxySnifferEngine.java, src/net/grinder/tools/tcpsniffer/PlainSocketFactory.java, CHANGES, TODO:
+	Continue rationalisation of sniffer SSL support.
+
+	* src/net/grinder/tools/tcpsniffer/SnifferEngineImplementation.java:
+	Exit if we can't accept a connection on our server socket.
+
+2002-05-04  Philip Aston  <paston@bea.com>
+
+	* build.xml: Don't corrupt distributed src images.
+
+2002-05-02  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/communication/MessageQueue.java: Fix wait object.
+
+2002-04-25  Philip Aston  <paston@bea.com>
+
+	* README, TODO, doc/HTTPPlugin.txt, doc/Problems.txt, doc/TCPSniffer.txt, doc/proxy.txt:
+	Doc.
+
+2002-04-24  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HttpPlugin.java: Cope with nested <>.
+
+	* src/net/grinder/tools/proxy/HTTPProxySnifferEngineImplementation.java2:
+	Dead.
+
+	* TODO, doc/HTTPPlugin.txt, src/net/grinder/plugin/http/HttpPlugin.java, CHANGES:
+	Be relaxed about string bean tag parsing.
+
+2002-04-23  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/resources/about.html: Typo.
+
+	* src/net/grinder/tools/proxy/HTTPProxySnifferEngine.java, src/net/grinder/tools/proxy/HTTPSProxySnifferEngine.java:
+	Be slightly more relaxed about the CONNECT header.
+
+	* etc/grinder-manifest.mf, etc/localpaths.properties: New file.
+
+	* etc/grinder-manifest.mf, etc/localpaths.properties, etc/setenv.sh, src/net/grinder/console/swingui/resources/about.html:
+	Package the TCPSniffer/ORO changes.
+
+	* doc/Jakarta-ORO-license.txt: New file.
+
+	* LICENSE, TODO, build.xml, doc/HTTPClient-license.txt, doc/Jakarta-ORO-license.txt, etc/buildenv.sh:
+	Package the TCPSniffer/ORO changes.
+
+	* tests-src/net/grinder/tools/tcpsniffer/TestConnectionDetails.java:
+	Fix javadoc.
+
+	* src/net/grinder/tools/proxy/HTTPProxySnifferEngine.java, src/net/grinder/tools/proxy/HTTPProxySnifferEngineImplementation.java2, src/net/grinder/tools/proxy/HTTPSProxySnifferEngine.java, src/net/grinder/tools/tcpsniffer/PlainSocketFactory.java, src/net/grinder/tools/tcpsniffer/SSLSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImplementation.java, src/net/grinder/tools/tcpsniffer/SocketFactory.java, src/net/grinder/util/CopyStreamRunnable.java:
+	New file.
+
+	* src/net/grinder/plugin/http/URLRewriteFilter.java, src/net/grinder/tools/proxy/HTTPProxySnifferEngine.java, src/net/grinder/tools/proxy/HTTPProxySnifferEngineImplementation.java2, src/net/grinder/tools/proxy/HTTPSProxySnifferEngine.java, src/net/grinder/tools/proxy/HttpProxySnifferEngineImpl.java, src/net/grinder/tools/proxy/HttpsProxySnifferEngineImpl.java, src/net/grinder/tools/tcpsniffer/EchoFilter.java, src/net/grinder/tools/tcpsniffer/NullFilter.java, src/net/grinder/tools/tcpsniffer/PlainSocketFactory.java, src/net/grinder/tools/tcpsniffer/SSLSnifferEngineImpl.java, src/net/grinder/tools/tcpsniffer/SSLSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferEngine.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImplementation.java, src/net/grinder/tools/tcpsniffer/SnifferFilter.java, src/net/grinder/tools/tcpsniffer/SocketFactory.java, src/net/grinder/tools/tcpsniffer/StreamThread.java, src/net/grinder/util/CopyStreamRunnable.java, CHANGES, TODO, build.xml, etc/buildenv.sh, etc/setenv.sh, src/net/grinder/TCPSniffer.java, src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, src/net/grinder/plugin/http/HttpProxySnifferEngineImpl.java, src/prj.el:
+	Refactor the TCPSniffer proxy support for "once and only once".
+
+2002-04-20  Philip Aston  <paston@bea.com>
+
+	* tests-src/net/grinder/util/TestSerialiser.java, tests-src/net/grinder/statistics/TestStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticsView.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, tests-src/net/grinder/statistics/TestTestStatisticsImplementation.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java, tests-src/net/grinder/statistics/TestCommonStatisticsViews.java, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedProcessStatusSetListener.java, tests-src/net/grinder/plugin/http/TestCookieHandler.java, tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/TestMessage.java, tests-src/net/grinder/communication/TestMessageQueue.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, tests-src/net/grinder/common/TestGrinderProperties.java, tests-src/net/grinder/common/TestTestImplementation.java:
+	s/assert/assertTrue/g for JUnit 3.7.
+
+	* tests-src/net/grinder/tools/tcpsniffer/TestConnectionDetails.java:
+	Fix package.
+
+	* tests-src/net/grinder/tools/tcpsniffer/TestConnectionDetails.java:
+	New file.
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, tests-src/net/grinder/plugin/http/TestHttpPluginSnifferFilter.java, CHANGES:
+	Fix bugs.
+	Switch to ORO.
+
+	* src/net/grinder/plugin/http/URLRewriteFilter.java:
+	New filter interface.
+
+	* tests-src/net/grinder/plugin/http/data/goodGET1, tests-src/net/grinder/plugin/http/data/goodGET2, tests-src/net/grinder/plugin/http/data/goodPOST1:
+	New file.
+
+	* tests-src/net/grinder/plugin/http/data/goodGET1, tests-src/net/grinder/plugin/http/data/goodGET2, tests-src/net/grinder/plugin/http/data/goodPOST1:
+	Test case for HttpPluginSnifferFilter.
+
+	* tests-src/net/grinder/plugin/http/TestHttpPluginSnifferFilter.java:
+	New file.
+
+	* tests-src/net/grinder/plugin/http/TestHttpPluginSnifferFilter.java:
+	Test case for HttpPluginSnifferFilter.
+
+	* etc/buildenv.sh: ORO. JUnit 3.7.
+
+	* src/net/grinder/tools/tcpsniffer/ConnectionDetails.java:
+	Value equality and test case for ConnectionDetails.
+
+	* tests-src/prj.el: Add DB source path back in.
+
+	* src/net/grinder/tools/tcpsniffer/EchoFilter.java, src/net/grinder/tools/tcpsniffer/NullFilter.java, src/net/grinder/tools/tcpsniffer/SnifferFilter.java, src/net/grinder/tools/tcpsniffer/StreamThread.java:
+	Filters now write to a PrintWriter rather than directly to System.out.
+
+	* src/prj.el, tests-src/prj.el: Usual messing.
+
+	* build.xml: Better property names.
+	Copy test data to test classes hierarchy.
+
+	* etc/setenv.sh, build.xml: JUnit 3.7.
+
+2002-04-18  Philip Aston  <paston@bea.com>
+
+	* etc/setenv.sh, src/net/grinder/plugin/http/HttpsPluginSnifferFilter.java, src/net/grinder/tools/tcpsniffer/SnifferFilter.java, src/net/grinder/tools/tcpsniffer/StreamThread.java, src/net/grinder/TCPSniffer.java, src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HttpPluginSnifferFilter.java:
+	Checkpoint sniffer rewrite.
+
+2002-04-17  Philip Aston  <paston@bea.com>
+
+	* build.xml: Fix detection of jtidy+xpath.
+
 2002-04-15  Philip Aston  <paston@bea.com>
+
+	* CHANGES: Notes.
+
+	* build.xml: Next is 2.8.3.
+
+	* ChangeLog: *** empty log message ***
 
 	* src/net/grinder/plugin/http/example/ExampleJTidyStringBean.java:
 	JTidy example string bean.
