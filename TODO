@@ -1,33 +1,106 @@
-[If anyone wants to pick something of this wish list, I prefer unified
-diff patches. Mail them to grinder-development@lists.sourceforge.net.
+-*- mode:outline; minor-mode:outl-mouse -*-
+
+If anyone wants to pick something off this wish list, let me know
+first. I prefer unified diff patches. Mail them to
+grinder-development@lists.sourceforge.net.
+
 The wish list is part of the distribution, I'll accept patches against
-it too :-). The list is roughly in priority order.]
+it too :-).
 
-  Change TCP sniffer filters to a stream oriented model. This should
-  cure another one of the TCPSniffer/HTTPPlugin bug when recording
-  large outputs with posts? Also, consider having a filter instance
-  pair per connection.
+- Phil
 
-  Add per-run statistics. This would also allow number of aborted runs
-  to be recorded.
 
-  TCPSniffer should be able to work through proxies.
 
-  Update HTTPClient to support "mean time to first byte".
+* Scripting
 
-  Write more JUnit tests.
+HTTPRequest.setUrl etc should throw a script public exception rather
+than PluginException.
 
-  Measure test variance. This would involve the console broadcasting
-  the total mean, and then listening for the reported variance.
+Add per-run statistics. This would also allow number of aborted runs
+to be recorded.
 
-  The HTTPClient plugin implementation interprets basicAuthentication
-  properties wrongly. It first sends a request without the
-  authentication headers, then catches the 401 and automatically
-  resends a request with the authentication headers.
-	- Need to fix the sniffer to record Authorization again.
+Script access to global statistics.
 
-  Find out how to stop net.grinder.console.swing.TestGraph from
-  preventing parent process from detecting exit status. (For example,
-  when used with the JUnit plugin). Surely System.exit() is not the
-  answer?
 
+** Error reporting
+
+ > It would be possible for certain classes of error (AttributeError
+ > being a good example) to spew out just
+ > 
+ >       Unknown attribute GETx at "http.py", line 9 in __call__.
+ > 
+ > Is this what you're after?
+^^ To do this, might have to behave differently with 1 thread vs many.
+
+** Affecting test reporting
+
+IMHO, it would be much better if they could simply
+      result = request1.GET()
+      checkResult(result)
+
+where checkResult can call some API to mark the last executed test as
+a failure. I'll do this once I've figured out a reasonable API
+(grinder.markLastTestAsFailure() ?)
+
+Need to be able to assert on test time.
+
+
+* HTTP Plugin
+
+HTTP plugin to support "mean time to first byte".
+
+Authorisation tear down
+
+** TCPProxy filter
+
+Fix the proxy to record Authorization again. Can use connection ID.
+
+The G2 HTTPClient plugin implementation interprets basicAuthentication
+properties wrongly. It first sends a request without the
+authentication headers, then catches the 401 and automatically resends
+a request with the authentication headers.
+
+* TCPProxy
+
+TCPProxy should be able to work through proxies.
+
+Sniffer vs redirection. Think there are some bugs here.
+
+Change TCP sniffer filters to a stream oriented model. This should
+cure another one of the TCPSniffer/HTTPPlugin bug when recording large
+outputs with posts? Also, consider having a filter instance pair per
+connection.
+
+* Bugs?
+
+** TCP Proxy
+
+Recording \n's?
+
+When visting xweb.sf.net via proxy and then going back to main page,
+the target servers get foobared.
+
+* Build
+
+New brace positioning.
+
+All files should use CRLF encoding.
+
+Consider checkstyle.
+
+Find out how to stop net.grinder.console.swing.TestGraph from
+preventing parent process from detecting exit status. (For example,
+when used with the JUnit plugin). Surely System.exit() is not the
+answer?
+
+* Documentation
+
+TCPProxy and G3.
+Statistics.
+
+Document default grinder.properties. (grinder.py).
+
+* Ambitious enhancements
+
+Measure test variance. This would involve the console broadcasting the
+total mean, and then listening for the reported variance.
