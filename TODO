@@ -206,6 +206,9 @@ Incorporate checkstyle.
 	net.grinder.script
 	net.grinder.statistics
 
+Convert all sources back to unix file encoding so that diff etc. are
+happier?
+
 * Documentation
 
 HTTP plug-in.
