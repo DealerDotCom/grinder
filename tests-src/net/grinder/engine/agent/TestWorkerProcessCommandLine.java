@@ -38,10 +38,6 @@ import net.grinder.engine.process.GrinderProcess;
  */
 public class TestWorkerProcessCommandLine extends TestCase {
 
-  private static final String s_classesDir = System.getProperty("classes.dir");
-  private static final String s_testClassesDir =
-    System.getProperty("test-classes.dir");
-
   public void testConstructorWithEmptyProperties() throws Exception {
 
     final WorkerProcessCommandLine workerProcessCommandLine =
