@@ -18,7 +18,6 @@
 
 package net.grinder.engine.process;
 
-import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -26,7 +25,6 @@ import java.util.Random;
 import net.grinder.common.GrinderProperties;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.ThreadCallbacks;
-import net.grinder.statistics.StatisticsImplementation;
 
 
 /**
@@ -44,10 +42,12 @@ import net.grinder.statistics.StatisticsImplementation;
  */
 class GrinderThread implements java.lang.Runnable
 {
-    /** m_numberOfThreads is incremented in constructor rather than in
+    /**
+     * m_numberOfThreads is incremented in constructor rather than in
      * run to avoid pathological race conditions. Hence it really
      * means "the number of GrinderThread's that have been created but
-     * not run to completion" */
+     * not run to completion"
+     **/
     private static int m_numberOfThreads = 0;
     private static boolean s_shutdown = false;
 
@@ -55,9 +55,8 @@ class GrinderThread implements java.lang.Runnable
 
     private final GrinderProcess m_grinderProcess;
     private final ThreadCallbacks m_threadCallbacks;
-    private final ThreadContextImplementation m_context;
+    private final ThreadContext m_context;
     private final Map m_testSet;
-    private final PrintWriter m_dataPrintWriter;
 
     private final long m_defaultSleepTime;
     private final double m_sleepTimeVariation;
@@ -66,32 +65,29 @@ class GrinderThread implements java.lang.Runnable
 
     private final int m_numberOfCycles;
 
-    private final boolean m_recordTime;
-
-    /** This is a member so that ThreadContextImplementation can
-     * generate context sensitive log messages. */
+    /**
+     * This is a member so that ThreadContext can generate context
+     * sensitive log messages.
+     **/
     private int m_currentCycle = -1;
 
-    /** This is a member so that ThreadContextImplementation can
-     * generate context sensitive log messages. */
+    /**
+     * This is a member so that ThreadContextImplementation can
+     * generate context sensitive log messages.
+     **/
     private TestData m_currentTestData = null;
-
-    private StringBuffer m_scratchBuffer = new StringBuffer();
 
     /**
      * The constructor.
      */        
     public GrinderThread(GrinderProcess grinderProcess,
 			 ThreadCallbacks threadCallbacks,
-			 ThreadContextImplementation threadContext,
-			 PrintWriter dataPrintWriter, boolean recordTime,
+			 ThreadContext threadContext,
 			 Map tests)
     {
 	m_grinderProcess = grinderProcess;
 	m_threadCallbacks = threadCallbacks;
 	m_context = threadContext;
-	m_dataPrintWriter = dataPrintWriter;
-	m_recordTime = recordTime;
 	m_testSet = tests;
 
 	m_context.setGrinderThread(this);
@@ -178,75 +174,13 @@ class GrinderThread implements java.lang.Runnable
 			break CYCLE_LOOP;
 		    }
 
-		    final StatisticsImplementation statistics =
-			m_currentTestData.getStatistics();
-
-		    boolean success = false;
-			
-		    try {
-			m_context.startTimer();
-
-			try {
-			    success =
-				m_threadCallbacks.doTest(
-				    m_currentTestData.getTest());
-			}
-			finally {
-			    m_context.stopTimer();		
-			}
-		    }
-		    catch (PluginException e) {
-			statistics.addError();
-			m_context.logError(
-			    "Aborting cycle - plug-in threw " + e);
-			e.printStackTrace(m_context.getErrorLogWriter());
-			continue CYCLE_LOOP;
-		    }
+		    m_context.invokeTest(m_threadCallbacks, m_currentTestData);
 
 		    if (m_context.getAborted()) {
-			statistics.addError();
-			m_context.logError("Plug-in aborted thread");
 			break CYCLE_LOOP;
 		    }
-
-		    if (m_context.getAbortedCycle()) {
-			statistics.addError();
-			m_context.logError("Plug-in aborted cycle");
+		    else if (m_context.getAbortedCycle()) {
 			continue CYCLE_LOOP;
-		    }
-
-		    final long time = m_context.getElapsedTime();
-
-		    if (success) {
-			if (m_recordTime) {
-			    statistics.addTransaction(time);
-			}
-			else {
-			    statistics.addTransaction();
-			}
-		    }
-		    else {
-			statistics.addError();
-			m_context.logError("Plug-in reported an error");
-		    }
-
-		    if (m_dataPrintWriter != null) {
-			m_scratchBuffer.setLength(0);
-			final StringBuffer logLine = m_scratchBuffer;
-
-			logLine.append(m_context.getThreadID());
-			logLine.append(", ");
-			logLine.append(m_currentCycle);
-			logLine.append(", " );
-			logLine.append(
-			    m_currentTestData.getTest().getNumber());
-
-			if (m_recordTime) {
-			    logLine.append(", ");
-			    logLine.append(time);
-			}
-
-			m_dataPrintWriter.println(logLine);
 		    }
 		}
 

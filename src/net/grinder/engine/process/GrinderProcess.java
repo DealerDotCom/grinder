@@ -18,11 +18,7 @@
 
 package net.grinder.engine.process;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -112,9 +108,8 @@ public class GrinderProcess
 	}
     }
 
-    private final ProcessContextImplementation m_context;
+    private final ProcessContext m_context;
     private final int m_numberOfThreads;
-    private final boolean m_recordTime;
 
     private final Listener m_listener;
     private final Sender m_consoleSender;
@@ -122,8 +117,10 @@ public class GrinderProcess
 
     private final GrinderPlugin m_plugin;
 
-    /** A map of Tests to TestData. (TestData is the class this
-     * package uses to store information about Tests). */
+    /**
+     * A map of Tests to TestData. (TestData is the class this
+     * package uses to store information about Tests).
+     **/
     private final Map m_testSet;
 
     /** A map of Tests to Statistics for passing elsewhere. */
@@ -135,10 +132,9 @@ public class GrinderProcess
 	final GrinderProperties properties =
 	    new GrinderProperties(propertiesFile);
 
-	m_context = new ProcessContextImplementation(grinderID, properties);
+	m_context = new ProcessContext(grinderID, properties);
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
-	m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
 	// Parse plugin class.
 	m_plugin = instantiatePlugin();
@@ -338,47 +334,17 @@ public class GrinderProcess
 			     System.getProperty("os.arch") + " " +
 			     System.getProperty("os.version"));
 
-	final String dataFilename =
-	    m_context.getFilenameFactory().createFilename("data");
-
-	final PrintWriter dataPrintWriter;
-
-	try {
-	    final boolean appendToLog = m_context.getAppendToLog();
-
-	    // Don't autoflush, we explictly control flushing of the writer.
-	    dataPrintWriter =
-		new PrintWriter(
-		    new BufferedWriter(
-			new FileWriter(dataFilename, appendToLog)));
-
-	    if (!appendToLog) {
-		if (m_recordTime) {
-		    dataPrintWriter.println("Thread, Cycle, Method, Time");
-		}
-		else {
-		    dataPrintWriter.println("Thread, Cycle, Method");
-		}
-	    }
-	}
-	catch(Exception e) {
-	    throw new EngineException("Cannot open process data file '" +
-				      dataFilename + "'", e);
-	}
-
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
 
 	for (int i=0; i<m_numberOfThreads; i++) {
-	    final ThreadContextImplementation pluginThreadContext =
-		new ThreadContextImplementation(m_context, i);
+	    final ThreadContext threadContext =
+		new ThreadContext(m_context, i);
 
 	    final ThreadCallbacks threadCallbackHandler =
 		m_plugin.createThreadCallbackHandler();
 
 	    runnable[i] = new GrinderThread(this, threadCallbackHandler,
-					    pluginThreadContext,
-					    dataPrintWriter, m_recordTime,
-					    m_testSet);
+					    threadContext, m_testSet);
 	}
 
 	if (m_listener.shouldWait() &&
@@ -403,7 +369,7 @@ public class GrinderProcess
 	    }
 	    
 	    do {		// We want at least one report.
-		dataPrintWriter.flush();
+		m_context.getDataWriter().flush();
 
 		waitForMessage(m_reportToConsoleInterval,
 			       Listener.RESET | Listener.STOP);
@@ -449,7 +415,7 @@ public class GrinderProcess
 	    }
 	}
 
-	dataPrintWriter.close();
+	m_context.getDataWriter().close();
 
  	m_context.logMessage("Final statistics for this process:");
 

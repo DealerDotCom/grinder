@@ -20,32 +20,32 @@ package net.grinder.engine.process;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.io.IOException;
 
 
 /**
- * FileOutputStream that doesn't create a file until a write occurs.
+ * FileWriter that doesn't create a file until a write occurs.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-class DelayedCreationFileOutputStream extends OutputStream
+class DelayedCreationFileWriter extends Writer
 {
     private final File m_file;
     private final boolean m_append;
 
-    private OutputStream m_delegate = null;
+    private Writer m_delegate = null;
 
-    public DelayedCreationFileOutputStream(File file, boolean append)
+    public DelayedCreationFileWriter(File file, boolean append)
     {
 	m_file = file;
 	m_append = append;
 
 	if (!append) {
 	    // Delete the old file. Well it would get trashed anyway
-	    // if you used a standard FileOutputStream, so stop
+	    // if you used a standard FileWriter, so stop
 	    // complaining, ok?
 	    m_file.delete();
 	}
@@ -77,7 +77,7 @@ class DelayedCreationFileOutputStream extends OutputStream
     {
 	if (m_delegate == null) {
 	    try {
-		m_delegate = new FileOutputStream(m_file.getPath(), m_append);
+		m_delegate = new FileWriter(m_file.getPath(), m_append);
 	    }
 	    catch (FileNotFoundException e) {
 		throw new IOException(e.getMessage());
@@ -92,7 +92,7 @@ class DelayedCreationFileOutputStream extends OutputStream
 	m_delegate.write(i);
     }
 
-    public void write(byte[] bytes, int offset, int length)
+    public void write(char[] bytes, int offset, int length)
 	throws IOException
     {
 	checkOpen();

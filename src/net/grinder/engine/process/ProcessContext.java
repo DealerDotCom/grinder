@@ -18,9 +18,11 @@
 
 package net.grinder.engine.process;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -32,14 +34,13 @@ import net.grinder.plugininterface.PluginProcessContext;
 
 
 /**
- * Currently each thread owns its own instance of
- * ProcessContextImplementation (or derived class), so we don't need
- * to worry about thread safety.
+ * Currently each thread owns its own instance of ProcessContext (or
+ * derived class), so we don't need to worry about thread safety.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class ProcessContextImplementation implements PluginProcessContext
+public class ProcessContext implements PluginProcessContext
 {
     private static final PrintWriter s_stdoutWriter;
     private static final PrintWriter s_stderrWriter;
@@ -69,31 +70,33 @@ public class ProcessContextImplementation implements PluginProcessContext
 	return s_dateString;
     }
 
-    // Each ProcessContextImplementation is used by at most one
-    // thread, so we can reuse the following objects.
+    // Each ProcessContext is used by at most one thread, so we can
+    // reuse the following objects.
     private final StringBuffer m_buffer = new StringBuffer();
     private final char[] m_outputLine = new char[512];
 
     private final String m_grinderID;
     private final GrinderProperties m_properties;
     private final boolean m_logProcessStreams;
-    private final boolean m_appendToLog;
+    private final boolean m_recordTime;
     private final GrinderProperties m_pluginParameters;
     private final PrintWriter m_outputWriter;
     private final PrintWriter m_errorWriter;
+    private final PrintWriter m_dataWriter;
 
     private final FilenameFactoryImplementation m_filenameFactory;
 
-    protected ProcessContextImplementation(
-	ProcessContextImplementation processContext, String contextSuffix)
+    protected ProcessContext(ProcessContext processContext,
+			     String contextSuffix)
     {
 	m_grinderID = processContext.m_grinderID;
 	m_properties = processContext.m_properties;
 	m_logProcessStreams = processContext.m_logProcessStreams;
-	m_appendToLog = processContext.m_appendToLog;
+	m_recordTime = processContext.m_recordTime;
 	m_pluginParameters = processContext.m_pluginParameters;
 	m_outputWriter = processContext.m_outputWriter;
 	m_errorWriter = processContext.m_errorWriter;
+	m_dataWriter = processContext.m_dataWriter;
 
 	m_filenameFactory =
 	    new FilenameFactoryImplementation(
@@ -101,8 +104,7 @@ public class ProcessContextImplementation implements PluginProcessContext
 		contextSuffix);
     }
 
-    public ProcessContextImplementation(String grinderID,
-					GrinderProperties properties)
+    public ProcessContext(String grinderID, GrinderProperties properties)
 	throws GrinderException
     {
 	m_grinderID = grinderID;
@@ -111,7 +113,7 @@ public class ProcessContextImplementation implements PluginProcessContext
 	m_logProcessStreams =
 	    properties.getBoolean("grinder.logProcessStreams", true);
 
-	m_appendToLog = properties.getBoolean("grinder.appendLog", false);
+	m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
 	m_pluginParameters =
 	    properties.getPropertySubset("grinder.plugin.parameter.");
@@ -133,11 +135,32 @@ public class ProcessContextImplementation implements PluginProcessContext
 
 	m_filenameFactory = new FilenameFactoryImplementation(logDirectory);
 
-	m_outputWriter = createStream("out");
-	m_errorWriter = createStream("error");
+	final boolean appendLog =
+	    properties.getBoolean("grinder.appendLog", false);
+
+	//!! REWRITE WITH BUFFEREDWRITER(FILEWRITER).
+
+	// Although we manage the flushing ourselves and don't call
+	// printn, we set auto flush on our PrintWriters because
+	// clients can get direct access to them.
+	m_outputWriter = new PrintWriter(createWriter("out", appendLog), true);
+	m_errorWriter =
+	    new PrintWriter(createWriter("error", appendLog), true);
+
+	// Don't autoflush, we explictly control flushing of the writer.
+	m_dataWriter = new PrintWriter(createWriter("data", appendLog), false);
+
+	if (!appendLog) {
+	    if (m_recordTime) {
+		m_dataWriter.println("Thread, Cycle, Method, Time");
+	    }
+	    else {
+		m_dataWriter.println("Thread, Cycle, Method");
+	    }
+	}
     }
 
-    private PrintWriter createStream(String prefix)
+    private Writer createWriter(String prefix, boolean appendLog)
 	throws GrinderException
     {
 	final File file = new File(m_filenameFactory.createFilename(prefix));
@@ -151,13 +174,8 @@ public class ProcessContextImplementation implements PluginProcessContext
 				       "'");
 	}
 
-	// Although we manage the flushing ourselves and don't call
-	// printn, we set auto flush on our PrintWriters because
-	// clients can get direct access to them.
-	return
-	    new PrintWriter(new DelayedCreationFileOutputStream(file,
-								m_appendToLog),
-			    true);
+	return new BufferedWriter(
+	    new DelayedCreationFileWriter(file, appendLog));
     }
 
     public String getGrinderID()
@@ -178,11 +196,6 @@ public class ProcessContextImplementation implements PluginProcessContext
     public GrinderProperties getPluginParameters()
     {
 	return m_pluginParameters;
-    }
-
-    public boolean getAppendToLog()
-    {
-	return m_appendToLog;
     }
 
     public void logMessage(String message)
@@ -257,6 +270,11 @@ public class ProcessContextImplementation implements PluginProcessContext
 	return m_errorWriter;
     }
 
+    PrintWriter getDataWriter()
+    {
+	return m_dataWriter;
+    }
+
     private int formatMessage(String message)
     {
 	m_buffer.setLength(0);
@@ -283,6 +301,11 @@ public class ProcessContextImplementation implements PluginProcessContext
 				 lineLength);
 
 	return lineLength + s_lineSeparatorLength;
+    }
+
+    protected final boolean getRecordTime()
+    {
+	return m_recordTime;
     }
 
     protected void appendMessageContext(StringBuffer buffer)

@@ -18,7 +18,13 @@
 
 package net.grinder.engine.process;
 
+import java.io.PrintWriter;
+
+import net.grinder.common.Test;
+import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.statistics.StatisticsImplementation;
 
 
 /**
@@ -27,9 +33,7 @@ import net.grinder.plugininterface.PluginThreadContext;
  * @author Philip Aston
  * @version $Revision$
  */
-class ThreadContextImplementation
-    extends ProcessContextImplementation
-    implements PluginThreadContext
+class ThreadContext extends ProcessContext implements PluginThreadContext
 {
     private GrinderThread m_grinderThread = null;
     private final int m_threadID;
@@ -40,8 +44,9 @@ class ThreadContextImplementation
     private long m_startTime;
     private long m_elapsedTime;
 
-    public ThreadContextImplementation(
-	ProcessContextImplementation processContext, int threadID)
+    private StringBuffer m_scratchBuffer = new StringBuffer();
+
+    public ThreadContext(ProcessContext processContext, int threadID)
     {
 	super(processContext, Integer.toString(threadID));
 
@@ -134,5 +139,75 @@ class ThreadContextImplementation
 
 	buffer.append(") ");
     }
+
+    void invokeTest(ThreadCallbacks threadCallbacks, TestData testData) 
+    {
+	final Test test = testData.getTest();
+	final StatisticsImplementation statistics = testData.getStatistics();
+
+	try {
+	    final boolean success;
+
+	    startTimer();
+
+	    try {
+		success = threadCallbacks.doTest(test);
+	    }
+	    finally {
+		stopTimer();
+	    }
+
+	    if (getAborted()) {
+		statistics.addError();
+		logError("Plug-in aborted thread");
+	    }
+	    else if (getAbortedCycle()) {
+		statistics.addError();
+		logError("Plug-in aborted cycle");
+	    }
+	    else {
+		final long time = getElapsedTime();
+		final boolean recordTime = getRecordTime();
+
+		if (success) {
+		    if (recordTime) {
+			statistics.addTransaction(time);
+		    }
+		    else {
+			statistics.addTransaction();
+		    }
+		}
+		else {
+		    statistics.addError();
+		    logError("Plug-in reported an error");
+		}
+
+		final PrintWriter dataWriter = getDataWriter();
+
+		if (dataWriter != null) {
+		    m_scratchBuffer.setLength(0);
+		    m_scratchBuffer.append(getThreadID());
+		    m_scratchBuffer.append(", ");
+		    m_scratchBuffer.append(getCurrentCycleID());
+		    m_scratchBuffer.append(", " );
+		    m_scratchBuffer.append(test.getNumber());
+
+		    if (recordTime) {
+			m_scratchBuffer.append(", ");
+			m_scratchBuffer.append(time);
+		    }
+
+		    dataWriter.println(m_scratchBuffer);
+		}
+	    }
+	}
+	catch (PluginException e) {
+	    statistics.addError();
+	    logError("Aborting cycle - plug-in threw " + e);
+	    e.printStackTrace(getErrorLogWriter());
+	    abortCycle();
+	}
+    }
+
 }
 
