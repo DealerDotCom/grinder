@@ -209,6 +209,13 @@ abstract class OptionsDialogHandler {
 	  }
 	}
       };
+
+    // Increase the width a bit so that all the tabs fit on a single
+    // line.
+    m_dialog.pack();
+    final Dimension dialogSize = m_dialog.getSize();
+    dialogSize.width += 50;
+    m_dialog.setSize(dialogSize);
   }
 
   /**
