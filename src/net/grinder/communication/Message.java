@@ -47,7 +47,7 @@ public abstract class Message implements Serializable {
 
   /**
    * Called by {@link Sender} before dispatching the Message.
-   **/
+   */
   final void setSenderInformation(String grinderID, String senderUniqueID,
                                   long sequenceNumber) {
     m_senderGrinderID = grinderID;
@@ -65,7 +65,7 @@ public abstract class Message implements Serializable {
    *
    * @throws RuntimeException If {@link #setSenderInformation} has not
    * been called.
-   **/
+   */
   final String getSenderGrinderID() {
     assertInitialised();
     return m_senderGrinderID;
@@ -88,7 +88,7 @@ public abstract class Message implements Serializable {
    *
    * @throws RuntimeException If {@link #setSenderInformation} has not
    * been called.
-   **/
+   */
   final long getSequenceNumber() {
     assertInitialised();
     return m_sequenceNumber;
@@ -97,7 +97,7 @@ public abstract class Message implements Serializable {
   /**
    * @throws RuntimeException If {@link #setSenderInformation} has not
    * been called.
-   **/
+   */
   private void assertInitialised() {
     if (!isInitialised()) {
       throw new RuntimeException("Message not initialised");
@@ -108,7 +108,7 @@ public abstract class Message implements Serializable {
    * Customise serialisation for efficiency.
    *
    * @param out The stream to write our data to.
-   **/
+   */
   private void writeObject(ObjectOutputStream out) throws IOException {
     out.defaultWriteObject();
     out.writeUTF(m_senderGrinderID);
@@ -120,7 +120,7 @@ public abstract class Message implements Serializable {
    * Customise serialisation for efficiency.
    *
    * @param in The stream to read our data from.
-   **/
+   */
   private void readObject(ObjectInputStream in)
     throws IOException, ClassNotFoundException {
     in.defaultReadObject();
