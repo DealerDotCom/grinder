@@ -129,36 +129,14 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 			   ifModifiedExpression.getParen(1));
 	}
 
-	final RE contentTypeExpression = getHeaderExpression("Content-Type");
+	// Base default description on test URL.
+	String description = "Test " + sessionState.getRequestNumber();
 
-	if (contentTypeExpression.match(request)) {
-            outputProperty(requestNumber, "parameter.contentType",
-			   contentTypeExpression.getParen(1).trim());
-
-	    // If multipart content type, set sessionState to
-	    // boundary.
-	    final RE contentTypeMultipartExpression =
-		getContentTypeMultipartExpression();
-
-	    if (contentTypeMultipartExpression.match(request)) {
-		sessionState.setMultipartBoundary(
-		    contentTypeMultipartExpression.getParen(1).trim());
-	    }
-	}
-
-	// Description for a test should always be included so why
-	// write the property by hand? The default is to use the
-	// filename from the url as description. If no filename is
-	// found, use emptystring and let user fill in.
 	final RE descriptionExpresion = getLastURLPathElementExpression();
 
-	final String description;
-	
 	if (descriptionExpresion.match(url)) {
-	    description = descriptionExpresion.getParen(2);
-	}
-	else {
-	    description = "";
+	    description =
+		description + ": " + descriptionExpresion.getParen(2);
 	}
 
 	outputProperty(requestNumber, "description", description);
@@ -195,13 +173,32 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	// Look for the content length in the header. Probably should
 	// assert that we haven't already set the content length nor
 	// added any entity data.
-	final RE contentLengthExpession = getContentLengthExpression();
+	final RE contentLengthExpession =
+	    getHeaderExpression("Content-Length");
 
 	if (contentLengthExpession.match(request)) {
 	    final int length =
-		Integer.parseInt(contentLengthExpession.getParen(1));
+		Integer.parseInt(contentLengthExpession.getParen(1).trim());
 
 	    sessionState.setContentLength(length);
+	}
+
+	final RE contentTypeExpression = getContentTypeHeaderExpression();
+
+	if (contentTypeExpression.match(request)) {
+            outputProperty(sessionState.getRequestNumber(),
+			   "parameter.contentType",
+			   contentTypeExpression.getParen(2).trim());
+
+	    // If multipart content type, set sessionState to
+	    // boundary.
+	    final RE contentTypeMultipartExpression =
+		getContentTypeMultipartExpression();
+
+	    if (contentTypeMultipartExpression.match(request)) {
+		sessionState.setMultipartBoundary(
+		    contentTypeMultipartExpression.getParen(2).trim());
+	    }
 	}
 
 	// Find and add the data.
@@ -251,9 +248,10 @@ public class HttpPluginSnifferFilter implements SnifferFilter
      * every time. If it becomes a bottleneck, the "get*Expression
      * methods should be implemented with object pools.
     */
-    private RE getContentLengthExpression() throws RESyntaxException
+    private RE getContentTypeHeaderExpression() throws RESyntaxException
     {
-	return new RE("[^(\r\n\r\n)]^Content-Length: (\\d+)", 
+	// Some servers are broken regarding the case of Content-Type.
+	return new RE("^(Content-Type|Content-type): (.*)$", 
 		      RE.MATCH_MULTILINE);
     }
 
@@ -265,7 +263,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
    */
    private RE getContentTypeMultipartExpression() throws RESyntaxException
    {
-      return new RE("^Content-Type: multipart/form-data; boundary=(.*)$",
+      return new RE("^(Content-Type|Content-type): multipart/form-data; boundary=(.*)$",
 		    RE.MATCH_MULTILINE);
    }
 
