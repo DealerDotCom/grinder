@@ -41,6 +41,13 @@ public final class StatisticExpressionFactory
      **/
     /*#StatisticExpression lnkStatisticExpression;*/
 
+    /**
+     * @link aggregation
+     * @supplierCardinality 1 
+     */
+    private final StatisticsIndexMap m_indexMap =
+	StatisticsIndexMap.getProcessInstance();
+
     private StatisticExpressionFactory()
     {
     }
@@ -87,14 +94,12 @@ public final class StatisticExpressionFactory
 	}
     }
 
-    public final StatisticExpression
-	createExpression(String expression, StatisticsIndexMap indexMap)
+    public final StatisticExpression createExpression(String expression)
 	throws GrinderException
     {
 	final ParseContext parseContext = new ParseContext(expression);
 
-	final StatisticExpression result =
-	    createExpression(parseContext, indexMap);
+	final StatisticExpression result = createExpression(parseContext);
 
 	if (parseContext.hasMoreCharacters()) {
 	    throw parseContext.new ParseException(
@@ -104,9 +109,8 @@ public final class StatisticExpressionFactory
 	return result;
     }
 
-    private final StatisticExpression
-	createExpression(ParseContext parseContext,
-			 StatisticsIndexMap indexMap)
+    private final
+	StatisticExpression createExpression(ParseContext parseContext)
 	throws GrinderException
     {
 	if (parseContext.peekCharacter() == '(') {
@@ -116,17 +120,15 @@ public final class StatisticExpressionFactory
 	    final StatisticExpression result;
 
 	    if ("+".equals(operation)) {
-		result = createSum(readOperands(parseContext, indexMap, 2));
+		result = createSum(readOperands(parseContext, 2));
 	    }
 	    else if ("*".equals(operation)) {
 		result =
-		    createProduct(readOperands(parseContext, indexMap, 2));
+		    createProduct(readOperands(parseContext, 2));
 	    }
 	    else if ("/".equals(operation)) {
-		result =
-		    createDivision(
-			createExpression(parseContext, indexMap),
-			createExpression(parseContext, indexMap));
+		result = createDivision(createExpression(parseContext),
+					createExpression(parseContext));
 	    }
 	    else {
 		throw parseContext.new ParseException(
@@ -150,13 +152,13 @@ public final class StatisticExpressionFactory
 		    return createConstant(Double.parseDouble(token));
 		}
 		catch (NumberFormatException e2) {
-		    if (indexMap.isLongIndex(token)) {
+		    if (m_indexMap.isLongIndex(token)) {
 			return createPrimitive(
-			    indexMap.getIndexForLong(token));
+			    m_indexMap.getIndexForLong(token));
 		    }
-		    else if (indexMap.isDoubleIndex(token)) {
+		    else if (m_indexMap.isDoubleIndex(token)) {
 			return createPrimitive(
-			    indexMap.getIndexForDouble(token));
+			    m_indexMap.getIndexForDouble(token));
 		    }
 		}
 	    }
@@ -260,14 +262,13 @@ public final class StatisticExpressionFactory
     }
 
     private final StatisticExpression[]
-	readOperands(ParseContext parseContext,
-		     StatisticsIndexMap indexMap, int minimumSize)
+	readOperands(ParseContext parseContext, int minimumSize)
 	throws GrinderException
     {
 	final List arrayList = new ArrayList();
 
 	while (parseContext.peekCharacter() != ')') {
-	    arrayList.add(createExpression(parseContext, indexMap));
+	    arrayList.add(createExpression(parseContext));
 	}
 
 	if (arrayList.size() < minimumSize) {
@@ -332,16 +333,12 @@ public final class StatisticExpressionFactory
 	    m_monitoredStatistic = monitoredStatistic;
 	}
 
-	public void reset(RawStatistics rawStatistics) {
-	    setValue(rawStatistics,
-		     m_monitoredStatistic.getDoubleValue(rawStatistics));
-	}
-
-	public void update(RawStatistics rawStatistics) {
-	    setValue(rawStatistics,
-		     Math.max(getValue(rawStatistics),
+	public void update(RawStatistics monitoredStatistics,
+			   RawStatistics peakStorageStatistics) {
+	    setValue(peakStorageStatistics,
+		     Math.max(getValue(peakStorageStatistics),
 			      m_monitoredStatistic.getDoubleValue(
-				  rawStatistics)));
+				  monitoredStatistics)));
 	}
     }
 
@@ -396,16 +393,12 @@ public final class StatisticExpressionFactory
 	    m_monitoredStatistic = monitoredStatistic;
 	}
 
-	public void reset(RawStatistics rawStatistics) {
-	    setValue(rawStatistics,
-		     m_monitoredStatistic.getLongValue(rawStatistics));
-	}
-
-	public void update(RawStatistics rawStatistics) {
-	    setValue(rawStatistics,
-		     Math.max(getValue(rawStatistics),
+	public void update(RawStatistics monitoredStatistics,
+			   RawStatistics peakStorageStatistics) {
+	    setValue(peakStorageStatistics,
+		     Math.max(getValue(peakStorageStatistics),
 			      m_monitoredStatistic.getLongValue(
-				  rawStatistics)));
+				  monitoredStatistics)));
 	}
     }
 

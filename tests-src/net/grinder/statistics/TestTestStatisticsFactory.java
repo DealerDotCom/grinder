@@ -56,7 +56,6 @@ public class TestTestStatisticsFactory extends TestCase
 	    TestStatisticsFactory.getInstance();
 
 	assertSame(factory, TestStatisticsFactory.getInstance());
-	assert(factory.getIndexMap() != null);
 
 	final StatisticsView statisticsView = factory.getStatisticsView();
 

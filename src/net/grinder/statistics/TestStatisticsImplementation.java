@@ -41,7 +41,7 @@ final class TestStatisticsImplementation
     static
     {
 	final StatisticsIndexMap indexMap =
-	    TestStatisticsFactory.getInstance().getIndexMap();
+	    StatisticsIndexMap.getProcessInstance();
 
 	try {
 	    s_errorsIndex = indexMap.getIndexForLong("errors");

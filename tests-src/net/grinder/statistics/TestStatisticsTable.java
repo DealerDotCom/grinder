@@ -57,7 +57,8 @@ public class TestStatisticsTable extends TestCase
     {
 	m_testStatisticsMap = new TestStatisticsMap();
 
-	final StatisticsIndexMap indexMap = new StatisticsIndexMap();
+	final StatisticsIndexMap indexMap =
+	    StatisticsIndexMap.getProcessInstance();
 
 	final StatisticsIndexMap.LongIndex aIndex =
 	    indexMap.getIndexForLong("a");
@@ -65,10 +66,10 @@ public class TestStatisticsTable extends TestCase
 	    indexMap.getIndexForLong("b");
 
 	final ExpressionView[] expressionViews = {
-	    new ExpressionView("A", "", "a", indexMap),
-	    new ExpressionView("B", "", "b", indexMap),
-	    new ExpressionView("A plus B", "", "(+ a b)", indexMap),
-	    new ExpressionView("A divided by B", "", "(/ a b)", indexMap),
+	    new ExpressionView("A", "", "a"),
+	    new ExpressionView("B", "", "b"),
+	    new ExpressionView("A plus B", "", "(+ a b)"),
+	    new ExpressionView("A divided by B", "", "(/ a b)"),
 	};
 
 	m_statisticsView = new StatisticsView();

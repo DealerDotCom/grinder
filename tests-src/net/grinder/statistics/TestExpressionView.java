@@ -52,20 +52,20 @@ public class TestExpressionView extends TestCase
 	super(name);
     }
 
-    private final StatisticsIndexMap m_indexMap = new StatisticsIndexMap();
-
     protected void setUp() throws Exception
     {
-	m_indexMap.getIndexForLong("one");
-	m_indexMap.getIndexForLong("two");
-	m_indexMap.getIndexForLong("three");
+	final StatisticsIndexMap indexMap =
+	    StatisticsIndexMap.getProcessInstance();
+	
+	indexMap.getIndexForLong("one");
+	indexMap.getIndexForLong("two");
+	indexMap.getIndexForLong("three");
     }
 
     public void testConstruction() throws Exception
     {
 	final ExpressionView view =
-	    new ExpressionView("My view", "my.view", "(+ one two)",
-			       m_indexMap);
+	    new ExpressionView("My view", "my.view", "(+ one two)");
 
 	assertEquals("My view", view.getDisplayName());
 	assertEquals("my.view", view.getDisplayNameResourceKey());
@@ -76,7 +76,7 @@ public class TestExpressionView extends TestCase
 	final ExpressionView view2 =
 	    new ExpressionView("My view2", "my.view", 
 			       statisticExpressionFactory.createExpression(
-				   "one", m_indexMap));
+				   "one"));
 
 	assertEquals("My view2", view2.getDisplayName());
 	assertEquals("my.view", view2.getDisplayNameResourceKey());
@@ -86,16 +86,11 @@ public class TestExpressionView extends TestCase
     public void testEquality() throws Exception
     {
 	final ExpressionView[] views = {
-	    new ExpressionView("My view", "my.view", "(+ one two)",
-			       m_indexMap),
-	    new ExpressionView("My view", "my.view", "(+ one two)",
-			       m_indexMap),
-	    new ExpressionView("My view", "my.view", "(+ one three)",
-			       m_indexMap),
-	    new ExpressionView("My View", "my.view", "(+ one two)",
-			       m_indexMap),
-	    new ExpressionView("My view", "my view", "(+ one two)",
-			       m_indexMap),
+	    new ExpressionView("My view", "my.view", "(+ one two)"),
+	    new ExpressionView("My view", "my.view", "(+ one two)"),
+	    new ExpressionView("My view", "my.view", "(+ one three)"),
+	    new ExpressionView("My View", "my.view", "(+ one two)"),
+	    new ExpressionView("My view", "my view", "(+ one two)"),
 	};
 
 	assertEquals(views[0], views[1]);
@@ -108,10 +103,10 @@ public class TestExpressionView extends TestCase
     public void testOrdering() throws Exception
     {
 	final ExpressionView[] views = {
-	    new ExpressionView("One", "my.view", "(+ one two)", m_indexMap),
-	    new ExpressionView("Two", "my.view", "one", m_indexMap),
-	    new ExpressionView("Three", "my.view", "(+ one two)", m_indexMap),
-	    new ExpressionView("Four", "my.view", "two", m_indexMap),
+	    new ExpressionView("One", "my.view", "(+ one two)"),
+	    new ExpressionView("Two", "my.view", "one"),
+	    new ExpressionView("Three", "my.view", "(+ one two)"),
+	    new ExpressionView("Four", "my.view", "two"),
 	};
 
 	final SortedSet sortedSet = new TreeSet();
@@ -130,8 +125,7 @@ public class TestExpressionView extends TestCase
     public void testExternalisation() throws Exception
     {
 	final ExpressionView original =
-	    new ExpressionView("My view", "my.view", "(+ one two)",
-			       m_indexMap);
+	    new ExpressionView("My view", "my.view", "(+ one two)");
 
 	final ByteArrayOutputStream byteOutputStream =
 	    new ByteArrayOutputStream();
@@ -146,8 +140,7 @@ public class TestExpressionView extends TestCase
 	    new ObjectInputStream(
 		new ByteArrayInputStream(byteOutputStream.toByteArray()));
 
-	final ExpressionView received = 
-	    new ExpressionView(objectInputStream, m_indexMap);
+	final ExpressionView received = new ExpressionView(objectInputStream);
 
 	assertEquals(original, received);
 
@@ -156,7 +149,7 @@ public class TestExpressionView extends TestCase
 	final ExpressionView cantStreamThis =
 	    new ExpressionView("My view2", "my.view", 
 			       statisticExpressionFactory.createExpression(
-				   "one", m_indexMap));
+				   "one"));
 
 	try {
 	    cantStreamThis.myWriteExternal(objectOutputStream);

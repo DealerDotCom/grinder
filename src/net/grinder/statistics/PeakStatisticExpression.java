@@ -28,6 +28,6 @@ import net.grinder.statistics.RawStatistics;
  */
 public interface PeakStatisticExpression extends StatisticExpression
 {
-    void reset(RawStatistics rawStatistics);
-    void update(RawStatistics rawStatistics);
+    void update(RawStatistics monitoredStatistics,
+		RawStatistics peakStorageStatistics);
 }

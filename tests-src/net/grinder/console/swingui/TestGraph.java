@@ -109,7 +109,7 @@ public class TestGraph extends TestCase
 	    = TestStatisticsFactory.getInstance();
 
 	final StatisticsIndexMap indexMap =
-	    testStatisticsFactory.getIndexMap();
+	    StatisticsIndexMap.getProcessInstance();
 
 	final StatisticsIndexMap.LongIndex periodIndex =
 	    indexMap.getIndexForLong("period");
@@ -119,8 +119,8 @@ public class TestGraph extends TestCase
 
 	final StatisticExpression tpsExpression =
 	    statisticExpressionFactory.createExpression(
-		"(* 1000 (/(+ untimedTransactions timedTransactions) period))",
-		indexMap);
+		"(* 1000 (/(+ untimedTransactions timedTransactions) period))"
+		);
 
 	final PeakStatisticExpression peakTPSExpression =
 	    statisticExpressionFactory.createPeak(

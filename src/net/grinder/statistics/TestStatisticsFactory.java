@@ -35,12 +35,6 @@ public final class TestStatisticsFactory
 {
     private static TestStatisticsFactory s_instance;
 
-    /**
-     * @link aggregation
-     * @supplierCardinality 1 
-     */
-    private final StatisticsIndexMap m_indexMap = new StatisticsIndexMap();
-
     private final Serialiser m_serialiser = new Serialiser();
 
     /**
@@ -64,22 +58,23 @@ public final class TestStatisticsFactory
 
     private TestStatisticsFactory()
     {
+	final StatisticsIndexMap indexMap =
+	    StatisticsIndexMap.getProcessInstance();
+
 	try {
-	    m_indexMap.getIndexForLong("errors");
-	    m_indexMap.getIndexForLong("timedTransactions");
-	    m_indexMap.getIndexForLong("untimedTransactions");
-	    m_indexMap.getIndexForLong("totalTime");
+	    indexMap.getIndexForLong("errors");
+	    indexMap.getIndexForLong("timedTransactions");
+	    indexMap.getIndexForLong("untimedTransactions");
+	    indexMap.getIndexForLong("totalTime");
 
 	    final ExpressionView[] expressionViews = {
 		new ExpressionView("Transactions", "statistic.transactions", 
-				   "(+ timedTransactions untimedTransactions)",
-				   m_indexMap),
-		new ExpressionView("Errors", "statistic.errors", "errors",
-				   m_indexMap),
+				   "(+ timedTransactions untimedTransactions)"
+				   ),
+		new ExpressionView("Errors", "statistic.errors", "errors"),
 		new ExpressionView("Average Response Time (ms)",
 				   "statistic.averageResponseTime",
-				   "(/ totalTime timedTransactions)",
-				   m_indexMap),
+				   "(/ totalTime timedTransactions)"),
 	    };
 
 	    for (int i=0; i<expressionViews.length; ++i) {
@@ -92,11 +87,6 @@ public final class TestStatisticsFactory
 		"TestStatisticsFactory could not initialise: " +
 		e.getMessage());
 	}
-    }
-
-    public final StatisticsIndexMap getIndexMap()
-    {
-	return m_indexMap;
     }
 
     public final StatisticsView getStatisticsView()

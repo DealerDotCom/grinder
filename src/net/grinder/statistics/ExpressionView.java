@@ -51,15 +51,13 @@ public class ExpressionView implements Comparable
     private final StatisticExpression m_expression;
 
     public ExpressionView(String displayName, String displayNameResourceKey,
-			  String expressionString,
-			  StatisticsIndexMap indexMap)
+			  String expressionString)
 	throws GrinderException
     {
 	this(displayName, displayNameResourceKey,
 	     s_statisticExpressionFactory.normaliseExpressionString(
 		 expressionString),
-	     s_statisticExpressionFactory.createExpression(expressionString,
-							   indexMap));
+	     s_statisticExpressionFactory.createExpression(expressionString));
     }
 
     public ExpressionView(String displayName, String displayNameResourceKey,
@@ -84,14 +82,19 @@ public class ExpressionView implements Comparable
 	}
     }
 
-    public ExpressionView(ObjectInput in,
-			  StatisticsIndexMap indexMap)
+    /**
+     * @see StatisticsView#readExternal
+     **/
+    ExpressionView(ObjectInput in)
 	throws GrinderException, IOException
     {
-	this(in.readUTF(), in.readUTF(), in.readUTF(), indexMap);
+	this(in.readUTF(), in.readUTF(), in.readUTF());
     }
 
-    public final void myWriteExternal(ObjectOutput out) throws IOException
+    /**
+     * @see StatisticsView#writeExternal
+     **/
+    final void myWriteExternal(ObjectOutput out) throws IOException
     {
 	if (m_expressionString == "") {
 	    throw new IOException(

@@ -78,6 +78,21 @@ public class TestRawStatisticsImplementation extends TestCase
 	myAssertEquals(0d, statistics.getValue(m_doubleIndex2));
     }
 
+    public void testReset()
+    {
+	final RawStatisticsImplementation statistics0 =
+	    new RawStatisticsImplementation();
+
+	statistics0.setValue(m_longIndex2, 700);
+	statistics0.setValue(m_doubleIndex2, -0.9999);
+	assertEquals(700, statistics0.getValue(m_longIndex2));
+	myAssertEquals(-0.9999d, statistics0.getValue(m_doubleIndex2));
+
+	statistics0.reset();
+	assertEquals(0, statistics0.getValue(m_longIndex2));
+	myAssertEquals(0d, statistics0.getValue(m_doubleIndex2));
+    }
+
     public void testGetValueSetValueAndEquals()
     {
 	final RawStatisticsImplementation statistics0 =

@@ -21,6 +21,7 @@ package net.grinder.statistics;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Arrays;
 
 import net.grinder.util.Serialiser;
 
@@ -60,7 +61,21 @@ class RawStatisticsImplementation implements RawStatistics
     }
 
     /**
+     * Reset this RawStatistics to default values. Allows instance to
+     * be reused. Instance is likely to have the correct sized arrays,
+     * so this prevents much resizing.
+     **/
+    public synchronized void reset()
+    {
+	Arrays.fill(m_longData, 0);
+	Arrays.fill(m_doubleData, 0);
+    }
+
+    /**
      * Return the value specified by <code>index</code>.
+     *
+     * <p>We are working with primitive types so only need to
+     * synchronise if we resize.</p>
      *
      * @param index The process specific index.
      * @return The value.
@@ -76,6 +91,9 @@ class RawStatisticsImplementation implements RawStatistics
     /**
      * Return the value specified by <code>index</code>.
      *
+     * <p>We are working with primitive types so only need to
+     * synchronise if we resize.</p>
+     *
      * @param index The process specific index.
      * @return The value.
      */
@@ -90,11 +108,14 @@ class RawStatisticsImplementation implements RawStatistics
    /**
      * Set the value specified by <code>index</code>.
      *
+     * <p>We are working with primitive types so only need to
+     * synchronise if we resize.</p>
+     *
      * @param index The process specific index.
      * @param value The value.
      **/
-    public final synchronized void setValue(StatisticsIndexMap.LongIndex index,
-					    long value)
+    public final void setValue(StatisticsIndexMap.LongIndex index,
+			       long value)
     {
 	final int indexValue = index.getValue();
 
@@ -105,11 +126,14 @@ class RawStatisticsImplementation implements RawStatistics
    /**
      * Set the value specified by <code>index</code>.
      *
+     * <p>We are working with primitive types so only need to
+     * synchronise if we resize.</p>
+     *
      * @param index The process specific index.
      * @param value The value.
      **/
-    public final synchronized
-	void setValue(StatisticsIndexMap.DoubleIndex index, double value)
+    public final void setValue(StatisticsIndexMap.DoubleIndex index,
+			       double value)
     {
 	final int indexValue = index.getValue();
 
@@ -120,6 +144,8 @@ class RawStatisticsImplementation implements RawStatistics
     /**
      * Add <code>value</code> to the value specified by
      * <code>index</code>.
+     *
+     * <p>Synchronised to ensure we don't lose information.</p>.
      *
      * @param index The process specific index.
      * @param value The value.
@@ -136,6 +162,8 @@ class RawStatisticsImplementation implements RawStatistics
     /**
      * Add <code>value</code> to the value specified by
      * <code>index</code>.
+     *
+     * <p>Synchronised to ensure we don't lose information.</p>.
      *
      * @param index The process specific index.
      * @param value The value.
@@ -156,8 +184,7 @@ class RawStatisticsImplementation implements RawStatistics
      *
      * @see {@link #addValue}
      */
-    public final synchronized 
-	void incrementValue(StatisticsIndexMap.LongIndex index)
+    public final void incrementValue(StatisticsIndexMap.LongIndex index)
     {
 	addValue(index, 1);
     }
@@ -169,6 +196,8 @@ class RawStatisticsImplementation implements RawStatistics
      * <p><strong>Currently the implementation assumes that the
      * argument is actually a
      * <code>RawStatisticsImplementation</code></strong>.</p>
+     *
+     * <p>Synchronised to ensure we don't lose information.</p>.
      *
      * @param operand The <code>RawStatistics</code> value to add.
      **/
@@ -197,6 +226,8 @@ class RawStatisticsImplementation implements RawStatistics
     /**
      * Return a <code>RawStatistics</code> representing the change
      * since the last snapshot.
+     *
+     * <p>Synchronised to ensure a consistent view.</p>.
      *
      * @param updateSnapshot <code>true</code> => update the snapshot.
      * @return A <code>RawStatistics</code> representing the
@@ -321,11 +352,14 @@ class RawStatisticsImplementation implements RawStatistics
      * Efficient externalisation method used by {@link
      * TestStatisticsFactory#writeStatisticsExternal}.
      *
+     * <p>Synchronised to ensure a consistent view.</p>.
+     *
      * @param out Handle to the output stream.
      * @param serialiser <code>Serialiser</code> helper object.
      * @exception IOException If an error occurs.
      **/
-    final void myWriteExternal(ObjectOutput out, Serialiser serialiser)
+    final synchronized void myWriteExternal(ObjectOutput out,
+					    Serialiser serialiser)
 	throws IOException
     {
 	out.writeInt(m_longData.length);
@@ -373,24 +407,28 @@ class RawStatisticsImplementation implements RawStatistics
     private final void expandLongDataToSize(int size)
     {
 	if (m_longData.length < size) {
-	    final long[] newStatistics = new long[size];
+	    synchronized (this) {
+		final long[] newStatistics = new long[size];
 
-	    System.arraycopy(m_longData, 0, newStatistics, 0,
-			     m_longData.length);
+		System.arraycopy(m_longData, 0, newStatistics, 0,
+				 m_longData.length);
 
-	    m_longData = newStatistics;
+		m_longData = newStatistics;
+	    }
 	}
     }
 
     private final void expandDoubleDataToSize(int size)
     {
 	if (m_doubleData.length < size) {
-	    final double[] newStatistics = new double[size];
+	    synchronized (this) {
+		final double[] newStatistics = new double[size];
 
-	    System.arraycopy(m_doubleData, 0, newStatistics, 0,
-			     m_doubleData.length);
+		System.arraycopy(m_doubleData, 0, newStatistics, 0,
+				 m_doubleData.length);
 
-	    m_doubleData = newStatistics;
+		m_doubleData = newStatistics;
+	    }
 	}
     }
 }

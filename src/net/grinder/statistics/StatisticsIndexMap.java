@@ -30,10 +30,18 @@ import net.grinder.common.GrinderException;
  **/
 public class StatisticsIndexMap
 {
+    private final static StatisticsIndexMap s_processInstance =
+	new StatisticsIndexMap();
+
     private int m_nextDoubleIndex = 0;
     private int m_nextLongIndex = 0;
 
     private final Map m_map = new HashMap();
+
+    public final static StatisticsIndexMap getProcessInstance()
+    {
+	return s_processInstance;
+    }
 
     final boolean isDoubleIndex(String statisticKey)
     {

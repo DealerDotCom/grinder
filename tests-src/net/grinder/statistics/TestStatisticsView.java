@@ -22,6 +22,11 @@ import junit.framework.TestCase;
 import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -49,7 +54,8 @@ public class TestStatisticsView extends TestCase
 	super(name);
     }
 
-    private final StatisticsIndexMap m_indexMap = new StatisticsIndexMap();
+    private final StatisticsIndexMap m_indexMap =
+	StatisticsIndexMap.getProcessInstance();
 
     private ExpressionView[] m_views;
 
@@ -59,10 +65,10 @@ public class TestStatisticsView extends TestCase
 	m_indexMap.getIndexForLong("two");
 
 	m_views = new ExpressionView[] {
-	    new ExpressionView("One", "my.view", "(+ one two)", m_indexMap),
-	    new ExpressionView("Two", "my.view", "one", m_indexMap),
-	    new ExpressionView("Three", "my.view", "(+ one two)", m_indexMap),
-	    new ExpressionView("Four", "my.view", "two", m_indexMap),
+	    new ExpressionView("One", "my.view", "(+ one two)"),
+	    new ExpressionView("Two", "my.view", "one"),
+	    new ExpressionView("Three", "my.view", "(+ one two)"),
+	    new ExpressionView("Four", "my.view", "two"),
 	};
     }
 
@@ -110,5 +116,44 @@ public class TestStatisticsView extends TestCase
 	statisticsView2.add(statisticsView);
 	assertEquals(m_views.length,
 		     statisticsView2.getExpressionViews().length);
+    }
+
+    public void testSerialisation() throws Exception
+    {
+	final StatisticsView original1 = new StatisticsView();
+
+	for (int i=0; i<m_views.length; ++i) {
+	    original1.add(m_views[i]);
+	}
+
+	final StatisticsView original2 = new StatisticsView();
+
+	final ByteArrayOutputStream byteOutputStream =
+	    new ByteArrayOutputStream();
+
+	final ObjectOutputStream objectOutputStream =
+	    new ObjectOutputStream(byteOutputStream);
+
+	original1.writeExternal(objectOutputStream);
+	original2.writeExternal(objectOutputStream);
+	objectOutputStream.close();
+
+	final ObjectInputStream objectInputStream =
+	    new ObjectInputStream(
+		new ByteArrayInputStream(byteOutputStream.toByteArray()));
+
+	final StatisticsView received1 = new StatisticsView();
+	received1.readExternal(objectInputStream);
+
+	final StatisticsView received2 = new StatisticsView();
+	received2.readExternal(objectInputStream);
+	
+	assertEquals(original1.getExpressionViews().length,
+		     received1.getExpressionViews().length);
+	assert(original1 != received1);
+
+	assertEquals(original2.getExpressionViews().length,
+		     received2.getExpressionViews().length);
+	assert(original2 != received2);
     }
 }

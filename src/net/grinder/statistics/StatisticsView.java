@@ -18,8 +18,15 @@
 
 package net.grinder.statistics;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import net.grinder.common.GrinderException;
 
 
 /**
@@ -27,8 +34,7 @@ import java.util.TreeSet;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class StatisticsView
-{
+public final class StatisticsView implements Externalizable {
     /**
      * @link aggregation
      * @associates <{net.grinder.statistics.ExpressionView}>
@@ -41,18 +47,59 @@ public final class StatisticsView
 	m_columns = new TreeSet();
     }
 
-    public void add(StatisticsView other)
+    public final synchronized void add(StatisticsView other)
     {
 	m_columns.addAll(other.m_columns);
     }
 
-    public final void add(ExpressionView statistic)
+    public final synchronized void add(ExpressionView statistic)
     {
 	m_columns.add(statistic);
     }
 
-    public final ExpressionView[] getExpressionViews()
+    public final synchronized ExpressionView[] getExpressionViews()
     {
 	return (ExpressionView[])m_columns.toArray(new ExpressionView[0]);
+    }
+
+    /**
+     * Externalisation method.
+     *
+     * @param out Handle to the output stream.
+     * @exception IOException If an I/O error occurs.
+     **/
+    public synchronized void writeExternal(ObjectOutput out) throws IOException
+    {
+	out.writeInt(m_columns.size());
+
+	final Iterator iterator = m_columns.iterator();
+
+	while (iterator.hasNext()) {
+	    final ExpressionView view = (ExpressionView)iterator.next();
+	    view.myWriteExternal(out);
+	}
+    }
+
+    /**
+     * Externalisation method.
+     *
+     * @param in Handle to the input stream.
+     * @exception IOException If an I/O error occurs.
+     **/
+    public synchronized void readExternal(ObjectInput in) throws IOException
+    {
+	final int n = in.readInt();
+
+	m_columns.clear();
+
+	for (int i=0; i<n; i++) {
+	    try {
+		add(new ExpressionView(in));
+	    }
+	    catch (GrinderException e) {
+		throw new IOException(
+		    "Could not instantiate ExpressionView: " + e.getMessage());
+	    }
+	}
     }
 }

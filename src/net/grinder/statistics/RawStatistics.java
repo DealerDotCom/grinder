@@ -31,6 +31,12 @@ package net.grinder.statistics;
 public interface RawStatistics
 {
     /**
+     * Reset this RawStatistics to default values. Allows instance to
+     * be reused.
+     **/
+    void reset();
+
+    /**
      * Return the value specified by <code>index</code>.
      *
      * @param index The process specific index.
