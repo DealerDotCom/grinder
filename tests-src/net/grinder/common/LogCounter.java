@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2001  Paco Gomez
-// Copyright (C) 2001  Philip Aston
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,31 +16,37 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
-
+package net.grinder.plugininterface;
 
 /**
  * @author Philip Aston
  * @version $Revision$
  */
-public class AllTests
+public class LogCounter implements Logger
 {
-    public static void main(String[] args)
+    private int m_numberOfErrors = 0;
+    private int m_numberOfMessages = 0;
+
+    public void logError(String message)
     {
-	TestRunner.run(AllTests.class);
+	System.out.println(message);
+	++m_numberOfErrors;
     }
 
-    public static Test suite()
+    public void logMessage(String message)
     {
-	final TestSuite suite = new TestSuite();
-	suite.addTest(net.grinder.engine.process.AllTests.suite());
-	suite.addTest(net.grinder.plugin.http.AllTests.suite());
-	suite.addTest(net.grinder.util.AllTests.suite());
-	return suite;
+	System.out.println(message);
+	++m_numberOfMessages;
+    }
+
+    public int getNumberOfErrors() 
+    {
+	return m_numberOfErrors;
+    }
+
+    public int getNumberOfMessages()
+    {
+	return m_numberOfMessages;
     }
 }
+
