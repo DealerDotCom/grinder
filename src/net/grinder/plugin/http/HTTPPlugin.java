@@ -123,7 +123,6 @@ public class HTTPPlugin implements GrinderPlugin
     {
 	private final PluginThreadContext m_threadContext;
 
-	private int m_currentIteration = 0; // How many times we've done all the URL's
 	private final DecimalFormat m_threeFiguresFormat =
 	    new DecimalFormat("000");
 
@@ -233,7 +232,8 @@ public class HTTPPlugin implements GrinderPlugin
 
 		    final String filename =
 			m_threadContext.createFilename(
-			    "page", "_" + m_currentIteration + "_" +
+			    "page",
+			    "_" + m_threadContext.getCurrentRunNumber() + "_" +
 			    m_threeFiguresFormat.format(test.getNumber()) +
 			    (description != null ? "_" + description : ""));
 
@@ -266,7 +266,6 @@ public class HTTPPlugin implements GrinderPlugin
 
 	public void endRun() throws PluginException
 	{
-	    m_currentIteration++;
 	}
     }
 

@@ -64,9 +64,10 @@ public abstract class PluginTest
 	return m_description;
     }
 
-    protected final Object invokeTest(Object parameters)
+    protected Object dispatch(Object parameters)
 	throws GrinderException
     {
-	return TestRegistry.getInstance().invoke(m_registeredTest, parameters);
+	return TestRegistry.getInstance().dispatch(m_registeredTest,
+						   parameters);
     }
 }

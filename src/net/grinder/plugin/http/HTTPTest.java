@@ -158,7 +158,7 @@ public class HTTPTest extends PluginTest
 				     final NVPair[] headers)
 	throws GrinderException
     {
-	return (HTTPResponse)invokeTest(
+	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
 		public HTTPResponse request(HTTPConnection connection) 
 		    throws IOException, ModuleException {
@@ -198,7 +198,7 @@ public class HTTPTest extends PluginTest
 				  final NVPair[] headers)
 	throws GrinderException
     {
-	return (HTTPResponse)invokeTest(
+	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
 		public HTTPResponse request(HTTPConnection connection) 
 		    throws IOException, ModuleException {
@@ -240,7 +240,7 @@ public class HTTPTest extends PluginTest
 				   final NVPair[] headers)
 	throws GrinderException
     {
-	return (HTTPResponse)invokeTest(
+	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
 		public HTTPResponse request(HTTPConnection connection) 
 		    throws IOException, ModuleException {
@@ -281,7 +281,7 @@ public class HTTPTest extends PluginTest
 				      final byte[] data)
 	throws GrinderException
     {
-	return (HTTPResponse)invokeTest(
+	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
 		public HTTPResponse request(HTTPConnection connection) 
 		    throws IOException, ModuleException {
@@ -322,7 +322,7 @@ public class HTTPTest extends PluginTest
 				   final NVPair[] headers)
 	throws GrinderException
     {
-	return (HTTPResponse)invokeTest(
+	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
 		public HTTPResponse request(HTTPConnection connection) 
 		    throws IOException, ModuleException {
@@ -344,7 +344,7 @@ public class HTTPTest extends PluginTest
 				   final NVPair[] headers)
 	throws GrinderException
     {
-	return (HTTPResponse)invokeTest(
+	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
 		public HTTPResponse request(HTTPConnection connection) 
 		    throws IOException, ModuleException {
@@ -383,7 +383,7 @@ public class HTTPTest extends PluginTest
 				  final NVPair[] headers)
 	throws GrinderException
     {
-	return (HTTPResponse)invokeTest(
+	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
 		public HTTPResponse request(HTTPConnection connection) 
 		    throws IOException, ModuleException {
@@ -408,7 +408,7 @@ public class HTTPTest extends PluginTest
     public final HTTPResponse TRACE(final String path, final NVPair[] headers)
 	throws GrinderException
     {
-	return (HTTPResponse)invokeTest(
+	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
 		public HTTPResponse request(HTTPConnection connection) 
 		    throws IOException, ModuleException {
