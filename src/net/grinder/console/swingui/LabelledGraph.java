@@ -139,7 +139,7 @@ class LabelledGraph extends JPanel {
 
     public void setHighlight(boolean highlight) {
       if (highlight) {
-	setForeground(Color.red);
+	setForeground(Colours.ERROR_RED);
 	setFont(s_boldFont);
       }
       else {
