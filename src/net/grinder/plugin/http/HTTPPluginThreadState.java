@@ -72,7 +72,7 @@ class HTTPPluginThreadState implements PluginThreadListener
 	}
 
 	final HTTPPluginConnectionDefaults connectionDefaults =
-	    HTTPPluginConnectionDefaults.getDefaults(keyURI);
+	    HTTPPluginConnectionDefaults.getConnectionDefaults();
 
 	final HTTPConnection httpConnection = new HTTPConnection(uri);
 	httpConnection.setContext(this);

@@ -31,7 +31,8 @@ import net.grinder.plugininterface.PluginProcessContext;
 
 
 /**
- * Facade through which script can control the behaviour of the HTTPPlugin.
+ * Facade through which the script can control the behaviour of the
+ * HTTP plug-in.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -52,23 +53,34 @@ public final class HTTPPluginControl
 	}
     }
 
+    /**
+     * Get an <code>HTTPPluginConnnection</code> that can be used to
+     * se the default behaviour of new connections.
+     * @return An <code>HTTPPluginConnection</code>.
+     */
     public static final HTTPPluginConnection getConnectionDefaults()
     {
-	return HTTPPluginConnectionDefaults.getDefaultConnectionDefaults();
+	return HTTPPluginConnectionDefaults.getConnectionDefaults();
     }
 
-    public static final HTTPPluginConnection getConnectionDefaults(String uri)
-	throws ParseException, ProtocolNotSuppException
-    {
-	return HTTPPluginConnectionDefaults.getConnectionDefaults(uri);
-    }
-
-    public static final HTTPPluginConnection getThreadConnection(String uri)
+    /**
+     * Get an <code>HTTPPluginConnnection</code> for a particular URL.
+     *
+     * <p>This method will throw a GrinderException if not called from
+     * a worker thread.</p>
+     * @param url An absolute URL that specifies the connection.
+     * @return a <code>HTTPPluginConnection</code> value
+     * @exception GrinderException If an error occurs.
+     * @exception ParseException If <var>url</url> can not be parsed.
+     * @exception ProtocolNotSuppException If <var>url</url> specifies
+     * an unsupported protocol.
+     */
+    public static final HTTPPluginConnection getThreadConnection(String url)
 	throws GrinderException, ParseException, ProtocolNotSuppException
     {
 	final HTTPPluginThreadState threadState =
 	    (HTTPPluginThreadState)s_processContext.getPluginThreadListener();
 	    
-	return threadState.getConnectionWrapper(new URI(uri));
+	return threadState.getConnectionWrapper(new URI(url));
     }
 }

@@ -214,51 +214,8 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
     private static final HTTPPluginConnectionDefaults
 	s_defaultConnectionDefaults = new HTTPPluginConnectionDefaults();
 
-    private static final Map m_connectionDefaults = new HashMap();
-
-    final static HTTPPluginConnectionDefaults getDefaults(URI keyURI)
-    {
-	synchronized (m_connectionDefaults) {
-	    final HTTPPluginConnectionDefaults connectionSpecificDefaults =
-		(HTTPPluginConnectionDefaults)
-		m_connectionDefaults.get(keyURI);
-
-	    if (connectionSpecificDefaults != null) {
-		return connectionSpecificDefaults;
-	    }
-
-	    return s_defaultConnectionDefaults;
-	}
-    }
-
-    public static final HTTPPluginConnection getDefaultDefaults() 
+    public static final HTTPPluginConnectionDefaults getConnectionDefaults() 
     {
 	return s_defaultConnectionDefaults;
-    }
-
-    public static final HTTPPluginConnection getDefaults(
-	String uriString)
-	throws ParseException, ProtocolNotSuppException
-    {
-	final URI uri = new URI(uriString);
-	    
-	final URI keyURI =
-	    new URI(uri.getScheme(), uri.getHost(), uri.getPort(), "");
-
-	synchronized (m_connectionDefaults) {
-	    final HTTPPluginConnection existingConnectionDefaults =
-		(HTTPPluginConnection)m_connectionDefaults.get(keyURI);
-
-	    if (existingConnectionDefaults != null) {
-		return existingConnectionDefaults;
-	    }
-
-	    final HTTPPluginConnection newConnectionDefaults =
-		new HTTPPluginConnectionDefaults();
-
-	    m_connectionDefaults.put(keyURI, newConnectionDefaults);
-
-	    return newConnectionDefaults;
-	}
     }
 }
