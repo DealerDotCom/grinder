@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.engine.process;
+package net.grinder.util;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,7 +27,6 @@ import java.util.Set;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.TestDefinition;
 import net.grinder.plugininterface.TestSetPlugin;
-import net.grinder.util.GrinderProperties;
 
 
 /**
@@ -72,9 +71,9 @@ class PropertiesTestSet implements TestSetPlugin
     private final static String TEST_PREFIX = "grinder.test";
 
     public static String getTestPropertyName(Integer testNumber,
-					     String parameter)
+					     String unqualifiedName)
     {
-	return TEST_PREFIX + testNumber + '.' + parameter;
+	return TEST_PREFIX + testNumber + '.' + unqualifiedName;
     }
 
     public PropertiesTestSet(GrinderProperties properties)

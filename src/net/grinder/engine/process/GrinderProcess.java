@@ -35,6 +35,8 @@ import net.grinder.plugininterface.TestSetPlugin;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
+import net.grinder.util.PropertiesHelper;
+
 
 /**
  * The class executed by the main thread of each JVM.
@@ -102,6 +104,8 @@ public class GrinderProcess
     public GrinderProcess() throws GrinderException
     {
 	final GrinderProperties properties = GrinderProperties.getProperties();
+	final PropertiesHelper propertiesHelper =
+	    new PropertiesHelper(properties);
 
 	m_hostID = properties.getProperty("grinder.hostID", "UNNAMED HOST");
 	m_jvmID = properties.getMandatoryProperty("grinder.jvmID");
@@ -180,40 +184,14 @@ public class GrinderProcess
 	m_pluginParameters =
 	    properties.getPropertySubset("grinder.plugin.parameter.");
 
-	// Optional Test Set plugin.
-	final TestSetPlugin testSet;
-
-	final String testSetClassName =
-	    properties.getProperty("grinder.testSetPlugin");
-
-	if (testSetClassName != null) {
-	    try{
-		final Class testSetClass = Class.forName(testSetClassName);
-
-		if (!TestSetPlugin.class.isAssignableFrom(m_pluginClass)) {
-		    throw new EngineException(
-			"The specified test set plug-in class ('" +
-			m_pluginClass.getName() +
-			"') does not implement the interface: '" +
-			TestSetPlugin.class.getName() + "'");
-		}
-
-		testSet = (TestSetPlugin)testSetClass.newInstance();
-	    }
-	    catch(Exception e){
-		throw new EngineException(
-		    "An instance of the specified plug-in class " +
-		    "could not be created.", e);
-	    }
-	}
-	else {
-	    testSet = new PropertiesTestSet(properties);
-	}
+	// Get Test Set plugin.
+	final TestSetPlugin testSetPlugin =
+	    propertiesHelper.getTestSetPlugin();
 
 	// Wrap tests with our information.
 	m_tests = new TreeMap();
 	
-	final Iterator testSetIterator = testSet.getTests().iterator();
+	final Iterator testSetIterator = testSetPlugin.getTests().iterator();
 
 	while (testSetIterator.hasNext())
 	{
@@ -221,7 +199,7 @@ public class GrinderProcess
 	    final Integer testNumber = test.getTestNumber();
 
 	    final String sleepTimePropertyName =
-		PropertiesTestSet.getTestPropertyName(testNumber, "sleepTime");
+		propertiesHelper.getTestPropertyName(testNumber, "sleepTime");
 
 	    final long sleepTime =
 		properties.getInt(sleepTimePropertyName, -1);
