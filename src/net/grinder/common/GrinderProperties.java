@@ -33,13 +33,12 @@ public class GrinderProperties extends Properties
 
     private static GrinderProperties s_singleton;
 
-    /*private*/ public GrinderProperties()
+    /**
+     *Public to allow GrinderProperties to be used in various unit
+     * tests
+     */
+    public GrinderProperties()
     {
-    }
-
-    private GrinderProperties(Properties defaults)
-    {
-	super(defaults);
     }
 
     public static GrinderProperties getProperties()
@@ -47,13 +46,13 @@ public class GrinderProperties extends Properties
 	if (s_singleton == null) {
 	    synchronized (GrinderProperties.class) {
 		if (s_singleton == null) { // Double checked locking.
-		    s_singleton =
-			new GrinderProperties(getDefaultProperties());
 
-		    InputStream propertiesInputStream = null;
-	
+		    s_singleton = new GrinderProperties();
+
+		    s_singleton.putAll(getDefaultProperties());
+
 		    try {
-			propertiesInputStream =
+			final InputStream propertiesInputStream =
 			    new FileInputStream(PROPERTIES_FILENAME);
 			s_singleton.load(propertiesInputStream);
 		    }
@@ -286,8 +285,6 @@ public class GrinderProperties extends Properties
 	defaults.put("grinder.logDirectory", ".");
 	defaults.put("grinder.appendLog", "false");
 	defaults.put("grinder.fileStats", "true");       
-	defaults.put("grinder.sleepMillis", "0"); 
-	defaults.put("grinder.initialSleepTimes", "0");
 
 	return defaults;
     }
