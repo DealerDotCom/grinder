@@ -47,6 +47,7 @@ import net.grinder.communication.TeeSender;
 import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
+import net.grinder.engine.messages.StartGrinderMessage;
 
 
 /**
@@ -92,6 +93,10 @@ public final class Agent {
 
     boolean startImmediately = false;
 
+    // We use one file store throughout an agent's life, but can't
+    // initialise it until we've read the properties.
+    FileStore fileStore = null;
+
     while (true) {
       logger.output("The Grinder version " + GrinderBuild.getVersionString());
 
@@ -103,12 +108,16 @@ public final class Agent {
       final ConsoleListener consoleListener =
         new ConsoleListener(eventSynchronisation, logger);
 
-      Receiver receiver = null;
+      final WorkerProcessCommandLine workerCommandLine =
+        new WorkerProcessCommandLine(properties, System.getProperties(),
+                                     m_alternateFile);
+
+      logger.output("Worker process command line: " + workerCommandLine);
 
       final String hostID =
         properties.getProperty("grinder.hostID", getHostName());
 
-      final File fileStoreDirectory = new File("./" + hostID + "-file-store");
+      Receiver receiver = null;
 
       if (properties.getBoolean("grinder.useConsole", true)) {
         final Connector connector =
@@ -119,18 +128,27 @@ public final class Agent {
                               CommunicationDefaults.CONSOLE_PORT),
             ConnectionType.CONTROL);
 
-        final FileStore fileStore = new FileStore(fileStoreDirectory, logger);
-
         try {
           receiver = ClientReceiver.connect(connector);
 
+          if (fileStore == null) {
+            fileStore =
+              new FileStore(new File("./" + hostID + "-file-store"), logger);
+          }
+
           // Ordering of the TeeSender is important so the child
-          // processes get the signals before our console listener.
+          // processes get the stop and reset signals before our
+          // console listener.
           final Sender sender =
             fileStore.getSender(
               new TeeSender(fanOutStreamSender, consoleListener.getSender()));
 
           new MessagePump(receiver, sender, 1);
+
+          if (!startImmediately) {
+            logger.output("waiting for console signal");
+            consoleListener.waitForMessage();
+          }
         }
         catch (CommunicationException e) {
           logger.error(
@@ -139,61 +157,51 @@ public final class Agent {
         }
       }
 
-      final InitialiseGrinderMessage initialiseGrinderMessage;
-
-      if (receiver != null) {
-        // For now we read script file from properties, even when we
-        // use the console.
-        final File scriptFile =
-          new File(fileStoreDirectory,
-                   properties.getProperty("grinder.script", "grinder.py"));
-
-        initialiseGrinderMessage =
-          new InitialiseGrinderMessage(true, scriptFile, fileStoreDirectory);
-      }
-      else {
-        final File scriptFile =
-          new File(properties.getProperty("grinder.script", "grinder.py"));
-
-        // Check that the script file is readable so we can chuck out
-        // a nicer error message up front.
-        if (!scriptFile.canRead()) {
-          logger.error("The script file '" + scriptFile +
-                       "' does not exist or is not readable",
-                       Logger.LOG | Logger.TERMINAL);
-          return;
-        }
-
-        initialiseGrinderMessage =
-          new InitialiseGrinderMessage(
-            false, scriptFile, scriptFile.getParentFile());
-      }
-
-      final ProcessFactory workerProcessFactory =
-        new WorkerProcessFactory(properties,
-                                 System.getProperties(),
-                                 hostID,
-                                 m_alternateFile,
-                                 fanOutStreamSender,
-                                 initialiseGrinderMessage);
-
-      logger.output("Worker process command line: " +
-                    workerProcessFactory.getCommandLine());
-
-      final ProcessLauncher processLauncher =
-        new ProcessLauncher(properties.getInt("grinder.processes", 1),
-                            workerProcessFactory,
-                            eventSynchronisation,
-                            logger);
-
-      if (!startImmediately && receiver != null) {
-        logger.output("waiting for console signal");
-        consoleListener.waitForMessage();
-      }
-
       if (receiver == null ||
           startImmediately ||
           consoleListener.received(ConsoleListener.START)) {
+
+        final StartGrinderMessage lastStartMessage =
+          consoleListener.getLastStartGrinderMessage();
+
+        final File scriptFromConsole =
+          lastStartMessage != null ? lastStartMessage.getScriptFile() : null;
+
+        final File scriptFromProperties =
+          new File(properties.getProperty("grinder.script", "grinder.py"));
+
+        final InitialiseGrinderMessage initialiseGrinderMessage;
+
+        if (scriptFromConsole != null) {
+          initialiseGrinderMessage =
+            new InitialiseGrinderMessage(true, scriptFromConsole,
+                                         fileStore.getDirectory());
+        }
+        else {
+          if (!scriptFromProperties.canRead()) {
+            logger.error("The script file '" + scriptFromProperties +
+                         "' does not exist or is not readable",
+                         Logger.LOG | Logger.TERMINAL);
+            break;
+          }
+
+          initialiseGrinderMessage =
+            new InitialiseGrinderMessage(
+              receiver != null, scriptFromProperties,
+              scriptFromProperties.getAbsoluteFile().getParentFile());
+        }
+
+        final ProcessFactory workerProcessFactory =
+          new WorkerProcessFactory(workerCommandLine,
+                                   hostID,
+                                   fanOutStreamSender,
+                                   initialiseGrinderMessage);
+
+        final ProcessLauncher processLauncher =
+          new ProcessLauncher(properties.getInt("grinder.processes", 1),
+                              workerProcessFactory,
+                              eventSynchronisation,
+                              logger);
 
         final int processIncrement =
           properties.getInt("grinder.processIncrement", 0);

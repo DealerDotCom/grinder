@@ -71,7 +71,13 @@ public class TestEngineMessages extends TestCase {
   }
 
   public void testStartGrinderMessage() throws Exception {
-    serialise(new StartGrinderMessage());
+    final File file = new File("blah/blah");
+
+    final StartGrinderMessage startGrinderMessage =
+      new StartGrinderMessage(file);
+    assertEquals(file, startGrinderMessage.getScriptFile());
+
+    serialise(startGrinderMessage);
   }
 
   public void testStopGrinderMessage() throws Exception {

@@ -79,6 +79,7 @@ public final class ConsoleListener {
   private final Logger m_logger;
   private int m_messagesReceived = 0;
   private int m_lastMessagesReceived = 0;
+  private StartGrinderMessage m_lastStartGrinderMessage;
 
   /**
    * Constructor.
@@ -172,6 +173,7 @@ public final class ConsoleListener {
           if (message instanceof StartGrinderMessage) {
             m_logger.output("received a start message");
             setReceived(START);
+            m_lastStartGrinderMessage = (StartGrinderMessage) message;
           }
           else if (message instanceof StopGrinderMessage) {
             m_logger.output("received a stop message");
@@ -191,5 +193,14 @@ public final class ConsoleListener {
           setReceived(SHUTDOWN);
         }
       };
+  }
+
+  /**
+   * Return the last {@link StartGrinderMessage} received.
+   *
+   * @return The message.
+   */
+  public StartGrinderMessage getLastStartGrinderMessage() {
+    return m_lastStartGrinderMessage;
   }
 }

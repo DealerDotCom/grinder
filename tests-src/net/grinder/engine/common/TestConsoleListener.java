@@ -21,6 +21,7 @@
 
 package net.grinder.engine.common;
 
+import java.io.File;
 import java.io.Serializable;
 
 import junit.framework.TestCase;
@@ -90,7 +91,7 @@ public class TestConsoleListener extends TestCase {
 
     final Sender sender = listener.getSender();
 
-    sender.send(new StartGrinderMessage());
+    sender.send(new StartGrinderMessage(new File("foo")));
     sender.send(new MyMessage()); // Unknown message.
     sender.send(new ResetGrinderMessage());
 
@@ -124,7 +125,7 @@ public class TestConsoleListener extends TestCase {
     assertFalse(listener.checkForMessage(ConsoleListener.RESET));
     assertFalse(listener.received(ConsoleListener.RESET));
 
-    sender.send(new StartGrinderMessage());
+    sender.send(new StartGrinderMessage(new File("bah")));
     sender.send(new ResetGrinderMessage());
 
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
@@ -161,7 +162,7 @@ public class TestConsoleListener extends TestCase {
         public void run() {
           synchronized (myMonitor) {} // Wait until we're listening.
           try {
-            sender.send(new StartGrinderMessage());
+            sender.send(new StartGrinderMessage(new File("lah")));
           }
           catch (CommunicationException e) {
             e.printStackTrace();

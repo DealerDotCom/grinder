@@ -22,6 +22,8 @@
 
 package net.grinder.engine.messages;
 
+import java.io.File;
+
 import net.grinder.communication.Message;
 
 
@@ -32,5 +34,26 @@ import net.grinder.communication.Message;
  * @version $Revision$
  */
 public final class StartGrinderMessage implements Message {
-  private static final long serialVersionUID = 5297469216172758366L;
+
+  private static final long serialVersionUID = 3118305547890931571L;
+
+  private final File m_scriptFile;
+
+  /**
+   * Constructor.
+   *
+   * @param scriptFile The script file to run.
+   */
+  public StartGrinderMessage(File scriptFile) {
+    m_scriptFile = scriptFile;
+  }
+
+  /**
+   * Accessor.
+   *
+   * @return The script file to run.
+   */
+  public File getScriptFile() {
+    return m_scriptFile;
+  }
 }

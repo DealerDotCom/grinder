@@ -85,7 +85,7 @@ public class Console {
       new ActionListener() {
         public void actionPerformed(ActionEvent event) {
           processStatusSet.processEvent();
-          m_communication.send(new StartGrinderMessage());
+          m_communication.send(new StartGrinderMessage(null));
         }
       };
 
