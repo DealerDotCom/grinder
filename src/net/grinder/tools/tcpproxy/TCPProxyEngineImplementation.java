@@ -140,24 +140,21 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
 	final Socket remoteSocket =
 	    m_socketFactory.createClientSocket(remoteHost, remotePort);
 
-	new StreamThread(new ConnectionDetails(
-			     m_connectionDetails.getLocalHost(),
-			     localSocket.getPort(),
-			     remoteHost,
-			     remoteSocket.getPort(),
-			     m_connectionDetails.isSecure()),
+	final ConnectionDetails connectionDetails =
+	    new ConnectionDetails(m_connectionDetails.getLocalHost(),
+				  localSocket.getPort(),
+				  remoteHost,
+				  remoteSocket.getPort(),
+				  m_connectionDetails.isSecure());
+    
+	new StreamThread(connectionDetails,
 			 localInputStream,
 			 remoteSocket.getOutputStream(),
 			 m_requestFilter,
 			 m_outputWriter,
 			 m_requestColour);
 
-	new StreamThread(new ConnectionDetails(
-			     remoteHost,
-			     remoteSocket.getPort(),
-			     m_connectionDetails.getLocalHost(),
-			     localSocket.getPort(),
-			     m_connectionDetails.isSecure()),
+	new StreamThread(connectionDetails.getOtherEnd(),
 			 remoteSocket.getInputStream(),
 			 localOutputStream,
 			 m_responseFilter,
