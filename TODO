@@ -33,6 +33,8 @@ total mean, and then listening for the reported variance.
 
 ** Console
 
+Fix JTable column header layout under J2SE 1.4.
+
 *** Script editing
 
 Add file tree control, rooted at root directory.

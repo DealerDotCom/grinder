@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,19 +25,21 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
-
-import net.grinder.console.common.ConsoleException;
+import javax.swing.table.TableColumn;
+import javax.swing.UIManager;
 
 
 /**
  * A read-only JTable that works in conjunction with an extended
  * TableModel specifies some cell rendering.
  *
- * @author Philip Aston
+# * @author Philip Aston
  * @version $Revision$
- **/
+ */
 final class Table extends JTable {
 
   /**
@@ -48,21 +50,34 @@ final class Table extends JTable {
     boolean isRed(int row, int column);
   }
 
-  private final MyCellRenderer m_myCellRenderer;
+  private final MyCellRenderer m_cellRenderer = new MyCellRenderer();
+  private final TableCellRenderer m_headerRenderer = new MyHeaderRenderer();
   private final Color m_defaultForeground;
   private final Font m_boldFont;
   private final Font m_defaultFont;
 
-  public Table(TableModel tableModel) throws ConsoleException {
+  public Table(TableModel tableModel) {
     super(tableModel);
 
     setRowSelectionAllowed(false);
 
-    m_myCellRenderer = new MyCellRenderer();
-
-    m_defaultForeground = m_myCellRenderer.getForeground();
-    m_defaultFont = m_myCellRenderer.getFont();
+    m_defaultForeground = m_cellRenderer.getForeground();
+    m_defaultFont = m_cellRenderer.getFont();
     m_boldFont = m_defaultFont.deriveFont(Font.BOLD);
+
+    createDefaultColumnsFromModel();
+  }
+
+  /**
+   * Set the header renderer for every column to work around Swing's
+   * dumb optimization where it assumes the default header renderer is
+   * always the same height. This nearly gives reasonably resize
+   * behaviour with J2SE 1.3 (but only on the second resize event),
+   * and doesn't work at all for J2SE 1.4; I'm still investigating.
+   */
+  public void addColumn(TableColumn column) {
+    column.setHeaderRenderer(m_headerRenderer);
+    super.addColumn(column);
   }
 
   public TableCellRenderer getCellRenderer(int row, int column) {
@@ -72,25 +87,25 @@ final class Table extends JTable {
     final boolean bold = model.isBold(row, column);
 
     if (red | bold) {
-      m_myCellRenderer.setForeground(red ? Colours.RED : m_defaultForeground);
-      m_myCellRenderer.setTheFont(bold ? m_boldFont : m_defaultFont);
+      m_cellRenderer.setForeground(red ? Colours.RED : m_defaultForeground);
+      m_cellRenderer.setTheFont(bold ? m_boldFont : m_defaultFont);
 
-      return m_myCellRenderer;
+      return m_cellRenderer;
     }
     else {
       return super.getCellRenderer(row, column);
     }
   }
 
-  private final class MyCellRenderer extends DefaultTableCellRenderer {
+  private static final class MyCellRenderer extends DefaultTableCellRenderer {
     private Font m_font;
 
     public Component getTableCellRendererComponent(JTable table,
-                                              Object value,
-                                              boolean isSelected,
-                                              boolean hasFocus,
-                                              int row,
-                                              int column) {
+                                                   Object value,
+                                                   boolean isSelected,
+                                                   boolean hasFocus,
+                                                   int row,
+                                                   int column) {
       final DefaultTableCellRenderer defaultRenderer =
         (DefaultTableCellRenderer)
         super.getTableCellRendererComponent(table, value, isSelected,
@@ -106,6 +121,45 @@ final class Table extends JTable {
 
     public void setTheFont(Font f) {
       m_font = f;
+    }
+  }
+
+  private final class MyHeaderRenderer implements TableCellRenderer {
+
+    private JTextArea m_textArea = new JTextArea();
+
+    private MyHeaderRenderer() {
+      m_textArea.setLineWrap(true);
+      m_textArea.setWrapStyleWord(true);
+      m_textArea.setOpaque(false);
+      m_textArea.setEditable(false);
+    }
+
+    /**
+     * If working out what to do from the Swing source, be aware that
+     * JTableHeader.createDefaultRenderer() uses an anonymous inner
+     * class that overrides
+     * DefaultTableCellRenderer.getTableCellRendererComponent().
+     */
+    public Component getTableCellRendererComponent(JTable table, Object value,
+                                                   boolean isSelected,
+                                                   boolean hasFocus,
+                                                   int row, int column) {
+
+      if (table != null) {
+        final JTableHeader header = table.getTableHeader();
+
+        if (header != null) {
+          m_textArea.setForeground(header.getForeground());
+          m_textArea.setBackground(header.getBackground());
+          m_textArea.setFont(header.getFont());
+        }
+      }
+
+      m_textArea.setText((value == null) ? "" : value.toString());
+      m_textArea.setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+
+      return m_textArea;
     }
   }
 }

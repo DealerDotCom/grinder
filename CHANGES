@@ -40,7 +40,11 @@ Grinder 3.0-beta17
 
   The HTTP plugin now records the length of responses and reports mean
   response length and response bytes per second to the console. Thanks
-  to John Stafford White for prompting me to do this.
+  to John Stafford White for prompting me to do this. I've altered the
+  console tables to word wrap the column labels so that more columns
+  can be displayed neatly. This only appears to size correctly with
+  J2SE 1.3, and even then not every time. J2SE 1.4 only shows the
+  first line. I hope to have this swinging nicely by the next beta.
 
   Spanish translation updates from Jose Antonio Zapata Rey.
 
