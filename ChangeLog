@@ -1,3 +1,51 @@
+2003-09-25  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, TODO, xdoc/documentation.xweb, xdoc/g3/tcpproxy-xhtml.xml, xdoc/images/tcpproxy-ssl.gif, xdoc/images/tcpproxy.gif, xdoc/images/tcpproxy.vsd:
+	Document TCPProxy.
+
+2003-09-24  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/model/Model.java, CHANGES: Fix bug 804272.
+
+2003-09-23  Philip Aston  <philipa@mail.com>
+
+	* etc/localpaths.properties: Update.
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, TODO, src/HTTPClient/HTTPConnection.java:
+	Option to disable server DN check.
+
+	* src/net/grinder/plugin/http/HTTPPluginThreadState.java: Checkstyle.
+
+	* src/net/grinder/Grinder.java: Two character indent.
+
+	* xdoc/g3/getting-started-xhtml.xml:
+	Support for command line properties.
+
+	* xdoc/g3/faq-xhtml.xml: "Address in use" FAQ.
+
+	* xdoc/g3/console-xhtml.xml: German translation.
+
+2003-09-22  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties:
+	Don't override menu settings.
+
+	* CHANGES, src/net/grinder/Grinder.java:
+	Pass "grinder." system properties through to worker processes.
+
+	* etc/buildenv.sh, etc/setenv.sh: Fix for latest environment.
+
+	* AUTHORS, CHANGES, xdoc/welcome-xhtml.xml: Welcome Alblas Huibert.
+
+	* TODO: More to do.
+
+	* src/net/grinder/console/swingui/resources/Console_de.properties:
+	German console translation from Albas Huibert.
+
+	* src/net/grinder/console/swingui/resources/Console_fr.properties:
+	Updates from Betrand.
+	Rely on default image specification.
+
 2003-07-06  Philip Aston  <paston@bea.com>
 	
 	* The Grinder 3.0-beta10 is released.
