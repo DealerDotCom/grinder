@@ -877,11 +877,11 @@ public class HTTPRequest {
           // last one wins.
           statistics.setValue(plugin.getResponseStatusIndex(), statusCode);
 
-          if (dnsTime > 0) {
+          if (dnsTime >= 0) {
             statistics.addValue(plugin.getDnsTimeIndex(), dnsTime);
           }
 
-          if (connectTime > 0) {
+          if (connectTime >= 0) {
             statistics.addValue(plugin.getConnnectionTimeIndex(), connectTime);
           }
 
