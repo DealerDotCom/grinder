@@ -39,10 +39,13 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -89,7 +92,9 @@ public class ConsoleUI implements ModelListener
     private final static NumberFormat s_twoDPFormat =
 	new DecimalFormat("0.00");
 
-    private final HashMap m_actionTable = new HashMap();
+    private final Map m_actionTable = new HashMap();
+    private final StartAction m_startAction;
+    private final StopAction m_stopAction;
     private final Model m_model;
     private final JLabel m_collectSampleLabel;
     private final JLabel m_ignoreSampleLabel;
@@ -103,17 +108,20 @@ public class ConsoleUI implements ModelListener
     {
 	getResources();
 
-	final Action[] actions = {
+	m_startAction = new StartAction();
+	m_stopAction = new StopAction();
+
+	final MyAction[] actions = {
 	    new StartProcessesGrinderAction(startProcessesHandler),
 	    new StopProcessesGrinderAction(stopProcessesHandler),
-	    new StartAction(),
-	    new StopAction(),
+	    m_startAction,
+	    m_stopAction,
 	    new SaveAction(),
 	    new ExitAction(),
 	};
 
 	for (int i=0; i<actions.length; i++) {
-	    m_actionTable.put(actions[i].getValue(Action.NAME), actions[i]);
+	    m_actionTable.put(actions[i].getKey(), actions[i]);
 	}
 
 	m_model = model;
@@ -313,17 +321,7 @@ public class ConsoleUI implements ModelListener
 		    menu.addSeparator();
 		}
 		else {
-		    final JMenuItem menuItem =
-			new JMenuItem(
-			    getResourceString(menuItemKey + ".label"));
-
-		    final ImageIcon imageIcon =
-			getImageIcon(menuItemKey + ".image");
-
-		    if (imageIcon != null) {
-			menuItem.setIcon(imageIcon);
-		    }
-
+		    final JMenuItem menuItem = new JMenuItem();
 		    setAction(menuItem, menuItemKey);
 		    menu.add(menuItem);
 		}
@@ -341,7 +339,7 @@ public class ConsoleUI implements ModelListener
 	
 	final Iterator toolBarIterator =
 	    tokenise(getResourceString("toolbar"));
-	
+
 	while (toolBarIterator.hasNext()) {
 	    final String toolKey = (String)toolBarIterator.next();
 
@@ -349,43 +347,26 @@ public class ConsoleUI implements ModelListener
 		toolBar.addSeparator();
 	    }
 	    else {
-		final ImageIcon imageIcon = getImageIcon(toolKey + ".image");
-
-		if (imageIcon != null) {
-		    final JButton button = new JButton(imageIcon);
-		
-		    setAction(button, toolKey);
-
-		    final String tipString =
-			getResourceString(toolKey + ".tip", false);
-
-		    if (tipString != null) {
-			button.setToolTipText(tipString);
-		    }
-
-		    toolBar.add(button);
-		}
+		final JButton button = new JButton();
+		button.putClientProperty("hideActionText", Boolean.TRUE);
+		setAction(button, toolKey);
+		toolBar.add(button);
 	    }
 	}
 
 	return toolBar;
     }
 
-    private void setAction(AbstractButton  button, String resourceKey)
+    private void setAction(AbstractButton button, String actionKey)
     {
-	final String actionString = getResourceString(resourceKey + ".action");
-	final Action action = (Action)m_actionTable.get(actionString);
+	final MyAction action = (MyAction)m_actionTable.get(actionKey);
 
 	if (action != null) {
-	    action.addPropertyChangeListener(
-		new ActionChangedListener(button));
-
-	    button.addActionListener(action);
-	    button.setActionCommand(actionString);
-	    button.setEnabled(action.isEnabled());
+	    button.setAction(action);
+	    action.registerButton(button);
 	}
 	else {
-	    System.err.println("Action '" + actionString + "' not found");
+	    System.err.println("Action '" + actionKey + "' not found");
 	    button.setEnabled(false);
 	}
     }
@@ -450,33 +431,6 @@ public class ConsoleUI implements ModelListener
 	}
     }
 
-    private class ActionChangedListener implements PropertyChangeListener
-    {
-        final private AbstractButton m_button;
-        
-        ActionChangedListener(AbstractButton button)
-	{
-            super();
-            m_button = button;
-        }
-
-        public void propertyChange(PropertyChangeEvent e) 
-	{
-            final String propertyName = e.getPropertyName();
-
-            if (e.getPropertyName().equals(Action.NAME))
-	    {
-                final String text = (String)e.getNewValue();
-                m_button.setText(text);
-            }
-	    else if (propertyName.equals("enabled"))
-	    {
-                final Boolean enabledState = (Boolean)e.getNewValue();
-                m_button.setEnabled(enabledState.booleanValue());
-            }
-        }
-    }
-
     private static final class WindowCloseAdapter extends WindowAdapter
     {
 	public void windowClosing(WindowEvent e)
@@ -485,7 +439,68 @@ public class ConsoleUI implements ModelListener
 	}
     }
 
-    private class SaveAction extends AbstractAction
+    private abstract class MyAction extends AbstractAction
+    {
+	protected final static String SET_ACTION_PROPERTY = "setAction";
+
+	private final String m_key;
+	private final Set m_propertyChangeListenersByButton = new HashSet();
+
+	public MyAction(String key) 
+	{
+	    super();
+
+	    m_key = key;
+
+	    final String label = getResourceString(m_key + ".label", false);
+
+	    if (label != null) {
+		putValue(Action.NAME, label);
+	    }
+
+	    final String tip = getResourceString(m_key + ".tip", false);
+
+	    if (tip != null) {
+		putValue(Action.SHORT_DESCRIPTION, tip);
+	    }
+
+	    final ImageIcon imageIcon = getImageIcon(m_key + ".image");
+	    
+	    if (imageIcon != null) {
+		putValue(Action.SMALL_ICON, imageIcon);
+	    }
+	}
+
+	public String getKey()
+	{
+	    return m_key;
+	}
+
+	public void registerButton(final AbstractButton button) 
+	{
+	    if (!m_propertyChangeListenersByButton.contains(button)) {
+		addPropertyChangeListener(
+		    new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent e) {
+			    if (e.getPropertyName().equals(
+				    SET_ACTION_PROPERTY)) {
+
+				final MyAction newAction =
+				    (MyAction)e.getNewValue();
+
+				button.setAction(newAction);
+				newAction.registerButton(button);
+			    }
+			}
+		    }
+		    );
+
+		m_propertyChangeListenersByButton.add(button);
+	    }
+	}
+    }
+
+    private class SaveAction extends MyAction
     {
 	private final JFileChooser m_fileChooser = 
 	    new JFileChooser(new File("."));
@@ -533,8 +548,8 @@ public class ConsoleUI implements ModelListener
 	    }
 	}
     }
-
-    private class ExitAction extends AbstractAction
+    
+    private class ExitAction extends MyAction
     {
 	ExitAction()
 	{
@@ -547,7 +562,7 @@ public class ConsoleUI implements ModelListener
 	}
     }
 
-    private class StartAction extends AbstractAction
+    private class StartAction extends MyAction
     {
 	StartAction()
 	{
@@ -557,10 +572,14 @@ public class ConsoleUI implements ModelListener
         public void actionPerformed(ActionEvent e)
 	{
 	    m_model.start();
+
+	    //  putValue() won't work here as the event won't // fire
+	    //  if the value doesn't change.
+	    firePropertyChange(SET_ACTION_PROPERTY, null, m_stopAction);
 	}
     }
 
-    private class StopAction extends AbstractAction
+    private class StopAction extends MyAction
     {
 	StopAction()
 	{
@@ -570,10 +589,14 @@ public class ConsoleUI implements ModelListener
         public void actionPerformed(ActionEvent e)
 	{
 	    m_model.stop();
+
+	    //  putValue() won't work here as the event won't // fire
+	    //  if the value doesn't change.
+	    firePropertyChange(SET_ACTION_PROPERTY, null, m_startAction);
 	}
     }
 
-    private class StartProcessesGrinderAction extends AbstractAction
+    private class StartProcessesGrinderAction extends MyAction
     {
 	private final ActionListener m_delegateAction;
 
@@ -589,7 +612,7 @@ public class ConsoleUI implements ModelListener
 	}
     }
 
-    private class StopProcessesGrinderAction extends AbstractAction
+    private class StopProcessesGrinderAction extends MyAction
     {
 	private final ActionListener m_delegateAction;
 

@@ -7,6 +7,8 @@ it too :-). The list is roughly in priority order.]
 
   Update HTTPClient to allow multiple servers per client.
 
+  Console controls: add "reset processes"
+
   Update HTTPClient to measure "time to first byte" and "Time to last
   byte" as an alternitive to implementing timeIncludesTransaction.
 
