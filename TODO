@@ -3,10 +3,6 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 that too :-). The list is roughly in priority order.]
 
- > >I'd rather resurrect the concept of an initialSleepTime with a flat
- > >random distribution (yes, the value could be the upper limit) than
- > >alter whats already there. I can add this easily. What do you think?
-
   Add support for HTTP authentication.
 
   More documentation - both user level and javadoc. Volunteers please!

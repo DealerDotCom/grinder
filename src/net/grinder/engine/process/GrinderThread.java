@@ -61,7 +61,7 @@ class GrinderThread implements java.lang.Runnable
     private final long m_defaultSleepTime;
     private final double m_sleepTimeVariation;
     private final double m_sleepTimeFactor;
-    private final long m_beginCycleSleepTime;
+    private final long m_initialSleepTime;
 
     private final int m_numberOfCycles;
 
@@ -100,8 +100,8 @@ class GrinderThread implements java.lang.Runnable
 	    properties.getDouble("grinder.thread.sleepTimeFactor", 1.0d);
 	m_sleepTimeVariation =
 	    properties.getDouble("grinder.thread.sleepTimeVariation", 0.2d);
-	m_beginCycleSleepTime =
-	    properties.getLong("grinder.thread.beginCycleSleepTime", 0);
+	m_initialSleepTime =
+	    properties.getLong("grinder.thread.initialSleepTime", 0);
 
 	m_numberOfCycles = properties.getInt("grinder.cycles", 1);
 
@@ -130,6 +130,9 @@ class GrinderThread implements java.lang.Runnable
 	    
 	    m_context.logMessage("Initialized " +
 				 m_threadCallbacks.getClass().getName());
+
+	    sleepFlat(m_initialSleepTime);
+
 	    m_context.logMessage("About to run " + m_numberOfCycles +
 				 " cycles");
 
@@ -137,9 +140,6 @@ class GrinderThread implements java.lang.Runnable
 	    for (m_currentCycle=0; m_currentCycle<m_numberOfCycles;
 		 m_currentCycle++)
 	    {
-		// Random initial wait
-		sleep(m_beginCycleSleepTime);
-
 		try {
 		    m_threadCallbacks.beginCycle();
 		}
@@ -159,7 +159,8 @@ class GrinderThread implements java.lang.Runnable
 		    m_context.reset();
 
 		    final long sleepTime = m_currentTestData.getSleepTime();
-		    sleep(sleepTime >= 0 ? sleepTime : m_defaultSleepTime);
+		    sleepNormal(
+			sleepTime >= 0 ? sleepTime : m_defaultSleepTime);
 
 		    final Statistics statistics =
 			m_currentTestData.getStatistics();
@@ -257,27 +258,40 @@ class GrinderThread implements java.lang.Runnable
      * Approximately 99.75% of times will be within (100*
      * m_sleepTimeVariation) percent of the meanTime.
      */
-    private void sleep(long meanTime) throws InterruptedException
+    private void sleepNormal(long meanTime) throws InterruptedException
     {
 	if (meanTime > 0) {
-	    meanTime = (long)(meanTime * m_sleepTimeFactor);
-
-	    final long sleepTime;
-
 	    if (m_sleepTimeVariation > 0) {
 		final double sigma = (meanTime * m_sleepTimeVariation)/3.0;
 
-		sleepTime = meanTime + (long)(m_random.nextGaussian() * sigma);
+		doSleep(meanTime + (long)(m_random.nextGaussian() * sigma));
 	    }
 	    else {
-		sleepTime = meanTime;
+		doSleep(meanTime);
 	    }
+	}
+    }
 
-	    if (sleepTime > 0) {
-		m_context.logMessage("Sleeping for " + sleepTime +
-					   " ms");
-		Thread.sleep(sleepTime);
-	    }
+    /**
+     * Sleep for a time based on the maxTime parameter.
+     *
+     * The actual time is taken from a pseudo random flat distribution
+     * between 0 and maxTime.
+     */
+    private void sleepFlat(long maxTime) throws InterruptedException
+    {
+	if (maxTime > 0) {
+	    doSleep(Math.abs(m_random.nextLong()) % maxTime);
+	}
+    }
+
+    private void doSleep(long time) throws InterruptedException
+    {
+	if (time > 0) {
+	    time = (long)(time * m_sleepTimeFactor);
+
+	    m_context.logMessage("Sleeping for " + time + " ms");
+	    Thread.sleep(time);
 	}
     }
 

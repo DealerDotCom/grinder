@@ -212,12 +212,21 @@ What can I set in grinder.properties?
 				updates to the Console (default 500
 				ms).
 
-    grinder.thread.beginCycleSleepTime	-
-				The time in milliseconds to wait before
-				beginning each cycle.
+    grinder.thread.initialSleepTime	-
+				The maxmimum time in milliseconds that
+				each thread waits before starting.
+				Unlike the other sleep times, this is
+				varied according to a flat random
+				distribution. The actual sleep time
+				will be a random value between 0 and
+				the specified value. Affected by
+				grinder.thread.sleepTimeFactor, but
+				not grinder.thread.sleepTimeVariation.
 
     grinder.thread.sleepTime -	The time in milliseconds to wait
-				between individual tests.
+				between individual tests. Affected by
+				both grinder.thread.sleepTimeFactor,
+				and grinder.thread.sleepTimeVariation.
 
     grinder.thread.sleepTimeFactor -
 				Apply a factor to all the sleep times
