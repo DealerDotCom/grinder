@@ -1,3 +1,9 @@
+2001-09-20  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/statistics/Statistics.java, src/net/grinder/statistics/StatisticsImplementation.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/TestGraphPanel.java:
+	Split Statistics into a Statistics interface and
+	StatisticsImplementation class.
+
 2001-09-17  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, CHANGES, TODO, src/net/grinder/TCPSniffer.java:
