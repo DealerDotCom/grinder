@@ -212,7 +212,7 @@ public class HTTPPlugin implements GrinderPlugin
 		final int statusCode = httpResponse.getStatusCode();
 
 		final String message =
-		    delayedInvocation.getPath() + "->" + statusCode + " " +
+		    httpResponse.getOriginalURI() + " -> " + statusCode + " " +
 		    httpResponse.getReasonLine();
 
 		switch (statusCode) {
@@ -262,8 +262,7 @@ public class HTTPPlugin implements GrinderPlugin
 	    }
 	    catch (Exception e) {
 		throw new PluginException(
-		    "Failed whilst making HTTP request to " +
-		    delayedInvocation.getPath(), e);
+		    "Failed whilst making HTTP request" , e);
 	    }
 	    finally {
 		// Back stop.
