@@ -29,7 +29,7 @@ import java.io.PrintWriter;
  * Created: Sat Dec  9 13:48:28 2000
  *
  * @author Philip Aston
- * @version
+ * @version $Revision$
  */
 
 public class GrinderException extends Exception
