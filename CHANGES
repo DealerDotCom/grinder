@@ -6,6 +6,9 @@ Grinder 3.0-beta17
   InetAddress.getLocalHost() up front, indicating that the underlying
   cause is a very strange JVM issue.
 
+  Fix bug 876097 - ClonePyInstance not included in grinder.jar. Thanks
+  to Karl Wyer for the report.
+
 
 Grinder 3.0-beta16
 ------------------
