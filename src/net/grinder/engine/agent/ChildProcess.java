@@ -113,6 +113,13 @@ final class ChildProcess {
     }
   }
 
+  /**
+   * Destroy the process.
+   */
+  public void destroy() {
+    m_process.destroy();
+  }
+
   private Thread createRedirectorThread(InputStream inputStream,
                                         OutputStream outputStream) {
 
