@@ -941,14 +941,30 @@ public class HTTPResponse implements HTTPClientModuleConstants
 		int inc  = 1000,
 		    rcvd = 0;
 
-		do
-		{
-		    off  += rcvd;
-                    /** ++GRINDER MODIFICATION **/
-                    inc *= 2;
-                    /** --GRINDER MODIFICATION **/
-		    Data  = Util.resizeArray(Data, off+inc);
-		} while ((rcvd = inp.read(Data, off, inc)) != -1);
+                /** ++GRINDER MODIFICATION **/
+		// do
+		// {
+		//     off  += rcvd;
+		//     Data  = Util.resizeArray(Data, off+inc);
+		// } while ((rcvd = inp.read(Data, off, inc)) != -1);
+
+		do 
+                {
+		    off += rcvd;
+
+                    // Resize the buffer if it has less that 1000
+                    // bytes spare.
+                    if (Data.length - off < 1000)
+                    {
+                      Data = Util.resizeArray(Data, Data.length + inc);
+
+                      // Grow exponentially so that the number of
+                      // copies for an N byte response is O(ln N).
+                      inc *= 2;
+                    }
+		}
+                while ((rcvd = inp.read(Data, off, Data.length - off)) != -1);
+                /** --GRINDER MODIFICATION **/
 
 		Data = Util.resizeArray(Data, off);
 	    }
