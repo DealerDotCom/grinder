@@ -26,9 +26,9 @@ package net.grinder.tools.tcpproxy;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -188,11 +188,11 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           // Reset stream to beginning of request.
           in.reset();
 
-          new Thread(
-            getStreamHandlerThreadGroup(),
+          new StreamThread(
             new HTTPProxyStreamDemultiplexer(
               in, localSocket, EndPoint.clientEndPoint(localSocket)),
-              "HTTPProxyStreamDemultiplexer for " + localSocket).start();
+            "HTTPProxyStreamDemultiplexer for " + localSocket,
+            in);
         }
         else if (httpsConnectMatcher.find()) {
           // HTTPS proxy request.
@@ -243,19 +243,19 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
           // Set up a couple of threads to punt everything we receive
           // over localSocket to sslProxySocket, and vice versa.
-          new Thread(
-            getStreamHandlerThreadGroup(),
+          new StreamThread(
             new StreamCopier(4096, true)
-            .getRunnable(in, sslProxySocket.getOutputStream()),
-            "Copy to proxy engine for " + remoteEndPoint).start();
+              .getRunnable(in, sslProxySocket.getOutputStream()),
+            "Copy to proxy engine for " + remoteEndPoint,
+            in);
 
           final OutputStream out = localSocket.getOutputStream();
 
-          new Thread(
-            getStreamHandlerThreadGroup(),
+          new StreamThread(
             new StreamCopier(4096, true)
-            .getRunnable(sslProxySocket.getInputStream(), out),
-            "Copy from proxy engine for " + remoteEndPoint).start();
+              .getRunnable(sslProxySocket.getInputStream(), out),
+            "Copy from proxy engine for " + remoteEndPoint,
+            sslProxySocket.getInputStream());
 
           if (m_httpsProxySocketFactory != null) {
             // Chuck the chained proxy's response back as our own.
@@ -267,9 +267,6 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
             // will now start sending SSL data to localSocket.
             final StringBuffer response = new StringBuffer();
             response.append("HTTP/1.0 200 OK\r\n");
-            response.append("Host: ");
-            response.append(remoteEndPoint);
-            response.append("\r\n");
             response.append("Proxy-agent: The Grinder/");
             response.append(GrinderBuild.getVersionString());
             response.append("\r\n");
@@ -308,6 +305,11 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     catch (IOException e) {
       logIOException(e);
     }
+  }
+
+  public void stop() {
+    super.stop();
+    m_proxySSLEngine.stop();
   }
 
   private void sendHTTPErrorResponse(HTMLElement message, String status,
@@ -651,7 +653,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
       }
 
       // HTTPS proxy protocol complete, now build the SSL socket.
-      return m_delegate.createClientSocket(socket, m_httpsProxy);
+      return m_delegate.createClientSocket(socket, remoteEndPoint);
     }
   }
 }

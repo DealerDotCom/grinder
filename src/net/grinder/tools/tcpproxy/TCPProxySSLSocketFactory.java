@@ -39,11 +39,12 @@ public interface TCPProxySSLSocketFactory extends TCPProxySocketFactory {
    * sockets.</p>
    *
    * <p>The SSL socket takes ownership of the existing socket; when
-   * the SSL socket is closed, the existing socket will aslo be
-   * clsoed.</p>
+   * the SSL socket is closed, the existing socket will also be
+   * closed.</p>
    *
    * @param existingSocket The existing socket.
-   * @param remoteEndPoint Remote host and port.
+   * @param remoteEndPoint Remote host and port. Not the proxy. As far as I
+   * can gather, the JSSE does not use this information.
    * @return A new <code>Socket</code>.
    * @exception IOException If an error occurs.
    */
