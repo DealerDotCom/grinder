@@ -66,7 +66,7 @@ final class FileTree {
   private final Resources m_resources;
   private final ErrorHandler m_errorHandler;
   private final EditorModel m_editorModel;
-  private final FileTreeModel m_fileTreeModel = new FileTreeModel();
+  private final FileTreeModel m_fileTreeModel;
 
   // Can't initialise tree until model has a valid directory.
   private final JTree m_tree;
@@ -81,6 +81,7 @@ final class FileTree {
     m_resources = resources;
     m_errorHandler = errorHandler;
     m_editorModel = editorModel;
+    m_fileTreeModel = new FileTreeModel(m_editorModel);
 
     m_fileTreeModel.setRootDirectory(
       consoleProperties.getDistributionDirectory());
@@ -162,11 +163,21 @@ final class FileTree {
             final FileTreeModel.FileNode oldFileNodeForBuffer =
               m_fileTreeModel.findFileNode(buffer);
 
-            final FileTreeModel.Node node = m_fileTreeModel.findNode(file);
+            FileTreeModel.Node node = m_fileTreeModel.findNode(file);
 
             if (oldFileNodeForBuffer != null &&
                 !oldFileNodeForBuffer.equals(node)) {
               oldFileNodeForBuffer.setBuffer(null);
+            }
+
+            if (node == null) {
+              // Couldn't find node. Lets refresh the tree and try again.
+              m_fileTreeModel.refresh();
+
+              node = m_fileTreeModel.findNode(file);
+
+              // If we still can't find a node, its probably because
+              // the file is outside our tree. Oh well.
             }
 
             if (node instanceof FileTreeModel.FileNode) {
@@ -176,9 +187,6 @@ final class FileTree {
               fileNode.setBuffer(buffer);
 
               m_tree.scrollPathToVisible(fileNode.getPath());
-            }
-            else {
-              // TODO - need to refresh the tree here and look for the node.
             }
           }
 

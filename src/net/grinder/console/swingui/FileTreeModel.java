@@ -25,7 +25,10 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
@@ -34,6 +37,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import net.grinder.console.model.editor.Buffer;
+import net.grinder.console.model.editor.EditorModel;
 
 
 /**
@@ -44,7 +48,7 @@ import net.grinder.console.model.editor.Buffer;
  */
 final class FileTreeModel implements TreeModel {
 
-  private RootNode m_rootNode;
+  private final EditorModel m_editorModel;
   private final EventListenerList m_listeners = new EventListenerList();
 
   /**
@@ -58,11 +62,19 @@ final class FileTreeModel implements TreeModel {
    */
   private final WeakValueHashMap m_buffersToFileNodes = new WeakValueHashMap();
 
-  FileTreeModel() {
+  private RootNode m_rootNode;
+
+  FileTreeModel(EditorModel editorModel) {
+    m_editorModel = editorModel;
   }
 
   public void setRootDirectory(File rootDirectory) {
     m_rootNode = new RootNode(rootDirectory);
+    fireTreeStructureChanged();
+  }
+
+  public void refresh() {
+    m_rootNode.refresh();
     fireTreeStructureChanged();
   }
 
@@ -104,7 +116,40 @@ final class FileTreeModel implements TreeModel {
   }
 
   public Node findNode(File file) {
+    final Node existingNode = (Node)m_filesToNodes.get(file);
+
+    if (existingNode != null) {
+      return existingNode;
+    }
+
+    // Maybe its not been expanded. Lets try harder.
+    final File[] paths = fileToArrayOfParentPaths(file);
+
+    for (int i = 0; i < paths.length - 1; ++i) {
+      final Node node = (Node)m_filesToNodes.get(paths[i]);
+
+      if (node instanceof DirectoryNode) {
+        final DirectoryNode directoryNode = (DirectoryNode)node;
+        directoryNode.getChildForFile(paths[i + 1]);
+      }
+    }
+
     return (Node)m_filesToNodes.get(file);
+  }
+
+  public File[] fileToArrayOfParentPaths(File file) {
+    final List list = new ArrayList();
+
+    File f = file;
+
+    while (f != null) {
+      list.add(f);
+      f = f.getParentFile();
+    }
+
+    Collections.reverse(list);
+
+    return (File[])list.toArray(new File[list.size()]);
   }
 
   public FileNode findFileNode(Buffer buffer) {
@@ -199,10 +244,12 @@ final class FileTreeModel implements TreeModel {
    */
   public final class FileNode extends Node {
 
-    private Buffer m_buffer = null;
+    private Buffer m_buffer;
 
     private FileNode(DirectoryNode parentNode, File file) {
       super(parentNode, file);
+
+      setBuffer(m_editorModel.getBufferForFile(file));
     }
 
     public void setBuffer(Buffer buffer) {
@@ -237,23 +284,84 @@ final class FileTreeModel implements TreeModel {
    */
   private class DirectoryNode extends Node {
 
-    private final File[] m_childDirectories;
-    private final File[] m_childFiles;
+    private File[] m_childDirectories = new File[0];
+    private DirectoryNode[] m_childDirectoryNodes;
+    private File[] m_childFiles = new File[0];
+    private FileNode[] m_childFileNodes;
 
     DirectoryNode(DirectoryNode parentNode, File file) {
       super(parentNode, file);
 
-      m_childDirectories = file.listFiles(s_directoryFilter);
-      m_childFiles = file.listFiles(s_fileFilter);
+      refresh();
+    }
+
+    public void refresh() {
+      for (int i = 0; i < m_childDirectories.length; ++i) {
+        final DirectoryNode oldDirectoryNode =
+          (DirectoryNode)m_filesToNodes.remove(m_childDirectories[i]);
+
+        if (oldDirectoryNode != null) {
+          oldDirectoryNode.refresh();
+        }
+      }
+
+      for (int i = 0; i < m_childFiles.length; ++i) {
+        final FileNode oldFileNode =
+          (FileNode)m_filesToNodes.remove(m_childFiles[i]);
+
+        if (oldFileNode != null) {
+          final Buffer buffer = (Buffer)oldFileNode.getBuffer();
+
+          if (buffer != null) {
+            m_buffersToFileNodes.remove(buffer);
+          }
+        }
+      }
+
+      m_childDirectories = getFile().listFiles(s_directoryFilter);
+      m_childDirectoryNodes = new DirectoryNode[m_childDirectories.length];
+      m_childFiles = getFile().listFiles(s_fileFilter);
+      m_childFileNodes = new FileNode[m_childFiles.length];
+    }
+
+    final Node getChildForFile(File file) {
+      if (file.isDirectory()) {
+        for (int i = 0; i < m_childDirectories.length; ++i) {
+          if (m_childDirectories[i].equals(file)) {
+            return getChild(i);
+          }
+        }
+      }
+      else {
+        for (int i = 0; i < m_childFiles.length; ++i) {
+          if (m_childFiles[i].equals(file)) {
+            return getChild(i + m_childDirectories.length);
+          }
+        }
+      }
+
+      // Not known here.
+      return null;
     }
 
     public final Node getChild(int index) {
       if (index < m_childDirectories.length) {
-        return new DirectoryNode(this, m_childDirectories[index]);
+        if (m_childDirectoryNodes[index] == null) {
+          m_childDirectoryNodes[index] =
+            new DirectoryNode(this, m_childDirectories[index]);
+        }
+
+        return m_childDirectoryNodes[index];
       }
       else {
-        return new FileNode(this,
-                            m_childFiles[index - m_childDirectories.length]);
+        final int fileIndex = index - m_childDirectories.length;
+
+        if (m_childFileNodes[fileIndex] == null) {
+          m_childFileNodes[fileIndex] =
+            new FileNode(this, m_childFiles[fileIndex]);
+        }
+
+        return m_childFileNodes[fileIndex];
       }
     }
 
@@ -301,6 +409,11 @@ final class FileTreeModel implements TreeModel {
 
     public Object get(Object key) {
       final WeakReference reference = (WeakReference)m_map.get(key);
+      return reference != null ? reference.get() : null;
+    }
+
+    public Object remove(Object key) {
+      final WeakReference reference = (WeakReference)m_map.remove(key);
       return reference != null ? reference.get() : null;
     }
   }

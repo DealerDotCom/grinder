@@ -879,7 +879,7 @@ public final class ConsoleUI implements ModelListener {
           }
 
           if (!file.equals(currentFile) &&
-              m_editorModel.hasBufferForFile(file) &&
+              m_editorModel.getBufferForFile(file) != null &&
               JOptionPane.showConfirmDialog(
                 m_frame,
                 m_model.getResources().getString(
@@ -1026,8 +1026,7 @@ public final class ConsoleUI implements ModelListener {
 
   private final class ChooseDirectoryAction extends CustomAction {
 
-    private final JFileChooser m_fileChooser =
-      new JFileChooser(m_model.getProperties().getDistributionDirectory());
+    private final JFileChooser m_fileChooser = new JFileChooser(".");
 
     ChooseDirectoryAction() {
       super(m_model.getResources(), "choose-directory", true);
@@ -1037,11 +1036,15 @@ public final class ConsoleUI implements ModelListener {
 
       m_fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
+      m_fileChooser.setSelectedFile(
+        m_model.getProperties().getDistributionDirectory());
+
       m_lookAndFeel.addListener(
         new LookAndFeel.ComponentListener(m_fileChooser));
     }
 
     public void actionPerformed(ActionEvent event) {
+
       try {
         if (m_fileChooser.showOpenDialog(m_frame) ==
             JFileChooser.APPROVE_OPTION) {

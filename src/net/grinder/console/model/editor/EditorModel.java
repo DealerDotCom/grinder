@@ -123,13 +123,13 @@ public final class EditorModel {
   }
 
   /**
-   * Return whether there is a buffer for the given file.
+   * Get the buffer for the given file.
    *
    * @param file The file.
-   * @return <code>true</code> => there is a buffer for the file.
+   * @return The buffer; <code>null</code> => there is no buffer for the file.
    */
-  public boolean hasBufferForFile(File file) {
-    return m_fileBuffers.get(file) != null;
+  public Buffer getBufferForFile(File file) {
+    return (Buffer)m_fileBuffers.get(file);
   }
 
   /**

@@ -29,6 +29,8 @@ a request with the authentication headers.
 
 * Enhancements
 
+Produce nice error message if started with incorrect Java version.
+
 ** Script Distribution
 
 *** Model
@@ -47,14 +49,23 @@ start.
 Task: Console to broadcast. Remove ScriptDistributionFiles work. 
 
 Task: Allow editing in the console.
-	Add dirty file handler to model.
-	Rip copy and paste, undo out of Notepad JFC sample.
-	- Need to align with JEditSyntax support.
-	JEdit formatter should be file depenedent.
+
+Add dirty file handler to model.
+
+Hang on to FileTreeModel so that it survives LAF change?
 	
 Editing
 	- Need to handle CRLF? (Not for now).
 
+Think very hard about the changes to FileTreeModel for refresh.
+
+Add a "BufferNode" for buffers.
+Rework file tree so it lists BufferNodes at end.
+New buffers get a BufferNode.
+When closed, buffer node removed.
+Buffers need a title. New buffers are "New file 1", ...
+
+Implement Close
 
 
 Task: Console to maintain local dirty list based on edits and
@@ -87,9 +98,13 @@ Allow files to be marked for distribution. Any file.
 Automatically detect, and indicate, scripts.
 When new script is selected, unselect other script.
 
-*** Plans
+*** Refactoring
 
-Allow file sets to be saved and loaded.
+Draw out FileBuffer?
+
+
+
+*** Plans
 
 Allow grinder properties to be set remotely.
 
