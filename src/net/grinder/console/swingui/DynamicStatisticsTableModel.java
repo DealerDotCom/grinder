@@ -224,7 +224,7 @@ abstract class DynamicStatisticsTableModel
 	writer.write(m_testDescriptionColumnString);
 	writer.write(columnDelimiter);
 	
-	for (int dynamicColumn=0; dynamicColumn<numberOfColumns;
+	for (int dynamicColumn=0; dynamicColumn<numberOfColumns-2;
 	     dynamicColumn++)
 	{
 	    writer.write(m_columnLabels[dynamicColumn]);
