@@ -74,6 +74,7 @@ import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ProcessControl;
+import net.grinder.console.communication.ProcessStatusSet;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 import net.grinder.console.model.ConsoleProperties;
@@ -133,9 +134,11 @@ public final class ConsoleUI implements ModelListener {
    *
    * @param model The console model.
    * @param processControl Process control.
+   * @param processStatusSet Process status.
    * @exception ConsoleException if an error occurs
    */
-  public ConsoleUI(Model model, ProcessControl processControl)
+  public ConsoleUI(Model model, ProcessControl processControl,
+                   ProcessStatusSet processStatusSet)
     throws ConsoleException {
 
     m_model = model;
@@ -267,7 +270,7 @@ public final class ConsoleUI implements ModelListener {
                       resources.getString("resultsTab.tip"));
 
     final ProcessStatusTableModel processStatusModel =
-      new ProcessStatusTableModel(model);
+      new ProcessStatusTableModel(resources, processStatusSet);
 
     final JScrollPane processStatusPane =
       new JScrollPane(new Table(processStatusModel));

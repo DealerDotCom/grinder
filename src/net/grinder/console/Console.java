@@ -28,7 +28,6 @@ import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ConsoleCommunication;
-import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
 import net.grinder.console.messages.ReportStatisticsMessage;
@@ -36,12 +35,7 @@ import net.grinder.console.messages.ReportStatusMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.swingui.ConsoleUI;
-import net.grinder.engine.messages.DistributeFilesMessage;
-import net.grinder.engine.messages.ResetGrinderMessage;
-import net.grinder.engine.messages.StartGrinderMessage;
-import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.util.FileContents;
 
 
 /**
@@ -80,33 +74,13 @@ public class Console {
 
     m_model = new Model(properties, resources);
 
-    final ProcessControl processControl = new ProcessControl() {
-        public void startWorkerProcesses() {
-          m_model.getProcessStatusSet().processEvent();
-          m_communication.send(new StartGrinderMessage(null));
-        }
+    m_communication = new ConsoleCommunication(resources, properties);
 
-        public void resetWorkerProcesses() {
-          m_model.getProcessStatusSet().processEvent();
-          m_communication.send(new ResetGrinderMessage());
-        }
+    m_userInterface =
+      new ConsoleUI(m_model, m_communication.getProcessControl(),
+                    m_communication.getProcessStatusSet());
 
-        public void stopWorkerProcesses() {
-          m_model.getProcessStatusSet().processEvent();
-          m_communication.send(new StopGrinderMessage());
-        }
-
-        public void distributeFiles(FileContents[] files) {
-          m_communication.send(new DistributeFilesMessage(files));
-        }
-      };
-
-    m_userInterface = new ConsoleUI(m_model, processControl);
-
-    m_communication =
-      new ConsoleCommunication(resources,
-                               properties,
-                               m_userInterface.getErrorHandler());
+    m_communication.setErrorHandler(m_userInterface.getErrorHandler());
   }
 
   /**
@@ -137,7 +111,7 @@ public class Console {
       }
 
       if (message instanceof ReportStatusMessage) {
-        m_model.getProcessStatusSet().addStatusReport(
+        m_communication.getProcessStatusSet().addStatusReport(
           (ReportStatusMessage)message);
       }
     }

@@ -63,7 +63,7 @@ import net.grinder.util.SignificantFigureFormat;
  * @author Philip Aston
  * @version $Revision$
  */
-public class Model {
+public final class Model {
 
   /**
    * Constant that represents the model state of <em>waiting for a
@@ -127,8 +127,6 @@ public class Model {
   private final ExpressionView m_peakTPSExpressionView;
   private StatisticsView m_intervalStatisticsView;
   private StatisticsView m_cumulativeStatisticsView;
-
-  private final ProcessStatusSet m_processStatusSet = new ProcessStatusSet();
 
   private final Sampler m_sampler = new Sampler();
 
@@ -225,20 +223,11 @@ public class Model {
   }
 
   /**
-   * Get the ProcessStatusSet for this model.
-   *
-   * @return The <code>ProcessStatusSet</code>.
-   */
-  public final ProcessStatusSet getProcessStatusSet() {
-    return m_processStatusSet;
-  }
-
-  /**
    * Get the expression view for TPS.
    *
    * @return The TPS expression view for this model.
    */
-  public final ExpressionView getTPSExpressionView() {
+  public ExpressionView getTPSExpressionView() {
     return m_tpsExpressionView;
   }
 
@@ -247,7 +236,7 @@ public class Model {
    *
    * @return The TPS expression for this model.
    */
-  public final StatisticExpression getTPSExpression() {
+  public StatisticExpression getTPSExpression() {
     return m_tpsExpression;
   }
 
@@ -256,7 +245,7 @@ public class Model {
    *
    * @return The peak TPS expression view for this model.
    */
-  public final ExpressionView getPeakTPSExpressionView() {
+  public ExpressionView getPeakTPSExpressionView() {
     return m_peakTPSExpressionView;
   }
 
@@ -265,7 +254,7 @@ public class Model {
    *
    * @return The peak TPS expression for this model.
    */
-  public final StatisticExpression getPeakTPSExpression() {
+  public StatisticExpression getPeakTPSExpression() {
     return m_peakTPSExpression;
   }
 
@@ -274,7 +263,7 @@ public class Model {
    *
    * @param tests The new tests.
    */
-  public final void registerTests(Collection tests) {
+  public void registerTests(Collection tests) {
     // Need to copy collection, might be immutable.
     final Set newTests = new HashSet(tests);
 
@@ -322,7 +311,7 @@ public class Model {
    * @param intervalStatisticsView a <code>StatisticsView</code> value
    * @param cumulativeStatisticsView a <code>StatisticsView</code> value
    */
-  public final void registerStatisticsViews(
+  public void registerStatisticsViews(
     StatisticsView intervalStatisticsView,
     StatisticsView cumulativeStatisticsView) {
 
@@ -347,7 +336,7 @@ public class Model {
    *
    * @return The cumulative statistics view.
    */
-  public final StatisticsView getCumulativeStatisticsView() {
+  public StatisticsView getCumulativeStatisticsView() {
     return m_cumulativeStatisticsView;
   }
 
@@ -356,7 +345,7 @@ public class Model {
    *
    * @return The interval statistics view.
    */
-  public final StatisticsView getIntervalStatisticsView() {
+  public StatisticsView getIntervalStatisticsView() {
     return m_intervalStatisticsView;
   }
 
@@ -365,7 +354,7 @@ public class Model {
    *
    * @param listener The listener.
    */
-  public final void addModelListener(ModelListener listener) {
+  public void addModelListener(ModelListener listener) {
     synchronized (m_modelListeners) {
       m_modelListeners.add(listener);
     }
@@ -377,7 +366,7 @@ public class Model {
    * @param test The test to add the sample listener for.
    * @param listener The sample listener.
    */
-  public final void addSampleListener(Test test, SampleListener listener) {
+  public void addSampleListener(Test test, SampleListener listener) {
     ((SampleAccumulator)m_accumulators.get(test)).addSampleListener(listener);
   }
 
@@ -386,7 +375,7 @@ public class Model {
    *
    * @param listener The sample listener.
    */
-  public final void addTotalSampleListener(SampleListener listener) {
+  public void addTotalSampleListener(SampleListener listener) {
     m_totalSampleAccumulator.addSampleListener(listener);
   }
 
@@ -444,7 +433,7 @@ public class Model {
   /**
    * Reset the model.
    */
-  public final void reset() {
+  public void reset() {
 
     synchronized (m_tests) {
       m_tests.clear();
@@ -461,7 +450,7 @@ public class Model {
   /**
    * Start  the model.
    */
-  public final void start() {
+  public void start() {
     setState(STATE_WAITING_FOR_TRIGGER);
     fireModelUpdate();
   }
@@ -469,7 +458,7 @@ public class Model {
   /**
    * Stop the model.
    */
-  public final void stop() {
+  public void stop() {
     setState(STATE_STOPPED);
     fireModelUpdate();
   }
@@ -479,7 +468,7 @@ public class Model {
    * @param testStatisticsMap The new test statistics.
    * @exception ConsoleException If an error occurs.
    */
-  public final void addTestReport(TestStatisticsMap testStatisticsMap)
+  public void addTestReport(TestStatisticsMap testStatisticsMap)
     throws ConsoleException {
 
     m_receivedReport = true;
@@ -517,10 +506,10 @@ public class Model {
 
   /**
    * I've thought a couple of times about replacing this with a
-   * java.util.TimerTask, and giving Model a Timer thread which things
-   * like ProcessStatusSet could share. Its not as nice as it first
-   * seems though because you have to deal with cancelling and
-   * rescheduling the TimerTask when the sample period is changed.
+   * java.util.TimerTask, and giving Model a Timer thread. Its not as
+   * nice as it first seems though because you have to deal with
+   * cancelling and rescheduling the TimerTask when the sample period
+   * is changed.
    */
   private final class Sampler implements Runnable {
     public void run() {
@@ -606,7 +595,7 @@ public class Model {
    *
    * @return The properties.
    */
-  public final ConsoleProperties getProperties() {
+  public ConsoleProperties getProperties() {
     return m_properties;
   }
 
@@ -615,7 +604,7 @@ public class Model {
    *
    * @return The properties.
    */
-  public final Resources getResources() {
+  public Resources getResources() {
     return m_resources;
   }
 
@@ -624,7 +613,7 @@ public class Model {
    *
    * @return The number format.
    */
-  public final NumberFormat getNumberFormat() {
+  public NumberFormat getNumberFormat() {
     return m_numberFormat;
   }
 
@@ -633,7 +622,7 @@ public class Model {
    *
    * @return The sample count.
    */
-  public final long getSampleCount() {
+  public long getSampleCount() {
     return m_sampleCount;
   }
 
@@ -641,7 +630,7 @@ public class Model {
    * Whether or not a report was received in the last interval.
    * @return <code>true</code> => yes there was a report.
    */
-  public final boolean getReceivedReport() {
+  public boolean getReceivedReport() {
     return m_receivedReportInLastInterval;
   }
 
@@ -650,7 +639,7 @@ public class Model {
    *
    * @return The model state.
    */
-  public final int getState() {
+  public int getState() {
     return m_state;
   }
 

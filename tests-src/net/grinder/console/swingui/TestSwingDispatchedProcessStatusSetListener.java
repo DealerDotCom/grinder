@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,72 +23,60 @@
 package net.grinder.console.swingui;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import javax.swing.SwingUtilities;
 
 import net.grinder.common.ProcessStatus;
-import net.grinder.console.model.ProcessStatusSetListener;
+import net.grinder.console.communication.ProcessStatusSet;
 
 
 /**
+ * Unit tests for {@link SwingDispatchedProcessStatusSetListener}.
+ *
  * @author Philip Aston
  * @version $Revision$
- **/
-public class TestSwingDispatchedProcessStatusSetListener extends TestCase
-{
-    public static void main(String[] args)
+ */
+public class TestSwingDispatchedProcessStatusSetListener extends TestCase {
+
+  private Runnable m_voidRunnable = new Runnable() { public void run() {} };
+
+  public void testDispatch() throws Exception {
+    final MyProcessStatusSetListener listener =
+      new MyProcessStatusSetListener();
+
+    final ProcessStatusSet.Listener swingDispatchedListener =
+      new SwingDispatchedProcessStatusSetListener(listener);
+
+    final ProcessStatus[] data = new ProcessStatus[0];
+    final int running = 1;
+    final int total = 2;
+
+    listener.update(data, running, total);
+
+    // Wait for a dummy event to be processed by the swing event
+    // queue.
+    SwingUtilities.invokeAndWait(m_voidRunnable);
+
+    assertTrue(listener.m_updateCalled);
+    assertEquals(data, listener.m_updateData);
+    assertEquals(running, listener.m_updateRunning);
+    assertEquals(total, listener.m_updateTotal);
+  }
+
+  private class MyProcessStatusSetListener
+    implements ProcessStatusSet.Listener {
+    public boolean m_updateCalled = false;
+    public ProcessStatus[] m_updateData;
+    public int m_updateRunning;
+    public int m_updateTotal;
+
+    public void update(ProcessStatus[] data, int running, int total)
     {
-	TestRunner.run(TestSwingDispatchedProcessStatusSetListener.class);
+      m_updateCalled = true;
+      m_updateData = data;
+      m_updateRunning = running;
+      m_updateTotal = total;
     }
-
-    public TestSwingDispatchedProcessStatusSetListener(String name)
-    {
-	super(name);
-    }
-
-    private Runnable m_voidRunnable = new Runnable() { public void run() {} };
-
-    public void testDispatch() throws Exception
-    {
-	final MyProcessStatusSetListener listener =
-	    new MyProcessStatusSetListener();
-
-	final ProcessStatusSetListener swingDispatchedListener =
-	    new SwingDispatchedProcessStatusSetListener(listener);
-
-	final ProcessStatus[] data = new ProcessStatus[0];
-	final int running = 1;
-	final int total = 2;
-
-	listener.update(data, running, total);
-
-	// Wait for a dummy event to be processed by the swing event
-	// queue.
-	SwingUtilities.invokeAndWait(m_voidRunnable);
-
-	assertTrue(listener.m_updateCalled);
-	assertEquals(data, listener.m_updateData);
-	assertEquals(running, listener.m_updateRunning);
-	assertEquals(total, listener.m_updateTotal);
-    }
-
-    private class MyProcessStatusSetListener
-	implements ProcessStatusSetListener
-    {
-	public boolean m_updateCalled = false;
-	public ProcessStatus[] m_updateData;
-	public int m_updateRunning;
-	public int m_updateTotal;
-
-	public void update(ProcessStatus[] data, int running, int total)
-	{
-	    m_updateCalled = true;
-	    m_updateData = data;
-	    m_updateRunning = running;
-	    m_updateTotal = total;
-	}
-    }
+  }
 }
 

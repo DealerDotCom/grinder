@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,7 @@ package net.grinder.console.swingui;
 import javax.swing.SwingUtilities;
 
 import net.grinder.common.ProcessStatus;
-import net.grinder.console.model.ProcessStatusSetListener;
+import net.grinder.console.communication.ProcessStatusSet;
 
 
 /**
@@ -35,12 +35,12 @@ import net.grinder.console.model.ProcessStatusSetListener;
  * @version $Revision$
  **/
 class SwingDispatchedProcessStatusSetListener
-  implements ProcessStatusSetListener {
+  implements ProcessStatusSet.Listener {
 
-  private final ProcessStatusSetListener m_delegate;
+  private final ProcessStatusSet.Listener m_delegate;
 
   public SwingDispatchedProcessStatusSetListener(
-    ProcessStatusSetListener delegate) {
+    ProcessStatusSet.Listener delegate) {
     m_delegate = delegate;
   }
 

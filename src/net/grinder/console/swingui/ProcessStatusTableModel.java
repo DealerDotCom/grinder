@@ -27,8 +27,7 @@ import javax.swing.table.AbstractTableModel;
 import net.grinder.common.ProcessStatus;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
-import net.grinder.console.model.Model;
-import net.grinder.console.model.ProcessStatusSetListener;
+import net.grinder.console.communication.ProcessStatusSet;
 
 
 /**
@@ -41,8 +40,8 @@ import net.grinder.console.model.ProcessStatusSetListener;
  * @version $Revision$
  */
 class ProcessStatusTableModel
-  extends AbstractTableModel
-  implements ProcessStatusSetListener, Table.TableModel {
+  extends AbstractTableModel implements Table.TableModel {
+
   private static final int ID_COLUMN_INDEX = 0;
   private static final int STATE_COLUMN_INDEX = 1;
   private static final int THREADS_COLUMN_INDEX = 2;
@@ -59,10 +58,9 @@ class ProcessStatusTableModel
   private ProcessStatus[] m_data = new ProcessStatus[0];
   private String m_totalDataString = "";
 
-  public ProcessStatusTableModel(Model model)
+  public ProcessStatusTableModel(Resources resources,
+                                 ProcessStatusSet processStatusSet)
     throws ConsoleException {
-
-    final Resources resources = model.getResources();
 
     m_processIDString = resources.getString("processTable.idColumn.label");
     m_stateString = resources.getString("processTable.stateColumn.label");
@@ -73,16 +71,17 @@ class ProcessStatusTableModel
     m_stateRunningString = resources.getString("processState.running.label");
     m_stateFinishedString = resources.getString("processState.finished.label");
 
-    model.getProcessStatusSet().addListener(
-      new SwingDispatchedProcessStatusSetListener(this));
-  }
+    processStatusSet.addListener(
+      new SwingDispatchedProcessStatusSetListener(
+        new ProcessStatusSet.Listener() {
+          public void update(ProcessStatus[] data,
+                             int runningSum, int totalSum) {
+            m_data = data;
+            m_totalDataString = formatThreadCounts(runningSum, totalSum);
 
-  public final void update(ProcessStatus[] data, int runningSum,
-                           int totalSum) {
-    m_data = data;
-    m_totalDataString = formatThreadCounts(runningSum, totalSum);
-
-    fireTableDataChanged();
+            fireTableDataChanged();
+          }
+        }));
   }
 
   public int getColumnCount() {

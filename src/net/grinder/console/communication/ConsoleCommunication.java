@@ -34,6 +34,7 @@ import net.grinder.communication.Sender;
 import net.grinder.communication.ServerReceiver;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
+import net.grinder.console.common.ErrorQueue;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.model.ConsoleProperties;
@@ -49,7 +50,11 @@ public final class ConsoleCommunication {
 
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
-  private final ErrorHandler m_errorHandler;
+  private final ErrorQueue m_errorQueue = new ErrorQueue();
+
+  private final ProcessStatusSet m_processStatusSet = new ProcessStatusSet();
+  private final ProcessControl m_processControl =
+    new ProcessControlImplementation(this);
 
   private Acceptor m_acceptor = null;
   private Receiver m_receiver = null;
@@ -61,14 +66,11 @@ public final class ConsoleCommunication {
    *
    * @param resources Resources.
    * @param properties Console properties.
-   * @param errorHandler Where to report errors.
    */
   public ConsoleCommunication(Resources resources,
-                              ConsoleProperties properties,
-                              ErrorHandler errorHandler) {
+                              ConsoleProperties properties) {
     m_resources = resources;
     m_properties = properties;
-    m_errorHandler = errorHandler;
 
     reset();
 
@@ -85,6 +87,17 @@ public final class ConsoleCommunication {
       });
   }
 
+  /**
+   * Set the error handler. Any errors the
+   * <code>ConsoleCommunication</code> has queued up will be reported
+   * immediately.
+   *
+   * @param errorHandler Where to report errors.
+   */
+  public void setErrorHandler(ErrorHandler errorHandler) {
+    m_errorQueue.setErrorHandler(errorHandler);
+  }
+
   private void reset() {
     try {
       if (m_acceptor != null) {
@@ -92,7 +105,7 @@ public final class ConsoleCommunication {
       }
     }
     catch (CommunicationException e) {
-      m_errorHandler.handleException(e);
+      m_errorQueue.handleException(e);
       return;
     }
 
@@ -110,7 +123,7 @@ public final class ConsoleCommunication {
           wait();
         }
         catch (InterruptedException e) {
-          m_errorHandler.handleException(e);
+          m_errorQueue.handleException(e);
           return;
         }
       }
@@ -122,7 +135,7 @@ public final class ConsoleCommunication {
                                 1);
     }
     catch (CommunicationException e) {
-      m_errorHandler.handleException(
+      m_errorQueue.handleException(
         new DisplayMessageConsoleException(
           m_resources, "localBindError.text", e));
 
@@ -141,7 +154,7 @@ public final class ConsoleCommunication {
               break;
             }
 
-            m_errorHandler.handleException(exception);
+            m_errorQueue.handleException(exception);
           }
         }
       };
@@ -166,7 +179,7 @@ public final class ConsoleCommunication {
   public void send(Message message) {
 
     if (m_sender == null) {
-      m_errorHandler.handleResourceErrorMessage(
+      m_errorQueue.handleResourceErrorMessage(
         "sendError.text", "Failed to send message");
     }
     else {
@@ -174,7 +187,7 @@ public final class ConsoleCommunication {
         m_sender.send(message);
       }
       catch (CommunicationException e) {
-        m_errorHandler.handleException(
+        m_errorQueue.handleException(
           new DisplayMessageConsoleException(
             m_resources, "sendError.text", e));
       }
@@ -213,11 +226,26 @@ public final class ConsoleCommunication {
         return message;
       }
       catch (CommunicationException e) {
-        m_errorHandler.handleException(
-          new ConsoleException(e.getMessage(), e));
+        m_errorQueue.handleException(new ConsoleException(e.getMessage(), e));
       }
     }
   }
 
+  /**
+   * Get the ProcessStatusSet.
+   *
+   * @return The <code>ProcessStatusSet</code>.
+   */
+  public ProcessStatusSet getProcessStatusSet() {
+    return m_processStatusSet;
+  }
 
+  /**
+   * Get the ProcessControl.
+   *
+   * @return The <code>ProcessControl</code>.
+   */
+  public ProcessControl getProcessControl() {
+    return m_processControl;
+  }
 }
