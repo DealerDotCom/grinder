@@ -30,7 +30,7 @@ import net.grinder.common.Logger;
  * @author Philip Aston
  * @version $Revision$
  */
-public class Sleep
+public class Sleeper
 {
     private static boolean s_shutdown = false;
 
@@ -47,7 +47,7 @@ public class Sleep
      * @param limit99_75Factor See {@link #sleepNormal}.
      * @param logger  A logger to chat to. Pass <code>null</code> for no chat.
      **/        
-    public Sleep(double factor, double limit99_75Factor, Logger logger)
+    public Sleeper(double factor, double limit99_75Factor, Logger logger)
     {
 	if (factor < 0d || limit99_75Factor < 0d) {
 	    throw new IllegalArgumentException("Factors must be positive");
@@ -104,7 +104,7 @@ public class Sleep
     public synchronized static void shutdown()
     {
 	s_shutdown = true;
-	Sleep.class.notifyAll();
+	Sleeper.class.notifyAll();
     }
 
     private void doSleep(long time) throws ShutdownException
@@ -125,8 +125,8 @@ public class Sleep
 		}
 
 		try {
-		    synchronized(Sleep.class) {
-			Sleep.class.wait(wakeUpTime - currentTime);
+		    synchronized(Sleeper.class) {
+			Sleeper.class.wait(wakeUpTime - currentTime);
 		    }
 		    break;
 		}

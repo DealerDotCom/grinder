@@ -24,19 +24,19 @@ import junit.swingui.TestRunner;
 
 
 /**
- * JUnit test case for {@link Sleep}.
+ * JUnit test case for {@link Sleeper}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestSleep extends TestCase
+public class TestSleeper extends TestCase
 {
     public static void main(String[] args)
     {
-	TestRunner.run(TestSleep.class);
+	TestRunner.run(TestSleeper.class);
     }
 
-    public TestSleep(String name)
+    public TestSleeper(String name)
     {
 	super(name);
     }
@@ -44,26 +44,26 @@ public class TestSleep extends TestCase
     public void testConstruction() throws Exception
     {
 	try {
-	    new Sleep(-1, 1, null);
+	    new Sleeper(-1, 1, null);
 	    fail("IllegalArgumentException expected");
 	}
 	catch (IllegalArgumentException e) {
 	}
 
 	try {
-	    new Sleep(1, -1, null);
+	    new Sleeper(1, -1, null);
 	    fail("IllegalArgumentException expected");
 	}
 	catch (IllegalArgumentException e) {
 	}
 
-	new Sleep(1, 1, null);
+	new Sleeper(1, 1, null);
     }
 
     public void testSleepNormal() throws Exception
     {
 	// Warm up hotspot.
-	final Sleep sleep0 = new Sleep(1, 0, null);
+	final Sleeper sleep0 = new Sleeper(1, 0, null);
 
 	Time time0 = new Time(0, 1000)
 	{
@@ -73,21 +73,21 @@ public class TestSleep extends TestCase
 	for (int i=0; i<10; i++) { time0.run(); }
 
 	// Now do the tests.
-	final Sleep sleep1 = new Sleep(1, 0, null);
+	final Sleeper sleep1 = new Sleeper(1, 0, null);
 
 	assert(
 	    new Time(50, 70) {
 		void doIt() throws Exception  { sleep1.sleepNormal(50); }
 	    }.run());
 
-	final Sleep sleep2 = new Sleep(2, 0, null);
+	final Sleeper sleep2 = new Sleeper(2, 0, null);
 
 	assert(
 	    new Time(100, 120) {
 		void doIt() throws Exception  { sleep2.sleepNormal(50); }
 	    }.run());
 
-	final Sleep sleep3 = new Sleep(1, 0.1, null);
+	final Sleeper sleep3 = new Sleeper(1, 0.1, null);
 
 	final Time time = new Time(90, 110) {
 		void doIt() throws Exception { sleep3.sleepNormal(100);}
@@ -106,7 +106,7 @@ public class TestSleep extends TestCase
     public void testSleepFlat() throws Exception
     {
 	// Warm up hotspot.
-	final Sleep sleep0 = new Sleep(1, 0, null);
+	final Sleeper sleep0 = new Sleeper(1, 0, null);
 
 	Time time0 = new Time(0, 1000)
 	{
@@ -116,14 +116,14 @@ public class TestSleep extends TestCase
 	for (int i=0; i<10; i++) { time0.run(); }
 
 	// Now do the tests.
-	final Sleep sleep1 = new Sleep(1, 0, null);
+	final Sleeper sleep1 = new Sleeper(1, 0, null);
 
 	assert(
 	    new Time(0, 70) {
 		void doIt() throws Exception  { sleep1.sleepFlat(50); }
 	    }.run());
 
-	final Sleep sleep2 = new Sleep(2, 0, null);
+	final Sleeper sleep2 = new Sleeper(2, 0, null);
 
 	assert(
 	    new Time(0, 120) {
@@ -133,7 +133,7 @@ public class TestSleep extends TestCase
 
     public void testShutdown() throws Exception
     {
-	final Sleep sleep = new Sleep(1, 0, null);
+	final Sleeper sleep = new Sleeper(1, 0, null);
 
 	final Thread t1 = new Thread() {
 		public void run()
@@ -141,7 +141,7 @@ public class TestSleep extends TestCase
 		    try {
 			sleep.sleepNormal(50000);
 		    }
-		    catch (Sleep.ShutdownException e) {
+		    catch (Sleeper.ShutdownException e) {
 		    }
 		}
 	    };
@@ -154,12 +154,12 @@ public class TestSleep extends TestCase
 		{
 		    t1.start();
 		    sleep.sleepNormal(1000);
-		    Sleep.shutdown();
+		    Sleeper.shutdown();
 		    t1.join();
 		    try {
 			sleep.sleepNormal(50000);
 		    }
-		    catch (Sleep.ShutdownException e) {
+		    catch (Sleeper.ShutdownException e) {
 		    }
 		}
 	    }.run());
