@@ -123,7 +123,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <filter token="version" value="${version}"/>
     <filter token="date" value="${TODAY}"/>
 
-    <echo message="** Building ${Name} ${version} [${year}] on ${TODAY} **"/>
+    <echo message="** Building ${Name} ${version} on ${TODAY} **"/>
   </target>
 
   <!-- =================================================================== -->
