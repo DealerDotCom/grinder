@@ -20,10 +20,6 @@ properties wrongly. It first sends a request without the
 authentication headers, then catches the 401 and automatically resends
 a request with the authentication headers.
 
-** Support scripts that sleep up front
-
-And fix error logging too.
-
 * Enhancements
 
 ** Measure variance (Ambitious)
@@ -32,8 +28,6 @@ Measure test variance. This would involve the console broadcasting the
 total mean, and then listening for the reported variance.
 
 ** Console
-
-Fix JTable column header layout under J2SE 1.4.
 
 *** Script editing
 
@@ -67,8 +61,6 @@ Linear initial sleep time to allow thread's to ramp up. (Feature
 Request 801129).
 
 Consider forcing TestRunner to be registered with grinder.
-
-"There were errors" message can print out log file name.
 
 ** TCPProxy
 
@@ -114,6 +106,8 @@ Add per-run statistics. This would also allow number of aborted runs
 to be recorded.
 
 Script access to global statistics.
+
+Support scripts that sleep up front.
 
 *** Events
 Idea from Nurul Choudhury:
