@@ -7,3 +7,6 @@ releases
 grinder.jpl
 together
 clover
+.externalToolBuilders
+.classpath
+.project
