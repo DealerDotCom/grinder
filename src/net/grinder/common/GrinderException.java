@@ -135,7 +135,8 @@ public class GrinderException extends Exception {
    *
    * @param original The original string. Changed in-place.
    * @param other String to compare suffixes with. Unchanged.
-   * @return Whether original was truncated or not.
+   * @return Whether non-white space characters were removed from the
+   * end of the original or not.
    */
   static boolean removeCommonSuffix(StringBuffer original,
                                     StringBuffer other) {
@@ -161,6 +162,8 @@ public class GrinderException extends Exception {
         }
       }
       while (Character.isWhitespace(other.charAt(otherP)));
+
+      
     }
     while (original.charAt(p) == other.charAt(otherP));
 
@@ -179,8 +182,11 @@ public class GrinderException extends Exception {
     }
     while (!atNewLine(original, p, lineSeparator));
 
+    final boolean nonWhiteSpaceRemoved =
+      original.substring(p).trim().length() > 0;
+
     original.setLength(p);
-    return true;
+    return nonWhiteSpaceRemoved;
   }
 
   private static boolean atNewLine(StringBuffer buffer, int position,
