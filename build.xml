@@ -35,8 +35,8 @@ Do the following:
 Say 
 	ant -projecthelp
 
-for details of other targets. The compilation targets do depend on the
-"clean" target, to rebuild you need to say "ant clean compile".
+for details of other targets. The compilation targets don't depend on
+the "clean" target, to rebuild you need to say "ant clean compile".
 
 The build auto-detects what modules to build by checking your
 CLASSPATH and paths defined in the file etc/localpaths.properties for
@@ -46,7 +46,6 @@ what you want. Currently the conditionally built modules are:
 
    HTTP SSL plugin (Needs JSSE 1.0.2)
    TCPSniffer SSL engine (Needs JSSE 1.0.2)
-   JUnit plugin (Needs JUnit 3.7)
    JUnit test cases (Needs JUnit 3.7)
 -->
 
@@ -54,8 +53,8 @@ what you want. Currently the conditionally built modules are:
 
   <property name="Name" value="The Grinder"/>
   <property name="name" value="grinder"/>
-  <property name="version" value="3.0beta0"/>
-  <property name="cvs.tag" value="release_3_0beta0"/>
+  <property name="version" value="3.0-beta0"/>
+  <property name="cvs.tag" value="release_3_0_beta0"/>
 
   <property name="year" value="2002"/>
 
@@ -311,9 +310,7 @@ what you want. Currently the conditionally built modules are:
            optimize="${optimize}"
 	   deprecation="${deprecation}">
        <exclude name="HTTPClient/**"/>
-       <exclude name="**/HttpsPlugin.java" unless="have.jsse"/>
        <exclude name="**/SnifferSSLSocketFactory.java" unless="have.jsse"/>
-       <exclude name="**/JUnitPlugin.java"/> <!-- unless="have.junit"/> -->
        <exclude name="**/snifferwebapp/**" unless="have.servlet"/>
        <classpath refid="build.classpath"/>
     </javac>
