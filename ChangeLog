@@ -1,6 +1,11 @@
 2004-11-21  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta23 is released.
+	
+	* TODO, src/documentation/content/xdocs/faq.xml, src/documentation/content/xdocs/g2/getting-started.xml, src/documentation/content/xdocs/g3/whats-new.xml, src/documentation/content/xdocs/site.xml:
+	Document G2 vs G3.
+
+	* src/documentation/content/xdocs/g3/whats-new.xml: Updates.
 
 	* examples/xml-rpc.py, AUTHORS, CHANGES, src/documentation/content/xdocs/g3/script-gallery.xml, src/documentation/content/xdocs/index.xml:
 	XML-RPC example from Sebastián Fontana.
