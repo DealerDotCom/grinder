@@ -126,6 +126,7 @@ what you want. Currently the conditionally built modules are:
     <include name="build.xml"/>
     <include name="ChangeLog"/>
     <include name="${src.dir}/**"/>
+    <include name="${native-src.dir}/**"/>
     <include name="${test-src.dir}/**"/>
     <include name="${etc.dir}/**"/>
     <include name="${xdoc.dir}/**"/>
