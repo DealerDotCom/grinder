@@ -67,7 +67,6 @@ public class TestPluginTest extends TestCase
 
 	assertEquals(1, pluginTest.getNumber());
 	assertEquals("description", pluginTest.getDescription());
-	assertNotNull(pluginTest.getParameters());
     }
 
     public void testOrdering() throws Exception
