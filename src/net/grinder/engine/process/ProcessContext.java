@@ -30,8 +30,13 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.communication.Sender;
+import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatisticsFactory;
 import net.grinder.util.DelayedCreationFileWriter;
+
 
 
 /**
@@ -86,6 +91,8 @@ public class ProcessContext implements PluginProcessContext
     private final PrintWriter m_dataWriter;
 
     private final FilenameFactoryImplementation m_filenameFactory;
+    private final TestStatisticsFactory m_testStatisticsFactory =
+	TestStatisticsFactory.getInstance();
 
     protected ProcessContext(ProcessContext processContext,
 			     String contextSuffix)
@@ -356,6 +363,25 @@ public class ProcessContext implements PluginProcessContext
 	public final String createFilename(String prefix)
 	{
 	    return createFilename(prefix, ".log");
+	}
+    }
+
+    protected final TestStatisticsFactory getTestStatisticsFactory()
+    {
+	return m_testStatisticsFactory;
+    }
+
+    /** A quick and dirty hack. We do the right thing in G3. **/
+    Sender m_consoleSender;
+
+    public void registerStatisticsView(StatisticsView statisticsView)
+	throws GrinderException
+    {
+	m_testStatisticsFactory.getStatisticsView().add(statisticsView);
+
+	if (m_consoleSender != null) {
+	    m_consoleSender.send(
+		new RegisterStatisticsViewMessage(statisticsView));
 	}
     }
 }

@@ -24,6 +24,7 @@ import java.io.File;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
+import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
@@ -122,6 +123,10 @@ public class Console
 	    if (message instanceof ReportStatisticsMessage) {
 		m_model.add(
 		    ((ReportStatisticsMessage)message).getStatisticsDelta());
+	    }
+	    
+	    if (message instanceof RegisterStatisticsViewMessage) {
+		System.err.println("Got a RegisterStatisticsViewMessage");
 	    }
         } 
     }

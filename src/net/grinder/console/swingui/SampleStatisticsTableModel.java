@@ -1,5 +1,5 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2000, 2001  Paco Gomez
 // Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
@@ -16,34 +16,28 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.plugininterface;
+package net.grinder.console.swingui;
 
-import net.grinder.common.FilenameFactory;
-import net.grinder.common.GrinderException;
-import net.grinder.common.GrinderProperties;
-import net.grinder.common.Logger;
+import net.grinder.console.common.ConsoleException;
+import net.grinder.console.model.Model;
 import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
- * This class is used to share data between the Grinder and the 
- * plug-in.
- * 
- * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  */
-public interface PluginProcessContext extends Logger
-{    
-    String getGrinderID();
+final class SampleStatisticsTableModel extends DynamicStatisticsTableModel
+{
+    public SampleStatisticsTableModel(Model model, Resources resources)
+	throws ConsoleException
+    {
+	super(model, resources);
+    }
 
-    FilenameFactory getFilenameFactory();
-    
-    /**
-     * Returns the parameters specified with "grinder.plugin.parameter="
-     */
-    GrinderProperties getPluginParameters();
-
-    void registerStatisticsView(StatisticsView view)
-	throws GrinderException;
+    protected final TestStatistics getStatistics(int row)
+    {
+	return getModel().getLastSampleStatistics(row);
+    }
 }

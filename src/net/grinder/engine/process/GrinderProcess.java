@@ -48,7 +48,6 @@ import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
-import net.grinder.statistics.TestStatisticsFactory;
 import net.grinder.statistics.TestStatisticsMap;
 
 
@@ -127,7 +126,6 @@ public class GrinderProcess
 
     /** A map of Tests to Statistics for passing elsewhere. */
     private final TestStatisticsMap m_testStatisticsMap;
-    private final TestStatisticsFactory m_testStatisticsFactory;
 
     public GrinderProcess(String grinderID, File propertiesFile)
 	throws GrinderException
@@ -138,8 +136,6 @@ public class GrinderProcess
 	m_context = new ProcessContext(grinderID, properties);
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
-
-	m_testStatisticsFactory = TestStatisticsFactory.getInstance();
 
 	// Parse plugin class.
 	m_plugin = instantiatePlugin();
@@ -192,6 +188,8 @@ public class GrinderProcess
 		m_consoleSender = new Sender(m_context.getGrinderID(),
 					     multicastAddress, consolePort);
 
+		m_context.m_consoleSender = m_consoleSender;
+
 		m_reportToConsoleInterval =
 		    properties.getInt("grinder.reportToConsole.interval", 500);
 
@@ -223,7 +221,8 @@ public class GrinderProcess
 	    final long sleepTime =
 		properties.getInt(sleepTimePropertyName, -1);
 
-	    final TestStatistics statistics = m_testStatisticsFactory.create();
+	    final TestStatistics statistics =
+		m_context.getTestStatisticsFactory().create();
 
 	    m_testSet.put(test, new TestData(test, sleepTime, statistics));
 	    m_testStatisticsMap.put(test, statistics);
@@ -425,8 +424,9 @@ public class GrinderProcess
  	m_context.logMessage("Final statistics for this process:");
 
 	final StatisticsTable statisticsTable =
-	    new StatisticsTable(m_testStatisticsFactory.getStatisticsView(),
-				m_testStatisticsMap);
+	    new StatisticsTable(
+		m_context.getTestStatisticsFactory().getStatisticsView(),
+		m_testStatisticsMap);
 
 	statisticsTable.print(m_context.getOutputLogWriter());
 

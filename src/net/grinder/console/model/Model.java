@@ -127,14 +127,14 @@ public class Model
 	    StatisticExpressionFactory.getInstance();
 
 	final StatisticsIndexMap indexMap =
-	    m_testStatisticsFactory.getIndexMap();
+	    StatisticsIndexMap.getProcessInstance();
 
 	m_periodIndex = indexMap.getIndexForLong("period");
 
 	m_tpsExpression =
 	    statisticExpressionFactory.createExpression(
-		"(* 1000 (/(+ untimedTransactions timedTransactions) period))",
-		indexMap);
+		"(* 1000 (/ (+ untimedTransactions timedTransactions) period))"
+		);
 	
 	m_tpsExpressionView =
 	    new ExpressionView("TPS", "statistic.tps", m_tpsExpression);
@@ -373,9 +373,12 @@ public class Model
     {
 	private final List m_listeners = new LinkedList();
 
-	private TestStatistics m_intervalStatistics;
-	private TestStatistics m_lastSampleStatistics;
-	private TestStatistics m_cumulativeStatistics;
+	private TestStatistics m_intervalStatistics =
+	    m_testStatisticsFactory.create();
+	private TestStatistics m_lastSampleStatistics =
+	    m_testStatisticsFactory.create();
+	private TestStatistics m_cumulativeStatistics =
+	    m_testStatisticsFactory.create();
 	
 	{
 	    reset();
@@ -400,7 +403,8 @@ public class Model
 			     (getState() == STATE_STOPPED ?
 			      m_stopTime : m_currentTime) - m_startTime);
 
-	    m_peakTPSExpression.update(m_cumulativeStatistics);
+	    m_peakTPSExpression.update(m_intervalStatistics,
+				       m_cumulativeStatistics);
 
 	    final Iterator iterator = m_listeners.iterator();
 
@@ -411,14 +415,17 @@ public class Model
 	    }
 
 	    m_lastSampleStatistics = m_intervalStatistics;
+
+	    // We create new statistics each time to ensure that
+	    // m_lastSampleStatistics is always valid and fixed.
 	    m_intervalStatistics = m_testStatisticsFactory.create();
 	}
 
 	private void reset()
 	{
-	    m_intervalStatistics = m_testStatisticsFactory.create();
-	    m_lastSampleStatistics = m_testStatisticsFactory.create();
-	    m_cumulativeStatistics = m_testStatisticsFactory.create();
+	    m_intervalStatistics.reset();
+	    m_lastSampleStatistics.reset();
+	    m_cumulativeStatistics.reset();
 	}
 
 	private TestStatistics getLastSampleStatistics()

@@ -40,6 +40,10 @@ import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatisticsFactory;
 
 
 /**
@@ -91,6 +95,24 @@ public class HttpPlugin implements GrinderPlugin
 	    parameters.getBoolean("useCookiesVersionString", true);
 	m_useHTTPClient = parameters.getBoolean("useHTTPClient", true);
 
+	try {
+	    final StatisticsIndexMap.LongIndex timeToFirstByteIndex =
+		StatisticsIndexMap.getProcessInstance().
+		getIndexForLong("timeToFirstByte");
+
+	    final StatisticsView statisticsView = new StatisticsView();
+
+	    statisticsView.add(new ExpressionView("Time to first byte",
+						  "statistic.timeToFirstByte",
+						  "timeToFirstByte"));
+
+	    processContext.registerStatisticsView(statisticsView);
+	}
+	catch (GrinderException e) {
+	    throw new PluginException(
+		"Failed to register 'time to first byte' statistic", e);
+	}
+
 	final String stringBeanClassName =
 	    parameters.getProperty("stringBean", null);
 
@@ -117,8 +139,7 @@ public class HttpPlugin implements GrinderPlugin
 		    "The specified string bean class '" +
 		    stringBeanClassName + "' was not found.", e);
 	    }
-	}
-	
+	}	
     }
 
     public Set getTests() throws PluginException

@@ -209,16 +209,16 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 							     m_resources)),
 			  m_resources.getString("graphTab.tip"));
 
-	final DynamicStatisticsTableModel cumulativeModel =
-	    new DynamicStatisticsTableModel(model, m_resources, true, true);
+	final CumulativeStatisticsTableModel cumulativeModel =
+	    new CumulativeStatisticsTableModel(model, m_resources, true);
 
 	tabbedPane.addTab(m_resources.getString("cumulativeTableTab.title"),
 			  m_resources.getImageIcon("cumulativeTableTab.image"),
 			  new JScrollPane(new TestTable(cumulativeModel)),
 			  m_resources.getString("cumulativeTableTab.tip"));
 
-	final DynamicStatisticsTableModel sampleModel =
-	    new DynamicStatisticsTableModel(model, m_resources, true, false);
+	final SampleStatisticsTableModel sampleModel =
+	    new SampleStatisticsTableModel(model, m_resources);
 
 	tabbedPane.addTab(m_resources.getString("sampleTableTab.title"),
 			  m_resources.getImageIcon("sampleTableTab.image"),
@@ -528,9 +528,9 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 			return;
 		    }
 
-		    final DynamicStatisticsTableModel model =
-			new DynamicStatisticsTableModel(m_model, m_resources,
-							false, true);
+		    final CumulativeStatisticsTableModel model =
+			new CumulativeStatisticsTableModel(m_model,
+							   m_resources, false);
 		    model.update();
 
 		    try {

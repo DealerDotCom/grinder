@@ -113,7 +113,7 @@ public class Sender
     /**
      * Send the given message.
      **/
-    public void send(Message message)
+    public synchronized void send(Message message)
 	throws CommunicationException
     {
 	message.setSenderInformation(m_grinderID, m_senderID,

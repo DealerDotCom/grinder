@@ -40,26 +40,22 @@ import net.grinder.statistics.TestStatisticsFactory;
  * @author Philip Aston
  * @version $Revision$
  */
-class DynamicStatisticsTableModel
+abstract class DynamicStatisticsTableModel
     extends AbstractTableModel implements ModelListener
 {
     private final Model m_model;
     private final Resources m_resources;
-    private final boolean m_includeTotals;
     private boolean m_modelInvalid;
 
     private final String m_testString;
     private final String m_testColumnString;
     private final String m_testDescriptionColumnString;
-    private final String m_totalString;
 
     private StatisticsView m_statisticsView = new StatisticsView();
     private ExpressionView[] m_columnViews;
     private String[] m_columnLabels;
 
-    public DynamicStatisticsTableModel(Model model, Resources resources,
-				       boolean includeTotals,
-				       boolean includePeaks)
+    protected DynamicStatisticsTableModel(Model model, Resources resources)
 	throws ConsoleException
     {
 	m_model = model;
@@ -73,9 +69,6 @@ class DynamicStatisticsTableModel
 	m_modelInvalid = true;
 	m_model.addModelListener(new SwingDispatchedModelListener(this));
 
-	m_includeTotals = includeTotals;
-	m_totalString = resources.getString("table.total.label");
-
 	final TestStatisticsFactory testStatisticsFactory =
 	    TestStatisticsFactory.getInstance();
 
@@ -85,11 +78,19 @@ class DynamicStatisticsTableModel
 
 	statisticsView.add(m_model.getTPSExpressionView());
 
-	if (includePeaks) {
-	    statisticsView.add(m_model.getPeakTPSExpressionView());
-	}
-
 	addColumns(statisticsView);
+    }
+
+    protected abstract TestStatistics getStatistics(int row);
+
+    protected final Model getModel()
+    {
+	return m_model;
+    }
+
+    protected final boolean isModelInvalid()
+    {
+	return m_modelInvalid;
     }
 
     public synchronized void addColumns(StatisticsView statisticsView)
@@ -154,7 +155,7 @@ class DynamicStatisticsTableModel
 
     public int getRowCount()
     {
-	return m_model.getNumberOfTests() + (m_includeTotals ? 1 : 0);
+	return m_model.getNumberOfTests();
     }
 
     public synchronized Object getValueAt(int row, int column)
@@ -163,39 +164,20 @@ class DynamicStatisticsTableModel
 	    return "";
 	}
 	else {
-	    if (row < m_model.getNumberOfTests()) {
-		if (column == 0) {
-		    return m_testString + m_model.getTest(row).getNumber();
-		}
-		else if (column == 1) {
-		    return m_model.getTest(row).getDescription();
-		}
-		else
-		{
-		    return
-			getDynamicField(
-			    m_model.getCumulativeStatistics(row), column - 2);
-		}
+	    if (column == 0) {
+		return m_testString + m_model.getTest(row).getNumber();
+	    }
+	    else if (column == 1) {
+		return m_model.getTest(row).getDescription();
 	    }
 	    else {
-		if (column == 0) {
-		    return m_totalString;
-		}
-		else if (column == 1) {
-		    return "";
-		}
-		else {
-		    return
-			getDynamicField(
-			    m_model.getTotalCumulativeStatistics(),
-			    column - 2);
-		}
+		return getDynamicField(getStatistics(row), column - 2);
 	    }
 	}
     }
 
-    private synchronized
-	String getDynamicField(TestStatistics statistics, int dynamicColumn)
+    protected synchronized String getDynamicField(TestStatistics statistics,
+						  int dynamicColumn)
     {
 	if (dynamicColumn < m_columnViews.length) {
 	    final StatisticExpression expression =
@@ -222,21 +204,12 @@ class DynamicStatisticsTableModel
 
     public boolean isBold(int row, int column) 
     {
-	return row >= m_model.getNumberOfTests() || isRed(row, column);
+	return isRed(row, column);
     }
 
     public boolean isRed(int row, int column)
     {
-	if (column == 3) {
-	    if (row < m_model.getNumberOfTests()) {
-		return m_model.getCumulativeStatistics(row).getErrors() > 0;
-	    }
-	    else {
-		return m_model.getTotalCumulativeStatistics().getErrors() > 0;
-	    }
-	}
-
-	return false;
+	return column == 3 && getStatistics(row).getErrors() > 0;
     }
 
     public synchronized void write(Writer writer, String columnDelimiter,
