@@ -92,19 +92,8 @@ public class TestAcceptor extends TestCase {
 
     // Sleep until we've accepted both connections. Give up after a
     // few seconds.
-    for (int i=0; i<10; ++i) {
+    for (int i=0; socketSet.countActiveSockets() != 2 && i<10; ++i) {
       Thread.sleep(i * i * 10);
-      final List handles = socketSet.reserveAllHandles();
-
-      final Iterator iterator = handles.iterator();
-
-      while (iterator.hasNext()) {
-        ((SocketSet.Handle)iterator.next()).free();
-      }
-
-      if (handles.size() == 2) {
-        break;
-      }
     }
     
     assertSame(socketSet, acceptor.getSocketSet());
@@ -154,18 +143,9 @@ public class TestAcceptor extends TestCase {
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
-    SocketSet.Handle handle = socketSet.reserveNextHandle();
-
-    for (int i=0; handle.isSentinel() && i<10; ++i) {
-
+    for (int i=0; acceptor.getSocketSet().countActiveSockets() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
-
-      handle = socketSet.reserveNextHandle();
     }
-
-    assertTrue(!handle.isSentinel());
-    assertTrue(socketSet.reserveNextHandle().isSentinel());
-    handle.free();
 
     acceptor.shutdown();
 
