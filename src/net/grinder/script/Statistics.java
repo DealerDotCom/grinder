@@ -123,6 +123,8 @@ public interface Statistics  {
    * for update. If this returns <code>true</code>, then other methods
    * will not throw {@link InvalidContextException} or
    * {@link StatisticsAlreadyReportedException}.
+   * @return Whether the statistics for the current test are available
+   * for update.
    */
   boolean availableForUpdate();
 
