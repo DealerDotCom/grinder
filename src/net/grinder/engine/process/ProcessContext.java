@@ -87,7 +87,7 @@ class ProcessContext
 				       CommunicationDefaults.CONSOLE_ADDRESS);
 
 	    final int consolePort =
-		properties.getInt("grinder.console.consolePort",
+		properties.getInt("grinder.consolePort",
 				  CommunicationDefaults.CONSOLE_PORT);
 
 	    try {
