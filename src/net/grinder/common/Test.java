@@ -22,17 +22,15 @@ import net.grinder.util.GrinderProperties;
 
 
 /**
+ * In addition to this interface, Test implementations should
+ * implement value based equality and a well defined ordering.
+ *
  * @author Philip Aston
  * @version $Revision$
+ * @see TestImplementation
  */ 
 public interface Test extends Comparable, java.io.Serializable
 {
-    /** int that can be used to index into array of Tests. The
-     * indicies do not necessarily follow the same ordering as the
-     * test number.
-     **/
-    public int getIndex();
-
     /** Test number, defines test identity and ordering. **/
     public int getNumber();
     public String getDescription();

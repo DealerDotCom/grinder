@@ -39,7 +39,6 @@ abstract class AbstractStatisticsTableModel
     extends AbstractTableModel implements ModelListener
 {
     private final Model m_model;
-    private final Test[] m_tests;
     private NumberFormat m_numberFormat = null;
 
     private final String[] m_columnLabels;
@@ -50,7 +49,6 @@ abstract class AbstractStatisticsTableModel
 	throws ConsoleException
     {
 	m_model = model;
-	m_tests = (Test[])model.getTests().toArray(new Test[0]);
 	m_numberFormat = m_model.getNumberFormat();
 
 	m_model.addModelListener(this);
@@ -78,7 +76,7 @@ abstract class AbstractStatisticsTableModel
 
     public int getRowCount()
     {
-	return m_tests.length;
+	return m_model.getNumberOfTests();
     }
 
     public int getColumnCount()
@@ -123,11 +121,6 @@ abstract class AbstractStatisticsTableModel
     protected final NumberFormat getNumberFormat()
     {
 	return m_numberFormat;
-    }
-
-    protected final Test[] getTests()
-    {
-	return m_tests;
     }
 
     protected final String getTestString()

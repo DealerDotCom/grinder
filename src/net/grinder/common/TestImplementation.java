@@ -16,9 +16,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.util;
+package net.grinder.plugininterface;
 
-import net.grinder.plugininterface.Test;
+import net.grinder.util.GrinderProperties;
 
 
 /**
@@ -27,29 +27,16 @@ import net.grinder.plugininterface.Test;
  */
 public class TestImplementation implements Test
 {
-    private final int m_index;
     private final int m_number;
     private final String m_description;
     private transient final GrinderProperties m_parameters;
 
-    public TestImplementation(int index, int number, String description,
-			      GrinderProperties parameters)
-    {
-	m_index = index;
-	m_number = number;
-	m_description = description;
-	m_parameters = parameters;
-    }
-
     public TestImplementation(int number, String description,
 			      GrinderProperties parameters)
     {
-	this(number, number, description, parameters);
-    }
-
-    public int getIndex()
-    {
-	return m_index;
+	m_number = number;
+	m_description = description;
+	m_parameters = parameters;
     }
 
     public int getNumber()
@@ -71,5 +58,37 @@ public class TestImplementation implements Test
     {
 	final int other = ((TestImplementation)o).m_number;
 	return m_number<other ? -1 : (m_number==other ? 0 : 1);
+    }
+
+    /**
+     * The test number is used as the hash code. Wondered whether it
+     * was worth distributing the hash codes more evenly across the
+     * range of an int, but using the value is good enough for
+     * <code>java.lang.Integer</code> so its good enough for us.
+     **/
+    public int hashCode()
+    {
+	return m_number;
+    }
+
+    public boolean equals(Object o)
+    {
+	if (o instanceof TestImplementation) {
+	    return m_number == ((TestImplementation)o).m_number;
+	}
+
+	return false;
+    }
+
+    public String toString()
+    {
+	final String description = getDescription();
+
+	if (description == null) {
+	    return "Test " + getNumber();
+	}
+	else {
+	    return "Test " + getNumber() + " (" + description + ")";
+	}
     }
 }

@@ -33,9 +33,9 @@ import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.Test;
+import net.grinder.plugininterface.TestImplementation;
 import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.util.GrinderProperties;
-import net.grinder.util.TestImplementation;
 
 
 /**
@@ -228,13 +228,13 @@ public class JUnitPlugin implements GrinderPlugin
 
 class TestWrapper extends TestImplementation
 {
-    private static int s_nextTestIndex = 0;
+    private static int s_nextTestNumber = 0;
 
     private final transient TestCase m_testCase;
 
     public TestWrapper(TestCase jUnitTest)
     {
-	super(s_nextTestIndex++, jUnitTest.toString(), null);
+	super(s_nextTestNumber++, jUnitTest.toString(), null);
 
 	m_testCase = jUnitTest;
     }

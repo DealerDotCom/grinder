@@ -19,10 +19,11 @@
 package net.grinder.console.model;
 
 import java.text.NumberFormat;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -53,9 +54,8 @@ public class Model
     private long m_startTime;
     private long m_stopTime;
 
-    /** Keep the tests into a TreeSet so that they're ordered. **/
-    private final Set m_tests = new TreeSet();
-    private final int m_numberOfTests;
+    private final Test[] m_tests;
+    private final Map m_testToIndex;
     private final SampleAccumulator[] m_sampleAccumulators;
     private final SampleAccumulator m_totalSampleAccumulator =
 	new SampleAccumulator();
@@ -87,17 +87,15 @@ public class Model
 	    propertiesHelper.instantiatePlugin(
 		new ProcessContextImplementation());
 
-	m_tests.addAll(grinderPlugin.getTests());
+	final Set orderedTests = new TreeSet(grinderPlugin.getTests());
 
-	m_numberOfTests = m_tests.size();
-	m_sampleAccumulators = new SampleAccumulator[m_numberOfTests];
+	m_tests = (Test[])orderedTests.toArray(new Test[0]);
+	m_testToIndex = new HashMap();
+	m_sampleAccumulators = new SampleAccumulator[m_tests.length];
 
-	final Iterator testSetIterator = m_tests.iterator();
-
-	while (testSetIterator.hasNext())
-	{
-	    final Test test = (Test)testSetIterator.next();
-	    m_sampleAccumulators[test.getIndex()] = new SampleAccumulator();
+	for (int i=0; i<m_tests.length; i++) {
+	    m_testToIndex.put(m_tests[i], new Integer(i));
+	    m_sampleAccumulators[i] = new SampleAccumulator();
 	}
 
 	setInitialState();
@@ -106,9 +104,14 @@ public class Model
 	m_sampleThread.start();
     }
 
-    public Set getTests()
+    public Test getTest(int testIndex)
     {
-	return m_tests;
+	return m_tests[testIndex];
+    }
+
+    public int getNumberOfTests()
+    {
+	return m_tests.length;
     }
 
     public CumulativeStatistics getCumulativeStatistics(int testIndex)
@@ -189,10 +192,17 @@ public class Model
 		final StatisticsImplementation statistics =
 		    pair.getStatistics();
 
-		m_sampleAccumulators[pair.getTest().getIndex()]
-		    .add(statistics);
+		final Integer index =
+		    (Integer)m_testToIndex.get(pair.getTest());
 
-		m_totalSampleAccumulator.add(statistics);
+		if (index == null) {
+		    System.err.println("Ignoring unknown test: " +
+				       pair.getTest());
+		}
+		else {
+		    m_sampleAccumulators[index.intValue()].add(statistics);
+		    m_totalSampleAccumulator.add(statistics);
+		}
 	    }
 	}
     }
@@ -317,7 +327,7 @@ public class Model
 		    }
 		}
 
-		for (int i=0; i<m_numberOfTests; i++) {
+		for (int i=0; i<m_tests.length; i++) {
 		    m_sampleAccumulators[i].fireSample();
 		}
 
@@ -428,7 +438,7 @@ public class Model
 
     private void reset()
     {
-	for (int i=0; i<m_numberOfTests; i++) {
+	for (int i=0; i<m_tests.length; i++) {
 	    m_sampleAccumulators[i].reset();
 	}
 

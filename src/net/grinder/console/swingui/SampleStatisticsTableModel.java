@@ -55,13 +55,12 @@ class SampleStatisticsTableModel extends AbstractStatisticsTableModel
     public synchronized Object getValueAt(int row, int column)
     {
 	final Model model = getModel();
-	final Test[] tests = getTests();
 
 	if (column == 0) {
-	    return getTestString() + tests[row].getNumber();
+	    return getTestString() + model.getTest(row).getNumber();
 	}
 	else if (column == 1) {
-	    return tests[row].getDescription();
+	    return model.getTest(row).getDescription();
 	}
 	else
 	{

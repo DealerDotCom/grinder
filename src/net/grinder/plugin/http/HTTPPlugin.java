@@ -28,8 +28,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,28 +58,28 @@ public class HttpPlugin implements GrinderPlugin
     private final static Object[] s_noArgs = new Object[0];
 
     private Set m_testsFromPropertiesFile;
-    private CallData[] m_callData;
+    private List m_callData;
     private boolean m_followRedirects;
     private boolean m_logHTML;
     private boolean m_timeIncludesTransaction;
     private boolean m_useCookies;
     private boolean m_useCookiesVersionString;
     private boolean m_useHTTPClient;
-    private String m_stringBeanClassName;
+    private Class m_stringBeanClass;
+    private Map m_beanMethodMap = null;
 
     public void initialize(PluginProcessContext processContext,
 			   Set testsFromPropertiesFile)
 	throws PluginException
     {
 	m_testsFromPropertiesFile = testsFromPropertiesFile;
-	m_callData = new CallData[m_testsFromPropertiesFile.size()];
+	m_callData = new ArrayList(m_testsFromPropertiesFile.size());
 
-	final Iterator i = m_testsFromPropertiesFile.iterator();
+	final Iterator testIterator = m_testsFromPropertiesFile.iterator();
 
-	while (i.hasNext()) {
-	    final Test test = (Test)i.next();
-
-	    m_callData[test.getIndex()] = new CallData(processContext, test);
+	while (testIterator.hasNext()) {
+	    m_callData.add(new CallData(processContext,
+					(Test)testIterator.next()));
 	}
 
 	final GrinderProperties parameters =
@@ -93,7 +95,34 @@ public class HttpPlugin implements GrinderPlugin
 	    parameters.getBoolean("useCookiesVersionString", true);
 	m_useHTTPClient = parameters.getBoolean("useHTTPClient", true);
 
-	m_stringBeanClassName = parameters.getProperty("stringBean", null);
+	final String stringBeanClassName =
+	    parameters.getProperty("stringBean", null);
+
+	if (stringBeanClassName != null) {
+	    try {
+		m_stringBeanClass = Class.forName(stringBeanClassName);
+
+		m_beanMethodMap = new HashMap();
+
+		final Method[] methods = m_stringBeanClass.getMethods();
+	    
+		for (int i=0; i<methods.length; i++) {
+		    final String name = methods[i].getName();
+
+		    if (name.startsWith("get") &&
+			methods[i].getReturnType() == String.class &&
+			methods[i].getParameterTypes().length == 0) {
+			m_beanMethodMap.put(name, methods[i]);
+		    }
+		}
+	    }
+	    catch(ClassNotFoundException e) {
+		throw new PluginException(
+		    "The specified string bean class '" +
+		    stringBeanClassName + "' was not found.", e);
+	    }
+	}
+	
     }
 
     public Set getTests() throws PluginException
@@ -119,8 +148,8 @@ public class HttpPlugin implements GrinderPlugin
 	private final Map m_headers;
 	private final HTTPHandler.AuthorizationData m_authorizationData;
 
-	public CallData(PluginProcessContext processContext,
-			Test test) throws PluginException
+	public CallData(PluginProcessContext processContext, Test test)
+	    throws PluginException
 	{
 	    m_test = test;
 	    
@@ -204,32 +233,151 @@ public class HttpPlugin implements GrinderPlugin
 	    return m_test;
 	}
 
-	public Map getHeaders() { return m_headers; }
-
-	public HTTPHandler.AuthorizationData getAuthorizationData()
-	    throws HTTPHandlerException
+	public class ThreadData implements HTTPHandler.RequestData
 	{
-	    return m_authorizationData;
+	    private final StringBuffer m_buffer = new StringBuffer();
+	    private final Object m_bean;
+	    private final Map m_headerMap;
+
+	    public ThreadData(Object stringBean)
+	    {
+		m_bean = stringBean;
+		m_headerMap = new HashMap(m_headers.size());
+	    }
+
+	    public Map getHeaders() throws HTTPHandlerException
+	    {
+		final Iterator iterator = m_headers.entrySet().iterator();
+		
+		while (iterator.hasNext()) {
+		    final Map.Entry entry = (Map.Entry)iterator.next();
+		    final String key = (String)entry.getKey();
+		    final String value = (String)entry.getValue();
+
+		    m_headerMap.put(key, replaceKeys(value));
+		}
+
+		return m_headerMap;
+	    }
+
+	    public HTTPHandler.AuthorizationData getAuthorizationData()
+		throws HTTPHandlerException
+	    {
+		if (m_authorizationData != null &&
+		    m_authorizationData instanceof
+		    HTTPHandler.BasicAuthorizationData) {
+
+		    final HTTPHandler.BasicAuthorizationData basic =
+			(HTTPHandler.BasicAuthorizationData)
+			m_authorizationData;
+
+		    final String realm = replaceKeys(basic.getRealm());
+		    final String user = replaceKeys(basic.getUser());
+		    final String password = replaceKeys(basic.getPassword());
+
+		    return new HTTPHandler.BasicAuthorizationData() {
+			    public String getRealm() { return realm; }
+			    public String getUser() { return user; }
+			    public String getPassword() { return password; }
+			};
+		}
+
+		return null;
+	    }
+	    
+	    public String getPostString() throws HTTPHandlerException
+	    {
+		return replaceKeys(m_postString);
+	    }
+
+	    public String getURLString() throws HTTPHandlerException
+	    {
+		return replaceKeys(m_urlString);
+	    }
+
+	    public String getOKString() throws HTTPHandlerException
+	    {
+		return replaceKeys(m_okString);
+	    }
+
+	    private String replaceKeys(String original) 
+		throws HTTPHandlerException
+	    {
+		if (original == null ||
+		    m_bean == null ||
+		    original.length() == 0) {
+		    return original;
+		}
+		else {
+		    // We belong to a single thread so we can safely
+		    // reuse our StringBuffer.
+		    m_buffer.setLength(0);
+		    
+		    int p = 0;
+		    int lastP = p;
+
+		    while (true) {
+			if ((p = original.indexOf('<', lastP)) == -1) {
+			    m_buffer.append(original.substring(lastP));
+			    break;
+			}
+			else {
+			    m_buffer.append(original.substring(lastP, p));
+
+			    lastP = p + 1;
+		    
+			    p = original.indexOf('>', lastP);
+			    
+			    if (p == -1) {
+				throw new HTTPHandlerException(
+				    "URL for Test " +
+				    getTest().getNumber() +
+				    " malformed");    
+			    }
+
+			    final String methodName =
+				original.substring(lastP, p);
+
+			    final Method method =
+				(Method)m_beanMethodMap.get(methodName);
+
+			    if (method == null ) {
+				throw new HTTPHandlerException(
+				    "URL for Test " +
+				    getTest().getNumber() +
+				    " refers to unknown string bean method '" +
+				    methodName + "'");
+			    }
+
+			    try {
+				m_buffer.append(
+				    (String)method.invoke(m_bean, s_noArgs));
+			    }
+			    catch (Exception e) {
+				throw new HTTPHandlerException(
+				    "Failure invoking string bean method '" +
+				    methodName + "'", e);
+			    }
+
+			    lastP = p + 1;
+			}
+		    }
+
+		    return m_buffer.toString();
+		}
+	    }
 	}
-
-	public String getPostString() { return m_postString; }
-	public String getURLString() { return m_urlString; }
-
-	public String getOKString() { return m_okString; }
     }
 
     protected class HTTPPluginThreadCallbacks implements ThreadCallbacks
     {
-	private final ThreadCallData[] m_threadCallData =
-	    new ThreadCallData[m_callData.length];
+	private final Map m_threadData = new HashMap(m_callData.size());
 
 	private PluginThreadContext m_pluginThreadContext = null;
 	private FilenameFactory m_filenameFactory = null;
 	private HTTPHandler m_httpHandler = null;
 	private int m_currentIteration = 0; // How many times we've done all the URL's
-	private Object m_bean = null;
 	private StringBean m_stringBean = null;
-	private Map m_beanMethodMap = null;
 
 	/**
 	 * This method is executed when the thread starts. It is only
@@ -239,12 +387,7 @@ public class HttpPlugin implements GrinderPlugin
 	    throws PluginException
 	{
 	    m_pluginThreadContext = pluginThreadContext;
-
-	    for (int i=0; i<m_callData.length; i++) {
-		m_threadCallData[i] =
-		    new ThreadCallData(m_callData[i]);
-	    }
-
+	    
 	    m_filenameFactory = pluginThreadContext.getFilenameFactory();
 
 	    if (m_useHTTPClient) {
@@ -259,51 +402,45 @@ public class HttpPlugin implements GrinderPlugin
 					    m_timeIncludesTransaction);
 	    }
 
-	    if (m_stringBeanClassName != null) {
+	    final Object bean;
+
+	    if (m_stringBeanClass != null) {
 		try {
-		    m_pluginThreadContext.logMessage("Instantiating " +
-						     m_stringBeanClassName);
+		    m_pluginThreadContext.logMessage(
+			"Instantiating instance of " +
+			m_stringBeanClass.getName());
 
-		    final Class stringBeanClass =
-			Class.forName(m_stringBeanClassName);
+		    bean = m_stringBeanClass.newInstance();
 
-		    m_bean = stringBeanClass.newInstance();
-
-		    if (StringBean.class.isAssignableFrom(stringBeanClass)) {
-			m_stringBean = (StringBean)m_bean;
+		    if (StringBean.class.isAssignableFrom(m_stringBeanClass)) {
+			m_stringBean = (StringBean)bean;
 			m_stringBean.initialize(m_pluginThreadContext);
 		    }
 		    else {
 			m_pluginThreadContext.logMessage(
-			    m_stringBeanClassName + " does not implement " +
+			    m_stringBeanClass.getName() +
+			    " does not implement " +
 			    StringBean.class.getName() +
 			    ", skipping initialisation");
 		    }
-
-		    m_beanMethodMap = new HashMap();
-
-		    final Method[] methods = stringBeanClass.getMethods();
-
-		    for (int i=0; i<methods.length; i++) {
-			final String name = methods[i].getName();
-
-			if (name.startsWith("get") &&
-			    methods[i].getReturnType() == String.class &&
-			    methods[i].getParameterTypes().length == 0) {
-			    m_beanMethodMap.put(name, methods[i]);
-			}
-		    }
-		}
-		catch(ClassNotFoundException e) {
-		    throw new PluginException(
-			"The specified string bean class '" +
-			m_stringBeanClassName + "' was not found.", e);
 		}
 		catch (Exception e){
 		    throw new PluginException (
 			"An instance of the string bean class '" +
-			m_stringBeanClassName + "' could not be created.", e);
+			m_stringBeanClass.getName() +
+			"' could not be created.", e);
 		}
+	    }
+	    else {
+		bean = null;
+	    }
+
+	    final Iterator callDataIterator = m_callData.iterator();
+
+	    while (callDataIterator.hasNext()) {
+		final CallData callData = (CallData)callDataIterator.next();
+		m_threadData.put(callData.getTest(),
+				 callData.new ThreadData(bean));
 	    }
 	}
 
@@ -326,14 +463,14 @@ public class HttpPlugin implements GrinderPlugin
 		m_stringBean.doTest(test);
 	    }
 
-	    final ThreadCallData threadCallData =
-		m_threadCallData[test.getIndex()];
+	    final CallData.ThreadData threadData =
+		(CallData.ThreadData)m_threadData.get(test);
 
 	    // Do the call.
-	    final String page = m_httpHandler.sendRequest(threadCallData);
+	    final String page = m_httpHandler.sendRequest(threadData);
 
 	    final boolean error;
-	    final String okString = threadCallData.getOKString();
+	    final String okString = threadData.getOKString();
 
 	    if (page == null) {
 		error = okString != null;
@@ -383,143 +520,6 @@ public class HttpPlugin implements GrinderPlugin
 	    }
 
 	    m_currentIteration++;
-	}
-
-	public class ThreadCallData implements HTTPHandler.RequestData
-	{
-	    private final CallData m_callData;
-	    private final StringBuffer m_buffer = new StringBuffer();
-	    private final Map m_headerMap;
-
-	    public ThreadCallData(CallData callData)
-	    {
-		m_callData = callData;
-		m_headerMap = new HashMap(m_callData.getHeaders().size());
-	    }
-
-	    public Map getHeaders() throws HTTPHandlerException
-	    {
-		final Iterator iterator =
-		    m_callData.getHeaders().entrySet().iterator();
-		
-		while (iterator.hasNext()) {
-		    final Map.Entry entry = (Map.Entry)iterator.next();
-		    final String key = (String)entry.getKey();
-		    final String value = (String)entry.getValue();
-
-		    m_headerMap.put(key, replaceKeys(value));
-		}
-
-		return m_headerMap;
-	    }
-
-	    public HTTPHandler.AuthorizationData getAuthorizationData()
-		throws HTTPHandlerException
-	    {
-		final HTTPHandler.AuthorizationData original =
-		    m_callData.getAuthorizationData();
-
-		if (original != null &&
-		    original instanceof HTTPHandler.BasicAuthorizationData) {
-
-		    final HTTPHandler.BasicAuthorizationData basic =
-			(HTTPHandler.BasicAuthorizationData)original;
-
-		    final String realm = replaceKeys(basic.getRealm());
-		    final String user = replaceKeys(basic.getUser());
-		    final String password = replaceKeys(basic.getPassword());
-
-		    return new HTTPHandler.BasicAuthorizationData() {
-			    public String getRealm() { return realm; }
-			    public String getUser() { return user; }
-			    public String getPassword() { return password; }
-			};
-		}
-
-		return null;
-	    }
-	    
-	    public String getPostString() throws HTTPHandlerException
-	    {
-		return replaceKeys(m_callData.getPostString());
-	    }
-
-	    public String getURLString() throws HTTPHandlerException
-	    {
-		return replaceKeys(m_callData.getURLString());
-	    }
-
-	    public String getOKString() throws HTTPHandlerException
-	    {
-		return replaceKeys(m_callData.getOKString());
-	    }
-
-	    private String replaceKeys(String original) 
-		throws HTTPHandlerException
-	    {
-		if (original == null ||
-		    m_bean == null ||
-		    original.length() == 0) {
-		    return original;
-		}
-		else {
-		    // We belong to a single thread so we can safely
-		    // reuse our StringBuffer.
-		    m_buffer.setLength(0);
-		    
-		    int p = 0;
-		    int lastP = p;
-
-		    while (true) {
-			if ((p = original.indexOf('<', lastP)) == -1) {
-			    m_buffer.append(original.substring(lastP));
-			    break;
-			}
-			else {
-			    m_buffer.append(original.substring(lastP, p));
-
-			    lastP = p + 1;
-		    
-			    p = original.indexOf('>', lastP);
-			    
-			    if (p == -1) {
-				throw new HTTPHandlerException(
-				    "URL for Test " +
-				    m_callData.getTest().getNumber() +
-				    " malformed");    
-			    }
-
-			    final String methodName =
-				original.substring(lastP, p);
-
-			    final Method method =
-				(Method)m_beanMethodMap.get(methodName);
-
-			    if (method == null ) {
-				throw new HTTPHandlerException(
-				    "URL for Test " +
-				    m_callData.getTest().getNumber() +
-				    " refers to unknown string bean method '" +
-				    methodName + "'");
-			    }
-
-			    try {
-				m_buffer.append(
-				    (String)method.invoke(m_bean, s_noArgs));
-			    }
-			    catch (Exception e) {
-				throw new HTTPHandlerException(
-				    "Failure invoking string bean method '" +
-				    methodName + "'", e);
-			    }
-
-			    lastP = p + 1;
-			}
-		    }
-
-		    return m_buffer.toString();
-		}
-	    }
 	}
     }
 }

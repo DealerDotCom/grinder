@@ -45,10 +45,10 @@ public class TestGraphPanel extends JPanel
 
 	final String testLabel = resources.getString("graph.test.label") + " ";
 
-	final Iterator testIterator = model.getTests().iterator();
+	final int numberOfTests = model.getNumberOfTests();
 
-	while (testIterator.hasNext()) {
-	    final Test test = (Test)testIterator.next();
+	for (int i=0; i<numberOfTests; i++) {
+	    final Test test = model.getTest(i);
 
 	    String label = testLabel + test.getNumber();
 
@@ -62,7 +62,7 @@ public class TestGraphPanel extends JPanel
 		new LabelledGraph(label, resources);
 
 	    model.addSampleListener(
-		test.getIndex(),
+		i,
 		new SampleListener() {
 		    public void update(
 			IntervalStatistics intervalStatistics,

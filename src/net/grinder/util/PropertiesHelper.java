@@ -26,7 +26,7 @@ import java.util.Set;
 
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginProcessContext;
-import net.grinder.plugininterface.Test;
+import net.grinder.plugininterface.TestImplementation;
 
 
 /**
@@ -82,8 +82,6 @@ public class PropertiesHelper
 
     private Set getPropertiesTestSet() throws GrinderException
     {
-	int testIndex = 0;
-
 	final Map tests = new HashMap();
 
 	final Iterator nameIterator = m_properties.keySet().iterator();
@@ -124,11 +122,9 @@ public class PropertiesHelper
 		m_properties.getPropertySubset(
 		    getTestPropertyName(testNumber, "parameter") + '.');
 
-	    final Test test =
-		new TestImplementation(testIndex++, testNumber, description,
-				       parameters);
-
-	    tests.put(testNumberInteger, test);
+	    tests.put(testNumberInteger, new TestImplementation(testNumber,
+								description,
+								parameters));
 	}
 
 	return new HashSet(tests.values());

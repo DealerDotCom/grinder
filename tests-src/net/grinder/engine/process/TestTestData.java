@@ -23,9 +23,9 @@ import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
 import net.grinder.plugininterface.Test;
+import net.grinder.plugininterface.TestImplementation;
 import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.util.GrinderProperties;
-import net.grinder.util.TestImplementation;
 
 
 /**

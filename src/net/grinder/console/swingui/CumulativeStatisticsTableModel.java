@@ -68,14 +68,13 @@ class CumulativeStatisticsTableModel extends AbstractStatisticsTableModel
     public synchronized Object getValueAt(int row, int column)
     {
 	final Model model = getModel();
-	final Test[] tests = getTests();
 
-	if (row < tests.length) {
+	if (row < model.getNumberOfTests()) {
 	    if (column == 0) {
-		return getTestString() + tests[row].getNumber();
+		return getTestString() + model.getTest(row).getNumber();
 	    }
 	    else if (column == 1) {
-		return tests[row].getDescription();
+		return model.getTest(row).getDescription();
 	    }
 	    else
 	    {
@@ -131,18 +130,19 @@ class CumulativeStatisticsTableModel extends AbstractStatisticsTableModel
 
     public boolean isBold(int row, int column) 
     {
-	return row >= getTests().length || isRed(row, column);
+	return row >= getModel().getNumberOfTests() || isRed(row, column);
     }
 
     public boolean isRed(int row, int column)
     {
+	final Model model = getModel();
+
 	if (column == 3) {
-	    if (row < getTests().length) {
-		return getModel().getCumulativeStatistics(row).getErrors() > 0;
+	    if (row < model.getNumberOfTests()) {
+		return model.getCumulativeStatistics(row).getErrors() > 0;
 	    }
 	    else {
-		return
-		    getModel().getTotalCumulativeStatistics().getErrors() > 0;
+		return model.getTotalCumulativeStatistics().getErrors() > 0;
 	    }
 	}
 
