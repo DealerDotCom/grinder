@@ -90,6 +90,7 @@ what you want. Currently the conditionally built modules are:
   <property name="etc.dir" value="etc"/>
   <property name="manifest.mf" value="etc/grinder-manifest.mf"/>
   <property name="examples.dir" value="examples"/>
+  <property name="contrib.dir" value="contrib"/>
   <property name="doc.dir" value="docs"/>
   <property name="xdoc.dir" value="xdoc"/>
   <property name="release.dir" value="releases"/>
@@ -142,6 +143,10 @@ what you want. Currently the conditionally built modules are:
   <patternset id="examples.patternset">
     <include name="${examples.dir}/**"/>
     <exclude name="**/log/**"/>
+  </patternset>
+
+  <patternset id="contrib.patternset">
+    <include name="${contrib.dir}/**"/>
   </patternset>
 
   <patternset id="docs.patternset">
@@ -556,6 +561,7 @@ what you want. Currently the conditionally built modules are:
       <zipfileset dir="." prefix="${name}-${version}/">
         <patternset refid="lib.patternset"/>
         <patternset refid="examples.patternset"/>
+        <patternset refid="contrib.patternset"/>
         <patternset refid="docs.patternset"/>
         <patternset refid="license.patternset"/>
       </zipfileset>
