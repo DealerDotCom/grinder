@@ -43,7 +43,7 @@ import HTTPClient.NVPair;
  */
 final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
 
-  private boolean m_followRedirects = true;
+  private boolean m_followRedirects = false;
   private boolean m_useCookies = true;
   private boolean m_useContentEncoding = false;
   private boolean m_useTransferEncoding = false;

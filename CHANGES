@@ -1,3 +1,10 @@
+Grinder 3.0-beta22
+------------------
+
+  Fix bug in HTTPPlugin - shouldn't follow automatically redirects by
+  default.
+
+
 Grinder 3.0-beta21
 ------------------
 
