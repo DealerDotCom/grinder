@@ -142,7 +142,7 @@ public final class ConsoleListener {
   /**
    * Discard pending messages that match the given mask.
    *
-   * @parm mask The messages to discard.
+   * @param mask The messages to discard.
    */
   public void discardMessages(int mask) {
     m_lastMessagesReceived &= ~mask;
