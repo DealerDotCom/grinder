@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,20 +27,20 @@ import net.grinder.common.ProcessStatus;
 
 
 /**
- * Listener interface for receiving updates form {@link ProcessStatusSet}.
+ * Listener interface for receiving updates from {@link ProcessStatusSet}.
  *
  * @author Philip Aston
  * @version $Revision$
  **/
-public interface ProcessStatusSetListener extends EventListener
-{
-    /**
-     * Called when the ProcessStatusSet has new data.
-     *
-     * @param data The new process status data.
-     * @param runningThreadsSum The total number of running threads.
-     * @param totalThreadsSum The total number of potential threads.
-     **/
-    void update(ProcessStatus[] data, int runningThreadsSum,
-		int totalThreadsSum);
+public interface ProcessStatusSetListener extends EventListener {
+
+  /**
+   * Called when the ProcessStatusSet has new data.
+   *
+   * @param data The new process status data.
+   * @param runningThreadsSum The total number of running threads.
+   * @param totalThreadsSum The total number of potential threads.
+   **/
+  void update(ProcessStatus[] data, int runningThreadsSum,
+	      int totalThreadsSum);
 }

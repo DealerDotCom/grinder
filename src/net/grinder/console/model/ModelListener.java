@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,27 +28,32 @@ import net.grinder.statistics.StatisticsView;
 
 
 /**
+ * Interface for listeners to {@link Model}.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface ModelListener extends EventListener
-{
-    /**
-     * Called when the structure of the model has changed and
-     * listeners should reinitialise.
-     *
-     * @param newTests Tests added to the model.
-     **/
-    public void reset(Set newTests);
+public interface ModelListener extends EventListener {
 
-    /**
-     * Called when the model has new information.
-     **/
-    public void update();
+  /**
+   * Called when the model has new information.
+   **/
+  void update();
 
-    /**
-     * Called when new views have been added to the model.
-     **/
-    public void newStatisticsViews(StatisticsView intervalStatisticsView,
-				   StatisticsView cumulativeStatisticsView);
+  /**
+   * Called when new tests have been added to the model.
+   *
+   * @param newTests The new tests.
+   * @param modelTestIndex New index structure for the model's tests.
+   */
+  void newTests(Set newTests, ModelTestIndex modelTestIndex);
+
+  /**
+   * Called when new views have been added to the model.
+   *
+   * @param intervalStatisticsView a <code>StatisticsView</code> value
+   * @param cumulativeStatisticsView a <code>StatisticsView</code> value
+   */
+  void newStatisticsViews(StatisticsView intervalStatisticsView,
+			  StatisticsView cumulativeStatisticsView);
 }

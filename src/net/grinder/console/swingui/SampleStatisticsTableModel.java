@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +23,6 @@ package net.grinder.console.swingui;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
-import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
 
 
@@ -32,18 +30,16 @@ import net.grinder.statistics.TestStatistics;
  * @author Philip Aston
  * @version $Revision$
  */
-final class SampleStatisticsTableModel extends DynamicStatisticsTableModel
-{
-    public SampleStatisticsTableModel(Model model, Resources resources)
-	throws ConsoleException
-    {
-	super(model, resources, true);
+final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
 
-	addColumns(model.getIntervalStatisticsView());
-    }
+  public SampleStatisticsTableModel(Model model, Resources resources)
+    throws ConsoleException {
+    super(model, resources, true);
 
-    protected final TestStatistics getStatistics(int row)
-    {
-	return getModel().getLastSampleStatistics(row);
-    }
+    addColumns(model.getIntervalStatisticsView());
+  }
+
+  protected final TestStatistics getStatistics(int row) {
+    return getLastModelTestIndex().getLastSampleStatistics(row);
+  }
 }

@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,11 +27,19 @@ import net.grinder.statistics.TestStatistics;
 
 
 /**
+ * Listener interface for sample statistics notifications.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface SampleListener extends EventListener
-{
-    public void update(TestStatistics intervalStatistics,
-		       TestStatistics cumulativeStatistics);
+public interface SampleListener extends EventListener {
+
+  /**
+   * Called when new statistics are available.
+   *
+   * @param intervalStatistics Statistics for last interface.
+   * @param cumulativeStatistics Statistics since last reset.
+   */
+  void update(TestStatistics intervalStatistics,
+	      TestStatistics cumulativeStatistics);
 }

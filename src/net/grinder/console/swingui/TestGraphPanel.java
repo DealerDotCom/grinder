@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,11 +28,11 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import net.grinder.common.Test;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
+import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
@@ -45,101 +44,99 @@ import net.grinder.statistics.TestStatistics;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestGraphPanel extends JPanel implements ModelListener
-{
-    private final Model m_model;
-    private final Resources m_resources;
-    private final String m_testLabel;
+public class TestGraphPanel extends JPanel implements ModelListener {
 
-    /**
-     * Map of {@link net.grinder.common.Test}s to {@link
-     * javax.swing.JComponent}s.
-     **/
-    private final Map m_components = new HashMap();
+  private final Model m_model;
+  private final Resources m_resources;
+  private final String m_testLabel;
 
-    private boolean m_modelReset = true;
+  /**
+   * Map of {@link net.grinder.common.Test}s to {@link
+   * javax.swing.JComponent}s.
+   **/
+  private final Map m_components = new HashMap();
 
-    TestGraphPanel(final Model model, Resources resources)
-    {
-	setLayout(new GridLayout(0, 2, 20, 0));
-	m_model = model;
-	m_resources = resources;
+  TestGraphPanel(final Model model, Resources resources) {
+    setLayout(new GridLayout(0, 2, 20, 0));
+    m_model = model;
+    m_resources = resources;
 
-	m_testLabel = resources.getString("graph.test.label") + " ";
+    m_testLabel = resources.getString("graph.test.label") + " ";
 
-	m_model.addModelListener(new SwingDispatchedModelListener(this));
+    m_model.addModelListener(new SwingDispatchedModelListener(this));
 
-	m_model.addTotalSampleListener(
-	    new SampleListener() {
-		public void update(TestStatistics intervalStatistics,
-				   TestStatistics cumulativeStatistics) {
-		    // No requirement to dispatch in Swing thread.
-		    LabelledGraph.resetPeak();
-		}
-	    });
-    }
+    m_model.addTotalSampleListener(
+      new SampleListener() {
+	public void update(TestStatistics intervalStatistics,
+			   TestStatistics cumulativeStatistics) {
+	  // No requirement to dispatch in Swing thread.
+	  LabelledGraph.resetPeak();
+	}
+      });
+  }
 
-    public void reset(Set newTests)
-    {
-	m_modelReset = true;
+  /**
+   * Model listener interface called when new tests have been registered.
+   *
+   * @param newTests The new tests.
+   * @param modelTestIndex Updated test index.
+   */
+  public void newTests(Set newTests, ModelTestIndex modelTestIndex) {
 
-	final Iterator newTestIterator = newTests.iterator();
+    final Iterator newTestIterator = newTests.iterator();
 	
-	while (newTestIterator.hasNext()) {
-	    final Test test = (Test)newTestIterator.next();
+    while (newTestIterator.hasNext()) {
+      final Test test = (Test)newTestIterator.next();
 
-	    final String description = test.getDescription();
+      final String description = test.getDescription();
 
-	    final String label =
-		m_testLabel + test.getNumber() +
-		(description != null ? " (" + description + ")" : "");
+      final String label =
+	m_testLabel + test.getNumber() +
+	(description != null ? " (" + description + ")" : "");
 
-	    final LabelledGraph testGraph =
-		new LabelledGraph(label, m_resources,
-				  m_model.getTPSExpression(),
-				  m_model.getPeakTPSExpression());
+      final LabelledGraph testGraph =
+	new LabelledGraph(label, m_resources, m_model.getTPSExpression(),
+			  m_model.getPeakTPSExpression());
 
-	    m_model.addSampleListener(
-		test,
-		new SwingDispatchedSampleListener(
-		    new SampleListener() {
-			public void update(
-			    final TestStatistics intervalStatistics,
-			    final TestStatistics cumulativeStatistics) {
-			    testGraph.add(intervalStatistics,
-					  cumulativeStatistics,
-					  m_model.getNumberFormat());
-			    
-			}
-		    }));
-
-	    m_components.put(test, testGraph);
-	}
-    }
-
-    public void update()
-    {
-	if (m_modelReset) {
-	    m_modelReset = false;
-
-	    final int numberOfTests = m_model.getNumberOfTests();
-
-	    // We add all the tests components again. The container
-	    // ignores duplicates, but inserts the new components in
-	    // the correct order.
-	    for (int i=0; i<numberOfTests; i++) {
-		add((JComponent)m_components.get(m_model.getTest(i)));
+      m_model.addSampleListener(
+	test,
+	new SwingDispatchedSampleListener(
+	  new SampleListener() {
+	    public void update(final TestStatistics intervalStatistics,
+			       final TestStatistics cumulativeStatistics) {
+	      testGraph.add(intervalStatistics, cumulativeStatistics,
+			    m_model.getNumberFormat());
 	    }
-	}
+	  }));
+
+      m_components.put(test, testGraph);
     }
 
-    /**
-     * {@link net.grinder.console.model.ModelListener} interface. New
-     * <code>StatisticsView</code>s have been added. We need do
-     * nothing
-     **/
-    public void newStatisticsViews(StatisticsView intervalStatisticsView,
-				   StatisticsView cumulativeStatisticsView)
-    {
+    final int numberOfTests = modelTestIndex.getNumberOfTests();
+
+    // We add all the tests components again. The container ignores
+    // duplicates, but inserts the new components in the correct
+    // order.
+    for (int i=0; i<numberOfTests; i++) {
+      add((JComponent)m_components.get(modelTestIndex.getTest(i)));
     }
+  }
+
+  /**
+   * Called when the model has new information.
+   **/
+  public final void update() {
+  }
+
+  /**
+   * {@link net.grinder.console.model.ModelListener} interface. New
+   * <code>StatisticsView</code>s have been added. We need do
+   * nothing
+   *
+   * @param intervalStatisticsView Interval statistics view.
+   * @param cumulativeStatisticsView Cumulative statistics view.
+   */
+  public void newStatisticsViews(StatisticsView intervalStatisticsView,
+				 StatisticsView cumulativeStatisticsView) {
+  }
 }

@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,6 +31,7 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 
 import net.grinder.console.model.ModelListener;
+import net.grinder.console.model.ModelTestIndex;
 import net.grinder.statistics.StatisticsView;
 
 
@@ -39,79 +39,77 @@ import net.grinder.statistics.StatisticsView;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestSwingDispatchedModelListener extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestSwingDispatchedModelListener.class);
-    }
+public class TestSwingDispatchedModelListener extends TestCase {
 
-    public TestSwingDispatchedModelListener(String name)
-    {
-	super(name);
-    }
+  public static void main(String[] args) {
+    TestRunner.run(TestSwingDispatchedModelListener.class);
+  }
 
-    private Runnable m_voidRunnable = new Runnable() { public void run() {} };
+  public TestSwingDispatchedModelListener(String name) {
+    super(name);
+  }
 
-    public void testDispatch() throws Exception
-    {
-	final MyModelListener listener = new MyModelListener();
+  private Runnable m_voidRunnable = new Runnable() { public void run() {} };
 
-	final ModelListener swingDispatchedListener =
-	    new SwingDispatchedModelListener(listener);
+  public void testDispatch() throws Exception {
+    final MyModelListener listener = new MyModelListener();
 
-	listener.update();
+    final ModelListener swingDispatchedListener =
+      new SwingDispatchedModelListener(listener);
 
-	// Wait for a dummy event to be processed by the swing event
-	// queue.
-	SwingUtilities.invokeAndWait(m_voidRunnable);
+    listener.update();
 
-	assertTrue(listener.m_updateCalled);
+    // Wait for a dummy event to be processed by the swing event
+    // queue.
+    SwingUtilities.invokeAndWait(m_voidRunnable);
 
-	final Set myTests = new HashSet();
-	listener.reset(myTests);
-	SwingUtilities.invokeAndWait(m_voidRunnable);
-	assertTrue(listener.m_resetCalled);
-	assertSame(myTests, listener.m_resetSet);
+    assertTrue(listener.m_updateCalled);
 
-	final StatisticsView view1 = new StatisticsView();
-	final StatisticsView view2 = new StatisticsView();
-	listener.newStatisticsViews(view1, view2);
-	SwingUtilities.invokeAndWait(m_voidRunnable);
-	assertTrue(listener.m_updateCalled);
-	assertSame(view1, listener.m_intervalStatisticsView);
-	assertSame(view2, listener.m_cumulativeStatisticsView);
-    }
+    final Set myTests = new HashSet();
+    final ModelTestIndex myModelTestIndex = new ModelTestIndex();
+    listener.newTests(myTests, myModelTestIndex);
+    SwingUtilities.invokeAndWait(m_voidRunnable);
+    assertTrue(listener.m_newTestsCalled);
+    assertSame(myTests, listener.m_newTests);
+    assertSame(myModelTestIndex, listener.m_modelTestIndex);
 
-    private class MyModelListener implements ModelListener
-    {
-	public boolean m_resetCalled = false;
-	public Set m_resetSet;
+    final StatisticsView view1 = new StatisticsView();
+    final StatisticsView view2 = new StatisticsView();
+    listener.newStatisticsViews(view1, view2);
+    SwingUtilities.invokeAndWait(m_voidRunnable);
+    assertTrue(listener.m_updateCalled);
+    assertSame(view1, listener.m_intervalStatisticsView);
+    assertSame(view2, listener.m_cumulativeStatisticsView);
+  }
 
-	public boolean m_updateCalled = false;
+  private class MyModelListener implements ModelListener {
+    public boolean m_newTestsCalled = false;
+    public Set m_newTests;
+    public ModelTestIndex m_modelTestIndex;
 
-	public boolean m_newStatisticsViewsCalled = false;
-	public StatisticsView m_intervalStatisticsView;
-	public StatisticsView m_cumulativeStatisticsView;
+    public boolean m_updateCalled = false;
+
+    public boolean m_newStatisticsViewsCalled = false;
+    public StatisticsView m_intervalStatisticsView;
+    public StatisticsView m_cumulativeStatisticsView;
 	
-	public void reset(Set newTests) 
-	{
-	    m_resetCalled = true;
-	    m_resetSet = newTests;
-	}
-
-	public void update()
-	{
-	    m_updateCalled = true;
-	}
-
-	public void newStatisticsViews(StatisticsView intervalStatisticsView,
-				       StatisticsView cumulativeStatisticsView)
-	{
-	    m_newStatisticsViewsCalled = true;
-	    m_intervalStatisticsView = intervalStatisticsView;
-	    m_cumulativeStatisticsView = cumulativeStatisticsView;
-	}
+    public void newTests(Set newTests, ModelTestIndex modelTestIndex) {
+      m_newTestsCalled = true;
+      m_newTests = newTests;
+      m_modelTestIndex = modelTestIndex;
     }
+
+    public void update() {
+      m_updateCalled = true;
+    }
+
+    public void newStatisticsViews(StatisticsView intervalStatisticsView,
+				   StatisticsView cumulativeStatisticsView)
+    {
+      m_newStatisticsViewsCalled = true;
+      m_intervalStatisticsView = intervalStatisticsView;
+      m_cumulativeStatisticsView = cumulativeStatisticsView;
+    }
+  }
 }
 

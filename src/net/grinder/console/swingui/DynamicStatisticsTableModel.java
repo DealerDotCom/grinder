@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,15 +23,13 @@ package net.grinder.console.swingui;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.Set;
-import java.util.TreeSet;
 import javax.swing.table.AbstractTableModel;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
+import net.grinder.console.model.ModelTestIndex;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsView;
@@ -44,213 +41,189 @@ import net.grinder.statistics.TestStatistics;
  * @version $Revision$
  */
 abstract class DynamicStatisticsTableModel
-    extends AbstractTableModel implements ModelListener, Table.TableModel
-{
-    private final Model m_model;
-    private final Resources m_resources;
-    private boolean m_modelInvalid;
+  extends AbstractTableModel implements ModelListener, Table.TableModel {
 
-    private final String m_testString;
-    private final String m_testColumnString;
-    private final String m_testDescriptionColumnString;
+  private final Model m_model;
+  private final Resources m_resources;
 
-    private StatisticsView m_statisticsView = new StatisticsView();
-    private ExpressionView[] m_columnViews = new ExpressionView[0];
-    private String[] m_columnLabels;
+  private ModelTestIndex m_lastModelTestIndex = new ModelTestIndex();
 
-    protected DynamicStatisticsTableModel(Model model, Resources resources,
-					  boolean setColumns)
-	throws ConsoleException
-    {
-	m_model = model;
-	m_resources = resources;
+  private final String m_testString;
+  private final String m_testColumnString;
+  private final String m_testDescriptionColumnString;
 
-	m_testString = resources.getString("table.test.label") + " ";
-	m_testColumnString = resources.getString("table.testColumn.label");
-	m_testDescriptionColumnString =
-	    resources.getString("table.descriptionColumn.label");
+  private StatisticsView m_statisticsView = new StatisticsView();
+  private ExpressionView[] m_columnViews = new ExpressionView[0];
+  private String[] m_columnLabels;
 
-	m_modelInvalid = true;
-	m_model.addModelListener(new SwingDispatchedModelListener(this));
+  protected DynamicStatisticsTableModel(Model model, Resources resources,
+					boolean setColumns)
+    throws ConsoleException {
+
+    m_model = model;
+    m_resources = resources;
+
+    m_testString = resources.getString("table.test.label") + " ";
+    m_testColumnString = resources.getString("table.testColumn.label");
+    m_testDescriptionColumnString =
+      resources.getString("table.descriptionColumn.label");
+
+    m_model.addModelListener(new SwingDispatchedModelListener(this));
+  }
+
+  protected abstract TestStatistics getStatistics(int row);
+
+  protected final Model getModel() {
+    return m_model;
+  }
+
+  protected final ModelTestIndex getLastModelTestIndex() {
+    return m_lastModelTestIndex;
+  }
+
+  public synchronized void addColumns(StatisticsView statisticsView) {
+    m_statisticsView.add(statisticsView);
+
+    final int originalNumberOfColumns = m_columnViews.length;
+
+    final ExpressionView[] newViews =
+      m_statisticsView.getExpressionViews();
+
+    if (newViews.length != originalNumberOfColumns) {
+      m_columnViews = newViews;
+
+      m_columnLabels = new String[m_columnViews.length];
+
+      for (int i=0; i<m_columnLabels.length; ++i) {
+	final String resource =
+	  m_resources.getString(
+	    m_columnViews[i].getDisplayNameResourceKey(), false);
+
+	m_columnLabels[i] =
+	  resource != null ?
+	  resource : m_columnViews[i].getDisplayName();
+      }
+
+      fireTableStructureChanged();
     }
+  }
 
-    protected abstract TestStatistics getStatistics(int row);
+  public final synchronized void newTests(Set newTests,
+					  ModelTestIndex modelTestIndex) {
 
-    protected final Model getModel()
-    {
-	return m_model;
+    m_lastModelTestIndex = modelTestIndex;
+
+    // We've been reset, number of rows may have changed.
+    fireTableDataChanged();
+  }
+
+  public final synchronized void update() {
+    fireTableRowsUpdated(0, getRowCount());
+  }
+
+  /**
+   * {@link net.grinder.console.model.ModelListener} interface. New
+   * <code>StatisticsView</code>s have been added. 
+   **/
+  public final synchronized void newStatisticsViews(
+    StatisticsView intervalStatisticsView,
+    StatisticsView cumulativeStatisticsView) {
+    addColumns(cumulativeStatisticsView);
+  }
+
+  public final synchronized int getColumnCount() {
+    return 2 + m_columnLabels.length;
+  }
+
+  public final synchronized String getColumnName(int column) {
+    switch (column) {
+    case 0:
+      return m_testColumnString;
+
+    case 1:
+      return m_testDescriptionColumnString;
+
+    default:
+      return m_columnLabels[column - 2];
     }
+  }
 
-    protected final boolean isModelInvalid()
-    {
-	return m_modelInvalid;
+  public synchronized int getRowCount() {
+    return m_lastModelTestIndex.getNumberOfTests();
+  }
+
+  public synchronized Object getValueAt(int row, int column) {
+    if (column == 0) {
+      return m_testString + m_lastModelTestIndex.getTest(row).getNumber();
     }
-
-    public synchronized void addColumns(StatisticsView statisticsView)
-    {
-	m_statisticsView.add(statisticsView);
-
-	final int originalNumberOfColumns = m_columnViews.length;
-
-	final ExpressionView[] newViews =
-	    m_statisticsView.getExpressionViews();
-
-	if (newViews.length != originalNumberOfColumns) {
-	    m_columnViews = newViews;
-
-	    m_columnLabels = new String[m_columnViews.length];
-
-	    for (int i=0; i<m_columnLabels.length; ++i) {
-		final String resource =
-		    m_resources.getString(
-			m_columnViews[i].getDisplayNameResourceKey(), false);
-
-		m_columnLabels[i] =
-		    resource != null ?
-		    resource : m_columnViews[i].getDisplayName();
-	    }
-
-	    fireTableStructureChanged();
-	}
+    else if (column == 1) {
+      return m_lastModelTestIndex.getTest(row).getDescription();
     }
-
-    public synchronized void reset(Set newTests)
-    {
-	m_modelInvalid = newTests.size() > 0;
+    else {
+      return getDynamicField(getStatistics(row), column - 2);
     }
+  }
 
-    public synchronized void update()
-    {
-	final boolean wasInvalid = m_modelInvalid;
-	m_modelInvalid = false;
+  protected synchronized String getDynamicField(TestStatistics statistics,
+						int dynamicColumn) {
+    if (dynamicColumn < m_columnViews.length) {
+      final StatisticExpression expression =
+	m_columnViews[dynamicColumn].getExpression();
 
-	if (wasInvalid) {
-	    // We've been reset, number of rows may have changed.
-	    fireTableDataChanged();
-	}
-	else {
-	    fireTableRowsUpdated(0, getRowCount());
-	}
-    }
+      if (expression.isDouble()) {
+	final double value = expression.getDoubleValue(statistics);
 
-    /**
-     * {@link net.grinder.console.model.ModelListener} interface. New
-     * <code>StatisticsView</code>s have been added. 
-     **/
-    public final synchronized void newStatisticsViews(
-	StatisticsView intervalStatisticsView,
-	StatisticsView cumulativeStatisticsView)
-    {
-	addColumns(cumulativeStatisticsView);
-    }
-
-    public synchronized int getColumnCount()
-    {
-	return 2 + m_columnLabels.length;
-    }
-
-    public synchronized String getColumnName(int column)
-    {
-	switch (column) {
-	case 0:
-	    return m_testColumnString;
-
-	case 1:
-	    return m_testDescriptionColumnString;
-
-	default:
-	    return m_columnLabels[column - 2];
-	}
-    }
-
-    public int getRowCount()
-    {
-	return m_model.getNumberOfTests();
-    }
-
-    public synchronized Object getValueAt(int row, int column)
-    {
-	if (m_modelInvalid) {
-	    return "";
-	}
-	else {
-	    if (column == 0) {
-		return m_testString + m_model.getTest(row).getNumber();
-	    }
-	    else if (column == 1) {
-		return m_model.getTest(row).getDescription();
-	    }
-	    else {
-		return getDynamicField(getStatistics(row), column - 2);
-	    }
-	}
-    }
-
-    protected synchronized String getDynamicField(TestStatistics statistics,
-						  int dynamicColumn)
-    {
-	if (dynamicColumn < m_columnViews.length) {
-	    final StatisticExpression expression =
-		m_columnViews[dynamicColumn].getExpression();
-
-	    if (expression.isDouble()) {
-		final double value = expression.getDoubleValue(statistics);
-
-		if (Double.isNaN(value)) {
-		    return "";
-		}
-		else {
-		    return m_model.getNumberFormat().format(value);
-		}
-	    }
-	    else {
-		return String.valueOf(expression.getLongValue(statistics));
-	    }
+	if (Double.isNaN(value)) {
+	  return "";
 	}
 	else {
-	    return "?";
+	  return m_model.getNumberFormat().format(value);
 	}
+      }
+      else {
+	return String.valueOf(expression.getLongValue(statistics));
+      }
     }
-
-    public boolean isBold(int row, int column) 
-    {
-	return isRed(row, column);
+    else {
+      return "?";
     }
+  }
 
-    public boolean isRed(int row, int column)
-    {
-	return column == 3 && getStatistics(row).getErrors() > 0;
-    }
+  public boolean isBold(int row, int column) {
+    return isRed(row, column);
+  }
 
-    public synchronized void write(Writer writer, String columnDelimiter,
-				   String lineDelimeter)
-	throws IOException
-    {
-	final int numberOfRows = getRowCount();
-	final int numberOfColumns = getColumnCount();
+  public boolean isRed(int row, int column) {
+    return column == 3 && getStatistics(row).getErrors() > 0;
+  }
 
-	writer.write(m_testColumnString);
-	writer.write(columnDelimiter);
-	writer.write(m_testDescriptionColumnString);
-	writer.write(columnDelimiter);
+  public synchronized void write(Writer writer, String columnDelimiter,
+				 String lineDelimeter)
+    throws IOException {
+    final int numberOfRows = getRowCount();
+    final int numberOfColumns = getColumnCount();
+
+    writer.write(m_testColumnString);
+    writer.write(columnDelimiter);
+    writer.write(m_testDescriptionColumnString);
+    writer.write(columnDelimiter);
 	
-	for (int dynamicColumn=0; dynamicColumn<numberOfColumns-2;
-	     dynamicColumn++)
-	{
-	    writer.write(m_columnLabels[dynamicColumn]);
-	    writer.write(columnDelimiter);
-	}
-
-	writer.write(lineDelimeter);
-
-	for (int row=0; row<numberOfRows; row++) {
-	    for (int column=0; column<numberOfColumns; column++) {
-		final Object o = getValueAt(row, column);
-		writer.write(o != null ? o.toString() : "");
-		writer.write(columnDelimiter);
-	    }
-
-	    writer.write(lineDelimeter);
-	}
+    for (int dynamicColumn=0; dynamicColumn<numberOfColumns-2;
+	 dynamicColumn++) {
+      writer.write(m_columnLabels[dynamicColumn]);
+      writer.write(columnDelimiter);
     }
+
+    writer.write(lineDelimeter);
+
+    for (int row=0; row<numberOfRows; row++) {
+      for (int column=0; column<numberOfColumns; column++) {
+	final Object o = getValueAt(row, column);
+	writer.write(o != null ? o.toString() : "");
+	writer.write(columnDelimiter);
+      }
+
+      writer.write(lineDelimeter);
+    }
+  }
 }

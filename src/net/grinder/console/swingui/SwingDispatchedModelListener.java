@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,6 +25,7 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 
 import net.grinder.console.model.ModelListener;
+import net.grinder.console.model.ModelTestIndex;
 import net.grinder.statistics.StatisticsView;
 
 
@@ -36,46 +36,42 @@ import net.grinder.statistics.StatisticsView;
  * @author Philip Aston
  * @version $Revision$
  */
-class SwingDispatchedModelListener implements ModelListener
-{
-    private final ModelListener m_delegate;
-    private final Runnable m_updateRunnable;
+class SwingDispatchedModelListener implements ModelListener {
+  private final ModelListener m_delegate;
+  private final Runnable m_updateRunnable;
 
-    public SwingDispatchedModelListener(ModelListener delegate)
-    {
-	m_delegate = delegate;
+  public SwingDispatchedModelListener(ModelListener delegate) {
+    m_delegate = delegate;
 
-	m_updateRunnable =
-	    new Runnable() {
-		public void run() { m_delegate.update(); }
-	    };
-    }
+    m_updateRunnable =
+      new Runnable() {
+	public void run() { m_delegate.update(); }
+      };
+  }
 
-    public void reset(final Set newTests)
-    {
-	SwingUtilities.invokeLater(
-	    new Runnable() {
-		public void run() { m_delegate.reset(newTests); }
-	    }
-	    );
-    }
+  public void newTests(final Set newTests,
+		       final ModelTestIndex modelTestIndex) {
+    SwingUtilities.invokeLater(
+      new Runnable() {
+	public void run() { m_delegate.newTests(newTests, modelTestIndex); }
+      }
+      );
+  }
 
-    public void update()
-    {
-	SwingUtilities.invokeLater(m_updateRunnable);
-    }
+  public void update() {
+    SwingUtilities.invokeLater(m_updateRunnable);
+  }
 
-    public void newStatisticsViews(
-	final StatisticsView intervalStatisticsView,
-	final StatisticsView cumulativeStatisticsView)
-    {
-	SwingUtilities.invokeLater(
-	    new Runnable() {
-		public void run() {
-		    m_delegate.newStatisticsViews(intervalStatisticsView,
-						  cumulativeStatisticsView);
-		}
-	    }
-	    );
-    }
+  public void newStatisticsViews(
+    final StatisticsView intervalStatisticsView,
+    final StatisticsView cumulativeStatisticsView) {
+    SwingUtilities.invokeLater(
+      new Runnable() {
+	public void run() {
+	  m_delegate.newStatisticsViews(intervalStatisticsView,
+					cumulativeStatisticsView);
+	}
+      }
+      );
+  }
 }

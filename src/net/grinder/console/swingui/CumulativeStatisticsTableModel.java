@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +23,6 @@ package net.grinder.console.swingui;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
-import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
 
 
@@ -32,80 +30,70 @@ import net.grinder.statistics.TestStatistics;
  * @author Philip Aston
  * @version $Revision$
  */
-final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel
-{
-    private final boolean m_includeTotals;
-    private final String m_totalString;
+final class CumulativeStatisticsTableModel
+  extends DynamicStatisticsTableModel {
 
-    public CumulativeStatisticsTableModel(Model model, Resources resources,
-					  boolean includeTotals)
-	throws ConsoleException
-    {
-	super(model, resources, false);
+  private final boolean m_includeTotals;
+  private final String m_totalString;
 
-	m_includeTotals = includeTotals;
-	m_totalString = resources.getString("table.total.label");
+  public CumulativeStatisticsTableModel(Model model, Resources resources,
+					boolean includeTotals)
+    throws ConsoleException {
+    super(model, resources, false);
 
-	addColumns(model.getCumulativeStatisticsView());
+    m_includeTotals = includeTotals;
+    m_totalString = resources.getString("table.total.label");
+
+    addColumns(model.getCumulativeStatisticsView());
+  }
+
+  protected final TestStatistics getStatistics(int row) {
+    return getLastModelTestIndex().getCumulativeStatistics(row);
+  }
+
+  public int getRowCount() {
+    return super.getRowCount() + (m_includeTotals ? 1 : 0);
+  }
+
+  public synchronized Object getValueAt(int row, int column) {
+
+    if (row < getLastModelTestIndex().getNumberOfTests()) {
+      return super.getValueAt(row, column);
     }
+    else {
+      switch (column) {
+      case 0:
+	return m_totalString;
 
-    protected final TestStatistics getStatistics(int row)
-    {
-	return getModel().getCumulativeStatistics(row);
+      case 1:
+	return "";
+
+      default:
+	return getDynamicField(
+	  getModel().getTotalCumulativeStatistics(), column - 2);
+      }
     }
+  }
 
-    public int getRowCount()
-    {
-	return super.getRowCount() + (m_includeTotals ? 1 : 0);
+  public final boolean isBold(int row, int column) {
+
+    if (row < getLastModelTestIndex().getNumberOfTests()) {
+      return super.isBold(row, column);
     }
-
-    public synchronized Object getValueAt(int row, int column)
-    {
-	final Model model = getModel();
-
-	if (row < model.getNumberOfTests()) {
-	    return super.getValueAt(row, column);
-	}
-	else {
-	    if (isModelInvalid()) {
-		return "";
-	    }
-	    else {
-		if (column == 0) {
-		    return m_totalString;
-		}
-		else if (column == 1) {
-		    return "";
-		}
-		else {
-		    return getDynamicField(
-			model.getTotalCumulativeStatistics(), column - 2);
-		}
-	    }
-	}
+    else {
+      return true;
     }
+  }
 
-    public final boolean isBold(int row, int column) 
-    {
-	if (row < getModel().getNumberOfTests()) {
-	    return super.isBold(row, column);
-	}
-	else {
-	    return true;
-	}
+  public final boolean isRed(int row, int column) {
+
+    if (row < getLastModelTestIndex().getNumberOfTests()) {
+      return super.isRed(row, column);
     }
-
-    public final boolean isRed(int row, int column)
-    {
-	final Model model = getModel();
-
-	if (row < model.getNumberOfTests()) {
-	    return super.isRed(row, column);
-	}
-	else {
-	    return
-		column == 3 &&
-		model.getTotalCumulativeStatistics().getErrors() > 0;
-	}
+    else {
+      return
+	column == 3 &&
+	getModel().getTotalCumulativeStatistics().getErrors() > 0;
     }
+  }
 }
