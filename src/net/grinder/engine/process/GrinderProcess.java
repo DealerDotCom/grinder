@@ -38,6 +38,7 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.QueuedSender;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
+import net.grinder.communication.StreamReceiver;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
@@ -183,23 +184,8 @@ public final class GrinderProcess implements Monitor {
     m_reportToConsoleInterval =
       properties.getInt("grinder.reportToConsole.interval", 500);
 
-    ConsoleListener consoleListener = null;
-
-    if (m_context.getReceiveConsoleSignals()) {
-      try {
-        consoleListener = new ConsoleListener(properties, this, logger);
-      }
-      catch (CommunicationException e) {
-        logger.output(
-          "Unable to receive signals from console (" +
-          e.getMessage() + "); proceeding regardless. " +
-          "Set grinder.receiveConsoleSignals=false to disable " +
-          "this warning.",
-          Logger.LOG | Logger.TERMINAL);
-      }
-    }
-
-    m_consoleListener = consoleListener;
+    m_consoleListener =
+      new ConsoleListener(new StreamReceiver(System.in), this, logger);
 
     m_duration = properties.getInt("grinder.duration", 0);
   }

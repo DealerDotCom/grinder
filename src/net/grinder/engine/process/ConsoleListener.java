@@ -21,12 +21,9 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
-//import net.grinder.communication.MulticastReceiver;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.StartGrinderMessage;
@@ -39,30 +36,31 @@ import net.grinder.communication.StopGrinderMessage;
  * @author Philip Aston
  * @version $Revision$
  * @see net.grinder.engine.process.GrinderProcess
- **/
+ */
 final class ConsoleListener {
+
   /**
    * Constant that represents start message.
    * @see #received
-   **/
+   */
   public static final int START = 1 << 0;
 
   /**
    * Constant that represents a a reset message.
    * @see #received
-   **/
+   */
   public static final int RESET = 1 << 1;
 
   /**
    * Constant that represents a stop message.
    * @see #received
-   **/
+   */
   public static final int STOP =  1 << 2;
 
   /**
    * Constant that represent any message.
    * @see #received
-   **/
+   */
   public static final int ANY = START | RESET | STOP;
 
   private final Monitor m_notifyOnMessage;
@@ -70,41 +68,20 @@ final class ConsoleListener {
   private int m_messagesReceived = 0;
 
   /**
-   * Constructor that creates an appropriate {@link ConsoleListener}
-   * based on the passed {@link GrinderProperties}
+   * Constructor.
    *
-   * <p>If <code>properties</code> specifies that this process
-   * should receive console signals, a thread is created to listen
-   * for messages. Otherwise we simply do nothing and {@link
-   * #received} will always return 0. </p>
-   *
-   * @param properties The {@link GrinderProperties}
+   * @param receiver Receiver connected to the console.
    * @param notifyOnMessage A {@link Monitor} to notify when a
    * message arrives.
-   * @param logger A {@link net.grinder.common.Logger} to log receive
+   * @param logger A {@link net.grinder.common.Logger} to log received
    * event messages to.
-   * @exception CommunicationException If a multicast error occurs.
-   **/
-  public ConsoleListener(GrinderProperties properties,
-                         Monitor notifyOnMessage, Logger logger)
-    throws CommunicationException {
+   */
+  public ConsoleListener(Receiver receiver, Monitor notifyOnMessage,
+                         Logger logger) {
     m_notifyOnMessage = notifyOnMessage;
     m_logger = logger;
 
-    // Parse console configuration.
-    final String grinderAddress =
-      properties.getProperty("grinder.grinderAddress",
-                             CommunicationDefaults.GRINDER_ADDRESS);
-
-    final int grinderPort =
-      properties.getInt("grinder.grinderPort",
-                        CommunicationDefaults.GRINDER_PORT);
-
-    final ReceiverThread receiverThread =
-      new ReceiverThread(grinderAddress, grinderPort);
-
-    receiverThread.setDaemon(true);
-    receiverThread.start();
+    new ReceiverThread(receiver).start();
   }
 
   /**
@@ -116,7 +93,7 @@ final class ConsoleListener {
    *
    * @param mask The messages to check for.
    * @return The subset of <code>mask</code> received.
-   **/
+   */
   public synchronized int received(int mask) {
     final int intersection = m_messagesReceived & mask;
 
@@ -131,28 +108,24 @@ final class ConsoleListener {
   /**
    * Thread that uses a {@link net.grinder.communication.Receiver}
    * to receive console messages.
-   **/
+   */
   private final class ReceiverThread extends Thread {
     private final Receiver m_receiver;
 
     /**
      * Creates a new <code>ReceiverThread</code> instance.
      *
-     * @param address Console multicast address.
-     * @param port Console multicast port.
-     * @exception CommunicationException If an error occurs
-     * binding to the multicast port.
-     **/
-    private ReceiverThread(String address, int port)
-      throws CommunicationException {
+     * @param receiver The receiver.
+     */
+    private ReceiverThread(Receiver receiver) {
       super("Console Listener");
-
-      m_receiver = null; // new MulticastReceiver(address, port);
+      m_receiver = receiver;
+      setDaemon(true);
     }
 
     /**
      * Event loop that receives messages from the console.
-     **/
+     */
     public void run() {
       while (true) {
         final Message message;

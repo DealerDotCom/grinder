@@ -56,7 +56,6 @@ class ProcessContext {
   private final PluginRegistry m_pluginRegistry;
   private final TestRegistry m_testRegistry;
   private final Grinder.ScriptContext m_scriptContext;
-  private final boolean m_receiveConsoleSignals;
 
   private long m_executionStartTime;
   private boolean m_shutdown;
@@ -92,7 +91,7 @@ class ProcessContext {
 
       final int consolePort =
         properties.getInt("grinder.consolePort",
-                          CommunicationDefaults.CONSOLE_PORT);
+                          CommunicationDefaults.CONSOLE_PORT) + 1;
 
       try {
         consoleSender =
@@ -110,9 +109,6 @@ class ProcessContext {
 
     if (consoleSender != null) {
       m_consoleSender = consoleSender;
-
-      m_receiveConsoleSignals =
-        properties.getBoolean("grinder.receiveConsoleSignals", true);
     }
     else {
       // Null Sender implementation.
@@ -122,8 +118,6 @@ class ProcessContext {
           public void queue(Message message) { }
           public void shutdown() { }
         };
-
-      m_receiveConsoleSignals = false;
     }
 
     m_pluginRegistry = new PluginRegistry(this);
@@ -190,10 +184,6 @@ class ProcessContext {
 
   public final Grinder.ScriptContext getScriptContext() {
     return m_scriptContext;
-  }
-
-  public final boolean getReceiveConsoleSignals() {
-    return m_receiveConsoleSignals;
   }
 
   /**
