@@ -25,30 +25,15 @@ import net.grinder.statistics.TestStatisticsMap;
  * @author Philip Aston
  * @version $Revision$
  */
-public class ReportStatisticsMessage implements Message
+public class ReportStatisticsMessage extends Message
 {
     private static final long serialVersionUID = 171863391515128541L;
 
-    final String m_hostID;
-    final String m_processID;
     final TestStatisticsMap m_statisticsDelta;
 
-    public ReportStatisticsMessage(String hostID, String processID,
-				   TestStatisticsMap statisticsDelta)
+    public ReportStatisticsMessage(TestStatisticsMap statisticsDelta)
     {
-	m_hostID = hostID;
-	m_processID = processID;
 	m_statisticsDelta = statisticsDelta;
-    }
-
-    public String getHostID()
-    {
-	return m_hostID;
-    }
-
-    public String getProcessID()
-    {
-	return m_processID;
     }
 
     public TestStatisticsMap getStatisticsDelta()

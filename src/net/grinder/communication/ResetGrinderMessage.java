@@ -22,7 +22,7 @@ package net.grinder.communication;
  * @author Philip Aston
  * @version $Revision$
  */
-public class ResetGrinderMessage implements Message
+public class ResetGrinderMessage extends Message
 {
     private static final long serialVersionUID = -2001230635393053144L;
 }

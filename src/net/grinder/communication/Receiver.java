@@ -24,6 +24,8 @@ import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -36,6 +38,7 @@ public class Receiver
 {
     private final byte[] m_buffer = new byte[65536];
     private final MulticastSocket m_socket;
+    private final Map m_sequenceValues = new HashMap();
 
     public Receiver(String multicastAddressString, int multicastPort)
 	throws CommunicationException
@@ -55,6 +58,7 @@ public class Receiver
     {
 	final DatagramPacket packet = new DatagramPacket(m_buffer,
 							 m_buffer.length);
+	final Message message;
 
 	try {
 	    m_socket.receive(packet);
@@ -65,11 +69,51 @@ public class Receiver
 	    final ObjectInputStream objectStream =
 		new ObjectInputStream(byteStream);
 
-	    return (Message)objectStream.readObject();
+	    message = (Message)objectStream.readObject();
 	}
 	catch (Exception e) {
 	    throw new CommunicationException(
 		"Error receving multicast packet", e);
+	}
+
+	final String senderID = message.getSenderUniqueID();
+	final long sequenceNumber = message.getSequenceNumber();
+
+	final SequenceValue sequenceValue =
+	    (SequenceValue)m_sequenceValues.get(senderID);
+
+	if (sequenceValue != null) {
+	    sequenceValue.nextValue(sequenceNumber);
+	}
+	else {
+	    m_sequenceValues.put(senderID, new SequenceValue(sequenceNumber));
+	}
+	    
+	return message;
+    }
+
+    private class SequenceValue
+    {
+	private long m_value;
+
+	public SequenceValue(long initialValue) 
+	{
+	    m_value = initialValue;
+	}
+
+	public void nextValue(long newValue)
+	    throws CommunicationException
+	{
+	    if (newValue != ++m_value) {
+		final CommunicationException e =
+		    new CommunicationException(
+			"Out of sequence message (received " + newValue + 
+			", expected " + m_value + ")");
+
+		m_value = newValue;
+
+		throw e;
+	    }
 	}
     }
 }

@@ -18,14 +18,17 @@
 
 package net.grinder.communication;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.security.MessageDigest;
 
 
 /**
@@ -39,17 +42,37 @@ public class Sender
     private final MulticastSocket m_localSocket;
     private final InetAddress m_multicastAddress;
     private final int m_multicastPort;
+    private final String m_grinderID;
+    private final String m_senderID;
+    private long m_nextSequenceID = 0;
 
-    public Sender(String multicastAddressString, int multicastPort)
+    private final MyByteArrayOutputStream m_byteStream =
+	new MyByteArrayOutputStream();
+
+    /**
+     * Constructor.
+     *
+     * @param grinderID A string describing our Grinder process.
+     * @param multicastAddressString Multicast address to send to.
+     * @param multicastPort Multicast port to send to.
+     * @throws CommunicationException If failed to bind to socket or failed to generate a unique process identifer.
+     **/
+    
+public Sender(String grinderID, String multicastAddressString,
+	      int multicastPort)
 	throws CommunicationException
     {
-	try {
-	    // Our socket - bind to any port.
-	    m_localSocket = new MulticastSocket();
+	m_grinderID = grinderID;
 
+	try {
 	    // Remote address.
 	    m_multicastAddress =
 		InetAddress.getByName(multicastAddressString);
+
+	    m_multicastPort = multicastPort;
+
+	    // Our socket - bind to any port.
+	    m_localSocket = new MulticastSocket();
 	}
 	catch (IOException e) {
 	    throw new CommunicationException(
@@ -57,23 +80,50 @@ public class Sender
 		multicastAddressString);
 	}
 
-	m_multicastPort = multicastPort;
+	try {
+	    // Calculate a globally unique string for this sender. We
+	    // avoid calling multicastAddressString.toString() or
+	    // since this involves a DNS lookup.
+	    final String uniqueString =
+		multicastAddressString + ":" + 
+		multicastPort + ":" +
+		InetAddress.getLocalHost().getHostName() + ":" +
+		m_localSocket.getLocalPort() + ":" +
+		System.currentTimeMillis();
+
+	    final BufferedWriter bufferedWriter = new BufferedWriter(
+		new OutputStreamWriter(m_byteStream));
+	    bufferedWriter.write(uniqueString);
+	    bufferedWriter.flush();
+
+	    m_senderID = new String(MessageDigest.getInstance("MD5").digest(
+					m_byteStream.getBytes()));
+	}
+	catch (Exception e) {
+	    throw new CommunicationException("Could not calculate sender ID",
+					     e);
+	}
     }
 
     public void send(Message message)
 	throws CommunicationException
     {
-	try {
-	    final MyByteArrayOutputStream byteStream =
-		new MyByteArrayOutputStream();
+	message.setSenderInformation(m_grinderID, m_senderID,
+				     m_nextSequenceID++);
 
+	try {
+	    // Hang onto byte stream object and reset it rather than
+	    // creating garbage.
+	    m_byteStream.reset();
+
+	    // Sadly reuse isn't possible with an ObjectOutputStream.
 	    final ObjectOutputStream objectStream =
-		new ObjectOutputStream(byteStream);
-	
+		new ObjectOutputStream(m_byteStream);
+
 	    objectStream.writeObject(message);
 	    objectStream.flush();
 	
-	    final byte[] bytes = byteStream.getBytes();
+	    final byte[] bytes = m_byteStream.getBytes();
 
 	    final DatagramPacket packet
 		= new DatagramPacket(bytes, bytes.length, m_multicastAddress,

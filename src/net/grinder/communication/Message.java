@@ -18,12 +18,75 @@
 
 package net.grinder.communication;
 
+
 /**
- * Marker interface for messages.
+ * Base class for messages.
  * 
  * @author Philip Aston
  * @version $Revision$
  */
-public interface Message extends java.io.Serializable
+public abstract class Message implements java.io.Serializable
 {
+    /**  The ID of the Grinder process which owns this {@link Sender}. **/
+    private String m_senderGrinderID = null;
+
+    /** Unique ID of {@link Sender}. **/
+    private String m_senderUniqueID = null;
+
+    /** Sequence ID of message. **/
+    private long m_sequenceNumber = -1;
+
+    /**
+     * Called by {@link Sender} before dispatching the Message.
+     **/
+    final void setSenderInformation(String grinderID, String senderUniqueID,
+				    long sequenceNumber) 
+    {
+	m_senderGrinderID = grinderID;
+	m_senderUniqueID = senderUniqueID;
+	m_sequenceNumber = sequenceNumber;
+    }
+
+    /**
+     * Returns a string describing the Grinder process associated of the {@link Sender}.
+     *
+     * @throws CommunicationException If {@link #setSenderInformation} has not been called.
+     **/
+    final String getSenderGrinderID() throws CommunicationException
+    {
+	assertInitialised();
+	return m_senderGrinderID;
+    }
+
+    /**
+     * Returns a unique ID for the {@link Sender}.
+     *
+     * @throws CommunicationException If {@link #setSenderInformation} has not been called.
+     **/
+    final String getSenderUniqueID() throws CommunicationException
+    {
+	assertInitialised();
+	return m_senderUniqueID;
+    }
+
+    /**
+     * Get the message sequence ID.
+     *
+     * @throws CommunicationException If {@link #setSenderInformation} has not been called.
+     **/
+    final long getSequenceNumber() throws CommunicationException
+    {
+	assertInitialised();
+	return m_sequenceNumber;
+    }
+
+  /**
+     * @throws CommunicationException If {@link #setSenderInformation} has not been called.
+     **/
+    private final void assertInitialised() throws CommunicationException
+    {
+	if (m_senderUniqueID == null) {
+	    throw new CommunicationException("Message not initialised");
+	}
+    }
 }
