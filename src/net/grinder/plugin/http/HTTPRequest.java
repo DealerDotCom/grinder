@@ -150,7 +150,8 @@ public class HTTPRequest
     /**
      * Gets the default form data.
      *
-     * @return The default form data to be used for this request.
+     * @return The default form or query data to be used for this
+     * request.
      */
     public final NVPair[] getFormData() 
     {
@@ -160,8 +161,8 @@ public class HTTPRequest
     /**
      * Sets the default form data.
      *
-     * @param formData The default form data to be used for this
-     * request.
+     * @param formData The default form or query data to be used for
+     * this request.
      */
     public final void setFormData(NVPair[] formData)
     {
@@ -182,10 +183,10 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>DELETE</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
@@ -197,12 +198,12 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>DELETE</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
-     * @param headers Additional request headers. Replaces all the
-     * values set by {@link #setHeaders}.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
+     * @param headers Request headers. Replaces all the values set by
+     * {@link #setHeaders}.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
@@ -230,10 +231,10 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>GET</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
@@ -245,23 +246,57 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>GET</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
-     * @param headers Additional request headers. Replaces all the
-     * values set by {@link #setHeaders}.
+     * @param queryData Request headers. Replaces all the values set
+     * by {@link #setFormData}.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
-    public final HTTPResponse GET(final String uri, final NVPair[] headers)
+    public final HTTPResponse GET(NVPair[] queryData) throws Exception
+    {
+	return GET(null, queryData, getHeaders());
+    }
+
+    /**
+     * Makes an HTTP <code>GET</code> request.
+     *
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
+     * @param queryData Request headers. Replaces all the values set
+     * by {@link #setFormData}.
+     * @return Contains details of the server's response.
+     * @exception Exception If an error occurs.
+     */
+    public final HTTPResponse GET(final String uri, final NVPair[] queryData)
 	throws Exception
+    {
+	return GET(uri, queryData, getHeaders());
+    }
+
+    /**
+     * Makes an HTTP <code>GET</code> request.
+     *
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
+     * @param queryData Request headers. Replaces all the
+     * values set by {@link #setFormData}.
+     * @param headers Request headers. Replaces all the values set by
+     * {@link #setHeaders}.
+     * @return Contains details of the server's response.
+     * @exception Exception If an error occurs.
+     */
+    public final HTTPResponse GET(final String uri,
+				  final NVPair[] queryData,
+				  final NVPair[] headers) throws Exception
     {
 	final RequestState requestState = new RequestState(uri);
 
 	return requestState.processResponse(
 	    requestState.getConnection().Get(
-		requestState.getPath(), (String)null, headers));
+		requestState.getPath(), queryData, headers));
     }
 
     /**
@@ -278,10 +313,10 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>HEAD</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
@@ -293,23 +328,58 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>HEAD</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
-     * @param headers Additional request headers. Replaces all the
-     * values set by {@link #setHeaders}.
+     * @param queryData Request headers. Replaces all the values set
+     * by {@link #setFormData}.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
-    public final HTTPResponse HEAD(final String uri, final NVPair[] headers)
+    public final HTTPResponse HEAD(NVPair[] queryData) throws Exception
+    {
+	return HEAD(null, queryData, getHeaders());
+    }
+
+
+    /**
+     * Makes an HTTP <code>HEAD</code> request.
+     *
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
+     * @param queryData Request headers. Replaces all the values set
+     * by {@link #setFormData}.
+     * @return Contains details of the server's response.
+     * @exception Exception If an error occurs.
+     */
+    public final HTTPResponse HEAD(final String uri, final NVPair[] queryData)
 	throws Exception
+    {
+	return HEAD(uri, queryData, getHeaders());
+    }
+
+    /**
+     * Makes an HTTP <code>HEAD</code> request.
+     *
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
+     * @param queryData Request headers. Replaces all the values set
+     * by {@link #setFormData}.
+     * @param headers Request headers. Replaces all the values set by
+     * {@link #setHeaders}.
+     * @return Contains details of the server's response.
+     * @exception Exception If an error occurs.
+     */
+    public final HTTPResponse HEAD(final String uri,
+				   final NVPair[] queryData,
+				   final NVPair[] headers) throws Exception
     {
 	final RequestState requestState = new RequestState(uri);
 
 	return requestState.processResponse(
 	    requestState.getConnection().Head(
-		requestState.getPath(), (String)null, headers));
+		requestState.getPath(), queryData, headers));
     }
 
     /**
@@ -326,10 +396,10 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>OPTIONS</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
@@ -341,12 +411,12 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>OPTIONS</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
-     * @param headers Additional request headers. Replaces all the
-     * values set by {@link #setHeaders}.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
+     * @param headers Request headers. Replaces all the values set by
+     * {@link #setHeaders}.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
@@ -359,10 +429,10 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>OPTIONS</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @param data Data to be submitted in the body of the request.
      * Overrides the value set with {@link #setData}.
      * @return Contains details of the server's response.
@@ -377,12 +447,12 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>OPTIONS</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
-     * @param headers Additional request headers. Replaces all the
-     * values set by {@link #setHeaders}.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
+     * @param headers Request headers. Replaces all the values set by
+     * {@link #setHeaders}.
      * @param data Data to be submitted in the body of the request.
      * Overrides the value set with {@link #setData}.
      * @return Contains details of the server's response.
@@ -413,10 +483,10 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>POST</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
@@ -441,8 +511,7 @@ public class HTTPRequest
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
-    public final HTTPResponse POST(NVPair[] formData)
-	throws Exception
+    public final HTTPResponse POST(NVPair[] formData) throws Exception
     {
 	return POST(null, formData, getHeaders());
     }
@@ -450,10 +519,10 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>POST</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @param formData Data to be submitted as an
      * <code>application/x-www-form-urlencoded</code> encoded request
      * body.
@@ -469,15 +538,15 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>POST</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @param formData Data to be submitted as an
      * <code>application/x-www-form-urlencoded</code> encoded request
      * body.
-     * @param headers Additional request headers. Replaces all the
-     * values set by {@link #setHeaders}.
+     * @param headers Request headers. Replaces all the values set by
+     * {@link #setHeaders}.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
@@ -495,10 +564,10 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>POST</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @param data Data to be submitted in the body of the request.
      * Overrides the value set with {@link #setData}.
      * @return Contains details of the server's response.
@@ -512,14 +581,14 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>POST</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @param data Data to be submitted in the body of the request.
      * Overrides the value set with {@link #setData}.
-     * @param headers Additional request headers. Replaces all the
-     * values set by {@link #setHeaders}.
+     * @param headers Request headers. Replaces all the values set by
+     * {@link #setHeaders}.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
@@ -547,10 +616,10 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>PUT</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
@@ -562,10 +631,10 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>PUT</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @param data Data to be submitted in the body of the request.
      * Overrides the value set with {@link #setData}.
      * @return Contains details of the server's response.
@@ -579,16 +648,16 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>PUT</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
-     * @param headers Additional request headers. Replaces all the
-     * values set by {@link #setHeaders}.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
+     * @param headers Request headers. Replaces all the values set by
+     * {@link #setHeaders}.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
-    public final HTTPResponse PUT(String uri, NVPair[] headers) 
+    public final HTTPResponse PUT(String uri, NVPair[] headers)
 	throws Exception
     {
 	return PUT(uri, getData(), headers);
@@ -597,14 +666,14 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>PUT</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @param data Data to be submitted in the body of the request.
      * Overrides the value set with {@link #setData}.
-     * @param headers Additional request headers. Replaces all the
-     * values set by {@link #setHeaders}.
+     * @param headers Request headers. Replaces all the values set by
+     * {@link #setHeaders}.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
@@ -633,10 +702,10 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>TRACE</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
@@ -648,12 +717,12 @@ public class HTTPRequest
     /**
      * Makes an HTTP <code>TRACE</code> request.
      *
-     * @param The URI. If a default URL has been specified with {@link
-     * #setUrl}, this value need not be absolute and, if relative, it
-     * will be resolved relative to the default URL. Otherwise this
-     * value must be an absolute URL.
-     * @param headers Additional request headers. Replaces all the
-     * values set by {@link #setHeaders}.
+     * @param uri The URI. If a default URL has been specified with
+     * {@link #setUrl}, this value need not be absolute and, if
+     * relative, it will be resolved relative to the default URL.
+     * Otherwise this value must be an absolute URL.
+     * @param headers Request headers. Replaces all the values set by
+     * {@link #setHeaders}.
      * @return Contains details of the server's response.
      * @exception Exception If an error occurs.
      */
