@@ -1,3 +1,32 @@
+2000-12-19  Philip Aston  <paston@beasys.com>
+
+	* build.bat: 
+	* build.sh:
+	* etc/ant/ant.
+		Dead, see README for new build instructions.
+	
+	* build.xml: 
+		Moved from etc/build.xml.
+	
+	* src/net/grinder/engine/process/GrinderProcess.java:
+		Reinstated data file title line.
+
+	* README: 
+		Extra documentation.		
+
+	* CHANGES: 
+		New.
+
+	* src/net/grinder/engine/PropsLoader.java: 
+		Removed.
+
+	* src/net/grinder/Grinder.java: 
+	* src/net/grinder/console/Console.java: 
+	* src/net/grinder/console/MsgReader.java: 
+	* src/net/grinder/engine/LauncherThread.java: 
+	* src/net/grinder/util/GrinderProperties.java: 
+		Use GrinderProperties.
+
 2000-12-18  Philip Aston  <paston@beasys.com>
 
 	* Grinder 0.8 is released.

@@ -32,13 +32,7 @@ applications.
 How do I build it?
 ******************
 
-You should be able to build the Grinder by doing the following:
-
-       1. Set/export JAVA_HOME to point to a JDK
-
-       2. ./build.sh (or build.cmd)
-
-       3. ./build.sh javadoc (or build.cmd javadoc)
+See the instructions in build.xml.
 
 
 How do I use it?

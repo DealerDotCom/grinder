@@ -20,3 +20,8 @@ Grinder 0.9:
   classpath anymore. (I know I said this before - I mean it this
   time).
 
+  PeterZ found the data file title line useful so I've reinstated it.
+
+  I'm now using Ant 1.2 as the build engine, and have decided to
+  remove Ant from the distrubution. See the build.xml file for more
+  information.
