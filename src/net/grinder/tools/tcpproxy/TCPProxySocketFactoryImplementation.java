@@ -35,7 +35,7 @@ import java.net.Socket;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class TCPProxySocketFactoryImplementation
+final class TCPProxySocketFactoryImplementation
   implements TCPProxySocketFactory {
 
   /**

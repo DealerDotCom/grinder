@@ -51,8 +51,6 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   private final PrintWriter m_outputWriter;
   private final TCPProxySocketFactory m_socketFactory;
   private final ServerSocket m_serverSocket;
-  private final EndPoint m_chainedHTTPProxy;
-  private final EndPoint m_chainedHTTPSProxy;
 
   /**
    * Constructor.
@@ -65,11 +63,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    * <code>EndPoint</code>'s port is 0, an arbitrary port will be
    * assigned.
    * @param useColour Whether to use colour.
-   * @param timeout Timeout in milliseconds.
-   * @param chainedHTTPProxy HTTP proxy which output should be routed
-   * through, or <code>null</code> for no proxy.
-   * @param chainedHTTPSProxy HTTP proxy which output should be routed
-   * through, or <code>null</code> for no proxy.
+   * @param timeout Timeout for server socket in milliseconds.
    *
    * @exception IOException If an I/O error occurs.
    */
@@ -79,9 +73,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
                                 PrintWriter outputWriter,
                                 EndPoint localEndPoint,
                                 boolean useColour,
-                                int timeout,
-                                EndPoint chainedHTTPProxy,
-                                EndPoint chainedHTTPSProxy)
+                                int timeout)
     throws IOException {
 
     m_outputWriter = outputWriter;
@@ -101,9 +93,6 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 
     m_serverSocket =
       m_socketFactory.createServerSocket(localEndPoint, timeout);
-
-    m_chainedHTTPProxy = chainedHTTPProxy;
-    m_chainedHTTPSProxy = chainedHTTPSProxy;
   }
 
   /**
@@ -206,49 +195,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     throws IOException {
 
 
-    final Socket remoteSocket;
-
-    final EndPoint chainedHTTPSProxy = getChainedHTTPSProxy();
-
-    if (chainedHTTPSProxy != null) {
-      /* TODO - currently a quick hack to prove it will work. */
-
-      final Socket plainSocket =
-        new Socket(chainedHTTPSProxy.getHost(), chainedHTTPSProxy.getPort());
-
-      final OutputStream plainOutputStream = plainSocket.getOutputStream();
-
-      final InputStream plainInputStream = plainSocket.getInputStream();
-
-      plainOutputStream.write(
-        ("CONNECT " + remoteEndPoint + "\r\n").getBytes());
-
-      plainOutputStream.flush();
-
-      // Discard response (hopefully a 200!).
-      final byte[] buffer = new byte[1024];
-
-      for (int i=0; i<10 && plainInputStream.available() == 0; ++i) {
-        try {
-          Thread.sleep(10);
-        }
-        catch (InterruptedException e) {
-        }
-      }
-
-      while (plainInputStream.read(buffer, 0, plainInputStream.available())) {
-        // Skip..
-      }
-
-      // Proxy protocol complete, switch to SSL mode.
-
-      remoteSocket =
-        ((TCPProxySSLSocketFactory)m_socketFactory).createClientSocket(
-          plainSocket, chainedHTTPSProxy);
-    }
-    else {
-      remoteSocket = m_socketFactory.createClientSocket(remoteEndPoint);
-    }
+    final Socket remoteSocket =
+      m_socketFactory.createClientSocket(remoteEndPoint);
 
     final ConnectionDetails connectionDetails =
       new ConnectionDetails(clientEndPoint, remoteEndPoint, isSecure);
@@ -354,24 +302,6 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     }
 
     e.printStackTrace(System.err);
-  }
-
-  /**
-   * Return the chained HTTP proxy, if any.
-   *
-   * @return The chained HTTP proxy, or <code>null</code>.
-   */
-  protected final EndPoint getChainedHTTPProxy() {
-    return m_chainedHTTPProxy;
-  }
-
-  /**
-   * Return the chained HTTPS proxy, if any.
-   *
-   * @return The chained HTTPS proxy, or <code>null</code>.
-   */
-  protected final EndPoint getChainedHTTPSProxy() {
-    return m_chainedHTTPSProxy;
   }
 
   /**

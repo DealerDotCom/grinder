@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -77,18 +78,18 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
   private final Pattern m_httpConnectPattern;
   private final Pattern m_httpsConnectPattern;
   private final ProxySSLEngine m_proxySSLEngine;
+  private final EndPoint m_chainedHTTPProxy;
 
   /**
    * Constructor.
    *
-   * @param plainSocketFactory Factory for plain old sockets.
    * @param sslSocketFactory Factory for SSL sockets.
    * @param requestFilter Request filter.
    * @param responseFilter Response filter.
    * @param outputWriter Writer to terminal.
    * @param localEndPoint Local host and port.
    * @param useColour Whether to use colour.
-   * @param timeout Timeout in milliseconds.
+   * @param timeout Timeout for server socket in milliseconds.
    * @param chainedHTTPProxy HTTP proxy which output should be routed
    * through, or <code>null</code> for no proxy.
    * @param chainedHTTPSProxy HTTP proxy which output should be routed
@@ -98,8 +99,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
    * @exception MalformedPatternException If a regular expression
    * error occurs.
    */
-  public HTTPProxyTCPProxyEngine(TCPProxySocketFactory plainSocketFactory,
-                                 TCPProxySSLSocketFactory sslSocketFactory,
+  public HTTPProxyTCPProxyEngine(TCPProxySSLSocketFactory sslSocketFactory,
                                  TCPProxyFilter requestFilter,
                                  TCPProxyFilter responseFilter,
                                  PrintWriter outputWriter,
@@ -110,17 +110,12 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                                  EndPoint chainedHTTPSProxy)
     throws IOException, MalformedPatternException {
 
-    // We set this engine up for handling plain HTTP and delegate
-    // to a proxy for HTTPS.
-    super(plainSocketFactory,
-          requestFilter,
-          responseFilter,
-          outputWriter,
-          localEndPoint,
-          useColour,
-          timeout,
-          chainedHTTPProxy,
-          chainedHTTPSProxy);
+    // We set this engine up for handling plain connections. We
+    // delegate HTTPS to a proxy engine.
+    super(new TCPProxySocketFactoryImplementation(), requestFilter,
+          responseFilter, outputWriter, localEndPoint, useColour, timeout);
+
+    m_chainedHTTPProxy = chainedHTTPProxy;
 
     final PatternCompiler compiler = new Perl5Compiler();
 
@@ -141,9 +136,20 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     // client closing the connection). The engine handles multiple
     // connections by spawning multiple thread pairs.
     if (sslSocketFactory != null) {
-      m_proxySSLEngine =
-        new ProxySSLEngine(sslSocketFactory, requestFilter,
-                           responseFilter, outputWriter, useColour);
+
+      if (chainedHTTPSProxy != null) {
+        m_proxySSLEngine =
+          new ProxySSLEngine(
+            new HTTPSProxyConnectionSocketFactory(sslSocketFactory,
+                                                  chainedHTTPSProxy),
+            requestFilter, responseFilter, outputWriter, useColour);
+      }
+      else {
+        m_proxySSLEngine =
+          new ProxySSLEngine(sslSocketFactory, requestFilter, responseFilter,
+                             outputWriter, useColour);
+      }
+
       new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine").start();
     }
     else {
@@ -323,34 +329,34 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
               // New connection.
 
-              // When running through a chained HTTP proxy, we still
-              // create a new thread pair to handle each target
-              // server. This allows us to reuse FilteredStreamThread
-              // and OutputStreamFilterTee to log the correct
-              // connection details. It may also be beneficial for
-              // performance.
-              final EndPoint chainedHTTPProxy = getChainedHTTPProxy();
-
-              final Socket remoteSocket =
-                getSocketFactory().createClientSocket(
-                  chainedHTTPProxy != null ?
-                  chainedHTTPProxy : remoteEndPoint);
-
-              final ConnectionDetails connectionDetails =
-                new ConnectionDetails(m_clientEndPoint, remoteEndPoint, false);
-
+              final Socket remoteSocket;
               final TCPProxyFilter requestFilter;
 
-              if (chainedHTTPProxy != null) {
+              if (m_chainedHTTPProxy != null) {
+                // When running through a chained HTTP proxy, we still
+                // create a new thread pair to handle each target
+                // server. This allows us to reuse
+                // FilteredStreamThread and OutputStreamFilterTee to
+                // log the correct connection details. It may also be
+                // beneficial for performance.
+                remoteSocket =
+                  getSocketFactory().createClientSocket(m_chainedHTTPProxy);
+
                 requestFilter =
                   new HTTPMethodAbsoluteFilterDecorator(
                     new HTTPMethodRelativeFilterDecorator(getRequestFilter()),
                     remoteEndPoint);
               }
               else {
+                remoteSocket =
+                  getSocketFactory().createClientSocket(remoteEndPoint);
+
                 requestFilter =
                   new HTTPMethodRelativeFilterDecorator(getRequestFilter());
               }
+
+              final ConnectionDetails connectionDetails =
+                new ConnectionDetails(m_clientEndPoint, remoteEndPoint, false);
 
               m_lastRemoteStream =
                 new OutputStreamFilterTee(connectionDetails,
@@ -416,16 +422,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     private EndPoint m_clientEndPoint;
     private EndPoint m_remoteEndPoint;
 
-    ProxySSLEngine(TCPProxySSLSocketFactory socketFactory,
+    ProxySSLEngine(TCPProxySocketFactory socketFactory,
                    TCPProxyFilter requestFilter,
                    TCPProxyFilter responseFilter,
                    PrintWriter outputWriter,
                    boolean useColour)
-      throws IOException {
+    throws IOException {
       super(socketFactory, requestFilter, responseFilter, outputWriter,
-            new EndPoint(InetAddress.getLocalHost(), 0), useColour, 0,
-            HTTPProxyTCPProxyEngine.this.getChainedHTTPProxy(),
-            HTTPProxyTCPProxyEngine.this.getChainedHTTPSProxy());
+            new EndPoint(InetAddress.getLocalHost(), 0), useColour, 0);
     }
 
     public void run() {
@@ -455,6 +459,88 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
     public EndPoint getListenEndPoint() {
       return EndPoint.serverEndPoint(getServerSocket());
+    }
+  }
+
+  /**
+   * SocketFactory decorator that sets up HTTPS proxy connections on
+   * client sockets it returns.
+   */
+  private final class HTTPSProxyConnectionSocketFactory
+    implements TCPProxySocketFactory {
+
+    private final TCPProxySSLSocketFactory m_delegate;
+    private final EndPoint m_httpsProxy;
+
+    /**
+     * Constructor.
+     *
+     * @param delegate Socket factory to decorate.
+     * @param chainedHTTPSProxy HTTPS proxy to direct connections
+     * through.
+     */
+    public HTTPSProxyConnectionSocketFactory(TCPProxySSLSocketFactory delegate,
+                                             EndPoint chainedHTTPSProxy) {
+      m_delegate = delegate;
+      m_httpsProxy = chainedHTTPSProxy;
+    }
+
+    /**
+     * Factory method for server sockets. We do nothing special here.
+     *
+     * @param localEndPoint Local host and port.
+     * @param timeout Socket timeout.
+     * @return A new <code>ServerSocket</code>.
+     * @exception IOException If an error occurs.
+     */
+    public ServerSocket createServerSocket(EndPoint localEndPoint, int timeout)
+      throws IOException {
+      return m_delegate.createServerSocket(localEndPoint, timeout);
+    }
+
+    /**
+     * Factory method for client sockets.
+     *
+     * @param remoteEndPoint Remote host and port.
+     * @return A new <code>Socket</code>.
+     * @exception IOException If an error occurs.
+     */
+    public Socket createClientSocket(EndPoint remoteEndPoint)
+      throws IOException {
+
+      final Socket socket =
+        new Socket(m_httpsProxy.getHost(), m_httpsProxy.getPort());
+
+      final OutputStream outputStream = socket.getOutputStream();
+      final InputStream inputStream = socket.getInputStream();
+
+      outputStream.write(("CONNECT " + remoteEndPoint + "\r\n").getBytes());
+      outputStream.flush();
+
+      // Wait for, and discard response.
+      final byte[] buffer = new byte[1024];
+
+      for (int i = 0; i < 500 && inputStream.available() == 0; ++i) {
+        try {
+          Thread.sleep(10);
+        }
+        catch (InterruptedException e) {
+          break;
+        }
+      }
+
+      if (inputStream.available() == 0) {
+        throw new IOException(
+          "HTTPS proxy " + m_httpsProxy + " failed to respond after 500 ms");
+      }
+
+      // We've got a live one.
+      while (inputStream.read(buffer, 0, inputStream.available()) > 0) {
+        // Whatever.
+      }
+
+      // HTTPS proxy protocol complete, now build the SSL socket.
+      return m_delegate.createClientSocket(socket, m_httpsProxy);
     }
   }
 }

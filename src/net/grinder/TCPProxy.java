@@ -49,9 +49,7 @@ import net.grinder.tools.tcpproxy.PortForwarderTCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyConsole;
 import net.grinder.tools.tcpproxy.TCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
-import net.grinder.tools.tcpproxy.TCPProxySocketFactory;
 import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory;
-import net.grinder.tools.tcpproxy.TCPProxySocketFactoryImplementation;
 
 
 /**
@@ -102,7 +100,7 @@ public final class TCPProxy {
       "\n   [-timeout]                   Proxy engine timeout" +
       "\n   [-colour]                    Be pretty on ANSI terminals" +
       "\n   [-console]                   Display the console" +
-      "\n   [-proxy <host> <port>]       Route via HTTP/S proxy" +
+      "\n   [-proxy <host> <port>]       Route via HTTP/HTTPS proxy" +
       "\n   [-sslproxy <host> <port>]    Override -proxy settings for HTTPS" +
       "\n" +
       "\n <filter> can be the name of a class that implements" +
@@ -129,6 +127,10 @@ public final class TCPProxy {
       "\n" +
       "\n -console displays a simple console that allows the TCPProxy" +
       "\n to be shutdown cleanly." +
+      "\n" +
+      "\n -proxy and -sslproxy allow output to be directed through another" +
+      "\n HTTP/HTTPS proxy; this may help you reach the Internet. These" +
+      "\n options are not supported in port forwarding mode." +
       "\n"
       );
 
@@ -286,8 +288,8 @@ public final class TCPProxy {
     }
 
     if (chainedHTTPSProxy != null && !isHTTPProxy) {
-      barfUsage("Routing through a chained HTTP/HTTPS proxy " +
-                "\nis currently not supported in port forwarding mode.");
+      barfUsage("Routing through a HTTP/HTTPS proxy is not supported " +
+                "\nin port forwarding mode.");
     }
 
     final StringBuffer startMessage = new StringBuffer();
@@ -370,8 +372,8 @@ public final class TCPProxy {
 
           final Constructor socketFactoryConstructor =
             socketFactoryClass.getConstructor(
-              new Class[] { File.class, new char[0].getClass(),
-                            String.class, });
+              new Class[] { File.class, new char[0].getClass(), String.class,
+              });
 
           sslSocketFactory = (TCPProxySSLSocketFactory)
             socketFactoryConstructor.newInstance(
@@ -388,7 +390,6 @@ public final class TCPProxy {
       if (isHTTPProxy) {
         m_proxyEngine =
           new HTTPProxyTCPProxyEngine(
-            new TCPProxySocketFactoryImplementation(),
             sslSocketFactory,
             requestFilter,
             responseFilter,
@@ -400,19 +401,27 @@ public final class TCPProxy {
             chainedHTTPSProxy);
       }
       else {
-        m_proxyEngine =
-          new PortForwarderTCPProxyEngine(
-            useSSL ?
-            (TCPProxySocketFactory)
-            sslSocketFactory : new TCPProxySocketFactoryImplementation(),
-            requestFilter,
-            responseFilter,
-            outputWriter,
-            new ConnectionDetails(localEndPoint, remoteEndPoint, useSSL),
-            useColour,
-            timeout,
-            chainedHTTPProxy,
-            chainedHTTPSProxy);
+        if (useSSL) {
+          m_proxyEngine =
+            new PortForwarderTCPProxyEngine(
+              sslSocketFactory,
+              requestFilter,
+              responseFilter,
+              outputWriter,
+              new ConnectionDetails(localEndPoint, remoteEndPoint, useSSL),
+              useColour,
+              timeout);
+        }
+        else {
+          m_proxyEngine =
+            new PortForwarderTCPProxyEngine(
+              requestFilter,
+              responseFilter,
+              outputWriter,
+              new ConnectionDetails(localEndPoint, remoteEndPoint, useSSL),
+              useColour,
+              timeout);
+        }
       }
 
       if (console) {

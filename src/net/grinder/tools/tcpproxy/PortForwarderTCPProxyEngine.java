@@ -43,17 +43,37 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
   /**
    * Constructor.
    *
-   * @param socketFactory Factory for plain old sockets.
    * @param requestFilter Request filter.
    * @param responseFilter Response filter.
    * @param outputWriter Writer to terminal.
    * @param connectionDetails Connection details.
    * @param useColour Whether to use colour.
-   * @param timeout Timeout in milliseconds.
-   * @param chainedHTTPProxy HTTP proxy which output should be routed
-   * through, or <code>null</code> for no proxy.
-   * @param chainedHTTPSProxy HTTP proxy which output should be routed
-   * through, or <code>null</code> for no proxy.
+   * @param timeout Timeout for server socket in milliseconds.
+   *
+   * @exception IOException If an I/O error occurs.
+   */
+  public PortForwarderTCPProxyEngine(TCPProxyFilter requestFilter,
+                                     TCPProxyFilter responseFilter,
+                                     PrintWriter outputWriter,
+                                     ConnectionDetails connectionDetails,
+                                     boolean useColour,
+                                     int timeout)
+    throws IOException {
+
+    this(new TCPProxySocketFactoryImplementation(), requestFilter,
+         responseFilter, outputWriter, connectionDetails, useColour, timeout);
+  }
+
+  /**
+   * Constructor that allows socket factory to be specified.
+   *
+   * @param socketFactory Socket factory.
+   * @param requestFilter Request filter.
+   * @param responseFilter Response filter.
+   * @param outputWriter Writer to terminal.
+   * @param connectionDetails Connection details.
+   * @param useColour Whether to use colour.
+   * @param timeout Timeout for server socket in milliseconds.
    *
    * @exception IOException If an I/O error occurs.
    */
@@ -63,14 +83,11 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
                                      PrintWriter outputWriter,
                                      ConnectionDetails connectionDetails,
                                      boolean useColour,
-                                     int timeout,
-                                     EndPoint chainedHTTPProxy,
-                                     EndPoint chainedHTTPSProxy)
+                                     int timeout)
     throws IOException {
 
     super(socketFactory, requestFilter, responseFilter, outputWriter,
-          connectionDetails.getLocalEndPoint(), useColour, timeout,
-          chainedHTTPProxy, chainedHTTPSProxy);
+          connectionDetails.getLocalEndPoint(), useColour, timeout);
 
     m_connectionDetails = connectionDetails;
   }
