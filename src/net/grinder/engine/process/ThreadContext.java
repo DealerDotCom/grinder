@@ -56,6 +56,7 @@ final class ThreadContext implements PluginThreadContext
     private final long m_defaultSleepTime;
     private final Sleeper m_sleeper;
 
+    private Test m_currentTest;
     private final TestStatistics m_currentTestStatistics =
 	TestStatisticsFactory.getInstance().create();
     private final ExpressionView[] m_detailExpressionViews =
@@ -190,11 +191,19 @@ final class ThreadContext implements PluginThreadContext
     final Object invokeTest(TestData testData, Object parameters)
 	throws EngineException, Sleeper.ShutdownException
     {
+	final Test test = testData.getTest();
+	
+	if (m_currentTest != null) {
+	    throw new RentrantInvocationException(
+		"Thread is already processing test invocation for " +
+		m_currentTest);
+	}
+
+	m_currentTest = test;
+	m_threadLogger.setCurrentTestNumber(test.getNumber());
+
 	m_currentTestStatistics.reset();
 
-	final Test test = testData.getTest();
-	m_threadLogger.setCurrentTestNumber(test.getNumber());
-	
 	try {
 	    final PluginThreadCallbacks pluginThreadCallbacks =
 		testData.getRegisteredPlugin().getPluginThreadCallbacks(this);
@@ -260,6 +269,7 @@ final class ThreadContext implements PluginThreadContext
 		m_dataWriter.println(m_scratchBuffer);
 	    }
 
+	    m_currentTest = null;
 	    m_threadLogger.setCurrentTestNumber(-1);
 	    testData.getStatistics().add(m_currentTestStatistics);
 	}
