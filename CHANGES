@@ -1,3 +1,18 @@
+Grinder 3.0-beta2
+-----------------
+
+  Improved exception handling and logging. Any exception thrown by a
+  wrapped test is recorded as an "error", if the script doesn't
+  catch the exception the run is aborted.
+
+  Jython instances can now be Test.wrap()'d.
+
+  First cut of HTTPPlugin TCPProxy filter.
+
+  HTTPRequest API now has overloaded GET and HEAD methods that take a
+  query string NVPair[].
+
+
 Grinder 3.0-beta1
 -----------------
 

@@ -1,3 +1,80 @@
+2002-11-17  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, src/net/grinder/engine/process/ThreadContext.java:
+	Improved exception handling.
+
+2002-11-14  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/script/NotWrappableTypeException.java, src/net/grinder/script/Test.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java:
+	Throw an exception for types it doesn't make sense to wrap.
+
+	* src/net/grinder/engine/process/TestData.java: Remove debug log.
+
+	* src/net/grinder/engine/process/ThreadContext.java: Correct.
+
+	* src/net/grinder/engine/process/TestPyFinalizableInstance.java, src/net/grinder/engine/process/TestPyInstance.java, src/net/grinder/engine/process/TestData.java:
+	Support for wrapping PyInstances.
+
+	* src/net/grinder/engine/process/RentrantInvocationException.java, src/net/grinder/engine/process/ThreadContext.java:
+	Don't throw RentrantInvocationException on reentrant invocations;
+	instead just do the invocation with no test decoration. This allows
+	Jython objects to call themselves without a recursive death.
+	Don't swallow exceptions thrown by the test.
+
+2002-11-12  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java:
+	Checkpoint.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java: Fix POST(byte[]).
+
+	* etc/buildenv.sh, etc/setenv.sh: JDK 1.4.1.
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java:
+	Checkpoint.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java: Fix.
+
+2002-11-11  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HTTPRequest.java:
+	Add GET and HEAD methods that take query string NVPair[]'s.
+	Fix javadoc.
+
+2002-11-10  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/welcome-xhtml.xml: Add download link.
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java:
+	Checkpoint changes.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java: Sort imports.
+
+	* examples/runtests.py: Dead.
+
+2002-11-09  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/script-gallery-xhtml.xml: Correct.
+
+	* build.xml:
+	Go back to shipping our own version of Jakarta ORO. The one packaged
+	with Jython is ancient and does not correctly cope with multiline
+	matches.
+	Next is 3.0beta2.
+
+	* etc/localpaths.properties, etc/setenv.sh, etc/grinder-manifest.mf:
+	Go back to shipping our own version of Jakarta ORO. The one packaged
+	with Jython is ancient and does not correctly cope with multiline
+	matches.
+
+	* etc/setenv.sh: Remove cruft.
+
+	* etc/setenv.sh: Update GRINDER_HOME.
+
+2002-11-05  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/tools/tcpproxy/StreamThread.java: Correct comment.
+
 2002-11-03  Philip Aston  <paston@bea.com>
 
 	* The Grinder 3.0-beta1 is released.
