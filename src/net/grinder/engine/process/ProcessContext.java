@@ -99,7 +99,7 @@ public class ProcessContextImplementation implements PluginProcessContext
 	buffer.append(getHostIDString());
 	buffer.append(" JVM ");
 	buffer.append(getProcessIDString());
-	buffer.append(")");
+	buffer.append(") ");
 
 	buffer.append(message);
 
