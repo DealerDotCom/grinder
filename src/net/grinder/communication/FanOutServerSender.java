@@ -28,7 +28,7 @@ import java.util.Iterator;
 
 
 /**
- * Manages the sending of messages to many clients.
+ * Manages the sending of messages to many TCP clients.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -108,9 +108,9 @@ public final class FanOutServerSender extends AbstractSender {
                                    (SocketSet.Handle) iterator.next()));
       }
     }
-    catch (ThreadSafeQueue.ShutdownException e) {
+    catch (Kernel.ShutdownException e) {
       // Assertion failure.
-      throw new RuntimeException("MessageQueue unexpectedly shutdown");
+      throw new RuntimeException("Kernel unexpectedly shutdown");
     }
     catch (InterruptedException e) {
       // Assertion failure.
@@ -127,7 +127,7 @@ public final class FanOutServerSender extends AbstractSender {
 
     super.shutdown();
 
-    m_kernel.shutdown();
+    m_kernel.forceShutdown();
     m_acceptor.shutdown();
   }
 
