@@ -9,6 +9,7 @@
 #  - Sends ten messages
 #  - Closes the queue session
 
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from jarray import zeros
 from java.util import Properties, Random

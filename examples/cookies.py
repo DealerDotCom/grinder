@@ -6,6 +6,7 @@
 # defines a CookiePolicyHandler that simply logs all cookies that are
 # sent or received.
 
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from net.grinder.plugin.http import HTTPRequest, HTTPPluginControl
 from HTTPClient import CookieModule, CookiePolicyHandler

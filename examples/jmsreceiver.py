@@ -16,6 +16,7 @@ from java.lang import System
 from java.util import Properties
 from javax.jms import MessageListener, Session
 from javax.naming import Context, InitialContext
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from net.grinder.statistics import ExpressionView, StatisticsIndexMap, StatisticsView
 from threading import Condition

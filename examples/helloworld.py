@@ -6,7 +6,10 @@
 # instance of TestRunner for each worker thread, and repeatedly calls
 # the instance for each run of that thread.
 
+#from net.grinder.script.Grinder import grinder
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
+import foo
 
 # A shorter alias for the grinder.logger.output() method.
 log = grinder.logger.output
@@ -28,3 +31,4 @@ class TestRunner:
     # This method is called for every run.
     def __call__(self):
         logWrapper("Hello World")
+        foo.logStuff()

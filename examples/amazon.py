@@ -13,6 +13,7 @@
 # and replace the script text <insert license key here> with the
 # license key, although currently that doesn't appear to be necessary.
 
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from net.grinder.plugin.http import HTTPRequest
 from HTTPClient import NVPair

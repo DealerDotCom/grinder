@@ -9,11 +9,10 @@
 # contains a form that POSTs username and password fields to a special
 # j_security_check page.
 
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from net.grinder.plugin.http import HTTPRequest
 from HTTPClient import NVPair
-
-log = grinder.logger.output
 
 protectedResourceTest = Test(1, "Request resource")
 authenticationTest = Test(2, "POST to j_security_check")
@@ -35,8 +34,8 @@ class TestRunner:
 def maybeAuthenticate(lastResult):
     if lastResult.statusCode == 401 \
     or lastResult.text.find("j_security_check") != -1:
-        
-        log("Challenged, authenticating")
+
+        grinder.logger.output("Challenged, authenticating")
 
         authenticationFormData = ( NVPair("j_username", "weblogic"),
                                    NVPair("j_password", "weblogic"),)

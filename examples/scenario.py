@@ -1,11 +1,10 @@
 # This example shows how many HTTP interactions can be grouped as a
 # single test by wrapping them in a function.
 
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from net.grinder.plugin.http import HTTPRequest
 from HTTPClient import NVPair
-
-log = grinder.logger.output
 
 # We declare a default URL for the HTTPRequest.
 request = HTTPRequest(url = "http://localhost:7001")

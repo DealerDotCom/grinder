@@ -8,10 +8,9 @@
 from java.lang import String
 from java.util import Properties,Random
 from javax.naming import Context,InitialContext
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from weblogic.jndi import WLInitialContextFactory
-
-log = grinder.logger.output
 
 tests = {
     "home" : Test(1, "TraderHome"),
@@ -30,6 +29,8 @@ random = Random()
 
 class TestRunner:
     def __call__(self):
+        log = grinder.logger.output
+        
         trader = homeTest.create()
 
         tradeTest = tests["trade"].wrap(trader)

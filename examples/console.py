@@ -1,6 +1,7 @@
 # Test script which generates some random data for testing the
 # console.
 
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from java.util import Random
 

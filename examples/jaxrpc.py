@@ -4,6 +4,7 @@
 # Before running this example you will need to add the generated
 # JAX-RPC client classes and webserviceclient.jar to your CLASSPATH.
 
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from examples.webservices.basic.javaclass import HelloWorld_Impl
 from java.lang import System

@@ -7,12 +7,11 @@
 # creates a callable thing called TestRunner that can be called to
 # create another callable thing.
 
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 
-log = grinder.logger.output
-
 test1 = Test(1, "Log method")
-logTest = test1.wrap(log)
+logTest = test1.wrap(grinder.logger.output)
 
 def doRun():
     logTest("Hello World")

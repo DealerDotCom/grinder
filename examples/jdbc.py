@@ -4,10 +4,9 @@
 # Oracle thin driver classes to your CLASSPATH.
 
 from java.sql import DriverManager
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from oracle.jdbc import OracleDriver
-
-log = grinder.logger.output
 
 test1 = Test(1, "Database insert")
 test2 = Test(2, "Database query")

@@ -1,11 +1,9 @@
 # Examples of using The Grinder statistics API with standard
 # statistics.
 
+from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 from net.grinder.plugin.http import HTTPRequest
-
-log = grinder.logger.output
-logError = grinder.logger.error
 
 test1 = Test(1, "Request resource")
 request1 = test1.wrap(HTTPRequest())
@@ -16,7 +14,7 @@ class TestRunner:
 
         # Example 1. You can get the time of the last test as follows.
         result = request1.GET("http://localhost:7001/")
-        log("The last test took %d milliseconds" % statistics.time)
+        grinder.logger.output("The last test took %d milliseconds" % statistics.time)
 
         
         # Example 2. Normally test results are reported automatically
@@ -33,7 +31,7 @@ class TestRunner:
             # discards the transaction time to comply with the
             # convention of only recording time for successful tests,
             # so lets log the actual time to the error log.
-            logError("The last test took too long (%d milliseconds)" %
+            grinder.logger.error("The last test took too long (%d milliseconds)" %
                      statistics.time)
             statistics.success = 0
 
