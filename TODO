@@ -25,6 +25,9 @@ it too :-). The list is roughly in priority order.]
   write some plugins for the proxy to handle different protocols, and
   integrate it more fully into the TCPSniffer
 
+  Measure test variance. This would involve the console broadcasting
+  the total mean, and then listening for the reported variance.
+
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
 	
