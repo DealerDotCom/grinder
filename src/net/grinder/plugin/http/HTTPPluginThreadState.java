@@ -42,7 +42,7 @@ import net.grinder.plugininterface.PluginThreadListener;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class HTTPPluginThreadState implements PluginThreadListener
+class HTTPPluginThreadState implements PluginThreadListener
 {
     private final PluginThreadContext m_threadContext;
     private Map m_httpConnectionWrappers = new HashMap();

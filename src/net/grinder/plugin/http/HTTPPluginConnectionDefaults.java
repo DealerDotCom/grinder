@@ -37,7 +37,7 @@ import HTTPClient.URI;
  * @author Philip Aston
  * @version $Revision$
  **/
-public final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
+final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
 {
     private boolean m_followRedirects = true;
     private boolean m_useCookies = true;
