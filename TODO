@@ -24,8 +24,6 @@ a request with the authentication headers.
 
 ** Console
 
-Consider adding support for Skinit.
-
 *** Script editing
 
 Add file tree control, rooted at root directory.
@@ -105,8 +103,6 @@ the client.
 ** HTTP Plugin
 
 Remove ParseException, ProtocolNotSuppException from public APIs.
-
-Authorisation tear down
 
 HTTP plugin to support "mean time to first byte".
 

@@ -1,4 +1,8 @@
-2004-01-31  Philip Aston  <philipa@paston01>
+2004-02-01  Philip Aston  <paston@bea.com>
+
+	* The Grinder 3.0-beta18 is released.
+
+2004-01-31  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/console/swingui/Table.java:
 	Allow table cells to be copied to clipboard and (with J2SE 1.4 and
@@ -52,18 +56,18 @@
 	Fix property change notification for script distribution files and
 	lookAndFeel.
 
-2004-01-30  Philip Aston  <philipa@paston01>
+2004-01-30  Philip Aston  <paston@bea.com>
 
 	* TODO: To do.
 
 	* xdoc/g3/tcpproxy-xhtml.xml: Link to the JSSE samples.
 
-2004-01-28  Philip Aston  <philipa@paston01>
+2004-01-28  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/console/model/ConsoleProperties.java, tests-src/net/grinder/console/model/TestConsoleProperties.java:
 	Add LAF to console properties.
 
-2004-01-27  Philip Aston  <philipa@paston01>
+2004-01-27  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties:
 	More playing with layout.
@@ -72,7 +76,7 @@
 	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/SamplingControlPanel.java:
 	More playing with layout.
 
-2004-01-26  Philip Aston  <philipa@paston01>
+2004-01-26  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/SamplingControlPanel.java:
 	Tweak layout.
@@ -89,7 +93,7 @@
 
 	* TODO: Thoughts.
 
-2004-01-19  Philip Aston  <philipa@paston01>
+2004-01-19  Philip Aston  <paston@bea.com>
 
 	* TODO: More ideas.
 
