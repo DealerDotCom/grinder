@@ -1,4 +1,48 @@
+2002-11-20  Philip Aston  <paston@bea.com>
+
+	* build.xml:
+	Remove HTTPPluginTCPProxyFilter test until I can be bothered to
+	rewrite it.
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, tests-src/net/grinder/plugin/http/TestHTTPPluginTCPProxyFilter.java:
+	Make compile.
+
+	* TODO: More to do.
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java:
+	Go back to passing output PrintWriter to Filter constructor.
+	Allocate test number at end of message so that they are sequential in
+	the test file.
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/NullFilter.java, src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java, src/net/grinder/tools/tcpproxy/TCPProxyFilter.java, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/tools/tcpproxy/EchoFilter.java:
+	Go back to passing output PrintWriter to Filter constructor.
+
+2002-11-19  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java:
+	Refer to common header sets with common variables.
+
+	* tests-src/net/grinder/tools/tcpproxy/TestConnectionDetails.java:
+	Test tweaks.
+
+	* src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java:
+	Use ConnectionDetails.getOtherEnd().
+
+	* src/net/grinder/tools/tcpproxy/ConnectionDetails.java:
+	Make immutable.
+	Add connection identity string.
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java:
+	Don't include transaction time in sleep time.
+
+2002-11-18  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/TCPProxy.java:
+	Be more relaxed about command line options.
+
 2002-11-17  Philip Aston  <paston@bea.com>
+
+	* CHANGES, ChangeLog: Commit.
 
 	* src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, src/net/grinder/engine/process/ThreadContext.java:
 	Improved exception handling.

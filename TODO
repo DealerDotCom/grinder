@@ -3,15 +3,13 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-  Find out how to stop net.grinder.console.swing.TestGraph from
-  preventing parent process from detecting exit status. (For example,
-  when used with the JUnit plugin). Surely System.exit() is not the
-  answer?
-
   Change TCP sniffer filters to a stream oriented model. This should
   cure another one of the TCPSniffer/HTTPPlugin bug when recording
   large outputs with posts? Also, consider having a filter instance
   pair per connection.
+
+  Add per-run statistics. This would also allow number of aborted runs
+  to be recorded.
 
   TCPSniffer should be able to work through proxies.
 
@@ -26,6 +24,10 @@ it too :-). The list is roughly in priority order.]
   properties wrongly. It first sends a request without the
   authentication headers, then catches the 401 and automatically
   resends a request with the authentication headers.
-	- Need to fix the sniffer.
+	- Need to fix the sniffer to record Authorization again.
 
-  TCPSniffer options should be case insensitive.
+  Find out how to stop net.grinder.console.swing.TestGraph from
+  preventing parent process from detecting exit status. (For example,
+  when used with the JUnit plugin). Surely System.exit() is not the
+  answer?
+
