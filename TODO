@@ -148,6 +148,11 @@ Idea from Nurul Choudhury:
 
 ** Code
 
+Remove ThreadLocal from RegisteredPlugin.
+
+Figure out the UndeclaredThrowableException problem in
+TestRegisteredPlugin.
+
 Review use of InterruptedException
 
 Shouldn't really throw GrinderException anywhere.
