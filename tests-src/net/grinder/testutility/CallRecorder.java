@@ -74,7 +74,7 @@ public class CallRecorder extends Assert {
   }
 
   public final void recordSuccess(Method method, Object[] parameters,
-				  Object result) {
+          Object result) {
 
     if (shouldRecord(method)) {
       m_callDataList.add(new CallData(method, parameters, result));
@@ -199,7 +199,7 @@ public class CallRecorder extends Assert {
   }
 
   private final CallData assertCalledInternal(String methodName,
-					      Object[] parameters) {
+                Object[] parameters) {
 
     final CallData callData = getCallData();
 
@@ -219,7 +219,7 @@ public class CallRecorder extends Assert {
   }
 
   private final CallData assertCalledInternal(String methodName,
-					      Class[] parameterTypes) {
+                Class[] parameterTypes) {
 
     final CallData callData = getCallData();
 
@@ -233,7 +233,9 @@ public class CallRecorder extends Assert {
       assertNotNull(parameterTypes);
       assertNotNull(actualParameterTypes);
 
-      assertEquals(parameterTypes.length, actualParameterTypes.length);
+      assertEquals("Called with the correct number of parameters",
+                   parameterTypes.length,
+                   actualParameterTypes.length);
 
       for (int i = 0; i < parameterTypes.length; ++i) {
         assertTrue("Parameter  " + i + " is instance of  " +
@@ -252,7 +254,7 @@ public class CallRecorder extends Assert {
   }
 
   final static String parametersToString(Object[] parameters) {
-    
+
     final StringBuffer result = new StringBuffer();
 
     result.append('(');
@@ -273,7 +275,7 @@ public class CallRecorder extends Assert {
         }
       }
     }
-    
+
     result.append(')');
 
     return result.toString();
