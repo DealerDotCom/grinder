@@ -187,13 +187,6 @@ would be correspondingly more complex.
 
 ** Statistics
 
-*** Measure variance (Ambitious)
-
-Measure test variance. This would involve the console broadcasting the
-total mean, and then listening for the reported variance.
-
-Feature request 1029224.
-
 *** Separate out console statistics views from summary statistics views
 
 Needed for custom statistics that use 'period' so are valid in the
@@ -371,9 +364,6 @@ authentication headers, then catches the 401 and automatically resends
 a request with the authentication headers.
 
 * Build
-
-Convert all sources back to unix file encoding so that diff etc. are
-happier?
 
 How to build clover reports during full build?
  - currently "with.clover" only works if clover is first thing on
