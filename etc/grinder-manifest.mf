@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Created-By: The Grinder build
-Class-Path: jython.jar
+Class-Path: jakarta-oro-2.0.6.jar jython.jar
 
