@@ -16,6 +16,11 @@ Grinder 3.0-beta24 (Not yet released)
   synomonously - this is inconsistent and confusing. "Test" is now
   used consistently everywhere.
 
+  Fix a bug with the new HTTP instrumentation. The statistics were
+  incorrectly calculated when more than one HTTPRequest was wrapped in
+  a given Test. Thanks to Bernd Pressler and Sebastien Lemeunier for
+  reporting the problem.
+
 
 Grinder 3.0-beta23
 ------------------

@@ -815,6 +815,11 @@ public class HTTPRequest {
       final String path = m_url.getPathAndQuery();
 
       final PluginThreadContext threadContext = threadState.getThreadContext();
+
+      // This will be different to the time the Test was started if
+      // the Test wraps several HTTPRequests.
+      final long startTime = System.currentTimeMillis();
+
       threadContext.startTimedSection();
 
       final HTTPConnection connection =
@@ -830,8 +835,6 @@ public class HTTPRequest {
       httpResponse.getInputStream().close();
 
       threadContext.stopTimedSection();
-
-      final long startTime = threadContext.getStartTime();
 
       final long dnsTime = connection.getDnsTime() - startTime;
       final long connectTime = connection.getConnectTime() - startTime;
@@ -873,10 +876,12 @@ public class HTTPRequest {
 
           statistics.addValue(plugin.getResponseLengthIndex(), responseLength);
 
-          // If many HTTPRequests are wrapped in the same test, the
+          // If many HTTPRequests are wrapped in the same Test, the
           // last one wins.
           statistics.setValue(plugin.getResponseStatusIndex(), statusCode);
 
+          // These statistics are accumulated over all the
+          // HTTPRequests wrapped in the Test.
           if (dnsTime >= 0) {
             statistics.addValue(plugin.getDnsTimeIndex(), dnsTime);
           }
