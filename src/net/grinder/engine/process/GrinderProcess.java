@@ -263,11 +263,10 @@ public class GrinderProcess
 		    continue;
 		}
 	    }
-	    while (!m_consoleListener.startReceived() &&
-		   !m_consoleListener.stopReceived());
+	    while (!m_consoleListener.startReceived() && !shouldStop());
 	}
 
-	if (!m_consoleListener.stopReceived()) {
+	if (!shouldStop()) {
 	    m_context.logMessage("starting threads");
 
 	    //   Start the threads
@@ -299,7 +298,7 @@ public class GrinderProcess
 	    }
 	}
 	while (GrinderThread.numberOfUncompletedThreads() > 0 &&
-	       !m_consoleListener.stopReceived());
+	       !shouldStop());
 
         if (dataPrintWriter != null) {
 	    dataPrintWriter.close();
@@ -313,6 +312,11 @@ public class GrinderProcess
 	    new StatisticsTable(m_testStatisticsMap);
 
 	statisticsTable.print(System.out);
+    }
+
+    private boolean shouldStop()
+    {
+	return m_consoleListener != null && m_consoleListener.stopReceived();
     }
 
     /**
