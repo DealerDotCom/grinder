@@ -1,3 +1,110 @@
+2002-08-09  Philip Aston  <paston@bea.com>
+
+	* xdoc/documentation.xweb: All directories should have an index file.
+
+	* xdoc/manual/faq-xhtml-toc.xml: Add advice on POST and string beans.
+
+	* etc/publish.sh, web/publish.sh: *** empty log message ***
+
+	* etc/publish.sh: New file.
+
+2002-08-06  Philip Aston  <paston@bea.com>
+
+	* xdoc/images/.cvsignore: New file.
+
+	* xdoc/images/.cvsignore: New xweb format documentation.
+
+	* xdoc/stylesheets/identity.xsl, xdoc/stylesheets/relative-urls.xsl:
+	New file.
+
+	* xdoc/stylesheets/identity.xsl, xdoc/stylesheets/relative-urls.xsl:
+	New xweb format documentation.
+
+	* xdoc/stylesheets/add-toc.xsl, xdoc/stylesheets/grinder.xsl: New file.
+
+	* xdoc/manual/timing-xhtml.xml, xdoc/stylesheets/add-toc.xsl, xdoc/stylesheets/grinder.xsl:
+	New xweb format documentation.
+
+	* xdoc/manual/sniff-n-grind-xhtml.xml, xdoc/manual/tcpsniffer-xhtml.xml, xdoc/manual/timing-xhtml.xml:
+	New file.
+
+	* xdoc/manual/properties-xhtml.xml, xdoc/manual/sniff-n-grind-xhtml.xml, xdoc/manual/tcpsniffer-xhtml.xml:
+	New xweb format documentation.
+
+	* xdoc/manual/junit-plugin-xhtml.xml, xdoc/manual/manual-xhtml.xml, xdoc/manual/properties-xhtml.xml:
+	New file.
+
+	* xdoc/manual/http-plugin-xhtml.xml, xdoc/manual/junit-plugin-xhtml.xml, xdoc/manual/manual-xhtml.xml:
+	New xweb format documentation.
+
+	* xdoc/manual/faq-xhtml-toc.xml, xdoc/manual/getting-started-xhtml.xml, xdoc/manual/http-plugin-xhtml.xml:
+	New file.
+
+	* xdoc/manual/console-xhtml.xml, xdoc/manual/faq-xhtml-toc.xml, xdoc/manual/getting-started-xhtml.xml:
+	New xweb format documentation.
+
+	* xdoc/images/grinder.gif, xdoc/images/grinder3.jpg, xdoc/manual/console-xhtml.xml:
+	New file.
+
+	* xdoc/images/grinder.gif, xdoc/images/grinder3.jpg:
+	New xweb format documentation.
+
+	* xdoc/future/future-xhtml.xml, xdoc/images/book-cover.jpg, xdoc/images/console-screenshot.gif:
+	New file.
+
+	* xdoc/development/development-xhtml.xml, xdoc/future/future-xhtml.xml, xdoc/images/book-cover.jpg, xdoc/images/console-screenshot.gif:
+	New xweb format documentation.
+
+	* xdoc/development/development-xhtml.xml, xdoc/support-xhtml.xml, xdoc/welcome-xhtml.xml:
+	New file.
+
+	* xdoc/support-xhtml.xml, xdoc/welcome-xhtml.xml:
+	New xweb format documentation.
+
+	* xdoc/documentation.xweb, xdoc/download-xhtml.xml, xdoc/license-xhtml.xml:
+	New file.
+
+	* xdoc/book-xhtml.xml, xdoc/documentation.xweb, xdoc/download-xhtml.xml, xdoc/license-xhtml.xml:
+	New xweb format documentation.
+
+	* xdoc/book-xhtml.xml: New file.
+
+	* etc/localpaths.properties: New paths.
+
+	* web/screenshot.gif, web/cover.jpg, web/grinder-neon.gif, web/index.html:
+	Moved to new xweb docs.
+
+2002-07-20  Philip Aston  <paston@bea.com>
+
+	* CHANGES: The Grinder versus LoadRunner.
+
+	* doc/GrinderVLoadRunner.txt: New file.
+
+	* doc/GrinderVLoadRunner.txt: The Grinder versus LoadRunner.
+
+2002-07-19  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/Grinder.java, src/net/grinder/engine/LauncherThread.java, CHANGES:
+	Allow spaces in grinder.properies file names and host names.
+
+2002-07-17  Philip Aston  <paston@bea.com>
+
+	* README: Upper case CLASSPATH to help Java newbies.
+
+2002-07-03  Philip Aston  <paston@bea.com>
+
+	* CHANGES, src/net/grinder/tools/tcpsniffer/HTTPProxySnifferEngine.java, src/net/grinder/tools/tcpsniffer/HTTPSProxySnifferEngine.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImplementation.java, doc/TCPSniffer.txt, src/net/grinder/TCPSniffer.java:
+	Unified HTTP/HTTPS proxy.
+
+	* build.xml: Next is 2.8.4.
+
+2002-06-28  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/communication/MessageQueue.java:
+	Convert to DOS encoding.
+
+	* doc/TCPSniffer.txt: More docs on keytool gymnastics.
+
 2002-06-24  Philip Aston  <paston@bea.com>
 
 	* TODO: More to do.
