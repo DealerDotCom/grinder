@@ -137,7 +137,10 @@ final class ProcessControlImplementation implements ProcessControl {
         new Filter(m_distributionStatus.getEarliestLastModifiedTime())));
   }
 
-  private final class Filter implements FileFilter {
+  /**
+   * Package scope for the unit tests.
+   */
+  final class Filter implements FileFilter {
     private final long m_earliestLastModifiedTime;
     private final PatternMatcher m_matcher = new Perl5Matcher();
 

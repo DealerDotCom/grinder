@@ -23,16 +23,19 @@ package net.grinder.console.communication;
 
 import junit.framework.TestCase;
 
+import java.io.File;
+import java.io.FileFilter;
+
 import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Compiler;
 
 import net.grinder.console.messages.ReportStatusMessage;
 import net.grinder.engine.messages.ResetGrinderMessage;
 
+import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.DelegatingStubFactory;
 import net.grinder.testutility.RandomStubFactory;
-
-
 
 
 /**
@@ -41,7 +44,7 @@ import net.grinder.testutility.RandomStubFactory;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestProcessControlImplementation extends TestCase {
+public class TestProcessControlImplementation extends AbstractFileTestCase {
 
   RandomStubFactory m_consoleCommunicationStubFactory;
   ConsoleCommunication m_consoleCommunication;
@@ -51,6 +54,8 @@ public class TestProcessControlImplementation extends TestCase {
   ProcessStatusSet m_processStatusSet;
 
   protected void setUp() throws Exception {
+    super.setUp();
+
     m_consoleCommunicationStubFactory =
       new RandomStubFactory(ConsoleCommunication.class);
     m_consoleCommunication =
@@ -123,5 +128,101 @@ public class TestProcessControlImplementation extends TestCase {
     m_consoleCommunicationStubFactory.assertNoMoreCalls();
     m_processStatusSetStubFactory.assertNoMoreCalls();
     m_distributionStatusStubFactory.assertNoMoreCalls();
+  }
+
+  public void testFilter() throws Exception {
+
+    final Pattern pattern =
+      new Perl5Compiler().compile("^a.*[^/]$|exclude|.*b/$",
+                                  Perl5Compiler.READ_ONLY_MASK);
+
+    final ProcessControlImplementation
+      processControlImplementation =
+      new ProcessControlImplementation(m_consoleCommunication,
+                                       m_processStatusSet,
+                                       m_distributionStatus,
+                                       pattern);
+    final FileFilter filter =
+      processControlImplementation.new Filter(100000L);
+
+    final String[] acceptableFilenames = new String[] {
+      "DoesntStartWithA.acceptable",
+      "blah blah blah",
+      "blah-file-store",
+    };
+
+
+    for (int i = 0; i < acceptableFilenames.length; ++i) {
+      final File f = new File(getDirectory(), acceptableFilenames[i]);
+      f.createNewFile();
+      assertTrue(f.getPath() + " is acceptable", filter.accept(f));
+    }
+
+    final String[] unacceptableFileNames = new String[] {
+      "exclude me",
+      "a file beginning with a",
+      "a directory ending with b",
+    };
+
+    for (int i = 0; i < unacceptableFileNames.length; ++i) {
+      final File f = new File(getDirectory(), unacceptableFileNames[i]);
+      f.createNewFile();
+
+      assertTrue(f.getPath() + " is unacceptable", !filter.accept(f));
+    }
+
+    final File timeFile = new File(getDirectory(), "time file");
+    timeFile.createNewFile();
+    assertTrue(timeFile.getPath() + " is acceptable", filter.accept(timeFile));
+    timeFile.setLastModified(123L);
+    assertTrue(timeFile.getPath() + " is unacceptable",
+               !filter.accept(timeFile));
+    timeFile.setLastModified(100001L);
+    assertTrue(timeFile.getPath() + " is acceptable", filter.accept(timeFile));
+
+    final String[] acceptableDirectoryNames = new String[] {
+      "a directory ending with b.not",
+      "include me",
+    };
+
+    for (int i = 0; i < acceptableDirectoryNames.length; ++i) {
+      final File f = new File(getDirectory(), acceptableDirectoryNames[i]);
+      f.mkdir();
+      assertTrue(f.getPath() + " is acceptable", filter.accept(f));
+    }
+
+    final String[] unacceptableDirectoryNames = new String[] {
+      "a directory ending with b",
+      "exclude me",
+    };
+
+    for (int i = 0; i < unacceptableDirectoryNames.length; ++i) {
+      final File f = new File(getDirectory(), unacceptableDirectoryNames[i]);
+      f.mkdir();
+      assertTrue(f.getPath() + " is unacceptable", !filter.accept(f));
+    }
+
+    final File timeDirectory = new File(getDirectory(), "time directory");
+    timeDirectory.mkdir();
+    assertTrue(timeDirectory.getPath() + " is acceptable",
+               filter.accept(timeDirectory));
+    timeDirectory.setLastModified(123L);
+    assertTrue(timeDirectory.getPath() + " is acceptable",
+               filter.accept(timeDirectory));
+
+    final File fileStoreDirectory = new File(getDirectory(), "foo-file-store");
+    fileStoreDirectory.mkdir();
+    assertTrue(fileStoreDirectory.getPath() + " is acceptable",
+               filter.accept(fileStoreDirectory));
+
+    final File readMeFile = new File(fileStoreDirectory, "README.txt");
+    readMeFile.createNewFile();
+    assertTrue(fileStoreDirectory.getPath() + " is unacceptable",
+               !filter.accept(fileStoreDirectory));
+
+    readMeFile.delete();
+    assertTrue(fileStoreDirectory.getPath() + " is acceptable",
+               filter.accept(fileStoreDirectory));
+    
   }
 }
