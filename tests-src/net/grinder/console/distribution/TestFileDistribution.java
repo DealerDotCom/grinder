@@ -45,9 +45,8 @@ import net.grinder.util.Directory;
 public class TestFileDistribution extends AbstractFileTestCase {
 
   public void testGetHandler() throws Exception {
-    final Set connectedAgents = new HashSet();
     final DistributionControlStubFactory distributionControlStubFactory =
-      new DistributionControlStubFactory(connectedAgents);
+      new DistributionControlStubFactory();
     final DistributionControl distributionControl =
       distributionControlStubFactory.getDistributionControl();
 
@@ -69,37 +68,49 @@ public class TestFileDistribution extends AbstractFileTestCase {
     final FileDistributionHandler fileDistributionHandler1 =
       fileDistribution.getHandler(directory1, matchNonePattern);
 
-    distributionControlStubFactory.assertSuccess("getConnectedAgents");
     distributionControlStubFactory.assertSuccess("clearFileCaches");
     distributionControlStubFactory.assertNoMoreCalls();
+
+    // Convince the AgentCacheState that its up to date.
+    AgentCacheStateImplementation agentCacheState =
+      (AgentCacheStateImplementation)fileDistribution.getAgentCacheState();
+    agentCacheState.updateStarted();
+    agentCacheState.updateComplete();
 
     // Test with same directory.
     final FileDistributionHandler fileDistributionHandler2 =
       fileDistribution.getHandler(directory1, matchNonePattern);
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler2);
-    distributionControlStubFactory.assertSuccess("getConnectedAgents");
     distributionControlStubFactory.assertNoMoreCalls();
 
-    // Test with a different directory.
+    // Test with a different directory, should now need to flush the
+    // file caches.
     final FileDistributionHandler fileDistributionHandler3 =
       fileDistribution.getHandler(directory2, matchNonePattern);
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler3);
     assertNotSame(fileDistributionHandler2, fileDistributionHandler3);
-    distributionControlStubFactory.assertSuccess("getConnectedAgents");
     distributionControlStubFactory.assertSuccess("clearFileCaches");
 
-    // Test with the same directory, but a different pattern.
+    // Again, convince the AgentCacheState that its up to date.
+    agentCacheState.updateStarted();
+    agentCacheState.updateComplete();
+
+    // Test with the same directory, but a different pattern, should
+    // need to flush.
     final FileDistributionHandler fileDistributionHandler4 =
       fileDistribution.getHandler(directory2, matchAllPattern);
 
     assertNotSame(fileDistributionHandler1, fileDistributionHandler4);
     assertNotSame(fileDistributionHandler2, fileDistributionHandler4);
     assertNotSame(fileDistributionHandler3, fileDistributionHandler4);
-    distributionControlStubFactory.assertSuccess("getConnectedAgents");
     distributionControlStubFactory.assertSuccess("clearFileCaches");
     distributionControlStubFactory.assertNoMoreCalls();
+
+    // Mark cache as up to date.
+    agentCacheState.updateStarted();
+    agentCacheState.updateComplete();
 
     // Test with original directory.
     final FileDistributionHandler fileDistributionHandler5 =
@@ -109,103 +120,28 @@ public class TestFileDistribution extends AbstractFileTestCase {
     assertNotSame(fileDistributionHandler2, fileDistributionHandler5);
     assertNotSame(fileDistributionHandler3, fileDistributionHandler5);
     assertNotSame(fileDistributionHandler4, fileDistributionHandler5);
-    distributionControlStubFactory.assertSuccess("getConnectedAgents");
     distributionControlStubFactory.assertSuccess("clearFileCaches");
 
-    // Test with new connected agents.
-    connectedAgents.add(new Integer(1));
-    connectedAgents.add(new Integer(2));
+    agentCacheState.setOutOfDate();
 
     final FileDistributionHandler fileDistributionHandler6 =
       fileDistribution.getHandler(directory1, matchAllPattern);
 
     assertNotSame(fileDistributionHandler5, fileDistributionHandler6);
-    distributionControlStubFactory.assertSuccess("getConnectedAgents");
     distributionControlStubFactory.assertSuccess("clearFileCaches");
 
-    connectedAgents.remove(new Integer(1));
-
-    final FileDistributionHandler fileDistributionHandler7 =
-      fileDistribution.getHandler(directory1, matchAllPattern);
-
-    assertNotSame(fileDistributionHandler6, fileDistributionHandler7);
-    distributionControlStubFactory.assertSuccess("getConnectedAgents");
     distributionControlStubFactory.assertNoMoreCalls();
-  }
-
-  public void testAgentCacheStateImplementation() throws Exception {
-
-    final FileDistribution fileDistribution = new FileDistribution(null);
-
-    final FileDistribution.AgentCacheStateImplementation cacheState =
-      (FileDistribution.AgentCacheStateImplementation)
-      fileDistribution.getAgentCacheState();
-
-    final RandomStubFactory propertyChangeListenerStubFactory =
-      new RandomStubFactory(PropertyChangeListener.class);
-    final PropertyChangeListener propertyChangeListener =
-      (PropertyChangeListener)propertyChangeListenerStubFactory.getStub();
-
-    cacheState.addListener(propertyChangeListener);
-
-    assertEquals(-1, cacheState.getEarliestFileTime());
-    assertTrue(cacheState.getOutOfDate());
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
-
-    cacheState.updateStarted();
-    assertEquals(-1, cacheState.getEarliestFileTime());
-    assertTrue(cacheState.getOutOfDate());
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
-
-    cacheState.updateComplete();
-    assertFalse(cacheState.getOutOfDate());
-    final long earliestFileTime = cacheState.getEarliestFileTime();
-    assertFalse(earliestFileTime == -1);
-    propertyChangeListenerStubFactory.assertSuccess("propertyChange",
-                                                    PropertyChangeEvent.class);
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
-
-    cacheState.setOutOfDate();
-    assertTrue(cacheState.getOutOfDate());
-    assertEquals(earliestFileTime, earliestFileTime);
-    propertyChangeListenerStubFactory.assertSuccess("propertyChange",
-                                                    PropertyChangeEvent.class);
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
-
-    Thread.sleep(10);
-
-    cacheState.updateStarted();
-    assertTrue(cacheState.getOutOfDate());
-    assertEquals(earliestFileTime, earliestFileTime);
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
-
-    cacheState.setOutOfDate();
-    assertTrue(cacheState.getOutOfDate());
-    assertEquals(earliestFileTime, earliestFileTime);
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
-
-    cacheState.updateComplete();
-    assertTrue(cacheState.getOutOfDate());
-    assertFalse(earliestFileTime == cacheState.getEarliestFileTime());
-    propertyChangeListenerStubFactory.assertNoMoreCalls();
   }
 
   public static class DistributionControlStubFactory
     extends RandomStubFactory {
 
-    private final Set m_connectedAgents;
-
-    public DistributionControlStubFactory(Set connectedAgents) {
+    public DistributionControlStubFactory() {
       super(DistributionControl.class);
-      m_connectedAgents = connectedAgents;
     }
 
     public DistributionControl getDistributionControl() {
       return (DistributionControl)getStub();
-    }
-
-    public Set override_getConnectedAgents(Object proxy) {
-      return new HashSet(m_connectedAgents);
     }
   }
 }

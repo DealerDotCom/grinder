@@ -21,10 +21,6 @@
 
 package net.grinder.console.distribution;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.Set;
-
 import org.apache.oro.text.regex.Pattern;
 
 import net.grinder.console.communication.DistributionControl;
@@ -35,6 +31,14 @@ import net.grinder.util.Directory;
  * File Distribution. Has a model of the agent cache state, and is a
  * factory for {@link FileDistributionHandler}s.
  *
+ * <p>The agent cache state is reset if the parameters passed to
+ * {@link #getHandler} change. Client code can actively invalidate the
+ * agent cache state by calling .{@link
+ * AgentCacheStateImplementation#setOutOfDate} on the result of {@link
+ * #getAgentCacheState}. They may want to do this, for example, if a
+ * parameter they will pass to {@link getHandler} changes and they are
+ * using events from the {@link AgentCacheState} to update a UI.</p>
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -43,6 +47,9 @@ public final class FileDistribution {
   private final DistributionControl m_distributionControl;
   private final AgentCacheStateImplementation m_cacheState =
     new AgentCacheStateImplementation();
+
+  private Directory m_lastDirectory;
+  private Pattern m_lastFileFilterPattern;
 
   /**
    * Constructor.
@@ -68,8 +75,9 @@ public final class FileDistribution {
    *
    * <p>The FileDistributionHandler updates our simple model of the
    * remote cache state. Callers should only use one
-   * FileDistributionHandler at a time. Using multiple instances
-   * concurrently will result in undefined behaviour.</p>
+   * FileDistributionHandler at a time for a given FileDistribution.
+   * Using multiple instances concurrently will result in undefined
+   * behaviour.</p>
    *
    * @param directory The base distribution directory.
    * @param distributionFileFilterPattern Current filter pattern.
@@ -79,11 +87,20 @@ public final class FileDistribution {
     Directory directory,
     Pattern distributionFileFilterPattern) {
 
-    final Set connectedAgents = m_distributionControl.getConnectedAgents();
+    if (m_lastDirectory == null ||
+        !m_lastDirectory.equals(directory) ||
+        m_lastFileFilterPattern == null ||
+        !m_lastFileFilterPattern.equals(distributionFileFilterPattern)) {
 
-    if (!m_cacheState.validate(directory,
-                               distributionFileFilterPattern,
-                               connectedAgents)) {
+      m_cacheState.setOutOfDate();
+
+      m_lastDirectory = directory;
+      m_lastFileFilterPattern = distributionFileFilterPattern;
+    }
+
+    final long earliestFileTime = m_cacheState.getEarliestFileTime();
+
+    if (earliestFileTime < 0) {
       m_distributionControl.clearFileCaches();
     }
 
@@ -91,7 +108,7 @@ public final class FileDistribution {
       directory.getAsFile(),
       directory.listContents(
         new FileDistributionFilter(distributionFileFilterPattern,
-                                   m_cacheState.getEarliestFileTime())),
+                                   earliestFileTime)),
       m_distributionControl,
       m_cacheState);
   }
@@ -102,97 +119,5 @@ public final class FileDistribution {
   interface UpdateAgentCacheState {
     void updateStarted();
     void updateComplete();
-  }
-
-  /**
-   * Package scope for the unit tests.
-   */
-  static final class AgentCacheStateImplementation
-    implements AgentCacheState, UpdateAgentCacheState {
-
-    private static final int UP_TO_DATE = 0;
-    private static final int UPDATING = 1;
-    private static final int OUT_OF_DATE = 2;
-
-    private final PropertyChangeSupport m_propertyChangeSupport =
-      new PropertyChangeSupport(this);
-
-    private Directory m_directory;
-    private Pattern m_fileFilterPattern;
-    private Set m_connectedAgents;
-
-    private int m_state = OUT_OF_DATE;
-    private long m_earliestFileTime = -1;
-    private long m_updateStartTime = -1;
-
-    public AgentCacheStateImplementation() {
-      m_directory = null;
-      m_fileFilterPattern = null;
-      m_connectedAgents = null;
-    }
-
-    public boolean validate(Directory directory,
-                            Pattern fileFilterPattern,
-                            Set connectedAgents) {
-      if (m_directory == null ||
-          !m_directory.equals(directory) ||
-          m_fileFilterPattern == null ||
-          !m_fileFilterPattern.equals(fileFilterPattern) ||
-          m_connectedAgents == null ||
-          !m_connectedAgents.containsAll(connectedAgents)) {
-
-        m_directory = directory;
-        m_fileFilterPattern = fileFilterPattern;
-        m_connectedAgents = connectedAgents;
-        return false;
-      }
-      else {
-        m_connectedAgents = connectedAgents;
-        return true;
-      }
-    }
-
-    public long getEarliestFileTime() {
-      return m_earliestFileTime;
-    }
-
-    public boolean getOutOfDate() {
-      return UP_TO_DATE != m_state;
-    }
-
-    public void setOutOfDate() {
-      setState(OUT_OF_DATE);
-    }
-
-    public void updateStarted() {
-      m_updateStartTime = System.currentTimeMillis();
-      setState(UPDATING);
-    }
-
-    public void updateComplete() {
-
-      if (m_state == UPDATING) {
-        // Only mark clean if we haven't been marked out of date
-        // during the update.
-        setState(UP_TO_DATE);
-      }
-
-      // Even if we're not up to date, we've at least transfered all
-      // files older than this time.
-      m_earliestFileTime = m_updateStartTime;
-    }
-
-    private void setState(int newState) {
-      final boolean oldOutOfDate = getOutOfDate();
-      m_state = newState;
-
-      m_propertyChangeSupport.firePropertyChange("outOfDate",
-                                                 oldOutOfDate,
-                                                 getOutOfDate());
-    }
-
-    public void addListener(PropertyChangeListener listener) {
-      m_propertyChangeSupport.addPropertyChangeListener(listener);
-    }
   }
 }
