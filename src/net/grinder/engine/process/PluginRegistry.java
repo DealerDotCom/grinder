@@ -62,15 +62,17 @@ public final class PluginRegistry {
   }
 
   /**
+   * Set the singleton.
+   */
+  static void setInstance(PluginRegistry pluginRegistry) {
+    s_instance = pluginRegistry;
+  }
+
+  /**
    * Constructor.
    */
   PluginRegistry(Logger logger, ScriptContext scriptContext,
-                 ThreadContextLocator threadContextLocator)
-    throws EngineException {
-
-    if (s_instance != null) {
-      throw new EngineException("Already initialised");
-    }
+                 ThreadContextLocator threadContextLocator) {
 
     s_instance = this;
 
