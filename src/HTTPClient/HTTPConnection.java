@@ -3093,10 +3093,28 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 		// get a new response.
 		// Note: this does not do a read on the socket.
 
-		if (resp == null)
+		if (resp == null) {
+                  /** GRINDER MODIFICATION++ **/
+
+                  // If the server decides to close the socket, we may
+                  // not learn about it until we read from the input
+                  // stream. Previously this was done by the
+                  // ResponseHandler: too late for our connection
+                  // re-establishment logic (see "what a hack!" above)
+                  // to have control. This modification performs a
+                  // physical read on the socket, forcing an
+                  // IOException if the connection now stinks and
+                  // hence kicking off connection re-establishment.
+
+                  input_demux.peekStream();
+                  /** --GRINDER MODIFICATION **/
+
 		    resp = new Response(req, (Proxy_Host != null &&
 					     Protocol != HTTPS),
 					input_demux);
+                  /** GRINDER MODIFICATION++ **/
+                }
+                  /** --GRINDER MODIFICATION **/
 	    }
 	    catch (IOException ioe)
 	    {

@@ -28,6 +28,11 @@
  *
  *  http://www.innovation.ch/java/HTTPClient/ 
  *
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL.
+ * Modifications made by Philip Aston on 9th July 2001. They are
+ * marked below with the comment "GRINDER MODIFICATION". 
+ *
  */
 
 package HTTPClient;
@@ -87,6 +92,22 @@ class BufferedInputStream extends FilterInputStream
 
 	return (end > pos) ? (buffer[pos++] & 0xFF) : -1;
     }
+
+    /** GRINDER MODIFICATION++ **/
+    /**
+     * Peek a single byte.
+     *
+     * @return the peeked byte, or -1 if the end of the stream has been reached
+     * @exception IOException if thrown by the underlying stream
+     */
+    public int peek() throws IOException
+    {
+	if (pos >= end)
+	    fillBuff();
+
+	return (end > pos) ? (buffer[pos] & 0xFF) : -1;
+    }
+    /** --GRINDER MODIFICATION **/
 
     /**
      * Read a buffer full.
