@@ -67,11 +67,12 @@ final class DistributionStatus {
   /**
    * Get the earliest last modified time.
    *
-   * @return The earliest last modified time, or <code>-1</code> if we
-   * have no information.
+   * @return The earliest last modified time, <code>-1</code> if we
+   * have no information, or <code>Long.MAX_VALUE</code> if we have no
+   * connections.
    */
   public long getEarliestLastModifiedTime() {
-    long result = -1;
+    long result = Long.MAX_VALUE;
 
     synchronized (m_connectionToLastModifiedMap) {
       final Iterator iterator =
@@ -80,8 +81,7 @@ final class DistributionStatus {
       while (iterator.hasNext()) {
         final Long value = (Long) iterator.next();
 
-        if (value != null &&
-            (result == -1 || value.longValue() < result)) {
+        if (value.longValue() < result) {
           result = value.longValue();
         }
       }
