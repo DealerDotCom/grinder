@@ -261,6 +261,11 @@ What can I set in grinder.properties?
 			 	documentation for
 				the HTTP plugin below for examples.
 
+    grinder.logProcessStreams - Set to false to disable the logging of
+				standard out and standard error steams
+				for individual Grinder processes. Default
+				is true.
+
 
 What can I set in grinder.properties for the HTTP plugin?
 *********************************************************

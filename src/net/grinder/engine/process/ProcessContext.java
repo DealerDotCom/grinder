@@ -32,8 +32,16 @@ public class ProcessContextImplementation implements PluginProcessContext
     private final GrinderProperties m_pluginParameters;
     private final String m_hostIDString;
     private final String m_processIDString;
+    private final boolean m_logProcessStreams;
 
     private final FilenameFactory m_filenameFactory;
+    
+    {
+	m_logProcessStreams =
+	    GrinderProperties.getProperties().getBoolean(
+		"grinder.logProcessStreams", true);	
+    }
+    
 
     protected ProcessContextImplementation(PluginProcessContext processContext,
 					   String threadID)
@@ -83,21 +91,26 @@ public class ProcessContextImplementation implements PluginProcessContext
 
     public void logMessage(String message)
     {
-	System.out.println(formatMessage(message));
+	if (m_logProcessStreams) {
+	    System.out.println(formatMessage(message));
+	}
     }
 
     public void logError(String message) 
     {
-	System.err.println(formatMessage(message));
+	if (m_logProcessStreams) {
+	    System.err.println(formatMessage(message));
 
-	final int summaryLength = 20;
+	    final int summaryLength = 20;
 
-	final String summary = 
-	    message.length() > summaryLength ?
-	    message.substring(0, summaryLength) + "..." : message;
+	    final String summary = 
+		message.length() > summaryLength ?
+		message.substring(0, summaryLength) + "..." : message;
 
-	System.out.println(formatMessage("ERROR (\"" + summary +
-					 "\"), see error log for details"));
+	    System.out.println(
+		formatMessage("ERROR (\"" + summary +
+			      "\"), see error log for details"));
+	}
     }
 
     protected String formatMessage(String message)
