@@ -165,5 +165,20 @@ class StreamThread implements Runnable
 	catch (Exception e) {
 	    e.printStackTrace(System.err);
 	}
+
+	// We're exiting, usually because the in stream has been
+	// closed. Whatever, close our streams. This will cause the
+	// paired thread to exit to.
+	try {
+	    m_out.close();
+	}
+	catch (Exception e) {
+	}
+	
+	try {
+	    m_in.close();
+	}
+	catch (Exception e) {
+	}
     }
 }
