@@ -1,3 +1,30 @@
+2004-10-20  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/console/swingui/resources/Console_fr.properties:
+	Updates from Bertrand.
+
+2004-10-15  Philip Aston  <philipa@mail.com>
+
+	* TODO: SSL work now complete.
+
+	* src/net/grinder/engine/process/SSLControlImplementation.java:
+	Default to KeyStore.getDefaultType() rather than "jks".
+
+	* src/net/grinder/common/SSLContextFactory.java, src/net/grinder/script/SSLControl.java:
+	Improve Javadoc.
+
+	* xdoc/g3/ssl-support-xhtml.xml: Note about correct X509 package.
+
+	* xdoc/stylesheets/add-g3-decoration.xsl:
+	Tone done beta warning slightly.
+
+2004-10-14  Philip Aston  <philipa@mail.com>
+
+	* xdoc/g3/ssl-support-xhtml.xml: Typo.
+
+	* xdoc/documentation.xweb, xdoc/g3/http-plugin-xhtml.xml, xdoc/g3/ssl-support-xhtml.xml:
+	Blimey, some documentation.
+
 2004-10-13  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Add SSLContext to script javadoc.

@@ -1,15 +1,19 @@
 Grinder 3.0-beta23
 ------------------
 
+  Scripts can now control the SSL context used by each worker thread.
+  This can be used to vary the client certficate based on the thread.
+  Thanks to Ryan Whitaker and William Babilon for requesting this.
+
+  Enhancement from Slavik Gnatenko that allows the grinder.threads,
+  grinder.reportToConsole.interval, and grinder.duration properties to
+  be overridden in scripts initialistion section.
+
   Fix TCPProxy to make it more relaxed about 8 bit characters in HTTP
   URLs. Thanks to Thomas Böhne for reporting problems.
 
   Fix another bug in HTTPClient related to responses with a
   Content-Length of 0. Thanks to John Lee for the report.
-
-  Enhancement from Slavik Gnatenko that allows the grinder.threads,
-  grinder.reportToConsole.interval, and grinder.duration properties to
-  be overridden in scripts initialistion section.
 
   German console translation updates from Marc Born and Andreas
   Schmidt.
