@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -71,10 +71,6 @@ public final class MessagePump {
    */
   public void shutdown() throws InterruptedException {
 
-    // Asynchronously signal the thread pool to stop.
-    // m_threadPool.isStopped() will now be true.
-    m_threadPool.stop();
-
     m_receiver.shutdown();
     m_sender.shutdown();
 
@@ -83,15 +79,18 @@ public final class MessagePump {
   }
 
   private void process() {
-    while (!m_threadPool.isStopped()) {
-      try {
+    try {
+      while (!m_threadPool.isStopped()) {
         final Message message = m_receiver.waitForMessage();
         m_sender.send(message);
       }
-      catch (CommunicationException e) {
-        if (!m_threadPool.isStopped()) {
-          e.printStackTrace();
-        }
+    }
+    catch (CommunicationException e) {
+      try {
+        shutdown();
+      }
+      catch (InterruptedException interruptedException) {
+        // Ignore.
       }
     }
   }
