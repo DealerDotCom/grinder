@@ -29,8 +29,6 @@ http://sourceforge.net/mailarchive/message.php?msg_id=3626264
 
 ** TCP Proxy
 
-Sniffer vs redirection. Think there are some bugs here.
-
 Recording \n's?
 
 Fix the proxy to record Authorization again. Can use connection ID.
