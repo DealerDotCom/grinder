@@ -46,11 +46,13 @@ Do the following:
 Say 
 	ant -projecthelp
 
-for details of other targets.
+for details of other targets. The compilation targets do depend on the
+"clean" target, to rebuild you need to say "ant clean compile".
 
 The build auto-detects what modules to build by checking your
-classpath for classes the module depends on. You may have to unset your
-classpath if this doesn't do what you want. Currently the conditionally built modules are:
+CLASSPATH for classes the module depends on. You may have to unset
+your CLASSPATH if this doesn't do what you want. Currently the
+conditionally built modules are:
 
    HTTP SSL plugin (Needs the JSSE 1.0.2)
    TCPSniffer SSL engine (Needs the JSSE 1.0.2)
@@ -73,8 +75,8 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <!-- what -->
     <property name="Name" value="Grinder"/>
     <property name="name" value="grinder"/>
-    <property name="version" value="2.0"/>
-    <property name="year" value="2000"/>
+    <property name="version" value="2.1"/>
+    <property name="year" value="2001"/>
 
     <!--options-->
     <available classname="javax.net.ssl.SSLSocketFactory"
@@ -96,6 +98,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
 
     <!-- source of all evil -->
     <property name="src.dir" value="src"/>
+    <property name="tests.src.dir" value="tests-src"/>
     <property name="etc.dir" value="etc"/>
     <property name="examples.dir" value="examples"/>
 
@@ -108,9 +111,11 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <property name="build.dir" value="build"/>
     <property name="build.src" value="${build.dir}/src"/>
     <property name="build.classes" value="${build.dir}/classes"/>
+    <property name="tests.src" value="${build.dir}/tests-src"/>
+    <property name="tests.classes" value="${build.dir}/tests-classes"/>
     <property name="lib.dir" value="lib"/>
     <property name="lib.jar" value="${name}.jar"/>
-    <property name="dist.root" value="distribution"/>
+    <property name="dist.root" value="${build.dir}/distribution"/>
     <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
 
     <!-- filter tokens -->
@@ -122,78 +127,61 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   </target>
 
   <!-- =================================================================== -->
-  <!-- Prepares a copy of the source code                                  -->
+  <!-- Rules that prepare a filtered copy of the appropriate source code   -->
   <!-- =================================================================== -->
-
-    <!-- No idea why, but ant doesn't expand ${src.dir} in the following. -->
-  <fileset id="base.src"
-	   dir="src"
-	   excludes="net/grinder/plugin/http/HttpsPlugin.java,net/grinder/tools/tcpsniffer/SSLSnifferEngineImpl.java,net/grinder/plugin/weblogic/,net/grinder/plugin/http/HttpsPluginSnifferFilter.java,**/JUnit*.java"/>
-
-  <fileset id="jsse.dependent.src"
-	   dir="src"
-	   includes="net/grinder/plugin/http/HttpsPlugin.java,net/grinder/tools/tcpsniffer/SSLSnifferEngineImpl.java"/>
-
-  <fileset id="weblogic.traderEJB.dependent.src"
-	   dir="src"
-	   includes="net/grinder/plugin/weblogic/"/>
-
-  <fileset id="jakarta.regexp.dependent.src"
-	   dir="src"
-	   includes="net/grinder/plugin/http/HttpsPluginSnifferFilter.java"/>
-
-  <fileset id="junit.dependent.src"
-	   dir="src"
-	   includes="**/JUnit*.java"/>
-
-  <target name="prepare-jsse-src" if="have.jsse" depends="init">
+  <target name="prepare-src" depends="init">
     <copy todir="${build.src}" filtering="on">
-      <fileset refid="jsse.dependent.src"/>
+      <fileset dir="${src.dir}"/>
     </copy>
   </target>
 
-  <target name="prepare-weblogic-traderEJB-src" if="have.weblogic.traderEJB"
-	  depends="init">
-    <copy todir="${build.src}" filtering="on">
-      <fileset refid="weblogic.traderEJB.dependent.src"/>
+  <target name="prepare-test-src" depends="init">
+    <copy todir="${tests.src}" filtering="on">
+      <fileset dir="${tests.src.dir}"/>
     </copy>
   </target>
 
-  <target name="prepare-jakarta-regexp-src" if="have.jakarta.regexp"
-	  depends="init">
-    <copy todir="${build.src}" filtering="on">
-      <fileset refid="jakarta.regexp.dependent.src"/>
-    </copy>
-  </target>
-
-  <target name="prepare-junit-src" if="have.junit" depends="init">
-    <copy todir="${build.src}" filtering="on">
-      <fileset refid="junit.dependent.src"/>
-    </copy>
-  </target>
-
-  <target name="prepare-src"
-	  depends="init,prepare-jsse-src,prepare-weblogic-traderEJB-src,prepare-jakarta-regexp-src,prepare-junit-src">
-    <copy todir="${build.src}" filtering="on">
-      <fileset refid="base.src"/>
-    </copy>
-  </target>
 
   <!-- =================================================================== -->
-  <!-- Compiles the source directory                                       -->
+  <!-- Compilation rules                                    -->
   <!-- =================================================================== -->
-  <target name="compile" depends="prepare-src" description="Runs javac.">
+  <target name="compile" depends="prepare-src"
+	  description="Compiles the source.">
     <mkdir dir="${build.classes}"/>
 
     <javac srcdir="${build.src}"
            destdir="${build.classes}"
            debug="${debug}"
            optimize="${optimize}"
+	   deprecation="${deprecation}">
+       <exclude name="**/HttpsPlugin.java" unless="have.jsse"/>
+       <exclude name="**/SSLSnifferEngineImpl.java" unless="have.jsse"/>
+       <exclude name="**/weblogic/*" unless= "have.weblogic.traderEJB"/>
+       <exclude name="**/HttpPluginSnifferFilter.java"
+		unless="have.jakarta.regexp"/>
+
+    </javac>
+  </target>
+
+  <target name="assert-have-junit" depends="init" unless="have.junit">
+   <fail message="Add JUnit 3.4 to your CLASSPATH to compile/run the tests"/>
+  </target>
+
+  <target name="compile-tests"
+	  depends="assert-have-junit,prepare-test-src,compile"
+	  description="Compiles the tests source">
+    <mkdir dir="${tests.classes}"/>
+
+    <javac srcdir="${tests.src}"
+           destdir="${tests.classes}"
+	   classpath="${build.classes}"
+           debug="${debug}"
+           optimize="${optimize}"
 	   deprecation="${deprecation}"/>
   </target>
 
   <!-- =================================================================== -->
-  <!-- Creates the classes jar                                             -->
+  <!-- Creates the jar                                                     -->
   <!-- =================================================================== -->
   <target name="jar" depends="compile"
 	  description="Default target, creates lib/grinder.jar.">
@@ -205,13 +193,13 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
          includes="net/grinder/"/>
   </target>
 
+
   <!-- =================================================================== -->
-  <!-- Creates the API documentation                                       -->
+  <!-- Rules to create the API documentation                               -->
   <!-- =================================================================== -->
   <target name="javadoc" depends="init" description="Generates the javadoc.">
     <mkdir dir="${javadoc.dir}"/>
     <javadoc packagenames="${javadoc.packages}"
-             sourcepath="${src.dir}"
              destdir="${javadoc.dir}"
              author="true"
              version="false"
@@ -220,14 +208,19 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
              windowtitle="${Name}"
              doctitle="${Name}"
              bottom="Copyright &#169; ${year} Paco Gomez, Philip Aston. All Rights Reserved."
-             stylesheetfile="${javadoc.css}"
-	     />
+             stylesheetfile="${javadoc.css}">
+	    <sourcepath>
+	      <pathelement path="${src.dir}"/>
+	      <pathelement path="${tests.src.dir}"/>
+	    </sourcepath>
+    </javadoc>
+
   </target>
 
   <!-- =================================================================== -->
   <!-- Creates the distribution hierachy                                   -->
   <!-- =================================================================== -->
-  <target name="distribute-javadoc" depends="init,javadoc">
+  <target name="distribute-javadoc" depends="javadoc">
     <copy todir="${dist.dir}/${javadoc.dir}">
       <fileset dir="${javadoc.dir}"/>
     </copy>
@@ -237,6 +230,10 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
 
     <copy todir="${dist.dir}/${src.dir}" filtering="on">
       <fileset dir="${src.dir}"/>
+    </copy>
+
+    <copy todir="${dist.dir}/${tests.src.dir}" filtering="on">
+      <fileset dir="${tests.src.dir}"/>
     </copy>
 
     <copy file="${lib.dir}/${lib.jar}"
@@ -269,13 +266,18 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <jar jarfile="${name}-${version}-${DSTAMP}.jar" basedir="${dist.root}"/>
   </target>
 
-  <target name="release" depends="distribution-hierarchy, distribute-javadoc"
+  <target name="assert-have-eveything" depends="init"
+	  unless="have.jakarta.regexp,have.jsse,have.junit,have.weblogic.traderEJB"
+	  >
+   <fail message="Something option is missing from your CLASSPATH"/>
+  </target>
+
+  <target name="release" depends="assert-have-eveything,realclean,distribution-hierarchy,distribute-javadoc"
 	  description="Generates a release jar.">
-      <!-- TODO -->
 <!--      <cvs command="tag -R release_${version}" noexec="true"/> -->
     <jar jarfile="${name}-${version}.jar" basedir="${dist.root}"/>
 
-    <echo message="Now say 'cvs tag -R release_${version}"/>
+    <echo message="*** Now say 'cvs tag -R release_${version}"/>
   </target>
 
   <!-- =================================================================== -->
@@ -290,12 +292,6 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <delete dir="${dist.root}"/>
     <delete dir="${javadoc.dir}"/>
     <delete dir="${lib.dir}"/>
-  </target>
-
-  <!-- =================================================================== -->
-  <!-- For old time's sake...                                              -->
-  <!-- =================================================================== -->
-  <target name="cruelworld" depends="realclean, dist">
   </target>
 
 </project>
