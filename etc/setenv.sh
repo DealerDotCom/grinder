@@ -4,7 +4,7 @@ GRINDER_HOME=/work/src/grinder
 GRINDER=${GRINDER_HOME}/build/classes
 GRINDER=${GRINDER}:${GRINDER_HOME}/build/tests-classes # for testing JUnit plugin
 
-JAKARTA_REGEXP=/opt/jakarta-oregexp/jakarta-regexp-1.2/jakarta-regexp-1.2.jar
+JAKARTA_REGEXP=/opt/jakarta-regexp/jakarta-regexp-1.2/jakarta-regexp-1.2.jar
 JUNIT=/opt/junit/junit3.5/junit.jar
 
 JTIDY=/opt/jtidy/jtidy-04aug2000r7-dev/build/Tidy.jar

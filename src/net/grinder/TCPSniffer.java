@@ -120,8 +120,6 @@ public class TCPSniffer
 	"net.grinder.tools.proxy.HttpsProxySnifferEngineImpl";
     private final String HTTP_PLUGIN_FILTER_CLASS =
 	"net.grinder.plugin.http.HttpPluginSnifferFilter";
-    private final String HTTPS_PLUGIN_FILTER_CLASS =
-	"net.grinder.plugin.http.HttpsPluginSnifferFilter";
     private final String URL_REWRITE_FILTER_CLASS =
 	"net.grinder.plugin.http.URLRewriteFilter";
 
@@ -233,13 +231,6 @@ public class TCPSniffer
 	}
 
 	if (proxy) {
-
-	    if (useSSL) {
-		// if we're doing a secure proxy, we need a slightly
-		// different version of the http filter as the request
-		// comes in differently.
-		requestFilter = httpsPluginFilterInstance();
-	    }
 
 	    if (!filterIsHttpFilter(requestFilter)) {
 		throw barfUsage("Specify HTTP_PLUGIN as the request filter " +
@@ -517,26 +508,6 @@ public class TCPSniffer
 	}
 	catch (Exception e) {
 	    throw barfUsage("HTTP Plugin Filter '" + HTTP_PLUGIN_FILTER_CLASS +
-			    "' not found." +
-			    "\n(You must have Jakarta Regexp to build it).");
-	}
-    }
-
-    /**
-     * The HttpsPluginSnifferFilter depends on Jakarta Regexp (but /not/ 
-     * on JSSE!). Load it dynamically so we can build without it.
-     */
-    private SnifferFilter httpsPluginFilterInstance() 
-    {
-	try {
-	    final Class httpsPluginFilter =
-		Class.forName(HTTPS_PLUGIN_FILTER_CLASS);
-
-	    return (SnifferFilter)httpsPluginFilter.newInstance();
-	}
-	catch (Exception e) {
-	    throw barfUsage("HTTPS Plugin Filter '" 
-			    + HTTPS_PLUGIN_FILTER_CLASS +
 			    "' not found." +
 			    "\n(You must have Jakarta Regexp to build it).");
 	}

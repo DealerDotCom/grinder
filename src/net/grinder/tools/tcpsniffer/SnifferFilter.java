@@ -34,8 +34,11 @@ public interface SnifferFilter
 		int bytesRead)
 	throws Exception;
 
-    void connectionOpened(ConnectionDetails connectionDetails);
-    void connectionClosed(ConnectionDetails connectionDetails);
+    void connectionOpened(ConnectionDetails connectionDetails)
+	throws Exception;
+
+    void connectionClosed(ConnectionDetails connectionDetails)
+	throws Exception;
 }
 
 

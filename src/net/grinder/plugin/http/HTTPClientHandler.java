@@ -251,7 +251,9 @@ class HTTPClientHandler implements HTTPHandler
 					       ") for " + uri);
 	    }
 
-	    m_httpClientResponseListener.handleResponse(response);
+	    if (m_httpClientResponseListener != null) {
+		m_httpClientResponseListener.handleResponse(response);
+	    }
 
 	    // Should really use HTTPResponse.getText so that
 	    // Content-Type is respected.

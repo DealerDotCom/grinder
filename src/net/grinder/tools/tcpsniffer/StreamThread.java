@@ -84,7 +84,12 @@ public class StreamThread implements Runnable
 	final Thread t = new Thread(this,
 				    m_connectionDetails.getDescription());
 
-	m_filter.connectionOpened(m_connectionDetails);
+	try {
+	    m_filter.connectionOpened(m_connectionDetails);
+	}
+	catch (Exception e) {
+	    e.printStackTrace(System.err);
+	}
 
 	t.start();
     }
@@ -150,7 +155,14 @@ public class StreamThread implements Runnable
 	}
 
 	System.out.print(m_colour);
-	m_filter.connectionClosed(m_connectionDetails);
+
+	try {
+	    m_filter.connectionClosed(m_connectionDetails);
+	}
+	catch (Exception e) {
+	    e.printStackTrace(System.err);
+	}
+
 	System.out.print(m_resetColour);
 
 	// We're exiting, usually because the in stream has been
