@@ -42,8 +42,8 @@ public interface ProcessStatus
     /**
      * Return the process status.
      *
-     * @return One of {@link STATE_STARTED}, {@link
-     * STATE_RUNNING}, {@link STATE_FINISHED}, {@link STATE_DEAD}.
+     * @return One of {@link #STATE_STARTED}, {@link #STATE_RUNNING},
+     * {@link #STATE_FINISHED}.
      **/
     short getState();
 
