@@ -33,7 +33,8 @@ import net.grinder.common.Test;
 /**
  * A map of test numbers to {@link TestStatistics}s.
  *
- * Unsynchronised.
+ * <p>Unsynchronised. Synchronisation tends to occur at the
+ * granularity of the contained {@link RawStatistics} instances.</p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -83,6 +84,10 @@ public class TestStatisticsMap implements java.io.Externalizable
     /**
      * Return a <code>TestStatisticsMap</code> representing the change
      * since the last snapshot.
+     *
+     * <p>We rely on the synchronisation of {@link
+     * RawStatisticsImplementation#getDelta} to ensure that
+     * information is not lost.</p>
      *
      * @param updateSnapshot <code>true</code> => update the snapshot.
      * @return A <code>TestStatisticsMap</code> representing the
