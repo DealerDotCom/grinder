@@ -745,6 +745,20 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
 	<code>Not-Modified-Since</code> header as appropriate.</p>
       </answer>
     </faq>
+
+    <faq id="distribution-directory">
+      <question>When using the script distribution feature, how can my scripts refer to other distributed files?</question>
+
+      <answer>
+	<p>The directory of the distributed script is prepended to the
+	Jython system path. You can do something like:</p>
+<source>
+  import sys
+  f = open("%s/myresources.properties" % sys.path[0])
+  # ...
+</source>
+      </answer>
+    </faq>
   </faqsection>
 
   <faqsection>
