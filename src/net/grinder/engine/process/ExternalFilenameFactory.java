@@ -25,9 +25,10 @@ import net.grinder.common.FilenameFactory;
 
 
 /**
- * {@link Logger} implementation for external consumption. Delegates
- * to the appropriate {@link LoggerImplementation} depending on
- * whether it is called from the process thread or a worker thread.
+ * {@link net.grinder.common.Logger} implementation for external
+ * consumption. Delegates to the appropriate {@link
+ * LoggerImplementation} depending on whether it is called from the
+ * process thread or a worker thread.
  *
  * <p>This effectively makes <code>ExternalLogger</code> thread safe
  * unless the script creates its own threads.</p>

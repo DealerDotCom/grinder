@@ -31,8 +31,8 @@ import net.grinder.common.Logger;
 /**
  * Simple logger implementation for agent processes.
  *
- * <p>Only supports the {@link Logger.TERMINAL} destination, ignores
- * instructions to write to {@link Logger.LOG}.</p>
+ * <p>Only supports the {@link Logger#TERMINAL} destination, ignores
+ * instructions to write to {@link Logger#LOG}.</p>
  *
  * @author Philip Aston
  * @version $Revision$

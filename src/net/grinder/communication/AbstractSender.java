@@ -37,8 +37,7 @@ abstract class AbstractSender implements Sender {
   private boolean m_shutdown = false;
 
   /**
-   * First flush any pending messages queued with {@link #queue} and
-   * then send the given message.
+   * Send the given message.
    *
    * @param message A {@link Message}.
    * @exception CommunicationException If an error occurs.

@@ -54,7 +54,7 @@ public abstract class AbstractTextSource implements TextSource {
   /**
    * Used by subclasses to mark that the <code>TextSource</code> is
    * clean. Subclasses should call <code>setClean()</code> in their
-   * {@link TextSource.setText} and {@link TextSource.getText}
+   * {@link TextSource#setText} and {@link TextSource#getText}
    * implementations.
    *
    */

@@ -31,9 +31,9 @@ import java.util.LinkedList;
 /**
  * Class that manages a pool of resources.
  *
- * <p>Each resource in the pool is wrapped in a {@link
- * #ResourceWrapper} that keeps track of whether it is currently in
- * use. Clients access resources through {@link Reservation}s.</p>
+ * <p>Each resource in the pool is wrapped in a wrapper that keeps
+ * track of whether it is currently in use. Clients access resources
+ * through {@link Reservation}s.</p>
  *
  * @author Philip Aston
  * @version $Revision$

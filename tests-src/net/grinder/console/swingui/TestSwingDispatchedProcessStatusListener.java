@@ -31,7 +31,7 @@ import net.grinder.console.communication.ProcessStatusListener;
 
 
 /**
- * Unit tests for {@link SwingDispatchedProcessStatusSetListener}.
+ * Unit tests for {@link SwingDispatchedProcessStatusListener}.
  *
  * @author Philip Aston
  * @version $Revision$

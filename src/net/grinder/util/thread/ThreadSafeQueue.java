@@ -131,10 +131,7 @@ public final class ThreadSafeQueue {
 
   /**
    * Exception that indicates <code>ThreadSafeQueue</code> has been
-   * shutdown. It doesn't extend {@link CommunicationException}
-   * because typically callers want to propagate
-   * <code>ShutdownException</code>s but handle
-   * <code>CommunicationException</code>s locally.
+   * shutdown.
    */
   public static final class ShutdownException extends GrinderException {
     private ShutdownException(String s) {

@@ -113,8 +113,8 @@ final class LookAndFeel {
   }
 
   /**
-   * {@link Listener} that does the basic post-LAF change refreshing
-   * of a <code>Component</code>.
+   * {@link LookAndFeel.Listener} that does the basic post-LAF change
+   * refreshing of a <code>Component</code>.
    */
   static class ComponentListener implements Listener {
     private final Component m_component;
