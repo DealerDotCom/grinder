@@ -3,8 +3,7 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-  Add jython to distribution.
-  Relase 2.8.4 
+  Doc updates for 2.8.4? (Unified sniffer, international console)
 
   Bug 608392 - localized characters in output files.
 
