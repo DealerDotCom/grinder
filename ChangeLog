@@ -1,3 +1,45 @@
+2001-01-22  Philip Aston  <paston@beasys.com>
+
+	* src/net/grinder/TCPSniffer.java: 
+		Dynamically link the HttpPluginSnifferFilter as it depends
+		on Jakarta Regexp.
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java): 
+		Update for new grinder.properties format.
+	
+	* src/net/grinder/plugin/http/BookHttpPlugin.java: 
+	* src/net/grinder/plugin/http/HttpMsg.java: 
+	* src/net/grinder/plugin/http/HttpPlugin.java: 
+	* src/net/grinder/plugin/http/HttpRequestData.java: 
+	* src/net/grinder/plugin/http/HttpsPlugin.java: 
+		Update to new plugin interface. Be _slightly_ more
+		sophisticated about handling the results of the HTTP call.
+	
+	* src/net/grinder/engine/process/GrinderProcess.java: 
+	* src/net/grinder/engine/process/GrinderThread.java: 
+	* src/net/grinder/engine/process/PluginContextImplementation.java: 
+	* src/net/grinder/engine/process/Test.java: 
+	* src/net/grinder/engine/process/TestStatistics.java: 
+	* src/net/grinder/engine/process/TestStatisticsTable.java: 
+	* src/net/grinder/plugininterface/GrinderPlugin.java: 
+	* src/net/grinder/plugininterface/PluginContext.java: 
+	* src/net/grinder/plugininterface/PluginException.java: 
+	* src/net/grinder/plugininterface/TestDefinition.java: 
+	* src/net/grinder/util/GrinderProperties.java: 
+		Alter the engine/plugin interface so that each plugin now
+		has a single, type safe dispatch method. Added support for
+		support individual sleep times for methods and randomised
+		sleep times. Tidied up logging. Renamed "GrinderContext"
+		to "PluginContext" and "test" to "method" throughout.
+
+	* src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java: 
+		Be slient about SocketExceptions.
+
+	* tests-src/net/grinder/AllTests.java: 
+	* tests-src/net/grinder/engine/process/AllTests.java: 
+	* tests-src/net/grinder/engine/process/TestTest.java: 
+		Our first JUnit test.
+
 2001-01-11  Philip Aston  <paston@beasys.com>
 
 	* Grinder 2.0 is released.	

@@ -1,3 +1,37 @@
+Grinder 2.1
+-----------
+
+  The plugin interface now has a single "doTest" dispatch interface
+  instead of using reflection. This simplifies the writing of generic
+  plugins. The "grinder.methods" property has been removed. Instead
+  tests are specified by a number of "grinder.testX" properties (where
+  test is any number). See README for details.
+
+  The "initial sleep time" has been removed, a "begin cycle sleep
+  time" has been added in its place. Individual method sleep times can
+  now be specified. All sleep times are now randomly varied according
+  to a Normal distribution. See README for details.
+
+  The HttpPluginSnifferFilter has been updated to record sleep times
+  and reflect the property format changes.
+
+  The loggin of the HTTP plugin has been improved.
+
+  The output and error log format is now more useful. There was no
+  point in displaying the host and process for each line (each process
+  gets its own output file). I've added the current cycle and test
+  number instead.
+
+  I've removed the "simple" plugin as I got fed up of maintaining it.
+
+  We have our first JUnit test case. We need more.
+
+  The TCPSniffer is now silent about SocketExceptions.
+
+  Renamed "GrinderContext" to more correct "PluginContext". Renamed
+  "method" to "test" throughout.
+
+
 Grinder 2.0
 -----------
 

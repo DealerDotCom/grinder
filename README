@@ -24,9 +24,23 @@ under the GNU Public License. It was originally developed for the book
 Páco Gomez and Peter Zadrozny.
 
 Test client code is written in the form Java "plug-ins". Sample
-plug-ins for testing HTTP and EJB services are provided. It is
-particularly suitable for testing BEA WebLogic Server based
-applications.
+plug-ins for testing HTTP services are provided. It is particularly
+suitable for testing BEA WebLogic Server based applications.
+
+
+What else do I need?
+********************
+
+To build and run The Grinder:
+
+  JDK 1.3
+
+and optionally:
+
+  JSSE 1.0.2			for SSL support
+  Apache Jakarta Regexp 1.2	for the TCPSniffer HTTP plugin 
+  Apache Jakarta Ant 1.2	to build The Grinder from source
+  JUnit 3.4			to test The Grinder itself
 
 
 How do I build it?
@@ -73,6 +87,123 @@ BEA keeps me very busy so the timeliness and quality of any email
 support I provide will vary.
 
 
+What can I set in grinder.properties?
+*************************************
+
+[This is not complete - volunteer work required!]
+
+    grinder.processes	-	The number of child VM processes to start.
+
+    grinder.threads	-	The number cycles of the threads each 
+				process spawns.
+
+    grinder.cycles	-	The number cycles of the test script
+				each thread performs.
+
+    grinder.jvm		-	Use an alternate JVM for child processes.
+
+    grinder.jvm.path	-	Specifies the java executable used for
+				the child JVMs. Defaults to "java" so
+				you do not need to specify this if
+				your path is sensible.
+
+    grinder.jvm.classpath -	Use to adjust the classpath used for
+				the child VMs. Anything specified here
+				will be prepended to the classpath
+				used to start the grinder itself.
+
+    grinder.jvm.arguments -	Additional arguments to child JVM's.
+
+    grinder.appendLog	 -	Append to, rather than overwrite,
+				existing log files.
+
+    grinder.thread.beginCycleSleepTime	-
+				The time in milliseconds to wait before
+				beginning each cycle.
+
+    grinder.thread.sleepTime -	The time in milliseconds to wait
+				between individual tests.
+
+    grinder.thread.sleepTimeFactor -
+				Apply a factor to all the sleep times
+				you've specified. E.g., setting this
+				to 0.1 would run the script at ten times
+				te speed.
+
+    grinder.thread.sleepTimeVariation -
+				The Grinder varies the specified sleep
+				times according to a Normal
+				distribution. This property specifies
+				a fractional range within which nearly
+				all (99.75%) of the times will lye.
+				E.g., if the sleep time is specified
+				as 1000 and the sleepTimeVariation is
+				set to 0.1, then 99.75% of the actual
+				sleep times will be between 9900 and
+				11000 milliseconds.
+
+    grinder.plugin	-	The plugin class to use. Currently each
+				script uses a single plugin.
+
+    grinder.plugin.parameter -	Prefix for properties interpreted by
+				the plugin. See the documentation for
+				the HTTP plugin below for examples.
+
+    grinder.test0	- 	Prefix for test 0 properties. Test 1 
+				properties have a prefix of
+				"grinder.test1", and so on. The
+				tests are run in numerical order.
+
+    grinder.test0.description -	Information string used in the log
+			 	files. Will be used in the
+				console in the future.
+
+    grinder.test0.sleepTime -	Override grinder.thread.sleepTime
+				for a specific test.
+
+    grinder.test0.parameter -	Prefix for test specific properties
+			 	interpreted by the plugin. See the
+			 	documentation for
+				the HTTP plugin below for examples.
+
+
+What can I set in grinder.properties for the HTTP plugin?
+*********************************************************
+
+    grinder.plugin.parameter.followRedirects -
+				Set to true to automatically follow
+				redirects, so you don't have to have
+				additional URL's in you scripts. The
+				default is false.
+
+				You should always set this to false for
+				TCPSnffer generated scripts.
+
+				If you are using WebLogic Server and
+				Web Application form-based
+				authentication you leave this property
+				set to false. This is because a
+				redirect request that follows
+				authentication contains a key cookie -
+				setting the property to true prevents
+				the cookie from being picked up by the
+				plugin.
+
+    grinder.test0.parameter.url -
+				The URL to call. The HTTP GET method
+				is used unless
+			 	grinder.test0.parameter.post is
+			 	specified.
+
+    grinder.test0.parameter.ok	-
+				Fail if the returned page doesn't
+			 	contain this string.
+
+    grinder.test0.parameter.post -
+				Specify a file containing POST data to
+			 	send.
+
+
 How do I use the HTTPS plugin?
 ******************************
 
@@ -99,44 +230,6 @@ How do I use the HTTPS plugin?
 The JSSE SSL implementation isn't quick. This should be taken into
 account when comparing round trip times, as a compiled browser version
 is likely to be a *lot* faster.
-
-
-What can I set in grinder.properties?
-*************************************
-
-[This is not complete - volunteer work required!]
-
-    grinder.jvm.path	-	Specifies the java executable used for
-				the child JVMs. Defaults to "java" so
-				you do not need to specify this if
-				your path is sensible.
-
-    grinder.jvm.classpath -	Use to adjust the classpath used for
-				the child VMs. Anything specified here
-				will be prepended to the classpath
-				used to start the grinder itself.
-
-    grinder.jvm.arguments -	Additional arguments to child JVM's.
-
-
-What can I set in grinder.properties for the HTTP plugin?
-*********************************************************
-
-    grinder.plugin.parameter.followRedirects -
-				Set to true to automatically follow
-				redirects, so you don't have to have
-				additional URL's in you scripts. The
-				default is false.
-
-				If you are using WebLogic Server and
-				Web Application form-based
-				authentication you leave this property
-				set to false. This is because a
-				redirect request that follows
-				authentication contains a key cookie -
-				setting the property to true prevents
-				the cookie from being picked up by the
-				plugin.
 
 
 What is the TCPSniffer and how do I use it?
@@ -212,10 +305,8 @@ part to a file if you wish:
 
   java net.grinder.TCPSniffer -httpPluginFilter > myscript
 
-Note, the HttpPluginSnifferFilter does not produce a complete
-grinder.properties script. In particular, it does not output thr
-property grinder.plugin.methods. You currently have to do this by hand
-(patches accepted!).
+The HttpPluginSnifferFilter does not produce a complete
+grinder.properties script.
 
 Additionaly, the parsing of HTTP messages probably contains bugs.
 Don't let this put you off, using the HttpPluginSnifferFilter is a
