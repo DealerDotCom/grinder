@@ -115,7 +115,7 @@ public final class TCPProxy {
       "\n If either -remotehost or -remoteport is specified," +
       "\n the TCPProxy acts a simple port forwarder between" +
       "\n <localhost:localport> and <remotehost:remoteport>." +
-      "\n Specify -ssl for HTTPS support." +
+      "\n Specify -ssl for SSL support." +
       "\n" +
       "\n -httpPlugin sets the request and response filters" +
       "\n to produce a test script suitable for use with the" +
