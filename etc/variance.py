@@ -145,7 +145,11 @@ def run(numberOfWorkers = 4, numberOfSamples = 10):
     workerAggregateSamples = []
 
     for workerNumber in range(0, numberOfWorkers):
-        worker = Worker(BasicValueGenerator())
+        if workerNumber % 2 == 0:
+            worker = Worker(BasicValueGenerator())
+        else:
+            worker = Worker(NormalValueGenerator())
+
         samples = [worker.generateSample() for x in range(0, numberOfSamples)]
 
         print "\nWorker %d" % workerNumber
