@@ -32,7 +32,7 @@ import net.grinder.util.GrinderProperties;
  * @version $Revision$
  */ 
 public abstract class SimplePluginBase
-    implements GrinderPlugin, ThreadCallbacks
+    implements GrinderPlugin, ThreadCallbacks, Cloneable
 {
     /**
      * This method is executed when the process starts. It is only
