@@ -27,6 +27,7 @@ import java.net.MulticastSocket;
 /** Not thread safe */
 public class Receiver
 {
+    /*
     private byte[] m_buffer = new byte[1024];
 
     public Receiver()
@@ -54,4 +55,5 @@ public class Receiver
       int numBytesReceived = packet.getLength();
 
     }
+    */
 }
