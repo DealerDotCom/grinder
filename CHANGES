@@ -7,6 +7,8 @@ Grinder 3.0-beta5
   Rationalise the plugin API so that PluginProcessContext and
   PluginThreadContext no longer extend Logger and FilenameFactory.
 
+  Add JMS examples.
+
 
 Grinder 3.0-beta4
 -----------------
