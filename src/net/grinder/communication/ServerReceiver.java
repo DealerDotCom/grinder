@@ -108,11 +108,11 @@ public final class ServerReceiver implements Receiver {
   }
 
   /**
-   * Return the Acceptor. Used by the unit tests.
+   * Return the Acceptor. Package scope, used by the unit tests.
    *
-   * @return The number of connections.
+   * @return The acceptor.
    */
-  public Acceptor getAcceptor() {
+  Acceptor getAcceptor() {
     return m_acceptor;
   }
 
