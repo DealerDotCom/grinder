@@ -139,6 +139,11 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     while (iterator.hasNext()) {
       ((StreamThread)iterator.next()).stop();
     }
+
+  }
+
+  public boolean isStopped() {
+    return m_serverSocket.isClosed();
   }
 
   /**
