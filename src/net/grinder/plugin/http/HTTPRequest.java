@@ -24,16 +24,20 @@ package net.grinder.plugin.http;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 
 import HTTPClient.HTTPConnection;
 import HTTPClient.HTTPResponse;
 import HTTPClient.ModuleException;
 import HTTPClient.NVPair;
 import HTTPClient.ParseException;
+import HTTPClient.ProtocolNotSuppException;
 import HTTPClient.URI;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.Logger;
 import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.engine.process.PluginRegistry;
 
 /**
@@ -44,27 +48,28 @@ import net.grinder.engine.process.PluginRegistry;
  */ 
 public class HTTPRequest
 {
+    private static final PluginProcessContext s_processContext;
+
+    static
+    {
+	try {
+	    s_processContext =
+		PluginRegistry.getInstance().register(HTTPPlugin.class);
+	}
+	catch (GrinderException e) {
+	    throw new RuntimeException("Failed to register HTTPPlugin: " +
+				       e.getMessage());
+	}
+    }
+
     private URI m_uri;
     private NVPair[] m_defaultHeaders = new NVPair[0];
     private byte[] m_defaultData;
     private NVPair[] m_defaultFormData;
-    private final PluginRegistry.RegisteredPlugin m_registeredPlugin;
 
-    public HTTPRequest() throws GrinderException
+    public HTTPRequest()
     {
-	m_registeredPlugin =
-	    PluginRegistry.getInstance().register(HTTPPlugin.class);
     }
-
-    public Object dispatch(DelayedInvocation o) throws GrinderException
-    {
-	final HTTPPlugin.HTTPPluginThreadCallbacks threadCallbacks =
-	    (HTTPPlugin.HTTPPluginThreadCallbacks) 
-	    m_registeredPlugin.getPluginThreadCallbacks();
-
-	return threadCallbacks.makeRequest(o);
-    }
-
 
     /**
      * Gets the value of m_uri.
@@ -151,52 +156,45 @@ public class HTTPRequest
 	m_defaultFormData = formData;
     }
 
-    public final HTTPResponse DELETE()
-	throws GrinderException, ParseException
+    public final HTTPResponse DELETE() throws Exception
     {
 	return DELETE(getUri().getPath(), getHeaders());
     }
 
-    public final HTTPResponse DELETE(String path)
-	throws GrinderException, ParseException
+    public final HTTPResponse DELETE(String path) throws Exception
     {
 	return DELETE(path, getHeaders());
     }
 
     public final HTTPResponse DELETE(final String path,
-				     final NVPair[] headers)
-	throws GrinderException, ParseException
+				     final NVPair[] headers) throws Exception
     {
-	return (HTTPResponse)dispatch(
-	    new DelayedInvocation(path) {
-		public HTTPResponse request(HTTPConnection connection) 
-		    throws IOException, ModuleException {
-		    return connection.Delete(path, headers);
-		}});
+	final RequestState requestState = new RequestState(path);
+
+	return requestState.processResponse(
+	    requestState.getConnection().Delete(path, headers));
     }
 
-    public final HTTPResponse GET()
-	throws GrinderException, ParseException
+    public final HTTPResponse GET() throws Exception
     {
 	return GET(getUri().getPath(), getUri().getQueryString(),
 		   getHeaders());
     }
 
-    public final HTTPResponse GET(String path)
-	throws GrinderException, ParseException
+    public final HTTPResponse GET(String path) throws Exception
     {
 	// Path is specified, so don't use default query string.
 	return GET(path, null, getHeaders());
     }
 
     public final HTTPResponse GET(String path, String queryString)
-	throws GrinderException, ParseException
+	throws Exception
     {
 	return GET(path, queryString, getHeaders());
     }
 
     public final HTTPResponse GET(String path, NVPair[] headers)
-	throws GrinderException, ParseException
+	throws Exception
     {
 	// Path is specified, so don't use default query string.
 	return GET(path, null, headers);
@@ -205,40 +203,34 @@ public class HTTPRequest
     public final HTTPResponse GET(final String path,
 				  final String queryString,
 				  final NVPair[] headers)
-	throws GrinderException, ParseException
+	throws Exception
     {
-	return (HTTPResponse)dispatch(
-	    new DelayedInvocation(path) {
-		public HTTPResponse request(HTTPConnection connection) 
-		    throws IOException, ModuleException {
-		    return connection.Get(path,
-					  queryString,
-					  headers);
-		}});
+	final RequestState requestState = new RequestState(path);
+
+	return requestState.processResponse(
+	    requestState.getConnection().Get(path, queryString, headers));
     }
 
-    public final HTTPResponse HEAD()
-	throws GrinderException, ParseException
+    public final HTTPResponse HEAD() throws Exception
     {
 	return HEAD(getUri().getPath(), getUri().getQueryString(),
 		    getHeaders());
     }
 
-    public final HTTPResponse HEAD(String path)
-	throws GrinderException, ParseException
+    public final HTTPResponse HEAD(String path) throws Exception
     {
 	// Path is specified, so don't use default query string.
 	return HEAD(path, null, getHeaders());
     }
 
     public final HTTPResponse HEAD(String path, String queryString)
-	throws GrinderException, ParseException
+	throws Exception
     {
 	return HEAD(path, queryString, getHeaders());
     }
 
     public final HTTPResponse HEAD(String path, NVPair[] headers)
-	throws GrinderException, ParseException
+	throws Exception
     {
 	// Path is specified, so don't use default query string.
 	return HEAD(path, null, headers);
@@ -246,68 +238,52 @@ public class HTTPRequest
 
     public final HTTPResponse HEAD(final String path,
 				   final String queryString,
-				   final NVPair[] headers)
-	throws GrinderException, ParseException
+				   final NVPair[] headers) throws Exception
     {
-	return (HTTPResponse)dispatch(
-	    new DelayedInvocation(path) {
-		public HTTPResponse request(HTTPConnection connection) 
-		    throws IOException, ModuleException {
-		    return connection.Head(path,
-					   queryString,
-					   headers);
-		}});
+	final RequestState requestState = new RequestState(path);
+
+	return requestState.processResponse(
+	    requestState.getConnection().Head(path, queryString, headers));
     }
 
-    public final HTTPResponse OPTIONS()
-	throws GrinderException, ParseException
+    public final HTTPResponse OPTIONS() throws Exception
     {
 	return OPTIONS(getUri().getPath(), getHeaders(), getData());
     }
 
-    public final HTTPResponse OPTIONS(String path)
-	throws GrinderException, ParseException
+    public final HTTPResponse OPTIONS(String path) throws Exception
     {
 	return OPTIONS(path, getHeaders(), getData());
     }
 
     public final HTTPResponse OPTIONS(final String path,
-				      final NVPair[] headers)
-	throws GrinderException, ParseException
+				      final NVPair[] headers) throws Exception
     {
 	return OPTIONS(path, headers, getData());
     }
 
     public final HTTPResponse OPTIONS(final String path,
-				      final byte[] data)
-	throws GrinderException, ParseException
+				      final byte[] data) throws Exception
     {
 	return OPTIONS(path, getHeaders(), data);
     }
 
     public final HTTPResponse OPTIONS(final String path,
 				      final NVPair[] headers,
-				      final byte[] data)
-	throws GrinderException, ParseException
+				      final byte[] data) throws Exception
     {
-	return (HTTPResponse)dispatch(
-	    new DelayedInvocation(path) {
-		public HTTPResponse request(HTTPConnection connection) 
-		    throws IOException, ModuleException {
-		    return connection.Options(path,
-					      headers,
-					      data);
-		}});
+	final RequestState requestState = new RequestState(path);
+
+	return requestState.processResponse(
+	    requestState.getConnection().Options(path, headers, data));
     }
 
-    public final HTTPResponse POST()
-	throws GrinderException, ParseException
+    public final HTTPResponse POST() throws Exception
     {
 	return POST(getUri().getPath());
     }
 
-    public final HTTPResponse POST(String path)
-	throws GrinderException, ParseException
+    public final HTTPResponse POST(String path) throws Exception
     {
 	final byte[] data = getData();
 
@@ -319,138 +295,158 @@ public class HTTPRequest
 	}
     }
 
-    public final HTTPResponse POST(String path,
-				   NVPair[] formData)
-	throws GrinderException, ParseException
+    public final HTTPResponse POST(String path, NVPair[] formData)
+	throws Exception
     {
 	return POST(path, formData, getHeaders());
     }
 
     public final HTTPResponse POST(final String path,
 				   final NVPair[] formData,
-				   final NVPair[] headers)
-	throws GrinderException, ParseException
+				   final NVPair[] headers) throws Exception
     {
-	return (HTTPResponse)dispatch(
-	    new DelayedInvocation(path) {
-		public HTTPResponse request(HTTPConnection connection) 
-		    throws IOException, ModuleException {
-		    return connection.Post(path,
-					   formData,
-					   headers);
-		}});
+	final RequestState requestState = new RequestState(path);
+
+	return requestState.processResponse(
+	    requestState.getConnection().Post(path, formData, headers));
     }
 
     public final HTTPResponse POST(String path,
-				   byte[] data)
-	throws GrinderException, ParseException
+				   byte[] data) throws Exception
     {
 	return POST(path, data, getHeaders());
     }
 
     public final HTTPResponse POST(final String path,
 				   final byte[] data,
-				   final NVPair[] headers)
-	throws GrinderException, ParseException
+				   final NVPair[] headers) throws Exception
     {
-	return (HTTPResponse)dispatch(
-	    new DelayedInvocation(path) {
-		public HTTPResponse request(HTTPConnection connection) 
-		    throws IOException, ModuleException {
-		    return connection.Post(path,
-					   data,
-					   headers);
-		}});
+	final RequestState requestState = new RequestState(path);
+
+	return requestState.processResponse(
+	    requestState.getConnection().Post(path, data, headers));
     }
 
-    public final HTTPResponse PUT()
-	throws GrinderException, ParseException
+    public final HTTPResponse PUT() throws Exception
     {
 	return PUT(getUri().getPath(), getData(), getHeaders());
     }
 
-    public final HTTPResponse PUT(String path)
-	throws GrinderException, ParseException
+    public final HTTPResponse PUT(String path) throws Exception
     {
 	return PUT(path, getData(), getHeaders());
     }
 
-    public final HTTPResponse PUT(String path, byte[] data)
-	throws GrinderException, ParseException
+    public final HTTPResponse PUT(String path, byte[] data) throws Exception
     {
 	return PUT(path, data, getHeaders());
     }
 
     public final HTTPResponse PUT(String path, NVPair[] headers)
-	throws GrinderException, ParseException
+	throws Exception
     {
 	return PUT(path, getData(), headers);
     }
 
     public final HTTPResponse PUT(final String path,
 				  final byte[] data,
-				  final NVPair[] headers)
-	throws GrinderException, ParseException
+				  final NVPair[] headers) throws Exception
     {
-	return (HTTPResponse)dispatch(
-	    new DelayedInvocation(path) {
-		public HTTPResponse request(HTTPConnection connection) 
-		    throws IOException, ModuleException {
-		    return connection.Put(path,
-					  data,
-					  headers);
-		}});
+	final RequestState requestState = new RequestState(path);
+
+	return requestState.processResponse(
+	    requestState.getConnection().Put(path, data, headers));
     }
 
-    public final HTTPResponse TRACE()
-	throws GrinderException, ParseException
+    public final HTTPResponse TRACE() throws Exception
     {
 	return TRACE(getUri().getPath(), getHeaders());
     }
 
-    public final HTTPResponse TRACE(String path)
-	throws GrinderException, ParseException
+    public final HTTPResponse TRACE(String path) throws Exception
     {
 	return TRACE(path, getHeaders());
     }
 
     public final HTTPResponse TRACE(final String path, final NVPair[] headers)
-	throws GrinderException, ParseException
+	throws Exception
     {
-	return (HTTPResponse)dispatch(
-	    new DelayedInvocation(path) {
-		public HTTPResponse request(HTTPConnection connection) 
-		    throws IOException, ModuleException {
-		    return connection.Trace(path, headers);
-		}});
-    } 
+	final RequestState requestState = new RequestState(path);
 
-    abstract class DelayedInvocation
+	return requestState.processResponse(
+	    requestState.getConnection().Trace(path, headers));
+    }
+
+    private final class RequestState
     {
-	private final URI m_uri;
+	private final HTTPPluginThreadState m_threadState;
+	private final HTTPConnectionWrapper m_connectionWrapper;
 	private final String m_path;
 
-	DelayedInvocation(String path) throws ParseException {
+	public RequestState(String path)
+	    throws GrinderException, ParseException, ProtocolNotSuppException
+	{
+	    m_threadState =
+		(HTTPPluginThreadState)
+		s_processContext.getPluginThreadListener();
+
 	    if (isAbsolute(path)) {
-		m_uri = new URI(path);
+		m_connectionWrapper =
+		    m_threadState.getConnectionWrapper(new URI(path));
+
 		m_path = m_uri.getPathAndQuery();
 	    }
 	    else {
-		m_uri = HTTPRequest.this.m_uri;
+		m_connectionWrapper =
+		    m_threadState.getConnectionWrapper(m_uri);
+
 		m_path = path;
 	    }
 	}
 
-	public final URI getURI() {
-	    return m_uri;
+	public final HTTPConnection getConnection()
+	{
+	    return m_connectionWrapper.getConnection();
 	}
 
-	public final String getPath() {
+	public String getPath()
+	{
 	    return m_path;
 	}
+
+	public final HTTPResponse processResponse(HTTPResponse httpResponse)
+	    throws IOException, ModuleException
+	{
+	    httpResponse.getData();
+	    httpResponse.getInputStream().close();
 	
-	public abstract HTTPResponse request(HTTPConnection connection)
-	    throws IOException, ModuleException;
+	    final int statusCode = httpResponse.getStatusCode();
+
+	    final String message =
+		httpResponse.getOriginalURI() + " -> " + statusCode + " " +
+		httpResponse.getReasonLine();
+
+	    final Logger logger = m_threadState.getThreadContext();
+	    
+	    switch (statusCode) {
+	    case HttpURLConnection.HTTP_MOVED_PERM:
+	    case HttpURLConnection.HTTP_MOVED_TEMP:
+	    case 307:
+		// It would be possible to perform the check
+		// automatically, but for now just chuck out some
+		// information.
+		logger.output(message +
+			      " [Redirect, ensure the next URL is " + 
+			      httpResponse.getHeader("Location") + "]");
+		break;
+
+	    default:
+		logger.output(message);
+		break;
+	    }
+
+	    return httpResponse;
+	}
     }
 
     private static final boolean isAbsolute(String uri)
@@ -459,8 +455,11 @@ public class HTTPRequest
 	int  pos = 0;
 	int len = uri.length();
 
-	while (pos < len && (ch = uri.charAt(pos)) != ':' &&
-	       ch != '/' && ch != '?' &&  ch != '#') {
+	while (pos < len &&
+	       (ch = uri.charAt(pos)) != ':' && 
+	       ch != '/' &&
+	       ch != '?' &&
+	       ch != '#') {
 	    pos++;
 	}
 	    

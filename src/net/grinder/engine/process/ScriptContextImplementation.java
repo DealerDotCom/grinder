@@ -34,7 +34,6 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.script.ScriptContext;
-import net.grinder.script.ScriptPluginContext;
 
 
 /**
@@ -111,14 +110,5 @@ class ScriptContextImplementation implements ScriptContext
 	}
 
 	threadContext.getSleeper().sleepNormal(meanTime, sigma);
-    }
-
-    public ScriptPluginContext getPlugin(Class pluginClass)
-	throws GrinderException
-    {
-	final PluginRegistry.RegisteredPlugin registeredPlugin =
-	    m_processContext.getPluginRegistry().register(pluginClass);
-
-	return registeredPlugin.getPlugin().getScriptPluginContext();
     }
 }

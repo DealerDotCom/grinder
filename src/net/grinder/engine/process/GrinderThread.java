@@ -27,7 +27,7 @@ import java.util.Iterator;
 import net.grinder.common.GrinderProperties;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.PluginThreadCallbacks;
+import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.util.Sleeper;
 
 
@@ -169,34 +169,34 @@ class GrinderThread implements java.lang.Runnable
 	{
 	    final Iterator iterator =
 		m_processContext.getPluginRegistry().
-		getPluginThreadCallbacksList(m_context).iterator();
+		getPluginThreadListenerList(m_context).iterator();
 
 	    while (iterator.hasNext()) {
-		final PluginThreadCallbacks pluginThreadCallbacks =
-		    (PluginThreadCallbacks)iterator.next();
+		final PluginThreadListener pluginThreadListener =
+		    (PluginThreadListener)iterator.next();
 		
-		doOne(pluginThreadCallbacks);
+		doOne(pluginThreadListener);
 	    }
 	}
 
 	protected abstract void doOne(
-	    PluginThreadCallbacks pluginThreadCallbacks)
+	    PluginThreadListener pluginThreadListener)
 	    throws EngineException;
     }
 
     private final PluginThreadCaller m_beginRunPluginThreadCaller =
 	new PluginThreadCaller() {
-	    protected void doOne(PluginThreadCallbacks pluginThreadCallbacks)
+	    protected void doOne(PluginThreadListener pluginThreadListener)
 		throws EngineException {
 		try {
-		    pluginThreadCallbacks.beginRun();
+		    pluginThreadListener.beginRun();
 		}
 		catch (PluginException e) {
 		    final ThreadLogger logger = m_context.getThreadLogger();
 
 		    logger.error(
 			"Aborting thread - " +
-			pluginThreadCallbacks.getClass().getName() +
+			pluginThreadListener.getClass().getName() +
 			".beginRun() threw " + e);
 		    e.printStackTrace(logger.getErrorLogWriter());
 
@@ -207,17 +207,17 @@ class GrinderThread implements java.lang.Runnable
 
     private final PluginThreadCaller m_endRunPluginThreadCaller =
 	new PluginThreadCaller() {
-	    protected void doOne(PluginThreadCallbacks pluginThreadCallbacks)
+	    protected void doOne(PluginThreadListener pluginThreadListener)
 		throws EngineException {
 		try {
-		    pluginThreadCallbacks.endRun();
+		    pluginThreadListener.endRun();
 		}
 		catch (PluginException e) {
 		    final ThreadLogger logger = m_context.getThreadLogger();
 
 		    logger.error(
 			"Aborting thread - " +
-			pluginThreadCallbacks.getClass().getName() +
+			pluginThreadListener.getClass().getName() +
 			".endRun() threw " + e);
 		    e.printStackTrace(logger.getErrorLogWriter());
 

@@ -46,8 +46,7 @@ public interface HTTPPluginConnection
 
     void clearAllBasicAuthorizations();
 
-    void addDigestAuthorization(String realm, String user,
-				String password);
+    void addDigestAuthorization(String realm, String user, String password);
 
     void clearAllDigestAuthorizations();
 

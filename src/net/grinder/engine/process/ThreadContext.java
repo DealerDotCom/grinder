@@ -29,7 +29,6 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.PluginThreadCallbacks;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;

@@ -19,62 +19,56 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.plugin.java;
+package net.grinder.plugin.http;
+
+import HTTPClient.ParseException;
+import HTTPClient.ProtocolNotSuppException;
+import HTTPClient.URI;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.Test;
-import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.plugininterface.PluginException;
+import net.grinder.engine.process.PluginRegistry;
 import net.grinder.plugininterface.PluginProcessContext;
-import net.grinder.plugininterface.PluginThreadCallbacks;
-import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.plugininterface.PluginTest;
-import net.grinder.script.ScriptPluginContext;
 
 
 /**
- * Java plugin.
- * 
+ * Facade through which script can control the behaviour of the HTTPPlugin.
+ *
  * @author Philip Aston
  * @version $Revision$
  **/
-public class JavaPlugin implements GrinderPlugin
+public final class HTTPPluginControl
 {
-    public void initialize(PluginProcessContext processContext)
-    {
-    }
+    private static final PluginProcessContext s_processContext;
 
-    public PluginThreadCallbacks createThreadCallbackHandler(
-	PluginThreadContext threadContext)
+    static
     {
-	return new JavaPluginThreadCallbacks();
-    }
-
-    private static class JavaPluginThreadCallbacks
-	implements PluginThreadCallbacks
-    {
-	public void beginRun() throws PluginException
-	{
+	try {
+	    s_processContext =
+		PluginRegistry.getInstance().register(HTTPPlugin.class);
 	}
-
-	public Object invokeTest(Test test, Object parameters)
-	    throws PluginException
-	{
-	    return ((Invokeable)parameters).invoke();
-	}
-
-	public void endRun() throws PluginException
-	{
+	catch (GrinderException e) {
+	    throw new RuntimeException("Failed to register HTTPPlugin: " +
+				       e.getMessage());
 	}
     }
 
-    public final ScriptPluginContext getScriptPluginContext()
+    public static final HTTPPluginConnection getConnectionDefaults()
     {
-	return null;
+	return HTTPPluginConnectionDefaults.getDefaultConnectionDefaults();
     }
 
-    interface Invokeable 
+    public static final HTTPPluginConnection getConnectionDefaults(String uri)
+	throws ParseException, ProtocolNotSuppException
     {
-	public Object invoke();
+	return HTTPPluginConnectionDefaults.getConnectionDefaults(uri);
+    }
+
+    public static final HTTPPluginConnection getThreadConnection(String uri)
+	throws GrinderException, ParseException, ProtocolNotSuppException
+    {
+	final HTTPPluginThreadState threadState =
+	    (HTTPPluginThreadState)s_processContext.getPluginThreadListener();
+	    
+	return threadState.getConnectionWrapper(new URI(uri));
     }
 }

@@ -25,7 +25,6 @@ package net.grinder.plugininterface;
 import java.util.Set;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.script.ScriptPluginContext;
 
 
 /**
@@ -43,8 +42,6 @@ public interface GrinderPlugin
      * @param processContext Process information. {@link
      * PluginProcessContext} implements {@link Logger} but for
      * efficiency the implementation isn't synchronised. 
-     * @param testsFromPropertiesFile The tests defined in the
-     * properties file. The plugin may or may not care about these.
      */
     public void initialize(PluginProcessContext processContext)
 	throws PluginException;
@@ -57,12 +54,10 @@ public interface GrinderPlugin
      * net.grinder.common.Logger} but for efficiency the
      * implementation isn't synchronised. Consequently you should only
      * call this object using the thread that which the engine uses to
-     * invoke the {@link PluginThreadCallbacks}.
+     * invoke the {@link PluginThreadListener}.
+     * @return a <code>PluginThreadListener</code> implementation.
      */
-    public PluginThreadCallbacks createThreadCallbackHandler(
+    public PluginThreadListener createThreadListener(
 	PluginThreadContext pluginThreadContext)
-	throws PluginException;
-
-    public ScriptPluginContext getScriptPluginContext()
 	throws PluginException;
 }

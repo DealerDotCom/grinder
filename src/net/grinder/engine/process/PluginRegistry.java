@@ -27,11 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.PluginThreadCallbacks;
 
 
 /**
@@ -92,11 +89,9 @@ public final class PluginRegistry
 		    (GrinderPlugin)pluginClass.newInstance();
 
 		final RegisteredPlugin registeredPlugin =
-		    new RegisteredPlugin(plugin);
+		    new RegisteredPlugin(plugin, m_processContext);
 
-		plugin.initialize(
-		    new PluginProcessContextImplementation(registeredPlugin,
-							   m_processContext));
+		plugin.initialize(registeredPlugin);
     
 		m_plugins.put(pluginClass, registeredPlugin);
 
@@ -113,60 +108,7 @@ public final class PluginRegistry
 	}
     }
 
-    public static final class RegisteredPlugin 
-    {
-	private final GrinderPlugin m_plugin;
-	private final ThreadLocal m_threadCallbacksThreadLocal = 
-	    new ThreadLocal();
-
-	RegisteredPlugin(GrinderPlugin plugin) 
-	{
-	    m_plugin = plugin;
-	}
-
-	public final GrinderPlugin getPlugin()
-	{
-	    return m_plugin;
-	}
-
-	public final PluginThreadCallbacks getPluginThreadCallbacks()
-	    throws EngineException
-	{
-	    // TODO handle if not worker thread.
-	    return getPluginThreadCallbacks(ThreadContext.getThreadInstance());
-	}
-
-	final PluginThreadCallbacks getPluginThreadCallbacks(
-	    ThreadContext threadContext) throws EngineException
-	{
-	    final PluginThreadCallbacks existingPluginThreadCallbacks =
-		(PluginThreadCallbacks)m_threadCallbacksThreadLocal.get();
-	    
-	    if (existingPluginThreadCallbacks != null) {
-		return existingPluginThreadCallbacks;
-	    }
-
-	    try {
-		final PluginThreadCallbacks newPluginThreadCallbacks =
-		    m_plugin.createThreadCallbackHandler(threadContext);
-
-		m_threadCallbacksThreadLocal.set(newPluginThreadCallbacks);
-
-		return newPluginThreadCallbacks;
-	    }
-	    catch (PluginException e) {
-		final Logger logger = threadContext.getThreadLogger();
-
-		logger.error("Thread could not initialise plugin" + e);
-		e.printStackTrace(logger.getErrorLogWriter());
-
-		throw new EngineException(
-		    "Thread could not initialise plugin", e);
-	    }
-	}
-    }
-
-    final List getPluginThreadCallbacksList(ThreadContext threadContext)
+    final List getPluginThreadListenerList(ThreadContext threadContext)
 	throws EngineException
     {
 	synchronized(m_plugins) {
@@ -179,7 +121,7 @@ public final class PluginRegistry
 		    (RegisteredPlugin)iterator.next();
 		
 		result.add(
-		    registeredPlugin.getPluginThreadCallbacks(threadContext));
+		    registeredPlugin.getPluginThreadListener(threadContext));
 	    }
 
 	    return result;

@@ -50,27 +50,6 @@ public interface PluginThreadContext extends Logger, FilenameFactory
      */
     public int getCurrentRunNumber();
 
-    /**
-     * The plug-in should call startTimer() if it wishes to have more
-     * precise control over the measured section of code. The Grinder
-     * automatically sets the start time before calling a method -
-     * calling this method overrides the start time with the current
-     * time.
-     *
-     * @see #stopTimer
-     */
-    public void startTimer();
-
-    /**
-     * The plug-in should call stopTimer() if it wishes to have more
-     * precise control over the measured section of code. The Grinder
-     * automatically sets the end time after calling a method unless
-     * the method called stopTimer().
-     *
-     * @see #startTimer
-     */
-    public void stopTimer();
-
     public long getStartTime();
 
     public TestStatistics getCurrentTestStatistics();

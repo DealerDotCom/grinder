@@ -1,4 +1,5 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2000 Paco Gomez
+// Copyright (C) 2000, 2001, 2002 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,20 +20,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.script;
+package net.grinder.plugininterface;
 
-import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.common.Test;
 
 
 /**
- * Marker interface for contextual handle that Plugins can make
- * available to scripts.
+ * This interface defines the callbacks that an individual Grinder
+ * thread can make on a plugin.
  *
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface ScriptPluginContext
+public interface PluginThreadListener
 {
+    /**
+     * This method is executed at the beginning of every run. Scripts
+     * might create their first tests in the middle of a run and
+     * indirectly cause the plugin to be registered at that point, so
+     * don't rely on this being called before the first test.
+     **/
+    public void beginRun() throws PluginException;
+
+    /**
+     * This method is executed at the end of every run.
+     **/  
+    public void endRun() throws PluginException;
 }

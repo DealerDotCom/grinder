@@ -71,18 +71,9 @@ public interface PluginProcessContext extends Logger, FilenameFactory
 	throws GrinderException;
 
     /**
-     * Check whether this process is reporting times to the console or
-     * not. Refer to the <code>grinder.recordTime</code> property for
-     * more information.
-     *
-     * @return <code>true => this process should report times.
-     **/
-    boolean getRecordTime();
-
-    /**
-     * Return the {@link PluginThreadCallbacks} for the current
+     * Return the {@link PluginThreadListener} for the current
      * thread.
      */
-    PluginThreadCallbacks getPluginThreadCallbacks()
+    PluginThreadListener getPluginThreadListener()
 	throws GrinderException;
 }

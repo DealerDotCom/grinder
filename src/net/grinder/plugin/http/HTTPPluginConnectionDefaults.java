@@ -22,10 +22,15 @@
 package net.grinder.plugin.http;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import HTTPClient.NVPair;
+import HTTPClient.ParseException;
+import HTTPClient.ProtocolNotSuppException;
+import HTTPClient.URI;
 
 
 /**
@@ -204,5 +209,56 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
     final int getProxyPort()
     {
 	return m_proxyPort;
+    }
+
+    private static final HTTPPluginConnectionDefaults
+	s_defaultConnectionDefaults = new HTTPPluginConnectionDefaults();
+
+    private static final Map m_connectionDefaults = new HashMap();
+
+    final static HTTPPluginConnectionDefaults getDefaults(URI keyURI)
+    {
+	synchronized (m_connectionDefaults) {
+	    final HTTPPluginConnectionDefaults connectionSpecificDefaults =
+		(HTTPPluginConnectionDefaults)
+		m_connectionDefaults.get(keyURI);
+
+	    if (connectionSpecificDefaults != null) {
+		return connectionSpecificDefaults;
+	    }
+
+	    return s_defaultConnectionDefaults;
+	}
+    }
+
+    public static final HTTPPluginConnection getDefaultConnectionDefaults() 
+    {
+	return s_defaultConnectionDefaults;
+    }
+
+    public static final HTTPPluginConnection getConnectionDefaults(
+	String uriString)
+	throws ParseException, ProtocolNotSuppException
+    {
+	final URI uri = new URI(uriString);
+	    
+	final URI keyURI =
+	    new URI(uri.getScheme(), uri.getHost(), uri.getPort(), "");
+
+	synchronized (m_connectionDefaults) {
+	    final HTTPPluginConnection existingConnectionDefaults =
+		(HTTPPluginConnection)m_connectionDefaults.get(keyURI);
+
+	    if (existingConnectionDefaults != null) {
+		return existingConnectionDefaults;
+	    }
+
+	    final HTTPPluginConnection newConnectionDefaults =
+		new HTTPPluginConnectionDefaults();
+
+	    m_connectionDefaults.put(keyURI, newConnectionDefaults);
+
+	    return newConnectionDefaults;
+	}
     }
 }

@@ -34,7 +34,7 @@ import HTTPClient.URI;
  * @author Philip Aston
  * @version $Revision$
  **/
-public final class HTTPConnectionWrapper implements HTTPPluginConnection
+final class HTTPConnectionWrapper implements HTTPPluginConnection
 {
     private final static Class s_redirectionModule;
     
