@@ -1,5 +1,10 @@
 2001-10-16  Philip Aston  <paston@bea.com>
 
+	* TODO, src/net/grinder/common/AbstractTestSemantics.java, src/net/grinder/common/TestImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/ThreadContext.java:
+	TestData doesn't need to implement AbstractTestSemantics. This means
+	that we can go back to the sensible state of affairs where
+	AbstractTestSemantics is a Test, and can toString().
+
 	* src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java:
 	More rudimentary dynamic registration.
 
