@@ -1,6 +1,22 @@
+2001-10-12  Philip Aston  <paston@bea.com>
+
+	* examples/http/grinder.properties: Bring up to date.
+
+	* src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/SwingDispatchedModelListener.java, src/net/grinder/console/swingui/SwingDispatchedSampleListener.java, src/net/grinder/console/swingui/TestGraphPanel.java, tests-src/net/grinder/console/swingui/AllTests.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedSampleListener.java:
+	Correctly dispatch Swing work in Swing thread.
+
 2001-10-08  Philip Aston  <paston@bea.com>
 
+	* src/net/grinder/console/ConsoleCommunication.java:
+	Fix race condition.
+
+	* src/net/grinder/common/TestImplementation.java, src/net/grinder/communication/Message.java, src/net/grinder/communication/Receiver.java, src/net/grinder/communication/Sender.java, tests-src/net/grinder/communication/TestSenderAndReceiver.java:
+	Fix Receiver shutdown code
+
 	* README: Update documentation.
+
+	* src/net/grinder/common/GrinderProperties.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/statistics/StatisticsImplementation.java, src/net/grinder/util/Serialiser.java:
+	Javadoc fixes.
 
 	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties:
 	Colour code state label.
