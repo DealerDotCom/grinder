@@ -38,10 +38,15 @@ The Grinder includes Ronald Tschalär's HTTPClient library
 (http://www.innovation.ch/java/HTTPClient/index.html). The HTTPClient
 library is distributed under the GNU Lesser Public License. Under the
 term 6 of the GNU Lesser Public License, The Grinder is a "work that
-uses the Library". See doc/HTTPClient-license.txt for details of the
-GNU Lesser Public License.
+uses the Library". See the file LICENSE-HTTPClient for license and
+copyright details.
+
+The Grinder includes the software Jython, created by Jum Hugunin,
+Barry Warsaw and the Jython team. See the file LICENSE-Jython for
+license and copyright details.
 
 The Grinder includes software developed by the Apache Software
 Foundation (http://www.apache.org/), specifically the Jakarta ORO
-regular expression library. See doc/Jakarta-ORO-license.txt for
-license details.
+regular expression library. See the file LICENSE-Jakarta-ORO for
+license and copyright details.
+

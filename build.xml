@@ -133,7 +133,7 @@ what you want. Currently the conditionally built modules are:
 
   <patternset id="license.patternset">
     <include name="AUTHORS"/>
-    <include name="LICENSE"/>
+    <include name="LICENSE*"/>
     <include name="README"/>
   </patternset>
 
@@ -146,9 +146,8 @@ what you want. Currently the conditionally built modules are:
     <echo message="** Building ${Name} ${version} on ${TODAY} **"/>
 
     <path id="build.classpath">
-      <pathelement path="${jakarta-oro.dir}/${jakarta-oro.jar}"/>
       <pathelement path="${jtidy.classpath}"/>
-      <pathelement path="${jython.classpath}"/>
+      <pathelement path="${jython.dir}/${jython.jar}"/>
       <pathelement path="${servlet.classpath}"/>
       <pathelement path="${xalan.classpath}"/>
       <pathelement path="${classes.dir}"/>
@@ -182,9 +181,14 @@ what you want. Currently the conditionally built modules are:
                classname="org.w3c.tidy.Tidy"
                property="have.jtidy"/>
 
+    <!-- ORO is shipped with Jython. -->
     <available classpathref="build.classpath"
                classname="org.apache.oro.text.regex.Pattern"
                property="have.oro"/>
+
+    <available classpathref="build.classpath"
+               classname="org.python.core.PyObject"
+               property="have.jython"/>
 
     <available classpathref="build.classpath"
                classname="org.apache.xpath.XPathAPI"
@@ -234,7 +238,11 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <target name="assert-have-oro" depends="init" unless="have.oro">
-    <fail message="Define jakarta-oro.dir and jakarta-oro.jar in etc/localpaths.properties to build this target"/>
+    <fail message="Can't find Jakarta ORO, should be part of jython.jar"/>
+  </target>
+
+  <target name="assert-have-jython" depends="init" unless="have.jython">
+    <fail message="Define jython.dir and jython.jar in etc/localpaths.properties to build this target"/>
   </target>
 
   <target name="assert-have-xalan" depends="init" unless="have.xalan">
@@ -273,7 +281,8 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Copy resources into the classes hierarchy, and bundled libraries.    -->
   <!-- =================================================================== -->
-  <target name="copy-resources" depends="init,assert-have-oro"
+  <target name="copy-resources"
+	  depends="init,assert-have-jython,assert-have-oro"
 	  description="Copies the resource files into build output">
     <copy todir="${classes.dir}">
       <fileset dir="${src.dir}"  includes="**/resources/*.gif"/>
@@ -288,7 +297,7 @@ what you want. Currently the conditionally built modules are:
       <fileset dir="${test-src.dir}" includes="**/data/*"/>
     </copy>
     <copy todir="${lib.dir}">
-      <fileset dir="${jakarta-oro.dir}" includes="${jakarta-oro.jar}"/>
+      <fileset dir="${jython.dir}" includes="${jython.jar}"/>
     </copy>
   </target>
 
@@ -470,7 +479,7 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <target name="all"
-          depends="assert-have-everything,test,jar,sniff-war,javadoc,xweb"/>
+          depends="assert-have-everything,jar,sniff-war,javadoc,xweb"/>
 
   <target name="dist" depends="all" description="Generates distribution.">
     <antcall target="do-dist">
@@ -478,7 +487,7 @@ what you want. Currently the conditionally built modules are:
     </antcall>
   </target>
 
-  <target name="release" depends="realclean,all"
+  <target name="release" depends="realclean,all,test"
           description="Generates a release.">
 
     <echo message="Running cvs diff"/>
