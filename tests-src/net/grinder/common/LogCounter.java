@@ -41,22 +41,22 @@ public class LogCounter implements Logger
     private CountingPrintWriter m_outputLineCounter =
 	new CountingPrintWriter(new NullWriter());
 
-    public void logError(String message)
+    public void error(String message)
     {
 	++m_numberOfErrors;
     }
 
-    public void logError(String message, int where)
+    public void error(String message, int where)
     {
 	++m_numberOfErrors;
     }
 
-    public void logMessage(String message)
+    public void output(String message)
     {
 	++m_numberOfMessages;
     }
 
-    public void logMessage(String message, int where)
+    public void output(String message, int where)
     {
 	++m_numberOfMessages;
     }
