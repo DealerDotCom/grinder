@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,7 +32,6 @@ import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 
-import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.DisplayMessageConsoleException;
@@ -76,16 +75,20 @@ public final class ConsoleProperties {
     "grinder.console.resetConsoleWithProcesses";
 
   /** Property name. */
-  public static final String RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY =
-    "grinder.console.resetConsoleWithProcessesDontAsk";
+  public static final String RESET_CONSOLE_WITH_PROCESSES_ASK_PROPERTY =
+    "grinder.console.resetConsoleWithProcessesAsk";
 
   /** Property name. */
-  public static final String SCRIPT_NOT_SET_DONT_ASK_PROPERTY =
-    "grinder.console.scriptNotSetDontAsk";
+  public static final String SCRIPT_NOT_SET_ASK_PROPERTY =
+    "grinder.console.scriptNotSetAsk";
 
   /** Property name. */
-  public static final String STOP_PROCESSES_DONT_ASK_PROPERTY =
-    "grinder.console.stopProcessesDontAsk";
+  public static final String START_WITH_UNSAVED_BUFFERS_ASK_PROPERTY =
+    "grinder.console.startWithUnsavedBuffersAsk";
+
+  /** Property name. */
+  public static final String STOP_PROCESSES_ASK_PROPERTY =
+    "grinder.console.stopProcessesAsk";
 
   /** Property name. */
   public static final String SCRIPT_FILE_PROPERTY =
@@ -111,13 +114,22 @@ public final class ConsoleProperties {
   private int m_sampleInterval;
   private int m_significantFigures;
   private boolean m_resetConsoleWithProcesses;
-  private boolean m_resetConsoleWithProcessesDontAsk;
-  private boolean m_scriptNotSetDontAsk;
-  private boolean m_stopProcessesDontAsk;
   private File m_scriptFile;
   private File m_distributionDirectory;
   private Pattern m_distributionFileFilterPattern;
   private String m_lookAndFeel;
+
+  private AskBoolean m_resetConsoleWithProcessesAsk =
+    new AskBoolean(RESET_CONSOLE_WITH_PROCESSES_ASK_PROPERTY);
+
+  private AskBoolean m_scriptNotSetAsk =
+    new AskBoolean(SCRIPT_NOT_SET_ASK_PROPERTY);
+
+  private AskBoolean m_startWithUnsavedBuffersAsk =
+    new AskBoolean(START_WITH_UNSAVED_BUFFERS_ASK_PROPERTY);
+
+  private AskBoolean m_stopProcessesAsk =
+    new AskBoolean(STOP_PROCESSES_ASK_PROPERTY);
 
   /**
    *We hang onto the host as a string so we can copy and externalise
@@ -139,17 +151,22 @@ public final class ConsoleProperties {
    *
    * @param resources Console resources.
    * @param file The properties file.
-   * @exception GrinderException If the properties file cannot be
-   * read. In particular a {@link
-   * net.grinder.console.common.DisplayMessageConsoleException} If the
-   * properties file contains invalid data.
+   * @exception DisplayMessageConsoleException If the properties file
+   * cannot be read or the properties file contains invalid data.
    *
    */
   public ConsoleProperties(Resources resources, File file)
-    throws GrinderException {
+    throws DisplayMessageConsoleException {
 
     m_resources = resources;
-    m_properties = new GrinderProperties(file);
+
+    try {
+      m_properties = new GrinderProperties(file);
+    }
+    catch (GrinderProperties.PersistenceException e) {
+      throw new DisplayMessageConsoleException(
+        m_resources, "couldNotLoadOptionsError.text", e);
+    }
 
     setCollectSampleCount(
       m_properties.getInt(COLLECT_SAMPLES_PROPERTY, 0));
@@ -168,16 +185,6 @@ public final class ConsoleProperties {
     setResetConsoleWithProcesses(
       m_properties.getBoolean(RESET_CONSOLE_WITH_PROCESSES_PROPERTY, false));
 
-    setResetConsoleWithProcessesDontAskInternal(
-      m_properties.getBoolean(RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
-                              false));
-
-    setScriptNotSetDontAskInternal(
-      m_properties.getBoolean(SCRIPT_NOT_SET_DONT_ASK_PROPERTY, false));
-
-    setStopProcessesDontAskInternal(
-      m_properties.getBoolean(STOP_PROCESSES_DONT_ASK_PROPERTY, false));
-
     setScriptFile(m_properties.getFile(SCRIPT_FILE_PROPERTY, null));
 
     setDistributionDirectory(
@@ -188,6 +195,11 @@ public final class ConsoleProperties {
         DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY, null));
 
     setLookAndFeel(m_properties.getProperty(LOOK_AND_FEEL_PROPERTY, null));
+
+    m_resetConsoleWithProcessesAsk.setFromProperties();
+    m_scriptNotSetAsk.setFromProperties();
+    m_startWithUnsavedBuffersAsk.setFromProperties();
+    m_stopProcessesAsk.setFromProperties();
   }
 
   /**
@@ -208,22 +220,25 @@ public final class ConsoleProperties {
    * @param properties The properties to copy.
    */
   public void set(ConsoleProperties properties) {
-    setCollectSampleCountInternal(properties.m_collectSampleCount);
-    setIgnoreSampleCountInternal(properties.m_ignoreSampleCount);
-    setSampleIntervalInternal(properties.m_sampleInterval);
-    setSignificantFiguresInternal(properties.m_significantFigures);
-    setConsoleHostInternal(properties.m_consoleHostString);
-    setConsolePortInternal(properties.m_consolePort);
-    setResetConsoleWithProcesses(properties.m_resetConsoleWithProcesses);
-    setResetConsoleWithProcessesDontAskInternal(
-      properties.m_resetConsoleWithProcessesDontAsk);
-    setScriptNotSetDontAskInternal(properties.m_scriptNotSetDontAsk);
-    setStopProcessesDontAskInternal(properties.m_stopProcessesDontAsk);
-    setScriptFile(properties.m_scriptFile);
-    setDistributionDirectory(properties.m_distributionDirectory);
+    setCollectSampleCountInternal(properties.getCollectSampleCount());
+    setIgnoreSampleCountInternal(properties.getIgnoreSampleCount());
+    setSampleIntervalInternal(properties.getSampleInterval());
+    setSignificantFiguresInternal(properties.getSignificantFigures());
+    setConsoleHostInternal(properties.getConsoleHost());
+    setConsolePortInternal(properties.getConsolePort());
+    setResetConsoleWithProcesses(properties.getResetConsoleWithProcesses());
+    setScriptFile(properties.getScriptFile());
+    setDistributionDirectory(properties.getDistributionDirectory());
     setDistributionFileFilterPattern(
-      properties.m_distributionFileFilterPattern);
-    setLookAndFeel(properties.m_lookAndFeel);
+      properties.getDistributionFileFilterPattern());
+    setLookAndFeel(properties.getLookAndFeel());
+
+    m_resetConsoleWithProcessesAsk.set(
+      properties.getResetConsoleWithProcessesAsk());
+    m_scriptNotSetAsk.set(properties.getScriptNotSetAsk());
+    m_startWithUnsavedBuffersAsk.set(
+      properties.getStartWithUnsavedBuffersAsk());
+    m_stopProcessesAsk.set(properties.getStopProcessesAsk());
   }
 
   /**
@@ -250,9 +265,9 @@ public final class ConsoleProperties {
   /**
    * Save to the associated file.
    *
-   * @exception GrinderException if an error occurs
+   * @exception DisplayMessageConsoleException If an error occurs.
    */
-  public void save() throws GrinderException {
+  public void save() throws DisplayMessageConsoleException {
     m_properties.setInt(COLLECT_SAMPLES_PROPERTY, m_collectSampleCount);
     m_properties.setInt(IGNORE_SAMPLES_PROPERTY, m_ignoreSampleCount);
     m_properties.setInt(SAMPLE_INTERVAL_PROPERTY, m_sampleInterval);
@@ -261,13 +276,6 @@ public final class ConsoleProperties {
     m_properties.setInt(CONSOLE_PORT_PROPERTY, m_consolePort);
     m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_PROPERTY,
                             m_resetConsoleWithProcesses);
-    m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
-                            m_resetConsoleWithProcessesDontAsk);
-    m_properties.setBoolean(SCRIPT_NOT_SET_DONT_ASK_PROPERTY,
-                            m_scriptNotSetDontAsk);
-    m_properties.setBoolean(STOP_PROCESSES_DONT_ASK_PROPERTY,
-                            m_stopProcessesDontAsk);
-
     if (m_scriptFile != null) {
       m_properties.setFile(SCRIPT_FILE_PROPERTY, m_scriptFile);
     }
@@ -282,7 +290,18 @@ public final class ConsoleProperties {
       m_properties.setProperty(LOOK_AND_FEEL_PROPERTY, m_lookAndFeel);
     }
 
-    m_properties.save();
+    m_resetConsoleWithProcessesAsk.setToProperties();
+    m_scriptNotSetAsk.setToProperties();
+    m_startWithUnsavedBuffersAsk.setToProperties();
+    m_stopProcessesAsk.setToProperties();
+
+    try {
+      m_properties.save();
+    }
+    catch (GrinderProperties.PersistenceException e) {
+      throw new DisplayMessageConsoleException(
+          m_resources, "couldNotSaveOptionsError.text", e);
+    }
   }
 
   /**
@@ -540,33 +559,21 @@ public final class ConsoleProperties {
    *
    * @return <code>true</code> => the user wants to be asked.
    */
-  public boolean getResetConsoleWithProcessesDontAsk() {
-    return m_resetConsoleWithProcessesDontAsk;
+  public boolean getResetConsoleWithProcessesAsk() {
+    return m_resetConsoleWithProcessesAsk.get();
   }
 
   /**
-   * Set that the user doesn't want to be asked if console should be
-   * reset with the worker processes.
-   * @exception GrinderException If the property couldn't be persisted.
+   * Set whether the user wants to be asked if console should be reset
+   * with the worker processes.
+   *
+   * @param value <code>true</code> => the user wants to be asked.
+   * @exception DisplayMessageConsoleException If the property couldn't be persisted.
    */
-  public void setResetConsoleWithProcessesDontAsk() throws GrinderException {
-
-    setResetConsoleWithProcessesDontAskInternal(true);
-
-    m_properties.setBoolean(
-      RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY, true);
-    m_properties.saveSingleProperty(
-      RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY);
-  }
-
-  private void setResetConsoleWithProcessesDontAskInternal(boolean b) {
-
-    final boolean old = m_resetConsoleWithProcessesDontAsk;
-    m_resetConsoleWithProcessesDontAsk = b;
-
-    m_changeSupport.firePropertyChange(
-      RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
-      old, m_resetConsoleWithProcessesDontAsk);
+  public void setResetConsoleWithProcessesAsk(boolean value)
+    throws DisplayMessageConsoleException {
+    m_resetConsoleWithProcessesAsk.set(value);
+    m_resetConsoleWithProcessesAsk.save();
   }
 
   /**
@@ -575,30 +582,45 @@ public final class ConsoleProperties {
    *
    * @return <code>true</code> => the user wants to be asked.
    */
-  public boolean getScriptNotSetDontAsk() {
-    return m_scriptNotSetDontAsk;
+  public boolean getScriptNotSetAsk() {
+    return m_scriptNotSetAsk.get();
   }
 
   /**
-   * Set that the user doesn't want to be asked if console should be
-   * reset with the worker processes.
-   * @exception GrinderException If the property couldn't be persisted.
+   * Set whether the user wants to be asked if console should be reset
+   * with the worker processes.
+   *
+   * @param value <code>true</code> => the user wants to be asked.
+   * @exception DisplayMessageConsoleException If the property couldn't be persisted.
    */
-  public void setScriptNotSetDontAsk() throws GrinderException {
-
-    setScriptNotSetDontAskInternal(true);
-
-    m_properties.setBoolean(SCRIPT_NOT_SET_DONT_ASK_PROPERTY, true);
-    m_properties.saveSingleProperty(SCRIPT_NOT_SET_DONT_ASK_PROPERTY);
+  public void setScriptNotSetAsk(boolean value)
+    throws DisplayMessageConsoleException {
+    m_scriptNotSetAsk.set(value);
+    m_scriptNotSetAsk.save();
   }
 
-  private void setScriptNotSetDontAskInternal(boolean b) {
 
-    final boolean old = m_scriptNotSetDontAsk;
-    m_scriptNotSetDontAsk = b;
+  /**
+   * Get whether the user wants to be warned when starting processes
+   * with unsaved buffers.
+   *
+   * @return <code>true</code> => the user wants to be warned.
+   */
+  public boolean getStartWithUnsavedBuffersAsk() {
+    return m_startWithUnsavedBuffersAsk.get();
+  }
 
-    m_changeSupport.firePropertyChange(
-      SCRIPT_NOT_SET_DONT_ASK_PROPERTY, old, m_scriptNotSetDontAsk);
+  /**
+   * Set whether the user wants to be warned when starting processes
+   * with unsaved buffers.
+   *
+   * @param value <code>true</code> => the user wants to be warned.
+   * @exception DisplayMessageConsoleException If the property couldn't be persisted.
+   */
+  public void setStartWithUnsavedBuffersAsk(boolean value)
+    throws DisplayMessageConsoleException {
+    m_startWithUnsavedBuffersAsk.set(value);
+    m_startWithUnsavedBuffersAsk.save();
   }
 
   /**
@@ -607,30 +629,21 @@ public final class ConsoleProperties {
    *
    * @return <code>true</code> => the user wants to be asked.
    */
-  public boolean getStopProcessesDontAsk() {
-    return m_stopProcessesDontAsk;
+  public boolean getStopProcessesAsk() {
+    return m_stopProcessesAsk.get();
   }
 
   /**
-   * Set that the user doesn't want to be asked to confirm that
-   * processes should be stopped.
-   * @exception GrinderException If the property couldn't be persisted.
+   * Set whether the user wants to be asked to confirm that processes
+   * should be stopped.
+   *
+   * @param value <code>true</code> => the user wants to be asked.
+   * @exception DisplayMessageConsoleException If the property couldn't be persisted.
    */
-  public void setStopProcessesDontAsk() throws GrinderException {
-
-    setStopProcessesDontAskInternal(true);
-
-    m_properties.setBoolean(STOP_PROCESSES_DONT_ASK_PROPERTY, true);
-    m_properties.saveSingleProperty(STOP_PROCESSES_DONT_ASK_PROPERTY);
-  }
-
-  private void setStopProcessesDontAskInternal(boolean b) {
-
-    final boolean old = m_stopProcessesDontAsk;
-    m_stopProcessesDontAsk = b;
-
-    m_changeSupport.firePropertyChange(
-      STOP_PROCESSES_DONT_ASK_PROPERTY, old, m_stopProcessesDontAsk);
+  public void setStopProcessesAsk(boolean value)
+    throws DisplayMessageConsoleException {
+    m_stopProcessesAsk.set(value);
+    m_stopProcessesAsk.save();
   }
 
   /**
@@ -697,12 +710,20 @@ public final class ConsoleProperties {
    * Save the distribution directory property value to the user's
    * preferences file.
    *
-   * @throws GrinderException If the property could not be saved.
+   * @throws DisplayMessageConsoleException If the property could not be saved.
    */
-  public void saveDistributionDirectory() throws GrinderException {
+  public void saveDistributionDirectory()
+    throws DisplayMessageConsoleException {
     m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
                          m_distributionDirectory);
-    m_properties.saveSingleProperty(DISTRIBUTION_DIRECTORY_PROPERTY);
+
+    try {
+      m_properties.saveSingleProperty(DISTRIBUTION_DIRECTORY_PROPERTY);
+    }
+    catch (GrinderProperties.PersistenceException e) {
+      throw new DisplayMessageConsoleException(
+        m_resources, "couldNotSaveOptionsError.text", e);
+    }
   }
 
   /**
@@ -786,5 +807,45 @@ public final class ConsoleProperties {
     m_lookAndFeel = lookAndFeel;
     m_changeSupport.firePropertyChange(
       LOOK_AND_FEEL_PROPERTY, old, m_lookAndFeel);
+  }
+
+  private final class AskBoolean {
+    private final String m_propertyName;
+    private boolean m_value = true;
+
+    public AskBoolean(String propertyName) {
+      m_propertyName = propertyName;
+    }
+
+    public void setFromProperties() {
+      set(m_properties.getBoolean(m_propertyName, true));
+    }
+
+    public void setToProperties() {
+      m_properties.setBoolean(m_propertyName, m_value);
+    }
+
+    public boolean get() {
+      return m_value;
+    }
+
+    public void set(boolean b) {
+      final boolean old = m_value;
+      m_value = b;
+
+      m_changeSupport.firePropertyChange(m_propertyName, old, m_value);
+    }
+
+    public void save() throws DisplayMessageConsoleException {
+      setToProperties();
+
+      try {
+        m_properties.saveSingleProperty(m_propertyName);
+      }
+      catch (GrinderProperties.PersistenceException e) {
+        throw new DisplayMessageConsoleException(
+          m_resources, "couldNotSaveOptionsError.text", e);
+      }
+    }
   }
 }

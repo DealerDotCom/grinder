@@ -211,103 +211,66 @@ public class TestConsoleProperties extends TestCase {
     }.doTest();
   }
 
-  public void testResetConsoleWithProcessesDontAsk() throws Exception {
+  public void testResetConsoleWithProcessesAsk() throws Exception {
 
-    final String propertyName =
-      ConsoleProperties.RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY;
+    new TestBooleanTemplate(
+      ConsoleProperties.RESET_CONSOLE_WITH_PROCESSES_ASK_PROPERTY) {
 
-    writePropertyToFile(propertyName, "false");
+      protected boolean get(ConsoleProperties properties) {
+        return properties.getResetConsoleWithProcessesAsk();
+      }
 
-    final ConsoleProperties properties =
-      new ConsoleProperties(s_resources, m_file);
-
-    assertTrue(!properties.getResetConsoleWithProcessesDontAsk());
-
-    final PropertyChangeEvent expected =
-      new PropertyChangeEvent(properties, propertyName, 
-			      new Boolean(false), new Boolean(true));
-
-    final ChangeListener listener = new ChangeListener(expected);
-    final ChangeListener listener2 = new ChangeListener(expected);
-
-    properties.addPropertyChangeListener(listener);
-    properties.addPropertyChangeListener(propertyName, listener2);
-
-    properties.setResetConsoleWithProcessesDontAsk();
-    
-    final ConsoleProperties properties2 =
-      new ConsoleProperties(s_resources, m_file);
-
-    assertTrue(properties2.getResetConsoleWithProcessesDontAsk());
-
-    listener.assertCalledOnce();
-    listener2.assertCalledOnce();
+      protected void set(ConsoleProperties properties, boolean b)
+        throws Exception {
+        properties.setResetConsoleWithProcessesAsk(b);
+      }
+    }.doTest();
   }
 
-  public void testSetScriptNotSetDontAsk() throws Exception {
+  public void testSetScriptNotSetAsk() throws Exception {
 
-    final String propertyName =
-      ConsoleProperties.SCRIPT_NOT_SET_DONT_ASK_PROPERTY;
+    new TestBooleanTemplate(ConsoleProperties.SCRIPT_NOT_SET_ASK_PROPERTY) {
 
-    writePropertyToFile(propertyName, "false");
+      protected boolean get(ConsoleProperties properties) {
+        return properties.getScriptNotSetAsk();
+      }
 
-    final ConsoleProperties properties =
-      new ConsoleProperties(s_resources, m_file);
-
-    assertTrue(!properties.getScriptNotSetDontAsk());
-
-    final PropertyChangeEvent expected =
-      new PropertyChangeEvent(properties, propertyName, 
-			      new Boolean(false), new Boolean(true));
-
-    final ChangeListener listener = new ChangeListener(expected);
-    final ChangeListener listener2 = new ChangeListener(expected);
-
-    properties.addPropertyChangeListener(listener);
-    properties.addPropertyChangeListener(propertyName, listener2);
-
-    properties.setScriptNotSetDontAsk();
-
-    final ConsoleProperties properties2 =
-      new ConsoleProperties(s_resources, m_file);
-
-    assertTrue(properties2.getScriptNotSetDontAsk());
-
-    listener.assertCalledOnce();
-    listener2.assertCalledOnce();
+      protected void set(ConsoleProperties properties, boolean b)
+        throws Exception {
+        properties.setScriptNotSetAsk(b);
+      }
+    }.doTest();
   }
 
-  public void testStopProcessesDontAsk() throws Exception {
+  public void testStartWithUnsavedBuffersAsk() throws Exception {
 
-    final String propertyName =
-      ConsoleProperties.STOP_PROCESSES_DONT_ASK_PROPERTY;
+    new TestBooleanTemplate(
+      ConsoleProperties.START_WITH_UNSAVED_BUFFERS_ASK_PROPERTY) {
 
-    writePropertyToFile(propertyName, "false");
+      protected boolean get(ConsoleProperties properties) {
+        return properties.getStartWithUnsavedBuffersAsk();
+      }
 
-    final ConsoleProperties properties =
-      new ConsoleProperties(s_resources, m_file);
+      protected void set(ConsoleProperties properties, boolean b)
+        throws Exception {
+        properties.setStartWithUnsavedBuffersAsk(b);
+      }
+    }.doTest();
+  }
 
-    assertTrue(!properties.getStopProcessesDontAsk());
+  public void testStopProcessesAsk() throws Exception {
 
-    final PropertyChangeEvent expected =
-      new PropertyChangeEvent(properties, propertyName, 
-			      new Boolean(false), new Boolean(true));
+    new TestBooleanTemplate(ConsoleProperties.STOP_PROCESSES_ASK_PROPERTY) {
 
-    final ChangeListener listener = new ChangeListener(expected);
-    final ChangeListener listener2 = new ChangeListener(expected);
+      protected boolean get(ConsoleProperties properties) {
+        return properties.getStopProcessesAsk();
+      }
 
-    properties.addPropertyChangeListener(listener);
-    properties.addPropertyChangeListener(propertyName, listener2);
-
-    properties.setStopProcessesDontAsk();
-    
-    final ConsoleProperties properties2 =
-      new ConsoleProperties(s_resources, m_file);
-
-    assertTrue(properties2.getStopProcessesDontAsk());
-
-    listener.assertCalledOnce();
-    listener2.assertCalledOnce();
+      protected void set(ConsoleProperties properties, boolean b)
+        throws Exception {
+        properties.setStopProcessesAsk(b);
+      }
+    }.doTest();
   }
 
   public void testScriptFile() throws Exception {
@@ -400,9 +363,12 @@ public class TestConsoleProperties extends TestCase {
     assertEquals(p1.getConsolePort(), p2.getConsolePort());
     assertEquals(p1.getResetConsoleWithProcesses(),
 		 p2.getResetConsoleWithProcesses());
-    assertEquals(p1.getResetConsoleWithProcessesDontAsk(),
-		 p2.getResetConsoleWithProcessesDontAsk());
-    assertEquals(p1.getStopProcessesDontAsk(), p2.getStopProcessesDontAsk());
+    assertEquals(p1.getResetConsoleWithProcessesAsk(),
+		 p2.getResetConsoleWithProcessesAsk());
+    assertEquals(p1.getScriptNotSetAsk(), p2.getScriptNotSetAsk());
+    assertEquals(p1.getStartWithUnsavedBuffersAsk(),
+                 p2.getStartWithUnsavedBuffersAsk());
+    assertEquals(p1.getStopProcessesAsk(), p2.getStopProcessesAsk());
     assertEquals(p1.getScriptFile(), p2.getScriptFile());
     assertEquals(p1.getDistributionDirectory(), p2.getDistributionDirectory());
     assertEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
@@ -418,8 +384,10 @@ public class TestConsoleProperties extends TestCase {
     p2.setConsoleHost("99.99.99.99");
     p2.setConsolePort(99);
     p2.setResetConsoleWithProcesses(true);
-    p2.setResetConsoleWithProcessesDontAsk();
-    p2.setStopProcessesDontAsk();
+    p2.setResetConsoleWithProcessesAsk(false);
+    p2.setScriptNotSetAsk(false);
+    p2.setStartWithUnsavedBuffersAsk(false);
+    p2.setStopProcessesAsk(false);
     p2.setScriptFile(new File("foo"));
     p2.setDistributionDirectory(new File("bah"));
     p2.setLookAndFeel("something");
@@ -432,9 +400,12 @@ public class TestConsoleProperties extends TestCase {
     assertTrue(p1.getConsolePort() != p2.getConsolePort());
     assertTrue(p1.getResetConsoleWithProcesses() !=
 	       p2.getResetConsoleWithProcesses());
-    assertTrue(p1.getResetConsoleWithProcessesDontAsk() !=
-	       p2.getResetConsoleWithProcessesDontAsk());
-    assertTrue(p1.getStopProcessesDontAsk() != p2.getStopProcessesDontAsk());
+    assertTrue(p1.getResetConsoleWithProcessesAsk() !=
+	       p2.getResetConsoleWithProcessesAsk());
+    assertTrue(p1.getScriptNotSetAsk() != p2.getScriptNotSetAsk());
+    assertTrue(p1.getStartWithUnsavedBuffersAsk() !=
+               p2.getStartWithUnsavedBuffersAsk());
+    assertTrue(p1.getStopProcessesAsk() != p2.getStopProcessesAsk());
     AssertUtilities.assertNotEquals(p1.getScriptFile(), p2.getScriptFile());
     AssertUtilities.assertNotEquals(p1.getDistributionDirectory(),
                                     p2.getDistributionDirectory());
@@ -450,9 +421,12 @@ public class TestConsoleProperties extends TestCase {
     assertEquals(p1.getConsolePort(), p2.getConsolePort());
     assertTrue(p1.getResetConsoleWithProcesses() ==
 	       p2.getResetConsoleWithProcesses());
-    assertTrue(p1.getResetConsoleWithProcessesDontAsk() ==
-	       p2.getResetConsoleWithProcessesDontAsk());
-    assertTrue(p1.getStopProcessesDontAsk() == p2.getStopProcessesDontAsk());
+    assertTrue(p1.getResetConsoleWithProcessesAsk() ==
+	       p2.getResetConsoleWithProcessesAsk());
+    assertTrue(p1.getScriptNotSetAsk() == p2.getScriptNotSetAsk());
+    assertTrue(p1.getStartWithUnsavedBuffersAsk() ==
+	       p2.getStartWithUnsavedBuffersAsk());
+    assertTrue(p1.getStopProcessesAsk() == p2.getStopProcessesAsk());
     assertEquals(p1.getScriptFile(), p2.getScriptFile());
     assertEquals(p1.getDistributionDirectory(), p2.getDistributionDirectory());
     assertEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
@@ -628,9 +602,11 @@ public class TestConsoleProperties extends TestCase {
       listener2.assertCalledOnce();
     }
 
-    protected abstract boolean get(ConsoleProperties properties);
+    protected abstract boolean get(ConsoleProperties properties)
+      throws Exception;
 
-    protected abstract void set(ConsoleProperties properties, boolean b);
+    protected abstract void set(ConsoleProperties properties, boolean b)
+      throws Exception;
   }
 
   private String getRandomString() {
