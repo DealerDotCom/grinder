@@ -20,7 +20,7 @@ Now guess where I ripped this off from? :-)
 Ant
 ===
 
-The Grinder build system is based on Jakarta Ant, which is a Java
+The Grinder build system is based on Jakarta Ant 1.3, which is a Java
 building tool originally developed for the Jakarta Tomcat project but
 now used in many other Apache projects and extended by many
 developers.
@@ -35,7 +35,7 @@ What do I do?
 
 Do the following:
 
-	1. Acquire and install Ant 1.2
+	1. Acquire and install Ant 1.3
 	   (http://jakarta.apache.org/ant/index.html).
 
 	2. Set/export ANT_HOME, JAVA_HOME and PATH as described
@@ -58,10 +58,7 @@ conditionally built modules are:
    HTTP SSL plugin (Needs the JSSE 1.0.2)
    TCPSniffer SSL engine (Needs the JSSE 1.0.2)
    TCPSniffer HTTP plugin filter (Needs Apache Jakarta Regexp 1.2)
-   JUnit test cases (needs JUnit 3.4 and Ant 1.2 optional.jar)
-
-Ant hint for cygwin users: Copy "ant" from the Ant bin directory into
-a directory earilier in your path and run it through sed -e 's#:#;#g'
+   JUnit test cases (needs JUnit 3.4 and Ant 1.3 optional.jar)
 
 -->
 
