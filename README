@@ -78,9 +78,9 @@ Its easy:
 	3. Say
 		java net.grinder.Grinder
 
-If you want to use the console, tweak the following properties	
+If you want to use the Console, tweak the following properties	
 
-	grinder.waitForConsoleSignal
+	grinder.receiveConsoleSignals
 	grinder.multicastAddress
 	grinder.multicastPort
 
@@ -178,22 +178,27 @@ What can I set in grinder.properties?
     grinder.appendLog	-	Append to, rather than overwrite,
 				existing log files.
 
-    grinder.waitForConsoleSignal -
-				Set to true to wait for a signal from
-				the console before starting.
+    grinder.receiveConsoleSignals -
+				Set to true to respond to Console
+				"start" and "stop" signals. This will
+				mean that the test cycles will not
+				start until a Console signal is
+				recieved.
 
-    grinder.reportToConsole -	Set to true to send stats to the console.
+    grinder.reportToConsole -	Set to true to send stats to the Console.
 
     grinder.multicastAddress -  The multicast address to use for
 				communication between the grinder
-				processes and the console.
+				processes and the Console.
+				(See "What do I need to do to set up
+				multicast?" below).
 
     grinder.multicastPort -     The multicast port to use for communication
-				from the console to the grinder processes.
+				from the Console to the grinder processes.
 
     grinder.console.multicastPort -
 				The multicast port to use for communication
-				from the grinder processes to the console.
+				from the grinder processes to the Console.
 
     grinder.thread.beginCycleSleepTime	-
 				The time in milliseconds to wait before
@@ -234,7 +239,7 @@ What can I set in grinder.properties?
 
     grinder.test0.description -	Information string used in the log
 			 	files. Will be used in the
-				console in the future.
+				Console in the future.
 
     grinder.test0.sleepTime -	Override grinder.thread.sleepTime
 				for a specific test.
@@ -532,6 +537,20 @@ failing) and "Errors" (which occur when tests throw exceptions). If a
 test causes _either_ a Failure or an Error, the Grinder "Errors" count
 for that test is incremented by one. Currently running tests should
 not cause Grinder "Abortions".
+
+
+What do I need to do to set up multicast?
+*****************************************
+
+For most modern TCP stacks, e.g Windows 95/98/NT, Linux, multicast
+works out of the box.
+
+Under Linux, you may also need to set up the routing table. Try:
+
+ $ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
+
+Some Windows VPN clients (e.g Bay Networks Extranet) interfere with
+multicast. You may need to disable them.
 
 
 Development goals
