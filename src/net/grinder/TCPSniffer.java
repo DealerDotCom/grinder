@@ -53,7 +53,10 @@ public class TCPSniffer
 	    "\n" +
 	    "\n   [-requestFilter <filter>]      Add request filter" +
 	    "\n   [-responseFilter <filter>]     Add response filter" +
-	    "\n   [-httpPluginFilter]            See below" +
+	    "\n   [-httpPluginFilter             See below" +
+	    "\n     [-norewriteURLs]             See below" +
+	    "\n     [-proxy]                     See below" +
+	    "\n   ]" +
 	    "\n   [-localPort <port>]            Default is 8001" +
 	    "\n   [-remoteHost <host name>]      Default is localhost" +
 	    "\n   [-remotePort <port>]           Default is 7001" +
@@ -69,6 +72,12 @@ public class TCPSniffer
 	    "\n" +
 	    "\n -httpPluginFilter is a synonym for" +
 	    "\n   '-requestFilter HTTP_PLUGIN -responseFilter NONE'" +
+	    "\n" +
+	    "\n -norewriteURLs will cause absolute URLs to remoteHost in" +
+	    "\n    pages from remoteHost not to be rewritten as relative" +
+	    "\n    URLs." +
+	    "\n" +
+	    "\n -proxy means the sniffer will act as an http proxy" +
 	    "\n"
 	    );
 
@@ -86,8 +95,12 @@ public class TCPSniffer
     private SnifferEngine m_snifferEngine = null;
     private final String SSL_ENGINE_CLASS =
 	"net.grinder.tools.tcpsniffer.SSLSnifferEngineImpl";
+    private final String PROXY_ENGINE_CLASS =
+	"net.grinder.plugin.http.HttpProxySnifferEngineImpl";
     private final String HTTP_PLUGIN_FILTER_CLASS =
 	"net.grinder.plugin.http.HttpPluginSnifferFilter";
+    private final String URL_REWRITE_FILTER_CLASS =
+	"net.grinder.plugin.http.URLRewriteFilter";
 
     private TCPSniffer(String args[])
     {
@@ -100,6 +113,8 @@ public class TCPSniffer
 	boolean useSSL = false;
 	String keystore = null;
 	String keystorePassword = null;
+	boolean rewriteURLs = true;
+	boolean proxy = false;
 
 	int i = 0;
 
@@ -134,6 +149,13 @@ public class TCPSniffer
 		else if (args[i].equals("-password")) {
 		    keystorePassword = args[++i];
 		}
+				else if (args[i].equals("-norewriteURLs")) {
+					rewriteURLs = false;
+				}
+				else if (args[i].equals("-proxy")) {
+					proxy = true;
+					rewriteURLs = false;					
+				}
 		else {
 		    throw barfUsage();
 		}
@@ -143,6 +165,29 @@ public class TCPSniffer
 	}
 	catch (Exception e) {
 	    throw barfUsage();
+	}
+
+	if (proxy) {
+	    // we need a better way of detecting if these have been set
+	    if( !remoteHost.equals("localhost") || remotePort != 7001) {
+		throw barfUsage("Don't set remoteHost or remotePort while "
+				+ "using the sniffer in proxy mode");
+	    }
+
+	    if (!filterIsHttpFilter(requestFilter)) {
+		throw barfUsage("Using proxy means " + 
+				"request filter needs to be " + 
+				HTTP_PLUGIN_FILTER_CLASS);
+	    }
+	}
+
+	if (rewriteURLs) {
+	    if (!filterIsHttpFilter(requestFilter)) {
+		throw barfUsage("Using rewriteURLs means " + 
+				"request filter needs to be " + 
+				HTTP_PLUGIN_FILTER_CLASS);
+	    }
+	    responseFilter = urlRewriteFilterInstance();
 	}
 
 	if (!useSSL) {
@@ -164,10 +209,18 @@ public class TCPSniffer
 	    " sniffer engine with the parameters:" +
 	    "\n   Request filter:  " + requestFilter.getClass().getName() +
 	    "\n   Response filter: " + responseFilter.getClass().getName() +
-	    "\n   Local port:       " + localPort +
-	    "\n   Remote host:      " + remoteHost +
-	    "\n   Remote port:      " + remotePort
-	    );
+	    "\n   Local port:       " + localPort);
+
+	if (!proxy) {
+	    startMessage.append(
+		"\n   Remote host:      " + remoteHost +
+		"\n   Remote port:      " + remotePort);
+	}
+
+	if (rewriteURLs) {
+	    startMessage.append(
+		"\n   Rewriting absolute URLs for http://" + remoteHost);
+	}
 
 	if (useSSL) {
 	    startMessage.append(
@@ -179,13 +232,45 @@ public class TCPSniffer
 	System.err.println(startMessage);
 
 	try {
-	    if (!useSSL) {
+
+	    // currently don't do an SSL proxy
+	    if (!useSSL && !proxy) {
 		m_snifferEngine =
 		    new SnifferEngineImpl(requestFilter,
 					  responseFilter,
 					  localPort,
 					  remoteHost,
 					  remotePort);
+	    }
+	    else if (!useSSL) {
+		// proxy engine uses regexp so load it dynamically
+		Class proxyEngineClass = null;
+		
+		try {
+		    proxyEngineClass = Class.forName(PROXY_ENGINE_CLASS);
+		}
+		catch (ClassNotFoundException e) {
+		    throw barfUsage("Proxy engine '" + PROXY_ENGINE_CLASS +
+				    "' not found." +
+				    "\n(You must install regexp to build it).");
+		}
+
+		final Class[] constructorSignature = {
+		    SnifferFilter.class,
+		    SnifferFilter.class,
+		    java.lang.Integer.TYPE };
+
+		final Constructor constructor = 
+		    proxyEngineClass.getConstructor(constructorSignature);
+
+		final Object[] arguments = {
+		    requestFilter,
+		    responseFilter,
+		    new Integer(localPort),
+		};
+
+		m_snifferEngine =
+		    (SnifferEngine)constructor.newInstance(arguments);
 	    }
 	    else {
 		// The SSL engine depends on JSSE. Load it dynamically
@@ -278,7 +363,7 @@ public class TCPSniffer
 			    "' does not have a default constructor");
 	}
     }
-        
+	
     public void run() 
     {
 	System.err.println("Starting engine");
@@ -301,6 +386,39 @@ public class TCPSniffer
 	catch (Exception e) {
 	    throw barfUsage("HTTP Plugin Filter '" + HTTP_PLUGIN_FILTER_CLASS +
 			    "' not found." +
+			    "\n(You must have Jakarta Regexp to build it).");
+	}
+    }
+
+    /**
+     * The RewriteURLFilter depends on Jakarta Regexp. Load it
+     * *dynamically so we can build without it.
+     */
+    private SnifferFilter urlRewriteFilterInstance() 
+    {
+	try {
+	    final Class urlRewriteFilter =
+		Class.forName(URL_REWRITE_FILTER_CLASS);
+
+	    return (SnifferFilter)urlRewriteFilter.newInstance();
+	}
+	catch (Exception e) {
+	    throw barfUsage("URL Rewrite Filter '" + URL_REWRITE_FILTER_CLASS +
+			    "' not found." +
+			    "\n(You must have Jakarta Regexp to build it).");
+	}
+    }
+
+    /** Check we have the filter set up as Http filter */
+    private boolean filterIsHttpFilter(SnifferFilter filter) {
+	Class httpFilterClass = null;
+	try {
+	    httpFilterClass = Class.forName(HTTP_PLUGIN_FILTER_CLASS);
+
+	    return httpFilterClass.isAssignableFrom(filter.getClass());
+	} catch (Exception e) {
+	    throw barfUsage("HTTP Plugin Filter '" + 
+			    HTTP_PLUGIN_FILTER_CLASS + "' not found." +
 			    "\n(You must have Jakarta Regexp to build it).");
 	}
     }
