@@ -170,8 +170,6 @@ what you want. Currently the conditionally built modules are:
       Jython. -->
       <pathelement path="${jakarta-oro.dir}/${jakarta-oro.jar}"/>
       <pathelement path="${jython.dir}/${jython.jar}"/>
-      <pathelement path="${servlet.classpath}"/>
-      <pathelement path="${xalan.classpath}"/>
       <pathelement path="${classes.dir}"/>
     </path>
 
@@ -204,10 +202,6 @@ what you want. Currently the conditionally built modules are:
     <available classpathref="build.classpath"
                classname="org.python.core.PyObject"
                property="have.jython"/>
-
-    <available classpathref="build.classpath"
-               classname="org.apache.xpath.XPathAPI"
-               property="have.xalan"/>
 
     <available classpathref="xweb.classpath"
                classname="net.sourceforge.xweb.backend.WebsiteProcessor"
@@ -244,16 +238,12 @@ what you want. Currently the conditionally built modules are:
     <fail message="Define jython.dir and jython.jar in etc/localpaths.properties to build this target"/>
   </target>
 
-  <target name="assert-have-xalan" depends="init" unless="have.xalan">
-    <fail message="Define xalan.classpath in etc/local.properties to build this target"/>
-  </target>
-
   <target name="assert-have-xweb" depends="init" unless="have.xweb">
     <fail message="Define xweb.dir in etc/local.properties to build this target"/>
   </target>
 
   <target name="assert-have-everything"
-	  depends="assert-have-jsse,assert-have-junit,assert-have-optional-tasks,assert-have-xalan,assert-have-xweb">
+	  depends="assert-have-jsse,assert-have-junit,assert-have-optional-tasks,assert-have-xweb">
   </target>
 
   <!-- =================================================================== -->
