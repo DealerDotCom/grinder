@@ -1,6 +1,9 @@
 2002-01-06  Philip Aston  <paston@bea.com>
 
-	* The Grinder 2.8.2 is released.	
+	* The Grinder 2.8.2 is released.
+
+	* src/HTTPClient/CookieModule.java, src/HTTPClient/HTTPConnection.java, src/HTTPClient/RespInputStream.java:
+	Undo accidental commmit.
 
 	* build.xml: Update year.
 
