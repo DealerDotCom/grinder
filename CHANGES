@@ -12,6 +12,9 @@ Grinder 3.0-beta15
   HTTPPluginTCPProxyFilter now records the User-Agent header. Thanks
   to Danny Faught for pointing out the opportunity.
 
+  Fix bug 852217 - sample interval jumps after I set it. Thanks to
+  Danny Faught for the report.
+
 
 Grinder 3.0-beta14
 ------------------

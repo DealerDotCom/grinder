@@ -81,7 +81,12 @@ class SamplingControlPanel extends JPanel {
     m_intervalSlider.addChangeListener(
       new ChangeListener() {
         public void stateChanged(ChangeEvent event) {
-          final int value = m_intervalSlider.getValue();
+          final int minimum = m_intervalSlider.getMinimum();
+          final int spacing = m_intervalSlider.getMinorTickSpacing();
+
+          final int value =
+            ((m_intervalSlider.getValue() - minimum) / spacing) * spacing +
+            minimum;
 
           setIntervalLabelText(intervalLabel, value);
 
