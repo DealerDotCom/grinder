@@ -19,14 +19,17 @@ href="mailto:grinder-use@lists.sf.net">grinder-use@lists.sf.net</a>.</p>
 
 <hr/>
 
-<h3><a name="hello-world">Hello world</a></h3>
+<h3><a name="hello-world">Hello World</a></h3>
 
 <p class="script-description">A minimal script that tests The Grinder
-logging facility.</p>
+logging facility. Shows the recommended style for scripts, with a
+<code>TestRunner</code> class. An instance of <code>TestRunner</code>
+will be created for each thread; this instance can be used to store
+thread-specific data.</p>
 
 <blockquote>
 
-    <pre>
+<pre>
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 
 log = grinder.getLogger().output
@@ -40,6 +43,60 @@ test1 = Test(1, &quot;<span class="string">Log method</span>&quot;)
 </pre>
 </blockquote>
 
+<hr/>
+
+<h3><a name="hello-world-functions">Hello World, with functions</a></h3>
+
+<p class="script-description">The <a href="#hello-world">Hello
+World</a> example re-written using functions.</p>
+
+<blockquote>
+<pre>
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+
+log = grinder.getLogger().output
+
+test1 = Test(1, &quot;<span class="string">Log method</span>&quot;)
+
+<span class="keyword">def</span> <span class="function-name">doRun</span>():
+    logTest = test1.wrap(log)
+    logTest(&quot;<span class="string">Hello World</span>&quot;)
+
+<span class="keyword">def</span> <span class="function-name">TestRunner</span>():
+    <span class="keyword">return</span> doRun
+</pre>
+</blockquote>
+
+<hr/>
+
+<h3><a name="http">Simple HTTP example</a></h3>
+
+<p class="script-description">Shows the retrieval of a single page via
+HTTP. The resulting page is written to a uniquely named file in the
+<code>log</code> directory.</p>
+
+<blockquote>
+<pre>
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+<span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
+
+test1 = Test(1, &quot;<span class="string">Request resource</span>&quot;)
+request1 = test1.wrap(HTTPRequest())
+
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        result = request1.GET(&quot;<span class="string">http://localhost:7001/</span>&quot;)
+        writeToFile(result.text)
+
+<span class="keyword">def</span> <span class="function-name">writeToFile</span>(text):
+    filename = grinder.getFilenameFactory().createFilename(
+        &quot;<span class="string">page</span>&quot;, &quot;<span class="string">-%d.html</span>&quot; % grinder.runNumber)
+
+    file = open(filename, &quot;<span class="string">w</span>&quot;)
+    <span class="keyword">print</span> &gt;&gt; file, text
+    file.close()
+</pre>
+</blockquote>
 
 <hr/>
 
@@ -53,7 +110,7 @@ and password fields to a special <code>j_security_check</code>
 page.</p>
 
 <blockquote>
-    <pre>
+<pre>
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
 <span class="keyword">from</span> HTTPClient <span class="keyword">import</span> NVPair
@@ -100,7 +157,7 @@ authenticationTest = Test(2, &quot;<span class="string">POST to j_security_check
 <p class="script-description">Some simple database playing with JDBC. </p>
 
 <blockquote>
-    <pre>
+<pre>
 <span class="keyword">from</span> java.sql <span class="keyword">import</span> DriverManager
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> oracle.jdbc <span class="keyword">import</span> OracleDriver
@@ -163,7 +220,7 @@ ensureClosed(connection)
 BEA WebLogic Server 7.0 examples.</p>
 
 <blockquote>
-    <pre>
+<pre>
 <span class="keyword">from</span> java.lang <span class="keyword">import</span> String
 <span class="keyword">from</span> java.util <span class="keyword">import</span> Properties,Random,HashMap
 <span class="keyword">from</span> javax.naming <span class="keyword">import</span> Context,InitialContext
@@ -223,6 +280,11 @@ random = Random()
 
 <h3><a name="web_service">Web Services</a></h3>
 
+<p class="script-description">To be written.</p>
+
+<h3><a name="web_service">Java Message Service</a></h3>
+
+<p class="script-description">To be written.</p>
 
 </body>
 </html>

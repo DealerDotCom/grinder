@@ -9,5 +9,37 @@
 href="../script-javadoc/index.html">script API</a> and the <a
 href="script-gallery.html">script gallery</a>.</em>
 
+<p class="draft-warning">Draft material follows</p>
+
+<h4>Using a HTTP proxy</h4>
+
+<blockquote>
+<pre>
+control = HTTPPluginControl.getConnectionDefaults()
+control.setProxyServer("localhost", 8001)
+</pre>
+</blockquote>
+
+<p>Setting HTTP proxy authentication:</p>
+
+<blockquote>
+<pre>
+connection = HTTPPluginControl.getThreadConnection("http://localhost:8001")
+connection.addBasicAuthorization("proxyrealm", "phil", "password")
+</pre>
+</blockquote>
+
+<p>(must be done from a worker thread.</p>
+
+<h4>Disabling persistent connections</h4>
+<blockquote>
+<pre>
+control = HTTPPluginControl.getConnectionDefaults()
+control.setDefaultHeaders(NVPair("Connection", "close"),))
+</pre>
+</blockquote>
+
+
+
 </body>
 </html>

@@ -9,7 +9,7 @@
 <img src="../images/console-screenshot.png" width="900" height="529"/>
 </blockquote>
 
-<h3>Process controls</h3>
+<h3><a name="process-controls">Process controls</a></h3>
 
 <p><em>Start processes</em>, <em>Reset processes</em> and <em>Stop
 processes</em> send signals to Grinder processes that are listening.
@@ -51,9 +51,9 @@ runs.</em></p>
 
 <p>The sample controls determine how the console captures reports from
 the worker processes. capture. It is important to understand that
-these control the console behaviour <em>only</em>. For example, they
-do not adjust the frequency at which the worker processes send reports
-(see <a
+these only control the console behaviour. For example, they do not
+adjust the frequency at which the worker processes send reports (see
+<a
 href="properties.html#grinder.reportToConsole.interval">grinder.reportToConsole.interval</a>
 for that). Additionally, the sample controls do not interact in any
 way with the process controls.</p>
@@ -92,9 +92,9 @@ translation.</p>
 </blockquote>
 
 <p> This translation will be automaically be the default for users
-with their local set correctly for the Spanish language. If your local
-is set otherwise and you are curious to try this out, specify the Java
-<code>user.langauge</code> system property.</p>
+with their locale set correctly for the Spanish language. If your
+locale is set otherwise and you are curious to try this out, specify
+the Java <code>user.langauge</code> system property.</p>
 
 <blockquote>
 <pre>

@@ -53,35 +53,44 @@ results.</p>
 <p>Its easy:</p>
 
 <ol>
-<li>Set your <code>CLASSPATH</code> to include the
-<code>grinder.jar</code> file in the <code>lib</code> directory.<p/></li>
-
-<li>Start the console:
-<p><code>java net.grinder.Console</code></p>
-</li>
 
 <li>Create a <a
 href="./properties.html"><code>grinder.properties</code></a> file
 which specifes general control information (how to contact the
 console, how many worker processes to use, ..), as well as the name of
-the Jython script that will be used to run the tests.<p/></li>
+the <a href="scripts.html">Jython script</a> that will be used to run
+the tests.<p/></li>
+
+<li>Set your <code>CLASSPATH</code> to include the
+<code>grinder.jar</code> file which can be found in the
+<code>lib</code> directory.<p/></li>
+
+<li>Start the console:
+<blockquote><pre>
+java net.grinder.Console
+</pre></blockquote>
+</li>
 
 <li>Start an agent process:
-<p><code>java net.grinder.Grinder</code></p>
+<blockquote><pre>
+java net.grinder.Grinder
+</pre></blockquote>
 </li>
 </ol>
 
-<p>The console can be used to start a test run. The agent process then
-forks child Java processes to do the work. You can also specify an
-explicit properties file as the first argument. For example:</p>
+<p>The <a href="console.html#process-controls">console controls</a>
+can be used to start a test run. The agent process then forks child
+Java processes to do the work. You can also specify an explicit
+properties file as the first argument. For example:</p>
 
-<blockquote><code>java net.grinder.Grinder
-myproperties</code></blockquote>
+<blockquote><pre>
+java net.grinder.Grinder myproperties
+</pre></blockquote>
 
-<p>The console does not read the grinder.properties file. It has its
-own options dialog (choose the <em>File/Options</em> menu option),
-which you should use to set the communication addresses and ports to
-match those in the grinder.properties files.</p>
+<p>The console does not read the <code>grinder.properties</code> file.
+It has its own options dialog (choose the <em>File/Options</em> menu
+option), which you should use to set the communication addresses and
+ports to match those in the <code>grinder.properties</code> files.</p>
 
 <p>When the worker processes execute, they dynamically inform the
 console of the tests that they encounter. If you start the console
@@ -90,6 +99,7 @@ button. This will cause the existing worker processes to exit and the
 agent process to start new child processes, which will update the
 console with the new test information.</p>
 
+<span class="sidebar">
 <h3>Network addresses</h3>
 
 <p>The worker processes listen for console signals on a multicast
@@ -101,7 +111,7 @@ console.</p>
 
 <p>If the default multicast addresses are not valid, alter following
 properties in the <code>grinder.properties</code> file before starting
-the Grinder agents</p>
+The Grinder agents</p>
 
 <pre>
         grinder.consoleAddress  (Address of machine running console)
@@ -109,6 +119,9 @@ the Grinder agents</p>
         grinder.grinderAddress  (Multicast address)
         grinder.grinderPort
 </pre>
+</span>
+
+<br/>
 
 <h1>Output</h1>
 
@@ -117,12 +130,11 @@ the Grinder agents</p>
 <code><em>host</em></code> is the machine host name and
 <code><em>n</em></code> is the worker process number. Errors will be
 written to <code>error-<em>host</em>-<em>n</em>.log</code>. If no
-errors occur, an error file will not be created.</p>
-
-<p>Data about individual test invocations is written into a file
-called <code>data-<em>host</em>-<em>n</em>.log</code>. This can be
-imported into a spreadsheet tool such as Microsoft Excel&#8482; for
-further analysis.</p>
+errors occur, an error file will not be created. Data about individual
+test invocations is written into a file called
+<code>data-<em>host</em>-<em>n</em>.log</code>. This can be imported
+into a spreadsheet tool such as Microsoft Excel&#8482; for further
+analysis.</p>
 
 <p>The final statistics summary (in the <code>out-*</code> files of
 each process) looks something like this:</p>

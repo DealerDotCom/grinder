@@ -5,11 +5,11 @@
 
 <h1>Scripts</h1>
 
-<h2>Tutorial</h2>
-
 <em>Material to come! For now see the <a
 href="../script-javadoc/index.html">script API</a> and the <a
 href="script-gallery.html">script gallery</a>.</em>
+
+<p class="draft-warning">Draft material follows</p>
 
 <h2>The Jython distribution and installation</h2>
 
@@ -22,13 +22,13 @@ installation's <code>jython.jar</code> to the start of the
 
 <p>Jython picks up user and site preferences from several sources (see
 <a
-href="http://www.jython.org/docs/registry.html">http://www.jython.org/???/registry.html</a>).
+href="http://www.jython.org/docs/registry.html">http://www.jython.org/docs/registry.html</a>).
 A side effect of adding the installed <code>jython.jar</code> to the
 start of the <code>CLASSPATH</code> is that <code>python.home</code>
 can be correctly determined and the installed registry file will be
 used.</p>
 
-<p>One of the most useful things that you can set in the registry is
+<p>A useful thing that you can set in the registry is
 <code>python.cachedir</code>. This specifies a working directory which
 Jython uses to store byte compiled python code. If you do not have
 your own installed version of Jython in the <code>CLASSPATH</code>,

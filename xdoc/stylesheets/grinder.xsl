@@ -19,14 +19,10 @@
 	<!-- change styles -->
 	<style type="text/css">
 	  <xsl:comment>
-	    p,ul,dl,ol,td,dd { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif; font-size: 10pt; }
-	    .beta-warning { background-color: rgb(240,240,240); font-weight: bold}
-	    pre { color: rgb(80,80,80); font-family:Courier, monospace; font-size: 10pt; }
-            code ( background-color: red; font-family:Courier, monospace; font-size: 10pt; )
-	    h1 { color: rgb(80,80,80); font-family:Arial,Helvetica,sans-serif; font-size: 16pt; padding-top: 36pt;}
-	    h2 { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif; font-size: 14pt; }
-	    h3 { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif; font-size: 12pt; }
-	    h4 { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif; font-size: 11pt; }
+	    /* Sigh, IE doesn't inherit from body correctly; set children... */
+	    p,ul,dl,ol,td,dd { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif;  font-size: 10pt; }
+	    pre { color: rgb(80,80,80); font-family:Courier, monospace; }
+            code ( color: rgb(80,80,80); font-family:Courier, monospace; )
 	    dt { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif; font-size: 11pt; font-weight: bold; }
 	    a:link { color: rgb(0,0,128); text-decoration: none; font-weight: bold; }
 	    a:visited { color: rgb(0,0,128); text-decoration: none; font-weight: bold; }
@@ -37,7 +33,10 @@
 	    {
 	    .layout { visibility: hidden; height: 0px; width: 0px; }
 	    }
-	    .script-description { background-color: rgb(240,240.240); font-style: italic }
+	    .beta-warning { background-color: rgb(224,224,255); font-weight: bold; padding: 3pt; width="50%"; margin-left: 10pt; }
+	    .draft-warning { color: red; font-weight: bold; margin-top: 50pt; }
+	    .script-description { font-style: italic }
+	    .sidebar { float: right; background-color: rgb(224,224,255); padding: 10pt; margin-left: 20pt; margin-right:20pt; font-size: 8pt; }
 
 	    /* HTMLize */
 	    .string { color: #008b00; background-color: #ffffff; } /* font-lock-string-face */
