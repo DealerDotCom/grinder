@@ -1,4 +1,243 @@
+2001-10-24  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpression.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/TestStatistics.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/PeakStatisticExpression.java, src/net/grinder/console/swingui/ConsoleUI.java:
+	Javadoc fixes.
+
+	* tests-src/net/grinder/statistics/TestTestStatisticsMap.java, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestStatisticsView.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/console/swingui/TestGraph.java, src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/console/Console.java, src/net/grinder/console/model/Model.java, src/net/grinder/plugin/http/HttpPlugin.java:
+	Remove ability to dynamically size TestStatistics - ain't gonna need
+	it.
+
+2001-10-23  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugininterface/PluginThreadContext.java, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java:
+	Use new statistics engine to implement "mean time to first byte".
+
+	* src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/console/Console.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/communication/Message.java:
+	Support for process statistic index remapping.
+
+	* build.xml: Next is 2.8.
+
+	* doc/HTTPPlugin.txt, CHANGES: Docs.
+
+2001-10-22  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/model/ModelListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/SwingDispatchedModelListener.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/engine/process/GrinderProcess.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/Model.java:
+	Dynamic view updates now work.
+
+	* tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestStatisticsView.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsView.java:
+	ExpressionView is no longer comparable, StatisticsView is responsible
+	for its own ordering.
+	Add ExpressionView.hashCode().
+	StatisticsView sends out index mapping information as part of its
+	serialisation.
+
+	* src/net/grinder/console/swingui/DynamicStatisticsTableModel.java:
+	Fix write().
+
+	* tests-src/net/grinder/console/swingui/TestGraph.java:
+	Fix PeakStatistic so it can store the peak in a different
+	RawStatistics.
+
+	* src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/console/Console.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java:
+	Updates in line with changes to statistics package.
+	Fixes.
+	RegisterStatisticsViewMessage.
+
+	* src/net/grinder/communication/RegisterStatisticsViewMessage.java:
+	New file.
+
+	* src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/communication/Sender.java:
+	Updates in line with changes to statistics package.
+	Fixes.
+	RegisterStatisticsViewMessage.
+
+	* tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestStatisticsView.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsImplementation.java, tests-src/net/grinder/console/swingui/TestGraph.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/PeakStatisticExpression.java:
+	Remove the requirement to specify a StatisticsIndexMap from
+	ExpressionView, StatisticExpressionFactory and so on, its always the
+	process wide StatisticsIndexMap.
+	Fix PeakStatistic so it can store the peak in a different
+	RawStatistics.
+
+	* src/net/grinder/communication/ReportStatisticsMessage.java:
+	No longer any need to customise serialisation.
+
+2001-10-21  Philip Aston  <paston@bea.com>
+
+	* build.xml: No its not.
+
+	* build.xml: Next is 2.7.4.
+
+	* tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestStatisticsView.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsView.java:
+	Console now builds tables dynamically from StatisticViews.
+
+	* src/net/grinder/console/swingui/DynamicStatisticsTableModel.java:
+	New file.
+
+	* src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java:
+	Console now builds tables dynamically from StatisticViews.
+
+	* src/net/grinder/console/swingui/SwingDispatchedSampleListener.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/statistics/TestStatisticsImplementation.java, tests-src/net/grinder/console/swingui/TestGraph.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedSampleListener.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/SampleListener.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java:
+	Net statistics stuff is now integrated with the console.
+
+	* src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticExpression.java, src/net/grinder/statistics/StatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestStatisticsView.java:
+	Remove StatisticExpression.isPrimitive().
+	Store PeakStatisticExpression state in RawStatistics.
+
+	* tests-src/net/grinder/statistics/TestStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestStatisticsView.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java, tests-src/net/grinder/util/TestSerialiser.java:
+	Generalise RawStatistics to allow double and signed long values.
+
+	* tests-src/net/grinder/statistics/TestStatisticsIndexMap.java:
+	New file.
+
+	* src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/util/Serialiser.java, tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestProcessStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/ProcessStatisticsIndexMap.java, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsIndexMap.java:
+	Generalise RawStatistics to allow double and signed long values.
+
+	* src/net/grinder/statistics/StatisticsIndexMap.java: New file.
+
+	* tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/statistics/TestRawStatistics.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, tests-src/net/grinder/statistics/TestTestStatisticsImplementation.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
+	Factor out RawStatistics and TestStatistics interfaces.
+
+	* tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, tests-src/net/grinder/statistics/TestTestStatisticsImplementation.java:
+	New file.
+
+	* src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/TestStatistics.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/statistics/TestStatisticsMap.java:
+	Factor out RawStatistics and TestStatistics interfaces.
+
+	* src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/TestStatisticsImplementation.java:
+	New file.
+
+2001-10-20  Philip Aston  <paston@bea.com>
+
+	* tests-src/net/grinder/statistics/TestTestStatisticsFactory.java:
+	New file.
+
+	* src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/statistics/TestCommonStatistics.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
+	Rename CommonStatistics to TestStatisticsFactory.
+	Give it some create methods().
+	Rework TestStatisticsMap to hold TestStatistics rather than
+	RawStatistics.
+
+	* src/net/grinder/statistics/TestStatisticsFactory.java: New file.
+
+	* src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/statistics/CommonStatistics.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsFactory.java:
+	Rename CommonStatistics to TestStatisticsFactory.
+	Give it some create methods().
+	Rework TestStatisticsMap to hold TestStatistics rather than
+	RawStatistics.
+
+	* src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/statistics/CommonStatistics.java, src/net/grinder/statistics/TestStatistics.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/statistics/TestCommonStatistics.java:
+	Create an abstract TestStatistics.
+
+	* src/net/grinder/statistics/TestStatistics.java: New file.
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/TestData.java:
+	Create an abstract TestStatistics.
+
+	* src/net/grinder/statistics/RawStatistics.java, tests-src/net/grinder/statistics/TestRawStatistics.java:
+	Fix equals() so that either RawStatistics might expand its data array
+	as necessary, (hence default values are compared correctly).
+
+	* src/net/grinder/statistics/StatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java:
+	Support constants.
+
+	* tests-src/net/grinder/statistics/TestCommonStatistics.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/statistics/CommonStatistics.java, tests-src/net/grinder/engine/process/TestTestData.java:
+	Make CommonStatistics a singleton that owns a
+	ProcessStatisticsIndexMap.
+
+	* src/net/grinder/statistics/CommonStatistics.java, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/StatisticExpressionFactory.java:
+	Well known statistics.
+
+	* src/net/grinder/statistics/CommonStatistics.java, tests-src/net/grinder/statistics/TestCommonStatistics.java:
+	New file.
+
+	* src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/ThreadContext.java, tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/statistics/TestCommonStatistics.java, src/net/grinder/engine/process/GrinderProcess.java:
+	Well known statistics.
+
+	* src/net/grinder/statistics/ProcessStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestProcessStatisticsIndexMap.java:
+	Remove singleton.
+
+	* tests-src/net/grinder/statistics/TestStatisticsTable.java, src/net/grinder/statistics/StatisticsTable.java:
+	Tweak layout.
+
+	* src/net/grinder/statistics/ProcessStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestProcessStatisticsIndexMap.java:
+	Singleton instance.
+
+	* tests-src/net/grinder/statistics/testdata, tests-src/net/grinder/util/TestFixedWidthFormatter.java:
+	New file.
+
+	* tests-src/net/grinder/statistics/testdata, tests-src/net/grinder/util/AllTests.java, tests-src/net/grinder/util/TestFixedWidthFormatter.java:
+	New statistics package is functionally complete.
+
+	* tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestProcessStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestStatisticsView.java:
+	New file.
+
+	* tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestProcessStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestStatisticsView.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
+	New statistics package is functionally complete.
+
+	* src/net/grinder/statistics/PeakStatisticExpression.java, src/net/grinder/util/FixedWidthFormatter.java:
+	New file.
+
+	* src/net/grinder/statistics/PeakStatistic.java, src/net/grinder/statistics/PeakStatisticExpression.java, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/StatisticExpression.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/util/FixedWidthFormatter.java, src/net/grinder/statistics/ExpressionView.java:
+	New statistics package is functionally complete.
+
+2001-10-19  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/statistics/StatisticExpressionFactory.java, tests-src/net/grinder/AllTests.java, tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java:
+	Fixes.
+
+	* tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java:
+	Snapshot of statistics rework.
+
+	* src/net/grinder/statistics/PeakStatistic.java, src/net/grinder/statistics/ProcessStatisticsIndexMap.java, src/net/grinder/statistics/StatisticExpression.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsView.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java:
+	New file.
+
+	* src/net/grinder/statistics/PeakStatistic.java, src/net/grinder/statistics/ProcessStatisticsIndexMap.java, src/net/grinder/statistics/StatisticExpression.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsView.java, tests-src/net/grinder/statistics/AllTests.java, tests-src/prj.el:
+	Snapshot of statistics rework.
+
+	* src/net/grinder/statistics/ExpressionView.java: New file.
+
+	* src/net/grinder/statistics/ExpressionView.java:
+	Snapshot of statistics rework.
+
+2001-10-17  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/statistics/CumulativeStatistics.java, src/net/grinder/statistics/IntervalStatistics.java, src/net/grinder/statistics/Statistics.java, src/net/grinder/statistics/StatisticsImplementation.java, src/net/grinder/statistics/StatisticsTable.java, tests-src/net/grinder/statistics/AllTests.java, tests-src/net/grinder/statistics/TestRawStatistics.java, tests-src/net/grinder/statistics/TestStatisticsImplementation.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
+	Begin the statistics rework.
+
+	* tests-src/net/grinder/statistics/TestRawStatistics.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
+	New file.
+
+	* src/net/grinder/statistics/RawStatistics.java:
+	Begin the statistics rework.
+
+	* src/net/grinder/statistics/RawStatistics.java: New file.
+
+2001-10-13  Philip Aston  <paston@bea.com>
+
+	* build.xml: Add build information to about dialog.
+	Next is 2.7.3.
+
+	* src/net/grinder/console/swingui/resources/about.html:
+	Add build information to about dialog.
+
+	* CHANGES, README, build.xml, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/Resources.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/about.html:
+	About dialog.
+
+	* src/net/grinder/Console.java: Call System.exit() on exception.
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/util/DelayedCreationFileWriter.java:
+	Convert DelayedCreationFileOutputStream to DelayedCreationFileWriter.
+	Rename ProcessContextImplementation to ProcessContext.
+	Rename ThreadContextImplementation to ThreadContext.
+	Refactor functionality from GrinderProcess to ProcessContext and
+	GrinderThread to ThreadContext with an eye on the inverted control of
+	G3.
+
 2001-10-12  Philip Aston  <paston@bea.com>
+
+	* build.xml: Ahem.
+
+	* build.xml: Create releases directory if it doesn't already exist.
 
 	* The Grinder 2.7.2 is released.
 	
