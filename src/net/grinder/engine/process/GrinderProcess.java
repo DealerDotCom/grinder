@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2003 Kalyanaraman Venkatasubramaniy
 // All rights reserved.
 //
@@ -34,11 +34,20 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.ProcessStatus;
+import net.grinder.communication.ClientSender;
+import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
+import net.grinder.communication.ConnectionType;
+import net.grinder.communication.Connector;
+import net.grinder.communication.InitialiseGrinderMessage;
+import net.grinder.communication.Message;
+import net.grinder.communication.QueuedSender;
+import net.grinder.communication.QueuedSenderDecorator;
+import net.grinder.communication.Receiver;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
-import net.grinder.communication.ReportStatusMessage;
-import net.grinder.communication.Sender;
+import net.grinder.communication.StreamReceiver;
+import net.grinder.engine.EngineException;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
@@ -82,14 +91,6 @@ public final class GrinderProcess implements Monitor {
   public static final int EXIT_STOP_SIGNAL = 18;
 
   /**
-   * Hack extra information from parent process in system properties.
-   */
-  public static final String DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME =
-    "grinder.dontWaitForSignal";
-
-  private static final String TEST_PREFIX = "grinder.test";
-
-  /**
    * The application's entry point.
    *
    * @param args Command line arguments.
@@ -130,7 +131,7 @@ public final class GrinderProcess implements Monitor {
     catch (ExitProcessException e) {
       System.exit(-5);
     }
-    catch (GrinderException e) {
+    catch (Exception e) {
       logger.error("Error running worker process (" + e.getMessage() + ")",
                    Logger.LOG | Logger.TERMINAL);
       e.printStackTrace(logger.getErrorLogWriter());
@@ -142,11 +143,13 @@ public final class GrinderProcess implements Monitor {
   private final PrintWriter m_dataWriter;
   private final short m_numberOfThreads;
   private final File m_scriptFile;
+  private final InitialiseGrinderMessage m_initialisationMessage;
   private final ConsoleListener m_consoleListener;
   private final int m_reportToConsoleInterval;
   private final int m_duration;
 
   private boolean m_shutdownTriggered;
+  private boolean m_communicationShutdown;
   private int m_lastMessagesReceived = 0;
 
   /**
@@ -158,10 +161,51 @@ public final class GrinderProcess implements Monitor {
    */
   public GrinderProcess(String grinderID, File propertiesFile)
     throws GrinderException {
-    final GrinderProperties properties =
-      new GrinderProperties(propertiesFile);
 
-    m_context = new ProcessContext(grinderID, properties);
+    final Receiver receiver = new StreamReceiver(System.in);
+    m_initialisationMessage =
+      (InitialiseGrinderMessage)receiver.waitForMessage();
+
+    if (m_initialisationMessage == null) {
+      throw new EngineException("No control stream from agent");
+    }
+
+    final GrinderProperties properties = new GrinderProperties(propertiesFile);
+
+    final LoggerImplementation loggerImplementation =
+      new LoggerImplementation(
+        grinderID,
+        properties.getProperty("grinder.logDirectory", "."),
+        properties.getBoolean("grinder.logProcessStreams", true),
+        properties.getInt("grinder.numberOfOldLogs", 1));
+
+    final QueuedSender consoleSender;
+
+    if (m_initialisationMessage.getReportToConsole()) {
+      final Connector connector =
+        new Connector(
+          properties.getProperty("grinder.consoleHost",
+                                 CommunicationDefaults.CONSOLE_HOST),
+          properties.getInt("grinder.consolePort",
+                            CommunicationDefaults.CONSOLE_PORT),
+          ConnectionType.REPORT);
+
+      consoleSender =
+        new QueuedSenderDecorator(ClientSender.connect(connector));
+    }
+    else {
+      // Null Sender implementation.
+      consoleSender = new QueuedSender() {
+          public void send(Message message) { }
+          public void flush() { }
+          public void queue(Message message) { }
+          public void shutdown() { }
+        };
+    }
+
+    m_context =
+      new ProcessContext(grinderID, properties, loggerImplementation,
+                         consoleSender);
 
     m_scriptFile =
       new File(properties.getProperty("grinder.script", "grinder.py"));
@@ -177,32 +221,16 @@ public final class GrinderProcess implements Monitor {
       throw new ExitProcessException();
     }
 
-    m_dataWriter = m_context.getLoggerImplementation().getDataWriter();
+    m_dataWriter = loggerImplementation.getDataWriter();
 
     m_numberOfThreads = properties.getShort("grinder.threads", (short)1);
 
     m_reportToConsoleInterval =
       properties.getInt("grinder.reportToConsole.interval", 500);
 
-    ConsoleListener consoleListener = null;
-
-    if (m_context.getReceiveConsoleSignals()) {
-      try {
-        consoleListener = new ConsoleListener(properties, this, logger);
-      }
-      catch (CommunicationException e) {
-        logger.output(
-          "Unable to receive signals from console (" +
-          e.getMessage() + "); proceeding regardless. " +
-          "Set grinder.receiveConsoleSignals=false to disable " +
-          "this warning.",
-          Logger.LOG | Logger.TERMINAL);
-      }
-    }
-
-    m_consoleListener = consoleListener;
-
     m_duration = properties.getInt("grinder.duration", 0);
+
+    m_consoleListener = new ConsoleListener(receiver, this, logger);
   }
 
   /**
@@ -213,7 +241,7 @@ public final class GrinderProcess implements Monitor {
    *
    * @returns exit status to be indicated to parent process.
    */
-  private int run() throws GrinderException {
+  private int run() throws GrinderException, InterruptedException {
     final Logger logger = m_context.getLogger();
 
     logger.output("The Grinder version " + GrinderBuild.getVersionString());
@@ -224,6 +252,9 @@ public final class GrinderProcess implements Monitor {
                   " on " + System.getProperty("os.name") + " " +
                   System.getProperty("os.arch") + " " +
                   System.getProperty("os.version"));
+
+    final Timer timer = new Timer(true);
+    timer.schedule(new TickLoggerTimerTask(), 0, 1000);
 
     final JythonScript jythonScript =
       new JythonScript(m_context, m_scriptFile);
@@ -238,62 +269,55 @@ public final class GrinderProcess implements Monitor {
       runnable[i] = new GrinderThread(this, m_context, jythonScript, i);
     }
 
-    final Sender consoleSender = m_context.getConsoleSender();
+    final QueuedSender consoleSender = m_context.getConsoleSender();
 
-    consoleSender.send(new ReportStatusMessage(ProcessStatus.STATE_STARTED,
-                                               (short)0, m_numberOfThreads));
+    consoleSender.send(
+      m_context.createStatusMessage(
+        ProcessStatus.STATE_STARTED, (short)0, m_numberOfThreads));
 
-    if (m_consoleListener != null &&
-        !Boolean.getBoolean(DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME)) {
+    if (m_initialisationMessage.getWaitForStartMessage()) {
       logger.output("waiting for console signal",
                     Logger.LOG | Logger.TERMINAL);
 
       waitForMessage();
     }
 
-    if (!received(ConsoleListener.STOP | ConsoleListener.RESET)) {
+    if (received(ConsoleListener.START) ||
+        !m_initialisationMessage.getWaitForStartMessage()) {
 
       logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
 
       m_context.setExecutionStartTime(System.currentTimeMillis());
 
-      // Start the threads
+      // Start the threads.
       for (int i = 0; i < m_numberOfThreads; i++) {
         final Thread t = new Thread(runnable[i], "Grinder thread " + i);
         t.setDaemon(true);
         t.start();
       }
 
-      final Timer timer = new Timer(true);
-      final TimerTask reportToConsoleTimerTask =
-        new ReportToConsoleTimerTask();
+      final TimerTask reportTimerTask = new ReportToConsoleTimerTask();
+      final TimerTask shutdownTimerTask = new ShutdownTimerTask();
+
+      // Schedule a regular statistics report to the console. We don't
+      // need to schedule this at a fixed rate. Each report contains
+      // the work done since the last report.
+      timer.schedule(reportTimerTask, 0, m_reportToConsoleInterval);
 
       try {
-        // Schedule a regular statistics report to the
-        // console. We don't need to schedule this at a fixed
-        // rate. Each report contains the work done since the
-        // last report.
-        timer.schedule(reportToConsoleTimerTask, 0, m_reportToConsoleInterval);
-
         if (m_duration > 0) {
           logger.output("will shutdown after " + m_duration + " ms",
                         Logger.LOG | Logger.TERMINAL);
 
-          timer.schedule(new ShutdownTimerTask(), m_duration);
+          timer.schedule(shutdownTimerTask, m_duration);
         }
 
         // Wait for a termination event.
         synchronized (this) {
           while (GrinderThread.getNumberOfThreads() > 0) {
 
-            if (m_consoleListener != null) {
-              m_lastMessagesReceived =
-                m_consoleListener.received(ConsoleListener.RESET |
-                                           ConsoleListener.STOP);
-
-              if (m_lastMessagesReceived != 0) {
-                break;
-              }
+            if (checkForMessage(ConsoleListener.ANY ^ ConsoleListener.START)) {
+              break;
             }
 
             if (m_shutdownTriggered) {
@@ -302,10 +326,7 @@ public final class GrinderProcess implements Monitor {
               break;
             }
 
-            try {
-              wait();
-            }
-            catch (InterruptedException e) { /* Ignore.  */ }
+            wait();
           }
         }
 
@@ -321,32 +342,36 @@ public final class GrinderProcess implements Monitor {
             final long maxShutdownTime = 10000;
 
             while (GrinderThread.getNumberOfThreads() > 0) {
-              try {
-                if (System.currentTimeMillis() - time > maxShutdownTime) {
-                  logger.output("threads not terminating, continuing anyway",
-                                Logger.LOG | Logger.TERMINAL);
-                  break;
-                }
-
-                wait(maxShutdownTime);
+              if (System.currentTimeMillis() - time > maxShutdownTime) {
+                logger.output("threads not terminating, continuing anyway",
+                              Logger.LOG | Logger.TERMINAL);
+                break;
               }
-              catch (InterruptedException e) { /* Ignore. */ }
+
+              wait(maxShutdownTime);
             }
           }
         }
       }
-      finally { timer.cancel(); }
+      finally {
+        reportTimerTask.cancel();
+        shutdownTimerTask.cancel();
+      }
 
       jythonScript.shutdown();
 
       // Final report to the console.
-      reportToConsoleTimerTask.run();
+      reportTimerTask.run();
     }
 
     m_dataWriter.close();
 
-    consoleSender.send(new ReportStatusMessage(ProcessStatus.STATE_FINISHED,
-                                               (short)0, (short)0));
+    if (!m_communicationShutdown) {
+      consoleSender.send(
+        m_context.createStatusMessage(
+          ProcessStatus.STATE_FINISHED, (short)0, (short)0));
+    }
+
     consoleSender.shutdown();
 
     logger.output("Final statistics for this process:");
@@ -357,13 +382,20 @@ public final class GrinderProcess implements Monitor {
 
     statisticsTable.print(logger.getOutputLogWriter());
 
-    if (m_consoleListener != null && m_lastMessagesReceived == 0) {
+    if (m_initialisationMessage.getWaitForStopMessage() &&
+        !received(ConsoleListener.ANY)) {
       // We've got here naturally, without a console signal.
       logger.output("finished, waiting for console signal",
                     Logger.LOG | Logger.TERMINAL);
 
       waitForMessage();
     }
+
+    timer.cancel();
+
+    // Sadly it appears its impossible to interrupt a read() on stdin,
+    // so we can't shut down the console listener cleanly. It runs in
+    // a daemon thread, so this isn't a big deal.
 
     if (received(ConsoleListener.START)) {
       logger.output("requesting reset and start");
@@ -373,7 +405,7 @@ public final class GrinderProcess implements Monitor {
       logger.output("requesting reset");
       return EXIT_RESET_SIGNAL;
     }
-    else if (received(ConsoleListener.STOP)) {
+    else if (received(ConsoleListener.STOP | ConsoleListener.SHUTDOWN)) {
       logger.output("requesting stop");
       return EXIT_STOP_SIGNAL;
     }
@@ -387,29 +419,32 @@ public final class GrinderProcess implements Monitor {
     return (m_lastMessagesReceived & mask) != 0;
   }
 
-  /**
-   * Wait for until a console message matching the requirement
-   * arrives.
-   * @param mask The mask of constants defined by {@link Listener}
-   * which specify the messages to wait for.
-   * @returns A mask representing the messages actually received.
-   **/
-  private synchronized void waitForMessage() {
-    while (true) {
-      m_lastMessagesReceived =
-        m_consoleListener.received(ConsoleListener.ANY);
-
-      if (m_lastMessagesReceived != 0) {
-        break;
-      }
-
-      try {
+  private void waitForMessage() throws InterruptedException {
+    synchronized (this) {
+      while (!checkForMessage(ConsoleListener.ANY)) {
         wait();
       }
-      catch (InterruptedException e) {
-        // Ignore.
-      }
     }
+  }
+
+  /**
+   * Check for a console message belonging to a particular set, or for
+   * shutdown.
+   *
+   * @param mask The mask of constants defined by {@link Listener}
+   * which specify the messages to check for.
+   * @param return <code>true</code> if a message was received.
+   * @see #received
+   */
+  private boolean checkForMessage(int mask) {
+
+    m_lastMessagesReceived = m_consoleListener.received(mask);
+
+    if (received(ConsoleListener.SHUTDOWN)) {
+      m_communicationShutdown = true;
+    }
+
+    return received(ConsoleListener.ANY);
   }
 
   private class ReportToConsoleTimerTask extends TimerTask {
@@ -424,43 +459,51 @@ public final class GrinderProcess implements Monitor {
     public void run() {
       m_dataWriter.flush();
 
-      LoggerImplementation.tick();
+      if (!m_communicationShutdown) {
+        final QueuedSender consoleSender = m_context.getConsoleSender();
 
-      final Sender consoleSender = m_context.getConsoleSender();
+        try {
+          final Collection newTests =
+            m_context.getTestRegistry().getNewTests();
 
-      try {
-        final Collection newTests = m_context.getTestRegistry().getNewTests();
+          if (newTests != null) {
+            consoleSender.queue(new RegisterTestsMessage(newTests));
+          }
 
-        if (newTests != null) {
-          consoleSender.queue(new RegisterTestsMessage(newTests));
+          consoleSender.queue(
+            new ReportStatisticsMessage(m_testStatisticsMap.getDelta(true)));
+
+          consoleSender.send(
+            m_context.createStatusMessage(ProcessStatus.STATE_RUNNING,
+                                          GrinderThread.getNumberOfThreads(),
+                                          m_numberOfThreads));
         }
+        catch (CommunicationException e) {
+          final Logger logger = m_context.getLogger();
 
-        consoleSender.queue(
-          new ReportStatisticsMessage(m_testStatisticsMap.getDelta(true)));
+          logger.output("Report to console failed: " + e.getMessage(),
+                        Logger.LOG | Logger.TERMINAL);
 
-        consoleSender.send(
-          new ReportStatusMessage(ProcessStatus.STATE_RUNNING,
-                                  GrinderThread.getNumberOfThreads(),
-                                  m_numberOfThreads));
-      }
-      catch (CommunicationException e) {
-        final Logger logger = m_context.getLogger();
+          e.printStackTrace(logger.getErrorLogWriter());
 
-        logger.output("Report to console failed: " + e.getMessage(),
-                      Logger.LOG | Logger.TERMINAL);
-
-        e.printStackTrace(logger.getErrorLogWriter());
+          m_communicationShutdown = true;
+        }
       }
     }
   }
 
   private class ShutdownTimerTask extends TimerTask {
-
     public void run() {
       synchronized (GrinderProcess.this) {
         m_shutdownTriggered = true;
         GrinderProcess.this.notifyAll();
       }
+    }
+  }
+
+  private class TickLoggerTimerTask extends TimerTask {
+    public void run() {
+      LoggerImplementation.tick();
     }
   }
 }

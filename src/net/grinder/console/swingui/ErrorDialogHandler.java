@@ -35,6 +35,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
+import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 
@@ -51,6 +52,7 @@ final class ErrorDialogHandler implements ErrorHandler {
     new JOptionPane(null, JOptionPane.ERROR_MESSAGE, 0, null, null);
   private JOptionPaneDialog m_dialog;
   private final String m_errorTitle;
+  private final String m_unexpectedErrorTitle;
   private final String m_errorDetailsTitle;
   private final Resources m_resources;
   private final Object[] m_okOptions;
@@ -98,6 +100,7 @@ final class ErrorDialogHandler implements ErrorHandler {
     m_resources = resources;
 
     m_errorTitle = resources.getString("error.title");
+    m_unexpectedErrorTitle = resources.getString("unexpectedError.title");
     m_errorDetailsTitle = resources.getString("errorDetails.title");
 
     final String errorOkText = resources.getString("error.ok.label");
@@ -265,7 +268,12 @@ final class ErrorDialogHandler implements ErrorHandler {
    * @param exception The exception.
    */
   public void handleException(Exception exception) {
-    handleException(exception, m_errorTitle);
+    if (exception instanceof DisplayMessageConsoleException) {
+      handleException(exception, m_errorTitle);
+    }
+    else {
+      handleException(exception, m_unexpectedErrorTitle);
+    }
   }
 
   /**

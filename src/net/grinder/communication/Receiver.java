@@ -23,7 +23,7 @@ package net.grinder.communication;
 
 
 /**
- * Interface that manages the receipt of multicast messages.
+ * Interface for classes that manage the receipt of  messages.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -40,12 +40,11 @@ public interface Receiver {
    * @return The message or <code>null</code> if shut down.
    * @throws CommunicationException If an IO exception occurs
    * reading the mesage.
-   **/
+   */
   Message waitForMessage() throws CommunicationException;
 
   /**
    * Shut down this reciever.
-   * @throws CommunicationException If an IO exception occurs.
-   **/
-  void shutdown() throws CommunicationException;
+   */
+  void shutdown();
 }

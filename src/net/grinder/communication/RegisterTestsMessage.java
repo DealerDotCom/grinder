@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,9 +30,9 @@ import java.util.Collection;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class RegisterTestsMessage extends Message {
+public final class RegisterTestsMessage implements Message {
 
-  private static final long serialVersionUID = -5373242586585432471L;
+  private static final long serialVersionUID = 1669221760771622994L;
 
   private final Collection m_tests;
 

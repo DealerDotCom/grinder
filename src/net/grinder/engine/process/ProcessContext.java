@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,11 +27,8 @@ import java.io.PrintWriter;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.communication.CommunicationDefaults;
-import net.grinder.communication.CommunicationException;
-import net.grinder.communication.Message;
-import net.grinder.communication.Sender;
-import net.grinder.communication.UnicastSender;
+import net.grinder.communication.QueuedSender;
+import net.grinder.communication.ReportStatusMessage;
 import net.grinder.script.Grinder;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
@@ -45,81 +42,34 @@ import net.grinder.util.Sleeper;
  **/
 class ProcessContext {
   private final String m_grinderID;
+  private final String m_uniqueProcessID;
   private final GrinderProperties m_properties;
   private final boolean m_recordTime;
   private final LoggerImplementation m_loggerImplementation;
   private final Logger m_processLogger;
-  private final Sender m_consoleSender;
+  private final QueuedSender m_consoleSender;
   private final PluginRegistry m_pluginRegistry;
   private final TestRegistry m_testRegistry;
   private final Grinder.ScriptContext m_scriptContext;
-  private final boolean m_receiveConsoleSignals;
 
   private long m_executionStartTime;
   private boolean m_shutdown;
 
-  ProcessContext(String grinderID, GrinderProperties properties)
+  ProcessContext(String grinderID, GrinderProperties properties,
+                 LoggerImplementation loggerImplementation,
+                 QueuedSender consoleSender)
     throws GrinderException {
 
     m_grinderID = grinderID;
+    m_uniqueProcessID = grinderID + ":" + System.currentTimeMillis();
     m_properties = properties;
 
     m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
-    final int numberOfOldLogs =
-      properties.getInt("grinder.numberOfOldLogs", 1);
+    m_loggerImplementation = loggerImplementation;
+    m_processLogger = loggerImplementation.getProcessLogger();
 
-    m_loggerImplementation =
-      new LoggerImplementation(m_grinderID,
-                               properties.getProperty(
-                                 "grinder.logDirectory", "."),
-                               properties.getBoolean(
-                                 "grinder.logProcessStreams", true),
-                               numberOfOldLogs);
-
-    m_processLogger = m_loggerImplementation.getProcessLogger();
-
-    Sender consoleSender = null;
-
-    if (properties.getBoolean("grinder.reportToConsole", true)) {
-      final String consoleAddress =
-        properties.getProperty("grinder.consoleAddress",
-                               CommunicationDefaults.CONSOLE_ADDRESS);
-
-      final int consolePort =
-        properties.getInt("grinder.consolePort",
-                          CommunicationDefaults.CONSOLE_PORT);
-
-      try {
-        consoleSender =
-          new UnicastSender(getGrinderID(), consoleAddress, consolePort);
-      }
-      catch (CommunicationException e) {
-        m_processLogger.output(
-          "Unable to report to console (" + e.getMessage() +
-          "); proceeding without the console. Set " +
-          "grinder.reportToConsole=false to disable this warning.",
-          Logger.LOG | Logger.TERMINAL);
-      }
-    }
-
-    if (consoleSender != null) {
-      m_consoleSender = consoleSender;
-
-      m_receiveConsoleSignals =
-        properties.getBoolean("grinder.receiveConsoleSignals", true);
-    }
-    else {
-      // Null Sender implementation.
-      m_consoleSender = new Sender() {
-          public void send(Message message) { }
-          public void flush() { }
-          public void queue(Message message) { }
-          public void shutdown() { }
-        };
-
-      m_receiveConsoleSignals = false;
-    }
+    m_consoleSender = consoleSender;
 
     m_pluginRegistry = new PluginRegistry(this);
     m_testRegistry = new TestRegistry();
@@ -144,8 +94,15 @@ class ProcessContext {
     dataWriter.println();
   }
 
-  public final Sender getConsoleSender() {
+  public final QueuedSender getConsoleSender() {
     return m_consoleSender;
+  }
+
+  public final ReportStatusMessage createStatusMessage(
+    short state, short numberOfThreads, short totalNumberOfThreads) {
+
+    return new ReportStatusMessage(m_uniqueProcessID, getGrinderID(), state,
+                                   numberOfThreads, totalNumberOfThreads);
   }
 
   public final LoggerImplementation getLoggerImplementation() {
@@ -178,10 +135,6 @@ class ProcessContext {
 
   public final Grinder.ScriptContext getScriptContext() {
     return m_scriptContext;
-  }
-
-  public final boolean getReceiveConsoleSignals() {
-    return m_receiveConsoleSignals;
   }
 
   /**

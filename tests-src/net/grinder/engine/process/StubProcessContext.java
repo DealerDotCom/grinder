@@ -1,4 +1,4 @@
-// Copyright (C) 2002 Philip Aston
+// Copyright (C) 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,6 +22,8 @@
 package net.grinder.engine.process;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.communication.Message;
+import net.grinder.communication.QueuedSender;
 
 
 /**
@@ -30,26 +32,31 @@ import net.grinder.common.GrinderProperties;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
-public class StubProcessContext extends ProcessContext
-{
-    private static StubProcessContext s_processContext;
+ */
+public class StubProcessContext extends ProcessContext {
 
-    public static StubProcessContext get() throws Exception
-    {
-	if (s_processContext == null) {
-	    final GrinderProperties properties = new GrinderProperties();
-	    properties.setBoolean("grinder.reportToConsole", false);
+  private static StubProcessContext s_processContext;
 
-	    s_processContext = new StubProcessContext(properties);
-	}
+  public static StubProcessContext get() throws Exception {
+    if (s_processContext == null) {
+      final GrinderProperties properties = new GrinderProperties();
+      properties.setBoolean("grinder.useConsole", false);
 
-	return s_processContext;
+      s_processContext = new StubProcessContext(properties);
     }
+
+    return s_processContext;
+  }
     
-    public StubProcessContext(GrinderProperties properties)
-	throws Exception
-    {
-	super("Unit Test", properties);
-    }
+  public StubProcessContext(GrinderProperties properties) throws Exception {
+
+    super("Unit Test", properties,
+          new LoggerImplementation("GrinderID", ".", true, 1),
+          new QueuedSender() {
+            public void send(Message message) { }
+            public void flush() { }
+            public void queue(Message message) { }
+            public void shutdown() { }
+          });
+  }
 }

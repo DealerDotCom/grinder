@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,6 +28,6 @@ package net.grinder.communication;
  * @author Philip Aston
  * @version $Revision$
  */
-public class StopGrinderMessage extends Message {
-  private static final long serialVersionUID = 1265336425639629131L;
+public final class StopGrinderMessage implements Message {
+  private static final long serialVersionUID = -7669881599490634144L;
 }

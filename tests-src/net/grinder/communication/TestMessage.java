@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,13 +22,18 @@
 package net.grinder.communication;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Random;
+
+import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatisticsMap;
 
 
 /**
@@ -37,126 +41,142 @@ import java.io.ObjectOutputStream;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
-public class TestMessage extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestMessage.class);
-    }
+ */
+public class TestMessage extends TestCase {
 
-    public TestMessage(String name)
-    {
-	super(name);
-    }
+  private static Random s_random = new Random();
 
-    public void testSenderInformation() throws Exception
-    {
-	final Message message = new MyMessage();
+  public TestMessage(String name) {
+    super(name);
+  }
 
-	try {
-	    message.getSenderGrinderID();
-	    fail("Expected RuntimeException");
-	}
-	catch (RuntimeException e) {
-	}
+  private Message serialise(Message original) throws Exception {
 
-	try {
-	    message.getSenderUniqueID();
-	    fail("Expected RuntimeException");
-	}
-	catch (RuntimeException e) {
-	}
+    final ByteArrayOutputStream byteOutputStream =
+      new ByteArrayOutputStream();
 
-	try {
-	    message.getSequenceNumber();
-	    fail("Expected RuntimeException");
-	}
-	catch (RuntimeException e) {
-	}
+    final ObjectOutputStream objectOutputStream =
+      new ObjectOutputStream(byteOutputStream);
 
-	message.setSenderInformation("grinderID", "uniqueID", 12345l);
+    objectOutputStream.writeObject(original);
+    objectOutputStream.close();
 
-	assertEquals("grinderID", message.getSenderGrinderID());
-	assertEquals("uniqueID", message.getSenderUniqueID());
-	assertEquals(12345l, message.getSequenceNumber());
-    }
+    final ObjectInputStream objectInputStream =
+      new ObjectInputStream(
+        new ByteArrayInputStream(byteOutputStream.toByteArray()));
 
-    public void testSerialisation() throws Exception
-    {
-	long sequenceNumber = Integer.MAX_VALUE;
+    final Message received = (Message)objectInputStream.readObject();
+    assertTrue(received != original);
 
-	final Message original0 = new MyMessage();
-	original0.setSenderInformation("grinderID", "uniqueID",
-				       sequenceNumber++);
+    return received;
+  }
 
-	final Message original1 = new MyMessage();
-	original1.setSenderInformation("grinderID", "uniqueID",
-				       sequenceNumber++);
+  public void testSerialisation() throws Exception {
+    serialise(new SimpleMessage());
+  }
 
-	final ByteArrayOutputStream byteOutputStream =
-	    new ByteArrayOutputStream();
+  public void testCloseCommunicationMessage() throws Exception {
+    serialise(new CloseCommunicationMessage());
+  }
 
-	final ObjectOutputStream objectOutputStream =
-	    new ObjectOutputStream(byteOutputStream);
+  public void testInitialiseGrinderMessage() throws Exception {
+    final InitialiseGrinderMessage original =
+      new InitialiseGrinderMessage(false, true, false);
 
-	objectOutputStream.writeObject(original0);
-	objectOutputStream.writeObject(original1);
+    final InitialiseGrinderMessage recevied =
+      (InitialiseGrinderMessage) serialise(original);
 
-	objectOutputStream.close();
+    assertTrue(!original.getWaitForStartMessage());
+    assertTrue(original.getWaitForStopMessage());
+    assertTrue(!original.getReportToConsole());
 
-	final ObjectInputStream objectInputStream =
-	    new ObjectInputStream(
-		new ByteArrayInputStream(byteOutputStream.toByteArray()));
+    final InitialiseGrinderMessage another =
+      new InitialiseGrinderMessage(true, false, true);
 
-	final Message received0 = (Message)objectInputStream.readObject();
-	final Message received1 = (Message)objectInputStream.readObject();
+    assertTrue(another.getWaitForStartMessage());
+    assertTrue(!another.getWaitForStopMessage());
+    assertTrue(another.getReportToConsole());
+  }
 
-	assertEquals(original0, received0);
-	assertEquals(original1, received1);
-    }
+  public void testRegisterStatisticsViewMessage() throws Exception {
 
-    public void testEquals() throws Exception
-    {
-	final Message m1 = new MyMessage();
-	final Message m2 = new MyMessage();
+    final StatisticsView statisticsView = new StatisticsView();
+    statisticsView.add(new ExpressionView("One", "blah", "userLong0"));
 
-	assertTrue("No uninitialised message is equal to another Message",
-		   !m1.equals(m2));
+    final RegisterStatisticsViewMessage original =
+      new RegisterStatisticsViewMessage(statisticsView);
 
-	m1.setSenderInformation("grinderID", "uniqueID", 12345l);
+    assertEquals(1, original.getStatisticsView().getExpressionViews().length);
 
-	assertTrue("No uninitialised message is equal to another Message",
-		   !m1.equals(m2));
+    final RegisterStatisticsViewMessage received =
+      (RegisterStatisticsViewMessage) serialise(original);
 
-	m2.setSenderInformation("grinderID2", "uniqueID", 12345l);
+    assertEquals(1, received.getStatisticsView().getExpressionViews().length);
+    assertEquals(original.getStatisticsView().getExpressionViews()[0],
+                 received.getStatisticsView().getExpressionViews()[0]);
+  }
 
-	assertEquals(
-	    "Initialised messages equal iff uniqueID and sequenceID equal",
-	    m1, m2);
+  public void testRegisterTestsMessage() throws Exception {
 
-	assertEquals("Reflexive", m2, m1);
+    final Collection c = new HashSet();
 
-	final Message m3 = new MyMessage();
-	m3.setSenderInformation("grinderID3", "uniqueID", 12345l);
+    final RegisterTestsMessage original = new RegisterTestsMessage(c);
 
-	assertEquals("Transitive", m2, m3);
-	assertEquals("Transitive", m3, m1);
+    assertEquals(c, original.getTests());
 
-	m2.setSenderInformation("grinderID2", "uniqueID2", 12345l);
+    final RegisterTestsMessage received =
+      (RegisterTestsMessage) serialise(original);
 
-	assertTrue(
-	    "Initialised messages equal iff uniqueID and sequenceID equal",
-	    !m1.equals(m2));
+    assertEquals(original.getTests(), received.getTests());
+  }
 
-	m1.setSenderInformation("grinderID2", "uniqueID2", 12445l);
+  public void testReportStatisticsMessage() throws Exception {
 
-	assertTrue(
-	    "Initialised messages equal iff uniqueID and sequenceID equal",
-	    !m1.equals(m2));
-    }
+    final TestStatisticsMap statisticsDelta = new TestStatisticsMap();
 
-    private static class MyMessage extends Message
-    {
-    }
+    final ReportStatisticsMessage original =
+      new ReportStatisticsMessage(statisticsDelta);
+
+    assertEquals(statisticsDelta, original.getStatisticsDelta());
+
+    final ReportStatisticsMessage received =
+      (ReportStatisticsMessage) serialise(original);
+
+    assertEquals(original.getStatisticsDelta(), received.getStatisticsDelta());
+  }
+
+  public void testReportStatusMessage() throws Exception {
+
+    final String uniqueID = "ID" + s_random.nextInt();
+
+    final ReportStatusMessage original =
+      new ReportStatusMessage(uniqueID, "test", (short)1, (short)2, (short)3);
+
+    assertEquals(uniqueID, original.getIdentity());
+    assertEquals("test", original.getName());
+    assertEquals(1, original.getState());
+    assertEquals(2, original.getNumberOfRunningThreads());
+    assertEquals(3, original.getTotalNumberOfThreads());
+
+    final ReportStatusMessage received =
+      (ReportStatusMessage) serialise(original);
+
+    assertEquals(uniqueID, received.getIdentity());
+    assertEquals("test", received.getName());
+    assertEquals(1, received.getState());
+    assertEquals(2, received.getNumberOfRunningThreads());
+    assertEquals(3, received.getTotalNumberOfThreads());
+  }
+
+  public void testResetGrinderMessage() throws Exception {
+    serialise(new ResetGrinderMessage());
+  }
+
+  public void testStartGrinderMessage() throws Exception {
+    serialise(new StartGrinderMessage());
+  }
+
+  public void testStopGrinderMessage() throws Exception {
+    serialise(new StopGrinderMessage());
+  }
 }

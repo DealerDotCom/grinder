@@ -628,8 +628,7 @@ public final class ConsoleUI implements ModelListener {
         }
       }
       catch (Exception e) {
-        getErrorHandler().handleException(
-          e, m_model.getResources().getString("unexpectedError.title"));
+        getErrorHandler().handleException(e);
       }
     }
   }
@@ -802,8 +801,7 @@ public final class ConsoleUI implements ModelListener {
             properties.setResetConsoleWithProcessesDontAsk();
           }
           catch (GrinderException e) {
-            getErrorHandler().handleException(
-              e, m_model.getResources().getString("unexpectedError.title"));
+            getErrorHandler().handleException(e);
             return;
           }
         }
@@ -867,8 +865,7 @@ public final class ConsoleUI implements ModelListener {
             properties.setStopProcessesDontAsk();
           }
           catch (GrinderException e) {
-            getErrorHandler().handleException(
-              e, m_model.getResources().getString("unexpectedError.title"));
+            getErrorHandler().handleException(e);
             return;
           }
         }

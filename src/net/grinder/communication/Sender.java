@@ -23,43 +23,23 @@ package net.grinder.communication;
 
 
 /**
- * Class that manages the sending of multicast messages.
+ * Interface for classes that manage the sending of  messages.
  *
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 public interface Sender {
 
   /**
-   * First flush any pending messages queued with {@link #queue} and
-   * then send the given message.
+   * Send the given message.
    *
    * @param message A {@link Message}.
    * @exception CommunicationException If an error occurs.
-   **/
+   */
   void send(Message message) throws CommunicationException;
 
   /**
-   * Flush any pending messages queued with {@link #queue}.
-   *
-   * @exception CommunicationException If an error occurs.
-   **/
-  void flush() throws CommunicationException;
-
-  /**
-   * Queue the given message for later sending.
-   *
-   * @param message A {@link Message}.
-   * @exception CommunicationException If an error occurs.
-   * @see #flush
-   * @see #send
-   **/
-  void queue(Message message) throws CommunicationException;
-
-  /**
-   * Cleanly shutdown the <code>Sender</code>.
-   *
-   * @exception CommunicationException If an error occurs.
-   **/
-  void shutdown() throws CommunicationException;
+   * Cleanly shut down the <code>Sender</code>.
+   */
+  void shutdown();
 }

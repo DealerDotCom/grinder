@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,6 @@ package net.grinder.console.swingui;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -53,12 +52,10 @@ abstract class OptionsDialogHandler {
   /** A working copy of console properties. **/
   private final ConsoleProperties m_properties;
 
-  private final JTextField m_consoleAddress = new JTextField();
+  private final JTextField m_consoleHost = new JTextField();
   private final IntegerField m_consolePort =
-    new IntegerField(0, CommunicationDefaults.MAX_PORT);
-  private final JTextField m_grinderAddress = new JTextField();
-  private final IntegerField m_grinderPort =
-    new IntegerField(0, CommunicationDefaults.MAX_PORT);
+    new IntegerField(CommunicationDefaults.MIN_PORT,
+                     CommunicationDefaults.MAX_PORT);
   private final SamplingControlPanel m_samplingControlPanel;
   private final JSlider m_sfSlider = new JSlider(1, 6, 1);
   private final JCheckBox m_resetConsoleWithProcessesCheckBox;
@@ -82,21 +79,13 @@ abstract class OptionsDialogHandler {
     final GridLayout addressLayout = new GridLayout(0, 2, 0, 1);
     addressLayout.setHgap(5);
     final JPanel addressPanel = new JPanel(addressLayout);
-    addressPanel.add(new JLabel(resources.getString("consoleAddress.label")));
-    addressPanel.add(m_consoleAddress);
+    addressPanel.add(new JLabel(resources.getString("consoleHost.label")));
+    addressPanel.add(m_consoleHost);
     addressPanel.add(new JLabel(resources.getString("consolePort.label")));
     addressPanel.add(m_consolePort);
 
-    addressPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-    addressPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-
-    addressPanel.add(new JLabel(resources.getString("grinderAddress.label")));
-    addressPanel.add(m_grinderAddress);
-    addressPanel.add(new JLabel(resources.getString("grinderPort.label")));
-    addressPanel.add(m_grinderPort);
-
-    // Use an additional flow layout so the GridLayout doesn't
-    // steal all the space.
+    // Use an additional flow layout so the GridLayout doesn't steal
+    // all the space.
     final JPanel communicationTab =
       new JPanel(new FlowLayout(FlowLayout.LEFT));
     communicationTab.add(addressPanel);
@@ -145,7 +134,6 @@ abstract class OptionsDialogHandler {
                       null, miscellaneousTab,
                       resources.getString("options.miscellaneousTab.tip"));
 
-
     final Object[] options = {
       resources.getString("options.ok.label"),
       resources.getString("options.cancel.label"),
@@ -170,10 +158,8 @@ abstract class OptionsDialogHandler {
           }
           else {
             try {
-              m_properties.setConsoleAddress(m_consoleAddress.getText());
+              m_properties.setConsoleHost(m_consoleHost.getText());
               m_properties.setConsolePort(m_consolePort.getValue());
-              m_properties.setGrinderAddress(m_grinderAddress.getText());
-              m_properties.setGrinderPort(m_grinderPort.getValue());
               m_properties.setSignificantFigures(m_sfSlider.getValue());
               m_properties.setResetConsoleWithProcesses(
                 m_resetConsoleWithProcessesCheckBox.isSelected());
@@ -227,10 +213,8 @@ abstract class OptionsDialogHandler {
     m_properties.set(initialProperties);
 
     // Initialise input values.
-    m_consoleAddress.setText(m_properties.getConsoleAddress());
+    m_consoleHost.setText(m_properties.getConsoleHost());
     m_consolePort.setValue(m_properties.getConsolePort());
-    m_grinderAddress.setText(m_properties.getGrinderAddress());
-    m_grinderPort.setValue(m_properties.getGrinderPort());
     m_sfSlider.setValue(m_properties.getSignificantFigures());
     m_resetConsoleWithProcessesCheckBox.setSelected(
       m_properties.getResetConsoleWithProcesses());

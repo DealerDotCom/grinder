@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,9 +31,9 @@ import net.grinder.statistics.StatisticsView;
  * @author Philip Aston
  * @version $Revision$
  */
-public class RegisterStatisticsViewMessage extends Message {
+public final class RegisterStatisticsViewMessage implements Message {
 
-  private static final long serialVersionUID = -7078786346425431655L;
+  private static final long serialVersionUID = 5933280542822877937L;
 
   private StatisticsView m_statisticsView;
 

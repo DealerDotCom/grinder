@@ -45,9 +45,9 @@ public class CommunicationException extends GrinderException {
    * Constructor.
    *
    * @param s Exception message.
-   * @param e Chained exception.
+   * @param t Chained exception.
    */
-  public CommunicationException(String s, Exception e) {
-    super(s, e);
+  public CommunicationException(String s, Throwable t) {
+    super(s, t);
   }
 }

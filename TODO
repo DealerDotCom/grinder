@@ -62,23 +62,6 @@ Request 801129).
 
 Consider forcing TestRunner to be registered with grinder.
 
-** Communication
-
-*** Multicast replacement scheme
-
-Replace multicast with TCP connection. Connection is established by
-the agent processes, and is used for requests from console. Agent
-passes requests to worker processes via input stream.
-
-	- Console no longer needs Grinder address.
-	- Removes need for multicast.
-	- Supports script distribution wiyhout need for synchronous
-	  channel.
-
-Might need threading scheme to handle "broadcast".
-
-Existing worker process -> console connection unchanged.
-
 ** TCPProxy
 
 Tim McNerney writes:

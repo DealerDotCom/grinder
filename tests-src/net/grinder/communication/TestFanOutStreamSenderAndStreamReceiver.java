@@ -1,4 +1,3 @@
-// Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
@@ -20,54 +19,51 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.agent;
+package net.grinder.communication;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 
 /**
- * This class is used to redirect the standard output and error to
- * disk files. It reads characters from a BufferedRead and prints them
- * out in a PrintStream.
+ *  Unit tests for <code>FanOutStreamSender</code> and
+ *  <code>StreamReceiver</code>.
  *
- * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  */
-class Redirector implements java.lang.Runnable {
-  private final PrintWriter m_printWriter;
-  private final BufferedReader m_bufferedReader;
+public class TestFanOutStreamSenderAndStreamReceiver
+  extends AbstractSenderAndReceiverTests {
 
-  /**
-   * The constructor. It starts a thread that executes
-   * the <tt>run</tt> method.
-   *
-   */
-  public Redirector(PrintWriter printWriter, BufferedReader bufferedReader) {
-    m_printWriter = printWriter;
-    m_bufferedReader = bufferedReader;
-
-    final Thread t = new Thread(this, m_printWriter.toString());
-    t.start();
+  public TestFanOutStreamSenderAndStreamReceiver(String name)
+    throws Exception {
+    super(name, true);
   }
 
   /**
-   * This method reads characters from a BufferedReader and prints
-   * them out in a PrintWriter.
+   * Sigh, JUnit treats setUp and tearDown as non-virtual methods -
+   * must define in concrete test case class.
    */
-  public void run() {
-    try {
-      String s;
+  protected void setUp() throws Exception {
+    super.setUp();
 
-      while ((s = m_bufferedReader.readLine()) != null) {
-        m_printWriter.println(s);
-      }
+    final PipedOutputStream outputStream = new PipedOutputStream();
+    final InputStream inputStream =
+      new PipedInputStream(outputStream) {{ buffer = new byte[32768]; }};
 
-      m_bufferedReader.close();
-    }
-    catch (Exception e) {
-      System.err.println(e);
-    }
+    final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(3);
+    fanOutStreamSender.add(outputStream);
+    
+    m_sender = fanOutStreamSender;
+    m_receiver = new StreamReceiver(inputStream);
+  }
+
+  protected void tearDown() throws Exception {
+    super.tearDown();
+
+    m_receiver.shutdown();
+    m_sender.shutdown();
   }
 }

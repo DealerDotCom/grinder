@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,12 +21,14 @@
 
 package net.grinder.communication;
 
+
 /**
  * Message used to cleanly indicate that a unicast communication
  * channel should be terminated.
  *
  * @author Philip Aston
  * @version $Revision$
- **/
-class CloseCommunicationMessage extends Message {
+ */
+final class CloseCommunicationMessage implements Message {
+  private static final long serialVersionUID = -6184308536094181215L;
 }

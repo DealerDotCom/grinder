@@ -32,16 +32,11 @@ import java.util.Set;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see net.grinder.engine.agent.LauncherThread
+ * @see net.grinder.engine.agent.ChildProcess
  */
 final class ProcessReaper extends Thread {
 
-  private static ProcessReaper s_instance;
-
-  static {
-    s_instance = new ProcessReaper();
-    Runtime.getRuntime().addShutdownHook(s_instance);
-  }
+  private static ProcessReaper s_instance = new ProcessReaper();
 
   public static ProcessReaper getInstance() {
     return s_instance;
@@ -51,6 +46,7 @@ final class ProcessReaper extends Thread {
 
   private ProcessReaper() {
     super("The Grim Reaper");
+    Runtime.getRuntime().addShutdownHook(this);
   }
 
   public synchronized  boolean add(Process process) {

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,19 +21,20 @@
 
 package net.grinder.engine.process;
 
-import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
-import net.grinder.common.GrinderProperties;
+import junit.framework.TestCase;
+
 import net.grinder.common.LogCounter;
-import net.grinder.common.Logger;
-import net.grinder.communication.MulticastSender;
-import net.grinder.communication.ReportStatisticsMessage;
+import net.grinder.communication.Receiver;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
+import net.grinder.communication.StreamReceiver;
+import net.grinder.communication.StreamSender;
 
 
 /**
@@ -41,159 +42,156 @@ import net.grinder.communication.StopGrinderMessage;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
-public class TestConsoleListener extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestConsoleListener.class);
-    }
+ */
+public class TestConsoleListener extends TestCase {
 
-    public TestConsoleListener(String name)
-    {
-	super(name);
-    }
+  public TestConsoleListener(String name) {
+    super(name);
+  }
 
-    private GrinderProperties m_nullProperties = new GrinderProperties();
-    private GrinderProperties m_properties = new GrinderProperties();
-    private Sender m_sender;
-    private Logger m_logger = new LogCounter();
+  private final LogCounter m_logger = new LogCounter();
+  private Receiver m_receiver;
+  private Sender m_sender;
 
-    protected void setUp() throws Exception
-    {
-	m_nullProperties.setBoolean("grinder.receiveConsoleSignals", false);
+  protected void setUp() throws Exception {
+    final PipedOutputStream outputStream = new PipedOutputStream();
+    final InputStream inputStream = new PipedInputStream(outputStream);
 
-	m_properties.setBoolean("grinder.receiveConsoleSignals", true);
-	m_properties.put("grinder.grinderAddress", "233.1.1.1");
-	m_properties.setInt("grinder.grinderPort", 9999);
+    m_receiver = new StreamReceiver(inputStream);
+    m_sender = new StreamSender(outputStream);
+  }
 
-	m_sender = new MulticastSender("Test Sender", "233.1.1.1", 9999);
-    }
+  protected void tearDown() throws Exception {
+    m_receiver.shutdown();
+  }
 
-    public void testConstruction() throws Exception
-    {
-	final MyMonitor myMonitor = new MyMonitor();
+  public void testConstruction() throws Exception {
+    final MyMonitor myMonitor = new MyMonitor();
 
-	final ConsoleListener listener0 =
-	    new ConsoleListener(m_nullProperties, myMonitor, m_logger);
+    final ConsoleListener listener0 =
+      new ConsoleListener(m_receiver, myMonitor, m_logger);
 
-	final ConsoleListener listener1 =
-	    new ConsoleListener(m_properties, myMonitor, m_logger);
-    }
+    final ConsoleListener listener1 =
+      new ConsoleListener(m_receiver, myMonitor, m_logger);
 
-    public void testNullListener() throws Exception
-    {
-	final MyMonitor myMonitor = new MyMonitor();
+    assertEquals(0, m_logger.getNumberOfMessages());
+    assertEquals(0, m_logger.getNumberOfErrors());
+  }
 
+  public void testListener() throws Exception {
+    final MyMonitor myMonitor = new MyMonitor();
 
-	final ConsoleListener nullListener =
-	    new ConsoleListener(m_nullProperties, myMonitor, m_logger);
+    final ConsoleListener listener =
+      new ConsoleListener(m_receiver, myMonitor, m_logger);
 
-	final MyMonitor.WaitForMessages t1 =
-	    myMonitor.new WaitForMessages(500, nullListener,
-					  ConsoleListener.ANY);
+    assertEquals(0, listener.received(ConsoleListener.ANY));
 
-	t1.start();
-	m_sender.send(new ResetGrinderMessage());
-	m_sender.send(new StartGrinderMessage());
-	m_sender.send(new StopGrinderMessage());
-	m_sender.send(new ReportStatisticsMessage(null));
+    final MyMonitor.WaitForMessages t1 =
+      myMonitor.new WaitForMessages(1000, listener,
+                                    ConsoleListener.RESET |
+                                    ConsoleListener.START);
+    t1.start();
 
-	t1.join();
-	assertTrue(t1.getTimerExpired());
-    }
+    m_sender.send(new ResetGrinderMessage());
+    m_sender.send(new StartGrinderMessage());
+    t1.join();
+    assertTrue(!t1.getTimerExpired());
+    assertEquals(0, listener.received(ConsoleListener.ANY));
 
-    public void testListener() throws Exception
-    {
-	final MyMonitor myMonitor = new MyMonitor();
+    final MyMonitor.WaitForMessages t2 =
+      myMonitor.new WaitForMessages(1000, listener, ConsoleListener.STOP);
+    t2.start();
 
-	final ConsoleListener listener =
-	    new ConsoleListener(m_properties, myMonitor, m_logger);
+    m_sender.send(new StartGrinderMessage());
+    m_sender.send(new StopGrinderMessage());
+    t2.join();
+    assertTrue(!t2.getTimerExpired());
 
-	assertEquals(0, listener.received(ConsoleListener.ANY));
+    assertEquals(0, listener.received(ConsoleListener.RESET |
+                                      ConsoleListener.SHUTDOWN));
 
-	final MyMonitor.WaitForMessages t1 =
-	    myMonitor.new WaitForMessages(1000, listener,
-					  ConsoleListener.RESET |
-					  ConsoleListener.START);
-	t1.start();
+    assertEquals(ConsoleListener.START,
+                 listener.received(ConsoleListener.START |
+                                   ConsoleListener.STOP));
 
-	m_sender.send(new ResetGrinderMessage());
-	m_sender.send(new StartGrinderMessage());
-	t1.join();
-	assertTrue(!t1.getTimerExpired());
-	assertEquals(0, listener.received(ConsoleListener.ANY));
+    assertEquals(4, m_logger.getNumberOfMessages());
+    assertEquals(0, m_logger.getNumberOfErrors());
+  }
 
-	final MyMonitor.WaitForMessages t2 =
-	    myMonitor.new WaitForMessages(1000, listener,
-					  ConsoleListener.STOP);
-	t2.start();
+  public void testShutdown() throws Exception {
+    final MyMonitor myMonitor = new MyMonitor();
 
-	m_sender.send(new StartGrinderMessage());
-	m_sender.send(new StopGrinderMessage());
-	t2.join();
-	assertTrue(!t2.getTimerExpired());
+    final ConsoleListener listener =
+      new ConsoleListener(m_receiver, myMonitor, m_logger);
 
-	assertEquals(0, listener.received(ConsoleListener.RESET));
+    assertEquals(0, listener.received(ConsoleListener.ANY));
 
-	assertEquals(ConsoleListener.START,
-		     listener.received(ConsoleListener.START |
-				       ConsoleListener.STOP));
-    }
+    final MyMonitor.WaitForMessages t1 =
+      myMonitor.new WaitForMessages(1000, listener, ConsoleListener.SHUTDOWN);
 
-    private final static class MyMonitor implements Monitor
-    {
-	private final class WaitForMessages extends Thread
-	{
-	    private final long m_time;
-	    private final ConsoleListener m_listener;
-	    private int m_expectedMessages;
-	    private boolean m_timerExpired = false;
+    t1.start();
 
-	    public WaitForMessages(long time, ConsoleListener listener,
-				   int expectedMessages)
-	    {
-		m_time = time;
-		m_listener = listener;
-		m_expectedMessages = expectedMessages;
-	    }
+    m_sender.shutdown();
 
-	    public final boolean getTimerExpired() 
-	    {
-		return m_timerExpired;
-	    }
+    t1.join();
+    assertTrue(!t1.getTimerExpired());
 
-	    public final void run()
-	    {
-		synchronized(MyMonitor.this) {
-		    long currentTime = System.currentTimeMillis();
-		    final long wakeUpTime = currentTime + m_time;
+    assertEquals(0, listener.received(ConsoleListener.START |
+                                      ConsoleListener.STOP |
+                                      ConsoleListener.RESET));
+
+    assertEquals(1, m_logger.getNumberOfMessages());
+    assertEquals(0, m_logger.getNumberOfErrors());
+  }
+
+  private final static class MyMonitor implements Monitor {
+    private final class WaitForMessages extends Thread {
+      private final long m_time;
+      private final ConsoleListener m_listener;
+      private int m_expectedMessages;
+      private boolean m_timerExpired = false;
+
+      public WaitForMessages(long time, ConsoleListener listener,
+                             int expectedMessages) {
+        m_time = time;
+        m_listener = listener;
+        m_expectedMessages = expectedMessages;
+      }
+
+      public final boolean getTimerExpired() {
+        return m_timerExpired;
+      }
+
+      public final void run() {
+        synchronized(MyMonitor.this) {
+          long currentTime = System.currentTimeMillis();
+          final long wakeUpTime = currentTime + m_time;
 		
-		    while (currentTime < wakeUpTime) {
-			final int receivedMessages =
-			    m_listener.received(m_expectedMessages);
+          while (currentTime < wakeUpTime) {
+            final int receivedMessages =
+              m_listener.received(m_expectedMessages);
 
-			m_expectedMessages ^= receivedMessages;
+            m_expectedMessages ^= receivedMessages;
 
-			if (m_expectedMessages == 0) {
-			    return;
-			}
+            if (m_expectedMessages == 0) {
+              return;
+            }
 
-			try {
-			    MyMonitor.this.wait(wakeUpTime - currentTime);
+            try {
+              MyMonitor.this.wait(wakeUpTime - currentTime);
 
-			    currentTime = System.currentTimeMillis();
+              currentTime = System.currentTimeMillis();
 
-			    if (currentTime >= wakeUpTime) {
-				m_timerExpired = true;
-			    }
-			}
-			catch (InterruptedException e) {
-			    currentTime = System.currentTimeMillis();
-			}
-		    }
-		}
-	    }
-	}
+              if (currentTime >= wakeUpTime) {
+                m_timerExpired = true;
+              }
+            }
+            catch (InterruptedException e) {
+              currentTime = System.currentTimeMillis();
+            }
+          }
+        }
+      }
     }
+  }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,51 +41,43 @@ import net.grinder.console.common.DisplayMessageConsoleException;
  */
 public final class ConsoleProperties {
 
-  /** Property name. **/
+  /** Property name. */
   public static final String COLLECT_SAMPLES_PROPERTY =
     "grinder.console.numberToCollect";
 
-  /** Property name. **/
+  /** Property name. */
   public static final String IGNORE_SAMPLES_PROPERTY =
     "grinder.console.numberToIgnore";
 
-  /** Property name. **/
+  /** Property name. */
   public static final String SAMPLE_INTERVAL_PROPERTY =
     "grinder.console.sampleInterval";
 
-  /** Property name. **/
+  /** Property name. */
   public static final String SIG_FIG_PROPERTY =
     "grinder.console.significantFigures";
 
-  /** Property name. **/
-  public static final String CONSOLE_ADDRESS_PROPERTY =
-    "grinder.console.consoleAddress";
+  /** Property name. */
+  public static final String CONSOLE_HOST_PROPERTY =
+    "grinder.console.consoleHost";
 
-  /** Property name. **/
+  /** Property name. */
   public static final String CONSOLE_PORT_PROPERTY =
     "grinder.console.consolePort";
 
-  /** Property name. **/
-  public static final String GRINDER_ADDRESS_PROPERTY =
-    "grinder.console.grinderAddress";
-
-  /** Property name. **/
-  public static final String GRINDER_PORT_PROPERTY =
-    "grinder.console.grinderPort";
-
-  /** Property name. **/
+  /** Property name. */
   public static final String RESET_CONSOLE_WITH_PROCESSES_PROPERTY =
     "grinder.console.resetConsoleWithProcesses";
 
-  /** Property name. **/
+  /** Property name. */
   public static final String RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY =
     "grinder.console.resetConsoleWithProcessesDontAsk";
 
-  /** Property name. **/
+  /** Property name. */
   public static final String STOP_PROCESSES_DONT_ASK_PROPERTY =
     "grinder.console.stopProcessesDontAsk";
 
-  /** Property name. **/
+  /** Property name. */
   public static final String SCRIPT_DISTRIBUTION_FILES_PROPERTY =
     "grinder.console.scriptDistribution.";
 
@@ -103,18 +95,16 @@ public final class ConsoleProperties {
   private ScriptDistributionFiles m_scriptDistributionFiles;
 
   /**
-   *We hang onto the addresses as strings so we can copy and
-   *externalise them reasonably.
-   **/
-  private String m_consoleAddressString;
+   *We hang onto the host as a string so we can copy and externalise
+   *it reasonably.
+   */
+  private String m_consoleHostString;
   private int m_consolePort;
-  private String m_grinderAddressString;
-  private int m_grinderPort;
 
   /**
    * Use to save and load properties, and to keep track of the
    * associated file.
-   **/
+   */
   private final GrinderProperties m_properties;;
 
   /**
@@ -137,21 +127,13 @@ public final class ConsoleProperties {
     setSampleInterval(m_properties.getInt(SAMPLE_INTERVAL_PROPERTY, 1000));
     setSignificantFigures(m_properties.getInt(SIG_FIG_PROPERTY, 3));
 
-    setConsoleAddress(
-      m_properties.getProperty(CONSOLE_ADDRESS_PROPERTY,
-                               CommunicationDefaults.CONSOLE_ADDRESS));
+    setConsoleHost(
+      m_properties.getProperty(CONSOLE_HOST_PROPERTY,
+                               CommunicationDefaults.CONSOLE_HOST));
 
     setConsolePort(
       m_properties.getInt(CONSOLE_PORT_PROPERTY,
                           CommunicationDefaults.CONSOLE_PORT));
-
-    setGrinderAddress(
-      m_properties.getProperty(GRINDER_ADDRESS_PROPERTY,
-                               CommunicationDefaults.GRINDER_ADDRESS));
-
-    setGrinderPort(
-      m_properties.getInt(GRINDER_PORT_PROPERTY,
-                          CommunicationDefaults.GRINDER_PORT));
 
     setResetConsoleWithProcesses(
       m_properties.getBoolean(RESET_CONSOLE_WITH_PROCESSES_PROPERTY, false));
@@ -172,7 +154,7 @@ public final class ConsoleProperties {
    * Copy constructor. Does not copy property change listeners.
    *
    * @param properties The properties to copy.
-   **/
+   */
   public ConsoleProperties(ConsoleProperties properties) {
     m_properties = properties.m_properties;
     set(properties);
@@ -183,16 +165,14 @@ public final class ConsoleProperties {
    * associated file.
    *
    * @param properties The properties to copy.
-   **/
+   */
   public void set(ConsoleProperties properties) {
     setCollectSampleCountInternal(properties.m_collectSampleCount);
     setIgnoreSampleCountInternal(properties.m_ignoreSampleCount);
     setSampleIntervalInternal(properties.m_sampleInterval);
     setSignificantFiguresInternal(properties.m_significantFigures);
-    setConsoleAddressInternal(properties.m_consoleAddressString);
+    setConsoleHostInternal(properties.m_consoleHostString);
     setConsolePortInternal(properties.m_consolePort);
-    setGrinderAddressInternal(properties.m_grinderAddressString);
-    setGrinderPortInternal(properties.m_grinderPort);
     setResetConsoleWithProcesses(properties.m_resetConsoleWithProcesses);
     setResetConsoleWithProcessesDontAskInternal(
       properties.m_resetConsoleWithProcessesDontAsk);
@@ -204,7 +184,7 @@ public final class ConsoleProperties {
    * Add a <code>PropertyChangeListener</code>.
    *
    * @param listener The listener.
-   **/
+   */
   public void addPropertyChangeListener(
     PropertyChangeListener listener) {
 
@@ -217,7 +197,7 @@ public final class ConsoleProperties {
    *
    * @param property The property.
    * @param listener The listener.
-   **/
+   */
   public void addPropertyChangeListener(
     String property, PropertyChangeListener listener) {
     m_changeSupport.addPropertyChangeListener(property, listener);
@@ -233,12 +213,8 @@ public final class ConsoleProperties {
     m_properties.setInt(IGNORE_SAMPLES_PROPERTY, m_ignoreSampleCount);
     m_properties.setInt(SAMPLE_INTERVAL_PROPERTY, m_sampleInterval);
     m_properties.setInt(SIG_FIG_PROPERTY, m_significantFigures);
-    m_properties.setProperty(CONSOLE_ADDRESS_PROPERTY,
-                             m_consoleAddressString);
+    m_properties.setProperty(CONSOLE_HOST_PROPERTY, m_consoleHostString);
     m_properties.setInt(CONSOLE_PORT_PROPERTY, m_consolePort);
-    m_properties.setProperty(GRINDER_ADDRESS_PROPERTY,
-                             m_grinderAddressString);
-    m_properties.setInt(GRINDER_PORT_PROPERTY, m_grinderPort);
     m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_PROPERTY,
                             m_resetConsoleWithProcesses);
     m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
@@ -264,7 +240,7 @@ public final class ConsoleProperties {
    *
    * @param n The number. 0 => forever.
    * @throws DisplayMessageConsoleException If the number is negative.
-   **/
+   */
   public void setCollectSampleCount(int n)
     throws DisplayMessageConsoleException {
     if (n < 0) {
@@ -290,7 +266,7 @@ public final class ConsoleProperties {
    * Get the number of samples to ignore.
    *
    * @return The number.
-   **/
+   */
   public int getIgnoreSampleCount() {
     return m_ignoreSampleCount;
   }
@@ -300,7 +276,7 @@ public final class ConsoleProperties {
    *
    * @param n The number. Must be at least 1.
    * @throws DisplayMessageConsoleException If the number is negative or zero.
-   **/
+   */
   public void setIgnoreSampleCount(int n)
     throws DisplayMessageConsoleException {
     if (n <= 0) {
@@ -325,7 +301,7 @@ public final class ConsoleProperties {
    * Get the sample interval.
    *
    * @return The interval in milliseconds.
-   **/
+   */
   public int getSampleInterval() {
     return m_sampleInterval;
   }
@@ -335,7 +311,7 @@ public final class ConsoleProperties {
    *
    * @param interval The interval in milliseconds.
    * @throws DisplayMessageConsoleException If the number is negative or zero.
-   **/
+   */
   public void setSampleInterval(int interval)
     throws DisplayMessageConsoleException {
     if (interval <= 0) {
@@ -360,7 +336,7 @@ public final class ConsoleProperties {
    * Get the number of significant figures.
    *
    * @return The number of significant figures.
-   **/
+   */
   public int getSignificantFigures() {
     return m_significantFigures;
   }
@@ -370,7 +346,7 @@ public final class ConsoleProperties {
    *
    * @param n The number of significant figures.
    * @throws DisplayMessageConsoleException If the number is negative.
-   **/
+   */
   public void setSignificantFigures(int n)
     throws DisplayMessageConsoleException {
     if (n <= 0) {
@@ -392,27 +368,25 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Get the console address as a string.
+   * Get the console host as a string.
    *
    * @return The address.
-   **/
-  public String getConsoleAddress() {
-    return m_consoleAddressString;
+   */
+  public String getConsoleHost() {
+    return m_consoleHostString;
   }
 
   /**
-   * Set the console address.
+   * Set the console host.
    *
    * @param s Either a machine name or the IP address.
    * @throws DisplayMessageConsoleException If the address is not
    * valid.
-   **/
-  public void setConsoleAddress(String s)
-    throws DisplayMessageConsoleException {
-    // We treat any non-multicast address that we can look up as
-    // valid. I guess we could also try binding to it to discover
-    // whether it is local, but that could take an indeterminate
-    // amount of time.
+   */
+  public void setConsoleHost(String s) throws DisplayMessageConsoleException {
+    // We treat any address that we can look up as valid. I guess we
+    // could also try binding to it to discover whether it is local,
+    // but that could take an indeterminate amount of time.
 
     if (s.length() > 0) {    // Empty string => all local hosts.
       final InetAddress newAddress;
@@ -422,25 +396,24 @@ public final class ConsoleProperties {
       }
       catch (UnknownHostException e) {
         throw new DisplayMessageConsoleException(
-          "unknownHostError.text", "Unknown hostname");
+          "unknownHostError.text", "Unknown host name");
       }
 
       if (newAddress.isMulticastAddress()) {
         throw new DisplayMessageConsoleException(
-          "invalidConsoleAddressError.text",
-          "Invalid console address");
+          "invalidConsoleHostError.text", "Invalid console address");
       }
     }
 
-    setConsoleAddressInternal(s);
+    setConsoleHostInternal(s);
   }
 
-  private void setConsoleAddressInternal(String s) {
-    if (!s.equals(m_consoleAddressString)) {
-      final String old = m_consoleAddressString;
-      m_consoleAddressString = s;
-      m_changeSupport.firePropertyChange(CONSOLE_ADDRESS_PROPERTY,
-                                         old, m_consoleAddressString);
+  private void setConsoleHostInternal(String s) {
+    if (!s.equals(m_consoleHostString)) {
+      final String old = m_consoleHostString;
+      m_consoleHostString = s;
+      m_changeSupport.firePropertyChange(CONSOLE_HOST_PROPERTY,
+                                         old, m_consoleHostString);
     }
   }
 
@@ -448,7 +421,7 @@ public final class ConsoleProperties {
    * Get the console port.
    *
    * @return The port.
-   **/
+   */
   public int getConsolePort() {
     return m_consolePort;
   }
@@ -458,7 +431,7 @@ public final class ConsoleProperties {
    *
    * @param i The port number.
    * @throws DisplayMessageConsoleException If the port number is not sensible.
-   **/
+   */
   public void setConsolePort(int i)
     throws DisplayMessageConsoleException {
     assertValidPort(i);
@@ -474,88 +447,15 @@ public final class ConsoleProperties {
     }
   }
 
-  /**
-   * Get the grinder process multicast address as a string.
-   *
-   * @return The address.
-   **/
-  public String getGrinderAddress() {
-    return m_grinderAddressString;
-  }
-
-  /**
-   * Set the grinder process multicast address.
-   *
-   * @param s Either a machine name or the IP address.
-   * @throws DisplayMessageConsoleException If the multicast address is
-   * not valid.
-   **/
-  public void setGrinderAddress(String s)
-    throws DisplayMessageConsoleException {
-    final InetAddress newAddress;
-
-    try {
-      newAddress = InetAddress.getByName(s);
-    }
-    catch (UnknownHostException e) {
-      throw new DisplayMessageConsoleException(
-        "unknownHostError.text", "Unknown hostname");
-    }
-
-    if (!newAddress.isMulticastAddress()) {
-      throw new DisplayMessageConsoleException(
-        "invalidGrinderAddressError.text",
-        "Invalid multicast address");
-    }
-
-    setGrinderAddressInternal(s);
-  }
-
-  private void setGrinderAddressInternal(String s) {
-    if (!s.equals(m_grinderAddressString)) {
-      final String old = m_grinderAddressString;
-      m_grinderAddressString = s;
-      m_changeSupport.firePropertyChange(GRINDER_ADDRESS_PROPERTY,
-                                         old, m_grinderAddressString);
-    }
-  }
-
-  /**
-   * Get the grinder process multicast port.
-   *
-   * @return The port.
-   **/
-  public int getGrinderPort() {
-    return m_grinderPort;
-  }
-
-  /**
-   * Set the grinder process multicast port.
-   *
-   * @param port The port number.
-   * @throws DisplayMessageConsoleException If the port number is not sensible.
-   **/
-  public void setGrinderPort(int port)
-    throws DisplayMessageConsoleException {
-    assertValidPort(port);
-    setGrinderPortInternal(port);
-  }
-
-  private void setGrinderPortInternal(int port) {
-    if (port != m_grinderPort) {
-      final int old = m_grinderPort;
-      m_grinderPort = port;
-      m_changeSupport.firePropertyChange(GRINDER_PORT_PROPERTY,
-                                         old, m_grinderPort);
-    }
-  }
-
   private void assertValidPort(int port)
     throws DisplayMessageConsoleException {
-    if (port < 0 || port > CommunicationDefaults.MAX_PORT) {
+    if (port < CommunicationDefaults.MIN_PORT ||
+        port > CommunicationDefaults.MAX_PORT) {
       throw new DisplayMessageConsoleException(
         "invalidPortNumberError.text",
-        "Port numbers should be in the range [0, 65535]");
+        "Port numbers should be in the range [" +
+        CommunicationDefaults.MIN_PORT + ", " +
+        CommunicationDefaults.MAX_PORT + "]");
     }
   }
 

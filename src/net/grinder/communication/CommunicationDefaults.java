@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,17 +30,14 @@ package net.grinder.communication;
  */
 public final class CommunicationDefaults {
 
-  /** Default console address. Bind to all interfaces by default. */
-  public static final String CONSOLE_ADDRESS = "";
+  /** Default console host. Bind to all interfaces by default. */
+  public static final String CONSOLE_HOST = "";
 
   /** Default console port. */
   public static final int CONSOLE_PORT = 6372;
 
-  /** Default worker process address. */
-  public static final String GRINDER_ADDRESS = "228.1.1.1";
-
-  /** Default worker process port. */
-  public static final int GRINDER_PORT = 1234;
+  /** Minimum value for ports. */
+  public static final int MIN_PORT = 1;
 
   /** Maximum value for ports. */
   public static final int MAX_PORT = 0xFFFF;

@@ -37,16 +37,21 @@ public class CopyStreamRunnable implements Runnable {
 
   private final InputStream m_in;
   private final OutputStream m_out;
+  private final boolean m_closeStreamsOnExit;
 
   /**
    * Constructor.
    *
    * @param in Input stream.
    * @param out Output stream.
+   * @param closeStreamsOnExit <code>true</code> => ensure the streams
+   * are closed when exiting.
    */
-  public CopyStreamRunnable(InputStream in, OutputStream out) {
+  public CopyStreamRunnable(InputStream in, OutputStream out,
+                            boolean closeStreamsOnExit) {
     m_in = in;
     m_out = out;
+    m_closeStreamsOnExit = closeStreamsOnExit;
   }
 
   /**
@@ -86,21 +91,27 @@ public class CopyStreamRunnable implements Runnable {
       // ... and InterruptedExceptions.
     }
 
-    // We're exiting, usually because the in stream has been
-    // closed. Whatever, close our streams. This will cause the
-    // paired thread to exit too.
     try {
-      m_out.close();
+      m_out.flush();
     }
     catch (IOException e) {
       // Ignore.
     }
 
-    try {
-      m_in.close();
-    }
-    catch (IOException e) {
-      // Ignore.
+    if (m_closeStreamsOnExit) {
+      try {
+        m_out.close();
+      }
+      catch (IOException e) {
+        // Ignore.
+      }
+
+      try {
+        m_in.close();
+      }
+      catch (IOException e) {
+        // Ignore.
+      }
     }
   }
 }

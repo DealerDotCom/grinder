@@ -32,6 +32,9 @@ import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ReportStatusMessage;
+import net.grinder.communication.ResetGrinderMessage;
+import net.grinder.communication.StartGrinderMessage;
+import net.grinder.communication.StopGrinderMessage;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
@@ -41,7 +44,7 @@ import net.grinder.statistics.StatisticsView;
 
 
 /**
- * This is the entry point of The Grinder Console.
+ * This is the entry point of The Grinder console.
  *
  * @author Paco Gomez
  * @author Philip Aston
@@ -81,7 +84,7 @@ public class Console {
       new ActionListener() {
         public void actionPerformed(ActionEvent event) {
           processStatusSet.processEvent();
-          m_communication.sendStartMessage();
+          m_communication.send(new StartGrinderMessage());
         }
       };
 
@@ -89,7 +92,7 @@ public class Console {
       new ActionListener() {
         public void actionPerformed(ActionEvent event) {
           processStatusSet.processEvent();
-          m_communication.sendResetMessage();
+          m_communication.send(new ResetGrinderMessage());
         }
       };
 
@@ -97,7 +100,7 @@ public class Console {
       new ActionListener() {
         public void actionPerformed(ActionEvent event) {
           processStatusSet.processEvent();
-          m_communication.sendStopMessage();
+          m_communication.send(new StopGrinderMessage());
         }
       };
 
@@ -137,7 +140,7 @@ public class Console {
 
       if (message instanceof ReportStatusMessage) {
         m_model.getProcessStatusSet().addStatusReport(
-          message.getSenderUniqueID(), (ReportStatusMessage)message);
+          (ReportStatusMessage)message);
       }
     }
   }

@@ -47,6 +47,13 @@ public interface ProcessStatus {
   short STATE_FINISHED = 3;
 
   /**
+   * Return a  unique String identifying the process.
+   *
+   * @return The process name.
+   **/
+  String getIdentity();
+
+  /**
    * Return the process name.
    *
    * @return The process name.
