@@ -1,3 +1,32 @@
+2001-01-11  Philip Aston  <paston@beasys.com>
+
+	* build.xml: 
+	* src/net/grinder/TCPSniffer.java: 
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java: 
+	* src/net/grinder/tools/tcpsniffer/ConnectionDetails.java: 
+	* src/net/grinder/tools/tcpsniffer/EchoFilter.java: 
+	* src/net/grinder/tools/tcpsniffer/NullFilter.java: 
+	* src/net/grinder/tools/tcpsniffer/SSLSnifferEngineImpl.java: 
+	* src/net/grinder/tools/tcpsniffer/SnifferEngine.java: 
+	* src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java: 
+	* src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java: 
+	* src/net/grinder/tools/tcpsniffer/SnifferFilter.java: 
+		New TCP sniffer. 
+
+	* src/net/grinder/plugin/http/tools/README
+	* src/net/grinder/plugin/http/tools/SnifferServlet.java 
+	* src/net/grinder/plugin/http/tools/WebAppSnifferServlet.java
+	* src/net/grinder/plugin/http/tools/WebLogicSnifferServlet.java
+		Dead. Use the TCP sniffer instead.
+
+	* src/net/grinder/console/Console.java: 
+		Direct use is deprecated.
+
+2001-01-09  Philip Aston  <paston@beasys.com>
+
+	* src/net/grinder/Console.java: 
+		New wrapper class.
+
 2001-01-08  Philip Aston  <paston@beasys.com>
 
 	* src/net/grinder/engine/process/GrinderThread.java: 

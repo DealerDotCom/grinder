@@ -137,3 +137,98 @@ What can I set in grinder.properties for the HTTP plugin?
 				setting the property to true prevents
 				the cookie from being picked up by the
 				plugin.
+
+
+What is the TCPSniffer and how do I use it?
+*******************************************
+
+The TCPSniffer is a proxy that you can place between in a TCP stream.
+It filters the request and response streams, sending the results to
+stdout. You can control its behaviour by specifying different filters.
+
+Whilst its very useful in its own right, its main purpose as far as
+the Grinder goes is to automatically generate scripts for the HTTP
+plugin.
+
+You invoke the sniffer with something like:
+
+  CLASSPATH=/opt/grinder/lib/grinder.jar;
+  CLASSPATH=$CLASSPATH:/opt/jakarta-regexp-1.2/jakarta-regexp-1.2.jar
+  export CLASSPATH
+
+  java net.grinder.TCPSniffer
+
+Say "java net.grinder.TCPSniffer -?" to get a list of the command line
+options.
+
+To use it to generate a HTTP plugin script segment of a conversation
+with a server on host "server", port "7001", you should say something
+like:
+
+  java net.grinder.TCPSniffer -httpPluginFilter -remoteHost server
+
+  Initialising standard sniffer engine with the parameters:
+     Request filter:  net.grinder.plugin.http.HttpPluginSnifferFilter
+     Response filter: net.grinder.tools.tcpsniffer.NullFilter
+     Local port:       8001
+     Remote host:      server
+     Remote port:      7001
+  Engine initialised, listening on port 8001
+  Starting engine
+
+You should then point your browser at "localhost:8001" and exercise
+the application.
+
+You should obtain the Jakarta Regexp package from
+http://jakarta.apache.org/. We don't include it with the Grinder
+distribution due to the restrictions of the GPL, see
+http://www.gnu.org/philosophy/license-list.html for details.
+
+
+Using the HttpPluginSnifferFilter
+*********************************
+
+The output of the HttpPluginSnifferFilter looks like:
+
+  java net.grinder.TCPSniffer -httpPluginFilter
+
+  Initialising standard sniffer engine with the parameters:
+     Request filter:  net.grinder.plugin.http.HttpPluginSnifferFilter
+     Response filter: net.grinder.tools.tcpsniffer.NullFilter
+     Local port:       8001
+     Remote host:      localhost
+     Remote port:      7001
+  Engine initialised, listening on port 8001
+  Starting engine
+  grinder.plugin.parameter.url0=http://localhost:7001/
+  grinder.plugin.parameter.url1=http://localhost:7001/lah.html
+  grinder.plugin.parameter.url2=http://localhost:7001/test.gif
+  grinder.plugin.parameter.url3=http://localhost:7001/snoop
+  grinder.plugin.parameter.post3=http-plugin-sniffer-post-3
+
+The script part of this is sent to the stdout stream, whereas the
+information messages are sent to stderr. You can redirect the script
+part to a file if you wish:
+
+  java net.grinder.TCPSniffer -httpPluginFilter > myscript
+
+Note, the HttpPluginSnifferFilter does not produce a complete
+grinder.properties script. In particular, it does not output thr
+property grinder.plugin.methods. You currently have to do this by hand
+(patches accepted!).
+
+Additionaly, the parsing of HTTP messages probably contains bugs.
+Don't let this put you off, using the HttpPluginSnifferFilter is a
+very quick way of doing 95% of a tedious job.
+
+
+Development goals
+*****************
+
+The Grinder should remain simple and Java based.
+
+The Grinder should be useable with the standard JDK. For example, it
+should not rely on WebLogic Server specific classes except for
+optional WebLogic Server specific extensions. An exception to this
+rule has been made for Jakarta Ant and Regexp because they are under
+Free (unless you talk to RMS) licenses.

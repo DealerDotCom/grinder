@@ -9,14 +9,10 @@ is roughly in priority order.]
   Console should collect the total number of transactions and do the
   calculation. (PhilA is working on this)
 
-  The sniffer servlet probably has to reencode post data before
-  writing to file.
-
-  Replace the SnifferServlets with a standalone proxy based on PhilD's
-  tcpSniffer.
-
   Add ability to engine to have different delays for different
-  methods. As an encore, make the SnifferServlets record timings.
+  methods. This will probably involve making yet another change to the 
+  grinder.properties format. As an encore, make the TCPSniffer record
+  timings.
 
   Documenatation, in text format. Volunteers please!
 
@@ -34,10 +30,15 @@ is roughly in priority order.]
   know how far the benchmark is going, especially if there are 100 or
   1000 cycles.
 
+  In the error messages (error*.log) it would be very helpful to have
+  the cycle number in addition to all the info there is already (host,
+  jvm, thread, url)
+
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
 	Just include the current version in distjar target.
-	Optionally build the weblogic dependent classes.
 	Fix javadoc warnings.
-
-  Repackage Console to java.net.grinder for consistency?
+	
+  Minor fixes to HttpPluginSnifferFilter:
+	Respect charset information.
+	Sanity check the processing agains RFC 2616
