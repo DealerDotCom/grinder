@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,14 +31,21 @@ package net.grinder.statistics;
  * @author Philip Aston
  * @version $Revision$
  * @see net.grinder.script.Grinder.ScriptContext#getStatistics
- **/
+ */
 public interface RawStatistics {
 
   /**
    * Reset this RawStatistics to default values. Allows instance to
    * be reused.
-   **/
+   */
   void reset();
+
+  /**
+   * Clone this object.
+   *
+   * @return A copy of this RawStatistics.
+   */
+  RawStatistics snapshot();
 
   /**
    * Return the value specified by <code>index</code>.
@@ -61,7 +68,7 @@ public interface RawStatistics {
    *
    * @param index The process specific index.
    * @param value The value.
-   **/
+   */
   void setValue(StatisticsIndexMap.LongIndex index, long value);
 
   /**
@@ -69,7 +76,7 @@ public interface RawStatistics {
    *
    * @param index The process specific index.
    * @param value The value.
-   **/
+   */
   void setValue(StatisticsIndexMap.DoubleIndex index, double value);
 
   /**
@@ -78,7 +85,7 @@ public interface RawStatistics {
    *
    * @param index The process specific index.
    * @param value The value.
-   **/
+   */
   void addValue(StatisticsIndexMap.LongIndex index, long value);
 
   /**
@@ -87,7 +94,7 @@ public interface RawStatistics {
    *
    * @param index The process specific index.
    * @param value The value.
-   **/
+   */
   void addValue(StatisticsIndexMap.DoubleIndex index, double value);
 
   /**
@@ -102,16 +109,6 @@ public interface RawStatistics {
    * Add the values of another {@link RawStatistics} to ours.
    * Assumes we don't need to synchronise access to operand.
    * @param operand The {@link RawStatistics} value to add.
-   **/
+   */
   void add(RawStatistics operand);
-
-  /**
-   * Return a {@link RawStatistics} representing the change since
-   * the last snapshot.
-   *
-   * @param updateSnapshot <code>true</code> => update the snapshot.
-   * @return A {@link RawStatistics} representing the difference
-   * between our values and the snapshot's values.
-   **/
-  RawStatistics getDelta(boolean updateSnapshot);
 }
