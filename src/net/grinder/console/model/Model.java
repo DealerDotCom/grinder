@@ -108,6 +108,7 @@ public class Model
     private int m_state = 0;
     private long m_sampleCount = 0;
     private boolean m_receivedReport = false;
+    private boolean m_receivedReportInLastInterval = false;
     private final List m_modelListeners = new LinkedList();
 
     private final StatisticsIndexMap.LongIndex m_periodIndex;
@@ -122,7 +123,7 @@ public class Model
 
     /**
      * System.currentTimeMillis is expensive. This is acurate to one
-     * sample period.
+     * sample interval.
      **/
     private long m_currentTime;
 
@@ -514,6 +515,10 @@ public class Model
 
 		if (m_receivedReport) {
 		    ++m_sampleCount;
+		    m_receivedReportInLastInterval = true;
+		}
+		else {
+		    m_receivedReportInLastInterval = false;
 		}
 		
 		if (state == STATE_CAPTURING) {
@@ -558,10 +563,10 @@ public class Model
 	return m_sampleCount;
     }
 
-    /** Whether or not a report was received in the last period. */
+    /** Whether or not a report was received in the last interval. */
     public boolean getReceivedReport()
     {
-	return m_receivedReport;
+	return m_receivedReportInLastInterval;
     }
 
     public int getState()
