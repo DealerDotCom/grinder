@@ -234,10 +234,23 @@ engine.</p>
  </tr>
 
  <tr>
-  <td valign="top"><code><a name="grinder.runs">grinder.runs</a></code></td>
-  <td>The number of runs of the test script each thread performs. 0
-  means "run forever", and should be used when you are using the
-  console to control your test runs. Default is 1.</td>
+  <td valign="top"><code><a
+  name="grinder.runs">grinder.runs</a></code></td> <td>The number of
+  runs of the test script each thread performs. 0 means "run forever",
+  and should be used when you are using the console to control your
+  test runs. Default is 1.</td>
+ </tr>
+
+ <tr>
+  <td valign="top"><code><a name="grinder.duration">grinder.duration</a></code></td>
+
+  <td>The maximum length of time in milliseconds that each worker
+  process should run for. Default is to run forever.
+  <code>grinder.duration</code> can be specified in conjunction with
+  <a href="#grinder.runs">grinder.runs</a>, in which case the worker
+  processes will terminate if either the duration time or the number
+  of runs is exceeded.</td>
+
  </tr>
 
  <tr>

@@ -142,7 +142,9 @@ public final class GrinderProcess implements Monitor {
   private final File m_scriptFile;
   private final ConsoleListener m_consoleListener;
   private final int m_reportToConsoleInterval;
-
+  private final int m_duration;
+  
+  private boolean m_shutdownTriggered;
   private int m_lastMessagesReceived = 0;
 
   /**
@@ -197,6 +199,8 @@ public final class GrinderProcess implements Monitor {
     }
 
     m_consoleListener = consoleListener;
+    
+    m_duration = properties.getInt("grinder.duration", 0);
   }
 
   /**
@@ -260,7 +264,7 @@ public final class GrinderProcess implements Monitor {
 	t.start();
       }
 
-      final Timer timer = new Timer();
+      final Timer timer = new Timer(true);
       final TimerTask reportToConsoleTimerTask =
 	new ReportToConsoleTimerTask();
 
@@ -271,6 +275,13 @@ public final class GrinderProcess implements Monitor {
 	// last report.
 	timer.schedule(reportToConsoleTimerTask, 0,
 		       m_reportToConsoleInterval);
+
+	if (m_duration > 0) {
+	  logger.output("will shutdown after " + m_duration + " ms", 
+			Logger.LOG | Logger.TERMINAL);
+
+	  timer.schedule(new ShutdownTimerTask(), m_duration);
+	}
 
 	// Wait for a termination event.
 	synchronized (this) {
@@ -286,6 +297,12 @@ public final class GrinderProcess implements Monitor {
 		break;
 	      }
 	    }
+
+	    if (m_shutdownTriggered) {
+	      logger.output("specified duration exceeded, shutting down",
+			    Logger.LOG | Logger.TERMINAL);
+	      break;
+	    } 
 
 	    try {
 	      wait();
@@ -446,5 +463,15 @@ public final class GrinderProcess implements Monitor {
 	e.printStackTrace(logger.getErrorLogWriter());
       }
     }
+  }
+  
+  private class ShutdownTimerTask extends TimerTask {
+
+    public void run() {
+      synchronized (GrinderProcess.this) {
+	m_shutdownTriggered = true;
+	GrinderProcess.this.notifyAll();
+      }
+    } 
   }
 }

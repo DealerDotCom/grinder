@@ -31,6 +31,10 @@ Grinder 3.0-beta11
   Fix bug so that TestRunners are now initialised using their worker
   thread.
 
+  New property, grinder.duration, from Kalyanaraman Venkatasubramaniy.
+  This property allows an overall time limit to be set for worker
+  processes.
+
 
 Grinder 3.0-beta10
 ------------------
