@@ -88,6 +88,12 @@ HTTP plugin to support "mean time to first byte".
 
 Script support for HTTP "system property" options.
 
+Pablo Estades Fernández says:
+ > I need to use client cert on TCPProxy to be able to
+ > record the test case but also I need to configure
+ > grinder workers to run the test case presenting a
+ > client cert. 
+
 ** Scripting
 
 Add per-run statistics. This would also allow number of aborted runs
