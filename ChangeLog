@@ -1,3 +1,10 @@
+2001-06-21  Philip Aston  <paston@bea.com>
+
+	* AUTHORS, CHANGES, examples/socket/grinder.properties, src/net/grinder/plugin/socket/SocketPlugin.java:
+	Socket plugin from David Freels.
+
+	* build.xml: 2.6.3 will be next.
+
 2001-06-20  Philip Aston  <paston@bea.com>
 
 	* CHANGES, TODO, doc/HTTPPlugin.txt: Latest.
