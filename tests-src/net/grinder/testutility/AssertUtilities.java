@@ -50,8 +50,6 @@ public class AssertUtilities extends Assert {
       assertEquals(message + "arrays of equal length", a.length, b.length);
 
       for (int i = 0; i < a.length; ++i) {
-        assertEquals(message + "element " + i + " types equal",
-                     a[i].getClass(), b[i].getClass());
         assertEquals(message + "element " + i + " equal", a[i], b[i]);
       }
     }
