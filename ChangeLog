@@ -1,3 +1,13 @@
+2001-11-03  Philip Aston  <paston@bea.com>
+
+	* TODO: More to do.
+
+	* src/net/grinder/engine/process/ProcessContext.java:
+	Rename "Method" to "Test" in the data file header.
+
+	* doc/HTTPClient-license.txt, etc/HTTPClient-license.txt:
+	Move HTTPClient-license.txt to the doc directory.
+
 2001-10-28  Philip Aston  <paston@bea.com>
 
 	* The Grinder 2.8 is released.
