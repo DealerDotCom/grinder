@@ -47,7 +47,7 @@ import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 
 import net.grinder.common.GrinderBuild;
-import net.grinder.util.CopyStreamRunnable;
+import net.grinder.util.CopyStream;
 
 
 
@@ -256,14 +256,16 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           // over localSocket to sslProxySocket, and vice versa.
           new Thread(
             getStreamHandlerThreadGroup(),
-            new CopyStreamRunnable(in, sslProxySocket.getOutputStream(), true),
+            new CopyStream(4096, true)
+            .getRunnable(in, sslProxySocket.getOutputStream()),
             "Copy to proxy engine for " + remoteEndPoint).start();
 
           final OutputStream out = localSocket.getOutputStream();
 
           new Thread(
             getStreamHandlerThreadGroup(),
-            new CopyStreamRunnable(sslProxySocket.getInputStream(), out, true),
+            new CopyStream(4096, true)
+            .getRunnable(sslProxySocket.getInputStream(), out),
             "Copy from proxy engine for " + remoteEndPoint).start();
 
           if (m_httpsProxySocketFactory != null) {

@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import net.grinder.engine.common.EngineException;
-import net.grinder.util.CopyStreamRunnable;
+import net.grinder.util.CopyStream;
 
 
 /**
@@ -134,8 +134,9 @@ final class ChildProcess {
                                         OutputStream outputStream) {
 
     final Thread thread =
-      new Thread(new CopyStreamRunnable(inputStream, outputStream, false),
-                 "Stream redirector");
+      new Thread(
+        new CopyStream(4096, false).getRunnable(inputStream, outputStream),
+        "Stream redirector");
 
     thread.setDaemon(true);
     thread.start();
