@@ -79,7 +79,7 @@ public class Grinder {
     int getRunNumber();
 
     /**
-     * Get a {@link net.grinder.common.Logger}. 
+     * Get a {@link net.grinder.common.Logger}.
      *
      * @return A <code>Logger</code>.
      */
