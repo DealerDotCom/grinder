@@ -14,4 +14,4 @@ export CLASSPATH=$(cygpath -w -p "${GRINDER}:${JUNIT}:${JTIDY}:${WLS}:${WLS_EXAM
 
 alias grind="java net.grinder.Grinder"
 alias console="java net.grinder.Console"
-alias sniff="java net.grinder.TCPSniffer"
+alias sniff="java net.grinder.TCPProxy"
