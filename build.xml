@@ -99,8 +99,8 @@ doesn't matter.
     <property name="dist.root" value="distribution"/>
     <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
     <property name="dist.jar" value="${name}-${version}.jar"/>
-<!--    <property name="distribute.ant" value="true"/> -->
-<!--    <property name="distribute.javadoc" value="true"/> -->
+    <property name="distribute.ant" value="true"/>
+    <property name="distribute.javadoc" value="true"/>
 
     <!-- too thick to figure this out without RTFM -->
     <filter token="year" value="${year}"/>
@@ -249,7 +249,7 @@ doesn't matter.
 
   <target name="realclean" depends="clean">
     <deltree dir="${dist.root}"/>
-    <delete file="${dist.jar}"/>
+<!--    <delete file="${dist.jar}"/> -->
     <deltree dir="${javadoc.dir}"/>
     <deltree dir="${lib.dir}"/>
   </target>
