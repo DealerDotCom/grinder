@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,77 +40,71 @@ import net.grinder.statistics.TestStatisticsMap;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class TestRegistry
-{
-    private static TestRegistry s_instance;
+public final class TestRegistry {
 
-    private final Sender m_consoleSender;
+  private static TestRegistry s_instance;
+  private final Sender m_consoleSender;
 
-    /**
-     * A map of Test to TestData's. (TestData is the class this
-     * package uses to store information about Tests). Synchronize on
-     * instance when accessesing.
-     **/
-    private final Map m_testMap = new TreeMap();
+  /**
+   * A map of Test to TestData's. (TestData is the class this
+   * package uses to store information about Tests). Synchronize on
+   * instance when accessesing.
+   **/
+  private final Map m_testMap = new TreeMap();
 
-    /**
-     * A map of Tests to Statistics for passing elsewhere.
-     **/
-    private final TestStatisticsMap m_testStatisticsMap =
-	new TestStatisticsMap();
+  /**
+   * A map of Tests to Statistics for passing elsewhere.
+   **/
+  private final TestStatisticsMap m_testStatisticsMap =
+    new TestStatisticsMap();
 
-    /**
-     * Singleton accessor.
-     */
-    public static final TestRegistry getInstance()
-    {
-	return s_instance;
+  /**
+   * Singleton accessor.
+   */
+  public static final TestRegistry getInstance() {
+    return s_instance;
+  }
+
+  /**
+   * Constructor.
+   */
+  TestRegistry(Sender consoleSender) throws EngineException {
+    if (s_instance != null) {
+      throw new EngineException("Already initialised");
     }
 
-    /**
-     * Constructor.
-     */
-    TestRegistry(Sender consoleSender) throws EngineException
-    {
-	if (s_instance != null) {
-	    throw new EngineException("Already initialised");
-	}
+    s_instance = this;
 
-	s_instance = this;
+    m_consoleSender = consoleSender;
+  }
 
-	m_consoleSender = consoleSender;
+  public RegisteredTest register(Test test) throws GrinderException {
+
+    final TestData newTestData;
+
+    synchronized (this) {
+      final TestData existing = (TestData)m_testMap.get(test);
+
+      if (existing != null) {
+	return existing;
+      }
+	    
+      newTestData = new TestData(test);
+      m_testMap.put(test, newTestData);
+      m_testStatisticsMap.put(test, newTestData.getStatistics());
     }
-
-    public RegisteredTest register(Test test)
-	throws GrinderException
-    {
-	final TestData newTestData;
-
-	synchronized (this) {
-	    final TestData existing = (TestData)m_testMap.get(test);
-
-	    if (existing != null) {
-		return new TestData(test, existing.getStatistics());
-	    }
-	    else {
-		newTestData = new TestData(test);
-		m_testMap.put(test, newTestData);
-		m_testStatisticsMap.put(test, newTestData.getStatistics());
-	    }
-	}
 	
-	m_consoleSender.queue(
-	    new RegisterTestsMessage(Collections.singleton(test)));
+    m_consoleSender.queue(
+      new RegisterTestsMessage(Collections.singleton(test)));
 
-	return newTestData;
-    }
+    return newTestData;
+  }
 
-    final TestStatisticsMap getTestStatisticsMap()
-    {
-	return m_testStatisticsMap;
-    }
+  final TestStatisticsMap getTestStatisticsMap() {
+    return m_testStatisticsMap;
+  }
 
-    public interface RegisteredTest {
-	Object createProxy(Object o) throws NotWrappableTypeException;
-    }
+  public interface RegisteredTest {
+    Object createProxy(Object o) throws NotWrappableTypeException;
+  }
 }
