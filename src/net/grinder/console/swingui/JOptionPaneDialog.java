@@ -22,6 +22,7 @@
 package net.grinder.console.swingui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.event.WindowAdapter;
@@ -54,6 +55,33 @@ public class JOptionPaneDialog extends JDialog {
                            String title, boolean modal) {
 
     super(frame, title, modal);
+    init(frame, optionPane);
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param dialog Parent dialog.
+   * @param optionPane JOptionPane to wrap.
+   * @param title The title.
+   * @param modal <code>true</code> => dialog should be modal.
+   */
+  public JOptionPaneDialog(JDialog dialog, JOptionPane optionPane,
+                           String title, boolean modal) {
+
+    super(dialog, title, modal);
+    init(dialog, optionPane);
+  }
+
+  /**
+   * Common initialisation. Sadly JDialog doesn't allow us to treat
+   * the owner component polymorphically, we need separate
+   * constructors for dialogs and frames.
+   *
+   * @param parentComponent Parent component.
+   * @param optionPane JOptionPane to wrap.
+   */
+  public void init(Component parentComponent, final JOptionPane optionPane) {
 
     setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 
@@ -61,7 +89,7 @@ public class JOptionPaneDialog extends JDialog {
     contentPane.setLayout(new BorderLayout());
     contentPane.add(optionPane, BorderLayout.CENTER);
     pack();
-    setLocationRelativeTo(frame);
+    setLocationRelativeTo(parentComponent);
 
     addWindowListener(
       new WindowAdapter() {
@@ -93,8 +121,7 @@ public class JOptionPaneDialog extends JDialog {
                e.getPropertyName().equals(JOptionPane.INPUT_VALUE_PROPERTY))) {
 
             final Cursor oldCursor = getCursor();
-            setCursor(
-              Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
             try {
               if (shouldClose()) {

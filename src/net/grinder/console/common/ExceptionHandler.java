@@ -23,17 +23,25 @@ package net.grinder.console.common;
 
 
 /**
- * Handler that deals with exceptions thrown by communication package.
+ * Handler that deals with displaying exceptions.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface ConsoleExceptionHandler {
+public interface ExceptionHandler {
 
   /**
    * Method that handles console exceptions.
    *
    * @param e The exception.
    */
-  void consoleExceptionOccurred(ConsoleException e);
+  void exceptionOccurred(Exception e);
+
+  /**
+   * Method that handles console exceptions.
+   *
+   * @param e The exception.
+   * @param title A title to use.
+   */
+  void exceptionOccurred(Throwable e, String title);
 }

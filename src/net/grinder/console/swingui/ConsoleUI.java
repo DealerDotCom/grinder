@@ -72,7 +72,7 @@ import org.syntax.jedit.tokenmarker.Token;
 
 import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
-import net.grinder.console.common.ConsoleExceptionHandler;
+import net.grinder.console.common.ExceptionHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
@@ -89,7 +89,7 @@ import net.grinder.statistics.TestStatistics;
  * @author Philip Aston
  * @version $Revision$
  */
-public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
+public final class ConsoleUI implements ModelListener {
 
   private static final Font s_tpsFont =
     new Font("helvetica", Font.ITALIC | Font.BOLD, 40);
@@ -103,6 +103,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
   private final JFrame m_frame;
   private final JLabel m_stateLabel = new JLabel();
   private final SamplingControlPanel m_samplingControlPanel;
+  private final ErrorDialogHandler m_errorDialogHandler;
 
   private final CumulativeStatisticsTableModel m_cumulativeTableModel;
 
@@ -140,6 +141,8 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     // pane. Need to do this before our actions are constructed as
     // the use the frame to create dialogs.
     m_frame = new JFrame(resources.getString("title"));
+
+    m_errorDialogHandler = new ErrorDialogHandler(m_frame, resources);
 
     m_stateIgnoringString = resources.getString("state.ignoring.label") + " ";
     m_stateWaitingString = resources.getString("state.waiting.label");
@@ -537,13 +540,13 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
    * @param newTests New tests.
    * @param modelTestIndex New model test index.
    */
-  public final void newTests(Set newTests, ModelTestIndex modelTestIndex) {
+  public void newTests(Set newTests, ModelTestIndex modelTestIndex) {
   }
 
   /**
    * {@link net.grinder.console.model.ModelListener} interface.
    **/
-  public final void update() {
+  public void update() {
 
     final int newState = updateStateLabel();
 
@@ -562,7 +565,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
    * @param intervalStatisticsView Interval statistics view.
    * @param cumulativeStatisticsView Cumulative statistics view.
    */
-  public final void newStatisticsViews(
+  public void newStatisticsViews(
     StatisticsView intervalStatisticsView,
     StatisticsView cumulativeStatisticsView) {
   }
@@ -572,7 +575,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
    * Existing <code>Test</code>s and <code>StatisticsView</code>s have
    * been discarded. We need do nothing.
    */
-  public final void resetTestsAndStatisticsViews() {
+  public void resetTestsAndStatisticsViews() {
   }
 
   private static final class WindowCloseAdapter extends WindowAdapter {
@@ -618,18 +621,14 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
             writer.close();
           }
           catch (IOException e) {
-            JOptionPane.showMessageDialog(
-              m_frame, e.getMessage(),
-              m_model.getResources().getString("fileError.title"),
-              JOptionPane.ERROR_MESSAGE);
+            getExceptionHandler().exceptionOccurred(
+              e, m_model.getResources().getString("fileError.title"));
           }
         }
       }
       catch (Exception e) {
-        JOptionPane.showMessageDialog(
-          m_frame, e.getMessage(),
-          m_model.getResources().getString("unexpectedError.title"),
-          JOptionPane.ERROR_MESSAGE);
+        getExceptionHandler().exceptionOccurred(
+          e, m_model.getResources().getString("unexpectedError.title"));
       }
     }
   }
@@ -801,10 +800,9 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
             properties.setResetConsoleWithProcessesDontAsk();
           }
           catch (GrinderException exception) {
-            JOptionPane.showMessageDialog(
-              m_frame, exception.getMessage(),
-              m_model.getResources().getString("unexpectedError.title"),
-              JOptionPane.ERROR_MESSAGE);
+            getExceptionHandler().exceptionOccurred(
+              exception,
+              m_model.getResources().getString("unexpectedError.title"));
             return;
           }
         }
@@ -858,15 +856,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
   }
 
   /**
-   * Display an error message dialog.
+   * Return an exception handler that other classes can use to report
+   * problems through the UI. Should be called from a Swing Thread.
    *
-   * @param e A <code>ConsoleException</code> containing the message
-   * to display.
+   * @return The exception handler.
    */
-  public final void consoleExceptionOccurred(ConsoleException e) {
-    JOptionPane.showMessageDialog(m_frame, e.getMessage(),
-                                  m_model.getResources().getString(
-                                    "error.title"),
-                                  JOptionPane.ERROR_MESSAGE);
+  public ExceptionHandler getExceptionHandler() {
+    return m_errorDialogHandler;
   }
 }

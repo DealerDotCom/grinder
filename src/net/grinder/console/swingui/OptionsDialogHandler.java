@@ -179,9 +179,7 @@ abstract class OptionsDialogHandler {
                 m_resetConsoleWithProcessesCheckBox.isSelected());
             }
             catch (ConsoleException e) {
-              JOptionPane.showMessageDialog(
-                m_dialog, e.getMessage(), resources.getString("error.title"),
-                JOptionPane.ERROR_MESSAGE);
+              new ErrorDialogHandler(m_dialog, resources).exceptionOccurred(e);
               return false;
             }
 
@@ -192,10 +190,9 @@ abstract class OptionsDialogHandler {
               catch (GrinderException e) {
                 final Throwable nested = e.getNestedThrowable();
 
-                JOptionPane.showMessageDialog(
-                  m_dialog, (nested != null ? nested : e).getMessage(),
-                  resources.getString("fileError.title"),
-                  JOptionPane.ERROR_MESSAGE);
+                new ErrorDialogHandler(m_dialog, resources).exceptionOccurred(
+                  nested != null ? nested : e,
+                  resources.getString("fileError.title"));
 
                 return false;
               }

@@ -80,49 +80,33 @@ public class Console {
     final ActionListener startHandler =
       new ActionListener() {
         public void actionPerformed(ActionEvent event) {
-          try {
-            processStatusSet.processEvent();
-            m_communication.sendStartMessage();
-          }
-          catch (GrinderException e) {
-            System.err.println("Could not send start message: " + e);
-            e.printStackTrace();
-          }
+          processStatusSet.processEvent();
+          m_communication.sendStartMessage();
         }
       };
 
     final ActionListener resetHandler =
       new ActionListener() {
         public void actionPerformed(ActionEvent event) {
-          try {
-            processStatusSet.processEvent();
-            m_communication.sendResetMessage();
-          }
-          catch (GrinderException e) {
-            System.err.println("Could not send reset message: " + e);
-            e.printStackTrace();
-          }
+          processStatusSet.processEvent();
+          m_communication.sendResetMessage();
         }
       };
 
     final ActionListener stopHandler =
       new ActionListener() {
         public void actionPerformed(ActionEvent event) {
-          try {
-            processStatusSet.processEvent();
-            m_communication.sendStopMessage();
-          }
-          catch (GrinderException e) {
-            System.err.println("Could not send stop message: " + e);
-            e.printStackTrace();
-          }
+          processStatusSet.processEvent();
+          m_communication.sendStopMessage();
         }
       };
 
     m_userInterface =
       new ConsoleUI(m_model, startHandler, resetHandler, stopHandler);
 
-    m_communication = new ConsoleCommunication(properties, m_userInterface);
+    m_communication =
+      new ConsoleCommunication(properties,
+                               m_userInterface.getExceptionHandler());
   }
 
   /**

@@ -36,7 +36,7 @@ import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
 import net.grinder.communication.UnicastReceiver;
 import net.grinder.console.common.ConsoleException;
-import net.grinder.console.common.ConsoleExceptionHandler;
+import net.grinder.console.common.ExceptionHandler;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.model.ConsoleProperties;
 
@@ -50,14 +50,14 @@ import net.grinder.console.model.ConsoleProperties;
 final class ConsoleCommunication {
 
   private final ConsoleProperties m_properties;
-  private final ConsoleExceptionHandler m_exceptionHandler;
+  private final ExceptionHandler m_exceptionHandler;
 
   private Receiver m_receiver = null;
   private Sender m_sender = null;
   private boolean m_deaf = true;
 
-  ConsoleCommunication(ConsoleProperties properties,
-                       ConsoleExceptionHandler exceptionHandler) {
+  public ConsoleCommunication(ConsoleProperties properties,
+                              ExceptionHandler exceptionHandler) {
     m_properties = properties;
     m_exceptionHandler = exceptionHandler;
 
@@ -69,16 +69,13 @@ final class ConsoleCommunication {
         public void propertyChange(PropertyChangeEvent event) {
           final String property = event.getPropertyName();
 
-          if (property.equals(
-                ConsoleProperties.CONSOLE_ADDRESS_PROPERTY) ||
-              property.equals(
-                ConsoleProperties.CONSOLE_PORT_PROPERTY)) {
+          if (property.equals(ConsoleProperties.CONSOLE_ADDRESS_PROPERTY) ||
+              property.equals(ConsoleProperties.CONSOLE_PORT_PROPERTY)) {
             resetReceiver();
           }
-          else if (property.equals(
-                     ConsoleProperties.GRINDER_ADDRESS_PROPERTY) ||
-                   property.equals(
-                     ConsoleProperties.GRINDER_PORT_PROPERTY)) {
+          else if (
+            property.equals(ConsoleProperties.GRINDER_ADDRESS_PROPERTY) ||
+            property.equals(ConsoleProperties.GRINDER_PORT_PROPERTY)) {
             resetSender();
           }
         }
@@ -88,7 +85,7 @@ final class ConsoleCommunication {
   private void resetReceiver() {
     try {
       if (m_receiver != null) {
-        m_receiver.shutdown();
+         m_receiver.shutdown();
       }
 
       synchronized (this) {
@@ -102,9 +99,8 @@ final class ConsoleCommunication {
         }
       }
 
-      m_receiver =
-        new UnicastReceiver(m_properties.getConsoleAddress(),
-                            m_properties.getConsolePort());
+      m_receiver = new UnicastReceiver(m_properties.getConsoleAddress(),
+                                       m_properties.getConsolePort());
 
       synchronized (this) {
         m_deaf = false;
@@ -112,10 +108,10 @@ final class ConsoleCommunication {
       }
     }
     catch (CommunicationException e) {
-      m_exceptionHandler.consoleExceptionOccurred(
-        new DisplayMessageConsoleException(
-          "localBindError.text",
-          "Failed to bind to local address"));
+      m_exceptionHandler.exceptionOccurred(
+        new DisplayMessageConsoleException("localBindError.text",
+                                           "Failed to bind to local address",
+                                           e));
     }
   }
 
@@ -130,35 +126,49 @@ final class ConsoleCommunication {
     }
 
     try {
-      m_sender =
-        new MulticastSender("Console (" + host + ")",
-                            m_properties.getGrinderAddress(),
-                            m_properties.getGrinderPort());
+      m_sender = new MulticastSender("Console (" + host + ")",
+                                     m_properties.getGrinderAddress(),
+                                     m_properties.getGrinderPort());
     }
     catch (CommunicationException e) {
-      m_exceptionHandler.consoleExceptionOccurred(
+      m_exceptionHandler.exceptionOccurred(
         new DisplayMessageConsoleException(
           "multicastConnectError.text",
-          "Failed to connect to multicast address"));
+          "Failed to connect to multicast address",
+          e));
     }
   }
 
-  void sendStartMessage() throws CommunicationException {
-    m_sender.send(new StartGrinderMessage());
+  private void send(Message message) {
+
+    try {
+      m_sender.send(message);
+    }
+    catch (CommunicationException e) {
+      m_exceptionHandler.exceptionOccurred(
+        new DisplayMessageConsoleException(
+          "multicastSendError.text",
+          "Failed to send multicast message",
+          e));
+    }
   }
 
-  void sendResetMessage() throws CommunicationException {
-    m_sender.send(new ResetGrinderMessage());
+  public void sendStartMessage() {
+    send(new StartGrinderMessage());
   }
 
-  void sendStopMessage() throws CommunicationException {
-    m_sender.send(new StopGrinderMessage());
+  public void sendResetMessage() {
+    send(new ResetGrinderMessage());
+  }
+
+  public void sendStopMessage() {
+    send(new StopGrinderMessage());
   }
 
   /**
    * @return The message.
    **/
-  Message waitForMessage() {
+  public Message waitForMessage() {
     while (true) {
       synchronized (this) {
         while (m_deaf) {
@@ -185,8 +195,7 @@ final class ConsoleCommunication {
         return message;
       }
       catch (CommunicationException e) {
-        e.printStackTrace();
-        m_exceptionHandler.consoleExceptionOccurred(
+        m_exceptionHandler.exceptionOccurred(
           new ConsoleException(e.getMessage(), e));
       }
     }
