@@ -29,7 +29,9 @@ import java.util.Set;
  */
 public class RegisterTestsMessage extends Message
 {
-    final Set m_tests;
+    private static final long serialVersionUID = -7078786346425431655L;
+
+    private final Set m_tests;
 
     /**
      * Constructor.
