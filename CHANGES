@@ -1,7 +1,9 @@
-next is Grinder 2.8.4
+Grinder 2.8.4
 -------------
 
    Unified HTTP/HTTPS proxy.
+
+   Allow spaces in grinder.properies file names and host names.
 
 
 Grinder 2.8.3

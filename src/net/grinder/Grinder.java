@@ -25,6 +25,7 @@ package net.grinder;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
@@ -72,10 +73,17 @@ public class Grinder
 	    final GrinderProperties properties =
 		new GrinderProperties(m_alternateFile);
 
-	    final int numberOfProcesses =
-		properties.getInt("grinder.processes", 1);
+	    final ArrayList command = new ArrayList();
 
-	    final String jvm = properties.getProperty("grinder.jvm", "java");
+	    command.add(properties.getProperty("grinder.jvm", "java"));
+
+	    // Need to tokenize?
+	    final String jvmArguments =
+		properties.getProperty("grinder.jvm.arguments", "");
+
+	    command.add(jvmArguments);
+	    
+	    command.add("-classpath");
 
 	    final String additionalClasspath =
 		properties.getProperty("grinder.jvm.classpath", null);
@@ -87,28 +95,43 @@ public class Grinder
 	    classpath.replace(';', File.pathSeparatorChar);
 	    classpath.replace(':', File.pathSeparatorChar);
 
+	    command.add(classpath);
+
+	    if (ignoreInitialSignal) {
+		command.add(
+		    "-D" + GrinderProcess.DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME +
+		    "=true");
+	    }
+
+	    command.add(GrinderProcess.class.getName());
+
 	    final String hostIDString =
 		properties.getProperty("grinder.hostID", getHostName());
 
-	    final String ignoreInitialSignalHack =
-		ignoreInitialSignal ?
-		("-D" +
-		 GrinderProcess.DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME + "=true ")
-		: "";
+	    final int grinderIDIndex = command.size();
+	    command.add("");	// Place holder for grinder ID.
 
-	    final String command =
-		jvm + " " +
-		properties.getProperty("grinder.jvm.arguments", "") +
-		" -classpath " + classpath + " " +
-		ignoreInitialSignalHack + GrinderProcess.class.getName();
+	    if (m_alternateFile != null) {
+		command.add(m_alternateFile.getPath());
+	    }
+
+	    final int numberOfProcesses =
+		properties.getInt("grinder.processes", 1);
 
 	    final LauncherThread[] threads =
 		new LauncherThread[numberOfProcesses];
 
+	    final String[] stringArray = new String[0];
+
 	    for (int i=0; i<numberOfProcesses; i++) {
-		threads[i] = new LauncherThread(hostIDString + "-" +
-						Integer.toString(i),
-						command, m_alternateFile);
+		final String grinderID = hostIDString + "-" + i;
+
+		final String[] commandArray =
+		    (String[])command.toArray(stringArray);
+
+		commandArray[grinderIDIndex] = grinderID;
+
+		threads[i] = new LauncherThread(grinderID, commandArray);
 		threads[i].start();
 	    }
 

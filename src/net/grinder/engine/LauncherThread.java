@@ -23,7 +23,6 @@
 package net.grinder.engine;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
@@ -46,31 +45,33 @@ import net.grinder.common.GrinderException;
 public class LauncherThread extends Thread
 {
     private final String m_grinderID;
-    private final String m_commandLine;
+    private final String[] m_commandArray;
+    private final String m_commandString;
     private int m_exitStatus = 0;
     
     /**
      * The constructor.
      * It starts a new thread that will execute the run method.
      */    
-    public LauncherThread(String grinderID, String commandLine,
-			  File alternatePropertiesFile)
+    public LauncherThread(String grinderID, String[] commandArray)
 	throws GrinderException
     {
 	super(grinderID);
 
 	m_grinderID = grinderID;
+	m_commandArray = commandArray;
 
-	final StringBuffer stringBuffer = new StringBuffer(commandLine);
-	stringBuffer.append(" ");
-	stringBuffer.append(grinderID);
+	final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
 
-	if (alternatePropertiesFile != null) {
-	    stringBuffer.append(" ");
-	    stringBuffer.append(alternatePropertiesFile.getPath());
+	for (int i=0; i<commandArray.length; ++i) {
+	    if (i != 0) {
+		buffer.append(" ");
+	    }
+
+	    buffer.append(commandArray[i]);
 	}
 
-	m_commandLine = stringBuffer.toString();
+	m_commandString = buffer.toString();
     }
   
     /**
@@ -82,9 +83,9 @@ public class LauncherThread extends Thread
 	try{
 	    System.out.println("Grinder Process (" + m_grinderID +
 			       ") started with command line: " +
-			       m_commandLine);
+			       m_commandString);
 
-	    final Process process = Runtime.getRuntime().exec(m_commandLine);
+	    final Process process = Runtime.getRuntime().exec(m_commandArray);
       
 	    final BufferedReader outputReader =
 		new BufferedReader(
