@@ -111,7 +111,7 @@ class MessageQueue
 	synchronized (getMutex()) {
 	    while (!m_shutdown && block && m_messages.size() == 0) {
 		try {
-		    m_messages.wait();
+		    getMutex().wait();
 		}
 		catch (InterruptedException e) {
 		}
