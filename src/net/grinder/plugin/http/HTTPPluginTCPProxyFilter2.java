@@ -27,6 +27,7 @@ package net.grinder.plugin.http;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -85,11 +86,13 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)";
   private static final String DEBUG_PROPERTY = "debug";
   private static final String COOKIENAME_PROPERTY = "cookieName";
-  private static final String SEARCHEDPAGESUFFIX_PROPERTY =
-    "searchedPageSuffix";
+  private static final String SEARCHEDPAGEPATTERN_PROPERTY =
+    "searchedPagePattern";
   private static final String EXCLUDERESOURCE_PROPERTY = "excludeResource";
   private static final String RESOURCES_PROPERTY = "resources";
   private static final String SLEEPTIME_PROPERTY = "sleepTime";
+  private static final String DISCARD_PATTERN = "discardPattern";
+  private static final int DISCARD_PATTERN_LENGTH = 10;
 
   private boolean m_extractJsession = false;
   private static final String s_userAgent =
@@ -98,15 +101,18 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     System.getProperty(DEBUG_PROPERTY, "off");
   private static final String s_cookieName =
     System.getProperty(COOKIENAME_PROPERTY, "JSESSIONID");
-  private static final String s_searchedPageSuffix =
-    System.getProperty(SEARCHEDPAGESUFFIX_PROPERTY, "home.jsp");
+  private static final String s_searchedPagePattern =
+    System.getProperty(SEARCHEDPAGEPATTERN_PROPERTY, "^.*?home.jsp$");
   private static String[] s_resource;
   private static final String s_excludeResource =
     System.getProperty(EXCLUDERESOURCE_PROPERTY, "off");
   private static final long s_sleepTime =
     Integer.getInteger(SLEEPTIME_PROPERTY, -1).intValue();
+  private static final String[] s_discardPattern =
+    new String[DISCARD_PATTERN_LENGTH];
 
-  private static final String s_newLine = System.getProperty("line.separator");
+  private static final String s_newLine =
+    System.getProperty("line.separator");
   private static final String s_indent = "    ";
 
   private static long s_lastResponseTime = 0;
@@ -145,6 +151,9 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     new Pattern[s_mirroredHeaders.length];
   private final Pattern m_lastURLPathElementPattern;
   private final Pattern m_requestLinePattern;
+  private final Pattern m_searchedPagePattern;
+  private final Pattern[] m_discardPattern =
+    new Pattern[DISCARD_PATTERN_LENGTH];
 
   /**
    * Map of {@link ConnectionDetails} to handlers.
@@ -181,14 +190,23 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     s_resource = extractResources(System.getProperty(RESOURCES_PROPERTY,
       ".gif;.css;.js;.jpg;.ico"));
 
+    int i = 0;
+    String discardPattern = System.getProperty(DISCARD_PATTERN + i);
+    while (i < DISCARD_PATTERN_LENGTH && discardPattern != null) {
+      s_discardPattern[i] = discardPattern;
+      i++;
+      discardPattern = System.getProperty(DISCARD_PATTERN + i);
+    }
+
     // displays the value of all system properties used by this filter
     debug ("debug: " + s_debug);
     debug ("userAgent: " + s_userAgent);
     debug ("cookieName: " + s_cookieName);
-    debug ("searchedPageSuffix: " + s_searchedPageSuffix);
+    debug ("searchedPagePattern: " + s_searchedPagePattern);
     debug ("excludeResource: " + s_excludeResource);
     debug ("sleepTime: " + s_sleepTime);
     debug ("resource: " + s_resource.toString());
+    debug ("discard pattern: " + s_discardPattern);
 
     final PatternCompiler compiler = new Perl5Compiler();
 
@@ -227,7 +245,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
         Perl5Compiler.CASE_INSENSITIVE_MASK // and sigh again.
         );
 
-    for (int i = 0; i < s_mirroredHeaders.length; i++) {
+    for (i = 0; i < s_mirroredHeaders.length; i++) {
       m_mirroredHeaderPatterns[i] =
         compiler.compile(
           getHeaderExpression(s_mirroredHeaders[i]),
@@ -247,8 +265,20 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
         "^[^\\?]*/([^\\?]*)",
         Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
 
-    m_scriptFileName =
-      System.getProperty(FILENAME_V1_PROPERTY, "httpscript") + ".py";
+    m_searchedPagePattern =
+      compiler.compile(s_searchedPagePattern,
+      Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
+
+    i = 0;
+    while (i < DISCARD_PATTERN_LENGTH && s_discardPattern[i] != null) {
+      m_discardPattern[i] =
+        compiler.compile(s_discardPattern[i],
+        Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
+      i++;
+    }
+
+    m_scriptFileName = System.getProperty (FILENAME_V1_PROPERTY, "httpscript") +
+      ".py";
 
     m_scriptFileWriter =
       new PrintWriter(
@@ -271,7 +301,8 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     final String version = GrinderBuild.getVersionString();
 
     addComment(m_scriptFileWriter, version);
-    m_scriptFileWriter.println("from " + testFileNamePrefix + " import *");
+    m_scriptFileWriter.println("from " +
+      new File (testFileNamePrefix).getName() + " import *");
     m_scriptFileWriter.println();
     m_scriptFileWriter.println("class TestRunner:");
     m_scriptFileWriter.println(s_indent + "def __call__(self):");
@@ -600,7 +631,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
             m_method.equals("HEAD")) {
           m_handlingBody = false;
           m_url = newURL;
-          m_queryString = newQueryString;
+          m_queryString = newQueryString == null ? "" : newQueryString;
         }
         else if (m_method.equals("DELETE") ||
                  m_method.equals("TRACE")) {
@@ -608,7 +639,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
 
           if (newQueryString != null) {
             m_url = newURL + newQueryString;
-            m_queryString = null;
+            m_queryString = "";
           }
           else {
             m_url = newURL;
@@ -624,7 +655,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
 
           if (newQueryString != null) {
             m_url = newURL + newQueryString;
-            m_queryString = null;
+            m_queryString = "";
           }
           else {
             m_url = newURL;
@@ -752,7 +783,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     }
 
     /**
-     * Display a warning.
+     * display a warning information.
      *
      * @param message message to display
      * @return void
@@ -776,8 +807,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     }
 
     /**
-     * Checks if a string ends with one of the suffix in the string
-     * array.
+     * checks if a string ends with one of the suffix in the string array.
      *
      * @param url
      * @param suffixes
@@ -847,8 +877,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
           }
         }
 
-        if (s_searchedPageSuffix != null &&
-          m_url.endsWith(s_searchedPageSuffix)) {
+        if (m_matcher.contains(m_url + m_queryString, m_searchedPagePattern)) {
           m_extractJsession = true;
         }
         else {
@@ -858,7 +887,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
         if (m_handlingBody && !parsedFormData) {
           final byte[] bytes = m_entityBodyByteStream.toByteArray();
 
-          recordedScenarioOutput.append("request.addHeader ");
+          recordedScenarioOutput.append("request.addHeaderField ");
           recordedScenarioOutput.append("('Content-Type', '");
           recordedScenarioOutput.append(contentTypeValue);
           recordedScenarioOutput.append("')");
@@ -925,7 +954,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
         if (m_handlingBody && !parsedFormData) {
           appendNewLineAndIndent(recordedScenarioOutput, 2);
           recordedScenarioOutput.append(
-            "request.deleteHeader ('Content-Type')");
+            "request.deleteHeaderField ('Content-Type')");
         }
       }
       else {
@@ -1038,7 +1067,6 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       }
       else {
         isNewPage = true;
-        final int pageNumber = incrementPageNumber();
       }
 
       final StringBuffer scriptOutput = new StringBuffer();
@@ -1073,7 +1101,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
 
         while (iterator.hasNext()) {
           final NVPair entry = (NVPair)iterator.next();
-          // Save Content-Type for later use.
+          // save Content-Type for later use
           if ("Content-Type".equals(entry.getName())) {
             contentTypeValue = entry.getValue();
           }
@@ -1152,7 +1180,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       scriptOutput.append("('");
       scriptOutput.append(m_url);
 
-      if (m_queryString != null && m_queryString.length() > 1) {
+      if (m_queryString.length() > 1) {
 
         try {
           int pos = m_queryString.indexOf("?");
@@ -1221,11 +1249,26 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       scriptOutput.append(")");
       scriptOutput.append(s_newLine);
 
-      generateRecordedScenario (isNewPage,
-                                parsedFormData,
-                                formDataOutput,
-                                queryStringOutput,
-                                contentTypeValue);
+      int i = 0;
+      boolean discardThisPage = false;
+      while (i < DISCARD_PATTERN_LENGTH && m_discardPattern[i] != null) {
+        if (m_matcher.contains (m_url + m_queryString, m_discardPattern[i])) {
+          discardThisPage = true;
+          break;
+        }
+        i++;
+      }
+      if (!discardThisPage) {
+        int pageNumber;
+        if (isNewPage) {
+          pageNumber = incrementPageNumber();
+        }
+        generateRecordedScenario (isNewPage,
+                                  parsedFormData,
+                                  formDataOutput,
+                                  queryStringOutput,
+                                  contentTypeValue);
+      }
 
       m_scriptFileWriter.print(scriptOutput.toString());
       m_scriptFileWriter.flush();
@@ -1244,7 +1287,8 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
   }
 
   /**
-   * Add a new line to a buffer and indents next line.
+   *
+   * add a new line to a buffer and indents next line.
    *
    * @param resultBuffer buffer
    * @param indentLevel number of indentations
@@ -1258,9 +1302,8 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       resultBuffer.append(s_indent);
     }
   }
-
   /**
-   * Create a list of NVPair from an input (querystring),
+   * create a list of NVPair from an input (querystring),
    * append each element of this list into a buffer
    * and return this buffer.
    *
@@ -1290,7 +1333,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
   }
 
   /**
-   * Add "NVPair (name, value), " to a buffer.
+   * add "NVPair (name, value), " to a buffer.
    *
    * @param resultBuffer buffer
    * @param pair couple (name, value) to add

@@ -38,7 +38,9 @@ import java.util.List;
 import java.util.Properties;
 
 import net.grinder.plugin.http.HTTPPluginTCPProxyFilter;
+import net.grinder.plugin.http.HTTPPluginTCPProxyFilter2;
 import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter;
+import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter2;
 import net.grinder.tools.tcpproxy.CompositeTCPProxyFilter;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EchoFilter;
@@ -113,18 +115,18 @@ public final class TCPProxy {
       "\n the TCPProxy listens as an HTTP Proxy on <localhost:localport>." +
       "\n Specify -ssl for HTTPS proxy support." +
       "\n" +
-      "\n If either -remotehost or -remoteport is specified," +
-      "\n the TCPProxy acts a simple port forwarder between" +
-      "\n <localhost:localport> and <remotehost:remoteport>." +
-      "\n Specify -ssl for SSL support." +
+      "\n If either -remotehost or -remoteport is specified, the TCPProxy" +
+      "\n acts a simple port forwarder between <localhost:localport> and" +
+      "\n <remotehost:remoteport>. Specify -ssl for SSL support." +
       "\n" +
-      "\n -httpPlugin sets the request and response filters" +
-      "\n to produce a test script suitable for use with the" +
-      "\n HTTP plugin." +
+      "\n -httpplugin sets the request and response filters to produce a" +
+      "\n test script suitable for use with the HTTP plugin. New versions" +
+      "\n of these filters are currently under development; use" +
+      "\n -newhttpplugin to try these out." +
       "\n" +
-      "\n -timeout is how long the TCPProxy will wait for a request before" +
-      "\n timing out and freeing the local port. The TCPProxy will not time" +
-      "\n out if there are active connections." +
+      "\n -timeout is how long the TCPProxy will wait for a request" +
+      "\n before timing out and freeing the local port. The TCPProxy will" +
+      "\n not time out if there are active connections." +
       "\n" +
       "\n -console displays a simple console that allows the TCPProxy" +
       "\n to be shutdown cleanly." +
@@ -207,6 +209,15 @@ public final class TCPProxy {
           responseFilter =
             addFilter(responseFilter,
                       new HTTPPluginTCPProxyResponseFilter(outputWriter));
+        }
+        else if (args[i].equalsIgnoreCase("-newhttpplugin")) {
+          requestFilter =
+            addFilter(requestFilter,
+                      new HTTPPluginTCPProxyFilter2(outputWriter));
+
+          responseFilter =
+            addFilter(responseFilter,
+                      new HTTPPluginTCPProxyResponseFilter2(outputWriter));
         }
         else if (args[i].equalsIgnoreCase("-localhost")) {
           localHost = args[++i];

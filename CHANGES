@@ -32,6 +32,12 @@ Grinder 3.0-beta15
   Add a confirm dialog to "Stop Processes" as its probably not what
   the user wants to do.
 
+  Bertrand Ave has added support for regular expressions to his new
+  HTTPPluginTCPProxyFilter (see notes below). The implementation now
+  has its own response filter; use the TCPProxy "-newhttpplugin" as a
+  short cut. An example properties file can be found in
+  contrib/httpplugin.
+
 
 Grinder 3.0-beta14
 ------------------
@@ -131,7 +137,7 @@ Grinder 3.0-beta11
 
   Updates to the French console translation from Betrand Ave.
 
-  German console translation from Alblas Huibert.
+  German console translation from Huibert Alblas.
 
   "grinder." properties specified on the agent command line are now
   passed through to worker processes. The original motivation for this
