@@ -21,24 +21,35 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.communication.StubSender;
+import net.grinder.common.GrinderProperties;
+
 
 /**
- * Stubbed TestRegistry initialisation. Allows the unit tests to
+ * Stubbed ProcessContext. Allows the unit tests to
  * bypass package interface.
  *
  * @author Philip Aston
  * @version $Revision$
  **/
-public class StubTestRegistryInitialisation
+public class StubProcessContext extends ProcessContext
 {
-    private static boolean s_initialised = false;
+    private static StubProcessContext s_processContext;
 
-    public static void initialise() throws Exception
+    public static StubProcessContext get() throws Exception
     {
-	if (!s_initialised) {
-	    new TestRegistry(new PluginRegistry(), new StubSender());
-	    s_initialised = true;
+	if (s_processContext == null) {
+	    final GrinderProperties properties = new GrinderProperties();
+	    properties.setBoolean("grinder.reportToConsole", false);
+
+	    s_processContext = new StubProcessContext(properties);
 	}
+
+	return s_processContext;
+    }
+    
+    public StubProcessContext(GrinderProperties properties)
+	throws Exception
+    {
+	super("Unit Test", properties);
     }
 }

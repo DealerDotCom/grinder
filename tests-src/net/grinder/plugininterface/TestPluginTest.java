@@ -34,7 +34,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.grinder.engine.process.StubTestRegistryInitialisation;
+import net.grinder.common.GrinderProperties;
+import net.grinder.engine.process.StubProcessContext;
 
 
 /**
@@ -57,7 +58,7 @@ public class TestPluginTest extends TestCase
 
     protected void setUp() throws Exception 
     {
-	StubTestRegistryInitialisation.initialise();
+	StubProcessContext.get();
     }
 
     public void testGetters() throws Exception
