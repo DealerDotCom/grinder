@@ -107,7 +107,7 @@ public final class TCPProxy {
 
   private LoggedInitialisationException barfUsage() {
     return barfError(
-      "unrecognised option." +
+      "unrecognised or invalid option." +
       "\n\n" +
       "Usage: " +
       "\n java " + TCPProxy.class + " <options>" +
