@@ -33,14 +33,33 @@ a request with the authentication headers.
 
 Add file tree control, rooted at root directory.
 Allow files to be marked for distribution. Any file.
-Automatically detect, and mark, scripts.
+Automatically detect, and indicate, scripts.
 When new script is selected, unselect other script.
 
-Extend comms to allow files to be retrieved, see below. Hash and cache
-at individual file level at console. Changed files sent to all agents
-which pass to workers. Requires comms enhancement, see below.
+Agent is responsible for local file store below a directory based on
+the agent name. On establishing comms, agent should send new
+"AgentInitialisedMessage" to console. Contains date of latest file in
+file store. In future this could indicate state of local file store to
+a finer degree.
+
+Console keeps track of scripts that are up to date.
+Dirty flag is actually a temporary uptodate file.
+On receiving an AgentInitialisedMessage with an earlier date uptodate
+file is removed, flaging that all files in the distribution set should
+be broadcast again. (No need to keep track on a per agent basis).
+New "ScriptDistributionMessage", which contains file name of script
+and collection of changed files (files newer than uptodate).
+On "play", a ScriptDistributionFiles message is sent if necessary.
+User can also broadcast distribution by hand.
+
 
 **** Plans
+
+Feature to automark script dependencies.
+
+Allow file sets to be saved and loaded.
+
+Allow grinder properties to be set remotely.
 
 Replace jEdit-syntax with new jEdit syntax package when available, if
 its license terms are acceptable. Apparently now available.
@@ -61,10 +80,6 @@ its license terms are acceptable. Apparently now available.
     decision will be guided by the two goals of preserving the free
     status of all derivatives of our free software and of promoting
     the sharing and reuse of software generally.
-
-Allow file sets to be saved and loaded.
-
-Allow grinder properties to be set remotely.
 
 *** Add log panel
 
