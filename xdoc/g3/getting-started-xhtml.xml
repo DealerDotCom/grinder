@@ -378,6 +378,21 @@ engine.</p>
  </tr>
 
 </table>
+ 
 </blockquote>
+
+<h3>Specifying properties on the command line</h3>
+
+<p>You can also specify these properties as Java system properties in
+the agent command line. For example, on UNIX systems the following
+command line can be used to generate log directories based on the
+current date.
+
+<blockquote><pre>
+java -Dgrinder.logDirectory="log/$(date +%y%m%d)" net.grinder.Grinder
+</pre></blockquote>
+
+</p>
+
 </body>
 </html>
