@@ -1,4 +1,143 @@
+2001-10-08  Philip Aston  <paston@bea.com>
+
+	* README: Update documentation.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties:
+	Colour code state label.
+
+	* src/net/grinder/Grinder.java, src/net/grinder/engine/LauncherThread.java:
+	Minor change to GrinderProperties inteface.
+
+	* tests-src/net/grinder/common/TestGrinderProperties.java, tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	More tests.
+
+	* src/net/grinder/Grinder.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/engine/process/GrinderProcess.java:
+	Minor change to GrinderProperties inteface.
+
+	* src/net/grinder/common/GrinderProperties.java:
+	Only add system properties that begin with ".grinder".
+
+	* src/net/grinder/console/common/ConsoleExceptionHandler.java, src/net/grinder/console/swingui/JOptionPaneDialog.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java:
+	Tweaks to the options dialog.
+
+	* src/net/grinder/console/swingui/SamplingControlPanel.java:
+	Add support for assoiciated properties that we automatically update.
+	Must ignore 1 or more.
+	Can collect 0 or more.
+
+2001-10-07  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties, tests-src/net/grinder/console/model/TestConsoleProperties.java, src/net/grinder/console/common/ConsoleException.java, src/net/grinder/console/common/DisplayMessageConsoleException.java, src/net/grinder/console/common/Resources.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/IntegerField.java, src/net/grinder/console/swingui/Resources.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/SamplingControlPanel.java, src/net/grinder/common/GrinderException.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/console/ConsoleCommunication.java:
+	Introduce range checking for ConsoleProperties.
+	Add new DisplayMessageConsoleException that can contain a resource key
+	of a displayable message.
+	New net.grinder.console.common package.
+
+	* src/net/grinder/statistics/TestStatisticsMap.java:
+	No longer needs serial version UID.
+
+	* src/net/grinder/console/model/ConsoleProperties.java, tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Range check data.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/SamplingControlPanel.java:
+	Fix passing of new ConsoleProperties when options dialog is closed.
+
+	* tests-src/net/grinder/util/TestSerialiser.java, src/net/grinder/communication/Message.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/util/Serialiser.java, tests-src/net/grinder/util/AllTests.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/statistics/StatisticsImplementation.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/statistics/StatisticsImplementation.java:
+	More serialisation efficiency.
+
+	* src/net/grinder/communication/RegisterTestsMessage.java:
+	Serial version UID.
+
+	* src/net/grinder/communication/RegisterTestsMessage.java: Doc.
+
+	* src/net/grinder/communication/Receiver.java: Fix race condition.
+
+	* src/net/grinder/communication/CommunicationException.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/communication/Sender.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/ResetGrinderMessage.java:
+	Doc.
+
+2001-10-06  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/ConsoleCommunication.java:
+	Reinstate missing return statement.
+
+	* tests-src/net/grinder/common/AllTests.java, tests-src/net/grinder/common/TestTestImplementation.java:
+	Test TestImplementation.
+
+	* tests-src/net/grinder/util/AllTests.java: Death to PropertiesHelper.
+	Tests for SignificantFigureFormat.
+
+	* tests-src/net/grinder/util/NullPlugin.java, tests-src/net/grinder/util/TestPropertiesHelper.java, src/net/grinder/Grinder.java, src/net/grinder/common/GrinderException.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/util/PropertiesHelper.java:
+	Death to PropertiesHelper.
+
+	* src/net/grinder/util/SignificantFigureFormat.java, tests-src/net/grinder/util/TestSignificantFigureFormat.java:
+	Tests for SignificantFigureFormat.
+
+	* src/net/grinder/console/model/Model.java:
+	Copy with immutable collections sent in RegisterTestsMessages.
+
+	* src/net/grinder/console/ConsoleCommunication.java:
+	Use ConsoleProperties property change interface to allow addresses to
+	be dynamically altered.
+
+	* src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/SamplingControlPanel.java:
+	Use ConsoleProperties property change interface.
+
+	* tests-src/net/grinder/communication/TestSenderAndReceiver.java:
+	Test shutdown.
+
+	* src/net/grinder/communication/Receiver.java:
+	Allow Receiver to be asynchronously shut down.
+
+	* tests-src/net/grinder/console/model/AllTests.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, src/net/grinder/console/model/ConsoleProperties.java, tests-src/net/grinder/AllTests.java:
+	Add property change support.
+
+2001-10-04  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	Work around for "swing goes deaf" bug.
+
+	* src/net/grinder/console/swingui/resources/Console.properties:
+	Move options to end of toolbar.
+
+	* src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/SamplingControlPanel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/options.gif, src/net/grinder/console/swingui/resources/options.xcf, src/net/grinder/console/model/ConsoleProperties.java:
+	Options dialog.
+
+	* src/net/grinder/console/swingui/TestGraphPanel.java:
+	Repaint when model changes.
+
+2001-10-03  Philip Aston  <paston@bea.com>
+
+	* tests-src/net/grinder/common/TestGrinderProperties.java:
+	Type safe setters.
+	Allow Writer to be set for warnings.
+
+	* tests-src/net/grinder/common/LogCounter.java:
+	Count lines written to streams.
+
+	* src/net/grinder/common/GrinderProperties.java: Type safe setters.
+	Allow Writer to be set for warnings.
+
+	* TODO: Thoughts.
+
+	* src/net/grinder/communication/Receiver.java, src/net/grinder/communication/Sender.java:
+	Reuse DatagramPackets.
+
+	* src/net/grinder/common/TestImplementation.java:
+	Play fairly with other Test implementations.
+
+	* src/net/grinder/console/model/Model.java: Fix comments.
+
+	* src/net/grinder/statistics/StatisticsImplementation.java:
+	Add serialVersionUID.
+	Make our snapshot transient.
+
+	* src/net/grinder/statistics/TestStatisticsMap.java:
+	Implement Externalizable for efficiency.
+
 2001-10-02  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/communication/Sender.java:
+	Fix bug where extraneous bytes where transmitted with every packet.
 
 	* src/net/grinder/engine/process/GrinderThread.java:
 	Allow sleep to be interrupted.
@@ -41,13 +180,13 @@
 
 	* build.xml: "all" target.
 
-	* src/net/grinder/cOmmunication/CommunicationDefaults.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/engine/process/GrinderProcess.java:
+	* src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/engine/process/GrinderProcess.java:
 	Console no longer reads grinder.properties.
 
 	* src/net/grinder/plugin/junit/JUnitPlugin.java, src/net/grinder/plugin/socket/SocketPlugin.java, src/net/grinder/plugininterface/GrinderPlugin.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/SimplePluginBase.java, src/net/grinder/plugininterface/ThreadCallbacks.java, src/net/grinder/util/PropertiesHelper.java, tests-src/net/grinder/AllTests.java, tests-src/net/grinder/common/AllTests.java, tests-src/net/grinder/common/TestGrinderProperties.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/statistics/TestStatisticsImplementation.java, tests-src/net/grinder/util/AllTests.java, tests-src/net/grinder/util/TestPropertiesHelper.java, src/net/grinder/Console.java, src/net/grinder/Grinder.java, src/net/grinder/common/FilenameFactory.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/common/Test.java, src/net/grinder/common/TestImplementation.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/Model.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ProcessContextImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/http/HttpsPlugin.java:
 	The Great Repackaging part 2.
 
-	* tests-src/net/grinder/common/TestGrinderProperties.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/plugin/http/TestCookieHandler.java, tests-src/net/grinder/statistics/TestStatisticsImplementation.java, tests-src/net/grinder/util/TestPropertiesHelper.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContextImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/plugin/http/CookieHandler.java, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/http/example/ExampleStringBean2.java, src/net/grinder/plugin/junit/JUnitPlugin.java, src/net/grinder/plugin/socket/SocketPlugin.java, src/net/grinder/plugininterface/PluginException.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/PluginThreadContext.java, src/net/grinder/plugininterface/ThreadCallbacks.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/util/PropertiesHelper.java, tests-src/net/grinder/common/LogCounter.java, src/net/grinder/Grinder.java, src/net/grinder/cOmmunication/CommunicationException.java, src/net/grinder/common/GrinderException.java, src/net/grinder/common/Logger.java, src/net/grinder/common/Test.java, src/net/grinder/common/TestImplementation.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/ConsoleException.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/engine/EngineException.java:
+	* tests-src/net/grinder/common/TestGrinderProperties.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/plugin/http/TestCookieHandler.java, tests-src/net/grinder/statistics/TestStatisticsImplementation.java, tests-src/net/grinder/util/TestPropertiesHelper.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContextImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/plugin/http/CookieHandler.java, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/http/example/ExampleStringBean2.java, src/net/grinder/plugin/junit/JUnitPlugin.java, src/net/grinder/plugin/socket/SocketPlugin.java, src/net/grinder/plugininterface/PluginException.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/PluginThreadContext.java, src/net/grinder/plugininterface/ThreadCallbacks.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/util/PropertiesHelper.java, tests-src/net/grinder/common/LogCounter.java, src/net/grinder/Grinder.java, src/net/grinder/communication/CommunicationException.java, src/net/grinder/common/GrinderException.java, src/net/grinder/common/Logger.java, src/net/grinder/common/Test.java, src/net/grinder/common/TestImplementation.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/ConsoleException.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/engine/EngineException.java:
 	The Great Repackaging part 1. Introduce "common" package which
 	contains common code used by the engine, the plugins, and perhaps the
 	console.
@@ -66,7 +205,7 @@
 
 2001-09-29  Philip Aston  <paston@bea.com>
 
-	* src/net/grinder/cOmmunication/RegisterTestsMessage.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/Model.java, src/net/grinder/engine/process/GrinderProcess.java:
+	* src/net/grinder/communication/RegisterTestsMessage.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/Model.java, src/net/grinder/engine/process/GrinderProcess.java:
 	RegisterTestsMessage - first step towards a dynamic console.
 
 	* src/net/grinder/Grinder.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/util/FilenameFactory.java, src/net/grinder/util/ProcessContextImplementation.java:
@@ -77,15 +216,15 @@
 	* src/net/grinder/console/ConsoleCommunication.java:
 	Don't exit if a communications exception occurs.
 
-	* src/net/grinder/cOmmunication/Receiver.java, src/net/grinder/cOmmunication/ReportStatisticsMessage.java, src/net/grinder/cOmmunication/ResetGrinderMessage.java, src/net/grinder/cOmmunication/Sender.java, src/net/grinder/cOmmunication/StartGrinderMessage.java, src/net/grinder/cOmmunication/StopGrinderMessage.java, src/net/grinder/cOmmunication/Message.java:
+	* src/net/grinder/communication/Receiver.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/communication/Sender.java, src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/communication/Message.java:
 	Add dropped packet detection.
 
-	* src/net/grinder/cOmmunication/CommunicationException.java:
+	* src/net/grinder/communication/CommunicationException.java:
 	Doesn't need a serialVersionUID.
 
 	* src/net/grinder/plugin/http/HTTPClientHandler.java: Simplify.
 
-	* src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/cOmmunication/CommunicationException.java, src/net/grinder/cOmmunication/ReportStatisticsMessage.java, src/net/grinder/cOmmunication/ResetGrinderMessage.java, src/net/grinder/cOmmunication/StartGrinderMessage.java, src/net/grinder/cOmmunication/StopGrinderMessage.java:
+	* src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/communication/CommunicationException.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/StopGrinderMessage.java:
 	Add some serialVersionUID's to make communication less brittle.
 
 	* src/net/grinder/statistics/StatisticsTable.java: Final fiddling.
@@ -406,7 +545,7 @@
 
 2001-07-13  Philip Aston  <paston@bea.com>
 
-	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/util/GrinderProperties.java, src/net/grinder/cOmmunication/ResetGrinderMessage.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/reset-processes.gif, src/net/grinder/console/swingui/resources/reset-processes.xcf, README, TODO:
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/util/GrinderProperties.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/reset-processes.gif, src/net/grinder/console/swingui/resources/reset-processes.xcf, README, TODO:
 	Grinder processes are now resetable from the console.
 
 2001-07-12  Philip Aston  <paston@bea.com>
