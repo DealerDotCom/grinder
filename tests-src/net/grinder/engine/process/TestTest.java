@@ -28,7 +28,10 @@ import java.util.Properties;
 
 import net.grinder.util.GrinderProperties;
 
-
+/**
+ * @author Philip Aston
+ * @version $Revision$
+ */
 public class TestTest extends TestCase
 {
     public static void main(String[] args)
@@ -82,7 +85,7 @@ public class TestTest extends TestCase
 	testParameters.put("=", "");
 	testParameters.put("", "=");
 
-	Iterator entryIterator = testParameters.entrySet().iterator();
+	final Iterator entryIterator = testParameters.entrySet().iterator();
 
 	while (entryIterator.hasNext())
 	{

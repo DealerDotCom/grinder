@@ -24,7 +24,10 @@ import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
 
-
+/**
+ * @author Philip Aston
+ * @version $Revision$
+ */
 public class AllTests
 {
     public static void main(String[] args)
