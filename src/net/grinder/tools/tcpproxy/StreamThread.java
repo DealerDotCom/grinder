@@ -132,7 +132,7 @@ public class StreamThread implements Runnable
 
 	// We're exiting, usually because the in stream has been
 	// closed. Whatever, close our streams. This will cause the
-	// paired thread to exit to.
+	// paired thread to exit too.
 	try {
 	    m_out.close();
 	}
