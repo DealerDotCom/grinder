@@ -1,3 +1,19 @@
+2004-03-13  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta20 is released.
+	
+	* CHANGES, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/engine/process/PluginRegistryImplementation.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugininterface/PluginRegistry.java, tests-src/net/grinder/engine/process/TestPluginRegistry.java, tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java:
+	The PluginRegistry class that a plugin must use has been moved to the
+	plugininterface package, breaking a cyclic package dependency.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java: Checkstyle.
+
+	* tests-src/net/grinder/plugin/http/TestHTTPRequest.java:
+	More HTTPRequest tests.
+
+	* tests-src/net/grinder/testutility/AssertUtilities.java: Fix logging.
+	Assert types are equal first.
+
 2004-03-11  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/testutility/AssertUtilities.java, tests-src/net/grinder/testutility/CallRecorder.java:
