@@ -98,4 +98,8 @@ public class TestEngineMessages extends AbstractFileTestCase {
     assertEquals(fileContents.toString(),
                  received.getFileContents().toString());
   }
+
+  public void testClearCacheMessage() throws Exception {
+    serialise(new ClearCacheMessage());
+  }
 }

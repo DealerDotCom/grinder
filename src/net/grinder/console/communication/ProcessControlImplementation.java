@@ -25,6 +25,7 @@ import java.io.File;
 
 import net.grinder.communication.Message;
 import net.grinder.console.messages.ReportStatusMessage;
+import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
@@ -44,6 +45,7 @@ final class ProcessControlImplementation implements ProcessControl {
   private final ConsoleCommunication m_communication;
   private final ProcessStatusSet m_processStatusSet;
   private final DistributionStatus m_distributionStatus;
+  private Directory m_lastDirectory;
 
   ProcessControlImplementation(ConsoleCommunication consoleCommunication,
                                ProcessStatusSet processStatusSet,
@@ -101,14 +103,21 @@ final class ProcessControlImplementation implements ProcessControl {
   }
 
   /**
-   * Get a {@link FileDistributionHandler} which will handle the
-   * distribution of files from the given directory.
+   * Get a {@link ProcessControl.FileDistributionHandler} which will
+   * handle the distribution of files from the given directory.
    *
    * @param  directory The directory.
    * @return The distribution handler.
    */
   public FileDistributionHandler getFileDistributionHandler(
     Directory directory) {
+
+    if (m_lastDirectory == null || !m_lastDirectory.equals(directory)) {
+      m_communication.send(new ClearCacheMessage());
+      m_distributionStatus.setAll(-1);
+    }
+
+    m_lastDirectory = directory;
 
     return new FileDistributionHandlerImplementation(
       directory.getAsFile(),

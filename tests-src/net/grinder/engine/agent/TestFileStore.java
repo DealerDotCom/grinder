@@ -32,6 +32,7 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
 import net.grinder.communication.SimpleMessage;
+import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
@@ -135,8 +136,11 @@ public class TestFileStore extends AbstractFileTestCase {
     loggerStubFactory.assertNoMoreCalls();
     delegateSenderStubFactory.assertNoMoreCalls();
 
+    final File targetFile = new File(getDirectory(), "dir/file0");
+    assertTrue(targetFile.canRead());
+
     // Test with a bad message.
-    new File(getDirectory(), "dir/file0").setReadOnly();
+    targetFile.setReadOnly();
 
     try {
       sender.send(message1);
@@ -149,6 +153,14 @@ public class TestFileStore extends AbstractFileTestCase {
     loggerStubFactory.assertSuccess("error", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
     delegateSenderStubFactory.assertNoMoreCalls();
+
+    final Message message2 = new ClearCacheMessage();
+    sender.send(message2);
+    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
+    loggerStubFactory.assertNoMoreCalls();
+    delegateSenderStubFactory.assertNoMoreCalls();
+
+    assertTrue(!targetFile.canRead());
   }
 
   public void testFileStoreException() throws Exception {

@@ -265,16 +265,6 @@ final class ProcessStatusSet {
     public short getTotalNumberOfThreads() {
       return m_totalNumberOfThreads;
     }
-
-    public String toString() {
-      return
-        "ProcessStatusImplementation(" +
-        getIdentity() + ", " +
-        getName() + ", " +
-        getState() + ", " +
-        getNumberOfRunningThreads() + ", " +
-        getTotalNumberOfThreads() + ")";
-    }
   }
 
   private static final class ProcessStatusComparator implements Comparator {

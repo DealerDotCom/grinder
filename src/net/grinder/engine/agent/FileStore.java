@@ -29,19 +29,22 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
+import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 
 
 /**
- * Process {@link DistributeFileMessage}s received from the console.
+ * Process {@link ClearCacheMessage}s and {@link
+ * DistributeFileMessage}s received from the console.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 final class FileStore {
 
+  /** Should make this a Directory one day. */
   private final File m_directory;
   private final Logger m_logger;
 
@@ -86,7 +89,20 @@ final class FileStore {
 
     return new Sender() {
         public void send(Message message) throws CommunicationException {
-          if (message instanceof DistributeFileMessage) {
+          if (message instanceof ClearCacheMessage) {
+            m_logger.output("Clearing file store");
+            try {
+              new Directory(m_directory).deleteContents();
+            }
+            catch (Directory.DirectoryException e) {
+              m_logger.error("Could not clear file store: " + e.getMessage());
+
+              // Throwing an exception causes the agent to silently
+              // exit.
+              throw new CommunicationException(e.getMessage(), e);
+            }
+          }
+          else if (message instanceof DistributeFileMessage) {
             final FileContents fileContents =
               ((DistributeFileMessage)message).getFileContents();
 
