@@ -184,4 +184,23 @@ public final class Directory  {
       super(message);
     }
   }
+
+  /**
+   * Delegate equality to our <code>File</code>.
+   *
+   * @return The hash code.
+   */
+  public int hashCode() {
+    return m_directory.hashCode();
+  }
+
+  /**
+   * Delegate equality to our <code>File</code>.
+   *
+   * @param o Object to compare.
+   * @return <code>true</code> => equal.
+   */
+  public boolean equals(Object o) {
+    return m_directory.equals(o);
+  }
 }
