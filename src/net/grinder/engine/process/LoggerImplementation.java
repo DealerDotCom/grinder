@@ -366,7 +366,10 @@ final class LoggerImplementation {
    * <code>Logger</code> (<code>IllegalAccessException</code>s
    * abound.</p>
    **/
-  private final class ThreadState implements Logger, ThreadLogger {
+  private final class ThreadState
+    extends AbstractLogger
+    implements Logger, ThreadLogger {
+
     private final int m_threadID;
     private int m_currentRunNumber = -1;
     private int m_currentTestNumber = -1;
@@ -429,16 +432,8 @@ final class LoggerImplementation {
       m_currentTestNumber = testNumber;
     }
 
-    public void output(String message) {
-      outputInternal(this, message, Logger.LOG);
-    }
-
     public void output(String message, int where) {
       outputInternal(this, message, where);
-    }
-
-    public void error(String message) {
-      errorInternal(this, message, Logger.LOG);
     }
 
     public void error(String message, int where) {
