@@ -20,7 +20,10 @@ package net.grinder.console.model;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
@@ -33,7 +36,15 @@ import net.grinder.communication.CommunicationDefaults;
  */
 public class ConsoleProperties
 {
-    private final GrinderProperties m_properties;
+    private final static String COLLECT_SAMPLES_PROPERTY = "numberToCollect";
+    private final static String IGNORE_SAMPLES_PROPERTY = "numberToIgnore";
+    private final static String SAMPLE_INTERVAL_PROPERTY = "sampleInterval";
+    private final static String SIG_FIG_PROPERTY = "significantFigures";
+
+    private final static String ADDRESS_PROPERTY = "multicastAddress";
+    private final static String CONSOLE_PORT_PROPERTY = "consolePort";
+    private final static String GRINDER_PORT_PROPERTY = "grinderPort";
+
     private final File m_file;
 
     private int m_collectSampleCount;
@@ -55,114 +66,144 @@ public class ConsoleProperties
 
 	m_file = new File(home, ".grinder_console");
 
-	m_properties = new GrinderProperties();
-	load();
-
-	m_collectSampleCount = m_properties.getInt("numberToCollect", 0);
-	m_ignoreSampleCount = m_properties.getInt("numberToIgnore", 1);
-	m_sampleInterval = m_properties.getInt("sampleInterval", 1000);
-	m_significantFigures = m_properties.getInt("significantFigures", 3);
-
-	m_multicastAddress =
-	    m_properties.getProperty("multicastAddress",
-				     CommunicationDefaults.MULTICAST_ADDRESS);
-
-	m_consolePort =
-	    m_properties.getInt("console.multicastPort",
-				CommunicationDefaults.CONSOLE_PORT);
-
-	m_grinderPort =
-	    m_properties.getInt("grinder.multicastPort",
-				CommunicationDefaults.GRINDER_PORT);
-    }
-
-    private void load() throws GrinderException
-    {
-	m_properties.clear();
+	final GrinderProperties properties = new GrinderProperties();
 
 	if (m_file.exists()) {
 	    try {
-		final InputStream propertiesInputStream =
-		    new FileInputStream(m_file);
-
-		m_properties.load(propertiesInputStream);
+		final InputStream inputStream = new FileInputStream(m_file);
+		properties.load(inputStream);
 	    }
 	    catch (Exception e) {
 		throw new GrinderException(
 		    "Error loading properties file '" + m_file + "'", e);
 	    }
-
-	    // Allow overriding on command line.
-	    m_properties.putAll(System.getProperties());
 	}
+
+	// Allow overriding on command line.
+	properties.putAll(System.getProperties());
+
+	m_collectSampleCount = properties.getInt(COLLECT_SAMPLES_PROPERTY, 0);
+	m_ignoreSampleCount = properties.getInt(IGNORE_SAMPLES_PROPERTY, 1);
+	m_sampleInterval = properties.getInt(SAMPLE_INTERVAL_PROPERTY, 1000);
+	m_significantFigures = properties.getInt(SIG_FIG_PROPERTY, 3);
+
+	m_multicastAddress =
+	    properties.getProperty(ADDRESS_PROPERTY,
+				   CommunicationDefaults.MULTICAST_ADDRESS);
+
+	m_consolePort = properties.getInt(CONSOLE_PORT_PROPERTY,
+					  CommunicationDefaults.CONSOLE_PORT);
+
+	m_grinderPort = properties.getInt(GRINDER_PORT_PROPERTY,
+					  CommunicationDefaults.GRINDER_PORT);
     }
 
-    public int getCollectSampleCount()
+    /**
+     * Copy constructor.
+     **/
+    public ConsoleProperties(final ConsoleProperties consoleProperties)
+    {
+	m_file = consoleProperties.m_file;
+	set(consoleProperties);
+    }
+
+    /**
+     * Assignment.
+     **/
+    public final void set(final ConsoleProperties consoleProperties)
+    {
+	m_collectSampleCount = consoleProperties.m_collectSampleCount;
+	m_ignoreSampleCount = consoleProperties.m_ignoreSampleCount;
+	m_sampleInterval = consoleProperties.m_sampleInterval;
+	m_significantFigures = consoleProperties.m_significantFigures;
+	m_multicastAddress = consoleProperties.m_multicastAddress;
+	m_consolePort = consoleProperties.m_consolePort;
+	m_grinderPort = consoleProperties.m_grinderPort;
+    }
+
+    public void save() throws IOException
+    {
+	final GrinderProperties properties = new GrinderProperties();
+
+	properties.setInt(COLLECT_SAMPLES_PROPERTY, m_collectSampleCount);
+	properties.setInt(IGNORE_SAMPLES_PROPERTY, m_ignoreSampleCount);
+	properties.setInt(SAMPLE_INTERVAL_PROPERTY, m_sampleInterval);
+	properties.setInt(SIG_FIG_PROPERTY, m_significantFigures);
+
+	properties.setProperty(ADDRESS_PROPERTY, m_multicastAddress);
+	properties.setInt(CONSOLE_PORT_PROPERTY, m_consolePort);
+	properties.setInt(GRINDER_PORT_PROPERTY, m_grinderPort);
+
+	final OutputStream outputStream = new FileOutputStream(m_file);
+	properties.store(outputStream, "Grinder Console Properties");
+    }
+
+    public final int getCollectSampleCount()
     {
 	return m_collectSampleCount;
     }
 
-    public void setCollectSampleCount(int i)
+    public final void setCollectSampleCount(int i)
     {
 	m_collectSampleCount = i;
     }
 
-    public int getIgnoreSampleCount()
+    public final int getIgnoreSampleCount()
     {
 	return m_ignoreSampleCount;
     }
 
-    public void setIgnoreSampleCount(int i)
+    public final void setIgnoreSampleCount(int i)
     {
 	m_ignoreSampleCount = i;
     }
 
-    public int getSampleInterval()
+    public final int getSampleInterval()
     {
 	return m_sampleInterval;
     }
 
-    public void setSampleInterval(int i)
+    public final void setSampleInterval(int i)
     {
 	m_sampleInterval = i;
     }
 
-    public int getSignificantFigures()
+    public final int getSignificantFigures()
     {
 	return m_significantFigures;
     }
 
-    public void setSignificantFigures(int i)
+    public final void setSignificantFigures(int i)
     {
 	m_significantFigures = i;
     }
 
-    public String getMulticastAddress()
+    public final String getMulticastAddress()
     {
 	return m_multicastAddress;
     }
 
-    public void setMulticastAddress(String s)
+    public final void setMulticastAddress(String s)
     {
 	m_multicastAddress = s;
     }
 
-    public int getConsolePort()
+    public final int getConsolePort()
     {
 	return m_consolePort;
     }
 
-    public void setConsolePort(int i)
+    public final void setConsolePort(int i)
     {
 	m_consolePort = i;
     }
 
-    public int getGrinderPort()
+    public final int getGrinderPort()
     {
 	return m_grinderPort;
     }
 
-    public void setGrinderPort(int i)
+    public final void setGrinderPort(int i)
     {
 	m_grinderPort = i;
     }

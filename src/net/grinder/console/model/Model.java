@@ -89,10 +89,8 @@ public class Model
     private final SampleAccumulator m_totalSampleAccumulator =
 	new SampleAccumulator();
 
-    private ConsoleProperties m_properties;
-    private int m_ignoreSampleCount;
+    private final ConsoleProperties m_properties;
     private int m_sampleInterval;
-    private int m_significantFigures;
     private NumberFormat m_numberFormat;
 
     private boolean m_stopSampler = false;
@@ -110,10 +108,9 @@ public class Model
     public Model() throws GrinderException
     {
 	m_properties = new ConsoleProperties();
-	m_ignoreSampleCount = m_properties.getIgnoreSampleCount();
 	m_sampleInterval = m_properties.getSampleInterval();
-	m_significantFigures = m_properties.getSignificantFigures();
-	m_numberFormat = new SignificantFigureFormat(m_significantFigures);
+	m_numberFormat =
+	    new SignificantFigureFormat(m_properties.getSignificantFigures());
 
 	m_testArray = new Test[0];
 	m_accumulatorArray = new SampleAccumulator[0];
@@ -248,7 +245,7 @@ public class Model
 
     private void setInitialState()
     {
-	if (m_ignoreSampleCount != 0) {
+	if (m_properties.getIgnoreSampleCount() != 0) {
 	    setState(STATE_WAITING_FOR_TRIGGER);
 	}
 	else {
@@ -454,37 +451,44 @@ public class Model
 	}
     }
 
+    /**
+     * Return our {@link ConsoleProperties} by reference.
+     **/
     public ConsoleProperties getProperties()
     {
-	return m_properties;
+	return new ConsoleProperties(m_properties);
     }
 
+    /**
+     * Set our {@link ConsoleProperties}.
+     * @param properties - New properties to set, we take a copy.
+     * Alternatively get a reference with {@link getProperties}.
+     **/
     public void setProperties(ConsoleProperties properties)
     {
-	m_properties = properties;
+	final int newSignificantFigures = properties.getSignificantFigures();
 
-	final int significantFigures = m_properties.getSignificantFigures();
-
-	if (m_significantFigures != significantFigures) {
-	    m_numberFormat = new SignificantFigureFormat(significantFigures);
-	    m_significantFigures = significantFigures;
+	if (newSignificantFigures != m_properties.getSignificantFigures()) {
+	    m_numberFormat =
+		new SignificantFigureFormat(newSignificantFigures);
 	}
 
-	final int ignoreSampleCount = m_properties.getIgnoreSampleCount();
+	final int newIgnoreSampleCount = m_properties.getIgnoreSampleCount();
 
-	if (m_ignoreSampleCount != ignoreSampleCount) {
+	if (newIgnoreSampleCount != m_properties.getIgnoreSampleCount()) {
 	    if (getState() == STATE_WAITING_FOR_TRIGGER) {
 		setInitialState();
 	    }
-	    
-	    m_ignoreSampleCount = ignoreSampleCount;
 	}
+
+	m_properties.set(properties);
 
 	// Should really wait until the next sample boundary before
 	// changing sample interval.
-	m_sampleInterval = m_properties.getSampleInterval();
+	m_sampleInterval = properties.getSampleInterval();
 
-	fireModelUpdate();
+	// Changing ConsoleProperties does not invoke the listeners.
+	//fireModelUpdate();
     }
 
     public NumberFormat getNumberFormat()
