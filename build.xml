@@ -6,17 +6,6 @@
 Introduction
 ============
 
-The Cocoon (http://xml.apache.org/) build.xml file says:
-
-    "Cocoon is an highly componentized software. This means: they are
-    lazy and reuse whatever possible. But also means: we avoid
-    duplication of efforts and Cocoon development can go on
-    concurrently with the other used projects without interference. At
-    the end: Cocoon evolves much faster :)"
-
-Now guess where I ripped this off from? :-)
-
-
 Ant
 ===
 
@@ -25,8 +14,8 @@ building tool originally developed for the Jakarta Tomcat project but
 now used in many other Apache projects and extended by many
 developers.
 
-Ant is a little but very handy tool that uses a build file written in XML
-(this file) as building instructions. For more information refer to
+Ant is a very handy tool that uses a build file written in XML (this
+file) as building instructions. For more information refer to
 "http://jakarta.apache.org/ant/".
 
 
@@ -35,14 +24,13 @@ What do I do?
 
 Do the following:
 
-	1. Acquire and install Ant 1.3
+	1. Acquire and install Ant 1.4.1
 	   (http://jakarta.apache.org/ant/index.html).
 
 	2. Set/export ANT_HOME, JAVA_HOME and PATH as described
 	   in the Ant user guide.
 
        	3. Type ant
-
 
 Say 
 	ant -projecthelp
@@ -58,8 +46,8 @@ conditionally built modules are:
    HTTP SSL plugin (Needs the JSSE 1.0.2)
    TCPSniffer SSL engine (Needs the JSSE 1.0.2)
    TCPSniffer HTTP plugin filter (Needs Apache Jakarta Regexp 1.2)
-   JUnit test cases (needs JUnit 3.4 and Ant 1.3 optional.jar)
-
+   JUnit test cases (Needs JUnit 3.4 and Ant 1.3 optional.jar)
+   ExampleJTidyStringBean (Needs JTidy and Xalan XPath support)
 -->
 
 <project name="The Grinder" default="all" basedir=".">
@@ -75,7 +63,7 @@ conditionally built modules are:
     <property name="version" value="2.8.2"/>
     <property name="year" value="2002"/>
 
-    <!--options-->
+    <!-- options -->
     <available classname="com.sun.net.ssl.HostnameVerifier"
 	       property="have.jsse" />
 
@@ -89,6 +77,17 @@ conditionally built modules are:
 
     <available classname="javax.servlet.http.HttpServletRequest"
 	       property="have.servlet"/>
+
+    <available classname="org.w3c.tidy.Tidy" property="have.jtidy"/>
+
+    <available classname="org.apache.xpath.XPathAPI" property="have.xpath"/>
+
+    <condition property="have.jtidy-and-xpath">
+      <and>
+	<equals arg1="have.jtidy" arg2="true"/>
+	<equals arg1="have.xpath" arg2="true"/>
+      </and>
+    </condition>
 
     <!-- javac switches -->
     <property name="debug" value="on"/>
@@ -109,7 +108,7 @@ conditionally built modules are:
 
     <!-- webapps, in general and specific -->
     <property name="webapps.dir" value="webapps"/>
-	<property name="sniffer.webapp.dir" value="${webapps.dir}/sniff-n-grind"/>
+    <property name="sniffer.webapp.dir" value="${webapps.dir}/sniff-n-grind"/>
 
     <!-- output -->
     <property name="build.dir" value="build"/>
@@ -156,8 +155,17 @@ conditionally built modules are:
   <target name="assert-have-servlet" depends="init" unless="have.servlet">
    <fail message="Add Servlet classes to your CLASSPATH to build this target"/>
   </target>
+
+  <target name="assert-have-jtidy" depends="init" unless="have.jtidy">
+   <fail message="Add JTidy classes to your CLASSPATH to build this target"/>
+  </target>
+
+  <target name="assert-have-xpath" depends="init" unless="have.xpath">
+   <fail message="Add Xalan XPath classes to your CLASSPATH to build this target"/>
+  </target>
+
   <target name="assert-have-everything"
-	  depends="assert-have-jsse,assert-have-junit,assert-have-junit-task,assert-have-regexp,assert-have-servlet">
+	  depends="assert-have-jsse,assert-have-junit,assert-have-junit-task,assert-have-regexp,assert-have-servlet,assert-have-jtidy,assert-have-xpath">
   </target>
 
 
@@ -234,6 +242,7 @@ conditionally built modules are:
        <exclude name="**/URLRewriteFilter.java" unless="have.regexp"/>
        <exclude name="**/JUnitPlugin.java" unless="have.junit"/>
        <exclude name="**/snifferwebapp" unless="have.servlet"/>
+       <exclude name="**/ExampleJTidyStringBean.java" unless="have.jtidy-and-xpath"/>
     </javac>
 
   </target>
@@ -303,14 +312,16 @@ conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Rules to run the tests                                              -->
   <!-- =================================================================== -->
-  <target name="test" depends="compile-tests,copy-resources,assert-have-junit-task"
+  <target name="test"
+	  depends="compile-tests,copy-resources,assert-have-junit-task"
 	  description="Run the unit-tests.">
   <junit printsummary="false" haltonfailure="true">
-    <formatter type="plain" usefile="false"/>
-
     <classpath path="${tests.classes};${build.classes}"/>
 
-    <test name="net.grinder.AllTests"/>
+    <batchtest>
+      <formatter type="plain" usefile="false"/>
+      <fileset dir="${tests.src}" includes="**/Test*.java"/>
+    </batchtest>
   </junit>
 
   </target>
