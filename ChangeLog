@@ -1,3 +1,97 @@
+2004-06-26  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/swingui/ConsoleUI.java:
+	Save distribution directory whenever its changed.
+
+	* tests-src/net/grinder/common/TestGrinderProperties.java, src/net/grinder/common/GrinderProperties.java:
+	saveSingleProperty now uses the property's current value.
+
+	* src/net/grinder/console/communication/DistributionStatus.java: Fix.
+
+	* src/net/grinder/console/communication/ProcessControlImplementation.java, src/net/grinder/util/Directory.java:
+	Restrict files to distribute based on earliest modification time.
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties:
+	Rename "Edit" menu to "Distribute".
+
+	* tests-src/net/grinder/util/TestDirectory.java: Coverage.
+
+	* tests-src/net/grinder/engine/messages/TestEngineMessages.java, tests-src/net/grinder/util/TestDirectory.java, TODO, src/net/grinder/console/communication/ConsoleCommunication.java, src/net/grinder/console/communication/DistributionStatus.java, src/net/grinder/console/communication/ProcessControl.java, src/net/grinder/console/communication/ProcessControlImplementation.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/engine/agent/FileStore.java, src/net/grinder/engine/messages/DistributeFileMessage.java, src/net/grinder/engine/messages/DistributeFilesMessage.java, src/net/grinder/util/Directory.java, tests-src/net/grinder/engine/agent/TestFileStore.java:
+	Redo file distribution on a per file basis.
+	Add progress monitor.
+
+	* tests-src/net/grinder/testutility/AssertUtilities.java:
+	Don't require array types to match exactly.
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	More overloaded utility methods.
+
+	* src/net/grinder/console/swingui/SwingDispatchedProcessStatusSetListener.java, tests-src/net/grinder/console/communication/TestProcessStatusSet.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedProcessStatusListener.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedProcessStatusSetListener.java, src/net/grinder/console/Console.java, src/net/grinder/console/communication/ConsoleCommunication.java, src/net/grinder/console/communication/ProcessControl.java, src/net/grinder/console/communication/ProcessControlImplementation.java, src/net/grinder/console/communication/ProcessStatusListener.java, src/net/grinder/console/communication/ProcessStatusSet.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/SwingDispatchedProcessStatusListener.java:
+	Even more refactoring of the Console/ConsoleUI/ConsoleCommunication
+	split.
+
+	* src/net/grinder/console/model/ProcessStatusSet.java: Moved.
+
+	* src/net/grinder/console/model/ProcessStatusSetListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/SwingDispatchedProcessStatusSetListener.java, tests-src/net/grinder/console/common/TestErrorQueue.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedProcessStatusSetListener.java, src/net/grinder/console/Console.java, src/net/grinder/console/common/ErrorQueue.java, src/net/grinder/console/communication/ConsoleCommunication.java, src/net/grinder/console/communication/ProcessControlImplementation.java, src/net/grinder/console/communication/ProcessStatusSet.java, src/net/grinder/console/model/Model.java:
+	More refactoring of the Console/ConsoleUI/ConsoleCommunication split.
+
+2004-06-25  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/testutility/RandomObjectFactory.java:
+	Support Exception.
+
+	* tests-src/net/grinder/engine/agent/TestProcessLauncher.java, tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java, tests-src/net/grinder/testutility/CallData.java, tests-src/net/grinder/testutility/CallRecorder.java, tests-src/net/grinder/communication/TestAcceptor.java, tests-src/net/grinder/console/editor/TestEditorModel.java:
+	Extract CallData from CallRecorder.
+
+	* tests-src/net/grinder/console/editor/StringTextSource.java, tests-src/net/grinder/console/editor/TestAbstractTextSource.java, tests-src/net/grinder/console/editor/TestBuffer.java, tests-src/net/grinder/console/editor/TestEditorModel.java:
+	Move editor package so its a peer to the model package.
+
+2004-06-24  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/communication/ProcessControl.java, src/net/grinder/console/communication/package.html, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/common/DistributeFilesHandler.java, src/net/grinder/console/communication/ConsoleCommunication.java:
+	Refactor process control.
+
+	* src/net/grinder/console/swingui/BufferTreeModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/Editor.java, src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/swingui/FileTreeModel.java, src/net/grinder/console/editor/EditorException.java, src/net/grinder/console/editor/EditorModel.java, src/net/grinder/console/editor/TextSource.java, src/net/grinder/console/editor/package.html, src/net/grinder/console/editor/AbstractTextSource.java, src/net/grinder/console/editor/Buffer.java:
+	Move editor package so its a peer to the model package.
+
+	* tests-src/net/grinder/communication/TestConnectionIdentity.java, tests-src/net/grinder/testutility/CallRecorder.java, src/net/grinder/communication/Acceptor.java, src/net/grinder/communication/ConnectionIdentity.java, tests-src/net/grinder/communication/TestAcceptor.java:
+	Can now listen to Acceptor's for connection accepted/closed events.
+
+	* src/net/grinder/communication/ResourcePool.java: Checkstyle.
+
+	* src/net/grinder/communication/ResourcePool.java: Correct comment.
+
+	* tests-src/net/grinder/communication/TestResourcePool.java:
+	Test listener support.
+	Test purgeZombieResources.
+
+	* src/net/grinder/communication/ResourcePool.java: Listener support.
+
+	* src/net/grinder/console/common/DistributeFilesHandler.java:
+	Checkstyle.
+
+2004-06-23  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/testutility/FileUtilities.java, tests-src/net/grinder/util/TestDirectory.java:
+	Coverage.
+
+	* examples/scriptlifecycle.py, xdoc/g3/script-gallery-xhtml.xml, TODO:
+	Clairfying comment.
+
+2004-06-22  Philip Aston  <philipa@mail.com>
+
+	* examples/jaxrpc.py, examples/jdbc.py, xdoc/g3/script-gallery-xhtml.xml, examples/console.py, examples/ejb.py, examples/form.py, examples/httpg2.py, examples/httpunit.py:
+	Remove extraneous semicolons.
+
+	* TODO: Updated plans.
+
+2004-06-20  Philip Aston  <philipa@mail.com>
+
+	* ChangeLog: *** empty log message ***
+
+	* tests-src/net/grinder/plugininterface/TestPluginException.java, tests-src/net/grinder/util/TestDirectory.java, tests-src/net/grinder/util/TestWeakValueHashMap.java, tests-src/net/grinder/engine/common/TestConsoleListener.java:
+	Coverage.
+
 2004-06-20  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/plugininterface/TestPluginException.java, tests-src/net/grinder/util/TestDirectory.java, tests-src/net/grinder/util/TestWeakValueHashMap.java, tests-src/net/grinder/engine/common/TestConsoleListener.java:
