@@ -40,6 +40,7 @@ public class AllTests
 	final TestSuite suite = new TestSuite();
 	suite.addTest(new TestSuite(TestSignificantFigureFormat.class));
 	suite.addTest(new TestSuite(TestSerialiser.class));
+	suite.addTest(new TestSuite(TestSleep.class));
 	return suite;
     }
 }
