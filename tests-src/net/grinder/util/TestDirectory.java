@@ -43,8 +43,11 @@ public class TestDirectory extends AbstractFileTestCase {
 
   public void testConstruction() throws Exception {
 
+    final File file = new File(getDirectory(), "x");
+    file.createNewFile();
+
     try {
-      new Directory(new File(getDirectory(), "x"));
+      new Directory(file);
       fail("Expected DirectoryException");
     }
     catch (Directory.DirectoryException e) {
@@ -168,7 +171,7 @@ public class TestDirectory extends AbstractFileTestCase {
       "another",
     };
 
-    for (int i=0; i<files.length; ++i) {
+    for (int i = 0; i < files.length; ++i) {
       final File file = new File(getDirectory(), files[i]);
       file.getParentFile().mkdirs();
       file.createNewFile();
@@ -179,5 +182,79 @@ public class TestDirectory extends AbstractFileTestCase {
     directory.deleteContents();
 
     assertEquals(0, getDirectory().list().length);
+
+    // Can't test that deleteContents() throws an exception if
+    // contents couldn't be deleted as File.delete() ignores file
+    // permisions on W2K.
+  }
+
+  public void testCreate() throws Exception {
+    final String[] directories = {
+      "toplevel",
+      "down/a/few",
+    };
+
+    for (int i=0; i<directories.length; ++i) {
+      final Directory directory =
+        new Directory(new File(getDirectory(), directories[i]));
+      assertFalse(directory.getAsFile().exists());
+      directory.create();
+      assertTrue(directory.getAsFile().exists());
+    }
+
+    final File file = new File(getDirectory(), "readonly");
+    file.createNewFile();
+    FileUtilities.setCanRead(file, false);
+
+    try {
+      new Directory(new File(getDirectory(), "readonly/foo")).create();
+      fail("Expected DirectoryException");
+    }
+    catch (Directory.DirectoryException e) {
+    }
+  }
+
+  public void testDelete() throws Exception {
+    final Directory directory1 =
+      new Directory(new File(getDirectory(), "a/directory"));
+    directory1.create();
+    assertTrue(directory1.getAsFile().exists());
+    directory1.delete();
+    assertFalse(directory1.getAsFile().exists());
+
+    final Directory directory2 =
+      new Directory(new File(getDirectory(), "another"));
+    directory2.create();
+    final File file2 = new File(getDirectory(), "another/file");
+    file2.createNewFile();
+
+    try {
+      directory2.delete();
+      fail("Expected DirectoryException");
+    }
+    catch (Directory.DirectoryException e) {
+    }
+  }
+
+  public void testGetRelativePath() throws Exception {
+    final String[] files = {
+      "path1",
+      "some/other/path",
+    };
+
+    final Directory directory = new Directory(getDirectory());
+
+    for (int i=0; i<files.length; ++i) {
+      final File file = new File(getDirectory(), files[i]);
+      file.getParentFile().mkdirs();
+      file.createNewFile();
+
+      final File result = directory.getRelativePath(file);
+      assertFalse(result.isAbsolute());
+      assertEquals(file, new File(getDirectory(), result.getPath()));
+    }
+
+    assertNull(directory.getRelativePath(null));
+    assertNull(directory.getRelativePath(new File(getDirectory(), "foo")));    
   }
 }

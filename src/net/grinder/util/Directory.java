@@ -45,15 +45,30 @@ public final class Directory  {
    *
    * @param directory The directory which this <code>Directory</code>
    * operates upon.
-   * @exception DirectoryException If <code>directory</code> is not a directory.
+   * @exception DirectoryException If <code>directory</code> is not a
+   * directory, or if the directory could not be created.
    */
   public Directory(File directory) throws DirectoryException {
-    if (!directory.isDirectory()) {
-      throw new DirectoryException(directory.getPath() +
-                                   " is not a directory");
+    if (directory.exists() && !directory.isDirectory()) {
+      throw new DirectoryException(
+        "'" + directory.getPath() + "' is not a directory");
     }
 
     m_directory = directory;
+  }
+
+  /**
+   * Create the directory if it doesn't exist.
+   *
+   * @exception DirectoryException If the directory could not be created.
+   */
+  public void create() throws DirectoryException {
+    if (!m_directory.exists()) {
+      if (!m_directory.mkdirs()) {
+        throw new DirectoryException(
+          "Could not create directory '" + m_directory + "'");
+      }
+    }
   }
 
   /**
@@ -148,16 +163,35 @@ public final class Directory  {
   }
 
   /**
-   * Delete the contents of the directory. The directory itself is not
-   * removed.
+   * Delete the contents of the directory.
+   *
+   * @throws DirectoryException If a file could not be deleted. The
+   * contents of the directory are left in an indeterminate state.
+   * @see #delete
    */
-  public void deleteContents() {
+  public void deleteContents() throws DirectoryException {
     // We rely on the order of the listContents result: more deeply
     // nested files are later in the list.
     final File[] deleteList = listContents(true, true, -1);
 
     for (int i = deleteList.length - 1; i >= 0; --i) {
-      deleteList[i].delete();
+      if (!deleteList[i].delete()) {
+        throw new DirectoryException(
+          "Could not delete '" + deleteList[i] + "'");
+      }
+    }
+  }
+
+  /**
+   * Delete the directory. This will fail if the directory is not
+   * empty.
+   *
+   * @throws DirectoryException If the directory could not be deleted.
+   * @see #deleteContents
+   */
+  public void delete() throws DirectoryException {
+    if (!m_directory.delete()) {
+      throw new DirectoryException("Could not delete '" + m_directory + "'");
     }
   }
 
@@ -174,6 +208,26 @@ public final class Directory  {
     finally {
       m_warnings.clear();
     }
+  }
+
+  /**
+   * Find the given file in the directory and return a File
+   * representing its path relative to the root of the directory.
+   *
+   * @param absoluteFile The file to search for, or <code>null</code>
+   * if the file was not found.
+   */
+  public File getRelativePath(File absoluteFile) {
+
+    final File[] contents = listContents();
+
+    for (int i = 0; i < contents.length; ++i) {
+      if (new File(m_directory, contents[i].getPath()).equals(absoluteFile)) {
+        return contents[i];
+      }
+    }
+
+    return null;
   }
 
   /**
