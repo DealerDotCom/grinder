@@ -54,10 +54,9 @@ grinder.numberOfOldLogs</a>.</em></p>
 <h3>Sample controls</h3>
 
 <p>The sample controls determine how the console captures reports from
-the worker processes. capture. It is important to understand that
-these only control the console behaviour. For example, they do not
-adjust the frequency at which the worker processes send reports (see
-<a
+the worker processes. It is important to understand that these only
+control the console behaviour. For example, they do not adjust the
+frequency at which the worker processes send reports (see <a
 href="getting-started.html#grinder.reportToConsole.interval">grinder.reportToConsole.interval</a>
 for that). Additionally, the sample controls do not interact in any
 way with the process controls.</p>
@@ -84,6 +83,12 @@ will collect before stopping capture.</p>
 to a file.</p>
 
 <h3>Display</h3>
+
+<p>Each graph displays the 25 most recent Transactions Per Second
+(TPS) values for a particular test. A new value is added every console
+sample period. The y-axis is scaled so that the full height represents
+the peak TPS value received for the test since the display was last
+reset.</p>
 
 <p>The colours are based on the relative response time. Long response
 times are more red, short response times are more yellow. This acts as
