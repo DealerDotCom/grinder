@@ -76,6 +76,8 @@ Task: Console to watch local file system for edits.
 Task: Add warning if saving outside of distribution.
 Task: File Store directory should have a README describing what its
 for.
+Task: Guard against distributing agent cache directory. Can mark with
+a special file - maybe the README?
 
 ***** Release 3
 
