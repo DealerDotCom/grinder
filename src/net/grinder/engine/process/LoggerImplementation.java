@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -365,10 +365,8 @@ final class LoggerImplementation {
    * is package scope and this prevents Jython from seeing
    * <code>Logger</code> (<code>IllegalAccessException</code>s
    * abound.</p>
-   **/
-  private final class ThreadState
-    extends AbstractLogger
-    implements Logger, ThreadLogger {
+   */
+  private final class ThreadState implements Logger, ThreadLogger {
 
     private final int m_threadID;
     private int m_currentRunNumber = -1;
@@ -436,8 +434,16 @@ final class LoggerImplementation {
       outputInternal(this, message, where);
     }
 
+    public void output(String message) {
+      output(message, Logger.LOG);
+    }
+
     public void error(String message, int where) {
       errorInternal(this, message, where);
+    }
+
+    public void error(String message) {
+      error(message, Logger.LOG);
     }
 
     public PrintWriter getOutputLogWriter() {

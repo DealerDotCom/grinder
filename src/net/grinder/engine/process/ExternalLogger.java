@@ -37,7 +37,7 @@ import java.io.PrintWriter;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ExternalLogger extends AbstractLogger {
+final class ExternalLogger implements Logger {
 
   private final Logger m_processLogger;
   private final ThreadContextLocator m_threadContextLocator;
@@ -53,8 +53,16 @@ final class ExternalLogger extends AbstractLogger {
     getLogger().output(message, where);
   }
 
+  public void output(String message) {
+    getLogger().output(message);
+  }
+
   public void error(String message, int where) {
     getLogger().error(message, where);
+  }
+
+  public void error(String message) {
+    getLogger().error(message);
   }
 
   public PrintWriter getOutputLogWriter() {

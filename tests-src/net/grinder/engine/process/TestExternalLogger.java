@@ -52,8 +52,8 @@ public class TestExternalLogger extends TestCase {
 
     externalLogger.output("Hello");
 
-    processLoggerFactory.assertSuccess(
-      "output", new Object[] { "Hello", new Integer(Logger.LOG) }, null);
+    processLoggerFactory.assertSuccess("output",
+                                       new Object[] { "Hello" }, null);
     processLoggerFactory.assertNotCalled();
 
     processLoggerFactory.resetCallHistory();
@@ -120,8 +120,8 @@ public class TestExternalLogger extends TestCase {
     threadContextLocator.set(null);
 
     externalLogger.error("Another test");
-    processLoggerFactory.assertSuccess(
-      "error", new Object[] { "Another test", new Integer(Logger.LOG) });
+    processLoggerFactory.assertSuccess("error",
+                                       new Object[] { "Another test" });
 
     processLoggerFactory.assertNotCalled();
     threadLoggerFactory1.assertNotCalled();
