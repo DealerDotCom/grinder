@@ -58,6 +58,14 @@ utilisation of the server?</a></h3>
 black box. Look to other tools such as <code>sar</code> and
 <code>vmstat</code> to measure server CPU utilisation.</p>
 
+<h3><a name="jython-libraries">How do I use standard Python modules in my scripts?</a></h3>
+
+<p>The Python standard library contains a number of very useful
+modules. For example the regular expression module <code>re</code> and
+the threading module <code>threading</code>. To use these modules you
+must <a href="./scripts.html#jython-installation">install
+Jython</a>.</p>
+
 <h3><a name="string-beans">How do I simulate different users?</a></h3>
 
 <p><em>New answer required for G3.</em></p>
@@ -235,6 +243,19 @@ carrier.
 cropped a network cable short and twisted my own physical loop-back
 adapter. Needless to say, if anyone figures out how to get multicast
 working with a stand alone W2K machine, I'm more than interested.</p>
+
+<p><em>(Later...)</em> The following Windows registry entry has
+allowed my to get rid of the physical loop-back adapter. With this
+set, The Grinder reports network errors whenever a multicast packet is
+sent or received but otherwise continues to work fine.</p>
+
+<blockquote><pre>
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\
+
+Name: DisableDHCPMediaSense
+Type: REG_DWORD 
+Data: 0x00000001 (1)
+</pre></blockquote>
 
 <h3><a name="grinder-vs-loadrunner">How does The Grinder stack up
 against a commercial tool like Mercury Interactive's
