@@ -69,8 +69,7 @@ public final class StatisticExpressionFactory {
     normaliseExpressionString(parseContext, result);
 
     if (parseContext.hasMoreCharacters()) {
-      throw parseContext.new ParseException(
-        "Additional characters found");
+      throw parseContext.new ParseException("Additional characters found");
     }
 
     return result.toString();
@@ -131,8 +130,7 @@ public final class StatisticExpressionFactory {
         result = createSum(readOperands(parseContext, 2));
       }
       else if ("*".equals(operation)) {
-        result =
-          createProduct(readOperands(parseContext, 2));
+        result = createProduct(readOperands(parseContext, 2));
       }
       else if ("/".equals(operation)) {
         result = createDivision(createExpression(parseContext),
@@ -161,18 +159,15 @@ public final class StatisticExpressionFactory {
         }
         catch (NumberFormatException e2) {
           if (m_indexMap.isLongIndex(token)) {
-            return createPrimitive(
-              m_indexMap.getIndexForLong(token));
+            return createPrimitive(m_indexMap.getIndexForLong(token));
           }
           else if (m_indexMap.isDoubleIndex(token)) {
-            return createPrimitive(
-              m_indexMap.getIndexForDouble(token));
+            return createPrimitive(m_indexMap.getIndexForDouble(token));
           }
         }
       }
 
-      throw parseContext.new ParseException("Unknown token '" + token +
-                                            "'");
+      throw parseContext.new ParseException("Unknown token '" + token + "'");
     }
   }
 
