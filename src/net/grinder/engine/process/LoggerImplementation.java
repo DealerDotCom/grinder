@@ -62,14 +62,14 @@ final class LoggerImplementation {
   private static int s_lastTick = -1;
 
   /** Regularly incremented by GrinderProcess. */
-  static final void tick() {
+  static void tick() {
     ++s_currentTick;
   }
 
   /** Use our DateFormat at most once a tick. Don't synchronise, who
    * cares if its wrong?
    */
-  private static final /* synchronized */ String getDateString() {
+  private static /* synchronized */ String getDateString() {
 
     if (s_lastTick != s_currentTick) {
       s_dateString = s_dateFormat.format(new Date());
@@ -141,23 +141,23 @@ final class LoggerImplementation {
       new DelayedCreationFileWriter(file, appendLog));
   }
 
-  final Logger getProcessLogger() throws EngineException {
+  Logger getProcessLogger() throws EngineException {
     return m_processLogger;
   }
 
-  final ThreadLogger createThreadLogger(int threadID) {
+  ThreadLogger createThreadLogger(int threadID) {
     return new ThreadState(threadID);
   }
 
-  final FilenameFactoryImplementation getFilenameFactory()  {
+  FilenameFactoryImplementation getFilenameFactory()  {
     return m_filenameFactory;
   }
 
-  final PrintWriter getDataWriter() {
+  PrintWriter getDataWriter() {
     return m_dataWriter;
   }
 
-  private final void outputInternal(ThreadState state, String message,
+  private void outputInternal(ThreadState state, String message,
                                     int where) {
     int w = where;
 
@@ -180,8 +180,7 @@ final class LoggerImplementation {
     }
   }
 
-  private final void errorInternal(ThreadState state, String message,
-                                   int where) {
+  private void errorInternal(ThreadState state, String message, int where) {
 
     int w = where;
 
@@ -263,7 +262,7 @@ final class LoggerImplementation {
       m_processOrThreadIDCharacters = getBufferCharacters(0);
     }
 
-    private final char[] getBufferCharacters(int start) {
+    private char[] getBufferCharacters(int start) {
 
       final int length = m_buffer.length();
       final char[] result = new char[length - start];
@@ -271,15 +270,15 @@ final class LoggerImplementation {
       return result;
     }
 
-    public final int getThreadID() {
+    public int getThreadID() {
       return m_threadID;
     }
 
-    public final int getCurrentRunNumber() {
+    public int getCurrentRunNumber() {
       return m_currentRunNumber;
     }
 
-    public final void setCurrentRunNumber(int runNumber) {
+    public void setCurrentRunNumber(int runNumber) {
       if (runNumber != m_currentRunNumber) {
         m_currentRunNumberCharacters = null;
       }
@@ -287,39 +286,39 @@ final class LoggerImplementation {
       m_currentRunNumber = runNumber;
     }
 
-    public final int getCurrentTestNumber() {
+    public int getCurrentTestNumber() {
       return m_currentTestNumber;
     }
 
-    public final void setCurrentTestNumber(int testNumber) {
+    public void setCurrentTestNumber(int testNumber) {
       m_currentTestNumber = testNumber;
     }
 
-    public final void output(String message) {
+    public void output(String message) {
       outputInternal(this, message, Logger.LOG);
     }
 
-    public final void output(String message, int where) {
+    public void output(String message, int where) {
       outputInternal(this, message, where);
     }
 
-    public final void error(String message) {
+    public void error(String message) {
       errorInternal(this, message, Logger.LOG);
     }
 
-    public final void error(String message, int where) {
+    public void error(String message, int where) {
       errorInternal(this, message, where);
     }
 
-    public final PrintWriter getOutputLogWriter() {
+    public PrintWriter getOutputLogWriter() {
       return m_outputWriter;
     }
 
-    public final PrintWriter getErrorLogWriter() {
+    public PrintWriter getErrorLogWriter() {
       return m_errorWriter;
     }
 
-    final int formatMessage(String message) {
+    int formatMessage(String message) {
       m_buffer.setLength(0);
 
       m_buffer.append(getDateString());

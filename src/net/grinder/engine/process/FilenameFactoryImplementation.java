@@ -44,7 +44,7 @@ final class FilenameFactoryImplementation implements FilenameFactory {
     m_contextString = contextString;
   }
 
-  final FilenameFactoryImplementation
+  FilenameFactoryImplementation
     createSubContextFilenameFactory(String subContext) {
     return
       new FilenameFactoryImplementation(m_logDirectory,
@@ -52,7 +52,7 @@ final class FilenameFactoryImplementation implements FilenameFactory {
                                         "_" + subContext);
   }
 
-  public final String createFilename(String prefix, String suffix) {
+  public String createFilename(String prefix, String suffix) {
     final StringBuffer result = new StringBuffer();
 
     result.append(m_logDirectory);
@@ -64,7 +64,7 @@ final class FilenameFactoryImplementation implements FilenameFactory {
     return result.toString();
   }
 
-  public final String createFilename(String prefix) {
+  public String createFilename(String prefix) {
     return createFilename(prefix, ".log");
   }
 }

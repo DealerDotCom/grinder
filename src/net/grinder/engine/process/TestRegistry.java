@@ -66,7 +66,7 @@ public final class TestRegistry {
    * Singleton accessor.
    * @return The singleton.
    */
-  public static final TestRegistry getInstance() {
+  public static TestRegistry getInstance() {
     return s_instance;
   }
 
@@ -116,7 +116,7 @@ public final class TestRegistry {
     return newTestData;
   }
 
-  final TestStatisticsMap getTestStatisticsMap() {
+  TestStatisticsMap getTestStatisticsMap() {
     return m_testStatisticsMap;
   }
 
@@ -124,7 +124,7 @@ public final class TestRegistry {
    * Return any tests registered since the last time
    * <code>getNewTests</code> was called.
    */
-  final synchronized Collection getNewTests() {
+  synchronized Collection getNewTests() {
     try {
       return m_newTests;
     }

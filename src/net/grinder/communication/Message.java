@@ -94,7 +94,7 @@ public abstract class Message implements Serializable {
    * @throws RuntimeException If {@link #setSenderInformation} has not
    * been called.
    **/
-  private final void assertInitialised() {
+  private void assertInitialised() {
     if (m_senderUniqueID == null) {
       throw new RuntimeException("Message not initialised");
     }

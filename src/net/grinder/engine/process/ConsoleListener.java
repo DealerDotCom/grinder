@@ -117,7 +117,7 @@ final class ConsoleListener {
    * @param mask The messages to check for.
    * @return The subset of <code>mask</code> received.
    **/
-  public final synchronized int received(int mask) {
+  public synchronized int received(int mask) {
     final int intersection = m_messagesReceived & mask;
 
     try {
@@ -153,7 +153,7 @@ final class ConsoleListener {
     /**
      * Event loop that receives messages from the console.
      **/
-    public final void run() {
+    public void run() {
       while (true) {
         final Message message;
 
@@ -184,7 +184,7 @@ final class ConsoleListener {
       }
     }
 
-    private final void setReceived(int message) {
+    private void setReceived(int message) {
       synchronized (ConsoleListener.this) {
         m_messagesReceived |= message;
       }

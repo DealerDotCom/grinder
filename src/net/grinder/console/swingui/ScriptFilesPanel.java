@@ -65,7 +65,7 @@ final class ScriptFilesPanel extends JPanel {
 
     chooseDirectoryButton.setAction(
       new CustomAction(resources, "script.chooseDirectory") {
-        public final void actionPerformed(ActionEvent event) {
+        public void actionPerformed(ActionEvent event) {
           try {
             if (m_fileChooser.showOpenDialog(frame) ==
                 JFileChooser.APPROVE_OPTION) {
@@ -117,13 +117,13 @@ final class ScriptFilesPanel extends JPanel {
     add(fileTreePane);
   }
 
-  public final void refresh() {
+  public void refresh() {
     final File rootDirectory = m_scriptDistributionFiles.getRootDirectory();
     m_fileChooser.setCurrentDirectory(rootDirectory);
     m_fileTreeModel.setRootDirectory(rootDirectory);
   }
 
-  private final String limitLength(String s) {
+  private String limitLength(String s) {
 
     final String ellipses = "...";
     final int maximumLength = 25 - ellipses.length();
@@ -149,7 +149,7 @@ final class ScriptFilesPanel extends JPanel {
         m_resources.getImageIcon("script.pythonfile.image"));
     }
 
-    public final Component getTreeCellRendererComponent(
+    public Component getTreeCellRendererComponent(
       JTree tree, Object value, boolean selected, boolean expanded,
       boolean leaf, int row, boolean hasFocus) {
 

@@ -385,7 +385,7 @@ class RawStatisticsImplementation implements RawStatistics {
     }
   }
 
-  private final synchronized void ensureDoubleDataAllocated() {
+  private synchronized void ensureDoubleDataAllocated() {
     if (m_doubleData.length == 0) {
       m_doubleData = new double[StatisticsIndexMap.getInstance().
                                 getNumberOfDoubleIndicies()];

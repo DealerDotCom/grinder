@@ -53,7 +53,7 @@ public final class HTTPPluginControl {
    * the default behaviour of new connections.
    * @return An <code>HTTPPluginConnection</code>.
    */
-  public static final HTTPPluginConnection getConnectionDefaults() {
+  public static HTTPPluginConnection getConnectionDefaults() {
     return HTTPPluginConnectionDefaults.getConnectionDefaults();
   }
 
@@ -70,7 +70,7 @@ public final class HTTPPluginControl {
    * @exception ProtocolNotSuppException If <code>url</code>
    * specifies an unsupported protocol.
    */
-  public static final HTTPPluginConnection getThreadConnection(String url)
+  public static HTTPPluginConnection getThreadConnection(String url)
     throws GrinderException, ParseException, ProtocolNotSuppException {
 
     final HTTPPluginThreadState threadState =
@@ -91,8 +91,8 @@ public final class HTTPPluginControl {
    * <code>HTTPClient.HTTPConnections</code> created by this thread.
    * @exception GrinderException If an error occurs.
    */
-  public static final Object getThreadHTTPClientContext()
-    throws GrinderException {
+  public static Object getThreadHTTPClientContext() throws GrinderException {
+
     return s_pluginProcessContext.getPluginThreadListener();
   }
 }

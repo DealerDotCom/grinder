@@ -46,11 +46,11 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
     m_processContext = processContext;
   }
 
-  public final String getGrinderID() {
+  public String getGrinderID() {
     return m_processContext.getGrinderID();
   }
 
-  public final int getThreadID() {
+  public int getThreadID() {
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
     if (threadContext != null) {
@@ -60,7 +60,7 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
     return -1;
   }
 
-  public final int getRunNumber() {
+  public int getRunNumber() {
     final ThreadContext threadContext =
       ThreadContext.getThreadInstance();
 
@@ -71,7 +71,7 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
     return -1;
   }
 
-  public final Logger getLogger() {
+  public Logger getLogger() {
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
     if (threadContext != null) {
@@ -81,7 +81,7 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
     return m_processContext.getLogger();
   }
 
-  public final void sleep(long meanTime)
+  public void sleep(long meanTime)
     throws GrinderException, InvalidContextException {
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
@@ -93,7 +93,7 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
     threadContext.getSleeper().sleepNormal(meanTime);
   }
 
-  public final void sleep(long meanTime, long sigma)
+  public void sleep(long meanTime, long sigma)
     throws GrinderException, InvalidContextException {
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
@@ -105,7 +105,7 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
     threadContext.getSleeper().sleepNormal(meanTime, sigma);
   }
 
-  public final FilenameFactory getFilenameFactory() {
+  public FilenameFactory getFilenameFactory() {
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
     if (threadContext != null) {
@@ -115,12 +115,11 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
     return m_processContext.getLoggerImplementation().getFilenameFactory();
   }
 
-  public final GrinderProperties getProperties() {
+  public GrinderProperties getProperties() {
     return m_processContext.getProperties();
   }
 
-  public final void registerSummaryStatisticsView(
-    StatisticsView statisticsView)
+  public void registerSummaryStatisticsView(StatisticsView statisticsView)
     throws GrinderException {
     CommonStatisticsViews.getSummaryStatisticsView().add(statisticsView);
 
@@ -130,14 +129,14 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
       new RegisterStatisticsViewMessage(statisticsView));
   }
 
-  public final void registerDetailStatisticsView(StatisticsView statisticsView)
+  public void registerDetailStatisticsView(StatisticsView statisticsView)
     throws GrinderException {
     // DetailStatisticsViews are only for the data logs, so we don't
     // register the view with the console.
     CommonStatisticsViews.getDetailStatisticsView().add(statisticsView);
   }
 
-  public final Statistics getStatistics() throws InvalidContextException {
+  public Statistics getStatistics() throws InvalidContextException {
 
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 

@@ -43,7 +43,7 @@ class TestPyJavaInstance extends PyJavaInstance {
     m_pyTest = new PyJavaInstance(testData.getTest());
   }
 
-  private final PyObject dispatch(TestData.Invokeable invokeable) {
+  private PyObject dispatch(TestData.Invokeable invokeable) {
     try {
       return (PyObject)m_testData.dispatch(invokeable);
     }

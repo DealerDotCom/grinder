@@ -413,7 +413,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     m_frame.show();
   }
 
-  private final JMenuBar createMenuBar() {
+  private JMenuBar createMenuBar() {
 
     final JMenuBar menuBar = new JMenuBar();
 
@@ -453,7 +453,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     return menuBar;
   }
 
-  private final JToolBar createToolBar() {
+  private JToolBar createToolBar() {
 
     final JToolBar toolBar = new JToolBar();
 
@@ -479,7 +479,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     return toolBar;
   }
 
-  private final void setAction(AbstractButton button, String actionKey) {
+  private void setAction(AbstractButton button, String actionKey) {
 
     final CustomAction action = (CustomAction)m_actionTable.get(actionKey);
 
@@ -493,7 +493,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
 
-  private final int updateStateLabel() {
+  private int updateStateLabel() {
 
     final int state = m_model.getState();
     final boolean receivedReport = m_model.getReceivedReport();
@@ -594,7 +594,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
         new File(m_model.getResources().getString("default.filename")));
     }
 
-    public final void actionPerformed(ActionEvent event) {
+    public void actionPerformed(ActionEvent event) {
 
       try {
         if (m_fileChooser.showSaveDialog(m_frame) ==
@@ -670,7 +670,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
       JLabel text =
         new JLabel() {
-          public final Dimension getPreferredSize() {
+          public Dimension getPreferredSize() {
             final Dimension d = super.getPreferredSize();
             d.width = 450;
             return d;
@@ -695,7 +695,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
         };
     }
 
-    public final void actionPerformed(ActionEvent event) {
+    public void actionPerformed(ActionEvent event) {
       JOptionPane.showMessageDialog(m_frame, m_contents, m_title,
                                     JOptionPane.PLAIN_MESSAGE,
                                     m_logoIcon);
@@ -736,12 +736,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       super(m_model.getResources(), "stop");
     }
 
-    public final void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) {
       m_model.stop();
       stopped();
     }
 
-    public final void stopped() {
+    public void stopped() {
       //  putValue() won't work here as the event won't fire if
       //  the value doesn't change.
       firePropertyChange(SET_ACTION_PROPERTY, null, m_startAction);
@@ -758,7 +758,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       m_delegateAction = delegateAction;
     }
 
-    public final void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) {
       m_delegateAction.actionPerformed(e);
     }
   }
@@ -772,7 +772,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       m_delegateAction = delegateAction;
     }
 
-    public final void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) {
 
       final ConsoleProperties properties = m_model.getProperties();
 
@@ -840,12 +840,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       m_delegateAction = delegateAction;
     }
 
-    public final void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) {
       m_delegateAction.actionPerformed(e);
     }
   }
 
-  private static final Iterator tokenise(String string) {
+  private static Iterator tokenise(String string) {
     final LinkedList list = new LinkedList();
 
     final StringTokenizer t = new StringTokenizer(string);

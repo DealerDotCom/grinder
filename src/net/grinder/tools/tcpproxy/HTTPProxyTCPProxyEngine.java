@@ -81,7 +81,7 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation {
 
   private static Pattern s_httpConnectPattern;
 
-  private static final synchronized Pattern getHTTPConnectPattern()
+  private static synchronized Pattern getHTTPConnectPattern()
     throws MalformedPatternException {
 
     if (s_httpConnectPattern == null) {

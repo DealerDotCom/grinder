@@ -66,7 +66,7 @@ public final class GrinderBuild {
    *
    * @return The build version as a String.
    */
-  public static final String getVersionString() {
+  public static String getVersionString() {
     return s_versionString;
   }
 
@@ -75,7 +75,7 @@ public final class GrinderBuild {
    *
    * @return The build date as a String.
    */
-  public static final String getDateString() {
+  public static String getDateString() {
     return s_dateString;
   }
 }

@@ -97,12 +97,11 @@ public final class ProcessStatusSet {
    *
    * @param listener A listener.
    */
-  public final synchronized void addListener(
-    ProcessStatusSetListener listener) {
+  public synchronized void addListener(ProcessStatusSetListener listener) {
     m_listeners.add(listener);
   }
 
-  private final synchronized void fireUpdate() {
+  private synchronized void fireUpdate() {
     if (m_newData) {
       final ProcessStatus[] data = (ProcessStatus[])
         m_processes.values().toArray(new ProcessStatus[0]);
@@ -133,7 +132,7 @@ public final class ProcessStatusSet {
   /**
    * Use to notify this object of a start/reset/stop event.
    */
-  public final synchronized void processEvent() {
+  public synchronized void processEvent() {
     m_lastProcessEventGeneration = m_currentGeneration;
   }
 
@@ -143,8 +142,8 @@ public final class ProcessStatusSet {
    * @param uniqueID Process id.
    * @param processStatus Process status.
    */
-  public final synchronized void addStatusReport(String uniqueID,
-                                                 ProcessStatus processStatus) {
+  public synchronized void addStatusReport(String uniqueID,
+                                           ProcessStatus processStatus) {
 
     ProcessStatusImplementation processStatusImplementation =
       (ProcessStatusImplementation)m_processes.get(uniqueID);
@@ -161,7 +160,7 @@ public final class ProcessStatusSet {
     m_newData = true;
   }
 
-  private final synchronized void flush() {
+  private synchronized void flush() {
     m_scratchSet.clear();
     final Set zombies = m_scratchSet;
 
@@ -200,7 +199,7 @@ public final class ProcessStatusSet {
       touch();
     }
 
-    final void set(ProcessStatus processStatus) {
+    void set(ProcessStatus processStatus) {
       m_state = processStatus.getState();
       m_totalNumberOfThreads = processStatus.getTotalNumberOfThreads();
       m_numberOfRunningThreads =
@@ -208,7 +207,7 @@ public final class ProcessStatusSet {
       touch();
     }
 
-    final boolean shouldPurge() {
+    boolean shouldPurge() {
       if (m_reapable) {
         return true;
       }
@@ -221,24 +220,24 @@ public final class ProcessStatusSet {
       return false;
     }
 
-    private final void touch() {
+    private void touch() {
       m_lastTouchedGeneration = m_currentGeneration;
       m_reapable = false;
     }
 
-    public final String getName() {
+    public String getName() {
       return m_name;
     }
 
-    public final short getState() {
+    public short getState() {
       return m_state;
     }
 
-    public final short getNumberOfRunningThreads() {
+    public short getNumberOfRunningThreads() {
       return m_numberOfRunningThreads;
     }
 
-    public final short getTotalNumberOfThreads() {
+    public short getTotalNumberOfThreads() {
       return m_totalNumberOfThreads;
     }
   }

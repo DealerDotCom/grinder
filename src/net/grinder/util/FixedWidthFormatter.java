@@ -118,7 +118,7 @@ public class FixedWidthFormatter {
    * @param buffer Ensure that buffer.length() > m_width
    * @return Split position in range [0, m_width]
    **/
-  private final int findWordWrapSplitPosition(StringBuffer buffer) {
+  private int findWordWrapSplitPosition(StringBuffer buffer) {
     final int length = buffer.length();
     final int right = Math.min(length, m_width);
 

@@ -267,15 +267,15 @@ public class TestStatisticsMap implements java.io.Externalizable {
       m_number = number;
     }
 
-    public final int getNumber() {
+    public int getNumber() {
       return m_number;
     }
 
-    public final String getDescription() {
+    public String getDescription() {
       return "";
     }
 
-    public final GrinderProperties getParameters() {
+    public GrinderProperties getParameters() {
       throw new UnsupportedOperationException(
         getClass().getName() + ".LightweightTest.getParameters()");
     }
@@ -302,7 +302,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
      * @return <code>true</code> if there is a next {@link
      * TestStatisticsMap.Pair}.
      **/
-    public final boolean hasNext() {
+    public boolean hasNext() {
       return m_iterator.hasNext();
     }
 
@@ -313,7 +313,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
      * @return The next {@link TestStatisticsMap.Pair}.
      * @throws java.util.NoSuchElementException If there is no next element.
      **/
-    public final Pair next() {
+    public Pair next() {
       final Map.Entry entry = (Map.Entry)m_iterator.next();
       final Test test = (Test)entry.getKey();
       final TestStatistics statistics = (TestStatistics)entry.getValue();
@@ -340,7 +340,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
      *
      * @return  The {@link net.grinder.common.Test}.
      */
-    public final Test getTest() {
+    public Test getTest() {
       return m_test;
     }
 
@@ -349,7 +349,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
      *
      * @return The {@link TestStatistics}.
      */
-    public final TestStatistics getStatistics() {
+    public TestStatistics getStatistics() {
       return m_statistics;
     }
   }

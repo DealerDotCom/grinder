@@ -745,15 +745,15 @@ public class HTTPRequest {
       m_connectionWrapper = m_threadState.getConnectionWrapper(url);
     }
 
-    public final HTTPConnection getConnection() {
+    public HTTPConnection getConnection() {
       return m_connectionWrapper.getConnection();
     }
 
-    public final String getPath() {
+    public String getPath() {
       return m_path;
     }
 
-    public final HTTPResponse processResponse(HTTPResponse httpResponse)
+    public HTTPResponse processResponse(HTTPResponse httpResponse)
       throws IOException, ModuleException, PluginException {
 
       httpResponse.getData();
@@ -808,7 +808,7 @@ public class HTTPRequest {
     }
   }
 
-  private static final boolean isAbsolute(String uri) {
+  private static boolean isAbsolute(String uri) {
 
     char ch = '\0';
     int  pos = 0;

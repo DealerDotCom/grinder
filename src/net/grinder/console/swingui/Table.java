@@ -65,7 +65,7 @@ final class Table extends JTable {
     m_boldFont = m_defaultFont.deriveFont(Font.BOLD);
   }
 
-  public final TableCellRenderer getCellRenderer(int row, int column) {
+  public TableCellRenderer getCellRenderer(int row, int column) {
     final TableModel model = (TableModel)getModel();
 
     final boolean red = model.isRed(row, column);
@@ -85,8 +85,7 @@ final class Table extends JTable {
   private final class MyCellRenderer extends DefaultTableCellRenderer {
     private Font m_font;
 
-    public final
-      Component getTableCellRendererComponent(JTable table,
+    public Component getTableCellRendererComponent(JTable table,
                                               Object value,
                                               boolean isSelected,
                                               boolean hasFocus,
@@ -105,7 +104,7 @@ final class Table extends JTable {
       return defaultRenderer;
     }
 
-    public final void setTheFont(Font f) {
+    public void setTheFont(Font f) {
       m_font = f;
     }
   }

@@ -91,7 +91,7 @@ public final class CommonStatisticsViews {
    *
    * @return The {@link StatisticsView}.
    **/
-  public static final StatisticsView getDetailStatisticsView() {
+  public static StatisticsView getDetailStatisticsView() {
     return s_instance.m_detailStatisticsView;
   }
 
@@ -100,7 +100,7 @@ public final class CommonStatisticsViews {
    *
    * @return The {@link StatisticsView}.
    **/
-  public static final StatisticsView getSummaryStatisticsView() {
+  public static StatisticsView getSummaryStatisticsView() {
     return s_instance.m_summaryStatisticsView;
   }
 }

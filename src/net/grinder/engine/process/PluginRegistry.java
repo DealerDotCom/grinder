@@ -48,7 +48,7 @@ public final class PluginRegistry {
    * Singleton accessor.
    * @return The singleton.
    */
-  public static final PluginRegistry getInstance() {
+  public static PluginRegistry getInstance() {
     return s_instance;
   }
 
@@ -112,7 +112,7 @@ public final class PluginRegistry {
     }
   }
 
-  final List getPluginThreadListenerList(ThreadContext threadContext)
+  List getPluginThreadListenerList(ThreadContext threadContext)
     throws EngineException {
     synchronized (m_plugins) {
       final List result = new ArrayList(m_plugins.size());

@@ -102,11 +102,11 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     }
   }
 
-  final HTTPConnection getConnection() {
+  HTTPConnection getConnection() {
     return m_httpConnection;
   }
 
-  public final void setFollowRedirects(boolean followRedirects) {
+  public void setFollowRedirects(boolean followRedirects) {
 
     if (followRedirects) {
       m_httpConnection.addModule(s_redirectionModule, 0);
@@ -116,7 +116,7 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     }
   }
 
-  public final void setUseCookies(boolean useCookies) {
+  public void setUseCookies(boolean useCookies) {
 
     if (useCookies) {
       m_httpConnection.addModule(CookieModule.class, 0);
@@ -126,7 +126,7 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     }
   }
 
-  public final void setDefaultHeaders(NVPair[] defaultHeaders) {
+  public void setDefaultHeaders(NVPair[] defaultHeaders) {
     m_httpConnection.setDefaultHeaders(defaultHeaders);
   }
 
@@ -142,35 +142,35 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     m_httpConnection.setCurrentProxy(host, port);
   }
 
-  public final void addBasicAuthorization(String realm, String user,
-                                          String password) {
+  public void addBasicAuthorization(String realm, String user,
+                                    String password) {
     m_httpConnection.addBasicAuthorization(realm, user, password);
   }
 
-  public final void removeBasicAuthorization(String realm, String user,
-                                             String password) {
+  public void removeBasicAuthorization(String realm, String user,
+                                       String password) {
     // TODO
   }
 
-  public final void clearAllBasicAuthorizations() {
+  public void clearAllBasicAuthorizations() {
     // TODO
   }
 
-  public final void addDigestAuthorization(String realm, String user,
-                                           String password) {
+  public void addDigestAuthorization(String realm, String user,
+                                     String password) {
     m_httpConnection.addDigestAuthorization(realm, user, password);
   }
 
-  public final void removeDigestAuthorization(String realm, String user,
-                                              String password) {
+  public void removeDigestAuthorization(String realm, String user,
+                                        String password) {
     // TODO
   }
 
-  public final void clearAllDigestAuthorizations() {
+  public void clearAllDigestAuthorizations() {
     // TODO
   }
 
-  public final void setLocalAddress(String localAddress) throws URLException {
+  public void setLocalAddress(String localAddress) throws URLException {
 
     try {
       setLocalAddress(InetAddress.getByName(localAddress));
@@ -180,7 +180,7 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     }
   }
 
-  private final void setLocalAddress(InetAddress localAddress) {
+  private void setLocalAddress(InetAddress localAddress) {
     m_httpConnection.setLocalAddress(localAddress, 0);
   }
 }

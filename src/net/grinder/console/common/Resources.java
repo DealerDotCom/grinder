@@ -70,7 +70,7 @@ public final class Resources {
    * be better if DisplayMessageConsoleException took a Resources as a
    * parameter.
    */
-  static final Resources getSingleton() {
+  static Resources getSingleton() {
     return s_singleton;
   }
 

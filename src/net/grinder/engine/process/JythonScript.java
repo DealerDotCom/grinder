@@ -110,7 +110,7 @@ final class JythonScript {
       }
     }
 
-    public final void run() throws EngineException {
+    public void run() throws EngineException {
 
       try {
         m_testRunner.__call__();

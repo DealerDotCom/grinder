@@ -85,7 +85,7 @@ final class ConsoleCommunication {
       });
   }
 
-  private final void resetReceiver() {
+  private void resetReceiver() {
     try {
       if (m_receiver != null) {
         m_receiver.shutdown();
@@ -119,7 +119,7 @@ final class ConsoleCommunication {
     }
   }
 
-  private final void resetSender() {
+  private void resetSender() {
     String host;
 
     try {
@@ -143,22 +143,22 @@ final class ConsoleCommunication {
     }
   }
 
-  final void sendStartMessage() throws CommunicationException {
+  void sendStartMessage() throws CommunicationException {
     m_sender.send(new StartGrinderMessage());
   }
 
-  final void sendResetMessage() throws CommunicationException {
+  void sendResetMessage() throws CommunicationException {
     m_sender.send(new ResetGrinderMessage());
   }
 
-  final void sendStopMessage() throws CommunicationException {
+  void sendStopMessage() throws CommunicationException {
     m_sender.send(new StopGrinderMessage());
   }
 
   /**
    * @return The message.
    **/
-  final Message waitForMessage() {
+  Message waitForMessage() {
     while (true) {
       synchronized (this) {
         while (m_deaf) {

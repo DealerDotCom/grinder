@@ -154,7 +154,7 @@ public class Sleeper {
     }
   }
 
-  private final void doSleep(long time) throws ShutdownException {
+  private void doSleep(long time) throws ShutdownException {
 
     if (time > 0) {
       final long factoredTime = (long)(time * m_factor);
@@ -183,7 +183,7 @@ public class Sleeper {
     }
   }
 
-  private final void checkShutdown() throws ShutdownException {
+  private void checkShutdown() throws ShutdownException {
 
     if (m_shutdown) {
       throw new ShutdownException("Shut down");

@@ -59,15 +59,15 @@ final class TestData implements TestRegistry.RegisteredTest {
     m_test = testDefinition;
   }
 
-  final Test getTest() {
+  Test getTest() {
     return m_test;
   }
 
-  final TestStatistics getStatistics() {
+  TestStatistics getStatistics() {
     return m_statistics;
   }
 
-  final Object dispatch(Invokeable invokeable) throws Exception {
+  Object dispatch(Invokeable invokeable) throws Exception {
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
     if (threadContext == null) {
@@ -116,7 +116,7 @@ final class TestData implements TestRegistry.RegisteredTest {
    * which in turn attempts to call back on the PyJavaInstance. Use
    * specialised PyInstance objects to handle this case.</p>
    */
-  public final Object createProxy(Object o) throws NotWrappableTypeException {
+  public Object createProxy(Object o) throws NotWrappableTypeException {
 
     if (o instanceof PyObject) {
       // Jython object.

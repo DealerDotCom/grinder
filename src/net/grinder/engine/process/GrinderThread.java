@@ -164,11 +164,11 @@ class GrinderThread implements java.lang.Runnable {
     }
   }
 
-  private static final synchronized void incrementThreadCount() {
+  private static synchronized void incrementThreadCount() {
     s_numberOfThreads++;
   }
 
-  private static final synchronized void decrementThreadCount() {
+  private static synchronized void decrementThreadCount() {
     s_numberOfThreads--;
   }
 

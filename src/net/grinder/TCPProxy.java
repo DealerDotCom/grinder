@@ -65,12 +65,12 @@ public final class TCPProxy {
    *
    * @param args Command line arguments.
    */
-  public static final void main(String[] args) {
+  public static void main(String[] args) {
     final TCPProxy tcpProxy = new TCPProxy(args);
     tcpProxy.run();
   }
 
-  private final Error barfUsage() {
+  private Error barfUsage() {
     System.err.println(
       "\n" +
       "Usage: " +
@@ -376,10 +376,10 @@ public final class TCPProxy {
     }
   }
 
-  private final void run() {
+  private void run() {
     Runtime.getRuntime().addShutdownHook(
       new Thread() {
-        public final void run() { m_proxyEngine.stop(); }
+        public void run() { m_proxyEngine.stop(); }
       });
 
     m_proxyEngine.run();

@@ -50,7 +50,7 @@ public final class RegisterTestsMessage extends Message {
    *
    * @return The test set.
    */
-  public final Collection getTests() {
+  public Collection getTests() {
     return m_tests;
   }
 }

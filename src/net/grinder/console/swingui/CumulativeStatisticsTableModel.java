@@ -51,18 +51,18 @@ final class CumulativeStatisticsTableModel
    * {@link net.grinder.console.model.ModelListener} interface. New
    * <code>StatisticsView</code>s have been added.
    **/
-  public final synchronized void newStatisticsViews(
+  public synchronized void newStatisticsViews(
     StatisticsView intervalStatisticsView,
     StatisticsView cumulativeStatisticsView) {
     addColumns(cumulativeStatisticsView);
   }
 
-  public final synchronized void resetTestsAndStatisticsViews() {
+  public synchronized void resetTestsAndStatisticsViews() {
     super.resetTestsAndStatisticsViews();
     addColumns(getModel().getCumulativeStatisticsView());
   }
 
-  protected final TestStatistics getStatistics(int row) {
+  protected TestStatistics getStatistics(int row) {
     return getLastModelTestIndex().getCumulativeStatistics(row);
   }
 
@@ -90,7 +90,7 @@ final class CumulativeStatisticsTableModel
     }
   }
 
-  public final boolean isBold(int row, int column) {
+  public boolean isBold(int row, int column) {
 
     if (row < getLastModelTestIndex().getNumberOfTests()) {
       return super.isBold(row, column);
@@ -100,7 +100,7 @@ final class CumulativeStatisticsTableModel
     }
   }
 
-  public final boolean isRed(int row, int column) {
+  public boolean isRed(int row, int column) {
 
     if (row < getLastModelTestIndex().getNumberOfTests()) {
       return super.isRed(row, column);

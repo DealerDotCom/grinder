@@ -61,7 +61,7 @@ public final class ReportStatusMessage
    *
    * @return The process name.
    */
-  public final String getName() {
+  public String getName() {
     return super.getSenderGrinderID();
   }
 
@@ -70,7 +70,7 @@ public final class ReportStatusMessage
    *
    * @return The process state.
    */
-  public final short getState() {
+  public short getState() {
     return m_state;
   }
 
@@ -79,7 +79,7 @@ public final class ReportStatusMessage
    *
    * @return The number of running threads.
    */
-  public final short getNumberOfRunningThreads() {
+  public short getNumberOfRunningThreads() {
     return m_numberOfRunningThreads;
   }
 
@@ -88,7 +88,7 @@ public final class ReportStatusMessage
    *
    * @return The total number of threads for the process.
    */
-  public final short getTotalNumberOfThreads() {
+  public short getTotalNumberOfThreads() {
     return m_totalNumberOfThreads;
   }
 }

@@ -48,19 +48,19 @@ final class RegisteredPlugin implements PluginProcessContext {
     m_processContext = processContext;
   }
 
-  public final Logger getLogger() {
+  public Logger getLogger() {
     return m_processContext.getLogger();
   }
 
-  public final FilenameFactory getFilenameFactory() {
+  public FilenameFactory getFilenameFactory() {
     return m_processContext.getLoggerImplementation().getFilenameFactory();
   }
 
-  public final Grinder.ScriptContext getScriptContext() {
+  public Grinder.ScriptContext getScriptContext() {
     return m_processContext.getScriptContext();
   }
 
-  public final PluginThreadListener getPluginThreadListener()
+  public PluginThreadListener getPluginThreadListener()
     throws EngineException {
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
@@ -71,8 +71,7 @@ final class RegisteredPlugin implements PluginProcessContext {
     return getPluginThreadListener(threadContext);
   }
 
-  final PluginThreadListener getPluginThreadListener(
-    ThreadContext threadContext)
+  PluginThreadListener getPluginThreadListener(ThreadContext threadContext)
     throws EngineException {
 
     final PluginThreadListener existingPluginThreadListener =

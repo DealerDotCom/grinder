@@ -52,7 +52,7 @@ final class SocketSet {
     m_handles.add(new SentinelHandle());
   }
 
-  public final void add(Socket socket) throws IOException {
+  public void add(Socket socket) throws IOException {
     final Handle handle = new HandleImplementation(socket);
 
     synchronized (m_mutex) {
@@ -61,7 +61,7 @@ final class SocketSet {
     }
   }
 
-  public final Handle reserveNextHandle() throws InterruptedException {
+  public Handle reserveNextHandle() throws InterruptedException {
     synchronized (m_mutex) {
       purgeZombieHandles();
 
@@ -91,7 +91,7 @@ final class SocketSet {
     }
   }
 
-  public final void close() {
+  public void close() {
     synchronized (m_mutex) {
       final Iterator iterator = m_handles.iterator();
 
@@ -102,7 +102,7 @@ final class SocketSet {
     }
   }
 
-  private final void purgeZombieHandles() {
+  private void purgeZombieHandles() {
     synchronized (m_mutex) {
       if (++m_nextPurge > PURGE_FREQUENCY) {
         m_nextPurge = 0;
@@ -142,25 +142,25 @@ final class SocketSet {
   }
 
   private static final class SentinelHandle implements Handle {
-    public final boolean isSentinel() {
+    public boolean isSentinel() {
       return true;
     }
 
-    public final Message pollForMessage() {
+    public Message pollForMessage() {
       throw new RuntimeException("Assertion failure");
     }
 
-    public final boolean reserve() {
+    public boolean reserve() {
       return true;
     }
 
-    public final void free() {
+    public void free() {
     }
 
-    public final void close() {
+    public void close() {
     }
 
-    public final boolean isClosed() {
+    public boolean isClosed() {
       return false;
     }
   }
@@ -177,11 +177,11 @@ final class SocketSet {
       m_inputStream = new BufferedInputStream(m_socket.getInputStream());
     }
 
-    public final boolean isSentinel() {
+    public boolean isSentinel() {
       return false;
     }
 
-    public final Message pollForMessage()
+    public Message pollForMessage()
       throws ClassNotFoundException, IOException {
 
       // Don't synchronise, assume caller has correctly reserved
@@ -195,7 +195,7 @@ final class SocketSet {
       return (Message)m_objectStream.readObject();
     }
 
-    public final synchronized boolean reserve() {
+    public synchronized boolean reserve() {
       if (m_busy || m_closed) {
         return false;
       }
@@ -205,11 +205,11 @@ final class SocketSet {
       return true;
     }
 
-    public final synchronized void free() {
+    public synchronized void free() {
       m_busy = false;
     }
 
-    public final synchronized void close() {
+    public synchronized void close() {
       if (!m_closed) {
         m_closed = true;
 
@@ -222,7 +222,7 @@ final class SocketSet {
       }
     }
 
-    public final synchronized boolean isClosed() {
+    public synchronized boolean isClosed() {
       return m_closed;
     }
   }

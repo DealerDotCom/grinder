@@ -124,7 +124,7 @@ public final class ConnectionDetails {
    *
    * @return a <code>boolean</code> value
    */
-  public final boolean isSecure() {
+  public boolean isSecure() {
     return m_isSecure;
   }
 
@@ -133,7 +133,7 @@ public final class ConnectionDetails {
    *
    * @return a <code>String</code> value
    */
-  public final String getRemoteHost() {
+  public String getRemoteHost() {
     return m_remoteHost;
   }
 
@@ -142,7 +142,7 @@ public final class ConnectionDetails {
    *
    * @return a <code>String</code> value
    */
-  public final String getLocalHost() {
+  public String getLocalHost() {
     return m_localHost;
   }
 
@@ -151,7 +151,7 @@ public final class ConnectionDetails {
    *
    * @return an <code>int</code> value
    */
-  public final int getRemotePort() {
+  public int getRemotePort() {
     return m_remotePort;
   }
 
@@ -160,7 +160,7 @@ public final class ConnectionDetails {
    *
    * @return an <code>int</code> value
    */
-  public final int getLocalPort() {
+  public int getLocalPort() {
     return m_localPort;
   }
 
@@ -170,7 +170,7 @@ public final class ConnectionDetails {
    * @param other an <code>Object</code> value
    * @return <code>true</code> => <code>other</code> is equal to this object.
    */
-  public final boolean equals(Object other) {
+  public boolean equals(Object other) {
 
     if (other == this) {
       return true;
@@ -197,7 +197,7 @@ public final class ConnectionDetails {
    *
    * @return The hash code.
    */
-  public final int hashCode() {
+  public int hashCode() {
     return m_hashCode;
   }
 
@@ -208,7 +208,7 @@ public final class ConnectionDetails {
    *
    * @return Represents the connection.
    */
-  public final String getConnectionIdentity() {
+  public String getConnectionIdentity() {
     return m_connectionIdentity;
   }
 
@@ -218,7 +218,7 @@ public final class ConnectionDetails {
    *
    * @return The other end of the connection to this.
    */
-  public final ConnectionDetails getOtherEnd() {
+  public ConnectionDetails getOtherEnd() {
 
     return new ConnectionDetails(getRemoteHost(), getRemotePort(),
                                  getLocalHost(), getLocalPort(),

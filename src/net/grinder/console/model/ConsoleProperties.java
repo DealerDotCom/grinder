@@ -176,7 +176,7 @@ public final class ConsoleProperties {
    *
    * @param properties The properties to copy.
    **/
-  public final void set(ConsoleProperties properties) {
+  public void set(ConsoleProperties properties) {
     setCollectSampleCountInternal(properties.m_collectSampleCount);
     setIgnoreSampleCountInternal(properties.m_ignoreSampleCount);
     setSampleIntervalInternal(properties.m_sampleInterval);
@@ -196,7 +196,7 @@ public final class ConsoleProperties {
    *
    * @param listener The listener.
    **/
-  public final void addPropertyChangeListener(
+  public void addPropertyChangeListener(
     PropertyChangeListener listener) {
 
     m_changeSupport.addPropertyChangeListener(listener);
@@ -209,7 +209,7 @@ public final class ConsoleProperties {
    * @param property The property.
    * @param listener The listener.
    **/
-  public final void addPropertyChangeListener(
+  public void addPropertyChangeListener(
     String property, PropertyChangeListener listener) {
     m_changeSupport.addPropertyChangeListener(property, listener);
   }
@@ -219,7 +219,7 @@ public final class ConsoleProperties {
    *
    * @exception GrinderException if an error occurs
    */
-  public final void save() throws GrinderException {
+  public void save() throws GrinderException {
     m_properties.setInt(COLLECT_SAMPLES_PROPERTY, m_collectSampleCount);
     m_properties.setInt(IGNORE_SAMPLES_PROPERTY, m_ignoreSampleCount);
     m_properties.setInt(SAMPLE_INTERVAL_PROPERTY, m_sampleInterval);
@@ -245,7 +245,7 @@ public final class ConsoleProperties {
    *
    * @return The number.
    */
-  public final int getCollectSampleCount() {
+  public int getCollectSampleCount() {
     return m_collectSampleCount;
   }
 
@@ -255,7 +255,7 @@ public final class ConsoleProperties {
    * @param n The number. 0 => forever.
    * @throws DisplayMessageConsoleException If the number is negative.
    **/
-  public final void setCollectSampleCount(int n)
+  public void setCollectSampleCount(int n)
     throws DisplayMessageConsoleException {
     if (n < 0) {
       throw new DisplayMessageConsoleException(
@@ -267,7 +267,7 @@ public final class ConsoleProperties {
     setCollectSampleCountInternal(n);
   }
 
-  private final void setCollectSampleCountInternal(int n) {
+  private void setCollectSampleCountInternal(int n) {
     if (n != m_collectSampleCount) {
       final int old = m_collectSampleCount;
       m_collectSampleCount = n;
@@ -281,7 +281,7 @@ public final class ConsoleProperties {
    *
    * @return The number.
    **/
-  public final int getIgnoreSampleCount() {
+  public int getIgnoreSampleCount() {
     return m_ignoreSampleCount;
   }
 
@@ -291,7 +291,7 @@ public final class ConsoleProperties {
    * @param n The number. Must be at least 1.
    * @throws DisplayMessageConsoleException If the number is negative or zero.
    **/
-  public final void setIgnoreSampleCount(int n)
+  public void setIgnoreSampleCount(int n)
     throws DisplayMessageConsoleException {
     if (n <= 0) {
       throw new DisplayMessageConsoleException(
@@ -302,7 +302,7 @@ public final class ConsoleProperties {
     setIgnoreSampleCountInternal(n);
   }
 
-  private final void setIgnoreSampleCountInternal(int n) {
+  private void setIgnoreSampleCountInternal(int n) {
     if (n != m_ignoreSampleCount) {
       final int old = m_ignoreSampleCount;
       m_ignoreSampleCount = n;
@@ -316,7 +316,7 @@ public final class ConsoleProperties {
    *
    * @return The interval in milliseconds.
    **/
-  public final int getSampleInterval() {
+  public int getSampleInterval() {
     return m_sampleInterval;
   }
 
@@ -326,7 +326,7 @@ public final class ConsoleProperties {
    * @param interval The interval in milliseconds.
    * @throws DisplayMessageConsoleException If the number is negative or zero.
    **/
-  public final void setSampleInterval(int interval)
+  public void setSampleInterval(int interval)
     throws DisplayMessageConsoleException {
     if (interval <= 0) {
       throw new DisplayMessageConsoleException(
@@ -337,7 +337,7 @@ public final class ConsoleProperties {
     setSampleIntervalInternal(interval);
   }
 
-  private final void setSampleIntervalInternal(int interval) {
+  private void setSampleIntervalInternal(int interval) {
     if (interval != m_sampleInterval) {
       final int old = m_sampleInterval;
       m_sampleInterval = interval;
@@ -351,7 +351,7 @@ public final class ConsoleProperties {
    *
    * @return The number of significant figures.
    **/
-  public final int getSignificantFigures() {
+  public int getSignificantFigures() {
     return m_significantFigures;
   }
 
@@ -361,7 +361,7 @@ public final class ConsoleProperties {
    * @param n The number of significant figures.
    * @throws DisplayMessageConsoleException If the number is negative.
    **/
-  public final void setSignificantFigures(int n)
+  public void setSignificantFigures(int n)
     throws DisplayMessageConsoleException {
     if (n <= 0) {
       throw new DisplayMessageConsoleException(
@@ -372,7 +372,7 @@ public final class ConsoleProperties {
     setSignificantFiguresInternal(n);
   }
 
-  private final void setSignificantFiguresInternal(int n) {
+  private void setSignificantFiguresInternal(int n) {
     if (n != m_significantFigures) {
       final int old = m_significantFigures;
       m_significantFigures = n;
@@ -386,7 +386,7 @@ public final class ConsoleProperties {
    *
    * @return The address.
    **/
-  public final String getConsoleAddress() {
+  public String getConsoleAddress() {
     return m_consoleAddressString;
   }
 
@@ -397,7 +397,7 @@ public final class ConsoleProperties {
    * @throws DisplayMessageConsoleException If the address is not
    * valid.
    **/
-  public final void setConsoleAddress(String s)
+  public void setConsoleAddress(String s)
     throws DisplayMessageConsoleException {
     // We treat any non-multicast address that we can look up as
     // valid. I guess we could also try binding to it to discover
@@ -425,7 +425,7 @@ public final class ConsoleProperties {
     setConsoleAddressInternal(s);
   }
 
-  private final void setConsoleAddressInternal(String s) {
+  private void setConsoleAddressInternal(String s) {
     if (!s.equals(m_consoleAddressString)) {
       final String old = m_consoleAddressString;
       m_consoleAddressString = s;
@@ -439,7 +439,7 @@ public final class ConsoleProperties {
    *
    * @return The port.
    **/
-  public final int getConsolePort() {
+  public int getConsolePort() {
     return m_consolePort;
   }
 
@@ -449,13 +449,13 @@ public final class ConsoleProperties {
    * @param i The port number.
    * @throws DisplayMessageConsoleException If the port number is not sensible.
    **/
-  public final void setConsolePort(int i)
+  public void setConsolePort(int i)
     throws DisplayMessageConsoleException {
     assertValidPort(i);
     setConsolePortInternal(i);
   }
 
-  private final void setConsolePortInternal(int i) {
+  private void setConsolePortInternal(int i) {
     if (i != m_consolePort) {
       final int old = m_consolePort;
       m_consolePort = i;
@@ -469,7 +469,7 @@ public final class ConsoleProperties {
    *
    * @return The address.
    **/
-  public final String getGrinderAddress() {
+  public String getGrinderAddress() {
     return m_grinderAddressString;
   }
 
@@ -480,7 +480,7 @@ public final class ConsoleProperties {
    * @throws DisplayMessageConsoleException If the multicast address is
    * not valid.
    **/
-  public final void setGrinderAddress(String s)
+  public void setGrinderAddress(String s)
     throws DisplayMessageConsoleException {
     final InetAddress newAddress;
 
@@ -501,7 +501,7 @@ public final class ConsoleProperties {
     setGrinderAddressInternal(s);
   }
 
-  private final void setGrinderAddressInternal(String s) {
+  private void setGrinderAddressInternal(String s) {
     if (!s.equals(m_grinderAddressString)) {
       final String old = m_grinderAddressString;
       m_grinderAddressString = s;
@@ -515,7 +515,7 @@ public final class ConsoleProperties {
    *
    * @return The port.
    **/
-  public final int getGrinderPort() {
+  public int getGrinderPort() {
     return m_grinderPort;
   }
 
@@ -525,13 +525,13 @@ public final class ConsoleProperties {
    * @param port The port number.
    * @throws DisplayMessageConsoleException If the port number is not sensible.
    **/
-  public final void setGrinderPort(int port)
+  public void setGrinderPort(int port)
     throws DisplayMessageConsoleException {
     assertValidPort(port);
     setGrinderPortInternal(port);
   }
 
-  private final void setGrinderPortInternal(int port) {
+  private void setGrinderPortInternal(int port) {
     if (port != m_grinderPort) {
       final int old = m_grinderPort;
       m_grinderPort = port;
@@ -540,7 +540,7 @@ public final class ConsoleProperties {
     }
   }
 
-  private final void assertValidPort(int port)
+  private void assertValidPort(int port)
     throws DisplayMessageConsoleException {
     if (port < 0 || port > CommunicationDefaults.MAX_PORT) {
       throw new DisplayMessageConsoleException(
@@ -556,7 +556,7 @@ public final class ConsoleProperties {
    * @return <code>true</code> => the console should be reset with the
    * worker processes.
    */
-  public final boolean getResetConsoleWithProcesses() {
+  public boolean getResetConsoleWithProcesses() {
     return m_resetConsoleWithProcesses;
   }
 
@@ -567,7 +567,7 @@ public final class ConsoleProperties {
    * @param b <code>true</code> => the console should be reset with
    * the worker processes.
    */
-  public final void setResetConsoleWithProcesses(boolean b) {
+  public void setResetConsoleWithProcesses(boolean b) {
 
     if (b != m_resetConsoleWithProcesses) {
       final boolean old = m_resetConsoleWithProcesses;
@@ -584,7 +584,7 @@ public final class ConsoleProperties {
    *
    * @return <code>true</code> => the user wants to be asked.
    */
-  public final boolean getResetConsoleWithProcessesDontAsk() {
+  public boolean getResetConsoleWithProcessesDontAsk() {
     return m_resetConsoleWithProcessesDontAsk;
   }
 
@@ -593,7 +593,7 @@ public final class ConsoleProperties {
    * reset with the worker processes.
    * @exception GrinderException If the property couldn't be persisted.
    */
-  public final void setResetConsoleWithProcessesDontAsk()
+  public void setResetConsoleWithProcessesDontAsk()
     throws GrinderException {
 
     if (!m_resetConsoleWithProcessesDontAsk) {
@@ -604,7 +604,7 @@ public final class ConsoleProperties {
     }
   }
 
-  private final void setResetConsoleWithProcessesDontAskInternal(boolean b) {
+  private void setResetConsoleWithProcessesDontAskInternal(boolean b) {
 
     if (b != m_resetConsoleWithProcessesDontAsk) {
       final boolean old = m_resetConsoleWithProcessesDontAsk;
@@ -621,7 +621,7 @@ public final class ConsoleProperties {
    *
    * @return The script files.
    */
-  public final ScriptDistributionFiles getScriptDistributionFiles() {
+  public ScriptDistributionFiles getScriptDistributionFiles() {
     return m_scriptDistributionFiles;
   }
 
@@ -630,7 +630,7 @@ public final class ConsoleProperties {
    *
    * @param scriptDistributionFiles The script files.
    */
-  public final void setScriptDistributionFiles(
+  public void setScriptDistributionFiles(
     ScriptDistributionFiles scriptDistributionFiles) {
 
     if (!scriptDistributionFiles.equals(m_scriptDistributionFiles)) {

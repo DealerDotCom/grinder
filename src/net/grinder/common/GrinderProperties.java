@@ -155,7 +155,7 @@ public class GrinderProperties extends Properties {
     }
   }
 
-  private final String generateFileHeader() {
+  private String generateFileHeader() {
     return "Properties file for The Grinder";
   }
 

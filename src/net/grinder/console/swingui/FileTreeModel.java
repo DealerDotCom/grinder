@@ -46,26 +46,26 @@ final class FileTreeModel implements TreeModel {
     m_rootNode = null;
   }
 
-  public final void setRootDirectory(File rootDirectory) {
+  public void setRootDirectory(File rootDirectory) {
     m_rootNode = new RootNode(rootDirectory);
     fireTreeStructureChanged();
   }
 
-  public final Object getRoot() {
+  public Object getRoot() {
     return m_rootNode;
   }
 
-  public final Object getChild(Object parent, int index) {
+  public Object getChild(Object parent, int index) {
 
     return ((Node)parent).getChild(index);
   }
 
-  public final int getChildCount(Object parent) {
+  public int getChildCount(Object parent) {
 
     return ((Node)parent).getChildCount();
   }
 
-  public final int getIndexOfChild(Object parent, Object child) {
+  public int getIndexOfChild(Object parent, Object child) {
 
     if (parent == null || child == null) {
       return -1;        // The TreeModel Javadoc says we
@@ -75,15 +75,15 @@ final class FileTreeModel implements TreeModel {
     return ((Node)parent).getIndexOfChild((Node)child);
   }
 
-  public final boolean isLeaf(Object node) {
+  public boolean isLeaf(Object node) {
     return ((Node)node).isLeaf();
   }
 
-  public final void addTreeModelListener(TreeModelListener listener) {
+  public void addTreeModelListener(TreeModelListener listener) {
     m_listeners.add(TreeModelListener.class, listener);
   }
 
-  public final void removeTreeModelListener(TreeModelListener listener) {
+  public void removeTreeModelListener(TreeModelListener listener) {
     m_listeners.remove(TreeModelListener.class, listener);
   }
 
@@ -101,20 +101,20 @@ final class FileTreeModel implements TreeModel {
     }
   }
 
-  public final void valueForPathChanged(TreePath path, Object newValue) {
+  public void valueForPathChanged(TreePath path, Object newValue) {
     // Do nothing.
   }
 
   private static final FilenameFilter s_directoryFilter =
     new FilenameFilter() {
-      public final boolean accept(File dir, String name) {
+      public boolean accept(File dir, String name) {
         return new File(dir, name).isDirectory();
       }
     };
 
   private static final FilenameFilter s_fileFilter =
     new FilenameFilter() {
-      public final boolean accept(File dir, String name) {
+      public boolean accept(File dir, String name) {
         return new File(dir, name).isFile();
       }
     };

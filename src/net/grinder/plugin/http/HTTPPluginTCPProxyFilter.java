@@ -333,11 +333,11 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     return handler;
   }
 
-  private final synchronized int getRequestNumber() {
+  private synchronized int getRequestNumber() {
     return m_currentRequestNumber;
   }
 
-  private final synchronized int incrementRequestNumber() {
+  private synchronized int incrementRequestNumber() {
     return ++m_currentRequestNumber;
   }
 
@@ -347,7 +347,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
    * @param headerName a <code>String</code> value
    * @return The expression.
    */
-  private final String getHeaderExpression(String headerName) {
+  private String getHeaderExpression(String headerName) {
     return "^" + headerName + ":[ \\t]*(.*)\\r?$";
   }
 
@@ -574,7 +574,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     /**
      * Called when end of message is reached.
      */
-    public final synchronized void endMessage() throws IOException {
+    public synchronized void endMessage() throws IOException {
       if (m_method == null) {
         return;
       }
@@ -791,8 +791,8 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     }
   }
 
-  private final void appendNewLineAndIndent(StringBuffer resultBuffer,
-                                            int indentLevel) {
+  private void appendNewLineAndIndent(StringBuffer resultBuffer,
+                                      int indentLevel) {
     resultBuffer.append(s_newLine);
 
     for (int k = 0; k < indentLevel; ++k) {
@@ -800,7 +800,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     }
   }
 
-  private final String parseNameValueString(String input, int indentLevel)
+  private String parseNameValueString(String input, int indentLevel)
     throws IOException, ParseException {
 
     final StringBuffer result = new StringBuffer();
@@ -818,7 +818,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     return result.toString();
   }
 
-  private final void appendNVPair(StringBuffer resultBuffer, NVPair pair) {
+  private void appendNVPair(StringBuffer resultBuffer, NVPair pair) {
     resultBuffer.append("NVPair(");
     quoteForScript(resultBuffer, pair.getName());
     resultBuffer.append(", ");
@@ -826,7 +826,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     resultBuffer.append("), ");
   }
 
-  private final void quoteForScript(StringBuffer resultBuffer, String value) {
+  private void quoteForScript(StringBuffer resultBuffer, String value) {
     final String quotes = value.indexOf("\n") > -1 ? "'''" : "'";
 
     resultBuffer.append(quotes);

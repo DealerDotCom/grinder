@@ -61,7 +61,7 @@ public final class ModelTestIndex {
    *
    * @return The number of tests.
    */
-  public final int getNumberOfTests() {
+  public int getNumberOfTests() {
     return m_testArray.length;
   }
 
@@ -71,7 +71,7 @@ public final class ModelTestIndex {
    * @param testIndex The test index.
    * @return The test.
    */
-  public final Test getTest(int testIndex) {
+  public Test getTest(int testIndex) {
     return m_testArray[testIndex];
   }
 
@@ -81,7 +81,7 @@ public final class ModelTestIndex {
    * @param testIndex The test index.
    * @return The cumulative statistics.
    */
-  public final TestStatistics getCumulativeStatistics(int testIndex) {
+  public TestStatistics getCumulativeStatistics(int testIndex) {
     return m_accumulatorArray[testIndex].getCumulativeStatistics();
   }
 
@@ -91,11 +91,11 @@ public final class ModelTestIndex {
    * @param testIndex The test index.
    * @return The last sample statistics.
    */
-  public final TestStatistics getLastSampleStatistics(int testIndex) {
+  public TestStatistics getLastSampleStatistics(int testIndex) {
     return m_accumulatorArray[testIndex].getLastSampleStatistics();
   }
 
-  final SampleAccumulator[] getAccumulatorArray() {
+  SampleAccumulator[] getAccumulatorArray() {
     return m_accumulatorArray;
   }
 }

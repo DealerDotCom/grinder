@@ -62,16 +62,16 @@ final class SampleAccumulator {
     m_lastSampleStatistics = testStatisticsFactory.create();
   }
 
-  public final synchronized void addSampleListener(SampleListener listener) {
+  public synchronized void addSampleListener(SampleListener listener) {
     m_listeners.add(listener);
   }
 
-  public final void add(TestStatistics report) {
+  public void add(TestStatistics report) {
     m_intervalStatistics.add(report);
     m_cumulativeStatistics.add(report);
   }
 
-  public final synchronized void fireSample(long sampleInterval, long period) {
+  public synchronized void fireSample(long sampleInterval, long period) {
 
     m_intervalStatistics.setValue(m_periodIndex, sampleInterval);
     m_cumulativeStatistics.setValue(m_periodIndex, period);
@@ -92,17 +92,17 @@ final class SampleAccumulator {
     m_intervalStatistics = TestStatisticsFactory.getInstance().create();
   }
 
-  public final void zero() {
+  public void zero() {
     m_intervalStatistics.reset();
     m_lastSampleStatistics.reset();
     m_cumulativeStatistics.reset();
   }
 
-  public final TestStatistics getLastSampleStatistics() {
+  public TestStatistics getLastSampleStatistics() {
     return m_lastSampleStatistics;
   }
 
-  public final TestStatistics getCumulativeStatistics() {
+  public TestStatistics getCumulativeStatistics() {
     return m_cumulativeStatistics;
   }
 }

@@ -52,71 +52,71 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
   private boolean m_verifyServerDistinguishedName = false;
   private InetAddress m_localAddress;
 
-  public final void setFollowRedirects(boolean followRedirects) {
+  public void setFollowRedirects(boolean followRedirects) {
     m_followRedirects = followRedirects;
   }
 
-  final boolean getFollowRedirects() {
+  boolean getFollowRedirects() {
     return m_followRedirects;
   }
 
-  public final void setUseCookies(boolean useCookies) {
+  public void setUseCookies(boolean useCookies) {
     m_useCookies = useCookies;
   }
 
-  final boolean getUseCookies() {
+  boolean getUseCookies() {
     return m_useCookies;
   }
 
-  public final void setDefaultHeaders(NVPair[] defaultHeaders) {
+  public void setDefaultHeaders(NVPair[] defaultHeaders) {
     m_defaultHeaders = defaultHeaders;
   }
 
-  final NVPair[] getDefaultHeaders() {
+  NVPair[] getDefaultHeaders() {
     return m_defaultHeaders;
   }
 
-  public final void setTimeout(int timeout)  {
+  public void setTimeout(int timeout)  {
     m_timeout = timeout;
   }
 
-  final int getTimeout() {
+  int getTimeout() {
     return m_timeout;
   }
 
-  public final void setVerifyServerDistinguishedName(boolean b) {
+  public void setVerifyServerDistinguishedName(boolean b) {
     m_verifyServerDistinguishedName = b;
   }
 
-  final boolean getVerifyServerDistinguishedName() {
+  boolean getVerifyServerDistinguishedName() {
     return m_verifyServerDistinguishedName;
   }
 
-  public final void setProxyServer(String host, int port) {
+  public void setProxyServer(String host, int port) {
     m_proxyHost = host;
     m_proxyPort = port;
   }
 
-  final String getProxyHost() {
+  String getProxyHost() {
     return m_proxyHost;
   }
 
-  final int getProxyPort() {
+  int getProxyPort() {
     return m_proxyPort;
   }
 
-  public final synchronized void addBasicAuthorization(
+  public synchronized void addBasicAuthorization(
     String realm, String user, String password) {
     m_basicAuthorizations.add(new AuthorizationDetails(realm, user, password));
   }
 
-  public final synchronized void removeBasicAuthorization(
+  public synchronized void removeBasicAuthorization(
     String realm, String user, String password) {
     m_basicAuthorizations.remove(
       new AuthorizationDetails(realm, user, password));
   }
 
-  public final synchronized void clearAllBasicAuthorizations() {
+  public synchronized void clearAllBasicAuthorizations() {
     m_basicAuthorizations.clear();
   }
 
@@ -128,23 +128,23 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
     return m_basicAuthorizations;
   }
 
-  public final synchronized void addDigestAuthorization(
+  public synchronized void addDigestAuthorization(
     String realm, String user, String password) {
     m_digestAuthorizations.add(
       new AuthorizationDetails(realm, user, password));
   }
 
-  public final synchronized void removeDigestAuthorization(
+  public synchronized void removeDigestAuthorization(
     String realm, String user, String password) {
     m_digestAuthorizations.remove(
       new AuthorizationDetails(realm, user, password));
   }
 
-  public final synchronized void clearAllDigestAuthorizations() {
+  public synchronized void clearAllDigestAuthorizations() {
     m_digestAuthorizations.clear();
   }
 
-  public final synchronized void setLocalAddress(String localAddress)
+  public synchronized void setLocalAddress(String localAddress)
     throws URLException {
 
     try {
@@ -155,7 +155,7 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
     }
   }
 
-  final InetAddress getLocalAddress() {
+  InetAddress getLocalAddress() {
     return m_localAddress;
   }
 
@@ -184,23 +184,23 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
         realm.hashCode() ^ m_user.hashCode() ^ m_password.hashCode();
     }
 
-    public final String getRealm() {
+    public String getRealm() {
       return m_realm;
     }
 
-    public final String getUser() {
+    public String getUser() {
       return m_user;
     }
 
-    public final String getPassword() {
+    public String getPassword() {
       return m_password;
     }
 
-    public final int hashCode() {
+    public int hashCode() {
       return m_hashCode;
     }
 
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
       if (!(o instanceof AuthorizationDetails)) {
         return false;
       }
@@ -217,7 +217,7 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
   private static final HTTPPluginConnectionDefaults
     s_defaultConnectionDefaults = new HTTPPluginConnectionDefaults();
 
-  public static final HTTPPluginConnectionDefaults getConnectionDefaults() {
+  public static HTTPPluginConnectionDefaults getConnectionDefaults() {
     return s_defaultConnectionDefaults;
   }
 }

@@ -53,7 +53,7 @@ public final class TestStatisticsFactory {
    *
    * @return The singleton.
    */
-  public static final TestStatisticsFactory getInstance() {
+  public static TestStatisticsFactory getInstance() {
     return s_instance;
   }
 
@@ -62,7 +62,7 @@ public final class TestStatisticsFactory {
    *
    * @return A new <code>TestStatistics</code>.
    */
-  public final TestStatistics create() {
+  public TestStatistics create() {
     return createImplementation();
   }
 
@@ -71,18 +71,17 @@ public final class TestStatisticsFactory {
    * implementation type.
    * @see #create
    **/
-  final TestStatisticsImplementation createImplementation() {
+  TestStatisticsImplementation createImplementation() {
     return new TestStatisticsImplementation();
   }
 
-  final void writeStatisticsExternal(ObjectOutput out,
-                                     TestStatisticsImplementation statistics)
+  void writeStatisticsExternal(ObjectOutput out,
+                               TestStatisticsImplementation statistics)
     throws IOException {
     statistics.myWriteExternal(out, m_serialiser);
   }
 
-  final TestStatistics readStatisticsExternal(ObjectInput in)
-    throws IOException {
+  TestStatistics readStatisticsExternal(ObjectInput in) throws IOException {
     return new TestStatisticsImplementation(in, m_serialiser);
   }
 }

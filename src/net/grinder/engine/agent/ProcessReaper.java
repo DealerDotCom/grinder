@@ -43,7 +43,7 @@ final class ProcessReaper extends Thread {
     Runtime.getRuntime().addShutdownHook(s_instance);
   }
 
-  public static final ProcessReaper getInstance() {
+  public static ProcessReaper getInstance() {
     return s_instance;
   }
 
@@ -53,15 +53,15 @@ final class ProcessReaper extends Thread {
     super("The Grim Reaper");
   }
 
-  public final synchronized  boolean add(Process process) {
+  public synchronized  boolean add(Process process) {
     return m_processes.add(process);
   }
 
-  public final synchronized boolean remove(Process process) {
+  public synchronized boolean remove(Process process) {
     return m_processes.remove(process);
   }
 
-  public final synchronized void run() {
+  public synchronized void run() {
     final Iterator iterator = m_processes.iterator();
 
     while (iterator.hasNext()) {

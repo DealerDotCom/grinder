@@ -207,7 +207,7 @@ public class Model {
       });
   }
 
-  private final void createStatisticsViews() {
+  private void createStatisticsViews() {
 
     final StatisticsView summaryStatisticsView =
       CommonStatisticsViews.getSummaryStatisticsView();
@@ -388,7 +388,7 @@ public class Model {
     m_totalSampleAccumulator.addSampleListener(listener);
   }
 
-  private final void fireModelUpdate() {
+  private void fireModelUpdate() {
     synchronized (m_modelListeners) {
       final Iterator iterator = m_modelListeners.iterator();
 
@@ -399,7 +399,7 @@ public class Model {
     }
   }
 
-  private final void fireModelNewTests(Set newTests,
+  private void fireModelNewTests(Set newTests,
                                        ModelTestIndex modelTestIndex) {
 
     synchronized (m_modelListeners) {
@@ -412,7 +412,7 @@ public class Model {
     }
   }
 
-  private final void fireModelNewViews(
+  private void fireModelNewViews(
     StatisticsView intervalStatisticsView,
     StatisticsView cumulativeStatisticsView) {
 
@@ -427,7 +427,7 @@ public class Model {
     }
   }
 
-  private final void fireModelResetTestsAndStatisticsViews() {
+  private void fireModelResetTestsAndStatisticsViews() {
 
     synchronized (m_modelListeners) {
       final Iterator iterator = m_modelListeners.iterator();
@@ -635,7 +635,7 @@ public class Model {
     return m_state;
   }
 
-  private final void zero() {
+  private void zero() {
 
     synchronized (m_accumulators) {
       final Iterator iterator = m_accumulators.values().iterator();

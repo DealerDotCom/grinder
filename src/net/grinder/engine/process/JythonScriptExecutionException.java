@@ -90,16 +90,16 @@ public class JythonScriptExecutionException extends EngineException {
         "\" at line " + traceback.tb_lineno + ")";
     }
 
-    public final void printStackTrace(PrintWriter s) {
+    public void printStackTrace(PrintWriter s) {
       s.println(m_where);
       getNestedThrowable().printStackTrace(s);
     }
 
-    public final String getMessage() {
+    public String getMessage() {
       return getNestedThrowable().getMessage();
     }
 
-    public final String toString() {
+    public String toString() {
       return getNestedThrowable().toString();
     }
   }

@@ -81,7 +81,7 @@ public final class StatisticsIndexMap implements Serializable {
    *
    * @return The singleton <code>StatisticsIndexMap</code>.
    */
-  public static final StatisticsIndexMap getInstance() {
+  public static StatisticsIndexMap getInstance() {
     return s_processInstance;
   }
 
@@ -114,19 +114,19 @@ public final class StatisticsIndexMap implements Serializable {
     m_numberOfDoubleIndicies = nextDoubleIndex;
   }
 
-  final boolean isDoubleIndex(String statisticKey) {
+  boolean isDoubleIndex(String statisticKey) {
     return m_map.get(statisticKey) instanceof DoubleIndex;
   }
 
-  final boolean isLongIndex(String statisticKey) {
+  boolean isLongIndex(String statisticKey) {
     return m_map.get(statisticKey) instanceof LongIndex;
   }
 
-  final int getNumberOfLongIndicies() {
+  int getNumberOfLongIndicies() {
     return m_numberOfLongIndicies;
   }
 
-  final int getNumberOfDoubleIndicies() {
+  int getNumberOfDoubleIndicies() {
     return m_numberOfDoubleIndicies;
   }
 
@@ -139,7 +139,7 @@ public final class StatisticsIndexMap implements Serializable {
    * registered.
    *
    */
-  public final DoubleIndex getIndexForDouble(String statisticName)
+  public DoubleIndex getIndexForDouble(String statisticName)
     throws GrinderException {
     final Object existing = m_map.get(statisticName);
 
@@ -160,7 +160,7 @@ public final class StatisticsIndexMap implements Serializable {
    * registered.
    *
    */
-  public final LongIndex getIndexForLong(String statisticName)
+  public LongIndex getIndexForLong(String statisticName)
     throws GrinderException {
     final Object existing = m_map.get(statisticName);
 

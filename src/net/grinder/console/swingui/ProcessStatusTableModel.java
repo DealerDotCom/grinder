@@ -161,7 +161,7 @@ class ProcessStatusTableModel
     }
   }
 
-  private final String formatThreadCounts(int running, int total) {
+  private String formatThreadCounts(int running, int total) {
     return running + " / " + total;
   }
 

@@ -79,7 +79,7 @@ class MessageQueue {
     doQueue(exception);
   }
 
-  private final void doQueue(Object o) throws ShutdownException {
+  private void doQueue(Object o) throws ShutdownException {
     synchronized (getMutex()) {
       assertNotShutdown();
       m_messages.add(o);
@@ -143,7 +143,7 @@ class MessageQueue {
     return m_messages;
   }
 
-  private final void assertNotShutdown() throws ShutdownException {
+  private void assertNotShutdown() throws ShutdownException {
     if (m_shutdown) {
       throw new ShutdownException("MessageQueue shutdown");
     }

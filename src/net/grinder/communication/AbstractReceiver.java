@@ -119,7 +119,7 @@ abstract class AbstractReceiver implements Receiver {
      * @param newValue The next value.
      * @throws CommunicationException If the message is out of sequence.
      **/
-    public final void nextValue(long newValue, Message message)
+    public void nextValue(long newValue, Message message)
       throws CommunicationException {
       if (newValue != ++m_value) {
         final CommunicationException e = new CommunicationException(

@@ -125,9 +125,9 @@ public final class TCPProxySSLSocketFactory implements TCPProxySocketFactory {
    * @return A new <code>ServerSocket</code>.
    * @exception IOException If an error occurs.
    */
-  public final ServerSocket createServerSocket(String localHost,
-                                               int localPort,
-                                               int timeout)
+  public ServerSocket createServerSocket(String localHost,
+                                         int localPort,
+                                         int timeout)
     throws IOException {
 
     final SSLServerSocket socket =
@@ -149,7 +149,7 @@ public final class TCPProxySSLSocketFactory implements TCPProxySocketFactory {
    * @return A new <code>Socket</code>.
    * @exception IOException If an error occurs.
    */
-  public final Socket createClientSocket(String remoteHost, int remotePort)
+  public Socket createClientSocket(String remoteHost, int remotePort)
     throws IOException {
 
     final SSLSocket socket =

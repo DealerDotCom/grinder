@@ -54,7 +54,7 @@ public final class StatisticsView implements Externalizable {
    **/
   private static final Comparator s_expressionViewComparator =
     new Comparator() {
-      public final int compare(Object a, Object b) {
+      public int compare(Object a, Object b) {
         final ExpressionView viewA = (ExpressionView)a;
         final ExpressionView viewB = (ExpressionView)b;
 
@@ -93,7 +93,7 @@ public final class StatisticsView implements Externalizable {
    *
    * @param other Another <code>StatisticsView</code>.
    **/
-  public final synchronized void add(StatisticsView other) {
+  public synchronized void add(StatisticsView other) {
     final Iterator iterator = other.m_columns.iterator();
 
     while (iterator.hasNext()) {
@@ -107,7 +107,7 @@ public final class StatisticsView implements Externalizable {
    *
    * @param statistic An {@link ExpressionView}.
    **/
-  public final synchronized void add(ExpressionView statistic) {
+  public synchronized void add(ExpressionView statistic) {
     if (!m_unique.contains(statistic)) {
       m_unique.add(statistic);
       m_columns.add(statistic);
@@ -119,7 +119,7 @@ public final class StatisticsView implements Externalizable {
    *
    * @return The {@link ExpressionView}s.
    **/
-  public final synchronized ExpressionView[] getExpressionViews() {
+  public synchronized ExpressionView[] getExpressionViews() {
     return (ExpressionView[])m_columns.toArray(new ExpressionView[0]);
   }
 

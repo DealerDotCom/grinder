@@ -39,7 +39,7 @@ final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
     super(model);
   }
 
-  public final synchronized void resetTestsAndStatisticsViews() {
+  public synchronized void resetTestsAndStatisticsViews() {
     super.resetTestsAndStatisticsViews();
     addColumns(getModel().getIntervalStatisticsView());
   }
@@ -48,13 +48,13 @@ final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
    * {@link net.grinder.console.model.ModelListener} interface. New
    * <code>StatisticsView</code>s have been added.
    **/
-  public final synchronized void newStatisticsViews(
+  public synchronized void newStatisticsViews(
     StatisticsView intervalStatisticsView,
     StatisticsView cumulativeStatisticsView) {
     addColumns(intervalStatisticsView);
   }
 
-  protected final TestStatistics getStatistics(int row) {
+  protected TestStatistics getStatistics(int row) {
     return getLastModelTestIndex().getLastSampleStatistics(row);
   }
 }

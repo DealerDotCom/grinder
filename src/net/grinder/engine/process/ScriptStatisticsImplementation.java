@@ -101,7 +101,7 @@ final class ScriptStatisticsImplementation implements Statistics {
     m_bufferAfterThreadIDIndex = m_buffer.length();
   }
 
-  public final void setDelayReports(boolean b) {
+  public void setDelayReports(boolean b) {
     if (!b) {
       reportInternal();
     }
@@ -109,12 +109,12 @@ final class ScriptStatisticsImplementation implements Statistics {
     m_delayReports = b;
   }
 
-  public final void report() throws InvalidContextException {
+  public void report() throws InvalidContextException {
     checkCallContext();
     reportInternal();
   }
 
-  private final void checkCallContext() throws InvalidContextException {
+  private void checkCallContext() throws InvalidContextException {
 
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
@@ -135,7 +135,7 @@ final class ScriptStatisticsImplementation implements Statistics {
     }
   }
 
-  private final void checkNotAlreadyReported()
+  private void checkNotAlreadyReported()
     throws StatisticsAlreadyReportedException {
 
     if (m_currentTestData == null) {
@@ -146,7 +146,7 @@ final class ScriptStatisticsImplementation implements Statistics {
     }
   }
 
-  public final boolean availableForUpdate() {
+  public boolean availableForUpdate() {
 
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
@@ -156,7 +156,7 @@ final class ScriptStatisticsImplementation implements Statistics {
       m_currentTestData != null;
   }
 
-  public final void setValue(StatisticsIndexMap.LongIndex index, long value)
+  public void setValue(StatisticsIndexMap.LongIndex index, long value)
     throws InvalidContextException, StatisticsAlreadyReportedException {
 
     checkCallContext();
@@ -164,8 +164,7 @@ final class ScriptStatisticsImplementation implements Statistics {
     m_testStatistics.setValue(index, value);
   }
 
-  public final void setValue(StatisticsIndexMap.DoubleIndex index,
-                             double value)
+  public void setValue(StatisticsIndexMap.DoubleIndex index, double value)
     throws InvalidContextException, StatisticsAlreadyReportedException {
 
     checkCallContext();
@@ -173,17 +172,17 @@ final class ScriptStatisticsImplementation implements Statistics {
     m_testStatistics.setValue(index, value);
   }
 
-  public final long getValue(StatisticsIndexMap.LongIndex index) {
+  public long getValue(StatisticsIndexMap.LongIndex index) {
 
     return m_testStatistics.getValue(index);
   }
 
-  public final double getValue(StatisticsIndexMap.DoubleIndex index) {
+  public double getValue(StatisticsIndexMap.DoubleIndex index) {
 
     return m_testStatistics.getValue(index);
   }
 
-  public final void setSuccess(boolean success)
+  public void setSuccess(boolean success)
     throws InvalidContextException, StatisticsAlreadyReportedException {
 
     checkCallContext();
@@ -197,15 +196,15 @@ final class ScriptStatisticsImplementation implements Statistics {
     }
   }
 
-  public final boolean getSuccess() {
+  public boolean getSuccess() {
     return m_testStatistics.getErrors() == 0;
   }
 
-  public final long getTime() {
+  public long getTime() {
     return getValue(s_transactionTimeIndex);
   }
 
-  final void setSuccessNoChecks() {
+  void setSuccessNoChecks() {
 
     if (m_recordTime) {
       m_testStatistics.setValue(s_timedTransactionsIndex, 1);
@@ -219,7 +218,7 @@ final class ScriptStatisticsImplementation implements Statistics {
     m_testStatistics.setValue(s_errorsIndex, 0);
   }
 
-  final void setErrorNoChecks() {
+  void setErrorNoChecks() {
 
     m_testStatistics.setValue(s_untimedTransactionsIndex, 0);
     m_testStatistics.setValue(s_timedTransactionsIndex, 0);
@@ -227,14 +226,14 @@ final class ScriptStatisticsImplementation implements Statistics {
     m_testStatistics.setValue(s_errorsIndex, 1);
   }
 
-  final void setTimeNoChecks(long time) {
+  void setTimeNoChecks(long time) {
 
     if (m_recordTime) {
       m_testStatistics.setValue(s_transactionTimeIndex, time);
     }
   }
 
-  final void beginTest(TestData testData) {
+  void beginTest(TestData testData) {
 
     // Flush any pending report.
     reportInternal();
@@ -244,7 +243,7 @@ final class ScriptStatisticsImplementation implements Statistics {
     m_noTests = false;
   }
 
-  final void endTest(long startTime) {
+  void endTest(long startTime) {
     m_currentTestStartTime = startTime;
 
     if (!m_delayReports) {
@@ -252,11 +251,11 @@ final class ScriptStatisticsImplementation implements Statistics {
     }
   }
 
-  final void endRun() {
+  void endRun() {
     reportInternal();
   }
 
-  private final void reportInternal() {
+  private void reportInternal() {
 
     if (m_currentTestData != null) {
       if (m_dataWriter != null) {

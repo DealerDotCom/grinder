@@ -50,7 +50,7 @@ public final class StatisticExpressionFactory {
    *
    * @return The singleton.
    */
-  public static final StatisticExpressionFactory getInstance() {
+  public static StatisticExpressionFactory getInstance() {
     return s_instance;
   }
 
@@ -61,7 +61,7 @@ public final class StatisticExpressionFactory {
    * @return The formatted expression.
    * @exception GrinderException if an error occurs
    */
-  public final String normaliseExpressionString(String expression)
+  public String normaliseExpressionString(String expression)
     throws GrinderException {
     final ParseContext parseContext = new ParseContext(expression);
     final StringBuffer result = new StringBuffer(expression.length());
@@ -75,8 +75,8 @@ public final class StatisticExpressionFactory {
     return result.toString();
   }
 
-  private final void normaliseExpressionString(ParseContext parseContext,
-                                               StringBuffer result)
+  private void normaliseExpressionString(ParseContext parseContext,
+                                         StringBuffer result)
     throws GrinderException {
     if (parseContext.peekCharacter() == '(') {
       // Compound expression.
@@ -102,7 +102,7 @@ public final class StatisticExpressionFactory {
    * @return The parsed expression.
    * @exception GrinderException if an error occurs
    */
-  public final StatisticExpression createExpression(String expression)
+  public StatisticExpression createExpression(String expression)
     throws GrinderException {
 
     final ParseContext parseContext = new ParseContext(expression);
@@ -117,7 +117,7 @@ public final class StatisticExpressionFactory {
     return result;
   }
 
-  private final StatisticExpression createExpression(ParseContext parseContext)
+  private StatisticExpression createExpression(ParseContext parseContext)
     throws GrinderException {
 
     if (parseContext.peekCharacter() == '(') {
@@ -177,10 +177,10 @@ public final class StatisticExpressionFactory {
    * @param value The value.
    * @return The <code>StatisticExpression</code>.
    */
-  public final StatisticExpression createConstant(final long value) {
+  public StatisticExpression createConstant(final long value) {
 
     return new LongStatistic() {
-        public final long getValue(RawStatistics rawStatistics) {
+        public long getValue(RawStatistics rawStatistics) {
           return value;
         }
       };
@@ -192,10 +192,10 @@ public final class StatisticExpressionFactory {
    * @param value The value.
    * @return The <code>StatisticExpression</code>.
    */
-  public final StatisticExpression createConstant(final double value) {
+  public StatisticExpression createConstant(final double value) {
 
     return new DoubleStatistic() {
-        public final double getValue(RawStatistics rawStatistics) {
+        public double getValue(RawStatistics rawStatistics) {
           return value;
         }
       };
@@ -207,7 +207,7 @@ public final class StatisticExpressionFactory {
    * @param index The expression index.
    * @return The <code>StatisticExpression</code>.
    */
-  public final StatisticExpression
+  public StatisticExpression
     createPrimitive(StatisticsIndexMap.DoubleIndex index) {
     return new PrimitiveDoubleStatistic(index);
   }
@@ -218,7 +218,7 @@ public final class StatisticExpressionFactory {
    * @param index The expression index.
    * @return The <code>StatisticExpression</code>.
    */
-  public final StatisticExpression
+  public StatisticExpression
     createPrimitive(StatisticsIndexMap.LongIndex index) {
     return new PrimitiveLongStatistic(index);
   }
@@ -229,17 +229,17 @@ public final class StatisticExpressionFactory {
    * @param operands The things to add.
    * @return The resulting expression.
    */
-  public final StatisticExpression
+  public StatisticExpression
     createSum(final StatisticExpression[] operands) {
 
     return new VariableArgumentsExpression(0, operands) {
-        public final double doDoubleOperation(
+        public double doDoubleOperation(
           double result, StatisticExpression operand,
           RawStatistics rawStatistics) {
           return result + operand.getDoubleValue(rawStatistics);
         }
 
-        public final long doLongOperation(
+        public long doLongOperation(
           long result, StatisticExpression operand,
           RawStatistics rawStatistics) {
           return result + operand.getLongValue(rawStatistics);
@@ -254,17 +254,17 @@ public final class StatisticExpressionFactory {
    * @param operands The things to multiply.
    * @return The resulting expression.
    */
-  public final StatisticExpression
+  public StatisticExpression
     createProduct(final StatisticExpression[] operands) {
 
     return new VariableArgumentsExpression(1, operands) {
-        public final double doDoubleOperation(
+        public double doDoubleOperation(
           double result, StatisticExpression operand,
           RawStatistics rawStatistics) {
           return result * operand.getDoubleValue(rawStatistics);
         }
 
-        public final long doLongOperation(
+        public long doLongOperation(
           long result, StatisticExpression operand,
           RawStatistics rawStatistics) {
           return result * operand.getLongValue(rawStatistics);
@@ -280,7 +280,7 @@ public final class StatisticExpressionFactory {
    * @param denominator The denominator.
    * @return The resulting expression.
    */
-  public final StatisticExpression
+  public StatisticExpression
     createDivision(final StatisticExpression numerator,
                    final StatisticExpression denominator) {
 
@@ -300,7 +300,7 @@ public final class StatisticExpressionFactory {
    * @param monitoredStatistic Statistic to monitor.
    * @return The resulting expression.
    */
-  public final PeakStatisticExpression
+  public PeakStatisticExpression
     createPeak(StatisticsIndexMap.DoubleIndex peakIndex,
                StatisticExpression monitoredStatistic) {
     return new PeakDoubleStatistic(peakIndex, monitoredStatistic);
@@ -313,14 +313,14 @@ public final class StatisticExpressionFactory {
    * @param monitoredStatistic Statistic to monitor.
    * @return The resulting expression.
    */
-  public final PeakStatisticExpression
+  public PeakStatisticExpression
     createPeak(StatisticsIndexMap.LongIndex peakIndex,
                StatisticExpression monitoredStatistic) {
     return new PeakLongStatistic(peakIndex, monitoredStatistic);
   }
 
-  private final StatisticExpression[] readOperands(ParseContext parseContext,
-                                                   int minimumSize)
+  private StatisticExpression[] readOperands(ParseContext parseContext,
+                                             int minimumSize)
     throws GrinderException {
     final List arrayList = new ArrayList();
 
@@ -513,17 +513,17 @@ public final class StatisticExpressionFactory {
       m_index = 0;
     }
 
-    public final boolean hasMoreCharacters() {
+    public boolean hasMoreCharacters() {
       eatWhiteSpace();
       return m_index < m_expression.length;
     }
 
-    public final char peekCharacter() {
+    public char peekCharacter() {
       eatWhiteSpace();
       return peekCharacterNoEat();
     }
 
-    private final char peekCharacterNoEat() {
+    private char peekCharacterNoEat() {
       if (m_index >= m_expression.length) {
         return EOS_SENTINEL;
       }
@@ -531,7 +531,7 @@ public final class StatisticExpressionFactory {
       return m_expression[m_index];
     }
 
-    public final char readCharacter() {
+    public char readCharacter() {
       final char result = peekCharacter();
 
       if (result != EOS_SENTINEL) {
@@ -541,7 +541,7 @@ public final class StatisticExpressionFactory {
       return result;
     }
 
-    public final String readToken() throws ParseException {
+    public String readToken() throws ParseException {
       eatWhiteSpace();
 
       final int start = m_index;
@@ -559,7 +559,7 @@ public final class StatisticExpressionFactory {
       return new String(m_expression, start, stringLength);
     }
 
-    private final boolean isTokenCharacter(char c) {
+    private boolean isTokenCharacter(char c) {
       return
         c != EOS_SENTINEL &&
         c != '(' &&
@@ -567,7 +567,7 @@ public final class StatisticExpressionFactory {
         !Character.isWhitespace(c);
     }
 
-    private final void eatWhiteSpace() {
+    private void eatWhiteSpace() {
       while (Character.isWhitespace(peekCharacterNoEat())) {
         ++m_index;
       }

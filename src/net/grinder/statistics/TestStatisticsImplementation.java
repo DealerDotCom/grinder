@@ -79,30 +79,30 @@ final class TestStatisticsImplementation
     super(in, serialiser);
   }
 
-  public final void addError() {
+  public void addError() {
     addValue(s_errorsIndex, 1);
   }
 
-  public final void addTransaction() {
+  public void addTransaction() {
     addValue(s_untimedTransactionsIndex, 1);
   }
 
-  public final void addTransaction(long time) {
+  public void addTransaction(long time) {
     addValue(s_timedTransactionsIndex, 1);
     addValue(s_totalTimeIndex, time);
   }
 
-  public final long getTransactions() {
+  public long getTransactions() {
     return
       getValue(s_timedTransactionsIndex) +
       getValue(s_untimedTransactionsIndex);
   }
 
-  public final long getErrors() {
+  public long getErrors() {
     return getValue(s_errorsIndex);
   }
 
-  public final double getAverageTransactionTime() {
+  public double getAverageTransactionTime() {
     final long timedTransactions = getValue(s_timedTransactionsIndex);
 
     return

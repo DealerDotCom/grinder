@@ -213,7 +213,7 @@ public final class GrinderProcess implements Monitor {
    *
    * @returns exit status to be indicated to parent process.
    */
-  private final int run() throws GrinderException {
+  private int run() throws GrinderException {
     final Logger logger = m_context.getLogger();
 
     logger.output("The Grinder version " + GrinderBuild.getVersionString());
@@ -381,7 +381,7 @@ public final class GrinderProcess implements Monitor {
     }
   }
 
-  private final boolean received(int mask) {
+  private boolean received(int mask) {
     return (m_lastMessagesReceived & mask) != 0;
   }
 
@@ -392,7 +392,7 @@ public final class GrinderProcess implements Monitor {
    * which specify the messages to wait for.
    * @returns A mask representing the messages actually received.
    **/
-  private final synchronized void waitForMessage() {
+  private synchronized void waitForMessage() {
     while (true) {
       m_lastMessagesReceived =
         m_consoleListener.received(ConsoleListener.ANY);

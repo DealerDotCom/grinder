@@ -91,7 +91,7 @@ public final class UnicastReceiver extends AbstractReceiver {
    * Shut down this reciever.
    * @throws CommunicationException If an IO exception occurs.
    **/
-  public final void shutdown() throws CommunicationException {
+  public void shutdown() throws CommunicationException {
 
     super.shutdown();
 

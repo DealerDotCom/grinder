@@ -47,9 +47,9 @@ public final class TCPProxyPlainSocketFactory
    * @return A new <code>ServerSocket</code>.
    * @exception IOException If an error occurs.
    */
-  public final ServerSocket createServerSocket(String localHost,
-                                               int localPort,
-                                               int timeout)
+  public ServerSocket createServerSocket(String localHost,
+                                         int localPort,
+                                         int timeout)
     throws IOException {
 
     final ServerSocket socket =
@@ -68,7 +68,7 @@ public final class TCPProxyPlainSocketFactory
    * @return A new <code>Socket</code>.
    * @exception IOException If an error occurs.
    */
-  public final Socket createClientSocket(String remoteHost, int remotePort)
+  public Socket createClientSocket(String remoteHost, int remotePort)
     throws IOException {
 
     return new Socket(remoteHost, remotePort);

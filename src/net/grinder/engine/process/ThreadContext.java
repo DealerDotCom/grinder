@@ -79,42 +79,42 @@ final class ThreadContext implements PluginThreadContext {
                   m_threadLogger);
   }
 
-  final void setThreadInstance() {
+  void setThreadInstance() {
     s_threadInstance.set(this);
   }
 
-  static final ThreadContext getThreadInstance() {
+  static ThreadContext getThreadInstance() {
     return (ThreadContext)s_threadInstance.get();
   }
 
-  public final Logger getLogger() {
+  public Logger getLogger() {
     return m_threadLogger;
   }
 
-  public final FilenameFactory getFilenameFactory() {
+  public FilenameFactory getFilenameFactory() {
     return m_filenameFactory;
   }
 
-  public final int getThreadID() {
+  public int getThreadID() {
     return m_threadLogger.getThreadID();
   }
 
-  public final int getRunNumber() {
+  public int getRunNumber() {
     return m_threadLogger.getCurrentRunNumber();
   }
 
-  public final void startTimedSection() {
+  public void startTimedSection() {
     if (!m_startTimeOverridenByPlugin) {
       m_startTimeOverridenByPlugin = true;
       m_startTime = System.currentTimeMillis();
     }
   }
 
-  public final void stopTimedSection() {
+  public void stopTimedSection() {
     m_elapsedTime = System.currentTimeMillis() - m_startTime;
   }
 
-  private final void startTimer() {
+  private void startTimer() {
     // This is to make it more likely that the timed section has a
     // "clear run".
     Thread.yield();
@@ -124,13 +124,13 @@ final class ThreadContext implements PluginThreadContext {
     m_elapsedTime = -1;
   }
 
-  private final void stopTimer() {
+  private void stopTimer() {
     if (m_elapsedTime < 0) { // Not already stopped.
       stopTimedSection();
     }
   }
 
-  final ThreadLogger getThreadLogger() {
+  ThreadLogger getThreadLogger() {
     return m_threadLogger;
   }
 
@@ -141,7 +141,7 @@ final class ThreadContext implements PluginThreadContext {
    * startTimer/stopTimer interface is part of the PluginThreadContext
    * interface.
    */
-  final Object invokeTest(TestData testData, TestData.Invokeable invokeable)
+  Object invokeTest(TestData testData, TestData.Invokeable invokeable)
     throws JythonScriptExecutionException, ShutdownException {
 
     if (m_processContext.getShutdown()) {
@@ -194,19 +194,19 @@ final class ThreadContext implements PluginThreadContext {
     }
   }
 
-  final void endRun() {
+  void endRun() {
     m_scriptStatistics.endRun();
   }
 
-  final Sleeper getSleeper() {
+  Sleeper getSleeper() {
     return m_sleeper;
   }
 
-  public final long getStartTime() {
+  public long getStartTime() {
     return m_startTime;
   }
 
-  final Statistics getScriptStatistics() {
+  Statistics getScriptStatistics() {
     return m_scriptStatistics;
   }
 }

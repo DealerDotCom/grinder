@@ -103,7 +103,7 @@ public final class ScriptDistributionFiles implements Serializable {
              additionalFiles);
   }
 
-  final void addToProperties(GrinderProperties properties) {
+  void addToProperties(GrinderProperties properties) {
     properties.setProperty(m_propertyPrefix + ROOT_DIRECTORY_PROPERTY,
                            getRootDirectory().getPath());
 
@@ -126,7 +126,7 @@ public final class ScriptDistributionFiles implements Serializable {
    *
    * @return The root directory.
    */
-  public final File getRootDirectory() {
+  public File getRootDirectory() {
     return m_rootDirectory;
   }
 
@@ -135,7 +135,7 @@ public final class ScriptDistributionFiles implements Serializable {
    *
    * @param directory The root directory.
    */
-  public final void setRootDirectory(File directory) {
+  public void setRootDirectory(File directory) {
     m_rootDirectory = directory;
     updateHashCode();
   }
@@ -146,7 +146,7 @@ public final class ScriptDistributionFiles implements Serializable {
    *
    * @return The script file.
    */
-  public final File getScriptFile() {
+  public File getScriptFile() {
     return m_scriptFile;
   }
 
@@ -155,7 +155,7 @@ public final class ScriptDistributionFiles implements Serializable {
    *
    * @return The additional files.
    */
-  public final File[] getAdditionalFiles() {
+  public File[] getAdditionalFiles() {
     return m_additionalFiles;
   }
 
@@ -166,7 +166,7 @@ public final class ScriptDistributionFiles implements Serializable {
    * @param additionalFiles Other files that should be distributed
    * with the script.
    */
-  public final void setFiles(File scriptFile, Collection additionalFiles) {
+  public void setFiles(File scriptFile, Collection additionalFiles) {
 
     m_scriptFile = scriptFile;
 
@@ -185,7 +185,7 @@ public final class ScriptDistributionFiles implements Serializable {
    * @param o Object to compare.
    * @return <code>true</code> => its equal.
    */
-  public final boolean equals(Object o) {
+  public boolean equals(Object o) {
 
     if (!(o instanceof ScriptDistributionFiles)) {
       return false;
@@ -229,7 +229,7 @@ public final class ScriptDistributionFiles implements Serializable {
     return true;
   }
 
-  private final void updateHashCode() {
+  private void updateHashCode() {
     m_hashCode = getRootDirectory().hashCode();
 
     final File scriptFile = getScriptFile();
@@ -252,7 +252,7 @@ public final class ScriptDistributionFiles implements Serializable {
    *
    * @return The hash code.
    */
-  public final int hashCode() {
+  public int hashCode() {
     return m_hashCode;
   }
 
@@ -261,7 +261,7 @@ public final class ScriptDistributionFiles implements Serializable {
    *
    * @return The string.
    */
-  public final String toString() {
+  public String toString() {
     final StringBuffer result = new StringBuffer();
 
     result.append("ScriptDistributionFiles('");
