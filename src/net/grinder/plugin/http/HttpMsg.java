@@ -65,6 +65,11 @@ public class HttpMsg{
 
 	HttpURLConnection connection = 
 	    (HttpURLConnection) url.openConnection();
+
+	// Stop URLConnection from handling http 302 forwards, because
+	// these contain the cookie when handling web app form based
+	// authentication.
+	connection.setInstanceFollowRedirects(false);
             
 	if (_useCookie) {
 	    connection.setRequestProperty("Cookie", _cookie);

@@ -1,3 +1,10 @@
+2000-12-14  Phil Dawes  <pdawes@beasys.com>
+
+	* src/net/grinder/plugin/http/HttpMsg.java:
+		Stop URLConnection from handling http 302 forwards,
+		because these contain the cookie when handling web app
+		form based authentication.
+
 2000-12-13  Philip Aston  <paston@beasys.com>
 
 	* Grinder 0.7 is released.
