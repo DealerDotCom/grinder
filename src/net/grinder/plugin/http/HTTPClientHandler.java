@@ -179,12 +179,19 @@ class HTTPClientHandler implements HTTPHandler
 	    final HTTPResponse response;
 
 	    if (postString == null) {
-		// Don't pass the query string to the second
-		// parameter, we don't want it to be URL encoded.
-		response = httpConnection.Get(uri.getPath() + '?' +
-					      uri.getQueryString(),
-					      (String)null,
-					      headers);
+		String querystring =  uri.getQueryString();
+		if ((querystring != null) && (querystring.length() > 0)) {  
+		    // Don't pass the query string to the second
+		    // parameter, we don't want it to be URL encoded.
+		    response = httpConnection.Get(uri.getPath() + '?' +
+						  uri.getQueryString(),
+						  (String)null,
+						  headers);
+		} else {
+		    response = httpConnection.Get(uri.getPath(),
+						  (String)null,
+						  headers);
+		}
 	    }
 	    else {
 		final String contentType = requestData.getContentType();
