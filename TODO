@@ -39,6 +39,9 @@ that too :-). The list is roughly in priority order.]
 
   Add dropped packet detection to the communications.
 
+  Allow String Beans to optionally capture request results. (Would
+  invoke "set" methods).
+
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
 	
