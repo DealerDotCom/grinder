@@ -54,4 +54,5 @@ The following are scheduled for Grinder 3:
   file. Or use the console to broadcast configuration to the grinder
   processes.
 
-  Replace HttpURLConnection. Either roll our own, or use HTTPClient.
+  Replace HttpURLConnection. Either roll our own, or use HTTPClient:
+  http://www.innovation.ch/java/HTTPClient/api/HTTPClient/HTTPConnection.html
