@@ -165,6 +165,7 @@ public final class ServerSender extends AbstractSender {
           catch (IOException e) {
             socketHandle.close();
             //            m_messageQueue.queue(e);
+            e.printStackTrace();
           }
           finally {
             socketHandle.free();
