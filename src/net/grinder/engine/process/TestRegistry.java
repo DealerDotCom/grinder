@@ -26,11 +26,11 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.Test;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.Sender;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.script.InvokeableTest;
 import net.grinder.statistics.TestStatisticsMap;
 
 
@@ -49,14 +49,14 @@ public final class TestRegistry
     private final Sender m_consoleSender;
 
     /**
-     * A map of InvokeableTest to TestData's. (TestData is the class
-     * this package uses to store information about InvokeableTests).
-     * Synchronize on instance when accessesing.
+     * A map of Test to TestData's. (TestData is the class this
+     * package uses to store information about Tests). Synchronize on
+     * instance when accessesing.
      **/
     private final Map m_testMap = new TreeMap();
 
     /**
-     * A map of InvokeableTests to Statistics for passing elsewhere.
+     * A map of Tests to Statistics for passing elsewhere.
      **/
     private final TestStatisticsMap m_testStatisticsMap =
 	new TestStatisticsMap();
@@ -85,7 +85,7 @@ public final class TestRegistry
 	m_consoleSender = consoleSender;
     }
 
-    public RegisteredTest register(Class pluginClass, InvokeableTest test)
+    public RegisteredTest register(Class pluginClass, Test test)
 	throws GrinderException
     {
 	PluginRegistry.RegisteredPlugin registeredPlugin =
