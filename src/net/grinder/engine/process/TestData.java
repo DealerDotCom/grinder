@@ -22,6 +22,10 @@
 
 package net.grinder.engine.process;
 
+import org.python.core.PyFinalizableInstance;
+import org.python.core.PyInstance;
+import org.python.core.PyJavaInstance;
+
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.engine.EngineException;
@@ -65,7 +69,7 @@ final class TestData implements TestRegistry.RegisteredTest
 	return m_statistics;
     }
 
-    Object dispatch(Invokeable invokeable) throws GrinderException
+    final Object dispatch(Invokeable invokeable) throws Exception
     {
 	final ThreadContext threadContext = ThreadContext.getThreadInstance();
 	
@@ -91,9 +95,35 @@ final class TestData implements TestRegistry.RegisteredTest
      * issues. Instead we lean on Jython and force it to give us
      * Java proxy which we then dynamically subclass with our own
      * type of PyJavaInstance.
+     *
+     * <p>Later....
+     * <br>This works fine for wrapping the following:
+     * <ul>
+     *   <li>Java instances and classes</li>
+     *   <li>PyClass</li>
+     *   <li>PyFunction</li>
+     *   <li>Python primitive types (integers, strings, floats, complexes, ...)</li>
+     *   <li>Python tuples, lists, dictionaries</li>
+     *  </ul>
+     *
+     * This works suprisingly well for everything by PyInstances. It
+     * can't work for PyInstances, because invoking on the
+     * PyJavaInstance calls the PyInstance which in turn attempts to
+     * call back on the PyJavaInstance.
+     * 
      */
     public final Object createProxy(Object o) 
     {
+	System.err.println("Wrapping " + o.getClass());
+
+	if (o instanceof PyFinalizableInstance) {
+	    return new TestPyFinalizableInstance(this,
+						 (PyFinalizableInstance)o);
+	}
+	else if (o instanceof PyInstance) {
+	    return new TestPyInstance(this, (PyInstance)o);
+	}
+	
 	return new TestPyJavaInstance(this, o);
     }
 }
