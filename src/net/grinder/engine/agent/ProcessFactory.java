@@ -37,6 +37,4 @@ interface ProcessFactory {
   ChildProcess create(int processIndex,
                       OutputStream outputStream,
                       OutputStream errorStream) throws EngineException;
-
-  String getCommandLine();
 }
