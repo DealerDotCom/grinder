@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -49,7 +49,7 @@ public interface DistributionControl {
   /**
    * Get a Set&lt;ConnectionIdentity&gt; of connected agent processes.
    *
-   * @return Set of connection identities.
+   * @return Copy of the set of connection identities.
    */
   Set getConnectedAgents();
 }
