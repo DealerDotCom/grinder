@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.Logger;
+import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -35,10 +36,6 @@ import net.grinder.testutility.RandomStubFactory;
  * @version $Revision$
  */
 public class TestExternalLogger extends TestCase {
-
-  public TestExternalLogger(String name) {
-    super(name);
-  }
 
   public void testProcessLogging() throws Exception {
     final LoggerStubFactory processLoggerFactory = new LoggerStubFactory();
@@ -52,25 +49,25 @@ public class TestExternalLogger extends TestCase {
 
     externalLogger.output("Hello");
 
-    processLoggerFactory.assertSuccess("output",
-                                       new Object[] { "Hello" }, null);
+    processLoggerFactory.assertSuccess("output", "Hello");
     processLoggerFactory.assertNoMoreCalls();
 
     externalLogger.error("Hello again", Logger.TERMINAL);
 
-    processLoggerFactory.assertSuccess(
-      "error", new Object[] { "Hello again", new Integer(Logger.TERMINAL) },
-      null);
+    processLoggerFactory.assertSuccess("error", "Hello again",
+                                       new Integer(Logger.TERMINAL));
 
     processLoggerFactory.assertNoMoreCalls();
 
     final Object errorLogWriter = externalLogger.getErrorLogWriter();
-    processLoggerFactory.assertSuccess("getErrorLogWriter", new Object[] {},
-                                       errorLogWriter);
+    final CallData callData1 =
+      processLoggerFactory.assertSuccess("getErrorLogWriter");
+    assertEquals(errorLogWriter, callData1.getResult());
 
     final Object outputLogWriter = externalLogger.getOutputLogWriter();
-    processLoggerFactory.assertSuccess("getOutputLogWriter", new Object[] {},
-                                       outputLogWriter);
+    final CallData callData2 =
+      processLoggerFactory.assertSuccess("getOutputLogWriter");
+    assertEquals(outputLogWriter, callData2.getResult());
   }
 
   public void testSeveralLoggers() throws Exception {
@@ -105,17 +102,16 @@ public class TestExternalLogger extends TestCase {
 
     externalLogger.output("Testing", Logger.LOG | Logger.TERMINAL);
     threadLoggerFactory1.assertSuccess(
-      "output",
-      new Object[] { "Testing", new Integer(Logger.LOG | Logger.TERMINAL) },
-      null);
+      "output", "Testing", new Integer(Logger.LOG | Logger.TERMINAL));
 
     processLoggerFactory.assertNoMoreCalls();
     threadLoggerFactory1.assertNoMoreCalls();
     threadLoggerFactory2.assertNoMoreCalls();
 
     final Object errorLogWriter = externalLogger.getErrorLogWriter();
-    threadLoggerFactory1.assertSuccess(
-      "getErrorLogWriter", new Object[] {}, errorLogWriter);
+    final CallData callData =
+      threadLoggerFactory1.assertSuccess("getErrorLogWriter");
+    assertEquals(errorLogWriter, callData.getResult());
 
     processLoggerFactory.assertNoMoreCalls();
     threadLoggerFactory1.assertNoMoreCalls();
@@ -124,8 +120,7 @@ public class TestExternalLogger extends TestCase {
     threadContextLocator.set(null);
 
     externalLogger.error("Another test");
-    processLoggerFactory.assertSuccess(
-      "error", new Object[] { "Another test" }, null);
+    processLoggerFactory.assertSuccess("error", "Another test");
 
     processLoggerFactory.assertNoMoreCalls();
     threadLoggerFactory1.assertNoMoreCalls();
@@ -186,11 +181,12 @@ public class TestExternalLogger extends TestCase {
         m_externalLogger.output("Testing", Logger.TERMINAL);
 
         threadLoggerFactory.assertSuccess(
-          "output", new Object[] { "Testing", new Integer(Logger.TERMINAL) });
+          "output", "Testing", new Integer(Logger.TERMINAL));
 
         final Object outputLogWriter = m_externalLogger.getOutputLogWriter();
-        threadLoggerFactory.assertSuccess(
-          "getOutputLogWriter", new Object[] {}, outputLogWriter);
+        final CallData callData =
+          threadLoggerFactory.assertSuccess("getOutputLogWriter");
+        assertEquals(outputLogWriter, callData.getResult());
 
         threadLoggerFactory.assertNoMoreCalls();
       }

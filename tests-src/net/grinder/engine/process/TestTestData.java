@@ -39,19 +39,17 @@ import net.grinder.common.Test;
 import net.grinder.common.StubTest;
 import net.grinder.engine.common.EngineException;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 
 
 /**
- * Unit test case for <code>TestTestData</code>.
+ * Unit test case for <code>TestData</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public class TestTestData extends TestCase {
-  public TestTestData(String name) {
-    super(name);
-  }
 
   public void testTestData() throws Exception {
     final ThreadContextLocator threadContextLocator =
@@ -97,8 +95,10 @@ public class TestTestData extends TestCase {
 
     final Object o = testData.dispatch(invokeable);
 
-    threadContextStubFactory.assertSuccess(
-      "invokeTest", new Object[] { testData, invokeable}, o );
+    final CallData callData =
+      threadContextStubFactory.assertSuccess("invokeTest",
+                                             testData, invokeable);
+    assertEquals(o, callData.getResult());
 
     threadContextStubFactory.assertNoMoreCalls();
   }

@@ -879,8 +879,9 @@ public class TestHTTPRequest extends TestCase {
     assertEquals(-1, message.indexOf("Redirect"));
     loggerStubFactory.assertNoMoreCalls();
 
-    m_statisticsStubFactory.assertSuccess(
-      "availableForUpdate", new Object[0], Boolean.FALSE);
+    final CallData callData1 =
+      m_statisticsStubFactory.assertSuccess("availableForUpdate");
+    assertEquals(Boolean.FALSE, callData1.getResult());
     m_statisticsStubFactory.assertNoMoreCalls();
 
     handler.setStatusString("302 Moved Temporarily");
@@ -897,16 +898,15 @@ public class TestHTTPRequest extends TestCase {
 
     final HTTPPlugin httpPlugin = HTTPPlugin.getPlugin();
 
-    m_statisticsStubFactory.assertSuccess(
-      "availableForUpdate", new Object[0], Boolean.TRUE);
+    final CallData callData2 =
+      m_statisticsStubFactory.assertSuccess("availableForUpdate");
+    assertEquals(Boolean.TRUE, callData2.getResult());
 
     m_statisticsStubFactory.assertSuccess(
-      "addValue",
-      new Object[] { httpPlugin.getResponseLengthIndex(), new Long(0), });
+      "addValue", httpPlugin.getResponseLengthIndex(), new Long(0));
 
     m_statisticsStubFactory.assertSuccess(
-      "setValue",
-      new Object[] { httpPlugin.getResponseStatusIndex(), new Long(302), });
+      "setValue", httpPlugin.getResponseStatusIndex(), new Long(302));
 
     m_statisticsStubFactory.assertNoMoreCalls();
 
@@ -920,20 +920,18 @@ public class TestHTTPRequest extends TestCase {
     assertTrue(message3.indexOf("400") >= 0);
     loggerStubFactory.assertNoMoreCalls();
 
-    m_statisticsStubFactory.assertSuccess(
-      "availableForUpdate", new Object[0], Boolean.TRUE);
+    final CallData callData3 = 
+      m_statisticsStubFactory.assertSuccess("availableForUpdate");
+    assertEquals(Boolean.TRUE, callData3.getResult());
 
     m_statisticsStubFactory.assertSuccess(
-      "addValue",
-      new Object[] { httpPlugin.getResponseLengthIndex(), new Long(0), });
+      "addValue", httpPlugin.getResponseLengthIndex(), new Long(0));
 
     m_statisticsStubFactory.assertSuccess(
-      "setValue",
-      new Object[] { httpPlugin.getResponseStatusIndex(), new Long(400), });
+      "setValue", httpPlugin.getResponseStatusIndex(), new Long(400));
 
     m_statisticsStubFactory.assertSuccess(
-      "addValue",
-      new Object[] { httpPlugin.getResponseErrorsIndex(), new Long(1), });
+      "addValue", httpPlugin.getResponseErrorsIndex(), new Long(1));
 
     m_statisticsStubFactory.assertNoMoreCalls();
   }

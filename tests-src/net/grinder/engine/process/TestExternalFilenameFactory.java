@@ -24,6 +24,7 @@ package net.grinder.engine.process;
 import junit.framework.TestCase;
 
 import net.grinder.common.FilenameFactory;
+import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -34,10 +35,6 @@ import net.grinder.testutility.RandomStubFactory;
  * @version $Revision$
  */
 public class TestExternalFilenameFactory extends TestCase {
-
-  public TestExternalFilenameFactory(String name) {
-    super(name);
-  }
 
   public void testProcessFilenameFactory() throws Exception {
     final RandomStubFactory filenameFactoryStubFactory =
@@ -54,15 +51,18 @@ public class TestExternalFilenameFactory extends TestCase {
 
     final String result1 = externalFilenameFactory.createFilename("Prefix");
 
-    filenameFactoryStubFactory.assertSuccess(
-      "createFilename", new Object[] { "Prefix" }, result1);
+    final CallData callData1 =
+      filenameFactoryStubFactory.assertSuccess("createFilename", "Prefix");
+    assertEquals(result1, callData1.getResult());
     filenameFactoryStubFactory.assertNoMoreCalls();
 
     final String result2 =
       externalFilenameFactory.createFilename("Prefix", "Suffix");
 
-    filenameFactoryStubFactory.assertSuccess(
-      "createFilename", new Object[] { "Prefix", "Suffix" }, result2);
+    final CallData callData2 =
+      filenameFactoryStubFactory.assertSuccess("createFilename",
+                                               "Prefix", "Suffix");
+    assertEquals(result2, callData2.getResult());
     filenameFactoryStubFactory.assertNoMoreCalls();
   }
 
@@ -102,15 +102,18 @@ public class TestExternalFilenameFactory extends TestCase {
     threadContextLocator.set(threadContext1);
 
     final String result1 = externalFilenameFactory.createFilename("p");
-    threadFilenameFactoryStubFactory1.assertSuccess(
-      "createFilename", new Object[] { "p" }, result1);
+    final CallData callData1 =
+      threadFilenameFactoryStubFactory1.assertSuccess("createFilename", "p");
+    assertEquals(result1, callData1.getResult());
     processFilenameFactoryStubFactory.assertNoMoreCalls();
     threadFilenameFactoryStubFactory1.assertNoMoreCalls();
     threadFilenameFactoryStubFactory2.assertNoMoreCalls();
 
     final String result2 = externalFilenameFactory.createFilename("p", "s");
-    threadFilenameFactoryStubFactory1.assertSuccess(
-      "createFilename", new Object[] { "p", "s" }, result2);
+    final CallData callData2 =
+      threadFilenameFactoryStubFactory1.assertSuccess("createFilename",
+                                                      "p", "s");
+    assertEquals(result2, callData2.getResult());
     processFilenameFactoryStubFactory.assertNoMoreCalls();
     threadFilenameFactoryStubFactory1.assertNoMoreCalls();
     threadFilenameFactoryStubFactory2.assertNoMoreCalls();
@@ -119,8 +122,10 @@ public class TestExternalFilenameFactory extends TestCase {
 
     final String result3 =
       externalFilenameFactory.createFilename("foo", "bah");
-    processFilenameFactoryStubFactory.assertSuccess(
-      "createFilename", new Object[] { "foo", "bah" }, result3);
+    final CallData callData3 =
+      processFilenameFactoryStubFactory.assertSuccess("createFilename",
+                                                      "foo", "bah");
+    assertEquals(result3, callData3.getResult());
     processFilenameFactoryStubFactory.assertNoMoreCalls();
     threadFilenameFactoryStubFactory1.assertNoMoreCalls();
     threadFilenameFactoryStubFactory2.assertNoMoreCalls();
@@ -184,13 +189,15 @@ public class TestExternalFilenameFactory extends TestCase {
         final String result1 =
           m_externalFilenameFactory.createFilename("blab blah", "blugh");
 
-        threadFilenameFactoryStubFactory.assertSuccess(
-          "createFilename", new Object[] { "blab blah", "blugh" });
+        threadFilenameFactoryStubFactory.assertSuccess("createFilename",
+                                                       "blab blah", "blugh");
 
         final String result2 = m_externalFilenameFactory.createFilename("xxx");
 
-        threadFilenameFactoryStubFactory.assertSuccess(
-          "createFilename", new Object[] { "xxx" }, result2);
+        final CallData callData2 =
+          threadFilenameFactoryStubFactory.assertSuccess("createFilename",
+                                                         "xxx");
+        assertEquals(result2, callData2.getResult());
         threadFilenameFactoryStubFactory.assertNoMoreCalls();
       }
 
