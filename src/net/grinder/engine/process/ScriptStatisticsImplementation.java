@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -213,6 +213,7 @@ final class ScriptStatisticsImplementation
     m_currentTestData = testData;
     m_runNumber = runNumber;
     m_statistics.reset();
+    m_currentTestElapsedTime = -1;
     m_noTests = false;
   }
 
@@ -254,43 +255,42 @@ final class ScriptStatisticsImplementation
         m_statistics.setValue(s_untimedTestsIndex, 0);
         m_statistics.reset(s_timedTestsIndex);
         m_statistics.setValue(s_errorsIndex, 1);
+        m_currentTestElapsedTime = -1;
       }
 
-      if (m_dataWriter != null) {
-        if (m_runNumber == m_lastRunNumber &&
-            m_lastRunNumber != -1) {
-          m_buffer.setLength(m_bufferAfterRunNumberIndex);
+      if (m_runNumber == m_lastRunNumber &&
+          m_lastRunNumber != -1) {
+        m_buffer.setLength(m_bufferAfterRunNumberIndex);
+      }
+      else {
+        m_lastRunNumber = m_runNumber;
+
+        m_buffer.setLength(m_bufferAfterThreadIDIndex);
+        m_buffer.append(m_runNumber);
+        m_buffer.append(", ");
+        m_bufferAfterRunNumberIndex = m_buffer.length();
+      }
+
+      m_buffer.append(m_currentTestData.getTest().getNumber());
+
+      m_buffer.append(", ");
+      m_buffer.append(m_currentTestStartTime);
+
+      for (int i = 0; i < m_detailExpressionViews.length; ++i) {
+        m_buffer.append(", ");
+
+        final StatisticExpression expression =
+          m_detailExpressionViews[i].getExpression();
+
+        if (expression.isDouble()) {
+          m_buffer.append(expression.getDoubleValue(m_statistics));
         }
         else {
-          m_lastRunNumber = m_runNumber;
-
-          m_buffer.setLength(m_bufferAfterThreadIDIndex);
-          m_buffer.append(m_runNumber);
-          m_buffer.append(", ");
-          m_bufferAfterRunNumberIndex = m_buffer.length();
+          m_buffer.append(expression.getLongValue(m_statistics));
         }
-
-        m_buffer.append(m_currentTestData.getTest().getNumber());
-
-        m_buffer.append(", ");
-        m_buffer.append(m_currentTestStartTime);
-
-        for (int i = 0; i < m_detailExpressionViews.length; ++i) {
-          m_buffer.append(", ");
-
-          final StatisticExpression expression =
-            m_detailExpressionViews[i].getExpression();
-
-          if (expression.isDouble()) {
-            m_buffer.append(expression.getDoubleValue(m_statistics));
-          }
-          else {
-            m_buffer.append(expression.getLongValue(m_statistics));
-          }
-        }
-
-        m_dataWriter.println(m_buffer);
       }
+
+      m_dataWriter.println(m_buffer);
 
       m_currentTestData.getStatistics().add(m_statistics);
       m_currentTestData = null;
