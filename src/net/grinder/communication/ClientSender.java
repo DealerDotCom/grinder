@@ -44,7 +44,7 @@ public final class ClientSender
    * @return The ClientSender.
    * @throws CommunicationException If failed to connect.
    */
-  public static Sender connect(Connector connector)
+  public static ClientSender connect(Connector connector)
     throws CommunicationException {
 
     final Socket socket = connector.connect();
