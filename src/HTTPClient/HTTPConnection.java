@@ -3388,6 +3388,10 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
      * <DT>User-Agent  <DI>If not present it will be generated with the current
      *                     HTTPClient version strings. Otherwise the version
      *                     string is appended to the given User-Agent string.
+     *                      (GRINDER MODIFICATION: if User-Agent is
+     *                      present, it will be set directly - the
+     *                      HTTPClient version string will
+     *                      <em>not</em> be appended).
      * <DT>Connection  <DI>This header is only written if no proxy is used.
      *                     If no connection header is specified and the server
      *                     is not known to understand HTTP/1.1 or later then
@@ -3591,11 +3595,14 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	// User-Agent
 
 	if (ua_idx != -1)
-	    dataout.writeBytes("User-Agent: " + hdrs[ua_idx].getValue().trim() + " "
-			       + version + "\r\n");
+	  /** ++GRINDER MODIFICATION **/
+	  //	    dataout.writeBytes("User-Agent: " + hdrs[ua_idx].getValue().trim() + " "
+	  //			       + version + "\r\n");
+	  dataout.writeBytes("User-Agent: " + hdrs[ua_idx].getValue().trim() +
+			     "\r\n");
+	/** --GRINDER MODIFICATION **/
 	else
-	    dataout.writeBytes("User-Agent: " + version + "\r\n");
-
+	  dataout.writeBytes("User-Agent: " + version + "\r\n");
 
 	// Write out any headers left
 

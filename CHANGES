@@ -16,6 +16,9 @@ Grinder 3.0-beta12
   local interface to use for HTTP connections. See
   HTTPPluginConnection.setLocalAddress().
 
+  HTTP Plugin enhancemnt: If the User-Agent header is specified, don't
+  append the HTTPClient version string.
+
 
 Grinder 3.0-beta11
 ------------------
