@@ -179,7 +179,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     stateButton.setAction(m_stopAction);
     stateButton.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
     m_stopAction.registerButton(stateButton);
-    m_stateLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+    m_stateLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
     final Box statePanel = Box.createHorizontalBox();
     statePanel.add(stateButton);
     statePanel.add(m_stateLabel);
@@ -197,7 +197,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       new BoxLayout(controlAndTotalPanel, BoxLayout.Y_AXIS));
 
     controlAndTotalPanel.add(m_samplingControlPanel);
-    controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+    controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 80)));
     controlAndTotalPanel.add(tpsLabel);
     controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 20)));
     controlAndTotalPanel.add(totalGraph);
@@ -212,34 +212,54 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     // Create the tabbed test display.
     final JTabbedPane tabbedPane = new JTabbedPane();
 
+    final JScrollPane graphTabPane =
+      new JScrollPane(new TestGraphPanel(model, m_resources));
+
+    graphTabPane.setBorder(BorderFactory.createEmptyBorder());
+
     tabbedPane.addTab(m_resources.getString("graphTab.title"),
 		      m_resources.getImageIcon("graphTab.image"),
-		      new JScrollPane(new TestGraphPanel(model, m_resources)),
+		      graphTabPane,
 		      m_resources.getString("graphTab.tip"));
 
     final CumulativeStatisticsTableModel cumulativeModel =
       new CumulativeStatisticsTableModel(model, m_resources, true);
 
+    final JScrollPane cumulativeTablePane =
+      new JScrollPane(new Table(cumulativeModel));
+
+    cumulativeTablePane.setBorder(BorderFactory.createEmptyBorder());
+
     tabbedPane.addTab(m_resources.getString("cumulativeTableTab.title"),
 		      m_resources.getImageIcon("cumulativeTableTab.image"),
-		      new JScrollPane(new Table(cumulativeModel)),
+		      cumulativeTablePane,
 		      m_resources.getString("cumulativeTableTab.tip"));
 
     final SampleStatisticsTableModel sampleModel =
       new SampleStatisticsTableModel(model, m_resources);
 
+    final JScrollPane sampleTablePane =
+      new JScrollPane(new Table(sampleModel));
+
+    sampleTablePane.setBorder(BorderFactory.createEmptyBorder());
+
     tabbedPane.addTab(m_resources.getString("sampleTableTab.title"),
 		      m_resources.getImageIcon("sampleTableTab.image"),
-		      new JScrollPane(new Table(sampleModel)),
+		      sampleTablePane,
 		      m_resources.getString("sampleTableTab.tip"));
 
     final ProcessStatusTableModel processStatusModel =
       new ProcessStatusTableModel(model, m_resources);
 
+    final JScrollPane processStatusPane =
+      new JScrollPane(new Table(processStatusModel));
+
+    processStatusPane.setBorder(BorderFactory.createEmptyBorder());
+
     tabbedPane.addTab(m_resources.getString("processStatusTableTab.title"),
 		      m_resources.getImageIcon(
 			"processStatusTableTab.image"),
-		      new JScrollPane(new Table(processStatusModel)),
+		      processStatusPane,
 		      m_resources.getString("processStatusTableTab.tip"));
 
     final JPanel contentPanel = new JPanel(new BorderLayout());
@@ -415,7 +435,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
   /**
    * {@link net.grinder.console.model.ModelListener} interface. The
-   * test set has probably changed. We need do nothing
+   * test set has probably changed. We need do nothing.
    *
    * @param newTests New tests.
    * @param modelTestIndex New model test index.
@@ -438,7 +458,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
   /**
    * {@link net.grinder.console.model.ModelListener} interface. New
    * <code>StatisticsView</code>s have been added. We need do
-   * nothing
+   * nothing.
    *
    * @param intervalStatisticsView Interval statistics view.
    * @param cumulativeStatisticsView Cumulative statistics view.
@@ -446,6 +466,14 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
   public final void newStatisticsViews(
     StatisticsView intervalStatisticsView,
     StatisticsView cumulativeStatisticsView) {
+  }
+
+    /**
+   * {@link net.grinder.console.model.ModelListener} interface.
+   * Existing <code>Test</code<s and <code>StatisticsView</code>s have
+   * been discarded. We need do nothing.
+   */
+  public final void resetTestsAndStatisticsViews() {
   }
 
   private static final class WindowCloseAdapter extends WindowAdapter {
@@ -658,6 +686,9 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
 
     public void actionPerformed(ActionEvent e) {
+
+      m_model.reset();		// Right to do this here?
+
       m_model.start();
 
       //  putValue() won't work here as the event won't fire if
