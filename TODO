@@ -12,15 +12,12 @@ it too :-). The list is roughly in priority order.]
   when used with the JUnit plugin). Surely System.exit() is not the
   answer?
 
-  Add an assertion for the expected status code to the HTTP plugin.
-  HTTP Plugin "not ok".
-
   Change TCP sniffer filters to a stream oriented model. This should
   cure another one of the TCPSniffer/HTTPPlugin bug when recording
   large outputs with posts? Also, consider having a filter instance
   pair per connection.
 
-  TCPSniffer and HTTP plugin should be able to work through proxies.
+  TCPSniffer should be able to work through proxies.
 
   Rename TCPSniffer to TCPProxy to reflect reality.
 
@@ -42,22 +39,11 @@ it too :-). The list is roughly in priority order.]
   Measure test variance. This would involve the console broadcasting
   the total mean, and then listening for the reported variance.
 
-  Tests show that, at least with the NT IP stack, it is quite possible
-  to overflow the multicast buffering and hence lose messages. We
-  detect this condition and raise error messages, so this doesn't
-  concern me from the "correctness perspective", but the communication
-  to the console should be changed to be unicast.
-
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
 	
-  Alter console and engine to use Timer.scheduleAtFixedRate for more
-  accuracy.
-
   The HTTPClient plugin implementation interprets basicAuthentication
   properties wrongly. It first sends a request without the
   authentication headers, then catches the 401 and automatically
   resends a request with the authentication headers.
-
-  Tidy up logging of plugin initialisation.
-
+	- Need to fix the sniffer.
