@@ -91,7 +91,7 @@ public class ClientReceiver implements Receiver {
    * @return The message or <code>null</code> if shut down.
    * @throws CommunicationException If an error occured receiving a message.
    */
-  public Message waitForMessage() throws CommunicationException {
+  public final Message waitForMessage() throws CommunicationException {
 
     try {
       final ObjectInputStream objectStream =
@@ -113,7 +113,6 @@ public class ClientReceiver implements Receiver {
       throw new CommunicationException("Failed to read message", e);
     }
   }
-
 
   /**
    * Cleanly shutdown the <code>Receiver</code>. Ignore errors.
