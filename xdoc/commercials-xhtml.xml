@@ -35,6 +35,8 @@ href="mailto:grinder-use@lists.sourceforge.net">grinder-use@lists.sourceforge.ne
     <p>Most importantly, the book contains in-depth coverage of The
     Grinder including a full user guide and case studies showing how
     to apply The Grinder to real world problems.</p>
+
+    <p>Philip Aston</p>
 </td>
 <td>&#160;</td>
 <td valign="top">
@@ -59,6 +61,29 @@ href="mailto:grinder-use@lists.sourceforge.net">grinder-use@lists.sourceforge.ne
     </p>
 </td>
 </tr>
+<tr>
+<td>
+    <h2>swtest-discuss</h2>
+
+    <p>I run a mailing list for software testers called <a
+    href="http://lists.topica.com/lists/swtest-discuss/">swtest-discuss</a>.
+    There are a few people there (including me) who are interested in
+    talking about how people do testing for open source projects. I
+    haven't yet found a community of open source testers that cuts
+    across multiple tools/applications.</p>
+
+    <p>If you're interested in sharing your experiences in testing
+    open source software, please consider joining swtest-discuss, at
+    least long enough to see if there's any interest in having an
+    on-going forum on this topic. If you do subscribe, please either
+    send me a private email or introduce yourself to the list so we
+    know you're there.</p>
+
+    <p>Danny R. Faught, <a href="http://tejasconsulting.com/">Tejas
+    Software Consulting</a></p>
+</td>
+</tr>
+
 </table>
 
 </body>
