@@ -18,7 +18,10 @@
 
 package net.grinder.plugin.http;
 
-import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.common.Test;
+import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.plugininterface.PluginThreadContext;
 
 
 /**
@@ -30,13 +33,31 @@ import net.grinder.plugininterface.ThreadCallbacks;
  * methods are called on the bean before they are called on the
  * plugin's ThreadCallbacks object.
  *
- * Not sure whether extending ThreadCallbacks is the right thing to do
- * because the "doTest" method needs to return a boolean. For now,
- * lets not worry too much about this.
- *
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface StringBean extends ThreadCallbacks
+public interface StringBean 
 {
+    /**
+     * This method is executed when the string bean is created. It is
+     * only executed once per thread.
+     */
+    public void initialize(PluginProcessContext pluginProcessContext,
+			   PluginThreadContext pluginThreadContext)
+	throws PluginException;
+    
+    /**
+     * This method is executed at the beginning of evey run.
+     */
+    public void beginRun() throws PluginException;
+
+    /**
+     * This is called for each test.
+     */
+    public void doTest(Test testDefinition) throws PluginException;
+    
+    /**
+     * This method is executed at the end of every run.
+     */  
+    public void endRun() throws PluginException;
 }
