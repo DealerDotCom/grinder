@@ -312,6 +312,9 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     }
   }
 
+  /**
+   * Override to also stop our proxy SSL engine.
+   */
   public void stop() {
     super.stop();
     m_proxySSLEngine.stop();

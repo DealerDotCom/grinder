@@ -141,6 +141,11 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     }
   }
 
+  /**
+   * Check whether this engine is stopped.
+   *
+   * @return <code>true</code> => the engine is stopped.
+   */
   public boolean isStopped() {
     return m_serverSocket.isClosed();
   }
@@ -237,10 +242,22 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     return m_responseColour;
   }
 
+  /**
+   * Wrapper for handling stream threads. Thread is automatically started on
+   * construction. The thread is stopped when the engine is stopped by closing
+   * the associated input stream.
+   */
   protected class StreamThread {
     private final Thread m_thread;
     private final InputStream m_inputStream;
 
+    /**
+     * Constructor. Starts a Thread to run the Runnable.
+     *
+     * @param runnable What to do.
+     * @param name Thread name.
+     * @param inputStream Stream to close when shutting down.
+     */
     public StreamThread(Runnable runnable, String name,
                         InputStream inputStream) {
       m_thread = new Thread(getStreamThreadGroup(), runnable, name);
@@ -249,6 +266,9 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       m_thread.start();
     }
 
+    /**
+     * Close the associated input stream and thus stop the thread.
+     */
     public void stop() {
       try {
         m_inputStream.close();
