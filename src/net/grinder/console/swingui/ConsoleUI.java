@@ -108,6 +108,8 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
   private final String m_stateCapturingString;
   private final String m_stateUnknownString;
 
+  private int m_lastState = -1;
+
   /**
    * Creates a new <code>ConsoleUI</code> instance.
    *
@@ -174,8 +176,10 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	}
       });
 
-    final JButton stateButton = new JButton();
+    final JButton stateButton = new MyJButton();
     stateButton.putClientProperty("hideActionText", Boolean.TRUE);
+    stateButton.setBorderPainted(true);
+    stateButton.setContentAreaFilled(false);
     stateButton.setAction(m_stopAction);
     stateButton.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
     m_stopAction.registerButton(stateButton);
@@ -272,6 +276,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       new StartProcessesGrinderAction(startProcessesHandler),
       new ResetProcessesGrinderAction(resetProcessesHandler),
       new StopProcessesGrinderAction(stopProcessesHandler),
+      new ResetAction(),
       m_startAction,
       m_stopAction,
       new SaveAction(),
@@ -372,10 +377,14 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	toolBar.addSeparator();
       }
       else {
-	final JButton button = new JButton();
+	final JButton button = new MyJButton();
 	button.putClientProperty("hideActionText", Boolean.TRUE);
-	setAction(button, toolKey);
+	button.setContentAreaFilled(false);
 	toolBar.add(button);
+
+	// Must set the action _after_ adding to the toolbar or the
+	// rollover image isn't set correctly.
+	setAction(button, toolKey);
       }
     }
 
@@ -448,11 +457,13 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
    **/
   public final void update() {
 
-    final int state = updateStateLabel();
+    final int newState = updateStateLabel();
 
-    if (state == Model.STATE_STOPPED) {
+    if (newState != m_lastState && newState == Model.STATE_STOPPED) {
       m_stopAction.stopped();
     }
+
+    m_lastState = newState;
   }
 
   /**
@@ -484,6 +495,8 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
   private abstract class MyAction extends AbstractAction {
 
+    public static final String ROLLOVER_ICON = "RolloverIcon";
+
     protected static final String SET_ACTION_PROPERTY = "setAction";
 
     private final String m_key;
@@ -495,11 +508,11 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	
     public MyAction(String key, boolean isDialogAction) {
       super();
-
+      
       m_key = key;
-
+      
       final String label = m_resources.getString(m_key + ".label", false);
-
+      
       if (label != null) {
 	if (isDialogAction) {
 	  putValue(Action.NAME, label + "...");
@@ -510,7 +523,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       }
 
       final String tip = m_resources.getString(m_key + ".tip", false);
-
+      
       if (tip != null) {
 	putValue(Action.SHORT_DESCRIPTION, tip);
       }
@@ -519,6 +532,13 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	    
       if (imageIcon != null) {
 	putValue(Action.SMALL_ICON, imageIcon);
+      }
+
+      final ImageIcon rolloverImageIcon =
+	m_resources.getImageIcon(m_key + ".rollover-image");
+
+      if (rolloverImageIcon != null) {
+	putValue(ROLLOVER_ICON, rolloverImageIcon);
       }
     }
 
@@ -546,13 +566,27 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       }
     }
   }
+    
+  private final class MyJButton extends JButton {
+    
+    public void setAction(Action a) {
+      super.setAction(a);
+
+      final ImageIcon rolloverImageIcon = 
+	(ImageIcon)a.getValue(MyAction.ROLLOVER_ICON);
+
+      if (rolloverImageIcon != null) {
+	setRolloverIcon(rolloverImageIcon);
+      }
+    }
+  }
 
   private final class SaveAction extends MyAction {
 
     private final JFileChooser m_fileChooser = new JFileChooser(new File("."));
 
     SaveAction() {
-      super("save");
+      super("save", true);
 
       m_fileChooser.setDialogTitle(m_resources.getString("save.label"));
       m_fileChooser.setSelectedFile(
@@ -680,14 +714,22 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
 
+  private final class ResetAction extends MyAction {
+    ResetAction() {
+      super("reset");
+    }
+
+    public void actionPerformed(ActionEvent e) {
+      m_model.reset();
+    }
+  }
+
   private final class StartAction extends MyAction {
     StartAction() {
       super("start");
     }
 
     public void actionPerformed(ActionEvent e) {
-
-      m_model.reset();		// Right to do this here?
 
       m_model.start();
 
