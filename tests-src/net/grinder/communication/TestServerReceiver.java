@@ -49,21 +49,21 @@ public class TestServerReceiver extends TestCase {
 
   public void testConstructor() throws Exception {
 
-    final ResourcePool socketSet = new ResourcePool();
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
-    final ServerReceiver serverReceiver = new ServerReceiver(socketSet, 3);
+    final ServerReceiver serverReceiver =
+      new ServerReceiver(acceptor, ConnectionType.CONTROL, 3);
 
     serverReceiver.shutdown();
+    acceptor.shutdown();
   }
 
   public void testWaitForMessage() throws Exception {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
-    final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
-
-    final ServerReceiver serverReceiver = new ServerReceiver(socketSet, 3);
+    final ServerReceiver serverReceiver =
+      new ServerReceiver(acceptor, ConnectionType.CONTROL, 3);
 
     final Socket[] socket = new Socket[5];
 
@@ -76,6 +76,9 @@ public class TestServerReceiver extends TestCase {
 
     // Sleep until we've accepted all connections. Give up after a few
     // seconds.
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
+
     for (int i=0; socketSet.countActive() != 5 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
@@ -136,10 +139,8 @@ public class TestServerReceiver extends TestCase {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
-    final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
-
-    final ServerReceiver serverReceiver = new ServerReceiver(socketSet, 3);
+    final ServerReceiver serverReceiver =
+      new ServerReceiver(acceptor, ConnectionType.CONTROL, 3);
 
     assertEquals(1, acceptor.getThreadGroup().activeCount());
     assertEquals(3, serverReceiver.getThreadGroup().activeCount());
@@ -153,6 +154,9 @@ public class TestServerReceiver extends TestCase {
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
+
     for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
@@ -177,10 +181,8 @@ public class TestServerReceiver extends TestCase {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
-    final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
-
-    final ServerReceiver serverReceiver = new ServerReceiver(socketSet, 5);
+    final ServerReceiver serverReceiver =
+      new ServerReceiver(acceptor, ConnectionType.CONTROL, 5);
 
     assertEquals(1, acceptor.getThreadGroup().activeCount());
     assertEquals(5, serverReceiver.getThreadGroup().activeCount());
@@ -194,6 +196,9 @@ public class TestServerReceiver extends TestCase {
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
+
     for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }

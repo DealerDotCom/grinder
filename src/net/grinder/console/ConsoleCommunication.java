@@ -123,11 +123,8 @@ final class ConsoleCommunication {
       return;
     }
 
-    m_receiver =
-      new ServerReceiver(acceptor.getSocketSet(ConnectionType.REPORT), 5);
-
-    m_sender =
-      new FanOutServerSender(acceptor.getSocketSet(ConnectionType.CONTROL), 3);
+    m_receiver = new ServerReceiver(acceptor, ConnectionType.REPORT, 5);
+    m_sender = new FanOutServerSender(acceptor, ConnectionType.CONTROL, 3);
 
     synchronized (this) {
       m_deaf = false;

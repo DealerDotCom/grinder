@@ -41,12 +41,14 @@ public final class ServerReceiver implements Receiver {
   /**
    * Constructor.
    *
-   * @param acceptedSocketSet Resource pool that contains accepted sockets.
+   * @param acceptor Acceptor.
+   * @param connectionType Connection type.
    * @param numberOfThreads Number of listen threads to use.
    */
-  public ServerReceiver(ResourcePool acceptedSocketSet, int numberOfThreads) {
+  public ServerReceiver(Acceptor acceptor, ConnectionType connectionType,
+                        int numberOfThreads) {
 
-    m_acceptedSocketSet = acceptedSocketSet;
+    m_acceptedSocketSet = acceptor.getSocketSet(connectionType);
 
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
@@ -89,7 +91,6 @@ public final class ServerReceiver implements Receiver {
   public void shutdown() {
 
     m_messageQueue.shutdown();
-    m_acceptedSocketSet.close();
     m_threadPool.stop();
   }
 

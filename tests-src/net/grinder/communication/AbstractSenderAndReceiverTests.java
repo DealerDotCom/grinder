@@ -38,6 +38,7 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
   private final boolean m_messagesNeedInitialising;
 
+  private ConnectionType m_connectionType;
   private Acceptor m_acceptor;
   private Connector m_connector;
 
@@ -66,14 +67,20 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
       final int port = socket.getLocalPort();
       socket.close();
 
-      m_connector = new Connector("localhost", port, ConnectionType.CONTROL);
+      m_connectionType = ConnectionType.CONTROL;
+      m_connector = new Connector("localhost", port, m_connectionType);
       m_acceptor = new Acceptor("localhost", port, 1);
     }
   }
 
-  protected final ResourcePool getAcceptedSocketSet() throws Exception {
+  protected final Acceptor getAcceptor() throws Exception {
     initialiseSockets();
-    return m_acceptor.getSocketSet(ConnectionType.CONTROL);
+    return m_acceptor;
+  }
+
+  protected final ConnectionType getConnectionType() throws Exception {
+    initialiseSockets();
+    return m_connectionType;
   }
 
   protected final Connector getConnector() throws Exception {

@@ -36,13 +36,14 @@ public final class FanOutServerSender extends AbstractFanOutSender {
   /**
    * Constructor.
    *
-   * @param acceptedSocketSet Resource pool that contains accepted sockets.
+   * @param acceptor Acceptor.
+   * @param connectionType Connection type.
    * @param numberOfThreads Number of sender threads to use.
    */
-  public FanOutServerSender(ResourcePool acceptedSocketSet,
+  public FanOutServerSender(Acceptor acceptor, ConnectionType connectionType,
                             int numberOfThreads) {
 
-    this(acceptedSocketSet, new Kernel(numberOfThreads));
+    this(acceptor.getSocketSet(connectionType), new Kernel(numberOfThreads));
   }
 
   /**

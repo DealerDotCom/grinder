@@ -134,7 +134,7 @@ public final class Acceptor {
    * @return A set of sockets, each wrapped in a {@link
    * SocketResource}.
    */
-  public ResourcePool getSocketSet(ConnectionType connectionType) {
+  ResourcePool getSocketSet(ConnectionType connectionType) {
     return m_socketSets[connectionType.toInteger()];
   }
 

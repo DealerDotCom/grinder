@@ -44,11 +44,14 @@ public class TestFanOutServerSenderAndClientReceiver
   protected void setUp() throws Exception {
     super.setUp();
 
-    m_sender = new FanOutServerSender(getAcceptedSocketSet(), 3);
+    m_sender = new FanOutServerSender(getAcceptor(), getConnectionType(), 3);
 
     m_receiver = ClientReceiver.connect(getConnector());
 
-    while (getAcceptedSocketSet().countActive() != 1) {
+    final ResourcePool socketSet =
+      getAcceptor().getSocketSet(getConnectionType());
+    
+    while (socketSet.countActive() != 1) {
       Thread.sleep(10);
     }
   }

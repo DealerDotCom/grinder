@@ -61,6 +61,14 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
   }
 
   /**
+   * Shut down this sender.
+   */
+  public void shutdown() {
+    super.shutdown();
+    getResourcePool().close();
+  }
+
+  /**
    * Return an output stream from a resource.
    *
    * @param resource The resource.

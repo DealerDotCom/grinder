@@ -48,23 +48,21 @@ public class TestFanOutServerSender extends TestCase {
 
   public void testConstructor() throws Exception {
 
-    final ResourcePool socketSet = new ResourcePool();
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final FanOutServerSender serverSender =
-      new FanOutServerSender(socketSet, 3);
+      new FanOutServerSender(acceptor, ConnectionType.CONTROL, 3);
 
     serverSender.shutdown();
+    acceptor.shutdown();
   }
 
   public void testSend() throws Exception {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
-    final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
-
     final FanOutServerSender serverSender =
-      new FanOutServerSender(socketSet, 3);
+      new FanOutServerSender(acceptor, ConnectionType.CONTROL, 3);
 
     final Socket[] socket = new Socket[5];
 
@@ -77,6 +75,9 @@ public class TestFanOutServerSender extends TestCase {
 
     // Sleep until we've accepted all connections. Give up after a few
     // seconds.
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
+
     for (int i=0; socketSet.countActive() != 5 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
@@ -114,11 +115,8 @@ public class TestFanOutServerSender extends TestCase {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
-    final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
-
     final FanOutServerSender serverSender =
-      new FanOutServerSender(socketSet, 3);
+      new FanOutServerSender(acceptor, ConnectionType.CONTROL, 3);
 
     assertEquals(1, acceptor.getThreadGroup().activeCount());
 
@@ -131,6 +129,9 @@ public class TestFanOutServerSender extends TestCase {
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
+
     for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }

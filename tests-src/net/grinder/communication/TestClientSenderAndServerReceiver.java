@@ -41,7 +41,7 @@ public class TestClientSenderAndServerReceiver
   }
 
   private Receiver createReceiver() throws Exception {
-    return new ServerReceiver(getAcceptedSocketSet(), 3);
+    return new ServerReceiver(getAcceptor(), getConnectionType(), 3);
   }
 
   private Sender createSender() throws Exception {
