@@ -1,3 +1,60 @@
+2003-03-01  Philip Aston  <paston@bea.com>
+
+	* The Grinder 3.0-beta7 is released.
+
+	* etc/localpaths.properties: Refer to new WLS installation.
+
+2003-02-28  Philip Aston  <paston@bea.com>
+
+	* CHANGES, TODO: Update documentation.
+
+	* src/net/grinder/console/model/Model.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/communication/RegisterTestsMessage.java, src/net/grinder/console/Console.java:
+	Coalesce test registration messages to reduce strain on console.
+
+2003-02-27  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/GrinderThread.java:
+	Fix handling of Sleeper.Shutdown exceptions.
+
+	* src/net/grinder/engine/process/ProcessContext.java: Formatting.
+
+	* src/net/grinder/statistics/TestStatisticsMap.java: Fix typo.
+
+	* src/net/grinder/console/model/Model.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
+	More rigourous synchronisation for TestStatisticsMap.
+
+2003-02-26  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	Don't disable the scheduled reports until the threads have completed.
+	Previously the scheduled reports were turned off, the threads shutdown
+	over several seconds, then the final report was sent. This caused a
+	"burst" of data to be recorded by the console.
+
+	* src/net/grinder/engine/process/ProcessContext.java: Formatting.
+
+	* tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java:
+	Fix console synchronisation issue that was causing NPE's.
+
+	* src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ScriptContextImplementation.java:
+	Comment.
+
+	* src/net/grinder/console/model/SampleListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/SwingDispatchedModelListener.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelListener.java, src/net/grinder/console/model/ModelTestIndex.java, src/net/grinder/console/model/ProcessStatusSet.java, src/net/grinder/console/model/ProcessStatusSetListener.java, src/net/grinder/console/model/SampleAccumulator.java, src/net/grinder/console/model/ConsoleProperties.java:
+	Fix console synchronisation issue that was causing NPE's.
+
+2003-02-25  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/statistics/TestStatisticsFactory.java:
+	Remove unnecessary synchronisation.
+
+2003-02-19  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/scripts-xhtml.xml: Fix link.
+
+2003-02-15  Philip Aston  <paston@bea.com>
+
+	* build.xml: Next is beta 7.
+
 2003-02-15  Philip Aston  <paston@bea.com>
 
 	* The Grinder 3.0-beta6 is released.
