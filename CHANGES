@@ -1,10 +1,13 @@
 Grinder 2.7.2
 -------------
 
-   Console no longer reads grinder.properties:
+   Console enhancements:
+    - Console no longer reads grinder.properties:
     - New options dialog to set communication details.
     - Console responds dynamically new tests registered by Grinder
       processes.
+    - Can no longer set ignore samples to 0, doing this used to cause
+      incorrect triggering.
 
    Miscellaneous engine enhancements:
     - Sleeping processes can now be interrupted by the Console, so
