@@ -539,7 +539,6 @@ public class ConsoleUI implements ModelListener
 
     private class OptionsAction extends MyAction
     {
-	private final JDialog m_dialog;
 	private final JOptionPane m_optionPane;
 	private final JTextField m_multicastAddress = new JTextField();
 	private final IntegerField m_consolePort =
@@ -621,16 +620,22 @@ public class ConsoleUI implements ModelListener
 					   JOptionPane.YES_NO_OPTION,
 					   null,
 					   m_options);
-
-	    m_dialog = m_optionPane.createDialog(m_frame,
-						 m_resources.getString(
-						     "options.label"));
-	    m_dialog.pack();
-	    m_dialog.setLocationRelativeTo(m_frame);
 	}
 
         public void actionPerformed(ActionEvent event)
 	{
+	    // Good grief. We have to create a brand new dialog each
+	    // time otherwise the button we pressed to last close the
+	    // dialog goes "deaf", leaving the user with no choice but
+	    // to chose a different option. I believe this to be a
+	    // Swing bug.
+	    final JDialog dialog =
+		m_optionPane.createDialog(m_frame,
+					  m_resources.getString(
+					      "options.label"));
+	    dialog.pack();
+	    dialog.setLocationRelativeTo(m_frame);
+
 	    final ConsoleProperties properties =
 		new ConsoleProperties(m_model.getProperties());
 
@@ -641,7 +646,9 @@ public class ConsoleUI implements ModelListener
 
 	    m_samplingControlPanel.set(properties);
 
-	    m_dialog.show();
+	    m_optionPane.setValue(null);
+
+	    dialog.setVisible(true);
 
 	    final Object value = m_optionPane.getValue();
 
