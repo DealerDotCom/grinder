@@ -1,6 +1,11 @@
 2005-03-22  Philip Aston  <philipa@mail.com>
 
-	* The Grinder 3.0-beta25 is released.
+	* tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java:
+	Test ScriptStatisticsImplementation.
+
+	* src/net/grinder/engine/process/ScriptStatisticsImplementation.java:
+	Reset current test time appropriately.
+	No need to guard against data writer being null.
 
 	* CHANGES, ChangeLog, TODO, build.xml, src/documentation/content/xdocs/g3/scripts.xml:
 	Documentation updates.
