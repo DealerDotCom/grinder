@@ -163,21 +163,13 @@ final class FileTree {
             final FileTreeModel.FileNode oldFileNodeForBuffer =
               m_fileTreeModel.findFileNode(buffer);
 
-            FileTreeModel.Node node = m_fileTreeModel.findNode(file);
+            // Find a node, if its in our directory structure. This
+            // may cause parts of the tree to be refreshed.
+            final FileTreeModel.Node node = m_fileTreeModel.findNode(file);
 
             if (oldFileNodeForBuffer != null &&
                 !oldFileNodeForBuffer.equals(node)) {
               oldFileNodeForBuffer.setBuffer(null);
-            }
-
-            if (node == null) {
-              // Couldn't find node. Lets refresh the tree and try again.
-              m_fileTreeModel.refresh();
-
-              node = m_fileTreeModel.findNode(file);
-
-              // If we still can't find a node, its probably because
-              // the file is outside our tree. Oh well.
             }
 
             if (node instanceof FileTreeModel.FileNode) {
@@ -185,7 +177,6 @@ final class FileTree {
                 (FileTreeModel.FileNode)node;
 
               fileNode.setBuffer(buffer);
-
               m_tree.scrollPathToVisible(fileNode.getPath());
             }
           }

@@ -125,13 +125,27 @@ final class FileTreeModel implements TreeModel {
     // Maybe its not been expanded. Lets try harder.
     final File[] paths = fileToArrayOfParentPaths(file);
 
+    boolean treeStructureChanged = false;
+
     for (int i = 0; i < paths.length - 1; ++i) {
       final Node node = (Node)m_filesToNodes.get(paths[i]);
 
       if (node instanceof DirectoryNode) {
         final DirectoryNode directoryNode = (DirectoryNode)node;
-        directoryNode.getChildForFile(paths[i + 1]);
+
+        if (directoryNode.getChildForFile(paths[i + 1]) == null) {
+          directoryNode.refresh();
+          treeStructureChanged = true;
+
+          if (directoryNode.getChildForFile(paths[i + 1]) == null) {
+            return null;
+          }
+        }
       }
+    }
+
+    if (treeStructureChanged) {
+      fireTreeStructureChanged();
     }
 
     return (Node)m_filesToNodes.get(file);
