@@ -71,8 +71,7 @@ public class TestHTTPPluginTCPProxyFilter extends TestCase
 
     protected void setUp() throws Exception
     {
-	m_filter = new HTTPPluginTCPProxyFilter();
-	m_filter.setOutputPrintWriter(m_filterPrintWriter);
+	m_filter = new HTTPPluginTCPProxyFilter(m_filterPrintWriter);
     }
 
     public void testSimpleGet() throws Exception

@@ -137,7 +137,7 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 	if (sslSocketFactory != null) {
 	    m_proxySSLEngine =
 		new ProxySSLEngine(sslSocketFactory, requestFilter,
-				   responseFilter, useColour);
+				   responseFilter, outputWriter, useColour);
 	    new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine").start();
 	}
 	else {
@@ -274,10 +274,11 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 	ProxySSLEngine(TCPProxySocketFactory socketFactory,
 		       TCPProxyFilter requestFilter,
 		       TCPProxyFilter responseFilter,
+		       PrintWriter outputWriter,
 		       boolean useColour) 
 	    throws IOException
 	{
-	    super(socketFactory, requestFilter, responseFilter,
+	    super(socketFactory, requestFilter, responseFilter, outputWriter,
 		  new ConnectionDetails(HTTPProxyTCPProxyEngine.this.
 					getConnectionDetails().getLocalHost(),
 					0, "", -1, true),
