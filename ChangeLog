@@ -1,7 +1,8 @@
-2001-10-25  Philip Aston  <paston@bea.com>
+2001-10-26  Philip Aston  <paston@bea.com>
 
-	* src/net/grinder/util/Serialiser.java, tests-src/net/grinder/util/TestSerialiser.java:
-	Efficient serialisation for small positive longs.
+	* src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugininterface/PluginProcessContext.java:
+	Let plugin find out whether to report times or not.
+	Only report mean time to first byte if we're reporting times.
 
 2001-10-24  Philip Aston  <paston@bea.com>
 
