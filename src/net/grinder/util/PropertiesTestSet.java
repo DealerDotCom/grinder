@@ -65,6 +65,11 @@ class PropertiesTestSet implements TestSetPlugin
 	{
 	    return m_parameters;
 	}
+
+	public String toString() 
+	{
+	    return "Test " + getTestNumber();
+	}
     }
 
     private final Map m_tests = new HashMap();

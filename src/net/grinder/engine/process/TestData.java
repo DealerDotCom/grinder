@@ -72,6 +72,6 @@ class TestData implements TestDefinition
 
     public String toString() 
     {
-	return "Test " + getTestNumber();
+	return m_testDefinition.toString();
     }
 }
