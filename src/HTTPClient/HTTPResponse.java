@@ -28,6 +28,11 @@
  *
  *  http://www.innovation.ch/java/HTTPClient/ 
  *
+ * This file contains modifications for use with "The Grinder"
+ * (http://grinder.sourceforge.net) under the terms of the LGPL.
+ * Modifications made by Philip Aston on 9th July 2001. They are
+ * marked below with the comment "GRINDER MODIFICATION". 
+ *
  */
 
 package HTTPClient;
@@ -535,6 +540,13 @@ public class HTTPResponse implements HTTPClientModuleConstants
 	throws IOException, ModuleException, ParseException
     {
 	String ct = getHeader("Content-Type");
+
+	/** ++GRINDER MODIFICATION **/
+	if (ct == null) {
+	    return new String(getData(), "ISO-8859-1");
+	}
+	/** --GRINDER MODIFICATION **/
+	
 	if (ct == null  ||  !ct.toLowerCase().startsWith("text/"))
 	    throw new IOException("Content-Type `" + ct + "' is not a text type");
 
