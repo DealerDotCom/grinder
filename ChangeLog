@@ -1,3 +1,17 @@
+2003-10-27  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/script/overview.html, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/script/Grinder.java, src/net/grinder/script/Statistics.java:
+	Fix broken javadoc.
+
+	* examples/scriptlifecycle.py:
+	Its good form to explicitly import "grinder".
+
+	* xdoc/documentation.xweb, xdoc/g3/faq-xhtml.xml, xdoc/g3/http-plugin-xhtml.xml, xdoc/g3/script-gallery-xhtml.xml, xdoc/g3/scripts-xhtml.xml, build.xml:
+	Hack an index bar link to the script API.
+
+	* examples/scriptlifecycle.py, xdoc/g3/script-gallery-xhtml.xml:
+	Script life cycle example.
+
 2003-10-08  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta11 is released.
