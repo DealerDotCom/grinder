@@ -33,7 +33,7 @@ import net.grinder.common.GrinderException;
 
 
 /**
- * An ordered collection of {@link ExpressionViews}.
+ * An ordered collection of {@link ExpressionView}.
  *
  * @author Philip Aston
  * @version $Revision$
