@@ -18,6 +18,8 @@ it too :-). The list is roughly in priority order.]
   large outputs with posts? Also, consider having a filter instance
   pair per connection.
 
+  TCPSniffer and HTTP plugin should be able to work through proxies.
+
   Update HTTPClient to support "mean time to first byte".
 
   Write more JUnit tests.
