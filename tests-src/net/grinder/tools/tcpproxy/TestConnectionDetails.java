@@ -34,8 +34,14 @@ import junit.framework.TestCase;
  */
 public class TestConnectionDetails extends TestCase {
 
-  public TestConnectionDetails(String name) {
-    super(name);
+  public void testConstructor() throws Exception {
+    try {
+      new ConnectionDetails(new EndPoint("one", 4789),
+                            new EndPoint("one", 4789), true);
+      fail("Expected IllegalArgumentException");
+    }
+    catch (IllegalArgumentException e) {
+    }
   }
 
   public void testAccessors() throws Exception {
@@ -80,6 +86,13 @@ public class TestConnectionDetails extends TestCase {
                             new EndPoint("two", 121), true);
 
     assertEquals("https://two:121", connectionDetails.getURLBase("http"));
+
+    final ConnectionDetails cd2 =
+      new ConnectionDetails(new EndPoint("here", 65535),
+                            new EndPoint("there", 32233),
+                            false);
+
+    assertEquals("xx://there:32233", cd2.getURLBase("xx"));
   }
 
   public void testEquality() throws Exception {
@@ -99,9 +112,11 @@ public class TestConnectionDetails extends TestCase {
     assertEquals(connectionDetails[0], connectionDetails[0]);
     assertEquals(connectionDetails[0], connectionDetails[1]);
     assertEquals(connectionDetails[1], connectionDetails[0]);
-    assertTrue(!connectionDetails[0].equals(connectionDetails[2]));
-    assertTrue(!connectionDetails[1].equals(connectionDetails[3]));
-    assertTrue(!connectionDetails[1].equals(connectionDetails[4]));
+    assertFalse(connectionDetails[0].equals(connectionDetails[2]));
+    assertFalse(connectionDetails[1].equals(connectionDetails[3]));
+    assertFalse(connectionDetails[1].equals(connectionDetails[4]));
+
+    assertFalse(connectionDetails[0].equals(this));
   }
 
   public void testGetOtherEnd() throws Exception {
@@ -110,7 +125,7 @@ public class TestConnectionDetails extends TestCase {
                             new EndPoint("blurgh", 9999), true);
 
     final ConnectionDetails otherEnd = connectionDetails.getOtherEnd();
-	
+
     assertEquals(connectionDetails.getLocalEndPoint(),
                  otherEnd.getRemoteEndPoint());
 
