@@ -25,6 +25,8 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 import net.grinder.engine.*;
+import net.grinder.util.GrinderException;
+import net.grinder.util.GrinderProperties;
 
 /**
  * This is the entry point of The Grinder Console.
@@ -32,21 +34,32 @@ import net.grinder.engine.*;
  * @author Paco Gomez
  * @version $Revision$
  */
-public class Console extends PropsLoader
-                     implements ActionListener{
-                        
-    public static void main(String args[]){
+public class Console implements ActionListener
+{       
+    private GrinderProperties m_properties = null;
+    private GraphStatInfo _gsi[] = null;
+    private StatInfo _si[] = null;
+    //ms between console refreshes
+    private int _interval = 500;     
+                 
+    public static void main(String args[]) throws Exception {
         Console c = new Console();
         c.run();
     }
     
-    public void run(){
-        loadProperties();
+    public void run() throws GrinderException {
+	m_properties = GrinderProperties.getProperties();
+
         String s = new java.util.Date().toString() + ": ";
         System.out.println(s + "Grinder Console started.");        
         createFrame();        
-        MsgReader mr = new MsgReader(_si);
-        
+        MsgReader mr =
+	    new MsgReader(_si,
+			  m_properties.getMandatoryProperty(
+			      "grinder.console.multicastAddress"),
+			  m_properties.getMandatoryInt(
+			      "grinder.console.multicastPort"));
+	
         while(true){
             try{
                 Thread.sleep(_interval);
@@ -80,7 +93,7 @@ public class Console extends PropsLoader
         
 	    StringTokenizer st;
 	    
-	    st = new StringTokenizer(System.getProperty("grinder.plugin.methods"), "\t\n\r,");
+	    st = new StringTokenizer(m_properties.getProperty("grinder.plugin.methods"), "\t\n\r,");
 	    int n = st.countTokens();
 	    
 	    //be aware of the index!!!
@@ -112,9 +125,9 @@ public class Console extends PropsLoader
         try{
             DatagramSocket socket = new DatagramSocket();
             InetAddress groupAddr = InetAddress.getByName(
-                System.getProperty("grinder.multicastAddress"));
+                m_properties.getProperty("grinder.multicastAddress"));
             DatagramPacket packet = new DatagramPacket(outbuf, outbuf.length, groupAddr, 
-                Integer.getInteger("grinder.multicastPort").intValue());
+                m_properties.getMandatoryInt("grinder.multicastPort"));
 
             socket.send(packet);
             System.out.println("Grinder started at " + new Date());
@@ -129,9 +142,5 @@ public class Console extends PropsLoader
             e.printStackTrace(System.err);
         }
         
-    }        
-    protected GraphStatInfo _gsi[] = null;
-    public StatInfo _si[] = null;
-    //ms between console refreshes
-    protected int _interval = 500;     
+    }
 }

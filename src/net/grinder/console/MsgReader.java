@@ -29,8 +29,14 @@ import java.util.*;
  * @version $Revision$
  */
 public class MsgReader implements java.lang.Runnable{
-        
-  public MsgReader(StatInfo[] si){
+
+    private String m_address;
+    private int m_port;
+    
+  public MsgReader(StatInfo[] si, String address, int port) {
+      m_address = address;
+      m_port = port;
+      
     _si = si;
     Thread t = new Thread(this);
     t.start();
@@ -41,10 +47,8 @@ public class MsgReader implements java.lang.Runnable{
        
     try{
             
-      MulticastSocket msocket = new MulticastSocket(
-          Integer.getInteger("grinder.console.multicastPort").intValue());
-      InetAddress group = InetAddress.getByName(
-          System.getProperty("grinder.console.multicastAddress"));
+      MulticastSocket msocket = new MulticastSocket(m_port);
+      InetAddress group = InetAddress.getByName(m_address);
       msocket.joinGroup(group);
             
       DatagramPacket packet = new DatagramPacket(inbuf, inbuf.length);
