@@ -1,5 +1,8 @@
 2001-09-29  Philip Aston  <paston@bea.com>
 
+	* src/net/grinder/cOmmunication/RegisterTestsMessage.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/Model.java, src/net/grinder/engine/process/GrinderProcess.java:
+	RegisterTestsMessage - first step towards a dynamic console.
+
 	* src/net/grinder/Grinder.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/util/FilenameFactory.java, src/net/grinder/util/ProcessContextImplementation.java:
 	Coalesce hostID and processID into a single grinderID String.
 
