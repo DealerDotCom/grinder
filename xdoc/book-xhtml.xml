@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html>
+<body>
+
+<table>
+<td>
+    <h1>J2EE Performance Testing</h1>
+
+    <p>I'm pleased to announce the availability of <em><a
+    href="http://www.amazon.com/exec/obidos/ASIN/1904284000/qid=1024655766/sr=8-3/ref=sr_8_3/102-8494684-1874510">J2EE
+    Performance Testing with BEA WebLogic Server</a></em> by Peter
+    Zadrozny, Phil Aston and Ted Osborne, published by Expert Press.
+    </p>
+
+    <p>This book uses The Grinder throughout, and indeed was
+    responsible for driving the development of many of The Grinder's
+    features. The book shows how to performance test complete J2EE
+    applications and how to explore key performance issues surrounding
+    the most popular J2EE APIs. The performance tests are carried out
+    using BEA WebLogic Server&#8482;, but are generally applicable to
+    any J2EE application server.</p>
+
+    <p>Most importantly, the book contains in-depth coverage of The
+    Grinder including a full user guide and case studies showing how
+    to apply The Grinder to real world problems.</p>
+</td>
+<td>&#160;</td>
+<td valign="top">
+    <img align="right" src="images/book-cover.jpg" alt="The Book"/>
+</td>
+</table>
+
+</body>
+</html>

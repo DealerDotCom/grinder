@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html>
+<body>
+
+<h1>Frequently Asked Questions</h1>
+
+<toc/>
+
+<h3><a name="name">So its called "<em>The</em> Grinder" then?</a></h3>
+
+<p>Yes.</p>
+
+<h3><a name="strin-beans">How do I simulate different users?</a></h3>
+
+<p>You probably want to use a <a
+href="../manual/http-plugin.html#string-bean">String Bean</a>.</p>
+
+<h3><a name="multicast">What do I need to do to set up
+multicast?</a></h3>
+
+<p>You must set up multicast if you want to use the console with The
+Grinder. It is used to send signals from the Console to the Grinder
+processes (start, stop).</p>
+
+<p>Multicast addresses lie in the range <code>224.0.0.0</code> to
+<code>239.255.255.255</code>. Ports lie in the range <code>0</code> to
+<code>65535</code>. You should ensure that the address and ports you
+chose does not clash with other applications running on your LAN. The
+example files uses the address <code>228.1.1.1:1234</code>:</p>
+
+<blockquote>
+<pre>
+grinder.receiveConsoleSignals=true
+grinder.grinderAddress=228.1.1.1
+grinder.grinderPort=1234
+</pre>
+</blockquote>
+
+<p>For most modern TCP stacks, e.g Windows 95/98/NT, Linux,
+multicast works out of the box.</p>
+
+<p>Under Linux, you may also need to set up the routing table.
+Try:</p>
+
+<blockquote>
+<pre>
+route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
+</pre>
+</blockquote>
+
+<p>Some Windows VPN clients (e.g Bay Networks Extranet) interfere
+with multicast. You may need to disable them.</p>
+
+<h3><a name="multicast-w2k">What do I need to do to set up multicast
+under Windows 2000?</a></h3>
+
+<p>With a stand alone Windows 2000 machine, you might experience
+similar grief to myself. I found that I could only get multicast to
+work if my LAN NIC had a carrier and the MS loop-back adapter is not
+installed (or disabled). The following links contain experiences that
+tally with mine:</p>
+
+<blockquote><a
+href="http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html">
+http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html</a>
+<a
+href="http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html">
+http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html</a>
+<a
+href="http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html">
+http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html</a>
+</blockquote>
+
+<p>The last of these says:</p>
+
+<blockquote><em>
+ I have been looking for a solution for this problem a long time
+without success :-( I found several dummy loop-back IP stacks but none
+that supports multicast. The solution I have been using is to bring
+along a tiny hub and connect my laptop to that hub when doing demos.
+Windows is a bit stupid in the way that it only checks if it has a
+carrier.
+</em></blockquote>
+
+<p>I now use a slightly cheaper/lighter solution; namely I have
+cropped a network cable short and twisted my own physical loop-back
+adapter. Needless to say, if anyone figures out how to get multicast
+working with a stand alone W2K machine, I'm more than interested.</p>
+
+<h3><a name="grinder-vs-loadrunner">How does The Grinder stack up with
+a commercial tool like Mercury Interactive's
+LoadRunner&#8482;?</a></h3>
+
+<p>Here is an edited version of Tom Braverman's (<a
+href="mailto:tom.braverman@bea.com">tom.braverman@bea.com</a>) post to
+<a href="mailto:grinder-use@lists.sf.net">grinder-use</a>.</p>
+
+<blockquote>
+A few reasons:
+<ul>
+<li>The Grinder is lightweight
+
+<p>Compared to setting up LoadRunner or some other full featured
+tools, The Grinder is trivial to install and get running.</p>
+</li>
+
+<li>The Grinder is a <em>programmer's load tester</em>
+
+<p>Too often, programmers defer load testing to some other group
+(e.g., QA) and don't test their own components for scalability. The
+Grinder is designed for people who understand the code that they're
+hitting - it's not just a "black box" with a set of associated
+response times.</p>
+
+<p>Since tests can be coded - and not simply scripted, programmers get
+to test interior tiers of their application and not just response time
+via the user interface.</p>
+</li>
+
+<li>The Grinder is free
+
+<p>I'm a consulting professional and I have to come up with solutions
+to deadlocks and slowdowns. Sometimes I only have hours to recreate a
+problem and then attempt to resolve it. I can't count on my client
+having a given load testing tool and many (most?) development teams
+don't have any such tool (they defer this type of testing to QA as
+mentioned above). I can bring The Grinder in and set it up and apply
+load quite quickly.</p>
+</li>
+</ul>
+
+<p>Summarizing: I don't try and persuade my clients that The
+Grinder is a replacement for LoadRunner, etc. I tell them that The
+Grinder is for use by the developers and that they'll still want
+the QA team to generate scalability metrics using LoadRunner or
+some other tool approved for the purpose by management.</p>
+
+<p>Story: One client was attempting to determine scalability based
+on LoadRunner. The LoadRunner team - with no understanding at all
+of the app - was telling them that some pages were giving response
+times of 30 seconds. The project manager knew this was patent BS
+since he could hit the enter key on his page and only count to 3 or
+4 before the page displayed. The client spent many resource days
+attempting to understand LoadRunner numbers. Within a few hours,
+The Grinder was up and running and reporting numbers that appeared
+to track with the user experience. The Grinder became the gold
+standard that the client used to measure LoadRunner.</p>
+</blockquote>
+
+<p>Its worth adding to this that many companies <em>are</em> using The
+Grinder for production load testing.</p>
+
+<h3><a name="multiple-scripts">Can I run different test scripts against
+the same console?</a></h3>
+
+<p>Yes.</p>
+
+<p>The console receives reports and updates the graph based on test
+number. Thus it is possible to have different agent processes
+running scripts with different test numbers (e.g. one process running
+tests 1 to 5 and another running tests 6 to 10)., reporting to the
+same console.</p>
+
+<h3><a name="use-the-tcpsniffer">My server works fine with a browser but
+has errors when I use the HTTP Plugin?</a></h3>
+
+<p>This is probably down to one of the following:</p>
+
+<ul>
+<li><p>Bugs in your server code. Particularly, those due to the way it
+handles multiple concurrent requests. Don't be disheartened, you did
+good; finding bugs like this is a key reason to use The
+Grinder.</p></li>
+
+<li>Differences between the HTTP requests that the browser uses and
+those that The Grinder sends.</li>
+
+</ul>
+
+<p>The HTTP Plugin sends requests that will have minor differences
+between those that a browser send, but which rarely affect server
+behaviour. Its worth knowing how to examine the differences with the
+TCPSniffer. First <a href="tcpsniffer.html#http-proxy">set the TCP
+Sniffer as a browser proxy</a> and record the output to a file.
+Secondly set the TCP Sniffer up in stand alone mode and alter your
+<code>grinder.properties</code> so that all requests go via the
+TCPSniffer; again record the output to a file. Now grab a coffee and
+compare.</p>
+
+<p>If you are testing against multiple servers you will need to use
+multiple TCP Sniffers running on different ports. The Grinder doesn't
+(yet) support sending requests via an HTTP proxy.</p>
+
+
+<h3><a name="tcpsniffer-colour-codes">What are all those funny ^[[31
+characters in the TCPSniffer output?</a></h3>
+
+<p>Did you use the <code>-colour</code> switch? If so, the TCPSniffer
+generates escape codes which work on ANSI compliant terminals and look
+very pretty.</p>
+
+<p>For those of you on Windows platforms, this <em>doesn't work</em>
+with the <code>CMD.EXE</code> window unless you're using <a
+href="http://cygwin.com">Cygwin</a>. (Of course, if you're using
+Cygwin you'd use <code>rxvt</code> in preference :-)).</p>
+
+<h3><a name="negative-times">I've seen The Grinder reports negative
+transaction times?!</a></h3>
+
+<p>Are you running Linux kernel 2.2.18? Mikael Suokas reports:</p>
+
+<blockquote>
+
+<p>In some load situations, on some hardware, older Linux kernels can
+generate system times that jump backwards. I have experienced this
+problem on one machine (Intel Pentium/150, 128M RAM, Adaptec AHA-2940,
+SCSI disks) running the stock Red Hat Linux 7.0 kernel (2.2.16).</p>
+
+<p>The Grinder occasionally reported negative response times in the
+-900 to -700 ms range whenever the load became high. Interestingly,
+the same OS + kernel version on several other machines never showed
+these negative response times. The problem was not Grinder or Java
+specific: a C program polling gettimeofday() also showed system time
+jumping backwards.</p>
+
+<p>Upgrading to kernel 2.2.19 fixed this issue for me. Since the
+release notes for Linux 2.2.18 mention time keeping locking fixes, I
+don't think that was a coincidence.</p>
+
+<p>Of course, you should upgrade any 2.2.x kernel to 2.2.19 anyway,
+because because of the many security fixes.</p>
+
+</blockquote>
+
+</body>
+</html>
+

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html>
+<body>
+
+    <h1>Support</h1>
+  
+    <p>Requests for help should be send to <a
+    href="mailto:grinder-use@lists.sourceforge.net">grinder-use@lists.sourceforge.net</a>.</p>
+
+    <p><a
+    href="mailto:grinder-announce@lists.sourceforge.net">grinder-announce@lists.sourceforge.net</a>
+    is a low-volume mailing list which is used to announce new
+    releases and other items of interest to users of The Grinder.</p>
+
+    <p>Please contribute bug fixes and enhancements to <a
+    href="mailto:grinder-development@lists.sourceforge.net">grinder-development@lists.sourceforge.net</a>.</p>
+
+    <p>Searchable archives of these mailing lists can be found on <a
+    href="http://www.sourceforge.net/projects/grinder">SourceForge.net</a></p>.
+
+    <br/>
+
+    <p><strong><em>Remember - The Grinder is free software. No one is
+    under any obligation to fix your problem. If all else fails, you
+    have the source.</em></strong></p>
+
+</body>
+</html>

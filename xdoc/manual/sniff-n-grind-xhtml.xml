@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html>
+<body>
+<h1>The Sniff 'n' Grind web application</h1>
+
+The 
+
+<h1><a id="section-2." name="section-2.">Use flow through the web
+app</a></h1>
+
+<h2><a id="section-2.1." name="section-2.1.">Sniffer setup</a></h2>
+
+The only information you need to give to the sniffer, is the first
+web page of your test, so in the setup page, enter the starting
+url; this is usually the front page of the application you're
+testing. Only http or https are currently supported, you need to
+include the protocol in the url. Click on the button to go to... 
+
+<h2><a id="section-2.2." name="section-2.2.">start sniffer</a></h2>
+
+This page tells you what you need to change your browser proxy
+settings to. You need to so this before clicking on the link to
+start the page, otherwise your requests will go through the proxy
+you normally use and the sniffer won't pick them up. Once you've
+set the proxy, click on the "Click here to go to..." link, and the
+start url will be returned in a new window. 
+
+<p>&gt;***DO NOT CLOSE THE SNIFFER WINDOW! ***&lt;</p>
+
+<p>If you do that you will not be able to end the test and get your
+results.</p>
+
+<p>In order not to be a resource hog, the sniffer proxy process
+will timeout after a given number of seconds (configurable via the
+web.xml), so if you don't do anything for a while, you may find
+your proxy isn't there any more...</p>
+
+<p>When you've finshed the test, close the test window and rest
+your browser proxy to it's original settings (you DID note down
+those settings, didn't you?) and then click on the "stop" button.
+You will be taken to...</p>
+
+<h2><a id="section-2.3." name="section-2.3.">sniffer
+results</a></h2>
+
+The sniffer generates a number of files. As a minimum there are
+two: httpsniffer.err - which contains the initial startup
+information as well as any runtime errors that might have occured. 
+
+<p>httpsniffer.out contains the details of the test(s). If you wish
+to run the test manually, you need to copy these into your
+grinder.properties file and run the grinder in the normal way. You
+will also need to cut and paste the various
+http-plugin-sniffer-post files, if any, keeping their names
+correct.</p>
+
+<p>If you instead want to run the grinder right now, with your
+sniffed results, then click on the click and go to...</p>
+
+<h2><a id="section-2.4." name="section-2.4.">grinder setup</a></h2>
+
+Despite, or perhaps because of, the vast, bewildering array of
+properties that can be set to control a grinder session, the
+web-app (in its current incarnation) only allows you to set the
+numbers of processes, threads and cycles from within the browser.
+These default to one of each and have maximum settings (currently
+hardcoded) of 5 processes, 25 threads and 50 cycles. 
+
+<p>The reset button resets the values in the form (as you'd expect)
+and "Grind me, baby!" does what it says, leading to...</p>
+
+<h2><a id="section-2.5." name="section-2.5.">wait</a></h2>
+
+The patience page. If I was a real 31337 h4x0r d00d (tm) I'd've
+written some kewl applet which would keep you entertained with
+graphical and highly amusing pr0n animations to keep you
+entertained while sneakily querying the server for whether the
+grinder has finished. However, I'm not and so you've got a rather
+dull page with a 5 second refresh on it and a note saying, "Wait." 
+
+<h2><a id="section-2.6." name="section-2.6.">grinder
+results</a></h2>
+
+The results page simply presnts the contents of the files in the
+log directory (so if you've used some huge number of threads and
+cycles, this page will be BIG) and gives you the options to re-run
+the grinder against the same test, but with different properties,
+or to record another test. 
+
+<h2><a id="section-2.7." name="section-2.7.">the end</a></h2>
+
+And that's it! 
+
+<p>I've deliberately kept things simple - if you want more
+complicated web pages: you've got the source, away you go!</p>
+
+<h1><a id="section-3." name="section-3.">Variations</a></h1>
+
+<h3><a id="section-3.1.1." name="section-3.1.1.">SSL</a></h3>
+
+If you specify a certificate in the web.xml file, and a secure
+starting url (an https rather than http one) then the sniffer proxy
+web-app will let you sniff and grind your ssl-using web-app. The
+only difference you'll notice is that you will be asked to accept
+an untrusted certificate from the server. This is because the
+web-app uses the cert you give it as a server cert when you connect
+to it and as a client cert when it connects to your web-app. So
+you'd better make sure that it's one your app will accept! 
+
+<h1><a id="section-4." name="section-4.">Technical gubbins</a></h1>
+
+In order to allow the webapp to serve multiple clients at once (as
+a good servlet-based system should) it relies upon two things:
+firstly it runs the TCPSniffer and Grinder in a separate directory
+for each user (the algorithm for generating the directory name
+guarantees that no two users will get the same directory for the
+lifetime of the JVM, and is the same used by <a
+href="http://java.io.File">java.io.File</a>/ for generating random
+filenames). Secondly it uses a singleton to assign ports for the
+proxy's ServerSockets, allocating ports out of a range specified in
+the web.xml; while a port is currently in use, nobody else will be
+given it. In order to ensure that ports can not be held onto
+indefinitely, they are set to timeout after an interval set in the
+web.xml. The port manager singleton checks both whether it has any
+unallocated ports and whether any have timed out before being
+explicitly freed. 
+
+<h4><a id="section-4.1.1.1." name="section-4.1.1.1.">TODO</a></h4>
+
+There are still some things that should be done, even in such a
+simple app. Some things that spring to mind (in no particular
+order) are: 
+
+<h2><a id="section-4.2." name="section-4.2.">validation of start
+url</a></h2>
+
+Validate the starting URL, to make sure that the test is actually
+recordable 
+
+<h2><a id="section-4.3." name="section-4.3.">admin interface to set
+timeouts and grinder defaults</a></h2>
+
+Currently propereties can only be set in the web.xml, so changing
+timeouts and so on requires a restart of the server. 
+
+<h2><a id="section-4.4." name="section-4.4.">upload of
+grinder.properties</a></h2>
+
+Allow the running of previously recordable tests. 
+
+<h2><a id="section-4.5." name="section-4.5.">maximum values in
+web.xml</a></h2>
+
+Take the maxima for threads etc out of the servlet and put them
+where they should be.
+</body>
+</html>
+
