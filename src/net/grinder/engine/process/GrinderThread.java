@@ -76,6 +76,8 @@ class GrinderThread implements java.lang.Runnable
      * generate context sensitive log messages. */
     private TestData m_currentTestData = null;
 
+    private StringBuffer m_scratchBuffer = new StringBuffer();
+
     /**
      * The constructor.
      */        
@@ -223,7 +225,8 @@ class GrinderThread implements java.lang.Runnable
 		    }
 
 		    if (m_dataPrintWriter != null) {
-			final StringBuffer logLine = new StringBuffer();
+			m_scratchBuffer.setLength(0);
+			final StringBuffer logLine = m_scratchBuffer;
 
 			logLine.append(m_context.getThreadID());
 			logLine.append(", ");
@@ -327,28 +330,6 @@ class GrinderThread implements java.lang.Runnable
     TestData getCurrentTestData() 
     {
 	return m_currentTestData;
-    }
-
-    private String formatMessage(String message) 
-    {
-	final StringBuffer buffer = new StringBuffer();
-	
-	buffer.append("(thread ");
-	buffer.append(m_context.getThreadID());
-
-	if (m_currentCycle >= 0) {
-	    buffer.append(" cycle " + m_currentCycle);
-	}
-	
-	if (m_currentTestData != null) {
-	    buffer.append(" test " +
-			  m_currentTestData.getTest().getTestNumber());
-	}
-
-	buffer.append(") ");
-	buffer.append(message);
-
-	return buffer.toString();
     }
 
     private static synchronized void incrementThreadCount() 

@@ -41,9 +41,38 @@ import net.grinder.util.GrinderProperties;
  */
 public class ProcessContextImplementation implements PluginProcessContext
 {
-    private final StringBuffer m_buffer = new StringBuffer();
-    private final DateFormat m_dateFormat =
+    private static final PrintWriter s_stdoutWriter;
+    private static final PrintWriter s_stderrWriter;
+    private static final String s_lineSeparator =
+	System.getProperty("line.separator");
+    private static final int s_lineSeparatorLength = s_lineSeparator.length();
+    private static final DateFormat s_dateFormat =
 	DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
+    private static long s_nextTime = System.currentTimeMillis();
+    private static String s_dateString;
+
+    static
+    {
+	s_stdoutWriter = new PrintWriter(System.out, true);
+	s_stderrWriter = new PrintWriter(System.err, true);
+    }
+
+    private synchronized static String getDateString()
+    {
+	final long now = System.currentTimeMillis();
+	
+	if (now > s_nextTime) {
+	    s_nextTime = now + 1000;
+	    s_dateString = s_dateFormat.format(new Date());
+	}
+
+	return s_dateString;
+    }
+
+    // Each ProcessContextImplementation is used by at most one
+    // thread, so we can reuse the following objects.
+    private final StringBuffer m_buffer = new StringBuffer();
+    private final char[] m_outputLine = new char[512];
 
     private final GrinderProperties m_pluginParameters;
     private final String m_hostIDString;
@@ -109,6 +138,8 @@ public class ProcessContextImplementation implements PluginProcessContext
 			    m_filenameFactory.createFilename("error"),
 			    m_appendToLog)),
 		    true);
+
+
 	}
 	catch (FileNotFoundException e) {
 	    throw new GrinderException("Could not create output streams", e);
@@ -127,8 +158,8 @@ public class ProcessContextImplementation implements PluginProcessContext
 
 	m_filenameFactory = new FilenameFactory(null, null, null);
 
-	m_outputWriter = new PrintWriter(System.out, true);
-	m_errorWriter = new PrintWriter(System.err, true);
+	m_outputWriter = s_stdoutWriter;
+	m_errorWriter = s_stderrWriter;
     }
 
     public String getHostIDString()
@@ -168,14 +199,16 @@ public class ProcessContextImplementation implements PluginProcessContext
 	}
 
 	if (where != 0) {
-	    final String s = formatMessage(message);
+	    final int lineLength = formatMessage(message);
 
 	    if ((where & Logger.LOG) != 0) {
-		m_outputWriter.println(s);
+		m_outputWriter.write(m_outputLine, 0, lineLength);
+		m_outputWriter.flush();
 	    }
 
 	    if ((where & Logger.TERMINAL) != 0) {
-		System.out.println(s);
+		s_stdoutWriter.write(m_outputLine, 0, lineLength);
+		s_stdoutWriter.flush();
 	    }
 	}
     }
@@ -192,14 +225,16 @@ public class ProcessContextImplementation implements PluginProcessContext
 	}
 
 	if (where != 0) {
-	    final String s = formatMessage(message);
+	    final int lineLength = formatMessage(message);
 
 	    if ((where & Logger.LOG) != 0) {
-		m_errorWriter.println(s);
+		m_errorWriter.write(m_outputLine, 0, lineLength);
+		m_errorWriter.flush();
 	    }
 
 	    if ((where & Logger.TERMINAL) != 0) {
-		System.err.println(s);
+		s_stderrWriter.write(m_outputLine, 0, lineLength);
+		s_stderrWriter.flush();
 	    }
 
 	    final int summaryLength = 20;
@@ -224,21 +259,32 @@ public class ProcessContextImplementation implements PluginProcessContext
 	return m_errorWriter;
     }
 
-    private String formatMessage(String message)
+    private int formatMessage(String message)
     {
-	// Each ProcessContextImplementation is used by at most one
-	// thread, so we can safely reuse our StringBuffer and
-	// DateFormat.
-	m_buffer.delete(0, m_buffer.length());
+	m_buffer.setLength(0);
 
-	m_buffer.append(m_dateFormat.format(new Date()));
+	m_buffer.append(getDateString());
 	m_buffer.append(": ");
 
 	appendMessageContext(m_buffer);
 
 	m_buffer.append(message);
 
-	return m_buffer.toString();
+	// Sadly this is the most efficient way to get something we
+	// can println from the StringBuffer. getString() creates an
+	// extra string, getValue() is package scope.
+	final int buffferLength = m_buffer.length();
+	final int outputLineSpace =
+	    m_outputLine.length - s_lineSeparatorLength;
+	
+	final int lineLength =
+	    buffferLength > outputLineSpace ? outputLineSpace : buffferLength;
+
+	m_buffer.getChars(0, lineLength, m_outputLine, 0);
+	s_lineSeparator.getChars(0, s_lineSeparatorLength, m_outputLine,
+				 lineLength);
+
+	return lineLength + s_lineSeparatorLength;
     }
 
     protected void appendMessageContext(StringBuffer buffer)

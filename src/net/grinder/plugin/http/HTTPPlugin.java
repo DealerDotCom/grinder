@@ -478,7 +478,7 @@ public class HttpPlugin implements GrinderPlugin
 		else {
 		    // We belong to a single thread so we can safely
 		    // reuse our StringBuffer.
-		    m_buffer.delete(0, m_buffer.length());
+		    m_buffer.setLength(0);
 		    
 		    int p = 0;
 		    int lastP = p;
