@@ -21,6 +21,7 @@
 
 package net.grinder.plugin.java;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
@@ -68,11 +69,18 @@ public class JavaPlugin implements GrinderPlugin
 	public Object invokeTest(Test test, Object parameters)
 	    throws PluginException
 	{
-	    return ((JavaTest.Closure)parameters).invoke();
+	    return ((JavaTest.DelayedInvocation)parameters).invoke();
 	}
 
 	public void endRun() throws PluginException
 	{
 	}
+    }
+
+    public static Object createTest(int number, String description,
+				    Object target)
+	throws GrinderException
+    {
+	return new JavaTest(number, description, target).getProxy();
     }
 }

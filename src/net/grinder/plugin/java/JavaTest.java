@@ -27,21 +27,26 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.Test;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginTest;
 
 
 /**
- * Represents an individual Java test.
+ * Represents an individual Java test. Scripts don't access this
+ * directly, instead they get a proxy from <code>JavaPlugin</code>;
+ * see {@link JavaPlugin#createTest}.
  *
  * @author Philip Aston
  * @version $Revision$
  */ 
-public class JavaTest extends PluginTest
+class JavaTest extends PluginTest
 {
     private final Object m_target;
     private final Class m_targetClass;
-    private final InvocationHandler m_invocationHandler;
+    private final Class[] m_interfaces;
+    private final InvocationHandler m_invocationHandler =
+	new JavaTestInvocationHandler();
 
     public JavaTest(int number, String description, Object target)
 	throws GrinderException
@@ -49,9 +54,15 @@ public class JavaTest extends PluginTest
 	super(JavaPlugin.class, number, description);
 
 	m_target = target;
-	m_targetClass = m_target.getClass();
+	m_targetClass = target.getClass();
 
-	m_invocationHandler = new JavaTestInvocationHandler();
+	final Class[] targetInterfaces = m_targetClass.getInterfaces();
+
+	m_interfaces = new Class[targetInterfaces.length + 1];
+
+	m_interfaces[0] = AdditionalProxyInterface.class;
+	System.arraycopy(targetInterfaces, 0, m_interfaces, 1, 
+			 targetInterfaces.length);
     }
 
     public Object invoke() throws PluginException
@@ -59,11 +70,10 @@ public class JavaTest extends PluginTest
 	throw new PluginException("Invoke not supported");
     }
 
-    public Object getProxy() 
+    Object getProxy() 
     {
 	return Proxy.newProxyInstance(m_targetClass.getClassLoader(),
-				      m_targetClass.getInterfaces(),
-				      m_invocationHandler);
+				      m_interfaces, m_invocationHandler);
     }
 
     private class JavaTestInvocationHandler implements InvocationHandler
@@ -71,24 +81,49 @@ public class JavaTest extends PluginTest
 	public Object invoke(Object proxy, Method method, Object[] arguments)
 	    throws Throwable
 	{
-	    return JavaTest.this.invokeTest(new Closure(method, arguments));
+	    final Method delegateMethod;
+
+	    try {
+		// Allow invocation of AdditionalProxyInterface methods.
+		delegateMethod =
+		    AdditionalProxyInterface.class.getMethod(
+			method.getName(), method.getParameterTypes());
+
+		return delegateMethod.invoke(new JavaTest.AdditionalMethods(),
+					     arguments);
+	    }
+	    catch (NoSuchMethodException e) {
+	    }
+
+	    // Not an AdditionalProxyInterface method, pass
+	    // DelayedInvocation through the engine. JavaPlugin will
+	    // invoke on the target.
+	    return JavaTest.this.invokeTest(
+		new DelayedInvocation(method, arguments));
 	}	
     }
 
-    final class Closure
+
+    /**
+     * Closure to be invoked at a later time.
+     *
+     * @author Philip Aston
+     * @version $Revision$
+     */ 
+    final class DelayedInvocation
     {
 	private final Method m_method;
 	private final Object[] m_arguments;
 
-	public Closure(Method method, Object[] arguments) {
+	public DelayedInvocation(Method method, Object[] arguments) {
 	    m_method = method;
 	    m_arguments = arguments;
 	}
 
 	public Object invoke() throws PluginException {
 	    try {
-		return m_targetClass.getMethod(m_method.getName(),
-					       m_method.getParameterTypes())
+		return m_targetClass.getMethod(
+		    m_method.getName(), m_method.getParameterTypes())
 		    .invoke(m_target, m_arguments);
 	    }
 	    catch (IllegalAccessException e) {
@@ -101,6 +136,14 @@ public class JavaTest extends PluginTest
 	    catch (NoSuchMethodException e) {
 		throw new PluginException("Invocation failed", e);
 	    }
+	}
+    }
+
+    private class AdditionalMethods implements AdditionalProxyInterface
+    {
+	public Test __getTestDetails__() 
+	{
+	    return JavaTest.this;
 	}
     }
 }
