@@ -35,14 +35,21 @@
       <entry name="FAQ" sourceFile="faq-xhtml-toc.xml" 
              targetFile="faq.html" type="xhtml-toc-1"/>
     </section>
+    <section name="The Grinder 3" sourceDir="g3" targetDir="g3"
+             type="section">
+      <entry name="Welcome" sourceFile="welcome-xhtml.xml" 
+             targetFile="index.html" type="g3-xhtml-1"/>
+      <entry name="Getting Started" sourceFile="getting-started-xhtml.xml" 
+             targetFile="getting-started.html" type="g3-xhtml-1"/>
+      <entry name="Script Gallery" sourceFile="script-gallery-xhtml.xml" 
+             targetFile="script-gallery.html" type="g3-xhtml-1"/>
+      <entry name="The Future" sourceFile="future-xhtml.xml" 
+             targetFile="future.html" type="g3-xhtml-1"/>
+
+    </section>
     <section name="Development" sourceDir="development" targetDir="development"
              type="section">
       <entry name="Building" sourceFile="development-xhtml.xml" 
-             targetFile="index.html" type="xhtml-1"/>
-    </section>
-    <section name="The Future" title="The Grinder 3" sourceDir="future"
-             targetDir="future" type="section">
-      <entry name="The Grinder 3" sourceFile="future-xhtml.xml" 
              targetFile="index.html" type="xhtml-1"/>
     </section>
 
@@ -51,6 +58,8 @@
             type="copy" id="logo"/>
       <file sourceFile="grinder3.jpg" targetFile="grinder3.jpg"
             type="copy"/>
+      <file sourceFile="PythonPoweredSmall.gif"
+            targetFile="PythonPoweredSmall.gif" type="copy"/>
       <file sourceFile="book-cover.jpg" targetFile="book-cover.jpg"
             type="copy"/>
     </directory>
@@ -80,6 +89,16 @@
 
     <documentStyle type="xhtml-1">
       <xsl stylesheet="stylesheets/grinder.xsl">
+        <xsl stylesheet="stylesheets/relative-urls.xsl">
+          <parameter name="base" value=".."/>
+          <xsl stylesheet="stylesheets/identity.xsl" navigationElement="html"/>
+        </xsl>
+      </xsl>
+      <imageGroup name="pageButtons"/>
+    </documentStyle>
+
+    <documentStyle type="g3-xhtml-1">
+      <xsl stylesheet="stylesheets/grinder3.xsl">
         <xsl stylesheet="stylesheets/relative-urls.xsl">
           <parameter name="base" value=".."/>
           <xsl stylesheet="stylesheets/identity.xsl" navigationElement="html"/>

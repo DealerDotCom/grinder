@@ -20,6 +20,7 @@
 	<style type="text/css">
 	  <xsl:comment>
 	    p,ul,dl,ol,td,dd { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif; font-size: 10pt; }
+	    .beta-warning { background-color: rgb(240,240,240); font-weight: bold}
 	    pre { color: rgb(80,80,80); font-family:Courier, monospace; font-size: 10pt; }
             code ( background-color: red; font-family:Courier, monospace; font-size: 10pt; )
 	    h1 { color: rgb(80,80,80); font-family:Arial,Helvetica,sans-serif; font-size: 16pt; }
@@ -119,7 +120,26 @@
 	     <!-- the main body -->
 	     <td>
 	       <br/>
-	       <xsl:copy-of select="body/node()"/>
+	       <table>
+		 <td>
+	       <p class="beta-warning">These pages are about
+		 <em>The Grinder 3</em>. The Grinder 3 is currently in
+		   beta release; if you want a stable version of The
+		   Grinder, look to <a
+		   href="../manual/index.html"><em>The Grinder
+		   2</em></a> series. The information here is
+		   partially complete, and may not reflect the
+		   final form of The Grinder 3.
+		 </p>
+	         <br/>
+
+		 <xsl:copy-of select="body/node()"/>
+
+	       </td>
+	       <td valign="top">
+		 <img align="right" src="../images/grinder3.jpg" alt="The Grinder 3"/>
+	       </td>
+	     </table>
 	     </td>
 	     <td>&#160;</td>
 	   </tr>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html>
+<body>
+
+<h1>What's new in The Grinder 3?</h1>
+
+<p><em>The key change that The Grinder 3 introduces is a full
+scripting engine to define test scripts. This replaces the
+specification of tests in the <code>grinder.properties</code> file.
+Most of the other key features of The Grinder 2 are unchanged (the
+console, the process architecture).</em></p>
+
+<img src="../images/PythonPoweredSmall.gif" alt="Python Powered"
+align="right"/>
+
+<h2>Jython</h2>
+
+<p><a href="http://www.jython.org">Jython</a> is the Java
+implementation of the Python scripting language. A Jython engine has
+been introduced into The Grinder to address the following.</p>
+
+<blockquote>
+<h4>Dynamic test scheduling</h4>
+
+<p>The Grinder 2 is limited in that each worker process executes the
+tests in the test script sequentially, in a fixed order. The Grinder 3
+uses Jython scripts to allow arbitrary branching and looping.</p>
+
+<h4>Dynamic data</h4>
+
+<p>The Grinder 2 HTTP plug-in's <a
+href="../manual/http-plugin.html#string-bean">string bean</a> feature
+provides simple support for requests that contain dynamic data. The
+Grinder 3 can use the full power of Jython to create dynamic requests
+of arbitrary complexity.</p>
+
+<h4>Checking responses</h4>
+
+<p>There is very limited support in some of the The Grinder 2 plug-ins
+for checking the results of tests. The Grinder 3 makes these results
+directly available to the test script, allowing various test paths to
+be taken depending on the responses returned by the server.</p>
+</blockquote>
+
+<p>Kind of dry, huh? If you never seen any Python or are wondering
+what was wrong with the old <code>grinder.properties</code> approach
+then skip ahead the <a href="./script-galley">Script Gallery</a> to
+sample the power of G3.</p>
+
+<h2>New Java plug-in</h2>
+
+<p>A powerful new "Java" plug-in has been introduced which allows
+arbitrary Java and Jython code to be tested.</p>
+
+<h2>Support for multiple plug-ins</h2>
+
+<p>A single script can use multiple plug-ins.</p>
+
+<h2>New distribution packaging</h2>
+
+<p>The Grinder is distributed in separate binary and source
+<code>zip</code> files.</p>
+
+<h1>What's gone?</h1>
+
+</body>
+</html>

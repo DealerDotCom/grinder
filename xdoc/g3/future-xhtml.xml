@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html>
+<body>
+
+<h1>The Grinder 3</h1>
+
+<p>This page documents things that are planned for The Grinder 3.
+There is currently no release date for these features.</p>
+
+<h3>Test script distribution</h3>
+
+<p>From the Grinder 3 console you will be able to edit test scripts
+and then distribute them to the worker processes. It will no longer be
+necessary to copy grinder.properties files around or to use a shared
+disk.
+</p>
+
+<h3>Embeded Agent</h3>
+
+<p>A new agent will be provided that can be loaded within an existing
+Java Virtual Machine. This will allow, for example, threads to be
+started within an application server which can run test scripts that
+make direct calls against local resources such as EJBs.</p>
+
+</body>
+</html>
