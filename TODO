@@ -54,7 +54,7 @@ Allow grinder properties to be set remotely.
 *** Add log panel
 
 Report log messages that currently go to terminal, plus start, stop
-test runs etc.
+test runs etc. Logs should be timestamped.
 
 ** Engine
 
@@ -62,6 +62,14 @@ Linear initial sleep time to allow thread's to ramp up. (Feature
 Request 801129).
 
 Consider forcing TestRunner to be registered with grinder.
+
+Add option so that old log files are copied rather than deleted. Make
+it the default.
+
+** Communication
+
+Consider an alternative to multicast for console->worker
+communications.
 
 ** TCPProxy
 
