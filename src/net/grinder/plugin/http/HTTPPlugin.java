@@ -70,6 +70,7 @@ public class HttpPlugin extends SimplePluginBase
 	private String m_ifModifiedSince;
 	private long m_ifModifiedSinceLong = -1;
 	private String m_postString;
+	private String m_contentType;
 	private final String m_basicAuthenticationRealmString;
 	private final String m_basicAuthenticationUserString;
 	private final String m_basicAuthenticationPasswordString;
@@ -128,6 +129,9 @@ public class HttpPlugin extends SimplePluginBase
 
 		    e.printStackTrace(System.err);
 		}
+
+		m_contentType = testParameters.getProperty("contentType",
+							   null);
 	    }
 
 	    m_basicAuthenticationRealmString =
@@ -212,6 +216,10 @@ public class HttpPlugin extends SimplePluginBase
 	public String getPostString() throws HTTPHandlerException
 	{
 	    return replaceDynamicKeys(m_postString);
+	}
+
+	public String getContentType(){
+	    return m_contentType;
 	}
 
 	public HTTPHandler.AuthorizationData getAuthorizationData()

@@ -187,9 +187,12 @@ class HTTPClientHandler implements HTTPHandler
 					      headers);
 	    }
 	    else {
-		// Probably should allow this to be parametrised.
+		final String contentType = requestData.getContentType();
+
 		headers[nextHeader++] =
-		    new NVPair("Content-type",
+		    new NVPair("Content-Type",
+			       contentType != null ?
+			       contentType :
 			       "application/x-www-form-urlencoded");
 
 		response = httpConnection.Post(uri.getPath(), postString,

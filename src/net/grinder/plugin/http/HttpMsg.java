@@ -143,6 +143,12 @@ class HttpMsg implements HTTPHandler
 		connection.setRequestMethod("POST");
 		connection.setDoOutput(true);
 
+		final String contentType = requestData.getContentType();
+
+		if (contentType != null) {
+		    connection.setRequestProperty("Content-Type", contentType);
+		}
+
 		final BufferedOutputStream bos = 
 		    new BufferedOutputStream(connection.getOutputStream());
 		final PrintWriter out = new PrintWriter(bos);
