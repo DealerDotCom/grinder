@@ -44,10 +44,10 @@ public class TestInsecureSSLContextFactory extends TestCase {
     final InsecureSSLContextFactory sslContextFactory =
       new InsecureSSLContextFactory();
 
-    final SSLContext context = sslContextFactory.create();
+    final SSLContext context = sslContextFactory.getSSLContext();
     assertNotNull(context);
 
-    final SSLContext context2 = sslContextFactory.create();
+    final SSLContext context2 = sslContextFactory.getSSLContext();
 
     assertNotNull(context2);
     assertTrue(context != context2);
@@ -65,23 +65,14 @@ public class TestInsecureSSLContextFactory extends TestCase {
     };
 
     final InsecureSSLContextFactory sslContextFactory =
-      new InsecureSSLContextFactory();
+      new InsecureSSLContextFactory(keyManagers);
 
-    final SSLContext context = sslContextFactory.create(keyManagers);
+    final SSLContext context = sslContextFactory.getSSLContext();
     assertNotNull(context);
 
-    final SSLContext context2 = sslContextFactory.create(keyManagers);
+    final SSLContext context2 = sslContextFactory.getSSLContext();
 
     assertNotNull(context2);
     assertTrue(context != context2);
   }
-
-  public void testCreateException() throws Exception {
-    final Exception nested = new Exception("");
-    final InsecureSSLContextFactory.CreateException e =
-      new InsecureSSLContextFactory.CreateException("bite me", nested);
-
-    assertEquals(nested, e.getNestedThrowable());
-  }
-
 }

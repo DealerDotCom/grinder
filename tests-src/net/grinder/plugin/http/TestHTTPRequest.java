@@ -44,6 +44,7 @@ import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 
 import net.grinder.common.LoggerStubFactory;
+import net.grinder.common.SSLContextFactory;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Grinder.ScriptContext;
@@ -91,8 +92,12 @@ public class TestHTTPRequest extends TestCase {
       (PluginThreadContext)
       new RandomStubFactory(PluginThreadContext.class).getStub();
 
+    final SSLContextFactory sslContextFactory =
+      (SSLContextFactory)
+      new RandomStubFactory(SSLContextFactory.class).getStub();
+
     final HTTPPluginThreadState threadState =
-      new HTTPPluginThreadState(threadContext);
+      new HTTPPluginThreadState(threadContext, sslContextFactory);
 
     m_statisticsStubFactory.setResult("availableForUpdate", Boolean.FALSE);
     final Statistics statistics =

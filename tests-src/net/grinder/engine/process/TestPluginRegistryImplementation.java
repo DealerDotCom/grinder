@@ -140,7 +140,7 @@ public class TestPluginRegistryImplementation extends TestCase {
       (ThreadContext)threadContextStubFactory.getStub();
 
     final List list1 =
-      pluginRegistryImplementation.getPluginThreadListenerList(threadContext);
+      pluginRegistryImplementation.getPluginThreadListeners(threadContext);
 
     assertEquals(0, list1.size());
 

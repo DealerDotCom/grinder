@@ -33,6 +33,7 @@ import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.InvalidContextException;
+import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
@@ -95,10 +96,14 @@ public class TestScriptContextImplementation extends TestCase {
 
     final Sleeper sleeper = new Sleeper(1, 0, logger);
 
+    final RandomStubFactory sslControlStubFactory =
+      new RandomStubFactory(SSLControl.class);
+    final SSLControl sslControl = (SSLControl)sslControlStubFactory.getStub();
+
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         grinderID, threadContextLocator, properties, queuedSender, logger,
-        filenameFactory, sleeper);
+        filenameFactory, sleeper, sslControl);
 
     assertEquals(grinderID, scriptContext.getGrinderID());
     assertEquals(threadID, scriptContext.getThreadID());
@@ -130,7 +135,7 @@ public class TestScriptContextImplementation extends TestCase {
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(null, null, null, null, null, null,
-                                      sleeper);
+                                      sleeper, null);
 
     assertTrue(
       new Time(50, 70) {
@@ -158,7 +163,7 @@ public class TestScriptContextImplementation extends TestCase {
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(null, threadContextLocator, null, 
-                                      queuedSender, null, null, null);
+                                      queuedSender, null, null, null, null);
     
     final ExpressionView expressionView =
       new ExpressionView("display", "resource key", "errors");
