@@ -18,9 +18,16 @@
 
 package net.grinder.engine;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
 import net.grinder.util.FilenameFactory;
+import net.grinder.util.GrinderException;
+import net.grinder.util.ProcessContextImplementation;
+
 
 /**
  * This class knows how to start a Java Virtual Machine with parameters.
@@ -35,27 +42,31 @@ import net.grinder.util.FilenameFactory;
  * @author Philip Aston
  * @version $Revision$
  */
-public class LauncherThread extends Thread {
-
-    private final String m_processID;
+public class LauncherThread extends Thread
+{
     private final String m_commandLine;
-    private final FilenameFactory m_filenameFactory;
+    private final ProcessContextImplementation m_processContext;
     private final boolean m_appendLog;
     
     /**
      * The constructor.
      * It starts a new thread that will execute the run method.
      */    
-    public LauncherThread(String processID,
-			  String commandLine,
+    public LauncherThread(String hostID, String processID, String commandLine,
 			  boolean appendLog)
     {
 	super(commandLine);
-	
-	m_processID = processID;
-	m_commandLine = commandLine;
-	m_filenameFactory = new FilenameFactory(processID, null);
+
+	m_processContext =
+	    new ProcessContextImplementation(hostID, processID);
 	m_appendLog = appendLog;
+
+	final StringBuffer stringBuffer = new StringBuffer( commandLine);
+	stringBuffer.append(" ");
+	stringBuffer.append(hostID);
+	stringBuffer.append(" ");
+	stringBuffer.append(processID);
+	m_commandLine = stringBuffer.toString();
     }
   
     /**
@@ -65,7 +76,11 @@ public class LauncherThread extends Thread {
     public void run(){
 
 	try{
-	    logMessage("started with command line: " + m_commandLine);
+	    final FilenameFactory filenameFactory =
+		m_processContext.getFilenameFactory();
+
+	    m_processContext.logMessage("started with command line: " +
+					m_commandLine);
 	    
 	    final Process process = Runtime.getRuntime().exec(m_commandLine);
       
@@ -81,7 +96,7 @@ public class LauncherThread extends Thread {
 		new PrintWriter(
 		    new BufferedOutputStream(
 			new FileOutputStream(
-			    m_filenameFactory.createFilename("out"),
+			    filenameFactory.createFilename("out"),
 			    m_appendLog)),
 		    true);  
 
@@ -89,7 +104,7 @@ public class LauncherThread extends Thread {
 		new PrintWriter(
 		    new BufferedOutputStream(
 			new FileOutputStream(
-			    m_filenameFactory.createFilename("error"),
+			    filenameFactory.createFilename("error"),
 			    m_appendLog)),
 		    true);
       
@@ -97,18 +112,12 @@ public class LauncherThread extends Thread {
 	    final Redirector r2 = new Redirector(errorFile, errorReader);
 
 	    process.waitFor();
-	    int completionStatus = process.exitValue(); 
 
-	    logMessage("exited with status " + completionStatus); 
-               
+	    m_processContext.logMessage("exited with status " + 
+					process.exitValue());      
 	}
 	catch(Exception e){
 	    e.printStackTrace();
 	}
-    }
-
-    private void logMessage(String message)
-    {
-	System.out.println("Process " + m_processID + " " + message);
     }
 }

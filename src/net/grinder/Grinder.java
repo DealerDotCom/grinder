@@ -19,6 +19,8 @@
 package net.grinder;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import net.grinder.engine.LauncherThread;
 import net.grinder.engine.process.GrinderProcess;
@@ -38,9 +40,9 @@ public class Grinder
      * The Grinder entry point.
      *
      */
-    public static void main(String args[]){
-	Grinder g = new Grinder();
-	g.run();
+    public static void main(String args[])
+    {
+	new Grinder().run();
     }
     
     protected void run()
@@ -48,6 +50,7 @@ public class Grinder
 	final GrinderProperties properties = GrinderProperties.getProperties();
 
 	if (properties == null) {
+	    // GrinderProperties will have output a message to stderr.
 	    return;
 	}
 
@@ -63,23 +66,24 @@ public class Grinder
 	    (additionalClasspath != null ? additionalClasspath + ";" : "") +
 	    System.getProperty("java.class.path");
 
+	final String hostIDString =
+	    properties.getProperty("grinder.hostID", getHostName());
 
-	final String commandPrefix =
+	final String command =
 	    jvm + " -classpath " + classpath + " " +
-	    properties.getProperty("grinder.jvm.arguments", "");
+	    properties.getProperty("grinder.jvm.arguments", "") + " " +
+	    GrinderProcess.class.getName();
 
-	final String commandSuffix = " " + GrinderProcess.class.getName();
-	final boolean appendLog = Boolean.getBoolean("grinder.appendLog");
+	final boolean appendLog = properties.getBoolean("grinder.appendLog",
+							false);
 
 	final Thread[] threads = new Thread[numberOfProcesses];
 
 	for (int i=0; i<numberOfProcesses; i++) {
-	    final String command =
-		commandPrefix + " -Dgrinder.jvmID=" + i + commandSuffix;
-
-	    threads[i] =
-		new LauncherThread(Integer.toString(i), command, appendLog);
-
+	    threads[i] = new LauncherThread(hostIDString,
+					    Integer.toString(i),
+					    command,
+					    appendLog);
 	    threads[i].start();
 	}
 
@@ -95,6 +99,16 @@ public class Grinder
 	}
 
 	System.out.println("The Grinder version @version@ finished");
+    }
+
+    private String getHostName()
+    {
+	try {
+	    return InetAddress.getLocalHost().getHostName();
+	}
+	catch (UnknownHostException e) {
+	    return "UNNAMED HOST";
+	}
     }
 }
 
