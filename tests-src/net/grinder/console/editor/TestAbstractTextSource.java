@@ -37,7 +37,7 @@ public class TestAbstractTextSource extends TestCase {
   public void testAbstractTextSource() throws Exception {
     final AbstractTextSource textSource = new StringTextSource();
 
-    assertTrue(!textSource.isDirty());
+    assertTrue(textSource.isDirty());
 
     textSource.setChanged();
 

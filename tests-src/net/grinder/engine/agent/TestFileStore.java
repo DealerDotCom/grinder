@@ -54,8 +54,15 @@ public class TestFileStore extends AbstractFileTestCase {
 
     final FileStore fileStore = new FileStore(getDirectory(), null);
     assertNotNull(fileStore.getSender(null));
-    assertEquals(getDirectory(), fileStore.getDirectory());
-    assertEquals(0, getDirectory().list().length);
+
+    final File currentDirectory = fileStore.getDirectory().getAsFile();
+    assertNotNull(currentDirectory);
+
+    assertTrue(
+      currentDirectory.getPath().startsWith(getDirectory().getPath()));
+
+    assertEquals(2, getDirectory().list().length);
+    assertEquals(0, currentDirectory.list().length);
 
     // Can't use a plain file.
     final File file1 = File.createTempFile("file", "", getDirectory());
@@ -74,14 +81,6 @@ public class TestFileStore extends AbstractFileTestCase {
 
     try {
       new FileStore(readOnlyDirectory, null);
-      fail("Expected FileStoreException");
-    }
-    catch (FileStore.FileStoreException e) {
-    }
-
-    // Can't create a directory below a file.
-    try {
-      new FileStore(new File(file1, "foo"), null);
       fail("Expected FileStoreException");
     }
     catch (FileStore.FileStoreException e) {
@@ -136,7 +135,7 @@ public class TestFileStore extends AbstractFileTestCase {
     loggerStubFactory.assertNoMoreCalls();
     delegateSenderStubFactory.assertNoMoreCalls();
 
-    final File targetFile = new File(getDirectory(), "dir/file0");
+    final File targetFile = new File(getDirectory(), "incoming/dir/file0");
     assertTrue(targetFile.canRead());
 
     // Test with a bad message.
