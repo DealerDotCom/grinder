@@ -87,20 +87,32 @@ public final class GrinderProcess implements Monitor
 	    System.exit(-1);
 	}
 
+	final GrinderProcess grinderProcess;
+	
 	try {
-	    final GrinderProcess grinderProcess =
-		new GrinderProcess(args[0],
-				   args.length == 2 ?
-				   new File(args[1]) : null);
+	    grinderProcess = new GrinderProcess(args[0],
+						args.length == 2 ?
+						new File(args[1]) : null);
+	}
+	catch (GrinderException e) {
+	    System.err.println("Error initialising Worker Process:\n" + e);
+	    e.printStackTrace();
+	    System.exit(-2);
+	    return;
+	}
 
+	try {
 	    final int status = grinderProcess.run();
-	    
 	    System.exit(status);
 	}
 	catch (GrinderException e) {
-	    System.err.println("Error running Worker Process:\n" + e);
-	    e.printStackTrace();
-	    System.exit(-2);
+	    final Logger logger = grinderProcess.m_context;
+
+	    logger.logError("Fatal error, see error log for details",
+			    Logger.TERMINAL);
+	    logger.logError("Error running Worker Process");
+	    e.printStackTrace(logger.getErrorLogWriter());
+	    System.exit(-3);
 	}
     }
 
