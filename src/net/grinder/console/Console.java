@@ -22,21 +22,19 @@
 
 package net.grinder.console;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
-import net.grinder.console.common.DistributeFilesHandler;
 import net.grinder.console.common.Resources;
+import net.grinder.console.communication.ConsoleCommunication;
+import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
 import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.messages.ReportStatusMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
-import net.grinder.console.model.ProcessStatusSet;
 import net.grinder.console.swingui.ConsoleUI;
 import net.grinder.engine.messages.DistributeFilesMessage;
 import net.grinder.engine.messages.ResetGrinderMessage;
@@ -82,42 +80,28 @@ public class Console {
 
     m_model = new Model(properties, resources);
 
-    final ProcessStatusSet processStatusSet = m_model.getProcessStatusSet();
-
-    final ActionListener startHandler =
-      new ActionListener() {
-        public void actionPerformed(ActionEvent event) {
-          processStatusSet.processEvent();
+    final ProcessControl processControl = new ProcessControl() {
+        public void startWorkerProcesses() {
+          m_model.getProcessStatusSet().processEvent();
           m_communication.send(new StartGrinderMessage(null));
         }
-      };
 
-    final ActionListener resetHandler =
-      new ActionListener() {
-        public void actionPerformed(ActionEvent event) {
-          processStatusSet.processEvent();
+        public void resetWorkerProcesses() {
+          m_model.getProcessStatusSet().processEvent();
           m_communication.send(new ResetGrinderMessage());
         }
-      };
 
-    final ActionListener stopHandler =
-      new ActionListener() {
-        public void actionPerformed(ActionEvent event) {
-          processStatusSet.processEvent();
+        public void stopWorkerProcesses() {
+          m_model.getProcessStatusSet().processEvent();
           m_communication.send(new StopGrinderMessage());
         }
-      };
 
-    final DistributeFilesHandler distributeFilesHandler =
-      new DistributeFilesHandler() {
         public void distributeFiles(FileContents[] files) {
           m_communication.send(new DistributeFilesMessage(files));
         }
       };
 
-    m_userInterface =
-      new ConsoleUI(m_model, startHandler, resetHandler, stopHandler,
-                    distributeFilesHandler);
+    m_userInterface = new ConsoleUI(m_model, processControl);
 
     m_communication =
       new ConsoleCommunication(resources,

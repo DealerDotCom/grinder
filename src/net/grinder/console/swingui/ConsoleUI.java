@@ -29,7 +29,6 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -74,7 +73,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
-import net.grinder.console.communication.DistributeFilesHandler;
+import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 import net.grinder.console.model.ConsoleProperties;
@@ -109,6 +108,7 @@ public final class ConsoleUI implements ModelListener {
   private final SaveFileAsAction m_saveFileAsAction;
 
   private final Model m_model;
+  private final ProcessControl m_processControl;
   private final EditorModel m_editorModel;
 
   private final JFrame m_frame;
@@ -132,24 +132,15 @@ public final class ConsoleUI implements ModelListener {
    * Creates a new <code>ConsoleUI</code> instance.
    *
    * @param model The console model.
-   * @param startProcessesHandler Action listener to invoke when start
-   * processes control is activated.
-   * @param resetProcessesHandler Action listener to invoke when reset
-   * processes control is activated.
-   * @param stopProcessesHandler Action listener to invoke when stop
-   * processes control is activated.
-   * @param distributeFilesHandler Action listener to invoke when
-   * distribute files control is activated.
+   * @param processControl Process control.
    * @exception ConsoleException if an error occurs
    */
-  public ConsoleUI(Model model,
-                   ActionListener startProcessesHandler,
-                   ActionListener resetProcessesHandler,
-                   ActionListener stopProcessesHandler,
-                   DistributeFilesHandler distributeFilesHandler)
+  public ConsoleUI(Model model, ProcessControl processControl)
     throws ConsoleException {
 
     m_model = model;
+    m_processControl = processControl;
+
     final Resources resources = m_model.getResources();
     m_editorModel = new EditorModel(resources, new Editor.TextSourceFactory());
 
@@ -187,14 +178,14 @@ public final class ConsoleUI implements ModelListener {
 
     addAction(new AboutAction(resources.getImageIcon("logo.image")));
     addAction(new ChooseDirectoryAction());
-    addAction(new DelegateAction("start-processes", startProcessesHandler));
-    addAction(new DistributeFilesAction(distributeFilesHandler));
+    addAction(new StartProcessesAction());
+    addAction(new DistributeFilesAction());
     addAction(new NewFileAction());
     addAction(new OptionsAction());
-    addAction(new ResetProcessesAction(resetProcessesHandler));
+    addAction(new ResetProcessesAction());
     addAction(new SaveFileAction());
     addAction(new SaveResultsAction());
-    addAction(new StopProcessesAction(stopProcessesHandler));
+    addAction(new StopProcessesAction());
 
     m_stateLabel = new JLabel();
     m_samplingControlPanel = new SamplingControlPanel(resources);
@@ -1021,23 +1012,20 @@ public final class ConsoleUI implements ModelListener {
     }
   }
 
-  private class DelegateAction extends CustomAction {
+  private class StartProcessesAction extends CustomAction {
 
-    private final ActionListener m_delegate;
-
-    DelegateAction(String resourceKey, ActionListener delegate) {
-      super(m_model.getResources(), resourceKey);
-      m_delegate = delegate;
+    StartProcessesAction() {
+      super(m_model.getResources(), "start-processes");
     }
 
     public void actionPerformed(ActionEvent e) {
-      m_delegate.actionPerformed(e);
+      m_processControl.startWorkerProcesses();
     }
   }
 
-  private final class ResetProcessesAction extends DelegateAction {
-    ResetProcessesAction(ActionListener delegateAction) {
-      super("reset-processes", delegateAction);
+  private final class ResetProcessesAction extends CustomAction {
+    ResetProcessesAction() {
+      super(m_model.getResources(), "reset-processes");
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1093,13 +1081,13 @@ public final class ConsoleUI implements ModelListener {
         m_model.reset();
       }
 
-      super.actionPerformed(event);
+      m_processControl.resetWorkerProcesses();
     }
   }
 
-  private final class StopProcessesAction extends DelegateAction {
-    StopProcessesAction(ActionListener delegateAction) {
-      super("stop-processes", delegateAction);
+  private final class StopProcessesAction extends CustomAction {
+    StopProcessesAction() {
+      super(m_model.getResources(), "stop-processes");
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1140,7 +1128,7 @@ public final class ConsoleUI implements ModelListener {
         }
       }
 
-      super.actionPerformed(event);
+      m_processControl.stopWorkerProcesses();
     }
   }
 
@@ -1192,12 +1180,9 @@ public final class ConsoleUI implements ModelListener {
   }
 
   private final class DistributeFilesAction extends CustomAction {
-    private final DistributeFilesHandler m_distributeFilesHandler;
 
-    DistributeFilesAction(DistributeFilesHandler distributeFilesHandler) {
+    DistributeFilesAction() {
       super(m_model.getResources(), "distribute-files");
-
-      m_distributeFilesHandler = distributeFilesHandler;
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1214,7 +1199,7 @@ public final class ConsoleUI implements ModelListener {
           System.err.println(warnings[i]);
         }
 
-        m_distributeFilesHandler.distributeFiles(files);
+        m_processControl.distributeFiles(files);
       }
       catch (Directory.DirectoryException e) {
         getErrorHandler().handleException(e);

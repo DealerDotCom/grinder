@@ -19,18 +19,33 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.common;
+package net.grinder.console.communication;
 
 import net.grinder.util.FileContents;
 
 
 /**
- * Something that can distribute a list of {@link FileContents}.
+ * Interface for issuing commands to the agent and worker processes.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface DistributeFilesHandler {
+public interface ProcessControl {
+
+  /**
+   * Signal the worker processes to start.
+   */
+  void startWorkerProcesses();
+
+  /**
+   * Signal the worker processes to reset.
+   */
+  void resetWorkerProcesses();
+
+  /**
+   * Signal the worker processes to stop.
+   */
+  void stopWorkerProcesses();
 
   /**
    * Distribute a list of {@link FileContents}.

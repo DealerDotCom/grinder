@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console;
+package net.grinder.console.communication;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -45,7 +45,7 @@ import net.grinder.console.model.ConsoleProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ConsoleCommunication {
+public final class ConsoleCommunication {
 
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
@@ -56,6 +56,13 @@ final class ConsoleCommunication {
   private Sender m_sender = null;
   private boolean m_deaf = true;
 
+  /**
+   * Constructor.
+   *
+   * @param resources Resources.
+   * @param properties Console properties.
+   * @param errorHandler Where to report errors.
+   */
   public ConsoleCommunication(Resources resources,
                               ConsoleProperties properties,
                               ErrorHandler errorHandler) {
@@ -151,6 +158,11 @@ final class ConsoleCommunication {
     }
   }
 
+  /**
+   * Send a message to the worker processes.
+   *
+   * @param message The message.
+   */
   public void send(Message message) {
 
     if (m_sender == null) {
@@ -170,6 +182,8 @@ final class ConsoleCommunication {
   }
 
   /**
+   * Wait for a message from the worker processes.
+   *
    * @return The message.
    */
   public Message waitForMessage() {
@@ -204,4 +218,6 @@ final class ConsoleCommunication {
       }
     }
   }
+
+
 }
