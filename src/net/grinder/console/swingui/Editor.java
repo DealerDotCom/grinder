@@ -50,10 +50,10 @@ import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
-import net.grinder.console.model.editor.AbstractTextSource;
-import net.grinder.console.model.editor.Buffer;
-import net.grinder.console.model.editor.EditorModel;
-import net.grinder.console.model.editor.TextSource;
+import net.grinder.console.editor.AbstractTextSource;
+import net.grinder.console.editor.Buffer;
+import net.grinder.console.editor.EditorModel;
+import net.grinder.console.editor.TextSource;
 
 
 /**

@@ -50,9 +50,9 @@ import javax.swing.tree.TreeSelectionModel;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
+import net.grinder.console.editor.Buffer;
+import net.grinder.console.editor.EditorModel;
 import net.grinder.console.model.ConsoleProperties;
-import net.grinder.console.model.editor.Buffer;
-import net.grinder.console.model.editor.EditorModel;
 
 
 /**

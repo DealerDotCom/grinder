@@ -27,8 +27,8 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import net.grinder.console.model.editor.Buffer;
-import net.grinder.console.model.editor.EditorModel;
+import net.grinder.console.editor.Buffer;
+import net.grinder.console.editor.EditorModel;
 import net.grinder.util.WeakValueHashMap;
 
 
