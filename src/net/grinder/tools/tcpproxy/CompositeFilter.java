@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,7 +32,7 @@ import java.util.List;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class CompositeTCPProxyFilter implements TCPProxyFilter {
+public final class CompositeFilter implements TCPProxyFilter {
 
   private final List m_filters = new ArrayList();
 

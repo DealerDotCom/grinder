@@ -43,7 +43,7 @@ import net.grinder.plugin.http.HTTPPluginTCPProxyFilter;
 import net.grinder.plugin.http.HTTPPluginTCPProxyFilter2;
 import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter;
 import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter2;
-import net.grinder.tools.tcpproxy.CompositeTCPProxyFilter;
+import net.grinder.tools.tcpproxy.CompositeFilter;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EchoFilter;
 import net.grinder.tools.tcpproxy.EndPoint;
@@ -484,13 +484,13 @@ public final class TCPProxy {
   private TCPProxyFilter addFilter(TCPProxyFilter existingFilter,
                                    TCPProxyFilter newFilter) {
 
-    if (existingFilter instanceof CompositeTCPProxyFilter) {
-      ((CompositeTCPProxyFilter) existingFilter).add(newFilter);
+    if (existingFilter instanceof CompositeFilter) {
+      ((CompositeFilter) existingFilter).add(newFilter);
       return existingFilter;
     }
     else {
       // Discard the default filter.
-      final CompositeTCPProxyFilter result = new CompositeTCPProxyFilter();
+      final CompositeFilter result = new CompositeFilter();
       result.add(newFilter);
       return result;
     }
@@ -517,12 +517,12 @@ public final class TCPProxy {
 
   private List getFilterList(TCPProxyFilter filter) {
 
-    if (filter instanceof CompositeTCPProxyFilter) {
+    if (filter instanceof CompositeFilter) {
 
       final List result = new ArrayList();
 
       final Iterator iterator  =
-        ((CompositeTCPProxyFilter)filter).getFilters().iterator();
+        ((CompositeFilter)filter).getFilters().iterator();
 
       while (iterator.hasNext()) {
         result.addAll(getFilterList((TCPProxyFilter) iterator.next()));
