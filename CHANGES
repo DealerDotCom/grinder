@@ -38,6 +38,9 @@ Grinder 3.0-beta11
   Be more agressive about interrupting workers. Thanks to Venkat for
   the idea and  original implementation.
 
+  Incorporated feature matrix into documentation. Thanks to Edwin
+  DeSouza for his help with this.
+
 
 Grinder 3.0-beta10
 ------------------

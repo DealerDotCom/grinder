@@ -57,6 +57,8 @@
              targetFile="tutorial-perks.html" type="g3-xhtml-toc-1"/>
       <entry name="FAQ" sourceFile="faq-xhtml.xml" 
              targetFile="faq.html" type="g3-xhtml-toc-1"/>
+      <entry name="Features" sourceFile="features-xhtml.xml" 
+             targetFile="features.html" type="g3-xhtml-toc-1"/>
     </section>
     <section name="Development" sourceDir="development" targetDir="development"
              type="section">

@@ -36,6 +36,7 @@
 	    .beta-warning { background-color: rgb(224,224,255); font-weight: bold; padding: 3pt; width="50%"; margin-left: 10pt; }
 	    .draft-warning { color: red; font-weight: bold; margin-top: 50pt; }
 	    .sidebar { float: right; background-color: rgb(224,224,255); padding: 10pt; margin-left: 20pt; margin-right:20pt; margin-bottom:20pt; margin-top:20pt; font-size: 8pt; }
+	    .table-heading { background-color: rgb(224,224,255); font-weight: bold; padding:2pt}
 
 	    /* HTMLize */
 	    .string { color: #008b00; background-color: #ffffff; } /* font-lock-string-face */
