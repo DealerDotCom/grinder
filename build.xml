@@ -243,7 +243,8 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
              windowtitle="${Name}"
              doctitle="${Name}"
              bottom="Copyright &#169; ${year} Paco Gomez, Philip Aston. All Rights Reserved."
-             stylesheetfile="${javadoc.css}">
+             stylesheetfile="${javadoc.css}"
+	     package="true">
 	    <sourcepath>
 	      <pathelement path="${src.dir}"/>
 	      <pathelement path="${tests.src.dir}"/>

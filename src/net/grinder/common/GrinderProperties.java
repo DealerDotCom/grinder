@@ -47,7 +47,7 @@ public class GrinderProperties extends Properties
 
     /**
      * Default constructor is public for use by the unit tests.
-     * @see GrinderProperties#setGrinderProperties
+     * @see #setProperties(GrinderProperties)
      */
     public GrinderProperties()
     {
