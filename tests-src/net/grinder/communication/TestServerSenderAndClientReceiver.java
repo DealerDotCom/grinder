@@ -44,8 +44,15 @@ public class TestServerSenderAndClientReceiver
   protected void setUp() throws Exception {
     super.setUp();
 
-    m_sender =  ServerSender.bindTo("Test Sender", getHostName(), getPort());
+    final ServerSender sender =
+      ServerSender.bindTo("Test Sender", getHostName(), getPort());
+
+    m_sender = sender;
     m_receiver = ClientReceiver.connectTo(getHostName(), getPort());
+
+    while (sender.getAcceptor().getSocketSet().countActiveSockets() != 1) {
+      Thread.sleep(10);
+    }
   }
 
   protected void tearDown() throws Exception {
