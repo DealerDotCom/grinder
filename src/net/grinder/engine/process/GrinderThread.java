@@ -225,7 +225,7 @@ class GrinderThread implements java.lang.Runnable
 	    m_context.logMessage("Finished " + m_numberOfCycles + " cycles");
 	}
 	catch(Exception e) {
-	    m_context.logError(" threw an exception:");
+	    m_context.logError(" threw an exception:" + e);
 	    e.printStackTrace(System.err);
 	}
 	finally {
