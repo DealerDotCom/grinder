@@ -114,6 +114,10 @@ public final class RandomObjectFactory {
       return result;
     }
 
+    if (Exception.class == type) {
+      return new Exception((String)generateParameter(String.class));
+    }
+
     // Resort to something that supports same interfaces as type.
     return Proxy.newProxyInstance(
       type.getClassLoader(),
