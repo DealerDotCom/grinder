@@ -41,7 +41,7 @@ java net.grinder.TCPProxy
     the following information:</p>
 
 <source>
-Initialising as an HTTP proxy with the parameters:
+Initialising as an HTTP/HTTPS proxy with the parameters:
    Request filters:  EchoFilter
    Response filters: EchoFilter
    Local address:    localhost:8001
@@ -65,9 +65,57 @@ Engine initialised, listening on port 8001
     all of the HTTP interactions between the browser and the
     SourceForge site.</p>
 
-    <p>The TCPProxy will proxy both HTTP and HTTPS if you specify
-    <code>-ssl</code>. See <a href="#ssl">below</a> for details on
-    setting up SSL.</p>
+    <p>The TCPProxy will proxy both HTTP and HTTPS. See <a
+    href="#ssl">below</a> for details on customising the SSL
+    configuration.</p>
+  </section>
+
+  <section id="EchoFilter">
+    <title>Using the EchoFilter</title>
+
+    <p>The EchoFilter outputs the stream activity to the terminal. It
+    can be very useful for debugging as described in <a
+    href="site:use-the-tcpproxy">this FAQ</a>.</p>
+
+    <p>Bytes that do not have a printable ASCII representation are
+    displayed in hexadecimal between square brackets. Here's some
+    example output:</p>
+
+    <source>
+------ 127.0.0.1:2263->ads.osdn.com:80 ------
+GET /?ad_id=5839&amp;alloc_id=12703&amp;site_id=2&amp;request_id=8320720&amp;1102173982760 HTTP/1.1
+Host: ads.osdn.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.5) Gecko/20041107 Firefox/1.0
+Accept: image/png,*/*;q=0.5
+Accept-Language: en-gb,en-us;q=0.7,en;q=0.3
+Accept-Encoding: gzip,deflate
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Keep-Alive: 300
+Proxy-Connection: keep-alive
+Referer: http://sourceforge.net/projects/grinder
+
+
+--- ads.osdn.com:80->127.0.0.1:2263 opened --
+------ ads.osdn.com:80->127.0.0.1:2273 ------
+HTTP/1.1 200 OK
+Date: Sat, 04 Dec 2004 15:26:27 GMT
+Server: Apache/1.3.29 (Unix) mod_gzip/1.3.26.1a mod_perl/1.29
+Pragma: no-cache
+Cache-control: private
+Connection: close
+Transfer-Encoding: chunked
+Content-Type: image/gif
+
+
+------ ads.osdn.com:80->127.0.0.1:2273 ------
+80B
+GIF89ae[00])[00D50000C3C3C3FEFDFD]hhhVVVyyy[F5CCD2D4D4D4CBCBCBD7]'F[A3A3A3DF]Og[F2BAC3DCDCDCABABABF7D4DAE6]x[8BFCF1F3DB]9U[EFA9B5FBE9ECF1F1F1F9F9F9B2B2B29C9C9CF3C3CBF5F5F5E5E5E5949494EB97A5070707]%%%[EA8D9DE0]Ul[EAEAEA838383F8DCE18C8C8CE0E0E0]===[E2]ez[D9D9D9B9B9B9EDEDED]JJJ[F0B3BDBEBEBE]AAA[F9E5E9]333[FDFAFBE88394F9E0[000000FFFFFF]![F9040000000000],[00000000]e[00])[000006FFC09E]pH,[1A8FC8A4]r[C9][D5B2]e[15]][E17F]+
+    </source>
+
+    <p>Information lines are displayed to indicate the end point
+    addresses and direction of the information flow and also whether a
+    has just been opened or closed.</p>
+
   </section>
 
   <section id="HTTPPluginTCPProxyFilter">
@@ -84,7 +132,7 @@ java net.grinder.TCPProxy -httpplugin
 
 <source>
 Script will be generated to the files 'httpscript.py' and 'httpscript_tests.py'
-Initialising as an HTTP proxy with the parameters:
+Initialising as an HTTP/HTTPS proxy with the parameters:
    Request filters:  HTTPPluginTCPProxyFilter
    Response filters: HTTPPluginTCPProxyResponseFilter
    Local address:    localhost:8001
@@ -196,13 +244,6 @@ tests[3] = Test(3, 'GET bullet.gif').wrap(request3)
     server certificate for the connection from the browser. By
     default, the TCPProxy will use a built-in certificate.</p>
 
-    <p>Here's an example of starting the TCPProxy as an HTTP/HTTPS
-    proxy:</p>
-
-<source>
-java net.grinder.TCPProxy -ssl
-</source>
-
     <p>When first establishing a connection, your browser will present
     a warning and confirmation dialog. This is because the built-in
     certficate isn't authorised by any of the certificate authorities
@@ -223,8 +264,11 @@ java net.grinder.TCPProxy -ssl
     connection to the server, using the <code>-keystore</code>,
     <code>-keystorepassword</code>, and <code>-keystoretype</code>
     options. See the J2SE/JSSE documentation for how to set up a key
-    store. If you fail to provide a key store with a valid server
-    certificate, you may get a <em>No available certificate
+    store.</p>
+
+    <p>If you fail to provide a key store with a valid server
+    certificate (hard to do now The Grinder has a built in
+    certificate), you may get a <em>No available certificate
     corresponds to the SSL cipher suites which are enabled</em>
     exception, and your browser may report that it cannot communicate
     as it has no common encryption algorithms. Internet Explorer likes
@@ -237,7 +281,7 @@ java net.grinder.TCPProxy -ssl
     distribution</a> and start the proxy using:</p>
 
 <source>
-java net.grinder.TCPProxy -ssl -keyStore testkeys -keyStorePassword passphrase
+java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
 </source>
   </section>
 
@@ -334,24 +378,23 @@ java net.grinder.TCPProxy -ssl -keyStore testkeys -keyStorePassword passphrase
 
       <td>Specify a custom key store. Usually the built-in keystore is
       good enough so <code>-keystore</code> does not need to be
-      specified. Only used if <code>-ssl</code> is set.</td>
+      specified.</td>
     </tr>
 
     <tr>
       <td><code>-keystorepassword password</code></td>
 
       <td>Set the key store password. Only used if
-      <code>-keystore</code> and <code>-ssl</code> are set. Optional
-      for some key store types.</td>
+      <code>-keystore</code> is set. Optional for some key store
+      types.</td>
     </tr>
 
     <tr>
       <td><code>-keystoretype type</code></td>
 
       <td>Set the key store type. Only used if <code>-keystore</code>
-      and <code>-ssl</code> are set. If not specified, the default
-      value depends on JSSE configuration but is usually
-      <code>jks</code>.</td>
+      is set. If not specified, the default value depends on JSSE
+      configuration but is usually <code>jks</code>.</td>
     </tr>
 
     <tr>
@@ -423,11 +466,11 @@ java net.grinder.TCPProxy -ssl -keyStore testkeys -keyStorePassword passphrase
     <tr>
       <td><code>-ssl</code></td>
 
-      <td>Use SSL. In the normal <em>HTTP Proxy mode</em>, this will
-      make the TCPProxy also listen as an HTTPS proxy. In <a
-      href="#port-forwarding-mode">port forwarding mode</a> this will
-      make both the TCPProxy's local socket and the connections to the
-      target server use SSL.</td>
+      <td>Use SSL in <a href="#port-forwarding-mode">port forwarding
+      mode</a>. This will make both the TCPProxy's local socket and
+      the connections to the target server use SSL. The default
+      <em>HTTP Proxy mode</em> ignores this option and always listens
+      as an HTTP proxy and an HTTPS proxy.</td>
     </tr>
 
     <tr>

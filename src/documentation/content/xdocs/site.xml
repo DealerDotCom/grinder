@@ -24,6 +24,7 @@ See http://forrest.apache.org/docs/linking.html for more info
       <multicast href="#multicast"/>
       <post-and-string-beans href="#post-and-string-beans"/>
       <premature-eof href="#premature-eof"/>
+      <use-the-tcpproxy href="#use-the-tcpproxy"/>
     </faq>
     <links label="Links" href="links.html">
       <book href="#book"/>
