@@ -95,7 +95,7 @@ public final class ServerReceiver implements Receiver {
   }
 
   /**
-   * Shut down this reciever.
+   * Shut down this receiver.
    *
    * @throws CommunicationException If an IO exception occurs.
    */
