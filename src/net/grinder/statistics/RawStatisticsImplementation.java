@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,29 +36,34 @@ import net.grinder.util.Serialiser;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 class RawStatisticsImplementation implements RawStatistics {
-  private static final double[] s_emptyDoubleArray = new double[0];
 
   private final long[] m_longData;
-
-  /** Double array is allocated as necessary. **/
-  private double[] m_doubleData = s_emptyDoubleArray;
-
-  /**
-   * @clientRole snapshot
-   * @supplierCardinality 0..1
-   * @link aggregation
-   **/
-  private transient RawStatisticsImplementation m_snapshot = null;
+  private final double[] m_doubleData;
 
   /**
    * Creates a new <code>RawStatisticsImplementation</code> instance.
-   **/
+   */
   public RawStatisticsImplementation() {
     m_longData =
       new long[
         StatisticsIndexMap.getInstance().getNumberOfLongIndicies()];
+
+    m_doubleData = new double[StatisticsIndexMap.getInstance().
+                              getNumberOfDoubleIndicies()];
+  }
+
+  /**
+   * Copy constructor.
+   *
+   * @param other Object to copy. Caller is responsible for synchronisation.
+   */
+  protected RawStatisticsImplementation(RawStatisticsImplementation other) {
+    this();
+    System.arraycopy(other.m_longData, 0, m_longData, 0, m_longData.length);
+    System.arraycopy(other.m_doubleData, 0,
+                     m_doubleData, 0, m_doubleData.length);
   }
 
   /**
@@ -68,10 +73,24 @@ class RawStatisticsImplementation implements RawStatistics {
    * Assuming the caller owns this
    * <code>RawStatisticsImplementation</code> (or they shouldn't be
    * reseting it), we don't synchronise
-   **/
+   */
   public final void reset() {
     Arrays.fill(m_longData, 0);
     Arrays.fill(m_doubleData, 0);
+  }
+
+  /**
+   * Clone this object.
+   *
+   * We don't use {@link Object#clone} as that's such a hog's arse of a
+   * mechanism. It prevents us from using final variables, requres a lot of
+   * casting, and that we catch CloneNotSupported exceptions - even if we know
+   * they won't be thrown.
+   *
+   * @return A copy of this RawStatisticsImplementation.
+   */
+  public synchronized RawStatistics snapshot() {
+    return new RawStatisticsImplementation(this);
   }
 
   /**
@@ -98,7 +117,6 @@ class RawStatisticsImplementation implements RawStatistics {
    */
   public final synchronized
     double getValue(StatisticsIndexMap.DoubleIndex index) {
-    ensureDoubleDataAllocated();
     return m_doubleData[index.getValue()];
   }
 
@@ -110,7 +128,7 @@ class RawStatisticsImplementation implements RawStatistics {
    *
    * @param index The process specific index.
    * @param value The value.
-   **/
+   */
   public final synchronized
     void setValue(StatisticsIndexMap.LongIndex index, long value) {
     m_longData[index.getValue()] = value;
@@ -124,10 +142,9 @@ class RawStatisticsImplementation implements RawStatistics {
    *
    * @param index The process specific index.
    * @param value The value.
-   **/
+   */
   public final synchronized
     void setValue(StatisticsIndexMap.DoubleIndex index, double value) {
-    ensureDoubleDataAllocated();
     m_doubleData[index.getValue()] = value;
   }
 
@@ -139,7 +156,7 @@ class RawStatisticsImplementation implements RawStatistics {
    *
    * @param index The process specific index.
    * @param value The value.
-   **/
+   */
   public final synchronized void addValue(StatisticsIndexMap.LongIndex index,
                                           long value) {
     m_longData[index.getValue()] += value;
@@ -153,10 +170,9 @@ class RawStatisticsImplementation implements RawStatistics {
    *
    * @param index The process specific index.
    * @param value The value.
-   **/
+   */
   public final synchronized void
     addValue(StatisticsIndexMap.DoubleIndex index, double value) {
-    ensureDoubleDataAllocated();
     m_doubleData[index.getValue()] += value;
   }
 
@@ -182,7 +198,7 @@ class RawStatisticsImplementation implements RawStatistics {
    * <p>Synchronised to ensure we don't lose information.</p>.
    *
    * @param operand The <code>RawStatistics</code> value to add.
-   **/
+   */
   public final synchronized void add(RawStatistics operand) {
     final RawStatisticsImplementation operandImplementation =
       (RawStatisticsImplementation)operand;
@@ -195,60 +211,9 @@ class RawStatisticsImplementation implements RawStatistics {
 
     final double[] doubleData = operandImplementation.m_doubleData;
 
-    if (doubleData.length > 0) {
-      ensureDoubleDataAllocated();
-
-      for (int i = 0; i < doubleData.length; i++) {
-        m_doubleData[i] += doubleData[i];
-      }
+    for (int i = 0; i < doubleData.length; i++) {
+      m_doubleData[i] += doubleData[i];
     }
-  }
-
-  /**
-   * Return a <code>RawStatistics</code> representing the change
-   * since the last snapshot.
-   *
-   * <p>Synchronised to ensure a consistent view.</p>.
-   *
-   * @param updateSnapshot <code>true</code> => update the snapshot.
-   * @return A <code>RawStatistics</code> representing the
-   * difference between our values and the snapshot's values.
-   **/
-  public final synchronized RawStatistics getDelta(boolean updateSnapshot) {
-    // This is the only method that accesses m_snapshot so we
-    // don't worry about the synchronisation of it.
-
-    final RawStatisticsImplementation result =
-      new RawStatisticsImplementation();
-
-    result.add(this);
-
-    if (m_snapshot != null) {
-      if (m_doubleData.length < m_snapshot.m_doubleData.length) {
-        throw new IllegalStateException(
-          "Assertion failure: " +
-          "Snapshot double data allocated but ours isn't");
-      }
-
-      final long[] longData = m_snapshot.m_longData;
-
-      for (int i = 0; i < longData.length; i++) {
-        result.m_longData[i] -= longData[i];
-      }
-
-      final double[] doubleData = m_snapshot.m_doubleData;
-
-      for (int i = 0; i < doubleData.length; i++) {
-        result.m_doubleData[i] -= doubleData[i];
-      }
-    }
-
-    if (updateSnapshot) {
-      m_snapshot = new RawStatisticsImplementation();
-      m_snapshot.add(this);
-    }
-
-    return result;
   }
 
   /**
@@ -256,7 +221,7 @@ class RawStatisticsImplementation implements RawStatistics {
    *
    * @param o <code>Object</code> to compare to.
    * @return <code>true</code> if and only if the two objects are equal.
-   **/
+   */
   public final boolean equals(Object o) {
     if (o == this) {
       return true;
@@ -277,15 +242,9 @@ class RawStatisticsImplementation implements RawStatistics {
       }
     }
 
-    if (m_doubleData.length > 0 ||
-        otherStatistics.m_doubleData.length > 0) {
-      ensureDoubleDataAllocated();
-      otherStatistics.ensureDoubleDataAllocated();
-
-      for (int i = 0; i < m_doubleData.length; i++) {
-        if (m_doubleData[i] != otherStatistics.m_doubleData[i]) {
-          return false;
-        }
+    for (int i = 0; i < m_doubleData.length; i++) {
+      if (m_doubleData[i] != otherStatistics.m_doubleData[i]) {
+        return false;
       }
     }
 
@@ -309,7 +268,7 @@ class RawStatisticsImplementation implements RawStatistics {
    * <code>RawStatistics</code>.
    *
    * @return The <code>String</code>
-   **/
+   */
   public final String toString() {
     final StringBuffer result = new StringBuffer();
 
@@ -345,15 +304,13 @@ class RawStatisticsImplementation implements RawStatistics {
    * @param out Handle to the output stream.
    * @param serialiser <code>Serialiser</code> helper object.
    * @exception IOException If an error occurs.
-   **/
+   */
   final synchronized void myWriteExternal(ObjectOutput out,
                                           Serialiser serialiser)
     throws IOException {
     for (int i = 0; i < m_longData.length; i++) {
       serialiser.writeLong(out, m_longData[i]);
     }
-
-    out.writeBoolean(m_doubleData.length > 0);
 
     for (int i = 0; i < m_doubleData.length; i++) {
       serialiser.writeDouble(out, m_doubleData[i]);
@@ -367,7 +324,7 @@ class RawStatisticsImplementation implements RawStatistics {
    * @param in Handle to the input stream.
    * @param serialiser <code>Serialiser</code> helper object.
    * @exception IOException If an error occurs.
-   **/
+   */
   protected RawStatisticsImplementation(ObjectInput in, Serialiser serialiser)
     throws IOException {
     this();
@@ -376,19 +333,8 @@ class RawStatisticsImplementation implements RawStatistics {
       m_longData[i] = serialiser.readLong(in);
     }
 
-    if (in.readBoolean()) {
-      ensureDoubleDataAllocated();
-
-      for (int i = 0; i < m_doubleData.length; i++) {
-        m_doubleData[i] = serialiser.readDouble(in);
-      }
-    }
-  }
-
-  private synchronized void ensureDoubleDataAllocated() {
-    if (m_doubleData.length == 0) {
-      m_doubleData = new double[StatisticsIndexMap.getInstance().
-                                getNumberOfDoubleIndicies()];
+    for (int i = 0; i < m_doubleData.length; i++) {
+      m_doubleData[i] = serialiser.readDouble(in);
     }
   }
 }
