@@ -136,6 +136,63 @@ public final class StatisticExpressionFactory {
         result = createDivision(createExpression(parseContext),
                                 createExpression(parseContext));
       }
+      else if ("sum".equals(operation)) {
+        final String token = parseContext.readToken();
+
+        if (m_indexMap.isDoubleSampleIndex(token)) {
+          final StatisticsIndexMap.DoubleSampleIndex index =
+            m_indexMap.getIndexForDoubleSample(token);
+          result = createPrimitive(index.getSumIndex());
+        }
+        else if (m_indexMap.isLongSampleIndex(token)) {
+          final StatisticsIndexMap.LongSampleIndex index =
+            m_indexMap.getIndexForLongSample(token);
+          result = createPrimitive(index.getSumIndex());
+        }
+        else {
+          throw parseContext.new ParseException(
+              "Can't apply sum to unknown sample index '" + token + "'");
+        }
+      }
+      else if ("count".equals(operation)) {
+        final String token = parseContext.readToken();
+
+        if (m_indexMap.isDoubleSampleIndex(token)) {
+          final StatisticsIndexMap.DoubleSampleIndex index =
+            m_indexMap.getIndexForDoubleSample(token);
+          result = createPrimitive(index.getCountIndex());
+        }
+        else if (m_indexMap.isLongSampleIndex(token)) {
+          final StatisticsIndexMap.LongSampleIndex index =
+            m_indexMap.getIndexForLongSample(token);
+          result = createPrimitive(index.getCountIndex());
+        }
+        else {
+          throw parseContext.new ParseException(
+              "Can't apply count to unknown sample index '" + token + "'");
+        }
+      }
+      else if ("variance".equals(operation)) {
+        final String token = parseContext.readToken();
+
+        if (m_indexMap.isDoubleSampleIndex(token)) {
+          final StatisticsIndexMap.DoubleSampleIndex index =
+            m_indexMap.getIndexForDoubleSample(token);
+          result = createPrimitive(index.getVarianceIndex());
+        }
+        else if (m_indexMap.isLongSampleIndex(token)) {
+          final StatisticsIndexMap.LongSampleIndex index =
+            m_indexMap.getIndexForLongSample(token);
+          result = createPrimitive(index.getVarianceIndex());
+        }
+        else {
+          throw parseContext.new ParseException(
+              "Can't apply variance to unknown sample index '" + token + "'");
+        }
+      }
+      else if ("sqrt".equals(operation)) {
+        result = createSquareRoot(createExpression(parseContext));
+      }
       else {
         throw parseContext.new ParseException(
           "Unknown operation '" + operation + "'");
@@ -178,7 +235,6 @@ public final class StatisticExpressionFactory {
    * @return The <code>StatisticExpression</code>.
    */
   public StatisticExpression createConstant(final long value) {
-
     return new LongStatistic() {
         public long getValue(RawStatistics rawStatistics) {
           return value;
@@ -193,7 +249,6 @@ public final class StatisticExpressionFactory {
    * @return The <code>StatisticExpression</code>.
    */
   public StatisticExpression createConstant(final double value) {
-
     return new DoubleStatistic() {
         public double getValue(RawStatistics rawStatistics) {
           return value;
@@ -289,6 +344,22 @@ public final class StatisticExpressionFactory {
           return
             numerator.getDoubleValue(rawStatistics) /
             denominator.getDoubleValue(rawStatistics);
+        }
+      };
+  }
+
+  /**
+   * Create a square root.
+   *
+   * @param operand The operand.
+   * @return The resulting expression.
+   */
+  public StatisticExpression
+    createSquareRoot(final StatisticExpression operand) {
+
+    return new DoubleStatistic() {
+        public double getValue(RawStatistics rawStatistics) {
+          return Math.sqrt(operand.getDoubleValue(rawStatistics));
         }
       };
   }
