@@ -186,15 +186,17 @@ set to a random number each time? Easy! Here's how.</p>
 
 <blockquote>
 <pre>
-<span class="comment">// MyStringBean.java</span>
-<span class="keyword">package</span> <span class="jde-java-font-lock-package">mystuff</span>;
+<span class="comment">// MyStringBean.java
+</span><span class="keyword">package</span> <span class="jde-java-font-lock-package">mystuff</span>;
+
+<span class="keyword">import</span> <span class="jde-java-font-lock-package">java</span>.<span class="jde-java-font-lock-package">util</span>.<span class="type">Random</span>;
 
 <span class="jde-java-font-lock-modifier">public</span> <span class="keyword">class</span> <span class="function-name">MyStringBean</span> {
-    <span class="jde-java-font-lock-modifier">private</span> <span class="type">Random</span> <span class="variable-name">m_random</span> = <span class="keyword">new</span> <span class="type">Random</span>();
+  <span class="jde-java-font-lock-modifier">private</span> <span class="type">Random</span> <span class="variable-name">m_random</span> = <span class="keyword">new</span> <span class="type">Random</span>();
 
-    <span class="jde-java-font-lock-modifier">public</span> <span class="type">String</span> <span class="function-name">getRandomInteger</span>() {
-	<span class="keyword">return</span> Integer.toString(m_random.nextInt());
-    }
+  <span class="jde-java-font-lock-modifier">public</span> <span class="type">String</span> <span class="function-name">getRandomInteger</span>() {
+    <span class="keyword">return</span> Integer.toString(m_random.nextInt());
+  }
 }</pre>
 </blockquote>
 </li>
