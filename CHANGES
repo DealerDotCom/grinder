@@ -2,9 +2,10 @@ Grinder 3.0-beta9
 -----------------
 
   Incorporate HTTPClient HTTPS patch into main distribution. The Grinder
-  now *requires* the JSSE.
+  now *requires* the JSSE, so you must install it if you are using a
+  version of the J2SE earlier than 1.4.
 
-  Fix use of JDK 1.4.1 Color constants. Should compile with JDK 1.3.1
+  Fix use of J2SE 1.4.1 Color constants. Should compile with J2SE 1.3.1
   again. Thanks to Kumar Mettu for the report.
 
   Minor fixes to how the HTTP Plugin TCPProxy filter parses content
@@ -29,8 +30,13 @@ Grinder 3.0-beta9
   in separate data files rather than inlined in the script. This
   should fix bug 702022.
 
-  Fulfil Feature Request 732676 raised by "bertrand (jwk330)" by
-  adding a "milliseconds since start" column to the data file.
+  Fulfil Feature Request 732676 raised by Bertrand Ave by adding a
+  "milliseconds since start" column to the data file.
+
+  French console translation from Bertrand Ave.
+
+  Example script that interprets an grinder.properties HTTP test
+  script for The Girnder 2.
 
 
 Grinder 3.0-beta8

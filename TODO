@@ -22,16 +22,6 @@ seconds, however, in the script, there are commands
 inserted that make the Grinder to fall asleep even for an
 hour, e.g. sleep(4348063)
 
-** Timing
-
-Strange discrepencies between G3 with G2 adapter script and G2.
-Initial request (with connection) is quicker, subsequent requests seem
-to have an overhead. Can reproduce with a single thread. Need to
-investigate what's happening at the packet level.
-
-Suspect discrepency _could_ be due to additional overhead of Jython
-causing more contention on my single CPU. Need to profile.
-
 ** That EOF and retries thing
 
 http://sourceforge.net/mailarchive/message.php?msg_id=2027628
@@ -59,7 +49,7 @@ wait for console signals.
 
 * Enhancements
 
-** Ambitious
+** Measure variance (Ambitious)
 
 Measure test variance. This would involve the console broadcasting the
 total mean, and then listening for the reported variance.
@@ -221,25 +211,12 @@ Incorporate checkstyle.
 	net.grinder.script
 	net.grinder.statistics
 
-Occasionaly use findbugs.
-
 * Documentation
 
 HTTP plug-in.
 TCPProxy and G3.
 
 Document G2 adapter.
-
-DeSouza, Edwin writes:
- > Are there any comparisons of JMeter vs Grinder?
- >  
- > The only thing I found was this (perhaps it should be linked on the
- > Grinder site):
- > http://www.gashalot.com/blog/archives/000002.html
-
-DeSouza, Edwin writes:
- > maybe good to link this on the Grinder page...
- > http://mapage.noos.fr/kimble/papers/grinder.htm
 
 Feature matrix.
 
