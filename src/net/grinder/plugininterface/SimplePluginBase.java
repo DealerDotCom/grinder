@@ -24,30 +24,48 @@ import net.grinder.util.GrinderProperties;
 
 
 /**
- * This interface defines the callbacks that an individual Grinder
- * thread can make on a plugin.
+ * Abstract base class for simple plugins that use the default test
+ * set mechanism. (I.E. their tests are always defined in the
+ * properties file).
  *
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface GrinderPlugin
+public abstract class SimplePluginBase
+    implements GrinderPlugin, ThreadCallbacks
 {
     /**
      * This method is executed when the process starts. It is only
      * executed once.
      */
     public void initialize(PluginProcessContext processContext)
-	throws PluginException;
+	throws PluginException
+    {
+    }
+    
 
     /**
      * This method is called to create a handler for each thread.
      */
     public ThreadCallbacks createThreadCallbackHandler()
-	throws PluginException;
+	throws PluginException
+    {
+	try {
+	    return (ThreadCallbacks)clone();
+	}
+	catch (CloneNotSupportedException e) {
+	    throw new PluginException("Plugin classes that implement " +
+				      getClass().getName() +
+				      " must support clone()", e);
+	}
+    }
 
     /**
      * Returns a Set of Tests. Returns null if the tests are to be
      * defined in the properties file.
      */
-    public Set getTests() throws PluginException;
+    public Set getTests() throws PluginException
+    {
+	return null;
+    }
 }

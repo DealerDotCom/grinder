@@ -29,21 +29,12 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface PluginThreadContext {
-    
-    public String getHostIDString();
-    public String getProcessIDString();
+public interface PluginThreadContext extends PluginProcessContext
+{    
     public int getThreadID();
 
-    public FilenameFactory getFilenameFactory();
-    
     public void abortCycle();
     public void abort();
-
-    /**
-     * Returns the parameters specified with "grinder.plugin.parameter="
-     */
-    public GrinderProperties getPluginParameters();
 
     /**
      * The plug-in should call startTimer() if it wishes to have more
@@ -65,14 +56,4 @@ public interface PluginThreadContext {
      * @see #startTimer
      */
     public void stopTimer();
-
-    /**
-     * Log a message with context information.
-     */
-    public void logMessage(String message);
-
-    /**
-     * Log an error with context information.
-     */
-    public void logError(String message);
 }

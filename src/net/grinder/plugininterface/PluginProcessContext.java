@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2001  Paco Gomez
-// Copyright (C) 2001  Philip Aston
+// Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2000  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,36 +18,35 @@
 
 package net.grinder.plugininterface;
 
-import java.util.Set;
-
+import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderProperties;
 
-
 /**
- * This interface defines the callbacks that an individual Grinder
- * thread can make on a plugin.
- *
+ * This class is used to share data between the Grinder and the 
+ * plug-in.
+ * 
+ * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- */ 
-public interface GrinderPlugin
-{
+ */
+public interface PluginProcessContext
+{    
+    public String getHostIDString();
+    public String getProcessIDString();
+    public FilenameFactory getFilenameFactory();
+    
     /**
-     * This method is executed when the process starts. It is only
-     * executed once.
+     * Returns the parameters specified with "grinder.plugin.parameter="
      */
-    public void initialize(PluginProcessContext processContext)
-	throws PluginException;
+    public GrinderProperties getPluginParameters();
 
     /**
-     * This method is called to create a handler for each thread.
+     * Log a message with context information.
      */
-    public ThreadCallbacks createThreadCallbackHandler()
-	throws PluginException;
+    public void logMessage(String message);
 
     /**
-     * Returns a Set of Tests. Returns null if the tests are to be
-     * defined in the properties file.
+     * Log an error with context information.
      */
-    public Set getTests() throws PluginException;
+    public void logError(String message);
 }
