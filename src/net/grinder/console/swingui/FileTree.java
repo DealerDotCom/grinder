@@ -43,7 +43,10 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -97,7 +100,24 @@ final class FileTree {
         }
       });
 
-    m_tree = new JTree(m_fileTreeModel);
+    final CompositeTreeModel compositeTreeModel = new CompositeTreeModel();
+
+    compositeTreeModel.addTreeModel(m_fileTreeModel, true);
+
+    final DefaultMutableTreeNode bufferRoot =
+      new DefaultMutableTreeNode("Buffers");
+
+    bufferRoot.add(new DefaultMutableTreeNode("bah"));
+    bufferRoot.add(new DefaultMutableTreeNode("New file 1"));
+    bufferRoot.add(new DefaultMutableTreeNode("New file 2"));
+    bufferRoot.add(new DefaultMutableTreeNode("foo"));
+    final TreeModel bufferModel = new DefaultTreeModel(bufferRoot);
+
+    compositeTreeModel.addTreeModel(bufferModel, false);
+
+    m_tree = new JTree(compositeTreeModel);
+    m_tree.setRootVisible(false);
+    m_tree.setShowsRootHandles(true);
 
     m_tree.setCellRenderer(new CustomTreeCellRenderer());
     m_tree.getSelectionModel().setSelectionMode(
@@ -177,7 +197,13 @@ final class FileTree {
                 (FileTreeModel.FileNode)node;
 
               fileNode.setBuffer(buffer);
-              m_tree.scrollPathToVisible(fileNode.getPath());
+
+              final Object[] fileTreePath = fileNode.getPath().getPath();
+              final Object[] path = new Object[fileTreePath.length + 1];
+              System.arraycopy(fileTreePath, 0, path, 1, fileTreePath.length);
+              path[0] = m_tree.getModel().getRoot();
+
+              m_tree.scrollPathToVisible(new TreePath(path));
             }
           }
 
@@ -254,10 +280,8 @@ final class FileTree {
       JTree tree, Object value, boolean selected, boolean expanded,
       boolean leaf, int row, boolean hasFocus) {
 
-      final FileTreeModel.Node node = (FileTreeModel.Node)value;
-
-      if (node instanceof FileTreeModel.FileNode) {
-        final FileTreeModel.FileNode fileNode = (FileTreeModel.FileNode)node;
+      if (value instanceof FileTreeModel.FileNode) {
+        final FileTreeModel.FileNode fileNode = (FileTreeModel.FileNode)value;
 
         setLeafIcon(fileNode.isPythonFile() ?
                     m_pythonIcon : m_defaultRenderer.getLeafIcon());

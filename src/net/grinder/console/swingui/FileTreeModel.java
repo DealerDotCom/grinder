@@ -85,7 +85,11 @@ final class FileTreeModel implements TreeModel {
   public Object getChild(Object parent, int index) {
 
     if (parent instanceof DirectoryNode) {
-      return ((DirectoryNode)parent).getChild(index);
+      final DirectoryNode directoryNode = (DirectoryNode)parent;
+
+      if (directoryNode.belongsToModel(this)) {
+        return directoryNode.getChild(index);
+      }
     }
 
     return null;
@@ -94,7 +98,11 @@ final class FileTreeModel implements TreeModel {
   public int getChildCount(Object parent) {
 
     if (parent instanceof DirectoryNode) {
-      return ((DirectoryNode)parent).getChildCount();
+      final DirectoryNode directoryNode = (DirectoryNode)parent;
+
+      if (directoryNode.belongsToModel(this)) {
+        return directoryNode.getChildCount();
+      }
     }
 
     return 0;
@@ -108,11 +116,14 @@ final class FileTreeModel implements TreeModel {
     }
 
     if (parent instanceof DirectoryNode) {
-      return ((DirectoryNode)parent).getIndexOfChild((Node)child);
+      final DirectoryNode directoryNode = (DirectoryNode)parent;
+
+      if (directoryNode.belongsToModel(this)) {
+        return directoryNode.getIndexOfChild((Node)child);
+      }
     }
-    else {
-      return -1;
-    }
+
+    return -1;
   }
 
   public Node findNode(File file) {
@@ -171,7 +182,15 @@ final class FileTreeModel implements TreeModel {
   }
 
   public boolean isLeaf(Object node) {
-    return node instanceof FileNode;
+    if (node instanceof FileNode) {
+      final FileNode fileNode = (FileNode)node;
+
+      if (fileNode.belongsToModel(this)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   public void addTreeModelListener(TreeModelListener listener) {
@@ -250,6 +269,10 @@ final class FileTreeModel implements TreeModel {
 
     public final TreePath getPath() {
       return m_path;
+    }
+
+    boolean belongsToModel(FileTreeModel model) {
+      return FileTreeModel.this == model;
     }
   }
 
@@ -432,3 +455,4 @@ final class FileTreeModel implements TreeModel {
     }
   }
 }
+
