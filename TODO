@@ -171,7 +171,7 @@ Reasons for Commons HttpClient:
 Reasons for HttpUnit:
 	- nekohtml, parsing support
 
-I prefer HttpUnit, HTTPClient over HttpUnit for The Grinder as they
+I prefer HttpClient, HTTPClient over HttpUnit for The Grinder as they
 are "closer to the wire".
 
 Specific responses to Justin:
