@@ -184,8 +184,8 @@ public final class GrinderProcess implements Monitor {
     if (m_initialisationMessage.getReportToConsole()) {
       final Connector connector =
         new Connector(
-          properties.getProperty("grinder.consoleAddress",
-                                 CommunicationDefaults.CONSOLE_ADDRESS),
+          properties.getProperty("grinder.consoleHost",
+                                 CommunicationDefaults.CONSOLE_HOST),
           properties.getInt("grinder.consolePort",
                             CommunicationDefaults.CONSOLE_PORT),
           ConnectionType.REPORT);

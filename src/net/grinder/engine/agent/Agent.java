@@ -96,8 +96,8 @@ public final class Agent {
       if (properties.getBoolean("grinder.useConsole", true)) {
         final Connector connector =
           new Connector(
-            properties.getProperty("grinder.consoleAddress",
-                                   CommunicationDefaults.CONSOLE_ADDRESS),
+            properties.getProperty("grinder.consoleHost",
+                                   CommunicationDefaults.CONSOLE_HOST),
             properties.getInt("grinder.consolePort",
                               CommunicationDefaults.CONSOLE_PORT),
             ConnectionType.CONTROL);

@@ -13,11 +13,11 @@
 
 <p><em>Start processes</em>, <em>Reset processes</em> and <em>Stop
 processes</em> send signals to Grinder processes that are listening.
-(See <a href="getting-started.html#grinder.receiveConsoleSignals">
-grinder.receiveConsoleSignals</a>, <a
-href="getting-started.html#grinder.grinderAddress">grinder.grinderAddress</a>
+(See <a href="getting-started.html#grinder.useConsole">
+grinder.useConsole</a>, <a
+href="getting-started.html#grinder.consoleHost">grinder.consoleHost</a>
 and <a
-href="getting-started.html#grinder.grinderPort">grinder.grinderPort</a>.)</p>
+href="getting-started.html#grinder.consolePort">grinder.consolePort</a>.)</p>
 
 <p>Worker processes that are configured to receive console signals go
 through three states:</p>

@@ -52,7 +52,7 @@ abstract class OptionsDialogHandler {
   /** A working copy of console properties. **/
   private final ConsoleProperties m_properties;
 
-  private final JTextField m_consoleAddress = new JTextField();
+  private final JTextField m_consoleHost = new JTextField();
   private final IntegerField m_consolePort =
     new IntegerField(CommunicationDefaults.MIN_PORT,
                      CommunicationDefaults.MAX_PORT);
@@ -79,8 +79,8 @@ abstract class OptionsDialogHandler {
     final GridLayout addressLayout = new GridLayout(0, 2, 0, 1);
     addressLayout.setHgap(5);
     final JPanel addressPanel = new JPanel(addressLayout);
-    addressPanel.add(new JLabel(resources.getString("consoleAddress.label")));
-    addressPanel.add(m_consoleAddress);
+    addressPanel.add(new JLabel(resources.getString("consoleHost.label")));
+    addressPanel.add(m_consoleHost);
     addressPanel.add(new JLabel(resources.getString("consolePort.label")));
     addressPanel.add(m_consolePort);
 
@@ -158,7 +158,7 @@ abstract class OptionsDialogHandler {
           }
           else {
             try {
-              m_properties.setConsoleAddress(m_consoleAddress.getText());
+              m_properties.setConsoleHost(m_consoleHost.getText());
               m_properties.setConsolePort(m_consolePort.getValue());
               m_properties.setSignificantFigures(m_sfSlider.getValue());
               m_properties.setResetConsoleWithProcesses(
@@ -213,7 +213,7 @@ abstract class OptionsDialogHandler {
     m_properties.set(initialProperties);
 
     // Initialise input values.
-    m_consoleAddress.setText(m_properties.getConsoleAddress());
+    m_consoleHost.setText(m_properties.getConsoleHost());
     m_consolePort.setValue(m_properties.getConsolePort());
     m_sfSlider.setValue(m_properties.getSignificantFigures());
     m_resetConsoleWithProcessesCheckBox.setSelected(

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -66,7 +66,7 @@ final class ConsoleCommunication {
         public void propertyChange(PropertyChangeEvent event) {
           final String property = event.getPropertyName();
 
-          if (property.equals(ConsoleProperties.CONSOLE_ADDRESS_PROPERTY) ||
+          if (property.equals(ConsoleProperties.CONSOLE_HOST_PROPERTY) ||
               property.equals(ConsoleProperties.CONSOLE_PORT_PROPERTY)) {
             reset();
           }
@@ -106,7 +106,7 @@ final class ConsoleCommunication {
     }
 
     try {
-      m_acceptor = new Acceptor(m_properties.getConsoleAddress(),
+      m_acceptor = new Acceptor(m_properties.getConsoleHost(),
                                 m_properties.getConsolePort(),
                                 1);
     }

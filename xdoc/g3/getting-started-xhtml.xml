@@ -136,7 +136,7 @@ the <code>grinder.properties</code> file before starting The Grinder
 agents:</p>
 
 <pre>
-        <a href="#grinder.consoleAddress">grinder.consoleAddress</a>  (Address of machine running console)
+        <a href="#grinder.consoleHost">grinder.consoleHost</a>  (Address of machine running console)
         <a href="#grinder.consolePort">grinder.consolePort</a>
 </pre>
 
@@ -300,10 +300,10 @@ engine.</p>
  </tr>
 
  <tr>
-  <td valign="top"><code><a name="grinder.consoleAddress">grinder.consoleAddress</a></code></td>
-  <td>The IP address or hostname to use for communication that the
-  agent and worker processes use to contact the console. Default is
-  all the network interfaces of the local machine.</td>
+  <td valign="top"><code><a name="grinder.consoleHost">grinder.consoleHost</a></code></td>
+  <td>The IP address or hostname to use for communication between the
+  agent and worker processes and the console. Default is all the
+  network interfaces of the local machine.</td>
  </tr>
 
  <tr>

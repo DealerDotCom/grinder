@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -128,9 +128,9 @@ public class TestConsoleProperties extends TestCase {
     }.doTest();
   }
 
-  public void testConsoleAddress() throws Exception {
+  public void testConsoleHost() throws Exception {
 
-    final String propertyName = ConsoleProperties.CONSOLE_ADDRESS_PROPERTY;
+    final String propertyName = ConsoleProperties.CONSOLE_HOST_PROPERTY;
 
     final String s1 = "123.1.2.3";
 
@@ -138,17 +138,17 @@ public class TestConsoleProperties extends TestCase {
     m_fileWriter.close();
 
     final ConsoleProperties properties = new ConsoleProperties(m_file);
-    assertEquals(s1, properties.getConsoleAddress());
+    assertEquals(s1, properties.getConsoleHost());
 
     final String s2 = "123.99.33.11";
 
-    properties.setConsoleAddress(s2);
-    assertEquals(s2, properties.getConsoleAddress());
+    properties.setConsoleHost(s2);
+    assertEquals(s2, properties.getConsoleHost());
 
     properties.save();
 
     final ConsoleProperties properties2 = new ConsoleProperties(m_file);
-    assertEquals(s2, properties2.getConsoleAddress());
+    assertEquals(s2, properties2.getConsoleHost());
 
     final String s3 = "1.46.68.80";
 
@@ -161,7 +161,7 @@ public class TestConsoleProperties extends TestCase {
     properties2.addPropertyChangeListener(listener);
     properties2.addPropertyChangeListener(propertyName, listener2);
 
-    properties2.setConsoleAddress(s3);
+    properties2.setConsoleHost(s3);
   }
 
   public void testConsolePort() throws Exception {
@@ -294,7 +294,7 @@ public class TestConsoleProperties extends TestCase {
     assertEquals(p1.getIgnoreSampleCount(), p2.getIgnoreSampleCount());
     assertEquals(p1.getSampleInterval(), p2.getSampleInterval());
     assertEquals(p1.getSignificantFigures(), p2.getSignificantFigures());
-    assertEquals(p1.getConsoleAddress(), p2.getConsoleAddress());
+    assertEquals(p1.getConsoleHost(), p2.getConsoleHost());
     assertEquals(p1.getConsolePort(), p2.getConsolePort());
     assertEquals(p1.getResetConsoleWithProcesses(),
 		 p2.getResetConsoleWithProcesses());
@@ -312,7 +312,7 @@ public class TestConsoleProperties extends TestCase {
     p2.setIgnoreSampleCount(99);
     p2.setSampleInterval(99);
     p2.setSignificantFigures(99);
-    p2.setConsoleAddress("99.99.99.99");
+    p2.setConsoleHost("99.99.99.99");
     p2.setConsolePort(99);
     p2.setResetConsoleWithProcesses(true);
     p2.setResetConsoleWithProcessesDontAsk();
@@ -323,7 +323,7 @@ public class TestConsoleProperties extends TestCase {
     assertTrue(p1.getIgnoreSampleCount() != p2.getIgnoreSampleCount());
     assertTrue(p1.getSampleInterval() != p2.getSampleInterval());
     assertTrue(p1.getSignificantFigures() != p2.getSignificantFigures());
-    assertTrue(!p1.getConsoleAddress().equals(p2.getConsoleAddress()));
+    assertTrue(!p1.getConsoleHost().equals(p2.getConsoleHost()));
     assertTrue(p1.getConsolePort() != p2.getConsolePort());
     assertTrue(p1.getResetConsoleWithProcesses() !=
 	       p2.getResetConsoleWithProcesses());
@@ -339,7 +339,7 @@ public class TestConsoleProperties extends TestCase {
     assertEquals(p1.getIgnoreSampleCount(), p2.getIgnoreSampleCount());
     assertEquals(p1.getSampleInterval(), p2.getSampleInterval());
     assertEquals(p1.getSignificantFigures(), p2.getSignificantFigures());
-    assertEquals(p1.getConsoleAddress(), p2.getConsoleAddress());
+    assertEquals(p1.getConsoleHost(), p2.getConsoleHost());
     assertEquals(p1.getConsolePort(), p2.getConsolePort());
     assertTrue(p1.getResetConsoleWithProcesses() ==
 	       p2.getResetConsoleWithProcesses());
