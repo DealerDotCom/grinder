@@ -3,15 +3,32 @@
   <body>
 The Grinder statistics API.
 
-<h2>Example usage</h2>
+<p>Statistics are attributes of the test results that appear in the
+console and the data logs. Scripts can use this API to:
+<ul>
+<li>report custom statistics;</li>
+<li>register additional views of standard and custom statistics.</li>
+</ul>
+</p>
+
+<p>This API is for advanced scripts. Scripts that simply need to query
+or update the standard statistics (number of errors, transaction time
+and so on) can do so using the {@link net.grinder.script.Statistics}
+script API.</p>
+
+<h3>Example usage</h3>
 <h4>Using a custom statistic from a script</h4>
 
 <pre>
 # Obtain the index object for the a spare long statistic.
 deliveryTimeIndex = StatisticsIndexMap.getInstance().getIndexForLong("userLong0")
 
-# Use the RawStatistics interface to update the statistic.
-grinder.currentTestStatistics.addValue(deliveryTimeIndex, deliveryTime)
+# Delay statistic reporting so we can alter statistics.
+grinder.statistics.delayReports = 1
+
+# Use the RawStatistics interface to set the statistic value for the
+# last test.
+grinder.statistics.setValue(deliveryTimeIndex, deliveryTime)
 </pre>
 
 <h4>Registering custom statistic views from a script</h4>
