@@ -74,6 +74,7 @@ public final class ConsoleCommunicationImplementation
     new ProcessControlImplementation();
   private final DistributionControl m_distributionControl =
     new DistributionControlImplementation();
+  private final AgentStatus m_agentStatus = new AgentStatusImplementation();
 
   /**
    * Synchronise on m_connectedAgents before accessing.
@@ -270,6 +271,15 @@ public final class ConsoleCommunicationImplementation
   }
 
   /**
+   * Get a AgentStatus implementation.
+   *
+   * @return The <code>AgentStatus</code>.
+   */
+  public AgentStatus getAgentStatus() {
+    return m_agentStatus;
+  }
+
+  /**
    * Add a message hander.
    *
    * @param messageHandler The message handler.
@@ -387,6 +397,9 @@ public final class ConsoleCommunicationImplementation
     public void sendFile(FileContents fileContents) {
       send(new DistributeFileMessage(fileContents));
     }
+  }
+
+  private class AgentStatusImplementation implements AgentStatus {
 
     /**
      * Get a Set&lt;ConnectionIdentity&gt; of connected agent
@@ -397,6 +410,17 @@ public final class ConsoleCommunicationImplementation
     public Set getConnectedAgents() {
       synchronized (m_connectedAgents) {
         return new HashSet(m_connectedAgents);
+      }
+    }
+
+    /**
+     * Register an {@link AgentConnectionListener}.
+     *
+     * @param listener The listener.
+     */
+    public void addConnectionListener(AgentConnectionListener listener) {
+      synchronized (m_agentConnectionListeners) {
+        m_agentConnectionListeners.add(listener);
       }
     }
   }
@@ -418,24 +442,13 @@ public final class ConsoleCommunicationImplementation
     }
   }
 
-  /**
-   * Register an {@link AgentConnectionListener}.
-   *
-   * @param listener The listener.
-   */
-  public void addAgentConnectionListener(AgentConnectionListener listener) {
-    synchronized (m_agentConnectionListeners) {
-      m_agentConnectionListeners.add(listener);
-    }
-  }
-
   private void fireAgentConnected() {
     synchronized (m_agentConnectionListeners) {
       final Iterator iterator = m_agentConnectionListeners.iterator();
 
       while (iterator.hasNext()) {
-        final AgentConnectionListener listener =
-          (AgentConnectionListener)iterator.next();
+        final AgentStatus.AgentConnectionListener listener =
+          (AgentStatus.AgentConnectionListener)iterator.next();
 
         listener.agentConnected();
       }
@@ -447,8 +460,8 @@ public final class ConsoleCommunicationImplementation
       final Iterator iterator = m_agentConnectionListeners.iterator();
 
       while (iterator.hasNext()) {
-        final AgentConnectionListener listener =
-          (AgentConnectionListener)iterator.next();
+        final AgentStatus.AgentConnectionListener listener =
+          (AgentStatus.AgentConnectionListener)iterator.next();
 
         listener.agentDisconnected();
       }

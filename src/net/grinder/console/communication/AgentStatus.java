@@ -23,26 +23,42 @@ package net.grinder.console.communication;
 
 import java.util.Set;
 
-import net.grinder.util.FileContents;
-
 
 /**
- * Interface for sending files to the agent process caches.
+ * Interface for enquiring about the currently connected agents.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface DistributionControl {
+public interface AgentStatus {
 
   /**
-   * Signal the agent processes to clear their file caches.
-   */
-  void clearFileCaches();
-
-  /**
-   * Send a file to the file caches.
+   * Get a Set&lt;ConnectionIdentity&gt; of connected agent processes.
    *
-   * @param fileContents The file contents.
+   * @return Copy of the set of connection identities.
    */
-  void sendFile(FileContents fileContents);
+  Set getConnectedAgents();
+
+  /**
+   * Register an {@link AgentConnectionListener}.
+   *
+   * @param listener The listener.
+   */
+  void addConnectionListener(AgentConnectionListener listener);
+
+  /**
+   * Interface that clients can use to listen for agent connection
+   * events.
+   */
+  interface AgentConnectionListener {
+    /**
+     * Called when one or more agents connect.
+     */
+    void agentConnected();
+
+    /**
+     * Called when one or more agents disconnect.
+     */
+    void agentDisconnected();
+  }
 }

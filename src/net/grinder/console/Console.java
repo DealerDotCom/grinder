@@ -31,6 +31,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
+import net.grinder.console.communication.AgentStatus;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.ConsoleCommunicationImplementation;
 import net.grinder.console.distribution.FileDistribution;
@@ -84,8 +85,8 @@ public class Console {
     final FileDistribution fileDistribution =
       new FileDistribution(m_communication.getDistributionControl());
 
-    m_communication.addAgentConnectionListener(
-      new ConsoleCommunication.AgentConnectionListener() {
+    m_communication.getAgentStatus().addConnectionListener(
+      new AgentStatus.AgentConnectionListener() {
         public void agentConnected() {
           fileDistribution.getAgentCacheState().setOutOfDate();
         }

@@ -177,19 +177,16 @@ public class TestConsoleCommunicationImplementation
   }
 
   public void testDistributionControl() throws Exception {
-    final DistributionControl distributionControl =
-      m_consoleCommunication.getDistributionControl();
-
-    assertEquals(0, distributionControl.getConnectedAgents().size());
-
     final Socket socket =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.CONTROL.write(socket.getOutputStream());
+
+    final DistributionControl distributionControl =
+      m_consoleCommunication.getDistributionControl();
+
     final Socket socket2 =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.CONTROL.write(socket2.getOutputStream());
-
-    assertEquals(2, distributionControl.getConnectedAgents().size());
 
     // Closing the socket isn't enough for the ConsoleCommunication's
     // Sender to know we've gone, we need to send something too.
@@ -198,7 +195,8 @@ public class TestConsoleCommunicationImplementation
     distributionControl.clearFileCaches();
 
     for (int retry = 0;
-         distributionControl.getConnectedAgents().size() != 1 && retry < 10;
+         m_consoleCommunication.getAgentStatus().getConnectedAgents().size()
+           != 1 && retry < 10;
          ++retry) {
       Thread.sleep(10);
     }
@@ -328,16 +326,19 @@ public class TestConsoleCommunicationImplementation
     errorHandlerStubFactory2.assertNoMoreCalls();
   }
 
-  public void testAgentConnectionListeners() throws Exception {
+  public void testAgentStatus() throws Exception {
+
+    final AgentStatus agentStatus = m_consoleCommunication.getAgentStatus();
+
+    assertEquals(0, agentStatus.getConnectedAgents().size());
 
     final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(
-        ConsoleCommunicationImplementation.AgentConnectionListener.class);
-    final ConsoleCommunicationImplementation.AgentConnectionListener
-      listener = (ConsoleCommunicationImplementation.AgentConnectionListener)
+      new RandomStubFactory(AgentStatus.AgentConnectionListener.class);
+    final AgentStatus.AgentConnectionListener
+      listener = (AgentStatus.AgentConnectionListener)
       listenerStubFactory.getStub();
 
-    m_consoleCommunication.addAgentConnectionListener(listener);
+    agentStatus.addConnectionListener(listener);
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
@@ -353,6 +354,8 @@ public class TestConsoleCommunicationImplementation
     listenerStubFactory.assertSuccess("agentConnected");
     listenerStubFactory.assertNoMoreCalls();
 
+    assertEquals(2, agentStatus.getConnectedAgents().size());
+
     socket.close();
 
     // We send a message to force the connection close to be detected.
@@ -361,7 +364,7 @@ public class TestConsoleCommunicationImplementation
     distributionControl.clearFileCaches();
 
     for (int retry = 0;
-         distributionControl.getConnectedAgents().size() != 1 && retry < 10;
+         agentStatus.getConnectedAgents().size() != 1 && retry < 10;
          ++retry) {
       Thread.sleep(10);
     }

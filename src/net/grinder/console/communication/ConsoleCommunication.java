@@ -80,6 +80,13 @@ public interface ConsoleCommunication {
   DistributionControl getDistributionControl();
 
   /**
+   * Get an AgentStatus implementation.
+   *
+   * @return The <code>AgentStatus</code>.
+   */
+  AgentStatus getAgentStatus();
+
+  /**
    * Set the error handler. Any errors the
    * <code>ConsoleCommunication</code> has queued up will be reported
    * immediately.
@@ -87,27 +94,4 @@ public interface ConsoleCommunication {
    * @param errorHandler Where to report errors.
    */
   void setErrorHandler(ErrorHandler errorHandler);
-
-  /**
-   * Register an {@link AgentConnectionListener}.
-   *
-   * @param listener The listener.
-   */
-  void addAgentConnectionListener(AgentConnectionListener listener);
-
-  /**
-   * Interface that clients can use to listen for agent connection
-   * events.
-   */
-  interface AgentConnectionListener {
-    /**
-     * Called when one or more agents connect.
-     */
-    void agentConnected();
-
-    /**
-     * Called when one or more agents disconnect.
-     */
-    void agentDisconnected();
-  }
 }
