@@ -43,13 +43,25 @@ import net.grinder.util.PropertiesHelper;
  */
 public class Model
 {
+    public final static int STATE_WAITING_FOR_TRIGGER = 0;
+    public final static int STATE_STOPPED = 1;
+    public final static int STATE_CAPTURING = 2;
+
     private final Map m_tests = new TreeMap();
     private final HashMap m_samples = new HashMap();
     private final Sample m_totalSample = new Sample();
     private TestStatisticsMap m_summaryStatistics = new TestStatisticsMap();
     private final Thread m_sampleThread;
-    private int m_sampleInterval = 500;
+    private int m_sampleInterval = 1000;
+    private int m_ignoreSampleCount = 1;
+    private int m_collectSampleCount = 0;
     private boolean m_stopSampler = false;
+
+    private int m_state = 0;
+    private int m_sampleCount = 0;
+    private boolean m_receivedSample = false;
+
+    private final List m_modelListeners = new LinkedList();
 
     public Model(GrinderProperties properties)
 	throws GrinderException
@@ -71,6 +83,8 @@ public class Model
 	    m_tests.put(test.getTestNumber(), test);
 	    m_samples.put(test.getTestNumber(), new Sample());
 	}
+
+	setInitialState();
 
 	m_sampleThread = new Thread(new Sampler());
 	m_sampleThread.start();
@@ -98,6 +112,22 @@ public class Model
 	return sample;
     }
 
+    public synchronized void addModelListener(ModelListener listener)
+	throws ConsoleException
+    {
+	m_modelListeners.add(listener);
+    }
+
+    private synchronized void fireModelUpdate()
+    {
+	final Iterator iterator = m_modelListeners.iterator();
+
+	while (iterator.hasNext()) {
+	    final ModelListener listener = (ModelListener)iterator.next();
+	    listener.update();
+	}
+    }
+
     public void addSampleListener(Integer testNumber, SampleListener listener)
 	throws ConsoleException
     {
@@ -120,11 +150,39 @@ public class Model
 
 	m_totalSample.reset();
 	m_summaryStatistics = new TestStatisticsMap();
+
+	fireModelUpdate();
+    }
+
+    private void setInitialState()
+    {
+	if (getIgnoreSampleCount() != 0) {
+	    setState(STATE_WAITING_FOR_TRIGGER);
+	}
+	else {
+	    setState(STATE_CAPTURING);
+	}
+    }
+
+    public void start()
+    {
+	setInitialState();
+	fireModelUpdate();
+    }
+
+    public void stop()
+    {
+	setState(STATE_STOPPED);
+	fireModelUpdate();
     }
 
     public void add(TestStatisticsMap testStatisticsMap)
 	throws ConsoleException
     {
+	m_receivedSample = true;
+
+	final boolean addToTotals = getState() == STATE_CAPTURING;
+
 	final TestStatisticsMap.Iterator iterator =
 	    testStatisticsMap.new Iterator();
 
@@ -135,10 +193,15 @@ public class Model
 	    final Statistics statistics = pair.getStatistics();
 
 	    getSample(testNumber).add(statistics);
-	    m_totalSample.add(statistics);
+
+	    if (addToTotals) {
+		m_totalSample.add(statistics);
+	    }
 	}
 
-	m_summaryStatistics.add(testStatisticsMap);
+	if (addToTotals) {
+	    m_summaryStatistics.add(testStatisticsMap);
+	}
     }
 
     private class Sample
@@ -214,6 +277,32 @@ public class Model
 		}
 
 		m_totalSample.fireSample();
+
+		final int state = getState();
+
+		if (state != STATE_STOPPED && m_receivedSample) {
+		    ++m_sampleCount;
+		}
+		
+		if (state == STATE_CAPTURING) {
+		    if (m_receivedSample) {
+			final int collectSampleCount = getCollectSampleCount();
+
+			if (collectSampleCount != 0 &&
+			    m_sampleCount >= collectSampleCount) {
+			    setState(STATE_STOPPED);
+			}
+		    }
+		}
+		else if (state == STATE_WAITING_FOR_TRIGGER) {
+		    if (m_sampleCount >= getIgnoreSampleCount()) {
+			setState(STATE_CAPTURING);
+		    }
+		}
+
+		fireModelUpdate();
+
+		m_receivedSample = false;
 	    }
 	}
     }
@@ -223,8 +312,58 @@ public class Model
 	return m_sampleInterval;
     }
 
-    public void setSampleInterval(int l)
+    public void setSampleInterval(int i)
     {
-	m_sampleInterval = l;
+	m_sampleInterval = i;
+	fireModelUpdate();
+    }
+
+    public int getSampleCount()
+    {
+	return m_sampleCount;
+    }
+
+    public int getIgnoreSampleCount()
+    {
+	return m_ignoreSampleCount;
+    }
+
+    public void setIgnoreSampleCount(int i)
+    {
+	m_ignoreSampleCount = i;
+
+	if (getState() == STATE_WAITING_FOR_TRIGGER) {
+	    setInitialState();
+	}
+
+	fireModelUpdate();
+    }
+
+    public int getCollectSampleCount()
+    {
+	return m_collectSampleCount;
+    }
+
+    public void setCollectSampleCount(int i)
+    {
+	m_collectSampleCount = i;
+	fireModelUpdate();
+    }
+
+    public int getState()
+    {
+	return m_state;
+    }
+
+    private void setState(int i)
+    {
+	if (i != STATE_WAITING_FOR_TRIGGER &&
+	    i != STATE_STOPPED &&
+	    i != STATE_CAPTURING) {
+	    throw new IllegalArgumentException("Unknown state: " + i);
+	}
+
+	m_state = i;
+	m_sampleCount = 0;
     }
 }

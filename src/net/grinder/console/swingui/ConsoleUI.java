@@ -45,6 +45,7 @@ import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -57,11 +58,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.grinder.console.ConsoleException;
 import net.grinder.console.model.Model;
+import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
 import net.grinder.plugininterface.Test;
 import net.grinder.statistics.Statistics;
@@ -71,7 +74,7 @@ import net.grinder.statistics.Statistics;
  * @author Philip Aston
  * @version $Revision$
  */
-public class ConsoleUI
+public class ConsoleUI implements ModelListener
 {
     private static ResourceBundle s_resources = null;
 
@@ -83,18 +86,24 @@ public class ConsoleUI
 
     private final HashMap m_actionTable;
     private final Model m_model;
+    private final JLabel m_collectSampleLabel;
+    private final JLabel m_ignoreSampleLabel;
     private final JLabel m_intervalLabel;
+    private final JLabel m_stateLabel;
     private SummaryFrame m_summaryFrame = null;
     private Image m_logoImage = null;
 
-    public ConsoleUI(Model model, ActionListener startHandler)
+    public ConsoleUI(Model model, ActionListener startProcessesHandler)
 	throws ConsoleException
     {
 	getResources();
 
 	final Action[] actions = {
-	    new StartGrinderAction(startHandler),
+	    new StartProcessesGrinderAction(startProcessesHandler),
+	    new StopProcessesGrinderAction(startProcessesHandler),
 	    new ResetAction(),
+	    new StartAction(),
+	    new StopAction(),
 	    new SummaryAction(),
 	    new ExitAction(),
 	};
@@ -158,6 +167,7 @@ public class ConsoleUI
 	final JLabel totalTPSLabel = new JLabel("", SwingConstants.CENTER);
 	totalTPSLabel.setForeground(Color.black);
 	totalTPSLabel.setFont(s_totalTPSFont);
+	totalTPSLabel.setText(s_twoDPFormat.format(0) + " TPS");
 
 	m_model.addTotalSampleListener(
 	    new SampleListener() {
@@ -168,8 +178,6 @@ public class ConsoleUI
 		    }
 		}
 	    );
-
-	final JLabel intervalSliderLabel = new JLabel("Sample interval");
 
 	final JSlider intervalSlider =
 	    new JSlider(100, 10000, m_model.getSampleInterval());
@@ -182,47 +190,87 @@ public class ConsoleUI
 	    new ChangeListener() {
 		    public void stateChanged(ChangeEvent e) {
 			m_model.setSampleInterval(intervalSlider.getValue());
-			setIntervalLabel();
 		    }
 		}
 	    );
 
 	m_intervalLabel = new JLabel();
-	m_intervalLabel.setPreferredSize(new Dimension(60, 16));
-	setIntervalLabel();
 
-	final JPanel intervalPanel = new JPanel();
-	intervalPanel.add(intervalSliderLabel);
-	intervalPanel.add(intervalSlider);
-	intervalPanel.add(m_intervalLabel);
+	final JSlider ignoreSampleSlider =
+	    new JSlider(0, 9, m_model.getIgnoreSampleCount());
+	ignoreSampleSlider.setMajorTickSpacing(1);
+	ignoreSampleSlider.setSnapToTicks(true);
+	ignoreSampleSlider.setPaintTicks(true);
+
+	m_ignoreSampleLabel = new JLabel();
+
+	ignoreSampleSlider.addChangeListener(
+	    new ChangeListener() {
+		    public void stateChanged(ChangeEvent e) {
+			m_model.setIgnoreSampleCount(
+			    ignoreSampleSlider.getValue());
+		    }
+		}
+	    );
+
+	final JSlider collectSampleSlider =
+	    new JSlider(0, 50, m_model.getCollectSampleCount());
+	collectSampleSlider.setMajorTickSpacing(1);
+	collectSampleSlider.setSnapToTicks(true);
+	collectSampleSlider.setPaintTicks(true);
+
+	m_collectSampleLabel = new JLabel();
+
+	collectSampleSlider.addChangeListener(
+	    new ChangeListener() {
+		    public void stateChanged(ChangeEvent e) {
+			m_model.setCollectSampleCount(
+			    collectSampleSlider.getValue());
+		    }
+		}
+	    );
+
+	m_stateLabel = new JLabel();
+
+	final JPanel controlPanel = new JPanel();
+	controlPanel.setLayout(new GridLayout(0, 1));
+	controlPanel.add(m_intervalLabel);
+	controlPanel.add(intervalSlider);
+	controlPanel.add(m_ignoreSampleLabel);
+	controlPanel.add(ignoreSampleSlider);
+	controlPanel.add(m_collectSampleLabel);
+	controlPanel.add(collectSampleSlider);
+	controlPanel.add(m_stateLabel);
+	controlPanel.setBorder(new EmptyBorder(0, 10, 0, 10));
+	
+
+	final JPanel controlAndTotalPanel = new JPanel();
+	controlAndTotalPanel.setLayout(new GridLayout(0, 1));
+	controlAndTotalPanel.add(totalGraph);
+	controlAndTotalPanel.add(controlPanel);
+	controlAndTotalPanel.add(totalTPSLabel);
 
 	final URL logoURL = getResource("logo.image");
 
-	final JPanel totalPanel = new JPanel();
-	totalPanel.setLayout(new GridLayout(0, 1));
-	totalPanel.add(totalGraph);
-	totalPanel.add(intervalPanel);
-	totalPanel.add(totalTPSLabel);
+	final JPanel contentPanel = new JPanel();
+
+	contentPanel.setLayout(new BorderLayout());
+	contentPanel.add("West", controlAndTotalPanel);
+	contentPanel.add(scrollPane);
 
 	if (logoURL != null) {
 	    final ImageIcon imageIcon = new ImageIcon(logoURL);
-	    final JLabel logo = new JLabel(imageIcon);
-	    totalPanel.add(logo);
+	    final JLabel logo = new JLabel(imageIcon, SwingConstants.LEADING);
+	    contentPanel.add("East", logo);
 
 	    m_logoImage = imageIcon.getImage();
 	}
-
-	final JPanel graphPanel = new JPanel();
-
-	graphPanel.setLayout(new BorderLayout());
-	graphPanel.add("West", totalPanel);
-	graphPanel.add(scrollPane);
 
 	// Create a panel to hold the tool bar and the test pane.
         final JPanel toolBarPanel = new JPanel();
 	toolBarPanel.setLayout(new BorderLayout());
 	toolBarPanel.add("North", createToolBar());
-	toolBarPanel.add("Center", graphPanel);
+	toolBarPanel.add("Center", contentPanel);
 
 	// Create the frame, containing the a menu and the top level pane.
 	final JFrame frame = new JFrame(getResourceString("title"));
@@ -234,6 +282,9 @@ public class ConsoleUI
 	if (m_logoImage != null) {
 	    frame.setIconImage(m_logoImage);
 	}
+
+	m_model.addModelListener(this);
+	update();
 
         frame.pack();
         frame.show();
@@ -338,9 +389,51 @@ public class ConsoleUI
 	}
     }
 
-    private void setIntervalLabel()
+    public void update()
     {
-	m_intervalLabel.setText(m_model.getSampleInterval() + " ms");
+	// Ignoring synchronisation issues for now.
+	final int state = m_model.getState();
+	final long sampleInterval = m_model.getSampleInterval();
+	final int sampleCount = m_model.getSampleCount();
+	final int ignoreCount = m_model.getIgnoreSampleCount();
+	final int collectCount = m_model.getCollectSampleCount();
+
+	if (state == Model.STATE_WAITING_FOR_TRIGGER) {
+	    m_stateLabel.setText("Ignoring samples: " + sampleCount);
+	}
+	else if (state == Model.STATE_STOPPED) {
+	    m_stateLabel.setText("Collection stopped");
+	}
+	else if (state == Model.STATE_CAPTURING) {
+	    m_stateLabel.setText("Collecting samples: " + sampleCount);
+	}
+	else {
+	    m_stateLabel.setText("UNKNOWN STATE");
+	}
+
+	m_intervalLabel.setText("Sample interval: " + sampleInterval + " ms");
+
+	if (ignoreCount == 0) {
+	    m_ignoreSampleLabel.setText("Start on first sample");
+	}
+	else if (ignoreCount == 1) {
+	    m_ignoreSampleLabel.setText("Ignore first sample");
+	}
+	else {
+	    m_ignoreSampleLabel.setText("Ignore first " + ignoreCount +
+					" samples");
+	}
+
+	if (collectCount == 0) {
+	    m_collectSampleLabel.setText("Collect samples forever");
+	}
+	else if (collectCount == 1) {
+	    m_collectSampleLabel.setText("Stop after 1 sample");
+	}
+	else {
+	    m_collectSampleLabel.setText("Stop after " + collectCount +
+					 " samples");
+	}
     }
 
     private class ActionChangedListener implements PropertyChangeListener
@@ -409,13 +502,55 @@ public class ConsoleUI
 	}
     }
 
-    private class StartGrinderAction extends AbstractAction
+    private class StartAction extends AbstractAction
+    {
+	StartAction()
+	{
+	    super("start");
+	}
+
+        public void actionPerformed(ActionEvent e)
+	{
+	    m_model.start();
+	}
+    }
+
+    private class StopAction extends AbstractAction
+    {
+	StopAction()
+	{
+	    super("stop");
+	}
+
+        public void actionPerformed(ActionEvent e)
+	{
+	    m_model.stop();
+	}
+    }
+
+    private class StartProcessesGrinderAction extends AbstractAction
     {
 	private final ActionListener m_delegateAction;
 
-	StartGrinderAction(ActionListener delegateAction)
+	StartProcessesGrinderAction(ActionListener delegateAction)
 	{
-	    super("start");
+	    super("start-processes");
+	    m_delegateAction = delegateAction;
+	}
+
+        public void actionPerformed(ActionEvent e)
+	{
+	    m_delegateAction.actionPerformed(e);
+	}
+    }
+
+    private class StopProcessesGrinderAction extends AbstractAction
+    {
+	private final ActionListener m_delegateAction;
+
+	StopProcessesGrinderAction(ActionListener delegateAction)
+	{
+	    super("stop-processes");
 	    m_delegateAction = delegateAction;
 	}
 
