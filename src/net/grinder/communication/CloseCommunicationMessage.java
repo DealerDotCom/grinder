@@ -30,5 +30,5 @@ package net.grinder.communication;
  * @version $Revision$
  */
 final class CloseCommunicationMessage implements Message {
-  static final long serialVersionUID = -6184308536094181215L;
+  private static final long serialVersionUID = -6184308536094181215L;
 }
