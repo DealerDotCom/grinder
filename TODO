@@ -24,7 +24,7 @@ hour, e.g. sleep(4348063)
 
 ** Timing
 
-Strange discrepencies between G3 with G2 adapater script and G2.
+Strange discrepencies between G3 with G2 adapter script and G2.
 Initial request (with connection) is quicker, subsequent requests seem
 to have an overhead. Can reproduce with a single thread. Need to
 investigate what's happening at the packet level.
@@ -51,6 +51,11 @@ The G2 HTTPClient plugin implementation interprets basicAuthentication
 properties wrongly. It first sends a request without the
 authentication headers, then catches the 401 and automatically resends
 a request with the authentication headers.
+
+** Console detection
+
+If process detects it can't send data to the console, it shouldn't
+wait for console signals.
 
 * Enhancements
 
