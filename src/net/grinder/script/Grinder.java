@@ -79,11 +79,7 @@ public class Grinder {
     int getRunNumber();
 
     /**
-     * Get an appropriate {@link net.grinder.common.Logger}
-     * implementation. The value returned when invoked from script
-     * initialisation differs from the value returned when called from
-     * a worker thread, so its best not to keep references to the
-     * result.
+     * Get a {@link net.grinder.common.Logger}. 
      *
      * @return A <code>Logger</code>.
      */
