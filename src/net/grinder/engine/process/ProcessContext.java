@@ -31,6 +31,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.util.DelayedCreationFileWriter;
 
 
 /**
@@ -137,8 +138,6 @@ public class ProcessContext implements PluginProcessContext
 
 	final boolean appendLog =
 	    properties.getBoolean("grinder.appendLog", false);
-
-	//!! REWRITE WITH BUFFEREDWRITER(FILEWRITER).
 
 	// Although we manage the flushing ourselves and don't call
 	// printn, we set auto flush on our PrintWriters because

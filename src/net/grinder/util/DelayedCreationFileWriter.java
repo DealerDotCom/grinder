@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.engine.process;
+package net.grinder.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,7 +31,7 @@ import java.io.IOException;
  * @author Philip Aston
  * @version $Revision$
  */
-class DelayedCreationFileWriter extends Writer
+public class DelayedCreationFileWriter extends Writer
 {
     private final File m_file;
     private final boolean m_append;
