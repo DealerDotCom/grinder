@@ -161,10 +161,10 @@ public class CallRecorder extends Assert {
     // Just check method names match. Don't worry about modifiers
     // etc., or even which class the method belongs to.
     assertEquals(methodName, callData.getMethodName());
-    assertArraysEqual("Expected " + parametersToString(parameters) +
-                      " but was " +
-                      parametersToString(callData.getParameters()),
-                      parameters, callData.getParameters());
+    AssertUtilities. assertArraysEqual(
+      "Expected " + parametersToString(parameters) +
+      " but was " + parametersToString(callData.getParameters()),
+      parameters, callData.getParameters());
 
     return callData;
   }
@@ -298,28 +298,5 @@ public class CallRecorder extends Assert {
     result.append(')');
 
     return result.toString();
-  }
-
-  /**
-   * Assert that two arrays are equal.
-   */
-  public static void assertArraysEqual(Object[] array1, Object[] array2) {
-    assertArraysEqual("", array1, array2);
-  }
-    
-
-  public static void assertArraysEqual(String message, Object[] array1,
-                                       Object[] array2) {
-
-    if (array1 != null || array2 != null) {
-      assertNotNull(message, array1);
-      assertNotNull(message, array2);
-
-      assertEquals(message, array1.length, array2.length);
-
-      for (int i = 0; i < array1.length; ++i) {
-        assertEquals(message, array1[i], array2[i]);
-      }
-    }
   }
 }
