@@ -28,11 +28,6 @@
  *
  *  http://www.innovation.ch/java/HTTPClient/ 
  *
- * This file contains modifications for use with "The Grinder"
- * (http://grinder.sourceforge.net) under the terms of the LGPL.
- * Modifications made by Philip Aston on 9th July 2001. They are
- * marked below with the comment "GRINDER MODIFICATION".
- *
  */
 
 package HTTPClient;
@@ -890,10 +885,7 @@ public class Util
      * @param dstr  the date string to parse
      * @return the Date object
      */
-    /** ++GRINDER MODIFICATION **/
-    public
-    /** --GRINDER MODIFICATION **/
-	final static Date parseHttpDate(String dstr)
+    final static Date parseHttpDate(String dstr)
     {
 	synchronized (http_parse_lock)
 	{
