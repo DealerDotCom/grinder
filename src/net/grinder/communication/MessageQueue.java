@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,8 +27,8 @@ package net.grinder.communication;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
-class MessageQueue {
+ */
+final class MessageQueue {
 
   private final ThreadSafeQueue m_queue = new ThreadSafeQueue();
   private final boolean m_passExceptions;
@@ -39,7 +39,7 @@ class MessageQueue {
    * @param passExceptions <code>true</code> => allow exceptionss to
    * be inserted into the queue and rethrown to callers of {@link
    * #dequeue}.
-   **/
+   */
   public MessageQueue(boolean passExceptions) {
     m_passExceptions = passExceptions;
   }
@@ -51,8 +51,8 @@ class MessageQueue {
    * @exception ThreadSafeQueue.ShutdownException If the queue has
    * been shutdown.
    * @see #shutdown
-   **/
-  public final void queue(Message message)
+   */
+  public void queue(Message message)
     throws ThreadSafeQueue.ShutdownException {
 
     m_queue.queue(message);
@@ -67,8 +67,8 @@ class MessageQueue {
    * @exception ThreadSafeQueue.ShutdownException If the queue has
    * been shutdown.
    * @see #shutdown
-   **/
-  public final void queue(Exception exception)
+   */
+  public void queue(Exception exception)
     throws ThreadSafeQueue.ShutdownException {
 
     if (!m_passExceptions) {
@@ -92,8 +92,8 @@ class MessageQueue {
    * @exception ThreadSafeQueue.ShutdownException If the queue has
    * been shutdown.
    * @see #shutdown
-   **/
-  public final Message dequeue(boolean block)
+   */
+  public Message dequeue(boolean block)
     throws CommunicationException, ThreadSafeQueue.ShutdownException {
 
     final Object result = m_queue.dequeue(block);
@@ -109,12 +109,12 @@ class MessageQueue {
   /**
    * Shutdown the <code>MessageQueue</code>. Any {@link Message}s in
    * the queue are discarded.
-   **/
-  public final void shutdown() {
+   */
+  public void shutdown() {
     m_queue.shutdown();
   }
 
-  public final Object getMutex() {
+  public Object getMutex() {
     return m_queue.getMutex();
   }
 }
