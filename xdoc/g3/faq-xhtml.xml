@@ -70,6 +70,94 @@ Jython</a>.</p>
 
 <p><em>New answer required for G3.</em></p>
 
+<h3><a name="parse-response">Is there a way to make my requests depend
+on previous responses?</a></h3>
+
+<p><a href="mailto:carlos.franco@xeridia.com">Carlos Franco</a>
+asks:</p>
+
+<blockquote>
+<em>Is there a way (with Grinder 3) to make that my requests depends
+on the response?</em>
+</blockquote>
+
+<p>Absolutely. This is one of the compelling reasons to use The
+Grinder 3 over The Grinder 2.</p>
+
+<blockquote>
+<em>I will make an example. Supose that when I make a request the
+server gives me one list of, for example, cars, and I want to edit the
+information of one, but I don't know its ID, so I have to look into
+the response and look for it. Can I do that?</em>
+</blockquote>
+
+<p>I'm assuming HTTP and that the cars come back in a table such
+as</p>
+
+<blockquote>
+<pre>
+&lt;td&gt;Jaguar&lt;/td&gt;&lt;td&gt;1234&lt;/td&gt;
+&lt;td&gt;Bentley&lt;/td&gt;&lt;td&gt;0012&lt;/td&gt;
+&lt;td&gt;Rolls Royce&lt;/td&gt;&lt;td&gt;8323&lt;/td&gt;
+&lt;td&gt;Rover&lt;/td&gt;&lt;td&gt;9876&lt;/td&gt;
+</pre>
+</blockquote>
+
+<p>You can get the text of the HTTP response body with something
+like:</p>
+
+<blockquote>
+<pre>response = myrequest.GET(&quot;<span class="string">/carindex.html</span>&quot;)
+text = response.text</pre>
+</blockquote>
+
+<p>See the <a href="/script-javadoc/index.html">script API</a> for
+other things you can do with the <code>HTTPResponse</code> object.</p>
+
+<p>Now you have the choice of using Java or Python to extract the
+appropriate ID. Lets do it in Python. Rather than write low level
+string parsing, we'll use a regular expression for capturing
+interesting information. To use the standard <code>re</code> module,
+you should install Jython as described in <a
+href="#jython-libraries">this FAQ</a>.</p>
+
+<p>Regular expressions are faster if compiled, so we'll do this up
+front:</p>
+
+<blockquote>
+<pre><span class="comment"># Add to top of script
+</span><span class="keyword">import</span> re
+expression = re.compile(r&quot;<span class="string">&lt;td&gt;([\w\s]*)&lt;/td&gt;\s*&lt;td&gt;(\d*)&lt;/td&gt;</span>&quot;)</pre>
+</blockquote>
+
+<p>For eyes unused to magic of regular expressions, this one matches
+pairs of table cells, the first cell containing alphanumerics and
+white space, the second containing a number. <code>\w</code> matches
+an alphanumeric ("word") character, <code>\s</code> matches a white
+space character, <code>()</code> captures its contents in a group.</p>
+
+<p>We can then use the regular expression to parse the response:</p>
+
+<blockquote>
+<pre>response = myrequest.GET(&quot;<span class="string">/carindex.html</span>&quot;)
+
+<span class="keyword">for</span> car, id <span class="keyword">in</span> expression.findall(response.text):
+    <span class="keyword">print</span> car, id</pre>
+</blockquote>
+
+<p>Of course you want to use this to select an ID and use it in a
+subsequent page. Lets pick a random one and use it for a new request:</p>
+
+<blockquote>
+<pre>response = myrequest.GET(&quot;<span class="string">/carindex.html</span>&quot;)
+
+<span class="comment"># Import random for this to work.
+</span>car,id = random.choice(expression.findall(response.text))
+
+request = myrequest.GET(&quot;<span class="string">/viewcar?id=%d</span>&quot; % id)</pre>
+</blockquote>
+
+
 <h3><a name="http-caching">How do I replay a scenario, caching image
 files but not text files?</a></h3>
 
