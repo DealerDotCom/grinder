@@ -1,7 +1,7 @@
 # An example JMS sender.
 #
 # JMS objects are looked up and messages are created once during
-# initialisation. This default JNDI names are for the WebLogoic Server
+# initialisation. This default JNDI names are for the WebLogic Server
 # 7.0 examples domain - change accordingly.
 #
 # Each worker thread:
