@@ -51,6 +51,16 @@ total mean, and then listening for the reported variance.
 ** Console
 
 Respond to change of test description and so on.
+	- Reset the console on reset processes
+
+XXXXXXX To do: get model right. What to do about ignored tests. Action
+name, hints etc. Spanish.
+
+Tone down button green to 0,128,0? (Match label).
+Tone down console red to 232,0,0.
+
+Results table is foo-bar'd. (Not responding to SF, colours persit).
+TPS graph labels not responding to SF.
 
 ** TCPProxy
 
@@ -107,11 +117,12 @@ answer?
 
 * Documentation
 
+More on installing Jython. Add a FAQ as well.
 Overview process diagram. Animated?
 HTTP plug-in.
 TCPProxy and G3.
 
-Viewlet demo?
+Multicast registry entry.
 
 ** Examples
 
