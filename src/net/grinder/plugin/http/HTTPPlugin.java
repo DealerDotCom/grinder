@@ -23,8 +23,6 @@
 package net.grinder.plugin.http;
 
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.HttpURLConnection; // For the (incomplete!) status code definitions only.
@@ -42,7 +40,6 @@ import HTTPClient.ParseException;
 import HTTPClient.ProtocolNotSuppException;
 import HTTPClient.URI;
 
-import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.plugininterface.GrinderPlugin;
@@ -93,7 +90,6 @@ public class HTTPPlugin implements GrinderPlugin
     }
 
     private PluginProcessContext m_processContext;
-    private final Map m_callData = new HashMap();
 
     private boolean m_disablePersistentConnections;
     private boolean m_followRedirects;
@@ -115,152 +111,14 @@ public class HTTPPlugin implements GrinderPlugin
 	m_useCookies = parameters.getBoolean("useCookies", true);
     }
 
-    // Will go once CallData stuff is moved to HTTPTest.
-    final void registerTest(HTTPTest test)
-	throws GrinderException
-    {
-	synchronized(m_callData) {
-	    m_callData.put(test, new CallData(test));
-	}
-    }
-
     public PluginThreadCallbacks createThreadCallbackHandler()
 	throws PluginException
     {
 	return new HTTPPluginThreadCallbacks();
     }
-    
-    /**
-     * Inner class that holds the configuration data for a call.
-     */
-    protected class CallData
-    {
-	private final HTTPTest m_test;
-	private byte[] m_postData;
-	private final Map m_headers;
-	private final BasicAuthorizationData m_authorizationData;
-
-	public CallData(HTTPTest test) throws PluginException
-	{
-	    m_test = test;
-	    
-	    final GrinderProperties testParameters = m_test.getParameters();
-
-	    m_headers = testParameters.getPropertySubset("header.");
-
-	    final String postFilename =
-		testParameters.getProperty("post", null);
-
-	    if (postFilename != null) {
-		try {
-		    final FileInputStream in =
-			new FileInputStream(postFilename);
-		    final ByteArrayOutputStream byteArrayStream =
-			new ByteArrayOutputStream();
-		    
-		    final byte[] buffer = new byte[4096];
-		    int bytesRead = 0;
-
-		    while ((bytesRead = in.read(buffer)) > 0) {
-			byteArrayStream.write(buffer, 0, bytesRead);
-		    }
-
-		    in.close();
-		    byteArrayStream.close();
-		    m_postData = byteArrayStream.toByteArray();
-		}
-		catch (IOException e) {
-		     m_processContext.logError(
-			"Could not read post data from " + postFilename);
-
-		    e.printStackTrace(System.err);
-		}
-	    }
-
-	    final String basicAuthenticationRealmString =
-		testParameters.getProperty("basicAuthenticationRealm", null);
-
-	    final String basicAuthenticationUserString =
-		testParameters.getProperty("basicAuthenticationUser", null);
-
-	    final String basicAuthenticationPasswordString =
-		testParameters.getProperty("basicAuthenticationPassword",
-					   null);
-
-	    if (basicAuthenticationUserString != null &&
-		basicAuthenticationPasswordString != null &&
-		basicAuthenticationRealmString != null) {
-		m_authorizationData =
-		    new BasicAuthorizationData() {
-			public String getRealm() {
-			    return basicAuthenticationRealmString; }
-			public String getUser() {
-			    return basicAuthenticationUserString; }
-			public String getPassword() {
-			    return basicAuthenticationPasswordString; }
-		    };
-	    }
-	    else if (basicAuthenticationUserString == null &&
-		     basicAuthenticationPasswordString == null &&
-		     basicAuthenticationRealmString == null) {
-		m_authorizationData = null;
-	    }
-	    else {
-		throw new PluginException("If you specify one of { basicAuthenticationUser, basicAuthenticationPassword, basicAuthenticationRealm } you must specify all three.");
-	    }
-	}
-
-	public Test getTest()
-	{
-	    return m_test;
-	}
-
-	public class ThreadData
-	{
-	    private final StringBuffer m_buffer = new StringBuffer();
-	    private final Map m_headerMap;
-
-	    public ThreadData()
-	    {
-		m_headerMap = new HashMap(m_headers.size());
-	    }
-
-	    public Map getHeaders()
-	    {
-		final Iterator iterator = m_headers.entrySet().iterator();
-		
-		while (iterator.hasNext()) {
-		    final Map.Entry entry = (Map.Entry)iterator.next();
-		    final String key = (String)entry.getKey();
-		    final String value = (String)entry.getValue();
-
-		    m_headerMap.put(key, value);
-		}
-
-		return m_headerMap;
-	    }
-
-	    public BasicAuthorizationData getAuthorizationData()
-	    {
-		return m_authorizationData;
-	    }
-	    
-	    public byte[] getPostData()
-	    {
-		return m_postData;
-	    }
-
-	    public String getURLString() throws PluginException
-	    {
-		return m_test.getUrl();
-	    }
-	}
-    }
 
     protected class HTTPPluginThreadCallbacks implements PluginThreadCallbacks
     {
-	private Map m_threadData;
-
 	private PluginThreadContext m_threadContext = null;
 	private int m_currentIteration = 0; // How many times we've done all the URL's
 	private final DecimalFormat m_threeFiguresFormat =
@@ -316,47 +174,6 @@ public class HTTPPlugin implements GrinderPlugin
 	    throws PluginException
 	{
 	    m_threadContext = threadContext;
-	    
-	    synchronized(m_callData) {
-		m_threadData = new HashMap(m_callData.size());
-
-		final Iterator callDataIterator =
-		    m_callData.values().iterator();
-
-		while (callDataIterator.hasNext()) {
-		    initialiseThreadData((CallData)callDataIterator.next());
-		}
-	    }
-	}
-
-	private final CallData.ThreadData
-	    initialiseThreadData(CallData callData)
-	{
-	    final CallData.ThreadData threadData = callData.new ThreadData();
-
-	    m_threadData.put(callData.getTest(), threadData);
-
-	    return threadData;
-	}
-
-	private final CallData.ThreadData getThreadData(Test test)
-	{
-	    // No need to synchronise, we're only invoked by one
-	    // thread.
-	    final CallData.ThreadData threadData =
-		(CallData.ThreadData)m_threadData.get(test);
-
-	    if (threadData != null) {
-		return threadData;
-	    }
-	    else {
-		synchronized(m_callData) {
-		    final CallData callData = (CallData)m_callData.get(test);
-
-		    // TODO: handle not registered case.
-		    return initialiseThreadData(callData);
-		}
-	    }
 	}
 
 	public void beginRun() throws PluginException
@@ -376,49 +193,36 @@ public class HTTPPlugin implements GrinderPlugin
 
 	public TestResult invokeTest(Test test) throws PluginException
 	{
-	    final CallData.ThreadData threadData = getThreadData(test);
+	    final HTTPTest httpTest = (HTTPTest)test;
+
+	    //	    final CallData callData = (CallData)m_callData.get(test);
 
 	    HTTPResponse httpResponse = null;
 
 	    try {
-		final URI uri = new URI(threadData.getURLString());
-		final byte[] postData = threadData.getPostData();
+		final URI uri = new URI(httpTest.getUrl());
 
-		m_threadContext.startTimer();
-
-		final HTTPConnection httpConnection = getConnection(uri);
-
-		final BasicAuthorizationData basicAuthorizationData =
-		    threadData.getAuthorizationData();
-
-		if (basicAuthorizationData != null) {
-		    httpConnection.addBasicAuthorization(
-			basicAuthorizationData.getRealm(),
-			basicAuthorizationData.getUser(),
-			basicAuthorizationData.getPassword());
-		}
-
-		final Map headers = threadData.getHeaders();
+		final NVPair[] headers = httpTest.getHeaders();
+		final int numberOfTestHeaders =
+		    headers != null ? headers.length : 0;
 
 		// HTTPClient ignores null header values.
 		final NVPair[] additionalHeaders =
-		    new NVPair[5 + headers.size()];
+		    new NVPair[5 + numberOfTestHeaders];
+
 		int nextHeader = 0;
 
-		final Iterator headersIterator = headers.entrySet().iterator();
 		boolean seenContentType = false;
 
-		while (headersIterator.hasNext()) {
-		    final Map.Entry entry = (Map.Entry)headersIterator.next();
-		    final String key = (String)entry.getKey();
-		    final String value = (String)entry.getValue();
-
-		    additionalHeaders[nextHeader++] = new NVPair(key, value);
+		for (int i=0; i<numberOfTestHeaders; ++i) {
+		    final NVPair header = headers[i];
+		    
+		    additionalHeaders[nextHeader++] = header;
 
 		    // Some browsers send "Content-type" instead of
 		    // "Content-Type."
 		    if (!seenContentType &&
-			"Content-Type".equalsIgnoreCase(key)) {
+			"Content-Type".equalsIgnoreCase(header.getName())) {
 			seenContentType = true;
 		    }
 		}
@@ -432,6 +236,24 @@ public class HTTPPlugin implements GrinderPlugin
 		else {
 		    pathString = uri.getPath();
 		}
+
+		final byte[] postData = httpTest.getPostData();
+
+		//		final BasicAuthorizationData basicAuthorizationData =
+		//		    callData.getAuthorizationData();
+
+		m_threadContext.startTimer();
+
+		final HTTPConnection httpConnection = getConnection(uri);
+
+		/*
+		if (basicAuthorizationData != null) {
+		    httpConnection.addBasicAuthorization(
+			basicAuthorizationData.getRealm(),
+			basicAuthorizationData.getUser(),
+			basicAuthorizationData.getPassword());
+		}
+		*/
 
 		if (postData == null) {
 		    // We don't pass the query string to the second
@@ -511,7 +333,7 @@ public class HTTPPlugin implements GrinderPlugin
 	    catch (Exception e) {
 		throw new PluginException(
 		    "Failed whilst making HTTP request to " +
-		    threadData.getURLString(), e);
+		    httpTest.getUrl(), e);
 	    }
 	    finally {
 		// Back stop.
@@ -526,11 +348,12 @@ public class HTTPPlugin implements GrinderPlugin
 	    m_currentIteration++;
 	}
     }
-
+    /*
     interface BasicAuthorizationData
     {
 	public String getRealm();
 	public String getUser();
 	public String getPassword();
     }
+    */
 }

@@ -21,13 +21,19 @@
 
 package net.grinder.plugin.http;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import HTTPClient.NVPair;
+
 import net.grinder.common.GrinderException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginTest;
 
 
 /**
- * 
+ * Represents an individual HTTP test.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -35,12 +41,13 @@ import net.grinder.plugininterface.PluginTest;
 public class HTTPTest extends PluginTest
 {
     private String m_url;
+    private NVPair[] m_headers;
+    private byte[] m_postData;
     
     public HTTPTest(int number, String description)
 	throws GrinderException
     {
 	super(HTTPPlugin.class, number, description);
-	((HTTPPlugin)getPlugin()).registerTest(this); 	// Temporary.
     }
 
     public final String getUrl() throws PluginException
@@ -55,5 +62,49 @@ public class HTTPTest extends PluginTest
     public final void setUrl(String url) 
     {
 	m_url = url;
+    }
+
+    public final NVPair[] getHeaders()
+    {
+	return m_headers;
+    }
+
+    public final void setHeaders(NVPair[] headers) 
+    {
+	m_headers = headers;
+    }
+
+    public final byte[] getPostData() 
+    {
+	return m_postData;
+    }
+
+    public final void setPostData(byte[] postData) 
+    {
+	m_postData = postData;
+    }
+
+    public final void setPostFile(String filename) throws PluginException
+    {
+	try {
+	    final FileInputStream in = new FileInputStream(filename);
+	    final ByteArrayOutputStream byteArrayStream =
+		new ByteArrayOutputStream();
+		    
+	    final byte[] buffer = new byte[4096];
+	    int bytesRead = 0;
+
+	    while ((bytesRead = in.read(buffer)) > 0) {
+		byteArrayStream.write(buffer, 0, bytesRead);
+	    }
+
+	    in.close();
+	    byteArrayStream.close();
+	    m_postData = byteArrayStream.toByteArray();
+	}
+	catch (IOException e) {
+	    throw new PluginException(
+		"Could not read post data from " + filename);
+	}
     }
 }
