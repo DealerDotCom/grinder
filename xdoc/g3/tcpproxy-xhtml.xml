@@ -210,8 +210,9 @@ cryptographical strength of any SSL communication using The
 Grinder.</em></p>
 
 <p>Here's an example of starting the TCPProxy as an HTTP/HTTPS proxy
-using the <em>testkeys</em> key store provided with the JSSE
-samples:</p>
+using the <em>testkeys</em> key store provided with the <a
+href="http://java.sun.com/j2se/1.4.1/docs/guide/security/jsse/samples/">JSSE
+samples</a>:</p>
 
 <blockquote>
 <pre>
@@ -235,8 +236,9 @@ The browser will just spin away until it times out.
 </p>
 
 <p>The easiest way to provide a certificate is to copy the
-<em>testkeys</em> file from the JSSE samples distribution and start
-the proxy using:</p>
+<em>testkeys</em> file from the <a
+href="http://java.sun.com/j2se/1.4.1/docs/guide/security/jsse/samples/">JSSE
+samples distribution</a> and start the proxy using:</p>
 
 <blockquote>
 <pre>
