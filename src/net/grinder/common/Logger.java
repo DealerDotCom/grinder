@@ -29,8 +29,8 @@ import java.io.PrintWriter;
  * Interface to The Grinder logging system.
  *
  * <p>Output can be sent to either the terminal used to launch the
- * worker process, or to the process log files. The destination to
- * used is specified by a mask of constant values.</p>
+ * worker process, or to the process log files. The destination is
+ * specified by a mask of constant values.</p>
  *
  * @author Philip Aston
  * @version $Revision$
