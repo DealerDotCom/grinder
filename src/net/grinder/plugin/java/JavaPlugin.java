@@ -72,7 +72,7 @@ public class JavaPlugin implements GrinderPlugin
 	public Object invokeTest(Test test, Object parameters)
 	    throws PluginException
 	{
-	    return ((JavaTest.DelayedInvocation)parameters).invoke();
+	    return ((TestPyJavaInstance.Closure)parameters).invoke();
 	}
 
 	public void endRun() throws PluginException
@@ -88,6 +88,14 @@ public class JavaPlugin implements GrinderPlugin
     public static final class JavaPluginScriptPluginContext
 	implements ScriptPluginContext
     {
+	// We could have defined overloaded createTests that take a
+	// PyInstance, PyFunction etc., and return decorator
+	// PyObjects. There's no obvious way of doing this in a
+	// polymorphic way, so we would be forced to have n factories,
+	// n types of decorator, and probably run into identity
+	// issues. Instead we lean on Jython and force it to give us
+	// Java proxy which we then dynamically subclass with our own
+	// type of PyJavaInstance.
 	public final Object createTest(int number, String description,
 				       Object target)
 	    throws GrinderException

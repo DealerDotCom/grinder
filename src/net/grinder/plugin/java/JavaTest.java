@@ -25,6 +25,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.python.core.PyJavaInstance;
+import org.python.core.PyObject;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
@@ -42,11 +47,8 @@ import net.grinder.plugininterface.PluginTest;
  */ 
 class JavaTest extends PluginTest
 {
-    private final Object m_target;
-    private final Class m_targetClass;
-    private final Class[] m_interfaces;
-    private final InvocationHandler m_invocationHandler =
-	new JavaTestInvocationHandler();
+    private final transient Object m_target;
+    private final PyObject m_pySelf;
 
     public JavaTest(int number, String description, Object target)
 	throws GrinderException
@@ -54,96 +56,22 @@ class JavaTest extends PluginTest
 	super(JavaPlugin.class, number, description);
 
 	m_target = target;
-	m_targetClass = target.getClass();
-
-	final Class[] targetInterfaces = m_targetClass.getInterfaces();
-
-	m_interfaces = new Class[targetInterfaces.length + 1];
-
-	m_interfaces[0] = AdditionalProxyInterface.class;
-	System.arraycopy(targetInterfaces, 0, m_interfaces, 1, 
-			 targetInterfaces.length);
-    }
-
-    public Object invoke() throws PluginException
-    {
-	throw new PluginException("Invoke not supported");
+	m_pySelf = new PyJavaInstance(this);
     }
 
     Object getProxy() 
     {
-	return Proxy.newProxyInstance(m_targetClass.getClassLoader(),
-				      m_interfaces, m_invocationHandler);
-    }
-
-    private class JavaTestInvocationHandler implements InvocationHandler
-    {
-	public Object invoke(Object proxy, Method method, Object[] arguments)
-	    throws Throwable
-	{
-	    final Method delegateMethod;
-
-	    try {
-		// Allow invocation of AdditionalProxyInterface methods.
-		delegateMethod =
-		    AdditionalProxyInterface.class.getMethod(
-			method.getName(), method.getParameterTypes());
-
-		return delegateMethod.invoke(new JavaTest.AdditionalMethods(),
-					     arguments);
-	    }
-	    catch (NoSuchMethodException e) {
-	    }
-
-	    // Not an AdditionalProxyInterface method, pass
-	    // DelayedInvocation through the engine. JavaPlugin will
-	    // invoke on the target.
-	    return JavaTest.this.invokeTest(
-		new DelayedInvocation(method, arguments));
-	}	
-    }
-
-
-    /**
-     * Closure to be invoked at a later time.
-     *
-     * @author Philip Aston
-     * @version $Revision$
-     */ 
-    final class DelayedInvocation
-    {
-	private final Method m_method;
-	private final Object[] m_arguments;
-
-	public DelayedInvocation(Method method, Object[] arguments) {
-	    m_method = method;
-	    m_arguments = arguments;
-	}
-
-	public Object invoke() throws PluginException {
-	    try {
-		return m_targetClass.getMethod(
-		    m_method.getName(), m_method.getParameterTypes())
-		    .invoke(m_target, m_arguments);
-	    }
-	    catch (IllegalAccessException e) {
-		throw new PluginException("Invocation failed", e);
-	    }
-	    catch (InvocationTargetException e) {
-		throw new PluginException("Invocation failed",
-					  e.getTargetException());
-	    }
-	    catch (NoSuchMethodException e) {
-		throw new PluginException("Invocation failed", e);
-	    }
-	}
-    }
-
-    private class AdditionalMethods implements AdditionalProxyInterface
-    {
-	public Test __getTestDetails__() 
-	{
-	    return JavaTest.this;
-	}
+	return new TestPyJavaInstance(m_pySelf, m_target) {
+		public PyObject dispatch(
+		    TestPyJavaInstance.Closure parameters) {
+		    try {
+			return (PyObject)JavaTest.this.invokeTest(parameters);
+		    }
+		    catch (GrinderException e) {
+			// FIX ME
+			throw new RuntimeException("Dispatch failed " + e);
+		    }
+		}
+	    };
     }
 }
