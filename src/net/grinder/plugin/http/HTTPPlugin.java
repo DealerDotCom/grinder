@@ -184,8 +184,6 @@ public class HttpPlugin extends SimplePluginBase
 	// Do the call.
 	final String page;
 
-	m_pluginThreadContext.startTimer();
-
 	try {
 	    page = m_httpMsg.sendRequest(callData);
 	}
