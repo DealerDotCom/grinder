@@ -28,9 +28,9 @@ import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.ScriptContext;
+import net.grinder.script.Statistics;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatistics;
 import net.grinder.communication.RegisterStatisticsViewMessage;
 
 
@@ -136,8 +136,7 @@ final class ScriptContextImplementation implements ScriptContext {
     CommonStatisticsViews.getDetailStatisticsView().add(statisticsView);
   }
 
-  public final TestStatistics getCurrentTestStatistics()
-    throws InvalidContextException {
+  public final Statistics getStatistics() throws InvalidContextException {
 
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
@@ -146,14 +145,6 @@ final class ScriptContextImplementation implements ScriptContext {
 	"getCurrentTestStatistics() is only supported for worker threads");
     }
 
-    final TestStatistics currentTestStatistics =
-      threadContext.getCurrentTestStatistics();
-
-    if (currentTestStatistics == null) {
-      throw new InvalidContextException(
-	"Call to getCurrentTestStatistics() from outside instrumented code");
-    }
-    
-    return currentTestStatistics;
+    return threadContext.getScriptStatistics();
   }
 }

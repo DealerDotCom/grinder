@@ -1,4 +1,4 @@
--*- mode:outline; minor-mode:outl-mouse -*-
+x-*- mode:outline; minor-mode:outl-mouse -*-
 
 If anyone wants to pick something off this wish list, let me know
 first. I prefer unified diff patches. Mail them to
@@ -28,19 +28,6 @@ Script access to global statistics.
  > 
  > Is this what you're after?
 ^^ To do this, might have to behave differently with 1 thread vs many.
-
-** Affecting test reporting
-
-IMHO, it would be much better if they could simply
-      result = request1.GET()
-      checkResult(result)
-
-where checkResult can call some API to mark the last executed test as
-a failure. I'll do this once I've figured out a reasonable API
-(grinder.markLastTestAsFailure() ?)
-
-Need to be able to assert on test time.
-
 
 * HTTP Plugin
 
@@ -94,6 +81,7 @@ answer?
 
 TCPProxy and G3.
 Statistics.
+Using grinder.properties
 
 Document default grinder.properties. (grinder.py).
 

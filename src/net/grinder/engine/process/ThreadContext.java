@@ -22,20 +22,11 @@
 
 package net.grinder.engine.process;
 
-import java.io.PrintWriter;
-
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.common.Test;
 import net.grinder.engine.EngineException;
-import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.statistics.CommonStatisticsViews;
-import net.grinder.statistics.ExpressionView;
-import net.grinder.statistics.StatisticExpression;
-import net.grinder.statistics.TestStatistics;
-import net.grinder.statistics.TestStatisticsFactory;
 import net.grinder.util.Sleeper;
 
 
@@ -50,21 +41,13 @@ final class ThreadContext implements PluginThreadContext {
   private final static ThreadLocal s_threadInstance = new ThreadLocal();
 
   private final ThreadLogger m_threadLogger;
-  private final PrintWriter m_dataWriter;
   private final FilenameFactory m_filenameFactory;
-  private final boolean m_recordTime;
   private final Sleeper m_sleeper;
 
-  private Test m_currentTest;
-  private final TestStatistics m_currentTestStatistics =
-    TestStatisticsFactory.getInstance().create();
-  private final ExpressionView[] m_detailExpressionViews =
-    CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
+  private final ScriptStatisticsImplementation m_scriptStatistics;
 
   private long m_startTime;
   private long m_elapsedTime;
-
-  private StringBuffer m_scratchBuffer = new StringBuffer();
 
   public ThreadContext(ProcessContext processContext, int threadID)
     throws EngineException {
@@ -73,20 +56,22 @@ final class ThreadContext implements PluginThreadContext {
       processContext.getLoggerImplementation();
 
     m_threadLogger = loggerImplementation.createThreadLogger(threadID);
-    m_dataWriter = loggerImplementation.getDataWriter();
 
     m_filenameFactory =
       loggerImplementation.getFilenameFactory().
       createSubContextFilenameFactory(Integer.toString(threadID));
 
-    m_recordTime = processContext.getRecordTime();
+    m_scriptStatistics =
+      new ScriptStatisticsImplementation(this,
+					 loggerImplementation.getDataWriter(),
+					 processContext.getRecordTime());
 
     final GrinderProperties properties = processContext.getProperties();
 
-    m_sleeper = new Sleeper(
-      properties.getDouble("grinder.sleepTimeFactor", 1.0d),
-      properties.getDouble("grinder.sleepTimeVariation", 0.2d),
-      m_threadLogger);
+    m_sleeper =
+      new Sleeper(properties.getDouble("grinder.sleepTimeFactor", 1.0d),
+		  properties.getDouble("grinder.sleepTimeVariation", 0.2d),
+		  m_threadLogger);
   }
 
   final void setThreadInstance() {
@@ -117,7 +102,7 @@ final class ThreadContext implements PluginThreadContext {
     return m_threadLogger.getCurrentRunNumber();
   }
 
-  public void startTimer() {
+  public final void startTimer() {
     // This is to make it more likely that the timed section has a
     // "clear run".
     Thread.yield();
@@ -138,17 +123,15 @@ final class ThreadContext implements PluginThreadContext {
 
   /**
    * This could be factored out to a separate "TestInvoker" class.
-   * Some of the members used (m_currentTestStatistics,
-   * m_scratchBuffer) are reused purely to prevent object
-   * proliferation. However, the sensible owner for a TestInvoker
-   * would be ThreadContext, so keep it here for now. Also, all the
+   * However, the sensible owner for a TestInvoker would be
+   * ThreadContext, so keep it here for now. Also, all the
    * startTimer/stopTimer/getElapsedTime interface is part of the
    * PluginThreadContext interface.
    */
   final Object invokeTest(TestData testData, TestData.Invokeable invokeable)
     throws JythonScriptExecutionException {
 
-    if (m_currentTest != null) {
+    if (m_threadLogger.getCurrentTestNumber() != -1) {
       // Originally we threw a ReentrantInvocationException here.
       // However, this caused problems when wrapping Jython objects
       // that call themselves; in our scheme the wrapper shares a
@@ -156,12 +139,9 @@ final class ThreadContext implements PluginThreadContext {
       return invokeable.call();
     }
 
-    final Test test = testData.getTest();
+    m_threadLogger.setCurrentTestNumber(testData.getTest().getNumber());
 
-    m_currentTest = test;
-    m_threadLogger.setCurrentTestNumber(test.getNumber());
-
-    m_currentTestStatistics.reset();
+    m_scriptStatistics.beginTest(testData);
 
     try {
       startTimer();
@@ -177,58 +157,23 @@ final class ThreadContext implements PluginThreadContext {
 
       final long time = getElapsedTime();
 
-      if (m_recordTime) {
-	m_currentTestStatistics.addTransaction(time);
-      }
-      else {
-	m_currentTestStatistics.addTransaction();
-      }
+      m_scriptStatistics.setSuccessNoChecks();
+      m_scriptStatistics.setTimeNoChecks(time);
 
       return testResult;
     }
     catch (org.python.core.PyException e) {
-      m_currentTestStatistics.addError();
+      m_scriptStatistics.setErrorNoChecks();
 
-      // We don't log the exception. If the script doesn't
-      // handle the exception it will be logged when the run is
-      // aborted, otherwise we assume the script writer knows
-      // what they're doing.
-
+      // We don't log the exception. If the script doesn't handle the
+      // exception it will be logged when the run is aborted,
+      // otherwise we assume the script writer knows what they're
+      // doing.
       throw e;
     }
     finally {
-      if (m_dataWriter != null) {
-	m_scratchBuffer.setLength(0);
-	m_scratchBuffer.append(getThreadID());
-	m_scratchBuffer.append(", ");
-	m_scratchBuffer.append(getRunNumber());
-	m_scratchBuffer.append(", " );
-	m_scratchBuffer.append(test.getNumber());
-
-	for (int i=0; i<m_detailExpressionViews.length; ++i) {
-	  m_scratchBuffer.append(", ");
-
-	  final StatisticExpression expression =
-	    m_detailExpressionViews[i].getExpression();
-
-	  if (expression.isDouble()) {
-	    m_scratchBuffer.append(
-	      expression.getDoubleValue(
-		m_currentTestStatistics));
-	  }
-	  else {
-	    m_scratchBuffer.append(
-	      expression.getLongValue(
-		m_currentTestStatistics));
-	  }
-	}
-		
-	m_dataWriter.println(m_scratchBuffer);
-      }
-
-      m_currentTest = null;
+      m_scriptStatistics.endTest();
       m_threadLogger.setCurrentTestNumber(-1);
-      testData.getStatistics().add(m_currentTestStatistics);
     }
   }
 
@@ -236,16 +181,12 @@ final class ThreadContext implements PluginThreadContext {
     return m_sleeper;
   }
     
-  public long getStartTime() {
+  public final long getStartTime() {
     return m_startTime;
   }
 
-  TestStatistics getCurrentTestStatistics() {
-    if (m_currentTest == null) {
-      return null;
-    }
-
-    return m_currentTestStatistics;
+  final ScriptStatisticsImplementation getScriptStatistics() {
+    return m_scriptStatistics;
   }
 }
 
