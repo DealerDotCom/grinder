@@ -58,7 +58,11 @@ cache on distribution. Need a special "clear cache" message.
 
 Task: Console to allow selection of script. Warn if no script
 selected.
-	- Should FileTree own actions?
+	- How come FileTree ends up thinking nothing is selected?
+	- Draw out polymorphic tree node interface?:
+		- getFile()
+		- getPath()
+
 Task: Agent to receive selection of script.
 Task: Agent FileStore to update copy of cache asynchronously. Main
 agent thread to move it into place at good point in lifecycle to
@@ -95,13 +99,6 @@ Bug: Each time L&F changes, the saveAs dialog gets another All
 Files filter!
 
 
-*** Console Script editing
-
-Add file tree control, rooted at root directory.
-Allow files to be marked for distribution. Any file.
-Automatically detect, and indicate, scripts.
-When new script is selected, unselect other script.
-
 *** Plans
 
 Allow grinder properties to be set remotely.
@@ -129,9 +126,6 @@ its license terms are acceptable. Apparently now available.
 ** Console
 
 *** Refactoring
-
-Refactor Console/ConsoleUI/ConsoleCommunication/Model split. Add an
-API. DistributeFilesHandler is start of this?
 
 Consider moving overwrite / save before close / ... handling to the
 model. Needs some kind of command pattern to represent choices.
