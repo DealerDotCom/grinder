@@ -1,7 +1,7 @@
 Grinder 2.6.2
 -------------
 
-  New HTTP plugin parameter, "timeIncludesTransaction". By default the
+  New HTTP plugin parameter: timeIncludesTransaction. By default the
   time that the HTTP plugin reports is the time it takes for the
   remote server to accept the connection request. When using the times
   as an indicator of user experience, this is usually what you want.
@@ -16,7 +16,7 @@ Grinder 2.6.2
   details.
 
   When the property grinder.recordTime is false, the time is no longer
-  logged in the data file. (The prime purpose of recordTime is to
+  logged to the data file. (The prime purpose of recordTime is to
   control whether times are _reported_ to the console, in fact times
   are always recorded. This is too subtle for some users ;-) so I've
   made this change for an easy life).
