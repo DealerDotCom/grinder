@@ -13,7 +13,6 @@ against it too :-).
 
 - Philip Aston
 
-Defect 1167731 - URI decorators screw POST data.
 
 
 * Enhancements
@@ -262,9 +261,6 @@ To do this, might have to behave differently with 1 thread vs many.
 Perhaps JasperReports?
 
 ** Code
-
-Change to use J2SE 1.4. Remove deprecated warnings. Replace Jakarta
-ORO. Use assrtions rather than throwing RuntimeExceptions.
 
 Review use of Kernel. Probably want to share them.
 

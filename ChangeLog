@@ -1,4 +1,87 @@
+2005-04-06  Philip Aston  <philipa@mail.com>
+
+	* TODO: Progress.
+
+	* src/net/grinder/communication/MessageQueue.java, tests-src/net/grinder/communication/TestMessageQueue.java:
+	Fix test.
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/communication/AbstractFanOutSender.java, src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/MessageQueue.java, src/net/grinder/communication/QueuedSenderDecorator.java, src/net/grinder/console/swingui/LookAndFeel.java, src/net/grinder/console/swingui/SamplingControlPanel.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/util/FixedWidthFormatter.java:
+	Throw AssertionError for assertions.
+
+	* src/net/grinder/console/swingui/OptionalConfirmDialog.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, tests-src/net/grinder/common/TestGrinderException.java, tests-src/net/grinder/common/TestSSLContextFactory.java, tests-src/net/grinder/communication/TestMessageQueue.java, tests-src/net/grinder/console/common/TestDisplayMessageConsoleException.java, tests-src/net/grinder/console/editor/TestBuffer.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, tests-src/net/grinder/plugininterface/TestPluginException.java, tests-src/net/grinder/util/TestBooleanProperty.java, tests-src/net/grinder/engine/agent/TestFileStore.java, src/net/grinder/common/GrinderException.java:
+	Replace chained exceptions with standard J2SE 1.4 support.
+
+	* src/documentation/content/xdocs/g3/tcpproxy.xml:
+	Claify -localhost. Thanks to Henry Chan for the suggestion.
+
+	* src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Fix javadoc.
+
+	* tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java, tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java, tests-src/net/grinder/tools/tcpproxy/TestTCPProxyConsole.java:
+	More tests.
+
+	* tests-src/net/grinder/testutility/CallRecorder.java: Checkstyle.
+
+	* src/net/grinder/tools/tcpproxy/TCPProxyConsole.java:
+	Fix to stop the engine rather than System.exit().
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Rewrite non-blocking read code so Clover can measure it.
+	Fix HTTPS proxy connect timeout.
+
+	* src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java:
+	Be silent about IOExceptions when shutting down.
+
+2005-04-01  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java:
+	Complete HTTPSProxy tests.
+
+	* src/net/grinder/util/StreamCopier.java:
+	Flush output stream after every buffer full.
+
+	* src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java:
+	FilterStreamThread now longer logs exceptions when its being shutdown.
+
+	* src/documentation/content/xdocs/g2/http-plugin.xml: Fix typo.
+
+2005-03-31  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/tools/tcpproxy/TestHTTPProxyTCPProxyEngine.java:
+	Test HTTPProxyTCPProxyEngine.
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	ProxySSLEngine now shuts down cleanly.
+	HTTPProxyTCPProxyEngine shut down now waits until its done.
+
+	* src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java:
+	Allow subclasses to check whether the listen port has been shutdown.
+
+	* tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java:
+	Correct testBadLocalPort.
+
+	* tests-src/net/grinder/tools/tcpproxy/TestHTTPResponse.java, tests-src/net/grinder/testutility/AssertUtilities.java:
+	More assertion utilities.
+
+	* src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactory.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Ensure threads we launch are shut down with us.
+	Remove bogus Host header from response to CONNECT.
+	When wrapping an SSLSocket around an existing stream,
+	the supplied host, port should be  that of the target, not
+	the proxy.
+
+	* src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java:
+	Ensure threads we launch are shut down with us.
+
+2005-03-29  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/tools/tcpproxy/HTTPMethodAbsoluteURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPMethodRelativeURIFilterDecorator.java:
+	Fix the TCPProxy to cope correctly with 8 bit strings in all
+	locales (Bug 1167731). Thanks to Anton Malykh for the report.
+
 2005-03-28  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, ChangeLog: Docs.
 
 	* tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java:
 	Temporary fix for race.
