@@ -1,0 +1,90 @@
+This file contains various notes on the recording of meaningful timing
+information.
+
+
+How The Grinder records transaction times - a problem?
+
+ The Grinder records transaction times for each successful test. By
+ default, this is done by a section of code that looks like:
+
+	m_context.startTimer();     // Critical section starts
+
+	try {
+	    // do test
+	}
+	finally {
+	    m_context.stopTimer();  // Critical section ends		
+	}
+
+ This is repeated for each test.
+
+ If there are many threads within The Grinder process, (and the sleep
+ time is small or the test takes a long time or the test performs
+ I/O), it is _highly_ likely that the VM will swap the thread out in
+ the critical section causing an erroneously large transaction time to
+ be reported.
+
+ Similarly, if the host machine that you are running The Grinder on is
+ also running other active processes (such as other Grinder processes
+ or the target server), it is _highly_ likely that the JVM will swap
+ the process out in the critical server, again causing an erroneously
+ large transaction time to be reported.
+
+ Further, as the CPU utilisation rises the contention on the critical
+ section rises non-linearly and in a way that is difficult to
+ quantify. The recorded time becomes more a measure of how the OS and
+ JVM can swap between multiple threads and less a measure of server
+ performance.
+
+ This is a generic problem with test harnesses and is not limited to
+ The Grinder or Java. Within the scope of a single machine there is
+ little that can be done about this whilst realistically using
+ multiple threads and processes.
+
+
+Fiddling with Thread scheduling - a partial fix.
+
+ From The Grinder 2.6.1, the call to startTimer makes a
+ "Thread.yield()" before recording the start time which means that a
+ thread is more likely to be swapped out/in just before the critical
+ sections. It dramatically reduced the response times I measured (e.g.
+ 30 ms to 3 ms). I consider this only an approximate fix to the
+ problem - it does not prevent the OS from swapping the process out.
+
+ The recorded response time should always be considered an upper bound
+ on the actual response time. Doing the yield() makes that bound more
+ accurate.
+
+ An argument against doing this is that it alters the statistical
+ distribution of the client invocations. I'd counter that without the
+ yield() the distribution is not even; its down to the OS and JVM
+ scheduling so threads/processes are far likely to be swapped at some
+ points (e.g. waiting on I/O) than others. Because of this I decided
+ there is little point in making the yield() optional.
+
+
+The grinder.recordTime property - a solution?
+
+ My preferred solution to this problem is to dedicate a single machine
+ to the measuring of response times. 
+
+ As of The Grinder 2.6.1 you can set the property
+ "grinder.recordTime=false" which will cause the Grinder processes
+ that use that grinder.properties file to not record the transaction
+ times nor report them to the Console. You should run all but one of
+ your grinder processes with this property set to false.
+
+ You should copy the grinder.properties file to a dedicated "timing
+ client" machine, change grinder.recordTime true, and set
+ grinder.processes=1 and grinder.threads = 1. The single grinder
+ process will run on the timing client, record all timing information
+ and (optionally) report it to the Console. The less other stuff you
+ run on the timing client, the better.
+
+ I know its a messy that you have to use a modified grinder.properties
+ file. I considered implementing this using a property like
+ "grinder.recordTime.host", which you would set to the timing client
+ host name. Instead, I've done the simplest thing, we will revisit
+ this as part of The Grinder 3.
+
+
