@@ -224,6 +224,8 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     m_scriptFileWriter.println("#");
     m_scriptFileWriter.println();
     m_scriptFileWriter.println("from " + testFileNamePrefix + " import *");
+    m_scriptFileWriter.println(
+      "from net.grinder.script.Grinder import grinder");
     m_scriptFileWriter.println();
     m_scriptFileWriter.println("class TestRunner:");
     m_scriptFileWriter.println(s_indent + "def __call__(self):");

@@ -303,6 +303,8 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     addComment(m_scriptFileWriter, version);
     m_scriptFileWriter.println("from " +
       new File (testFileNamePrefix).getName() + " import *");
+    m_scriptFileWriter.println(
+      "from net.grinder.script.Grinder import grinder");
     m_scriptFileWriter.println();
     m_scriptFileWriter.println("class TestRunner:");
     m_scriptFileWriter.println(s_indent + "def __call__(self):");
@@ -318,6 +320,8 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     addComment(m_recordedScenarioFileWriter, version);
     m_recordedScenarioFileWriter.println();
     m_recordedScenarioFileWriter.println("from HTTPClient import NVPair");
+    m_recordedScenarioFileWriter.println(
+      "from net.grinder.script.Grinder import grinder");
     m_recordedScenarioFileWriter.println("from net.grinder.script import Test");
     m_recordedScenarioFileWriter.println("from net.grinder.plugin.http " +
       "import HTTPRequest");
@@ -887,7 +891,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
         if (m_handlingBody && !parsedFormData) {
           final byte[] bytes = m_entityBodyByteStream.toByteArray();
 
-          recordedScenarioOutput.append("request.addHeaderField ");
+          recordedScenarioOutput.append("request.addHeader ");
           recordedScenarioOutput.append("('Content-Type', '");
           recordedScenarioOutput.append(contentTypeValue);
           recordedScenarioOutput.append("')");
@@ -927,34 +931,37 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
         recordedScenarioOutput.append("('");
 
         final int pos = m_url.indexOf(s_cookieName + "=");
+        boolean addFormDataOutput = true;
         if (pos != -1) {
           final int pos2 = m_url.indexOf("?", pos);
-          if (pos2 != -1) {
+          if ((pos2 != -1) && (!"".equals (m_url.substring(pos2)))) {
             m_url = m_url.substring(0, pos + s_cookieName.length() + 1) +
               "' + self.jsess + '" + m_url.substring(pos2);
           }
           else {
             m_url = m_url.substring(0, pos + s_cookieName.length() + 1) +
               "' + self.jsess";
+            addFormDataOutput = false;
           }
         }
-
         recordedScenarioOutput.append(m_url);
         recordedScenarioOutput.append(queryStringOutput);
-        recordedScenarioOutput.append(formDataOutput);
+        if (addFormDataOutput) {
+          recordedScenarioOutput.append(formDataOutput);
+        }
         recordedScenarioOutput.append(")");
 
         if (m_extractJsession) {
           appendNewLineAndIndent(recordedScenarioOutput, 2);
           recordedScenarioOutput.append("self.jsess = extractJSESSION ('");
           recordedScenarioOutput.append(s_cookieName);
-          recordedScenarioOutput.append("', HtmlResult, grinder)");
+          recordedScenarioOutput.append("', HtmlResult, grinder, 0)");
         }
 
         if (m_handlingBody && !parsedFormData) {
           appendNewLineAndIndent(recordedScenarioOutput, 2);
           recordedScenarioOutput.append(
-            "request.deleteHeaderField ('Content-Type')");
+            "request.deleteHeader ('Content-Type')");
         }
       }
       else {
