@@ -12,11 +12,6 @@ it too :-).
 
 * Bugs
 
-** That EOF and retries thing
-
-http://sourceforge.net/mailarchive/message.php?msg_id=2027628
-http://sourceforge.net/mailarchive/message.php?msg_id=3626264
-
 ** TCPProxy
 
 Fix the proxy to record Authorization again. Can use connection ID.
@@ -65,7 +60,6 @@ test runs etc.
 
 Linear initial sleep time to allow thread's to ramp up. (Feature
 Request 801129).
-
 
 ** TCPProxy
 

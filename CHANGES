@@ -1,6 +1,16 @@
 Grinder 3.0-beta13
 ------------------
 
+  Hack HTTPClient to provide a tentative fix to the "premature EOF"
+  problem. This widely reported problem occurs when a server times out
+  and closes a connection, after which writes to the connection
+  silently fail and we don't learn about the problem until we read
+  from the connection.
+
+
+Grinder 3.0-beta13
+------------------
+
   Fix bug 847571 - console does not display image icons. Thanks to
   Stefano Santoro for the report.
 
