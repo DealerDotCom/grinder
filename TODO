@@ -50,8 +50,6 @@ total mean, and then listening for the reported variance.
 
 ** Console
 
-*** Update Spanish translation.
-
 *** Add log panel
 
 Report log messages that currently go to terminal, plus start, stop
