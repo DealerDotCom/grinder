@@ -41,8 +41,6 @@ public abstract class PluginTest
 {
     private final int m_number;
     private final String m_description;
-    private final transient GrinderProperties m_parameters = 
-	new GrinderProperties();
 
     private transient final TestRegistry.RegisteredTest m_registeredTest;
 
@@ -64,11 +62,6 @@ public abstract class PluginTest
     public final String getDescription()
     {
 	return m_description;
-    }
-
-    public final GrinderProperties getParameters()
-    {
-	return m_parameters;
     }
 
     protected final Object invokeTest(Object parameters)

@@ -22,8 +22,6 @@
 
 package net.grinder.common;
 
-import net.grinder.common.GrinderProperties;
-
 
 /**
  * In addition to this interface, Test implementations should
@@ -38,5 +36,4 @@ public interface Test extends Comparable
     /** Test number, defines test identity and ordering. **/
     public int getNumber();
     public String getDescription();
-    public GrinderProperties getParameters();
 }
