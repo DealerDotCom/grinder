@@ -45,7 +45,7 @@ public class TestClientSenderAndServerReceiver
   }
 
   private Sender createSender() throws Exception {
-    return ClientSender.connectTo("Test Sender", getHostName(), getPort());
+    return ClientSender.connectTo(getHostName(), getPort());
   }
 
   /**

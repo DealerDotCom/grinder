@@ -33,6 +33,7 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.QueuedSender;
 import net.grinder.communication.QueuedSenderDecorator;
+import net.grinder.communication.ReportStatusMessage;
 import net.grinder.script.Grinder;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
@@ -46,6 +47,7 @@ import net.grinder.util.Sleeper;
  **/
 class ProcessContext {
   private final String m_grinderID;
+  private final String m_uniqueProcessID;
   private final GrinderProperties m_properties;
   private final boolean m_recordTime;
   private final LoggerImplementation m_loggerImplementation;
@@ -63,6 +65,7 @@ class ProcessContext {
     throws GrinderException {
 
     m_grinderID = grinderID;
+    m_uniqueProcessID = grinderID + ":" + System.currentTimeMillis();
     m_properties = properties;
 
     m_recordTime = properties.getBoolean("grinder.recordTime", true);
@@ -94,8 +97,7 @@ class ProcessContext {
       try {
         consoleSender =
           new QueuedSenderDecorator(
-            ClientSender.connectTo(getGrinderID(), consoleAddress,
-                                   consolePort));
+            ClientSender.connectTo(consoleAddress, consolePort));
       }
       catch (CommunicationException e) {
         m_processLogger.output(
@@ -149,6 +151,13 @@ class ProcessContext {
 
   public final QueuedSender getConsoleSender() {
     return m_consoleSender;
+  }
+
+  public final ReportStatusMessage createStatusMessage(
+    short state, short numberOfThreads, short totalNumberOfThreads) {
+
+    return new ReportStatusMessage(m_uniqueProcessID, getGrinderID(), state,
+                                   numberOfThreads, totalNumberOfThreads);
   }
 
   public final LoggerImplementation getLoggerImplementation() {

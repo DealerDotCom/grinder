@@ -45,7 +45,7 @@ public class TestFanOutServerSenderAndClientReceiver
     super.setUp();
 
     final FanOutServerSender sender =
-      FanOutServerSender.bindTo("Test Sender", getHostName(), getPort());
+      FanOutServerSender.bindTo(getHostName(), getPort());
 
     m_sender = sender;
     m_receiver = ClientReceiver.connectTo(getHostName(), getPort());

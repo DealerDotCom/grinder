@@ -84,25 +84,21 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
   public void testSendSimpleMessage() throws Exception {
 
-    final SimpleMessage sentMessage = new SimpleMessage(0);
-    maybeInitialiseMessage(sentMessage);
+    final SimpleMessage sentMessage = new SimpleMessage();
     m_sender.send(sentMessage);
 
     final Message receivedMessage = m_executeThread.waitForMessage();
     assertEquals(sentMessage, receivedMessage);
-    assertTrue(sentMessage.payloadEquals(receivedMessage));
     assertTrue(sentMessage != receivedMessage);
   }
 
   public void testSendManyMessages() throws Exception {
-    long sequenceNumber = -1;
 
     for (int i=1; i<=10; ++i) {
       final SimpleMessage[] sentMessages = new SimpleMessage[i];
 
       for (int j=0; j<i; ++j) {
         sentMessages[j] = new SimpleMessage(i);
-        maybeInitialiseMessage(sentMessages[j]);
         m_sender.send(sentMessages[j]);
       }
 
@@ -110,13 +106,7 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
         final SimpleMessage receivedMessage =
           (SimpleMessage) m_executeThread.waitForMessage();
 
-        if (sequenceNumber != -1) {
-          assertEquals(sequenceNumber+1, receivedMessage.getSequenceNumber());
-        }
-
-        sequenceNumber = receivedMessage.getSequenceNumber();
-
-        assertTrue(sentMessages[j].payloadEquals(receivedMessage));
+        assertEquals(sentMessages[j], receivedMessage);
         assertTrue(sentMessages[j] != receivedMessage);
       }
     }
@@ -126,14 +116,12 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
     // This causes a message size of about 38K. Should be limited by
     // the buffer size in Receiver.
     final SimpleMessage sentMessage = new SimpleMessage(8000);
-    maybeInitialiseMessage(sentMessage);
     m_sender.send(sentMessage);
 
     final SimpleMessage receivedMessage =
       (SimpleMessage) m_executeThread.waitForMessage();
 
     assertEquals(sentMessage, receivedMessage);
-    assertTrue(sentMessage.payloadEquals(receivedMessage));
     assertTrue(sentMessage != receivedMessage);
   }
 
@@ -146,13 +134,10 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
     final QueuedSender sender = new QueuedSenderDecorator(m_sender);
 
-    long sequenceNumber = -1;
-
     final SimpleMessage[] messages = new SimpleMessage[25];
 
     for (int i=0; i<messages.length; ++i) {
-      messages[i] = new SimpleMessage(0);
-      maybeInitialiseMessage(messages[i]);
+      messages[i] = new SimpleMessage();
       sender.queue(messages[i]);
     }
 
@@ -160,15 +145,8 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
     for (int i=0; i<messages.length; ++i) {
       final Message receivedMessage = m_executeThread.waitForMessage();
-
-      if (sequenceNumber != -1) {
-        assertEquals(sequenceNumber+1, receivedMessage.getSequenceNumber());
-      }
-
-      sequenceNumber = receivedMessage.getSequenceNumber();
-
+      
       assertEquals(messages[i], receivedMessage);
-      assertTrue(messages[i].payloadEquals(receivedMessage));
       assertTrue(messages[i] != receivedMessage);
     }
   }
@@ -177,39 +155,26 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
     final QueuedSender sender = new QueuedSenderDecorator(m_sender);
 
-    long sequenceNumber = -1;
-
     final SimpleMessage[] messages = new SimpleMessage[25];
 
     for (int i=0; i<messages.length; ++i) {
-      messages[i] = new SimpleMessage(0);
-      maybeInitialiseMessage(messages[i]);
+      messages[i] = new SimpleMessage();
       sender.queue(messages[i]);
     }
 
-    final SimpleMessage finalMessage = new SimpleMessage(0);
-    maybeInitialiseMessage(finalMessage);
+    final SimpleMessage finalMessage = new SimpleMessage();
     sender.send(finalMessage);
 
     for (int i=0; i<messages.length; ++i) {
       final Message receivedMessage = m_executeThread.waitForMessage();
 
-      if (sequenceNumber != -1) {
-        assertEquals(sequenceNumber+1, receivedMessage.getSequenceNumber());
-      }
-
-      sequenceNumber = receivedMessage.getSequenceNumber();
-
       assertEquals(messages[i], receivedMessage);
-      assertTrue(messages[i].payloadEquals(receivedMessage));
       assertTrue(messages[i] != receivedMessage);
     }
 
     final Message receivedFinalMessage = m_executeThread.waitForMessage();
 
-    assertEquals(sequenceNumber+1, receivedFinalMessage.getSequenceNumber());
     assertEquals(finalMessage, receivedFinalMessage);
-    assertTrue(finalMessage.payloadEquals(receivedFinalMessage));
     assertTrue(finalMessage != receivedFinalMessage);
   }
 
@@ -310,15 +275,6 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
       }
 
       protected abstract Object doAction() throws Exception;
-    }
-  }
-  
-  private int m_sequenceNumber = 0;
-
-  private void maybeInitialiseMessage(Message message) {
-    if (m_messagesNeedInitialising) {
-      message.setSenderInformation("Test", getClass().getName(),
-                                   m_sequenceNumber++);
     }
   }
 }

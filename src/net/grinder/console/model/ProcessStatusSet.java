@@ -139,20 +139,21 @@ public final class ProcessStatusSet {
   /**
    * Add a status report.
    *
-   * @param uniqueID Process id.
    * @param processStatus Process status.
    */
-  public synchronized void addStatusReport(String uniqueID,
-                                           ProcessStatus processStatus) {
+  public synchronized void addStatusReport(ProcessStatus processStatus) {
 
     ProcessStatusImplementation processStatusImplementation =
-      (ProcessStatusImplementation)m_processes.get(uniqueID);
+      (ProcessStatusImplementation)
+      m_processes.get(processStatus.getIdentity());
 
     if (processStatusImplementation == null) {
       processStatusImplementation =
-        new ProcessStatusImplementation(processStatus.getName());
+        new ProcessStatusImplementation(processStatus.getIdentity(),
+                                        processStatus.getName());
 
-      m_processes.put(uniqueID, processStatusImplementation);
+      m_processes.put(processStatus.getIdentity(),
+                      processStatusImplementation);
     }
 
     processStatusImplementation.set(processStatus);
@@ -186,6 +187,7 @@ public final class ProcessStatusSet {
   }
 
   private final class ProcessStatusImplementation implements ProcessStatus {
+    private final String m_identity;
     private final String m_name;
     private short m_state;
     private short m_totalNumberOfThreads;
@@ -194,7 +196,8 @@ public final class ProcessStatusSet {
     private boolean m_reapable = false;
     private int m_lastTouchedGeneration;
 
-    public ProcessStatusImplementation(String name) {
+    public ProcessStatusImplementation(String identity, String name) {
+      m_identity = identity;
       m_name = name;
       touch();
     }
@@ -223,6 +226,10 @@ public final class ProcessStatusSet {
     private void touch() {
       m_lastTouchedGeneration = m_currentGeneration;
       m_reapable = false;
+    }
+
+    public String getIdentity() {
+      return m_identity;
     }
 
     public String getName() {

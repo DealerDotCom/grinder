@@ -52,11 +52,11 @@ public class TestFanOutServerSender extends TestCase {
     final int port = serverSocket.getLocalPort();
     serverSocket.close();
 
-    final FanOutServerSender serverSender1 =
-      FanOutServerSender.bindTo("Test", "", port);
+    final FanOutServerSender serverSender1 = 
+      FanOutServerSender.bindTo("", port);
 
     final FanOutServerSender serverSender2 =
-      FanOutServerSender.bindTo("Test", "", 0);
+      FanOutServerSender.bindTo("", 0);
 
     serverSender1.shutdown();
     serverSender2.shutdown();
@@ -65,7 +65,7 @@ public class TestFanOutServerSender extends TestCase {
   public void testSend() throws Exception {
 
     final FanOutServerSender serverSender =
-      FanOutServerSender.bindTo("Test", "", 0);
+      FanOutServerSender.bindTo("", 0);
 
     final Acceptor acceptor = serverSender.getAcceptor();
 
@@ -84,15 +84,8 @@ public class TestFanOutServerSender extends TestCase {
     final SimpleMessage message1 = new SimpleMessage();
     final SimpleMessage message2 = new SimpleMessage();
 
-    // Should be able to both route messages from other Senders and
-    // originate their own.
-    message1.setSenderInformation("Grinder ID", getClass().getName(), 1);
-
     serverSender.send(message1);
     serverSender.send(message2);
-
-    assertEquals("Grinder ID", message1.getSenderGrinderID());
-    assertEquals("Test", message2.getSenderGrinderID());
 
     for (int i=0; i<socket.length; ++i) {
       final InputStream socketInput = socket[i].getInputStream();
@@ -106,10 +99,7 @@ public class TestFanOutServerSender extends TestCase {
       final Object o2 = inputStream2.readObject();
 
       assertEquals(message1, o1);
-      assertTrue(message1.payloadEquals((Message) o1));
-
       assertEquals(message2, o2);
-      assertTrue(message2.payloadEquals((Message) o2));
 
       assertEquals(0, socketInput.available());
 
@@ -121,8 +111,7 @@ public class TestFanOutServerSender extends TestCase {
 
   public void testShutdown() throws Exception {
 
-    final FanOutServerSender serverSender =
-      FanOutServerSender.bindTo("Test", "", 0);
+    final FanOutServerSender serverSender = FanOutServerSender.bindTo("", 0);
 
     final Acceptor acceptor = serverSender.getAcceptor();
 

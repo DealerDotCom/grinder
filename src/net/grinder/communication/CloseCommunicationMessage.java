@@ -21,12 +21,14 @@
 
 package net.grinder.communication;
 
+
 /**
  * Message used to cleanly indicate that a unicast communication
  * channel should be terminated.
  *
  * @author Philip Aston
  * @version $Revision$
- **/
-final class CloseCommunicationMessage extends Message {
+ */
+final class CloseCommunicationMessage implements Message {
+  static final long serialVersionUID = -6184308536094181215L;
 }

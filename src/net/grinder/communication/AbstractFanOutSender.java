@@ -40,26 +40,6 @@ public abstract class AbstractFanOutSender extends AbstractSender {
   /**
    * Constructor.
    *
-   * @param grinderID A string describing our Grinder process.
-   * @param senderID Unique string identifying sender.
-   * @param kernel Kernel to use.
-   * @param resourcePool Pool of resources from which the output
-   * streams can be reserved.
-   * @throws CommunicationException If server socket could not be
-   * bound.
-   */
-  protected AbstractFanOutSender(String grinderID, String senderID,
-                                 Kernel kernel, ResourcePool resourcePool)
-    throws CommunicationException {
-    super(grinderID, senderID);
-
-    m_kernel = kernel;
-    m_resourcePool = resourcePool;
-  }
-
-  /**
-   * Constructor.
-   *
    * @param kernel Kernel to use.
    * @param resourcePool Pool of resources from which the output
    * streams can be reserved.

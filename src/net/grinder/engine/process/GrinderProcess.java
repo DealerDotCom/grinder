@@ -38,7 +38,6 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.QueuedSender;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
-import net.grinder.communication.ReportStatusMessage;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
@@ -240,8 +239,9 @@ public final class GrinderProcess implements Monitor {
 
     final QueuedSender consoleSender = m_context.getConsoleSender();
 
-    consoleSender.send(new ReportStatusMessage(ProcessStatus.STATE_STARTED,
-                                               (short)0, m_numberOfThreads));
+    consoleSender.send(
+      m_context.createStatusMessage(
+        ProcessStatus.STATE_STARTED, (short)0, m_numberOfThreads));
 
     if (m_consoleListener != null &&
         !Boolean.getBoolean(DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME)) {
@@ -345,8 +345,10 @@ public final class GrinderProcess implements Monitor {
 
     m_dataWriter.close();
 
-    consoleSender.send(new ReportStatusMessage(ProcessStatus.STATE_FINISHED,
-                                               (short)0, (short)0));
+    consoleSender.send(
+      m_context.createStatusMessage(
+        ProcessStatus.STATE_FINISHED, (short)0, (short)0));
+
     consoleSender.shutdown();
 
     logger.output("Final statistics for this process:");
@@ -439,9 +441,9 @@ public final class GrinderProcess implements Monitor {
           new ReportStatisticsMessage(m_testStatisticsMap.getDelta(true)));
 
         consoleSender.send(
-          new ReportStatusMessage(ProcessStatus.STATE_RUNNING,
-                                  GrinderThread.getNumberOfThreads(),
-                                  m_numberOfThreads));
+          m_context.createStatusMessage(ProcessStatus.STATE_RUNNING,
+                                        GrinderThread.getNumberOfThreads(),
+                                        m_numberOfThreads));
       }
       catch (CommunicationException e) {
         final Logger logger = m_context.getLogger();

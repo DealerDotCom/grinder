@@ -30,7 +30,7 @@ import java.util.Collection;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class RegisterTestsMessage extends Message {
+public final class RegisterTestsMessage implements Message {
 
   private static final long serialVersionUID = -5373242586585432471L;
 

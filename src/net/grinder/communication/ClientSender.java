@@ -37,15 +37,13 @@ public final class ClientSender extends StreamSender {
    * Factory method that makes a TCP connection and returns a
    * corresponding <code>Sender</code>.
    *
-   * @param grinderID A string describing our Grinder process.
    * @param addressString TCP address to connect to.
    * @param port TCP port to connect to.
    * @return The ClientSender.
    * @throws CommunicationException If <code>Sender</code> could not
    * be created.
    */
-  public static Sender connectTo(String grinderID, String addressString,
-                                 int port)
+  public static Sender connectTo(String addressString, int port)
     throws CommunicationException {
 
     try {
@@ -55,11 +53,7 @@ public final class ClientSender extends StreamSender {
       final String localHost = socket.getLocalAddress().getHostName();
       final int localPort = socket.getLocalPort();
 
-      // Calculate a globally unique string for this sender.
-      final String senderID =
-        addressString + ":" + port + ":" + localHost + ":" + localPort;
-
-      return new ClientSender(grinderID, senderID, socket);
+      return new ClientSender(socket);
     }
     catch (IOException e) {
       throw new CommunicationException(
@@ -69,10 +63,10 @@ public final class ClientSender extends StreamSender {
 
   private final Socket m_socket;
 
-  private ClientSender(String grinderID, String senderID, Socket socket)
+  private ClientSender(Socket socket)
     throws CommunicationException, IOException {
 
-    super(grinderID, senderID, socket.getOutputStream());
+    super(socket.getOutputStream());
     m_socket = socket;
   }
 

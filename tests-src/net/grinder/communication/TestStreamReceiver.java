@@ -50,7 +50,6 @@ public class TestStreamReceiver extends TestCase {
     final StreamReceiver streamReceiver = new StreamReceiver(inputStream);
 
     final SimpleMessage message1 = new SimpleMessage();
-    message1.setSenderInformation("Test", getClass().getName(), 1);
 
     final ObjectOutputStream objectStream1 =
       new ObjectOutputStream(outputStream);
@@ -58,7 +57,6 @@ public class TestStreamReceiver extends TestCase {
     objectStream1.flush();
 
     final SimpleMessage message2 = new SimpleMessage();
-    message2.setSenderInformation("Test", getClass().getName(), 2);
 
     final ObjectOutputStream objectStream2 =
       new ObjectOutputStream(outputStream);
@@ -69,9 +67,7 @@ public class TestStreamReceiver extends TestCase {
     final Message receivedMessage2 = streamReceiver.waitForMessage();
 
     assertEquals(message1, receivedMessage1);
-    assertTrue(message1.payloadEquals(receivedMessage1));
     assertEquals(message2, receivedMessage2);
-    assertTrue(message2.payloadEquals(receivedMessage2));
 
     assertEquals(
       CommunicationException.class,
@@ -99,7 +95,6 @@ public class TestStreamReceiver extends TestCase {
     final StreamReceiver streamReceiver = new StreamReceiver(inputStream);
 
     final SimpleMessage message = new SimpleMessage();
-    message.setSenderInformation("Test", getClass().getName(), 1);
 
     final ObjectOutputStream objectStream =
       new ObjectOutputStream(outputStream);
@@ -121,7 +116,6 @@ public class TestStreamReceiver extends TestCase {
     final StreamReceiver streamReceiver = new StreamReceiver(inputStream);
 
     final SimpleMessage message = new SimpleMessage();
-    message.setSenderInformation("Test", getClass().getName(), 1);
 
     final ObjectOutputStream objectStream1 =
       new ObjectOutputStream(outputStream);
@@ -131,8 +125,6 @@ public class TestStreamReceiver extends TestCase {
     final Message receivedMessage = streamReceiver.waitForMessage();
 
     final Message closeCommunicationMessage = new CloseCommunicationMessage();
-    closeCommunicationMessage.setSenderInformation(
-      "Test", getClass().getName(), 1);
 
     final ObjectOutputStream objectStream2 =
       new ObjectOutputStream(outputStream);

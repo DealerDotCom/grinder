@@ -32,11 +32,12 @@ import net.grinder.common.ProcessStatus;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ReportStatusMessage
-  extends Message implements ProcessStatus {
+public final class ReportStatusMessage implements Message, ProcessStatus {
 
   private static final long serialVersionUID = 111833598590121547L;
 
+  private final String m_identity;
+  private final String m_name;
   private final short m_state;
   private final short m_totalNumberOfThreads;
   private final short m_numberOfRunningThreads;
@@ -44,16 +45,29 @@ public final class ReportStatusMessage
   /**
    * Creates a new <code>ReportStatusMessage</code> instance.
    *
+   * @param identity Process identity.
+   * @param name Process name.
    * @param state The process state. See {@link
    * net.grinder.common.ProcessStatus}.
    * @param totalThreads The total number of threads.
    * @param runningThreads The number of threads that are still running.
    **/
-  public ReportStatusMessage(short state, short runningThreads,
-                             short totalThreads) {
+  public ReportStatusMessage(String identity, String name, short state,
+                             short runningThreads, short totalThreads) {
+    m_identity = identity;
+    m_name = name;
     m_state = state;
     m_numberOfRunningThreads = runningThreads;
     m_totalNumberOfThreads = totalThreads;
+  }
+
+  /**
+   * Accessor for the process identity.
+   *
+   * @return The process name.
+   */
+  public String getIdentity() {
+    return m_identity;
   }
 
   /**
@@ -62,7 +76,7 @@ public final class ReportStatusMessage
    * @return The process name.
    */
   public String getName() {
-    return super.getSenderGrinderID();
+    return m_name;
   }
 
   /**

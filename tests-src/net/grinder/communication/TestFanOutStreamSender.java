@@ -58,14 +58,8 @@ public class TestFanOutStreamSender extends TestCase {
     final SimpleMessage message1 = new SimpleMessage();
     final SimpleMessage message2 = new SimpleMessage();
 
-    message1.setSenderInformation("Grinder ID", getClass().getName(), 1);
-    message2.setSenderInformation("Grinder ID", getClass().getName(), 2);
-
     serverSender.send(message1);
     serverSender.send(message2);
-
-    assertEquals("Grinder ID", message1.getSenderGrinderID());
-    assertEquals("Grinder ID", message2.getSenderGrinderID());
 
     for (int i=0; i<outputStreams.length; ++i) {
       final ObjectInputStream inputStream1 =
@@ -77,10 +71,7 @@ public class TestFanOutStreamSender extends TestCase {
       final Object o2 = inputStream2.readObject();
 
       assertEquals(message1, o1);
-      assertTrue(message1.payloadEquals((Message) o1));
-
       assertEquals(message2, o2);
-      assertTrue(message2.payloadEquals((Message) o2));
 
       assertEquals(0, inputStreams[i].available());
     }
@@ -97,7 +88,6 @@ public class TestFanOutStreamSender extends TestCase {
     serverSender.add(outputStream);
 
     final Message message = new SimpleMessage();
-    message.setSenderInformation("Grinder ID", getClass().getName(), 1);
     serverSender.send(message);
 
     final ObjectInputStream inputStream1 =

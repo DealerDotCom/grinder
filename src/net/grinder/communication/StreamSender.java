@@ -39,22 +39,6 @@ public class StreamSender extends AbstractSender {
   /**
    * Constructor.
    *
-   * @param grinderID A string describing our Grinder process.
-   * @param senderID Unique string identifying sender.
-   * @param outputStream The output stream to write to.
-   * @throws CommunicationException If Sender could not be created.
-   */
-  protected StreamSender(String grinderID, String senderID,
-                         OutputStream outputStream)
-    throws CommunicationException {
-
-    super(grinderID, senderID);
-    m_outputStream = new BufferedOutputStream(outputStream);
-  }
-
-  /**
-   * Constructor.
-   *
    * @param outputStream The output stream to write to.
    */
   public StreamSender(OutputStream outputStream) {

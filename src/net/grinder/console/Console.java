@@ -137,7 +137,7 @@ public class Console {
 
       if (message instanceof ReportStatusMessage) {
         m_model.getProcessStatusSet().addStatusReport(
-          message.getSenderUniqueID(), (ReportStatusMessage)message);
+          (ReportStatusMessage)message);
       }
     }
   }

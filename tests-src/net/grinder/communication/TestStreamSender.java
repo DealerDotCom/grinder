@@ -52,17 +52,6 @@ public class TestStreamSender extends TestCase {
     final SimpleMessage message1 = new SimpleMessage();
     final SimpleMessage message2 = new SimpleMessage();
 
-    // StreamSender doesn't support message initialisation.
-    try {
-      streamSender.send(message1);
-      fail("Expected CommunicationException");
-    }
-    catch (CommunicationException e) {
-    }
-    
-    message1.setSenderInformation("Test", getClass().getName(), 1);
-    message2.setSenderInformation("Test", getClass().getName(), 2);
-
     streamSender.send(message1);
     streamSender.send(message2);
     
@@ -80,10 +69,7 @@ public class TestStreamSender extends TestCase {
     final Object o2 = inputStream2.readObject();
 
     assertEquals(message1, o1);
-    assertTrue(message1.payloadEquals((Message) o1));
-
     assertEquals(message2, o2);
-    assertTrue(message2.payloadEquals((Message) o2));
 
     assertEquals(0, byteInputStream.available());
   }
@@ -96,7 +82,6 @@ public class TestStreamSender extends TestCase {
       new StreamSender((OutputStream)byteOutputStream);
 
     final Message message = new SimpleMessage();
-    message.setSenderInformation("Test", getClass().getName(), 99);
 
     streamSender.send(message);
 

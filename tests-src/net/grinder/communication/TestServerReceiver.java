@@ -81,10 +81,6 @@ public class TestServerReceiver extends TestCase {
     final SimpleMessage message2 = new SimpleMessage();
     final SimpleMessage message3 = new SimpleMessage();
 
-    message1.setSenderInformation("Test", getClass().getName(), 1);
-    message2.setSenderInformation("Test", getClass().getName(), 2);
-    message3.setSenderInformation("Test", getClass().getName(), 3);
-
     final ObjectOutputStream objectStream1 =
       new ObjectOutputStream(socket[0].getOutputStream());
     objectStream1.writeObject(message1);
@@ -126,11 +122,8 @@ public class TestServerReceiver extends TestCase {
     }
 
     assertEquals(message1, receivedMessage1);
-    assertTrue(message1.payloadEquals(receivedMessage1));
     assertEquals(message2, receivedMessage2);
-    assertTrue(message2.payloadEquals(receivedMessage2));
     assertEquals(message3, receivedMessage3);
-    assertTrue(message3.payloadEquals(receivedMessage3));
 
     serverReceiver.shutdown();
   }
@@ -152,7 +145,6 @@ public class TestServerReceiver extends TestCase {
     }
 
     final SimpleMessage message = new SimpleMessage();
-    message.setSenderInformation("Test", getClass().getName(), 1);
 
     final ObjectOutputStream objectStream =
       new ObjectOutputStream(socket.getOutputStream());
@@ -183,7 +175,6 @@ public class TestServerReceiver extends TestCase {
     }
 
     final SimpleMessage message = new SimpleMessage();
-    message.setSenderInformation("Test", getClass().getName(), 1);
 
     final ObjectOutputStream objectStream1 =
       new ObjectOutputStream(socket.getOutputStream());
@@ -193,8 +184,6 @@ public class TestServerReceiver extends TestCase {
     final Message receivedMessage = serverReceiver.waitForMessage();
 
     final Message closeCommunicationMessage = new CloseCommunicationMessage();
-    closeCommunicationMessage.setSenderInformation(
-      "Test", getClass().getName(), 1);
 
     final ObjectOutputStream objectStream2 =
       new ObjectOutputStream(socket.getOutputStream());

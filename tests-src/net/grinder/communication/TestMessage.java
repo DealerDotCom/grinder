@@ -50,41 +50,7 @@ public class TestMessage extends TestCase {
     super(name);
   }
 
-  public void testSenderInformation() throws Exception {
-    final Message message = new MyMessage();
-
-    try {
-      message.getSenderGrinderID();
-      fail("Expected RuntimeException");
-    }
-    catch (RuntimeException e) {
-    }
-
-    try {
-      message.getSenderUniqueID();
-      fail("Expected RuntimeException");
-    }
-    catch (RuntimeException e) {
-    }
-
-    try {
-      message.getSequenceNumber();
-      fail("Expected RuntimeException");
-    }
-    catch (RuntimeException e) {
-    }
-
-    message.setSenderInformation("grinderID", "uniqueID", 12345l);
-
-    assertEquals("grinderID", message.getSenderGrinderID());
-    assertEquals("uniqueID", message.getSenderUniqueID());
-    assertEquals(12345l, message.getSequenceNumber());
-  }
-
   private Message serialise(Message original) throws Exception {
-
-    original.setSenderInformation("grinderID", "uniqueID",
-                                  s_random.nextLong());
 
     final ByteArrayOutputStream byteOutputStream =
       new ByteArrayOutputStream();
@@ -101,61 +67,16 @@ public class TestMessage extends TestCase {
 
     final Message received = (Message)objectInputStream.readObject();
     assertTrue(received != original);
-    assertEquals(original, received);
 
     return received;
   }
 
   public void testSerialisation() throws Exception {
-    serialise(new MyMessage());
-  }
-
-  public void testEquals() throws Exception {
-
-    final Message m1 = new MyMessage();
-    final Message m2 = new MyMessage();
-
-    assertTrue("No uninitialised message is equal to another Message",
-               !m1.equals(m2));
-
-    m1.setSenderInformation("grinderID", "uniqueID", 12345l);
-
-    assertTrue("No uninitialised message is equal to another Message",
-               !m1.equals(m2));
-
-    m2.setSenderInformation("grinderID2", "uniqueID", 12345l);
-
-    assertEquals(
-      "Initialised messages equal iff uniqueID and sequenceID equal",
-      m1, m2);
-
-    assertEquals("Reflexive", m2, m1);
-
-    final Message m3 = new MyMessage();
-    m3.setSenderInformation("grinderID3", "uniqueID", 12345l);
-
-    assertEquals("Transitive", m2, m3);
-    assertEquals("Transitive", m3, m1);
-
-    m2.setSenderInformation("grinderID2", "uniqueID2", 12345l);
-
-    assertTrue("Initialised messages equal iff uniqueID and sequenceID equal",
-               !m1.equals(m2));
-
-    m1.setSenderInformation("grinderID2", "uniqueID2", 12445l);
-        
-    assertTrue("Initialised messages equal iff uniqueID and sequenceID equal",
-               !m1.equals(m2));
-  }
-
-  private static class MyMessage extends Message {
+    serialise(new SimpleMessage());
   }
 
   public void testCloseCommunicationMessage() throws Exception {
-    final Message original = new CloseCommunicationMessage();
-    final Message received = (CloseCommunicationMessage) serialise(original);
-
-    assertEquals(original, received);
+    serialise(new CloseCommunicationMessage());
   }
 
   public void testRegisterStatisticsViewMessage() throws Exception {
@@ -207,9 +128,13 @@ public class TestMessage extends TestCase {
 
   public void testReportStatusMessage() throws Exception {
 
-    final ReportStatusMessage original =
-      new ReportStatusMessage((short)1, (short)2, (short)3);
+    final String uniqueID = "ID" + s_random.nextInt();
 
+    final ReportStatusMessage original =
+      new ReportStatusMessage(uniqueID, "test", (short)1, (short)2, (short)3);
+
+    assertEquals(uniqueID, original.getIdentity());
+    assertEquals("test", original.getName());
     assertEquals(1, original.getState());
     assertEquals(2, original.getNumberOfRunningThreads());
     assertEquals(3, original.getTotalNumberOfThreads());
@@ -217,29 +142,22 @@ public class TestMessage extends TestCase {
     final ReportStatusMessage received =
       (ReportStatusMessage) serialise(original);
 
+    assertEquals(uniqueID, received.getIdentity());
+    assertEquals("test", received.getName());
     assertEquals(1, received.getState());
     assertEquals(2, received.getNumberOfRunningThreads());
     assertEquals(3, received.getTotalNumberOfThreads());
   }
 
   public void testResetGrinderMessage() throws Exception {
-    final Message original = new ResetGrinderMessage();
-    final Message received = (ResetGrinderMessage) serialise(original);
-
-    assertEquals(original, received);
+    serialise(new ResetGrinderMessage());
   }
 
   public void testStartGrinderMessage() throws Exception {
-    final Message original = new StartGrinderMessage();
-    final Message received = (StartGrinderMessage) serialise(original);
-
-    assertEquals(original, received);
+    serialise(new StartGrinderMessage());
   }
 
   public void testStopGrinderMessage() throws Exception {
-    final Message original = new StopGrinderMessage();
-    final Message received = (StopGrinderMessage) serialise(original);
-
-    assertEquals(original, received);
+    serialise(new StopGrinderMessage());
   }
 }

@@ -23,8 +23,6 @@ package net.grinder.communication;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 
 /**
@@ -39,7 +37,6 @@ public final class FanOutServerSender extends AbstractFanOutSender {
    * Factory method that creates a <code>FanOutServerSender</code>
    * that listens on the given address.
    *
-   * @param grinderID A string describing our Grinder process.
    * @param addressString The TCP address to listen on. Zero-length
    * string => listen on all interfaces.
    * @param port The TCP port to listen to. 0 => any local port.
@@ -47,24 +44,12 @@ public final class FanOutServerSender extends AbstractFanOutSender {
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  public static FanOutServerSender bindTo(String grinderID,
-                                          String addressString,
+  public static FanOutServerSender bindTo(String addressString,
                                           int port)
     throws CommunicationException {
 
-    final Acceptor acceptor = new Acceptor(addressString, port, 1);
-
-    try {
-      final String senderID =
-        addressString + ":" + acceptor.getPort() + ":" +
-        InetAddress.getLocalHost().getHostName();
-
-      return new FanOutServerSender(
-        grinderID, senderID, acceptor, new Kernel(3));
-    }
-    catch (UnknownHostException e) {
-      throw new CommunicationException("Can't get local host", e);
-    }
+    return new FanOutServerSender(new Acceptor(addressString, port, 1),
+                                  new Kernel(3));
   }
 
   private final Acceptor m_acceptor;
@@ -72,18 +57,15 @@ public final class FanOutServerSender extends AbstractFanOutSender {
   /**
    * Constructor.
    *
-   * @param grinderID A string describing our Grinder process.
-   * @param senderID Unique string identifying sender.
    * @param acceptor Acceptor that manages connections to our server socket.
    * @param kernel A kernel to use.
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  private FanOutServerSender(String grinderID, String senderID,
-                             Acceptor acceptor, Kernel kernel)
+  private FanOutServerSender(Acceptor acceptor, Kernel kernel)
     throws CommunicationException {
 
-    super(grinderID, senderID, kernel, acceptor.getSocketSet());
+    super(kernel, acceptor.getSocketSet());
 
     m_acceptor = acceptor;
   }

@@ -30,7 +30,7 @@ import java.util.Random;
  * @author Philip Aston
  * @version $Revision$
  */
-public class SimpleMessage extends Message {
+public final class SimpleMessage implements Message {
 
   private static Random s_random = new Random();
 
@@ -55,7 +55,7 @@ public class SimpleMessage extends Message {
     return "(" + m_text + ", " + m_random + ")";
   }
 
-  public boolean payloadEquals(Message o) {
+  public boolean equals(Object o) {
     if (o == this) {
       return true;
     }
@@ -67,6 +67,10 @@ public class SimpleMessage extends Message {
     final SimpleMessage other = (SimpleMessage)o;
 
     return m_text.equals(other.m_text) && m_random == other.m_random;
+  }
+
+  public int hashCode() {
+    return m_text.hashCode() ^ m_random;
   }
 }
 

@@ -56,7 +56,6 @@ public class TestClientReceiver extends TestCase {
       socketAcceptor.getAcceptedSocket().getOutputStream();
 
     final SimpleMessage message1 = new SimpleMessage();
-    message1.setSenderInformation("Test", getClass().getName(), 1);
     
     final ObjectOutputStream objectStream1 =
       new ObjectOutputStream(socketOutput);
@@ -64,7 +63,6 @@ public class TestClientReceiver extends TestCase {
     objectStream1.flush();
 
     final SimpleMessage message2 = new SimpleMessage();
-    message2.setSenderInformation("Test", getClass().getName(), 2);
 
     final ObjectOutputStream objectStream2 =
       new ObjectOutputStream(socketOutput);
@@ -75,9 +73,7 @@ public class TestClientReceiver extends TestCase {
     final Message receivedMessage2 = clientReceiver.waitForMessage();
 
     assertEquals(message1, receivedMessage1);
-    assertTrue(message1.payloadEquals(receivedMessage1));
     assertEquals(message2, receivedMessage2);
-    assertTrue(message2.payloadEquals(receivedMessage2));
 
     socketAcceptor.close();
 
@@ -105,7 +101,6 @@ public class TestClientReceiver extends TestCase {
       socketAcceptor.getAcceptedSocket().getOutputStream();
 
     final SimpleMessage message1 = new SimpleMessage();
-    message1.setSenderInformation("Test", getClass().getName(), 1);
     
     final ObjectOutputStream objectStream1 =
       new ObjectOutputStream(socketOutput);
@@ -135,7 +130,6 @@ public class TestClientReceiver extends TestCase {
       socketAcceptor.getAcceptedSocket().getOutputStream();
 
     final SimpleMessage message1 = new SimpleMessage();
-    message1.setSenderInformation("Test", getClass().getName(), 1);
     
     final ObjectOutputStream objectStream1 =
       new ObjectOutputStream(socketOutput);
@@ -145,8 +139,6 @@ public class TestClientReceiver extends TestCase {
     final Message receivedMessage = clientReceiver.waitForMessage();
 
     final Message closeCommunicationMessage = new CloseCommunicationMessage();
-    closeCommunicationMessage.setSenderInformation(
-      "Test", getClass().getName(), 1);
 
     final ObjectOutputStream objectStream2 =
       new ObjectOutputStream(socketOutput);

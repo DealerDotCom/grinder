@@ -21,13 +21,9 @@
 
 package net.grinder.communication;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.security.MessageDigest;
 
 
 /**
@@ -35,55 +31,10 @@ import java.security.MessageDigest;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 abstract class AbstractSender implements Sender {
 
-  private final String m_grinderID;
-  private final String m_senderID;
-  private long m_nextSequenceID = 0;
   private boolean m_shutdown = false;
-
-  /**
-   * Constructor.
-   *
-   * <p>The <code>grinderID</code> and <code>senderID</code>
-   * parameters are used to initialise Messages that originate from
-   * this <code>Server</code>.</p>
-   *
-   * @param grinderID Process identity.
-   * @param senderID Unique sender identity.
-   * @throws CommunicationException If Sender could not be created.
-   */
-  protected AbstractSender(String grinderID, String senderID)
-    throws CommunicationException {
-
-    m_grinderID = grinderID;
-
-    try {
-      final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-
-      final Writer writer = new OutputStreamWriter(byteStream);
-      writer.write(senderID);
-      writer.write(grinderID);
-      writer.write(Long.toString(System.currentTimeMillis()));
-      writer.close();
-
-      m_senderID =
-        new String(MessageDigest.getInstance("MD5").digest(
-                     byteStream.toByteArray()));
-    }
-    catch (Exception e) {
-      throw new CommunicationException("Could not calculate sender ID", e);
-    }
-  }
-
-  /**
-   * Constructor for <code>Senders</code> that only route messages.
-   */
-  protected AbstractSender() {
-    m_grinderID = null;
-    m_senderID = null;
-  }
 
   /**
    * First flush any pending messages queued with {@link #queue} and
@@ -98,19 +49,6 @@ abstract class AbstractSender implements Sender {
       throw new CommunicationException("Shut down");
     }
 
-    if (!message.isInitialised()) {
-      if (m_grinderID == null || m_senderID == null) {
-        throw new CommunicationException(
-          "This Sender can only route messages");
-      }
-      else {
-        synchronized (this) {
-          message.setSenderInformation(
-            m_grinderID, m_senderID, m_nextSequenceID++);
-        }
-      }
-    }
-
     try {
       writeMessage(message);
     }
@@ -119,10 +57,14 @@ abstract class AbstractSender implements Sender {
     }
   }
 
+  /**
+   * Template method for subclasses to implement the sending of a
+   * message.
+   */
   protected abstract void writeMessage(Message message) throws IOException;
 
-  protected static void writeMessageToStream(Message message,
-                                             OutputStream stream)
+  protected static final void writeMessageToStream(Message message,
+                                                   OutputStream stream)
     throws IOException {
 
     // I tried the model of using a single ObjectOutputStream for the
@@ -144,9 +86,7 @@ abstract class AbstractSender implements Sender {
    */
   public void shutdown() throws CommunicationException {
     try {
-      final Message message = new CloseCommunicationMessage();
-      message.setSenderInformation("internal", "internal", -1);
-      send(message);
+      send(new CloseCommunicationMessage());
     }
     catch (CommunicationException e) {
       // Ignore.
