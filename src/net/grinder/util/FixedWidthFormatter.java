@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,231 +35,238 @@ import net.grinder.common.GrinderException;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class FixedWidthFormatter
-{
-    public static final int ALIGN_LEFT = 0;
-    public static final int ALIGN_CENTRE = 1;
-    public static final int ALIGN_RIGHT = 2;
+public class FixedWidthFormatter {
 
-    public static final int FLOW_TRUNCATE = 8;
-    public static final int FLOW_WRAP = 9;
-    public static final int FLOW_WORD_WRAP = 10;
+  /** Constant indicating left alignment. */
+  public static final int ALIGN_LEFT = 0;
 
-    /** Blank space to copy for padding. **/
-    private final static char[] s_space = new char[256];
+  /** Constant indicating centre alignment. */
+  public static final int ALIGN_CENTRE = 1;
 
-    static 
-    {
-	for (int i=0; i<s_space.length; i++) {
-	    s_space[i] = ' ';
-	}
+  /** Constant indicating right alignment. */
+  public static final int ALIGN_RIGHT = 2;
+
+  /** Constant indicating flow should be truncated. */
+  public static final int FLOW_TRUNCATE = 8;
+
+  /** Constant indicating flow should be wrapped. */
+  public static final int FLOW_WRAP = 9;
+
+  /** Constant indicating flow should be word-wrapped. */
+  public static final int FLOW_WORD_WRAP = 10;
+
+  /** Blank space to copy for padding. **/
+  private static final char[] s_space = new char[256];
+
+  static {
+    for (int i=0; i<s_space.length; i++) {
+      s_space[i] = ' ';
+    }
+  }
+
+  private final int m_alignment;
+  private final int m_flow;
+  private final int m_width;
+
+  /**
+   * @param alignment Alignment policy. One of {
+   * <code>ALIGN_LEFT</code>, <code>ALIGN_CENTRE</code>,
+   * <code>ALIGN_RIGHT</code> }
+   * @param flow Flow policy. One of { <code>FLOW_TRUNCATE</code>,
+   * <code>FLOW_WRAP</code>, <code>FLOW_WORD_WRAP</code> }
+   * @param width The cell width.
+   * @throws IllegalArgumentException If <code>alignment</code>,
+   * <code>flow</code> or <code>width</code> are invalid.
+   **/
+  public FixedWidthFormatter(int alignment, int flow, int width) {
+    if (alignment != ALIGN_LEFT &&
+	alignment != ALIGN_CENTRE &&
+	alignment != ALIGN_RIGHT) {
+      throw new IllegalArgumentException("Invalid alignment value");
     }
 
-    private final int m_alignment;
-    private final int m_flow;
-    private final int m_width;
-
-    /**
-     * @param alignment Alignment policy. One of {
-     * <code>ALIGN_LEFT</code>, <code>ALIGN_CENTRE</code>,
-     * <code>ALIGN_RIGHT</code> }
-     * @param flow Flow policy. One of { <code>FLOW_TRUNCATE</code>,
-     * <code>FLOW_WRAP</code>, <code>FLOW_WORD_WRAP</code> }
-     * @param width The cell width.
-     * @throws IllegalArgumentException If <code>alignment</code>,
-     * <code>flow</code> or <code>width</code> are invalid.
-     **/
-    public FixedWidthFormatter(int alignment, int flow, int width)
-    {
-	if (alignment != ALIGN_LEFT &&
-	    alignment != ALIGN_CENTRE &&
-	    alignment != ALIGN_RIGHT) {
-	    throw new IllegalArgumentException("Invalid alignment value");
-	}
-
-	if (flow != FLOW_TRUNCATE &&
-	    flow != FLOW_WRAP &&
-	    flow != FLOW_WORD_WRAP) {
-	    throw new IllegalArgumentException("Invalid flow value");
-	}
-
-	if (width <= 0) {
-	    throw new IllegalArgumentException("Invalid width value");
-	}
-
-	m_alignment = alignment;
-	m_flow = flow;
-	m_width = width;
+    if (flow != FLOW_TRUNCATE &&
+	flow != FLOW_WRAP &&
+	flow != FLOW_WORD_WRAP) {
+      throw new IllegalArgumentException("Invalid flow value");
     }
+
+    if (width <= 0) {
+      throw new IllegalArgumentException("Invalid width value");
+    }
+
+    m_alignment = alignment;
+    m_flow = flow;
+    m_width = width;
+  }
     
-    /**
-     * <p>Search  to set splitPosition as follows:
-     * <ol>
-     * <li>First new line in first m_width+1 characters (we replace all new lines with splits)</li>
-     * <li>If no new line, last white space in first m_width+1 characters</li>
-     *<li>If no new line or white space, the full width</li>
-     * </ol></p>
-     *
-     * <p>If the buffer is less than m_width wide, only new lines are
-     * taken into account. In this case, if no split is necessary -1
-     * is returned.</p>
-     *
-     * @param buffer Ensure that buffer.length() > m_width
-     * @return Split position in range [0, m_width]
-     **/
-    private final int findWordWrapSplitPosition(StringBuffer buffer)
-    {
-	final int length = buffer.length();
-	final int right = Math.min(length, m_width);
+  /**
+   * <p>Search  to set splitPosition as follows:
+   * <ol>
+   * <li>First new line in first m_width+1 characters (we replace all
+   * new lines with splits)</li>
+   * <li>If no new line, last white space in first m_width+1 characters</li>
+   *<li>If no new line or white space, the full width</li>
+   * </ol></p>
+   *
+   * <p>If the buffer is less than m_width wide, only new lines are
+   * taken into account. In this case, if no split is necessary -1
+   * is returned.</p>
+   *
+   * @param buffer Ensure that buffer.length() > m_width
+   * @return Split position in range [0, m_width]
+   **/
+  private final int findWordWrapSplitPosition(StringBuffer buffer) {
+    final int length = buffer.length();
+    final int right = Math.min(length, m_width);
 
-	int splitPosition = 0;
+    int splitPosition = 0;
 
-	while (splitPosition < right) {
-	    if (buffer.charAt(splitPosition) == '\n') {
-		return splitPosition;
-	    }
+    while (splitPosition < right) {
+      if (buffer.charAt(splitPosition) == '\n') {
+	return splitPosition;
+      }
 
-	    ++splitPosition;
-	}
-
-	if (length > m_width) {
-	    splitPosition = m_width;
-
-	    do {
-		if (Character.isWhitespace(buffer.charAt(splitPosition))) {
-		    return splitPosition;
-		}
-	    }
-	    while (--splitPosition >= 0);
-
-	    return m_width;
-	}
-	else {
-	    return -1;
-	}
+      ++splitPosition;
     }
 
-    public final void transform(StringBuffer buffer, StringBuffer remainder)
-	throws GrinderException
-    {
-	int length = buffer.length();
+    if (length > m_width) {
+      splitPosition = m_width;
 
-	switch (m_flow)
-	{
-	case FLOW_TRUNCATE:
-	    if (length > m_width) {
-		// Truncate.
-		buffer.setLength(m_width);
-	    }
-	    break;
+      do {
+	if (Character.isWhitespace(buffer.charAt(splitPosition))) {
+	  return splitPosition;
+	}
+      }
+      while (--splitPosition >= 0);
 
-	case FLOW_WRAP:
-	    if (length > m_width) {
-		// We prepend our remainder to the existing one.
-		remainder.insert(0, buffer.substring(m_width));
+      return m_width;
+    }
+    else {
+      return -1;
+    }
+  }
 
-		// Truncate.
-		buffer.setLength(m_width);
-	    }
-	    break;
+  public final void transform(StringBuffer buffer, StringBuffer remainder)
+    throws GrinderException {
+    int length = buffer.length();
+
+    switch (m_flow) {
+
+    case FLOW_TRUNCATE:
+      if (length > m_width) {
+	// Truncate.
+	buffer.setLength(m_width);
+      }
+      break;
+
+    case FLOW_WRAP:
+      if (length > m_width) {
+	// We prepend our remainder to the existing one.
+	remainder.insert(0, buffer.substring(m_width));
+
+	// Truncate.
+	buffer.setLength(m_width);
+      }
+      break;
 		
-	case FLOW_WORD_WRAP:
-	    if (m_width == 1 && length > 1) {
-		// Enhancement to allow single column of "vertical"
-		// text. Replace white space with line breaks.
-		if (Character.isWhitespace(buffer.charAt(0))) {
-		    buffer.setCharAt(0, '\n');
-		}
-	    }
+    case FLOW_WORD_WRAP:
+      if (m_width == 1 && length > 1) {
+	// Enhancement to allow single column of "vertical"
+	// text. Replace white space with line breaks.
+	if (Character.isWhitespace(buffer.charAt(0))) {
+	  buffer.setCharAt(0, '\n');
+	}
+      }
 
-	    final int splitPosition = findWordWrapSplitPosition(buffer);
+      final int splitPosition = findWordWrapSplitPosition(buffer);
 
-	    if (splitPosition >= 0) {
-		// Search forward to ignore white space (except for
-		// new lines), and set everything from there on as the
-		// remainder.
-		int nextText = splitPosition;
+      if (splitPosition >= 0) {
+	// Search forward to ignore white space (except for
+	// new lines), and set everything from there on as the
+	// remainder.
+	int nextText = splitPosition;
 		
-		while (nextText < length) {
-		    final char c = buffer.charAt(nextText);
+	while (nextText < length) {
+	  final char c = buffer.charAt(nextText);
 
-		    if  (!Character.isWhitespace(c)) {
-			break;
-		    }
+	  if  (!Character.isWhitespace(c)) {
+	    break;
+	  }
 
-		    ++nextText;
+	  ++nextText;
 		    
-		    if (c == '\n') {
-			break;
-		    }
-		}
-
-		if (nextText <= length) {
-		    remainder.insert(0, buffer.substring(nextText));
-		}
-
-		buffer.setLength(splitPosition);
-	    }
-
-	    // Strip leading and trailing space.
-	    int end = buffer.length();
-
-	    while (end > 0 && Character.isWhitespace(buffer.charAt(end-1))) {
-		--end;
-	    }
-
-	    buffer.setLength(end);
-
-	    if (end > 0) {
-		int start = 0;
-
-		while (Character.isWhitespace(buffer.charAt(start))) {
-		    ++start;
-		}
-
-		buffer.delete(0, start);
-	    }
-
+	  if (c == '\n') {
 	    break;
-
-	default:
-	    // assert.
-	    throw new GrinderException("Assertion failed: invalid flow");
+	  }
 	}
 
-	length = buffer.length();
-
-	// Canonicalise remaining space.
-	for (int k=0; k<length; k++) {
-	    if (Character.isWhitespace(buffer.charAt(k))) {
-		buffer.setCharAt(k, ' ');
-	    }
+	if (nextText <= length) {
+	  remainder.insert(0, buffer.substring(nextText));
 	}
 
-	if (length < m_width) {
-	    // Buffer is less than width, have to pad.
+	buffer.setLength(splitPosition);
+      }
 
-	    switch (m_alignment) {
-	    case ALIGN_LEFT:
-		buffer.append(s_space, 0, m_width - length);
-		break;
+      // Strip leading and trailing space.
+      int end = buffer.length();
 
-	    case ALIGN_CENTRE:
-		final int charsLeft = (m_width - length + 1) / 2;
-		final int charsRight = (m_width - length) / 2;
-		buffer.insert(0, s_space, 0, charsLeft);
-		buffer.append(s_space, 0, charsRight);
-		break;
+      while (end > 0 && Character.isWhitespace(buffer.charAt(end-1))) {
+	--end;
+      }
 
-	    case ALIGN_RIGHT:
-		buffer.insert(0, s_space, 0, m_width - length);
-		break;
+      buffer.setLength(end);
 
-	    default:
-		// assert.
-		throw new GrinderException(
-		    "Assertion failed: invalid alignment");
-	    }
+      if (end > 0) {
+	int start = 0;
+
+	while (Character.isWhitespace(buffer.charAt(start))) {
+	  ++start;
 	}
+
+	buffer.delete(0, start);
+      }
+
+      break;
+
+    default:
+      // assert.
+      throw new GrinderException("Assertion failed: invalid flow");
     }
+
+    length = buffer.length();
+
+    // Canonicalise remaining space.
+    for (int k=0; k<length; k++) {
+      if (Character.isWhitespace(buffer.charAt(k))) {
+	buffer.setCharAt(k, ' ');
+      }
+    }
+
+    if (length < m_width) {
+      // Buffer is less than width, have to pad.
+
+      switch (m_alignment) {
+      case ALIGN_LEFT:
+	buffer.append(s_space, 0, m_width - length);
+	break;
+
+      case ALIGN_CENTRE:
+	final int charsLeft = (m_width - length + 1) / 2;
+	final int charsRight = (m_width - length) / 2;
+	buffer.insert(0, s_space, 0, charsLeft);
+	buffer.append(s_space, 0, charsRight);
+	break;
+
+      case ALIGN_RIGHT:
+	buffer.insert(0, s_space, 0, m_width - length);
+	break;
+
+      default:
+	// assert.
+	throw new GrinderException(
+	  "Assertion failed: invalid alignment");
+      }
+    }
+  }
 }

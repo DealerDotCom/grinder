@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,71 +34,94 @@ import java.io.IOException;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class DelayedCreationFileWriter extends Writer
-{
-    private final File m_file;
-    private final boolean m_append;
+public class DelayedCreationFileWriter extends Writer {
 
-    private Writer m_delegate = null;
+  private final File m_file;
+  private final boolean m_append;
 
-    public DelayedCreationFileWriter(File file, boolean append)
-    {
-	m_file = file;
-	m_append = append;
+  private Writer m_delegate = null;
 
-	if (!append) {
-	    // Delete the old file. Well it would get trashed anyway
-	    // if you used a standard FileWriter, so stop
-	    // complaining, ok?
-	    m_file.delete();
-	}
+  /**
+   * Constructor.
+   *
+   * @param file The file.
+   * @param append Whether to append to the file, or overwrite.
+   */
+  public DelayedCreationFileWriter(File file, boolean append) {
+    m_file = file;
+    m_append = append;
+
+    if (!append) {
+      // Delete the old file. Well it would get trashed anyway
+      // if you used a standard FileWriter, so stop
+      // complaining, ok?
+      m_file.delete();
+    }
+  }
+
+  /**
+   * Close the file.
+   *
+   * @exception IOException If an error occurs.
+   */
+  public void close() throws IOException {
+    synchronized(this) {
+      if (m_delegate == null) {
+	return;
+      }
     }
 
-    public void close() throws IOException
-    {
-	synchronized(this) {
-	    if (m_delegate == null) {
-		return;
-	    }
-	}
+    m_delegate.close();
+  }
 
-	m_delegate.close();
+  /**
+   * Flush the file.
+   *
+   * @exception IOException If an error occurs.
+   */
+  public void flush() throws IOException {
+    synchronized(this) {
+      if (m_delegate == null) {
+	return;
+      }
     }
 
-    public void flush() throws IOException
-    {
-	synchronized(this) {
-	    if (m_delegate == null) {
-		return;
-	    }
-	}
+    m_delegate.flush();
+  }
 
-	m_delegate.flush();
+  private synchronized void checkOpen() throws IOException {
+    if (m_delegate == null) {
+      try {
+	m_delegate = new FileWriter(m_file.getPath(), m_append);
+      }
+      catch (FileNotFoundException e) {
+	throw new IOException(e.getMessage());
+      }
     }
+  }
 
-    private synchronized void checkOpen() throws IOException
-    {
-	if (m_delegate == null) {
-	    try {
-		m_delegate = new FileWriter(m_file.getPath(), m_append);
-	    }
-	    catch (FileNotFoundException e) {
-		throw new IOException(e.getMessage());
-	    }
-	}
-    }
+  /**
+   * Write a byte to the file.
+   *
+   * @param i an <code>int</code> value
+   * @exception IOException If an error occurs.
+   */
+  public void write(int i) throws IOException {
+    checkOpen();
+    m_delegate.write(i);
+  }
 
-    public void write(int i)
-	throws IOException
-    {
-	checkOpen();
-	m_delegate.write(i);
-    }
-
-    public void write(char[] bytes, int offset, int length)
-	throws IOException
-    {
-	checkOpen();
-	m_delegate.write(bytes, offset, length);
-    }
+  /**
+   * Write many bytes to the file.
+   *
+   * @param bytes Byte array.
+   * @param offset Offset into <code>bytes</code>.
+   * @param length How many bytes to write.
+   * @exception IOException If an error occurs.
+   */
+  public void write(char[] bytes, int offset, int length)
+    throws IOException {
+    checkOpen();
+    m_delegate.write(bytes, offset, length);
+  }
 }
