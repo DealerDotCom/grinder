@@ -39,8 +39,13 @@ public class StubInvocationHandler extends AssertingInvocationHandler {
     super(delegateClass);
   }
 
-  public final Object invokeInternal(Method method, Object[] parameters)
-    throws Throwable {
+  public final Object invokeInternal(
+    Object proxy, Method method, Object[] parameters) throws Throwable {
+
+    if ("equals".equals(method.getName()) &&
+        parameters.length == 1) {
+      return new Boolean(proxy == parameters[0]);
+    }
 
     return m_randomObjectFactory.generateParameter(method.getReturnType());
   }
