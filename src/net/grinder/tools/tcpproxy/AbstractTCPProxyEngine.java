@@ -254,8 +254,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
         m_inputStream.close();
       }
       catch (IOException e) {
-        // TODO - temp.
-        e.printStackTrace();
+        // Ignore.
       }
 
       try {
