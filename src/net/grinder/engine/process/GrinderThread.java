@@ -69,7 +69,7 @@ class GrinderThread implements java.lang.Runnable
 
     /** This is a member so that ThreadContextImplementation can
      * generate context sensitive log messages. */
-    private TestData m_currentTest = null;
+    private TestData m_currentTestData = null;
 
     /**
      * The constructor.
@@ -108,7 +108,7 @@ class GrinderThread implements java.lang.Runnable
     public void run()
     {
 	m_currentCycle = -1;
-	m_currentTest = null;
+	m_currentTestData = null;
 
 	try{
 	    try {
@@ -148,12 +148,15 @@ class GrinderThread implements java.lang.Runnable
 		while (testIterator.hasNext()) {
 		    final Map.Entry entry = (Map.Entry)testIterator.next();
 		    final Integer testNumber = (Integer)entry.getKey();
-		    m_currentTest = (TestData)entry.getValue();
+		    m_currentTestData = (TestData)entry.getValue();
 
 		    m_context.reset();
 
-		    final long sleepTime = m_currentTest.getSleepTime();
+		    final long sleepTime = m_currentTestData.getSleepTime();
 		    sleep(sleepTime >= 0 ? sleepTime : m_defaultSleepTime);
+
+		    final TestStatistics statistics =
+			m_currentTestData.getStatistics();
 
 		    boolean success = false;
 			
@@ -161,13 +164,16 @@ class GrinderThread implements java.lang.Runnable
 
 		    try {
 			try {
-			    success = m_threadCallbacks.doTest(m_currentTest);
+			    success =
+				m_threadCallbacks.doTest(
+				    m_currentTestData.getTest());
 			}
 			finally {
 			    m_context.stopTimer();		
 			}
 		    }
 		    catch (PluginException e) {
+			statistics.addAbortion();
 			m_context.logError(
 			    "Aborting cycle - plug-in threw " + e);
 			e.printStackTrace();
@@ -175,24 +181,23 @@ class GrinderThread implements java.lang.Runnable
 		    }
 
 		    if (m_context.getAborted()) {
+			statistics.addAbortion();
 			m_context.logError("Plug-in aborted thread");
 			break CYCLE_LOOP;
 		    }
 
 		    if (m_context.getAbortedCycle()) {
+			statistics.addAbortion();
 			m_context.logError("Plug-in aborted cycle");
 			continue CYCLE_LOOP;
 		    }
 
 		    final long time = m_context.getElapsedTime();
-		    final TestStatistics statistics =
-			m_currentTest.getStatistics();
 
 		    if (success) {
 			statistics.addTransaction(time);
 		    }
 		    else {
-			// Abortions don't count as errors.
 			statistics.addError();
 			m_context.logError("Plug-in reported an error");
 		    }
@@ -204,7 +209,7 @@ class GrinderThread implements java.lang.Runnable
 		    }
 		}
 
-		m_currentTest = null;
+		m_currentTestData = null;
 
 		try {
 		    m_threadCallbacks.endCycle();
@@ -270,9 +275,9 @@ class GrinderThread implements java.lang.Runnable
     /**
      * Package scope.
      */
-    TestData getCurrentTest() 
+    TestData getCurrentTestData() 
     {
-	return m_currentTest;
+	return m_currentTestData;
     }
 
     private String formatMessage(String message) 
@@ -286,8 +291,9 @@ class GrinderThread implements java.lang.Runnable
 	    buffer.append(" cycle " + m_currentCycle);
 	}
 	
-	if (m_currentTest != null) {
-	    buffer.append(" test " + m_currentTest.getTestNumber());
+	if (m_currentTestData != null) {
+	    buffer.append(" test " +
+			  m_currentTestData.getTest().getTestNumber());
 	}
 
 	buffer.append(") ");

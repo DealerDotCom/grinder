@@ -120,14 +120,15 @@ class ThreadContextImplementation
 	buffer.append(getThreadID());
 
 	final int currentCycle = m_grinderThread.getCurrentCycle();
-	final TestData currentTest = m_grinderThread.getCurrentTest();
+	final TestData currentTestData = m_grinderThread.getCurrentTestData();
 
 	if (currentCycle >= 0) {
 	    buffer.append(" cycle " + currentCycle);
 	}
 	
-	if (currentTest != null) {
-	    buffer.append(" test " + currentTest.getTestNumber());
+	if (currentTestData != null) {
+	    buffer.append(" test " +
+			  currentTestData.getTest().getTestNumber());
 	}
 
 	buffer.append(") ");
