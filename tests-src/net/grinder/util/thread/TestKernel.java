@@ -38,10 +38,6 @@ import junit.framework.TestCase;
  */
 public class TestKernel extends TestCase {
 
-  public TestKernel(String name) {
-    super(name);
-  }
-
   private int m_counter = 0;
 
   private class IncrementCounter implements Runnable {
@@ -75,6 +71,31 @@ public class TestKernel extends TestCase {
     kernel.gracefulShutdown();
 
     assertEquals(50, m_counter);    
+  }
+
+
+  public void testWorkQueueShutdown() throws Exception {
+
+    // The work queue can be shutdown is if the kernel is in the
+    // middle of shutting down. Another thread in execute() could be
+    // just about to queue some work.
+
+    final ThreadSafeQueue myQueue = new ThreadSafeQueue();
+
+    final Kernel kernel = new Kernel(myQueue, 5);
+
+    kernel.execute(new IncrementCounter(1));
+
+    myQueue.shutdown();
+
+    try {
+      kernel.execute(new IncrementCounter(1));
+      fail("Expected ShutdownException");
+    }
+    catch (Kernel.ShutdownException e) {
+    }
+
+    kernel.forceShutdown();
   }
 
   public void testForceShutdown() throws Exception {
