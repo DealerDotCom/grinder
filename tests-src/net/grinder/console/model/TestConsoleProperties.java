@@ -234,6 +234,39 @@ public class TestConsoleProperties extends TestCase {
     listener2.assertCalledOnce();
   }
 
+  public void testSetScriptNotSetDontAsk() throws Exception {
+
+    final String propertyName =
+      ConsoleProperties.SCRIPT_NOT_SET_DONT_ASK_PROPERTY;
+
+    writePropertyToFile(propertyName, "false");
+
+    final ConsoleProperties properties =
+      new ConsoleProperties(s_resources, m_file);
+
+    assertTrue(!properties.getScriptNotSetDontAsk());
+
+    final PropertyChangeEvent expected =
+      new PropertyChangeEvent(properties, propertyName, 
+			      new Boolean(false), new Boolean(true));
+
+    final MyListener listener = new MyListener(expected);
+    final MyListener listener2 = new MyListener(expected);
+
+    properties.addPropertyChangeListener(listener);
+    properties.addPropertyChangeListener(propertyName, listener2);
+
+    properties.setScriptNotSetDontAsk();
+
+    final ConsoleProperties properties2 =
+      new ConsoleProperties(s_resources, m_file);
+
+    assertTrue(properties2.getScriptNotSetDontAsk());
+
+    listener.assertCalledOnce();
+    listener2.assertCalledOnce();
+  }
+
   public void testStopProcessesDontAsk() throws Exception {
 
     final String propertyName =

@@ -76,6 +76,10 @@ public final class ConsoleProperties {
     "grinder.console.resetConsoleWithProcessesDontAsk";
 
   /** Property name. */
+  public static final String SCRIPT_NOT_SET_DONT_ASK_PROPERTY =
+    "grinder.console.scriptNotSetDontAsk";
+
+  /** Property name. */
   public static final String STOP_PROCESSES_DONT_ASK_PROPERTY =
     "grinder.console.stopProcessesDontAsk";
 
@@ -100,6 +104,7 @@ public final class ConsoleProperties {
   private int m_significantFigures;
   private boolean m_resetConsoleWithProcesses;
   private boolean m_resetConsoleWithProcessesDontAsk;
+  private boolean m_scriptNotSetDontAsk;
   private boolean m_stopProcessesDontAsk;
   private File m_scriptFile;
   private File m_distributionDirectory;
@@ -158,6 +163,9 @@ public final class ConsoleProperties {
       m_properties.getBoolean(RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
                               false));
 
+    setScriptNotSetDontAskInternal(
+      m_properties.getBoolean(SCRIPT_NOT_SET_DONT_ASK_PROPERTY, false));
+
     setStopProcessesDontAskInternal(
       m_properties.getBoolean(STOP_PROCESSES_DONT_ASK_PROPERTY, false));
 
@@ -196,6 +204,7 @@ public final class ConsoleProperties {
     setResetConsoleWithProcesses(properties.m_resetConsoleWithProcesses);
     setResetConsoleWithProcessesDontAskInternal(
       properties.m_resetConsoleWithProcessesDontAsk);
+    setScriptNotSetDontAskInternal(properties.m_scriptNotSetDontAsk);
     setStopProcessesDontAskInternal(properties.m_stopProcessesDontAsk);
     setScriptFile(properties.m_scriptFile);
     setDistributionDirectory(properties.m_distributionDirectory);
@@ -239,6 +248,8 @@ public final class ConsoleProperties {
                             m_resetConsoleWithProcesses);
     m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
                             m_resetConsoleWithProcessesDontAsk);
+    m_properties.setBoolean(SCRIPT_NOT_SET_DONT_ASK_PROPERTY,
+                            m_scriptNotSetDontAsk);
     m_properties.setBoolean(STOP_PROCESSES_DONT_ASK_PROPERTY,
                             m_stopProcessesDontAsk);
 
@@ -535,6 +546,39 @@ public final class ConsoleProperties {
       RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
       old, m_resetConsoleWithProcessesDontAsk);
   }
+
+  /**
+   * Get whether the user wants to be asked if console should be reset
+   * with the worker processes.
+   *
+   * @return <code>true</code> => the user wants to be asked.
+   */
+  public boolean getScriptNotSetDontAsk() {
+    return m_scriptNotSetDontAsk;
+  }
+
+  /**
+   * Set that the user doesn't want to be asked if console should be
+   * reset with the worker processes.
+   * @exception GrinderException If the property couldn't be persisted.
+   */
+  public void setScriptNotSetDontAsk() throws GrinderException {
+
+    setScriptNotSetDontAskInternal(true);
+
+    m_properties.setBoolean(SCRIPT_NOT_SET_DONT_ASK_PROPERTY, true);
+    m_properties.saveSingleProperty(SCRIPT_NOT_SET_DONT_ASK_PROPERTY);
+  }
+
+  private void setScriptNotSetDontAskInternal(boolean b) {
+
+    final boolean old = m_scriptNotSetDontAsk;
+    m_scriptNotSetDontAsk = b;
+
+    m_changeSupport.firePropertyChange(
+      SCRIPT_NOT_SET_DONT_ASK_PROPERTY, old, m_scriptNotSetDontAsk);
+  }
+
   /**
    * Get whether the user wants to be asked to confirm that processes
    * should be stopped.

@@ -1020,8 +1020,44 @@ public final class ConsoleUI implements ModelListener {
       super(m_model.getResources(), "start-processes");
     }
 
-    public void actionPerformed(ActionEvent e) {
-      m_processControl.startWorkerProcesses();
+    public void actionPerformed(ActionEvent event) {
+      final File script = m_editorModel.getMarkedScript();
+
+      final ConsoleProperties properties = m_model.getProperties();
+
+      if (script == null && !properties.getScriptNotSetDontAsk()) {
+        final JCheckBox dontAskMeAgainCheckBox =
+          new JCheckBox(
+            m_model.getResources().getString("dontAskMeAgain.text"));
+        dontAskMeAgainCheckBox.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        final Object[] message = {
+          m_model.getResources().getString("scriptNotSetConfirmation.text"),
+          new JLabel(), // Pad.
+          dontAskMeAgainCheckBox,
+        };
+
+        final int chosen =
+          JOptionPane.showConfirmDialog(m_frame, message,
+                                        (String) getValue(NAME),
+                                        JOptionPane.OK_CANCEL_OPTION);
+
+        if (dontAskMeAgainCheckBox.isSelected()) {
+          try {
+            properties.setScriptNotSetDontAsk();
+          }
+          catch (GrinderException e) {
+            getErrorHandler().handleException(e);
+            return;
+          }
+        }
+
+        if (chosen != JOptionPane.OK_OPTION) {
+          return;
+        }
+      }
+
+      m_processControl.startWorkerProcesses(script);
     }
   }
 
@@ -1043,9 +1079,7 @@ public final class ConsoleUI implements ModelListener {
 
         final Object[] message = {
           m_model.getResources().getString(
-            "resetConsoleWithProcessesConfirmation1.text"),
-          m_model.getResources().getString(
-            "resetConsoleWithProcessesConfirmation2.text"),
+            "resetConsoleWithProcessesConfirmation.text"),
           new JLabel(), // Pad.
           dontAskMeAgainCheckBox,
         };
@@ -1104,8 +1138,7 @@ public final class ConsoleUI implements ModelListener {
         dontAskMeAgainCheckBox.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         final Object[] message = {
-          m_model.getResources().getString("stopProcessesConfirmation1.text"),
-          m_model.getResources().getString("stopProcessesConfirmation2.text"),
+          m_model.getResources().getString("stopProcessesConfirmation.text"),
           new JLabel(), // Pad.
           dontAskMeAgainCheckBox,
         };
