@@ -48,8 +48,15 @@ final class SocketSet
     private int m_lastHandle = 0;
     private int m_nextPurge = 0;
 
-    public final void add(Handle handle)
+    public SocketSet()
     {
+	m_handles.add(new SentinelHandle());
+    }
+
+    public final void add(Socket socket) throws IOException
+    {
+	final Handle handle = new HandleImplementation(socket);
+
 	synchronized (m_mutex) {
 	    m_handles.add(handle);
 	    m_mutex.notifyAll();
@@ -123,8 +130,52 @@ final class SocketSet
 	    }
 	}
     }
-    
-    public final static class Handle
+
+    public interface Handle
+    {
+	boolean isSentinel();
+
+	Message pollForMessage() throws ClassNotFoundException, IOException;
+
+	boolean reserve();
+	void free();	
+
+	void close();
+	boolean isClosed();
+    }
+
+    private final static class SentinelHandle implements Handle
+    {
+	public final boolean isSentinel()
+	{
+	    return true;
+	}
+
+	public final Message pollForMessage()
+	{
+	    throw new RuntimeException("Assertion failure");
+	}
+
+	public final boolean reserve()
+	{
+	    return true;
+	}
+
+	public final void free()
+	{
+	}
+
+	public final void close()
+	{
+	}
+
+	public final boolean isClosed()
+	{
+	    return false;
+	}
+    }
+
+    private final static class HandleImplementation implements Handle
     {
 	private final Socket m_socket;
 	private final InputStream m_inputStream;
@@ -132,10 +183,15 @@ final class SocketSet
 	private boolean m_busy = false;
 	private boolean m_closed = false;
 
-	public Handle(Socket socket) throws IOException
+	HandleImplementation(Socket socket) throws IOException
 	{
 	    m_socket = socket;
 	    m_inputStream = new BufferedInputStream(m_socket.getInputStream());
+	}
+
+	public final boolean isSentinel()
+	{
+	    return false;
 	}
 
 	public final Message pollForMessage()
@@ -143,7 +199,6 @@ final class SocketSet
 	{
 	    // Don't synchronise, assume caller has correctly reserved
 	    // this Handle.
-
 	    if (m_inputStream.available() == 0) {
 		return null;
 	    }
