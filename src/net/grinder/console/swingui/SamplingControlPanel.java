@@ -38,8 +38,7 @@ import net.grinder.console.model.ConsoleProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-class SamplingControlPanel extends JPanel
-{
+class SamplingControlPanel extends JPanel {
     private final JSlider m_intervalSlider  = new JSlider(100, 10000, 100);
     private final IntegerField m_collectSampleField =
 	new IntegerField(0, 999999);
@@ -58,8 +57,7 @@ class SamplingControlPanel extends JPanel
     private final Resources m_resources;
     private ConsoleProperties m_properties = null;
 
-    public SamplingControlPanel(Resources resources)
-    {
+    public SamplingControlPanel(Resources resources) {
 	m_resources = resources;
 
 	m_sampleIntervalString =
@@ -145,11 +143,13 @@ class SamplingControlPanel extends JPanel
 		}
 	    );
 
-	final JPanel textFieldLabelPanel = new JPanel(new GridLayout(0, 1));
+	final JPanel textFieldLabelPanel =
+	  new JPanel(new GridLayout(0, 1, 0, 1));
 	textFieldLabelPanel.add(ignoreSampleLabel);
 	textFieldLabelPanel.add(collectSampleLabel);
 
-	final JPanel textFieldControlPanel = new JPanel(new GridLayout(0, 1));
+	final JPanel textFieldControlPanel = 
+	  new JPanel(new GridLayout(0, 1, 0, 1));
 	textFieldControlPanel.add(m_ignoreSampleField);
 	textFieldControlPanel.add(m_collectSampleField);
 
@@ -163,8 +163,7 @@ class SamplingControlPanel extends JPanel
 	add(textFieldPanel);
     }
 
-    public void setProperties(ConsoleProperties properties)
-    {
+    public void setProperties(ConsoleProperties properties) {
 	// Disable updates to associated properties.
 	m_properties = null;
 
@@ -176,25 +175,21 @@ class SamplingControlPanel extends JPanel
 	m_properties = properties;
     }
 
-    public void refresh()
-    {
+    public void refresh() {
 	setProperties(m_properties);
     }
 
-    private void setIntervalLabelText(JLabel label, int sampleInterval)
-    {
+    private void setIntervalLabelText(JLabel label, int sampleInterval) {
 	label.setText(m_sampleIntervalString + sampleInterval +
 		      (sampleInterval == 1 ? m_msUnit : m_msUnits));
     }
 
-    private void setIgnoreSampleLabelText(JLabel label, int ignoreSample)
-    {
+    private void setIgnoreSampleLabelText(JLabel label, int ignoreSample) {
 	label.setText(m_ignoreSampleString + ignoreSample +
 		      (ignoreSample == 1 ? m_sampleUnit : m_sampleUnits));
     }
 
-    private void setCollectSampleLabelText(JLabel label, int collectSample)
-    {
+    private void setCollectSampleLabelText(JLabel label, int collectSample) {
 	if (collectSample == 0 && m_collectSampleZeroString != null) {
 	    label.setText(m_collectSampleZeroString);
 	}
@@ -204,8 +199,7 @@ class SamplingControlPanel extends JPanel
 	}
     }
 
-    private void assertionFailure(ConsoleException e)
-    {
+    private void assertionFailure(ConsoleException e) {
 	e.printStackTrace();
 	throw new RuntimeException(e.getMessage());
     }
