@@ -95,7 +95,7 @@ public class Test extends AbstractTestSemantics implements Serializable
      * @param target Object to wrap.
      * @return The proxy.
      */
-    public final Object wrap(Object target)
+    public final Object wrap(Object target) throws NotWrappableTypeException
     {
 	return m_registeredTest.createProxy(target);
     }

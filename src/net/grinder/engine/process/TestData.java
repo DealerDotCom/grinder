@@ -23,13 +23,16 @@
 package net.grinder.engine.process;
 
 import org.python.core.PyFinalizableInstance;
+import org.python.core.PyFunction;
 import org.python.core.PyInstance;
 import org.python.core.PyJavaInstance;
+import org.python.core.PyObject;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
+import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.TestStatistics;
 import net.grinder.statistics.TestStatisticsFactory;
 
@@ -105,23 +108,46 @@ final class TestData implements TestRegistry.RegisteredTest
      *   <li>Python primitive types (integers, strings, floats, complexes, ...)</li>
      *   <li>Python tuples, lists, dictionaries</li>
      *  </ul>
+     * </p>
      *
-     * This works suprisingly well for everything by PyInstances. It
-     * can't work for PyInstances, because invoking on the
-     * PyJavaInstance calls the PyInstance which in turn attempts to
-     * call back on the PyJavaInstance.
-     * 
+     * <p>Of course we're only really interested in the things we can
+     * invoke in some way. We throw NotWrappableTypeException for the
+     * things we don't want to handle.</p>
+     *
+     * <p>The specialised PyJavaInstance works suprisingly well for
+     * everything bar PyInstances. It can't work for PyInstances,
+     * because invoking on the PyJavaInstance calls the PyInstance
+     * which in turn attempts to call back on the PyJavaInstance. Use
+     * specialised PyInstance objects to handle this case.</p>
      */
-    public final Object createProxy(Object o) 
+    public final Object createProxy(Object o) throws NotWrappableTypeException
     {
-	if (o instanceof PyFinalizableInstance) {
-	    return new TestPyFinalizableInstance(this,
-						 (PyFinalizableInstance)o);
+	if (o instanceof PyObject) {
+	    // Jython object.
+	    if (o instanceof PyFinalizableInstance) {
+		return new TestPyFinalizableInstance(this,
+						     (PyFinalizableInstance)o);
+	    }
+	    else if (o instanceof PyInstance) {
+		return new TestPyInstance(this, (PyInstance)o);
+	    }
+	    else if (o instanceof PyFunction) {
+		return new TestPyJavaInstance(this, o);
+	    }
 	}
-	else if (o instanceof PyInstance) {
-	    return new TestPyInstance(this, (PyInstance)o);
+	else {
+	    // Java object.
+
+	    final Class c = o.getClass();
+	    
+	    // NB Jython uses Java types for some primitives and strings.
+	    if (!c.isArray() &&
+		!(o instanceof Number) &&
+		!(o instanceof String)) {
+		return new TestPyJavaInstance(this, o);
+	    }
 	}
-	
-	return new TestPyJavaInstance(this, o);
+
+	throw new NotWrappableTypeException(o.getClass().getName());
     }
 }

@@ -30,6 +30,7 @@ import net.grinder.common.Test;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.Sender;
 import net.grinder.engine.EngineException;
+import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.TestStatisticsMap;
 
 
@@ -110,6 +111,6 @@ public final class TestRegistry
     }
 
     public interface RegisteredTest {
-	Object createProxy(Object o);
+	Object createProxy(Object o) throws NotWrappableTypeException;
     }
 }
