@@ -1,3 +1,75 @@
+2005-02-03  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/Console.java:
+	Wire up ConsoleProperties and ConsoleCommunication listeners to
+	invalidate the agent cache.
+
+	* src/net/grinder/console/distribution/AgentCacheStateImplementation.java, src/net/grinder/console/distribution/FileDistribution.java, tests-src/net/grinder/console/distribution/TestAgentCacheStateImplementation.java, tests-src/net/grinder/console/distribution/TestFileDistribution.java:
+	Extract AgentCacheStateImplementation from FileDistribution.
+	Fix out of date logic.
+
+	* src/net/grinder/console/distribution/AgentCacheState.java, src/net/grinder/console/editor/EditorModel.java, tests-src/net/grinder/console/editor/TestEditorModel.java:
+	AgentCacheState.setOutOfDate() now takes a time.
+
+	* src/net/grinder/console/communication/DistributionControl.java:
+	Clarify JavaDoc.
+
+	* tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java, src/net/grinder/console/communication/ConsoleCommunication.java, src/net/grinder/console/communication/ConsoleCommunicationImplementation.java:
+	Allow clients to listen for agents connecting and disconnecting.
+
+	* src/net/grinder/communication/ResourcePool.java:
+	Don't fire close notification if already closed.
+
+	* src/prj.el: Try again with buffer coding.
+
+2005-02-02  Philip Aston  <philipa@mail.com>
+
+	* src/documentation/content/xdocs/site.xml: Advertise SwitchProxy.
+
+	* TODO: Idea.
+
+	* src/documentation/content/xdocs/g3/tcpproxy.xml:
+	Advertise SwitchProxy.
+
+	* src/documentation/content/xdocs/g2/getting-started.xml, src/documentation/content/xdocs/g3/whats-new.xml:
+	Fix typos.
+
+2005-01-26  Philip Aston  <philipa@mail.com>
+
+	* TODO: Progress.
+
+	* tests-src/net/grinder/console/editor/TestEditorModel.java:
+	Check the agent cache is invalidated when a buffer is saved.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	Enable the "distribute" button depending of the state of the agent
+	cache.
+
+	* src/net/grinder/console/editor/EditorModel.java:
+	Invalidate the agent cache when a buffer is saved.
+
+	* src/net/grinder/console/editor/Buffer.java, tests-src/net/grinder/console/editor/TestBuffer.java:
+	Can now listen for buffer save events.
+	isUpToDate() -> getUpToDate().
+
+	* src/net/grinder/console/distribution/AgentCacheState.java, src/net/grinder/console/distribution/FileDistribution.java, tests-src/net/grinder/console/distribution/TestFileDistribution.java:
+	Can now listen for AgentCacheState changes.
+
+2005-01-25  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/console/editor/TestFileDistribution.java, tests-src/net/grinder/console/editor/TestFileDistributionFilter.java, tests-src/net/grinder/console/editor/TestFileDistributionHandlerImplementation.java:
+	Move file distribution to its own package.
+
+	* src/net/grinder/console/editor/FileDistributionHandler.java, src/net/grinder/console/editor/FileDistributionHandlerImplementation.java, src/net/grinder/console/swingui/ConsoleUI.java, tests-src/net/grinder/console/distribution/TestFileDistribution.java, tests-src/net/grinder/console/distribution/TestFileDistributionFilter.java, tests-src/net/grinder/console/distribution/TestFileDistributionHandlerImplementation.java, tests-src/net/grinder/console/editor/TestEditorModel.java, tests-src/net/grinder/console/swingui/TestBufferTreeModel.java, src/net/grinder/console/Console.java, src/net/grinder/console/distribution/AgentCacheState.java, src/net/grinder/console/distribution/FileDistribution.java, src/net/grinder/console/distribution/FileDistributionFilter.java, src/net/grinder/console/distribution/FileDistributionHandler.java, src/net/grinder/console/distribution/FileDistributionHandlerImplementation.java, src/net/grinder/console/distribution/package.html, src/net/grinder/console/editor/AgentCacheState.java, src/net/grinder/console/editor/EditorModel.java, src/net/grinder/console/editor/FileDistribution.java, src/net/grinder/console/editor/FileDistributionFilter.java:
+	Move file distribution to its own package.
+	Editor now takes an AgentCacheState.
+	Reverse AgentCacheState.getUpToDate() to
+	AgentCacheState.getOutOfDate() for symmetry with the setter.
+
+	* src/prj.el:
+	Explicitly set the buffer coding system as XEmacs 21.5b18 doesn't
+	appear to autodetect corrrectly.
+
 2005-01-22  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, src/net/grinder/plugin/http/HTTPRequest.java:
