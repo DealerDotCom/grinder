@@ -391,6 +391,25 @@ to send signals from the Console to the Grinder processes (start,
 stop) and to send statistics reports from the Grinder processes to the
 Console.
 
+Multicast addresses lie in the range 224.0.0.0 to 239.255.255.255.
+Ports lie in the range 0 to 65535. The same multicast address is used
+by The Grinder for commands from the console to the grinder processes
+(on the port specified by grinder.multicastPort) and for reports from
+the grinder processes to the console (on the port specified by
+grinder.console.multicastPort).
+
+You should ensure that the address and ports you chose does not clash
+with other applications running on your LAN. The Grinder example files
+uses the address 228.1.1.1 and the ports 1234 and 1235:
+
+    grinder.receiveConsoleSignals=true
+    grinder.multicastAddress=228.1.1.1
+    grinder.multicastPort=1234
+
+    grinder.reportToConsole=true
+    grinder.console.multicastPort=1235
+
+
 For most modern TCP stacks, e.g Windows 95/98/NT, Linux, multicast
 works out of the box.
 
