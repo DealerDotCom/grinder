@@ -25,6 +25,7 @@
 package net.grinder.tools.tcpsniffer;
 
 import java.io.BufferedInputStream;
+import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -83,7 +84,7 @@ public class HTTPProxySnifferEngine extends SnifferEngineImplementation
 	      new StripAbsoluteURIFilterDecorator(requestFilter),
 	      responseFilter,
 	      new ConnectionDetails(localHost, localPort, "", -1, false),
-	      useColour, timeout, true);
+	      useColour, timeout);
 
 	m_proxyConnectPattern = getConnectPattern();
     }
@@ -94,10 +95,22 @@ public class HTTPProxySnifferEngine extends SnifferEngineImplementation
 	final byte[] readAheadBuffer = new byte[4096];
 
 	while (true) {
-	    try {
-		final Socket localSocket = getServerSocket().accept();
+	    final Socket localSocket;
 
-		// Grab the first upstream package and grep it for the
+	    try {
+		localSocket = getServerSocket().accept();
+	    }
+	    catch (InterruptedIOException e) {
+		System.err.println(ACCEPT_TIMEOUT_MESSAGE);
+		return;
+	    }
+	    catch (IOException e) {
+		e.printStackTrace(System.err);
+		return;
+	    }
+
+	    try {
+		// Grab the first upstream packet and grep it for the
 		// remote server and port in the method line.
 		final BufferedInputStream in =
 		    new BufferedInputStream(localSocket.getInputStream(),

@@ -44,7 +44,6 @@ public class SnifferEngineImplementation implements SnifferEngine
     private final SnifferFilter m_requestFilter;
     private final SnifferFilter m_responseFilter;
     private final ConnectionDetails m_connectionDetails;
-    private final boolean m_logTimeout;
     private final String m_requestColour;
     private final String m_responseColour;
 
@@ -58,15 +57,13 @@ public class SnifferEngineImplementation implements SnifferEngine
 				       SnifferFilter responseFilter,
 				       ConnectionDetails connectionDetails,
 				       boolean useColour,
-				       int timeout,
-				       boolean logTimeout)
+				       int timeout)
 	throws IOException
     {
 	m_socketFactory = socketFactory;
 	m_requestFilter = requestFilter;
 	m_responseFilter = responseFilter;
 	m_connectionDetails = connectionDetails;
-	m_logTimeout = logTimeout;
 
 	if (useColour) {
 	    m_requestColour = TerminalColour.RED;
@@ -97,10 +94,7 @@ public class SnifferEngineImplementation implements SnifferEngine
 		localSocket = m_serverSocket.accept();
 	    }
 	    catch (InterruptedIOException e) {
-		if (m_logTimeout) {
-		    System.err.println(ACCEPT_TIMEOUT_MESSAGE);
-		}
-
+		System.err.println(ACCEPT_TIMEOUT_MESSAGE);
 		return;
 	    }
 	    catch (IOException e) {

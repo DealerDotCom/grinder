@@ -58,8 +58,8 @@ import net.grinder.util.CopyStreamRunnable;
  * stripes midstream. (In fact, if the JSSE support was stream
  * oriented rather than socket oriented, a lot of problems would go
  * away). To hack around this, we accept the CONNECT then blindly
- * proxy the rest of the stream to a SnifferEngineImplementation
- * which instantiated to handle SSL.</p>
+ * proxy the rest of the stream through a special
+ * SnifferEngineImplementation which instantiated to handle SSL.</p>
  *
  * @author Paddy Spencer
  * @author Philip Aston
@@ -71,14 +71,15 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 	new SnifferPlainSocketFactory();
     private final ServerSocket m_serverSocket;
 
-    private final SnifferSocketFactory m_sslSocketFactory;
-    private final SnifferFilter m_requestFilter;
-    private final SnifferFilter m_responseFilter;
     private final String m_localHost;
-    private final boolean m_useColour;
+
+    private String m_tempRemoteHost;
+    private int m_tempRemotePort;
 
     private final PatternMatcher m_matcher = new Perl5Matcher();
     private final Pattern m_connectPattern;
+
+    private final ProxySSLEngine m_proxySSLEngine;
 
     public HTTPSProxySnifferEngine(SnifferSocketFactory sslSocketFactory,
 				   SnifferFilter requestFilter,
@@ -89,11 +90,7 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 				   int timeout)
         throws IOException, MalformedPatternException
     {
-	m_sslSocketFactory = sslSocketFactory;
-	m_requestFilter = requestFilter;
-	m_responseFilter = responseFilter;
 	m_localHost = localHost;
-	m_useColour = useColour;
 	
 	final PatternCompiler compiler = new Perl5Compiler();
 
@@ -102,9 +99,24 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
  		"^CONNECT[ \\t]+([^:]+):(\\d+)",
  		Perl5Compiler.MULTILINE_MASK | Perl5Compiler.READ_ONLY_MASK);
 
+	// Plain socket to accept connections on. We suck the bit we
+	// understand off the front and forward the rest through our
+	// proxy engine.
 	m_serverSocket =
 	    m_localSocketFactory.createServerSocket(
 		m_localHost, localPort, timeout);
+
+	// The proxy engine listens for connection attempts (which
+	// come from us), then sets up a thread pair which pushes data
+	// back and forth until either the server closes the
+	// connection, or we do (in response to our client closing the
+	// connection). The engine handles multiple connections by
+	// spawning multiple thread pairs.
+	m_proxySSLEngine =
+	    new ProxySSLEngine(sslSocketFactory, requestFilter, responseFilter,
+			       useColour);
+
+	new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine").start();
     }
 
     public void run()
@@ -133,7 +145,7 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 		// Check whether message has a CONNECT method string.
 		if (m_matcher.contains(line, m_connectPattern)) {
 		    final MatchResult match = m_matcher.getMatch();
-		
+
 		    final String remoteHost = match.group(1);
 
 		    // Must be a port number by specification.
@@ -143,41 +155,19 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 
 		    System.err.println("New proxy connection to " + target);
 
-		    // Create and start a proxy SnifferEngine to
-		    // handle the SSL connection.
-		    //
-		    // The engine is set to time out if an accept
-		    // takes > 30s. AFAIK, it should only get one
-		    // "connection" from the client. The timeout
-		    // ensures that we cope if I'm wrong and the
-		    // thread does receive more than one connection
-		    // attempt, and that the thread will die in a
-		    // timely manner otherwise.
-		    final SnifferEngineImplementation sslEngine =
-			new SnifferEngineImplementation(
-			    m_sslSocketFactory,
-			    m_requestFilter,
-			    m_responseFilter,
-			    new ConnectionDetails(m_localHost,
-						  0,	// Arbitrary port.
-						  remoteHost, 
-						  remotePort,
-						  true),
-			    m_useColour,
-			    30000,
-			    false); 
+		    m_tempRemoteHost = remoteHost;
+		    m_tempRemotePort = remotePort;
 
-		    new Thread(sslEngine,
-			       "HTTPS proxy engine for " + target).start();
-
+		    // Create a new proxy connection to our proxy
+		    // engine.
 		    final Socket sslProxySocket =
 			m_localSocketFactory.createClientSocket(
 			    m_localHost,
-			    sslEngine.getServerSocket().getLocalPort());
+			    m_proxySSLEngine.getServerSocket().getLocalPort());
 
-		    // Now set up a couple of threads to copy
+		    // Now set up a couple of threads to punt
 		    // everything we receive over localSocket to
-		    // sslProxySocket. and vice versa.
+		    // sslProxySocket, and vice versa.
 		    new Thread(new CopyStreamRunnable(
 				   in, sslProxySocket.getOutputStream()),
 			       "Copy to proxy engine for " + target).start();
@@ -187,7 +177,7 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 			       "Copy from proxy engine for " + target).start();
 
 		    // Send a 200 response to send to client. Client
-		    // will now start sending SSL data to our socket.
+		    // will now start sending SSL data to localSocket.
 		    final StringBuffer response = new StringBuffer();
 		    response.append("HTTP/1. 200 OK\r\n");
 		    response.append("Host: " + remoteHost + ":" +
@@ -212,5 +202,40 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 		e.printStackTrace(System.err);
 	    }
         }
+    }
+
+    private class ProxySSLEngine extends SnifferEngineImplementation {
+
+	ProxySSLEngine(SnifferSocketFactory socketFactory,
+		       SnifferFilter requestFilter,
+		       SnifferFilter responseFilter,
+		       boolean useColour) 
+	    throws IOException
+	{
+	    super(socketFactory, requestFilter, responseFilter,
+		  new ConnectionDetails(m_localHost, 0, "", -1, true),
+		  useColour, 0);
+	}
+
+	public void run()
+	{
+	    while (true) {
+		try {
+		    final Socket localSocket = m_serverSocket.accept();
+
+		    System.err.println("New proxy proxy connection to " +
+				       m_tempRemoteHost + ":" +
+				       m_tempRemotePort);
+
+		    launchThreadPair(localSocket,
+				     localSocket.getInputStream(),
+				     localSocket.getOutputStream(),
+				     m_tempRemoteHost, m_tempRemotePort);
+		}
+		catch(IOException e) {
+		    e.printStackTrace(System.err);
+		}
+	    }
+	}
     }
 }

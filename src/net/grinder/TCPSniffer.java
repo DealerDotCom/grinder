@@ -297,8 +297,7 @@ public class TCPSniffer
 					      remoteHost, remotePort,
 					      useSSL),
 			useColour,
-			timeout,
-			true);
+			timeout);
 	    }
 		
 	    System.err.println("Engine initialised, listening on port " +
