@@ -34,7 +34,6 @@ import HTTPClient.URI;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
-import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 
 
@@ -84,11 +83,11 @@ public class HTTPRequest {
    *
    * @param url The URL to be used for this request.
    * @exception ParseException If the URL cannot be parsed.
-   * @exception PluginException If the URL is not absolute.
+   * @exception URLException If the URL is not absolute.
    */
-  public final void setUrl(String url) throws ParseException, PluginException {
+  public final void setUrl(String url) throws ParseException, URLException {
     if (!isAbsolute(url)) {
-      throw new PluginException("URL must be absolute");
+      throw new URLException("URL must be absolute");
     }
 
     m_defaultURL = new URI(url);
@@ -697,7 +696,7 @@ public class HTTPRequest {
 	    
       if (uri == null) {
 	if (m_defaultURL == null) {
-	  throw new PluginException("URL not specified");
+	  throw new URLException("URL not specified");
 	}
 
 	url = m_defaultURL;
@@ -707,7 +706,7 @@ public class HTTPRequest {
       }
       else {
 	if (m_defaultURL == null) {
-	  throw new PluginException("URL must be absolute");
+	  throw new URLException("URL must be absolute");
 	}
 
 	url = new URI(m_defaultURL, uri);

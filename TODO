@@ -13,9 +13,6 @@ it too :-).
 
 * Scripting
 
-HTTPRequest.setUrl etc should throw a script public exception rather
-than PluginException.
-
 Add per-run statistics. This would also allow number of aborted runs
 to be recorded.
 
