@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import net.grinder.engine.EngineException;
+import net.grinder.plugininterface.Test;
 
 
 /**
@@ -52,29 +53,43 @@ class TestStatisticsTable
 
     public void print(PrintStream out)
     {
-	final StringBuffer heading = new StringBuffer();
-	heading.append(formatField(""));
-	heading.append(formatField("Transactions"));
-	heading.append(formatField("Failures"));
-	heading.append(formatField("Total (ms)"));
-	heading.append(formatField("Average (ms)"));
+	final String blankField = formatField("");
+
+	final StringBuffer heading1 = new StringBuffer();
+	heading1.append(blankField);
+	heading1.append(formatField("Successful"));
+	heading1.append(blankField);
+	heading1.append(blankField);
+	heading1.append(blankField);
+	heading1.append(blankField);
 	
-	out.println(heading.toString());
+	out.println(heading1.toString());
+
+	final StringBuffer heading2 = new StringBuffer();
+	heading2.append(blankField);
+	heading2.append(formatField("Transactions"));
+	heading2.append(formatField("Errors"));
+	heading2.append(formatField("Abortions"));
+	heading2.append(formatField("Total (ms)"));
+	heading2.append(formatField("Average (ms)"));
+	
+	out.println(heading2.toString());
 
 	final Iterator testIterator = m_tests.entrySet().iterator();
 
 	while (testIterator.hasNext()) {
 	    final Map.Entry entry = (Map.Entry)testIterator.next();
 	    final Integer testNumber = (Integer)entry.getKey();
-	    final TestData test = (TestData)entry.getValue();
+	    final TestData testData = (TestData)entry.getValue();
+	    final Test test = testData.getTest();
 
-	    StringBuffer output = formatLine(test.toString(),
-					     test.getStatistics());
+	    StringBuffer output = formatLine("Test " + test.getTestNumber(),
+					     testData.getStatistics());
 
 	    final String testDescription = test.getDescription();
 
 	    if (testDescription != null) {
-		output.append(" (\"" + testDescription + "\")");
+		output.append(" \"" + testDescription + "\"");
 	    }
 
 	    out.println(output.toString());
@@ -116,6 +131,9 @@ class TestStatisticsTable
 
 	result.append(
 	    formatField(String.valueOf(methodStatistics.getErrors())));
+
+	result.append(
+	    formatField(String.valueOf(methodStatistics.getAbortions())));
 
 	result.append(
 	    formatField(String.valueOf(methodStatistics.getTotalTime())));

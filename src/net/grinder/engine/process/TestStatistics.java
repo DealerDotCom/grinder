@@ -24,22 +24,25 @@ package net.grinder.engine.process;
  * @author Philip Aston
  * @version $Revision$
  */
-class TestStatistics
+class TestStatistics implements Cloneable
 {
     private long m_transactions = 0;
     private long m_totalTime = 0;
     private long m_errors = 0;
+    private long m_abortions = 0;
     private TestStatistics m_snapshot = null;
 
     public TestStatistics()
     {
     }
     
-    private TestStatistics(long transactions, long totalTime, long errors)
+    private TestStatistics(long transactions, long totalTime, long errors,
+			   long failures)
     {
 	m_transactions = transactions;
 	m_totalTime = totalTime;
 	m_errors = errors;
+	m_abortions = failures;
     }
 
     public synchronized void addTransaction(long time)
@@ -53,7 +56,15 @@ class TestStatistics
 	m_errors++;
     }
 
-    private synchronized TestStatistics getClone()
+    public synchronized void addAbortion()
+    {
+	m_abortions++;
+    }
+
+    /**
+     * Protected.
+     */
+    protected synchronized TestStatistics getClone()
     {
 	try {
 	    return (TestStatistics)clone();
@@ -79,7 +90,8 @@ class TestStatistics
 	    result =
 		new TestStatistics(m_transactions - m_snapshot.m_transactions,
 				   m_totalTime - m_snapshot.m_totalTime,
-				   m_errors - m_snapshot.m_errors);
+				   m_errors - m_snapshot.m_errors,
+				   m_abortions - m_snapshot.m_abortions);
 	}
 
 	if (updateSnapshot) {
@@ -98,6 +110,7 @@ class TestStatistics
 	m_transactions += operand.m_transactions;
 	m_totalTime += operand.m_totalTime;
 	m_errors += operand.m_errors;
+	m_abortions += operand.m_abortions;
     }
 
     /** Accessor. N.B. Use clone() to get a consistent snapshot of a
@@ -121,13 +134,39 @@ class TestStatistics
 	return m_errors;
     }
 
+    /** Accessor. N.B. Use clone() to get a consistent snapshot of a
+     * changing TestStatistics */
+    public long getAbortions()
+    {
+	return m_abortions;
+    }
+
     public synchronized double getAverageTransactionTime()
     {
 	if (m_transactions == 0) {
-	    return 0d; // Not really sensible, but ICGE at the moment.
+	    return Double.NaN;
 	}
 	else {
 	    return m_totalTime/(double)m_transactions;
 	}
+    }
+
+    public boolean equals(Object o)
+    {
+	if (o == this) {
+	    return true;
+	}
+	
+	if (!(o instanceof TestStatistics)) {
+	    return false;
+	}
+
+	final TestStatistics theOther = (TestStatistics)o;
+
+	return
+	    m_totalTime == theOther.m_totalTime &&
+	    m_transactions == theOther.m_transactions &&
+	    m_errors == theOther.m_errors &&
+	    m_abortions == theOther.m_abortions;
     }
 }
