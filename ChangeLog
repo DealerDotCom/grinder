@@ -1,3 +1,9 @@
+2003-10-08  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta11 is released.
+	
+	* build.xml: Next is Beta 11.
+
 2003-10-07  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, xdoc/documentation.xweb, xdoc/g3/features-xhtml.xml, xdoc/stylesheets/grinder.xsl:
