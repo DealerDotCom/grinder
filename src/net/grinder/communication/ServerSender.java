@@ -132,6 +132,8 @@ public final class ServerSender extends AbstractSender {
           final SocketSet.Handle socketHandle = pair.getHandle();
 
           try {
+            // See note in ClientSender.writeMessage regarding why we
+            // create an ObjectOutputStream for every message.
             final ObjectOutputStream objectStream =
               new ObjectOutputStream(socketHandle.getOutputStream());
 
