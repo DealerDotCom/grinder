@@ -12,8 +12,8 @@ WLS=/opt/bea/weblogic700/server/lib/weblogic.jar
 WLS_EXAMPLES_DIR=/opt/bea/weblogic700/samples/server/stage/examples/clientclasses/
 WLS_EXAMPLES=${WLS_EXAMPLES_DIR}/ejb20_basic_statefulSession_client.jar:${WLS_EXAMPLES_DIR}/HelloWorld_client.jar
 
-#JAVA_HOME=/opt/j2sdk1.4.1
-JAVA_HOME=/opt/Program\ Files/JRockit/7.0/1.3.1/
+JAVA_HOME=/opt/j2sdk1.4.1
+#JAVA_HOME=/opt/Program\ Files/JRockit/7.0/1.3.1/
 export PATH=${ANT_HOME}/bin:${JAVA_HOME}/bin:$PATH
 
 export CLASSPATH=$(cygpath -w -p "${GRINDER}:${JUNIT}:${WLS}:${WLS_EXAMPLES}")
