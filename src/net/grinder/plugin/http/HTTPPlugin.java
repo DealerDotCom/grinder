@@ -29,6 +29,7 @@ import HTTPClient.DefaultAuthHandler;
 import HTTPClient.HTTPConnection;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.SSLContextFactory;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
@@ -78,6 +79,7 @@ public class HTTPPlugin implements GrinderPlugin {
   }
 
   private PluginProcessContext m_pluginProcessContext;
+  private SSLContextFactory m_sslContextFactory;
   private StatisticsIndexMap.LongIndex m_responseStatusIndex;
   private StatisticsIndexMap.LongIndex m_responseLengthIndex;
   private StatisticsIndexMap.LongIndex m_responseErrorsIndex;
@@ -109,6 +111,11 @@ public class HTTPPlugin implements GrinderPlugin {
 
     m_pluginProcessContext = processContext;
 
+    final Grinder.ScriptContext scriptContext =
+      processContext.getScriptContext();
+
+    m_sslContextFactory = scriptContext.getSSLControl();
+
     // Remove standard HTTPClient modules which we don't want. We load
     // HTTPClient modules dynamically as we don't have public access.
     try {
@@ -128,9 +135,6 @@ public class HTTPPlugin implements GrinderPlugin {
 
     // Register custom statistics.
     try {
-      final Grinder.ScriptContext scriptContext =
-        processContext.getScriptContext();
-
       final StatisticsView detailsStatisticsView = new StatisticsView();
       detailsStatisticsView.add(
         new ExpressionView(
@@ -203,6 +207,6 @@ public class HTTPPlugin implements GrinderPlugin {
   public PluginThreadListener createThreadListener(
     PluginThreadContext threadContext) throws PluginException {
 
-    return new HTTPPluginThreadState(threadContext);
+    return new HTTPPluginThreadState(threadContext, m_sslContextFactory);
   }
 }

@@ -107,11 +107,10 @@ public class Grinder {
     void sleep(long meanTime, long sigma) throws GrinderException;
 
     /**
-     * Get a {@link net.grinder.common.FilenameFactory} that can be used
-     * to create unique filenames. The value returned when invoked from
-     * script initialisation differs from the value returned when called
-     * from a worker thread, so its best not to keep references to the
-     * result.
+     * Get a {@link net.grinder.common.FilenameFactory} that can be
+     * used to create unique filenames. The filenames depend upon the
+     * process name and the thread used to call the
+     * <code>FilenameFactory</code>.
      *
      * @return A <code>FilenameFactory</code>.
      */
@@ -162,5 +161,15 @@ public class Grinder {
      * thread.
      */
     Statistics getStatistics() throws InvalidContextException;
+
+
+    /**
+     * Get an {@link SSLControl}. This can be used to create secure
+     * sockets or to set the certificates that a worker thread should
+     * use.
+     *
+     * @return The SSL control.
+     */
+    SSLControl getSSLControl();
   }
 }

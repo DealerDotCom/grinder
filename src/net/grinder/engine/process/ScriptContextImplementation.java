@@ -30,6 +30,7 @@ import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
+import net.grinder.script.SSLControl;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.util.Sleeper;
@@ -50,6 +51,7 @@ final class ScriptContextImplementation implements ScriptContext {
   private final Logger m_logger;
   private final FilenameFactory m_filenameFactory;
   private final Sleeper m_sleeper;
+  private final SSLControl m_sslControl;
 
   public ScriptContextImplementation(String grinderID,
                                      ThreadContextLocator threadContextLocator,
@@ -57,7 +59,8 @@ final class ScriptContextImplementation implements ScriptContext {
                                      QueuedSender consoleSender,
                                      Logger logger,
                                      FilenameFactory filenameFactory,
-                                     Sleeper sleeper) {
+                                     Sleeper sleeper,
+                                     SSLControl sslControl) {
     m_grinderID = grinderID;
     m_threadContextLocator = threadContextLocator;
     m_properties = properties;
@@ -65,6 +68,7 @@ final class ScriptContextImplementation implements ScriptContext {
     m_logger = logger;
     m_filenameFactory = filenameFactory;
     m_sleeper = sleeper;
+    m_sslControl = sslControl;
   }
 
   public String getGrinderID() {
@@ -142,5 +146,9 @@ final class ScriptContextImplementation implements ScriptContext {
     }
 
     return threadContext.getScriptStatistics();
+  }
+
+  public SSLControl getSSLControl() {
+    return m_sslControl;
   }
 }

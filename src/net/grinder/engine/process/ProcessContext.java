@@ -29,6 +29,7 @@ import net.grinder.common.Logger;
 import net.grinder.communication.QueuedSender;
 import net.grinder.console.messages.ReportStatusMessage;
 import net.grinder.script.Grinder;
+import net.grinder.script.SSLControl;
 import net.grinder.util.Sleeper;
 
 
@@ -79,6 +80,9 @@ final class ProcessContext {
       properties.getDouble("grinder.sleepTimeVariation", 0.2d),
       externalLogger);
 
+    final SSLControl sslControl =
+      new SSLControlImplementation(m_threadContextLocator);
+
     m_scriptContext = new ScriptContextImplementation(
       m_grinderID,
       m_threadContextLocator,
@@ -86,7 +90,8 @@ final class ProcessContext {
       m_consoleSender,
       externalLogger,
       externalFilenameFactory,
-      m_sleeper);
+      m_sleeper,
+      sslControl);
 
     m_pluginRegistry =
       new PluginRegistryImplementation(externalLogger, m_scriptContext,

@@ -24,10 +24,6 @@ package net.grinder.plugin.http;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import javax.net.ssl.SSLSocketFactory;
-
-// Use old sun package for J2SE 1.3/JSSE 1.0.2 compatibility.
-import com.sun.net.ssl.SSLContext;
 
 import HTTPClient.CookieModule;
 import HTTPClient.HTTPConnection;
@@ -35,10 +31,11 @@ import HTTPClient.ParseException;
 import HTTPClient.ProtocolNotSuppException;
 import HTTPClient.URI;
 
+import net.grinder.common.SSLContextFactory;
+import net.grinder.common.SSLContextFactory.SSLContextFactoryException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginThreadListener;
-import net.grinder.util.InsecureSSLContextFactory;
 
 
 /**
@@ -50,39 +47,25 @@ import net.grinder.util.InsecureSSLContextFactory;
 class HTTPPluginThreadState implements PluginThreadListener {
 
   private final PluginThreadContext m_threadContext;
-  private final InsecureSSLContextFactory m_sslContextFactory =
-    new InsecureSSLContextFactory();
+  private final SSLContextFactory m_sslContextFactory;
 
   private Map m_httpConnectionWrappers = new HashMap();
-  private SSLContext m_sslContext;
 
-  HTTPPluginThreadState(PluginThreadContext threadContext)
+  HTTPPluginThreadState(PluginThreadContext threadContext,
+                        SSLContextFactory sslContextFactory)
     throws PluginException {
     m_threadContext = threadContext;
+    m_sslContextFactory = sslContextFactory;
   }
 
   public PluginThreadContext getThreadContext() {
     return m_threadContext;
   }
 
-  private SSLSocketFactory getSSLSocketFactory()
-    throws ProtocolNotSuppException {
-
-    if (m_sslContext == null) {
-      try {
-        m_sslContext = m_sslContextFactory.create();
-      }
-      catch (InsecureSSLContextFactory.CreateException e) {
-        throw new ProtocolNotSuppException(
-          "No support for SSL: " + e.getMessage());
-      }
-    }
-
-    return m_sslContext.getSocketFactory();
-  }
-
   public HTTPConnectionWrapper getConnectionWrapper(URI uri)
-    throws ParseException, ProtocolNotSuppException {
+    throws ParseException,
+           ProtocolNotSuppException,
+           SSLContextFactoryException {
 
     final URI keyURI =
       new URI(uri.getScheme(), uri.getHost(), uri.getPort(), "");
@@ -101,7 +84,8 @@ class HTTPPluginThreadState implements PluginThreadListener {
     httpConnection.setContext(this);
 
     if ("https".equals(uri.getScheme())) {
-      httpConnection.setSSLSocketFactory(getSSLSocketFactory());
+      httpConnection.setSSLSocketFactory(
+        m_sslContextFactory.getSSLContext().getSocketFactory());
     }
 
     final HTTPConnectionWrapper newConnectionWrapper =
@@ -112,7 +96,7 @@ class HTTPPluginThreadState implements PluginThreadListener {
     return newConnectionWrapper;
   }
 
-  public void beginRun() throws PluginException {
+  public void beginRun() {
     // Discard our cookies.
     CookieModule.discardAllCookies(this);
 
@@ -126,12 +110,9 @@ class HTTPPluginThreadState implements PluginThreadListener {
     }
 
     m_httpConnectionWrappers.clear();
-
-    // Discard SSL session cache.
-    m_sslContext = null;
   }
 
-  public void endRun() throws PluginException {
+  public void endRun() {
   }
 }
 
