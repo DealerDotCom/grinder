@@ -95,8 +95,6 @@ public class SSLSnifferEngineImpl extends SnifferEngineImpl
 
     protected Socket createRemoteSocket() throws IOException
     {
-
-	System.exit(-1);
 	final SSLSocket remoteSocket =
 	    (SSLSocket)m_sslSocketFactory.createSocket(getRemoteHost(),
 						       getRemotePort());
