@@ -24,6 +24,9 @@ Grinder 3.0-beta14
   also need the WebUtils Python module that can be found in
   contrib/httpplugin.
 
+  Fix bug 850939 - dead link in documentation. Thanks to Danny Faught
+  for the report.
+
 
 Grinder 3.0-beta13
 ------------------
