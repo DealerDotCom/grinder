@@ -19,46 +19,48 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.common;
+package net.grinder.testutility;
 
 import java.io.PrintWriter;
 import java.io.Writer;
 
-import net.grinder.testutility.CountingPrintWriter;
-import net.grinder.testutility.RandomStubFactory;
 
+public class CountingPrintWriter extends PrintWriter {
+  private int m_count = 0;
 
-public class LoggerStubFactory extends RandomStubFactory {
-
-  private CountingPrintWriter m_errorLineCounter = new CountingPrintWriter();
-  private CountingPrintWriter m_outputLineCounter = new CountingPrintWriter();
-
-  public LoggerStubFactory() {
-    super(Logger.class);
+  public CountingPrintWriter() {
+    this(new NullWriter());
   }
 
-  protected LoggerStubFactory(Class c) {
-    super(c);
+  public CountingPrintWriter(Writer delegate) {
+    super(delegate, true);
   }
 
-  public Logger getLogger() {
-    return (Logger) getStub();
+  public int getCount() {
+    return m_count;
   }
 
-  public PrintWriter override_getErrorLogWriter(Object proxy) {
-    return m_errorLineCounter;
+  public void reset() {
+    m_count = 0;
   }
 
-  public PrintWriter override_getOutputLogWriter(Object proxy) {
-    return m_outputLineCounter;
+  public boolean called() {
+    try {
+      return m_count > 0;
+    }
+    finally {
+      reset();
+    }
   }
 
-  public int getNumberOfErrorLines() {
-    return m_errorLineCounter.getCount();
+  public void println() {
+    ++m_count;
   }
 
-  public int getNumberOfOutputLines() {
-    return m_outputLineCounter.getCount();
+
+  private static class NullWriter extends Writer {
+    public void close() {}
+    public void flush() {}
+    public void write(char[] buffer, int offset, int length) {}
   }
 }
-
