@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html>
+<body>
+
+<h1>External references</h1>
+
+<p>Links to external articles on The Grinder.</p>
+
+<blockquote>
+<table>
+
+<tr valign="top">
+<td>
+<a href="http://www.gashalot.com/blog/archives/000002.html">Gash: Load Testing Java Applications</a>
+</td>
+<td></td>
+<td>
+Replacing JMeter with The Grinder 3
+<blockquote><em>"I went from a freshly downloaded tarball to fully functional test environment in about 2.5 hours. That's powerful."</em></blockquote>
+</td>
+</tr>
+
+
+<tr valign="top">
+<td>
+<a href="http://c2.com/cgi/wiki/wiki?TheGrinder">WikiWikiWeb</a>
+</td>
+<td></td>
+<td>
+Entry on the Wiki of Wiki's.
+</td>
+</tr>
+
+<tr valign="top">
+<td>
+<a href="http://mapage.noos.fr/kimble/papers/grinder.htm">Stress Testing with The Grinder and Cactus</a>
+</td>
+<td></td>
+<td>
+Using The Grinder 2's JUnit plug-in with Cactus.
+</td>
+</tr>
+
+<tr valign="top">
+<td>
+<a href="http://dev2dev.bea.com/articles/aston.jsp">The Grinder: Load Testing for Everyone</a>
+</td>
+<td></td>
+<td>
+An introductory article on The Grinder 2 from Phil Aston.
+</td>
+</tr>
+
+</table>
+</blockquote>
+
+</body>
+</html>
+
+
+

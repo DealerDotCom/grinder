@@ -13,6 +13,8 @@
 	     targetFile="support.html" type="xhtml"/>
       <entry name="The Book" sourceFile="book-xhtml.xml" 
 	     targetFile="book.html" type="xhtml"/>
+      <entry name="Press" sourceFile="press-xhtml.xml" 
+	     targetFile="press.html" type="xhtml"/>
     </section>
     <section name="User Manual" sourceDir="manual" targetDir="manual"
              type="section">
