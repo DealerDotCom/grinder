@@ -378,16 +378,16 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                   getSocketFactory().createClientSocket(m_chainedHTTPProxy);
 
                 requestFilter =
-                  new HTTPMethodAbsoluteFilterDecorator(
-                    new HTTPMethodRelativeFilterDecorator(getRequestFilter()),
-                    remoteEndPoint);
+                  new HTTPMethodAbsoluteURIFilterDecorator(
+                    new HTTPMethodRelativeURIFilterDecorator(
+                      getRequestFilter()), remoteEndPoint);
               }
               else {
                 remoteSocket =
                   getSocketFactory().createClientSocket(remoteEndPoint);
 
                 requestFilter =
-                  new HTTPMethodRelativeFilterDecorator(getRequestFilter());
+                  new HTTPMethodRelativeURIFilterDecorator(getRequestFilter());
               }
 
               final ConnectionDetails connectionDetails =

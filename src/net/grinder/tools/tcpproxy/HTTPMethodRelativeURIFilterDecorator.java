@@ -47,7 +47,7 @@ import org.apache.oro.text.regex.Util;
  * <li>When the sucessor server is not an HTTP proxy, we don't want to
  * pass absolute URL's as HTTP 1.0 servers don't know what to do with
  * them. When the sucessor server is an HTTP proxy, we use a {@link
- * HTTPMethodAbsoluteFilterDecorator} as well.</li>
+ * HTTPMethodAbsoluteURIFilterDecorator} as well.</li>
  *
  * </ol>
  * </p>
@@ -55,7 +55,7 @@ import org.apache.oro.text.regex.Util;
  * @author Philip Aston
  * @version $Revision$
  */
-class HTTPMethodRelativeFilterDecorator implements TCPProxyFilter {
+class HTTPMethodRelativeURIFilterDecorator implements TCPProxyFilter {
 
   private static final Pattern s_httpMethodLine;
   private static final Perl5Substitution s_substition =
@@ -83,7 +83,7 @@ class HTTPMethodRelativeFilterDecorator implements TCPProxyFilter {
    *
    * @param delegate Filter to decorate.
    */
-  public HTTPMethodRelativeFilterDecorator(TCPProxyFilter delegate) {
+  public HTTPMethodRelativeURIFilterDecorator(TCPProxyFilter delegate) {
     m_delegate = delegate;
   }
 

@@ -44,13 +44,13 @@ import org.apache.oro.text.regex.Util;
  * <p>We want the URL format that filters have to parse to be
  * independent of whether the TCPProxy is being used as in HTTP proxy
  * mode or port forwarding mode. We use a {@link
- * HTTPMethodRelativeFilterDecorator} to ensure that the filters only
+ * HTTPMethodRelativeURIFilterDecorator} to ensure that the filters only
  * receive relative URIs. </p>
  *
  * @author Philip Aston
  * @version $Revision$
  */
-class HTTPMethodAbsoluteFilterDecorator implements TCPProxyFilter {
+class HTTPMethodAbsoluteURIFilterDecorator implements TCPProxyFilter {
 
   private static final Pattern s_httpMethodLine;
 
@@ -78,8 +78,8 @@ class HTTPMethodAbsoluteFilterDecorator implements TCPProxyFilter {
    * @param remoteEndPoint The endpoint that specifies the site and
    * port required to make an absolute URI.
    */
-  public HTTPMethodAbsoluteFilterDecorator(TCPProxyFilter delegate,
-                                           EndPoint remoteEndPoint) {
+  public HTTPMethodAbsoluteURIFilterDecorator(TCPProxyFilter delegate,
+                                              EndPoint remoteEndPoint) {
     m_delegate = delegate;
     m_substitution =
       new Perl5Substitution("$1 http://" + remoteEndPoint + "$2");
