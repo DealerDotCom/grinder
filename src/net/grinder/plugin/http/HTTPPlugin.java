@@ -24,10 +24,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -175,7 +172,7 @@ public class HttpPlugin implements GrinderPlugin
 		    final FileReader in = new FileReader(postFilename);
 		    final StringWriter writer = new StringWriter(512);
 		    
-		    char[] buffer = new char[4096];
+		    final char[] buffer = new char[4096];
 		    int charsRead = 0;
 
 		    while ((charsRead = in.read(buffer, 0, buffer.length)) > 0)
@@ -374,10 +371,11 @@ public class HttpPlugin implements GrinderPlugin
 	private final Map m_threadData = new HashMap(m_callData.size());
 
 	private PluginThreadContext m_pluginThreadContext = null;
-	private FilenameFactory m_filenameFactory = null;
 	private HTTPHandler m_httpHandler = null;
 	private int m_currentIteration = 0; // How many times we've done all the URL's
 	private StringBean m_stringBean = null;
+	private final DecimalFormat m_threeFiguresFormat =
+	    new DecimalFormat("000");
 
 	/**
 	 * This method is executed when the thread starts. It is only
@@ -388,8 +386,6 @@ public class HttpPlugin implements GrinderPlugin
 	{
 	    m_pluginThreadContext = pluginThreadContext;
 	    
-	    m_filenameFactory = pluginThreadContext.getFilenameFactory();
-
 	    if (m_useHTTPClient) {
 		m_httpHandler = new HTTPClientHandler(pluginThreadContext,
 						      m_useCookies,
@@ -480,16 +476,17 @@ public class HttpPlugin implements GrinderPlugin
 		
 		if (m_logHTML || error) {
 		    final String filename =
-			m_filenameFactory.createFilename("page",
-							 "_" +
-							 m_currentIteration +
-							 "_" +
-							 test.getNumber() +
-							 ".html");
+			m_pluginThreadContext.getFilenameFactory().
+			createFilename(
+			    "page",
+			    "_" + m_currentIteration + "_" +
+			    m_threeFiguresFormat.format(test.getNumber()) +
+			    "_" + test.getDescription());
+
 		    try {
 			final BufferedWriter htmlFile =
-			    new BufferedWriter(new FileWriter(filename,
-							      false));
+			    new BufferedWriter(
+				new FileWriter(filename, false));
 
 			htmlFile.write(page);
 			htmlFile.close();
