@@ -166,7 +166,11 @@ What can I set in grinder.properties?
 
     grinder.jvm.arguments -	Additional arguments to child JVM's.
 
-    grinder.appendLog	 -	Append to, rather than overwrite,
+    grinder.hostID	-	Override the "host" string used in log
+   				filenames and logs. Defaults to the
+    				host name.
+
+    grinder.appendLog	-	Append to, rather than overwrite,
 				existing log files.
 
     grinder.thread.beginCycleSleepTime	-
