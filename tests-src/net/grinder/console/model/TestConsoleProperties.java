@@ -133,30 +133,30 @@ public class TestConsoleProperties extends TestCase
 	}.doTest();
     }
 
-    public void testMulticastAddress() throws Exception
+    public void testConsoleAddress() throws Exception
     {
 	final String propertyName =
-	    ConsoleProperties.MULTICAST_ADDRESS_PROPERTY;
+	    ConsoleProperties.CONSOLE_ADDRESS_PROPERTY;
 
-	final String s1 = "229.1.2.3";
+	final String s1 = "123.1.2.3";
 
 	m_fileWriter.write(propertyName + ":" + s1);
 	m_fileWriter.close();
 
 	final ConsoleProperties properties = new ConsoleProperties(m_file);
-	assertEquals(s1, properties.getMulticastAddress());
+	assertEquals(s1, properties.getConsoleAddress());
 
-	final String s2 = "239.99.33.11";
+	final String s2 = "123.99.33.11";
 
-	properties.setMulticastAddress(s2);
-	assertEquals(s2, properties.getMulticastAddress());
+	properties.setConsoleAddress(s2);
+	assertEquals(s2, properties.getConsoleAddress());
 
 	properties.save();
 
 	final ConsoleProperties properties2 = new ConsoleProperties(m_file);
-	assertEquals(s2, properties2.getMulticastAddress());
+	assertEquals(s2, properties2.getConsoleAddress());
 
-	final String s3 = "224.46.68.80";
+	final String s3 = "1.46.68.80";
 
 	final PropertyChangeEvent expected =
 	    new PropertyChangeEvent(properties2, propertyName, s2, s3);
@@ -167,7 +167,7 @@ public class TestConsoleProperties extends TestCase
 	properties2.addPropertyChangeListener(listener);
 	properties2.addPropertyChangeListener(propertyName, listener2);
 
-	properties2.setMulticastAddress(s3);
+	properties2.setConsoleAddress(s3);
     }
 
     public void testConsolePort() throws Exception
@@ -186,6 +186,43 @@ public class TestConsoleProperties extends TestCase
 		properties.setConsolePort(i);
 	    }
 	}.doTest();
+    }
+
+    public void testGrinderAddress() throws Exception
+    {
+	final String propertyName =
+	    ConsoleProperties.GRINDER_ADDRESS_PROPERTY;
+
+	final String s1 = "229.1.2.3";
+
+	m_fileWriter.write(propertyName + ":" + s1);
+	m_fileWriter.close();
+
+	final ConsoleProperties properties = new ConsoleProperties(m_file);
+	assertEquals(s1, properties.getGrinderAddress());
+
+	final String s2 = "239.99.33.11";
+
+	properties.setGrinderAddress(s2);
+	assertEquals(s2, properties.getGrinderAddress());
+
+	properties.save();
+
+	final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+	assertEquals(s2, properties2.getGrinderAddress());
+
+	final String s3 = "224.46.68.80";
+
+	final PropertyChangeEvent expected =
+	    new PropertyChangeEvent(properties2, propertyName, s2, s3);
+
+	final MyListener listener = new MyListener(expected);
+	final MyListener listener2 = new MyListener(expected);
+
+	properties2.addPropertyChangeListener(listener);
+	properties2.addPropertyChangeListener(propertyName, listener2);
+
+	properties2.setGrinderAddress(s3);
     }
 
     public void testGrinderPort() throws Exception
@@ -215,8 +252,9 @@ public class TestConsoleProperties extends TestCase
 	assertEquals(p1.getIgnoreSampleCount(), p2.getIgnoreSampleCount());
 	assertEquals(p1.getSampleInterval(), p2.getSampleInterval());
 	assertEquals(p1.getSignificantFigures(), p2.getSignificantFigures());
-	assertEquals(p1.getMulticastAddress(), p2.getMulticastAddress());
+	assertEquals(p1.getConsoleAddress(), p2.getConsoleAddress());
 	assertEquals(p1.getConsolePort(), p2.getConsolePort());
+	assertEquals(p1.getGrinderAddress(), p2.getGrinderAddress());
 	assertEquals(p1.getGrinderPort(), p2.getGrinderPort());
     }
 
@@ -228,16 +266,18 @@ public class TestConsoleProperties extends TestCase
 	p2.setIgnoreSampleCount(99);
 	p2.setSampleInterval(99);
 	p2.setSignificantFigures(99);
-	p2.setMulticastAddress("239.99.99.99");
+	p2.setConsoleAddress("99.99.99.99");
 	p2.setConsolePort(99);
+	p2.setGrinderAddress("239.99.99.99");
 	p2.setGrinderPort(99);
 
 	assert(p1.getCollectSampleCount() != p2.getCollectSampleCount());
 	assert(p1.getIgnoreSampleCount() != p2.getIgnoreSampleCount());
 	assert(p1.getSampleInterval() != p2.getSampleInterval());
 	assert(p1.getSignificantFigures() != p2.getSignificantFigures());
-	assert(!p1.getMulticastAddress().equals(p2.getMulticastAddress()));
+	assert(!p1.getConsoleAddress().equals(p2.getConsoleAddress()));
 	assert(p1.getConsolePort() != p2.getConsolePort());
+	assert(!p1.getGrinderAddress().equals(p2.getGrinderAddress()));
 	assert(p1.getGrinderPort() != p2.getGrinderPort());
 
 	p2.set(p1);
@@ -246,8 +286,9 @@ public class TestConsoleProperties extends TestCase
 	assertEquals(p1.getIgnoreSampleCount(), p2.getIgnoreSampleCount());
 	assertEquals(p1.getSampleInterval(), p2.getSampleInterval());
 	assertEquals(p1.getSignificantFigures(), p2.getSignificantFigures());
-	assertEquals(p1.getMulticastAddress(), p2.getMulticastAddress());
+	assertEquals(p1.getConsoleAddress(), p2.getConsoleAddress());
 	assertEquals(p1.getConsolePort(), p2.getConsolePort());
+	assertEquals(p1.getGrinderAddress(), p2.getGrinderAddress());
 	assertEquals(p1.getGrinderPort(), p2.getGrinderPort());
     }
 
