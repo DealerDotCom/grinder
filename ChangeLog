@@ -1,3 +1,72 @@
+2003-11-22  Philip Aston  <paston@bea.com>
+
+	* The Grinder 3.0-beta12 is released.
+
+	* xdoc/documentation.xweb, xdoc/g3/tcpproxy-xhtml.xml, xdoc/images/tcpproxy-proxy.gif:
+	Document TCPProxy changes.
+
+	* src/net/grinder/TCPProxy.java: Fix typo.
+
+	* CHANGES, src/net/grinder/TCPProxy.java: Rename -proxy to -httpproxy.
+
+	* src/net/grinder/TCPProxy.java: Correct usage message.
+
+	* src/net/grinder/TCPProxy.java: Rename -sslproxy to -httpproxy.
+	Only display HTTPS proxy details in SSL mode.
+
+	* src/net/grinder/TCPProxy.java: Tidy usage message.
+
+	* CHANGES, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Fix a HTTPS proxy bug that causes SSLHandshakeExceptions with Internet
+	Explorer 6.0.
+
+	* CHANGES, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/PortForwarderTCPProxyEngine.java:
+	Change the TCPProxy -timeout option so the TCPProxy will not exit if
+	there are active connections.
+
+	* TODO: Progress.
+
+2003-11-21  Philip Aston  <paston@bea.com>
+
+	* CHANGES, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java:
+	Optimise TCPProxy SSL initialisation for speed rather than
+	cryptographic strength.
+
+	* CHANGES, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/PortForwarderTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxySocketFactoryImplementation.java, src/net/grinder/TCPProxy.java:
+	Finish chained proxy work for HTTP Proxy mode.
+
+2003-11-20  Philip Aston  <paston@bea.com>
+
+	* TODO, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Quick hack to provide chained HTTPS proxy support.
+
+	* src/net/grinder/tools/tcpproxy/HTTPMethodRelativeURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/PortForwarderTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxyPlainSocketFactory.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactory.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java, src/net/grinder/tools/tcpproxy/TCPProxySocketFactoryImplementation.java, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPMethodAbsoluteURIFilterDecorator.java:
+	Checkpoint chained proxy work. Currently only implemented for HTTP
+	Proxy mode / HTTP connections.
+
+2003-11-19  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/tcpproxy-xhtml.xml, CHANGES, TODO, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/JSSEConstants.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactory.java:
+	Display SSL key store configuration at start up. Don't use system
+	properties to pass key store configuration around.
+
+	* src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java:
+	Swallow fewer exceptions.
+
+2003-11-18  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/EndPoint.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/PortForwarderTCPProxyEngine.java:
+	More EndPoint rework so that addresses and ports are correct in the
+	logs.
+
+2003-11-17  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, tests-src/net/grinder/plugin/http/TestHTTPPluginTCPProxyFilter.java, tests-src/net/grinder/tools/tcpproxy/TestConnectionDetails.java, tests-src/net/grinder/tools/tcpproxy/TestEndPoint.java, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/ConnectionDetails.java, src/net/grinder/tools/tcpproxy/EndPoint.java:
+	Modify ConnectionDetails to use EndPoint.
+
+	* tests-src/net/grinder/tools/tcpproxy/TestEndPoint.java, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/ConnectionDetails.java, src/net/grinder/tools/tcpproxy/EchoFilter.java, src/net/grinder/tools/tcpproxy/EndPoint.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/PortForwarderTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxyPlainSocketFactory.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactory.java, src/net/grinder/tools/tcpproxy/TCPProxySocketFactory.java, tests-src/net/grinder/tools/tcpproxy/TestConnectionDetails.java:
+	Introduce EndPoint class to encapsulate host/port pairs.
+
 2003-11-16  Philip Aston  <paston@bea.com>
 
 	* CHANGES, TODO, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/CompositeTCPProxyFilter.java, xdoc/g3/faq-xhtml.xml, xdoc/g3/tcpproxy-xhtml.xml:
