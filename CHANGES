@@ -1,10 +1,12 @@
 Grinder 3.0-beta1
 -----------------
 
-   Fix bug 631144 - don't add empty strings to command line array used
-   to start worker processes. This disabled launching of worker
-   process under real operating systems. Thanks to Martin Voss for the
-   report.
+   Fix bug 608392 - data file field separator conflicts with localised
+   decimal points. Fields are now tab separated. Thanks to Martin
+   Vilcans for the report.
+
+   Fix bug 631144 - worker processes sometimes fail to launch on real
+   operating systems. Thanks to Martin Voss for the report.
 
 
 Grinder 3.0-beta0

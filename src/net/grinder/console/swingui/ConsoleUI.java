@@ -559,7 +559,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 
 		    try {
 			final FileWriter writer = new FileWriter(file);
-			model.write(writer, ",",
+			model.write(writer, "\t",
 				    System.getProperty("line.separator"));
 			writer.close();
 		    }
