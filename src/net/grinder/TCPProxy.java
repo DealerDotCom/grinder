@@ -70,7 +70,7 @@ public class TCPProxy
 	    "\n" +
 	    "\n   [-requestFilter <filter>]    Add request filter" +
 	    "\n   [-responseFilter <filter>]   Add response filter" +
-	    "\n   [-httpPluginFilter           See below" +
+	    "\n   [-httpPlugin                 See below" +
 	    "\n     [-initialTest <n>]         Number tests from n" +
 	    "\n   ]" +
 	    "\n   [-localHost <host name/ip>]  Default is localhost" +
@@ -93,9 +93,9 @@ public class TCPProxy
 	    "\n When -proxy is specified, -remoteHost and -remotePort" +
 	    "\n are ignored. Specify -ssl for HTTPS support." +
 	    "\n" +
-	    "\n -httpPluginFilter sets the request and response filters" +
-	    "\n to produce a grinder.properties file suitable for use" +
-	    "\n with the HTTP plugin." +
+	    "\n -httpPlugin sets the request and response filters" +
+	    "\n to produce a test script suitable for use with the" +
+	    "\n HTTP plugin." +
 	    "\n" +
 	    "\n -timeout is how long (in seconds) the proxy will wait" +
 	    "\n for a request before timing out and freeing the local" +
@@ -137,7 +137,7 @@ public class TCPProxy
 	    // Parse 1.
 	    for (int i=0; i < args.length; i++)
 	    {
-		if (args[i].equals("-initialTest")) {
+		if (args[i].equalsIgnoreCase("-initialtest")) {
 		    initialTest = Integer.parseInt(args[++i]);
 		}
 	    }
@@ -148,50 +148,50 @@ public class TCPProxy
 	    // Parse 2
 	    for (int i=0; i<args.length; i++)
 	    {
-		if (args[i].equals("-requestFilter")) {
+		if (args[i].equalsIgnoreCase("-requestfilter")) {
 		    requestFilter = instantiateFilter(args[++i]);
 		}
-		else if (args[i].equals("-responseFilter")) {
+		else if (args[i].equalsIgnoreCase("-responsefilter")) {
 		    responseFilter = instantiateFilter(args[++i]);
 		}
-		else if (args[i].equals("-httpPluginFilter")) {
+		else if (args[i].equalsIgnoreCase("-httpplugin")) {
 		    requestFilter = new HTTPPluginTCPProxyFilter();
 		    responseFilter = new HTTPPluginTCPProxyResponseFilter();
 		}
-		else if (args[i].equals("-localHost")) {
+		else if (args[i].equalsIgnoreCase("-localhost")) {
 		    localHost = args[++i];
 		}
-		else if (args[i].equals("-localPort")) {
+		else if (args[i].equalsIgnoreCase("-localport")) {
 		    localPort = Integer.parseInt(args[++i]);
 		}
-		else if (args[i].equals("-remoteHost")) {
+		else if (args[i].equalsIgnoreCase("-remotehost")) {
 		    remoteHost = args[++i];
 		}
-		else if (args[i].equals("-remotePort")) {
+		else if (args[i].equalsIgnoreCase("-remoteport")) {
 		    remotePort = Integer.parseInt(args[++i]);
 		}
-		else if (args[i].equals("-ssl")) {
+		else if (args[i].equalsIgnoreCase("-ssl")) {
 		    useSSL = true;
 		}
-		else if (args[i].equals("-keyStore")) {
+		else if (args[i].equalsIgnoreCase("-keystore")) {
 		    System.setProperty(JSSEConstants.KEYSTORE_PROPERTY,
 				       args[++i]);
 		}
-		else if (args[i].equals("-keyStorePassword")) {
+		else if (args[i].equalsIgnoreCase("-keystorepassword")) {
 		    System.setProperty(
 			JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, args[++i]);
 		}
-		else if (args[i].equals("-keyStoreType")) {
+		else if (args[i].equalsIgnoreCase("-keystoretype")) {
 		    System.setProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY,
 				       args[++i]);
 		}
-		else if (args[i].equals("-proxy")) {
+		else if (args[i].equalsIgnoreCase("-proxy")) {
 		    proxy = true;
 		}
-		else if (args[i].equals("-timeout")) {
+		else if (args[i].equalsIgnoreCase("-timeout")) {
 		    timeout = Integer.parseInt(args[++i]) * 1000;
 		}
-		else if (args[i].equals("-output")) {
+		else if (args[i].equalsIgnoreCase("-output")) {
 		    // -output is used by the TCPProxy web app only
 		    // and is not publicised, users are expected to
 		    // use shell redirection.
@@ -201,10 +201,11 @@ public class TCPProxy
 		    System.setErr(new PrintStream(
 			new FileOutputStream(outputFile + ".err"), true));
 		}
-		else if (args[i].equals("-colour")) {
+		else if (args[i].equalsIgnoreCase("-colour") ||
+			 args[i].equalsIgnoreCase("-color")) {
 		    useColour = true;
 		}
-		else if (args[i].equals("-initialTest")) {
+		else if (args[i].equals("-initialtest")) {
 		    /* Already handled */
 		    ++i;
 		}
