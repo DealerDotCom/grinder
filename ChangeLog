@@ -1,3 +1,19 @@
+2001-09-09  Philip Aston  <paston@bea.com>
+
+	* examples/http/grinder.properties:
+	Test additional headers functionality.
+
+	* TODO: Thoughts about new headers stuff.
+
+	* build.xml: Distribute webapps directory.
+
+	* src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HTTPHandler.java:
+	Allow arbitrary headers with HTTPClient.
+
+	* src/net/grinder/plugin/http/HttpPlugin.java:
+	Allow arbitrary headers with HTTPClient.
+	Remove mutator interface from CallData.
+
 2001-09-03  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/plugin/http/HTTPClientHandler.java:
