@@ -29,7 +29,6 @@ package net.grinder.common;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see TestImplementation
  */ 
 public interface Test extends Comparable
 {

@@ -54,8 +54,9 @@ public final class HTTPPluginControl
     }
 
     /**
-     * Get an <code>HTTPPluginConnnection</code> that can be used to
-     * se the default behaviour of new connections.
+     * Get an {@link net.grinder.http.plugin.HTTPPluginConnnection}
+     * that can be used to set the default behaviour of new
+     * connections.
      * @return An <code>HTTPPluginConnection</code>.
      */
     public static final HTTPPluginConnection getConnectionDefaults()
@@ -64,16 +65,17 @@ public final class HTTPPluginControl
     }
 
     /**
-     * Get an <code>HTTPPluginConnnection</code> for a particular URL.
+     * Get an {@link net.grinder.http.plugin.HTTPPluginConnnection}
+     * for a particular URL.
      *
      * <p>This method will throw a GrinderException if not called from
      * a worker thread.</p>
      * @param url An absolute URL that specifies the connection.
      * @return a <code>HTTPPluginConnection</code> value
      * @exception GrinderException If an error occurs.
-     * @exception ParseException If <var>url</url> can not be parsed.
-     * @exception ProtocolNotSuppException If <var>url</url> specifies
-     * an unsupported protocol.
+     * @exception ParseException If <code>url</coder> can not be parsed.
+     * @exception ProtocolNotSuppException If <code>url</code>
+     * specifies an unsupported protocol.
      */
     public static final HTTPPluginConnection getThreadConnection(String url)
 	throws GrinderException, ParseException, ProtocolNotSuppException

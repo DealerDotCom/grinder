@@ -27,8 +27,8 @@ import net.grinder.common.Test;
 
 
 /**
- * Scripts can get contextual information through a global object that
- * supports this interface.
+ * Scripts can get contextual information through a global
+ * <code>grinder</code> object that supports this interface.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -36,9 +36,9 @@ import net.grinder.common.Test;
 public interface ScriptContext
 {
     /**
-     * Get an unique ID for this Worker Process.
+     * Get an unique ID value for this Worker Process.
      *
-     * @return a <code>String</code> value
+     * @return The id.
      */
     String getGrinderID();
 
@@ -52,38 +52,39 @@ public interface ScriptContext
      * Return the current run number, or -1 if not called from a
      * Worker Thread.
      *
-     * @return an <code>int</code> value
+     * @return An <code>int</code> value.
      */
     int getRunNumber();
 
     /**
-     * Get an appropriate {@link net.grinder.Logger} implementation.
-     * The value returned when invoked from script initialisation
-     * differs from the value returned when called from a Worker
-     * Thread, so its best not to keep references to the result.
+     * Get an appropriate {@link net.grinder.common.Logger}
+     * implementation. The value returned when invoked from script
+     * initialisation differs from the value returned when called from
+     * a Worker Thread, so its best not to keep references to the
+     * result.
      *
-     * @return a <code>Logger</code> value
+     * @return A <code>Logger</code>.
      */
     Logger getLogger();
 
     /**
      * Sleep for a time based on the meanTime parameter. The actual
      * time may be greater or less than meanTime, and is distributed
-     * according to a a pseudo normal distribution.
+     * according to a pseudo normal distribution.
      *
      * @param meanTime Mean time in milliseconds.
-     * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
-     **/
+     * @exception GrinderException If an error occurs.
+     */
     void sleep(long meanTime) throws GrinderException;
 
     /**
      * Sleep for a time based on the meanTime parameter. The actual
      * time may be greater or less than meanTime, and is distributed
-     * according to a a pseudo normal distribution.
+     * according to a pseudo normal distribution.
      *
      * @param meanTime Mean time in milliseconds.
      * @param sigma The standard deviation, in milliseconds.
-     * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
+     * @exception GrinderException If an error occurs.
      **/
     void sleep(long meanTime, long sigma) throws GrinderException;
 }

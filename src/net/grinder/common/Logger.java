@@ -26,29 +26,60 @@ import java.io.PrintWriter;
 
 
 /**
- * This class is used to share data between the Grinder and the 
- * plug-in.
- * 
+ * Interface to The Grinder logging system.
+ *
+ * <p>Output can be sent to either the terminal used to launch the
+ * worker process, or to the process log files. The destination to
+ * used is specified by a mask of constant values.</p>
+ *
  * @author Philip Aston
  * @version $Revision$
  */
 public interface Logger
 {
+    /** Destination constant that represents the log files. **/
     public int LOG = 1 << 0;
+
+    /** Destination constant that represents the terminal. **/
     public int TERMINAL = 1 << 1;
 
     /**
-     * Log a message with context information.
+     * Log a message to the output log with context information.
+     * <p>Equivalent to <code>output(message, Logger.LOG)</code>.</p>
+     * @param message The message
      */
     public void output(String message);
+
+    /**
+     * Log a message with context information.
+     * @param message The message
+     * @param where Destination mask
+     */
     public void output(String message, int where);
 
     /**
-     * Log an error with context information.
+     * Log an error to the error log  with context information.
+     * <p>Equivalent to <code>error(message, Logger.LOG)</code>.</p>
+     * @param message The message
      */
     public void error(String message);
+
+    /**
+     * Log an error with context information.
+     * @param message The message
+     * @param where Destination mask
+     */
     public void error(String message, int where);
 
+    /**
+     * Get a <code>PrintWriter</code> that can be used to write to the output log file.
+     * @return a <code>PrintWriter</code>
+     */
     public PrintWriter getOutputLogWriter();
+
+    /**
+     * Get a <code>PrintWriter</code> that can be used to write to the error log file.
+     * @return a <code>PrintWriter</code>
+     */
     public PrintWriter getErrorLogWriter();
 }

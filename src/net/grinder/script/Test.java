@@ -29,6 +29,18 @@ import net.grinder.engine.process.TestRegistry;
 
 
 /**
+ * Scripts create <code>Test</code> instances which can then be used
+ * to {@link #wrap} other Jython objects.
+ *
+ * <p>To The Grinder, a <em>test</em> is a unit of work against which
+ * statistics are recorded. Tests are uniquely defined by a <em>test
+ * number</em> and may also have a <em>description</em>. Scripts can
+ * report many different types of thing against the same test, The
+ * Grinder will aggregate the results.</p>
+ *
+ * <p>Creating a <code>Test</code> will automaticaly update The
+ * Grinder console.</p>
+ *
  * @author Philip Aston
  * @version $Revision$
  */ 
@@ -38,6 +50,13 @@ public class Test extends AbstractTestSemantics implements Serializable
     private final String m_description;
     private transient final TestRegistry.RegisteredTest m_registeredTest;
 
+    /**
+     * Creates a new <code>Test</code> instance.
+     *
+     * @param number Test number.
+     * @param description Test description.
+     * @exception GrinderException If an error occurs.
+     */
     public Test(int number, String description) throws GrinderException
     {	
 	m_number = number;
@@ -45,16 +64,37 @@ public class Test extends AbstractTestSemantics implements Serializable
 	m_registeredTest = TestRegistry.getInstance().register(this);
     }
 
+    /**
+     * Get the test number.
+     *
+     * @return The test number.
+     */
     public final int getNumber()
     {
 	return m_number;
     }
 
+    /**
+     * Get the test description.
+     *
+     * @return The test description.
+     */
     public final String getDescription()
     {
 	return m_description;
     }
 
+    /**
+     * Creates a proxy script object that has the same interface as
+     * the passed object. The Grinder will delegate invocations on the
+     * proxy object to the target object, timing and record the
+     * success or failure of the invocation against the
+     * <code>Test</code> statistics. This method can be called many
+     * times, for many different targets.
+     *
+     * @param target Object to wrap.
+     * @return The proxy.
+     */
     public final Object wrap(Object target)
     {
 	return m_registeredTest.createProxy(target);
