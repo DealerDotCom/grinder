@@ -41,6 +41,13 @@ control.setDefaultHeaders(NVPair("Connection", "close"),))
 </pre>
 </blockquote>
 
+<h4>Recording of HTTP status codes</h4>
+
+<p>If an <code>HTTPRequest</code> is wrapped in a <code>Test</code>,
+the HTTP response status codes for each call of the
+<code>HTTPRequest</code> are recorded to the process data log. If
+multiple <code>HTTPRequests</code> are wrapped in a <code>Test</code>,
+the status code of the last response is recorded.</p>
 
 
 </body>

@@ -19,6 +19,11 @@ Grinder 3.0-beta9
   there, but will not be functional until I've reworked the
   communications layer to allow the script to be distributed.
 
+  The HTTP plugin now records the HTTP response status code to the
+  data log for HTTPRequests that are wrapped in Tests. If multiple
+  HTTPRequests are wrapped in a Test, the status code of the last
+  response is recorded. Thanks to Carlos Franco for the idea.
+
 
 Grinder 3.0-beta8
 -----------------
