@@ -101,3 +101,7 @@ How do I use the HTTPS plugin?
 	grinder.plugin.parameter.clientCertPassword=acrobat
 
 	(export p12 from netscape)
+
+The JSSE SSL implementation isn't quick. This should be taken into
+account when comparing round trip times, as a compiled browser version
+is likely to be a *lot* faster.
