@@ -107,7 +107,13 @@ abstract class AbstractFanOutSender extends AbstractSender {
    */
   public void shutdown() {
     super.shutdown();
-    m_kernel.forceShutdown();
+
+    try {
+      m_kernel.gracefulShutdown();
+    }
+    catch (InterruptedException e) {
+      // Oh well.
+    }
   }
 
   private static final class WriteMessageToStream implements Runnable {
