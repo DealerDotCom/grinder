@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.List;
 
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
@@ -76,6 +77,12 @@ public class ProcessContext implements PluginProcessContext
     private final StringBuffer m_buffer = new StringBuffer();
     private final char[] m_outputLine = new char[512];
 
+    /**
+     * A list of TestData's. (TestData is the class this package uses
+     * to store information about Tests).
+     **/
+    private List m_tests;
+
     private final String m_grinderID;
     private final GrinderProperties m_properties;
     private final boolean m_logProcessStreams;
@@ -98,6 +105,7 @@ public class ProcessContext implements PluginProcessContext
 	m_outputWriter = processContext.m_outputWriter;
 	m_errorWriter = processContext.m_errorWriter;
 	m_dataWriter = processContext.m_dataWriter;
+	m_tests = processContext.m_tests;
 
 	m_filenameFactory =
 	    new FilenameFactoryImplementation(
@@ -157,6 +165,16 @@ public class ProcessContext implements PluginProcessContext
 		m_dataWriter.println("Thread, Cycle, Method");
 	    }
 	}
+    }
+
+    void setTests(List tests)
+    {
+	m_tests = tests;
+    }
+
+    List getTests()
+    {
+	return m_tests;
     }
 
     private Writer createWriter(String prefix, boolean appendLog)

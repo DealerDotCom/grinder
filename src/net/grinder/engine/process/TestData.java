@@ -33,7 +33,7 @@ import net.grinder.statistics.StatisticsImplementation;
  * @author Philip Aston
  * @version $Revision$
  */
-class TestData
+final class TestData
 {
     private final Test m_test;
     
@@ -48,17 +48,17 @@ class TestData
 	m_statistics = statistics;
     }
 
-    long getSleepTime()
+    final long getSleepTime()
     {
 	return m_sleepTime;
     }
 
-    StatisticsImplementation getStatistics() 
+    final StatisticsImplementation getStatistics() 
     {
 	return m_statistics;
     }
 
-    Test getTest()
+    final Test getTest()
     {
 	return m_test;
     }

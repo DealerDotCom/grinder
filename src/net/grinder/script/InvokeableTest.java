@@ -16,39 +16,18 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.common;
+package net.grinder.script;
+
+import net.grinder.common.Test;
 
 
 /**
+ * 
+ *
  * @author Philip Aston
  * @version $Revision$
- */
-public class TestImplementation extends AbstractTestSemantics implements Test
+ */ 
+public interface InvokeableTest extends Test
 {
-    private final int m_number;
-    private final String m_description;
-    private transient final GrinderProperties m_parameters;
-
-    public TestImplementation(int number, String description,
-			      GrinderProperties parameters)
-    {
-	m_number = number;
-	m_description = description;
-	m_parameters = parameters;
-    }
-
-    public final int getNumber()
-    {
-	return m_number;
-    }
-
-    public final String getDescription()
-    {
-	return m_description;
-    }
-
-    public final GrinderProperties getParameters()
-    {
-	return m_parameters;
-    }
+    TestResult invoke();
 }

@@ -19,6 +19,7 @@
 package net.grinder.engine.process;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -110,18 +111,14 @@ public class GrinderProcess
 
     private final ProcessContext m_context;
     private final int m_numberOfThreads;
+    private final String m_script;
+    private final String m_scriptLanguage;
 
     private final Listener m_listener;
     private final Sender m_consoleSender;
     private int m_reportToConsoleInterval = 0;
 
     private final GrinderPlugin m_plugin;
-
-    /**
-     * A map of Tests to TestData. (TestData is the class this
-     * package uses to store information about Tests).
-     **/
-    private final Map m_testSet;
 
     /** A map of Tests to Statistics for passing elsewhere. */
     private final TestStatisticsMap m_testStatisticsMap;
@@ -202,27 +199,46 @@ public class GrinderProcess
 	    m_consoleSender = null;
 	}
 
-	// Wrap tests with our information.
-	m_testSet = new TreeMap();
+	// Wrap tests with our information. Use a TreeMap to order
+	// them accoridng to the order defined by Test
+	final Map testMap = new TreeMap();
 	m_testStatisticsMap = new TestStatisticsMap();
-	
-	final Iterator testSetIterator = tests.iterator();
 
-	while (testSetIterator.hasNext())
+	final long defaultSleepTime =
+	    properties.getLong("grinder.thread.sleepTime", 0);
+
+	final Iterator testsIterator = tests.iterator();
+
+	while (testsIterator.hasNext())
 	{
-	    final Test test = (Test)testSetIterator.next();
+	    final Test test = (Test)testsIterator.next();
 
 	    final String sleepTimePropertyName =
 		getTestPropertyName(test.getNumber(), "sleepTime");
 
 	    final long sleepTime =
-		properties.getInt(sleepTimePropertyName, -1);
+		properties.getLong(sleepTimePropertyName, defaultSleepTime);
 
 	    final StatisticsImplementation statistics =
 		new StatisticsImplementation();
-	    m_testSet.put(test, new TestData(test, sleepTime, statistics));
+
+	    testMap.put(test, new TestData(test, sleepTime, statistics));
 	    m_testStatisticsMap.put(test, statistics);
 	}
+
+	m_context.setTests(new ArrayList(testMap.values()));
+
+	final String scriptFilename = properties.getProperty("grinder.script");
+
+	if (scriptFilename != null) {
+	    final File file = new File(scriptFilename);
+	    m_script = BSFFacade.loadScript(file);
+	    m_scriptLanguage = BSFFacade.getScriptLanguage(file);
+	}
+	else {
+	    m_script = null;
+	    m_scriptLanguage = null;
+	}   
     }
 
     public GrinderPlugin instantiatePlugin()
@@ -334,17 +350,23 @@ public class GrinderProcess
 			     System.getProperty("os.arch") + " " +
 			     System.getProperty("os.version"));
 
+	final String language;
+
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
 
 	for (int i=0; i<m_numberOfThreads; i++) {
-	    final ThreadContext threadContext =
-		new ThreadContext(m_context, i);
-
 	    final ThreadCallbacks threadCallbackHandler =
 		m_plugin.createThreadCallbackHandler();
 
-	    runnable[i] = new GrinderThread(this, threadCallbackHandler,
-					    threadContext, m_testSet);
+	    final ThreadContext threadContext =
+		new ThreadContext(m_context, i, threadCallbackHandler);
+
+	    final BSFFacade bsfFacade =
+		m_script != null ?
+		new BSFFacade(threadContext, m_script, m_scriptLanguage) :
+		null;
+
+	    runnable[i] = new GrinderThread(this, threadContext, bsfFacade);
 	}
 
 	if (m_listener.shouldWait() &&

@@ -69,6 +69,10 @@ public class Sleeper
      **/
     public void sleepNormal(long meanTime) throws ShutdownException
     {
+	if (s_shutdown) {
+	    throw new ShutdownException("Shut down");
+	}
+
 	if (meanTime > 0) {
 	    if (m_limit99_75Factor > 0) {
 		final double sigma = (meanTime * m_limit99_75Factor)/3.0;
@@ -91,6 +95,10 @@ public class Sleeper
      **/
     public void sleepFlat(long maximumTime) throws ShutdownException
     {
+	if (s_shutdown) {
+	    throw new ShutdownException("Shut down");
+	}
+
 	if (maximumTime > 0) {
 	    doSleep(Math.abs(s_random.nextLong()) % maximumTime);
 	}
@@ -121,7 +129,7 @@ public class Sleeper
 
 	    while (currentTime < wakeUpTime) {
 		if (s_shutdown) {
-		    throw new ShutdownException("Shutting down");
+		    throw new ShutdownException("Shut down");
 		}
 
 		try {

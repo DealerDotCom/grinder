@@ -22,9 +22,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
+import com.ibm.bsf.BSFManager;
+
 import net.grinder.common.GrinderProperties;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.util.Sleeper;
 
 
 /**
@@ -49,18 +52,13 @@ class GrinderThread implements java.lang.Runnable
      * not run to completion"
      **/
     private static int m_numberOfThreads = 0;
-    private static boolean s_shutdown = false;
 
     private static Random m_random = new Random();
 
     private final GrinderProcess m_grinderProcess;
-    private final ThreadCallbacks m_threadCallbacks;
     private final ThreadContext m_context;
-    private final Map m_testSet;
+    private final BSFFacade m_bsfFacade;
 
-    private final long m_defaultSleepTime;
-    private final double m_sleepTimeVariation;
-    private final double m_sleepTimeFactor;
     private final long m_initialSleepTime;
 
     private final int m_numberOfCycles;
@@ -81,26 +79,18 @@ class GrinderThread implements java.lang.Runnable
      * The constructor.
      */        
     public GrinderThread(GrinderProcess grinderProcess,
-			 ThreadCallbacks threadCallbacks,
 			 ThreadContext threadContext,
-			 Map tests)
+			 BSFFacade bsfFacade)
     {
 	m_grinderProcess = grinderProcess;
-	m_threadCallbacks = threadCallbacks;
 	m_context = threadContext;
-	m_testSet = tests;
+	m_bsfFacade = bsfFacade;
 
 	m_context.setGrinderThread(this);
 
 	// Should really wrap all of this in a configuration class.
 	final GrinderProperties properties = m_context.getProperties();
-	
-	m_defaultSleepTime =
-	    properties.getLong("grinder.thread.sleepTime", 0);
-	m_sleepTimeFactor =
-	    properties.getDouble("grinder.thread.sleepTimeFactor", 1.0d);
-	m_sleepTimeVariation =
-	    properties.getDouble("grinder.thread.sleepTimeVariation", 0.2d);
+
 	m_initialSleepTime =
 	    properties.getLong("grinder.thread.initialSleepTime", 0);
 
@@ -118,8 +108,11 @@ class GrinderThread implements java.lang.Runnable
 	m_currentTestData = null;
 
 	try {
+	    final ThreadCallbacks threadCallbackHandler =
+		m_context.getThreadCallbackHandler();
+
 	    try {
-		m_threadCallbacks.initialize(m_context);
+		threadCallbackHandler.initialize(m_context);
 	    }
 	    catch (PluginException e) {
 		m_context.logError("Plug-in initialize() threw " + e);
@@ -128,28 +121,25 @@ class GrinderThread implements java.lang.Runnable
 	    }
 	    
 	    m_context.logMessage("Initialized " +
-				 m_threadCallbacks.getClass().getName());
+				 threadCallbackHandler.getClass().getName());
 
-	    sleepFlat(m_initialSleepTime);
+	    m_context.getSleeper().sleepFlat(m_initialSleepTime);
 
-	    if (!s_shutdown) {
-		if (m_numberOfCycles == 0) {
-		    m_context.logMessage("About to run forever");
-		}
-		else {
-		    m_context.logMessage("About to run " + m_numberOfCycles +
-					 " cycles");
-		}
+	    if (m_numberOfCycles == 0) {
+		m_context.logMessage("About to run forever");
+	    }
+	    else {
+		m_context.logMessage("About to run " + m_numberOfCycles +
+				     " cycles");
 	    }
 
 	    CYCLE_LOOP:
-	    for (m_currentCycle=0;
-		 (m_numberOfCycles == 0 || m_currentCycle < m_numberOfCycles)
-		     && !s_shutdown;
+	    for (m_currentCycle = 0;
+		 (m_numberOfCycles == 0 || m_currentCycle < m_numberOfCycles);
 		 m_currentCycle++)
 	    {
 		try {
-		    m_threadCallbacks.beginCycle();
+		    threadCallbackHandler.beginCycle();
 		}
 		catch (PluginException e) {
 		    m_context.logError(
@@ -157,37 +147,33 @@ class GrinderThread implements java.lang.Runnable
 		    e.printStackTrace(m_context.getErrorLogWriter());
 		    continue CYCLE_LOOP;
 		}
-		
-		final Iterator testIterator = m_testSet.values().iterator();
 
-		TEST_LOOP:
-		while (testIterator.hasNext()) {
-		    m_currentTestData = (TestData)testIterator.next();
+		if (m_bsfFacade != null) {
+		    m_bsfFacade.run();
+		}
+		else {
+		    final Iterator testIterator =
+			m_context.getTests().iterator();
 
-		    m_context.reset();
+		    TEST_LOOP:
+		    while (testIterator.hasNext()) {
+			m_currentTestData = (TestData)testIterator.next();
 
-		    final long sleepTime = m_currentTestData.getSleepTime();
-		    sleepNormal(sleepTime >= 0 ?
-				sleepTime : m_defaultSleepTime);
+			m_context.invokeTest(m_currentTestData);
 
-		    if (s_shutdown) {
-			break CYCLE_LOOP;
-		    }
-
-		    m_context.invokeTest(m_threadCallbacks, m_currentTestData);
-
-		    if (m_context.getAborted()) {
-			break CYCLE_LOOP;
-		    }
-		    else if (m_context.getAbortedCycle()) {
-			continue CYCLE_LOOP;
+			if (m_context.getAborted()) {
+			    break CYCLE_LOOP;
+			}
+			else if (m_context.getAbortedCycle()) {
+			    continue CYCLE_LOOP;
+			}
 		    }
 		}
 
 		m_currentTestData = null;
 
 		try {
-		    m_threadCallbacks.endCycle();
+		    threadCallbackHandler.endCycle();
 		}
 		catch (PluginException e) {
 		    m_context.logError("Plugin endCycle() threw: " + e);
@@ -200,6 +186,10 @@ class GrinderThread implements java.lang.Runnable
 
 	    m_context.logMessage("Finished " + numberOfCycles + " cycles");
 	}
+	catch (Sleeper.ShutdownException e) {
+	    m_currentCycle = -1;
+	    m_context.logMessage("Shutdown");
+	}
 	catch(Exception e) {
 	    m_context.logError(" threw an exception:" + e);
 	    e.printStackTrace(m_context.getErrorLogWriter());
@@ -210,64 +200,6 @@ class GrinderThread implements java.lang.Runnable
 	
 	synchronized(m_grinderProcess) {
 	    m_grinderProcess.notifyAll();
-	}
-    }
-
-    /**
-     * Sleep for a time based on the meanTime parameter.
-     *
-     * The actual time is taken from a pseudo normal distribution.
-     * Approximately 99.75% of times will be within (100*
-     * m_sleepTimeVariation) percent of the meanTime.
-     */
-    private void sleepNormal(long meanTime)
-    {
-	if (meanTime > 0) {
-	    if (m_sleepTimeVariation > 0) {
-		final double sigma = (meanTime * m_sleepTimeVariation)/3.0;
-
-		doSleep(meanTime + (long)(m_random.nextGaussian() * sigma));
-	    }
-	    else {
-		doSleep(meanTime);
-	    }
-	}
-    }
-
-    /**
-     * Sleep for a time based on the maxTime parameter.
-     *
-     * The actual time is taken from a pseudo random flat distribution
-     * between 0 and maxTime.
-     */
-    private void sleepFlat(long maxTime)
-    {
-	if (maxTime > 0) {
-	    doSleep(Math.abs(m_random.nextLong()) % maxTime);
-	}
-    }
-
-    private void doSleep(long time)
-    {
-	if (time > 0) {
-	    time = (long)(time * m_sleepTimeFactor);
-
-	    m_context.logMessage("Sleeping for " + time + " ms");
-
-	    long currentTime = System.currentTimeMillis();
-	    final long wakeUpTime = currentTime + time;
-
-	    while (currentTime < wakeUpTime && !s_shutdown) {
-		try {
-		    synchronized(GrinderThread.class) {
-			GrinderThread.class.wait(wakeUpTime - currentTime);
-		    }
-		    break;
-		}
-		catch (InterruptedException e) {
-		    currentTime = System.currentTimeMillis();
-		}
-	    }
 	}
     }
 
@@ -304,7 +236,7 @@ class GrinderThread implements java.lang.Runnable
 
     public static synchronized void shutdown()
     {
-	s_shutdown = true;
-	GrinderThread.class.notifyAll();
+	// We rely on everyone picking this up next time they sleep.
+	Sleeper.shutdown();
     }
 }

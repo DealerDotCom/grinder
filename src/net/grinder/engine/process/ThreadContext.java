@@ -20,11 +20,13 @@ package net.grinder.engine.process;
 
 import java.io.PrintWriter;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.statistics.StatisticsImplementation;
+import net.grinder.util.Sleeper;
 
 
 /**
@@ -37,6 +39,8 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 {
     private GrinderThread m_grinderThread = null;
     private final int m_threadID;
+    private final Sleeper m_sleeper;
+    private final ThreadCallbacks m_threadCallbackHandler;
 
     private boolean m_aborted;
     private boolean m_abortedCycle;
@@ -46,11 +50,20 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 
     private StringBuffer m_scratchBuffer = new StringBuffer();
 
-    public ThreadContext(ProcessContext processContext, int threadID)
+    public ThreadContext(ProcessContext processContext, int threadID,
+			 ThreadCallbacks threadCallbackHandler)
     {
 	super(processContext, Integer.toString(threadID));
 
 	m_threadID = threadID;
+	m_threadCallbackHandler = threadCallbackHandler;
+
+	final GrinderProperties properties = getProperties();
+
+	m_sleeper = new Sleeper(
+	    properties.getDouble("grinder.thread.sleepTimeFactor", 1.0d),
+	    properties.getDouble("grinder.thread.sleepTimeVariation", 0.2d),
+	    this);
 
 	reset();
     }
@@ -61,7 +74,7 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	m_grinderThread = grinderThread;
     }
     
-    public void reset()
+    private void reset()
     {
 	m_aborted = false;
 	m_abortedCycle = false;
@@ -78,6 +91,11 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 
     public long getElapsedTime() {
 	return m_elapsedTime;
+    }
+
+    ThreadCallbacks getThreadCallbackHandler()
+    {
+	return m_threadCallbackHandler;
     }
 
     /*
@@ -140,10 +158,15 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	buffer.append(") ");
     }
 
-    void invokeTest(ThreadCallbacks threadCallbacks, TestData testData) 
+    void invokeTest(TestData testData)
+	throws Sleeper.ShutdownException
     {
+	reset();
+
 	final Test test = testData.getTest();
 	final StatisticsImplementation statistics = testData.getStatistics();
+
+	m_sleeper.sleepNormal(testData.getSleepTime());
 
 	try {
 	    final boolean success;
@@ -151,7 +174,7 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	    startTimer();
 
 	    try {
-		success = threadCallbacks.doTest(test);
+		success = m_threadCallbackHandler.doTest(test);
 	    }
 	    finally {
 		stopTimer();
@@ -209,5 +232,9 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	}
     }
 
+    Sleeper getSleeper()
+    {
+	return m_sleeper;
+    }
 }
 
