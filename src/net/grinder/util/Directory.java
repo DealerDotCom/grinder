@@ -112,7 +112,7 @@ public final class Directory  {
 
     final List resultList = new ArrayList();
     final Set visited = new HashSet();
-    final Set directoriesToVisit = new HashSet();
+    final List directoriesToVisit = new ArrayList();
 
     // new File(null, path) is equivalent to new File(path).
     directoriesToVisit.add(null);
@@ -122,13 +122,14 @@ public final class Directory  {
         (File[]) directoriesToVisit.toArray(
           new File[directoriesToVisit.size()]);
 
+      directoriesToVisit.clear();
+
       for (int i = 0; i < directories.length; ++i) {
         final File relativeDirectory = directories[i];
         final File absoluteDirectory =
           relativeDirectory != null ?
           new File(getAsFile(), relativeDirectory.getPath()) : getAsFile();
 
-        directoriesToVisit.remove(relativeDirectory);
         visited.add(relativeDirectory);
 
         // We use list() rather than listFiles() so the results are
