@@ -185,7 +185,7 @@ public class Sleeper
     }
 
     /**
-     * Exception used to indicate that all Sleepers have been shutdown.
+     * Exception used to indicate that a Sleeper has been shutdown.
      **/
     public static class ShutdownException extends GrinderException
     {
