@@ -85,6 +85,10 @@ public class TestRawStatistics extends TestCase
 	assertEquals(statistics0, statistics0);
 	assertEquals(statistics1, statistics1);
 
+	statistics0.addValue(9, 0);
+	assertEquals(statistics0, statistics1);	// Statistics1.getValue(9)
+						// defaults to 0.
+
 	try {
 	    statistics0.addValue(-1, 1);
 	    fail("Expected IllegalArgumentException");

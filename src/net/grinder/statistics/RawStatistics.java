@@ -47,7 +47,7 @@ public class RawStatistics
     private final static long serialVersionUID = -8055876976127793454L;
     private final static long[] s_emptyLongArray = new long[0];
 
-    private long[] m_statistics = s_emptyLongArray;
+    private long[] m_data = s_emptyLongArray;
 
     /**
      * @clientRole snapshot 
@@ -70,12 +70,12 @@ public class RawStatistics
      **/
     public final synchronized void add(RawStatistics operand)
     {
-	final long[] statistics = operand.m_statistics;
+	final long[] data = operand.m_data;
 
-	expandToSize(statistics.length);
+	expandToSize(data.length);
 
-	for (int i=0; i<statistics.length; i++) {
-	    m_statistics[i] += statistics[i];
+	for (int i=0; i<data.length; i++) {
+	    m_data[i] += data[i];
 	}
     }
 
@@ -100,7 +100,7 @@ public class RawStatistics
 	}
 
 	expandToSize(processStatisticsIndex + 1);
-	m_statistics[processStatisticsIndex] += value;
+	m_data[processStatisticsIndex] += value;
     }
 
     /**
@@ -131,7 +131,7 @@ public class RawStatistics
 	}
 
 	expandToSize(processStatisticsIndex + 1);
-	return m_statistics[processStatisticsIndex];
+	return m_data[processStatisticsIndex];
     }
 
     /**
@@ -151,16 +151,16 @@ public class RawStatistics
 	result.add(this);
 
 	if (m_snapshot != null) {
-	    if (m_statistics.length < m_snapshot.m_statistics.length) {
+	    if (m_data.length < m_snapshot.m_data.length) {
 		throw new IllegalStateException(
 		    "Assertion failure: " +
-		    "Snapshot statistics size is larger than ours");
+		    "Snapshot data size is larger than ours");
 	    }
 
-	    final long[] statistics = m_snapshot.m_statistics;
+	    final long[] data = m_snapshot.m_data;
 
-	    for (int i=0; i<statistics.length; i++) {
-		result.m_statistics[i] -= statistics[i];
+	    for (int i=0; i<data.length; i++) {
+		result.m_data[i] -= data[i];
 	    }
 	}
 
@@ -188,14 +188,15 @@ public class RawStatistics
 	    return false;
 	}
 
-	final long[] otherStatistics = ((RawStatistics)o).m_statistics;
+	final RawStatistics otherRawStatistics = (RawStatistics)o;
 
-	if (m_statistics.length != otherStatistics.length) {
-	    return false;
-	}
+	expandToSize(otherRawStatistics.m_data.length);
+	otherRawStatistics.expandToSize(m_data.length);
 
-	for (int i=0; i<m_statistics.length; i++) {
-	    if (m_statistics[i] != otherStatistics[i]) {
+	final long[] otherData = otherRawStatistics.m_data;
+
+	for (int i=0; i<m_data.length; i++) {
+	    if (m_data[i] != otherData[i]) {
 		return false;
 	    }
 	}
@@ -215,10 +216,10 @@ public class RawStatistics
 
 	result.append("RawStatistics = {");
 
-	for (int i=0; i<m_statistics.length; i++) {
-	    result.append(m_statistics[i]);
+	for (int i=0; i<m_data.length; i++) {
+	    result.append(m_data[i]);
 
-	    if (i!= m_statistics.length-1) {
+	    if (i!= m_data.length-1) {
 		result.append(", ");
 	    }
 	}
@@ -238,10 +239,10 @@ public class RawStatistics
     final void myWriteExternal(ObjectOutput out, Serialiser serialiser)
 	throws IOException
     {
-	out.writeInt(m_statistics.length);
+	out.writeInt(m_data.length);
 
-	for (int i=0; i<m_statistics.length; i++) {
-	    serialiser.writeUnsignedLong(out, m_statistics[i]);
+	for (int i=0; i<m_data.length; i++) {
+	    serialiser.writeUnsignedLong(out, m_data[i]);
 	}
     }
 
@@ -256,22 +257,22 @@ public class RawStatistics
     {
 	final int length = in.readInt();
 
-	m_statistics = new long[length];
+	m_data = new long[length];
 
-	for (int i=0; i<m_statistics.length; i++) {
-	    m_statistics[i] = serialiser.readUnsignedLong(in);
+	for (int i=0; i<m_data.length; i++) {
+	    m_data[i] = serialiser.readUnsignedLong(in);
 	}
     }
 
     private final void expandToSize(int size)
     {
-	if (m_statistics.length < size) {
+	if (m_data.length < size) {
 	    final long[] newStatistics = new long[size];
 
-	    System.arraycopy(m_statistics, 0, newStatistics, 0,
-			     m_statistics.length);
+	    System.arraycopy(m_data, 0, newStatistics, 0,
+			     m_data.length);
 
-	    m_statistics = newStatistics;
+	    m_data = newStatistics;
 	}
     }
 }
