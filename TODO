@@ -105,8 +105,6 @@ to be recorded.
 
 Script access to global statistics.
 
-'grinder' object - getThreadID should be valid in __init__.
-
 *** Error reporting
 
  > It would be possible for certain classes of error (AttributeError

@@ -51,8 +51,8 @@ class GrinderThread implements java.lang.Runnable {
 
   private final Monitor m_notifyOnCompletion;
   private final ProcessContext m_processContext;
+  private final JythonScript m_jythonScript;
   private final ThreadContext m_context;
-  private final JythonScript.JythonRunnable m_jythonRunnable;
 
   private final long m_initialSleepTime;
   private final int m_numberOfRuns;
@@ -67,11 +67,9 @@ class GrinderThread implements java.lang.Runnable {
     throws EngineException {
 
     m_notifyOnCompletion = notifyOnCompletion;
-
     m_processContext = processContext;
+    m_jythonScript = jythonScript;
     m_context = new ThreadContext(processContext, threadID);
-
-    m_jythonRunnable = jythonScript.new JythonRunnable();
 
     final GrinderProperties properties = processContext.getProperties();
 
@@ -95,6 +93,9 @@ class GrinderThread implements java.lang.Runnable {
     logger.setCurrentRunNumber(-1);
 
     try {
+      final JythonScript.JythonRunnable jythonRunnable =
+	m_jythonScript.new JythonRunnable();
+
       m_context.getSleeper().sleepFlat(m_initialSleepTime);
 
       if (m_numberOfRuns == 0) {
@@ -116,7 +117,7 @@ class GrinderThread implements java.lang.Runnable {
 	m_beginRunPluginThreadCaller.run();
 
 	try {
-	  m_jythonRunnable.run();
+	  jythonRunnable.run();
 	}
 	catch (JythonScriptExecutionException e) {
 	  final Throwable unwrapped = e.unwrap();

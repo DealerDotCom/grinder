@@ -28,6 +28,9 @@ Grinder 3.0-beta11
   import to the top of your scripts so that they can be called as
   Python modules from other scripts.
 
+  Fix bug so that TestRunners are now initialised using their worker
+  thread.
+
 
 Grinder 3.0-beta10
 ------------------
