@@ -22,10 +22,12 @@
 package net.grinder.console.swingui;
 
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
@@ -45,6 +47,7 @@ import javax.swing.tree.TreePath;
 final class CompositeTreeModel implements TreeModel {
 
   private final List m_wrappers = new ArrayList();
+  private final EventListenerList m_listeners = new EventListenerList();
 
   private Object m_rootNode = new Object();
 
@@ -52,12 +55,24 @@ final class CompositeTreeModel implements TreeModel {
   }
 
   void addTreeModel(TreeModel treeModel, boolean includeRoot) {
+
+    final DelegateWrapper wrapper;
+
     if (includeRoot) {
-      m_wrappers.add(new RootWrapper(treeModel));
+      wrapper = new RootWrapper(treeModel);
     }
     else {
-      m_wrappers.add(new FirstLevelWrapper(treeModel));
+      wrapper = new FirstLevelWrapper(treeModel);
     }
+
+    final EventListener[] eventListeners =
+      m_listeners.getListeners(TreeModelListener.class);
+
+    for (int i = 0; i < eventListeners.length; ++i) {
+      wrapper.addTreeModelListener((TreeModelListener)eventListeners[i]);
+    }
+
+    m_wrappers.add(wrapper);
   }
 
   public Object getRoot() {
@@ -189,6 +204,8 @@ final class CompositeTreeModel implements TreeModel {
   }
 
   public void addTreeModelListener(TreeModelListener listener) {
+    m_listeners.add(TreeModelListener.class, listener);
+
     final Iterator iterator = m_wrappers.iterator();
 
     while (iterator.hasNext()) {
@@ -198,6 +215,8 @@ final class CompositeTreeModel implements TreeModel {
   }
 
   public void removeTreeModelListener(TreeModelListener listener) {
+    m_listeners.remove(TreeModelListener.class, listener);
+
     final Iterator iterator = m_wrappers.iterator();
 
     while (iterator.hasNext()) {
@@ -207,7 +226,6 @@ final class CompositeTreeModel implements TreeModel {
   }
 
   public void valueForPathChanged(TreePath path, Object newValue) {
-    System.err.println("valueForPathChanged(" + path + ", " + newValue + ")");
     // Do nothing.
   }
 
