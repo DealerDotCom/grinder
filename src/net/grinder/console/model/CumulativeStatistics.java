@@ -18,8 +18,6 @@
 
 package net.grinder.console.model;
 
-import net.grinder.plugininterface.Test;
-
 
 /**
  * Cumulative statistics.
