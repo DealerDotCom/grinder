@@ -29,12 +29,12 @@ import java.util.Map;
 
 
 /**
- * <em>Not thread safe.</em>
+ * Class that manages the receipt of multicast messages.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class Receiver
+public final class Receiver
 {
     private final byte[] m_buffer = new byte[65536];
     private final String m_multicastAddressString;
@@ -46,6 +46,14 @@ public class Receiver
     private boolean m_shutDown = false;
     private boolean m_listening = false;
 
+    /**
+     * Constructor.
+     *
+     * @param multicastAddressString The multicast address to bind on.
+     * @param multicastPort The port to bind to.
+     *
+     * @ throws CommunicationException If socket could not be bound to.
+     **/
     public Receiver(String multicastAddressString, int multicastPort)
 	throws CommunicationException
     {
@@ -67,12 +75,20 @@ public class Receiver
     }
 
     /**
-     * Only one thread should call this method at any one time.
-     * Typically called from a message dispatch loop.
+     * Only one thread should call this method at any one time. This
+     * method blocks until a message is available, or another thread
+     * has called {@link #shutdown}. Typically called from a message
+     * dispatch loop.
      *
-     * @return The message or null if shutting down.
+     * @return The message or <code>null</code> if shutting down.
+     *
+     * @throws CommunicationException If more than one thread attempts
+     * to call <code>waitForMessage</code> on a single {@link
+     * Receiver}.
+     * @throws CommunicationException If an IO exception occurs
+     * reading the mesage.
      **/
-    public Message waitForMessage() throws CommunicationException
+    public final Message waitForMessage() throws CommunicationException
     {
 	synchronized (this) {
 	    if (m_listening) {
@@ -133,14 +149,21 @@ public class Receiver
 	    synchronized (this) {
 		m_listening = false;
 	    }
+
+	    // Check this after reseting "listening" flag to avoid
+	    // race condition where shutdown() decides to send a
+	    // ShutdownMessage but our caller decides to not listen
+	    // for any more messages.
+	    if (m_shuttingDown) {
+		shutdownComplete();
+	    }
 	}
     }
 
     /**
-     * Shut down this reciever. Assumes some other thread is blocked
-     * in, or will call, waitForMessage.
+     * Shut down this reciever.
      **/
-    public void shutdown() throws CommunicationException
+    public final void shutdown()
     {
 	if (!m_shutDown) {
 	    m_shuttingDown = true;
@@ -152,11 +175,17 @@ public class Receiver
 	    }
 
 	    if (needSuicideMessage) {
-		// Pretty hacky way of shutting down the receiver. The
-		// packet goes out on the wire. Can't do much else
-		// with the DatagramSocket API though.
-		new Sender("suicide is painless", m_multicastAddressString,
-			   m_multicastPort).send(new ShutdownMessage());
+		try {
+		    // Pretty hacky way of shutting down the receiver.
+		    // The packet goes out on the wire. Can't do much
+		    // else with the DatagramSocket API though.
+		    new Sender("suicide is painless", m_multicastAddressString,
+			       m_multicastPort).send(new ShutdownMessage());
+		}
+		catch (CommunicationException e) {
+		    // We made our best effort.
+		    shutdownComplete();
+		}
 	    }
 	    else {
 		shutdownComplete();
@@ -174,22 +203,35 @@ public class Receiver
 	}
     }
 
-    private synchronized void shutdownComplete()
+    private final synchronized void shutdownComplete()
     {
 	m_shutDown = true;
 	notifyAll();
     }
 
-    private class SequenceValue
+    /**
+     * Numeric sequence checker. Relies on caller for synchronisation.
+     **/
+    private final class SequenceValue
     {
 	private long m_value;
 
+	/**
+	 * Constructor.
+	 * @param initialValue The initial sequence value.
+	 **/
 	public SequenceValue(long initialValue) 
 	{
 	    m_value = initialValue;
 	}
 
-	public void nextValue(long newValue)
+	/**
+	 * Check the next value in the sequence, and store it for next time.
+	 *
+	 * @param newValue The next value.
+	 * @throws CommunicationException If the message is out of sequence.
+	 **/
+	public final void nextValue(long newValue)
 	    throws CommunicationException
 	{
 	    if (newValue != ++m_value) {
@@ -205,6 +247,9 @@ public class Receiver
 	}
     }
 
+    /**
+     * Message used to signal shutdown to thread blocked in {@link #waitForMessage}.
+     **/
     private static final class ShutdownMessage extends Message
     {
     }
