@@ -95,6 +95,7 @@ final class LoggerImplementation {
   private final FilenameFactoryImplementation m_filenameFactory;
   private final PrintWriter m_outputWriter;
   private final PrintWriter m_errorWriter;
+  private final File m_errorFile;
   private final PrintWriter m_dataWriter;
   private final Logger m_processLogger;
   private boolean m_errorOccurred = false;
@@ -112,6 +113,7 @@ final class LoggerImplementation {
       new FilenameFactoryImplementation(m_logDirectory, grinderID);
 
     final FileManager fileManager = new FileManager(numberOfOldLogs);
+    m_errorFile = fileManager.getErrorFile();
 
     // Although we manage the flushing ourselves and don't call
     // println, we set auto flush on these PrintWriters because
@@ -129,6 +131,7 @@ final class LoggerImplementation {
 
     private final Writer m_outWriter;
     private final Writer m_errorWriter;
+    private final File m_errorFile;
     private final Writer m_dataWriter;
 
     public FileManager(int numberOfOldLogs) throws EngineException {
@@ -145,9 +148,11 @@ final class LoggerImplementation {
                                   m_logDirectory + "'");
       }
 
+      m_errorFile = new File(m_filenameFactory.createFilename("error"));
+
       final File[] files = {
         new File(m_filenameFactory.createFilename("out")),
-        new File(m_filenameFactory.createFilename("error")),
+        m_errorFile,
         new File(m_filenameFactory.createFilename("data")),
       };
 
@@ -236,6 +241,10 @@ final class LoggerImplementation {
 
     public Writer getErrorWriter() {
       return m_errorWriter;
+    }
+
+    public File getErrorFile() {
+      return m_errorFile;
     }
 
     public Writer getDataWriter() {
@@ -341,7 +350,7 @@ final class LoggerImplementation {
 
       if (!m_errorOccurred && (w | Logger.TERMINAL) != 0) {
         m_processLogger.output(
-          "There were errors, see error log for details",
+          "There were errors, see " + m_errorFile + " for details",
           Logger.TERMINAL);
 
         m_errorOccurred = true;
