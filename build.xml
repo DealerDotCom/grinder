@@ -84,8 +84,8 @@ conditionally built modules are:
 
     <condition property="have.jtidy-and-xpath">
       <and>
-	<equals arg1="have.jtidy" arg2="true"/>
-	<equals arg1="have.xpath" arg2="true"/>
+	<equals arg1="${have.jtidy}" arg2="true"/>
+	<equals arg1="${have.xpath}" arg2="true"/>
       </and>
     </condition>
 
