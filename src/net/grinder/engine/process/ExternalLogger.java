@@ -54,7 +54,7 @@ final class ExternalLogger extends AbstractLogger {
   }
 
   public void error(String message, int where) {
-    getLogger().output(message, where);
+    getLogger().error(message, where);
   }
 
   public PrintWriter getOutputLogWriter() {
