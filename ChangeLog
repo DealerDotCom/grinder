@@ -1,3 +1,23 @@
+2002-04-15  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/example/ExampleJTidyStringBean.java:
+	JTidy example string bean.
+
+	* src/net/grinder/plugin/http/example/ExampleJTidyStringBean.java:
+	New file.
+
+	* build.xml, etc/buildenv.sh, etc/setenv.sh, src/prj.el:
+	Test now discovered with batchtest task.
+	JTidy example string bean.
+
+	* tests-src/net/grinder/util/AllTests.java, tests-src/net/grinder/console/swingui/ImageTest.java, tests-src/net/grinder/console/swingui/TestImage.java, tests-src/net/grinder/engine/process/AllTests.java, tests-src/net/grinder/plugin/http/AllTests.java, tests-src/net/grinder/statistics/AllTests.java:
+	Test now discovered with batchtest task.
+
+	* tests-src/net/grinder/console/swingui/ImageTest.java: New file.
+
+	* tests-src/net/grinder/common/AllTests.java, tests-src/net/grinder/communication/AllTests.java, tests-src/net/grinder/console/model/AllTests.java, tests-src/net/grinder/console/swingui/AllTests.java, tests-src/net/grinder/AllTests.java:
+	Test now discovered with batchtest task.
+
 2002-04-14  Philip Aston  <paston@bea.com>
 
 	* doc/HTTPPlugin.txt: Document HTTPClientResponseListener.
