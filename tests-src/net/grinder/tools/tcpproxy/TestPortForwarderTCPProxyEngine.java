@@ -155,6 +155,9 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
 
     clientSocket.close();
 
+    // TODO - resolve race.
+    Thread.sleep(100);
+
     engine.stop();
     engineThread.join();
 
