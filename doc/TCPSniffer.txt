@@ -38,7 +38,6 @@ say something like:
      Remote host:      localhost
      Remote port:      7001
   Engine initialised, listening on port 8001
-  Starting engine
 
 You should then point your web browser at "localhost:8001" and
 exercise the application through the browser. The TCPSniffer will echo
@@ -96,7 +95,6 @@ The output of the HttpPluginSnifferFilter looks like:
      Local port:       8001
      Listening as an HTTP proxy
   Engine initialised, listening on port 8001
-  Starting engine
 
   #
   # The Grinder version 2.8.3
@@ -137,7 +135,7 @@ Did you use the -colour switch? If so, the TCP sniffer generates
 escape codes which work on ANSI compliant terminals and look very
 pretty.
 
-For those of those on NT, this _doesn't work_ with the CMD.EXE window
-unless you're using Cygwin. (Of course, if you're using Cygwin you'd
-use rxvt in preference :-)).
+For those of those on Windows platforms, this _doesn't work_ with the
+CMD.EXE window unless you're using Cygwin. (Of course, if you're using
+Cygwin you'd use rxvt in preference :-)).
 

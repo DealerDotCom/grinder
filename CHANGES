@@ -16,6 +16,12 @@ Grinder 2.8.3
    Allow query strings to be passed with POSTs. Thanks to Kjetil JD
    for the fix.
 
+   The TCP Sniffer should no longer spin CPU when idle.
+
+   You now should pass keystore information using system properties
+   when using the TCP Sniffer -ssl mode. See the JSSE documentation
+   (http://java.sun.com/products/jsse/install.html) for details.
+
    The TCP Sniffer -proxy mode can now be used with any filter.
 
    I've removed the TCP Sniffer URL rewriting filter; use -proxy
@@ -40,10 +46,6 @@ Grinder 2.8.3
    This means that the sniffer should just chuck the data directly
    into the POST file, which is what it now does. And no Cynthia, we
    do not support multipart/byteranges.)
-
-   You now should pass keystore information using system properties
-   when using the TCP Sniffer -ssl mode. See the JSSE documentation
-   (http://java.sun.com/products/jsse/install.html) for details.
 
    Other miscellaneous fixes and documentation.
 
