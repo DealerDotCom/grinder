@@ -533,7 +533,68 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
       </question>
 
       <answer>
-	<fixme author="PA">New answer required for G3.</fixme>
+	<p>Calum Fitzgerald writes:</p>
+
+	<dl>
+          <dt/>
+	  <dd class="quote">
+	    <p>This is a method we use to generate random users for
+	    tests on web applications. Its a fairly basic method but
+	    maybe fit for purpose.</p>
+
+	    <p>We store the usernames and passwords in a text file
+	    (eg.users.txt) with the format:
+	    <code>user,password</code></p>
+
+	    <p>We then read in the file and grab the components. The
+	    reason for using a file to store the usernames is that if
+	    you are using hundreds or throusands of usernames then
+	    jython/java has a limitation with arrays over 64KB.</p>
+
+	    <source>
+#
+# testRandomise.py
+#
+import random
+import string
+
+class TestRandomise:
+  def __init__(self, filename):
+    self._users = []
+    infile = open(filename, "r")
+
+    for line in infile.readlines():
+      self._users.append(string.split((line),','))
+    infile.close()
+
+  def getUserInfo(self):
+    "Pick a random (user, password) from the list."
+    return random.choice(self._users)
+
+
+#
+# Test script. Originally recorded by the TCPProxy.
+#
+from testRandomise import TestRandomise
+tre = TestRandomise("users.txt") 
+
+class TestRunner:
+    def __call__(self):
+        # Get user for this run.
+        (user, passwd) = tre.getUserInfo()
+
+	# ...
+
+	# Use the user details to log in.
+
+        tests[2002].POST('https://host:443/securityservlet',
+          ( NVPair('functionname', 'Login'), 
+            NVPair('pagename', 'Login'), 
+            NVPair('ms_emailAddress', user),
+            NVPair('ms_password', passwd), ))
+	    </source>
+	  </dd>
+	</dl>
       </answer>
     </faq>
 
