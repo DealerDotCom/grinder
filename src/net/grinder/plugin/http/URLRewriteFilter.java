@@ -27,6 +27,7 @@ package net.grinder.plugin.http;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.io.UnsupportedEncodingException;
 
@@ -37,13 +38,29 @@ import net.grinder.tools.tcpsniffer.ConnectionDetails;
 import net.grinder.tools.tcpsniffer.EchoFilter;
 import net.grinder.tools.tcpsniffer.SnifferFilter;
 
+
 /**
  *
  * @author Paddy Spencer
+ * @author Philip Aston
  * @version $Revision$
  */
 public class URLRewriteFilter implements SnifferFilter
 {
+    private PrintWriter m_out = new PrintWriter(System.out);
+
+    /**
+     * Set the {@link PrintWriter} that the filter should use for
+     * output.
+     *
+     * @param out The PrintWriter.
+     */
+    public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
+    {
+	m_out.flush();
+	m_out = outputPrintWriter;
+    }
+
     public void handle(ConnectionDetails connectionDetails, byte[] buffer,
 		       int bytesRead)
         throws IOException, RESyntaxException
