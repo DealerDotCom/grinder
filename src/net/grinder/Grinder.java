@@ -26,6 +26,7 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
@@ -84,12 +85,18 @@ public class Grinder
 
 	    command.add(properties.getProperty("grinder.jvm", "java"));
 
-	    // Need to tokenize?
 	    final String jvmArguments =
 		properties.getProperty("grinder.jvm.arguments");
 
 	    if (jvmArguments != null) {
-		command.add(jvmArguments);
+		// Really should allow whitespace to be
+		// escaped/quoted.
+		final StringTokenizer tokenizer =
+		    new StringTokenizer(jvmArguments);
+
+		while (tokenizer.hasMoreTokens()) {
+		    command.add(tokenizer.nextToken());
+		}
 	    }
 	    
 	    final String additionalClasspath =
