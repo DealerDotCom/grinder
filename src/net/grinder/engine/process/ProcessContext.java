@@ -86,7 +86,7 @@ class ProcessContext {
 
     QueuedSender consoleSender = null;
 
-    if (properties.getBoolean("grinder.reportToConsole", true)) {
+    if (properties.getBoolean("grinder.useConsole", true)) {
       final String consoleAddress =
         properties.getProperty("grinder.consoleAddress",
                                CommunicationDefaults.CONSOLE_ADDRESS);
@@ -106,7 +106,7 @@ class ProcessContext {
         m_processLogger.output(
           "Unable to report to console (" + e.getMessage() +
           "); proceeding without the console. Set " +
-          "grinder.reportToConsole=false to disable this warning.",
+          "grinder.useConsole=false to disable this warning.",
           Logger.LOG | Logger.TERMINAL);
       }
     }
