@@ -19,12 +19,14 @@
 package net.grinder.engine.process;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
@@ -37,16 +39,16 @@ import net.grinder.statistics.TestStatisticsMap;
  * @author Philip Aston
  * @version $Revision$
  */
-class TestRegistry
+final class TestRegistry
 {
     private final Sender m_consoleSender;
 
     /**
-     * A set of TestData's. (TestData is the class this package uses
-     * to store information about Tests). Synchronize on instance when
-     * accessesing.
+     * A map of Tests to TestData's. (TestData is the class this
+     * package uses to store information about Tests). Synchronize on
+     * instance when accessesing.
      **/
-    private final SortedSet m_testSet = new TreeSet();
+    private final Map m_testMap = new TreeMap();
 
     /**
      * A map of Tests to Statistics for passing elsewhere. Synchronize
@@ -55,28 +57,23 @@ class TestRegistry
     private final TestStatisticsMap m_testStatisticsMap =
 	new TestStatisticsMap();
 
-    TestRegistry(Sender consoleSender)
+    public TestRegistry(Sender consoleSender)
     {
 	m_consoleSender = consoleSender;
     }
 
-    void registerTests(Set tests) throws GrinderException
+    public final void registerTests(Set tests) throws GrinderException
     {
 	final Set newTests = new HashSet(tests);
 
 	synchronized (this) {
-	    newTests.removeAll(m_testSet);
+	    newTests.removeAll(m_testMap.keySet());
 
 	    if (newTests.size() > 0) {
 		final Iterator newTestsIterator = newTests.iterator();
 
 		while (newTestsIterator.hasNext()) {
-		    final Test test = (Test)newTestsIterator.next();
-
-		    final TestData testData = new TestData(test);
-		    
-		    m_testSet.add(testData);
-		    m_testStatisticsMap.put(test, testData.getStatistics());
+		    addTest((Test)newTestsIterator.next());
 		}
 	    }
 	}
@@ -86,12 +83,43 @@ class TestRegistry
 	}
     }
 
-    synchronized SortedSet getTests()
+    public final TestData registerTest(Test test) throws GrinderException
     {
-	return m_testSet;
+	final TestData newTestData;
+	
+	synchronized (this) {
+	    final TestData existing = (TestData)m_testMap.get(test);
+
+	    if (existing != null) {
+		return existing;
+	    }
+	    else {
+		newTestData = addTest(test);
+	    }
+	}
+	
+	if (m_consoleSender != null) {
+	    m_consoleSender.send(
+		new RegisterTestsMessage(Collections.singleton(test)));
+	}
+
+	return newTestData;
     }
 
-    synchronized TestStatisticsMap getTestStatisticsMap()
+    private synchronized TestData addTest(Test test)
+    {
+	final TestData testData = new TestData(test);	    
+	m_testMap.put(test, testData);
+	m_testStatisticsMap.put(test, testData.getStatistics());
+	return testData;
+    }
+
+    public final synchronized Collection getTests()
+    {
+	return Collections.unmodifiableCollection(m_testMap.values());
+    }
+
+    public final synchronized TestStatisticsMap getTestStatisticsMap()
     {
 	return m_testStatisticsMap;
     }

@@ -21,9 +21,9 @@ package net.grinder.engine.process;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.TreeMap;
 
 import com.ibm.bsf.BSFException;
@@ -34,8 +34,10 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
+import net.grinder.engine.EngineException;
 import net.grinder.script.InvokeableTest;
 import net.grinder.script.ScriptContext;
+import net.grinder.script.ScriptException;
 import net.grinder.script.TestResult;
 import net.grinder.util.Sleeper;
 
@@ -48,16 +50,17 @@ import net.grinder.util.Sleeper;
  * @author Philip Aston
  * @version $Revision$
  */
-class BSFFacade
+class BSFProcessContext
 {
-    private final ThreadContext m_threadContext;
+    private final ProcessContext m_processContext;
     private final String m_script;
     private final String m_language;
-    private final BSFManager m_bsfManager;
 
-    public static String loadScript(File scriptFile)
-	throws GrinderException
+    public BSFProcessContext(ProcessContext processContext, File scriptFile)
+	throws EngineException
     {
+	m_processContext = processContext;
+
 	try {
 	    final char[] data = new char[(int)scriptFile.length()];
 
@@ -65,132 +68,161 @@ class BSFFacade
 	    reader.read(data);
 	    reader.close();
 
-	    return new String(data);
+	    m_script = new String(data);
 	}
 	catch (IOException e) {
-	    throw new GrinderException("Could not read script file", e);
+	    throw new EngineException("Could not read script file", e);
 	}
-    }
 
-    public static String getScriptLanguage(File scriptFile)
-	throws GrinderException
-    {
 	try {
 	    final String language =
 		BSFManager.getLangFromFilename(scriptFile.getPath());
 	    new BSFManager().loadScriptingEngine(language);
 
-	    return language;
+	    m_language = language;
 	}
 	catch (BSFException e) {
-	    throw new GrinderException("BSF exception", e);
+	    throw new EngineException("BSF exception", e);
 	}
     }
 
-    public BSFFacade(ThreadContext threadContext, String script,
-		     String language)
-	throws GrinderException
+    class BSFThreadContext
     {
-	m_threadContext = threadContext;
-	m_script = script;
-	m_language = language;
-	m_bsfManager = new BSFManager();
+	private final ThreadContext m_threadContext;
 
-	try {
-	    m_bsfManager.declareBean("grinder", new BSFScriptContext(),
-				     ScriptContext.class);
-	}
-	catch (BSFException e) {
-	    throw new GrinderException("BSF exception", e);
-	}
-    }
+	// Pretty sure BSFManager isn't thread safe, instantiate a new
+	// instance for each thread.
+	private final BSFManager m_bsfManager = new BSFManager();
 
-    public void run() throws GrinderException
-    {
-	try {
-	    m_bsfManager.exec(m_language, "Grinder", 0, 0, m_script);
-	}
-	catch (BSFException e) {
-	    throw new GrinderException("Exception whilst invoking script", e);
-	}
-    }
-
-    private class BSFScriptContext implements ScriptContext
-    {
-	private final Test[] m_tests;
-
-	public BSFScriptContext() 
+	public BSFThreadContext(ThreadContext threadContext)
+	    throws EngineException
 	{
-	    final SortedSet testDataSet =
-		m_threadContext.getTestRegistry().getTests();
+	    m_threadContext = threadContext;
 
-	    m_tests = new Test[testDataSet.size()];
-
-	    final Iterator iterator = testDataSet.iterator();
-	    int i = 0;
-	    
-	    while (iterator.hasNext()) {
-		final TestData testData = (TestData)iterator.next();
-		m_tests[i++] = new BSFInvokeableTest(testData);
+	    try {
+		m_bsfManager.declareBean("grinder", new BSFScriptContext(),
+					 ScriptContext.class);
+	    }
+	    catch (BSFException e) {
+		throw new EngineException("BSF exception", e);
 	    }
 	}
 
-	public Logger getLogger()
-	{
-	    return m_threadContext;
-	}
-
-	public Test[] getTests()
-	{
-	    return m_tests;
-	}
-
-	public String getGrinderID()
-	{
-	    return m_threadContext.getGrinderID();
-	}
-
-	public int getThreadID()
-	{
-	    return m_threadContext.getThreadID();
-	}
-    }
-
-    private class BSFInvokeableTest
-	extends AbstractTestSemantics implements InvokeableTest
-    {
-	private final TestData m_testData;
-
-	BSFInvokeableTest(TestData testData)
-	{
-	    m_testData = testData;
-	}
-
-	public final int getNumber()
-	{
-	    return m_testData.getTest().getNumber();
-	}
-
-	public final String getDescription()
-	{
-	    return m_testData.getTest().getDescription();
-	}
-
-	public final GrinderProperties getParameters()
-	{
-	    return m_testData.getTest().getParameters();
-	}
-
-	public TestResult invoke() throws net.grinder.script.AbortRunException
+	public void run() throws EngineException
 	{
 	    try {
-		return m_threadContext.invokeTest(m_testData);
+		m_bsfManager.exec(m_language, "Grinder", 0, 0, m_script);
 	    }
-	    catch (AbortRunException e) {
-		throw new net.grinder.script.AbortRunException("Aborted", e);
+	    catch (BSFException e) {
+		throw new EngineException(
+		    "Exception whilst invoking script", e);
 	    }
-	    catch (Sleeper.ShutdownException e) {
-		throw new net.grinder.script.AbortRunException("Shut down", e);
+	}
+
+	private class BSFScriptContext implements ScriptContext
+	{
+	    private InvokeableTest[] m_tests;
+
+	    public BSFScriptContext()
+	    {
+		recalculateTests();
+	    }
+
+	    private synchronized InvokeableTest[] recalculateTests()
+	    {
+		final Collection testDataSet =
+		    m_processContext.getTestRegistry().getTests();
+
+		if (m_tests == null || m_tests.length != testDataSet.size()) {
+		    m_tests = new InvokeableTest[testDataSet.size()];
+
+		    final Iterator iterator = testDataSet.iterator();
+		    int i = 0;
+	    
+		    while (iterator.hasNext()) {
+			final TestData testData = (TestData)iterator.next();
+			m_tests[i++] = new BSFInvokeableTest(testData);
+		    }
+		}
+
+		return m_tests;
+	    }
+
+	    public String getGrinderID()
+	    {
+		return m_processContext.getGrinderID();
+	    }
+
+	    public int getThreadID()
+	    {
+		return m_threadContext.getThreadID();
+	    }
+
+	    public Logger getLogger()
+	    {
+		return m_threadContext;
+	    }
+
+	    public synchronized InvokeableTest[] getTests()
+	    {
+		return recalculateTests();
+	    }
+
+	    public InvokeableTest registerTest(Test test)
+		throws ScriptException
+	    {
+		final TestRegistry testRegistry =
+		    m_processContext.getTestRegistry();
+
+		try {
+		    return
+			new BSFInvokeableTest(testRegistry.registerTest(test));
+		}
+		catch (GrinderException e) {
+		    throw new ScriptException("Exception registering test", e);
+		}
+	    }
+	}
+	
+	private class BSFInvokeableTest
+	    extends AbstractTestSemantics implements InvokeableTest
+	{
+	    private final TestData m_testData;
+
+	    BSFInvokeableTest(TestData testData)
+	    {
+		m_testData = testData;
+	    }
+
+	    public final int getNumber()
+	    {
+		return m_testData.getTest().getNumber();
+	    }
+
+	    public final String getDescription()
+	    {
+		return m_testData.getTest().getDescription();
+	    }
+
+	    public final GrinderProperties getParameters()
+	    {
+		return m_testData.getTest().getParameters();
+	    }
+
+	    public TestResult invoke()
+		throws net.grinder.script.AbortRunException
+	    {
+		try {
+		    return m_threadContext.invokeTest(m_testData);
+		}
+		catch (AbortRunException e) {
+		    throw new net.grinder.script.AbortRunException("Aborted",
+								   e);
+		}
+		catch (Sleeper.ShutdownException e) {
+		    throw new net.grinder.script.AbortRunException("Shut down",
+								   e);
+		}
 	    }
 	}
     }

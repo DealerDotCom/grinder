@@ -20,9 +20,11 @@ package net.grinder.engine.process;
 
 import java.io.PrintWriter;
 
+import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
+import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.ThreadCallbacks;
@@ -36,16 +38,17 @@ import net.grinder.util.Sleeper;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ThreadContext extends ProcessContext implements PluginThreadContext
+final class ThreadContext implements PluginThreadContext
 {
-    private GrinderThread m_grinderThread = null;
-    private final int m_threadID;
-    private final Sleeper m_sleeper;
-    private final long m_defaultSleepTime;
     private final ThreadCallbacks m_threadCallbackHandler;
+    private final ThreadLogger m_threadLogger;
+    private final PrintWriter m_dataWriter;
+    private final FilenameFactory m_filenameFactory;
+    private final boolean m_recordTime;
+    private final long m_defaultSleepTime;
+    private final Sleeper m_sleeper;
     private final TestResult m_testResult = new TestResult();
 
-    private TestData m_currentTestData = null;
     private boolean m_abortedRun;
     private long m_startTime;
     private long m_elapsedTime;
@@ -54,56 +57,51 @@ final class ThreadContext extends ProcessContext implements PluginThreadContext
 
     public ThreadContext(ProcessContext processContext, int threadID,
 			 ThreadCallbacks threadCallbackHandler)
+	throws EngineException
     {
-	super(processContext, Integer.toString(threadID));
-
-	m_threadID = threadID;
 	m_threadCallbackHandler = threadCallbackHandler;
 
-	final GrinderProperties properties = getProperties();
+	final LoggerImplementation loggerImplementation =
+	    processContext.getLoggerImplementation();
+
+	m_threadLogger = loggerImplementation.createThreadLogger(threadID);
+	m_dataWriter = loggerImplementation.getDataWriter();
+
+	m_filenameFactory =
+	    loggerImplementation.getFilenameFactory().
+	    createSubContextFilenameFactory(Integer.toString(threadID));
+
+	m_recordTime = processContext.getRecordTime();
+
+	final GrinderProperties properties = processContext.getProperties();
 
 	m_defaultSleepTime = properties.getLong("grinder.thread.sleepTime", 0);
 
 	m_sleeper = new Sleeper(
 	    properties.getDouble("grinder.thread.sleepTimeFactor", 1.0d),
 	    properties.getDouble("grinder.thread.sleepTimeVariation", 0.2d),
-	    this);
-    }
-
-    /** Package scope */
-    void setGrinderThread(GrinderThread grinderThread) 
-    {
-	m_grinderThread = grinderThread;
+	    m_threadLogger);
     }
     
-    public boolean getAbortedRun() {
+    public final boolean getAbortedRun() {
 	return m_abortedRun;
     } 
 
-    public long getElapsedTime() {
+    public final long getElapsedTime() {
 	return m_elapsedTime;
     }
 
-    ThreadCallbacks getThreadCallbackHandler()
+    public final int getThreadID()
     {
-	return m_threadCallbackHandler;
+	return m_threadLogger.getThreadID();
     }
 
-    /*
-     * Implementation of PluginThreadContext follows
-     */
-
-    public int getCurrentRunID()
+    public final int getCurrentRunNumber()
     {
-	return m_grinderThread.getCurrentRun();
+	return m_threadLogger.getCurrentRunNumber();
     }
 
-    public int getThreadID()
-    {
-	return m_threadID;
-    }
-
-    public void abortRun()
+    public final void abortRun()
     {
 	m_testResult.abortRun();
     }
@@ -117,7 +115,7 @@ final class ThreadContext extends ProcessContext implements PluginThreadContext
 	m_elapsedTime = -1;
     }
 
-    public void stopTimer()
+    public final void stopTimer()
     {
 	if (m_elapsedTime < 0) // Not already stopped.
 	{
@@ -125,28 +123,60 @@ final class ThreadContext extends ProcessContext implements PluginThreadContext
 	}
     }
 
-    protected void appendMessageContext(StringBuffer buffer) 
+    public final void logMessage(String message)
     {
-	buffer.append("(thread ");
-	buffer.append(getThreadID());
-
-	final int currentRun = getCurrentRunID();
-
-	if (currentRun >= 0) {
-	    buffer.append(" run " + currentRun);
-	}
-	
-	if (m_currentTestData != null) {
-	    buffer.append(" test " + m_currentTestData.getTest().getNumber());
-	}
-
-	buffer.append(") ");
+	m_threadLogger.logMessage(message);
     }
 
-    TestResult invokeTest(TestData testData)
+    public final void logMessage(String message, int where)
+    {
+	m_threadLogger.logMessage(message, where);
+    }
+
+    public final void logError(String message)
+    {
+	m_threadLogger.logError(message);
+    }
+    
+    public final void logError(String message, int where)
+    {
+	m_threadLogger.logError(message, where);
+    }
+
+    public final PrintWriter getOutputLogWriter()
+    {
+	return m_threadLogger.getOutputLogWriter();
+    }
+
+    public final PrintWriter getErrorLogWriter()
+    {
+	return m_threadLogger.getErrorLogWriter();
+    }
+
+    public String createFilename(String prefix)
+    {
+	return m_filenameFactory.createFilename(prefix);
+    }
+
+    public String createFilename(String prefix, String suffix)
+    {
+	return m_filenameFactory.createFilename(prefix, suffix);
+    }
+
+    final ThreadLogger getThreadLogger()
+    {
+	return m_threadLogger;
+    }
+
+    final ThreadCallbacks getThreadCallbackHandler()
+    {
+	return m_threadCallbackHandler;
+    }
+
+    final TestResult invokeTest(TestData testData)
 	throws AbortRunException, Sleeper.ShutdownException
     {
-	m_currentTestData = testData; // For the logging.
+	m_threadLogger.setCurrentTestNumber(testData.getNumber());
 
 	m_testResult.reset();
 
@@ -172,10 +202,9 @@ final class ThreadContext extends ProcessContext implements PluginThreadContext
 	    }
 	    else {
 		final long time = getElapsedTime();
-		final boolean recordTime = getRecordTime();
 
 		if (m_testResult.isSuccessful()) {
-		    if (recordTime) {
+		    if (m_recordTime) {
 			statistics.addTransaction(time);
 		    }
 		    else {
@@ -184,25 +213,23 @@ final class ThreadContext extends ProcessContext implements PluginThreadContext
 		}
 		else {
 		    statistics.addError();
-		    logError("Plug-in reported an error");
+		    m_threadLogger.logError("Plug-in reported an error");
 		}
 
-		final PrintWriter dataWriter = getDataWriter();
-
-		if (dataWriter != null) {
+		if (m_dataWriter != null) {
 		    m_scratchBuffer.setLength(0);
 		    m_scratchBuffer.append(getThreadID());
 		    m_scratchBuffer.append(", ");
-		    m_scratchBuffer.append(getCurrentRunID());
+		    m_scratchBuffer.append(getCurrentRunNumber());
 		    m_scratchBuffer.append(", " );
 		    m_scratchBuffer.append(test.getNumber());
 
-		    if (recordTime) {
+		    if (m_recordTime) {
 			m_scratchBuffer.append(", ");
 			m_scratchBuffer.append(time);
 		    }
 
-		    dataWriter.println(m_scratchBuffer);
+		    m_dataWriter.println(m_scratchBuffer);
 		}
 	    }
 	}
@@ -211,13 +238,13 @@ final class ThreadContext extends ProcessContext implements PluginThreadContext
 	    throw new AbortRunException("Plugin threw exception", e);
 	}
 	finally {
-	    m_currentTestData = null;
+	    m_threadLogger.setCurrentTestNumber(-1);
 	}
 
 	return m_testResult;
     }
 
-    Sleeper getSleeper()
+    final Sleeper getSleeper()
     {
 	return m_sleeper;
     }

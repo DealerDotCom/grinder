@@ -19,6 +19,7 @@
 package net.grinder.engine.process;
 
 import java.io.File;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,7 +42,6 @@ import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.statistics.StatisticsTable;
@@ -107,9 +107,9 @@ public class GrinderProcess
     }
 
     private final ProcessContext m_context;
+    private final PrintWriter m_dataWriter;
     private final int m_numberOfThreads;
-    private final String m_script;
-    private final String m_scriptLanguage;
+    private final BSFProcessContext m_bsfContext;
 
     private final Listener m_listener;
     private final Sender m_consoleSender;
@@ -125,10 +125,12 @@ public class GrinderProcess
 
 	m_context = new ProcessContext(grinderID, properties);
 
-	m_numberOfThreads = properties.getInt("grinder.threads", 1);
+	final LoggerImplementation loggerImplementation =
+	    m_context.getLoggerImplementation();
 
-	// Parse plugin class.
-	m_plugin = instantiatePlugin();
+	m_dataWriter = loggerImplementation.getDataWriter();
+
+	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 
 	// Parse console configuration.
 	final String multicastAddress = 
@@ -192,22 +194,14 @@ public class GrinderProcess
 
 	m_context.setTestRegistry(testRegistry);
 
-	final Set initialTests =
-	    m_plugin.registerTests(getPropertiesTestSet());
-
-	testRegistry.registerTests(initialTests);
+	// Parse plugin class.
+	m_plugin = instantiatePlugin();
 
 	final String scriptFilename = properties.getProperty("grinder.script");
 
-	if (scriptFilename != null) {
-	    final File file = new File(scriptFilename);
-	    m_script = BSFFacade.loadScript(file);
-	    m_scriptLanguage = BSFFacade.getScriptLanguage(file);
-	}
-	else {
-	    m_script = null;
-	    m_scriptLanguage = null;
-	}   
+	m_bsfContext =
+	    scriptFilename != null ?
+	    new BSFProcessContext(m_context, new File(scriptFilename)) : null;
     }
 
     public GrinderPlugin instantiatePlugin()
@@ -229,7 +223,7 @@ public class GrinderProcess
 	    final GrinderPlugin plugin =
 		(GrinderPlugin)pluginClass.newInstance();
 
-	    plugin.initialize(m_context);
+	    plugin.initialize(m_context, getPropertiesTestSet());
 
 	    return plugin;
 	}
@@ -326,18 +320,12 @@ public class GrinderProcess
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
 
 	for (int i=0; i<m_numberOfThreads; i++) {
-	    final ThreadCallbacks threadCallbackHandler =
+	    final ThreadCallbacks threadCallbacks =
 		m_plugin.createThreadCallbackHandler();
 
-	    final ThreadContext threadContext =
-		new ThreadContext(m_context, i, threadCallbackHandler);
-
-	    final BSFFacade bsfFacade =
-		m_script != null ?
-		new BSFFacade(threadContext, m_script, m_scriptLanguage) :
-		null;
-
-	    runnable[i] = new GrinderThread(this, threadContext, bsfFacade);
+	    runnable[i] =
+		new GrinderThread(this, m_context, m_bsfContext, i, 
+				  threadCallbacks);
 	}
 
 	if (m_listener.shouldWait() &&
@@ -362,7 +350,7 @@ public class GrinderProcess
 	    }
 	    
 	    do {		// We want at least one report.
-		m_context.getDataWriter().flush();
+		m_dataWriter.flush();
 
 		waitForMessage(m_reportToConsoleInterval,
 			       Listener.RESET | Listener.STOP);
@@ -409,7 +397,7 @@ public class GrinderProcess
 	    }
 	}
 
-	m_context.getDataWriter().close();
+	m_dataWriter.close();
 
  	m_context.logMessage("Final statistics for this process:");
 
@@ -505,15 +493,14 @@ public class GrinderProcess
      */
     private class ConsoleListener implements Runnable, Listener
     {
-	private final PluginProcessContext m_context;
+	private final Logger m_logger;
 	private final Receiver m_receiver;
 	private int m_message = 0;
 
-	public ConsoleListener(PluginProcessContext context, String address,
-			       int port)
+	public ConsoleListener(Logger context, String address, int port)
 	    throws CommunicationException
 	{
-	    m_context = context;
+	    m_logger = context;
 	    m_receiver = new Receiver(address, port);
 	}
 	
@@ -526,26 +513,25 @@ public class GrinderProcess
 		    message = m_receiver.waitForMessage();
 		}
 		catch (CommunicationException e) {
-		    m_context.logError("error receiving console signal: " + e,
-				       Logger.LOG | Logger.TERMINAL);
+		    m_logger.logError("error receiving console signal: " + e,
+				      Logger.LOG | Logger.TERMINAL);
 		    continue;
 		}
 
 		if (message instanceof StartGrinderMessage) {
-		    m_context.logMessage("got a start message from console");
+		    m_logger.logMessage("got a start message from console");
 		    m_message |= START;
 		}
 		else if (message instanceof StopGrinderMessage) {
-		    m_context.logMessage("got a stop message from console");
+		    m_logger.logMessage("got a stop message from console");
 		    m_message |= STOP;
 		}
 		else if (message instanceof ResetGrinderMessage) {
-		    m_context.logMessage("got a reset message from console");
+		    m_logger.logMessage("got a reset message from console");
 		    m_message |= RESET;
 		}
 		else {
-		    m_context.logMessage(
-			"got an unknown message from console");
+		    m_logger.logMessage("got an unknown message from console");
 		}
 
 		synchronized(GrinderProcess.this) {

@@ -22,9 +22,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
-import com.ibm.bsf.BSFManager;
-
 import net.grinder.common.GrinderProperties;
+import net.grinder.common.Logger;
+import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.util.Sleeper;
@@ -49,35 +49,38 @@ class GrinderThread implements java.lang.Runnable
 
     private static Random m_random = new Random();
 
-    private final GrinderProcess m_grinderProcess;
+    private final Object m_notifyOnCompletion;
     private final ThreadContext m_context;
-    private final BSFFacade m_bsfFacade;
+    private final BSFProcessContext.BSFThreadContext m_bsfThreadContext;
+    private final int m_threadID;
+    private final TestRegistry m_testRegistry;
 
     private final long m_initialSleepTime;
 
     private final int m_numberOfRuns;
 
     /**
-     * This is a member so that ThreadContext can generate context
-     * sensitive log messages.
-     **/
-    private int m_currentRun = -1;
-
-    /**
      * The constructor.
      */        
-    public GrinderThread(GrinderProcess grinderProcess,
-			 ThreadContext threadContext,
-			 BSFFacade bsfFacade)
+    public GrinderThread(Object notifyOnCompletion,
+			 ProcessContext processContext,
+			 BSFProcessContext bsfProcessContext, int threadID, 
+			 ThreadCallbacks threadCallbacks)
+	throws EngineException
     {
-	m_grinderProcess = grinderProcess;
-	m_context = threadContext;
-	m_bsfFacade = bsfFacade;
+	m_notifyOnCompletion = notifyOnCompletion;
 
-	m_context.setGrinderThread(this);
+	m_context =
+	    new ThreadContext(processContext, threadID, threadCallbacks);
 
-	// Should really wrap all of this in a configuration class.
-	final GrinderProperties properties = m_context.getProperties();
+	m_bsfThreadContext =
+	    bsfProcessContext != null ?
+	    bsfProcessContext.new BSFThreadContext(m_context) : null;
+
+	m_threadID = threadID;
+	m_testRegistry = processContext.getTestRegistry();
+
+	final GrinderProperties properties = processContext.getProperties();
 
 	m_initialSleepTime =
 	    properties.getLong("grinder.thread.initialSleepTime", 0);
@@ -92,7 +95,8 @@ class GrinderThread implements java.lang.Runnable
      */     
     public void run()
     {
-	m_currentRun = -1;
+	final ThreadLogger logger = m_context.getThreadLogger();
+	logger.setCurrentRunNumber(-1);
 
 	try {
 	    final ThreadCallbacks threadCallbackHandler =
@@ -102,45 +106,49 @@ class GrinderThread implements java.lang.Runnable
 		threadCallbackHandler.initialize(m_context);
 	    }
 	    catch (PluginException e) {
-		m_context.logError("Plug-in initialize() threw " + e);
-		e.printStackTrace(m_context.getErrorLogWriter());
+		logger.logError("Plug-in initialize() threw " + e);
+		e.printStackTrace(logger.getErrorLogWriter());
 		return;
 	    }
 	    
-	    m_context.logMessage("Initialized " +
-				 threadCallbackHandler.getClass().getName());
+	    logger.logMessage("Initialized " +
+				threadCallbackHandler.getClass().getName());
 
 	    m_context.getSleeper().sleepFlat(m_initialSleepTime);
 
 	    if (m_numberOfRuns == 0) {
-		m_context.logMessage("About to run forever");
+		logger.logMessage("About to run forever");
 	    }
 	    else {
-		m_context.logMessage("About to do " + m_numberOfRuns +
-				     " runs");
+		logger.logMessage("About to do " + m_numberOfRuns +
+				    " runs");
 	    }
 
+	    int currentRun;	    
+
 	    RUN_LOOP:
-	    for (m_currentRun = 0;
-		 (m_numberOfRuns == 0 || m_currentRun < m_numberOfRuns);
-		 m_currentRun++)
+	    for (currentRun = 0;
+		 (m_numberOfRuns == 0 || currentRun < m_numberOfRuns);
+		 currentRun++)
 	    {
+		logger.setCurrentRunNumber(currentRun);
+
 		try {
 		    threadCallbackHandler.beginRun();
 		}
 		catch (PluginException e) {
-		    m_context.logError(
+		    logger.logError(
 			"Aborting run - plug-in beginRun() threw " + e);
-		    e.printStackTrace(m_context.getErrorLogWriter());
+		    e.printStackTrace(logger.getErrorLogWriter());
 		    continue RUN_LOOP; // .. or should we abort the thread?
 		}
 
-		if (m_bsfFacade != null) {
-		    m_bsfFacade.run();
+		if (m_bsfThreadContext != null) {
+		    m_bsfThreadContext.run();
 		}
 		else {
 		    final Iterator testIterator =
-			m_context.getTestRegistry().getTests().iterator();
+			m_testRegistry.getTests().iterator();
 
 		    TEST_LOOP:
 		    while (testIterator.hasNext()) {
@@ -155,44 +163,34 @@ class GrinderThread implements java.lang.Runnable
 		    threadCallbackHandler.endRun();
 		}
 		catch (PluginException e) {
-		    m_context.logError("Plugin endRun() threw: " + e);
-		    e.printStackTrace(m_context.getErrorLogWriter());
+		    logger.logError("Plugin endRun() threw: " + e);
+		    e.printStackTrace(logger.getErrorLogWriter());
 		}
 	    }
 
-	    final int numberOfRuns = m_currentRun;
-	    m_currentRun = -1;
+	    logger.setCurrentRunNumber(-1);
 
-	    m_context.logMessage("Finished " + numberOfRuns + " runs");
+	    logger.logMessage("Finished " + currentRun + " runs");
 	}
 	catch (AbortRunException e) {
-	    m_context.logError("Aborting run");
-	    e.printStackTrace(m_context.getErrorLogWriter());
-	    
+	    logger.logError("Aborting run");
+	    e.printStackTrace(logger.getErrorLogWriter());
 	}
 	catch (Sleeper.ShutdownException e) {
-	    m_currentRun = -1;
-	    m_context.logMessage("Shutdown");
+	    logger.logMessage("Shutdown");
 	}
 	catch(Exception e) {
-	    m_context.logError(" threw an exception:" + e);
-	    e.printStackTrace(m_context.getErrorLogWriter());
+	    logger.logError(" threw an exception:" + e);
+	    e.printStackTrace(logger.getErrorLogWriter());
 	}
 	finally {
+	    logger.setCurrentRunNumber(-1);
 	    decrementThreadCount();
 	}
 	
-	synchronized(m_grinderProcess) {
-	    m_grinderProcess.notifyAll();
+	synchronized(m_notifyOnCompletion) {
+	    m_notifyOnCompletion.notifyAll();
 	}
-    }
-
-    /**
-     * Package scope.
-     */
-    int getCurrentRun() 
-    {
-	return m_currentRun;
     }
 
     private static synchronized void incrementThreadCount() 
