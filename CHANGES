@@ -1,8 +1,14 @@
 Grinder 3.0-beta22
 ------------------
 
-  Fix bug in HTTPPlugin - shouldn't follow automatically redirects by
-  default.
+  Fix bug in HTTPPlugin. Now The Grinder doesn't automatically follow
+  redirects by default.
+
+  Fix bug in new HTTPPlugin filter which caused an exception when
+  attempting to record POSTs that have query strings.
+
+  Fix bug in HTTPPlugin. Can now handle responses with a
+  Content-Length of 0.
 
 
 Grinder 3.0-beta21

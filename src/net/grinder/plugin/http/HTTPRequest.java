@@ -822,7 +822,10 @@ public class HTTPRequest {
       final HTTPResponse httpResponse = doRequest(connection, path);
 
       // Read the entire response.
-      final int responseLength = httpResponse.getData().length;
+      final byte[] data = httpResponse.getData();
+
+      // Data will be null iff Content-Length is 0.
+      final int responseLength = data != null ? data.length : 0;
       httpResponse.getInputStream().close();
 
       threadContext.stopTimedSection();
