@@ -69,7 +69,7 @@ public class TestConsoleCommunicationImplementation
   private ServerSocket m_usedServerSocket;
   private final ProcessMessagesThread m_processMessagesThread =
     new ProcessMessagesThread();
-  private final Timer m_timer = new NullTimer();
+  private final StubTimer m_timer = new StubTimer();
 
   protected void setUp() throws Exception {
     super.setUp();
@@ -109,6 +109,26 @@ public class TestConsoleCommunicationImplementation
   public void testConstruction() throws Exception {
     assertNotNull(m_consoleCommunication.getProcessControl());
     assertNotNull(m_consoleCommunication.getDistributionControl());
+
+    final TimerTask timerTask = m_timer.getLastScheduledTimerTask();
+    timerTask.run();
+
+    // Need a thread to be attempting to process messages or the
+    // receiver will never be shutdown correctly.
+    m_processMessagesThread.start();
+
+    // Cause the sender to be invalid.
+    m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
+    timerTask.run();
+
+    final ConsoleCommunication consoleCommunicationWithNullSender =
+      new ConsoleCommunicationImplementation(s_resources,
+                                             m_properties,
+                                             m_timer);
+
+    final TimerTask timerTask2 = m_timer.getLastScheduledTimerTask();
+    assertNotSame(timerTask, timerTask2);
+    timerTask2.run();
   }
 
   private Message readMessage(Socket socket) throws Exception {
@@ -389,8 +409,15 @@ public class TestConsoleCommunicationImplementation
 
   private static final class MyMessage implements Message, Serializable { }
 
-  private static final class NullTimer extends Timer {
+  private static final class StubTimer extends Timer {
+    private TimerTask m_lastScheduledTimerTask;
+    
     public void schedule(TimerTask timerTask, long delay, long period) {
+      m_lastScheduledTimerTask = timerTask;
+    }
+
+    public TimerTask getLastScheduledTimerTask() {
+      return m_lastScheduledTimerTask;
     }
   }
 
