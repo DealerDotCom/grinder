@@ -1,3 +1,29 @@
+2001-02-16  Philip Aston  <paston@beasys.com>
+
+	* build.xml: 
+	* src/net/grinder/Console.java: 
+	* src/net/grinder/console/Console.java: 
+	* src/net/grinder/console/ConsoleCommunication.java: 
+	* src/net/grinder/console/model/Model.java: 
+	* src/net/grinder/console/model/SampleListener.java: 
+	* src/net/grinder/console/swingui/ConsoleUI.java: 
+	* src/net/grinder/console/swingui/Graph.java: 
+	* src/net/grinder/console/swingui/LabelledGraph.java: 
+	* src/net/grinder/console/swingui/SummaryFrame.java: 
+	* src/net/grinder/console/swingui/resources/grinder.gif: 
+	* src/net/grinder/console/swingui/resources/grinder.xcf: 
+	* src/net/grinder/console/swingui/resources/reset.gif: 
+	* src/net/grinder/console/swingui/resources/reset.xcf: 
+	* src/net/grinder/console/swingui/resources/start.gif: 
+	* src/net/grinder/console/swingui/resources/summary.gif: 
+	* src/net/grinder/statistics/Statistics.java: 
+	* src/net/grinder/statistics/StatisticsTable.java: 
+	* src/net/grinder/statistics/TestStatisticsMap.java: 
+	* tests-src/net/grinder/AllTests.java: 
+	* tests-src/net/grinder/console/swingui/AllTests.java: 
+	* tests-src/net/grinder/console/swingui/TestGraph.java: 
+		New console.
+
 2001-02-12  Philip Aston  <paston@beasys.com>
 
 	* src/net/grinder/engine/process/GrinderProcess.java: 
@@ -13,7 +39,7 @@
 	* tests-src/net/grinder/statistics/AllTests.java: 
 	* tests-src/net/grinder/statistics/TestStatistics.java: 
 		Repackage statistics handling. Add TestStatisticsMap.
-		Tests now have an ordering.
+		Tests now have an ordering and are Serializable.
 
 	* src/net/grinder/console/Console.java: 
 	* src/net/grinder/console/ConsoleException.java: 
