@@ -49,22 +49,19 @@ import net.grinder.statistics.StatisticsView;
  */
 public class HTTPPlugin implements GrinderPlugin {
 
-  private static HTTPPlugin s_initialisedPluginInstance;
+  private static final HTTPPlugin s_singleton = new HTTPPlugin();
 
   static {
-    try {
-      final PluginRegistry registry = PluginRegistry.getInstance();
+    final PluginRegistry registry = PluginRegistry.getInstance();
 
-      if (registry != null) {
-        registry.register(HTTPPlugin.class);
+    // Registry might be null for unit tests.
+    if (registry != null) {
+      try {
+        registry.register(s_singleton);
       }
-      else {
-        // For unit tests.
-        s_initialisedPluginInstance = new HTTPPlugin();
+      catch (GrinderException e) {
+        throw new ExceptionInInitializerError(e);
       }
-    }
-    catch (GrinderException e) {
-      throw new ExceptionInInitializerError(e);
     }
   }
 
@@ -75,7 +72,7 @@ public class HTTPPlugin implements GrinderPlugin {
    * @return The plugin instance.
    */
   static final HTTPPlugin getPlugin() {
-    return s_initialisedPluginInstance;
+    return s_singleton;
   }
 
   private PluginProcessContext m_pluginProcessContext;
@@ -172,8 +169,6 @@ public class HTTPPlugin implements GrinderPlugin {
     catch (GrinderException e) {
       throw new PluginException("Could not register custom statistics", e);
     }
-
-    s_initialisedPluginInstance = this;
   }
 
   /**

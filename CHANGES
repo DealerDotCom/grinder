@@ -6,6 +6,9 @@ Grinder 3.0-beta19
   services from the script context object and share them with worker
   threads.
 
+  The PluginRegistry.register() method now takes an instance of
+  GrinderPlugin, rather than a class that implements GrinderPlugin.
+
   Fix bug 820481 - StringIndexOutOfBoundsException when logging.
   Thanks to Dragos Cernahoschi and Gordon Reid for reports.
 

@@ -30,6 +30,7 @@ import java.util.Map;
 import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
+import net.grinder.plugininterface.PluginException;
 import net.grinder.script.Grinder.ScriptContext;
 
 
@@ -84,47 +85,37 @@ public final class PluginRegistry {
   /**
    * Used to register a new plugin.
    *
-   * @param pluginClass The plugin's class.
+   * @param plugin The plugin instance.
    * @return A handle to the plugin.
    * @exception EngineException if an error occurs
    */
-  public RegisteredPlugin register(Class pluginClass) throws EngineException {
-    if (!GrinderPlugin.class.isAssignableFrom(pluginClass)) {
-      throw new EngineException(
-        "The plugin class ('" + pluginClass.getName() +
-        "') does not implement the interface '" +
-        GrinderPlugin.class.getName() + "'");
-    }
+  public RegisteredPlugin register(GrinderPlugin plugin)
+    throws EngineException {
 
-    try {
-      synchronized (m_plugins) {
-        final RegisteredPlugin existingRegisteredPlugin =
-          (RegisteredPlugin)m_plugins.get(pluginClass);
+    synchronized (m_plugins) {
+      final RegisteredPlugin existingRegisteredPlugin =
+        (RegisteredPlugin)m_plugins.get(plugin);
 
-        if (existingRegisteredPlugin != null) {
-          return existingRegisteredPlugin;
-        }
-
-        final GrinderPlugin plugin =
-          (GrinderPlugin)pluginClass.newInstance();
-
-        final RegisteredPlugin registeredPlugin =
-          new RegisteredPlugin(plugin, m_scriptContext,
-                               m_threadContextLocator);
-
-        plugin.initialize(registeredPlugin);
-
-        m_plugins.put(pluginClass, registeredPlugin);
-
-        m_logger.output("registered plug-in " + pluginClass.getName());
-
-        return registeredPlugin;
+      if (existingRegisteredPlugin != null) {
+        return existingRegisteredPlugin;
       }
-    }
-    catch (Exception e) {
-      throw new EngineException(
-        "An instance of the plug-in class '" + pluginClass.getName() +
-        "' could not be created.", e);
+
+      final RegisteredPlugin registeredPlugin =
+        new RegisteredPlugin(plugin, m_scriptContext, m_threadContextLocator);
+
+      try {
+        plugin.initialize(registeredPlugin);
+      }
+      catch (PluginException e) {
+        throw new EngineException("An instance of the plug-in class '" +
+                                  plugin.getClass().getName() +
+                                  "' could not be initialised.", e);
+      }
+        
+      m_plugins.put(plugin, registeredPlugin);
+      m_logger.output("registered plug-in " + plugin.getClass().getName());
+
+      return registeredPlugin;
     }
   }
 
