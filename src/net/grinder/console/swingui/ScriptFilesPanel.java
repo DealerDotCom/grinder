@@ -21,9 +21,11 @@
 
 package net.grinder.console.swingui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -31,6 +33,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -63,6 +66,9 @@ final class ScriptFilesPanel extends JPanel {
   private final Resources m_resources;
   private final JFileChooser m_fileChooser = new JFileChooser();
   private final FileTreeModel m_fileTreeModel = new FileTreeModel();
+
+  // Can't initialise tree until model has a valid directory.
+  private final JTree m_fileTree;
 
   private File m_distributionDirectory = new File(".").getAbsoluteFile();
 
@@ -131,22 +137,33 @@ final class ScriptFilesPanel extends JPanel {
 
     refresh();
 
-    final JTree tree = new JTree(m_fileTreeModel);
-    tree.setCellRenderer(new CustomTreeCellRenderer());
-    tree.getSelectionModel().setSelectionMode(
+    m_fileTree = new JTree(m_fileTreeModel);
+
+    m_fileTree.setCellRenderer(new CustomTreeCellRenderer());
+    m_fileTree.getSelectionModel().setSelectionMode(
       TreeSelectionModel.SINGLE_TREE_SELECTION);
 
     // Left double-click -> open file.
-    tree.addMouseListener(new MouseAdapter() {
+    m_fileTree.addMouseListener(new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
-          if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-            final TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+          if (SwingUtilities.isLeftMouseButton(e)) {
+            final TreePath path =
+              m_fileTree.getPathForLocation(e.getX(), e.getY());
 
-            if (path != null) {
-              final Object node = path.getLastPathComponent();
+            if (path == null) {
+              return;
+            }
 
-              if (node instanceof FileTreeModel.FileNode) {
-                fireFileSelected((FileTreeModel.FileNode) node);
+            final Object node = path.getLastPathComponent();
+
+            if (node instanceof FileTreeModel.FileNode) {
+              final FileTreeModel.FileNode fileNode =
+                (FileTreeModel.FileNode)node;
+
+              final int clickCount = e.getClickCount();
+
+              if (clickCount == 1 && fileNode.isOpen() || clickCount == 2) {
+                fireFileSelected(fileNode);
               }
             }
           }
@@ -157,14 +174,17 @@ final class ScriptFilesPanel extends JPanel {
     // (expand/collapse) that J2SE 1.3 has. I like it this mapping, so
     // we combine the "toggle" action with our OpenFileAction and let
     // TeeAction figure out which to call based on what's enabled.
-    tree.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "activateNode");
+    final InputMap inputMap = m_fileTree.getInputMap();
 
-    final ActionMap actionMap = tree.getActionMap();
+    inputMap.put(KeyStroke.getKeyStroke("ENTER"), "activateNode");
+    inputMap.put(KeyStroke.getKeyStroke("SPACE"), "activateNode");
+
+    final ActionMap actionMap = m_fileTree.getActionMap();
     actionMap.put("activateNode",
                   new TeeAction(actionMap.get("toggle"),
-                                new OpenFileAction(tree)));
+                                new OpenFileAction()));
 
-    final JScrollPane fileTreePane = new JScrollPane(tree);
+    final JScrollPane fileTreePane = new JScrollPane(m_fileTree);
     fileTreePane.setAlignmentX(Component.LEFT_ALIGNMENT);
 
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -176,11 +196,8 @@ final class ScriptFilesPanel extends JPanel {
    * Action for opening the currently selected file in the tree.
    */
   private final class OpenFileAction extends CustomAction {
-    private final JTree m_tree;
-
-    public OpenFileAction(JTree tree) {
+    public OpenFileAction() {
       super(m_resources, "open-file");
-      m_tree = tree;
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -192,11 +209,11 @@ final class ScriptFilesPanel extends JPanel {
     }
 
     public boolean isEnabled() {
-      return m_tree.isEnabled() && getSelectedFileNode() != null;
+      return m_fileTree.isEnabled() && getSelectedFileNode() != null;
     }
 
     private FileTreeModel.FileNode getSelectedFileNode() {
-      final Object node = m_tree.getLastSelectedPathComponent();
+      final Object node = m_fileTree.getLastSelectedPathComponent();
 
       if (node instanceof FileTreeModel.FileNode) {
         return (FileTreeModel.FileNode)node;
@@ -221,6 +238,8 @@ final class ScriptFilesPanel extends JPanel {
 
     private final Font m_boldFont;
     private final Font m_boldItalicFont;
+
+    private boolean m_active;
 
     CustomTreeCellRenderer() {
       m_boldFont = new JLabel().getFont().deriveFont(Font.BOLD);
@@ -256,6 +275,8 @@ final class ScriptFilesPanel extends JPanel {
           setFont(m_defaultRenderer.getFont());
         }
 
+        m_active = fileNode.isActive();
+
         return super.getTreeCellRendererComponent(
           tree, value, selected, expanded, leaf, row, hasFocus);
       }
@@ -276,6 +297,66 @@ final class ScriptFilesPanel extends JPanel {
       return result != null ?
         new Dimension(result.width + 3, result.height) : null;
     }
+
+    public void paint(Graphics g) {
+      final Color backgroundColour;
+
+      if (m_active) {
+        backgroundColour = Colours.FAINT_YELLOW;
+      }
+      else if (selected) {
+        backgroundColour = getBackgroundSelectionColor();
+      }
+      else {
+        backgroundColour = getBackgroundNonSelectionColor();
+      }
+
+      if (backgroundColour != null) {
+        g.setColor(backgroundColour);
+        g.fillRect(0, 0, getWidth() - 1, getHeight());
+      }
+
+      // Sigh. The whole reason we override paint is that the
+      // DefaultTreeCellRenderer version is crap. We can't call
+      // super.super.paint() so we work hard to make the
+      // DefaultTreeCellRenderer version ineffectual.
+
+      final boolean oldHasFocus = hasFocus;
+      final boolean oldSelected = selected;
+      final Color oldBackgroundNonSelectionColour =
+        getBackgroundNonSelectionColor();
+
+      try {
+        hasFocus = false;
+        selected = false;
+        setBackgroundNonSelectionColor(backgroundColour);
+
+        super.paint(g);
+      }
+      finally {
+        hasFocus = oldHasFocus;
+        selected = oldSelected;
+        setBackgroundNonSelectionColor(oldBackgroundNonSelectionColour);
+      }
+
+      // Now draw our border.
+      final Color borderColour;
+
+      if (m_active) {
+        borderColour = getTextNonSelectionColor();
+      }
+      else if (hasFocus) {
+        borderColour = getBorderSelectionColor();
+      }
+      else {
+        borderColour = null;
+      }
+
+      if (borderColour != null) {
+        g.setColor(borderColour);
+        g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+      }
+    }
   }
 
   /**
@@ -286,6 +367,17 @@ final class ScriptFilesPanel extends JPanel {
   public void addListener(Listener listener) {
     synchronized (m_listeners) {
       m_listeners.add(listener);
+    }
+  }
+
+  public void repaint() {
+    // Couldn't find a nice way to repaint a single node. This:
+    //    m_fileTree.getSelectionModel().setSelectionPath(fileNode.getPath());
+    // doesn't work if the node is already selected. Give up and
+    // repaint the world:
+
+    if (m_fileTree != null) {
+      m_fileTree.treeDidChange();
     }
   }
 
