@@ -40,6 +40,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -123,6 +125,12 @@ final class FileTree extends JPanel {
         }
       });
 
+    m_tree.addTreeSelectionListener(new TreeSelectionListener() {
+        public void valueChanged(TreeSelectionEvent e) {
+          updateActionState();
+        }
+      });
+
     m_openFileAction = new OpenFileAction();
 
     // J2SE 1.4 drops the mapping from "ENTER" -> "toggle"
@@ -164,20 +172,21 @@ final class FileTree extends JPanel {
         fireFileSelected(fileNode);
       }
     }
+  }
 
-    public boolean isEnabled() {
-      return m_tree.isEnabled() && getSelectedFileNode() != null;
+  private void updateActionState() {
+    m_openFileAction.setEnabled(m_tree.isEnabled() &&
+                                getSelectedFileNode() != null);
+  }
+
+  private FileTreeModel.FileNode getSelectedFileNode() {
+    final Object node = m_tree.getLastSelectedPathComponent();
+
+    if (node instanceof FileTreeModel.FileNode) {
+      return (FileTreeModel.FileNode)node;
     }
-
-    private FileTreeModel.FileNode getSelectedFileNode() {
-      final Object node = m_tree.getLastSelectedPathComponent();
-
-      if (node instanceof FileTreeModel.FileNode) {
-        return (FileTreeModel.FileNode)node;
-      }
-      else {
-        return null;
-      }
+    else {
+      return null;
     }
   }
 
