@@ -1,4 +1,21 @@
+2005-01-22  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPRequest.java:
+	Fix a bug with the new HTTP instrumentation. The statistics were
+	incorrectly calculated when more than one HTTPRequest was wrapped in a
+	given Test. Thanks to Bernd Pressler and Sebastien Lemeunier for
+	reporting the problem.
+
+	* src/net/grinder/console/swingui/ErrorDialogHandler.java: CRLF.
+
+2005-01-20  Philip Aston  <philipa@mail.com>
+
+	* TODO: More notes.
+
 2005-01-08  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/editor/AgentCacheState.java, src/net/grinder/console/editor/FileDistribution.java, src/net/grinder/console/editor/FileDistributionHandlerImplementation.java, tests-src/net/grinder/console/editor/TestFileDistribution.java, tests-src/net/grinder/console/editor/TestFileDistributionHandlerImplementation.java:
+	Extract out an AgentCacheState interface.
 
 	* src/net/grinder/console/editor/FileDistribution.java, TODO, src/net/grinder/console/editor/FileDistributionFilter.java, src/net/grinder/console/editor/FileDistributionHandlerImplementation.java, tests-src/net/grinder/console/editor/TestFileDistribution.java, tests-src/net/grinder/console/editor/TestFileDistributionFilter.java, tests-src/net/grinder/console/editor/TestFileDistributionHandlerImplementation.java:
 	More refactoring of the distribution code.
