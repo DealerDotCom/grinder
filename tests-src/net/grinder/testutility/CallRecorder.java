@@ -105,6 +105,29 @@ public class CallRecorder extends Assert {
     assertCalledInternal(methodName, parameterTypes);
   }
 
+
+  public final void assertSuccess(String methodName) {
+    assertCalledInternal(methodName, new Class[0]);
+  }
+
+  public final void assertSuccess(String methodName, Object object1) {
+    assertCalledInternal(methodName, new Object[] { object1 });
+  }
+
+  public final void assertSuccess(String methodName, Object object1,
+                                  Object object2) {
+    assertCalledInternal(methodName, new Object[] { object1, object2 });
+  }
+
+  public final void assertSuccess(String methodName, Class class1) {
+    assertCalledInternal(methodName, new Class[] { class1 });
+  }
+
+  public final void assertSuccess(String methodName, Class class1,
+                                  Class class2) {
+    assertCalledInternal(methodName, new Class[] { class1, class2 });
+  }
+
   /**
    *  Check the given method was called, and that it threw the given
    *  exception.
