@@ -1,3 +1,22 @@
+2001-04-13  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContextImplementation.java:
+	Yield in startTimer(). This makes it more likely that the thread has a
+	clear run through the timed section. I considered adding an option to
+	use a VM wide synchronisation point, but decided against this - you
+	may as well just use a single thread.
+
+	* README, src/net/grinder/util/ProcessContextImplementation.java:
+	Add property to disable logging of process stderr and stdout.
+
+	* src/net/grinder/plugin/junit/JUnitPlugin.java:
+	Move log message out of timed section.
+
+	* src/net/grinder/engine/process/GrinderProcess.java: Remove dead code.
+
+	* src/net/grinder/console/model/Model.java:
+	Reset stats when waiting for trigger for more obvious interaction.
+
 2001-04-07  Philip Aston  <paston@bea.com>
 
 	* build.xml, etc/buildenv.sh: Ant 1.3 groks cygwin - hurrah.
