@@ -27,7 +27,6 @@ package net.grinder.statistics;
  *
  * @author Philip Aston
  * @version $Revision$
- * @stereotype singleton
  */
 public final class CommonStatisticsViews {
   private static final CommonStatisticsViews s_instance =

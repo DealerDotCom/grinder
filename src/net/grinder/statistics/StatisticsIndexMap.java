@@ -32,11 +32,12 @@ import java.util.Map;
 /**
  * A register of statistic index objects.
  *
- * <p>Each statistic has a unique index object and a name. The index objects are
- * used with {@link net.grinder.script.Statistics} and the names can be used in
+ * <p>
+ * Each statistic has a unique index object and a name. The index objects are
+ * used with {@link net.grinder.script.Statistics}and the names can be used in
  * expressions (see {@link ExpressionView}). Statistics can either be
- * <em>long</em> integer values (see {@link #getIndexForLong}) or
- * <em>double</em> floating-point values ({@link #getIndexForDouble}).
+ * <em>long</em> integer values (see {@link #getLongIndex}) or
+ * <em>double</em> floating-point values ({@link #getDoubleIndex}).
  *
  * <p>
  * The standard long statistics used by The Grinder are:
@@ -68,15 +69,14 @@ import java.util.Map;
  *
  * <p>
  * There is a special type of index object for <em>sample</em> statistics, see
- * {@link LongSampleIndex},{@link #getIndexForLongSample},
- * {@link DoubleSampleIndex},{@link #getIndexForDoubleSample}. Sample
- * statistics are the result of a series of sample values. The values can be
- * either <code>long</code>s or <code>double</code>s. Sample statistics
- * have three attribute values that can be read: the <em>count</em> (number of
+ * {@link LongSampleIndex},{@link #getLongSampleIndex},
+ * {@link DoubleSampleIndex},{@link #getDoubleSampleIndex}. Sample statistics
+ * are the result of a series of sample values. The values can be either
+ * <code>long</code> s or <code>double</code>s. Sample statistics have
+ * three attribute values that can be read: the <em>count</em> (number of
  * samples), <em>sum</em> (total of all sample values), and sample
- * <em>variance</em>. These attributes can be queried using
- * the appropriate expression function (e.g. <em>count()</em>), see
- * {@link ExpressionView}.
+ * <em>variance</em>. These attributes can be queried using the appropriate
+ * expression function (e.g. <em>count()</em>), see {@link ExpressionView}.
  * </p>
  *
  * <p>
@@ -86,9 +86,13 @@ import java.util.Map;
  * </ul>
  * </p>
  *
- * <p>There are no standard double sample statistics.</p>
+ * <p>
+ * There are no standard double sample statistics.
+ * </p>
  *
- * <p>There is currently no provision for user specific sample statistics.</p>
+ * <p>
+ * There is currently no provision for user specific sample statistics.
+ * </p>
  *
  * @author Philip Aston
  * @version $Revision$

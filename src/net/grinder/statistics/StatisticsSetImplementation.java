@@ -318,7 +318,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * <code>index</code>.
    *
    * @param index The index.
-   * @retun The count.
+   * @return The count.
    */
   public long getCount(SampleIndex index) {
     return getValue(index.getCountIndex());
@@ -329,7 +329,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * <code>index</code>.
    *
    * @param index The index.
-   * @retun The count.
+   * @return The count.
    */
   public double getVariance(SampleIndex index) {
     return getValue(index.getVarianceIndex());
@@ -455,7 +455,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
   }
 
   /**
-   * Defer to <code>Object.hashCode().</code>
+   * Defer to <code>Object.hashCode()</code>.
    *
    * <p>We define <code>hashCode</code> to keep Checkstyle happy, but
    * we don't use it.

@@ -449,7 +449,7 @@ public final class ConsoleCommunicationImplementation
     }
 
     /**
-     * Register an {@link ConnectionListener}.
+     * Register an {@link AgentStatus.ConnectionListener}.
      *
      * @param listener The listener.
      */

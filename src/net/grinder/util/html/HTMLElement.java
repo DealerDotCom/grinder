@@ -47,7 +47,7 @@ public class HTMLElement extends AbstractHTMLNode {
   }
 
   /**
-   * Constructor for HTML fragment. {@link toText} and {@link toHTML}
+   * Constructor for HTML fragment. {@link #toText} and {@link #toHTML}
    * methods return representations of children without an enclosing
    * node.
    */

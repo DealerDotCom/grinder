@@ -42,7 +42,7 @@ interface ThreadContextLocator {
   /**
    * Set the <code>ThreadContext</code> for the current thread.
    *
-   * @param context The <code>ThreadContext</code>, or
+   * @param threadContext The <code>ThreadContext</code>, or
    * <code>null</code> if there is no appropriate context for this
    * thread.
    */

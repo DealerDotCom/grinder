@@ -57,9 +57,6 @@ public final class Connector {
    * Factory method that makes a TCP connection and returns a
    * corresponding socket.
    *
-   * @param hostString TCP address to connect to.
-   * @param port TCP port to connect to.
-   * @param connectionType The connection type.
    * @return A socket wired to the connection.
    * @throws CommunicationException If connection could not be
    * establish.

@@ -827,7 +827,6 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
      * @param url
      * @param suffixes
      * @return boolean
-     * @author ave bertrand
      */
     private boolean endsWith(String url, String[] suffixes) {
       boolean result = false;
@@ -1358,7 +1357,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
    *
    * @param resultBuffer buffer
    * @param pair couple (name, value) to add
-   * @param boolean handleSessionId
+   * @param handleSessionId Session id.
    * @return void
    */
   private void appendNVPair(StringBuffer resultBuffer, NVPair pair,

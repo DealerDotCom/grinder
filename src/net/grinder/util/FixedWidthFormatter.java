@@ -23,7 +23,7 @@ package net.grinder.util;
 
 
 /**
- * <p>StringFormatter for fixed width text cells</p>
+ * <p>StringFormatter for fixed width text cells.</p>
  *
  * <p>All white space is converted to plain spaces.</p>
  *
@@ -102,7 +102,7 @@ public class FixedWidthFormatter {
   }
 
   /**
-   * <p>Search  to set splitPosition as follows:
+   * <p>Search to set splitPosition. Algorithm is:
    * <ol>
    * <li>First new line in first m_width+1 characters (we replace all
    * new lines with splits)</li>

@@ -207,7 +207,7 @@ public final class GrinderProcess {
    * constructor sets up the static configuration, this does a
    * single execution.
    *
-   * @returns exit status to be indicated to parent process.
+   * @return Exit status to be indicated to parent process.
    */
   private void run() throws GrinderException, InterruptedException {
     final Logger logger = m_context.getProcessLogger();

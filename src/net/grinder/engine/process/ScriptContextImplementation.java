@@ -37,7 +37,7 @@ import net.grinder.util.Sleeper;
 
 
 /**
- * Implementation of {@link Grinder.ScriptContext}.
+ * Implementation of <code>ScriptContext</code>.
  *
  * @author Philip Aston
  * @version $Revision$

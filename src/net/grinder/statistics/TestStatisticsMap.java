@@ -193,7 +193,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
   }
 
   /**
-   * Defer to <code>Object.hashCode().</code>
+   * Defer to <code>Object.hashCode()</code>.
    *
    * <p>We define <code>hashCode</code> to keep Checkstyle happy, but
    * we don't use it.

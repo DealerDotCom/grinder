@@ -42,16 +42,8 @@ public class StatisticsTable {
   private static final int COLUMN_WIDTH = 12;
   private static final String COLUMN_SEPARATOR = " ";
 
-  /**
-   * @supplierCardinality 1
-   **/
   private final TestStatisticsMap m_testStatisticsMap;
 
-  /**
-   * @clientRole totals
-   * @supplierCardinality 1
-   * @link aggregation
-   **/
   private final DecimalFormat m_twoDPFormat = new DecimalFormat("0.00");
 
   private final FixedWidthFormatter m_headingFormatter =
@@ -69,9 +61,6 @@ public class StatisticsTable {
                             FixedWidthFormatter.FLOW_TRUNCATE,
                             COLUMN_WIDTH);
 
-  /**
-   * @supplierCardinality 1
-   **/
   private final StatisticsView m_statisticsView;
 
   /**

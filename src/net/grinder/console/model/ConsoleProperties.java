@@ -737,7 +737,7 @@ public final class ConsoleProperties {
    * <code>getDistributionFileFilterPattern().getPattern</code>.</p>
    *
    * @return The pattern.
-   * @sett #setDistributionFileFilterExpression
+   * @see #setDistributionFileFilterExpression
    */
   public Pattern getDistributionFileFilterPattern() {
     return m_distributionFileFilterPattern;

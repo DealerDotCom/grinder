@@ -48,7 +48,7 @@ public final class ListenerSupport {
   }
 
   /**
-   * Adapter interface for use with an {@link informListeners}.
+   * Adapter interface for use with an {@link #apply}.
    */
   public interface Informer {
     /**

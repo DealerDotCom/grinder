@@ -32,7 +32,7 @@ import net.grinder.common.Logger;
 
 
 /**
- * Manage sleeping
+ * Manage sleeping.
  *
  * <p>Several threads can safely use the same <code>Sleeper</code>.
  * </p>

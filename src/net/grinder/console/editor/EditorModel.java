@@ -385,7 +385,7 @@ public final class EditorModel {
     void bufferAdded(Buffer buffer);
 
     /**
-     * Called when a buffer's state has changed - i.e. the buffer has
+     * Called when a buffer's state has changed. I.e. the buffer has
      * become dirty, or become clean, or has been selected, or has
      * been unselected, or has become associated with a new file.
      *

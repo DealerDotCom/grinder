@@ -33,8 +33,7 @@ import net.grinder.util.Serialiser;
  *
  * @author Philip Aston
  * @version $Revision$
- * @stereotype singleton
- **/
+ */
 public final class StatisticsSetFactory {
 
   private static final StatisticsSetFactory s_instance =

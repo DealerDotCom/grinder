@@ -52,7 +52,7 @@ public final class FanOutServerSender
   /**
    * Constructor.
    *
-   * @param acceptor Acceptor that manages connections to our server socket.
+   * @param acceptedSocketSet Socket set.
    * @param kernel A kernel to use.
    * @throws CommunicationException If server socket could not be
    * bound.

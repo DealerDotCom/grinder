@@ -38,7 +38,6 @@ import net.grinder.util.Sleeper;
  *
  * @author Philip Aston
  * @version $Revision$
- * @stereotype singleton
  */
 final class ProcessContext {
   private final String m_grinderID;

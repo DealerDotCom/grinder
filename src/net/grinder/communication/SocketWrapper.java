@@ -42,7 +42,7 @@ final class SocketWrapper
 
   /**
    * As large as the largest message we may receive when calling
-   * {@link isPeerShutdown}. Currently this means as large as a {@link
+   * {@link #isPeerShutdown}. Currently this means as large as a {@link
    * CloseCommunicationMessage}.
    */
   private static final int BUFFER_SIZE = 512;

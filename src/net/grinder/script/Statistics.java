@@ -119,8 +119,7 @@ public interface Statistics  {
   /**
    * Return whether the statistics for the current test are available
    * for update. If this returns <code>true</code>, then other methods
-   * will not throw {@link InvalidContextException} or
-   * {@link StatisticsAlreadyReportedException}.
+   * will not throw {@link InvalidContextException}.
    * @return Whether the statistics for the current test are available
    * for update.
    */

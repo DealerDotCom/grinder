@@ -74,7 +74,7 @@ abstract class OptionsDialogHandler {
   /**
    * Constructor.
    *
-   * @param frame Parent frame.
+   * @param parentFrame Parent frame.
    * @param lookAndFeel The look and feel manager.
    * @param properties A {@link
    * net.grinder.console.model.ConsoleProperties} associated with

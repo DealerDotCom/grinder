@@ -36,7 +36,7 @@ import net.grinder.util.Directory;
  * agent cache state by calling .{@link
  * AgentCacheStateImplementation#setOutOfDate} on the result of {@link
  * #getAgentCacheState}. They may want to do this, for example, if a
- * parameter they will pass to {@link getHandler} changes and they are
+ * parameter they will pass to {@link #getHandler} changes and they are
  * using events from the {@link AgentCacheState} to update a UI.</p>
  *
  * @author Philip Aston
