@@ -28,7 +28,11 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.EventListener;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import net.grinder.console.common.DisplayMessageConsoleException;
@@ -93,6 +97,10 @@ public final class Buffer {
   private final Resources m_resources;
   private final TextSource m_textSource;
   private final File m_file;
+
+  /** Synchronise on m_listeners before accessing. */
+  private final List m_listeners = new LinkedList();
+
   private long m_lastModified;
   private boolean m_active;
 
@@ -176,6 +184,8 @@ public final class Buffer {
 
     m_textSource.setText(stringWriter.toString());
     m_lastModified = m_file.lastModified();
+
+    fireBufferChanged();
   }
 
   /**
@@ -215,6 +225,8 @@ public final class Buffer {
     }
 
     m_lastModified = m_file.lastModified();
+
+    fireBufferChanged();
   }
 
   /**
@@ -278,7 +290,10 @@ public final class Buffer {
    * inactive.
    */
   void setActive(boolean active) {
-    m_active = active;
+    if (m_active != active) {
+      m_active = active;
+      fireBufferChanged();
+    }
   }
 
   /**
@@ -308,5 +323,38 @@ public final class Buffer {
     public String toString() {
       return m_name;
     }
+  }
+
+  private void fireBufferChanged() {
+    synchronized (m_listeners) {
+      final Iterator iterator = m_listeners.iterator();
+
+      while (iterator.hasNext()) {
+        final Listener listener = (Listener)iterator.next();
+        listener.bufferChanged();
+      }
+    }
+  }
+
+  /**
+   * Add a new listener.
+   *
+   * @param listener The listener.
+   */
+  public void addListener(Listener listener) {
+    synchronized (m_listeners) {
+      m_listeners.add(listener);
+    }
+  }
+
+  /**
+   * Interface for listeners.
+   */
+  public interface Listener extends EventListener {
+
+    /**
+     * Called when a buffer has changed.
+     */
+    void bufferChanged();
   }
 }

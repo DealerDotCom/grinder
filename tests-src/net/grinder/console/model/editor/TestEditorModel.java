@@ -60,6 +60,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     textSourceFactoryStubFactory.assertSuccess("create");
     textSourceFactoryStubFactory.assertNoMoreCalls();
     assertNotNull(stringTextSourceFactory.getLast().getText());
+    assertNull(editorModel.getSelectedBuffer());
   }
 
   public void testSelectDefaultBuffer() throws Exception {
@@ -82,9 +83,11 @@ public class TestEditorModel extends AbstractFileTestCase {
 
     editorModel.selectDefaultBuffer();
 
-    listener1StubFactory.assertSuccess("bufferActivated", Buffer.class);
+    assertNotNull(editorModel.getSelectedBuffer());
+    assertNull(editorModel.getSelectedBuffer().getFile());
+    listener1StubFactory.assertSuccess("bufferChanged", Buffer.class);
     listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertSuccess("bufferActivated", Buffer.class);
+    listener2StubFactory.assertSuccess("bufferChanged", Buffer.class);
     listener2StubFactory.assertNoMoreCalls();
 
     // Select same buffer is a noop.
@@ -126,18 +129,20 @@ public class TestEditorModel extends AbstractFileTestCase {
 
     editorModel.selectBufferForFile(file1);
 
+    assertNotNull(editorModel.getSelectedBuffer());
+    assertEquals(file1, editorModel.getSelectedBuffer().getFile());
     textSourceFactoryStubFactory.assertSuccess("create");
     textSourceFactoryStubFactory.assertNoMoreCalls();
 
     final CallRecorder.CallData callData = listener1StubFactory.getCallData();
-    assertEquals("bufferActivated", callData.getMethodName());
+    assertEquals("bufferChanged", callData.getMethodName());
     final Object[] parameters = callData.getParameters();
     assertEquals(1, parameters.length);
     final Buffer bufferForFile1 = (Buffer)parameters[0];
     assertTrue(bufferForFile1.isActive());
     listener1StubFactory.assertNoMoreCalls();
 
-    listener2StubFactory.assertSuccess("bufferActivated", bufferForFile1);
+    listener2StubFactory.assertSuccess("bufferChanged", bufferForFile1);
     listener2StubFactory.assertNoMoreCalls();
 
     // Select same buffer is a noop.
@@ -152,21 +157,31 @@ public class TestEditorModel extends AbstractFileTestCase {
     assertTrue(!bufferForFile1.isActive());
     textSourceFactoryStubFactory.assertSuccess("create");
     textSourceFactoryStubFactory.assertNoMoreCalls();
-    listener1StubFactory.assertSuccess("bufferActivated", Buffer.class);
+    listener1StubFactory.assertSuccess("bufferChanged", bufferForFile1);
+    listener1StubFactory.assertSuccess("bufferChanged", Buffer.class);
     listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertSuccess("bufferActivated", Buffer.class);
+    listener2StubFactory.assertSuccess("bufferChanged", bufferForFile1);
+    listener2StubFactory.assertSuccess("bufferChanged", Buffer.class);
     listener2StubFactory.assertNoMoreCalls();
 
     editorModel.selectBufferForFile(file1);
 
     textSourceFactoryStubFactory.assertNoMoreCalls();
     assertTrue(bufferForFile1.isActive());
-    listener1StubFactory.assertSuccess("bufferActivated", bufferForFile1);
+    listener1StubFactory.assertSuccess("bufferChanged", Buffer.class);
+    listener1StubFactory.assertSuccess("bufferChanged", bufferForFile1);
     listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertSuccess("bufferActivated", bufferForFile1);
+    listener2StubFactory.assertSuccess("bufferChanged", Buffer.class);
+    listener2StubFactory.assertSuccess("bufferChanged", bufferForFile1);
     listener2StubFactory.assertNoMoreCalls();
 
-    ((StringTextSource)bufferForFile1.getTextSource()).markDirty();
+    final StringTextSource textSource1 =
+      (StringTextSource)bufferForFile1.getTextSource();
+
+    textSource1.markDirty();
+    textSource1.markDirty();
+    textSource1.markDirty();
+    textSource1.markDirty();
     listener1StubFactory.assertSuccess("bufferChanged", bufferForFile1);
     listener1StubFactory.assertNoMoreCalls();
     listener2StubFactory.assertSuccess("bufferChanged", bufferForFile1);

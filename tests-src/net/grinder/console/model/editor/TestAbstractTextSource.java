@@ -59,15 +59,23 @@ public class TestAbstractTextSource extends TestCase {
     textSource.setChanged();
 
     assertTrue(textSource.isDirty());
-    listener1StubFactory.assertSuccess("textChanged");
+    listener1StubFactory.assertSuccess("textChanged", Boolean.FALSE);
     listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertSuccess("textChanged");
+    listener2StubFactory.assertSuccess("textChanged", Boolean.FALSE);
     listener2StubFactory.assertNoMoreCalls();
 
     textSource.setClean();
 
     assertTrue(!textSource.isDirty());
+    listener1StubFactory.assertNoMoreCalls();
     listener2StubFactory.assertNoMoreCalls();
+
+    textSource.setChanged();
+
+    assertTrue(textSource.isDirty());
+    listener1StubFactory.assertSuccess("textChanged", Boolean.TRUE);
+    listener1StubFactory.assertNoMoreCalls();
+    listener2StubFactory.assertSuccess("textChanged", Boolean.TRUE);
     listener2StubFactory.assertNoMoreCalls();
   }
 }

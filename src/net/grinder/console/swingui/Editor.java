@@ -64,6 +64,8 @@ final class Editor {
   private final JEditTextArea m_scriptTextArea;
   private final TitledBorder m_titledBorder;
 
+  private Buffer m_viewedBuffer;
+
   /**
    * Constructor.
    *
@@ -108,26 +110,26 @@ final class Editor {
     // Initial focus?
 
     m_editorModel.addListener(new EditorModel.Listener() {
-        public void bufferActivated(Buffer buffer) {
-          final File file = buffer.getFile();
+        public void bufferChanged(Buffer buffer) {
+          if (buffer.isActive() && buffer != m_viewedBuffer) {
+            m_viewedBuffer = buffer;
 
-          m_titledBorder.setTitle(
-            file != null ?
-            file.getPath() : resources.getString("editor.title"));
+            final File file = buffer.getFile();
 
-          final JEditSyntaxTextSource textSource =
-            (JEditSyntaxTextSource)buffer.getTextSource();
+            m_titledBorder.setTitle(
+              file != null ?
+              file.getPath() : resources.getString("editor.title"));
 
-          m_scriptTextArea.setDocument(textSource.getSyntaxDocument());
+            final JEditSyntaxTextSource textSource =
+              (JEditSyntaxTextSource)buffer.getTextSource();
 
-          //    m_scriptTextArea.setCaretPosition(0);
-          m_scriptTextArea.setTokenMarker(getTokenMarker(buffer.getType()));
+            m_scriptTextArea.setDocument(textSource.getSyntaxDocument());
+            m_scriptTextArea.setTokenMarker(getTokenMarker(buffer.getType()));
 
-          // Repaint so the border is updated.
-          m_scriptTextArea.repaint();
+            // Repaint so the border is updated.
+            m_scriptTextArea.repaint();
+          }
         }
-
-        public void bufferChanged(Buffer buffer) { }
       });
 
     m_editorModel.selectDefaultBuffer();

@@ -95,9 +95,11 @@ public final class ConsoleUI implements ModelListener {
   private final LookAndFeel m_lookAndFeel;
 
   private final Map m_actionTable = new HashMap();
-  private final StartAction m_startAction;
+  private final CustomAction m_startAction;
   private final StopAction m_stopAction;
+  private final CustomAction m_saveFileAction;
   private final Model m_model;
+  private final EditorModel m_editorModel;
   private final JFrame m_frame;
   private final JLabel m_stateLabel;
   private final SamplingControlPanel m_samplingControlPanel;
@@ -138,6 +140,7 @@ public final class ConsoleUI implements ModelListener {
 
     m_model = model;
     final Resources resources = m_model.getResources();
+    m_editorModel = new EditorModel(resources, new Editor.TextSourceFactory());
 
     // LookAndFeel constructor will set initial Look and Feel from properties.
     m_lookAndFeel = new LookAndFeel(m_model.getProperties());
@@ -161,14 +164,15 @@ public final class ConsoleUI implements ModelListener {
 
     m_startAction = new StartAction();
     m_stopAction = new StopAction();
+    m_saveFileAction = new SaveFileAction();
 
     addAction(m_startAction);
     addAction(m_stopAction);
+    addAction(m_saveFileAction);
     addAction(new AboutAction(resources.getImageIcon("logo.image")));
     addAction(new ChooseDirectoryAction());
     addAction(new DelegateAction("close-file", null));
     addAction(new DelegateAction("distribute-files", distributeFilesHandler));
-    addAction(new DelegateAction("save-file", null));
     addAction(new DelegateAction("save-file-as", null));
     addAction(new DelegateAction("start-processes", startProcessesHandler));
     addAction(new ExitAction());
@@ -286,15 +290,12 @@ public final class ConsoleUI implements ModelListener {
     editorBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
     editorBorder.setTitleJustification(TitledBorder.RIGHT);
 
-    final EditorModel editorModel =
-      new EditorModel(resources, new Editor.TextSourceFactory());
-
-    final Editor editor = new Editor(resources, editorModel, editorBorder);
+    final Editor editor = new Editor(resources, m_editorModel, editorBorder);
 
     m_fileTree = new FileTree(m_model.getProperties(),
                               resources,
                               getErrorHandler(),
-                              editorModel);
+                              m_editorModel);
 
     addAction(m_fileTree.getOpenFileAction());
 
@@ -787,6 +788,24 @@ public final class ConsoleUI implements ModelListener {
       //  the value doesn't change.
       firePropertyChange(SET_ACTION_PROPERTY, null, m_startAction);
       updateStateLabel();
+    }
+  }
+
+  /**
+   * Action for opening the currently selected file in the tree.
+   */
+  private final class SaveFileAction extends CustomAction {
+    public SaveFileAction() {
+      super(m_model.getResources(), "save-file");
+    }
+
+    public void actionPerformed(ActionEvent event) {
+      try {
+        m_editorModel.getSelectedBuffer().save();
+      }
+      catch (Exception e) {
+        getErrorHandler().handleException(e);
+      }
     }
   }
 

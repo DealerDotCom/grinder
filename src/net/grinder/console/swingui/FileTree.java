@@ -36,7 +36,6 @@ import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
@@ -65,7 +64,7 @@ import net.grinder.console.model.editor.EditorModel;
  * @author Philip Aston
  * @version $Revision$
  */
-final class FileTree extends JPanel {
+final class FileTree {
 
   private final Resources m_resources;
   private final FileTreeModel m_fileTreeModel = new FileTreeModel();
@@ -156,12 +155,12 @@ final class FileTree extends JPanel {
     m_scrollPane = new JScrollPane(m_tree);
 
     editorModel.addListener(new EditorModel.Listener() {
-        public void bufferActivated(Buffer buffer) {
-          refreshTree();
-        }
-
         public void bufferChanged(Buffer buffer) {
-          refreshTree();
+          // Couldn't find a nice way to repaint a single node. This:
+          //    m_tree.getSelectionModel().setSelectionPath(fileNode.getPath());
+          // doesn't work if the node is already selected. Give up and
+          // repaint the world:
+          m_tree.treeDidChange();
         }
       });
 
@@ -360,15 +359,6 @@ final class FileTree extends JPanel {
     synchronized (m_listeners) {
       m_listeners.add(listener);
     }
-  }
-
-  private void refreshTree() {
-    // Couldn't find a nice way to repaint a single node. This:
-    //    m_tree.getSelectionModel().setSelectionPath(fileNode.getPath());
-    // doesn't work if the node is already selected. Give up and
-    // repaint the world:
-
-    m_tree.treeDidChange();
   }
 
   private void fireFileSelected(FileTreeModel.FileNode fileNode) {

@@ -68,8 +68,8 @@ public abstract class AbstractTextSource implements TextSource {
    * changed.
    */
   protected final void setChanged() {
+    fireTextChanged(!m_dirty);
     m_dirty = true;
-    fireTextChanged();
   }
 
     /**
@@ -83,13 +83,13 @@ public abstract class AbstractTextSource implements TextSource {
     }
   }
 
-  private void fireTextChanged() {
+  private void fireTextChanged(boolean firstEdit) {
     synchronized (m_listeners) {
       final Iterator iterator = m_listeners.iterator();
 
       while (iterator.hasNext()) {
         final Listener listener = (Listener)iterator.next();
-        listener.textChanged();
+        listener.textChanged(firstEdit);
       }
     }
   }

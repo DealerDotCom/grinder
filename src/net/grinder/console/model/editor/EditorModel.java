@@ -47,10 +47,11 @@ public final class EditorModel {
 
   /** Synchronise on m_listeners before accessing. */
   private final List m_listeners = new LinkedList();
+  private boolean m_supressBufferChangeNotification;
 
   private final Map m_fileBuffers = new HashMap();
 
-  private Buffer m_activeBuffer;
+  private Buffer m_selectedBuffer;
 
   /**
    * Constructor.
@@ -62,17 +63,23 @@ public final class EditorModel {
                      TextSource.Factory textSourceFactory) {
     m_resources = resources;
     m_textSourceFactory = textSourceFactory;
+    m_defaultBuffer = createBuffer(null);
+  }
 
-    final TextSource textSource = m_textSourceFactory.create();
-    m_defaultBuffer = new Buffer(m_resources, textSource);
-    textSource.addListener(new TextSourceListener(m_defaultBuffer));
+  /**
+   * Get the currently active buffer.
+   *
+   * @return The active buffer.
+   */
+  public Buffer getSelectedBuffer() {
+    return m_selectedBuffer;
   }
 
   /**
    * Select the default buffer.
    */
   public void selectDefaultBuffer() {
-    setActiveBuffer(m_defaultBuffer);
+    selectBuffer(m_defaultBuffer);
   }
 
   /**
@@ -90,54 +97,74 @@ public final class EditorModel {
       buffer = existingBuffer;
     }
     else {
-      final TextSource textSource = m_textSourceFactory.create();
-      buffer = new Buffer(m_resources, textSource, file);
-      textSource.addListener(new TextSourceListener(buffer));
+      buffer = createBuffer(file);
 
-      buffer.load();
+      // Listeners will be notified anyway because of the
+      // buffer.setActive().
+      m_supressBufferChangeNotification = true;
+
+      try {
+        buffer.load();
+      }
+      finally {
+        m_supressBufferChangeNotification = false;
+      }
 
       m_fileBuffers.put(file, buffer);
     }
 
-    setActiveBuffer(buffer);
+    selectBuffer(buffer);
 
     return buffer;
   }
 
-  private void setActiveBuffer(Buffer buffer) {
-    if (m_activeBuffer != buffer) {
-      if (m_activeBuffer != null) {
-        m_activeBuffer.setActive(false);
+  private void selectBuffer(Buffer buffer) {
+    if (m_selectedBuffer != buffer) {
+      if (m_selectedBuffer != null) {
+        m_selectedBuffer.setActive(false);
       }
 
       buffer.setActive(true);
-      m_activeBuffer = buffer;
-
-      synchronized (m_listeners) {
-        final Iterator iterator = m_listeners.iterator();
-
-        while (iterator.hasNext()) {
-          final Listener listener = (Listener)iterator.next();
-          listener.bufferActivated(buffer);
-        }
-      }
+      m_selectedBuffer = buffer;
     }
   }
 
-  private class TextSourceListener implements TextSource.Listener {
-    private final Buffer m_buffer;
+  private Buffer createBuffer(File file) {
+    final TextSource textSource = m_textSourceFactory.create();
 
-    public TextSourceListener(Buffer buffer) {
-      m_buffer = buffer;
+    final Buffer buffer;
+    
+    if (file != null) {
+      buffer = new Buffer(m_resources, textSource, file);
+    }
+    else {
+      buffer = new Buffer(m_resources, textSource);
     }
 
-    public void textChanged() {
+    buffer.addListener(new Buffer.Listener() {
+        public void bufferChanged() { fireBufferChanged(buffer); }
+      });
+
+    textSource.addListener(new TextSource.Listener() {
+        public void textChanged(boolean firstEdit) {
+          if (firstEdit) {
+            fireBufferChanged(buffer);
+          }
+        }
+      });
+
+    return buffer;
+  }
+
+  private void fireBufferChanged(Buffer buffer) {
+
+    if (!m_supressBufferChangeNotification) {
       synchronized (m_listeners) {
         final Iterator iterator = m_listeners.iterator();
 
         while (iterator.hasNext()) {
           final Listener listener = (Listener)iterator.next();
-          listener.bufferChanged(m_buffer);
+          listener.bufferChanged(buffer);
         }
       }
     }
@@ -161,13 +188,6 @@ public final class EditorModel {
 
     /**
      * Called when a buffer has been activated.
-     *
-     * @param buffer The buffer.
-     */
-    void bufferActivated(Buffer buffer);
-
-    /**
-     * Called when a buffer has been changed.
      *
      * @param buffer The buffer.
      */

@@ -68,8 +68,11 @@ public interface TextSource {
 
     /**
      * Called when the {@link TextSource} has changed.
+     *
+     * @param firstEdit <code>true</code> iff the
+     * <code>TextSource</code> was previously clean.
      */
-    void textChanged();
+    void textChanged(boolean firstEdit);
   }
 
   /**
