@@ -36,6 +36,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import net.grinder.common.GrinderException;
+import net.grinder.common.Logger;
 import net.grinder.plugin.http.HTTPPluginTCPProxyFilter;
 import net.grinder.plugin.http.HTTPPluginTCPProxyFilter2;
 import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter;
@@ -52,6 +54,8 @@ import net.grinder.tools.tcpproxy.TCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory;
 import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactoryImplementation;
+import net.grinder.util.JVM;
+import net.grinder.util.SimpleLogger;
 
 
 /**
@@ -68,9 +72,18 @@ public final class TCPProxy {
    * Entry point.
    *
    * @param args Command line arguments.
+   * @throws GrinderException on a unexpected fatal error.
    */
-  public static void main(String[] args) {
-    final TCPProxy tcpProxy = new TCPProxy(args);
+  public static void main(String[] args) throws GrinderException {
+    final Logger logger = new SimpleLogger("tcpproxy",
+                                           new PrintWriter(System.out),
+                                           new PrintWriter(System.err));
+
+    if (!JVM.getInstance().haveRequisites(logger)) {
+      return;
+    }
+
+    final TCPProxy tcpProxy = new TCPProxy(args, logger);
     tcpProxy.run();
   }
 
@@ -144,8 +157,8 @@ public final class TCPProxy {
 
   private TCPProxyEngine m_proxyEngine = null;
 
-  private TCPProxy(String[] args) {
-    final PrintWriter outputWriter = new PrintWriter(System.out);
+  private TCPProxy(String[] args, Logger logger)  {
+    final PrintWriter outputWriter = logger.getOutputLogWriter();
 
     // Default values.
     TCPProxyFilter requestFilter = new EchoFilter(outputWriter);
