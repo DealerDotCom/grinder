@@ -69,13 +69,26 @@ cache.
 
 ***** Release 2
 
+Task: File Store directory should have a README describing what its
+for.
+
 Task: Console to indicate dirty state.
+	Where should this be stored?
+
+	Should be reset when:
+		File distribution completes, unless buffer modified in
+		meantime.
+
+	Should be set when:
+		Buffer modified
+
+	-> calculate from distribution status. But DistributionStatus
+	is package scoped?
+
 Task: Console to check dirty state on play and auto broadcast. Need
 some way of synchronising before starting run.
 Task: Console to watch local file system for edits. 
 Task: Add warning if saving outside of distribution.
-Task: File Store directory should have a README describing what its
-for.
 Task: Guard against distributing agent cache directory. Can mark with
 a special file - maybe the README?
 
@@ -322,6 +335,7 @@ HTTP plug-in.
 Document G2 adapter.
 
 http://213.243.170.17/MrWorm/35
+http://www.mooreds.com/weblog/archives/000111.html
 
 Links to gmane, how to search lists.
 

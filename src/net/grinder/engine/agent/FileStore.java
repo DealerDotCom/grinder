@@ -22,6 +22,7 @@
 package net.grinder.engine.agent;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import net.grinder.common.Logger;
@@ -33,6 +34,7 @@ import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
+import net.grinder.util.StreamCopier;
 
 
 /**
@@ -46,6 +48,7 @@ final class FileStore {
 
   private final Logger m_logger;
 
+  private final File m_readmeFile;
   private final Directory m_incomingDirectory;
   private final Directory m_currentDirectory;
   private boolean m_incremental;
@@ -68,6 +71,8 @@ final class FileStore {
       }
     }
 
+    m_readmeFile = new File(rootDirectory, "README.txt");
+
     try {
       m_incomingDirectory = new Directory(new File(rootDirectory, "incoming"));
       m_currentDirectory = new Directory(new File(rootDirectory, "current"));
@@ -82,6 +87,8 @@ final class FileStore {
   public Directory getDirectory() throws FileStoreException {
     try {
       synchronized (m_incomingDirectory) {
+        // copyTo will only create the current directory if the
+        // incoming directory exists.
         m_incomingDirectory.copyTo(m_currentDirectory, m_incremental);
       }
 
@@ -103,7 +110,6 @@ final class FileStore {
 
             try {
               synchronized (m_incomingDirectory) {
-                m_incomingDirectory.create();
                 m_incomingDirectory.deleteContents();
               }
             }
@@ -117,6 +123,8 @@ final class FileStore {
             try {
               synchronized (m_incomingDirectory) {
                 m_incomingDirectory.create();
+
+                createReadmeFile();
 
                 final FileContents fileContents =
                   ((DistributeFileMessage)message).getFileContents();
@@ -144,6 +152,20 @@ final class FileStore {
           delegate.shutdown();
         }
       };
+  }
+
+  private void createReadmeFile() {
+    if (!m_readmeFile.exists()) {
+      try {
+        new StreamCopier(4096, true).
+          copy(
+            getClass().getResourceAsStream("resources/FileStoreReadme.txt"),
+            new FileOutputStream(m_readmeFile));
+      }
+      catch (IOException e) {
+        // Ignore.
+      }
+    }
   }
 
   /**

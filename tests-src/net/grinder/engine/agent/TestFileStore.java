@@ -87,6 +87,11 @@ public class TestFileStore extends AbstractFileTestCase {
     }
     catch (FileStore.FileStoreException e) {
     }
+
+    // Perfectly fine to create a FileStore around a directory that
+    // doens't yet exist.
+    final File notThere = new File(getDirectory(), "notThere");
+    final FileStore fileStore2 = new FileStore(notThere, null);
   }
 
   public void testSender() throws Exception {
@@ -131,14 +136,36 @@ public class TestFileStore extends AbstractFileTestCase {
     final FileContents fileContents0 =
       new FileContents(sourceDirectory, new File("dir/file0"));
 
+    final File readmeFile = new File(getDirectory(), "README.txt");
+    final File incomingDirectoryFile = new File(getDirectory(), "incoming");
+    final File currentDirectoryFile = new File(getDirectory(), "current");
+    assertEquals(currentDirectoryFile, fileStore.getDirectory().getAsFile());
+
+    // Before message sent, none of our files or directories exist.
+    assertTrue(!readmeFile.exists());
+    assertTrue(!incomingDirectoryFile.exists());
+    assertTrue(!currentDirectoryFile.exists());
+
     final Message message1 = new DistributeFileMessage(fileContents0);
     sender.send(message1);
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
     delegateSenderStubFactory.assertNoMoreCalls();
 
-    final File targetFile = new File(getDirectory(), "incoming/dir/file0");
+    // Message has been sent, the incoming directory and the read me exist.
+    assertTrue(readmeFile.exists());
+    assertTrue(incomingDirectoryFile.exists());
+    assertTrue(!currentDirectoryFile.exists());
+
+    final File targetFile = new File(incomingDirectoryFile, "dir/file0");
     assertTrue(targetFile.canRead());
+
+    assertEquals(currentDirectoryFile, fileStore.getDirectory().getAsFile());
+
+    // Now getDirectory() has been called, both directories exist.
+    assertTrue(readmeFile.exists());
+    assertTrue(incomingDirectoryFile.exists());
+    assertTrue(currentDirectoryFile.exists());
 
     // Test with a bad message.
     targetFile.setReadOnly();
