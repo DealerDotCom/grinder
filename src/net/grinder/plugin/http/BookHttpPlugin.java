@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
-// Copyright (C) 2000  Philip Aston
+// Copyright (C) 2001  Paco Gomez
+// Copyright (C) 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,58 +18,38 @@
 
 package net.grinder.plugin.http;
 
-import java.text.DecimalFormat;
+import java.util.Set;
 
-import net.grinder.plugininterface.PluginContext;
+import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.TestDefinition;
+import net.grinder.plugininterface.ThreadCallbacks;
 
 
 /**
+ * Simple HTTP client benchmark.
+ * 
  * @author Philip Aston
  * @version $Revision$
  */
-public class BookHttpPlugin extends HttpPlugin {
-
-    private final static String TEMPLATE_STRING = "$GRINDER_VARIABLE";
-
-    protected class CallData extends HttpPlugin.CallData
-    {
-	private String m_phone = "2000";
-	private DecimalFormat m_twoDigitsFormat = new DecimalFormat("00");
-
-	public CallData(PluginContext pluginContext, TestDefinition test)
-	    throws PluginException
-	{
-	    super(test);
-
-	    final String original = getURLString();
-
-	    if (original != null) {
-		final int index = original.indexOf(TEMPLATE_STRING);
-
-		if (index >= 0) {
-		    final StringBuffer buffer = new StringBuffer();
-		    
-		    buffer.append(original.substring(0, index));
-		    buffer.append("555");
-		    buffer.append(pluginContext.getHostIDString());
-		    buffer.append(pluginContext.getProcessIDString());
-		    buffer.append(m_twoDigitsFormat.format(
-				      pluginContext.getThreadID()));
-		    buffer.append(original.substring(
-				      index + TEMPLATE_STRING.length()));
-
-		    setURLString(buffer.toString());
-		}
-	    }
-	}
-    }
-
-    protected HttpPlugin.CallData createCallData(PluginContext gc,
-						 TestDefinition test)
+public class BookHttpPlugin implements GrinderPlugin
+{
+    /**
+     * This method is executed when the thread starts. It is only
+     * executed once.
+     */
+    public ThreadCallbacks createThreadCallbackHandler()
 	throws PluginException
     {
-	return new CallData(gc, test);
+	return new BookHttpPluginThreadCallbacks();
+    }
+    
+
+    /**
+     * Returns a Set of Tests. Returns null if the tests are to be
+     * defined in the properties file.
+     */
+    public Set getTests()
+    {
+	return null;
     }
 }

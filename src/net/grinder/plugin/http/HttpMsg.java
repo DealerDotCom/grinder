@@ -21,7 +21,7 @@ import java.io.*;
 import java.net.*;
 import java.util.Hashtable;
 
-import net.grinder.plugininterface.PluginContext;
+import net.grinder.plugininterface.PluginThreadContext;
 
 
 /**
@@ -36,15 +36,15 @@ import net.grinder.plugininterface.PluginContext;
  */
 public class HttpMsg
 {
-    private final PluginContext m_pluginContext;
+    private final PluginThreadContext m_pluginThreadContext;
     private boolean m_useCookie;
     private boolean m_followRedirects;
     private String m_cookie;
 
-    public HttpMsg(PluginContext pluginContext, boolean useCookie,
+    public HttpMsg(PluginThreadContext pluginThreadContext, boolean useCookie,
 		   boolean followRedirects)
     {
-	m_pluginContext = pluginContext;
+	m_pluginThreadContext = pluginThreadContext;
 	m_useCookie = useCookie;
 	m_followRedirects = followRedirects;
 	reset();
@@ -69,7 +69,7 @@ public class HttpMsg
 	final String postString = requestData.getPostString();
 
 
-	m_pluginContext.startTimer();
+	m_pluginThreadContext.startTimer();
 
 	HttpURLConnection connection;
 
@@ -77,7 +77,7 @@ public class HttpMsg
 	    connection = (HttpURLConnection) url.openConnection();
 	}
 	finally {
-	    m_pluginContext.stopTimer();
+	    m_pluginThreadContext.stopTimer();
 	}
 
 	final long ifModifiedSince = requestData.getIfModifiedSince();
@@ -139,12 +139,12 @@ public class HttpMsg
 	    in.close();
 	    stringWriter.close();
 	    
-	    m_pluginContext.logMessage(urlString + " OK");
+	    m_pluginThreadContext.logMessage(urlString + " OK");
 
 	    return stringWriter.toString();
 	}
 	else if (responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
-	    m_pluginContext.logMessage(urlString + " was not modified");
+	    m_pluginThreadContext.logMessage(urlString + " was not modified");
 	}
 	else if (responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
 		 responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
@@ -152,7 +152,7 @@ public class HttpMsg
 	    // It would be possible to perform the check
 	    // automatically, but for now just chuck out some
 	    // information.
-	    m_pluginContext.logMessage(urlString +
+	    m_pluginThreadContext.logMessage(urlString +
 				       " returned a redirect (" +
 				       responseCode + "). " +
 				       "Ensure the next URL is " +
@@ -165,7 +165,7 @@ public class HttpMsg
 	    return null;
 	}
 	else {
-	    m_pluginContext.logError("Unknown response code: " + responseCode +
+	    m_pluginThreadContext.logError("Unknown response code: " + responseCode +
 			       " for " + urlString);
 	}
 
