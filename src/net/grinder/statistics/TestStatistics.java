@@ -32,29 +32,9 @@ package net.grinder.statistics;
 public interface TestStatistics extends RawStatistics {
 
   /**
-   * Increment the <em>errors</em> statistic by one.
-   **/
-  void addError();
-
-  /**
-   * Increment the <em>untimedTests</em> statistic by one.
-   * @see #addTest(long)
-   **/
-  void addTest();
-
-  /**
-   * Increment the <em>timedTests</em> statistic by one and
-   * add the given <code>time</code> to the
-   * <em>timedTestTime</em> statistic.
-   *
-   * @param time The test time.
-   * @see #addTest()
-   */
-  void addTest(long time);
-
-  /**
-   * Return the sum of the <em>timedTests</em> and
-   * <em>untimedTests</em> statistics.
+   * Return the number of tests. This is equal to the sum of the
+   * <em>timedTests</em> <em>count</em> value and the
+   * <em>untimedTests</em> value.
    *
    * @return a <code>long</code> value
    */

@@ -32,6 +32,9 @@ import net.grinder.util.Serialiser;
  * Wire a {@link RawStatisticsImplementation} to implement {@link
  * TestStatistics}.
  *
+ * TODO probably want to get rid of this, or at least change it to use
+ * delegation.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -39,21 +42,16 @@ final class TestStatisticsImplementation
   extends RawStatisticsImplementation implements TestStatistics {
 
   private static final StatisticsIndexMap.LongIndex s_errorsIndex;
-  private static final StatisticsIndexMap.LongIndex s_timedTestsIndex;
   private static final StatisticsIndexMap.LongIndex s_untimedTestsIndex;
-  private static final StatisticsIndexMap.LongIndex s_timedTestTimeIndex;
-  private static final StatisticsIndexMap.DoubleIndex s_timedTestVarianceIndex;
+  private static final StatisticsIndexMap.LongSampleIndex s_timedTestsIndex;
 
   static {
     final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
     try {
       s_errorsIndex = indexMap.getIndexForLong("errors");
-      s_timedTestsIndex = indexMap.getIndexForLong("timedTests");
       s_untimedTestsIndex = indexMap.getIndexForLong("untimedTests");
-      s_timedTestTimeIndex = indexMap.getIndexForLong("timedTestTime");
-      s_timedTestVarianceIndex =
-        indexMap.getIndexForDouble("timedTestVariance");
+      s_timedTestsIndex = indexMap.getIndexForLongSample("timedTests");
     }
     catch (GrinderException e) {
       throw new ExceptionInInitializerError(
@@ -102,22 +100,9 @@ final class TestStatisticsImplementation
     super(in, serialiser);
   }
 
-  public void addError() {
-    addValue(s_errorsIndex, 1);
-  }
-
-  public void addTest() {
-    addValue(s_untimedTestsIndex, 1);
-  }
-
-  public void addTest(long time) {
-    addValue(s_timedTestsIndex, 1);
-    addValue(s_timedTestTimeIndex, time);
-  }
-
   public long getTests() {
     return
-      getValue(s_timedTestsIndex) +
+      getCount(s_timedTestsIndex) +
       getValue(s_untimedTestsIndex);
   }
 
@@ -126,10 +111,10 @@ final class TestStatisticsImplementation
   }
 
   public double getAverageTestTime() {
-    final long timedTests = getValue(s_timedTestsIndex);
+    final long count = getCount(s_timedTestsIndex);
 
     return
-      timedTests == 0 ?
-      Double.NaN : getValue(s_timedTestTimeIndex) / (double)timedTests;
+      count == 0 ?
+      Double.NaN : getSum(s_timedTestsIndex) / (double)count;
   }
 }
