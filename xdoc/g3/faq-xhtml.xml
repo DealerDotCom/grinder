@@ -297,8 +297,7 @@ grinder.grinderPort=1234
 <p>For most modern TCP stacks, e.g Windows 95/98/NT, Linux,
 multicast works out of the box.</p>
 
-<p>Under Linux, you may also need to set up the routing table.
-Try:</p>
+<p>On Linux, you may also need to set up the routing table. Try:</p>
 
 <blockquote>
 <pre>
@@ -310,7 +309,7 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 with multicast. You may need to disable them.</p>
 
 <h3><a name="multicast-w2k">What do I need to do to set up multicast
-under Windows 2000?</a></h3>
+on Windows 2000?</a></h3>
 
 <p>With a stand alone Windows 2000 machine, you might experience
 similar grief to myself. I found that I could only get multicast to
@@ -357,6 +356,50 @@ Name: DisableDHCPMediaSense
 Type: REG_DWORD 
 Data: 0x00000001 (1)
 </pre></blockquote>
+
+<h3><a name="windows-address-in-use">What can I do about <em>address in use</em> exceptions on Microsoft Windows machines?</a></h3>
+
+<p><em>Answer courtesy of Venkat:.</em></p>
+
+<blockquote>
+
+<p>Recently, there have been a couple posts from people facing the
+<em>address in use</em> exception when running The Grinder. I also
+faced the same issue and here is what I found and how I resolved
+it.</p>
+
+<p>Windows OS TCP-IP system has a parameter that controls the maximum
+port number used when an application requests any available user port
+from the system. By default, ephemeral (that is, short-lived) ports
+are allocated between the values of 1024 and 5000 inclusive. During a
+Grinder test, if we exceed this limit, we get the <em>address in
+use</em> exception. To make it more complicated, there is another
+parameter that says once the application closes a TCP connection, how
+long the OS will wait before reclaiming the port for the connection.
+The default value for this is 4 minutes.</p>
+
+<p>Due to the above, often the default Windows configuration isn't
+sufficent to run load tests. To change this, modify the following
+Registry values under the key
+<code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</code>:</p>
+
+<p>
+<blockquote><pre>
+MaxUserPort       = dword:00004e20 (20,000 decimal)
+TcpTimedWaitDelay = dword:0000001e (30 decimal)
+</pre></blockquote>
+</p>
+
+<p>The above was sufficient for my testing. Adjust the
+<code>MaxUserPort</code> to a larger number if you still run into the
+exception. Of course, the OS needs to be rebooted once the setting is
+changed. MS documentation says the <code>MaxUserPort</code> setting is
+available since Windows NT 3.51 Service Pack 5. I am not sure which
+version introduced the <code>TcpTimedWaitDelayed</code> setting. You
+can confirm whether your OS version supports this by looking into the
+Registry location above.</p>
+
+</blockquote>
 
 <h3><a name="grinder-vs-loadrunner">How does The Grinder stack up
 against a commercial tool like Mercury Interactive's
