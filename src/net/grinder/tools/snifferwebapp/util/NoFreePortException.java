@@ -1,3 +1,6 @@
+// The Grinder
+// Copyright (C) 2001  Paddy Spencer
+
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
@@ -12,18 +15,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+package net.grinder.tools.snifferwebapp.util;
 
-package net.grinder.tools.tcpsniffer;
-
-/**
- *
- * @author Philip Aston
- * @version $Revision$
- */
-public interface SnifferEngine extends Runnable
-{
-    // void run();
+public class NoFreePortException extends Exception {
 }
-
-
-

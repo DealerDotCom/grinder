@@ -6,7 +6,7 @@ it too :-). The list is roughly in priority order.]
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 
   Update HTTPClient to measure "time to first byte" and "Time to last
-  byte" as an alternitive to implementing timeIncludesTransaction.
+  byte" as an alternative to implementing timeIncludesTransaction.
 
   Get HTTPS support working with HTTPClient.
 
@@ -34,8 +34,9 @@ it too :-). The list is roughly in priority order.]
   Add an assertion for the expected status code to the HTTP plugin.
   HTTP Plugin "not ok".
 
-  TCPSniffer enhancements: Should be able to use -proxy without HTTP
-  plugin. Should be able to use different remote ports.
+  TCPSniffer enhancements: proxying works on a per-protocol basis, so
+  write some plugins for the proxy to handle different protocols, and
+  integrate it more fully into the TCPSniffer
 
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.

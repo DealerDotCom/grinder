@@ -1,3 +1,61 @@
+2001-08-22 Paddy Spencer <paddy.spencer@physics.org>
+
+	* src/net/grinder/tools/tcpsniffer/SnifferEngine.java: extends
+	Runnable so the HttpsProxySnifferEngineImpl can kick off an
+	instance of SSLSnifferEngineImpl in a separate thread
+
+	* src/net/grinder/plugin/http/HttpProxySnifferEngineImpl.java: moved to
+	src/net/grinder/tools/tcpsniffer/proxy/HttpProxySnifferEngineImpl.java;
+	added specification of the local host, largely for use when using
+	virtual IP addresses, eg when sniffing in a cluster on one box
+	
+	* src/net/grinder/plugin/http/HttpsPluginSnifferFilter.java: added
+ 	
+	* src/net/grinder/tools/tcpsniffer/proxy/HttpsProxySnifferEngineImpl.java: added 
+ 	
+	* src/net/grinder/tools/tcpsniffer/StreamThread.java: moved
+	StreamThread into its own file so the proxy classes can access
+	it. Changed to accept an initial byte array and squirt it down to
+	the remote host before starting the Thread.
+
+	* src/net/grinder/tools/snifferwebapp/GrindingServlet.java: added
+
+	* src/net/grinder/tools/snifferwebapp/SniffingServlet.java: added
+
+	* src/net/grinder/tools/snifferwebapp/util/NoFreePortException.java:
+	added
+
+	* src/net/grinder/tools/snifferwebapp/util/PortManager.java: added
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java:
+	changed method access levels; added m_finishedHeaders
+
+	* src/net/grinder/plugin/http/HttpsPluginSnifferFilter.java:
+	added; deals with the fact that some browsers (to mention no
+	Mozillas) send headers differently if the protocol is https...
+
+	* src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java: moved
+	StreamThread into its own file; added setRemoteDetails; added
+	specification of the local host, as above
+
+	* src/net/grinder/TCPSniffer.java
+	no longer complains if you set the remote host/port when proxying;
+	can specify the local host, as above
+
+	* src/net/grinder/plugin/http: moved proxy classes to
+	net/grinder/tools/proxy
+
+	* webapps/sniff-n-grind: sniffer webapp directory added
+
+	* build.xml: rules for building the webapp added; modified jar
+	rule so it doesn't add the webapp classes to the jar
+
+	* doc/proxy.txt: added
+
+	* doc/sniff-n-grind.txt: added
+	
+	* doc/TCPSniffer.txt: added -output info
+	
 2001-08-30  Philip Aston  <paston@bea.com>
 
 	* CHANGES, doc/HTTPPlugin.txt: Document Content-Type changes.

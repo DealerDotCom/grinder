@@ -85,8 +85,10 @@ conditionally built modules are:
     <available classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
 	       property="have.junit.task" />
 
-    <available classname="org.apache.regexp.RE"
-	       property="have.regexp" />
+    <available classname="org.apache.regexp.RE" property="have.regexp" />
+
+    <available classname="javax.servlet.http.HttpServletRequest"
+	       property="have.servlet"/>
 
     <!-- javac switches -->
     <property name="debug" value="on"/>
@@ -105,10 +107,15 @@ conditionally built modules are:
     <property name="javadoc.packages" value="net.grinder.*"/>
     <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
 
+    <!-- webapps, in general and specific -->
+    <property name="webapps.dir" value="webapps"/>
+	<property name="sniffer.webapp.dir" value="${webapps.dir}/sniff-n-grind"/>
+
     <!-- output -->
     <property name="build.dir" value="build"/>
     <property name="build.src" value="${build.dir}/src"/>
     <property name="build.classes" value="${build.dir}/classes"/>
+    <property name="build.webapps" value="${build.dir}/webapps"/>
     <property name="tests.src" value="${build.dir}/tests-src"/>
     <property name="tests.classes" value="${build.dir}/tests-classes"/>
     <property name="lib.dir" value="lib"/>
@@ -144,8 +151,11 @@ conditionally built modules are:
    <fail message="Add Apache Regexp 1.2 to your CLASSPATH to build this target"/>
   </target>
 
+  <target name="assert-have-servlet" depends="init" unless="have.servlet">
+   <fail message="Add Servlet classes to your CLASSPATH to build this target"/>
+  </target>
   <target name="assert-have-everything"
-	  depends="assert-have-jsse,assert-have-junit,assert-have-junit-task,assert-have-regexp">
+	  depends="assert-have-jsse,assert-have-junit,assert-have-junit-task,assert-have-regexp,assert-have-servlet">
   </target>
 
 
@@ -194,7 +204,7 @@ conditionally built modules are:
            destdir="${build.classes}"
            debug="${debug}"
            optimize="${optimize}"
-	   deprecation="false"> <!-- Uses deprecated API's -->
+		   deprecation="false"> <!-- Uses deprecated API's -->
        <include name="HTTPClient/**"/>
     </javac>
 
@@ -210,8 +220,11 @@ conditionally built modules are:
        <exclude name="**/SSLSnifferEngineImpl.java" unless="have.jsse"/>
        <exclude name="**/HttpPluginSnifferFilter.java" unless="have.regexp"/>
        <exclude name="**/HttpProxySnifferEngineImpl.java" unless="have.regexp"/>
+       <exclude name="**/HttpsProxySnifferEngineImpl.java" unless="have.regexp"/>
+       <exclude name="**/HttpsProxySnifferEngineImpl.java" unless="have.jsse"/>
        <exclude name="**/URLRewriteFilter.java" unless="have.regexp"/>
        <exclude name="**/JUnitPlugin.java" unless="have.junit"/>
+       <exclude name="**/snifferwebapp" unless="have.servlet"/>
     </javac>
 
   </target>
@@ -241,7 +254,25 @@ conditionally built modules are:
          basedir="${build.classes}">
         <include name="net/grinder/"/>
         <include name="HTTPClient/"/>
+        <exclude name="**/snifferwebapp"/>
     </jar>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Creates the sniff-n-grind war                                       -->
+  <!-- =================================================================== -->
+  <target name="sniff-war" depends="compile, copy-resources"
+	  description="Creates webapps/sniff-n-grind.war">
+	<mkdir dir="${build.webapps}"/>
+
+	<war warfile="${build.webapps}/sniff-n-grind.war" 
+		 webxml="${sniffer.webapp.dir}/WEB-INF/web.xml">
+	  <fileset dir="${sniffer.webapp.dir}">
+		<include name="*.jsp"/>
+	  </fileset>
+	  <classes dir="${build.classes}"
+			   includes="**/snifferwebapp/**"/>
+	</war>
   </target>
 
   <target name="testimage" depends="compile-tests,copy-resources">

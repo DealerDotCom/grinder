@@ -54,40 +54,40 @@ public class ConnectionDetails
 	    protocol + (m_isSecure ? "s://" : "://" ) +
 	    m_remoteHost + ":" + m_remotePort;
     }
-	
-	public boolean isSecure() {
-		return m_isSecure;
-	}
-	
-	public String getRemoteHost() {
-		return m_remoteHost;
-	}
-	
-	public String getLocalHost() {
-		return m_localHost;
-	}
 
-	public int getRemotePort() {
-		return m_remotePort;
-	}
-	
-	public int getLocalPort() {
-		return m_localPort;
-	}
+    public boolean isSecure() {
+	return m_isSecure;
+    }
 
-	public void setRemoteHost(String p) {
-		m_remoteHost = p;
-	}
-	
-	public void setLocalHost(String p) {
-		m_localHost = p;
-	}
+    public String getRemoteHost() {
+	return m_remoteHost;
+    }
 
-	public void setRemotePort(int p) {
-		m_remotePort = p;
-	}
-	
-	public void setLocalPort(int p) {
-		m_localPort = p;
-	}
+    public String getLocalHost() {
+	return m_localHost;
+    }
+
+    public int getRemotePort() {
+	return m_remotePort;
+    }
+
+    public int getLocalPort() {
+	return m_localPort;
+    }
+
+    public void setRemoteHost(String p) {
+	m_remoteHost = p;
+    }
+
+    public void setLocalHost(String p) {
+	m_localHost = p;
+    }
+
+    public void setRemotePort(int p) {
+	m_remotePort = p;
+    }
+
+    public void setLocalPort(int p) {
+	m_localPort = p;
+    }
 }

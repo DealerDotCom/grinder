@@ -143,7 +143,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	outputProperty(requestNumber, "description", description);
     }
 
-    private void outputEntityData(SessionState sessionState)
+    protected final void outputEntityData(SessionState sessionState)
 	throws IOException
     {
 	if (sessionState.getHandlingPost()) {
@@ -156,6 +156,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	    outputProperty(sessionState.getRequestNumber(), "parameter.post",
 			   postOutput.getFilename());
 	}
+ 
 
 	sessionState.setHandlingPost(false);
     }
@@ -166,16 +167,15 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 			   "=" + value);
     }
 
-    private void addToEntityData(String request,
-				 SessionState sessionState,
-				 boolean thisMessageHasPOSTHeader)
+    protected void addToEntityData(String request,
+				   SessionState sessionState,
+				   boolean thisMessageHasPOSTHeader)
 	throws IOException, RESyntaxException
     {
 	// Look for the content length in the header. Probably should
 	// assert that we haven't already set the content length nor
 	// added any entity data.
-	final RE contentLengthExpession =
-	    getHeaderExpression("Content-Length");
+	final RE contentLengthExpession = getContentLengthExpression();
 
 	if (contentLengthExpession.match(request)) {
 	    final int length =
@@ -238,7 +238,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
      *  
      * We're flexible about CRLF.
     */
-    private RE getMethodLineExpression() throws RESyntaxException
+    protected final RE getMethodLineExpression() throws RESyntaxException
     {
 	return new RE("^([:upper:]+) (.+) HTTP/\\d.\\d\\r?$", 
 		      RE.MATCH_MULTILINE);
@@ -253,7 +253,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
     {
 	// Some servers are broken regarding the case of Content-Type.
 	return new RE("^(Content-Type|Content-type): (.*)$", 
-		      RE.MATCH_MULTILINE);
+		      RE.MATCH_MULTILINE|RE.MATCH_CASEINDEPENDENT);
     }
 
    /**
@@ -284,9 +284,27 @@ public class HttpPluginSnifferFilter implements SnifferFilter
      * every time. If it becomes a bottleneck, the "get*Expression
      * methods should be implemented with object pools.
     */
-    private RE getHeaderExpression(String headerName) throws RESyntaxException
+    protected final RE getHeaderExpression(String headerName)
+	throws RESyntaxException
     {
 	return new RE("^" + headerName + ": (.*)$", RE.MATCH_MULTILINE);
+    }
+
+    /**
+     * Regexp is not synchronised, so for now compile new objects
+     * every time. If it becomes a bottleneck, the "get*Expression
+     * methods should be implemented with object pools.
+    */
+    protected final RE getContentLengthExpression() throws RESyntaxException
+    {
+	final RE contentLengthExpession =
+	    getHeaderExpression("Content-Length");
+
+	// Sigh.
+	contentLengthExpession.setMatchFlags(
+	    contentLengthExpession.getMatchFlags() | RE.MATCH_CASEINDEPENDENT);
+
+	return contentLengthExpession;
     }
 
     /**
@@ -308,7 +326,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	}
     }
 
-    private static class SessionState
+    protected final static class SessionState
     {
 	private int m_requestNumber = -1;
 	private boolean m_handlingPost = false;
@@ -316,6 +334,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	private int m_contentLength;
 	private long m_lastTime;
 	private String m_multipartBoundary;
+	private boolean m_finishedHeaders = false;
 
 	SessionState()
 	{
@@ -351,6 +370,16 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	public String getMultipartBoundary()
 	{
 	    return m_multipartBoundary;
+	}
+
+	public boolean isFinishedHeaders()
+	{
+	    return m_finishedHeaders;
+	}
+
+	public void setFinishedHeaders(boolean b)
+	{
+	    m_finishedHeaders = b;
 	}
 
 	public String getEntityData() 

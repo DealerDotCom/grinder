@@ -1,0 +1,112 @@
+<!--
+
+ The Grinder
+ Copyright (C) 2001  Paddy Spencer
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+-->
+
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 1.2//EN" "http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
+<web-app>
+
+  <servlet>
+	<servlet-name>sniff</servlet-name>
+	<servlet-class>
+	  net.grinder.tools.snifferwebapp.SniffingServlet
+	</servlet-class>
+  </servlet>
+  
+  <servlet>
+	<servlet-name>grind</servlet-name>
+	<servlet-class>
+	  net.grinder.tools.snifferwebapp.GrindingServlet
+	</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+	<servlet-name>sniff</servlet-name>
+	<url-pattern>/sniff</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+	<servlet-name>grind</servlet-name>
+	<url-pattern>/grind</url-pattern>
+  </servlet-mapping>
+  
+  <welcome-file-list>
+	<welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+  
+  <env-entry>
+	<description>
+	  lower (inclusive) bound on available sniffer ports
+	</description>
+	<env-entry-name>sniffer.port.lower</env-entry-name>
+	<env-entry-value>8000</env-entry-value>
+	<env-entry-type>java.lang.Integer</env-entry-type>
+  </env-entry>
+
+  <env-entry>
+	<description>
+	  upper (exclusive) bound on available sniffer ports
+	</description>
+	<env-entry-name>sniffer.port.upper</env-entry-name>
+	<env-entry-value>8010</env-entry-value>
+	<env-entry-type>java.lang.Integer</env-entry-type>
+  </env-entry>
+  
+  <env-entry>
+	<description>
+	  CLASSPATH value for the grinder process(es). Needs to contain
+	  the current grinder jarfile and the Jakarta regexp jar. If SSL
+	  is used, it needs the JSSE jars as well.
+	  This needs to be set relative to the sniffer temporary
+	  directory, rather than the directory in which the web server is
+	  running (hence the ../ in this example). 
+	</description>
+	<env-entry-name>grinder.classpath</env-entry-name>
+	<env-entry-value>../lib/grinder.jar:../lib/regexp.jar:../lib/jsse.jar:../lib/jcert.jar:../lib/jnet.jar</env-entry-value>
+	<env-entry-type>java.lang.String</env-entry-type>
+  </env-entry>
+  
+  <env-entry>
+	<description>Time in seconds before the sniffer proxy times
+	  out and releases the port</description>
+	<env-entry-name>sniffer.timeout</env-entry-name>
+	<env-entry-value>600</env-entry-value>
+	<env-entry-type>java.lang.Integer</env-entry-type>
+  </env-entry>
+  
+  <env-entry>
+	<description>
+	  P12 certificate used by the SSL sniffer engine
+	  This needs to be set relative to the sniffer temporary
+	  directory, rather than the directory in which the web server is
+	  running (hence the ../ in this example). 
+	</description>
+	<env-entry-name>grinder.cert.file</env-entry-name>
+	<env-entry-value>../exported.p12</env-entry-value>
+	<env-entry-type>java.lang.String</env-entry-type>
+  </env-entry>
+  
+  <env-entry>
+	<description>Certificate password used by the SSL sniffer
+	  engine</description>
+	<env-entry-name>grinder.cert.password</env-entry-name>
+	<env-entry-value>password</env-entry-value>
+	<env-entry-type>java.lang.String</env-entry-type>
+  </env-entry>
+</web-app>

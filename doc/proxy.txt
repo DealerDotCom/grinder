@@ -1,0 +1,38 @@
+This file contains notes about the use of The Grinder TCPSniffer.
+
+Using the TCPSniffer as a full-fledged proxy
+********************************************
+
+As it stands, the TCPSniffer links the local host to a specific remote
+host/port combination. Any traffic directed at the local port the
+TCPSniffer listens on is redirected to the remote host & port by the
+TCPSniffer, which can output the traffic in both directions, processed
+by a number of filters, letting you see exactly what's going on under
+the covers.
+
+A powerful consequence of this is that it can be used to construct
+test scripts by using the application that is to be tested; this
+particularly applies to web apps. However, a number of web pages
+redirect the browser to a different host from that hosting the web
+page. These requests will bypass the TCPSniffer, meaning that they
+will not feature in the test script. This is a feature of tying the
+TCPSniffer to a specific remote host/port. Running TCPSNiffer as a
+proxy, with each request creating a new connection between the proxy
+and a (potentially) different host gets around this limitation.
+
+You can run the sniffer as an HTTP proxy by using the "-proxy"
+argument:
+
+  java net.grinder.TCPSniffer -httpPluginFilter -proxy
+
+This will make it listen on the local port (default 8001), and forward
+requests onto the relevant remote host, while printing out the
+information as for the HttpPluginSnifferFilter.  Obviously,
+"-remoteHost" or "-remotePort" don't make a lot of sense with "-proxy"
+and TCPSniffer ignores them if you set them. (Prior to about 2.6.6, it
+threw an exception, but I figured that was too unfriendly :-)
+
+If you want to run as an HTTPS proxy, you can, by specifying the same
+parameters for keystore and password as for the ordinary TCPSniffer in
+secure mode.
+

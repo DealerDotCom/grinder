@@ -42,10 +42,17 @@ say something like:
 You should then point your browser at "localhost:8001" and exercise
 the application.
 
-You only need the Jakarta Regexp package to use the HTTP plugin. You
-can obtain the Jakarta Regexp package from http://jakarta.apache.org/.
-We don't include it with the Grinder distribution due to the
-restrictions of the GPL, see
+If you want the output to go to a file rather than stdout, you can
+specify the filename root with "-output":
+
+  java net.grinder.TCPSniffer -output SimpleTest
+
+will redirect stdout to SimpleTest.out and stderr to SimpleTest.err.
+
+You only need the Jakarta Regexp package to use the HTTP plugin and
+the HTTP proxy. You can obtain the Jakarta Regexp package from
+http://jakarta.apache.org/. We don't include it with the Grinder
+distribution due to the restrictions of the GPL, see
 http://www.gnu.org/philosophy/license-list.html for details.
 
 
