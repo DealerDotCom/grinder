@@ -1,4 +1,3 @@
-// Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
@@ -20,14 +19,39 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.communication.messages;
+
+import net.grinder.communication.Message;
+import net.grinder.statistics.StatisticsView;
+
 
 /**
- * Message used to start the Grinder processes.
+ * Message used to register statistics views with Console.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class StopGrinderMessage implements Message {
-  private static final long serialVersionUID = -7669881599490634144L;
+public final class RegisterStatisticsViewMessage implements Message {
+
+  private static final long serialVersionUID = -2597529002329376586L;
+
+  private StatisticsView m_statisticsView;
+
+  /**
+   * Constructor.
+   *
+   * @param statisticsView Definition of statistics view.
+   */
+  public RegisterStatisticsViewMessage(StatisticsView statisticsView) {
+    m_statisticsView = statisticsView;
+  }
+
+  /**
+   * Get the statistics view.
+   *
+   * @return The statistics view.
+   **/
+  public StatisticsView getStatisticsView() {
+    return m_statisticsView;
+  }
 }

@@ -79,7 +79,7 @@ public class TestMessagePump extends AbstractSenderAndReceiverTests {
     m_sender.send(null);
 
     try {
-      m_sender.send(new StartGrinderMessage());
+      m_sender.send(new SimpleMessage());
       //      fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {

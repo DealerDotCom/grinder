@@ -46,8 +46,8 @@ public class TestTeeSender extends TestCase {
 
     final TeeSender teeSender = new TeeSender(sender1, sender2);
 
-    final Message m1 = new ResetGrinderMessage();
-    final Message m2 = new StartGrinderMessage();
+    final Message m1 = new SimpleMessage();
+    final Message m2 = new SimpleMessage();
 
     teeSender.send(m1);
     teeSender.send(m2);
@@ -105,7 +105,7 @@ public class TestTeeSender extends TestCase {
     // goodSender is first, so should be invoked before badSender fails.
     final TeeSender teeSender1 = new TeeSender(goodSender, badSender);
 
-    final Message m = new StopGrinderMessage();
+    final Message m = new SimpleMessage();
 
     try {
       teeSender1.send(m);

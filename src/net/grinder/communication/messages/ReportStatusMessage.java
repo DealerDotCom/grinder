@@ -20,9 +20,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.communication.messages;
 
 import net.grinder.common.ProcessStatus;
+import net.grinder.communication.Message;
 
 
 /**
@@ -34,7 +35,7 @@ import net.grinder.common.ProcessStatus;
  */
 public final class ReportStatusMessage implements Message, ProcessStatus {
 
-  private static final long serialVersionUID = -6396659281675246288L;
+  private static final long serialVersionUID = -8714328117132230200L;
 
   private final String m_identity;
   private final String m_name;

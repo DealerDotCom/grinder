@@ -1,3 +1,4 @@
+// Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
@@ -19,38 +20,17 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.communication.messages;
 
-import java.util.Collection;
+import net.grinder.communication.Message;
 
 
 /**
- * Message used to register tests with Console.
+ * Message used to start the Grinder processes.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class RegisterTestsMessage implements Message {
-
-  private static final long serialVersionUID = 1669221760771622994L;
-
-  private final Collection m_tests;
-
-  /**
-   * Constructor.
-   *
-   * @param tests The test set to register.
-   **/
-  public RegisterTestsMessage(Collection tests) {
-    m_tests = tests;
-  }
-
-  /**
-   * Get the test set.
-   *
-   * @return The test set.
-   */
-  public Collection getTests() {
-    return m_tests;
-  }
+public final class StopGrinderMessage implements Message {
+  private static final long serialVersionUID = -8982488041078124203L;
 }

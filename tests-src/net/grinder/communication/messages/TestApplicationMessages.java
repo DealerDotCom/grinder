@@ -19,64 +19,33 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.communication.messages;
 
 import junit.framework.TestCase;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Random;
 
+import net.grinder.communication.Message;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatisticsMap;
+import net.grinder.testutility.Serializer;
 
 
 /**
- *  Unit test case for <code>Message</code>.
+ *  Unit test case for application messages.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestMessage extends TestCase {
+public class TestApplicationMessages extends TestCase {
 
   private static Random s_random = new Random();
 
-  public TestMessage(String name) {
-    super(name);
-  }
-
-  private Message serialise(Message original) throws Exception {
-
-    final ByteArrayOutputStream byteOutputStream =
-      new ByteArrayOutputStream();
-
-    final ObjectOutputStream objectOutputStream =
-      new ObjectOutputStream(byteOutputStream);
-
-    objectOutputStream.writeObject(original);
-    objectOutputStream.close();
-
-    final ObjectInputStream objectInputStream =
-      new ObjectInputStream(
-        new ByteArrayInputStream(byteOutputStream.toByteArray()));
-
-    final Message received = (Message)objectInputStream.readObject();
-    assertTrue(received != original);
-
-    return received;
-  }
-
-  public void testSerialisation() throws Exception {
-    serialise(new SimpleMessage());
-  }
-
-  public void testCloseCommunicationMessage() throws Exception {
-    serialise(new CloseCommunicationMessage());
+  private static Message serialise(Message original) throws Exception {
+    return (Message) Serializer.serialize(original);
   }
 
   public void testInitialiseGrinderMessage() throws Exception {
@@ -174,5 +143,9 @@ public class TestMessage extends TestCase {
 
   public void testStopGrinderMessage() throws Exception {
     serialise(new StopGrinderMessage());
+  }
+
+  public void testDistributeFilesMessage() throws Exception {
+    serialise(new DistributeFilesMessage());
   }
 }

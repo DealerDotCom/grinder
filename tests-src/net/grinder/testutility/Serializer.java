@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,14 +19,37 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.testutility;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+
 
 /**
- * Message used to reset the Grinder processes.
+ * Serialisation utility.
  *
- * @author Philip Aston
- * @version $Revision$
+ * @author    Philip Aston
  */
-public final class ResetGrinderMessage implements Message {
-  private static final long serialVersionUID = 3444364535926528398L;
+public class Serializer {
+
+  public static Object serialize(Object original) throws Exception {
+
+    final ByteArrayOutputStream byteOutputStream =
+      new ByteArrayOutputStream();
+
+    final ObjectOutputStream objectOutputStream =
+      new ObjectOutputStream(byteOutputStream);
+
+    objectOutputStream.writeObject(original);
+    objectOutputStream.close();
+
+    final ObjectInputStream objectInputStream =
+      new ObjectInputStream(
+        new ByteArrayInputStream(byteOutputStream.toByteArray()));
+
+    return objectInputStream.readObject();
+  }
 }

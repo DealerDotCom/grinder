@@ -19,37 +19,17 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.communication.messages;
+
+import net.grinder.communication.Message;
+
 
 /**
- * Message used to initialise the worker processes.
+ * Message used to reset the Grinder processes.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class InitialiseGrinderMessage implements Message {
-
-  private static final long serialVersionUID = 5146752463092291969L;
-
-  private final boolean m_reportToConsole;
-
-  /**
-   * Constructor.
-   *
-   * @param reportToConsole Whether or not the worker process should
-   * report to the console.
-   */
-  public InitialiseGrinderMessage(boolean reportToConsole) {
-    m_reportToConsole = reportToConsole;
-  }
-
-  /**
-   * Accessor.
-   *
-   * @return Whether or not the worker process should report to the
-   * console.
-   */
-  public boolean getReportToConsole() {
-    return m_reportToConsole;
-  }
+public final class ResetGrinderMessage implements Message {
+  private static final long serialVersionUID = -4290325903204365660L;
 }

@@ -29,10 +29,10 @@ import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
-import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
-import net.grinder.communication.StartGrinderMessage;
-import net.grinder.communication.StopGrinderMessage;
+import net.grinder.communication.messages.ResetGrinderMessage;
+import net.grinder.communication.messages.StartGrinderMessage;
+import net.grinder.communication.messages.StopGrinderMessage;
 
 
 /**

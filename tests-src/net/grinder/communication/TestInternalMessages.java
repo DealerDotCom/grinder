@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,36 +21,25 @@
 
 package net.grinder.communication;
 
-import net.grinder.statistics.TestStatisticsMap;
+import junit.framework.TestCase;
+
+import net.grinder.communication.Message;
+import net.grinder.testutility.Serializer;
 
 
 /**
- * Message used to report test statistics to the console.
+ *  Unit test case for application messages.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ReportStatisticsMessage implements Message {
+public class TestInternalMessages extends TestCase {
 
-  private static final long serialVersionUID = 257459794274323781L;
-
-  private TestStatisticsMap m_statisticsDelta;
-
-  /**
-   * Constructor.
-   *
-   * @param statisticsDelta The test statistics.
-   **/
-  public ReportStatisticsMessage(TestStatisticsMap statisticsDelta) {
-    m_statisticsDelta = statisticsDelta;
+  private static Message serialise(Message original) throws Exception {
+    return (Message) Serializer.serialize(original);
   }
 
-  /**
-   * Get the test statistics.
-   *
-   * @return The test statistics.
-   */
-  public TestStatisticsMap getStatisticsDelta() {
-    return m_statisticsDelta;
+  public void testCloseCommunicationMessage() throws Exception {
+    serialise(new CloseCommunicationMessage());
   }
 }

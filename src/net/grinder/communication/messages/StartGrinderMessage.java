@@ -20,7 +20,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.communication.messages;
+
+import net.grinder.communication.Message;
+
 
 /**
  * Message used to start the Grinder processes.
@@ -29,5 +32,5 @@ package net.grinder.communication;
  * @version $Revision$
  */
 public final class StartGrinderMessage implements Message {
-  private static final long serialVersionUID = -3912971266088180286L;
+  private static final long serialVersionUID = -4477386141780816347L;
 }

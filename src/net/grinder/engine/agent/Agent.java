@@ -38,11 +38,11 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Connector;
 import net.grinder.communication.FanOutStreamSender;
-import net.grinder.communication.InitialiseGrinderMessage;
 import net.grinder.communication.MessagePump;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.Sender;
 import net.grinder.communication.TeeSender;
+import net.grinder.communication.messages.InitialiseGrinderMessage;
 import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 

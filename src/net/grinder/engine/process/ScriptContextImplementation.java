@@ -26,7 +26,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.communication.QueuedSender;
-import net.grinder.communication.RegisterStatisticsViewMessage;
+import net.grinder.communication.messages.RegisterStatisticsViewMessage;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
