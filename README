@@ -79,7 +79,9 @@ These can be obtained from the following places.
 How do I build it?
 ******************
 
-See the instructions in build.xml.
+The Grinder is distributed pre-built so you can use it straight away.
+The source code is provided too. If you want to rebuild it refer to
+the instructions in build.xml.
 
 
 How do I use it?
@@ -98,7 +100,10 @@ Its easy:
 		java net.grinder.Grinder
 
 This starts a master process that forks child Java processes to do the
-work.
+work. You can also specify an explicit properties file the Grinder as
+the first argument. For example:
+
+	java net.grinder.Grinder myproperties
 
 If you want to use the Console, (and you probably do), set the
 following properties before starting the Grinder
@@ -110,14 +115,13 @@ following properties before starting the Grinder
 	grinder.reportToConsole
 	grinder.console.multicastPort
 
-Start the Console against the same properties file with
+Start the Console with
 
 	java net.grinder.Console
 
-You can also specify an explicit properties file the Grinder as the
-first argument. For example:
-
-	java net.grinder.Grinder myproperties
+The Console does not read the grinder.properties file. The multicast
+address and ports must also be configured using the Console user
+interface (choose the File/Options menu option).
 
 
 The output
@@ -180,16 +184,28 @@ Try asking at grinder-use@lists.sourceforge.net
 What can I set in grinder.properties?
 *************************************
 
+Here's a minimal grinder.properties file that uses the HttpPlugin:
+
+	grinder.plugin=net.grinder.plugin.http.HttpPlugin
+	grinder.test0.parameter.url=http://localhost:80/index.html
+
+If you start a Grinder process using this properties file it will
+communicate with the Console using default ports, use one child
+process, one thread, and runs on cycle which contains once test. This
+is not too much use, so read on... (and see doc/HTTPPlugin.txt).
+
+
 [This is not complete - volunteer work required!]
 
     grinder.processes	-	The number of child processes to start.
+				Default 1.
 
     grinder.threads	-	The number cycles of the threads each 
-				process spawns.
+				process spawns. Default 1.
 
     grinder.cycles	-	The number cycles of the test script
 				each thread performs. 0 means "run
-				forever".
+				forever". Default 1.
 
     grinder.jvm		-	Use an alternate JVM for child processes.
 
@@ -205,9 +221,6 @@ What can I set in grinder.properties?
 
     grinder.jvm.arguments -	Additional arguments to child JVM's.
 
-    grinder.hostID	-	Override the "host" string used in log
- 				filenames and logs. Defaults to the
-				host name.
 
     grinder.logDirectory -	Directory to write log files to. Created
 				if it doesn't already exist.
@@ -215,32 +228,39 @@ What can I set in grinder.properties?
     grinder.appendLog	-	Append to, rather than overwrite,
 				existing log files.
 
+    grinder.hostID	-	Override the "host" string used in log
+ 				filenames and logs. Defaults to the
+				host name.
+
     grinder.receiveConsoleSignals -
 				Set to true to respond to Console
 				signals. See "Tell me about the
-				Console controls" below.
+				Console controls" below. Default true.
 
     grinder.reportToConsole -	Set to true to send statistics to the
-				Console.
+				Console. Default true.
 
     grinder.multicastAddress -  The multicast address to use for
 				communication between the Grinder
 				processes and the Console. (See "What
 				do I need to do to set up multicast?"
-				below).
+				below). Default 228.1.1.1.
 
     grinder.multicastPort -     The multicast port to use for communication
 				from the Console to the Grinder processes.
+				Default 1234.
 
     grinder.console.multicastPort -
 				The multicast port to use for communication
 				from the Grinder processes to the Console.
+				Default 1235.
 
     grinder.reportToConsole.interval -
 				The period at which each process sends
-				updates to the Console (default 500
-				ms). This also controls the frequency
-				at which the data files are flushed.
+				updates to the Console. This also
+				controls the frequency at which the
+				data files are flushed. Default 500
+				ms.
 
     grinder.thread.initialSleepTime	-
 				The maxmimum time in milliseconds that
@@ -252,17 +272,19 @@ What can I set in grinder.properties?
 				the specified value. Affected by
 				grinder.thread.sleepTimeFactor, but
 				not grinder.thread.sleepTimeVariation.
+				Default 0 ms.
 
     grinder.thread.sleepTime -	The time in milliseconds to wait
 				between individual tests. Affected by
 				both grinder.thread.sleepTimeFactor,
 				and grinder.thread.sleepTimeVariation.
+				Default 0 ms.
 
     grinder.thread.sleepTimeFactor -
 				Apply a factor to all the sleep times
 				you've specified. E.g., setting this
 				to 0.1 would run the script at ten times
-				te speed.
+				te speed. Default 1.
 
     grinder.thread.sleepTimeVariation -
 				The Grinder varies the specified sleep
@@ -274,7 +296,7 @@ What can I set in grinder.properties?
 				as 1000 and the sleepTimeVariation is
 				set to 0.1, then 99.75% of the actual
 				sleep times will be between 9900 and
-				11000 milliseconds.
+				11000 milliseconds. Default 0.2.
 
     grinder.plugin	-	The plugin class to use. Currently each
 				script uses a single plugin.
@@ -290,31 +312,28 @@ What can I set in grinder.properties?
 				tests are run in numerical order.
 
     grinder.test0.description -	Information string used in the log
-			 	files. Will be used in the
-				Console in the future.
+			 	files and the Console.
 
     grinder.test0.sleepTime -	Override grinder.thread.sleepTime
 				for a specific test.
 
     grinder.test0.parameter -	Prefix for test specific properties
 			 	interpreted by the plugin. See the
-			 	documentation for
-				the HTTP plugin below for examples.
+			 	doc/HTTPPlugin.txt for examples.
 
     grinder.logProcessStreams - Set to false to disable the logging of
-				standard out and standard error steams
-				for individual Grinder processes.
-				Default is true. You might want to use
+				output and error steams for Grinder
+				child processes. You might want to use
 				this to reduce the overhead of running
 				a client thread. When recording
 				timings with multiple clients it will
 				probably reduce the measured time -
-				see doc/Timing.txt.
+				see doc/Timing.txt. Default true.
 
     grinder.recordTime	   -	Set to false to disable reporting of
 				timing information; other statistics
-				are still reported. Default is true.
-				See doc/Timing.txt.
+				are still reported. See
+				doc/Timing.txt. Default true.
 
 You should read the files doc/HTTPPlugin.txt and doc/JUnitPlugin.txt
 for details on the properties for individual plugins.
@@ -387,18 +406,11 @@ Can I run different test scripts against the same Console?
 
 Yes.
 
-Whilst the Console reads the grinder.properties file to determine the
-names of the tests, it is fairly decoupled from the Grinder processes.
-It receives reports and updates the graph based on test number. Thus
-it is possible to have different Grinder processes running scripts
-with different test numbers (e.g. one process running tests 1 to 5 and
-another running tests 6 to 10)., reporting to the same Console. You
-would have to start the console against a dummy properties file that
-contained all the tests (e.g 1 to 10).
-
-This is definitely a hack at the moment. We plan to resolve this with
-a much better Console/Grinder model in the Grinder 3. (James Bond will
-return in ....).
+The Console receives reports and updates the graph based on test
+number. Thus it is possible to have different Grinder processes
+running scripts with different test numbers (e.g. one process running
+tests 1 to 5 and another running tests 6 to 10)., reporting to the
+same Console.
 
 
 What do I need to do to set up multicast?
