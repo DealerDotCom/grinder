@@ -18,6 +18,9 @@
 
 package net.grinder.plugin.http;
 
+import java.util.Set;
+
+
 /**
  * Abstract interface to HTTP implementations such as HTTPClient and
  * HttpURLConnection.
@@ -51,6 +54,7 @@ interface HTTPHandler
 	public String getURLString() throws HTTPHandlerException;
 	public String getIfModifiedSince() throws HTTPHandlerException;
 	public long getIfModifiedSinceLong() throws HTTPHandlerException;
+	public Set getAdditionalHeaders() throws HTTPHandlerException;
 
 	public AuthorizationData getAuthorizationData()
 	    throws HTTPHandlerException;

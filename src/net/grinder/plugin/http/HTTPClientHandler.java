@@ -28,6 +28,7 @@ import java.net.HttpURLConnection; // For the (incomplete!) status code definiti
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import HTTPClient.Cookie;
 import HTTPClient.CookieModule;
@@ -165,9 +166,23 @@ class HTTPClientHandler implements HTTPHandler
 		    basicAuthorizationData.getPassword());
 	    }
 
+	    final Set additionalHeaders = requestData.getAdditionalHeaders();
+
 	    // HTTPClient ignores null header values.
-	    final NVPair[] headers = new NVPair[5];
+	    final NVPair[] headers = new NVPair[5 + additionalHeaders.size()];
 	    int nextHeader = 0;
+
+	    final Iterator additionalHeadersIterator =
+		additionalHeaders.iterator();
+
+	    while (additionalHeadersIterator.hasNext()) {
+		final Map.Entry entry =
+		    (Map.Entry)additionalHeadersIterator.next();
+
+		headers[nextHeader++] = 
+		    new NVPair((String)entry.getKey(),
+			       (String)entry.getValue());
+	    }
 
 	    final String ifModifiedSince = requestData.getIfModifiedSince();
 
