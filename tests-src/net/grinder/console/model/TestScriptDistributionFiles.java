@@ -72,7 +72,7 @@ public class TestScriptDistributionFiles extends TestCase {
     final ScriptDistributionFiles files =
       new ScriptDistributionFiles("", new GrinderProperties());
 
-    assertEquals(new File("."), files.getRootDirectory());
+    assertEquals(new File(".").getCanonicalFile(), files.getRootDirectory());
     assertNull(files.getScriptFile());
     assertEquals(0, files.getAdditionalFiles().length);
   }
