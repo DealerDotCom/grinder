@@ -28,28 +28,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.grinder.common.GrinderException;
-
 
 /**
- * A register of statistic index objects. Each statistic has a unique index
- * object and a name. The index objects are used with {@link
- * net.grinder.script.Statistics} and the names can be used in expressions
- * (see {@link ExpressionView}). Statistics can either be <em>long</em> integer
- * values (see {@link #getIndexForLong}) or <em>double</em> floating-point
- * values ({@link #getIndexForDouble}).
+ * A register of statistic index objects.
  *
- * <p>
- * There is a special type of index object for <em>sample</em> statistics, see
- * {@link LongSampleIndex},{@link #getIndexForLongSample},
- * {@link DoubleSampleIndex},{@link #getIndexForDoubleSample}. Sample
- * statistics are the result of a series of sample values. The values can be
- * either <code>long</code> s or <code>double</code>s. Sample statistics
- * have three attribute values that can be read: the count (number of samples),
- * sum (total of all sample values), and sample variance. Each of these
- * attributes has its own index object, e.g. see
- * {@link LongSampleIndex#getVarianceIndex}.
- * </p>
+ * <p>Each statistic has a unique index object and a name. The index objects are
+ * used with {@link net.grinder.script.Statistics} and the names can be used in
+ * expressions (see {@link ExpressionView}). Statistics can either be
+ * <em>long</em> integer values (see {@link #getIndexForLong}) or
+ * <em>double</em> floating-point values ({@link #getIndexForDouble}).
  *
  * <p>
  * The standard long statistics used by The Grinder are:
@@ -80,11 +67,28 @@ import net.grinder.common.GrinderException;
  * </p>
  *
  * <p>
- * The standard sample statistics used by The Grinder are:
+ * There is a special type of index object for <em>sample</em> statistics, see
+ * {@link LongSampleIndex},{@link #getIndexForLongSample},
+ * {@link DoubleSampleIndex},{@link #getIndexForDoubleSample}. Sample
+ * statistics are the result of a series of sample values. The values can be
+ * either <code>long</code>s or <code>double</code>s. Sample statistics
+ * have three attribute values that can be read: the <em>count</em> (number of
+ * samples), <em>sum</em> (total of all sample values), and sample
+ * <em>variance</em>. These attributes can be queried using
+ * the appropriate expression function (e.g. <em>count()</em>), see
+ * {@link ExpressionView}.
+ * </p>
+ *
+ * <p>
+ * The standard long sample statistics used by The Grinder are:
  * <ul>
  * <li><code>timedTests</code></li>
  * </ul>
  * </p>
+ *
+ * <p>There are no standard double sample statistics.</p>
+ *
+ * <p>There is currently no provision for user specific sample statistics.</p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -154,7 +158,12 @@ public final class StatisticsIndexMap implements Serializable {
     return s_processInstance;
   }
 
-  private StatisticsIndexMap() {
+  /**
+   * Constructor.
+   *
+   * <p>Package scope for unit tests.</p>
+   */
+  StatisticsIndexMap() {
     // Set up standard statistic index values. When adding new values
     // or changing the order, you should also change the serialVersionUID
     // of TestStatisticsMap.
@@ -189,28 +198,13 @@ public final class StatisticsIndexMap implements Serializable {
     m_doubleMap.put("userDouble3", new DoubleIndex(nextDoubleIndex++));
     m_doubleMap.put("userDouble4", new DoubleIndex(nextDoubleIndex++));
 
-    m_longSampleMap.put("timedTests", new LongSampleIndex(nextLongIndex++,
-                                                          nextLongIndex++,
-                                                          nextDoubleIndex++));
+    createLongSampleIndex("timedTests",
+                          new LongIndex(nextLongIndex++),
+                          new LongIndex(nextLongIndex++),
+                          new DoubleIndex(nextDoubleIndex++));
 
     m_numberOfDoubles = nextDoubleIndex;
     m_numberOfLongs = nextLongIndex;
-  }
-
-  boolean isDoubleIndex(String statisticKey) {
-    return m_doubleMap.get(statisticKey) != null;
-  }
-
-  boolean isLongIndex(String statisticKey) {
-    return m_longMap.get(statisticKey) != null;
-  }
-
-  boolean isDoubleSampleIndex(String statisticKey) {
-    return m_doubleSampleMap.get(statisticKey) != null;
-  }
-
-  boolean isLongSampleIndex(String statisticKey) {
-    return m_longSampleMap.get(statisticKey) != null;
   }
 
   int getNumberOfDoubles() {
@@ -233,107 +227,118 @@ public final class StatisticsIndexMap implements Serializable {
    * Obtain the index object for the named double statistic.
    *
    * @param statisticName The statistic name.
-   * @return The index object.
-   * @exception GrinderException If <code>statisticName</code> is not
-   * registered.
+   * @return The index object, or <code>null</code> if there is no such
+   * double statistic.
    */
-  public DoubleIndex getIndexForDouble(String statisticName)
-    throws GrinderException {
-    final Object existing = m_doubleMap.get(statisticName);
-
-    if (existing == null) {
-      throw new GrinderException("Unknown key '" + statisticName + "'");
-    }
-
-    return (DoubleIndex)existing;
+  public DoubleIndex getDoubleIndex(String statisticName) {
+    return (DoubleIndex)m_doubleMap.get(statisticName);
   }
 
   /**
    * Obtain the index object for the named long statistic.
    *
    * @param statisticName The statistic name.
-   * @return The index object.
-   * @exception GrinderException If <code>statisticName</code> is not
-   * registered.
+   * @return The index object, or <code>null</code> if there is no such
+   * long statistic.
    */
-  public LongIndex getIndexForLong(String statisticName)
-    throws GrinderException {
-    final Object existing = m_longMap.get(statisticName);
-
-    if (existing == null) {
-      throw new GrinderException("Unknown key '" + statisticName + "'");
-    }
-
-    return (LongIndex)existing;
+  public LongIndex getLongIndex(String statisticName) {
+    return (LongIndex)m_longMap.get(statisticName);
   }
 
   /**
-   * Obtain the index object for the named double sample tatistic.
+   * Obtain the index object for the named double sample statistic.
    *
    * @param statisticName The statistic name.
-   * @return The index object.
-   * @exception GrinderException If <code>statisticName</code> is not
-   * registered.
+   * @return The index object, or <code>null</code> if there is no such
+   * double sample statistic.
    */
-  public DoubleSampleIndex getIndexForDoubleSample(String statisticName)
-    throws GrinderException {
-    final Object existing = m_doubleSampleMap.get(statisticName);
-
-    if (existing == null) {
-      throw new GrinderException("Unknown key '" + statisticName + "'");
-    }
-
-    return (DoubleSampleIndex)existing;
+  public DoubleSampleIndex getDoubleSampleIndex(String statisticName) {
+    return (DoubleSampleIndex)m_doubleSampleMap.get(statisticName);
   }
 
   /**
    * Obtain the index object for the named long statistic.
    *
    * @param statisticName The statistic name.
-   * @return The index object.
-   * @exception GrinderException If <code>statisticName</code> is not
-   * registered.
+   * @return The index object, or <code>null</code> if there is no such
+   * long sample statistic.
    */
-  public LongSampleIndex getIndexForLongSample(String statisticName)
-    throws GrinderException {
-    final Object existing = m_longSampleMap.get(statisticName);
-
-    if (existing == null) {
-      throw new GrinderException("Unknown key '" + statisticName + "'");
-    }
-
-    return (LongSampleIndex)existing;
+  public LongSampleIndex getLongSampleIndex(String statisticName) {
+    return (LongSampleIndex)m_longSampleMap.get(statisticName);
   }
 
   /**
-   * Marker interface for a statistic indices.
+   * Factory for {@link LongSampleIndex}s.
+   *
+   * <p>If this is made public and called from somewhere other than our
+   * constructor, we need to address synchronisation.</p>
+   *
+   * @param statisticName Name to register index under.
+   * @param sumIndex Index to hold sum.
+   * @param countIndex Index to hold count.
+   * @param varianceIndex Index to hold variance.
+   * @return The new index.
    */
-  interface Index extends Serializable {
+  private LongSampleIndex createLongSampleIndex(String statisticName,
+                                                LongIndex sumIndex,
+                                                LongIndex countIndex,
+                                                DoubleIndex varianceIndex) {
+    final LongSampleIndex result =
+      new LongSampleIndex(sumIndex, countIndex, varianceIndex);
+
+    m_longSampleMap.put(statisticName, result);
+
+    return result;
+  }
+
+  /**
+   * Factory for {@link DoubleSampleIndex}s.
+   *
+   * <p>Package scope for unit tests.</p>
+   *
+   * <p>If this is made public and called from somewhere other than our
+   * constructor, we need to address synchronisation.</p>
+   *
+   * @param statisticName Name to register index under.
+   * @param sumIndex Index to hold sum.
+   * @param countIndex Index to hold count.
+   * @param varianceIndex Index to hold variance.
+   * @return The new index.
+   */
+  DoubleSampleIndex createDoubleSampleIndex(String statisticName,
+                                            DoubleIndex sumIndex,
+                                            LongIndex countIndex,
+                                            DoubleIndex varianceIndex) {
+    final DoubleSampleIndex result =
+      new DoubleSampleIndex(sumIndex, countIndex, varianceIndex);
+
+    m_doubleSampleMap.put(statisticName, result);
+
+    return result;
+  }
+
+  /**
+   * For unit tests to remove {@link DoubleSampleIndex}s they've created.
+   *
+   * @param statisticName Name of the DoubleSampleIndex.
+   */
+  void removeDoubleSampleIndex(String statisticName) {
+    m_doubleSampleMap.remove(statisticName);
   }
 
   /**
    * Base for index classes.
    */
-  abstract static class AbstractSimpleIndex implements Index {
+  abstract static class AbstractSimpleIndex {
 
     private final int m_value;
-    private final boolean m_readOnly;
-
-    protected AbstractSimpleIndex(int i, boolean readOnly) {
-      m_value = i;
-      m_readOnly = readOnly;
-    }
 
     protected AbstractSimpleIndex(int i) {
-      this(i, false);
+      m_value = i;
     }
 
     public final int getValue() {
       return m_value;
-    }
-
-    public final boolean isReadOnly() {
-      return m_readOnly;
     }
   }
 
@@ -344,10 +349,6 @@ public final class StatisticsIndexMap implements Serializable {
     private DoubleIndex(int i) {
       super(i);
     }
-
-    private DoubleIndex(int i, boolean readOnly) {
-      super(i, readOnly);
-    }
   }
 
   /**
@@ -357,50 +358,43 @@ public final class StatisticsIndexMap implements Serializable {
     private LongIndex(int i) {
       super(i);
     }
-
-    private LongIndex(int i, boolean readOnly) {
-      super(i, readOnly);
-    }
   }
 
   /**
-   * Marker interface for a sample statistic indices.
+   * Base class for sample statistic indices.
    */
-  public interface SampleIndex extends Index {
-    /**
-     * @return Returns the index for the Count statistic.
-     */
-    LongIndex getCountIndex();
-
-    /**
-     * @return Returns the index for the Variance statistic.
-     */
-    DoubleIndex getVarianceIndex();
-  }
-
-  /**
-   * Abstract implementation of {@link SampleIndex}.
-   */
-  static class AbstractSampleIndex implements SampleIndex {
+  static class SampleIndex {
     private final LongIndex m_countIndex;
     private final DoubleIndex m_varianceIndex;
 
-    AbstractSampleIndex(int countIndexValue, int varianceIndexValue) {
-      m_countIndex = new LongIndex(countIndexValue, true);
-      m_varianceIndex = new DoubleIndex(varianceIndexValue, true);
+    protected SampleIndex(LongIndex countIndex, DoubleIndex varianceIndex) {
+      m_countIndex = countIndex;
+      m_varianceIndex = varianceIndex;
     }
 
     /**
-     * @return Returns the index for the Count statistic.
+     * Get the index object for our count (the number of samples).
+     *
+     * <p>Package scope to prevent direct write access. External clients should
+     * use the {@link RawStatistics} or {@link StatisticExpression} interfaces.
+     * </p>
+     *
+     * @return The index object.
      */
-    public final LongIndex getCountIndex() {
+    final LongIndex getCountIndex() {
       return m_countIndex;
     }
 
     /**
-     * @return Returns the index for the Variance statistic.
+     * Get the index object for our variance.
+     *
+     * <p>Package scope to prevent direct write access. External clients should
+     * use the {@link RawStatistics} or {@link StatisticExpression} interfaces.
+     * </p>
+     *
+     * @return The index object.
      */
-    public final DoubleIndex getVarianceIndex() {
+    final DoubleIndex getVarianceIndex() {
       return m_varianceIndex;
     }
   }
@@ -409,22 +403,26 @@ public final class StatisticsIndexMap implements Serializable {
    * Object that represents a sample statistic with <code>double</code> sample
    * values.
    */
-  public static final class DoubleSampleIndex extends AbstractSampleIndex {
+  public static final class DoubleSampleIndex extends SampleIndex {
     private final DoubleIndex m_sumIndex;
 
-    private DoubleSampleIndex(int sumIndexValue,
-                              int countIndexValue,
-                              int varianceIndexValue) {
-      super(countIndexValue, varianceIndexValue);
-      m_sumIndex = new DoubleIndex(sumIndexValue, true);
+    private DoubleSampleIndex(DoubleIndex sumIndex,
+                              LongIndex countIndex,
+                              DoubleIndex varianceIndex) {
+      super(countIndex, varianceIndex);
+      m_sumIndex = sumIndex;
     }
 
     /**
      * Get the index object for our sum.
      *
+     * <p>Package scope to prevent direct write access. External clients should
+     * use the {@link RawStatistics} or {@link StatisticExpression} interfaces.
+     * </p>
+     *
      * @return The index object.
      */
-    public DoubleIndex getSumIndex() {
+    DoubleIndex getSumIndex() {
       return m_sumIndex;
     }
   }
@@ -433,22 +431,26 @@ public final class StatisticsIndexMap implements Serializable {
    * Object that represents a sample statistic with <code>long</code> sample
    * values.
    */
-  public static final class LongSampleIndex extends AbstractSampleIndex {
+  public static final class LongSampleIndex extends SampleIndex {
     private final LongIndex m_sumIndex;
 
-    private LongSampleIndex(int sumIndexValue,
-                            int countIndexValue,
-                            int varianceIndexValue) {
-      super(countIndexValue, varianceIndexValue);
-      m_sumIndex = new LongIndex(sumIndexValue, true);
+    private LongSampleIndex(LongIndex sumIndex,
+                            LongIndex countIndex,
+                            DoubleIndex varianceIndex) {
+      super(countIndex, varianceIndex);
+      m_sumIndex = sumIndex;
     }
 
     /**
      * Get the index object for our sum.
      *
+     * <p>Package scope to prevent direct write access. External clients should
+     * use the {@link RawStatistics} or {@link StatisticExpression} interfaces.
+     * </p>
+     *
      * @return The index object.
      */
-    public LongIndex getSumIndex() {
+    LongIndex getSumIndex() {
       return m_sumIndex;
     }
   }
