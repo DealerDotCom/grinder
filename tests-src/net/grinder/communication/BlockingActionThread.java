@@ -31,26 +31,32 @@ import java.net.UnknownHostException;
  * Thread for testing that an action blocks.
  */
 abstract class BlockingActionThread extends Thread {
-    
+
+  private boolean m_finished = false;
   private Exception m_exception = null;
 
   public BlockingActionThread() {
     start();
   }
   
-  public void run() {
+  public synchronized void run() {
     try {
       blockingAction();
     }
     catch (Exception e) {
       m_exception = e;
     }
+
+    m_finished = true;
+    notifyAll();
   }
 
-  public Exception getException() {
-    Thread.yield();
+  public synchronized Exception getException() {
 
-    this.interrupt();
+    if (!m_finished) {
+      interrupt();
+      wait();
+    }
 
     return m_exception;
   }
