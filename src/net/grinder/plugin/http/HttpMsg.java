@@ -40,6 +40,7 @@ public class HttpMsg
     private boolean m_useCookie;
     private boolean m_followRedirects;
     private String m_cookie;
+    private boolean m_dontReadBody;
 
     public HttpMsg(PluginThreadContext pluginThreadContext, boolean useCookie,
 		   boolean followRedirects)
@@ -48,6 +49,12 @@ public class HttpMsg
 	m_useCookie = useCookie;
 	m_followRedirects = followRedirects;
 	reset();
+
+	// Hack to work around buffering problem when used in
+	// conjunction with the TCPSniffer.
+	m_dontReadBody = 
+	    pluginThreadContext.getPluginParameters().
+	    getBoolean("dontReadBoolean", false);
     }
 
     public String sendRequest(HttpRequestData requestData)
@@ -138,9 +145,11 @@ public class HttpMsg
 	    char[] buffer = new char[512];
 	    int charsRead = 0;
 
-	    //while ((charsRead = in.read(buffer, 0, buffer.length)) > 0) {
-		//		stringWriter.write(buffer, 0, charsRead);
-	    //}    
+	    if (!m_dontReadBody) {
+		while ((charsRead = in.read(buffer, 0, buffer.length)) > 0) {
+		    stringWriter.write(buffer, 0, charsRead);
+		}
+	    }
 
 	    in.close();
 	    stringWriter.close();
