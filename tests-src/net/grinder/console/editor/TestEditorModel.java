@@ -402,12 +402,14 @@ public class TestEditorModel extends AbstractFileTestCase {
     // Buffer changed because it is associated with a new file.
     listenerStubFactory.assertSuccess("bufferChanged", buffer);
     listenerStubFactory.assertNoMoreCalls();
-    agentCacheStateStubFactory.assertSuccess("setOutOfDate");
+    agentCacheStateStubFactory.assertSuccess("setOutOfDate",
+                                             new Long(file1.lastModified()));
     agentCacheStateStubFactory.assertNoMoreCalls();
 
     editorModel.saveBufferAs(buffer, file1);
     listenerStubFactory.assertNoMoreCalls();
-    agentCacheStateStubFactory.assertSuccess("setOutOfDate");
+    agentCacheStateStubFactory.assertSuccess("setOutOfDate",
+                                             new Long(file1.lastModified()));
     agentCacheStateStubFactory.assertNoMoreCalls();
 
     assertEquals(buffer, editorModel.getBufferForFile(file1));
@@ -417,7 +419,8 @@ public class TestEditorModel extends AbstractFileTestCase {
     // Buffer changed because it is associated with a new file.
     listenerStubFactory.assertSuccess("bufferChanged", buffer);
     listenerStubFactory.assertNoMoreCalls();
-    agentCacheStateStubFactory.assertSuccess("setOutOfDate");
+    agentCacheStateStubFactory.assertSuccess("setOutOfDate",
+                                             new Long(file2.lastModified()));
     agentCacheStateStubFactory.assertNoMoreCalls();
 
     assertNull(editorModel.getBufferForFile(file1));

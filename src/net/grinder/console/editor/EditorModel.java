@@ -265,7 +265,7 @@ public final class EditorModel {
     buffer.addListener(
       new Buffer.Listener() {
         public void bufferSaved(Buffer buffer) {
-          m_agentCacheState.setOutOfDate();
+          m_agentCacheState.setOutOfDate(buffer.getFile().lastModified());
         }
       }
       );

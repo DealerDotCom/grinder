@@ -40,10 +40,19 @@ public interface AgentCacheState {
   boolean getOutOfDate();
 
   /**
-   * Notify that the agent caches are out of date due to a file
-   * changing.
+   * Notify that the agent caches are invalid.
    */
   void setOutOfDate();
+
+  /**
+   * Notify that the agent caches are out of date due to a file
+   * changing.
+   *
+   * @param invalidAfter Cache entries with files newer than this time
+   * should be invalidated (milliseconds since Epoch). <code>-1</code>
+   * => invalidate the entire cache.
+   */
+  void setOutOfDate(long invalidAfter);
 
   /**
    * Allow other parties to register their interest in changes to our state.
