@@ -63,15 +63,6 @@ public final class TestStatisticsFactory {
    * @return A new <code>TestStatistics</code>.
    */
   public TestStatistics create() {
-    return createImplementation();
-  }
-
-  /**
-   * Package scope factory method that returns instances of our
-   * implementation type.
-   * @see #create
-   **/
-  TestStatisticsImplementation createImplementation() {
     return new TestStatisticsImplementation();
   }
 

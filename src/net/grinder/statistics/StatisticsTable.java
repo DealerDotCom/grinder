@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -146,8 +146,7 @@ public class StatisticsTable {
 
     out.println();
 
-    final TestStatisticsImplementation totals =
-      TestStatisticsFactory.getInstance().createImplementation();
+    final TestStatistics totals = TestStatisticsFactory.getInstance().create();
 
     synchronized (m_testStatisticsMap) {
 
