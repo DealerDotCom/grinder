@@ -60,6 +60,12 @@ public final class HTTPPluginControl {
   /**
    * Returns a {@link HTTPPluginConnection} for a particular URL.
    *
+   * <p>The resulting <code>HTTPPluginConnection</code> is valid for
+   * the current thread and the current run. It can be used to set
+   * specific authentication details, default headers, cookies, proxy
+   * servers, and so on for the current thread/run on a per-URL
+   * basis.</p>
+   *
    * <p>This method will throw a {@link GrinderException} if not
    * called from a worker thread.</p>
    *
