@@ -1,3 +1,14 @@
+2001-02-04  Philip Aston  <paston@beasys.com>
+
+	* src/net/grinder/plugin/http/CookieHandler.java: 
+	* src/net/grinder/plugin/http/HttpMsg.java: 
+		Move slightly closer to reasonable cookie handling.
+
+2001-02-02  Philip Aston  <paston@beasys.com>
+
+	* src/net/grinder/plugin/http/HttpMsg.java: 
+		Temporary switch to disable reading of the message bodies.
+
 2001-01-31  Philip Aston  <paston@beasys.com>
 
 	* The Grinder 2.3 is released
