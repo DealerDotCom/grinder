@@ -1,5 +1,7 @@
 2001-09-22  Philip Aston  <paston@bea.com>
 
+	* The Grinder 2.7.1 is released.
+
 	* examples/http/grinder.properties: Non contiguous test numbers.
 
 	* tests-src/net/grinder/util/TestPropertiesHelper.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/socket/SocketPlugin.java, src/net/grinder/plugininterface/Test.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/util/PropertiesHelper.java, src/net/grinder/util/TestImplementation.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java:
