@@ -1,3 +1,16 @@
+2000-12-18  Philip Aston  <paston@beasys.com>
+
+	* Grinder 0.8 is released.
+
+	* build.xml:
+		Don't delete the distribution jar in realclean target.
+		Don't distribute setenv.sh.
+		Change version.
+
+	* README:
+	* TODO:
+		Latest hints
+
 2000-12-14  Phil Dawes  <pdawes@beasys.com>
 
 	* src/net/grinder/plugin/http/HttpMsg.java:
@@ -16,8 +29,8 @@
 	* build.sh: 
 	* etc/build.xml:
 	* etc/javadoc.css:
-	* etc/setenv.sh
-	* README
+	* etc/setenv.sh:
+	* README:
 		Use Ant to build everything.
 	
 
