@@ -29,7 +29,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginException;
@@ -65,18 +67,19 @@ public class HttpPlugin extends SimplePluginBase
      */
     protected class CallData implements HTTPHandler.RequestData
     {
-	private String m_urlString;
-	private String m_okString;
-	private String m_ifModifiedSince;
+	private final String m_urlString;
+	private final String m_okString;
+	private final String m_ifModifiedSince;
 	private long m_ifModifiedSinceLong = -1;
 	private String m_postString;
 	private String m_contentType;
+	private final Set m_additionalHeaders;
 	private final String m_basicAuthenticationRealmString;
 	private final String m_basicAuthenticationUserString;
 	private final String m_basicAuthenticationPasswordString;
 	private final StringBuffer m_buffer = new StringBuffer();
 	private final Test m_test;
-	private Object[] m_noArgs = new Object[0];
+	private final Object[] m_noArgs = new Object[0];
 
 	public CallData(Test test) throws PluginException
 	{
@@ -94,6 +97,9 @@ public class HttpPlugin extends SimplePluginBase
 	    }
 
 	    m_okString = testParameters.getProperty("ok", null);
+
+	    m_additionalHeaders =
+		testParameters.getPropertySubset("header."). entrySet();
 
 	    m_ifModifiedSince =
 		testParameters.getProperty("ifModifiedSince", null);
@@ -259,13 +265,7 @@ public class HttpPlugin extends SimplePluginBase
 	public String getIfModifiedSince() { return m_ifModifiedSince; }
 	public long getIfModifiedSinceLong() { return m_ifModifiedSinceLong; }
 	public String getOKString() { return m_okString; }
-
-	protected void setURLString(String s) { m_urlString = s; }
-	protected void setPostString(String s) { m_postString = s; }
-	protected void setIfModifiedSince(String s) { m_ifModifiedSince = s; }
-	protected void setIfModifiedSinceLong(long l) {
-	    m_ifModifiedSinceLong = l; }
-	protected void setOKString(String s) { m_okString = s; }
+	public Set getAdditionalHeaders() { return m_additionalHeaders; }
     }
 
     /**
