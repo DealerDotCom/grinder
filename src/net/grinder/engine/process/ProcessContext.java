@@ -91,8 +91,7 @@ class ProcessContext {
 
       try {
 	consoleSender =
-	  new UnicastSender(getGrinderID(), consoleAddress,
-			    consolePort);
+	  new UnicastSender(getGrinderID(), consoleAddress, consolePort);
       }
       catch (CommunicationException e) {
 	m_processLogger.output(
