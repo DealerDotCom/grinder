@@ -91,8 +91,7 @@ final class CompositeTreeModel implements TreeModel {
       while (iterator.hasNext()) {
         final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
 
-        final Object delegateAnswer =
-          wrapper.getChild(parent, index);
+        final Object delegateAnswer = wrapper.getChild(parent, index);
 
         if (delegateAnswer != null) {
           return delegateAnswer;
