@@ -33,7 +33,6 @@ import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
 import net.grinder.communication.UnicastSender;
 import net.grinder.script.Grinder;
-import net.grinder.script.ScriptContext;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 
@@ -52,7 +51,7 @@ class ProcessContext {
   private final Sender m_consoleSender;
   private final PluginRegistry m_pluginRegistry;
   private final TestRegistry m_testRegistry;
-  private final ScriptContext m_scriptContext;
+  private final Grinder.ScriptContext m_scriptContext;
   private final boolean m_receiveConsoleSignals;
 
   private boolean m_shouldWriteTitleToDataWriter;
@@ -180,7 +179,7 @@ class ProcessContext {
     return m_recordTime;
   }
 
-  public final ScriptContext getScriptContext() {
+  public final Grinder.ScriptContext getScriptContext() {
     return m_scriptContext;
   }
 

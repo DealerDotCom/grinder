@@ -26,7 +26,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.script.InvalidContextException;
-import net.grinder.script.ScriptContext;
+import net.grinder.script.Grinder;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsView;
@@ -38,7 +38,7 @@ import net.grinder.communication.RegisterStatisticsViewMessage;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ScriptContextImplementation implements ScriptContext {
+final class ScriptContextImplementation implements Grinder.ScriptContext {
 
   private final ProcessContext m_processContext;
 

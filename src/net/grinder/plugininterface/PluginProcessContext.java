@@ -25,7 +25,7 @@ package net.grinder.plugininterface;
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
-import net.grinder.script.ScriptContext;
+import net.grinder.script.Grinder;
 
 
 /**
@@ -57,7 +57,7 @@ public interface PluginProcessContext {
    *
    * @return The script context.
    */
-  ScriptContext getScriptContext();
+  Grinder.ScriptContext getScriptContext();
 
   /**
    * Returns the {@link PluginThreadListener} for the current

@@ -29,7 +29,7 @@ import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadListener;
-import net.grinder.script.ScriptContext;
+import net.grinder.script.Grinder;
 
 
 /**
@@ -56,7 +56,7 @@ final class RegisteredPlugin implements PluginProcessContext {
     return m_processContext.getLoggerImplementation().getFilenameFactory();
   }
 
-  public final ScriptContext getScriptContext() {
+  public final Grinder.ScriptContext getScriptContext() {
     return m_processContext.getScriptContext();
   }
 
