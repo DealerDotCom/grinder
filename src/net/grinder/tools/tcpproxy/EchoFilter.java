@@ -67,7 +67,7 @@ public class EchoFilter implements TCPProxyFilter {
     boolean inHex = false;
 
     for (int i = 0; i < bytesRead; i++) {
-      final int value = (buffer[i] & 0xFF);
+      final int value = buffer[i] & 0xFF;
 
       // If it's ASCII, print it as a char.
       if (value == '\r' || value == '\n' || (value >= ' ' && value <= '~')) {

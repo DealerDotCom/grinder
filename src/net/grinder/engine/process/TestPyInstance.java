@@ -21,12 +21,11 @@
 
 package net.grinder.engine.process;
 
+import org.python.core.ClonePyInstance;
 import org.python.core.Py;
 import org.python.core.PyInstance;
 import org.python.core.PyJavaInstance;
 import org.python.core.PyObject;
-
-import org.python.core.ClonePyInstance;
 
 
 /**

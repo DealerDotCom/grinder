@@ -32,6 +32,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -40,7 +41,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.text.DateFormat;
 
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.MatchResult;
@@ -200,14 +200,14 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     }
 
     // displays the value of all system properties used by this filter
-    debug ("debug: " + s_debug);
-    debug ("userAgent: " + s_userAgent);
-    debug ("cookieName: " + s_cookieName);
-    debug ("searchedPagePattern: " + s_searchedPagePattern);
-    debug ("excludeResource: " + s_excludeResource);
-    debug ("sleepTime: " + s_sleepTime);
-    debug ("resource: " + s_resource.toString());
-    debug ("discard pattern: " + s_discardPattern);
+    debug("debug: " + s_debug);
+    debug("userAgent: " + s_userAgent);
+    debug("cookieName: " + s_cookieName);
+    debug("searchedPagePattern: " + s_searchedPagePattern);
+    debug("excludeResource: " + s_excludeResource);
+    debug("sleepTime: " + s_sleepTime);
+    debug("resource: " + s_resource.toString());
+    debug("discard pattern: " + s_discardPattern);
 
     final PatternCompiler compiler = new Perl5Compiler();
 
@@ -278,14 +278,14 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       i++;
     }
 
-    m_scriptFileName = System.getProperty (FILENAME_V1_PROPERTY, "httpscript") +
+    m_scriptFileName = System.getProperty(FILENAME_V1_PROPERTY, "httpscript") +
       ".py";
 
     m_scriptFileWriter =
       new PrintWriter(
         new BufferedWriter(new FileWriter(m_scriptFileName)), false);
 
-    final String testFileNamePrefix = System.getProperty (FILENAME_V1_PROPERTY,
+    final String testFileNamePrefix = System.getProperty(FILENAME_V1_PROPERTY,
       "httpscript") + "_tests";
     m_testFileName = testFileNamePrefix + ".py";
 
@@ -293,7 +293,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       new PrintWriter(
         new BufferedWriter(new FileWriter(m_testFileName)), false);
 
-    m_recordedScenarioFileName = System.getProperty (FILENAME_V2_PROPERTY,
+    m_recordedScenarioFileName = System.getProperty(FILENAME_V2_PROPERTY,
       "RecordedScenario") + ".py";
     m_recordedScenarioFileWriter =
       new PrintWriter(
@@ -303,7 +303,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
 
     addComment(m_scriptFileWriter, version);
     m_scriptFileWriter.println("from " +
-      new File (testFileNamePrefix).getName() + " import *");
+      new File(testFileNamePrefix).getName() + " import *");
     m_scriptFileWriter.println(
       "from net.grinder.script.Grinder import grinder");
     m_scriptFileWriter.println();
@@ -561,11 +561,11 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     return ++m_currentPageNumber;
   }
 
-  private synchronized boolean isDiscardingAssociatedResources () {
+  private synchronized boolean isDiscardingAssociatedResources() {
     return m_discardingAssociatedResources;
   }
 
-  private synchronized void setDiscardingAssociatedResources (boolean value) {
+  private synchronized void setDiscardingAssociatedResources(boolean value) {
     this.m_discardingAssociatedResources = value;
   }
 
@@ -858,7 +858,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
 
       debug("URL: [" + m_url + "]");
       debug("QueryString: [" + m_queryString + "]");
-      debug ("Main page/Resource: " + isNewPage);
+      debug("Main page/Resource: " + isNewPage);
 
       final int remainder = (getPageNumber(true) + 1) % s_length;
       if (remainder == 0) {
@@ -947,7 +947,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
         boolean addFormDataOutput = true;
         if (pos != -1) {
           final int pos2 = m_url.indexOf("?", pos);
-          if ((pos2 != -1) && (!"".equals (m_url.substring(pos2)))) {
+          if ((pos2 != -1) && (!"".equals(m_url.substring(pos2)))) {
             m_url = m_url.substring(0, pos + s_cookieName.length() + 1) +
               "' + self.jsess + '" + m_url.substring(pos2);
           }
@@ -992,12 +992,12 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       m_recordedScenarioFileWriter.flush();
     }
 
-    private synchronized boolean parseBody (StringBuffer testOutput,
-                                            StringBuffer scriptOutput,
-                                            StringBuffer formDataOutput,
-                                            int requestNumber,
-                                            String requestVariable)
-                                            throws IOException {
+    private synchronized boolean parseBody(StringBuffer testOutput,
+                                           StringBuffer scriptOutput,
+                                           StringBuffer formDataOutput,
+                                           int requestNumber,
+                                           String requestVariable)
+      throws IOException {
       final String dataParameter = "data" + requestNumber;
       final String fileName = dataParameter + ".dat";
       boolean parsedFormData = false;
@@ -1087,7 +1087,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       }
       else {
         isNewPage = true;
-        setDiscardingAssociatedResources (false);
+        setDiscardingAssociatedResources(false);
       }
 
       final StringBuffer scriptOutput = new StringBuffer();
@@ -1260,11 +1260,11 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       boolean parsedFormData = false;
 
       if (!m_parsingHeaders && m_handlingBody) {
-        parsedFormData = parseBody (testOutput,
-                                    scriptOutput,
-                                    formDataOutput,
-                                    requestNumber,
-                                    requestVariable);
+        parsedFormData = parseBody(testOutput,
+                                   scriptOutput,
+                                   formDataOutput,
+                                   requestNumber,
+                                   requestVariable);
       }
 
       scriptOutput.append(")");
@@ -1273,9 +1273,9 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       int i = 0;
       boolean discardThisPage = false;
       while (i < DISCARD_PATTERN_LENGTH && m_discardPattern[i] != null) {
-        if (m_matcher.contains (m_url + m_queryString, m_discardPattern[i])) {
+        if (m_matcher.contains(m_url + m_queryString, m_discardPattern[i])) {
           discardThisPage = true;
-          setDiscardingAssociatedResources (true);
+          setDiscardingAssociatedResources(true);
           break;
         }
         i++;
@@ -1285,11 +1285,11 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
         if (isNewPage) {
           pageNumber = incrementPageNumber();
         }
-        generateRecordedScenario (isNewPage,
-                                  parsedFormData,
-                                  formDataOutput,
-                                  queryStringOutput,
-                                  contentTypeValue);
+        generateRecordedScenario(isNewPage,
+                                 parsedFormData,
+                                 formDataOutput,
+                                 queryStringOutput,
+                                 contentTypeValue);
       }
 
       m_scriptFileWriter.print(scriptOutput.toString());

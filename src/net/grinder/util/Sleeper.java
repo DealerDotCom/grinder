@@ -196,7 +196,7 @@ public final class Sleeper {
   public static final class ShutdownException extends GrinderException {
 
     private ShutdownException(String message) {
-      super (message);
+      super(message);
     }
   }
 }

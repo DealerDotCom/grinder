@@ -31,7 +31,7 @@ import net.grinder.engine.common.EngineException;
  */
 final class ShutdownException extends EngineException {
   public ShutdownException(String message) {
-    super (message);
+    super(message);
   }
 }
 

@@ -28,8 +28,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -173,15 +173,15 @@ public class HTTPRequest {
     final StringBuffer result = new StringBuffer("");
 
     if (m_defaultURL == null) {
-      result.append ("<Undefined URL>\n");
+      result.append("<Undefined URL>\n");
     }
     else {
-      result.append (m_defaultURL.toString() + "\n");
+      result.append(m_defaultURL.toString() + "\n");
     }
 
     for (int i = 0; i < m_defaultHeaders.length; i++) {
-      result.append (m_defaultHeaders[i].getName() + ": " +
-                     m_defaultHeaders[i].getValue() + "\n");
+      result.append(m_defaultHeaders[i].getName() + ": " +
+                    m_defaultHeaders[i].getValue() + "\n");
     }
 
     return result.toString();
@@ -904,6 +904,6 @@ public class HTTPRequest {
       pos++;
     }
 
-    return (ch == ':');
+    return ch == ':';
   }
 }

@@ -84,7 +84,7 @@ class Graph extends JComponent {
     graphics.setColor(m_color);
 
     if (m_recalculate) {
-      final double xScale = (getWidth() / (double)m_values.length);
+      final double xScale = getWidth() / (double)m_values.length;
 
       for (int i = 0; i <= m_values.length; i++) {
         final int x = (int)(i * xScale);

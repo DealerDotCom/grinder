@@ -35,7 +35,7 @@ tests, reports, and to create the documentation:
   - JUnit 3.8.1
   - XWeb 1.0RC3
   - Xalan 2.3.1
-  - Checkstyle 3.3
+  - Checkstyle 3.4
   - Clover 1.3.02
 
   (You might not need these exact versions). 
@@ -98,8 +98,8 @@ what you want. Currently the conditionally built modules are:
   <property file="${etc.dir}/localpaths.properties"/>
 
   <!-- output -->
+  <!-- classes.dir is calcuated in init. -->
   <property name="build.dir" value="build"/>
-  <property name="classes.dir" value="${build.dir}/classes"/>
   <property name="test-classes.dir" value="${build.dir}/tests-classes"/>
   <property name="lib.dir" value="lib"/>
   <property name="lib.jar" value="${name}.jar"/>
@@ -107,6 +107,7 @@ what you want. Currently the conditionally built modules are:
   <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
   <property name="clover.dir" value="clover"/>
   <property name="lasttest.timestamp" value="last-test-run.timestamp"/>
+  <property name="build.log" value="${build.dir}/build.log"/>
 
   <!-- javadoc -->
   <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
@@ -163,6 +164,18 @@ what you want. Currently the conditionally built modules are:
   <target name="init">
     <tstamp/>
 
+    <mkdir dir="${build.dir}"/>
+    <record name="${build.log}" loglevel="verbose" append="false"/>
+
+    <!-- Separate clover instrumented classes. -->
+    <condition property="classes.dir" value="${build.dir}/classes">
+      <not><isset property="with.clover"/></not>
+    </condition>
+
+    <condition property="classes.dir" value="${build.dir}/clover-classes">
+      <isset property="with.clover"/>
+    </condition>
+
     <echo message="** Building ${Name} ${version} on ${TODAY} **"/>
 
     <path id="build.classpath">
@@ -193,7 +206,7 @@ what you want. Currently the conditionally built modules are:
                classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
 	       property="have.optional.tasks" />
 
-    <!-- We test on a class thats in our later version of ORO but not
+    <!-- We test on a class that's in our later version of ORO but not
     the version shipped with Jython. -->
     <available classpathref="build.classpath"
                classname="org.apache.oro.text.PatternCache"
@@ -436,7 +449,7 @@ what you want. Currently the conditionally built modules are:
     <touch file="${build.dir}/${lasttest.timestamp}"/>
   </target>
 
-  <target name="with.clover">
+  <target name="clover">
     <taskdef resource="clovertasks"/>
 
     <clover-setup initstring="${clover.dir}/coverage.db">
@@ -444,9 +457,11 @@ what you want. Currently the conditionally built modules are:
        <include name="net/grinder/**"/>
       </fileset>
     </clover-setup>
+
+    <property name="with.clover" value="true"/>
   </target>
 
-  <target name="clover.swing" depends="with.clover">
+  <target name="clover.swing" depends="clover">
     <clover-view/>
   </target>
 
@@ -643,7 +658,7 @@ what you want. Currently the conditionally built modules are:
     <delete dir="${doc.dir}" quiet="true"/>
     <delete dir="${lib.dir}"/>
     <delete>
-      <fileset dir="." includes="**/*~" defaultexcludes="no"/>
+      <fileset dir="." includes="**/*~" defaultexcludes="false"/>
     </delete>
 
   </target>

@@ -21,8 +21,9 @@
 
 package net.grinder.console.messages;
 
-import net.grinder.communication.Message;
 import java.util.Collection;
+
+import net.grinder.communication.Message;
 
 
 /**

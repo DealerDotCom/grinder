@@ -550,7 +550,7 @@ public final class Model {
 
           while (iterator.hasNext()) {
             final SampleAccumulator sampleAccumulator =
-              ((SampleAccumulator)iterator.next());
+              (SampleAccumulator)iterator.next();
             sampleAccumulator.fireSample(sampleInterval, period);
           }
         }
@@ -650,7 +650,7 @@ public final class Model {
 
       while (iterator.hasNext()) {
         final SampleAccumulator sampleAccumulator =
-          ((SampleAccumulator)iterator.next());
+          (SampleAccumulator)iterator.next();
         sampleAccumulator.zero();
       }
     }

@@ -103,9 +103,9 @@ public final class InsecureSSLContextFactory {
 
   private static class TrustEveryone implements X509TrustManager {
 
-    public boolean isClientTrusted (X509Certificate[] chain) { return true; }
+    public boolean isClientTrusted(X509Certificate[] chain) { return true; }
 
-    public boolean isServerTrusted (X509Certificate[] chain) { return true; }
+    public boolean isServerTrusted(X509Certificate[] chain) { return true; }
 
     public X509Certificate[] getAcceptedIssuers() { return null; }
   }

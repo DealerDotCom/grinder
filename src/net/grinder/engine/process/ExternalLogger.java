@@ -21,9 +21,9 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.Logger;
-
 import java.io.PrintWriter;
+
+import net.grinder.common.Logger;
 
 
 /**

@@ -30,10 +30,10 @@ import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.grinder.common.Logger;
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
+import net.grinder.common.Logger;
 import net.grinder.communication.ClientReceiver;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
@@ -353,7 +353,7 @@ public final class Agent {
       m_processIncrement = processIncrement;
     }
 
-    public void run () {
+    public void run() {
       try {
         final boolean moreProcessesToStart =
           m_processLauncher.startSomeProcesses(m_processIncrement);

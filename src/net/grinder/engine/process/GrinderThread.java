@@ -117,7 +117,7 @@ class GrinderThread implements java.lang.Runnable {
       int currentRun;
 
       for (currentRun = 0;
-           (m_numberOfRuns == 0 || currentRun < m_numberOfRuns);
+           m_numberOfRuns == 0 || currentRun < m_numberOfRuns;
            currentRun++) {
 
         logger.setCurrentRunNumber(currentRun);

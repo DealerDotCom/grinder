@@ -32,9 +32,9 @@ import java.net.Socket;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import javax.net.ServerSocketFactory;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 import com.sun.net.ssl.KeyManagerFactory;
 import com.sun.net.ssl.SSLContext;

@@ -23,10 +23,10 @@ package net.grinder.console.editor;
 
 import java.io.File;
 import java.util.EventListener;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.HashMap;
 import java.util.Map;
 
 import net.grinder.console.common.ConsoleException;

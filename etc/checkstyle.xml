@@ -9,10 +9,10 @@
         <property name="file" value="${checkstyle.suppressions.file}"/>
     </module>
 
-    <module name="PackageHtml"/>
-
     <module name="NewlineAtEndOfFile"/>
-
+    <module name="PackageHtml"/>
+    <!-- No good as it matches the common header comments.
+    <module name="StrictDuplicateCode"/> -->
     <module name="Translation"/>
 
     <module name="TreeWalker">
@@ -52,21 +52,31 @@
         <module name="StaticVariableName">
           <property name="format" value="^s_[a-z][a-zA-Z0-9]*$"/>
         </module>
-        <module name="TabCharacter"/>
         <module name="TypeName"/>
 
         <module name="AvoidStarImport"/>
         <module name="IllegalImport"/>
+
+        <!-- Doesn't support sorting by package depth first.
+        <module name="ImportOrder">
+          <property name="caseSensitive" value="false"/>
+          <property name="groups" value="java,javax,org"/>
+          <property name="ordered" value="true"/>
+          <property name="separated" value="false"/>
+        </module>
+        -->
         <module name="RedundantImport"/>
         <module name="UnusedImports"/>
 
-        <module name="FileLength"/>
-        <module name="LineLength"/>
-
-        <!-- Should aim to reduce these maxima over time. -->
+        <!-- Aim to reduce non-default maxima over time. -->
         <module name="AnonInnerLength">
           <property name="max" value="50"/>
         </module>
+        <module name="ExecutableStatementCount">
+          <property name="max" value="200"/>
+        </module>
+        <module name="FileLength"/>
+        <module name="LineLength"/>
         <module name="MethodLength">
           <property name="tokens" value="METHOD_DEF"/>
           <property name="max" value="250"/>
@@ -79,7 +89,9 @@
           <property name="max" value="9"/>
         </module>
 
+        <module name="EmptyForInitializerPad"/>
         <module name="EmptyForIteratorPad"/>
+        <module name="MethodParamPad"/>
         <module name="NoWhitespaceAfter">
           <property name="tokens"
                     value="BNOT,DEC,DOT,INC,LNOT,UNARY_MINUS,UNARY_PLUS"/>
@@ -89,12 +101,19 @@
           <property name="option" value="eol"/>
         </module>
         <module name="ParenPad"/>
+        <module name="TabCharacter"/>
+        <module name="TypecastParenPad"/>
         <module name="WhitespaceAfter">
           <property name="tokens" value="COMMA,SEMI"/>
         </module>
         <module name="WhitespaceAround"/>
 
         <module name="ModifierOrder"/>
+
+        <!-- Sadly Checkstyle 3.2 has made this stricter such that
+        methods in final classes can't be declared final. No way to
+        select the older, less strict approach. --> <module
+        name="RedundantModifier"/>
 
         <module name="AvoidNestedBlocks"/>
         <module name="EmptyBlock">
@@ -108,11 +127,17 @@
 
         <module name="ArrayTrailingComma"/>
         <module name="CovariantEquals"/>
+        <!-- Doesn't support my preferred "all static, then
+        non-static" rule. -->
+        <!-- <module name="DeclarationOrder"/> -->
+        <module name="DefaultComesLast"/>     
         <module name="DoubleCheckedLocking"/>
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
         <module name="FinalLocalVariable"/>
         <module name="HiddenField"/>
+        <!-- May fix code for the following some day. -->
+        <!-- <module name="IllegalCatch"/> -->
         <module name="IllegalInstantiation">
           <property name="classes" value="java.lang.Boolean"/>
         </module>
@@ -122,6 +147,7 @@
         </module>
         <module name="InnerAssignment"/>
         <module name="MissingSwitchDefault"/>
+        <module name="MultipleVariableDeclarations"/>
         <module name="NestedIfDepth">
           <property name="max" value="2"/>
         </module>
@@ -132,17 +158,23 @@
         <module name="SimplifyBooleanReturn"/>
         <module name="SuperClone"/>
         <module name="SuperFinalize"/>
+        <module name="UnnecessaryParentheses"/>
 
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
         <module name="MutableException"/>
-
         <module name="VisibilityModifier"/>
 
-        <!-- Several things fail his, but sometimes its useful to turn
+        <!-- Many things fail these, but sometimes its useful to turn
         on for review. -->
-        <!-- <module name="CyclomaticComplexity"> -->
+        <!--
+        <module name="BooleanExpressionComplexity"/>
+        <module name="ClassDataAbstractionCoupling"/>
+        <module name="ClassFanOutComplexity"/>
+        <module name="CyclomaticComplexity"/>
+        <module name="NPathComplexity"/>
+        -->
 
         <module name="ArrayTypeStyle"/>
         <module name="GenericIllegalRegexp">
@@ -159,14 +191,15 @@
             <property name="message" value="Direct access to stderr."/>
         </module>
     -->
+        <!-- Not flexible enough to cope with my preferred
+    indentation. -->
+        <!-- <module name="Indentation">
+          <property name="basicOffset" value="2"/>
+        </module> -->
         <module name="TodoComment">
             <property name="format" value="TODO"/>
         </module>
         <module name="UpperEll"/>
-
-
-        <!-- May fix code for the following some day. -->
-        <!-- <module name="IllegalCatch"/> -->
 
         <!-- I would like to use the following, but they require J2SE
         1.4.1. Checkstyle bug 910892. -->
@@ -182,29 +215,21 @@
         <!--  <property name="headerFile" value="${basedir}/etc/header.txt"/> -->
         <!-- </module> -->
 
-        <!-- Sadly Checkstyle 3.2 has made this stricter such that
-        methods in final classes can't be declared final. No way to
-        select the older, less strict approach. -->
-        <module name="RedundantModifier"/>
-
-        <!-- Doesn't support my preferred "all static, then
-        non-static" rule. -->
-        <!-- <module name="DeclarationOrder"/> -->
-
-        <!-- Not flexible enough to cope with my preferred
-    indentation. -->
-        <!-- <module name="Indentation">
-          <property name="basicOffset" value="2"/>
-        </module> -->
 
         <!-- I disagree with the following... -->
         <!-- <module name="AvoidInlineConditionals"/> -->
         <!-- <module name="DesignForExtension"/> -->
         <!-- <module name="ExplicitInitialization"/> -->
+        <!-- <module name="FallThrough"/> -->
         <!-- <module name="FinalParameters"/> -->
         <!-- <module name="MagicNumber"/> -->
+        <!-- <module name="MissingCtor"/> -->
         <!-- <module name="RedundantThrows"/> -->
+        <!-- <module name="RequireThis"/> -->
         <!-- <module name="ReturnCount"/> -->
+        <!-- <module name="ThrowsCount"/> -->
+        <!-- <module name="TrailingComment"/> -->
+        <!-- <module name="UncommentedMain"/> -->
 
     </module>
 
