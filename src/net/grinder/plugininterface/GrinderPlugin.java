@@ -40,8 +40,9 @@ public interface GrinderPlugin
      * This method is executed when the process starts. It is only
      * executed once.
      * @param processContext Process information. {@link
-     * PluginProcessContext} implements {@link Logger} but for
-     * efficiency the implementation isn't synchronised. 
+     * PluginProcessContext} implements {@link
+     * net.grinder.common.Logger} but for efficiency the
+     * implementation isn't synchronised.
      */
     public void initialize(PluginProcessContext processContext)
 	throws PluginException;

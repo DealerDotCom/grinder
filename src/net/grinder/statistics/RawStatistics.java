@@ -30,7 +30,7 @@ package net.grinder.statistics;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see net.grinder.script.ScriptContext#getCurrentTestStatistics
+ * @see net.grinder.script.ScriptContext#getStatistics
  **/
 public interface RawStatistics {
 

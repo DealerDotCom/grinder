@@ -36,7 +36,7 @@ import net.grinder.util.DelayedCreationFileWriter;
 /**
  * Logger implementation.
  *
- * <p>Each thread should call {@link #createProcessLogger} or {@link
+ * <p>Each thread should call {@link #getProcessLogger} or {@link
  * #createThreadLogger} to get a {@link net.grinder.common.Logger}.
  * </p>
  *
@@ -221,9 +221,9 @@ final class LoggerImplementation {
   /**
    * Thread specific state.
    *
-   * <p>We declare that we implement {@link Logger} as well as
-   * {@link ThreadLogger} because <code>ThreadLogger</code> is
-   * package scope and this prevents Jython from seeing
+   * <p>We declare that we implement {@link net.grinder.common.Logger}
+   * as well as {@link ThreadLogger} because <code>ThreadLogger</code>
+   * is package scope and this prevents Jython from seeing
    * <code>Logger</code> (<code>IllegalAccessException</code>s
    * abound.</p>
    **/

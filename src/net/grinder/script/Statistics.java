@@ -27,9 +27,10 @@ import net.grinder.statistics.StatisticsIndexMap;
 /**
  * Script statisistics reporting API.
  *
- * <p>An instance of this interface can be obtained using {@link
- * ScriptContext#getStatistics}. This can be used in a script to query
- * the result of the last test. For example:
+ * <p>An instance of this interface can be obtained using
+ * {@link ScriptContext#getStatistics}.
+ *  This can be used in a script to query * the result of the last
+ *  test. For example:
  *
  * <blockquote>
  * <pre>
@@ -48,7 +49,7 @@ import net.grinder.statistics.StatisticsIndexMap;
  *  automatic reporting for the current worker thread. Having done
  *  this, the script can modify or set the statistics before they are
  *  sent to the log and the console. The statistics reports are sent
- *  at a later time as described {@linkplain #setDelayReports below}.
+ *  at a later time as described in {@link #setDelayReports} below.
  *  For example:
  *
  *
@@ -120,8 +121,8 @@ public interface Statistics  {
   /**
    * Return whether the statistics for the current test are available
    * for update. If this returns <code>true</code>, then other methods
-   * will not throw {@link InvalidContextException} or {@link
-   * StatisticsAlreadyReportedException}.
+   * will not throw {@link InvalidContextException} or
+   * {@link StatisticsAlreadyReportedException}.
    */
   boolean availableForUpdate();
 

@@ -30,7 +30,7 @@ import HTTPClient.NVPair;
 
 /**
  * Implementation of {@link HTTPPluginConnection} using {@link
- * HTTPClient.HTTPPluginConnection}.
+ * HTTPClient.HTTPConnection}.
  *
  * @author Philip Aston
  * @version $Revision$

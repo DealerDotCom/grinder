@@ -81,7 +81,8 @@ final class ConsoleListener {
    * @param properties The {@link GrinderProperties}
    * @param notifyOnMessage A {@link Monitor} to notify when a
    * message arrives.
-   * @param logger A {@link Logger} to log receive event messages to.
+   * @param logger A {@link net.grinder.common.Logger} to log receive
+   * event messages to.
    * @exception CommunicationException If a multicast error occurs.
    **/
   public ConsoleListener(GrinderProperties properties,
