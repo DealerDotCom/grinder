@@ -23,9 +23,9 @@
   should be in 'unified diff' (<code>diff -u</code>) format against
   the latest released version of The Grinder 3. Patches should also
   include updates to the relevant documentation sources. Please
-  include a statement that you are happy for your work to be
-  distributed under the terms of <a href="site:license">The Grinder
-  license</a>.</p>
+  include a statement that you, and where appropriate your employer,
+  are happy for your work to be distributed under the terms of <a
+  href="site:license">The Grinder license</a>.</p>
 
   <p>Please pay attention to the existing coding style of The Grinder.
   There is a <a href="ext:checkstyle">Checkstyle</a> configuration
@@ -37,6 +37,17 @@
   Checkstyle rules will be rejected. Whilst we're considering coding
   style, please note that Philip considers abbreviated variable names
   to be evil.</p>
+
+  <p>I have a strong preference for classes that take all the things
+  they need as parameters to their constructors (like <a
+  href="ext:fowler/constructor-injection">constructor injection</a>),
+  and for contracts to be specified in terms of Java interfaces. This
+  makes unit testing more powerful, and forces the developer to think
+  primarily about the purpose and contract of each class. I actively
+  track code coverage, and would expect full JUnit tests for new code.
+  I use <a href="ext:cenqua/clover">Clover</a>; you can get a free
+  Clover license for development of The Grinder.</p>
+
   </section>
 
 
