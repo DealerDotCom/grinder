@@ -6,7 +6,7 @@
 #
 # Each worker thread:
 #  - Creates a queue session
-#  - Recieves ten messages
+#  - Receives ten messages
 #  - Closes the queue session
 #
 # This script demonstrates the use of The Grinder statistics API to
