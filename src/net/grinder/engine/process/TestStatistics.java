@@ -47,9 +47,9 @@ class MethodStatistics
 						  boolean updateSnapshot)
     {
 	final MethodStatistics result = new MethodStatistics(
-	    snapshot.m_transactions - m_transactions,
-	    snapshot.m_totalTime - m_totalTime,
-	    snapshot.m_errors - m_errors);
+	    m_transactions - snapshot.m_transactions,
+	    m_totalTime - snapshot.m_totalTime,
+	    m_errors - snapshot.m_errors);
 
 	if (updateSnapshot) {
 	    snapshot.m_transactions = m_transactions;
