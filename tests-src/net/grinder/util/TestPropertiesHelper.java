@@ -112,7 +112,7 @@ public class TestPropertiesHelper extends TestCase
 	    final PropertiesHelper helper = new PropertiesHelper();
 
 	    final ProcessContextImplementation context =
-		new ProcessContextImplementation();
+		new ProcessContextImplementation("host", "process");
 
 	    helper.instantiatePlugin(context);
 
@@ -126,7 +126,7 @@ public class TestPropertiesHelper extends TestCase
 	final PropertiesHelper helper = new PropertiesHelper();
 
 	final ProcessContextImplementation context =
-	    new ProcessContextImplementation();
+	    new ProcessContextImplementation("host", "process");
 
 	helper.instantiatePlugin(context);
     }
@@ -138,7 +138,7 @@ public class TestPropertiesHelper extends TestCase
 	final PropertiesHelper helper = new PropertiesHelper();
 
 	final ProcessContextImplementation context =
-	    new ProcessContextImplementation();
+	    new ProcessContextImplementation("host", "process");
 
 	final Set tests = helper.getTestSet(helper.instantiatePlugin(context));
 
