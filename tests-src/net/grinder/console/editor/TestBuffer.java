@@ -30,6 +30,7 @@ import java.net.UnknownHostException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -103,18 +104,6 @@ public class TestBuffer extends AbstractFileTestCase {
     }
   }
 
-  private void assertNotEquals(Object o1, Object o2) {
-    if (o1 == null) {
-      assertNotNull(o2);
-    }
-    else if (o2 == null) {
-      assertNotNull(o1);
-    }
-    else {
-      assertTrue("'" + o1 + "' is not equal to '" + o2 + "'", !o1.equals(o2));
-    }
-  }
-
   public void testGetType() throws Exception {
     final StringTextSource textSource = new StringTextSource("");
 
@@ -150,9 +139,10 @@ public class TestBuffer extends AbstractFileTestCase {
     }
 
     assertEquals(Buffer.HTML_BUFFER, Buffer.HTML_BUFFER);
-    assertNotEquals(Buffer.HTML_BUFFER, Buffer.TEXT_BUFFER);
-    assertNotEquals(Buffer.TEXT_BUFFER, Buffer.HTML_BUFFER);
-    assertNotEquals(Buffer.PROPERTIES_BUFFER, Buffer.UNKNOWN_BUFFER);
+    AssertUtilities.assertNotEquals(Buffer.HTML_BUFFER, Buffer.TEXT_BUFFER);
+    AssertUtilities.assertNotEquals(Buffer.TEXT_BUFFER, Buffer.HTML_BUFFER);
+    AssertUtilities.assertNotEquals(Buffer.PROPERTIES_BUFFER,
+                                    Buffer.UNKNOWN_BUFFER);
     assertEquals(Buffer.PYTHON_BUFFER, Buffer.PYTHON_BUFFER);
   }
 
@@ -182,6 +172,11 @@ public class TestBuffer extends AbstractFileTestCase {
     buffer.save();
 
     assertTrue(!buffer.isDirty());
+
+    // Sometimes the following isUpToDate fails. Maybe a little sleep
+    // will help.
+    Thread.sleep(10);
+
     assertTrue(buffer.isUpToDate());
 
     assertSame(s0, textSource.getText());

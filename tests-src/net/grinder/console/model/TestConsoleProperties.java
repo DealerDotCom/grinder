@@ -34,6 +34,7 @@ import java.util.Random;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
+import net.grinder.testutility.AssertUtilities;
 
 
 /**
@@ -346,17 +347,6 @@ public class TestConsoleProperties extends TestCase {
     assertEquals(p1.getDistributionDirectory(), p2.getDistributionDirectory());
     assertEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
   }
-  private void assertNotEquals(Object o1, Object o2) {
-    if (o1 == null) {
-      assertNotNull(o2);
-    }
-    else if (o2 == null) {
-      assertNotNull(o1);
-    }
-    else {
-      assertTrue(!o1.equals(o2));
-    }
-  }
 
   public void testAssignment() throws Exception {
     final ConsoleProperties p1 = new ConsoleProperties(s_resources, m_file);
@@ -385,10 +375,10 @@ public class TestConsoleProperties extends TestCase {
     assertTrue(p1.getResetConsoleWithProcessesDontAsk() !=
 	       p2.getResetConsoleWithProcessesDontAsk());
     assertTrue(p1.getStopProcessesDontAsk() != p2.getStopProcessesDontAsk());
-    assertNotEquals(p1.getScriptFile(), p2.getScriptFile());
-    assertNotEquals(p1.getDistributionDirectory(),
-                    p2.getDistributionDirectory());
-    assertNotEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
+    AssertUtilities.assertNotEquals(p1.getScriptFile(), p2.getScriptFile());
+    AssertUtilities.assertNotEquals(p1.getDistributionDirectory(),
+                                    p2.getDistributionDirectory());
+    AssertUtilities.assertNotEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
 
     p2.set(p1);
 
