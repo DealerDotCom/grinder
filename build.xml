@@ -296,7 +296,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   <!-- =================================================================== -->
   <!-- Packages the distribution as .zip                                   -->
   <!-- =================================================================== -->
-  <target name="dist" depends="distribution-hierarchy"
+  <target name="dist" depends="distribution-hierarchy,test"
 	  description="Generates a distribution jar.">
     <jar jarfile="${name}-pre-${version}-${DSTAMP}.jar"
 	 basedir="${dist.root}"/>
