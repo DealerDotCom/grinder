@@ -20,6 +20,7 @@ package net.grinder.plugin.http.example;
 
 import net.grinder.common.Test;
 import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugin.http.StringBean;
 
@@ -32,31 +33,31 @@ import net.grinder.plugin.http.StringBean;
  */
 public class ExampleStringBean2 implements StringBean
 {
-    private PluginThreadContext m_pluginThreadContext;
+    private PluginThreadContext m_threadContext;
     private int m_count = 0;
 
-    public void initialize(PluginThreadContext pluginThreadContext)
+    public void initialize(PluginProcessContext pluginProcessContext,
+			   PluginThreadContext threadContext)
 	throws PluginException
     {
-	m_pluginThreadContext = pluginThreadContext;
-	m_pluginThreadContext.logMessage("StringBean: initialize");
+	m_threadContext = threadContext;
+	m_threadContext.logMessage("StringBean: initialize");
     }
 
     public void beginRun()
     {
-	m_pluginThreadContext.logMessage("StringBean: beginRun");
+	m_threadContext.logMessage("StringBean: beginRun");
 	m_count = 0;
     }
 
-    public boolean doTest(Test test)
+    public void doTest(Test test)
     {
-	m_pluginThreadContext.logMessage("StringBean: doTest");
-	return false;
+	m_threadContext.logMessage("StringBean: doTest");
     }
 
     public void endRun()
     {
-	m_pluginThreadContext.logMessage("StringBean: endRun");
+	m_threadContext.logMessage("StringBean: endRun");
     }
     
     public String getCount()
@@ -71,6 +72,6 @@ public class ExampleStringBean2 implements StringBean
 
     public String getRun()
     {
-	return Integer.toString(m_pluginThreadContext.getCurrentRunID());
+	return Integer.toString(m_threadContext.getCurrentRunNumber());
     }
 }
