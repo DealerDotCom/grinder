@@ -164,7 +164,7 @@ public class TestGraph extends TestCase
 	    cumulativeStatistics.add(intervalStatistics);
 	    cumulativeStatistics.setValue(periodIndex, (1+i)*period);
 
-	    peakTPSExpression.update(cumulativeStatistics);
+	    peakTPSExpression.update(intervalStatistics, cumulativeStatistics);
 	    labelledGraph.add(intervalStatistics, cumulativeStatistics,
 			      format);
 	    pause();
