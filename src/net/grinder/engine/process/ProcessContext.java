@@ -129,12 +129,10 @@ class ProcessContext {
       dataWriter.print("Thread, Run, Test");
 
       final ExpressionView[] detailExpressionViews =
-	CommonStatisticsViews.getDetailStatisticsView()
-	.getExpressionViews();
+	CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
 
       for (int i=0; i<detailExpressionViews.length; ++i) {
-	dataWriter.print(", " +
-			 detailExpressionViews[i].getDisplayName());
+	dataWriter.print(", " + detailExpressionViews[i].getDisplayName());
       }
 
       dataWriter.println();
