@@ -518,7 +518,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 	    final MatchResult matchResult = m_matcher.getMatch();
 	    final int beginOffset = matchResult.beginOffset(1);
 	    final int endOffset = matchResult.endOffset(1);
-	    System.err.println("MATCH: " +  beginOffset + " " + endOffset);
 	    addToEntityBody(buffer, beginOffset, endOffset - beginOffset);
 	  }
 	}
@@ -536,26 +535,28 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     private void addToEntityBody(byte[] bytes, int start, int length)
       throws IOException {
 
+      if (m_contentLength != -1 &&
+	  length > m_contentLength - m_entityBodyByteStream.size()) {
+	
+	warn("Expected content length exceeded, truncating to content length");
+	length = m_contentLength - m_entityBodyByteStream.size();
+      }
+
       m_entityBodyByteStream.write(bytes, start, length);
 	
-      // We flush our entity data output now if we've reached or
-      // exceeded the specified Content-Length. If no
-      // contentLength was specified we rely on next message or
-      // connection close event to flush the data.
-      if (m_contentLength != -1 ) {
-	if (length == m_contentLength) {
+      // We flush our entity data output now if we've reached the
+      // specified Content-Length. If no contentLength was specified
+      // we rely on next message or connection close event to flush
+      // the data.
+      if (m_contentLength != -1 &&
+	  m_entityBodyByteStream.size() >= m_contentLength) {
+
 	  endMessage();
-	}
-	else if (length > m_contentLength) {
-	  warn("Expected content length exceeded");
-	  endMessage();
-	}
       }
     }
 
     private void warn(String message) {
-      m_out.println(
-	"# WARNING: " + message);
+      m_out.println("# WARNING: " + message);
       m_out.flush();
     }
 
