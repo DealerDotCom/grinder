@@ -28,7 +28,6 @@ import java.util.TreeMap;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
-import net.grinder.engine.EngineException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.TestStatisticsMap;
 
