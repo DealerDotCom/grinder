@@ -120,6 +120,11 @@ class GrinderThread implements java.lang.Runnable {
 	}
 	catch (JythonScriptExecutionException e) {
 	  final Throwable unwrapped = e.unwrap();
+
+	  if (unwrapped instanceof Sleeper.ShutdownException) {
+	    logger.output("shutdown");
+	    break;
+	  }
 		    
 	  // Sadly PrintWriter only exposes its lock object
 	  // to subclasses.
@@ -141,10 +146,7 @@ class GrinderThread implements java.lang.Runnable {
       logger.output("finished " + currentRun +
 		    (currentRun == 1 ? " run" : " runs"));
     }
-    catch (Sleeper.ShutdownException e) {
-      logger.output("shutdown");
-    }
-    catch(Exception e) {
+    catch (Exception e) {
       synchronized(errorWriter) {
 	logger.error("Aborting thread due to " + e);
 	e.printStackTrace(errorWriter);
@@ -153,10 +155,10 @@ class GrinderThread implements java.lang.Runnable {
     finally {
       logger.setCurrentRunNumber(-1);
       decrementThreadCount();
-    }
-	
-    synchronized (m_notifyOnCompletion) {
-      m_notifyOnCompletion.notifyAll();
+
+      synchronized (m_notifyOnCompletion) {
+	m_notifyOnCompletion.notifyAll();
+      }
     }
   }
 
