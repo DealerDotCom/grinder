@@ -21,11 +21,8 @@
 
 package net.grinder.communication;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.io.OutputStream;
 
 import junit.framework.TestCase;
 
