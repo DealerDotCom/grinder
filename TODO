@@ -42,6 +42,11 @@ properties wrongly. It first sends a request without the
 authentication headers, then catches the 401 and automatically resends
 a request with the authentication headers.
 
+Tim McNerney writes:
+ > Obviously, I could edit the scripts by hand. But I'd like to have
+ > TCPProxy do this for me. So is there some existing method for doing
+ > such filtering? Say on target suffix ("filter=.gif,.js,.css")
+
 Allow "chained proxying", where details of real proxy server can be
 specified.
 
