@@ -1,6 +1,8 @@
 [If anyone wants to pick something of this wish list, I prefer unified
-diff patches. The wish list is part of the distribution, I'll accept
-patches against that too :-). The list is roughly in priority order.]
+diff patches. Mail them to paston@bea.com. The wish list is part of
+the distribution, I'll accept patches against that too :-). The list
+is roughly in priority order.]
+
 
   TPS is _not_ 1/(average response time). Instead you should be able
   to specify a duration. Each VM should exit after that duration.
