@@ -214,30 +214,19 @@ class HTTPClientHandler implements HTTPHandler
 	    }
 
 	    final int statusCode = response.getStatusCode();
+	    final byte[] data = response.getData();
+	    response.getInputStream().close();
+	    m_pluginThreadContext.stopTimer();
 	
 	    if (statusCode == HttpURLConnection.HTTP_OK) {
-		final byte[] data = response.getData();
-		final String body = data != null? new String(data) : "";
-
-		m_pluginThreadContext.stopTimer();
-
 		m_pluginThreadContext.logMessage(uri + " OK");
-
-		return body;
 	    }
 	    else if (statusCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
-		response.getInputStream().close();
-		m_pluginThreadContext.stopTimer();
-
 		m_pluginThreadContext.logMessage(uri + " was not modified");
 	    }
 	    else if (statusCode == HttpURLConnection.HTTP_MOVED_PERM ||
 		     statusCode == HttpURLConnection.HTTP_MOVED_TEMP ||
 		     statusCode == 307) {
-
-		response.getInputStream().close();
-		m_pluginThreadContext.stopTimer();
-
 		// It would be possible to perform the check
 		// automatically, but for now just chuck out some
 		// information.
@@ -245,23 +234,15 @@ class HTTPClientHandler implements HTTPHandler
 		    uri + " returned a redirect (" + statusCode + "). " +
 		    "Ensure the next URL is " +
 		    response.getHeader("Location"));
-
-		// I've seen the code that slurps the body block for non
-		// 200 responses. Can't think off the top of my head how
-		// to code to poll for a body, so for now just ignore the
-		// problem.
 	    }
 	    else {
-		response.getInputStream().close();
-		m_pluginThreadContext.stopTimer();
-
 		m_pluginThreadContext.logError("Unknown response code: " +
 					       statusCode + " (" +
 					       response.getReasonLine() +
 					       ") for " + uri);
 	    }
 
-	    return null;
+	    return data != null? new String(data) : null;
 	}
 	catch (Exception e) {
 	    throw new HTTPHandlerException(e.getMessage(), e);
