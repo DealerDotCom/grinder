@@ -13,3 +13,5 @@
 
  '(jde-compile-option-directory "../build/tests-classes")
 )
+
+(setq indent-tabs-mode nil)
