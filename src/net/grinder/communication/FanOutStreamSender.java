@@ -23,7 +23,6 @@ package net.grinder.communication;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Iterator;
 
 
 /**
@@ -32,10 +31,7 @@ import java.util.Iterator;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class FanOutStreamSender extends AbstractSender {
-
-  private final Kernel m_kernel;
-  private final ResourcePool m_streamSet = new ResourcePool();
+public final class FanOutStreamSender extends AbstractFanOutSender {
 
   /**
    * Constructor.
@@ -50,7 +46,7 @@ public final class FanOutStreamSender extends AbstractSender {
    * @param Kernel Kernel to use.
    */
   private FanOutStreamSender(Kernel kernel) {
-    m_kernel = kernel;
+    super(kernel, new ResourcePool());
   }
 
   /**
@@ -59,73 +55,19 @@ public final class FanOutStreamSender extends AbstractSender {
    * @param stream The stream.
    */
   public void add(OutputStream stream) {
-    m_streamSet.add(new OutputStreamResource(stream));
+    getResourcePool().add(new OutputStreamResource(stream));
   }
 
   /**
-   * Send a message.
+   * Return an output stream from a resource.
    *
-   * @param message The message.
-   * @exception IOException If an error occurs.
+   * @param resource The resource.
+   * @return The output stream.
    */
-  protected void writeMessage(Message message) throws IOException {
+  protected OutputStream resourceToOutputStream(
+    ResourcePool.Resource resource) {
 
-    try {
-      final Iterator iterator = m_streamSet.reserveAll().iterator();
-
-      while (iterator.hasNext()) {
-        m_kernel.execute(
-          new WriteMessageToStream(
-            message, (ResourcePool.Reservation) iterator.next()));
-      }
-    }
-    catch (Kernel.ShutdownException e) {
-      // Assertion failure.
-      throw new RuntimeException("Kernel unexpectedly shutdown");
-    }
-    catch (InterruptedException e) {
-      // Assertion failure.
-      throw new RuntimeException("Unexpectedly shutdown");
-    }
-  }
-
-  /**
-   * Shut down this sender.
-   *
-   * @throws CommunicationException If an IO exception occurs.
-   */
-  public void shutdown() throws CommunicationException {
-    super.shutdown();
-    m_kernel.forceShutdown();
-    m_streamSet.close();
-  }
-
-  private static final class WriteMessageToStream implements Runnable {
-    private final Message m_message;
-    private final ResourcePool.Reservation m_reservation;
-
-    public WriteMessageToStream(Message message,
-                                ResourcePool.Reservation reservation) {
-      m_message = message;
-      m_reservation = reservation;
-    }
-
-    public void run() {
-      try {
-        final OutputStreamResource streamResource =
-          (OutputStreamResource)m_reservation.getResource();
-
-        writeMessageToStream(m_message, streamResource.getOutputStream());
-      }
-      catch (IOException e) {
-        m_reservation.close();
-        //            m_messageQueue.queue(e);
-        e.printStackTrace();
-      }
-      finally {
-        m_reservation.free();
-      }
-    }
+    return ((OutputStreamResource)resource).getOutputStream();
   }
 
   private final class OutputStreamResource implements ResourcePool.Resource {

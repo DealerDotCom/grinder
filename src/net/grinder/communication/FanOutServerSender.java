@@ -22,9 +22,9 @@
 package net.grinder.communication;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Iterator;
 
 
 /**
@@ -33,7 +33,7 @@ import java.util.Iterator;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class FanOutServerSender extends AbstractSender {
+public final class FanOutServerSender extends AbstractFanOutSender {
 
   /**
    * Factory method that creates a <code>FanOutServerSender</code>
@@ -68,7 +68,6 @@ public final class FanOutServerSender extends AbstractSender {
   }
 
   private final Acceptor m_acceptor;
-  private final Kernel m_kernel;
 
   /**
    * Constructor.
@@ -84,38 +83,23 @@ public final class FanOutServerSender extends AbstractSender {
                              Acceptor acceptor, Kernel kernel)
     throws CommunicationException {
 
-    super(grinderID, senderID);
+    super(grinderID, senderID, kernel, acceptor.getSocketSet());
 
     m_acceptor = acceptor;
-    m_kernel = kernel;
   }
 
   /**
-   * Send a message.
+   * Return an output stream from a socket resource.
    *
-   * @param message The message.
-   * @exception IOException If an error occurs.
+   * @param resource The resource.
+   * @return The output stream.
+   * @throws IOException If the output stream could not be obtained
+   * from the socket.
    */
-  protected void writeMessage(Message message) throws IOException {
+  protected OutputStream resourceToOutputStream(
+    ResourcePool.Resource resource) throws IOException {
 
-    try {
-      final Iterator iterator =
-        m_acceptor.getSocketSet().reserveAll().iterator();
-
-      while (iterator.hasNext()) {
-        m_kernel.execute(
-          new WriteMessageToStream(
-            message, (ResourcePool.Reservation) iterator.next()));
-      }
-    }
-    catch (Kernel.ShutdownException e) {
-      // Assertion failure.
-      throw new RuntimeException("Kernel unexpectedly shutdown");
-    }
-    catch (InterruptedException e) {
-      // Assertion failure.
-      throw new RuntimeException("Unexpectedly shutdown");
-    }
+    return ((Acceptor.SocketResource)resource).getOutputStream();
   }
 
   /**
@@ -124,47 +108,16 @@ public final class FanOutServerSender extends AbstractSender {
    * @throws CommunicationException If an IO exception occurs.
    */
   public void shutdown() throws CommunicationException {
-
     super.shutdown();
-
-    m_kernel.forceShutdown();
     m_acceptor.shutdown();
   }
 
-  /**
-   * Return the Acceptor. Used by the unit tests.
-   *
-   * @return The number of connections.
-   */
-  public Acceptor getAcceptor() {
+   /**
+    * Return the Acceptor. Package scope, used by the unit tests.
+    *
+    * @return The acceptor.
+    */
+  Acceptor getAcceptor() {
     return m_acceptor;
-  }
-
-  private static final class WriteMessageToStream implements Runnable {
-    private final Message m_message;
-    private final ResourcePool.Reservation m_reservation;
-
-    public WriteMessageToStream(Message message,
-                                ResourcePool.Reservation reservation) {
-      m_message = message;
-      m_reservation = reservation;
-    }
-
-    public void run() {
-      try {
-        final Acceptor.SocketResource socketResource =
-          (Acceptor.SocketResource)m_reservation.getResource();
-
-        writeMessageToStream(m_message, socketResource.getOutputStream());
-      }
-      catch (IOException e) {
-        m_reservation.close();
-        //            m_messageQueue.queue(e);
-        e.printStackTrace();
-      }
-      finally {
-        m_reservation.free();
-      }
-    }
   }
 }
