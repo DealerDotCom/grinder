@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -122,6 +122,26 @@ public class TestClientSender extends TestCase {
     final Object o2 = inputStream2.readObject();
 
     assertTrue(o2 instanceof CloseCommunicationMessage);
+
+    socketAcceptor.close();
+  }
+
+  public void testIsPeerShutdown() throws Exception {
+    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+
+    final Connector connector =
+      new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
+                    ConnectionType.CONTROL);
+
+    final ClientSender clientSender = ClientSender.connect(connector);
+
+    socketAcceptor.join();
+
+    assertTrue(!clientSender.isPeerShutdown());
+
+    new SocketWrapper(socketAcceptor.getAcceptedSocket()).close();
+
+    assertTrue(clientSender.isPeerShutdown());
 
     socketAcceptor.close();
   }

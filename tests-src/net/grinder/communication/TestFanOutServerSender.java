@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -162,6 +162,42 @@ public class TestFanOutServerSender extends TestCase {
       // Whatever.
     }
 
+    acceptor.shutdown();
+  }
+
+  public void testIsPeerShutdown() throws Exception {
+
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+
+    final FanOutServerSender serverSender =
+      new FanOutServerSender(acceptor, ConnectionType.CONTROL, 3);
+
+    final Socket socket =
+      new Socket(InetAddress.getByName(null), acceptor.getPort());
+
+    ConnectionType.CONTROL.write(socket.getOutputStream());
+
+    // Sleep until we've accepted the connection. Give up after a few
+    // seconds.
+    final ResourcePool socketSet =
+      acceptor.getSocketSet(ConnectionType.CONTROL);
+
+    for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
+      Thread.sleep(i * i * 10);
+    }
+    
+    assertTrue(!serverSender.isPeerShutdown());
+
+    final Message message = new SimpleMessage();
+    serverSender.send(message);
+
+    assertTrue(!serverSender.isPeerShutdown());
+
+    new SocketWrapper(socket).close();
+
+    assertTrue(serverSender.isPeerShutdown());
+
+    serverSender.shutdown();
     acceptor.shutdown();
   }
 }
