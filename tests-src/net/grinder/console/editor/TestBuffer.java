@@ -175,7 +175,7 @@ public class TestBuffer extends AbstractFileTestCase {
 
     // Sometimes the following isUpToDate fails. Maybe a little sleep
     // will help.
-    Thread.sleep(10);
+    Thread.sleep(50);
 
     assertTrue(buffer.isUpToDate());
 
