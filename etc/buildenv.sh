@@ -1,4 +1,4 @@
-export ANT_HOME=/opt/ant/jakarta-ant-1.5.1
+export ANT_HOME=/opt/ant/apache-ant-1.6.2
 export JAVA_HOME=/opt/jdk1.3.1_02/
 export PATH=${ANT_HOME}/bin:${JAVA_HOME}/bin:$PATH
 
@@ -10,4 +10,5 @@ JUNIT=/opt/junit/junit3.8.1/junit.jar
 CLOVER=/opt/clover/clover-1.3_02/lib/clover.jar
 XALAN=/opt/xalan/xalan-j_2_3_1/bin/xalan.jar:/opt/xalan/xalan-j_2_3_1/bin/xml-apis.jar
 
-export CLASSPATH=$(cygpath -w -p "${JUNIT}:${CLOVER}:${JSSE}:${XALAN}")
+# Ant now handles cygpath -w if necessary.
+export CLASSPATH="${JUNIT}:${CLOVER}:${JSSE}:${XALAN}"

@@ -9,7 +9,7 @@ Introduction
 Ant
 ===
 
-The Grinder build system is based on Jakarta Ant 1.5.1, which is a
+The Grinder build system is based on Jakarta Ant 1.6.2, which is a
 Java building tool originally developed for the Jakarta Tomcat project
 but now used in many other Apache projects and extended by many
 developers.
@@ -22,7 +22,7 @@ file) as building instructions. For more information refer to
 What do I need?
 ===============
 
-As well as ANT, to build and run The Grinder you need:
+As well as Ant, to build and run The Grinder you need:
 
   - J2SE 1.3.1 or later
   - JSSE 1.0.2 (SSL support)
