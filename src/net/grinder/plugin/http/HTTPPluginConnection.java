@@ -46,9 +46,9 @@ public interface HTTPPluginConnection
     /**
      * Set whether cookies will be used.
      *
-     * @param followRedirects <code>true</code> => use cookies.
+     * @param useCookies <code>true</code> => use cookies.
      */
-    void setUseCookies(boolean followRedirects);
+    void setUseCookies(boolean useCookies);
 
 
     /**
