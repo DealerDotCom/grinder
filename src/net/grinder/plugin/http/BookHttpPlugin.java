@@ -28,6 +28,7 @@ import net.grinder.plugininterface.Test;
 /**
  * @author Philip Aston
  * @version $Revision$
+ * @deprecated Use "string beans" instead.
  */
 public class BookHttpPlugin extends HttpPlugin {
 
