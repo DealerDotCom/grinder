@@ -86,7 +86,7 @@ abstract class AbstractSender implements Sender {
    * then send the given message.
    *
    * @param message A {@link Message}.
-   * @exceptio nCommunicationException If an error occurs.
+   * @exception CommunicationException If an error occurs.
    */
   public final void send(Message message) throws CommunicationException {
 
