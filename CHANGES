@@ -28,6 +28,12 @@ Grinder 3.0-beta17
 
   Email script example from Tom Pittard.
 
+  Implement HTTPPluginConnection.removeBasicAuthorization() and
+  HTTPPluginConnection.removeDigestAuthorization(). The parameters
+  to this method, and semantics of the corresponding add methods, have
+  been changed to match HTTPClient. The clearAll methods have been
+  removed from the API.
+
 
 Grinder 3.0-beta16
 ------------------

@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003 Philip Aston
+// Copyright (C) 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2003 Richard Perks
 // All rights reserved.
 //
@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Iterator;
 
+import HTTPClient.AuthorizationInfo;
 import HTTPClient.CookieModule;
 import HTTPClient.HTTPConnection;
 import HTTPClient.NVPair;
@@ -38,7 +39,7 @@ import HTTPClient.NVPair;
  * @author Philip Aston
  * @author Richard Perks
  * @version $Revision$
- **/
+ */
 final class HTTPConnectionWrapper implements HTTPPluginConnection {
 
   private static final Class s_redirectionModule;
@@ -147,13 +148,11 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     m_httpConnection.addBasicAuthorization(realm, user, password);
   }
 
-  public void removeBasicAuthorization(String realm, String user,
-                                       String password) {
-    // TODO
-  }
-
-  public void clearAllBasicAuthorizations() {
-    // TODO
+  public void removeBasicAuthorization(String realm) {
+    AuthorizationInfo.removeAuthorization(m_httpConnection.getHost(),
+                                          m_httpConnection.getPort(),
+                                          "Basic", realm,
+                                          m_httpConnection.getContext());
   }
 
   public void addDigestAuthorization(String realm, String user,
@@ -161,13 +160,11 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     m_httpConnection.addDigestAuthorization(realm, user, password);
   }
 
-  public void removeDigestAuthorization(String realm, String user,
-                                        String password) {
-    // TODO
-  }
-
-  public void clearAllDigestAuthorizations() {
-    // TODO
+  public void removeDigestAuthorization(String realm) {
+    AuthorizationInfo.removeAuthorization(m_httpConnection.getHost(),
+                                          m_httpConnection.getPort(),
+                                          "Digest", realm,
+                                          m_httpConnection.getContext());
   }
 
   public void setLocalAddress(String localAddress) throws URLException {

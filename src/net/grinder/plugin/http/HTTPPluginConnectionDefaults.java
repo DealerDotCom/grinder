@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003 Philip Aston
+// Copyright (C) 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2003 Richard Perks
 // All rights reserved.
 //
@@ -25,8 +25,8 @@ package net.grinder.plugin.http;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import HTTPClient.NVPair;
 
@@ -38,15 +38,15 @@ import HTTPClient.NVPair;
  * @author Philip Aston
  * @author Richard Perks
  * @version $Revision$
- **/
+ */
 final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
 
   private boolean m_followRedirects = true;
   private boolean m_useCookies = true;
   private NVPair[] m_defaultHeaders = new NVPair[0];
   private int m_timeout = 0;
-  private Set m_basicAuthorizations = new HashSet();
-  private Set m_digestAuthorizations = new HashSet();
+  private Map m_basicAuthorizations = new HashMap();
+  private Map m_digestAuthorizations = new HashMap();
   private String m_proxyHost;
   private int m_proxyPort;
   private boolean m_verifyServerDistinguishedName = false;
@@ -107,17 +107,16 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
 
   public synchronized void addBasicAuthorization(
     String realm, String user, String password) {
-    m_basicAuthorizations.add(new AuthorizationDetails(realm, user, password));
+    final AuthorizationDetails details =
+      new AuthorizationDetails(realm, user, password);
+
+    // We use a Map rather than a Set because put overwrites any
+    // previous value.
+    m_basicAuthorizations.put(details, details);
   }
 
-  public synchronized void removeBasicAuthorization(
-    String realm, String user, String password) {
-    m_basicAuthorizations.remove(
-      new AuthorizationDetails(realm, user, password));
-  }
-
-  public synchronized void clearAllBasicAuthorizations() {
-    m_basicAuthorizations.clear();
+  public synchronized void removeBasicAuthorization(String realm) {
+    m_basicAuthorizations.remove(new AuthorizationDetails(realm, null, null));
   }
 
   /**
@@ -125,38 +124,22 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
    * <code>HTTPPluginConnectionDefaults</code>.
    */
   Collection getBasicAuthorizations() {
-    return m_basicAuthorizations;
+    return m_basicAuthorizations.values();
   }
 
   public synchronized void addDigestAuthorization(
     String realm, String user, String password) {
-    m_digestAuthorizations.add(
-      new AuthorizationDetails(realm, user, password));
+
+    final AuthorizationDetails details =
+      new AuthorizationDetails(realm, user, password);
+
+    // We use a Map rather than a Set because put overwrites any
+    // previous value.
+    m_digestAuthorizations.put(details, details);
   }
 
-  public synchronized void removeDigestAuthorization(
-    String realm, String user, String password) {
-    m_digestAuthorizations.remove(
-      new AuthorizationDetails(realm, user, password));
-  }
-
-  public synchronized void clearAllDigestAuthorizations() {
-    m_digestAuthorizations.clear();
-  }
-
-  public synchronized void setLocalAddress(String localAddress)
-    throws URLException {
-
-    try {
-      m_localAddress = InetAddress.getByName(localAddress);
-    }
-    catch (UnknownHostException e) {
-      throw new URLException(e.getMessage(), e);
-    }
-  }
-
-  InetAddress getLocalAddress() {
-    return m_localAddress;
+  public synchronized void removeDigestAuthorization(String realm) {
+    m_digestAuthorizations.remove(new AuthorizationDetails(realm, null, null));
   }
 
   /**
@@ -164,24 +147,24 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
    * <code>HTTPPluginConnectionDefaults</code>.
    */
   Collection getDigestAuthorizations() {
-    return m_digestAuthorizations;
+    return m_digestAuthorizations.values();
   }
 
   /**
-   * Class containing basic authentication details.
+   * Class containing authentication details. In a similar manner to
+   * {@link HTTPClient.AuthorizationInfo}, there can be only one
+   * instance per scheme, and realm combination (see <a
+   * href="AuthorizationInfo#equals">equals()</a>).
    */
   static final class AuthorizationDetails {
     private final String m_realm;
     private final String m_user;
     private final String m_password;
-    private final int m_hashCode;
 
     public AuthorizationDetails(String realm, String user, String password) {
       m_realm = realm;
       m_user = user;
       m_password = password;
-      m_hashCode =
-        realm.hashCode() ^ m_user.hashCode() ^ m_password.hashCode();
     }
 
     public String getRealm() {
@@ -197,10 +180,15 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
     }
 
     public int hashCode() {
-      return m_hashCode;
+      return m_realm.hashCode();
     }
 
     public boolean equals(Object o) {
+
+      if (o == this) {
+        return true;
+      }
+
       if (!(o instanceof AuthorizationDetails)) {
         return false;
       }
@@ -208,10 +196,23 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
       final AuthorizationDetails other = (AuthorizationDetails)o;
 
       return hashCode() == other.hashCode() &&
-        getUser().equals(other.getUser()) &&
-        getPassword().equals(other.getPassword()) &&
         getRealm().equals(other.getRealm());
     }
+  }
+
+  public synchronized void setLocalAddress(String localAddress)
+    throws URLException {
+
+    try {
+      m_localAddress = InetAddress.getByName(localAddress);
+    }
+    catch (UnknownHostException e) {
+      throw new URLException(e.getMessage(), e);
+    }
+  }
+
+  InetAddress getLocalAddress() {
+    return m_localAddress;
   }
 
   private static final HTTPPluginConnectionDefaults

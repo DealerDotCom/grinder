@@ -1,4 +1,4 @@
-// Copyright (C) 2002, 2003 Philip Aston
+// Copyright (C) 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2003 Richard Perks
 // All rights reserved.
 //
@@ -35,7 +35,7 @@ import HTTPClient.NVPair;
  * @author Richard Perks
  * @version $Revision$
  * @see HTTPPluginControl
- **/
+ */
 public interface HTTPPluginConnection {
 
   /**
@@ -158,20 +158,13 @@ public interface HTTPPluginConnection {
    * scheme.
    *
    * @param realm The realm.
-   * @param user  The user name.
-   * @param password The password.
    */
-  void removeBasicAuthorization(String realm, String user, String password);
+  void removeBasicAuthorization(String realm);
 
   /**
-   * Remove all authorization entry for the "basic" authorization
-   * scheme.
-   */
-  void clearAllBasicAuthorizations();
-
-  /**
-   * Remove an authorization entry for the "digest" authorization
-   * scheme.
+   * Adds an authorization entry for the "digest" authorization scheme
+   * to the list. If an entry already exists for the "digest" scheme
+   * and the specified realm then it is overwritten.
    *
    * @param realm The realm.
    * @param user  The user name.
@@ -184,16 +177,8 @@ public interface HTTPPluginConnection {
    * scheme.
    *
    * @param realm The realm.
-   * @param user  The user name.
-   * @param password The password.
    */
-  void removeDigestAuthorization(String realm, String user, String password);
-
-  /**
-   * Remove all authorization entry for the "digest" authorization
-   * scheme.
-   */
-  void clearAllDigestAuthorizations();
+  void removeDigestAuthorization(String realm);
 
   /**
    * Set the client IP address to use for outbound connections.
