@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,6 +26,8 @@ import java.net.Socket;
 
 import junit.framework.TestCase;
 
+import net.grinder.testutility.AssertUtilities;
+
 
 /**
  *  Unit test case for <code>Connector</code>.
@@ -35,12 +37,7 @@ import junit.framework.TestCase;
  */
 public class TestConnector extends TestCase {
 
-  public TestConnector(String name) {
-    super(name);
-  }
-
   public void testConnnect() throws Exception {
-
     final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
 
     final Connector connector =
@@ -71,6 +68,35 @@ public class TestConnector extends TestCase {
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
+    }
+  }
+
+  public void testEquality() throws Exception {
+    final Connector connector =
+      new Connector("a", 1234, ConnectionType.REPORT);
+
+    assertEquals(connector.hashCode(), connector.hashCode());
+    assertEquals(connector, connector);
+    AssertUtilities.assertNotEquals(connector, null);
+    AssertUtilities.assertNotEquals(connector, this);
+
+    final Connector[] equal = {
+      new Connector("a", 1234, ConnectionType.REPORT),
+    };
+
+    final Connector[] notEqual = {
+      new Connector("a", 6423, ConnectionType.REPORT),
+      new Connector("b", 1234, ConnectionType.REPORT),
+      new Connector("a", 1234, ConnectionType.CONTROL),
+    };
+
+    for (int i = 0; i < equal.length; ++i) {
+      assertEquals(connector.hashCode(), equal[i].hashCode());
+      assertEquals(connector, equal[i]);
+    }
+
+    for (int i = 0; i < notEqual.length; ++i) {
+      AssertUtilities.assertNotEquals(connector, notEqual[i]);
     }
   }
 }
