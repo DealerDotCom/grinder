@@ -1,6 +1,11 @@
 Grinder 3.0-beta17
 ------------------
 
+  Fix bug 872546 - using HTTPPlugin with no console hangs the worker
+  processes. The change involves explicitly calling
+  InetAddress.getLocalHost() up front, indicating that the underlying
+  cause is a very strange JVM issue.
+
 
 Grinder 3.0-beta16
 ------------------

@@ -230,6 +230,14 @@ public final class GrinderProcess implements Monitor {
 
     m_duration = properties.getInt("grinder.duration", 0);
 
+    // If we don't call getLocalHost() before spawning our
+    // ConsoleListener thread, any attempt to call it afterwards will
+    // silently crash the JVM. Reproduced with both J2SE 1.3.1-b02 and
+    // J2SE 1.4.1_03-b02 on W2K. Do not ask me why, I've stopped
+    // caring.
+    try { java.net.InetAddress.getLocalHost(); }
+    catch (Exception e) { /* Ignore */ }
+
     m_consoleListener = new ConsoleListener(receiver, this, logger);
   }
 
