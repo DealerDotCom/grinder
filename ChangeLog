@@ -1,4 +1,82 @@
+2004-10-13  Philip Aston  <philipa@mail.com>
+
+	* TODO: Notes on script SSL client context state of play.
+
+	* src/net/grinder/script/SSLControl.java:
+	Strings are nicer than Files for scripts.
+
+	* src/net/grinder/engine/process/SSLControlImplementation.java:
+	Fix context per thread support.
+	Strings are nicer than Files for scripts.
+
+	* etc/localpaths.properties: New machine, new paths.
+
+2004-10-10  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/engine/process/TestScriptContextImplementation.java:
+	Test coverage.
+
+	* tests-src/net/grinder/common/TestSSLContextFactory.java:
+	Test SSLContextFactory exceptions.
+
+	* tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java, tests-src/net/grinder/util/TestInsecureSSLContextFactory.java:
+	Update tests.
+
+	* src/net/grinder/util/InsecureSSLContextFactory.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java:
+	Make InsecureSSLContextFactory implement the new SSLContextFactory
+	interface, and move common key store processing there.
+
+	* src/net/grinder/script/SSLControl.java, src/net/grinder/script/Grinder.java:
+	Generic support for thread specific SSLContext factories.
+
+	* src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ThreadContextImplementation.java:
+	Common thread listener callback mechanism.
+	Generic support for thread specific SSLContext factories.
+
+	* src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/SSLControlImplementation.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginThreadState.java:
+	Generic support for thread specific SSLContext factories.
+
+	* src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/PluginRegistryImplementation.java:
+	Common thread listener callback mechanism.
+
+	* src/net/grinder/common/SSLContextFactory.java:
+	Common interface for SSLContext factories.
+
+	* src/net/grinder/common/ThreadLifeCycleListener.java, src/net/grinder/plugininterface/PluginThreadListener.java:
+	Extract generic thread listener interface.
+
+2004-10-08  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugininterface/PluginProcessContext.java: Javadoc.
+
+2004-10-07  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/script/Statistics.java: Correct Javadoc.
+
+	* src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java, src/net/grinder/util/InsecureSSLContextFactory.java, tests-src/net/grinder/util/TestInsecureSSLContextFactory.java:
+	Minor refactoring of InsecureSSLContextFactory.
+
+	* build.xml, etc/packagelists/jdk1.4.1/package-list:
+	Link to J2SE javadocs.
+
+	* src/net/grinder/console/communication/ConsoleCommunicationImplementation.java, src/net/grinder/console/communication/ProcessControlImplementation.java, src/net/grinder/console/editor/AbstractTextSource.java:
+	Qualify references to inner classes to satisfy javadoc.
+
+2004-10-06  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/HTTPPluginControl.java:
+	Additional Javadoc.
+
+2004-09-25  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/CustomJButton.java: Smaller buttons.
+
+	* src/net/grinder/debug/package.html, src/net/grinder/debug/ThreadDumper.java:
+	Checkstyle.
+
 2004-09-24  Philip Aston  <philipa@mail.com>
+
+	* ChangeLog: *** empty log message ***
 
 	* build.xml, native/threaddump.c, src/net/grinder/debug/ThreadDumper.java:
 	Thread dump utility.
