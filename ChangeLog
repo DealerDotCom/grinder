@@ -1,5 +1,22 @@
 2001-09-22  Philip Aston  <paston@bea.com>
 
+	* examples/http/grinder.properties: Non contiguous test numbers.
+
+	* tests-src/net/grinder/util/TestPropertiesHelper.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/socket/SocketPlugin.java, src/net/grinder/plugininterface/Test.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/util/PropertiesHelper.java, src/net/grinder/util/TestImplementation.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java:
+	Go back to identifying tests by number rather than name - need defined
+	order.
+
+	* build.xml: Next is 2.7.1.
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/junit/JUnitPlugin.java, src/net/grinder/plugin/socket/SocketPlugin.java, src/net/grinder/plugininterface/Test.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/util/PropertiesHelper.java, src/net/grinder/util/TestImplementation.java, tests-src/net/grinder/util/TestPropertiesHelper.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/TestGraphPanel.java:
+	Separate test index value from test name.
+
+	* doc/HTTPPlugin.txt, src/net/grinder/plugin/http/HttpPlugin.java:
+	Require none or all of the basic authentication parameters to be
+	specified.
+
+2001-09-22  Philip Aston  <paston@bea.com>
+
 	* The Grinder 2.7 is released.
 
 2001-09-21  Philip Aston  <paston@bea.com>
