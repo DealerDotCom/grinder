@@ -66,28 +66,29 @@ public class TestAcceptor extends TestCase {
 
     for (int i=0; i<testAddresses.length; ++i) {
       final Acceptor acceptor = new Acceptor(testAddresses[i], port);
+      assertEquals(port, acceptor.getPort());
       acceptor.shutdown();
 
       // Should also be able to use a Random port.
       final Acceptor acceptor2 = new Acceptor(testAddresses[i], 0);
+      assertEquals(port, acceptor.getPort());
       acceptor2.shutdown();
     }
   }
 
   public void testGetSocketSet() throws Exception {
 
-    final ServerSocket serverSocket = new ServerSocket(0);
-    final int port = serverSocket.getLocalPort();
-    serverSocket.close();
-
-    final Acceptor acceptor = new Acceptor("", port);
+    final Acceptor acceptor = createAcceptor();
 
     final SocketSet socketSet = acceptor.getSocketSet();
     assertNotNull(socketSet);
     assertTrue(socketSet.reserveNextHandle().isSentinel());
 
-    final Socket socket1 = new Socket(InetAddress.getByName(null), port);
-    final Socket socket2 = new Socket(InetAddress.getByName(null), port);
+    final Socket socket1 =
+      new Socket(InetAddress.getByName(null), acceptor.getPort());
+
+    final Socket socket2 =
+      new Socket(InetAddress.getByName(null), acceptor.getPort());
 
     // Sleep until we've accepted both connections. Give up after a
     // few seconds.
@@ -141,15 +142,12 @@ public class TestAcceptor extends TestCase {
 
   public void testShutdown() throws Exception {
 
-    final ServerSocket serverSocket = new ServerSocket(0);
-    final int port = serverSocket.getLocalPort();
-    serverSocket.close();
-
-    final Acceptor acceptor = new Acceptor("", port);
+    final Acceptor acceptor = createAcceptor();
 
     final SocketSet socketSet = acceptor.getSocketSet();
 
-    final Socket socket = new Socket(InetAddress.getByName(null), port);
+    final Socket socket =
+      new Socket(InetAddress.getByName(null), acceptor.getPort());
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.

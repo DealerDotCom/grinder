@@ -96,6 +96,15 @@ final class Acceptor {
   }
 
   /**
+   * Get the port this Acceptor is listening on.
+   *
+   * @return The port.
+   */
+  public int getPort() {
+    return m_serverSocket.getLocalPort();
+  }
+
+  /**
    * Get the set of accepted connections.
    *
    * @return The set of accepted connections.
