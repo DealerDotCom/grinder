@@ -31,6 +31,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
+import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
@@ -143,11 +144,13 @@ public class GrinderProcess
 
 	// Parse console configuration.
 	final String multicastAddress = 
-	    properties.getProperty("grinder.multicastAddress");
+	    properties.getProperty("grinder.multicastAddress",
+				   CommunicationDefaults.MULTICAST_ADDRESS);
 
 	if (properties.getBoolean("grinder.receiveConsoleSignals", false)) {
-	    final int grinderPort = properties.getInt("grinder.multicastPort",
-						      0);
+	    final int grinderPort =
+		properties.getInt("grinder.multicastPort",
+				  CommunicationDefaults.GRINDER_PORT);
 
 	    if (multicastAddress != null && grinderPort > 0) {
 		final ConsoleListener listener =
@@ -177,7 +180,8 @@ public class GrinderProcess
 
 	if (properties.getBoolean("grinder.reportToConsole", false)) {
 	    final int consolePort =
-		properties.getInt("grinder.console.multicastPort", 0);
+		properties.getInt("grinder.console.multicastPort",
+				  CommunicationDefaults.CONSOLE_PORT);
 
 	    if (multicastAddress != null && consolePort > 0) {
 		m_consoleSender = new Sender(m_context.getGrinderID(),

@@ -69,6 +69,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.grinder.console.ConsoleException;
+import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
@@ -194,7 +195,9 @@ public class ConsoleUI implements ModelListener
 	    });
 
 	final JSlider intervalSlider =
-	    new JSlider(100, 10000, m_model.getSampleInterval());
+	    new JSlider(100, 10000,
+			m_model.getProperties().getSampleInterval());
+
 	intervalSlider.setMajorTickSpacing(1000);
 	intervalSlider.setMinorTickSpacing(100);
 	intervalSlider.setPaintTicks(true);
@@ -203,7 +206,9 @@ public class ConsoleUI implements ModelListener
 	intervalSlider.addChangeListener(
 	    new ChangeListener() {
 		    public void stateChanged(ChangeEvent e) {
-			m_model.setSampleInterval(intervalSlider.getValue());
+			final ConsoleProperties p = m_model.getProperties();
+			p.setSampleInterval(intervalSlider.getValue());
+			m_model.setProperties(p);
 		    }
 		}
 	    );
@@ -211,7 +216,7 @@ public class ConsoleUI implements ModelListener
 	m_intervalLabel = new JLabel();
 
 	final JSlider sfSlider =
-	    new JSlider(1, 6, m_model.getSignificantFigures());
+	    new JSlider(1, 6, m_model.getProperties().getSignificantFigures());
 	sfSlider.setMajorTickSpacing(1);
 	sfSlider.setPaintLabels(true);
 	sfSlider.setSnapToTicks(true);
@@ -220,7 +225,9 @@ public class ConsoleUI implements ModelListener
 	sfSlider.addChangeListener(
 	    new ChangeListener() {
 		    public void stateChanged(ChangeEvent e) {
-			m_model.setSignificantFigures(sfSlider.getValue());
+			final ConsoleProperties p = m_model.getProperties();
+			p.setSignificantFigures(sfSlider.getValue());
+			m_model.setProperties(p);
 		    }
 		}
 	    );
@@ -232,29 +239,33 @@ public class ConsoleUI implements ModelListener
 	sfPanel.add(sfSlider);
 
 	final IntegerField ignoreSampleField = new IntegerField(0, 999999);
-	ignoreSampleField.setValue(m_model.getIgnoreSampleCount());
+	ignoreSampleField.setValue(
+	    m_model.getProperties().getIgnoreSampleCount());
 
 	m_ignoreSampleLabel = new JLabel();
 
 	ignoreSampleField.addChangeListener(
 	    new ChangeListener() {
 		    public void stateChanged(ChangeEvent e) {
-			m_model.setIgnoreSampleCount(
-			    ignoreSampleField.getValue());
+			final ConsoleProperties p = m_model.getProperties();
+			p.setIgnoreSampleCount(ignoreSampleField.getValue());
+			m_model.setProperties(p);
 		    }
 		}
 	    );
 
 	final IntegerField collectSampleField = new IntegerField(0, 999999);
-	collectSampleField.setValue(m_model.getCollectSampleCount());
+	collectSampleField.setValue(
+	    m_model.getProperties().getCollectSampleCount());
 
 	m_collectSampleLabel = new JLabel();
 
 	collectSampleField.addChangeListener(
 	    new ChangeListener() {
 		    public void stateChanged(ChangeEvent e) {
-			m_model.setCollectSampleCount(
-			    collectSampleField.getValue());
+			final ConsoleProperties p = m_model.getProperties();
+			p.setCollectSampleCount(collectSampleField.getValue());
+			m_model.setProperties(p);
 		    }
 		}
 	    );
@@ -504,9 +515,11 @@ public class ConsoleUI implements ModelListener
 	}
 
 	// Ignoring synchronisation issues for now.
-	final int sampleInterval = m_model.getSampleInterval();
-	final int ignoreCount = m_model.getIgnoreSampleCount();
-	final int collectCount = m_model.getCollectSampleCount();
+	final ConsoleProperties properties = m_model.getProperties();
+
+	final int sampleInterval = properties.getSampleInterval();
+	final int ignoreCount = properties.getIgnoreSampleCount();
+	final int collectCount = properties.getCollectSampleCount();
 
 	m_intervalLabel.setText(m_sampleIntervalString + sampleInterval +
 				(sampleInterval == 1 ? m_msUnit : m_msUnits));

@@ -89,14 +89,12 @@ public class Model
     private final SampleAccumulator m_totalSampleAccumulator =
 	new SampleAccumulator();
 
-    private final Thread m_sampleThread;
-    private int m_sampleInterval = 1000;
-    private int m_significantFigures = 3;
-    private NumberFormat m_numberFormat =
-	new SignificantFigureFormat(m_significantFigures);
+    private ConsoleProperties m_properties;
+    private int m_ignoreSampleCount;
+    private int m_sampleInterval;
+    private int m_significantFigures;
+    private NumberFormat m_numberFormat;
 
-    private int m_ignoreSampleCount = 1;
-    private int m_collectSampleCount = 0;
     private boolean m_stopSampler = false;
     private int m_state = 0;
     private long m_sampleCount = 0;
@@ -111,14 +109,19 @@ public class Model
 
     public Model() throws GrinderException
     {
+	m_properties = new ConsoleProperties();
+	m_ignoreSampleCount = m_properties.getIgnoreSampleCount();
+	m_sampleInterval = m_properties.getSampleInterval();
+	m_significantFigures = m_properties.getSignificantFigures();
+	m_numberFormat = new SignificantFigureFormat(m_significantFigures);
+
 	m_testArray = new Test[0];
 	m_accumulatorArray = new SampleAccumulator[0];
 	m_indicesValid = true;
 
 	setInitialState();
 
-	m_sampleThread = new Thread(new Sampler());
-	m_sampleThread.start();
+	new Thread(new Sampler()).start();
     }
 
     public synchronized void registerTests(Set newTests)
@@ -245,7 +248,7 @@ public class Model
 
     private void setInitialState()
     {
-	if (getIgnoreSampleCount() != 0) {
+	if (m_ignoreSampleCount != 0) {
 	    setState(STATE_WAITING_FOR_TRIGGER);
 	}
 	else {
@@ -429,7 +432,8 @@ public class Model
 		
 		if (state == STATE_CAPTURING) {
 		    if (m_receivedReport) {
-			final int collectSampleCount = getCollectSampleCount();
+			final int collectSampleCount =
+			    m_properties.getCollectSampleCount();
 
 			if (collectSampleCount != 0 &&
 			    m_sampleCount >= collectSampleCount) {
@@ -438,7 +442,7 @@ public class Model
 		    }
 		}
 		else if (state == STATE_WAITING_FOR_TRIGGER) {
-		    if (m_sampleCount >= getIgnoreSampleCount()) {
+		    if (m_sampleCount >= m_properties.getIgnoreSampleCount()) {
 			setState(STATE_CAPTURING);
 		    }
 		}
@@ -450,37 +454,42 @@ public class Model
 	}
     }
 
-    public int getSampleInterval()
+    public ConsoleProperties getProperties()
     {
-	return m_sampleInterval;
+	return m_properties;
     }
 
-    /** 
-     * Should really wait until the next sample boundary before
-     * changing.
-     **/
-    public void setSampleInterval(int i)
+    public void setProperties(ConsoleProperties properties)
     {
-	m_sampleInterval = i;
+	m_properties = properties;
+
+	final int significantFigures = m_properties.getSignificantFigures();
+
+	if (m_significantFigures != significantFigures) {
+	    m_numberFormat = new SignificantFigureFormat(significantFigures);
+	    m_significantFigures = significantFigures;
+	}
+
+	final int ignoreSampleCount = m_properties.getIgnoreSampleCount();
+
+	if (m_ignoreSampleCount != ignoreSampleCount) {
+	    if (getState() == STATE_WAITING_FOR_TRIGGER) {
+		setInitialState();
+	    }
+	    
+	    m_ignoreSampleCount = ignoreSampleCount;
+	}
+
+	// Should really wait until the next sample boundary before
+	// changing sample interval.
+	m_sampleInterval = m_properties.getSampleInterval();
+
 	fireModelUpdate();
-    }
-
-    public int getSignificantFigures()
-    {
-	return m_significantFigures;
     }
 
     public NumberFormat getNumberFormat()
     {
 	return m_numberFormat;
-    }
-
-    public void setSignificantFigures(int i)
-    {
-	m_significantFigures = i;
-	m_numberFormat = new SignificantFigureFormat(i);
-
-	fireModelUpdate();
     }
 
     public long getSampleCount()
@@ -492,33 +501,6 @@ public class Model
     public boolean getReceivedReport()
     {
 	return m_receivedReport;
-    }
-
-    public int getIgnoreSampleCount()
-    {
-	return m_ignoreSampleCount;
-    }
-
-    public void setIgnoreSampleCount(int i)
-    {
-	m_ignoreSampleCount = i;
-
-	if (getState() == STATE_WAITING_FOR_TRIGGER) {
-	    setInitialState();
-	}
-
-	fireModelUpdate();
-    }
-
-    public int getCollectSampleCount()
-    {
-	return m_collectSampleCount;
-    }
-
-    public void setCollectSampleCount(int i)
-    {
-	m_collectSampleCount = i;
-	fireModelUpdate();
     }
 
     public int getState()

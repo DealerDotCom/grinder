@@ -22,7 +22,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.GrinderProperties;
 import net.grinder.communication.Message;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
@@ -47,13 +46,8 @@ public class Console
     public Console()
 	throws GrinderException
     {
-	// !!
-	final GrinderProperties properties =
-	    new net.grinder.util.PropertiesHelper().getProperties();
-
-	m_communication = new ConsoleCommunication(properties);
-
 	m_model = new Model();
+	m_communication = new ConsoleCommunication(m_model.getProperties());
 
 	final ActionListener startHandler =
 	    new ActionListener() {

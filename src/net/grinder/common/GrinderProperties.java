@@ -18,8 +18,6 @@
 
 package net.grinder.common;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Properties;
 

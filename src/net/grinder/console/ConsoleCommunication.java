@@ -30,6 +30,7 @@ import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
+import net.grinder.console.model.ConsoleProperties;
 
 
 /**
@@ -41,19 +42,11 @@ class ConsoleCommunication
     private final Receiver m_receiver;
     private final Sender m_sender;
 
-    ConsoleCommunication(GrinderProperties properties)
+    ConsoleCommunication(ConsoleProperties properties)
 	throws GrinderException
     {
-	final String multicastAddress = 
-	    properties.getMandatoryProperty("grinder.multicastAddress");
-
-	final int consolePort =
-	    properties.getMandatoryInt("grinder.console.multicastPort");
-
-	final int grinderPort =
-	    properties.getMandatoryInt("grinder.multicastPort");
-	
-	m_receiver = new Receiver(multicastAddress, consolePort);
+	m_receiver = new Receiver(properties.getMulticastAddress(),
+				  properties.getConsolePort());
 
 	String host;
 
@@ -64,9 +57,9 @@ class ConsoleCommunication
 	    host = "UNNAMED HOST";
 	}
 
-	m_sender = new Sender("Console (" + host + " " +
-			      multicastAddress + ":" + consolePort + ")",
-			      multicastAddress, grinderPort);
+	m_sender = new Sender("Console (" + host + ")",
+			      properties.getMulticastAddress(),
+			      properties.getGrinderPort());
     }
 
     void sendStartMessage()
