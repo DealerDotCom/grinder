@@ -40,21 +40,25 @@ import javax.swing.ImageIcon;
  */
 public final class Resources {
 
-  private static ResourceBundle s_resources = null;
   private static Resources s_singleton = null;
+
+  private final ResourceBundle m_resources;
+  private final String m_package;
 
   /**
    * Constructor.
    *
-   * @param bundleName Name of resource bundle.
+   * @param bundleName Name of resource bundle. The package part of
+   * the name is used to resolve the location of resources referred to
+   * in the resource bundle.
    * @exception ConsoleException If an error occurs.
    */
   public Resources(String bundleName) throws ConsoleException {
 
     synchronized (Resources.class) {
-      if (s_resources == null) {
+      if (s_singleton == null) {
         try {
-          s_resources = ResourceBundle.getBundle(bundleName);
+          s_singleton = this;
         }
         catch (MissingResourceException e) {
           throw new ConsoleException("Resource bundle not found");
@@ -62,7 +66,16 @@ public final class Resources {
       }
     }
 
-    s_singleton = this;
+    m_resources = ResourceBundle.getBundle(bundleName);
+
+    final int lastDot = bundleName.lastIndexOf(".");
+
+    if (lastDot > 0) {
+      m_package = "/" + bundleName.substring(0, lastDot + 1).replace('.', '/');
+    }
+    else {
+      m_package = "/";
+    }
   }
 
   /**
@@ -94,7 +107,7 @@ public final class Resources {
   public String getString(String key, boolean warnIfMissing) {
 
     try {
-      return s_resources.getString(key);
+      return m_resources.getString(key);
     }
     catch (MissingResourceException e) {
       if (warnIfMissing) {
@@ -178,7 +191,7 @@ public final class Resources {
       return null;
     }
 
-    final URL url = this.getClass().getResource("resources/" + name);
+    final URL url = this.getClass().getResource(m_package + name);
 
     if (url == null) {
       System.err.println("Warning - could not load resource " + name);

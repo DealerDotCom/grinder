@@ -1,3 +1,10 @@
+Grinder 3.0-beta13
+------------------
+
+  Fix bug 847571 - console does not display image icons. Thanks to
+  Stefano Santoro for the report.
+
+
 Grinder 3.0-beta12
 ------------------
 
