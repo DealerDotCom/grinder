@@ -24,7 +24,7 @@ package net.grinder;
 
 
 /**
- * This is the entry point of The Grinder Console.
+ * This is the entry point of The Grinder console.
  *
  * @author Philip Aston
  * @version $Revision$
