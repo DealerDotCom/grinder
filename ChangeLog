@@ -1,5 +1,7 @@
 2003-02-02  Philip Aston  <paston@bea.com>
 
+	* The Grinder 3.0-beta4 is released.
+	
 	* build.xml: More tweaking of script javadoc.
 
 	* etc/setenv.sh: Got a silver rocket.
