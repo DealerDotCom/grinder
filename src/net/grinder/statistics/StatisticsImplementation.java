@@ -175,7 +175,7 @@ public class StatisticsImplementation
     }
 
     /**
-     * Efficient externalisation method used by {@link TestStatisticsMap.
+     * Efficient externalisation method used by {@link TestStatisticsMap}.
      *
      * @param out Stream to write to.
      * @param A Serialiser that the current thread can safely use.
@@ -190,7 +190,7 @@ public class StatisticsImplementation
     }
 
     /**
-     * Efficient externalisation method used by {@link TestStatisticsMap.
+     * Efficient externalisation method used by {@link TestStatisticsMap}.
      *
      * @param out Stream to read from.
      * @param A Serialiser that the current thread can safely use.

@@ -64,7 +64,7 @@ abstract class OptionsDialogHandler
      *
      * @param frame Parent frame.
      * @param properties A {@link
-     * net.grinder.console.common.ConsoleProperties} associated with
+     * net.grinder.console.model.ConsoleProperties} associated with
      * the properties file to save to.
      * @param resources Resources object to use for strings and things.
      **/ 

@@ -47,7 +47,7 @@ public class TestGraphPanel extends JPanel implements ModelListener
     private final String m_testLabel;
 
     /**
-     * Map of {@link net.grinder.plugininterface.Test}s to {@link
+     * Map of {@link net.grinder.common.Test}s to {@link
      * javax.swing.JComponent}s.
      **/
     private final Map m_components = new HashMap();

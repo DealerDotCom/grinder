@@ -90,7 +90,7 @@ public class GrinderProperties extends Properties
      * Save our properties to our file.
      *
      * @throws GrinderException If there is no file associated with this {@link GrinderProperties}.
-     * @throws GrinderProperties With an nested IOException if there was an error writing to the file.
+     * @throws GrinderException With an nested IOException if there was an error writing to the file.
      **/
     public final void save() throws GrinderException
     {

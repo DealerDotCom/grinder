@@ -35,7 +35,7 @@ public class Serialiser
 
     /**
      * Write a <code>long</code> to a stream in such a way it can be
-     * read by {@link readUnsignedLong}. The value of the
+     * read by {@link #readUnsignedLong}. The value of the
      * <code>long<code> must be greater than zero. Values between 0
      * and 127 inclusive require only one byte. Other values require
      * eight bytes.
@@ -61,7 +61,7 @@ public class Serialiser
     }
 
     /**
-     * Read a <code>long</code> written by {@link writeUnsignedLong}.
+     * Read a <code>long</code> written by {@link #writeUnsignedLong}.
      **/
     public final long readUnsignedLong(DataInput input)
 	throws IOException
