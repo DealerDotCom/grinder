@@ -76,8 +76,6 @@ class HttpMsg implements HTTPHandler
     public String sendRequest(HTTPHandler.RequestData requestData)
 	throws HTTPHandlerException
     {
-	long startTime = System.currentTimeMillis();
-
 	try {
 	    final String urlString = requestData.getURLString();
 	    final URL url = new URL(urlString);
@@ -96,7 +94,6 @@ class HttpMsg implements HTTPHandler
 		    m_pluginThreadContext.stopTimer();
 		}
 	    }
-	    System.out.println("1 " + (System.currentTimeMillis() - startTime));
 
 	    final long ifModifiedSince = requestData.getIfModifiedSinceLong();
 
@@ -155,8 +152,6 @@ class HttpMsg implements HTTPHandler
 	    }
 	
 	    connection.connect();
-
-	    System.out.println("2 " + (System.currentTimeMillis() - startTime));
 
 	    // This is before the getHeaderField for a good reason.
 	    // Otherwise the %^(*$ HttpURLConnection API silently catches
@@ -236,7 +231,6 @@ class HttpMsg implements HTTPHandler
 	    throw new HTTPHandlerException(e.getMessage(), e);
 	}
 	finally {
-	    System.out.println("3 " + (System.currentTimeMillis() - startTime));
 	    // Back stop.
 	    m_pluginThreadContext.stopTimer();
 	}
