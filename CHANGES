@@ -5,6 +5,8 @@ Grinder 2.6.3
 
   Fix to recording of short response times from Mikael Suokas.
 
+  Thread safety fix from Mikael Suokas.
+
 
 Grinder 2.6.2
 -------------
