@@ -29,3 +29,5 @@ it too :-). The list is roughly in priority order.]
   authentication headers, then catches the 401 and automatically
   resends a request with the authentication headers.
 	- Need to fix the sniffer.
+
+  TCPSniffer options should be case insensitive.
