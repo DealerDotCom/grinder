@@ -25,7 +25,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.Socket;
 
 
@@ -57,7 +56,7 @@ public class ClientSender extends AbstractSender {
       // Our socket - bind to any local port.
       final Socket socket = new Socket(addressString, port);
 
-      final String localHost = InetAddress.getLocalHost().getHostName();
+      final String localHost = socket.getLocalAddress().getHostName();
       final int localPort = socket.getLocalPort();
 
       // Calculate a globally unique string for this sender.
@@ -116,10 +115,10 @@ public class ClientSender extends AbstractSender {
    */
   protected final void writeMessage(Message message) throws IOException {
 
-    // I tried the model of using a single ObjectOutputStream for
-    // the lifetime of the socket, but the corresponding
-    // ObjectInputStream would get occasional EOF's during
-    // readObject. Seems like voodoo to me, but creating a new
+    // I tried the model of using a single ObjectOutputStream for the
+    // lifetime of the socket and a single ObjectInputStream. However,
+    // the corresponding ObjectInputStream would get occasional EOF's
+    // during readObject. Seems like voodoo to me, but creating a new
     // ObjectOutputStream for every message fixes this.
 
     final ObjectOutputStream objectStream =
