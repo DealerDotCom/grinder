@@ -39,7 +39,6 @@ public class CopyStreamRunnable implements Runnable
     private final OutputStream m_out;
 
     public CopyStreamRunnable(InputStream in, OutputStream out)
-	throws IOException
     {
 	m_in = in;
 	m_out = out;
@@ -53,7 +52,7 @@ public class CopyStreamRunnable implements Runnable
 	    while (true) {
 		int length;
 
-		while ((length = m_in.read(buffer, 0, buffer.length)) > -1) {
+		while ((length = m_in.read(buffer, 0, buffer.length)) > 0) {
 		    m_out.write(buffer, 0, length);
 		}
 	    }
