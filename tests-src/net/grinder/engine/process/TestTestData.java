@@ -57,7 +57,7 @@ public class TestTestData extends TestCase
 	private final GrinderProperties m_parameters;
 
 	public MyTest(Integer testNumber, String description,
-				GrinderProperties parameters)
+		      GrinderProperties parameters)
 	{
 	    m_testNumber = testNumber;
 	    m_description = description;

@@ -22,6 +22,7 @@ import java.util.Set;
 
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.ThreadCallbacks;
 
 
@@ -34,6 +35,15 @@ import net.grinder.plugininterface.ThreadCallbacks;
  */
 public class NullPlugin implements GrinderPlugin
 {
+    /**
+     * This method is executed when the process starts. It is only
+     * executed once.
+     */
+    public void initialize(PluginProcessContext processContext)
+	throws PluginException
+    {
+    }
+
     /**
      * This method is executed when the thread starts. It is only
      * executed once.

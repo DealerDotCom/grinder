@@ -104,28 +104,43 @@ public class TestPropertiesHelper extends TestCase
 	}
     }
 
-    public void testGetPlugin() throws Exception
+    public void testInstantiatePlugin() throws Exception
     {
-	try {
-	    final PropertiesHelper helper =
-		new PropertiesHelper(m_emptyProperties);
+	GrinderProperties.setProperties(m_emptyProperties);
 
-	    helper.getPlugin();
+	try {
+	    final PropertiesHelper helper = new PropertiesHelper();
+
+	    final ProcessContextImplementation context =
+		new ProcessContextImplementation();
+
+	    helper.instantiatePlugin(context);
 
 	    fail("Expected exception");
 	}
 	catch (GrinderException e) {
 	}
 
-	final PropertiesHelper helper = new PropertiesHelper(m_properties);
-	assertNotNull(helper.getPlugin());
+	GrinderProperties.setProperties(m_properties);
+
+	final PropertiesHelper helper = new PropertiesHelper();
+
+	final ProcessContextImplementation context =
+	    new ProcessContextImplementation();
+
+	helper.instantiatePlugin(context);
     }
 
     public void testGetTestSet() throws Exception
     {
-	final PropertiesHelper helper = new PropertiesHelper(m_properties);
+	GrinderProperties.setProperties(m_properties);
 
-	final Set tests = helper.getTestSet();
+	final PropertiesHelper helper = new PropertiesHelper();
+
+	final ProcessContextImplementation context =
+	    new ProcessContextImplementation();
+
+	final Set tests = helper.getTestSet(helper.instantiatePlugin(context));
 
 	assertEquals(m_testParameters.length, tests.size());
 
