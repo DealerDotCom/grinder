@@ -51,9 +51,14 @@ public abstract class AbstractFileTestCase extends TestCase {
 
     if (f.isDirectory()) {
       final File[] children = f.listFiles();
-
-      for (int i=0; i<children.length; ++i) {
-        delete(children[i]);
+      
+      if (children == null) {
+        System.err.println("Could not list directory ' " + f + "'");
+      }
+      else {
+        for (int i=0; i<children.length; ++i) {
+          delete(children[i]);
+        }
       }
     }
 
