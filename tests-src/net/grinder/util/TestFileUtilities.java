@@ -39,7 +39,8 @@ import net.grinder.testutility.Serializer;
  */
 public class TestFileUtilities extends AbstractFileTestCase {
 
-  public void testDeleteTree() throws Exception {
+  public void testDeleteContents() throws Exception {
+
     final String[] files = {
       "directory/foo/bah/blah",
       "directory/blah",
@@ -58,13 +59,13 @@ public class TestFileUtilities extends AbstractFileTestCase {
     }
 
     try {
-      FileUtilities.deleteTree(new File(getDirectory(), "x"));
+      FileUtilities.deleteContents(new File(getDirectory(), "x"));
       fail("Expected FileUtilitiesException");
     }
     catch (FileUtilities.FileUtilitiesException e) {
     }
     
-    FileUtilities.deleteTree(getDirectory());
+    FileUtilities.deleteContents(getDirectory());
 
     assertEquals(0, getDirectory().list().length);
   }

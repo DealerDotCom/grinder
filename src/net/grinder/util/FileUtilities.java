@@ -42,13 +42,13 @@ public final class FileUtilities  {
   }
 
   /**
-   * Delete a directory and its contents.
+   * Delete the contents of a directory. The directory itself is not
+   * removed.
    *
-   * @param rootDirectory The directory to delete.
+   * @param rootDirectory The directory.
    * @exception IOException If an error occurs.
    */
-  public static void deleteTree(File rootDirectory)
-    throws IOException {
+  public static void deleteContents(File rootDirectory) throws IOException {
 
     final List deleteList = new ArrayList();
     final Set visited = new HashSet();
