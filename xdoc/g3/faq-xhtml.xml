@@ -276,93 +276,9 @@ significant effect on the behaviour of a system. I hope that this
 discusssion helps you see that there is no direct connection between
 TPS and test time.</em></p>
 
-<h3><a name="multicast">What do I need to do to set up
-multicast?</a></h3>
-
-<p>You must set up multicast if you want to use the console with The
-Grinder. It is used to send signals from the Console to the Grinder
-processes (start, stop).</p>
-
-<p>Multicast addresses lie in the range <code>224.0.0.0</code> to
-<code>239.255.255.255</code>. Ports lie in the range <code>0</code> to
-<code>65535</code>. You should ensure that the address and ports you
-chose does not clash with other applications running on your LAN. The
-example files uses the address <code>228.1.1.1:1234</code>:</p>
-
-<blockquote>
-<pre>
-grinder.receiveConsoleSignals=true
-grinder.grinderAddress=228.1.1.1
-grinder.grinderPort=1234
-</pre>
-</blockquote>
-
-<p>For most modern TCP stacks, e.g Windows 95/98/NT, Linux,
-multicast works out of the box.</p>
-
-<p>On Linux, you may also need to set up the routing table. Try:</p>
-
-<blockquote>
-<pre>
-route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
-</pre>
-</blockquote>
-
-<p>Some Windows VPN clients (e.g Bay Networks Extranet) interfere
-with multicast. You may need to disable them.</p>
-
-<h3><a name="multicast-w2k">What do I need to do to set up multicast
-on Windows 2000?</a></h3>
-
-<p>With a stand alone Windows 2000 machine, you might experience
-similar grief to myself. I found that I could only get multicast to
-work if my LAN NIC had a carrier and the MS loop-back adapter is not
-installed (or disabled). The following links contain experiences that
-tally with mine:</p>
-
-<blockquote><a
-href="http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html">
-http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html</a>
-<a
-href="http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html">
-http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html</a>
-<a
-href="http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html">
-http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html</a>
-</blockquote>
-
-<p>The last of these says:</p>
-
-<blockquote><em>
- I have been looking for a solution for this problem a long time
-without success :-( I found several dummy loop-back IP stacks but none
-that supports multicast. The solution I have been using is to bring
-along a tiny hub and connect my laptop to that hub when doing demos.
-Windows is a bit stupid in the way that it only checks if it has a
-carrier.
-</em></blockquote>
-
-<p>I now use a slightly cheaper/lighter solution; namely I have
-cropped a network cable short and twisted my own physical loop-back
-adapter. Needless to say, if anyone figures out how to get multicast
-working with a stand alone W2K machine, I'm more than interested.</p>
-
-<p><em>(Later...)</em> The following Windows registry entry has
-allowed my to get rid of the physical loop-back adapter. With this
-set, The Grinder reports network errors whenever a multicast packet is
-sent or received but otherwise continues to work fine.</p>
-
-<blockquote><pre>
-HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\
-
-Name: DisableDHCPMediaSense
-Type: REG_DWORD 
-Data: 0x00000001 (1)
-</pre></blockquote>
-
 <h3><a name="windows-address-in-use">What can I do about <em>address in use</em> exceptions on Microsoft Windows machines?</a></h3>
 
-<p><em>Answer courtesy of Venkat:.</em></p>
+<p><em>Answer courtesy of Venkat:</em></p>
 
 <blockquote>
 

@@ -114,40 +114,39 @@ ports to match those in the <code>grinder.properties</code> files. The
 used to trigger The Grinder test scenario. Each agent process then
 creates child worker processes to do the work.</p>
 
-<p>As the worker processes execute they dynamically inform the console
-of the tests in the test script. If you start the console after the
-agent process, you should press the <em>Reset processes</em> button.
-This will cause the existing worker processes to exit and the agent
-process to start fresh worker processes which will update the console
-with the new test information.</p>
+<p>As the worker processes execute, they dynamically inform the
+console of the tests in the test script. If you start the console
+after the agent process, you should press the <em>Reset processes</em>
+button. This will cause the existing worker processes to exit and the
+agent process to start fresh worker processes which will update the
+console with the new test information.</p>
 
-<span class="sidebar">
-<h3>Network addresses</h3>
+<h2>Network communication</h2>
 
-<p>The worker processes listen for console signals on a multicast
-address, by default this is <code>228.1.1.1:1235</code>. Each worker
-process sets up a TCP network connection to the console to report
-statistics. By default, the console listens on port <code>6372</code>
-on all local network interfaces of the machine running the
-console.</p>
+<p>Each worker process sets up a TCP network connection to the console
+to report statistics. Each agent process sets up a connection to the
+console to receive commands, which it passes on to its worker
+processes. The console accepts both types of connection on a
+particular address and port. By default, the console listens on port
+<code>6372</code> on all local network interfaces of the machine
+running the console.</p>
 
-<p>If the default addresses are not valid, alter following properties
-in the <code>grinder.properties</code> file before starting The
-Grinder agents:</p>
+<p>To change the console addresses, set the following properties in
+the <code>grinder.properties</code> file before starting The Grinder
+agents:</p>
 
 <pre>
         <a href="#grinder.consoleAddress">grinder.consoleAddress</a>  (Address of machine running console)
         <a href="#grinder.consolePort">grinder.consolePort</a>
-        <a href="#grinder.grinderAddress">grinder.grinderAddress</a>  (Multicast address)
-        <a href="#grinder.grinderPort">grinder.grinderPort</a>
 </pre>
-</span>
 
-<p>If multicast is not available, or you want to quickly try a test
-script without bothering with the console, use the <a
-href="#grinder.reportToConsole">grinder.reportToConsole</a> and <a
-href="#grinder.receiveConsoleSignals">grinder.receiveConsoleSignals</a>
-properties to disable console communication.</p>
+<p>These values must match those specified in the console options
+dialog.</p>
+
+<p>If an agent process fails to connect to the console, it will
+continue independently without the console and will start its worker
+processes. The worker processes will run to completion and not report
+to the console.</p>
 
 <h2>Output</h2>
 
@@ -300,42 +299,17 @@ engine.</p>
  </tr>
 
  <tr>
-  <td valign="top"><code><a name="grinder.receiveConsoleSignals">grinder.receiveConsoleSignals</a></code></td>
-  <td>Set to <code>true</code> to respond to console signals. Default is
-  <code>true</code>.</td>
- </tr>
-
- <tr>
-  <td valign="top"><code><a name="grinder.reportToConsole">grinder.reportToConsole</a></code></td>
-  <td>Set to <code>true</code> to send statistics to the console.
-  Default is <code>true</code>.</td>
- </tr>
-
- <tr>
   <td valign="top"><code><a name="grinder.consoleAddress">grinder.consoleAddress</a></code></td>
-  <td>The IP address or hostname to use for communication from the
-  Grinder processes to the console. Default is all the network
-  interfaces of the local machine.</td>
+  <td>The IP address or hostname to use for communication that the
+  agent and worker processes use to contact the console. Default is
+  all the network interfaces of the local machine.</td>
  </tr>
 
  <tr>
   <td valign="top"><code><a name="grinder.consolePort">grinder.consolePort</a></code></td>
-  <td> The IP port to use for communication from the Grinder processes
-  to the console. Default is <code>6372</code>.</td>
- </tr>
-
- <tr>
-  <td valign="top"><code><a name="grinder.grinderAddress">grinder.grinderAddress</a></code></td>
-  <td>The multicast address to use for communication from the console
-  to the agent and worker processes. See <a href="faq.html#multicast">What do
-  I need to do to set up multicast?</a>. Default is
-  <code>228.1.1.1</code>.</td>
- </tr>
-
- <tr>
-  <td valign="top"><code><a name="grinder.grinderPort">grinder.grinderPort</a></code></td>
-  <td>The multicast port to use for communication from the console to
-  the agent and worker processes. Default is <code>1234</code>.</td>
+  <td> The IP port to use for communication that the agent and worker
+  processes use to contact to the console. Default is
+  <code>6372</code>.</td>
  </tr>
 
  <tr>

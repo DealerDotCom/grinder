@@ -93,8 +93,11 @@ easier to use J2SE 1.4.1 with The Grinder 3.</p>
 
 <ul>
 
-<li>The TCPSniffer has been renamed <em>TCPProxy</em> for
-correctness.</li>
+<li>The TCPSniffer has been renamed <em>TCPProxy</em> for correctness.
+The TCPProxy can be used with other HTTP and HTTPS proxies.</li>
+
+<li>Console signals are now transmitted over a TCP socket connection.
+Mulicast is no longer used.</li>
 
 <li>The interface that plug-ins must implement has changed
 significantly. Plug-ins written for The Grinder 2 will not work with
