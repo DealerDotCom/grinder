@@ -24,6 +24,7 @@ package net.grinder.util;
 import java.io.IOException;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -59,18 +60,22 @@ public final class Directory  {
   /**
    * List the files in the hierarchy below the directory.
    *
-   * @return The list of files.
+   * @return The list of files. Files are relative to the directory,
+   * not absolute.
    */
   public File[] listContents() {
-    return listContents(false);
+    return listContents(false, false);
   }
 
-  private File[] listContents(boolean includeDirectories) {
+  private File[] listContents(boolean includeDirectories,
+                              boolean absolutePaths) {
 
     final List resultList = new ArrayList();
     final Set visited = new HashSet();
     final Set directoriesToVisit = new HashSet();
-    directoriesToVisit.add(m_directory);
+
+    // new File(null, path) is equivalent to new File(path).
+    directoriesToVisit.add(null);
 
     while (directoriesToVisit.size() > 0) {
       final File[] directories =
@@ -78,22 +83,29 @@ public final class Directory  {
           new File[directoriesToVisit.size()]);
 
       for (int i = 0; i < directories.length; ++i) {
-        final File directory = directories[i];
+        final File relativeDirectory = directories[i];
+        final File absoluteDirectory =
+          relativeDirectory != null ?
+          new File(m_directory, relativeDirectory.getPath()) : m_directory;
 
-        directoriesToVisit.remove(directory);
-        visited.add(directory);
+        directoriesToVisit.remove(relativeDirectory);
+        visited.add(relativeDirectory);
 
-        final File[] children = directory.listFiles();
+        // We use list() rather than listFiles() so the results are
+        // relative, not absolute.
+        final String[] children = absoluteDirectory.list();
 
         for (int j = 0; j < children.length; ++j) {
-          final File child = children[j];
+          final File relativeChild = new File(relativeDirectory, children[j]);
+          final File absoluteChild = new File(absoluteDirectory, children[j]);
 
-          if (includeDirectories || !child.isDirectory()) {
-            resultList.add(child);
+          if (includeDirectories || !absoluteChild.isDirectory()) {
+            resultList.add(absolutePaths ? absoluteChild : relativeChild);
           }
 
-          if (child.isDirectory() && !visited.contains(child)) {
-            directoriesToVisit.add(child);
+          if (absoluteChild.isDirectory() &&
+              !visited.contains(relativeChild)) {
+            directoriesToVisit.add(relativeChild);
           }
         }
       }
@@ -110,7 +122,7 @@ public final class Directory  {
 
     // We rely on the order of the listContents result: more deeply
     // nested files are later in the list.
-    final File[] deleteList = listContents(true);
+    final File[] deleteList = listContents(true, true);
 
     for (int i = deleteList.length - 1; i >= 0; --i) {
       deleteList[i].delete();

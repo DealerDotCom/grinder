@@ -22,7 +22,10 @@
 package net.grinder.util;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import net.grinder.testutility.AbstractFileTestCase;
@@ -47,6 +50,9 @@ public class TestDirectory extends AbstractFileTestCase {
   }
 
   public void testListContents() throws Exception {
+
+    final Directory directory = new Directory(getDirectory());
+
     final String[] files = {
       "directory/foo/bah/blah",
       "directory/blah",
@@ -65,11 +71,10 @@ public class TestDirectory extends AbstractFileTestCase {
       file.getParentFile().mkdirs();
       file.createNewFile();
 
-      expected.add(file);
+      // Result uses relative paths.
+      expected.add(new File(files[i]));
     }
     
-    final Directory directory = new Directory(getDirectory());
-
     final File[] allFiles = directory.listContents();
 
     for (int i=0; i<allFiles.length; ++i) {
@@ -80,6 +85,8 @@ public class TestDirectory extends AbstractFileTestCase {
   }
 
   public void testDeleteContents() throws Exception {
+
+    final Directory directory = new Directory(getDirectory());
 
     final String[] files = {
       "directory/foo/bah/blah",
@@ -98,9 +105,52 @@ public class TestDirectory extends AbstractFileTestCase {
       file.createNewFile();
     }
     
-    final Directory directory = new Directory(getDirectory());
+    assertTrue(getDirectory().list().length > 0);
+
     directory.deleteContents();
 
     assertEquals(0, getDirectory().list().length);
+  }
+
+  public void testToFileContentsArray() throws Exception {
+
+    final Directory directory = new Directory(getDirectory());
+    assertEquals(0, directory.toFileContentsArray().length);
+
+    final String[] files = {
+      "directory/foo/bah/blah",
+      "directory/blah",
+      "a/b/c/d/e",
+      "a/b/f/g/h",
+      "a/b/f/g/i",
+      "x",
+      "y/z",
+      "another",
+    };
+
+    final Map expected = new HashMap();
+
+    for (int i=0; i<files.length; ++i) {
+      final File file = new File(getDirectory(), files[i]);
+      file.getParentFile().mkdirs();
+      final FileOutputStream out = new FileOutputStream(file);
+      final String contents = "Contents of " + files[i];
+      out.write(contents.getBytes());
+      out.close();
+
+      // Result uses relative paths.
+      expected.put(new File(files[i]), contents);
+    }
+
+    final FileContents[] fileContentsList = directory.toFileContentsArray();
+
+    for (int i=0; i<fileContentsList.length; ++i) {
+      final FileContents fileContents = fileContentsList[i];
+
+      final String expectedContents =
+        (String)expected.get(fileContents.getFilename());
+      assertNotNull(expectedContents);
+      assertEquals(expectedContents, new String(fileContents.getContents()));
+    }
   }
 }
