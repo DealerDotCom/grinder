@@ -91,6 +91,8 @@ Task: Console to watch local file system for edits.
 Task: Add warning if saving outside of distribution.
 Task: Guard against distributing agent cache directory. Can mark with
 a special file - maybe the README?
+Task: The agent should pick up secondary grinder.properties from file
+cache.
 
 ***** Release 3
 
