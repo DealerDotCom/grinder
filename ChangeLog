@@ -1,3 +1,25 @@
+2003-12-11  Philip Aston  <philipa@mail.com>
+
+	* xdoc/development/contributing-xhtml.xml: Fix typo.
+
+	* contrib/httpplugin/TCPProxy.properties, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter2.java, CHANGES:
+	Integrate updates from Bertrand for regular expressions in the new
+	HTTPPluginTCPProxyFilter.
+
+2003-12-10  Philip Aston  <philipa@mail.com>
+
+	* TODO: Idea from Nurul Choudhury.
+
+2003-12-09  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/resources/Console_de.properties:
+	New translations from Huibert.
+
+	* src/net/grinder/console/swingui/resources/Console_fr.properties:
+	New translations from Bertrand.
+
+	* AUTHORS, xdoc/welcome-xhtml.xml: Correct Huibert's name.
+
 2003-12-08  Philip Aston  <philipa@mail.com>
 
 	* examples/grinder.properties: Update for grinder.numberOfOldLogs.
