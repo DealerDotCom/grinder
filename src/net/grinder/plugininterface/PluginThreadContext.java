@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,9 +22,6 @@
 
 package net.grinder.plugininterface;
 
-import net.grinder.common.FilenameFactory;
-import net.grinder.common.Logger;
-
 
 /**
  * <p>This class is used to share thread information between the
@@ -33,7 +30,7 @@ import net.grinder.common.Logger;
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 public interface PluginThreadContext {
 
   /**
@@ -49,20 +46,6 @@ public interface PluginThreadContext {
    * @return The current run number.
    */
   int getRunNumber();
-
-  /**
-   * Get the thread {@link net.grinder.common.Logger}.
-   *
-   * @return A <code>Logger</code>.
-   */
-  Logger getLogger();
-
-  /**
-   * Get the thread {@link net.grinder.common.FilenameFactory}.
-   *
-   * @return A <code>Logger</code>.
-   */
-  FilenameFactory getFilenameFactory();
 
   /**
    * Get the time the current test was started.

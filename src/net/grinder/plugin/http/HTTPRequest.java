@@ -44,6 +44,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.script.StatisticsAlreadyReportedException;
@@ -838,7 +839,10 @@ public class HTTPRequest {
         httpResponse.getOriginalURI() + " -> " + statusCode + " " +
         httpResponse.getReasonLine() + ", " + responseLength + " bytes";
 
-      final Logger logger = m_threadState.getThreadContext().getLogger();
+      final ScriptContext scriptContext =
+        s_pluginProcessContext.getScriptContext();
+
+      final Logger logger = scriptContext.getLogger();
 
       switch (statusCode) {
       case HttpURLConnection.HTTP_MOVED_PERM:
@@ -858,8 +862,7 @@ public class HTTPRequest {
       }
 
       try {
-        final Statistics statistics =
-          s_pluginProcessContext.getScriptContext().getStatistics();
+        final Statistics statistics = scriptContext.getStatistics();
 
         if (statistics.availableForUpdate()) {
           //Log the custom statistics if we have a statistics context.

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,9 +22,7 @@
 
 package net.grinder.plugininterface;
 
-import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
 import net.grinder.script.Grinder;
 
 
@@ -35,22 +33,8 @@ import net.grinder.script.Grinder;
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 public interface PluginProcessContext {
-
-  /**
-   * Get the process {@link net.grinder.common.Logger}.
-   *
-   * @return A <code>Logger</code>.
-   */
-  Logger getLogger();
-
-  /**
-   * Get the process {@link net.grinder.common.FilenameFactory}.
-   *
-   * @return A <code>Logger</code>.
-   */
-  FilenameFactory getFilenameFactory();
 
   /**
    * Returns the script context.
