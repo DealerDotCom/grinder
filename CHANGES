@@ -2,7 +2,7 @@ Grinder 3.0-beta9
 -----------------
 
   Incorporate HTTPClient HTTPS patch into main distribution. The Grinder
-  now requires the JSSE.
+  now *requires* the JSSE.
 
   Fix use of JDK 1.4.1 Color constants. Should compile with JDK 1.3.1
   again. Thanks to Kumar Mettu for the report.

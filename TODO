@@ -77,7 +77,7 @@ Extend comms to allow files to be retrieved. Hash and cache at
 individual file level. The agent should retrieve the files and store
 on disk.
 
-How to send script - multicast is probably not the answer.
+How to send script - multicast is not the answer.
 
 **** Plans
 
