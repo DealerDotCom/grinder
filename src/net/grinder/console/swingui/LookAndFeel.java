@@ -78,7 +78,7 @@ final class LookAndFeel {
       }
       else {
         UIManager.setLookAndFeel(
-          UIManager.getSystemLookAndFeelClassName());
+          UIManager.getCrossPlatformLookAndFeelClassName());
       }
     }
     catch (Exception e) {
