@@ -29,48 +29,20 @@ package net.grinder.communication;
  */
 public final class InitialiseGrinderMessage implements Message {
 
-  private static final long serialVersionUID = 7091124183509872363L;
+  private static final long serialVersionUID = 5146752463092291969L;
 
-  private final boolean m_waitForStartMessage;
-  private final boolean m_waitForStopMessage;
   private final boolean m_reportToConsole;
 
   /**
    * Constructor.
    *
-   * @param waitForStartMessage Whether or not the worker process
-   * should wait for a start message.
    * @param waitForStopMessage Whether or not the worker process
    * should wait for a stop message.
    * @param reportToConsole Whether or not the worker process should
    * report to the console.
    */
-  public InitialiseGrinderMessage(boolean waitForStartMessage,
-                                  boolean waitForStopMessage,
-                                  boolean reportToConsole) {
-    m_waitForStartMessage = waitForStartMessage;
-    m_waitForStopMessage = waitForStopMessage;
+  public InitialiseGrinderMessage(boolean reportToConsole) {
     m_reportToConsole = reportToConsole;
-  }
-
-  /**
-   * Accessor.
-   *
-   * @return Whether or not the worker process should wait for a start
-   * message.
-   */
-  public boolean getWaitForStartMessage() {
-    return m_waitForStartMessage;
-  }
-
-  /**
-   * Accessor.
-   *
-   * @return Whether or not the worker process should wait for a stop
-   * message.
-   */
-  public boolean getWaitForStopMessage() {
-    return m_waitForStopMessage;
   }
 
   /**

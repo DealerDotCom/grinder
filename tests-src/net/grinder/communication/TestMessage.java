@@ -81,20 +81,16 @@ public class TestMessage extends TestCase {
 
   public void testInitialiseGrinderMessage() throws Exception {
     final InitialiseGrinderMessage original =
-      new InitialiseGrinderMessage(false, true, false);
+      new InitialiseGrinderMessage(false);
 
     final InitialiseGrinderMessage recevied =
       (InitialiseGrinderMessage) serialise(original);
 
-    assertTrue(!original.getWaitForStartMessage());
-    assertTrue(original.getWaitForStopMessage());
     assertTrue(!original.getReportToConsole());
 
     final InitialiseGrinderMessage another =
-      new InitialiseGrinderMessage(true, false, true);
+      new InitialiseGrinderMessage(true);
 
-    assertTrue(another.getWaitForStartMessage());
-    assertTrue(!another.getWaitForStopMessage());
     assertTrue(another.getReportToConsole());
   }
 
