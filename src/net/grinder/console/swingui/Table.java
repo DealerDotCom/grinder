@@ -21,7 +21,6 @@
 
 package net.grinder.console.swingui;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import javax.swing.JTable;
@@ -52,7 +51,6 @@ final class Table extends JTable {
 
   private final MyCellRenderer m_cellRenderer = new MyCellRenderer();
   private final TableCellRenderer m_headerRenderer = new MyHeaderRenderer();
-  private final Color m_defaultForeground;
   private final Font m_boldFont;
   private final Font m_defaultFont;
 
@@ -61,7 +59,6 @@ final class Table extends JTable {
 
     setRowSelectionAllowed(false);
 
-    m_defaultForeground = m_cellRenderer.getForeground();
     m_defaultFont = m_cellRenderer.getFont();
     m_boldFont = m_defaultFont.deriveFont(Font.BOLD);
 
@@ -87,7 +84,8 @@ final class Table extends JTable {
     final boolean bold = model.isBold(row, column);
 
     if (red | bold) {
-      m_cellRenderer.setForeground(red ? Colours.RED : m_defaultForeground);
+      m_cellRenderer.setForeground(
+        red ? Colours.RED :  m_cellRenderer.getForeground());
       m_cellRenderer.setTheFont(bold ? m_boldFont : m_defaultFont);
 
       return m_cellRenderer;
