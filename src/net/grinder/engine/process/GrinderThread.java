@@ -52,6 +52,7 @@ class GrinderThread implements java.lang.Runnable
 
     private static Random m_random = new Random();
 
+    private final GrinderProcess m_grinderProcess;
     private final ThreadCallbacks m_threadCallbacks;
     private final ThreadContextImplementation m_context;
     private final Map m_testSet;
@@ -75,10 +76,12 @@ class GrinderThread implements java.lang.Runnable
     /**
      * The constructor.
      */        
-    public GrinderThread(ThreadCallbacks threadCallbacks,
+    public GrinderThread(GrinderProcess grinderProcess,
+			 ThreadCallbacks threadCallbacks,
 			 ThreadContextImplementation threadContext,
 			 PrintWriter dataPrintWriter, Map tests)
     {
+	m_grinderProcess = grinderProcess;
 	m_threadCallbacks = threadCallbacks;
 	m_context = threadContext;
 	m_dataPrintWriter = dataPrintWriter;
@@ -231,6 +234,10 @@ class GrinderThread implements java.lang.Runnable
 	}
 	finally {
 	    decrementThreadCount();
+	}
+	
+	synchronized(m_grinderProcess) {
+	    m_grinderProcess.notifyAll();
 	}
     }
 

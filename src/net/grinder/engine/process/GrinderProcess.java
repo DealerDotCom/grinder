@@ -223,7 +223,7 @@ public class GrinderProcess
 	    final ThreadCallbacks threadCallbackHandler =
 		m_plugin.createThreadCallbackHandler();
 
-	    runnable[i] = new GrinderThread(threadCallbackHandler,
+	    runnable[i] = new GrinderThread(this, threadCallbackHandler,
 					    pluginThreadContext,
 					    dataPrintWriter, m_testSet);
 	}
@@ -253,7 +253,9 @@ public class GrinderProcess
 	do			// We want at least one report.
 	{
 	    try {
-		Thread.sleep(m_reportToConsoleInterval);
+		synchronized (this) {
+		    wait(m_reportToConsoleInterval);
+		}
 	    }
 	    catch (InterruptedException e) {
 		continue;
