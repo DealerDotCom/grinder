@@ -11,6 +11,8 @@ Grinder 3.0-beta23
   grinder.reportToConsole.interval, and grinder.duration properties to
   be overridden in scripts initialistion section.
 
+  German console translation updates from Marc Born.
+
 
 Grinder 3.0-beta22
 ------------------
