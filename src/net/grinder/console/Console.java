@@ -1,5 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2001 Paco Gomez
+// Copyright (C) 2001 Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,20 +26,25 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 import net.grinder.engine.*;
+import net.grinder.plugininterface.TestDefinition;
+import net.grinder.plugininterface.TestSetPlugin;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
+import net.grinder.util.PropertiesHelper;
 
 /**
  * This is the entry point of The Grinder Console.
  * 
  * @author Paco Gomez
+ * @author Philip Aston
  * @version $Revision$
  */
 public class Console implements ActionListener
 {       
     private GrinderProperties m_properties = null;
-    private GraphStatInfo _gsi[] = null;
-    private StatInfo _si[] = null;
+    private Map m_tests = new TreeMap();
+    private GraphStatInfo m_gsi[] = null;
+    private StatInfo m_si[] = null;
     //ms between console refreshes
     private int _interval = 500;     
                  
@@ -49,15 +55,35 @@ public class Console implements ActionListener
         Console c = new Console();
         c.run();
     }
-    
-    public void run() throws GrinderException {
-	m_properties = GrinderProperties.getProperties();
 
+    public Console() throws GrinderException
+    {
+	m_properties = GrinderProperties.getProperties();
+	final PropertiesHelper propertiesHelper =
+	    new PropertiesHelper(m_properties);
+
+	// Get Test Set plugin.
+	final TestSetPlugin testSetPlugin =
+	    propertiesHelper.getTestSetPlugin();
+
+	// Shove the tests into a TreeMap so that they're ordered.
+	final Iterator testSetIterator = testSetPlugin.getTests().iterator();
+
+	while (testSetIterator.hasNext())
+	{
+	    final TestDefinition test = (TestDefinition)testSetIterator.next();
+	    final Integer testNumber = test.getTestNumber();
+	    m_tests.put(test.getTestNumber(), test);
+	}
+    }
+    
+    public void run() throws GrinderException
+    {
         String s = new java.util.Date().toString() + ": ";
         System.out.println(s + "Grinder Console started.");        
         createFrame();        
         MsgReader mr =
-	    new MsgReader(_si,
+	    new MsgReader(m_si,
 			  m_properties.getMandatoryProperty(
 			      "grinder.console.multicastAddress"),
 			  m_properties.getMandatoryInt(
@@ -67,9 +93,9 @@ public class Console implements ActionListener
             try{
                 Thread.sleep(_interval);
                 
-                for (int i=0; i<_si.length; i++){
-                    _gsi[i].add(_si[i]._art);
-                    _gsi[i].update(_si[i]);
+                for (int i=0; i<m_si.length; i++){
+                    m_gsi[i].add(m_si[i]._art);
+                    m_gsi[i].update(m_si[i]);
                 }
             }
             catch(Exception e){
@@ -94,18 +120,21 @@ public class Console implements ActionListener
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         p.add(b);
         
-	    StringTokenizer st;
+	int n = m_tests.size();
 	    
-	    st = new StringTokenizer(m_properties.getProperty("grinder.plugin.methods"), "\t\n\r,");
-	    int n = st.countTokens();
-	    
-	    //be aware of the index!!!
-        _gsi = new GraphStatInfo[n];
-        _si = new StatInfo[n];
-        for (int i=0; i<n; i++){
-            _gsi[i] = new GraphStatInfo((String)st.nextElement(), 0, 0);
-            p.add(_gsi[i]);
-            _si[i] = new StatInfo(0,0);
+        m_gsi = new GraphStatInfo[n];
+        m_si = new StatInfo[n];
+
+	final Iterator testIterator = m_tests.values().iterator();
+	int i = 0;
+	
+	while (testIterator.hasNext()) {
+	    final TestDefinition test = (TestDefinition)testIterator.next();
+
+            m_gsi[i] = new GraphStatInfo(test.toString(), 0, 0);
+            p.add(m_gsi[i]);
+            m_si[i] = new StatInfo(0,0);
+	    i++;
         }
         
         JScrollPane sp = new JScrollPane(p);
