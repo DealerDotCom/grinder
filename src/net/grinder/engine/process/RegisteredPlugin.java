@@ -22,7 +22,6 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.FilenameFactory;
 import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
@@ -48,14 +47,6 @@ final class RegisteredPlugin implements PluginProcessContext {
                           ProcessContext processContext) {
     m_plugin = plugin;
     m_processContext = processContext;
-  }
-
-  public Logger getLogger() {
-    return m_processContext.getLogger();
-  }
-
-  public FilenameFactory getFilenameFactory() {
-    return m_processContext.getLoggerImplementation().getFilenameFactory();
   }
 
   public Grinder.ScriptContext getScriptContext() {
