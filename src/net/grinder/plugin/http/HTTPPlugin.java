@@ -349,27 +349,46 @@ public class HttpPlugin implements GrinderPlugin
 		    // match, just chuck out the literal text -
 		    // otherwise string bean tags are a pain in XML
 		    // POST data.
+		    OUTER:
 		    while (true) {
 			if ((p = original.indexOf('<', lastP)) == -1) {
+			    // No more <'s, we're done.
 			    m_buffer.append(original.substring(lastP));
-			    break;
+			    break OUTER;
 			}
 			else {
-			    m_buffer.append(original.substring(lastP, p));
+			    // We've found a <, loop while there are
+			    // more <'s before a <.
+			    while (true) {
+				m_buffer.append(original.substring(lastP, p));
 
-			    lastP = p + 1;
+				lastP = p;
 		    
-			    p = original.indexOf('>', lastP);
+				p = original.indexOf('>', lastP + 1);
 			    
-			    if (p == -1) {
-				// No point looking for any more matches,
-				// no potential end delimiter.
-				m_buffer.append(original.substring(lastP-1));
-				break;
+				if (p == -1) {
+				    // No more >'s, no point looking
+				    // for any more matches.
+				    m_buffer.append(
+					original.substring(lastP));
+				    break OUTER;
+				}
+
+				final int q = original.indexOf('<', lastP + 1);
+
+				if (q > 0 && q < p) {
+				    // Found an earlier <.
+				    p = q;
+
+				}
+				else {
+				    // Found <[^<>]*>.
+				    break;
+				}
 			    }
 
 			    final String methodName =
-				original.substring(lastP, p);
+				original.substring(lastP + 1, p);
 
 			    lastP = p + 1;
 
@@ -380,7 +399,7 @@ public class HttpPlugin implements GrinderPlugin
 				m_buffer.append('<');
 				m_buffer.append(methodName);
 				m_buffer.append('>');
-				continue;
+				continue OUTER;
 			    }
 
 			    try {
