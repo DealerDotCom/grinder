@@ -18,6 +18,9 @@
 
 package net.grinder.plugininterface;
 
+import java.io.PrintWriter;
+
+
 /**
  * @author Philip Aston
  * @version $Revision$
@@ -32,7 +35,17 @@ public class LogCounter implements Logger
 	++m_numberOfErrors;
     }
 
+    public void logError(String message, int where)
+    {
+	++m_numberOfErrors;
+    }
+
     public void logMessage(String message)
+    {
+	++m_numberOfMessages;
+    }
+
+    public void logMessage(String message, int where)
     {
 	++m_numberOfMessages;
     }
@@ -45,6 +58,16 @@ public class LogCounter implements Logger
     public int getNumberOfMessages()
     {
 	return m_numberOfMessages;
+    }
+
+    public PrintWriter getOutputLogWriter()
+    {
+	return new PrintWriter(System.out);
+    }
+
+    public PrintWriter getErrorLogWriter()
+    {
+	return new PrintWriter(System.err);
     }
 }
 
