@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -50,6 +50,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -667,22 +668,16 @@ public final class ConsoleUI implements ModelListener {
       m_logoIcon = logoIcon;
       m_title = m_model.getResources().getString("about.label");
 
-      JLabel text =
-        new JLabel() {
-          public Dimension getPreferredSize() {
-            final Dimension d = super.getPreferredSize();
-            d.width = 450;
-            return d;
-          }
-        };
+      final String aboutText =
+        m_model.getResources().getStringFromFile("about.text", true);
 
-      text.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-      text.setForeground(Colours.BLACK);
-      text.setText(
-        m_model.getResources().getStringFromFile("about.text", true));
+      final JEditorPane htmlPane = new JEditorPane("text/html", aboutText);
+      htmlPane.setEditable(false);
+      htmlPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+      htmlPane.setBackground(new JLabel().getBackground());
 
       m_contents =
-        new JScrollPane(text,
+        new JScrollPane(htmlPane,
                         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER) {
           public Dimension getPreferredSize() {
