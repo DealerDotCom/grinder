@@ -28,6 +28,7 @@ import junit.swingui.TestRunner;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -196,6 +197,10 @@ public class TestHttpPluginSnifferFilter extends TestCase
 	};
 	
 	assertStringContains(result, expectation);
+
+	final File postFile = new File("http-plugin-sniffer-post-0");
+	assertEquals(32, postFile.length());
+	postFile.delete();
     }
 
     private void doHandle(ConnectionDetails connectionDetails,

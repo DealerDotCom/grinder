@@ -12,7 +12,27 @@ Grinder 2.8.3
    Allow query strings to be passed with POSTs. Thanks to Kjetil JD
    for the fix.
 
-   Miscellaneous fixes and documentation.
+   Reworked HttpPluginSnifferFilter:
+	- Outputs a full usable test script.
+	- Copes with POST data split across TCP packets.
+	- Fixed bug where POST with multiple lines was read incorrectly,
+	  this required moving to Jakarta ORO because Jakarta Regexp
+	  bombed with a trivial regexp.
+	- Removed multipart form handling.
+
+   (A note is necessary on the multipart form handling. The more I
+   looked at the existing support in the sniffer, the more dubious it
+   looked. Here's what the HTTP specification says on the subject:
+
+	"In general, HTTP treats a multipart message-body no
+	differently than any other media type: strictly as payload.
+	The one exception is the "multipart/byteranges" type ..."
+
+   This means that the sniffer should just chuck the data directly
+   into the POST file, which is what it now does. And no Cynthia, we
+   don't support multipart/byteranges.)
+
+   Other miscellaneous fixes and documentation.
 
 
 Grinder 2.8.2
