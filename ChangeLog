@@ -1,4 +1,31 @@
+2004-03-06  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta19 is released.
+
+	* examples/composite.py: Example of how to run many test scripts.
+
+	* build.xml, etc/buildenv.sh, etc/checkstyle.xml, etc/localpaths.properties, xdoc/download-xhtml.xml:
+	JUnit 3.8.1, Checkstyle 3.3.
+
+	* src/net/grinder/engine/process/GrinderProcess.java: Checkstyle.
+
+	* src/net/grinder/console/swingui/resources/Console_fr.properties, tests-src/net/grinder/console/model/TestConsoleProperties.java, CHANGES, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/SamplingControlPanel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties:
+	The console can now be set to start as soon as the first worker
+	process starts its threads.
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	Ensure an initial empty statistics report is sent immediately after
+	the threads are started so that the console is triggered.
+
+2004-03-05  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/LookAndFeel.java:
+	Change the default LaF to Metal.
+
 2004-03-03  Philip Aston  <philipa@mail.com>
+
+	* build.xml, etc/localpaths.properties:
+	Remove old references to servlet API, xalan.
 
 	* CHANGES:
 	Refactor HTTPRequest so that subclasses can post-process responses.
