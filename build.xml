@@ -397,6 +397,9 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <target name="checkstyle" description="Check code formatting"
           depends="assert-have-checkstyle">
+
+    <mkdir dir="${build.dir}"/>
+
     <checkstyle config="etc/checkstyle.xml">
       <fileset dir="${src.dir}">
         <include name="net/grinder/**/*.java"/>
