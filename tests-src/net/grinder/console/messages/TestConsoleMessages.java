@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication.messages;
+package net.grinder.console.messages;
 
 import junit.framework.TestCase;
 
@@ -35,32 +35,17 @@ import net.grinder.testutility.Serializer;
 
 
 /**
- *  Unit test case for application messages.
+ *  Unit test case for console messages.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestApplicationMessages extends TestCase {
+public class TestConsoleMessages extends TestCase {
 
   private static Random s_random = new Random();
 
   private static Message serialise(Message original) throws Exception {
     return (Message) Serializer.serialize(original);
-  }
-
-  public void testInitialiseGrinderMessage() throws Exception {
-    final InitialiseGrinderMessage original =
-      new InitialiseGrinderMessage(false);
-
-    final InitialiseGrinderMessage recevied =
-      (InitialiseGrinderMessage) serialise(original);
-
-    assertTrue(!original.getReportToConsole());
-
-    final InitialiseGrinderMessage another =
-      new InitialiseGrinderMessage(true);
-
-    assertTrue(another.getReportToConsole());
   }
 
   public void testRegisterStatisticsViewMessage() throws Exception {
@@ -131,21 +116,5 @@ public class TestApplicationMessages extends TestCase {
     assertEquals(1, received.getState());
     assertEquals(2, received.getNumberOfRunningThreads());
     assertEquals(3, received.getTotalNumberOfThreads());
-  }
-
-  public void testResetGrinderMessage() throws Exception {
-    serialise(new ResetGrinderMessage());
-  }
-
-  public void testStartGrinderMessage() throws Exception {
-    serialise(new StartGrinderMessage());
-  }
-
-  public void testStopGrinderMessage() throws Exception {
-    serialise(new StopGrinderMessage());
-  }
-
-  public void testDistributeFilesMessage() throws Exception {
-    serialise(new DistributeFilesMessage());
   }
 }

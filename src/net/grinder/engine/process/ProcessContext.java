@@ -27,7 +27,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.Logger;
 import net.grinder.communication.QueuedSender;
-import net.grinder.communication.messages.ReportStatusMessage;
+import net.grinder.console.messages.ReportStatusMessage;
 import net.grinder.script.Grinder;
 import net.grinder.util.Sleeper;
 

@@ -24,9 +24,9 @@ package net.grinder.engine.common;
 import net.grinder.common.Logger;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
-import net.grinder.communication.messages.ResetGrinderMessage;
-import net.grinder.communication.messages.StartGrinderMessage;
-import net.grinder.communication.messages.StopGrinderMessage;
+import net.grinder.engine.messages.ResetGrinderMessage;
+import net.grinder.engine.messages.StartGrinderMessage;
+import net.grinder.engine.messages.StopGrinderMessage;
 
 
 /**

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,17 +19,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication.messages;
+package net.grinder.engine.messages;
 
 import net.grinder.communication.Message;
 
 
 /**
- * Message used to distribute files from the console to agent processes.
+ * Message used to initialise the worker processes.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class DistributeFilesMessage implements Message {
-  private static final long serialVersionUID = -4731666882631274492L;
+public final class InitialiseGrinderMessage implements Message {
+
+  private static final long serialVersionUID = 8918644538189967340L;
+
+  private final boolean m_reportToConsole;
+
+  /**
+   * Constructor.
+   *
+   * @param reportToConsole Whether or not the worker process should
+   * report to the console.
+   */
+  public InitialiseGrinderMessage(boolean reportToConsole) {
+    m_reportToConsole = reportToConsole;
+  }
+
+  /**
+   * Accessor.
+   *
+   * @return Whether or not the worker process should report to the
+   * console.
+   */
+  public boolean getReportToConsole() {
+    return m_reportToConsole;
+  }
 }

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,18 +28,18 @@ import java.io.File;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
-import net.grinder.communication.messages.RegisterStatisticsViewMessage;
-import net.grinder.communication.messages.RegisterTestsMessage;
-import net.grinder.communication.messages.ReportStatisticsMessage;
-import net.grinder.communication.messages.ReportStatusMessage;
-import net.grinder.communication.messages.ResetGrinderMessage;
-import net.grinder.communication.messages.StartGrinderMessage;
-import net.grinder.communication.messages.StopGrinderMessage;
 import net.grinder.console.common.Resources;
+import net.grinder.console.messages.RegisterStatisticsViewMessage;
+import net.grinder.console.messages.RegisterTestsMessage;
+import net.grinder.console.messages.ReportStatisticsMessage;
+import net.grinder.console.messages.ReportStatusMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ProcessStatusSet;
 import net.grinder.console.swingui.ConsoleUI;
+import net.grinder.engine.messages.ResetGrinderMessage;
+import net.grinder.engine.messages.StartGrinderMessage;
+import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.statistics.StatisticsView;
 
 

@@ -19,40 +19,39 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication.messages;
+package net.grinder.console.messages;
 
 import net.grinder.communication.Message;
+import net.grinder.statistics.TestStatisticsMap;
 
 
 /**
- * Message used to initialise the worker processes.
+ * Message used to report test statistics to the console.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class InitialiseGrinderMessage implements Message {
+public final class ReportStatisticsMessage implements Message {
 
-  private static final long serialVersionUID = 8918644538189967340L;
+  private static final long serialVersionUID = 2510450305349735882L;
 
-  private final boolean m_reportToConsole;
+  private TestStatisticsMap m_statisticsDelta;
 
   /**
    * Constructor.
    *
-   * @param reportToConsole Whether or not the worker process should
-   * report to the console.
-   */
-  public InitialiseGrinderMessage(boolean reportToConsole) {
-    m_reportToConsole = reportToConsole;
+   * @param statisticsDelta The test statistics.
+   **/
+  public ReportStatisticsMessage(TestStatisticsMap statisticsDelta) {
+    m_statisticsDelta = statisticsDelta;
   }
 
   /**
-   * Accessor.
+   * Get the test statistics.
    *
-   * @return Whether or not the worker process should report to the
-   * console.
+   * @return The test statistics.
    */
-  public boolean getReportToConsole() {
-    return m_reportToConsole;
+  public TestStatisticsMap getStatisticsDelta() {
+    return m_statisticsDelta;
   }
 }
