@@ -131,7 +131,11 @@ class HTTPMethodRelativeURIFilterDecorator implements TCPProxyFilter {
                        int bytesRead)
     throws Exception {
 
-    final String original = new String(buffer, 0, bytesRead, "US-ASCII");
+    // We use ISO 8859_1 instead of US ASCII. The correct charset to
+    // use for URL's is not well defined by RFC 2616. This way we are
+    // at least non-lossy (US-ASCII maps characters above 0xFF to
+    // '?').
+    final String original = new String(buffer, 0, bytesRead, "ISO8859_1");
 
     final String result =
       Util.substitute(m_matcher, s_httpMethodLine, s_substition, original);

@@ -394,8 +394,11 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       throws IOException {
 
       // String used to parse headers - header names are US-ASCII
-      // encoded and anchored to start of line.
-      final String asciiString = new String(buffer, 0, length, "US-ASCII");
+      // encoded and anchored to start of line. The correct charset to
+      // use for URL's is not well defined by RFC 2616, so we use
+      // ISO8859_1. This way we are at least non-lossy (US-ASCII maps
+      // characters above 0xFF to '?').
+      final String asciiString = new String(buffer, 0, length, "ISO8859_1");
 
       if (m_matcher.contains(asciiString, m_requestLinePattern)) {
         // Packet is start of new request message.
@@ -716,7 +719,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
         if ("application/x-www-form-urlencoded".equals(m_contentType)) {
           try {
             final String nameValueString =
-              parseNameValueString(m_entityBodyByteStream.toString("US-ASCII"),
+              parseNameValueString(m_entityBodyByteStream.toString("ISO8859_1"),
                                    3);
 
             parsedFormData = true;

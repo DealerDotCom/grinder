@@ -134,11 +134,15 @@ class HTTPMethodAbsoluteURIFilterDecorator implements TCPProxyFilter {
 
     final String original;
 
+    // We use ISO 8859_1 instead of US ASCII. The correct charset to
+    // use for URL's is not well defined by RFC 2616. This way we are
+    // at least non-lossy (US-ASCII maps characters above 0xFF to
+    // '?').
     if (delegateResult != null) {
-      original = new String(delegateResult, "US-ASCII");
+      original = new String(delegateResult, "ISO8859_1");
     }
     else {
-      original = new String(buffer, 0, bytesRead, "US-ASCII");
+      original = new String(buffer, 0, bytesRead, "ISO8859_1");
     }
 
     final String result =
