@@ -18,11 +18,11 @@ is roughly in priority order.]
 
   Fix deprecated call in GrinderProcess
 
-  Child VM's should inherit classpath, optionally overridable.
-  Similarly, the java.home can be used to infer the vm executable.
-
   Add option to ignore the first 5 cycles so that hotspot has chance
   to work.
+
+  Add ability to engine to have different delays for different
+  methods. As an encore, make the SnifferServlets record timings.
 
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
