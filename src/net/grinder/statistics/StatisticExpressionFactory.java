@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,15 +24,11 @@ package net.grinder.statistics;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.grinder.common.GrinderException;
-
-
 /**
  * Factory for StatisticExpressions.
  *
  * @author Philip Aston
  * @version $Revision$
- * @stereotype singleton
  */
 public final class StatisticExpressionFactory {
 
@@ -59,10 +55,10 @@ public final class StatisticExpressionFactory {
    *
    * @param expression The expression.
    * @return The formatted expression.
-   * @exception GrinderException if an error occurs
+   * @exception StatisticsException If the expression is invalid.
    */
   public String normaliseExpressionString(String expression)
-    throws GrinderException {
+    throws StatisticsException {
     final ParseContext parseContext = new ParseContext(expression);
     final StringBuffer result = new StringBuffer(expression.length());
 
@@ -77,7 +73,7 @@ public final class StatisticExpressionFactory {
 
   private void normaliseExpressionString(ParseContext parseContext,
                                          StringBuffer result)
-    throws GrinderException {
+    throws StatisticsException {
     if (parseContext.peekCharacter() == '(') {
       // Compound expression.
       result.append(parseContext.readCharacter());
@@ -100,10 +96,10 @@ public final class StatisticExpressionFactory {
    *
    * @param expression The expression.
    * @return The parsed expression.
-   * @exception GrinderException if an error occurs
+   * @exception StatisticsException If the expression is invalid.
    */
   public StatisticExpression createExpression(String expression)
-    throws GrinderException {
+    throws StatisticsException {
 
     final ParseContext parseContext = new ParseContext(expression);
 
@@ -118,7 +114,7 @@ public final class StatisticExpressionFactory {
   }
 
   private StatisticExpression createExpression(ParseContext parseContext)
-    throws GrinderException {
+    throws ParseContext.ParseException {
 
     if (parseContext.peekCharacter() == '(') {
       parseContext.readCharacter();
@@ -137,58 +133,13 @@ public final class StatisticExpressionFactory {
                                 createExpression(parseContext));
       }
       else if ("sum".equals(operation)) {
-        final String token = parseContext.readToken();
-
-        if (m_indexMap.isDoubleSampleIndex(token)) {
-          final StatisticsIndexMap.DoubleSampleIndex index =
-            m_indexMap.getIndexForDoubleSample(token);
-          result = createPrimitive(index.getSumIndex());
-        }
-        else if (m_indexMap.isLongSampleIndex(token)) {
-          final StatisticsIndexMap.LongSampleIndex index =
-            m_indexMap.getIndexForLongSample(token);
-          result = createPrimitive(index.getSumIndex());
-        }
-        else {
-          throw parseContext.new ParseException(
-              "Can't apply sum to unknown sample index '" + token + "'");
-        }
+        result = createSampleSum(parseContext);
       }
       else if ("count".equals(operation)) {
-        final String token = parseContext.readToken();
-
-        if (m_indexMap.isDoubleSampleIndex(token)) {
-          final StatisticsIndexMap.DoubleSampleIndex index =
-            m_indexMap.getIndexForDoubleSample(token);
-          result = createPrimitive(index.getCountIndex());
-        }
-        else if (m_indexMap.isLongSampleIndex(token)) {
-          final StatisticsIndexMap.LongSampleIndex index =
-            m_indexMap.getIndexForLongSample(token);
-          result = createPrimitive(index.getCountIndex());
-        }
-        else {
-          throw parseContext.new ParseException(
-              "Can't apply count to unknown sample index '" + token + "'");
-        }
+        result = createSampleCount(parseContext);
       }
       else if ("variance".equals(operation)) {
-        final String token = parseContext.readToken();
-
-        if (m_indexMap.isDoubleSampleIndex(token)) {
-          final StatisticsIndexMap.DoubleSampleIndex index =
-            m_indexMap.getIndexForDoubleSample(token);
-          result = createPrimitive(index.getVarianceIndex());
-        }
-        else if (m_indexMap.isLongSampleIndex(token)) {
-          final StatisticsIndexMap.LongSampleIndex index =
-            m_indexMap.getIndexForLongSample(token);
-          result = createPrimitive(index.getVarianceIndex());
-        }
-        else {
-          throw parseContext.new ParseException(
-              "Can't apply variance to unknown sample index '" + token + "'");
-        }
+        result = createSampleVariance(parseContext);
       }
       else if ("sqrt".equals(operation)) {
         result = createSquareRoot(createExpression(parseContext));
@@ -215,11 +166,18 @@ public final class StatisticExpressionFactory {
           return createConstant(Double.parseDouble(token));
         }
         catch (NumberFormatException e2) {
-          if (m_indexMap.isLongIndex(token)) {
-            return createPrimitive(m_indexMap.getIndexForLong(token));
+          final StatisticsIndexMap.LongIndex longIndex =
+            m_indexMap.getLongIndex(token);
+
+          if (longIndex != null) {
+            return createPrimitive(longIndex);
           }
-          else if (m_indexMap.isDoubleIndex(token)) {
-            return createPrimitive(m_indexMap.getIndexForDouble(token));
+
+          final StatisticsIndexMap.DoubleIndex doubleIndex =
+            m_indexMap.getDoubleIndex(token);
+
+          if (doubleIndex != null) {
+            return createPrimitive(doubleIndex);
           }
         }
       }
@@ -349,6 +307,114 @@ public final class StatisticExpressionFactory {
   }
 
   /**
+   * Create an accessor for a sample's sum attribute.
+   *
+   * @param parseContext The parse context.
+   * @return The resulting expression.
+   * @throws ParseException If the parse failed.
+   */
+  private StatisticExpression createSampleSum(ParseContext parseContext)
+    throws ParseContext.ParseException {
+
+    final StatisticExpression result;
+
+    final String token = parseContext.readToken();
+
+    final StatisticsIndexMap.DoubleSampleIndex doubleSampleIndex =
+      m_indexMap.getDoubleSampleIndex(token);
+
+    if (doubleSampleIndex != null) {
+      result = createPrimitive(doubleSampleIndex.getSumIndex());
+    }
+    else {
+      final StatisticsIndexMap.LongSampleIndex longSampleIndex =
+        m_indexMap.getLongSampleIndex(token);
+
+      if (longSampleIndex != null) {
+        result = createPrimitive(longSampleIndex.getSumIndex());
+      }
+      else {
+        throw parseContext.new ParseException(
+            "Can't apply sum to unknown sample index '" + token + "'");
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Create an accessor for a sample's count attribute.
+   *
+   * @param parseContext The parse context.
+   * @return The resulting expression.
+   * @throws ParseException If the parse failed.
+   */
+  private StatisticExpression createSampleCount(ParseContext parseContext)
+    throws ParseContext.ParseException {
+
+    final StatisticExpression result;
+
+    final String token = parseContext.readToken();
+
+    final StatisticsIndexMap.DoubleSampleIndex doubleSampleIndex =
+      m_indexMap.getDoubleSampleIndex(token);
+
+    if (doubleSampleIndex != null) {
+      result = createPrimitive(doubleSampleIndex.getCountIndex());
+    }
+    else {
+      final StatisticsIndexMap.LongSampleIndex longSampleIndex =
+        m_indexMap.getLongSampleIndex(token);
+
+      if (longSampleIndex != null) {
+        result = createPrimitive(longSampleIndex.getCountIndex());
+      }
+      else {
+        throw parseContext.new ParseException(
+            "Can't apply count to unknown sample index '" + token + "'");
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Create an accessor for a sample's variance attribute.
+   *
+   * @param parseContext The parse context.
+   * @return The resulting expression.
+   * @throws ParseException If the parse failed.
+   */
+  private StatisticExpression createSampleVariance(ParseContext parseContext)
+    throws ParseContext.ParseException {
+
+    final StatisticExpression result;
+
+    final String token = parseContext.readToken();
+
+    final StatisticsIndexMap.DoubleSampleIndex doubleSampleIndex =
+      m_indexMap.getDoubleSampleIndex(token);
+
+    if (doubleSampleIndex != null) {
+      result = createPrimitive(doubleSampleIndex.getVarianceIndex());
+    }
+    else {
+      final StatisticsIndexMap.LongSampleIndex longSampleIndex =
+        m_indexMap.getLongSampleIndex(token);
+
+      if (longSampleIndex != null) {
+        result = createPrimitive(longSampleIndex.getVarianceIndex());
+      }
+      else {
+        throw parseContext.new ParseException(
+            "Can't apply variance to unknown sample index '" + token + "'");
+      }
+    }
+
+    return result;
+  }
+
+  /**
    * Create a square root.
    *
    * @param operand The operand.
@@ -392,7 +458,7 @@ public final class StatisticExpressionFactory {
 
   private StatisticExpression[] readOperands(ParseContext parseContext,
                                              int minimumSize)
-    throws GrinderException {
+    throws ParseContext.ParseException {
     final List arrayList = new ArrayList();
 
     while (parseContext.peekCharacter() != ')') {
@@ -573,7 +639,10 @@ public final class StatisticExpressionFactory {
     }
   }
 
-  private static final class ParseContext {
+  /**
+   * Package scope for unit tests.
+   */
+  static final class ParseContext {
 
     private static final char EOS_SENTINEL = 0;
     private final char[] m_expression;
@@ -644,7 +713,10 @@ public final class StatisticExpressionFactory {
       }
     }
 
-    public final class ParseException extends GrinderException {
+    /**
+     * Exception representing a failure to parse an expression.
+     */
+    public final class ParseException extends StatisticsException {
       private ParseException(String message) {
         this(message, m_index);
       }
