@@ -134,7 +134,6 @@ public class TestDirectory extends AbstractFileTestCase {
     }
 
     final String[] warnings = directory.getWarnings();
-    System.err.println("**" + warnings[0]);
     assertEquals(badDirectories.length, warnings.length);
 
     final StringBuffer warningsBuffer = new StringBuffer();
