@@ -10,6 +10,17 @@ Grinder 3.0-beta4
   are not overridden by default initialisation. Thanks to Mark Wilson
   and Brett Schmoll for reports.
 
+  Script API to provide access to The Grinder build version -
+  net.grinder.common.GrinderBuild.
+
+  Script API to provide access to the HTTPClient connection context
+  for a thread -
+  net.grinder.plugin.http.HTTPPluginControl.getHTTPClientContext().
+
+  Script API to provide access to grinder.properties values -
+  net.grinder.script.ScriptContext.getProperties(). Thanks to Dave
+  Tauzell for feature request 672691.
+
 
 Grinder 3.0-beta3
 -----------------
