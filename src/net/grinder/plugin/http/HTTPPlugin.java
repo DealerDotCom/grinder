@@ -111,7 +111,8 @@ public class HttpPlugin implements GrinderPlugin {
 	    m_callData[i] = createCallData(grinderContext, i);
 	}     
     
-	m_httpMsg = new HttpMsg(m_parameters.getBoolean("keepSession", false));
+	m_httpMsg = new HttpMsg(m_parameters.getBoolean("keepSession", false),
+				m_parameters.getBoolean("followRedirects", false));
 	m_logHTML = m_parameters.getBoolean("logHTML", false);
     }
 

@@ -33,8 +33,9 @@ import java.util.Hashtable;
  */
 public class HttpMsg{
  
-    public HttpMsg(boolean useCookie) {
-	_useCookie = useCookie;
+    public HttpMsg(boolean useCookie, boolean followRedirects) {
+	m_useCookie = useCookie;
+	m_followRedirects = followRedirects;
 	reset();
     }
 
@@ -66,13 +67,13 @@ public class HttpMsg{
 	HttpURLConnection connection = 
 	    (HttpURLConnection) url.openConnection();
 
-	// Stop URLConnection from handling http 302 forwards, because
-	// these contain the cookie when handling web app form based
-	// authentication.
-	connection.setInstanceFollowRedirects(false);
+	// Optionally stop URLConnection from handling http 302
+	// forwards, because these contain the cookie when handling
+	// web app form based authentication.
+	connection.setInstanceFollowRedirects(m_followRedirects);
             
-	if (_useCookie) {
-	    connection.setRequestProperty("Cookie", _cookie);
+	if (m_useCookie) {
+	    connection.setRequestProperty("Cookie", m_cookie);
 	}
 
 	connection.setUseCaches(false);
@@ -91,10 +92,10 @@ public class HttpMsg{
 	
 	connection.connect();
 
-	if (_useCookie) {
+	if (m_useCookie) {
 	    final String s = connection.getHeaderField("Set-Cookie");
 	    if (s != null) {
-		_cookie = s;
+		m_cookie = s;
 	    }
 	}
             
@@ -123,9 +124,10 @@ public class HttpMsg{
     }
 
     public void reset(){
-        _cookie = "";
+        m_cookie = "";
     }
 
-    private boolean _useCookie;
-    private String _cookie;
+    private boolean m_useCookie;
+    private boolean m_followRedirects;
+    private String m_cookie;
 }
