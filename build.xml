@@ -74,7 +74,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <!-- what -->
     <property name="Name" value="The Grinder"/>
     <property name="name" value="grinder"/>
-    <property name="version" value="2.2"/>
+    <property name="version" value="2.3"/>
     <property name="year" value="2001"/>
 
     <!--options-->
@@ -208,7 +208,6 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
 
     <jar jarfile="${lib.dir}/${lib.jar}"
          basedir="${build.classes}"
-         manifest="${build.src}/manifest.mf"
          includes="net/grinder/"/>
   </target>
 
