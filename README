@@ -337,8 +337,8 @@ is not too much use, so read on... (and see doc/HTTPPlugin.txt).
 				E.g., if the sleep time is specified
 				as 1000 and the sleepTimeVariation is
 				set to 0.1, then 99.75% of the actual
-				sleep times will be between 9900 and
-				11000 milliseconds. Default 0.2.
+				sleep times will be between 990 and
+				1100 milliseconds. Default 0.2.
 
     grinder.plugin	-	The plugin class to use. Currently each
 				script uses a single plugin.
