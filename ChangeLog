@@ -1,3 +1,23 @@
+2001-07-22  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/TestGraphPanel.java:
+	Graph colour is now based on response time.
+
+2001-07-21  Philip Aston  <paston@bea.com>
+
+	* TODO, doc/HTTPPlugin.txt, src/net/grinder/plugin/http/HTTPClientHandler.java:
+	HTTPClientHandler can now cope with multiple servers.
+
+	* src/net/grinder/console/model/Model.java, src/net/grinder/util/ProcessContextImplementation.java:
+	Prevent the Console from creating process log files.
+
+	* README, src/net/grinder/Grinder.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java:
+	Improve reset behaviour, and document.
+
+2001-07-17  Philip Aston  <paston@bea.com>
+
+	* doc/HTTPPlugin.txt: Fix doc. Thanks stephan@purple-lizard.com.
+
 2001-07-13  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/util/GrinderProperties.java, src/net/grinder/cOmmunication/ResetGrinderMessage.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/reset-processes.gif, src/net/grinder/console/swingui/resources/reset-processes.xcf, README, TODO:
