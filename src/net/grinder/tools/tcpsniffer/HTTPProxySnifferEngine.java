@@ -83,7 +83,7 @@ public class HTTPProxySnifferEngine extends SnifferEngineImplementation
 	      new StripAbsoluteURIFilterDecorator(requestFilter),
 	      responseFilter,
 	      new ConnectionDetails(localHost, localPort, "", -1, false),
-	      useColour, timeout);
+	      useColour, timeout, true);
 
 	m_proxyConnectPattern = getConnectPattern();
     }
