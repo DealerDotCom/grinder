@@ -349,6 +349,10 @@ conditionally built modules are:
       <fileset dir="${tests.src.dir}"/>
     </copy>
 
+    <copy todir="${dist.dir}/${webapps.dir}" filtering="on">
+      <fileset dir="${webapps.dir}"/>
+    </copy>
+
     <copy file="${lib.dir}/${lib.jar}"
 	  tofile="${dist.dir}/${lib.dir}/${lib.jar}"/>
 
