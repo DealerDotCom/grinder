@@ -1,3 +1,11 @@
+2001-03-27  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/util/FilenameFactory.java:
+	Log directory is no longer mandatory.
+
+	* src/net/grinder/console/swingui/resources/stop-processes.gif, src/net/grinder/console/swingui/resources/stop-processes.xcf, src/net/grinder/console/swingui/resources/stop.gif, src/net/grinder/console/swingui/resources/stop.xcf, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/pause.gif, src/net/grinder/console/swingui/resources/pause.xcf, src/net/grinder/console/swingui/resources/start-processes.gif, src/net/grinder/console/swingui/resources/start-processes.xcf, src/net/grinder/console/swingui/resources/start.gif, src/net/grinder/console/swingui/resources/start.xcf:
+	Support for defining capture interval.
+
 2001-03-26  Philip Aston  <paston@bea.com>
 
 	* The Grinder 2.5 is released.

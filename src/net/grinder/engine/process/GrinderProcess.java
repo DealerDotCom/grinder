@@ -118,8 +118,7 @@ public class GrinderProcess
 	m_context = new ProcessContextImplementation(hostID, processID);
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
-	m_logDirectory =
-	    properties.getMandatoryProperty("grinder.logDirectory");
+	m_logDirectory = properties.getProperty("grinder.logDirectory", ".");
 	m_appendToLog = properties.getBoolean("grinder.appendLog", false);
 
 	// Parse console configuration.

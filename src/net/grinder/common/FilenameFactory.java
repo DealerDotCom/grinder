@@ -35,7 +35,7 @@ public class FilenameFactory
     {
 	final GrinderProperties properties = GrinderProperties.getProperties();
 
-	m_logDirectory = properties.getProperty("grinder.logDirectory", "log");
+	m_logDirectory = properties.getProperty("grinder.logDirectory", ".");
 
 	final StringBuffer buffer = new StringBuffer();
 
