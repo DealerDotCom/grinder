@@ -43,7 +43,7 @@ public class TCPSniffer
     public static final String INITIAL_TEST_PROPERTY =
 	"TCPSniffer.initialTest";
 
-    public static void main(String args[])
+    public static void main(String[] args)
     {
 	final TCPSniffer tcpSniffer = new TCPSniffer(args);
 	tcpSniffer.run();
@@ -123,7 +123,7 @@ public class TCPSniffer
     private final String URL_REWRITE_FILTER_CLASS =
 	"net.grinder.plugin.http.URLRewriteFilter";
 
-    private TCPSniffer(String args[])
+    private TCPSniffer(String[] args)
     {
 	// Default values.
 	SnifferFilter requestFilter = new EchoFilter();

@@ -45,7 +45,7 @@ public class Grinder
      * The Grinder entry point.
      *
      */
-    public static void main(String args[])
+    public static void main(String[] args)
 	throws GrinderException
     {
 	if (args.length > 1) {
