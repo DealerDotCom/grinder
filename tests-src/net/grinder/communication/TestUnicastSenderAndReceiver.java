@@ -56,7 +56,7 @@ public class TestUnicastSenderAndReceiver
 
     protected Receiver createReceiver() throws Exception
     {
-	return new UnicastReceiver(ADDRESS, PORT);
+	return new ServerReceiver(ADDRESS, PORT);
     }
 
     protected Sender createSender() throws Exception

@@ -32,9 +32,9 @@ import net.grinder.communication.MulticastSender;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
+import net.grinder.communication.ServerReceiver;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
-import net.grinder.communication.UnicastReceiver;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.DisplayMessageConsoleException;
@@ -99,8 +99,8 @@ final class ConsoleCommunication {
         }
       }
 
-      m_receiver = new UnicastReceiver(m_properties.getConsoleAddress(),
-                                       m_properties.getConsolePort());
+      m_receiver = new ServerReceiver(m_properties.getConsoleAddress(),
+                                      m_properties.getConsolePort());
 
       synchronized (this) {
         m_deaf = false;
