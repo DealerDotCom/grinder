@@ -1,3 +1,57 @@
+2004-09-24  Philip Aston  <philipa@mail.com>
+
+	* build.xml, native/threaddump.c, src/net/grinder/debug/ThreadDumper.java:
+	Thread dump utility.
+
+	* TODO: Progress.
+
+	* src/net/grinder/console/communication/ProcessControlImplementation.java, tests-src/net/grinder/console/communication/TestProcessControlImplementation.java:
+	Test file filter.
+
+	* src/net/grinder/engine/agent/resources/FileStoreReadme.txt:
+	Add more information.
+
+2004-09-23  Philip Aston  <philipa@mail.com>
+
+	* build.xml: Fix ${build.dir} so its relative to ${basedir}.
+
+	* tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Test DistributionFileFilterExpression property.
+
+	* src/net/grinder/console/model/ConsoleProperties.java:
+	Fix DistributionFileFilterExpression notification.
+	setDistributionFileFilterExpression(null) means use default.
+
+	* AUTHORS, CHANGES, src/net/grinder/console/swingui/resources/Console_de.properties, xdoc/welcome-xhtml.xml:
+	German translation updates from Andreas Schmidt.
+
+2004-09-22  Philip Aston  <philipa@mail.com>
+
+	* build.xml, etc/buildenv.sh: Upgrade to ANT 1.6.2.
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/tools/tcpproxy/EchoFilter.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java, src/net/grinder/util/DelayedCreationFileWriter.java, src/net/grinder/util/Directory.java, src/net/grinder/util/InsecureSSLContextFactory.java, src/net/grinder/util/Sleeper.java, src/net/grinder/console/swingui/Graph.java, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/FileStore.java, src/net/grinder/engine/process/ExternalLogger.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ShutdownException.java, src/net/grinder/engine/process/TestPyInstance.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, build.xml, etc/checkstyle.xml, src/net/grinder/communication/Acceptor.java, src/net/grinder/communication/ResourcePool.java, src/net/grinder/console/editor/Buffer.java, src/net/grinder/console/editor/EditorModel.java, src/net/grinder/console/messages/RegisterTestsMessage.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java:
+	Checkstyle 3.4.
+
+2004-09-21  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SamplingControlPanel.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ThreadLogger.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/console/communication/ProcessControlImplementation.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java:
+	Javadoc fixes.
+
+	* etc/localpaths.properties: Checkstyle 3.4.
+
+	* src/net/grinder/console/swingui/Table.java: Fix Javadoc.
+
+2004-09-20  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, tests-src/net/grinder/console/communication/TestProcessControlImplementation.java, TODO, src/net/grinder/console/communication/ConsoleCommunicationImplementation.java, src/net/grinder/console/communication/ProcessControl.java, src/net/grinder/console/communication/ProcessControlImplementation.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/ConsolePropertyDefaults.java, src/net/grinder/console/swingui/resources/Console.properties:
+	Don't distribute the agent cache directory, temporary files, CVS
+	directories, grinder log files.
+
+2004-09-19  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/communication/ProcessControlImplementation.java, src/net/grinder/util/Directory.java, tests-src/net/grinder/util/TestDirectory.java:
+	Directory.listContents() now takes a FileFilter.
+
 2004-09-10  Philip Aston  <philipa@mail.com>
 
 	* CHANGES: German console trnaslation updates from Marc Born.
