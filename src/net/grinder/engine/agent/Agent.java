@@ -441,17 +441,19 @@ public final class Agent {
     }
 
     public boolean allFinished() {
-      if (m_nextProcessIndex >= m_processes.length) {
-        synchronized(m_processes) {
-          for (int i = 0; i < m_processes.length; i++) {
-            if (m_processes[i] == null) {
-              return true;
-            }
+      if (m_nextProcessIndex < m_processes.length) {
+        return false;
+      }
+
+      synchronized(m_processes) {
+        for (int i = 0; i < m_processes.length; i++) {
+          if (m_processes[i] != null) {
+            return false;
           }
         }
       }
 
-      return false;
+      return true;
     }
 
     public void dontStartAnyMore() {
