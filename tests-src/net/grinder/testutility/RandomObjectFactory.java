@@ -184,7 +184,7 @@ public final class RandomObjectFactory {
     }
 
     public String toString() {
-      return "a random " + m_delegateInterface.getName();
+      return "a null " + m_delegateInterface.getName();
     }
   }
 }
