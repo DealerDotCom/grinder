@@ -1,3 +1,37 @@
+2004-11-09  Philip Aston  <philipa@mail.com>
+
+	* xdoc/g3/console-xhtml.xml:
+	Document the graphs. Thanks to Grant Lewis for asking the questions.
+
+2004-10-21  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/util/TestJVM.java: Coverage.
+
+	* src/net/grinder/engine/agent/Agent.java, TODO:
+	Complain if started with an ancient Java or no JSSE.
+
+	* src/net/grinder/engine/agent/AgentLogger.java: Word wrap output.
+
+	* src/net/grinder/util/JVM.java: Tweak messages.
+
+	* src/net/grinder/util/FixedWidthFormatter.java:
+	Remove extraneous trailing new line.
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	The JVM class is now responsible for describing the JVM.
+
+	* src/net/grinder/util/JVM.java, tests-src/net/grinder/util/TestJVM.java:
+	Abstraction of local JVM.
+
+	* src/net/grinder/statistics/StatisticsTable.java:
+	FixedWidthFormatter no longer throws GrinderExceptions.
+
+	* src/net/grinder/util/FixedWidthFormatter.java:
+	Add convenience method which creates a formatted string.
+
+	* src/net/grinder/common/GrinderBuild.java, tests-src/net/grinder/common/TestGrinderBuild.java:
+	Add getName().
+
 2004-10-20  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, src/net/grinder/console/swingui/resources/Console_fr.properties:
