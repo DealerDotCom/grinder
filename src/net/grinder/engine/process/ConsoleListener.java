@@ -166,7 +166,7 @@ final class ConsoleListener {
           setReceived(RESET);
         }
         else {
-          m_logger.output("received an unknown message");
+          m_logger.error("received an unknown message");
         }
       }
     }
