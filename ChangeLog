@@ -1,3 +1,18 @@
+2003-11-24  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, TODO: Document fix for the "Premature EOF" problem.
+
+	* src/HTTPClient/BufferedInputStream.java, src/HTTPClient/StreamDemultiplexor.java:
+	Revert to previous version.
+
+	* src/HTTPClient/HTTPConnection.java:
+	Less intrusive fix for the "Premature EOF" problem.
+
+	* src/HTTPClient/BufferedInputStream.java, src/HTTPClient/HTTPConnection.java, src/HTTPClient/StreamDemultiplexor.java:
+	Tentative fix for the "Premature EOF" problem.
+
+	* build.xml: Next is beta 14.
+
 2003-11-23  Philip Aston  <paston@bea.com>
 
 	* The Grinder 3.0-beta13 is released.
