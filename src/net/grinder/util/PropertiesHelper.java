@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.grinder.plugininterface.GrinderPlugin;
+import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.Test;
 
 
@@ -39,28 +40,15 @@ public class PropertiesHelper
 {
     private final static String TEST_PREFIX = "grinder.test";
     private final GrinderProperties m_properties;
-    private GrinderPlugin m_plugin = null;
 
-    public PropertiesHelper(GrinderProperties properties)
+    public PropertiesHelper()
     {
-	m_properties = properties;
+	m_properties = GrinderProperties.getProperties();
     }
 
-    public GrinderPlugin getPlugin() throws GrinderException
+    public GrinderPlugin instantiatePlugin(PluginProcessContext processContext)
+	throws GrinderException
     {
-	if (m_plugin == null) {
-	    synchronized(this) { // Double checked locking.
-		if (m_plugin == null) {
-		    instantiatePlugin();
-		}
-	    }
-	}
-
-	return m_plugin;
-    }
-
-    private synchronized void instantiatePlugin() throws GrinderException
-    {	    
 	final String pluginClassName =
 	    m_properties.getMandatoryProperty("grinder.plugin");
 
@@ -74,7 +62,12 @@ public class PropertiesHelper
 		    GrinderPlugin.class.getName() + "'");
 	    }
 
-	    m_plugin = (GrinderPlugin)pluginClass.newInstance();
+	    final GrinderPlugin plugin =
+		(GrinderPlugin)pluginClass.newInstance();
+
+	    plugin.initialize(processContext);
+
+	    return plugin;
 	}
 	catch(ClassNotFoundException e){
 	    throw new GrinderException(
@@ -87,9 +80,9 @@ public class PropertiesHelper
 	}
     }
 
-    public Set getTestSet() throws GrinderException
+    public Set getTestSet(GrinderPlugin plugin) throws GrinderException
     {
-	final Set pluginTests = getPlugin().getTests();
+	final Set pluginTests = plugin.getTests();
 
 	if (pluginTests != null) {
 	    return pluginTests;
