@@ -29,6 +29,7 @@ import java.util.TreeMap;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.common.ProcessStatus;
 import net.grinder.common.Test;
 import net.grinder.common.TestImplementation;
 import net.grinder.communication.CommunicationDefaults;
@@ -38,6 +39,7 @@ import net.grinder.communication.MulticastReceiver;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
+import net.grinder.communication.ReportStatusMessage;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StartGrinderMessage;
@@ -113,7 +115,7 @@ public class GrinderProcess
     }
 
     private final ProcessContext m_context;
-    private final int m_numberOfThreads;
+    private final short m_numberOfThreads;
 
     private final Listener m_listener;
     private final Sender m_consoleSender;
@@ -138,7 +140,7 @@ public class GrinderProcess
 
 	m_context = new ProcessContext(grinderID, properties);
 
-	m_numberOfThreads = properties.getInt("grinder.threads", 1);
+	m_numberOfThreads = properties.getShort("grinder.threads", (short)1);
 
 	// Parse console configuration.
 	if (properties.getBoolean("grinder.receiveConsoleSignals", true)) {
@@ -363,6 +365,12 @@ public class GrinderProcess
 					    threadContext, m_testSet);
 	}
 
+	if (m_consoleSender != null) {
+	    m_consoleSender.send(
+		new ReportStatusMessage(ProcessStatus.STATE_STARTED,
+					(short)0, m_numberOfThreads));
+	}
+
 	if (m_listener.shouldWait() &&
 	    !Boolean.getBoolean(DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME)) {
 	    m_context.logMessage("waiting for console signal",
@@ -394,13 +402,19 @@ public class GrinderProcess
 		    m_consoleSender.send(
 			new ReportStatisticsMessage(
 			    m_testStatisticsMap.getDelta(true)));
+
+		    m_consoleSender.send(
+			new ReportStatusMessage(
+			    ProcessStatus.STATE_RUNNING,
+			    GrinderThread.getNumberOfThreads(),
+			    m_numberOfThreads));
 		}
 	    }
-	    while (GrinderThread.numberOfUncompletedThreads() > 0 &&
+	    while (GrinderThread.getNumberOfThreads() > 0 &&
 		   !m_listener.messageReceived(Listener.RESET |
 					       Listener.STOP));
 	    
-	    if (GrinderThread.numberOfUncompletedThreads() > 0) {
+	    if (GrinderThread.getNumberOfThreads() > 0) {
 
 		m_context.logMessage("waiting for threads to terminate",
 				     Logger.LOG | Logger.TERMINAL);
@@ -410,7 +424,7 @@ public class GrinderProcess
 		final long time = System.currentTimeMillis();
 		final long maxShutdownTime = 10000;
 
-		while (GrinderThread.numberOfUncompletedThreads() > 0) {
+		while (GrinderThread.getNumberOfThreads() > 0) {
 		    synchronized (this) {
 			try {
 			    if (System.currentTimeMillis() - time >
@@ -432,6 +446,19 @@ public class GrinderProcess
 	}
 
 	m_context.getDataWriter().close();
+
+	if (m_consoleSender != null) {
+	    try {
+		m_consoleSender.send(
+		    new ReportStatusMessage(ProcessStatus.STATE_FINISHED,
+					    (short)0, (short)0));
+		m_consoleSender.shutdown();
+	    }
+	    catch (CommunicationException e) {
+		// Ignore. We might gave been stopped by a newly
+		// started console.
+	    }
+	}
 
  	m_context.logMessage("Final statistics for this process:");
 
