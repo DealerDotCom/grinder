@@ -52,23 +52,23 @@ public class TestMessage extends TestCase
 
 	try {
 	    message.getSenderGrinderID();
-	    fail("Expected CommunicationException");
+	    fail("Expected RuntimeException");
 	}
-	catch (CommunicationException e) {
+	catch (RuntimeException e) {
 	}
 
 	try {
 	    message.getSenderUniqueID();
-	    fail("Expected CommunicationException");
+	    fail("Expected RuntimeException");
 	}
-	catch (CommunicationException e) {
+	catch (RuntimeException e) {
 	}
 
 	try {
 	    message.getSequenceNumber();
-	    fail("Expected CommunicationException");
+	    fail("Expected RuntimeException");
 	}
-	catch (CommunicationException e) {
+	catch (RuntimeException e) {
 	}
 
 	message.setSenderInformation("grinderID", "uniqueID", 12345l);
