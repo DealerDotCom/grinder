@@ -77,6 +77,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
   private final HTTPSProxySocketFactory m_httpsProxySocketFactory;
   private final EndPoint m_proxyAddress;
 
+
   /**
    * Constructor.
    *
@@ -116,11 +117,11 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     m_chainedHTTPProxy = chainedHTTPProxy;
 
     m_httpConnectPattern =
-    	Pattern.compile("^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
-    			            Pattern.MULTILINE);
+      Pattern.compile("^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
+                      Pattern.MULTILINE);
 
     m_httpsConnectPattern =
-    	Pattern.compile("^CONNECT[ \\t]+([^:]+):(\\d+)",
+      Pattern.compile("^CONNECT[ \\t]+([^:]+):(\\d+)",
                       Pattern.MULTILINE);
 
     // When handling HTTPS proxies, we use our plain socket to accept
