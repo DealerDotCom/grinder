@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // Copyright (C) 2000, 2001 Phil Dawes
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003 Bertrand Ave
@@ -218,7 +218,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
             int n;
 
-            while ((n = in.read(buffer)) > 0) {
+            // Non-blocking read.
+            while (in.available() > 0 && (n = in.read(buffer)) > 0) {
               additionalRequestBytes.write(buffer, 0, n);
             }
 
@@ -227,8 +228,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           }
           else {
             // Discard anything else the client has to say.
-            while (in.read(buffer) > 0) {
-              // Skip..
+            while (in.available() > 0) {
+              in.read(buffer);
             }
           }
 
@@ -639,7 +640,9 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
       final ByteArrayOutputStream responseBytes = new ByteArrayOutputStream();
       int n;
 
-      while ((n = inputStream.read(buffer)) > 0) {
+      // Non-blocking read.
+      while (inputStream.available() > 0 &&
+             (n = inputStream.read(buffer)) > 0) {
         responseBytes.write(buffer, 0, n);
       }
 
