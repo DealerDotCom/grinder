@@ -61,12 +61,12 @@ public class HttpPlugin implements GrinderPlugin
     private List m_callData;
     private boolean m_followRedirects;
     private boolean m_logHTML;
-    private boolean m_timeIncludesTransaction;
     private boolean m_useCookies;
     private boolean m_useCookiesVersionString;
     private boolean m_useHTTPClient;
     private Class m_stringBeanClass;
     private Map m_beanMethodMap = null;
+    private StatisticsIndexMap.LongIndex m_timeToFirstByteIndex;
 
     public void initialize(PluginProcessContext processContext,
 			   Set testsFromPropertiesFile)
@@ -87,32 +87,34 @@ public class HttpPlugin implements GrinderPlugin
 
 	m_followRedirects = parameters.getBoolean("followRedirects", false);
 	m_logHTML = parameters.getBoolean("logHTML", false);
-	m_timeIncludesTransaction =
-	    parameters.getBoolean("timeIncludesTransaction", true);
 	m_useCookies = parameters.getBoolean("useCookies", true);
 	// tily@sylo.org / 2000/02/16 mod to set version string on or off - breaks jrun otherwise
 	m_useCookiesVersionString =
 	    parameters.getBoolean("useCookiesVersionString", true);
 	m_useHTTPClient = parameters.getBoolean("useHTTPClient", true);
 
-	try {
-	    final StatisticsIndexMap.LongIndex timeToFirstByteIndex =
-		StatisticsIndexMap.getProcessInstance().
-		getIndexForLong("timeToFirstByte");
+	if (!m_useHTTPClient) {
+	    try {
+		m_timeToFirstByteIndex =
+		    StatisticsIndexMap.getProcessInstance().
+		    getIndexForLong("timeToFirstByte");
 
-	    final StatisticsView statisticsView = new StatisticsView();
+		final StatisticsView statisticsView = new StatisticsView();
 
-	    statisticsView.add(new ExpressionView("Time to first byte",
-						  "statistic.timeToFirstByte",
-						  "timeToFirstByte"));
+		statisticsView.add(
+		    new ExpressionView(
+			"Mean time to first byte",
+			"statistic.timeToFirstByte",
+			"(/ timeToFirstByte (+ untimedTransactions timedTransactions))"));
 
-	    processContext.registerStatisticsView(statisticsView);
+		processContext.registerStatisticsView(statisticsView);
+	    }
+	    catch (GrinderException e) {
+		throw new PluginException(
+		    "Failed to register 'time to first byte' statistic", e);
+	    }
 	}
-	catch (GrinderException e) {
-	    throw new PluginException(
-		"Failed to register 'time to first byte' statistic", e);
-	}
-
+	
 	final String stringBeanClassName =
 	    parameters.getProperty("stringBean", null);
 
@@ -415,7 +417,7 @@ public class HttpPlugin implements GrinderPlugin
 		m_httpHandler = new HttpMsg(pluginThreadContext, m_useCookies,
 					    m_useCookiesVersionString,
 					    m_followRedirects,
-					    m_timeIncludesTransaction);
+					    m_timeToFirstByteIndex);
 	    }
 
 	    final Object bean;

@@ -18,6 +18,8 @@
 
 package net.grinder.plugininterface;
 
+import net.grinder.statistics.TestStatistics;
+
 
 /**
  * This class is used to share data between the Grinder and the 
@@ -62,4 +64,8 @@ public interface PluginThreadContext extends PluginProcessContext
      * @see #startTimer
      */
     public void stopTimer();
+
+    public long getStartTime();
+
+    public TestStatistics getCurrentTestStatistics();
 }

@@ -33,8 +33,10 @@ import java.util.Map;
 
 import HTTPClient.Codecs;
 
+import net.grinder.common.GrinderException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.statistics.StatisticsIndexMap;
 
 
 /**
@@ -55,17 +57,17 @@ class HttpMsg implements HTTPHandler
     private final boolean m_followRedirects;
     private CookieHandler m_cookieHandler;
     private final boolean m_dontReadBody;
-    private final boolean m_timeIncludesTransaction;
+    private final StatisticsIndexMap.LongIndex m_timeToFirstByteIndex;
 
     public HttpMsg(PluginThreadContext pluginThreadContext, boolean useCookies,
 		   boolean useCookiesVersionString, boolean followRedirects,
-		   boolean timeIncludesTransaction)
+		   StatisticsIndexMap.LongIndex timeToFirstByteIndex)
     {
 	m_pluginThreadContext = pluginThreadContext;
 	m_useCookies = useCookies;
 	m_useCookiesVersionString = useCookiesVersionString;
 	m_followRedirects = followRedirects;
-	m_timeIncludesTransaction = timeIncludesTransaction;
+	m_timeToFirstByteIndex = timeToFirstByteIndex;
 
 	// Hack to work around buffering problem when used in
 	// conjunction with the TCPSniffer.
@@ -85,16 +87,8 @@ class HttpMsg implements HTTPHandler
 
 	    m_pluginThreadContext.startTimer();
 
-	    HttpURLConnection connection;
-
-	    try {
-		connection = (HttpURLConnection)url.openConnection();
-	    }
-	    finally {
-		if (!m_timeIncludesTransaction) {
-		    m_pluginThreadContext.stopTimer();
-		}
-	    }
+	    HttpURLConnection connection =
+		(HttpURLConnection)url.openConnection();
 
 	    final Iterator headersIterator =
 		requestData.getHeaders().entrySet().iterator();
@@ -157,12 +151,17 @@ class HttpMsg implements HTTPHandler
 	    }
 	
 	    connection.connect();
-
+	    
 	    // This is before the getHeaderField for a good reason.
 	    // Otherwise the %^(*$ HttpURLConnection API silently catches
 	    // the exception in getHeaderField and rethrows it in the
 	    // getResponseCode (with the original stack trace). - PAGA
 	    final int responseCode = connection.getResponseCode();
+
+	    m_pluginThreadContext.getCurrentTestStatistics().addValue(
+		m_timeToFirstByteIndex,
+		System.currentTimeMillis() -
+		m_pluginThreadContext.getStartTime());
 
 	    if (m_useCookies) {
 		// set to 1 because we're skipping the HTTP status line
