@@ -24,7 +24,7 @@ import junit.swingui.TestRunner;
 
 
 /**
- * Unit test case for <code>TestStatisticsFactory</code>.
+ * Unit test case for <code>CommonStatisticsViews</code>.
  *
  * @author Philip Aston
  * @version $Revision$
