@@ -94,7 +94,7 @@ public class EchoFilter implements TCPProxyFilter {
       }
     }
 
-    m_out.println("------ " + connectionDetails.getDescription() + " ------");
+    m_out.println("------ " + connectionDetails + " ------");
     m_out.println(stringBuffer);
 
     return null;
@@ -107,7 +107,7 @@ public class EchoFilter implements TCPProxyFilter {
    */
   public void connectionOpened(ConnectionDetails connectionDetails) {
 
-    m_out.println("--- " +  connectionDetails.getDescription() + " opened --");
+    m_out.println("--- " +  connectionDetails + " opened --");
   }
 
   /**
@@ -117,7 +117,7 @@ public class EchoFilter implements TCPProxyFilter {
    */
   public void connectionClosed(ConnectionDetails connectionDetails) {
 
-    m_out.println("--- " +  connectionDetails.getDescription() + " closed --");
+    m_out.println("--- " +  connectionDetails + " closed --");
   }
 
   /**

@@ -445,8 +445,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
           }
         }
         else {
-          warn("Ignoring '" + m_method + "' from " +
-               m_connectionDetails.getDescription());
+          warn("Ignoring '" + m_method + "' from " + m_connectionDetails);
           return;
         }
 

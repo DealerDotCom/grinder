@@ -119,20 +119,18 @@ public final class TCPProxySSLSocketFactory implements TCPProxySocketFactory {
   /**
    * Factory method for server sockets.
    *
-   * @param localHost Local host.
-   * @param localPort Local port.
+   * @param localEndPoint Local host and port.
    * @param timeout Socket timeout.
    * @return A new <code>ServerSocket</code>.
    * @exception IOException If an error occurs.
    */
-  public ServerSocket createServerSocket(String localHost,
-                                         int localPort,
-                                         int timeout)
+  public ServerSocket createServerSocket(EndPoint localEndPoint, int timeout)
     throws IOException {
 
     final SSLServerSocket socket =
       (SSLServerSocket)m_serverSocketFactory.createServerSocket(
-        localPort, 50, InetAddress.getByName(localHost));
+        localEndPoint.getPort(), 50,
+        InetAddress.getByName(localEndPoint.getHost()));
 
     socket.setSoTimeout(timeout);
 
@@ -144,16 +142,16 @@ public final class TCPProxySSLSocketFactory implements TCPProxySocketFactory {
   /**
    * Factory method for client sockets.
    *
-   * @param remoteHost Remote host.
-   * @param remotePort Remote port.
+   * @param remoteEndPoint Remote host and port.
    * @return A new <code>Socket</code>.
    * @exception IOException If an error occurs.
    */
-  public Socket createClientSocket(String remoteHost, int remotePort)
+  public Socket createClientSocket(EndPoint remoteEndPoint)
     throws IOException {
 
     final SSLSocket socket =
-      (SSLSocket)m_clientSocketFactory.createSocket(remoteHost, remotePort);
+      (SSLSocket)m_clientSocketFactory.createSocket(
+        remoteEndPoint.getHost(), remoteEndPoint.getPort());
 
     socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
     return socket;

@@ -92,11 +92,9 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     if (s_httpConnectPattern == null) {
       final PatternCompiler compiler = new Perl5Compiler();
 
-      s_httpConnectPattern =
-        compiler.compile(
-          "^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
-          Perl5Compiler.MULTILINE_MASK |
-          Perl5Compiler.READ_ONLY_MASK);
+      s_httpConnectPattern = compiler.compile(
+        "^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
+        Perl5Compiler.MULTILINE_MASK  | Perl5Compiler.READ_ONLY_MASK);
     }
 
     return s_httpConnectPattern;
@@ -110,8 +108,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
    * @param requestFilter Request filter.
    * @param responseFilter Response filter.
    * @param outputWriter Writer to terminal.
-   * @param localHost Local host name.
-   * @param localPort Local port to use.
+   * @param localEndPoint Local host and port.
    * @param useColour Whether to use colour.
    * @param timeout Timeout in milliseconds.
    *
@@ -119,16 +116,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
    * @exception MalformedPatternException If a regular expression
    * error occurs.
    */
-  public HTTPProxyTCPProxyEngine(
-    TCPProxyPlainSocketFactory plainSocketFactory,
-    TCPProxySocketFactory sslSocketFactory,
-    TCPProxyFilter requestFilter,
-    TCPProxyFilter responseFilter,
-    PrintWriter outputWriter,
-    String localHost,
-    int localPort,
-    boolean useColour,
-    int timeout)
+  public HTTPProxyTCPProxyEngine(TCPProxyPlainSocketFactory plainSocketFactory,
+                                 TCPProxySocketFactory sslSocketFactory,
+                                 TCPProxyFilter requestFilter,
+                                 TCPProxyFilter responseFilter,
+                                 PrintWriter outputWriter,
+                                 EndPoint localEndPoint,
+                                 boolean useColour,
+                                 int timeout)
     throws IOException, MalformedPatternException {
 
     // We set this engine up for handling plain HTTP and delegate
@@ -137,27 +132,24 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           new StripAbsoluteURIFilterDecorator(requestFilter),
           responseFilter,
           outputWriter,
-          localHost,
-          localPort,
+          localEndPoint,
           useColour,
           timeout);
 
     final PatternCompiler compiler = new Perl5Compiler();
 
-    m_httpsConnectPattern =
-      compiler.compile(
-        "^CONNECT[ \\t]+([^:]+):(\\d+)",
-        Perl5Compiler.MULTILINE_MASK | Perl5Compiler.READ_ONLY_MASK);
+    m_httpsConnectPattern = compiler.compile(
+      "^CONNECT[ \\t]+([^:]+):(\\d+)",
+      Perl5Compiler.MULTILINE_MASK | Perl5Compiler.READ_ONLY_MASK);
 
-    // When handling HTTPS proxies, we use our plain socket to
-    // accept connections on. We suck the bit we understand off
-    // the front and forward the rest through our proxy engine.
-    // The proxy engine listens for connection attempts (which
-    // come from us), then sets up a thread pair which pushes data
-    // back and forth until either the server closes the
-    // connection, or we do (in response to our client closing the
-    // connection). The engine handles multiple connections by
-    // spawning multiple thread pairs.
+    // When handling HTTPS proxies, we use our plain socket to accept
+    // connections on. We suck the bit we understand off the front and
+    // forward the rest through our proxy engine. The proxy engine
+    // listens for connection attempts (which come from us), then sets
+    // up a thread pair which pushes data back and forth until either
+    // the server closes the connection, or we do (in response to our
+    // client closing the connection). The engine handles multiple
+    // connections by spawning multiple thread pairs.
     if (sslSocketFactory != null) {
       m_proxySSLEngine =
         new ProxySSLEngine(sslSocketFactory, requestFilter,
@@ -213,52 +205,48 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           }
 
           final MatchResult match = m_matcher.getMatch();
-          final String remoteHost = match.group(1);
 
-          // Must be a port number by specification.
-          final int remotePort = Integer.parseInt(match.group(2));
+          // Match.group(2) must be a port number by specification.
+          final EndPoint remoteEndPoint =
+            new EndPoint(match.group(1), Integer.parseInt(match.group(2)));
 
-          final String target = remoteHost + ":" + remotePort;
-
-          // System.err.println("New HTTPS proxy connection
-          // to " + target);
+          // System.err.println("New HTTPS proxy connection to " +
+          // remoteEndPoint);
 
           if (m_proxySSLEngine == null) {
             System.err.println("Specify -ssl for HTTPS proxy support");
             continue;
           }
 
-          // Set our proxy engine up to create connections to
-          // remoteHost:remotePort.
-          m_proxySSLEngine.proxyTo(remoteHost, remotePort);
+          // Set our proxy engine up to create connections to the
+          // remoteEndPoint.
+          m_proxySSLEngine.proxyTo(remoteEndPoint);
 
           // Create a new proxy connection to the proxy engine.
           final Socket sslProxySocket =
             getSocketFactory().createClientSocket(
-              getLocalHost(),
-              m_proxySSLEngine.getServerSocket().getLocalPort());
+              new EndPoint(getLocalHost(),
+                           m_proxySSLEngine.getServerSocket().getLocalPort()));
 
           // Now set up a couple of threads to punt
           // everything we receive over localSocket to
           // sslProxySocket, and vice versa.
           new Thread(
             new CopyStreamRunnable(in, sslProxySocket.getOutputStream()),
-            "Copy to proxy engine for " + target).start();
+            "Copy to proxy engine for " + remoteEndPoint).start();
 
           final OutputStream out = localSocket.getOutputStream();
 
           new Thread(
             new CopyStreamRunnable(sslProxySocket.getInputStream(), out),
-            "Copy from proxy engine for " + target).start();
+            "Copy from proxy engine for " + remoteEndPoint).start();
 
           // Send a 200 response to send to client. Client
           // will now start sending SSL data to localSocket.
           final StringBuffer response = new StringBuffer();
           response.append("HTTP/1. 200 OK\r\n");
           response.append("Host: ");
-          response.append(remoteHost);
-          response.append(":");
-          response.append(remotePort);
+          response.append(remoteEndPoint);
           response.append("\r\n");
           response.append("Proxy-agent: The Grinder/");
           response.append(GrinderBuild.getVersionString());
@@ -338,7 +326,10 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
               // remotePort = 80;
             }
 
-            final String key = remoteHost + ":" + remotePort;
+            final EndPoint remoteEndPoint =
+              new EndPoint(remoteHost, remotePort);
+
+            final String key = remoteEndPoint.toString();
 
             m_lastRemoteStream =
               (OutputStreamFilterTee) m_remoteStreamMap.get(key);
@@ -347,7 +338,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
               // New connection.
               final Socket remoteSocket =
-                getSocketFactory().createClientSocket(remoteHost, remotePort);
+                getSocketFactory().createClientSocket(remoteEndPoint);
 
               final ConnectionDetails connectionDetails =
                 new ConnectionDetails(getLocalHost(), m_localSocket.getPort(),
@@ -414,8 +405,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
   private final class ProxySSLEngine extends AbstractTCPProxyEngine {
 
-    private String m_remoteHost;
-    private int m_remotePort;
+    private EndPoint m_remoteEndPoint;
 
     ProxySSLEngine(TCPProxySocketFactory socketFactory,
                    TCPProxyFilter requestFilter,
@@ -424,7 +414,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                    boolean useColour)
       throws IOException {
       super(socketFactory, requestFilter, responseFilter, outputWriter,
-            HTTPProxyTCPProxyEngine.this.getLocalHost(), 0, useColour, 0);
+            new EndPoint(HTTPProxyTCPProxyEngine.this.getLocalHost(), 0),
+            useColour, 0);
     }
 
     public void run() {
@@ -434,11 +425,11 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           final Socket localSocket = getServerSocket().accept();
 
           // System.err.println("New proxy proxy connection to " +
-          //   m_remoteHost + ":" + m_remotePort);
+          // m_remoteEndPoint);
 
           launchThreadPair(localSocket, localSocket.getInputStream(),
-                           localSocket.getOutputStream(),
-                           m_remoteHost, m_remotePort, true);
+                           localSocket.getOutputStream(), m_remoteEndPoint,
+                           true);
         }
         catch (IOException e) {
           e.printStackTrace(System.err);
@@ -450,9 +441,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
      * Set the ProxySSLEngine up so that the next connection will be
      * wired through to <code>remoteHost:remotePort</code>.
      */
-    public void proxyTo(String remoteHost, int remotePort) {
-      m_remoteHost = remoteHost;
-      m_remotePort = remotePort;
+    public void proxyTo(EndPoint remoteEndPoint) {
+      m_remoteEndPoint = remoteEndPoint;
     }
   }
 

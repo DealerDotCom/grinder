@@ -38,24 +38,21 @@ public interface TCPProxySocketFactory {
   /**
    * Factory method for server sockets.
    *
-   * @param localHost Local host.
-   * @param localPort Local port.
+   * @param localEndPoint Local host and port.
    * @param timeout Socket timeout.
    * @return A new <code>ServerSocket</code>.
    * @exception IOException If an error occurs.
    */
-  ServerSocket createServerSocket(String localHost, int localPort, int timeout)
+  ServerSocket createServerSocket(EndPoint localEndPoint, int timeout)
     throws IOException;
 
   /**
    * Factory method for client sockets.
    *
-   * @param remoteHost Remote host.
-   * @param remotePort Remote port.
+   * @param remoteEndPoint Remote host and port.
    * @return A new <code>Socket</code>.
    * @exception IOException If an error occurs.
    */
-  Socket createClientSocket(String remoteHost, int remotePort)
-    throws IOException;
+  Socket createClientSocket(EndPoint remoteEndPoint) throws IOException;
 }
 

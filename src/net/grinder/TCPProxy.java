@@ -41,6 +41,7 @@ import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter;
 import net.grinder.tools.tcpproxy.CompositeTCPProxyFilter;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.EchoFilter;
+import net.grinder.tools.tcpproxy.EndPoint;
 import net.grinder.tools.tcpproxy.HTTPProxyTCPProxyEngine;
 import net.grinder.tools.tcpproxy.JSSEConstants;
 import net.grinder.tools.tcpproxy.NullFilter;
@@ -316,6 +317,8 @@ public final class TCPProxy {
         sslSocketFactory = null;
       }
 
+      final EndPoint localEndPoint = new EndPoint(localHost, localPort);
+
       if (proxy) {
         m_proxyEngine =
           new HTTPProxyTCPProxyEngine(
@@ -324,8 +327,7 @@ public final class TCPProxy {
             requestFilter,
             responseFilter,
             outputWriter,
-            localHost,
-            localPort,
+            localEndPoint,
             useColour,
             timeout);
       }
@@ -347,8 +349,7 @@ public final class TCPProxy {
         new TCPProxyConsole(m_proxyEngine);
       }
 
-      System.err.println("Engine initialised, listening on port " +
-                         localPort);
+      System.err.println("Engine initialised, listening on port " + localPort);
     }
     catch (Exception e) {
       System.err.println("Could not initialise engine:");

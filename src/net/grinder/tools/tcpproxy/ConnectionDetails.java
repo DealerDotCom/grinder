@@ -32,10 +32,8 @@ package net.grinder.tools.tcpproxy;
 public final class ConnectionDetails {
   private final int m_hashCode;
 
-  private final String m_localHost;
-  private final int m_localPort;
-  private final String m_remoteHost;
-  private final int m_remotePort;
+  private final EndPoint m_localEndPoint;
+  private final EndPoint m_remoteEndPoint;
   private final boolean m_isSecure;
   private final String m_connectionIdentity;
 
@@ -52,17 +50,13 @@ public final class ConnectionDetails {
   public ConnectionDetails(String localHost, int localPort, String remoteHost,
                            int remotePort, boolean isSecure) {
 
-    m_localHost = localHost.toLowerCase();
-    m_localPort = localPort;
-    m_remoteHost = remoteHost.toLowerCase();
-    m_remotePort = remotePort;
+    m_localEndPoint = new EndPoint(localHost, localPort);
+    m_remoteEndPoint = new EndPoint(remoteHost, remotePort);
     m_isSecure = isSecure;
 
     m_hashCode =
-      m_localHost.hashCode() ^
-      m_remoteHost.hashCode() ^
-      m_localPort ^
-      m_remotePort ^
+      m_localEndPoint.hashCode() ^
+      m_remoteEndPoint.hashCode() ^
       (m_isSecure ? 0x55555555 : 0);
 
     final int c = localHost.compareTo(remoteHost);
@@ -95,14 +89,12 @@ public final class ConnectionDetails {
   }
 
   /**
-   * Return a description of the connection.
+   * String representation of the connection.
    *
    * @return a <code>String</code> value
    */
-  public String getDescription() {
-    return
-      m_localHost + ":" + m_localPort + "->" +
-      m_remoteHost + ":" + m_remotePort;
+  public String toString() {
+    return m_localEndPoint + "->" + m_remoteEndPoint;
   }
 
   /**
@@ -114,9 +106,7 @@ public final class ConnectionDetails {
   public String getURLBase(String protocol) {
 
     // Hackety do dah..
-    return
-      protocol + (m_isSecure ? "s://" : "://") +
-      m_remoteHost + ":" + m_remotePort;
+    return protocol + (m_isSecure ? "s://" : "://") + m_remoteEndPoint;
   }
 
   /**
@@ -133,8 +123,8 @@ public final class ConnectionDetails {
    *
    * @return a <code>String</code> value
    */
-  public String getRemoteHost() {
-    return m_remoteHost;
+  public EndPoint getRemoteEndPoint() {
+    return m_remoteEndPoint;
   }
 
   /**
@@ -142,8 +132,8 @@ public final class ConnectionDetails {
    *
    * @return a <code>String</code> value
    */
-  public String getLocalHost() {
-    return m_localHost;
+  public String getRemoteHost() {
+    return m_remoteEndPoint.getHost();
   }
 
   /**
@@ -152,7 +142,25 @@ public final class ConnectionDetails {
    * @return an <code>int</code> value
    */
   public int getRemotePort() {
-    return m_remotePort;
+    return m_remoteEndPoint.getPort();
+  }
+
+  /**
+   * Accessor.
+   *
+   * @return a <code>String</code> value
+   */
+  public EndPoint getLocalEndPoint() {
+    return m_localEndPoint;
+  }
+
+  /**
+   * Accessor.
+   *
+   * @return a <code>String</code> value
+   */
+  public String getLocalHost() {
+    return m_localEndPoint.getHost();
   }
 
   /**
@@ -161,7 +169,7 @@ public final class ConnectionDetails {
    * @return an <code>int</code> value
    */
   public int getLocalPort() {
-    return m_localPort;
+    return m_localEndPoint.getPort();
   }
 
   /**
@@ -185,11 +193,9 @@ public final class ConnectionDetails {
 
     return
       hashCode() == otherConnectionDetails.hashCode() &&
-      getLocalPort() == otherConnectionDetails.getLocalPort() &&
-      getRemotePort() == otherConnectionDetails.getRemotePort() &&
       isSecure() == otherConnectionDetails.isSecure() &&
-      getLocalHost().equals(otherConnectionDetails.getLocalHost()) &&
-      getRemoteHost().equals(otherConnectionDetails.getRemoteHost());
+      getLocalEndPoint().equals(otherConnectionDetails.getLocalEndPoint()) &&
+      getRemoteEndPoint().equals(otherConnectionDetails.getRemoteEndPoint());
   }
 
   /**

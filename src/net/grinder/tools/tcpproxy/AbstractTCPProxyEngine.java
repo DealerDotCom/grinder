@@ -61,8 +61,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    * @param requestFilter Request filter.
    * @param responseFilter Response filter.
    * @param outputWriter Writer to terminal.
-   * @param localHost Local host name.
-   * @param localPort Local port.
+   * @param localEndPoint Local host and port.
    * @param useColour Whether to use colour.
    * @param timeout Timeout in milliseconds.
    *
@@ -72,8 +71,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
                                 TCPProxyFilter requestFilter,
                                 TCPProxyFilter responseFilter,
                                 PrintWriter outputWriter,
-                                String localHost,
-                                int localPort,
+                                EndPoint localEndPoint,
                                 boolean useColour,
                                 int timeout)
     throws IOException {
@@ -83,7 +81,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     m_socketFactory = socketFactory;
     m_requestFilter = requestFilter;
     m_responseFilter = responseFilter;
-    m_localHost = localHost;
+    m_localHost = localEndPoint.getHost();
 
     if (useColour) {
       m_requestColour = TerminalColour.RED;
@@ -95,7 +93,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     }
 
     m_serverSocket =
-      m_socketFactory.createServerSocket(localHost, localPort, timeout);
+      m_socketFactory.createServerSocket(localEndPoint, timeout);
   }
 
   /**
@@ -192,26 +190,24 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    * @param localSocket Local socket.
    * @param localInputStream Input stream.
    * @param localOutputStream Output stream.
-   * @param remoteHost Remote host name.
-   * @param remotePort Remote host port.
+   * @param remoteEndPoint Remote host and port.
    * @param isSecure Whether the connection is secure.
    * @exception IOException If an I/O error occurs.
    */
   protected final void launchThreadPair(Socket localSocket,
                                         InputStream localInputStream,
                                         OutputStream localOutputStream,
-                                        String remoteHost,
-                                        int remotePort,
+                                        EndPoint remoteEndPoint,
                                         boolean isSecure)
     throws IOException {
 
     final Socket remoteSocket =
-      m_socketFactory.createClientSocket(remoteHost, remotePort);
+      m_socketFactory.createClientSocket(remoteEndPoint);
 
     final ConnectionDetails connectionDetails =
       new ConnectionDetails(getLocalHost(),
                             localSocket.getPort(),
-                            remoteHost,
+                            remoteEndPoint.getHost(),
                             remoteSocket.getPort(),
                             isSecure);
 
@@ -258,7 +254,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 
       new Thread(this,
                  "Filter thread for " +
-                 outputStreamFilterTee.getConnectionDetails().getDescription())
+                 outputStreamFilterTee.getConnectionDetails())
         .start();
     }
 
@@ -303,7 +299,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   /**
    * Filter like class that delegates to a user filter and tees the
    * result to an output stream. It is constructed for a particular
-   * connection. Also performs logging to the terminal.
+   * connection. Also controls output of colour codes to the terminal.
    */
   protected final class OutputStreamFilterTee {
 

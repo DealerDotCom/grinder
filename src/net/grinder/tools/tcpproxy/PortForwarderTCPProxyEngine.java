@@ -63,8 +63,7 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
     throws IOException {
 
     super(socketFactory, requestFilter, responseFilter, outputWriter,
-          connectionDetails.getLocalHost(), connectionDetails.getLocalPort(),
-          useColour, timeout);
+          connectionDetails.getLocalEndPoint(), useColour, timeout);
 
     m_connectionDetails = connectionDetails;
   }
@@ -93,8 +92,7 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
         launchThreadPair(localSocket,
                          localSocket.getInputStream(),
                          localSocket.getOutputStream(),
-                         m_connectionDetails.getRemoteHost(),
-                         m_connectionDetails.getRemotePort(),
+                         m_connectionDetails.getRemoteEndPoint(),
                          false);
       }
       catch (IOException e) {

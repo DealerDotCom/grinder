@@ -1,4 +1,3 @@
-// Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002 Philip Aston
 // All rights reserved.
 //
@@ -22,9 +21,9 @@
 
 package net.grinder.tools.tcpproxy;
 
+import java.util.Random;
+
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import net.grinder.common.GrinderException;
 
@@ -35,98 +34,114 @@ import net.grinder.common.GrinderException;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestConnectionDetails extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestConnectionDetails.class);
+public class TestConnectionDetails extends TestCase {
+
+  public TestConnectionDetails(String name) {
+    super(name);
+  }
+  public void testAccessors() throws Exception {
+
+    final Random random = new Random();
+
+    for (int i=0; i<10; ++i) {
+      final byte[] localBytes = new byte[random.nextInt(30)];
+      random.nextBytes(localBytes);
+      final String localHost = new String(localBytes);
+      final int localPort = random.nextInt(65536);
+
+      final byte[] remoteBytes = new byte[random.nextInt(30)];
+      random.nextBytes(remoteBytes);
+      final String remoteHost = new String(remoteBytes);
+      final int remotePort = random.nextInt(65536);
+
+      final boolean isSecure = random.nextBoolean();
+
+      final ConnectionDetails connectionDetails =
+        new ConnectionDetails(localHost, localPort, remoteHost, remotePort,
+                              isSecure);
+
+      assertEquals(localHost.toLowerCase(), connectionDetails.getLocalHost());
+      assertEquals(localPort, connectionDetails.getLocalPort());
+      assertEquals(remoteHost.toLowerCase(),
+                   connectionDetails.getRemoteHost());
+      assertEquals(remotePort, connectionDetails.getRemotePort());
+      assertTrue(!(isSecure ^ connectionDetails.isSecure()));
     }
+  }
 
-    public TestConnectionDetails(String name)
-    {
-	super(name);
-    }
+  public void testToString() throws Exception {
 
-    protected void setUp() throws Exception
-    {
-    }
+    final ConnectionDetails connectionDetails =
+      new ConnectionDetails("one", 55, "two", 121, true);
 
-    public void testGetDescription() throws Exception
-    {
-	final ConnectionDetails connectionDetails =
-	    new ConnectionDetails("one", 55, "two", 121, true);
+    assertEquals("one:55->two:121", connectionDetails.toString());
+  }
 
-	assertEquals("one:55->two:121", connectionDetails.getDescription());
-    }
+  public void testGetURLBase() throws Exception {
 
-    public void testGetURLBase() throws Exception
-    {
-	final ConnectionDetails connectionDetails =
-	    new ConnectionDetails("one", 55, "two", 121, true);
+    final ConnectionDetails connectionDetails =
+      new ConnectionDetails("one", 55, "two", 121, true);
 
-	assertEquals("https://two:121", connectionDetails.getURLBase("http"));
-    }
+    assertEquals("https://two:121", connectionDetails.getURLBase("http"));
+  }
 
-    public void testEquality() throws Exception
-    {
-	final ConnectionDetails[] connectionDetails = {
-	    new ConnectionDetails("A", 55, "B", 80, false),
-	    new ConnectionDetails("a", 55, "B", 80, false),
-	    new ConnectionDetails("c", 55, "B", 80, false),
-	    new ConnectionDetails("a", 55, "B", 80, true),
-	    new ConnectionDetails("a", 56, "B", 80, false),
-	};
+  public void testEquality() throws Exception {
+    final ConnectionDetails[] connectionDetails = {
+      new ConnectionDetails("A", 55, "B", 80, false),
+      new ConnectionDetails("a", 55, "B", 80, false),
+      new ConnectionDetails("c", 55, "B", 80, false),
+      new ConnectionDetails("a", 55, "B", 80, true),
+      new ConnectionDetails("a", 56, "B", 80, false),
+    };
 
-	assertEquals(connectionDetails[0], connectionDetails[0]);
-	assertEquals(connectionDetails[0], connectionDetails[1]);
-	assertEquals(connectionDetails[1], connectionDetails[0]);
-	assertTrue(!connectionDetails[0].equals(connectionDetails[2]));
-	assertTrue(!connectionDetails[1].equals(connectionDetails[3]));
-	assertTrue(!connectionDetails[1].equals(connectionDetails[4]));
-    }
+    assertEquals(connectionDetails[0], connectionDetails[0]);
+    assertEquals(connectionDetails[0], connectionDetails[1]);
+    assertEquals(connectionDetails[1], connectionDetails[0]);
+    assertTrue(!connectionDetails[0].equals(connectionDetails[2]));
+    assertTrue(!connectionDetails[1].equals(connectionDetails[3]));
+    assertTrue(!connectionDetails[1].equals(connectionDetails[4]));
+  }
 
-    public void testGetOtherEnd() throws Exception
-    {
-	final ConnectionDetails connectionDetails =
-	    new ConnectionDetails("blah", 123, "blurgh", 9999, true);
+  public void testGetOtherEnd() throws Exception {
+    final ConnectionDetails connectionDetails =
+      new ConnectionDetails("blah", 123, "blurgh", 9999, true);
 
-	final ConnectionDetails otherEnd = connectionDetails.getOtherEnd();
+    final ConnectionDetails otherEnd = connectionDetails.getOtherEnd();
 	
-	assertEquals(connectionDetails.getLocalHost(),
-		     otherEnd.getRemoteHost());
+    assertEquals(connectionDetails.getLocalHost(),
+                 otherEnd.getRemoteHost());
 
-	assertEquals(connectionDetails.getRemoteHost(),
-		     otherEnd.getLocalHost());
+    assertEquals(connectionDetails.getRemoteHost(),
+                 otherEnd.getLocalHost());
 
-	assertEquals(connectionDetails.getLocalPort(),
-		     otherEnd.getRemotePort());
+    assertEquals(connectionDetails.getLocalPort(),
+                 otherEnd.getRemotePort());
 
-	assertEquals(connectionDetails.getRemotePort(),
-		     otherEnd.getLocalPort());
+    assertEquals(connectionDetails.getRemotePort(),
+                 otherEnd.getLocalPort());
 
-	assertEquals(connectionDetails.isSecure(), otherEnd.isSecure());
+    assertEquals(connectionDetails.isSecure(), otherEnd.isSecure());
 
-	assertEquals(connectionDetails, otherEnd.getOtherEnd());
-    }
+    assertEquals(connectionDetails, otherEnd.getOtherEnd());
+  }
 
-    public void testGetConnectionIdentity() throws Exception
-    {
-	final ConnectionDetails connectionDetails1 =
-	    new ConnectionDetails("foo", 123, "bar", 9999, true);
+  public void testGetConnectionIdentity() throws Exception {
+    final ConnectionDetails connectionDetails1 =
+      new ConnectionDetails("foo", 123, "bar", 9999, true);
 
-	final ConnectionDetails connectionDetails2 =
-	    new ConnectionDetails("foo", 123, "beer", 9999, true);
+    final ConnectionDetails connectionDetails2 =
+      new ConnectionDetails("foo", 123, "beer", 9999, true);
 
-	assertTrue(!(connectionDetails1.getConnectionIdentity().equals(
-			 connectionDetails2.getConnectionIdentity())));
+    assertTrue(!(connectionDetails1.getConnectionIdentity().equals(
+                   connectionDetails2.getConnectionIdentity())));
 
-	assertEquals(connectionDetails1.getConnectionIdentity(),
-		     connectionDetails1.getConnectionIdentity());
+    assertEquals(connectionDetails1.getConnectionIdentity(),
+                 connectionDetails1.getConnectionIdentity());
 
-	assertEquals(connectionDetails1.getConnectionIdentity(),
-		     connectionDetails1.getOtherEnd().getConnectionIdentity());
+    assertEquals(connectionDetails1.getConnectionIdentity(),
+                 connectionDetails1.getOtherEnd().getConnectionIdentity());
 
-	assertEquals(connectionDetails2.getConnectionIdentity(),
-		     connectionDetails2.getOtherEnd().getConnectionIdentity());
-    }
+    assertEquals(connectionDetails2.getConnectionIdentity(),
+                 connectionDetails2.getOtherEnd().getConnectionIdentity());
+  }
 }
