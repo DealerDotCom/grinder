@@ -276,8 +276,7 @@ final class LoggerImplementation {
     }
   }
 
-
-  Logger getProcessLogger() throws EngineException {
+  Logger getProcessLogger() {
     return m_processLogger;
   }
 
