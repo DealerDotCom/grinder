@@ -65,11 +65,11 @@ public class TestWorkerProcessCommandLine extends TestCase {
                                    overrideProperties,
                                    alternateFile);
 
-    assertEquals("java -server -Xmx1024M -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '<grinderID>' '" + alternateFile.getPath() + "'",
+    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '<grinderID>' '" + alternateFile.getPath() + "'",
                  workerProcessCommandLine.toString());
 
     // Should work twice.
-    assertEquals("java -server -Xmx1024M -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '<grinderID>' '" + alternateFile.getPath() + "'",
+    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '<grinderID>' '" + alternateFile.getPath() + "'",
                  workerProcessCommandLine.toString());
   }
 
@@ -98,14 +98,14 @@ public class TestWorkerProcessCommandLine extends TestCase {
 
     String commandLine = workerProcessCommandLine.toString();
 
-    final String expectedPrefix = "java -Xmx1024M ";
+    final String expectedPrefix = "java '-Xmx1024M' ";
 
     assertTrue(commandLine.startsWith(expectedPrefix));
 
     commandLine = commandLine.substring(expectedPrefix.length());
 
-    final String expectedSystemProperty1 = "-Dgrinder.myproperty=\"myvalue\" ";
-    final String expectedSystemProperty2 = "-Dgrinder.processes=\"99\" ";
+    final String expectedSystemProperty1 = "'-Dgrinder.myproperty=myvalue' ";
+    final String expectedSystemProperty2 = "'-Dgrinder.processes=99' ";
 
     if (commandLine.startsWith(expectedSystemProperty1)) {
       assertTrue(commandLine.substring(expectedSystemProperty1.length())

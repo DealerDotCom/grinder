@@ -6,6 +6,10 @@ Grinder 3.0-beta26 (Not yet released)
   Fix the TCPProxy to cope correctly with 8 bit strings in all
   locales (Bug 1167731). Thanks to Anton Malykh for the report.
 
+  Fix a bug where system properties specified on the command line were
+  incorrectly quoted when building the worker process command line.
+  Thanks to Dietrich Bollmann for the report.
+
 
 Grinder 3.0-beta25
 ------------------

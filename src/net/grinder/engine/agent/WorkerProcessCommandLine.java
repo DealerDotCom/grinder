@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,10 +23,12 @@ package net.grinder.engine.agent;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import net.grinder.common.GrinderProperties;
@@ -73,7 +75,7 @@ final class WorkerProcessCommandLine {
       final String value = (String)entry.getValue();
 
       if (key.startsWith("grinder.")) {
-        m_command.add("-D" + key + "=\"" + value + "\"");
+        m_command.add("-D" + key + "=" + value);
       }
     }
 
@@ -124,37 +126,37 @@ final class WorkerProcessCommandLine {
     return m_command;
   }
 
+  private static final Set s_unquoted = new HashSet() { {
+    add("-classpath");
+    add("-client");
+    add("-cp");
+    add("-jar");
+    add("-server");
+  } };
+
   public String toString() {
     final String[] commandArray = getCommandArray("<grinderID>");
 
     final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
-
-    boolean pastClass = false;
 
     for (int j = 0; j < commandArray.length; ++j) {
       if (j != 0) {
         buffer.append(" ");
       }
 
-      final boolean jvmArgumentParameter =
-        j > 0 && (commandArray[j - 1].equals("-jar") ||
-                  commandArray[j - 1].equals("-classpath") ||
-                  commandArray[j - 1].equals("-cp"));
+      final boolean shouldQuote =
+        j != 0 &&
+        j != m_commandGrinderIDIndex - 1 &&
+        !s_unquoted.contains(commandArray[j]);
 
-      final boolean argument = pastClass || jvmArgumentParameter;
-
-      if (argument) {
+      if (shouldQuote) {
         buffer.append("'");
       }
 
       buffer.append(commandArray[j]);
 
-      if (argument) {
+      if (shouldQuote) {
         buffer.append("'");
-      }
-
-      if (j > 0 && !jvmArgumentParameter && !commandArray[j].startsWith("-")) {
-        pastClass = true;
       }
     }
 
