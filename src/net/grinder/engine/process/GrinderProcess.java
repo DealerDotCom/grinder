@@ -293,45 +293,44 @@ public final class GrinderProcess implements Monitor {
 	    }
 	  }
 	}
+
+	synchronized (this) {
+	  if (GrinderThread.getNumberOfThreads() > 0) {
+		    
+	    logger.output("waiting for threads to terminate",
+			  Logger.LOG | Logger.TERMINAL);
+			
+	    GrinderThread.shutdown();
+
+	    final long time = System.currentTimeMillis();
+	    final long maxShutdownTime = 10000;
+
+	    while (GrinderThread.getNumberOfThreads() > 0) {
+	      try {
+		if (System.currentTimeMillis() - time > maxShutdownTime) {
+		  logger.output("threads not terminating, " +
+				"continuing anyway",
+				Logger.LOG | Logger.TERMINAL);
+		  break;
+		}
+
+		wait(maxShutdownTime);
+	      }
+	      catch (InterruptedException e) {
+		// Ignore.
+	      }
+	    }
+	  }
+	}
       }
       finally {
 	timer.cancel();
       }
 
-      synchronized (this) {
-	if (GrinderThread.getNumberOfThreads() > 0) {
-		    
-	  logger.output("waiting for threads to terminate",
-			Logger.LOG | Logger.TERMINAL);
-			
-	  GrinderThread.shutdown();
-
-	  final long time = System.currentTimeMillis();
-	  final long maxShutdownTime = 10000;
-
-	  while (GrinderThread.getNumberOfThreads() > 0) {
-	    try {
-	      if (System.currentTimeMillis() - time >
-		  maxShutdownTime) {
-		logger.output("threads not terminating, " +
-			      "continuing anyway",
-			      Logger.LOG | Logger.TERMINAL);
-		break;
-	      }
-
-	      wait(maxShutdownTime);
-	    }
-	    catch (InterruptedException e) {
-	      // Ignore.
-	    }
-	  }
-	}
-      }
-
       // Final report to the console.
       reportToConsoleTimerTask.run();
     }
-	
+
     m_dataWriter.close();
 
     consoleSender.send(
@@ -420,8 +419,8 @@ public final class GrinderProcess implements Monitor {
       final Sender consoleSender = m_context.getConsoleSender();
 
       try {
-	consoleSender.send(new ReportStatisticsMessage(
-			     m_testStatisticsMap.getDelta(true)));
+	consoleSender.queue(new ReportStatisticsMessage(
+			      m_testStatisticsMap.getDelta(true)));
 
 	consoleSender.send(new ReportStatusMessage(
 			     ProcessStatus.STATE_RUNNING,
