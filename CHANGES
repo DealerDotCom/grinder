@@ -19,6 +19,11 @@ Grinder 3.0-beta15
   Fix/enhance the TCPProxy's support for chained HTTPS proxies. This
   should now work with a wider range of proxies.
 
+  Improved console error handling.
+
+  Fix bug 852298 - null pointer exception when multicast fails. Thanks
+  to Danny Faught for the report.
+
 
 Grinder 3.0-beta14
 ------------------

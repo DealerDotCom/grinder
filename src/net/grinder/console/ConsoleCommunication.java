@@ -140,13 +140,19 @@ final class ConsoleCommunication {
 
   private void send(Message message) {
 
-    try {
-      m_sender.send(message);
+    if (m_sender == null) {
+      m_errorHandler.handleResourceErrorMessage(
+        "multicastSendError.text", "Failed to send multicast message");
     }
-    catch (CommunicationException e) {
-      m_errorHandler.handleException(
-        new DisplayMessageConsoleException(
-          "multicastSendError.text", "Failed to send multicast message", e));
+    else {
+      try {
+        m_sender.send(message);
+      }
+      catch (CommunicationException e) {
+        m_errorHandler.handleException(
+          new DisplayMessageConsoleException(
+            "multicastSendError.text", "Failed to send multicast message", e));
+      }
     }
   }
 
