@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,7 +43,7 @@ import net.grinder.statistics.TestStatisticsFactory;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 final class ScriptStatisticsImplementation implements Statistics {
 
   private static final StatisticsIndexMap.LongIndex s_errorsIndex;
@@ -71,7 +71,6 @@ final class ScriptStatisticsImplementation implements Statistics {
     }
   }
 
-  private final ThreadContext m_threadContext;
   private final StringBuffer m_buffer = new StringBuffer();
   private final int m_bufferAfterThreadIDIndex;
   private final PrintWriter m_dataWriter;
@@ -86,17 +85,17 @@ final class ScriptStatisticsImplementation implements Statistics {
   private long m_currentTestStartTime = -1;
   private boolean m_noTests = true;
   private boolean m_delayReports = false;
+  private int m_runNumber = -1;
   private int m_lastRunNumber = -1;
   private int m_bufferAfterRunNumberIndex = -1;
 
-  public ScriptStatisticsImplementation(ThreadContext threadContext,
+  public ScriptStatisticsImplementation(int threadID,
                                         PrintWriter dataWriter,
                                         boolean recordTime) {
-    m_threadContext = threadContext;
     m_dataWriter = dataWriter;
     m_recordTime = recordTime;
 
-    m_buffer.append(m_threadContext.getThreadID());
+    m_buffer.append(threadID);
     m_buffer.append(", ");
     m_bufferAfterThreadIDIndex = m_buffer.length();
   }
@@ -123,7 +122,7 @@ final class ScriptStatisticsImplementation implements Statistics {
         "Statistics interface is only supported for worker threads.");
     }
 
-    if (threadContext != m_threadContext) {
+    if (threadContext.getScriptStatistics() != this) {
       throw new InvalidContextException(
         "Statistics objects must be used from the worker thread from" +
         "which they are acquired.");
@@ -152,7 +151,7 @@ final class ScriptStatisticsImplementation implements Statistics {
 
     return
       threadContext != null &&
-      threadContext == m_threadContext &&
+      threadContext.getScriptStatistics() == this &&
       m_currentTestData != null;
   }
 
@@ -249,12 +248,13 @@ final class ScriptStatisticsImplementation implements Statistics {
     }
   }
 
-  void beginTest(TestData testData) {
+  void beginTest(TestData testData, int runNumber) {
 
     // Flush any pending report.
     reportInternal();
 
     m_currentTestData = testData;
+    m_runNumber = runNumber;
     m_testStatistics.reset();
     m_noTests = false;
   }
@@ -275,16 +275,14 @@ final class ScriptStatisticsImplementation implements Statistics {
 
     if (m_currentTestData != null) {
       if (m_dataWriter != null) {
-        final int runNumber = m_threadContext.getRunNumber();
-
-        if (runNumber == m_lastRunNumber) {
+        if (m_runNumber == m_lastRunNumber) {
           m_buffer.setLength(m_bufferAfterRunNumberIndex);
         }
         else {
-          m_lastRunNumber = runNumber;
+          m_lastRunNumber = m_runNumber;
 
           m_buffer.setLength(m_bufferAfterThreadIDIndex);
-          m_buffer.append(runNumber);
+          m_buffer.append(m_runNumber);
           m_buffer.append(", ");
           m_bufferAfterRunNumberIndex = m_buffer.length();
         }
