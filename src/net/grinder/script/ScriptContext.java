@@ -26,21 +26,42 @@ import net.grinder.common.Test;
 
 
 /**
- * 
+ * Scrupts can get contextual information through a global object that
+ * supports this interface.
  *
  * @author Philip Aston
  * @version $Revision$
  */ 
 public interface ScriptContext
 {
+    /**
+     * Get an unique ID for this Worker Process.
+     *
+     * @return a <code>String</code> value
+     */
     String getGrinderID();
 
     /**
-     * Return the thread ID.
-     */ 
+     * Return the thread ID, or -1 if not called from a Worker Thread.
+     * @return The thread ID.
+     */
     int getThreadID();
 
-    Logger getLogger();
+    /**
+     * Return the current run number, or -1 if not called from a
+     * Worker Thread.
+     *
+     * @return an <code>int</code> value
+     */
+    public int getCurrentRunNumber();
 
-    InvokeableTest[] getTests();
+    /**
+     * Get an appropriate {@link net.grinder.Logger} implementation.
+     * The value returned when invoked from script initialisation
+     * differs from the value returned when called from a Worker
+     * Thread, so its best not to keep references to the result.
+     *
+     * @return a <code>Logger</code> value
+     */
+    Logger getLogger();
 }

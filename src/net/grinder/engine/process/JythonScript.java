@@ -148,6 +148,18 @@ class JythonScript
 	    return -1;
 	}
 
+	public int getCurrentRunNumber()
+	{
+	    final ThreadContext threadContext =
+		ThreadContext.getThreadInstance();
+
+	    if (threadContext != null) {
+		return threadContext.getCurrentRunNumber();
+	    }
+
+	    return -1;
+	}
+
 	public Logger getLogger()
 	{
 	    final ThreadContext threadContext =
@@ -158,11 +170,6 @@ class JythonScript
 	    }
 
 	    return ProcessContext.getInstance();
-	}
-	
-	public synchronized InvokeableTest[] getTests()
-	{
-	    return ProcessContext.getInstance().getTestRegistry().getTests();
 	}
     }
 }

@@ -62,8 +62,6 @@ public final class TestRegistry
      **/
     private final Map m_testMap = new TreeMap();
 
-    private InvokeableTest[] m_tests;
-
     /**
      * A map of InvokeableTests to Statistics for passing elsewhere.
      **/
@@ -112,8 +110,6 @@ public final class TestRegistry
 		newTestData = new TestData(registeredPlugin, test);
 		m_testMap.put(test, newTestData);
 		m_testStatisticsMap.put(test, newTestData.getStatistics());
-
-		m_tests = null;
 	    }
 	}
 	
@@ -128,18 +124,13 @@ public final class TestRegistry
     {
 	final TestData testData = (TestData)registeredTest;
 
-	return ThreadContext.getThreadInstance().invokeTest(testData);
-    }
-
-    public final synchronized InvokeableTest[] getTests()
-    {
-	if (m_tests == null) {
-	    m_tests =
-		(InvokeableTest[])
-		m_testMap.keySet().toArray(new InvokeableTest[0]);
+	final ThreadContext threadContext = ThreadContext.getThreadInstance();
+	
+	if (threadContext == null) {
+	    throw new EngineException("Only Worker Threads can invoke tests");
 	}
-
-	return m_tests;
+	
+	return threadContext.invokeTest(testData);
     }
 
     final TestStatisticsMap getTestStatisticsMap()
