@@ -1,3 +1,10 @@
+2002-11-21  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/script-gallery-xhtml.xml: Update tests.
+
+	* xdoc/g3/script-gallery-xhtml.xml, examples/scenario.py, examples/fba.py, examples/form.py, examples/grinder.properties, examples/hello-world-functions.py, examples/hello-world.py, examples/jaxrpc.py, examples/jdbc.py, examples/amazon.py:
+	Update examples.
+
 2002-11-20  Philip Aston  <paston@bea.com>
 
 	* build.xml:
