@@ -30,7 +30,6 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -52,6 +51,7 @@ import net.grinder.tools.tcpproxy.TCPProxyConsole;
 import net.grinder.tools.tcpproxy.TCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory;
+import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactoryImplementation;
 
 
 /**
@@ -63,9 +63,6 @@ import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory;
  * @version $Revision$
  */
 public final class TCPProxy {
-
-  private static final String SSL_SOCKET_FACTORY_CLASS =
-    "net.grinder.tools.tcpproxy.TCPProxySSLSocketFactoryImplementation";
 
   /**
    * Entry point.
@@ -84,36 +81,34 @@ public final class TCPProxy {
       "\n java " + TCPProxy.class + " <options>" +
       "\n" +
       "\n Commonly used options:" +
-      "\n   [-requestfilter <filter>]    Add a request filter" +
-      "\n   [-responsefilter <filter>]   Add a response filter" +
-      "\n   [-httpplugin]                See below" +
-      "\n   [-properties <file>]         Properties passed to the filters" +
-      "\n   [-localhost <host name/ip>]  Default is localhost" +
-      "\n   [-localport <port>]          Default is 8001" +
-      "\n   [-ssl                        Use SSL" +
-      "\n     [-keystore <file>]         Key store details for" +
-      "\n     [-keystorepassword <pass>] certificates." +
-      "\n     [-keystoretype <type>]     Default is JSSE dependent." +
-      "\n   ]" +
+      "\n   [-requestfilter <filter>]    Add a request filter." +
+      "\n   [-responsefilter <filter>]   Add a response filter." +
+      "\n   [-httpplugin]                See below." +
+      "\n   [-properties <file>]         Properties to pass to the filters." +
+      "\n   [-localhost <host name/ip>]  Default is localhost." +
+      "\n   [-localport <port>]          Default is 8001." +
+      "\n   [-keystore <file>]           Key store details for" +
+      "\n   [-keystorepassword <pass>]   SSL certificates." +
+      "\n   [-keystoretype <type>]       Default is JSSE dependent." +
       "\n" +
       "\n Other options:" +
-      "\n   [-remotehost <host name>]    Default is localhost" +
-      "\n   [-remoteport <port>]         Default is 7001" +
-      "\n   [-timeout <seconds>]         Proxy engine timeout" +
-      "\n   [-colour]                    Be pretty on ANSI terminals" +
-      "\n   [-console]                   Display the console" +
-      "\n   [-httpproxy <host> <port>]   Route via HTTP/HTTPS proxy" +
+      "\n   [-remotehost <host name>]    Default is localhost." +
+      "\n   [-remoteport <port>]         Default is 7001." +
+      "\n   [-timeout <seconds>]         Proxy engine timeout." +
+      "\n   [-colour]                    Be pretty on ANSI terminals." +
+      "\n   [-console]                   Display the console." +
+      "\n   [-httpproxy <host> <port>]   Route via HTTP/HTTPS proxy." +
       "\n   [-httpsproxy <host> <port>]  Override -httpproxy settings for" +
-      "\n                                HTTPS" +
+      "\n                                HTTPS." +
+      "\n   [-ssl]                       Use SSL when port forwarding." +
       "\n" +
       "\n <filter> can be the name of a class that implements" +
       "\n " + TCPProxyFilter.class.getName() + " or" +
       "\n one of NONE, ECHO. Default is ECHO." +
       "\n Multiple filters can be specified for each stream." +
       "\n" +
-      "\n If neither -remotehost nor -remoteport is specified," +
-      "\n the TCPProxy listens as an HTTP Proxy on <localhost:localport>." +
-      "\n Specify -ssl for HTTPS proxy support." +
+      "\n If neither -remotehost nor -remoteport is specified, the " +
+      "\n TCPProxy listens as an HTTP/HTTPS Proxy on <localhost:localport>." +
       "\n" +
       "\n If either -remotehost or -remoteport is specified, the TCPProxy" +
       "\n acts a simple port forwarder between <localhost:localport> and" +
@@ -159,7 +154,7 @@ public final class TCPProxy {
     String remoteHost = "localhost";
     String localHost = "localhost";
     int remotePort = 7001;
-    boolean useSSL = false;
+    boolean useSSLPortForwarding = false;
     File keyStoreFile = null;
     char[] keyStorePassword = null;
     String keyStoreType = null;
@@ -234,7 +229,7 @@ public final class TCPProxy {
           isHTTPProxy = false;
         }
         else if (args[i].equalsIgnoreCase("-ssl")) {
-          useSSL = true;
+          useSSLPortForwarding = true;
         }
         else if (args[i].equalsIgnoreCase("-keystore")) {
           keyStoreFile = new File(args[++i]);
@@ -309,15 +304,10 @@ public final class TCPProxy {
     startMessage.append("Initialising as ");
 
     if (isHTTPProxy) {
-      if (useSSL) {
-        startMessage.append("an HTTP/HTTPS proxy");
-      }
-      else {
-        startMessage.append("an HTTP proxy");
-      }
+      startMessage.append("an HTTP/HTTPS proxy");
     }
     else {
-      if (useSSL) {
+      if (useSSLPortForwarding) {
         startMessage.append("an SSL port forwarder");
       }
       else {
@@ -340,67 +330,39 @@ public final class TCPProxy {
       startMessage.append("\n   HTTP proxy:         " + chainedHTTPProxy);
     }
 
-    if (useSSL) {
-      if (chainedHTTPSProxy != null) {
-        startMessage.append("\n   HTTPS proxy:        " + chainedHTTPSProxy);
+    if (chainedHTTPSProxy != null) {
+      startMessage.append("\n   HTTPS proxy:        " + chainedHTTPSProxy);
+    }
+
+    if (keyStoreFile != null) {
+      startMessage.append("\n   Key store:          ");
+      startMessage.append(keyStoreFile.toString());
+
+      // Key store password is optional.
+      if (keyStorePassword != null) {
+        startMessage.append("\n   Key store password: ");
+        for (int i = 0; i < keyStorePassword.length; ++i) {
+          startMessage.append('*');
+        }
       }
 
-      if (keyStoreFile != null) {
-        startMessage.append("\n   Key store:          ");
-        startMessage.append(keyStoreFile.toString());
-
-        // Key store password is optional.
-        if (keyStorePassword != null) {
-          startMessage.append("\n   Key store password: ");
-          for (int i = 0; i < keyStorePassword.length; ++i) {
-            startMessage.append('*');
-          }
-        }
-
-        // Key store type can be null => use whatever
-        // KeyStore.getDefaultType() says (we can't print the default
-        // here without loading the JSSE).
-        if (keyStoreType != null) {
-          startMessage.append("\n   Key store type:     " + keyStoreType);
-        }
+      // Key store type can be null => use whatever
+      // KeyStore.getDefaultType() says (we can't print the default
+      // here without loading the JSSE).
+      if (keyStoreType != null) {
+        startMessage.append("\n   Key store type:     " + keyStoreType);
       }
     }
 
     System.err.println(startMessage);
 
     try {
-      final TCPProxySSLSocketFactory sslSocketFactory;
-
-      if (useSSL) {
-        try {
-          // TCPProxySSLSocketFactoryImplementation depends on JSSE,
-          // load dynamically.
-          final Class socketFactoryClass =
-            Class.forName(SSL_SOCKET_FACTORY_CLASS);
-
-          if (keyStoreFile != null) {
-            final Constructor socketFactoryConstructor =
-              socketFactoryClass.getConstructor(
-                new Class[] { File.class, new char[0].getClass(), String.class,
-                });
-
-            sslSocketFactory = (TCPProxySSLSocketFactory)
-              socketFactoryConstructor.newInstance(
-                new Object[] { keyStoreFile, keyStorePassword, keyStoreType,
-                });
-          }
-          else {
-            sslSocketFactory =
-              (TCPProxySSLSocketFactory) socketFactoryClass.newInstance();
-          }
-        }
-        catch (InvocationTargetException e) {
-          throw e.getTargetException();
-        }
-      }
-      else {
-        sslSocketFactory = null;
-      }
+      final TCPProxySSLSocketFactory sslSocketFactory =
+        keyStoreFile != null ?
+        new TCPProxySSLSocketFactoryImplementation(keyStoreFile,
+                                                   keyStorePassword,
+                                                   keyStoreType) :
+        new TCPProxySSLSocketFactoryImplementation();
 
       if (isHTTPProxy) {
         m_proxyEngine =
@@ -414,13 +376,13 @@ public final class TCPProxy {
             chainedHTTPProxy, chainedHTTPSProxy);
       }
       else {
-        if (useSSL) {
+        if (useSSLPortForwarding) {
           m_proxyEngine =
             new PortForwarderTCPProxyEngine(
               sslSocketFactory,
               requestFilter, responseFilter,
               outputWriter,
-              new ConnectionDetails(localEndPoint, remoteEndPoint, useSSL),
+              new ConnectionDetails(localEndPoint, remoteEndPoint, true),
               useColour,
               timeout);
         }
@@ -429,7 +391,7 @@ public final class TCPProxy {
             new PortForwarderTCPProxyEngine(
               requestFilter, responseFilter,
               outputWriter,
-              new ConnectionDetails(localEndPoint, remoteEndPoint, useSSL),
+              new ConnectionDetails(localEndPoint, remoteEndPoint, false),
               useColour,
               timeout);
         }
