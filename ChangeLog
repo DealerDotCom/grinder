@@ -1,5 +1,7 @@
 2001-01-11  Philip Aston  <paston@beasys.com>
 
+	* Grinder 2.0-pre is released.	
+	
 	* build.xml: 
 	* src/net/grinder/TCPSniffer.java: 
 	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java: 
