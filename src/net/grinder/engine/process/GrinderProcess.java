@@ -251,7 +251,7 @@ public class GrinderProcess
 	    t.start();             
 	}
 
-	while (GrinderThread.numberOfUncompletedThreads() > 0)
+	do			// We want at least one report.
 	{
 	    try {
 		Thread.sleep(m_reportToConsoleInterval);
@@ -268,6 +268,7 @@ public class GrinderProcess
 			m_testStatisticsMap.getDelta(true)));
 	    }
 	}
+	while (GrinderThread.numberOfUncompletedThreads() > 0);
 
         if (dataPrintWriter != null) {
 	    dataPrintWriter.close();
