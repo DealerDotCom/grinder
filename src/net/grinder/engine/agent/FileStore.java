@@ -31,8 +31,8 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
 import net.grinder.engine.messages.DistributeFilesMessage;
+import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
-import net.grinder.util.FileUtilities;
 
 
 /**
@@ -71,7 +71,7 @@ final class FileStore {
     }
 
     try {
-      FileUtilities.deleteContents(m_directory);
+      new Directory(m_directory).deleteContents();
     }
     catch (IOException e) {
       throw new FileStoreException(

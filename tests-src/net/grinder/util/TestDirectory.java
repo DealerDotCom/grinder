@@ -22,22 +22,62 @@
 package net.grinder.util;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.Random;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.Serializer;
 
 
 /**
- * Unit test case for {@link FileUtilities}.
+ * Unit test case for {@link Directory}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestFileUtilities extends AbstractFileTestCase {
+public class TestDirectory extends AbstractFileTestCase {
+
+  public void testConstruction() throws Exception {
+
+    try {
+      new Directory(new File(getDirectory(), "x"));
+      fail("Expected DirectoryException");
+    }
+    catch (Directory.DirectoryException e) {
+    }
+  }
+
+  public void testListContents() throws Exception {
+    final String[] files = {
+      "directory/foo/bah/blah",
+      "directory/blah",
+      "a/b/c/d/e",
+      "a/b/f/g/h",
+      "a/b/f/g/i",
+      "x",
+      "y/z",
+      "another",
+    };
+
+    final Set expected = new HashSet();
+
+    for (int i=0; i<files.length; ++i) {
+      final File file = new File(getDirectory(), files[i]);
+      file.getParentFile().mkdirs();
+      file.createNewFile();
+
+      expected.add(file);
+    }
+    
+    final Directory directory = new Directory(getDirectory());
+
+    final File[] allFiles = directory.listContents();
+
+    for (int i=0; i<allFiles.length; ++i) {
+      expected.remove(allFiles[i]);
+    }
+
+    assertEquals(0, expected.size());
+  }
 
   public void testDeleteContents() throws Exception {
 
@@ -57,15 +97,9 @@ public class TestFileUtilities extends AbstractFileTestCase {
       file.getParentFile().mkdirs();
       file.createNewFile();
     }
-
-    try {
-      FileUtilities.deleteContents(new File(getDirectory(), "x"));
-      fail("Expected FileUtilitiesException");
-    }
-    catch (FileUtilities.FileUtilitiesException e) {
-    }
     
-    FileUtilities.deleteContents(getDirectory());
+    final Directory directory = new Directory(getDirectory());
+    directory.deleteContents();
 
     assertEquals(0, getDirectory().list().length);
   }
