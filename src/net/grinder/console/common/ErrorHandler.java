@@ -23,25 +23,41 @@ package net.grinder.console.common;
 
 
 /**
- * Handler that deals with displaying exceptions.
+ * Interface for things that can deal with reporting errors and
+ * exceptions.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface ExceptionHandler {
+public interface ErrorHandler {
 
   /**
-   * Method that handles console exceptions.
+   * Method that handles error messages.
    *
-   * @param e The exception.
+   * @param errorMessage The error message.
    */
-  void exceptionOccurred(Exception e);
+  void handleErrorMessage(String errorMessage);
 
   /**
-   * Method that handles console exceptions.
+   * Method that handles error messages.
    *
-   * @param e The exception.
+   * @param errorMessage The error message.
    * @param title A title to use.
    */
-  void exceptionOccurred(Throwable e, String title);
+  void handleErrorMessage(String errorMessage, String title);
+
+  /**
+   * Method that handles exceptions.
+   *
+   * @param exception The exception.
+   */
+  void handleException(Exception exception);
+
+  /**
+   * Method that handles exceptions.
+   *
+   * @param exception The exception.
+   * @param title A title to use.
+   */
+  void handleException(Exception exception, String title);
 }

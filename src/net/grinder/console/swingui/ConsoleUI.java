@@ -72,7 +72,7 @@ import org.syntax.jedit.tokenmarker.Token;
 
 import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
-import net.grinder.console.common.ExceptionHandler;
+import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
@@ -103,7 +103,7 @@ public final class ConsoleUI implements ModelListener {
   private final JFrame m_frame;
   private final JLabel m_stateLabel = new JLabel();
   private final SamplingControlPanel m_samplingControlPanel;
-  private final ErrorDialogHandler m_errorDialogHandler;
+  private final ErrorHandler m_errorHandler;
 
   private final CumulativeStatisticsTableModel m_cumulativeTableModel;
 
@@ -142,7 +142,7 @@ public final class ConsoleUI implements ModelListener {
     // the use the frame to create dialogs.
     m_frame = new JFrame(resources.getString("title"));
 
-    m_errorDialogHandler = new ErrorDialogHandler(m_frame, resources);
+    m_errorHandler = new ErrorDialogHandler(m_frame, resources);
 
     m_stateIgnoringString = resources.getString("state.ignoring.label") + " ";
     m_stateWaitingString = resources.getString("state.waiting.label");
@@ -621,13 +621,14 @@ public final class ConsoleUI implements ModelListener {
             writer.close();
           }
           catch (IOException e) {
-            getExceptionHandler().exceptionOccurred(
-              e, m_model.getResources().getString("fileError.title"));
+            getErrorHandler().handleErrorMessage(
+              e.getMessage(),
+              m_model.getResources().getString("fileError.title"));
           }
         }
       }
       catch (Exception e) {
-        getExceptionHandler().exceptionOccurred(
+        getErrorHandler().handleException(
           e, m_model.getResources().getString("unexpectedError.title"));
       }
     }
@@ -771,7 +772,7 @@ public final class ConsoleUI implements ModelListener {
       m_delegateAction = delegateAction;
     }
 
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent event) {
 
       final ConsoleProperties properties = m_model.getProperties();
 
@@ -799,10 +800,9 @@ public final class ConsoleUI implements ModelListener {
           try {
             properties.setResetConsoleWithProcessesDontAsk();
           }
-          catch (GrinderException exception) {
-            getExceptionHandler().exceptionOccurred(
-              exception,
-              m_model.getResources().getString("unexpectedError.title"));
+          catch (GrinderException e) {
+            getErrorHandler().handleException(
+              e, m_model.getResources().getString("unexpectedError.title"));
             return;
           }
         }
@@ -825,7 +825,7 @@ public final class ConsoleUI implements ModelListener {
         m_model.reset();
       }
 
-      m_delegateAction.actionPerformed(e);
+      m_delegateAction.actionPerformed(event);
     }
   }
 
@@ -856,12 +856,12 @@ public final class ConsoleUI implements ModelListener {
   }
 
   /**
-   * Return an exception handler that other classes can use to report
+   * Return an error handler that other classes can use to report
    * problems through the UI. Should be called from a Swing Thread.
    *
    * @return The exception handler.
    */
-  public ExceptionHandler getExceptionHandler() {
-    return m_errorDialogHandler;
+  public ErrorHandler getErrorHandler() {
+    return m_errorHandler;
   }
 }

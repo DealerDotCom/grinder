@@ -105,8 +105,7 @@ public class Console {
       new ConsoleUI(m_model, startHandler, resetHandler, stopHandler);
 
     m_communication =
-      new ConsoleCommunication(properties,
-                               m_userInterface.getExceptionHandler());
+      new ConsoleCommunication(properties, m_userInterface.getErrorHandler());
   }
 
   /**

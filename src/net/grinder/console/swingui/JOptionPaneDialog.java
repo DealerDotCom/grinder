@@ -22,7 +22,6 @@
 package net.grinder.console.swingui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.event.WindowAdapter;
@@ -47,41 +46,40 @@ public class JOptionPaneDialog extends JDialog {
    * Constructor.
    *
    * @param frame Parent frame.
-   * @param optionPane JOptionPane to wrap.
    * @param title The title.
    * @param modal <code>true</code> => dialog should be modal.
+   * @param optionPane JOptionPane to wrap.
    */
-  public JOptionPaneDialog(JFrame frame, final JOptionPane optionPane,
-                           String title, boolean modal) {
+  public JOptionPaneDialog(JFrame frame, String title, boolean modal,
+                           JOptionPane optionPane) {
 
     super(frame, title, modal);
-    init(frame, optionPane);
+    setOptionPane(optionPane);
   }
 
   /**
    * Constructor.
    *
    * @param dialog Parent dialog.
-   * @param optionPane JOptionPane to wrap.
    * @param title The title.
    * @param modal <code>true</code> => dialog should be modal.
+   * @param optionPane JOptionPane to wrap.
    */
-  public JOptionPaneDialog(JDialog dialog, JOptionPane optionPane,
-                           String title, boolean modal) {
+  public JOptionPaneDialog(JDialog dialog, String title, boolean modal,
+                           JOptionPane optionPane) {
 
     super(dialog, title, modal);
-    init(dialog, optionPane);
+    setOptionPane(optionPane);
   }
 
   /**
-   * Common initialisation. Sadly JDialog doesn't allow us to treat
-   * the owner component polymorphically, we need separate
-   * constructors for dialogs and frames.
+   * Common initialistion. We need separate constructors because
+   * JDialog does not allow us to treat parentComponent
+   * polymorphically.
    *
-   * @param parentComponent Parent component.
    * @param optionPane JOptionPane to wrap.
    */
-  public void init(Component parentComponent, final JOptionPane optionPane) {
+  private void setOptionPane(final JOptionPane optionPane) {
 
     setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 
@@ -89,7 +87,7 @@ public class JOptionPaneDialog extends JDialog {
     contentPane.setLayout(new BorderLayout());
     contentPane.add(optionPane, BorderLayout.CENTER);
     pack();
-    setLocationRelativeTo(parentComponent);
+    setLocationRelativeTo(getOwner());
 
     addWindowListener(
       new WindowAdapter() {

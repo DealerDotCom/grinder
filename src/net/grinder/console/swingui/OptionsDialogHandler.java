@@ -159,8 +159,8 @@ abstract class OptionsDialogHandler {
     m_samplingControlPanel.setProperties(m_properties);
 
     m_dialog =
-      new JOptionPaneDialog(m_frame, m_optionPane,
-                            resources.getString("options.label"), true) {
+      new JOptionPaneDialog(
+        m_frame, resources.getString("options.label"), true, m_optionPane) {
 
         protected boolean shouldClose() {
           final Object value = m_optionPane.getValue();
@@ -179,7 +179,7 @@ abstract class OptionsDialogHandler {
                 m_resetConsoleWithProcessesCheckBox.isSelected());
             }
             catch (ConsoleException e) {
-              new ErrorDialogHandler(m_dialog, resources).exceptionOccurred(e);
+              new ErrorDialogHandler(m_dialog, resources).handleException(e);
               return false;
             }
 
@@ -190,9 +190,12 @@ abstract class OptionsDialogHandler {
               catch (GrinderException e) {
                 final Throwable nested = e.getNestedThrowable();
 
-                new ErrorDialogHandler(m_dialog, resources).exceptionOccurred(
-                  nested != null ? nested : e,
-                  resources.getString("fileError.title"));
+                final String messsage =
+                  (nested != null ? nested : e).getMessage();
+
+                new ErrorDialogHandler(m_dialog, resources).
+                  handleErrorMessage(messsage,
+                                     resources.getString("fileError.title"));
 
                 return false;
               }

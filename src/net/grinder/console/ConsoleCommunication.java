@@ -36,7 +36,7 @@ import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
 import net.grinder.communication.UnicastReceiver;
 import net.grinder.console.common.ConsoleException;
-import net.grinder.console.common.ExceptionHandler;
+import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.model.ConsoleProperties;
 
@@ -50,16 +50,16 @@ import net.grinder.console.model.ConsoleProperties;
 final class ConsoleCommunication {
 
   private final ConsoleProperties m_properties;
-  private final ExceptionHandler m_exceptionHandler;
+  private final ErrorHandler m_errorHandler;
 
   private Receiver m_receiver = null;
   private Sender m_sender = null;
   private boolean m_deaf = true;
 
   public ConsoleCommunication(ConsoleProperties properties,
-                              ExceptionHandler exceptionHandler) {
+                              ErrorHandler errorHandler) {
     m_properties = properties;
-    m_exceptionHandler = exceptionHandler;
+    m_errorHandler = errorHandler;
 
     resetReceiver();
     resetSender();
@@ -108,10 +108,9 @@ final class ConsoleCommunication {
       }
     }
     catch (CommunicationException e) {
-      m_exceptionHandler.exceptionOccurred(
-        new DisplayMessageConsoleException("localBindError.text",
-                                           "Failed to bind to local address",
-                                           e));
+      m_errorHandler.handleException(
+        new DisplayMessageConsoleException(
+          "localBindError.text", "Failed to bind to local address", e));
     }
   }
 
@@ -131,7 +130,7 @@ final class ConsoleCommunication {
                                      m_properties.getGrinderPort());
     }
     catch (CommunicationException e) {
-      m_exceptionHandler.exceptionOccurred(
+      m_errorHandler.handleException(
         new DisplayMessageConsoleException(
           "multicastConnectError.text",
           "Failed to connect to multicast address",
@@ -145,11 +144,9 @@ final class ConsoleCommunication {
       m_sender.send(message);
     }
     catch (CommunicationException e) {
-      m_exceptionHandler.exceptionOccurred(
+      m_errorHandler.handleException(
         new DisplayMessageConsoleException(
-          "multicastSendError.text",
-          "Failed to send multicast message",
-          e));
+          "multicastSendError.text", "Failed to send multicast message", e));
     }
   }
 
@@ -195,7 +192,7 @@ final class ConsoleCommunication {
         return message;
       }
       catch (CommunicationException e) {
-        m_exceptionHandler.exceptionOccurred(
+        m_errorHandler.handleException(
           new ConsoleException(e.getMessage(), e));
       }
     }
