@@ -2,6 +2,8 @@
 
 # Inspiration drawn from o2x (http://www.sabren.com/code/python/)
 
+import re
+
 class ElementStack:
     _data = []
 
@@ -54,7 +56,7 @@ class XMLOutput:
                 self._result += self._stack.perhapsClose(("li", "ul", "p"))
                 self._result += self._stack.ensureOpen("p")
 
-            if line[:1] == "-":
+            if line[:2] == "- ":
                 self._result += self._stack.perhapsClose(("li", "p"))
                 self._result += self._stack.ensureOpen("ul")
                 self._result += self._stack.ensureOpen("li")
@@ -100,7 +102,10 @@ def quote(line):
     result = line.replace(chr(0x0a), "")
     result = result.replace("&", "&amp;");
     result = result.replace("<", "&lt;");
-    result = result.replace(">", "&gt;");    
+    result = result.replace(">", "&gt;");
+    result = re.sub(r"([Bb]ug)\s+(\d{6,})", '<a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=\\2&amp;group_id=18598&amp;atid=118598">\\1 \\2</a>', result)
+    result = re.sub(r"([Rr]equest)\s+(\d{6,})", '<a href="http://sourceforge.net/tracker/index.php?func=detail&amp;aid=\\2&amp;group_id=18598&amp;atid=368598">\\1 \\2</a>', result)
+
     return result
 
 

@@ -489,7 +489,7 @@ what you want. Currently the conditionally built modules are:
     <java classname="org.python.util.jython" logError="true"
       output="${forrest.tmpdir}/changes.xml">
 
-      <sysproperty key="python.cachedir" path="${python.cachedir}"/>
+      <sysproperty key="python.home" path="${jython.dir}"/>
 
       <classpath>
 	<pathelement path="${jython.dir}/${jython.jar}"/>
@@ -501,7 +501,7 @@ what you want. Currently the conditionally built modules are:
     <java classname="org.python.util.jython" logError="true"
       output="${forrest.tmpdir}/todo.xml">
 
-      <sysproperty key="python.cachedir" path="${python.cachedir}"/>
+      <sysproperty key="python.home" path="${jython.dir}"/>
 
       <classpath>
 	<pathelement path="${jython.dir}/${jython.jar}"/>
