@@ -51,6 +51,8 @@ public class TestDirectory extends AbstractFileTestCase {
 
     final Directory directory = new Directory(getDirectory());
     assertEquals(0, directory.getWarnings().length);
+
+    assertEquals(getDirectory(), directory.getAsFile());
   }
 
   public void testListContents() throws Exception {
@@ -68,6 +70,17 @@ public class TestDirectory extends AbstractFileTestCase {
       "another",
     };
 
+    final File[] badDirectories = {
+      new File(getDirectory(), "directory/foo/bah/blah.cantread"),
+      new File(getDirectory(), "readonly"),
+    };
+
+    for (int i = 0; i < badDirectories.length; ++i) {
+      badDirectories[i].getParentFile().mkdirs();
+      badDirectories[i].mkdir();
+      FileUtilities.setCanRead(badDirectories[i], false);
+    }
+
     final Set expected = new HashSet();
 
     for (int i=0; i<files.length; ++i) {
@@ -82,10 +95,27 @@ public class TestDirectory extends AbstractFileTestCase {
     final File[] allFiles = directory.listContents();
 
     for (int i=0; i<allFiles.length; ++i) {
-      expected.remove(allFiles[i]);
+      assertTrue("Contains " + allFiles[i], expected.contains(allFiles[i]));
     }
 
-    assertEquals(0, expected.size());
+    final String[] warnings = directory.getWarnings();
+    assertEquals(badDirectories.length, warnings.length);
+
+    final StringBuffer warningsBuffer = new StringBuffer();
+
+    for (int i = 0; i < warnings.length; ++i) {
+      warningsBuffer.append(warnings[i]);
+      warningsBuffer.append("\n");
+    }
+
+    final String warningsString = warningsBuffer.toString();
+
+    for (int i = 0; i < badDirectories.length; ++i) {
+      assertTrue(warningsBuffer + " contains " + badDirectories[i].getPath(),
+                 warningsString.indexOf(badDirectories[i].getPath()) > -1);
+
+      FileUtilities.setCanRead(badDirectories[i], true);
+    }
   }
 
   public void testDeleteContents() throws Exception {
