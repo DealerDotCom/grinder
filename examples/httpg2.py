@@ -99,6 +99,8 @@ class G2HTTPTest:
                                              self.basicAuthentication[1],
                                              self.basicAuthentication[2])
         
+        grinder.statistics.delayReports = 1
+
         if self.postData:
             page = self.request.POST(self.url, self.postData).text
         else:
@@ -128,6 +130,9 @@ class G2HTTPTest:
                         "The 'ok' string ('%s') was not found in the page "
                         "received. The output has been written to '%s'." %
                         (self.okString, filename))
+
+        if error:
+            grinder.statistics.success = 0
 
         if self.sleepTime:
             grinder.sleep(long(self.sleepTime))
