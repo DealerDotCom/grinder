@@ -36,14 +36,26 @@ import net.grinder.common.GrinderException;
  */
 public class FileUtilities extends Assert {
 
-  public static void setCanRead(File file, boolean canRead) throws Exception {
+  public static void setCanAccess(File file, boolean canAccess)
+    throws Exception {
+    //    exec(new String[] {
+    //           "chmod",
+    //           canRead ? "ugo+r" : "ugo-r",
+    //           file.getAbsolutePath(),
+    //         });
+
+    // Sadly cygwin ntsec support doesn't allow us to ignore inherited
+    // attributes. Do this instead:
     exec(new String[] {
-           "chmod",
-           canRead ? "ugo+r" : "ugo-r",
+           "cacls",
            file.getAbsolutePath(),
+           "/E",
+           "/P",
+           System.getProperty("user.name") + ":" + (canAccess ? "F" : "N"),
          });
   }
 
+  /*
   public static void setCanWrite(File file, boolean canWrite)
     throws Exception {
 
@@ -53,6 +65,7 @@ public class FileUtilities extends Assert {
            file.getAbsolutePath(),
          });
   }
+  */
 
   private static void exec(String[] command)
     throws GrinderException, InterruptedException {
@@ -64,7 +77,7 @@ public class FileUtilities extends Assert {
     }
     catch (IOException e) {
       throw new GrinderException(
-        "Couldn't chmod: perhaps you should install cygwin or patch this " +
+        "Couldn't chmod: perhaps you should patch this" +
         "test for your platform?",
         e);
     }
