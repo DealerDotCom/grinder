@@ -27,8 +27,6 @@ import net.grinder.util.GrinderException;
  */ 
 public class CommunicationException extends GrinderException
 {
-    private static final long serialVersionUID = 8720471686386322163L;
-
     public CommunicationException(String s)
     {
 	super(s);
