@@ -44,12 +44,23 @@ path.
 
 Task: Agent receives asynchronously. Agent should clear cache on
 start.
-
-
 Task: Console to broadcast. Remove ScriptDistributionFiles work. 
-Task: Agent connects and syncs on start up via one time connection.
+
+Task: Allow editing in the console.
+	Add dirty file handler to model.
+	Rip copy and paste, undo out of Notepad JFC sample.
+	- Need to align with JEditSyntax support.
+	JEdit formatter should be file depenedent.
+	
+Editing
+	- Need to handle CRLF? (Not for now).
+
+
+
 Task: Console to maintain local dirty list based on edits and
 broadcast changes only.
+Task: Agent connects and syncs on start up via one time connection.
+- Needs sync comms channel.
 Task: Console to allow selection of script. Warn if no script
 selected.
 Task: Console to check dirty state on play and auto broadcast.
