@@ -68,6 +68,11 @@ Engine initialised, listening on port 8001
     <p>The TCPProxy will proxy both HTTP and HTTPS. See <a
     href="#ssl">below</a> for details on customising the SSL
     configuration.</p>
+
+  <note><a href="site:mozilla">Firefox</a> users will find Jeremy
+  Gillick's <em>SwitchProxy</em> extension useful for switching to and
+  from the TCPProxy.</note>
+
   </section>
 
   <section id="EchoFilter">

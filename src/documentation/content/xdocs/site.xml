@@ -154,6 +154,8 @@ See http://forrest.apache.org/docs/linking.html for more info
       <grinder-use href="mailto:grinder-use@lists.sourceforge.net"/>
     </mail>
 
+    <mozilla href="http://www.mozilla.com/"/>
+
     <oreilly href="http://www.oreilly.com/">
       <jython-essentials-c1 href="catalog/jythoness/chapter/ch01.html"/>
     </oreilly>
