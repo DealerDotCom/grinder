@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -31,6 +31,9 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import net.grinder.common.Logger;
 import net.grinder.util.TerminalColour;
@@ -46,7 +49,7 @@ import net.grinder.util.TerminalColour;
  */
 public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 
-  private static final ThreadGroup s_streamHandlerThreadGroup =
+  private static final ThreadGroup s_streamThreadGroup =
     new ThreadGroup("TCPProxy Stream Handler");
 
   private final TCPProxyFilter m_requestFilter;
@@ -57,15 +60,16 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   private final PrintWriter m_outputWriter;
   private final TCPProxySocketFactory m_socketFactory;
   private final ServerSocket m_serverSocket;
+  private final List m_streamThreads = new LinkedList();
 
   /**
-   * Allow sub classes to access the <code>ThreadGroup</code> to be
+   * Allow unit tests to access the <code>ThreadGroup</code> to be
    * used for stream handling threads.
    *
    * @return The thread group.
    */
-  protected static final ThreadGroup getStreamHandlerThreadGroup() {
-    return s_streamHandlerThreadGroup;
+  static final ThreadGroup getStreamThreadGroup() {
+    return s_streamThreadGroup;
   }
 
   /**
@@ -128,6 +132,13 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     catch (IOException ioe) {
       // Be silent.
     }
+
+    // Ensure all our threads are shut down.
+    final Iterator iterator = m_streamThreads.iterator();
+
+    while (iterator.hasNext()) {
+      ((StreamThread)iterator.next()).stop();
+    }
   }
 
   /**
@@ -158,7 +169,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
         return m_serverSocket.accept();
       }
       catch (InterruptedIOException e) {
-        if (getStreamHandlerThreadGroup().activeCount() == 0) {
+        if (getStreamThreadGroup().activeCount() == 0) {
+          stop();
           throw new NoActivityTimeOutException();
         }
       }
@@ -219,6 +231,36 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    */
   protected final String getResponseColour() {
     return m_responseColour;
+  }
+
+  protected class StreamThread {
+    private final Thread m_thread;
+    private final InputStream m_inputStream;
+
+    public StreamThread(Runnable runnable, String name,
+                        InputStream inputStream) {
+      m_thread = new Thread(getStreamThreadGroup(), runnable, name);
+      m_inputStream = inputStream;
+      m_streamThreads.add(this);
+      m_thread.start();
+    }
+
+    public void stop() {
+      try {
+        m_inputStream.close();
+      }
+      catch (IOException e) {
+        // TODO - temp.
+        e.printStackTrace();
+      }
+
+      try {
+        m_thread.join();
+      }
+      catch (InterruptedException e) {
+        // Oh well.
+      }
+    }
   }
 
   /**
@@ -289,10 +331,10 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       m_in = in;
       m_outputStreamFilterTee = outputStreamFilterTee;
 
-      new Thread(getStreamHandlerThreadGroup(), this,
-                 "Filter thread for " +
-                 outputStreamFilterTee.getConnectionDetails())
-        .start();
+      new StreamThread(
+        this,
+        "Filter thread for " + outputStreamFilterTee.getConnectionDetails(),
+        m_in);
     }
 
     /**
