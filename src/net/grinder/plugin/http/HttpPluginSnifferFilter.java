@@ -52,6 +52,24 @@ public class HttpPluginSnifferFilter implements SnifferFilter
     private static SessionState s_sessionState = new SessionState();
     private EchoFilter m_echoFilter = new EchoFilter();
 
+    private static final String[] s_mirroredHeaders = {
+	"Content-Type",
+	"Content-type",		// For the broken browsers of this world.
+	"If-Modified-Since",
+    };
+
+    /** REs holds state, so this can't be static. **/
+    private final RE m_mirroredHeaderExpressions[] =
+	new RE[s_mirroredHeaders.length];
+
+    public HttpPluginSnifferFilter() throws RESyntaxException
+    {
+	for (int i=0; i<s_mirroredHeaders.length; i++) {
+	    m_mirroredHeaderExpressions[i] =
+		getHeaderExpression(s_mirroredHeaders[i]);
+	}
+    }
+
     public void handle(ConnectionDetails connectionDetails, byte[] buffer,
 		       int bytesRead)
 	throws IOException, RESyntaxException
@@ -121,12 +139,13 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 		       Long.toString(sessionState.markTime()));
 	outputProperty(requestNumber, "parameter.url", url);
 
-	final RE ifModifiedExpression =
-	    getHeaderExpression("If-Modified-Since");
-
-	if (ifModifiedExpression.match(request)) {
-	    outputProperty(requestNumber, "parameter.ifModifiedSince",
-			   ifModifiedExpression.getParen(1));
+	for (int i=0; i<s_mirroredHeaders.length; i++) {
+	    if (m_mirroredHeaderExpressions[i].match(request)) {
+		outputProperty(requestNumber,
+			       "parameter.header." + s_mirroredHeaders[i],
+			       m_mirroredHeaderExpressions[i].getParen(1).
+			       trim());
+	    }
 	}
 
 	// Base default description on test URL.
@@ -134,7 +153,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	final RE descriptionExpresion = getLastURLPathElementExpression();
 
 	if (descriptionExpresion.match(url)) {
-	    description = descriptionExpresion.getParen(2);
+	    description = descriptionExpresion.getParen(1);
 	}
 	else {
 	    description = "";
@@ -156,7 +175,6 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	    outputProperty(sessionState.getRequestNumber(), "parameter.post",
 			   postOutput.getFilename());
 	}
- 
 
 	sessionState.setHandlingPost(false);
     }
@@ -184,22 +202,13 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	    sessionState.setContentLength(length);
 	}
 
-	final RE contentTypeExpression = getContentTypeHeaderExpression();
+	// If multipart content type, set sessionState to boundary.
+	final RE contentTypeMultipartExpression =
+	    getContentTypeMultipartExpression();
 
-	if (contentTypeExpression.match(request)) {
-            outputProperty(sessionState.getRequestNumber(),
-			   "parameter.postContentType",
-			   contentTypeExpression.getParen(2).trim());
-
-	    // If multipart content type, set sessionState to
-	    // boundary.
-	    final RE contentTypeMultipartExpression =
-		getContentTypeMultipartExpression();
-
-	    if (contentTypeMultipartExpression.match(request)) {
-		sessionState.setMultipartBoundary(
-		    contentTypeMultipartExpression.getParen(2).trim());
-	    }
+	if (contentTypeMultipartExpression.match(request)) {
+	    sessionState.setMultipartBoundary(
+		contentTypeMultipartExpression.getParen(1).trim());
 	}
 
 	// Find and add the data.
@@ -244,18 +253,6 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 		      RE.MATCH_MULTILINE);
     }
 
-    /**
-     * Regexp is not synchronised, so for now compile new objects
-     * every time. If it becomes a bottleneck, the "get*Expression
-     * methods should be implemented with object pools.
-    */
-    private RE getContentTypeHeaderExpression() throws RESyntaxException
-    {
-	// Some servers are broken regarding the case of Content-Type.
-	return new RE("^(Content-Type|Content-type): (.*)$", 
-		      RE.MATCH_MULTILINE|RE.MATCH_CASEINDEPENDENT);
-    }
-
    /**
     *
     * Regexp is not synchronised, so for now compile new objects
@@ -264,8 +261,8 @@ public class HttpPluginSnifferFilter implements SnifferFilter
    */
    private RE getContentTypeMultipartExpression() throws RESyntaxException
    {
-      return new RE("^(Content-Type|Content-type): multipart/form-data; boundary=(.*)$",
-		    RE.MATCH_MULTILINE);
+      return new RE("^Content-Type: multipart/form-data; boundary=(.*)$",
+		    RE.MATCH_MULTILINE | RE.MATCH_CASEINDEPENDENT);
    }
 
    /**
@@ -276,7 +273,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
    */
    private RE getLastURLPathElementExpression() throws RESyntaxException
    {
-       return new RE("^(.*)/(.*?)(\\?(.*))?$", RE.MATCH_MULTILINE);
+       return new RE("^[^\\?]*/([^\\?]*)", RE.MATCH_MULTILINE);
     }
 
     /**

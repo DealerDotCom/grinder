@@ -40,7 +40,11 @@ import net.grinder.tools.tcpsniffer.SnifferFilter;
  */
 public class HttpsPluginSnifferFilter extends HttpPluginSnifferFilter 
 {
-
+    public HttpsPluginSnifferFilter() throws RESyntaxException
+    {
+	super();
+    }
+    
     /**
      * we need to gather all the headers together to make sure that
      * we've reached the end of it. (In fact this will contain more
