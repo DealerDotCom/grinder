@@ -221,6 +221,10 @@ public class GrinderProcess
 		new PrintWriter(
 		    new BufferedWriter(
 			new FileWriter(dataFilename, m_appendToLog)));
+
+	    if (!m_appendToLog) {
+		dataPrintWriter.println("Thread, Cycle, Method, Time");
+	    }
 	}
 	catch(Exception e){
 	    throw new EngineException("Cannot open process data file '" +
