@@ -45,8 +45,6 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 	"Average (ms)",
     };
 
-    private final DecimalFormat m_twoDPFormat = new DecimalFormat("0.00");
-
     private final Model m_model;
     private final boolean m_includeTotals;
     private Statistics m_totals = new Statistics();
@@ -159,7 +157,7 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 		return "";
 	    }
 	    else {
-		return m_twoDPFormat.format(average);
+		return m_model.getNumberFormat().format(average);
 	    }
 	}
 

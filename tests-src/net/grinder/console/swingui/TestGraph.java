@@ -23,6 +23,7 @@ import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
 import java.awt.BorderLayout;
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -108,6 +109,8 @@ public class TestGraph extends TestCase
 	statistics.addError();
 	statistics.addTransaction(1);
 
+	final DecimalFormat format = new DecimalFormat();
+
 	for (int i=0; i<500; i++) {
 	    final double random = s_random.nextDouble();
 
@@ -115,7 +118,7 @@ public class TestGraph extends TestCase
 		peak = random;
 	    }
 
-	    labelledGraph.add(random, peak, peak, statistics);
+	    labelledGraph.add(random, peak, peak, statistics, format);
 	    pause();
 
 	    statistics.add(statistics);

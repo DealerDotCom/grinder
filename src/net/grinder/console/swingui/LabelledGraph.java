@@ -22,7 +22,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -82,9 +81,6 @@ class LabelledGraph extends JPanel
 	private final static Font s_labelFont =
 	    new Font("helvetica", Font.PLAIN, 9);
 
-	private final static NumberFormat s_decimalFormat =
-	    new DecimalFormat("0.00");
-
 	private final String m_prefix;
 	private final String m_suffix;
 
@@ -102,9 +98,9 @@ class LabelledGraph extends JPanel
 	    super.setText(m_prefix + value + m_suffix);
 	}
 
-	private void set(double value)
+	private void set(double value, NumberFormat numberFormat)
 	{
-	    super.setText(m_prefix + s_decimalFormat.format(value) + m_suffix);
+	    super.setText(m_prefix + numberFormat.format(value) + m_suffix);
 	}
 
 	private void set(String value)
@@ -175,7 +171,7 @@ class LabelledGraph extends JPanel
     }
 
     public void add(double tps, double averageTPS, double peakTPS,
-		    Statistics total)
+		    Statistics total, NumberFormat numberFormat)
     {
 	final double responseTime = total.getAverageTransactionTime();
 
@@ -184,15 +180,15 @@ class LabelledGraph extends JPanel
 	m_graph.add(tps);
 
 	if (!Double.isNaN(responseTime)) {
-	    m_responseTimeLabel.set(responseTime);
+	    m_responseTimeLabel.set(responseTime, numberFormat);
 	}
 	else {
 	    m_responseTimeLabel.set("----");
 	}
 
-	m_tpsLabel.set(tps);
-	m_averageTPSLabel.set(averageTPS);
-	m_peakTPSLabel.set(peakTPS);
+	m_tpsLabel.set(tps, numberFormat);
+	m_averageTPSLabel.set(averageTPS, numberFormat);
+	m_peakTPSLabel.set(peakTPS, numberFormat);
 
 	m_transactionsLabel.set(total.getTransactions());
 	m_errorsLabel.set(total.getErrors());

@@ -37,7 +37,7 @@ import net.grinder.statistics.Statistics;
  */
 public class TestGraphPanel extends JPanel
 {
-    TestGraphPanel(Model model) throws ConsoleException
+    TestGraphPanel(final Model model) throws ConsoleException
     {
 	setLayout(new GridLayout(0, 2, 20, 0));
 
@@ -62,7 +62,8 @@ public class TestGraphPanel extends JPanel
 		new SampleListener() {
 		    public void update(double tps, double averageTPS,
 				       double peakTPS, Statistics total) {
-			testGraph.add(tps, averageTPS, peakTPS, total);
+			testGraph.add(tps, averageTPS, peakTPS, total,
+				      model.getNumberFormat());
 		    }
 		}
 		);

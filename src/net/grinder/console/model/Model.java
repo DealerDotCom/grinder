@@ -18,6 +18,7 @@
 
 package net.grinder.console.model;
 
+import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -35,6 +36,7 @@ import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 import net.grinder.util.ProcessContextImplementation;
 import net.grinder.util.PropertiesHelper;
+import net.grinder.util.SignificantFigureFormat;
 
 
 /**
@@ -56,6 +58,10 @@ public class Model
     private TestStatisticsMap m_summaryStatistics = new TestStatisticsMap();
     private final Thread m_sampleThread;
     private int m_sampleInterval = 1000;
+    private int m_significantFigures = 3;
+    private NumberFormat m_numberFormat =
+	new SignificantFigureFormat(m_significantFigures);
+
     private int m_ignoreSampleCount = 1;
     private int m_collectSampleCount = 0;
     private boolean m_stopSampler = false;
@@ -310,6 +316,24 @@ public class Model
     public void setSampleInterval(int i)
     {
 	m_sampleInterval = i;
+	fireModelUpdate();
+    }
+
+    public int getSignificantFigures()
+    {
+	return m_significantFigures;
+    }
+
+    public NumberFormat getNumberFormat()
+    {
+	return m_numberFormat;
+    }
+
+    public void setSignificantFigures(int i)
+    {
+	m_significantFigures = i;
+	m_numberFormat = new SignificantFigureFormat(i);
+
 	fireModelUpdate();
     }
 

@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -90,9 +89,6 @@ public class ConsoleUI implements ModelListener
     private final static Font s_tpsFont =
 	new Font("helvetica", Font.ITALIC | Font.BOLD, 40);
 
-    private final static NumberFormat s_twoDPFormat =
-	new DecimalFormat("0.00");
-
     private final Map m_actionTable = new HashMap();
     private final StartAction m_startAction;
     private final StopAction m_stopAction;
@@ -140,8 +136,10 @@ public class ConsoleUI implements ModelListener
 	    new SampleListener() {
 		    public void update(double tps, double average,
 				       double peak, Statistics total) {
-			tpsLabel.setText(s_twoDPFormat.format(tps) + " TPS");
-			totalGraph.add(tps, average, peak, total);
+			final NumberFormat format = m_model.getNumberFormat();
+
+			tpsLabel.setText(format.format(tps) + " TPS");
+			totalGraph.add(tps, average, peak, total, format);
 		    }
 		}
 	    );
@@ -162,6 +160,26 @@ public class ConsoleUI implements ModelListener
 	    );
 
 	m_intervalLabel = new JLabel();
+
+	final JSlider sfSlider =
+	    new JSlider(1, 6, m_model.getSignificantFigures());
+	sfSlider.setMajorTickSpacing(1);
+	sfSlider.setPaintLabels(true);
+	sfSlider.setSnapToTicks(true);
+	sfSlider.setPreferredSize(new Dimension(0, 0));
+
+	sfSlider.addChangeListener(
+	    new ChangeListener() {
+		    public void stateChanged(ChangeEvent e) {
+			m_model.setSignificantFigures(sfSlider.getValue());
+		    }
+		}
+	    );
+
+	final JPanel sfPanel = new JPanel();
+	sfPanel.setLayout(new GridLayout(1, 0));
+	sfPanel.add(new JLabel("Significant figures:"));
+	sfPanel.add(sfSlider);
 
 	final IntegerField ignoreSampleField = new IntegerField(0, 999999);
 	ignoreSampleField.setValue(m_model.getIgnoreSampleCount());
@@ -221,6 +239,7 @@ public class ConsoleUI implements ModelListener
 	controlPanel.setLayout(new GridLayout(0, 1));
 	controlPanel.add(m_intervalLabel);
 	controlPanel.add(intervalSlider);
+	controlPanel.add(sfPanel);
 	controlPanel.add(textFieldPanel);
 	controlPanel.add(statePanel);
 	controlPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
@@ -426,7 +445,7 @@ public class ConsoleUI implements ModelListener
 	}
 
 	// Ignoring synchronisation issues for now.
-	final long sampleInterval = m_model.getSampleInterval();
+	final int sampleInterval = m_model.getSampleInterval();
 	final int ignoreCount = m_model.getIgnoreSampleCount();
 	final int collectCount = m_model.getCollectSampleCount();
 

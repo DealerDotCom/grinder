@@ -5,8 +5,6 @@ it too :-). The list is roughly in priority order.]
 
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 
-  Console controls: Number of SF.
-
   Update HTTPClient to measure "time to first byte" and "Time to last
   byte" as an alternitive to implementing timeIncludesTransaction.
 
