@@ -38,6 +38,7 @@ import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
@@ -134,7 +135,6 @@ final class FileTree {
     m_tree.getSelectionModel().setSelectionMode(
       TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-    // Left double-click -> open file.
     m_tree.addMouseListener(new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
           if (SwingUtilities.isLeftMouseButton(e)) {
@@ -146,18 +146,30 @@ final class FileTree {
             }
 
             final Object node = path.getLastPathComponent();
+            final int clickCount = e.getClickCount();
 
             if (node instanceof BufferTreeModel.BufferNode) {
-              selectBufferNode((BufferTreeModel.BufferNode)node);
+              final BufferTreeModel.BufferNode bufferNode =
+                (BufferTreeModel.BufferNode)node;
+
+              if (clickCount == 2) {
+                m_editorModel.setMarkedScript(
+                  bufferNode.getBuffer().getFile());
+              }
+
+              selectBufferNode(bufferNode);
             }
             else if (node instanceof FileTreeModel.FileNode) {
               final FileTreeModel.FileNode fileNode =
                 (FileTreeModel.FileNode)node;
 
-              final int clickCount = e.getClickCount();
+              final boolean fileOpen = fileNode.getBuffer() != null;
 
-              if (clickCount == 1 && fileNode.getBuffer() != null ||
-                  clickCount == 2) {
+              if (clickCount == 2 && fileOpen) {
+                m_editorModel.setMarkedScript(fileNode.getFile());
+              }
+
+              if (clickCount == 2 || clickCount == 1 && fileOpen) {
                 selectFileNode(fileNode);
               }
             }
@@ -197,6 +209,11 @@ final class FileTree {
   private class EditorModelListener implements EditorModel.Listener {
 
     public void bufferAdded(Buffer buffer) {
+      // When a file is opened, the new buffer causes the view to
+      // scroll down by one row. This feels wrong, so we compensate.
+      final int rowHeight = m_tree.getRowBounds(0).height;
+      final JScrollBar verticalScrollBar = m_scrollPane.getVerticalScrollBar();
+      verticalScrollBar.setValue(verticalScrollBar.getValue() + rowHeight);
     }
 
     public void bufferChanged(Buffer buffer) {
