@@ -193,17 +193,6 @@ public final class Acceptor {
     getListeners(connectionType).add(listener);
   }
 
-  private abstract class ListenerNotification {
-    public final void notify(final ConnectionType connectionType,
-                             final ConnectionIdentity connection) {
-
-    }
-
-    protected abstract void doNotification(Listener listener,
-                                           ConnectionType connectionType,
-                                           ConnectionIdentity connection);
-  }
-
   /**
    * Get a set of accepted connections.
    *
@@ -312,8 +301,7 @@ public final class Acceptor {
         m_exceptionQueue.queue(e);
       }
       catch (ThreadSafeQueue.ShutdownException shutdownException) {
-        // Should never happen.
-        shutdownException.printStackTrace();
+        // Can happen due to race condition with shutdown. Ignore.
       }
 
       try {
