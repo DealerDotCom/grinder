@@ -36,11 +36,9 @@ Allow files to be marked for distribution. Any file.
 Automatically detect, and mark, scripts.
 When new script is selected, unselect other script.
 
-Extend comms to allow files to be retrieved. Hash and cache at
-individual file level. The agent should retrieve the files and store
-on disk.
-
-How to send script - multicast is not the answer.
+Extend comms to allow files to be retrieved, see below. Hash and cache
+at individual file level at console. Changed files sent to all agents
+which pass to workers. Requires comms enhancement, see below.
 
 **** Plans
 
@@ -71,8 +69,20 @@ Consider forcing TestRunner to be registered with grinder.
 
 ** Communication
 
-Consider an alternative to multicast for console->worker
-communications.
+*** Multicast replacement scheme
+
+Replace multicast with TCP connection. Connection is established by
+the agent processes, and is used for requests from console. Agent
+passes requests to worker processes via input stream.
+
+	- Console no longer needs Grinder address.
+	- Removes need for multicast.
+	- Supports script distribution wiyhout need for synchronous
+	  channel.
+
+Might need threading scheme to handle "broadcast".
+
+Existing worker process -> console connection unchanged.
 
 ** TCPProxy
 
