@@ -4,20 +4,27 @@ The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
 
-Is ditching grinder.properties defined tests sensible?
+Is ditching grinder.properties defined tests sensible? Yes. Don't want
+dual maintenance. Cost is everyone needs jython.
 
 Separate out a PluginProcessContextImplementation? And for
 ThreadContext?
 
-Need to associate HTTPTest with plugin.
+Split script into declaration and usage? NO. Single test script is
+good - script needs thread specific handles to the tests. These are
+HTTPTests. In future, may be value in crystalising concept of
+"registered test" which is not thread specific.
 
-How important is the plugin lifecycle? Can plugins become libraries
-for HTTPTest etc to use? Hmmm.. thread callbacks seem important. But
-don't these just become the relevant subscript?
+Need to associate HTTPTest with plugin. Eventually there should be a
+PluginRegistry. The HTTPTest can get the plugin from the registry.
+Creating an HTTPTest should initialise the plugin if not already done.
+
+Try to get rid of StringBeans...
 
 When HTTPTest etc know about the plugin, where do the lifecycle (begin
-run etc) callbacks go? To all known plugins? Split script into
-declaration and usage?
+run etc) callbacks go? To all known plugins? Probably. How important
+is the plugin lifecycle? Can plugins become libraries for HTTPTest etc
+to use? Hmmm.. thread callbacks seem important.
 
 Abstract out a TestScheduler interface to allow other algorithms. Add
 a "random order" algorithm, which might work well with the JUnit
