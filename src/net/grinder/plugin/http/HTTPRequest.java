@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // Copyright (C) 2003 Bill Schnellinger
 // Copyright (C) 2003 Bertrand Ave
 // Copyright (C) 2004 John Stanford White
@@ -50,7 +50,6 @@ import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
-import net.grinder.script.StatisticsAlreadyReportedException;
 
 
 /**
@@ -898,9 +897,6 @@ public class HTTPRequest {
         }
       }
       catch (InvalidContextException e) {
-        throw new PluginException("Failed to set statistic", e);
-      }
-      catch (StatisticsAlreadyReportedException e) {
         throw new PluginException("Failed to set statistic", e);
       }
 
