@@ -1,5 +1,7 @@
 2001-02-16  Philip Aston  <paston@beasys.com>
 
+	* The Grinder 2.3.2 is released.
+
 	* build.xml: 
 	* src/net/grinder/Console.java: 
 	* src/net/grinder/console/Console.java: 
