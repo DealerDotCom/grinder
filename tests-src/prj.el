@@ -1,12 +1,13 @@
-; WHAT'S GOING ON, RELATIVE PATHS SEEM BROKEN FOR ALL BUT THE FIRST?
-(jde-set-project-name "Grinder tests")
+(load-file "/work/src/grinder/src/prj.el")
+
+(jde-set-project-name "The Grinder tests")
 (jde-set-variables 
- '(jde-global-classpath (quote ("../build/classes:/work/src/grinder/build/tests-classes:/opt/junit/junit3.5/junit.jar:/opt/jdk1.3/jre/lib/rt.jar")))
+ '(jde-global-classpath
+   (append '("../build/tests-classes"
+	     "../build/classes")
+	   jde-global-classpath))
 
- '(jde-run-option-classpath (quote ("../build/classes:/work/src/grinder/build/tests-classes:/opt/junit/junit3.5/junit.jar")))
-
- '(jde-db-option-classpath (quote ("../build/classes:/work/src/grinder/build/tests-classes:/opt/junit/junit3.5/junit.jar")))
- '(jde-db-source-directories (quote ("." "../src")))
+ '(jde-run-option-classpath jde-global-classpath)
 
  '(jde-compile-option-directory "../build/tests-classes")
 )
