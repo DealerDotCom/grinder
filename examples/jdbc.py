@@ -12,7 +12,7 @@ test1 = Test(1, "Database insert")
 test2 = Test(2, "Database query")
 
 # Load the Oracle JDBC driver.
-DriverManager.registerDriver(OracleDriver());
+DriverManager.registerDriver(OracleDriver())
 
 def getConnection():
     return DriverManager.getConnection(

@@ -260,7 +260,7 @@ request1 = test1.wrap(HTTPRequest(url=&quot;<span class="string">http://localhos
         grinder.logger.output(&quot;<span class="string">Content type set to %s</span>&quot; % headers[0].value)
 
         <span class="comment"># Call the version of POST that takes a byte array.
-</span>        result = request1.POST(&quot;<span class="string">/upload</span>&quot;, data, headers);
+</span>        result = request1.POST(&quot;<span class="string">/upload</span>&quot;, data, headers)
 </pre>
 </blockquote>
 
@@ -286,7 +286,7 @@ request1 = test1.wrap(HTTPRequest(url=&quot;<span class="string">http://localhos
 tests = {
     &quot;<span class="string">home</span>&quot; : Test(1, &quot;<span class="string">TraderHome</span>&quot;),
     &quot;<span class="string">trade</span>&quot; : Test(2, &quot;<span class="string">Trader buy/sell</span>&quot;),
-    &quot;<span class="string">query</span>&quot; : Test(3, &quot;<span class="string">Trader getBalance</span>&quot;),   
+    &quot;<span class="string">query</span>&quot; : Test(3, &quot;<span class="string">Trader getBalance</span>&quot;),
     }
 
 <span class="comment"># Initial context lookup for EJB home.
@@ -319,7 +319,7 @@ random = Random()
             log(&quot;<span class="string">Result of tradeTest.buy(): %s</span>&quot; % tradeResult)            
 
         queryTest = tests[&quot;<span class="string">query</span>&quot;].wrap(trader)
-        balance = queryTest.getBalance();
+        balance = queryTest.getBalance()
         log(&quot;<span class="string">Balance is $%.2f</span>&quot; % balance)
 
         trader.remove()                 <span class="comment"># We don't record the remove() as a test
@@ -351,7 +351,7 @@ test1 = Test(1, &quot;<span class="string">Database insert</span>&quot;)
 test2 = Test(2, &quot;<span class="string">Database query</span>&quot;)
 
 <span class="comment"># Load the Oracle JDBC driver.
-</span>DriverManager.registerDriver(OracleDriver());
+</span>DriverManager.registerDriver(OracleDriver())
 
 <span class="keyword">def</span> <span class="function-name">getConnection</span>():
     <span class="keyword">return</span> DriverManager.getConnection(
@@ -477,17 +477,17 @@ parser = javadom.XercesDomImplementation()
 <span class="keyword">from</span> java.lang <span class="keyword">import</span> System
 
 System.setProperty( &quot;<span class="string">javax.xml.rpc.ServiceFactory</span>&quot;,
- &quot;<span class="string">weblogic.webservice.core.rpc.ServiceFactoryImpl</span>&quot;);
+ &quot;<span class="string">weblogic.webservice.core.rpc.ServiceFactoryImpl</span>&quot;)
 
-webService = HelloWorld_Impl(&quot;<span class="string">http://localhost:7001/basic_javaclass/HelloWorld?WSDL</span>&quot;);
+webService = HelloWorld_Impl(&quot;<span class="string">http://localhost:7001/basic_javaclass/HelloWorld?WSDL</span>&quot;)
 
-port  = webService.getHelloWorldPort();
+port  = webService.getHelloWorldPort()
 portTest = Test(1, &quot;<span class="string">JAXP Port test</span>&quot;).wrap(port)
 
 <span class="keyword">class</span> <span class="type">TestRunner</span>:
     <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
         result = portTest.sayHello(grinder.threadID, grinder.grinderID);
-        grinder.logger.output(&quot;<span class="string">Got '%s'</span>&quot; % result);
+        grinder.logger.output(&quot;<span class="string">Got '%s'</span>&quot; % result)
 </pre>
 </blockquote>
 
@@ -871,7 +871,7 @@ tests = [Test(i, name).wrap(HttpTest(name))
 </span><span class="keyword">class</span> <span class="type">TestRunner</span>:
     <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
         <span class="keyword">for</span> t <span class="keyword">in</span> tests:
-            result = t.run();
+            result = t.run()
 
 </pre>
 </blockquote>

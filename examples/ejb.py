@@ -48,7 +48,7 @@ class TestRunner:
             log("Result of tradeTest.buy(): %s" % tradeResult)            
 
         queryTest = tests["query"].wrap(trader)
-        balance = queryTest.getBalance();
+        balance = queryTest.getBalance()
         log("Balance is $%.2f" % balance)
 
         trader.remove()                 # We don't record the remove() as a test

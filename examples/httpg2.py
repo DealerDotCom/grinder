@@ -147,7 +147,7 @@ for e in testProperties.entrySet():
     if not tests.get(n):
         tests[n] = G2HTTPTest(n, testProperties.getPropertySubset("%s." % n))
 
-sortedTests = tests.items();        
+sortedTests = tests.items()
 sortedTests.sort()
 
 # Our TestRunner simply iterates over the tests for each run.

@@ -36,5 +36,5 @@ tests = [Test(i, name).wrap(HttpTest(name))
 class TestRunner:
     def __call__(self):
         for t in tests:
-            result = t.run();
+            result = t.run()
 

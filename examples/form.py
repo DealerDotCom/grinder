@@ -25,4 +25,4 @@ class TestRunner:
         grinder.logger.output("Content type set to %s" % headers[0].value)
 
         # Call the version of POST that takes a byte array.
-        result = request1.POST("/upload", data, headers);
+        result = request1.POST("/upload", data, headers)

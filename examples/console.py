@@ -8,7 +8,7 @@ from java.util import Random
 r = Random()
 
 def doIt():
-    grinder.sleep(r.nextInt(100));
+    grinder.sleep(r.nextInt(100))
     pass
 
 tests = [ Test(i, "Test %s" % i).wrap(doIt) for i in range(0, 100) ]
