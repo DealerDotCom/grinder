@@ -1152,7 +1152,6 @@ public final class ConsoleUI implements ModelListener {
     }
 
     public void actionPerformed(ActionEvent event) {
-
       try {
         if (m_fileChooser.showOpenDialog(m_frame) ==
             JFileChooser.APPROVE_OPTION) {
@@ -1171,7 +1170,9 @@ public final class ConsoleUI implements ModelListener {
             file.mkdir();
           }
 
-          m_model.getProperties().setDistributionDirectory(file);
+          final ConsoleProperties properties = m_model.getProperties();
+          properties.setDistributionDirectory(file);
+          properties.saveDistributionDirectory();
         }
       }
       catch (Exception e) {

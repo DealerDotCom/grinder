@@ -523,8 +523,10 @@ public final class ConsoleProperties {
     if (!m_resetConsoleWithProcessesDontAsk) {
       setResetConsoleWithProcessesDontAskInternal(true);
 
+      m_properties.setBoolean(
+        RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY, true);
       m_properties.saveSingleProperty(
-        RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY, "true");
+        RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY);
     }
   }
 
@@ -557,8 +559,9 @@ public final class ConsoleProperties {
     if (!m_stopProcessesDontAsk) {
       setStopProcessesDontAskInternal(true);
 
-      m_properties.saveSingleProperty(
-        STOP_PROCESSES_DONT_ASK_PROPERTY, "true");
+      m_properties.setBoolean(STOP_PROCESSES_DONT_ASK_PROPERTY, true);
+      m_properties.saveSingleProperty(STOP_PROCESSES_DONT_ASK_PROPERTY);
+
     }
   }
 
@@ -628,6 +631,12 @@ public final class ConsoleProperties {
 
     m_changeSupport.firePropertyChange(
       DISTRIBUTION_DIRECTORY_PROPERTY, old, m_distributionDirectory);
+  }
+
+  public void saveDistributionDirectory() throws GrinderException {
+    m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
+                         m_distributionDirectory);
+    m_properties.saveSingleProperty(DISTRIBUTION_DIRECTORY_PROPERTY);
   }
 
   /**
