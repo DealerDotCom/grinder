@@ -427,7 +427,9 @@ what you want. Currently the conditionally built modules are:
       <sysproperty key="grinder.version" value="${version}"/>
       <sysproperty key="grinder.date" value="${TODAY}"/>
 
-      <batchtest>
+      <!-- Fork separate JVM's for tests to avoid OOMEs when running
+      with Clover. -->
+      <batchtest fork="true">
 	<formatter type="plain" usefile="false"/>
 
 	<fileset dir="${test-src.dir}">
