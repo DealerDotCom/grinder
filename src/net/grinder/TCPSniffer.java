@@ -28,10 +28,10 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Constructor;
 
 import net.grinder.plugin.http.HttpPluginSnifferFilter;
-import net.grinder.tools.proxy.HTTPProxySnifferEngine;
-import net.grinder.tools.proxy.HTTPSProxySnifferEngine;
 import net.grinder.tools.tcpsniffer.ConnectionDetails;
 import net.grinder.tools.tcpsniffer.EchoFilter;
+import net.grinder.tools.tcpsniffer.HTTPProxySnifferEngine;
+import net.grinder.tools.tcpsniffer.HTTPSProxySnifferEngine;
 import net.grinder.tools.tcpsniffer.NullFilter;
 import net.grinder.tools.tcpsniffer.SnifferEngine;
 import net.grinder.tools.tcpsniffer.SnifferEngineImplementation;
@@ -240,7 +240,7 @@ public class TCPSniffer
 
 	if (useSSL) {
 	    startMessage.append(
-		"\n (This could take a few seconds)");
+		"\n   (SSL setup could take a few seconds)");
 	}
 
 	System.err.println(startMessage);
@@ -300,8 +300,9 @@ public class TCPSniffer
 			       localPort);
 	}
 	catch (Exception e){
-	    System.err.println("Could not initialise engine: ");
+	    System.err.println("Could not initialise engine:");
 	    e.printStackTrace();
+	    System.exit(2);
 	}
     }
 
@@ -350,7 +351,6 @@ public class TCPSniffer
 	
     public void run() 
     {
-	System.err.println("Engine started");
 	m_snifferEngine.run();
 	System.err.println("Engine exited");
 	System.exit(0);
