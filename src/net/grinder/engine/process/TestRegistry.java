@@ -42,6 +42,8 @@ import net.grinder.statistics.TestStatisticsMap;
 
 
 /**
+ * Registry of Tests.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -49,6 +51,7 @@ public final class TestRegistry
 {
     private static TestRegistry s_instance;
 
+    private final PluginRegistry m_pluginRegistry;
     private final Sender m_consoleSender;
 
     /**
@@ -66,18 +69,19 @@ public final class TestRegistry
     private final TestStatisticsMap m_testStatisticsMap =
 	new TestStatisticsMap();
 
-
+    /**
+     * Singleton accessor.
+     */
     public static final TestRegistry getInstance()
     {
 	return s_instance;
     }
 
-
     /**
      * Constructor.
      */
-
-    TestRegistry(Sender consoleSender) throws EngineException
+    TestRegistry(PluginRegistry pluginRegistry, Sender consoleSender)
+	throws EngineException
     {
 	if (s_instance != null) {
 	    throw new EngineException("Already initialised");
@@ -85,11 +89,11 @@ public final class TestRegistry
 
 	s_instance = this;
 
+	m_pluginRegistry = pluginRegistry;
 	m_consoleSender = consoleSender;
     }
 
-    public RegisteredTest registerTest(GrinderPlugin plugin,
-				       InvokeableTest test)
+    public RegisteredTest register(Class pluginClass, InvokeableTest test)
 	throws GrinderException
     {
 	final TestData newTestData;
@@ -101,7 +105,10 @@ public final class TestRegistry
 		return existing;
 	    }
 	    else {
-		newTestData = new TestData(plugin, test);
+		PluginRegistry.RegisteredPlugin registeredPlugin =
+		    m_pluginRegistry.register(pluginClass);
+
+		newTestData = new TestData(registeredPlugin, test);
 		m_testMap.put(test, newTestData);
 		m_testStatisticsMap.put(test, newTestData.getStatistics());
 
@@ -115,7 +122,7 @@ public final class TestRegistry
 	return newTestData;
     }
 
-    public TestResult invokeTest(RegisteredTest registeredTest)
+    public TestResult invoke(RegisteredTest registeredTest)
 	throws GrinderException
     {
 	final TestData testData = (TestData)registeredTest;
@@ -139,7 +146,7 @@ public final class TestRegistry
 	return m_testStatisticsMap;
     }
 
-    public interface RegisteredTest
-    {
-    }
+    public interface RegisteredTest {
+	GrinderPlugin getPlugin();
+    };
 }

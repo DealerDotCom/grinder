@@ -48,14 +48,19 @@ public abstract class PluginTest
 
     private transient final TestRegistry.RegisteredTest m_registeredTest;
 
-    public PluginTest(GrinderPlugin plugin, int number, String description)
+    public PluginTest(Class pluginClass, int number, String description)
 	throws GrinderException
     {
 	m_number = number;
 	m_description = description;
 
 	m_registeredTest =
-	    TestRegistry.getInstance().registerTest(plugin, this);
+	    TestRegistry.getInstance().register(pluginClass, this);
+    }
+
+    public final GrinderPlugin getPlugin()
+    {
+	return m_registeredTest.getPlugin();
     }
 
     public final int getNumber()
@@ -75,6 +80,6 @@ public abstract class PluginTest
 
     public TestResult invoke() throws GrinderException
     {
-	return TestRegistry.getInstance().invokeTest(m_registeredTest);
+	return TestRegistry.getInstance().invoke(m_registeredTest);
     }
 }

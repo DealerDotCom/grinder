@@ -23,14 +23,14 @@
 package net.grinder.engine.process;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.plugininterface.PluginThreadCallbacks;
 import net.grinder.util.Sleeper;
 
 
@@ -52,8 +52,6 @@ class GrinderThread implements java.lang.Runnable
 
     private static short m_numberOfThreads = 0;
 
-    private static Random m_random = new Random();
-
     private final Monitor m_notifyOnCompletion;
     private final ThreadContext m_context;
     private final JythonScript.JythonRunnable m_jythonRunnable;
@@ -67,14 +65,12 @@ class GrinderThread implements java.lang.Runnable
     public GrinderThread(Monitor notifyOnCompletion,
 			 ProcessContext processContext,
 			 JythonScript jythonScript,
-			 int threadID, 
-			 ThreadCallbacks threadCallbacks)
+			 int threadID)
 	throws EngineException
     {
 	m_notifyOnCompletion = notifyOnCompletion;
 
-	m_context =
-	    new ThreadContext(processContext, threadID, threadCallbacks);
+	m_context = new ThreadContext(processContext, threadID);
 
 	m_jythonRunnable = jythonScript.new JythonRunnable();
 
@@ -99,21 +95,6 @@ class GrinderThread implements java.lang.Runnable
 	logger.setCurrentRunNumber(-1);
 
 	try {
-	    final ThreadCallbacks threadCallbackHandler =
-		m_context.getThreadCallbackHandler();
-
-	    try {
-		threadCallbackHandler.initialize(m_context);
-	    }
-	    catch (PluginException e) {
-		logger.logError("Plug-in initialize() threw " + e);
-		e.printStackTrace(logger.getErrorLogWriter());
-		return;
-	    }
-	    
-	    logger.logMessage("Initialized " +
-			      threadCallbackHandler.getClass().getName());
-
 	    m_context.getSleeper().sleepFlat(m_initialSleepTime);
 
 	    if (m_numberOfRuns == 0) {
@@ -132,26 +113,12 @@ class GrinderThread implements java.lang.Runnable
 	    {
 		logger.setCurrentRunNumber(currentRun);
 
-		try {
-		    threadCallbackHandler.beginRun();
-		}
-		catch (PluginException e) {
-		    logger.logError(
-			"Aborting run - plug-in beginRun() threw " + e);
-		    e.printStackTrace(logger.getErrorLogWriter());
-		    continue RUN_LOOP; // .. or should we abort the thread?
-		}
+		m_beginRunPluginThreadCaller.run();
 
 		// What exceptionhandling here?
 		m_jythonRunnable.run();
 
-		try {
-		    threadCallbackHandler.endRun();
-		}
-		catch (PluginException e) {
-		    logger.logError("Plugin endRun() threw: " + e);
-		    e.printStackTrace(logger.getErrorLogWriter());
-		}
+		m_endRunPluginThreadCaller.run();
 	    }
 
 	    logger.setCurrentRunNumber(-1);
@@ -195,4 +162,67 @@ class GrinderThread implements java.lang.Runnable
 	// We rely on everyone picking this up next time they sleep.
 	Sleeper.shutdownAllCurrentSleepers();
     }
+
+    private abstract class PluginThreadCaller
+    {
+	public void run() throws EngineException
+	{
+	    final Iterator iterator =
+		ProcessContext.getInstance().getPluginRegistry().
+		getPluginThreadCallbacksList(m_context).iterator();
+
+	    while (iterator.hasNext()) {
+		final PluginThreadCallbacks pluginThreadCallbacks =
+		    (PluginThreadCallbacks)iterator.next();
+		
+		doOne(pluginThreadCallbacks);
+	    }
+	}
+
+	protected abstract void doOne(
+	    PluginThreadCallbacks pluginThreadCallbacks)
+	    throws EngineException;
+    }
+
+    private final PluginThreadCaller m_beginRunPluginThreadCaller =
+	new PluginThreadCaller() {
+	    protected void doOne(PluginThreadCallbacks pluginThreadCallbacks)
+		throws EngineException {
+		try {
+		    pluginThreadCallbacks.beginRun();
+		}
+		catch (PluginException e) {
+		    final ThreadLogger logger = m_context.getThreadLogger();
+
+		    logger.logError(
+			"Aborting thread - " +
+			pluginThreadCallbacks.getClass().getName() +
+			".beginRun() threw " + e);
+		    e.printStackTrace(logger.getErrorLogWriter());
+
+		    throw new EngineException("Thread could not begin run", e);
+		}
+	    }
+	};
+
+    private final PluginThreadCaller m_endRunPluginThreadCaller =
+	new PluginThreadCaller() {
+	    protected void doOne(PluginThreadCallbacks pluginThreadCallbacks)
+		throws EngineException {
+		try {
+		    pluginThreadCallbacks.endRun();
+		}
+		catch (PluginException e) {
+		    final ThreadLogger logger = m_context.getThreadLogger();
+
+		    logger.logError(
+			"Aborting thread - " +
+			pluginThreadCallbacks.getClass().getName() +
+			".endRun() threw " + e);
+		    e.printStackTrace(logger.getErrorLogWriter());
+
+		    throw new EngineException("Thread could not end run", e);
+		}
+	    }
+	};
 }

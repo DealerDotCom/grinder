@@ -23,7 +23,6 @@
 package net.grinder.plugininterface;
 
 import net.grinder.common.Test;
-import net.grinder.common.GrinderProperties;
 
 
 /**
@@ -33,7 +32,7 @@ import net.grinder.common.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface ThreadCallbacks
+public interface PluginThreadCallbacks
 {
     /**
      * This method is executed when the thread starts. It is only

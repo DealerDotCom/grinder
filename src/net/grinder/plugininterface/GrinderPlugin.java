@@ -51,6 +51,6 @@ public interface GrinderPlugin
     /**
      * This method is called to create a handler for each thread.
      */
-    public ThreadCallbacks createThreadCallbackHandler()
+    public PluginThreadCallbacks createThreadCallbackHandler()
 	throws PluginException;
 }

@@ -29,8 +29,8 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.PluginThreadCallbacks;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpression;
@@ -49,7 +49,6 @@ final class ThreadContext implements PluginThreadContext
 {
     private final static ThreadLocal s_threadInstance = new ThreadLocal();
 
-    private final ThreadCallbacks m_threadCallbackHandler;
     private final ThreadLogger m_threadLogger;
     private final PrintWriter m_dataWriter;
     private final FilenameFactory m_filenameFactory;
@@ -70,12 +69,9 @@ final class ThreadContext implements PluginThreadContext
 
     private StringBuffer m_scratchBuffer = new StringBuffer();
 
-    public ThreadContext(ProcessContext processContext, int threadID,
-			 ThreadCallbacks threadCallbackHandler)
+    public ThreadContext(ProcessContext processContext, int threadID)
 	throws EngineException
     {
-	m_threadCallbackHandler = threadCallbackHandler;
-
 	final LoggerImplementation loggerImplementation =
 	    processContext.getLoggerImplementation();
 
@@ -184,13 +180,8 @@ final class ThreadContext implements PluginThreadContext
 	return m_threadLogger;
     }
 
-    final ThreadCallbacks getThreadCallbackHandler()
-    {
-	return m_threadCallbackHandler;
-    }
-
     final TestResult invokeTest(TestData testData)
-	throws PluginException, Sleeper.ShutdownException
+	throws EngineException, PluginException, Sleeper.ShutdownException
     {
 	m_testResult.reset();
 	m_currentTestStatistics.reset();
@@ -202,10 +193,14 @@ final class ThreadContext implements PluginThreadContext
 	    test.getParameters().getLong("sleepTime", m_defaultSleepTime));
 
 	try {
+	    final PluginThreadCallbacks pluginThreadCallbacks =
+		testData.getRegisteredPlugin().getPluginThreadCallbacks(this);
+
 	    startTimer();
 
 	    try {
-		m_testResult.setSuccess(m_threadCallbackHandler.doTest(test));
+		m_testResult.setSuccess(
+		    pluginThreadCallbacks.doTest(test));
 	    }
 	    finally {
 		stopTimer();

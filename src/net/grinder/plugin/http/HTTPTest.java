@@ -33,20 +33,16 @@ import net.grinder.plugininterface.PluginTest;
  */ 
 public class HTTPTest extends PluginTest
 {
-    /* private */ static /* final */ HttpPlugin s_plugin;
-    
-    //	= Blah.register(HttpPlugin.KEY, HttpPlugin.class);
-
     private final String m_url;
 
     public HTTPTest(int number, String description, String url)
 	throws GrinderException
     {
-	super(s_plugin, number, description);
+	super(HttpPlugin.class, number, description);
 
 	m_url = url;
 
-	s_plugin.registerTest(this); 	// Temporary.
+	((HttpPlugin)getPlugin()).registerTest(this); 	// Temporary.
     }
 
     public final String getURL() 

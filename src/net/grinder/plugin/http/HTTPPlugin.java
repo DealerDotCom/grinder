@@ -42,8 +42,8 @@ import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginTest;
+import net.grinder.plugininterface.PluginThreadCallbacks;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.script.TestResult;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsIndexMap;
@@ -77,8 +77,6 @@ public class HttpPlugin implements GrinderPlugin
     public void initialize(PluginProcessContext processContext)
 	throws PluginException
     {
-	HTTPTest.s_plugin = this;
-
 	m_processContext = processContext;
 
 	final GrinderProperties parameters =
@@ -160,7 +158,7 @@ public class HttpPlugin implements GrinderPlugin
 	}
     }
 
-    public ThreadCallbacks createThreadCallbackHandler()
+    public PluginThreadCallbacks createThreadCallbackHandler()
 	throws PluginException
     {
 	return new HTTPPluginThreadCallbacks();
@@ -411,7 +409,7 @@ public class HttpPlugin implements GrinderPlugin
 	}
     }
 
-    protected class HTTPPluginThreadCallbacks implements ThreadCallbacks
+    protected class HTTPPluginThreadCallbacks implements PluginThreadCallbacks
     {
 	private Map m_threadData;
 

@@ -60,6 +60,7 @@ class ProcessContext implements PluginProcessContext
     private final LoggerImplementation m_loggerImplementation;
     private final Logger m_processLogger;
     private final Sender m_consoleSender;
+    private final PluginRegistry m_pluginRegistry;
     private final TestRegistry m_testRegistry;
 
     private boolean m_shouldWriteTitleToDataWriter;
@@ -135,7 +136,9 @@ class ProcessContext implements PluginProcessContext
 		};
 	}
 
-	m_testRegistry = new TestRegistry(getConsoleSender());
+	m_pluginRegistry = new PluginRegistry();
+	m_testRegistry =
+	    new TestRegistry(m_pluginRegistry, getConsoleSender());
     }
 
     void initialiseDataWriter()
@@ -167,6 +170,11 @@ class ProcessContext implements PluginProcessContext
     final LoggerImplementation getLoggerImplementation()
     {
 	return m_loggerImplementation;
+    }
+
+    final PluginRegistry getPluginRegistry()
+    {
+	return m_pluginRegistry;
     }
 
     final TestRegistry getTestRegistry()

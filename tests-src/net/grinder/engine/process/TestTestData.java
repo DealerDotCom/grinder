@@ -33,7 +33,6 @@ import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.StubGrinderPlugin;
-import net.grinder.plugininterface.ThreadCallbacks;
 
 
 /**
@@ -57,10 +56,15 @@ public class TestTestData extends TestCase
     public void testTestData() throws Exception
     {
 	final GrinderPlugin plugin = new StubGrinderPlugin();
+
+	final PluginRegistry.RegisteredPlugin registeredPlugin =
+	    new PluginRegistry.RegisteredPlugin(plugin);
 	
 	final Test test1 = new StubTest(99, "Some stuff");
 	
-	final TestData testData1 = new TestData(plugin, test1);
+	final TestData testData1 =
+	    new TestData(registeredPlugin, test1);
+	assertEquals(registeredPlugin, testData1.getRegisteredPlugin());
 	assertEquals(plugin, testData1.getPlugin());
 	assertEquals(test1, testData1.getTest());
 	assertNotNull(testData1.getStatistics());
@@ -68,7 +72,9 @@ public class TestTestData extends TestCase
 	final Test test2 = new StubTest(-33, "");
 	test2.getParameters().put("Something", "blah");
 
-	final TestData testData2 = new TestData(plugin, test2);
+	final TestData testData2 =
+	    new TestData(registeredPlugin, test2);
+	assertEquals(registeredPlugin, testData2.getRegisteredPlugin());
 	assertEquals(plugin, testData2.getPlugin());
 	assertEquals(test2, testData2.getTest());
 	assertNotNull(testData2.getStatistics());

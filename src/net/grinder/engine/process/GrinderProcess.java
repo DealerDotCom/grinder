@@ -42,8 +42,6 @@ import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ReportStatusMessage;
 import net.grinder.communication.Sender;
 import net.grinder.engine.EngineException;
-import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.StatisticsView;
@@ -113,8 +111,6 @@ public final class GrinderProcess implements Monitor
     private final ConsoleListener m_consoleListener;
     private final int m_reportToConsoleInterval;
 
-    private final GrinderPlugin m_plugin;
-
     private int m_lastMessagesReceived = 0;
 
     public GrinderProcess(String grinderID, File propertiesFile)
@@ -140,42 +136,6 @@ public final class GrinderProcess implements Monitor
 	m_consoleListener =
 	    properties.getBoolean("grinder.receiveConsoleSignals", true) ?
 	    new ConsoleListener(properties, this, m_context): null;
-
-	// Parse plugin class.
-	m_plugin = instantiatePlugin();
-    }
-
-    private final GrinderPlugin instantiatePlugin() throws GrinderException
-    {
-	final String pluginClassName =
-	    m_context.getProperties().getMandatoryProperty("grinder.plugin");
-
-	try {
-	    final Class pluginClass = Class.forName(pluginClassName);
-
-	    if (!GrinderPlugin.class.isAssignableFrom(pluginClass)) {
-		throw new GrinderException(
-		    "The specified plugin class ('" + pluginClass.getName() +
-		    "') does not implement the interface '" +
-		    GrinderPlugin.class.getName() + "'");
-	    }
-
-	    final GrinderPlugin plugin =
-		(GrinderPlugin)pluginClass.newInstance();
-
-	    plugin.initialize(m_context);
-
-	    return plugin;
-	}
-	catch(ClassNotFoundException e){
-	    throw new EngineException(
-		"The specified plug-in class was not found.", e);
-	}
-	catch (Exception e){
-	    throw new EngineException(
-		"An instance of the specified plug-in class " +
-		"could not be created.", e);
-	}
     }
 
     /**
@@ -203,12 +163,7 @@ public final class GrinderProcess implements Monitor
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
 
 	for (int i=0; i<m_numberOfThreads; i++) {
-	    final ThreadCallbacks threadCallbacks =
-		m_plugin.createThreadCallbackHandler();
-
-	    runnable[i] =
-		new GrinderThread(this, m_context, jythonScript, i, 
-				  threadCallbacks);
+	    runnable[i] = new GrinderThread(this, m_context, jythonScript, i);
 	}
 
 	final Sender consoleSender = m_context.getConsoleSender();

@@ -39,7 +39,6 @@ import javax.net.ssl.SSLSocketFactory;
 import net.grinder.common.GrinderProperties;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
-import net.grinder.plugininterface.ThreadCallbacks;
 
 
 /**

@@ -37,7 +37,7 @@ public class StubTestRegistryInitialisation
     public static void initialise() throws Exception
     {
 	if (!s_initialised) {
-	    new TestRegistry(new StubSender());
+	    new TestRegistry(new PluginRegistry(), new StubSender());
 	    s_initialised = true;
 	}
     }

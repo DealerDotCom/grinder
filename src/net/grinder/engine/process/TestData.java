@@ -39,20 +39,21 @@ import net.grinder.statistics.TestStatisticsFactory;
  **/
 final class TestData implements TestRegistry.RegisteredTest
 {
-    private final GrinderPlugin m_plugin;
+    private final PluginRegistry.RegisteredPlugin m_registeredPlugin;
     private final Test m_test;
     private final TestStatistics m_statistics;
 
-    TestData(GrinderPlugin plugin, Test testDefinition)
+    TestData(PluginRegistry.RegisteredPlugin registeredPlugin,
+	     Test testDefinition)
     {
-	m_plugin = plugin;
+	m_registeredPlugin = registeredPlugin;
 	m_test = testDefinition;
 	m_statistics = TestStatisticsFactory.getInstance().create();
     }
 
-    final GrinderPlugin getPlugin() 
+    final PluginRegistry.RegisteredPlugin getRegisteredPlugin() 
     {
-	return m_plugin;
+	return m_registeredPlugin;
     }
 
     final Test getTest()
@@ -63,5 +64,10 @@ final class TestData implements TestRegistry.RegisteredTest
     final TestStatistics getStatistics() 
     {
 	return m_statistics;
+    }
+
+    public final GrinderPlugin getPlugin()
+    {
+	return m_registeredPlugin.getPlugin();
     }
 }

@@ -55,8 +55,6 @@ public class TestPluginTest extends TestCase
 	super(name);
     }
 
-    GrinderPlugin m_plugin = new StubGrinderPlugin();
-
     protected void setUp() throws Exception 
     {
 	StubTestRegistryInitialisation.initialise();
@@ -64,8 +62,7 @@ public class TestPluginTest extends TestCase
 
     public void testGetters() throws Exception
     {
-	final PluginTest pluginTest  =
-	    new MyPluginTest(m_plugin, 1, "description");
+	final PluginTest pluginTest  = new MyPluginTest(1, "description");
 
 	assertEquals(1, pluginTest.getNumber());
 	assertEquals("description", pluginTest.getDescription());
@@ -89,7 +86,7 @@ public class TestPluginTest extends TestCase
 
 	while (keyIterator.hasNext()) {
 	    final int i = ((Integer)keyIterator.next()).intValue();
-	    sorted.add(new MyPluginTest(m_plugin, i, Integer.toString(i)));
+	    sorted.add(new MyPluginTest(i, Integer.toString(i)));
 	}
 	
 	final Iterator sortedIterator = sorted.iterator();
@@ -104,9 +101,9 @@ public class TestPluginTest extends TestCase
     public void testEquality() throws Exception
     {
 	// Equality depends only on test number.
-	final PluginTest t1 = new MyPluginTest(m_plugin, 57, "one thing");
-	final PluginTest t2 = new MyPluginTest(m_plugin, 57, "leads to");
-	final PluginTest t3 = new MyPluginTest(m_plugin, 58, "another");
+	final PluginTest t1 = new MyPluginTest(57, "one thing");
+	final PluginTest t2 = new MyPluginTest(57, "leads to");
+	final PluginTest t3 = new MyPluginTest(58, "another");
 
 	assertEquals(t1, t2);
 	assertEquals(t2, t1);
@@ -118,7 +115,7 @@ public class TestPluginTest extends TestCase
 
     public void testIsSerializable() throws Exception
     {
-	final PluginTest pluginTest = new MyPluginTest(m_plugin, 123, "test");
+	final PluginTest pluginTest = new MyPluginTest(123, "test");
 
 	final ByteArrayOutputStream byteArrayOutputStream =
 	    new ByteArrayOutputStream();
@@ -131,11 +128,10 @@ public class TestPluginTest extends TestCase
 
     static class MyPluginTest extends PluginTest
     {
-	public MyPluginTest(GrinderPlugin plugin, int number,
-			    String description)
+	public MyPluginTest(int number, String description)
 	    throws Exception
 	{
-	    super(plugin, number, description);
+	    super(StubGrinderPlugin.class, number, description);
 	}
     }
 }
