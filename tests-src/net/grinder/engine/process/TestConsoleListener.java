@@ -28,7 +28,7 @@ import junit.swingui.TestRunner;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.LogCounter;
 import net.grinder.common.Logger;
-import net.grinder.communication.MulticastSender;
+//import net.grinder.communication.MulticastSender;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
@@ -67,7 +67,7 @@ public class TestConsoleListener extends TestCase
 	m_properties.put("grinder.grinderAddress", "233.1.1.1");
 	m_properties.setInt("grinder.grinderPort", 9999);
 
-	m_sender = new MulticastSender("Test Sender", "233.1.1.1", 9999);
+        //	m_sender = new MulticastSender("Test Sender", "233.1.1.1", 9999);
     }
 
     public void testConstruction() throws Exception
