@@ -56,10 +56,10 @@ public class TestStatisticsIndexMap extends TestCase {
       new StatisticsIndexMap.LongIndex[data.length];
 
     for (int i = 0; i < data.length; i++) {
-      longResults[i] = m_indexMap.getIndexForLong(data[i]);
+      longResults[i] = m_indexMap.getLongIndex(data[i]);
 
-      assertTrue(m_indexMap.isLongIndex(data[i]));
-      assertTrue(!m_indexMap.isDoubleIndex(data[i]));
+      assertNotNull(m_indexMap.getLongIndex(data[i]));
+      assertNull(m_indexMap.getDoubleIndex(data[i]));
 
       for (int j = 0; j < i; ++j) {
         assertTrue(longResults[i].getValue() != longResults[j].getValue());
@@ -67,7 +67,7 @@ public class TestStatisticsIndexMap extends TestCase {
     }
 
     for (int i = 0; i < data.length; i++) {
-      assertEquals(longResults[i].getValue(), m_indexMap.getIndexForLong(
+      assertEquals(longResults[i].getValue(), m_indexMap.getLongIndex(
           data[i]).getValue());
     }
   }
@@ -80,10 +80,10 @@ public class TestStatisticsIndexMap extends TestCase {
       new StatisticsIndexMap.DoubleIndex[data.length];
 
     for (int i = 0; i < data.length; i++) {
-      doubleResults[i] = m_indexMap.getIndexForDouble(data[i]);
+      doubleResults[i] = m_indexMap.getDoubleIndex(data[i]);
 
-      assertTrue(m_indexMap.isDoubleIndex(data[i]));
-      assertTrue(!m_indexMap.isLongIndex(data[i]));
+      assertNotNull(m_indexMap.getDoubleIndex(data[i]));
+      assertNull(m_indexMap.getLongIndex(data[i]));
 
       for (int j = 0; j < i; ++j) {
         assertTrue(doubleResults[i].getValue() != doubleResults[j].getValue());
@@ -91,38 +91,8 @@ public class TestStatisticsIndexMap extends TestCase {
     }
 
     for (int i = 0; i < data.length; i++) {
-      assertEquals(doubleResults[i].getValue(), m_indexMap.getIndexForDouble(
+      assertEquals(doubleResults[i].getValue(), m_indexMap.getDoubleIndex(
           data[i]).getValue());
-    }
-  }
-
-  public void testExceptions() throws Exception {
-    try {
-      m_indexMap.getIndexForDouble("madeup");
-      fail("Expected GrinderException");
-    }
-    catch (GrinderException e) {
-    }
-
-    try {
-      m_indexMap.getIndexForDouble("userLong0");
-      fail("Expected GrinderException");
-    }
-    catch (GrinderException e) {
-    }
-
-    try {
-      m_indexMap.getIndexForLong("madeup");
-      fail("Expected GrinderException");
-    }
-    catch (GrinderException e) {
-    }
-
-    try {
-      m_indexMap.getIndexForLong("userDouble3");
-      fail("Expected GrinderException");
-    }
-    catch (GrinderException e) {
     }
   }
 }

@@ -41,11 +41,11 @@ public class TestTestStatisticsImplementation extends TestCase {
     final StatisticsIndexMap statisticsIndexMap =
       StatisticsIndexMap.getInstance();
     final StatisticsIndexMap.LongIndex errorStatisticIndex =
-      statisticsIndexMap.getIndexForLong("errors");
+      statisticsIndexMap.getLongIndex("errors");
     final StatisticsIndexMap.LongIndex untimedTestsIndex =
-      statisticsIndexMap.getIndexForLong("untimedTests");
+      statisticsIndexMap.getLongIndex("untimedTests");
     final StatisticsIndexMap.LongSampleIndex timedTestsIndex =
-      statisticsIndexMap.getIndexForLongSample("timedTests");
+      statisticsIndexMap.getLongSampleIndex("timedTests");
 
 	final TestStatistics testStatistics1 =
 	    new TestStatisticsImplementation();

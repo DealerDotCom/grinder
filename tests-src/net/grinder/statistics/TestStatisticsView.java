@@ -26,8 +26,10 @@ import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Comparator;
 
 import net.grinder.statistics.RawStatistics;
 
@@ -40,10 +42,6 @@ import net.grinder.statistics.RawStatistics;
  * @see RawStatistics
  */
 public class TestStatisticsView extends TestCase {
-
-  public TestStatisticsView(String name) {
-	super(name);
-  }
 
   private ExpressionView[] m_views;
   private int m_numberOfUniqueViews;
@@ -65,7 +63,7 @@ public class TestStatisticsView extends TestCase {
 
 	assertEquals(0, statisticsView.getExpressionViews().length);
 
-	for (int i=0; i<m_views.length; ++i) {
+	for (int i = 0; i < m_views.length; ++i) {
 	    statisticsView.add(m_views[i]);
 	}
 
@@ -79,6 +77,24 @@ public class TestStatisticsView extends TestCase {
 	assertEquals(m_views[1], expressionViews[1]);
 	assertEquals(m_views[2], expressionViews[2]);
 	assertEquals(m_views[3], expressionViews[3]);
+  
+	// Again, adding in a different order. 
+	final StatisticsView statisticsView2 = new StatisticsView();
+
+	for (int i = m_views.length - 1; i >= 0; --i) {
+      statisticsView2.add(m_views[(2 + i) % m_views.length]);
+	}
+
+	final ExpressionView[] expressionViews2 =
+	  statisticsView.getExpressionViews();
+
+	assertEquals(m_numberOfUniqueViews, expressionViews2.length);
+  
+	// Ordered in order of creation.
+	assertEquals(m_views[0], expressionViews2[0]);
+	assertEquals(m_views[1], expressionViews2[1]);
+	assertEquals(m_views[2], expressionViews2[2]);
+	assertEquals(m_views[3], expressionViews2[3]);
   }
 
   public void testAddStatisticsView() throws Exception {
@@ -141,5 +157,31 @@ public class TestStatisticsView extends TestCase {
 	assertEquals(original2.getExpressionViews().length,
 		     received2.getExpressionViews().length);
 	assertTrue(original2 != received2);
+  
+	final ByteArrayOutputStream invalidBytes = new ByteArrayOutputStream();
+	final ObjectOutputStream invalidOut = new ObjectOutputStream(invalidBytes);
+	invalidOut.writeInt(1);
+	invalidOut.writeUTF("name");
+	invalidOut.writeUTF("key");
+	invalidOut.writeUTF("(invalidExpression");
+	invalidOut.close();
+	final ObjectInputStream invalidInputStream =
+	  new ObjectInputStream(
+        new ByteArrayInputStream(invalidBytes.toByteArray()));
+	final StatisticsView received3 = new StatisticsView();
+  
+	try {
+	  received3.readExternal(invalidInputStream);
+	  fail("Expected IOException");
+	}
+	catch (IOException e) {
+	}
+  }
+
+  public void testComparator() throws Exception {
+    // Test the parts of the Comparator that the normal use cases don't reach.
+    final Comparator comparator = new StatisticsView.CreationOrderComparator();
+    
+    assertEquals(0, comparator.compare(m_views[0], m_views[0]));
   }
 }

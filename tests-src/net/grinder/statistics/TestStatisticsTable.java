@@ -39,9 +39,6 @@ import net.grinder.common.Test;
  * @see RawStatistics
  */
 public class TestStatisticsTable extends TestCase {
-  public TestStatisticsTable(String name) {
-	super(name);
-  }
 
   private TestStatisticsMap m_testStatisticsMap;
 
@@ -53,9 +50,9 @@ public class TestStatisticsTable extends TestCase {
 	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
 	final StatisticsIndexMap.LongIndex aIndex =
-	    indexMap.getIndexForLong("userLong0");
+	    indexMap.getLongIndex("userLong0");
 	final StatisticsIndexMap.LongIndex bIndex =
-	    indexMap.getIndexForLong("userLong1");
+	    indexMap.getLongIndex("userLong1");
 
 	final ExpressionView[] expressionViews = {
 	    new ExpressionView("A", "", "userLong0"),
@@ -73,7 +70,7 @@ public class TestStatisticsTable extends TestCase {
 
 	final Test[] tests = {
 	    new StubTest(9, "Test 9"),
-	    new StubTest(3, "Test 3"),
+	    new StubTest(3, null),
 	    new StubTest(113, "Another test"),
 	};
 
@@ -100,7 +97,7 @@ public class TestStatisticsTable extends TestCase {
 	in.println("             A            B            A plus B     A divided by ");
 	in.println("                                                    B            ");
 	in.println();
-	in.println("Test 3       1            2            3            0.50          \"Test 3\"");
+	in.println("Test 3       1            2            3            0.50         ");
 	in.println("Test 9       0            1            1            0.00          \"Test 9\"");
 	in.println("Test 113     2            3            5            0.67          \"Another test\"");
 	in.println();

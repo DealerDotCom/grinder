@@ -79,6 +79,7 @@ public class TestExpressionView extends TestCase {
                          "(+ userLong0 userLong1)"),
     };
 
+    assertEquals(views[0], views[0]);
     assertEquals(views[0], views[1]);
     assertEquals(views[1], views[0]);
     assertTrue(!views[0].equals(views[2]));

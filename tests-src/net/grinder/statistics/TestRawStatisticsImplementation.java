@@ -56,12 +56,12 @@ public class TestRawStatisticsImplementation extends TestCase {
   protected void setUp() throws Exception {
 	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
-	m_longIndex0 = indexMap.getIndexForLong("userLong0");
-	m_longIndex1 = indexMap.getIndexForLong("userLong1");
-	m_longIndex2 = indexMap.getIndexForLong("userLong2");
-	m_doubleIndex0 = indexMap.getIndexForDouble("userDouble0");
-	m_doubleIndex1 = indexMap.getIndexForDouble("userDouble1");
-	m_doubleIndex2 = indexMap.getIndexForDouble("userDouble2");
+	m_longIndex0 = indexMap.getLongIndex("userLong0");
+	m_longIndex1 = indexMap.getLongIndex("userLong1");
+	m_longIndex2 = indexMap.getLongIndex("userLong2");
+	m_doubleIndex0 = indexMap.getDoubleIndex("userDouble0");
+	m_doubleIndex1 = indexMap.getDoubleIndex("userDouble1");
+	m_doubleIndex2 = indexMap.getDoubleIndex("userDouble2");
   }
 
   public void testCreation() {
@@ -69,24 +69,24 @@ public class TestRawStatisticsImplementation extends TestCase {
 	    new RawStatisticsImplementation();
 
 	assertEquals(0, statistics.getValue(m_longIndex1));
-	myAssertEquals(0d, statistics.getValue(m_doubleIndex2));
+	assertDoublesEqual(0d, statistics.getValue(m_doubleIndex2));
   }
 
-  public void testReset() {
+  public void testReset() throws Exception {
 	final RawStatisticsImplementation statistics0 =
 	    new RawStatisticsImplementation();
 
 	statistics0.setValue(m_longIndex2, 700);
 	statistics0.setValue(m_doubleIndex2, -0.9999);
 	assertEquals(700, statistics0.getValue(m_longIndex2));
-	myAssertEquals(-0.9999d, statistics0.getValue(m_doubleIndex2));
+	assertDoublesEqual(-0.9999d, statistics0.getValue(m_doubleIndex2));
 
 	statistics0.reset();
 	assertEquals(0, statistics0.getValue(m_longIndex2));
-	myAssertEquals(0d, statistics0.getValue(m_doubleIndex2));
+	assertDoublesEqual(0d, statistics0.getValue(m_doubleIndex2));
   }
 
-  public void testGetValueSetValueAndEquals() {
+  public void testGetValueSetValueAndEquals() throws Exception {
 	final RawStatisticsImplementation statistics0 =
 	    new RawStatisticsImplementation();
 	final RawStatisticsImplementation statistics1 =
@@ -115,13 +115,12 @@ public class TestRawStatisticsImplementation extends TestCase {
 	assertEquals(statistics1, statistics1);
 
 	statistics0.setValue(m_longIndex2, 0);
-	assertEquals(statistics0, statistics1);	// Statistics1.getValue(m_longIndex2)
-						// defaults to 0.
+	assertEquals(statistics0, statistics1);
 
 	statistics0.setValue(m_doubleIndex2, 7.00d);
-	myAssertEquals(7.00d, statistics0.getValue(m_doubleIndex2));
+	assertDoublesEqual(7.00d, statistics0.getValue(m_doubleIndex2));
 	statistics0.setValue(m_doubleIndex2, 3.00d);
-	myAssertEquals(3.00d, statistics0.getValue(m_doubleIndex2));
+	assertDoublesEqual(3.00d, statistics0.getValue(m_doubleIndex2));
 	assertTrue(!statistics0.equals(statistics1));
 
 	statistics1.setValue(m_doubleIndex2, 5.00d);
@@ -138,11 +137,10 @@ public class TestRawStatisticsImplementation extends TestCase {
 	assertEquals(statistics1, statistics1);
 
 	statistics0.setValue(m_doubleIndex1, 0);
-	assertEquals(statistics0, statistics1);	// Statistics1.getValue(m_longIndex1)
-						// defaults to 0.
+	assertEquals(statistics0, statistics1);
   }
 
-  public void testAddValue() {
+  public void testAddValue() throws Exception {
     final RawStatisticsImplementation statistics0 =
       new RawStatisticsImplementation();
     final RawStatisticsImplementation statistics1 =
@@ -190,7 +188,159 @@ public class TestRawStatisticsImplementation extends TestCase {
 	assertEquals(statistics0, statistics1);
 
 	assertEquals(200, statistics0.getValue(m_longIndex0));
-	myAssertEquals(-11d, statistics0.getValue(m_doubleIndex2));
+	assertDoublesEqual(-11d, statistics0.getValue(m_doubleIndex2));
+  }
+
+  public void testSnapshot() throws Exception {
+    final Random random = new Random();
+
+    final RawStatisticsImplementation original =
+      new RawStatisticsImplementation();
+    original.addValue(m_longIndex0, 10);
+    original.setValue(m_doubleIndex2, 3);
+    
+    final RawStatistics snapshot = original.snapshot();
+    
+    assertDoublesEqual(3d, snapshot.getValue(m_doubleIndex2));
+    assertEquals(0, snapshot.getValue(m_longIndex1));
+    assertEquals(10, snapshot.getValue(m_longIndex0));
+    
+    assertDoublesEqual(3d, original.getValue(m_doubleIndex2));
+    assertEquals(0, original.getValue(m_longIndex1));
+    assertEquals(10, original.getValue(m_longIndex0));
+    
+    original.addValue(m_longIndex0, 5);
+    original.addValue(m_doubleIndex0, 20);
+    snapshot.addValue(m_longIndex0, 1);
+
+    assertDoublesEqual(3d, snapshot.getValue(m_doubleIndex2));
+    assertEquals(0, snapshot.getValue(m_longIndex1));
+    assertEquals(11, snapshot.getValue(m_longIndex0));
+
+    assertDoublesEqual(3d, original.getValue(m_doubleIndex2));
+    assertDoublesEqual(20d, original.getValue(m_doubleIndex0));
+    assertEquals(0, original.getValue(m_longIndex1));
+    assertEquals(15, original.getValue(m_longIndex0));
+  }
+  
+  public void testLongSampleReadAndWrite() throws Exception {
+    final RawStatistics rawStatistics0 =
+      new RawStatisticsImplementation();
+
+    final StatisticsIndexMap map = StatisticsIndexMap.getInstance();
+    final StatisticsIndexMap.LongSampleIndex longSampleIndex =
+      map.getLongSampleIndex("timedTests");
+    
+    assertEquals(0, rawStatistics0.getSum(longSampleIndex));
+    assertEquals(0, rawStatistics0.getCount(longSampleIndex));
+    assertDoublesEqual(0d, rawStatistics0.getVariance(longSampleIndex));
+
+    rawStatistics0.addSample(longSampleIndex, 0);
+    assertEquals(0, rawStatistics0.getSum(longSampleIndex));
+    assertEquals(1, rawStatistics0.getCount(longSampleIndex));
+    assertDoublesEqual(0d, rawStatistics0.getVariance(longSampleIndex));
+
+    rawStatistics0.addSample(longSampleIndex, 5);
+    assertEquals(5, rawStatistics0.getSum(longSampleIndex));
+    assertEquals(2, rawStatistics0.getCount(longSampleIndex));
+    assertDoublesEqual(6.25, rawStatistics0.getVariance(longSampleIndex));
+
+    rawStatistics0.addSample(longSampleIndex, 1);
+    assertEquals(6, rawStatistics0.getSum(longSampleIndex));
+    assertEquals(3, rawStatistics0.getCount(longSampleIndex));
+    assertDoublesEqual(14/3d, rawStatistics0.getVariance(longSampleIndex));
+
+    rawStatistics0.reset(longSampleIndex);
+    assertEquals(0, rawStatistics0.getSum(longSampleIndex));
+    assertEquals(0, rawStatistics0.getCount(longSampleIndex));
+    assertDoublesEqual(0d, rawStatistics0.getVariance(longSampleIndex));
+
+    final RawStatistics rawStatistics1 =  new RawStatisticsImplementation();
+
+    rawStatistics1.addSample(longSampleIndex, -1);
+    assertEquals(-1, rawStatistics1.getSum(longSampleIndex));
+    assertEquals(1, rawStatistics1.getCount(longSampleIndex));
+    assertDoublesEqual(0, rawStatistics1.getVariance(longSampleIndex));
+
+    rawStatistics0.add(rawStatistics1);
+    assertEquals(-1, rawStatistics0.getSum(longSampleIndex));
+    assertEquals(1, rawStatistics0.getCount(longSampleIndex));
+    assertDoublesEqual(0, rawStatistics0.getVariance(longSampleIndex));
+    assertEquals(-1, rawStatistics1.getSum(longSampleIndex));
+    assertEquals(1, rawStatistics1.getCount(longSampleIndex));
+    assertDoublesEqual(0, rawStatistics1.getVariance(longSampleIndex));
+  }
+  
+  public void testDoubleSampleReadAndWrite() throws Exception {
+    final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
+    
+    try {
+      final StatisticsIndexMap.DoubleIndex sumIndex =
+        indexMap.getDoubleIndex("userDouble0");
+      final StatisticsIndexMap.LongIndex countIndex =
+        indexMap.getLongIndex("userLong0");
+      final StatisticsIndexMap.DoubleIndex varianceIndex =
+        indexMap.getDoubleIndex("userDouble1");
+
+      final StatisticsIndexMap.DoubleSampleIndex doubleSampleIndex =
+        indexMap.createDoubleSampleIndex("testDoubleSampleStatistic",
+                                         sumIndex,
+                                         countIndex,
+                                         varianceIndex);
+
+      final RawStatistics rawStatistics0 = new RawStatisticsImplementation();
+  
+      assertDoublesEqual(0, rawStatistics0.getSum(doubleSampleIndex));
+      assertEquals(0, rawStatistics0.getCount(doubleSampleIndex));
+      assertDoublesEqual(0d, rawStatistics0.getVariance(doubleSampleIndex));
+  
+      rawStatistics0.addSample(doubleSampleIndex, 0);
+      assertDoublesEqual(0, rawStatistics0.getSum(doubleSampleIndex));
+      assertEquals(1, rawStatistics0.getCount(doubleSampleIndex));
+      assertDoublesEqual(0d, rawStatistics0.getVariance(doubleSampleIndex));
+  
+      rawStatistics0.addSample(doubleSampleIndex, 5);
+      assertDoublesEqual(5, rawStatistics0.getSum(doubleSampleIndex));
+      assertEquals(2, rawStatistics0.getCount(doubleSampleIndex));
+      assertDoublesEqual(6.25, rawStatistics0.getVariance(doubleSampleIndex));
+  
+      rawStatistics0.addSample(doubleSampleIndex, 1);
+      assertDoublesEqual(6, rawStatistics0.getSum(doubleSampleIndex));
+      assertEquals(3, rawStatistics0.getCount(doubleSampleIndex));
+      assertDoublesEqual(14/3d, rawStatistics0.getVariance(doubleSampleIndex));
+
+      final RawStatistics rawStatistics1 = new RawStatisticsImplementation();
+
+      rawStatistics0.add(rawStatistics1);
+      assertDoublesEqual(6, rawStatistics0.getSum(doubleSampleIndex));
+      assertEquals(3, rawStatistics0.getCount(doubleSampleIndex));
+      assertDoublesEqual(14/3d, rawStatistics0.getVariance(doubleSampleIndex));
+      assertDoublesEqual(0, rawStatistics1.getSum(doubleSampleIndex));
+      assertEquals(0, rawStatistics1.getCount(doubleSampleIndex));
+      assertDoublesEqual(0d, rawStatistics1.getVariance(doubleSampleIndex));
+
+      rawStatistics1.addSample(doubleSampleIndex, 5);
+      rawStatistics1.addSample(doubleSampleIndex, -5);
+      assertDoublesEqual(0, rawStatistics1.getSum(doubleSampleIndex));
+      assertEquals(2, rawStatistics1.getCount(doubleSampleIndex));
+      assertDoublesEqual(25, rawStatistics1.getVariance(doubleSampleIndex));
+
+      rawStatistics0.add(rawStatistics1);
+      assertDoublesEqual(6, rawStatistics0.getSum(doubleSampleIndex));
+      assertEquals(5, rawStatistics0.getCount(doubleSampleIndex));
+      assertDoublesEqual(13.76, rawStatistics0.getVariance(doubleSampleIndex));
+      assertDoublesEqual(0, rawStatistics1.getSum(doubleSampleIndex));
+      assertEquals(2, rawStatistics1.getCount(doubleSampleIndex));
+      assertDoublesEqual(25, rawStatistics1.getVariance(doubleSampleIndex));
+      
+      rawStatistics0.reset(doubleSampleIndex);
+      assertDoublesEqual(0, rawStatistics0.getSum(doubleSampleIndex));
+      assertEquals(0, rawStatistics0.getCount(doubleSampleIndex));
+      assertDoublesEqual(0d, rawStatistics0.getVariance(doubleSampleIndex));
+    }
+    finally {
+      indexMap.removeDoubleSampleIndex("testDoubleSampleStatistic");
+    }
   }
 
   public void testSerialisation() throws Exception {
@@ -230,8 +380,49 @@ public class TestRawStatisticsImplementation extends TestCase {
 	assertEquals(original0, received0);
 	assertEquals(original1, received1);
   }
+  
+  public void testEqualsMiscellanea() throws Exception {
+    final RawStatistics rawStatistics0 = new RawStatisticsImplementation();
+    final RawStatistics rawStatistics1 = new RawStatisticsImplementation();
+    
+    assertFalse(rawStatistics0.equals(this));
 
-  private void myAssertEquals(double a, double b) {
+    final int hashCode0 = rawStatistics0.hashCode();
+    assertEquals(hashCode0, rawStatistics1.hashCode());
+    assertEquals(hashCode0, rawStatistics0.hashCode());
+    rawStatistics0.setValue(m_longIndex0, 99);
+    assertFalse(rawStatistics0.hashCode() == hashCode0);
+  }
+  
+  public void testToString() throws Exception {
+    final RawStatistics rawStatistics = new RawStatisticsImplementation();
+    final String s0 = rawStatistics.toString();
+    
+    final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
+
+    final StringBuffer expectedSubstring0 = new StringBuffer();
+
+    for (int i=0; i<indexMap.getNumberOfLongs(); ++i) {
+      if (i != 0) {
+        expectedSubstring0.append(", ");
+      }
+      expectedSubstring0.append("0");
+    }
+
+    final StringBuffer expectedSubstring1 = new StringBuffer();
+
+    for (int i=0; i<indexMap.getNumberOfDoubles(); ++i) {
+      if (i != 0) {
+        expectedSubstring1.append(", ");
+      }
+      expectedSubstring1.append("0.0");
+    }
+
+    assertTrue(s0.indexOf(expectedSubstring0.toString()) >= 0);
+    assertTrue(s0.indexOf(expectedSubstring1.toString()) >= 0);
+  }
+
+  private void assertDoublesEqual(double a, double b) {
 	assertEquals(a, b, 0.000000001d);
   }
 }

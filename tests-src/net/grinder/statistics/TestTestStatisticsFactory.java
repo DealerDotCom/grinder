@@ -67,11 +67,11 @@ public class TestTestStatisticsFactory extends TestCase {
 
 	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 	final StatisticsIndexMap.LongIndex aIndex =
-	    indexMap.getIndexForLong("userLong0");
+	    indexMap.getLongIndex("userLong0");
 	final StatisticsIndexMap.LongIndex bIndex =
-	    indexMap.getIndexForLong("userLong1");
+	    indexMap.getLongIndex("userLong1");
 	final StatisticsIndexMap.LongIndex cIndex =
-	    indexMap.getIndexForLong("userLong2");
+	    indexMap.getLongIndex("userLong2");
 
 	final TestStatistics original0 = factory.create();
 	original0.addValue(aIndex, Math.abs(random.nextLong()));
