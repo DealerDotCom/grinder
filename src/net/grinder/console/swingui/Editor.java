@@ -23,6 +23,11 @@ package net.grinder.console.swingui;
 
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.io.File;
+import java.util.EventListener;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
@@ -60,6 +65,12 @@ final class Editor {
   private final Resources m_resources;
   private final JEditTextArea m_scriptTextArea;
   private final TitledBorder m_titledBorder;
+
+  /** Synchronise on m_listeners before accessing. */
+  private final List m_listeners = new LinkedList();
+
+  private Buffer m_previousBuffer;
+
 
   /**
    * Constructor.
@@ -99,9 +110,17 @@ final class Editor {
         }
       };
 
+    m_scriptTextArea.setBorder(m_titledBorder);
+
     // Initial focus?
 
-    newFileSelection(null);
+    final TextSource textSource = new JEditSyntaxTextSource();
+
+    textSource.setText(
+      m_resources.getStringFromFile(
+        "scriptSupportUnderConstruction.text", true));
+
+    activateBuffer(new Buffer(m_resources, textSource));
   }
 
   /**
@@ -113,40 +132,38 @@ final class Editor {
     return m_scriptTextArea;
   }
 
-  public void newFileSelection(FileTreeModel.FileNode fileNode)
+  public Buffer newFileSelection(File file)
     throws ConsoleException {
 
-    final Buffer buffer;
+    final Buffer buffer =
+      new Buffer(m_resources, new JEditSyntaxTextSource(), file);
 
-    if (fileNode != null) {
-      if (fileNode.getBuffer() == null) {
-        buffer = new Buffer(m_resources,
-                            new JEditSyntaxTextSource(fileNode),
-                            fileNode.getFile());
-        buffer.load();
-        fileNode.setBuffer(buffer);
-      }
-      else {
-        buffer = fileNode.getBuffer();
-      }
+    buffer.load();
 
-      m_titledBorder.setTitle(fileNode.getFile().getPath());
+    activateBuffer(buffer);
+
+    return buffer;
+  }
+
+  public void activateBuffer(Buffer buffer) {
+
+    final File file = buffer.getFile();
+
+    if (file != null) {
+      m_titledBorder.setTitle(file.getPath());
     }
     else {
-      final TextSource textSource =
-        new JEditSyntaxTextSource(
-          m_resources.getStringFromFile(
-            "scriptSupportUnderConstruction.text", true));
-
-      buffer = new Buffer(m_resources, textSource);
-
       m_titledBorder.setTitle(m_resources.getString("editor.title"));
     }
 
-    buffer.setActive();
+    if (m_previousBuffer != null) {
+      m_previousBuffer.setActive(false);
+    }
 
-    m_scriptTextArea.setBorder(m_titledBorder);
-    m_scriptTextArea.setCaretPosition(0);
+    buffer.setActive(true);
+    m_previousBuffer = buffer;
+
+    //    m_scriptTextArea.setCaretPosition(0);
     m_scriptTextArea.setTokenMarker(getTokenMarker(buffer.getType()));
 
     // Repaint so the border is updated.
@@ -185,26 +202,26 @@ final class Editor {
 
   private class JEditSyntaxTextSource implements TextSource {
 
-    private final FileTreeModel.FileNode m_fileNode;
     private final SyntaxDocument m_syntaxDocument = new SyntaxDocument();
     private boolean m_dirty;
 
-    public JEditSyntaxTextSource(FileTreeModel.FileNode fileNode) {
-
-      m_fileNode = fileNode;
+    public JEditSyntaxTextSource() {
 
       m_syntaxDocument.addDocumentListener(
         new DocumentListener() {
-          public void insertUpdate(DocumentEvent event) { m_dirty = true; }
-          public void removeUpdate(DocumentEvent event) { m_dirty = true; }
-          public void changedUpdate(DocumentEvent event) { m_dirty = true; }
+          public void insertUpdate(DocumentEvent event) { documentChanged(); }
+          public void removeUpdate(DocumentEvent event) { documentChanged(); }
+          public void changedUpdate(DocumentEvent event) { documentChanged(); }
+
+          private void documentChanged() {
+            m_dirty = true;
+
+            // Should do this through buffer.
+            // Buffer should add itself as a TextSource listener.
+            // Buffer should expose a listener API.
+            fireStateChanged();
+          }
         });
-    }
-
-    public JEditSyntaxTextSource(String text) {
-      this((FileTreeModel.FileNode)null);
-
-      setText(text);
     }
 
     public String getText() {
@@ -241,6 +258,40 @@ final class Editor {
 
     public void setActive() {
       m_scriptTextArea.setDocument(m_syntaxDocument);
+      fireStateChanged();
     }
+  }
+
+  /**
+   * Add a new listener.
+   *
+   * @param listener The listener.
+   */
+  public void addListener(Listener listener) {
+    synchronized (m_listeners) {
+      m_listeners.add(listener);
+    }
+  }
+
+  private void fireStateChanged() {
+    synchronized (m_listeners) {
+      final Iterator iterator = m_listeners.iterator();
+
+      while (iterator.hasNext()) {
+        final Listener listener = (Listener)iterator.next();
+        listener.stateChanged();
+      }
+    }
+  }
+
+  /**
+   * Interface for listeners.
+   */
+  public interface Listener extends EventListener {
+
+    /**
+     * Called when the state associated with a buffer has changed.
+     */
+    void stateChanged();
   }
 }
