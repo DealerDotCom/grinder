@@ -146,7 +146,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   </target>
 
   <target name="assert-have-everything"
-	  depends="assert-have-jsse,assert-have-junit,assert-have-regexp">
+	  depends="assert-have-jsse,assert-have-junit,assert-have-junit-task,assert-have-regexp">
   </target>
 
 
@@ -218,7 +218,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   <!-- =================================================================== -->
   <target name="test" depends="compile-tests,assert-have-junit-task"
 	  description="Run the unit-tests.">
-  <junit printsummary="false">
+  <junit printsummary="false" haltonfailure="true">
     <formatter type="plain" usefile="false"/>
 
     <classpath path="${tests.classes};${build.classes}"/>
@@ -302,7 +302,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
 	 basedir="${dist.root}"/>
   </target>
 
-  <target name="release" depends="assert-have-everything,realclean,distribution-hierarchy,distribute-javadoc"
+  <target name="release" depends="assert-have-everything,realclean,test,distribution-hierarchy,distribute-javadoc"
 	  description="Generates a release jar.">
 <!--      <cvs command="tag -R release_${version}" noexec="true"/> -->
     <jar jarfile="${name}-${version}.jar" basedir="${dist.root}"/>
