@@ -29,7 +29,7 @@ import net.grinder.engine.process.GrinderProcess;
 
 
 /**
- * This is the entry point of The Grinder.
+ * This is the entry point of The Grinder agent process.
  * 
  * @author Paco Gomez
  * @author Philip Aston
@@ -38,8 +38,10 @@ import net.grinder.engine.process.GrinderProcess;
 public class Grinder
 {
     /**
-     * The Grinder entry point.
+     * The Grinder agent process entry point.
      *
+     * @param args[] Command line arguments.
+     * @exception GrinderException If an error occurred.
      */
     public static void main(String args[])
 	throws GrinderException
@@ -60,6 +62,11 @@ public class Grinder
 	m_alternateFile = alternateFile;
     }
     
+    /**
+     * Run the Grinder agent process.
+     *
+     * @exception GrinderException if an error occurs
+     */
     protected void run() throws GrinderException
     {
 	boolean ignoreInitialSignal = false;
