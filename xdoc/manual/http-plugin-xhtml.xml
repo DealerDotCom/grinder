@@ -316,6 +316,10 @@ and less buggy than HttpURLConnection.</p>
 
 <h3><a name="https">How do I use HTTPS?</a></h3>
 
+<p><em>Geoff Corey has <a
+href="http://www.blackoakassociates.com/pages/463494/index.htm">some
+useful comments</a> on this documentation.</em></p>
+
 <p>There are patches available to HTTPClient to work with several
 SSL implementations. See
 <a
