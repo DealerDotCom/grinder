@@ -712,8 +712,10 @@ public class HTTPRequest {
 	url = new URI(m_defaultURL, uri);
       }
 
-      m_connectionWrapper = m_threadState.getConnectionWrapper(url);
       m_path = url.getPathAndQuery(); // And for fragment, paramaters?
+
+      m_threadState.getThreadContext().startTimedSection();
+      m_connectionWrapper = m_threadState.getConnectionWrapper(url);
     }
 
     public final HTTPConnection getConnection() {
@@ -726,8 +728,11 @@ public class HTTPRequest {
 
     public final HTTPResponse processResponse(HTTPResponse httpResponse)
       throws IOException, ModuleException {
+
       httpResponse.getData();
       httpResponse.getInputStream().close();
+
+      m_threadState.getThreadContext().stopTimedSection();
 	
       final int statusCode = httpResponse.getStatusCode();
 

@@ -47,6 +47,7 @@ final class ThreadContext implements PluginThreadContext {
 
   private final ScriptStatisticsImplementation m_scriptStatistics;
 
+  private boolean m_startTimeOverridenByPlugin;
   private long m_startTime;
   private long m_elapsedTime;
 
@@ -91,10 +92,6 @@ final class ThreadContext implements PluginThreadContext {
     return m_filenameFactory;
   }
 
-  public final long getElapsedTime() {
-    return m_elapsedTime;
-  }
-
   public final int getThreadID() {
     return m_threadLogger.getThreadID();
   }
@@ -103,17 +100,30 @@ final class ThreadContext implements PluginThreadContext {
     return m_threadLogger.getCurrentRunNumber();
   }
 
-  public final void startTimer() {
+  public final void startTimedSection() {
+    if (!m_startTimeOverridenByPlugin) {
+      m_startTimeOverridenByPlugin = true;
+      m_startTime = System.currentTimeMillis();
+    }
+  }
+
+  public final void stopTimedSection() {
+    m_elapsedTime = System.currentTimeMillis() - m_startTime;
+  }
+
+  private final void startTimer() {
     // This is to make it more likely that the timed section has a
     // "clear run".
     Thread.yield();
+
     m_startTime = System.currentTimeMillis();
+    m_startTimeOverridenByPlugin = false;
     m_elapsedTime = -1;
   }
 
-  public final void stopTimer() {
+  private final void stopTimer() {
     if (m_elapsedTime < 0) { // Not already stopped.
-      m_elapsedTime = System.currentTimeMillis() - m_startTime;
+      stopTimedSection();
     }
   }
 
@@ -125,8 +135,8 @@ final class ThreadContext implements PluginThreadContext {
    * This could be factored out to a separate "TestInvoker" class.
    * However, the sensible owner for a TestInvoker would be
    * ThreadContext, so keep it here for now. Also, all the
-   * startTimer/stopTimer/getElapsedTime interface is part of the
-   * PluginThreadContext interface.
+   * startTimer/stopTimer interface is part of the PluginThreadContext
+   * interface.
    */
   final Object invokeTest(TestData testData, TestData.Invokeable invokeable)
     throws JythonScriptExecutionException {
@@ -155,10 +165,8 @@ final class ThreadContext implements PluginThreadContext {
 	stopTimer();
       }
 
-      final long time = getElapsedTime();
-
       m_scriptStatistics.setSuccessNoChecks();
-      m_scriptStatistics.setTimeNoChecks(time);
+      m_scriptStatistics.setTimeNoChecks(m_elapsedTime);
 
       return testResult;
     }

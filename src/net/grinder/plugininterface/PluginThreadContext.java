@@ -24,7 +24,6 @@ package net.grinder.plugininterface;
 
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.Logger;
-import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -39,11 +38,15 @@ public interface PluginThreadContext {
 
   /**
    * Return the thread ID.
+   *
+   * @return The thread ID.
    */ 
   int getThreadID();
  
   /**
    * Return the current run number.
+   *
+   * @return The current run number.
    */
   int getRunNumber();
   
@@ -61,5 +64,34 @@ public interface PluginThreadContext {
    */
   FilenameFactory getFilenameFactory();
 
+  /**
+   * Get the time the current test was started.
+   *
+   * @return The time in milliseconds since the Epoch (see
+   * <code>System.currentTimeMilis</code>).
+   */
   long getStartTime();
+
+  /**
+   * Allow the plug-in more tightly to mark the critical timing
+   * section.
+   *
+   * <p>Only the first call to {@link #startTimedSection} and the last call
+   * to {@link #stopTimedSection} for a given test wrapping have any effect;
+   * other calls the plug-in may make are ignored. This means that the
+   * plugin can discard its own overhead (and the Jython invocation
+   * overhead) for single incovations, but composite wrappings must
+   * pay timing penalty for their glue.
+   *
+   * @see #stopTimedSection
+   */
+  void startTimedSection();
+
+  /**
+   * Allow the plug-in more tightly to mark the critical timing
+   * section.
+   *
+   * @see #startTimedSection
+   */
+  void stopTimedSection();
 }
