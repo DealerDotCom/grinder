@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -58,10 +58,16 @@ final class ConsoleListener {
   public static final int STOP =  1 << 2;
 
   /**
+   * Constant that represents a communication shutdown.
+   * @see #received
+   */
+  public static final int SHUTDOWN =  1 << 3;
+
+  /**
    * Constant that represent any message.
    * @see #received
    */
-  public static final int ANY = START | RESET | STOP;
+  public static final int ANY = START | RESET | STOP | SHUTDOWN;
 
   private final Monitor m_notifyOnMessage;
   private final Logger m_logger;
@@ -142,23 +148,25 @@ final class ConsoleListener {
         }
 
         if (message == null) {
-          // Receiver has been shut down.
+          m_logger.output("communication shutdown",
+                          Logger.LOG | Logger.TERMINAL);
+          setReceived(SHUTDOWN);
           break;
         }
         else if (message instanceof StartGrinderMessage) {
-          m_logger.output("got a start message from console");
+          m_logger.output("received a start message");
           setReceived(START);
         }
         else if (message instanceof StopGrinderMessage) {
-          m_logger.output("got a stop message from console");
+          m_logger.output("received a stop message");
           setReceived(STOP);
         }
         else if (message instanceof ResetGrinderMessage) {
-          m_logger.output("got a reset message from console");
+          m_logger.output("received a reset message");
           setReceived(RESET);
         }
         else {
-          m_logger.output("got an unknown message from console");
+          m_logger.output("received an unknown message");
         }
       }
     }
