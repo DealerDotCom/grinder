@@ -1,3 +1,32 @@
+2001-07-09  Philip Aston  <paston@bea.com>
+
+	* The Grinder 2.6.4 is released.
+
+	* src/net/grinder/console/swingui/IntegerField.java:
+	Dang hippy laid-back jikes.
+
+	* doc/TCPSniffer.txt: More details.
+
+	* doc/TCPSniffer.txt: Document colour stuff.
+
+	* build.xml: Distribute documentation with interim releases.
+
+	* src/HTTPClient/HTTPConnection.java, src/net/grinder/plugin/http/HTTPClientHandler.java:
+	Hack a switch onto HTTPClient to disable the use of trailer-related
+	headers, and use it in HTTPClientHandler.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/IntegerField.java:
+	Make the "ignore samples" and "collect samples" controls text fields
+	rather than sliders.
+
+	* src/net/grinder/plugin/http/HTTPClientHandler.java:
+	Don't NPE if no response data.
+
+	* build.xml: Next is 2.6.4.
+
+	* doc/HTTPPlugin.txt, etc/HTTPClient-license.txt, src/HTTPClient/HTTPConnection.java:
+	Fix HTTPClient handling of query strings.
+
 2001-07-06  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java: Fix -colour.
