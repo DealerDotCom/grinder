@@ -44,6 +44,20 @@ running scripts with different test numbers (e.g. one process running
 tests 1 to 5 and another running tests 6 to 10)., reporting to the
 same console.</p>
 
+<h3><a name="testrun-period">How do I run the tests for a specific period of time?</a></h3>
+
+<p>Use the console to control the test. If you want the tests to run
+for an hour and your sample interval is set to 5 seconds, set the
+console to collect 720 samples.
+</p>
+
+<h3><a name="serverside-stats">Is there any way to record CPU
+utilisation of the server?</a></h3>
+
+<p>No. The Grinder only measures the response of the test server as a
+black box. Look to other tools such as <code>sar</code> and
+<code>vmstat</code> to measure server CPU utilisation.</p>
+
 <h3><a name="string-beans">How do I simulate different users?</a></h3>
 
 <p><em>New answer required for G3.</em></p>
