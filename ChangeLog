@@ -1,3 +1,88 @@
+2003-02-15  Philip Aston  <paston@bea.com>
+
+	* The Grinder 3.0-beta6 is released.
+
+	* src/net/grinder/script/NotWrappableTypeException.java, src/net/grinder/script/ScriptContext.java, src/net/grinder/script/Statistics.java, src/net/grinder/script/Test.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/PeakStatisticExpression.java, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpression.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/statistics/TestStatistics.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/statistics/TestStatisticsMap.java, TODO, etc/checkstyle.properties:
+	Checkstyle.
+
+2003-02-14  Philip Aston  <paston@bea.com>
+
+	* TODO, xdoc/g3/scripts-xhtml.xml: More script documentation.
+
+	* TODO, etc/checkstyle.properties, src/net/grinder/Console.java, src/net/grinder/Grinder.java, src/net/grinder/TCPProxy.java, src/net/grinder/common/FilenameFactory.java, src/net/grinder/common/GrinderException.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/common/Logger.java, src/net/grinder/common/ProcessStatus.java, src/net/grinder/common/Test.java, src/net/grinder/engine/agent/LauncherThread.java, src/net/grinder/engine/agent/Redirector.java, src/net/grinder/engine/EngineException.java:
+	Checkstyle.
+
+	* src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactory.java, tests-src/net/grinder/engine/process/StubProcessContext.java, src/HTTPClient/HTTPConnection.java, src/net/grinder/TCPProxy.java, src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/MulticastSender.java, src/net/grinder/engine/process/RegisteredPlugin.java, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, src/net/grinder/plugin/http/HTTPPluginControl.java, src/net/grinder/tools/tcpproxy/JSSEConstants.java:
+	Standardise on DOS line-endings.
+
+	* etc/checkstyle.properties, src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/engine/process/ExitProcessException.java, src/net/grinder/engine/process/FilenameFactoryImplementation.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/Monitor.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestPyFinalizableInstance.java, src/net/grinder/engine/process/TestPyInstance.java, src/net/grinder/engine/process/TestPyJavaInstance.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ThreadLogger.java, src/prj.el, etc/buildenv.sh:
+	Checkstyle.
+
+2003-02-13  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/faq-xhtml.xml, xdoc/g3/future-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/g3/scripts-xhtml.xml, xdoc/g3/welcome-xhtml.xml, xdoc/manual/properties-xhtml.xml, xdoc/stylesheets/add-toc.xsl, xdoc/stylesheets/grinder.xsl, TODO, xdoc/documentation.xweb, xdoc/download-xhtml.xml, xdoc/welcome-xhtml.xml:
+	More documentation.
+
+	* xdoc/g3/getting-started-xhtml.xml: Test CVS date substitution.
+
+	* examples/grinder.properties, examples/statistics.py, xdoc/g3/script-gallery-xhtml.xml:
+	Update for new API.
+
+	* src/net/grinder/script/ScriptContext.java, src/net/grinder/script/Statistics.java, src/net/grinder/script/overview.html, build.xml:
+	More javadoc tweaks.
+
+	* src/net/grinder/script/overview.html: Overview javadoc for scripts.
+
+	* src/net/grinder/engine/process/TestData.java:
+	Remove "copy" constructor.
+
+	* src/net/grinder/engine/process/TestRegistry.java:
+	Don't create duplicate TestData()'s.
+
+	* src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/script/Statistics.java:
+	Rework "setAutoReport" to "setDelayReports".
+
+	* src/net/grinder/statistics/StatisticsIndexMap.java:
+	Tweak Javadoc to remove things that aren't part of the script API.
+
+	* src/net/grinder/statistics/package.html: Package overview.
+
+	* src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContext.java:
+	Add hook so ScriptStatisticsImplementation can detect the end of the
+	run.
+
+2003-02-12  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/scripts-xhtml.xml: Typo.
+
+	* xdoc/manual/http-plugin-xhtml.xml: Correct formatting.
+
+	* src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/ThreadContext.java, TODO, src/net/grinder/engine/process/ScriptContextImplementation.java:
+	Implement new script statistics API.
+
+	* src/net/grinder/script/ScriptContext.java, src/net/grinder/script/Statistics.java, src/net/grinder/script/StatisticsAlreadyReportedException.java:
+	New statistics API for scripts.
+
+	* src/net/grinder/statistics/TestStatisticsImplementation.java:
+	Throw ExceptionInInitializerError rather than RuntimeException for
+	static initialisation failures.
+
+	* examples/grinder.properties, examples/statistics.py, xdoc/g3/script-gallery-xhtml.xml:
+	Example usage of new statistics API.
+
+	* examples/jms-receiver.py: Use new statistics API.
+	Log out overrun of messages that we acknowledge but don't record as
+	tests.
+
+	* etc/setenv.sh: WLS 7 service pack 2.
+
+	* build.xml: Scripts no longer access TestStatistics directly.
+	Next is beta6.
+
+2003-02-10  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/script-gallery-xhtml.xml: Unique anchor for cookies example.
+
 2003-02-09  Philip Aston  <paston@bea.com>
 
 	* The Grinder 3.0-beta5 is released.
