@@ -76,28 +76,30 @@ temporary files, CVS directories, grinder log files.
 Task: Mature FileDistributionHandler model. Extract from comms
 package, leaving the comms bit of it behind.
 
-
-
-
 Task: Console to indicate global dirty state. (Distinct from buffer
 "dirty" state).
 
       Files in model later than last distributed time.
 
-      Where should this be stored?
-
-      Should be reset when:
-		File distribution completes, unless file saved in
-		meantime. 
-
-	-> calculate from distribution status.
-
-      Should be set when:
-		Buffer saved.
-
       3 states: File update in progress
 		Clean
 		Dirty
+				[Done]
+
+      Where should this be stored?
+	within editor package. AgentCacheState.
+
+      Should be reset when:
+		File distribution completes,
+		unless file saved in meantime. 
+				[Done].
+
+      Should be set when:
+		Buffer saved.
+				[Done]
+
+      Fix reset when a new agent connects.
+				[To do]
 
 
 Task: Console to check dirty state on play and auto broadcast. Need
