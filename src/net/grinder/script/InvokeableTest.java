@@ -32,5 +32,5 @@ import net.grinder.common.Test;
  */ 
 public interface InvokeableTest extends Test
 {
-    TestResult invoke() throws AbortRunException;
+    TestResult invoke() throws ScriptException;
 }

@@ -37,7 +37,6 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.ProcessStatus;
 import net.grinder.common.Test;
-import net.grinder.common.TestImplementation;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ReportStatusMessage;
