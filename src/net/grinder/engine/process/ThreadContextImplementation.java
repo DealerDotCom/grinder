@@ -158,21 +158,11 @@ final class ThreadContextImplementation
         stopTimer();
       }
 
-      if (m_scriptStatistics.getSuccess()) {
-        m_scriptStatistics.setSuccessNoChecks(m_elapsedTime);
-      }
-      else {
-        // The plug-in might have set timing information etc., or set
-        // errors to be greater than 1. For consistency, we override
-        // to a single error per Test with no associated timing
-        // information.
-        m_scriptStatistics.setErrorNoChecks();
-      }
-
       return testResult;
     }
     catch (org.python.core.PyException e) {
-      m_scriptStatistics.setErrorNoChecks();
+      // Always mark as an error if the test threw an exception.
+      m_scriptStatistics.setSuccessNoChecks(false);
 
       // We don't log the exception. If the script doesn't handle the
       // exception it will be logged when the run is aborted,
@@ -182,7 +172,8 @@ final class ThreadContextImplementation
     }
     finally {
       m_scriptStatistics.endTest(
-        m_startTime - m_processContext.getExecutionStartTime());
+        m_startTime - m_processContext.getExecutionStartTime(),
+        m_elapsedTime);
 
       m_threadLogger.setCurrentTestNumber(-1);
     }

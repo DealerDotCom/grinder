@@ -70,6 +70,7 @@ final class ScriptStatisticsImplementation
 
   private TestData m_currentTestData = null;
   private long m_currentTestStartTime = -1;
+  private long m_currentTestElapsedTime = -1;
   private boolean m_noTests = true;
   private boolean m_delayReports = false;
   private int m_runNumber = -1;
@@ -182,16 +183,18 @@ final class ScriptStatisticsImplementation
   }
 
   public double getValue(StatisticsIndexMap.DoubleIndex index) {
-
     return m_statistics.getValue(index);
   }
 
-  public void setError() throws InvalidContextException {
-
+  public void setSuccess(boolean success) throws InvalidContextException {
     checkCallContext();
     checkNotAlreadyReported();
 
-    setErrorNoChecks();
+    setSuccessNoChecks(success);
+  }
+
+  void setSuccessNoChecks(boolean success) {
+    m_statistics.setValue(s_errorsIndex, success ? 0 : 1);
   }
 
   public boolean getSuccess() {
@@ -199,25 +202,7 @@ final class ScriptStatisticsImplementation
   }
 
   public long getTime() {
-    return m_statistics.getSum(s_timedTestsIndex);
-  }
-
-  void setSuccessNoChecks(long time) {
-    if (m_recordTime) {
-      m_statistics.reset(s_timedTestsIndex);
-      m_statistics.addSample(s_timedTestsIndex, time);
-    }
-    else {
-      m_statistics.setValue(s_untimedTestsIndex, 1);
-    }
-
-    m_statistics.setValue(s_errorsIndex, 0);
-  }
-
-  void setErrorNoChecks() {
-    m_statistics.setValue(s_untimedTestsIndex, 0);
-    m_statistics.reset(s_timedTestsIndex);
-    m_statistics.setValue(s_errorsIndex, 1);
+    return m_currentTestElapsedTime;
   }
 
   void beginTest(TestData testData, int runNumber) {
@@ -231,8 +216,9 @@ final class ScriptStatisticsImplementation
     m_noTests = false;
   }
 
-  void endTest(long startTime) {
+  void endTest(long startTime, long elapsedTime) {
     m_currentTestStartTime = startTime;
+    m_currentTestElapsedTime = elapsedTime;
 
     if (!m_delayReports) {
       reportInternal();
@@ -249,6 +235,27 @@ final class ScriptStatisticsImplementation
   private void reportInternal() {
 
     if (m_currentTestData != null) {
+      if (getSuccess()) {
+        if (m_recordTime) {
+          m_statistics.reset(s_timedTestsIndex);
+          m_statistics.addSample(s_timedTestsIndex, m_currentTestElapsedTime);
+        }
+        else {
+          m_statistics.setValue(s_untimedTestsIndex, 1);
+        }
+
+        m_statistics.setValue(s_errorsIndex, 0);
+      }
+      else {
+        // The plug-in might have set timing information etc., or set
+        // errors to be greater than 1. For consistency, we override
+        // to a single error per Test with no associated timing
+        // information.
+        m_statistics.setValue(s_untimedTestsIndex, 0);
+        m_statistics.reset(s_timedTestsIndex);
+        m_statistics.setValue(s_errorsIndex, 1);
+      }
+
       if (m_dataWriter != null) {
         if (m_runNumber == m_lastRunNumber &&
             m_lastRunNumber != -1) {
@@ -290,4 +297,3 @@ final class ScriptStatisticsImplementation
     }
   }
 }
-
