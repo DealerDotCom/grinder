@@ -91,7 +91,9 @@ public class HttpMsg
 	// web app form based authentication.
 	connection.setInstanceFollowRedirects(m_followRedirects);
             
-	if (m_useCookie && m_cookie != null) {
+	// Think "=;" will match nothing but empty cookies. If your
+	// bother by this, please read RFC 2109 and fix.
+	if (m_useCookie && m_cookie != null && m_cookie.indexOf("=;") > 0) {
 	    connection.setRequestProperty("Cookie", m_cookie);
 	}
 
@@ -111,14 +113,18 @@ public class HttpMsg
 	
 	connection.connect();
 
+	// This is before the getHeaderField for a good reason.
+	// Otherwise the %^(*$ HttpURLConnection API silently catches
+	// the exception in getHeaderField and rethrows it in the
+	// getResponseCode (with the original stack trace). - PAGA
+	final int responseCode = connection.getResponseCode();
+
 	if (m_useCookie) {
 	    final String s = connection.getHeaderField("Set-Cookie");
 	    if (s != null) {
 		m_cookie = s;
 	    }
 	}
-
-	final int responseCode = connection.getResponseCode();
 
 	if (responseCode == HttpURLConnection.HTTP_OK) {          
 	    // Slurp the response into a StringWriter.
@@ -132,9 +138,9 @@ public class HttpMsg
 	    char[] buffer = new char[512];
 	    int charsRead = 0;
 
-	    while ((charsRead = in.read(buffer, 0, buffer.length)) > 0) {
-		stringWriter.write(buffer, 0, charsRead);
-	    }    
+	    //while ((charsRead = in.read(buffer, 0, buffer.length)) > 0) {
+		//		stringWriter.write(buffer, 0, charsRead);
+	    //}    
 
 	    in.close();
 	    stringWriter.close();
