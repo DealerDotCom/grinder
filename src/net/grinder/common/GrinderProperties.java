@@ -49,18 +49,17 @@ public class GrinderProperties extends Properties
 
 		    s_singleton = new GrinderProperties();
 
-		    s_singleton.putAll(getDefaultProperties());
-
 		    try {
 			final InputStream propertiesInputStream =
 			    new FileInputStream(PROPERTIES_FILENAME);
 			s_singleton.load(propertiesInputStream);
 		    }
 		    catch (Exception e) {
-			e.printStackTrace(System.err);
-			System.err.println("Error loading properties file '" +
-					   PROPERTIES_FILENAME +
-					   "', using defaults.");
+			System.err.println(
+			    "Error loading properties file '" +
+			    PROPERTIES_FILENAME + "'");
+
+			return null;
 		    }
 
 		    // Allow overriding on command line.
@@ -269,23 +268,5 @@ public class GrinderProperties extends Properties
 	}
 
 	return Boolean.valueOf(s).booleanValue();
-    }
-
-    private static Properties getDefaultProperties()
-    {
-	final Properties defaults = new Properties();
-    
-	// This really needs reviewing - not sure its a good idea.
-	defaults.put("grinder.initialWait", "false");
-	defaults.put("grinder.multicastAddress", "228.1.1.1");
-	defaults.put("grinder.multicastPort", "1234");
-	defaults.put("grinder.reportToConsole", "false");
-	defaults.put("grinder.console.multicastAddress", "228.1.1.2");
-	defaults.put("grinder.console.multicastPort", "1234");
-	defaults.put("grinder.logDirectory", ".");
-	defaults.put("grinder.appendLog", "false");
-	defaults.put("grinder.fileStats", "true");       
-
-	return defaults;
     }
 }
