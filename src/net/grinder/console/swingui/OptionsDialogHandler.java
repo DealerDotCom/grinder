@@ -21,11 +21,16 @@
 
 package net.grinder.console.swingui;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -77,24 +82,35 @@ abstract class OptionsDialogHandler {
     m_frame = frame;
     m_properties = new ConsoleProperties(properties);
 
-    final GridLayout addressLayout = new GridLayout(0, 2, 10, 5);
-    final JPanel addressPanel = new JPanel(addressLayout);
-    addressPanel.add(new JLabel(resources.getString("consoleHost.label")));
-    addressPanel.add(m_consoleHost);
-    addressPanel.add(new JLabel(resources.getString("consolePort.label")));
-    addressPanel.add(m_consolePort);
+    final JPanel addressLabelPanel = new JPanel(new GridLayout(0, 1, 0, 1));
+    addressLabelPanel.add(
+      new JLabel(resources.getString("consoleHost.label")));
+    addressLabelPanel.add(
+      new JLabel(resources.getString("consolePort.label")));
+    addressLabelPanel.add(new JLabel());
 
-    // Use an additional flow layout so the GridLayout doesn't steal
-    // all the space.
-    final JPanel communicationTab =
-      new JPanel(new FlowLayout(FlowLayout.LEFT));
-    communicationTab.add(addressPanel);
-    communicationTab.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+    final JPanel addressFieldPanel = new JPanel(new GridLayout(0, 1, 0, 1));
+    addressFieldPanel.add(m_consoleHost);
+    addressFieldPanel.add(m_consolePort);
+    addressFieldPanel.add(new JLabel());
+
+    final JPanel addressPanel = new JPanel();
+    addressPanel.setLayout(new BoxLayout(addressPanel, BoxLayout.X_AXIS));
+    addressPanel.add(addressLabelPanel);
+    addressPanel.add(Box.createHorizontalGlue());
+    addressPanel.add(addressFieldPanel);
+
+    // Use BorderLayout so the address panel uses its preferred
+    // height, and full available width. Sadly I couldn't find a more
+    // straightforward way.
+    final JPanel communicationTab = new JPanel(new BorderLayout());
+    communicationTab.add(addressPanel, BorderLayout.NORTH);
+    communicationTab.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
     m_samplingControlPanel = new SamplingControlPanel(resources);
 
-    final JPanel samplingControlTab = new JPanel(new GridLayout());
-    samplingControlTab.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+    final JPanel samplingControlTab = new JPanel(new GridLayout(0, 1));
+    samplingControlTab.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     samplingControlTab.add(m_samplingControlPanel);
 
     m_sfSlider.setMajorTickSpacing(1);
@@ -108,14 +124,33 @@ abstract class OptionsDialogHandler {
     sfPanel.add(new JLabel(resources.getString("significantFigures.label")));
     sfPanel.add(m_sfSlider);
 
+    // Add some consistency to J2SE 1.3 label and control colours.
+    final Color labelForegound = new JLabel().getForeground();
+
     m_resetConsoleWithProcessesCheckBox =
       new JCheckBox(resources.getString("resetConsoleWithProcesses.label"));
+    m_resetConsoleWithProcessesCheckBox.setForeground(labelForegound);
     final JPanel checkBoxPanel = new JPanel();
     checkBoxPanel.add(m_resetConsoleWithProcessesCheckBox);
 
-    final JPanel miscellaneousPanel = new JPanel(new GridLayout(0, 1));
+    final JComboBox lookAndFeelComboBox = new JComboBox(
+      new String[] {
+        resources.getString("metalLAF.label"),
+        resources.getString("motifLAF.label"),
+        resources.getString("windowsLAF.label"),
+      });
+    lookAndFeelComboBox.setForeground(labelForegound);
+
+    final JPanel lookAndFeelPanel = new JPanel(new GridLayout(0, 2));
+    lookAndFeelPanel.add(new JLabel(resources.getString("lookAndFeel.label")));
+    lookAndFeelPanel.add(lookAndFeelComboBox);
+
+    final JPanel miscellaneousPanel = new JPanel();
+    miscellaneousPanel.setLayout(
+      new BoxLayout(miscellaneousPanel, BoxLayout.Y_AXIS));
     miscellaneousPanel.add(sfPanel);
     miscellaneousPanel.add(checkBoxPanel);
+    miscellaneousPanel.add(lookAndFeelPanel);
 
     final JPanel miscellaneousTab =
       new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -199,9 +234,9 @@ abstract class OptionsDialogHandler {
     // Increase the width a bit so that all the tabs fit on a single
     // line.
     m_dialog.pack();
-    final Dimension dialogSize = m_dialog.getSize();
-    dialogSize.width += 50;
-    m_dialog.setSize(dialogSize);
+    //    final Dimension dialogSize = m_dialog.getSize();
+    //    dialogSize.width += 50;
+    //    m_dialog.setSize(dialogSize);
   }
 
   /**
