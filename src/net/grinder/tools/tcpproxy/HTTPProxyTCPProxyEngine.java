@@ -139,30 +139,23 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     // the server closes the connection, or we do (in response to our
     // client closing the connection). The engine handles multiple
     // connections by spawning multiple thread pairs.
-    if (sslSocketFactory != null) {
+    if (chainedHTTPSProxy != null) {
+      m_httpsProxySocketFactory =
+        new HTTPSProxySocketFactory(sslSocketFactory, chainedHTTPSProxy);
 
-      if (chainedHTTPSProxy != null) {
-        m_httpsProxySocketFactory =
-          new HTTPSProxySocketFactory(sslSocketFactory, chainedHTTPSProxy);
-
-        m_proxySSLEngine =
-          new ProxySSLEngine(m_httpsProxySocketFactory, requestFilter,
-                             responseFilter, outputWriter, useColour);
-      }
-      else {
-        m_httpsProxySocketFactory = null;
-
-        m_proxySSLEngine =
-          new ProxySSLEngine(sslSocketFactory, requestFilter, responseFilter,
-                             outputWriter, useColour);
-      }
-
-      new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine").start();
+      m_proxySSLEngine =
+        new ProxySSLEngine(m_httpsProxySocketFactory, requestFilter,
+                           responseFilter, outputWriter, useColour);
     }
     else {
-      m_proxySSLEngine = null;
       m_httpsProxySocketFactory = null;
+
+      m_proxySSLEngine =
+        new ProxySSLEngine(sslSocketFactory, requestFilter, responseFilter,
+                           outputWriter, useColour);
     }
+
+    new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine").start();
   }
 
   /**
@@ -210,12 +203,6 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           // Match.group(2) must be a port number by specification.
           final EndPoint remoteEndPoint =
             new EndPoint(match.group(1), Integer.parseInt(match.group(2)));
-
-          if (m_proxySSLEngine == null) {
-            System.err.println("Specify -ssl for HTTPS proxy support");
-            localSocket.close();
-            continue;
-          }
 
           if (m_httpsProxySocketFactory != null) {
             // Read additional data from the client (HTTP protocol
@@ -302,8 +289,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           final HTMLElement paragraph1 = message.addElement("p");
           paragraph1.addText(
             "Do not type TCPProxy address into your browser. ");
-          paragraph1.addText("The browser proxy settings should be set to" +
-                             "use the TCPProxy address (");
+          paragraph1.addText("The browser proxy settings should be set to " +
+                             "the TCPProxy address (");
           paragraph1.addElement("code").addText(m_proxyAddress.toString());
           paragraph1.addText("), and you should type the address of the " +
                            "target server into the browser.");
