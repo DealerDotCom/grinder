@@ -271,7 +271,7 @@ what you want. Currently the conditionally built modules are:
 	   deprecation="${deprecation}">
        <exclude name="HTTPClient/**"/>
        <exclude name="**/HttpsPlugin.java" unless="have.jsse"/>
-       <exclude name="**/SSLSocketFactory.java" unless="have.jsse"/>
+       <exclude name="**/SnifferSSLSocketFactory.java" unless="have.jsse"/>
        <exclude name="**/JUnitPlugin.java" unless="have.junit"/>
        <exclude name="**/snifferwebapp/**" unless="have.servlet"/>
        <exclude name="**/ExampleJTidyStringBean.java"
