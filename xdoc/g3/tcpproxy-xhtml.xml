@@ -42,8 +42,8 @@ following information:</p>
 <blockquote>
 <pre>
 Initialising as an HTTP proxy with the parameters:
-   Request filter:  net.grinder.tools.tcpproxy.EchoFilter
-   Response filter: net.grinder.tools.tcpproxy.EchoFilter
+   Request filters:  EchoFilter
+   Response filters: EchoFilter
    Local host:       localhost
    Local port:       8001
 Engine initialised, listening on port 8001
@@ -88,8 +88,8 @@ java net.grinder.TCPProxy -httpplugin
 <pre>
 Script will be generated to the files 'httpscript.py' and 'httpscript_tests.py'
 Initialising as an HTTP proxy with the parameters:
-   Request filter:  net.grinder.plugin.http.HTTPPluginTCPProxyFilter
-   Response filter: net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter
+   Request filters:  HTTPPluginTCPProxyFilter
+   Response filters: HTTPPluginTCPProxyResponseFilter
    Local host:       localhost
    Local port:       8001
 Engine initialised, listening on port 8001

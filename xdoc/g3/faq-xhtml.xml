@@ -190,12 +190,12 @@ those that The Grinder sends.</li>
 <p>The HTTP plugin sends requests that will have minor differences
 between those that a browser send, but which rarely affect server
 behaviour. Its worth knowing how to examine the differences with the
-TCPProxy. First <a href="tcpproxy.html#http-proxy">set the TCPProxy as
-a browser proxy</a> and record the output to a file. Secondly alter
-your tests so that all requests go via the TCPProxy (the best way is
-to set the test script connections to direct requests via the TCPProxy
-acting an HTTP proxy); again record the output to a file. Now grab a
-coffee and compare.</p>
+TCPProxy. First <a href="tcpproxy.html">set the TCPProxy as a browser
+proxy</a> and record the output to a file. Secondly alter your tests
+so that all requests go via the TCPProxy (the best way is to set the
+test script connections to direct requests via the TCPProxy acting an
+HTTP proxy); again record the output to a file. Now grab a coffee and
+compare.</p>
 
 <h3><a name="tcpproxy-colour-codes">What are all those funny ^[[31
 characters in the TCPProxy output?</a></h3>
