@@ -71,8 +71,9 @@ run.</p></li>
 <li><h4>The test script can access services through the
 <code>grinder</code> object</h4>
 
-<p>The engine makes an object called <code>grinder</code> available to
-the script. This is an instance of the <code><a
+<p>The engine makes an object called <code>grinder</code> available
+for the script to import. It can also be imported by any modules that
+the script calls. This is an instance of the <code><a
 href="script-javadoc/net/grinder/script/Grinder.ScriptContext.html">Grinder.ScriptContext</a></code>
 class and provides access to context information (such as the worker
 thread ID) and services (such as logging and statistics).</p></li>
@@ -86,7 +87,9 @@ doesn't do very much - every run will log <em>Hello World</em> to the
 output log.</p>
 
 <blockquote>
-<pre><span class="comment"># An instance of this class is created for every thread.</span>
+<pre><span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
+
+<span class="comment"># An instance of this class is created for every thread.</span>
 <span class="keyword">class</span> <span class="type">TestRunner</span>:
     <span class="comment"># This method is called for every run.
 </span>    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
