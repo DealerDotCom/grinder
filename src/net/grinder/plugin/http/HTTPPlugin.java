@@ -22,9 +22,6 @@
 
 package net.grinder.plugin.http;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.net.HttpURLConnection; // For the (incomplete!) status code definitions only.
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -32,10 +29,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import HTTPClient.CookieModule;
-import HTTPClient.DefaultAuthHandler;
 import HTTPClient.HTTPConnection;
 import HTTPClient.HTTPResponse;
-import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 import HTTPClient.ProtocolNotSuppException;
 import HTTPClient.URI;
@@ -60,46 +55,9 @@ import net.grinder.plugininterface.PluginThreadContext;
  **/
 public class HTTPPlugin implements GrinderPlugin
 {
-    private final static Class s_redirectionModule;
-    
-    static
-    {
-	// Remove standard HTTPClient modules which we don't want.
-	try {
-	    // Don't want additional post-processing of response data.
-	    HTTPConnection.removeDefaultModule(
-		Class.forName("HTTPClient.ContentEncodingModule"));
-	    HTTPConnection.removeDefaultModule(
-		Class.forName("HTTPClient.TransferEncodingModule"));
-
-	    // Don't want to retry requests.
-	    HTTPConnection.removeDefaultModule(
-		Class.forName("HTTPClient.RetryModule"));
-
-	    s_redirectionModule =
-		Class.forName("HTTPClient.RedirectionModule");
-	}
-	catch (ClassNotFoundException e) {
-	    throw new RuntimeException("Failed to load HTTPClient classes");
-	}
-
-	// Turn off cookie permission checks.
-	CookieModule.setCookiePolicyHandler(null);
-
-	// Turn off authorisation UI.
-	DefaultAuthHandler.setAuthorizationPrompter(null);
-    }
-
-    static final Class getRedirectionModule() 
-    {
-	return s_redirectionModule;
-    }
-
     private PluginProcessContext m_processContext;
     private final HTTPPluginScriptContext m_scriptPluginContext =
 	new HTTPPluginScriptContext();
-
-    private boolean m_logHTML;
 
     public void initialize(PluginProcessContext processContext)
 	throws PluginException
@@ -108,8 +66,6 @@ public class HTTPPlugin implements GrinderPlugin
 
 	final GrinderProperties parameters =
 	    m_processContext.getPluginParameters();
-
-	m_logHTML = parameters.getBoolean("logHTML", false);
     }
 
     public PluginThreadCallbacks createThreadCallbackHandler(
@@ -141,15 +97,14 @@ public class HTTPPlugin implements GrinderPlugin
 		return existingConnectionWrapper;
 	    }
 
-	    final HTTPConnection connection = new HTTPConnection(uri);
-	    connection.setContext(HTTPPlugin.this);
-	    connection.setAllowUserInteraction(false);
-
 	    final HTTPPluginConnectionDefaults connectionDefaults =
 		m_scriptPluginContext.getHTTPPluginConnectionDefaults(keyURI);
 
+	    final HTTPConnection httpConnection = new HTTPConnection(uri);
+	    httpConnection.setContext(HTTPPluginThreadCallbacks.this);
+
 	    final HTTPConnectionWrapper newConnectionWrapper =
-		new HTTPConnectionWrapper(connection, connectionDefaults);
+		new HTTPConnectionWrapper(httpConnection, connectionDefaults);
 
 	    m_httpConnectionWrappers.put(keyURI, newConnectionWrapper);
 
@@ -165,7 +120,7 @@ public class HTTPPlugin implements GrinderPlugin
 	public void beginRun() throws PluginException
 	{
 	    // Discard our cookies.
-	    CookieModule.discardAllCookies(HTTPPlugin.this);
+	    CookieModule.discardAllCookies(HTTPPluginThreadCallbacks.this);
 
 	    // SHOULD ALSO REMOVE OLD AUTHORIZATIONS.
 
@@ -221,35 +176,6 @@ public class HTTPPlugin implements GrinderPlugin
 		default:
 		    m_threadContext.output(message);
 		    break;
-		}
-
-		// ONLY WORKS FOR TEXT TYPES!
-		// SHOULD LEAVE UP TO USER AND LOG BINARY?
-		final String text = httpResponse.getText();
-
-		if (m_logHTML && httpResponse.getData() != null) {
-		    final String description = test.getDescription();
-
-		    final String filename =
-			m_threadContext.createFilename(
-			    "page",
-			    "_" + m_threadContext.getCurrentRunNumber() + "_" +
-			    m_threeFiguresFormat.format(test.getNumber()) +
-			    (description != null ? "_" + description : ""));
-
-		    try {
-			final BufferedWriter htmlFile =
-			    new BufferedWriter(
-				new FileWriter(filename, false));
-
-			htmlFile.write(text);
-			htmlFile.close();
-		    }
-		    catch (IOException e) {
-			throw new PluginException("Error writing to " +
-						  filename +
-						  ": " + e, e);
-		    }
 		}
 	    }
 	    catch (Exception e) {

@@ -24,7 +24,11 @@ package net.grinder.plugin.http;
 import java.util.Iterator;
 
 import HTTPClient.CookieModule;
+import HTTPClient.DefaultAuthHandler;
 import HTTPClient.HTTPConnection;
+import HTTPClient.NVPair;
+import HTTPClient.ProtocolNotSuppException;
+import HTTPClient.URI;
 
 /**
  * @author Philip Aston
@@ -32,19 +36,49 @@ import HTTPClient.HTTPConnection;
  **/
 public final class HTTPConnectionWrapper implements HTTPPluginConnection
 {
+    private final static Class s_redirectionModule;
+    
+    static
+    {
+	// Remove standard HTTPClient modules which we don't want.
+	try {
+	    // Don't want additional post-processing of response data.
+	    HTTPConnection.removeDefaultModule(
+		Class.forName("HTTPClient.ContentEncodingModule"));
+	    HTTPConnection.removeDefaultModule(
+		Class.forName("HTTPClient.TransferEncodingModule"));
+
+	    // Don't want to retry requests.
+	    HTTPConnection.removeDefaultModule(
+		Class.forName("HTTPClient.RetryModule"));
+
+	    s_redirectionModule =
+		Class.forName("HTTPClient.RedirectionModule");
+	}
+	catch (ClassNotFoundException e) {
+	    throw new RuntimeException("Failed to load HTTPClient classes");
+	}
+
+	// Turn off cookie permission checks.
+	CookieModule.setCookiePolicyHandler(null);
+
+	// Turn off authorisation UI.
+	DefaultAuthHandler.setAuthorizationPrompter(null);
+    }
+
     private final HTTPConnection m_httpConnection;
-    private boolean m_followRedirects;
-    private boolean m_useCookies;
 
     public HTTPConnectionWrapper(HTTPConnection httpConnection,
-				 HTTPPluginConnectionDefaults defaults) 
+				 HTTPPluginConnectionDefaults defaults)
     {
 	m_httpConnection = httpConnection;
-
+	m_httpConnection.setAllowUserInteraction(false);
 
 	synchronized (defaults) {
 	    setFollowRedirects(defaults.getFollowRedirects());
 	    setUseCookies(defaults.getUseCookies());
+	    setDefaultHeaders(defaults.getDefaultHeaders());
+	    setTimeout(defaults.getTimeout());
 
 	    final Iterator basicAuthenticationIterator = 
 		defaults.getBasicAuthorizations().iterator();
@@ -74,6 +108,7 @@ public final class HTTPConnectionWrapper implements HTTPPluginConnection
 				       authorizationDetails.getPassword());
 	    }
 
+	    setProxyServer(defaults.getProxyHost(), defaults.getProxyPort());
 	}
     }
 
@@ -82,40 +117,34 @@ public final class HTTPConnectionWrapper implements HTTPPluginConnection
 	return m_httpConnection;
     }
 
-    public final boolean getFollowRedirects() 
-    {
-	return m_followRedirects;
-    }
-
     public final void setFollowRedirects(boolean followRedirects) 
     {
-	m_followRedirects = followRedirects;
-
-	final Class redirectionModule = HTTPPlugin.getRedirectionModule();
-
-	if (m_followRedirects) {
-	    m_httpConnection.addModule(redirectionModule, 0);
+	if (followRedirects) {
+	    m_httpConnection.addModule(s_redirectionModule, 0);
 	}
 	else {
-	    m_httpConnection.removeModule(redirectionModule);
+	    m_httpConnection.removeModule(s_redirectionModule);
 	}
-    }
-
-    public final boolean getUseCookies() 
-    {
-	return m_useCookies;
     }
 
     public final void setUseCookies(boolean useCookies) 
     {
-	m_useCookies = useCookies;
-
-	if (m_useCookies) {
+	if (useCookies) {
 	    m_httpConnection.addModule(CookieModule.class, 0);
 	}
 	else {
 	    m_httpConnection.removeModule(CookieModule.class);
 	}
+    }
+
+    public final void setDefaultHeaders(NVPair[] defaultHeaders) 
+    {
+	m_httpConnection.setDefaultHeaders(defaultHeaders);
+    }
+
+    public void setTimeout(int timeout) 
+    {
+	m_httpConnection.setTimeout(timeout);
     }
 
     public final void addBasicAuthorization(String realm, String user,
@@ -150,6 +179,11 @@ public final class HTTPConnectionWrapper implements HTTPPluginConnection
     public final void clearAllDigestAuthorizations()
     {
 	// TODO
+    }
+
+    public void setProxyServer(String host, int port) 
+    {
+	m_httpConnection.setCurrentProxy(host, port);
     }
 }
 

@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import HTTPClient.NVPair;
+
 
 /**
  * @author Philip Aston
@@ -34,8 +36,12 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
 {
     private boolean m_followRedirects = true;
     private boolean m_useCookies = true;
+    private NVPair[] m_defaultHeaders = new NVPair[0];
+    private int m_timeout = 0;
     private Set m_basicAuthorizations = new HashSet();
     private Set m_digestAuthorizations = new HashSet();
+    private String m_proxyHost;
+    private int m_proxyPort;
 
     public final boolean getFollowRedirects() 
     {
@@ -47,7 +53,7 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
 	m_followRedirects = followRedirects;
     }
 
-    public final boolean getUseCookies() 
+    final boolean getUseCookies() 
     {
 	return m_useCookies;
     }
@@ -55,6 +61,26 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
     public final void setUseCookies(boolean useCookies) 
     {
 	m_useCookies = useCookies;
+    }
+
+    public final void setDefaultHeaders(NVPair[] defaultHeaders) 
+    {
+	m_defaultHeaders = defaultHeaders;
+    }
+
+    final NVPair[] getDefaultHeaders()
+    {
+	return m_defaultHeaders;
+    }
+
+    public final void setTimeout(int timeout)
+    {
+	m_timeout = timeout;
+    }
+
+    final int getTimeout() 
+    {
+	return m_timeout;
     }
 
     public synchronized final void addBasicAuthorization(
@@ -80,11 +106,10 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
      * Access to result should be synchronized on the
      * <code>HTTPPluginConnectionDefaults</code>.
      */
-    final Collection getBasicAuthorizations()
+    Collection getBasicAuthorizations()
     {
 	return m_basicAuthorizations;
     }
-
 
     public synchronized final void addDigestAuthorization(
 	String realm, String user, String password)
@@ -109,7 +134,7 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
      * Access to result should be synchronized on the
      * <code>HTTPPluginConnectionDefaults</code>.
      */
-    final Collection getDigestAuthorizations()
+    Collection getDigestAuthorizations()
     {
 	return m_digestAuthorizations;
     }
@@ -163,5 +188,21 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
 		getPassword().equals(other.getPassword()) &&
 		getRealm().equals(other.getRealm());
 	}
+    }
+
+    public final void setProxyServer(String host, int port) 
+    {
+	m_proxyHost = host;
+	m_proxyPort = port;
+    }
+
+    final String getProxyHost() 
+    {
+	return m_proxyHost;
+    }
+
+    final int getProxyPort()
+    {
+	return m_proxyPort;
     }
 }

@@ -21,6 +21,7 @@
 
 package net.grinder.plugin.http;
 
+import HTTPClient.NVPair;
 
 
 /**
@@ -31,13 +32,13 @@ package net.grinder.plugin.http;
  **/
 public interface HTTPPluginConnection
 {
-    boolean getFollowRedirects();
-
     void setFollowRedirects(boolean followRedirects);
 
-    boolean getUseCookies();
-
     void setUseCookies(boolean followRedirects);
+
+    void setDefaultHeaders(NVPair[] defaultHeaders);
+    
+    void setTimeout(int timeout);
 	
     void addBasicAuthorization(String realm, String user, String password);
 
@@ -49,4 +50,6 @@ public interface HTTPPluginConnection
 				String password);
 
     void clearAllDigestAuthorizations();
+
+    void setProxyServer(String host, int port);
 }
