@@ -14,8 +14,7 @@ plugin.
 
 You invoke the sniffer with something like:
 
-  CLASSPATH=/opt/grinder/lib/grinder.jar;
-  CLASSPATH=$CLASSPATH:/opt/jakarta-regexp-1.2/jakarta-regexp-1.2.jar
+  CLASSPATH=/opt/grinder/lib/grinder.jar
   export CLASSPATH
 
   java net.grinder.TCPSniffer
@@ -104,7 +103,7 @@ The output of the HttpPluginSnifferFilter looks like:
   
   grinder.processes=1
   grinder.threads=1
-  grinder.cycles=0         # Until console sends stop.
+  grinder.cycles=0 
 
   grinder.test0.sleepTime=11336
   grinder.test0.parameter.url=http://localhost:7001/

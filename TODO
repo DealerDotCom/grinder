@@ -3,16 +3,12 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-Proxy messages should be prefixed with comment lines, or removed?
-
-Strange unexpected content length messages when using IE
-
-Test: TCPSniffer should record 401 iteractions. 
-
   Find out how to stop net.grinder.console.swing.TestGraph from
   preventing parent process from detecting exit status. (For example,
   when used with the JUnit plugin). Surely System.exit() is not the
   answer?
+
+  Convert docs to xml and xslt->html.
 
   Add an assertion for the expected status code to the HTTP plugin.
   HTTP Plugin "not ok".
@@ -34,6 +30,12 @@ Test: TCPSniffer should record 401 iteractions.
 	
   Alter console and engine to use Timer.scheduleAtFixedRate for more
   accuracy.
+
+  The HTTPClient plugin implementation interprets basicAuthentication
+  properties wrongly. It first sends a request without the
+  authentication headers, then catches the 401 and automatically
+  resends a request with the authentication headers.
+
 
 The following are under way for Grinder 3:
 
