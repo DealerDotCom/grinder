@@ -116,11 +116,8 @@ public class HttpPlugin implements GrinderPlugin
 	private final Test m_test;
 	private final String m_urlString;
 	private final String m_okString;
-	private final String m_ifModifiedSince;
-	private long m_ifModifiedSinceLong = -1;
 	private String m_postString;
-	private String m_contentType;
-	private final Set m_additionalHeaders;
+	private final Map m_headers;
 	private final String m_basicAuthenticationRealmString;
 	private final String m_basicAuthenticationUserString;
 	private final String m_basicAuthenticationPasswordString;
@@ -142,17 +139,7 @@ public class HttpPlugin implements GrinderPlugin
 	    }
 
 	    m_okString = testParameters.getProperty("ok", null);
-
-	    m_additionalHeaders =
-		testParameters.getPropertySubset("header."). entrySet();
-
-	    m_ifModifiedSince =
-		testParameters.getProperty("ifModifiedSince", null);
-
-	    if (m_ifModifiedSince != null) {
-		m_ifModifiedSinceLong =
-		    HTTPClient.Util.parseHttpDate(m_ifModifiedSince).getTime();
-	    }
+	    m_headers = testParameters.getPropertySubset("header.");
 
 	    final String postFilename =
 		testParameters.getProperty("post", null);
@@ -180,9 +167,6 @@ public class HttpPlugin implements GrinderPlugin
 
 		    e.printStackTrace(System.err);
 		}
-
-		m_contentType = testParameters.getProperty("postContentType",
-							   null);
 	    }
 
 	    m_basicAuthenticationRealmString =
@@ -201,7 +185,7 @@ public class HttpPlugin implements GrinderPlugin
 	    return m_test;
 	}
 
-	public Set getAdditionalHeaders() { return m_additionalHeaders; }
+	public Map getHeaders() { return m_headers; }
 
 	public HTTPHandler.AuthorizationData getAuthorizationData()
 	    throws HTTPHandlerException
@@ -222,9 +206,6 @@ public class HttpPlugin implements GrinderPlugin
 	    return null;
 	}
 
-	public String getContentType() { return m_contentType; }
-	public String getIfModifiedSince() { return m_ifModifiedSince; }
-	public long getIfModifiedSinceLong() { return m_ifModifiedSinceLong; }
 	public String getPostString() { return m_postString; }
 	public String getURLString() { return m_urlString; }
 
@@ -402,15 +383,28 @@ public class HttpPlugin implements GrinderPlugin
 	{
 	    private final CallData m_callData;
 	    private final StringBuffer m_buffer = new StringBuffer();
+	    private final Map m_headerMap;
 
 	    public ThreadCallData(CallData callData)
 	    {
 		m_callData = callData;
+		m_headerMap = new HashMap(m_callData.getHeaders().size());
 	    }
 
-	    public Set getAdditionalHeaders() throws HTTPHandlerException
+	    public Map getHeaders() throws HTTPHandlerException
 	    {
-		return m_callData.getAdditionalHeaders();
+		final Iterator iterator =
+		    m_callData.getHeaders().entrySet().iterator();
+		
+		while (iterator.hasNext()) {
+		    final Map.Entry entry = (Map.Entry)iterator.next();
+		    final String key = (String)entry.getKey();
+		    final String value = (String)entry.getValue();
+
+		    m_headerMap.put(key, replaceKeys(value));
+		}
+
+		return m_headerMap;
 	    }
 
 	    public HTTPHandler.AuthorizationData getAuthorizationData()
@@ -439,21 +433,6 @@ public class HttpPlugin implements GrinderPlugin
 		return null;
 	    }
 	    
-	    public String getContentType() throws HTTPHandlerException
-	    {
-		return replaceKeys(m_callData.getContentType());
-	    }
-	    
-	    public String getIfModifiedSince() throws HTTPHandlerException
-	    {
-		return m_callData.getIfModifiedSince();
-	    }
-
-	    public long getIfModifiedSinceLong() throws HTTPHandlerException
-	    {
-		return m_callData.getIfModifiedSinceLong();
-	    }
-
 	    public String getPostString() throws HTTPHandlerException
 	    {
 		return replaceKeys(m_callData.getPostString());

@@ -28,6 +28,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URLConnection;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.Map;
 
 import HTTPClient.Codecs;
 
@@ -87,7 +89,7 @@ class HttpMsg implements HTTPHandler
 	    HttpURLConnection connection;
 
 	    try {
-		connection = (HttpURLConnection) url.openConnection();
+		connection = (HttpURLConnection)url.openConnection();
 	    }
 	    finally {
 		if (!m_timeIncludesTransaction) {
@@ -95,10 +97,14 @@ class HttpMsg implements HTTPHandler
 		}
 	    }
 
-	    final long ifModifiedSince = requestData.getIfModifiedSinceLong();
+	    final Iterator headersIterator =
+		requestData.getHeaders().entrySet().iterator();
 
-	    if (ifModifiedSince >= 0) {
-		connection.setIfModifiedSince(ifModifiedSince);
+	    while (headersIterator.hasNext()) {
+		final Map.Entry entry = (Map.Entry)headersIterator.next();
+
+		connection.setRequestProperty((String)entry.getKey(),
+					      (String)entry.getValue());
 	    }
 
 	    final AuthorizationData authorizationData =
@@ -142,12 +148,6 @@ class HttpMsg implements HTTPHandler
 	    if (postString != null) {
 		connection.setRequestMethod("POST");
 		connection.setDoOutput(true);
-
-		final String contentType = requestData.getContentType();
-
-		if (contentType != null) {
-		    connection.setRequestProperty("Content-Type", contentType);
-		}
 
 		final BufferedOutputStream bos = 
 		    new BufferedOutputStream(connection.getOutputStream());
@@ -193,7 +193,8 @@ class HttpMsg implements HTTPHandler
 		int charsRead = 0;
 
 		if (!m_dontReadBody) {
-		    while ((charsRead = in.read(buffer, 0, buffer.length)) > 0) {
+		    while ((charsRead = 
+			    in.read(buffer, 0, buffer.length)) > 0) {
 			stringWriter.write(buffer, 0, charsRead);
 		    }
 		}
@@ -206,7 +207,8 @@ class HttpMsg implements HTTPHandler
 		return stringWriter.toString();
 	    }
 	    else if (responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
-		m_pluginThreadContext.logMessage(urlString + " was not modified");
+		m_pluginThreadContext.logMessage(urlString +
+						 " was not modified");
 	    }
 	    else if (responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
 		     responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
@@ -218,7 +220,8 @@ class HttpMsg implements HTTPHandler
 						 " returned a redirect (" +
 						 responseCode + "). " +
 						 "Ensure the next URL is " +
-						 connection.getHeaderField("Location"));
+						 connection.getHeaderField(
+						     "Location"));
 
 		// I've seen the code that slurps the body block for non
 		// 200 responses. Can't think off the top of my head how
@@ -228,7 +231,8 @@ class HttpMsg implements HTTPHandler
 	    }
 	    else {
 		m_pluginThreadContext.logError("Unknown response code: " +
-					       responseCode + " for " + urlString);
+					       responseCode + " for " +
+					       urlString);
 	    }
 
 	    return null;

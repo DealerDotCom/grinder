@@ -28,7 +28,6 @@ import java.net.HttpURLConnection; // For the (incomplete!) status code definiti
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import HTTPClient.Cookie;
 import HTTPClient.CookieModule;
@@ -166,59 +165,56 @@ class HTTPClientHandler implements HTTPHandler
 		    basicAuthorizationData.getPassword());
 	    }
 
-	    final Set additionalHeaders = requestData.getAdditionalHeaders();
+	    final Map headers = requestData.getHeaders();
 
 	    // HTTPClient ignores null header values.
-	    final NVPair[] headers = new NVPair[5 + additionalHeaders.size()];
+	    final NVPair[] additionalHeaders = new NVPair[5 + headers.size()];
 	    int nextHeader = 0;
 
-	    final Iterator additionalHeadersIterator =
-		additionalHeaders.iterator();
+	    final Iterator headersIterator = headers.entrySet().iterator();
+	    boolean seenContentType = false;
 
-	    while (additionalHeadersIterator.hasNext()) {
-		final Map.Entry entry =
-		    (Map.Entry)additionalHeadersIterator.next();
+	    while (headersIterator.hasNext()) {
+		final Map.Entry entry = (Map.Entry)headersIterator.next();
+		final String key = (String)entry.getKey();
+		final String value = (String)entry.getValue();
 
-		headers[nextHeader++] = 
-		    new NVPair((String)entry.getKey(),
-			       (String)entry.getValue());
+		additionalHeaders[nextHeader++] = new NVPair(key, value);
+
+		// Some browsers send "Content-type" instead of
+		// "Content-Type."
+		if (!seenContentType && "Content-Type".equalsIgnoreCase(key)) {
+		    seenContentType = true;
+		}
 	    }
 
-	    final String ifModifiedSince = requestData.getIfModifiedSince();
-
-	    if (ifModifiedSince != null) {
-		headers[nextHeader++] =
-		    new NVPair("If-Modified-Since", ifModifiedSince);
-	    }
-	    
-	    final HTTPResponse response;
+	    HTTPResponse response;
 
 	    if (postString == null) {
-		String querystring =  uri.getQueryString();
-		if ((querystring != null) && (querystring.length() > 0)) {  
+		String queryString =  uri.getQueryString();
+
+		if ((queryString != null) && (queryString.length() > 0)) {  
 		    // Don't pass the query string to the second
 		    // parameter, we don't want it to be URL encoded.
 		    response = httpConnection.Get(uri.getPath() + '?' +
-						  uri.getQueryString(),
-						  (String)null,
-						  headers);
+						  queryString, (String)null,
+						  additionalHeaders);
 		} else {
-		    response = httpConnection.Get(uri.getPath(),
-						  (String)null,
-						  headers);
+		    response = httpConnection.Get(uri.getPath(), (String)null,
+						  additionalHeaders);
 		}
 	    }
 	    else {
-		final String contentType = requestData.getContentType();
-
-		headers[nextHeader++] =
-		    new NVPair("Content-Type",
-			       contentType != null ?
-			       contentType :
-			       "application/x-www-form-urlencoded");
+		// HTTPClient defaults to application/octet-stream,
+		// but this is a better default.
+		if (!seenContentType) {
+		    additionalHeaders[nextHeader++] =
+			new NVPair("Content-Type",
+				   "application/x-www-form-urlencoded");
+		}
 
 		response = httpConnection.Post(uri.getPath(), postString,
-					       headers);
+					       additionalHeaders);
 	    }
 
 	    final int statusCode = response.getStatusCode();

@@ -18,7 +18,7 @@
 
 package net.grinder.plugin.http;
 
-import java.util.Set;
+import java.util.Map;
 
 
 /**
@@ -48,13 +48,10 @@ interface HTTPHandler
 
     interface RequestData
     {
-	public Set getAdditionalHeaders() throws HTTPHandlerException;
+	public Map getHeaders() throws HTTPHandlerException;
 	public AuthorizationData getAuthorizationData()
 	    throws HTTPHandlerException;
-	public String getContentType() throws HTTPHandlerException;
-	public String getIfModifiedSince() throws HTTPHandlerException;
 	public String getPostString() throws HTTPHandlerException;
 	public String getURLString() throws HTTPHandlerException;
-	public long getIfModifiedSinceLong() throws HTTPHandlerException;
     }
 }
