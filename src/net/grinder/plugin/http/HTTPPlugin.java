@@ -130,7 +130,8 @@ public class HttpPlugin implements GrinderPlugin
 		m_urlString = testParameters.getMandatoryProperty("url");
 	    }
 	    catch (GrinderException e) {
-		throw new PluginException("URL for Test " + m_test.getName() +
+		throw new PluginException("URL for Test " +
+					  m_test.getNumber() +
 					  " not specified", e);
 	    }
 
@@ -346,7 +347,7 @@ public class HttpPlugin implements GrinderPlugin
 							 "_" +
 							 m_currentIteration +
 							 "_" +
-							 test.getName() +
+							 test.getNumber() +
 							 ".html");
 		    try {
 			final BufferedWriter htmlFile =
@@ -484,7 +485,7 @@ public class HttpPlugin implements GrinderPlugin
 			    if (p == -1) {
 				throw new HTTPHandlerException(
 				    "URL for Test " +
-				    m_callData.getTest().getName() +
+				    m_callData.getTest().getNumber() +
 				    " malformed");    
 			    }
 
@@ -497,7 +498,7 @@ public class HttpPlugin implements GrinderPlugin
 			    if (method == null ) {
 				throw new HTTPHandlerException(
 				    "URL for Test " +
-				    m_callData.getTest().getName() +
+				    m_callData.getTest().getNumber() +
 				    " refers to unknown string bean method '" +
 				    methodName + "'");
 			    }

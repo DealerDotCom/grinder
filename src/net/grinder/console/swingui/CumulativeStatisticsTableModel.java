@@ -72,7 +72,7 @@ class CumulativeStatisticsTableModel extends AbstractStatisticsTableModel
 
 	if (row < tests.length) {
 	    if (column == 0) {
-		return getTestString() + tests[row].getName();
+		return getTestString() + tests[row].getNumber();
 	    }
 	    else if (column == 1) {
 		return tests[row].getDescription();

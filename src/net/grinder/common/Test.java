@@ -27,9 +27,14 @@ import net.grinder.util.GrinderProperties;
  */ 
 public interface Test extends Comparable, java.io.Serializable
 {
-    /** int that can be used to index into array ofTests. **/
+    /** int that can be used to index into array of Tests. The
+     * indicies do not necessarily follow the same ordering as the
+     * test number.
+     **/
     public int getIndex();
-    public String getName();
+
+    /** Test number, defines test identity and ordering. **/
+    public int getNumber();
     public String getDescription();
     public GrinderProperties getParameters();
 }

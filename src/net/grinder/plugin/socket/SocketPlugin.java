@@ -102,8 +102,8 @@ public class SocketPlugin implements GrinderPlugin
 	    final GrinderProperties parameters =
 		testDefinition.getParameters();
 
-	    //Get the test name
-	    final String testName = testDefinition.getName();
+	    //Get the test number
+	    final int testName = testDefinition.getNumber();
     
 	    /**
 	     * Multiple request/response operations could happen

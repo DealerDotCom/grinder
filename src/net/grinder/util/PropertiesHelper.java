@@ -85,6 +85,7 @@ public class PropertiesHelper
 	int testIndex = 0;
 
 	final Map tests = new HashMap();
+
 	final Iterator nameIterator = m_properties.keySet().iterator();
 
 	while (nameIterator.hasNext()) {
@@ -96,11 +97,12 @@ public class PropertiesHelper
 
 	    final int nextSeparator = name.indexOf('.', TEST_PREFIX.length());
 
-	    final String testName;
+	    final int testNumber;
 
 	    try {
-		testName =
-		    name.substring(TEST_PREFIX.length(), nextSeparator);
+		testNumber =
+		    Integer.parseInt(name.substring(TEST_PREFIX.length(),
+						    nextSeparator));
 	    }
 	    catch (Exception e) {
 		throw new GrinderException(
@@ -108,31 +110,33 @@ public class PropertiesHelper
 		    name + ".");
 	    }
 
-	    if (tests.containsKey(testName)) {
+	    final Integer testNumberInteger = new Integer(testNumber);
+
+	    if (tests.containsKey(testNumberInteger)) {
 		continue;	// Already parsed.
 	    }
 
 	    final String description =
 		m_properties.getProperty(
-		    getTestPropertyName(testName, "description"), null);
+		    getTestPropertyName(testNumber, "description"), null);
 
 	    final GrinderProperties parameters =
 		m_properties.getPropertySubset(
-		    getTestPropertyName(testName, "parameter") + '.');
+		    getTestPropertyName(testNumber, "parameter") + '.');
 
 	    final Test test =
-		new TestImplementation(testIndex++, testName, description,
+		new TestImplementation(testIndex++, testNumber, description,
 				       parameters);
 
-	    tests.put(testName, test);
+	    tests.put(testNumberInteger, test);
 	}
-	
+
 	return new HashSet(tests.values());
     }
 
-    public static String getTestPropertyName(String testName,
+    public static String getTestPropertyName(int testNumber,
 					     String unqualifiedName)
     {
-	return TEST_PREFIX + testName + '.' + unqualifiedName;
+	return TEST_PREFIX + testNumber + '.' + unqualifiedName;
     }
 }

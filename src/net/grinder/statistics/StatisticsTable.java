@@ -80,7 +80,7 @@ public class StatisticsTable
 
 	    final Test test = pair.getTest();
 
-	    StringBuffer output = formatLine("Test " + test.getName(),
+	    StringBuffer output = formatLine("Test " + test.getNumber(),
 					     pair.getStatistics());
 
 	    final String testDescription = test.getDescription();

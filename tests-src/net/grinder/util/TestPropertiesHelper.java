@@ -89,7 +89,7 @@ public class TestPropertiesHelper extends TestCase
 		final String value = (String)entry.getValue();
 
 		final String propertyName =
-		    PropertiesHelper.getTestPropertyName(Integer.toString(i),
+		    PropertiesHelper.getTestPropertyName(i,
 							 "parameter." + key);
 
 		m_properties.put(propertyName, value);
@@ -98,8 +98,7 @@ public class TestPropertiesHelper extends TestCase
 
 	for (int i=0; i<m_descriptions.length; i++) {
 	    final String propertyName =
-		PropertiesHelper.getTestPropertyName(Integer.toString(i),
-						     "description");
+		PropertiesHelper.getTestPropertyName(i, "description");
 	    m_properties.put(propertyName, m_descriptions[i]);
 	}
     }
@@ -149,13 +148,11 @@ public class TestPropertiesHelper extends TestCase
 	while (testSetIterator.hasNext()) {
 	    final Test test = (Test)testSetIterator.next();
 
-	    // N.B. test.getIndex() has no relation to test.getName().
-	    // We're indexing based on the name.
-	    final int ourIndex = Integer.parseInt(test.getName());
+	    final int number = test.getNumber();
 
-	    assertEquals(m_descriptions[ourIndex], test.getDescription());
+	    assertEquals(m_descriptions[number], test.getDescription());
 
-	    final Properties originalParameters = m_testParameters[ourIndex];
+	    final Properties originalParameters = m_testParameters[number];
 	    final Properties parsedParameters = test.getParameters();
 
 	    assertEquals(originalParameters.size(), parsedParameters.size());
