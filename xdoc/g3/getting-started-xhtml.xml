@@ -287,9 +287,10 @@ engine.</p>
  </tr>
 
  <tr>
-  <td valign="top"><code><a name="grinder.appendLog">grinder.appendLog</a></code></td>
-  <td> Append to, rather than overwrite, existing log files. Default
-  is <code>false</code>.</td>
+  <td valign="top"><code><a
+  name="grinder.renameOldLogs">grinder.renameOldLogs</a></code></td>
+  <td>Save log files from the previous run by renaming them. Default
+  is <code>false</code>. </td>
  </tr>
 
  <tr>

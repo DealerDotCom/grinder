@@ -24,6 +24,11 @@ Grinder 3.0-beta15
   Fix bug 852298 - null pointer exception when multicast fails. Thanks
   to Danny Faught for the report.
 
+  Remove support for grinder.appendLog, I suspect it was rarely used.
+  Add new feature which backs up old logs (see grinder.renameOldLogs).
+  This should be much more useful when resetting processes with the
+  console.
+
 
 Grinder 3.0-beta14
 ------------------

@@ -55,7 +55,6 @@ class ProcessContext {
   private final Grinder.ScriptContext m_scriptContext;
   private final boolean m_receiveConsoleSignals;
 
-  private boolean m_shouldWriteTitleToDataWriter;
   private long m_executionStartTime;
   private boolean m_shutdown;
 
@@ -67,8 +66,8 @@ class ProcessContext {
 
     m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
-    final boolean appendLog =
-      properties.getBoolean("grinder.appendLog", false);
+    final boolean renameOldLogs =
+      properties.getBoolean("grinder.renameOldLogs", false);
 
     m_loggerImplementation =
       new LoggerImplementation(m_grinderID,
@@ -76,11 +75,9 @@ class ProcessContext {
                                  "grinder.logDirectory", "."),
                                properties.getBoolean(
                                  "grinder.logProcessStreams", true),
-                               appendLog);
+                               renameOldLogs);
 
     m_processLogger = m_loggerImplementation.getProcessLogger();
-
-    m_shouldWriteTitleToDataWriter = !appendLog;
 
     Sender consoleSender = null;
 
@@ -131,23 +128,20 @@ class ProcessContext {
     m_shutdown = false;
   }
 
-  final void initialiseDataWriter() {
+  public final void initialiseDataWriter() {
 
-    if (m_shouldWriteTitleToDataWriter) {
-      final PrintWriter dataWriter =
-        m_loggerImplementation.getDataWriter();
+    final PrintWriter dataWriter = m_loggerImplementation.getDataWriter();
 
-      dataWriter.print("Thread, Run, Test, Milliseconds since start");
+    dataWriter.print("Thread, Run, Test, Milliseconds since start");
 
-      final ExpressionView[] detailExpressionViews =
-        CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
+    final ExpressionView[] detailExpressionViews =
+      CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
 
-      for (int i = 0; i < detailExpressionViews.length; ++i) {
-        dataWriter.print(", " + detailExpressionViews[i].getDisplayName());
-      }
-
-      dataWriter.println();
+    for (int i = 0; i < detailExpressionViews.length; ++i) {
+      dataWriter.print(", " + detailExpressionViews[i].getDisplayName());
     }
+
+    dataWriter.println();
   }
 
   public final Sender getConsoleSender() {

@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.util.Date;
 
 import net.grinder.common.Logger;
@@ -46,10 +47,15 @@ import net.grinder.util.DelayedCreationFileWriter;
 final class LoggerImplementation {
   private static final PrintWriter s_stdoutWriter;
   private static final PrintWriter s_stderrWriter;
+
   private static final char[] s_lineSeparator =
     System.getProperty("line.separator").toCharArray();
+
   private static final DateFormat s_dateFormat =
     DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
+
+  private static final DecimalFormat s_fiveDigitFormat =
+    new DecimalFormat("00000");
 
   private static String s_dateString;
 
@@ -89,8 +95,9 @@ final class LoggerImplementation {
   private boolean m_errorOccurred = false;
 
   LoggerImplementation(String grinderID, String logDirectoryString,
-                       boolean logProcessStreams, boolean appendLog)
+                       boolean logProcessStreams, boolean renameOldLogs)
     throws EngineException {
+
     m_grinderID = grinderID;
     m_logProcessStreams = logProcessStreams;
 
@@ -114,31 +121,47 @@ final class LoggerImplementation {
     // Although we manage the flushing ourselves and don't call
     // println, we set auto flush on these PrintWriters because
     // clients can get direct access to them.
-    m_outputWriter = new PrintWriter(createWriter("out", appendLog), true);
+    m_outputWriter =
+      new PrintWriter(createWriter("out", renameOldLogs), true);
+
     m_errorWriter =
-      new PrintWriter(createWriter("error", appendLog), true);
+      new PrintWriter(createWriter("error", renameOldLogs), true);
 
     // Don't autoflush, we explictly control flushing of this writer.
-    m_dataWriter = new PrintWriter(createWriter("data", appendLog), false);
+    m_dataWriter = new PrintWriter(createWriter("data", renameOldLogs), false);
 
     m_processLogger = createThreadLogger(-1);
   }
 
-  private Writer createWriter(String prefix, boolean appendLog)
+  private Writer createWriter(String prefix, boolean renameOldLogs)
     throws EngineException {
+
     final File file = new File(m_filenameFactory.createFilename(prefix));
 
-    // Check we can write to the file and moan now. We won't see
-    // the problem later because PrintWriters eat exceptions. If
-    // the file doesn't exist, we're pretty sure we can create it
-    // because we checked we can write to the log directory.
-    if (file.exists() && !file.canWrite()) {
-      throw new EngineException("Cannot write to '" + file.getPath() +
-                                "'");
+    if (renameOldLogs && file.exists()) {
+      int n = 0;
+
+      File renamedFile;
+
+      do {
+        renamedFile = new File(m_filenameFactory.createFilename(
+                                 prefix,
+                                 ".log" + s_fiveDigitFormat.format(++n)));
+      }
+      while (renamedFile.exists());
+
+      file.renameTo(renamedFile);
     }
 
-    return new BufferedWriter(
-      new DelayedCreationFileWriter(file, appendLog));
+    // Check we can write to the file and moan now. We won't see the
+    // problem later because PrintWriters eat exceptions. If the file
+    // doesn't exist, we're pretty sure we can create it because we
+    // checked we can write to the log directory.
+    if (file.exists() && !file.canWrite()) {
+      throw new EngineException("Cannot write to '" + file.getPath() + "'");
+    }
+
+    return new BufferedWriter(new DelayedCreationFileWriter(file, false));
   }
 
   Logger getProcessLogger() throws EngineException {

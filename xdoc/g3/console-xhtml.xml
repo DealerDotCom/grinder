@@ -42,10 +42,10 @@ file and launch new worker processes.</p>
 
 <p>The <em>Stop processes</em> control signals all processes to exit.</p>
 
-<p><em><strong>Warning</strong> - unless <a
-href="getting-started.html#grinder.appendLog">grinder.appendLog</a> is
-true, new worker process logs will overwrite those from previous
-runs.</em></p>
+<p><em><strong>Warning</strong> - New worker process logs will
+overwrite those from previous runs. (See <a
+href="getting-started.html#grinder.renameOldLogs">
+grinder.renameOldLogs</a>).</em></p>
 
 <h3>Sample controls</h3>
 
