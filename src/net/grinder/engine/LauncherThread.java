@@ -23,8 +23,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.Logger;
-import net.grinder.util.ProcessContextImplementation;
 
 
 /**
@@ -42,8 +40,8 @@ import net.grinder.util.ProcessContextImplementation;
  */
 public class LauncherThread extends Thread
 {
+    private final String m_grinderID;
     private final String m_commandLine;
-    private final ProcessContextImplementation m_processContext;
     private int m_exitStatus = 0;
     
     /**
@@ -54,9 +52,9 @@ public class LauncherThread extends Thread
 			  String alternatePropertiesFilename)
 	throws GrinderException
     {
-	super(commandLine);
+	super(grinderID);
 
-	m_processContext = new ProcessContextImplementation(grinderID);
+	m_grinderID = grinderID;
 
 	final StringBuffer stringBuffer = new StringBuffer(commandLine);
 	stringBuffer.append(" ");
@@ -77,8 +75,9 @@ public class LauncherThread extends Thread
     public void run(){
 
 	try{
-	    m_processContext.logMessage("started with command line: " +
-					m_commandLine, Logger.TERMINAL);
+	    System.out.println("Grinder Process (" + m_grinderID +
+			       ") started with command line: " +
+			       m_commandLine);
 
 	    final Process process = Runtime.getRuntime().exec(m_commandLine);
       

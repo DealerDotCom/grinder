@@ -16,84 +16,23 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.util;
+package net.grinder.common;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import net.grinder.common.GrinderException;
-
 
 /**
+ * Extend {@link java.util.Properties} to add typesafe accessors.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
 public class GrinderProperties extends Properties
 {
-    private static String s_propertiesFilename = "grinder.properties";
-
-    private static GrinderProperties s_singleton;
-
-    /**
-     *Package method that sets global GrinderProperties for use by
-     *various unit tests
-     */
-    static void setProperties(GrinderProperties properties)
-    {
-	synchronized (GrinderProperties.class)
-	{
-	    s_singleton = properties;
-	}
-    }
-
-    /**
-     * Default constructor is public for use by the unit tests.
-     * @see #setProperties(GrinderProperties)
-     */
-    public GrinderProperties()
-    {
-    }
-
-    public static void setPropertiesFileName(String s) 
-    {
-	s_propertiesFilename = s;
-    }
-
-    public synchronized static GrinderProperties getProperties()
-    {
-	if (s_singleton == null) {
-
-	    s_singleton = new GrinderProperties();
-
-	    try {
-		final InputStream propertiesInputStream =
-		    new FileInputStream(s_propertiesFilename);
-			s_singleton.load(propertiesInputStream);
-	    }
-	    catch (Exception e) {
-		System.err.println(
-		    "Error loading properties file '" +
-		    s_propertiesFilename + "'");
-
-		return null;
-	    }
-
-	    // Allow overriding on command line.
-	    s_singleton.putAll(System.getProperties());
-	}
-    
-	return s_singleton;
-    }
-
-    public synchronized static GrinderProperties reloadProperties()
-    {
-	s_singleton = null;
-	return getProperties();
-    }
-
-    public GrinderProperties getPropertySubset(String prefix)
+    public synchronized GrinderProperties getPropertySubset(String prefix)
     {
 	final GrinderProperties result = new GrinderProperties();
 

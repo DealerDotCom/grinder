@@ -35,8 +35,6 @@ import net.grinder.statistics.CumulativeStatistics;
 import net.grinder.statistics.IntervalStatistics;
 import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.statistics.TestStatisticsMap;
-import net.grinder.util.GrinderProperties;
-import net.grinder.util.PropertiesHelper;
 import net.grinder.util.SignificantFigureFormat;
 
 

@@ -18,8 +18,6 @@
 
 package net.grinder;
 
-import net.grinder.util.GrinderProperties;
-
 
 /**
  * This is the entry point of The Grinder Console.
@@ -32,17 +30,9 @@ public class Console
     public static void main(String args[])
 	throws Exception
     {
-	if (args.length == 1) {
-	    GrinderProperties.setPropertiesFileName(args[0]);
-	}
-	else if (args.length > 1) {
-	    System.err.println("Usage: java " + Console.class.getName() +
-			       " [alternatePropertiesFilename]");
+	if (args.length > 0) {
+	    System.err.println("Usage: java " + Console.class.getName());
 	    System.exit(1);
-	}
-
-	if (GrinderProperties.getProperties() == null) {
-	    return;
 	}
 
 	new net.grinder.console.Console().run();

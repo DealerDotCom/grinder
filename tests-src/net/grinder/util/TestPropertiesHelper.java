@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.plugininterface.GrinderPlugin;
 
@@ -106,41 +107,27 @@ public class TestPropertiesHelper extends TestCase
 
     public void testInstantiatePlugin() throws Exception
     {
-	GrinderProperties.setProperties(m_emptyProperties);
-
 	try {
-	    final PropertiesHelper helper = new PropertiesHelper();
+	    final PropertiesHelper helper =
+		new PropertiesHelper(m_emptyProperties);
 
-	    final ProcessContextImplementation context =
-		new ProcessContextImplementation("grinder-id");
-
-	    helper.instantiatePlugin(context);
+	    helper.instantiatePlugin(null);
 
 	    fail("Expected exception");
 	}
 	catch (GrinderException e) {
 	}
 
-	GrinderProperties.setProperties(m_properties);
+	final PropertiesHelper helper = new PropertiesHelper(m_properties);
 
-	final PropertiesHelper helper = new PropertiesHelper();
-
-	final ProcessContextImplementation context =
-	    new ProcessContextImplementation("grinder-id");
-
-	helper.instantiatePlugin(context);
+	helper.instantiatePlugin(null);
     }
 
     public void testGetTestSet() throws Exception
     {
-	GrinderProperties.setProperties(m_properties);
+	final PropertiesHelper helper = new PropertiesHelper(m_properties);
 
-	final PropertiesHelper helper = new PropertiesHelper();
-
-	final ProcessContextImplementation context =
-	    new ProcessContextImplementation("grinder-id");
-
-	final Set tests = helper.instantiatePlugin(context).getTests();
+	final Set tests = helper.instantiatePlugin(null).getTests();
 
 	assertEquals(m_testParameters.length, tests.size());
 

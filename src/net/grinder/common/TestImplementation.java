@@ -18,8 +18,6 @@
 
 package net.grinder.common;
 
-import net.grinder.util.GrinderProperties;
-
 
 /**
  * @author Philip Aston

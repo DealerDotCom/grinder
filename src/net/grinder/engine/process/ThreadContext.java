@@ -18,11 +18,7 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.util.FilenameFactory;
-import net.grinder.util.GrinderProperties;
-import net.grinder.util.ProcessContextImplementation;
 
 
 /**
@@ -44,8 +40,8 @@ class ThreadContextImplementation
     private long m_startTime;
     private long m_elapsedTime;
 
-    public ThreadContextImplementation(PluginProcessContext processContext,
-				       int threadID)
+    public ThreadContextImplementation(
+	ProcessContextImplementation processContext, int threadID)
     {
 	super(processContext, Integer.toString(threadID));
 

@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import net.grinder.common.Test;
-import net.grinder.util.GrinderProperties;
 
 
 /**

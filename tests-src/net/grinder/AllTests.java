@@ -38,6 +38,7 @@ public class AllTests
     public static Test suite()
     {
 	final TestSuite suite = new TestSuite();
+	suite.addTest(net.grinder.common.AllTests.suite());
 	suite.addTest(net.grinder.communication.AllTests.suite());
 	suite.addTest(net.grinder.console.swingui.AllTests.suite());
 	suite.addTest(net.grinder.engine.process.AllTests.suite());

@@ -16,20 +16,21 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.util;
+package net.grinder.engine.process;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.util.Date;
 
+import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.plugininterface.PluginProcessContext;
-import net.grinder.util.FilenameFactory;
-import net.grinder.util.GrinderProperties;
 
 
 /**
@@ -75,47 +76,46 @@ public class ProcessContextImplementation implements PluginProcessContext
     private final StringBuffer m_buffer = new StringBuffer();
     private final char[] m_outputLine = new char[512];
 
-    private final GrinderProperties m_pluginParameters;
     private final String m_grinderID;
+    private final GrinderProperties m_properties;
     private final boolean m_logProcessStreams;
+    private final boolean m_appendToLog;
+    private final GrinderProperties m_pluginParameters;
     private final PrintWriter m_outputWriter;
     private final PrintWriter m_errorWriter;
-    private final boolean m_appendToLog;
 
     private final FilenameFactory m_filenameFactory;
 
+    protected ProcessContextImplementation(
+	ProcessContextImplementation processContext, String contextSuffix)
     {
-	final GrinderProperties properties =
-	    GrinderProperties.getProperties();	
+	m_grinderID = processContext.m_grinderID;
+	m_properties = processContext.m_properties;
+	m_logProcessStreams = processContext.m_logProcessStreams;
+	m_appendToLog = processContext.m_appendToLog;
+	m_pluginParameters = processContext.m_pluginParameters;
+	m_outputWriter = processContext.m_outputWriter;
+	m_errorWriter = processContext.m_errorWriter;
+
+	m_filenameFactory = new FilenameFactoryImplementation(contextSuffix);
+    }
+
+    public ProcessContextImplementation(String grinderID,
+					GrinderProperties properties)
+	throws GrinderException
+    {
+	m_grinderID = grinderID;
+	m_properties = properties;
 
 	m_logProcessStreams =
 	    properties.getBoolean("grinder.logProcessStreams", true);
 
 	m_appendToLog = properties.getBoolean("grinder.appendLog", false);
-    }
-    
-    protected ProcessContextImplementation(PluginProcessContext processContext,
-					   String threadID)
-    {
-	m_pluginParameters = processContext.getPluginParameters();
-	m_grinderID = processContext.getGrinderID();
-	m_outputWriter = processContext.getOutputLogWriter();
-	m_errorWriter = processContext.getErrorLogWriter();
-
-	m_filenameFactory = new FilenameFactory(m_grinderID, threadID);
-    }
-
-    public ProcessContextImplementation(String grinderID)
-	throws GrinderException
-    {
-	m_grinderID = grinderID;
-
-	final GrinderProperties properties = GrinderProperties.getProperties();
 
 	m_pluginParameters =
 	    properties.getPropertySubset("grinder.plugin.parameter.");
 
-	m_filenameFactory = new FilenameFactory(m_grinderID, null);
+	m_filenameFactory = new FilenameFactoryImplementation();
 
 	try {
 	    m_outputWriter =
@@ -149,6 +149,11 @@ public class ProcessContextImplementation implements PluginProcessContext
     public FilenameFactory getFilenameFactory()
     {
 	return m_filenameFactory;
+    }
+
+    public GrinderProperties getProperties()
+    {
+	return m_properties;
     }
 
     public GrinderProperties getPluginParameters()
@@ -266,5 +271,43 @@ public class ProcessContextImplementation implements PluginProcessContext
 	buffer.append("Grinder Process (");
 	buffer.append(m_grinderID);
 	buffer.append(") ");
+    }
+
+    private class FilenameFactoryImplementation implements FilenameFactory
+    {
+	private final String m_logDirectory;
+	private final String m_contextString;
+
+	private FilenameFactoryImplementation()
+	{
+	    this(null);
+	}
+
+	private FilenameFactoryImplementation(String suffix)
+	{
+	    m_logDirectory =
+		m_properties.getProperty("grinder.logDirectory", ".");
+
+	    m_contextString =
+		"_" + m_grinderID + (suffix != null ? "_" + suffix : "");
+	}
+
+	public String createFilename(String prefix, String suffix)
+	{
+	    final StringBuffer result = new StringBuffer();
+
+	    result.append(m_logDirectory);
+	    result.append(File.separator);
+	    result.append(prefix);
+	    result.append(m_contextString);
+	    result.append(suffix);
+
+	    return result.toString();
+	}
+
+	public String createFilename(String prefix)
+	{
+	    return createFilename(prefix, ".log");
+	}
     }
 }

@@ -20,8 +20,6 @@ package net.grinder.plugininterface;
 
 import java.util.Set;
 
-import net.grinder.util.GrinderProperties;
-
 
 /**
  * Abstract base class for simple plugins that use the default test

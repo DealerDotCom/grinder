@@ -18,6 +18,8 @@
 
 package net.grinder.util;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.TestImplementation;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginProcessContext;
@@ -39,12 +42,45 @@ import net.grinder.plugininterface.PluginProcessContext;
  */
 public class PropertiesHelper
 {
-    private final static String TEST_PREFIX = "grinder.test";
+    private static final String DEFAULT_FILENAME = "grinder.properties";
+    private static final String TEST_PREFIX = "grinder.test";
+
     private final GrinderProperties m_properties;
 
-    public PropertiesHelper()
+    public PropertiesHelper() throws GrinderException
     {
-	m_properties = GrinderProperties.getProperties();
+	this((String)null);
+    }
+
+    public PropertiesHelper(String filename) throws GrinderException
+    {
+	m_properties = new GrinderProperties();
+
+	try {
+	    final InputStream propertiesInputStream =
+		new FileInputStream(
+		    filename == null ? DEFAULT_FILENAME : filename);
+
+	    m_properties.load(propertiesInputStream);
+	}
+	catch (Exception e) {
+	    throw new GrinderException(
+		"Error loading properties file '" + filename + "'", e);
+	}
+
+	// Allow overriding on command line.
+	m_properties.putAll(System.getProperties());
+    }
+
+    /** Constructor for tests. **/
+    PropertiesHelper(GrinderProperties properties)
+    {
+	m_properties = properties;
+    }
+
+    public GrinderProperties getProperties()
+    {
+	return m_properties;
     }
 
     public GrinderPlugin instantiatePlugin(PluginProcessContext processContext)

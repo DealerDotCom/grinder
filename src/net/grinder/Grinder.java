@@ -23,9 +23,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.GrinderProperties;
 import net.grinder.engine.LauncherThread;
 import net.grinder.engine.process.GrinderProcess;
-import net.grinder.util.GrinderProperties;
+import net.grinder.util.PropertiesHelper;
 
 
 /**
@@ -44,24 +45,13 @@ public class Grinder
     public static void main(String args[])
 	throws GrinderException
     {
-	Grinder grinder = null;
-
-	if (args.length == 0) {
-	    grinder = new Grinder(null);
-	}
-	else if (args.length == 1) {
-	    final String propertiesFilename = args[0];
-
-	    GrinderProperties.setPropertiesFileName(propertiesFilename);
-	    grinder = new Grinder(propertiesFilename);
-	}
-	else {
+	if (args.length > 1) {
 	    System.err.println("Usage: java " + Grinder.class.getName() +
 			       " [alternatePropertiesFilename]");
 	    System.exit(1);
 	}
 
-	grinder.run();
+	new Grinder(args.length == 0 ? null: args[0]).run();
     }
 
     private final String m_alternateFilename;
@@ -76,13 +66,11 @@ public class Grinder
 	boolean ignoreInitialSignal = false;
 
 	while (true) {
-	    final GrinderProperties properties =
-		GrinderProperties.reloadProperties();
+	    final PropertiesHelper propertiesHelper =
+		new PropertiesHelper(m_alternateFilename);
 
-	    if (properties == null) {
-		// GrinderProperties will have output a message to stderr.
-		return;
-	    }
+	    final GrinderProperties properties =
+		propertiesHelper.getProperties();
 
 	    final int numberOfProcesses =
 		properties.getInt("grinder.processes", 1);

@@ -16,58 +16,15 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.util;
-
-import java.io.File;
+package net.grinder.common;
 
 
 /**
  * @author Philip Aston
  * @version $Revision$
  */
-public class FilenameFactory
+public interface FilenameFactory
 {
-    private final String m_logDirectory;
-    private final String m_contextString;
-
-    /** Package scope - only created by ProcessContextImplementation.
-     */
-    FilenameFactory(String grinderID, String threadID)
-    {
-	final GrinderProperties properties = GrinderProperties.getProperties();
-
-	m_logDirectory = properties.getProperty("grinder.logDirectory", ".");
-
-	final StringBuffer buffer = new StringBuffer();
-
-	if (grinderID != null) {
-	    buffer.append("_");
-	    buffer.append(grinderID);
-
-	    if (threadID != null) {
-		buffer.append("_");
-		buffer.append(threadID);
-	    }
-	}
-
-	m_contextString = buffer.toString();
-    }
-
-    public String createFilename(String prefix, String suffix)
-    {
-	final StringBuffer result = new StringBuffer();
-
-	result.append(m_logDirectory);
-	result.append(File.separator);
-	result.append(prefix);
-	result.append(m_contextString);
-	result.append(suffix);
-
-	return result.toString();
-    }
-
-    public String createFilename(String prefix)
-    {
-	return createFilename(prefix, ".log");
-    }
+    public String createFilename(String prefix);
+    public String createFilename(String prefix, String suffix);
 }

@@ -23,10 +23,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.statistics.StatisticsImplementation;
-import net.grinder.util.GrinderProperties;
 
 
 /**
@@ -97,7 +97,7 @@ class GrinderThread implements java.lang.Runnable
 	m_context.setGrinderThread(this);
 
 	// Should really wrap all of this in a configuration class.
-	final GrinderProperties properties = GrinderProperties.getProperties();
+	final GrinderProperties properties = m_context.getProperties();
 	
 	m_defaultSleepTime =
 	    properties.getLong("grinder.thread.sleepTime", 0);

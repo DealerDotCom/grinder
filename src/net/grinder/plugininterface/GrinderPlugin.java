@@ -20,7 +20,7 @@ package net.grinder.plugininterface;
 
 import java.util.Set;
 
-import net.grinder.util.GrinderProperties;
+import net.grinder.common.GrinderProperties;
 
 
 /**

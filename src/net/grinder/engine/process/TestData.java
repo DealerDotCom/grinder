@@ -18,10 +18,10 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.engine.EngineException;
 import net.grinder.statistics.StatisticsImplementation;
-import net.grinder.util.GrinderProperties;
 
 
 /**

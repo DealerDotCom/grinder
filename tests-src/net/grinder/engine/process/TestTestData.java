@@ -22,10 +22,10 @@ import junit.framework.TestCase;
 import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.common.TestImplementation;
 import net.grinder.statistics.StatisticsImplementation;
-import net.grinder.util.GrinderProperties;
 
 
 /**

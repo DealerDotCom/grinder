@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
 import net.grinder.communication.CommunicationException;
@@ -46,9 +47,6 @@ import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
-import net.grinder.util.FilenameFactory;
-import net.grinder.util.GrinderProperties;
-import net.grinder.util.ProcessContextImplementation;
 import net.grinder.util.PropertiesHelper;
 
 
@@ -91,12 +89,14 @@ public class GrinderProcess
 	    System.exit(-1);
 	}
 
-	if (args.length == 2) {
-	    GrinderProperties.setPropertiesFileName(args[1]);
-	}
-
 	try {
-	    final GrinderProcess grinderProcess = new GrinderProcess(args[0]);
+	    final PropertiesHelper propertiesHelper =
+		args.length == 2 ?
+		new PropertiesHelper(args[1]) : new PropertiesHelper();
+
+	    final GrinderProcess grinderProcess =
+		new GrinderProcess(args[0], propertiesHelper);
+
 	    final int status = grinderProcess.run();
 	    
 	    System.exit(status);
@@ -125,14 +125,12 @@ public class GrinderProcess
     /** A map of Tests to Statistics for passing elsewhere. */
     private final TestStatisticsMap m_testStatisticsMap;
 
-    public GrinderProcess(String grinderID)
+    public GrinderProcess(String grinderID, PropertiesHelper propertiesHelper)
 	throws GrinderException
     {
-	final GrinderProperties properties = GrinderProperties.getProperties();
+	final GrinderProperties properties = propertiesHelper.getProperties();
 
-	final PropertiesHelper propertiesHelper = new PropertiesHelper();
-
-	m_context = new ProcessContextImplementation(grinderID);
+	m_context = new ProcessContextImplementation(grinderID, properties);
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 	m_recordTime = properties.getBoolean("grinder.recordTime", true);

@@ -18,7 +18,7 @@
 
 package net.grinder.common;
 
-import net.grinder.util.GrinderProperties;
+import net.grinder.common.GrinderProperties;
 
 
 /**
