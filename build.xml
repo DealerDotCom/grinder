@@ -110,6 +110,7 @@ what you want. Currently the conditionally built modules are:
     <exclude name="**/prj.el"/>
     <exclude name="${etc.dir}/*.sh"/>
     <exclude name="${etc.dir}/*.pl"/>
+    <exclude name="${etc.dir}/*Unit Test.log"/>
   </patternset>
 
   <patternset id="lib.patternset">
