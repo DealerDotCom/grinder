@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -96,10 +96,8 @@ public class Grinder {
      *
      * @param meanTime Mean time in milliseconds.
      * @exception GrinderException If the sleep failed.
-     * @exception InvalidContextException If called from a non-worker
-     * thread.
      */
-    void sleep(long meanTime) throws GrinderException, InvalidContextException;
+    void sleep(long meanTime) throws GrinderException;
 
     /**
      * Sleep for a time based on the meanTime parameter. The actual
@@ -109,11 +107,8 @@ public class Grinder {
      * @param meanTime Mean time in milliseconds.
      * @param sigma The standard deviation, in milliseconds.
      * @exception GrinderException If the sleep failed.
-     * @exception InvalidContextException If called from a non-worker
-     * thread.
-     **/
-    void sleep(long meanTime, long sigma)
-      throws GrinderException, InvalidContextException;
+     */
+    void sleep(long meanTime, long sigma) throws GrinderException;
 
     /**
      * Get a {@link net.grinder.common.FilenameFactory} that can be used
@@ -156,9 +151,11 @@ public class Grinder {
      *
      * @param statisticsView The new statistics view.
      * @exception GrinderException If the view could not be registered.
+     * @exception InvalidContextException If called from a worker
+     * thread.
      */
     void registerDetailStatisticsView(StatisticsView statisticsView)
-      throws GrinderException;
+      throws GrinderException, InvalidContextException;
 
     /**
      * Get the Statistics for the calling worker thread. This provides
