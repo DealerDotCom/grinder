@@ -1,53 +1,64 @@
 from net.grinder.common import Logger
-from net.grinder.plugin.http import HTTPTest
+from net.grinder.plugin.http import HTTPPlugin,HTTPTest
+from HTTPClient import NVPair
 
 
 logger = grinder.getLogger()
 
-logger.output("Hello from some script initialisation ")
+logger.output("Hello from some script initialisation")
 
+test1 = HTTPTest(1, "Test",url="http://localhost:7001/")
+test2 = HTTPTest(2, "Test",url="http://localhost:9001/")
 
-httpTest = HTTPTest(999, "My test", url="http://localhost:9001")
+plugin = grinder.getPlugin(HTTPPlugin)
 
-notThere = HTTPTest(999, "My test2", url="http://localhost:9001/foo")
+defaults = plugin.getDefaultConnectionDefaults()
+x=plugin.getConnectionDefaults("http://localhost:7001")
+x.useCookies=0
+defaults.useCookies=1
 
-class DerivedTest(HTTPTest):
-    def __init__(self):
-        HTTPTest.__init__(self, 13, "Lucky 13")
-        self.x = 0
-
-    # ARG can't override getURL to hide parent version; can only
-    # override non-property methods :-(
-    
-    def invoke(self):
-        self.x += 1
-        self.url="http://localhost:9001/jython/mhs.py?n=%d&thread=%d" % \
-                  (self.x,grinder.getThreadID())
-        return HTTPTest.invoke(self)
-
-moreTests = [
-    HTTPTest(1, "", url="http://localhost:9001/security"),
-    HTTPTest(2, "", url="http://localhost:9001/security/welcome.jsp"),
-    ]
-
-
-# TestCase() is called for every thread.
-class TestCase:
-    def __init__(self):
-        self.derivedTest = DerivedTest()
-        pass
-
+# TestRunner() is called for every thread.
+class TestRunner:
     # This is called for each run.
     def __call__(self):
-        logger = grinder.getLogger()
-        logger.output("Starting test run")
+        log = grinder.getLogger().output
+        log("Starting test run")
 
-        for x in range(0,2):
-            result=httpTest.invoke()
+        #result = test1.GET()
+        #log(result.text)
 
-        result=self.derivedTest.invoke();
-        logger.output(result.httpResponse.text)
+        #        result = test1.GET("/examplesWebApp/SessionServlet",
+        #                          [NVPair("User-Agent", "Bah")])
+        
+        connection = plugin.getConnection("http://localhost:9001")
+        connection.setProxyServer("localhost", 8001)
+#        connection.timeout = 100
+#        connection.useCookies = 0
+        connection.defaultHeaders = NVPair("Foo", "Bar"), NVPair("Connection", "close")
+        
+#        connection.followRedirects = 0
+ 
+        test1.GET("console")
+        test1.POST("console/j_security_check", (
+            NVPair("j_username", "weblogic"),
+            NVPair("j_password", "weblogic"),
+            ))
 
-        notThere.invoke()
+        result1 = test2.GET("console")
+
+        if (result1.statusCode == 401):
+            log("Sigh, try again")
+            connection.addBasicAuthorization("weblogic", "system", "password")
+            test2.GET("console")
+
+#        test1.GET("/examplesWebApp/SessionServlet")
+#        test1.GET("/examplesWebApp","Yep= 21 12")
+        #for x in range(0,2):
+        #test2.GET("%s?x=%d" % (url, x))
+
+
+
+
+
 
 
