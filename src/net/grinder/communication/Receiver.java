@@ -23,7 +23,7 @@ package net.grinder.communication;
 
 
 /**
- * Interface that manages the receipt of multicast messages.
+ * Interface for classes that manage the receipt of  messages.
  *
  * @author Philip Aston
  * @version $Revision$
