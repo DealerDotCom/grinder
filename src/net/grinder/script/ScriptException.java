@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2001  Paco Gomez
-// Copyright (C) 2001  Philip Aston
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,28 +18,35 @@
 
 package net.grinder.script;
 
-import net.grinder.common.Logger;
-import net.grinder.common.Test;
+import net.grinder.common.GrinderException;
 
 
 /**
- * 
+ * Script exception class.
  *
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface ScriptContext
+public class ScriptException extends GrinderException
 {
-    String getGrinderID();
+    /**
+     * Constructor.
+     *
+     * @param message The exception message.
+     **/
+    public ScriptException(String message)
+    {
+	super(message);
+    }
 
     /**
-     * Return the thread ID.
-     */ 
-    int getThreadID();
-
-    Logger getLogger();
-
-    InvokeableTest[] getTests();
-
-    InvokeableTest registerTest(Test test) throws ScriptException;
+     * Constructor.
+     *
+     * @param message The exception message.
+     * @param e Nested exception
+     **/
+    public ScriptException(String message, Exception e)
+    {
+	super(message, e);
+    }
 }

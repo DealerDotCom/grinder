@@ -1,3 +1,4 @@
+from net.grinder.plugin.http import HTTPTest
 from random import random
 
 logger = grinder.getLogger()
@@ -5,6 +6,11 @@ logger = grinder.getLogger()
 logger.logMessage("Hello from Grinder Thread " +
                   grinder.getGrinderID() + "-" +
                   `grinder.getThreadID()`)
+
+httpTest = HTTPTest(999, "My test", "http://localhost:9001")
+
+t = grinder.registerTest(httpTest)
+t.invoke()
 
 tests = grinder.getTests()
 
