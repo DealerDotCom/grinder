@@ -52,15 +52,11 @@ import net.grinder.util.Sleeper;
  */
 class BSFProcessContext
 {
-    private final ProcessContext m_processContext;
     private final String m_script;
     private final String m_language;
 
-    public BSFProcessContext(ProcessContext processContext, File scriptFile)
-	throws EngineException
+    public BSFProcessContext(File scriptFile) throws EngineException
     {
-	m_processContext = processContext;
-
 	try {
 	    final char[] data = new char[(int)scriptFile.length()];
 
@@ -131,7 +127,7 @@ class BSFProcessContext
 	    private synchronized InvokeableTest[] recalculateTests()
 	    {
 		final Collection testDataSet =
-		    m_processContext.getTestRegistry().getTests();
+		    ProcessContext.getInstance().getTestRegistry().getTests();
 
 		if (m_tests == null || m_tests.length != testDataSet.size()) {
 		    m_tests = new InvokeableTest[testDataSet.size()];
@@ -150,7 +146,7 @@ class BSFProcessContext
 
 	    public String getGrinderID()
 	    {
-		return m_processContext.getGrinderID();
+		return ProcessContext.getInstance().getGrinderID();
 	    }
 
 	    public int getThreadID()
@@ -172,7 +168,7 @@ class BSFProcessContext
 		throws ScriptException
 	    {
 		final TestRegistry testRegistry =
-		    m_processContext.getTestRegistry();
+		    ProcessContext.getInstance().getTestRegistry();
 
 		try {
 		    return

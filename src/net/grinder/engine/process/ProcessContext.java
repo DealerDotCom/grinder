@@ -43,9 +43,12 @@ import net.grinder.statistics.TestStatisticsFactory;
 /**
  * @author Philip Aston
  * @version $Revision$
+ * @stereotype singleton
  **/
 class ProcessContext implements PluginProcessContext
 {
+    private static ProcessContext s_instance;
+
     private final String m_grinderID;
     private final GrinderProperties m_properties;
     private final GrinderProperties m_pluginParameters;
@@ -60,7 +63,24 @@ class ProcessContext implements PluginProcessContext
     private final TestStatisticsFactory m_testStatisticsFactory =
 	TestStatisticsFactory.getInstance();
 
-    public ProcessContext(String grinderID, GrinderProperties properties)
+    final synchronized static
+	void initialiseSingleton(String grinderID,
+				 GrinderProperties properties)
+	throws GrinderException
+    {
+	if (s_instance != null) {
+	    throw new GrinderException("Already initialised");
+	}
+
+	s_instance = new ProcessContext(grinderID, properties);
+    }
+
+    public final synchronized static ProcessContext getInstance()
+    {
+	return s_instance;
+    }
+
+    private ProcessContext(String grinderID, GrinderProperties properties)
 	throws GrinderException
     {
 	m_grinderID = grinderID;

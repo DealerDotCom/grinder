@@ -119,7 +119,9 @@ public final class GrinderProcess implements Monitor
 	final GrinderProperties properties =
 	    new GrinderProperties(propertiesFile);
 
-	m_context = new ProcessContext(grinderID, properties);
+	ProcessContext.initialiseSingleton(grinderID, properties);
+
+	m_context = ProcessContext.getInstance();
 
 	final LoggerImplementation loggerImplementation =
 	    m_context.getLoggerImplementation();
@@ -140,7 +142,7 @@ public final class GrinderProcess implements Monitor
 
 	m_bsfContext =
 	    scriptFilename != null ?
-	    new BSFProcessContext(m_context, new File(scriptFilename)) : null;
+	    new BSFProcessContext(new File(scriptFilename)) : null;
 
 	m_consoleListener = new ConsoleListener(properties, this, m_context);
     }
