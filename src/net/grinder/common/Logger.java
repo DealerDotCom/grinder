@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,51 +35,52 @@ import java.io.PrintWriter;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface Logger
-{
-    /** Destination constant that represents the log files. **/
-    public int LOG = 1 << 0;
+public interface Logger {
+  /** Destination constant that represents the log files. **/
+  int LOG = 1 << 0;
 
-    /** Destination constant that represents the terminal. **/
-    public int TERMINAL = 1 << 1;
+  /** Destination constant that represents the terminal. **/
+  int TERMINAL = 1 << 1;
 
-    /**
-     * Log a message to the output log with context information.
-     * <p>Equivalent to <code>output(message, Logger.LOG)</code>.</p>
-     * @param message The message
-     */
-    public void output(String message);
+  /**
+   * Log a message to the output log with context information.
+   * <p>Equivalent to <code>output(message, Logger.LOG)</code>.</p>
+   * @param message The message
+   */
+  void output(String message);
 
-    /**
-     * Log a message with context information.
-     * @param message The message
-     * @param where Destination mask
-     */
-    public void output(String message, int where);
+  /**
+   * Log a message with context information.
+   * @param message The message
+   * @param where Destination mask
+   */
+  void output(String message, int where);
 
-    /**
-     * Log an error to the error log  with context information.
-     * <p>Equivalent to <code>error(message, Logger.LOG)</code>.</p>
-     * @param message The message
-     */
-    public void error(String message);
+  /**
+   * Log an error to the error log  with context information.
+   * <p>Equivalent to <code>error(message, Logger.LOG)</code>.</p>
+   * @param message The message
+   */
+  void error(String message);
 
-    /**
-     * Log an error with context information.
-     * @param message The message
-     * @param where Destination mask
-     */
-    public void error(String message, int where);
+  /**
+   * Log an error with context information.
+   * @param message The message
+   * @param where Destination mask
+   */
+  void error(String message, int where);
 
-    /**
-     * Get a <code>PrintWriter</code> that can be used to write to the output log file.
-     * @return a <code>PrintWriter</code>
-     */
-    public PrintWriter getOutputLogWriter();
+  /**
+   * Get a <code>PrintWriter</code> that can be used to write to the
+   * output log file.
+   * @return a <code>PrintWriter</code>
+   */
+  PrintWriter getOutputLogWriter();
 
-    /**
-     * Get a <code>PrintWriter</code> that can be used to write to the error log file.
-     * @return a <code>PrintWriter</code>
-     */
-    public PrintWriter getErrorLogWriter();
+  /**
+   * Get a <code>PrintWriter</code> that can be used to write to the
+   * error log file.
+   * @return a <code>PrintWriter</code>
+   */
+  PrintWriter getErrorLogWriter();
 }

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,17 +42,14 @@ import net.grinder.engine.process.GrinderProcess;
  * @author Philip Aston
  * @version $Revision$
  */
-public class Grinder
-{
+public class Grinder {
     /**
      * The Grinder agent process entry point.
      *
-     * @param args[] Command line arguments.
+     * @param args Command line arguments.
      * @exception GrinderException If an error occurred.
      */
-    public static void main(String[] args)
-	throws GrinderException
-    {
+    public static void main(String[] args) throws GrinderException {
 	if (args.length > 1) {
 	    System.err.println("Usage: java " + Grinder.class.getName() +
 			       " [alternatePropertiesFilename]");
@@ -64,8 +61,7 @@ public class Grinder
 
     private final File m_alternateFile;
 
-    private Grinder(File alternateFile) 
-    {
+    private Grinder(File alternateFile) {
 	m_alternateFile = alternateFile;
     }
     
@@ -74,8 +70,7 @@ public class Grinder
      *
      * @exception GrinderException if an error occurs
      */
-    protected void run() throws GrinderException
-    {
+    protected void run() throws GrinderException {
 	boolean ignoreInitialSignal = false;
 
 	while (true) {
@@ -178,6 +173,7 @@ public class Grinder
 		    i++;
 		}
 		catch (InterruptedException e) {
+		  // Ignore.
 		}
 	    }
 
@@ -199,8 +195,7 @@ public class Grinder
 	}
     }
 
-    private String getHostName()
-    {
+    private String getHostName() {
 	try {
 	    return InetAddress.getLocalHost().getHostName();
 	}

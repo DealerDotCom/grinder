@@ -66,11 +66,13 @@ the target servers get foobared.
 
 * Build
 
-New brace positioning.
-
-All files should use CRLF encoding.
-
-Consider checkstyle.
+Incorporate checkstyle.
+ Compliant packages:
+	net.grinder
+	net.grinder.common
+	net.grinder.engine
+	net.grinder.engine.agent
+	net.grinder.engine.process
 
 Find out how to stop net.grinder.console.swing.TestGraph from
 preventing parent process from detecting exit status. (For example,

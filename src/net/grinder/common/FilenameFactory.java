@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,22 +29,21 @@ package net.grinder.common;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface FilenameFactory
-{
-    /**
-     * Creates a filename based on the process and thread identities,
-     * and the given <code>prefix</code>.
-     * @param prefix Prepended to the result.
-     * @return A filename.
-     */
-    public String createFilename(String prefix);
+public interface FilenameFactory {
+  /**
+   * Creates a filename based on the process and thread identities,
+   * and the given <code>prefix</code>.
+   * @param prefix Prepended to the result.
+   * @return A filename.
+   */
+  String createFilename(String prefix);
 
-    /**
-     * Creates a filename based on the process and thread identities,
-     * and the given <code>prefix</code> and <code>suffix</code>.
-     * @param prefix Prepended to the result.
-     * @param suffix Appended to the result.
-     * @return A filename.
-     */
-    public String createFilename(String prefix, String suffix);
+  /**
+   * Creates a filename based on the process and thread identities,
+   * and the given <code>prefix</code> and <code>suffix</code>.
+   * @param prefix Prepended to the result.
+   * @param suffix Appended to the result.
+   * @return A filename.
+   */
+  String createFilename(String prefix, String suffix);
 }

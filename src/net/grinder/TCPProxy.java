@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // Copyright (C) 2001 Paddy Spencer
 // All rights reserved.
 //
@@ -43,326 +43,328 @@ import net.grinder.tools.tcpproxy.TCPProxySocketFactory;
 
 
 /**
+ * This is the entry point of The TCPProxy process.
  *
  * @author Phil Dawes
  * @author Philip Aston
  * @version $Revision$
  */
-public class TCPProxy
-{
-    public static final String INITIAL_TEST_PROPERTY = "TCPProxy.initialTest";
+public class TCPProxy {
 
-    private static final String SSL_SOCKET_FACTORY_CLASS =
-	"net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory";
+  /**
+   * System property name that is used to pass the initial test number
+   * to filter implementations.
+   */
+  public static final String INITIAL_TEST_PROPERTY = "TCPProxy.initialTest";
 
-    public static void main(String[] args)
-    {
-	final TCPProxy tcpProxy = new TCPProxy(args);
-	tcpProxy.run();
+  private static final String SSL_SOCKET_FACTORY_CLASS =
+    "net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory";
+
+  /**
+   * Entry point.
+   *
+   * @param args Command line arguments.
+   */
+  public static void main(String[] args) {
+    final TCPProxy tcpProxy = new TCPProxy(args);
+    tcpProxy.run();
+  }
+
+  private Error barfUsage() {
+    System.err.println(
+      "\n" +
+      "Usage: " +
+      "\n java " + TCPProxy.class + " <options>" +
+      "\n" +
+      "\n Where options can include:" +
+      "\n" +
+      "\n   [-requestFilter <filter>]    Add request filter" +
+      "\n   [-responseFilter <filter>]   Add response filter" +
+      "\n   [-httpPlugin                 See below" +
+      "\n     [-initialTest <n>]         Number tests from n" +
+      "\n   ]" +
+      "\n   [-localHost <host name/ip>]  Default is localhost" +
+      "\n   [-localPort <port>]          Default is 8001" +
+      "\n   [-remoteHost <host name>]    Default is localhost" +
+      "\n   [-remotePort <port>]         Default is 7001" +
+      "\n   [-proxy]                     Be an HTTP proxy" +
+      "\n   [-ssl                        Use SSL" +
+      "\n     [-keyStore <file>]         Key store details for" +
+      "\n     [-keyStorePassword <pass>] certificates. Equivalent to" +
+      "\n     [-keyStoreType <type>]     javax.net.ssl.XXX properties" +
+      "\n   ]" +
+      "\n   [-colour]                    Be pretty on ANSI terminals" +
+      "\n   [-timeout]                   Proxy engine timeout" +
+      "\n" +
+      "\n <filter> can be the name of a class that implements" +
+      "\n " + TCPProxyFilter.class.getName() + " or" +
+      "\n one of NONE, ECHO. Default is ECHO." +
+      "\n" +
+      "\n When -proxy is specified, -remoteHost and -remotePort" +
+      "\n are ignored. Specify -ssl for HTTPS support." +
+      "\n" +
+      "\n -httpPlugin sets the request and response filters" +
+      "\n to produce a test script suitable for use with the" +
+      "\n HTTP plugin." +
+      "\n" +
+      "\n -timeout is how long (in seconds) the proxy will wait" +
+      "\n for a request before timing out and freeing the local" +
+      "\n port." +
+      "\n"
+      );
+
+    System.exit(1);
+
+    return null;
+  }
+
+  private Error barfUsage(String s) {
+    System.err.println("\n" + "Error: " + s);
+    throw barfUsage();
+  }
+
+  private TCPProxyEngine m_proxyEngine = null;
+
+  private TCPProxy(String[] args) {
+    final PrintWriter outputWriter = new PrintWriter(System.out);
+
+    // Default values.
+    TCPProxyFilter requestFilter = new EchoFilter(outputWriter);
+    TCPProxyFilter responseFilter = new EchoFilter(outputWriter);
+    int localPort = 8001;
+    String remoteHost = "localhost";
+    String localHost = "localhost";
+    int remotePort = 7001;
+    boolean useSSL = false;
+    boolean proxy = false;
+    int initialTest = 0;
+
+    int timeout = 0; 
+
+    boolean useColour = false;
+
+    try {
+      // Parse 1.
+      for (int i=0; i < args.length; i++) {
+	if (args[i].equalsIgnoreCase("-initialtest")) {
+	  initialTest = Integer.parseInt(args[++i]);
+	}
+      }
+
+      System.setProperty(INITIAL_TEST_PROPERTY,
+			 Integer.toString(initialTest));
+
+      // Parse 2
+      for (int i=0; i<args.length; i++) {
+	if (args[i].equalsIgnoreCase("-requestfilter")) {
+	  requestFilter = instantiateFilter(args[++i], outputWriter);
+	}
+	else if (args[i].equalsIgnoreCase("-responsefilter")) {
+	  responseFilter =
+	    instantiateFilter(args[++i], outputWriter);
+	}
+	else if (args[i].equalsIgnoreCase("-httpplugin")) {
+	  requestFilter = new HTTPPluginTCPProxyFilter(outputWriter);
+	  responseFilter =
+	    new HTTPPluginTCPProxyResponseFilter(outputWriter);
+	}
+	else if (args[i].equalsIgnoreCase("-localhost")) {
+	  localHost = args[++i];
+	}
+	else if (args[i].equalsIgnoreCase("-localport")) {
+	  localPort = Integer.parseInt(args[++i]);
+	}
+	else if (args[i].equalsIgnoreCase("-remotehost")) {
+	  remoteHost = args[++i];
+	}
+	else if (args[i].equalsIgnoreCase("-remoteport")) {
+	  remotePort = Integer.parseInt(args[++i]);
+	}
+	else if (args[i].equalsIgnoreCase("-ssl")) {
+	  useSSL = true;
+	}
+	else if (args[i].equalsIgnoreCase("-keystore")) {
+	  System.setProperty(JSSEConstants.KEYSTORE_PROPERTY,
+			     args[++i]);
+	}
+	else if (args[i].equalsIgnoreCase("-keystorepassword")) {
+	  System.setProperty(
+	    JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, args[++i]);
+	}
+	else if (args[i].equalsIgnoreCase("-keystoretype")) {
+	  System.setProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY,
+			     args[++i]);
+	}
+	else if (args[i].equalsIgnoreCase("-proxy")) {
+	  proxy = true;
+	}
+	else if (args[i].equalsIgnoreCase("-timeout")) {
+	  timeout = Integer.parseInt(args[++i]) * 1000;
+	}
+	else if (args[i].equalsIgnoreCase("-output")) {
+	  // -output is used by the TCPProxy web app only
+	  // and is not publicised, users are expected to
+	  // use shell redirection.
+	  final String outputFile = args[++i];
+	  System.setOut(new PrintStream(
+			  new FileOutputStream(outputFile + ".out"), true));
+	  System.setErr(new PrintStream(
+			  new FileOutputStream(outputFile + ".err"), true));
+	}
+	else if (args[i].equalsIgnoreCase("-colour") ||
+		 args[i].equalsIgnoreCase("-color")) {
+	  useColour = true;
+	}
+	else if (args[i].equals("-initialtest")) {
+	  /* Already handled */
+	  ++i;
+	}
+	else {
+	  throw barfUsage();
+	}
+      }
+    }
+    catch (Exception e) {
+      throw barfUsage();
     }
 
-    private Error barfUsage()
-    {
-	System.err.println(
-	    "\n" +
-	    "Usage: " +
-	    "\n java " + TCPProxy.class + " <options>" +
-	    "\n" +
-	    "\n Where options can include:" +
-	    "\n" +
-	    "\n   [-requestFilter <filter>]    Add request filter" +
-	    "\n   [-responseFilter <filter>]   Add response filter" +
-	    "\n   [-httpPlugin                 See below" +
-	    "\n     [-initialTest <n>]         Number tests from n" +
-	    "\n   ]" +
-	    "\n   [-localHost <host name/ip>]  Default is localhost" +
-	    "\n   [-localPort <port>]          Default is 8001" +
-	    "\n   [-remoteHost <host name>]    Default is localhost" +
-	    "\n   [-remotePort <port>]         Default is 7001" +
-	    "\n   [-proxy]                     Be an HTTP proxy" +
-	    "\n   [-ssl                        Use SSL" +
-	    "\n     [-keyStore <file>]         Key store details for" +
-	    "\n     [-keyStorePassword <pass>] certificates. Equivalent to" +
-	    "\n     [-keyStoreType <type>]     javax.net.ssl.XXX properties" +
-	    "\n   ]" +
-	    "\n   [-colour]                    Be pretty on ANSI terminals" +
-	    "\n   [-timeout]                   Proxy engine timeout" +
-	    "\n" +
-	    "\n <filter> can be the name of a class that implements" +
-	    "\n " + TCPProxyFilter.class.getName() + " or" +
-	    "\n one of NONE, ECHO. Default is ECHO." +
-	    "\n" +
-	    "\n When -proxy is specified, -remoteHost and -remotePort" +
-	    "\n are ignored. Specify -ssl for HTTPS support." +
-	    "\n" +
-	    "\n -httpPlugin sets the request and response filters" +
-	    "\n to produce a test script suitable for use with the" +
-	    "\n HTTP plugin." +
-	    "\n" +
-	    "\n -timeout is how long (in seconds) the proxy will wait" +
-	    "\n for a request before timing out and freeing the local" +
-	    "\n port." +
-	    "\n"
-	    );
-
-	System.exit(1);
-
-	return null;
+    if (timeout < 0) {
+      throw barfUsage("Timeout must be non-negative");
     }
 
-    private Error barfUsage(String s)
-    {
-	System.err.println("\n" + "Error: " + s);
-	throw barfUsage();
+    final StringBuffer startMessage = new StringBuffer();
+
+    startMessage.append(
+      "Initialising " + (useSSL ? "SSL" : "standard") +
+      " proxy engine with the parameters:" +
+      "\n   Request filter:  " + requestFilter.getClass().getName() +
+      "\n   Response filter: " + responseFilter.getClass().getName() +
+      "\n   Local host:       " + localHost + 
+      "\n   Local port:       " + localPort);
+
+    if (proxy) {
+      startMessage.append(
+	"\n   Listening as " + (useSSL ? "an HTTP/HTTPS" : "an HTTP") +
+	" proxy");
+    }
+    else {
+      startMessage.append(
+	"\n   Remote host:      " + remoteHost +
+	"\n   Remote port:      " + remotePort);
     }
 
-    private TCPProxyEngine m_proxyEngine = null;
+    if (useSSL) {
+      startMessage.append(
+	"\n   (SSL setup could take a few seconds)");
+    }
 
-    private TCPProxy(String[] args)
-    {
-	final PrintWriter outputWriter = new PrintWriter(System.out);
+    System.err.println(startMessage);
 
-	// Default values.
-	TCPProxyFilter requestFilter = new EchoFilter(outputWriter);
-	TCPProxyFilter responseFilter = new EchoFilter(outputWriter);
-	int localPort = 8001;
-	String remoteHost = "localhost";
-	String localHost = "localhost";
-	int remotePort = 7001;
-	boolean useSSL = false;
-	boolean proxy = false;
-	int initialTest = 0;
+    try {
+      final TCPProxySocketFactory sslSocketFactory;
 
-	int timeout = 0; 
+      if (useSSL) {
+	// TCPProxySSLSocketFactory depends on JSSE, load
+	// dynamically.
+	final Class socketFactoryClass =
+	  Class.forName(SSL_SOCKET_FACTORY_CLASS);
 
-	boolean useColour = false;
+	sslSocketFactory =
+	  (TCPProxySocketFactory)socketFactoryClass.newInstance();
+      }
+      else {
+	sslSocketFactory = null;
+      }
 
-	try {
-	    // Parse 1.
-	    for (int i=0; i < args.length; i++)
-	    {
-		if (args[i].equalsIgnoreCase("-initialtest")) {
-		    initialTest = Integer.parseInt(args[++i]);
-		}
-	    }
-
-	    System.setProperty(INITIAL_TEST_PROPERTY,
-			       Integer.toString(initialTest));
-
-	    // Parse 2
-	    for (int i=0; i<args.length; i++)
-	    {
-		if (args[i].equalsIgnoreCase("-requestfilter")) {
-		    requestFilter = instantiateFilter(args[++i], outputWriter);
-		}
-		else if (args[i].equalsIgnoreCase("-responsefilter")) {
-		    responseFilter =
-			instantiateFilter(args[++i], outputWriter);
-		}
-		else if (args[i].equalsIgnoreCase("-httpplugin")) {
-		    requestFilter = new HTTPPluginTCPProxyFilter(outputWriter);
-		    responseFilter =
-		    new HTTPPluginTCPProxyResponseFilter(outputWriter);
-		}
-		else if (args[i].equalsIgnoreCase("-localhost")) {
-		    localHost = args[++i];
-		}
-		else if (args[i].equalsIgnoreCase("-localport")) {
-		    localPort = Integer.parseInt(args[++i]);
-		}
-		else if (args[i].equalsIgnoreCase("-remotehost")) {
-		    remoteHost = args[++i];
-		}
-		else if (args[i].equalsIgnoreCase("-remoteport")) {
-		    remotePort = Integer.parseInt(args[++i]);
-		}
-		else if (args[i].equalsIgnoreCase("-ssl")) {
-		    useSSL = true;
-		}
-		else if (args[i].equalsIgnoreCase("-keystore")) {
-		    System.setProperty(JSSEConstants.KEYSTORE_PROPERTY,
-				       args[++i]);
-		}
-		else if (args[i].equalsIgnoreCase("-keystorepassword")) {
-		    System.setProperty(
-			JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, args[++i]);
-		}
-		else if (args[i].equalsIgnoreCase("-keystoretype")) {
-		    System.setProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY,
-				       args[++i]);
-		}
-		else if (args[i].equalsIgnoreCase("-proxy")) {
-		    proxy = true;
-		}
-		else if (args[i].equalsIgnoreCase("-timeout")) {
-		    timeout = Integer.parseInt(args[++i]) * 1000;
-		}
-		else if (args[i].equalsIgnoreCase("-output")) {
-		    // -output is used by the TCPProxy web app only
-		    // and is not publicised, users are expected to
-		    // use shell redirection.
-		    final String outputFile = args[++i];
-		    System.setOut(new PrintStream(
-			new FileOutputStream(outputFile + ".out"), true));
-		    System.setErr(new PrintStream(
-			new FileOutputStream(outputFile + ".err"), true));
-		}
-		else if (args[i].equalsIgnoreCase("-colour") ||
-			 args[i].equalsIgnoreCase("-color")) {
-		    useColour = true;
-		}
-		else if (args[i].equals("-initialtest")) {
-		    /* Already handled */
-		    ++i;
-		}
-		else {
-		    throw barfUsage();
-		}
-	    }
-	}
-	catch (Exception e) {
-	    throw barfUsage();
-	}
-
-	if (timeout < 0) {
-	    throw barfUsage("Timeout must be non-negative");
-	}
-
-	final StringBuffer startMessage = new StringBuffer();
-
-	startMessage.append(
-	    "Initialising " + (useSSL ? "SSL" : "standard") +
-	    " proxy engine with the parameters:" +
-	    "\n   Request filter:  " + requestFilter.getClass().getName() +
-	    "\n   Response filter: " + responseFilter.getClass().getName() +
-	    "\n   Local host:       " + localHost + 
-	    "\n   Local port:       " + localPort);
-
-	if (proxy) {
-	    startMessage.append(
-		"\n   Listening as " + (useSSL ? "an HTTP/HTTPS" : "an HTTP") +
-		" proxy");
-	} else {
-	    startMessage.append(
-		"\n   Remote host:      " + remoteHost +
-		"\n   Remote port:      " + remotePort);
-	}
-
-	if (useSSL) {
-	    startMessage.append(
-		"\n   (SSL setup could take a few seconds)");
-	}
-
-	System.err.println(startMessage);
-
-	try {
-	    final TCPProxySocketFactory sslSocketFactory;
-
-	    if (useSSL) {
-		// TCPProxySSLSocketFactory depends on JSSE, load
-		// dynamically.
-		final Class socketFactoryClass =
-		    Class.forName(SSL_SOCKET_FACTORY_CLASS);
-
-		sslSocketFactory =
-		    (TCPProxySocketFactory)socketFactoryClass.newInstance();
-	    }
-	    else {
-		sslSocketFactory = null;
-	    }
-
-	    if (proxy) {
-		m_proxyEngine = 
-		    new HTTPProxyTCPProxyEngine(
-			new TCPProxyPlainSocketFactory(),
-			sslSocketFactory,
-			requestFilter,
-			responseFilter,
-			outputWriter,
-			localHost,
-			localPort,
-			useColour,
-			timeout);
-	    }
-	    else {
-		m_proxyEngine =
-		    new TCPProxyEngineImplementation(
-			useSSL ?
-			sslSocketFactory : new TCPProxyPlainSocketFactory(),
-			requestFilter,
-			responseFilter,
-			outputWriter,
-			new ConnectionDetails(localHost, localPort,
-					      remoteHost, remotePort,
-					      useSSL),
-			useColour,
-			timeout);
-	    }
+      if (proxy) {
+	m_proxyEngine = 
+	  new HTTPProxyTCPProxyEngine(
+	    new TCPProxyPlainSocketFactory(),
+	    sslSocketFactory,
+	    requestFilter,
+	    responseFilter,
+	    outputWriter,
+	    localHost,
+	    localPort,
+	    useColour,
+	    timeout);
+      }
+      else {
+	m_proxyEngine =
+	  new TCPProxyEngineImplementation(
+	    useSSL ?
+	    sslSocketFactory : new TCPProxyPlainSocketFactory(),
+	    requestFilter,
+	    responseFilter,
+	    outputWriter,
+	    new ConnectionDetails(localHost, localPort,
+				  remoteHost, remotePort,
+				  useSSL),
+	    useColour,
+	    timeout);
+      }
 		
-	    System.err.println("Engine initialised, listening on port " +
-			       localPort);
-	}
-	catch (Exception e){
-	    System.err.println("Could not initialise engine:");
-	    e.printStackTrace();
-	    System.exit(2);
-	}
+      System.err.println("Engine initialised, listening on port " +
+			 localPort);
+    }
+    catch (Exception e){
+      System.err.println("Could not initialise engine:");
+      e.printStackTrace();
+      System.exit(2);
+    }
+  }
+
+  private TCPProxyFilter instantiateFilter(
+    String filterClassName, PrintWriter outputWriter) throws Exception {
+    if (filterClassName.equals("NONE")) {
+      return new NullFilter();
+    }
+    else if (filterClassName.equals("ECHO")) {
+      return new EchoFilter(outputWriter);
     }
 
-    private TCPProxyFilter instantiateFilter(
-	String filterClassName, PrintWriter outputWriter)
-	throws Exception
-    {
-	if (filterClassName.equals("NONE")) {
-	    return new NullFilter();
-	}
-	else if (filterClassName.equals("ECHO")) {
-	    return new EchoFilter(outputWriter);
-	}
-
-	final Class filterClass;
+    final Class filterClass;
 	
-	try {
-	    filterClass = Class.forName(filterClassName);
-	}
-	catch (ClassNotFoundException e){
-	    throw barfUsage("Class '" + filterClassName + "' not found");
-	}
+    try {
+      filterClass = Class.forName(filterClassName);
+    }
+    catch (ClassNotFoundException e){
+      throw barfUsage("Class '" + filterClassName + "' not found");
+    }
 
-	if (!TCPProxyFilter.class.isAssignableFrom(filterClass)) {
-	    throw barfUsage("The specified filter class ('" +
-			    filterClass.getName() +
-			    "') does not implement the interface: '" +
-			    TCPProxyFilter.class.getName() + "'");
-	}
+    if (!TCPProxyFilter.class.isAssignableFrom(filterClass)) {
+      throw barfUsage("The specified filter class ('" +
+		      filterClass.getName() +
+		      "') does not implement the interface: '" +
+		      TCPProxyFilter.class.getName() + "'");
+    }
 
-	// Instantiate a filter.
-	try {
-	    final Constructor constructor = 
-		filterClass.getConstructor(new Class[] {PrintWriter.class} );
+    // Instantiate a filter.
+    try {
+      final Constructor constructor = 
+	filterClass.getConstructor(new Class[] {PrintWriter.class} );
 	    
-	    return (TCPProxyFilter)constructor.newInstance(
-		new Object[] {outputWriter});
-	}
-	catch (NoSuchMethodException e) {
-	    throw barfUsage(
-		"The class '" + filterClass.getName() +
-		"' does not have a constructor that takes a PrintWriter");
-	}
-	catch (IllegalAccessException e) {
-	    throw barfUsage("The constructor of class '" +
-			    filterClass.getName() + "' is not public");
-	}
-	catch (InstantiationException e) {
-	    throw barfUsage("The class '" + filterClass.getName() +
-			    "' is abstract");
-	}
+      return (TCPProxyFilter)constructor.newInstance(
+	new Object[] {outputWriter});
     }
+    catch (NoSuchMethodException e) {
+      throw barfUsage(
+	"The class '" + filterClass.getName() +
+	"' does not have a constructor that takes a PrintWriter");
+    }
+    catch (IllegalAccessException e) {
+      throw barfUsage("The constructor of class '" +
+		      filterClass.getName() + "' is not public");
+    }
+    catch (InstantiationException e) {
+      throw barfUsage("The class '" + filterClass.getName() +
+		      "' is abstract");
+    }
+  }
 	
-    public void run() 
-    {
-	m_proxyEngine.run();
-	System.err.println("Engine exited");
-	System.exit(0);
-    }
+  private void run() {
+    m_proxyEngine.run();
+    System.err.println("Engine exited");
+    System.exit(0);
+  }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // Copyright (C) 2001, 2002 Dirk Feufel
 // All rights reserved.
 //
@@ -26,39 +26,50 @@ package net.grinder.common;
 /**
  * @author Philip Aston
  **/
-public interface ProcessStatus
-{
-    public static final short STATE_STARTED = 1;
-    public static final short STATE_RUNNING = 2;
-    public static final short STATE_FINISHED = 3;
+public interface ProcessStatus {
 
-    /**
-     * Return the process name.
-     *
-     * @return The process name.
-     **/
-    String getName();
+  /**
+   * Constant representing the "started" state.
+   */
+  static final short STATE_STARTED = 1;
 
-    /**
-     * Return the process status.
-     *
-     * @return One of {@link #STATE_STARTED}, {@link #STATE_RUNNING},
-     * {@link #STATE_FINISHED}.
-     **/
-    short getState();
+  /**
+   * Constant representing the "running" state.
+   */
+  static final short STATE_RUNNING = 2;
 
-    /**
-     * Get the number of running threads
-     *
-     * @return The number of threads that are stull running.
-     **/
-    short getNumberOfRunningThreads();
+  /**
+   * Constant representing the "finished" state.
+   */
+  static final short STATE_FINISHED = 3;
 
-    /**
-     * Get the total number of threads
-     *
-     * @return The total number of threads.
-     **/
-    short getTotalNumberOfThreads();
+  /**
+   * Return the process name.
+   *
+   * @return The process name.
+   **/
+  String getName();
+
+  /**
+   * Return the process status.
+   *
+   * @return One of {@link #STATE_STARTED}, {@link #STATE_RUNNING},
+   * {@link #STATE_FINISHED}.
+   **/
+  short getState();
+
+  /**
+   * Get the number of running threads
+   *
+   * @return The number of threads that are stull running.
+   **/
+  short getNumberOfRunningThreads();
+
+  /**
+   * Get the total number of threads
+   *
+   * @return The total number of threads.
+   **/
+  short getTotalNumberOfThreads();
 }
 

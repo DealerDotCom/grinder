@@ -59,8 +59,11 @@ public class GrinderProperties extends Properties {
    * specified file. System properties beginning with
    * "<code>grinder.</code>"are also added to allow values to be
    * overriden on the command line.
-   * @param file The file to read the properties from. null => use grinder.properties.
-   **/
+   * @param file The file to read the properties from.
+   * <code>null</code> => use grinder.properties.
+   *
+   * @exception GrinderException If an error occurs.
+   */
   public GrinderProperties(File file) throws GrinderException {
     m_file = file != null ? file : new File(DEFAULT_FILENAME);
 
@@ -116,7 +119,9 @@ public class GrinderProperties extends Properties {
 
   /**
    * Set a writer to report warnings to.
-   **/
+   *
+   * @param writer The writer.
+   */
   public final void setErrorWriter(PrintWriter writer) {
     m_errorWriter = writer;
   }
@@ -125,8 +130,10 @@ public class GrinderProperties extends Properties {
    * Return a new GrinderProperties that contains the subset of our
    * Properties which begin with the specified prefix.
    * @param prefix The prefix.
-   **/
-  public final synchronized GrinderProperties
+   *
+   * @return The subset.
+   */
+  public final synchronized GrinderProperties 
     getPropertySubset(String prefix) {
     final GrinderProperties result = new GrinderProperties();
 
@@ -150,7 +157,9 @@ public class GrinderProperties extends Properties {
    * @param propertyName The property name.
    * @param defaultValue The value to return if a property with the
    * given name does not exist or is not an integer.
-   **/
+   *
+   * @return The value.
+   */
   public final int getInt(String propertyName, int defaultValue) {
     final String s = getProperty(propertyName);
 
@@ -184,7 +193,9 @@ public class GrinderProperties extends Properties {
    * @param propertyName The property name.
    * @param defaultValue The value to return if a property with the
    * given name does not exist or is not a long.
-   **/
+   *
+   * @return The value.
+   */
   public final long getLong(String propertyName, long defaultValue) {
     final String s = getProperty(propertyName);
 
@@ -217,7 +228,9 @@ public class GrinderProperties extends Properties {
    * @param propertyName The property name.
    * @param defaultValue The value to return if a property with the
    * given name does not exist or is not a short.
-   **/
+   *
+   * @return The value.
+   */
   public final short getShort(String propertyName, short defaultValue) {
     final String s = getProperty(propertyName);
 
@@ -250,7 +263,9 @@ public class GrinderProperties extends Properties {
    * @param propertyName The property name.
    * @param defaultValue The value to return if a property with the
    * given name does not exist or is not a double.
-   **/
+   *
+   * @return The value.
+   */
   public final double getDouble(String propertyName, double defaultValue) {
     final String s = getProperty(propertyName);
 
@@ -283,7 +298,9 @@ public class GrinderProperties extends Properties {
    * @param propertyName The property name.
    * @param defaultValue The value to return if a property with the
    * given name does not exist.
-   **/
+   *
+   * @return The value.
+   */
   public final boolean getBoolean(String propertyName, boolean defaultValue) {
     final String s = getProperty(propertyName);
 

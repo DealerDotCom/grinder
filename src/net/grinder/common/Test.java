@@ -35,12 +35,12 @@ public interface Test extends Comparable {
    * Test number. Defines test identity and ordering.
    * @return The test number.
    */
-  public int getNumber();
+  int getNumber();
 
   /**
    * Test description.
    *
    * @return The test description.
    */
-  public String getDescription();
+  String getDescription();
 }

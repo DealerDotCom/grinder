@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,22 +29,25 @@ package net.grinder;
  * @author Philip Aston
  * @version $Revision$
  */
-public class Console
-{       
-    public static void main(String[] args)
-	throws Exception
-    {
-	if (args.length > 0) {
-	    System.err.println("Usage: java " + Console.class.getName());
-	    System.exit(1);
-	}
-
-	try {
-	    new net.grinder.console.Console().run();
-	}
-	catch (Throwable t) {
-	    t.printStackTrace();
-	    System.exit(2);
-	}
+public class Console {       
+  /**
+   * Describe <code>main</code> method here.
+   *
+   * @param args Command line arguments.
+   * @exception Exception if an error occurs
+   */
+  public static void main(String[] args) throws Exception {
+    if (args.length > 0) {
+      System.err.println("Usage: java " + Console.class.getName());
+      System.exit(1);
     }
+
+    try {
+      new net.grinder.console.Console().run();
+    }
+    catch (Throwable t) {
+      t.printStackTrace();
+      System.exit(2);
+    }
+  }
 }
