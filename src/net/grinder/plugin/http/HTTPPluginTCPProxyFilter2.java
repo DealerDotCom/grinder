@@ -2,7 +2,7 @@
 // Copyright (C) 2000 Phil Dawes
 // Copyright (C) 2001 Kalle Burbeck
 // Copyright (C) 2003 Bill Schnellinger
-// Copyright (C) 2003, 2004 Bertrand Ave
+// Copyright (C) 2003, 2004, 2005 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -93,6 +93,9 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
   private static final String SLEEPTIME_PROPERTY = "sleepTime";
   private static final String DISCARD_PATTERN = "discardPattern";
   private static final int DISCARD_PATTERN_LENGTH = 10;
+  private static final String DURATION_BETWEEN_RUNS = "durationBetweenRuns";
+  private static final String SAVE_HTML_RESPONSE_TO_FILE =
+    "saveHtmlResponseToFile";
 
   private boolean m_extractJsession = false;
   private static final String s_userAgent =
@@ -100,7 +103,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
   private static final String s_debug =
     System.getProperty(DEBUG_PROPERTY, "off");
   private static final String s_cookieName =
-    System.getProperty(COOKIENAME_PROPERTY, "JSESSIONID");
+    System.getProperty(COOKIENAME_PROPERTY);
   private static final String s_searchedPagePattern =
     System.getProperty(SEARCHEDPAGEPATTERN_PROPERTY, "^.*?home.jsp$");
   private static String[] s_resource;
@@ -110,6 +113,10 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     Integer.getInteger(SLEEPTIME_PROPERTY, -1).intValue();
   private static final String[] s_discardPattern =
     new String[DISCARD_PATTERN_LENGTH];
+  private static final long s_durationBetweenRuns =
+    Integer.getInteger(DURATION_BETWEEN_RUNS, 60000).intValue();
+  private static final String s_saveHtmlResponseToFile =
+    System.getProperty(SAVE_HTML_RESPONSE_TO_FILE, "off");
 
   private static final String s_newLine =
     System.getProperty("line.separator");
@@ -208,6 +215,8 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     debug("sleepTime: " + s_sleepTime);
     debug("resource: " + s_resource.toString());
     debug("discard pattern: " + s_discardPattern);
+    debug("duration between runs: " + s_durationBetweenRuns);
+    debug("save Html Response to file: " + s_saveHtmlResponseToFile);
 
     final PatternCompiler compiler = new Perl5Compiler();
 
@@ -325,8 +334,16 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     m_recordedScenarioFileWriter.println("from net.grinder.script import Test");
     m_recordedScenarioFileWriter.println("from net.grinder.plugin.http " +
       "import HTTPRequest");
-    m_recordedScenarioFileWriter.println("from WebUtils " +
-      "import extractJSESSION");
+    if (s_cookieName != null) {
+      m_recordedScenarioFileWriter.println("from WebUtils " +
+        "import extractJSESSION");
+    }
+
+    if ("on".equals(s_saveHtmlResponseToFile)) {
+      m_recordedScenarioFileWriter.println("from WebUtils " +
+        "import saveHtmlToFile");
+    }
+
     m_recordedScenarioFileWriter.println();
     m_recordedScenarioFileWriter.println("headers1 = ( NVPair('Accept', " +
       "'text/html, image/png, image/jpeg, image/gif, image/x-xbitmap, */*" +
@@ -345,9 +362,16 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       "HTTPRequest(headers = headers1)");
     m_recordedScenarioFileWriter.println();
     m_recordedScenarioFileWriter.println("class TestRunner:");
+    if (s_cookieName != null) {
+      m_recordedScenarioFileWriter.println();
+      m_recordedScenarioFileWriter.println(s_indent + "# jsession value");
+      m_recordedScenarioFileWriter.println(s_indent + "jsess = ''");
+    }
+
     m_recordedScenarioFileWriter.println();
-    m_recordedScenarioFileWriter.println(s_indent + "# jsession value");
-    m_recordedScenarioFileWriter.println(s_indent + "jsess = ''");
+    m_recordedScenarioFileWriter.println(s_indent +
+      "# sleep times between pages");
+    m_recordedScenarioFileWriter.println(s_indent + "sleepTimes = []");
 
     m_out.println("\nScript will be generated to the files:\n'" +
                   m_scriptFileName + "' and '" + m_testFileName +
@@ -419,37 +443,44 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       appendNewLineAndIndent(recordedScenarioOutput, 1);
       recordedScenarioOutput.append("def __init__(self):");
       appendNewLineAndIndent(recordedScenarioOutput, 2);
+      recordedScenarioOutput.append("self.sleepTimes = [");
       for (int i = m_initialPageNumber; i <= getPageNumber(false); i++) {
-        recordedScenarioOutput.append("self.page");
-        recordedScenarioOutput.append(i);
-        recordedScenarioOutput.append("Test = Test(");
-        recordedScenarioOutput.append(i);
-        recordedScenarioOutput.append(", 'Page");
-        recordedScenarioOutput.append(i);
-        recordedScenarioOutput.append("').wrap(self.page");
-        recordedScenarioOutput.append(i);
-        recordedScenarioOutput.append(")");
-        appendNewLineAndIndent(recordedScenarioOutput, 2);
+        recordedScenarioOutput.append(s_sleepTimes[i - m_initialPageNumber] +
+          ", ");
       }
+      recordedScenarioOutput.append("]");
+      appendNewLineAndIndent(recordedScenarioOutput, 2);
+      recordedScenarioOutput.append("for i in range(0, " +
+        (getPageNumber(false) + 1) + "):");
+      appendNewLineAndIndent(recordedScenarioOutput, 3);
+      recordedScenarioOutput.append("exec(\"self.page%dTest = ");
+      recordedScenarioOutput.append("Test(%d, 'Page%d')");
+      recordedScenarioOutput.append(".wrap(self.page%d)\" % (i,i,i,i))");
 
       recordedScenarioOutput.append(s_newLine);
       appendNewLineAndIndent(recordedScenarioOutput, 1);
       recordedScenarioOutput.append("def __call__(self):");
       appendNewLineAndIndent(recordedScenarioOutput, 2);
 
-      for (int i = m_initialPageNumber; i <= getPageNumber(false); i++) {
-        // sleep times bigger than 10 ms
-        if (s_sleepTimes[i - m_initialPageNumber] > 0) {
-          recordedScenarioOutput.append("grinder.sleep(");
-          recordedScenarioOutput.append(s_sleepTimes[i - m_initialPageNumber]);
-          recordedScenarioOutput.append(")");
-          appendNewLineAndIndent(recordedScenarioOutput, 2);
-        }
-        recordedScenarioOutput.append("self.page");
-        recordedScenarioOutput.append(i);
-        recordedScenarioOutput.append("Test()");
-        appendNewLineAndIndent(recordedScenarioOutput, 2);
+      recordedScenarioOutput.append("for i in range(0, " +
+        (getPageNumber(false) + 1) + "):");
+      appendNewLineAndIndent(recordedScenarioOutput, 3);
+      recordedScenarioOutput.append("exec(\"html = self.page%dTest()\" % i)");
+
+      if ("on".equals(s_saveHtmlResponseToFile)) {
+        appendNewLineAndIndent(recordedScenarioOutput, 3);
+        recordedScenarioOutput.append("saveHtmlToFile (\"Page%d_\" % i,");
+        recordedScenarioOutput.append(" html, grinder)");
       }
+
+      // add recorded times
+      appendNewLineAndIndent(recordedScenarioOutput, 3);
+      recordedScenarioOutput.append("grinder.sleep(self.sleepTimes[i])");
+
+      // add a param for the duration between 2 run
+      appendNewLineAndIndent(recordedScenarioOutput, 2);
+      recordedScenarioOutput.append("grinder.sleep(" +
+        s_durationBetweenRuns + ")");
 
       m_recordedScenarioFileWriter.print(recordedScenarioOutput.toString());
       m_recordedScenarioFileWriter.flush();
@@ -826,16 +857,18 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
      *
      * @param url
      * @param suffixes
+     * @param cookieName
      * @return boolean
      */
-    private boolean endsWith(String url, String[] suffixes) {
+    private boolean endsWith(String url, String[] suffixes, String cookieName) {
       boolean result = false;
 
       if (suffixes == null) {
         return result;
       }
       for (int i = 0; i < suffixes.length; i++) {
-        if (m_url.endsWith(suffixes[i])) {
+        if (m_url.endsWith(suffixes[i]) || m_url.indexOf(suffixes[i] + ";" +
+          cookieName + "=") != -1) {
           result = true;
           break;
         }
@@ -883,16 +916,17 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
         recordedScenarioOutput.append("(self):");
         appendNewLineAndIndent(recordedScenarioOutput, 2);
         if (isNewPage) {
-          if (m_time > 10) {
-            s_sleepTimes[getPageNumber(true)] = s_sleepTime > 0 ? s_sleepTime :
-              m_time;
+          if (s_sleepTime >= 0) {
+            // measure duration between pages becaure user ask to do so
+            s_sleepTimes[getPageNumber(true)] = m_time > 10 ? m_time : 0;
           }
           else {
-            s_sleepTimes[getPageNumber(true)] = 0;
+            // do not measure duration between pages
           }
         }
 
-        if (m_matcher.contains(m_url + m_queryString, m_searchedPagePattern)) {
+        if (s_cookieName != null &&
+          m_matcher.contains(m_url + m_queryString, m_searchedPagePattern)) {
           m_extractJsession = true;
         }
         else {
@@ -941,22 +975,20 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
         recordedScenarioOutput.append(m_method);
         recordedScenarioOutput.append("('");
 
-        final int pos = m_url.indexOf(s_cookieName + "=");
-        boolean addFormDataOutput = true;
-        if (pos != -1) {
-          final int pos2 = m_url.indexOf("?", pos);
-          if ((pos2 != -1) && (!"".equals(m_url.substring(pos2)))) {
-            m_url = m_url.substring(0, pos + s_cookieName.length() + 1) +
-              "' + self.jsess + '" + m_url.substring(pos2);
-          }
-          else {
-            m_url = m_url.substring(0, pos + s_cookieName.length() + 1) +
-              "' + self.jsess";
-            addFormDataOutput = false;
-          }
+        final boolean addFormDataOutput = true;
+        // mode extraction de jsession ?
+        if (s_cookieName != null) {
+          m_url = replaceJsessionValue(m_url, s_cookieName);
         }
+
         recordedScenarioOutput.append(m_url);
-        recordedScenarioOutput.append(queryStringOutput);
+        if (m_url.endsWith("' + self.jsess") &&
+          queryStringOutput.charAt(0) == '\'') {
+          recordedScenarioOutput.append(queryStringOutput.substring(1));
+        }
+        else {
+          recordedScenarioOutput.append(queryStringOutput);
+        }
         if (addFormDataOutput) {
           recordedScenarioOutput.append(formDataOutput);
         }
@@ -1076,7 +1108,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
 
       debug("URL: " + m_url);
       boolean isNewPage = false;
-      if (endsWith(m_url, s_resource)) {
+      if (endsWith(m_url, s_resource, s_cookieName)) {
         // exclude resources (gif, css, js, ...)
         if ("on".equals(s_excludeResource)) {
           return;
@@ -1231,10 +1263,15 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
               parseNameValueString(m_queryString.substring(1, pos), 3, true);
           }
           queryStringOutput.append(queryStringAsNameValuePairs);
+
           if (otherQueryStringAsNameValuePairs != null) {
-            appendNewLineAndIndent(queryStringOutput, 3);
-            queryStringOutput.append(otherQueryStringAsNameValuePairs);
+            if (!otherQueryStringAsNameValuePairs.equals(
+                queryStringAsNameValuePairs)) {
+              appendNewLineAndIndent(queryStringOutput, 3);
+              queryStringOutput.append(otherQueryStringAsNameValuePairs);
+            }
           }
+
           queryStringOutput.append(")");
         }
         catch (ParseException e) {
@@ -1400,5 +1437,28 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     }
 
     resultBuffer.append(quotes);
+  }
+
+  private String replaceJsessionValue(String aUrl, String cookieName) {
+    String result = aUrl;
+
+    final int pos = aUrl.indexOf(cookieName + "=");
+    if (pos != -1) {
+      final int pos2 = aUrl.indexOf("?", pos);
+
+      if ((pos2 != -1) && (!"".equals(aUrl.substring(pos2)))) {
+        result = aUrl.substring(0, pos + cookieName.length() + 1) +
+          "' + self.jsess + '" + aUrl.substring(pos2);
+      }
+      else {
+        result = aUrl.substring(0, pos + cookieName.length() + 1) +
+          "' + self.jsess";
+      }
+    }
+    else {
+      // nothing to do
+    }
+
+   return result;
   }
 }

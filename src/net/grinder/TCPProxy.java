@@ -1,7 +1,7 @@
 // Copyright (C) 2000 Phil Dawes
 // Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2001 Paddy Spencer
-// Copyright (C) 2003 Bertrand Ave
+// Copyright (C) 2003, 2004, 2005 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,6 +26,7 @@ package net.grinder;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -302,6 +303,9 @@ public final class TCPProxy {
           throw barfUsage();
         }
       }
+    }
+    catch (FileNotFoundException fnfe) {
+        throw barfError(fnfe.getMessage());
     }
     catch (IndexOutOfBoundsException e) {
       throw barfUsage();

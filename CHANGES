@@ -23,6 +23,9 @@ Grinder 3.0-beta25 (Not yet released)
   Most source files have been converted to use the Unix line endings.
   This is better supported by the Eclipse CVS module and Cygwin tools.
 
+  Latest updates from Bertand for the new HTTP Plugin TCPProxy filter.
+  Addresses RFE 1041267, bug 1164319.
+
 
 Grinder 3.0-beta24
 ------------------
@@ -851,7 +854,7 @@ Grinder 2.7
      responsibility for Paddy's sense of humour).
 
    - Reworked HTTP proxy, added new HTTPS proxy
- 
+
    - TCPSniffer changes:
      -timeout to set the proxy to timeout;
      -localSSLPort for use with the HTTPS proxy;

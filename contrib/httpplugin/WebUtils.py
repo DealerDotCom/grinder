@@ -48,7 +48,23 @@ def saveHtmlToFile (prefix, response, grinder):
 		c = inputStream.read()
 		file.write("%c" % c)
 		i += 1
-		
+
+	inputStream.close()
+	file.close()
+	return filename
+
+# save binary content (PDF, image) to a file
+def saveBinaryToFile (prefix, response, grinder):
+	inputStream = response.getInputStream()
+	filename = grinder.getFilenameFactory().createFilename(prefix + "_page", "-%d.html" % grinder.runNumber)
+	file = open(filename, "bw")
+	i = 1
+	taille = inputStream.available()
+	while (i <= taille):
+		c = inputStream.read()
+		file.write("%c" % c)
+		i += 1
+
 	inputStream.close()
 	file.close()
 	return filename
@@ -65,31 +81,31 @@ def checkResponse (HttpResponse, grinder, doLogging=0):
 	patternError = re.compile("problème technique momentané")
 	patternTimeout = re.compile("Votre session")
 	patternAccessDenied = re.compile("Accès refusé")
-	
+
 	grinder.logger.output ("Checking response...")
 	if HttpResponse.getStatusCode() >= 400:
 		grinder.logger.output ('Error status bigger than 400 (client or server)')
 		raise Exception ("HTML ERROR %s" % HttpResponse.getStatusCode())
-	
+
 	if patternError.search(HttpResponse.text, 0):
 		grinder.logger.output ('Error : got PortalError.jsp')
 		if doLogging == 1:
 			saveHtmlToFile ("ERROR", HttpResponse, grinder)
-		
+
 		raise Exception ("BUSINESS ERROR")
-	
+
 	if patternTimeout.search(HttpResponse.text, 0):
 		grinder.logger.output ('Error : got SessionTimeout.jsp')
 		if doLogging == 1:
 			saveHtmlToFile ("SESSION TIMEOUT", HttpResponse, grinder)
-		
+
 		raise Exception ("SESSION TIMEOUT")
-	
+
 	if patternAccessDenied.search(HttpResponse.text, 0):
 		grinder.logger.output ('Error : got AccessDenied.jsp')
 		if doLogging == 1:
 			saveHtmlToFile ("ACCESS DENIED", HttpResponse, grinder)
-		
+
 		raise Exception ("ACCESS DENIED")
 
 # extract JSESSION
@@ -103,7 +119,7 @@ def extractJSESSION(jsessname, HttpResponse, grinder, doLogging=0):
 		assert len(value) > 0
 		if doLogging == 1:
 			grinder.logger.output ("Jsession value: %s" % value)
-		
+
 		return value
 	except:
 		grinder.logger.output ('Error: in function extractJSESSION')
@@ -116,9 +132,9 @@ def extractFromHtml(SiteRoot, HTMLResponse, regex):
     # regex to enhanced: delimiter
 	linkMatch = re.compile(regex)
 	linksList = linkMatch.findall (HTMLResponse.text)
-	
+
 	return linksList
-	
+
 def extractVariable (HTMLResponse, variableName, variableType):
 	# TODO here
 	return {variableName:"1000"}
@@ -132,7 +148,7 @@ def logList (aList, grinder):
 def logDict (aDict, grinder):
 	for k, v in aDict.items():
 			grinder.logger.output (">> %s: %s" % (k, v))
-	
+
 # discard duplicates
 def discardDuplicates (aList):
 	u = {}
