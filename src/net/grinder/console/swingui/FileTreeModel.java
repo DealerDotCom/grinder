@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -68,8 +68,8 @@ final class FileTreeModel implements TreeModel {
   public int getIndexOfChild(Object parent, Object child) {
 
     if (parent == null || child == null) {
-      return -1;        // The TreeModel Javadoc says we
-      // should do this.
+      return -1;        // The TreeModel Javadoc says we should do
+                        // this.
     }
 
     return ((Node)parent).getIndexOfChild((Node)child);
@@ -135,7 +135,7 @@ final class FileTreeModel implements TreeModel {
       final int numberOfDirectories =
         childDirectories != null ? childDirectories.length : 0;
 
-      final int numberOfFiles =    childFiles != null ? childFiles.length : 0;
+      final int numberOfFiles = childFiles != null ? childFiles.length : 0;
 
       m_children = new File[numberOfDirectories + numberOfFiles];
 
@@ -174,6 +174,16 @@ final class FileTreeModel implements TreeModel {
 
     public final boolean isPythonFile() {
       return m_file.isFile() && m_file.getName().endsWith(".py");
+    }
+
+    public final boolean isBoringFile() {
+      final String name = m_file.getName();
+
+      return m_file.isFile() &&
+        (m_file.isHidden() ||
+         name.endsWith(".class") ||
+         name.endsWith("~") ||
+         name.startsWith("."));
     }
 
     public String toString() {

@@ -33,8 +33,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreeSelectionModel;
+import java.util.EventListener;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import net.grinder.console.common.Resources;
 
@@ -51,7 +58,10 @@ final class ScriptFilesPanel extends JPanel {
   private final JFileChooser m_fileChooser = new JFileChooser();
   private final FileTreeModel m_fileTreeModel = new FileTreeModel();
 
-  private File m_distributionDirectory = new File(".");
+  private File m_distributionDirectory = new File(".").getAbsoluteFile();
+
+  /** Synchronise on m_listeners before accessing. */
+  private final List m_listeners = new LinkedList();
 
   public ScriptFilesPanel(final JFrame frame, LookAndFeel lookAndFeel,
                           Resources resources,
@@ -117,6 +127,21 @@ final class ScriptFilesPanel extends JPanel {
 
     final JTree tree = new JTree(m_fileTreeModel);
     tree.setCellRenderer(new CustomTreeCellRenderer());
+    tree.getSelectionModel().setSelectionMode(
+      TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+    tree.addTreeSelectionListener(
+      new TreeSelectionListener() {
+        public void valueChanged(TreeSelectionEvent e) {
+          final FileTreeModel.Node node =
+            (FileTreeModel.Node)tree.getLastSelectedPathComponent();
+
+          if (node != null && node.getFile().isFile()) {
+            fireFileSelected(node.getFile());
+          }
+        }
+      }
+      );
 
     final JScrollPane fileTreePane = new JScrollPane(tree);
     fileTreePane.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -151,10 +176,13 @@ final class ScriptFilesPanel extends JPanel {
       new DefaultTreeCellRenderer();
     private final DefaultTreeCellRenderer m_pythonFileRenderer =
       new DefaultTreeCellRenderer();
+    private final DefaultTreeCellRenderer m_boringFileRenderer =
+      new DefaultTreeCellRenderer();
 
     CustomTreeCellRenderer() {
       m_pythonFileRenderer.setLeafIcon(
         m_resources.getImageIcon("script.pythonfile.image"));
+      m_boringFileRenderer.setTextNonSelectionColor(Colours.INACTIVE_TEXT);
     }
 
     public Component getTreeCellRendererComponent(
@@ -163,14 +191,56 @@ final class ScriptFilesPanel extends JPanel {
 
       final FileTreeModel.Node node = (FileTreeModel.Node)value;
 
+      final TreeCellRenderer renderer;
+
       if (node.isPythonFile()) {
-        return m_pythonFileRenderer.getTreeCellRendererComponent(
-          tree, value, selected, expanded, leaf, row, hasFocus);
+        renderer = m_pythonFileRenderer;
+      }
+      else if (node.isBoringFile()) {
+        renderer = m_boringFileRenderer;
+      }
+      else {
+        renderer = m_standardRenderer;
       }
 
-      return m_standardRenderer.getTreeCellRendererComponent(
+      return renderer.getTreeCellRendererComponent(
         tree, value, selected, expanded, leaf, row, hasFocus);
     }
+  }
+
+  /**
+   * Add a new listener.
+   *
+   * @param listener The listener.
+   */
+  public void addListener(Listener listener) {
+    synchronized (m_listeners) {
+      m_listeners.add(listener);
+    }
+  }
+
+  private void fireFileSelected(File file) {
+    synchronized (m_listeners) {
+      final Iterator iterator = m_listeners.iterator();
+
+      while (iterator.hasNext()) {
+        final Listener listener = (Listener)iterator.next();
+        listener.newFileSelection(file);
+      }
+    }
+  }
+
+  /**
+   * Interface for listeners.
+   */
+  public interface Listener extends EventListener {
+
+    /**
+     * Called when a new file has been selected.
+     *
+     * @param file The file.
+     */
+    void newFileSelection(File file);
   }
 }
 

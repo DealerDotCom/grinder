@@ -82,6 +82,7 @@ import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
+import net.grinder.util.FileUtilities;
 
 
 /**
@@ -265,7 +266,7 @@ public final class ConsoleUI implements ModelListener {
         threePixelBorder, resources.getString("cumulativeTable.label"));
 
     cumulativeTableTitledBorder.setTitleFont(resultsTableLabelFont);
-    cumulativeTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_BLUE);
+    cumulativeTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
     cumulativeTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
 
     cumulativeTablePane.setBorder(cumulativeTableTitledBorder);
@@ -282,7 +283,7 @@ public final class ConsoleUI implements ModelListener {
         threePixelBorder, resources.getString("sampleTable.label"));
 
     sampleTableTitledBorder.setTitleFont(resultsTableLabelFont);
-    sampleTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_BLUE);
+    sampleTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
     sampleTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
 
     sampleTablePane.setBorder(sampleTableTitledBorder);
@@ -313,7 +314,7 @@ public final class ConsoleUI implements ModelListener {
         threePixelBorder, resources.getString("processStatusTableTab.tip"));
 
     processTableTitledBorder.setTitleFont(resultsTableLabelFont);
-    processTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_BLUE);
+    processTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
     processTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
 
     processStatusPane.setBorder(processTableTitledBorder);
@@ -323,6 +324,14 @@ public final class ConsoleUI implements ModelListener {
                         "processStatusTableTab.image"),
                       processStatusPane,
                       resources.getString("processStatusTableTab.tip"));
+
+    final ScriptFilesPanel scriptFilesPanel =
+      new ScriptFilesPanel(m_frame, m_lookAndFeel, resources,
+                           distributeFilesHandler);
+    scriptFilesPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+    scriptFilesPanel.setMinimumSize(new Dimension(200, 100));
+
+    scriptFilesPanel.refresh();
 
     final JEditTextArea scriptTextArea = new JEditTextArea();
     scriptTextArea.setTokenMarker(new PythonTokenMarker());
@@ -339,7 +348,7 @@ public final class ConsoleUI implements ModelListener {
     styles[Token.LITERAL2] = styles[Token.LITERAL1];
 
     painter.setCaretColor(Colours.DARK_RED);
-    painter.setLineHighlightColor(Colours.FEINT_YELLOW);
+    painter.setLineHighlightColor(Colours.FAINT_YELLOW);
     painter.setBracketHighlightColor(Colours.GREY);
     painter.setSelectionColor(Colours.GREY);
     // Initial focus?
@@ -350,13 +359,18 @@ public final class ConsoleUI implements ModelListener {
                                   true));
     scriptTextArea.setFirstLine(0);
 
-    final ScriptFilesPanel scriptFilesPanel =
-      new ScriptFilesPanel(m_frame, m_lookAndFeel, resources,
-                           distributeFilesHandler);
-    scriptFilesPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-    scriptFilesPanel.setMinimumSize(new Dimension(100, 100));
-
-    scriptFilesPanel.refresh();
+    scriptFilesPanel.addListener(
+      new ScriptFilesPanel.Listener() {
+        public void newFileSelection(File f) {
+          try {
+            scriptTextArea.setText(FileUtilities.fileToString(f));
+            scriptTextArea.setFirstLine(0);
+          }
+          catch (IOException e) {
+            // TODO.
+          }
+        }
+      });
 
     final JSplitPane scriptPane =
       new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,

@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,50 +19,37 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.swingui;
+package net.grinder.util;
 
-import java.awt.Color;
-import java.awt.SystemColor;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringWriter;
 
 
 /**
- * Some standard colours.
+ * File utilities.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-final class Colours {
+public final class FileUtilities {
+  public static String fileToString(File f) throws IOException {
+    final Reader in = new BufferedReader(new FileReader(f));
 
-  /** Colour constant. */
-  public static final Color BLACK = Color.black;
+    final StringWriter out = new StringWriter();
 
-  /** Colour constant. */
-  public static final Color BLUE = Color.blue;
+    int c;
 
-  /** Colour constant. */
-  public static final Color DARK_GREEN = new Color(0, 0x80, 0);
+    while ((c = in.read()) > 0) {
+      out.write(c);
+    }
 
-  /** Colour constant. */
-  public static final Color DARK_GREY = Color.darkGray;
+    in.close();
+    out.close();
 
-  /** Colour constant. */
-  public static final Color DARK_RED = new Color(0xE0, 0, 00);
-
-  /** Colour constant. */
-  public static final Color FAINT_YELLOW = new Color(0xFF, 0xFF, 0xD0);
-
-  /** Colour constant. */
-  public static final Color GREY = Color.gray;
-
-  /** Colour constant. */
-  public static final Color HIGHLIGHT_BLUE = SystemColor.textHighlight;
-
-  /** Colour constant. */
-  public static final Color RED = Color.red;
-
-  /** Colour constant. */
-  public static final Color HIGHLIGHT_TEXT = SystemColor.textHighlight;
-
-  /** Colour constant. */
-  public static final Color INACTIVE_TEXT = SystemColor.textInactiveText;
+    return out.toString();
+  }
 }
