@@ -18,14 +18,11 @@
 
 package net.grinder.console;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.util.*;
-import java.net.*;
-import java.io.*;
-import net.grinder.engine.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.Test;
 import net.grinder.util.GrinderException;
@@ -42,8 +39,8 @@ import net.grinder.console.swing.ConsoleUI;
  * @author Philip Aston
  * @version $Revision$
  */
-public class Console implements ActionListener
-{       
+public class Console
+{
     private final ConsoleCommunication m_communication;
     private final Map m_tests = new TreeMap();
     private final ConsoleUI m_userInterface;
@@ -60,7 +57,6 @@ public class Console implements ActionListener
 
 	final GrinderPlugin grinderPlugin =
 	    propertiesHelper.instantiatePlugin(null);
-
 	// Shove the tests into a TreeMap so that they're ordered.
 	final Iterator testSetIterator =
 	    propertiesHelper.getTestSet(grinderPlugin).iterator();
@@ -72,19 +68,37 @@ public class Console implements ActionListener
 	    m_tests.put(test.getTestNumber(), test);
 	}
 
-	m_userInterface = new ConsoleUI(m_tests.values());
+	final ActionListener startHandler =
+	    new ActionListener() {
+		    public void actionPerformed(ActionEvent event) {
+			System.out.println("Starting Grinder...");
+			    
+			try {
+			    m_communication.sendStartMessage();
+			}
+			catch (GrinderException e) {
+			    System.err.println(
+				"Could not send start message: " + e);
+			    e.printStackTrace();
+			}
+		    }
+		};
+
+	m_userInterface = new ConsoleUI(m_tests.values(), startHandler);
     }
     
     public void run() throws GrinderException
     {
         System.out.println("Grinder Console started.");        
 
-	try {
-	    Thread.sleep(10000);
-	    return;
+	while (true) {
+	    try {
+		Thread.sleep(100);
+	    }
+	    catch (Exception e){
+	    }
 	}
-	catch (Exception e){
-	}
+	
 	
 	// Create the UI
 	/*        b.addActionListener(this);
@@ -132,18 +146,4 @@ public class Console implements ActionListener
 	*/
     }
 
-    public void actionPerformed(ActionEvent event)
-    {
-        if (event.getActionCommand().equals("StartGrinder")) {
-	    System.out.println("Starting Grinder...");
-
-	    try {
-		m_communication.sendStartMessage();
-	    }
-	    catch (GrinderException e) {
-		System.err.println("Could not send start message: " + e);
-		e.printStackTrace();
-	    }
-        }
-    }
 }

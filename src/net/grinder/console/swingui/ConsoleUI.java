@@ -19,6 +19,7 @@
 package net.grinder.console.swing;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Collection;
@@ -37,7 +38,7 @@ public class ConsoleUI
 {
     final JFrame m_frame;
 
-    public ConsoleUI(Collection testSet)
+    public ConsoleUI(Collection testSet, ActionListener startHandler)
     {
 	m_frame = new JFrame("Grinder Console");
 
@@ -54,11 +55,10 @@ public class ConsoleUI
 						  BoxLayout.Y_AXIS);
 
         final JButton startButton = new JButton("Start Grinder");
-	//        startButton.addActionListener(this);
+	startButton.addActionListener(startHandler);
         topLevelPanel.add(startButton);
 
         final JButton exitButton = new JButton("Exit");
-	//        startButton.addActionListener(this);
 
         topLevelPanel.add(exitButton);
 
