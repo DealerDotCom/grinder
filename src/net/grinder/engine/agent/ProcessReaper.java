@@ -49,7 +49,7 @@ final class ProcessReaper extends Thread {
     Runtime.getRuntime().addShutdownHook(this);
   }
 
-  public synchronized  boolean add(Process process) {
+  public synchronized boolean add(Process process) {
     return m_processes.add(process);
   }
 
