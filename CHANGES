@@ -4,6 +4,9 @@ Grinder 3.0-beta23
   Fix TCPProxy to make it more relaxed about 8 bit characters in HTTP
   URLs. Thanks to Thomas Böhne for reporting problems.
 
+  Fix another bug in HTTPClient related to responses with a
+  Content-Length of 0. Thanks to John Lee for the report.
+
 
 Grinder 3.0-beta22
 ------------------

@@ -898,12 +898,18 @@ public class HTTPResponse implements HTTPClientModuleConstants
     private void readResponseData(InputStream inp)
 	    throws IOException, ModuleException
     {
-	if (ContentLength == 0)
-	    return;
+	/** ++GRINDER MODIFICATION **/
+      // if (ContentLength == 0)
+      // return;
+	/** --GRINDER MODIFICATION **/
 
 	if (Data == null)
 	    Data = new byte[0];
 
+	/** ++GRINDER MODIFICATION **/
+        if (ContentLength == 0)
+          return;
+	/** --GRINDER MODIFICATION **/
 
 	// read response data
 
