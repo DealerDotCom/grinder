@@ -112,7 +112,7 @@ public final class ProcessStatusSet {
       int runningSum = 0;
       int totalSum = 0;
 
-      for (int i=0; i<data.length; ++i) {
+      for (int i = 0; i < data.length; ++i) {
 	runningSum += data[i].getNumberOfRunningThreads();
 	totalSum += data[i].getTotalNumberOfThreads();
       }
@@ -145,7 +145,8 @@ public final class ProcessStatusSet {
    */
   public final synchronized void addStatusReport(String uniqueID,
 						 ProcessStatus processStatus) {
-    ProcessStatusImplementation processStatusImplementation = 
+
+    ProcessStatusImplementation processStatusImplementation =
       (ProcessStatusImplementation)m_processes.get(uniqueID);
 
     if (processStatusImplementation == null) {

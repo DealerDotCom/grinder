@@ -68,7 +68,7 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
     /**
      * Constructor.
      *
-     * @exception MalformedPatternException 
+     * @exception MalformedPatternException
      */
     public HTTPPluginTCPProxyResponseFilter(PrintWriter outputWriter)
 	throws MalformedPatternException
@@ -100,7 +100,7 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
 	throws IOException
     {
 	HTTPPluginTCPProxyFilter.markLastResponseTime();
-	
+
 	// String used to parse headers - header names are
 	// US-ASCII encoded and anchored to start of line.
 	final String asciiString =
@@ -148,7 +148,7 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
      * @return The realm from the last recorded authentication
      * challenge.
      */
-    static String getLastAuthenticationRealm() 
+    static String getLastAuthenticationRealm()
     {
 	return s_lastAuthenticationRealm;
     }

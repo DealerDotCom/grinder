@@ -156,7 +156,7 @@ final class ConsoleListener {
     public final void run() {
       while (true) {
 	final Message message;
-		
+
 	try {
 	  message = m_receiver.waitForMessage();
 	}

@@ -49,7 +49,7 @@ final class CumulativeStatisticsTableModel
 
   /**
    * {@link net.grinder.console.model.ModelListener} interface. New
-   * <code>StatisticsView</code>s have been added. 
+   * <code>StatisticsView</code>s have been added.
    **/
   public final synchronized void newStatisticsViews(
     StatisticsView intervalStatisticsView,

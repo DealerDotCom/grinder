@@ -37,7 +37,8 @@ import net.grinder.console.model.ProcessStatusSetListener;
  *
  * @author Dirk Feufel
  * @author Philip Aston
- **/
+ * @version $Revision$
+ */
 class ProcessStatusTableModel
   extends AbstractTableModel
   implements ProcessStatusSetListener, Table.TableModel {
@@ -73,11 +74,11 @@ class ProcessStatusTableModel
       new SwingDispatchedProcessStatusSetListener(this));
   }
 
-  public final void update(ProcessStatus[] data, int runningSum, 
+  public final void update(ProcessStatus[] data, int runningSum,
 			   int totalSum) {
     m_data = data;
     m_totalDataString = formatThreadCounts(runningSum, totalSum);
-	
+
     fireTableDataChanged();
   }
 

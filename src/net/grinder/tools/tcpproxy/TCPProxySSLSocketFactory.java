@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,9 +37,7 @@ import java.security.cert.X509Certificate;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 
 
 /**
@@ -54,117 +52,131 @@ import javax.net.ssl.SSLSocketFactory;
  * @author Phil Dawes
  * @version $Revision$
  */
-public final class TCPProxySSLSocketFactory implements TCPProxySocketFactory
-{
-    final ServerSocketFactory m_serverSocketFactory;
-    final SocketFactory m_clientSocketFactory;
+public final class TCPProxySSLSocketFactory implements TCPProxySocketFactory {
 
+  private final ServerSocketFactory m_serverSocketFactory;
+  private final SocketFactory m_clientSocketFactory;
 
-    /**
-     * ARGHH. I hate JSSE.
-     *
-     * <p>The JSSE docs rabbit on about being able to create factories
-     * with the required parameters, this is a lie. Where is
-     * "SSL[Server]SocketFactory.setEnabledCipherSuites()"? Hence the
-     * need for our own abstract factories.</p>
-     *
-     * <p>We can't install our own TrustManagerFactory without messing
-     * with the security properties file. Hence we create our own
-     * SSLContext and initialise it. Passing null as the keystore
-     * parameter to SSLContext.init() results in a empty keystore
-     * being used, as does passing the key manager array obtain from
-     * keyManagerFactory.getInstance().getKeyManagers(). To pick up
-     * the "default" keystore system properties, we have to read them
-     * explicitly. UGLY, but necessary so we understand the expected
-     * properties.</p>
-     *
-     * - PhilA
-     */
-    public TCPProxySSLSocketFactory()
-	throws IOException, GeneralSecurityException
-    {
-	final SSLContext sslContext = SSLContext.getInstance("SSL");
+  /**
+   * ARGHH. I hate JSSE.
+   *
+   * <p>The JSSE docs rabbit on about being able to create factories
+   * with the required parameters, this is a lie. Where is
+   * "SSL[Server]SocketFactory.setEnabledCipherSuites()"? Hence the
+   * need for our own abstract factories.</p>
+   *
+   * <p>We can't install our own TrustManagerFactory without messing
+   * with the security properties file. Hence we create our own
+   * SSLContext and initialise it. Passing null as the keystore
+   * parameter to SSLContext.init() results in a empty keystore
+   * being used, as does passing the key manager array obtain from
+   * keyManagerFactory.getInstance().getKeyManagers(). To pick up
+   * the "default" keystore system properties, we have to read them
+   * explicitly. UGLY, but necessary so we understand the expected
+   * properties.</p>
+   *
+   * - PhilA
+   *
+   * @exception IOException If an I/O error occurs.
+   * @exception GeneralSecurityException If a security error occurs.
+   */
+  public TCPProxySSLSocketFactory()
+    throws IOException, GeneralSecurityException {
 
-	final KeyManagerFactory keyManagerFactory =
-	    KeyManagerFactory.getInstance(
-		KeyManagerFactory.getDefaultAlgorithm());
+    final SSLContext sslContext = SSLContext.getInstance("SSL");
 
-	final String keyStoreFile =
-	    System.getProperty(JSSEConstants.KEYSTORE_PROPERTY);
-	final char[] keyStorePassword =
-	    System.getProperty(JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, "")
-	    .toCharArray();
-	final String keyStoreType =
-	    System.getProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY, "jks");
+    final KeyManagerFactory keyManagerFactory =
+      KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 
-	final KeyStore keyStore;
-	
-	if (keyStoreFile != null) {
-	    keyStore = KeyStore.getInstance(keyStoreType);
-	    keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
-	}
-	else {
-	    keyStore = null;
-	}
+    final String keyStoreFile =
+      System.getProperty(JSSEConstants.KEYSTORE_PROPERTY);
+    final char[] keyStorePassword =
+      System.getProperty(JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, "")
+      .toCharArray();
+    final String keyStoreType =
+      System.getProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY, "jks");
 
-	keyManagerFactory.init(keyStore, keyStorePassword);
+    final KeyStore keyStore;
 
-	sslContext.init(keyManagerFactory.getKeyManagers(),
-			new TrustManager[] { new TrustEveryone() },
-			null);
-
-	m_clientSocketFactory = sslContext.getSocketFactory();
-	m_serverSocketFactory = sslContext.getServerSocketFactory(); 
+    if (keyStoreFile != null) {
+      keyStore = KeyStore.getInstance(keyStoreType);
+      keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
+    }
+    else {
+      keyStore = null;
     }
 
-    public final ServerSocket createServerSocket(String localHost,
-						 int localPort,
-						 int timeout)
-	throws IOException
-    {
-	final SSLServerSocket socket =
-	    (SSLServerSocket)m_serverSocketFactory.createServerSocket(
-		localPort, 50, InetAddress.getByName(localHost));
+    keyManagerFactory.init(keyStore, keyStorePassword);
 
-	socket.setSoTimeout(timeout);
+    sslContext.init(keyManagerFactory.getKeyManagers(),
+		    new TrustManager[] { new TrustEveryone() },
+		    null);
 
-	socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
+    m_clientSocketFactory = sslContext.getSocketFactory();
+    m_serverSocketFactory = sslContext.getServerSocketFactory();
+  }
 
-	return socket;
+  /**
+   * Factory method for server sockets.
+   *
+   * @param localHost Local host.
+   * @param localPort Local port.
+   * @param timeout Socket timeout.
+   * @return A new <code>ServerSocket</code>.
+   * @exception IOException If an error occurs.
+   */
+  public final ServerSocket createServerSocket(String localHost,
+					       int localPort,
+					       int timeout)
+    throws IOException {
+
+    final SSLServerSocket socket =
+      (SSLServerSocket)m_serverSocketFactory.createServerSocket(
+	localPort, 50, InetAddress.getByName(localHost));
+
+    socket.setSoTimeout(timeout);
+
+    socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
+
+    return socket;
+  }
+
+  /**
+   * Factory method for client sockets.
+   *
+   * @param remoteHost Remote host.
+   * @param remotePort Remote port.
+   * @return A new <code>Socket</code>.
+   * @exception IOException If an error occurs.
+   */
+  public final Socket createClientSocket(String remoteHost, int remotePort)
+    throws IOException {
+
+    final SSLSocket socket =
+      (SSLSocket)m_clientSocketFactory.createSocket(remoteHost, remotePort);
+
+    socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
+    return socket;
+  }
+
+  /**
+   * For the purposes of sniffing, we don't care whether the cert
+   * chain is trusted or not, so here's an implementation which
+   * accepts everything -PD
+   */
+  private static class TrustEveryone implements X509TrustManager {
+
+    public boolean isClientTrusted (X509Certificate[] chain) {
+      return true;
     }
 
-    public final Socket createClientSocket(String remoteHost, int remotePort)
-	throws IOException
-    {
-	final SSLSocket socket =
-	    (SSLSocket)m_clientSocketFactory.createSocket(remoteHost,
-							  remotePort);
-
-	socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
-	return socket;
+    public boolean isServerTrusted (X509Certificate[] chain) {
+      return true;
     }
 
-    /**
-     * For the purposes of sniffing, we don't care whether the cert
-     * chain is trusted or not, so here's an implementation which
-     * accepts everything -PD
-     */
-    private static class TrustEveryone implements X509TrustManager
-    {
-	public boolean isClientTrusted (X509Certificate[] chain)
-	{
-	    return true;
-	}
-	
-	public boolean isServerTrusted (X509Certificate[] chain)
-	{
-	    return true;
-	}
-
-	public java.security.cert.X509Certificate[] getAcceptedIssuers()
-	{
-	    return null;
-	}
+    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+      return null;
     }
+  }
 }
-    
+

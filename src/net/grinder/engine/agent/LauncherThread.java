@@ -46,7 +46,7 @@ public class LauncherThread extends Thread {
   private final String[] m_commandArray;
   private final String m_commandString;
   private int m_exitStatus = 0;
-    
+
   /**
    * The constructor.
    * It starts a new thread that will execute the run method.
@@ -63,7 +63,7 @@ public class LauncherThread extends Thread {
 
     final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
 
-    for (int i=0; i<commandArray.length; ++i) {
+    for (int i = 0; i < commandArray.length; ++i) {
       if (i != 0) {
 	buffer.append(" ");
       }
@@ -73,11 +73,11 @@ public class LauncherThread extends Thread {
 
     m_commandString = buffer.toString();
   }
-  
+
   /**
    * This method will start a process with the JVM.
    * It redirects standard output and error to disk files.
-   */    
+   */
   public void run() {
 
     System.out.println("Worker process (" + m_grinderID +
@@ -86,7 +86,7 @@ public class LauncherThread extends Thread {
 
     try {
       final Process process = Runtime.getRuntime().exec(m_commandArray);
-      
+
       try {
 	final BufferedReader outputReader =
 	  new BufferedReader(
@@ -95,7 +95,7 @@ public class LauncherThread extends Thread {
 	final BufferedReader errorReader =
 	  new BufferedReader(
 	    new InputStreamReader(process.getErrorStream()));
-      
+
 	final Redirector r1 =
 	  new Redirector(new PrintWriter(System.out, true),
 			 outputReader);

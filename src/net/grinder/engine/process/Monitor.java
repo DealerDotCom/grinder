@@ -23,11 +23,11 @@ package net.grinder.engine.process;
 
 /**
  * Marker interface for monitor objects.
- * 
+ *
  * @author Philip Aston
  * @version $Revision$
  */
 interface Monitor {
   //void notifyAll();
 }
-  
+

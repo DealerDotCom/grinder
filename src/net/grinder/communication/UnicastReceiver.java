@@ -63,7 +63,7 @@ public final class UnicastReceiver extends AbstractReceiver {
       }
       catch (IOException e) {
 	throw new CommunicationException(
-	  "Could not bind to TCP address '" + addressString + ":" + 
+	  "Could not bind to TCP address '" + addressString + ":" +
 	  port + "'",
 	  e);
       }
@@ -82,7 +82,7 @@ public final class UnicastReceiver extends AbstractReceiver {
 
     new AcceptorThread().start();
 
-    for (int i=0; i<5; ++i) {
+    for (int i = 0; i < 5; ++i) {
       new ListenThread().start();
     }
   }
@@ -117,7 +117,7 @@ public final class UnicastReceiver extends AbstractReceiver {
       try {
 	while (true) {
 	  final Socket localSocket = m_serverSocket.accept();
-		    
+
 	  try {
 	    m_connections.add(localSocket);
 	  }
@@ -170,7 +170,7 @@ public final class UnicastReceiver extends AbstractReceiver {
 	      if (idle) {
 		Thread.sleep(500);
 	      }
-			    
+
 	      idle = true;
 	    }
 	    else {

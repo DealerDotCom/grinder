@@ -29,27 +29,27 @@ import net.grinder.common.Logger;
 /**
  * <p>This class is used to share thread information between the
  * Grinder and the plug-in. </p>
- * 
+ *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  **/
-public interface PluginThreadContext {    
+public interface PluginThreadContext {
 
   /**
    * Return the thread ID.
    *
    * @return The thread ID.
-   */ 
+   */
   int getThreadID();
- 
+
   /**
    * Return the current run number.
    *
    * @return The current run number.
    */
   int getRunNumber();
-  
+
   /**
    * Get the thread {@link net.grinder.common.Logger}.
    *

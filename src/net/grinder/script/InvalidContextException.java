@@ -31,7 +31,7 @@ import net.grinder.common.GrinderException;
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public class InvalidContextException extends GrinderException {
   /**
    * Creates a new <code>InvalidContextException</code> instance.

@@ -156,7 +156,7 @@ public final class StatisticsView implements Externalizable {
 
     m_columns.clear();
 
-    for (int i=0; i<n; i++) {
+    for (int i = 0; i < n; i++) {
       try {
 	add(new ExpressionView(in));
       }

@@ -142,7 +142,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     // the use the frame to create dialogs.
     m_frame = new JFrame(m_resources.getString("title"));
 
-    m_stateIgnoringString = 
+    m_stateIgnoringString =
       m_resources.getString("state.ignoring.label") + " ";
     m_stateWaitingString = m_resources.getString("state.waiting.label");
     m_stateStoppedString = m_resources.getString("state.stopped.label");
@@ -172,7 +172,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	public void update(TestStatistics intervalStatistics,
 			   TestStatistics cumulativeStatistics) {
 	  final NumberFormat format = m_model.getNumberFormat();
-		    
+
 	  tpsLabel.setText(
 	    format.format(
 	      m_model.getTPSExpression().getDoubleValue(intervalStatistics)) +
@@ -195,7 +195,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     m_samplingControlPanel = new SamplingControlPanel(m_resources);
 
     m_samplingControlPanel.add(statePanel);
-	
+
     m_samplingControlPanel.setBorder(
       BorderFactory.createEmptyBorder(0, 10, 0, 10));
     m_samplingControlPanel.setProperties(m_model.getProperties());
@@ -376,7 +376,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       new AboutAction(logoIcon),
     };
 
-    for (int i=0; i<actions.length; i++) {
+    for (int i = 0; i < actions.length; i++) {
       m_actionTable.put(actions[i].getKey(), actions[i]);
     }
 
@@ -386,14 +386,14 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     toolBarPanel.add(contentPanel, BorderLayout.CENTER);
 
     m_frame.addWindowListener(new WindowCloseAdapter());
-    final Container topLevelPane= m_frame.getContentPane();
+    final Container topLevelPane = m_frame.getContentPane();
     topLevelPane.add(createMenuBar(), BorderLayout.NORTH);
     topLevelPane.add(toolBarPanel, BorderLayout.CENTER);
 
     if (logoIcon != null) {
       final Image logoImage = logoIcon.getImage();
 
-      if (logoImage != null) {	    
+      if (logoImage != null) {
 	m_frame.setIconImage(logoImage);
       }
     }
@@ -408,8 +408,8 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
     final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-    m_frame.setLocation(screenSize.width/2 - m_frame.getSize().width/2,
-			screenSize.height/2 - m_frame.getSize().height/2);
+    m_frame.setLocation(screenSize.width / 2 - m_frame.getSize().width / 2,
+			screenSize.height / 2 - m_frame.getSize().height / 2);
 
     resultsPane.setDividerLocation(resultsPane.getMaximumDividerLocation());
 
@@ -422,7 +422,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
     final Iterator menuBarIterator =
       tokenise(m_resources.getString("menubar"));
-	
+
     while (menuBarIterator.hasNext()) {
       final String menuKey = (String)menuBarIterator.next();
 
@@ -459,7 +459,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
   private final JToolBar createToolBar() {
 
     final JToolBar toolBar = new JToolBar();
-	
+
     final Iterator toolBarIterator =
       tokenise(m_resources.getString("toolbar"));
 
@@ -702,7 +702,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 				    m_logoIcon);
     }
   }
-    
+
   private final class ExitAction extends CustomAction {
 
     ExitAction() {

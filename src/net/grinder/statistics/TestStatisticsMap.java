@@ -51,7 +51,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
    * this TestStatisticsMap before accessing.
    *
    * @supplierCardinality 0..*
-   * @link aggregation 
+   * @link aggregation
    * @associates <{TestStatisticsImplementation}>
    **/
   private final Map m_data = new TreeMap();
@@ -130,9 +130,6 @@ public class TestStatisticsMap implements java.io.Externalizable {
    * Implement value based equality. Used by unit tests, so we don't
    * bother with synchronisation.
    *
-   * <p><em>Note, no <code>hashCode()</code> method is defined by
-   * this class.</em></p>.
-   *
    * @param o <code>Object</code> to compare to.
    * @return <code>true</code> if and only if the two objects are equal.
    **/
@@ -140,7 +137,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
     if (o == this) {
       return true;
     }
-	
+
     if (!(o instanceof TestStatisticsMap)) {
       return false;
     }
@@ -165,6 +162,18 @@ public class TestStatisticsMap implements java.io.Externalizable {
     }
 
     return true;
+  }
+
+  /**
+   * Defer to <code>Object.hashCode().</code>
+   *
+   * <p>We define <code>hashCode</code> to keep Checkstyle happy, but
+   * we don't use it.
+   *
+   * @return The hash code.
+   */
+  public final int hashCode() {
+    return super.hashCode();
   }
 
   /**
@@ -242,7 +251,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
     m_data.clear();
 
-    for (int i=0; i<n; i++) {
+    for (int i = 0; i < n; i++) {
       m_data.put(new LightweightTest(in.readInt()),
 		 testStatisticsFactory.readStatisticsExternal(in));
     }
@@ -263,7 +272,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
     }
 
     public final String getDescription() {
-      return "";	    
+      return "";
     }
 
     public final GrinderProperties getParameters() {

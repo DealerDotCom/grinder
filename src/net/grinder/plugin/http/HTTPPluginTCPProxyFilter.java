@@ -110,7 +110,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
   private final Pattern m_contentTypePattern;
   private final Pattern m_contentLengthPattern;
   private final Pattern m_messageBodyPattern;
-  private final Pattern m_mirroredHeaderPatterns[] =
+  private final Pattern[] m_mirroredHeaderPatterns =
     new Pattern[s_mirroredHeaders.length];
   private final Pattern m_lastURLPathElementPattern;
   private final Pattern m_requestLinePattern;
@@ -154,12 +154,12 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     // HTTP-Version = "HTTP" "/" 1*DIGIT "." 1*DIGIT
     // http_URL = "http:" "//" host [ ":" port ] [ abs_path [ "?" query ]]
     // ";" can also be used as a query separator.
-    //  
+    //
     // We're flexible about SP and CRLF, see RFC 2616, 19.3.
 
     m_requestLinePattern =
       compiler.compile(
-	"^([A-Z]+)[ \\t]+([^\\?;]+)([\\?;].+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?$", 
+	"^([A-Z]+)[ \\t]+([^\\?;]+)([\\?;].+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?$",
 	Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
 
     m_contentLengthPattern =
@@ -200,7 +200,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
     // Should generate unique file names?
     m_scriptFileName = "httpscript.py";
-	
+
     m_scriptFileWriter =
       new PrintWriter(
 	new BufferedWriter(new FileWriter(m_scriptFileName)), false);
@@ -217,7 +217,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     m_scriptFileWriter.println("#");
     m_scriptFileWriter.println("# The Grinder version " + version);
     m_scriptFileWriter.println("#");
-    m_scriptFileWriter.println("# Script recorded by the TCPProxy at " + 
+    m_scriptFileWriter.println("# Script recorded by the TCPProxy at " +
 			       DateFormat.getDateTimeInstance().format(
 				 Calendar.getInstance().getTime()));
     m_scriptFileWriter.println("#");
@@ -230,7 +230,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     m_testFileWriter.println("#");
     m_testFileWriter.println("# The Grinder version " + version);
     m_testFileWriter.println("#");
-    m_testFileWriter.println("# HTTP tests recorded by the TCPProxy at " + 
+    m_testFileWriter.println("# HTTP tests recorded by the TCPProxy at " +
 			     DateFormat.getDateTimeInstance().format(
 			       Calendar.getInstance().getTime()));
     m_testFileWriter.println("#");
@@ -321,7 +321,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
   private Handler removeHandler(ConnectionDetails connectionDetails) {
     final Handler handler;
-	
+
     synchronized (m_handlers) {
       handler = (Handler)m_handlers.remove(connectionDetails);
     }
@@ -482,9 +482,9 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 	  final String decoded =
 	  Codecs.base64Decode(
 	  m_matcher.getMatch().group(1).trim());
-		    
+
 	  final int colon = decoded.indexOf(":");
-		    
+
 	  if (colon < 0) {
 	  warn("Could not decode Authorization header");
 	  }
@@ -492,7 +492,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 	  outputProperty(
 	  "parameter.basicAuthenticationUser",
 	  decoded.substring(0, colon));
-			
+
 	  outputProperty(
 	  "parameter.basicAuthenticationPassword",
 	  decoded.substring(colon+1));
@@ -547,13 +547,13 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
       if (m_contentLength != -1 &&
 	  length > m_contentLength - m_entityBodyByteStream.size()) {
-	
+
 	warn("Expected content length exceeded, truncating to content length");
 	length = m_contentLength - m_entityBodyByteStream.size();
       }
 
       m_entityBodyByteStream.write(bytes, start, length);
-	
+
       // We flush our entity data output now if we've reached the
       // specified Content-Length. If no contentLength was specified
       // we rely on next message or connection close event to flush
@@ -603,7 +603,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
 	while (iterator.hasNext()) {
 	  final NVPair entry = (NVPair)iterator.next();
-		    
+
 	  if (!first) {
 	    appendNewLineAndIndent(headerStringBuffer, 3);
 	  }
@@ -651,7 +651,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
       // Base default description on method and URL.
       final String description;
-	    
+
       if (m_matcher.contains(m_url, m_lastURLPathElementPattern)) {
 	description = m_method + " " + m_matcher.getMatch().group(1);
       }
@@ -681,9 +681,9 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       scriptOutput.append(m_url);
 
       if (m_queryString != null && m_queryString.length() > 1) {
-	
+
 	try {
-	  final String queryStringAsNameValuePairs = 
+	  final String queryStringAsNameValuePairs =
 	    parseNameValueString(m_queryString.substring(1), 3);
 
 	  scriptOutput.append("'");
@@ -712,7 +712,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 	if ("application/x-www-form-urlencoded".equals(m_contentType)) {
 
 	  try {
-	    final String nameValueString = 
+	    final String nameValueString =
 	      parseNameValueString(m_entityBodyByteStream.toString("US-ASCII"),
 				   3);
 
@@ -729,7 +729,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 	    // treat it as raw data instead.
 	  }
 	}
-	
+
 	if (!parsedFormData) {
 	  final String dataParameter = "data" + requestNumber;
 
@@ -810,7 +810,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       if (i != 0) {
 	appendNewLineAndIndent(result, indentLevel);
       }
-	    
+
       appendNVPair(result, pairs[i]);
     }
 
@@ -831,7 +831,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     resultBuffer.append(quotes);
 
     final int length = value.length();
-	
+
     for (int i=0; i<length; ++i) {
       final char c = value.charAt(i);
 

@@ -30,7 +30,7 @@ import java.io.PrintWriter;
  * This class is used to redirect the standard output and error to
  * disk files. It reads characters from a BufferedRead and prints them
  * out in a PrintStream.
- * 
+ *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
@@ -40,24 +40,24 @@ class Redirector implements java.lang.Runnable {
   private final BufferedReader m_bufferedReader;
 
   /**
-   * The constructor. It starts a thread that executes 
+   * The constructor. It starts a thread that executes
    * the <tt>run</tt> method.
-   * 
-   */      
+   *
+   */
   public Redirector(PrintWriter printWriter, BufferedReader bufferedReader) {
     m_printWriter = printWriter;
     m_bufferedReader = bufferedReader;
 
     final Thread t = new Thread(this, m_printWriter.toString());
-    t.start(); 
+    t.start();
   }
-    
+
   /**
    * This method reads characters from a BufferedReader and prints
    * them out in a PrintWriter.
-   */    
+   */
   public void run() {
-    try{
+    try {
       String s;
 
       while ((s = m_bufferedReader.readLine()) != null) {
@@ -66,7 +66,7 @@ class Redirector implements java.lang.Runnable {
 
       m_bufferedReader.close();
     }
-    catch(Exception e){
+    catch (Exception e) {
       System.err.println(e);
     }
   }

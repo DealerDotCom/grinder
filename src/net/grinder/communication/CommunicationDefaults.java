@@ -28,20 +28,20 @@ package net.grinder.communication;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface CommunicationDefaults {
+public final class CommunicationDefaults {
 
-  /** Default console address. */
-  final String CONSOLE_ADDRESS = ""; // Bind to all interfaces by default.
+  /** Default console address. Bind to all interfaces by default. */
+  public static final String CONSOLE_ADDRESS = "";
 
   /** Default console port. */
-  final int CONSOLE_PORT = 6372;
+  public static final int CONSOLE_PORT = 6372;
 
   /** Default worker process address. */
-  final String GRINDER_ADDRESS = "228.1.1.1";
+  public static final String GRINDER_ADDRESS = "228.1.1.1";
 
   /** Default worker process port. */
-  final int GRINDER_PORT = 1234;
+  public static final int GRINDER_PORT = 1234;
 
   /** Maximum value for ports. */
-  final int MAX_PORT = 0xFFFF;
+  public static final int MAX_PORT = 0xFFFF;
 }

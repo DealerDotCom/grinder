@@ -35,7 +35,7 @@ import javax.swing.SwingConstants;
 
 /**
  * Console for the TCPProxy.
- * 
+ *
  * @author Betrand Ave
  * @version $Revision$
  */
@@ -84,7 +84,7 @@ public final class TCPProxyConsole extends JFrame {
 
     private final TCPProxyEngine m_proxyEngine;
 
-    public ButtonActionListener(TCPProxyEngine proxyEngine) {		
+    public ButtonActionListener(TCPProxyEngine proxyEngine) {
       m_proxyEngine = proxyEngine;
     }
 

@@ -59,7 +59,7 @@ public class FixedWidthFormatter {
   private static final char[] s_space = new char[256];
 
   static {
-    for (int i=0; i<s_space.length; i++) {
+    for (int i = 0; i < s_space.length; i++) {
       s_space[i] = ' ';
     }
   }
@@ -101,7 +101,7 @@ public class FixedWidthFormatter {
     m_flow = flow;
     m_width = width;
   }
-    
+
   /**
    * <p>Search  to set splitPosition as follows:
    * <ol>
@@ -181,7 +181,7 @@ public class FixedWidthFormatter {
 	buffer.setLength(m_width);
       }
       break;
-		
+
     case FLOW_WORD_WRAP:
       if (m_width == 1 && length > 1) {
 	// Enhancement to allow single column of "vertical"
@@ -198,7 +198,7 @@ public class FixedWidthFormatter {
 	// new lines), and set everything from there on as the
 	// remainder.
 	int nextText = splitPosition;
-		
+
 	while (nextText < length) {
 	  final char c = buffer.charAt(nextText);
 
@@ -207,7 +207,7 @@ public class FixedWidthFormatter {
 	  }
 
 	  ++nextText;
-		    
+
 	  if (c == '\n') {
 	    break;
 	  }
@@ -223,7 +223,7 @@ public class FixedWidthFormatter {
       // Strip leading and trailing space.
       int end = buffer.length();
 
-      while (end > 0 && Character.isWhitespace(buffer.charAt(end-1))) {
+      while (end > 0 && Character.isWhitespace(buffer.charAt(end - 1))) {
 	--end;
       }
 
@@ -248,7 +248,7 @@ public class FixedWidthFormatter {
     length = buffer.length();
 
     // Canonicalise remaining space.
-    for (int k=0; k<length; k++) {
+    for (int k = 0; k < length; k++) {
       if (Character.isWhitespace(buffer.charAt(k))) {
 	buffer.setCharAt(k, ' ');
       }

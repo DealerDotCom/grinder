@@ -70,7 +70,7 @@ final class TestStatisticsImplementation
    * Efficient externalisation method used by {@link
    * TestStatisticsFactory#writeStatisticsExternal}.
    *
-   * @param out Handle to the output stream.
+   * @param in Handle to the output stream.
    * @param serialiser <code>Serialiser</code> helper object.
    * @exception IOException If an error occurs.
    **/
@@ -82,11 +82,11 @@ final class TestStatisticsImplementation
   public final void addError() {
     addValue(s_errorsIndex, 1);
   }
-    
+
   public final void addTransaction() {
     addValue(s_untimedTransactionsIndex, 1);
   }
-    
+
   public final void addTransaction(long time) {
     addValue(s_timedTransactionsIndex, 1);
     addValue(s_totalTimeIndex, time);
@@ -107,6 +107,6 @@ final class TestStatisticsImplementation
 
     return
       timedTransactions == 0 ?
-      Double.NaN : getValue(s_totalTimeIndex)/(double)timedTransactions;
+      Double.NaN : getValue(s_totalTimeIndex) / (double)timedTransactions;
   }
 }

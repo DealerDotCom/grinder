@@ -27,7 +27,10 @@ package net.grinder.util;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TerminalColour {
+public final class TerminalColour {
+
+  private TerminalColour() {
+  }
 
   /**
    * Constant control string for colour.
@@ -122,7 +125,7 @@ public class TerminalColour {
   private static String controlString(String body) {
     return (char)0033 + "[" + body + 'm';
   }
-    
+
   /**
    * Simple test method.
    *

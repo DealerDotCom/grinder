@@ -210,7 +210,7 @@ class LabelledGraph extends JPanel {
     labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
     labelPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 0));
 
-    final JLabel titleLabel= new JLabel();
+    final JLabel titleLabel = new JLabel();
     titleLabel.setText(title);
     titleLabel.setForeground(Colours.BLACK);
     titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
@@ -277,7 +277,7 @@ class LabelledGraph extends JPanel {
 	s_peak = time;
       }
 
-      final int colorIndex = (int)(m_colors.length * (time/s_lastPeak));
+      final int colorIndex = (int)(m_colors.length * (time / s_lastPeak));
 
       if (colorIndex >= m_colors.length) {
 	return m_colors[m_colors.length - 1];

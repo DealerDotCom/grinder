@@ -34,7 +34,7 @@ import net.grinder.util.Sleeper;
 
 /**
  * The class executed by each thread.
- * 
+ *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
@@ -59,7 +59,7 @@ class GrinderThread implements java.lang.Runnable {
 
   /**
    * The constructor.
-   */        
+   */
   public GrinderThread(Monitor notifyOnCompletion,
 		       ProcessContext processContext,
 		       JythonScript jythonScript,
@@ -79,10 +79,10 @@ class GrinderThread implements java.lang.Runnable {
 
     incrementThreadCount();	// See s_numberOfThreads javadoc.
   }
-    
+
   /**
    * The thread's main loop.
-   */     
+   */
   public void run() {
 
     m_context.setThreadInstance();
@@ -106,7 +106,7 @@ class GrinderThread implements java.lang.Runnable {
 		      (m_numberOfRuns == 1 ? "" : "s"));
       }
 
-      int currentRun;	    
+      int currentRun;
 
       for (currentRun = 0;
 	   (m_numberOfRuns == 0 || currentRun < m_numberOfRuns);
@@ -127,7 +127,7 @@ class GrinderThread implements java.lang.Runnable {
 	    logger.output("shutdown");
 	    break;
 	  }
-		    
+
 	  // Sadly PrintWriter only exposes its lock object
 	  // to subclasses.
 	  synchronized (errorWriter) {
@@ -149,7 +149,7 @@ class GrinderThread implements java.lang.Runnable {
 		    (currentRun == 1 ? " run" : " runs"));
     }
     catch (Exception e) {
-      synchronized(errorWriter) {
+      synchronized (errorWriter) {
 	logger.error("Aborting thread due to " + e);
 	e.printStackTrace(errorWriter);
       }
@@ -186,7 +186,7 @@ class GrinderThread implements java.lang.Runnable {
       while (iterator.hasNext()) {
 	final PluginThreadListener pluginThreadListener =
 	  (PluginThreadListener)iterator.next();
-		
+
 	doOne(pluginThreadListener);
       }
     }

@@ -47,7 +47,7 @@ public class StatisticsTable {
   private final TestStatisticsMap m_testStatisticsMap;
 
   /**
-   * @clientRole totals 
+   * @clientRole totals
    * @supplierCardinality 1
    * @link aggregation
    **/
@@ -72,7 +72,7 @@ public class StatisticsTable {
    * @supplierCardinality 1
    **/
   private final StatisticsView m_statisticsView;
-    
+
   /**
    * Creates a new <code>StatisticsTable</code> instance.
    *
@@ -112,9 +112,9 @@ public class StatisticsTable {
     StringBuffer[] cells = new StringBuffer[numberOfHeaderColumns];
     StringBuffer[] remainders = new StringBuffer[numberOfHeaderColumns];
 
-    for (int i=0; i<numberOfHeaderColumns; i++) {
+    for (int i = 0; i < numberOfHeaderColumns; i++) {
       cells[i] = new StringBuffer(
-	i == 0 ? "" : expressionViews[i-1].getDisplayName());
+	i == 0 ? "" : expressionViews[i - 1].getDisplayName());
 
       remainders[i] = new StringBuffer();
     }
@@ -124,7 +124,7 @@ public class StatisticsTable {
     do {
       wrapped = false;
 
-      for (int i=0; i<numberOfHeaderColumns; ++i) {
+      for (int i = 0; i < numberOfHeaderColumns; ++i) {
 	remainders[i].setLength(0);
 	m_headingFormatter.transform(cells[i], remainders[i]);
 
@@ -191,7 +191,7 @@ public class StatisticsTable {
     result.append(cell.toString());
     result.append(COLUMN_SEPARATOR);
 
-    for (int i=0; i<expressionViews.length; ++i) {
+    for (int i = 0; i < expressionViews.length; ++i) {
 
       final StatisticExpression expression =
 	expressionViews[i].getExpression();

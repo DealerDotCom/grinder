@@ -28,7 +28,7 @@ package net.grinder.console.common;
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public class DisplayMessageConsoleException extends ConsoleException {
 
   private static Resources s_resources;

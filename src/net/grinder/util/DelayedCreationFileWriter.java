@@ -65,7 +65,7 @@ public class DelayedCreationFileWriter extends Writer {
    * @exception IOException If an error occurs.
    */
   public void close() throws IOException {
-    synchronized(this) {
+    synchronized (this) {
       if (m_delegate == null) {
 	return;
       }
@@ -80,7 +80,7 @@ public class DelayedCreationFileWriter extends Writer {
    * @exception IOException If an error occurs.
    */
   public void flush() throws IOException {
-    synchronized(this) {
+    synchronized (this) {
       if (m_delegate == null) {
 	return;
       }

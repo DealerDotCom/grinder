@@ -40,14 +40,14 @@ public final class StatisticExpressionFactory {
     new StatisticExpressionFactory();
 
   /**
-   * @link dependency 
+   * @link dependency
    * @stereotype instantiate
    **/
   /*#StatisticExpression lnkStatisticExpression;*/
 
   /**
    * @link aggregation
-   * @supplierCardinality 1 
+   * @supplierCardinality 1
    */
   private final StatisticsIndexMap m_indexMap =
     StatisticsIndexMap.getInstance();
@@ -233,7 +233,7 @@ public final class StatisticExpressionFactory {
    * @param index The expression index.
    * @return The <code>StatisticExpression</code>.
    */
-  public final StatisticExpression 
+  public final StatisticExpression
     createPrimitive(StatisticsIndexMap.LongIndex index) {
     return new PrimitiveLongStatistic(index);
   }
@@ -259,7 +259,8 @@ public final class StatisticExpressionFactory {
 	  RawStatistics rawStatistics) {
 	  return result + operand.getLongValue(rawStatistics);
 	}
-      }.getExpression();
+      }
+      .getExpression();
   }
 
   /**
@@ -283,7 +284,8 @@ public final class StatisticExpressionFactory {
 	  RawStatistics rawStatistics) {
 	  return result * operand.getLongValue(rawStatistics);
 	}
-      }.getExpression();
+      }
+      .getExpression();
   }
 
   /**
@@ -300,7 +302,7 @@ public final class StatisticExpressionFactory {
     return new DoubleStatistic() {
 	public double getValue(RawStatistics rawStatistics) {
 	  return
-	    numerator.getDoubleValue(rawStatistics)/
+	    numerator.getDoubleValue(rawStatistics) /
 	    denominator.getDoubleValue(rawStatistics);
 	}
       };
@@ -332,8 +334,8 @@ public final class StatisticExpressionFactory {
     return new PeakLongStatistic(peakIndex, monitoredStatistic);
   }
 
-  private final StatisticExpression[]
-    readOperands(ParseContext parseContext, int minimumSize)
+  private final StatisticExpression[] readOperands(ParseContext parseContext,
+						   int minimumSize)
     throws GrinderException {
     final List arrayList = new ArrayList();
 
@@ -466,7 +468,7 @@ public final class StatisticExpressionFactory {
 
       boolean doubleResult = false;
 
-      for (int i=0; i<operands.length && !doubleResult; ++i) {
+      for (int i = 0; i < operands.length && !doubleResult; ++i) {
 	if (operands[i].isDouble()) {
 	  doubleResult = true;
 	}
@@ -478,10 +480,8 @@ public final class StatisticExpressionFactory {
 	      RawStatistics rawStatistics) {
 	      double result = initialValue;
 
-	      for (int i=0; i<operands.length; ++i) {
-		result =
-		  doDoubleOperation(result, operands[i],
-				    rawStatistics);
+	      for (int i = 0; i < operands.length; ++i) {
+		result = doDoubleOperation(result, operands[i], rawStatistics);
 	      }
 
 	      return result;
@@ -494,10 +494,8 @@ public final class StatisticExpressionFactory {
 	      RawStatistics rawStatistics) {
 	      long result = (long)initialValue;
 
-	      for (int i=0; i<operands.length; ++i) {
-		result =
-		  doLongOperation(result, operands[i],
-				  rawStatistics);
+	      for (int i = 0; i < operands.length; ++i) {
+		result = doLongOperation(result, operands[i], rawStatistics);
 	      }
 
 	      return result;

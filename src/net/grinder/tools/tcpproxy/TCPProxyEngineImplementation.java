@@ -85,10 +85,10 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
 		connectionDetails.getLocalPort(),
 		timeout);
     }
-    
+
 
     /* Stop the engine and flush filter buffer. */
-    public void stop() 
+    public void stop()
     {
       m_responseFilter.stop();
 
@@ -100,7 +100,7 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
 	// Be silent.
       }
     }
-    
+
     public void run()
     {
 	while (true) {
@@ -130,18 +130,18 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
 	    }
 	}
     }
-    
-    public final ServerSocket getServerSocket() 
+
+    public final ServerSocket getServerSocket()
     {
 	return m_serverSocket;
     }
 
-    protected final TCPProxySocketFactory getSocketFactory() 
+    protected final TCPProxySocketFactory getSocketFactory()
     {
 	return m_socketFactory;
     }
 
-    protected final ConnectionDetails getConnectionDetails() 
+    protected final ConnectionDetails getConnectionDetails()
     {
 	return m_connectionDetails;
     }
@@ -162,7 +162,7 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
 				  remoteHost,
 				  remoteSocket.getPort(),
 				  m_connectionDetails.isSecure());
-    
+
 	new StreamThread(connectionDetails,
 			 localInputStream,
 			 remoteSocket.getOutputStream(),

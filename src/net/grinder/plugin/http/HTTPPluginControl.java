@@ -45,6 +45,9 @@ public final class HTTPPluginControl {
     s_pluginProcessContext = HTTPPlugin.getPlugin().getPluginProcessContext();
   }
 
+  private HTTPPluginControl() {
+  }
+
   /**
    * Returns a {@link HTTPPluginConnection} that can be used to set
    * the default behaviour of new connections.
@@ -72,7 +75,7 @@ public final class HTTPPluginControl {
 
     final HTTPPluginThreadState threadState =
       (HTTPPluginThreadState)s_pluginProcessContext.getPluginThreadListener();
-	    
+
     return threadState.getConnectionWrapper(new URI(url));
   }
 

@@ -50,7 +50,7 @@ import net.grinder.util.CopyStreamRunnable;
 
 
 
-/** 
+/**
  * HTTP/HTTPS proxy implementation.
  *
  * <p>A HTTPS proxy client first send a CONNECT message to the proxy
@@ -120,7 +120,7 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 	      outputWriter,
 	      new ConnectionDetails(localHost, localPort, "", -1, false),
 	      useColour, timeout);
-	
+
 	final PatternCompiler compiler = new Perl5Compiler();
 
  	m_httpsConnectPattern =
@@ -187,7 +187,7 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 			remotePort = Integer.parseInt(match.group(3));
 		    }
 		    catch (NumberFormatException e) {
-			// remotePort = 80; 
+			// remotePort = 80;
 		    }
 
 		    //System.err.println("New HTTP proxy connection to " +
@@ -261,7 +261,7 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 		    out.write(response.toString().getBytes());
 		    out.flush();
 		}
-		else { 
+		else {
 		    System.err.println(
 			"Failed to determine proxy destination from message:");
 		    System.err.println(line);
@@ -283,7 +283,7 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 		       TCPProxyFilter requestFilter,
 		       TCPProxyFilter responseFilter,
 		       PrintWriter outputWriter,
-		       boolean useColour) 
+		       boolean useColour)
 	    throws IOException
 	{
 	    super(socketFactory, requestFilter, responseFilter, outputWriter,
@@ -327,7 +327,7 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 	private final TCPProxyFilter m_delegate;
 	private final PatternMatcher m_matcher = new Perl5Matcher();
 
-	public StripAbsoluteURIFilterDecorator(TCPProxyFilter delegate) 
+	public StripAbsoluteURIFilterDecorator(TCPProxyFilter delegate)
 	    throws MalformedPatternException
 	{
 	    m_delegate = delegate;
@@ -351,7 +351,7 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 
 	public byte[] handle(ConnectionDetails connectionDetails,
 			     byte[] buffer, int bytesRead)
-	    throws Exception 
+	    throws Exception
 	{
 	    final byte[] delegateResult =
 		m_delegate.handle(connectionDetails, buffer, bytesRead);
@@ -373,5 +373,5 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 
 	    return null;
 	}
-    }    
+    }
 }

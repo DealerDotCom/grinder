@@ -71,7 +71,7 @@ class ProcessContext {
       properties.getBoolean("grinder.appendLog", false);
 
     m_loggerImplementation =
-      new LoggerImplementation(m_grinderID, 
+      new LoggerImplementation(m_grinderID,
 			       properties.getProperty(
 				 "grinder.logDirectory", "."),
 			       properties.getBoolean(
@@ -115,10 +115,10 @@ class ProcessContext {
     else {
       // Null Sender implementation.
       m_consoleSender = new Sender() {
-	  public void send(Message message) {}
-	  public void flush() {}
-	  public void queue(Message message) {}
-	  public void shutdown() {}
+	  public void send(Message message) { }
+	  public void flush() { }
+	  public void queue(Message message) { }
+	  public void shutdown() { }
 	};
 
       m_receiveConsoleSignals = false;
@@ -142,7 +142,7 @@ class ProcessContext {
       final ExpressionView[] detailExpressionViews =
 	CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
 
-      for (int i=0; i<detailExpressionViews.length; ++i) {
+      for (int i = 0; i < detailExpressionViews.length; ++i) {
 	dataWriter.print(", " + detailExpressionViews[i].getDisplayName());
       }
 

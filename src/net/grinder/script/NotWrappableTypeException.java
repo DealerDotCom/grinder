@@ -29,7 +29,7 @@ import net.grinder.common.GrinderException;
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public class NotWrappableTypeException extends GrinderException {
   /**
    * Creates a new <code>NotWrappableTypeException</code> instance.

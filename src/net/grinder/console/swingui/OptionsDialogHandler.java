@@ -72,7 +72,7 @@ abstract class OptionsDialogHandler {
    * net.grinder.console.model.ConsoleProperties} associated with
    * the properties file to save to.
    * @param resources Resources object to use for strings and things.
-   **/ 
+   **/
   public OptionsDialogHandler(JFrame frame, ConsoleProperties properties,
 			      final Resources resources) {
     m_frame = frame;
@@ -127,7 +127,7 @@ abstract class OptionsDialogHandler {
     final JPanel checkBoxPanel = new JPanel();
     checkBoxPanel.add(m_resetConsoleWithProcessesCheckBox);
 
-    final JPanel miscellaneousPanel = new JPanel(new GridLayout(0,1));
+    final JPanel miscellaneousPanel = new JPanel(new GridLayout(0, 1));
     miscellaneousPanel.add(sfPanel);
     miscellaneousPanel.add(checkBoxPanel);
 
@@ -204,20 +204,20 @@ abstract class OptionsDialogHandler {
 	      catch (GrinderException e) {
 		final Throwable nested =
 		  e.getNestedThrowable();
-				
+
 		JOptionPane.showMessageDialog(
 		  m_dialog, (nested != null ? nested : e)
 		  .getMessage(),
 		  resources.getString("fileError.title"),
 		  JOptionPane.ERROR_MESSAGE);
-				
+
 		return false;
 	      }
 	    }
 
 	    // Success.
 	    setNewOptions(m_properties);
-	    
+
 	    return true;
 	  }
 	}

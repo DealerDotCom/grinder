@@ -25,11 +25,15 @@ package net.grinder;
 
 /**
  * This is the entry point of The Grinder Console.
- * 
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public class Console {       
+public final class Console {
+
+  private Console() {
+  }
+
   /**
    * Describe <code>main</code> method here.
    *

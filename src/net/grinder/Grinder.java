@@ -39,12 +39,12 @@ import net.grinder.engine.process.GrinderProcess;
 
 /**
  * This is the entry point of The Grinder agent process.
- * 
+ *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  */
-public class Grinder {
+public final class Grinder {
   /**
    * The Grinder agent process entry point.
    *
@@ -66,7 +66,7 @@ public class Grinder {
   private Grinder(File alternateFile) {
     m_alternateFile = alternateFile;
   }
-    
+
   /**
    * Run the Grinder agent process.
    *
@@ -110,13 +110,13 @@ public class Grinder {
 	  command.add("-D" + key + "=" + value);
 	}
       }
-	    
+
       final String additionalClasspath =
 	properties.getProperty("grinder.jvm.classpath", null);
 
       final String classpath =
-	(additionalClasspath != null ? additionalClasspath + ";" : "")
-	+ System.getProperty("java.class.path");
+	(additionalClasspath != null ? additionalClasspath + ";" : "") +
+	System.getProperty("java.class.path");
 
       classpath.replace(';', File.pathSeparatorChar);
       classpath.replace(':', File.pathSeparatorChar);
@@ -152,7 +152,7 @@ public class Grinder {
 
       final String[] stringArray = new String[0];
 
-      for (int i=0; i<numberOfProcesses; i++) {
+      for (int i = 0; i < numberOfProcesses; i++) {
 	final String grinderID = hostIDString + "-" + i;
 
 	final String[] commandArray =
@@ -165,15 +165,15 @@ public class Grinder {
       }
 
       final String version = GrinderBuild.getVersionString();
-	    
+
       System.out.println("The Grinder version " + version + " started");
 
       int combinedExitStatus = 0;
 
-      for (int i=0; i<numberOfProcesses;) {
+      for (int i = 0; i < numberOfProcesses;) {
 	try {
 	  threads[i].join();
-		
+
 	  final int exitStatus = threads[i].getExitStatus();
 
 	  if (exitStatus > 0) { // Not an error
@@ -185,7 +185,7 @@ public class Grinder {
 		"WARNING, threads disagree on exit status");
 	    }
 	  }
-		
+
 	  i++;
 	}
 	catch (InterruptedException e) {

@@ -43,7 +43,7 @@ public final class TestStatisticsFactory {
   private final Serialiser m_serialiser = new Serialiser();
 
   /**
-   * @link dependency 
+   * @link dependency
    * @stereotype instantiate
    **/
   /*#TestStatisticsImplementation lnkTestStatistics;*/

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,126 +23,140 @@
 package net.grinder.tools.tcpproxy;
 
 import java.io.InputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketException;
 
 import net.grinder.util.TerminalColour;
 
 /**
+ * Thread which actively reads an input stream and writes to an output
+ * stream, passing the data through a filter.
  *
  * @author Phil Dawes
  * @author Philip Aston
  * @version $Revision$
  */
-public class StreamThread implements Runnable
-{
-    // For simplicity, the filters take a buffer oriented approach.
-    // This means that they all break at buffer boundaries. Our buffer
-    // is huge, so we shouldn't practically cause a problem, but the
-    // network clearly can by giving us message fragments. I consider
-    // this a bug, we really ought to take a stream oriented approach.
-    private final static int BUFFER_SIZE = 65536;
+class StreamThread implements Runnable {
 
-    private final ConnectionDetails m_connectionDetails;
-    private final InputStream m_in;
-    private final OutputStream m_out;
-    private final TCPProxyFilter m_filter;
-    private final PrintWriter m_outputWriter;
-    private final String m_colour;
-    private final String m_resetColour;
+  // For simplicity, the filters take a buffer oriented approach.
+  // This means that they all break at buffer boundaries. Our buffer
+  // is huge, so we shouldn't practically cause a problem, but the
+  // network clearly can by giving us message fragments. I consider
+  // this a bug, we really ought to take a stream oriented approach.
+  private static final int BUFFER_SIZE = 65536;
 
-    public StreamThread(ConnectionDetails connectionDetails,
-			InputStream in, OutputStream out,
-			TCPProxyFilter filter,
-			PrintWriter outputWriter, String colourString)
-    {
-	m_connectionDetails = connectionDetails;
-	m_in = in;
-	m_out = out;
-	m_filter = filter;
-	m_colour = colourString;
-	m_resetColour = m_colour.length() > 0 ? TerminalColour.NONE : "";
-	m_outputWriter = outputWriter;
-	
-	final Thread t =
-	    new Thread(this,
-		       "Filter thread for " +
-		       m_connectionDetails.getDescription());
+  private final ConnectionDetails m_connectionDetails;
+  private final InputStream m_in;
+  private final OutputStream m_out;
+  private final TCPProxyFilter m_filter;
+  private final PrintWriter m_outputWriter;
+  private final String m_colour;
+  private final String m_resetColour;
 
-	try {
-	    m_filter.connectionOpened(m_connectionDetails);
-	}
-	catch (Exception e) {
-	    e.printStackTrace(System.err);
-	}
+  /**
+   * Constructor.
+   *
+   * @param connectionDetails Describes the connection.
+   * @param in The input stream.
+   * @param out The output stream.
+   * @param filter The filter.
+   * @param outputWriter For output to the terminal.
+   * @param colourString Terminal control code which sets appropriate
+   * colours for this stream.
+   */
+  public StreamThread(ConnectionDetails connectionDetails, InputStream in,
+		      OutputStream out, TCPProxyFilter filter,
+		      PrintWriter outputWriter, String colourString) {
 
-	t.start();
+    m_connectionDetails = connectionDetails;
+    m_in = in;
+    m_out = out;
+    m_filter = filter;
+    m_colour = colourString;
+    m_resetColour = m_colour.length() > 0 ? TerminalColour.NONE : "";
+    m_outputWriter = outputWriter;
+
+    final Thread t =
+      new Thread(this,
+		 "Filter thread for " +
+		 m_connectionDetails.getDescription());
+
+    try {
+      m_filter.connectionOpened(m_connectionDetails);
+    }
+    catch (Exception e) {
+      e.printStackTrace(System.err);
     }
 
-    public void run()
-    {
-	try {
-	    byte[] buffer = new byte[BUFFER_SIZE];
+    t.start();
+  }
 
-	    while (true) {
-		final int bytesRead = m_in.read(buffer, 0, BUFFER_SIZE);
+  /**
+   * Main event loop.
+   */
+  public void run() {
 
-		if (bytesRead == -1) {
-		    break;
-		}
+    try {
+      byte[] buffer = new byte[BUFFER_SIZE];
 
-		m_outputWriter.print(m_colour);
+      while (true) {
+	final int bytesRead = m_in.read(buffer, 0, BUFFER_SIZE);
 
-		final byte[] newBytes =
-		    m_filter.handle(m_connectionDetails, buffer, bytesRead);
-
-		m_outputWriter.print(m_resetColour);
-		m_outputWriter.flush();
-
-		if (newBytes != null) {
-		    m_out.write(newBytes);
-		}
-		else {
-		    m_out.write(buffer, 0, bytesRead);
-		}
-	    }
-	}
-	catch (SocketException e) {
-	    // Be silent about SocketExceptions.
-	}
-	catch (Exception e) {
-	    e.printStackTrace(System.err);
+	if (bytesRead == -1) {
+	  break;
 	}
 
 	m_outputWriter.print(m_colour);
 
-	try {
-	    m_filter.connectionClosed(m_connectionDetails);
-	}
-	catch (Exception e) {
-	    e.printStackTrace(System.err);
-	}
+	final byte[] newBytes =
+	  m_filter.handle(m_connectionDetails, buffer, bytesRead);
 
 	m_outputWriter.print(m_resetColour);
 	m_outputWriter.flush();
 
-	// We're exiting, usually because the in stream has been
-	// closed. Whatever, close our streams. This will cause the
-	// paired thread to exit too.
-	try {
-	    m_out.close();
+	if (newBytes != null) {
+	  m_out.write(newBytes);
 	}
-	catch (Exception e) {
+	else {
+	  m_out.write(buffer, 0, bytesRead);
 	}
-	
-	try {
-	    m_in.close();
-	}
-	catch (Exception e) {
-	}
+      }
     }
+    catch (SocketException e) {
+      // Be silent about SocketExceptions.
+    }
+    catch (Exception e) {
+      e.printStackTrace(System.err);
+    }
+
+    m_outputWriter.print(m_colour);
+
+    try {
+      m_filter.connectionClosed(m_connectionDetails);
+    }
+    catch (Exception e) {
+      e.printStackTrace(System.err);
+    }
+
+    m_outputWriter.print(m_resetColour);
+    m_outputWriter.flush();
+
+    // We're exiting, usually because the in stream has been
+    // closed. Whatever, close our streams. This will cause the
+    // paired thread to exit too.
+    try {
+      m_out.close();
+    }
+    catch (Exception e) {
+      // Ignore.
+    }
+
+    try {
+      m_in.close();
+    }
+    catch (Exception e) {
+      // Ignore.
+    }
+  }
 }

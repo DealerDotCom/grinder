@@ -31,7 +31,7 @@ import net.grinder.common.GrinderException;
  * @author Philip Aston
  * @version $Revision$
  * @see Statistics
- */ 
+ */
 public class StatisticsAlreadyReportedException extends GrinderException {
 
   /**

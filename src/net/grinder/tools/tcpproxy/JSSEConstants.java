@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,17 +21,23 @@
 
 package net.grinder.tools.tcpproxy;
 
+
 /**
  * Define constants used by JSSE.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface JSSEConstants
-{
-    public final static String KEYSTORE_PROPERTY = "javax.net.ssl.keyStore";
-    public final static String KEYSTORE_PASSWORD_PROPERTY =
-	"javax.net.ssl.keyStorePassword";
-    public final static String KEYSTORE_TYPE_PROPERTY =
-	"javax.net.ssl.keyStoreType";
+public final class JSSEConstants {
+
+  /** Name of property used to specifiy keystore file. */
+  public static final String KEYSTORE_PROPERTY = "javax.net.ssl.keyStore";
+
+  /** Name of property used to specifiy keystore password. */
+  public static final String KEYSTORE_PASSWORD_PROPERTY =
+    "javax.net.ssl.keyStorePassword";
+
+  /** Name of property used to specifiy keystore type. */
+  public static final String KEYSTORE_TYPE_PROPERTY =
+    "javax.net.ssl.keyStoreType";
 }

@@ -59,7 +59,7 @@ import net.grinder.statistics.StatisticsIndexMap;
  *
  *   result1 = test1.doSomething()
  *
- *   if isFailed(result1): 
+ *   if isFailed(result1):
  *
  *      # Mark test as failure. The appropriate failure detection
  *      # depends on the type of test.
@@ -77,7 +77,7 @@ import net.grinder.statistics.StatisticsIndexMap;
  * @author Philip Aston
  * @version $Revision$
  * @see net.grinder.statistics.StatisticsView
- */ 
+ */
 public interface Statistics  {
 
   /**
@@ -131,7 +131,7 @@ public interface Statistics  {
   /**
    * Sets the long statistic for the last test with index
    * <code>index</code> to the specified <code>value</code>.
-   * 
+   *
    * @param index The statistic index.
    * @param value The value.
    * @exception InvalidContextException If called from a different
@@ -148,7 +148,7 @@ public interface Statistics  {
   /**
    * Sets the double statistic for the last test with index
    * <code>index</code> to the specified <code>value</code>.
-   * 
+   *
    * @param index The statistic index.
    * @param value The value.
    * @exception InvalidContextException If called from a different

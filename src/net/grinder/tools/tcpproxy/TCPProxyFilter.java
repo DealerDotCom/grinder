@@ -32,45 +32,45 @@ package net.grinder.tools.tcpproxy;
  * @author Bertrand Ave
  * @version $Revision$
  */
-public interface TCPProxyFilter
-{
-    /**
-     * Handle a message fragment.
-     *
-     * @param connectionDetails a <code>ConnectionDetails</code> value
-     * @param buffer a <code>byte[]</code> value
-     * @param bytesRead an <code>int</code> value
-     * @return Filters can optionally return a <code>byte[]</code>
-     * which will be transmitted to the server instead of
-     * <code>buffer</code.
-     * @exception Exception if an error occurs
-     */
-    byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
-		  int bytesRead)
-	throws Exception;
+public interface TCPProxyFilter {
 
-    /**
-     * A new connection has been opened.
-     *
-     * @param connectionDetails a <code>ConnectionDetails</code> value
-     * @exception Exception if an error occurs
-     */
-    void connectionOpened(ConnectionDetails connectionDetails)
-	throws Exception;
+  /**
+   * Handle a message fragment from the stream.
+   *
+   * @param connectionDetails Describes the connection.
+   * @param buffer Contains the data.
+   * @param bytesRead How many bytes of data in <code>buffer</code>.
+   * @return Filters can optionally return a <code>byte[]</code>
+   * which will be transmitted to the server instead of
+   * <code>buffer</code.
+   * @exception Exception If an error occurs.
+   */
+  byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
+		int bytesRead)
+    throws Exception;
 
-    /**
-     * A connection has been closed.
-     *
-     * @param connectionDetails a <code>ConnectionDetails</code> value
-     * @exception Exception if an error occurs
-     */
-    void connectionClosed(ConnectionDetails connectionDetails)
-	throws Exception;
+  /**
+   * A new connection has been opened.
+   *
+   * @param connectionDetails Describes the connection.
+   * @exception Exception If an error occurs.
+   */
+  void connectionOpened(ConnectionDetails connectionDetails)
+    throws Exception;
 
-    /**
-     * Called just before stop.
-     */
-    void stop();
+  /**
+   * A connection has been closed.
+   *
+   * @param connectionDetails Describes the connection.
+   * @exception Exception If an error occurs.
+   */
+  void connectionClosed(ConnectionDetails connectionDetails)
+    throws Exception;
+
+  /**
+   * Called just before stop.
+   */
+  void stop();
 }
 
 

@@ -42,7 +42,7 @@ import net.grinder.console.common.DisplayMessageConsoleException;
 public final class ConsoleProperties {
 
   /** Property name **/
-  public static final String COLLECT_SAMPLES_PROPERTY = 
+  public static final String COLLECT_SAMPLES_PROPERTY =
     "grinder.console.numberToCollect";
 
   /** Property name **/
@@ -62,7 +62,7 @@ public final class ConsoleProperties {
     "grinder.console.consoleAddress";
 
   /** Property name **/
-  public static final String CONSOLE_PORT_PROPERTY = 
+  public static final String CONSOLE_PORT_PROPERTY =
     "grinder.console.consolePort";
 
   /** Property name **/
@@ -544,7 +544,7 @@ public final class ConsoleProperties {
     throws DisplayMessageConsoleException {
     if (port < 0 || port > CommunicationDefaults.MAX_PORT) {
       throw new DisplayMessageConsoleException(
-	"invalidPortNumberError.text", 
+	"invalidPortNumberError.text",
 	"Port numbers should be in the range [0, 65535]");
     }
   }
@@ -553,7 +553,8 @@ public final class ConsoleProperties {
    * Get whether the console should be reset with the worker
    * processes.
    *
-   * @return <code>true</code> => the console should be reset with the worker processes.
+   * @return <code>true</code> => the console should be reset with the
+   * worker processes.
    */
   public final boolean getResetConsoleWithProcesses() {
     return m_resetConsoleWithProcesses;
@@ -563,7 +564,8 @@ public final class ConsoleProperties {
    * Set whether the console should be reset with the worker
    * processes.
    *
-   * @param b <code>true</code> => the console should be reset with the worker processes.
+   * @param b <code>true</code> => the console should be reset with
+   * the worker processes.
    */
   public final void setResetConsoleWithProcesses(boolean b) {
 
@@ -614,17 +616,27 @@ public final class ConsoleProperties {
     }
   }
 
+  /**
+   * Access for the script files.
+   *
+   * @return The script files.
+   */
   public final ScriptDistributionFiles getScriptDistributionFiles() {
     return m_scriptDistributionFiles;
   }
 
+  /**
+   * Setter for the script files.
+   *
+   * @param scriptDistributionFiles The script files.
+   */
   public final void setScriptDistributionFiles(
     ScriptDistributionFiles scriptDistributionFiles) {
 
     if (!scriptDistributionFiles.equals(m_scriptDistributionFiles)) {
       final ScriptDistributionFiles old = scriptDistributionFiles;
       m_scriptDistributionFiles = scriptDistributionFiles;
-      
+
       m_changeSupport.firePropertyChange(
 	SCRIPT_DISTRIBUTION_FILES_PROPERTY, old, m_scriptDistributionFiles);
     }

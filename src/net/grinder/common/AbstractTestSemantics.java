@@ -41,7 +41,7 @@ public abstract class AbstractTestSemantics implements Test {
   public final int compareTo(Object o) {
     final int ours = getNumber();
     final int others = ((AbstractTestSemantics)o).getNumber();
-    return ours<others ? -1 : (ours==others ? 0 : 1);
+    return ours < others ? -1 : (ours == others ? 0 : 1);
   }
 
   /**
@@ -72,7 +72,7 @@ public abstract class AbstractTestSemantics implements Test {
     if (!(o instanceof Test)) {
       return false;
     }
-	
+
     return getNumber() == ((Test)o).getNumber();
   }
 

@@ -95,7 +95,7 @@ public class CopyStreamRunnable implements Runnable {
     catch (IOException e) {
       // Ignore.
     }
-	
+
     try {
       m_in.close();
     }

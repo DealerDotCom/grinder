@@ -24,24 +24,27 @@ package net.grinder.common;
 
 
 /**
+ * Interface for enquiring about process status.
+ *
  * @author Philip Aston
- **/
+ * @version $Revision$
+ */
 public interface ProcessStatus {
 
   /**
    * Constant representing the "started" state.
    */
-  static final short STATE_STARTED = 1;
+  short STATE_STARTED = 1;
 
   /**
    * Constant representing the "running" state.
    */
-  static final short STATE_RUNNING = 2;
+  short STATE_RUNNING = 2;
 
   /**
    * Constant representing the "finished" state.
    */
-  static final short STATE_FINISHED = 3;
+  short STATE_FINISHED = 3;
 
   /**
    * Return the process name.

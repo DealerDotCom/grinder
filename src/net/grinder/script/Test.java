@@ -43,7 +43,7 @@ import net.grinder.engine.process.TestRegistry;
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public class Test extends AbstractTestSemantics implements Serializable {
 
   private final int m_number;
@@ -57,7 +57,7 @@ public class Test extends AbstractTestSemantics implements Serializable {
    * @param description Test description.
    * @exception GrinderException If an error occurs.
    */
-  public Test(int number, String description) throws GrinderException {	
+  public Test(int number, String description) throws GrinderException {
     m_number = number;
     m_description = description;
     m_registeredTest = TestRegistry.getInstance().register(this);

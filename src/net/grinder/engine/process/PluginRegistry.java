@@ -61,7 +61,7 @@ public final class PluginRegistry {
     }
 
     s_instance = this;
-	
+
     m_processContext = processContext;
   }
 
@@ -81,14 +81,14 @@ public final class PluginRegistry {
     }
 
     try {
-      synchronized(m_plugins) {
+      synchronized (m_plugins) {
 	final RegisteredPlugin existingRegisteredPlugin =
 	  (RegisteredPlugin)m_plugins.get(pluginClass);
 
 	if (existingRegisteredPlugin != null) {
 	  return existingRegisteredPlugin;
 	}
-		
+
 	final GrinderPlugin plugin =
 	  (GrinderPlugin)pluginClass.newInstance();
 
@@ -96,7 +96,7 @@ public final class PluginRegistry {
 	  new RegisteredPlugin(plugin, m_processContext);
 
 	plugin.initialize(registeredPlugin);
-    
+
 	m_plugins.put(pluginClass, registeredPlugin);
 
 	m_processContext.getLogger().output(
@@ -105,7 +105,7 @@ public final class PluginRegistry {
 	return registeredPlugin;
       }
     }
-    catch (Exception e){
+    catch (Exception e) {
       throw new EngineException(
 	"An instance of the plug-in class '" + pluginClass.getName() +
 	"' could not be created.", e);
@@ -114,7 +114,7 @@ public final class PluginRegistry {
 
   final List getPluginThreadListenerList(ThreadContext threadContext)
     throws EngineException {
-    synchronized(m_plugins) {
+    synchronized (m_plugins) {
       final List result = new ArrayList(m_plugins.size());
 
       final Iterator iterator = m_plugins.values().iterator();
@@ -122,7 +122,7 @@ public final class PluginRegistry {
       while (iterator.hasNext()) {
 	final RegisteredPlugin registeredPlugin =
 	  (RegisteredPlugin)iterator.next();
-		
+
 	result.add(
 	  registeredPlugin.getPluginThreadListener(threadContext));
       }

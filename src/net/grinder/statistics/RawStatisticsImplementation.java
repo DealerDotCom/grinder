@@ -46,7 +46,7 @@ class RawStatisticsImplementation implements RawStatistics {
   private double[] m_doubleData = s_emptyDoubleArray;
 
   /**
-   * @clientRole snapshot 
+   * @clientRole snapshot
    * @supplierCardinality 0..1
    * @link aggregation
    **/
@@ -189,7 +189,7 @@ class RawStatisticsImplementation implements RawStatistics {
 
     final long[] longData = operandImplementation.m_longData;
 
-    for (int i=0; i<longData.length; i++) {
+    for (int i = 0; i < longData.length; i++) {
       m_longData[i] += longData[i];
     }
 
@@ -198,7 +198,7 @@ class RawStatisticsImplementation implements RawStatistics {
     if (doubleData.length > 0) {
       ensureDoubleDataAllocated();
 
-      for (int i=0; i<doubleData.length; i++) {
+      for (int i = 0; i < doubleData.length; i++) {
 	m_doubleData[i] += doubleData[i];
       }
     }
@@ -232,13 +232,13 @@ class RawStatisticsImplementation implements RawStatistics {
 
       final long[] longData = m_snapshot.m_longData;
 
-      for (int i=0; i<longData.length; i++) {
+      for (int i = 0; i < longData.length; i++) {
 	result.m_longData[i] -= longData[i];
       }
 
       final double[] doubleData = m_snapshot.m_doubleData;
 
-      for (int i=0; i<doubleData.length; i++) {
+      for (int i = 0; i < doubleData.length; i++) {
 	result.m_doubleData[i] -= doubleData[i];
       }
     }
@@ -254,9 +254,6 @@ class RawStatisticsImplementation implements RawStatistics {
   /**
    * Implement value based equality. Mainly used by unit tests.
    *
-   * <p><em>Note, no <code>hashCode()</code> method is defined by
-   * this class.</em></p>.
-   *
    * @param o <code>Object</code> to compare to.
    * @return <code>true</code> if and only if the two objects are equal.
    **/
@@ -264,7 +261,7 @@ class RawStatisticsImplementation implements RawStatistics {
     if (o == this) {
       return true;
     }
-	
+
     if (!(o instanceof RawStatisticsImplementation)) {
       return false;
     }
@@ -274,7 +271,7 @@ class RawStatisticsImplementation implements RawStatistics {
 
     final long[] otherLongData = otherStatistics.m_longData;
 
-    for (int i=0; i<m_longData.length; i++) {
+    for (int i = 0; i < m_longData.length; i++) {
       if (m_longData[i] != otherLongData[i]) {
 	return false;
       }
@@ -285,7 +282,7 @@ class RawStatisticsImplementation implements RawStatistics {
       ensureDoubleDataAllocated();
       otherStatistics.ensureDoubleDataAllocated();
 
-      for (int i=0; i<m_doubleData.length; i++) {
+      for (int i = 0; i < m_doubleData.length; i++) {
 	if (m_doubleData[i] != otherStatistics.m_doubleData[i]) {
 	  return false;
 	}
@@ -293,6 +290,18 @@ class RawStatisticsImplementation implements RawStatistics {
     }
 
     return true;
+  }
+
+  /**
+   * Defer to <code>Object.hashCode().</code>
+   *
+   * <p>We define <code>hashCode</code> to keep Checkstyle happy, but
+   * we don't use it.
+   *
+   * @return The hash code.
+   */
+  public final int hashCode() {
+    return super.hashCode();
   }
 
   /**
@@ -306,18 +315,18 @@ class RawStatisticsImplementation implements RawStatistics {
 
     result.append("RawStatistics = {");
 
-    for (int i=0; i<m_longData.length; i++) {
+    for (int i = 0; i < m_longData.length; i++) {
       result.append(m_longData[i]);
 
-      if (i!= m_longData.length-1 || m_doubleData.length > 0) {
+      if (i != m_longData.length - 1 || m_doubleData.length > 0) {
 	result.append(", ");
       }
     }
 
-    for (int i=0; i<m_doubleData.length; i++) {
+    for (int i = 0; i < m_doubleData.length; i++) {
       result.append(m_doubleData[i]);
 
-      if (i!= m_doubleData.length-1) {
+      if (i != m_doubleData.length - 1) {
 	result.append(", ");
       }
     }
@@ -340,13 +349,13 @@ class RawStatisticsImplementation implements RawStatistics {
   final synchronized void myWriteExternal(ObjectOutput out,
 					  Serialiser serialiser)
     throws IOException {
-    for (int i=0; i<m_longData.length; i++) {
+    for (int i = 0; i < m_longData.length; i++) {
       serialiser.writeLong(out, m_longData[i]);
     }
 
     out.writeBoolean(m_doubleData.length > 0);
 
-    for (int i=0; i<m_doubleData.length; i++) {
+    for (int i = 0; i < m_doubleData.length; i++) {
       serialiser.writeDouble(out, m_doubleData[i]);
     }
   }
@@ -363,14 +372,14 @@ class RawStatisticsImplementation implements RawStatistics {
     throws IOException {
     this();
 
-    for (int i=0; i<m_longData.length; i++) {
+    for (int i = 0; i < m_longData.length; i++) {
       m_longData[i] = serialiser.readLong(in);
     }
 
     if (in.readBoolean()) {
       ensureDoubleDataAllocated();
 
-      for (int i=0; i<m_doubleData.length; i++) {
+      for (int i = 0; i < m_doubleData.length; i++) {
 	m_doubleData[i] = serialiser.readDouble(in);
       }
     }

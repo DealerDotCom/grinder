@@ -58,7 +58,7 @@ public class Serialiser {
       output.writeByte((byte)l);
     }
     else {
-      output.writeLong(- l);
+      output.writeLong(-l);
     }
   }
 
@@ -80,20 +80,20 @@ public class Serialiser {
     else {
       input.readFully(m_byteBuffer, 1, 7);
 
-      return - (((long)(m_byteBuffer[0] & 0xFF) << 56) |
-		((long)(m_byteBuffer[1] & 0xFF) << 48) |
-		((long)(m_byteBuffer[2] & 0xFF) << 40) |
-		((long)(m_byteBuffer[3] & 0xFF) << 32) |
-		((long)(m_byteBuffer[4] & 0xFF) << 24) |
-		((long)(m_byteBuffer[5] & 0xFF) << 16) |
-		((long)(m_byteBuffer[6] & 0xFF) << 8) |
-		((long)(m_byteBuffer[7] & 0xFF)));
+      return -(((long)(m_byteBuffer[0] & 0xFF) << 56) |
+	       ((long)(m_byteBuffer[1] & 0xFF) << 48) |
+	       ((long)(m_byteBuffer[2] & 0xFF) << 40) |
+	       ((long)(m_byteBuffer[3] & 0xFF) << 32) |
+	       ((long)(m_byteBuffer[4] & 0xFF) << 24) |
+	       ((long)(m_byteBuffer[5] & 0xFF) << 16) |
+	       ((long)(m_byteBuffer[6] & 0xFF) << 8) |
+	       ((long)(m_byteBuffer[7] & 0xFF)));
     }
   }
 
   /**
    * Write a <code>long</code> to a stream in such a way it can be
-   * read by {@link #readLong}. 
+   * read by {@link #readLong}.
    *
    * <p>Efficient for small, positive longs. Values less than 16
    * take one byte. The worst cases (including all negative values)
@@ -108,8 +108,8 @@ public class Serialiser {
 
     boolean startedToWrite = false;
 
-    for (byte i=(byte)(m_byteBuffer.length-1); i>=0; --i) {
-      final byte b = (byte)((l >>> i*8) & 0xFF);
+    for (byte i = (byte)(m_byteBuffer.length - 1); i >= 0; --i) {
+      final byte b = (byte)((l >>> i * 8) & 0xFF);
 
       if (startedToWrite) {
 	output.writeByte(b);
@@ -118,7 +118,7 @@ public class Serialiser {
 	if ((b & 0xFF) != 0) {
 	  if ((b & 0xF0) != 0) {
 	    // Write length.
-	    output.writeByte((i+1) << 4);
+	    output.writeByte((i + 1) << 4);
 	    output.writeByte(b);
 	  }
 	  else {
@@ -160,13 +160,13 @@ public class Serialiser {
 
   /**
    * Write a <code>double</code> to a stream in such a way it can be
-   * read by {@link #readDouble}. 
+   * read by {@link #readDouble}.
    *
    * @param output The stream.
    * @param l The value.
    * @throws IOException If the stream raises an error.
    **/
-  public final void writeDouble(DataOutput output, double l) 
+  public final void writeDouble(DataOutput output, double l)
     throws IOException {
 
     // One day we'll make this efficient again.

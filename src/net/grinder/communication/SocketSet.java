@@ -125,13 +125,17 @@ final class SocketSet {
     }
   }
 
+  /**
+   * Interface which allows polling a socket for
+   * <code>Message</code>s.
+   */
   public interface Handle {
     boolean isSentinel();
 
     Message pollForMessage() throws ClassNotFoundException, IOException;
 
     boolean reserve();
-    void free();	
+    void free();
 
     void close();
     boolean isClosed();
@@ -195,7 +199,7 @@ final class SocketSet {
       if (m_busy || m_closed) {
 	return false;
       }
-	    
+
       m_busy = true;
 
       return true;

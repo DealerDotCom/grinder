@@ -41,7 +41,7 @@ import net.grinder.statistics.StatisticsView;
 
 /**
  * This is the entry point of The Grinder Console.
- * 
+ *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
@@ -119,7 +119,7 @@ public class Console {
 
     m_communication = new ConsoleCommunication(properties, m_userInterface);
   }
-    
+
   /**
    * Console message event loop. Dispatches communication messages
    * appropriately to the console model.
@@ -134,12 +134,12 @@ public class Console {
       if (message instanceof RegisterTestsMessage) {
 	m_model.registerTests(((RegisterTestsMessage)message).getTests());
       }
-	    
+
       if (message instanceof ReportStatisticsMessage) {
 	m_model.addTestReport(
 	  ((ReportStatisticsMessage)message).getStatisticsDelta());
       }
-	    
+
       if (message instanceof RegisterStatisticsViewMessage) {
 	final StatisticsView statisticsView =
 	  ((RegisterStatisticsViewMessage)message).getStatisticsView();
@@ -151,6 +151,6 @@ public class Console {
 	m_model.getProcessStatusSet().addStatusReport(
 	  message.getSenderUniqueID(), (ReportStatusMessage)message);
       }
-    } 
+    }
   }
 }

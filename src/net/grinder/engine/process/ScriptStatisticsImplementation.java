@@ -79,7 +79,7 @@ final class ScriptStatisticsImplementation implements Statistics {
   private final ExpressionView[] m_detailExpressionViews =
     CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
 
-  private final TestStatistics m_testStatistics = 
+  private final TestStatistics m_testStatistics =
     TestStatisticsFactory.getInstance().create();
 
   private TestData m_currentTestData = null;
@@ -108,7 +108,7 @@ final class ScriptStatisticsImplementation implements Statistics {
 
     m_delayReports = b;
   }
-  
+
   public final void report() throws InvalidContextException {
     checkCallContext();
     reportInternal();
@@ -155,7 +155,7 @@ final class ScriptStatisticsImplementation implements Statistics {
       threadContext == m_threadContext &&
       m_currentTestData != null;
   }
-  
+
   public final void setValue(StatisticsIndexMap.LongIndex index, long value)
     throws InvalidContextException, StatisticsAlreadyReportedException {
 
@@ -261,7 +261,7 @@ final class ScriptStatisticsImplementation implements Statistics {
     if (m_currentTestData != null) {
       if (m_dataWriter != null) {
 	final int runNumber = m_threadContext.getRunNumber();
-	
+
 	if (runNumber == m_lastRunNumber) {
 	  m_buffer.setLength(m_bufferAfterRunNumberIndex);
 	}
@@ -279,7 +279,7 @@ final class ScriptStatisticsImplementation implements Statistics {
 	m_buffer.append(", ");
 	m_buffer.append(m_currentTestStartTime);
 
-	for (int i=0; i<m_detailExpressionViews.length; ++i) {
+	for (int i = 0; i < m_detailExpressionViews.length; ++i) {
 	  m_buffer.append(", ");
 
 	  final StatisticExpression expression =
@@ -292,7 +292,7 @@ final class ScriptStatisticsImplementation implements Statistics {
 	    m_buffer.append(expression.getLongValue(m_testStatistics));
 	  }
 	}
-		
+
 	m_dataWriter.println(m_buffer);
       }
 

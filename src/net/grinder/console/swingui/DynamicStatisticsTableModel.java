@@ -93,7 +93,7 @@ abstract class DynamicStatisticsTableModel
 
       m_columnLabels = new String[m_columnViews.length];
 
-      for (int i=0; i<m_columnLabels.length; ++i) {
+      for (int i = 0; i < m_columnLabels.length; ++i) {
 	final String resource =
 	  m_resources.getString(
 	    m_columnViews[i].getDisplayNameResourceKey(), false);
@@ -204,8 +204,8 @@ abstract class DynamicStatisticsTableModel
     writer.write(columnDelimiter);
     writer.write(m_testDescriptionColumnString);
     writer.write(columnDelimiter);
-	
-    for (int dynamicColumn=0; dynamicColumn<numberOfColumns-2;
+
+    for (int dynamicColumn = 0; dynamicColumn < numberOfColumns - 2;
 	 dynamicColumn++) {
       writer.write(m_columnLabels[dynamicColumn]);
       writer.write(columnDelimiter);
@@ -213,8 +213,8 @@ abstract class DynamicStatisticsTableModel
 
     writer.write(lineDelimeter);
 
-    for (int row=0; row<numberOfRows; row++) {
-      for (int column=0; column<numberOfColumns; column++) {
+    for (int row = 0; row < numberOfRows; row++) {
+      for (int column = 0; column < numberOfColumns; column++) {
 	final Object o = getValueAt(row, column);
 	writer.write(o != null ? o.toString() : "");
 	writer.write(columnDelimiter);

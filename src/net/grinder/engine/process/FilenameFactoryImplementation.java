@@ -29,7 +29,7 @@ import net.grinder.common.FilenameFactory;
 /**
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 final class FilenameFactoryImplementation implements FilenameFactory {
   private final String m_logDirectory;
   private final String m_contextString;
@@ -43,7 +43,6 @@ final class FilenameFactoryImplementation implements FilenameFactory {
     m_logDirectory = logDirectory;
     m_contextString = contextString;
   }
-    
 
   final FilenameFactoryImplementation
     createSubContextFilenameFactory(String subContext) {

@@ -70,7 +70,7 @@ final class LoggerImplementation {
    * cares if its wrong?
    */
   private static final /* synchronized */ String getDateString() {
-	
+
     if (s_lastTick != s_currentTick) {
 	s_dateString = s_dateFormat.format(new Date());
 	s_lastTick = s_currentTick;
@@ -88,7 +88,7 @@ final class LoggerImplementation {
   private final Logger m_processLogger;
   private boolean m_errorOccurred = false;
 
-  LoggerImplementation(String grinderID, String logDirectoryString, 
+  LoggerImplementation(String grinderID, String logDirectoryString,
 		       boolean logProcessStreams, boolean appendLog)
     throws EngineException {
     m_grinderID = grinderID;
@@ -115,7 +115,7 @@ final class LoggerImplementation {
     // println, we set auto flush on these PrintWriters because
     // clients can get direct access to them.
     m_outputWriter = new PrintWriter(createWriter("out", appendLog), true);
-    m_errorWriter = 
+    m_errorWriter =
       new PrintWriter(createWriter("error", appendLog), true);
 
     // Don't autoflush, we explictly control flushing of this writer.
@@ -177,7 +177,7 @@ final class LoggerImplementation {
       }
     }
   }
-    
+
   private final void errorInternal(ThreadState state, String message,
 				   int where) {
     if (!m_logProcessStreams) {
@@ -199,7 +199,7 @@ final class LoggerImplementation {
 
       final int summaryLength = 20;
 
-      final String summary = 
+      final String summary =
 	message.length() > summaryLength ?
 	message.substring(0, summaryLength) + "..." : message;
 
@@ -254,12 +254,12 @@ final class LoggerImplementation {
 	m_buffer.append(" (thread ");
 	m_buffer.append(m_threadID);
       }
-      
+
       m_processOrThreadIDCharacters = getBufferCharacters(0);
     }
 
     private final char[] getBufferCharacters(int start) {
-      
+
       final int length = m_buffer.length();
       final char[] result = new char[length - start];
       m_buffer.getChars(start, length, result, 0);
@@ -285,7 +285,7 @@ final class LoggerImplementation {
     public final int getCurrentTestNumber() {
       return m_currentTestNumber;
     }
-	
+
     public final void setCurrentTestNumber(int testNumber) {
       m_currentTestNumber = testNumber;
     }
@@ -301,7 +301,7 @@ final class LoggerImplementation {
     public final void error(String message) {
       errorInternal(this, message, Logger.LOG);
     }
-    
+
     public final void error(String message, int where) {
       errorInternal(this, message, where);
     }
@@ -353,7 +353,7 @@ final class LoggerImplementation {
       // string, getValue() is package scope.
       final int bufferLength = m_buffer.length();
       final int outputLineSpace = m_outputLine.length - s_lineSeparator.length;
-	
+
       final int lineLength =
 	bufferLength > outputLineSpace ? outputLineSpace : bufferLength;
 

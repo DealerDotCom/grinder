@@ -33,7 +33,7 @@ import net.grinder.statistics.StatisticsView;
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public class Grinder {
 
   /**
@@ -54,7 +54,7 @@ public class Grinder {
    *
    * @author Philip Aston
    * @version $Revision$
-   */ 
+   */
   public static interface ScriptContext {
 
     /**
@@ -132,7 +132,7 @@ public class Grinder {
      * @return The properties.
      */
     GrinderProperties getProperties();
-  
+
     /**
      * Register a new "summary" statistics view. These views appear in
      * the worker process output log summaries and are displayed in the

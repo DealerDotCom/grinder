@@ -39,7 +39,7 @@ import net.grinder.statistics.StatisticsIndexMap;
 
 /**
  * HTTP plugin.
- * 
+ *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$

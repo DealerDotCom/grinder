@@ -27,11 +27,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 
 
@@ -56,6 +54,9 @@ public final class ScriptDistributionFiles implements Serializable {
 
   private int m_hashCode;
 
+  /**
+   * Constructor.
+   */
   public ScriptDistributionFiles() {
     this("", new GrinderProperties());
   }
@@ -68,7 +69,7 @@ public final class ScriptDistributionFiles implements Serializable {
     final GrinderProperties ourProperties =
       properties.getPropertySubset(propertyPrefix);
 
-    String rootDirectoryString = 
+    String rootDirectoryString =
       ourProperties.getProperty(ROOT_DIRECTORY_PROPERTY, null);
 
     if (rootDirectoryString != null) {
@@ -90,7 +91,7 @@ public final class ScriptDistributionFiles implements Serializable {
     final Set additionalFiles = new HashSet(additionalFileProperties.size());
 
     final Iterator iterator = additionalFileProperties.values().iterator();
-    
+
     while (iterator.hasNext()) {
       additionalFiles.add(new File((String)iterator.next()));
     }
@@ -113,7 +114,7 @@ public final class ScriptDistributionFiles implements Serializable {
 			     scriptFile.getPath());
     }
 
-    for (int i=0; i<m_additionalFiles.length; ++i) {
+    for (int i = 0; i < m_additionalFiles.length; ++i) {
       properties.setProperty(
 	m_propertyPrefix + ADDITIONAL_FILES_PROPERTY + "." + i,
 	m_additionalFiles[i].getPath());
@@ -168,13 +169,13 @@ public final class ScriptDistributionFiles implements Serializable {
   public final void setFiles(File scriptFile, Collection additionalFiles) {
 
     m_scriptFile = scriptFile;
-    
+
     // Sort to convert to canonical form.
     final Set sortedAdditionalFiles = new TreeSet(additionalFiles);
     sortedAdditionalFiles.remove(scriptFile);
 
     m_additionalFiles = (File[])sortedAdditionalFiles.toArray(new File[0]);
-    
+
     updateHashCode();
   }
 
@@ -202,7 +203,7 @@ public final class ScriptDistributionFiles implements Serializable {
 
     final File scriptFile = getScriptFile();
     final File otherScriptFile = other.getScriptFile();
-    
+
     if (scriptFile == null && otherScriptFile != null ||
 	scriptFile != null && otherScriptFile == null) {
       return false;
@@ -219,7 +220,7 @@ public final class ScriptDistributionFiles implements Serializable {
       return false;
     }
 
-    for (int i=0; i<additionalFiles.length; ++i) {
+    for (int i = 0; i < additionalFiles.length; ++i) {
       if (!additionalFiles[i].equals(otherAdditionalFiles[i])) {
 	return false;
       }
@@ -236,11 +237,11 @@ public final class ScriptDistributionFiles implements Serializable {
     if (scriptFile != null) {
       m_hashCode ^= scriptFile.hashCode();
     }
-    
+
     final File[] additionalFiles = getAdditionalFiles();
 
     if (additionalFiles != null) {
-      for (int i=0; i<additionalFiles.length; ++i) {
+      for (int i = 0; i < additionalFiles.length; ++i) {
 	m_hashCode ^= additionalFiles[i].hashCode();
       }
     }
@@ -255,6 +256,11 @@ public final class ScriptDistributionFiles implements Serializable {
     return m_hashCode;
   }
 
+  /**
+   * Return a string representation of this object.
+   *
+   * @return The string.
+   */
   public final String toString() {
     final StringBuffer result = new StringBuffer();
 
@@ -266,7 +272,7 @@ public final class ScriptDistributionFiles implements Serializable {
 
     final File[] additionalFiles = getAdditionalFiles();
 
-    for (int i=0; i<additionalFiles.length; ++i) {
+    for (int i = 0; i < additionalFiles.length; ++i) {
 
       if (i != 0) {
 	result.append(", ");

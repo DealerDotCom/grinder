@@ -56,10 +56,10 @@ final class SampleAccumulator {
 
     final TestStatisticsFactory testStatisticsFactory =
       TestStatisticsFactory.getInstance();
-    
+
     m_cumulativeStatistics = testStatisticsFactory.create();
     m_intervalStatistics = testStatisticsFactory.create();
-    m_lastSampleStatistics = testStatisticsFactory.create();    
+    m_lastSampleStatistics = testStatisticsFactory.create();
   }
 
   public final synchronized void addSampleListener(SampleListener listener) {

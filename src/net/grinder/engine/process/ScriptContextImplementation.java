@@ -45,7 +45,7 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
   public ScriptContextImplementation(ProcessContext processContext) {
     m_processContext = processContext;
   }
-    
+
   public final String getGrinderID() {
     return m_processContext.getGrinderID();
   }

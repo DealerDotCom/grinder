@@ -28,14 +28,15 @@ import org.python.core.PyObject;
 
 
 /**
+ * An instrumented <code>PyFinalizableInstance</code>.
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 class TestPyFinalizableInstance extends PyFinalizableInstance {
   private final TestData m_testData;
   private final PyObject m_pyTest;
-    
+
   public TestPyFinalizableInstance(TestData testData,
 				   PyFinalizableInstance target) {
     super(target.__class__);
@@ -68,7 +69,9 @@ class TestPyFinalizableInstance extends PyFinalizableInstance {
       new TestData.Invokeable() {
 	public Object call() {
 	  return TestPyFinalizableInstance.super.invoke(name);
-	}});
+	}
+      }
+      );
   }
 
   public PyObject invoke(final String name, final PyObject arg1) {
@@ -76,7 +79,9 @@ class TestPyFinalizableInstance extends PyFinalizableInstance {
       new TestData.Invokeable() {
 	public Object call() {
 	  return TestPyFinalizableInstance.super.invoke(name, arg1);
-	}});
+	}
+      }
+      );
   }
 
   public PyObject invoke(final String name, final PyObject arg1,
@@ -84,9 +89,10 @@ class TestPyFinalizableInstance extends PyFinalizableInstance {
     return dispatch(
       new TestData.Invokeable() {
 	public Object call() {
-	  return TestPyFinalizableInstance.super.invoke(name, arg1,
-							arg2);
-	}});
+	  return TestPyFinalizableInstance.super.invoke(name, arg1, arg2);
+	}
+      }
+      );
   }
 
   public PyObject invoke(final String name, final PyObject[] args) {
@@ -94,7 +100,9 @@ class TestPyFinalizableInstance extends PyFinalizableInstance {
       new TestData.Invokeable() {
 	public Object call() {
 	  return TestPyFinalizableInstance.super.invoke(name, args);
-	}});
+	}
+      }
+      );
   }
 
   public PyObject invoke(final String name, final PyObject[] args,
@@ -102,9 +110,10 @@ class TestPyFinalizableInstance extends PyFinalizableInstance {
     return dispatch(
       new TestData.Invokeable() {
 	public Object call() {
-	  return TestPyFinalizableInstance.super.invoke(name, args,
-							keywords);
-	}});
+	  return TestPyFinalizableInstance.super.invoke(name, args, keywords);
+	}
+      }
+      );
   }
 }
 

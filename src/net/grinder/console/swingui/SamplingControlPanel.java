@@ -85,7 +85,7 @@ class SamplingControlPanel extends JPanel {
 	  setIntervalLabelText(intervalLabel, value);
 
 	  if (m_properties != null) {
-	    try {	
+	    try {
 	      m_properties.setSampleInterval(value);
 	    }
 	    catch (ConsoleException e) {
@@ -102,7 +102,7 @@ class SamplingControlPanel extends JPanel {
       new ChangeListener() {
 	public void stateChanged(ChangeEvent event) {
 	  final int value = m_ignoreSampleField.getValue();
-			
+
 	  setIgnoreSampleLabelText(ignoreSampleLabel, value);
 
 	  if (m_properties != null) {
@@ -123,7 +123,7 @@ class SamplingControlPanel extends JPanel {
       new ChangeListener() {
 	public void stateChanged(ChangeEvent event) {
 	  final int value = m_collectSampleField.getValue();
-			
+
 	  setCollectSampleLabelText(collectSampleLabel, value);
 
 	  if (m_properties != null) {

@@ -30,7 +30,7 @@ import net.grinder.common.GrinderException;
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public class EngineException extends GrinderException {
   /**
    * Creates a new <code>EngineException</code> instance.

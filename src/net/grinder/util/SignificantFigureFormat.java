@@ -48,7 +48,7 @@ public class SignificantFigureFormat extends DecimalFormat {
 
     // 40 DP, should match value of s_decimalPlaces.
     super("0.0000000000000000000000000000000000000000");
-	
+
     m_significantFigures = significantFigures;
   }
 
@@ -82,7 +82,7 @@ public class SignificantFigureFormat extends DecimalFormat {
       return i;
     }
   }
-    
+
   /**
    * Almost certainly doesn't set position correctly
    *
@@ -101,8 +101,8 @@ public class SignificantFigureFormat extends DecimalFormat {
 
     final int shift = boundingPowerOfTen(number) - m_significantFigures;
     final double factor = Math.pow(10, shift);
-	
-    super.format(factor * Math.round(number/factor), buffer, position);
+
+    super.format(factor * Math.round(number / factor), buffer, position);
 
     final int truncate =
       shift < 0 ? s_decimalPlaces + shift : s_decimalPlaces + 1;
@@ -121,7 +121,7 @@ public class SignificantFigureFormat extends DecimalFormat {
    * @return a <code>StringBuffer</code> value
    */
   public StringBuffer format(long number, StringBuffer buffer,
-			     FieldPosition position){
+			     FieldPosition position) {
 
     return format((double)number, buffer, position);
   }

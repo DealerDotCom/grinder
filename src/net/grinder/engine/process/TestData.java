@@ -40,7 +40,7 @@ import net.grinder.statistics.TestStatisticsFactory;
  * the tests statistics.
  *
  * Package scope.
- * 
+ *
  * @author Philip Aston
  * @version $Revision$
  **/
@@ -69,7 +69,7 @@ final class TestData implements TestRegistry.RegisteredTest {
 
   final Object dispatch(Invokeable invokeable) throws Exception {
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
-	
+
     if (threadContext == null) {
       throw new EngineException("Only Worker Threads can invoke tests");
     }
@@ -77,10 +77,12 @@ final class TestData implements TestRegistry.RegisteredTest {
     return threadContext.invokeTest(this, invokeable);
   }
 
+  /**
+   * Interface for things that can be called.
+   */
   interface Invokeable {
     Object call();
   }
-
 
   /**
    * We could have defined overloaded createProxy methods that
@@ -135,7 +137,7 @@ final class TestData implements TestRegistry.RegisteredTest {
       // Java object.
 
       final Class c = o.getClass();
-	    
+
       // NB Jython uses Java types for some primitives and strings.
       if (!c.isArray() &&
 	  !(o instanceof Number) &&

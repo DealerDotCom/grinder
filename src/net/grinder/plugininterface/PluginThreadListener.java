@@ -29,7 +29,7 @@ package net.grinder.plugininterface;
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public interface PluginThreadListener {
 
   /**

@@ -33,6 +33,8 @@ import javax.swing.text.PlainDocument;
 
 
 /**
+ * JTextField that only accepts integers within a particular range.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -45,7 +47,7 @@ class IntegerField extends JTextField {
 
   private static int log10(long x) {
 
-    final double d = Math.floor(Math.log(x)/s_log10);
+    final double d = Math.floor(Math.log(x) / s_log10);
     return new Double(d).intValue();
   }
 
@@ -53,7 +55,7 @@ class IntegerField extends JTextField {
 
     final long min = minimumValue < 0 ? 10 * -minimumValue : minimumValue;
     final long max = maximumValue < 0 ? 10 * -maximumValue : maximumValue;
-	
+
     return log10(Math.max(min, max));
   }
 
@@ -89,10 +91,13 @@ class IntegerField extends JTextField {
     if (value < m_minimumValue || value > m_maximumValue) {
       throw new IllegalArgumentException("Value out of bounds");
     }
-	
+
     setText(Integer.toString(value));
   }
 
+  /**
+   * Extend <code>PlainDocument</code> to perform our checks..
+   */
   public class FormattedDocument extends PlainDocument {
 
     public void insertString(int offset, String string,
@@ -131,7 +136,7 @@ class IntegerField extends JTextField {
 	private void notifyChangeListener() {
 	  listener.stateChanged(new ChangeEvent(this));
 	}
-		    
+
 	public void changedUpdate(DocumentEvent e) {
 	  notifyChangeListener();
 	}

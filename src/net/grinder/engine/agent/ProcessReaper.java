@@ -34,11 +34,11 @@ import java.util.Set;
  * @version $Revision$
  * @see net.grinder.engine.agent.LauncherThread
  */
-class ProcessReaper extends Thread {
+final class ProcessReaper extends Thread {
 
   private static ProcessReaper s_instance;
 
-  static  {
+  static {
     s_instance = new ProcessReaper();
     Runtime.getRuntime().addShutdownHook(s_instance);
   }

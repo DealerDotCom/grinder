@@ -38,7 +38,7 @@ import net.grinder.plugininterface.PluginThreadListener;
 
 /**
  * HTTP plugin thread state
- * 
+ *
  * @author Philip Aston
  * @version $Revision$
  **/
@@ -91,11 +91,11 @@ class HTTPPluginThreadState implements PluginThreadListener {
 
     // Close connections from previous run.
     final Iterator i = m_httpConnectionWrappers.values().iterator();
-	
+
     while (i.hasNext()) {
       ((HTTPConnectionWrapper)i.next()).getConnection().stop();
     }
-	    
+
     m_httpConnectionWrappers.clear();
   }
 

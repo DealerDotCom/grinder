@@ -33,7 +33,7 @@ public interface TCPProxyEngine extends Runnable
     // void run();
 
     public static final String ACCEPT_TIMEOUT_MESSAGE = "Listen time out";
-    
+
     public void stop();
 }
 

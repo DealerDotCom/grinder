@@ -40,6 +40,9 @@ import net.grinder.console.common.ConsoleException;
  **/
 final class Table extends JTable {
 
+  /**
+   * Interface for our extended TableModel.
+   */
   public interface TableModel extends javax.swing.table.TableModel {
     boolean isBold(int row, int column);
     boolean isRed(int row, int column);

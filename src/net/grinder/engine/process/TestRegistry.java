@@ -98,7 +98,7 @@ public final class TestRegistry {
       if (existing != null) {
 	return existing;
       }
-	    
+
       newTestData = new TestData(test);
       m_testMap.put(test, newTestData);
       m_testStatisticsMap.put(test, newTestData.getStatistics());
@@ -112,7 +112,7 @@ public final class TestRegistry {
       // console by the scheduled reporter task.
       m_newTests.add(test);
     }
-	
+
     return newTestData;
   }
 
@@ -132,7 +132,7 @@ public final class TestRegistry {
       m_newTests = null;
     }
   }
-  
+
 
   /**
    * Interface for test handles.

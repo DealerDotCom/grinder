@@ -55,7 +55,7 @@ import net.grinder.statistics.StatisticsIndexMap;
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public class HTTPRequest {
 
   private static final PluginProcessContext s_pluginProcessContext;
@@ -147,7 +147,7 @@ public class HTTPRequest {
    * @exception IOException If the file could not be read.
    */
   public final void setDataFromFile(String filename) throws IOException {
-    	
+
     final File file = new File(filename);
     m_defaultData = new byte[(int)file.length()];
 
@@ -155,7 +155,7 @@ public class HTTPRequest {
     fileInputStream.read(m_defaultData);
     fileInputStream.close();
   }
-    
+
   /**
    * Gets the default form data.
    *
@@ -720,7 +720,7 @@ public class HTTPRequest {
 	s_pluginProcessContext.getPluginThreadListener();
 
       final URI url;
-	    
+
       if (uri == null) {
 	if (m_defaultURL == null) {
 	  throw new URLException("URL not specified");
@@ -760,7 +760,7 @@ public class HTTPRequest {
       httpResponse.getInputStream().close();
 
       m_threadState.getThreadContext().stopTimedSection();
-	
+
       final int statusCode = httpResponse.getStatusCode();
 
       final String message =
@@ -768,7 +768,7 @@ public class HTTPRequest {
 	httpResponse.getReasonLine();
 
       final Logger logger = m_threadState.getThreadContext().getLogger();
-	    
+
       switch (statusCode) {
       case HttpURLConnection.HTTP_MOVED_PERM:
       case HttpURLConnection.HTTP_MOVED_TEMP:
@@ -777,7 +777,7 @@ public class HTTPRequest {
 	// automatically, but for now just chuck out some
 	// information.
 	logger.output(message +
-		      " [Redirect, ensure the next URL is " + 
+		      " [Redirect, ensure the next URL is " +
 		      httpResponse.getHeader("Location") + "]");
 	break;
 
@@ -787,7 +787,7 @@ public class HTTPRequest {
       }
 
       try {
-	final Statistics statistics = 
+	final Statistics statistics =
 	  s_pluginProcessContext.getScriptContext().getStatistics();
 
 	if (statistics.availableForUpdate()) {
@@ -815,13 +815,13 @@ public class HTTPRequest {
     int len = uri.length();
 
     while (pos < len &&
-	   (ch = uri.charAt(pos)) != ':' && 
+	   (ch = uri.charAt(pos)) != ':' &&
 	   ch != '/' &&
 	   ch != '?' &&
 	   ch != '#') {
       pos++;
     }
-	    
+
     return (ch == ':');
   }
 }

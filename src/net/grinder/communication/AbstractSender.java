@@ -74,7 +74,7 @@ abstract class AbstractSender implements Sender {
    * @exception CommunicationException If an error occurs.
    **/
   public final void send(Message message) throws CommunicationException {
-    synchronized(m_messageQueue.getMutex()) {
+    synchronized (m_messageQueue.getMutex()) {
       queue(message);
       flush();
     }

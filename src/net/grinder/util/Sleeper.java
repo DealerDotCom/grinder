@@ -47,19 +47,19 @@ public class Sleeper {
 
   private boolean m_shutdown = false;
   private final double m_factor;
-  private final double m_limit99_75Factor;
+  private final double m_limit9975Factor;
   private final Logger m_logger;
 
   /**
    * The constructor.
    *
    * @param factor All sleep times are modified by this factor.
-   * @param limit99_75Factor See {@link #sleepNormal}.
+   * @param limit9975Factor See {@link #sleepNormal}.
    * @param logger  A logger to chat to. Pass <code>null</code> for no chat.
-   **/        
-  public Sleeper(double factor, double limit99_75Factor, Logger logger) {
+   **/
+  public Sleeper(double factor, double limit9975Factor, Logger logger) {
 
-    if (factor < 0d || limit99_75Factor < 0d) {
+    if (factor < 0d || limit9975Factor < 0d) {
       throw new IllegalArgumentException("Factors must be positive");
     }
 
@@ -68,7 +68,7 @@ public class Sleeper {
     }
 
     m_factor = factor;
-    m_limit99_75Factor = limit99_75Factor;
+    m_limit9975Factor = limit9975Factor;
     m_logger = logger;
   }
 
@@ -106,7 +106,7 @@ public class Sleeper {
   /**
    * Sleep for a time based on the meanTime parameter. The actual
    * time is taken from a pseudo normal distribution. Approximately
-   * 99.75% of times will be within (100* limit99_75Factor) percent
+   * 99.75% of times will be within (100* limit9975Factor) percent
    * of the meanTime.
    *
    * @param meanTime Mean time.
@@ -114,7 +114,7 @@ public class Sleeper {
    **/
   public void sleepNormal(long meanTime) throws ShutdownException {
 
-    sleepNormal(meanTime, (long)((meanTime * m_limit99_75Factor)/3.0));
+    sleepNormal(meanTime, (long)((meanTime * m_limit9975Factor) / 3.0));
   }
 
   /**
@@ -168,7 +168,7 @@ public class Sleeper {
 
       while (currentTime < wakeUpTime) {
 	try {
-	  synchronized(this) {
+	  synchronized (this) {
 	    checkShutdown();
 	    wait(wakeUpTime - currentTime);
 	  }
@@ -193,7 +193,7 @@ public class Sleeper {
   /**
    * Exception used to indicate that a Sleeper has been shutdown.
    **/
-  public static class ShutdownException extends GrinderException {
+  public static final class ShutdownException extends GrinderException {
 
     private ShutdownException(String message) {
       super (message);

@@ -48,7 +48,7 @@ public class UnicastSender extends AbstractSender {
    * @param port TCP port to send to.
    * @throws CommunicationException If failed to bind to socket or
    * failed to generate a unique process identifer.
-   **/    
+   **/
   public UnicastSender(String grinderID, String addressString, int port)
     throws CommunicationException {
 
@@ -98,7 +98,7 @@ public class UnicastSender extends AbstractSender {
 
     final ObjectOutputStream objectStream =
       new ObjectOutputStream(m_outputStream);
-	
+
     objectStream.writeObject(message);
     objectStream.flush();
   }

@@ -86,13 +86,11 @@ public class JOptionPaneDialog extends JDialog {
 	private boolean m_disable = false;
 
 	public void propertyChange(PropertyChangeEvent e) {
-	  if(isVisible() && 
+	  if (isVisible() &&
 	     e.getSource() == optionPane &&
 	     !m_disable &&
-	     (e.getPropertyName().equals(JOptionPane.VALUE_PROPERTY)
-	      ||
-	      e.getPropertyName().equals(
-		JOptionPane.INPUT_VALUE_PROPERTY))) {
+	     (e.getPropertyName().equals(JOptionPane.VALUE_PROPERTY) ||
+	      e.getPropertyName().equals(JOptionPane.INPUT_VALUE_PROPERTY))) {
 
 	    final Cursor oldCursor = getCursor();
 	    setCursor(

@@ -27,7 +27,7 @@ import net.grinder.common.Logger;
 /**
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 interface ThreadLogger extends Logger {
   /**
    * @returns The thread ID.
@@ -36,25 +36,25 @@ interface ThreadLogger extends Logger {
 
   /**
    * @returns The current run number. -1 indicates that there is
-   * no current run. 
+   * no current run.
    **/
   int getCurrentRunNumber();
 
   /**
-   * @param The current run number. Pass -1 to indicate that
-   * there is no current run.
+   * @param run The current run number. Pass -1 to indicate that there
+   * is no current run.
    **/
   void setCurrentRunNumber(int run);
 
   /**
    * @returns The current test number. -1 indicates that there is
-   * no current test. 
+   * no current test.
    **/
   int getCurrentTestNumber();
 
   /**
-   * @param The current test number. Pass -1 to indicate that
-   * there is no current test.
+   * @param testNumber The current test number. Pass -1 to indicate
+   * that there is no current test.
    **/
   void setCurrentTestNumber(int testNumber);
 }

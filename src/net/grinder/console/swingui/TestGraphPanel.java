@@ -137,7 +137,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
     // We add all the tests components again. The container ignores
     // duplicates, but inserts the new components in the correct
     // order.
-    for (int i=0; i<numberOfTests; i++) {
+    for (int i = 0; i < numberOfTests; i++) {
       add((JComponent)m_components.get(modelTestIndex.getTest(i)));
     }
 
@@ -202,12 +202,12 @@ public class TestGraphPanel extends JPanel implements ModelListener {
       }
 
       if (numberAcross > 0) {
-	final int numberDown = (n + numberAcross -1)/numberAcross;
+	final int numberDown = (n + numberAcross - 1) / numberAcross;
 
 	// numberDown is always >= 1.
 	m_preferredSize.height =
 	  numberDown * componentHeight +
-	  (numberDown-1) * m_flowLayout.getVgap();
+	  (numberDown - 1) * m_flowLayout.getVgap();
       }
     }
 

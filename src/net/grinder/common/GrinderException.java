@@ -132,7 +132,7 @@ public class GrinderException extends Exception {
    *
    * @param original The original string. Changed in-place.
    * @param other String to compare suffixes with. Unchanged.
-   * @returns Whether original was truncated or not.
+   * @return Whether original was truncated or not.
    */
   static boolean removeCommonSuffix(StringBuffer original,
 				    StringBuffer other) {

@@ -61,7 +61,7 @@ import net.grinder.common.GrinderException;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class StatisticsIndexMap implements Serializable {
+public final class StatisticsIndexMap implements Serializable {
   private static final StatisticsIndexMap s_processInstance =
     new StatisticsIndexMap();
 
@@ -73,7 +73,7 @@ public class StatisticsIndexMap implements Serializable {
    * A special slot for the HTTP plugin so it doesn't steal "user"
    * indicies.
    */
-  public final static String HTTP_PLUGIN_RESPONSE_STATUS_KEY =
+  public static final String HTTP_PLUGIN_RESPONSE_STATUS_KEY =
     "httpplugin.responseStatusKey";
 
   /**
@@ -172,6 +172,9 @@ public class StatisticsIndexMap implements Serializable {
     }
   }
 
+  /**
+   * Base for index classes.
+   */
   abstract static class AbstractIndex implements Serializable {
     private final int m_value;
 
@@ -183,7 +186,7 @@ public class StatisticsIndexMap implements Serializable {
       return m_value;
     }
   }
-  
+
   /**
    * Opaque object that represents a double statistic.
    */

@@ -66,7 +66,7 @@ final class ScriptFilesPanel extends JPanel {
       new CustomAction(resources, "script.chooseDirectory") {
 	public final void actionPerformed(ActionEvent event) {
 	  try {
-	    if (m_fileChooser.showOpenDialog(frame) == 
+	    if (m_fileChooser.showOpenDialog(frame) ==
 		JFileChooser.APPROVE_OPTION) {
 
 	      final File file = m_fileChooser.getSelectedFile();
@@ -126,7 +126,7 @@ final class ScriptFilesPanel extends JPanel {
 
     final String ellipses = "...";
     final int maximumLength = 25 - ellipses.length();
-    
+
     if (s.length() > maximumLength) {
       return ellipses + s.substring(s.length() - maximumLength);
     }
@@ -162,4 +162,4 @@ final class ScriptFilesPanel extends JPanel {
   }
 }
 
-  
+

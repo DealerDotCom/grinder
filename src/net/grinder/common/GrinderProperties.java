@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -119,8 +118,10 @@ public class GrinderProperties extends Properties {
   }
 
   /**
-   * Save a single properties to our file.
+   * Save a single property to our file.
    *
+   * @param name Property name.
+   * @param value Property value.
    * @exception GrinderException If there is no file associated with this
    * {@link GrinderProperties} or an I/O exception occurs..
    */
@@ -174,7 +175,7 @@ public class GrinderProperties extends Properties {
    *
    * @return The subset.
    */
-  public final synchronized GrinderProperties 
+  public final synchronized GrinderProperties
     getPropertySubset(String prefix) {
     final GrinderProperties result = new GrinderProperties();
 
@@ -189,7 +190,7 @@ public class GrinderProperties extends Properties {
       }
     }
 
-    return result;	
+    return result;
   }
 
   /**

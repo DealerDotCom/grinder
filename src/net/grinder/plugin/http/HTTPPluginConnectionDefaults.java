@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import HTTPClient.NVPair;
- 
+
 
 /**
  * A {@link HTTPPluginConnection} that can be used to set the default
@@ -143,8 +143,8 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
   public final synchronized void clearAllDigestAuthorizations() {
     m_digestAuthorizations.clear();
   }
-  
-  public final synchronized void setLocalAddress(String localAddress) 
+
+  public final synchronized void setLocalAddress(String localAddress)
     throws URLException {
 
     try {
@@ -154,7 +154,7 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
       throw new URLException(e.getMessage(), e);
     }
   }
-  
+
   final InetAddress getLocalAddress() {
     return m_localAddress;
   }
@@ -167,6 +167,9 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
     return m_digestAuthorizations;
   }
 
+  /**
+   * Class containing basic authentication details.
+   */
   static final class AuthorizationDetails {
     private final String m_realm;
     private final String m_user;
@@ -177,7 +180,7 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
       m_realm = realm;
       m_user = user;
       m_password = password;
-      m_hashCode = 
+      m_hashCode =
 	realm.hashCode() ^ m_user.hashCode() ^ m_password.hashCode();
     }
 

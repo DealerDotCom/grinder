@@ -30,7 +30,7 @@ import net.grinder.engine.EngineException;
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public class ExitProcessException extends EngineException {
 
   /**

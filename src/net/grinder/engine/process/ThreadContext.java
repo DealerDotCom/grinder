@@ -201,7 +201,7 @@ final class ThreadContext implements PluginThreadContext {
   final Sleeper getSleeper() {
     return m_sleeper;
   }
-    
+
   public final long getStartTime() {
     return m_startTime;
   }

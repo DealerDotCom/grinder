@@ -72,7 +72,7 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
       setProxyServer(defaults.getProxyHost(), defaults.getProxyPort());
       setLocalAddress(defaults.getLocalAddress());
 
-      final Iterator basicAuthenticationIterator = 
+      final Iterator basicAuthenticationIterator =
 	defaults.getBasicAuthorizations().iterator();
 
       while (basicAuthenticationIterator.hasNext()) {
@@ -86,7 +86,7 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
 			      authorizationDetails.getPassword());
       }
 
-      final Iterator digestAuthenticationIterator = 
+      final Iterator digestAuthenticationIterator =
 	defaults.getBasicAuthorizations().iterator();
 
       while (digestAuthenticationIterator.hasNext()) {
@@ -169,7 +169,7 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
   public final void clearAllDigestAuthorizations() {
     // TODO
   }
-  
+
   public final void setLocalAddress(String localAddress) throws URLException {
 
     try {

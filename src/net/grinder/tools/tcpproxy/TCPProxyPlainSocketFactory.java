@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,25 +35,43 @@ import java.net.Socket;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class TCPProxyPlainSocketFactory implements TCPProxySocketFactory
-{
-    public final ServerSocket createServerSocket(String localHost,
-						 int localPort,
-						 int timeout)
-	throws IOException
-    {
-	final ServerSocket socket =
-	    new ServerSocket(localPort, 50, InetAddress.getByName(localHost));
+public final class TCPProxyPlainSocketFactory
+  implements TCPProxySocketFactory {
 
-	socket.setSoTimeout(timeout);
+  /**
+   * Factory method for server sockets.
+   *
+   * @param localHost Local host.
+   * @param localPort Local port.
+   * @param timeout Socket timeout.
+   * @return A new <code>ServerSocket</code>.
+   * @exception IOException If an error occurs.
+   */
+  public final ServerSocket createServerSocket(String localHost,
+					       int localPort,
+					       int timeout)
+    throws IOException {
 
-	return socket;
-    }
+    final ServerSocket socket =
+      new ServerSocket(localPort, 50, InetAddress.getByName(localHost));
 
-    public final Socket createClientSocket(String remoteHost, int remotePort)
-	throws IOException
-    {
-	return new Socket(remoteHost, remotePort);
-    }
+    socket.setSoTimeout(timeout);
+
+    return socket;
+  }
+
+  /**
+   * Factory method for client sockets.
+   *
+   * @param remoteHost Remote host.
+   * @param remotePort Remote port.
+   * @return A new <code>Socket</code>.
+   * @exception IOException If an error occurs.
+   */
+  public final Socket createClientSocket(String remoteHost, int remotePort)
+    throws IOException {
+
+    return new Socket(remoteHost, remotePort);
+  }
 }
 

@@ -91,7 +91,7 @@ final class ConsoleCommunication {
 	m_receiver.shutdown();
       }
 
-      synchronized(this) {
+      synchronized (this) {
 	while (!m_deaf) {
 	  try {
 	    wait();
@@ -106,12 +106,12 @@ final class ConsoleCommunication {
 	new UnicastReceiver(m_properties.getConsoleAddress(),
 			    m_properties.getConsolePort());
 
-      synchronized(this) {
+      synchronized (this) {
 	m_deaf = false;
 	notifyAll();
       }
     }
-    catch(CommunicationException e) {
+    catch (CommunicationException e) {
       m_exceptionHandler.consoleExceptionOccurred(
 	new DisplayMessageConsoleException(
 	  "localBindError.text",
@@ -135,7 +135,7 @@ final class ConsoleCommunication {
 			    m_properties.getGrinderAddress(),
 			    m_properties.getGrinderPort());
     }
-    catch(CommunicationException e) {
+    catch (CommunicationException e) {
       m_exceptionHandler.consoleExceptionOccurred(
 	new DisplayMessageConsoleException(
 	  "multicastConnectError.text",
@@ -160,7 +160,7 @@ final class ConsoleCommunication {
    **/
   final Message waitForMessage() {
     while (true) {
-      synchronized(this) {
+      synchronized (this) {
 	while (m_deaf) {
 	  try {
 	    wait();

@@ -31,7 +31,7 @@ import net.grinder.script.Grinder;
 /**
  * <p>This class is used to share process information between the
  * Grinder and the plug-in.</p>
- * 
+ *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$

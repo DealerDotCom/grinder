@@ -32,7 +32,7 @@ import java.util.Properties;
  * @author Philip Aston
  * @version $Revision$
  */
-public class GrinderBuild {
+public final class GrinderBuild {
 
   private static final String s_versionString;
   private static final String s_dateString;
@@ -42,14 +42,14 @@ public class GrinderBuild {
       final InputStream buildPropertiesStream =
 	GrinderBuild.class.getClassLoader().getResourceAsStream(
 	  "net/grinder/common/resources/build.properties");
-      
+
       if (buildPropertiesStream == null) {
 	throw new IOException("Could not find build.properties");
       }
 
       final Properties properties = new Properties();
       properties.load(buildPropertiesStream);
-    
+
       s_versionString = properties.getProperty("version");
       s_dateString = properties.getProperty("date");
     }

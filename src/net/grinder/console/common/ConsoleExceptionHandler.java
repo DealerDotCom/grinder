@@ -27,7 +27,7 @@ package net.grinder.console.common;
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public interface ConsoleExceptionHandler {
 
   /**

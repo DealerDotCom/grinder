@@ -64,14 +64,14 @@ import net.grinder.util.SignificantFigureFormat;
  */
 public class Model {
 
-  /** 
+  /**
    * Constant that represents the model state of <em>waiting for a
    * trigger</em>.
    * @see #getState
    */
   public static final int STATE_WAITING_FOR_TRIGGER = 0;
 
-  /** 
+  /**
    * Constant that represents the model state of <em>stopped statisics
    * capture</em>.
    * @see #getState
@@ -98,7 +98,7 @@ public class Model {
      **/
   private final Set m_tests = new TreeSet();
 
-  /** 
+  /**
    * A {@link SampleAccumulator} for each test.
    **/
   private final Map m_accumulators =
@@ -163,14 +163,14 @@ public class Model {
     m_tpsExpression =
       statisticExpressionFactory.createExpression(
 	"(* 1000 (/ (+ untimedTransactions timedTransactions) period))");
-	
+
     m_tpsExpressionView =
       new ExpressionView("TPS", "statistic.tps", m_tpsExpression);
 
     m_peakTPSExpression =
       statisticExpressionFactory.createPeak(
 	indexMap.getIndexForDouble("peakTPS"), m_tpsExpression);
-	
+
     m_peakTPSExpressionView =
       new ExpressionView("Peak TPS", "statistic.peakTPS", m_peakTPSExpression);
 
@@ -187,7 +187,7 @@ public class Model {
       ConsoleProperties.SIG_FIG_PROPERTY,
       new PropertyChangeListener() {
 	public void propertyChange(PropertyChangeEvent event) {
-	  m_numberFormat = 
+	  m_numberFormat =
 	    new SignificantFigureFormat(
 	      ((Integer)event.getNewValue()).intValue());
 	}
@@ -291,7 +291,7 @@ public class Model {
       new SampleAccumulator[testArray.length];
 
     final Iterator newTestIterator = newTests.iterator();
-      
+
     synchronized (m_accumulators) {
       while (newTestIterator.hasNext()) {
 	m_accumulators.put((Test)newTestIterator.next(),
@@ -299,7 +299,7 @@ public class Model {
 						 m_periodIndex));
       }
 
-      for (int i=0; i<accumulatorArray.length; i++) {
+      for (int i = 0; i < accumulatorArray.length; i++) {
 	accumulatorArray[i] =
 	  (SampleAccumulator)m_accumulators.get(testArray[i]);
       }
@@ -439,7 +439,7 @@ public class Model {
    */
   public final void reset() {
 
-    synchronized(m_tests) {
+    synchronized (m_tests) {
       m_tests.clear();
     }
 
@@ -480,7 +480,7 @@ public class Model {
     if (getState() == STATE_CAPTURING) {
       // TestStatisticsMap doesn't change within the console so we
       // don't need to synchronise.
-      final TestStatisticsMap.Iterator iterator = 
+      final TestStatisticsMap.Iterator iterator =
 	testStatisticsMap.new Iterator();
 
       while (iterator.hasNext()) {
@@ -515,7 +515,7 @@ public class Model {
 	m_currentTime = System.currentTimeMillis();
 
 	final long sampleInterval = m_sampleInterval;
-		
+
 	final long wakeUpTime = m_currentTime + sampleInterval;
 
 	while (m_currentTime < wakeUpTime) {
@@ -523,7 +523,7 @@ public class Model {
 	    Thread.sleep(wakeUpTime - m_currentTime);
 	    m_currentTime = wakeUpTime;
 	  }
-	  catch(InterruptedException e) {
+	  catch (InterruptedException e) {
 	    m_currentTime = System.currentTimeMillis();
 	  }
 	}
@@ -537,7 +537,7 @@ public class Model {
 	  final Iterator iterator = m_accumulators.values().iterator();
 
 	  while (iterator.hasNext()) {
-	    final SampleAccumulator sampleAccumulator = 
+	    final SampleAccumulator sampleAccumulator =
 	      ((SampleAccumulator)iterator.next());
 	    sampleAccumulator.fireSample(sampleInterval, period);
 	  }
@@ -552,7 +552,7 @@ public class Model {
 	else {
 	  m_receivedReportInLastInterval = false;
 	}
-		
+
 	if (state == STATE_CAPTURING) {
 	  if (m_receivedReport) {
 	    final int collectSampleCount =
@@ -625,7 +625,7 @@ public class Model {
 
     synchronized (m_accumulators) {
       final Iterator iterator = m_accumulators.values().iterator();
-      
+
       while (iterator.hasNext()) {
 	final SampleAccumulator sampleAccumulator =
 	  ((SampleAccumulator)iterator.next());

@@ -23,80 +23,108 @@
 
 package net.grinder.tools.tcpproxy;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 
 
 /**
+ * Filter that echos to the terminal.
  *
  * @author Philip Aston
  * @author Bertrand Ave
  * @version $Revision$
  */
-public class EchoFilter implements TCPProxyFilter
-{
-    private final PrintWriter m_out;
+public class EchoFilter implements TCPProxyFilter {
 
-    public EchoFilter(PrintWriter outputPrintWriter) 
-    {
-	m_out = outputPrintWriter;
-    }
+  private final PrintWriter m_out;
 
-    public byte[] handle(ConnectionDetails connectionDetails,
-			 byte[] buffer, int bytesRead)
-	throws java.io.IOException
-    {
-	final StringBuffer stringBuffer = new StringBuffer();
+  /**
+   * Constructor.
+   *
+   * @param outputPrintWriter Print writer to use to write to the terminal.
+   */
+  public EchoFilter(PrintWriter outputPrintWriter) {
+    m_out = outputPrintWriter;
+  }
 
-	boolean inHex = false;
+  /**
+   * Handle a message fragment from the stream.
+   *
+   * @param connectionDetails Describes the connection.
+   * @param buffer Contains the data.
+   * @param bytesRead How many bytes of data in <code>buffer</code>.
+   * @return Filters can optionally return a <code>byte[]</code>
+   * which will be transmitted to the server instead of
+   * <code>buffer</code.
+   * @exception IOException If an error occurs.
+   */
+  public byte[] handle(ConnectionDetails connectionDetails,
+		       byte[] buffer, int bytesRead)
+    throws IOException {
 
-	for(int i=0; i<bytesRead; i++) {
-	    final int value = (buffer[i] & 0xFF);
-					
-	    // If it's ASCII, print it as a char.
-	    if (value == '\r' || value == '\n' ||
-		(value >= ' ' && value <= '~')) {
+    final StringBuffer stringBuffer = new StringBuffer();
 
-		if (inHex) {
-		    stringBuffer.append(']');
-		    inHex = false;
-		}
+    boolean inHex = false;
 
-		stringBuffer.append((char)value);
-	    }
-	    else { // else print the value
-		if (!inHex) {
-		    stringBuffer.append('[');
-		    inHex = true;
-		}
+    for (int i = 0; i < bytesRead; i++) {
+      final int value = (buffer[i] & 0xFF);
 
-		if (value <= 0xf) { // Where's "HexNumberFormatter?"
-		    stringBuffer.append("0");
-		}
+      // If it's ASCII, print it as a char.
+      if (value == '\r' || value == '\n' || (value >= ' ' && value <= '~')) {
 
-		stringBuffer.append(Integer.toHexString(value).toUpperCase());
-	    }
+	if (inHex) {
+	  stringBuffer.append(']');
+	  inHex = false;
 	}
 
-	m_out.println("------ "+ connectionDetails.getDescription() +
-		      " ------");
-	m_out.println(stringBuffer);
+	stringBuffer.append((char)value);
+      }
+      // Else print the value.
+      else {
+	if (!inHex) {
+	  stringBuffer.append('[');
+	  inHex = true;
+	}
 
-	return null;
+	if (value <= 0xf) { // Where's "HexNumberFormatter?"
+	  stringBuffer.append("0");
+	}
+
+	stringBuffer.append(Integer.toHexString(value).toUpperCase());
+      }
     }
 
-    public void connectionOpened(ConnectionDetails connectionDetails)
-    {
-	m_out.println("--- " +  connectionDetails.getDescription() +
-		      " opened --");
-    }
+    m_out.println("------ " + connectionDetails.getDescription() + " ------");
+    m_out.println(stringBuffer);
 
-    public void connectionClosed(ConnectionDetails connectionDetails)
-    {
-	m_out.println("--- " +  connectionDetails.getDescription() +
-		      " closed --");
-    }
-    
-    public void stop() {}
+    return null;
+  }
+
+  /**
+   * A new connection has been opened.
+   *
+   * @param connectionDetails Describes the connection.
+   */
+  public void connectionOpened(ConnectionDetails connectionDetails) {
+
+    m_out.println("--- " +  connectionDetails.getDescription() + " opened --");
+  }
+
+  /**
+   * A connection has been closed.
+   *
+   * @param connectionDetails Describes the connection.
+   */
+  public void connectionClosed(ConnectionDetails connectionDetails) {
+
+    m_out.println("--- " +  connectionDetails.getDescription() + " closed --");
+  }
+
+  /**
+   * Called just before stop.
+   */
+  public void stop() {
+  }
 }
 
 

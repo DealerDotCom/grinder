@@ -54,7 +54,7 @@ public class Resources implements net.grinder.console.common.Resources {
 
     synchronized (Resources.class) {
       if (s_resources == null) {
-	try { 
+	try {
 	  s_resources = ResourceBundle.getBundle(
 	    "net.grinder.console.swingui.resources.Console");
 	}
@@ -170,7 +170,7 @@ public class Resources implements net.grinder.console.common.Resources {
     if (name == null || name.length() == 0) {
       return null;
     }
-	
+
     final URL url = this.getClass().getResource("resources/" + name);
 
     if (url == null) {

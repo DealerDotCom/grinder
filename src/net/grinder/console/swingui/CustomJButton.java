@@ -34,6 +34,7 @@ import javax.swing.JButton;
  */
 class CustomJButton extends JButton {
 
+  /** Property key for rollover icon. */
   public static final String ROLLOVER_ICON = "RolloverIcon";
 
   CustomJButton() {

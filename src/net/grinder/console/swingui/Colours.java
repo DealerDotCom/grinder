@@ -31,15 +31,32 @@ import java.awt.SystemColor;
  * @author Philip Aston
  * @version $Revision$
  */
-interface Colours {
+final class Colours {
 
-  static final Color BLACK = Color.black;
-  static final Color BLUE = Color.blue;
-  static final Color DARK_GREEN = new Color(0, 0x80, 0);
-  static final Color DARK_GREY = Color.darkGray;
-  static final Color DARK_RED = new Color(0xE0, 0, 00);
-  static final Color FEINT_YELLOW = new Color(0xFF, 0xFF, 0xD0);
-  static final Color GREY = Color.gray;
-  static final Color HIGHLIGHT_BLUE = SystemColor.textHighlight;
-  static final Color RED = Color.red;
+  /** Colour constant. */
+  public static final Color BLACK = Color.black;
+
+  /** Colour constant. */
+  public static final Color BLUE = Color.blue;
+
+  /** Colour constant. */
+  public static final Color DARK_GREEN = new Color(0, 0x80, 0);
+
+  /** Colour constant. */
+  public static final Color DARK_GREY = Color.darkGray;
+
+  /** Colour constant. */
+  public static final Color DARK_RED = new Color(0xE0, 0, 00);
+
+  /** Colour constant. */
+  public static final Color FEINT_YELLOW = new Color(0xFF, 0xFF, 0xD0);
+
+  /** Colour constant. */
+  public static final Color GREY = Color.gray;
+
+  /** Colour constant. */
+  public static final Color HIGHLIGHT_BLUE = SystemColor.textHighlight;
+
+  /** Colour constant. */
+  public static final Color RED = Color.red;
 }

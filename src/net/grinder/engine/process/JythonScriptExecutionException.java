@@ -36,7 +36,7 @@ import net.grinder.engine.EngineException;
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public class JythonScriptExecutionException extends EngineException {
   /**
    * Creates a new <code>JythonScriptExecutionException</code> instance.

@@ -27,14 +27,15 @@ import org.python.core.PyObject;
 
 
 /**
+ * An instrumented <code>PyJavaInstance</code>.
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 class TestPyJavaInstance extends PyJavaInstance {
   private final TestData m_testData;
   private final PyObject m_pyTest;
-    
+
   public TestPyJavaInstance(TestData testData, Object target) {
     super(target);
 
@@ -64,7 +65,9 @@ class TestPyJavaInstance extends PyJavaInstance {
       new TestData.Invokeable() {
 	public Object call() {
 	  return TestPyJavaInstance.super.invoke(name);
-	}});
+	}
+      }
+      );
   }
 
   public PyObject invoke(final String name, final PyObject arg1) {
@@ -72,7 +75,9 @@ class TestPyJavaInstance extends PyJavaInstance {
       new TestData.Invokeable() {
 	public Object call() {
 	  return TestPyJavaInstance.super.invoke(name, arg1);
-	}});
+	}
+      }
+      );
   }
 
   public PyObject invoke(final String name, final PyObject arg1,
@@ -81,7 +86,9 @@ class TestPyJavaInstance extends PyJavaInstance {
       new TestData.Invokeable() {
 	public Object call() {
 	  return TestPyJavaInstance.super.invoke(name, arg1, arg2);
-	}});
+	}
+      }
+      );
   }
 
   public PyObject invoke(final String name, final PyObject[] args) {
@@ -89,7 +96,9 @@ class TestPyJavaInstance extends PyJavaInstance {
       new TestData.Invokeable() {
 	public Object call() {
 	  return TestPyJavaInstance.super.invoke(name, args);
-	}});
+	}
+      }
+      );
   }
 
   public PyObject invoke(final String name, final PyObject[] args,
@@ -97,9 +106,10 @@ class TestPyJavaInstance extends PyJavaInstance {
     return dispatch(
       new TestData.Invokeable() {
 	public Object call() {
-	  return TestPyJavaInstance.super.invoke(name, args,
-						 keywords);
-	}});
+	  return TestPyJavaInstance.super.invoke(name, args, keywords);
+	}
+      }
+      );
   }
 }
 

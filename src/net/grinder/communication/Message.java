@@ -29,7 +29,7 @@ import java.io.Serializable;
 
 /**
  * Base class for messages.
- * 
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -141,12 +141,23 @@ public abstract class Message implements Serializable {
     if (!(o instanceof Message)) {
       return false;
     }
-	
+
     final Message message = (Message)o;
 
     return
-      m_sequenceNumber != -1 && 
+      m_sequenceNumber != -1 &&
       m_sequenceNumber == message.m_sequenceNumber &&
       m_senderUniqueID.equals(message.m_senderUniqueID);
+  }
+
+  /**
+   * Implement hash code.
+   *
+   * @return The hash code.
+   */
+  public final int hashCode() {
+    return
+      (int) m_sequenceNumber ^ (int) (m_sequenceNumber >> 32) ^
+      (m_senderUniqueID != null ? m_senderUniqueID.hashCode() : 0);
   }
 }

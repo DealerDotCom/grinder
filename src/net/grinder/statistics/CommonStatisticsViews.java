@@ -38,14 +38,14 @@ public final class CommonStatisticsViews {
   /**
    * @supplierCardinality 1
    * @link aggregation
-   * @clientRole detailStatisticsView 
+   * @clientRole detailStatisticsView
    **/
   private final StatisticsView m_detailStatisticsView = new StatisticsView();
 
   /**
    * @supplierCardinality 1
    * @link aggregation
-   * @clientRole summaryStatisticsView 
+   * @clientRole summaryStatisticsView
    **/
   private final StatisticsView m_summaryStatisticsView =
     new StatisticsView();
@@ -54,17 +54,17 @@ public final class CommonStatisticsViews {
     try {
       final ExpressionView[] detailExpressionViews = {
 	new ExpressionView("Transaction time",
-			   "statistic.transactionTime", 
+			   "statistic.transactionTime",
 			   "timedTransactionTime"),
 	new ExpressionView("Errors", "statistic.errors", "errors"),
       };
 
-      for (int i=0; i<detailExpressionViews.length; ++i) {
+      for (int i = 0; i < detailExpressionViews.length; ++i) {
 	m_detailStatisticsView.add(detailExpressionViews[i]);
       }
 
       final ExpressionView[] summaryExpressionViews = {
-	new ExpressionView("Transactions", "statistic.transactions", 
+	new ExpressionView("Transactions", "statistic.transactions",
 			   "(+ timedTransactions untimedTransactions)"
 			   ),
 	new ExpressionView("Errors", "statistic.errors", "errors"),
@@ -74,7 +74,7 @@ public final class CommonStatisticsViews {
 	  "(/ timedTransactionTime timedTransactions)"),
       };
 
-      for (int i=0; i<summaryExpressionViews.length; ++i) {
+      for (int i = 0; i < summaryExpressionViews.length; ++i) {
 	m_summaryStatisticsView.add(summaryExpressionViews[i]);
       }
     }

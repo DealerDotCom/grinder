@@ -94,10 +94,10 @@ final class FileTreeModel implements TreeModel {
     final TreeModelEvent event =
       new TreeModelEvent(this, new Object[] { getRoot() }, null, null);
 
-    for (int i=listeners.length-2; i>=0; i-=2) {
-      if (listeners[i]==TreeModelListener.class) {
-	((TreeModelListener)listeners[i+1]).treeStructureChanged(event);
-      }          
+    for (int i = listeners.length - 2; i >= 0; i -= 2) {
+      if (listeners[i] == TreeModelListener.class) {
+	((TreeModelListener)listeners[i + 1]).treeStructureChanged(event);
+      }
     }
   }
 
@@ -111,7 +111,7 @@ final class FileTreeModel implements TreeModel {
 	return new File(dir, name).isDirectory();
       }
     };
-    
+
   private static final FilenameFilter s_fileFilter =
     new FilenameFilter() {
       public final boolean accept(File dir, String name) {
@@ -124,14 +124,14 @@ final class FileTreeModel implements TreeModel {
     private final File m_file;
     private final File[] m_children;
 
-    private Node(File file) {
+    protected Node(File file) {
       m_file = file;
       final File[] childDirectories = file.listFiles(s_directoryFilter);
       final File[] childFiles = file.listFiles(s_fileFilter);
 
       final int numberOfDirectories =
 	childDirectories != null ? childDirectories.length : 0;
-      
+
       final int numberOfFiles =	childFiles != null ? childFiles.length : 0;
 
       m_children = new File[numberOfDirectories + numberOfFiles];
@@ -156,7 +156,7 @@ final class FileTreeModel implements TreeModel {
     }
 
     public final int getIndexOfChild(Node child) {
-      for (int i=0; i<m_children.length; ++i) {
+      for (int i = 0; i < m_children.length; ++i) {
 	if (m_children[i].equals(child.getFile())) {
 	  return i;
 	}
@@ -182,12 +182,12 @@ final class FileTreeModel implements TreeModel {
     }
   }
 
-  public class RootNode extends Node {
+  public final class RootNode extends Node {
 
     private RootNode(File file) {
       super(file);
     }
-    
+
     public String toString() {
       return getFile().getPath();
     }

@@ -28,14 +28,15 @@ import org.python.core.PyObject;
 
 
 /**
+ * An instrumented <code>PyInstance</code>.
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 class TestPyInstance extends PyInstance {
   private final TestData m_testData;
   private final PyObject m_pyTest;
-    
+
   public TestPyInstance(TestData testData, PyInstance target) {
     super(target.__class__, target.__dict__);
 
@@ -65,7 +66,9 @@ class TestPyInstance extends PyInstance {
       new TestData.Invokeable() {
 	public Object call() {
 	  return TestPyInstance.super.invoke(name);
-	}});
+	}
+      }
+      );
   }
 
   public PyObject invoke(final String name, final PyObject arg1) {
@@ -73,7 +76,9 @@ class TestPyInstance extends PyInstance {
       new TestData.Invokeable() {
 	public Object call() {
 	  return TestPyInstance.super.invoke(name, arg1);
-	}});
+	}
+      }
+      );
   }
 
   public PyObject invoke(final String name, final PyObject arg1,
@@ -82,7 +87,9 @@ class TestPyInstance extends PyInstance {
       new TestData.Invokeable() {
 	public Object call() {
 	  return TestPyInstance.super.invoke(name, arg1, arg2);
-	}});
+	}
+      }
+      );
   }
 
   public PyObject invoke(final String name, final PyObject[] args) {
@@ -90,7 +97,9 @@ class TestPyInstance extends PyInstance {
       new TestData.Invokeable() {
 	public Object call() {
 	  return TestPyInstance.super.invoke(name, args);
-	}});
+	}
+      }
+      );
   }
 
   public PyObject invoke(final String name, final PyObject[] args,
@@ -99,7 +108,9 @@ class TestPyInstance extends PyInstance {
       new TestData.Invokeable() {
 	public Object call() {
 	  return TestPyInstance.super.invoke(name, args, keywords);
-	}});
+	}
+      }
+      );
   }
 }
 

@@ -47,7 +47,7 @@ public class MulticastSender extends AbstractSender {
    * @param multicastPort Multicast port to send to.
    * @throws CommunicationException If failed to bind to socket or
    * failed to generate a unique process identifer.
-   **/    
+   */
   public MulticastSender(String grinderID,
 			 String multicastAddressString,
 			 int multicastPort)

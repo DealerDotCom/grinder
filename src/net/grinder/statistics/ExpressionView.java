@@ -59,7 +59,7 @@ public class ExpressionView {
   /**
    * @clientCardinality 1
    * @link aggregationByValue
-   * @supplierCardinality 1 
+   * @supplierCardinality 1
    **/
   private final StatisticExpression m_expression;
 
@@ -106,7 +106,7 @@ public class ExpressionView {
 
   private ExpressionView(String displayName, String displayNameResourceKey,
 			 String expressionString,
-			 StatisticExpression expression) 
+			 StatisticExpression expression)
     throws GrinderException {
     m_displayName = displayName;
     m_displayNameResourceKey = displayNameResourceKey;
@@ -116,9 +116,9 @@ public class ExpressionView {
     m_hashCode =
       m_displayName.hashCode() ^
       m_displayNameResourceKey.hashCode() ^
-      m_expressionString.hashCode();	
+      m_expressionString.hashCode();
 
-    synchronized(ExpressionView.class) {
+    synchronized (ExpressionView.class) {
       m_creationOrder = s_creationOrder++;
     }
   }

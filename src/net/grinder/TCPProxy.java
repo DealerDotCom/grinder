@@ -55,8 +55,8 @@ import net.grinder.tools.tcpproxy.TCPProxySocketFactory;
  * @author Bertrand Ave
  * @version $Revision$
  */
-public class TCPProxy {
-  
+public final class TCPProxy {
+
   private static final String SSL_SOCKET_FACTORY_CLASS =
     "net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory";
 
@@ -139,13 +139,13 @@ public class TCPProxy {
     boolean proxy = false;
     boolean console = false;
 
-    int timeout = 0; 
+    int timeout = 0;
 
     boolean useColour = false;
 
     try {
       // Parse 1.
-      for (int i=0; i < args.length; i++) {
+      for (int i = 0; i < args.length; i++) {
       	if (args[i].equalsIgnoreCase("-properties")) {
 	  final Properties properties = new Properties();
 	  properties.load(new FileInputStream(new File(args[++i])));
@@ -159,9 +159,9 @@ public class TCPProxy {
 		    " or the -properties option instead.");
 	}
       }
-      
+
       // Parse 2.
-      for (int i=0; i < args.length; i++) {      
+      for (int i = 0; i < args.length; i++) {
 	if (args[i].equalsIgnoreCase("-requestfilter")) {
 	  requestFilter = instantiateFilter(args[++i], outputWriter);
 	}
@@ -248,7 +248,7 @@ public class TCPProxy {
       " proxy engine with the parameters:" +
       "\n   Request filter:  " + requestFilter.getClass().getName() +
       "\n   Response filter: " + responseFilter.getClass().getName() +
-      "\n   Local host:       " + localHost + 
+      "\n   Local host:       " + localHost +
       "\n   Local port:       " + localPort);
 
     if (proxy) {
@@ -286,7 +286,7 @@ public class TCPProxy {
       }
 
       if (proxy) {
-	m_proxyEngine = 
+	m_proxyEngine =
 	  new HTTPProxyTCPProxyEngine(
 	    new TCPProxyPlainSocketFactory(),
 	    sslSocketFactory,
@@ -312,15 +312,15 @@ public class TCPProxy {
 	    useColour,
 	    timeout);
       }
-      
+
       if (console) {
 	new TCPProxyConsole(m_proxyEngine);
       }
-		
+
       System.err.println("Engine initialised, listening on port " +
 			 localPort);
     }
-    catch (Exception e){
+    catch (Exception e) {
       System.err.println("Could not initialise engine:");
       e.printStackTrace();
       System.exit(2);
@@ -329,19 +329,20 @@ public class TCPProxy {
 
   private TCPProxyFilter instantiateFilter(
     String filterClassName, PrintWriter outputWriter) throws Exception {
+
     if (filterClassName.equals("NONE")) {
-      return new NullFilter();
+      return new NullFilter(outputWriter);
     }
     else if (filterClassName.equals("ECHO")) {
       return new EchoFilter(outputWriter);
     }
 
     final Class filterClass;
-	
+
     try {
       filterClass = Class.forName(filterClassName);
     }
-    catch (ClassNotFoundException e){
+    catch (ClassNotFoundException e) {
       throw barfUsage("Class '" + filterClassName + "' not found");
     }
 
@@ -354,9 +355,9 @@ public class TCPProxy {
 
     // Instantiate a filter.
     try {
-      final Constructor constructor = 
-	filterClass.getConstructor(new Class[] {PrintWriter.class} );
-	    
+      final Constructor constructor =
+	filterClass.getConstructor(new Class[] {PrintWriter.class});
+
       return (TCPProxyFilter)constructor.newInstance(
 	new Object[] {outputWriter});
     }
@@ -374,13 +375,13 @@ public class TCPProxy {
 		      "' is abstract");
     }
   }
-	
+
   private final void run() {
     Runtime.getRuntime().addShutdownHook(
       new Thread() {
 	public final void run() { m_proxyEngine.stop(); }
       });
-    
+
     m_proxyEngine.run();
     System.err.println("Engine exited");
     System.exit(0);

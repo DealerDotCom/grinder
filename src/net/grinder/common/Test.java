@@ -29,7 +29,7 @@ package net.grinder.common;
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
+ */
 public interface Test extends Comparable {
   /**
    * Test number. Defines test identity and ordering.

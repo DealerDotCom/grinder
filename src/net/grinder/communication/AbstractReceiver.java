@@ -32,13 +32,17 @@ import java.util.Map;
  * @version $Revision$
  **/
 abstract class AbstractReceiver implements Receiver {
+
   private final Map m_sequenceValues;
 
   private final MessageQueue m_messageQueue = new MessageQueue(true);
 
   /**
    * Constructor.
-   **/
+   *
+   * @param checkSequence If <code>true</code>, check the sequence
+   * numbers of received messages.
+   */
   protected AbstractReceiver(boolean checkSequence) {
     m_sequenceValues = checkSequence ? new HashMap() : null;
   }
@@ -61,7 +65,7 @@ abstract class AbstractReceiver implements Receiver {
   public final synchronized Message waitForMessage()
     throws CommunicationException {
     final Message message;
-	
+
     try {
       message = m_messageQueue.dequeue(true);
     }
@@ -83,7 +87,7 @@ abstract class AbstractReceiver implements Receiver {
 	m_sequenceValues.put(senderID, new SequenceValue(sequenceNumber));
       }
     }
-	    
+
     return message;
   }
 
@@ -120,7 +124,7 @@ abstract class AbstractReceiver implements Receiver {
       if (newValue != ++m_value) {
 	final CommunicationException e = new CommunicationException(
 	  "Out of sequence message from Sender '" +
-	  message.getSenderGrinderID() + "' (received " + newValue + 
+	  message.getSenderGrinderID() + "' (received " + newValue +
 	  ", expected " + m_value + ")");
 
 	m_value = newValue;

@@ -33,33 +33,53 @@ import java.io.PrintWriter;
  * @author Bertrand Ave
  * @version $Revision$
  */
-public class NullFilter implements TCPProxyFilter
-{
-    public NullFilter() 
-    {
-    }
+public class NullFilter implements TCPProxyFilter {
 
-    public NullFilter(PrintWriter outputPrintWriter) 
-    {
-    }
+  /**
+   * Constructor.
+   *
+   * @param outputPrintWriter Print writer to use to write to the
+   * terminal. (Not used).
+   */
+  public NullFilter(PrintWriter outputPrintWriter) {
+  }
 
-    public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
-			 int bytesRead)
-    {
-	return null;
-    }
+  /**
+   * Handle a message fragment from the stream.
+   *
+   * @param connectionDetails Describes the connection.
+   * @param buffer Contains the data.
+   * @param bytesRead How many bytes of data in <code>buffer</code>.
+   * @return Filters can optionally return a <code>byte[]</code>
+   * which will be transmitted to the server instead of
+   * <code>buffer</code.
+   */
+  public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
+		       int bytesRead) {
+    return null;
+  }
 
-    public void connectionOpened(ConnectionDetails connectionDetails)
-    {
-    }
+  /**
+   * A new connection has been opened.
+   *
+   * @param connectionDetails Describes the connection.
+   */
+  public void connectionOpened(ConnectionDetails connectionDetails) {
+  }
 
-    public void connectionClosed(ConnectionDetails connectionDetails)
-    {
-    }
+  /**
+   * A connection has been closed.
+   *
+   * @param connectionDetails Describes the connection.
+   */
+  public void connectionClosed(ConnectionDetails connectionDetails) {
+  }
 
-    public void stop() 
-    {
-    }
+  /**
+   * Called just before stop.
+   */
+  public void stop() {
+  }
 }
 
 

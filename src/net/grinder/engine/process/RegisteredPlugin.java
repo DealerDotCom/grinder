@@ -72,12 +72,12 @@ final class RegisteredPlugin implements PluginProcessContext {
   }
 
   final PluginThreadListener getPluginThreadListener(
-    ThreadContext threadContext) 
+    ThreadContext threadContext)
     throws EngineException {
 
     final PluginThreadListener existingPluginThreadListener =
       (PluginThreadListener)m_threadListenerThreadLocal.get();
-	    
+
     if (existingPluginThreadListener != null) {
 	  return existingPluginThreadListener;
     }
@@ -85,7 +85,7 @@ final class RegisteredPlugin implements PluginProcessContext {
     try {
       final PluginThreadListener newPluginThreadListener =
 	m_plugin.createThreadListener(threadContext);
-	    
+
       m_threadListenerThreadLocal.set(newPluginThreadListener);
 
       return newPluginThreadListener;

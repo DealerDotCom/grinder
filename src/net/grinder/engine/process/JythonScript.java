@@ -36,7 +36,7 @@ import net.grinder.engine.EngineException;
  * Wrap up the context information necessary to invoke a Jython script.
  *
  * Package scope.
- * 
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -54,7 +54,7 @@ final class JythonScript {
 
     m_systemState = new PySystemState();
     m_interpreter = new PythonInterpreter(null, m_systemState);
-	
+
     m_interpreter.set("grinder", processContext.getScriptContext());
 
     final String parentPath = scriptFile.getParent();
@@ -84,6 +84,9 @@ final class JythonScript {
     }
   }
 
+  /**
+   * Wrapper for script's TestRunner.
+   */
   final class JythonRunnable {
 
     private final PyObject m_testRunner;
@@ -98,7 +101,7 @@ final class JythonScript {
       catch (PyException e) {
 	throw new JythonScriptExecutionException(
 	  "creating per-thread test runner object", e);
-      }	    
+      }
 
       if (!m_testRunner.isCallable()) {
 	throw new EngineException(

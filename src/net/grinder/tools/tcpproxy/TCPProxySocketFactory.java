@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,16 +28,34 @@ import java.net.Socket;
 
 
 /**
+ * Socket factory interface.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface TCPProxySocketFactory
-{
-    ServerSocket createServerSocket(String localHost, int localPort,
-				    int timeout)
-	throws IOException;
+public interface TCPProxySocketFactory {
 
-    Socket createClientSocket(String remoteHost, int remotePort)
-	throws IOException;
+  /**
+   * Factory method for server sockets.
+   *
+   * @param localHost Local host.
+   * @param localPort Local port.
+   * @param timeout Socket timeout.
+   * @return A new <code>ServerSocket</code>.
+   * @exception IOException If an error occurs.
+   */
+  ServerSocket createServerSocket(String localHost, int localPort, int timeout)
+    throws IOException;
+
+  /**
+   * Factory method for client sockets.
+   *
+   * @param remoteHost Remote host.
+   * @param remotePort Remote port.
+   * @return A new <code>Socket</code>.
+   * @exception IOException If an error occurs.
+   */
+  Socket createClientSocket(String remoteHost, int remotePort)
+    throws IOException;
 }
 

@@ -30,7 +30,7 @@ import HTTPClient.NVPair;
  *
  * <p><em>Most of the documentation for this class has been copied
  * verbatim from the HTTPClient documentation.</em></p>
- * 
+ *
  * @author Philip Aston
  * @author Richard Perks
  * @version $Revision$
@@ -114,7 +114,7 @@ public interface HTTPPluginConnection {
    * @param timeout the time in milliseconds. A time of 0 means wait
    *             indefinitely.
    */
-  void setTimeout(int timeout);	
+  void setTimeout(int timeout);
 
   /**
    * Set whether an exception should be thrown if the subject
@@ -194,7 +194,7 @@ public interface HTTPPluginConnection {
    * scheme.
    */
   void clearAllDigestAuthorizations();
-  
+
   /**
    * Set the client IP address to use for outbound connections.
    *
@@ -213,7 +213,7 @@ public interface HTTPPluginConnection {
    * @param localAddress The local host name or IP address to bind to.
    * Pass <code>null</code> to set the default local interface.
    * @exception URLException If <code>localAddress</code> could not be
-   * resolved. 
+   * resolved.
    */
   void setLocalAddress(String localAddress) throws URLException;
 }
