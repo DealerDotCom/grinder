@@ -90,13 +90,17 @@ class HTTPClientHandler implements HTTPHandler
     private final PluginThreadContext m_pluginThreadContext;
     private final boolean m_useCookies;
     private final boolean m_followRedirects;
+    private final HTTPClientResponseListener m_httpClientResponseListener;
 
-    public HTTPClientHandler(PluginThreadContext pluginThreadContext,
-			     boolean useCookies, boolean followRedirects)
+    public HTTPClientHandler(
+	PluginThreadContext pluginThreadContext,
+	boolean useCookies, boolean followRedirects,
+	HTTPClientResponseListener httpClientResponseListener)
     {
 	m_pluginThreadContext = pluginThreadContext;
 	m_useCookies = useCookies;
 	m_followRedirects = followRedirects;
+	m_httpClientResponseListener = httpClientResponseListener;
     }
 
     private Map m_httpConnections = new HashMap();
@@ -247,6 +251,10 @@ class HTTPClientHandler implements HTTPHandler
 					       ") for " + uri);
 	    }
 
+	    m_httpClientResponseListener.handleResponse(response);
+
+	    // Should really use HTTPResponse.getText so that
+	    // Content-Type is respected.
 	    return data != null? new String(data) : null;
 	}
 	catch (Exception e) {

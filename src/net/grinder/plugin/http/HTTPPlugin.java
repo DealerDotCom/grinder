@@ -416,20 +416,9 @@ public class HttpPlugin implements GrinderPlugin
 	    throws PluginException
 	{
 	    m_pluginThreadContext = pluginThreadContext;
-	    
-	    if (m_useHTTPClient) {
-		m_httpHandler = new HTTPClientHandler(pluginThreadContext,
-						      m_useCookies,
-						      m_followRedirects);
-	    }
-	    else {
-		m_httpHandler = new HttpMsg(pluginThreadContext, m_useCookies,
-					    m_useCookiesVersionString,
-					    m_followRedirects,
-					    m_timeToFirstByteIndex);
-	    }
 
 	    final Object bean;
+	    final HTTPClientResponseListener httpClientResponseListener;
 
 	    if (m_stringBeanClass != null) {
 		try {
@@ -442,13 +431,37 @@ public class HttpPlugin implements GrinderPlugin
 		    if (StringBean.class.isAssignableFrom(m_stringBeanClass)) {
 			m_stringBean = (StringBean)bean;
 			m_stringBean.initialize(m_pluginThreadContext);
-		    }
-		    else {
+
 			m_pluginThreadContext.logMessage(
 			    m_stringBeanClass.getName() +
-			    " does not implement " +
+			    " implements " +
 			    StringBean.class.getName() +
-			    ", skipping initialisation");
+			    ", will forward callbacks to bean");
+		    }
+
+		    if (HTTPClientResponseListener.class.isAssignableFrom(
+			    m_stringBeanClass)) {
+			httpClientResponseListener =
+			    (HTTPClientResponseListener)bean;
+
+			if (m_useHTTPClient) {
+			    m_pluginThreadContext.logMessage(
+				m_stringBeanClass.getName() +
+				" implements " +
+				HTTPClientResponseListener.class.getName() +
+				", will forward responses to bean");
+			}
+			else {
+			    m_pluginThreadContext.logMessage(
+				"WARNING: " +
+				m_stringBeanClass.getName() +
+				" implements " +
+				HTTPClientResponseListener.class.getName() +
+				", but HTTPClient is not being used");
+			}
+		    }
+		    else {
+			httpClientResponseListener = null;
 		    }
 		}
 		catch (Exception e){
@@ -460,6 +473,21 @@ public class HttpPlugin implements GrinderPlugin
 	    }
 	    else {
 		bean = null;
+		httpClientResponseListener = null;
+	    }
+	    
+	    if (m_useHTTPClient) {
+		m_httpHandler =
+		    new HTTPClientHandler(pluginThreadContext,
+					  m_useCookies,
+					  m_followRedirects,
+					  httpClientResponseListener);
+	    }
+	    else {
+		m_httpHandler = new HttpMsg(pluginThreadContext, m_useCookies,
+					    m_useCookiesVersionString,
+					    m_followRedirects,
+					    m_timeToFirstByteIndex);
 	    }
 
 	    final Iterator callDataIterator = m_callData.iterator();
