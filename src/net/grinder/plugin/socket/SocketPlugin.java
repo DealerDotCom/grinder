@@ -67,7 +67,12 @@ public class SocketPlugin implements GrinderPlugin
 	    throw new PluginException("Missing property", ge);
 	}
 
-	processContext.registerTests(testsFromPropertiesFile);
+	try {
+	    processContext.registerTests(testsFromPropertiesFile);
+	}
+	catch (GrinderException e) {
+	    throw new PluginException("Failed to register tests", e);
+	}
     }
 
     public ThreadCallbacks createThreadCallbackHandler()

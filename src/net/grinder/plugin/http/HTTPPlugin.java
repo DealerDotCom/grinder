@@ -148,7 +148,13 @@ public class HttpPlugin implements GrinderPlugin
     void registerTest(HTTPTest test) throws PluginException
     {
 	m_callData.put(test, new CallData(test));
-	m_processContext.registerTest(test);
+
+	try {
+	    m_processContext.registerTest(test);
+	}
+	catch (GrinderException e) {
+	    throw new PluginException("Failed to register test", e);
+	}
     }
 
     void registerTests(Set newTests) throws PluginException
@@ -160,7 +166,12 @@ public class HttpPlugin implements GrinderPlugin
 	    m_callData.put(test, new CallData(test));
 	}
 
-	m_processContext.registerTests(newTests);
+	try {
+	    m_processContext.registerTests(newTests);
+	}
+	catch (GrinderException e) {
+	    throw new PluginException("Failed to register tests", e);
+	}
     }
 
     public ThreadCallbacks createThreadCallbackHandler()

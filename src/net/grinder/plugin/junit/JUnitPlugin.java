@@ -28,6 +28,7 @@ import junit.framework.TestCase;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.common.TestImplementation;
@@ -88,7 +89,12 @@ public class JUnitPlugin implements GrinderPlugin
 	    throw new PluginException("Error instantiating test suite", e);
 	}
 
-	processContext.registerTests(getTests());
+	try {
+	    processContext.registerTests(getTests());
+	}
+	catch (GrinderException e) {
+	    throw new PluginException("Failed to register tests", e);
+	}	
     }
 
     private Set getTests()
