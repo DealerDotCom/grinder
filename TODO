@@ -3,7 +3,7 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-  Doc updates for 2.8.4? (Unified sniffer, international console)
+  Doc updates for 2.8.4? (Unified sniffer)
 
   Bug 608392 - localized characters in output files.
 
@@ -23,25 +23,11 @@ it too :-). The list is roughly in priority order.]
 
   Update HTTPClient to support "mean time to first byte".
 
-  Philippe Renon notes:
-	The JUnitGrinder fails to get the tests from a TestSuite when
-	the suite is wrapped by a TestDecorator. The problem is that
-	the getTests() method in JUnitPlugin.java does a "instanceof
-	TestCase" test. Checking for "instanceof Test" will solve the
-	problem.
-
-	TestCase implements both Test and Assert interfaces. The
-	grinder will incorrectly fail when encountering a Test class
-	that doesn't derive from TestCase.
-
   Write more JUnit tests.
 
   Measure test variance. This would involve the console broadcasting
   the total mean, and then listening for the reported variance.
 
-  Minor fixes to build.xml:
-	Fix the permissions in the distribution files.
-	
   The HTTPClient plugin implementation interprets basicAuthentication
   properties wrongly. It first sends a request without the
   authentication headers, then catches the 401 and automatically
