@@ -21,8 +21,6 @@
 
 package net.grinder.console.communication;
 
-import java.util.Set;
-
 import net.grinder.util.FileContents;
 
 

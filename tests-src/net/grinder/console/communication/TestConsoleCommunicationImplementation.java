@@ -334,9 +334,8 @@ public class TestConsoleCommunicationImplementation
 
     final RandomStubFactory listenerStubFactory =
       new RandomStubFactory(AgentStatus.AgentConnectionListener.class);
-    final AgentStatus.AgentConnectionListener
-      listener = (AgentStatus.AgentConnectionListener)
-      listenerStubFactory.getStub();
+    final AgentStatus.ConnectionListener
+      listener = (AgentStatus.ConnectionListener)listenerStubFactory.getStub();
 
     agentStatus.addConnectionListener(listener);
 

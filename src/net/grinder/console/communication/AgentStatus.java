@@ -40,17 +40,25 @@ public interface AgentStatus {
   Set getConnectedAgents();
 
   /**
-   * Register an {@link AgentConnectionListener}.
+   * Return whether there are any connected agents. Cheaper query than
+   * {@link #getConnectedAgents}.
+   *
+   * @return Whether or not there are any connected agents.
+   */
+  boolean isAnAgentConnected();
+
+  /**
+   * Register a {@link ConnectionListener}.
    *
    * @param listener The listener.
    */
-  void addConnectionListener(AgentConnectionListener listener);
+  void addConnectionListener(ConnectionListener listener);
 
   /**
    * Interface that clients can use to listen for agent connection
    * events.
    */
-  interface AgentConnectionListener {
+  interface ConnectionListener {
     /**
      * Called when one or more agents connect.
      */

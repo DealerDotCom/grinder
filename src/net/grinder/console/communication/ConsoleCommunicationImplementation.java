@@ -414,11 +414,21 @@ public final class ConsoleCommunicationImplementation
     }
 
     /**
-     * Register an {@link AgentConnectionListener}.
+     * Return whether there are any connected agents. Cheaper query than
+     * {@link #getConnectedAgents}.
+     *
+     * @return Whether or not there are any connected agents.
+     */
+    public boolean isAnAgentConnected() {
+      return m_connectedAgents.size() > 0;
+    }
+
+    /**
+     * Register an {@link ConnectionListener}.
      *
      * @param listener The listener.
      */
-    public void addConnectionListener(AgentConnectionListener listener) {
+    public void addConnectionListener(ConnectionListener listener) {
       synchronized (m_agentConnectionListeners) {
         m_agentConnectionListeners.add(listener);
       }
@@ -447,8 +457,8 @@ public final class ConsoleCommunicationImplementation
       final Iterator iterator = m_agentConnectionListeners.iterator();
 
       while (iterator.hasNext()) {
-        final AgentStatus.AgentConnectionListener listener =
-          (AgentStatus.AgentConnectionListener)iterator.next();
+        final AgentStatus.ConnectionListener listener =
+          (AgentStatus.ConnectionListener)iterator.next();
 
         listener.agentConnected();
       }
@@ -460,8 +470,8 @@ public final class ConsoleCommunicationImplementation
       final Iterator iterator = m_agentConnectionListeners.iterator();
 
       while (iterator.hasNext()) {
-        final AgentStatus.AgentConnectionListener listener =
-          (AgentStatus.AgentConnectionListener)iterator.next();
+        final AgentStatus.ConnectionListener listener =
+          (AgentStatus.ConnectionListener)iterator.next();
 
         listener.agentDisconnected();
       }
