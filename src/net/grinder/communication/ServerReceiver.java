@@ -44,6 +44,7 @@ public final class ServerReceiver implements Receiver {
    * @param addressString The TCP address to listen on. Zero-length
    * string => listen on all interfaces.
    * @param port The TCP port to listen to.
+   * @return The ServerReceiver.
    * @throws CommunicationException If server socket could not be
    * bound.
    */
