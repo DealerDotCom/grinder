@@ -29,6 +29,7 @@ import java.io.FileWriter;
 import java.util.Random;
 
 import net.grinder.common.GrinderException;
+import net.grinder.console.ConsoleException;
 
 
 /**
@@ -61,7 +62,8 @@ public class TestConsoleProperties extends TestCase
 
     public void testCollectSamples() throws Exception
     {
-	new TestIntTemplate(ConsoleProperties.COLLECT_SAMPLES_PROPERTY) 
+	new TestIntTemplate(ConsoleProperties.COLLECT_SAMPLES_PROPERTY, 0,
+			    Integer.MAX_VALUE) 
 	{
 	    protected int get(ConsoleProperties properties)
 	    {
@@ -69,6 +71,7 @@ public class TestConsoleProperties extends TestCase
 	    }
 
 	    protected void set(ConsoleProperties properties, int i)
+		throws ConsoleException
 	    {
 		properties.setCollectSampleCount(i);
 	    }
@@ -77,7 +80,8 @@ public class TestConsoleProperties extends TestCase
 
     public void testIgnoreSamples() throws Exception
     {
-	new TestIntTemplate(ConsoleProperties.IGNORE_SAMPLES_PROPERTY) 
+	new TestIntTemplate(ConsoleProperties.IGNORE_SAMPLES_PROPERTY, 1,
+			    Integer.MAX_VALUE) 
 	{
 	    protected int get(ConsoleProperties properties)
 	    {
@@ -85,6 +89,7 @@ public class TestConsoleProperties extends TestCase
 	    }
 
 	    protected void set(ConsoleProperties properties, int i)
+		throws ConsoleException
 	    {
 		properties.setIgnoreSampleCount(i);
 	    }
@@ -93,7 +98,8 @@ public class TestConsoleProperties extends TestCase
 
     public void testSampleInterval() throws Exception
     {
-	new TestIntTemplate(ConsoleProperties.SAMPLE_INTERVAL_PROPERTY) 
+	new TestIntTemplate(ConsoleProperties.SAMPLE_INTERVAL_PROPERTY, 1,
+			    Integer.MAX_VALUE) 
 	{
 	    protected int get(ConsoleProperties properties)
 	    {
@@ -101,6 +107,7 @@ public class TestConsoleProperties extends TestCase
 	    }
 
 	    protected void set(ConsoleProperties properties, int i)
+		throws ConsoleException
 	    {
 		properties.setSampleInterval(i);
 	    }
@@ -109,7 +116,8 @@ public class TestConsoleProperties extends TestCase
 
     public void testSignificantFigures() throws Exception
     {
-	new TestIntTemplate(ConsoleProperties.SIG_FIG_PROPERTY) 
+	new TestIntTemplate(ConsoleProperties.SIG_FIG_PROPERTY, 0,
+			    Integer.MAX_VALUE) 
 	{
 	    protected int get(ConsoleProperties properties)
 	    {
@@ -117,6 +125,7 @@ public class TestConsoleProperties extends TestCase
 	    }
 
 	    protected void set(ConsoleProperties properties, int i)
+		throws ConsoleException
 	    {
 		properties.setSignificantFigures(i);
 	    }
@@ -125,23 +134,45 @@ public class TestConsoleProperties extends TestCase
 
     public void testMulticastAddress() throws Exception
     {
-	new TestStringTemplate(ConsoleProperties.MULTICAST_ADDRESS_PROPERTY) 
-	{
-	    protected String get(ConsoleProperties properties)
-	    {
-		return properties.getMulticastAddress();
-	    }
+	final String propertyName =
+	    ConsoleProperties.MULTICAST_ADDRESS_PROPERTY;
 
-	    protected void set(ConsoleProperties properties, String s)
-	    {
-		properties.setMulticastAddress(s);
-	    }
-	}.doTest();
+	final String s1 = "229.1.2.3";
+
+	m_fileWriter.write(propertyName + ":" + s1);
+	m_fileWriter.close();
+
+	final ConsoleProperties properties = new ConsoleProperties(m_file);
+	assertEquals(s1, properties.getMulticastAddress().getHostAddress());
+
+	final String s2 = "239.99.33.11";
+
+	properties.setMulticastAddress(s2);
+	assertEquals(s2, properties.getMulticastAddress().getHostAddress());
+
+	properties.save();
+
+	final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+	assertEquals(s2, properties2.getMulticastAddress().getHostAddress());
+
+	final String s3 = "224.46.68.80";
+
+	final PropertyChangeEvent expected =
+	    new PropertyChangeEvent(properties2, propertyName, s2, s3);
+
+	final MyListener listener = new MyListener(expected);
+	final MyListener listener2 = new MyListener(expected);
+
+	properties2.addPropertyChangeListener(listener);
+	properties2.addPropertyChangeListener(propertyName, listener2);
+
+	properties2.setMulticastAddress(s3);
     }
 
     public void testConsolePort() throws Exception
     {
-	new TestIntTemplate(ConsoleProperties.CONSOLE_PORT_PROPERTY) 
+	new TestIntTemplate(ConsoleProperties.CONSOLE_PORT_PROPERTY, 0,
+			    0xFFFF) 
 	{
 	    protected int get(ConsoleProperties properties)
 	    {
@@ -149,6 +180,7 @@ public class TestConsoleProperties extends TestCase
 	    }
 
 	    protected void set(ConsoleProperties properties, int i)
+		throws ConsoleException
 	    {
 		properties.setConsolePort(i);
 	    }
@@ -157,7 +189,8 @@ public class TestConsoleProperties extends TestCase
 
     public void testGrinderPort() throws Exception
     {
-	new TestIntTemplate(ConsoleProperties.GRINDER_PORT_PROPERTY) 
+	new TestIntTemplate(ConsoleProperties.GRINDER_PORT_PROPERTY, 0,
+			    0xFFFF) 
 	{
 	    protected int get(ConsoleProperties properties)
 	    {
@@ -165,6 +198,7 @@ public class TestConsoleProperties extends TestCase
 	    }
 
 	    protected void set(ConsoleProperties properties, int i)
+		throws ConsoleException
 	    {
 		properties.setGrinderPort(i);
 	    }
@@ -174,15 +208,39 @@ public class TestConsoleProperties extends TestCase
     private abstract class TestIntTemplate
     {
 	private final String m_propertyName;
+	private final int m_minimum;
+	private final int m_maximum;
 
-	public TestIntTemplate(String propertyName)
+	public TestIntTemplate(String propertyName, int minimum, int maximum)
 	{
+	    if (maximum <= minimum) {
+		throw new IllegalArgumentException(
+		    "Minimum not less than maximum");
+	    }
+
 	    m_propertyName = propertyName;
+	    m_minimum = minimum;
+	    m_maximum = maximum;
+	}
+
+	private int getRandomInt()
+	{
+	    return getRandomInt(m_minimum, m_maximum);
+	}
+
+	private int getRandomInt(int minimum, int maximum)
+	{
+	    // Valid values are in [minimum, maximum], so range is 1
+	    // more than maximum value.Will not fit in an int, use a
+	    // long.
+	    long range = (long)maximum + 1 - minimum;
+
+	    return (int)(minimum + Math.abs(m_random.nextLong()) % range);
 	}
 
 	public void doTest() throws Exception
 	{
-	    final int i1 = m_random.nextInt();
+	    final int i1 = getRandomInt();
 
 	    m_fileWriter.write(m_propertyName + ":" + i1);
 	    m_fileWriter.close();
@@ -190,7 +248,7 @@ public class TestConsoleProperties extends TestCase
 	    final ConsoleProperties properties = new ConsoleProperties(m_file);
 	    assertEquals(i1, get(properties));
 
-	    final int i2 = m_random.nextInt();
+	    final int i2 = getRandomInt();
 
 	    set(properties, i2);
 	    assertEquals(i2, get(properties));
@@ -201,7 +259,7 @@ public class TestConsoleProperties extends TestCase
 		new ConsoleProperties(m_file);
 	    assertEquals(i2, get(properties2));
 
-	    final int i3 = m_random.nextInt();
+	    final int i3 = getRandomInt();
 
 	    final PropertyChangeEvent expected =
 		new PropertyChangeEvent(properties2, m_propertyName, 
@@ -211,62 +269,64 @@ public class TestConsoleProperties extends TestCase
 	    final MyListener listener2 = new MyListener(expected);
 
 	    properties2.addPropertyChangeListener(listener);
-	    properties2.addPropertyChangeListener(m_propertyName, listener);
+	    properties2.addPropertyChangeListener(m_propertyName, listener2);
 
 	    set(properties2, i3);
+
+	    if (m_minimum > Integer.MIN_VALUE) {
+		try {
+		    set(properties, m_minimum - 1);
+		    fail("Should not reach");
+		}
+		catch (ConsoleException e) {
+		}
+
+		try {
+		    set(properties, Integer.MIN_VALUE);
+		    fail("Should not reach");
+		}
+		catch (ConsoleException e) {
+		}
+
+		try {
+		    set(properties, getRandomInt(Integer.MIN_VALUE,
+						 m_minimum - 1));
+		    fail("Should not reach");
+		}
+		catch (ConsoleException e) {
+		}
+	    }
+
+
+	    if (m_maximum < Integer.MAX_VALUE) {
+		try {
+		    set(properties, m_maximum + 1);
+		    fail("Should not reach");
+		}
+		catch (ConsoleException e) {
+		}
+
+		try {
+		    set(properties, Integer.MAX_VALUE);
+		    fail("Should not reach");
+		}
+		catch (ConsoleException e) {
+		}
+
+		try {
+		    set(properties, getRandomInt(m_maximum + 1,
+						 Integer.MAX_VALUE));
+		    fail("Should not reach");
+		}
+		catch (ConsoleException e) {
+		}
+	    }
 	}
 
 	protected abstract int get(ConsoleProperties properties);
-	protected abstract void set(ConsoleProperties properties, int i);
 
-    }
-
-    private abstract class TestStringTemplate
-    {
-	private final String m_propertyName;
-
-	public TestStringTemplate(String propertyName)
-	{
-	    m_propertyName = propertyName;
-	}
-
-	public void doTest() throws Exception
-	{
-	    final String s1 = Integer.toString(m_random.nextInt());
-
-	    m_fileWriter.write(m_propertyName + ":" + s1);
-	    m_fileWriter.close();
-
-	    final ConsoleProperties properties = new ConsoleProperties(m_file);
-	    assertEquals(s1, get(properties));
-
-	    final String s2 = Integer.toString(m_random.nextInt());
-
-	    set(properties, s2);
-	    assertEquals(s2, get(properties));
-
-	    properties.save();
-
-	    final ConsoleProperties properties2 =
-		new ConsoleProperties(m_file);
-	    assertEquals(s2, get(properties2));
-
-	    final String s3 = Integer.toString(m_random.nextInt());
-
-	    final PropertyChangeEvent expected =
-		new PropertyChangeEvent(properties2, m_propertyName, s2, s3);
-
-	    final MyListener listener = new MyListener(expected);
-	    final MyListener listener2 = new MyListener(expected);
-
-	    properties2.addPropertyChangeListener(listener);
-	    properties2.addPropertyChangeListener(m_propertyName, listener);
-
-	    set(properties2, s3);
-	}
-
-	protected abstract String get(ConsoleProperties properties);
-	protected abstract void set(ConsoleProperties properties, String s);
+	protected abstract void set(ConsoleProperties properties, int i)
+	    throws ConsoleException;
     }
 
     private class MyListener implements PropertyChangeListener
@@ -287,4 +347,3 @@ public class TestConsoleProperties extends TestCase
 	}
     }
 }
-
