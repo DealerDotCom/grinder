@@ -32,6 +32,7 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
 import net.grinder.communication.UnicastSender;
+import net.grinder.script.Grinder;
 import net.grinder.script.ScriptContext;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
@@ -51,6 +52,7 @@ class ProcessContext {
   private final Sender m_consoleSender;
   private final PluginRegistry m_pluginRegistry;
   private final TestRegistry m_testRegistry;
+  private final ScriptContext m_scriptContext;
 
   private boolean m_shouldWriteTitleToDataWriter;
   private long m_executionStartTime;
@@ -117,7 +119,8 @@ class ProcessContext {
 
     m_pluginRegistry = new PluginRegistry(this);
     m_testRegistry = new TestRegistry();
-    ScriptContext.setImplementation(new ScriptContextImplementation(this));
+    m_scriptContext = new ScriptContextImplementation(this);
+    Grinder.grinder = m_scriptContext;
   }
 
   final void initialiseDataWriter() {
@@ -169,6 +172,10 @@ class ProcessContext {
 
   public final boolean getRecordTime() {
     return m_recordTime;
+  }
+
+  public final ScriptContext getScriptContext() {
+    return m_scriptContext;
   }
 
   /**

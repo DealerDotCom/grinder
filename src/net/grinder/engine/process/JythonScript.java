@@ -55,6 +55,8 @@ final class JythonScript {
     m_systemState = new PySystemState();
     m_interpreter = new PythonInterpreter(null, m_systemState);
 	
+    m_interpreter.set("grinder", processContext.getScriptContext());
+
     final String parentPath = scriptFile.getParent();
 
     m_systemState.path.insert(0, new PyString(parentPath != null ?
