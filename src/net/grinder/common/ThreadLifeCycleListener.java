@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,25 +19,19 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.plugininterface;
-
-import net.grinder.common.ThreadLifeCycleListener;
+package net.grinder.common;
 
 
 /**
- * This interface defines the callbacks that an individual Grinder
- * thread can make on a plugin.
+ * Thread life cycle callbacks.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface PluginThreadListener extends ThreadLifeCycleListener {
+public interface ThreadLifeCycleListener {
 
   /**
-   * This method is called at the start of every run. Scripts might
-   * create their first tests in the middle of a run and indirectly
-   * cause the plugin to be registered at that point, so don't rely on
-   * this being called before the first test.
+   * This method is called at the start of every run.
    */
   void beginRun();
 
