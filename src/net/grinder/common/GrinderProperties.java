@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -62,9 +62,10 @@ public class GrinderProperties extends Properties {
    * @param file The file to read the properties from.
    * <code>null</code> => use grinder.properties.
    *
-   * @exception GrinderException If an error occurs.
+   * @exception PersistenceException If an error occurs reading from
+   * the file.
    */
-  public GrinderProperties(File file) throws GrinderException {
+  public GrinderProperties(File file) throws PersistenceException {
     m_file = file != null ? file : new File(DEFAULT_FILENAME);
 
     if (m_file.exists()) {
@@ -76,7 +77,7 @@ public class GrinderProperties extends Properties {
         propertiesInputStream.close();
       }
       catch (IOException e) {
-        throw new GrinderException(
+        throw new PersistenceException(
           "Error loading properties file '" + m_file.getPath() + '\'', e);
       }
     }
@@ -103,13 +104,13 @@ public class GrinderProperties extends Properties {
   /**
    * Save our properties to our file.
    *
-   * @exception GrinderException If there is no file associated with this
-   * {@link GrinderProperties} or an I/O exception occurs..
+   * @exception PersistenceException If there is no file associated
+   * with this {@link GrinderProperties} or an I/O exception occurs..
    */
-  public final void save() throws GrinderException {
+  public final void save() throws PersistenceException {
 
     if (m_file == null) {
-      throw new GrinderException("No associated file");
+      throw new PersistenceException("No associated file");
     }
 
     try {
@@ -118,7 +119,7 @@ public class GrinderProperties extends Properties {
       outputStream.close();
     }
     catch (IOException e) {
-      throw new GrinderException(
+      throw new PersistenceException(
         "Error writing properties file '" + m_file.getPath() + '\'', e);
     }
   }
@@ -127,13 +128,14 @@ public class GrinderProperties extends Properties {
    * Save a single property to our file.
    *
    * @param name Property name.
-   * @exception GrinderException If there is no file associated with this
+   * @exception PersistenceException If there is no file associated with this
    * {@link GrinderProperties} or an I/O exception occurs..
    */
-  public final void saveSingleProperty(String name) throws GrinderException {
+  public final void saveSingleProperty(String name)
+    throws PersistenceException {
 
     if (m_file == null) {
-      throw new GrinderException("No associated file");
+      throw new PersistenceException("No associated file");
     }
 
     try {
@@ -154,7 +156,7 @@ public class GrinderProperties extends Properties {
       outputStream.close();
     }
     catch (IOException e) {
-      throw new GrinderException(
+      throw new PersistenceException(
         "Error writing properties file '" + m_file.getPath() + '\'', e);
     }
   }
@@ -394,5 +396,18 @@ public class GrinderProperties extends Properties {
    */
   public final void setFile(String propertyName, File value) {
     setProperty(propertyName, value.getPath());
+  }
+
+  /**
+   * Exception indicating a problem in persisting properties.
+   */
+  public static final class PersistenceException extends GrinderException {
+    private PersistenceException(String message) {
+      super(message);
+    }
+
+    private PersistenceException(String message, Throwable t) {
+      super(message, t);
+    }
   }
 }
