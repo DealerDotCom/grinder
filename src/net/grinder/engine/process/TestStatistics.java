@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
-// Copyright (C) 2000  Philip Aston
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,8 @@ package net.grinder.engine.process;
  * @author Philip Aston
  * @version $Revision$
  */
-class TestStatistics implements Cloneable
+class TestStatistics
+    implements Cloneable, net.grinder.communication.TestStatistics
 {
     private long m_transactions = 0;
     private long m_totalTime = 0;

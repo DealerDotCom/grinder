@@ -59,8 +59,8 @@ public class GrinderProcess
      * The application's entry point.
      * 
      */    
-    public static void main(String args[]){
-
+    public static void main(String args[])
+    {
 	GrinderProcess grinderProcess = null;
 
 	try {
@@ -88,8 +88,7 @@ public class GrinderProcess
     private final boolean m_appendToLog;
 
     private final boolean m_waitForConsoleSignal;
-    private InetAddress m_grinderAddress = null;
-    private int m_grinderPort = 0;
+    private final GrinderCommunication m_communication;
 
     private final boolean m_reportToConsole;
     private int m_reportToConsoleInterval = 0;
@@ -105,7 +104,9 @@ public class GrinderProcess
 	final GrinderProperties properties = GrinderProperties.getProperties();
 	final PropertiesHelper propertiesHelper = new PropertiesHelper();
 
-	m_context =  new ProcessContextImplementation();
+	m_communication = new GrinderCommunication(properties);
+
+	m_context = new ProcessContextImplementation();
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 	m_logDirectory =
@@ -115,22 +116,6 @@ public class GrinderProcess
 	// Parse console configuration.
 	m_waitForConsoleSignal =
 	    properties.getBoolean("grinder.waitForConsoleSignal", false);
-
-	if (m_waitForConsoleSignal) {
-	    try{
-		m_grinderAddress =
-		    InetAddress.getByName(
-			properties.getMandatoryProperty(
-			    "grinder.multicastAddress"));
-
-		m_grinderPort =
-		    properties.getMandatoryInt("grinder.multicastPort");
-	    }
-	    catch(Exception e) {
-		throw new EngineException("Couldn't resolve grinder address",
-					  e);
-	    }
-	}
 
 	m_reportToConsole =
 	    properties.getBoolean("grinder.reportToConsole", false);
@@ -227,7 +212,7 @@ public class GrinderProcess
         
 	if (m_waitForConsoleSignal) {
 	    m_context.logMessage("waiting for console signal");
-	    waitForSignal();
+	    m_communication.waitForStartMessage();
 	}
 
 	m_context.logMessage("starting threads");
@@ -301,26 +286,6 @@ public class GrinderProcess
 	    new TestStatisticsTable(m_tests);
 
 	statisticsTable.print(System.out);
-    }
-    
-    private void waitForSignal() {
-	byte[] inbuf = new byte[1024];
-	try{
-	    final MulticastSocket msocket = new MulticastSocket(m_grinderPort);
-	    msocket.joinGroup(m_grinderAddress);
-
-	    DatagramPacket packet = new DatagramPacket(inbuf, inbuf.length);
-
- 	    msocket.receive(packet);
-	}
-	catch(SocketException e){
-	    System.err.println(e);
-	    e.printStackTrace();
-	}
-	catch(IOException e){
-	    System.err.println(e);
-	    e.printStackTrace();
-	}
     }
 }
 
