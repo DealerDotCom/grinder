@@ -87,12 +87,12 @@ public class HttpPlugin implements GrinderPlugin
 	m_followRedirects = parameters.getBoolean("followRedirects", false);
 	m_logHTML = parameters.getBoolean("logHTML", false);
 	m_timeIncludesTransaction =
-	    parameters.getBoolean("timeIncludesTransaction", false);
+	    parameters.getBoolean("timeIncludesTransaction", true);
 	m_useCookies = parameters.getBoolean("useCookies", true);
 	// tily@sylo.org / 2000/02/16 mod to set version string on or off - breaks jrun otherwise
 	m_useCookiesVersionString =
 	    parameters.getBoolean("useCookiesVersionString", true);
-	m_useHTTPClient = parameters.getBoolean("useHTTPClient", false);
+	m_useHTTPClient = parameters.getBoolean("useHTTPClient", true);
 
 	m_stringBeanClassName = parameters.getProperty("stringBean", null);
     }

@@ -8,11 +8,6 @@ it too :-). The list is roughly in priority order.]
   Update HTTPClient to measure "time to first byte" and "Time to last
   byte" as an alternative to implementing timeIncludesTransaction.
 
-  Get HTTPS support working with HTTPClient.
-
-  Do something realistic with the basicAuthenticationRealm for HTTP
-  plugin.
-
   Write more JUnit tests.
 
   Find out how to stop net.grinder.console.swing.TestGraph from

@@ -8,12 +8,6 @@ What can I set in grinder.properties for the HTTP plugin?
 				Set to false to disable cookie
 				handling (it defaults to true).
 
-    grinder.plugin.parameter.useCookiesVersionString -
-				Set to false to remove $Version string
-				from cookies (it defaults to true).
-				This is to work around broken (?)
-				JRun 2.3.3. behavour.
-
     grinder.plugin.parameter.followRedirects -
 				Set to true to automatically follow
 				redirects, so you don't have to have
@@ -32,26 +26,6 @@ What can I set in grinder.properties for the HTTP plugin?
 				setting the property to true prevents
 				the cookie from being picked up by the
 				plugin.
-
-    grinder.plugin.parameter.timeIncludesTransaction -
-
-				By default the time that the HTTP
-				plugin reports is the time it takes
-				for the remote server to accept the
-				connection request. When using the
-				times as an indicator of user
-				experience, this is usually what you
-				want.
-
-				Sometimes however you are more
-				interested in the time the entire HTTP
-				transaction takes, including the time
-				required to read the entire HTTP
-				response over the network. If so, set
-				this parameter to true.
-
-				This parameter is ignored by the
-				HTTPClient implementation. See below.
 
     grinder.plugin.parameter.stringBean -
 				Fully qualified classname of a Java
@@ -158,11 +132,145 @@ net.grinder.plugin.http.StringBean interface. See the examples in
 net.grinder.plugin.http.example.
 
 
-How do I use the HTTPS plugin?
-******************************
+HTTPClient
+**********
 
-1) Install JSSE1.0.2. See
-   http://java.sun.com/products/jsse/INSTALL.html
+The HTTP plugin has two implementations. The default implementation is
+based on Ronald Tschalär's excellent HTTPClient library. An
+alternative implementation which uses the JDK's HttpURLConnection can
+also be used, but is deprecated and will be removed in a future
+release.
+
+To use specify that the HTTP plugin should use HttpURLConnection
+instead of HTTPClient, say
+
+    grinder.plugin.parameter.useHTTPClient=false
+
+
+I highly recomend the HTTPClient implementation, see the next section
+for why. However the HttpURLConnection implementation has two features
+that the HTTPClient implementation doesn't, controlled by the
+following parameters.
+
+    grinder.plugin.parameter.useCookiesVersionString -
+				Set to false to remove $Version string
+				from cookies (it defaults to true).
+				This is to work around broken (?)
+				JRun 2.3.3. behavour.
+
+    grinder.plugin.parameter.timeIncludesTransaction -
+				By default the time that the HTTP
+				plugin reports is the time the entire
+				HTTP transaction takes, including the
+				time required to read the entire HTTP
+				response over the network.
+
+				Sometimes however you are more
+				interested in the time or the remote
+				server to accept the connection
+				request If so, set this parameter to
+				false.
+
+The HTTPClient cookie support is damn good, so the first feature
+probably isn't an issue. It will be fixed if it turns out to be a
+problem.
+
+The timeIncludesTransaction feature will be address in a future
+release.
+
+
+HTTPClient versus HttpURLConnection
+***********************************
+
+HTTPClient has many more features than HttpURLConnection, see
+http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html for
+a comparision.
+
+I hope to lever features such as proxy support, connection timeouts
+and persistent cookies into future versions of The Grinder.
+
+You can access many HTTPClient features by setting system properties.
+See http://www.innovation.ch/java/HTTPClient/advanced_info.html for a
+list of properties. For example, adding
+
+     -DHTTPClient.forceHTTP_1.0=true
+
+to the grinder.jvm.arguments setting in grinder.properties will force
+HTTPClient to use HTTP 1.0 instead of HTTP 1.1.
+
+One of the key advantages for The Grinder is that HTTPClient allows
+explicit control of connection management, whereas HttpURLConnection
+uses connection pooling "under the covers".
+
+Because HTTPClient uses extra connections, it may appear slower -
+particularly if the client and server are co-hosted (see Timing.txt).
+However, its a closer model of reality (one cycle equals one browser
+session).
+
+In my experience, HTTPClient is _much_ more RFC compliant, and less
+buggy than HttpURLConnection.
+
+
+How do I use HTTPS?
+*******************
+
+There are patches available to HTTPClient to work with several SSL
+implementations. See
+http://www.innovation.ch/java/HTTPClient/https.html for details. The
+instructions that follow assume you are using JSSE 1.0.2.
+
+1) Install JSSE1.0.2. Follow the instructions in
+   http://java.sun.com/products/jsse/INSTALL.html. I recommend
+   installing the JSSE as an installed extension.
+
+2) Download the HTTPClient JSSE patch from 
+   http://www.innovation.ch/java/HTTPClient/JSSE.zip
+
+   Extract the classfiles contained within the zip into a directory
+   called HTTPClient, then create a jar containing that directory:
+
+	  $ mkdir HTTPClient; cd HTTPClient 
+	  $ jar xf /download/JSSE.zip
+	  $ cd ..
+	  $ jar cf HTTPClient-JSSE.jar HTTPClient
+
+   Add this jar to the *start* of your CLASSPATH before running The
+   Grinder.
+
+   Its worth reading the file README in JSSE.zip.
+
+3) You can now use URL's that start with https: in your
+   grinder.properties.
+
+You may well need to create a truststore containing CA certificates
+that sign the server certificate. See the JSSE documentation for full
+details, here's a quick hint:
+
+ $ keytool -import -v -keystore ./mycastore -file d:/wls5/myserver/ca.pem
+
+You should then add -Djavax.net.ssl.trustStore=mycastore to
+grinder.jvm.arguments in your grinder.properties. Refer to the JSSE
+documentation for other useful properties. In particular
+-Djavax.net.debug=ssl might come in useful.
+
+HTTPClient checks that the host name in each request URL matches the
+subject DN field in the certificate. If this isn't the case, you might
+need to add an entry to /etc/hosts, c:/WINNT40/system32/drivers/etc/,
+DNS or whatever, and then use that hostname in the request URL's.
+
+The JSSE SSL implementation isn't quick. This should be taken into
+account when comparing round trip times, as a compiled browser version
+is likely to be a *lot* faster.
+
+
+How do I use the HTTPS plugin (HttpURLConnection implementation only)
+*********************************************************************
+
+NB This information applies to the deprecated HttpURLConnection
+implementation. For information on using HTTPS with the default
+HTTPClient implementation, see above.
+
+1) Install JSSE1.0.2 as described above.
 
 2) In your grinder.properties, use the HttpsPlugin rather than
    HttpPlugin:
@@ -180,59 +288,3 @@ How do I use the HTTPS plugin?
 	grinder.plugin.parameter.clientCertPassword=acrobat
 
 	(export p12 from netscape)
-
-The JSSE SSL implementation isn't quick. This should be taken into
-account when comparing round trip times, as a compiled browser version
-is likely to be a *lot* faster.
-
-
-HTTPClient
-**********
-
-The HTTP plugin now has *experimental* support for Ronald Tschalär's
-excellent HTTPClient library instead of HttpURLConnection.
-
-To use specify that the HTTP plugin should use HTTPClient instead of
-HttpURLConnection, say
-
-    grinder.plugin.parameter.useHTTPClient=true
-
-
-I highly recomend trying the HTTPClient integration, see the next
-section for why. I'm planning to drop support for HttpURLConnection in
-future versions. However, there are some limitations you should be
-aware of: 
-
- 1. The timeIncludesTransaction parameter is ignored. Instead the
-    reported time is as if timeIncludesTransaction=true.
-
- 2. HTTPS almost certainly doesn't work.
-
- 3. The useCookiesVersionString parameter is ignored. The HTTPClient
-    cookie support is damn good, so this probably isn't a problem.
-
-1 and 2 will be fixed in a future version. 3 will be fixed if it turns
-out to be a problem.
-
-
-HTTPClient versus HttpURLConnection
-***********************************
-
-HTTPClient has many more features than HttpURLConnection, see
-http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html for
-a comparision.
-
-I hope to lever features such as proxy support, connection timeouts
-and persistent cookies into future versions of The Grinder.
-
-One of the key advantages for The Grinder is that HTTPClient allows
-explicit control of connection management, whereas HttpURLConnection
-uses connection pooling "under the covers".
-
-Because HTTPClient uses extra connections, it may appear slower -
-particularly if the client and server are co-hosted (see Timing.txt).
-However, its a closer modell of reality (one cycle equals one browser
-session).
-
-In my experience, HTTPClient is _much_ more RFC compliant, and less
-buggy than HttpURLConnection.

@@ -25,6 +25,12 @@ Grinder 2.7
      accordingly.
    - Most request strings, including the arbitrary header values, are
      now affected by the String Bean, see doc/HTTPPlugin.txt.
+   - HTTPClient is now the default implementation. The
+     timeIncludesTransaction parameter (which is ignored by the
+     HTTPClient implementation) now defaults to true.
+     HttpURLConnection support is deprecated and will be removed in a
+     future release. See doc/HTTPPlugin.txt for more information,
+     including notes on HTTPS support.
 
   Features from Kalle Burbeck:
    - HTTP plugin sniffer filter now has limited support for
