@@ -216,8 +216,6 @@ public interface Statistics  {
    * Convenience method that sets whether the last test should be
    * considered a success or not.
    *
-   * TODO: check and update
-   *
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
    * acquired.
