@@ -27,6 +27,8 @@ import net.grinder.common.FilenameFactory;
 
 
 /**
+ * Implementation of {@link FilenameFactory}.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -44,12 +46,12 @@ final class FilenameFactoryImplementation implements FilenameFactory {
     m_contextString = contextString;
   }
 
-  FilenameFactoryImplementation
-    createSubContextFilenameFactory(String subContext) {
+  FilenameFactoryImplementation createSubContextFilenameFactory(
+    String subContext) {
+
     return
       new FilenameFactoryImplementation(m_logDirectory,
-                                        m_contextString +
-                                        "_" + subContext);
+                                        m_contextString + "_" + subContext);
   }
 
   public String createFilename(String prefix, String suffix) {
