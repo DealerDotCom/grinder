@@ -24,7 +24,7 @@ href="mailto:grinder-use@lists.sourceforge.net">grinder-use@lists.sourceforge.ne
     Expert Press and now by APress. 
     </p>
 
-    <p>This book uses The Grinder throughout, and indeed was
+    <p>This book uses The Grinder 2 throughout, and indeed was
     responsible for driving the development of many of The Grinder's
     features. The book shows how to performance test complete J2EE
     applications and how to explore key performance issues surrounding
@@ -33,8 +33,15 @@ href="mailto:grinder-use@lists.sourceforge.net">grinder-use@lists.sourceforge.ne
     any J2EE application server.</p>
 
     <p>Most importantly, the book contains in-depth coverage of The
-    Grinder including a full user guide and case studies showing how
-    to apply The Grinder to real world problems.</p>
+    Grinder 2 including a full user guide and case studies showing how
+    to apply The Grinder to real world problems. The testing approach
+    is equally applicable when using The Grinder 3.</p>
+
+    <p>Following several requests, I've made the source code for the
+    book available from <a
+    href="http://www.sourceforge.net/projects/grinder">The Grinder
+    SourceForge page</a>. This source is supplied unsupported and with
+    no warranty.</p>
 
     <p>Philip Aston</p>
 </td>
