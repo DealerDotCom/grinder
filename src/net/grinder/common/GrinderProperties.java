@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -73,11 +74,12 @@ public class GrinderProperties extends Properties {
 	  new FileInputStream(m_file);
 
 	load(propertiesInputStream);
+
+	propertiesInputStream.close();
       }
       catch (IOException e) {
 	throw new GrinderException(
-	  "Error loading properties file '" + m_file.getPath() + "'",
-	  e);
+	  "Error loading properties file '" + m_file.getPath() + "'", e);
       }
     }
 
@@ -96,25 +98,64 @@ public class GrinderProperties extends Properties {
   /**
    * Save our properties to our file.
    *
-   * @throws GrinderException If there is no file associated with this
-   * {@link GrinderProperties}.
-   * @throws GrinderException With an nested IOException if there was
-   * an error writing to the file.
-   **/
+   * @exception GrinderException If there is no file associated with this
+   * {@link GrinderProperties} or an I/O exception occurs..
+   */
   public final void save() throws GrinderException {
+
     if (m_file == null) {
       throw new GrinderException("No associated file");
     }
 
     try {
       final OutputStream outputStream = new FileOutputStream(m_file);
-      store(outputStream, "Grinder Console Properties");
+      store(outputStream, generateFileHeader());
       outputStream.close();
     }
     catch (IOException e) {
       throw new GrinderException(
 	"Error writing properties file '" + m_file.getPath() + "'", e);
     }
+  }
+
+  /**
+   * Save a single properties to our file.
+   *
+   * @exception GrinderException If there is no file associated with this
+   * {@link GrinderProperties} or an I/O exception occurs..
+   */
+  public final void saveSingleProperty(String name, String value)
+    throws GrinderException {
+
+    if (m_file == null) {
+      throw new GrinderException("No associated file");
+    }
+
+    try {
+      final Properties properties = new Properties();
+
+      try {
+	final InputStream inputStream = new FileInputStream(m_file);
+	properties.load(inputStream);
+	inputStream.close();
+      }
+      catch (IOException e) {
+	// Can't read the file, maybe its not there. Ignore.
+      }
+
+      final OutputStream outputStream = new FileOutputStream(m_file);
+      properties.setProperty(name, value);
+      properties.store(outputStream, generateFileHeader());
+      outputStream.close();
+    }
+    catch (IOException e) {
+      throw new GrinderException(
+	"Error writing properties file '" + m_file.getPath() + "'", e);
+    }
+  }
+
+  private final String generateFileHeader() {
+    return "Properties file for The Grinder";
   }
 
   /**
