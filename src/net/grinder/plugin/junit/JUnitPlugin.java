@@ -87,13 +87,11 @@ public class JUnitPlugin implements GrinderPlugin
 	catch (Exception e) {
 	    throw new PluginException("Error instantiating test suite", e);
 	}
+
+	processContext.registerTests(getTests());
     }
 
-    /**
-     * Returns a Set of Tests. Returns null if the tests are to be
-     * defined in the properties file.
-     */
-    public Set getTests()
+    private Set getTests()
     {
 	final Set tests = new HashSet();
 

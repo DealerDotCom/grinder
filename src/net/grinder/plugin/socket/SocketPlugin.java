@@ -44,11 +44,11 @@ import net.grinder.plugininterface.ThreadCallbacks;
  * Grinder Plugin that allows testing of socket based programs
  *
  * @author  David Freels
+ * @author  Philip Aston
  * @version $Revision$
  */
 public class SocketPlugin implements GrinderPlugin
 {
-    private Set m_testsFromPropertiesFile;
     private String m_host = "localhost";
     private int m_port = 7080;
   
@@ -56,8 +56,6 @@ public class SocketPlugin implements GrinderPlugin
 			   Set testsFromPropertiesFile)
 	throws PluginException
     {
-	m_testsFromPropertiesFile = testsFromPropertiesFile;
-
 	final GrinderProperties parameters =
 	    processContext.getPluginParameters();
     
@@ -68,11 +66,8 @@ public class SocketPlugin implements GrinderPlugin
 	catch(GrinderException ge) {
 	    throw new PluginException("Missing property", ge);
 	}
-    }
 
-    public Set getTests()
-    {
-	return m_testsFromPropertiesFile;
+	processContext.registerTests(testsFromPropertiesFile);
     }
 
     public ThreadCallbacks createThreadCallbackHandler()
@@ -83,14 +78,14 @@ public class SocketPlugin implements GrinderPlugin
 
     private class SocketPluginThreadCallbacks implements ThreadCallbacks
     {
-	private PluginThreadContext m_pluginThreadContext = null;
+	private PluginThreadContext m_threadContext = null;
 	private Socket m_socket = null;
 	private BufferedReader m_reader = null;
 	private BufferedWriter m_writer = null;
 
 	public void initialize(PluginThreadContext threadContext) 
 	{
-	    m_pluginThreadContext = threadContext;
+	    m_threadContext = threadContext;
 	}
 
 	/**
@@ -194,7 +189,7 @@ public class SocketPlugin implements GrinderPlugin
 	    try {
 		Date d = new Date();
 		m_socket = new Socket(m_host, m_port);
-		m_pluginThreadContext.logMessage(
+		m_threadContext.logMessage(
 		    "Time to connect to " + m_host + " took " + 
 		    (new Date().getTime() - d.getTime())+" ms");
 		

@@ -35,7 +35,9 @@ public interface GrinderPlugin
     /**
      * This method is executed when the process starts. It is only
      * executed once.
-     * @param processContext
+     * @param processContext Process information. {@link
+     * PluginProcessContext} implements {@link Logger} but for
+     * efficiency the implementation isn't synchronised. 
      * @param testsFromPropertiesFile The tests defined in the
      * properties file. The plugin may or may not care about these.
      */
@@ -48,11 +50,4 @@ public interface GrinderPlugin
      */
     public ThreadCallbacks createThreadCallbackHandler()
 	throws PluginException;
-
-    /**
-     * Returns a Set of Tests to use. The plugin may chose to simply
-     * return the set passed to {@link #initialize}.
-     * @see #initialize
-     */
-    public Set getTests() throws PluginException;
 }
