@@ -58,7 +58,7 @@ public class PropertiesHelper
 	    if (!GrinderPlugin.class.isAssignableFrom(pluginClass)) {
 		throw new GrinderException(
 		    "The specified plugin class ('" + pluginClass.getName() +
-		    "') does not implement the interface: '" +
+		    "') does not implement the interface '" +
 		    GrinderPlugin.class.getName() + "'");
 	    }
 
