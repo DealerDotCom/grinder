@@ -58,15 +58,27 @@ public final class UnicastReceiver extends AbstractReceiver
 	super(false);		// TCP guarantees message sequence so
 				// we don't have to.
 
-	try {
-	    m_serverSocket =
-		new ServerSocket(port, 50,
-				 InetAddress.getByName(addressString));
+	if (addressString.length() > 0) {
+	    try {
+		m_serverSocket =
+		    new ServerSocket(port, 50,
+				     InetAddress.getByName(addressString));
+	    }
+	    catch (IOException e) {
+		throw new CommunicationException(
+		    "Could not bind to TCP address " + addressString + ":" + 
+		    port, e);
+	    }
 	}
-	catch (IOException e) {
-	    throw new CommunicationException(
-		"Could not bind to TCP address " + addressString + ":" + port,
-		e);
+	else {
+	    try {
+		m_serverSocket = new ServerSocket(port, 50);
+	    }
+	    catch (IOException e) {
+		throw new CommunicationException(
+		    "Could not bind to port " + port + " on local interfaces",
+		    e);
+	    }
 	}
 
 	new AcceptorThread().start();

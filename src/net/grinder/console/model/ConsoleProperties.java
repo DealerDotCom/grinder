@@ -397,20 +397,22 @@ public class ConsoleProperties
 	// whether it is local, but that could take an indeterminate
 	// amount of time.
 
-	final InetAddress newAddress;
+	if (s.length() > 0) {	// Empty string => all local hosts.
+	    final InetAddress newAddress;
 
-	try {
-	    newAddress = InetAddress.getByName(s);
-	}
-	catch (UnknownHostException e) {
-	    throw new DisplayMessageConsoleException(
-		"unknownHostError.text", "Unknown hostname");
-	}
+	    try {
+		newAddress = InetAddress.getByName(s);
+	    }
+	    catch (UnknownHostException e) {
+		throw new DisplayMessageConsoleException(
+		    "unknownHostError.text", "Unknown hostname");
+	    }
 
-	if (newAddress.isMulticastAddress()) {
-	    throw new DisplayMessageConsoleException(
-		"invalidConsoleAddressError.text",
-		"Invalid console address");
+	    if (newAddress.isMulticastAddress()) {
+		throw new DisplayMessageConsoleException(
+		    "invalidConsoleAddressError.text",
+		    "Invalid console address");
+	    }
 	}
 
 	setConsoleAddressNoCheck(s);
