@@ -35,19 +35,10 @@ import net.grinder.common.Test;
 public interface PluginThreadCallbacks
 {
     /**
-     * This method is executed when the thread starts. It is only
-     * executed once per thread.
-     * @param pluginThreadContext Thread information. {@link
-     * PluginThreadContext} implements {@link Logger} but for
-     * efficiency the implementation isn't synchronised. Consequently
-     * you should only call this object using the thread that which
-     * the engine uses to invoke the {@link ThreadCallbacks}.
-     */
-    public void initialize(PluginThreadContext pluginThreadContext)
-	throws PluginException;
-    
-    /**
-     * This method is executed at the beginning of every run.
+     * This method is executed at the beginning of every run. Scripts
+     * might create their first tests in the middle of a run and
+     * indirectly cause the plugin to be registered at that point, so
+     * don't rely on this being called before the first test.
      **/
     public void beginRun() throws PluginException;
 

@@ -46,18 +46,18 @@ public class JavaPlugin implements GrinderPlugin
 	m_processContext = processContext;
     }
 
-    public PluginThreadCallbacks createThreadCallbackHandler()
+    public PluginThreadCallbacks createThreadCallbackHandler(
+	PluginThreadContext threadContext)
 	throws PluginException
     {
-	return new JavaPluginThreadCallbacks();
+	return new JavaPluginThreadCallbacks(threadContext);
     }
 
-    protected class JavaPluginThreadCallbacks implements PluginThreadCallbacks
+    private class JavaPluginThreadCallbacks implements PluginThreadCallbacks
     {
-	private PluginThreadContext m_threadContext = null;
+	private final PluginThreadContext m_threadContext;
 
-	public void initialize(PluginThreadContext threadContext)
-	    throws PluginException
+	public JavaPluginThreadCallbacks(PluginThreadContext threadContext)
 	{
 	    m_threadContext = threadContext;
 	}

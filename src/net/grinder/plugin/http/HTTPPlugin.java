@@ -110,15 +110,17 @@ public class HTTPPlugin implements GrinderPlugin
 	m_useCookies = parameters.getBoolean("useCookies", true);
     }
 
-    public PluginThreadCallbacks createThreadCallbackHandler()
+    public PluginThreadCallbacks createThreadCallbackHandler(
+	PluginThreadContext threadContext)
 	throws PluginException
     {
-	return new HTTPPluginThreadCallbacks();
+	return new HTTPPluginThreadCallbacks(threadContext);
     }
 
-    protected class HTTPPluginThreadCallbacks implements PluginThreadCallbacks
+    private class HTTPPluginThreadCallbacks implements PluginThreadCallbacks
     {
-	private PluginThreadContext m_threadContext = null;
+	private final PluginThreadContext m_threadContext;
+
 	private int m_currentIteration = 0; // How many times we've done all the URL's
 	private final DecimalFormat m_threeFiguresFormat =
 	    new DecimalFormat("000");
@@ -164,12 +166,7 @@ public class HTTPPlugin implements GrinderPlugin
 	    return connection;
 	}
 
-
-	/**
-	 * This method is executed when the thread starts. It is only
-	 * executed once per thread.
-	 */
-	public void initialize(PluginThreadContext threadContext)
+	public HTTPPluginThreadCallbacks(PluginThreadContext threadContext)
 	    throws PluginException
 	{
 	    m_threadContext = threadContext;

@@ -35,7 +35,8 @@ public class StubGrinderPlugin implements GrinderPlugin
     {
     }
 
-    public PluginThreadCallbacks createThreadCallbackHandler()
+    public PluginThreadCallbacks createThreadCallbackHandler(
+	PluginThreadContext threadContext)
 	throws PluginException
     {
 	return null;

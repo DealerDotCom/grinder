@@ -50,7 +50,15 @@ public interface GrinderPlugin
 
     /**
      * This method is called to create a handler for each thread.
+     *
+     * @param pluginThreadContext Thread context information. {@link
+     * PluginThreadContext} implements {@link
+     * net.grinder.common.Logger} but for efficiency the
+     * implementation isn't synchronised. Consequently you should only
+     * call this object using the thread that which the engine uses to
+     * invoke the {@link PluginThreadCallbacks}.
      */
-    public PluginThreadCallbacks createThreadCallbackHandler()
+    public PluginThreadCallbacks createThreadCallbackHandler(
+	PluginThreadContext pluginThreadContext)
 	throws PluginException;
 }

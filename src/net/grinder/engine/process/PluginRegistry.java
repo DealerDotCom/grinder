@@ -122,9 +122,8 @@ final class PluginRegistry
 
 	    try {
 		final PluginThreadCallbacks newPluginThreadCallbacks =
-		    m_plugin.createThreadCallbackHandler();
+		    m_plugin.createThreadCallbackHandler(threadContext);
 
-		newPluginThreadCallbacks.initialize(threadContext);
 		m_threadCallbacksThreadLocal.set(newPluginThreadCallbacks);
 
 		return newPluginThreadCallbacks;
