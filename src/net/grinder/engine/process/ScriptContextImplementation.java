@@ -21,15 +21,7 @@
 
 package net.grinder.engine.process;
 
-import java.io.File;
-import java.util.Properties;
-
-import org.python.core.PyException;
-import org.python.core.PyObject;
-import org.python.core.PyString;
-import org.python.core.PySystemState;
-import org.python.util.PythonInterpreter;
-
+import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
@@ -110,5 +102,16 @@ class ScriptContextImplementation implements ScriptContext
 	}
 
 	threadContext.getSleeper().sleepNormal(meanTime, sigma);
+    }
+
+    public FilenameFactory getFilenameFactory()
+    {
+	final ThreadContext threadContext = ThreadContext.getThreadInstance();
+
+	if (threadContext != null) {
+	    return threadContext;
+	}
+
+	return m_processContext.getLoggerImplementation().getFilenameFactory();
     }
 }

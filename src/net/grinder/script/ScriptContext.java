@@ -21,6 +21,7 @@
 
 package net.grinder.script;
 
+import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
@@ -36,21 +37,21 @@ import net.grinder.common.Test;
 public interface ScriptContext
 {
     /**
-     * Get an unique ID value for this Worker Process.
+     * Get an unique ID value for this worker process.
      *
      * @return The id.
      */
     String getGrinderID();
 
     /**
-     * Return the thread ID, or -1 if not called from a Worker Thread.
+     * Return the thread ID, or -1 if not called from a worker thread.
      * @return The thread ID.
      */
     int getThreadID();
 
     /**
      * Return the current run number, or -1 if not called from a
-     * Worker Thread.
+     * worker thread.
      *
      * @return An <code>int</code> value.
      */
@@ -60,7 +61,7 @@ public interface ScriptContext
      * Get an appropriate {@link net.grinder.common.Logger}
      * implementation. The value returned when invoked from script
      * initialisation differs from the value returned when called from
-     * a Worker Thread, so its best not to keep references to the
+     * a worker thread, so its best not to keep references to the
      * result.
      *
      * @return A <code>Logger</code>.
@@ -87,4 +88,15 @@ public interface ScriptContext
      * @exception GrinderException If an error occurs.
      **/
     void sleep(long meanTime, long sigma) throws GrinderException;
+
+    /**
+     * Get a {@link net.grinder.common.FilenameFactory} that can be
+     * used to create unique filenames. The value returned when invoked from script
+     * initialisation differs from the value returned when called from
+     * a worker thread, so its best not to keep references to the
+     * result.
+     *
+     * @return A <code>FilenameFactory</code>.
+     */
+    FilenameFactory getFilenameFactory();
 }
