@@ -1,5 +1,7 @@
 2002-10-27  Philip Aston  <paston@bea.com>
 
+	* The Grinder 3.0-beta0 is released.
+
 	* build.xml, CHANGES: Update for release.
 
 	* examples/.cvsignore, examples/grinder.properties:
