@@ -232,7 +232,8 @@ conditionally built modules are:
        <exclude name="**/HttpsProxySnifferEngineImpl.java" unless="have.regexp"/>
        <exclude name="**/HttpsProxySnifferEngineImpl.java" unless="have.jsse"/>
        <exclude name="**/URLRewriteFilter.java" unless="have.regexp"/>
-       <exclude name="**/JUnitPlugin.java" unless="have.junit"/>
+       <exclude name="**/JUnitPlugin.java"/> <!-- unless="have.junit"/> -->
+       <exclude name="**/SocketPlugin.java"/>
        <exclude name="**/snifferwebapp" unless="have.servlet"/>
     </javac>
 
