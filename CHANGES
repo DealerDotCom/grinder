@@ -1,3 +1,25 @@
+  The HTTP plugin now automatically follows redirects only if you
+  set the property
+
+	grinder.plugin.parameter.followRedirects=true
+
+  The build system is now "smarter" about building things that depend
+  on external code. It looks in the CLASSPATH to deterine whether the
+  following should be built:
+
+	Servlet dependent code (javax.servlet.ServletContext)
+
+	JSSE dependent code (javax.net.ssl.SSLSocketFactory)
+
+	WLS dependent code (weblogic.t3.srvr.T3Srvr)
+
+	WLS Trader EJB dependent code
+	(examples.ejb.basic.statelessSession.Trader)
+
+   The class it looks for is given in parentheses. The upshot of this
+   is that you need to ensure your CLASSPATH contains the above
+   classes if you want the dependencies to build.
+
 Grinder 0.9
 -----------
 

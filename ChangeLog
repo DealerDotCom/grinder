@@ -1,3 +1,9 @@
+2001-01-04  Philip Aston  <paston@beasys.com>
+
+	* src/net/grinder/plugin/http/HttpMsg.java: 
+	* src/net/grinder/plugin/http/HttpPlugin.java: 
+		Following HTTP redirects is now controlled by a parameter.
+
 2000-12-27  Philip Aston  <paston@beasys.com>
 
 	* build.xml:
