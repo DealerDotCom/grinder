@@ -19,6 +19,7 @@
 package net.grinder.common;
 
 import java.io.PrintWriter;
+import java.io.Writer;
 
 
 /**
@@ -29,6 +30,12 @@ public class LogCounter implements Logger
 {
     private int m_numberOfErrors = 0;
     private int m_numberOfMessages = 0;
+
+    private CountingPrintWriter m_errorLineCounter =
+	new CountingPrintWriter(new NullWriter());
+
+    private CountingPrintWriter m_outputLineCounter =
+	new CountingPrintWriter(new NullWriter());
 
     public void logError(String message)
     {
@@ -60,14 +67,51 @@ public class LogCounter implements Logger
 	return m_numberOfMessages;
     }
 
-    public PrintWriter getOutputLogWriter()
-    {
-	return new PrintWriter(System.out);
-    }
-
     public PrintWriter getErrorLogWriter()
     {
-	return new PrintWriter(System.err);
+	return m_errorLineCounter;
+    }
+
+    public int getNumberOfErrorLines()
+    {
+	return m_errorLineCounter.getCount();
+    }
+
+    public PrintWriter getOutputLogWriter()
+    {
+	return m_outputLineCounter;
+    }
+
+    public int getNumberOfOutputLines()
+    {
+	return m_outputLineCounter.getCount();
+    }
+
+    private static class CountingPrintWriter extends PrintWriter
+    {
+	private int m_count = 0;
+
+	public CountingPrintWriter(Writer delegate)
+	{
+	    super(delegate, true);
+	}
+
+	public int getCount()
+	{
+	    return m_count;
+	}
+
+	public void println()
+	{
+	    ++m_count;
+	}
+    }
+
+    private static class NullWriter extends Writer
+    {
+	public void close() {}
+	public void flush() {}
+	public void write(char[] buffer, int offset, int length) {}
     }
 }
 
