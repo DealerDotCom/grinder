@@ -1,6 +1,10 @@
 2004-07-22  Philip Aston  <philipa@mail.com>
 
-	* CHANGES: *** empty log message ***
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java, src/net/grinder/tools/tcpproxy/HTTPMethodAbsoluteURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPMethodRelativeURIFilterDecorator.java:
+	Use the non-lossy ISO 8859-1 instead of US-ASCII. Thanks to Thomas
+	Böhne for reporting related problems.
+
+	* ChangeLog, CHANGES: *** empty log message ***
 
 2004-07-20  Philip Aston  <philipa@mail.com>
 
