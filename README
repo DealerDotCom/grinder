@@ -78,7 +78,8 @@ Its easy:
 	3. Say
 		java net.grinder.Grinder
 
-If you want to use the Console, tweak the following properties	
+If you want to use the Console, (and you probably do), tweak the
+following properties
 
 	grinder.receiveConsoleSignals
 	grinder.multicastAddress
@@ -132,6 +133,12 @@ Each test has one of 3 possible outcomes:
 
 The Total and Average figures are calculated based only on successful
 transactions.
+
+
+I don't get it, help!
+*********************
+
+Try asking at grinder-use@lists.sourceforge.net
 
 
 How do I fix it?
@@ -199,6 +206,11 @@ What can I set in grinder.properties?
     grinder.console.multicastPort -
 				The multicast port to use for communication
 				from the grinder processes to the Console.
+
+    grinder.reportToConsole.interval -
+				The period at which each process sends
+				updates to the Console (default 500
+				ms).
 
     grinder.thread.beginCycleSleepTime	-
 				The time in milliseconds to wait before
@@ -542,6 +554,11 @@ not cause Grinder "Abortions".
 What do I need to do to set up multicast?
 *****************************************
 
+You must set up multicast if you want to use the Console. It is used
+to send signals from the Console to the Grinder processes (start,
+stop) and to send statistics reports from the Grinder processes to the
+Console.
+
 For most modern TCP stacks, e.g Windows 95/98/NT, Linux, multicast
 works out of the box.
 
@@ -551,6 +568,71 @@ Under Linux, you may also need to set up the routing table. Try:
 
 Some Windows VPN clients (e.g Bay Networks Extranet) interfere with
 multicast. You may need to disable them.
+
+
+Tell me more about the Console controls?
+****************************************
+
+The process controls:
+
+  The controls "Start processes" and "Stop processes" send signals to
+  start and stop any Grinder processes that are currently listening.
+
+The sample controls:
+
+  There are a set of slider controls that determine the samples that
+  the Console will capture. It is important to understand that these
+  sliders control the Console behaviour _only_. For example, they do
+  not adjust the frequency at which the Grinder processes report (see
+  grinder.reportToConsole.interval for that). Additionally, the do not
+  interact in any way with the process controls.
+
+  The first slider controls the period at which the console will take
+  a "sample". This involves adding up all the reports recieved over
+  that sample interval and calculating the TPS as (number of
+  transactions that occured)/(interval length). It is also the period
+  at which the Console graphs and statistics are updated.
+
+  By default, the Console discards the first non-zero sample period,
+  and starts updating the display and calcluating totals from the
+  second sample. A non-zero sample period is one in which an update
+  from a Grinder process was received. You can adjust how many
+  non-zero sample periods the Console ignores before starting capture
+  with the second slider.
+
+  The third slider allows you to adjust how many samples the Console
+  will collect before stopping capture.
+
+  You can also manually start and stop the sampling with the "Capture
+  statistics" and "Stop capture" controls. Using the "Capture
+  statistics" button resets all the captured statistics and "arms" the
+  Console to ignore the specified number of non-zero samples before
+  starting capture again.
+
+  Finally, the "Summary" control displays a table of results, similar
+  to what the individual Grinder processes produce but based on
+  statistics collected from all of the processes over the sample
+  period. In future we hope to add "File/Save" type functionality to
+  save the results of a capture.
+
+
+Can I run different test scripts against the same Console?
+**********************************************************
+
+Yes.
+
+Whilst the Console reads the grinder.properties file to determine the
+names of the tests, it is fairly decoupled from the Grinder processes.
+It receives reports and updates the graph based on test number. Thus
+it is possible to have different Grinder processes running scripts
+with different test numbers (e.g. one process running tests 1 to 5 and
+another running tests 6 to 10)., reporting to the same Console. You
+would have to start the console against a dummy properties file that
+contained all the tests (e.g 1 to 10).
+
+This is definitely a hack at the moment. We plan to resolve this with
+a much better Console/Grinder model in the Grinder 3. (James Bond will
+return in ....).
 
 
 Development goals
@@ -563,3 +645,5 @@ should not rely on WebLogic Server specific classes except for
 optional WebLogic Server specific extensions. An exception to this
 rule has been made for Jakarta Ant and Regexp because they are under
 Free (unless you talk to RMS) licenses.
+
+See the grinder-development list archives for further musings.
