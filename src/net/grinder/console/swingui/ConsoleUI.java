@@ -66,6 +66,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import org.syntax.jedit.JEditTextArea;
+import org.syntax.jedit.SyntaxStyle;
+import org.syntax.jedit.TextAreaPainter;
+import org.syntax.jedit.tokenmarker.PythonTokenMarker;
+import org.syntax.jedit.tokenmarker.Token;
 
 import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
@@ -272,6 +277,31 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 			"processStatusTableTab.image"),
 		      processStatusPane,
 		      m_resources.getString("processStatusTableTab.tip"));
+
+    final JEditTextArea textArea = new JEditTextArea();
+    textArea.setTokenMarker(new PythonTokenMarker());
+
+    // Override ugly default colours.
+    final TextAreaPainter painter = textArea.getPainter();
+
+    final SyntaxStyle[] styles = painter.getStyles();
+    styles[Token.KEYWORD1] = new SyntaxStyle(Color.RED, false, false);
+    styles[Token.KEYWORD2] = styles[Token.KEYWORD1];
+    styles[Token.KEYWORD3] = styles[Token.KEYWORD1];
+    styles[Token.COMMENT1] = new SyntaxStyle(Colours.GREEN, true, false);
+    styles[Token.LITERAL1] = new SyntaxStyle(Color.BLUE, false, false);
+    styles[Token.LITERAL2] = styles[Token.LITERAL1];
+
+    painter.setCaretColor(Colours.RED);
+    painter.setLineHighlightColor(new Color(0xFF, 0xFF, 0xD0));
+    painter.setBracketHighlightColor(Color.GRAY);
+    painter.setSelectionColor(Color.GRAY);
+    // Initial focus?
+
+    tabbedPane.addTab(m_resources.getString("scriptTab.title"),
+		      m_resources.getImageIcon("scriptTab.image"),
+		      textArea, //scriptPane,
+		      m_resources.getString("scriptTab.tip"));
 
     final JPanel contentPanel = new JPanel(new BorderLayout());
     contentPanel.add(hackToFixLayout, BorderLayout.WEST);
