@@ -4,7 +4,6 @@ GRINDER_HOME=/work/src/grinder3
 GRINDER=${GRINDER_HOME}/build/classes:${GRINDER_HOME}/lib/jakarta-oro-2.0.6.jar:${GRINDER_HOME}/lib/jython.jar
 GRINDER=${GRINDER_HOME}/build/tests-classes:${GRINDER} # for testing JUnit plugin
 
-JUNIT=/opt/junit/junit3.7/junit.jar
 XALAN=/opt/xalan/xalan-j_2_3_1/bin/xalan.jar:/opt/xalan/xalan-j_2_3_1/bin/xml-apis.jar
 
 BEA_HOME=/system/bea-7.0.2.0
@@ -16,7 +15,7 @@ WLS_EXAMPLES=${WLS_EXAMPLES_DIR}/ejb20_basic_statefulSession_client.jar:${WLS_EX
 JAVA_HOME=/opt/jdk1.3.1_02/
 export PATH=${ANT_HOME}/bin:${JAVA_HOME}/bin:$PATH
 
-export CLASSPATH=$(cygpath -w -p "${GRINDER}:${JUNIT}:${WLS}:${WLS_EXAMPLES}")
+export CLASSPATH=$(cygpath -w -p "${GRINDER}:${WLS}:${WLS_EXAMPLES}")
 
 alias grind="java net.grinder.Grinder"
 alias console="java net.grinder.Console"
