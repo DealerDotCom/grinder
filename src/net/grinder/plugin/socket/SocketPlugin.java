@@ -188,7 +188,7 @@ public class SocketPlugin implements GrinderPlugin
 	/**
 	 * This method is executed at the beginning of evey cycle.
 	 */
-	public void beginCycle() throws PluginException
+	public void beginRun() throws PluginException
 	{
 	    //open the socket connection
 	    try {
@@ -220,7 +220,7 @@ public class SocketPlugin implements GrinderPlugin
 	/**
 	 * This method is executed at the end of every cycle.
 	 */
-	public void endCycle() throws PluginException
+	public void endRun() throws PluginException
 	{
 	    //close the socket connection
 	    if(m_socket != null) {

@@ -439,10 +439,10 @@ public class HttpPlugin implements GrinderPlugin
 	    }
 	}
 
-	public void beginCycle() throws PluginException
+	public void beginRun() throws PluginException
 	{
 	    if (m_stringBean != null) {
-		m_stringBean.beginCycle();
+		m_stringBean.beginRun();
 	    }
 
 	    // Reset cookie if necessary.
@@ -511,10 +511,10 @@ public class HttpPlugin implements GrinderPlugin
 	    return !error;
 	}
 
-	public void endCycle() throws PluginException
+	public void endRun() throws PluginException
 	{
 	    if (m_stringBean != null) {
-		m_stringBean.endCycle();
+		m_stringBean.endRun();
 	    }
 
 	    m_currentIteration++;

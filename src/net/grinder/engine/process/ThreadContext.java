@@ -42,8 +42,7 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
     private final Sleeper m_sleeper;
     private final ThreadCallbacks m_threadCallbackHandler;
 
-    private boolean m_aborted;
-    private boolean m_abortedCycle;
+    private boolean m_abortedRun;
     private boolean m_errorOccurred;
     private long m_startTime;
     private long m_elapsedTime;
@@ -76,18 +75,13 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
     
     private void reset()
     {
-	m_aborted = false;
-	m_abortedCycle = false;
+	m_abortedRun = false;
 	m_errorOccurred = false;
     }
 
-    public boolean getAbortedCycle() {
-	return m_abortedCycle;
+    public boolean getAbortedRun() {
+	return m_abortedRun;
     } 
-
-    public boolean getAborted() {
-	return m_aborted;
-    }
 
     public long getElapsedTime() {
 	return m_elapsedTime;
@@ -102,9 +96,9 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
      * Implementation of PluginThreadContext follows
      */
 
-    public int getCurrentCycleID()
+    public int getCurrentRunID()
     {
-	return m_grinderThread.getCurrentCycle();
+	return m_grinderThread.getCurrentRun();
     }
 
     public int getThreadID()
@@ -112,14 +106,9 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	return m_threadID;
     }
 
-    public void abort()
+    public void abortRun()
     {
-	m_aborted = true;
-    }
-
-    public void abortCycle()
-    {
-	m_abortedCycle = true;
+	m_abortedRun = true;
     }
 
     public void startTimer()
@@ -144,11 +133,11 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	buffer.append("(thread ");
 	buffer.append(getThreadID());
 
-	final int currentCycle = getCurrentCycleID();
+	final int currentRun = getCurrentRunID();
 	final TestData currentTestData = m_grinderThread.getCurrentTestData();
 
-	if (currentCycle >= 0) {
-	    buffer.append(" cycle " + currentCycle);
+	if (currentRun >= 0) {
+	    buffer.append(" cycle " + currentRun);
 	}
 	
 	if (currentTestData != null) {
@@ -180,13 +169,9 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 		stopTimer();
 	    }
 
-	    if (getAborted()) {
+	    if (getAbortedRun()) {
 		statistics.addError();
-		logError("Plug-in aborted thread");
-	    }
-	    else if (getAbortedCycle()) {
-		statistics.addError();
-		logError("Plug-in aborted cycle");
+		logError("Plug-in aborted run");
 	    }
 	    else {
 		final long time = getElapsedTime();
@@ -211,7 +196,7 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 		    m_scratchBuffer.setLength(0);
 		    m_scratchBuffer.append(getThreadID());
 		    m_scratchBuffer.append(", ");
-		    m_scratchBuffer.append(getCurrentCycleID());
+		    m_scratchBuffer.append(getCurrentRunID());
 		    m_scratchBuffer.append(", " );
 		    m_scratchBuffer.append(test.getNumber());
 
@@ -226,9 +211,9 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	}
 	catch (PluginException e) {
 	    statistics.addError();
-	    logError("Aborting cycle - plug-in threw " + e);
+	    logError("Aborting run - plug-in threw " + e);
 	    e.printStackTrace(getErrorLogWriter());
-	    abortCycle();
+	    abortRun();
 	}
     }
 

@@ -32,12 +32,6 @@ import net.grinder.util.Sleeper;
 
 /**
  * The class executed by each thread.
- * The total number of threads per JVM is specified in the property "grinder.threads".
- * This class is responsible for instantiating an object of the class specified in the
- * property "grinder.cycleClass". It also invokes the methods specified in the
- * property "grinder.cycleMethods". It records the time spent in each method invocation.
- * The elapsed time is printed out in the "dat" file and stored in the shared space 
- * of the GrinderProcess object, shared by all threads.
  * 
  * @author Paco Gomez
  * @author Philip Aston
@@ -61,13 +55,13 @@ class GrinderThread implements java.lang.Runnable
 
     private final long m_initialSleepTime;
 
-    private final int m_numberOfCycles;
+    private final int m_numberOfRuns;
 
     /**
      * This is a member so that ThreadContext can generate context
      * sensitive log messages.
      **/
-    private int m_currentCycle = -1;
+    private int m_currentRun = -1;
 
     /**
      * This is a member so that ThreadContextImplementation can
@@ -94,7 +88,7 @@ class GrinderThread implements java.lang.Runnable
 	m_initialSleepTime =
 	    properties.getLong("grinder.thread.initialSleepTime", 0);
 
-	m_numberOfCycles = properties.getInt("grinder.cycles", 1);
+	m_numberOfRuns = properties.getInt("grinder.runs", 1);
 
 	incrementThreadCount();	// See m_numberOfThreads javadoc.
     }
@@ -104,7 +98,7 @@ class GrinderThread implements java.lang.Runnable
      */     
     public void run()
     {
-	m_currentCycle = -1;
+	m_currentRun = -1;
 	m_currentTestData = null;
 
 	try {
@@ -125,27 +119,27 @@ class GrinderThread implements java.lang.Runnable
 
 	    m_context.getSleeper().sleepFlat(m_initialSleepTime);
 
-	    if (m_numberOfCycles == 0) {
+	    if (m_numberOfRuns == 0) {
 		m_context.logMessage("About to run forever");
 	    }
 	    else {
-		m_context.logMessage("About to run " + m_numberOfCycles +
-				     " cycles");
+		m_context.logMessage("About to run " + m_numberOfRuns +
+				     " runs");
 	    }
 
-	    CYCLE_LOOP:
-	    for (m_currentCycle = 0;
-		 (m_numberOfCycles == 0 || m_currentCycle < m_numberOfCycles);
-		 m_currentCycle++)
+	    RUN_LOOP:
+	    for (m_currentRun = 0;
+		 (m_numberOfRuns == 0 || m_currentRun < m_numberOfRuns);
+		 m_currentRun++)
 	    {
 		try {
-		    threadCallbackHandler.beginCycle();
+		    threadCallbackHandler.beginRun();
 		}
 		catch (PluginException e) {
 		    m_context.logError(
-			"Aborting cycle - plug-in beginCycle() threw " + e);
+			"Aborting run - plug-in beginRun() threw " + e);
 		    e.printStackTrace(m_context.getErrorLogWriter());
-		    continue CYCLE_LOOP;
+		    continue RUN_LOOP;
 		}
 
 		if (m_bsfFacade != null) {
@@ -161,11 +155,8 @@ class GrinderThread implements java.lang.Runnable
 
 			m_context.invokeTest(m_currentTestData);
 
-			if (m_context.getAborted()) {
-			    break CYCLE_LOOP;
-			}
-			else if (m_context.getAbortedCycle()) {
-			    continue CYCLE_LOOP;
+			if (m_context.getAbortedRun()) {
+			    continue RUN_LOOP;
 			}
 		    }
 		}
@@ -173,21 +164,21 @@ class GrinderThread implements java.lang.Runnable
 		m_currentTestData = null;
 
 		try {
-		    threadCallbackHandler.endCycle();
+		    threadCallbackHandler.endRun();
 		}
 		catch (PluginException e) {
-		    m_context.logError("Plugin endCycle() threw: " + e);
+		    m_context.logError("Plugin endRun() threw: " + e);
 		    e.printStackTrace(m_context.getErrorLogWriter());
 		}
 	    }
 
-	    final int numberOfCycles = m_currentCycle;
-	    m_currentCycle = -1;
+	    final int numberOfRuns = m_currentRun;
+	    m_currentRun = -1;
 
-	    m_context.logMessage("Finished " + numberOfCycles + " cycles");
+	    m_context.logMessage("Finished " + numberOfRuns + " runs");
 	}
 	catch (Sleeper.ShutdownException e) {
-	    m_currentCycle = -1;
+	    m_currentRun = -1;
 	    m_context.logMessage("Shutdown");
 	}
 	catch(Exception e) {
@@ -206,9 +197,9 @@ class GrinderThread implements java.lang.Runnable
     /**
      * Package scope.
      */
-    int getCurrentCycle() 
+    int getCurrentRun() 
     {
-	return m_currentCycle;
+	return m_currentRun;
     }
 
     /**

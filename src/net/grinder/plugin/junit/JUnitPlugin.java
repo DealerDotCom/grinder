@@ -151,7 +151,7 @@ public class JUnitPlugin implements GrinderPlugin
 	    m_context = pluginThreadContext;
 	}
 
-	public void beginCycle() throws PluginException
+	public void beginRun() throws PluginException
 	{
 	}
 
@@ -172,13 +172,13 @@ public class JUnitPlugin implements GrinderPlugin
 	    }
 
 	    if (m_testResult.shouldStop()) {
-		m_context.abortCycle();
+		m_context.abortRun();
 	    }
 
 	    return m_testListener.getResult();
 	}
 		
-	public void endCycle() throws PluginException
+	public void endRun() throws PluginException
 	{
 	}
 

@@ -30,17 +30,16 @@ package net.grinder.plugininterface;
 public interface PluginThreadContext extends PluginProcessContext
 {    
     /**
-     * Return the current cycle ID.
+     * Return the current run ID.
      */
-    public int getCurrentCycleID();
+    public int getCurrentRunID();
 
     /**
      * Return the thread ID.
      */ 
     public int getThreadID();
 
-    public void abortCycle();
-    public void abort();
+    public void abortRun();
 
     /**
      * The plug-in should call startTimer() if it wishes to have more

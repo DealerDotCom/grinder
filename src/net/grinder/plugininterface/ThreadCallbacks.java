@@ -41,7 +41,7 @@ public interface ThreadCallbacks
     /**
      * This method is executed at the beginning of evey cycle.
      */
-    public void beginCycle() throws PluginException;
+    public void beginRun() throws PluginException;
 
     /**
      * This is called for each method name in grinder.plugin.methods.
@@ -52,5 +52,5 @@ public interface ThreadCallbacks
     /**
      * This method is executed at the end of every cycle.
      */  
-    public void endCycle() throws PluginException;
+    public void endRun() throws PluginException;
 }

@@ -42,9 +42,9 @@ public class ExampleStringBean2 implements StringBean
 	m_pluginThreadContext.logMessage("StringBean: initialize");
     }
 
-    public void beginCycle()
+    public void beginRun()
     {
-	m_pluginThreadContext.logMessage("StringBean: beginCycle");
+	m_pluginThreadContext.logMessage("StringBean: beginRun");
 	m_count = 0;
     }
 
@@ -54,9 +54,9 @@ public class ExampleStringBean2 implements StringBean
 	return false;
     }
 
-    public void endCycle()
+    public void endRun()
     {
-	m_pluginThreadContext.logMessage("StringBean: endCycle");
+	m_pluginThreadContext.logMessage("StringBean: endRun");
     }
     
     public String getCount()
@@ -69,8 +69,8 @@ public class ExampleStringBean2 implements StringBean
 	return Long.toString(System.currentTimeMillis());
     }
 
-    public String getCycle()
+    public String getRun()
     {
-	return Integer.toString(m_pluginThreadContext.getCurrentCycleID());
+	return Integer.toString(m_pluginThreadContext.getCurrentRunID());
     }
 }
