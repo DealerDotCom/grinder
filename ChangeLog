@@ -1,3 +1,49 @@
+2004-06-20  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/plugininterface/TestPluginException.java, tests-src/net/grinder/util/TestDirectory.java, tests-src/net/grinder/util/TestWeakValueHashMap.java, tests-src/net/grinder/engine/common/TestConsoleListener.java:
+	Coverage.
+
+	* tests-src/net/grinder/console/model/editor/TestEditorModel.java, tests-src/net/grinder/console/model/editor/TestBuffer.java:
+	Update.
+
+	* src/net/grinder/console/model/editor/EditorModel.java:
+	Don't close buffers we don't own.
+	Minor changes to isBoringFile, isPythonFile.
+
+	* src/net/grinder/console/model/editor/Buffer.java:
+	Tweak extractReasonFromIOException for unit tests.
+
+2004-06-19  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/Console.java, src/net/grinder/console/common/DistributeFilesHandler.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/util/Directory.java:
+	Rework Directory.toFileContentsArray() so it copes gracefully with
+	unreadable files.
+
+	* src/net/grinder/util/WeakValueHashMap.java, src/net/grinder/console/model/editor/EditorModel.java, src/net/grinder/console/swingui/BufferTreeModel.java, src/net/grinder/console/swingui/CompositeTreeModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/Editor.java, src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/swingui/FileTreeModel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, TODO, src/net/grinder/console/model/editor/Buffer.java:
+	Add buffer list in tree.
+	Add new file, close file, save as, exit handling.
+
+2004-06-12  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties:
+	More resources.
+
+	* src/net/grinder/console/model/editor/Buffer.java:
+	Augment file exception messages with reason for failure.
+
+	* xdoc/g3/faq-xhtml.xml: Statistics reporting FAQ.
+
+2004-06-07  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/CompositeTreeModel.java, src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/swingui/FileTreeModel.java:
+	Composite TreeModel.
+
+	* src/net/grinder/console/swingui/FileTreeModel.java, src/net/grinder/console/swingui/FileTree.java:
+	FileTreeModel.findFileNode() now handles refreshing as necessary.
+
+	* src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/swingui/FileTreeModel.java, TODO, src/net/grinder/console/model/editor/EditorModel.java, src/net/grinder/console/swingui/ConsoleUI.java:
+	Refresh tree to show new files.
+
 2004-06-06  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/Editor.java, src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/model/editor/Buffer.java, src/net/grinder/console/model/editor/EditorModel.java:
