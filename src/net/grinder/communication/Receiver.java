@@ -38,6 +38,7 @@ public class Receiver
 {
     private final byte[] m_buffer = new byte[65536];
     private final MulticastSocket m_socket;
+    private final DatagramPacket m_packet;
     private final Map m_sequenceValues = new HashMap();
 
     public Receiver(String multicastAddressString, int multicastPort)
@@ -52,19 +53,20 @@ public class Receiver
 		"Could not bind to multicast address " +
 		multicastAddressString + ":" + multicastPort, e);
 	}
+
+	m_packet = new DatagramPacket(m_buffer, m_buffer.length);
     }
     
     public Message waitForMessage() throws CommunicationException
     {
-	final DatagramPacket packet = new DatagramPacket(m_buffer,
-							 m_buffer.length);
 	final Message message;
 
 	try {
-	    m_socket.receive(packet);
+	    m_packet.setData(m_buffer, 0, m_buffer.length);
+	    m_socket.receive(m_packet);
 
 	    final ByteArrayInputStream byteStream =
-		new ByteArrayInputStream(m_buffer, 0, packet.getLength());
+		new ByteArrayInputStream(m_buffer, 0, m_buffer.length);
 
 	    final ObjectInputStream objectStream =
 		new ObjectInputStream(byteStream);

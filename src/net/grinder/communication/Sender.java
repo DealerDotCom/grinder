@@ -40,6 +40,7 @@ import java.security.MessageDigest;
 public class Sender
 {
     private final MulticastSocket m_localSocket;
+    private final DatagramPacket m_packet;
     private final InetAddress m_multicastAddress;
     private final int m_multicastPort;
     private final String m_grinderID;
@@ -58,7 +59,7 @@ public class Sender
      * @throws CommunicationException If failed to bind to socket or failed to generate a unique process identifer.
      **/
     
-public Sender(String grinderID, String multicastAddressString,
+    public Sender(String grinderID, String multicastAddressString,
 	      int multicastPort)
 	throws CommunicationException
     {
@@ -79,6 +80,9 @@ public Sender(String grinderID, String multicastAddressString,
 		"Could not bind to multicast address " +
 		multicastAddressString);
 	}
+
+	m_packet = new DatagramPacket(m_byteStream.getBytes(), 0,
+				      m_multicastAddress, m_multicastPort);
 
 	try {
 	    // Calculate a globally unique string for this sender. We
@@ -123,16 +127,8 @@ public Sender(String grinderID, String multicastAddressString,
 	    objectStream.writeObject(message);
 	    objectStream.flush();
 	
-	    final byte[] bytes = m_byteStream.getBytes();
-	    final int count = m_byteStream.size();
-
-	    final DatagramPacket packet
-		= new DatagramPacket(bytes, count, m_multicastAddress,
-				     m_multicastPort);
-
-	    m_localSocket.send(packet);
-
-	    System.out.println("Sent " + count);
+	    m_packet.setData(m_byteStream.getBytes(), 0, m_byteStream.size());
+	    m_localSocket.send(m_packet);
 	}
 	catch (IOException e) {
 	    throw new CommunicationException(
