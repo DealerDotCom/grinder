@@ -46,23 +46,18 @@ public class TestCommonStatistics extends TestCase
 
     public void testCreation() throws Exception
     {
-	final ProcessStatisticsIndexMap indexMap =
-	    new ProcessStatisticsIndexMap();
-
 	final CommonStatistics commonStatistics =
-	    CommonStatistics.getInstance(indexMap);
+	    CommonStatistics.getInstance();
 
-	assertSame(commonStatistics, CommonStatistics.getInstance(indexMap));
+	assertSame(commonStatistics, CommonStatistics.getInstance());
+	assert(commonStatistics.getIndexMap() != null);
 	assert(commonStatistics.getStatisticsView() != null);
     }
 
     public void testTestStatistics() throws Exception
     {
-	final ProcessStatisticsIndexMap indexMap =
-	    new ProcessStatisticsIndexMap();
-
 	final CommonStatistics commonStatistics =
-	    CommonStatistics.getInstance(indexMap);
+	    CommonStatistics.getInstance();
 
 	final CommonStatistics.TestStatistics testStatistics1 =
 	    commonStatistics.new TestStatistics();

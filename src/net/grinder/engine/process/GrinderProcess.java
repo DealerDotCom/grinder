@@ -46,7 +46,6 @@ import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.statistics.CommonStatistics;
-import net.grinder.statistics.ProcessStatisticsIndexMap;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatisticsMap;
@@ -139,9 +138,7 @@ public class GrinderProcess
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 
-	final ProcessStatisticsIndexMap indexMap =
-	    new ProcessStatisticsIndexMap();
-	m_commonStatistics = CommonStatistics.getInstance(indexMap);
+	m_commonStatistics = CommonStatistics.getInstance();
 
 	// Parse plugin class.
 	m_plugin = instantiatePlugin();

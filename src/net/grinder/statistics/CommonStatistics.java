@@ -30,41 +30,51 @@ public final class CommonStatistics
 {
     private static CommonStatistics s_instance;
 
+    /**
+     * @link aggregation
+     * @supplierCardinality 1 
+     */
+    private final ProcessStatisticsIndexMap m_indexMap =
+	new ProcessStatisticsIndexMap();
+
     private final int m_errorsIndex;
     private final int m_timedTransactionsIndex;
     private final int m_untimedTransactionsIndex;
     private final int m_totalTimeIndex;
 
+    /**
+     * @link aggregation
+     * @supplierCardinality 1 
+     */
     private final StatisticsView m_statisticsView = new StatisticsView();
 
-    public final synchronized static CommonStatistics
-	getInstance(ProcessStatisticsIndexMap indexMap) throws GrinderException
+    public final synchronized static CommonStatistics getInstance()
+	throws GrinderException
     {
 	if (s_instance == null) {
-	    s_instance = new CommonStatistics(indexMap);
+	    s_instance = new CommonStatistics();
 	}
 
 	return s_instance;
     }
 
-    private CommonStatistics(ProcessStatisticsIndexMap indexMap)
-	throws GrinderException
+    private CommonStatistics() throws GrinderException
     {
-	m_errorsIndex = indexMap.getIndexFor("errors");
-	m_timedTransactionsIndex = indexMap.getIndexFor("timedTransactions");
+	m_errorsIndex = m_indexMap.getIndexFor("errors");
+	m_timedTransactionsIndex = m_indexMap.getIndexFor("timedTransactions");
 	m_untimedTransactionsIndex =
-	    indexMap.getIndexFor("untimedTransactions");
-	m_totalTimeIndex = indexMap.getIndexFor("totalTime");
+	    m_indexMap.getIndexFor("untimedTransactions");
+	m_totalTimeIndex = m_indexMap.getIndexFor("totalTime");
 
 	final ExpressionView[] expressionViews = {
 	    new ExpressionView("Transactions", "statistic.transactions", 
 			       "(+ timedTransactions untimedTransactions)",
-			       indexMap),
+			       m_indexMap),
 	    new ExpressionView("Errors", "statistic.errors", "errors",
-			       indexMap),
+			       m_indexMap),
 	    new ExpressionView("Average Response Time (ms)",
 			       "statistic.averageResponseTime",
-			       "(/ totalTime timedTransactions)", indexMap),
+			       "(/ totalTime timedTransactions)", m_indexMap),
 	};
 
 	final StatisticsView statisticsView = new StatisticsView();
@@ -72,6 +82,11 @@ public final class CommonStatistics
 	for (int i=0; i<expressionViews.length; ++i) {
 	    statisticsView.add(expressionViews[i]);
 	}
+    }
+
+    public final ProcessStatisticsIndexMap getIndexMap()
+    {
+	return m_indexMap;
     }
 
     public final StatisticsView getStatisticsView()
