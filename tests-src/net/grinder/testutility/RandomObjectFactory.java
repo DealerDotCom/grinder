@@ -139,10 +139,12 @@ public final class RandomObjectFactory {
    */
   public static class DummyInvocationHandler implements InvocationHandler {
 
-    private final Class[] m_delegateInterfaces;
+    private final Class m_delegateInterface;
+    private final Class[] m_allDelegateInterfaces;
 
     public DummyInvocationHandler(Class delegateInterface) {
-      m_delegateInterfaces =
+      m_delegateInterface = delegateInterface;
+      m_allDelegateInterfaces =
         StubInvocationHandler.getAllInterfaces(delegateInterface);
     }
 
@@ -150,8 +152,9 @@ public final class RandomObjectFactory {
          throws Throwable {
 
       try {
-        // Allow our subclass to override methods. Also passes
-        // equals(), hashCode(), toString() through to this instance.
+        // Allow this class or any subclass to override methods. Also
+        // passes equals(), hashCode(), toString() through to this
+        // instance.
         final Method ourMethod =
             getClass().getMethod(method.getName(),
             method.getParameterTypes());
@@ -165,8 +168,8 @@ public final class RandomObjectFactory {
 
     public Object getProxy() {
       return Proxy.newProxyInstance(getClass().getClassLoader(),
-          m_delegateInterfaces,
-          this);
+                                    m_allDelegateInterfaces,
+                                    this);
     }
 
     /**
@@ -179,6 +182,10 @@ public final class RandomObjectFactory {
       }
 
       return super.equals(o);
+    }
+
+    public String toString() {
+      return "a random " + m_delegateInterface.getName();
     }
   }
 }
