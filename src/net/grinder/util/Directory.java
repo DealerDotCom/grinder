@@ -252,7 +252,7 @@ public final class Directory  {
     }
 
     final File[] files = listContents(true, false, -1);
-    final byte[] buffer = new byte[8196];
+    final StreamCopier streamCopier = new StreamCopier(4096, true);
 
     for (int i = 0; i < files.length; ++i) {
       final String relativePath = files[i].getPath();
@@ -268,41 +268,12 @@ public final class Directory  {
             !destination.exists() ||
             source.lastModified() > destination.lastModified()) {
 
-          FileInputStream in = null;
-          FileOutputStream out = null;
-
           try {
-            in = new FileInputStream(source);
-            out = new FileOutputStream(destination);
-
-            while (true) {
-              final int n = in.read(buffer);
-
-              if (n == -1) {
-                break;
-              }
-
-              out.write(buffer, 0, n);
-            }
+            streamCopier.copy(new FileInputStream(source),
+                              new FileOutputStream(destination));
           }
-          finally {
-            if (in != null) {
-              try {
-                in.close();
-              }
-              catch (IOException e) {
-                // Ignore;
-              }
-            }
-
-            if (out != null) {
-              try {
-                out.close();
-              }
-              catch (IOException e) {
-                // Ignore;
-              }
-            }
+          catch (IOException e) {
+            // Ignore.
           }
         }
       }

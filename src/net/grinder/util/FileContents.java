@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
@@ -65,40 +64,15 @@ public final class FileContents implements Serializable {
 
     final File localFile = new File(baseDirectory, file.getPath());
 
-    InputStream inputStream = null;
-
     final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 
     try {
-      inputStream = new FileInputStream(localFile);
-
-      final byte[] buffer = new byte[4096];
-      int n;
-
-      while ((n = inputStream.read(buffer)) != -1) {
-        byteOutputStream.write(buffer, 0, n);
-      }
+      new StreamCopier(4096, true).copy(new FileInputStream(localFile),
+                                        byteOutputStream);
     }
     catch (IOException e) {
       throw new FileContentsException(
         "Failed to read file: " + e.getMessage(), e);
-    }
-    finally {
-      if (inputStream != null) {
-        try {
-          inputStream.close();
-        }
-        catch (IOException e) {
-          // Ignore.
-        }
-      }
-
-      try {
-        byteOutputStream.close();
-      }
-      catch (IOException e) {
-        // Ignore.
-      }
     }
 
     m_contents = byteOutputStream.toByteArray();
