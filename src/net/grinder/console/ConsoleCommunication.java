@@ -27,8 +27,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import net.grinder.communication.CommunicationException;
+import net.grinder.communication.FanOutServerSender;
 import net.grinder.communication.Message;
-//import net.grinder.communication.MulticastSender;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
@@ -100,7 +100,7 @@ final class ConsoleCommunication {
       }
 
       m_receiver = ServerReceiver.bindTo(m_properties.getConsoleAddress(),
-                                         m_properties.getConsolePort());
+                                         m_properties.getConsolePort() + 1);
 
       synchronized (this) {
         m_deaf = false;
@@ -125,18 +125,17 @@ final class ConsoleCommunication {
       host = "UNNAMED HOST";
     }
 
-    //    try {
-      m_sender = null; //new MulticastSender("Console (" + host + ")",
-      //m_properties.getGrinderAddress(),
-      //                             m_properties.getGrinderPort());
-      //    }
-      //    catch (CommunicationException e) {
-      //      m_errorHandler.handleException(
-      //        new DisplayMessageConsoleException(
-      //          "multicastConnectError.text",
-      //          "Failed to connect to multicast address",
-      //          e));
-      //    }
+    try {
+      m_sender = FanOutServerSender.bindTo(m_properties.getConsoleAddress(),
+                                           m_properties.getConsolePort());
+    }
+    catch (CommunicationException e) {
+      m_errorHandler.handleException(
+        new DisplayMessageConsoleException(
+          "multicastConnectError.text",
+          "Failed to connect to multicast address",
+          e));
+    }
   }
 
   private void send(Message message) {
