@@ -1,3 +1,54 @@
+2001-10-14  Philip Aston  <paston@bea.com>
+
+	* The Grinder 3 begins.
+
+	* build.xml: Next is 3.0 beta.
+
+	* examples/http/grinder.properties: Globally rename "cycle" to "run".
+
+	* examples/http/runtests.py, src/net/grinder/engine/process/BSFFacade.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/script/AbortRunException.java, src/net/grinder/script/InvokeableTest.java, src/net/grinder/script/TestResult.java, src/net/grinder/engine/process/AbortRunException.java:
+	Test result processing.
+
+	* src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/http/example/ExampleStringBean2.java, src/net/grinder/plugin/junit/JUnitPlugin.java, src/net/grinder/plugin/socket/SocketPlugin.java, src/net/grinder/plugininterface/PluginThreadContext.java, src/net/grinder/plugininterface/ThreadCallbacks.java:
+	Remove plugin interface to abort thread.
+	Globally rename "cycle" to "run".
+
+	* src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/script/InvokeableTest.java, src/net/grinder/script/ScriptContext.java, src/net/grinder/script/TestResult.java, src/net/grinder/util/Sleeper.java, tests-src/prj.el, examples/http/runtests.py, src/net/grinder/common/AbstractTestSemantics.java, src/net/grinder/common/TestImplementation.java, src/net/grinder/engine/process/BSFFacade.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestData.java, src/prj.el, etc/buildenv.sh, etc/setenv.sh, examples/http/grinder.properties:
+	The basic mechanism of using a BSF script to drive the tests.
+
+	* src/net/grinder/util/Sleeper.java, tests-src/net/grinder/util/AllTests.java, tests-src/net/grinder/util/TestSleeper.java:
+	Class that manages sleeping.
+
+	* src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/util/DelayedCreationFileWriter.java:
+	Repackage DelayedCreationFileWriter.
+
+2001-10-13  Philip Aston  <paston@bea.com>
+
+	* build.xml: Add build information to about dialog.
+	Next is 2.7.3.
+
+	* src/net/grinder/console/swingui/resources/about.html:
+	Add build information to about dialog.
+
+	* CHANGES, README, build.xml, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/Resources.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/about.html:
+	About dialog.
+
+	* src/net/grinder/Console.java: Call System.exit() on exception.
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/util/DelayedCreationFileWriter.java:
+	Convert DelayedCreationFileOutputStream to DelayedCreationFileWriter.
+	Rename ProcessContextImplementation to ProcessContext.
+	Rename ThreadContextImplementation to ThreadContext.
+	Refactor functionality from GrinderProcess to ProcessContext and
+	GrinderThread to ThreadContext with an eye on the inverted control of
+	G3.
+
+2001-10-12  Philip Aston  <paston@bea.com>
+
+	* build.xml: Ahem.
+
+	* build.xml: Create releases directory if it doesn't already exist.
+
 2001-10-12  Philip Aston  <paston@bea.com>
 
 	* The Grinder 2.7.2 is released.
