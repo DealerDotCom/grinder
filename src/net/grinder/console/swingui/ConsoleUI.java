@@ -339,18 +339,28 @@ public final class ConsoleUI implements ModelListener {
     scriptFilesPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
     scriptFilesPanel.setMinimumSize(new Dimension(200, 100));
 
-    scriptFilesPanel.refresh();
-
     scriptFilesPanel.addListener(
       new ScriptFilesPanel.Listener() {
         public void newFileSelection(FileTreeModel.FileNode fileNode) {
           try {
-            editor.newFileSelection(fileNode);
+            if (fileNode.getBuffer() != null) {
+              editor.activateBuffer(fileNode.getBuffer());
+            }
+            else {
+              fileNode.setBuffer(editor.newFileSelection(fileNode.getFile()));
+            }
           }
           catch (ConsoleException e) {
             getErrorHandler().handleException(
               e, m_model.getResources().getString("fileError.title"));
           }
+        }
+      });
+
+    editor.addListener(
+      new Editor.Listener() {
+        public void stateChanged() {
+          scriptFilesPanel.repaint();
         }
       });
 
