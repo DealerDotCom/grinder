@@ -24,7 +24,7 @@ package net.grinder.communication;
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -137,13 +137,27 @@ final class SocketSet {
   }
 
   /**
-   * Interface which allows polling a socket for
-   * <code>Message</code>s.
+   * Interface to socket that can be reserved by a thread.
    */
   public interface Handle {
+
     boolean isSentinel();
 
-    Message pollForMessage() throws ClassNotFoundException, IOException;
+    /**
+     * Caller should {@link #reserve} the Handle before calling this
+     * method.
+     *
+     * @returns The input stream.
+     */
+    InputStream getInputStream() throws IOException;
+
+    /**
+     * Caller should {@link #reserve} the Handle before calling this
+     * method.
+     *
+     * @returns The output stream.
+     */
+    OutputStream getOutputStream() throws IOException;
 
     boolean reserve();
     void free();
@@ -157,7 +171,11 @@ final class SocketSet {
       return true;
     }
 
-    public Message pollForMessage() {
+    public InputStream getInputStream() {
+      throw new RuntimeException("Assertion failure");
+    }
+
+    public OutputStream getOutputStream() {
       throw new RuntimeException("Assertion failure");
     }
 
@@ -179,6 +197,7 @@ final class SocketSet {
   private static final class HandleImplementation implements Handle {
     private final Socket m_socket;
     private final InputStream m_inputStream;
+    private final OutputStream m_outputStream;
     private final IOException m_deferredIOException;
 
     private boolean m_busy = false;
@@ -188,10 +207,12 @@ final class SocketSet {
       m_socket = socket;
 
       InputStream inputStream = null;
+      OutputStream outputStream = null;
       IOException deferredIOException = null;
 
       try {
         inputStream = new BufferedInputStream(m_socket.getInputStream());
+        outputStream = m_socket.getOutputStream();
       }
       catch (IOException e) {
         close();
@@ -199,6 +220,7 @@ final class SocketSet {
       }
 
       m_inputStream = inputStream;
+      m_outputStream = outputStream;
       m_deferredIOException = deferredIOException;
     }
 
@@ -206,23 +228,22 @@ final class SocketSet {
       return false;
     }
 
-    public Message pollForMessage()
-      throws ClassNotFoundException, IOException {
+    public InputStream getInputStream() throws IOException {
 
       if (m_deferredIOException != null) {
         throw m_deferredIOException;
       }
 
-      // Don't synchronise, assume caller has correctly reserved this
-      // Handle.
-      if (m_inputStream.available() == 0) {
-        return null;
+      return m_inputStream;
+    }
+
+    public OutputStream getOutputStream() throws IOException {
+
+      if (m_deferredIOException != null) {
+        throw m_deferredIOException;
       }
 
-      final ObjectInputStream objectStream =
-        new ObjectInputStream(m_inputStream);
-
-      return (Message)objectStream.readObject();
+      return m_outputStream;
     }
 
     public synchronized boolean reserve() {
