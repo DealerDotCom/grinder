@@ -55,6 +55,10 @@ public abstract class Message implements Serializable {
     m_sequenceNumber = sequenceNumber;
   }
 
+  final boolean isInitialised() {
+    return m_senderUniqueID != null;
+  }
+
   /**
    * Returns a string describing the Grinder process associated of the
    * {@link Sender}.
@@ -95,7 +99,7 @@ public abstract class Message implements Serializable {
    * been called.
    **/
   private void assertInitialised() {
-    if (m_senderUniqueID == null) {
+    if (!isInitialised()) {
       throw new RuntimeException("Message not initialised");
     }
   }
