@@ -76,6 +76,8 @@ final class PluginProcessContextImplementation
 	StatisticsView statisticsView)
 	throws GrinderException
     {
+	// DetailStatsisticsViews are only for the data logs, so we
+	// don't register the view with the console.
 	CommonStatisticsViews.getDetailStatisticsView().add(statisticsView);
     }
 
