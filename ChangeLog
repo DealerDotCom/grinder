@@ -1,3 +1,8 @@
+2001-06-28  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HTTPClientHandler.java:
+	Close connections and discard cookies at end of cycle.
+
 2001-06-21  Philip Aston  <paston@bea.com>
 
 	* AUTHORS, CHANGES, examples/socket/grinder.properties, src/net/grinder/plugin/socket/SocketPlugin.java:
