@@ -2,6 +2,9 @@
 
 	* The Grinder 3.0-beta0 is released.
 
+	* src/net/grinder/plugin/http/HTTPPluginControl.java:
+	Fix javadoc references.
+
 	* build.xml, CHANGES: Update for release.
 
 	* examples/.cvsignore, examples/grinder.properties:
