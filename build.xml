@@ -389,6 +389,9 @@ what you want. Currently the conditionally built modules are:
 	<path refid="build.classpath"/>
       </classpath>
 
+      <!-- Put Jython droppings in one place. -->
+      <sysproperty key="python.cachedir" path="${build.dir}/python.cache"/>
+
       <!-- Things the tests find useful. -->
       <sysproperty key="classes.dir" path="${classes.dir}"/>
       <sysproperty key="test-classes.dir" path="${test-classes.dir}"/>
