@@ -18,38 +18,58 @@
 
 package net.grinder.plugin.http;
 
-import java.util.Set;
+import java.text.DecimalFormat;
 
-import net.grinder.plugininterface.GrinderPlugin;
+import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.plugininterface.Test;
 
 
 /**
- * Simple HTTP client benchmark.
- * 
  * @author Philip Aston
  * @version $Revision$
  */
-public class BookHttpPlugin implements GrinderPlugin
-{
-    /**
-     * This method is executed when the thread starts. It is only
-     * executed once.
-     */
-    public ThreadCallbacks createThreadCallbackHandler()
+public class BookHttpPlugin extends HttpPlugin {
+
+    private final static String TEMPLATE_STRING = "$GRINDER_VARIABLE";
+
+    protected class CallData extends HttpPlugin.CallData
+    {
+	private String m_phone = "2000";
+	private DecimalFormat m_twoDigitsFormat = new DecimalFormat("00");
+
+	public CallData(PluginThreadContext pluginThreadContext, Test test)
+	    throws PluginException
+	{
+	    super(test);
+
+	    final String original = getURLString();
+
+	    if (original != null) {
+		final int index = original.indexOf(TEMPLATE_STRING);
+
+		if (index >= 0) {
+		    final StringBuffer buffer = new StringBuffer();
+		    
+		    buffer.append(original.substring(0, index));
+		    buffer.append("555");
+		    buffer.append(pluginThreadContext.getHostIDString());
+		    buffer.append(pluginThreadContext.getProcessIDString());
+		    buffer.append(m_twoDigitsFormat.format(
+				      pluginThreadContext.getThreadID()));
+		    buffer.append(original.substring(
+				      index + TEMPLATE_STRING.length()));
+
+		    setURLString(buffer.toString());
+		}
+	    }
+	}
+    }
+
+    protected HttpPlugin.CallData createCallData(PluginThreadContext context,
+						 Test test)
 	throws PluginException
     {
-	return new BookHttpPluginThreadCallbacks();
-    }
-    
-
-    /**
-     * Returns a Set of Tests. Returns null if the tests are to be
-     * defined in the properties file.
-     */
-    public Set getTests()
-    {
-	return null;
+	return new CallData(context, test);
     }
 }
