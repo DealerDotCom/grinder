@@ -76,7 +76,7 @@ conditionally built modules are:
     <property name="year" value="2002"/>
 
     <!--options-->
-    <available classname="javax.net.ssl.SSLSocketFactory"
+    <available classname="com.sun.net.ssl.HostnameVerifier"
 	       property="have.jsse" />
 
     <available classname="junit.framework.TestCase"
@@ -229,7 +229,7 @@ conditionally built modules are:
        <exclude name="**/SSLSnifferEngineImpl.java" unless="have.jsse"/>
        <exclude name="**/HttpPluginSnifferFilter.java" unless="have.regexp"/>
        <exclude name="**/HttpProxySnifferEngineImpl.java" unless="have.regexp"/>
-       <exclude name="**/HttpsProxySnifferEngineImpl.java" unless="have.regexp"/>
+       <exclude name="**/HttpsProxySnifferEngineImpl.java" unless="have.regexp,have.jsse"/>
        <exclude name="**/HttpsProxySnifferEngineImpl.java" unless="have.jsse"/>
        <exclude name="**/URLRewriteFilter.java" unless="have.regexp"/>
        <exclude name="**/JUnitPlugin.java" unless="have.junit"/>
