@@ -218,7 +218,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
             int n;
 
-            while ((n = in.read(buffer, 0, in.available())) > 0) {
+            while ((n = in.read(buffer)) > 0) {
               additionalRequestBytes.write(buffer, 0, n);
             }
 
@@ -227,7 +227,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           }
           else {
             // Discard anything else the client has to say.
-            while (in.read(buffer, 0, in.available()) > 0) {
+            while (in.read(buffer) > 0) {
               // Skip..
             }
           }
@@ -639,7 +639,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
       final ByteArrayOutputStream responseBytes = new ByteArrayOutputStream();
       int n;
 
-      while ((n = inputStream.read(buffer, 0, inputStream.available())) > 0) {
+      while ((n = inputStream.read(buffer)) > 0) {
         responseBytes.write(buffer, 0, n);
       }
 

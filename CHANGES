@@ -8,6 +8,10 @@ Grinder 3.0-beta24 (Not yet released)
   listens as an HTTPS proxy as well. The TCPProxy -ssl option now only
   applies to port forwarding mode.
 
+  Fix a bug where the TCPProxy could raise an
+  ArrayIndexOutOfBoundsException. Thanks to Alan Droege for the
+  report.
+
 
 Grinder 3.0-beta23
 ------------------
