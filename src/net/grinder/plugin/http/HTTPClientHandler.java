@@ -180,7 +180,8 @@ class HTTPClientHandler implements HTTPHandler
 	    final int statusCode = response.getStatusCode();
 	
 	    if (statusCode == HttpURLConnection.HTTP_OK) {
-		final String body = new String(response.getData());
+		final byte[] data = response.getData();
+		final String body = data != null? new String(data) : "";
 
 		m_pluginThreadContext.stopTimer();
 
