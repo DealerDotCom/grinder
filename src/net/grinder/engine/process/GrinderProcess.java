@@ -55,6 +55,7 @@ import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
+import net.grinder.util.JVM;
 
 
 /**
@@ -67,7 +68,7 @@ import net.grinder.statistics.TestStatisticsMap;
  * @author Philip Aston
  * @version $Revision$
  * @see net.grinder.engine.process.GrinderThread
- **/
+ */
 public final class GrinderProcess {
 
   /**
@@ -210,13 +211,7 @@ public final class GrinderProcess {
     final Logger logger = m_context.getProcessLogger();
 
     logger.output("The Grinder version " + GrinderBuild.getVersionString());
-
-    logger.output(System.getProperty("java.vm.vendor") + " " +
-                  System.getProperty("java.vm.name") + " " +
-                  System.getProperty("java.vm.version") +
-                  " on " + System.getProperty("os.name") + " " +
-                  System.getProperty("os.arch") + " " +
-                  System.getProperty("os.version"));
+    logger.output(JVM.getInstance().toString());
 
     final Timer timer = new Timer(true);
     timer.schedule(new TickLoggerTimerTask(), 0, 1000);
