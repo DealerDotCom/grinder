@@ -131,8 +131,7 @@ public class Model
 	final StatisticExpressionFactory statisticExpressionFactory =
 	    StatisticExpressionFactory.getInstance();
 
-	final StatisticsIndexMap indexMap =
-	    StatisticsIndexMap.getProcessInstance();
+	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
 	m_periodIndex = indexMap.getIndexForLong("period");
 

@@ -49,15 +49,16 @@ public class TestStatisticsIndexMap extends TestCase
 	super(name);
     }
 
-    private final StatisticsIndexMap m_indexMap = new StatisticsIndexMap();
+    private final StatisticsIndexMap m_indexMap = 
+	StatisticsIndexMap.getInstance();
 
     public void testLongs() throws Exception
     {
 	final String[] data = {
-	    "key 1",
-	    "Key 1",
-	    "",
-	    "something",
+	    "userLong0",
+	    "userLong1",
+	    "userLong2",
+	    "userLong3",
 	};
 
 	final StatisticsIndexMap.LongIndex[] longResults =
@@ -83,10 +84,10 @@ public class TestStatisticsIndexMap extends TestCase
     public void testDoubles() throws Exception
     {
 	final String[] data = {
-	    "key 1",
-	    "Key 1",
-	    "",
-	    "something",
+	    "userDouble0",
+	    "userDouble1",
+	    "userDouble2",
+	    "userDouble3",
 	};
 
 	final StatisticsIndexMap.DoubleIndex[] doubleResults =
@@ -112,18 +113,29 @@ public class TestStatisticsIndexMap extends TestCase
 
     public void testExceptions() throws Exception
     {
-	m_indexMap.getIndexForLong("abc");
-	m_indexMap.getIndexForDouble("def");
-
 	try {
-	    m_indexMap.getIndexForDouble("abc");
+	    m_indexMap.getIndexForDouble("madeup");
 	    fail("Expected GrinderException");
 	}
 	catch (GrinderException e) {
 	}
 
 	try {
-	    m_indexMap.getIndexForLong("def");
+	    m_indexMap.getIndexForDouble("userLong0");
+	    fail("Expected GrinderException");
+	}
+	catch (GrinderException e) {
+	}
+
+	try {
+	    m_indexMap.getIndexForLong("madeup");
+	    fail("Expected GrinderException");
+	}
+	catch (GrinderException e) {
+	}
+
+	try {
+	    m_indexMap.getIndexForLong("userDouble3");
 	    fail("Expected GrinderException");
 	}
 	catch (GrinderException e) {

@@ -106,56 +106,6 @@ public class TestStatisticsMap implements java.io.Externalizable
     }
 
     /**
-     * Convert this <code>TestStatisticsImplementation</code>, valid
-     * in a different <code>StatisticsIndexMap</code>, to one valid in
-     * the current process's <code>StatisticsIndexMap</code>.
-     *
-     * <bold>To allow an efficient implementtaion, this method is
-     * destructive and leaves this <code>TestStatisticsMap</code> in
-     * an invalid state.</bold>
-     *
-     * @param originalMap The <code>StatisticsIndexMap</code> that
-     * this <code>TestStatisticsMap</code> is valid for.
-     * @returns A <code>TestStatisticsMap</code> representing the same
-     * data as this <code>TestStatisticsMap</code> but against the
-     * current process's <code>StatisticsIndexMap</code>.
-     **/
-    public TestStatisticsMap convertToProcessIndexMap(
-	StatisticsIndexMap originalMap)
-	throws GrinderException
-    {
-	final StatisticsIndexMap.DoubleIndex[] doubleSequenceInProcessMap =
-	    originalMap.getDoubleSequenceInProcessMap();
-
-	final StatisticsIndexMap.LongIndex[] longSequenceInProcessMap =
-	    originalMap.getLongSequenceInProcessMap();
-
-	final TestStatisticsMap result = new TestStatisticsMap();
-
-	final Iterator iterator = new Iterator();
-
-	TestStatisticsImplementation temporaryStatistics =
-	    m_testStatisticsFactory.createImplementation();
-
-	while (iterator.hasNext()) {
-	    final Pair pair = iterator.next();
-
-	    final TestStatisticsImplementation originalStatistics =
-		(TestStatisticsImplementation)pair.getStatistics();
-
-	    originalStatistics.resequence(doubleSequenceInProcessMap,
-					  longSequenceInProcessMap,
-					  temporaryStatistics);
-
-	    result.put(pair.getTest(), temporaryStatistics);
-
-	    temporaryStatistics = originalStatistics;
-	}
-
-	return result;
-    }
-
-    /**
      * Get a new <code>TestStatistics</code> containing the totals of
      * all our entries.
      *

@@ -48,7 +48,7 @@ public class TestStatisticExpressionFactory extends TestCase
 	StatisticExpressionFactory.getInstance();
 
     private final StatisticsIndexMap m_indexMap =
-	StatisticsIndexMap.getProcessInstance();
+	StatisticsIndexMap.getInstance();
 
     private final RawStatistics m_rawStatistics =
 	new RawStatisticsImplementation();
@@ -57,8 +57,8 @@ public class TestStatisticExpressionFactory extends TestCase
 
     protected void setUp() throws Exception
     {
-	m_rawStatistics.addValue(m_indexMap.getIndexForLong("One"), 1);
-	m_rawStatistics.addValue(m_indexMap.getIndexForLong("Two"), 2);
+	m_rawStatistics.addValue(m_indexMap.getIndexForLong("userLong0"), 1);
+	m_rawStatistics.addValue(m_indexMap.getIndexForLong("userLong1"), 2);
     }
 
     public void testConstant() throws Exception
@@ -89,21 +89,21 @@ public class TestStatisticExpressionFactory extends TestCase
     public void testPrimitive() throws Exception
     {
 	final StatisticExpression expression =
-	    m_factory.createPrimitive(m_indexMap.getIndexForLong("One"));
+	    m_factory.createPrimitive(m_indexMap.getIndexForLong("userLong0"));
 
 	myAssertEquals(1, expression);
 	assert(!expression.isDouble());
 
 	final StatisticsIndexMap.DoubleIndex anotherIndex =
-	    m_indexMap.getIndexForDouble("Test");
+	    m_indexMap.getIndexForDouble("userDouble4");
 
 	final StatisticExpression doubleExpresson =
-	    m_factory.createExpression("  Test");
+	    m_factory.createExpression("  userDouble4");
 
 	myAssertEquals(0d, doubleExpresson);
 	assert(doubleExpresson.isDouble());
 
-	myAssertEquals(2, m_factory.createExpression("Two"));
+	myAssertEquals(2, m_factory.createExpression("userLong1"));
 
 	try {
 	    m_factory.createExpression("");
@@ -113,7 +113,7 @@ public class TestStatisticExpressionFactory extends TestCase
 	}
 
 	try {
-	    m_factory.createExpression("One Two");
+	    m_factory.createExpression("userLong0 userLong1");
 	    fail("Expected a GrinderException");
 	}
 	catch (GrinderException e) {
@@ -130,9 +130,9 @@ public class TestStatisticExpressionFactory extends TestCase
     public void testSum() throws Exception
     {
 	final StatisticExpression[] expressions = {
-	    m_factory.createExpression("One"),
-	    m_factory.createExpression("Two"),
-	    m_factory.createExpression("Two"),
+	    m_factory.createExpression("userLong0"),
+	    m_factory.createExpression("userLong1"),
+	    m_factory.createExpression("userLong1"),
 	};
 
 	final StatisticExpression expression =
@@ -141,12 +141,16 @@ public class TestStatisticExpressionFactory extends TestCase
 	myAssertEquals(5, expression);
 	assert(!expression.isDouble());
 
-	myAssertEquals(2, m_factory.createExpression("(+ One One)"));
+	myAssertEquals(2,
+		       m_factory.createExpression("(+ userLong0 userLong0)"));
 
-	myAssertEquals(4, m_factory.createExpression("(+ One Two One)"));
+	myAssertEquals(4,
+		       m_factory.createExpression(
+			   "(+ userLong0 userLong1 userLong0)"));
 
 	myAssertEquals(5,
-		       m_factory.createExpression("(+ One (+ One Two) One)"));
+		       m_factory.createExpression(
+			   "(+ userLong0 (+ userLong0 userLong1) userLong0)"));
 
 	try {
 	    m_factory.createExpression("(+)");
@@ -156,7 +160,7 @@ public class TestStatisticExpressionFactory extends TestCase
 	}
 
 	try {
-	    m_factory.createExpression("(+ One)");
+	    m_factory.createExpression("(+ userLong0)");
 	    fail("Expected a GrinderException");
 	}
 	catch (GrinderException e) {
@@ -166,9 +170,9 @@ public class TestStatisticExpressionFactory extends TestCase
     public void testProduct() throws Exception
     {
 	final StatisticExpression[] expressions = {
-	    m_factory.createExpression("One"),
-	    m_factory.createExpression("Two"),
-	    m_factory.createExpression("Two"),
+	    m_factory.createExpression("userLong0"),
+	    m_factory.createExpression("userLong1"),
+	    m_factory.createExpression("userLong1"),
 	};
 
 	final StatisticExpression expression =
@@ -177,12 +181,16 @@ public class TestStatisticExpressionFactory extends TestCase
 	myAssertEquals(4, expression);
 	assert(!expression.isDouble());
 
-	myAssertEquals(1, m_factory.createExpression("(* One One)"));
+	myAssertEquals(1,
+		       m_factory.createExpression("(* userLong0 userLong0)"));
 
-	myAssertEquals(4, m_factory.createExpression("(* One Two Two)"));
+	myAssertEquals(4,
+		       m_factory.createExpression(
+			   "(* userLong0 userLong1 userLong1)"));
 
 	myAssertEquals(8,
-		       m_factory.createExpression("(* Two (* Two Two) One)"));
+		       m_factory.createExpression(
+			   "(* userLong1 (* userLong1 userLong1) userLong0)"));
 
 	try {
 	    m_factory.createExpression("(*)");
@@ -192,7 +200,7 @@ public class TestStatisticExpressionFactory extends TestCase
 	}
 
 	try {
-	    m_factory.createExpression("(* One)");
+	    m_factory.createExpression("(* userLong0)");
 	    fail("Expected a GrinderException");
 	}
 	catch (GrinderException e) {
@@ -202,17 +210,20 @@ public class TestStatisticExpressionFactory extends TestCase
     public void testDivision() throws Exception
     {
 	final StatisticExpression expression =
-	    m_factory.createDivision(m_factory.createExpression("Two"),
-				     m_factory.createExpression("Two"));
+	    m_factory.createDivision(m_factory.createExpression("userLong1"),
+				     m_factory.createExpression("userLong1"));
 
 	myAssertEquals(1, expression);
 	assert(expression.isDouble());
 
-	myAssertEquals(1d, m_factory.createExpression("(/ One One)"));
+	myAssertEquals(1d,
+		       m_factory.createExpression("(/ userLong0 userLong0)"));
 
-	myAssertEquals(0.5d, m_factory.createExpression("(/ One Two)"));
+	myAssertEquals(0.5d,
+		       m_factory.createExpression("(/ userLong0 userLong1)"));
 
-	myAssertEquals(2d, m_factory.createExpression("(/ Two One)"));
+	myAssertEquals(2d,
+		       m_factory.createExpression("(/ userLong1 userLong0)"));
 
 	try {
 	    m_factory.createExpression("(/)");
@@ -222,14 +233,14 @@ public class TestStatisticExpressionFactory extends TestCase
 	}
 
 	try {
-	    m_factory.createExpression("(/ One)");
+	    m_factory.createExpression("(/ userLong0)");
 	    fail("Expected a GrinderException");
 	}
 	catch (GrinderException e) {
 	}
 
 	try {
-	    m_factory.createExpression("(/ One One One)");
+	    m_factory.createExpression("(/ userLong0 userLong0 userLong0)");
 	    fail("Expected a GrinderException");
 	}
 	catch (GrinderException e) {
@@ -239,24 +250,24 @@ public class TestStatisticExpressionFactory extends TestCase
     public void testLongPeak() throws Exception
     {
 	final StatisticsIndexMap.LongIndex peakIndex1 =
-	    m_indexMap.getIndexForLong("myPeak");
+	    m_indexMap.getIndexForLong("userLong2");
 
 	final StatisticsIndexMap.LongIndex peakIndex2 =
-	    m_indexMap.getIndexForLong("myOtherPeak");
+	    m_indexMap.getIndexForLong("userLong3");
 
 	final StatisticExpression expression =
 	    m_factory.createPeak(peakIndex1,
-				 m_factory.createExpression("Two"));
+				 m_factory.createExpression("userLong1"));
 
 	myAssertEquals(0, expression);
 	assert(!expression.isDouble());
 
 	final StatisticsIndexMap.LongIndex statIndex =
-	    m_indexMap.getIndexForLong("testPeak");
+	    m_indexMap.getIndexForLong("userLong4");
 
 	final PeakStatisticExpression peak = 
 	    m_factory.createPeak(peakIndex2,
-				 m_factory.createExpression("testPeak"));
+				 m_factory.createExpression("userLong4"));
 
 	final RawStatistics rawStatistics = new RawStatisticsImplementation();
 
@@ -277,24 +288,25 @@ public class TestStatisticExpressionFactory extends TestCase
     public void testDoublePeak() throws Exception
     {
 	final StatisticsIndexMap.DoubleIndex peakIndex1 =
-	    m_indexMap.getIndexForDouble("myDoublePeak");
+	    m_indexMap.getIndexForDouble("userDouble2");
 
 	final StatisticsIndexMap.DoubleIndex peakIndex2 =
-	    m_indexMap.getIndexForDouble("myOtherDoublePeak");
+	    m_indexMap.getIndexForDouble("userDouble3");
 
 	final StatisticExpression expression =
 	    m_factory.createPeak(peakIndex1,
-				 m_factory.createExpression("(/ Two One)"));
+				 m_factory.createExpression(
+				     "(/ userLong1 userLong0)"));
 
 	myAssertEquals(0, expression);
 	assert(expression.isDouble());
 
 	final StatisticsIndexMap.DoubleIndex statIndex =
-	    m_indexMap.getIndexForDouble("testDoublePeak");
+	    m_indexMap.getIndexForDouble("userDouble4");
 
 	final PeakStatisticExpression peak = 
 	    m_factory.createPeak(peakIndex2,
-				 m_factory.createExpression("testDoublePeak"));
+				 m_factory.createExpression("userDouble4"));
 
 	final RawStatistics rawStatistics = new RawStatisticsImplementation();
 
@@ -315,19 +327,20 @@ public class TestStatisticExpressionFactory extends TestCase
     public void testParseCompoundExpessions() throws Exception
     {
 	myAssertEquals(0.5,
-		       m_factory.createExpression("(/ One (+ One One))"));
+		       m_factory.createExpression(
+			   "(/ userLong0 (+ userLong0 userLong0))"));
 
 	myAssertEquals(2.25d,
 		       m_factory.createExpression(
-			   "(+ One (/ One (+ Two Two)) One)"));
+			   "(+ userLong0 (/ userLong0 (+ userLong1 userLong1)) userLong0)"));
 
 	myAssertEquals(2.25d,
 		       m_factory.createExpression(
-			   "(+ One (/ One (* Two Two)) One)"));
+			   "(+ userLong0 (/ userLong0 (* userLong1 userLong1)) userLong0)"));
 
 	myAssertEquals(9d,
 		       m_factory.createExpression(
-			   "(* 4 (+ One (/ One (* Two Two)) One))"));
+			   "(* 4 (+ userLong0 (/ userLong0 (* userLong1 userLong1)) userLong0))"));
 
 	try {
 	    m_factory.createExpression("(+");
@@ -346,12 +359,12 @@ public class TestStatisticExpressionFactory extends TestCase
 
     public void testNormaliseExpressionString() throws Exception
     {
-	assertEquals("One",
-		     m_factory.normaliseExpressionString(" One "));
+	assertEquals("userLong0",
+		     m_factory.normaliseExpressionString(" userLong0 "));
 
-	assertEquals("(+ One Two (* One Two))",
+	assertEquals("(+ userLong0 userLong1 (* userLong0 userLong1))",
 		     m_factory.normaliseExpressionString(
-			 "\t(+ One Two( \n  * One Two) )"));
+			 "\t(+ userLong0 userLong1( \n  * userLong0 userLong1) )"));
     }
 
     private void myAssertEquals(long expected, StatisticExpression expression)

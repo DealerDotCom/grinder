@@ -108,8 +108,7 @@ public class TestGraph extends TestCase
 	final TestStatisticsFactory testStatisticsFactory
 	    = TestStatisticsFactory.getInstance();
 
-	final StatisticsIndexMap indexMap =
-	    StatisticsIndexMap.getProcessInstance();
+	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
 	final StatisticsIndexMap.LongIndex periodIndex =
 	    indexMap.getIndexForLong("period");

@@ -48,7 +48,6 @@ public class Console
     private final ConsoleCommunication m_communication;
     private final Model m_model;
     private final ConsoleUI m_userInterface;
-    private final Map m_senderStatisticsIndexMaps = new HashMap();
 
     public Console()
 	throws GrinderException
@@ -126,38 +125,14 @@ public class Console
 	    }
 	    
 	    if (message instanceof ReportStatisticsMessage) {
-		final ReportStatisticsMessage reportStatisticsMessage =
-		    (ReportStatisticsMessage)message;
-
-		final StatisticsIndexMap senderIndexMap =
-		    (StatisticsIndexMap)m_senderStatisticsIndexMaps.get(
-			reportStatisticsMessage.getSenderUniqueID());
-
-		if (senderIndexMap != null) {
-		    m_model.addTestReport(
-			reportStatisticsMessage.getStatisticsDelta().
-			convertToProcessIndexMap(senderIndexMap));
-		}
-		else {
-		    System.err.println(
-			"Discarding report from unknown sender");
-		}
+		m_model.addTestReport(
+		    ((ReportStatisticsMessage)message).getStatisticsDelta());
 	    }
 	    
 	    if (message instanceof RegisterStatisticsViewMessage) {
-		final RegisterStatisticsViewMessage
-		    registerStatisticsViewMessage =
-		    (RegisterStatisticsViewMessage)message;
-
-		final StatisticsIndexMap senderIndexMap =
-		    registerStatisticsViewMessage.getStatisticsIndexMap();
-
-		m_senderStatisticsIndexMaps.put(
-		    registerStatisticsViewMessage.getSenderUniqueID(),
-		    senderIndexMap);
-
 		final StatisticsView statisticsView =
-		    registerStatisticsViewMessage.getStatisticsView();
+		    ((RegisterStatisticsViewMessage)message)
+		    .getStatisticsView();
 
 		m_model.registerStatisticsViews(statisticsView,
 						statisticsView);

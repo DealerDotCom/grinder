@@ -96,8 +96,8 @@ public class HttpPlugin implements GrinderPlugin
 	if (!m_useHTTPClient) {
 	    try {
 		m_timeToFirstByteIndex =
-		    StatisticsIndexMap.getProcessInstance().
-		    getIndexForLong("timeToFirstByte");
+		    StatisticsIndexMap.getInstance().getIndexForLong(
+			"userLong0");
 
 		final StatisticsView statisticsView = new StatisticsView();
 
@@ -105,7 +105,7 @@ public class HttpPlugin implements GrinderPlugin
 		    new ExpressionView(
 			"Mean time to first byte",
 			"statistic.timeToFirstByte",
-			"(/ timeToFirstByte (+ untimedTransactions timedTransactions))"));
+			"(/ userLong0 timedTransactions)"));
 
 		processContext.registerStatisticsView(statisticsView);
 	    }

@@ -54,23 +54,17 @@ public class TestStatisticsView extends TestCase
 	super(name);
     }
 
-    private final StatisticsIndexMap m_indexMap =
-	StatisticsIndexMap.getProcessInstance();
-
     private ExpressionView[] m_views;
     private int m_numberOfUniqueViews;
 
     protected void setUp() throws Exception
     {
-	m_indexMap.getIndexForLong("one");
-	m_indexMap.getIndexForLong("two");
-
 	m_views = new ExpressionView[] {
-	    new ExpressionView("One", "my.view", "(+ one two)"),
-	    new ExpressionView("Two", "my.view", "one"),
-	    new ExpressionView("Three", "my.view", "(+ one two)"),
-	    new ExpressionView("Four", "my.view", "two"),
-	    new ExpressionView("One", "my.view", "(+ one two)"),
+	    new ExpressionView("One", "my.view", "(+ userLong0 userLong1)"),
+	    new ExpressionView("Two", "my.view", "userLong0"),
+	    new ExpressionView("Three", "my.view", "(+ userLong0 userLong1)"),
+	    new ExpressionView("Four", "my.view", "userLong1"),
+	    new ExpressionView("One", "my.view", "(+ userLong0 userLong1)"),
 	};
 
 	m_numberOfUniqueViews = 4;

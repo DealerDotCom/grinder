@@ -64,8 +64,8 @@ public class TestTestStatisticsMap extends TestCase
 	m_statistics0 = factory.create();
 	m_statistics1 = factory.create();
 
-	final StatisticsIndexMap indexMap = new StatisticsIndexMap();
-	m_index = indexMap.getIndexForLong("abc");
+	m_index =
+	    StatisticsIndexMap.getInstance().getIndexForLong("userLong0");
 
 	m_statistics0.addValue(m_index, 10);
     }

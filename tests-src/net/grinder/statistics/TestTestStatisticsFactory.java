@@ -84,13 +84,13 @@ public class TestTestStatisticsFactory extends TestCase
 
 	final Random random = new Random();
 
-	final StatisticsIndexMap indexMap = new StatisticsIndexMap();
+	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 	final StatisticsIndexMap.LongIndex aIndex =
-	    indexMap.getIndexForLong("a");
+	    indexMap.getIndexForLong("userLong0");
 	final StatisticsIndexMap.LongIndex bIndex =
-	    indexMap.getIndexForLong("b");
+	    indexMap.getIndexForLong("userLong1");
 	final StatisticsIndexMap.LongIndex cIndex =
-	    indexMap.getIndexForLong("c");
+	    indexMap.getIndexForLong("userLong2");
 
 	final TestStatisticsImplementation original0 =
 	    factory.createImplementation();

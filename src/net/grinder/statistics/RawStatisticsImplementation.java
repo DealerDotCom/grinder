@@ -29,22 +29,19 @@ import net.grinder.util.Serialiser;
 
 /**
  * Store an array of raw statistics as unsigned long values. Clients
- * can access individual values using a process specific index
- * obtained from a {@link ProcessStatisticsIndexMap}. Effectively a
- * cheap array list.
+ * can access individual values using an index obtained from a {@link
+ * StatisticsIndexMap}.
  *
  * @author Philip Aston
  * @version $Revision$
  **/
 class RawStatisticsImplementation implements RawStatistics
 {
-    // Implementation notes: Our arrays of values grow in size to
-    // accomodate new process index values. They never shrink.
-
-    private final static long[] s_emptyLongArray = new long[0];
     private final static double[] s_emptyDoubleArray = new double[0];
 
-    private long[] m_longData = s_emptyLongArray;
+    private final long[] m_longData;
+
+    /** Double array is allocated as necessary. **/
     private double[] m_doubleData = s_emptyDoubleArray;
 
     /**
@@ -59,18 +56,20 @@ class RawStatisticsImplementation implements RawStatistics
      **/
     public RawStatisticsImplementation()
     {
+	m_longData =
+	    new long[
+		StatisticsIndexMap.getInstance().getNumberOfLongIndicies()];
     }
 
     /**
      * Reset this RawStatistics to default values. Allows instance to
-     * be reused. Instance is likely to have the correct sized arrays,
-     * so this prevents much resizing.
+     * be reused.
      *
      * Assuming the caller owns this
      * <code>RawStatisticsImplementation</code> (or they shouldn't be
      * reseting it), we don't synchronise
      **/
-    public void reset()
+    public final void reset()
     {
 	Arrays.fill(m_longData, 0);
 	Arrays.fill(m_doubleData, 0);
@@ -79,59 +78,51 @@ class RawStatisticsImplementation implements RawStatistics
     /**
      * Return the value specified by <code>index</code>.
      *
-     * <p>We are working with primitive types so only need to
-     * synchronise if we resize.</p>
+     * <p>We are working with primitive types so don't need to
+     * synchronise.</p>
      *
      * @param index The process specific index.
      * @return The value.
      */
     public final long getValue(StatisticsIndexMap.LongIndex index)
     {
-	final int indexValue = index.getValue();
-
-	expandLongDataToSize(indexValue + 1);
-	return m_longData[indexValue];
+	return m_longData[index.getValue()];
     }
 
     /**
      * Return the value specified by <code>index</code>.
      *
      * <p>We are working with primitive types so only need to
-     * synchronise if we resize.</p>
+     * synchronise if we allocate a new array.</p>
      *
      * @param index The process specific index.
      * @return The value.
      */
     public final double getValue(StatisticsIndexMap.DoubleIndex index)
     {
-	final int indexValue = index.getValue();
-
-	expandDoubleDataToSize(indexValue + 1);
-	return m_doubleData[indexValue];
+	ensureDoubleDataAllocated();
+	return m_doubleData[index.getValue()];
     }
 
    /**
      * Set the value specified by <code>index</code>.
      *
-     * <p>We are working with primitive types so only need to
-     * synchronise if we resize.</p>
+     * <p>We are working with primitive types so dont need to
+     * synchronise.</p>
      *
      * @param index The process specific index.
      * @param value The value.
      **/
     public final void setValue(StatisticsIndexMap.LongIndex index, long value)
     {
-	final int indexValue = index.getValue();
-
-	expandLongDataToSize(indexValue + 1);
-	m_longData[indexValue] = value;
+	m_longData[index.getValue()] = value;
     }
 
    /**
      * Set the value specified by <code>index</code>.
      *
      * <p>We are working with primitive types so only need to
-     * synchronise if we resize.</p>
+     * synchronise if we allocate a new array.</p>
      *
      * @param index The process specific index.
      * @param value The value.
@@ -139,10 +130,8 @@ class RawStatisticsImplementation implements RawStatistics
     public final void setValue(StatisticsIndexMap.DoubleIndex index,
 			       double value)
     {
-	final int indexValue = index.getValue();
-
-	expandDoubleDataToSize(indexValue + 1);
-	m_doubleData[indexValue] = value;
+	ensureDoubleDataAllocated();
+	m_doubleData[index.getValue()] = value;
     }
 
     /**
@@ -157,10 +146,7 @@ class RawStatisticsImplementation implements RawStatistics
     public final synchronized void addValue(StatisticsIndexMap.LongIndex index,
 					    long value)
     {
-	final int indexValue = index.getValue();
-
-	expandLongDataToSize(indexValue + 1);
-	m_longData[indexValue] += value;
+	m_longData[index.getValue()] += value;
     }
 
     /**
@@ -175,10 +161,8 @@ class RawStatisticsImplementation implements RawStatistics
     public final synchronized void
 	addValue(StatisticsIndexMap.DoubleIndex index, double value)
     {
-	final int indexValue = index.getValue();
-
-	expandDoubleDataToSize(indexValue + 1);
-	m_doubleData[indexValue] += value;
+	ensureDoubleDataAllocated();
+	m_doubleData[index.getValue()] += value;
     }
 
     /**
@@ -212,18 +196,18 @@ class RawStatisticsImplementation implements RawStatistics
 
 	final long[] longData = operandImplementation.m_longData;
 
-	expandLongDataToSize(longData.length);
-
 	for (int i=0; i<longData.length; i++) {
 	    m_longData[i] += longData[i];
 	}
 
 	final double[] doubleData = operandImplementation.m_doubleData;
 
-	expandDoubleDataToSize(doubleData.length);
+	if (doubleData.length > 0) {
+	    ensureDoubleDataAllocated();
 
-	for (int i=0; i<doubleData.length; i++) {
-	    m_doubleData[i] += doubleData[i];
+	    for (int i=0; i<doubleData.length; i++) {
+		m_doubleData[i] += doubleData[i];
+	    }
 	}
     }
 
@@ -248,11 +232,10 @@ class RawStatisticsImplementation implements RawStatistics
 	result.add(this);
 
 	if (m_snapshot != null) {
-	    if (m_longData.length < m_snapshot.m_longData.length ||
-		m_doubleData.length < m_snapshot.m_doubleData.length) {
+	    if (m_doubleData.length < m_snapshot.m_doubleData.length) {
 		throw new IllegalStateException(
 		    "Assertion failure: " +
-		    "Snapshot data size is larger than ours");
+		    "Snapshot double data allocated but ours isn't");
 	    }
 
 	    final long[] longData = m_snapshot.m_longData;
@@ -277,41 +260,6 @@ class RawStatisticsImplementation implements RawStatistics
     }
 
     /**
-     * Resequence our arrays.
-     *
-     * @param newDoubleIndicies New indicies for double values.
-     * @param newLongIndicies New indicies for long values.
-     * @param result A <code>RawStatistics</code> representing the
-     * same data as <code>original</code> but against the new indicies.
-     * @see TestStatisticsMap#convertToProcessIndexMap
-     **/
-    void resequence(StatisticsIndexMap.DoubleIndex[] newDoubleIndicies,
-		    StatisticsIndexMap.LongIndex[] newLongIndicies,
-		    RawStatistics result)
-    {
-	result.reset();
-
-	for (int i=0; i<m_doubleData.length; ++i) {
-	    final StatisticsIndexMap.DoubleIndex newIndex =
-		newDoubleIndicies[i];
-
-	    if (newIndex != null) { // Otherwise no valid mapping,
-				    // leave default value.
-		result.setValue(newIndex, m_doubleData[i]);
-	    }
-	}
-	
-	for (int i=0; i<m_longData.length; ++i) {
-	    final StatisticsIndexMap.LongIndex newIndex = newLongIndicies[i];
-
-	    if (newIndex != null) { // Otherwise no valid mapping,
-				    // leave default value.
-		result.setValue(newIndex, m_longData[i]);
-	    }
-	}
-    }
-    
-    /**
      * Implement value based equality.
      *
      * @param o <code>Object</code> to compare to.
@@ -330,11 +278,6 @@ class RawStatisticsImplementation implements RawStatistics
 	final RawStatisticsImplementation otherStatistics =
 	    (RawStatisticsImplementation)o;
 
-	expandLongDataToSize(otherStatistics.m_longData.length);
-	otherStatistics.expandLongDataToSize(m_longData.length);
-	expandDoubleDataToSize(otherStatistics.m_doubleData.length);
-	otherStatistics.expandDoubleDataToSize(m_doubleData.length);
-
 	final long[] otherLongData = otherStatistics.m_longData;
 
 	for (int i=0; i<m_longData.length; i++) {
@@ -343,11 +286,15 @@ class RawStatisticsImplementation implements RawStatistics
 	    }
 	}
 
-	final double[] otherDoubleData = otherStatistics.m_doubleData;
+	if (m_doubleData.length > 0 ||
+	    otherStatistics.m_doubleData.length > 0) {
+	    ensureDoubleDataAllocated();
+	    otherStatistics.ensureDoubleDataAllocated();
 
-	for (int i=0; i<m_doubleData.length; i++) {
-	    if (m_doubleData[i] != otherDoubleData[i]) {
-		return false;
+	    for (int i=0; i<m_doubleData.length; i++) {
+		if (m_doubleData[i] != otherStatistics.m_doubleData[i]) {
+		    return false;
+		}
 	    }
 	}
 
@@ -401,13 +348,11 @@ class RawStatisticsImplementation implements RawStatistics
 					    Serialiser serialiser)
 	throws IOException
     {
-	out.writeInt(m_longData.length);
-
 	for (int i=0; i<m_longData.length; i++) {
 	    serialiser.writeLong(out, m_longData[i]);
 	}
 
-	out.writeInt(m_doubleData.length);
+	out.writeBoolean(m_doubleData.length > 0);
 
 	for (int i=0; i<m_doubleData.length; i++) {
 	    serialiser.writeDouble(out, m_doubleData[i]);
@@ -426,47 +371,29 @@ class RawStatisticsImplementation implements RawStatistics
 					  Serialiser serialiser)
 	throws IOException
     {
-	final int longLength = in.readInt();
-
-	m_longData = new long[longLength];
+	this();
 
 	for (int i=0; i<m_longData.length; i++) {
 	    m_longData[i] = serialiser.readLong(in);
 	}
 
-	final int doubleLength = in.readInt();
+	if (in.readBoolean()) {
+	    ensureDoubleDataAllocated();
 
-	m_doubleData = new double[doubleLength];
-
-	for (int i=0; i<m_doubleData.length; i++) {
-	    m_doubleData[i] = serialiser.readDouble(in);
-	}
-    }
-
-    private final void expandLongDataToSize(int size)
-    {
-	if (m_longData.length < size) {
-	    synchronized (this) {
-		final long[] newStatistics = new long[size];
-
-		System.arraycopy(m_longData, 0, newStatistics, 0,
-				 m_longData.length);
-
-		m_longData = newStatistics;
+	    for (int i=0; i<m_doubleData.length; i++) {
+		m_doubleData[i] = serialiser.readDouble(in);
 	    }
 	}
     }
 
-    private final void expandDoubleDataToSize(int size)
+    private final void ensureDoubleDataAllocated()
     {
-	if (m_doubleData.length < size) {
+	if (m_doubleData.length == 0) {
 	    synchronized (this) {
-		final double[] newStatistics = new double[size];
-
-		System.arraycopy(m_doubleData, 0, newStatistics, 0,
-				 m_doubleData.length);
-
-		m_doubleData = newStatistics;
+		m_doubleData =
+		    new double[
+			StatisticsIndexMap.getInstance().
+			getNumberOfDoubleIndicies()];
 	    }
 	}
     }

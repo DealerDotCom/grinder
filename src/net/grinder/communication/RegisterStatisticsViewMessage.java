@@ -24,13 +24,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import net.grinder.common.GrinderException;
-import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsView;
 
 
 /**
- * Message used to register statistics views with Console. Also used
- * to inform the Console of changes to the local StatisticsIndexMap.
+ * Message used to register statistics views with Console.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -39,10 +37,7 @@ public class RegisterStatisticsViewMessage extends Message
 {
     private static final long serialVersionUID = -7078786346425431655L;
 
-    private transient StatisticsIndexMap m_statisticsIndexMap =
-	StatisticsIndexMap.getProcessInstance();
-
-    private transient StatisticsView m_statisticsView;
+    private StatisticsView m_statisticsView;
 
     /**
      * Constructor.
@@ -60,56 +55,5 @@ public class RegisterStatisticsViewMessage extends Message
     public StatisticsView getStatisticsView()
     {
 	return m_statisticsView;
-    }
-
-    /**
-     * Get the <code>StatisticsIndexMap</code> that this message was
-     * created against.
-     **/
-    public StatisticsIndexMap getStatisticsIndexMap()
-    {
-	return m_statisticsIndexMap;
-    }
-
-    /**
-     * Customise serialisation.
-     *
-     * @param in The stream to write our data to.
-     **/
-    private void writeObject(ObjectOutputStream out)
-	throws IOException
-    {
-	out.defaultWriteObject();
-
-	// Write out our statistics index map so that the receiver
-	// knows what we're talking about.
-	out.writeObject(m_statisticsIndexMap);
-
-	m_statisticsView.writeExternal(out);
-    }
-
-    /**
-     * Customise serialisation.
-     *
-     * @param in The stream to read our data from.
-     **/
-    private void readObject(ObjectInputStream in)
-	throws IOException, ClassNotFoundException
-    {
-	in.defaultReadObject();
-
-	m_statisticsIndexMap = (StatisticsIndexMap)in.readObject();
-
-	try {
-	    // Add any new statistics keys to our process map before
-	    // we read the statistics view.
-	    StatisticsIndexMap.getProcessInstance().add(m_statisticsIndexMap);
-	}
-	catch (GrinderException e) {
-	    throw new IOException("Incompatible statistics views");
-	}
-
-	m_statisticsView = new StatisticsView();
-	m_statisticsView.readExternal(in);
     }
 }

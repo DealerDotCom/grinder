@@ -46,7 +46,7 @@ public final class StatisticExpressionFactory
      * @supplierCardinality 1 
      */
     private final StatisticsIndexMap m_indexMap =
-	StatisticsIndexMap.getProcessInstance();
+	StatisticsIndexMap.getInstance();
 
     private StatisticExpressionFactory()
     {

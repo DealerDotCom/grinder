@@ -58,15 +58,7 @@ public final class TestStatisticsFactory
 
     private TestStatisticsFactory()
     {
-	final StatisticsIndexMap indexMap =
-	    StatisticsIndexMap.getProcessInstance();
-
 	try {
-	    indexMap.getIndexForLong("errors");
-	    indexMap.getIndexForLong("timedTransactions");
-	    indexMap.getIndexForLong("untimedTransactions");
-	    indexMap.getIndexForLong("totalTime");
-
 	    final ExpressionView[] expressionViews = {
 		new ExpressionView("Transactions", "statistic.transactions", 
 				   "(+ timedTransactions untimedTransactions)"
