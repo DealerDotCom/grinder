@@ -19,6 +19,9 @@ Grinder 3.0-beta19
 
   HTTP response errors statistic from John Stanford White.
 
+  Added a processResponse method to HTTPRequest so that scripts
+  subclasses can process respones.
+
 
 Grinder 3.0-beta18
 ------------------
