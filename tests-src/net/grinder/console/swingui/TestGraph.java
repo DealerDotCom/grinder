@@ -115,7 +115,7 @@ public class TestGraph extends TestCase
 		peak = random;
 	    }
 
-	    labelledGraph.add(random, peak, statistics);
+	    labelledGraph.add(random, peak, peak, statistics);
 	    pause();
 
 	    statistics.add(statistics);
