@@ -37,6 +37,10 @@ it too :-). The list is roughly in priority order.]
   Efficiency: TestStatisticsMap.getDelta() to be able to reuse delta
   object.
 
+  Alter console and engine to use Timer.scheduleAtFixedRater for more
+  accuracy.
+
+  Tidy up logging of plugin initialisation.
 
 The following are under way for Grinder 3:
 
