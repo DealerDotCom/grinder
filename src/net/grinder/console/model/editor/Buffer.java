@@ -169,7 +169,8 @@ public final class Buffer {
       throw new DisplayMessageConsoleException(
         m_resources,
         "fileReadError.text",
-        new Object[] { m_file, extractReasonFromIOException(e) },
+        new Object[] { m_file,
+                       "./n(" + extractReasonFromIOException(e) + ")" },
         e);
     }
     finally {
@@ -227,7 +228,8 @@ public final class Buffer {
       throw new DisplayMessageConsoleException(
         m_resources,
         "fileWriteError.text",
-        new Object[] { file, extractReasonFromIOException(e) },
+        new Object[] { m_file,
+                       "./n(" + extractReasonFromIOException(e) + ")" },
         e);
     }
     finally {
@@ -339,7 +341,10 @@ public final class Buffer {
     }
   }
 
-  private String extractReasonFromIOException(IOException e) {
+  /**
+   * Protected for unit tests.
+   */
+  static String extractReasonFromIOException(IOException e) {
     if (e instanceof FileNotFoundException) {
       final String message = e.getMessage();
 
@@ -347,10 +352,7 @@ public final class Buffer {
       final int secondsParenthesis = message.indexOf(')', firstParenthesis);
 
       if (firstParenthesis >= 0 && secondsParenthesis > firstParenthesis + 1) {
-        return
-          ".\n(" +
-          message.substring(firstParenthesis + 1, secondsParenthesis) +
-          ")";
+        return message.substring(firstParenthesis + 1, secondsParenthesis);
       }
     }
 
