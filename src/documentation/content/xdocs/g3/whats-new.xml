@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document>
+<header>
+  <title>What's new in The Grinder 3?</title>
+</header>
+
+<body>
+  <p>This section summarises the changes between The Grinder 2 and The
+  Grinder 3. If you're not familiar with The Grinder 2, skim read this
+  and move on to <a href="site:getting-started">Getting
+  Started</a>.</p>
+
+  <section>
+    <title>Jython</title>
+
+    <p><icon src="images/PythonPoweredSmall.gif" alt="Python
+    powered"/> The most significant change that The Grinder 3
+    introduces is a <a href="ext:jython">Jython</a> (the Java
+    implementation of Python) scripting engine that is used to execute
+    test scripts. Test scripts replace the specification of tests in
+    the <code>grinder.properties</code> file. The
+    <code>grinder.properties</code> file is still used to specify
+    general control information (how to contact the console, how many
+    worker processes to use, ..), as well as the name of the test
+    script. Many other key features of The Grinder 2, such as the
+    console and the process architecture, remain unchanged.</p>
+
+    <p>The scripting engine provides the following new
+    capabilities:</p>
+
+    <dl>
+      <dt><strong>Test any Java code</strong></dt>
+
+      <dd><p>The Grinder 3 allows any Java (or Jython) code to be
+      encapsulated as a test. This practically removes the need to
+      write custom plug-ins. Although plug-ins are no longer
+      responsible for performing tests, they can still be useful to
+      manage objects that the tests use. For example, the HTTP plug-in
+      manages a pool of connections for each worker thread, and
+      provides an <code>HTTPRequest</code> object that makes use of
+      these connections.</p></dd>
+
+      <dt><strong>Dynamic test scripting</strong></dt>
+
+      <dd>
+        <p>The Grinder 2 worker processes execute tests in the
+        properties file sequentially in a fixed order, and there is
+        limited support in some of the The Grinder 2 plug-ins for
+        checking test results. The Grinder 3 allows arbitrary
+        branching and looping and makes test results directly
+        available to the test script, allowing different test paths to
+        be taken depending on the outcome of each test.</p>
+
+        <p>The Grinder 2 HTTP plug-in's <a
+        href="site:http-plugin/string-bean">string bean</a> feature
+        provides simple support for requests that contain dynamic
+        data. The Grinder 3 can use the full power of Jython to create
+        dynamic requests of arbitrary complexity.</p>
+      </dd>
+    </dl>
+
+    <p>Kind of dry, huh? If you never seen any Python or are wondering
+    what was wrong with the old <code>grinder.properties</code>
+    approach then skip ahead to the <a
+    href="site:script-gallery">Script Gallery</a> where you can
+    sample the power of The Grinder 3.</p>
+
+  </section>
+
+  <section>
+    <title>New distribution packaging</title>
+
+    <p>The Grinder is distributed in separate binary and source
+    <code>zip</code> files. They can be downloaded from <a
+    href="ext:sourceforge/grinder">SourceForge.net</a>.</p>
+
+    <p>To simplify SSL and HTTPS configuration, JSSE is now
+    <em>required</em> for The Grinder 3. Consequently you may find it
+    easier to use J2SE 1.4.1 with The Grinder 3.</p>
+  </section>
+
+  <section>
+    <title>Other changes</title>
+
+    <ul>
+      <li>The TCPSniffer has been renamed <em>TCPProxy</em> for
+      correctness. The TCPProxy can be used with other HTTP and HTTPS
+      proxies.</li>
+
+      <li>Console signals are now transmitted over a TCP socket
+      connection. Mulicast is no longer used.</li>
+
+      <li>The interface that plug-ins must implement has changed
+      significantly. Plug-ins written for The Grinder 2 will not work
+      with The Grinder 3.</li>
+
+      <li>Many <a
+      href="site:getting-started/properties"><code>grinder.properties</code></a>
+      have been removed. The features formerly accessed through
+      setting properties are now set by making calls to the plug-in
+      from the test script. Some of the remaining property names have
+      been renamed.</li>
+
+      <li>HTTP tests can now be directed through an HTTP proxy.</li>
+
+      <li>String beans and OK strings have been removed from the HTTP
+      plug-in. String beans and OK strings are very limited in
+      comparison to to the flexibility now provided by Jython
+      scripts.</li>
+
+      <li>The <code>HttpURLConnection</code> implementation has been
+      removed from the HTTP plug-in.</li>
+
+      <li>The JUnit and Socket plug-ins have been removed. Their
+      functionality can be achieved directly by using the appropriate
+      Java objects in scripts.</li>
+    </ul>
+  </section>
+
+  <section>
+    <title>Roadmap</title>
+
+    <p>This section documents things that are planned for The Grinder
+    3. There are no current release dates for these features.</p>
+
+    <section>
+      <title>Test script distribution</title>
+
+      <p>From the Grinder 3 console you will be able to edit test
+      scripts and then distribute them to the worker processes. It
+      will no longer be necessary to copy grinder.properties files
+      around or to use a shared disk.</p>
+    </section>
+
+    <section>
+      <title>Embedded Agent</title>
+
+      <p>A new agent will be provided that can be loaded within an
+      existing Java Virtual Machine. This will allow, for example,
+      threads to be started within an application server which can run
+      test scripts that make direct calls against local resources such
+      as EJBs.</p>
+    </section>
+  </section>
+
+</body>
+</document>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document>
+<header>
+  <title>Contributing</title>
+</header>
+
+<body>
+
+  <p>Although the source is freely available for download, The Grinder
+  CVS archive is currently not public. Patches are individually
+  reviewed and applied by Philip Aston.</p>
+
+  <section>
+  <title>How to give back</title>
+
+  <p>If you feel you have something worth sharing, please first
+  discuss your ideas on the <a
+  href="ext:mail/grinder-development">grinder-development list</a>.
+  Patches should also be submitted to this list. Ideally patches
+  should be in 'unified diff' (<code>diff -u</code>) format against
+  the latest released version of The Grinder 3. Patches should also
+  include updates to the relevant documentation sources. Please
+  include a statement that you are happy for your work to be
+  distributed under the terms of <a href="site:license">The Grinder
+  license</a>.</p>
+
+  <p>Please pay attention to the existing coding style of The Grinder.
+  There is a <a href="ext:checkstyle">Checkstyle</a> configuration
+  file for The Grinder in <code>etc</code> which you should use to
+  check the formatting of your code. You can do this using the
+  <code>checkstyle</code> build target. Checkstyle helps to make the
+  code readable, catches quite a few silly errors, and makes applying
+  patches a much nicer experience. Patches that do not pass the
+  Checkstyle rules will be rejected.</p>
+  </section>
+
+
+  <section id="translating">
+    <title>Internationalisation help wanted</title>
+
+    <p>If you are bilingual you might fancy translating the console
+    into a language of your choice. Jose Antonio Zapta Rey did just
+    this and produced a Spanish translation.</p>
+
+    <figure src="images/console-es-g3.png" alt="Console in Spanish"/>
+
+    <p>This translation will be automaically be the default for users
+    with their locale set correctly for the Spanish language. If your
+    locale is set otherwise and you are curious to try this out,
+    specify the Java <code>user.language</code> system property.</p>
+
+<source>
+java -Duser.language="es" net.grinder.Console
+</source>
+
+    <p>Bertrand Ave has produced a translation for French speaking
+    users (<code>user.language="fr"</code>) and Huibert Alblas has
+    produced a German translation
+    (<code>user.language="de"</code>).</p>
+
+    <section>
+      <title>How to provide a translation</title>
+
+      <p>Download and expand the latest source distribution of The
+      Grinder. Look in the
+      <code>src/net/grinder/console/swingui/resources</code>
+      directory. The definition of all English text used by the
+      console is contained in the <code>Console.properties</code>
+      file. Individual translations are contained in
+      <code>Console_XX.properties</code> where XX is the two letter <a
+      href="ext:iso-639">ISO 639 language code</a>. For example, the
+      Spanish translation is contained in
+      <code>Console_es.properties</code>.</p>
+
+      <p>Use a text editor to create a translated file for your
+      language of choice. The existing translations will guide you as
+      to which properties you need to translate. You should only
+      include properties that have translated text. Don't include
+      properties such as <code>scriptTab.image</code> that refer to
+      images, or properties that refer to logical names such as
+      <code>action.menu</code>.</p>
+
+      <p>To test your file before contributing it, place the file in a
+      directory structure matching
+      <code>src/net/grinder/console/swingui/resources</code> and add
+      the directory that contains <code>src</code> to the start of the
+      <code>CLASSPATH</code> that you use to start the console. You
+      may need to set <code>user.language</code> as described
+      above.</p>
+
+      <p>Post your translation to <a
+      href="ext:mail/grinder-development">grinder-development
+      list</a>. Please also include a statement that you are happy for
+      your work to be distributed under the terms of <a
+      href="site:license">The Grinder license</a>.</p>
+    </section>
+  </section>
+
+</body>
+</document>

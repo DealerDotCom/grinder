@@ -33,10 +33,10 @@ The following additional packages are necesary to run The Grinder unit
 tests, reports, and to create the documentation:
 
   - JUnit 3.8.1
-  - XWeb 1.0RC3
   - Xalan 2.3.1
   - Checkstyle 3.4
   - Clover 1.3.02
+  - Apache Forrest 0.6
 
   (You might not need these exact versions). 
 
@@ -46,7 +46,7 @@ What do I do?
 
 Do the following:
 
-	1. Acquire and install Ant 1.5.1
+	1. Acquire and install Ant
 	   (http://jakarta.apache.org/ant/index.html).
 
 	2. Set/export ANT_HOME, JAVA_HOME and PATH as described
@@ -188,13 +188,6 @@ what you want. Currently the conditionally built modules are:
       <pathelement path="${classes.dir}"/>
     </path>
 
-    <path id="xweb.classpath">
-      <pathelement path="${xweb.dir}/xweb.jar"/>
-      <fileset dir="${xweb.dir}/libs">
-        <include name="**/*.jar"/>
-      </fileset>
-    </path>
-
     <!-- options -->
     <available classpathref="build.classpath"
                classname="com.sun.net.ssl.HostnameVerifier"
@@ -217,10 +210,6 @@ what you want. Currently the conditionally built modules are:
     <available classpathref="build.classpath"
                classname="org.python.core.PyObject"
                property="have.jython"/>
-
-    <available classpathref="xweb.classpath"
-               classname="net.sourceforge.xweb.backend.WebsiteProcessor"
-               property="have.xweb"/>
 
     <!-- filter tokens -->
     <filter token="version" value="${version}"/>
@@ -254,12 +243,8 @@ what you want. Currently the conditionally built modules are:
     <fail message="Define jython.dir and jython.jar in etc/localpaths.properties to build this target"/>
   </target>
 
-  <target name="assert-have-xweb" depends="init" unless="have.xweb">
-    <fail message="Define xweb.dir in etc/local.properties to build this target"/>
-  </target>
-
   <target name="assert-have-everything"
-	  depends="assert-have-jsse,assert-have-junit,assert-have-optional-tasks,assert-have-xweb">
+	  depends="assert-have-jsse,assert-have-junit,assert-have-optional-tasks">
   </target>
 
   <!-- =================================================================== -->
@@ -493,16 +478,10 @@ what you want. Currently the conditionally built modules are:
   <!-- This should really depend on script-javadoc, but we don't for
      speed when testing documentation. The "Release" targets always
      call script-javadoc first. -->
-  <target name="xweb" depends="init,assert-have-xweb"
-    description="Generates the HTML docs.">
-    <java classname="net.sourceforge.xweb.backend.WebsiteProcessor"
-          classpathref="xweb.classpath" fork="true">
-     <arg line="-silent"/>
-     <arg path="${xdoc.dir}/documentation.xweb"/>
-    </java>
+  <target name="forrest" depends="init"
+    description="Generates the documentation.">
 
-    <delete>
-      <fileset dir="${doc.dir}" includes="**/*.svg"/>
+    <delete quiet="true">
       <fileset dir="${script-javadoc.dir}"/>
     </delete>
 
@@ -512,6 +491,13 @@ what you want. Currently the conditionally built modules are:
     <copy todir="${script-javadoc.dir}">
       <fileset dir="${script-javadoc-working.dir}"/>
     </copy>
+
+    <!-- Quick hack for now. -->
+    <exec executable="${forrest.home}/bin/forrest.bat">
+     <env key="FORREST_HOME" path="${forrest.home}"/>
+    </exec>
+
+
   </target>
 
   <target name="javadoc" depends="init" description="Generates the javadoc.">
@@ -620,7 +606,8 @@ what you want. Currently the conditionally built modules are:
     </zip>
   </target>
 
-  <target name="all" depends="assert-have-everything,jar,script-javadoc,xweb"/>
+  <target name="all"
+          depends="assert-have-everything,jar,script-javadoc,forrest"/>
 
   <target name="dist" depends="all" description="Generates distribution.">
     <antcall target="do-dist">
@@ -661,7 +648,7 @@ what you want. Currently the conditionally built modules are:
     </antcall>
   </target>
 
-  <target name="release-doc" depends="script-javadoc,xweb"
+  <target name="release-doc" depends="script-javadoc,forrest"
           description="Packages docs for release.">
     <mkdir dir="${release.dir}"/>
     <zip zipfile="${release.dir}/${name}-docs.zip">

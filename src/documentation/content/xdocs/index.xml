@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document>
+<header>
+  <title>Introduction</title>
+</header>
+<body>
+
+    <section>
+    <title>What is The Grinder?</title>
+  
+    <p>The Grinder is a Java<sup>TM</sup> load-testing framework. It
+    is freely available under a BSD-style open-source <a
+    href="site:license">license</a>.</p>
+
+    <p>The Grinder makes it easy to orchestrate the activities of a
+    test script in many processes across many machines, using a
+    graphical console application. Test scripts make use of client
+    code embodied in Java <em>plug-ins</em>. Most users of The Grinder
+    do not write plug-ins themselves, instead they use one of the
+    supplied plug-ins. The Grinder comes with a mature plug-in for
+    testing HTTP services, as well as a tool which allows HTTP scripts
+    to be automatically recorded.</p>
+
+    <p>The Grinder was originally developed for the book
+    <em>Professional Java 2 Enterprise Edition with BEA WebLogic
+    Server</em> by Paco G&#xf3;mez and Peter Zadrozny. Philip Aston
+    took ownership of the code and reworked it to create <strong>The
+    Grinder 2</strong>. Philip continues to enhance and maintain The
+    Grinder, and welcomes all contributions. Recently Peter, Philip
+    and Ted Osborne have published the book <a
+    href="site:links/book">J2EE Performance Testing</a> which makes
+    extensive use of The Grinder.</p>
+
+    <p>The next major version of The Grinder, <a
+    href="site:g3/whats-new">The Grinder 3</a> is currently available
+    as a beta quality release. The Grinder 3 uses the powerful
+    scripting language Jython, and allows any Java code to be tested
+    without the need to write a plug-in.</p>
+
+    <p>The latest news, downloads, and mailing list archives can be
+    found on <a href="ext:sourceforge/grinder">SourceForge.net</a>.
+    </p>
+    </section>
+
+    <section>
+    <title>Authors</title>
+    <table class="noborder">
+      <tr><td>Paco G&#xf3;mez</td></tr>
+      <tr><td>Philip Aston</td></tr>
+      <tr><td>Phil Dawes</td></tr>
+      <tr><td>Paddy Spencer</td></tr>
+      <tr><td>Richard Wallace</td></tr>
+      <tr><td>Stuart Tily</td></tr>
+      <tr><td>Phillip Burgess</td></tr>
+      <tr><td>Christian Nedregard</td></tr>
+      <tr><td>Mikael Suokas</td></tr>
+      <tr><td>David Freels</td></tr>
+      <tr><td>Kalle Burbeck</td></tr>
+      <tr><td>Dirk Feufel</td></tr>
+      <tr><td>Kjetil JD</td></tr>
+      <tr><td>Todd Wasson</td></tr>
+      <tr><td>Jose Antonio Zapata Rey</td></tr>
+      <tr><td>Richard Perks</td></tr>
+      <tr><td>Manuel Silva</td></tr>
+      <tr><td>Bill Schnellinger</td></tr>
+      <tr><td>Bertrand Ave</td></tr>
+      <tr><td>Huibert Alblas</td></tr>
+      <tr><td>Kalyanaraman Venkatasubramaniy</td></tr>
+      <tr><td>John Stanford White</td></tr>
+      <tr><td>Slavik Gnatenko</td></tr>
+      <tr><td>Marc Born</td></tr>
+      <tr><td>Andreas Schmidt</td></tr>
+    </table>
+    </section>
+
+    <section>
+    <title>Credits</title>
+
+    <p>I wish to thank Paco G&#xf3;mez and Peter Zadrozny for the key
+    ideas embodied in the original version of The Grinder.</p>
+
+    <p>I am grateful to VA Software for SourceForge.net.</p>
+
+    <p>This site was put together with <code>txt2html</code>, <a
+    href="ext:xemacs" class="external">XEmacs</a> and <a
+    href="ext:forrest">Apache Forrest</a>.</p>
+
+    <p><strong>Philip Aston</strong></p>
+   </section>
+</body>
+</document>
