@@ -1,8 +1,8 @@
-Grinder 3.0-beta24 (Not yet released)
--------------------------------------
+Grinder 3.0-beta24
+------------------
 
-  The TCPProxy now returns friendly error messages to the browser
-  where it can.
+  The TCPProxy now returns HTML error messages to the browser where it
+  can.
 
   When used in the default HTTP proxy mode, the TCPProxy always
   listens as an HTTPS proxy as well. The TCPProxy -ssl option now only
@@ -13,13 +13,23 @@ Grinder 3.0-beta24 (Not yet released)
   report.
 
   Historically The Grinder has used the terms "transaction" and "test"
-  synomonously - this is inconsistent and confusing. "Test" is now
+  synonymously - this is inconsistent and confusing. "Test" is now
   used consistently everywhere.
 
   Fix a bug with the new HTTP instrumentation. The statistics were
   incorrectly calculated when more than one HTTPRequest was wrapped in
   a given Test. Thanks to Bernd Pressler and Sebastien Lemeunier for
   reporting the problem.
+
+  The distribution control in the console is now enabled only if the
+  agent file caches might be out of date. This acts as a visual
+  indication that the files need to be distributed. Added warning
+  dialog about attempting to start the processes without distributing
+  files.
+
+  The process controls in the console are now enabled only if an agent
+  is connected. Added warning dialog about attempting to start the
+  processes with unsaved buffers.
 
 
 Grinder 3.0-beta23
