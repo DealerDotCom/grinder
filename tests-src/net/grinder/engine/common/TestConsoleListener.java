@@ -21,9 +21,6 @@
 
 package net.grinder.engine.common;
 
-import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.io.Serializable;
 
 import junit.framework.TestCase;
@@ -31,13 +28,10 @@ import junit.framework.TestCase;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.Message;
-import net.grinder.communication.Receiver;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
-import net.grinder.communication.StreamReceiver;
-import net.grinder.communication.StreamSender;
 
 
 /**
@@ -48,37 +42,24 @@ import net.grinder.communication.StreamSender;
  */
 public class TestConsoleListener extends TestCase {
 
-  public TestConsoleListener(String name) {
-    super(name);
-  }
-
   private final LoggerStubFactory m_loggerFactory = new LoggerStubFactory();
   private final Logger m_logger = m_loggerFactory.getLogger();
-  private Receiver m_receiver;
-  private Sender m_sender;
 
   protected void setUp() throws Exception {
-    final PipedOutputStream outputStream = new PipedOutputStream();
-    final InputStream inputStream = new PipedInputStream(outputStream);
-
-    m_receiver = new StreamReceiver(inputStream);
-    m_sender = new StreamSender(outputStream);
-
     m_loggerFactory.resetCallHistory();
-  }
-
-  protected void tearDown() throws Exception {
-    m_receiver.shutdown();
   }
 
   public void testConstruction() throws Exception {
     final MyMonitor myMonitor = new MyMonitor();
 
     final ConsoleListener listener0 =
-      new ConsoleListener(m_receiver, myMonitor, m_logger);
+      new ConsoleListener(myMonitor, m_logger);
 
     final ConsoleListener listener1 =
-      new ConsoleListener(m_receiver, myMonitor, m_logger);
+      new ConsoleListener(myMonitor, m_logger);
+
+    final Sender sender = listener0.getSender();
+    assertNotNull(sender);
 
     m_loggerFactory.assertNotCalled();
   }
@@ -86,8 +67,7 @@ public class TestConsoleListener extends TestCase {
   public void testListener() throws Exception {
     final MyMonitor myMonitor = new MyMonitor();
 
-    final ConsoleListener listener =
-      new ConsoleListener(m_receiver, myMonitor, m_logger);
+    final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
 
     assertEquals(0, listener.received(ConsoleListener.ANY));
 
@@ -97,8 +77,9 @@ public class TestConsoleListener extends TestCase {
                                     ConsoleListener.START);
     t1.start();
 
-    m_sender.send(new ResetGrinderMessage());
-    m_sender.send(new StartGrinderMessage());
+    final Sender sender = listener.getSender();
+    sender.send(new ResetGrinderMessage());
+    sender.send(new StartGrinderMessage());
     t1.join();
     assertTrue(!t1.getTimerExpired());
     assertEquals(0, listener.received(ConsoleListener.ANY));
@@ -110,9 +91,9 @@ public class TestConsoleListener extends TestCase {
       myMonitor.new WaitForMessages(1000, listener, ConsoleListener.STOP);
     t2.start();
 
-    m_sender.send(new StartGrinderMessage());
-    m_sender.send(new MyMessage()); // Unknown message.
-    m_sender.send(new StopGrinderMessage());
+    sender.send(new StartGrinderMessage());
+    sender.send(new MyMessage()); // Unknown message.
+    sender.send(new StopGrinderMessage());
     t2.join();
     assertTrue(!t2.getTimerExpired());
 
@@ -136,8 +117,7 @@ public class TestConsoleListener extends TestCase {
   public void testShutdown() throws Exception {
     final MyMonitor myMonitor = new MyMonitor();
 
-    final ConsoleListener listener =
-      new ConsoleListener(m_receiver, myMonitor, m_logger);
+    final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
 
     assertEquals(0, listener.received(ConsoleListener.ANY));
 
@@ -146,7 +126,8 @@ public class TestConsoleListener extends TestCase {
 
     t1.start();
 
-    m_sender.shutdown();
+    final Sender sender = listener.getSender();
+    sender.shutdown();
 
     t1.join();
     assertTrue(!t1.getTimerExpired());
