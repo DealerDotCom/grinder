@@ -122,8 +122,7 @@ public final class UnicastReceiver extends AbstractReceiver
 		    final Socket localSocket = m_serverSocket.accept();
 		    
 		    try {
-			m_connections.add(
-			    new SocketSet.Handle(localSocket));
+			m_connections.add(localSocket);
 		    }
 		    catch (Exception e) {
 			// Propagate exceptions to threads calling
@@ -164,19 +163,32 @@ public final class UnicastReceiver extends AbstractReceiver
 	    final MessageQueue messageQueue = getMessageQueue();
 
 	    try {
+		// Did we do some work on the last pass?
+		boolean idle = false;
+
 		while (true) {
 		    final SocketSet.Handle socketHandle =
 			m_connections.reserveNextHandle();
 
 		    try {
-			final Message m = socketHandle.pollForMessage();
-
-			if (m != null) {
-			    messageQueue.queue(m);
+			if (socketHandle.isSentinel()) {
+			    if (idle) {
+				Thread.sleep(500);
+			    }
+			    
+			    idle = true;
 			}
 			else {
-			    // Can do better than this, but my head hurts.
-			    Thread.sleep(100);
+			    final Message m = socketHandle.pollForMessage();
+
+			    if (m instanceof CloseCommunicationMessage) {
+				socketHandle.close();
+				idle = false;
+			    }
+			    else if (m != null) {
+				messageQueue.queue(m);
+				idle = false;
+			    }
 			}
 		    }
 		    catch (IOException e) {
@@ -198,5 +210,10 @@ public final class UnicastReceiver extends AbstractReceiver
 	    catch (InterruptedException e) {
 	    }
 	}
+    }
+
+    private static void log(String s)
+    {
+	System.err.println(Thread.currentThread().getName() + ": " + s);
     }
 }
