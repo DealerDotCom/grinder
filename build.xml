@@ -358,9 +358,6 @@ what you want. Currently the conditionally built modules are:
     <jar jarfile="${lib.dir}/${lib.jar}"
          basedir="${classes.dir}"
 	 manifest="${manifest.mf}">
-        <include name="net/grinder/"/>
-        <include name="HTTPClient/"/>
-        <include name="org/syntax/jedit/"/>
         <exclude name="**/snifferwebapp"/>
     </jar>
   </target>
