@@ -50,19 +50,17 @@ public class LauncherThread extends Thread
      * The constructor.
      * It starts a new thread that will execute the run method.
      */    
-    public LauncherThread(String hostID, String processID, String commandLine,
+    public LauncherThread(String grinderID, String commandLine,
 			  String alternatePropertiesFilename)
 	throws GrinderException
     {
 	super(commandLine);
 
-	m_processContext = new ProcessContextImplementation(hostID, processID);
+	m_processContext = new ProcessContextImplementation(grinderID);
 
 	final StringBuffer stringBuffer = new StringBuffer(commandLine);
 	stringBuffer.append(" ");
-	stringBuffer.append(hostID);
-	stringBuffer.append(" ");
-	stringBuffer.append(processID);
+	stringBuffer.append(grinderID);
 
 	if (alternatePropertiesFilename != null) {
 	    stringBuffer.append(" ");

@@ -118,7 +118,7 @@ public class Grinder
 		new LauncherThread[numberOfProcesses];
 
 	    for (int i=0; i<numberOfProcesses; i++) {
-		threads[i] = new LauncherThread(hostIDString,
+		threads[i] = new LauncherThread(hostIDString + "-" +
 						Integer.toString(i),
 						command, m_alternateFilename);
 		threads[i].start();

@@ -75,8 +75,7 @@ public class ProcessContextImplementation implements PluginProcessContext
     private final char[] m_outputLine = new char[512];
 
     private final GrinderProperties m_pluginParameters;
-    private final String m_hostIDString;
-    private final String m_processIDString;
+    private final String m_grinderID;
     private final boolean m_logProcessStreams;
     private final PrintWriter m_outputWriter;
     private final PrintWriter m_errorWriter;
@@ -98,29 +97,24 @@ public class ProcessContextImplementation implements PluginProcessContext
 					   String threadID)
     {
 	m_pluginParameters = processContext.getPluginParameters();
-	m_hostIDString = processContext.getHostIDString();
-	m_processIDString = processContext.getProcessIDString();
+	m_grinderID = processContext.getGrinderID();
 	m_outputWriter = processContext.getOutputLogWriter();
 	m_errorWriter = processContext.getErrorLogWriter();
 
-	m_filenameFactory = new FilenameFactory(m_hostIDString,
-						m_processIDString, threadID);
+	m_filenameFactory = new FilenameFactory(m_grinderID, threadID);
     }
 
-    public ProcessContextImplementation(String hostIDString,
-					String processIDString)
+    public ProcessContextImplementation(String grinderID)
 	throws GrinderException
     {
-	m_hostIDString = hostIDString;
-	m_processIDString = processIDString;
+	m_grinderID = grinderID;
 
 	final GrinderProperties properties = GrinderProperties.getProperties();
 
 	m_pluginParameters =
 	    properties.getPropertySubset("grinder.plugin.parameter.");
 
-	m_filenameFactory = new FilenameFactory(m_hostIDString,
-						m_processIDString, null);
+	m_filenameFactory = new FilenameFactory(m_grinderID, null);
 
 	try {
 	    m_outputWriter =
@@ -148,28 +142,21 @@ public class ProcessContextImplementation implements PluginProcessContext
 
     public ProcessContextImplementation()
     {
-	m_hostIDString = "";
-	m_processIDString = "";
-
+	m_grinderID = "";
 	final GrinderProperties properties = GrinderProperties.getProperties();
 
 	m_pluginParameters =
 	    properties.getPropertySubset("grinder.plugin.parameter.");
 
-	m_filenameFactory = new FilenameFactory(null, null, null);
+	m_filenameFactory = new FilenameFactory(null, null);
 
 	m_outputWriter = s_stdoutWriter;
 	m_errorWriter = s_stderrWriter;
     }
 
-    public String getHostIDString()
+    public String getGrinderID()
     {
-	return m_hostIDString;
-    }
-    
-    public String getProcessIDString()
-    {
-	return m_processIDString;
+	return m_grinderID;
     }
 
     public FilenameFactory getFilenameFactory()
@@ -245,7 +232,7 @@ public class ProcessContextImplementation implements PluginProcessContext
 
 	    logMessage("ERROR (\"" + summary +
 		       "\"), see error log for details",
-		       where);
+		       Logger.LOG);
 	}
     }
 
@@ -289,10 +276,8 @@ public class ProcessContextImplementation implements PluginProcessContext
 
     protected void appendMessageContext(StringBuffer buffer)
     {
-	buffer.append("Grinder Process (Host ");
-	buffer.append(getHostIDString());
-	buffer.append(" JVM ");
-	buffer.append(getProcessIDString());
+	buffer.append("Grinder Process (");
+	buffer.append(m_grinderID);
 	buffer.append(") ");
     }
 }

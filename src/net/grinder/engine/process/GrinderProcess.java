@@ -83,21 +83,19 @@ public class GrinderProcess
      */    
     public static void main(String args[])
     {
-	if (args.length < 2 || args.length > 3) {
+	if (args.length < 1 || args.length > 2) {
 	    System.err.println("Usage: java " +
 			       GrinderProcess.class.getName() +
-			       " <hostID> <processID> [ propertiesFile ]");
+			       " <grinderID> [ propertiesFile ]");
 	    System.exit(-1);
 	}
 
-	if (args.length == 3) {
-	    GrinderProperties.setPropertiesFileName(args[2]);
+	if (args.length == 2) {
+	    GrinderProperties.setPropertiesFileName(args[1]);
 	}
 
 	try {
-	    final GrinderProcess grinderProcess = 
-		new GrinderProcess(args[0], args[1]);
-
+	    final GrinderProcess grinderProcess = new GrinderProcess(args[0]);
 	    final int status = grinderProcess.run();
 	    
 	    System.exit(status);
@@ -126,14 +124,14 @@ public class GrinderProcess
     /** A map of Tests to Statistics for passing elsewhere. */
     private final TestStatisticsMap m_testStatisticsMap;
 
-    public GrinderProcess(String hostID, String processID)
+    public GrinderProcess(String grinderID)
 	throws GrinderException
     {
 	final GrinderProperties properties = GrinderProperties.getProperties();
 
 	final PropertiesHelper propertiesHelper = new PropertiesHelper();
 
-	m_context = new ProcessContextImplementation(hostID, processID);
+	m_context = new ProcessContextImplementation(grinderID);
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 	m_recordTime = properties.getBoolean("grinder.recordTime", true);
@@ -183,7 +181,8 @@ public class GrinderProcess
 		properties.getInt("grinder.console.multicastPort", 0);
 
 	    if (multicastAddress != null && consolePort > 0) {
-		m_consoleSender = new Sender(multicastAddress, consolePort);
+		m_consoleSender = new Sender(m_context.getGrinderID(),
+					     multicastAddress, consolePort);
 
 		m_reportToConsoleInterval =
 		    properties.getInt("grinder.reportToConsole.interval", 500);
@@ -316,8 +315,6 @@ public class GrinderProcess
 		if (m_consoleSender != null) {
 		    m_consoleSender.send(
 			new ReportStatisticsMessage(
-			    m_context.getHostIDString(),
-			    m_context.getProcessIDString(),
 			    m_testStatisticsMap.getDelta(true)));
 		}
 	    }
@@ -471,7 +468,8 @@ public class GrinderProcess
 		    message = m_receiver.waitForMessage();
 		}
 		catch (CommunicationException e) {
-		    m_context.logError("error receiving console signal: " + e);
+		    m_context.logError("error receiving console signal: " + e,
+				       Logger.LOG | Logger.TERMINAL);
 		    continue;
 		}
 

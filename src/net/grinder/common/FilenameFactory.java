@@ -20,6 +20,7 @@ package net.grinder.util;
 
 import java.io.File;
 
+
 /**
  * @author Philip Aston
  * @version $Revision$
@@ -31,7 +32,7 @@ public class FilenameFactory
 
     /** Package scope - only created by ProcessContextImplementation.
      */
-    FilenameFactory(String hostID, String processID, String threadID)
+    FilenameFactory(String grinderID, String threadID)
     {
 	final GrinderProperties properties = GrinderProperties.getProperties();
 
@@ -39,18 +40,13 @@ public class FilenameFactory
 
 	final StringBuffer buffer = new StringBuffer();
 
-	if (hostID != null) {
+	if (grinderID != null) {
 	    buffer.append("_");
-	    buffer.append(hostID);
+	    buffer.append(grinderID);
 
-	    if (processID != null) {
+	    if (threadID != null) {
 		buffer.append("_");
-		buffer.append(processID);
-
-		if (threadID != null) {
-		    buffer.append("_");
-		    buffer.append(threadID);
-		}
+		buffer.append(threadID);
 	    }
 	}
 

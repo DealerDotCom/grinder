@@ -21,6 +21,7 @@ package net.grinder.plugininterface;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderProperties;
 
+
 /**
  * This class is used to share data between the Grinder and the 
  * plug-in.
@@ -31,8 +32,8 @@ import net.grinder.util.GrinderProperties;
  */
 public interface PluginProcessContext extends Logger
 {    
-    public String getHostIDString();
-    public String getProcessIDString();
+    public String getGrinderID();
+
     public FilenameFactory getFilenameFactory();
     
     /**
