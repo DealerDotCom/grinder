@@ -60,7 +60,7 @@ public class TestGrinderException extends TestCase
 	assertEquals("Hello there", b1.toString());
 
 	b1 = new StringBuffer("Hello world");
-	b2 = new StringBuffer("Goodbye world");
+	b2 = new StringBuffer("Goodbye world  ");
 
 	assertTrue(!GrinderException.removeCommonSuffix(b1, b2));
 	assertEquals("Hello world", b1.toString());
@@ -78,11 +78,11 @@ public class TestGrinderException extends TestCase
 	assertEquals("", b1.toString());
 
 
-	b1 = new StringBuffer("Several\n\nlines of\nfun to ponder");
-	b2 = new StringBuffer("Many\n\nmore\nlines of\nfun to ponder");
+	b1 = new StringBuffer("Several more\n\nlines   of\nfun to ponder");
+	b2 = new StringBuffer("Many\n\nmore\nlines of\nfun to ponder  ");
 
 	assertTrue(GrinderException.removeCommonSuffix(b1, b2));
-	assertEquals("Several\n", b1.toString());
+	assertEquals("Several more", b1.toString());
     }
 
     public void testPrintStackTrace() throws Exception

@@ -145,17 +145,34 @@ public class GrinderException extends Exception
 	int p = original.length();
 	int otherP = other.length();
 
+	// Search backwards for first difference, ignoring white
+	// space.
+	OUTER:
 	do {
-	    if (--p < 0) {
-		// original is contained at end of other.
-		break;
+	    do {
+		if (--p < 0) {
+		    // original is contained at end of other.
+		    break OUTER;
+		}
 	    }
+	    while (Character.isWhitespace(original.charAt(p)));
 
-	    if (--otherP < 0) {
-		break;
+	    do {
+		if (--otherP < 0) {
+		    break OUTER;
+		}
 	    }
+	    while (Character.isWhitespace(other.charAt(otherP)));
 	}
 	while (original.charAt(p) == other.charAt(otherP));
+
+	// System.err.println("\n\nOriginal length: " +
+	// original.length() + " other length: " + other.length() + ",
+	// broke at p=" + p + " otherp=" + otherP + " where
+	// original[p]=" + Integer.toString(original.charAt(p)) + "('"
+	// + original.substring(p) + "') and otherP.charAt(otherP)=" +
+	// Integer.toString(other.charAt(otherP)) + "('" +
+	// other.substring(otherP) + "')\n");
 
 	// p is now the index of the last character that differs.
 
