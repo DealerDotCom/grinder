@@ -118,10 +118,10 @@ public class GrinderException extends Exception {
 
       s.print("(Nested exception) ");
       s.println(nestedTrace);
-      s.println();
       if (truncatedNestedTrace) {
         s.println("\t<truncated>");
       }
+      s.println();
     }
   }
 
