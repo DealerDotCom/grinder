@@ -51,8 +51,7 @@ final class TestRegistry
     private final Map m_testMap = new TreeMap();
 
     /**
-     * A map of Tests to Statistics for passing elsewhere. Synchronize
-     * on instance when accessesing.
+     * A map of Tests to Statistics for passing elsewhere.
      **/
     private final TestStatisticsMap m_testStatisticsMap =
 	new TestStatisticsMap();
@@ -117,7 +116,7 @@ final class TestRegistry
 	return Collections.unmodifiableCollection(m_testMap.values());
     }
 
-    public final synchronized TestStatisticsMap getTestStatisticsMap()
+    public final TestStatisticsMap getTestStatisticsMap()
     {
 	return m_testStatisticsMap;
     }
