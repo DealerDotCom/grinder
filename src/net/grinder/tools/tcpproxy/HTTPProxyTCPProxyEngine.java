@@ -203,8 +203,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           in.reset();
 
           new Thread(
-            new HTTPProxyStreamDemultiplexor(in, localSocket),
-            "HTTPProxy stream demultiplexor for " + localSocket).start();
+            new HTTPProxyStreamDemultiplexer(in, localSocket),
+            "HTTPProxyStreamDemultiplexer for " + localSocket).start();
         }
         else if (m_matcher.contains(line, m_httpsConnectPattern)) {
           // HTTPS proxy request.
@@ -277,6 +277,9 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           System.err.println(line);
         }
       }
+      catch (SocketException e) {
+        // Most likely "socket closed" - ignore.
+      }
       catch (InterruptedIOException e) {
         System.err.println("Listen time out");
         break;
@@ -292,7 +295,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
    * outgoing packet, and directs appropriately. This is necessary to
    * support HTTP/1.1 between browser and proxy.
    */
-  private final class HTTPProxyStreamDemultiplexor implements Runnable {
+  private final class HTTPProxyStreamDemultiplexer implements Runnable {
 
     private final InputStream m_in;
     private final Socket m_localSocket;
@@ -300,7 +303,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     private final Map m_remoteStreamMap = new HashMap();
     private OutputStreamFilterTee m_lastRemoteStream;
 
-    HTTPProxyStreamDemultiplexor(InputStream in, Socket localSocket) {
+    HTTPProxyStreamDemultiplexer(InputStream in, Socket localSocket) {
       m_in = in;
       m_localSocket = localSocket;
     }
