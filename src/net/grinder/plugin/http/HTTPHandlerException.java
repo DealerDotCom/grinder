@@ -1,5 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,18 +22,18 @@ import net.grinder.plugininterface.PluginException;
 
 
 /**
- * Interface to obtain the data needed to make a particular HTTP
- * request.
- * 
- * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- */
-public interface HttpRequestData {
-    public String getAuthorizationString() throws PluginException;
-    public String getContextURLString();
-    public String getPostString() throws PluginException;
-    public String getURLString() throws PluginException;
-    public long getIfModifiedSince();
-}
+ */ 
+public class HTTPHandlerException extends PluginException
+{
+    public HTTPHandlerException(String s)
+    {
+	super(s);
+    }
 
+    public HTTPHandlerException(String s, Exception e)
+    {
+	super(s, e);
+    }
+}

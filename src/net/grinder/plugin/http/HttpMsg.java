@@ -28,10 +28,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URLConnection;
 import java.net.URL;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+
+import HTTPClient.Codecs;
 
 import net.grinder.plugininterface.Logger;
 import net.grinder.plugininterface.PluginException;
@@ -48,7 +46,7 @@ import net.grinder.plugininterface.PluginThreadContext;
  * @author Philip Aston
  * @version $Revision$
  */
-class HttpMsg
+class HttpMsg implements HTTPHandler
 {
     private final PluginThreadContext m_pluginThreadContext;
     private final boolean m_useCookies;
@@ -67,7 +65,6 @@ class HttpMsg
 	m_useCookiesVersionString = useCookiesVersionString;
 	m_followRedirects = followRedirects;
 	m_timeIncludesTransaction = timeIncludesTransaction;
-	reset();
 
 	// Hack to work around buffering problem when used in
 	// conjunction with the TCPSniffer.
@@ -76,157 +73,173 @@ class HttpMsg
 	    getBoolean("dontReadBody", false);
     }
 
-    public String sendRequest(HttpRequestData requestData)
-	throws java.io.IOException, PluginException
+    public String sendRequest(HTTPHandler.RequestData requestData)
+	throws HTTPHandlerException
     {
-	final String urlString = requestData.getURLString();
-	URL url = null;
+	long startTime = System.currentTimeMillis();
 
 	try {
-	    url = new URL(urlString);
-	}
-	catch (MalformedURLException e) {
-	    // Maybe it was a relative URL.
-	    final URL contextURL = new URL(requestData.getContextURLString());
+	    final String urlString = requestData.getURLString();
+	    final URL url = new URL(urlString);
 
-	    url = new URL(contextURL, urlString); // Let this one fail.
-	}
+	    final String postString = requestData.getPostString();
 
-	final String postString = requestData.getPostString();
+	    m_pluginThreadContext.startTimer();
 
-	m_pluginThreadContext.startTimer();
+	    HttpURLConnection connection;
 
-	HttpURLConnection connection;
-
-	try {
-	    connection = (HttpURLConnection) url.openConnection();
-	}
-	finally {
-	    if (!m_timeIncludesTransaction) {
-		m_pluginThreadContext.stopTimer();
+	    try {
+		connection = (HttpURLConnection) url.openConnection();
 	    }
-	}
+	    finally {
+		if (!m_timeIncludesTransaction) {
+		    m_pluginThreadContext.stopTimer();
+		}
+	    }
+	    System.out.println("1 " + (System.currentTimeMillis() - startTime));
 
-	final long ifModifiedSince = requestData.getIfModifiedSince();
+	    final long ifModifiedSince = requestData.getIfModifiedSinceLong();
 
-	if (ifModifiedSince >= 0) {
-	    connection.setIfModifiedSince(ifModifiedSince);
-	}
+	    if (ifModifiedSince >= 0) {
+		connection.setIfModifiedSince(ifModifiedSince);
+	    }
 
-	final String authorizationString =
-	    requestData.getAuthorizationString();
+	    final AuthorizationData authorizationData =
+		requestData.getAuthorizationData();
 
-	if (authorizationString != null) {
-	    connection.setRequestProperty("Authorization",
-					  authorizationString);
-	}
+	    if (authorizationData != null &&
+		authorizationData instanceof
+		HTTPHandler.BasicAuthorizationData) {
 
-	// Optionally stop URLConnection from handling http 302
-	// forwards, because these contain the cookie when handling
-	// web app form based authentication.
-	connection.setInstanceFollowRedirects(m_followRedirects);
+		final HTTPHandler.BasicAuthorizationData
+		    basicAuthorizationData =
+		    (HTTPHandler.BasicAuthorizationData)authorizationData;
+
+		connection.setRequestProperty(
+		    "Authorization",
+		    "Basic " +
+		    Codecs.base64Encode(
+			basicAuthorizationData.getUser() + ":" +
+			basicAuthorizationData.getPassword()));
+	    }
+
+	    // Optionally stop URLConnection from handling http 302
+	    // forwards, because these contain the cookie when handling
+	    // web app form based authentication.
+	    connection.setInstanceFollowRedirects(m_followRedirects);
             
-	// Think "=;" will match nothing but empty cookies. If your
-	// bothered by this, please read RFC 2109 and fix.
-	if (m_useCookies) {
-	    final String cookieString =
-		m_cookieHandler.getCookieString(url,
-						m_useCookiesVersionString);
+	    // Think "=;" will match nothing but empty cookies. If your
+	    // bothered by this, please read RFC 2109 and fix.
+	    if (m_useCookies) {
+		final String cookieString =
+		    m_cookieHandler.getCookieString(url,
+						    m_useCookiesVersionString);
 
-	    if (cookieString != null) {
-		connection.setRequestProperty("Cookie", cookieString);
-	    }
-	}
-
-	connection.setUseCaches(false);
-	
-	if (postString != null) {
-	    connection.setRequestMethod("POST");
-	    connection.setDoOutput(true);
-
-	    final BufferedOutputStream bos = 
-		new BufferedOutputStream(connection.getOutputStream());
-	    final PrintWriter out = new PrintWriter(bos);
-
-	    out.write(postString);
-	    out.close();
-	}
-	
-	connection.connect();
-
-	// This is before the getHeaderField for a good reason.
-	// Otherwise the %^(*$ HttpURLConnection API silently catches
-	// the exception in getHeaderField and rethrows it in the
-	// getResponseCode (with the original stack trace). - PAGA
-	final int responseCode = connection.getResponseCode();
-
-	if (m_useCookies) {
-	    // set to 1 because we're skipping the HTTP status line
-	    int headerIndex = 1;
-	    String headerKey = null;
-	    String headerValue = connection.getHeaderField(headerIndex);
-	    // iterate through all available headers
-	    while(headerValue != null){
-	        headerKey = connection.getHeaderFieldKey(headerIndex);
-	        if(headerKey != null && "Set-Cookie".equals(headerKey)){
-	            m_cookieHandler.setCookies(headerValue, url);
-	        }
-	        headerValue = connection.getHeaderField(++headerIndex);
-	    }
-	}
-
-	if (responseCode == HttpURLConnection.HTTP_OK) {          
-	    // Slurp the response into a StringWriter.
-	    final InputStreamReader isr =
-		new InputStreamReader(connection.getInputStream());
-	    final BufferedReader in = new BufferedReader(isr);
-
-	    // Default StringWriter buffer size is usually 16 which is way small.
-	    final StringWriter stringWriter = new StringWriter(512);
-
-	    char[] buffer = new char[512];
-	    int charsRead = 0;
-
-	    if (!m_dontReadBody) {
-		while ((charsRead = in.read(buffer, 0, buffer.length)) > 0) {
-		    stringWriter.write(buffer, 0, charsRead);
+		if (cookieString != null) {
+		    connection.setRequestProperty("Cookie", cookieString);
 		}
 	    }
 
-	    in.close();
-	    stringWriter.close();
+	    connection.setUseCaches(false);
+	
+	    if (postString != null) {
+		connection.setRequestMethod("POST");
+		connection.setDoOutput(true);
+
+		final BufferedOutputStream bos = 
+		    new BufferedOutputStream(connection.getOutputStream());
+		final PrintWriter out = new PrintWriter(bos);
+
+		out.write(postString);
+		out.close();
+	    }
+	
+	    connection.connect();
+
+	    System.out.println("2 " + (System.currentTimeMillis() - startTime));
+
+	    // This is before the getHeaderField for a good reason.
+	    // Otherwise the %^(*$ HttpURLConnection API silently catches
+	    // the exception in getHeaderField and rethrows it in the
+	    // getResponseCode (with the original stack trace). - PAGA
+	    final int responseCode = connection.getResponseCode();
+
+	    if (m_useCookies) {
+		// set to 1 because we're skipping the HTTP status line
+		int headerIndex = 1;
+		String headerKey = null;
+		String headerValue = connection.getHeaderField(headerIndex);
+		// iterate through all available headers
+		while(headerValue != null){
+		    headerKey = connection.getHeaderFieldKey(headerIndex);
+		    if(headerKey != null && "Set-Cookie".equals(headerKey)){
+			m_cookieHandler.setCookies(headerValue, url);
+		    }
+		    headerValue = connection.getHeaderField(++headerIndex);
+		}
+	    }
+
+	    if (responseCode == HttpURLConnection.HTTP_OK) {          
+		// Slurp the response into a StringWriter.
+		final InputStreamReader isr =
+		    new InputStreamReader(connection.getInputStream());
+		final BufferedReader in = new BufferedReader(isr);
+
+		// Default StringWriter buffer size is usually 16 which is way small.
+		final StringWriter stringWriter = new StringWriter(512);
+
+		char[] buffer = new char[512];
+		int charsRead = 0;
+
+		if (!m_dontReadBody) {
+		    while ((charsRead = in.read(buffer, 0, buffer.length)) > 0) {
+			stringWriter.write(buffer, 0, charsRead);
+		    }
+		}
+
+		in.close();
+		stringWriter.close();
 	    
-	    m_pluginThreadContext.logMessage(urlString + " OK");
+		m_pluginThreadContext.logMessage(urlString + " OK");
 
-	    return stringWriter.toString();
-	}
-	else if (responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
-	    m_pluginThreadContext.logMessage(urlString + " was not modified");
-	}
-	else if (responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
-		 responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
-		 responseCode == 307) {
-	    // It would be possible to perform the check
-	    // automatically, but for now just chuck out some
-	    // information.
-	    m_pluginThreadContext.logMessage(urlString +
-				       " returned a redirect (" +
-				       responseCode + "). " +
-				       "Ensure the next URL is " +
-				       connection.getHeaderField("Location"));
+		return stringWriter.toString();
+	    }
+	    else if (responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
+		m_pluginThreadContext.logMessage(urlString + " was not modified");
+	    }
+	    else if (responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
+		     responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
+		     responseCode == 307) {
+		// It would be possible to perform the check
+		// automatically, but for now just chuck out some
+		// information.
+		m_pluginThreadContext.logMessage(urlString +
+						 " returned a redirect (" +
+						 responseCode + "). " +
+						 "Ensure the next URL is " +
+						 connection.getHeaderField("Location"));
 
-	    // I've seen the code that slurps the body block for non
-	    // 200 responses. Can't think off the top of my head how
-	    // to code to poll for a body, so for now just ignore the
-	    // problem.
+		// I've seen the code that slurps the body block for non
+		// 200 responses. Can't think off the top of my head how
+		// to code to poll for a body, so for now just ignore the
+		// problem.
+		return null;
+	    }
+	    else {
+		m_pluginThreadContext.logError("Unknown response code: " +
+					       responseCode + " for " + urlString);
+	    }
+
 	    return null;
 	}
-	else {
-	    m_pluginThreadContext.logError("Unknown response code: " +
-					   responseCode + " for " + urlString);
+	catch (Exception e) {
+	    throw new HTTPHandlerException(e.getMessage(), e);
 	}
-
-	return null;
+	finally {
+	    System.out.println("3 " + (System.currentTimeMillis() - startTime));
+	    // Back stop.
+	    m_pluginThreadContext.stopTimer();
+	}
     }
 
     public void reset(){

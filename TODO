@@ -1,7 +1,7 @@
 [If anyone wants to pick something of this wish list, I prefer unified
 diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
-that too :-). The list is roughly in priority order.]
+it too :-). The list is roughly in priority order.]
 
   More documentation - both user level and javadoc. Volunteers please!
 
@@ -26,6 +26,8 @@ that too :-). The list is roughly in priority order.]
 
   Allow the saving of results from the console.
 
+  Add an assertion for the expected status code to the HTTP plugin.
+
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
 	
@@ -44,6 +46,3 @@ The following are scheduled for Grinder 3:
   Resolve the dependency of the console on a particular configuration
   file. Or use the console to broadcast configuration to the grinder
   processes.
-
-  Replace HttpURLConnection. Either roll our own, or use HTTPClient:
-  http://www.innovation.ch/java/HTTPClient/api/HTTPClient/HTTPConnection.html

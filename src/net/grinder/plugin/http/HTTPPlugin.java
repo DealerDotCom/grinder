@@ -39,7 +39,6 @@ import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
-import w3c.tools.codec.Base64Encoder;
 
 
 /**
@@ -55,7 +54,7 @@ public class HttpPlugin extends SimplePluginBase
     private FilenameFactory m_filenameFactory = null;
     private Map m_callData = new HashMap();
     private boolean m_logHTML = true;
-    private HttpMsg m_httpMsg = null;
+    private HTTPHandler m_httpHandler = null;
     private int m_currentIteration = 0; // How many times we've done all the URL's
     private final DateFormat m_dateFormat =
 	new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss zzz");
@@ -67,12 +66,14 @@ public class HttpPlugin extends SimplePluginBase
     /**
      * Inner class that holds the data for a call.
      */
-    protected class CallData implements HttpRequestData
+    protected class CallData implements HTTPHandler.RequestData
     {
 	private String m_urlString;
 	private String m_okString;
-	private long m_ifModifiedSince = -1;
+	private String m_ifModifiedSince;
+	private long m_ifModifiedSinceLong = -1;
 	private String m_postString;
+	private final String m_basicAuthenticationRealmString;
 	private final String m_basicAuthenticationUserString;
 	private final String m_basicAuthenticationPasswordString;
 	private final StringBuffer m_buffer = new StringBuffer();
@@ -96,20 +97,18 @@ public class HttpPlugin extends SimplePluginBase
 
 	    m_okString = testParameters.getProperty("ok", null);
 
-	    final String ifModifiedSinceString =
+	    m_ifModifiedSince =
 		testParameters.getProperty("ifModifiedSince", null);
 
-	    if (ifModifiedSinceString != null) {
+	    if (m_ifModifiedSince != null) {
 		try {
-		    final Date date =
-			m_dateFormat.parse(ifModifiedSinceString);
-	
-		    m_ifModifiedSince = date.getTime();
+		    final Date date = m_dateFormat.parse(m_ifModifiedSince);
+		    m_ifModifiedSinceLong = date.getTime();
 		}
 		catch (ParseException e) {
 		    m_pluginThreadContext.logError(
 			"Couldn't parse ifModifiedSince date '" +
-			ifModifiedSinceString + "'");
+			m_ifModifiedSince + "'");
 		}
 	    }
 
@@ -141,6 +140,9 @@ public class HttpPlugin extends SimplePluginBase
 		}
 	    }
 
+	    m_basicAuthenticationRealmString =
+		testParameters.getProperty("basicAuthenticationRealm", null);
+
 	    m_basicAuthenticationUserString =
 		testParameters.getProperty("basicAuthenticationUser", null);
 
@@ -150,7 +152,7 @@ public class HttpPlugin extends SimplePluginBase
 	}
 
 	private String replaceDynamicKeys(String original) 
-	    throws PluginException
+	    throws HTTPHandlerException
 	{
 	    if (original == null || m_bean == null) {
 		return original;
@@ -177,7 +179,7 @@ public class HttpPlugin extends SimplePluginBase
 			p = original.indexOf('>', lastP);
 
 			if (p == -1) {
-			    throw new PluginException(
+			    throw new HTTPHandlerException(
 				"URL for Test " + m_test.getTestNumber() +
 				" malformed");    
 			}
@@ -188,7 +190,7 @@ public class HttpPlugin extends SimplePluginBase
 			    (Method)m_beanMethodMap.get(methodName);
 
 			if (method == null ) {
-			    throw new PluginException(
+			    throw new HTTPHandlerException(
 				"URL for Test " + m_test.getTestNumber() +
 				" refers to unknown string bean method '" +
 				methodName + "'");
@@ -199,7 +201,7 @@ public class HttpPlugin extends SimplePluginBase
 								  m_noArgs));
 			}
 			catch (Exception e) {
-			    throw new PluginException(
+			    throw new HTTPHandlerException(
 				"Failure invoking string bean method '" +
 				methodName + "'", e);
 			}
@@ -212,44 +214,59 @@ public class HttpPlugin extends SimplePluginBase
 	    }
 	}
 
-	public String getURLString()
-	    throws PluginException
+	public String getURLString() throws HTTPHandlerException
 	{
 	    return replaceDynamicKeys(m_urlString);
 	}
 
-	public String getPostString()
-	    throws PluginException
+	public String getPostString() throws HTTPHandlerException
 	{
 	    return replaceDynamicKeys(m_postString);
 	}
 
-	public String getAuthorizationString()
-	    throws PluginException
+	public HTTPHandler.AuthorizationData getAuthorizationData()
+	    throws HTTPHandlerException
 	{
-	    if (m_basicAuthenticationUserString == null ||
-		m_basicAuthenticationPasswordString == null) {
-		return null;
+	    if (m_basicAuthenticationUserString != null &&
+		m_basicAuthenticationPasswordString != null) {
+		final String realm =
+		    replaceDynamicKeys(m_basicAuthenticationRealmString);
+
+		final String user =
+		    replaceDynamicKeys(m_basicAuthenticationUserString);
+
+		final String password =
+		    replaceDynamicKeys(m_basicAuthenticationPasswordString);
+
+		return new HTTPHandler.BasicAuthorizationData() {
+			public String getRealm()
+			{
+			    return realm;
+			}
+
+			public String getUser()
+			{
+			    return user;
+			}
+
+			public String getPassword()
+			{
+			    return password;
+			}
+		    };
 	    }
-
-	    final String user =
-		replaceDynamicKeys(m_basicAuthenticationUserString);
-
-	    final String password =
-		replaceDynamicKeys(m_basicAuthenticationPasswordString);
-	    
-	    return
-		"Basic " +
-		new Base64Encoder(user + ":" + password).processString();
+	    return null;
 	}
-
-	public String getContextURLString() { return null; }
-	public long getIfModifiedSince() { return m_ifModifiedSince; }
+	
+	public String getIfModifiedSince() { return m_ifModifiedSince; }
+	public long getIfModifiedSinceLong() { return m_ifModifiedSinceLong; }
 	public String getOKString() { return m_okString; }
 
 	protected void setURLString(String s) { m_urlString = s; }
 	protected void setPostString(String s) { m_postString = s; }
-	protected void setIfModifiedSince(long l) { m_ifModifiedSince = l; }
+	protected void setIfModifiedSince(String s) { m_ifModifiedSince = s; }
+	protected void setIfModifiedSinceLong(long l) {
+	    m_ifModifiedSinceLong = l; }
 	protected void setOKString(String s) { m_okString = s; }
     }
 
@@ -277,17 +294,25 @@ public class HttpPlugin extends SimplePluginBase
 	    useCookies = parameters.getBoolean("useCookies", true);
 	}
 
-        // tily@sylo.org / 2000/02/16 mod to set version string on or off - breaks jrun otherwise
-        final boolean useCookiesVersionString =
-	    parameters.getBoolean("useCookiesVersionString", true);
+	final boolean followRedirects =
+	    parameters.getBoolean("followRedirects", false);
+
+	if (parameters.getBoolean("useHTTPClient", false)) {
+	    m_httpHandler = new HTTPClientHandler(pluginThreadContext,
+						  useCookies, followRedirects);
+	}
+	else {
+	    // tily@sylo.org / 2000/02/16 mod to set version string on or off - breaks jrun otherwise
+	    final boolean useCookiesVersionString =
+		parameters.getBoolean("useCookiesVersionString", true);
   
 
-	m_httpMsg = new HttpMsg(pluginThreadContext, useCookies,
-				useCookiesVersionString,
-				parameters.getBoolean(
-				    "followRedirects", false),
-				parameters.getBoolean(
-				    "timeIncludesTransaction", false));
+	    m_httpHandler = new HttpMsg(pluginThreadContext, useCookies,
+					useCookiesVersionString,
+					followRedirects,
+					parameters.getBoolean(
+					    "timeIncludesTransaction", false));
+	}
 
 	m_logHTML = parameters.getBoolean("logHTML", false);
 
@@ -349,7 +374,7 @@ public class HttpPlugin extends SimplePluginBase
 	}
 
 	// Reset cookie if necessary.
-	m_httpMsg.reset();      
+	m_httpHandler.reset();      
     }
 
     /**
@@ -371,18 +396,7 @@ public class HttpPlugin extends SimplePluginBase
 	}
 	
 	// Do the call.
-	final String page;
-
-	try {
-	    page = m_httpMsg.sendRequest(callData);
-	}
-	catch (IOException e) {
-	    throw new PluginException("HTTP IOException: " + e, e);
-	}
-	finally {
-	    // In case timeIncludesTransaction = false
-	    m_pluginThreadContext.stopTimer();
-	}
+	final String page = m_httpHandler.sendRequest(callData);
 
 	final boolean error;
 	final String okString = callData.getOKString();

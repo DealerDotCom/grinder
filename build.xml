@@ -188,24 +188,24 @@ conditionally built modules are:
 	  description="Compiles the source.">
     <mkdir dir="${build.classes}"/>
 
-    <echo message="Compiling W3C code, ignore deprecation warnings ..."/>
+    <echo message="Compiling HTTPClient code, ignore deprecation warnings..."/>
 
     <javac srcdir="${build.src}"
            destdir="${build.classes}"
            debug="${debug}"
            optimize="${optimize}"
 	   deprecation="false"> <!-- Uses deprecated API's -->
-       <include name="w3c/**"/>
+       <include name="HTTPClient/**"/>
     </javac>
 
-    <echo message="... W3C code compiled."/>
+    <echo message="... HTTPClient code compiled."/>
 
     <javac srcdir="${build.src}"
            destdir="${build.classes}"
            debug="${debug}"
            optimize="${optimize}"
 	   deprecation="${deprecation}">
-       <exclude name="w3c/**"/>
+       <exclude name="HTTPClient/**"/>
        <exclude name="**/HttpsPlugin.java" unless="have.jsse"/>
        <exclude name="**/SSLSnifferEngineImpl.java" unless="have.jsse"/>
        <exclude name="**/HttpPluginSnifferFilter.java" unless="have.regexp"/>
