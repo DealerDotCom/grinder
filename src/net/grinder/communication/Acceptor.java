@@ -30,7 +30,7 @@ import java.net.ServerSocket;
 
 
 /**
- * Class that accepts connections on a ServerSocket.
+ * Active object that accepts connections on a ServerSocket.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -47,10 +47,11 @@ final class Acceptor {
    * @param addressString The TCP address to listen on. Zero-length
    * string => listen on all interfaces.
    * @param port The TCP port to listen to. 0 => use any free port.
+   * @param numberOfThreads Number of acceptor threads.
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  public Acceptor(String addressString, int port)
+  public Acceptor(String addressString, int port, int numberOfThreads)
     throws CommunicationException {
 
     if (addressString.length() > 0) {
@@ -73,7 +74,9 @@ final class Acceptor {
       }
     }
 
-    new AcceptorThread().start();
+    for (int i = 0; i < numberOfThreads; ++i) {
+      new AcceptorThread(i).start();
+    }
 
     m_threadGroup.setDaemon(true);
   }
@@ -128,8 +131,8 @@ final class Acceptor {
 
   private final class AcceptorThread extends Thread {
 
-    public AcceptorThread() {
-      super(m_threadGroup, "Acceptor thread");
+    public AcceptorThread(int threadIndex) {
+      super(m_threadGroup, "Acceptor thread " + threadIndex);
     }
 
     public void run() {

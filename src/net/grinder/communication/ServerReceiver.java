@@ -51,7 +51,7 @@ public final class ServerReceiver implements Receiver {
   public static ServerReceiver bindTo(String addressString, int port)
     throws CommunicationException {
 
-    return new ServerReceiver(new Acceptor(addressString, port), 5);
+    return new ServerReceiver(new Acceptor(addressString, port, 1), 5);
   }
 
   /**

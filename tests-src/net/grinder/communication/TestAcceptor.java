@@ -65,12 +65,12 @@ public class TestAcceptor extends TestCase {
     serverSocket.close();
 
     for (int i=0; i<testAddresses.length; ++i) {
-      final Acceptor acceptor = new Acceptor(testAddresses[i], port);
+      final Acceptor acceptor = new Acceptor(testAddresses[i], port, 2);
       assertEquals(port, acceptor.getPort());
       acceptor.shutdown();
 
       // Should also be able to use a Random port.
-      final Acceptor acceptor2 = new Acceptor(testAddresses[i], 0);
+      final Acceptor acceptor2 = new Acceptor(testAddresses[i], 0, 2);
       assertEquals(port, acceptor.getPort());
       acceptor2.shutdown();
     }
@@ -78,7 +78,7 @@ public class TestAcceptor extends TestCase {
 
   public void testGetSocketSet() throws Exception {
 
-    final Acceptor acceptor = createAcceptor();
+    final Acceptor acceptor = createAcceptor(2);
 
     final ResourcePool socketSet = acceptor.getSocketSet();
     assertNotNull(socketSet);
@@ -104,25 +104,25 @@ public class TestAcceptor extends TestCase {
     acceptor.shutdown();
   }
 
-  private Acceptor createAcceptor() throws Exception {
+  private Acceptor createAcceptor(int numberOfThreads) throws Exception {
     // Figure out a free local port.
     final ServerSocket serverSocket = new ServerSocket(0);
     final int port = serverSocket.getLocalPort();
     serverSocket.close();
 
-    return new Acceptor("", port);
+    return new Acceptor("", port, numberOfThreads);
   }
 
   public void testGetThreadGroup() throws Exception {
 
-    final Acceptor acceptor1 = createAcceptor();
-    final Acceptor acceptor2 = createAcceptor();
+    final Acceptor acceptor1 = createAcceptor(2);
+    final Acceptor acceptor2 = createAcceptor(1);
 
     final ThreadGroup threadGroup = acceptor1.getThreadGroup();
 
     assertTrue(!threadGroup.equals(acceptor2.getThreadGroup()));
 
-    assertEquals(1, acceptor1.getThreadGroup().activeCount());
+    assertEquals(2, acceptor1.getThreadGroup().activeCount());
 
     acceptor1.shutdown();
     acceptor2.shutdown();
@@ -136,7 +136,7 @@ public class TestAcceptor extends TestCase {
 
   public void testShutdown() throws Exception {
 
-    final Acceptor acceptor = createAcceptor();
+    final Acceptor acceptor = createAcceptor(3);
 
     final ResourcePool socketSet = acceptor.getSocketSet();
 
@@ -151,7 +151,11 @@ public class TestAcceptor extends TestCase {
 
     acceptor.shutdown();
 
-    assertTrue(acceptor.getThreadGroup().isDestroyed());
+    final ThreadGroup threadGroup = acceptor.getThreadGroup();
+
+    while (!threadGroup.isDestroyed()) {
+      Thread.sleep(10);
+    }
 
     assertTrue(socketSet.reserveNext().isSentinel());
   } 

@@ -52,7 +52,7 @@ public final class FanOutServerSender extends AbstractFanOutSender {
                                           int port)
     throws CommunicationException {
 
-    final Acceptor acceptor = new Acceptor(addressString, port);
+    final Acceptor acceptor = new Acceptor(addressString, port, 1);
 
     try {
       final String senderID =
