@@ -23,8 +23,15 @@ package net.grinder.engine.process;
 
 import junit.framework.TestCase;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import net.grinder.common.Logger;
+import net.grinder.engine.EngineException;
+import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.script.Grinder.ScriptContext;
+import net.grinder.testutility.CallRecorder;
+import net.grinder.testutility.CallRecorder.CallData;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -40,7 +47,6 @@ public class TestPluginRegistry extends TestCase {
   }
 
   public void testConstructorAndSingleton() throws Exception {
-
     final RandomStubFactory loggerStubFactory =
       new RandomStubFactory(Logger.class);
     final Logger logger = (Logger)loggerStubFactory.getStub();
@@ -61,5 +67,101 @@ public class TestPluginRegistry extends TestCase {
 
     PluginRegistry.setInstance(null);
     assertNull(PluginRegistry.getInstance());
+  }
+
+  public void testRegister() throws Exception {
+    final RandomStubFactory loggerStubFactory =
+      new RandomStubFactory(Logger.class);
+    final Logger logger = (Logger)loggerStubFactory.getStub();
+
+    final RandomStubFactory scriptContextStubFactory =
+      new RandomStubFactory(ScriptContext.class);
+    final ScriptContext scriptContext =
+      (ScriptContext)scriptContextStubFactory.getStub();
+
+    final ThreadContextLocator threadContextLocator =
+      new StubThreadContextLocator();
+
+    final PluginRegistry pluginRegistry =
+      new PluginRegistry(logger, scriptContext, threadContextLocator);
+
+    final RandomStubFactory grinderPluginStubFactory =
+      new RandomStubFactory(GrinderPlugin.class);
+    final GrinderPlugin grinderPlugin =
+      (GrinderPlugin)grinderPluginStubFactory.getStub();
+
+    pluginRegistry.register(grinderPlugin);
+
+    final CallData callData = skipHashCodeCalls(grinderPluginStubFactory);
+    assertEquals("initialize", callData.getMethodName());
+
+    final Object[] parameters = callData.getParameters();
+    assertEquals(1, parameters.length);
+
+    final RegisteredPlugin registeredPlugin = (RegisteredPlugin)parameters[0];
+    assertEquals(scriptContext, registeredPlugin.getScriptContext());
+
+    skipHashCodeCalls(grinderPluginStubFactory);
+    grinderPluginStubFactory.assertNotCalled();
+
+    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
+    loggerStubFactory.assertNotCalled();
+
+    pluginRegistry.register(grinderPlugin);
+
+    skipHashCodeCalls(grinderPluginStubFactory);
+    grinderPluginStubFactory.assertNotCalled();
+    loggerStubFactory.assertNotCalled();
+  }
+
+  private static final CallData skipHashCodeCalls(CallRecorder callRecorder) {
+
+    try {
+      while (true) {
+        final CallData callData = callRecorder.getCallData();
+
+        if (!"hashCode".equals(callData.getMethodName())) {
+          return callData;
+        }
+      }
+    }
+    catch (NoSuchElementException e) {
+      return null;
+    }
+  }
+
+  public void testGetPluginThreadListenerList() throws Exception {
+    final RandomStubFactory loggerStubFactory =
+      new RandomStubFactory(Logger.class);
+    final Logger logger = (Logger)loggerStubFactory.getStub();
+
+    final PluginRegistry pluginRegistry =
+      new PluginRegistry(logger, null, null);
+
+    final RandomStubFactory threadContextStubFactory =
+      new RandomStubFactory(ThreadContext.class);
+    final ThreadContext threadContext =
+      (ThreadContext)threadContextStubFactory.getStub();
+
+    final List list1 =
+      pluginRegistry.getPluginThreadListenerList(threadContext);
+
+    assertEquals(0, list1.size());
+
+    final RandomStubFactory grinderPluginStubFactory1 =
+      new RandomStubFactory(GrinderPlugin.class);
+    final GrinderPlugin grinderPlugin1 =
+      (GrinderPlugin)grinderPluginStubFactory1.getStub();
+
+    final RandomStubFactory grinderPluginStubFactory2 =
+      new RandomStubFactory(GrinderPlugin.class);
+    final GrinderPlugin grinderPlugin2 =
+      (GrinderPlugin)grinderPluginStubFactory2.getStub();
+
+    pluginRegistry.register(grinderPlugin1);
+    pluginRegistry.register(grinderPlugin2);
+
+    
+
   }
 }
