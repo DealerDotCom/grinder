@@ -224,7 +224,7 @@ public class SniffingServlet extends HttpServlet {
 	// "-certificate", file, "-password" pw, "-localSSLPort" and
 	// port for the secure proxy
 
-	int extraArgs = isSecure ? 10: 3;
+	int extraArgs = isSecure ? 12: 3;
 	
 	String[] cmd = new String[JAVA_PROCESS.length + 1 + 
 			SNIFFER_PROCESS.length + extraArgs];
@@ -255,10 +255,12 @@ public class SniffingServlet extends HttpServlet {
 	    String password = (String)ctx.lookup(PASSWORD);
 
 	    cmd[++i] = "-ssl";
-	    cmd[++i] = "-certificate";
+	    cmd[++i] = "-keyStore";
 	    cmd[++i] = certificate;
-	    cmd[++i] = "-password";
+	    cmd[++i] = "-keyStorePassword";
 	    cmd[++i] = password;
+	    cmd[++i] = "-keyStoreType";
+	    cmd[++i] = "pkcs12";
 	    cmd[++i] = "-localSSLPort";
 	    cmd[++i] = "" + sslport;
 	}
