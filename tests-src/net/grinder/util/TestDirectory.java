@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -244,7 +245,7 @@ public class TestDirectory extends AbstractFileTestCase {
 
     final Directory directory = new Directory(getDirectory());
 
-    for (int i=0; i<files.length; ++i) {
+    for (int i = 0; i < files.length; ++i) {
       final File file = new File(getDirectory(), files[i]);
       file.getParentFile().mkdirs();
       file.createNewFile();
@@ -256,5 +257,67 @@ public class TestDirectory extends AbstractFileTestCase {
 
     assertNull(directory.getRelativePath(null));
     assertNull(directory.getRelativePath(new File(getDirectory(), "foo")));    
+  }
+
+  public void testCopyTo() throws Exception {
+    final Set files = new HashSet() {{
+      add(new File("a file"));
+      add(new File("directory/.afile"));
+      add(new File("directory/b/c/d/e"));
+    }};
+
+    final Iterator iterator = files.iterator();
+
+    while (iterator.hasNext()) {
+      final File relativeFile = (File)iterator.next();
+      final File absoluteFile =
+        new File(getDirectory(), relativeFile.getPath());
+
+      createRandomFile(absoluteFile);
+    }
+
+    final Directory sourceDirectory = new Directory(getDirectory());
+
+    final File output = new File(getDirectory(), "output");
+    final Directory outputDirectory = new Directory(output);
+    outputDirectory.create();
+    final File overwritten = new File(output, "should be deleted");
+    createRandomFile(overwritten);
+
+    assertTrue(overwritten.exists());
+
+    sourceDirectory.copyTo(outputDirectory, false);
+
+    assertFalse(overwritten.exists());
+
+    final File[] contents = outputDirectory.listContents();
+
+    for (int i = 0; i < contents.length; ++i) {
+      assertTrue("Original contains '" + contents[i] + "'",
+                 files.contains(contents[i]));
+    }
+
+    assertEquals(files.size(), contents.length);
+
+    sourceDirectory.copyTo(outputDirectory, true);
+
+    final File[] contents2 = outputDirectory.listContents();
+
+    for (int i = 0; i < contents2.length; ++i) {
+      if (!contents2[i].getPath().startsWith("output")) {
+        assertTrue("Original contains '" + contents2[i] + "'",
+                   files.contains(contents2[i]));
+      }
+    }
+
+    final File[] contents3 =
+      new Directory(new File("output/output")).listContents();
+
+    for (int i = 0; i < contents3.length; ++i) {
+      assertTrue("Original contains '" + contents3[i] + "'",
+                 files.contains(contents3[i]));
+    }
+
+    assertEquals(files.size() * 2, contents2.length);
   }
 }
