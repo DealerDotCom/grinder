@@ -45,6 +45,7 @@ public final class DelegatingStubFactory extends AbstractStubFactory {
     public DelegatingInvocationHandler(Object delegate) {
       m_delegate = delegate;
     }
+
     public Object invoke(Object proxy, Method method, Object[] parameters)
       throws Throwable {
 
