@@ -270,8 +270,14 @@ final class LoggerImplementation
 
     /**
      * Thread specific state.
+     *
+     * <p>We declare that we implement {@link Logger} as well as
+     * {@link ThreadLogger} because <code>ThreadLogger</code> is
+     * package scope and this prevents Jython from seeing
+     * <code>Logger</code> (<code>IllegalAccessException</code>s
+     * abound.</p>
      **/
-    private final class ThreadState implements ThreadLogger
+    private final class ThreadState implements Logger, ThreadLogger
     {
 	private final int m_threadID;
 	private int m_currentRunNumber = -1;

@@ -83,4 +83,11 @@ public interface PluginProcessContext extends Logger, FilenameFactory
      * @return <code>true => this process should report times.
      **/
     boolean getRecordTime();
+
+    /**
+     * Return the {@link PluginThreadCallbacks} for the current
+     * thread.
+     */
+    PluginThreadCallbacks getPluginThreadCallbacks()
+	throws GrinderException;
 }

@@ -28,6 +28,7 @@ import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadCallbacks;
 import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.script.ScriptPluginContext;
 
 
 /**
@@ -39,6 +40,8 @@ import net.grinder.plugininterface.PluginThreadContext;
 public class JavaPlugin implements GrinderPlugin
 {
     private PluginProcessContext m_processContext;
+    private final ScriptPluginContext m_scriptPluginContext =
+	new JavaPluginScriptPluginContext();
 
     public void initialize(PluginProcessContext processContext)
 	throws PluginException
@@ -77,10 +80,19 @@ public class JavaPlugin implements GrinderPlugin
 	}
     }
 
-    public static Object createTest(int number, String description,
-				    Object target)
-	throws GrinderException
+    public final ScriptPluginContext getScriptPluginContext()
     {
-	return new JavaTest(number, description, target).getProxy();
+	return m_scriptPluginContext;
+    }
+
+    public static final class JavaPluginScriptPluginContext
+	implements ScriptPluginContext
+    {
+	public final Object createTest(int number, String description,
+				       Object target)
+	    throws GrinderException
+	{
+	    return new JavaTest(number, description, target).getProxy();
+	}
     }
 }

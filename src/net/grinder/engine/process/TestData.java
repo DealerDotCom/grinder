@@ -72,9 +72,4 @@ final class TestData implements TestRegistry.RegisteredTest
     {
 	return m_statistics;
     }
-
-    public final GrinderPlugin getPlugin()
-    {
-	return m_registeredPlugin.getPlugin();
-    }
 }

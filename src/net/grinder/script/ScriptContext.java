@@ -27,7 +27,7 @@ import net.grinder.common.Test;
 
 
 /**
- * Scrupts can get contextual information through a global object that
+ * Scripts can get contextual information through a global object that
  * supports this interface.
  *
  * @author Philip Aston
@@ -86,4 +86,6 @@ public interface ScriptContext
      * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
      **/
     void sleep(long meanTime, long sigma) throws GrinderException;
+
+    ScriptPluginContext getPlugin(Class pluginClass) throws GrinderException;
 }

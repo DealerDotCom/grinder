@@ -52,7 +52,6 @@ class JythonScript
     private final PySystemState m_systemState;
     private final PythonInterpreter m_interpreter;
     private final PyObject m_testRunnerFactory;
-    private final JythonScriptContext m_scriptContext;
 
     public JythonScript(ProcessContext processContext, File scriptFile)
 	throws EngineException
@@ -64,15 +63,16 @@ class JythonScript
 	m_systemState = new PySystemState();
 	m_interpreter = new PythonInterpreter(null, m_systemState);
 	
-	m_scriptContext = new JythonScriptContext();
-	m_interpreter.set("grinder", m_scriptContext);
+	m_interpreter.set("grinder",
+			  new ScriptContextImplementation(processContext));
 
 	final String parentPath = scriptFile.getParent();
 
 	m_systemState.path.insert(0, new PyString(parentPath != null ?
 						  parentPath : ""));
 
-	processContext.output("executing \"" + scriptFile.getPath() + "\"");
+	processContext.getLogger().output(
+	    "executing \"" + scriptFile.getPath() + "\"");
 
         try {
 	    // Run the test script, script does global set up here.
@@ -124,76 +124,6 @@ class JythonScript
 	    catch (PyException e) {
 		throw new JythonScriptExecutionException("invoking script", e);
 	    }
-	}
-    }
-
-    private class JythonScriptContext implements ScriptContext
-    {
-	public String getGrinderID()
-	{
-	    return m_processContext.getGrinderID();
-	}
-
-	public int getThreadID()
-	{
-	    final ThreadContext threadContext =
-		ThreadContext.getThreadInstance();
-
-	    if (threadContext != null) {
-		return threadContext.getThreadID();
-	    }
-
-	    return -1;
-	}
-
-	public int getRunNumber()
-	{
-	    final ThreadContext threadContext =
-		ThreadContext.getThreadInstance();
-
-	    if (threadContext != null) {
-		return threadContext.getCurrentRunNumber();
-	    }
-
-	    return -1;
-	}
-
-	public Logger getLogger()
-	{
-	    final ThreadContext threadContext =
-		ThreadContext.getThreadInstance();
-
-	    if (threadContext != null) {
-		return threadContext;
-	    }
-
-	    return m_processContext;
-	}
-
-	public void sleep(long meanTime) throws GrinderException
-	{
-	    final ThreadContext threadContext =
-		ThreadContext.getThreadInstance();
-
-	    if (threadContext == null) {
-		throw new EngineException(
-		    "sleep is currently only supported for worker threads");
-	    }
-
-	    threadContext.getSleeper().sleepNormal(meanTime);
-	}
-
-	public void sleep(long meanTime, long sigma) throws GrinderException
-	{
-	    final ThreadContext threadContext =
-		ThreadContext.getThreadInstance();
-
-	    if (threadContext == null) {
-		throw new EngineException(
-		    "sleep is currently only supported for worker threads");
-	    }
-
-	    threadContext.getSleeper().sleepNormal(meanTime, sigma);
 	}
     }
 }

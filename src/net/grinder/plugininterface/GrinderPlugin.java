@@ -25,6 +25,7 @@ package net.grinder.plugininterface;
 import java.util.Set;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.script.ScriptPluginContext;
 
 
 /**
@@ -60,5 +61,8 @@ public interface GrinderPlugin
      */
     public PluginThreadCallbacks createThreadCallbackHandler(
 	PluginThreadContext pluginThreadContext)
+	throws PluginException;
+
+    public ScriptPluginContext getScriptPluginContext()
 	throws PluginException;
 }

@@ -30,16 +30,11 @@ import net.grinder.common.Logger;
 import net.grinder.common.Test;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.Message;
-import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.UnicastSender;
 import net.grinder.engine.EngineException;
-import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
-import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatisticsFactory;
-
 
 
 /**
@@ -47,7 +42,7 @@ import net.grinder.statistics.TestStatisticsFactory;
  * @version $Revision$
  * @stereotype singleton
  **/
-class ProcessContext implements PluginProcessContext
+class ProcessContext
 {
     private final String m_grinderID;
     private final GrinderProperties m_properties;
@@ -60,9 +55,6 @@ class ProcessContext implements PluginProcessContext
     private final TestRegistry m_testRegistry;
 
     private boolean m_shouldWriteTitleToDataWriter;
-
-    private final TestStatisticsFactory m_testStatisticsFactory =
-	TestStatisticsFactory.getInstance();
 
     ProcessContext(String grinderID, GrinderProperties properties)
 	throws GrinderException
@@ -147,22 +139,27 @@ class ProcessContext implements PluginProcessContext
 	}
     }
 
-    final Sender getConsoleSender()
+    public final Sender getConsoleSender()
     {
 	return m_consoleSender;
     }
 
-    final LoggerImplementation getLoggerImplementation()
+    public final LoggerImplementation getLoggerImplementation()
     {
 	return m_loggerImplementation;
     }
 
-    final PluginRegistry getPluginRegistry()
+    public final Logger getLogger()
+    {
+	return m_processLogger;
+    }
+
+    public final PluginRegistry getPluginRegistry()
     {
 	return m_pluginRegistry;
     }
 
-    final TestRegistry getTestRegistry()
+    public final TestRegistry getTestRegistry()
     {
 	return m_testRegistry;
     }
@@ -182,71 +179,8 @@ class ProcessContext implements PluginProcessContext
 	return m_pluginParameters;
     }
 
-    public final void output(String message)
-    {
-	m_processLogger.output(message);
-    }
-
-    public final void output(String message, int where)
-    {
-	m_processLogger.output(message, where);
-    }
-
-    public final void error(String message)
-    {
-	m_processLogger.error(message);
-    }
-    
-    public final void error(String message, int where)
-    {
-	m_processLogger.error(message, where);
-    }
-
-    public final PrintWriter getOutputLogWriter()
-    {
-	return m_processLogger.getOutputLogWriter();
-    }
-
-    public final PrintWriter getErrorLogWriter()
-    {
-	return m_processLogger.getErrorLogWriter();
-    }
-
-    public String createFilename(String prefix)
-    {
-	return
-	    m_loggerImplementation.getFilenameFactory().createFilename(prefix);
-    }
-
-    public String createFilename(String prefix, String suffix)
-    {
-	return
-	    m_loggerImplementation.getFilenameFactory().createFilename(prefix,
-								       suffix);
-    }
-
     public final boolean getRecordTime()
     {
 	return m_recordTime;
-    }
-
-    protected final TestStatisticsFactory getTestStatisticsFactory()
-    {
-	return m_testStatisticsFactory;
-    }
-
-    public void registerSummaryStatisticsView(StatisticsView statisticsView)
-	throws GrinderException
-    {
-	CommonStatisticsViews.getSummaryStatisticsView().add(statisticsView);
-
-	getConsoleSender().queue(
-	    new RegisterStatisticsViewMessage(statisticsView));
-    }
-
-    public void registerDetailStatisticsView(StatisticsView statisticsView)
-	throws GrinderException
-    {
-	CommonStatisticsViews.getDetailStatisticsView().add(statisticsView);
     }
 }

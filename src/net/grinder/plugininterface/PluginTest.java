@@ -56,11 +56,6 @@ public abstract class PluginTest
 	    TestRegistry.getInstance().register(pluginClass, this);
     }
 
-    public final GrinderPlugin getPlugin()
-    {
-	return m_registeredTest.getPlugin();
-    }
-
     public final int getNumber()
     {
 	return m_number;

@@ -75,16 +75,19 @@ final class PluginRegistry
 		final GrinderPlugin plugin =
 		    (GrinderPlugin)pluginClass.newInstance();
 
-		plugin.initialize(m_processContext);
-		
-		final RegisteredPlugin result = new RegisteredPlugin(plugin);
-    
-		m_plugins.put(pluginClass, result);
+		final RegisteredPlugin registeredPlugin =
+		    new RegisteredPlugin(plugin);
 
-		m_processContext.output(
+		plugin.initialize(
+		    new PluginProcessContextImplementation(registeredPlugin,
+							   m_processContext));
+    
+		m_plugins.put(pluginClass, registeredPlugin);
+
+		m_processContext.getLogger().output(
 		    "registered plug-in " + pluginClass.getName());
 
-		return result;
+		return registeredPlugin;
 	    }
 	}
 	catch (Exception e){

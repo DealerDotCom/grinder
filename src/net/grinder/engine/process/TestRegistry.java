@@ -88,7 +88,7 @@ public final class TestRegistry
     public RegisteredTest register(Class pluginClass, Test test)
 	throws GrinderException
     {
-	PluginRegistry.RegisteredPlugin registeredPlugin =
+	final PluginRegistry.RegisteredPlugin registeredPlugin =
 	    m_pluginRegistry.register(pluginClass);
 
 	final TestData newTestData;
@@ -137,6 +137,5 @@ public final class TestRegistry
     }
 
     public interface RegisteredTest {
-	GrinderPlugin getPlugin();
     }
 }
