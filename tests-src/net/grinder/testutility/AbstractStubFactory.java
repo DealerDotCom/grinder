@@ -22,6 +22,7 @@
 package net.grinder.testutility;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -69,6 +70,11 @@ public abstract class AbstractStubFactory extends CallRecorder {
         final Object result = m_delegate.invoke(proxy, method, parameters);
         recordSuccess(method.getName(), parameters, result);
         return result;
+      }
+      catch (InvocationTargetException t) {
+        final Throwable targetException = t.getTargetException();
+        recordFailure(method.getName(), parameters, targetException);
+        throw targetException;
       }
       catch (Throwable t) {
         recordFailure(method.getName(), parameters, t);
