@@ -99,13 +99,13 @@ public class TestGraph extends TestCase {
 	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
 	final StatisticsIndexMap.LongIndex periodIndex =
-	    indexMap.getIndexForLong("period");
+	    indexMap.getLongIndex("period");
     final StatisticsIndexMap.LongIndex errorStatisticIndex =
-      indexMap.getIndexForLong("errors");
+      indexMap.getLongIndex("errors");
     final StatisticsIndexMap.LongIndex untimedTestsIndex =
-      indexMap.getIndexForLong("untimedTests");
+      indexMap.getLongIndex("untimedTests");
     final StatisticsIndexMap.LongSampleIndex timedTestsIndex =
-      indexMap.getIndexForLongSample("timedTests");
+      indexMap.getLongSampleIndex("timedTests");
 
 	final StatisticExpressionFactory statisticExpressionFactory =
 	    StatisticExpressionFactory.getInstance();
@@ -117,7 +117,7 @@ public class TestGraph extends TestCase {
 
 	final PeakStatisticExpression peakTPSExpression =
 	    statisticExpressionFactory.createPeak(
-		indexMap.getIndexForDouble("peakTPS"), tpsExpression);
+		indexMap.getDoubleIndex("peakTPS"), tpsExpression);
 
 	final LabelledGraph labelledGraph =
 	    new LabelledGraph(

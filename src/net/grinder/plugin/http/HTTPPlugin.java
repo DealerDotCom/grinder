@@ -234,27 +234,27 @@ public class HTTPPlugin implements GrinderPlugin {
         StatisticsIndexMap.getInstance();
 
       m_responseStatusIndex =
-        statisticsIndexMap.getIndexForLong(
+        statisticsIndexMap.getLongIndex(
           StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY);
 
       m_responseLengthIndex =
-        statisticsIndexMap.getIndexForLong(
+        statisticsIndexMap.getLongIndex(
           StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY);
 
       m_responseErrorsIndex =
-        statisticsIndexMap.getIndexForLong(
+        statisticsIndexMap.getLongIndex(
           StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY);
 
       m_dnsTimeIndex =
-        statisticsIndexMap.getIndexForLong(
+        statisticsIndexMap.getLongIndex(
           StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY);
 
       m_connectionTimeIndex =
-        statisticsIndexMap.getIndexForLong(
+        statisticsIndexMap.getLongIndex(
           StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY);
 
       m_firstByteTimeIndex =
-        statisticsIndexMap.getIndexForLong(
+        statisticsIndexMap.getLongIndex(
           StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY);
     }
     catch (GrinderException e) {

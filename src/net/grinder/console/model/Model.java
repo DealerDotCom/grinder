@@ -158,7 +158,7 @@ public final class Model {
     // classes are packaged.. See bug 804272.
     CommonStatisticsViews.getSummaryStatisticsView();
 
-    m_periodIndex = indexMap.getIndexForLong("period");
+    m_periodIndex = indexMap.getLongIndex("period");
 
     final StatisticExpressionFactory statisticExpressionFactory =
       StatisticExpressionFactory.getInstance();
@@ -172,7 +172,7 @@ public final class Model {
 
     m_peakTPSExpression =
       statisticExpressionFactory.createPeak(
-        indexMap.getIndexForDouble("peakTPS"), m_tpsExpression);
+        indexMap.getDoubleIndex("peakTPS"), m_tpsExpression);
 
     m_peakTPSExpressionView =
       new ExpressionView("Peak TPS", "statistic.peakTPS", m_peakTPSExpression);
