@@ -149,6 +149,16 @@
             <property name="format" value="\s+$"/>
             <property name="message" value="Line has trailing spaces."/>
         </module>
+    <!-- One day:
+        <module name="GenericIllegalRegexp">
+            <property name="format" value="System\.out"/>
+            <property name="message" value="Direct access to stdout."/>
+        </module>
+        <module name="GenericIllegalRegexp">
+            <property name="format" value="System\.err"/>
+            <property name="message" value="Direct access to stderr."/>
+        </module>
+    -->
         <module name="TodoComment">
             <property name="format" value="TODO"/>
         </module>
