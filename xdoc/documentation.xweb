@@ -47,6 +47,8 @@
              targetFile="scripts.html" type="g3-xhtml-1"/>
       <entry name="HTTP Plug-in" sourceFile="http-plugin-xhtml.xml" 
              targetFile="http-plugin.html" type="g3-xhtml-1"/>
+      <entry name="SSL Support" sourceFile="ssl-support-xhtml.xml" 
+             targetFile="ssl-support.html" type="g3-xhtml-1"/>
       <entry name="The Console" sourceFile="console-xhtml.xml" 
              targetFile="console.html" type="g3-xhtml-1"/>
       <entry name="Script Gallery" sourceFile="script-gallery-xhtml.xml" 

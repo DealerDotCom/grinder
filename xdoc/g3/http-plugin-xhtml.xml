@@ -49,23 +49,5 @@ the HTTP response status codes for each call of the
 multiple <code>HTTPRequests</code> are wrapped in a <code>Test</code>,
 the status code of the last response is recorded.</p>
 
-<h4>SSL</h4>
-
-<h5>Use of SSL sessions</h5>
-
-<p>A new SSL session is created by each thread for every run.</p>
-
-<h5>The Grinder's SSL implementation is not secure</h5>
-
-<p><em><strong>Warning</strong>The Grinder deliberately accelerates
-SSL initialisation by using a random number generator that is seeded
-with a fixed number. This does not hinder SSL communication, but
-theoretcially makes it less secure. No guarantee is made as to the
-cryptographical strength of any SSL communication using The
-Grinder.</em></p>
-
-<p>This acceleration affects initialisation time only and should not
-affect timing information obtained using The Grinder.</p>
-
 </body>
 </html>
