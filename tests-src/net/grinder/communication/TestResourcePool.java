@@ -21,7 +21,6 @@
 
 package net.grinder.communication;
 
-import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;

@@ -21,7 +21,6 @@
 
 package net.grinder.communication;
 
-import java.net.InetAddress;
 import java.net.ServerSocket;
 
 import junit.framework.TestCase;

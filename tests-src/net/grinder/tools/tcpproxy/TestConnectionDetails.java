@@ -25,8 +25,6 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 
-import net.grinder.common.GrinderException;
-
 
 /**
  * Unit test case for <code>ConnectionDetails</code>.

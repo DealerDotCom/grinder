@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.grinder.common.GrinderProperties;
 import net.grinder.engine.process.StubTestRegistry;
 
 

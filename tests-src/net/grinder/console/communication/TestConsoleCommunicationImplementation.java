@@ -31,7 +31,6 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.grinder.common.ProcessStatus;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Message;
 import net.grinder.console.common.ConsoleException;
@@ -46,8 +45,6 @@ import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.FileContents;
 

@@ -28,7 +28,6 @@ import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;
 
 import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.testutility.RandomStubFactory;
 
 
 /**

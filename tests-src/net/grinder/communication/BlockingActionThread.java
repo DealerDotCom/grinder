@@ -21,11 +21,6 @@
 
 package net.grinder.communication;
 
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
-
 
 /**
  * Thread for testing that an action blocks.

@@ -21,11 +21,7 @@
 
 package net.grinder.engine.agent;
 
-import java.io.InputStream;
-
-import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
-import net.grinder.communication.Receiver;
 import net.grinder.communication.StreamReceiver;
 
 

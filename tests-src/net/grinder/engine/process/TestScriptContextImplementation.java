@@ -31,7 +31,6 @@ import net.grinder.common.Logger;
 import net.grinder.communication.QueuedSender;
 import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;

@@ -22,7 +22,6 @@
 package net.grinder.common;
 
 import java.io.PrintWriter;
-import java.io.Writer;
 
 import net.grinder.testutility.CountingPrintWriter;
 import net.grinder.testutility.RandomStubFactory;

@@ -27,7 +27,6 @@ import java.io.File;
 import java.util.Properties;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.engine.process.GrinderProcess;
 
 
 /**

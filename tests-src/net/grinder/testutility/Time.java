@@ -21,8 +21,6 @@
 
 package net.grinder.testutility;
 
-import junit.framework.TestCase;
-
 
 /**
  * Abstract base class which times a method and returns whether it

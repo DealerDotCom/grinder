@@ -24,9 +24,6 @@ package net.grinder.tools.tcpproxy;
 import java.util.Random;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-
-import net.grinder.common.GrinderException;
 
 
 /**
@@ -36,10 +33,6 @@ import net.grinder.common.GrinderException;
  * @version $Revision$
  */
 public class TestEndPoint extends TestCase {
-
-  public TestEndPoint(String name) {
-    super(name);
-  }
 
   public void testAccessors() throws Exception {
 

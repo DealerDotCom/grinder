@@ -21,12 +21,6 @@
 
 package net.grinder.util.thread;
 
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.Iterator;
-import java.util.List;
-
 import junit.framework.TestCase;
 
 

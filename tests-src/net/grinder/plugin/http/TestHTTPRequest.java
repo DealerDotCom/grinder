@@ -52,7 +52,6 @@ import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
-import net.grinder.testutility.CallRecorder;
 import net.grinder.testutility.RandomStubFactory;
 
 

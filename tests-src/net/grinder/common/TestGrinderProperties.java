@@ -21,8 +21,6 @@
 
 package net.grinder.common;
 
-import junit.framework.TestCase;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

@@ -26,14 +26,11 @@ import junit.framework.TestCase;
 import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.swing.SwingUtilities;
 
 import net.grinder.console.model.SampleListener;
-import net.grinder.statistics.TestStatistics;
-import net.grinder.statistics.TestStatisticsFactory;
+import net.grinder.statistics.RawStatistics;
+import net.grinder.statistics.RawStatisticsFactory;
 
 
 /**
@@ -61,14 +58,14 @@ public class TestSwingDispatchedSampleListener extends TestCase
 	final SampleListener swingDispatchedListener =
 	    new SwingDispatchedSampleListener(listener);
 
-	final TestStatisticsFactory testStatisticsFactory =
-	    TestStatisticsFactory.getInstance();
+	final RawStatisticsFactory statisticsFactory =
+	    RawStatisticsFactory.getInstance();
 
-	final TestStatistics intervalStatistics =
-	    testStatisticsFactory.create();
+	final RawStatistics intervalStatistics =
+	    statisticsFactory.create();
 
-	final TestStatistics cumulativeStatistics =
-	    testStatisticsFactory.create();
+	final RawStatistics cumulativeStatistics =
+	    statisticsFactory.create();
 
 	listener.update(intervalStatistics, cumulativeStatistics);
 
@@ -82,11 +79,11 @@ public class TestSwingDispatchedSampleListener extends TestCase
 
     private class MySampleListener implements SampleListener
     {
-	public TestStatistics m_intervalStatistics;
-	public TestStatistics m_cumulativeStatistics;
+	public RawStatistics m_intervalStatistics;
+	public RawStatistics m_cumulativeStatistics;
 	
-	public void update(TestStatistics intervalStatistics,
-			   TestStatistics cumulativeStatistics)
+	public void update(RawStatistics intervalStatistics,
+			   RawStatistics cumulativeStatistics)
 	{
 	    m_intervalStatistics = intervalStatistics;
 	    m_cumulativeStatistics = cumulativeStatistics;

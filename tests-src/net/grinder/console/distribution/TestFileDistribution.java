@@ -21,11 +21,7 @@
 
 package net.grinder.console.distribution;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.Perl5Compiler;

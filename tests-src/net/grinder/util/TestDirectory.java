@@ -23,11 +23,8 @@ package net.grinder.util;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileOutputStream;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import net.grinder.testutility.AbstractFileTestCase;

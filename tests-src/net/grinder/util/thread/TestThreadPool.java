@@ -21,11 +21,6 @@
 
 package net.grinder.util.thread;
 
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-
 import junit.framework.TestCase;
 
 /**

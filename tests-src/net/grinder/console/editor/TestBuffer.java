@@ -31,7 +31,6 @@ import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.RandomStubFactory;
 
 
 /**

@@ -23,11 +23,6 @@ package net.grinder.util.html;
 
 import junit.framework.TestCase;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import net.grinder.common.Logger;
-
 
 /**
  *  Unit tests for {@link HTMLElement}, {@link HTMLText}.

@@ -21,10 +21,6 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.FilenameFactory;
-import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.script.Statistics;
-
 
 /**
  * Test utility that allows TestRegistry to be set from outside

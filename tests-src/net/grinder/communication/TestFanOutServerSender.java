@@ -23,13 +23,9 @@ package net.grinder.communication;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.io.OutputStream;
 import java.io.StreamCorruptedException;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Iterator;
-import java.util.List;
 
 import junit.framework.TestCase;
 

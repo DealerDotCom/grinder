@@ -21,8 +21,6 @@
 
 package net.grinder.console.editor;
 
-import junit.framework.TestCase;
-
 import java.io.File;
 import java.io.FileWriter;
 

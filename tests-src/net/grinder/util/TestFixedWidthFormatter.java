@@ -23,8 +23,6 @@ package net.grinder.util;
 
 import junit.framework.TestCase;
 
-import java.lang.reflect.Field;
-
 
 /**
  * Unit test case for <code>FixedWidthFormatter</code>.
