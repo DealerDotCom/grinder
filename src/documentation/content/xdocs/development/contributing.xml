@@ -34,7 +34,9 @@
   <code>checkstyle</code> build target. Checkstyle helps to make the
   code readable, catches quite a few silly errors, and makes applying
   patches a much nicer experience. Patches that do not pass the
-  Checkstyle rules will be rejected.</p>
+  Checkstyle rules will be rejected. Whilst we're considering coding
+  style, please note that Philip considers abbreviated variable names
+  to be evil.</p>
   </section>
 
 
