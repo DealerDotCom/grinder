@@ -35,6 +35,7 @@ import net.grinder.communication.UnicastSender;
 import net.grinder.script.Grinder;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
+import net.grinder.util.Sleeper;
 
 
 /**
@@ -56,6 +57,7 @@ class ProcessContext {
 
   private boolean m_shouldWriteTitleToDataWriter;
   private long m_executionStartTime;
+  private boolean m_shutdown;
 
   ProcessContext(String grinderID, GrinderProperties properties)
     throws GrinderException {
@@ -126,6 +128,7 @@ class ProcessContext {
     m_testRegistry = new TestRegistry();
     m_scriptContext = new ScriptContextImplementation(this);
     Grinder.grinder = m_scriptContext;
+    m_shutdown = false;
   }
 
   final void initialiseDataWriter() {
@@ -207,5 +210,17 @@ class ProcessContext {
    */
   public final long getExecutionStartTime() {
     return m_executionStartTime;
+  }
+
+  public final boolean getShutdown() {
+    return m_shutdown;
+  }
+
+  public final void shutdown() {
+    // Interrupt any sleepers.
+    Sleeper.shutdownAllCurrentSleepers();
+
+    // Worker threads poll this before each test execution.
+    m_shutdown = true;
   }
 }

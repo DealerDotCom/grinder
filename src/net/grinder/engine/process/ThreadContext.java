@@ -142,7 +142,11 @@ final class ThreadContext implements PluginThreadContext {
    * interface.
    */
   final Object invokeTest(TestData testData, TestData.Invokeable invokeable)
-    throws JythonScriptExecutionException {
+    throws JythonScriptExecutionException, ShutdownException {
+
+    if (m_processContext.getShutdown()) {
+      throw new ShutdownException("Process has been shutdown");
+    }
 
     if (m_threadLogger.getCurrentTestNumber() != -1) {
       // Originally we threw a ReentrantInvocationException here.

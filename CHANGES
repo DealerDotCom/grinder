@@ -35,6 +35,9 @@ Grinder 3.0-beta11
   This property allows an overall time limit to be set for worker
   processes.
 
+  Be more agressive about interrupting workers. Thanks to Venkat for
+  the idea and  original implementation.
+
 
 Grinder 3.0-beta10
 ------------------

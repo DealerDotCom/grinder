@@ -122,7 +122,8 @@ class GrinderThread implements java.lang.Runnable {
 	catch (JythonScriptExecutionException e) {
 	  final Throwable unwrapped = e.unwrap();
 
-	  if (unwrapped instanceof Sleeper.ShutdownException) {
+	  if (unwrapped instanceof ShutdownException ||
+	      unwrapped instanceof Sleeper.ShutdownException) {
 	    logger.output("shutdown");
 	    break;
 	  }
@@ -173,11 +174,6 @@ class GrinderThread implements java.lang.Runnable {
 
   public static final short getNumberOfThreads() {
     return s_numberOfThreads;
-  }
-
-  public static synchronized void shutdown() {
-    // We rely on everyone picking this up next time they sleep.
-    Sleeper.shutdownAllCurrentSleepers();
   }
 
   private abstract class PluginThreadCaller {

@@ -320,7 +320,7 @@ public final class GrinderProcess implements Monitor {
 	    logger.output("waiting for threads to terminate",
 			  Logger.LOG | Logger.TERMINAL);
 			
-	    GrinderThread.shutdown();
+	    m_context.shutdown();
 
 	    final long time = System.currentTimeMillis();
 	    final long maxShutdownTime = 10000;
