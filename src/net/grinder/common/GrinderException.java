@@ -36,6 +36,9 @@ import java.io.StringWriter;
  */
 public class GrinderException extends Exception {
 
+  private static final char[] s_lineSeparator =
+    System.getProperty("line.separator").toCharArray();
+
   private final Throwable m_nestedThrowable;
 
   /**
@@ -173,9 +176,24 @@ public class GrinderException extends Exception {
         return false;
       }
     }
-    while (original.charAt(p) != '\n');
+    while (!atNewLine(original, p));
 
     original.setLength(p);
+    return true;
+  }
+
+  private static boolean atNewLine(StringBuffer buffer, int position) {
+
+    final int length = buffer.length();
+
+    for (int i = 0; i < s_lineSeparator.length; ++i) {
+      final int offset = position + i;
+
+      if (offset >= length || buffer.charAt(offset) != s_lineSeparator[i]) {
+        return false;
+      }
+    }
+
     return true;
   }
 
