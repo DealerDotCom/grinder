@@ -44,6 +44,8 @@ it too :-). The list is roughly in priority order.]
 
   Tidy up logging of plugin initialisation.
 
+  TCPSniffer should record 401 iteractions.
+
 The following are under way for Grinder 3:
 
   Abstract out a TestScheduler interface to allow other algorithms.
