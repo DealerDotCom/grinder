@@ -21,10 +21,10 @@ class TestRunner:
         
         # Example 2. Normally test results are reported automatically
         # when the test returns. If you want to alter the statistics
-        # after a test has completed, you must disable the automatic
-        # reporting before performing the test. This only affects the
-        # current worker thread.        
-        statistics.autoReport = 0
+        # after a test has completed, you must set delayReports = 1 to
+        # delay the reporting before performing the test. This only
+        # affects the current worker thread.
+        statistics.delayReports = 1
 
         result = request1.GET("http://localhost:7001/")
 
@@ -37,10 +37,8 @@ class TestRunner:
                      statistics.time)
             statistics.success = 0
 
-        # If you set autoReport = 0 you must remember to call report()
-        # or the current statistics will not be sent until the thread
-        # begins the next test .        
+        # With delayReports = 1 you can call report() to explicitly.
         statistics.report()
 
-        # Now we turn auto-reporting back on.
-        statistics.autoReport = 1
+        # You can also turn the automatic reporting back on.
+        statistics.delayReports = 0

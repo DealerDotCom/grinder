@@ -546,10 +546,10 @@ request1 = test1.wrap(HTTPRequest())
         
         <span class="comment"># Example 2. Normally test results are reported automatically
 </span>        <span class="comment"># when the test returns. If you want to alter the statistics
-</span>        <span class="comment"># after a test has completed, you must disable the automatic
-</span>        <span class="comment"># reporting before performing the test. This only affects the
-</span>        <span class="comment"># current worker thread.        
-</span>        statistics.autoReport = 0
+</span>        <span class="comment"># after a test has completed, you must set delayReports = 1 to
+</span>        <span class="comment"># delay the reporting before performing the test. This only
+</span>        <span class="comment"># affects the current worker thread.
+</span>        statistics.delayReports = 1
 
         result = request1.GET(&quot;<span class="string">http://localhost:7001/</span>&quot;)
 
@@ -562,13 +562,11 @@ request1 = test1.wrap(HTTPRequest())
                      statistics.time)
             statistics.success = 0
 
-        <span class="comment"># If you set autoReport = 0 you must remember to call report()
-</span>        <span class="comment"># or the current statistics will not be sent until the thread
-</span>        <span class="comment"># begins the next test .        
+        <span class="comment"># With delayReports = 1 you can call report() to explicitly.
 </span>        statistics.report()
 
-        <span class="comment"># Now we turn auto-reporting back on.
-</span>        statistics.autoReport = 1
+        <span class="comment"># You can also turn the automatic reporting back on.
+</span>        statistics.delayReports = 0
 </pre>
 </blockquote>
 
