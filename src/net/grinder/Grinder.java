@@ -115,11 +115,9 @@ public final class Grinder {
         properties.getProperty("grinder.jvm.classpath", null);
 
       final String classpath =
-        (additionalClasspath != null ? additionalClasspath + ";" : "") +
+        (additionalClasspath != null ?
+         additionalClasspath + File.pathSeparatorChar : "") +
         System.getProperty("java.class.path");
-
-      classpath.replace(';', File.pathSeparatorChar);
-      classpath.replace(':', File.pathSeparatorChar);
 
       if (classpath.length() > 0) {
         command.add("-classpath");
