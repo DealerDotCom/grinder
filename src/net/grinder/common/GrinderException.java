@@ -24,61 +24,181 @@ package net.grinder.common;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 
 
 /**
- * GrinderException.java
+ * Base exception class for The Grinder. Includes support for chained
+ * (or "nested") exceptions.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public class GrinderException extends Exception
 {
-    private final Exception m_nestedException;
+    private final Throwable m_nestedThrowable;
 
+    /**
+     * Creates a new <code>GrinderException</code> instance with no
+     * nested <code>Throwable</code>.
+     *
+     * @param message Helpfull message.
+     */
     public GrinderException(String message)
     {
 	this(message, null);
     }
 
-    public GrinderException(String message, Exception nestedException)
+    /**
+     * Creates a new <code>GrinderException</code> instance.
+     *
+     * @param message Helpfull message.
+     * @param nestedThrowable A nested <code>Throwable</code>
+     */
+    public GrinderException(String message, Throwable nestedThrowable)
     {
 	super(message);
-	m_nestedException = nestedException;
-    }
-    
-    public String toString()
-    {
-	return getClass().getName() + ": " + getMessage() +
-	    (m_nestedException != null ? 
-	     ", nested exception: " + m_nestedException : "");
+	m_nestedThrowable = nestedThrowable;
     }
 
-
+    /**
+     * Print a stack trace to the given <code>PrintWriter</code>.
+     *
+     * @param s a <code>PrintWriter</code> value
+     */
     public void printStackTrace(PrintWriter s)
     {
-	super.printStackTrace(s);
-
-	if (m_nestedException != null) {
-	    s.print("\n\tNested exception stack trace: ");
-	    m_nestedException.printStackTrace(s);
-	}
-
+	printNestedTrace(s);
+	printImmediateTrace(s);
+	s.println();
 	s.flush();
     }
 
+    /**
+     * Print the stack trace excluding information about nested
+     * exceptions.
+     *
+     * @param s a <code>PrintWriter</code> value
+     */
+    private void printImmediateTrace(PrintWriter s)
+    {
+	super.printStackTrace(s);
+    }
+
+    /**
+     * Recursively print the nested exception stack trace. Where
+     * possible, nested exception stack traces are shortened to remove
+     * common stack frames that they share with their parent.
+     *
+     * @param s a <code>PrintWriter</code> value
+     */
+    private void printNestedTrace(PrintWriter s) 
+    {
+	if (m_nestedThrowable != null) {
+
+	    final StringWriter stringWriter = new StringWriter(256);
+	    final PrintWriter printWriter = new PrintWriter(stringWriter);
+	    printImmediateTrace(printWriter);
+	    printWriter.flush();
+	    final StringBuffer immediateTrace = stringWriter.getBuffer();
+
+	    final StringWriter stringWriter2 = new StringWriter(256);
+	    final PrintWriter printWriter2 = new PrintWriter(stringWriter2);
+
+	    if (m_nestedThrowable instanceof GrinderException) {
+		final GrinderException nestedGrinderException =
+		    (GrinderException)m_nestedThrowable;
+
+		nestedGrinderException.printNestedTrace(s);
+		nestedGrinderException.printImmediateTrace(printWriter2);
+	    }
+	    else {
+		m_nestedThrowable.printStackTrace(printWriter2);
+	    }
+
+	    printWriter2.flush();
+	    final StringBuffer nestedTrace = stringWriter2.getBuffer();
+	    final boolean truncatedNestedTrace =
+		removeCommonSuffix(nestedTrace, immediateTrace);
+
+	    s.print("(Nested exception) ");
+	    s.print(nestedTrace);
+	    s.print(truncatedNestedTrace ? "\n\t<truncated>\n" : "\n");
+	}
+    }
+
+    /**
+     * If <code>original</code> shares a common suffix that begins
+     * with a line feed with <code>other</code>, truncate
+     * <code>original</code> to remove the suffix. Otherwise return
+     * <code>original</code> unchanged.
+     *
+     * Package scope so the unit tests can access it.
+     *
+     * @param original The original string. Changed in-place.
+     * @param other String to compare suffixes with. Unchanged.
+     * @returns Whether original was truncated or not.
+     */
+    static boolean removeCommonSuffix(StringBuffer original,
+				      StringBuffer other) 
+    {
+	int p = original.length();
+	int otherP = other.length();
+
+	do {
+	    if (--p < 0) {
+		// original is contained at end of other.
+		break;
+	    }
+
+	    if (--otherP < 0) {
+		break;
+	    }
+	}
+	while (original.charAt(p) == other.charAt(otherP));
+
+	// p is now the index of the last character that differs.
+
+	// Now wind forward to first new line.
+	do {
+	    ++p;
+
+	    if (p == original.length()) {
+		return false;
+	    }
+	}
+	while (original.charAt(p) != '\n');
+
+	original.setLength(p);
+	return true;
+    }
+
+    /**
+     * Print a stack trace to the standard error stream.
+     */
     public void printStackTrace()
     {
 	printStackTrace(System.err);
     }
 
+    /**
+     * Print a stack trace to the given <code>PrintStream</code>.
+     *
+     * @param s a <code>PrintStream</code> value
+     */
     public void printStackTrace(PrintStream s)
     {
 	printStackTrace(new PrintWriter(s));
     }
 
-    public Exception getNestedException()
+    /**
+     * Return any nested <code>Throwable</code>.
+     *
+     * @return A <code>Throwable</code> value, or <code>null</code> if
+     * none.
+     */
+    public Throwable getNestedThrowable()
     {
-	return m_nestedException;
+	return m_nestedThrowable;
     }
 }
