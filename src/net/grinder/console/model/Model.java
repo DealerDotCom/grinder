@@ -56,12 +56,14 @@ public class Model
     private int m_ignoreSampleCount = 1;
     private int m_collectSampleCount = 0;
     private boolean m_stopSampler = false;
-
     private int m_state = 0;
     private int m_sampleCount = 0;
     private boolean m_receivedSample = false;
-
     private final List m_modelListeners = new LinkedList();
+
+    /* System.currentTimeMillis is expensive. This is acurate to one
+       sample period. */
+    private long m_currentTime;
 
     public Model(GrinderProperties properties)
 	throws GrinderException
@@ -207,9 +209,14 @@ public class Model
     private class Sample
     {
 	private final List m_listeners = new LinkedList();
-	private Statistics m_total = new Statistics();
-	private long m_transactionsInInterval = 0;
-	private double m_peakTPS = 0d;
+	private Statistics m_total;
+	private long m_transactionsInInterval;
+	private double m_peakTPS;
+	private long m_startTime;
+	
+	{
+	    reset();
+	}
 
 	private synchronized void addSampleListener(SampleListener listener)
 	{
@@ -224,20 +231,24 @@ public class Model
 
 	private synchronized void fireSample()
 	{
+	    final double tps =
+		1000d*m_transactionsInInterval/(double)m_sampleInterval;
+
+	    final long totalTime = m_currentTime-m_startTime;
+
+	    final double averageTPS =
+		1000d*m_total.getTransactions()/(double)totalTime;
+
+	    if (tps > m_peakTPS) {
+		m_peakTPS = tps;
+	    }
+
 	    final Iterator iterator = m_listeners.iterator();
 
 	    while (iterator.hasNext()) {
 		final SampleListener listener =
 		    (SampleListener)iterator.next();
-
-		final double tps =
-		    1000d*m_transactionsInInterval/(double)m_sampleInterval;
-
-		if (tps > m_peakTPS) {
-		    m_peakTPS = tps;
-		}
-
-		listener.update(tps, m_peakTPS, m_total);
+		listener.update(tps, averageTPS, m_peakTPS, m_total);
 	    }
 
 	    m_transactionsInInterval = 0;
@@ -248,6 +259,7 @@ public class Model
 	    m_transactionsInInterval = 0;
 	    m_peakTPS = 0;
 	    m_total = new Statistics();
+	    m_startTime = m_currentTime;
 	}
     }
 
@@ -256,17 +268,17 @@ public class Model
 	public void run()
 	{
 	    while (!m_stopSampler) {
-		long currentTime = System.currentTimeMillis();
+		m_currentTime = System.currentTimeMillis();
 		
-		final long wakeUpTime = currentTime + m_sampleInterval;
+		final long wakeUpTime = m_currentTime + m_sampleInterval;
 
-		while (currentTime < wakeUpTime) {
+		while (m_currentTime < wakeUpTime) {
 		    try {
-			Thread.sleep(wakeUpTime - currentTime);
-			currentTime = wakeUpTime;
+			Thread.sleep(wakeUpTime - m_currentTime);
+			m_currentTime = wakeUpTime;
 		    }
 		    catch(InterruptedException e) {
-			currentTime = System.currentTimeMillis();
+			m_currentTime = System.currentTimeMillis();
 		    }
 		}
 

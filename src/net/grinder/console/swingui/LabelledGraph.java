@@ -106,8 +106,9 @@ class LabelledGraph extends JPanel
     }
 
     private final Label m_tpsLabel = new Label(" ", " tps");
+    private final Label m_averageTPSLabel = new Label("Avg: ", " tps");
     private final Label m_peakTPSLabel = new Label("Peak: ", " tps");
-    private final Label m_averageTimeLabel = new Label("Average: ", " ms");
+    private final Label m_averageTimeLabel = new Label("", " ms (avg)");
     private final Label m_transactionsLabel = new Label("", " transactions");
     private final Label m_errorsLabel = new Label("", " errors");
     private final Label m_abortionsLabel = new Label("", " abortions");
@@ -135,6 +136,7 @@ class LabelledGraph extends JPanel
 	titleLabel.setForeground(Color.black);
 
 	labelPanel.add(m_tpsLabel);
+	labelPanel.add(m_averageTPSLabel);
 	labelPanel.add(m_peakTPSLabel);
 	labelPanel.add(m_averageTimeLabel);
 	labelPanel.add(m_transactionsLabel);
@@ -158,7 +160,8 @@ class LabelledGraph extends JPanel
 	return result;
     }
 
-    public void add(double tps, double peakTPS, Statistics total)
+    public void add(double tps, double averageTPS, double peakTPS,
+		    Statistics total)
     {
 	m_graph.setMaximum(peakTPS);
 	m_graph.setColor(calculateColour(tps));
@@ -167,6 +170,7 @@ class LabelledGraph extends JPanel
 	final double averageTime = total.getAverageTransactionTime();
 
 	m_tpsLabel.set(tps);
+	m_averageTPSLabel.set(averageTPS);
 	m_peakTPSLabel.set(peakTPS);
 
 	if (!Double.isNaN(averageTime)) {

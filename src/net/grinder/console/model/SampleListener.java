@@ -29,5 +29,6 @@ import net.grinder.statistics.Statistics;
  */
 public interface SampleListener extends EventListener
 {
-    public void update(double tps, double peakTPS, Statistics total);
+    public void update(double tps, double averageTPS, double peakTPS,
+		       Statistics total);
 }
