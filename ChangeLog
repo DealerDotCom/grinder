@@ -1,3 +1,24 @@
+2005-01-08  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/editor/FileDistribution.java, TODO, src/net/grinder/console/editor/FileDistributionFilter.java, src/net/grinder/console/editor/FileDistributionHandlerImplementation.java, tests-src/net/grinder/console/editor/TestFileDistribution.java, tests-src/net/grinder/console/editor/TestFileDistributionFilter.java, tests-src/net/grinder/console/editor/TestFileDistributionHandlerImplementation.java:
+	More refactoring of the distribution code.
+
+	* src/documentation/content/xdocs/site.xml, src/documentation/content/xdocs/development/contributing.xml:
+	More notes on contributing.
+
+	* src/documentation/content/xdocs/support.xml: GMane update.
+
+2005-01-07  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	The fix to the overflow bug inadvertently turned non-blocking reads
+	into blocking reads. Fix and comment.
+
+	* src/net/grinder/statistics/TestStatistics.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/statistics/package.html, tests-src/net/grinder/console/swingui/TestGraph.java, tests-src/net/grinder/statistics/TestTestStatisticsImplementation.java, CHANGES, examples/jmsreceiver.py, examples/statistics.py, src/documentation/content/xdocs/development/timing.xml, src/documentation/content/xdocs/faq.xml, src/documentation/content/xdocs/g3/console.xml, src/documentation/content/xdocs/g3/getting-started.xml, src/documentation/content/xdocs/g3/script-gallery.xml, src/documentation/content/xdocs/g3/scripts.xml, src/documentation/content/xdocs/g3/tutorial-perks.xml, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/script/Statistics.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticsIndexMap.java:
+	Historically The Grinder has used the terms "transaction" and "test"
+	synomonously - this is inconsistent and confusing. "Test" is now used
+	consistently everywhere.
+
 2005-01-05  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/console/editor/TestBuffer.java:
