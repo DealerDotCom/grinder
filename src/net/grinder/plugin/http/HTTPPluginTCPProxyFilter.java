@@ -95,7 +95,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	"Referer",
     };
 
-    private PrintWriter m_out = null;
+    private final PrintWriter m_out;
     private final String m_scriptFileName;
     private final PrintWriter m_scriptFileWriter;
     private final String m_testFileName;
@@ -123,11 +123,15 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
     /**
      * Constructor.
      *
-     * @exception MalformedPatternException 
+     * @param outputPrintWriter a <code>PrintWriter</code> value
+     * @exception IOException if an error occurs
+     * @exception MalformedPatternException
      */
-    public HTTPPluginTCPProxyFilter()
+    public HTTPPluginTCPProxyFilter(PrintWriter outputPrintWriter)
 	throws IOException, MalformedPatternException
     {
+	m_out = outputPrintWriter;
+
 	m_currentRequestNumber =
 	    Integer.getInteger(TCPProxy.INITIAL_TEST_PROPERTY, 0).intValue()
 	    - 1;
@@ -189,7 +193,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		"^[^\\?]*/([^\\?]*)",
 		Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
 
-	// Should generate unique file names.
+	// Should generate unique file names?
 	m_scriptFileName = "httpscript.py";
 	
 	m_scriptFileWriter =
@@ -230,6 +234,10 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	m_testFileWriter.println("from net.grinder.script import Test");
 	m_testFileWriter.println();
 	m_testFileWriter.println("tests = {}");
+
+	m_out.println("Script will be generated to the files '" +
+		      m_scriptFileName + "' and '" + m_testFileName + "'");
+	m_out.flush();
     }
 
     /**
@@ -241,26 +249,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
     public static synchronized void markLastResponseTime()
     {
 	s_lastResponseTime = System.currentTimeMillis();
-    }
-
-    /**
-     * Set the {@link PrintWriter} that the filter should use for
-     * output.
-     *
-     * @param out The PrintWriter.
-     */
-    public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
-    {
-	if (m_out != null) {
-	    m_out.flush();
-	}
-	
-	m_out = outputPrintWriter;
-
-	m_out.println("Script will be generated to the files '" +
-		      m_scriptFileName + "' and '" + m_testFileName + "'");
-
-	m_out.flush();
     }
 
     /**
@@ -372,7 +360,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	private final ConnectionDetails m_connectionDetails;
 
 	// Parse state.
-	private int m_requestNumber;
 	private boolean m_parsingHeaders = false;
 	private boolean m_handlingBody = false;
 
@@ -470,8 +457,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		}
 
 		// Stuff we do at start of request only.
-		m_requestNumber = incrementRequestNumber();
-
 		m_time = s_lastResponseTime > 0 ?
 		    System.currentTimeMillis() - s_lastResponseTime : 0;
 
@@ -579,7 +564,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	private void warn(String message)
 	{
 	    m_out.println(
-		"# WARNING request " + m_requestNumber + ": " + message);
+		"# WARNING: " + message);
 	    m_out.flush();
 	}
 
@@ -602,7 +587,8 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 
 	    testOutput.append(s_newLine);
 
-	    final String requestVariable = "request" + m_requestNumber;
+	    final int requestNumber = incrementRequestNumber();
+	    final String requestVariable = "request" + requestNumber;
 	    final String headerAssignment;
 
 	    if (m_headers.size() > 0) {
@@ -630,7 +616,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		    (String)m_previousHeaders.get(headerString);
 
 		if (headerVariable == null) {
-		    headerVariable = "headers" + m_requestNumber;
+		    headerVariable = "headers" + requestNumber;
 
 		    testOutput.append(s_newLine);
 		    testOutput.append(headerVariable);
@@ -665,20 +651,20 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 
 	    testOutput.append(s_newLine);
 	    testOutput.append("tests[");
-	    testOutput.append(m_requestNumber);
+	    testOutput.append(requestNumber);
 	    testOutput.append("] = Test(");
-	    testOutput.append(m_requestNumber);
+	    testOutput.append(requestNumber);
 	    testOutput.append(", '");
 	    testOutput.append(description);
 	    testOutput.append("').wrap(request");
-	    testOutput.append(m_requestNumber);
+	    testOutput.append(requestNumber);
 	    testOutput.append(")");
 
 	    testOutput.append(s_newLine);
 
 	    appendNewLineAndIndent(scriptOutput, 2);
 	    scriptOutput.append("tests[");
-	    scriptOutput.append(Integer.toString(m_requestNumber));
+	    scriptOutput.append(Integer.toString(requestNumber));
 	    scriptOutput.append("].");
 	    scriptOutput.append(m_method);
 	    scriptOutput.append("('");
@@ -703,7 +689,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		    scriptOutput.append(")");
 		}
 		else {
-		    final String dataParameter = "data" + m_requestNumber;
+		    final String dataParameter = "data" + requestNumber;
 
 		    testOutput.append(s_newLine);
 		    testOutput.append(dataParameter);
