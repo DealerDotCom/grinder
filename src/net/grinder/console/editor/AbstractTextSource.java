@@ -36,7 +36,8 @@ import java.util.List;
  */
 public abstract class AbstractTextSource implements TextSource {
 
-  private boolean m_dirty;
+  /** We are born into this world dirty. */
+  private boolean m_dirty = true;
 
   /** Synchronise on m_listeners before accessing. */
   private final List m_listeners = new LinkedList();
