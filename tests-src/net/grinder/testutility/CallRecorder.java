@@ -27,6 +27,7 @@ import java.util.LinkedList;
 
 import junit.framework.Assert;
 
+
 /**
  *  Utility class used to record and assert method invocations.
  *
@@ -237,77 +238,7 @@ public class CallRecorder extends Assert {
     return callData;
   }
 
-  public static final class CallData {
-    private final String m_methodName;
-    private final Object[] m_parameters;
-    private final Object m_result;
-    private final Throwable m_throwable;
-
-    CallData(String methodName, Object[] parameters, Object result) {
-      m_methodName = methodName;
-      m_parameters = parameters;
-      m_result = result;
-      m_throwable = null;
-    }
-
-    CallData(String methodName, Object[] parameters, Throwable throwable) {
-      m_methodName = methodName;
-      m_parameters = parameters;
-      m_result = null;
-      m_throwable = throwable;
-    }
-
-    public String getMethodName() {
-      return m_methodName;
-    }
-
-    public Object[] getParameters() {
-      return m_parameters;
-    }
-
-    public Class[] getParameterTypes() {
-      if (m_parameters == null) {
-        return new Class[0];
-      };
-
-      final Class[] types = new Class[m_parameters.length];
-
-      for (int i=0; i<types.length; ++i) {
-        types[i] = m_parameters[i].getClass();
-      }
-
-      return types;
-    }
-
-    public Object getResult() {
-      assertNull(m_throwable);
-      return m_result;
-    }
-
-    public Throwable getThrowable() {
-      return m_throwable;
-    }
-
-    public String toString() {
-      final StringBuffer result = new StringBuffer();
-
-      result.append(getMethodName());
-      result.append(parametersToString(getParameters()));
-
-      final Throwable throwable = getThrowable();
-
-      if (throwable != null) {
-        result.append(" threw " + throwable);
-      }
-      else {
-        result.append(" returned " + getResult());
-      }
-
-      return result.toString();
-    }
-  }
-
-  private final static String parametersToString(Object[] parameters) {
+  final static String parametersToString(Object[] parameters) {
     
     final StringBuffer result = new StringBuffer();
 

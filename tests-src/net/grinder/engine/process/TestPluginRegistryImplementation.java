@@ -32,7 +32,7 @@ import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginRegistry;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.testutility.CallRecorder;
-import net.grinder.testutility.CallRecorder.CallData;
+import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 
 

@@ -29,7 +29,7 @@ import java.io.FileWriter;
 import net.grinder.console.common.Resources;
 
 import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.testutility.CallRecorder;
+import net.grinder.testutility.CallData;
 import net.grinder.testutility.DelegatingStubFactory;
 import net.grinder.testutility.RandomStubFactory;
 
@@ -138,7 +138,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     textSourceFactoryStubFactory.assertSuccess("create");
     textSourceFactoryStubFactory.assertNoMoreCalls();
 
-    final CallRecorder.CallData callData = listener1StubFactory.getCallData();
+    final CallData callData = listener1StubFactory.getCallData();
     assertEquals("bufferAdded", callData.getMethodName());
     final Object[] parameters = callData.getParameters();
     assertEquals(1, parameters.length);

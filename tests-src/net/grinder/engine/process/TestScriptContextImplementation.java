@@ -37,7 +37,7 @@ import net.grinder.script.Statistics;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.testutility.CallRecorder.CallData;
+import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.Time;
 import net.grinder.util.Sleeper;

@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.engine.common.EngineException;
-import net.grinder.testutility.CallRecorder.CallData;
+import net.grinder.testutility.CallData;
 
 
 /**

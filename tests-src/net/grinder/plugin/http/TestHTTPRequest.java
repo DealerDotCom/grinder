@@ -43,13 +43,13 @@ import HTTPClient.HTTPResponse;
 import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 
-import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.Statistics;
 import net.grinder.testutility.AssertUtilities;
+import net.grinder.testutility.CallData;
 import net.grinder.testutility.CallRecorder;
 import net.grinder.testutility.RandomStubFactory;
 
@@ -872,7 +872,7 @@ public class TestHTTPRequest extends TestCase {
 
     request.GET(handler.getURL());
 
-    final CallRecorder.CallData loggerCall = loggerStubFactory.getCallData();
+    final CallData loggerCall = loggerStubFactory.getCallData();
     assertEquals("output", loggerCall.getMethodName());
     final String message = (String)loggerCall.getParameters()[0];
     assertTrue(message.indexOf("200") >= 0);
@@ -888,7 +888,7 @@ public class TestHTTPRequest extends TestCase {
 
     final HTTPResponse response2 = request.GET(handler.getURL());
 
-    final CallRecorder.CallData loggerCall2 = loggerStubFactory.getCallData();
+    final CallData loggerCall2 = loggerStubFactory.getCallData();
     assertEquals("output", loggerCall2.getMethodName());
     final String message2 = (String)loggerCall2.getParameters()[0];
     assertTrue(message2.indexOf("302") >= 0);
@@ -914,7 +914,7 @@ public class TestHTTPRequest extends TestCase {
 
     final HTTPResponse response3 = request.GET(handler.getURL());
 
-    final CallRecorder.CallData loggerCall3 = loggerStubFactory.getCallData();
+    final CallData loggerCall3 = loggerStubFactory.getCallData();
     assertEquals("output", loggerCall3.getMethodName());
     final String message3 = (String)loggerCall3.getParameters()[0];
     assertTrue(message3.indexOf("400") >= 0);

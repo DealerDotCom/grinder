@@ -29,7 +29,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import net.grinder.testutility.CallRecorder;
+import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -118,7 +118,7 @@ public class TestAcceptor extends TestCase {
       Thread.sleep(i * i * 10);
     }
 
-    final CallRecorder.CallData callData =
+    final CallData callData =
       listenerStubFactory.assertSuccess("connectionAccepted",
                                         ConnectionType.class,
                                         ConnectionIdentity.class);
@@ -148,7 +148,7 @@ public class TestAcceptor extends TestCase {
 
     acceptor.shutdown();
 
-    final CallRecorder.CallData callData2 =
+    final CallData callData2 =
       listenerStubFactory.assertSuccess("connectionClosed",
                                         ConnectionType.class,
                                         ConnectionIdentity.class);
