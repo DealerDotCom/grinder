@@ -1,5 +1,7 @@
 2001-05-25  Philip Aston  <paston@bea.com>
 
+	* build.xml: Distribute docs.
+
 	* tests-src/net/grinder/plugininterface/LogCounter.java: "Fix" test.
 
 	* ChangeLog, TODO, CHANGES, src/net/grinder/TCPSniffer.java:
