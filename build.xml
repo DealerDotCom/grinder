@@ -79,7 +79,7 @@ what you want. Currently the conditionally built modules are:
 
   <!-- javadoc -->
   <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
-  <property name="javadoc.packages" value="net.grinder.*"/>
+  <property name="script-javadoc.dir" value="${doc.dir}/script-javadoc"/>
   <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
 
   <!-- webapps, in general and specific -->
@@ -247,6 +247,7 @@ what you want. Currently the conditionally built modules are:
     <copy todir="${prepared-src.dir}" filtering="on">
       <fileset dir="${src.dir}">
         <include name="**/*.java"/>
+        <include name="**/*.html"/>
       </fileset>
     </copy>
   </target>
@@ -414,7 +415,7 @@ what you want. Currently the conditionally built modules are:
 
   <target name="javadoc" depends="init" description="Generates the javadoc.">
     <mkdir dir="${javadoc.dir}"/>
-    <javadoc packagenames="${javadoc.packages}"
+    <javadoc packagenames="net.grinder.*"
              destdir="${javadoc.dir}"
              author="true"
              version="false"
@@ -426,13 +427,62 @@ what you want. Currently the conditionally built modules are:
              stylesheetfile="${javadoc.css}"
 	     package="true">
 	    <sourcepath>
-	      <pathelement path="${src.dir}"/>
-	      <pathelement path="${test-src.dir}"/>
+	      <pathelement path="${prepared-src.dir}"/>
+	      <pathelement path="${prepared-test-src.dir}"/>
 	    </sourcepath>
             <classpath>
               <path refid="build.classpath"/>
               <pathelement path="${java.class.path}"/>
             </classpath>
+    </javadoc>
+  </target>
+
+  <target name="script-javadoc" depends="init,prepare-src,prepare-test-src"
+          description="Generates the javadoc for classes used by scripts.">
+    <property name="working.dir" value="${build.dir}/script-javadoc-src"/>
+
+    <!-- Sigh, I'm tired of convincing the javadoc task to do the right thing
+         so instead lets create a copy of the source it should process.
+         This is faster too. -->
+    <copy todir="${working.dir}">
+      <fileset dir="${prepared-src.dir}">
+	<include name="HTTPClient/HTTPResponse.java"/>
+	<include name="HTTPClient/NVPair.java"/>
+	<include name="HTTPClient/URI.java"/>
+	<include name="net/grinder/plugin/http/*.java"/>
+	<exclude name="net/grinder/plugin/http/HTTPPlugin.java"/>
+	<exclude name="net/grinder/plugin/http/*Filter.java"/>
+        <include name="net/grinder/common/GrinderException.java"/>
+        <include name="net/grinder/common/Logger.java"/>
+        <include name="net/grinder/script/*.java"/>
+        <include name="**/*.html"/>
+      </fileset>
+    </copy>
+
+    <mkdir dir="${script-javadoc.dir}"/>
+
+    <mkdir dir="${script-javadoc.dir}"/>
+    <javadoc destdir="${script-javadoc.dir}"
+             packagenames="net.grinder.*,HTTPClient.*"
+             author="true"
+             version="false"
+             use="false"
+             noindex="false"
+             windowtitle="${Name}"
+             doctitle="${Name}"
+             stylesheetfile="${javadoc.css}"
+	     public="true"
+             sourcepath="${working.dir}">
+	<classpath>
+	  <path refid="build.classpath"/>
+	  <pathelement path="${java.class.path}"/>
+	</classpath>
+        <footer><![CDATA[<img src='../images/grinder3.jpg'></img>]]>
+        </footer>
+        <group title="The Grinder Scripting API"
+               packages="net.grinder.common,net.grinder.script"/>
+        <group title="HTTP Plug-in"
+               packages="net.grinder.plugin.http,HTTPClient"/>
     </javadoc>
   </target>
 
