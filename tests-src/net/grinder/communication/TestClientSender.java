@@ -115,7 +115,7 @@ public class TestClientSender extends TestCase {
     }
   }
 
-  private class SocketAcceptor implements Runnable {
+  private static final class SocketAcceptor implements Runnable {
     
     private final ServerSocket m_serverSocket;
     private Exception m_exception;
@@ -191,6 +191,8 @@ public class TestClientSender extends TestCase {
     assertTrue(message2.payloadEquals((Message) o2));
 
     assertEquals(0, socketInput.available());
+
+    assertEquals(null, socketAcceptor.getException());
   }
 
   public void testShutdownWithSockets() throws Exception {
@@ -219,5 +221,7 @@ public class TestClientSender extends TestCase {
     }
 
     acceptorThread.join();
+
+    assertEquals(null, socketAcceptor.getException());
   }
 }
