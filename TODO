@@ -10,6 +10,9 @@ it too :-).
 - Phil
 
 
+forrest:
+ g2 vs g3
+
 * Bugs
 
 ** Console/agent
@@ -63,13 +66,15 @@ Task: Agent shouldn't create filestore directory until necessary.
 Task: Setting a new directory should require agents to refresh their
 cache.
 
-***** Release 2
+***** Release 2a
 
 Task: File Store directory should have a README describing what its
 for.
 Task: Guard against distributing agent cache directory. Can mark with
 a special file - maybe the README? Also prevent distribution of
 temporary files, CVS directories, grinder log files.
+
+***** Release 2b
 
 Task: Console to indicate dirty state.
 	Where should this be stored?
@@ -344,13 +349,15 @@ HTTP plug-in.
 
 Document G2 adapter.
 
-http://213.243.170.17/MrWorm/35
-http://www.mooreds.com/weblog/archives/000111.html
-
-Links to gmane, how to search lists.
-
 ** Examples
 
 HTTPS.
 
 Basic authentication.
+
+** Forrest TODO
+
+Create back links from javadoc
+
+Create menu links to the javadoc
+
