@@ -37,7 +37,7 @@ import javax.swing.UIManager;
  * A read-only JTable that works in conjunction with an extended
  * TableModel specifies some cell rendering.
  *
-# * @author Philip Aston
+ * @author Philip Aston
  * @version $Revision$
  */
 final class Table extends JTable {
