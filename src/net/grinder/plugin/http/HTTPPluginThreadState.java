@@ -42,68 +42,64 @@ import net.grinder.plugininterface.PluginThreadListener;
  * @author Philip Aston
  * @version $Revision$
  **/
-class HTTPPluginThreadState implements PluginThreadListener
-{
-    private final PluginThreadContext m_threadContext;
-    private Map m_httpConnectionWrappers = new HashMap();
+class HTTPPluginThreadState implements PluginThreadListener {
 
-    HTTPPluginThreadState(PluginThreadContext threadContext)
-	throws PluginException
-    {
-	m_threadContext = threadContext;
+  private final PluginThreadContext m_threadContext;
+  private Map m_httpConnectionWrappers = new HashMap();
+
+  HTTPPluginThreadState(PluginThreadContext threadContext)
+    throws PluginException {
+    m_threadContext = threadContext;
+  }
+
+  public PluginThreadContext getThreadContext() {
+    return m_threadContext;
+  }
+
+  public HTTPConnectionWrapper getConnectionWrapper(URI uri)
+    throws ParseException, ProtocolNotSuppException {
+
+    final URI keyURI =
+      new URI(uri.getScheme(), uri.getHost(), uri.getPort(), "");
+
+    final HTTPConnectionWrapper existingConnectionWrapper =
+      (HTTPConnectionWrapper)m_httpConnectionWrappers.get(keyURI);
+
+    if (existingConnectionWrapper != null) {
+      return existingConnectionWrapper;
     }
 
-    public PluginThreadContext getThreadContext()
-    {
-	return m_threadContext;
-    }
+    final HTTPPluginConnectionDefaults connectionDefaults =
+      HTTPPluginConnectionDefaults.getConnectionDefaults();
 
-    public HTTPConnectionWrapper getConnectionWrapper(URI uri)
-	throws ParseException, ProtocolNotSuppException
-    {
-	final URI keyURI =
-	    new URI(uri.getScheme(), uri.getHost(), uri.getPort(), "");
+    final HTTPConnection httpConnection = new HTTPConnection(uri);
+    httpConnection.setContext(this);
 
-	final HTTPConnectionWrapper existingConnectionWrapper =
-	    (HTTPConnectionWrapper)m_httpConnectionWrappers.get(keyURI);
+    final HTTPConnectionWrapper newConnectionWrapper =
+      new HTTPConnectionWrapper(httpConnection, connectionDefaults);
 
-	if (existingConnectionWrapper != null) {
-	    return existingConnectionWrapper;
-	}
+    m_httpConnectionWrappers.put(keyURI, newConnectionWrapper);
 
-	final HTTPPluginConnectionDefaults connectionDefaults =
-	    HTTPPluginConnectionDefaults.getConnectionDefaults();
+    return newConnectionWrapper;
+  }
 
-	final HTTPConnection httpConnection = new HTTPConnection(uri);
-	httpConnection.setContext(this);
+  public void beginRun() throws PluginException {
+    // Discard our cookies.
+    CookieModule.discardAllCookies(this);
 
-	final HTTPConnectionWrapper newConnectionWrapper =
-	    new HTTPConnectionWrapper(httpConnection, connectionDefaults);
+    // SHOULD ALSO REMOVE OLD AUTHORIZATIONS.
 
-	m_httpConnectionWrappers.put(keyURI, newConnectionWrapper);
-
-	return newConnectionWrapper;
-    }
-
-    public void beginRun() throws PluginException
-    {
-	// Discard our cookies.
-	CookieModule.discardAllCookies(this);
-
-	// SHOULD ALSO REMOVE OLD AUTHORIZATIONS.
-
-	// Close connections from previous run.
-	final Iterator i = m_httpConnectionWrappers.values().iterator();
+    // Close connections from previous run.
+    final Iterator i = m_httpConnectionWrappers.values().iterator();
 	
-	while (i.hasNext()) {
-	    ((HTTPConnectionWrapper)i.next()).getConnection().stop();
-	}
+    while (i.hasNext()) {
+      ((HTTPConnectionWrapper)i.next()).getConnection().stop();
+    }
 	    
-	m_httpConnectionWrappers.clear();
-    }
+    m_httpConnectionWrappers.clear();
+  }
 
-    public void endRun() throws PluginException
-    {
-    }
+  public void endRun() throws PluginException {
+  }
 }
 
