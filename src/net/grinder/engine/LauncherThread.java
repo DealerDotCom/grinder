@@ -35,7 +35,7 @@ import net.grinder.util.FilenameFactory;
  * @author Philip Aston
  * @version $Revision$
  */
-public class LauncherThread implements java.lang.Runnable {
+public class LauncherThread extends Thread {
 
     private final String m_processID;
     private final String m_commandLine;
@@ -50,13 +50,12 @@ public class LauncherThread implements java.lang.Runnable {
 			  String commandLine,
 			  boolean appendLog)
     {
+	super(commandLine);
+	
 	m_processID = processID;
 	m_commandLine = commandLine;
 	m_filenameFactory = new FilenameFactory(processID, null);
 	m_appendLog = appendLog;
-
-	Thread t = new Thread(this, m_commandLine);
-	t.start(); 
     }
   
     /**

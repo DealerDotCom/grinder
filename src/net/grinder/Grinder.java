@@ -47,8 +47,10 @@ public class Grinder
     {
 	final GrinderProperties properties = GrinderProperties.getProperties();
 
-	System.out.println("Grinder version @version@ started");        
-        
+	if (properties == null) {
+	    return;
+	}
+
 	final int numberOfProcesses =
 	    properties.getInt("grinder.processes", 1);
 
@@ -69,12 +71,30 @@ public class Grinder
 	final String commandSuffix = " " + GrinderProcess.class.getName();
 	final boolean appendLog = Boolean.getBoolean("grinder.appendLog");
 
-	for (int i=0; i<numberOfProcesses; i++){
+	final Thread[] threads = new Thread[numberOfProcesses];
+
+	for (int i=0; i<numberOfProcesses; i++) {
 	    final String command =
 		commandPrefix + " -Dgrinder.jvmID=" + i + commandSuffix;
 
-	    new LauncherThread(Integer.toString(i), command, appendLog);
+	    threads[i] =
+		new LauncherThread(Integer.toString(i), command, appendLog);
+
+	    threads[i].start();
 	}
+
+	System.out.println("The Grinder version @version@ started");
+
+	for (int i=0; i<numberOfProcesses;) {
+	    try {
+		threads[i].join();
+		i++;
+	    }
+	    catch (InterruptedException e) {
+	    }
+	}
+
+	System.out.println("The Grinder version @version@ finished");
     }
 }
 
