@@ -385,7 +385,7 @@ conditionally built modules are:
   <target name="release" depends="assert-have-everything,realclean,test,distribution-hierarchy,distribute-doc"
 	  description="Generates a release jar.">
 <!--      <cvs command="tag -R release_${version}" noexec="true"/> -->
-    <mkdir dir="releases">
+    <mkdir dir="releases"/>
     <jar jarfile="releases/${name}-${version}.jar" basedir="${dist.root}"/>
 
     <echo message="****************************************************"/>
