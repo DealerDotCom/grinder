@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import net.grinder.common.AbstractTestSemantics;
-import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 
 
@@ -302,11 +301,6 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
     public String getDescription() {
       return "";
-    }
-
-    public GrinderProperties getParameters() {
-      throw new UnsupportedOperationException(
-        getClass().getName() + ".LightweightTest.getParameters()");
     }
   }
 
