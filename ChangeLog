@@ -1,3 +1,10 @@
+2004-11-22  Philip Aston  <philipa@mail.com>
+
+	* src/documentation/content/xdocs/g3/getting-started.xml: Fix space.
+
+	* src/documentation/content/xdocs/g3/whats-new.xml:
+	Get started in the right place.
+
 2004-11-21  Philip Aston  <philipa@mail.com>
 
 	* build.xml: Exclude patch artefacts from distribution.
