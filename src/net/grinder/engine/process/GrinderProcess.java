@@ -41,6 +41,7 @@ import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Connector;
 import net.grinder.communication.InitialiseGrinderMessage;
 import net.grinder.communication.Message;
+import net.grinder.communication.MessagePump;
 import net.grinder.communication.QueuedSender;
 import net.grinder.communication.QueuedSenderDecorator;
 import net.grinder.communication.Receiver;
@@ -240,8 +241,8 @@ public final class GrinderProcess {
     try { java.net.InetAddress.getLocalHost(); }
     catch (Exception e) { /* Ignore */ }
 
-    m_consoleListener =
-      new ConsoleListener(receiver, m_eventSynchronisation, logger);
+    m_consoleListener = new ConsoleListener(m_eventSynchronisation, logger);
+    new MessagePump(receiver, m_consoleListener.getSender(), 1);
   }
 
   /**
