@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.common.Logger;
+import net.grinder.testutility.StubInvocationHandler;
 
 
 /**
@@ -63,64 +64,74 @@ public class TestExternalLogger extends TestCase {
       null);
 
     processLoggerFactory.assertNotCalled();
-  }
 
-  /*
-  private static class StubThreadLoggerInvocationHandler
-    extends StubInvocationHandler(ThreadLogger.class) {
+    final Object errorLogWriter = externalLogger.getErrorLogWriter();
+    processLoggerFactory.assertSuccess("getErrorLogWriter", new Object[] {},
+                                       errorLogWriter);
 
-    public ThreadLogger getThreadLogger() {
-      return (ThreadLogger)getProxy();
-    }
+    final Object outputLogWriter = externalLogger.getOutputLogWriter();
+    processLoggerFactory.assertSuccess("getOutputLogWriter", new Object[] {},
+                                       outputLogWriter);
   }
 
   public void testSeveralLoggers() throws Exception {
-    final LogCounter processLogger = new LogCounter();
+    final LoggerStubFactory processLoggerFactory = new LoggerStubFactory();
+    final Logger processLogger = processLoggerFactory.getLogger();
 
-    final StubInvocationHandler threadLogger1 //ETC.
-    final LogCounter threadLogger1 = new LogCounter();
-    final LogCounter threadLogger2 = new LogCounter();
+    final ThreadLoggerStubFactory threadLoggerFactory1 =
+      new ThreadLoggerStubFactory();
+    final ThreadLogger threadLogger1 = threadLoggerFactory1.getThreadLogger();
 
-    final ThreadContext threadContext1 = new StubThreadContext() {
-        public ThreadLogger getThreadLogger() { return threadLogger1; }
-      };
+    final ThreadLoggerStubFactory threadLoggerFactory2 =
+      new ThreadLoggerStubFactory();
+    final ThreadLogger threadLogger2 = threadLoggerFactory2.getThreadLogger();
 
-    final ThreadContext threadContext2 = new StubThreadContext() {
-        public ThreadLogger getThreadLogger() { return threadLogger2; }
-      };
+    final ThreadContextStubFactory threadContextFactory1 =
+      new ThreadContextStubFactory(threadLogger1);
+    final ThreadContext threadContext1 =
+      threadContextFactory1.getThreadContext();
+
+    final ThreadContextStubFactory threadContextFactory2 =
+      new ThreadContextStubFactory(threadLogger2);
+    final ThreadContext threadContext2 =
+      threadContextFactory2.getThreadContext();
     
     final ThreadContextLocator threadContextLocator =
-      new StubThreadContextLocator();
+       new StubThreadContextLocator();
 
     final ExternalLogger externalLogger =
       new ExternalLogger(processLogger, threadContextLocator);
 
-    threadContextLocator.set(threadLogger1);
+    threadContextLocator.set(threadContext1);
 
     externalLogger.output("Testing", Logger.LOG | Logger.TERMINAL);
-    assertNull(processLogger.getLastMessage());
-    assertNull(threadLogger2.getLastMessage());
-    assertEquals(1, threadLogger1.getNumberOfOutputs());
-    assertEquals(0, threadLogger1.getNumberOfErrors());
-    assertEquals("Testing", threadLogger1.getLastMessage());
-    assertEquals(Logger.LOG | Logger.TERMINAL, threadLogger1.getLastWhere());
+    threadLoggerFactory1.assertSuccess(
+      "output",
+      new Object[] { "Testing", new Integer(Logger.LOG | Logger.TERMINAL) });
+
+    final Object errorLogWriter = externalLogger.getErrorLogWriter();
+    threadLoggerFactory1.assertSuccess("getErrorLogWriter", new Object[] {},
+                                       errorLogWriter);
+
+    processLoggerFactory.assertNotCalled();
+    threadLoggerFactory1.assertNotCalled();
+    threadLoggerFactory2.assertNotCalled();
 
     threadContextLocator.set(null);
 
-    processLogger.reset();
-    threadLogger1.reset();
-    threadLogger2.reset();
-
     externalLogger.error("Another test");
-    assertNull(threadLogger1.getLastMessage());
-    assertNull(threadLogger2.getLastMessage());
-    assertEquals(0, processLogger.getNumberOfOutputs());
-    assertEquals(1, processLogger.getNumberOfErrors());
-    assertEquals("Another test", processLogger.getLastMessage());
-    assertEquals(Logger.LOG, processLogger.getLastWhere());
+    processLoggerFactory.assertSuccess(
+      "error", new Object[] { "Another test", new Integer(Logger.LOG) });
+
+    processLoggerFactory.assertNotCalled();
+    threadLoggerFactory1.assertNotCalled();
+    threadLoggerFactory2.assertNotCalled();
   }
 
   public void testMultithreaded() throws Exception {
+
+    final LoggerStubFactory processLoggerFactory = new LoggerStubFactory();
+    final Logger processLogger = processLoggerFactory.getLogger();
 
     final ThreadContextLocator threadContextLocator =
       new ThreadContextLocatorImplementation();
@@ -139,7 +150,9 @@ public class TestExternalLogger extends TestCase {
       threads[i].join();
       assertTrue(threads[i].getOK());
     }
-  }
+
+    processLoggerFactory.assertNotCalled();
+  } 
 
   private static class TestThread extends Thread {
     private final ExternalLogger m_externalLogger;
@@ -154,15 +167,28 @@ public class TestExternalLogger extends TestCase {
     }
 
     public void run() {
-      final Logger threadLogger = new LogCounter();
+      final ThreadLoggerStubFactory threadLoggerFactory =
+        new ThreadLoggerStubFactory();
+      final ThreadLogger threadLogger = threadLoggerFactory.getThreadLogger();
 
-      final ThreadContext threadContext = new StubThreadContext() {
-          public ThreadLogger getThreadLogger() { return threadLogger; }
-        };
+      final ThreadContextStubFactory threadContextFactory =
+        new ThreadContextStubFactory(threadLogger);
+      final ThreadContext threadContext =
+        threadContextFactory.getThreadContext();
 
       m_threadContextLocator.set(threadContext);
 
       for (int i=0; i<100; ++i) {
+        m_externalLogger.output("Testing", Logger.TERMINAL);
+
+        threadLoggerFactory.assertSuccess(
+          "output", new Object[] { "Testing", new Integer(Logger.TERMINAL) });
+
+        final Object outputLogWriter = m_externalLogger.getOutputLogWriter();
+        threadLoggerFactory.assertSuccess(
+          "getOutputLogWriter", new Object[] {}, outputLogWriter);
+
+        threadLoggerFactory.assertNotCalled();
       }
 
       m_ok = true;
@@ -172,7 +198,6 @@ public class TestExternalLogger extends TestCase {
       return m_ok;
     }
   }
-
 
   private static final class ThreadContextLocatorImplementation
     implements ThreadContextLocator  {
@@ -187,5 +212,23 @@ public class TestExternalLogger extends TestCase {
       m_threadContextThreadLocal.set(threadContext);
     }
   }
-  */
+
+  /** Must be public so that stub_ methods can be called externally. */
+  public static class ThreadContextStubFactory extends StubInvocationHandler {
+
+    private final ThreadLogger m_threadLogger;
+
+    public ThreadContextStubFactory(ThreadLogger threadLogger) {
+      super(ThreadContext.class);
+      m_threadLogger = threadLogger;
+    }
+
+    public final ThreadContext getThreadContext() {
+      return (ThreadContext)getProxy();
+    }
+
+    public ThreadLogger stub_getThreadLogger() {
+      return m_threadLogger;
+    }
+  }
 }
