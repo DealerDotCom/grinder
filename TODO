@@ -312,6 +312,7 @@ Also http://www.nogoop.com/product_16.html#compare
 Convert all sources back to unix file encoding so that diff etc. are
 happier?
 
+Build clover tree separately?
 Publish clover reports. Include history?
 
 * Documentation
