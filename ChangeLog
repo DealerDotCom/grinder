@@ -2,6 +2,9 @@
 
 	* The Grinder 3.0-beta22 is released.
 
+	* src/net/grinder/console/communication/ProcessStatusSet.java:
+	Checkstyle.
+
 	* CHANGES: Alter doc.
 
 	* tests-src/net/grinder/console/swingui/TestCompositeTreeModel.java:
