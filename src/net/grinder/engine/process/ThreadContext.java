@@ -24,7 +24,7 @@ import net.grinder.common.Test;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.ThreadCallbacks;
-import net.grinder.statistics.CommonStatistics;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -143,8 +143,7 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
     void invokeTest(ThreadCallbacks threadCallbacks, TestData testData)
     {
 	final Test test = testData.getTest();
-	final CommonStatistics.TestStatistics statistics =
-	    testData.getStatistics();
+	final TestStatistics statistics = testData.getStatistics();
 
 	try {
 	    final boolean success;

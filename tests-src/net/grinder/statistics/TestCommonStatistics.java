@@ -54,28 +54,34 @@ public class TestCommonStatistics extends TestCase
 	assert(commonStatistics.getStatisticsView() != null);
     }
 
-    public void testTestStatistics() throws Exception
+    public void testTestStatisticsImplementation() throws Exception
     {
 	final CommonStatistics commonStatistics =
 	    CommonStatistics.getInstance();
 
-	final CommonStatistics.TestStatistics testStatistics1 =
-	    commonStatistics.new TestStatistics();
+	final TestStatistics testStatistics1 =
+	    commonStatistics.new TestStatisticsImplementation();
 
-	final CommonStatistics.TestStatistics testStatistics2 =
-	    commonStatistics.new TestStatistics();
+	assertEquals(0, testStatistics1.getErrors());
+	assertEquals(0, testStatistics1.getTransactions());
+	assert(Double.isNaN(testStatistics1.getAverageTransactionTime()));
+
+	final TestStatistics testStatistics2 =
+	    commonStatistics.new TestStatisticsImplementation();
 
 	assert(testStatistics1 != testStatistics2);
 
 	assertEquals(testStatistics1, testStatistics2);
 
 	testStatistics1.addError();
+	assertEquals(1, testStatistics1.getErrors());
 	assert(!testStatistics1.equals(testStatistics2));
 
 	testStatistics2.addError();
 	assertEquals(testStatistics1, testStatistics2);
 
 	testStatistics1.addTransaction();
+	assertEquals(1, testStatistics1.getTransactions());
 	assert(!testStatistics1.equals(testStatistics2));
 
 	testStatistics2.addTransaction();
@@ -83,6 +89,7 @@ public class TestCommonStatistics extends TestCase
 
 	testStatistics1.addTransaction(5);
 	testStatistics2.addTransaction(10);
+	assertEquals(2, testStatistics1.getTransactions());
 	assert(!testStatistics1.equals(testStatistics2));
 
 	testStatistics1.addTransaction(10);

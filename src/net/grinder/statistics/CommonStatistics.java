@@ -94,7 +94,7 @@ public final class CommonStatistics
 	return m_statisticsView;
     }
 
-    public final class TestStatistics extends RawStatistics
+    public final class TestStatisticsImplementation extends TestStatistics
     {
 	public final void addError()
 	{
@@ -110,6 +110,27 @@ public final class CommonStatistics
 	{
 	    addValue(m_timedTransactionsIndex, 1);
 	    addValue(m_totalTimeIndex, time);
+	}
+
+	public final long getTransactions()
+	{
+	    return
+		getValue(m_timedTransactionsIndex) +
+		getValue(m_untimedTransactionsIndex);
+	}
+
+	public final long getErrors()
+	{
+	    return getValue(m_errorsIndex);
+	}
+
+	public final double getAverageTransactionTime()
+	{
+	    final long timedTransactions = getValue(m_timedTransactionsIndex);
+
+	    return
+		timedTransactions == 0 ?
+		Double.NaN : getValue(m_totalTimeIndex)/timedTransactions;
 	}
     }
 }
