@@ -10,11 +10,7 @@ it too :-). The list is roughly in priority order.]
 
   Test HTTPS proxy.
 
-  BUG, problems when post split across fragments.
-
   DOC TCPSniffer
-
-  pesimitic <> parsing - test
 
   TCPSniffer should record 401 iteractions.
 
@@ -38,8 +34,6 @@ it too :-). The list is roughly in priority order.]
 	
   Alter console and engine to use Timer.scheduleAtFixedRate for more
   accuracy.
-
-  Tidy up logging of plugin initialisation.
 
 The following are under way for Grinder 3:
 

@@ -34,13 +34,17 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-The Grinder uses Ronald Tschalär's HTTPClient library
+The Grinder includes Ronald Tschalär's HTTPClient library
 (http://www.innovation.ch/java/HTTPClient/index.html). The HTTPClient
 library is distributed under the GNU Lesser Public License. Under the
 term 6 of the GNU Lesser Public License, The Grinder is a "work that
 uses the Library". See doc/HTTPClient-license.txt for details of the
 GNU Lesser Public License.
 
+The Grinder includes software developed by the Apache Software
+Foundation (http://www.apache.org/), specifically the Jakarta ORO
+regular expression library. See doc/Jakarta-ORO-license.txt for
+license details.
 
 
 
@@ -83,16 +87,14 @@ To run the Grinder:
 and optionally:
 
   JSSE 1.0.2			for SSL support
-  Apache Jakarta Regexp 1.2	for the TCPSniffer HTTP plugin
-  Apache Jakarta Ant 1.3	to build the Grinder from source
-  JUnit 3.5			to test the Grinder itself
+  Apache Jakarta Ant 1.4.1	to build the Grinder from source
+  JUnit 3.7			to test the Grinder itself
 
 
 These can be obtained from the following places.
 
  http://java.sun.com/products/jsse/
  http://jakarta.apache.org/ant/index.html
- http://jakarta.apache.org/regexp/index.html
  http://sourceforge.net/projects/junit/
 
 
@@ -376,6 +378,9 @@ is not too much use, so read on... (and see doc/HTTPPlugin.txt).
 You should read the files doc/HTTPPlugin.txt and doc/JUnitPlugin.txt
 for details on the properties for individual plugins.
 
+The file doc/TCPSniffer.txt will tell you how to automatically record
+a script for use with the HTTP plugin.
+
 
 Tell me about the Console controls?
 ***********************************
@@ -520,17 +525,3 @@ grinder-development@lists.sourceforge.net.
 
 BEA keeps me very busy so the timeliness and quality of any email
 support I provide may vary.
-
-
-Development goals
-*****************
-
-The Grinder should remain simple and Java based.
-
-The Grinder should be useable with the standard JDK. For example, it
-should not rely on WebLogic Server specific classes except for
-optional WebLogic Server specific extensions. An exception to this
-rule has been made for Jakarta Ant and Regexp because they are under
-Free (unless you talk to RMS) licenses.
-
-See the grinder-development list archives for further musings.

@@ -91,6 +91,9 @@ What can I set in grinder.properties for the HTTP plugin?
 				String Bean, see "What's a String
 				Bean?" below.
 
+See also TCPSniffer.txt for how to automatically record a script for
+use with the HTTP plugin.
+
 
 What's a String Bean?
 *********************
