@@ -28,7 +28,7 @@ import net.grinder.util.FileContents;
  * Something that can distribute a list of {@link FileContents}.
  *
  * @author Philip Aston
- * @version 1.0
+ * @version $Revision$
  */
 public interface DistributeFilesHandler {
 
