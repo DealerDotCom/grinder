@@ -29,7 +29,8 @@
 	<p>If you wish, you can continue to use The Grinder 2. You may
 	find it initially easier to get use for simple HTTP test
 	scenarios. Be aware that defects in The Grinder 2 (including
-	<a href="#premature-eof">this one</a>) will not be fixed.</p>
+	<a href="#premature-eof">this one</a> and <a
+	href="#extra-line">this one</a>) will not be fixed.</p>
       </answer>
     </faq>
 
@@ -456,6 +457,30 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 	Grinder 2, but see <a
 	href="http://article.gmane.org/gmane.comp.java.grinder.user/893/match=premature+eof">this
 	e-mail</a> for details of how to do this yourself.</p>
+      </answer>
+    </faq>
+
+    <faq id="extra-line">
+      <question>
+	Why do my POSTs have an extra new line?
+      </question>
+
+      <answer>
+	<p>An anonymous user reports:</p>
+	<dl>
+	  <dt/>
+	  <dd class="quote">
+	    <p>The Grinder 2 appends a new line character to the end
+	    of file which contains post information for a test. This
+	    appears to happen only under Windows.</p>
+	  </dd>
+	</dl>
+
+	<p>This is a known issue with The Grinder 2 that is fixed in
+	The Grinder 3.0. I have no plans to backport the fix to The
+	Grinder 2, but see the <a
+	href="site:sourceforge/extra-line">bug report</a> for how to
+	do this yourself.</p>
       </answer>
     </faq>
   </faqsection>
