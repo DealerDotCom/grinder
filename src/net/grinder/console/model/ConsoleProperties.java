@@ -27,10 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationDefaults;
@@ -284,7 +282,7 @@ public final class ConsoleProperties {
                          m_distributionDirectory);
 
     m_properties.setProperty(DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
-                             m_distributionFileFilterPattern.getPattern());
+                             m_distributionFileFilterPattern.pattern());
 
     if (m_lookAndFeel != null) {
       m_properties.setProperty(LOOK_AND_FEEL_PROPERTY, m_lookAndFeel);
@@ -760,20 +758,16 @@ public final class ConsoleProperties {
     throws DisplayMessageConsoleException {
 
     try {
-      final Perl5Compiler compiler = new Perl5Compiler();
-
       if (expression == null) {
         setDistributionFileFilterPattern(
-          compiler.compile(
-            ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION,
-            Perl5Compiler.READ_ONLY_MASK));
+          Pattern.compile(
+            ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION));
       }
       else {
-        setDistributionFileFilterPattern(
-          compiler.compile(expression, Perl5Compiler.READ_ONLY_MASK));
+        setDistributionFileFilterPattern(Pattern.compile(expression));
       }
     }
-    catch (MalformedPatternException e) {
+    catch (PatternSyntaxException e) {
       throw new DisplayMessageConsoleException(
         m_resources, "distributionFileFilterExpressionError.text", e);
     }

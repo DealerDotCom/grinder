@@ -30,9 +30,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
 import java.util.Random;
-
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.DisplayMessageConsoleException;
@@ -207,7 +206,7 @@ public class TestConsoleProperties extends TestCase {
       protected void set(ConsoleProperties properties, boolean b) {
 	properties.setResetConsoleWithProcesses(b);
       }
-      
+
     }.doTest();
   }
 
@@ -340,7 +339,7 @@ public class TestConsoleProperties extends TestCase {
       ConsoleProperties.DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY) {
 
       protected Pattern get(ConsoleProperties properties) {
-	return properties.getDistributionFileFilterPattern();
+        return properties.getDistributionFileFilterPattern();
       }
 
       protected void set(ConsoleProperties properties, String expression)
@@ -348,7 +347,7 @@ public class TestConsoleProperties extends TestCase {
 	properties.setDistributionFileFilterExpression(expression);
       }
     }.doTest();
-    
+
   }
 
   public void testCopyConstructor() throws Exception {
@@ -491,7 +490,7 @@ public class TestConsoleProperties extends TestCase {
       while (i3 == i2);
 
       final PropertyChangeEvent expected =
-	new PropertyChangeEvent(properties2, m_propertyName, 
+	new PropertyChangeEvent(properties2, m_propertyName,
 				new Integer(i2), new Integer(i3));
 
       final ChangeListener listener = new ChangeListener(expected);
@@ -587,7 +586,7 @@ public class TestConsoleProperties extends TestCase {
       assertTrue(get(properties2));
 
       final PropertyChangeEvent expected =
-	new PropertyChangeEvent(properties2, m_propertyName, 
+	new PropertyChangeEvent(properties2, m_propertyName,
 				new Boolean(true), new Boolean(false));
 
       final ChangeListener listener = new ChangeListener(expected);
@@ -663,7 +662,7 @@ public class TestConsoleProperties extends TestCase {
         catch (DisplayMessageConsoleException e) {
         }
       }
-      
+
       final String s1 = getRandomString();
 
       writePropertyToFile(m_propertyName, s1);
@@ -792,19 +791,19 @@ public class TestConsoleProperties extends TestCase {
       final ConsoleProperties properties =
         new ConsoleProperties(s_resources, m_file);
 
-      assertEquals(s1, get(properties).getPattern());
+      assertEquals(s1, get(properties).pattern());
 
       final String s2 = "(some|a)\\w*pattern";
 
       set(properties, s2);
-      assertEquals(s2, get(properties).getPattern());
+      assertEquals(s2, get(properties).pattern());
 
       properties.save();
 
       final ConsoleProperties properties2 =
         new ConsoleProperties(s_resources, m_file);
 
-      assertEquals(s2, get(properties2).getPattern());
+      assertEquals(s2, get(properties2).pattern());
 
       final String s3 = "^abc$";
 
@@ -824,20 +823,20 @@ public class TestConsoleProperties extends TestCase {
 
       set(properties, null);
       assertEquals(ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION,
-                   get(properties).getPattern());
+                   get(properties).pattern());
 
       try {
         set(properties, "malformed(((");
         fail("Malformed expression, expected DisplayMessageConsoleException");
       }
       catch (DisplayMessageConsoleException e) {
-        assertTrue("Nested exception is a MalformedPatternException",
+        assertTrue("Nested exception is a PatternSyntaxException",
                    e.getNestedThrowable()
-                   instanceof MalformedPatternException);
+                   instanceof PatternSyntaxException);
       }
 
       assertEquals(ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION,
-                   get(properties).getPattern());
+                   get(properties).pattern());
     }
 
     protected abstract Pattern get(ConsoleProperties properties);
@@ -889,7 +888,7 @@ public class TestConsoleProperties extends TestCase {
       }
       else {
         assertNotNull(result);
-        assertEquals(expected, ((Pattern)result).getPattern());
+        assertEquals(expected, ((Pattern)result).pattern());
       }
     }
   }

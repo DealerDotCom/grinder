@@ -22,9 +22,7 @@
 package net.grinder.console.distribution;
 
 import java.io.File;
-
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
+import java.util.regex.Pattern;
 
 import net.grinder.console.communication.DistributionControl;
 import net.grinder.testutility.AbstractFileTestCase;
@@ -57,9 +55,8 @@ public class TestFileDistribution extends AbstractFileTestCase {
     anotherFile.mkdir();
     final Directory directory2 = new Directory(anotherFile);
 
-    final Perl5Compiler compiler = new Perl5Compiler();
-    final Pattern matchNonePattern = compiler.compile("^$");
-    final Pattern matchAllPattern = compiler.compile(".*");
+    final Pattern matchNonePattern = Pattern.compile("^$");
+    final Pattern matchAllPattern = Pattern.compile(".*");
 
     final FileDistributionHandler fileDistributionHandler1 =
       fileDistribution.getHandler(directory1, matchNonePattern);

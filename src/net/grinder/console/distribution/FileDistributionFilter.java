@@ -23,10 +23,8 @@ package net.grinder.console.distribution;
 
 import java.io.File;
 import java.io.FileFilter;
-
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.Perl5Matcher;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -36,7 +34,6 @@ import org.apache.oro.text.regex.Perl5Matcher;
  * @version $Revision$
  */
 final class FileDistributionFilter implements FileFilter {
-  private final PatternMatcher m_matcher = new Perl5Matcher();
   private final Pattern m_distributionFileFilterPattern;
   private final long m_earliestTime;
 
@@ -50,7 +47,10 @@ final class FileDistributionFilter implements FileFilter {
     final String name = file.getName();
 
     if (file.isDirectory()) {
-      if (m_matcher.contains(name + "/", m_distributionFileFilterPattern)) {
+      final Matcher matcher =
+        m_distributionFileFilterPattern.matcher(name + "/");
+
+      if (matcher.matches()) {
         return false;
       }
 
@@ -65,7 +65,9 @@ final class FileDistributionFilter implements FileFilter {
       return true;
     }
     else {
-      if (m_matcher.contains(name, m_distributionFileFilterPattern)) {
+      final Matcher matcher = m_distributionFileFilterPattern.matcher(name);
+
+      if (matcher.matches()) {
         return false;
       }
 

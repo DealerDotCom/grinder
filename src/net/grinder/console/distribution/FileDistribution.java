@@ -21,7 +21,7 @@
 
 package net.grinder.console.distribution;
 
-import org.apache.oro.text.regex.Pattern;
+import java.util.regex.Pattern;
 
 import net.grinder.console.communication.DistributionControl;
 import net.grinder.util.Directory;
@@ -90,7 +90,8 @@ public final class FileDistribution {
     if (m_lastDirectory == null ||
         !m_lastDirectory.equals(directory) ||
         m_lastFileFilterPattern == null ||
-        !m_lastFileFilterPattern.equals(distributionFileFilterPattern)) {
+        !m_lastFileFilterPattern.pattern().equals(
+            distributionFileFilterPattern.pattern())) {
 
       m_cacheState.setOutOfDate();
 

@@ -23,9 +23,7 @@ package net.grinder.console.distribution;
 
 import java.io.File;
 import java.io.FileFilter;
-
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.Perl5Compiler;
+import java.util.regex.Pattern;
 
 import net.grinder.testutility.AbstractFileTestCase;
 
@@ -39,9 +37,7 @@ import net.grinder.testutility.AbstractFileTestCase;
 public class TestFileDistributionFilter extends AbstractFileTestCase {
 
   public void testFilter() throws Exception {
-    final Pattern pattern =
-      new Perl5Compiler().compile("^a.*[^/]$|exclude|.*b/$",
-                                  Perl5Compiler.READ_ONLY_MASK);
+    final Pattern pattern = Pattern.compile("^a.*[^/]$|.*exclude.*|.*b/$");
 
     final FileFilter filter = new FileDistributionFilter(pattern, 100000L);
 
