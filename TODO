@@ -3,12 +3,10 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-Download link on sf is broken?
-Bug 608392 - localized characters in output files.
-
   Add jython to distribution.
-  Resurrect G2 text docs and make point release.
-  Update README.
+  Relase 2.8.4 
+
+  Bug 608392 - localized characters in output files.
 
   Find out how to stop net.grinder.console.swing.TestGraph from
   preventing parent process from detecting exit status. (For example,
@@ -24,6 +22,8 @@ Bug 608392 - localized characters in output files.
   pair per connection.
 
   TCPSniffer and HTTP plugin should be able to work through proxies.
+
+  Rename TCPSniffer to TCPProxy to reflect reality.
 
   Update HTTPClient to support "mean time to first byte".
 
