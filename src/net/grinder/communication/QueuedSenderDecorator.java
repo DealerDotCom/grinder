@@ -23,6 +23,7 @@ package net.grinder.communication;
 
 
 /**
+ * QueuedSender implementation.
  *
  * @author Philip Aston
  * @version $Revision$
