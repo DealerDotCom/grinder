@@ -117,8 +117,11 @@ public class GrinderException extends Exception {
         removeCommonSuffix(nestedTrace, immediateTrace);
 
       s.print("(Nested exception) ");
-      s.print(nestedTrace);
-      s.print(truncatedNestedTrace ? "\n\t<truncated>\n" : "\n");
+      s.println(nestedTrace);
+      s.println();
+      if (truncatedNestedTrace) {
+        s.println("\t<truncated>");
+      }
     }
   }
 
