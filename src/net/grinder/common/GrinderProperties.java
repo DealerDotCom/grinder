@@ -33,7 +33,7 @@ public class GrinderProperties extends Properties
 
     private static GrinderProperties s_singleton;
 
-    private GrinderProperties()
+    /*private*/ public GrinderProperties()
     {
     }
 
@@ -73,19 +73,18 @@ public class GrinderProperties extends Properties
 	return s_singleton;
     }
 
-    public static GrinderProperties getPropertySubset(String prefix)
+    public GrinderProperties getPropertySubset(String prefix)
     {
 	final GrinderProperties result = new GrinderProperties();
-	final GrinderProperties allProperties = getProperties();
 
-	final Enumeration propertyNames = allProperties.propertyNames();
+	final Enumeration propertyNames = propertyNames();
 
 	while (propertyNames.hasMoreElements()) {
 	    final String name = (String)propertyNames.nextElement();
 
 	    if (name.startsWith(prefix)) {
 		result.setProperty(name.substring(prefix.length()),
-				   allProperties.getProperty(name));
+				   getProperty(name));
 	    }
 	}
 
@@ -138,6 +137,42 @@ public class GrinderProperties extends Properties
 	catch (NumberFormatException e) {
 	    throw new GrinderException("Mandatory property '" + propertyName +
 				       "' does not specify an integer value");
+	}
+    }
+
+    public long getLong(String propertyName, long defaultValue)
+    {
+	final String s = getProperty(propertyName);
+
+	if (s != null) {
+	    try {
+		return Long.parseLong(s);
+	    }
+	    catch (NumberFormatException e) {
+		System.err.println("Warning, property '" + propertyName +
+				   "' does not specify an integer value");
+	    }
+	}
+
+	return defaultValue;
+    }
+
+    public long getMandatoryLong(String propertyName)
+	throws GrinderException
+    {
+	final String s = getProperty(propertyName);
+
+	if (s == null) {
+	    throw new GrinderException("Mandatory property '" + propertyName +
+				       "' not specified");
+	}
+	
+	try {
+	    return Long.parseLong(s);
+	}
+	catch (NumberFormatException e) {
+	    throw new GrinderException("Mandatory property '" + propertyName +
+				       "' does not specify a long value");
 	}
     }
 
@@ -242,13 +277,6 @@ public class GrinderProperties extends Properties
 	final Properties defaults = new Properties();
     
 	// This really needs reviewing - not sure its a good idea.
-	defaults.put("grinder.hostId", "0");
-	defaults.put("grinder.cycleClass",
-		       "net.grinder.plugin.simple.SimpleBmk");
-	defaults.put("grinder.cycleParams",
-		       "[paramA]a,[paramB]500,[paramC]10.2");
-	defaults.put("grinder.threads", "2");
-	defaults.put("grinder.times", "3");
 	defaults.put("grinder.initialWait", "false");
 	defaults.put("grinder.multicastAddress", "228.1.1.1");
 	defaults.put("grinder.multicastPort", "1234");
