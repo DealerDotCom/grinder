@@ -1,5 +1,6 @@
 // Copyright (C) 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2003 Richard Perks
+// Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,11 +39,14 @@ import HTTPClient.NVPair;
  *
  * @author Philip Aston
  * @author Richard Perks
+  * @author Bertrand Ave
  * @version $Revision$
  */
 final class HTTPConnectionWrapper implements HTTPPluginConnection {
 
   private static final Class s_redirectionModule;
+  private static final Class s_contentEncodingModule;
+  private static final Class s_transferEncodingModule;
 
   private final HTTPConnection m_httpConnection;
 
@@ -51,6 +55,10 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     // access.
     try {
       s_redirectionModule = Class.forName("HTTPClient.RedirectionModule");
+      s_contentEncodingModule = Class.forName(
+        "HTTPClient.ContentEncodingModule");
+      s_transferEncodingModule = Class.forName(
+        "HTTPClient.TransferEncodingModule");
     }
     catch (ClassNotFoundException e) {
       throw new ExceptionInInitializerError(e);
@@ -66,6 +74,8 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     synchronized (defaults) {
       setFollowRedirects(defaults.getFollowRedirects());
       setUseCookies(defaults.getUseCookies());
+      setUseContentEncoding(defaults.getUseContentEncoding());
+      setUseTransferEncoding(defaults.getUseTransferEncoding());
       setDefaultHeaders(defaults.getDefaultHeaders());
       setTimeout(defaults.getTimeout());
       setVerifyServerDistinguishedName(
@@ -124,6 +134,24 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     }
     else {
       m_httpConnection.removeModule(CookieModule.class);
+    }
+  }
+
+  public void setUseContentEncoding(boolean useContentEncoding) {
+    if (useContentEncoding) {
+      m_httpConnection.addModule(s_contentEncodingModule, 0);
+    }
+    else {
+      m_httpConnection.removeModule(s_contentEncodingModule);
+    }
+  }
+
+  public void setUseTransferEncoding(boolean useTransferEncoding) {
+    if (useTransferEncoding) {
+      m_httpConnection.addModule(s_transferEncodingModule, 0);
+    }
+    else {
+      m_httpConnection.removeModule(s_transferEncodingModule);
     }
   }
 

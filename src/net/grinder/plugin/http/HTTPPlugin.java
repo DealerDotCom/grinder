@@ -1,5 +1,6 @@
 // Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -43,6 +44,7 @@ import net.grinder.statistics.StatisticsView;
  *
  * @author Paco Gomez
  * @author Philip Aston
+ * @author Bertrand Ave
  * @version $Revision$
  */
 public class HTTPPlugin implements GrinderPlugin {
@@ -106,12 +108,6 @@ public class HTTPPlugin implements GrinderPlugin {
     // Remove standard HTTPClient modules which we don't want. We load
     // HTTPClient modules dynamically as we don't have public access.
     try {
-      // Don't want additional post-processing of response data.
-      HTTPConnection.removeDefaultModule(
-        Class.forName("HTTPClient.ContentEncodingModule"));
-      HTTPConnection.removeDefaultModule(
-        Class.forName("HTTPClient.TransferEncodingModule"));
-
       // Don't want to retry requests.
       HTTPConnection.removeDefaultModule(
         Class.forName("HTTPClient.RetryModule"));

@@ -2,7 +2,7 @@
 // Copyright (C) 2000 Phil Dawes
 // Copyright (C) 2001 Kalle Burbeck
 // Copyright (C) 2003 Bill Schnellinger
-// Copyright (C) 2003 Bertrand Ave
+// Copyright (C) 2003, 2004 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -163,6 +163,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
   private int m_currentRequestNumber;
   private int m_currentPageNumber;
   private int m_initialPageNumber;
+  private boolean m_discardingAssociatedResources = false;
 
   private final Map m_previousHeaders =
     Collections.synchronizedMap(new HashMap());
@@ -560,6 +561,14 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     return ++m_currentPageNumber;
   }
 
+  private synchronized boolean isDiscardingAssociatedResources () {
+    return m_discardingAssociatedResources;
+  }
+
+  private synchronized void setDiscardingAssociatedResources (boolean value) {
+    this.m_discardingAssociatedResources = value;
+  }
+
   /**
    * Factory for regular expression patterns that match HTTP headers.
    *
@@ -833,7 +842,8 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       return result;
     }
 
-    private void generateRecordedScenario(boolean isNewPage,
+    private synchronized void generateRecordedScenario(
+                                          boolean isNewPage,
                                           boolean parsedFormData,
                                           StringBuffer formDataOutput,
                                           StringBuffer queryStringOutput,
@@ -979,12 +989,12 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       m_recordedScenarioFileWriter.flush();
     }
 
-    private boolean parseBody (StringBuffer testOutput,
-                               StringBuffer scriptOutput,
-                               StringBuffer formDataOutput,
-                               int requestNumber,
-                               String requestVariable)
-                               throws IOException {
+    private synchronized boolean parseBody (StringBuffer testOutput,
+                                            StringBuffer scriptOutput,
+                                            StringBuffer formDataOutput,
+                                            int requestNumber,
+                                            String requestVariable)
+                                            throws IOException {
       final String dataParameter = "data" + requestNumber;
       final String fileName = dataParameter + ".dat";
       boolean parsedFormData = false;
@@ -1074,6 +1084,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       }
       else {
         isNewPage = true;
+        setDiscardingAssociatedResources (false);
       }
 
       final StringBuffer scriptOutput = new StringBuffer();
@@ -1261,11 +1272,12 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
       while (i < DISCARD_PATTERN_LENGTH && m_discardPattern[i] != null) {
         if (m_matcher.contains (m_url + m_queryString, m_discardPattern[i])) {
           discardThisPage = true;
+          setDiscardingAssociatedResources (true);
           break;
         }
         i++;
       }
-      if (!discardThisPage) {
+      if (!discardThisPage && !isDiscardingAssociatedResources()) {
         int pageNumber;
         if (isNewPage) {
           pageNumber = incrementPageNumber();

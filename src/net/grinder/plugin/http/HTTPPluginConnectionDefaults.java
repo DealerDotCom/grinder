@@ -1,5 +1,6 @@
 // Copyright (C) 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2003 Richard Perks
+// Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,12 +38,15 @@ import HTTPClient.NVPair;
  *
  * @author Philip Aston
  * @author Richard Perks
+ * @author Bertrand Ave
  * @version $Revision$
  */
 final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
 
   private boolean m_followRedirects = true;
   private boolean m_useCookies = true;
+  private boolean m_useContentEncoding = false;
+  private boolean m_useTransferEncoding = false;
   private NVPair[] m_defaultHeaders = new NVPair[0];
   private int m_timeout = 0;
   private Map m_basicAuthorizations = new HashMap();
@@ -66,6 +70,22 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
 
   boolean getUseCookies() {
     return m_useCookies;
+  }
+
+  public void setUseContentEncoding(boolean useContentEncoding) {
+    m_useContentEncoding = useContentEncoding;
+  }
+
+  boolean getUseContentEncoding() {
+    return m_useContentEncoding;
+  }
+
+  public void setUseTransferEncoding(boolean useTransferEncoding) {
+    m_useTransferEncoding = useTransferEncoding;
+  }
+
+  boolean getUseTransferEncoding() {
+    return m_useTransferEncoding;
   }
 
   public void setDefaultHeaders(NVPair[] defaultHeaders) {

@@ -1,5 +1,6 @@
 // Copyright (C) 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2003 Richard Perks
+// Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,6 +34,7 @@ import HTTPClient.NVPair;
  *
  * @author Philip Aston
  * @author Richard Perks
+ * @author Bertrand Ave
  * @version $Revision$
  * @see HTTPPluginControl
  */
@@ -51,6 +53,20 @@ public interface HTTPPluginConnection {
    * @param useCookies <code>true</code> => use cookies.
    */
   void setUseCookies(boolean useCookies);
+
+  /**
+   * Set whether content encoding will be used.
+   *
+   * @param useContentEncoding <code>true</code> => use content encoding.
+   */
+  void setUseContentEncoding(boolean useContentEncoding);
+
+  /**
+   * Set whether transfer encoding will be used.
+   *
+   * @param useTransferEncoding <code>true</code> => use transfer encoding.
+   */
+  void setUseTransferEncoding(boolean useTransferEncoding);
 
   /**
    * Sets the default http headers to be sent with each request.

@@ -8,6 +8,13 @@ Grinder 3.0-beta18
 
   Allow the console Look and Feel to be changed.
 
+  HTTPPlugin updates from Bertrand:
+
+   - Provide access to HTTPClient content and transfer decoding
+   support.
+
+   - Minor updates to HTTPPluginTCPProxyFilter2.
+
 
 Grinder 3.0-beta17
 ------------------
