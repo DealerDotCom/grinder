@@ -2,7 +2,7 @@ Grinder 2.7
 -------------
 
   Console enhancements:
-   - All text is now read from Console.properties.
+   - All text is now read from Console.properties (think I18N).
    - Highlight errors labels if errors > 0.
    - Table view now has average TPS and peak TPS.
    - Removed individual sample TPS labels.
