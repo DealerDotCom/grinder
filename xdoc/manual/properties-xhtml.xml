@@ -100,7 +100,7 @@ properties understood by the plugin you are using.</p>
   <td><code><a name="grinder.consoleAddress">grinder.consoleAddress</a></code></td>
   <td>The IP address or hostname to use for communication from the
   Grinder processes to the console. Default is all the network
-  interfaces of the console machine.</td>
+  interfaces of the local machine.</td>
  </tr>
 
  <tr>
