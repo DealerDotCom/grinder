@@ -81,7 +81,8 @@ final class ConsoleListener
      * #received} will always return 0. </p>
      *
      * @param properties The {@link GrinderProperties}
-     * @param notifyOnMessage A {@link Monitor} to notify when a message arrives.
+     * @param notifyOnMessage A {@link Monitor} to notify when a
+     * message arrives.
      * @param logger A {@link Logger} to log receive event messages to.
      * @exception CommunicationException If a multicast error occurs.
      **/
@@ -92,24 +93,20 @@ final class ConsoleListener
 	m_notifyOnMessage = notifyOnMessage;
 	m_logger = logger;
 
-	if (properties.getBoolean("grinder.receiveConsoleSignals", true)) {
+	// Parse console configuration.
+	final String grinderAddress =
+	    properties.getProperty("grinder.grinderAddress",
+				   CommunicationDefaults.GRINDER_ADDRESS);
 
-	    // Parse console configuration.
-	    final String grinderAddress =
-		properties.getProperty(
-		    "grinder.grinderAddress",
-		    CommunicationDefaults.GRINDER_ADDRESS);
+	final int grinderPort =
+	    properties.getInt("grinder.grinderPort",
+			      CommunicationDefaults.GRINDER_PORT);
 
-	    final int grinderPort =
-		properties.getInt("grinder.grinderPort",
-				  CommunicationDefaults.GRINDER_PORT);
+	final ReceiverThread receiverThread =
+	    new ReceiverThread(grinderAddress, grinderPort);
 
-	    final ReceiverThread receiverThread =
-		new ReceiverThread(grinderAddress, grinderPort);
-
-	    receiverThread.setDaemon(true);
-	    receiverThread.start();
-	}
+	receiverThread.setDaemon(true);
+	receiverThread.start();
     }
 
     /**
@@ -147,7 +144,8 @@ final class ConsoleListener
 	 *
 	 * @param address Console multicast address.
 	 * @param port Console multicast port.
-	 * @exception CommunicationException If an error occurs binding to the multicast port.
+	 * @exception CommunicationException If an error occurs
+	 * binding to the multicast port.
 	 **/
 	private ReceiverThread(String address, int port)
 	    throws CommunicationException

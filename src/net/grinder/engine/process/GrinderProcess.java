@@ -129,10 +129,7 @@ public final class GrinderProcess implements Monitor
 
 	m_context = ProcessContext.getInstance();
 
-	final LoggerImplementation loggerImplementation =
-	    m_context.getLoggerImplementation();
-
-	m_dataWriter = loggerImplementation.getDataWriter();
+	m_dataWriter = m_context.getLoggerImplementation().getDataWriter();
 
 	m_numberOfThreads = properties.getShort("grinder.threads", (short)1);
 
@@ -150,7 +147,9 @@ public final class GrinderProcess implements Monitor
 	    scriptFilename != null ?
 	    new BSFProcessContext(new File(scriptFilename)) : null;
 
-	m_consoleListener = new ConsoleListener(properties, this, m_context);
+	m_consoleListener =
+	    properties.getBoolean("grinder.receiveConsoleSignals", true) ?
+	    new ConsoleListener(properties, this, m_context): null;
     }
 
     private final GrinderPlugin instantiatePlugin() throws GrinderException
@@ -206,8 +205,6 @@ public final class GrinderProcess implements Monitor
 			     System.getProperty("os.arch") + " " +
 			     System.getProperty("os.version"));
 
-	final String language;
-
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
 
 	for (int i=0; i<m_numberOfThreads; i++) {
@@ -225,7 +222,8 @@ public final class GrinderProcess implements Monitor
 	    new ReportStatusMessage(ProcessStatus.STATE_STARTED,
 				    (short)0, m_numberOfThreads));
 
-	if (!Boolean.getBoolean(DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME)) {
+	if (m_consoleListener != null &&
+	    !Boolean.getBoolean(DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME)) {
 	    m_context.logMessage("waiting for console signal",
 				 Logger.LOG | Logger.TERMINAL);
 
@@ -261,12 +259,15 @@ public final class GrinderProcess implements Monitor
 		synchronized (this) {
 		    while (GrinderThread.getNumberOfThreads() > 0) {
 
-			m_lastMessagesReceived =
-			    m_consoleListener.received(ConsoleListener.RESET |
-						       ConsoleListener.STOP);
+			if (m_consoleListener != null) {
+			    m_lastMessagesReceived =
+				m_consoleListener.received(
+				    ConsoleListener.RESET |
+				    ConsoleListener.STOP);
 
-			if (m_lastMessagesReceived != 0) {
-			    break;
+			    if (m_lastMessagesReceived != 0) {
+				break;
+			    }
 			}
 
 			try {
@@ -333,7 +334,8 @@ public final class GrinderProcess implements Monitor
 
 	statisticsTable.print(m_context.getOutputLogWriter());
 
-	if (m_lastMessagesReceived == 0) {
+	if (m_consoleListener != null &&
+	    m_lastMessagesReceived == 0) {
 	    // We've got here naturally, without a console signal.
 	    m_context.logMessage("finished, waiting for console signal",
 				 Logger.LOG | Logger.TERMINAL);
