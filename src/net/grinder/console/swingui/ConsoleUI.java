@@ -1212,7 +1212,9 @@ public final class ConsoleUI implements ModelListener {
 
     public void actionPerformed(ActionEvent event) {
       try {
-        if (m_fileChooser.showOpenDialog(m_frame) ==
+        if (m_fileChooser.showDialog(m_frame,
+                                     m_model.getResources().getString(
+                                       "choose-directory.label")) ==
             JFileChooser.APPROVE_OPTION) {
 
           final File file = m_fileChooser.getSelectedFile();
