@@ -320,10 +320,21 @@ public class ConsoleUI implements ModelListener
 							     m_resources)),
 			  m_resources.getString("graphTab.tip"));
 
-	tabbedPane.addTab(m_resources.getString("tableTab.title"),
-			  m_resources.getImageIcon("tableTab.image"),
-			  new JScrollPane(new TestTable(model, m_resources)),
-			  m_resources.getString("tableTab.tip"));
+	final CumulativeStatisticsTableModel cumulativeModel =
+	    new CumulativeStatisticsTableModel(model, true, m_resources);
+
+	tabbedPane.addTab(m_resources.getString("cumulativeTableTab.title"),
+			  m_resources.getImageIcon("cumulativeTableTab.image"),
+			  new JScrollPane(new TestTable(cumulativeModel)),
+			  m_resources.getString("cumulativeTableTab.tip"));
+
+	final SampleStatisticsTableModel sampleModel =
+	    new SampleStatisticsTableModel(model, m_resources);
+
+	tabbedPane.addTab(m_resources.getString("sampleTableTab.title"),
+			  m_resources.getImageIcon("sampleTableTab.image"),
+			  new JScrollPane(new TestTable(sampleModel)),
+			  m_resources.getString("sampleTableTab.tip"));
 
 	final JPanel contentPanel = new JPanel();
 
@@ -456,11 +467,11 @@ public class ConsoleUI implements ModelListener
     private int updateStateLabel()
     {
 	final int state = m_model.getState();
-	final boolean receivedSample = m_model.getRecievedSample();
+	final boolean receivedReport = m_model.getReceivedReport();
 	final long sampleCount = m_model.getSampleCount();
 
 	if (state == Model.STATE_WAITING_FOR_TRIGGER) {
-	    if (receivedSample) {
+	    if (receivedReport) {
 		m_stateLabel.setText(m_stateIgnoringString + sampleCount);
 	    }
 	    else {
@@ -468,7 +479,7 @@ public class ConsoleUI implements ModelListener
 	    }
 	}
 	else if (state == Model.STATE_STOPPED) {
-	    if (receivedSample) {
+	    if (receivedReport) {
 		m_stateLabel.setText(m_stateStoppedAndIgnoringString);
 	    }
 	    else {
@@ -621,8 +632,10 @@ public class ConsoleUI implements ModelListener
 			return;
 		    }
 
-		    final StatisticsTableModel model =
-			new StatisticsTableModel(m_model, false, m_resources);
+		    final CumulativeStatisticsTableModel model =
+			new CumulativeStatisticsTableModel(m_model,
+							   false,
+							   m_resources);
 		    model.update();
 
 		    try {

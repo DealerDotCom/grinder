@@ -71,7 +71,7 @@ public class Model
     private boolean m_stopSampler = false;
     private int m_state = 0;
     private long m_sampleCount = 0;
-    private boolean m_receivedSample = false;
+    private boolean m_receivedReport = false;
     private final List m_modelListeners = new LinkedList();
 
     /* System.currentTimeMillis is expensive. This is acurate to one
@@ -120,6 +120,11 @@ public class Model
     public CumulativeStatistics getTotalCumulativeStatistics()
     {
 	return m_totalSampleAccumulator;
+    }
+
+    public IntervalStatistics getLastSampleStatistics(int testNumber)
+    {
+	return m_sampleAccumulators[testNumber].getLastSampleStatistics();
     }
 
     public synchronized void addModelListener(ModelListener listener)
@@ -173,7 +178,7 @@ public class Model
     public void add(TestStatisticsMap testStatisticsMap)
 	throws ConsoleException
     {
-	m_receivedSample = true;
+	m_receivedReport = true;
 
 	if (getState() == STATE_CAPTURING) {
 	    final TestStatisticsMap.Iterator iterator =
@@ -194,39 +199,8 @@ public class Model
     }
 
     private class IntervalStatisticsImplementation
-	implements IntervalStatistics
+	extends StatisticsImplementation implements IntervalStatistics
     {
-	private StatisticsImplementation m_statistics;
-
-	{
-	    reset();
-	}
-
-	public void reset()
-	{
-	    m_statistics = new StatisticsImplementation();
-	}
-
-	public void add(StatisticsImplementation sample)
-	{
-	    m_statistics.add(sample);
-	}
-
-	public double getAverageTransactionTime()
-	{
-	    return m_statistics.getAverageTransactionTime();
-	}
-	
-	public long getTransactions()
-	{
-	    return m_statistics.getTransactions();
-	}
-	
-	public long getErrors()
-	{
-	    return m_statistics.getErrors();
-	}
-	
 	public synchronized double getTPS()
 	{
 	    return 1000d*getTransactions()/(double)m_sampleInterval;
@@ -237,6 +211,8 @@ public class Model
     {
 	private final List m_listeners = new LinkedList();
 	private IntervalStatisticsImplementation m_intervalStatistics =
+	    new IntervalStatisticsImplementation();
+	private IntervalStatistics m_lastSampleStatistics =
 	    new IntervalStatisticsImplementation();
 	private StatisticsImplementation m_total;
 	private double m_tps;
@@ -251,10 +227,10 @@ public class Model
 	    m_listeners.add(listener);
 	}
 
-	private void add(StatisticsImplementation sample)
+	private void add(StatisticsImplementation report)
 	{
-	    m_intervalStatistics.add(sample);
-	    m_total.add(sample);
+	    m_intervalStatistics.add(report);
+	    m_total.add(report);
 	}
 
 	private synchronized void fireSample()
@@ -269,7 +245,7 @@ public class Model
 		(getState() == STATE_STOPPED ? m_stopTime : m_currentTime) -
 		m_startTime;
 
-	    m_tps = 1000d*m_total.getTransactions()/totalTime;
+	    m_tps = 1000d * m_total.getTransactions()/totalTime;
 
 	    final Iterator iterator = m_listeners.iterator();
 
@@ -279,12 +255,14 @@ public class Model
 		listener.update(m_intervalStatistics, this);
 	    }
 
-	    m_intervalStatistics.reset();
+	    m_lastSampleStatistics = m_intervalStatistics;
+	    m_intervalStatistics = new IntervalStatisticsImplementation();
 	}
 
 	private void reset()
 	{
-	    m_intervalStatistics.reset();
+	    m_intervalStatistics = new IntervalStatisticsImplementation();
+	    m_lastSampleStatistics = new IntervalStatisticsImplementation();
 	    m_tps = 0;
 	    m_peakTPS = 0;
 	    m_total = new StatisticsImplementation();
@@ -313,6 +291,11 @@ public class Model
 	public double getPeakTPS()
 	{
 	    return m_peakTPS;
+	}
+
+	public IntervalStatistics getLastSampleStatistics()
+	{
+	    return m_lastSampleStatistics;
 	}
     }
 
@@ -343,12 +326,12 @@ public class Model
 
 		final int state = getState();
 
-		if (m_receivedSample) {
+		if (m_receivedReport) {
 		    ++m_sampleCount;
 		}
 		
 		if (state == STATE_CAPTURING) {
-		    if (m_receivedSample) {
+		    if (m_receivedReport) {
 			final int collectSampleCount = getCollectSampleCount();
 
 			if (collectSampleCount != 0 &&
@@ -365,7 +348,7 @@ public class Model
 
 		fireModelUpdate();
 
-		m_receivedSample = false;
+		m_receivedReport = false;
 	    }
 	}
     }
@@ -406,10 +389,10 @@ public class Model
 	return m_sampleCount;
     }
 
-    /** Whether or not a sample was received in the last period. */
-    public boolean getRecievedSample()
+    /** Whether or not a report was received in the last period. */
+    public boolean getReceivedReport()
     {
-	return m_receivedSample;
+	return m_receivedReport;
     }
 
     public int getIgnoreSampleCount()

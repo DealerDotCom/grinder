@@ -27,7 +27,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
 import net.grinder.console.ConsoleException;
-import net.grinder.console.model.Model;
 
 
 /**
@@ -41,10 +40,11 @@ public class TestTable extends JTable
     private final Font m_boldFont;
     private final Font m_defaultFont;
 
-    public TestTable(Model model, Resources resources)
+    public TestTable(AbstractStatisticsTableModel model)
 	throws ConsoleException
     {
-	super(new StatisticsTableModel(model, true, resources));
+	super(model);
+
 	setRowSelectionAllowed(false);
 
 	m_myCellRenderer = new MyCellRenderer();
@@ -56,7 +56,8 @@ public class TestTable extends JTable
 
     public TableCellRenderer getCellRenderer(int row, int column)
     {
-	final StatisticsTableModel model = (StatisticsTableModel)getModel();
+	final AbstractStatisticsTableModel model =
+	    (AbstractStatisticsTableModel)getModel();
 
 	final boolean red = model.isRed(row, column);
 	final boolean bold = model.isBold(row, column);

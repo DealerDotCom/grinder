@@ -35,48 +35,34 @@ import net.grinder.console.ConsoleException;
  * @author Philip Aston
  * @version $Revision$
  */
-class StatisticsTableModel extends AbstractTableModel implements ModelListener
+abstract class AbstractStatisticsTableModel
+    extends AbstractTableModel implements ModelListener
 {
     private final Model m_model;
-    private final boolean m_includeTotals;
+    private final Test[] m_tests;
+    private NumberFormat m_numberFormat = null;
 
     private final String[] m_columnLabels;
     private final String m_testString;
-    private final String m_totalString;
 
-    private final Test[] m_tests;
-
-    private NumberFormat m_numberFormat = null;
-
-    public StatisticsTableModel(Model model, boolean includeTotals,
-				Resources resources)
+    public AbstractStatisticsTableModel(Model model, Resources resources,
+					String[] columnTitleResourceNames)
 	throws ConsoleException
     {
 	m_model = model;
 	m_tests = (Test[])model.getTests().toArray(new Test[0]);
-	m_includeTotals = includeTotals;
 	m_numberFormat = m_model.getNumberFormat();
 
 	m_model.addModelListener(this);
 
-	final String[] resourceNames = {
-	    "table.testColumn.label",
-	    "table.descriptionColumn.label",
-	    "table.transactionColumn.label",
-	    "table.errorColumn.label",
-	    "table.averageTimeColumn.label",
-	    "table.averageTPSColumn.label",
-	    "table.peakTPSColumn.label",
-	};
+	m_columnLabels = new String[columnTitleResourceNames.length];
 
-	m_columnLabels = new String[resourceNames.length];
-
-	for (int i=0; i<resourceNames.length; i++) {
-	    m_columnLabels[i] = resources.getString(resourceNames[i]);
+	for (int i=0; i<columnTitleResourceNames.length; i++) {
+	    m_columnLabels[i] =
+		resources.getString(columnTitleResourceNames[i]);
 	}
 
 	m_testString = resources.getString("table.test.label") + " ";
-	m_totalString = resources.getString("table.total.label");
     }
 
     public synchronized void update()
@@ -92,7 +78,7 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 
     public int getRowCount()
     {
-	return m_tests.length + (m_includeTotals ? 1 : 0);
+	return m_tests.length;
     }
 
     public int getColumnCount()
@@ -100,85 +86,9 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 	return m_columnLabels.length;
     }
 
-    public synchronized Object getValueAt(int row, int column)
-    {
-	if (row < m_tests.length) {
-	    if (column == 0) {
-		return m_testString + m_tests[row].getTestNumber();
-	    }
-	    else if (column == 1) {
-		return m_tests[row].getDescription();
-	    }
-	    else
-	    {
-		return getStatisticsField(m_model.getCumulativeStatistics(row),
-					  column - 2);
-	    }
-	}
-	else {
-	    if (column == 0) {
-		return m_totalString;
-	    }
-	    else if (column == 1) {
-		return "";
-	    }
-	    else {
-		return
-		    getStatisticsField(m_model.getTotalCumulativeStatistics(),
-				       column - 2);
-	    }
-	}
-    }
+    public abstract boolean isBold(int row, int column);
 
-    private String getStatisticsField(CumulativeStatistics statistics,
-				      int field)
-    {
-	switch (field) {
-	case 0:
-	    return String.valueOf(statistics.getTransactions());
-
-	case 1:
-	    return String.valueOf(statistics.getErrors());
-
-	case 2:
-	    final double average = statistics.getAverageTransactionTime();
-
-	    if (Double.isNaN(average)) {
-		return "";
-	    }
-	    else {
-		return m_numberFormat.format(average);
-	    }
-
-	case 3:
-	    return m_numberFormat.format(statistics.getTPS());
-
-	case 4:
-	    return m_numberFormat.format(statistics.getPeakTPS());
-
-	default:
-	    return "?";
-	}
-    }
-
-    public boolean isBold(int row, int column) 
-    {
-	return row >= m_tests.length || isRed(row, column);
-    }
-
-    public boolean isRed(int row, int column)
-    {
-	if (column == 3) {
-	    if (row < m_tests.length) {
-		return m_model.getCumulativeStatistics(row).getErrors() > 0;
-	    }
-	    else {
-		return m_model.getTotalCumulativeStatistics().getErrors() > 0;
-	    }
-	}
-
-	return false;
-    }
+    public abstract boolean isRed(int row, int column);
 
     public synchronized void write(Writer writer, String columnDelimiter,
 				   String lineDelimeter)
@@ -203,5 +113,25 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 
 	    writer.write(lineDelimeter);
 	}
+    }
+
+    protected final Model getModel()
+    {
+	return m_model;
+    }
+
+    protected final NumberFormat getNumberFormat()
+    {
+	return m_numberFormat;
+    }
+
+    protected final Test[] getTests()
+    {
+	return m_tests;
+    }
+
+    protected final String getTestString()
+    {
+	return m_testString;
     }
 }
