@@ -374,7 +374,7 @@ conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Packages the distribution as .jar                                   -->
   <!-- =================================================================== -->
-  <target name="dist" depends="distribution-hierarchy,distribute-doc"
+  <target name="dist" depends="distribution-hierarchy"
 	  description="Generates a distribution jar.">
     <jar jarfile="${name}-pre-${version}-${DSTAMP}.jar"
 	 basedir="${dist.root}"/>
