@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
+
+import net.grinder.testutility.RandomStubFactory;
 
 
 /**
@@ -68,11 +70,31 @@ public class TestResourcePool extends TestCase {
 
     final ResourcePool resourcePool = new ResourcePool();
 
+    final RandomStubFactory listener1StubFactory =
+      new RandomStubFactory(ResourcePool.Listener.class);
+    final ResourcePool.Listener listener1 =
+      (ResourcePool.Listener)listener1StubFactory.getStub();
+
+    final RandomStubFactory listener2StubFactory =
+      new RandomStubFactory(ResourcePool.Listener.class);
+    final ResourcePool.Listener listener2 =
+      (ResourcePool.Listener)listener2StubFactory.getStub();
+
+    resourcePool.addListener(listener1);
+    resourcePool.addListener(listener2);
+
     final MyResource resource1 = new MyResource();
     final MyResource resource2 = new MyResource();
 
     resourcePool.add(resource1);
     resourcePool.add(resource2);
+
+    listener1StubFactory.assertSuccess("resourceAdded", resource1);
+    listener1StubFactory.assertSuccess("resourceAdded", resource2);
+    listener1StubFactory.assertNoMoreCalls();
+    listener2StubFactory.assertSuccess("resourceAdded", resource1);
+    listener2StubFactory.assertSuccess("resourceAdded", resource2);
+    listener2StubFactory.assertNoMoreCalls();
 
     final ResourcePool.Reservation reservation1 = resourcePool.reserveNext();
     final ResourcePool.Reservation reservation2 = resourcePool.reserveNext();
@@ -102,12 +124,32 @@ public class TestResourcePool extends TestCase {
 
     reservation1.free();
     reservation2.free();
+
+    // Exercise reserveNext many times to trigger zombie managment -
+    // this time round, nothing should be purged.
+    for (int i = 0; i < 1100; ++i) {
+      resourcePool.reserveNext().free();
+    }
+
+    assertEquals(2, resourcePool.countActive());
+
     reservation2.close();
     assertTrue(reservation2.isClosed());
     assertSame(sentinel, resourcePool.reserveNext());
 
+    listener1StubFactory.assertSuccess("resourceClosed", resource2);
+    listener1StubFactory.assertNoMoreCalls();
+    listener2StubFactory.assertSuccess("resourceClosed", resource2);
+    listener2StubFactory.assertNoMoreCalls();
+
     assertTrue(!resource1.isClosed());
     assertTrue(resource2.isClosed());
+
+    for (int i = 0; i < 1100; ++i) {
+      resourcePool.reserveNext().free();
+    }
+
+    assertEquals(1, resourcePool.countActive());
   }
 
   public void testReserveAll() throws Exception {
@@ -166,11 +208,22 @@ public class TestResourcePool extends TestCase {
     assertEquals(0, resourcePool.reserveAll().size());
     assertEquals(0, resourcePool.reserveAll().size());
 
+    final RandomStubFactory listenerStubFactory =
+      new RandomStubFactory(ResourcePool.Listener.class);
+    final ResourcePool.Listener listener =
+      (ResourcePool.Listener)listenerStubFactory.getStub();
+
     final MyResource resource1 = new MyResource();
     final MyResource resource2 = new MyResource();
 
+    resourcePool.addListener(listener);
+
     resourcePool.add(resource1);
     resourcePool.add(resource2);
+
+    listenerStubFactory.assertSuccess("resourceAdded", resource1);
+    listenerStubFactory.assertSuccess("resourceAdded", resource2);
+    listenerStubFactory.assertNoMoreCalls();
 
     final List reservations = resourcePool.reserveAll();
     assertEquals(2, reservations.size());
@@ -178,6 +231,10 @@ public class TestResourcePool extends TestCase {
     ((ResourcePool.Reservation)reservations.get(1)).free();
 
     resourcePool.close();
+
+    listenerStubFactory.assertSuccess("resourceClosed", resource1);
+    listenerStubFactory.assertSuccess("resourceClosed", resource2);
+    listenerStubFactory.assertNoMoreCalls();
 
     final List reservations2 = resourcePool.reserveAll();
     assertEquals(0, reservations2.size());
