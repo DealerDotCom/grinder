@@ -36,65 +36,80 @@ import net.grinder.util.FilenameFactory;
  * @version $Revision$
  */
 public class LauncherThread implements java.lang.Runnable {
-    
-  /**
-   * The constructor.
-   * It starts a new thread that will execute the run method.
-   */    
-  public LauncherThread(String execArgs, FilenameFactory filenameFactory){
-    m_execArguments = execArgs;
-    m_filenameFactory = filenameFactory;
-    Thread t = new Thread(this, m_execArguments);
-    t.start(); 
-  }
-  
-  /**
-   * This method will start a process with the JVM.
-   * It redirects standard output and error to disk files.
-   */    
-  public void run(){
-    
-    Process p;
-    BufferedReader in;
-    BufferedReader er;
 
-    try{
-      boolean b = Boolean.getBoolean("grinder.appendLog");
-      p = Runtime.getRuntime().exec(m_execArguments); 
-      String s = new java.util.Date().toString() + ": ";
-      System.out.println(s + "[" + m_execArguments + "]"+ " [Started]");       
-      
-      in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-      er = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-      
-      final PrintWriter outFile =
-	  new PrintWriter(
-	      new BufferedOutputStream(
-		  new FileOutputStream(
-		      m_filenameFactory.createFilename("out"), b)), true);  
-
-      final PrintWriter errFile =
-	  new PrintWriter(
-	      new BufferedOutputStream(
-		  new FileOutputStream(
-		      m_filenameFactory.createFilename("error"), b)), true);
-      
-      Redirector rOut = new Redirector(outFile, in);
-      Redirector rErr = new Redirector(errFile, er);
-
-      p.waitFor();
-      int completionStatus = p.exitValue(); 
-      s = new java.util.Date().toString() + ": ";
-      
-      System.out.println(s + "[" + m_execArguments + "]" +
-			 " [Exit Status: " + completionStatus + "]"); 
-               
-    }
-    catch(Exception e){
-      e.printStackTrace();
-    }
-  }
-
-    private final String m_execArguments;
+    private final String m_processID;
+    private final String m_commandLine;
     private final FilenameFactory m_filenameFactory;
+    private final boolean m_appendLog;
+    
+    /**
+     * The constructor.
+     * It starts a new thread that will execute the run method.
+     */    
+    public LauncherThread(String processID,
+			  String commandLine,
+			  boolean appendLog)
+    {
+	m_processID = processID;
+	m_commandLine = commandLine;
+	m_filenameFactory = new FilenameFactory(processID, null);
+	m_appendLog = appendLog;
+
+	Thread t = new Thread(this, m_commandLine);
+	t.start(); 
+    }
+  
+    /**
+     * This method will start a process with the JVM.
+     * It redirects standard output and error to disk files.
+     */    
+    public void run(){
+
+	try{
+	    logMessage("started with command line: " + m_commandLine);
+	    
+	    final Process process = Runtime.getRuntime().exec(m_commandLine);
+      
+	    final BufferedReader outputReader =
+		new BufferedReader(
+		    new InputStreamReader(process.getInputStream()));
+
+	    final BufferedReader errorReader =
+		new BufferedReader(
+		    new InputStreamReader(process.getErrorStream()));
+      
+	    final PrintWriter outputFile =
+		new PrintWriter(
+		    new BufferedOutputStream(
+			new FileOutputStream(
+			    m_filenameFactory.createFilename("out"),
+			    m_appendLog)),
+		    true);  
+
+	    final PrintWriter errorFile =
+		new PrintWriter(
+		    new BufferedOutputStream(
+			new FileOutputStream(
+			    m_filenameFactory.createFilename("error"),
+			    m_appendLog)),
+		    true);
+      
+	    final Redirector r1 = new Redirector(outputFile, outputReader);
+	    final Redirector r2 = new Redirector(errorFile, errorReader);
+
+	    process.waitFor();
+	    int completionStatus = process.exitValue(); 
+
+	    logMessage("exited with status " + completionStatus); 
+               
+	}
+	catch(Exception e){
+	    e.printStackTrace();
+	}
+    }
+
+    private void logMessage(String message)
+    {
+	System.out.println("Process " + m_processID + " " + message);
+    }
 }

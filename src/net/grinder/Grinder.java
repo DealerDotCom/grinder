@@ -1,5 +1,6 @@
 // The Grinder
 // Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2000  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,79 +18,63 @@
 
 package net.grinder;
 
-import java.util.*;
-import java.io.*;
-import net.grinder.engine.*;
+import java.io.File;
+
+import net.grinder.engine.LauncherThread;
 import net.grinder.engine.process.GrinderProcess;
-import net.grinder.util.FilenameFactory;
+import net.grinder.util.GrinderProperties;
+
 
 /**
  * This is the entry point of The Grinder.
  * 
  * @author Paco Gomez
+ * @author Philip Aston
  * @version $Revision$
  */
-public class Grinder extends PropsLoader{
-
-  protected static String _version = "1.6.0";
- 
-  /**
-   * The Grinder entry point.
-   *
-   */
-  public static void main(String args[]){
-    Grinder g = new Grinder();
-    g.run();
-  }
+public class Grinder
+{
+    /**
+     * The Grinder entry point.
+     *
+     */
+    public static void main(String args[]){
+	Grinder g = new Grinder();
+	g.run();
+    }
     
-  /**
-   * Starts as many threads as JVM especified.
-   * Each thread is a LauncherThread object.
-   *
-   */
-  protected void run(){
-    String propsCL = getGrinderPropertiesFromCommandLine();
-    loadProperties();
-    String s = new java.util.Date().toString() + ": ";
-    System.out.println(s + "Grinder (v" + _version + ") started.");        
-        
-    String sExe = "";
-        
-    int processes = 1;
-    s = System.getProperty("grinder.processes");
-    if (s != null){
-      processes = Integer.parseInt(s);
-    }
+    protected void run()
+    {
+	final GrinderProperties properties = GrinderProperties.getProperties();
 
-    LauncherThread gt[] = new LauncherThread[processes];
-      
-    sExe = System.getProperty("grinder.jvm.path", 
-                              "c:\\jdk1.1.7B\\bin\\java") + " ";
-    for (int i=0; i<processes; i++){
-	final String sArgs = System.getProperty("grinder.jvm.args", "") +
-	  " -Dgrinder.jvmID=" + i + " " + propsCL +
-	    GrinderProcess.class.getName();
-            
-      gt[i] = new LauncherThread(sExe + sArgs,
-				 new FilenameFactory(Integer.toString(i),
-						     null));
-    }
-  }
- 
-  /**
-   * This method loads properties from the command line.
-   *
-   */ 
-  protected String getGrinderPropertiesFromCommandLine(){
-    Properties systemProps = System.getProperties();
-    String s = "";
-    for (Enumeration e = systemProps.propertyNames() ; e.hasMoreElements() ;){
-      String pn = (String)e.nextElement();
-      if (pn.startsWith("grinder.")){
-        s += "-D" + pn + "=" + systemProps.getProperty(pn) + " ";
-      }
-    }
-    return s;        
-  }
+	System.out.println("Grinder (version FIXME) started");        
         
+	final int numberOfProcesses =
+	    properties.getInt("grinder.processes", 1);
+
+	final String jvm = properties.getProperty("grinder.jvm", "java");
+
+	final String additionalClasspath =
+	    properties.getProperty("grinder.jvm.classpath", null);
+
+	final String classpath =
+	    (additionalClasspath != null ? additionalClasspath + ";" : "") +
+	    System.getProperty("java.class.path");
+
+
+	final String commandPrefix =
+	    jvm + " -classpath " + classpath + " " +
+	    properties.getProperty("grinder.jvm.arguments", "");
+
+	final String commandSuffix = " " + GrinderProcess.class.getName();
+	final boolean appendLog = Boolean.getBoolean("grinder.appendLog");
+
+	for (int i=0; i<numberOfProcesses; i++){
+	    final String command =
+		commandPrefix + " -Dgrinder.jvmID=" + i + commandSuffix;
+
+	    new LauncherThread(Integer.toString(i), command, appendLog);
+	}
+    }
 }
+
