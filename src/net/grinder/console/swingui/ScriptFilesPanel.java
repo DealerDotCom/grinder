@@ -21,17 +21,19 @@
 
 package net.grinder.console.swingui;
 
-import java.awt.GridLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
 
 import net.grinder.console.model.ScriptDistributionFiles;
 
@@ -46,8 +48,8 @@ final class ScriptFilesPanel extends JPanel {
 
   private final Resources m_resources;
   private final JFileChooser m_fileChooser = new JFileChooser(".");
-
   private final JLabel m_rootDirectoryLabel = new JLabel();
+  private final FileTreeModel m_fileTreeModel = new FileTreeModel();
 
   private ScriptDistributionFiles m_scriptDistributionFiles =
     new ScriptDistributionFiles();
@@ -90,7 +92,6 @@ final class ScriptFilesPanel extends JPanel {
 	      }
 
 	      m_scriptDistributionFiles.setRootDirectory(file);
-
 	      refresh();
 	    }
 	  }
@@ -107,16 +108,20 @@ final class ScriptFilesPanel extends JPanel {
     m_rootDirectoryLabel.setBorder(
       BorderFactory.createEmptyBorder(5, 5, 0, 0));
 
-    final Box rootDirectoryPanel = Box.createHorizontalBox();
+    final JPanel rootDirectoryPanel = new JPanel();
+    rootDirectoryPanel.setLayout(
+      new BoxLayout(rootDirectoryPanel, BoxLayout.X_AXIS));
     rootDirectoryPanel.add(chooseDirectoryButton);
     rootDirectoryPanel.add(m_rootDirectoryLabel);
-    //    rootDirectoryPanel.setBorder(
-    //      BorderFactory.createTitledBorder(
-    //	resources.getString("script.directory.label")));
+    rootDirectoryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-    setLayout(new GridLayout(0, 1));
+    final JScrollPane fileTreePane =
+      new JScrollPane(new JTree(m_fileTreeModel));
+    fileTreePane.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     add(rootDirectoryPanel);
+    add(fileTreePane);
 
     refresh();
   }
@@ -126,6 +131,7 @@ final class ScriptFilesPanel extends JPanel {
     
     m_rootDirectoryLabel.setText(limitLength(rootDirectory.getPath()));
     m_fileChooser.setSelectedFile(rootDirectory);
+    m_fileTreeModel.setRootDirectory(rootDirectory);
   }
 
   private final String limitLength(String s) {

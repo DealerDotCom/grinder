@@ -22,6 +22,7 @@
 package net.grinder.console.swingui;
 
 import java.awt.Color;
+import java.awt.SystemColor;
 
 
 /**
@@ -39,5 +40,6 @@ interface Colours {
   static final Color DARK_RED = new Color(0xE0, 0, 00);
   static final Color FEINT_YELLOW = new Color(0xFF, 0xFF, 0xD0);
   static final Color GREY = Color.gray;
+  static final Color HIGHLIGHT_BLUE = SystemColor.textHighlight;
   static final Color RED = Color.red;
 }

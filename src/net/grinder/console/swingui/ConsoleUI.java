@@ -252,6 +252,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	threePixelBorder, m_resources.getString("cumulativeTable.label"));
 
     cumulativeTableTitledBorder.setTitleFont(resultsTableLabelFont);
+    cumulativeTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_BLUE);
     cumulativeTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
 
     cumulativeTablePane.setBorder(cumulativeTableTitledBorder);
@@ -268,6 +269,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	threePixelBorder, m_resources.getString("sampleTable.label"));
 
     sampleTableTitledBorder.setTitleFont(resultsTableLabelFont);
+    sampleTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_BLUE);
     sampleTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
 
     sampleTablePane.setBorder(sampleTableTitledBorder);
@@ -293,7 +295,15 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     final JScrollPane processStatusPane =
       new JScrollPane(new Table(processStatusModel));
 
-    processStatusPane.setBorder(threePixelBorder);
+    final TitledBorder processTableTitledBorder =
+      BorderFactory.createTitledBorder(
+	threePixelBorder, m_resources.getString("processStatusTableTab.tip"));
+
+    processTableTitledBorder.setTitleFont(resultsTableLabelFont);
+    processTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_BLUE);
+    processTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
+
+    processStatusPane.setBorder(processTableTitledBorder);
 
     tabbedPane.addTab(m_resources.getString("processStatusTableTab.title"),
 		      m_resources.getImageIcon(
@@ -321,8 +331,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     painter.setSelectionColor(Colours.GREY);
     // Initial focus?
 
+    scriptTextArea.setMinimumSize(new Dimension(200, 100));
+
     final ScriptFilesPanel scriptFilesPanel =
       new ScriptFilesPanel(m_frame, m_resources);
+    scriptFilesPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
+    scriptFilesPanel.setMinimumSize(new Dimension(100, 100));
 
     scriptFilesPanel.refresh();
 
