@@ -30,7 +30,7 @@ import java.net.Socket;
 
 
 /**
- * Class that manages the sending of unicast messages.
+ * Class that manages the sending of messages to a server.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -134,12 +134,11 @@ public class ClientSender extends AbstractSender {
    * Connection has probably been reset by peer.
    *
    * @exception CommunicationException If an error occurs.
-   **/
+   */
   public void shutdown() throws CommunicationException {
 
     try {
       send(new CloseCommunicationMessage());
-      flush();
     }
     catch (CommunicationException e) {
       // Ignore.
