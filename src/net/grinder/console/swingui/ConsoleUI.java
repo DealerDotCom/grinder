@@ -591,8 +591,6 @@ public class ConsoleUI implements ModelListener
 	    final JPanel miscellaneousTab = 
 		new JPanel(new FlowLayout(FlowLayout.LEFT));
 	    miscellaneousTab.add(sfPanel);
-	    //	    miscellaneousPanel.setBorder(
-	    //BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 	    final JTabbedPane tabbedPane = new JTabbedPane();
 
@@ -655,6 +653,8 @@ public class ConsoleUI implements ModelListener
 		properties.setConsolePort(m_consolePort.getValue());
 		properties.setGrinderPort(m_grinderPort.getValue());
 		properties.setSignificantFigures(m_sfSlider.getValue());
+		m_samplingControlPanel.get(properties);
+
 		ConsoleUI.this.m_samplingControlPanel.set(properties);
 
 		if (value == m_options[2]) {

@@ -33,7 +33,7 @@ import net.grinder.console.model.ConsoleProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-public class SamplingControlPanel extends JPanel
+class SamplingControlPanel extends JPanel
 {
     private final JSlider m_intervalSlider  = new JSlider(100, 10000, 100);
     private final IntegerField m_collectSampleField =
@@ -135,6 +135,13 @@ public class SamplingControlPanel extends JPanel
 	m_intervalSlider.setValue(properties.getSampleInterval());
 	m_ignoreSampleField.setValue(properties.getIgnoreSampleCount());
 	m_collectSampleField.setValue(properties.getCollectSampleCount());
+    }
+
+    public void get(ConsoleProperties properties)
+    {
+	properties.setSampleInterval(m_intervalSlider.getValue());
+	properties.setIgnoreSampleCount(m_ignoreSampleField.getValue());
+	properties.setCollectSampleCount(m_collectSampleField.getValue());
     }
 
     protected void update(int sampleInterval, int ignoreSampleCount,
