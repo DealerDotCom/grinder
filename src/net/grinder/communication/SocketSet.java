@@ -32,7 +32,7 @@ import java.util.List;
 
 /**
  * Class that manages the a set of TCP sockets. Currently only alows
- * for polling the sockets for received {@link Messages}, but might be
+ * for polling the sockets for received {@link Message}s, but might be
  * extended in the future to support broadcast of a {@link Message} to
  * all the sockets.
  *
