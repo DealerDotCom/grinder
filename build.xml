@@ -129,6 +129,8 @@ what you want. Currently the conditionally built modules are:
     <include name="${javadoc.dir}/**"/>
     <exclude name="**/.xvpics/**"/>
     <exclude name="**/prj.el"/>
+    <exclude name="*.orig"/>
+    <exclude name="*.rej"/>
     <exclude name="${etc.dir}/*.sh"/>
     <exclude name="${etc.dir}/*.pl"/>
     <exclude name="${etc.dir}/*Unit Test.log"/>
