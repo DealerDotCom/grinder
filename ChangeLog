@@ -1,3 +1,23 @@
+2001-06-12  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, src/net/grinder/plugin/http/URLRewriteFilter.java, src/net/grinder/tools/tcpsniffer/EchoFilter.java, src/net/grinder/tools/tcpsniffer/NullFilter.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java, src/net/grinder/tools/tcpsniffer/SnifferFilter.java:
+	Sniffer filters now get connection open/close events.
+
+	* src/net/grinder/tools/tcpsniffer/GrinderSocket.java: Dead.
+
+	* README, TODO, build.xml, src/net/grinder/plugin/http/HttpRequestData.java, src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HTTPHandler.java, src/net/grinder/plugin/http/HTTPHandlerException.java, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java:
+	Support HTTPClient.
+
+	* etc/w3c-license.html: Replace with HTTPClient.
+
+	* etc/buildenv.sh, etc/setenv.sh: Tweak.
+
+	* etc/HTTPClient-license.txt, src/HTTPClient/Util.java, src/HTTPClient/http/Handler.java, src/HTTPClient/https/Handler.java, src/HTTPClient/shttp/Handler.java, src/HTTPClient/NVPair.java, src/HTTPClient/ParseException.java, src/HTTPClient/ProtocolNotSuppException.java, src/HTTPClient/RedirectionModule.java, src/HTTPClient/Request.java, src/HTTPClient/RespInputStream.java, src/HTTPClient/Response.java, src/HTTPClient/ResponseHandler.java, src/HTTPClient/RetryException.java, src/HTTPClient/RetryModule.java, src/HTTPClient/RoRequest.java, src/HTTPClient/RoResponse.java, src/HTTPClient/SocksClient.java, src/HTTPClient/SocksException.java, src/HTTPClient/StreamDemultiplexor.java, src/HTTPClient/TransferEncodingModule.java, src/HTTPClient/URI.java, src/HTTPClient/UncompressInputStream.java, src/HTTPClient/DefaultModule.java, src/HTTPClient/FilenameMangler.java, src/HTTPClient/GlobalConstants.java, src/HTTPClient/HTTPClientModule.java, src/HTTPClient/HTTPClientModuleConstants.java, src/HTTPClient/HTTPConnection.java, src/HTTPClient/HTTPResponse.java, src/HTTPClient/HashVerifier.java, src/HTTPClient/HttpHeaderElement.java, src/HTTPClient/HttpOutputStream.java, src/HTTPClient/HttpURLConnection.java, src/HTTPClient/IdempotentSequence.java, src/HTTPClient/LinkedList.java, src/HTTPClient/Log.java, src/HTTPClient/MD5.java, src/HTTPClient/MD5InputStream.java, src/HTTPClient/ModuleException.java, src/HTTPClient/AuthSchemeNotImplException.java, src/HTTPClient/AuthorizationHandler.java, src/HTTPClient/AuthorizationInfo.java, src/HTTPClient/AuthorizationModule.java, src/HTTPClient/AuthorizationPrompter.java, src/HTTPClient/BufferedInputStream.java, src/HTTPClient/CIHashtable.java, src/HTTPClient/ChunkedInputStream.java, src/HTTPClient/Codecs.java, src/HTTPClient/ContentEncodingModule.java, src/HTTPClient/ContentMD5Module.java, src/HTTPClient/Cookie.java, src/HTTPClient/Cookie2.java, src/HTTPClient/CookieModule.java, src/HTTPClient/CookiePolicyHandler.java, src/HTTPClient/DefaultAuthHandler.java:
+	Import HTTPClient 0.3-3.
+
+	* README, doc/HTTPPlugin.txt, doc/JUnitPlugin.txt, doc/TCPSniffer.txt:
+	Split the documentation into separate files.
+
 2001-06-11  Philip Aston  <paston@bea.com>
 
 	* CHANGES, doc/Problems.txt:
