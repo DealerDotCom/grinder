@@ -91,6 +91,10 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <apache href="http://www.apache.org/"/>
 
+    <cenqua href="http://www.clover.com/">
+      <clover href="clover"/>
+    </cenqua>
+
     <checkstyle href="http://checkstyle.sourceforge.net/"/>
 
     <cygwin href="http://cygwin.com/"/>
@@ -101,6 +105,10 @@ See http://forrest.apache.org/docs/linking.html for more info
       <webapp href="docs/your-project.html#webapp"/>
       <dtd-docs href="docs/dtd-docs.html"/>
     </forrest>
+
+    <fowler href="http://martinfowler.com/">
+      <constructor-injection href="articles/injection.html#ConstructorInjectionWithPicocontainer"/>
+    </fowler>
 
     <gmane href="http://gmane.org/">
       <grinder-lists href="find.php?list=grinder"/>
