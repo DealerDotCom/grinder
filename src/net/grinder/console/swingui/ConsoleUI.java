@@ -173,7 +173,7 @@ public final class ConsoleUI implements ModelListener {
     addAction(new ExitAction());
     addAction(new OptionsAction());
     addAction(new ResetProcessesAction(resetProcessesHandler));
-    addAction(new SaveAction());
+    addAction(new SaveResultsAction());
     addAction(new StopProcessesAction(stopProcessesHandler));
 
     m_stateLabel = new JLabel();
@@ -643,15 +643,15 @@ public final class ConsoleUI implements ModelListener {
     }
   }
 
-  private final class SaveAction extends CustomAction {
+  private final class SaveResultsAction extends CustomAction {
 
     private final JFileChooser m_fileChooser = new JFileChooser(".");
 
-    SaveAction() {
-      super(m_model.getResources(), "save", true);
+    SaveResultsAction() {
+      super(m_model.getResources(), "save-results", true);
 
       m_fileChooser.setDialogTitle(
-        m_model.getResources().getString("save.label"));
+        m_model.getResources().getString("save-results.label"));
 
       m_fileChooser.setSelectedFile(
         new File(m_model.getResources().getString("default.filename")));
