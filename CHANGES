@@ -21,6 +21,8 @@ Grinder 3.0-beta11
 
   Updated TCPProxy documentation.
 
+  If console cannot be contacted, don't expect console signals.
+
 
 Grinder 3.0-beta10
 ------------------

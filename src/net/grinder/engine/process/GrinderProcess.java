@@ -182,10 +182,9 @@ public final class GrinderProcess implements Monitor {
 
     ConsoleListener consoleListener = null;
 
-    if (properties.getBoolean("grinder.receiveConsoleSignals", true)) {
+    if (m_context.getReceiveConsoleSignals()) {
       try {
-	consoleListener =
-	  new ConsoleListener(properties, this, logger);
+	consoleListener = new ConsoleListener(properties, this, logger);
       }
       catch (CommunicationException e) {
 	logger.output(

@@ -45,11 +45,6 @@ a request with the authentication headers.
 Allow "chained proxying", where details of real proxy server can be
 specified.
 
-** Console detection
-
-If process detects it can't send data to the console, it shouldn't
-wait for console signals.
-
 * Enhancements
 
 ** Measure variance (Ambitious)

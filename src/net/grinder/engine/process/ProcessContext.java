@@ -53,6 +53,7 @@ class ProcessContext {
   private final PluginRegistry m_pluginRegistry;
   private final TestRegistry m_testRegistry;
   private final ScriptContext m_scriptContext;
+  private final boolean m_receiveConsoleSignals;
 
   private boolean m_shouldWriteTitleToDataWriter;
   private long m_executionStartTime;
@@ -98,7 +99,7 @@ class ProcessContext {
       catch (CommunicationException e) {
 	m_processLogger.output(
 	  "Unable to report to console (" + e.getMessage() +
-	  "); proceeding regardless. Set " +
+	  "); proceeding without the console. Set " +
 	  "grinder.reportToConsole=false to disable this warning.",
 	  Logger.LOG | Logger.TERMINAL);
       }
@@ -106,6 +107,9 @@ class ProcessContext {
 
     if (consoleSender != null) {
       m_consoleSender = consoleSender;
+
+      m_receiveConsoleSignals =
+	properties.getBoolean("grinder.receiveConsoleSignals", true);
     }
     else {
       // Null Sender implementation.
@@ -115,6 +119,8 @@ class ProcessContext {
 	  public void queue(Message message) {}
 	  public void shutdown() {}
 	};
+
+      m_receiveConsoleSignals = false;
     }
 
     m_pluginRegistry = new PluginRegistry(this);
@@ -176,6 +182,10 @@ class ProcessContext {
 
   public final ScriptContext getScriptContext() {
     return m_scriptContext;
+  }
+
+  public final boolean getReceiveConsoleSignals() {
+    return m_receiveConsoleSignals;
   }
 
   /**
