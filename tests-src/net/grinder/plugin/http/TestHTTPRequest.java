@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,13 +31,8 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternCompiler;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import HTTPClient.HTTPResponse;
 import HTTPClient.NVPair;
@@ -63,18 +58,14 @@ import net.grinder.testutility.RandomStubFactory;
  */
 public class TestHTTPRequest extends TestCase {
 
-  private static final PatternMatcher s_matcher = new Perl5Matcher();
   private static final Pattern s_contentLengthPattern;
 
   static {
-    final PatternCompiler compiler = new Perl5Compiler();
-
     try {
-      s_contentLengthPattern = compiler.compile(
-        "^Content-Length:[ \\t]*(.*)\\r?$",
-        Perl5Compiler.MULTILINE_MASK  |
-        Perl5Compiler.READ_ONLY_MASK |
-        Perl5Compiler.CASE_INSENSITIVE_MASK);
+      s_contentLengthPattern =
+        Pattern.compile("^Content-Length:[ \\t]*(.*)\\r?$",
+                        Pattern.MULTILINE |
+                        Pattern.CASE_INSENSITIVE);
     }
     catch (Exception e) {
       throw new ExceptionInInitializerError(e);
@@ -122,7 +113,7 @@ public class TestHTTPRequest extends TestCase {
 
   public void testSetUrl() throws Exception {
     final HTTPRequest httpRequest = new HTTPRequest();
-    
+
     assertNull(httpRequest.getUrl());
 
     try {
@@ -157,7 +148,7 @@ public class TestHTTPRequest extends TestCase {
       new NVPair("name", "value"),
       new NVPair("another name", "another value"),
     };
-    
+
     httpRequest.setHeaders(newHeaders);
     AssertUtilities.assertArraysEqual(newHeaders, httpRequest.getHeaders());
   }
@@ -172,7 +163,7 @@ public class TestHTTPRequest extends TestCase {
     };
 
     httpRequest.setHeaders(newHeaders);
-    
+
     httpRequest.addHeader("name", "value");
     httpRequest.addHeader("foo", "bah");
 
@@ -198,7 +189,7 @@ public class TestHTTPRequest extends TestCase {
     };
 
     httpRequest.setHeaders(newHeaders);
-    
+
     httpRequest.deleteHeader("name");
 
     AssertUtilities.assertArraysEqual(
@@ -267,7 +258,7 @@ public class TestHTTPRequest extends TestCase {
 
       int start = 0;
       int i;
-    
+
       while((i = text.indexOf("\r\n", start)) != -1) {
         if (text.substring(start, i).equals(line)) {
           return;
@@ -279,11 +270,11 @@ public class TestHTTPRequest extends TestCase {
       if (text.substring(start).equals(line)) {
         return;
       }
-    
+
       fail(text + " does not contain " + line);
     }
 
- 
+
     public void run() {
       try {
         while (true) {
@@ -328,12 +319,12 @@ public class TestHTTPRequest extends TestCase {
 
           m_lastRequestHeaders = headerBuffer.toString();
 
-          if (s_matcher.contains(m_lastRequestHeaders,
-                                 s_contentLengthPattern)) {
-            final MatchResult matchResult = s_matcher.getMatch();
+          final Matcher matcher =
+            s_contentLengthPattern.matcher(m_lastRequestHeaders);
 
+          if (matcher.matches()) {
             final int contentLength =
-              Integer.parseInt(s_matcher.getMatch().group(1).trim());
+              Integer.parseInt(matcher.group(1).trim());
 
             m_lastRequestBody = new byte[contentLength];
 
@@ -350,7 +341,7 @@ public class TestHTTPRequest extends TestCase {
               if (bytesRead == -1) {
                 throw new IOException("Content-length too large");
               }
-              
+
               bodyBytes += bytesRead;
             }
 
@@ -939,7 +930,7 @@ public class TestHTTPRequest extends TestCase {
     assertTrue(message3.indexOf("400") >= 0);
     loggerStubFactory.assertNoMoreCalls();
 
-    final CallData callData3 = 
+    final CallData callData3 =
       m_statisticsStubFactory.assertSuccess("availableForUpdate");
     assertEquals(Boolean.TRUE, callData3.getResult());
 
