@@ -170,7 +170,7 @@ public final class ServerReceiver implements Receiver {
         // We've been shutdown, exit this thread.
       }
       catch (InterruptedException e) {
-        // Ignore.
+        // We've been shutdown, exit this thread.
       }
     }
   }
