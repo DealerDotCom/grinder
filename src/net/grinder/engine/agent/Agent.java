@@ -50,11 +50,13 @@ import net.grinder.communication.InitialiseGrinderMessage;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessagePump;
 import net.grinder.communication.Receiver;
+import net.grinder.communication.Sender;
 import net.grinder.communication.StreamSender;
 import net.grinder.communication.TeeSender;
 import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.GrinderProcess;
+import net.grinder.util.thread.Kernel;
 
 
 /**
@@ -97,13 +99,20 @@ public final class Agent {
    */
   public void run() throws GrinderException, InterruptedException {
 
-    m_logger.output("The Grinder version " + GrinderBuild.getVersionString());
-
+    final Timer timer = new Timer(true);
     boolean startImmediately = false;
 
     while (true) {
+      m_logger.output("The Grinder version " +
+                      GrinderBuild.getVersionString());
+
       final GrinderProperties properties =
         new GrinderProperties(m_alternateFile);
+
+      final Object eventSynchronisation = new Object();
+      final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(3);
+      final ConsoleListener consoleListener =
+        new ConsoleListener(eventSynchronisation, m_logger);
 
       Receiver receiver = null;
 
@@ -118,6 +127,13 @@ public final class Agent {
 
         try {
           receiver = ClientReceiver.connect(connector);
+
+          // Ordering of the TeeSender is important so the child
+          // processes get the signals before our console listener.
+          final Sender sender =
+            new TeeSender(fanOutStreamSender, consoleListener.getSender());
+
+          new MessagePump(receiver, sender, 1);
         }
         catch (CommunicationException e) {
           m_logger.error(
@@ -126,74 +142,53 @@ public final class Agent {
         }
       }
 
-      final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(3);
+      final ProcessLauncher processLauncher =
+        new ProcessLauncher(properties, fanOutStreamSender,
+                           new InitialiseGrinderMessage(receiver != null),
+                           eventSynchronisation);
 
-      final boolean haveConsole = receiver != null;
-
-      final Object eventSynchronisation = new Object();
-      final ConsoleListener consoleListener =
-        new ConsoleListener(eventSynchronisation, m_logger);
-
-      final MessagePump messagePump =
-        haveConsole ?
-        new MessagePump(receiver,
-                        new TeeSender(
-                          fanOutStreamSender, consoleListener.getSender()),
-                        1) :
-        null;
-
-      final ProcessStarter processStarter =
-        new ProcessStarter(properties, fanOutStreamSender, haveConsole);
-
-      // If we're using the console, wait for a console start signal here.
-      if (haveConsole && !startImmediately) {
+      if (!startImmediately && receiver != null) {
         m_logger.output("waiting for console signal");
         consoleListener.waitForMessage();
       }
 
-      if (!haveConsole ||
-          consoleListener.received(ConsoleListener.START) ||
-          startImmediately) {
+      if (receiver == null ||
+          startImmediately ||
+          consoleListener.received(ConsoleListener.START)) {
 
         final int processIncrement =
           properties.getInt("grinder.processIncrement", 0);
 
         if (processIncrement > 0) {
           final boolean moreProcessesToStart =
-            processStarter.startSomeProcesses(
+            processLauncher.startSomeProcesses(
               properties.getInt("grinder.initialProcesses", processIncrement));
 
           if (moreProcessesToStart) {
             final int incrementInterval =
               properties.getInt("grinder.processIncrementInterval", 60000);
 
-            final Timer timer = new Timer(true);
             final RampUpTimerTask rampUpTimerTask =
-              new RampUpTimerTask(processStarter, processIncrement);
+              new RampUpTimerTask(processLauncher, processIncrement);
 
             timer.scheduleAtFixedRate(
               rampUpTimerTask, incrementInterval, incrementInterval);
-
-            // TODO need to be able to interrupt this.
-            rampUpTimerTask.waitUntilFinished();
-            timer.cancel();
           }
         }
         else {
-          processStarter.startAllProcesses();
+          processLauncher.startAllProcesses();
         }
 
         // Wait for a termination event.
         synchronized (eventSynchronisation) {
-          processStarter.requestExitNotification(eventSynchronisation);
-
           final long maximumShutdownTime = 20000;
           long consoleSignalTime = -1;
 
-          while (processStarter.processesRunning()) {
+          while (!processLauncher.allFinished()) {
 
             if (consoleListener.checkForMessage(ConsoleListener.ANY ^
                                                 ConsoleListener.START)) {
+              processLauncher.dontStartAnyMore();
               consoleSignalTime = System.currentTimeMillis();
             }
 
@@ -202,8 +197,7 @@ public final class Agent {
                 maximumShutdownTime) {
 
               m_logger.output("forcibly terminating unresponsive processes");
-
-              ProcessReaper.getInstance().run();
+              processLauncher.destroy();
             }
 
             eventSynchronisation.wait(maximumShutdownTime);
@@ -211,54 +205,69 @@ public final class Agent {
         }
       }
 
-      if (haveConsole && !consoleListener.received(ConsoleListener.ANY)) {
-        // We've got here naturally, without a console signal.
-        m_logger.output("finished, waiting for console signal");
-
-        consoleListener.waitForMessage();
-      }
-
-      if (messagePump != null) {
-        messagePump.shutdown();
-      }
-
-      if (!haveConsole) {
-        break;
-      }
-      else if (consoleListener.received(ConsoleListener.START)) {
-        startImmediately = true;
-      }
-      else if (consoleListener.received(ConsoleListener.STOP |
-                                        ConsoleListener.SHUTDOWN)) {
+      if (receiver == null) {
         break;
       }
       else {
-        // ConsoleListener.RESET or natural death.
-        startImmediately = false;
+        if (!consoleListener.received(ConsoleListener.ANY)) {
+          // We've got here naturally, without a console signal.
+          m_logger.output("finished, waiting for console signal");
+
+          consoleListener.waitForMessage();
+        }
+
+        receiver.shutdown();
+
+        if (consoleListener.received(ConsoleListener.START)) {
+          startImmediately = true;
+        }
+        else if (consoleListener.received(ConsoleListener.STOP |
+                                          ConsoleListener.SHUTDOWN)) {
+          break;
+        }
+        else {
+          // ConsoleListener.RESET or natural death.
+          startImmediately = false;
+        }
       }
     }
 
     m_logger.output("finished");
   }
 
-  private class ProcessStarter {
+  private class ProcessLauncher {
 
+    private final Kernel m_kernel = new Kernel(1);
     private final FanOutStreamSender m_fanOutStreamSender;
-    private final Message m_initialiseMessage;
+    private final Message m_initialisationMessage;
+    private final Object m_notifyOnFinish;
 
     private final String[] m_commandArray;
     private final int m_grinderIDIndex;
     private final String m_hostIDString;
 
+    /**
+     * Fixed size array with a slot for all potential processes.
+     * Synchronise on m_processes before accessing entries. If an
+     * entry is null and its index is less than m_nextProcessIndex,
+     * the process has finished or the ProcessLauncher has been
+     * shutdown.
+     */
     private final ChildProcess[] m_processes;
+
+    /**
+     * The next process to start. Only increases.
+     */
     private int m_nextProcessIndex = 0;
 
-    public ProcessStarter(GrinderProperties properties,
+    public ProcessLauncher(GrinderProperties properties,
                           FanOutStreamSender fanOutStreamSender,
-                          boolean haveConsole) {
+                          InitialiseGrinderMessage initialisationMessage,
+                          Object notifyOnFinish) {
 
       m_fanOutStreamSender = fanOutStreamSender;
-      m_initialiseMessage = new InitialiseGrinderMessage(haveConsole);
+      m_initialisationMessage = initialisationMessage;
+      m_notifyOnFinish = notifyOnFinish;
 
       m_processes =
         new ChildProcess[properties.getInt("grinder.processes", 1)];
@@ -347,15 +356,17 @@ public final class Agent {
         m_commandArray[m_grinderIDIndex] = grinderID;
 
         try {
-          m_processes[processIndex] =
+          final ChildProcess process =
             new ChildProcess(m_commandArray, System.out, System.err);
 
-          final OutputStream processStdin =
-            m_processes[processIndex].getStdinStream();
+          final OutputStream processStdin = process.getStdinStream();
 
-          new StreamSender(processStdin).send(m_initialiseMessage);
-
+          new StreamSender(processStdin).send(m_initialisationMessage);
           m_fanOutStreamSender.add(processStdin);
+
+          synchronized(m_processes) {
+            m_processes[processIndex] = process;
+          }
         }
         catch (EngineException e) {
           m_logger.error("Failed to create process");
@@ -364,6 +375,15 @@ public final class Agent {
         }
         catch (CommunicationException e) {
           m_logger.error("Failed to communicate with process");
+          e.printStackTrace(m_logger.getErrorLogWriter());
+          return false;
+        }
+
+        try {
+          m_kernel.execute(new ReapTask(processIndex));
+        }
+        catch (Kernel.ShutdownException e) {
+          m_logger.error("Kernel unexpectedly shutdown");
           e.printStackTrace(m_logger.getErrorLogWriter());
           return false;
         }
@@ -377,53 +397,77 @@ public final class Agent {
       return m_processes.length > m_nextProcessIndex;
     }
 
-    public void requestExitNotification(final Object monitor) {
+    private final class ReapTask implements Runnable {
 
-      // Take copy in case more processes are started later. We don't
-      // need to synchronise access to m_processes because its always
-      // populated in order.
-      final int nextProcessIndex = m_nextProcessIndex;
+      private final int m_processIndex;
 
-      final Thread t = new Thread("Process exit monitor") {
-        public void run() {
-          for (int i = 0; i < nextProcessIndex; i++) {
-            if (m_processes[i] != null) {
-              try {
-                m_processes[i].waitFor();
-              }
-              catch (InterruptedException e) {
-                // Really an assertion failure. Can't use m_logger
-                // here because its not thread safe.
-                e.printStackTrace();
-              }
-              catch (EngineException e) {
-                // Really an assertion failure. Can't use m_logger
-                // here because its not thread safe.
-                e.printStackTrace();
-              }
+      public ReapTask(int processIndex) {
+        m_processIndex = processIndex;
+      }
 
-              m_processes[i] = null;
-              }
+      public void run() {
+        try {
+          final ChildProcess process;
+
+          synchronized (m_processes) {
+            process = m_processes[m_processIndex];
+          }
+
+          if (process != null) {
+            process.waitFor();
+
+            synchronized (m_processes) {
+              m_processes[m_processIndex] = null;
             }
-
-          synchronized (monitor) {
-            monitor.notifyAll();
           }
         }
-        };
+        catch (InterruptedException e) {
+          // Really an assertion failure. Can't use m_logger here
+          // because its not thread safe.
+          e.printStackTrace();
+        }
+        catch (EngineException e) {
+          // Really an assertion failure. Can't use m_logger here
+          // because its not thread safe.
+          e.printStackTrace();
+        }
 
-      t.setDaemon(true);
-      t.start();
+        if (allFinished()) {
+          synchronized (m_notifyOnFinish) {
+            m_notifyOnFinish.notifyAll();
+          }
+        }
+      }
     }
 
-    public boolean processesRunning() {
-      for (int i = 0; i < m_nextProcessIndex; i++) {
-        if (m_processes[i] != null) {
-          return true;
+    public boolean allFinished() {
+      if (m_nextProcessIndex >= m_processes.length) {
+        synchronized(m_processes) {
+          for (int i = 0; i < m_processes.length; i++) {
+            if (m_processes[i] == null) {
+              return true;
+            }
+          }
         }
       }
 
       return false;
+    }
+
+    public void dontStartAnyMore() {
+      m_nextProcessIndex = m_processes.length;
+    }
+    
+    public void destroy() {
+      dontStartAnyMore();
+
+      synchronized(m_processes) {
+        for (int i = 0; i < m_processes.length; i++) {
+          if (m_processes[i] != null) {
+            m_processes[i].destroy();
+          }
+        }
+      }
     }
 
     private String getHostName() {
@@ -438,38 +482,26 @@ public final class Agent {
 
   private class RampUpTimerTask extends TimerTask {
 
-    private final ProcessStarter m_processStarter;
+    private final ProcessLauncher m_processLauncher;
     private final int m_processIncrement;
     private boolean m_rampUpFinished = false;
 
-    public RampUpTimerTask(ProcessStarter processStarter,
+    public RampUpTimerTask(ProcessLauncher processLauncher,
                            int processIncrement) {
-      m_processStarter = processStarter;
+      m_processLauncher = processLauncher;
       m_processIncrement = processIncrement;
     }
 
     public void run () {
       final boolean moreProcessesToStart =
-        m_processStarter.startSomeProcesses(m_processIncrement);
+        m_processLauncher.startSomeProcesses(m_processIncrement);
 
       if (!moreProcessesToStart) {
-        markFinished();
-      }
-    }
+        super.cancel();
 
-    private void markFinished() {
-      super.cancel();
-
-      synchronized (this) {
-        m_rampUpFinished = true;
-        notifyAll();
-      }
-    }
-
-    public void waitUntilFinished() throws InterruptedException {
-      synchronized (this) {
-        while (!m_rampUpFinished) {
-          wait();
+        synchronized (this) {
+          m_rampUpFinished = true;
+          notifyAll();
         }
       }
     }
