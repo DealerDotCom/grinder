@@ -88,7 +88,7 @@ public final class EditorModel {
    * Select the default buffer.
    */
   public void selectDefaultBuffer() {
-    setSelectedBuffer(m_defaultBuffer);
+    selectBuffer(m_defaultBuffer);
   }
 
   /**
@@ -100,16 +100,7 @@ public final class EditorModel {
                                      createNewBufferName());
     addBuffer(buffer);
 
-    setSelectedBuffer(buffer);
-  }
-
-  /**
-   * Select a buffer.
-   *
-   * @param buffer The buffer.
-   */
-  public void selectBuffer(Buffer buffer) {
-    setSelectedBuffer(buffer);
+    selectBuffer(buffer);
   }
 
   /**
@@ -120,7 +111,7 @@ public final class EditorModel {
    * @throws ConsoleException If a buffer could not be selected for the file.
    */
   public Buffer selectBufferForFile(File file) throws ConsoleException {
-    final Buffer existingBuffer = (Buffer)m_fileBuffers.get(file);
+    final Buffer existingBuffer = getBufferForFile(file);
     final Buffer buffer;
 
     if (existingBuffer != null) {
@@ -134,7 +125,7 @@ public final class EditorModel {
       m_fileBuffers.put(file, buffer);
     }
 
-    setSelectedBuffer(buffer);
+    selectBuffer(buffer);
 
     return buffer;
   }
@@ -187,7 +178,12 @@ public final class EditorModel {
     return (Buffer[])m_bufferList.toArray(new Buffer[m_bufferList.size()]);
   }
 
-  private void setSelectedBuffer(Buffer buffer) {
+  /**
+   * Select a buffer.
+   *
+   * @param buffer The buffer.
+   */
+  public void selectBuffer(Buffer buffer) {
     if (buffer == null && m_selectedBuffer != null ||
         !buffer.equals(m_selectedBuffer)) {
 
@@ -205,33 +201,32 @@ public final class EditorModel {
     }
   }
 
-
   /**
    * Close a buffer.
    *
    * @param buffer The buffer.
    */
   public void closeBuffer(Buffer buffer) {
-    m_bufferList.remove(buffer);
+    if (m_bufferList.remove(buffer)) {
+      final File file = buffer.getFile();
 
-    final File file = buffer.getFile();
-
-    if (buffer.equals(m_fileBuffers.get(file))) {
-      m_fileBuffers.remove(file);
-    }
-
-    if (buffer.equals(getSelectedBuffer())) {
-      final int numberOfBuffers = m_bufferList.size();
-
-      if (numberOfBuffers > 0) {
-        setSelectedBuffer((Buffer)m_bufferList.get(numberOfBuffers - 1));
+      if (buffer.equals(getBufferForFile(file))) {
+        m_fileBuffers.remove(file);
       }
-      else {
-        setSelectedBuffer(null);
-      }
-    }
 
-    fireBufferRemoved(buffer);
+      if (buffer.equals(getSelectedBuffer())) {
+        final int numberOfBuffers = m_bufferList.size();
+
+        if (numberOfBuffers > 0) {
+          selectBuffer((Buffer)m_bufferList.get(numberOfBuffers - 1));
+        }
+        else {
+          selectBuffer(null);
+        }
+      }
+
+      fireBufferRemoved(buffer);
+    }
   }
 
   private void addBuffer(final Buffer buffer) {
@@ -317,7 +312,7 @@ public final class EditorModel {
    * @return <code>true</code> => its a Python file.
    */
   public boolean isPythonFile(File f) {
-    return f != null && f.getName().endsWith(".py");
+    return f != null && f.getName().toLowerCase().endsWith(".py");
   }
 
   /**
@@ -331,7 +326,7 @@ public final class EditorModel {
       return false;
     }
 
-    final String name = f.getName();
+    final String name = f.getName().toLowerCase();
 
     return
       f.isHidden() ||
@@ -339,7 +334,6 @@ public final class EditorModel {
       name.startsWith("~") ||
       name.endsWith("~") ||
       name.startsWith("#") ||
-      name.startsWith(".") ||
       name.endsWith(".exe") ||
       name.endsWith(".gif") ||
       name.endsWith(".jpeg") ||
