@@ -70,30 +70,6 @@ import net.grinder.statistics.TestStatisticsMap;
 public final class GrinderProcess {
 
   /**
-   * Return value used to indicate to the parent process that we
-   * exited normally.
-   */
-  public static final int EXIT_NATURAL_DEATH = 0;
-
-  /**
-   * Return value used to indicate to the parent process that we
-   * received a "reset" signal.
-   */
-  public static final int EXIT_RESET_SIGNAL = 16;
-
-  /**
-   * Return value used to indicate to the parent process that we
-   * received a "start" signal.
-   */
-  public static final int EXIT_START_SIGNAL = 17;
-
-  /**
-   * Return value used to indicate to the parent process that we
-   * received a "stop" signal.
-   */
-  public static final int EXIT_STOP_SIGNAL = 18;
-
-  /**
    * The application's entry point.
    *
    * @param args Command line arguments.
@@ -128,8 +104,8 @@ public final class GrinderProcess {
     final Logger logger = grinderProcess.m_context.getProcessLogger();
 
     try {
-      final int status = grinderProcess.run();
-      System.exit(status);
+      grinderProcess.run();
+      System.exit(0);
     }
     catch (ExitProcessException e) {
       System.exit(-5);
@@ -154,7 +130,6 @@ public final class GrinderProcess {
 
   private boolean m_shutdownTriggered;
   private boolean m_communicationShutdown;
-  private int m_lastMessagesReceived = 0;
 
   /**
    * Creates a new <code>GrinderProcess</code> instance.
@@ -253,7 +228,7 @@ public final class GrinderProcess {
    *
    * @returns exit status to be indicated to parent process.
    */
-  private int run() throws GrinderException, InterruptedException {
+  private void run() throws GrinderException, InterruptedException {
     final Logger logger = m_context.getProcessLogger();
 
     logger.output("The Grinder version " + GrinderBuild.getVersionString());
@@ -300,100 +275,90 @@ public final class GrinderProcess {
       m_context.createStatusMessage(
         ProcessStatus.STATE_STARTED, (short)0, m_numberOfThreads));
 
-    if (m_initialisationMessage.getWaitForStartMessage()) {
-      logger.output("waiting for console signal",
-                    Logger.LOG | Logger.TERMINAL);
+    logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
 
-      waitForMessage();
+    m_context.setExecutionStartTime(System.currentTimeMillis());
+
+    // Start the threads.
+    for (int i = 0; i < m_numberOfThreads; i++) {
+      final Thread t = new Thread(runnable[i], "Grinder thread " + i);
+      t.setDaemon(true);
+      t.start();
     }
 
-    if (received(ConsoleListener.START) ||
-        !m_initialisationMessage.getWaitForStartMessage()) {
+    final TimerTask reportTimerTask = new ReportToConsoleTimerTask();
+    final TimerTask shutdownTimerTask = new ShutdownTimerTask();
 
-      logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
+    // Schedule a regular statistics report to the console. We don't
+    // need to schedule this at a fixed rate. Each report contains the
+    // work done since the last report.
 
-      m_context.setExecutionStartTime(System.currentTimeMillis());
+    // First (empty) report to console to start it recording if its
+    // not already.
+    reportTimerTask.run();
 
-      // Start the threads.
-      for (int i = 0; i < m_numberOfThreads; i++) {
-        final Thread t = new Thread(runnable[i], "Grinder thread " + i);
-        t.setDaemon(true);
-        t.start();
+    timer.schedule(reportTimerTask, m_reportToConsoleInterval,
+                   m_reportToConsoleInterval);
+
+    try {
+      if (m_duration > 0) {
+        logger.output("will shutdown after " + m_duration + " ms",
+                      Logger.LOG | Logger.TERMINAL);
+
+        timer.schedule(shutdownTimerTask, m_duration);
       }
 
-      final TimerTask reportTimerTask = new ReportToConsoleTimerTask();
-      final TimerTask shutdownTimerTask = new ShutdownTimerTask();
+      // Wait for a termination event.
+      synchronized (m_eventSynchronisation) {
+        while (GrinderThread.getNumberOfThreads() > 0) {
 
-      // Schedule a regular statistics report to the console. We don't
-      // need to schedule this at a fixed rate. Each report contains
-      // the work done since the last report.
+          if (m_consoleListener.checkForMessage(ConsoleListener.ANY ^
+                                                ConsoleListener.START)) {
+            break;
+          }
 
-      // First (empty) report to console to start it recording if its
-      // not already.
-      reportTimerTask.run();
+          if (m_shutdownTriggered) {
+            logger.output("specified duration exceeded, shutting down",
+                          Logger.LOG | Logger.TERMINAL);
+            break;
+          }
 
-      timer.schedule(reportTimerTask, m_reportToConsoleInterval,
-                     m_reportToConsoleInterval);
+          m_eventSynchronisation.wait();
+        }
+      }
 
-      try {
-        if (m_duration > 0) {
-          logger.output("will shutdown after " + m_duration + " ms",
+      synchronized (m_eventSynchronisation) {
+        if (GrinderThread.getNumberOfThreads() > 0) {
+
+          logger.output("waiting for threads to terminate",
                         Logger.LOG | Logger.TERMINAL);
 
-          timer.schedule(shutdownTimerTask, m_duration);
-        }
+          m_context.shutdown();
 
-        // Wait for a termination event.
-        synchronized (m_eventSynchronisation) {
+          final long time = System.currentTimeMillis();
+          final long maximumShutdownTime = 10000;
+
           while (GrinderThread.getNumberOfThreads() > 0) {
-
-            if (checkForMessage(ConsoleListener.ANY ^ ConsoleListener.START)) {
-              break;
-            }
-
-            if (m_shutdownTriggered) {
-              logger.output("specified duration exceeded, shutting down",
+            if (System.currentTimeMillis() - time > maximumShutdownTime) {
+              logger.output("ignoring unresponsive threads",
                             Logger.LOG | Logger.TERMINAL);
               break;
             }
 
-            m_eventSynchronisation.wait();
-          }
-        }
-
-        synchronized (m_eventSynchronisation) {
-          if (GrinderThread.getNumberOfThreads() > 0) {
-
-            logger.output("waiting for threads to terminate",
-                          Logger.LOG | Logger.TERMINAL);
-
-            m_context.shutdown();
-
-            final long time = System.currentTimeMillis();
-            final long maxShutdownTime = 10000;
-
-            while (GrinderThread.getNumberOfThreads() > 0) {
-              if (System.currentTimeMillis() - time > maxShutdownTime) {
-                logger.output("threads not terminating, continuing anyway",
-                              Logger.LOG | Logger.TERMINAL);
-                break;
-              }
-
-              m_eventSynchronisation.wait(maxShutdownTime);
-            }
+            m_eventSynchronisation.wait(maximumShutdownTime);
           }
         }
       }
-      finally {
-        reportTimerTask.cancel();
-        shutdownTimerTask.cancel();
-      }
-
-      jythonScript.shutdown();
-
-      // Final report to the console.
-      reportTimerTask.run();
     }
+    finally {
+      reportTimerTask.cancel();
+      shutdownTimerTask.cancel();
+    }
+
+    jythonScript.shutdown();
+
+    // Final report to the console.
+    reportTimerTask.run();
 
     m_loggerImplementation.getDataWriter().close();
 
@@ -413,69 +378,13 @@ public final class GrinderProcess {
 
     statisticsTable.print(logger.getOutputLogWriter());
 
-    if (m_initialisationMessage.getWaitForStopMessage() &&
-        !received(ConsoleListener.ANY)) {
-      // We've got here naturally, without a console signal.
-      logger.output("finished, waiting for console signal",
-                    Logger.LOG | Logger.TERMINAL);
-
-      waitForMessage();
-    }
-
     timer.cancel();
 
     // Sadly it appears its impossible to interrupt a read() on stdin,
     // so we can't shut down the console listener cleanly. It runs in
     // a daemon thread, so this isn't a big deal.
 
-    if (received(ConsoleListener.START)) {
-      logger.output("requesting reset and start");
-      return EXIT_START_SIGNAL;
-    }
-    else if (received(ConsoleListener.RESET)) {
-      logger.output("requesting reset");
-      return EXIT_RESET_SIGNAL;
-    }
-    else if (received(ConsoleListener.STOP | ConsoleListener.SHUTDOWN)) {
-      logger.output("requesting stop");
-      return EXIT_STOP_SIGNAL;
-    }
-    else {
-      logger.output("finished", Logger.LOG | Logger.TERMINAL);
-      return EXIT_NATURAL_DEATH;
-    }
-  }
-
-  private boolean received(int mask) {
-    return (m_lastMessagesReceived & mask) != 0;
-  }
-
-  private void waitForMessage() throws InterruptedException {
-    synchronized (m_eventSynchronisation) {
-      while (!checkForMessage(ConsoleListener.ANY)) {
-        m_eventSynchronisation.wait();
-      }
-    }
-  }
-
-  /**
-   * Check for a console message belonging to a particular set, or for
-   * shutdown.
-   *
-   * @param mask The mask of constants defined by {@link Listener}
-   * which specify the messages to check for.
-   * @param return <code>true</code> if a message was received.
-   * @see #received
-   */
-  private boolean checkForMessage(int mask) {
-
-    m_lastMessagesReceived = m_consoleListener.received(mask);
-
-    if (received(ConsoleListener.SHUTDOWN)) {
-      m_communicationShutdown = true;
-    }
-
-    return received(ConsoleListener.ANY);
+    logger.output("finished", Logger.LOG | Logger.TERMINAL);
   }
 
   private class ReportToConsoleTimerTask extends TimerTask {

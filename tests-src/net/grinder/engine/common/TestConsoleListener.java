@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
+import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
@@ -50,7 +51,7 @@ public class TestConsoleListener extends TestCase {
   }
 
   public void testConstruction() throws Exception {
-    final MyMonitor myMonitor = new MyMonitor();
+    final Object myMonitor = new Object();
 
     final ConsoleListener listener0 =
       new ConsoleListener(myMonitor, m_logger);
@@ -64,132 +65,186 @@ public class TestConsoleListener extends TestCase {
     m_loggerFactory.assertNotCalled();
   }
 
-  public void testListener() throws Exception {
-    final MyMonitor myMonitor = new MyMonitor();
-
+  public void testSendNotification() throws Exception {
+    final Object myMonitor = new Object();
     final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
 
-    assertEquals(0, listener.received(ConsoleListener.ANY));
+    final Sender sender = listener.getSender();
 
-    final MyMonitor.WaitForMessages t1 =
-      myMonitor.new WaitForMessages(1000, listener,
-                                    ConsoleListener.RESET |
-                                    ConsoleListener.START);
-    t1.start();
+    final WaitForNotification notified = new WaitForNotification(myMonitor);
+
+    sender.send(new StopGrinderMessage());
+
+    assertTrue(notified.wasNotified());
+  }
+
+  public void testCheckForMessageAndReceive() throws Exception {
+
+    final Object myMonitor = new Object();
+    final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
+
+    assertFalse(listener.checkForMessage(ConsoleListener.ANY));
+    assertFalse(listener.checkForMessage(ConsoleListener.RESET |
+                                         ConsoleListener.SHUTDOWN));
+    assertFalse(listener.checkForMessage(ConsoleListener.SHUTDOWN));
 
     final Sender sender = listener.getSender();
-    sender.send(new ResetGrinderMessage());
-    sender.send(new StartGrinderMessage());
-    t1.join();
-    assertTrue(!t1.getTimerExpired());
-    assertEquals(0, listener.received(ConsoleListener.ANY));
-
-    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
-    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
-
-    final MyMonitor.WaitForMessages t2 =
-      myMonitor.new WaitForMessages(1000, listener, ConsoleListener.STOP);
-    t2.start();
 
     sender.send(new StartGrinderMessage());
     sender.send(new MyMessage()); // Unknown message.
-    sender.send(new StopGrinderMessage());
-    t2.join();
-    assertTrue(!t2.getTimerExpired());
-
-    assertEquals(0, listener.received(ConsoleListener.RESET |
-                                      ConsoleListener.SHUTDOWN));
-
-    assertEquals(ConsoleListener.START,
-                 listener.received(ConsoleListener.START |
-                                   ConsoleListener.STOP));
+    sender.send(new ResetGrinderMessage());
 
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
     m_loggerFactory.assertSuccess("error", new Class[] { String.class });
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
-
     m_loggerFactory.assertNotCalled();
+
+    assertFalse(listener.checkForMessage(ConsoleListener.ANY ^
+                                         (ConsoleListener.START |
+                                          ConsoleListener.RESET)));
+    assertTrue(listener.checkForMessage(ConsoleListener.START |
+                                        ConsoleListener.STOP));
+    assertTrue(listener.received(ConsoleListener.START));
+    assertFalse(listener.received(ConsoleListener.STOP));
+    assertTrue(listener.received(ConsoleListener.ANY));
+    assertFalse(listener.received(ConsoleListener.STOP |
+                                 ConsoleListener.RESET));
+    assertFalse(listener.received(ConsoleListener.STOP));
+    assertFalse(listener.received(ConsoleListener.SHUTDOWN));
+    assertFalse(listener.received(ConsoleListener.RESET));
+
+    assertFalse(listener.checkForMessage(ConsoleListener.START));
+    assertFalse(listener.received(ConsoleListener.ANY));
+    assertFalse(listener.received(ConsoleListener.START));
+
+    assertTrue(listener.checkForMessage(ConsoleListener.RESET));
+    assertTrue(listener.received(ConsoleListener.RESET));
+    assertTrue(listener.received(ConsoleListener.RESET));
+
+    assertFalse(listener.checkForMessage(ConsoleListener.RESET));
+    assertFalse(listener.received(ConsoleListener.RESET));
+
+    sender.send(new StartGrinderMessage());
+    sender.send(new ResetGrinderMessage());
+
+    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerFactory.assertNotCalled();
+
+    assertTrue(listener.checkForMessage(ConsoleListener.RESET |
+                                        ConsoleListener.START));
+    sender.send(new ResetGrinderMessage());
+
+    m_loggerFactory.assertSuccess("output", new Class[] { String.class });
+    m_loggerFactory.assertNotCalled();
+
+    assertTrue(listener.checkForMessage(ConsoleListener.RESET |
+                                        ConsoleListener.START));
+    assertTrue(listener.received(ConsoleListener.RESET));
+    assertFalse(listener.checkForMessage(ConsoleListener.RESET |
+                                         ConsoleListener.START));
+    assertFalse(listener.received(ConsoleListener.START));
+
+    sender.shutdown();
+
+    assertTrue(listener.checkForMessage(ConsoleListener.SHUTDOWN));
+    assertTrue(listener.received(ConsoleListener.SHUTDOWN));
+    assertTrue(listener.received(ConsoleListener.SHUTDOWN));
+  }
+
+  public void testWaitForMessage() throws Exception {
+    final Object myMonitor = new Object();
+    final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
+    final Sender sender = listener.getSender();
+
+    final Thread t = new Thread() {
+        public void run() {
+          synchronized (myMonitor) {} // Wait until we're listening.
+          try {
+            sender.send(new StartGrinderMessage());
+          }
+          catch (CommunicationException e) {
+            e.printStackTrace();
+          }
+        }
+    };
+
+    synchronized (myMonitor) {
+      t.start();
+      listener.waitForMessage();
+    }
+
+    assertTrue(listener.received(ConsoleListener.START));
   }
 
   private static final class MyMessage implements Message, Serializable {
   }
 
   public void testShutdown() throws Exception {
-    final MyMonitor myMonitor = new MyMonitor();
 
+    final Object myMonitor = new Object();
     final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
-
-    assertEquals(0, listener.received(ConsoleListener.ANY));
-
-    final MyMonitor.WaitForMessages t1 =
-      myMonitor.new WaitForMessages(1000, listener, ConsoleListener.SHUTDOWN);
-
-    t1.start();
-
     final Sender sender = listener.getSender();
+
+    final WaitForNotification notified = new WaitForNotification(myMonitor);
+
     sender.shutdown();
 
-    t1.join();
-    assertTrue(!t1.getTimerExpired());
-
-    assertEquals(0, listener.received(ConsoleListener.START |
-                                      ConsoleListener.STOP |
-                                      ConsoleListener.RESET));
+    assertTrue(notified.wasNotified());
 
     m_loggerFactory.assertSuccess("output",
                                   new Class[] { String.class, Integer.class });
 
     m_loggerFactory.assertNotCalled();
+
+    assertFalse(listener.checkForMessage(ConsoleListener.ANY ^
+                                          ConsoleListener.SHUTDOWN));
+    assertTrue(listener.checkForMessage(ConsoleListener.SHUTDOWN));
   }
 
-  private final static class MyMonitor {
-    private final class WaitForMessages extends Thread {
-      private final long m_time;
-      private final ConsoleListener m_listener;
-      private int m_expectedMessages;
-      private boolean m_timerExpired = false;
+  private static class WaitForNotification implements Runnable {
+    private final Thread m_thread;
+    private final Object m_monitor;
+    private boolean m_started = false;
+    private boolean m_notified = false;
 
-      public WaitForMessages(long time, ConsoleListener listener,
-                             int expectedMessages) {
-        m_time = time;
-        m_listener = listener;
-        m_expectedMessages = expectedMessages;
+    public WaitForNotification(Object monitor) throws InterruptedException {
+      m_monitor = monitor;
+
+      m_thread = new Thread(this);
+      m_thread.start();
+
+      synchronized (m_monitor) {
+        while (!m_started) {
+          m_monitor.wait();
+        }
       }
+    }
 
-      public final boolean getTimerExpired() {
-        return m_timerExpired;
-      }
+    public boolean wasNotified() throws InterruptedException {
+      m_thread.join();
 
-      public final void run() {
-        synchronized(MyMonitor.this) {
-          long currentTime = System.currentTimeMillis();
-          final long wakeUpTime = currentTime + m_time;
-		
-          while (currentTime < wakeUpTime) {
-            final int receivedMessages =
-              m_listener.received(m_expectedMessages);
+      return m_notified;
+    }
 
-            m_expectedMessages ^= receivedMessages;
+    public final void run() {
+      synchronized(m_monitor) {
+        final long startTime = System.currentTimeMillis();
+        final long maximumTime = 10000;
+        m_started = true;
+        m_monitor.notifyAll();
 
-            if (m_expectedMessages == 0) {
-              return;
-            }
+        try {
+          m_monitor.wait(maximumTime);
 
-            try {
-              MyMonitor.this.wait(wakeUpTime - currentTime);
-
-              currentTime = System.currentTimeMillis();
-
-              if (currentTime >= wakeUpTime) {
-                m_timerExpired = true;
-              }
-            }
-            catch (InterruptedException e) {
-              currentTime = System.currentTimeMillis();
-            }
+          if (System.currentTimeMillis() - startTime < maximumTime) {
+            m_notified = true;
           }
+        }
+        catch (InterruptedException e) {
         }
       }
     }
   }
 }
+

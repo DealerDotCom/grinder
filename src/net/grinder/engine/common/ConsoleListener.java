@@ -78,6 +78,7 @@ public final class ConsoleListener {
   private final Object m_notifyOnMessage;
   private final Logger m_logger;
   private int m_messagesReceived = 0;
+  private int m_lastMessagesReceived = 0;
 
   /**
    * Constructor.
@@ -93,24 +94,60 @@ public final class ConsoleListener {
   }
 
   /**
-   * The <code>ConsoleListener</code> has a bit mask representing
-   * messages received but not acknowledged. This method returns a
-   * bit mask representing the messages received that match the
-   * <code>mask</code> parameter and acknowledges the messages
-   * represented by <code>mask</code>.
+   * Wait until any message is received.
+   *
+   * <p>After calling this method, the actual messages can be
+   * determined using {@link #received}.</p>
+   *
+   * @throws InterruptedException If the thread is interrupted whilst
+   * waiting.
+   */
+  public void waitForMessage() throws InterruptedException {
+
+    synchronized (m_notifyOnMessage) {
+      while (!checkForMessage(ConsoleListener.ANY)) {
+        m_notifyOnMessage.wait();
+      }
+    }
+  }
+
+  /**
+   * Check for messages matching the given mask.
+   *
+   * <p>After calling this method, the actual messages can be
+   * determined using {@link #received}.</p>
    *
    * @param mask The messages to check for.
-   * @return The subset of <code>mask</code> received.
+   * @return <code>true</code> if at least one message matches the
+   * <code>mask</code> parameter has been received since the last time
+   * the message was checked for, or if communications have been
+   * shutdown. <code>false</code> otherwise.
    */
-  public synchronized int received(int mask) {
-    final int intersection = m_messagesReceived & mask;
+  public boolean checkForMessage(int mask) {
+    synchronized (ConsoleListener.this) {
+      final int intersection = m_messagesReceived & mask;
 
-    try {
-      return intersection;
+      try {
+        m_lastMessagesReceived = intersection;
+      }
+      finally {
+        m_messagesReceived ^= intersection;
+      }
     }
-    finally {
-      m_messagesReceived ^= intersection;
-    }
+
+    return received(mask | SHUTDOWN);
+  }
+
+  /**
+   * Query the messages set up by the last {@link #checkForMessage} or
+   * {@link #waitForMessage} call.
+   *
+   * @param mask The messages to check for.
+   * @return <code>true</code> if one or more of the received
+   * messages matches <code>mask</code>.
+   */
+  public boolean received(int mask) {
+    return (m_lastMessagesReceived & mask) != 0;
   }
 
   private void setReceived(int message) {
@@ -145,13 +182,12 @@ public final class ConsoleListener {
             setReceived(RESET);
           }
           else {
-            m_logger.error("received an unknown message");
+            m_logger.error("received an unknown message: " + message);
           }
         }
 
         public void shutdown() {
-          m_logger.output("communication shutdown",
-                          Logger.LOG | Logger.TERMINAL);
+          m_logger.output("communication shutdown", Logger.LOG);
           setReceived(SHUTDOWN);
         }
       };

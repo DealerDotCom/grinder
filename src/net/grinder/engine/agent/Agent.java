@@ -97,8 +97,7 @@ public final class Agent {
    */
   public void run() throws GrinderException, InterruptedException {
 
-    final String version = GrinderBuild.getVersionString();
-    m_logger.output("The Grinder version " + version);
+    m_logger.output("The Grinder version " + GrinderBuild.getVersionString());
 
     boolean startImmediately = false;
 
@@ -131,14 +130,15 @@ public final class Agent {
 
       final boolean haveConsole = receiver != null;
 
+      final Object eventSynchronisation = new Object();
       final ConsoleListener consoleListener =
-        new ConsoleListener(this, m_logger);
+        new ConsoleListener(eventSynchronisation, m_logger);
 
       final MessagePump messagePump =
         haveConsole ?
         new MessagePump(receiver,
                         new TeeSender(
-                          consoleListener.getSender(), fanOutStreamSender),
+                          fanOutStreamSender, consoleListener.getSender()),
                         1) :
         null;
 
@@ -146,54 +146,99 @@ public final class Agent {
         new ProcessStarter(properties, fanOutStreamSender, haveConsole);
 
       // If we're using the console, wait for a console start signal here.
+      if (haveConsole && !startImmediately) {
+        m_logger.output("waiting for console signal");
+        consoleListener.waitForMessage();
+      }
 
-      final int processIncrement =
-        properties.getInt("grinder.processIncrement", 0);
+      if (!haveConsole ||
+          consoleListener.received(ConsoleListener.START) ||
+          startImmediately) {
 
-      if (processIncrement > 0) {
-        final boolean moreProcessesToStart =
-          processStarter.startSomeProcesses(
-            properties.getInt("grinder.initialProcesses", processIncrement));
+        final int processIncrement =
+          properties.getInt("grinder.processIncrement", 0);
 
-        if (moreProcessesToStart) {
-          final int incrementInterval =
-            properties.getInt("grinder.processIncrementInterval", 60000);
+        if (processIncrement > 0) {
+          final boolean moreProcessesToStart =
+            processStarter.startSomeProcesses(
+              properties.getInt("grinder.initialProcesses", processIncrement));
 
-          final Timer timer = new Timer(true);
-          final RampUpTimerTask rampUpTimerTask =
-            new RampUpTimerTask(processStarter, processIncrement);
+          if (moreProcessesToStart) {
+            final int incrementInterval =
+              properties.getInt("grinder.processIncrementInterval", 60000);
 
-          timer.scheduleAtFixedRate(
-            rampUpTimerTask, incrementInterval, incrementInterval);
+            final Timer timer = new Timer(true);
+            final RampUpTimerTask rampUpTimerTask =
+              new RampUpTimerTask(processStarter, processIncrement);
 
-          rampUpTimerTask.waitUntilFinished();
-          timer.cancel();
+            timer.scheduleAtFixedRate(
+              rampUpTimerTask, incrementInterval, incrementInterval);
+
+            // TODO need to be able to interrupt this.
+            rampUpTimerTask.waitUntilFinished();
+            timer.cancel();
+          }
+        }
+        else {
+          processStarter.startAllProcesses();
+        }
+
+        // Wait for a termination event.
+        synchronized (eventSynchronisation) {
+          processStarter.requestExitNotification(eventSynchronisation);
+
+          final long maximumShutdownTime = 20000;
+          long consoleSignalTime = -1;
+
+          while (processStarter.processesRunning()) {
+
+            if (consoleListener.checkForMessage(ConsoleListener.ANY ^
+                                                ConsoleListener.START)) {
+              consoleSignalTime = System.currentTimeMillis();
+            }
+
+            if (consoleSignalTime >= 0 &&
+                System.currentTimeMillis() - consoleSignalTime >
+                maximumShutdownTime) {
+
+              m_logger.output("forcibly terminating unresponsive processes");
+
+              ProcessReaper.getInstance().run();
+            }
+
+            eventSynchronisation.wait(maximumShutdownTime);
+          }
         }
       }
-      else {
-        processStarter.startAllProcesses();
+
+      if (haveConsole && !consoleListener.received(ConsoleListener.ANY)) {
+        // We've got here naturally, without a console signal.
+        m_logger.output("finished, waiting for console signal");
+
+        consoleListener.waitForMessage();
       }
-
-      final int combinedExitStatus = processStarter.waitForProcessesToFinish();
-
-      // If we're using the console, wait for a stop or reset signal here.
 
       if (messagePump != null) {
         messagePump.shutdown();
       }
 
-      if (combinedExitStatus == GrinderProcess.EXIT_START_SIGNAL) {
+      if (!haveConsole) {
+        break;
+      }
+      else if (consoleListener.received(ConsoleListener.START)) {
         startImmediately = true;
       }
-      else if (combinedExitStatus == GrinderProcess.EXIT_RESET_SIGNAL) {
-        startImmediately = false;
+      else if (consoleListener.received(ConsoleListener.STOP |
+                                        ConsoleListener.SHUTDOWN)) {
+        break;
       }
       else {
-        break;
+        // ConsoleListener.RESET or natural death.
+        startImmediately = false;
       }
     }
 
-    m_logger.output("The Grinder version " + version + " finished");
+    m_logger.output("finished");
   }
 
   private class ProcessStarter {
@@ -213,8 +258,7 @@ public final class Agent {
                           boolean haveConsole) {
 
       m_fanOutStreamSender = fanOutStreamSender;
-      m_initialiseMessage =
-        new InitialiseGrinderMessage(false, haveConsole, haveConsole);
+      m_initialiseMessage = new InitialiseGrinderMessage(haveConsole);
 
       m_processes =
         new ChildProcess[properties.getInt("grinder.processes", 1)];
@@ -327,32 +371,59 @@ public final class Agent {
         ++m_nextProcessIndex;
 
         final StringBuffer buffer = new StringBuffer();
-        m_logger.output("Process " + grinderID + " started");
+        m_logger.output("process " + grinderID + " started");
       }
 
       return m_processes.length > m_nextProcessIndex;
     }
 
-    public int waitForProcessesToFinish()
-      throws EngineException, InterruptedException {
+    public void requestExitNotification(final Object monitor) {
 
-      int combinedExitStatus = 0;
+      // Take copy in case more processes are started later. We don't
+      // need to synchronise access to m_processes because its always
+      // populated in order.
+      final int nextProcessIndex = m_nextProcessIndex;
 
+      final Thread t = new Thread("Process exit monitor") {
+        public void run() {
+          for (int i = 0; i < nextProcessIndex; i++) {
+            if (m_processes[i] != null) {
+              try {
+                m_processes[i].waitFor();
+              }
+              catch (InterruptedException e) {
+                // Really an assertion failure. Can't use m_logger
+                // here because its not thread safe.
+                e.printStackTrace();
+              }
+              catch (EngineException e) {
+                // Really an assertion failure. Can't use m_logger
+                // here because its not thread safe.
+                e.printStackTrace();
+              }
+
+              m_processes[i] = null;
+              }
+            }
+
+          synchronized (monitor) {
+            monitor.notifyAll();
+          }
+        }
+        };
+
+      t.setDaemon(true);
+      t.start();
+    }
+
+    public boolean processesRunning() {
       for (int i = 0; i < m_nextProcessIndex; i++) {
-        final int exitStatus = m_processes[i].waitFor();
-
-        if (exitStatus > 0) { // Not an error
-          if (combinedExitStatus == 0) {
-            combinedExitStatus = exitStatus;
-          }
-          else if (combinedExitStatus != exitStatus) {
-            m_logger.error(
-              "WARNING, worker processes disagree on exit status");
-          }
+        if (m_processes[i] != null) {
+          return true;
         }
       }
 
-      return combinedExitStatus;
+      return false;
     }
 
     private String getHostName() {
