@@ -1,6 +1,11 @@
 Grinder 2.8.2
 -------------
 
+   New UI showing worker process status from Dirk Feufel.
+
+   Fix console communication bug where socket reader threads would
+   sleep each time a dead socket handle was polled.
+
    Fix SocketPlugin bug where multiple request files where incorrectly
    handled. Thanks to Hussein Badakhchani for the report.
 
