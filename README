@@ -93,7 +93,7 @@ Its easy:
 	   lib directory.
 
 	2. Say
-		java net.grind.Console
+		java net.grinder.Console
 
 	3. Change to a test directory and set up a grinder.properties
 	   file which defines the test you want to perform. See the
