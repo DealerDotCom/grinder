@@ -1,5 +1,12 @@
 2005-03-22  Philip Aston  <philipa@mail.com>
 
+	* The Grinder 3.0-beta25 is released.	
+
+	* examples/grinder.properties:
+	Remove grinder.jvm.arguments line as it confuses newbies.
+
+	* src/documentation/content/xdocs/faq.xml: Tweak FAQ.
+
 	* tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java:
 	Test ScriptStatisticsImplementation.
 
