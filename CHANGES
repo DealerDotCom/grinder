@@ -1,3 +1,10 @@
+Grinder 3.0-beta9
+-----------------
+
+  Incorporate HTTPClient HTTPS patch into main distribution. The Grinder
+  now requires the JSSE.
+
+
 Grinder 3.0-beta8
 -----------------
 
