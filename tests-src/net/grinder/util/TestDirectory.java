@@ -117,13 +117,13 @@ public class TestDirectory extends AbstractFileTestCase {
 
     final File[] badDirectories = {
       new File(getDirectory(), "directory/foo/bah/blah.cantread"),
-      new File(getDirectory(), "readonly"),
+      new File(getDirectory(), "cantread"),
     };
 
     for (int i = 0; i < badDirectories.length; ++i) {
       badDirectories[i].getParentFile().mkdirs();
       badDirectories[i].mkdir();
-      FileUtilities.setCanRead(badDirectories[i], false);
+      FileUtilities.setCanAccess(badDirectories[i], false);
     }
 
     final File[] filesAfterTimeT = directory.listContents(50000L);
@@ -134,6 +134,7 @@ public class TestDirectory extends AbstractFileTestCase {
     }
 
     final String[] warnings = directory.getWarnings();
+    System.err.println("**" + warnings[0]);
     assertEquals(badDirectories.length, warnings.length);
 
     final StringBuffer warningsBuffer = new StringBuffer();
@@ -149,7 +150,7 @@ public class TestDirectory extends AbstractFileTestCase {
       assertTrue(warningsBuffer + " contains " + badDirectories[i].getPath(),
                  warningsString.indexOf(badDirectories[i].getPath()) > -1);
 
-      FileUtilities.setCanRead(badDirectories[i], true);
+      FileUtilities.setCanAccess(badDirectories[i], true);
     }
 
     // Check that listContents() returns the lot.
@@ -205,7 +206,7 @@ public class TestDirectory extends AbstractFileTestCase {
 
     final File file = new File(getDirectory(), "readonly");
     file.createNewFile();
-    FileUtilities.setCanRead(file, false);
+    FileUtilities.setCanAccess(file, false);
 
     try {
       new Directory(new File(getDirectory(), "readonly/foo")).create();
