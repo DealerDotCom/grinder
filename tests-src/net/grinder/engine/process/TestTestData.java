@@ -53,10 +53,7 @@ public class TestTestData extends TestCase
 	final Test test = new TestImplementation(99, "Some stuff",
 						 new GrinderProperties());
 	
-	final StatisticsImplementation statistics =
-	    new StatisticsImplementation();
-
-	final TestData testData = new TestData(test, statistics);
+	final TestData testData = new TestData(test);
 
 	assertEquals(test, testData.getTest());
 	assertNotNull(testData.getStatistics());
@@ -68,10 +65,8 @@ public class TestTestData extends TestCase
 	properties.put("Something", "blah");
 
 	final Test test = new TestImplementation(-33, "", properties);
-	final StatisticsImplementation statistics =
-	    new StatisticsImplementation();
 
-	final TestData testData = new TestData(test, statistics);
+	final TestData testData = new TestData(test);
 
 	assertEquals(test, testData.getTest());
 	assertNotNull(testData.getStatistics());
