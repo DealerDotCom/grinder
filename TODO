@@ -296,6 +296,8 @@ Perhaps JasperReports?
 
 ** Code
 
+Add an AbstractListenerSupport class? 
+
 Review use of Kernel. Probably want to share them.
 
 Remove ThreadLocal from RegisteredPlugin.
