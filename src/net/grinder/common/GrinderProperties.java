@@ -34,8 +34,20 @@ public class GrinderProperties extends Properties
     private static GrinderProperties s_singleton;
 
     /**
-     *Public to allow GrinderProperties to be used in various unit
-     * tests
+     *Package method that sets global GrinderProperties for use by
+     *various unit tests
+     */
+    static void setProperties(GrinderProperties properties)
+    {
+	synchronized (GrinderProperties.class)
+	{
+	    s_singleton = properties;
+	}
+    }
+
+    /**
+     * Default constructor is public for use by the unit tests.
+     * @see GrinderProperties#setGrinderProperties
      */
     public GrinderProperties()
     {
