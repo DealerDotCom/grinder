@@ -30,6 +30,9 @@ package net.grinder.communication;
  */
 public final class CommunicationDefaults {
 
+  private CommunicationDefaults() {
+  }
+
   /** Default console host. Bind to all interfaces by default. */
   public static final String CONSOLE_HOST = "";
 
