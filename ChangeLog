@@ -1,3 +1,23 @@
+2003-07-06  Philip Aston  <paston@bea.com>
+	
+	* The Grinder 3.0-beta10 is released.
+	
+2003-07-04  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java:
+	Fix saving of console data. (Bug 749461).
+
+	* TODO: Correction.
+
+2003-06-24  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/Resources.java: Fix error message.
+
+2003-06-13  Philip Aston  <paston@bea.com>
+
+	* examples/jms-sender.py, xdoc/g3/script-gallery-xhtml.xml:
+	Update JMS sender example to remove multi-threaded access to Messages.
+
 2003-06-01  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta9 is released.
