@@ -20,6 +20,7 @@ FILES=$(find . \
 -o -name '.cvsignore' -prune \
 -o -name '.*~' -prune \
 -o -name 'prj.el' -prune \
+-o -name 'classes' -prune \
 -o \( -type f -a -print \) )
 
 
