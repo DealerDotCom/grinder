@@ -74,6 +74,15 @@ abstract class AbstractSender implements Sender {
     // but creating a new ObjectOutputStream for every message fixes
     // this.
 
+    // Dr Heinz M. Kabutz's Java Specialists 2004-05-19 newsletter
+    // (http://www.javaspecialists.co.za) may hold the answer.
+    // ObjectOutputStream's cache based on object identity. The EOF
+    // might be due to this, or at least ObjectOutputStream.reset()
+    // may help. I can't get excited enough about the cost of creating
+    // a new ObjectOutputStream() to try this as the bulk of what we
+    // send are long[]'s so aren't cacheable, and it would break sends
+    // that reuse Messages.
+
     final ObjectOutputStream objectStream = new ObjectOutputStream(stream);
     objectStream.writeObject(message);
     objectStream.flush();
