@@ -1,3 +1,8 @@
+2001-06-05  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/StatisticsTableModel.java, src/net/grinder/console/swingui/SummaryFrame.java, src/net/grinder/statistics/TestStatisticsMap.java, CHANGES, TODO:
+	Console summary now uses a JTable.
+
 2001-06-03  Philip Aston  <paston@bea.com>
 
 	* examples/http/grinder.properties:
