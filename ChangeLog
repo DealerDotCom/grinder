@@ -1,5 +1,7 @@
 2001-06-28  Philip Aston  <paston@bea.com>
 
+	* src/net/grinder/plugin/socket/SocketPlugin.java: Latest from David.
+
 	* TODO, doc/HTTPPlugin.txt, CHANGES, README: Docs.
 
 	* src/prj.el: Fix.
