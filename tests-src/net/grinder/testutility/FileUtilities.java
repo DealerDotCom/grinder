@@ -37,17 +37,30 @@ import net.grinder.common.GrinderException;
 public class FileUtilities extends Assert {
 
   public static void setCanRead(File file, boolean canRead) throws Exception {
+    exec(new String[] {
+           "chmod",
+           canRead ? "ugo+r" : "ugo-r",
+           file.getAbsolutePath(),
+         });
+  }
 
-    final String[] commandArray = new String[] {
-      "chmod",
-      canRead ? "ugo+r" : "ugo-r",
-      file.getAbsolutePath(),
-    };
+  public static void setCanWrite(File file, boolean canWrite)
+    throws Exception {
+
+    exec(new String[] {
+           "chmod",
+           canWrite ? "ugo+w" : "ugo-w",
+           file.getAbsolutePath(),
+         });
+  }
+
+  private static void exec(String[] command)
+    throws GrinderException, InterruptedException {
 
     final Process process;
 
     try {
-      process = Runtime.getRuntime().exec(commandArray);
+      process = Runtime.getRuntime().exec(command);
     }
     catch (IOException e) {
       throw new GrinderException(
@@ -58,6 +71,6 @@ public class FileUtilities extends Assert {
     
     process.waitFor();
 
-    assertEquals("chmod suceeded", 0, process.exitValue());
+    assertEquals("exec suceeded", 0, process.exitValue());
   }
 }
