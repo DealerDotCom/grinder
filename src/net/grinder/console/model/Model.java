@@ -23,6 +23,7 @@ import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -155,8 +156,11 @@ public class Model
 	    });
     }
 
-    public synchronized void registerTests(Set newTests)
+    public synchronized void registerTests(Set tests)
     {
+	// Need to copy collection, might be immutable.
+	final HashSet newTests = new HashSet(tests);
+
 	newTests.removeAll(m_tests);
 
 	if (newTests.size() > 0) {
