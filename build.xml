@@ -32,7 +32,7 @@ Ant is a little but very handy tool that uses a build file written in XML
 Because the ant files are a quite large, and change rarely, I'm
 distributing them separately. To start building the Grinder you need
 to expand the grinder distrbution, and then expand the ant
-distribution over the top so that an ant directory is created.
+distribution over the top so that an ./etc/ant directory is created.
 
 The only thing that you have to make sure, is the "JAVA_HOME" environment
 property should be set to match the JVM you want to use. That's it.
@@ -52,9 +52,12 @@ will generate a file called "cocoon.jar" in the "./build" directory. Note, that
 if you do further development, compilation time is reduced since Ant is able
 to detect which files have changed an to recompile them at need.
 
-Also, you'll note that reusing a single JVM instance for each task, increases
-tremendously the performance of the whole build system, compared to other
-tools (i.e. make or shell scripts) where a new JVM is started for each task.
+Also, you'll note that reusing a single JVM instance for each task,
+increases tremendously the performance of the whole build system,
+compared to other tools (i.e. make or shell scripts) where a new JVM
+is started for each task. This also means that you can't use jikes
+(which isn't written in Java), but the single JVM speedup means this
+doesn't matter.
 
 -->
 
@@ -96,6 +99,8 @@ tools (i.e. make or shell scripts) where a new JVM is started for each task.
     <property name="dist.root" value="distribution"/>
     <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
     <property name="dist.jar" value="${name}-${version}.jar"/>
+<!--    <property name="distribute.ant" value="true"/> -->
+<!--    <property name="distribute.javadoc" value="true"/> -->
 
     <!-- too thick to figure this out without RTFM -->
     <filter token="year" value="${year}"/>
@@ -116,7 +121,6 @@ tools (i.e. make or shell scripts) where a new JVM is started for each task.
     <echo message="    jar [default]    creates ${lib.dir}/${lib.jar}"/>
     <echo message="    javadoc          generates the javadoc"/>
     <echo message="    dist             generates the distribution"/>
-    <echo message="    antdist          generates the Ant distribution"/>
     <echo message="    clean            removes class files"/>
     <echo message="    realclean        removes all generated files"/>
     <echo message="    usage            this"/>
@@ -130,14 +134,14 @@ tools (i.e. make or shell scripts) where a new JVM is started for each task.
   <target name="prepare-weblogic" if="weblogic.examples" depends="init">
     <copydir src="${src.dir}"
              dest="${build.src}"
-             includes="**/weblogic/**"
+             includes="**/weblogic/**,**/plugin/http/tools/**"
              filtering="on"/>
   </target>
 
   <target name="prepare-src" depends="prepare-weblogic, init">
     <copydir src="${src.dir}"
              dest="${build.src}"
-             excludes="**/weblogic/**"
+             excludes="**/weblogic/**,**/plugin/http/tools/**"
              filtering="on"/>
   </target>
 
@@ -187,7 +191,22 @@ tools (i.e. make or shell scripts) where a new JVM is started for each task.
   <!-- =================================================================== -->
   <!-- Creates the distribution hierachy                                   -->
   <!-- =================================================================== -->
-  <target name="distribution-hierarchy" depends="jar,javadoc">
+  <target name="distribute-ant" if="distribute.ant" depends="init">
+    <copydir src="${etc.dir}"
+	     dest="${dist.dir}/${etc.dir}"
+	     includes="ant/**"/>
+  </target>
+
+  <target name="distribute-javadoc"
+	  if="distribute.javadoc"
+	  depends="init,javadoc">
+    <copydir src="${javadoc.dir}"
+	     dest="${dist.dir}/${javadoc.dir}"/>
+  </target>
+
+  <target name="distribution-hierarchy"
+	  depends="jar,distribute-ant,distribute-javadoc">
+
     <copydir src="${src.dir}"
 	     dest="${dist.dir}/${src.dir}"
 	     filtering="on"/>
@@ -195,13 +214,16 @@ tools (i.e. make or shell scripts) where a new JVM is started for each task.
     <copyfile src="${lib.dir}/${lib.jar}"
 	      dest="${dist.dir}/${lib.dir}/${lib.jar}"/>
 
-    <copydir src="${javadoc.dir}" dest="${dist.dir}/${javadoc.dir}"/>
+    <copydir src="${etc.dir}"
+	     dest="${dist.dir}/${etc.dir}"
+	     excludes="ant/**"/>
 
-    <copydir src="${etc.dir}" dest="${dist.dir}/${etc.dir}"/>
-    <copydir src="${examples.dir}" dest="${dist.dir}/${examples.dir}"/>
+    <copydir src="${examples.dir}"
+	     dest="${dist.dir}/${examples.dir}"
+	     excludes="**/log/**"/>
 
     <copydir src="." dest="${dist.dir}" 
-	     includes="build.*, ChangeLog, COPYING, lcp.bat, TODO"
+	     includes="build.*, ChangeLog, COPYING, README, TODO"
 	     excludes="prj.el"
 	     filtering="on"/>
 
@@ -233,7 +255,7 @@ tools (i.e. make or shell scripts) where a new JVM is started for each task.
   </target>
 
   <!-- =================================================================== -->
-  <!-- For old times sake...                                               -->
+  <!-- For old time's sake...                                              -->
   <!-- =================================================================== -->
   <target name="cruelworld" depends="realclean, dist">
   </target>
