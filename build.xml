@@ -284,7 +284,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
 
     <copy todir="${dist.dir}" filtering="on">
       <fileset dir="."
-	       includes="build.xml, ChangeLog, CHANGES, COPYING, README, TODO"
+	       includes="build.xml, AUTHORS, ChangeLog, CHANGES, COPYING, README, TODO"
 	       excludes="prj.el"/>
     </copy>
 
