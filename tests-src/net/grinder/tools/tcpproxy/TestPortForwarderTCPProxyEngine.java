@@ -25,7 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -69,8 +68,8 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
 
   public void testBadLocalPort() throws Exception {
     final ConnectionDetails badConnectionDetails =
-      new ConnectionDetails(new EndPoint("from", 111),
-                            new EndPoint("unknownhost", 222),
+      new ConnectionDetails(new EndPoint("unknownhost", 111),
+                            new EndPoint("to", 222),
                             false);
 
     try {
