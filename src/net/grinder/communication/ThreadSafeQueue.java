@@ -75,7 +75,7 @@ class ThreadSafeQueue {
           getMutex().wait();
         }
         catch (InterruptedException e) {
-          // Probably being shutdown, fall through.
+          shutdown();
         }
       }
 
