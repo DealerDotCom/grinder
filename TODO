@@ -144,6 +144,8 @@ Review use of InterruptedException
 
 Remove SnifferWebApp.
 
+Shouldn't really throw GrinderException anywhere.
+
 ** Other HTTP/HTML libraries
 
 DeSouza, Edwin writes:
