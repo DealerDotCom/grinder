@@ -42,15 +42,22 @@ import net.grinder.util.CopyStreamRunnable;
 final class ChildProcess {
 
   private final Process m_process;
+  private final Thread m_stdoutRedirectorThread;
+  private final Thread m_stderrRedirectorThread;
 
   /**
    * Constructor.
    *
-   * @param grinderID Process identity.
    * @param commandArray Command line arguments.
+   * @param outputStream Output stream to which child process stdout
+   * should be redirected.
+   * @param errorStream Output stream to which child process stderr
+   * should be redirected.
    * @throws GrinderException If an error occurs.
    */
-  public ChildProcess(String grinderID, String[] commandArray)
+  public ChildProcess(String[] commandArray,
+                      OutputStream outputStream,
+                      OutputStream errorStream)
     throws GrinderException {
 
     try {
@@ -62,17 +69,20 @@ final class ChildProcess {
 
     ProcessReaper.getInstance().add(m_process);
 
-    createRedirectorThread(m_process.getInputStream(), System.out);
-    createRedirectorThread(m_process.getErrorStream(), System.err);
+    m_stdoutRedirectorThread =
+      createRedirectorThread(m_process.getInputStream(), outputStream);
+
+    m_stderrRedirectorThread =
+      createRedirectorThread(m_process.getErrorStream(), errorStream);
   }
 
   /**
-   * Return the output stream for the launched process. Blocks until
-   * process is started.
+   * Return an output stream connected to the input stream for the
+   * child process.
    *
    * @return The stream.
    */
-  public OutputStream getOutputStream() {
+  public OutputStream getStdinStream() {
     return m_process.getOutputStream();
   }
 
@@ -89,6 +99,9 @@ final class ChildProcess {
 
     m_process.waitFor();
 
+    m_stdoutRedirectorThread.join();
+    m_stderrRedirectorThread.join();
+
     ProcessReaper.getInstance().remove(m_process);
 
     try {
@@ -100,8 +113,8 @@ final class ChildProcess {
     }
   }
 
-  private void createRedirectorThread(InputStream inputStream,
-                                      OutputStream outputStream) {
+  private Thread createRedirectorThread(InputStream inputStream,
+                                        OutputStream outputStream) {
 
     final Thread thread =
       new Thread(new CopyStreamRunnable(inputStream, outputStream, false),
@@ -109,5 +122,7 @@ final class ChildProcess {
 
     thread.setDaemon(true);
     thread.start();
+
+    return thread;
   }
 }
