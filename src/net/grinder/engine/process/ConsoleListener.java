@@ -26,7 +26,7 @@ import net.grinder.common.Logger;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
-import net.grinder.communication.MulticastReceiver;
+//import net.grinder.communication.MulticastReceiver;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.StartGrinderMessage;
@@ -147,7 +147,7 @@ final class ConsoleListener {
       throws CommunicationException {
       super("Console Listener");
 
-      m_receiver = new MulticastReceiver(address, port);
+      m_receiver = null; // new MulticastReceiver(address, port);
     }
 
     /**
