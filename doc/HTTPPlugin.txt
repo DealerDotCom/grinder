@@ -72,7 +72,7 @@ What can I set in grinder.properties for the HTTP plugin?
     grinder.test0.parameter.basicAuthenticationRealm -
     grinder.test0.parameter.basicAuthenticationUser -
     grinder.test0.parameter.basicAuthenticationPassword -
-				Used togther, these specify an HTTP
+				Used together, these specify an HTTP
 				basic authentication header that will
 				be sent with the request. If you
 				specify one of these values, you must

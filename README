@@ -232,24 +232,20 @@ process, one thread, and runs on cycle which contains once test. This
 is not too much use, so read on... (and see doc/HTTPPlugin.txt).
 
 
-[This is not complete - volunteer work required!]
-
     grinder.processes	-	The number of child processes to start.
 				Default 1.
 
-    grinder.threads	-	The number cycles of the threads each 
+    grinder.threads	-	The number of threads that each 
 				process spawns. Default 1.
 
-    grinder.cycles	-	The number cycles of the test script
+    grinder.cycles	-	The number of cycles of the test script
 				each thread performs. 0 means "run
 				forever". Default 1.
 
     grinder.jvm		-	Use an alternate JVM for child processes.
-
-    grinder.jvm.path	-	Specifies the java executable used for
-				the child JVMs. Defaults to "java" so
-				you do not need to specify this if
-				your path is sensible.
+				Defaults to "java" so you do not need
+				to specify this if your path is
+				sensible.
 
     grinder.jvm.classpath -	Use to adjust the classpath used for
 				the child VMs. Anything specified here
@@ -325,20 +321,20 @@ is not too much use, so read on... (and see doc/HTTPPlugin.txt).
     grinder.thread.sleepTimeFactor -
 				Apply a factor to all the sleep times
 				you've specified. E.g., setting this
-				to 0.1 would run the script at ten times
-				te speed. Default 1.
+				to 0.1 would run the script ten times
+				as fast. Default 1.
 
     grinder.thread.sleepTimeVariation -
 				The Grinder varies the specified sleep
 				times according to a Normal
 				distribution. This property specifies
 				a fractional range within which nearly
-				all (99.75%) of the times will lye.
+				all (99.75%) of the times will lie.
 				E.g., if the sleep time is specified
 				as 1000 and the sleepTimeVariation is
 				set to 0.1, then 99.75% of the actual
-				sleep times will be between 9900 and
-				11000 milliseconds. Default 0.2.
+				sleep times will be between 990 and
+				1100 milliseconds. Default 0.2.
 
     grinder.plugin	-	The plugin class to use. Currently each
 				script uses a single plugin.
@@ -487,6 +483,33 @@ Under Linux, you may also need to set up the routing table. Try:
 
 Some Windows VPN clients (e.g Bay Networks Extranet) interfere with
 multicast. You may need to disable them.
+
+With a standalone Windows 2000 machine, you might experience similar
+grief to myself. I found that I could only get multicast to work if my
+LAN NIC had a carrier and the MS loopback adapter is not installed (or
+disabled).
+
+The following links contain experiences that tally with mine:
+
+ http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html
+ http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html
+ http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html
+
+The last of these says:
+
+	"I have been looking for a solution for this problem a long
+	time without success :-( I found several dummy loopback IP
+	stacks but none that supports multicast. The solution I have
+	been using is to bring along a tiny hub and connect my laptop
+	to that hub when doing demos. Windows is a bit stupid in the
+	way that it only checks if it has a carrier."
+
+I know of someone using a slightly cheaper/lighter solution; namely
+crop a network cable short and twist your own physical loopback
+adapter.
+
+Needless to say, if anyone figures out how to get multicast working
+with a standalone W2K machine, I'm more than interested.
 
 
 How do I fix it?

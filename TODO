@@ -3,7 +3,6 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-
 Is ditching grinder.properties defined tests sensible? Yes. Don't want
 dual maintenance. Cost is everyone needs jython.
 
@@ -34,6 +33,12 @@ supported.
 Use the console to broadcast scripts to grinder processes. XML
 containing embedded script.
 
+Code clean up:
+	- All files should use DOS format.
+
+
+
+  TCPSniffer in -proxy mode shouldn't need -remoteHost.
 
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 
@@ -78,3 +83,5 @@ containing embedded script.
   Alter console to use Timer.scheduleAtFixedRate for more accuracy.
 
   Tidy up logging of plugin initialisation.
+
+  TCPSniffer should record 401 iteractions.

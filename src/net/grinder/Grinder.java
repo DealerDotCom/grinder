@@ -47,7 +47,7 @@ public class Grinder
      * @param args[] Command line arguments.
      * @exception GrinderException If an error occurred.
      */
-    public static void main(String args[])
+    public static void main(String[] args)
 	throws GrinderException
     {
 	if (args.length > 1) {

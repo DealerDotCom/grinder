@@ -83,7 +83,7 @@ abstract class AbstractReceiver implements Receiver
 		(SequenceValue)m_sequenceValues.get(senderID);
 
 	    if (sequenceValue != null) {
-		sequenceValue.nextValue(sequenceNumber, senderID);
+		sequenceValue.nextValue(sequenceNumber, message);
 	    }
 	    else {
 		m_sequenceValues.put(senderID,
@@ -125,13 +125,13 @@ abstract class AbstractReceiver implements Receiver
 	 * @param newValue The next value.
 	 * @throws CommunicationException If the message is out of sequence.
 	 **/
-	public final void nextValue(long newValue, String senderID)
+	public final void nextValue(long newValue, Message message)
 	    throws CommunicationException
 	{
 	    if (newValue != ++m_value) {
 		final CommunicationException e = new CommunicationException(
 			"Out of sequence message from Sender '" +
-		    senderID + "' (received " + newValue + 
+		    message.getSenderGrinderID() + "' (received " + newValue + 
 		    ", expected " + m_value + ")");
 
 		m_value = newValue;

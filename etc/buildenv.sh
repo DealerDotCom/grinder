@@ -1,5 +1,5 @@
 export ANT_HOME=/opt/ant/ant1.3
-export JAVA_HOME=/opt/jdk1.3
+export JAVA_HOME=/opt/jdk1.3.1_02
 export PATH=$PATH:${ANT_HOME}/bin
 
 BSF=/opt/bsf/bsf-2_2-jython/build/lib/bsf.jar
