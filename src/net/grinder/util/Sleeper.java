@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,7 +34,7 @@ import net.grinder.common.Logger;
 /**
  * Manage sleeping
  *
- * <p>Sseveral threads can safely use the same <code>Sleeper</code>.
+ * <p>Several threads can safely use the same <code>Sleeper</code>.
  * </p>
  *
  * @author Philip Aston
@@ -56,7 +56,7 @@ public class Sleeper {
    * @param factor All sleep times are modified by this factor.
    * @param limit9975Factor See {@link #sleepNormal}.
    * @param logger  A logger to chat to. Pass <code>null</code> for no chat.
-   **/
+   */
   public Sleeper(double factor, double limit9975Factor, Logger logger) {
 
     if (factor < 0d || limit9975Factor < 0d) {
@@ -74,7 +74,7 @@ public class Sleeper {
 
   /**
    * Shutdown all Sleepers that are currently constructed.
-   **/
+   */
   public static final synchronized void shutdownAllCurrentSleepers() {
 
     final Iterator iterator = s_allSleepers.iterator();
@@ -96,7 +96,7 @@ public class Sleeper {
    * Shutdown this <code>Sleeper</code>. Once called, all sleep
    * method invocations will throw {@link ShutdownException},
    * including those already sleeping.
-   **/
+   */
   public final synchronized void shutdown() {
 
     m_shutdown = true;
@@ -111,7 +111,7 @@ public class Sleeper {
    *
    * @param meanTime Mean time.
    * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
-   **/
+   */
   public void sleepNormal(long meanTime) throws ShutdownException {
 
     sleepNormal(meanTime, (long)((meanTime * m_limit9975Factor) / 3.0));
@@ -145,7 +145,7 @@ public class Sleeper {
    *
    * @param maximumTime Maximum time.
    * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
-   **/
+   */
   public void sleepFlat(long maximumTime) throws ShutdownException {
     checkShutdown();
 
@@ -192,7 +192,7 @@ public class Sleeper {
 
   /**
    * Exception used to indicate that a Sleeper has been shutdown.
-   **/
+   */
   public static final class ShutdownException extends GrinderException {
 
     private ShutdownException(String message) {
