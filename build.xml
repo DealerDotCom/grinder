@@ -70,11 +70,7 @@ what you want. Currently the conditionally built modules are:
 
 <project name="The Grinder" default="jar" basedir=".">
 
-  <taskdef resource="checkstyletask.properties">
-    <classpath>
-      <pathelement path="${checkstyle.classpath}"/>
-    </classpath>
-  </taskdef>
+  <taskdef resource="checkstyletask.properties"/>
 
   <property name="Name" value="The Grinder"/>
   <property name="name" value="grinder"/>
