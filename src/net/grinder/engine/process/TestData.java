@@ -121,10 +121,7 @@ final class TestData implements TestRegistry.RegisteredTest {
 
     if (o instanceof PyObject) {
       // Jython object.
-      if (o instanceof PyFinalizableInstance) {
-        return new TestPyFinalizableInstance(this, (PyFinalizableInstance)o);
-      }
-      else if (o instanceof PyInstance) {
+      if (o instanceof PyInstance) {
         return new TestPyInstance(this, (PyInstance)o);
       }
       else if (o instanceof PyFunction) {

@@ -26,6 +26,8 @@ import org.python.core.PyInstance;
 import org.python.core.PyJavaInstance;
 import org.python.core.PyObject;
 
+import org.python.core.ClonePyInstance;
+
 
 /**
  * An instrumented <code>PyInstance</code>.
@@ -33,12 +35,12 @@ import org.python.core.PyObject;
  * @author Philip Aston
  * @version $Revision$
  */
-class TestPyInstance extends PyInstance {
+class TestPyInstance extends ClonePyInstance {
   private final TestData m_testData;
   private final PyObject m_pyTest;
 
   public TestPyInstance(TestData testData, PyInstance target) {
-    super(target.__class__, target.__dict__);
+    super(target);
 
     m_testData = testData;
     m_pyTest = new PyJavaInstance(testData.getTest());
