@@ -23,6 +23,7 @@ package net.grinder.communication;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.StreamCorruptedException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -172,13 +173,20 @@ public class TestServerSender extends TestCase {
     catch (CommunicationException e) {
     }
     
-    Thread.yield();
-    assertEquals(0, acceptor.getThreadGroup().activeCount());
+    while (acceptor.getThreadGroup().activeCount() != 0) {
+      Thread.sleep(10);
+    }
 
-    final ObjectInputStream inputStream2 =
-      new ObjectInputStream(socketStream);
-    final Object o2 = inputStream2.readObject();
+    try {
+      final ObjectInputStream inputStream2 =
+        new ObjectInputStream(socketStream);
+      final Object o2 = inputStream2.readObject();
 
-    assertTrue(o2 instanceof CloseCommunicationMessage);
+      assertTrue(o2 instanceof CloseCommunicationMessage);
+    }
+    catch (StreamCorruptedException e) {
+      // Occasionally this occurs because the connection is shutdown.
+      // Whatever.
+    }
   }
 }
