@@ -42,7 +42,8 @@ final class DistributionStatus {
    * Report a new last modified time for a connection.
    *
    * @param connectionIdentity The connection identity.
-   * @param lastModifiedTime The last modified time.
+   * @param lastModifiedTime The last modified time. Use
+   * <code>-1</code> to indicate no last modified time.
    */
   public void set(ConnectionIdentity connectionIdentity,
                   long lastModifiedTime) {
@@ -67,9 +68,8 @@ final class DistributionStatus {
   /**
    * Get the earliest last modified time.
    *
-   * @return The earliest last modified time, <code>-1</code> if we
-   * have no information, or <code>Long.MAX_VALUE</code> if we have no
-   * connections.
+   * @return The earliest last modified time, or
+   * <code>Long.MAX_VALUE</code> if we have no connections.
    */
   public long getEarliestLastModifiedTime() {
     long result = Long.MAX_VALUE;
@@ -108,6 +108,5 @@ final class DistributionStatus {
         entry.setValue(v);
       }
     }
-
   }
 }
