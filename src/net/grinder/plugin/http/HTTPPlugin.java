@@ -77,8 +77,6 @@ public class HTTPPlugin implements GrinderPlugin {
     // Remove standard HTTPClient modules which we don't want. We load
     // HTTPClient modules dynamically as we don't have public access.
     try {
-      s_redirectionModule = Class.forName(HTTPClient.RedirectionModule);
-
       // Don't want additional post-processing of response data.
       HTTPConnection.removeDefaultModule(
 	Class.forName("HTTPClient.ContentEncodingModule"));
