@@ -32,7 +32,17 @@ import net.grinder.common.GrinderException;
 
 
 /**
- * Associate a {@link StatisticExpression} with display information.
+ * Associate a statistic expression with display information.
+ *
+ * <p>Statistic expressions are composed of statistic names (see
+ * {@link StatisticIndexMap} in a simple post-fix format using the
+ * symbols <code>+</code>, <code>-</code>, <code>/</code> and
+ * <code>*</code> (with their usual meanings). Precedence can be
+ * controlled by grouping expressions in parentheses.
+ *
+ * <p>For example, the statistic expression "<code>(/
+ * timedTransactionTime timedTransactions)</code>" represents the mean
+ * transaction time in milliseconds.
  *
  * @author Philip Aston
  * @version $Revision$

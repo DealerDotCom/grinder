@@ -27,11 +27,12 @@ import net.grinder.common.GrinderException;
 
 /**
  * Access to a set of long and double values. Clients can access
- * individual values using a process specific index obtained from a
- * {@link StatisticsIndexMap}.
+ * individual values using an index object obtained from a {@link
+ * StatisticsIndexMap}.
  *
  * @author Philip Aston
  * @version $Revision$
+ * @see net.grinder.script.ScriptContext#getCurrentTestStatistics
  **/
 public interface RawStatistics
 {

@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+  <body>
+The Grinder statistics API.
+
+<h2>Example usage</h2>
+<h4>Using a custom statistic from a script</h4>
+
+<pre>
+# Obtain the index object for the a spare long statistic.
+deliveryTimeIndex = StatisticsIndexMap.getInstance().getIndexForLong("userLong0")
+
+# Use the RawStatistics interface to update the statistic.
+grinder.currentTestStatistics.addValue(deliveryTimeIndex, deliveryTime)
+</pre>
+
+<h4>Registering custom statistic views from a script</h4>
+
+<pre>
+detailView = StatisticsView()
+detailView.add(ExpressionView("Delivery time", "", "userLong0"))
+
+summaryView = StatisticsView()
+summaryView.add(ExpressionView(
+    "Mean delivery time",
+    "statistic.deliveryTime",
+    "(/ userLong0(+ timedTransactions untimedTransactions))"))
+	    
+grinder.registerDetailStatisticsView(detailView)
+grinder.registerSummaryStatisticsView(summaryView)
+</pre>
+  </body>
+</html>
