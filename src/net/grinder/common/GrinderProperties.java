@@ -54,11 +54,11 @@ public class GrinderProperties extends Properties
     /**
      * Construct a GrinderProperties, reading initial values from the specified file. System properties
      * beginning with "<code>grinder.</code>"are also added to allow values to be overriden on the command line.
-     * @param filename The file to read the properties from. null => use grinder.properties.
+     * @param file The file to read the properties from. null => use grinder.properties.
      **/
-    public GrinderProperties(String filename) throws GrinderException
+    public GrinderProperties(File file) throws GrinderException
     {
-	m_file = new File(filename != null ? filename : DEFAULT_FILENAME);
+	m_file = file != null ? file : new File(DEFAULT_FILENAME);
 
 	if (m_file.exists()) {
 	    try {

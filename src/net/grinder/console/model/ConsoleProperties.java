@@ -97,9 +97,7 @@ public class ConsoleProperties
      **/
     public ConsoleProperties(File file) throws GrinderException
     {
-	m_properties =
-	    file != null ? 
-	    new GrinderProperties(file.getPath()) : new GrinderProperties();
+	m_properties = new GrinderProperties(file);
 
 	setCollectSampleCount(
 	    m_properties.getInt(COLLECT_SAMPLES_PROPERTY, 0));

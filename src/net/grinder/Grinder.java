@@ -66,7 +66,7 @@ public class Grinder
 
 	while (true) {
 	    final GrinderProperties properties =
-		new GrinderProperties(m_alternateFilename);
+		new GrinderProperties(new File(m_alternateFilename));
 
 	    final int numberOfProcesses =
 		properties.getInt("grinder.processes", 1);

@@ -18,16 +18,17 @@
 
 package net.grinder.engine.process;
 
-import java.util.HashSet;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
@@ -96,7 +97,9 @@ public class GrinderProcess
 
 	try {
 	    final GrinderProcess grinderProcess =
-		new GrinderProcess(args[0], args.length == 2 ? args[1] : null);
+		new GrinderProcess(args[0],
+				   args.length == 2 ?
+				   new File(args[1]) : null);
 
 	    final int status = grinderProcess.run();
 	    
@@ -126,11 +129,11 @@ public class GrinderProcess
     /** A map of Tests to Statistics for passing elsewhere. */
     private final TestStatisticsMap m_testStatisticsMap;
 
-    public GrinderProcess(String grinderID, String propertiesFileName)
+    public GrinderProcess(String grinderID, File propertiesFile)
 	throws GrinderException
     {
 	final GrinderProperties properties =
-	    new GrinderProperties(propertiesFileName);
+	    new GrinderProperties(propertiesFile);
 
 	m_context = new ProcessContextImplementation(grinderID, properties);
 
