@@ -116,7 +116,8 @@ public class StatisticsTable
 	}
     }
 
-    private StringBuffer formatLine(String methodName, Statistics statistics)
+    private StringBuffer formatLine(String methodName,
+				    Statistics statistics)
     {
 	final StringBuffer result = new StringBuffer();
 

@@ -41,7 +41,7 @@ import net.grinder.plugininterface.Logger;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.Test;
 import net.grinder.plugininterface.ThreadCallbacks;
-import net.grinder.statistics.Statistics;
+import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.FilenameFactory;
@@ -221,7 +221,8 @@ public class GrinderProcess
 	    final long sleepTime =
 		properties.getInt(sleepTimePropertyName, -1);
 
-	    final Statistics statistics = new Statistics();
+	    final StatisticsImplementation statistics =
+		new StatisticsImplementation();
 	    m_testSet.put(test, new TestData(test, sleepTime, statistics));
 	    m_testStatisticsMap.put(test, statistics);
 	}

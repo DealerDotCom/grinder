@@ -29,7 +29,7 @@ import java.util.TreeSet;
 import net.grinder.console.ConsoleException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.Test;
-import net.grinder.statistics.Statistics;
+import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
@@ -181,7 +181,8 @@ public class Model
 		final TestStatisticsMap.Pair pair = iterator.next();
 
 		final int testNumber = pair.getTest().getTestNumber();
-		final Statistics statistics = pair.getStatistics();
+		final StatisticsImplementation statistics =
+		    pair.getStatistics();
 
 		m_sampleAccumulators[testNumber].add(statistics);
 
@@ -193,7 +194,7 @@ public class Model
     private class SampleAccumulator implements CumulativeStatistics
     {
 	private final List m_listeners = new LinkedList();
-	private Statistics m_total;
+	private StatisticsImplementation m_total;
 	private long m_transactionsInInterval;
 	private double m_averageTPS;
 	private double m_peakTPS;
@@ -207,7 +208,7 @@ public class Model
 	    m_listeners.add(listener);
 	}
 
-	private void add(Statistics statistics)
+	private void add(StatisticsImplementation statistics)
 	{
 	    m_transactionsInInterval += statistics.getTransactions();
 	    m_total.add(statistics);
@@ -244,7 +245,7 @@ public class Model
 	    m_transactionsInInterval = 0;
 	    m_averageTPS = 0;
 	    m_peakTPS = 0;
-	    m_total = new Statistics();
+	    m_total = new StatisticsImplementation();
 	}
 
 	public double getAverageTransactionTime()

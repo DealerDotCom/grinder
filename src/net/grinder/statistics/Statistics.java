@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000, 2001  Paco Gomez
-// Copyright (C) 2000, 2001  Philip Aston
+// Copyright (C) 2000, 2001 Paco Gomez
+// Copyright (C) 2000, 2001 Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,27 +18,16 @@
 
 package net.grinder.statistics;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
-
 
 /**
+ * Statistics interface.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public class AllTests
+public interface Statistics
 {
-    public static void main(String[] args)
-    {
-	TestRunner.run(AllTests.class);
-    }
-
-    public static Test suite()
-    {
-	final TestSuite suite = new TestSuite();
-	suite.addTest(new TestSuite(TestStatisticsImplementation.class));
-	return suite;
-    }
+    public double getAverageTransactionTime();
+    public long getTransactions();
+    public long getErrors();
 }

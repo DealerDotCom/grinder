@@ -27,7 +27,6 @@ import net.grinder.console.model.CumulativeStatistics;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.SampleListener;
 import net.grinder.plugininterface.Test;
-import net.grinder.statistics.Statistics;
 
 
 /**

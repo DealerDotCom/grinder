@@ -34,14 +34,14 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestStatistics extends TestCase
+public class TestStatisticsImplementation extends TestCase
 {
     public static void main(String[] args)
     {
-	TestRunner.run(TestStatistics.class);
+	TestRunner.run(TestStatisticsImplementation.class);
     }
 
-    public TestStatistics(String name)
+    public TestStatisticsImplementation(String name)
     {
 	super(name);
     }
@@ -52,7 +52,8 @@ public class TestStatistics extends TestCase
 
     public void testCreation() 
     {
-	final Statistics statistics = new Statistics();
+	final StatisticsImplementation statistics =
+	    new StatisticsImplementation();
 
 	assertEquals(0, statistics.getTransactions());
 	assertEquals(0, statistics.getErrors());
@@ -60,8 +61,11 @@ public class TestStatistics extends TestCase
 
     public void testAddsAndEquals() 
     {
-	final Statistics statistics0 = new Statistics();
-	final Statistics statistics1 = new Statistics();
+	final StatisticsImplementation statistics0 =
+	    new StatisticsImplementation();
+
+	final StatisticsImplementation statistics1 =
+	    new StatisticsImplementation();
 
 	assertEquals(statistics0, statistics0);
 	assertEquals(statistics0, statistics1);
@@ -85,8 +89,10 @@ public class TestStatistics extends TestCase
 
     public void testGetClone()
     {
-	final Statistics statistics0 = new Statistics();
-	final Statistics statistics1 = statistics0.getClone();
+	final StatisticsImplementation statistics0 =
+	    new StatisticsImplementation();
+
+	final StatisticsImplementation statistics1 = statistics0.getClone();
 	assertEquals(statistics0, statistics1);
 	assert(statistics0 != statistics1);
 	assert(statistics0.getClass() == statistics1.getClass());
@@ -94,8 +100,11 @@ public class TestStatistics extends TestCase
 
     public void testAdd()
     {
-	final Statistics statistics0 = new Statistics();
-	final Statistics statistics1 = new Statistics();
+	final StatisticsImplementation statistics0 =
+	    new StatisticsImplementation();
+
+	final StatisticsImplementation statistics1 =
+	    new StatisticsImplementation();
 
 	// 0 + 0 = 0
 	statistics0.add(statistics1);
@@ -120,33 +129,47 @@ public class TestStatistics extends TestCase
 
     public void testGetDelta()
     {
-	final Statistics statistics0 = new Statistics();
+	final StatisticsImplementation statistics0 =
+	    new StatisticsImplementation();
+
 	statistics0.addTransaction(1234);
 
-	final Statistics statistics1 = statistics0.getDelta(false);
+	final StatisticsImplementation statistics1 =
+	    statistics0.getDelta(false);
+
 	assertEquals(statistics0, statistics1);
 
-	final Statistics statistics2 = statistics0.getDelta(true);
+	final StatisticsImplementation statistics2 =
+	    statistics0.getDelta(true);
+
 	assertEquals(statistics0, statistics2);
 
-	final Statistics statistics3 = statistics0.getDelta(false);
+	final StatisticsImplementation statistics3 =
+	    statistics0.getDelta(false);
+
 	assert(!statistics0.equals(statistics3));
 
 	statistics0.addError();
 
-	final Statistics statistics4 = statistics0.getDelta(true);
+	final StatisticsImplementation statistics4 =
+	    statistics0.getDelta(true);
+
 	assertEquals(0, statistics4.getTransactions());
 	assertEquals(1, statistics4.getErrors());
 
 	statistics0.addTransaction(5678);
-	final Statistics statistics5 = statistics0.getDelta(true);
+
+	final StatisticsImplementation statistics5 =
+	    statistics0.getDelta(true);
+
 	assertEquals(1, statistics5.getTransactions());
 	assertEquals(0, statistics5.getErrors());
     }
 
     public void testGetAverageTransactionTime()
     {
-	final Statistics statistics0 = new Statistics();
+	final StatisticsImplementation statistics0 =
+	    new StatisticsImplementation();
 
 	assert(Double.isNaN(statistics0.getAverageTransactionTime()));
 

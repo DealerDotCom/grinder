@@ -23,7 +23,7 @@ import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
 import net.grinder.plugininterface.Test;
-import net.grinder.statistics.Statistics;
+import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.util.GrinderProperties;
 import net.grinder.util.TestImplementation;
 
@@ -54,7 +54,8 @@ public class TestTestData extends TestCase
 						 new GrinderProperties());
 	
 	final long sleepTime = 1234;
-	final Statistics statistics = new Statistics();
+	final StatisticsImplementation statistics =
+	    new StatisticsImplementation();
 
 	final TestData testData = new TestData(test, sleepTime, statistics);
 
@@ -70,7 +71,8 @@ public class TestTestData extends TestCase
 
 	final Test test = new TestImplementation(-33, "", properties);
 	final long sleepTime = 1234;
-	final Statistics statistics = new Statistics();
+	final StatisticsImplementation statistics =
+	    new StatisticsImplementation();
 
 	final TestData testData = new TestData(test, sleepTime, statistics);
 

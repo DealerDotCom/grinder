@@ -25,7 +25,7 @@ import java.util.Random;
 
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.ThreadCallbacks;
-import net.grinder.statistics.Statistics;
+import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.util.GrinderProperties;
 
 
@@ -172,7 +172,7 @@ class GrinderThread implements java.lang.Runnable
 		    sleepNormal(
 			sleepTime >= 0 ? sleepTime : m_defaultSleepTime);
 
-		    final Statistics statistics =
+		    final StatisticsImplementation statistics =
 			m_currentTestData.getStatistics();
 
 		    boolean success = false;

@@ -34,7 +34,6 @@ import javax.swing.border.EmptyBorder;
 
 import net.grinder.console.ConsoleException;
 import net.grinder.console.model.CumulativeStatistics;
-import net.grinder.statistics.Statistics;
 
 
 /**

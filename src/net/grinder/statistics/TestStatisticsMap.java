@@ -26,7 +26,7 @@ import net.grinder.util.GrinderException;
 
 
 /**
- * A map of Test's to Statistics.
+ * A map of Test's to StatisticsImplementation.
  *
  * Unsynchronised.
  *
@@ -38,7 +38,7 @@ public class TestStatisticsMap implements java.io.Serializable
     /** Use a TreeMap so we store in Test order. */
     private final Map m_data = new TreeMap();
 
-    public void put(Test test, Statistics statistics)
+    public void put(Test test, StatisticsImplementation statistics)
     {
 	m_data.put(test, statistics);
     }
@@ -60,14 +60,14 @@ public class TestStatisticsMap implements java.io.Serializable
 	return result;
     }
 
-    public Statistics getTotal()
+    public StatisticsImplementation getTotal()
     {
-	final Statistics result = new Statistics();
+	final StatisticsImplementation result = new StatisticsImplementation();
 
 	final java.util.Iterator iterator = m_data.values().iterator();
 
 	while (iterator.hasNext()) {
-	    result.add((Statistics)iterator.next());
+	    result.add((StatisticsImplementation)iterator.next());
 	}
 
 	return result;
@@ -87,8 +87,8 @@ public class TestStatisticsMap implements java.io.Serializable
 	    final Pair pair = iterator.next();
 
 	    final Test test = pair.getTest();
-	    final Statistics statistics =
-		(Statistics)m_data.get(pair.getTest());
+	    final StatisticsImplementation statistics =
+		(StatisticsImplementation)m_data.get(pair.getTest());
 
 	    if (statistics == null) {
 		put(test, pair.getStatistics().getClone());
@@ -121,7 +121,8 @@ public class TestStatisticsMap implements java.io.Serializable
 	{
 	    final Map.Entry entry = (Map.Entry)m_iterator.next();
 	    final Test test = (Test)entry.getKey();
-	    final Statistics statistics = (Statistics)entry.getValue();
+	    final StatisticsImplementation statistics =
+		(StatisticsImplementation)entry.getValue();
 
 	    return new Pair(test, statistics);
 	}
@@ -130,9 +131,9 @@ public class TestStatisticsMap implements java.io.Serializable
     public class Pair
     {
 	private final Test m_test;
-	private final Statistics m_statistics;
+	private final StatisticsImplementation m_statistics;
 
-	private Pair(Test test, Statistics statistics)
+	private Pair(Test test, StatisticsImplementation statistics)
 	{
 	    m_test = test;
 	    m_statistics = statistics;
@@ -143,7 +144,7 @@ public class TestStatisticsMap implements java.io.Serializable
 	    return m_test;
 	}
 
-	public Statistics getStatistics()
+	public StatisticsImplementation getStatistics()
 	{
 	    return m_statistics;
 	}
