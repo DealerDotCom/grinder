@@ -256,7 +256,7 @@ public class CallRecorder extends Assert {
           result.append(", ");
         }
 
-        if (!parameters[i].getClass().isPrimitive()) {
+        if (parameters[i] != null && !parameters[i].getClass().isPrimitive()) {
           result.append("\"");
           result.append(parameters[i]);
           result.append("\"");
