@@ -72,7 +72,7 @@ public class TestGraph extends TestCase
 
     public void testRamp() throws Exception
     {
-	final Graph graph = new Graph(200, 200, 25);
+	final Graph graph = new Graph(25);
 	createUI(graph);
 
 	graph.setMaximum(150);
@@ -85,7 +85,7 @@ public class TestGraph extends TestCase
 
     public void testRandom() throws Exception
     {
-	final Graph graph = new Graph(500, 100, 100);
+	final Graph graph = new Graph(100);
 	createUI(graph);
 
 	graph.setMaximum(1);
