@@ -21,7 +21,6 @@
 
 package net.grinder.statistics;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 
@@ -85,17 +84,6 @@ public class StatisticsTable {
                          TestStatisticsMap testStatisticsMap) {
     m_statisticsView = statisticsView;
     m_testStatisticsMap = testStatisticsMap;
-  }
-
-  /**
-   * Write the table out an output stream.
-   *
-   * @param out The output stream.
-   */
-  public final void print(PrintStream out) {
-    final PrintWriter writer = new PrintWriter(out);
-    print(writer);
-    writer.flush();
   }
 
   /**
