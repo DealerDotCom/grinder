@@ -1,3 +1,31 @@
+2001-02-20  Philip Aston  <paston@beasys.com>
+
+	* README: 
+	* src/net/grinder/Console.java: 
+	* src/net/grinder/Grinder.java: 
+	* src/net/grinder/engine/LauncherThread.java: 
+	* src/net/grinder/engine/process/GrinderProcess.java: 
+	* src/net/grinder/util/GrinderProperties.java: 
+		Allow the properties filename to be specified as a command
+		line argument. Thanks to Marc Stogner.
+
+	* src/net/grinder/Grinder.java: 
+	* src/net/grinder/engine/LauncherThread.java: 
+	* src/net/grinder/engine/process/GrinderProcess.java: 	
+	* src/net/grinder/util/FilenameFactory.java: 
+	* src/net/grinder/util/ProcessContextImplementation.java: 
+	* tests-src/net/grinder/util/TestPropertiesHelper.java:
+		Simplify the passing of hostID and processID to child
+		processes.
+
+	* web/index.html:
+	* web/grinder-neon.gif: 
+	* web/screenshot.gif: 	
+		Latest docs.
+	
+	* src/net/grinder/plugin/http/HttpMsg.java:
+		Correct "dontReadBody" property name.
+
 2001-02-16  Philip Aston  <paston@beasys.com>
 
 	* The Grinder 2.3.2 is released.
