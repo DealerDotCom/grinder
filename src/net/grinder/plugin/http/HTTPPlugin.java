@@ -255,8 +255,10 @@ public class HttpPlugin extends SimplePluginBase
 
 	m_httpMsg = new HttpMsg(pluginThreadContext, useCookies,
 				useCookiesVersionString,
-				parameters.getBoolean("followRedirects",
-						      false));
+				parameters.getBoolean(
+				    "followRedirects", false),
+				parameters.getBoolean(
+				    "timeIncludesTransaction", false));
 
 	m_logHTML = parameters.getBoolean("logHTML", false);
 
@@ -347,6 +349,10 @@ public class HttpPlugin extends SimplePluginBase
 	}
 	catch (IOException e) {
 	    throw new PluginException("HTTP IOException: " + e, e);
+	}
+	finally {
+	    // In case timeIncludesTransaction = false
+	    m_pluginThreadContext.stopTimer();
 	}
 
 	final boolean error;

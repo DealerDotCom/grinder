@@ -309,6 +309,23 @@ What can I set in grinder.properties for the HTTP plugin?
 				the cookie from being picked up by the
 				plugin.
 
+    grinder.plugin.parameter.timeIncludesTransaction -
+
+				By default the time that the HTTP
+				plugin reports is the time it takes
+				for the remote server to accept the
+				connection request. When using the
+				times as an indicator of user
+				experience, this is usually what you
+				want.
+
+				Sometimes however you are more
+				interested in the time the entire HTTP
+				transaction takes, including the time
+				required to read the entire HTTP
+				response over the network. If so, set
+				this parameter to true.
+
     grinder.plugin.parameter.stringBean -
 				Fully qualified classname of a Java
 				bean that can provide dynamic strings

@@ -51,19 +51,22 @@ import net.grinder.plugininterface.PluginThreadContext;
 class HttpMsg
 {
     private final PluginThreadContext m_pluginThreadContext;
-    private boolean m_useCookies;
-    private boolean m_useCookiesVersionString;
-    private boolean m_followRedirects;
+    private final boolean m_useCookies;
+    private final boolean m_useCookiesVersionString;
+    private final boolean m_followRedirects;
     private CookieHandler m_cookieHandler;
-    private boolean m_dontReadBody;
+    private final boolean m_dontReadBody;
+    private final boolean m_timeIncludesTransaction;
 
     public HttpMsg(PluginThreadContext pluginThreadContext, boolean useCookies,
-		   boolean useCookiesVersionString, boolean followRedirects)
+		   boolean useCookiesVersionString, boolean followRedirects,
+		   boolean timeIncludesTransaction)
     {
 	m_pluginThreadContext = pluginThreadContext;
 	m_useCookies = useCookies;
 	m_useCookiesVersionString = useCookiesVersionString;
 	m_followRedirects = followRedirects;
+	m_timeIncludesTransaction = timeIncludesTransaction;
 	reset();
 
 	// Hack to work around buffering problem when used in
@@ -99,7 +102,9 @@ class HttpMsg
 	    connection = (HttpURLConnection) url.openConnection();
 	}
 	finally {
-	    m_pluginThreadContext.stopTimer();
+	    if (!m_timeIncludesTransaction) {
+		m_pluginThreadContext.stopTimer();
+	    }
 	}
 
 	final long ifModifiedSince = requestData.getIfModifiedSince();
