@@ -41,7 +41,7 @@ import net.grinder.util.Serialiser;
  * @author Philip Aston
  * @version $Revision$
  */
-class StatisticsSetImplementation implements StatisticsSet {
+final class StatisticsSetImplementation implements StatisticsSet {
 
   private final long[] m_longData;
   private final double[] m_doubleData;
@@ -58,18 +58,6 @@ class StatisticsSetImplementation implements StatisticsSet {
   }
 
   /**
-   * Copy constructor.
-   *
-   * @param other Object to copy. Caller is responsible for synchronisation.
-   */
-  protected StatisticsSetImplementation(StatisticsSetImplementation other) {
-    this();
-    System.arraycopy(other.m_longData, 0, m_longData, 0, m_longData.length);
-    System.arraycopy(other.m_doubleData, 0,
-                     m_doubleData, 0, m_doubleData.length);
-  }
-
-  /**
    * Reset this StatisticsSet to default values. Allows instance to
    * be reused.
    *
@@ -77,7 +65,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    * <code>StatisticsSetImplementation</code> (or they shouldn't be
    * reseting it), we don't synchronise
    */
-  public final void reset() {
+  public void reset() {
     Arrays.fill(m_longData, 0);
     Arrays.fill(m_doubleData, 0);
   }
@@ -93,7 +81,15 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @return A copy of this StatisticsSetImplementation.
    */
   public synchronized StatisticsSet snapshot() {
-    return new StatisticsSetImplementation(this);
+    final StatisticsSetImplementation result =
+      new StatisticsSetImplementation();
+
+    System.arraycopy(
+        m_longData, 0, result.m_longData, 0, result.m_longData.length);
+    System.arraycopy(
+        m_doubleData, 0, result.m_doubleData, 0, result.m_doubleData.length);
+
+    return result;
   }
 
   /**
@@ -105,7 +101,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @return The value.
    */
-  public final synchronized long getValue(StatisticsIndexMap.LongIndex index) {
+  public synchronized long getValue(StatisticsIndexMap.LongIndex index) {
     return m_longData[index.getValue()];
   }
 
@@ -118,8 +114,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @return The value.
    */
-  public final synchronized
-    double getValue(StatisticsIndexMap.DoubleIndex index) {
+  public synchronized double getValue(StatisticsIndexMap.DoubleIndex index) {
     return m_doubleData[index.getValue()];
   }
 
@@ -132,8 +127,8 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @param value The value.
    */
-  public final synchronized void setValue(StatisticsIndexMap.LongIndex index,
-                                          long value) {
+  public synchronized void setValue(StatisticsIndexMap.LongIndex index,
+                                    long value) {
     m_longData[index.getValue()] = value;
   }
 
@@ -146,8 +141,8 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @param value The value.
    */
-  public final synchronized void setValue(StatisticsIndexMap.DoubleIndex index,
-                                          double value) {
+  public synchronized void setValue(StatisticsIndexMap.DoubleIndex index,
+                                    double value) {
     m_doubleData[index.getValue()] = value;
   }
 
@@ -160,8 +155,8 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @param value The value.
    */
-  public final synchronized void addValue(StatisticsIndexMap.LongIndex index,
-                                          long value) {
+  public synchronized void addValue(StatisticsIndexMap.LongIndex index,
+                                    long value) {
     m_longData[index.getValue()] += value;
   }
 
@@ -174,8 +169,8 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @param index The process specific index.
    * @param value The value.
    */
-  public final synchronized void
-    addValue(StatisticsIndexMap.DoubleIndex index, double value) {
+  public synchronized void addValue(StatisticsIndexMap.DoubleIndex index,
+                                    double value) {
 
     m_doubleData[index.getValue()] += value;
   }
@@ -187,7 +182,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @param index The index.
    * @param value The value.
    */
-  public final synchronized void addSample(LongSampleIndex index, long value) {
+  public synchronized void addSample(LongSampleIndex index, long value) {
 
     setValue(index.getVarianceIndex(),
         calculateVariance(getValue(index.getSumIndex()),
@@ -206,8 +201,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @param index The index.
    * @param value The value.
    */
-  public final synchronized void addSample(DoubleSampleIndex index,
-                                           double value) {
+  public synchronized void addSample(DoubleSampleIndex index, double value) {
 
     setValue(index.getVarianceIndex(),
         calculateVariance(getValue(index.getSumIndex()),
@@ -224,7 +218,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    *
    * @param index
    */
-  public final synchronized void reset(LongSampleIndex index) {
+  public synchronized void reset(LongSampleIndex index) {
     setValue(index.getSumIndex(), 0);
     setValue(index.getCountIndex(), 0);
     setValue(index.getVarianceIndex(), 0);
@@ -235,7 +229,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    *
    * @param index
    */
-  public final synchronized void reset(DoubleSampleIndex index) {
+  public synchronized void reset(DoubleSampleIndex index) {
     setValue(index.getSumIndex(), 0);
     setValue(index.getCountIndex(), 0);
     setValue(index.getVarianceIndex(), 0);
@@ -304,7 +298,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @param index The index.
    * @return The sum.
    */
-  public final synchronized long getSum(LongSampleIndex index) {
+  public synchronized long getSum(LongSampleIndex index) {
     return getValue(index.getSumIndex());
   }
 
@@ -357,7 +351,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @param operand
    *          The <code>StatisticsSet</code> value to add.
    */
-  public final synchronized void add(StatisticsSet operand) {
+  public synchronized void add(StatisticsSet operand) {
 
     final StatisticsSetImplementation operandImplementation =
       (StatisticsSetImplementation)operand;
@@ -431,7 +425,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @param o <code>Object</code> to compare to.
    * @return <code>true</code> if and only if the two objects are equal.
    */
-  public final boolean equals(Object o) {
+  public boolean equals(Object o) {
     if (o == this) {
       return true;
     }
@@ -468,7 +462,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    *
    * @return The hash code.
    */
-  public final int hashCode() {
+  public int hashCode() {
     long result = 0;
 
     for (int i = 0; i < m_longData.length; i++) {
@@ -488,7 +482,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    *
    * @return The <code>String</code>
    */
-  public final String toString() {
+  public String toString() {
     final StringBuffer result = new StringBuffer();
 
     result.append("StatisticsSet = {{");
@@ -526,8 +520,7 @@ class StatisticsSetImplementation implements StatisticsSet {
    * @param serialiser <code>Serialiser</code> helper object.
    * @exception IOException If an error occurs.
    */
-  final synchronized void myWriteExternal(ObjectOutput out,
-                                          Serialiser serialiser)
+  synchronized void myWriteExternal(ObjectOutput out, Serialiser serialiser)
     throws IOException {
     for (int i = 0; i < m_longData.length; i++) {
       serialiser.writeLong(out, m_longData[i]);
