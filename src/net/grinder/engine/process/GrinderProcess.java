@@ -147,7 +147,7 @@ public class GrinderProcess
 	    properties.getProperty("grinder.multicastAddress",
 				   CommunicationDefaults.MULTICAST_ADDRESS);
 
-	if (properties.getBoolean("grinder.receiveConsoleSignals", false)) {
+	if (properties.getBoolean("grinder.receiveConsoleSignals", true)) {
 	    final int grinderPort =
 		properties.getInt("grinder.multicastPort",
 				  CommunicationDefaults.GRINDER_PORT);
@@ -178,7 +178,7 @@ public class GrinderProcess
 		};
 	}
 
-	if (properties.getBoolean("grinder.reportToConsole", false)) {
+	if (properties.getBoolean("grinder.reportToConsole", true)) {
 	    final int consolePort =
 		properties.getInt("grinder.console.multicastPort",
 				  CommunicationDefaults.CONSOLE_PORT);
