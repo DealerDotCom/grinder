@@ -1,0 +1,8 @@
+#
+# The Grinder version @version@ built on @date@
+#
+# This is the beginnings of console support for script
+# editing.
+#
+# It is under construction and is not currently functional.
+

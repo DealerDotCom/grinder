@@ -332,6 +332,10 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     // Initial focus?
 
     scriptTextArea.setMinimumSize(new Dimension(200, 100));
+    scriptTextArea.setText(
+      m_resources.getStringFromFile("scriptSupportUnderConstruction.text",
+				    true));
+    scriptTextArea.setFirstLine(0);
 
     final ScriptFilesPanel scriptFilesPanel =
       new ScriptFilesPanel(m_frame, m_resources);

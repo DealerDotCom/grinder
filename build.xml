@@ -275,6 +275,7 @@ what you want. Currently the conditionally built modules are:
       <fileset dir="${src.dir}">
         <include name="**/resources/*.html"/>
         <include name="**/resources/*.properties*"/>
+        <include name="**/resources/*.txt"/>
       </fileset>
     </copy>
 
