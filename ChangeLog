@@ -1,3 +1,13 @@
+2001-07-30  Philip Aston  <paston@bea.com>
+
+	* build.xml, etc/testimage.mf, tests-src/net/grinder/console/swingui/TestImage.java:
+	Simple test application to investigate the "corrupt images" problem.
+
+2001-07-27  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/Grinder.java:
+	Respect platform path separator differences.
+
 2001-07-27  Philip Aston  <paston@bea.com>
 
 	* The Grinder 2.6.5 is released.
