@@ -244,6 +244,18 @@ conditionally built modules are:
     </jar>
   </target>
 
+  <target name="testimage" depends="compile-tests,copy-resources">
+    <mkdir dir="${lib.dir}"/>
+
+    <jar jarfile="${lib.dir}/testimage.jar"
+         manifest="etc/testimage.mf">
+        <fileset dir="${build.classes}"
+		 includes="net/grinder/console/swingui/resources/"/>
+        <fileset dir="${tests.classes}"
+		 includes="net/grinder/console/swingui/TestImage*.class"/>
+    </jar>
+  </target>
+
 
   <!-- =================================================================== -->
   <!-- Rules to run the tests                                              -->
