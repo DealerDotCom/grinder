@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // Copyright (C) 2003 Kalyanaraman Venkatasubramaniy
 // Copyright (C) 2004 Slavik Gnatenko
 // All rights reserved.
@@ -125,6 +125,8 @@ public final class GrinderProcess {
   private final InitialiseGrinderMessage m_initialisationMessage;
   private final ConsoleListener m_consoleListener;
   private final Object m_eventSynchronisation = new Object();
+  private final TestStatisticsMap m_accumulatedStatistics =
+    new TestStatisticsMap();
 
   private boolean m_shutdownTriggered;
   private boolean m_communicationShutdown;
@@ -359,7 +361,7 @@ public final class GrinderProcess {
 
     final StatisticsTable statisticsTable =
       new StatisticsTable(CommonStatisticsViews.getSummaryStatisticsView(),
-                          m_context.getTestRegistry().getTestStatisticsMap());
+                          m_accumulatedStatistics);
 
     statisticsTable.print(logger.getOutputLogWriter());
 
@@ -373,11 +375,9 @@ public final class GrinderProcess {
   }
 
   private class ReportToConsoleTimerTask extends TimerTask {
-    private final TestStatisticsMap m_testStatisticsMap;
     private final short m_totalThreads;
 
     public ReportToConsoleTimerTask(short totalThreads) {
-      m_testStatisticsMap = m_context.getTestRegistry().getTestStatisticsMap();
       m_totalThreads = totalThreads;
     }
 
@@ -395,8 +395,11 @@ public final class GrinderProcess {
             consoleSender.queue(new RegisterTestsMessage(newTests));
           }
 
-          consoleSender.queue(
-            new ReportStatisticsMessage(m_testStatisticsMap.getDelta(true)));
+          final TestStatisticsMap sample =
+            m_context.getTestRegistry().getTestStatisticsMap().reset();
+          m_accumulatedStatistics.add(sample);
+
+          consoleSender.queue(new ReportStatisticsMessage(sample));
 
           consoleSender.send(
             m_context.createStatusMessage(ProcessStatus.STATE_RUNNING,
