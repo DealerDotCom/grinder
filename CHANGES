@@ -1,3 +1,38 @@
+Grinder 2.8.1
+-------------
+
+   Communication from the worker processes to the Console now uses a
+   unicast TCP connection. Multicast has been used here since the
+   beginning (it was cheap and cheerful to implement) but caused
+   several problems:
+	- Under heavy load, multicast packets are lost.
+	- I've had a report of multicast packets being duplicated.
+
+   Clearly neither of these are good for statistics reporting. Signals
+   from the Console to the worker processes still use multicast.
+
+   IMPORTANT: The communication properties have changed, you must set
+   the following in grinder.properties:
+
+	grinder.consoleAddress	(Address of machine running Console)
+	grinder.consolePort
+	grinder.grinderAddress	(Multicast address)
+	grinder.grinderPort
+
+   [grinder.consoleAddress is a new property. grinder.multicastAddress
+   and grinder.multicastPort have been renamed to
+   grinder.grinderAddress and grinder.grinderPort.]
+
+   You should make the corresponding changes in the Console options
+   dialog. Please refer to the README file for more details.
+
+   Fix the data file title line.
+
+   Reinstate the hack to prevent the HTTPClient from sending HTTP
+   trailers. Say -DHTTPClient.disableTrailers=true in your
+   grinder.jvm.arguments.
+
+
 Grinder 2.8
 -----------
 
