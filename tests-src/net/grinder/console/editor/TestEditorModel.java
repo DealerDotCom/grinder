@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -55,7 +55,7 @@ public class TestEditorModel extends AbstractFileTestCase {
       (TextSource.Factory)textSourceFactoryStubFactory.getStub();
 
     final EditorModel editorModel =
-      new EditorModel(s_resources, textSourceFactory);
+      new EditorModel(s_resources, textSourceFactory, null);
 
     textSourceFactoryStubFactory.assertSuccess("create");
     textSourceFactoryStubFactory.assertNoMoreCalls();
@@ -70,7 +70,7 @@ public class TestEditorModel extends AbstractFileTestCase {
   public void testSelectDefaultBuffer() throws Exception {
 
     final EditorModel editorModel =
-      new EditorModel(s_resources, new StringTextSource.Factory());
+      new EditorModel(s_resources, new StringTextSource.Factory(), null);
 
     final RandomStubFactory listener1StubFactory =
       new RandomStubFactory(EditorModel.Listener.class);
@@ -111,7 +111,7 @@ public class TestEditorModel extends AbstractFileTestCase {
       (TextSource.Factory)textSourceFactoryStubFactory.getStub();
 
     final EditorModel editorModel =
-      new EditorModel(s_resources, textSourceFactory);
+      new EditorModel(s_resources, textSourceFactory, null);
 
     textSourceFactoryStubFactory.resetCallHistory();
 
@@ -211,7 +211,7 @@ public class TestEditorModel extends AbstractFileTestCase {
       (EditorModel.Listener)listener1StubFactory.getStub();
 
     final EditorModel editorModel =
-      new EditorModel(s_resources, textSourceFactory);
+      new EditorModel(s_resources, textSourceFactory, null);
 
     editorModel.selectDefaultBuffer();
     final Buffer defaultBuffer = editorModel.getSelectedBuffer();
@@ -254,7 +254,7 @@ public class TestEditorModel extends AbstractFileTestCase {
 
   public void testIsBoringFile() throws Exception {
     final EditorModel editorModel =
-      new EditorModel(s_resources, new StringTextSource.Factory());
+      new EditorModel(s_resources, new StringTextSource.Factory(), null);
 
     final File[] boring = {
       new File("some.class"),
@@ -289,7 +289,7 @@ public class TestEditorModel extends AbstractFileTestCase {
 
   public void testIsPythonFile() throws Exception {
     final EditorModel editorModel =
-      new EditorModel(s_resources, new StringTextSource.Factory());
+      new EditorModel(s_resources, new StringTextSource.Factory(), null);
 
     final File[] python = {
       new File("my file.py"),
@@ -319,7 +319,7 @@ public class TestEditorModel extends AbstractFileTestCase {
 
   public void testCloseBuffer() throws Exception {
     final EditorModel editorModel =
-      new EditorModel(s_resources, new StringTextSource.Factory());
+      new EditorModel(s_resources, new StringTextSource.Factory(), null);
 
     final RandomStubFactory listenerStubFactory =
       new RandomStubFactory(EditorModel.Listener.class);
@@ -375,7 +375,7 @@ public class TestEditorModel extends AbstractFileTestCase {
       new StringTextSource.Factory();
 
     final EditorModel editorModel =
-      new EditorModel(s_resources, stringTextSourceFactory);
+      new EditorModel(s_resources, stringTextSourceFactory, null);
 
     final RandomStubFactory listenerStubFactory =
       new RandomStubFactory(EditorModel.Listener.class);
@@ -417,7 +417,7 @@ public class TestEditorModel extends AbstractFileTestCase {
       new StringTextSource.Factory();
 
     final EditorModel editorModel =
-      new EditorModel(s_resources, stringTextSourceFactory);
+      new EditorModel(s_resources, stringTextSourceFactory, null);
 
     assertNull(editorModel.getMarkedScript());
 

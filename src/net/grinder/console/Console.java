@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,6 +31,7 @@ import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.ConsoleCommunicationImplementation;
+import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
 import net.grinder.console.messages.ReportStatisticsMessage;
@@ -78,10 +79,13 @@ public class Console {
                                              properties,
                                              new Timer(true));
 
+    final FileDistribution fileDistribution =
+      new FileDistribution(m_communication.getDistributionControl());
+
     m_userInterface =
       new ConsoleUI(m_model,
                     m_communication.getProcessControl(),
-                    m_communication.getDistributionControl());
+                    fileDistribution);
 
     m_communication.setErrorHandler(m_userInterface.getErrorHandler());
 

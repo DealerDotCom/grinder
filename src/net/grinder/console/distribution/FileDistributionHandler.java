@@ -19,18 +19,46 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.editor;
+package net.grinder.console.distribution;
+
+import net.grinder.util.FileContents;
 
 
 /**
- * Simplistic model of remote caches.
+ * Something that can handle the distribution of files.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-interface AgentCacheState {
+public interface FileDistributionHandler {
 
-  boolean getUpToDate();
+  /**
+   * Result of sending a file.
+   */
+  public interface Result {
 
-  void setOutOfDate();
+    /**
+     * Progress through the file distribution set.
+     *
+     * @return A number between 0 and 99.
+     */
+    int getProgressInCents();
+
+    /**
+     * The file name of file just distributed.
+     *
+     * @return The file name.
+     */
+    String getFileName();
+  }
+
+  /**
+   * Send the next file.
+   *
+   * @return A {@link Result} or <code>null</code> if there are more
+   * files to process.
+   * @throws FileContents.FileContentsException If an error occurs
+   * sending the file.
+   */
+  Result sendNextFile() throws FileContents.FileContentsException;
 }

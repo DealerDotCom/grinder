@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -74,12 +74,11 @@ import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
-import net.grinder.console.communication.DistributionControl;
 import net.grinder.console.communication.ProcessControl;
+import net.grinder.console.distribution.FileDistribution;
+import net.grinder.console.distribution.FileDistributionHandler;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
-import net.grinder.console.editor.FileDistribution;
-import net.grinder.console.editor.FileDistributionHandler;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
@@ -141,21 +140,22 @@ public final class ConsoleUI implements ModelListener {
    *
    * @param model The console model.
    * @param processControl Process control.
-   * @param distributionControl Distribution control.
+   * @param fileDistribution File distribution.
    * @exception ConsoleException if an error occurs
    */
   public ConsoleUI(Model model,
                    ProcessControl processControl,
-                   DistributionControl distributionControl)
+                   FileDistribution fileDistribution)
     throws ConsoleException {
 
     m_model = model;
     m_processControl = processControl;
-
-    m_fileDistribution = new FileDistribution(distributionControl);
+    m_fileDistribution = fileDistribution;
 
     final Resources resources = m_model.getResources();
-    m_editorModel = new EditorModel(resources, new Editor.TextSourceFactory());
+    m_editorModel =
+      new EditorModel(resources, new Editor.TextSourceFactory(),
+                      m_fileDistribution.getAgentCacheState());
 
     // LookAndFeel constructor will set initial Look and Feel from properties.
     m_lookAndFeel = new LookAndFeel(m_model.getProperties());

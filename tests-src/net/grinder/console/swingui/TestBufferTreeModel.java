@@ -53,7 +53,7 @@ public class TestBufferTreeModel extends TestCase {
       new StringTextSource.Factory();
 
     final EditorModel editorModel =
-      new EditorModel(s_resources, stringTextSourceFactory);
+      new EditorModel(s_resources, stringTextSourceFactory, null);
     editorModel.selectDefaultBuffer();
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
@@ -99,7 +99,7 @@ public class TestBufferTreeModel extends TestCase {
       new StringTextSource.Factory();
 
     final EditorModel editorModel =
-      new EditorModel(s_resources, stringTextSourceFactory);
+      new EditorModel(s_resources, stringTextSourceFactory, null);
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
 
@@ -144,7 +144,7 @@ public class TestBufferTreeModel extends TestCase {
     listener2StubFactory.assertNoMoreCalls();
 
     final EditorModel editorModel2 =
-      new EditorModel(s_resources, stringTextSourceFactory);
+      new EditorModel(s_resources, stringTextSourceFactory, null);
     editorModel2.selectNewBuffer();
     final Buffer anotherBuffer = editorModel2.getSelectedBuffer();
     bufferTreeModel.bufferChanged(anotherBuffer);

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,6 +31,7 @@ import java.util.Map;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
+import net.grinder.console.distribution.AgentCacheState;
 
 
 /**
@@ -61,9 +62,11 @@ public final class EditorModel {
    *
    * @param resources Resources.
    * @param textSourceFactory Factory for {@link TextSource}s.
+   * @param agentCacheState The agent cache state.
    */
   public EditorModel(Resources resources,
-                     TextSource.Factory textSourceFactory) {
+                     TextSource.Factory textSourceFactory,
+                     AgentCacheState agentCacheState) {
     m_resources = resources;
     m_textSourceFactory = textSourceFactory;
     m_defaultBuffer = new Buffer(m_resources,

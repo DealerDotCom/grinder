@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.editor;
+package net.grinder.console.distribution;
 
 import java.util.Set;
 
@@ -30,7 +30,8 @@ import net.grinder.util.Directory;
 
 
 /**
- * File Distribution.
+ * File Distribution. Has a model of the agent cache state, and is a
+ * factory for {@link FileDistributionHandler}s.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -48,6 +49,15 @@ public final class FileDistribution {
    */
   public FileDistribution(DistributionControl distributionControl) {
     m_distributionControl = distributionControl;
+  }
+
+  /**
+   * Accessor for our {@link AgentCacheState}.
+   *
+   * @return The agent cache state.
+   */
+  public AgentCacheState getAgentCacheState() {
+    return m_cacheState;
   }
 
   /**
@@ -79,7 +89,7 @@ public final class FileDistribution {
       directory.getAsFile(),
       directory.listContents(
         new FileDistributionFilter(distributionFileFilterPattern,
-                                   m_cacheState.getTimeLastUpdateCompleted())),
+                                   m_cacheState.getEarliestFileTime())),
       m_distributionControl,
       m_cacheState);
   }
@@ -107,7 +117,8 @@ public final class FileDistribution {
     private Set m_connectedAgents;
 
     private int m_state = OUT_OF_DATE;
-    private long m_timeLastUpdateCompleted = -1;
+    private long m_earliestFileTime = -1;
+    private long m_updateStartTime = -1;
 
     public AgentCacheStateImplementation() {
       m_directory = null;
@@ -136,12 +147,12 @@ public final class FileDistribution {
       }
     }
 
-    public long getTimeLastUpdateCompleted() {
-      return m_timeLastUpdateCompleted;
+    public long getEarliestFileTime() {
+      return m_earliestFileTime;
     }
 
-    public boolean getUpToDate() {
-      return UP_TO_DATE == m_state;
+    public boolean getOutOfDate() {
+      return UP_TO_DATE != m_state;
     }
 
     public void setOutOfDate() {
@@ -150,11 +161,20 @@ public final class FileDistribution {
 
     public void updateStarted() {
       m_state = UPDATING;
+      m_updateStartTime = System.currentTimeMillis();
     }
 
     public void updateComplete() {
-      m_state = UP_TO_DATE;
-      m_timeLastUpdateCompleted = System.currentTimeMillis();
+
+      if (m_state == UPDATING) {
+        // Only mark clean if we haven't been marked out of date
+        // during the update.
+        m_state = UP_TO_DATE;
+      }
+
+      // Even if we're not up to date, we've at least transfered all
+      // files older than this time.
+      m_earliestFileTime = m_updateStartTime;
     }
   }
 }

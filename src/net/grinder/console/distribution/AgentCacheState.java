@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,46 +19,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.editor;
-
-import net.grinder.util.FileContents;
+package net.grinder.console.distribution;
 
 
 /**
- * Something that can handle the distribution of files.
+ * Simplistic model of remote caches.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface FileDistributionHandler {
+public interface AgentCacheState {
 
   /**
-   * Result of sending a file.
-   */
-  public interface Result {
-
-    /**
-     * Progress through the file distribution set.
-     *
-     * @return A number between 0 and 99.
-     */
-    int getProgressInCents();
-
-    /**
-     * The file name of file just distributed.
-     *
-     * @return The file name.
-     */
-    String getFileName();
-  }
-
-  /**
-   * Send the next file.
+   * Enquire whether the agent caches are out of date.
    *
-   * @return A {@link Result} or <code>null</code> if there are more
-   * files to process.
-   * @throws FileContents.FileContentsException If an error occurs
-   * sending the file.
+   * @return <code>true</code> => they are out of date.
    */
-  Result sendNextFile() throws FileContents.FileContentsException;
+  boolean getOutOfDate();
+
+  /**
+   * Notify that the agent caches are out of date due to a file
+   * changing.
+   */
+  void setOutOfDate();
 }
