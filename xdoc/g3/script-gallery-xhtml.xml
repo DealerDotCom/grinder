@@ -521,6 +521,60 @@ logTest = test1.wrap(grinder.logger.output)
 
 <hr/>
 
+<h3><a name="script-lifecycle">The script life cycle</a></h3>
+
+<blockquote>
+<pre><span class="comment"># A script that demonstrates how the various parts of a script and
+# their effects on worker threads. 
+</span>
+<span class="comment"># The &quot;top level&quot; of the script is called once for each worker
+# process. Perform any one-off initialisation here. For example,
+# import all the modules, set up shared data structures, and declare
+# all the Test objects you will use.
+</span>
+<span class="keyword">from</span> java.lang <span class="keyword">import</span> System
+
+<span class="comment"># The totalNumberOfRuns variable is shared by all worker threads.
+</span>totalNumberOfRuns = 0
+
+<span class="comment"># An instance of the TestRunner class is created for each worker thread.
+</span><span class="keyword">class</span> <span class="type">TestRunner</span>:
+
+    <span class="comment"># There's an runsForThread variable for each worker thread.
+</span>    runsForThread = 0
+    
+    <span class="comment"># The __init__ method is called once for each thread.
+</span>    <span class="keyword">def</span> <span class="function-name">__init__</span>(self):
+        <span class="comment"># There's an initialisationTime variable for each worker thread.
+</span>        self.initialisationTime = System.currentTimeMillis()
+
+        grinder.logger.output(&quot;<span class="string">New thread started at time %s</span>&quot; %
+                              self.initialisationTime)
+
+    <span class="comment"># The __call__ method is called once for each test run performed by
+</span>    <span class="comment"># a worker thread.
+</span>    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+
+        <span class="comment"># We really should synchronise this access to the shared
+</span>        <span class="comment"># totalNumberOfRuns variable. See JMS receiver example for how
+</span>        <span class="comment"># to use the Python Condition class.
+</span>        <span class="keyword">global</span> totalNumberOfRuns
+        totalNumberOfRuns += 1
+
+        self.runsForThread += 1
+
+        grinder.logger.output(
+            &quot;<span class="string">runsForThread=%d, totalNumberOfRuns=%d, initialisationTime=%d</span>&quot; %
+            (self.runsForThread, totalNumberOfRuns, self.initialisationTime))
+        
+        <span class="comment"># You can also vary behaviour based on thread ID.
+</span>        <span class="keyword">if</span> grinder.threadID % 2 == 0:
+            grinder.logger.output(&quot;<span class="string">I have an even thread ID.</span>&quot;)
+</pre>
+</blockquote>
+
+<hr/>
+
 <h3><a name="statistics">Accessing test statistics</a></h3>
 
 <blockquote>
