@@ -222,6 +222,10 @@ What can I set in grinder.properties?
 What can I set in grinder.properties for the HTTP plugin?
 *********************************************************
 
+    grinder.plugin.parameter.useCookies -
+				Set to false to disable cookie
+				handling (it defaults to true).
+
     grinder.plugin.parameter.followRedirects -
 				Set to true to automatically follow
 				redirects, so you don't have to have
