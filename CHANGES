@@ -8,7 +8,8 @@ Grinder 2.0
   and greatest.
 
 
-  New TCPSniffer - the SnifferServlets are dead!
+  New TCPSniffer - the SnifferServlets are dead! (Big thanks to Phil
+  Dawes for the sweat behind this).
 
 
   The HTTP plugin now automatically follows redirects only if you
