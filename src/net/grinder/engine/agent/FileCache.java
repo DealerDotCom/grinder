@@ -19,39 +19,42 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.messages;
+package net.grinder.engine.agent;
 
+import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
+import net.grinder.communication.Sender;
+import net.grinder.engine.messages.DistributeFilesMessage;
 import net.grinder.util.FileContents;
 
 
 /**
- * Message used to distribute files from the console to agent processes.
+ * Process {@link DistributeFilesMessage}s from the console.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class DistributeFilesMessage implements Message {
+final class FileCache {
 
-  private static final long serialVersionUID = -4338519775293350257L;
+  public Sender getSender(final Sender delegate) {
+    return new Sender() {
+        public void send(Message message) throws CommunicationException {
+          if (message instanceof DistributeFilesMessage) {
+            final FileContents[] files =
+              ((DistributeFilesMessage)message).getFiles();
 
-  private final FileContents[] m_files;
+            for (int i = 0; i < files.length; ++i) {
+              System.out.println("Received " + files[i].getFilename());
+            }
+          }
+          else {
+            delegate.send(message);
+          }
+        }
 
-  /**
-   * Constructor.
-   *
-   * @param files Array of file contents to distribute.
-   */
-  public DistributeFilesMessage(FileContents[] files) {
-    m_files = files;
-  }
-
-  /**
-   * Return the array of file contents.
-   *
-   * @return Array of {@link FileContents}.
-   */
-  public FileContents[] getFiles() {
-    return m_files;
+        public void shutdown() {
+          delegate.shutdown();
+        }
+      };
   }
 }

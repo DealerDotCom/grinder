@@ -68,15 +68,14 @@ public class TestGraphPanel extends JPanel implements ModelListener {
    **/
   private final Map m_components = new HashMap();
 
-  TestGraphPanel(final JComponent parentComponent, final Model model,
-                 Resources resources) {
+  TestGraphPanel(final JComponent parentComponent, final Model model) {
 
     m_parentComponent = parentComponent;
 
     m_model = model;
-    m_resources = resources;
+    m_resources = model.getResources();
 
-    m_testLabel = resources.getString("graph.test.label") + " ";
+    m_testLabel = m_resources.getString("graph.test.label") + " ";
 
     m_model.addModelListener(new SwingDispatchedModelListener(this));
 

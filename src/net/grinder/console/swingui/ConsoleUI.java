@@ -125,14 +125,17 @@ public final class ConsoleUI implements ModelListener {
    * processes control is activated.
    * @param resetProcessesHandler Action listener to invoke when reset
    * processes control is activated.
-   * @param stopProcessesHandler  Action listener to invoke when stop
+   * @param stopProcessesHandler Action listener to invoke when stop
    * processes control is activated.
+   * @param distributeFilesHandler Action listener to invoke when
+   * distribute files control is activated.
    * @exception ConsoleException if an error occurs
    */
   public ConsoleUI(Model model,
                    ActionListener startProcessesHandler,
                    ActionListener resetProcessesHandler,
-                   ActionListener stopProcessesHandler)
+                   ActionListener stopProcessesHandler,
+                   ActionListener distributeFilesHandler)
     throws ConsoleException {
 
     m_model = model;
@@ -234,8 +237,7 @@ public final class ConsoleUI implements ModelListener {
     final Border threePixelBorder =
       BorderFactory.createEmptyBorder(3, 3, 3, 3);
 
-    final TestGraphPanel graphPanel =
-      new TestGraphPanel(tabbedPane, model, resources);
+    final TestGraphPanel graphPanel = new TestGraphPanel(tabbedPane, model);
     graphPanel.resetTestsAndStatisticsViews(); // Show logo.
 
     final JScrollPane graphTabPane =
@@ -301,7 +303,7 @@ public final class ConsoleUI implements ModelListener {
                       resources.getString("resultsTab.tip"));
 
     final ProcessStatusTableModel processStatusModel =
-      new ProcessStatusTableModel(model, resources);
+      new ProcessStatusTableModel(model);
 
     final JScrollPane processStatusPane =
       new JScrollPane(new Table(processStatusModel));
@@ -349,7 +351,8 @@ public final class ConsoleUI implements ModelListener {
     scriptTextArea.setFirstLine(0);
 
     final ScriptFilesPanel scriptFilesPanel =
-      new ScriptFilesPanel(m_frame, m_lookAndFeel, resources);
+      new ScriptFilesPanel(m_frame, m_lookAndFeel, resources,
+                           distributeFilesHandler);
     scriptFilesPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
     scriptFilesPanel.setMinimumSize(new Dimension(100, 100));
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2001, 2002 Dirk Feufel
 // All rights reserved.
 //
@@ -59,8 +59,10 @@ class ProcessStatusTableModel
   private ProcessStatus[] m_data = new ProcessStatus[0];
   private String m_totalDataString = "";
 
-  public ProcessStatusTableModel(Model model, Resources resources)
+  public ProcessStatusTableModel(Model model)
     throws ConsoleException {
+
+    final Resources resources = model.getResources();
 
     m_processIDString = resources.getString("processTable.idColumn.label");
     m_stateString = resources.getString("processTable.stateColumn.label");

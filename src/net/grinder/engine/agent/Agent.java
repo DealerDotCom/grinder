@@ -112,13 +112,16 @@ public final class Agent {
                               CommunicationDefaults.CONSOLE_PORT),
             ConnectionType.CONTROL);
 
+        final FileCache fileCache = new FileCache();
+
         try {
           receiver = ClientReceiver.connect(connector);
 
           // Ordering of the TeeSender is important so the child
           // processes get the signals before our console listener.
           final Sender sender =
-            new TeeSender(fanOutStreamSender, consoleListener.getSender());
+            fileCache.getSender(
+              new TeeSender(fanOutStreamSender, consoleListener.getSender()));
 
           new MessagePump(receiver, sender, 1);
         }

@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,13 +24,16 @@ package net.grinder.console.model;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.util.FileContents;
 
 
 /**
@@ -187,6 +190,10 @@ public final class ScriptDistributionFiles implements Serializable {
    */
   public boolean equals(Object o) {
 
+    if (o == this) {
+      return true;
+    }
+
     if (!(o instanceof ScriptDistributionFiles)) {
       return false;
     }
@@ -284,5 +291,32 @@ public final class ScriptDistributionFiles implements Serializable {
     result.append("')");
 
     return result.toString();
+  }
+
+  /**
+   * Return the files as an array of {@link FileContents}.
+
+   * @return The array.
+   * @exception IOException if an error occurs.
+   */
+  public FileContents[] toFileContentsArray() throws IOException {
+
+    final List files = new ArrayList();
+
+    final File rootDirectory = getRootDirectory();
+
+    final File scriptFile = getScriptFile();
+
+    if (scriptFile != null) {
+      files.add(new FileContents(rootDirectory, scriptFile));
+    }
+
+    final File[] additionalFiles = getAdditionalFiles();
+
+    for (int i = 0; i < additionalFiles.length; ++i) {
+      files.add(new FileContents(rootDirectory, additionalFiles[i]));
+    }
+
+    return (FileContents[]) files.toArray(new FileContents[files.size()]);
   }
 }

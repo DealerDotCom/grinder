@@ -23,6 +23,7 @@ package net.grinder.console.swingui;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -55,19 +56,20 @@ final class ScriptFilesPanel extends JPanel {
     new ScriptDistributionFiles();
 
   public ScriptFilesPanel(final JFrame frame, LookAndFeel lookAndFeel,
-                          Resources resources) {
+                          Resources resources,
+                          final ActionListener distributeFilesHandler) {
 
     m_resources = resources;
 
-    final JButton chooseDirectoryButton = new CustomJButton();
-
     m_fileChooser.setDialogTitle(
-      m_resources.getString("script.chooseDirectory.tip"));
+      m_resources.getString("choose-directory.tip"));
     m_fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     lookAndFeel.addListener(new LookAndFeel.ComponentListener(m_fileChooser));
 
+    final JButton chooseDirectoryButton = new CustomJButton();
+
     chooseDirectoryButton.setAction(
-      new CustomAction(m_resources, "script.chooseDirectory") {
+      new CustomAction(m_resources, "choose-directory") {
         public void actionPerformed(ActionEvent event) {
           try {
             if (m_fileChooser.showOpenDialog(frame) ==
@@ -95,13 +97,22 @@ final class ScriptFilesPanel extends JPanel {
             new ErrorDialogHandler(frame, m_resources).handleException(e);
           }
         }
-      }
-      );
+      });
+
+    final JButton distributeFilesButton = new CustomJButton();
+
+    distributeFilesButton.setAction(
+      new CustomAction(m_resources, "distribute-files") {
+        public void actionPerformed(ActionEvent event) {
+          distributeFilesHandler.actionPerformed(event);
+        }
+      });
 
     final JPanel rootDirectoryPanel = new JPanel();
     rootDirectoryPanel.setLayout(
       new BoxLayout(rootDirectoryPanel, BoxLayout.X_AXIS));
     rootDirectoryPanel.add(chooseDirectoryButton);
+    rootDirectoryPanel.add(distributeFilesButton);
     rootDirectoryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
     refresh();

@@ -25,6 +25,7 @@ import junit.framework.TestCase;
 
 import net.grinder.communication.Message;
 import net.grinder.testutility.Serializer;
+import net.grinder.util.FileContents;
 
 
 /**
@@ -68,6 +69,8 @@ public class TestEngineMessages extends TestCase {
   }
 
   public void testDistributeFilesMessage() throws Exception {
-    serialise(new DistributeFilesMessage());
+    final FileContents[] fileContents = new FileContents[0];
+
+    serialise(new DistributeFilesMessage(fileContents));
   }
 }

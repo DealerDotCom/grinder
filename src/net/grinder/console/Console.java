@@ -37,6 +37,7 @@ import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ProcessStatusSet;
 import net.grinder.console.swingui.ConsoleUI;
+import net.grinder.engine.messages.DistributeFilesMessage;
 import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
@@ -104,8 +105,25 @@ public class Console {
         }
       };
 
+    // TODO - tidy up.
+    final ActionListener distributeFilesHandler =
+      new ActionListener() {
+        public void actionPerformed(ActionEvent event) {
+          try {
+            m_communication.send(
+              new DistributeFilesMessage(
+                properties.getScriptDistributionFiles()
+                .toFileContentsArray()));
+          }
+          catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+      };
+
     m_userInterface =
-      new ConsoleUI(m_model, startHandler, resetHandler, stopHandler);
+      new ConsoleUI(m_model, startHandler, resetHandler, stopHandler,
+                    distributeFilesHandler);
 
     m_communication =
       new ConsoleCommunication(properties, m_userInterface.getErrorHandler());
