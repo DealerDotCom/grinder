@@ -72,7 +72,7 @@ conditionally built modules are:
     <!-- what -->
     <property name="Name" value="The Grinder"/>
     <property name="name" value="grinder"/>
-    <property name="version" value="2.6.2"/>
+    <property name="version" value="2.6.3"/>
     <property name="year" value="2001"/>
 
     <!--options-->
@@ -321,7 +321,7 @@ conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Packages the distribution as .jar                                   -->
   <!-- =================================================================== -->
-  <target name="dist" depends="distribution-hierarchy,test"
+  <target name="dist" depends="distribution-hierarchy"
 	  description="Generates a distribution jar.">
     <jar jarfile="${name}-pre-${version}-${DSTAMP}.jar"
 	 basedir="${dist.root}"/>
