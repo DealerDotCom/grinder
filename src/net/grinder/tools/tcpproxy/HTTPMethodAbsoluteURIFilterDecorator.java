@@ -137,7 +137,7 @@ class HTTPMethodAbsoluteURIFilterDecorator implements TCPProxyFilter {
 
     final Matcher matcher = s_httpMethodLine.matcher(original);
 
-    if (matcher.matches()) {
+    if (matcher.find()) {
       final String result =
         matcher.group(1) + m_absoluteURIPrefix + matcher.group(2);
       return result.getBytes();

@@ -322,7 +322,7 @@ public class TestHTTPRequest extends TestCase {
           final Matcher matcher =
             s_contentLengthPattern.matcher(m_lastRequestHeaders);
 
-          if (matcher.matches()) {
+          if (matcher.find()) {
             final int contentLength =
               Integer.parseInt(matcher.group(1).trim());
 
