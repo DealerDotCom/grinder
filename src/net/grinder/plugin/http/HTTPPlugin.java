@@ -46,16 +46,24 @@ import net.grinder.statistics.StatisticsIndexMap;
  **/
 public class HTTPPlugin implements GrinderPlugin {
 
+  private static HTTPPlugin s_initialisedPluginInstance;
+
   static {
     try {
-      PluginRegistry.getInstance().register(HTTPPlugin.class);
+      final PluginRegistry registry = PluginRegistry.getInstance();
+
+      if (registry != null ) {
+        registry.register(HTTPPlugin.class);
+      }
+      else {
+        // For unit tests.
+        s_initialisedPluginInstance = new HTTPPlugin();
+      }
     }
     catch (GrinderException e) {
       throw new ExceptionInInitializerError(e);
     }
   }
-
-  private static HTTPPlugin s_initialisedPluginInstance;
 
   /**
    * Static package scope accessor for the initaialised instance of
