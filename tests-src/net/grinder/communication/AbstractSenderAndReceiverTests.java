@@ -21,6 +21,9 @@
 
 package net.grinder.communication;
 
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.ServerSocket;
 
 import junit.framework.TestCase;
@@ -293,6 +296,15 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
       }
 
       protected abstract Object doAction() throws Exception;
+    }
+  }
+
+  static final class BigBufferPipedInputStream extends PipedInputStream {
+    public BigBufferPipedInputStream(PipedOutputStream src)
+      throws IOException {
+      super(src);
+      // JDK, I laugh at your puny buffer.
+      buffer = new byte[32768];
     }
   }
 }

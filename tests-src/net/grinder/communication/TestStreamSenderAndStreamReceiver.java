@@ -22,7 +22,6 @@
 package net.grinder.communication;
 
 import java.io.InputStream;
-import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 
@@ -48,11 +47,7 @@ public class TestStreamSenderAndStreamReceiver
     super.setUp();
 
     final PipedOutputStream outputStream = new PipedOutputStream();
-    final InputStream inputStream = new PipedInputStream(outputStream) {{
-      // JDK, I laugh at your puny buffer.
-      buffer = new byte[32768];
-        }
-      };
+    final InputStream inputStream = new BigBufferPipedInputStream(outputStream);
 
     m_receiver = new StreamReceiver(inputStream);
     m_sender = new StreamSender(outputStream);

@@ -22,7 +22,6 @@
 package net.grinder.communication;
 
 import java.io.InputStream;
-import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 
@@ -49,14 +48,14 @@ public class TestMessagePump extends AbstractSenderAndReceiverTests {
 
     final PipedOutputStream outputStream1 = new PipedOutputStream();
     final InputStream inputStream1 =
-      new PipedInputStream(outputStream1) {{ buffer = new byte[32768]; }};
+      new BigBufferPipedInputStream(outputStream1);
 
     m_receiver = new StreamReceiver(inputStream1);
     final Sender intermediateSender = new StreamSender(outputStream1);
 
     final PipedOutputStream outputStream2 = new PipedOutputStream();
     final InputStream inputStream2 =
-      new PipedInputStream(outputStream2) {{ buffer = new byte[32768]; }};
+      new BigBufferPipedInputStream(outputStream2);
 
     final Receiver intermediateReceiver = new StreamReceiver(inputStream2);
     m_sender = new StreamSender(outputStream2);

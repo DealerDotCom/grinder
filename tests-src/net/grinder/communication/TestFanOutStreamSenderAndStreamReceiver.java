@@ -22,7 +22,6 @@
 package net.grinder.communication;
 
 import java.io.InputStream;
-import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 
@@ -50,7 +49,7 @@ public class TestFanOutStreamSenderAndStreamReceiver
 
     final PipedOutputStream outputStream = new PipedOutputStream();
     final InputStream inputStream =
-      new PipedInputStream(outputStream) {{ buffer = new byte[32768]; }};
+      new BigBufferPipedInputStream(outputStream);
 
     final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(3);
     fanOutStreamSender.add(outputStream);
