@@ -44,7 +44,6 @@ import HTTPClient.RoRequest;
 import HTTPClient.RoResponse;
 import HTTPClient.URI;
 
-//import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 
 
@@ -84,14 +83,14 @@ class HTTPClientHandler implements HTTPHandler
 	DefaultAuthHandler.setAuthorizationPrompter(null);
     }
 
-    private final PluginThreadContext m_pluginThreadContext;
+    private final PluginThreadContext m_threadContext;
     private final boolean m_useCookies;
     private final boolean m_followRedirects;
 
-    public HTTPClientHandler(PluginThreadContext pluginThreadContext,
+    public HTTPClientHandler(PluginThreadContext threadContext,
 			     boolean useCookies, boolean followRedirects)
     {
-	m_pluginThreadContext = pluginThreadContext;
+	m_threadContext = threadContext;
 	m_useCookies = useCookies;
 	m_followRedirects = followRedirects;
     }
@@ -139,7 +138,7 @@ class HTTPClientHandler implements HTTPHandler
 	    final URI uri = new URI(requestData.getURLString());
 	    final String postString = requestData.getPostString();
 
-	    m_pluginThreadContext.startTimer();
+	    m_threadContext.startTimer();
 
 	    final HTTPConnection httpConnection =
 		getConnection(uri);
@@ -216,13 +215,13 @@ class HTTPClientHandler implements HTTPHandler
 	    final int statusCode = response.getStatusCode();
 	    final byte[] data = response.getData();
 	    response.getInputStream().close();
-	    m_pluginThreadContext.stopTimer();
+	    m_threadContext.stopTimer();
 	
 	    if (statusCode == HttpURLConnection.HTTP_OK) {
-		m_pluginThreadContext.logMessage(uri + " OK");
+		m_threadContext.logMessage(uri + " OK");
 	    }
 	    else if (statusCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
-		m_pluginThreadContext.logMessage(uri + " was not modified");
+		m_threadContext.logMessage(uri + " was not modified");
 	    }
 	    else if (statusCode == HttpURLConnection.HTTP_MOVED_PERM ||
 		     statusCode == HttpURLConnection.HTTP_MOVED_TEMP ||
@@ -230,16 +229,16 @@ class HTTPClientHandler implements HTTPHandler
 		// It would be possible to perform the check
 		// automatically, but for now just chuck out some
 		// information.
-		m_pluginThreadContext.logMessage(
+		m_threadContext.logMessage(
 		    uri + " returned a redirect (" + statusCode + "). " +
-		    "Ensure the next URL is " +
+		    "Ensure the next URL is " + 
 		    response.getHeader("Location"));
 	    }
 	    else {
-		m_pluginThreadContext.logError("Unknown response code: " +
-					       statusCode + " (" +
-					       response.getReasonLine() +
-					       ") for " + uri);
+		m_threadContext.logError("Unknown response code: " +
+					 statusCode + " (" + 
+					 response.getReasonLine() +
+					 ") for " + uri);
 	    }
 
 	    return data != null? new String(data) : null;
@@ -249,7 +248,7 @@ class HTTPClientHandler implements HTTPHandler
 	}
 	finally {
 	    // Back stop.
-	    m_pluginThreadContext.stopTimer();
+	    m_threadContext.stopTimer();
 	}
     }
 

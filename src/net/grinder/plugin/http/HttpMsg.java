@@ -49,29 +49,22 @@ import net.grinder.plugininterface.PluginThreadContext;
  */
 class HttpMsg implements HTTPHandler
 {
-    private final PluginThreadContext m_pluginThreadContext;
+    private final PluginThreadContext m_threadContext;
     private final boolean m_useCookies;
     private final boolean m_useCookiesVersionString;
     private final boolean m_followRedirects;
     private CookieHandler m_cookieHandler;
-    private final boolean m_dontReadBody;
     private final boolean m_timeIncludesTransaction;
 
-    public HttpMsg(PluginThreadContext pluginThreadContext, boolean useCookies,
-		   boolean useCookiesVersionString, boolean followRedirects,
-		   boolean timeIncludesTransaction)
+    public HttpMsg(PluginThreadContext threadContext,
+		   boolean useCookies, boolean useCookiesVersionString,
+		   boolean followRedirects, boolean timeIncludesTransaction)
     {
-	m_pluginThreadContext = pluginThreadContext;
+	m_threadContext = threadContext;
 	m_useCookies = useCookies;
 	m_useCookiesVersionString = useCookiesVersionString;
 	m_followRedirects = followRedirects;
 	m_timeIncludesTransaction = timeIncludesTransaction;
-
-	// Hack to work around buffering problem when used in
-	// conjunction with the TCPSniffer.
-	m_dontReadBody = 
-	    pluginThreadContext.getPluginParameters().
-	    getBoolean("dontReadBody", false);
     }
 
     public String sendRequest(HTTPHandler.RequestData requestData)
@@ -83,7 +76,7 @@ class HttpMsg implements HTTPHandler
 
 	    final String postString = requestData.getPostString();
 
-	    m_pluginThreadContext.startTimer();
+	    m_threadContext.startTimer();
 
 	    HttpURLConnection connection;
 
@@ -92,7 +85,7 @@ class HttpMsg implements HTTPHandler
 	    }
 	    finally {
 		if (!m_timeIncludesTransaction) {
-		    m_pluginThreadContext.stopTimer();
+		    m_threadContext.stopTimer();
 		}
 	    }
 
@@ -191,23 +184,19 @@ class HttpMsg implements HTTPHandler
 		char[] buffer = new char[512];
 		int charsRead = 0;
 
-		if (!m_dontReadBody) {
-		    while ((charsRead = 
-			    in.read(buffer, 0, buffer.length)) > 0) {
-			stringWriter.write(buffer, 0, charsRead);
-		    }
+		while ((charsRead = in.read(buffer, 0, buffer.length)) > 0) {
+		    stringWriter.write(buffer, 0, charsRead);
 		}
 
 		in.close();
 		stringWriter.close();
-	    
-		m_pluginThreadContext.logMessage(urlString + " OK");
+
+		m_threadContext.logMessage(urlString + " OK");
 
 		return stringWriter.toString();
 	    }
 	    else if (responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
-		m_pluginThreadContext.logMessage(urlString +
-						 " was not modified");
+		m_threadContext.logMessage(urlString + " was not modified");
 	    }
 	    else if (responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
 		     responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
@@ -215,12 +204,12 @@ class HttpMsg implements HTTPHandler
 		// It would be possible to perform the check
 		// automatically, but for now just chuck out some
 		// information.
-		m_pluginThreadContext.logMessage(urlString +
-						 " returned a redirect (" +
-						 responseCode + "). " +
-						 "Ensure the next URL is " +
-						 connection.getHeaderField(
-						     "Location"));
+		m_threadContext.logMessage(urlString + 
+					   " returned a redirect (" +
+					   responseCode + "). " +
+					   "Ensure the next URL is " +
+					   connection.getHeaderField(
+					       "Location"));
 
 		// I've seen the code that slurps the body block for non
 		// 200 responses. Can't think off the top of my head how
@@ -229,9 +218,8 @@ class HttpMsg implements HTTPHandler
 		return null;
 	    }
 	    else {
-		m_pluginThreadContext.logError("Unknown response code: " +
-					       responseCode + " for " +
-					       urlString);
+		m_threadContext.logError("Unknown response code: " +
+					 responseCode + " for " + urlString);
 	    }
 
 	    return null;
@@ -241,11 +229,11 @@ class HttpMsg implements HTTPHandler
 	}
 	finally {
 	    // Back stop.
-	    m_pluginThreadContext.stopTimer();
+	    m_threadContext.stopTimer();
 	}
     }
 
     public void reset(){
-        m_cookieHandler = new CookieHandler(m_pluginThreadContext);
+        m_cookieHandler = new CookieHandler(m_threadContext);
     }
 }

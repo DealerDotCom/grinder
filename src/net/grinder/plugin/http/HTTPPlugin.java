@@ -53,7 +53,7 @@ public class HttpPlugin implements GrinderPlugin
     private final static Object[] s_noArgs = new Object[0];
 
     private PluginProcessContext m_processContext;
-    private Set m_callData = new HashSet();
+    private Map m_callData = new HashMap();
 
     private boolean m_followRedirects;
     private boolean m_logHTML;
@@ -64,9 +64,12 @@ public class HttpPlugin implements GrinderPlugin
     private Class m_stringBeanClass;
     private Map m_beanMethodMap = null;
 
-    public void initialize(PluginProcessContext processContext)
+    public void initialize(PluginProcessContext processContext,
+			   Set testsFromPropertiesFile)
 	throws PluginException
     {
+	HTTPTest.s_temporaryHack = this;
+
 	m_processContext = processContext;
 
 	final GrinderProperties parameters =
@@ -108,18 +111,27 @@ public class HttpPlugin implements GrinderPlugin
 		    "The specified string bean class '" +
 		    stringBeanClassName + "' was not found.", e);
 	    }
-	}	
+	}
+
+	registerTests(testsFromPropertiesFile);
     }
 
-    public Set registerTests(Set newTests) throws PluginException
+    void registerTest(HTTPTest test) throws PluginException
+    {
+	m_callData.put(test, new CallData(test));
+	m_processContext.registerTest(test);
+    }
+
+    void registerTests(Set newTests) throws PluginException
     {
 	final Iterator testIterator = newTests.iterator();
 
 	while (testIterator.hasNext()) {
-	    m_callData.add(new CallData((Test)testIterator.next()));
+	    final Test test = (Test)testIterator.next();
+	    m_callData.put(test, new CallData(test));
 	}
 
-	return newTests;
+	m_processContext.registerTests(newTests);
     }
 
     public ThreadCallbacks createThreadCallbackHandler()
@@ -179,7 +191,7 @@ public class HttpPlugin implements GrinderPlugin
 		    m_postString = writer.toString();
 		}
 		catch (IOException e) {
-		    m_processContext.logError(
+		     m_processContext.logError(
 			"Could not read post data from " + postFilename);
 
 		    e.printStackTrace(System.err);
@@ -364,9 +376,10 @@ public class HttpPlugin implements GrinderPlugin
     {
 	private final Map m_threadData = new HashMap(m_callData.size());
 
-	private PluginThreadContext m_pluginThreadContext = null;
+	private PluginThreadContext m_threadContext = null;
 	private HTTPHandler m_httpHandler = null;
 	private int m_currentIteration = 0; // How many times we've done all the URL's
+	private Object m_bean = null;
 	private StringBean m_stringBean = null;
 	private final DecimalFormat m_threeFiguresFormat =
 	    new DecimalFormat("000");
@@ -375,39 +388,39 @@ public class HttpPlugin implements GrinderPlugin
 	 * This method is executed when the thread starts. It is only
 	 * executed once per thread.
 	 */
-	public void initialize(PluginThreadContext pluginThreadContext)
+	public void initialize(PluginThreadContext threadContext)
 	    throws PluginException
 	{
-	    m_pluginThreadContext = pluginThreadContext;
+	    m_threadContext = threadContext;
 	    
 	    if (m_useHTTPClient) {
-		m_httpHandler = new HTTPClientHandler(pluginThreadContext,
+		m_httpHandler = new HTTPClientHandler(m_threadContext,
 						      m_useCookies,
 						      m_followRedirects);
 	    }
 	    else {
-		m_httpHandler = new HttpMsg(pluginThreadContext, m_useCookies,
+		m_httpHandler = new HttpMsg(m_threadContext,
+					    m_useCookies,
 					    m_useCookiesVersionString,
 					    m_followRedirects,
 					    m_timeIncludesTransaction);
 	    }
 
-	    final Object bean;
-
 	    if (m_stringBeanClass != null) {
 		try {
-		    m_pluginThreadContext.logMessage(
+		    m_threadContext.logMessage(
 			"Instantiating instance of " +
 			m_stringBeanClass.getName());
 
-		    bean = m_stringBeanClass.newInstance();
+		    m_bean = m_stringBeanClass.newInstance();
 
 		    if (StringBean.class.isAssignableFrom(m_stringBeanClass)) {
-			m_stringBean = (StringBean)bean;
-			m_stringBean.initialize(m_pluginThreadContext);
+			m_stringBean = (StringBean)m_bean;
+			m_stringBean.initialize(m_processContext,
+						m_threadContext);
 		    }
 		    else {
-			m_pluginThreadContext.logMessage(
+			m_threadContext.logMessage(
 			    m_stringBeanClass.getName() +
 			    " does not implement " +
 			    StringBean.class.getName() +
@@ -422,15 +435,42 @@ public class HttpPlugin implements GrinderPlugin
 		}
 	    }
 	    else {
-		bean = null;
+		m_bean = null;
 	    }
 
-	    final Iterator callDataIterator = m_callData.iterator();
+	    final Iterator callDataIterator = m_callData.values().iterator();
 
 	    while (callDataIterator.hasNext()) {
-		final CallData callData = (CallData)callDataIterator.next();
-		m_threadData.put(callData.getTest(),
-				 callData.new ThreadData(bean));
+		initialiseThreadData((CallData)callDataIterator.next());
+	    }
+	}
+
+	private final CallData.ThreadData
+	    initialiseThreadData(CallData callData)
+	{
+	    final CallData.ThreadData threadData =
+		callData.new ThreadData(m_bean);
+
+	    m_threadData.put(callData.getTest(), threadData);
+
+	    return threadData;
+	}
+
+	private final CallData.ThreadData getThreadData(Test test)
+	{
+	    // No need to synchronise, we're only invoked by one
+	    // thread.
+	    final CallData.ThreadData threadData =
+		(CallData.ThreadData)m_threadData.get(test);
+
+	    if (threadData != null) {
+		return threadData;
+	    }
+	    else {
+		final CallData callData = (CallData)m_callData.get(test);
+		//!! TODO HANDLE NOT REGISTERED CASE.
+
+		return initialiseThreadData(callData);
 	    }
 	}
 
@@ -453,8 +493,7 @@ public class HttpPlugin implements GrinderPlugin
 		m_stringBean.doTest(test);
 	    }
 
-	    final CallData.ThreadData threadData =
-		(CallData.ThreadData)m_threadData.get(test);
+	    final CallData.ThreadData threadData = getThreadData(test);
 
 	    // Do the call.
 	    final String page = m_httpHandler.sendRequest(threadData);
@@ -472,8 +511,7 @@ public class HttpPlugin implements GrinderPlugin
 		    final String description = test.getDescription();
 
 		    final String filename =
-			m_pluginThreadContext.getFilenameFactory().
-			createFilename(
+			m_threadContext.createFilename(
 			    "page",
 			    "_" + m_currentIteration + "_" +
 			    m_threeFiguresFormat.format(test.getNumber()) +
@@ -494,7 +532,7 @@ public class HttpPlugin implements GrinderPlugin
 		    }
 
 		    if (error) {
-			m_pluginThreadContext.logError(
+			m_threadContext.logError(
 			    "The 'ok' string ('" + okString +
 			    "') was not found in the page received. " +
 			    "The output has been written to '" + filename +
