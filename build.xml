@@ -70,8 +70,6 @@ what you want. Currently the conditionally built modules are:
 
 <project name="The Grinder" default="jar" basedir=".">
 
-  <taskdef resource="checkstyletask.properties"/>
-
   <property name="Name" value="The Grinder"/>
   <property name="name" value="grinder"/>
   <property name="version" value="3.0-beta17"/> <!-- AND THE NEXT LINE -->
@@ -97,6 +95,12 @@ what you want. Currently the conditionally built modules are:
 
   <!-- local settings -->
   <property file="${etc.dir}/localpaths.properties"/>
+
+  <taskdef resource="checkstyletask.properties">
+    <classpath>
+      <pathelement path="${checkstyle.classpath}"/>
+    </classpath>
+  </taskdef>
 
   <!-- webapps, in general and specific -->
   <property name="webapps.dir" value="webapps"/>
