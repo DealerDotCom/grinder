@@ -18,6 +18,8 @@
 
 package net.grinder.console;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -39,27 +41,82 @@ import net.grinder.console.model.ConsoleProperties;
  */
 class ConsoleCommunication
 {
-    private final Receiver m_receiver;
-    private final Sender m_sender;
+    private final ConsoleProperties m_properties;
+    private Receiver m_receiver = null;
+    private Sender m_sender = null;
+    private boolean m_deaf = true;
 
     ConsoleCommunication(ConsoleProperties properties)
-	throws GrinderException
     {
-	m_receiver = new Receiver(properties.getMulticastAddress(),
-				  properties.getConsolePort());
+	m_properties = properties;
+	resetReceiver();
+	resetSender();
 
+	properties.addPropertyChangeListener(
+	    new PropertyChangeListener() 
+	    {
+		public void propertyChange(PropertyChangeEvent event) 
+		{
+		    final String property = event.getPropertyName();
+
+		    if (property.equals(
+			    ConsoleProperties.MULTICAST_ADDRESS_PROPERTY)) {
+			resetReceiver();
+			resetSender();
+		    }
+		    else if (property.equals(
+				 ConsoleProperties.CONSOLE_PORT_PROPERTY)) {
+			resetReceiver();
+		    }
+		    else if (property.equals(
+				 ConsoleProperties.GRINDER_PORT_PROPERTY)) {
+			resetSender();
+		    }
+		}
+	    });
+    }
+
+    private void resetReceiver()
+    {
+	try {
+	    if (m_receiver != null) {
+		m_receiver.shutdown();
+	    }
+
+	    m_receiver = new Receiver(m_properties.getMulticastAddress(),
+				      m_properties.getConsolePort());
+
+	    synchronized(this) {
+		m_deaf = false;
+		notifyAll();
+	    }
+	}
+	catch(GrinderException e) {
+	    System.err.println(e.getMessage());
+	    e.printStackTrace();
+	}
+    }
+
+    private void resetSender()
+    {
 	String host;
 
 	try {
-	    host= InetAddress.getLocalHost().getHostName();
+	    host = InetAddress.getLocalHost().getHostName();
 	}
 	catch (UnknownHostException e) {
 	    host = "UNNAMED HOST";
 	}
 
-	m_sender = new Sender("Console (" + host + ")",
-			      properties.getMulticastAddress(),
-			      properties.getGrinderPort());
+	try {
+	    m_sender = new Sender("Console (" + host + ")",
+				  m_properties.getMulticastAddress(),
+				  m_properties.getGrinderPort());
+	}
+	catch(GrinderException e) {
+	    System.err.println(e.getMessage());
+	    e.printStackTrace();
+	}
     }
 
     void sendStartMessage()
@@ -80,12 +137,32 @@ class ConsoleCommunication
 	m_sender.send(new StopGrinderMessage());
     }
 
+    /**
+     * @return The message.
+     **/
     Message waitForMessage()
     {
 	while (true)
 	{
+	    while (m_deaf) {
+		try {
+		    synchronized(this) {
+			wait();
+		    }
+		}
+		catch (InterruptedException e) {
+		}
+	    }
+
 	    try {
-		return m_receiver.waitForMessage();
+		final Message message = m_receiver.waitForMessage();
+
+		if (message == null) {
+		    // Current receiver has been shutdown.
+		    synchronized (this) {
+			m_deaf = true;
+		    }
+		}
 	    }
 	    catch (CommunicationException e) {
 		System.err.println("Communication exception: " + e);
