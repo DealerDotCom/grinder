@@ -318,6 +318,16 @@ because because of the many security fixes.</p>
 
 </blockquote>
 
+<h3><a name="premature-eof">Why do I get
+<code>HTTPClient.RetryException: Premature EOF encountered</code>
+errors when I increase HTTP load?</a></h3>
+
+<p>This is a known issue with The Grinder 2 that is fixed in The
+Grinder 3.0b14. I have no plans to backport the fix to The Grinder 2,
+but see <a
+href="http://article.gmane.org/gmane.comp.java.grinder.user/893/match=premature+eof">this
+e-mail</a> for details of how to do this yourself.</p>
+
 </body>
 </html>
 
