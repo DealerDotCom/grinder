@@ -28,8 +28,16 @@ import javax.swing.JComponent;
 import org.syntax.jedit.JEditTextArea;
 import org.syntax.jedit.SyntaxStyle;
 import org.syntax.jedit.TextAreaPainter;
+import org.syntax.jedit.tokenmarker.BatchFileTokenMarker;
+import org.syntax.jedit.tokenmarker.HTMLTokenMarker;
+import org.syntax.jedit.tokenmarker.JavaTokenMarker;
+import org.syntax.jedit.tokenmarker.PropsTokenMarker;
 import org.syntax.jedit.tokenmarker.PythonTokenMarker;
+import org.syntax.jedit.tokenmarker.ShellScriptTokenMarker;
+import org.syntax.jedit.tokenmarker.XMLTokenMarker;
+
 import org.syntax.jedit.tokenmarker.Token;
+import org.syntax.jedit.tokenmarker.TokenMarker;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
@@ -44,7 +52,7 @@ import net.grinder.console.model.editor.TextSource;
  * @author Philip Aston
  * @version $Revision$
  */
-class Editor {
+final class Editor {
 
   private final Resources m_resources;
   private final EditorModel m_editorModel = new EditorModel();
@@ -56,10 +64,9 @@ class Editor {
    *
    * @param resources Console resources.
    */
-  public Editor(Resources resources) {
+  public Editor(Resources resources) throws ConsoleException {
     m_resources = resources;
     m_scriptTextArea = new JEditTextArea();
-    m_scriptTextArea.setTokenMarker(new PythonTokenMarker());
 
     // Override ugly default colours.
     final TextAreaPainter painter = m_scriptTextArea.getPainter();
@@ -84,14 +91,7 @@ class Editor {
     // 1.4 only - use reflection to call this?
     //m_scriptTextArea.setDragEnabled(true);
 
-    final String defaultText =
-      m_resources.getStringFromFile("scriptSupportUnderConstruction.text",
-                                    true);
-
-    m_textSource.setText(defaultText);
-    m_scriptTextArea.setFirstLine(0);
-
-    m_editorModel.setCurrentBuffer(new Buffer(m_resources, m_textSource));
+    newFileSelection(null);
   }
 
   /**
@@ -104,17 +104,57 @@ class Editor {
   }
 
   public void newFileSelection(File file) throws ConsoleException {
-    final Buffer buffer = new Buffer(m_resources, m_textSource, file);
-    System.err.println("Loading " + file);
-    buffer.load();
-    System.err.println("Done loading " + file);
+    final Buffer buffer;
+
+    if (file != null) {
+      buffer = new Buffer(m_resources, m_textSource, file);
+      buffer.load();
+    }
+    else {
+      m_textSource.setText(
+        m_resources.getStringFromFile(
+          "scriptSupportUnderConstruction.text", true));
+
+      buffer = new Buffer(m_resources, m_textSource);
+    }
 
     m_editorModel.setCurrentBuffer(buffer);
-    m_scriptTextArea.setFirstLine(0);
 
+    m_scriptTextArea.setFirstLine(0);
+    m_scriptTextArea.setTokenMarker(getTokenMarker(buffer.getType()));
   }
 
-  private final class JEditSyntaxTextSource implements TextSource {
+  private TokenMarker getTokenMarker(Buffer.Type bufferType) {
+    if (bufferType == Buffer.HTML_BUFFER) {
+      return new HTMLTokenMarker();
+    }
+    else if (bufferType == Buffer.JAVA_BUFFER) {
+      return new JavaTokenMarker();
+    }
+    else if (bufferType == Buffer.MSDOS_BATCH_BUFFER) {
+      return new BatchFileTokenMarker();
+    }
+    else if (bufferType == Buffer.PROPERTIES_BUFFER) {
+      return new PropsTokenMarker();
+    }
+    else if (bufferType == Buffer.PYTHON_BUFFER) {
+      return new PythonTokenMarker();
+    }
+    else if (bufferType == Buffer.SHELL_BUFFER) {
+      return new ShellScriptTokenMarker();
+    }
+    else if (bufferType == Buffer.TEXT_BUFFER) {
+      return null;
+    }
+    else if (bufferType == Buffer.XML_BUFFER) {
+      return new XMLTokenMarker();
+    }
+    else {
+      return null;
+    }
+  }
+
+  private class JEditSyntaxTextSource implements TextSource {
     public String getText() {
       return m_scriptTextArea.getText();
     }
