@@ -70,9 +70,16 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 		outputEntityData(sessionState);
 
 		final String method = methodLineExpresion.getParen(1);
-		final String url =
-		    connectionDetails.getURLBase("http") +
-		    methodLineExpresion.getParen(2);
+		final String url;
+
+		// if we're running as a proxy, we get the full url in
+		// the header, not just the filepath part
+		if (methodLineExpresion.getParen(2).startsWith("http")) {
+		    url = methodLineExpresion.getParen(2);
+		} else {
+		    url = connectionDetails.getURLBase("http") +
+			methodLineExpresion.getParen(2);
+		}
 
 		if (method.equals("GET")) {
 		    handleMethod(string, sessionState, url);
