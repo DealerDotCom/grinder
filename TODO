@@ -12,8 +12,6 @@ is roughly in priority order.]
   The sniffer servlet probably has to reencode post data before
   writing to file.
 
-  SSL HTTP plugin (PhilD is working on this)
-
   Documenatation, in text format. Volunteers please!
 
   Test harness

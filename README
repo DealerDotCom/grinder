@@ -77,3 +77,27 @@ Please send bug fixes and enhancements you make to paston@bea.com.
 
 BEA keeps me very busy so the timeliness and quality of any email
 support I provide will vary.
+
+
+How do I use the HTTPS plugin?
+******************************
+
+1) Install JSSE1.0.2 and add the relevant jars to your classpath.
+   See http://java.sun.com/products/jsse/INSTALL.html
+
+2) In your grinder.properties, use the HttpsPlugin rather than
+   HttpPlugin:
+
+	grinder.plugin=net.grinder.plugin.http.HttpsPlugin
+
+3) You can then use https:// in your URLs
+
+	grinder.plugin.parameter.url0=https://localhost:7002/snoop
+	grinder.plugin.parameter.ok0=Requested URL:
+
+4) If you want two-way authentication, add the following lines
+
+	grinder.plugin.parameter.clientCert=./philclient.p12
+	grinder.plugin.parameter.clientCertPassword=acrobat
+
+	(export p12 from netscape)
