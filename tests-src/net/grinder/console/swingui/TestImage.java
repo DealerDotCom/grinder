@@ -15,13 +15,9 @@ import javax.swing.JPanel;
 /**
  * TestImage.java
  *
- *
- * Created: Mon Jul 30 06:58:37 2001
- *
- * @author <a href="mailto: "Philip Aston</a>
- * @version
+ * @author Philip Aston
+ * @version $Revision$
  */
-
 public class TestImage{
     
     public static void main(String[] args)
