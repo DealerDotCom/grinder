@@ -42,7 +42,7 @@ public final class HTTPPluginControl {
 
   static {
     // Ensure that the HTTPPlugin is registered.
-    s_pluginProcessContext = HTTPPlugin.getPluginProcessContext();
+    s_pluginProcessContext = HTTPPlugin.getPlugin().getPluginProcessContext();
   }
 
   /**

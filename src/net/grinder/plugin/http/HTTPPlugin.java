@@ -32,6 +32,10 @@ import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginThreadListener;
+import net.grinder.statistics.CommonStatisticsViews;
+import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -43,8 +47,6 @@ import net.grinder.plugininterface.PluginThreadListener;
  **/
 public class HTTPPlugin implements GrinderPlugin {
 
-  private static PluginProcessContext s_processContext;
-
   static {
     try {
       PluginRegistry.getInstance().register(HTTPPlugin.class);
@@ -54,13 +56,27 @@ public class HTTPPlugin implements GrinderPlugin {
     }
   }
 
+  private static HTTPPlugin s_initialisedPluginInstance;
+
   /**
-   * Static package scope accessor for the PluginProcessContext.
+   * Static package scope accessor for the initaialised instance of
+   * the Plugin.
    *
-   * @return The plugin process context.
+   * @return The plugin instance.
    */
-  static final PluginProcessContext getPluginProcessContext() {
-    return s_processContext;
+  static final HTTPPlugin getPlugin() {
+    return s_initialisedPluginInstance;
+  }
+
+  private PluginProcessContext m_pluginProcessContext;
+  private StatisticsIndexMap.LongIndex m_responseStatusIndex;
+
+  final PluginProcessContext getPluginProcessContext() {
+    return m_pluginProcessContext;
+  }
+
+  final StatisticsIndexMap.LongIndex getResponseStatusIndex() {
+    return m_responseStatusIndex;
   }
 
   /**
@@ -72,7 +88,7 @@ public class HTTPPlugin implements GrinderPlugin {
   public void initialize(PluginProcessContext processContext)
     throws PluginException {
 
-    s_processContext = processContext;
+    m_pluginProcessContext = processContext;
 
     // Remove standard HTTPClient modules which we don't want. We load
     // HTTPClient modules dynamically as we don't have public access.
@@ -96,6 +112,27 @@ public class HTTPPlugin implements GrinderPlugin {
 
     // Turn off authorisation UI.
     DefaultAuthHandler.setAuthorizationPrompter(null);
+
+    // Register Response Status detail statistic.
+    try {
+      final StatisticsView detailView = new StatisticsView();
+
+      detailView.add(
+	new ExpressionView(
+	  "HTTP Response Code", "statistic.httpplugin.responseStatusKey",
+	  StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY));
+
+      CommonStatisticsViews.getDetailStatisticsView().add(detailView);
+
+      m_responseStatusIndex =
+	StatisticsIndexMap.getInstance().getIndexForLong(
+	  StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY);
+    }
+    catch (GrinderException e) {
+      throw new PluginException("Could not register new statistic", e);
+    }
+
+    s_initialisedPluginInstance = this;
   }
 
   /**

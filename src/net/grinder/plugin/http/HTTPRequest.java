@@ -34,7 +34,12 @@ import HTTPClient.URI;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
+import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.script.InvalidContextException;
+import net.grinder.script.Statistics;
+import net.grinder.script.StatisticsAlreadyReportedException;
+import net.grinder.statistics.StatisticsIndexMap;
 
 
 /**
@@ -51,10 +56,13 @@ import net.grinder.plugininterface.PluginProcessContext;
 public class HTTPRequest {
 
   private static final PluginProcessContext s_pluginProcessContext;
+  private static final StatisticsIndexMap.LongIndex s_responseStatusIndex;
 
   static {
     // Ensure that the HTTPPlugin is registered.
-    s_pluginProcessContext = HTTPPlugin.getPluginProcessContext();
+    final HTTPPlugin plugin = HTTPPlugin.getPlugin();
+    s_pluginProcessContext = plugin.getPluginProcessContext();
+    s_responseStatusIndex = plugin.getResponseStatusIndex();
   }
 
   private URI m_defaultURL;
@@ -727,7 +735,7 @@ public class HTTPRequest {
     }
 
     public final HTTPResponse processResponse(HTTPResponse httpResponse)
-      throws IOException, ModuleException {
+      throws IOException, ModuleException, PluginException {
 
       httpResponse.getData();
       httpResponse.getInputStream().close();
@@ -757,6 +765,24 @@ public class HTTPRequest {
       default:
 	logger.output(message);
 	break;
+      }
+
+      try {
+	final Statistics statistics = 
+	  s_pluginProcessContext.getScriptContext().getStatistics();
+
+	if (statistics.availableForUpdate()) {
+	  //Log the response code if we have a statistics context. If
+	  //many HTTPRequests are wrapped in the same test, the last
+	  //one wins.
+	  statistics.setValue(s_responseStatusIndex, statusCode);
+	}
+      }
+      catch (InvalidContextException e) {
+	throw new PluginException("Failed to set status code statistic", e);
+      }
+      catch (StatisticsAlreadyReportedException e) {
+	throw new PluginException("Failed to set status code statistic", e);
       }
 
       return httpResponse;

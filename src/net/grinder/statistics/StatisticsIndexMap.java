@@ -70,6 +70,13 @@ public class StatisticsIndexMap implements Serializable {
   private final int m_numberOfDoubleIndicies;
 
   /**
+   * A special slot for the HTTP plugin so it doesn't steal "user"
+   * indicies.
+   */
+  public final static String HTTP_PLUGIN_RESPONSE_STATUS_KEY =
+    "httpplugin.responseStatusKey";
+
+  /**
    * Singleton accessor.
    *
    * @return The singleton <code>StatisticsIndexMap</code>.
@@ -91,6 +98,7 @@ public class StatisticsIndexMap implements Serializable {
     m_map.put("userLong2", new LongIndex(nextLongIndex++));
     m_map.put("userLong3", new LongIndex(nextLongIndex++));
     m_map.put("userLong4", new LongIndex(nextLongIndex++));
+    m_map.put(HTTP_PLUGIN_RESPONSE_STATUS_KEY, new LongIndex(nextLongIndex++));
 
     m_numberOfLongIndicies = nextLongIndex;
 

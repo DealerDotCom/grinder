@@ -67,7 +67,7 @@ import net.grinder.statistics.StatisticsIndexMap;
  * </blockquote>
  *
  * <p>It is possible to set the statistics from within test
- * implementation itself. This is more useful for user statsitics than
+ * implementation itself. This is more useful for user statistics than
  * for the standard statistics (<em>[un]timedTransactions</em>,
  * <em>errors</em>, <em>transactionTime</em>) as the standard
  * statistics may be overridden by The Grinder engine when the test
@@ -113,8 +113,17 @@ public interface Statistics  {
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
    * acquired, or before the first test.
+   *  @see #availableForUpdate
    */
   void report() throws InvalidContextException;
+
+  /**
+   * Return whether the statistics for the current test are available
+   * for update. If this returns <code>true</code>, then other methods
+   * will not throw {@link InvalidContextException} or {@link
+   * StatisticsAlreadyReportedException}.
+   */
+  boolean availableForUpdate();
 
   /**
    * Sets the long statistic for the last test with index
@@ -128,6 +137,7 @@ public interface Statistics  {
    * @exception StatisticsAlreadyReportedException If the statistics
    * have already been sent for the last test performed by this thread
    * - see {@link #setDelayReports}.
+   *  @see #availableForUpdate
    **/
   void setValue(StatisticsIndexMap.LongIndex index, long value)
     throws InvalidContextException, StatisticsAlreadyReportedException;
@@ -144,6 +154,7 @@ public interface Statistics  {
    * @exception StatisticsAlreadyReportedException If the statistics
    * have already been sent for the last test performed by this thread
    * - see {@link #setDelayReports}.
+   *  @see #availableForUpdate
    **/
   void setValue(StatisticsIndexMap.DoubleIndex index, double value)
     throws InvalidContextException, StatisticsAlreadyReportedException;
@@ -181,6 +192,7 @@ public interface Statistics  {
    * @exception StatisticsAlreadyReportedException If the statistics
    * have already been sent for the last test performed by this thread
    * - see {@link #setDelayReports}.
+   *  @see #availableForUpdate
    */
   void setSuccess(boolean success)
     throws InvalidContextException, StatisticsAlreadyReportedException;

@@ -144,6 +144,16 @@ final class ScriptStatisticsImplementation implements Statistics {
 	"setDelayReports(true)?");
     }
   }
+
+  public final boolean availableForUpdate() {
+
+    final ThreadContext threadContext = ThreadContext.getThreadInstance();
+
+    return
+      threadContext != null &&
+      threadContext == m_threadContext &&
+      m_currentTestData != null;
+  }
   
   public final void setValue(StatisticsIndexMap.LongIndex index, long value)
     throws InvalidContextException, StatisticsAlreadyReportedException {
