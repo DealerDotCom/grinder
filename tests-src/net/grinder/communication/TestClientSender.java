@@ -24,13 +24,8 @@ package net.grinder.communication;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 import junit.framework.TestCase;
 
@@ -93,7 +88,61 @@ public class TestClientSender extends TestCase {
     assertEquals(0, byteInputStream.available());
   }
 
-  public void testShutdownWithStreams() throws Exception {
+  public void testSendWithSockets() throws Exception {
+
+    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+
+    final ClientSender clientSender =
+      ClientSender.connectTo(
+        "Test", socketAcceptor.getHostName(), socketAcceptor.getPort());
+
+    socketAcceptor.join();
+
+    final SimpleMessage message1 = new SimpleMessage();
+    final SimpleMessage message2 = new SimpleMessage();
+
+    // A socket ClientSender should be able to both route messages
+    // from other Senders and originate their own.
+    message1.setSenderInformation("Grinder ID", getClass().getName(), 1);
+
+    clientSender.send(message1);
+    clientSender.send(message2);
+
+    assertEquals("Grinder ID", message1.getSenderGrinderID());
+    assertEquals("Test", message2.getSenderGrinderID());
+
+    socketAcceptor.close();
+    
+    final InputStream socketInput =
+      socketAcceptor.getAcceptedSocket().getInputStream();
+
+    // Need an ObjectInputStream for every message. See note in
+    // ClientSender.writeMessage.
+    final ObjectInputStream inputStream1 = new ObjectInputStream(socketInput);
+    final Object o1 = inputStream1.readObject();
+
+    final ObjectInputStream inputStream2 = new ObjectInputStream(socketInput);
+    final Object o2 = inputStream2.readObject();
+
+    assertEquals(message1, o1);
+    assertTrue(message1.payloadEquals((Message) o1));
+
+    assertEquals(message2, o2);
+    assertTrue(message2.payloadEquals((Message) o2));
+
+    assertEquals(0, socketInput.available());
+
+    try {
+      ClientReceiver.connectTo(
+        socketAcceptor.getHostName(), socketAcceptor.getPort());
+
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+  }
+
+  public void testShutdown() throws Exception {
 
     final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 
@@ -113,115 +162,18 @@ public class TestClientSender extends TestCase {
     }
     catch (CommunicationException e) {
     }
-  }
 
-  private static final class SocketAcceptor implements Runnable {
-    
-    private final ServerSocket m_serverSocket;
-    private Exception m_exception;
-    private Socket m_lastAcceptedSocket;
+    final ByteArrayInputStream byteInputStream =
+      new ByteArrayInputStream(byteOutputStream.toByteArray());
 
-    public SocketAcceptor() throws Exception {
-      m_serverSocket = new ServerSocket(0);
-    }
-
-    public void run() {
-      try {
-        m_lastAcceptedSocket = m_serverSocket.accept();
-      }
-      catch (Exception e) {
-        m_exception = e;
-      }
-    }
-
-    public int getLocalPort() {
-      return m_serverSocket.getLocalPort();
-    }
-
-    public Socket getLastAcceptedSocket() {
-      return m_lastAcceptedSocket;
-    }
-
-    public Exception getException() {
-      return m_exception;
-    }
-  }
-
-  public void testSendWithSockets() throws Exception {
-
-    final SocketAcceptor socketAcceptor = new SocketAcceptor();
-
-    final Thread acceptorThread = new Thread(socketAcceptor);
-    acceptorThread.start();
-
-    final ClientSender clientSender =
-      ClientSender.connectTo("Test", InetAddress.getLocalHost().getHostName(),
-                             socketAcceptor.getLocalPort());
-
-    final SimpleMessage message1 = new SimpleMessage();
-    final SimpleMessage message2 = new SimpleMessage();
-
-    // A socket ClientSender should be able to both route messages
-    // from other Senders and originate their own.
-    message1.setSenderInformation("Grinder ID", getClass().getName(), 1);
-
-    clientSender.send(message1);
-    clientSender.send(message2);
-
-    assertEquals("Grinder ID", message1.getSenderGrinderID());
-    assertEquals("Test", message2.getSenderGrinderID());
-
-    acceptorThread.join();
-    
-    final InputStream socketInput =
-      socketAcceptor.getLastAcceptedSocket().getInputStream();
-
-    // Need an ObjectInputStream for every message. See note in
-    // ClientSender.writeMessage.
-    final ObjectInputStream inputStream1 = new ObjectInputStream(socketInput);
+    final ObjectInputStream inputStream1 =
+      new ObjectInputStream(byteInputStream);
     final Object o1 = inputStream1.readObject();
 
-    final ObjectInputStream inputStream2 = new ObjectInputStream(socketInput);
+    final ObjectInputStream inputStream2 =
+      new ObjectInputStream(byteInputStream);
     final Object o2 = inputStream2.readObject();
 
-    assertEquals(message1, o1);
-    assertTrue(message1.payloadEquals((Message) o1));
-
-    assertEquals(message2, o2);
-    assertTrue(message2.payloadEquals((Message) o2));
-
-    assertEquals(0, socketInput.available());
-
-    assertEquals(null, socketAcceptor.getException());
-  }
-
-  public void testShutdownWithSockets() throws Exception {
-
-    final SocketAcceptor socketAcceptor = new SocketAcceptor();
-
-    final Thread acceptorThread = new Thread(socketAcceptor);
-    acceptorThread.start();
-
-    final ClientSender clientSender =
-      ClientSender.connectTo("Test", InetAddress.getLocalHost().getHostName(),
-                             socketAcceptor.getLocalPort());
-
-    final Message message = new SimpleMessage();
-    message.setSenderInformation("Test", getClass().getName(), 99);
-
-    clientSender.send(message);
-
-    clientSender.shutdown();
-
-    try {
-      clientSender.send(message);
-      fail("Expected CommunicationException");
-    }
-    catch (CommunicationException e) {
-    }
-
-    acceptorThread.join();
-
-    assertEquals(null, socketAcceptor.getException());
+    assertTrue(o2 instanceof CloseCommunicationMessage);
   }
 }
