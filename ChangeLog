@@ -1,3 +1,34 @@
+2002-03-10  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/TCPSniffer.java:
+	Add back -output option for TCPSniffer.
+
+	* src/prj.el: New JDK location.
+
+	* README, doc/HTTPPlugin.txt: Fixes to property descriptions.
+
+2002-02-18  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/Grinder.java, src/net/grinder/TCPSniffer.java, src/net/grinder/Console.java:
+	Mysterious lint.
+
+	* build.xml: Correct determination of JSSE presence.
+
+	* README, CHANGES: Fix sleepTimeVariation documentation.
+
+2002-02-02  Philip Aston  <paston@bea.com>
+
+	* etc/buildenv.sh: Fix for new machine.
+
+	* src/net/grinder/communication/AbstractReceiver.java:
+	Use GrinderID rather than UniqueID in duplicate message warning.
+
+	* web/screenshot.gif, web/index.html: Latest web.
+
+2002-01-29  Philip Aston  <paston@bea.com>
+
+	* README: Document W2K multicast grief.
+
 2002-01-06  Philip Aston  <paston@bea.com>
 
 	* The Grinder 2.8.2 is released.
