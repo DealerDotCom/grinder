@@ -437,12 +437,13 @@ what you want. Currently the conditionally built modules are:
 
   <target name="script-javadoc" depends="init,prepare-src,prepare-test-src"
           description="Generates the javadoc for classes used by scripts.">
-    <property name="working.dir" value="${build.dir}/script-javadoc-src"/>
+    <property name="script-javadoc-working.dir"
+	      value="${build.dir}/script-javadoc-src"/>
 
     <!-- Sigh, I'm tired of convincing the javadoc task to do the right thing
          so instead lets create a copy of the source it should process.
          This is faster too. -->
-    <copy todir="${working.dir}">
+    <copy todir="${script-javadoc-working.dir}">
       <fileset dir="${prepared-src.dir}">
 	<include name="HTTPClient/HTTPResponse.java"/>
 	<include name="HTTPClient/NVPair.java"/>
@@ -471,11 +472,7 @@ what you want. Currently the conditionally built modules are:
              doctitle="${Name}"
              stylesheetfile="${javadoc.css}"
 	     public="true"
-             sourcepath="${working.dir}">
-	<classpath>
-	  <path refid="build.classpath"/>
-	  <pathelement path="${java.class.path}"/>
-	</classpath>
+             sourcepath="${script-javadoc-working.dir}">
         <footer><![CDATA[<img src='../images/grinder3.jpg'></img>]]>
         </footer>
         <group title="The Grinder Scripting API"
