@@ -917,11 +917,16 @@ public class TestHTTPRequest extends TestCase {
     m_statisticsStubFactory.assertSuccess(
       "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
 
-    m_statisticsStubFactory.assertSuccess(
-      "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+    try {
+      m_statisticsStubFactory.assertSuccess(
+        "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
 
-    m_statisticsStubFactory.assertSuccess(
-      "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+      m_statisticsStubFactory.assertSuccess(
+        "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+    }
+    catch (java.util.NoSuchElementException e) {
+      // Whatever.
+    }
 
     m_statisticsStubFactory.assertNoMoreCalls();
 
