@@ -88,7 +88,7 @@ public class DisplayMessageConsoleException extends ConsoleException {
 
   private static String getMessage(Resources resources, String resourceKey) {
 
-    final String resourceValue = resources.getString(resourceKey);
+    final String resourceValue = resources.getString(resourceKey, false);
 
     if (resourceValue != null) {
       return resourceValue;
