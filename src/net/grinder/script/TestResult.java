@@ -25,7 +25,8 @@ import net.grinder.common.Test;
 
 
 /**
- * Represents the results of a test invocation.
+ * Marker interface that represents the results of a test invocation.
+ * Plugins can sub-class this to provide extra information.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -33,19 +34,4 @@ import net.grinder.common.Test;
  */ 
 public interface TestResult
 {
-    /**
-     * Returns whether the test invocation was successful.
-     *
-     * @return a <code>boolean</code> value
-     */
-    boolean isSuccessful();
-
-    /**
-     * {@link net.grinder.plugininterface.PluginException}s reported
-     * by the test implementation can be retrieved with this method.
-     * If no exception occurred, this will return <code>null</code>.
-     *
-     * @return an <code>Exception</code> value
-     */
-    Exception getException();
 }
