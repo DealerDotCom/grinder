@@ -1,3 +1,7 @@
+2001-09-22  Philip Aston  <paston@bea.com>
+
+	* The Grinder 2.7 is released.
+
 2001-09-21  Philip Aston  <paston@bea.com>
 
 	* etc/HTTPClient-license.txt, src/HTTPClient/HTTPConnection.java, src/net/grinder/plugin/http/HTTPClientHandler.java:
