@@ -1,3 +1,63 @@
+2002-05-09  Philip Aston  <paston@bea.com>
+
+	* TODO: *** empty log message ***
+
+	* build.xml: Fix compilation without JSSE.
+
+	* src/net/grinder/tools/tcpsniffer/JSSEConstants.java: New file.
+
+	* src/net/grinder/tools/tcpsniffer/JSSEConstants.java, src/net/grinder/tools/tcpsniffer/SnifferSSLSocketFactory.java, src/net/grinder/TCPSniffer.java:
+	Rationalise key store parameters.
+
+	* src/net/grinder/tools/snifferwebapp/SniffingServlet.java:
+	Changes to TCPSniffer interface (untested).
+
+2002-05-08  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/tools/tcpsniffer/StreamThread.java:
+	Tweak thread name.
+
+	* src/net/grinder/tools/tcpsniffer/SnifferEngine.java: Log timeouts.
+
+	* etc/setenv.sh: ORO.
+
+	* CHANGES, doc/TCPSniffer.txt: Notes.
+
+	* src/net/grinder/tools/tcpsniffer/HTTPSProxySnifferEngine.java:
+	Tidy up zombie threads.
+	Logging.
+
+	* src/net/grinder/TCPSniffer.java, src/net/grinder/tools/tcpsniffer/HTTPProxySnifferEngine.java:
+	Log timeouts.
+
+	* src/net/grinder/tools/tcpsniffer/SnifferEngineImplementation.java:
+	Optionally log timeouts.
+
+	* src/net/grinder/util/CopyStreamRunnable.java:
+	Don't spin if there's nothing to do.
+
+	* src/net/grinder/TCPSniffer.java:
+	Move HTTP proxy engines to tcpsniffer package.
+	Tweak logging.
+
+	* src/net/grinder/util/CopyStreamRunnable.java:
+	No point copying 0 bytes.
+
+	* src/net/grinder/tools/tcpsniffer/HTTPSProxySnifferEngine.java:
+	Move HTTP proxy engines to tcpsniffer package.
+	Don't read bytes that aren't coming.
+
+	* src/net/grinder/tools/tcpsniffer/HTTPSProxySnifferEngine.java:
+	New file.
+
+	* src/net/grinder/tools/tcpsniffer/HTTPProxySnifferEngine.java:
+	Move HTTP proxy engines to tcpsniffer package.
+
+	* src/net/grinder/tools/tcpsniffer/HTTPProxySnifferEngine.java:
+	New file.
+
+	* src/net/grinder/tools/tcpsniffer/SSLSocketFactory.java: Dead.
+
 2002-05-07  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/tools/tcpsniffer/SocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImplementation.java, src/net/grinder/tools/tcpsniffer/SnifferPlainSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferSSLSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferSocketFactory.java:
@@ -6,7 +66,7 @@
 	* src/net/grinder/tools/tcpsniffer/SnifferPlainSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferSSLSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferSocketFactory.java:
 	New file.
 
-	* src/net/grinder/TCPSniffer.java, src/net/grinder/tools/proxy/HTTPProxySnifferEngine.java, src/net/grinder/tools/proxy/HTTPSProxySnifferEngine.java, src/net/grinder/tools/tcpsniffer/PlainSocketFactory.java, CHANGES, TODO:
+	* src/net/grinder/TCPSniffer.java, src/net/grinder/tools/tcpsniffer/PlainSocketFactory.java, CHANGES, TODO:
 	Continue rationalisation of sniffer SSL support.
 
 	* src/net/grinder/tools/tcpsniffer/SnifferEngineImplementation.java:
@@ -122,8 +182,6 @@
 	* CHANGES: Notes.
 
 	* build.xml: Next is 2.8.3.
-
-	* ChangeLog: *** empty log message ***
 
 	* src/net/grinder/plugin/http/example/ExampleJTidyStringBean.java:
 	JTidy example string bean.

@@ -3,23 +3,12 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-  move proxy directory below tcpsniffer
-check you can build without jsse
+minimal docs
+	- How to use example cert with JSSE
+	- Same store used for both ends
+	- PKCS12 problems
 
-keep -certificate etc for snifferwebapp
-
-  Change TCP sniffer filters to a stream oriented model. This should
-  cure another one of the TCPSniffer/HTTPPlugin bug when recording
-  large outputs with posts? Also, consider having a filter instance
-  pair per connection.
-
-  Test HTTPS proxy.
-
-  TCPSniffer should record 401 iteractions.
-
-  Update HTTPClient to support "mean time to first byte".
-
-  Write more JUnit tests.
+https plugin and -httpFilter, many file headers :-(. 
 
   Find out how to stop net.grinder.console.swing.TestGraph from
   preventing parent process from detecting exit status. (For example,
@@ -28,6 +17,17 @@ keep -certificate etc for snifferwebapp
 
   Add an assertion for the expected status code to the HTTP plugin.
   HTTP Plugin "not ok".
+
+  Change TCP sniffer filters to a stream oriented model. This should
+  cure another one of the TCPSniffer/HTTPPlugin bug when recording
+  large outputs with posts? Also, consider having a filter instance
+  pair per connection.
+
+  Update HTTPClient to support "mean time to first byte".
+
+  Write more JUnit tests.
+
+  TCPSniffer could record 401 iteractions.
 
   Measure test variance. This would involve the console broadcasting
   the total mean, and then listening for the reported variance.
