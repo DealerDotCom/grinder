@@ -76,7 +76,8 @@ TCPSniffer is running and port to be 8001). You then use your browser
 as normal, e.g. in the example in the previous section you should
 access "http://localhost:7001" directly.
 
-The TCPSniffer can also run as an HTTPS proxy if you specify -ssl.
+The TCPSniffer will run as a proxy for both HTTP and HTTPS if you
+specify -ssl.
 
 
 Using the HttpPluginSnifferFilter
@@ -167,8 +168,8 @@ you can pass to the TCPSniffer to specify key store details:
 You can also specify these with the corresponding javax.net.ssl.XXX
 properties.
 
-Here's an example of starting the TCPSniffer as an HTTPS proxy using
-the "testkeys" key store provided with the JSSE samples:
+Here's an example of starting the TCPSniffer as an HTTP/HTTPS proxy
+using the "testkeys" key store provided with the JSSE samples:
 
   java net.grinder.TCPSniffer -ssl -proxy -keyStore testkeys -keyStorePassword passphrase
 

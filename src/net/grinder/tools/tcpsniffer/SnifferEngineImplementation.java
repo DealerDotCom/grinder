@@ -120,6 +120,16 @@ public class SnifferEngineImplementation implements SnifferEngine
 	return m_serverSocket;
     }
 
+    protected final SnifferSocketFactory getSocketFactory() 
+    {
+	return m_socketFactory;
+    }
+
+    protected final ConnectionDetails getConnectionDetails() 
+    {
+	return m_connectionDetails;
+    }
+
     protected final void launchThreadPair(Socket localSocket,
 					  InputStream localInputStream,
 					  OutputStream localOutputStream,

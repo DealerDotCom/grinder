@@ -32,7 +32,6 @@ import net.grinder.plugin.http.HttpPluginSnifferResponseFilter;
 import net.grinder.tools.tcpsniffer.ConnectionDetails;
 import net.grinder.tools.tcpsniffer.EchoFilter;
 import net.grinder.tools.tcpsniffer.HTTPProxySnifferEngine;
-import net.grinder.tools.tcpsniffer.HTTPSProxySnifferEngine;
 import net.grinder.tools.tcpsniffer.JSSEConstants;
 import net.grinder.tools.tcpsniffer.NullFilter;
 import net.grinder.tools.tcpsniffer.SnifferEngine;
@@ -80,7 +79,7 @@ public class TCPSniffer
 	    "\n   [-localPort <port>]          Default is 8001" +
 	    "\n   [-remoteHost <host name>]    Default is localhost" +
 	    "\n   [-remotePort <port>]         Default is 7001" +
-	    "\n   [-proxy]                     Be an HTTP or HTTPS proxy" +
+	    "\n   [-proxy]                     Be an HTTP proxy" +
 	    "\n   [-ssl                        Use SSL" +
 	    "\n     [-keyStore <file>]         Key store details for" +
 	    "\n     [-keyStorePassword <pass>] certificates. Equivalent to" +
@@ -94,7 +93,7 @@ public class TCPSniffer
 	    "\n one of NONE, ECHO. Default is ECHO." +
 	    "\n" +
 	    "\n When -proxy is specified, -remoteHost and -remotePort" +
-	    "\n are ignored." +
+	    "\n are ignored. Specify -ssl for HTTPS support." +
 	    "\n" +
 	    "\n -httpPluginFilter sets the request and response filters" +
 	    "\n to produce a grinder.properties file suitable for use" +
@@ -236,7 +235,7 @@ public class TCPSniffer
 
 	if (proxy) {
 	    startMessage.append(
-		"\n   Listening as " + (useSSL ? "an HTTPS" : "an HTTP") +
+		"\n   Listening as " + (useSSL ? "an HTTP/HTTPS" : "an HTTP") +
 		" proxy");
 	} else {
 	    startMessage.append(
@@ -252,7 +251,7 @@ public class TCPSniffer
 	System.err.println(startMessage);
 
 	try {
-	    final SnifferSocketFactory socketFactory;
+	    final SnifferSocketFactory sslSocketFactory;
 
 	    if (useSSL) {
 		// SnifferSSLSocketFactory depends on JSSE, load
@@ -260,39 +259,29 @@ public class TCPSniffer
 		final Class socketFactoryClass =
 		    Class.forName(SSL_SOCKET_FACTORY_CLASS);
 
-		socketFactory =
+		sslSocketFactory =
 		    (SnifferSocketFactory)socketFactoryClass.newInstance();
 	    }
 	    else {
-		socketFactory = new SnifferPlainSocketFactory();
+		sslSocketFactory = null;
 	    }
 
 	    if (proxy) {
-		if (useSSL) {
-		    m_snifferEngine =
-			new HTTPSProxySnifferEngine(socketFactory,
-						    requestFilter,
-						    responseFilter,
-						    localHost,
-						    localPort,
-						    useColour,
-						    timeout);
-		}
-		else {
-		    m_snifferEngine =
-			new HTTPProxySnifferEngine(socketFactory,
-						   requestFilter,
-						   responseFilter,
-						   localHost,
-						   localPort,
-						   useColour,
-						   timeout);
-		}
+		m_snifferEngine = 
+		    new HTTPProxySnifferEngine(new SnifferPlainSocketFactory(),
+					       sslSocketFactory,
+					       requestFilter,
+					       responseFilter,
+					       localHost,
+					       localPort,
+					       useColour,
+					       timeout);
 	    }
 	    else {
 		m_snifferEngine =
 		    new SnifferEngineImplementation(
-			socketFactory,
+			useSSL ?
+			new SnifferPlainSocketFactory() : sslSocketFactory,
 			requestFilter,
 			responseFilter,
 			new ConnectionDetails(localHost, localPort,

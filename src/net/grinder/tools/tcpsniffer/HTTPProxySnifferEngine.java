@@ -27,8 +27,12 @@ package net.grinder.tools.tcpsniffer;
 import java.io.BufferedInputStream;
 import java.io.InterruptedIOException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.oro.text.regex.MatchResult;
@@ -40,95 +44,135 @@ import org.apache.oro.text.regex.Perl5Matcher;
 import org.apache.oro.text.regex.Perl5Substitution;
 import org.apache.oro.text.regex.Util;
 
+import net.grinder.util.CopyStreamRunnable;
 
-/**
- * SnifferEngine that works as an HTTP proxy.
+
+
+/** 
+ * HTTP/HTTPS proxy implementation.
+ *
+ * <p>A HTTPS proxy client first send a CONNECT message to the proxy
+ * port. The proxy accepts the connection responds with a 200 OK,
+ * which is the client's queue to send SSL data to the proxy. The
+ * proxy just forwards it on to the server identified by the CONNECT
+ * message.</p>
+ *
+ * <p>The Java API presents a particular challenge: it allows sockets
+ * to be either SSL or not SSL, but doesn't let them change their
+ * stripes midstream. (In fact, if the JSSE support was stream
+ * oriented rather than socket oriented, a lot of problems would go
+ * away). To hack around this, we accept the CONNECT then blindly
+ * proxy the rest of the stream through a special
+ * SnifferEngineImplementation which instantiated to handle SSL.</p>
  *
  * @author Paddy Spencer
  * @author Philip Aston
- * @version $Revision$
+ * @version $Revision$ 
  */
 public class HTTPProxySnifferEngine extends SnifferEngineImplementation
 {
-    private static Pattern s_proxyConnectPattern;
+    private String m_tempRemoteHost;
+    private int m_tempRemotePort;
 
-    private static synchronized final Pattern getConnectPattern()
+    private final PatternMatcher m_matcher = new Perl5Matcher();
+    private final Pattern m_httpsConnectPattern;
+
+    private final ProxySSLEngine m_proxySSLEngine;
+
+    private static Pattern s_httpConnectPattern;
+
+    private static synchronized final Pattern getHTTPConnectPattern()
 	throws MalformedPatternException
     {
-	if (s_proxyConnectPattern == null) {
+	if (s_httpConnectPattern == null) {
 	    final PatternCompiler compiler = new Perl5Compiler();
 
-	    s_proxyConnectPattern =
+	    s_httpConnectPattern =
 		compiler.compile(
 		    "^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
 		    Perl5Compiler.MULTILINE_MASK |
 		    Perl5Compiler.READ_ONLY_MASK);
 	}
 
-	return s_proxyConnectPattern;
+	return s_httpConnectPattern;
     }
 
-    private final Pattern m_proxyConnectPattern;
-    private final PatternMatcher m_matcher = new Perl5Matcher();
-
-    public HTTPProxySnifferEngine(SnifferSocketFactory socketFactory,
+    public HTTPProxySnifferEngine(SnifferPlainSocketFactory plainSocketFactory,
+				  SnifferSocketFactory sslSocketFactory,
 				  SnifferFilter requestFilter,
 				  SnifferFilter responseFilter,
 				  String localHost,
 				  int localPort,
 				  boolean useColour,
 				  int timeout)
-	throws IOException, MalformedPatternException
+        throws IOException, MalformedPatternException
     {
-	super(socketFactory,
+	// We set this engine up for handling plain HTTP and delegate
+	// to a proxy for HTTPS.
+	super(plainSocketFactory,
 	      new StripAbsoluteURIFilterDecorator(requestFilter),
 	      responseFilter,
 	      new ConnectionDetails(localHost, localPort, "", -1, false),
 	      useColour, timeout);
+	
+	final PatternCompiler compiler = new Perl5Compiler();
 
-	m_proxyConnectPattern = getConnectPattern();
+ 	m_httpsConnectPattern =
+ 	    compiler.compile(
+ 		"^CONNECT[ \\t]+([^:]+):(\\d+)",
+ 		Perl5Compiler.MULTILINE_MASK | Perl5Compiler.READ_ONLY_MASK);
+
+	// When handling HTTPS proxies, we use our plain socket to
+	// accept connections on. We suck the bit we understand off
+	// the front and forward the rest through our proxy engine.
+	// The proxy engine listens for connection attempts (which
+	// come from us), then sets up a thread pair which pushes data
+	// back and forth until either the server closes the
+	// connection, or we do (in response to our client closing the
+	// connection). The engine handles multiple connections by
+	// spawning multiple thread pairs.
+	if (sslSocketFactory != null) {
+	    m_proxySSLEngine =
+		new ProxySSLEngine(sslSocketFactory, requestFilter,
+				   responseFilter, useColour);
+	    new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine").start();
+	}
+	else {
+	    m_proxySSLEngine = null;
+	}
     }
 
     public void run()
     {
 	// Should be more than adequate.
-	final byte[] readAheadBuffer = new byte[4096];
+	final byte[] buffer = new byte[4096];
 
-	while (true) {
-	    final Socket localSocket;
+        while (true) {
+            try {
+                final Socket localSocket = getServerSocket().accept();
 
-	    try {
-		localSocket = getServerSocket().accept();
-	    }
-	    catch (InterruptedIOException e) {
-		System.err.println(ACCEPT_TIMEOUT_MESSAGE);
-		return;
-	    }
-	    catch (IOException e) {
-		e.printStackTrace(System.err);
-		return;
-	    }
-
-	    try {
 		// Grab the first upstream packet and grep it for the
 		// remote server and port in the method line.
 		final BufferedInputStream in =
 		    new BufferedInputStream(localSocket.getInputStream(),
-					    readAheadBuffer.length);
+					    buffer.length);
 
-		in.mark(readAheadBuffer.length);
+		in.mark(buffer.length);
 
-		final int bytesRead = in.read(readAheadBuffer);
-
-		in.reset();
+		// Read a buffer full.
+		final int bytesRead = in.read(buffer);
 
 		final String line =
 		    bytesRead > 0 ?
-		    new String(readAheadBuffer, 0, bytesRead, "US-ASCII") : "";
+		    new String(buffer, 0, bytesRead, "US-ASCII") : "";
 
-		if (m_matcher.contains(line, m_proxyConnectPattern)) {
+		if (m_matcher.contains(line, getHTTPConnectPattern())) {
+		    // HTTP proxy request.
+
+		    // Reset stream to beginning of request.
+		    in.reset();
+
 		    final MatchResult match = m_matcher.getMatch();
-
 		    final String remoteHost = match.group(2);
 
 		    int remotePort = 80;
@@ -140,25 +184,123 @@ public class HTTPProxySnifferEngine extends SnifferEngineImplementation
 			// remotePort = 80; 
 		    }
 
-		    //System.err.println("New proxy connection to " +
+		    //System.err.println("New HTTP proxy connection to " +
 		    //  remoteHost + ":" + remotePort);
 
-		    launchThreadPair(
-			localSocket, in, localSocket.getOutputStream(),
-			remoteHost, remotePort);
+		    launchThreadPair(localSocket, in,
+				     localSocket.getOutputStream(),
+				     remoteHost, remotePort);
 		}
-		else {
+		else if (m_matcher.contains(line, m_httpsConnectPattern)) {
+		    // HTTPS proxy request.
+
+		    // Discard anything else the client has to say.
+		    while (in.read(buffer, 0, in.available()) > 0) {
+		    }
+
+		    final MatchResult match = m_matcher.getMatch();
+		    final String remoteHost = match.group(1);
+
+		    // Must be a port number by specification.
+		    final int remotePort = Integer.parseInt(match.group(2));
+
+		    final String target = remoteHost + ":" + remotePort;
+
+		    // System.err.println("New HTTPS proxy connection
+		    // to " + target);
+
+		    if (m_proxySSLEngine == null) {
+			System.err.println(
+			    "Specify -ssl for HTTPS proxy support");
+			continue;
+		    }
+
+		    m_tempRemoteHost = remoteHost;
+		    m_tempRemotePort = remotePort;
+
+		    // Create a new proxy connection to our proxy
+		    // engine.
+		    final Socket sslProxySocket =
+			getSocketFactory().createClientSocket(
+			    getConnectionDetails().getLocalHost(),
+			    m_proxySSLEngine.getServerSocket().getLocalPort());
+
+		    // Now set up a couple of threads to punt
+		    // everything we receive over localSocket to
+		    // sslProxySocket, and vice versa.
+		    new Thread(new CopyStreamRunnable(
+				   in, sslProxySocket.getOutputStream()),
+			       "Copy to proxy engine for " + target).start();
+
+		    final OutputStream out = localSocket.getOutputStream();
+
+		    new Thread(new CopyStreamRunnable(
+				   sslProxySocket.getInputStream(), out),
+			       "Copy from proxy engine for " + target).start();
+
+		    // Send a 200 response to send to client. Client
+		    // will now start sending SSL data to localSocket.
+		    final StringBuffer response = new StringBuffer();
+		    response.append("HTTP/1. 200 OK\r\n");
+		    response.append("Host: " + remoteHost + ":" +
+				    remotePort + "\r\n");
+		    response.append("Proxy-agent: The Grinder/@version@\r\n");
+		    response.append("\r\n");
+
+		    out.write(response.toString().getBytes());
+		    out.flush();
+		}
+		else { 
 		    System.err.println(
 			"Failed to determine proxy destination from message:");
 		    System.err.println(line);
 		}
 	    }
-	    catch(IOException e) {
+	    catch (InterruptedIOException e) {
+		System.err.println(ACCEPT_TIMEOUT_MESSAGE);
+		break;
+	    }
+	    catch (Exception e) {
 		e.printStackTrace(System.err);
+	    }
+        }
+    }
+
+    private class ProxySSLEngine extends SnifferEngineImplementation {
+
+	ProxySSLEngine(SnifferSocketFactory socketFactory,
+		       SnifferFilter requestFilter,
+		       SnifferFilter responseFilter,
+		       boolean useColour) 
+	    throws IOException
+	{
+	    super(socketFactory, requestFilter, responseFilter,
+		  new ConnectionDetails(HTTPProxySnifferEngine.this.
+					getConnectionDetails().getLocalHost(),
+					0, "", -1, true),
+		  useColour, 0);
+	}
+
+	public void run()
+	{
+	    while (true) {
+		try {
+		    final Socket localSocket = this.getServerSocket().accept();
+
+		    // System.err.println("New proxy proxy connection to " +
+		    //   m_tempRemoteHost + ":" + m_tempRemotePort);
+
+		    this.launchThreadPair(localSocket,
+					  localSocket.getInputStream(),
+					  localSocket.getOutputStream(),
+					  m_tempRemoteHost, m_tempRemotePort);
+		}
+		catch(IOException e) {
+		    e.printStackTrace(System.err);
+		}
 	    }
 	}
     }
-
 
     /**
      * Filter decorator to convert absolute URLs in the method line as
@@ -171,14 +313,12 @@ public class HTTPProxySnifferEngine extends SnifferEngineImplementation
 	    new Perl5Substitution("$1 $4");
 
 	private final SnifferFilter m_delegate;
-	private final Pattern m_proxyConnectPattern;
 	private final PatternMatcher m_matcher = new Perl5Matcher();
 
 	public StripAbsoluteURIFilterDecorator(SnifferFilter delegate) 
 	    throws MalformedPatternException
 	{
 	    m_delegate = delegate;
-	    m_proxyConnectPattern = getConnectPattern();
 	}
 
 	public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
@@ -213,10 +353,10 @@ public class HTTPProxySnifferEngine extends SnifferEngineImplementation
 		new String(buffer, 0, bytesRead, "US-ASCII");
 
 	    final String result =
-		Util.substitute(m_matcher, getConnectPattern(),
+		Util.substitute(m_matcher, getHTTPConnectPattern(),
 				m_substition, original);
 
-	    if (result != original) {	// Yes, I mean object identity.
+	    if (result != original) {	// Yes, I mean reference identity.
 		return result.getBytes();
 	    }
 
