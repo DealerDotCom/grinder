@@ -34,7 +34,6 @@ import net.grinder.common.GrinderException;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see RawStatistics
  */
 public class TestConnectionDetails extends TestCase
 {
