@@ -1,3 +1,47 @@
+2004-07-22  Philip Aston  <philipa@mail.com>
+
+	* CHANGES: *** empty log message ***
+
+2004-07-20  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/util/TestDirectory.java: Remove debug message.
+
+	* tests-src/net/grinder/util/TestDirectory.java:
+	FileUtilities.setCanRead -> FileUtilities.setCanAccess.
+
+	* tests-src/net/grinder/testutility/FileUtilities.java:
+	Use MS Windows cacls command as Cygwin ntsec chmod doesn't cut it.
+
+	* tests-src/net/grinder/testutility/AbstractFileTestCase.java:
+	Tidy message.
+
+	* src/net/grinder/console/swingui/CompositeTreeModel.java:
+	Go back to maintaining a listener list.
+
+	* src/net/grinder/util/Directory.java:
+	Fix bug in listContents() where valid directory were sometimes skipped
+	if an unreadable directory was encounted.
+
+	* tests-src/net/grinder/console/communication/TestProcessStatusSetImplementation.java:
+	Sort order is based on process name rather than identity.
+
+2004-07-16  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/console/swingui/TestCompositeTreeModel.java:
+	Fix - make the names unique so we guarantee our test of the sorting
+	will work.
+
+2004-07-07  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/console/common/TestErrorQueue.java, tests-src/net/grinder/testutility/AbstractStubFactory.java, tests-src/net/grinder/testutility/CallData.java, tests-src/net/grinder/testutility/CallRecorder.java:
+	CallRecorder can be set to ignore methods declared by Object.
+
+	* build.xml:
+	"test" now only runs tests whose source has been touched since the
+	last test run.
+
+	* build.xml: Next is beta 23.
+
 2004-07-06  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta22 is released.
