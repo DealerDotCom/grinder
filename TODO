@@ -3,12 +3,6 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-Re-licensing:
-	File headers, (c) etc?
-	File encoding.
-
-
-
   TCPSniffer in -proxy mode shouldn't need -remoteHost.
 
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
