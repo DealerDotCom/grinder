@@ -35,6 +35,8 @@ import net.grinder.util.GrinderException;
  */
 public class TestStatisticsMap implements java.io.Serializable
 {
+    private static final long serialVersionUID = -8058790429635766121L;
+
     /** Use a TreeMap so we store in Test order. */
     private final Map m_data = new TreeMap();
 

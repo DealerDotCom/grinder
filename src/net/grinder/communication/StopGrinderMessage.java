@@ -24,4 +24,5 @@ package net.grinder.communication;
  */
 public class StopGrinderMessage implements Message
 {
+    private static final long serialVersionUID = 1265336425639629131L;
 }

@@ -27,6 +27,8 @@ import net.grinder.statistics.TestStatisticsMap;
  */
 public class ReportStatisticsMessage implements Message
 {
+    private static final long serialVersionUID = 171863391515128541L;
+
     final String m_hostID;
     final String m_processID;
     final TestStatisticsMap m_statisticsDelta;

@@ -24,4 +24,5 @@ package net.grinder.communication;
  */
 public class StartGrinderMessage implements Message
 {
+    private static final long serialVersionUID = 4801515071378931912L;
 }
