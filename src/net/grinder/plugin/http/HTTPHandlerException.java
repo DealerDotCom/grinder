@@ -36,8 +36,8 @@ public class HTTPHandlerException extends PluginException
 	super(s);
     }
 
-    public HTTPHandlerException(String s, Exception e)
+    public HTTPHandlerException(String s, Throwable t)
     {
-	super(s, e);
+	super(s, t);
     }
 }

@@ -36,8 +36,8 @@ public class PluginException extends GrinderException
 	super(s);
     }
 
-    public PluginException(String s, Exception e)
+    public PluginException(String s, Throwable t)
     {
-	super(s, e);
+	super(s, t);
     }
 }
