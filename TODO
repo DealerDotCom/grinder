@@ -22,21 +22,6 @@ seconds, however, in the script, there are commands
 inserted that make the Grinder to fall asleep even for an
 hour, e.g. sleep(4348063)
 
-** TCPProxy parsing
- > 	I get a URL from browse like mentioned below:
- > 
- > 	http://localhost:8080/getJSP.jsp?jspname=Books.jsp&code=345&
- > 
- > 	As you can see there is an extra "&" (ampersand) at end of the
- > 	URL, due to this while recording test scripts through
- > 	TCPProxy, it throws an exception "=" missing . ( From Codecs
- > 	class::query2nv method)
- > 
- > 	Is there a way by which I can modified the URL and remove the
- > 	last extra & before it gets recorded by TCPProxy.
-
-Apparently fixed?
-
 ** Timing
 
 Strange discrepencies between G3 with G2 adapater script and G2.
@@ -96,7 +81,7 @@ its license terms are acceptable.
 
 Allow file sets to be saved and loaded.
 
-Allow grinder properties to be set remoteley.
+Allow grinder properties to be set remotely.
 
 *** Add log panel
 
@@ -155,6 +140,7 @@ Incorporate checkstyle.
 	net.grinder.script
 	net.grinder.statistics
 
+Try findbugs.
 
 * Documentation
 
@@ -162,6 +148,19 @@ HTTP plug-in.
 TCPProxy and G3.
 
 Document G2 adapter.
+
+DeSouza, Edwin writes:
+ > Are there any comparisons of JMeter vs Grinder?
+ >  
+ > The only thing I found was this (perhaps it should be linked on the
+ > Grinder site):
+ > http://www.gashalot.com/blog/archives/000002.html
+
+DeSouza, Edwin writes:
+ > maybe good to link this on the Grinder page...
+ > http://mapage.noos.fr/kimble/papers/grinder.htm
+
+Feature matrix.
 
 ** Examples
 

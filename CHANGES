@@ -12,6 +12,13 @@ Grinder 3.0-beta9
 
   Minor fidling with timing.
 
+  Tutorial from Richard Perks.
+
+  Incorporate the jEdit Syntax package which will be used for
+  development of a console script editor. The basics of the editor are
+  there, but will not be functional until I've reworked the
+  communications layer to allow the script to be distributed.
+
 
 Grinder 3.0-beta8
 -----------------
