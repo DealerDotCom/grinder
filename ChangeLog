@@ -1,4 +1,21 @@
+2004-01-07  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/engine/process/GrinderProcess.java:
+	Fix bug 872546 - using HTTPPlugin with no console hangs the worker
+	processes.
+
+	* CHANGES, build.xml: Next is beta 17.
+
+2004-01-06  Philip Aston  <philipa@mail.com>
+
+	* xdoc/development/translating-xhtml.xml, xdoc/documentation.xweb, xdoc/g3/console-xhtml.xml, xdoc/manual/console-xhtml.xml:
+	Add translation HOWTO.
+
+	* xdoc/development/contributing-xhtml.xml: Fix link.
+
 2004-01-02  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, ChangeLog: Document changes.
 
 	* The Grinder 3.0-beta16 is released.
 

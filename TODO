@@ -20,6 +20,18 @@ properties wrongly. It first sends a request without the
 authentication headers, then catches the 401 and automatically resends
 a request with the authentication headers.
 
+** Session Resumption - bug 868587
+
+In progress.
+
+Document the "go faster", insecure approach.
+
+Factor out common TrustManager.
+
+** Support scripts that sleep up front
+
+And fix error logging too.
+
 * Enhancements
 
 ** Measure variance (Ambitious)
@@ -62,6 +74,8 @@ Request 801129).
 
 Consider forcing TestRunner to be registered with grinder.
 
+"There were errors" message can print out log file name.
+
 ** TCPProxy
 
 Tim McNerney writes:
@@ -79,6 +93,8 @@ the client.
 
 ** HTTP Plugin
 
+Remove ParseException, ProtocolNotSuppException from public APIs.
+
 Authorisation tear down
 
 HTTP plugin to support "mean time to first byte".
@@ -92,6 +108,13 @@ Pablo Estades Fernández says:
  > client cert. 
 
 ** Scripting
+
+The Grinder should have error handling for attempts to call the
+ScriptStatistics report() or delayStatistics() methods from within
+wrapped code.
+
+Wrapped code should be able to use the ScriptStatistics interface and
+not have the settings overrwritten by the engine.
 
 Add per-run statistics. This would also allow number of aborted runs
 to be recorded.
