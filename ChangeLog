@@ -1,3 +1,34 @@
+2001-08-30  Philip Aston  <paston@bea.com>
+
+	* CHANGES, doc/HTTPPlugin.txt: Document Content-Type changes.
+
+	* AUTHORS: Kalle.
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java:
+	Don't add test number to description after all.
+
+	* build.xml: Include source with broken image test jar.
+
+	* src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/http/HttpPluginSnifferFilter.java:
+	Rename the contentType parameter to postContentType.
+
+	* src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HTTPHandler.java, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java:
+	Enhancements from Kalle Burbeck:
+	   - New HTTP plugin parameter for POST requests, contentType.
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java:
+	Add test number to generated description.
+	Cope with "Content-type" for "Content-Type".
+	Content-Type header may not occur in first packet - extend my naïve
+	hackery to cope.
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java:
+	Enhancements from Kalle Burbeck:
+	   - New HTTP plugin parameter for POST requests, contentType.
+	   - HTTP plugin sniffer filter now has limited support for
+	     multipart forms.
+	   - HTTP plugin sniffer filter now generates test descriptions.
+
 2001-08-02  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/Grinder.java:
