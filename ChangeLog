@@ -1,3 +1,199 @@
+2003-06-01  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta9 is released.
+	
+	* CHANGES, TODO: Documentation.
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_es.properties:
+	Standardise file headers.
+
+	* src/net/grinder/console/swingui/resources/Console_fr.properties, xdoc/g3/console-xhtml.xml:
+	French console translation.
+
+	* xdoc/documentation.xweb, xdoc/press-xhtml.xml: External links.
+
+	* xdoc/welcome-xhtml.xml, AUTHORS: Welcome Bertrand Ave.
+
+2003-05-21  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/scriptSupportUnderConstruction.txt, build.xml, src/net/grinder/console/swingui/ConsoleUI.java:
+	Add "under construction" notice to script editing UI.
+
+	* CHANGES, TODO: Doc tweaks.
+
+	* etc/setenv.sh: Back to 1.3.1.
+
+	* src/net/grinder/console/swingui/ScriptFilesPanel.java:
+	Set the root node of the FileTreeModel before creating the JTree so we
+	don't NPE under 1.3.1.
+
+	* examples/jms-receiver.py, xdoc/g3/script-gallery-xhtml.xml:
+	Correct spelling.
+
+2003-05-19  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/ThreadContext.java, CHANGES, TODO:
+	Fulfil Feature Request 732676 raised by "bertrand (jwk330)" by adding
+	a "milliseconds since start" column to the data file.
+
+2003-05-17  Philip Aston  <philipa@mail.com>
+
+	* TODO: More work.
+
+	* xdoc/welcome-xhtml.xml, AUTHORS, CHANGES, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPRequest.java:
+	Incorporate patch from Bill Schnellinger: Fix HTTPPluginTCPProxyFilter
+	so that large data uploads (>1K) are stored in separate data files
+	rather than inlined in the script.
+
+2003-05-11  Philip Aston  <philipa@mail.com>
+
+	* examples/http-g2.py: No OK string => error.
+
+	* CHANGES, TODO, xdoc/g3/http-plugin-xhtml.xml: Documentation.
+
+2003-05-10  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginControl.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/script/Statistics.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java:
+	The HTTP Plugin now logs HTTP response status codes in the data file.
+
+	* src/net/grinder/engine/process/ScriptStatisticsImplementation.java:
+	Correct typo in error message.
+	Correct order of invalid context checks.
+
+	* xdoc/g3/faq-xhtml.xml: FAQ on parsing responses.
+
+2003-05-08  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java:
+	Optimise logging.
+
+2003-05-07  Philip Aston  <philipa@mail.com>
+
+	* xdoc/g3/welcome-xhtml.xml, build.xml, xdoc/download-xhtml.xml, xdoc/support-xhtml.xml:
+	Doc updates.
+
+	* etc/grinder.fb: Project file for findbugs.
+
+	* build.xml: Fix.
+
+	* src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/swingui/SamplingControlPanel.java, src/net/grinder/console/swingui/Table.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/communication/AbstractReceiver.java, src/net/grinder/communication/Message.java:
+	Minor tidy up identified by findbugs.
+
+	* CHANGES, TODO: Progress.
+
+	* build.xml: Rework because we now depend on the JSSE.
+
+2003-04-25  Philip Aston  <philipa@mail.com>
+
+	* TODO, CHANGES: Progress.
+
+	* src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/plugininterface/PluginThreadContext.java:
+	Allow plugin to shorten timed section and use it for HTTP plugin.
+	Timings I've done show that the benefit is minimal (maybe about 5%).
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java:
+	Remove debug statement.
+	Correct check for exceeding content length.
+	Truncate to stated content length rather than adding extra data (IE 6
+	sends an additional CRLF).
+
+2003-04-24  Philip Aston  <philipa@mail.com>
+
+	* examples/http-g2.py: Adapter for G2 scripts.
+
+2003-04-17  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/model/ScriptDistributionFiles.java, src/net/grinder/console/swingui/FileTreeModel.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/resources/Console.properties, CHANGES, TODO:
+	Yet another checkpoint of the console changes.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/FileTreeModel.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/Colours.java:
+	Another checkpoint.
+
+	* src/net/grinder/console/swingui/resources/directory-rollover.png, src/net/grinder/console/swingui/resources/directory.png, src/net/grinder/console/swingui/resources/icons.xcf, src/net/grinder/console/model/ScriptDistributionFiles.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/resources/Console.properties:
+	Script root directory dialog.
+	Put result tables on single tab.
+
+2003-04-16  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/model/Model.java: Correct doc typo.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CustomAction.java, src/net/grinder/console/swingui/CustomJButton.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/resources/Console.properties:
+	Checkpoint script files UI development.
+
+	* src/net/grinder/console/swingui/SamplingControlPanel.java:
+	Formatting.
+
+	* examples/grinder.properties: Fix default use of console.
+
+	* src/net/grinder/console/swingui/resources/save-rollover.png, src/net/grinder/console/swingui/resources/save.png, src/net/grinder/console/swingui/resources/script.png, src/net/grinder/console/swingui/resources/start-rollover.png, src/net/grinder/console/swingui/resources/start.png, src/net/grinder/console/swingui/resources/stop-rollover.png, src/net/grinder/console/swingui/resources/stop.png, src/net/grinder/console/swingui/resources/summary.png, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/graphs.png, src/net/grinder/console/swingui/resources/icons.xcf:
+	Script icon.
+
+	* build.xml: Package jEdit syntax.
+
+	* src/net/grinder/console/swingui/Colours.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/Table.java:
+	Move more colours to Colours. Fix usage of JDK 1.4.1 only colour
+	constants.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	Initial work on a script pane.
+
+	* etc/buildenv.sh: Hmmm.. better have the JSSE then.
+
+	* etc/buildenv.sh:
+	Back up to JDK 131 to ensure that we compile with it.
+
+	* LICENSE, src/net/grinder/console/swingui/resources/about.html, xdoc/license-xhtml.xml:
+	Correct URLs.
+
+2003-04-14  Philip Aston  <philipa@mail.com>
+
+	* xdoc/viewlet/images/grinder.vsd: Tweaks.
+
+	* CHANGES: Doc inclusion of HTTPS patch.
+
+	* TODO: More.
+
+	* etc/buildenv.sh, etc/setenv.sh: New machine, new paths.
+
+	* src/org/syntax/jedit/tokenmarker/TeXTokenMarker.java, src/org/syntax/jedit/tokenmarker/Token.java, src/org/syntax/jedit/tokenmarker/TokenMarker.java, src/org/syntax/jedit/tokenmarker/XMLTokenMarker.java, xdoc/license-xhtml.xml, src/org/syntax/jedit/tokenmarker/CTokenMarker.java, src/org/syntax/jedit/tokenmarker/EiffelTokenMarker.java, src/org/syntax/jedit/tokenmarker/HTMLTokenMarker.java, src/org/syntax/jedit/tokenmarker/IDLTokenMarker.java, src/org/syntax/jedit/tokenmarker/JavaScriptTokenMarker.java, src/org/syntax/jedit/tokenmarker/JavaTokenMarker.java, src/org/syntax/jedit/tokenmarker/MakefileTokenMarker.java, src/org/syntax/jedit/tokenmarker/PHPTokenMarker.java, src/org/syntax/jedit/tokenmarker/PLSQLTokenMarker.java, src/org/syntax/jedit/tokenmarker/PatchTokenMarker.java, src/org/syntax/jedit/tokenmarker/PerlTokenMarker.java, src/org/syntax/jedit/tokenmarker/PropsTokenMarker.java, src/org/syntax/jedit/tokenmarker/PythonTokenMarker.java, src/org/syntax/jedit/tokenmarker/SQLTokenMarker.java, src/org/syntax/jedit/tokenmarker/ShellScriptTokenMarker.java, src/org/syntax/jedit/tokenmarker/TSQLTokenMarker.java, src/net/grinder/console/swingui/resources/about.html, src/org/syntax/jedit/DefaultInputHandler.java, src/org/syntax/jedit/InputHandler.java, src/org/syntax/jedit/JEditTextArea.java, src/org/syntax/jedit/KeywordMap.java, src/org/syntax/jedit/SyntaxDocument.java, src/org/syntax/jedit/SyntaxStyle.java, src/org/syntax/jedit/SyntaxUtilities.java, src/org/syntax/jedit/TextAreaDefaults.java, src/org/syntax/jedit/TextAreaPainter.java, src/org/syntax/jedit/TextUtilities.java, src/org/syntax/jedit/tokenmarker/BatchFileTokenMarker.java, src/org/syntax/jedit/tokenmarker/CCTokenMarker.java, LICENSE, LICENSE-jEditSyntax:
+	Add jEdit Syntax.
+
+2003-04-11  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/model/ConsoleProperties.java, tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Script distribution file support.
+
+	* src/net/grinder/console/model/ScriptDistributionFiles.java:
+	Don't write script file property if null.
+
+2003-04-10  Philip Aston  <philipa@mail.com>
+
+	* src/HTTPClient/HTTPConnection.java, src/HTTPClient/RedirectionModule.java:
+	Ship the HTTPClient JSSE HTTPS patch.
+
+	* src/net/grinder/console/model/ScriptDistributionFiles.java, tests-src/net/grinder/console/model/TestScriptDistributionFiles.java:
+	Class to manage script distribution files.
+
+2003-04-09  Philip Aston  <philipa@mail.com>
+
+	* xdoc/manual/http-plugin-xhtml.xml: Fix example.
+
+2003-04-08  Philip Aston  <philipa@mail.com>
+
+	* xdoc/g3/http-plugin-xhtml.xml: Update proxy authentication code.
+
+	* xdoc/g3/faq-xhtml.xml: FAQ on HTTP caching behaviour.
+
+	* xdoc/g3/script-gallery-xhtml.xml, examples/jms-sender.py:
+	Correct typo.
+
+2003-04-06  Philip Aston  <philipa@mail.com>
+
+	* AUTHORS, TODO, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_es.properties, xdoc/welcome-xhtml.xml:
+	Spanish translation updates from Manuel Silva.
+
+	* build.xml: Next is beta 9.
+
 2003-04-05  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta8 is released.
