@@ -30,9 +30,17 @@ import java.util.Map;
  **/
 public class ProcessStatisticsIndexMap
 {
+    private final static ProcessStatisticsIndexMap s_instance =
+	new ProcessStatisticsIndexMap();
+
     private int m_nextIndex = 0;
 
     private final Map m_map = new HashMap();
+
+    public final static ProcessStatisticsIndexMap getInstance()
+    {
+	return s_instance;
+    }
 
     public final synchronized int getIndexFor(String statisticKey)
     {
