@@ -180,14 +180,6 @@ public class FixedWidthFormatter {
       break;
 
     case FLOW_WORD_WRAP:
-      if (m_width == 1 && length > 1) {
-        // Enhancement to allow single column of "vertical"
-        // text. Replace white space with line breaks.
-        if (Character.isWhitespace(buffer.charAt(0))) {
-          buffer.setCharAt(0, '\n');
-        }
-      }
-
       // end will be set to the length of the new buffer after
       // accounting for possible split position and trailing space.
       int end = length;
@@ -229,7 +221,7 @@ public class FixedWidthFormatter {
 
       buffer.setLength(end);
 
-      if (m_alignment != ALIGN_LEFT && end > 0) {
+      if (m_alignment != ALIGN_LEFT) {
         // Strip leading space.
         int start = 0;
 
