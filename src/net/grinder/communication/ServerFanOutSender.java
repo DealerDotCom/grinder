@@ -22,7 +22,6 @@
 package net.grinder.communication;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Iterator;
@@ -35,9 +34,6 @@ import java.util.Iterator;
  * @version $Revision$
  */
 public final class ServerFanOutSender extends AbstractSender {
-
-  private final Acceptor m_acceptor;
-  private final ThreadSafeQueue m_workQueue = new ThreadSafeQueue();
 
   /**
    * Factory method that creates a <code>ServerFanOutSender</code>
@@ -63,12 +59,16 @@ public final class ServerFanOutSender extends AbstractSender {
         addressString + ":" + acceptor.getPort() + ":" +
         InetAddress.getLocalHost().getHostName();
 
-      return new ServerFanOutSender(grinderID, senderID, acceptor, 3);
+      return new ServerFanOutSender(
+        grinderID, senderID, acceptor, new Kernel(3));
     }
     catch (UnknownHostException e) {
       throw new CommunicationException("Can't get local host", e);
     }
   }
+
+  private final Acceptor m_acceptor;
+  private final Kernel m_kernel;
 
   /**
    * Constructor.
@@ -81,18 +81,13 @@ public final class ServerFanOutSender extends AbstractSender {
    * bound.
    */
   private ServerFanOutSender(String grinderID, String senderID,
-                             Acceptor acceptor, int numberOfThreads)
+                             Acceptor acceptor, Kernel kernel)
     throws CommunicationException {
 
     super(grinderID, senderID);
 
     m_acceptor = acceptor;
-
-    final ThreadGroup threadGroup = m_acceptor.getThreadGroup();
-
-    for (int i = 0; i < numberOfThreads; ++i) {
-      new SenderThread(threadGroup, i).start();
-    }
+    m_kernel = kernel;
   }
 
   /**
@@ -108,8 +103,9 @@ public final class ServerFanOutSender extends AbstractSender {
         m_acceptor.getSocketSet().reserveAllHandles().iterator();
 
       while (iterator.hasNext()) {
-        m_workQueue.queue(
-          new MessageHandlePair(message, (SocketSet.Handle) iterator.next()));
+        m_kernel.execute(
+          new WriteMessageToStream(message,
+                                   (SocketSet.Handle) iterator.next()));
       }
     }
     catch (ThreadSafeQueue.ShutdownException e) {
@@ -123,7 +119,7 @@ public final class ServerFanOutSender extends AbstractSender {
   }
 
   /**
-   * Shut down this reciever.
+   * Shut down this sender.
    *
    * @throws CommunicationException If an IO exception occurs.
    */
@@ -131,9 +127,7 @@ public final class ServerFanOutSender extends AbstractSender {
 
     super.shutdown();
 
-    m_workQueue.shutdown();
-
-    // Will also shut down our SenderThreads.
+    m_kernel.shutdown();
     m_acceptor.shutdown();
   }
 
@@ -146,63 +140,27 @@ public final class ServerFanOutSender extends AbstractSender {
     return m_acceptor;
   }
 
-  private final class SenderThread extends Thread {
-
-    public SenderThread(ThreadGroup threadGroup, int senderThreadIndex) {
-      super(threadGroup, "Sender thread " + senderThreadIndex);
-      setDaemon(true);
-    }
-
-    public void run() {
-
-      try {
-        while (true) {
-          final MessageHandlePair pair =
-            (MessageHandlePair) m_workQueue.dequeue(true);
-
-          final Message message = pair.getMessage();
-          final SocketSet.Handle socketHandle = pair.getHandle();
-
-          try {
-            // See note in ClientSender.writeMessage regarding why we
-            // create an ObjectOutputStream for every message.
-            final ObjectOutputStream objectStream =
-              new ObjectOutputStream(socketHandle.getOutputStream());
-
-            objectStream.writeObject(message);
-            objectStream.flush();
-          }
-          catch (IOException e) {
-            socketHandle.close();
-            //            m_messageQueue.queue(e);
-            e.printStackTrace();
-          }
-          finally {
-            socketHandle.free();
-          }
-        }
-      }
-      catch (ThreadSafeQueue.ShutdownException e) {
-        // We've been shutdown, exit this thread.
-      }
-    }
-  }
-
-  private static final class MessageHandlePair {
+  private static final class WriteMessageToStream implements Runnable {
     private final Message m_message;
     private final SocketSet.Handle m_handle;
 
-    public MessageHandlePair(Message message, SocketSet.Handle handle) {
+    public WriteMessageToStream(Message message, SocketSet.Handle handle) {
       m_message = message;
       m_handle = handle;
     }
 
-    public Message getMessage() {
-      return m_message;
-    }
-
-    public SocketSet.Handle getHandle() {
-      return m_handle;
+    public void run() {
+      try {
+        writeMessageToStream(m_message, m_handle.getOutputStream());
+      }
+      catch (IOException e) {
+        m_handle.close();
+        //            m_messageQueue.queue(e);
+        e.printStackTrace();
+      }
+      finally {
+        m_handle.free();
+      }
     }
   }
 }
