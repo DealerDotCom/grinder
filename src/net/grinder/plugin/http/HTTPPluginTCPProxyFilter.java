@@ -93,7 +93,10 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	"Referer",
     };
 
-    private PrintWriter m_out = new PrintWriter(System.out);
+    private PrintWriter m_out = null;
+    private final String m_scriptFileName;
+    private final PrintWriter m_scriptFileWriter;
+    private final String m_testFileName;
     private final PrintWriter m_testFileWriter;
 
     private final Pattern m_basicAuthorizationHeaderPattern;
@@ -182,35 +185,32 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		"^[^\\?]*/([^\\?]*)",
 		Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
 
+	// Should generate unique file names.
+	m_scriptFileName = "httpscript.py";
+	
+	m_scriptFileWriter =
+	    new PrintWriter(
+		new BufferedWriter(new FileWriter(m_scriptFileName)), false);
+
+	final String testFileNamePrefix = "httpscript_tests";
+	m_testFileName = testFileNamePrefix + ".py";
+
 	m_testFileWriter =
 	    new PrintWriter(
-		new BufferedWriter(
-		    new FileWriter("httptests.py")), false);
-    }
+		new BufferedWriter(new FileWriter(m_testFileName)), false);
 
-    /**
-     * Set the {@link PrintWriter} that the filter should use for
-     * output.
-     *
-     * @param out The PrintWriter.
-     */
-    public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
-    {
-	m_out.flush();
-	m_out = outputPrintWriter;
-
-	m_out.println("#");
-	m_out.println("# The Grinder version @version@");
-	m_out.println("#");
-	m_out.println("# Script recorded by the TCPProxy at " + 
+	m_scriptFileWriter.println("#");
+	m_scriptFileWriter.println("# The Grinder version @version@");
+	m_scriptFileWriter.println("#");
+	m_scriptFileWriter.println("# Script recorded by the TCPProxy at " + 
 		      DateFormat.getDateTimeInstance().format(
 			  Calendar.getInstance().getTime()));
-	m_out.println("#");
-	m_out.println();
-	m_out.println("from httptests import *");
-	m_out.println();
-	m_out.println("class TestRunner:");
-	m_out.println(s_indent + "def __call__(self):");
+	m_scriptFileWriter.println("#");
+	m_scriptFileWriter.println();
+	m_scriptFileWriter.println("from " + testFileNamePrefix + " import *");
+	m_scriptFileWriter.println();
+	m_scriptFileWriter.println("class TestRunner:");
+	m_scriptFileWriter.println(s_indent + "def __call__(self):");
 
 	m_testFileWriter.println("#");
 	m_testFileWriter.println("# The Grinder version @version@");
@@ -226,6 +226,26 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	m_testFileWriter.println("from net.grinder.script import Test");
 	m_testFileWriter.println();
 	m_testFileWriter.println("tests = {}");
+    }
+
+    /**
+     * Set the {@link PrintWriter} that the filter should use for
+     * output.
+     *
+     * @param out The PrintWriter.
+     */
+    public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
+    {
+	if (m_out != null) {
+	    m_out.flush();
+	}
+	
+	m_out = outputPrintWriter;
+
+	m_out.println("Script will be generated to the files '" +
+		      m_scriptFileName + "' and '" + m_testFileName + "'");
+
+	m_out.flush();
     }
 
     /**
@@ -547,9 +567,9 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 
 	private void warn(String message)
 	{
-	    m_out.print(
-		"# WARNING request " + m_requestNumber + ": " + message +
-		s_newLine);
+	    m_out.println(
+		"# WARNING request " + m_requestNumber + ": " + message);
+	    m_out.flush();
 	}
 
 	public synchronized final void endMessage()
@@ -563,56 +583,10 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	    final StringBuffer testOutput = new StringBuffer();
 
 	    if (m_time > 0) {
-		scriptOutput.append(s_newLine);
-		scriptOutput.append(s_indent);
-		scriptOutput.append(s_indent);
+		appendNewLineAndIndent(scriptOutput, 2);
 		scriptOutput.append("grinder.sleep(");
 		scriptOutput.append(Long.toString(m_time));
 		scriptOutput.append(")");
-	    }
-
-	    final String dataParameter;
-
-	    if (!m_parsingHeaders && m_handlingBody) {
-		m_handlingBody = false;
-
-		if ("application/x-www-form-urlencoded".
-		    equals(m_contentType)) {
-
-		    scriptOutput.append(s_newLine);
-		    scriptOutput.append(s_indent);
-		    scriptOutput.append(s_indent);
-		    scriptOutput.append("formData");
-		    scriptOutput.append(m_requestNumber);
-		    scriptOutput.append(" = [ ");
-
-		    final String bodyAsString =
-			m_entityBodyByteStream.toString("US-ASCII");
-
-		    parseNameValueString(scriptOutput, bodyAsString, 3);
-
-		    dataParameter = "formData" + m_requestNumber;
-		    scriptOutput.append("]");
-		}
-		else {
-		    testOutput.append(s_newLine);
-		    testOutput.append("data");
-		    testOutput.append(m_requestNumber);
-		    testOutput.append(" = [ ");
-
-		    final byte[] bytes = m_entityBodyByteStream.toByteArray();
-
-		    for (int i=0; i<bytes.length; ++i) {
-			testOutput.append(Integer.toString(bytes[i]));
-			testOutput.append(", ");
-		    }
-
-		    dataParameter = "data" + m_requestNumber;
-		    testOutput.append("]");
-		}
-	    }
-	    else {
-		dataParameter = null;
 	    }
 
 	    testOutput.append(s_newLine);
@@ -622,8 +596,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	    testOutput.append(" = HTTPRequest(");
 
 	    if (m_headers.size() > 0) {
-		testOutput.append(s_newLine);
-		testOutput.append(s_indent);
+		appendNewLineAndIndent(testOutput, 1);
 		testOutput.append("headers = ( ");
 
 		final Iterator iterator = m_headers.iterator();
@@ -633,21 +606,13 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		    final NVPair entry = (NVPair)iterator.next();
 		    
 		    if (!first) {
-			testOutput.append(s_newLine);
-			testOutput.append(s_indent);
-			testOutput.append(s_indent);
-			testOutput.append(s_indent);
-			testOutput.append(s_indent);
+			appendNewLineAndIndent(testOutput, 4);
 		    }
 		    else {
 			first = false;
 		    }
-		    
-		    testOutput.append("NVPair('");
-		    testOutput.append(entry.getName());
-		    testOutput.append("', '");
-		    testOutput.append(entry.getValue());
-		    testOutput.append("'),");
+
+		    appendNVPair(testOutput, entry);
 		}
 
 		testOutput.append(")");
@@ -678,9 +643,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 
 	    testOutput.append(s_newLine);
 
-	    scriptOutput.append(s_newLine);
-	    scriptOutput.append(s_indent);
-	    scriptOutput.append(s_indent);
+	    appendNewLineAndIndent(scriptOutput, 2);
 	    scriptOutput.append("tests[");
 	    scriptOutput.append(Integer.toString(m_requestNumber));
 	    scriptOutput.append("].");
@@ -689,28 +652,73 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	    scriptOutput.append(m_url);
 	    scriptOutput.append("'");
 
-	    if (dataParameter != null) {
-		scriptOutput.append(", ");
-		scriptOutput.append(dataParameter);
+	    if (!m_parsingHeaders && m_handlingBody) {
+		m_handlingBody = false;
+
+		if ("application/x-www-form-urlencoded".
+		    equals(m_contentType)) {
+
+		    scriptOutput.append(",");
+		    appendNewLineAndIndent(scriptOutput, 2);
+		    scriptOutput.append("  ( ");
+
+		    parseNameValueString(
+			scriptOutput,
+			m_entityBodyByteStream.toString("US-ASCII"),
+			3);
+
+		    scriptOutput.append(")");
+		}
+		else {
+		    final String dataParameter = "data" + m_requestNumber;
+
+		    testOutput.append(s_newLine);
+		    testOutput.append(dataParameter);
+		    testOutput.append(" = ( ");
+
+		    final byte[] bytes = m_entityBodyByteStream.toByteArray();
+
+		    for (int i=0; i<bytes.length; ++i) {
+			testOutput.append(Integer.toString(bytes[i]));
+			testOutput.append(", ");
+		    }
+
+		    testOutput.append(")");
+
+		    scriptOutput.append(", ");
+		    scriptOutput.append(dataParameter);
+		}
 	    }
-	    else if (m_queryString != null && m_queryString.length() > 1) {
-		scriptOutput.append(", [");
-		parseNameValueString(scriptOutput, m_queryString.substring(1),
-				     3);
-		scriptOutput.append("]");
+	    
+	    if (m_queryString != null && m_queryString.length() > 1) {
+		scriptOutput.append(",");
+		appendNewLineAndIndent(scriptOutput, 2);
+		scriptOutput.append("  ( ");
+		parseNameValueString(
+		    scriptOutput, m_queryString.substring(1), 3);
+		scriptOutput.append(")");
 	    }
 
 	    scriptOutput.append(")");
-
 	    scriptOutput.append(s_newLine);
+
+	    m_scriptFileWriter.print(scriptOutput.toString());
+	    m_scriptFileWriter.flush();
 
 	    m_testFileWriter.print(testOutput.toString());
 	    m_testFileWriter.flush();
 
-	    m_out.print(scriptOutput.toString());
-	    m_out.flush();
-
 	    m_method = null;
+	}
+    }
+
+    private final void appendNewLineAndIndent(StringBuffer resultBuffer,
+					      int indentLevel) 
+    {
+	resultBuffer.append(s_newLine);
+
+	for (int k=0; k<indentLevel; ++k) {
+	    resultBuffer.append(s_indent);
 	}
     }
 
@@ -730,22 +738,24 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	}
 
 	for (int i=0; i<pairs.length; ++i) {
-	    resultBuffer.append(s_newLine);
-
-	    for (int k=0; k<indentLevel; ++k) {
-		resultBuffer.append(s_indent);
+	    if (i != 0) {
+		appendNewLineAndIndent(resultBuffer, indentLevel);
 	    }
-
-	    resultBuffer.append("NVPair(");
-	    appendQuotingQuotes(resultBuffer, pairs[i].getName());
-	    resultBuffer.append(", ");
-	    appendQuotingQuotes(resultBuffer, pairs[i].getValue());
-	    resultBuffer.append("), ");
+	    
+	    appendNVPair(resultBuffer, pairs[i]);
 	}
     }
 
-    private final void appendQuotingQuotes(StringBuffer resultBuffer,
-					   String value) 
+    private final void appendNVPair(StringBuffer resultBuffer, NVPair pair)
+    {
+	resultBuffer.append("NVPair(");
+	quoteForScript(resultBuffer, pair.getName());
+	resultBuffer.append(", ");
+	quoteForScript(resultBuffer, pair.getValue());
+	resultBuffer.append("), ");
+    }
+
+    private final void quoteForScript(StringBuffer resultBuffer, String value) 
     {
 	final String quotes = value.indexOf("\n") > -1 ? "'''" : "'";
 
