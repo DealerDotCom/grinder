@@ -36,9 +36,6 @@ import java.io.StringWriter;
  */
 public class GrinderException extends Exception {
 
-  private static final char[] s_lineSeparator =
-    System.getProperty("line.separator").toCharArray();
-
   private final Throwable m_nestedThrowable;
 
   /**
@@ -142,6 +139,7 @@ public class GrinderException extends Exception {
    */
   static boolean removeCommonSuffix(StringBuffer original,
                                     StringBuffer other) {
+
     int p = original.length();
     int otherP = other.length();
 
@@ -169,6 +167,9 @@ public class GrinderException extends Exception {
     // p is now the index of the last character that differs.
 
     // Now wind forward to first new line.
+    final char[] lineSeparator =
+      System.getProperty("line.separator").toCharArray();
+
     do {
       ++p;
 
@@ -176,20 +177,21 @@ public class GrinderException extends Exception {
         return false;
       }
     }
-    while (!atNewLine(original, p));
+    while (!atNewLine(original, p, lineSeparator));
 
     original.setLength(p);
     return true;
   }
 
-  private static boolean atNewLine(StringBuffer buffer, int position) {
+  private static boolean atNewLine(StringBuffer buffer, int position,
+                                   char[] lineSeparator) {
 
     final int length = buffer.length();
 
-    for (int i = 0; i < s_lineSeparator.length; ++i) {
+    for (int i = 0; i < lineSeparator.length; ++i) {
       final int offset = position + i;
 
-      if (offset >= length || buffer.charAt(offset) != s_lineSeparator[i]) {
+      if (offset >= length || buffer.charAt(offset) != lineSeparator[i]) {
         return false;
       }
     }

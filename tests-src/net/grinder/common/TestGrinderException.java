@@ -1,4 +1,4 @@
-// Copyright (C) 2002 Philip Aston
+// Copyright (C) 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,8 +22,6 @@
 package net.grinder.common;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -35,92 +33,103 @@ import java.io.StringWriter;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestGrinderException extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestGrinderException.class);
+public class TestGrinderException extends TestCase {
+
+  public TestGrinderException(String name) {
+    super(name);
+  }
+
+  public void testRemoveCommonSuffix() throws Exception {
+    final String oldLineSeparator = System.getProperty("line.separator");
+
+    try {
+
+      final String[] lineSeparators = {
+        "\n",
+        "\n\r",
+        "\r",
+      };
+      
+      for (int i = 0; i <lineSeparators.length; ++i) {
+        final String lineSeparator = lineSeparators[i];
+        System.setProperty("line.separator", lineSeparator);
+
+        StringBuffer b1 = new StringBuffer(
+          "Hello there" + lineSeparator + "world");
+
+        StringBuffer b2 = new StringBuffer(
+          "Goodbye there" + lineSeparator + "world");
+
+        assertTrue(GrinderException.removeCommonSuffix(b1, b2));
+        assertEquals("Hello there", b1.toString());
+
+        b1 = new StringBuffer("Hello world");
+        b2 = new StringBuffer("Goodbye world  ");
+
+        assertTrue(!GrinderException.removeCommonSuffix(b1, b2));
+        assertEquals("Hello world", b1.toString());
+
+        b1 = new StringBuffer("Hello world");
+        b2 = new StringBuffer("");
+
+        assertTrue(!GrinderException.removeCommonSuffix(b1, b2));
+        assertEquals("Hello world", b1.toString());
+
+        b1 = new StringBuffer("");
+        b2 = new StringBuffer("Goodbye");
+
+        assertTrue(!GrinderException.removeCommonSuffix(b1, b2));
+        assertEquals("", b1.toString());
+
+        b1 = new StringBuffer(
+          "Several more" + lineSeparator + lineSeparator + "lines   of" +
+          lineSeparator + "fun to ponder");
+
+        b2 = new StringBuffer(
+          "Many" + lineSeparator + lineSeparator + "more" + lineSeparator +
+          "lines of" + lineSeparator + "fun to ponder  ");
+
+        assertTrue(GrinderException.removeCommonSuffix(b1, b2));
+        assertEquals("Several more", b1.toString());
+      }
     }
-
-    public TestGrinderException(String name)
-    {
-	super(name);
+    finally {
+        System.setProperty("line.separator", oldLineSeparator);
     }
+  }
 
-    protected void setUp()
-    {
-    }
-
-    public void testRemoveCommonSuffix() throws Exception
-    {
-	StringBuffer b1 = new StringBuffer("Hello there\nworld");
-	StringBuffer b2 = new StringBuffer("Goodbye there\nworld");
-
-	assertTrue(GrinderException.removeCommonSuffix(b1, b2));
-	assertEquals("Hello there", b1.toString());
-
-	b1 = new StringBuffer("Hello world");
-	b2 = new StringBuffer("Goodbye world  ");
-
-	assertTrue(!GrinderException.removeCommonSuffix(b1, b2));
-	assertEquals("Hello world", b1.toString());
-
-	b1 = new StringBuffer("Hello world");
-	b2 = new StringBuffer("");
-
-	assertTrue(!GrinderException.removeCommonSuffix(b1, b2));
-	assertEquals("Hello world", b1.toString());
-
-	b1 = new StringBuffer("");
-	b2 = new StringBuffer("Goodbye");
-
-	assertTrue(!GrinderException.removeCommonSuffix(b1, b2));
-	assertEquals("", b1.toString());
-
-
-	b1 = new StringBuffer("Several more\n\nlines   of\nfun to ponder");
-	b2 = new StringBuffer("Many\n\nmore\nlines of\nfun to ponder  ");
-
-	assertTrue(GrinderException.removeCommonSuffix(b1, b2));
-	assertEquals("Several more", b1.toString());
-    }
-
-    public void testPrintStackTrace() throws Exception
-    {
-	final StringWriter stringWriter = new StringWriter();
-	final PrintWriter printWriter = new PrintWriter(stringWriter);
+  public void testPrintStackTrace() throws Exception {
+    final StringWriter stringWriter = new StringWriter();
+    final PrintWriter printWriter = new PrintWriter(stringWriter);
 	
-	final GrinderException e1 = createDeeperException();
-	final GrinderException e2 = new GrinderException("Exception 2", e1);
+    final GrinderException e1 = createDeeperException();
+    final GrinderException e2 = new GrinderException("Exception 2", e1);
 
-	e2.printStackTrace(printWriter);
-	final String s = stringWriter.toString();
+    e2.printStackTrace(printWriter);
+    final String s = stringWriter.toString();
 
-	assertEquals(1, countOccurrences("createException", s));
-	assertEquals(1, countOccurrences("createDeeperException", s));
-	assertEquals(2, countOccurrences("testPrintStackTrace", s));
-	assertEquals(1, countOccurrences("Method.invoke", s));
+    assertEquals(1, countOccurrences("createException", s));
+    assertEquals(1, countOccurrences("createDeeperException", s));
+    assertEquals(2, countOccurrences("testPrintStackTrace", s));
+    assertEquals(1, countOccurrences("Method.invoke", s));
+  }
+
+  private GrinderException createException() {
+    return new GrinderException("an exception");
+  }
+
+  private GrinderException createDeeperException() {
+    return createException();
+  }
+
+  private int countOccurrences(String pattern, String original) {
+    int result = 0;
+    int p = -1;
+
+    while ((p=original.indexOf(pattern, p + 1)) >= 0) {
+      ++result;
     }
 
-    private GrinderException createException() 
-    {
-	return new GrinderException("an exception");
-    }
-
-    private GrinderException createDeeperException() 
-    {
-	return createException();
-    }
-
-    private int countOccurrences(String pattern, String original) 
-    {
-	int result = 0;
-	int p = -1;
-
-	while ((p=original.indexOf(pattern, p + 1)) >= 0) {
-	    ++result;
-	}
-
-	return result;
-    }
+    return result;
+  }
 }
