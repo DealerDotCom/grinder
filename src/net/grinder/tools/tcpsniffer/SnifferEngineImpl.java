@@ -102,7 +102,7 @@ public class SnifferEngineImpl implements SnifferEngine
 				 localSocket.getInputStream(),
 				 remoteSocket.getOutputStream(),
 				 m_requestFilter,
-				 TerminalColour.RED);
+				 getColour(false));
 
 		new StreamThread(new ConnectionDetails(m_remoteHost,
 						       remoteSocket.getPort(),
@@ -112,7 +112,7 @@ public class SnifferEngineImpl implements SnifferEngine
 				 remoteSocket.getInputStream(),
 				 localSocket.getOutputStream(),
 				 m_responseFilter,
-				 TerminalColour.BLUE);
+				 getColour(true));
 	    }
 	    catch(IOException e) {
 		e.printStackTrace(System.err);
