@@ -8,8 +8,8 @@
   <faqsection id="general">
     <title>General Questions</title>
 
-    <faq>
-      <question id="name">
+    <faq id="name">
+      <question>
 	So its called "<em>The</em> Grinder" then?
       </question>
       <answer>
@@ -17,8 +17,43 @@
       </answer>
     </faq>
 
-    <faq>
-      <question id="grinder-vs-loadrunner">
+    <faq id="g2vsg3">
+      <question>
+	Should I use The Grinder 2 or The Grinder 3?
+      </question>
+      <answer>
+	<p>The Grinder 3. The Grinder 3 has many <a
+	href="site:g3/whats-new">enhancements</a> over The Grinder 2.
+	The Grinder 3 is in active development.</p>
+
+	<p>If you wish, you can continue to use The Grinder 2. You may
+	find it initially easier to get use for simple HTTP test
+	scenarios. Be aware that defects in The Grinder 2 (including
+	<a href="#premature-eof">this one</a>) will not be fixed.</p>
+      </answer>
+    </faq>
+
+    <faq id="g3beta">
+      <question>
+	Why is The Grinder 3 still labelled <em>beta</em>?
+      </question>
+
+      <answer>
+	<p>The following features need to be completed before I will
+	remove the <em>beta</em> label from The Grinder 3:</p>
+
+	<ul>
+	<li>Script editing and distribution.</li>
+	<li>Documentation.</li>
+	</ul>
+
+	<p>These feature aside, The Grinder 3 is stable and
+	usable.</p>
+      </answer>
+    </faq>
+
+    <faq id="grinder-vs-loadrunner">
+      <question>
 	How does The Grinder stack up against a commercial tool like
 	Mercury Interactive's LoadRunner&#8482;?
       </question>
@@ -99,8 +134,8 @@
 
   <faqsection id="statistics">
     <title>Statistics</title>
-    <faq>
-      <question id="raw-data">
+    <faq id="raw-data">
+      <question>
 	Where is the raw data stored?
       </question>
 
@@ -133,8 +168,8 @@
       </answer>
     </faq>
 
-    <faq>
-      <question id="calculation">
+    <faq id="calculation">
+      <question>
 	How does the Grinder calculate the mean time and TPS?
       </question>
 
@@ -154,8 +189,8 @@
 	</answer>
     </faq>
 
-    <faq>
-      <question id="norelation">
+    <faq id="norelation">
+      <question>
 	What is the relation between mean time and TPS?
       </question>
 
@@ -194,8 +229,8 @@ void doit() { Thread.sleep(10000); // 10 seconds }
   <faqsection id="running">
     <title>Running the tests</title>
 
-    <faq>
-      <question id="multiple-scripts">
+    <faq id="multiple-scripts">
+      <question>
 	Can I run different test scripts against the same console?
       </question>
 
@@ -210,8 +245,8 @@ void doit() { Thread.sleep(10000); // 10 seconds }
       </answer>
     </faq>
 
-    <faq>
-      <question id="testrun-period">
+    <faq id="testrun-period">
+      <question>
 	How do I run the tests for a specific period of time?
       </question>
       
@@ -225,8 +260,8 @@ void doit() { Thread.sleep(10000); // 10 seconds }
       </answer>
     </faq>
 
-    <faq>
-      <question id="serverside-stats">
+    <faq id="serverside-stats">
+      <question>
 	Is there any way to record CPU utilisation of the server?
       </question>
 
@@ -241,8 +276,8 @@ void doit() { Thread.sleep(10000); // 10 seconds }
 
   <faqsection id="g2">
     <title>The Grinder 2</title>
-    <faq>
-      <question id="string-beans">
+    <faq id="string-beans">
+      <question>
 	How do I simulate different users with The Grinder 2?
       </question>
 
@@ -252,8 +287,8 @@ void doit() { Thread.sleep(10000); // 10 seconds }
       </answer>
     </faq>
 
-    <faq>
-      <question id="post-and-string-beans">
+    <faq id="post-and-string-beans">
+      <question>
 	How do I generate POST data with a String Bean?
       </question>
 
@@ -291,8 +326,8 @@ grinder.test0.parameter.post=getPostData.dat
       </answer>
     </faq>
 
-    <faq>
-      <question id="multicast">
+    <faq id="multicast">
+      <question>
 	What do I need to do to set up multicast?
       </question>
 
@@ -330,8 +365,8 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
       </answer>
     </faq>
 
-    <faq>
-      <question id="multicast-w2k">
+    <faq id="multicast-w2k">
+      <question>
 	What do I need to do to set up multicast under Windows 2000?
       </question>
 
@@ -376,8 +411,8 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
       </answer>
     </faq>
 
-    <faq>
-      <question id="premature-eof">
+    <faq id="premature-eof">
+      <question>
 	Why do I get <code>HTTPClient.RetryException: Premature EOF
 	encountered</code> errors when I increase HTTP load?
       </question>
@@ -394,8 +429,8 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 
   <faqsection id="g3">
     <title>The Grinder 3</title>
-    <faq>
-      <question id="startup-time">
+    <faq id="startup-time">
+      <question>
 	Why does The Grinder take a while to start up?
       </question>
       <answer>
@@ -422,8 +457,8 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
       </answer>
     </faq>
 
-    <faq>
-      <question id="junit">
+    <faq id="junit">
+      <question>
 	What happened to the JUnit plugin?
       </question>
 
@@ -445,8 +480,8 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
       </answer>
     </faq>
 
-    <faq>
-      <question id="jython-libraries">How do I use standard Python
+    <faq id="jython-libraries">
+      <question>How do I use standard Python
       modules in my scripts?</question>
 
       <answer>
@@ -459,8 +494,8 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
       </answer>
     </faq>
 
-    <faq>
-      <question id="simulating-users">
+    <faq id="simulating-users">
+      <question>
 	How do I simulate different users with The Grinder 3?
       </question>
 
@@ -469,8 +504,8 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
       </answer>
     </faq>
 
-    <faq>
-      <question id="parse-response">
+    <faq id="parse-response">
+      <question>
 	Is there a way to make my requests depend on previous
 	responses?
       </question>
@@ -561,8 +596,8 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
       </answer>
     </faq>
 
-    <faq>
-      <question id="http-caching">How do I replay a scenario, caching
+    <faq id="http-caching">
+      <question>How do I replay a scenario, caching
       image files but not text files?</question>
 
       <answer>
@@ -583,8 +618,8 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
   <faqsection>
     <title>The TCPProxy</title>
 
-    <faq>
-      <question id="what-happened-to-the-tcpsniffer">
+    <faq id="what-happened-to-the-tcpsniffer">
+      <question>
 	What happened to the TCPSniffer?
       </question>
 
@@ -596,8 +631,8 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
       </answer>
     </faq>
 
-    <faq>
-      <question id="use-the-tcpproxy">My server works fine with a
+    <faq id="use-the-tcpproxy">
+      <question>My server works fine with a
       browser but has errors when I use the HTTP plugin?</question>
 
       <answer>
@@ -626,8 +661,8 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
       </answer>
     </faq>
 
-    <faq>
-      <question id="tcpproxy-colour-codes">
+    <faq id="tcpproxy-colour-codes">
+      <question>
 	What are all those funny ^[[31 characters in the TCPProxy
 	output?
       </question>
@@ -648,8 +683,8 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
   <faqsection id="problems">
     <title>Problems</title>
 
-    <faq>
-      <question id="negative-times">
+    <faq id="negative-times">
+      <question>
 	I've seen The Grinder report negative transaction
 	times?!
       </question>
@@ -688,8 +723,8 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
       </answer>
     </faq>
 
-    <faq>
-      <question id="windows-address-in-use">
+    <faq id="windows-address-in-use">
+      <question>
 	What can I do about <em>address in use</em> exceptions on
 	Microsoft Windows machines?
       </question>

@@ -20,8 +20,10 @@ See http://forrest.apache.org/docs/linking.html for more info
     <download label="Download" href="download.html"/>
     <support label="Support" href="support.html"/>
     <faq label="FAQ" href="faq.html">
+      <g2vsg3 href="#g2vsg3"/>
       <multicast href="#multicast"/>
       <post-and-string-beans href="#post-and-string-beans"/>
+      <premature-eof href="#premature-eof"/>
     </faq>
     <links label="Links" href="links.html">
       <book href="#book"/>
