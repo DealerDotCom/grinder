@@ -105,7 +105,6 @@ public class Model
     private int m_sampleInterval;
     private NumberFormat m_numberFormat;
 
-    private boolean m_stopSampler = false;
     private int m_state = 0;
     private long m_sampleCount = 0;
     private boolean m_receivedReport = false;
@@ -122,8 +121,11 @@ public class Model
     private final StatisticsView m_cumulativeStatisticsView =
 	new StatisticsView();
 
+    private final ProcessStatusSet m_processStatusSet =
+	new ProcessStatusSet();
+
     /**
-     * System.currentTimeMillis is expensive. This is acurate to one
+     * System.currentTimeMillis() is expensive. This is acurate to one
      * sample interval.
      **/
     private long m_currentTime;
@@ -195,6 +197,11 @@ public class Model
 			((Integer)event.getNewValue()).intValue();
 		}
 	    });
+    }
+
+    public final ProcessStatusSet getProcessStatusSet()
+    {
+	return m_processStatusSet;
     }
 
     public ExpressionView getTPSExpressionView()
@@ -428,7 +435,7 @@ public class Model
 	    m_testStatisticsFactory.create();
 	private TestStatistics m_cumulativeStatistics =
 	    m_testStatisticsFactory.create();
-	
+
 	{
 	    reset();
 	}
@@ -449,8 +456,9 @@ public class Model
 	    m_intervalStatistics.setValue(m_periodIndex, m_sampleInterval);
 
 	    m_cumulativeStatistics.setValue(m_periodIndex, 
-			     (getState() == STATE_STOPPED ?
-			      m_stopTime : m_currentTime) - m_startTime);
+					    (getState() == STATE_STOPPED ?
+					     m_stopTime : m_currentTime) - 
+					    m_startTime);
 
 	    m_peakTPSExpression.update(m_intervalStatistics,
 				       m_cumulativeStatistics);
@@ -488,11 +496,18 @@ public class Model
 	}
     }
 
+    /**
+     * I've thought a couple of times about replacing this with a
+     * java.util.TimerTask, and giving Model a Timer thread which
+     * things like ProcessStatusSet could share. Its not as nice as it
+     * first seems though because you have to deal with cancelling and
+     * rescheduling the TimerTask when the sample period is changed.
+     **/
     private class Sampler implements Runnable
     {
 	public void run()
 	{
-	    while (!m_stopSampler) {
+	    while (true) {
 		m_currentTime = System.currentTimeMillis();
 		
 		final long wakeUpTime = m_currentTime + m_sampleInterval;
