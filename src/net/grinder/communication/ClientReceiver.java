@@ -21,7 +21,6 @@
 
 package net.grinder.communication;
 
-import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -80,7 +79,7 @@ public class ClientReceiver implements Receiver {
    * @param inputStream The input stream to read from.
    **/
   public ClientReceiver(InputStream inputStream) {
-    m_inputStream = new BufferedInputStream(inputStream);
+    m_inputStream = inputStream;
   }
 
   /**
