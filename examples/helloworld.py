@@ -6,7 +6,6 @@
 # instance of TestRunner for each worker thread, and repeatedly calls
 # the instance for each run of that thread.
 
-#from net.grinder.script.Grinder import grinder
 from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
 
