@@ -1,3 +1,33 @@
+2001-09-29  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/Grinder.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/util/FilenameFactory.java, src/net/grinder/util/ProcessContextImplementation.java:
+	Coalesce hostID and processID into a single grinderID String.
+
+	* src/net/grinder/console/model/Model.java: Comment.
+
+	* src/net/grinder/console/ConsoleCommunication.java:
+	Don't exit if a communications exception occurs.
+
+	* src/net/grinder/cOmmunication/Receiver.java, src/net/grinder/cOmmunication/ReportStatisticsMessage.java, src/net/grinder/cOmmunication/ResetGrinderMessage.java, src/net/grinder/cOmmunication/Sender.java, src/net/grinder/cOmmunication/StartGrinderMessage.java, src/net/grinder/cOmmunication/StopGrinderMessage.java, src/net/grinder/cOmmunication/Message.java:
+	Add dropped packet detection.
+
+	* src/net/grinder/cOmmunication/CommunicationException.java:
+	Doesn't need a serialVersionUID.
+
+	* src/net/grinder/plugin/http/HTTPClientHandler.java: Simplify.
+
+	* src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/cOmmunication/CommunicationException.java, src/net/grinder/cOmmunication/ReportStatisticsMessage.java, src/net/grinder/cOmmunication/ResetGrinderMessage.java, src/net/grinder/cOmmunication/StartGrinderMessage.java, src/net/grinder/cOmmunication/StopGrinderMessage.java:
+	Add some serialVersionUID's to make communication less brittle.
+
+	* src/net/grinder/statistics/StatisticsTable.java: Final fiddling.
+
+	* src/net/grinder/plugin/http/HttpPlugin.java:
+	Include the test description in result filenames and format the test
+	number so the filenames sort in order.
+
+	* src/net/grinder/plugin/http/example/ExampleStringBean.java:
+	Don't need to import anything for simple string bean.
+
 2001-09-23  Philip Aston  <paston@bea.com>
 
 	* build.xml: Next is 2.7.2.

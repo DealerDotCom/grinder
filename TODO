@@ -25,8 +25,6 @@ it too :-). The list is roughly in priority order.]
   Get the communications tests and the swing tests running under the
   JUnit plugin.
 
-  Add dropped packet detection to the communications.
-
   Allow String Beans to optionally capture request results. (Would
   invoke "set" methods).
 

@@ -1,7 +1,15 @@
 Grinder 2.7.2
 -------------
 
-   *Sigh*, a better fix for non-contiguous test numbers.
+   Add dropped message detection to the communications.
+
+   HTTPPlugin enhancements:
+    - Filenames of result pages now contain test description.
+
+   More changes to the plugin interface:
+    - A better fix for non-contiguous test numbers that doesn't
+      pollute the Test interface.
+    - Coallese processID and hostID into a single grinderID.
 
 
 Grinder 2.7.1
