@@ -136,6 +136,8 @@ Idea from Nurul Choudhury:
 
 Review use of InterruptedException
 
+Remove SnifferWebApp.
+
 ** Other HTTP/HTML libraries
 
 DeSouza, Edwin writes:
