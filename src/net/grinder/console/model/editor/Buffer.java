@@ -28,9 +28,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.EventListener;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -102,7 +100,6 @@ public final class Buffer {
   private final List m_listeners = new LinkedList();
 
   private long m_lastModified;
-  private boolean m_active;
 
   /**
    * Constructor for buffers with no associated file.
@@ -183,9 +180,8 @@ public final class Buffer {
     }
 
     m_textSource.setText(stringWriter.toString());
-    m_lastModified = m_file.lastModified();
 
-    fireBufferChanged();
+    m_lastModified = m_file.lastModified();
   }
 
   /**
@@ -225,8 +221,6 @@ public final class Buffer {
     }
 
     m_lastModified = m_file.lastModified();
-
-    fireBufferChanged();
   }
 
   /**
@@ -284,28 +278,6 @@ public final class Buffer {
   }
 
   /**
-   * Tell the buffer it is active.
-   *
-   * @param  active <code>true</code> the buffer is active else the buffer is
-   * inactive.
-   */
-  void setActive(boolean active) {
-    if (m_active != active) {
-      m_active = active;
-      fireBufferChanged();
-    }
-  }
-
-  /**
-   * Get whether the buffer is active.
-   *
-   * @return <code>true</code> => the buffer is active.
-   */
-  public boolean isActive() {
-    return m_active;
-  }
-
-  /**
    * Buffer type enumeration. Uses default (identity) equality semantics.
    */
   public static final class Type {
@@ -323,38 +295,5 @@ public final class Buffer {
     public String toString() {
       return m_name;
     }
-  }
-
-  private void fireBufferChanged() {
-    synchronized (m_listeners) {
-      final Iterator iterator = m_listeners.iterator();
-
-      while (iterator.hasNext()) {
-        final Listener listener = (Listener)iterator.next();
-        listener.bufferChanged();
-      }
-    }
-  }
-
-  /**
-   * Add a new listener.
-   *
-   * @param listener The listener.
-   */
-  public void addListener(Listener listener) {
-    synchronized (m_listeners) {
-      m_listeners.add(listener);
-    }
-  }
-
-  /**
-   * Interface for listeners.
-   */
-  public interface Listener extends EventListener {
-
-    /**
-     * Called when a buffer has changed.
-     */
-    void bufferChanged();
   }
 }

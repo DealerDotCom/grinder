@@ -153,11 +153,6 @@ public class TestBuffer extends AbstractFileTestCase {
 
   public void testBufferWithAssociatedFile() throws Exception {
 
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(Buffer.Listener.class);
-    final Buffer.Listener listener =
-      (Buffer.Listener)listenerStubFactory.getStub();
-
     final String s0 =
       "A shield for your eyes\na beast in the well on your hand";
 
@@ -172,7 +167,6 @@ public class TestBuffer extends AbstractFileTestCase {
     final File file = new File(getDirectory(), "myfile.txt");
 
     final Buffer buffer = new Buffer(s_resources, textSource, file);
-    buffer.addListener(listener);
 
     assertEquals(Buffer.TEXT_BUFFER, buffer.getType());
     assertTrue(!buffer.isDirty());
@@ -181,8 +175,6 @@ public class TestBuffer extends AbstractFileTestCase {
     assertEquals(textSource, buffer.getTextSource());
 
     buffer.save();
-    listenerStubFactory.assertSuccess("bufferChanged");
-    listenerStubFactory.assertNoMoreCalls();
 
     assertTrue(!buffer.isDirty());
     assertTrue(buffer.isUpToDate());
@@ -197,8 +189,6 @@ public class TestBuffer extends AbstractFileTestCase {
     assertSame(s1, textSource.getText());
 
     buffer.load();
-    listenerStubFactory.assertSuccess("bufferChanged");
-    listenerStubFactory.assertNoMoreCalls();
 
     assertTrue(!buffer.isDirty());
     assertTrue(buffer.isUpToDate());
@@ -210,8 +200,6 @@ public class TestBuffer extends AbstractFileTestCase {
     assertTrue(!buffer.isUpToDate());
 
     buffer.load();
-    listenerStubFactory.assertSuccess("bufferChanged");
-    listenerStubFactory.assertNoMoreCalls();
 
     assertTrue(buffer.isUpToDate());
     assertEquals(textSource, buffer.getTextSource());
@@ -238,42 +226,5 @@ public class TestBuffer extends AbstractFileTestCase {
     catch (DisplayMessageConsoleException e) {
       assertTrue(e.getNestedThrowable() instanceof IOException);
     }
-  }
-
-  public void testSetActive() throws Exception {
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(Buffer.Listener.class);
-    final Buffer.Listener listener =
-      (Buffer.Listener)listenerStubFactory.getStub();
-
-    final StringTextSource textSource = new StringTextSource("");
-    final File file = new File(getDirectory(), "myfile.txt");
-    final Buffer buffer = new Buffer(s_resources, textSource, file);
-
-    assertTrue(!buffer.isActive());
-
-    buffer.addListener(listener);
-
-    buffer.setActive(true);
-
-    assertTrue(buffer.isActive());
-    listenerStubFactory.assertSuccess("bufferChanged");
-    listenerStubFactory.assertNoMoreCalls();
-
-    buffer.setActive(true);
-
-    assertTrue(buffer.isActive());
-    listenerStubFactory.assertNoMoreCalls();
-
-    buffer.setActive(false);
-
-    assertTrue(!buffer.isActive());
-    listenerStubFactory.assertSuccess("bufferChanged");
-    listenerStubFactory.assertNoMoreCalls();
-
-    buffer.setActive(false);
-
-    assertTrue(!buffer.isActive());
-    listenerStubFactory.assertNoMoreCalls();
   }
 }

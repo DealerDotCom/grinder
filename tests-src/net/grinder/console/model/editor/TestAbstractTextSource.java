@@ -59,23 +59,33 @@ public class TestAbstractTextSource extends TestCase {
     textSource.setChanged();
 
     assertTrue(textSource.isDirty());
-    listener1StubFactory.assertSuccess("textChanged", Boolean.FALSE);
+    listener1StubFactory.assertSuccess("textSourceChanged", Boolean.FALSE);
     listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertSuccess("textChanged", Boolean.FALSE);
+    listener2StubFactory.assertSuccess("textSourceChanged", Boolean.FALSE);
     listener2StubFactory.assertNoMoreCalls();
 
     textSource.setClean();
 
     assertTrue(!textSource.isDirty());
+    listener1StubFactory.assertSuccess("textSourceChanged", Boolean.TRUE);
     listener1StubFactory.assertNoMoreCalls();
+    listener2StubFactory.assertSuccess("textSourceChanged", Boolean.TRUE);
+    listener2StubFactory.assertNoMoreCalls();
+
+    textSource.setClean();
+
+    assertTrue(!textSource.isDirty());
+    listener1StubFactory.assertSuccess("textSourceChanged", Boolean.FALSE);
+    listener1StubFactory.assertNoMoreCalls();
+    listener2StubFactory.assertSuccess("textSourceChanged", Boolean.FALSE);
     listener2StubFactory.assertNoMoreCalls();
 
     textSource.setChanged();
 
     assertTrue(textSource.isDirty());
-    listener1StubFactory.assertSuccess("textChanged", Boolean.TRUE);
+    listener1StubFactory.assertSuccess("textSourceChanged", Boolean.TRUE);
     listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertSuccess("textChanged", Boolean.TRUE);
+    listener2StubFactory.assertSuccess("textSourceChanged", Boolean.TRUE);
     listener2StubFactory.assertNoMoreCalls();
   }
 }

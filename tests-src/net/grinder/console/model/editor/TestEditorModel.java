@@ -139,7 +139,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     final Object[] parameters = callData.getParameters();
     assertEquals(1, parameters.length);
     final Buffer bufferForFile1 = (Buffer)parameters[0];
-    assertTrue(bufferForFile1.isActive());
+    assertSame(bufferForFile1, editorModel.getSelectedBuffer());
     listener1StubFactory.assertNoMoreCalls();
 
     listener2StubFactory.assertSuccess("bufferChanged", bufferForFile1);
@@ -148,13 +148,13 @@ public class TestEditorModel extends AbstractFileTestCase {
     // Select same buffer is a noop.
     editorModel.selectBufferForFile(file1);
 
-    assertTrue(bufferForFile1.isActive());
+    assertSame(bufferForFile1, editorModel.getSelectedBuffer());
     listener1StubFactory.assertNoMoreCalls();
     listener2StubFactory.assertNoMoreCalls();
 
     editorModel.selectBufferForFile(file2);
 
-    assertTrue(!bufferForFile1.isActive());
+    assertNotSame(bufferForFile1, editorModel.getSelectedBuffer());
     textSourceFactoryStubFactory.assertSuccess("create");
     textSourceFactoryStubFactory.assertNoMoreCalls();
     listener1StubFactory.assertSuccess("bufferChanged", bufferForFile1);
@@ -167,7 +167,7 @@ public class TestEditorModel extends AbstractFileTestCase {
     editorModel.selectBufferForFile(file1);
 
     textSourceFactoryStubFactory.assertNoMoreCalls();
-    assertTrue(bufferForFile1.isActive());
+    assertSame(bufferForFile1, editorModel.getSelectedBuffer());
     listener1StubFactory.assertSuccess("bufferChanged", Buffer.class);
     listener1StubFactory.assertSuccess("bufferChanged", bufferForFile1);
     listener1StubFactory.assertNoMoreCalls();
@@ -186,6 +186,51 @@ public class TestEditorModel extends AbstractFileTestCase {
     listener1StubFactory.assertNoMoreCalls();
     listener2StubFactory.assertSuccess("bufferChanged", bufferForFile1);
     listener2StubFactory.assertNoMoreCalls();
+  }
+
+  public void testSelectNewBuffer() throws Exception {
+    final StringTextSource.Factory stringTextSourceFactory =
+      new StringTextSource.Factory();
+
+    final DelegatingStubFactory textSourceFactoryStubFactory =
+      new DelegatingStubFactory(stringTextSourceFactory);
+    final TextSource.Factory textSourceFactory =
+      (TextSource.Factory)textSourceFactoryStubFactory.getStub();
+
+    final RandomStubFactory listener1StubFactory =
+      new RandomStubFactory(EditorModel.Listener.class);
+    final EditorModel.Listener listener1 =
+      (EditorModel.Listener)listener1StubFactory.getStub();
+
+    final EditorModel editorModel =
+      new EditorModel(s_resources, textSourceFactory);
+
+    editorModel.selectDefaultBuffer();
+    final Buffer defaultBuffer = editorModel.getSelectedBuffer();
+
+    editorModel.addListener(listener1);
+
+    textSourceFactoryStubFactory.resetCallHistory();
+
+    editorModel.selectNewBuffer();
+    textSourceFactoryStubFactory.assertSuccess("create");
+    textSourceFactoryStubFactory.assertNoMoreCalls();
+
+    final Buffer buffer1 = editorModel.getSelectedBuffer();
+    assertNotSame(buffer1, defaultBuffer);
+
+    listener1StubFactory.assertSuccess("bufferChanged", defaultBuffer);
+    listener1StubFactory.assertSuccess("bufferChanged", buffer1);
+    listener1StubFactory.assertNoMoreCalls();
+
+    editorModel.selectNewBuffer();
+
+    final Buffer buffer2 = editorModel.getSelectedBuffer();
+    assertNotSame(buffer2, buffer1);
+
+    listener1StubFactory.assertSuccess("bufferChanged", buffer1);
+    listener1StubFactory.assertSuccess("bufferChanged", buffer2);
+    listener1StubFactory.assertNoMoreCalls();
   }
 
   private File createFile(String name, String text) throws Exception {

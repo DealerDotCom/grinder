@@ -47,7 +47,6 @@ public final class EditorModel {
 
   /** Synchronise on m_listeners before accessing. */
   private final List m_listeners = new LinkedList();
-  private boolean m_supressBufferChangeNotification;
 
   private final Map m_fileBuffers = new HashMap();
 
@@ -63,7 +62,8 @@ public final class EditorModel {
                      TextSource.Factory textSourceFactory) {
     m_resources = resources;
     m_textSourceFactory = textSourceFactory;
-    m_defaultBuffer = createBuffer(null);
+    m_defaultBuffer = new Buffer(m_resources, m_textSourceFactory.create());
+    addBufferListener(m_defaultBuffer);
   }
 
   /**
@@ -83,6 +83,18 @@ public final class EditorModel {
   }
 
   /**
+   * Select a new buffer.
+   */
+  public void selectNewBuffer() {
+    final Buffer buffer =
+      new Buffer(m_resources, m_textSourceFactory.create(), null);
+
+    addBufferListener(buffer);
+
+    selectBuffer(buffer);
+  }
+
+  /**
    * Select the buffer for the given file.
    *
    * @param file The file.
@@ -97,18 +109,10 @@ public final class EditorModel {
       buffer = existingBuffer;
     }
     else {
-      buffer = createBuffer(file);
+      buffer = new Buffer(m_resources, m_textSourceFactory.create(), file);
+      addBufferListener(buffer);
 
-      // Listeners will be notified anyway because of the
-      // buffer.setActive().
-      m_supressBufferChangeNotification = true;
-
-      try {
-        buffer.load();
-      }
-      finally {
-        m_supressBufferChangeNotification = false;
-      }
+      buffer.load();
 
       m_fileBuffers.put(file, buffer);
     }
@@ -119,53 +123,36 @@ public final class EditorModel {
   }
 
   private void selectBuffer(Buffer buffer) {
-    if (m_selectedBuffer != buffer) {
-      if (m_selectedBuffer != null) {
-        m_selectedBuffer.setActive(false);
+    if (buffer != m_selectedBuffer) {
+      final Buffer oldBuffer = m_selectedBuffer;
+
+      m_selectedBuffer = buffer;
+
+      if (oldBuffer != null) {
+        fireBufferChanged(oldBuffer);
       }
 
-      buffer.setActive(true);
-      m_selectedBuffer = buffer;
+      fireBufferChanged(buffer);
     }
   }
 
-  private Buffer createBuffer(File file) {
-    final TextSource textSource = m_textSourceFactory.create();
-
-    final Buffer buffer;
-    
-    if (file != null) {
-      buffer = new Buffer(m_resources, textSource, file);
-    }
-    else {
-      buffer = new Buffer(m_resources, textSource);
-    }
-
-    buffer.addListener(new Buffer.Listener() {
-        public void bufferChanged() { fireBufferChanged(buffer); }
-      });
-
-    textSource.addListener(new TextSource.Listener() {
-        public void textChanged(boolean firstEdit) {
-          if (firstEdit) {
+  private void addBufferListener(final Buffer buffer) {
+    buffer.getTextSource().addListener(new TextSource.Listener() {
+        public void textSourceChanged(boolean dirtyStateChanged) {
+          if (dirtyStateChanged) {
             fireBufferChanged(buffer);
           }
         }
       });
-
-    return buffer;
   }
 
   private void fireBufferChanged(Buffer buffer) {
+    synchronized (m_listeners) {
+      final Iterator iterator = m_listeners.iterator();
 
-    if (!m_supressBufferChangeNotification) {
-      synchronized (m_listeners) {
-        final Iterator iterator = m_listeners.iterator();
-
-        while (iterator.hasNext()) {
-          final Listener listener = (Listener)iterator.next();
-          listener.bufferChanged(buffer);
-        }
+      while (iterator.hasNext()) {
+        final Listener listener = (Listener)iterator.next();
+        listener.bufferChanged(buffer);
       }
     }
   }
@@ -187,7 +174,9 @@ public final class EditorModel {
   public interface Listener extends EventListener {
 
     /**
-     * Called when a buffer has been activated.
+     * Called when a buffer's state has changed - i.e. the buffer has
+     * become dirty, or become clean, or has been selected, or has
+     * been unselected.
      *
      * @param buffer The buffer.
      */
