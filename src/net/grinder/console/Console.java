@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2001 Paco Gomez
-// Copyright (C) 2001 Philip Aston
+// Copyright (C) 2000, 2001 Paco Gomez
+// Copyright (C) 2000, 2001 Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,6 +32,9 @@ import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 import net.grinder.util.PropertiesHelper;
 
+import net.grinder.console.swing.ConsoleUI;
+
+
 /**
  * This is the entry point of The Grinder Console.
  * 
@@ -41,25 +44,19 @@ import net.grinder.util.PropertiesHelper;
  */
 public class Console implements ActionListener
 {       
-    private GrinderProperties m_properties = null;
-    private Map m_tests = new TreeMap();
-    private GraphStatInfo m_gsi[] = null;
-    private StatInfo m_si[] = null;
+    private final ConsoleCommunication m_communication;
+    private final Map m_tests = new TreeMap();
+    private final ConsoleUI m_userInterface;
+
     //ms between console refreshes
-    private int _interval = 500;     
+    private int REFRESH_INTERVAL = 500;     
                  
-    public static void main(String args[]) throws Exception {
-	System.err.println("net.grinder.console.Console is deprecated");
-	System.err.println("Use net.grinder.Console instead.");
-
-        Console c = new Console();
-        c.run();
-    }
-
     public Console() throws GrinderException
     {
-	m_properties = GrinderProperties.getProperties();
+	final GrinderProperties properties = GrinderProperties.getProperties();
 	final PropertiesHelper propertiesHelper = new PropertiesHelper();
+
+	m_communication = new ConsoleCommunication(properties);
 
 	final GrinderPlugin grinderPlugin =
 	    propertiesHelper.instantiatePlugin(null);
@@ -74,55 +71,28 @@ public class Console implements ActionListener
 	    final Integer testNumber = test.getTestNumber();
 	    m_tests.put(test.getTestNumber(), test);
 	}
+
+	m_userInterface = new ConsoleUI(m_tests.values());
     }
     
     public void run() throws GrinderException
     {
-        String s = new java.util.Date().toString() + ": ";
-        System.out.println(s + "Grinder Console started.");        
-        createFrame();        
-        MsgReader mr =
-	    new MsgReader(m_si,
-			  m_properties.getMandatoryProperty(
-			      "grinder.console.multicastAddress"),
-			  m_properties.getMandatoryInt(
-			      "grinder.console.multicastPort"));
-	
-        while(true){
-            try{
-                Thread.sleep(_interval);
-                
-                for (int i=0; i<m_si.length; i++){
-                    m_gsi[i].add(m_si[i]._art);
-                    m_gsi[i].update(m_si[i]);
-                }
-            }
-            catch(Exception e){
-                System.err.println(e);
-            }           
-        }
-    }
-    
-    protected void createFrame(){
-        JFrame frame = new JFrame("Grinder Console");
+        System.out.println("Grinder Console started.");        
 
-        frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                System.exit(0);
-            }
-        });
-       
-        JPanel p = new JPanel();
-        JButton b = new JButton("StartGrinder");
-        b.addActionListener(this);
-        
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(b);
+	try {
+	    Thread.sleep(10000);
+	    return;
+	}
+	catch (Exception e){
+	}
+	
+	// Create the UI
+	/*        b.addActionListener(this);
         
 	int n = m_tests.size();
 	    
-        m_gsi = new GraphStatInfo[n];
-        m_si = new StatInfo[n];
+        final GraphStatInfo[] graphStatInfoArray = new GraphStatInfo[n];
+        final StatInfo[] statInfoArray = new StatInfo[n];
 
 	final Iterator testIterator = m_tests.values().iterator();
 	int i = 0;
@@ -130,48 +100,50 @@ public class Console implements ActionListener
 	while (testIterator.hasNext()) {
 	    final Test test = (Test)testIterator.next();
 
-            m_gsi[i] = new GraphStatInfo(test.toString(), 0, 0);
-            p.add(m_gsi[i]);
-            m_si[i] = new StatInfo(0,0);
+            graphStatInfoArray[i] = new GraphStatInfo(test.toString(), 0, 0);
+            p.add(graphStatInfoArray[i]);
+            statInfoArray[i] = new StatInfo(0,0);
 	    i++;
         }
         
-        JScrollPane sp = new JScrollPane(p);
-        frame.getContentPane().add(sp, BorderLayout.CENTER);
-        frame.pack();
-        frame.setVisible(true);        
+	*/
+       
+	// Event loop.
+	/*        MsgReader mr =
+	    new MsgReader(statInfoArray,
+			  m_properties.getMandatoryProperty(
+			      "grinder.console.multicastAddress"),
+			  m_properties.getMandatoryInt(
+			      "grinder.console.multicastPort"));
+	
+        while (true) {
+            try {
+                Thread.sleep(REFRESH_INTERVAL);
                 
-    }
-    
-    public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("StartGrinder")) {
-            sendStartPacket();
+                for (int i=0; i<statInfoArray.length; i++){
+                    graphStatInfoArray[i].add(statInfoArray[i]._art);
+                    graphStatInfoArray[i].update(statInfoArray[i]);
+                }
+            }
+            catch(Exception e){
+                System.err.println(e);
+            }           
         }
+	*/
     }
-    
-    public void sendStartPacket(){
-        
-        System.out.println("Starting Grinder...");
-        byte[] outbuf = new byte[128];
-        try{
-            DatagramSocket socket = new DatagramSocket();
-            InetAddress groupAddr = InetAddress.getByName(
-                m_properties.getProperty("grinder.multicastAddress"));
-            DatagramPacket packet = new DatagramPacket(outbuf, outbuf.length, groupAddr, 
-                m_properties.getMandatoryInt("grinder.multicastPort"));
 
-            socket.send(packet);
-            System.out.println("Grinder started at " + new Date());
+    public void actionPerformed(ActionEvent event)
+    {
+        if (event.getActionCommand().equals("StartGrinder")) {
+	    System.out.println("Starting Grinder...");
+
+	    try {
+		m_communication.sendStartMessage();
+	    }
+	    catch (GrinderException e) {
+		System.err.println("Could not send start message: " + e);
+		e.printStackTrace();
+	    }
         }
-        catch(SocketException e){
-            e.printStackTrace(System.err);
-        }
-        catch(IOException e){
-            e.printStackTrace(System.err);
-        }
-        catch(Exception e){
-            e.printStackTrace(System.err);
-        }
-        
     }
 }
