@@ -205,8 +205,50 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
                                         boolean isSecure)
     throws IOException {
 
-    final Socket remoteSocket =
-      m_socketFactory.createClientSocket(remoteEndPoint);
+
+    final Socket remoteSocket;
+
+    final EndPoint chainedHTTPSProxy = getChainedHTTPSProxy();
+
+    if (chainedHTTPSProxy != null) {
+      /* TODO - currently a quick hack to prove it will work. */
+
+      final Socket plainSocket =
+        new Socket(chainedHTTPSProxy.getHost(), chainedHTTPSProxy.getPort());
+
+      final OutputStream plainOutputStream = plainSocket.getOutputStream();
+
+      final InputStream plainInputStream = plainSocket.getInputStream();
+
+      plainOutputStream.write(
+        ("CONNECT " + remoteEndPoint + "\r\n").getBytes());
+
+      plainOutputStream.flush();
+
+      // Discard response (hopefully a 200!).
+      final byte[] buffer = new byte[1024];
+
+      for (int i=0; i<10 && plainInputStream.available() == 0; ++i) {
+        try {
+          Thread.sleep(10);
+        }
+        catch (InterruptedException e) {
+        }
+      }
+
+      while (plainInputStream.read(buffer, 0, plainInputStream.available())) {
+        // Skip..
+      }
+
+      // Proxy protocol complete, switch to SSL mode.
+
+      remoteSocket =
+        ((TCPProxySSLSocketFactory)m_socketFactory).createClientSocket(
+          plainSocket, chainedHTTPSProxy);
+    }
+    else {
+      remoteSocket = m_socketFactory.createClientSocket(remoteEndPoint);
+    }
 
     final ConnectionDetails connectionDetails =
       new ConnectionDetails(clientEndPoint, remoteEndPoint, isSecure);

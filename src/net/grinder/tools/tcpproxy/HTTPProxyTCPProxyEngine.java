@@ -424,7 +424,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
       throws IOException {
       super(socketFactory, requestFilter, responseFilter, outputWriter,
             new EndPoint(InetAddress.getLocalHost(), 0), useColour, 0,
-            null, null); /** TODO */
+            HTTPProxyTCPProxyEngine.this.getChainedHTTPProxy(),
+            HTTPProxyTCPProxyEngine.this.getChainedHTTPSProxy());
     }
 
     public void run() {

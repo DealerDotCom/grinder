@@ -85,6 +85,9 @@ Tim McNerney writes:
 
 Allow "chained proxying", where details of real proxy server can be
 specified.
+	- Refactor so two PF mode ctors, one for plain one for SSL.
+	- Abstract blah needs to know so it knows what proxy to build?
+	- Move HTTPS proxy socket munging to ssl socket factory.
 
 Change TCPProxy filters to a stream oriented model. This should
 cure another one of the TCPSniffer/HTTPPlugin bug when recording large
