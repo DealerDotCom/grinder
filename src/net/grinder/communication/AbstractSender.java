@@ -121,7 +121,7 @@ abstract class AbstractSender implements Sender {
 
   protected abstract void writeMessage(Message message) throws IOException;
 
-  protected static void writeMessageToStream(Message message, 
+  protected static void writeMessageToStream(Message message,
                                              OutputStream stream)
     throws IOException {
 
