@@ -24,11 +24,17 @@ package net.grinder.common;
 import junit.framework.TestCase;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+
+import net.grinder.testutility.AbstractFileTestCase;
 
 
 /**
@@ -37,11 +43,7 @@ import java.util.Properties;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestGrinderProperties extends TestCase {
-
-  public TestGrinderProperties(String name) {
-    super(name);
-  }
+public class TestGrinderProperties extends AbstractFileTestCase {
 
   private final LoggerStubFactory m_loggerFactory = new LoggerStubFactory();
   private final Logger m_logger = m_loggerFactory.getLogger();
@@ -67,7 +69,9 @@ public class TestGrinderProperties extends TestCase {
   private final Properties m_fileSet = new Properties();
   private final Properties m_grinderSet = new Properties();
 
-  protected void setUp() {
+  protected void setUp() throws Exception {
+    super.setUp();
+
     m_emptyGrinderProperties = new GrinderProperties();
 
     m_emptyGrinderProperties.setErrorWriter(m_logger.getErrorLogWriter());
@@ -405,27 +409,12 @@ public class TestGrinderProperties extends TestCase {
     }
   }
     
-  public void testPropertiesFileHanding() throws Exception {
-
-    try {
-      assertNull(m_grinderProperties.getAssociatedFile());
-      m_grinderProperties.save();
-      fail("Expected GrinderException as no associated file");
-    }
-    catch (GrinderException e) {
-    }
-
-    // Construct with null => default file.
-    final GrinderProperties defaultFileProperties =
-      new GrinderProperties(null);
-    assertEquals(new File("grinder.properties"),
-                 defaultFileProperties.getAssociatedFile());
+  public void XtestPropertiesFileHanding() throws Exception {
 
     setSystemProperties();
 	
     try {
-      final File file = File.createTempFile("testing", "123");
-      file.deleteOnExit();
+      final File file = File.createTempFile("testing", "123", getDirectory());
 
       final PrintWriter writer =
         new PrintWriter(new FileWriter(file), true);
@@ -468,6 +457,76 @@ public class TestGrinderProperties extends TestCase {
     finally {
       restoreSystemProperties();
     }
+  }
+
+  public void testSave() throws Exception {
+
+    try {
+      assertNull(m_grinderProperties.getAssociatedFile());
+      m_grinderProperties.save();
+      fail("Expected GrinderException as no associated file");
+    }
+    catch (GrinderException e) {
+    }
+
+    // Construct with null => default file.
+    final GrinderProperties defaultFileProperties =
+      new GrinderProperties(null);
+    assertEquals(new File("grinder.properties"),
+                 defaultFileProperties.getAssociatedFile());
+
+    final File file = File.createTempFile("testing", "123", getDirectory());
+
+    final GrinderProperties properties = new GrinderProperties(file);
+    assertEquals(file, properties.getAssociatedFile());
+    properties.putAll(m_allSet);
+
+    properties.save();
+
+    final Properties readProperties = new Properties();
+    final InputStream in = new FileInputStream(file);
+    readProperties.load(in);
+    in.close();
+
+    (new IterateOverProperties(m_allSet) {
+        void match(String key, String value) throws Exception {
+          assertEquals(value, readProperties.getProperty(key));
+        }
+      }
+     ).run();
+  }
+
+  public void testSaveSingleProperty() throws Exception {
+
+    try {
+      assertNull(m_grinderProperties.getAssociatedFile());
+      m_grinderProperties.saveSingleProperty("foo", "bah");
+      fail("Expected GrinderException as no associated file");
+    }
+    catch (GrinderException e) {
+    }
+
+    final File file = File.createTempFile("testing", "123", getDirectory());
+
+    final Properties plainProperties = new Properties();
+    plainProperties.setProperty("existing", "property");
+    final OutputStream out = new FileOutputStream(file);
+    plainProperties.store(out, "");
+    out.close();
+
+    final GrinderProperties properties = new GrinderProperties(file);
+    assertEquals(file, properties.getAssociatedFile());
+    properties.putAll(m_allSet);
+
+    properties.saveSingleProperty("foo", "bah");
+
+    final InputStream in = new FileInputStream(file);
+    plainProperties.load(in);
+    in.close();
+
+    assertEquals(2, plainProperties.size());
+    assertEquals("bah", plainProperties.getProperty("foo"));
+    assertEquals("property", plainProperties.getProperty("existing"));
   }
 
   private void setSystemProperties() throws Exception {

@@ -395,6 +395,8 @@ what you want. Currently the conditionally built modules are:
       <!-- Things the tests find useful. -->
       <sysproperty key="classes.dir" path="${classes.dir}"/>
       <sysproperty key="test-classes.dir" path="${test-classes.dir}"/>
+      <sysproperty key="grinder.version" value="${version}"/>
+      <sysproperty key="grinder.date" value="${TODAY}"/>
 
       <batchtest>
 	<formatter type="plain" usefile="false"/>
@@ -405,8 +407,8 @@ what you want. Currently the conditionally built modules are:
 	  <exclude name="**/TestHTTPPluginTCPProxyFilter.java"/>
 
 	  <include name="**/Test*.java"/>
-	  <include name="**/TestFileCache.java"/>
-	  <include name="**/TestFileContents.java"/>
+	  <include name="**/TestAbstractTestSemantics.java"/>
+
 	  <exclude name="**/TestSleeper.java"/>
 	</fileset>
       </batchtest>
