@@ -34,6 +34,7 @@ public final class MessagePump {
   private final ThreadPool m_threadPool;
   private final Receiver m_receiver;
   private final Sender m_sender;
+  private boolean m_shutdownTriggered = false;
 
   /**
      * Constructor.
@@ -71,11 +72,17 @@ public final class MessagePump {
    */
   public void shutdown() throws InterruptedException {
 
-    m_receiver.shutdown();
-    m_sender.shutdown();
+    if (!m_shutdownTriggered) {
+      // Guard against repeat invocations due to a shutdown action
+      // triggering a CommunicationException.
+      m_shutdownTriggered = true;
 
-    // Now wait for the thread pool to finish.
-    m_threadPool.stopAndWait();
+      m_receiver.shutdown();
+      m_sender.shutdown();
+
+      // Now wait for the thread pool to finish.
+      m_threadPool.stopAndWait();
+    }
   }
 
   private void shutdownInternal() {
@@ -95,8 +102,9 @@ public final class MessagePump {
         if (message == null) {
           shutdownInternal();
         }
-
-        m_sender.send(message);
+        else {
+          m_sender.send(message);
+        }
       }
     }
     catch (CommunicationException e) {
