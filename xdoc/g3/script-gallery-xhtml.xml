@@ -5,15 +5,30 @@
 
 <h1>Script Gallery</h1>
 
+<p>This page contains examples of Jython scripts and script snippets
+that can be used with The Grinder. To use one of these scripts, you'll
+need to set up a <a
+href="./properties.html"><code>grinder.properties</code></a>
+file.</p>
+
+<p>If you have a script that you would like to like to see to this
+page, please send it to <a
+href="mailto:grinder-use@lists.sf.net">grinder-use@lists.sf.net</a>.</p>
+
 <toc/>
 
-<h3><a name="fba">HTTP form-based authentication</a></h3>
+<h3><a name="fba">J2EE form-based authentication</a></h3>
 
-<p>text</p>
+<p class="script-description">The J2EE Servlet specification defines a
+common model for form-based authentication. When users try to access a
+protected resource, they are challenged with a logon page. The logon
+page contains a form that POSTs username and password fields to a
+special <code>j_security_check</code> page.</p>
 
-<h3><a name="blah">Some other example</a></h3>
+<h3><a name="jdbc">Grinding a database with JDBC</a></h3>
 
-<p>more text</p>
+<h3><a name="web_service">Web Services</a></h3>
+
 
 </body>
 </html>

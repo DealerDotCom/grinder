@@ -23,7 +23,7 @@
 	    .beta-warning { background-color: rgb(240,240,240); font-weight: bold}
 	    pre { color: rgb(80,80,80); font-family:Courier, monospace; font-size: 10pt; }
             code ( background-color: red; font-family:Courier, monospace; font-size: 10pt; )
-	    h1 { color: rgb(80,80,80); font-family:Arial,Helvetica,sans-serif; font-size: 16pt; }
+	    h1 { color: rgb(80,80,80); font-family:Arial,Helvetica,sans-serif; font-size: 16pt; padding-top: 36pt;}
 	    h2 { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif; font-size: 14pt; }
 	    h3 { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif; font-size: 12pt; }
 	    h4 { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif; font-size: 11pt; }

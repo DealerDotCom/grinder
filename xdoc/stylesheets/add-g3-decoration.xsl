@@ -24,7 +24,7 @@
 	      not reflect the final form of The Grinder 3.
 	  </p>
 	  <br/>
-	  <xsl:copy-of select="."/>
+	  <xsl:copy-of select="./*"/>
 	</td>
 	<td valign="bottom" align="center">
 	  <img align="center" src="../images/grinder3.jpg" alt="The Grinder 3" height="116" width="111"/>
