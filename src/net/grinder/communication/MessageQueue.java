@@ -99,7 +99,8 @@ class MessageQueue {
     final Object result = m_queue.dequeue(block);
 
     if (m_passExceptions && result instanceof Exception) {
-      throw new CommunicationException("Queued exception", (Exception) result);
+      final Exception e = (Exception) result;
+      throw new CommunicationException(e.getMessage(), e);
     }
 
     return (Message) result;
