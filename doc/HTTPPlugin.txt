@@ -70,6 +70,10 @@ What can I set in grinder.properties for the HTTP plugin?
 				Specify a file containing POST data to
 			 	send.
 
+    grinder.test0.parameter.postContentType -
+				Specify a the Content-Type header for POST
+				requests.
+
     grinder.test0.parameter.ifModifiedSince -
 				This appears in the HTTP
 			 	"If-Modified-Since" request header,

@@ -1,3 +1,13 @@
+Grinder 2.6.6
+-------------
+
+  Enhancements from Kalle Burbeck:
+   - New HTTP plugin parameter for POST requests, postContentType.
+   - HTTP plugin sniffer filter now has limited support for
+     multipart forms.
+   - HTTP plugin sniffer filter now generates test descriptions.
+
+
 Grinder 2.6.5
 -------------
 
