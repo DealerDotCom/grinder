@@ -9,6 +9,8 @@ Grinder 3.0-beta5
 
   Add JMS examples.
 
+  Improve cleaning up of child processes when the agent is killed.
+
 
 Grinder 3.0-beta4
 -----------------

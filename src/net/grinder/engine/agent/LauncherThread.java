@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,84 +35,89 @@ import net.grinder.common.GrinderException;
  * It redirects the standard ouput and error to disk files.
  *
  * @see net.grinder.Grinder
- * @see net.grinder.engine.Redirector
  * @see net.grinder.engine.process.GrinderProcess
  *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  */
-public class LauncherThread extends Thread
-{
-    private final String m_grinderID;
-    private final String[] m_commandArray;
-    private final String m_commandString;
-    private int m_exitStatus = 0;
+public class LauncherThread extends Thread {
+  private final String m_grinderID;
+  private final String[] m_commandArray;
+  private final String m_commandString;
+  private int m_exitStatus = 0;
     
-    /**
-     * The constructor.
-     * It starts a new thread that will execute the run method.
-     */    
-    public LauncherThread(String grinderID, String[] commandArray)
-	throws GrinderException
-    {
-	super(grinderID);
+  /**
+   * The constructor.
+   * It starts a new thread that will execute the run method.
+   */    
+  public LauncherThread(String grinderID, String[] commandArray)
+    throws GrinderException {
+    super(grinderID);
 
-	m_grinderID = grinderID;
-	m_commandArray = commandArray;
+    m_grinderID = grinderID;
+    m_commandArray = commandArray;
 
-	final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
+    final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
 
-	for (int i=0; i<commandArray.length; ++i) {
-	    if (i != 0) {
-		buffer.append(" ");
-	    }
+    for (int i=0; i<commandArray.length; ++i) {
+      if (i != 0) {
+	buffer.append(" ");
+      }
 
-	    buffer.append(commandArray[i]);
-	}
-
-	m_commandString = buffer.toString();
+      buffer.append(commandArray[i]);
     }
+
+    m_commandString = buffer.toString();
+  }
   
-    /**
-     * This method will start a process with the JVM.
-     * It redirects standard output and error to disk files.
-     */    
-    public void run(){
+  /**
+   * This method will start a process with the JVM.
+   * It redirects standard output and error to disk files.
+   */    
+  public void run() {
 
-	try{
-	    System.out.println("Worker process (" + m_grinderID +
-			       ") started with command line: " +
-			       m_commandString);
+    System.out.println("Worker process (" + m_grinderID +
+		       ") started with command line: " +
+		       m_commandString);
 
-	    final Process process = Runtime.getRuntime().exec(m_commandArray);
+    try {
+      final Process process = Runtime.getRuntime().exec(m_commandArray);
       
-	    final BufferedReader outputReader =
-		new BufferedReader(
-		    new InputStreamReader(process.getInputStream()));
+      try {
+	final BufferedReader outputReader =
+	  new BufferedReader(
+	    new InputStreamReader(process.getInputStream()));
 
-	    final BufferedReader errorReader =
-		new BufferedReader(
-		    new InputStreamReader(process.getErrorStream()));
+	final BufferedReader errorReader =
+	  new BufferedReader(
+	    new InputStreamReader(process.getErrorStream()));
       
-	    final Redirector r1 =
-		new Redirector(new PrintWriter(System.out, true),
-			       outputReader);
+	final Redirector r1 =
+	  new Redirector(new PrintWriter(System.out, true),
+			 outputReader);
 
-	    final Redirector r2 =
-		new Redirector(new PrintWriter(System.err, true), errorReader);
+	final Redirector r2 =
+	  new Redirector(new PrintWriter(System.err, true), errorReader);
 
-	    process.waitFor();
+	final ProcessReaper reaper = ProcessReaper.getInstance();
+	reaper.add(process);
 
-	    m_exitStatus = process.exitValue();   
-	}
-	catch(Exception e){
-	    e.printStackTrace();
-	}
+	process.waitFor();
+	m_exitStatus = process.exitValue();
+
+	reaper.remove(process);
+      }
+      finally {
+	process.destroy();
+      }
     }
-
-    public int getExitStatus()
-    {
-	return m_exitStatus;
+    catch (Exception e) {
+      e.printStackTrace();
     }
+  }
+
+  public int getExitStatus() {
+    return m_exitStatus;
+  }
 }
