@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.0//EN"
+    "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
+
+<suppressions>
+  <!-- Allow use of AbstractButton as reference type in these files. -->
+  <suppress checks="IllegalType" files="ConsoleUI.java|CustomAction.java"/>
+
+  <!-- Has a public 'grinder' field. -->
+  <suppress checks="StaticVariableName|VisibilityModifier"
+            files="net.grinder.script.Grinder.java"/>
+
+  <!-- Non standard method names. -->
+  <suppress checks="MethodName" files="HTTPRequest.java"/>
+</suppressions>

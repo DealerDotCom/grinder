@@ -404,21 +404,17 @@ what you want. Currently the conditionally built modules are:
         <include name="net/grinder/**/*.java"/>
         <!-- <include name="net/grinder/**/*.properties"/> -->
 
-        <!-- Exclude this because of its public 'grinder' field. -->
-        <exclude name="**/net/grinder/script/Grinder.java"/>
-
         <!-- The following need fixing. -->
         <exclude name="**/snifferwebapp/**"/>
       </fileset>
 
       <property key="checkstyle.cache.file"
                 file="${build.dir}/checkstyle.cache"/>
+      <property key="checkstyle.suppressions.file"
+                file="${etc.dir}/checkstyle-suppressions.xml"/>
 
       <formatter type="plain"/>
-      <formatter type="xml"
-                 toFile="${build.dir}/checkstyle_errors.xml"/>
-       <classpath refid="build.classpath"/>
-
+      <formatter type="xml" toFile="${build.dir}/checkstyle_errors.xml"/>
     </checkstyle>
   </target>
 
