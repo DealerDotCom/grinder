@@ -1,4 +1,148 @@
+2004-07-04  Philip Aston  <philipa@mail.com>
+
+	* CHANGES: Release documentation.
+
+	* TODO: Progress and plans.
+
+	* build.xml, etc/testimage.mf: TestImage has long since gone.
+
+	* src/net/grinder/engine/agent/Agent.java:
+	Be frugal about reinitialising connections.
+
+	* src/net/grinder/engine/agent/FileStore.java: Fix exception handling.
+
+	* src/net/grinder/communication/Connector.java: Equality.
+
+	* src/net/grinder/console/editor/AbstractTextSource.java:
+	TextSources, and hence new buffers, now start their lives dirty.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	Custom "approve button" text for the set directory dialog.
+
+	* src/net/grinder/engine/agent/FileStore.java:
+	Switch to a copying model.
+
+	* src/net/grinder/util/Directory.java: copyTo().
+
+	* src/net/grinder/engine/agent/Agent.java:
+	Resolve script files from console relative to our cache.
+
+	* src/net/grinder/engine/agent/FileStore.java:
+	Store cache updates in separate directory to prevent locking of stale
+	files by worker processes.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties:
+	Send script to run as relative file.
+
+	* src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/util/Directory.java:
+	Javadoc.
+
+2004-07-03  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/testutility/FileUtilities.java: setCanWrite().
+
+	* src/net/grinder/util/Directory.java, tests-src/net/grinder/util/TestDirectory.java:
+	create(), delete(), getRelativePath().
+
+	* src/net/grinder/util/FileContents.java, tests-src/net/grinder/util/TestFileContents.java:
+	create() now takes a Directory.
+
+	* src/net/grinder/engine/common/ConsoleListener.java: Fix javadoc.
+
+	* src/net/grinder/engine/agent/Agent.java:
+	Fix handling of selected start script.
+
+	* src/net/grinder/console/communication/ProcessControl.java, src/net/grinder/console/communication/ProcessControlImplementation.java:
+	Allow selected script to be set.
+
+	* src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Warn if starting with no marked script.
+
+	* src/net/grinder/engine/common/ConsoleListener.java, tests-src/net/grinder/engine/common/TestConsoleListener.java:
+	Allow pending messages to be discarded.
+
+	* etc/checkstyle.xml: Patterns to catch System.out, System.err.
+
+	* src/net/grinder/console/swingui/FileTree.java, TODO:
+	Disable setMarkedScript if selected file is already marked.
+
+2004-07-02  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/FileTree.java:
+	Tidy up scrolling on open.
+	Double click on open buffer -> mark as script.
+
+2004-07-01  Philip Aston  <philipa@mail.com>
+
+	* xdoc/support-xhtml.xml: Support hints.
+
+2004-06-29  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/FileTree.java: Fix action enablement.
+
+	* src/net/grinder/console/swingui/CompositeTreeModel.java:
+	No need to maintain listener list - the delegate models do this.
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/editor/EditorModel.java, src/net/grinder/console/swingui/BufferTreeModel.java, src/net/grinder/console/swingui/FileTree.java:
+	Mark script.
+
+	* TODO: Progress.
+
+2004-06-27  Philip Aston  <philipa@mail.com>
+
+	* TODO: Plans.
+
+	* src/net/grinder/console/swingui/resources/marked-script-rollover.png, src/net/grinder/console/swingui/resources/marked-script-small.png, src/net/grinder/console/swingui/resources/marked-script.png, src/net/grinder/console/swingui/resources/script-small.xcf, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/icons.xcf:
+	Initial work on script selection.
+
+	* tests-src/net/grinder/util/TestFixedWidthFormatter.java:
+	Test bad construction.
+
+	* src/net/grinder/console/communication/ProcessControlImplementation.java, src/net/grinder/console/communication/ProcessStatusSet.java, src/net/grinder/engine/agent/FileStore.java, src/net/grinder/engine/messages/ClearCacheMessage.java, tests-src/net/grinder/engine/agent/TestFileStore.java, tests-src/net/grinder/engine/messages/TestEngineMessages.java:
+	Clear cache on directory change.
+
+	* tests-src/net/grinder/util/TestDirectory.java:
+	Test equals() and hashCode().
+
+	* src/net/grinder/util/Directory.java: Fix equals().
+
+	* tests-src/net/grinder/console/editor/TestBuffer.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, tests-src/net/grinder/testutility/AssertUtilities.java:
+	Move assertNotEquals to AssertUtilities.
+
+	* src/net/grinder/communication/ResourcePool.java, src/net/grinder/console/editor/AbstractTextSource.java, src/net/grinder/console/swingui/LookAndFeel.java, src/net/grinder/engine/agent/AgentLogger.java, src/net/grinder/engine/process/ExternalFilenameFactory.java, src/net/grinder/util/thread/ThreadSafeQueue.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedProcessStatusListener.java, src/net/grinder/communication/AbstractSender.java:
+	Fix up javadoc references.
+
+	* src/net/grinder/util/Directory.java: Equality.
+
+	* src/net/grinder/console/model/ConsoleProperties.java: Javadoc.
+
+	* src/net/grinder/communication/AbstractFanOutSender.java:
+	Improve comment about message order.
+
+	* src/net/grinder/communication/AbstractFanOutSender.java:
+	Comment about message order.
+
+	* tests-src/net/grinder/engine/process/TestTestData.java:
+	Turn down Python verbosity so it doesn't chat to the terminal.
+
+	* tests-src/net/grinder/testutility/AbstractFileTestCase.java:
+	Nice message if can't read directory.
+
+	* tests-src/net/grinder/util/TestDirectory.java, tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Coverage.
+
+	* tests-src/net/grinder/console/communication/TestDistributionStatus.java:
+	Test DistributionStatus.
+
+	* src/net/grinder/console/model/ConsoleProperties.java:
+	Remove redundant code paths.
+
+	* src/net/grinder/console/communication/DistributionStatus.java:
+	Update comments.
+
 2004-06-26  Philip Aston  <philipa@mail.com>
+
+	* ChangeLog: *** empty log message ***
 
 	* src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/swingui/ConsoleUI.java:
 	Save distribution directory whenever its changed.
