@@ -46,7 +46,6 @@ class ProcessContext
 {
     private final String m_grinderID;
     private final GrinderProperties m_properties;
-    private final GrinderProperties m_pluginParameters;
     private final boolean m_recordTime;
     private final LoggerImplementation m_loggerImplementation;
     private final Logger m_processLogger;
@@ -61,9 +60,6 @@ class ProcessContext
     {
 	m_grinderID = grinderID;
 	m_properties = properties;
-
-	m_pluginParameters =
-	    properties.getPropertySubset("grinder.plugin.parameter.");
 
 	m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
@@ -172,11 +168,6 @@ class ProcessContext
     public final GrinderProperties getProperties()
     {
 	return m_properties;
-    }
-
-    public GrinderProperties getPluginParameters()
-    {
-	return m_pluginParameters;
     }
 
     public final boolean getRecordTime()

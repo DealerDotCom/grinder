@@ -57,11 +57,6 @@ final class PluginProcessContextImplementation
 	return m_processContext.getGrinderID();
     }
 
-    public GrinderProperties getPluginParameters()
-    {
-	return m_processContext.getPluginParameters();
-    }
-
     public final void registerSummaryStatisticsView(
 	StatisticsView statisticsView)
 	throws GrinderException

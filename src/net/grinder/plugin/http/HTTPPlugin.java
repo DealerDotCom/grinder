@@ -63,9 +63,6 @@ public class HTTPPlugin implements GrinderPlugin
 	throws PluginException
     {
 	m_processContext = processContext;
-
-	final GrinderProperties parameters =
-	    m_processContext.getPluginParameters();
     }
 
     public PluginThreadCallbacks createThreadCallbackHandler(

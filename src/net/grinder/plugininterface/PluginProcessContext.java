@@ -47,11 +47,6 @@ public interface PluginProcessContext extends Logger, FilenameFactory
      * @return The name.
      **/
     String getGrinderID();
-    
-    /**
-     * Returns the parameters specified with "grinder.plugin.parameter="
-     **/
-    GrinderProperties getPluginParameters();
 
     /**
      * Plugins can use this method to register a new "summary"
