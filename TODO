@@ -33,18 +33,41 @@ a request with the authentication headers.
 
 *** Model
 
-Agent process to manage file cache.
-(Need files as Jython can't have python path into memory).
-Agent is responsible for local file store below a directory based on
-the agent name.
+Agent process to manage file cache. (Need files as Jython can't have
+python path into memory). Agent is responsible for local file store
+below a directory based on the agent name.
 
-Console marks state as "dirty" on a new agent, or on an edit.
-Broadcasts marked files to all agents on "distribute", or
-automatically on play.
+File cache should be up to date with directory structure below
+directory chosen by console. The root directory is part of python
+path.
 
-Root directory is part of python path.
 
-No delta management for now.
+Task: Agent receives asynchronously. Agent should clear cache on
+start.
+
+
+Task: Console to broadcast. Remove ScriptDistributionFiles work. 
+Task: Agent connects and syncs on start up via one time connection.
+Task: Console to maintain local dirty list based on edits and
+broadcast changes only.
+Task: Console to allow selection of script. Warn if no script
+selected.
+Task: Console to check dirty state on play and auto broadcast.
+Task: Console to set special dirty flag on root change, broadcast full
+cache on distribution. Includes indication to agents to reset cache.
+Task: Add guard to console which warns if changing to a directory with
+more than X bytes of data below it.
+Task: Agent FileStore to update copy of cache asynchronously. Main
+agent thread to move it into place at good point in lifecycle to
+prevent locking of stale files by worker processes.
+Task: Console to watch local file system for edits. 
+Task: Add checksum across file names/sizes so that agents starting
+with a good cache skip sync.
+Task: File Store directory should have a README describing what its
+for.
+
+Bug: Agent doesn't hang onto last start message when starting
+immediately.
 
 *** Console Script editing
 
@@ -53,20 +76,7 @@ Allow files to be marked for distribution. Any file.
 Automatically detect, and indicate, scripts.
 When new script is selected, unselect other script.
 
-Console keeps track of scripts that are up to date.
-Dirty flag is actually a temporary uptodate file.
-On receiving an AgentInitialisedMessage with an earlier date uptodate
-file is removed, flaging that all files in the distribution set should
-be broadcast again. (No need to keep track on a per agent basis).
-New "ScriptDistributionMessage", which contains file name of script
-and collection of changed files (files newer than uptodate).
-On "play", a ScriptDistributionFiles message is sent if necessary.
-User can also broadcast distribution by hand.
-
-
 *** Plans
-
-Feature to automark script dependencies.
 
 Allow file sets to be saved and loaded.
 
@@ -105,6 +115,9 @@ System.err for warnings.
 ** Engine
 
 There should be an ExternalFilenameFactory, cf ExternalLogger.
+
+Consider having the agent pass the properties in
+InitialiseGrinderMessage.
 
 ** Statistics
 *** Measure variance (Ambitious)
