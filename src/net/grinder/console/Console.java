@@ -44,7 +44,7 @@ import net.grinder.statistics.StatisticsView;
 
 
 /**
- * This is the entry point of The Grinder Console.
+ * This is the entry point of The Grinder console.
  *
  * @author Paco Gomez
  * @author Philip Aston
