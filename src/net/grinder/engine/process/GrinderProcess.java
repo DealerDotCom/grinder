@@ -214,6 +214,14 @@ public class GrinderProcess
      */        
     protected void run() throws GrinderException
     {
+	m_context.logMessage(System.getProperty("java.vm.vendor") + " " + 
+			     System.getProperty("java.vm.name") + " " +
+			     System.getProperty("java.vm.version"));
+
+	m_context.logMessage(System.getProperty("os.name") + " " +
+			     System.getProperty("os.arch") + " " +
+			     System.getProperty("os.version"));
+
 	final String dataFilename =
 	    m_context.getFilenameFactory().createFilename("data");
 
