@@ -47,6 +47,9 @@ public class TestDirectory extends AbstractFileTestCase {
     }
     catch (Directory.DirectoryException e) {
     }
+
+    final Directory directory = new Directory(getDirectory());
+    assertEquals(0, directory.getWarnings().length);
   }
 
   public void testListContents() throws Exception {
@@ -74,7 +77,7 @@ public class TestDirectory extends AbstractFileTestCase {
       // Result uses relative paths.
       expected.add(new File(files[i]));
     }
-    
+
     final File[] allFiles = directory.listContents();
 
     for (int i=0; i<allFiles.length; ++i) {

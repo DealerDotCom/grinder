@@ -247,5 +247,28 @@ public class TestConsoleListener extends TestCase {
       }
     }
   }
+
+  public void testGetLastStartGrinderMessage() throws Exception {
+
+    final ConsoleListener listener =
+      new ConsoleListener(new Object(), m_logger);
+
+    final Message m1 = new StartGrinderMessage(new File("a"));
+    final Message m2 = new StartGrinderMessage(new File("a"));
+    final Message m3 = new MyMessage();
+
+    final Sender sender = listener.getSender();
+
+    assertNull(listener.getLastStartGrinderMessage());
+
+    sender.send(m1);
+    assertEquals(m1, listener.getLastStartGrinderMessage());
+
+    sender.send(m3);
+    assertEquals(m1, listener.getLastStartGrinderMessage());
+
+    sender.send(m2);
+    assertEquals(m2, listener.getLastStartGrinderMessage());
+  }
 }
 
