@@ -44,6 +44,7 @@ public final class EditorModel {
 
   private final Resources m_resources;
   private final TextSource.Factory m_textSourceFactory;
+  private final AgentCacheState m_agentCacheState;
   private final Buffer m_defaultBuffer;
 
   /** Synchronise on m_listeners before accessing. */
@@ -69,6 +70,8 @@ public final class EditorModel {
                      AgentCacheState agentCacheState) {
     m_resources = resources;
     m_textSourceFactory = textSourceFactory;
+    m_agentCacheState = agentCacheState;
+
     m_defaultBuffer = new Buffer(m_resources,
                                  m_textSourceFactory.create(),
                                  createNewBufferName());
@@ -259,6 +262,14 @@ public final class EditorModel {
         }
       });
 
+    buffer.addListener(
+      new Buffer.Listener() {
+        public void bufferSaved(Buffer buffer) {
+          m_agentCacheState.setOutOfDate();
+        }
+      }
+      );
+
     m_bufferList.add(buffer);
 
     fireBufferAdded(buffer);
@@ -361,7 +372,6 @@ public final class EditorModel {
       name.endsWith(".jpg") ||
       name.endsWith(".tiff");
   }
-
 
   /**
    * Interface for listeners.
