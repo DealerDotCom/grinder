@@ -41,8 +41,8 @@ import net.grinder.testutility.CallData;
  */
 public class TestProcessLauncher extends TestCase {
 
-  private static final String s_testClassesDir =
-    System.getProperty("test-classes.dir");
+  private static final String s_testClasspath =
+    System.getProperty("test.classpath");
 
   public void testConstructor() throws Exception {
     final ProcessLauncher processLauncher1 =
@@ -278,7 +278,7 @@ public class TestProcessLauncher extends TestCase {
       final String[] commandArray = {
         "java",
         "-classpath",
-        s_testClassesDir,
+        s_testClasspath,
         EchoClass.class.getName(),
       };
 

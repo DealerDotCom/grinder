@@ -43,13 +43,13 @@ import net.grinder.engine.process.GrinderProcess;
 public class TestWorkerProcessFactory extends TestCase {
 
   private static final String s_classesDir = System.getProperty("classes.dir");
-  private static final String s_testClassesDir =
-    System.getProperty("test-classes.dir");
+  private static final String s_testClasspath =
+    System.getProperty("test.classpath");
 
   public void testCreate() throws Exception {
     final GrinderProperties grinderProperties = new GrinderProperties() {{
       setProperty("grinder.jvm.classpath",
-                  s_testClassesDir + File.pathSeparatorChar + s_classesDir);
+                  s_testClasspath + File.pathSeparatorChar + s_classesDir);
     }};
 
     final Properties overrideProperties = new Properties();

@@ -38,8 +38,8 @@ import junit.framework.TestCase;
  */
 public class TestChildProcess extends TestCase {
 
-  private static final String s_testClassesDir =
-    System.getProperty("test-classes.dir");
+  private static final String s_testClasspath =
+    System.getProperty("test.classpath");
 
   private ByteArrayOutputStream m_outputStream = new ByteArrayOutputStream();
   private ByteArrayOutputStream m_errorStream = new ByteArrayOutputStream();
@@ -84,7 +84,7 @@ public class TestChildProcess extends TestCase {
     final String[] commandArray = {
       "java",
       "-classpath",
-      s_testClassesDir,
+      s_testClasspath,
       EchoClass.class.getName(),
       "some stuff",
       "blah",
@@ -119,7 +119,7 @@ public class TestChildProcess extends TestCase {
     final String[] commandArray = {
       "java",
       "-classpath",
-      s_testClassesDir,
+      s_testClasspath,
       EchoClass.class.getName(),
     };
 
@@ -154,7 +154,7 @@ public class TestChildProcess extends TestCase {
     final String[] commandArray = {
       "java",
       "-classpath",
-      s_testClassesDir,
+      s_testClasspath,
       EchoClass.class.getName(),
     };
 
