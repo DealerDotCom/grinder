@@ -828,5 +828,60 @@ recordTest = Test(1, &quot;</span><span class="string">Receive messages</span><s
 </pre>
 </blockquote>
 
+<hr/>
+
+<h3><a name="javamail">Email</a></h3>
+
+<blockquote>
+<pre><span class="comment"># Send email using Java Mail (http://java.sun.com/products/javamail/)
+#
+# This Grinder Jython script should only be used for legal email test
+# traffic generation within a lab testbed environment. Anyone using
+# this script to generate SPAM or other unwanted email traffic is
+# violating the law and should be exiled to a very bad place for a
+# very long time.
+#
+# Copyright (C) Tom Pittard, 2004
+# Copyright (C) Philip Aston, 2004
+</span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+
+<span class="keyword">from</span> java.lang <span class="keyword">import</span> System
+<span class="keyword">from</span> javax.mail <span class="keyword">import</span> Message, Session
+<span class="keyword">from</span> javax.mail.internet <span class="keyword">import</span> InternetAddress, MimeMessage
+
+
+emailSendTest1 = Test(1, &quot;<span class="string">Email Send Engine</span>&quot;)
+
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        smtpHost = &quot;<span class="string">mailhost</span>&quot;
+        
+        properties = System.getProperties()
+        properties[&quot;<span class="string">mail.smtp.host</span>&quot;] = smtpHost
+        session = Session.getInstance(System.getProperties())
+        session.debug = 1
+
+        message = MimeMessage(session)
+        message.setFrom(InternetAddress(&quot;<span class="string">TheGrinder@yourtestdomain.net</span>&quot;))
+        message.addRecipient(Message.RecipientType.TO,
+                             InternetAddress(&quot;<span class="string">you@yourtestdomain.net</span>&quot;))
+        message.subject = &quot;<span class="string">Test email %s from thread %s</span>&quot; % (grinder.runNumber,
+                                                            grinder.threadID)
+
+        <span class="comment"># One could vary this by pointing to various files for content
+</span>        message.setText(&quot;<span class="string">SNTPTransport Email works from The Grinder!</span>&quot;)
+
+        <span class="comment"># Wrap transport object in a Grinder Jython Test Wrapper
+</span>        transport = emailSendTest1.wrap(session.getTransport(&quot;<span class="string">smtp</span>&quot;))
+
+        transport = emailSendTest1.wrap(transport)
+        transport.connect(smtpHost, &quot;<span class="string">username</span>&quot;, &quot;<span class="string">password</span>&quot;)
+        transport.send(message)
+        transport.close()
+</pre>
+</blockquote>
+
 </body>
 </html>
