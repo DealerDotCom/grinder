@@ -1,4 +1,6 @@
 2001-04-05  Philip Aston  <paston@bea.com>
+
+	* README: Document console controls.
 	
 	* src/net/grinder/engine/process/GrinderProcess.java:
 	Log JVM and OS version information.
