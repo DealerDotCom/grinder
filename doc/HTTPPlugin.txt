@@ -130,8 +130,8 @@ Each string bean instance is instantiated per thread, and maintains
 its state between invocations. If your bean needs additional
 information regarding the test lifecycle (for example, to reset a
 counter and the beginning of a cycle), it can implement the
-net.grinder.http.plugin.StringBean interface. See the examples in
-net.grinder.http.plugin.example.
+net.grinder.plugin.http.StringBean interface. See the examples in
+net.grinder.plugin.http.example.
 
 
 How do I use the HTTPS plugin?
