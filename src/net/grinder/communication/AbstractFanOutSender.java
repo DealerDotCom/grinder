@@ -135,9 +135,6 @@ abstract class AbstractFanOutSender extends AbstractSender {
       }
       catch (IOException e) {
         m_reservation.close();
-
-        // m_messageQueue.queue(e);
-        // e.printStackTrace();
       }
       finally {
         m_reservation.free();
