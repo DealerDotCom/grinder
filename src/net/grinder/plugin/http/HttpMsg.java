@@ -41,15 +41,9 @@ import net.grinder.plugininterface.PluginThreadContext;
 /**
  * Util class for sending HTTP requests.
  *
- * Wrap up HTTP requests, cache a cookie across a number of calls,
+ * Wrap up HTTP requests, cache cookies across a number of calls,
  * simulate a browser cache.
  * 
- * BUGS:
- *   One shouldn't expect much from a class with such a the duffly
- *   capitalised name, but HttpURLConnection sucks. It refuses to accept
- *   the reality of multiple header fields. This means that only one
- *   Set-Cookie header can be honoured per message.
- *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
@@ -154,13 +148,17 @@ class HttpMsg
 	final int responseCode = connection.getResponseCode();
 
 	if (m_useCookies) {
-	    // Sadly HttpURLConnection gives us no way to get at more
-	    // than one Set-Cookie header.
-	    final String setCookieString =
-		connection.getHeaderField("Set-Cookie");
-
-	    if (setCookieString != null) {
-		m_cookieHandler.setCookies(setCookieString, url);
+	    // set to 1 because we're skipping the HTTP status line
+	    int headerIndex = 1;
+	    String headerKey = null;
+	    String headerValue = connection.getHeaderField(headerIndex);
+	    // iterate through all available headers
+	    while(headerValue != null){
+	        headerKey = connection.getHeaderFieldKey(headerIndex);
+	        if(headerKey != null && "Set-Cookie".equals(headerKey)){
+	            m_cookieHandler.setCookies(headerValue, url);
+	        }
+	        headerValue = connection.getHeaderField(++headerIndex);
 	    }
 	}
 
