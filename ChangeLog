@@ -1,3 +1,7 @@
+2001-03-26  Philip Aston  <paston@bea.com>
+
+	* The Grinder 2.5 is released.
+
 2001-03-26  Phillip Burgess <phillip_burgess@mail.com>
 
 	* src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java:
