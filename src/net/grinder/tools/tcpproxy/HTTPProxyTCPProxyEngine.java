@@ -30,7 +30,6 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -47,6 +46,7 @@ import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 
 import net.grinder.common.GrinderBuild;
+import net.grinder.common.Logger;
 import net.grinder.util.StreamCopier;
 import net.grinder.util.html.HTMLElement;
 
@@ -89,7 +89,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
    * @param sslSocketFactory Factory for SSL sockets.
    * @param requestFilter Request filter.
    * @param responseFilter Response filter.
-   * @param outputWriter Writer to terminal.
+   * @param logger Logger.
    * @param localEndPoint Local host and port.
    * @param useColour Whether to use colour.
    * @param timeout Timeout for server socket in milliseconds.
@@ -105,7 +105,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
   public HTTPProxyTCPProxyEngine(TCPProxySSLSocketFactory sslSocketFactory,
                                  TCPProxyFilter requestFilter,
                                  TCPProxyFilter responseFilter,
-                                 PrintWriter outputWriter,
+                                 Logger logger,
                                  EndPoint localEndPoint,
                                  boolean useColour,
                                  int timeout,
@@ -116,7 +116,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     // We set this engine up for handling plain connections. We
     // delegate HTTPS to a proxy engine.
     super(new TCPProxySocketFactoryImplementation(), requestFilter,
-          responseFilter, outputWriter, localEndPoint, useColour, timeout);
+          responseFilter, logger, localEndPoint, useColour, timeout);
 
     m_proxyAddress = localEndPoint;
     m_chainedHTTPProxy = chainedHTTPProxy;
@@ -145,14 +145,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
       m_proxySSLEngine =
         new ProxySSLEngine(m_httpsProxySocketFactory, requestFilter,
-                           responseFilter, outputWriter, useColour);
+                           responseFilter, logger, useColour);
     }
     else {
       m_httpsProxySocketFactory = null;
 
       m_proxySSLEngine =
         new ProxySSLEngine(sslSocketFactory, requestFilter, responseFilter,
-                           outputWriter, useColour);
+                           logger, useColour);
     }
 
     new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine").start();
@@ -314,7 +314,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
   private void sendHTTPErrorResponse(HTMLElement message, String status,
                                      OutputStream outputStream)
     throws IOException {
-    System.err.println(message.toText());
+    getLogger().error(message.toText());
 
     final HTTPResponse response = new HTTPResponse();
     response.setStatus(status);
@@ -483,10 +483,10 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     ProxySSLEngine(TCPProxySocketFactory socketFactory,
                    TCPProxyFilter requestFilter,
                    TCPProxyFilter responseFilter,
-                   PrintWriter outputWriter,
+                   Logger logger,
                    boolean useColour)
     throws IOException {
-      super(socketFactory, requestFilter, responseFilter, outputWriter,
+      super(socketFactory, requestFilter, responseFilter, logger,
             new EndPoint(InetAddress.getByName(null), 0), useColour, 0);
     }
 
@@ -500,7 +500,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
             localSocket, m_remoteEndPoint, m_clientEndPoint, true);
         }
         catch (IOException e) {
-          e.printStackTrace(System.err);
+          logIOException(e);
         }
       }
     }

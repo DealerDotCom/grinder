@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -32,6 +32,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+import net.grinder.common.Logger;
 import net.grinder.util.TerminalColour;
 
 
@@ -52,6 +53,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   private final TCPProxyFilter m_responseFilter;
   private final String m_requestColour;
   private final String m_responseColour;
+  private final Logger m_logger;
   private final PrintWriter m_outputWriter;
   private final TCPProxySocketFactory m_socketFactory;
   private final ServerSocket m_serverSocket;
@@ -73,7 +75,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    * client sockets.
    * @param requestFilter Request filter.
    * @param responseFilter Response filter.
-   * @param outputWriter Writer to terminal.
+   * @param logger Logger.
    * @param localEndPoint Local host and port to listen on. If the
    * <code>EndPoint</code>'s port is 0, an arbitrary port will be
    * assigned.
@@ -85,13 +87,14 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   public AbstractTCPProxyEngine(TCPProxySocketFactory socketFactory,
                                 TCPProxyFilter requestFilter,
                                 TCPProxyFilter responseFilter,
-                                PrintWriter outputWriter,
+                                Logger logger,
                                 EndPoint localEndPoint,
                                 boolean useColour,
                                 int timeout)
     throws IOException {
 
-    m_outputWriter = outputWriter;
+    m_logger = logger;
+    m_outputWriter = logger.getOutputLogWriter();
 
     m_socketFactory = socketFactory;
     m_requestFilter = requestFilter;
@@ -340,7 +343,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     final String message = e.getMessage();
 
     if (NoActivityTimeOutException.class.equals(c)) {
-      System.err.println("Listen time out");
+      getLogger().error("Listen time out");
     }
     else if (IOException.class.equals(c) && "Stream closed".equals(message) ||
              SocketException.class.equals(c)) {
@@ -348,8 +351,17 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       // closed.
     }
     else {
-      e.printStackTrace(System.err);
+      e.printStackTrace(getLogger().getErrorLogWriter());
     }
+  }
+
+  /**
+   * Accessor for the logger.
+   *
+   * @return The <code>Logger</code>.
+   */
+  protected final Logger getLogger() {
+    return m_logger;
   }
 
   /**
@@ -396,7 +408,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
         m_filter.connectionOpened(m_connectionDetails);
       }
       catch (Exception e) {
-        e.printStackTrace(System.err);
+        e.printStackTrace(getLogger().getErrorLogWriter());
       }
       finally {
         postOutput();
@@ -421,7 +433,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
         newBytes = m_filter.handle(m_connectionDetails, buffer, bytesRead);
       }
       catch (Exception e) {
-        e.printStackTrace(System.err);
+        e.printStackTrace(getLogger().getErrorLogWriter());
       }
       finally {
         postOutput();
@@ -446,7 +458,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
         m_filter.connectionClosed(m_connectionDetails);
       }
       catch (Exception e) {
-        e.printStackTrace(System.err);
+        e.printStackTrace(getLogger().getErrorLogWriter());
       }
       finally {
         postOutput();

@@ -395,7 +395,7 @@ public final class TCPProxy {
         new HTTPProxyTCPProxyEngine(
           sslSocketFactory,
           requestFilter, responseFilter,
-          outputWriter,
+          logger,
           localEndPoint,
           useColour,
           timeout,
@@ -407,7 +407,7 @@ public final class TCPProxy {
           new PortForwarderTCPProxyEngine(
             sslSocketFactory,
             requestFilter, responseFilter,
-            outputWriter,
+            logger,
             new ConnectionDetails(localEndPoint, remoteEndPoint, true),
             useColour,
             timeout);
@@ -416,7 +416,7 @@ public final class TCPProxy {
         m_proxyEngine =
           new PortForwarderTCPProxyEngine(
             requestFilter, responseFilter,
-            outputWriter,
+            logger,
             new ConnectionDetails(localEndPoint, remoteEndPoint, false),
             useColour,
             timeout);

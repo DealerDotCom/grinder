@@ -23,8 +23,9 @@
 package net.grinder.tools.tcpproxy;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
+
+import net.grinder.common.Logger;
 
 
 /**
@@ -44,7 +45,7 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
    *
    * @param requestFilter Request filter.
    * @param responseFilter Response filter.
-   * @param outputWriter Writer to terminal.
+   * @param logger Logger.
    * @param connectionDetails Connection details.
    * @param useColour Whether to use colour.
    * @param timeout Timeout for server socket in milliseconds.
@@ -53,14 +54,14 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
    */
   public PortForwarderTCPProxyEngine(TCPProxyFilter requestFilter,
                                      TCPProxyFilter responseFilter,
-                                     PrintWriter outputWriter,
+                                     Logger logger,
                                      ConnectionDetails connectionDetails,
                                      boolean useColour,
                                      int timeout)
     throws IOException {
 
     this(new TCPProxySocketFactoryImplementation(), requestFilter,
-         responseFilter, outputWriter, connectionDetails, useColour, timeout);
+         responseFilter, logger, connectionDetails, useColour, timeout);
   }
 
   /**
@@ -69,7 +70,7 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
    * @param socketFactory Socket factory.
    * @param requestFilter Request filter.
    * @param responseFilter Response filter.
-   * @param outputWriter Writer to terminal.
+   * @param logger Logger.
    * @param connectionDetails Connection details.
    * @param useColour Whether to use colour.
    * @param timeout Timeout for server socket in milliseconds.
@@ -79,13 +80,13 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
   public PortForwarderTCPProxyEngine(TCPProxySocketFactory socketFactory,
                                      TCPProxyFilter requestFilter,
                                      TCPProxyFilter responseFilter,
-                                     PrintWriter outputWriter,
+                                     Logger logger,
                                      ConnectionDetails connectionDetails,
                                      boolean useColour,
                                      int timeout)
     throws IOException {
 
-    super(socketFactory, requestFilter, responseFilter, outputWriter,
+    super(socketFactory, requestFilter, responseFilter, logger,
           connectionDetails.getLocalEndPoint(), useColour, timeout);
 
     m_connectionDetails = connectionDetails;
