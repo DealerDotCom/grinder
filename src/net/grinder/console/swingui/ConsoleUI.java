@@ -72,6 +72,7 @@ import javax.swing.filechooser.FileFilter;
 
 import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
+import net.grinder.console.common.DistributeFilesHandler;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
@@ -83,6 +84,8 @@ import net.grinder.console.model.editor.Buffer;
 import net.grinder.console.model.editor.EditorModel;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
+import net.grinder.util.Directory;
+import net.grinder.util.FileContents;
 
 
 /**
@@ -143,7 +146,7 @@ public final class ConsoleUI implements ModelListener {
                    ActionListener startProcessesHandler,
                    ActionListener resetProcessesHandler,
                    ActionListener stopProcessesHandler,
-                   ActionListener distributeFilesHandler)
+                   DistributeFilesHandler distributeFilesHandler)
     throws ConsoleException {
 
     m_model = model;
@@ -184,8 +187,8 @@ public final class ConsoleUI implements ModelListener {
 
     addAction(new AboutAction(resources.getImageIcon("logo.image")));
     addAction(new ChooseDirectoryAction());
-    addAction(new DelegateAction("distribute-files", distributeFilesHandler));
     addAction(new DelegateAction("start-processes", startProcessesHandler));
+    addAction(new DistributeFilesAction(distributeFilesHandler));
     addAction(new NewFileAction());
     addAction(new OptionsAction());
     addAction(new ResetProcessesAction(resetProcessesHandler));
@@ -1183,6 +1186,37 @@ public final class ConsoleUI implements ModelListener {
         }
       }
       catch (Exception e) {
+        getErrorHandler().handleException(e);
+      }
+    }
+  }
+
+  private final class DistributeFilesAction extends CustomAction {
+    private final DistributeFilesHandler m_distributeFilesHandler;
+
+    DistributeFilesAction(DistributeFilesHandler distributeFilesHandler) {
+      super(m_model.getResources(), "distribute-files");
+
+      m_distributeFilesHandler = distributeFilesHandler;
+    }
+
+    public void actionPerformed(ActionEvent event) {
+
+      try {
+        final Directory directory =
+          new Directory(m_model.getProperties().getDistributionDirectory());
+
+        final FileContents[] files = directory.toFileContentsArray();
+        final String[] warnings = directory.getWarnings();
+
+        for (int i = 0; i < warnings.length; ++i) {
+          // Should really present these through the UI.
+          System.err.println(warnings[i]);
+        }
+
+        m_distributeFilesHandler.distributeFiles(files);
+      }
+      catch (Directory.DirectoryException e) {
         getErrorHandler().handleException(e);
       }
     }

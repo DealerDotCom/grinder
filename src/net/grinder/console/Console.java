@@ -28,6 +28,7 @@ import java.io.File;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
+import net.grinder.console.common.DistributeFilesHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
@@ -42,7 +43,7 @@ import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.util.Directory;
+import net.grinder.util.FileContents;
 
 
 /**
@@ -107,19 +108,10 @@ public class Console {
         }
       };
 
-    // This needs tidying up.
-    final ActionListener distributeFilesHandler =
-      new ActionListener() {
-        public void actionPerformed(ActionEvent event) {
-          try {
-            m_communication.send(
-              new DistributeFilesMessage(
-                new Directory(properties.getDistributionDirectory())
-                .toFileContentsArray()));
-          }
-          catch (Exception e) {
-            e.printStackTrace();
-          }
+    final DistributeFilesHandler distributeFilesHandler =
+      new DistributeFilesHandler() {
+        public void distributeFiles(FileContents[] files) {
+          m_communication.send(new DistributeFilesMessage(files));
         }
       };
 

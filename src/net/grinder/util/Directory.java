@@ -38,6 +38,7 @@ import java.util.Set;
 public final class Directory  {
 
   private final File m_directory;
+  private final List m_warnings = new ArrayList();
 
   /**
    * Constructor.
@@ -54,7 +55,6 @@ public final class Directory  {
 
     m_directory = directory;
   }
-
 
   /**
    * List the files in the hierarchy below the directory.
@@ -94,6 +94,13 @@ public final class Directory  {
         // relative, not absolute.
         final String[] children = absoluteDirectory.list();
 
+        if (children == null) {
+          // This can happen if the user does not have permision to
+          // list the directory.
+          m_warnings.add("Could not list '" + absoluteDirectory);
+          break;
+        }
+
         for (int j = 0; j < children.length; ++j) {
           final File relativeChild = new File(relativeDirectory, children[j]);
           final File absoluteChild = new File(absoluteDirectory, children[j]);
@@ -132,19 +139,37 @@ public final class Directory  {
    * Return the files as an array of {@link FileContents}.
 
    * @return The array.
-   * @exception FileContents.FileContentsException If an error occurs.
    */
-  public FileContents[] toFileContentsArray()
-    throws FileContents.FileContentsException {
+  public FileContents[] toFileContentsArray() {
 
     final File[] files = listContents();
-    final FileContents[] result = new FileContents[files.length];
+    final List result = new ArrayList();
 
     for (int i = 0; i < files.length; ++i) {
-      result[i] = new FileContents(m_directory, files[i]);
+      try {
+        result.add(new FileContents(m_directory, files[i]));
+      }
+      catch (FileContents.FileContentsException e) {
+        m_warnings.add(e.getMessage());
+      }
     }
 
-    return result;
+    return (FileContents[])result.toArray(new FileContents[result.size()]);
+  }
+
+  /**
+   * Return a list of warnings that have occured since the last time
+   * {@link #getWarnings} was called.
+   *
+   * @return The list of warnings.
+   */
+  public String[] getWarnings() {
+    try {
+      return (String[])m_warnings.toArray(new String[m_warnings.size()]);
+    }
+    finally {
+      m_warnings.clear();
+    }
   }
 
   /**
