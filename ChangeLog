@@ -1,4 +1,54 @@
+2004-05-18  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/common/GrinderProperties.java, tests-src/net/grinder/common/TestGrinderProperties.java:
+	Test coverage.
+
+	* src/net/grinder/util/Directory.java: Checkstyle.
+
+	* src/net/grinder/common/GrinderProperties.java, tests-src/net/grinder/common/TestGrinderProperties.java:
+	getFile(), setFile().
+
+	* src/net/grinder/console/Console.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/ScriptDistributionFiles.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, tests-src/net/grinder/console/model/TestScriptDistributionFiles.java:
+	Remove ScriptDistributionFiles.
+
+	* tests-src/net/grinder/util/TestInsecureSSLContextFactory.java:
+	Coverage.
+
+	* src/net/grinder/util/Directory.java, tests-src/net/grinder/util/TestDirectory.java:
+	Fix listContents() to return relative paths where appropriate.
+
+2004-05-17  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/agent/FileStore.java, src/net/grinder/util/Directory.java, src/net/grinder/util/FileUtilities.java, tests-src/net/grinder/util/TestDirectory.java, tests-src/net/grinder/util/TestFileUtilities.java:
+	New Directory class to hold directory related utilities.
+
+2004-05-16  Philip Aston  <philipa@mail.com>
+
+	* TODO: Task plan for console script editing.
+
+	* src/net/grinder/console/Console.java, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/common/ConsoleListener.java, src/net/grinder/engine/messages/StartGrinderMessage.java, tests-src/net/grinder/engine/common/TestConsoleListener.java, tests-src/net/grinder/engine/messages/TestEngineMessages.java:
+	Accept script to run in StartGrinderMessage.
+
+	* src/net/grinder/engine/agent/ProcessFactory.java, tests-src/net/grinder/engine/agent/TestWorkerProcessCommandLine.java, tests-src/net/grinder/engine/agent/TestWorkerProcessFactory.java, src/net/grinder/engine/agent/WorkerProcessCommandLine.java, src/net/grinder/engine/agent/WorkerProcessFactory.java:
+	Factory command line parsing out of worker process factory.
+
+	* src/net/grinder/engine/agent/FileStore.java, tests-src/net/grinder/engine/agent/TestFileStore.java:
+	Delete file store contents on start up.
+
+	* src/net/grinder/util/FileUtilities.java, tests-src/net/grinder/util/TestFileUtilities.java:
+	Rename deleteTree() to deleteContents().
+
+	* src/net/grinder/util/FileUtilities.java, tests-src/net/grinder/util/TestFileUtilities.java:
+	Utility to delete a directory.
+
+2004-05-15  Philip Aston  <philipa@mail.com>
+
+	* build.xml: Specify fixed Jython cache directory for unit tests.
+
 2004-05-12  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/agent/Agent.java:
+	For now, don't check the script exists when using console.
 
 	* src/net/grinder/engine/agent/FileCache.java, src/net/grinder/engine/agent/FileStore.java, src/net/grinder/engine/agent/WorkerProcessFactory.java, src/net/grinder/engine/messages/InitialiseGrinderMessage.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/util/FileContents.java, tests-src/net/grinder/engine/agent/TestFileStore.java, tests-src/net/grinder/engine/agent/TestWorkerProcessFactory.java, tests-src/net/grinder/engine/messages/TestEngineMessages.java, tests-src/net/grinder/testutility/AbstractFileTestCase.java, tests-src/net/grinder/util/TestFileContents.java, tests-src/prj.el, TODO, build.xml, src/net/grinder/console/model/ScriptDistributionFiles.java, src/net/grinder/engine/agent/Agent.java:
 	More script distribution work.
