@@ -217,7 +217,7 @@ public final class TCPProxy {
           System.setErr(new PrintStream(
                           new FileOutputStream(outputFile + ".err"), true));
         }
-        else if (args[i].equalsIgnoreCase("-displayconsole")) {
+        else if (args[i].equalsIgnoreCase("-console")) {
           console = true;
         }
         else if (args[i].equalsIgnoreCase("-colour") ||
