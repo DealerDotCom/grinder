@@ -1,3 +1,25 @@
+2004-08-24  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/engine/agent/TestProcessLauncher.java, tests-src/net/grinder/engine/agent/TestWorkerProcessFactory.java, tests-src/net/grinder/engine/agent/TestChildProcess.java:
+	Use a test classpath, rather than just the test class directory.
+
+	* TODO, build.xml, etc/buildenv.sh, etc/localpaths.properties, .cvsignore:
+	Glass Jar out, Clover in.
+
+	* TODO: Another idea.
+
+2004-08-13  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/engine/agent/TestWorkerProcessCommandLine.java:
+	Remove redundant code.
+
+2004-08-12  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/engine/process/GrinderProcess.java, xdoc/welcome-xhtml.xml, AUTHORS:
+	Simple patch from Slavik Gnatenko that allows the grinder.threads,
+	grinder.reportToConsole.interval, and grinder.duration properties to
+	be overridden in a script's initialistion section.
+
 2004-08-10  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, src/HTTPClient/HTTPResponse.java:
