@@ -22,7 +22,6 @@
 
 package net.grinder.engine.process;
 
-import org.python.core.PyFinalizableInstance;
 import org.python.core.PyFunction;
 import org.python.core.PyInstance;
 import org.python.core.PyMethod;
