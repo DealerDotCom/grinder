@@ -21,7 +21,6 @@
 
 package net.grinder.script;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -134,7 +133,7 @@ public interface SSLControl extends SSLContextFactory {
    * <p>This will create a new SSL context. See {@link <a
    * href="#set_methods">the note above</a>} for details.</p>
    *
-   * @param keyStoreFile Input stream to key store.
+   * @param keyStoreFileName Key store file name.
    * @param password Key store password.
    * @param keyStoreType Key store type.
    * @exception GeneralSecurityException If JSSE could not load the key store.
@@ -144,22 +143,23 @@ public interface SSLControl extends SSLContextFactory {
    * @see #setKeyManagers
    * @see #setKeyStoreFile
    */
-  void setKeyStoreFile(File keyStoreFile, String password, String keyStoreType)
+  void setKeyStoreFile(String keyStoreFileName, String password,
+                       String keyStoreType)
     throws GeneralSecurityException, InvalidContextException, IOException;
 
   /**
    * Overloaded version of <code>setKeyStoreFile</code> for key stores of
    * type <code>jks</code>.
    *
-   * @param keyStoreFile Input stream to key store.
+   * @param keyStoreFileName Key store file name.
    * @param password Key store password.
    * @exception GeneralSecurityException If JSSE could not load the key store.
    * @exception InvalidContextException If called from a non-worker
    * thread.
    * @exception IOException If key store could not be read.
-   * @see #setKeyStoreFile(File, String, String)
+   * @see #setKeyStoreFile(String, String, String)
    */
-  void setKeyStoreFile(File keyStoreFile, String password)
+  void setKeyStoreFile(String keyStoreFile, String password)
     throws GeneralSecurityException, InvalidContextException, IOException;
 
   /**
