@@ -78,9 +78,12 @@ public final class ConsoleProperties {
     "grinder.console.stopProcessesDontAsk";
 
   /** Property name. */
-  public static final String SCRIPT_DISTRIBUTION_FILES_PROPERTY =
+  public static final String SCRIPT_DISTRIBUTION_FILES_PROPERTY_PREFIX =
     "grinder.console.scriptDistribution.";
 
+  /** Property name. */
+  public static final String LOOK_AND_FEEL_PROPERTY =
+    "grinder.console.lookAndFeel";
 
   private final PropertyChangeSupport m_changeSupport =
     new PropertyChangeSupport(this);
@@ -93,6 +96,7 @@ public final class ConsoleProperties {
   private boolean m_resetConsoleWithProcessesDontAsk;
   private boolean m_stopProcessesDontAsk;
   private ScriptDistributionFiles m_scriptDistributionFiles;
+  private String m_lookAndFeel;
 
   /**
    *We hang onto the host as a string so we can copy and externalise
@@ -146,8 +150,10 @@ public final class ConsoleProperties {
       m_properties.getBoolean(STOP_PROCESSES_DONT_ASK_PROPERTY, false));
 
     setScriptDistributionFiles(
-      new ScriptDistributionFiles(SCRIPT_DISTRIBUTION_FILES_PROPERTY,
+      new ScriptDistributionFiles(SCRIPT_DISTRIBUTION_FILES_PROPERTY_PREFIX,
                                   m_properties));
+
+    setLookAndFeel(m_properties.getProperty(LOOK_AND_FEEL_PROPERTY, null));
   }
 
   /**
@@ -178,6 +184,7 @@ public final class ConsoleProperties {
       properties.m_resetConsoleWithProcessesDontAsk);
     setStopProcessesDontAskInternal(properties.m_stopProcessesDontAsk);
     setScriptDistributionFiles(properties.m_scriptDistributionFiles);
+    setLookAndFeel(properties.m_lookAndFeel);
   }
 
   /**
@@ -222,6 +229,10 @@ public final class ConsoleProperties {
     m_properties.setBoolean(STOP_PROCESSES_DONT_ASK_PROPERTY,
                             m_stopProcessesDontAsk);
     m_scriptDistributionFiles.addToProperties(m_properties);
+
+    if (m_lookAndFeel != null) {
+      m_properties.setProperty(LOOK_AND_FEEL_PROPERTY, m_lookAndFeel);
+    }
 
     m_properties.save();
   }
@@ -582,7 +593,36 @@ public final class ConsoleProperties {
       m_scriptDistributionFiles = scriptDistributionFiles;
 
       m_changeSupport.firePropertyChange(
-        SCRIPT_DISTRIBUTION_FILES_PROPERTY, old, m_scriptDistributionFiles);
+        SCRIPT_DISTRIBUTION_FILES_PROPERTY_PREFIX, old,
+        m_scriptDistributionFiles);
+    }
+  }
+
+  /**
+   * Get the name of the chosen Look and Feel. It is up to the UI
+   * implementation how this is interpreted.
+   *
+   * @return The Look and Feel name. <code>null</code> => use default.
+   */
+  public String getLookAndFeel() {
+    return m_lookAndFeel;
+  }
+
+  /**
+   * Set the name of the chosen Look and Feel.
+   *
+   * @param name The Look and Feel name. <code>null</code> => use default.
+   */
+  public void setLookAndFeel(String name) {
+
+    if (name == null && m_lookAndFeel != null ||
+        name != null && m_lookAndFeel == null ||
+        name != null && !name.equals(m_lookAndFeel)) {
+
+      final String old = name;
+      m_lookAndFeel = name;
+      m_changeSupport.firePropertyChange(LOOK_AND_FEEL_PROPERTY, old,
+                                         m_lookAndFeel);
     }
   }
 }

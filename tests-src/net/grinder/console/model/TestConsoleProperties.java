@@ -31,6 +31,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.util.Properties;
 import java.util.Random;
 
 import net.grinder.common.GrinderException;
@@ -54,14 +55,11 @@ public class TestConsoleProperties extends TestCase {
   }
 
   private File m_file;
-  private FileWriter m_fileWriter;
   private Random m_random = new Random();
 
   protected void setUp() throws Exception {
     m_file = File.createTempFile("testing", "123");
     m_file.deleteOnExit();
-
-    m_fileWriter = new FileWriter(m_file);
   }
 
   public void testCollectSamples() throws Exception {
@@ -134,8 +132,7 @@ public class TestConsoleProperties extends TestCase {
 
     final String s1 = "123.1.2.3";
 
-    m_fileWriter.write(propertyName + ":" + s1);
-    m_fileWriter.close();
+    writePropertyToFile(propertyName, s1);
 
     final ConsoleProperties properties = new ConsoleProperties(m_file);
     assertEquals(s1, properties.getConsoleHost());
@@ -201,8 +198,7 @@ public class TestConsoleProperties extends TestCase {
     final String propertyName =
       ConsoleProperties.RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY;
 
-    m_fileWriter.write(propertyName + ": false");
-    m_fileWriter.close();
+    writePropertyToFile(propertyName, "false");
 
     final ConsoleProperties properties = new ConsoleProperties(m_file);
     assertTrue(!properties.getResetConsoleWithProcessesDontAsk());
@@ -228,8 +224,7 @@ public class TestConsoleProperties extends TestCase {
     final String propertyName =
       ConsoleProperties.STOP_PROCESSES_DONT_ASK_PROPERTY;
 
-    m_fileWriter.write(propertyName + ": false");
-    m_fileWriter.close();
+    writePropertyToFile(propertyName, "false");
 
     final ConsoleProperties properties = new ConsoleProperties(m_file);
     assertTrue(!properties.getStopProcessesDontAsk());
@@ -252,7 +247,7 @@ public class TestConsoleProperties extends TestCase {
 
   public void testScriptDistributionFiles() throws Exception {
     final String propertyName =
-      ConsoleProperties.SCRIPT_DISTRIBUTION_FILES_PROPERTY;
+      ConsoleProperties.SCRIPT_DISTRIBUTION_FILES_PROPERTY_PREFIX;
 
     final ScriptDistributionFiles scriptDistributionFiles =
       new ScriptDistributionFiles(propertyName, new GrinderProperties());
@@ -284,6 +279,20 @@ public class TestConsoleProperties extends TestCase {
     properties.addPropertyChangeListener(propertyName, listener2);
 
     properties.setScriptDistributionFiles(scriptDistributionFiles2);
+  }
+
+  public void testLookAndFeel() throws Exception {
+
+    new TestStringTemplate(ConsoleProperties.LOOK_AND_FEEL_PROPERTY, true) {
+
+      protected String get(ConsoleProperties properties) {
+	return properties.getLookAndFeel();
+      }
+
+      protected void set(ConsoleProperties properties, String name) {
+	properties.setLookAndFeel(name);
+      }
+    }.doTest();
   }
 
   public void testCopyConstructor() throws Exception {
@@ -355,8 +364,7 @@ public class TestConsoleProperties extends TestCase {
     private final int m_minimum;
     private final int m_maximum;
 
-    public TestIntTemplate(String propertyName, int minimum, int maximum)
-    {
+    public TestIntTemplate(String propertyName, int minimum, int maximum) {
       if (maximum <= minimum) {
 	throw new IllegalArgumentException(
 	  "Minimum not less than maximum");
@@ -383,8 +391,7 @@ public class TestConsoleProperties extends TestCase {
     public void doTest() throws Exception {
       final int i1 = getRandomInt();
 
-      m_fileWriter.write(m_propertyName + ":" + i1);
-      m_fileWriter.close();
+      writePropertyToFile(m_propertyName, Integer.toString(i1));
 
       final ConsoleProperties properties = new ConsoleProperties(m_file);
       assertEquals(i1, get(properties));
@@ -396,11 +403,15 @@ public class TestConsoleProperties extends TestCase {
 
       properties.save();
 
-      final ConsoleProperties properties2 =
-	new ConsoleProperties(m_file);
+      final ConsoleProperties properties2 = new ConsoleProperties(m_file);
       assertEquals(i2, get(properties2));
 
-      final int i3 = getRandomInt();
+      int i3;
+
+      do {
+        i3 = getRandomInt();
+      }
+      while (i3 == i2);
 
       final PropertyChangeEvent expected =
 	new PropertyChangeEvent(properties2, m_propertyName, 
@@ -437,7 +448,6 @@ public class TestConsoleProperties extends TestCase {
 	catch (DisplayMessageConsoleException e) {
 	}
       }
-
 
       if (m_maximum < Integer.MAX_VALUE) {
 	try {
@@ -479,8 +489,7 @@ public class TestConsoleProperties extends TestCase {
 
     public void doTest() throws Exception {
 
-      m_fileWriter.write(m_propertyName + ": false");
-      m_fileWriter.close();
+      writePropertyToFile(m_propertyName, "false");
 
       final ConsoleProperties properties = new ConsoleProperties(m_file);
       assertTrue(!get(properties));
@@ -511,6 +520,98 @@ public class TestConsoleProperties extends TestCase {
     protected abstract void set(ConsoleProperties properties, boolean b);
   }
 
+  private abstract class TestStringTemplate {
+    private final String m_propertyName;
+    private final boolean m_allowNulls;
+
+    public TestStringTemplate(String propertyName, boolean allowNulls) {
+      m_propertyName = propertyName;
+      m_allowNulls = allowNulls;
+    }
+
+    private String getRandomString() {
+      final int length = m_random.nextInt(200);
+      final char[] characters = new char[length];
+
+      for (int i=0; i<characters.length; ++i) {
+        characters[i] = (char)(0x20 + m_random.nextInt(0x60));
+      }
+
+      return new String(characters);
+    }
+
+    public void doTest() throws Exception {
+
+      if (m_allowNulls) {
+        final ConsoleProperties properties = new ConsoleProperties(m_file);
+        assertNull(get(properties));
+
+        final String s = getRandomString();
+        set(properties, s);
+        assertNotNull(get(properties));
+
+        set(properties, null);
+        assertNull(get(properties));
+
+        properties.save();
+
+        final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+        assertNull(get(properties2));
+      }
+      else {
+        final ConsoleProperties properties = new ConsoleProperties(m_file);
+
+        try {
+          set(properties, null);
+          fail("Can set '" + m_propertyName +
+               "' to null, expected DisplayMessageConsoleException");
+        }
+        catch (DisplayMessageConsoleException e) {
+        }
+      }
+      
+      final String s1 = getRandomString();
+
+      writePropertyToFile(m_propertyName, s1);
+
+      final ConsoleProperties properties = new ConsoleProperties(m_file);
+      assertEquals(s1, get(properties));
+
+      final String s2 = getRandomString();
+
+      set(properties, s2);
+      assertEquals(s2, get(properties));
+
+      properties.save();
+
+      final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+      assertEquals(s2, get(properties2));
+
+      String s3 = getRandomString();
+
+      do {
+        s3 = getRandomString();
+      }
+      while (s2.equals(s1));
+
+      final PropertyChangeEvent expected =
+	new PropertyChangeEvent(properties2, m_propertyName, s2, s3);
+
+      final MyListener listener = new MyListener(expected);
+      final MyListener listener2 = new MyListener(expected);
+
+      properties2.addPropertyChangeListener(listener);
+      properties2.addPropertyChangeListener(m_propertyName, listener2);
+
+      set(properties2, s3);
+    }
+
+    protected abstract String get(ConsoleProperties properties);
+
+    protected abstract void set(ConsoleProperties properties, String i)
+      throws DisplayMessageConsoleException;
+  }
+
   private class MyListener implements PropertyChangeListener {
     final PropertyChangeEvent m_expected;
 
@@ -525,4 +626,20 @@ public class TestConsoleProperties extends TestCase {
 		   event.getPropertyName());
     }
   }
+
+  /**
+   * Write a property key/value pair to our temporary file. Use
+   * Properties so we get the correct escaping.
+   */
+  private final void writePropertyToFile(String name, String value)
+    throws Exception {
+
+    final FileOutputStream outputStream = new FileOutputStream(m_file);
+
+    final Properties properties = new Properties();
+    properties.setProperty(name, value);
+    properties.store(outputStream, "");
+    outputStream.close();
+  }
 }
+
