@@ -108,6 +108,9 @@ java -Duser.language="es" net.grinder.Console
 </pre>
 </blockquote>
 
+<p>Bertrand Ave has produced a translation for French speaking users
+(<code>user.language="fr"</code>).</p>
+
 </body>
 </html>
 
