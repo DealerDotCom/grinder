@@ -29,7 +29,9 @@ public class FilenameFactory
     private final String m_logDirectory;
     private final String m_contextString;
 
-    public FilenameFactory(String processID, String threadID)
+    /** Package scope - only created by ProcessContextImplementation.
+     */
+    FilenameFactory(String hostID, String processID, String threadID)
     {
 	final GrinderProperties properties = GrinderProperties.getProperties();
 
@@ -37,16 +39,18 @@ public class FilenameFactory
 
 	final StringBuffer buffer = new StringBuffer();
 
-	buffer.append("_");
-	buffer.append(properties.getProperty("grinder.hostID", "UNNAMEDHOST"));
-
-	if (processID != null) {
+	if (hostID != null) {
 	    buffer.append("_");
-	    buffer.append(processID);
+	    buffer.append(hostID);
 
-	    if (threadID != null) {
+	    if (processID != null) {
 		buffer.append("_");
-		buffer.append(threadID);
+		buffer.append(processID);
+
+		if (threadID != null) {
+		    buffer.append("_");
+		    buffer.append(threadID);
+		}
 	    }
 	}
 
