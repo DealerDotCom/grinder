@@ -50,6 +50,9 @@ What can I set in grinder.properties for the HTTP plugin?
 				response over the network. If so, set
 				this parameter to true.
 
+				This parameter is ignored by the
+				HTTPClient implementation. See below.
+
     grinder.plugin.parameter.stringBean -
 				Fully qualified classname of a Java
 				bean that can provide dynamic strings
@@ -59,36 +62,53 @@ What can I set in grinder.properties for the HTTP plugin?
     grinder.test0.parameter.url -
 				The URL to call. The HTTP GET method
 				is used unless
-			 	grinder.test0.parameter.post is
+			        grinder.test0.parameter.post is
 			 	specified.
+
+				The value can be varied using a String
+				Bean, see "What's a String Bean?"
+				below.
 
     grinder.test0.parameter.ok	-
 				Fail if the returned page doesn't
 			 	contain this string.
 
+				The value can be varied using a String
+				Bean, see "What's a String Bean?"
+				below.
+
     grinder.test0.parameter.post -
 				Specify a file containing POST data to
 			 	send.
 
-    grinder.test0.parameter.postContentType -
-				Specify a the Content-Type header for POST
-				requests.
+				The value can be varied using a String
+				Bean, see "What's a String Bean?"
+				below.
 
-    grinder.test0.parameter.ifModifiedSince -
-				This appears in the HTTP
-			 	"If-Modified-Since" request header,
-			 	allowing the grinder to simulate the
-			 	a browser's caching of pages. Its value
-				should be a date of the form
-				Sat, 06 Jan 2001 13:36:39 GMT.
+    grinder.test0.parameter.header.X -
+				where X can be an arbitrary string.
 
+				Add a X: header to the request with
+				the specified value.
+
+				The value can be varied using a String
+				Bean, see "What's a String Bean?"
+				below.
+
+    grinder.test0.parameter.basicAuthenticationRealm -
     grinder.test0.parameter.basicAuthenticationUser -
     grinder.test0.parameter.basicAuthenticationPassword -
 				Used togther, these specify an HTTP
 				basic authentication header that will
-				be sent with the request. The values
-				can be varied using a String Bean, see
-				"What's a String Bean?" below.
+				be sent with the request.
+
+				Note, the HTTPClient implementation
+				(see below) only sends this if
+				challenged, as a browser would.
+
+				The values can be varied using a
+				String Bean, see "What's a String
+				Bean?" below.
 
 
 What's a String Bean?

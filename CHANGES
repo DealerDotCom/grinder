@@ -13,8 +13,17 @@ Grinder 2.7
 
   Removed deprectated BookHttpPlugin example. Use StringBeans instead.
 
+  Minor changes to the plugin interface.
+
+  HTTPPlugin enhancements
+   - Can now send arbitrary headers. Note, the specific
+     If-Modified-Since property has been removed, use the arbitrary
+     header support. The TCPSniffer filter has been updated
+     accordingly.
+   - Most request strings, including the arbitrary header values, are
+     now affected by the String Bean, see doc/HTTPPlugin.txt.
+
   Features from Kalle Burbeck:
-   - New HTTP plugin parameter for POST requests, postContentType.
    - HTTP plugin sniffer filter now has limited support for
      multipart forms.
    - HTTP plugin sniffer filter now generates test descriptions.

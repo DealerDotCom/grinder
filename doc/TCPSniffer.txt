@@ -79,10 +79,10 @@ The output of the HttpPluginSnifferFilter looks like:
   grinder.test2.parameter.url=http://localhost:7001/test.gif
   grinder.test3.sleepTime=4786
   grinder.test3.parameter.url=http://localhost:7001/lah.html
-  grinder.test3.parameter.ifModifiedSince=Tue, 16 Jan 2001 16:26:42 GMT
+  grinder.test3.parameter.header.If-Modified-Since=Tue, 16 Jan 2001 16:26:42 GMT
   grinder.test4.sleepTime=311
   grinder.test4.parameter.url=http://localhost:7001/test.gif
-  grinder.test4.parameter.ifModifiedSince=Mon, 06 Nov 2000 08:35:58 GMT
+  grinder.test4.parameter.header.If-Modified-Since=Mon, 06 Nov 2000 08:35:58 GMT
 
 The script part of this is sent to the stdout stream, whereas the
 information messages are sent to stderr. You can redirect the script
