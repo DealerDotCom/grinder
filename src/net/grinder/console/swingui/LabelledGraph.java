@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,9 +29,9 @@ import java.awt.Font;
 import java.text.NumberFormat;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -47,251 +47,248 @@ import net.grinder.statistics.TestStatistics;
  * @author Philip Aston
  * @version $Revision$
  */
-class LabelledGraph extends JPanel
-{
-    private static double s_peak = 0d;
-    private static double s_lastPeak = 0d;
+class LabelledGraph extends JPanel {
+  private static double s_peak = 0d;
+  private static double s_lastPeak = 0d;
 
-    final static Border s_blackLine =
-	BorderFactory.createLineBorder(Color.black);
+  private static Border s_thinBevelBorder;
 
-    private Color[] m_colors =
-    {
-	new Color(0xFF, 0xFF, 0x00),
-	new Color(0xFF, 0xF0, 0x00),
-	new Color(0xFF, 0xE0, 0x00),
-	new Color(0xFF, 0xD0, 0x00),
-	new Color(0xFF, 0xC0, 0x00),
-	new Color(0xFF, 0xB0, 0x00),
-	new Color(0xFF, 0xA0, 0x00),
-	new Color(0xFF, 0x90, 0x00),
-	new Color(0xFF, 0x80, 0x00),
-	new Color(0xFF, 0x70, 0x00),
-	new Color(0xFF, 0x60, 0x00),
-	new Color(0xFF, 0x50, 0x00),
-	new Color(0xFF, 0x40, 0x00),
-	new Color(0xFF, 0x30, 0x00),
-	new Color(0xFF, 0x20, 0x00),
-	new Color(0xFF, 0x10, 0x00),
-	new Color(0xFF, 0x00, 0x00),
-    };
+  private Color[] m_colors = {
+    new Color(0xF0, 0xFF, 0x00),
+    new Color(0xF0, 0xF0, 0x00),
+    new Color(0xF0, 0xE0, 0x00),
+    new Color(0xF0, 0xD0, 0x00),
+    new Color(0xF0, 0xC0, 0x00),
+    new Color(0xF0, 0xB0, 0x00),
+    new Color(0xF0, 0xA0, 0x00),
+    new Color(0xF0, 0x90, 0x00),
+    new Color(0xF0, 0x80, 0x00),
+    new Color(0xF0, 0x70, 0x00),
+    new Color(0xF0, 0x60, 0x00),
+    new Color(0xF0, 0x50, 0x00),
+    new Color(0xF0, 0x40, 0x00),
+    new Color(0xF0, 0x30, 0x00),
+    new Color(0xF0, 0x20, 0x00),
+    new Color(0xF0, 0x10, 0x00),
+    new Color(0xF0, 0x00, 0x00),
+  };
 
-    private final Color m_color;
-    private final Graph m_graph;
-    private final StatisticExpression m_tpsExpression;
-    private final StatisticExpression m_peakTPSExpression;
+  private final Color m_color;
+  private final Graph m_graph;
+  private final StatisticExpression m_tpsExpression;
+  private final StatisticExpression m_peakTPSExpression;
 
-    private static class Label extends JLabel
-    {
-	private static final Font s_plainFont;
-	private static final Font s_boldFont;
-	private static final Color s_defaultForeground;
+  private static class Label extends JLabel {
 
-	static 
-	{
-	    final JLabel label = new JLabel();
-	    final Font defaultFont = label.getFont();
-	    final float size = defaultFont.getSize2D() - 1;
+    private static final Font s_plainFont;
+    private static final Font s_boldFont;
+    private static final Color s_defaultForeground;
 
-	    s_plainFont = defaultFont.deriveFont(Font.PLAIN, size);
-	    s_boldFont = defaultFont.deriveFont(Font.BOLD, size);
-	    s_defaultForeground = label.getForeground();
-	}
+    static {
+      final JLabel label = new JLabel();
+      final Font defaultFont = label.getFont();
+      final float size = defaultFont.getSize2D() - 1;
 
-	private final String m_suffix;
-	private final String m_unit;
-	private final String m_units;
-
-	public Label(String unit, String units, String suffix)
-	{
-	    m_suffix = " " + suffix;
-	    m_unit = " " + unit;
-	    m_units = " " + units;
-	    setFont(s_plainFont);
-	    set(0);
-	}
-
-	public void set(long value)
-	{
-	    super.setText(Long.toString(value) +
-			  (value == 1 ? m_unit : m_units) +
-			  m_suffix);
-	}
-
-	public void set(double value, NumberFormat numberFormat)
-	{
-	    super.setText(numberFormat.format(value) +
-			  m_units +
-			  m_suffix);
-	}
-
-	public void set(String value)
-	{
-	    super.setText(value + m_units + m_suffix);
-	}
-
-	/**
-	 * Make all labels the same width.
-	 * Pack more tightly vertically.
-	 **/
-	public Dimension getPreferredSize()
-	{
-	    final Dimension d = super.getPreferredSize();
-	    d.width = 120;
-	    d.height -= 3;
-	    return d;
-	}
-
-	public Dimension getMaximumSize()
-	{
-	    return getPreferredSize();
-	}
-
-	public void setHighlight(boolean highlight)
-	{
-	    if (highlight) {
-		setForeground(Color.red);
-		setFont(s_boldFont);
-	    }
-	    else {
-		setForeground(s_defaultForeground);
-		setFont(s_plainFont);
-	    }
-	}
+      s_plainFont = defaultFont.deriveFont(Font.PLAIN, size);
+      s_boldFont = defaultFont.deriveFont(Font.BOLD, size);
+      s_defaultForeground = label.getForeground();
     }
 
-    private final Label m_averageTimeLabel;
-    private final Label m_averageTPSLabel;
-    private final Label m_peakTPSLabel;
-    private final Label m_transactionsLabel;
-    private final Label m_errorsLabel;
-    private final Dimension m_preferredSize = new Dimension(250, 110);
+    private final String m_suffix;
+    private final String m_unit;
+    private final String m_units;
 
-    public LabelledGraph(String title, Resources resources,
-			 StatisticExpression tpsExpression,
-			 StatisticExpression peakTPSExpression)
-    {
-	this(title, resources, null, tpsExpression, peakTPSExpression);
+    public Label(String unit, String units, String suffix) {
+      m_suffix = " " + suffix;
+      m_unit = " " + unit;
+      m_units = " " + units;
+      setFont(s_plainFont);
+      set(0);
     }
 
-    public LabelledGraph(String title, Resources resources, Color color,
-			 StatisticExpression tpsExpression,
-			 StatisticExpression peakTPSExpression)
-    {
-	m_tpsExpression = tpsExpression;
-	m_peakTPSExpression = peakTPSExpression;
-
-	final String msUnit = resources.getString("ms.unit");
-	final String msUnits = resources.getString("ms.units");
-	final String tpsUnits = resources.getString("tps.units");
-	final String transactionUnit = resources.getString("transaction.unit");
-	final String transactionUnits =
-	    resources.getString("transaction.units");
-	final String errorUnit = resources.getString("error.unit");
-	final String errorUnits = resources.getString("error.units");
-
-	final String averageSuffix =
-	    resources.getString("graph.averageSuffix.label");
-	final String peakSuffix =
-	    resources.getString("graph.peakSuffix.label");
-
-	m_averageTimeLabel = new Label(msUnit, msUnits, averageSuffix);
-	m_averageTPSLabel = new Label(tpsUnits, tpsUnits, averageSuffix);
-	m_peakTPSLabel = new Label(tpsUnits, tpsUnits, peakSuffix);
-	m_transactionsLabel = new Label(transactionUnit, transactionUnits, "");
-	m_errorsLabel = new Label(errorUnit, errorUnits, "");
-
-	m_color = color;
-	m_graph = new Graph(25);
-	m_graph.setPreferredSize(null); // We are the master now.
-	m_graph.setBorder(s_blackLine);
-
-	final JPanel labelPanel = new JPanel();
-	labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
-	labelPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 0));
-
-	final JLabel titleLabel= new JLabel();
-	titleLabel.setText(title);
-	titleLabel.setForeground(Color.black);
-
-	labelPanel.add(m_averageTimeLabel);
-	labelPanel.add(m_averageTPSLabel);
-	labelPanel.add(m_peakTPSLabel);
-	labelPanel.add(m_transactionsLabel);
-	labelPanel.add(m_errorsLabel);
-
-	setLayout(new BorderLayout());
-
-	add(titleLabel, BorderLayout.NORTH);
-	add(labelPanel, BorderLayout.WEST);
-	add(m_graph, BorderLayout.CENTER);
-
-	final Border border = getBorder();
-	final Border margin = new EmptyBorder(10, 10, 10, 10);
-	setBorder(new CompoundBorder(border, margin));
+    public void set(long value) {
+      super.setText(Long.toString(value) +
+		    (value == 1 ? m_unit : m_units) +
+		    m_suffix);
     }
 
-    public Dimension getPreferredSize()
-    {
-	return m_preferredSize;
+    public void set(double value, NumberFormat numberFormat) {
+      super.setText(numberFormat.format(value) +
+		    m_units +
+		    m_suffix);
     }
 
-    public void add(TestStatistics intervalStatistics,
-		    TestStatistics cumulativeStatistics,
-		    NumberFormat numberFormat)
-    {
-	final double averageTime =
-	    cumulativeStatistics.getAverageTransactionTime();
-	final long errors = cumulativeStatistics.getErrors();
-	final double peakTPS =
-	    m_peakTPSExpression.getDoubleValue(cumulativeStatistics);
-
-	m_graph.setMaximum(peakTPS);
-	m_graph.add(m_tpsExpression.getDoubleValue(intervalStatistics));
-	m_graph.setColor(calculateColour(averageTime));
-
-	if (!Double.isNaN(averageTime)) {
-	    m_averageTimeLabel.set(averageTime, numberFormat);
-	}
-	else {
-	    m_averageTimeLabel.set("----");
-	}
-
-	m_averageTPSLabel.set(
-	    m_tpsExpression.getDoubleValue(cumulativeStatistics),
-	    numberFormat);
-
-	m_peakTPSLabel.set(peakTPS, numberFormat);
-
-	m_transactionsLabel.set(cumulativeStatistics.getTransactions());
-
-	m_errorsLabel.set(errors);
-	m_errorsLabel.setHighlight(errors > 0);
+    public void set(String value) {
+      super.setText(value + m_units + m_suffix);
     }
 
-    private Color calculateColour(double time)
-    {
-	if (m_color != null) {
-	    return m_color;
-	}
-	else {
-	    if (time > s_peak) { // Not worth the cost of synchornization.
-		s_peak = time;
-	    }
-
-	    final int colorIndex = (int)(m_colors.length * (time/s_lastPeak));
-
-	    if (colorIndex >= m_colors.length) {
-		return m_colors[m_colors.length - 1];
-	    }
-
-	    return m_colors[colorIndex];
-	}
+    /**
+     * Make all labels the same width.
+     * Pack more tightly vertically.
+     **/
+    public Dimension getPreferredSize() {
+      final Dimension d = super.getPreferredSize();
+      d.width = 120;
+      d.height -= 3;
+      return d;
     }
 
-    public static void resetPeak()
-    {
-	s_lastPeak = s_peak;
-	s_peak = 0;
+    public Dimension getMaximumSize() {
+      return getPreferredSize();
     }
+
+    public void setHighlight(boolean highlight) {
+      if (highlight) {
+	setForeground(Color.red);
+	setFont(s_boldFont);
+      }
+      else {
+	setForeground(s_defaultForeground);
+	setFont(s_plainFont);
+      }
+    }
+  }
+
+  private final Label m_averageTimeLabel;
+  private final Label m_averageTPSLabel;
+  private final Label m_peakTPSLabel;
+  private final Label m_transactionsLabel;
+  private final Label m_errorsLabel;
+  private final Dimension m_preferredSize = new Dimension(250, 110);
+
+  public LabelledGraph(String title, Resources resources,
+		       StatisticExpression tpsExpression,
+		       StatisticExpression peakTPSExpression) {
+    this(title, resources, null, tpsExpression, peakTPSExpression);
+  }
+
+  public LabelledGraph(String title, Resources resources, Color color,
+		       StatisticExpression tpsExpression,
+		       StatisticExpression peakTPSExpression) {
+    m_tpsExpression = tpsExpression;
+    m_peakTPSExpression = peakTPSExpression;
+
+    final String msUnit = resources.getString("ms.unit");
+    final String msUnits = resources.getString("ms.units");
+    final String tpsUnits = resources.getString("tps.units");
+    final String transactionUnit = resources.getString("transaction.unit");
+    final String transactionUnits =
+      resources.getString("transaction.units");
+    final String errorUnit = resources.getString("error.unit");
+    final String errorUnits = resources.getString("error.units");
+
+    final String averageSuffix =
+      resources.getString("graph.averageSuffix.label");
+    final String peakSuffix =
+      resources.getString("graph.peakSuffix.label");
+
+    m_averageTimeLabel = new Label(msUnit, msUnits, averageSuffix);
+    m_averageTPSLabel = new Label(tpsUnits, tpsUnits, averageSuffix);
+    m_peakTPSLabel = new Label(tpsUnits, tpsUnits, peakSuffix);
+    m_transactionsLabel = new Label(transactionUnit, transactionUnits, "");
+    m_errorsLabel = new Label(errorUnit, errorUnits, "");
+
+    m_color = color;
+    m_graph = new Graph(25);
+    m_graph.setPreferredSize(null); // We are the master now.
+    final JPanel graphPanel = new JPanel();
+    graphPanel.setLayout(new BoxLayout(graphPanel, BoxLayout.Y_AXIS));
+    graphPanel.add(m_graph);
+
+    if (s_thinBevelBorder == null) {
+      s_thinBevelBorder =
+	BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+					getBackground(),
+					getBackground().brighter(),
+					getBackground(),
+					getBackground().darker());
+    }
+
+    graphPanel.setBorder(s_thinBevelBorder);
+
+    final JPanel labelPanel = new JPanel();
+    labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
+    labelPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 0));
+
+    final JLabel titleLabel= new JLabel();
+    titleLabel.setText(title);
+    titleLabel.setForeground(Color.black);
+    titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+
+    labelPanel.add(m_averageTimeLabel);
+    labelPanel.add(m_averageTPSLabel);
+    labelPanel.add(m_peakTPSLabel);
+    labelPanel.add(m_transactionsLabel);
+    labelPanel.add(m_errorsLabel);
+
+    setLayout(new BorderLayout());
+
+    add(titleLabel, BorderLayout.NORTH);
+    add(labelPanel, BorderLayout.WEST);
+    add(graphPanel, BorderLayout.CENTER);
+
+    final Border border = getBorder();
+    final Border margin = new EmptyBorder(10, 10, 10, 10);
+    setBorder(new CompoundBorder(border, margin));
+  }
+
+  public Dimension getPreferredSize() {
+    return m_preferredSize;
+  }
+
+  public void add(TestStatistics intervalStatistics,
+		  TestStatistics cumulativeStatistics,
+		  NumberFormat numberFormat) {
+    final double averageTime =
+      cumulativeStatistics.getAverageTransactionTime();
+    final long errors = cumulativeStatistics.getErrors();
+    final double peakTPS =
+      m_peakTPSExpression.getDoubleValue(cumulativeStatistics);
+
+    m_graph.setMaximum(peakTPS);
+    m_graph.add(m_tpsExpression.getDoubleValue(intervalStatistics));
+    m_graph.setColor(calculateColour(averageTime));
+
+    if (!Double.isNaN(averageTime)) {
+      m_averageTimeLabel.set(averageTime, numberFormat);
+    }
+    else {
+      m_averageTimeLabel.set("----");
+    }
+
+    m_averageTPSLabel.set(
+      m_tpsExpression.getDoubleValue(cumulativeStatistics),
+      numberFormat);
+
+    m_peakTPSLabel.set(peakTPS, numberFormat);
+
+    m_transactionsLabel.set(cumulativeStatistics.getTransactions());
+
+    m_errorsLabel.set(errors);
+    m_errorsLabel.setHighlight(errors > 0);
+  }
+
+  private Color calculateColour(double time) {
+    if (m_color != null) {
+      return m_color;
+    }
+    else {
+      if (time > s_peak) { // Not worth the cost of synchronization.
+	s_peak = time;
+      }
+
+      final int colorIndex = (int)(m_colors.length * (time/s_lastPeak));
+
+      if (colorIndex >= m_colors.length) {
+	return m_colors[m_colors.length - 1];
+      }
+
+      return m_colors[colorIndex];
+    }
+  }
+
+  public static void resetPeak() {
+    s_lastPeak = s_peak;
+    s_peak = 0;
+  }
 }
