@@ -147,7 +147,6 @@ public class ConsoleUI implements ModelListener
 	}
 
 	m_model = model;
-	final ConsoleProperties consoleProperties = m_model.getProperties();
 
 	final LabelledGraph totalGraph =
 	    new LabelledGraph(m_resources.getString("totalGraph.title"),
@@ -192,7 +191,6 @@ public class ConsoleUI implements ModelListener
 		    p.setSampleInterval(sampleInterval);
 		    p.setIgnoreSampleCount(ignoreSampleCount);
 		    p.setCollectSampleCount(collectSampleCount);
-		    m_model.setProperties(p);
 		}
 	    };
 
@@ -636,8 +634,7 @@ public class ConsoleUI implements ModelListener
 	    dialog.pack();
 	    dialog.setLocationRelativeTo(m_frame);
 
-	    final ConsoleProperties properties =
-		new ConsoleProperties(m_model.getProperties());
+	    final ConsoleProperties properties = m_model.getProperties();
 
 	    m_multicastAddress.setText(properties.getMulticastAddress());
 	    m_consolePort.setValue(properties.getConsolePort());
@@ -652,27 +649,23 @@ public class ConsoleUI implements ModelListener
 
 	    final Object value = m_optionPane.getValue();
 
-	    properties.setMulticastAddress(m_multicastAddress.getText());
-	    properties.setConsolePort(m_consolePort.getValue());
-	    properties.setGrinderPort(m_grinderPort.getValue());
-	    properties.setSignificantFigures(m_sfSlider.getValue());
-
-	    if (value == m_options[0]) {
-		m_model.setProperties(properties);
-		ConsoleUI.this.m_samplingControlPanel.set(properties);
-	    }
-	    else if (value == m_options[2]) {
-		m_model.setProperties(properties);
+	    if (value != m_options[1]) {
+		properties.setMulticastAddress(m_multicastAddress.getText());
+		properties.setConsolePort(m_consolePort.getValue());
+		properties.setGrinderPort(m_grinderPort.getValue());
+		properties.setSignificantFigures(m_sfSlider.getValue());
 		ConsoleUI.this.m_samplingControlPanel.set(properties);
 
-		try {
-		    properties.save();
-		}
-		catch (IOException e) {
-		    JOptionPane.showMessageDialog(
-			m_frame, e.getMessage(),
-			m_resources.getString("fileError.title"),
-			JOptionPane.ERROR_MESSAGE);
+		if (value == m_options[2]) {
+		    try {
+			properties.save();
+		    }
+		    catch (IOException e) {
+			JOptionPane.showMessageDialog(
+			    m_frame, e.getMessage(),
+			    m_resources.getString("fileError.title"),
+			    JOptionPane.ERROR_MESSAGE);
+		    }
 		}
 	    }
 	}

@@ -132,13 +132,9 @@ public class SamplingControlPanel extends JPanel
 
     public void set(ConsoleProperties properties)
     {
-	final int sampleInterval = properties.getSampleInterval();
-	final int ignoreSampleCount = properties.getIgnoreSampleCount();
-	final int collectSampleCount = properties.getCollectSampleCount();
-	
-	m_intervalSlider.setValue(sampleInterval);
-	m_ignoreSampleField.setValue(ignoreSampleCount);
-	m_collectSampleField.setValue(collectSampleCount);
+	m_intervalSlider.setValue(properties.getSampleInterval());
+	m_ignoreSampleField.setValue(properties.getIgnoreSampleCount());
+	m_collectSampleField.setValue(properties.getCollectSampleCount());
     }
 
     protected void update(int sampleInterval, int ignoreSampleCount,

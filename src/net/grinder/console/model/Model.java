@@ -18,6 +18,8 @@
 
 package net.grinder.console.model;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -108,6 +110,7 @@ public class Model
     public Model() throws GrinderException
     {
 	m_properties = new ConsoleProperties();
+
 	m_sampleInterval = m_properties.getSampleInterval();
 	m_numberFormat =
 	    new SignificantFigureFormat(m_properties.getSignificantFigures());
@@ -119,6 +122,37 @@ public class Model
 	setInitialState();
 
 	new Thread(new Sampler()).start();
+
+	m_properties.addPropertyChangeListener(
+	    ConsoleProperties.SIG_FIG_PROPERTY,
+	    new PropertyChangeListener() {
+		public void propertyChange(PropertyChangeEvent event) {
+		    m_numberFormat =
+			new SignificantFigureFormat(
+			    ((Integer)event.getNewValue()).intValue());
+		}
+	    });
+
+	m_properties.addPropertyChangeListener(
+	    ConsoleProperties.IGNORE_SAMPLES_PROPERTY,
+	    new PropertyChangeListener() {
+		public void propertyChange(PropertyChangeEvent event) {
+		    if (getState() == STATE_WAITING_FOR_TRIGGER) {
+			setInitialState();
+		    }
+		}
+	    });
+
+	m_properties.addPropertyChangeListener(
+	    ConsoleProperties.SAMPLE_INTERVAL_PROPERTY,
+	    new PropertyChangeListener() {
+		public void propertyChange(PropertyChangeEvent event) {
+		    // Should really wait until the next sample boundary before
+		    // changing sample interval.
+		    m_sampleInterval =
+			((Integer)event.getNewValue()).intValue();
+		}
+	    });
     }
 
     public synchronized void registerTests(Set newTests)
@@ -456,39 +490,7 @@ public class Model
      **/
     public ConsoleProperties getProperties()
     {
-	return new ConsoleProperties(m_properties);
-    }
-
-    /**
-     * Set our {@link ConsoleProperties}.
-     * @param properties - New properties to set, we take a copy.
-     * Alternatively get a reference with {@link getProperties}.
-     **/
-    public void setProperties(ConsoleProperties properties)
-    {
-	final int newSignificantFigures = properties.getSignificantFigures();
-
-	if (newSignificantFigures != m_properties.getSignificantFigures()) {
-	    m_numberFormat =
-		new SignificantFigureFormat(newSignificantFigures);
-	}
-
-	final int newIgnoreSampleCount = m_properties.getIgnoreSampleCount();
-
-	if (newIgnoreSampleCount != m_properties.getIgnoreSampleCount()) {
-	    if (getState() == STATE_WAITING_FOR_TRIGGER) {
-		setInitialState();
-	    }
-	}
-
-	m_properties.set(properties);
-
-	// Should really wait until the next sample boundary before
-	// changing sample interval.
-	m_sampleInterval = properties.getSampleInterval();
-
-	// Changing ConsoleProperties does not invoke the listeners.
-	//fireModelUpdate();
+	return m_properties;
     }
 
     public NumberFormat getNumberFormat()
