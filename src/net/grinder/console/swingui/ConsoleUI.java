@@ -903,9 +903,7 @@ public final class ConsoleUI implements ModelListener {
         final File distributionDirectory =
           m_model.getProperties().getDistributionDirectory();
 
-        if (distributionDirectory != null) {
-          m_fileChooser.setCurrentDirectory(distributionDirectory);
-        }
+        m_fileChooser.setCurrentDirectory(distributionDirectory);
       }
 
       if (m_fileChooser.showSaveDialog(m_frame) !=
@@ -1025,39 +1023,66 @@ public final class ConsoleUI implements ModelListener {
 
       final ConsoleProperties properties = m_model.getProperties();
 
-      if (script == null && !properties.getScriptNotSetDontAsk()) {
-        final JCheckBox dontAskMeAgainCheckBox =
-          new JCheckBox(
-            m_model.getResources().getString("dontAskMeAgain.text"));
-        dontAskMeAgainCheckBox.setAlignmentX(Component.RIGHT_ALIGNMENT);
+      if (script == null) {
+        if (!properties.getScriptNotSetDontAsk()) {
+          final JCheckBox dontAskMeAgainCheckBox =
+            new JCheckBox(
+              m_model.getResources().getString("dontAskMeAgain.text"));
+          dontAskMeAgainCheckBox.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
-        final Object[] message = {
-          m_model.getResources().getString("scriptNotSetConfirmation.text"),
-          new JLabel(), // Pad.
-          dontAskMeAgainCheckBox,
-        };
+          final Object[] message = {
+            m_model.getResources().getString("scriptNotSetConfirmation.text"),
+            new JLabel(), // Pad.
+            dontAskMeAgainCheckBox,
+          };
 
-        final int chosen =
-          JOptionPane.showConfirmDialog(m_frame, message,
-                                        (String) getValue(NAME),
-                                        JOptionPane.OK_CANCEL_OPTION);
+          final int chosen =
+            JOptionPane.showConfirmDialog(m_frame, message,
+                                          (String) getValue(NAME),
+                                          JOptionPane.OK_CANCEL_OPTION);
 
-        if (dontAskMeAgainCheckBox.isSelected()) {
-          try {
-            properties.setScriptNotSetDontAsk();
+          if (dontAskMeAgainCheckBox.isSelected()) {
+            try {
+              properties.setScriptNotSetDontAsk();
+            }
+            catch (GrinderException e) {
+              getErrorHandler().handleException(e);
+              return;
+            }
           }
-          catch (GrinderException e) {
-            getErrorHandler().handleException(e);
+
+          if (chosen != JOptionPane.OK_OPTION) {
             return;
           }
         }
 
-        if (chosen != JOptionPane.OK_OPTION) {
+        m_processControl.startWorkerProcesses(null);
+      }
+      else {
+        final File directoryFile = properties.getDistributionDirectory();
+
+        final Directory directory;
+
+        try {
+          directory = new Directory(directoryFile);
+        }
+        catch (Directory.DirectoryException e) {
+          getErrorHandler().handleException(e);
           return;
         }
-      }
 
-      m_processControl.startWorkerProcesses(script);
+        final File relativeScript = directory.getRelativePath(script);
+
+        if (relativeScript == null) {
+          getErrorHandler().handleErrorMessage(
+            m_model.getResources().getString("scriptNotInDirectoryError.text"),
+            (String) getValue(NAME));
+
+          return;
+        }
+
+        m_processControl.startWorkerProcesses(relativeScript);
+      }
     }
   }
 
