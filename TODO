@@ -12,17 +12,8 @@ it too :-).
 
 * Bugs
 
-** Color constants
-
-Kumar Mettu writes:
- >     Grinder3 seems to be using java.awt.Color.RED added in J2SE1.4.
-
-** SSL
-
-I'm tempted to package the HTTPS patches by default. This would
-require JSSE 1.0.2 or JDK 1.4.1 everywhere though.
-
 ** Sourceforge 691728
+
 http://sourceforge.net/tracker/index.php?func=detail&aid=691728&group_id=18598&atid=118598
 
 Grinder script was auto-generated with TCPProxy, when
@@ -60,13 +51,8 @@ total mean, and then listening for the reported variance.
 
 ** Console
 
-*** Editing
-How to cope with sub modules?
-How to send script - multicast is probably not the answer.
-Is jEdit Syntax good enough?
+*** Script editing
 
-****
-Add concept of "script root directory"
 Add file tree control, rooted at root directory.
 Allow files to be marked for distribution. Any file.
 Automatically detect, and mark, scripts.
@@ -75,6 +61,17 @@ When new script is selected, unselect other script.
 Extend comms to allow files to be retrieved. Hash and cache at
 individual file level. The agent should retrieve the files and store
 on disk.
+
+How to send script - multicast is probably not the answer.
+
+**** Plans
+
+Replace jEdit-syntax with new jEdit syntax package when available, if
+its license terms are acceptable.
+
+Allow file sets to be saved and loaded.
+
+Allow grinder properties to be set remoteley.
 
 *** Add log panel
 
@@ -122,8 +119,6 @@ elsewhere.
 
 * Build
 
-Package jEdit Syntax.
-
 Incorporate checkstyle.
  Compliant packages:
 	net.grinder
@@ -141,8 +136,6 @@ System.exit() is not the answer?
 
 
 * Documentation
-
-Check jedit syntax URL. (LICENSE, license-xhtml.xml, about.html).
 
 HTTP plug-in.
 TCPProxy and G3.

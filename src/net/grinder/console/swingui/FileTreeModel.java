@@ -22,6 +22,7 @@
 package net.grinder.console.swingui;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
@@ -104,38 +105,59 @@ final class FileTreeModel implements TreeModel {
     // Do nothing.
   }
 
-  private class Node {
+  private final static FilenameFilter s_directoryFilter =
+    new FilenameFilter() {
+      public final boolean accept(File dir, String name) {
+	return new File(dir, name).isDirectory();
+      }
+    };
+    
+  private final static FilenameFilter s_fileFilter =
+    new FilenameFilter() {
+      public final boolean accept(File dir, String name) {
+	return new File(dir, name).isFile();
+      }
+    };
+
+  public class Node {
 
     private final File m_file;
-    private final File[] m_childFiles;
+    private final File[] m_children;
 
-    public Node(File file) {
+    private Node(File file) {
       m_file = file;
-      m_childFiles = file.listFiles();
+      final File[] childDirectories = file.listFiles(s_directoryFilter);
+      final File[] childFiles = file.listFiles(s_fileFilter);
+
+      final int numberOfDirectories =
+	childDirectories != null ? childDirectories.length : 0;
+      
+      final int numberOfFiles =	childFiles != null ? childFiles.length : 0;
+
+      m_children = new File[numberOfDirectories + numberOfFiles];
+
+      if (numberOfDirectories != 0) {
+	System.arraycopy(childDirectories, 0, m_children, 0,
+			 numberOfDirectories);
+      }
+
+      if (numberOfFiles != 0) {
+	System.arraycopy(childFiles, 0, m_children, numberOfDirectories,
+			 numberOfFiles);
+      }
     }
 
     public final Node getChild(int index) {
-
-      if (m_childFiles == null) {
-	return null;		// TODO - Assert?
-      }
-
-      return new Node(m_childFiles[index]);
+      return new Node(m_children[index]);
     }
 
     public final int getChildCount() {
-
-      return m_childFiles != null ? m_childFiles.length : 0;
+      return m_children.length;
     }
 
     public final int getIndexOfChild(Node child) {
-
-      if (m_childFiles == null) {
-	return -1;
-      }
-
-      for (int i=0; i<m_childFiles.length; ++i) {
-	if (m_childFiles[i].equals(child.getFile())) {
+      for (int i=0; i<m_children.length; ++i) {
+	if (m_children[i].equals(child.getFile())) {
 	  return i;
 	}
       }
@@ -147,18 +169,22 @@ final class FileTreeModel implements TreeModel {
       return !m_file.isDirectory();
     }
 
+    public final boolean isPythonFile() {
+      return m_file.isFile() && m_file.getName().endsWith(".py");
+    }
+
     public String toString() {
       return m_file.getName();
     }
 
-    final File getFile() {
+    public final File getFile() {
       return m_file;
     }
   }
 
-  private class RootNode extends Node {
+  public class RootNode extends Node {
 
-    public RootNode(File file) {
+    private RootNode(File file) {
       super(file);
     }
     

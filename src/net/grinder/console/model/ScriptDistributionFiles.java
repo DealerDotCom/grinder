@@ -22,6 +22,7 @@
 package net.grinder.console.model;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -67,8 +68,21 @@ public final class ScriptDistributionFiles implements Serializable {
     final GrinderProperties ourProperties =
       properties.getPropertySubset(propertyPrefix);
 
-    setRootDirectory(
-      new File(ourProperties.getProperty(ROOT_DIRECTORY_PROPERTY, ".")));
+    String rootDirectoryString = 
+      ourProperties.getProperty(ROOT_DIRECTORY_PROPERTY, null);
+
+    if (rootDirectoryString != null) {
+      setRootDirectory(new File(rootDirectoryString));
+    }
+    else {
+      try {
+	setRootDirectory(new File(".").getCanonicalFile());
+      }
+      catch (IOException e) {
+	// Oh well...
+	setRootDirectory(new File(""));
+      }
+    }
 
     final GrinderProperties additionalFileProperties =
       ourProperties.getPropertySubset(ADDITIONAL_FILES_PROPERTY);

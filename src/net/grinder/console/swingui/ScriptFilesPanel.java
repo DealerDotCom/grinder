@@ -34,6 +34,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeCellRenderer;
 
 import net.grinder.console.model.ScriptDistributionFiles;
 
@@ -47,8 +49,7 @@ import net.grinder.console.model.ScriptDistributionFiles;
 final class ScriptFilesPanel extends JPanel {
 
   private final Resources m_resources;
-  private final JFileChooser m_fileChooser = new JFileChooser(".");
-  private final JLabel m_rootDirectoryLabel = new JLabel();
+  private final JFileChooser m_fileChooser = new JFileChooser();
   private final FileTreeModel m_fileTreeModel = new FileTreeModel();
 
   private ScriptDistributionFiles m_scriptDistributionFiles =
@@ -58,13 +59,6 @@ final class ScriptFilesPanel extends JPanel {
     m_resources = resources;
 
     final JButton chooseDirectoryButton = new CustomJButton();
-
-    chooseDirectoryButton.setBorderPainted(true);
-    chooseDirectoryButton.setBorder(
-      BorderFactory.createEmptyBorder(1, 1, 1, 1));
-
-    m_scriptDistributionFiles.setRootDirectory(
-      new File("").getAbsoluteFile());
 
     m_fileChooser.setDialogTitle(
       resources.getString("script.chooseDirectory.tip"));
@@ -105,18 +99,16 @@ final class ScriptFilesPanel extends JPanel {
       }
       );
 
-    m_rootDirectoryLabel.setBorder(
-      BorderFactory.createEmptyBorder(5, 5, 0, 0));
-
     final JPanel rootDirectoryPanel = new JPanel();
     rootDirectoryPanel.setLayout(
       new BoxLayout(rootDirectoryPanel, BoxLayout.X_AXIS));
     rootDirectoryPanel.add(chooseDirectoryButton);
-    rootDirectoryPanel.add(m_rootDirectoryLabel);
     rootDirectoryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-    final JScrollPane fileTreePane =
-      new JScrollPane(new JTree(m_fileTreeModel));
+    final JTree tree = new JTree(m_fileTreeModel);
+    tree.setCellRenderer(new CustomTreeCellRenderer());
+
+    final JScrollPane fileTreePane = new JScrollPane(tree);
     fileTreePane.setAlignmentX(Component.LEFT_ALIGNMENT);
 
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -128,9 +120,7 @@ final class ScriptFilesPanel extends JPanel {
 
   public final void refresh() {
     final File rootDirectory = m_scriptDistributionFiles.getRootDirectory();
-    
-    m_rootDirectoryLabel.setText(limitLength(rootDirectory.getPath()));
-    m_fileChooser.setSelectedFile(rootDirectory);
+    m_fileChooser.setCurrentDirectory(rootDirectory);
     m_fileTreeModel.setRootDirectory(rootDirectory);
   }
 
@@ -144,6 +134,33 @@ final class ScriptFilesPanel extends JPanel {
     }
 
     return s;
+  }
+
+  final class CustomTreeCellRenderer implements TreeCellRenderer {
+    private final DefaultTreeCellRenderer m_standardRenderer =
+      new DefaultTreeCellRenderer();
+    private final DefaultTreeCellRenderer m_pythonFileRenderer =
+      new DefaultTreeCellRenderer();
+
+    CustomTreeCellRenderer() {
+      m_pythonFileRenderer.setLeafIcon(
+	m_resources.getImageIcon("script.pythonfile.image"));
+    }
+
+    public final Component getTreeCellRendererComponent(
+      JTree tree, Object value, boolean selected, boolean expanded,
+      boolean leaf, int row, boolean hasFocus) {
+
+      final FileTreeModel.Node node = (FileTreeModel.Node)value;
+
+      if (node.isPythonFile()) {
+	return m_pythonFileRenderer.getTreeCellRendererComponent(
+	  tree, value, selected, expanded, leaf, row, hasFocus);
+      }
+
+      return m_standardRenderer.getTreeCellRendererComponent(
+	tree, value, selected, expanded, leaf, row, hasFocus);
+    }
   }
 }
 
