@@ -313,7 +313,6 @@ what you want. Currently the conditionally built modules are:
        <exclude name="**/HttpsPlugin.java" unless="have.jsse"/>
        <exclude name="**/SnifferSSLSocketFactory.java" unless="have.jsse"/>
        <exclude name="**/JUnitPlugin.java"/> <!-- unless="have.junit"/> -->
-       <exclude name="**/SocketPlugin.java"/>
        <exclude name="**/snifferwebapp/**" unless="have.servlet"/>
        <classpath refid="build.classpath"/>
     </javac>
