@@ -1,3 +1,39 @@
+2004-02-22  Philip Aston  <philipa@mail.com>
+
+	* TODO: More.
+
+	* tests-src/net/grinder/engine/process/TestPluginRegistry.java, tests-src/net/grinder/engine/process/TestRegisteredPlugin.java:
+	More tests.
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	Class[] needs to be assignable, not equal.
+
+	* src/net/grinder/engine/process/TestRegistry.java: Javadoc.
+
+	* src/net/grinder/engine/process/ProcessContext.java:
+	Need to explicitly set PluginRegistry singleton.
+
+	* src/net/grinder/engine/process/PluginRegistry.java:
+	Allow singleton to be set.
+
+	* tests-src/net/grinder/testutility/AbstractStubFactory.java, tests-src/net/grinder/testutility/AssertingInvocationHandler.java, tests-src/net/grinder/testutility/DelegatingInvocationHandler.java, tests-src/net/grinder/testutility/DelegatingStubFactory.java, tests-src/net/grinder/testutility/OverrideInvocationHandlerDecorator.java, tests-src/net/grinder/testutility/RandomObjectFactory.java, tests-src/net/grinder/testutility/RandomStubFactory.java, tests-src/net/grinder/testutility/SimpleEqualityDecoration.java, tests-src/net/grinder/testutility/StubInvocationHandler.java, tests-src/net/grinder/common/LoggerStubFactory.java, tests-src/net/grinder/engine/process/TestExternalFilenameFactory.java, tests-src/net/grinder/engine/process/TestExternalLogger.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/engine/process/TestTestRegistry.java, tests-src/net/grinder/engine/process/ThreadLoggerStubFactory.java:
+	More refactoring of test InvocationHandler utilities.
+
+	* tests-src/net/grinder/engine/process/TestTestRegistry.java:
+	Test TestRegistry.
+
+	* tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/common/LoggerStubFactory.java, tests-src/net/grinder/engine/process/TestExternalFilenameFactory.java, tests-src/net/grinder/engine/process/TestExternalLogger.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java:
+	The override method prefix used by AssertingInvocationHandler
+	subclasses has changed from from "stub_" to "override_". The override
+	methods now take the proxy instance as the first parameter.
+
+	* tests-src/net/grinder/testutility/AssertingInvocationHandler.java, tests-src/net/grinder/testutility/DelegatingInvocationHandler.java, tests-src/net/grinder/testutility/OverrideInvocationHandlerDecorator.java, tests-src/net/grinder/testutility/RandomObjectFactory.java, tests-src/net/grinder/testutility/StubInvocationHandler.java:
+	Refactor test InvocationHandler utilities.
+
+2004-02-20  Philip Aston  <philipa@mail.com>
+
+	* xdoc/press-xhtml.xml: Another link.
+
 2004-02-19  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/util/Sleeper.java: Finality.
