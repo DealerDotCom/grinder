@@ -45,6 +45,7 @@ import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
@@ -200,16 +201,13 @@ public class GrinderProcess
 	// Parse plugin class. Do after setting up console Sender.
 	m_plugin = instantiatePlugin();
 
+	m_context.initialiseDataWriter();
+
 	// Get defined tests.
 	final Set tests = m_plugin.getTests();
 
 	if (m_consoleSender != null) {
 	    m_consoleSender.send(new RegisterTestsMessage(tests));
-
-	    // Report the default view. This is mainly so the Console
-	    // can figure out what our StatisticsIndexMap is.
-	    m_context.registerStatisticsView(
-		m_context.getTestStatisticsFactory().getStatisticsView());
 	}
 
 	// Wrap tests with our information.
@@ -432,7 +430,7 @@ public class GrinderProcess
 
 	final StatisticsTable statisticsTable =
 	    new StatisticsTable(
-		m_context.getTestStatisticsFactory().getStatisticsView(),
+		CommonStatisticsViews.getSummaryStatisticsView(),
 		m_testStatisticsMap);
 
 	statisticsTable.print(m_context.getOutputLogWriter());

@@ -33,12 +33,15 @@ import net.grinder.common.GrinderException;
 
 
 /**
+ * An ordered collection of {@link ExpressionViews}.
  *
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 public final class StatisticsView implements Externalizable 
 {
+    private static final long serialVersionUID = -4846650473903375223L;
+
     /**
      * We define a <code>Comparator</code> for {@link ExpressionView}s
      * rather than having the <code>ExpressionView</code> implement
@@ -63,6 +66,13 @@ public final class StatisticsView implements Externalizable
 	    }
 	};
 
+    static
+    {
+	// Ensure that the standard ExpressionViews are initialised
+	// before any user ExpressionViews.
+	Class dummy = CommonStatisticsViews.class;
+    }
+
     /**
      * We use this set to ensure that new views are unique. We can't
      * do this with a SortedSet because our sort order is inconsistent
@@ -74,14 +84,23 @@ public final class StatisticsView implements Externalizable
      * @link aggregation
      * @associates <{net.grinder.statistics.ExpressionView}>
      * @supplierCardinality 0..*
-     */
+     **/
     private final SortedSet m_columns;
 
+    /**
+     * Creates a new <code>StatisticsView</code> instance.
+     **/
     public StatisticsView()
     {
 	m_columns = new TreeSet(s_expressionViewComparator);
     }
 
+    /**
+     * Add all the {@link ExpressionView}s in <code>other</code> to
+     * this <code>StatisticsView</code>.
+     *
+     * @param other Another <code>StatisticsView</code>.
+     **/
     public final synchronized void add(StatisticsView other)
     {
 	final Iterator iterator = other.m_columns.iterator();
@@ -91,6 +110,12 @@ public final class StatisticsView implements Externalizable
 	}
     }
 
+    /**
+     * Add the specified {@link ExpressionView} to this
+     * <code>StatisticsView</code>.
+     *
+     * @param statistic An {@link ExpressionView}.
+     **/
     public final synchronized void add(ExpressionView statistic)
     {
 	if (!m_unique.contains(statistic)) {
@@ -99,6 +124,11 @@ public final class StatisticsView implements Externalizable
 	}
     }
 
+    /**
+     * Return our {@link ExpressionView}s as an array.
+     *
+     * @return The {@link ExpressionView}s.
+     **/
     public final synchronized ExpressionView[] getExpressionViews()
     {
 	return (ExpressionView[])m_columns.toArray(new ExpressionView[0]);
@@ -128,8 +158,7 @@ public final class StatisticsView implements Externalizable
      * @param in Handle to the input stream.
      * @exception IOException If an I/O error occurs.
      **/
-    public synchronized void readExternal(ObjectInput in)
-	throws ClassNotFoundException, IOException
+    public synchronized void readExternal(ObjectInput in) throws IOException
     {
 	final int n = in.readInt();
 

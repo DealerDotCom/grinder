@@ -33,6 +33,8 @@ import net.grinder.common.Logger;
 import net.grinder.communication.Sender;
 import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.statistics.CommonStatisticsViews;
+import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatisticsFactory;
 import net.grinder.util.DelayedCreationFileWriter;
@@ -89,6 +91,7 @@ public class ProcessContext implements PluginProcessContext
     private final PrintWriter m_outputWriter;
     private final PrintWriter m_errorWriter;
     private final PrintWriter m_dataWriter;
+    private boolean m_shouldWriteTitleToDataWriter;
 
     private final FilenameFactoryImplementation m_filenameFactory;
     private final TestStatisticsFactory m_testStatisticsFactory =
@@ -156,13 +159,24 @@ public class ProcessContext implements PluginProcessContext
 	// Don't autoflush, we explictly control flushing of the writer.
 	m_dataWriter = new PrintWriter(createWriter("data", appendLog), false);
 
-	if (!appendLog) {
-	    if (m_recordTime) {
-		m_dataWriter.println("Thread, Cycle, Method, Time");
+	m_shouldWriteTitleToDataWriter = appendLog;
+    }
+
+    public void initialiseDataWriter()
+    {
+	if (!m_shouldWriteTitleToDataWriter) {
+	    m_dataWriter.print("Thread, Cycle, Method");
+
+	    final ExpressionView[] detailExpressionViews =
+		CommonStatisticsViews.getDetailStatisticsView()
+		.getExpressionViews();
+
+	    for (int i=0; i<detailExpressionViews.length; ++i) {
+		m_dataWriter.print(", " +
+				   detailExpressionViews[i].getDisplayName());
 	    }
-	    else {
-		m_dataWriter.println("Thread, Cycle, Method");
-	    }
+
+	    m_dataWriter.println();
 	}
     }
 
@@ -374,14 +388,20 @@ public class ProcessContext implements PluginProcessContext
     /** A quick and dirty hack. We do the right thing in G3. **/
     Sender m_consoleSender;
 
-    public void registerStatisticsView(StatisticsView statisticsView)
+    public void registerSummaryStatisticsView(StatisticsView statisticsView)
 	throws GrinderException
     {
-	m_testStatisticsFactory.getStatisticsView().add(statisticsView);
+	CommonStatisticsViews.getSummaryStatisticsView().add(statisticsView);
 
 	if (m_consoleSender != null) {
 	    m_consoleSender.send(
 		new RegisterStatisticsViewMessage(statisticsView));
 	}
+    }
+
+    public void registerDetailStatisticsView(StatisticsView statisticsView)
+	throws GrinderException
+    {
+	CommonStatisticsViews.getDetailStatisticsView().add(statisticsView);
     }
 }

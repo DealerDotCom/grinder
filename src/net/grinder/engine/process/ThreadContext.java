@@ -24,7 +24,11 @@ import net.grinder.common.Test;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.statistics.CommonStatisticsViews;
+import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.TestStatistics;
+import net.grinder.statistics.TestStatisticsFactory;
 
 
 /**
@@ -37,13 +41,16 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 {
     private GrinderThread m_grinderThread = null;
     private final int m_threadID;
+    private final TestStatistics m_currentTestStatistics =
+	TestStatisticsFactory.getInstance().create();
+    private final ExpressionView[] m_detailExpressionViews =
+	CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
 
     private boolean m_aborted;
     private boolean m_abortedCycle;
     private boolean m_errorOccurred;
     private long m_startTime;
     private long m_elapsedTime;
-    private TestStatistics m_currentTestStatistics;
 
     private StringBuffer m_scratchBuffer = new StringBuffer();
 
@@ -144,7 +151,7 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
     void invokeTest(ThreadCallbacks threadCallbacks, TestData testData)
     {
 	final Test test = testData.getTest();
-	m_currentTestStatistics = testData.getStatistics();
+	m_currentTestStatistics.reset();
 
 	try {
 	    final boolean success;
@@ -168,10 +175,9 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	    }
 	    else {
 		final long time = getElapsedTime();
-		final boolean recordTime = getRecordTime();
 
 		if (success) {
-		    if (recordTime) {
+		    if (getRecordTime()) {
 			m_currentTestStatistics.addTransaction(time);
 		    }
 		    else {
@@ -193,9 +199,22 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 		    m_scratchBuffer.append(", " );
 		    m_scratchBuffer.append(test.getNumber());
 
-		    if (recordTime) {
+		    for (int i=0; i<m_detailExpressionViews.length; ++i) {
 			m_scratchBuffer.append(", ");
-			m_scratchBuffer.append(time);
+
+			final StatisticExpression expression =
+			    m_detailExpressionViews[i].getExpression();
+
+			if (expression.isDouble()) {
+			    m_scratchBuffer.append(
+				expression.getDoubleValue(
+				    m_currentTestStatistics));
+			}
+			else {
+			    m_scratchBuffer.append(
+				expression.getLongValue(
+				    m_currentTestStatistics));
+			}
 		    }
 
 		    dataWriter.println(m_scratchBuffer);
@@ -207,6 +226,9 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	    logError("Aborting cycle - plug-in threw " + e);
 	    e.printStackTrace(getErrorLogWriter());
 	    abortCycle();
+	}
+	finally {
+	    testData.getStatistics().add(m_currentTestStatistics);
 	}
     }
 
