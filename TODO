@@ -209,8 +209,6 @@ Internationalise messages.
 
 Support different client certificates for proxied connection.
 
-Fix and test HTTPResonse.
-
 ** HTTP Plugin
 
 Remove ParseException, ProtocolNotSuppException from public APIs.
