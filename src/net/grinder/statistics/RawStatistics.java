@@ -22,7 +22,6 @@
 package net.grinder.statistics;
 
 
-
 /**
  * Access to a set of long and double values. Clients can access
  * individual values using an index object obtained from a {@link
