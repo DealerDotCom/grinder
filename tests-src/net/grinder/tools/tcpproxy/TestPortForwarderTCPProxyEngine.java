@@ -154,9 +154,6 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
 
     clientSocket.close();
 
-    // TODO - resolve race.
-    Thread.sleep(100);
-
     engine.stop();
     engineThread.join();
 
@@ -266,6 +263,67 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
     m_responseFilterStubFactory.resetCallHistory();
 
     engineTests(engine);
+  }
+
+  public void testOutputStreamFilterTeeWithBadFilters() throws Exception {
+
+    final EndPoint localEndPoint = new EndPoint("localhost", m_localPort);
+
+    final ConnectionDetails connectionDetails =
+      new ConnectionDetails(localEndPoint,
+                            new EndPoint("bah", 456),
+                            false);
+
+    final AbstractTCPProxyEngine engine =
+      new PortForwarderTCPProxyEngine(m_requestFilter,
+                                      m_responseFilter,
+                                      m_logger,
+                                      connectionDetails,
+                                      true,
+                                      100000);
+
+    final AbstractTCPProxyEngine.OutputStreamFilterTee filterTee =
+      engine.new OutputStreamFilterTee(connectionDetails,
+                                       new ByteArrayOutputStream(),
+                                       new BadFilter(),
+                                       "");
+
+    m_loggerStubFactory.resetCallHistory();
+
+    filterTee.connectionOpened();
+    m_loggerStubFactory.assertSuccess("getErrorLogWriter");
+    m_loggerStubFactory.assertNoMoreCalls();
+
+    filterTee.connectionClosed();
+    m_loggerStubFactory.assertSuccess("getErrorLogWriter");
+    m_loggerStubFactory.assertNoMoreCalls();
+
+    filterTee.handle(new byte[0], 0);
+    m_loggerStubFactory.assertSuccess("getErrorLogWriter");
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
+  private static final class BadFilter implements TCPProxyFilter {
+
+    public byte[] handle(ConnectionDetails connectionDetails,
+                         byte[] buffer,
+                         int bytesRead)
+      throws Exception {
+      throw new RuntimeException("Problem");
+    }
+
+    public void connectionOpened(ConnectionDetails connectionDetails)
+      throws Exception {
+      throw new RuntimeException("Problem");
+    }
+
+    public void connectionClosed(ConnectionDetails connectionDetails)
+      throws Exception {
+      throw new RuntimeException("Problem");
+    }
+
+    public void stop() {
+    }
   }
 
   private final class AcceptSingleConnectionAndEcho implements Runnable {

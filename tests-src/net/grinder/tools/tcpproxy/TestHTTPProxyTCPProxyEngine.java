@@ -430,6 +430,8 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     final PrintWriter secureClientWriter =
       new PrintWriter(clientSSLSocket.getOutputStream(), true);
 
+    // No URL decoration should take place. Feed an absolute URL
+    // to be difficult.
     final String message0 =
       "GET http://galafray/foo HTTP/1.1\r\n" +
       "foo: bah\r\n" +
@@ -646,6 +648,116 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
+  public void testWithChainedHTTPSProxy() throws Exception {
+    final AcceptAndEcho echoer = new SSLAcceptAndEcho();
+
+    final EndPoint chainedProxyEndPoint = createFreeLocalEndPoint();
+
+    final AbstractTCPProxyEngine chainedProxy =
+      new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
+                                  m_requestFilter,
+                                  m_responseFilter,
+                                  m_logger,
+                                  chainedProxyEndPoint,
+                                  true,
+                                  100000,
+                                  null,
+                                  null);
+
+    final Thread chainedProxyThread =
+      new Thread(chainedProxy, "Run chained proxy engine");
+    chainedProxyThread.start();
+
+    final AbstractTCPProxyEngine engine =
+      new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
+                                  new NullFilter(null),
+                                  new NullFilter(null),
+                                  m_logger,
+                                  m_localEndPoint,
+                                  true,
+                                  100000,
+                                  null,
+                                  chainedProxyEndPoint);
+
+    final Thread engineThread = new Thread(engine, "Run engine");
+    engineThread.start();
+
+    m_loggerStubFactory.resetCallHistory();
+    m_requestFilterStubFactory.resetCallHistory();
+    m_responseFilterStubFactory.resetCallHistory();
+
+
+    final Socket clientPlainSocket =
+      new Socket(engine.getListenEndPoint().getHost(),
+                 engine.getListenEndPoint().getPort());
+
+    final PrintWriter clientWriter =
+      new PrintWriter(clientPlainSocket.getOutputStream(), true);
+    clientWriter.print("CONNECT " + echoer.getEndPoint());
+    clientWriter.flush();
+
+    final String response = readResponse(clientPlainSocket, "Proxy-agent");
+
+    AssertUtilities.assertStartsWith(response, "HTTP/1.0 200 OK\r\n");
+    AssertUtilities.assertContainsHeader(response,
+                                         "Proxy-agent",
+                                         "The Grinder.*");
+
+    final Socket clientSSLSocket =
+      m_sslSocketFactory.createClientSocket(clientPlainSocket,
+                                            echoer.getEndPoint());
+
+    final PrintWriter secureClientWriter =
+      new PrintWriter(clientSSLSocket.getOutputStream(), true);
+
+    // No URL decoration should take place. Feed an absolute URL
+    // to be difficult.
+    final String message0 =
+      "GET http://galafray/foo HTTP/1.1\r\n" +
+      "foo: bah\r\n" +
+      "\r\n" +
+      "A \u00e0 message";
+    secureClientWriter.print(message0);
+    secureClientWriter.flush();
+
+    final String response0 = readResponse(clientSSLSocket, "message$");
+
+    AssertUtilities.assertStartsWith(response0,
+                                     "GET http://galafray/foo HTTP/1.1\r\n");
+    AssertUtilities.assertContainsHeader(response0, "foo", "bah");
+    AssertUtilities.assertContainsPattern(response0,
+                                          "\r\n\r\nA \u00e0 message$");
+
+    m_requestFilterStubFactory.assertSuccess("connectionOpened",
+                                             ConnectionDetails.class);
+    m_requestFilterStubFactory.assertSuccess("handle",
+                                             ConnectionDetails.class,
+                                             new byte[0].getClass(),
+                                             Integer.class);
+    m_requestFilterStubFactory.assertNoMoreCalls();
+
+    m_responseFilterStubFactory.assertSuccess("connectionOpened",
+                                              ConnectionDetails.class);
+    m_responseFilterStubFactory.assertSuccess("handle",
+                                              ConnectionDetails.class,
+                                              new byte[0].getClass(),
+                                              Integer.class);
+    m_responseFilterStubFactory.assertNoMoreCalls();
+
+    chainedProxy.stop();
+    chainedProxyThread.join();
+
+    engine.stop();
+    engineThread.join();
+
+    waitUntilAllStreamThreadsStopped();
+
+    m_requestFilterStubFactory.assertSuccess("stop");
+    m_responseFilterStubFactory.assertSuccess("stop");
+
+    m_loggerStubFactory.assertNoMoreCalls();
+  }
+
   private class AcceptAndEcho implements Runnable {
     private final ServerSocket m_serverSocket;
 
@@ -668,10 +780,10 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
         while (true) {
           final Socket socket = m_serverSocket.accept();
 
-          new Thread(new StreamCopier(1000, true).getRunnable(
-                       socket.getInputStream(),
-                       socket.getOutputStream()),
-                     "Echo thread").start();
+          new Thread(
+            new StreamCopier(1000, true).getRunnable(socket.getInputStream(),
+                                                     socket.getOutputStream()),
+            "Echo thread").start();
         }
       }
       catch (SocketException e) {
