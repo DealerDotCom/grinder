@@ -51,7 +51,7 @@ final class ThreadSafeQueue {
    * @exception ShutdownException If the queue has been shutdown.
    * @see #shutdown
    **/
-  public final void queue(Object item) throws ShutdownException {
+  public void queue(Object item) throws ShutdownException {
     synchronized (getMutex()) {
       checkIfShutdown();
       m_messages.add(item);
@@ -68,7 +68,7 @@ final class ThreadSafeQueue {
    * @exception ShutdownException If the queue has been shutdown.
    * @see #shutdown
    **/
-  public final Object dequeue(boolean block) throws ShutdownException {
+  public Object dequeue(boolean block) throws ShutdownException {
     synchronized (getMutex()) {
       while (!m_shutdown && block && m_messages.size() == 0) {
         try {
@@ -85,6 +85,7 @@ final class ThreadSafeQueue {
         return null;
       }
       else {
+        getMutex().notifyAll();
         return m_messages.removeFirst();
       }
     }
@@ -94,7 +95,7 @@ final class ThreadSafeQueue {
    * Shutdown the <code>MessageQueue</code>. Any <code>Objects</code>
    * in the queue are discarded.
    **/
-  public final void shutdown() {
+  public void shutdown() {
     synchronized (getMutex()) {
       m_shutdown = true;
       m_messages.clear();
@@ -102,8 +103,23 @@ final class ThreadSafeQueue {
     }
   }
 
-  public final Object getMutex() {
+  /**
+   * Get the lock object which is used to control and notify changes
+   * to the queue.
+   *
+   * @return The lock object.
+   */
+  public Object getMutex() {
     return m_messages;
+  }
+
+  /**
+   * The size of the queue.
+   *
+   * @return The size of the queue.
+   */
+  public int getSize() {
+    return m_messages.size();
   }
 
   private void checkIfShutdown() throws ShutdownException {
@@ -113,7 +129,7 @@ final class ThreadSafeQueue {
   }
 
   /**
-   * Exception that indicates <code>MessageQueue</code> has been
+   * Exception that indicates <code>ThreadSafeQueue</code> has been
    * shutdown. It doesn't extend {@link CommunicationException}
    * because typically callers want to propagate
    * <code>ShutdownException</code>s but handle
