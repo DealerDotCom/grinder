@@ -21,9 +21,7 @@
 
 package net.grinder.tools.tcpproxy;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import net.grinder.testutility.AssertUtilities;
 import net.grinder.util.html.HTMLElement;
 
 import junit.framework.TestCase;
@@ -41,54 +39,28 @@ public class TestHTTPResponse extends TestCase {
     final HTTPResponse response = new HTTPResponse();
 
     final String result0 = response.toString();
-    assertStartsWith(result0, "HTTP/1.0 500 Internal Server Error\r\n");
-    assertContainsHeader(result0, "Host", "TODO");
-    assertContainsHeader(result0, "Proxy-agent", "The Grinder .*");
-    assertEndsWith(result0, "\r\n\r\n");
+    AssertUtilities.assertStartsWith(result0,
+                                     "HTTP/1.0 500 Internal Server Error\r\n");
+    AssertUtilities.assertContainsHeader(result0, "Host", "TODO");
+    AssertUtilities.assertContainsHeader(result0,
+                                         "Proxy-agent", "The Grinder .*");
+    AssertUtilities.assertEndsWith(result0, "\r\n\r\n");
 
     response.setStatus("200 OK");
     final String result1 = response.toString();
-    assertStartsWith(result1, "HTTP/1.0 200 OK\r\n");
+    AssertUtilities.assertStartsWith(result1, "HTTP/1.0 200 OK\r\n");
 
     final HTMLElement message = new HTMLElement();
     message.addElement("p").addText("testing");
     response.setMessage("Test", message);
 
     final String result2 = response.toString();
-    assertContainsHeader(result2, "Content-type", "text/html");
-    assertContainsHeader(result2, "Connection", "close");
+    AssertUtilities.assertContainsHeader(result2, "Content-type", "text/html");
+    AssertUtilities.assertContainsHeader(result2, "Connection", "close");
 
-    assertContainsPattern(result2,
+    AssertUtilities.assertContainsPattern(result2,
       "<title>.*Test.*</title>.*<h1>.*Test.*</h1>.*<p>testing</p>");
-    assertEndsWith(result0, "\r\n\r\n");
+    AssertUtilities.assertEndsWith(result0, "\r\n\r\n");
   }
 
-  private void assertStartsWith(String text, String value) {
-    assertEquals("Starts with '" + value + "'", 0, text.indexOf(value));
-  }
-
-  private void assertEndsWith(String text, String value) {
-    assertEquals("'" + text + "' ends with '" + value + "'",
-                 text.length() - value.length(),
-                 text.lastIndexOf(value));
-  }
-
-  private void assertContainsHeader(String text, String key, String value) {
-
-    final Pattern headerPattern =
-      Pattern.compile(key + ":[ \t]*" + value + "\r\n");
-    final Matcher matcher = headerPattern.matcher(text);
-
-    assertTrue("'" + text + "' contains header '" + key + "' with value '" +
-               value + "'",
-               matcher.find());
-  }
-
-  private void assertContainsPattern(String text, String pattern) {
-
-    final Matcher matcher = Pattern.compile(pattern).matcher(text);
-
-    assertTrue("'" + text + "' contains pattern '" + pattern + "'",
-               matcher.find());
-  }
 }

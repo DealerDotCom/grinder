@@ -21,6 +21,9 @@
 
 package net.grinder.testutility;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import junit.framework.Assert;
 
 import HTTPClient.NVPair;
@@ -94,9 +97,9 @@ public class AssertUtilities extends Assert {
       assertNotNull(message + "second is not null", b);
 
       assertEquals(message + "arrays of equal length", a.length, b.length);
- 
+
       for (int i=0; i<a.length; ++i) {
-        assertEquals(message + "NVPair " + i + " name matches", 
+        assertEquals(message + "NVPair " + i + " name matches",
                      a[i].getName(), b[i].getName());
         assertEquals(message + "NVPair " + i + " value matches",
                      a[i].getValue(), b[i].getValue());
@@ -114,5 +117,41 @@ public class AssertUtilities extends Assert {
     else {
       assertTrue("'" + o1 + "' is not equal to '" + o2 + "'", !o1.equals(o2));
     }
+  }
+
+  public static void assertStartsWith(String text, String value) {
+    assertTrue("'" + text + "' starts with '" + value + "'",
+                 text.indexOf(value) == 0);
+  }
+
+  public static void assertContains(String text, String value) {
+    assertTrue("Contains '" + value + "'", text.indexOf(value) >= 0);
+  }
+  
+  public static void assertEndsWith(String text, String value) {
+    assertEquals("'" + text + "' ends with '" + value + "'",
+                 text.length() - value.length(),
+                 text.lastIndexOf(value));
+  }
+
+  public static void assertContainsHeader(String text,
+                                          String key,
+                                          String value) {
+
+    final Pattern headerPattern =
+      Pattern.compile(key + ":[ \t]*" + value + "\r\n");
+    final Matcher matcher = headerPattern.matcher(text);
+
+    assertTrue("'" + text + "' contains header '" + key + "' with value '" +
+               value + "'",
+               matcher.find());
+  }
+
+  public static void assertContainsPattern(String text, String pattern) {
+
+    final Matcher matcher = Pattern.compile(pattern).matcher(text);
+
+    assertTrue("'" + text + "' contains pattern '" + pattern + "'",
+               matcher.find());
   }
 }
