@@ -1,3 +1,24 @@
+2003-02-04  Philip Aston  <paston@bea.com>
+
+	* etc/setenv.sh: Turn off the rocket.
+
+	* examples/grinder.properties, examples/jms-receiver.py, examples/jms-sender.py:
+	JMS examples.
+
+	* src/net/grinder/script/InvalidContextException.java, src/net/grinder/script/ScriptContext.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugininterface/PluginThreadContext.java:
+	Script API to access the current test statistics.
+
+	* build.xml: Next is 3.0-beta5.
+	Add statistics API to script javadoc.
+
+	* src/net/grinder/script/ScriptContext.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/PluginThreadContext.java, CHANGES, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/RegisteredPlugin.java:
+	Script API to allow scripts to register new statistics views.
+
+	Rationalise the plugin API so that PluginProcessContext and
+	PluginThreadContext no longer extend Logger and FilenameFactory.
+
+	* src/net/grinder/statistics/StatisticsView.java: Correct javadoc.
+
 2003-02-02  Philip Aston  <paston@bea.com>
 
 	* The Grinder 3.0-beta4 is released.
