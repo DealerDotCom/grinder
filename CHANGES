@@ -24,6 +24,10 @@ Grinder 3.0-beta9
   HTTPRequests are wrapped in a Test, the status code of the last
   response is recorded. Thanks to Carlos Franco for the idea.
 
+  Incorporate patch from Bill Schnellinger: Fix
+  HTTPPluginTCPProxyFilter so that large data uploads (>1K) are stored
+  in separate data files rather than inlined in the script.
+
 
 Grinder 3.0-beta8
 -----------------

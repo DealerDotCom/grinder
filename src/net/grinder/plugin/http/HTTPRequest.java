@@ -1,4 +1,5 @@
 // Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2003 Bill Schnellinger
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +22,8 @@
 
 package net.grinder.plugin.http;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
@@ -137,6 +140,22 @@ public class HTTPRequest {
     m_defaultData = data;
   }
 
+  /**
+   * Sets the default data from a file.
+   *
+   * @param filename Path name of data file.
+   * @exception IOException If the file could not be read.
+   */
+  public final void setDataFromFile(String filename) throws IOException {
+    	
+    final File file = new File(filename);
+    m_defaultData = new byte[(int)file.length()];
+
+    final FileInputStream fileInputStream = new FileInputStream(file);
+    fileInputStream.read(m_defaultData);
+    fileInputStream.close();
+  }
+    
   /**
    * Gets the default form data.
    *

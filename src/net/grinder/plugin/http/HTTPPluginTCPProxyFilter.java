@@ -1,6 +1,7 @@
 // Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // Copyright (C) 2000 Phil Dawes
 // Copyright (C) 2001 Kalle Burbeck
+// Copyright (C) 2003 Bill Schnellinger
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +26,7 @@ package net.grinder.plugin.http;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -724,21 +726,40 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 	  final String dataParameter = "data" + requestNumber;
 
 	  testOutput.append(s_newLine);
-	  testOutput.append(dataParameter);
-	  testOutput.append(" = ( ");
 
 	  final byte[] bytes = m_entityBodyByteStream.toByteArray();
 
-	  for (int i=0; i<bytes.length; ++i) {
-	    final int x = bytes[i] < 0 ? (int)bytes[i] + 0x100 : (int)bytes[i];
-	    testOutput.append(Integer.toString(x));
-	    testOutput.append(", ");
+	  if (bytes.length > 0x400) {
+	    // Large amount of data, use a file.
+	    final String fileName = dataParameter + ".dat";
+
+	    final FileOutputStream dataStream = new FileOutputStream(fileName);
+	    dataStream.write(bytes, 0, bytes.length);
+	    dataStream.close();
+
+            testOutput.append(requestVariable);
+            testOutput.append(".setDataFromFile('");
+	    testOutput.append(fileName);
+	    testOutput.append("')");
+            testOutput.append(s_newLine);
 	  }
+	  else {
+	    testOutput.append(dataParameter);
+	    testOutput.append(" = ( ");
 
-	  testOutput.append(")");
+	    for (int i=0; i<bytes.length; ++i) {
+	      final int x =
+		bytes[i] < 0 ? (int)bytes[i] + 0x100 : (int)bytes[i];
 
-	  scriptOutput.append(", ");
-	  scriptOutput.append(dataParameter);
+	      testOutput.append(Integer.toString(x));
+	      testOutput.append(", ");
+	    }
+
+	    testOutput.append(")");
+
+	    scriptOutput.append(", ");
+	    scriptOutput.append(dataParameter);
+	  }
 	}
       }
 
