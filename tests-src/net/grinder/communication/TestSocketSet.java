@@ -192,4 +192,33 @@ public class TestSocketSet extends TestCase {
     final List handles2 = socketSet.reserveAllHandles();
     assertEquals(0, handles2.size());
   }
+
+  public void testCountActiveSockets() throws Exception {
+
+    final SocketSet socketSet = new SocketSet();
+    assertEquals(0, socketSet.countActiveSockets());
+
+    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread(2);
+
+    final Socket socket1 =
+      new Socket(socketAcceptor.getHostName(), socketAcceptor.getPort());
+
+    final Socket socket2 =
+      new Socket(socketAcceptor.getHostName(), socketAcceptor.getPort());
+
+    socketSet.add(socket1);
+    assertEquals(1, socketSet.countActiveSockets());
+    
+    socketSet.add(socket2);
+    assertEquals(2, socketSet.countActiveSockets());
+
+    final List handles = socketSet.reserveAllHandles();
+    assertEquals(2, socketSet.countActiveSockets());
+
+    ((SocketSet.Handle)handles.get(1)).close();
+    assertEquals(1, socketSet.countActiveSockets());
+
+    ((SocketSet.Handle)handles.get(0)).close();
+    assertEquals(0, socketSet.countActiveSockets());
+  }
 }

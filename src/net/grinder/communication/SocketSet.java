@@ -163,6 +163,29 @@ final class SocketSet {
     }
   }
 
+  /**
+   * Count the active connections.
+   *
+   * @return The number of active connections.
+   */
+  public int countActiveSockets() {
+    int result = 0;
+
+    synchronized (m_handleListMutex) {
+      final Iterator iterator = m_handles.iterator();
+
+      while (iterator.hasNext()) {
+        final Handle handle = (Handle)iterator.next();
+
+        if (!handle.isClosed() && !handle.isSentinel()) {
+          ++result;
+        }
+      }
+    }
+
+    return result;
+  }
+
   private void purgeZombieHandles() {
     synchronized (m_handleListMutex) {
       if (++m_nextPurge > PURGE_FREQUENCY) {
