@@ -111,7 +111,7 @@ public class TestPropertiesHelper extends TestCase
 	    final PropertiesHelper helper = new PropertiesHelper();
 
 	    final ProcessContextImplementation context =
-		new ProcessContextImplementation("host", "process");
+		new ProcessContextImplementation("grinder-id");
 
 	    helper.instantiatePlugin(context);
 
@@ -125,7 +125,7 @@ public class TestPropertiesHelper extends TestCase
 	final PropertiesHelper helper = new PropertiesHelper();
 
 	final ProcessContextImplementation context =
-	    new ProcessContextImplementation("host", "process");
+	    new ProcessContextImplementation("grinder-id");
 
 	helper.instantiatePlugin(context);
     }
@@ -137,7 +137,7 @@ public class TestPropertiesHelper extends TestCase
 	final PropertiesHelper helper = new PropertiesHelper();
 
 	final ProcessContextImplementation context =
-	    new ProcessContextImplementation("host", "process");
+	    new ProcessContextImplementation("grinder-id");
 
 	final Set tests = helper.instantiatePlugin(context).getTests();
 
