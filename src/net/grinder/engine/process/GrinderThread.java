@@ -59,7 +59,7 @@ class GrinderThread implements java.lang.Runnable
     private long m_defaultSleepTime;
     private double m_sleepTimeVariation;
     private double m_sleepTimeFactor;
-    private long m_initialSleepTime;
+    private long m_beginCycleSleepTime;
 
     private int m_numberOfCycles;
 
@@ -94,8 +94,8 @@ class GrinderThread implements java.lang.Runnable
 	    properties.getDouble("grinder.thread.sleepTimeFactor", 1.0d);
 	m_sleepTimeVariation =
 	    properties.getDouble("grinder.thread.sleepTimeVariation", 0.2d);
-	m_initialSleepTime =
-	    properties.getLong("grinder.thread.initialSleepTime", 0);
+	m_beginCycleSleepTime =
+	    properties.getLong("grinder.thread.beginCycleSleepTime", 0);
 
 	m_numberOfCycles = properties.getInt("grinder.cycles", 1);
 
@@ -114,9 +114,6 @@ class GrinderThread implements java.lang.Runnable
 	    final GrinderPlugin pluginInstance =
 		(GrinderPlugin)m_pluginClass.newInstance();
             
-	    // Random initial wait
-	    sleep(m_initialSleepTime);
-
 	    try {
 		pluginInstance.initialize(m_pluginContext);
 	    }
@@ -126,12 +123,15 @@ class GrinderThread implements java.lang.Runnable
 		return;
 	    }
 	    
-	    logMessage("initialized plug-in, starting cycles");
+	    logMessage("Initialized plug-in");
+	    logMessage("About to run " + m_numberOfCycles + " cycles");
 
 	    CYCLE_LOOP:
 	    for (m_currentCycle=0; m_currentCycle<m_numberOfCycles;
 		 m_currentCycle++)
 	    {
+		// Random initial wait
+		sleep(m_beginCycleSleepTime);
 
 		try {
 		    pluginInstance.beginCycle();
@@ -217,7 +217,7 @@ class GrinderThread implements java.lang.Runnable
 
 	    m_currentCycle = -1;
 
-	    logMessage("finished");
+	    logMessage("Finished " + m_numberOfCycles + " cycles");
 	}
 	catch(Exception e) {
 	    logError(" threw an exception:");
