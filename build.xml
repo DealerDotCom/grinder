@@ -53,8 +53,8 @@ what you want. Currently the conditionally built modules are:
 
   <property name="Name" value="The Grinder"/>
   <property name="name" value="grinder"/>
-  <property name="version" value="3.0-beta1"/> <!-- AND THE NEXT LINE -->
-  <property name="cvs.tag" value="release_3_0_beta1"/>
+  <property name="version" value="3.0-beta2"/> <!-- AND THE NEXT LINE -->
+  <property name="cvs.tag" value="release_3_0_beta2"/>
 
   <property name="year" value="2002"/>
 
@@ -145,6 +145,9 @@ what you want. Currently the conditionally built modules are:
     <echo message="** Building ${Name} ${version} on ${TODAY} **"/>
 
     <path id="build.classpath">
+      <!-- Place a newer vesion of ORO before the one shipped with
+      Jython. -->
+      <pathelement path="${jakarta-oro.dir}/${jakarta-oro.jar}"/>
       <pathelement path="${jython.dir}/${jython.jar}"/>
       <pathelement path="${servlet.classpath}"/>
       <pathelement path="${xalan.classpath}"/>
@@ -175,9 +178,10 @@ what you want. Currently the conditionally built modules are:
                classname="javax.servlet.http.HttpServletRequest"
 	       property="have.servlet"/>
 
-    <!-- ORO is shipped with Jython. -->
+    <!-- We test on a class thats in our later version of ORO but not
+    the version shipped with Jython. -->
     <available classpathref="build.classpath"
-               classname="org.apache.oro.text.regex.Pattern"
+               classname="org.apache.oro.text.PatternCache"
                property="have.oro"/>
 
     <available classpathref="build.classpath"
@@ -221,7 +225,7 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <target name="assert-have-oro" depends="init" unless="have.oro">
-    <fail message="Can't find Jakarta ORO, should be part of jython.jar"/>
+    <fail message="Define jakarta-oro.dir and jakarta-oro.jar in etc/localpaths.properties to build this target"/>
   </target>
 
   <target name="assert-have-jython" depends="init" unless="have.jython">
@@ -281,6 +285,7 @@ what you want. Currently the conditionally built modules are:
       <fileset dir="${test-src.dir}" includes="**/data/*"/>
     </copy>
     <copy todir="${lib.dir}">
+      <fileset dir="${jakarta-oro.dir}" includes="${jakarta-oro.jar}"/>
       <fileset dir="${jython.dir}" includes="${jython.jar}"/>
     </copy>
   </target>
