@@ -24,7 +24,6 @@ package net.grinder.tools.tcpproxy;
 import junit.framework.TestCase;
 
 import net.grinder.testutility.AssertUtilities;
-import net.grinder.testutility.RandomStubFactory;
 
 
 /**
@@ -45,9 +44,10 @@ public class TestCompositeFilter extends TestCase {
 
   final TCPProxyFilter m_filter2 = m_filter2StubFactory.getFilter();
 
-  private final ConnectionDetails m_connectionDetails = new ConnectionDetails(new EndPoint("foo", 1),
-                        new EndPoint("bah", 2),
-                        false);
+  private final ConnectionDetails m_connectionDetails =
+    new ConnectionDetails(new EndPoint("foo", 1),
+                          new EndPoint("bah", 2),
+                          false);
 
   public void testGetFilters() throws Exception {
     final CompositeFilter composite = new CompositeFilter();
