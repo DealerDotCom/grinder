@@ -31,8 +31,8 @@ import org.python.core.PyProxy;
 import net.grinder.common.Test;
 import net.grinder.engine.common.EngineException;
 import net.grinder.script.NotWrappableTypeException;
-import net.grinder.statistics.TestStatistics;
-import net.grinder.statistics.TestStatisticsFactory;
+import net.grinder.statistics.StatisticsSet;
+import net.grinder.statistics.StatisticsSetFactory;
 
 
 /**
@@ -53,8 +53,8 @@ final class TestData implements TestRegistry.RegisteredTest {
    * Cumulative statistics for our test that haven't yet been set to
    * the console.
    */
-  private final TestStatistics m_statistics =
-    TestStatisticsFactory.getInstance().create();
+  private final StatisticsSet m_statistics =
+    StatisticsSetFactory.getInstance().create();
 
   TestData(ThreadContextLocator threadContextLocator, Test testDefinition) {
     m_threadContextLocator = threadContextLocator;
@@ -65,7 +65,7 @@ final class TestData implements TestRegistry.RegisteredTest {
     return m_test;
   }
 
-  TestStatistics getStatistics() {
+  StatisticsSet getStatistics() {
     return m_statistics;
   }
 

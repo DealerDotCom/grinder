@@ -39,8 +39,8 @@ import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
+import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -81,8 +81,8 @@ public class TestGraphPanel extends JPanel implements ModelListener {
 
     m_model.addTotalSampleListener(
       new SampleListener() {
-        public void update(TestStatistics intervalStatistics,
-                           TestStatistics cumulativeStatistics) {
+        public void update(StatisticsSet intervalStatistics,
+                           StatisticsSet cumulativeStatistics) {
           // No requirement to dispatch in Swing thread.
           LabelledGraph.resetPeak();
         }
@@ -121,8 +121,8 @@ public class TestGraphPanel extends JPanel implements ModelListener {
         test,
         new SwingDispatchedSampleListener(
           new SampleListener() {
-            public void update(final TestStatistics intervalStatistics,
-                               final TestStatistics cumulativeStatistics) {
+            public void update(final StatisticsSet intervalStatistics,
+                               final StatisticsSet cumulativeStatistics) {
               testGraph.add(intervalStatistics, cumulativeStatistics,
                             m_model.getNumberFormat());
             }

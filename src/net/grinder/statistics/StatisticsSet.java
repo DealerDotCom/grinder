@@ -31,10 +31,10 @@ package net.grinder.statistics;
  * @version $Revision$
  * @see net.grinder.script.Grinder.ScriptContext#getStatistics
  */
-public interface RawStatistics {
+public interface StatisticsSet {
 
   /**
-   * Reset this RawStatistics to default values. Allows instance to
+   * Reset this StatisticsSet to default values. Allows instance to
    * be reused.
    */
   void reset();
@@ -42,9 +42,9 @@ public interface RawStatistics {
   /**
    * Clone this object.
    *
-   * @return A copy of this RawStatistics.
+   * @return A copy of this StatisticsSet.
    */
-  RawStatistics snapshot();
+  StatisticsSet snapshot();
 
   /**
    * Return the value specified by <code>index</code>.
@@ -165,9 +165,9 @@ public interface RawStatistics {
   double getVariance(StatisticsIndexMap.SampleIndex index);
 
   /**
-   * Add the values of another {@link RawStatistics} to ours.
+   * Add the values of another {@link StatisticsSet} to ours.
    * Assumes we don't need to synchronise access to operand.
-   * @param operand The {@link RawStatistics} value to add.
+   * @param operand The {@link StatisticsSet} value to add.
    */
-  void add(RawStatistics operand);
+  void add(StatisticsSet operand);
 }

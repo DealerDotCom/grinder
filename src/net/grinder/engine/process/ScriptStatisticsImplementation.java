@@ -28,10 +28,10 @@ import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsIndexMap;
-import net.grinder.statistics.TestStatistics;
-import net.grinder.statistics.TestStatisticsFactory;
+import net.grinder.statistics.StatisticsSetFactory;
 
 
 /**
@@ -65,8 +65,8 @@ final class ScriptStatisticsImplementation
   private final ExpressionView[] m_detailExpressionViews =
     CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
 
-  private final TestStatistics m_testStatistics =
-    TestStatisticsFactory.getInstance().create();
+  private final StatisticsSet m_statistics =
+    StatisticsSetFactory.getInstance().create();
 
   private TestData m_currentTestData = null;
   private long m_currentTestStartTime = -1;
@@ -149,7 +149,7 @@ final class ScriptStatisticsImplementation
 
     checkCallContext();
     checkNotAlreadyReported();
-    m_testStatistics.setValue(index, value);
+    m_statistics.setValue(index, value);
   }
 
   public void setValue(StatisticsIndexMap.DoubleIndex index, double value)
@@ -157,7 +157,7 @@ final class ScriptStatisticsImplementation
 
     checkCallContext();
     checkNotAlreadyReported();
-    m_testStatistics.setValue(index, value);
+    m_statistics.setValue(index, value);
   }
 
   public void addValue(StatisticsIndexMap.LongIndex index, long value)
@@ -165,7 +165,7 @@ final class ScriptStatisticsImplementation
 
     checkCallContext();
     checkNotAlreadyReported();
-    m_testStatistics.addValue(index, value);
+    m_statistics.addValue(index, value);
   }
 
   public void addValue(StatisticsIndexMap.DoubleIndex index, double value)
@@ -173,17 +173,17 @@ final class ScriptStatisticsImplementation
 
     checkCallContext();
     checkNotAlreadyReported();
-    m_testStatistics.addValue(index, value);
+    m_statistics.addValue(index, value);
   }
 
   public long getValue(StatisticsIndexMap.LongIndex index) {
 
-    return m_testStatistics.getValue(index);
+    return m_statistics.getValue(index);
   }
 
   public double getValue(StatisticsIndexMap.DoubleIndex index) {
 
-    return m_testStatistics.getValue(index);
+    return m_statistics.getValue(index);
   }
 
   public void setError() throws InvalidContextException {
@@ -195,29 +195,29 @@ final class ScriptStatisticsImplementation
   }
 
   public boolean getSuccess() {
-    return m_testStatistics.getErrors() == 0;
+    return m_statistics.getValue(s_errorsIndex) != 0;
   }
 
   public long getTime() {
-    return m_testStatistics.getSum(s_timedTestsIndex);
+    return m_statistics.getSum(s_timedTestsIndex);
   }
 
   void setSuccessNoChecks(long time) {
     if (m_recordTime) {
-      m_testStatistics.reset(s_timedTestsIndex);
-      m_testStatistics.addSample(s_timedTestsIndex, time);
+      m_statistics.reset(s_timedTestsIndex);
+      m_statistics.addSample(s_timedTestsIndex, time);
     }
     else {
-      m_testStatistics.setValue(s_untimedTestsIndex, 1);
+      m_statistics.setValue(s_untimedTestsIndex, 1);
     }
 
-    m_testStatistics.setValue(s_errorsIndex, 0);
+    m_statistics.setValue(s_errorsIndex, 0);
   }
 
   void setErrorNoChecks() {
-    m_testStatistics.setValue(s_untimedTestsIndex, 0);
-    m_testStatistics.reset(s_timedTestsIndex);
-    m_testStatistics.setValue(s_errorsIndex, 1);
+    m_statistics.setValue(s_untimedTestsIndex, 0);
+    m_statistics.reset(s_timedTestsIndex);
+    m_statistics.setValue(s_errorsIndex, 1);
   }
 
   void beginTest(TestData testData, int runNumber) {
@@ -227,7 +227,7 @@ final class ScriptStatisticsImplementation
 
     m_currentTestData = testData;
     m_runNumber = runNumber;
-    m_testStatistics.reset();
+    m_statistics.reset();
     m_noTests = false;
   }
 
@@ -275,17 +275,17 @@ final class ScriptStatisticsImplementation
             m_detailExpressionViews[i].getExpression();
 
           if (expression.isDouble()) {
-            m_buffer.append(expression.getDoubleValue(m_testStatistics));
+            m_buffer.append(expression.getDoubleValue(m_statistics));
           }
           else {
-            m_buffer.append(expression.getLongValue(m_testStatistics));
+            m_buffer.append(expression.getLongValue(m_statistics));
           }
         }
 
         m_dataWriter.println(m_buffer);
       }
 
-      m_currentTestData.getStatistics().add(m_testStatistics);
+      m_currentTestData.getStatistics().add(m_statistics);
       m_currentTestData = null;
     }
   }

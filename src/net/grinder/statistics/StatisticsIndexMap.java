@@ -160,10 +160,8 @@ public final class StatisticsIndexMap implements Serializable {
 
   /**
    * Constructor.
-   *
-   * <p>Package scope for unit tests.</p>
    */
-  StatisticsIndexMap() {
+  private StatisticsIndexMap() {
     // Set up standard statistic index values. When adding new values
     // or changing the order, you should also change the serialVersionUID
     // of TestStatisticsMap.
@@ -376,7 +374,7 @@ public final class StatisticsIndexMap implements Serializable {
      * Get the index object for our count (the number of samples).
      *
      * <p>Package scope to prevent direct write access. External clients should
-     * use the {@link RawStatistics} or {@link StatisticExpression} interfaces.
+     * use the {@link StatisticsSet} or {@link StatisticExpression} interfaces.
      * </p>
      *
      * @return The index object.
@@ -389,7 +387,7 @@ public final class StatisticsIndexMap implements Serializable {
      * Get the index object for our variance.
      *
      * <p>Package scope to prevent direct write access. External clients should
-     * use the {@link RawStatistics} or {@link StatisticExpression} interfaces.
+     * use the {@link StatisticsSet} or {@link StatisticExpression} interfaces.
      * </p>
      *
      * @return The index object.
@@ -417,7 +415,7 @@ public final class StatisticsIndexMap implements Serializable {
      * Get the index object for our sum.
      *
      * <p>Package scope to prevent direct write access. External clients should
-     * use the {@link RawStatistics} or {@link StatisticExpression} interfaces.
+     * use the {@link StatisticsSet} or {@link StatisticExpression} interfaces.
      * </p>
      *
      * @return The index object.
@@ -445,7 +443,7 @@ public final class StatisticsIndexMap implements Serializable {
      * Get the index object for our sum.
      *
      * <p>Package scope to prevent direct write access. External clients should
-     * use the {@link RawStatistics} or {@link StatisticExpression} interfaces.
+     * use the {@link StatisticsSet} or {@link StatisticExpression} interfaces.
      * </p>
      *
      * @return The index object.

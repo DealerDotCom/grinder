@@ -88,8 +88,8 @@ import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
+import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatistics;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 
@@ -431,8 +431,8 @@ public final class ConsoleUI implements ModelListener {
       new SampleListener() {
         private final String m_suffix = ' ' + resources.getString("tps.units");
 
-        public void update(TestStatistics intervalStatistics,
-                           TestStatistics cumulativeStatistics) {
+        public void update(StatisticsSet intervalStatistics,
+                           StatisticsSet cumulativeStatistics) {
           final NumberFormat format = m_model.getNumberFormat();
 
           tpsLabel.setText(

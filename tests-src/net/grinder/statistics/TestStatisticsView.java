@@ -31,7 +31,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Comparator;
 
-import net.grinder.statistics.RawStatistics;
+import net.grinder.statistics.StatisticsSet;
 
 
 /**
@@ -39,7 +39,7 @@ import net.grinder.statistics.RawStatistics;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see RawStatistics
+ * @see StatisticsSet
  */
 public class TestStatisticsView extends TestCase {
 

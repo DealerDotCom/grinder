@@ -29,7 +29,7 @@ import junit.framework.TestCase;
  * 
  * @author Philip Aston
  * @version $Revision$
- * @see RawStatistics
+ * @see StatisticsSet
  */
 public class TestStatisticExpressionFactory extends TestCase {
 
@@ -39,12 +39,12 @@ public class TestStatisticExpressionFactory extends TestCase {
   private final StatisticsIndexMap m_indexMap =
     StatisticsIndexMap.getInstance();
 
-  private final RawStatistics m_rawStatistics =
-    new RawStatisticsImplementation();
+  private final StatisticsSet m_statistics =
+    new StatisticsSetImplementation();
 
   protected void setUp() throws Exception {
-    m_rawStatistics.addValue(m_indexMap.getLongIndex("userLong0"), 1);
-    m_rawStatistics.addValue(m_indexMap.getLongIndex("userLong1"), 2);
+    m_statistics.addValue(m_indexMap.getLongIndex("userLong0"), 1);
+    m_statistics.addValue(m_indexMap.getLongIndex("userLong1"), 2);
   }
 
   public void testConstant() throws Exception {
@@ -248,13 +248,13 @@ public class TestStatisticExpressionFactory extends TestCase {
     myAssertEquals(0, expression);
     assertTrue(expression.isDouble());
 
-    m_rawStatistics.addValue(m_indexMap.getDoubleIndex("userDouble0"), 4);
+    m_statistics.addValue(m_indexMap.getDoubleIndex("userDouble0"), 4);
     myAssertEquals(2, expression);
 
     myAssertEquals(1d, m_factory.createExpression("(sqrt 1)"));
     assertTrue(
         Double.isNaN(m_factory.createExpression("(sqrt -1)")
-                     .getDoubleValue(m_rawStatistics)));
+                     .getDoubleValue(m_statistics)));
 
     try {
       m_factory.createExpression("(sqrt)");
@@ -297,20 +297,20 @@ public class TestStatisticExpressionFactory extends TestCase {
     final PeakStatisticExpression peak = m_factory.createPeak(peakIndex2,
         m_factory.createExpression("userLong4"));
 
-    final RawStatistics rawStatistics = new RawStatisticsImplementation();
+    final StatisticsSet statistics = new StatisticsSetImplementation();
 
-    rawStatistics.setValue(statIndex, 2);
-    myAssertEquals(0, peak, rawStatistics);
-    peak.update(rawStatistics, rawStatistics);
-    myAssertEquals(2, peak, rawStatistics);
+    statistics.setValue(statIndex, 2);
+    myAssertEquals(0, peak, statistics);
+    peak.update(statistics, statistics);
+    myAssertEquals(2, peak, statistics);
 
-    rawStatistics.setValue(statIndex, 33);
-    peak.update(rawStatistics, rawStatistics);
-    myAssertEquals(33, peak, rawStatistics);
+    statistics.setValue(statIndex, 33);
+    peak.update(statistics, statistics);
+    myAssertEquals(33, peak, statistics);
 
-    rawStatistics.setValue(statIndex, 2);
-    peak.update(rawStatistics, rawStatistics);
-    myAssertEquals(33, peak, rawStatistics);
+    statistics.setValue(statIndex, 2);
+    peak.update(statistics, statistics);
+    myAssertEquals(33, peak, statistics);
   }
 
   public void testDoublePeak() throws Exception {
@@ -332,20 +332,20 @@ public class TestStatisticExpressionFactory extends TestCase {
     final PeakStatisticExpression peak = m_factory.createPeak(peakIndex2,
         m_factory.createExpression("userDouble4"));
 
-    final RawStatistics rawStatistics = new RawStatisticsImplementation();
+    final StatisticsSet statistics = new StatisticsSetImplementation();
 
-    rawStatistics.setValue(statIndex, 0.5);
-    myAssertEquals(0d, peak, rawStatistics);
-    peak.update(rawStatistics, rawStatistics);
-    myAssertEquals(0.5d, peak, rawStatistics);
+    statistics.setValue(statIndex, 0.5);
+    myAssertEquals(0d, peak, statistics);
+    peak.update(statistics, statistics);
+    myAssertEquals(0.5d, peak, statistics);
 
-    rawStatistics.setValue(statIndex, 33d);
-    peak.update(rawStatistics, rawStatistics);
-    myAssertEquals(33d, peak, rawStatistics);
+    statistics.setValue(statIndex, 33d);
+    peak.update(statistics, statistics);
+    myAssertEquals(33d, peak, statistics);
 
-    rawStatistics.setValue(statIndex, -2d);
-    peak.update(rawStatistics, rawStatistics);
-    myAssertEquals(33d, peak, rawStatistics);
+    statistics.setValue(statIndex, -2d);
+    peak.update(statistics, statistics);
+    myAssertEquals(33d, peak, statistics);
   }
   
   public void testLongSample() throws Exception {
@@ -353,8 +353,8 @@ public class TestStatisticExpressionFactory extends TestCase {
     myAssertEquals(0, m_factory.createExpression("(sum timedTests)"));
     myAssertEquals(0, m_factory.createExpression("(variance timedTests)"));
 
-    m_rawStatistics.addSample(m_indexMap.getLongSampleIndex("timedTests"), 2);
-    m_rawStatistics.addSample(m_indexMap.getLongSampleIndex("timedTests"), -1);
+    m_statistics.addSample(m_indexMap.getLongSampleIndex("timedTests"), 2);
+    m_statistics.addSample(m_indexMap.getLongSampleIndex("timedTests"), -1);
 
     myAssertEquals(2, m_factory.createExpression("(count timedTests)"));
     myAssertEquals(1, m_factory.createExpression("(sum timedTests)"));
@@ -405,8 +405,8 @@ public class TestStatisticExpressionFactory extends TestCase {
 
       final StatisticsIndexMap.DoubleSampleIndex index =
         m_indexMap.getDoubleSampleIndex("testDoubleSampleStatistic");
-      m_rawStatistics.addSample(index, 2);
-      m_rawStatistics.addSample(index, -1);
+      m_statistics.addSample(index, 2);
+      m_statistics.addSample(index, -1);
 
       myAssertEquals(2, m_factory.createExpression(
                           "(count testDoubleSampleStatistic)"));
@@ -501,23 +501,23 @@ public class TestStatisticExpressionFactory extends TestCase {
   }
 
   private void myAssertEquals(long expected, StatisticExpression expression) {
-    myAssertEquals(expected, expression, m_rawStatistics);
+    myAssertEquals(expected, expression, m_statistics);
   }
 
   private void myAssertEquals(long expected,
                               StatisticExpression expression,
-                              RawStatistics rawStatistics) {
-    assertEquals(expected, expression.getLongValue(rawStatistics));
-    myAssertEquals((double) expected, expression, rawStatistics);
+                              StatisticsSet statistics) {
+    assertEquals(expected, expression.getLongValue(statistics));
+    myAssertEquals((double) expected, expression, statistics);
   }
 
   private void myAssertEquals(double expected, StatisticExpression expression) {
-    myAssertEquals(expected, expression, m_rawStatistics);
+    myAssertEquals(expected, expression, m_statistics);
   }
 
   private void myAssertEquals(double expected,
                               StatisticExpression expression,
-                              RawStatistics rawStatistics) {
-    assertEquals(expected, expression.getDoubleValue(rawStatistics), 0.00001d);
+                              StatisticsSet statistics) {
+    assertEquals(expected, expression.getDoubleValue(statistics), 0.00001d);
   }
 }

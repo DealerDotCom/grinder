@@ -32,10 +32,10 @@ import net.grinder.common.Test;
 
 
 /**
- * A map of test numbers to {@link TestStatistics}s.
+ * A map of test numbers to {@link StatisticsSet}s.
  *
  * <p>Test statistics synchronisation occurs at the granularity of the
- * contained {@link RawStatistics} instances. The map is synchronised
+ * contained {@link StatisticsSet} instances. The map is synchronised
  * on the <code>TestStatisticsMap</code> itself.</p>
  *
  * @author Philip Aston
@@ -65,10 +65,10 @@ public class TestStatisticsMap implements java.io.Externalizable {
    * @param test A test.
    * @param statistics The test's statistics.
    */
-  public final void put(Test test, TestStatistics statistics) {
-    if (!(statistics instanceof TestStatisticsImplementation)) {
+  public final void put(Test test, StatisticsSet statistics) {
+    if (!(statistics instanceof StatisticsSetImplementation)) {
       throw new RuntimeException(
-        "TestStatistics implementation not supported");
+        "StatisticsSet implementation not supported");
     }
 
     synchronized (this) {
@@ -93,8 +93,8 @@ public class TestStatisticsMap implements java.io.Externalizable {
    * @param other The other <code>TestStatisticsMap</code>.
    */
   public final void add(TestStatisticsMap other) {
-    final TestStatisticsFactory testStatisticsFactory =
-      TestStatisticsFactory.getInstance();
+    final StatisticsSetFactory statisticsFactory =
+      StatisticsSetFactory.getInstance();
 
     synchronized (other) {
       final Iterator otherIterator = other.new Iterator();
@@ -102,14 +102,14 @@ public class TestStatisticsMap implements java.io.Externalizable {
       while (otherIterator.hasNext()) {
         final Pair othersPair = otherIterator.next();
 
-        final TestStatistics statistics;
+        final StatisticsSet statistics;
 
         synchronized (this) {
-          final TestStatistics existingStatistics =
-            (TestStatistics)m_data.get(othersPair.getTest());
+          final StatisticsSet existingStatistics =
+            (StatisticsSet)m_data.get(othersPair.getTest());
 
           if (existingStatistics == null) {
-            statistics = testStatisticsFactory.create();
+            statistics = statisticsFactory.create();
             put(othersPair.getTest(), statistics);
           }
           else {
@@ -130,8 +130,8 @@ public class TestStatisticsMap implements java.io.Externalizable {
   public TestStatisticsMap reset() {
     final TestStatisticsMap result = new TestStatisticsMap();
 
-    final TestStatisticsFactory testStatisticsFactory =
-      TestStatisticsFactory.getInstance();
+    final StatisticsSetFactory testStatisticsFactory =
+      StatisticsSetFactory.getInstance();
 
     synchronized (this) {
       final Iterator iterator = new Iterator();
@@ -139,11 +139,11 @@ public class TestStatisticsMap implements java.io.Externalizable {
       while (iterator.hasNext()) {
         final Pair pair = iterator.next();
 
-        final TestStatistics statistics = pair.getStatistics();
-        final TestStatistics snapshot;
+        final StatisticsSet statistics = pair.getStatistics();
+        final StatisticsSet snapshot;
 
         synchronized (statistics) {
-          snapshot = (TestStatistics)statistics.snapshot();
+          snapshot = (StatisticsSet)statistics.snapshot();
           statistics.reset();
         }
 
@@ -242,8 +242,8 @@ public class TestStatisticsMap implements java.io.Externalizable {
    */
   public void writeExternal(ObjectOutput out) throws IOException {
 
-    final TestStatisticsFactory testStatisticsFactory =
-      TestStatisticsFactory.getInstance();
+    final StatisticsSetFactory statisticsFactory =
+      StatisticsSetFactory.getInstance();
 
     synchronized (this) {
       out.writeInt(m_data.size());
@@ -255,10 +255,10 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
         out.writeInt(pair.getTest().getNumber());
 
-        // Its a class invariant that our TestStatistics are all
-        // TestStatisticsImplementations.
-        testStatisticsFactory.writeStatisticsExternal(
-          out, (TestStatisticsImplementation)pair.getStatistics());
+        // Its a class invariant that our StatisticsSet are all
+        // StatisticsSetImplementations.
+        statisticsFactory.writeStatisticsExternal(
+          out, (StatisticsSetImplementation)pair.getStatistics());
       }
     }
   }
@@ -274,8 +274,8 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
     final int n = in.readInt();
 
-    final TestStatisticsFactory testStatisticsFactory =
-      TestStatisticsFactory.getInstance();
+    final StatisticsSetFactory testStatisticsFactory =
+      StatisticsSetFactory.getInstance();
 
     m_data.clear();
 
@@ -339,7 +339,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
     public Pair next() {
       final Map.Entry entry = (Map.Entry)m_iterator.next();
       final Test test = (Test)entry.getKey();
-      final TestStatistics statistics = (TestStatistics)entry.getValue();
+      final StatisticsSet statistics = (StatisticsSet)entry.getValue();
 
       return new Pair(test, statistics);
     }
@@ -347,13 +347,13 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
   /**
    * A type safe pair of a {@link net.grinder.common.Test} and a
-   * {@link TestStatistics}.
+   * {@link StatisticsSet}.
    */
   public static final class Pair {
     private final Test m_test;
-    private final TestStatistics m_statistics;
+    private final StatisticsSet m_statistics;
 
-    private Pair(Test test, TestStatistics statistics) {
+    private Pair(Test test, StatisticsSet statistics) {
       m_test = test;
       m_statistics = statistics;
     }
@@ -368,11 +368,11 @@ public class TestStatisticsMap implements java.io.Externalizable {
     }
 
     /**
-     * Get the {@link TestStatistics}.
+     * Get the {@link StatisticsSet}.
      *
-     * @return The {@link TestStatistics}.
+     * @return The {@link StatisticsSet}.
      */
-    public TestStatistics getStatistics() {
+    public StatisticsSet getStatistics() {
       return m_statistics;
     }
   }

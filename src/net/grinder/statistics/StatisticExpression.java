@@ -24,7 +24,7 @@ package net.grinder.statistics;
 
 /**
  * Interface to apply a statistics calculation to a {@link
- * RawStatistics}.
+ * StatisticsSet}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -34,22 +34,22 @@ public interface StatisticExpression {
 
   /**
    * Apply this {@link StatisticExpression} to the given {@link
-   * RawStatistics} and return the result as a <code>double</code>.
+   * StatisticsSet} and return the result as a <code>double</code>.
    *
-   * @param rawStatistics A <code>RawStatistics</code> value.
+   * @param statisticsSet A <code>StatisticsSet</code> value.
    * @return The result.
    **/
-  double getDoubleValue(RawStatistics rawStatistics);
+  double getDoubleValue(StatisticsSet statisticsSet);
 
   /**
    * Apply this {@link StatisticExpression} to the given {@link
-   * RawStatistics} and return the result as a <code>long</code>,
+   * StatisticsSet} and return the result as a <code>long</code>,
    * ronding as necessary.
    *
-   * @param rawStatistics A <code>RawStatistics</code> value.
+   * @param statisticsSet A <code>StatisticsSet</code> value.
    * @return The result.
    **/
-  long getLongValue(RawStatistics rawStatistics);
+  long getLongValue(StatisticsSet statisticsSet);
 
   /**
    * Returns <code>true</code> if the type of this {@link

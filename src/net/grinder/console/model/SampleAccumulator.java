@@ -22,9 +22,9 @@
 package net.grinder.console.model;
 
 import net.grinder.statistics.PeakStatisticExpression;
+import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsIndexMap;
-import net.grinder.statistics.TestStatistics;
-import net.grinder.statistics.TestStatisticsFactory;
+import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.util.ListenerSupport;
 
 
@@ -41,9 +41,9 @@ final class SampleAccumulator {
   private final PeakStatisticExpression m_peakTPSExpression;
   private final StatisticsIndexMap.LongIndex m_periodIndex;
 
-  private final TestStatistics m_cumulativeStatistics;
-  private TestStatistics m_intervalStatistics;
-  private TestStatistics m_lastSampleStatistics;
+  private final StatisticsSet m_cumulativeStatistics;
+  private StatisticsSet m_intervalStatistics;
+  private StatisticsSet m_lastSampleStatistics;
 
   public SampleAccumulator(PeakStatisticExpression peakTPSExpression,
                            StatisticsIndexMap.LongIndex periodIndex) {
@@ -51,19 +51,19 @@ final class SampleAccumulator {
     m_peakTPSExpression = peakTPSExpression;
     m_periodIndex = periodIndex;
 
-    final TestStatisticsFactory testStatisticsFactory =
-      TestStatisticsFactory.getInstance();
+    final StatisticsSetFactory statisticsFactory =
+      StatisticsSetFactory.getInstance();
 
-    m_cumulativeStatistics = testStatisticsFactory.create();
-    m_intervalStatistics = testStatisticsFactory.create();
-    m_lastSampleStatistics = testStatisticsFactory.create();
+    m_cumulativeStatistics = statisticsFactory.create();
+    m_intervalStatistics = statisticsFactory.create();
+    m_lastSampleStatistics = statisticsFactory.create();
   }
 
   public synchronized void addSampleListener(SampleListener listener) {
     m_listeners.add(listener);
   }
 
-  public void add(TestStatistics report) {
+  public void add(StatisticsSet report) {
     m_intervalStatistics.add(report);
     m_cumulativeStatistics.add(report);
   }
@@ -87,7 +87,7 @@ final class SampleAccumulator {
 
     // We create new statistics each time to ensure that
     // m_lastSampleStatistics is always valid and fixed.
-    m_intervalStatistics = TestStatisticsFactory.getInstance().create();
+    m_intervalStatistics = StatisticsSetFactory.getInstance().create();
   }
 
   public void zero() {
@@ -96,11 +96,11 @@ final class SampleAccumulator {
     m_cumulativeStatistics.reset();
   }
 
-  public TestStatistics getLastSampleStatistics() {
+  public StatisticsSet getLastSampleStatistics() {
     return m_lastSampleStatistics;
   }
 
-  public TestStatistics getCumulativeStatistics() {
+  public StatisticsSet getCumulativeStatistics() {
     return m_cumulativeStatistics;
   }
 }

@@ -29,50 +29,44 @@ import net.grinder.util.Serialiser;
 
 
 /**
- * Factory for {@link TestStatistics} objects.
+ * Factory for {@link StatisticsSet} objects.
  *
  * @author Philip Aston
  * @version $Revision$
  * @stereotype singleton
  **/
-public final class TestStatisticsFactory {
+public final class StatisticsSetFactory {
 
-  private static final TestStatisticsFactory s_instance =
-    new TestStatisticsFactory();
+  private static final StatisticsSetFactory s_instance =
+    new StatisticsSetFactory();
 
   private final Serialiser m_serialiser = new Serialiser();
-
-  /**
-   * @link dependency
-   * @stereotype instantiate
-   **/
-  /*#TestStatisticsImplementation lnkTestStatistics;*/
 
   /**
    * Singleton accessor.
    *
    * @return The singleton.
    */
-  public static TestStatisticsFactory getInstance() {
+  public static StatisticsSetFactory getInstance() {
     return s_instance;
   }
 
   /**
    * Factory menthod.
    *
-   * @return A new <code>TestStatistics</code>.
+   * @return A new <code>StatisticsSet</code>.
    */
-  public TestStatistics create() {
-    return new TestStatisticsImplementation();
+  public StatisticsSet create() {
+    return new StatisticsSetImplementation();
   }
 
   void writeStatisticsExternal(ObjectOutput out,
-                               TestStatisticsImplementation statistics)
+                               StatisticsSetImplementation statistics)
     throws IOException {
     statistics.myWriteExternal(out, m_serialiser);
   }
 
-  TestStatistics readStatisticsExternal(ObjectInput in) throws IOException {
-    return new TestStatisticsImplementation(in, m_serialiser);
+  StatisticsSet readStatisticsExternal(ObjectInput in) throws IOException {
+    return new StatisticsSetImplementation(in, m_serialiser);
   }
 }

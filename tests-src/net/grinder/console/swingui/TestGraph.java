@@ -35,8 +35,8 @@ import net.grinder.statistics.PeakStatisticExpression;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticExpressionFactory;
 import net.grinder.statistics.StatisticsIndexMap;
-import net.grinder.statistics.RawStatistics;
-import net.grinder.statistics.RawStatisticsFactory;
+import net.grinder.statistics.StatisticsSet;
+import net.grinder.statistics.StatisticsSetFactory;
 
 
 
@@ -93,8 +93,8 @@ public class TestGraph extends TestCase {
   }
 
   public void testLabelledGraph() throws Exception {
-	final RawStatisticsFactory statisticsFactory
-	    = RawStatisticsFactory.getInstance();
+	final StatisticsSetFactory statisticsFactory
+	    = StatisticsSetFactory.getInstance();
 
 	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
@@ -130,7 +130,7 @@ public class TestGraph extends TestCase {
 
 	double peak = 0d;
 
-	final RawStatistics cumulativeStatistics =
+	final StatisticsSet cumulativeStatistics =
 	    statisticsFactory.create();
 
 	final DecimalFormat format = new DecimalFormat();
@@ -138,7 +138,7 @@ public class TestGraph extends TestCase {
 	final int period = 1000;
 
 	for (int i=0; i<200; i++) {
-      final RawStatistics intervalStatistics =
+      final StatisticsSet intervalStatistics =
         statisticsFactory.create();
   
       intervalStatistics.setValue(periodIndex, period);

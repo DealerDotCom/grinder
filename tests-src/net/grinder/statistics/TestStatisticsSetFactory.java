@@ -32,36 +32,36 @@ import java.util.Random;
 
 
 /**
- * Unit test case for <code>TestStatisticsFactory</code>.
+ * Unit test case for <code>StatisticsSetFactory</code>.
  *
  * @author Philip Aston
  * @version $Revision$
- * @see RawStatistics
+ * @see StatisticsSet
  */
-public class TestTestStatisticsFactory extends TestCase {
+public class TestStatisticsSetFactory extends TestCase {
   
-  public TestTestStatisticsFactory(String name) {
+  public TestStatisticsSetFactory(String name) {
 	super(name);
   }
 
   public void testCreation() throws Exception {
-	final TestStatisticsFactory factory =
-	    TestStatisticsFactory.getInstance();
+	final StatisticsSetFactory factory =
+	    StatisticsSetFactory.getInstance();
 
-	assertSame(factory, TestStatisticsFactory.getInstance());
+	assertSame(factory, StatisticsSetFactory.getInstance());
   }
 
   public void testFactory() throws Exception {
-	final TestStatisticsFactory factory =
-	    TestStatisticsFactory.getInstance();
+	final StatisticsSetFactory factory =
+	    StatisticsSetFactory.getInstance();
 
-	final TestStatistics testStatistics = factory.create();
-	assertTrue(testStatistics instanceof TestStatisticsImplementation);
+	final StatisticsSet statistics = factory.create();
+	assertTrue(statistics instanceof StatisticsSetImplementation);
   }
 
   public void testSerialisation() throws Exception {
-	final TestStatisticsFactory factory =
-	    TestStatisticsFactory.getInstance();
+	final StatisticsSetFactory factory =
+	    StatisticsSetFactory.getInstance();
 
 	final Random random = new Random();
 
@@ -73,12 +73,12 @@ public class TestTestStatisticsFactory extends TestCase {
 	final StatisticsIndexMap.LongIndex cIndex =
 	    indexMap.getLongIndex("userLong2");
 
-	final TestStatistics original0 = factory.create();
+	final StatisticsSet original0 = factory.create();
 	original0.addValue(aIndex, Math.abs(random.nextLong()));
 	original0.addValue(bIndex, Math.abs(random.nextLong()));
 	original0.addValue(cIndex, Math.abs(random.nextLong()));
 
-	final TestStatistics original1 = factory.create();
+	final StatisticsSet original1 = factory.create();
 
 	final ByteArrayOutputStream byteOutputStream =
 	    new ByteArrayOutputStream();
@@ -87,9 +87,9 @@ public class TestTestStatisticsFactory extends TestCase {
 	    new ObjectOutputStream(byteOutputStream);
 
 	factory.writeStatisticsExternal(objectOutputStream,
-      (TestStatisticsImplementation)original0);
+      (StatisticsSetImplementation)original0);
 	factory.writeStatisticsExternal(objectOutputStream,
-      (TestStatisticsImplementation)original1);
+      (StatisticsSetImplementation)original1);
 
 	objectOutputStream.close();
 
@@ -97,10 +97,10 @@ public class TestTestStatisticsFactory extends TestCase {
 	    new ObjectInputStream(
 		new ByteArrayInputStream(byteOutputStream.toByteArray()));
 
-	final TestStatistics received0 =
+	final StatisticsSet received0 =
 	    factory.readStatisticsExternal(objectInputStream);
 
-	final TestStatistics received1 =
+	final StatisticsSet received1 =
 	    factory.readStatisticsExternal(objectInputStream);
 
 	assertEquals(original0, received0);

@@ -40,11 +40,11 @@ import net.grinder.console.common.Resources;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.PeakStatisticExpression;
+import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticExpressionFactory;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatistics;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.SignificantFigureFormat;
 import net.grinder.util.ListenerSupport;
@@ -340,7 +340,7 @@ public final class Model {
    *
    * @return The cumulative statistics.
    */
-  public TestStatistics getTotalCumulativeStatistics() {
+  public StatisticsSet getTotalCumulativeStatistics() {
     return m_totalSampleAccumulator.getCumulativeStatistics();
   }
 
@@ -456,7 +456,7 @@ public final class Model {
       while (iterator.hasNext()) {
         final TestStatisticsMap.Pair pair = iterator.next();
 
-        final TestStatistics statistics = pair.getStatistics();
+        final StatisticsSet statistics = pair.getStatistics();
 
         final SampleAccumulator sampleAccumulator =
           (SampleAccumulator)m_accumulators.get(pair.getTest());

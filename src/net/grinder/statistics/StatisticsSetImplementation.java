@@ -34,22 +34,22 @@ import net.grinder.util.Serialiser;
 
 
 /**
- * Store an array of raw statistics as unsigned long values. Clients
+ * Store an array of raw statistics as unsigned long or double values. Clients
  * can access individual values using an index obtained from a {@link
  * StatisticsIndexMap}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-class RawStatisticsImplementation implements RawStatistics {
+class StatisticsSetImplementation implements StatisticsSet {
 
   private final long[] m_longData;
   private final double[] m_doubleData;
 
   /**
-   * Creates a new <code>RawStatisticsImplementation</code> instance.
+   * Creates a new <code>StatisticsSetImplementation</code> instance.
    */
-  public RawStatisticsImplementation() {
+  StatisticsSetImplementation() {
     m_longData =
       new long[StatisticsIndexMap.getInstance().getNumberOfLongs()];
 
@@ -62,7 +62,7 @@ class RawStatisticsImplementation implements RawStatistics {
    *
    * @param other Object to copy. Caller is responsible for synchronisation.
    */
-  protected RawStatisticsImplementation(RawStatisticsImplementation other) {
+  protected StatisticsSetImplementation(StatisticsSetImplementation other) {
     this();
     System.arraycopy(other.m_longData, 0, m_longData, 0, m_longData.length);
     System.arraycopy(other.m_doubleData, 0,
@@ -70,11 +70,11 @@ class RawStatisticsImplementation implements RawStatistics {
   }
 
   /**
-   * Reset this RawStatistics to default values. Allows instance to
+   * Reset this StatisticsSet to default values. Allows instance to
    * be reused.
    *
    * Assuming the caller owns this
-   * <code>RawStatisticsImplementation</code> (or they shouldn't be
+   * <code>StatisticsSetImplementation</code> (or they shouldn't be
    * reseting it), we don't synchronise
    */
   public final void reset() {
@@ -90,10 +90,10 @@ class RawStatisticsImplementation implements RawStatistics {
    * casting, and that we catch CloneNotSupported exceptions - even if we know
    * they won't be thrown.
    *
-   * @return A copy of this RawStatisticsImplementation.
+   * @return A copy of this StatisticsSetImplementation.
    */
-  public synchronized RawStatistics snapshot() {
-    return new RawStatisticsImplementation(this);
+  public synchronized StatisticsSet snapshot() {
+    return new StatisticsSetImplementation(this);
   }
 
   /**
@@ -342,12 +342,12 @@ class RawStatisticsImplementation implements RawStatistics {
   }
 
   /**
-   * Add the values of another <code>RawStatistics</code> to ours. Assumes we
+   * Add the values of another <code>StatisticsSet</code> to ours. Assumes we
    * don't need to synchronise access to operand.
    *
    * <p>
    * <strong>Currently the implementation assumes that the argument is actually
-   * a <code>RawStatisticsImplementation</code> </strong>.
+   * a <code>StatisticsSetImplementation</code> </strong>.
    * </p>
    *
    * <p>
@@ -355,12 +355,12 @@ class RawStatisticsImplementation implements RawStatistics {
    * </p>.
    *
    * @param operand
-   *          The <code>RawStatistics</code> value to add.
+   *          The <code>StatisticsSet</code> value to add.
    */
-  public final synchronized void add(RawStatistics operand) {
+  public final synchronized void add(StatisticsSet operand) {
 
-    final RawStatisticsImplementation operandImplementation =
-      (RawStatisticsImplementation)operand;
+    final StatisticsSetImplementation operandImplementation =
+      (StatisticsSetImplementation)operand;
 
     final boolean[] isVarianceIndex = new boolean[m_doubleData.length];
 
@@ -436,12 +436,12 @@ class RawStatisticsImplementation implements RawStatistics {
       return true;
     }
 
-    if (!(o instanceof RawStatisticsImplementation)) {
+    if (!(o instanceof StatisticsSetImplementation)) {
       return false;
     }
 
-    final RawStatisticsImplementation otherStatistics =
-      (RawStatisticsImplementation)o;
+    final StatisticsSetImplementation otherStatistics =
+      (StatisticsSetImplementation)o;
 
     final long[] otherLongData = otherStatistics.m_longData;
 
@@ -484,14 +484,14 @@ class RawStatisticsImplementation implements RawStatistics {
 
   /**
    * Return a <code>String</code> representation of this
-   * <code>RawStatistics</code>.
+   * <code>StatisticsSet</code>.
    *
    * @return The <code>String</code>
    */
   public final String toString() {
     final StringBuffer result = new StringBuffer();
 
-    result.append("RawStatistics = {{");
+    result.append("StatisticsSet = {{");
 
     for (int i = 0; i < m_longData.length; i++) {
       if (i != 0) {
@@ -518,7 +518,7 @@ class RawStatisticsImplementation implements RawStatistics {
 
   /**
    * Efficient externalisation method used by {@link
-   * TestStatisticsFactory#writeStatisticsExternal}.
+   * StatisticsSetFactory#writeStatisticsExternal}.
    *
    * <p>Synchronised to ensure a consistent view.</p>.
    *
@@ -540,13 +540,13 @@ class RawStatisticsImplementation implements RawStatistics {
 
   /**
    * Efficient externalisation method used by {@link
-   * TestStatisticsFactory#readStatisticsExternal}.
+   * StatisticsSetFactory#readStatisticsExternal}.
    *
    * @param in Handle to the input stream.
    * @param serialiser <code>Serialiser</code> helper object.
    * @exception IOException If an error occurs.
    */
-  protected RawStatisticsImplementation(ObjectInput in, Serialiser serialiser)
+  protected StatisticsSetImplementation(ObjectInput in, Serialiser serialiser)
     throws IOException {
     this();
 

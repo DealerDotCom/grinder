@@ -26,8 +26,9 @@ import java.io.Writer;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
+import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatistics;
+import net.grinder.statistics.TestStatisticsQueries;
 
 
 /**
@@ -64,7 +65,7 @@ final class CumulativeStatisticsTableModel
     addColumns(getModel().getCumulativeStatisticsView());
   }
 
-  protected TestStatistics getStatistics(int row) {
+  protected StatisticsSet getStatistics(int row) {
     return getLastModelTestIndex().getCumulativeStatistics(row);
   }
 
@@ -110,7 +111,8 @@ final class CumulativeStatisticsTableModel
     else {
       return
         column == 3 &&
-        getModel().getTotalCumulativeStatistics().getErrors() > 0;
+        TestStatisticsQueries.getInstance().getNumberOfErrors(
+            getModel().getTotalCumulativeStatistics()) > 0;
     }
   }
 

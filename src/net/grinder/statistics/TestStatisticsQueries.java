@@ -21,24 +21,14 @@
 
 package net.grinder.statistics;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-
-import net.grinder.util.Serialiser;
-
 
 /**
- * Wire a {@link RawStatisticsImplementation} to implement {@link
- * TestStatistics}.
- *
- * TODO probably want to get rid of this, or at least change it to use
- * delegation.
+ * Common queries against the standard statistics.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-final class TestStatisticsImplementation
-  extends RawStatisticsImplementation implements TestStatistics {
+public final class TestStatisticsQueries {
 
   private static final StatisticsIndexMap.LongIndex s_errorsIndex;
   private static final StatisticsIndexMap.LongIndex s_untimedTestsIndex;
@@ -52,60 +42,60 @@ final class TestStatisticsImplementation
     s_timedTestsIndex = indexMap.getLongSampleIndex("timedTests");
   }
 
+  private static final TestStatisticsQueries s_instance =
+    new TestStatisticsQueries();
+
+  /**
+   * Singleton accessor.
+   *
+   * @return The singleton.
+   */
+  public static TestStatisticsQueries getInstance() {
+    return s_instance;
+  }
+
   /**
    * Constructor.
    */
-  public TestStatisticsImplementation() {
+  private TestStatisticsQueries() {
   }
 
   /**
-   * Copy constructor.
+   * Return the number of tests. This is equal to the sum of the
+   * <em>timedTests</em> <em>count</em> value and the
+   * <em>untimedTests</em> value.
    *
-   * @param other Object to copy. Caller is responsible for synchronisation.
+   * @param statistics The statistics to query.
+   * @return a <code>long</code> value
    */
-  protected TestStatisticsImplementation(TestStatisticsImplementation other) {
-    super(other);
-  }
-
-  /**
-   * Clone this object. We need to override so that the cloned object is of
-   * the correct type. See notes in {@link RawStatisticsImplementation#snapshot}
-   * for why we don't use {@link Object#clone}.
-   *
-   * @return A copy of this TestStatisticsImplementation.
-   */
-  public synchronized RawStatistics snapshot() {
-    return new TestStatisticsImplementation(this);
-  }
-
-  /**
-   * Efficient externalisation method used by {@link
-   * TestStatisticsFactory#writeStatisticsExternal}.
-   *
-   * @param in Handle to the output stream.
-   * @param serialiser <code>Serialiser</code> helper object.
-   * @exception IOException If an error occurs.
-   */
-  public TestStatisticsImplementation(ObjectInput in, Serialiser serialiser)
-    throws IOException {
-    super(in, serialiser);
-  }
-
-  public long getTests() {
+  public long getNumberOfTests(StatisticsSet statistics) {
     return
-      getCount(s_timedTestsIndex) +
-      getValue(s_untimedTestsIndex);
+      statistics.getCount(s_timedTestsIndex) +
+      statistics.getValue(s_untimedTestsIndex);
   }
 
-  public long getErrors() {
-    return getValue(s_errorsIndex);
+  /**
+   * Return the value of the <em>errors</em> statistic.
+   *
+   * @param statistics The statistics to query.
+   * @return a <code>long</code> value
+   */
+  public long getNumberOfErrors(StatisticsSet statistics) {
+    return statistics.getValue(s_errorsIndex);
   }
 
-  public double getAverageTestTime() {
-    final long count = getCount(s_timedTestsIndex);
+  /**
+   * Return the value obtained by dividing the <em>timedTests</em> sample
+   * statistics <em>total</em> attribute by its <em>count</em> attribute.
+   *
+   * @param statistics The statistics to query.
+   * @return a <code>double</code> value
+   */
+  public double getAverageTestTime(StatisticsSet statistics) {
+    final long count = statistics.getCount(s_timedTestsIndex);
 
     return
       count == 0 ?
-      Double.NaN : getSum(s_timedTestsIndex) / (double)count;
+      Double.NaN : statistics.getSum(s_timedTestsIndex) / (double)count;
   }
 }

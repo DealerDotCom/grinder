@@ -194,7 +194,7 @@ public final class StatisticExpressionFactory {
    */
   public StatisticExpression createConstant(final long value) {
     return new LongStatistic() {
-        public long getValue(RawStatistics rawStatistics) {
+        public long getValue(StatisticsSet statisticsSet) {
           return value;
         }
       };
@@ -208,7 +208,7 @@ public final class StatisticExpressionFactory {
    */
   public StatisticExpression createConstant(final double value) {
     return new DoubleStatistic() {
-        public double getValue(RawStatistics rawStatistics) {
+        public double getValue(StatisticsSet statisticsSet) {
           return value;
         }
       };
@@ -248,14 +248,14 @@ public final class StatisticExpressionFactory {
     return new VariableArgumentsExpression(0, operands) {
         public double doDoubleOperation(
           double result, StatisticExpression operand,
-          RawStatistics rawStatistics) {
-          return result + operand.getDoubleValue(rawStatistics);
+          StatisticsSet statisticsSet) {
+          return result + operand.getDoubleValue(statisticsSet);
         }
 
         public long doLongOperation(
           long result, StatisticExpression operand,
-          RawStatistics rawStatistics) {
-          return result + operand.getLongValue(rawStatistics);
+          StatisticsSet statisticsSet) {
+          return result + operand.getLongValue(statisticsSet);
         }
       }
       .getExpression();
@@ -273,14 +273,14 @@ public final class StatisticExpressionFactory {
     return new VariableArgumentsExpression(1, operands) {
         public double doDoubleOperation(
           double result, StatisticExpression operand,
-          RawStatistics rawStatistics) {
-          return result * operand.getDoubleValue(rawStatistics);
+          StatisticsSet statisticsSet) {
+          return result * operand.getDoubleValue(statisticsSet);
         }
 
         public long doLongOperation(
           long result, StatisticExpression operand,
-          RawStatistics rawStatistics) {
-          return result * operand.getLongValue(rawStatistics);
+          StatisticsSet statisticsSet) {
+          return result * operand.getLongValue(statisticsSet);
         }
       }
       .getExpression();
@@ -298,10 +298,10 @@ public final class StatisticExpressionFactory {
                    final StatisticExpression denominator) {
 
     return new DoubleStatistic() {
-        public double getValue(RawStatistics rawStatistics) {
+        public double getValue(StatisticsSet statisticsSet) {
           return
-            numerator.getDoubleValue(rawStatistics) /
-            denominator.getDoubleValue(rawStatistics);
+            numerator.getDoubleValue(statisticsSet) /
+            denominator.getDoubleValue(statisticsSet);
         }
       };
   }
@@ -424,8 +424,8 @@ public final class StatisticExpressionFactory {
     createSquareRoot(final StatisticExpression operand) {
 
     return new DoubleStatistic() {
-        public double getValue(RawStatistics rawStatistics) {
-          return Math.sqrt(operand.getDoubleValue(rawStatistics));
+        public double getValue(StatisticsSet statisticsSet) {
+          return Math.sqrt(operand.getDoubleValue(statisticsSet));
         }
       };
   }
@@ -476,19 +476,19 @@ public final class StatisticExpressionFactory {
 
   private abstract static class DoubleStatistic
     implements StatisticExpression {
-    public final double getDoubleValue(RawStatistics rawStatistics) {
-      return getValue(rawStatistics);
+    public final double getDoubleValue(StatisticsSet statisticsSet) {
+      return getValue(statisticsSet);
     }
 
-    public final long getLongValue(RawStatistics rawStatistics) {
-      return (long)getValue(rawStatistics);
+    public final long getLongValue(StatisticsSet statisticsSet) {
+      return (long)getValue(statisticsSet);
     }
 
     public final boolean isDouble() {
       return true;
     }
 
-    protected abstract double getValue(RawStatistics rawStatistics);
+    protected abstract double getValue(StatisticsSet statisticsSet);
   }
 
   private static class PrimitiveDoubleStatistic extends DoubleStatistic {
@@ -499,12 +499,12 @@ public final class StatisticExpressionFactory {
       m_index = index;
     }
 
-    public final double getValue(RawStatistics rawStatistics) {
-      return rawStatistics.getValue(m_index);
+    public final double getValue(StatisticsSet statisticsSet) {
+      return statisticsSet.getValue(m_index);
     }
 
-    protected final void setValue(RawStatistics rawStatistics, double value) {
-      rawStatistics.setValue(m_index, value);
+    protected final void setValue(StatisticsSet statisticsSet, double value) {
+      statisticsSet.setValue(m_index, value);
     }
   }
 
@@ -519,8 +519,8 @@ public final class StatisticExpressionFactory {
       m_monitoredStatistic = monitoredStatistic;
     }
 
-    public void update(RawStatistics monitoredStatistics,
-                       RawStatistics peakStorageStatistics) {
+    public void update(StatisticsSet monitoredStatistics,
+                       StatisticsSet peakStorageStatistics) {
       setValue(peakStorageStatistics,
                Math.max(getValue(peakStorageStatistics),
                         m_monitoredStatistic.getDoubleValue(
@@ -530,19 +530,19 @@ public final class StatisticExpressionFactory {
 
   private abstract static class LongStatistic implements StatisticExpression {
 
-    public final double getDoubleValue(RawStatistics rawStatistics) {
-      return (double)getValue(rawStatistics);
+    public final double getDoubleValue(StatisticsSet statisticsSet) {
+      return (double)getValue(statisticsSet);
     }
 
-    public final long getLongValue(RawStatistics rawStatistics) {
-      return getValue(rawStatistics);
+    public final long getLongValue(StatisticsSet statisticsSet) {
+      return getValue(statisticsSet);
     }
 
     public final boolean isDouble() {
       return false;
     }
 
-    protected abstract long getValue(RawStatistics rawStatistics);
+    protected abstract long getValue(StatisticsSet statisticsSet);
   }
 
   private static class PrimitiveLongStatistic extends LongStatistic {
@@ -553,12 +553,12 @@ public final class StatisticExpressionFactory {
       m_index = index;
     }
 
-    public final long getValue(RawStatistics rawStatistics) {
-      return rawStatistics.getValue(m_index);
+    public final long getValue(StatisticsSet statisticsSet) {
+      return statisticsSet.getValue(m_index);
     }
 
-    protected final void setValue(RawStatistics rawStatistics, long value) {
-      rawStatistics.setValue(m_index, value);
+    protected final void setValue(StatisticsSet statisticsSet, long value) {
+      statisticsSet.setValue(m_index, value);
     }
   }
 
@@ -572,8 +572,8 @@ public final class StatisticExpressionFactory {
       m_monitoredStatistic = monitoredStatistic;
     }
 
-    public void update(RawStatistics monitoredStatistics,
-                       RawStatistics peakStorageStatistics) {
+    public void update(StatisticsSet monitoredStatistics,
+                       StatisticsSet peakStorageStatistics) {
       setValue(peakStorageStatistics,
                Math.max(getValue(peakStorageStatistics),
                         m_monitoredStatistic.getLongValue(
@@ -599,11 +599,11 @@ public final class StatisticExpressionFactory {
       if (doubleResult) {
         m_expression = new DoubleStatistic() {
             public final double getValue(
-              RawStatistics rawStatistics) {
+              StatisticsSet statisticsSet) {
               double result = initialValue;
 
               for (int i = 0; i < operands.length; ++i) {
-                result = doDoubleOperation(result, operands[i], rawStatistics);
+                result = doDoubleOperation(result, operands[i], statisticsSet);
               }
 
               return result;
@@ -613,11 +613,11 @@ public final class StatisticExpressionFactory {
       else {
         m_expression = new LongStatistic() {
             public final long getValue(
-              RawStatistics rawStatistics) {
+              StatisticsSet statisticsSet) {
               long result = (long)initialValue;
 
               for (int i = 0; i < operands.length; ++i) {
-                result = doLongOperation(result, operands[i], rawStatistics);
+                result = doLongOperation(result, operands[i], statisticsSet);
               }
 
               return result;
@@ -628,11 +628,11 @@ public final class StatisticExpressionFactory {
 
     protected abstract double
       doDoubleOperation(double result, StatisticExpression operand,
-                        RawStatistics rawStatistics);
+                        StatisticsSet statisticsSet);
 
     protected abstract long
       doLongOperation(long result, StatisticExpression operand,
-                      RawStatistics rawStatistics);
+                      StatisticsSet statisticsSet);
 
     final StatisticExpression getExpression() {
       return m_expression;

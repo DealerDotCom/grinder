@@ -39,10 +39,10 @@ public interface PeakStatisticExpression extends StatisticExpression {
    * <code>monitoredStatistics</code> is calculated and stored in the
    * given <code>peakStorageStatistics</code>.
    *
-   * @param monitoredStatistics The monitored <code>RawStatistics</code>.
-   * @param peakStorageStatistics The <code>RawStatistics</code> in
+   * @param monitoredStatistics The monitored <code>StatisticsSet</code>.
+   * @param peakStorageStatistics The <code>StatisticsSet</code> in
    * which to store the result.
    */
-  void update(RawStatistics monitoredStatistics,
-              RawStatistics peakStorageStatistics);
+  void update(StatisticsSet monitoredStatistics,
+              StatisticsSet peakStorageStatistics);
 }

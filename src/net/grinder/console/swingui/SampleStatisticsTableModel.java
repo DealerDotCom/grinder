@@ -23,8 +23,8 @@ package net.grinder.console.swingui;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
+import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -54,7 +54,7 @@ final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
     addColumns(intervalStatisticsView);
   }
 
-  protected TestStatistics getStatistics(int row) {
+  protected StatisticsSet getStatistics(int row) {
     return getLastModelTestIndex().getLastSampleStatistics(row);
   }
 }

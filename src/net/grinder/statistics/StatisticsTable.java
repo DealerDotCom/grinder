@@ -134,7 +134,7 @@ public class StatisticsTable {
 
     out.println();
 
-    final TestStatistics totals = TestStatisticsFactory.getInstance().create();
+    final StatisticsSet totals = StatisticsSetFactory.getInstance().create();
 
     synchronized (m_testStatisticsMap) {
 
@@ -166,7 +166,7 @@ public class StatisticsTable {
   }
 
   private StringBuffer formatLine(String rowLabel,
-                                  RawStatistics rawStatistics,
+                                  StatisticsSet statisticsSet,
                                   ExpressionView[] expressionViews) {
     final StringBuffer result = new StringBuffer();
 
@@ -186,10 +186,10 @@ public class StatisticsTable {
 
       if (expression.isDouble()) {
         text = m_twoDPFormat.format(expression.getDoubleValue(
-                                      rawStatistics));
+                                      statisticsSet));
       }
       else {
-        text = String.valueOf(expression.getLongValue(rawStatistics));
+        text = String.valueOf(expression.getLongValue(statisticsSet));
       }
 
       cell.replace(0, cell.length(), text);

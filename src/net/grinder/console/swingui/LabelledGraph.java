@@ -38,8 +38,9 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
 import net.grinder.console.common.Resources;
+import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticExpression;
-import net.grinder.statistics.TestStatistics;
+import net.grinder.statistics.TestStatisticsQueries;
 
 
 /**
@@ -236,12 +237,16 @@ class LabelledGraph extends JPanel {
     return m_preferredSize;
   }
 
-  public void add(TestStatistics intervalStatistics,
-                  TestStatistics cumulativeStatistics,
+  public void add(StatisticsSet intervalStatistics,
+                  StatisticsSet cumulativeStatistics,
                   NumberFormat numberFormat) {
+    final TestStatisticsQueries statisticsQueries =
+      TestStatisticsQueries.getInstance();
+
     final double averageTime =
-      cumulativeStatistics.getAverageTestTime();
-    final long errors = cumulativeStatistics.getErrors();
+      statisticsQueries.getAverageTestTime(cumulativeStatistics);
+    final long errors =
+      statisticsQueries.getNumberOfErrors(cumulativeStatistics);
     final double peakTPS =
       m_peakTPSExpression.getDoubleValue(cumulativeStatistics);
 
@@ -262,7 +267,7 @@ class LabelledGraph extends JPanel {
 
     m_peakTPSLabel.set(peakTPS, numberFormat);
 
-    m_testsLabel.set(cumulativeStatistics.getTests());
+    m_testsLabel.set(statisticsQueries.getNumberOfTests(cumulativeStatistics));
 
     m_errorsLabel.set(errors);
     m_errorsLabel.setHighlight(errors > 0);

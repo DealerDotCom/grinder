@@ -32,9 +32,10 @@ import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatistics;
+import net.grinder.statistics.TestStatisticsQueries;
 
 
 /**
@@ -74,7 +75,7 @@ abstract class DynamicStatisticsTableModel
     m_model.addModelListener(new SwingDispatchedModelListener(this));
   }
 
-  protected abstract TestStatistics getStatistics(int row);
+  protected abstract StatisticsSet getStatistics(int row);
 
   protected final Model getModel() {
     return m_model;
@@ -163,7 +164,7 @@ abstract class DynamicStatisticsTableModel
     }
   }
 
-  protected synchronized String getDynamicField(TestStatistics statistics,
+  protected synchronized String getDynamicField(StatisticsSet statistics,
                                                 int dynamicColumn) {
 
     if (dynamicColumn < m_columnViews.length) {
@@ -194,7 +195,10 @@ abstract class DynamicStatisticsTableModel
   }
 
   public boolean isRed(int row, int column) {
-    return column == 3 && getStatistics(row).getErrors() > 0;
+    return
+      column == 3 &&
+      TestStatisticsQueries.getInstance().getNumberOfErrors(
+          getStatistics(row)) > 0;
   }
 
   public synchronized void write(Writer writer, String columnDelimiter,

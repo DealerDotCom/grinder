@@ -30,14 +30,16 @@ import junit.framework.TestCase;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see RawStatistics
+ * @see StatisticsSet
  */
-public class TestTestStatisticsImplementation extends TestCase {
-  public TestTestStatisticsImplementation(String name) {
-	super(name);
+public class TestTestStatisticsQueries extends TestCase {
+  
+  public void testSingleton() throws Exception {
+    assertSame(TestStatisticsQueries.getInstance(),
+               TestStatisticsQueries.getInstance());
   }
 
-  public void testTestStatisticsImplementation() throws Exception {
+  public void testTestStatisticsQueries() throws Exception {
     final StatisticsIndexMap statisticsIndexMap =
       StatisticsIndexMap.getInstance();
     final StatisticsIndexMap.LongIndex errorStatisticIndex =
@@ -47,42 +49,41 @@ public class TestTestStatisticsImplementation extends TestCase {
     final StatisticsIndexMap.LongSampleIndex timedTestsIndex =
       statisticsIndexMap.getLongSampleIndex("timedTests");
 
-	final TestStatistics testStatistics1 =
-	    new TestStatisticsImplementation();
+	final StatisticsSet statistics0 = new StatisticsSetImplementation();
+  
+	final TestStatisticsQueries queries = TestStatisticsQueries.getInstance();
 
-	assertEquals(0, testStatistics1.getErrors());
-	assertEquals(0, testStatistics1.getTests());
-	assertTrue(Double.isNaN(testStatistics1.getAverageTestTime()));
+	assertEquals(0, queries.getNumberOfErrors(statistics0));
+	assertEquals(0, queries.getNumberOfTests(statistics0));
+	assertTrue(Double.isNaN(queries.getAverageTestTime(statistics0)));
 
-	final TestStatistics testStatistics2 =
-	    new TestStatisticsImplementation();
+	final StatisticsSet statistics1 = new StatisticsSetImplementation();
 
-	assertTrue(testStatistics1 != testStatistics2);
+	assertTrue(statistics0 != statistics1);
+	assertEquals(statistics0, statistics1);
 
-	assertEquals(testStatistics1, testStatistics2);
+	statistics0.addValue(errorStatisticIndex, 1);
+	assertEquals(1, queries.getNumberOfErrors(statistics0));
+	assertTrue(!statistics0.equals(statistics1));
 
-	testStatistics1.addValue(errorStatisticIndex, 1);
-	assertEquals(1, testStatistics1.getErrors());
-	assertTrue(!testStatistics1.equals(testStatistics2));
+	statistics1.addValue(errorStatisticIndex, 1);
+	assertEquals(statistics0, statistics1);
 
-	testStatistics2.addValue(errorStatisticIndex, 1);
-	assertEquals(testStatistics1, testStatistics2);
+	statistics0.addValue(untimedTestsIndex, 1);
+	assertEquals(1, queries.getNumberOfTests(statistics0));
+	assertTrue(!statistics0.equals(statistics1));
 
-	testStatistics1.addValue(untimedTestsIndex, 1);
-	assertEquals(1, testStatistics1.getTests());
-	assertTrue(!testStatistics1.equals(testStatistics2));
+	statistics1.addValue(untimedTestsIndex, 1);
+	assertEquals(statistics0, statistics1);
 
-	testStatistics2.addValue(untimedTestsIndex, 1);
-	assertEquals(testStatistics1, testStatistics2);
+	statistics0.addSample(timedTestsIndex, 5);
+	statistics1.addSample(timedTestsIndex, 10);
+	assertEquals(2, queries.getNumberOfTests(statistics0));
+	assertTrue(!statistics0.equals(statistics1));
 
-	testStatistics1.addSample(timedTestsIndex, 5);
-	testStatistics2.addSample(timedTestsIndex, 10);
-	assertEquals(2, testStatistics1.getTests());
-	assertTrue(!testStatistics1.equals(testStatistics2));
-
-	testStatistics1.addSample(timedTestsIndex, 10);
-	testStatistics2.addSample(timedTestsIndex, 5);
-	assertEquals(testStatistics1, testStatistics2);
-	assertEquals(7.5d, testStatistics2.getAverageTestTime(), 0.01);
+	statistics0.addSample(timedTestsIndex, 10);
+	statistics1.addSample(timedTestsIndex, 5);
+	assertEquals(statistics0, statistics1);
+	assertEquals(7.5d, queries.getAverageTestTime(statistics1), 0.01);
   }
 }

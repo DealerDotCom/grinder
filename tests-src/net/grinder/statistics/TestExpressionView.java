@@ -36,7 +36,7 @@ import java.io.ObjectOutputStream;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see RawStatistics
+ * @see StatisticsSet
  */
 public class TestExpressionView extends TestCase {
 

@@ -23,7 +23,7 @@ package net.grinder.console.model;
 
 import java.util.EventListener;
 
-import net.grinder.statistics.TestStatistics;
+import net.grinder.statistics.StatisticsSet;
 
 
 /**
@@ -40,6 +40,6 @@ public interface SampleListener extends EventListener {
    * @param intervalStatistics Statistics for last interface.
    * @param cumulativeStatistics Statistics since last reset.
    */
-  void update(TestStatistics intervalStatistics,
-              TestStatistics cumulativeStatistics);
+  void update(StatisticsSet intervalStatistics,
+              StatisticsSet cumulativeStatistics);
 }

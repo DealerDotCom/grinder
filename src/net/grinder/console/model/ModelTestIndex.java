@@ -22,7 +22,7 @@
 package net.grinder.console.model;
 
 import net.grinder.common.Test;
-import net.grinder.statistics.TestStatistics;
+import net.grinder.statistics.StatisticsSet;
 
 
 /**
@@ -81,7 +81,7 @@ public final class ModelTestIndex {
    * @param testIndex The test index.
    * @return The cumulative statistics.
    */
-  public TestStatistics getCumulativeStatistics(int testIndex) {
+  public StatisticsSet getCumulativeStatistics(int testIndex) {
     return m_accumulatorArray[testIndex].getCumulativeStatistics();
   }
 
@@ -91,7 +91,7 @@ public final class ModelTestIndex {
    * @param testIndex The test index.
    * @return The last sample statistics.
    */
-  public TestStatistics getLastSampleStatistics(int testIndex) {
+  public StatisticsSet getLastSampleStatistics(int testIndex) {
     return m_accumulatorArray[testIndex].getLastSampleStatistics();
   }
 

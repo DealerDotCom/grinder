@@ -142,7 +142,7 @@ final class ScriptContextImplementation implements ScriptContext {
 
     if (threadContext == null) {
       throw new InvalidContextException(
-        "getCurrentTestStatistics() is only supported for worker threads");
+        "getStatistics() is only supported for worker threads");
     }
 
     return threadContext.getScriptStatistics();

@@ -30,6 +30,7 @@ import java.io.ObjectOutputStream;
 
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
+import net.grinder.testutility.RandomStubFactory;
 
 
 /**
@@ -43,12 +44,12 @@ public class TestTestStatisticsMap extends TestCase {
 
   private final Test m_test0 = new StubTest(0, "foo");
   private final Test m_test1 = new StubTest(1, "");
-  private TestStatistics m_statistics0;
-  private TestStatistics m_statistics1;
+  private StatisticsSet m_statistics0;
+  private StatisticsSet m_statistics1;
   private StatisticsIndexMap.LongIndex m_index;
 
   protected void setUp() throws Exception {
-    final TestStatisticsFactory factory = TestStatisticsFactory.getInstance();
+    final StatisticsSetFactory factory = StatisticsSetFactory.getInstance();
 
     m_statistics0 = factory.create();
     m_statistics1 = factory.create();
@@ -71,6 +72,16 @@ public class TestTestStatisticsMap extends TestCase {
 
     map.put(m_test1, m_statistics1);
     assertEquals(2, map.size());
+    
+    final StatisticsSet bogusStatisticsSetImplementation =
+      (StatisticsSet)new RandomStubFactory(StatisticsSet.class).getStub();
+    
+    try {
+      map.put(m_test1, bogusStatisticsSetImplementation);
+      fail("Expected RuntimeException");
+    }
+    catch (RuntimeException e) {
+    }
   }
 
   public void testEqualsAndHashCode() throws Exception {
@@ -158,7 +169,7 @@ public class TestTestStatisticsMap extends TestCase {
     
     assertEquals(1, map1.size());
     final TestStatisticsMap.Iterator iterator = map1.new Iterator();
-    final TestStatistics statistics = iterator.next().getStatistics();
+    final StatisticsSet statistics = iterator.next().getStatistics();
     assertEquals(20, statistics.getValue(m_index));
   }
 

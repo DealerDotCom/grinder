@@ -34,15 +34,15 @@ import net.grinder.util.Serialiser;
 
 
 /**
- * Unit test case for <code>RawStatisticsImplementation</code>.
+ * Unit test case for <code>StatisticsSetImplementation</code>.
  *
  * @author Philip Aston
  * @version $Revision$
- * @see RawStatisticsImplementation
+ * @see StatisticsSetImplementation
  */
-public class TestRawStatisticsImplementation extends TestCase {
+public class TestStatisticsSetImplementation extends TestCase {
 
-  public TestRawStatisticsImplementation(String name) {
+  public TestStatisticsSetImplementation(String name) {
     super(name);
   }
 
@@ -65,16 +65,16 @@ public class TestRawStatisticsImplementation extends TestCase {
   }
 
   public void testCreation() {
-	final RawStatisticsImplementation statistics =
-	    new RawStatisticsImplementation();
+	final StatisticsSetImplementation statistics =
+	    new StatisticsSetImplementation();
 
 	assertEquals(0, statistics.getValue(m_longIndex1));
 	assertDoublesEqual(0d, statistics.getValue(m_doubleIndex2));
   }
 
   public void testReset() throws Exception {
-	final RawStatisticsImplementation statistics0 =
-	    new RawStatisticsImplementation();
+	final StatisticsSetImplementation statistics0 =
+	    new StatisticsSetImplementation();
 
 	statistics0.setValue(m_longIndex2, 700);
 	statistics0.setValue(m_doubleIndex2, -0.9999);
@@ -87,10 +87,10 @@ public class TestRawStatisticsImplementation extends TestCase {
   }
 
   public void testGetValueSetValueAndEquals() throws Exception {
-	final RawStatisticsImplementation statistics0 =
-	    new RawStatisticsImplementation();
-	final RawStatisticsImplementation statistics1 =
-	    new RawStatisticsImplementation();
+	final StatisticsSetImplementation statistics0 =
+	    new StatisticsSetImplementation();
+	final StatisticsSetImplementation statistics1 =
+	    new StatisticsSetImplementation();
 
 	assertEquals(statistics0, statistics0);
 	assertEquals(statistics0, statistics1);
@@ -141,10 +141,10 @@ public class TestRawStatisticsImplementation extends TestCase {
   }
 
   public void testAddValue() throws Exception {
-    final RawStatisticsImplementation statistics0 =
-      new RawStatisticsImplementation();
-    final RawStatisticsImplementation statistics1 =
-      new RawStatisticsImplementation();
+    final StatisticsSetImplementation statistics0 =
+      new StatisticsSetImplementation();
+    final StatisticsSetImplementation statistics1 =
+      new StatisticsSetImplementation();
 
     statistics0.addValue(m_longIndex1, 700);
     statistics0.addValue(m_longIndex1, 300);
@@ -164,10 +164,10 @@ public class TestRawStatisticsImplementation extends TestCase {
   }
 
   public void testAdd() throws Exception {
-	final RawStatisticsImplementation statistics0 =
-	    new RawStatisticsImplementation();
-	final RawStatisticsImplementation statistics1 =
-	    new RawStatisticsImplementation();
+	final StatisticsSetImplementation statistics0 =
+	    new StatisticsSetImplementation();
+	final StatisticsSetImplementation statistics1 =
+	    new StatisticsSetImplementation();
 
 	// 0 + 0 = 0
 	statistics0.add(statistics1);
@@ -194,12 +194,12 @@ public class TestRawStatisticsImplementation extends TestCase {
   public void testSnapshot() throws Exception {
     final Random random = new Random();
 
-    final RawStatisticsImplementation original =
-      new RawStatisticsImplementation();
+    final StatisticsSetImplementation original =
+      new StatisticsSetImplementation();
     original.addValue(m_longIndex0, 10);
     original.setValue(m_doubleIndex2, 3);
     
-    final RawStatistics snapshot = original.snapshot();
+    final StatisticsSet snapshot = original.snapshot();
     
     assertDoublesEqual(3d, snapshot.getValue(m_doubleIndex2));
     assertEquals(0, snapshot.getValue(m_longIndex1));
@@ -224,8 +224,8 @@ public class TestRawStatisticsImplementation extends TestCase {
   }
   
   public void testLongSampleReadAndWrite() throws Exception {
-    final RawStatistics rawStatistics0 =
-      new RawStatisticsImplementation();
+    final StatisticsSet rawStatistics0 =
+      new StatisticsSetImplementation();
 
     final StatisticsIndexMap map = StatisticsIndexMap.getInstance();
     final StatisticsIndexMap.LongSampleIndex longSampleIndex =
@@ -255,7 +255,7 @@ public class TestRawStatisticsImplementation extends TestCase {
     assertEquals(0, rawStatistics0.getCount(longSampleIndex));
     assertDoublesEqual(0d, rawStatistics0.getVariance(longSampleIndex));
 
-    final RawStatistics rawStatistics1 =  new RawStatisticsImplementation();
+    final StatisticsSet rawStatistics1 =  new StatisticsSetImplementation();
 
     rawStatistics1.addSample(longSampleIndex, -1);
     assertEquals(-1, rawStatistics1.getSum(longSampleIndex));
@@ -288,7 +288,7 @@ public class TestRawStatisticsImplementation extends TestCase {
                                          countIndex,
                                          varianceIndex);
 
-      final RawStatistics rawStatistics0 = new RawStatisticsImplementation();
+      final StatisticsSet rawStatistics0 = new StatisticsSetImplementation();
   
       assertDoublesEqual(0, rawStatistics0.getSum(doubleSampleIndex));
       assertEquals(0, rawStatistics0.getCount(doubleSampleIndex));
@@ -309,7 +309,7 @@ public class TestRawStatisticsImplementation extends TestCase {
       assertEquals(3, rawStatistics0.getCount(doubleSampleIndex));
       assertDoublesEqual(14/3d, rawStatistics0.getVariance(doubleSampleIndex));
 
-      final RawStatistics rawStatistics1 = new RawStatisticsImplementation();
+      final StatisticsSet rawStatistics1 = new StatisticsSetImplementation();
 
       rawStatistics0.add(rawStatistics1);
       assertDoublesEqual(6, rawStatistics0.getSum(doubleSampleIndex));
@@ -346,13 +346,13 @@ public class TestRawStatisticsImplementation extends TestCase {
   public void testSerialisation() throws Exception {
 	final Random random = new Random();
 
-	final RawStatisticsImplementation original0 =
-	    new RawStatisticsImplementation();
+	final StatisticsSetImplementation original0 =
+	    new StatisticsSetImplementation();
 	original0.addValue(m_longIndex0, Math.abs(random.nextLong()));
 	original0.addValue(m_longIndex2, Math.abs(random.nextLong()));
 
-	final RawStatisticsImplementation original1 =
-	    new RawStatisticsImplementation();
+	final StatisticsSetImplementation original1 =
+	    new StatisticsSetImplementation();
 
 	final ByteArrayOutputStream byteOutputStream =
 	    new ByteArrayOutputStream();
@@ -371,19 +371,19 @@ public class TestRawStatisticsImplementation extends TestCase {
 	    new ObjectInputStream(
 		new ByteArrayInputStream(byteOutputStream.toByteArray()));
 
-	final RawStatisticsImplementation received0 =
-	    new RawStatisticsImplementation(objectInputStream, serialiser);
+	final StatisticsSetImplementation received0 =
+	    new StatisticsSetImplementation(objectInputStream, serialiser);
 
-	final RawStatisticsImplementation received1 =
-	    new RawStatisticsImplementation(objectInputStream, serialiser);
+	final StatisticsSetImplementation received1 =
+	    new StatisticsSetImplementation(objectInputStream, serialiser);
 
 	assertEquals(original0, received0);
 	assertEquals(original1, received1);
   }
   
   public void testEqualsMiscellanea() throws Exception {
-    final RawStatistics rawStatistics0 = new RawStatisticsImplementation();
-    final RawStatistics rawStatistics1 = new RawStatisticsImplementation();
+    final StatisticsSet rawStatistics0 = new StatisticsSetImplementation();
+    final StatisticsSet rawStatistics1 = new StatisticsSetImplementation();
     
     assertFalse(rawStatistics0.equals(this));
 
@@ -395,7 +395,7 @@ public class TestRawStatisticsImplementation extends TestCase {
   }
   
   public void testToString() throws Exception {
-    final RawStatistics rawStatistics = new RawStatisticsImplementation();
+    final StatisticsSet rawStatistics = new StatisticsSetImplementation();
     final String s0 = rawStatistics.toString();
     
     final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();

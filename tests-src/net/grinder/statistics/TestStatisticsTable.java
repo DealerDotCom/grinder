@@ -36,7 +36,7 @@ import net.grinder.common.Test;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see RawStatistics
+ * @see StatisticsSet
  */
 public class TestStatisticsTable extends TestCase {
 
@@ -74,20 +74,20 @@ public class TestStatisticsTable extends TestCase {
 	    new StubTest(113, "Another test"),
 	};
 
-	final RawStatistics[] rawStatistics = new RawStatistics[tests.length];
+	final StatisticsSet[] statistics = new StatisticsSet[tests.length];
 
-	final TestStatisticsFactory factory =
-	    TestStatisticsFactory.getInstance();
+	final StatisticsSetFactory factory =
+	    StatisticsSetFactory.getInstance();
 
 	for (int i=0; i<tests.length; ++i) {
-	    rawStatistics[i] = new RawStatisticsImplementation();
-	    rawStatistics[i].addValue(aIndex, i);
-	    rawStatistics[i].addValue(bIndex, i+1);
+	    statistics[i] = new StatisticsSetImplementation();
+	    statistics[i].addValue(aIndex, i);
+	    statistics[i].addValue(bIndex, i+1);
 
-	    final TestStatistics testStatistics = factory.create();
-	    testStatistics.add(rawStatistics[i]);
+	    final StatisticsSet statistics2 = factory.create();
+	    statistics2.add(statistics[i]);
 
-	    m_testStatisticsMap.put(tests[i], testStatistics);
+	    m_testStatisticsMap.put(tests[i], statistics2);
 	}
   }
 

@@ -31,7 +31,7 @@ import junit.framework.TestCase;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see RawStatistics
+ * @see StatisticsSet
  **/
 public class TestCommonStatisticsViews extends TestCase {
 

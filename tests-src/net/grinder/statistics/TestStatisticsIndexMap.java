@@ -24,16 +24,15 @@ package net.grinder.statistics;
 import junit.framework.TestCase;
 import junit.swingui.TestRunner;
 
-import net.grinder.common.GrinderException;
 import net.grinder.statistics.StatisticsIndexMap;
-import net.grinder.statistics.RawStatistics;
+import net.grinder.statistics.StatisticsSet;
 
 /**
  * Unit test case for <code>StatisticsIndexMap</code>.
  * 
  * @author Philip Aston
  * @version $Revision$
- * @see RawStatistics
+ * @see StatisticsSet
  */
 public class TestStatisticsIndexMap extends TestCase {
 
