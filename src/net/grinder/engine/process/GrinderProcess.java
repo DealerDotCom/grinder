@@ -86,7 +86,7 @@ public final class GrinderProcess implements Monitor
 						new File(args[1]) : null);
 	}
 	catch (GrinderException e) {
-	    System.err.println("Error initialising Worker Process:\n" + e);
+	    System.err.println("Error initialising worker process:\n" + e);
 	    e.printStackTrace();
 	    System.exit(-2);
 	    return;
@@ -101,7 +101,7 @@ public final class GrinderProcess implements Monitor
 
 	    logger.output("Fatal error, see error log for details",
 			  Logger.TERMINAL);
-	    logger.error("Error running Worker Process");
+	    logger.error("Error running worker process");
 	    e.printStackTrace(logger.getErrorLogWriter());
 	    System.exit(-3);
 	}
@@ -160,7 +160,8 @@ public final class GrinderProcess implements Monitor
 			 System.getProperty("os.arch") + " " +
 			 System.getProperty("os.version"));
 	
-	final JythonScript jythonScript = new JythonScript(m_scriptFile);
+	final JythonScript jythonScript =
+	    new JythonScript(m_context, m_scriptFile);
 
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
 

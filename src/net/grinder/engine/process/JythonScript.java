@@ -47,18 +47,17 @@ class JythonScript
 {
     private static final String TEST_CASE_CALLABLE_NAME = "TestCase";
 
+    private final ProcessContext m_processContext;
     private final PySystemState m_systemState;
     private final PythonInterpreter m_interpreter;
     private final PyObject m_testCaseFactory;
     private final JythonScriptContext m_scriptContext;
 
-    public JythonScript(File scriptFile) throws EngineException
+    public JythonScript(ProcessContext processContext, File scriptFile)
+	throws EngineException
     {
-	//Properties properties = new Properties();
-	
-	//properties.put("python.home", "d:/jython/jython-2.1");
+	m_processContext = processContext;
 
-	//        PythonInterpreter.initialize(properties, null, new String[0]);
 	PySystemState.initialize();
 
 	m_systemState = new PySystemState();
@@ -70,7 +69,9 @@ class JythonScript
 	final String parentPath = scriptFile.getParent();
 
 	m_systemState.path.insert(0, new PyString(parentPath != null ?
-						  parentPath: ""));
+						  parentPath : ""));
+
+	processContext.output("executing \"" + scriptFile.getPath() + "\"");
 
         try {
 	    // Run the test script, script does global set up here.
@@ -129,7 +130,7 @@ class JythonScript
     {
 	public String getGrinderID()
 	{
-	    return ProcessContext.getInstance().getGrinderID();
+	    return m_processContext.getGrinderID();
 	}
 
 	public int getThreadID()
@@ -165,7 +166,7 @@ class JythonScript
 		return threadContext;
 	    }
 
-	    return ProcessContext.getInstance();
+	    return m_processContext;
 	}
     }
 }

@@ -138,5 +138,5 @@ public final class TestRegistry
 
     public interface RegisteredTest {
 	GrinderPlugin getPlugin();
-    };
+    }
 }

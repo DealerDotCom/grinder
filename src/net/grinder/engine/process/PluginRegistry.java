@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
@@ -42,13 +43,15 @@ import net.grinder.plugininterface.PluginThreadCallbacks;
  */
 final class PluginRegistry
 {
+    private final ProcessContext m_processContext;
     private final Map m_plugins = new HashMap();
 
     /**
      * Constructor.
      */
-    public PluginRegistry()
+    public PluginRegistry(ProcessContext processContext)
     {
+	m_processContext = processContext;
     }
 
     public RegisteredPlugin register(Class pluginClass) throws EngineException
@@ -72,11 +75,14 @@ final class PluginRegistry
 		final GrinderPlugin plugin =
 		    (GrinderPlugin)pluginClass.newInstance();
 
-		plugin.initialize(ProcessContext.getInstance());
+		plugin.initialize(m_processContext);
 		
 		final RegisteredPlugin result = new RegisteredPlugin(plugin);
     
 		m_plugins.put(pluginClass, result);
+
+		m_processContext.output(
+		    "initialised plug-in " + pluginClass.getName());
 
 		return result;
 	    }
@@ -113,8 +119,6 @@ final class PluginRegistry
 	    if (existingPluginThreadCallbacks != null) {
 		return existingPluginThreadCallbacks;
 	    }
-	    
-	    final ThreadLogger logger = threadContext.getThreadLogger();
 
 	    try {
 		final PluginThreadCallbacks newPluginThreadCallbacks =
@@ -123,12 +127,11 @@ final class PluginRegistry
 		newPluginThreadCallbacks.initialize(threadContext);
 		m_threadCallbacksThreadLocal.set(newPluginThreadCallbacks);
 
-		logger.output("Initialized " +
-			      newPluginThreadCallbacks.getClass().getName());
-
 		return newPluginThreadCallbacks;
 	    }
 	    catch (PluginException e) {
+		final Logger logger = threadContext.getThreadLogger();
+
 		logger.error("Thread could not initialise plugin" + e);
 		e.printStackTrace(logger.getErrorLogWriter());
 

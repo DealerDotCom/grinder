@@ -49,8 +49,6 @@ import net.grinder.statistics.TestStatisticsFactory;
  **/
 class ProcessContext implements PluginProcessContext
 {
-    private static ProcessContext s_instance;
-
     private final String m_grinderID;
     private final GrinderProperties m_properties;
     private final GrinderProperties m_pluginParameters;
@@ -66,20 +64,9 @@ class ProcessContext implements PluginProcessContext
     private final TestStatisticsFactory m_testStatisticsFactory =
 	TestStatisticsFactory.getInstance();
 
-    public static final ProcessContext getInstance()
-    {
-	return s_instance;
-    }
-
     ProcessContext(String grinderID, GrinderProperties properties)
 	throws GrinderException
     {
-	if (s_instance != null) {
-	    throw new EngineException("Already initialised");
-	}
-
-	s_instance = this;
-
 	m_grinderID = grinderID;
 	m_properties = properties;
 
@@ -134,7 +121,7 @@ class ProcessContext implements PluginProcessContext
 		};
 	}
 
-	m_pluginRegistry = new PluginRegistry();
+	m_pluginRegistry = new PluginRegistry(this);
 	m_testRegistry =
 	    new TestRegistry(m_pluginRegistry, getConsoleSender());
     }

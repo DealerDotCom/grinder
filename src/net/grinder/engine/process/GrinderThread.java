@@ -50,6 +50,7 @@ class GrinderThread implements java.lang.Runnable
     private static short m_numberOfThreads = 0;
 
     private final Monitor m_notifyOnCompletion;
+    private final ProcessContext m_processContext;
     private final ThreadContext m_context;
     private final JythonScript.JythonRunnable m_jythonRunnable;
 
@@ -67,6 +68,7 @@ class GrinderThread implements java.lang.Runnable
     {
 	m_notifyOnCompletion = notifyOnCompletion;
 
+	m_processContext = processContext;
 	m_context = new ThreadContext(processContext, threadID);
 
 	m_jythonRunnable = jythonScript.new JythonRunnable();
@@ -95,10 +97,11 @@ class GrinderThread implements java.lang.Runnable
 	    m_context.getSleeper().sleepFlat(m_initialSleepTime);
 
 	    if (m_numberOfRuns == 0) {
-		logger.output("About to run forever");
+		logger.output("about to run forever");
 	    }
 	    else {
-		logger.output("About to do " + m_numberOfRuns + " runs");
+		logger.output("about to do " + m_numberOfRuns + " run" +
+			      (m_numberOfRuns == 1 ? "" : "s"));
 	    }
 
 	    int currentRun;	    
@@ -120,10 +123,11 @@ class GrinderThread implements java.lang.Runnable
 
 	    logger.setCurrentRunNumber(-1);
 
-	    logger.output("Finished " + currentRun + " runs");
+	    logger.output("finished " + currentRun + " run" +
+			  (currentRun == 1 ? "" : "s"));
 	}
 	catch (Sleeper.ShutdownException e) {
-	    logger.output("Shutdown");
+	    logger.output("shutdown");
 	}
 	catch(Exception e) {
 	    logger.error(" threw an exception:" + e);
@@ -165,7 +169,7 @@ class GrinderThread implements java.lang.Runnable
 	public void run() throws EngineException
 	{
 	    final Iterator iterator =
-		ProcessContext.getInstance().getPluginRegistry().
+		m_processContext.getPluginRegistry().
 		getPluginThreadCallbacksList(m_context).iterator();
 
 	    while (iterator.hasNext()) {

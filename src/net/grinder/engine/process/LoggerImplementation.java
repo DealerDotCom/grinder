@@ -226,14 +226,13 @@ final class LoggerImplementation
 	buffer.setLength(0);
 
 	buffer.append(getDateString());
-	buffer.append(": ");
 
 	if (state.m_threadID == -1) {
-	    buffer.append("Grinder Process (");
+	    buffer.append(" (process ");
 	    buffer.append(m_grinderID);
 	}
 	else {
-	    buffer.append("(thread ");
+	    buffer.append(" (thread ");
 	    buffer.append(state.m_threadID);
 
 	    if (state.m_currentRunNumber >= 0) {
@@ -244,9 +243,8 @@ final class LoggerImplementation
 		buffer.append(" test " + state.m_currentTestNumber);
 	    }
 	}
-	
 
-	buffer.append(") ");
+	buffer.append("): ");
 	buffer.append(message);
 
 	// Sadly this is the most efficient way to get something we
