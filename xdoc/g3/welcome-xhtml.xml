@@ -3,8 +3,26 @@
 <html>
 <body>
 
-<image src="../images/script-logo.png"/>
-
+<br/>
+<br/>
+<br/>
+<br/>
+<image src="../images/script-logo.png" align="right"/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
 <h1>What's new in The Grinder 3?</h1>
 
 <p>The key change introduced by The Grinder 3 is a full scripting
@@ -43,8 +61,8 @@ of arbitrary complexity.</p>
 
 <p>Kind of dry, huh? If you never seen any Python or are wondering
 what was wrong with the old <code>grinder.properties</code> approach
-then skip ahead the <a href="./script-galley.html">Script Gallery</a>
-to sample the power of The Grinder 3.</p>
+then skip ahead to the <a href="./script-gallery.html">Script
+Gallery</a> to sample the power of The Grinder 3.</p>
 
 <h2>New Java plug-in</h2>
 

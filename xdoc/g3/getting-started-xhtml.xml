@@ -39,6 +39,20 @@ controlled and monitored using the console. There is little reason to
 run more than one agent on a single machine, but if you wish to you
 can.</p>
 
+
+<h1>Tests and Plug-ins</h1>
+
+<p>A <em>test</em> is a unit of work against which statistics are
+recorded. Tests are uniquely defined by a <em>test number</em> and may
+also have a <em>description</em>. Scripts can report many different
+types of thing against the same test number, The Grinder will
+aggregate the results.</p>
+
+<p>A <em>plug-in</em> provides a paticular type of test. The Grinder 3
+comes with two standard plug-ins: the <em>Java plug-in</em>, which
+allows arbitrary Java and Jython code to be tested, and the <em>HTTP
+plug-in</em> for testing HTTP servers.</p>
+
 <h1>How do I start The Grinder?</h1>
 
 <p>Its easy:</p>
@@ -100,14 +114,6 @@ the Grinder agents</p>
         grinder.grinderAddress  (Multicast address)
         grinder.grinderPort
 </pre>
-
-<h1>Tests</h1>
-
-<p>A test is a unit of work against which statistics are recorded.
-Tests are uniquely defined by a <em>test number</em> and may also have
-a <em>description</em>. Scripts can report many different types of
-thing against the same test number, The Grinder will aggregate the
-results.</p>
 
 <h1>Output</h1>
 
