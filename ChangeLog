@@ -1,3 +1,43 @@
+2004-03-11  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/testutility/AssertUtilities.java, tests-src/net/grinder/testutility/CallRecorder.java:
+	Establish a place for assertArraysEqual implementations.
+
+	* tests-src/net/grinder/plugin/http/TestHTTPRequest.java:
+	Better unit tests for HTTPRequest.
+
+	* build.xml: Fork a separate JVM for TestSleeper.
+
+	* CHANGES: Document changes.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java:
+	Simplify HTTPRequest API slightly by removing some redundant
+	overloaded methods and ordering parameters for consistently.
+	Fix - DELETE() mistakenly invoked a Trace() method.
+	Fix - GET() and OPTIONS() could pass header values to query strings.
+
+	* etc/setenv.sh: JUnit not required.
+
+2004-03-10  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/plugin/http/HTTPRequest.java:
+	Fix bug 912050. (Refactor as you can't access final parameters in
+	overridden methods called from an anonymous inner class constructor.)
+	Remove static references.
+
+	* tests-src/net/grinder/testutility/StubRelationshipsInvocationHandlerDecorator.java:
+	Idea for the future.
+
+	* tests-src/net/grinder/testutility/AbstractStubFactory.java:
+	Allow return values to be explictly stubbed for given methods.
+
+	* tests-src/net/grinder/plugin/http/TestHTTPRequest.java, tests-src/net/grinder/testutility/AbstractStubFactory.java, tests-src/net/grinder/testutility/OverrideInvocationHandlerDecorator.java, tests-src/net/grinder/testutility/RandomObjectFactory.java, tests-src/net/grinder/testutility/RandomStubFactory.java:
+	Slight refactoring.
+
+2004-03-06  Philip Aston  <philipa@mail.com>
+
+	* build.xml: Next is beta 20.
+
 2004-03-06  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta19 is released.
