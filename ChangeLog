@@ -1,5 +1,9 @@
 2001-10-28  Philip Aston  <paston@bea.com>
 
+	* The Grinder 2.8 is released.
+	
+	* src/net/grinder/statistics/StatisticsView.java: Fix javadoc.
+
 	* tests-src/net/grinder/statistics/TestCommonStatisticsViews.java:
 	New file.
 
