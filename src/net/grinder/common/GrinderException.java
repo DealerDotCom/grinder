@@ -160,14 +160,6 @@ public class GrinderException extends Exception {
     }
     while (original.charAt(p) == other.charAt(otherP));
 
-    // System.err.println("\n\nOriginal length: " +
-    // original.length() + " other length: " + other.length() + ",
-    // broke at p=" + p + " otherp=" + otherP + " where
-    // original[p]=" + Integer.toString(original.charAt(p)) + "('"
-    // + original.substring(p) + "') and otherP.charAt(otherP)=" +
-    // Integer.toString(other.charAt(otherP)) + "('" +
-    // other.substring(otherP) + "')\n");
-
     // p is now the index of the last character that differs.
 
     // Now wind forward to first new line.
