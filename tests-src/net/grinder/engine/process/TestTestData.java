@@ -83,12 +83,8 @@ public class TestTestData extends TestCase
     private void applyCommonAssertions(TestData testData, Test test, 
 				       long sleepTime)
     {
-	assertEquals(test.getTestNumber(), testData.getTestNumber());
-	assertEquals(test.getDescription(), testData.getDescription());
-	assertEquals(test.getParameters(), testData.getParameters());
-
+	assertEquals(test, testData.getTest());
 	assertEquals(sleepTime, testData.getSleepTime());
-
 	assertNotNull(testData.getStatistics());
 	assertNotNull(testData.toString());
     }

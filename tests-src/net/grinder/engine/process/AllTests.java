@@ -39,6 +39,7 @@ public class AllTests
     {
 	final TestSuite suite = new TestSuite();
 	suite.addTest(new TestSuite(TestTestData.class));
+	suite.addTest(new TestSuite(TestTestStatistics.class));
 	return suite;
     }
 }
