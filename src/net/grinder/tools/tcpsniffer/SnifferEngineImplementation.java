@@ -23,6 +23,7 @@
 package net.grinder.tools.tcpsniffer;
 
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -43,7 +44,9 @@ public class SnifferEngineImplementation implements SnifferEngine
     private final SnifferFilter m_requestFilter;
     private final SnifferFilter m_responseFilter;
     private final ConnectionDetails m_connectionDetails;
-    private final boolean m_useColour;
+    private final boolean m_logTimeout;
+    private final String m_requestColour;
+    private final String m_responseColour;
 
     private final PrintWriter m_outputWriter;
 
@@ -55,14 +58,24 @@ public class SnifferEngineImplementation implements SnifferEngine
 				       SnifferFilter responseFilter,
 				       ConnectionDetails connectionDetails,
 				       boolean useColour,
-				       int timeout)
+				       int timeout,
+				       boolean logTimeout)
 	throws IOException
     {
 	m_socketFactory = socketFactory;
 	m_requestFilter = requestFilter;
 	m_responseFilter = responseFilter;
 	m_connectionDetails = connectionDetails;
-	m_useColour = useColour;
+	m_logTimeout = logTimeout;
+
+	if (useColour) {
+	    m_requestColour = TerminalColour.RED;
+	    m_responseColour = TerminalColour.BLUE;
+	}
+	else {
+	    m_requestColour = "";
+	    m_responseColour = "";
+	}
 
 	m_outputWriter = new PrintWriter(System.out);
 	requestFilter.setOutputPrintWriter(m_outputWriter);
@@ -82,6 +95,13 @@ public class SnifferEngineImplementation implements SnifferEngine
 
 	    try {
 		localSocket = m_serverSocket.accept();
+	    }
+	    catch (InterruptedIOException e) {
+		if (m_logTimeout) {
+		    System.err.println(ACCEPT_TIMEOUT_MESSAGE);
+		}
+
+		return;
 	    }
 	    catch (IOException e) {
 		e.printStackTrace(System.err);
@@ -126,7 +146,7 @@ public class SnifferEngineImplementation implements SnifferEngine
 			 remoteSocket.getOutputStream(),
 			 m_requestFilter,
 			 m_outputWriter,
-			 getColourString(false));
+			 m_requestColour);
 
 	new StreamThread(new ConnectionDetails(
 			     remoteHost,
@@ -138,17 +158,7 @@ public class SnifferEngineImplementation implements SnifferEngine
 			 localOutputStream,
 			 m_responseFilter,
 			 m_outputWriter,
-			 getColourString(true));
-    }
-
-    private String getColourString(boolean response)
-    {
-	if (!m_useColour) {
-	    return "";
-	}
-	else {
-	    return response ? TerminalColour.BLUE : TerminalColour.RED;
-	}
+			 m_responseColour);
     }
 }
 
