@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,7 +41,8 @@ final class TestStatisticsImplementation
   private static final StatisticsIndexMap.LongIndex s_errorsIndex;
   private static final StatisticsIndexMap.LongIndex s_timedTestsIndex;
   private static final StatisticsIndexMap.LongIndex s_untimedTestsIndex;
-  private static final StatisticsIndexMap.LongIndex s_totalTimeIndex;
+  private static final StatisticsIndexMap.LongIndex s_timedTestTimeIndex;
+  private static final StatisticsIndexMap.DoubleIndex s_timedTestVarianceIndex;
 
   static {
     final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
@@ -50,7 +51,9 @@ final class TestStatisticsImplementation
       s_errorsIndex = indexMap.getIndexForLong("errors");
       s_timedTestsIndex = indexMap.getIndexForLong("timedTests");
       s_untimedTestsIndex = indexMap.getIndexForLong("untimedTests");
-      s_totalTimeIndex = indexMap.getIndexForLong("timedTestTime");
+      s_timedTestTimeIndex = indexMap.getIndexForLong("timedTestTime");
+      s_timedTestVarianceIndex =
+        indexMap.getIndexForDouble("timedTestVariance");
     }
     catch (GrinderException e) {
       throw new ExceptionInInitializerError(
@@ -61,9 +64,29 @@ final class TestStatisticsImplementation
   }
 
   /**
-   * Creates a new <code>TestStatisticsImplementation</code> instance.
-   **/
+   * Constructor.
+   */
   public TestStatisticsImplementation() {
+  }
+
+  /**
+   * Copy constructor.
+   *
+   * @param other Object to copy. Caller is responsible for synchronisation.
+   */
+  protected TestStatisticsImplementation(TestStatisticsImplementation other) {
+    super(other);
+  }
+
+  /**
+   * Clone this object. We need to override so that the cloned object is of
+   * the correct type. See notes in {@link RawStatisticsImplementation#snapshot}
+   * for why we don't use {@link Object#clone}.
+   *
+   * @return A copy of this TestStatisticsImplementation.
+   */
+  public synchronized RawStatistics snapshot() {
+    return new TestStatisticsImplementation(this);
   }
 
   /**
@@ -73,7 +96,7 @@ final class TestStatisticsImplementation
    * @param in Handle to the output stream.
    * @param serialiser <code>Serialiser</code> helper object.
    * @exception IOException If an error occurs.
-   **/
+   */
   public TestStatisticsImplementation(ObjectInput in, Serialiser serialiser)
     throws IOException {
     super(in, serialiser);
@@ -89,7 +112,7 @@ final class TestStatisticsImplementation
 
   public void addTest(long time) {
     addValue(s_timedTestsIndex, 1);
-    addValue(s_totalTimeIndex, time);
+    addValue(s_timedTestTimeIndex, time);
   }
 
   public long getTests() {
@@ -107,6 +130,6 @@ final class TestStatisticsImplementation
 
     return
       timedTests == 0 ?
-      Double.NaN : getValue(s_totalTimeIndex) / (double)timedTests;
+      Double.NaN : getValue(s_timedTestTimeIndex) / (double)timedTests;
   }
 }
