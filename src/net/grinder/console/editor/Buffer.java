@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,7 +29,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.EventListener;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -95,11 +97,12 @@ public final class Buffer {
 
   private final Resources m_resources;
   private final TextSource m_textSource;
-  private String m_name;
-  private File m_file;
 
   /** Synchronise on m_listeners before accessing. */
   private final List m_listeners = new LinkedList();
+
+  private String m_name;
+  private File m_file;
 
   private long m_lastModified = -1;
 
@@ -159,9 +162,14 @@ public final class Buffer {
 
     try {
       reader = new FileReader(m_file);
-      int n;
 
-      while ((n = reader.read(buffer)) > 0) {
+      while (true) {
+        final int n = reader.read(buffer);
+
+        if (n <= 0) {
+          break;
+        }
+
         stringWriter.write(buffer, 0, n);
       }
     }
@@ -221,11 +229,15 @@ public final class Buffer {
 
     try {
       writer = new FileWriter(file);
+      // Caling getText() causes the text source to be set to "clean"
+      // and a buffer changed event to be fired by the EditorModel.
       writer.write(m_textSource.getText());
       setFile(file);
       writer.close();           // Close necessary to ensure last
                                 // modified time is updated?
       m_lastModified = m_file.lastModified();
+
+      fireBufferSaved();
     }
     catch (IOException e) {
       throw new DisplayMessageConsoleException(
@@ -279,7 +291,7 @@ public final class Buffer {
    * @return <code>true</code> => the file has changed independently
    * of the buffer.
    */
-  public boolean isUpToDate() {
+  public boolean getUpToDate() {
     return m_file == null || m_lastModified == m_file.lastModified();
   }
 
@@ -323,6 +335,41 @@ public final class Buffer {
      */
   public String toString() {
     return "<Buffer " + hashCode() + " '" + getDisplayName() + "'>";
+  }
+
+  private void fireBufferSaved() {
+    synchronized (m_listeners) {
+      final Iterator iterator = m_listeners.iterator();
+
+      while (iterator.hasNext()) {
+        final Listener listener = (Listener)iterator.next();
+        listener.bufferSaved(this);
+      }
+    }
+  }
+
+  /**
+   * Add a new listener.
+   *
+   * @param listener The listener.
+   */
+  public void addListener(Listener listener) {
+    synchronized (m_listeners) {
+      m_listeners.add(listener);
+    }
+  }
+
+  /**
+   * Interface for listeners.
+   */
+  public interface Listener extends EventListener {
+
+    /**
+     * Called when a buffer has been saved.
+     *
+     * @param buffer The buffer.
+     */
+    void bufferSaved(Buffer buffer);
   }
 
   /**
