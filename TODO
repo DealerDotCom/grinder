@@ -18,6 +18,13 @@ to be recorded.
 
 Script access to global statistics.
 
+** Examples
+
+Using grinder.properties from scripts.
+
+HTTPS.
+
+Basic authentication.
 
 ** Error reporting
 
@@ -82,10 +89,8 @@ answer?
 * Documentation
 
 Overview process diagram. Animated?
+HTTP plug-in.
 TCPProxy and G3.
-Statistics.
-Using grinder.properties from scripts.
-Basic authentication example.
 
 * Ambitious enhancements
 
