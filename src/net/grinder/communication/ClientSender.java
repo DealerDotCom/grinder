@@ -35,51 +35,67 @@ import java.net.Socket;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class UnicastSender extends AbstractSender {
+public class ClientSender extends AbstractSender {
 
   private OutputStream m_outputStream;
-  private final Socket m_socket;
+
+  /**
+   * Factory method that makes a TCP connection and returns a
+   * corresponding <code>ClientSender</code>.
+   *
+   * @param grinderID A string describing our Grinder process.
+   * @param addressString TCP address to connect to.
+   * @param port TCP port to connect to.
+   * @return The ClientSender.
+   * @throws CommunicationException If failed to connect to socket.
+   **/
+  public static ClientSender connectTo(String grinderID, String addressString,
+                                       int port)
+    throws CommunicationException {
+
+    try {
+      // Our socket - bind to any local port.
+      final Socket socket = new Socket(addressString, port);
+
+      final String localHost = InetAddress.getLocalHost().getHostName();
+      final int localPort = socket.getLocalPort();
+
+      // Calculate a globally unique string for this sender.
+      final String senderID =
+        addressString + ":" + port + ":" + localHost + ":" + localPort;
+
+      return new ClientSender(grinderID, senderID, socket.getOutputStream()) {
+
+          public void shutdown() throws CommunicationException {
+            super.shutdown();
+
+            try {
+              socket.close();
+            }
+            catch (IOException e) {
+              // Ignore.
+            }
+          }
+        };
+    }
+    catch (IOException e) {
+      throw new CommunicationException(
+        "Could not connect to '" + addressString + ":" + port + "'", e);
+    }
+  }
 
   /**
    * Constructor.
    *
    * @param grinderID A string describing our Grinder process.
-   * @param addressString TCP address to send to.
-   * @param port TCP port to send to.
-   * @throws CommunicationException If failed to bind to socket or
-   * failed to generate a unique process identifer.
+   * @param senderID Unique string identifying sender.
+   * @param outputStream The output stream to write to.
    **/
-  public UnicastSender(String grinderID, String addressString, int port)
+  ClientSender(String grinderID, String senderID, OutputStream outputStream)
     throws CommunicationException {
 
-    super(grinderID);
-
-    final String localHost;
-    final int localPort;
-
-    try {
-      // Our socket - bind to any local port.
-      m_socket = new Socket(addressString, port);
-
-      m_outputStream =
-        new BufferedOutputStream(m_socket.getOutputStream());
-
-      localHost = InetAddress.getLocalHost().getHostName();
-      localPort = m_socket.getLocalPort();
-    }
-    catch (IOException e) {
-      throw new CommunicationException(
-        "Could not bind to TCP address '" + addressString + ":" +
-        port + "'",
-        e);
-    }
-
-    // Calculate a globally unique string for this sender. We
-    // avoid calling addressString.toString() since this involves
-    // a DNS lookup.
-    setSenderID(
-      addressString + ":" + port + ":" + localHost + ":" +
-      localPort + ":" + System.currentTimeMillis());
+    super(grinderID, senderID);
+    m_outputStream = new BufferedOutputStream(outputStream);
   }
 
   /**
@@ -122,17 +138,11 @@ public class UnicastSender extends AbstractSender {
     super.shutdown();
 
     try {
-      m_socket.close();
-    }
-    catch (IOException e) {
-      // Ignore.
-    }
-
-    try {
-      m_socket.close();
+      m_outputStream.close();
     }
     catch (IOException e) {
       // Ignore.
     }
   }
 }
+

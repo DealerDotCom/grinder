@@ -21,10 +21,10 @@
 
 package net.grinder.communication;
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.security.MessageDigest;
 
 
@@ -41,25 +41,23 @@ abstract class AbstractSender implements Sender {
   private long m_nextSequenceID = 0;
   private MessageQueue m_messageQueue = new MessageQueue(false);
 
-  private final MyByteArrayOutputStream m_scratchByteStream =
-    new MyByteArrayOutputStream();
-
-  protected AbstractSender(String grinderID) {
-    m_grinderID = grinderID;
-  }
-
-  protected final void setSenderID(String uniqueString)
+  protected AbstractSender(String grinderID, String senderID)
     throws CommunicationException {
-    try {
-      final BufferedWriter bufferedWriter =
-        new BufferedWriter(new OutputStreamWriter(m_scratchByteStream));
 
-      bufferedWriter.write(uniqueString);
-      bufferedWriter.flush();
+    m_grinderID = grinderID;
+
+    try {
+      final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+
+      final Writer writer = new OutputStreamWriter(byteStream);
+      writer.write(senderID);
+      writer.write(grinderID);
+      writer.write(Long.toString(System.currentTimeMillis()));
+      writer.close();
 
       m_senderID =
         new String(MessageDigest.getInstance("MD5").digest(
-                     m_scratchByteStream.getBytes()));
+                     byteStream.toByteArray()));
     }
     catch (Exception e) {
       throw new CommunicationException("Could not calculate sender ID", e);
@@ -141,21 +139,5 @@ abstract class AbstractSender implements Sender {
    **/
   public void shutdown() throws CommunicationException {
     m_messageQueue.shutdown();
-  }
-
-  protected final MyByteArrayOutputStream getScratchByteStream() {
-    return m_scratchByteStream;
-  }
-
-  /**
-   * Abuse Java API to avoid needless proliferation of temporary
-   * objects.
-   * @author Philip Aston
-   **/
-  protected static final class MyByteArrayOutputStream
-    extends ByteArrayOutputStream {
-    public byte[] getBytes() {
-      return buf;
-    }
   }
 }

@@ -27,11 +27,11 @@ import java.io.PrintWriter;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
-import net.grinder.communication.UnicastSender;
 import net.grinder.script.Grinder;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
@@ -92,7 +92,7 @@ class ProcessContext {
 
       try {
         consoleSender =
-          new UnicastSender(getGrinderID(), consoleAddress, consolePort);
+          ClientSender.connectTo(getGrinderID(), consoleAddress, consolePort);
       }
       catch (CommunicationException e) {
         m_processLogger.output(
