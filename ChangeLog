@@ -1,5 +1,25 @@
 2001-01-24  Philip Aston  <paston@beasys.com>
 
+	* README: 
+		Add SourceForge reference.
+
+	* build.xml: 
+		Add test target.
+
+	* tests-src/net/grinder/AllTests.java: 
+	* tests-src/net/grinder/util/AllTests.java: 
+	* tests-src/net/grinder/util/TestGrinderProperties.java: 
+		Unit test GrinderProperties.
+
+	* src/net/grinder/util/GrinderProperties.java: 
+		Simplify.
+
+	* tests-src/net/grinder/engine/process/AllTests.java: 
+	* tests-src/net/grinder/engine/process/TestTest.java: 
+		Add class javadoc.
+
+2001-01-24  Philip Aston  <paston@beasys.com>	
+
 	* Grinder 2.1 is released
 
 2001-01-23  Philip Aston  <paston@beasys.com>
