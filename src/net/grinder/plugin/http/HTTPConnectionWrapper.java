@@ -63,6 +63,9 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
       setUseCookies(defaults.getUseCookies());
       setDefaultHeaders(defaults.getDefaultHeaders());
       setTimeout(defaults.getTimeout());
+      setVerifyServerDistinguishedName(
+	defaults.getVerifyServerDistinguishedName());
+      setProxyServer(defaults.getProxyHost(), defaults.getProxyPort());
 
       final Iterator basicAuthenticationIterator = 
 	defaults.getBasicAuthorizations().iterator();
@@ -91,8 +94,6 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
 			       authorizationDetails.getUser(),
 			       authorizationDetails.getPassword());
       }
-
-      setProxyServer(defaults.getProxyHost(), defaults.getProxyPort());
     }
   }
 
@@ -128,6 +129,14 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
     m_httpConnection.setTimeout(timeout);
   }
 
+  public void setVerifyServerDistinguishedName(boolean b) {
+    m_httpConnection.setCheckCertificates(b);
+  }
+
+  public void setProxyServer(String host, int port) {
+    m_httpConnection.setCurrentProxy(host, port);
+  }
+
   public final void addBasicAuthorization(String realm, String user,
 					  String password) {
     m_httpConnection.addBasicAuthorization(realm, user, password);
@@ -154,10 +163,6 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
 
   public final void clearAllDigestAuthorizations() {
     // TODO
-  }
-
-  public void setProxyServer(String host, int port) {
-    m_httpConnection.setCurrentProxy(host, port);
   }
 }
 

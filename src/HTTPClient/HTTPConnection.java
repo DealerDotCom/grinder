@@ -2802,6 +2802,20 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     /** This marks the socket output stream as still being used */
     private boolean  output_finished = true;
 
+    /** GRINDER MODIFICATION++ **/
+    private boolean check_certificates = true;
+
+    public final void setCheckCertificates(boolean b)
+    {
+	check_certificates = b;
+    }
+
+    public final boolean getCheckCertificates() 
+    {
+	return check_certificates;
+    }
+    /** --GRINDER MODIFICATION **/
+
     /**
      * sends the request over the line.
      *
@@ -2971,8 +2985,17 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
                         sock.setSoTimeout(con_timeout);
 			sock = sslFactory.createSocket(sock, Host, Port, true);
+
+			/** GRINDER MODIFICATION++ **/
+			if (getCheckCertificates()) {
+                        /** --GRINDER MODIFICATION **/
+
 			checkCert(((SSLSocket) sock).getSession().
 					getPeerCertificateChain()[0], Host);
+
+			/** GRINDER MODIFICATION++ **/
+			}
+                        /** --GRINDER MODIFICATION **/
 		    }
 
 		    input_demux = new StreamDemultiplexor(Protocol, sock, this);

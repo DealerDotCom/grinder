@@ -103,8 +103,6 @@ HTTP plugin to support "mean time to first byte".
 
 Script support for HTTP "system property" options.
 
-Support option to disable certificate check.
-
 ** Scripting
 
 Add per-run statistics. This would also allow number of aborted runs
