@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
@@ -187,7 +188,8 @@ public final class GrinderProcess implements Monitor
     {
 	final Logger logger = m_context.getLogger();
 
-	logger.output("The Grinder version @version@");
+	logger.output(
+	  "The Grinder version " + GrinderBuild.getVersionString());
 
 	logger.output(System.getProperty("java.vm.vendor") + " " + 
 		      System.getProperty("java.vm.name") + " " +

@@ -28,6 +28,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.engine.agent.LauncherThread;
@@ -152,7 +153,9 @@ public class Grinder
 		threads[i].start();
 	    }
 
-	    System.out.println("The Grinder version @version@ started");
+	    final String version = GrinderBuild.getVersionString();
+	    
+	    System.out.println("The Grinder version " + version + " started");
 
 	    int combinedExitStatus = 0;
 
@@ -178,7 +181,7 @@ public class Grinder
 		}
 	    }
 
-	    System.out.println("The Grinder version @version@ finished");
+	    System.out.println("The Grinder version " + version + " finished");
 
 	    if (combinedExitStatus == GrinderProcess.EXIT_START_SIGNAL) {
 		System.out.println("Start signal received");

@@ -50,6 +50,7 @@ import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 
 import net.grinder.TCPProxy;
+import net.grinder.common.GrinderBuild;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 
@@ -207,8 +208,10 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	    new PrintWriter(
 		new BufferedWriter(new FileWriter(m_testFileName)), false);
 
+	final String version = GrinderBuild.getVersionString();
+
 	m_scriptFileWriter.println("#");
-	m_scriptFileWriter.println("# The Grinder version @version@");
+	m_scriptFileWriter.println("# The Grinder version " + version);
 	m_scriptFileWriter.println("#");
 	m_scriptFileWriter.println("# Script recorded by the TCPProxy at " + 
 		      DateFormat.getDateTimeInstance().format(
@@ -221,7 +224,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	m_scriptFileWriter.println(s_indent + "def __call__(self):");
 
 	m_testFileWriter.println("#");
-	m_testFileWriter.println("# The Grinder version @version@");
+	m_testFileWriter.println("# The Grinder version " + version);
 	m_testFileWriter.println("#");
 	m_testFileWriter.println("# HTTP tests recorded by the TCPProxy at " + 
 				 DateFormat.getDateTimeInstance().format(

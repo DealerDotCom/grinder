@@ -87,9 +87,7 @@ what you want. Currently the conditionally built modules are:
 
   <!-- output -->
   <property name="build.dir" value="build"/>
-  <property name="prepared-src.dir" value="${build.dir}/src"/>
   <property name="classes.dir" value="${build.dir}/classes"/>
-  <property name="prepared-test-src.dir" value="${build.dir}/test-src"/>
   <property name="test-classes.dir" value="${build.dir}/tests-classes"/>
   <property name="lib.dir" value="lib"/>
   <property name="lib.jar" value="${name}.jar"/>
@@ -197,7 +195,6 @@ what you want. Currently the conditionally built modules are:
                property="have.xweb"/>
 
     <!-- filter tokens -->
-    <filter token="year" value="${year}"/>
     <filter token="version" value="${version}"/>
     <filter token="date" value="${TODAY}"/>
 
@@ -245,61 +242,43 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <!-- =================================================================== -->
-  <!-- Rules that prepare a filtered copy of the appropriate source code   -->
-  <!-- =================================================================== -->
-  <target name="prepare-src" depends="init">
-    <copy todir="${prepared-src.dir}" filtering="on">
-      <fileset dir="${src.dir}">
-        <include name="**/*.java"/>
-        <include name="**/*.html"/>
-      </fileset>
-    </copy>
-  </target>
-
-  <target name="prepare-test-src" depends="init">
-    <copy todir="${prepared-test-src.dir}" filtering="on">
-      <fileset dir="${test-src.dir}">
-        <include name="**/*.java"/>
-        <exclude name="**/data/*"/>
-      </fileset>
-    </copy>
-  </target>
-
-
-  <!-- =================================================================== -->
   <!-- Copy resources into the classes hierarchy, and bundled libraries.    -->
   <!-- =================================================================== -->
   <target name="copy-resources"
 	  depends="init,assert-have-jython,assert-have-oro"
 	  description="Copies the resource files into build output">
+
     <copy todir="${classes.dir}">
       <fileset dir="${src.dir}"  includes="**/resources/*.gif"/>
     </copy>
+
     <copy todir="${classes.dir}" filtering="on">
       <fileset dir="${src.dir}">
         <include name="**/resources/*.html"/>
         <include name="**/resources/*.properties*"/>
       </fileset>
     </copy>
+
     <copy todir="${test-classes.dir}">
       <fileset dir="${test-src.dir}" includes="**/data/*"/>
     </copy>
+
     <copy todir="${lib.dir}">
       <fileset dir="${jakarta-oro.dir}" includes="${jakarta-oro.jar}"/>
       <fileset dir="${jython.dir}" includes="${jython.jar}"/>
     </copy>
+
   </target>
 
   <!-- =================================================================== -->
   <!-- Compilation rules                                    -->
   <!-- =================================================================== -->
-  <target name="compile" depends="prepare-src"
-          description="Compiles the source.">
+  <target name="compile" depends="init" description="Compiles the source.">
     <mkdir dir="${classes.dir}"/>
 
     <echo message="Compiling HTTPClient code, ignore deprecation warnings..."/>
 
-    <javac srcdir="${prepared-src.dir}"
+    <javac srcdir="${src.dir}"
            destdir="${classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
@@ -310,7 +289,7 @@ what you want. Currently the conditionally built modules are:
 
     <echo message="... HTTPClient code compiled."/>
 
-    <javac srcdir="${prepared-src.dir}"
+    <javac srcdir="${src.dir}"
            destdir="${classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
@@ -323,11 +302,11 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <target name="compile-tests"
-	  depends="assert-have-junit,prepare-test-src,compile"
+	  depends="assert-have-junit,compile"
 	  description="Compiles the tests source">
     <mkdir dir="${test-classes.dir}"/>
 
-    <javac srcdir="${prepared-test-src.dir}"
+    <javac srcdir="${test-src.dir}"
            destdir="${test-classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
@@ -374,7 +353,7 @@ what you want. Currently the conditionally built modules are:
 		 includes="net/grinder/console/swingui/resources/"/>
         <fileset dir="${test-classes.dir}"
 		 includes="net/grinder/console/swingui/TestImage*.class"/>
-        <fileset dir="${prepared-test-src.dir}"
+        <fileset dir="${test-src.dir}"
 		 includes="net/grinder/console/swingui/TestImage*.java"/>
     </jar>
   </target>
@@ -392,7 +371,7 @@ what you want. Currently the conditionally built modules are:
       </classpath>
       <batchtest>
 	<formatter type="plain" usefile="false"/>
-	<fileset dir="${prepared-test-src.dir}" includes="**/Test*.java">
+	<fileset dir="${test-src.dir}" includes="**/Test*.java">
 
 	  <!-- Tests that rely on multicast. -->
 	  <exclude name="**/TestMulticastSenderAndReceiver.java"/> 
@@ -434,8 +413,8 @@ what you want. Currently the conditionally built modules are:
              stylesheetfile="${javadoc.css}"
 	     package="true">
 	    <sourcepath>
-	      <pathelement path="${prepared-src.dir}"/>
-	      <pathelement path="${prepared-test-src.dir}"/>
+	      <pathelement path="${src.dir}"/>
+	      <pathelement path="${test-src.dir}"/>
 	    </sourcepath>
             <classpath>
               <path refid="build.classpath"/>
@@ -444,7 +423,7 @@ what you want. Currently the conditionally built modules are:
     </javadoc>
   </target>
 
-  <target name="script-javadoc" depends="init,prepare-src,prepare-test-src"
+  <target name="script-javadoc" depends="init"
           description="Generates the javadoc for classes used by scripts.">
     <property name="script-javadoc-working.dir"
 	      value="${build.dir}/script-javadoc-src"/>
@@ -453,7 +432,7 @@ what you want. Currently the conditionally built modules are:
          so instead lets create a copy of the source it should process.
          This is faster too. -->
     <copy todir="${script-javadoc-working.dir}">
-      <fileset dir="${prepared-src.dir}">
+      <fileset dir="${src.dir}">
 	<include name="HTTPClient/HTTPResponse.java"/>
 	<include name="HTTPClient/NVPair.java"/>
 	<include name="HTTPClient/URI.java"/>

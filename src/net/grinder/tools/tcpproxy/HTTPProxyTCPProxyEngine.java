@@ -44,6 +44,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
 import org.apache.oro.text.regex.Perl5Substitution;
 import org.apache.oro.text.regex.Util;
 
+import net.grinder.common.GrinderBuild;
 import net.grinder.util.CopyStreamRunnable;
 
 
@@ -245,9 +246,14 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 		    // will now start sending SSL data to localSocket.
 		    final StringBuffer response = new StringBuffer();
 		    response.append("HTTP/1. 200 OK\r\n");
-		    response.append("Host: " + remoteHost + ":" +
-				    remotePort + "\r\n");
-		    response.append("Proxy-agent: The Grinder/@version@\r\n");
+		    response.append("Host: ");
+		    response.append(remoteHost);
+		    response.append(":");
+		    response.append(remotePort);
+		    response.append("\r\n");
+		    response.append("Proxy-agent: The Grinder/");
+		    response.append(GrinderBuild.getVersionString());
+		    response.append("\r\n");
 		    response.append("\r\n");
 
 		    out.write(response.toString().getBytes());
