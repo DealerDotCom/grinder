@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Constructor;
 
 import net.grinder.plugin.http.HttpPluginSnifferFilter;
+import net.grinder.plugin.http.HttpPluginSnifferResponseFilter;
 import net.grinder.tools.tcpsniffer.ConnectionDetails;
 import net.grinder.tools.tcpsniffer.EchoFilter;
 import net.grinder.tools.tcpsniffer.HTTPProxySnifferEngine;
@@ -90,17 +91,18 @@ public class TCPSniffer
 	    "\n" +
 	    "\n <filter> can be the name of a class that implements" +
 	    "\n " + SnifferFilter.class.getName() + " or" +
-	    "\n one of NONE, ECHO, or HTTP_PLUGIN. Default is ECHO." +
+	    "\n one of NONE, ECHO. Default is ECHO." +
 	    "\n" +
 	    "\n When -proxy is specified, -remoteHost and -remotePort" +
 	    "\n are ignored." +
 	    "\n" +
-	    "\n -httpPluginFilter is a synonym for" +
-	    "\n   '-requestFilter HTTP_PLUGIN -responseFilter NONE.' " +
+	    "\n -httpPluginFilter sets the request and response filters" +
+	    "\n to produce a grinder.properties file suitable for use" +
+	    "\n with the HTTP plugin." +
 	    "\n" +
 	    "\n -timeout is how long (in seconds) the sniffer will wait" +
-	    "\n    for a request before timing out and freeing the local" +
-	    "\n    port." +
+	    "\n for a request before timing out and freeing the local" +
+	    "\n port." +
 	    "\n"
 	    );
 
@@ -157,7 +159,7 @@ public class TCPSniffer
 		}
 		else if (args[i].equals("-httpPluginFilter")) {
 		    requestFilter = new HttpPluginSnifferFilter();
-		    responseFilter = new NullFilter();
+		    responseFilter = new HttpPluginSnifferResponseFilter();
 		}
 		else if (args[i].equals("-localHost")) {
 		    localHost = args[++i];
@@ -318,9 +320,6 @@ public class TCPSniffer
 	}
 	else if (filterClassName.equals("ECHO")) {
 	    return new EchoFilter();
-	}
-	else if (filterClassName.equals("HTTP_PLUGIN")) {
-	    return new HttpPluginSnifferFilter();
 	}
 
 	final Class filterClass;

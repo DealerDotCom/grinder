@@ -42,6 +42,8 @@ import org.apache.oro.text.regex.PatternMatcher;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 
+import HTTPClient.Codecs;
+
 import net.grinder.TCPSniffer;
 import net.grinder.tools.tcpsniffer.ConnectionDetails;
 import net.grinder.tools.tcpsniffer.EchoFilter;
@@ -55,10 +57,9 @@ import net.grinder.tools.tcpsniffer.SnifferFilter;
  * <p>Bugs:
  * <ul>
  * <li>Assumes Request-Line (GET ...) is first line of packet, and that
- * every packat that starts with such a line is the start of a request.
+ * every packet that starts with such a line is the start of a request.
  * <li>Should filter chunked transfer coding from POST data.
  * <li>Doesn't handle line continuations.
- * <li>Tickles bug in regexp
  * <li>Doesn't parse correctly if lines are broken accross message
  * fragments.
  * </ul>
@@ -80,6 +81,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 
     private PrintWriter m_out = new PrintWriter(System.out);
 
+    private final Pattern m_basicAuthorizationHeaderPattern;
     private final Pattern m_contentLengthPattern;
     private final Pattern m_messageBodyPattern;
     private final Pattern m_mirroredHeaderPatterns[] =
@@ -142,6 +144,11 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 		    Perl5Compiler.MULTILINE_MASK);
 	}
 
+	m_basicAuthorizationHeaderPattern =
+	    compiler.compile(
+		"^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?$",
+		Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
+
 	// Ignore maximum amount of stuff thats not a '?' followed by
 	// a '/', then grab the next until the first '?'.
 	m_lastURLPathElementPattern =
@@ -195,7 +202,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
      * @exception IOException if an error occurs
      */
     public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
-		       int bytesRead)
+			 int bytesRead)
 	throws IOException
     {
 	getHandler(connectionDetails).handle(buffer, bytesRead);
@@ -283,7 +290,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
      */
     private final String getHeaderExpression(String headerName)
     {
-	return "^" + headerName + ":[ \\t](.*)\\r?$";
+	return "^" + headerName + ":[ \\t]*(.*)\\r?$";
     }
 
     /**
@@ -381,6 +388,34 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 			outputProperty(
 			    "parameter.header." + s_mirroredHeaders[i],
 			    m_matcher.getMatch().group(1).trim());
+		    }
+		}
+
+		if (m_matcher.contains(asciiString,
+				       m_basicAuthorizationHeaderPattern)) {
+
+		    final String decoded =
+			Codecs.base64Decode(
+			    m_matcher.getMatch().group(1).trim());
+		    
+		    final int colon = decoded.indexOf(":");
+		    
+		    if (colon < 0) {
+			warn("Could not decode Authorization header");
+		    }
+		    else {
+			outputProperty(
+			    "parameter.basicAuthenticationUser",
+			    decoded.substring(0, colon));
+			
+			outputProperty(
+			    "parameter.basicAuthenticationPassword",
+			    decoded.substring(colon+1));
+
+			outputProperty(
+			    "parameter.basicAuthenticationRealm",
+			    HttpPluginSnifferResponseFilter.
+			    getLastAuthenticationRealm());
 		    }
 		}
 
