@@ -1,5 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2001  Paco Gomez
+// Copyright (C) 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,6 +22,7 @@ import java.io.*;
 import java.net.*;
 import java.util.Hashtable;
 
+import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 
 
@@ -34,19 +36,19 @@ import net.grinder.plugininterface.PluginThreadContext;
  * @author Philip Aston
  * @version $Revision$
  */
-public class HttpMsg
+class HttpMsg
 {
     private final PluginThreadContext m_pluginThreadContext;
-    private boolean m_useCookie;
+    private boolean m_useCookies;
     private boolean m_followRedirects;
-    private String m_cookie;
+    private CookieHandler m_cookieHandler;
     private boolean m_dontReadBody;
 
-    public HttpMsg(PluginThreadContext pluginThreadContext, boolean useCookie,
+    public HttpMsg(PluginThreadContext pluginThreadContext, boolean useCookies,
 		   boolean followRedirects)
     {
 	m_pluginThreadContext = pluginThreadContext;
-	m_useCookie = useCookie;
+	m_useCookies = useCookies;
 	m_followRedirects = followRedirects;
 	reset();
 
@@ -58,7 +60,7 @@ public class HttpMsg
     }
 
     public String sendRequest(HttpRequestData requestData)
-	throws java.io.IOException
+	throws java.io.IOException, PluginException
     {
 	final String urlString = requestData.getURLString();
 	URL url = null;
@@ -74,7 +76,6 @@ public class HttpMsg
 	}
 
 	final String postString = requestData.getPostString();
-
 
 	m_pluginThreadContext.startTimer();
 
@@ -100,8 +101,12 @@ public class HttpMsg
             
 	// Think "=;" will match nothing but empty cookies. If your
 	// bother by this, please read RFC 2109 and fix.
-	if (m_useCookie && m_cookie != null && m_cookie.indexOf("=;") > 0) {
-	    connection.setRequestProperty("Cookie", m_cookie);
+	if (m_useCookies) {
+	    final String cookieString = m_cookieHandler.getCookieString();
+
+	    if (cookieString != null) {
+		connection.setRequestProperty("Cookie", cookieString);
+	    }
 	}
 
 	connection.setUseCaches(false);
@@ -126,10 +131,12 @@ public class HttpMsg
 	// getResponseCode (with the original stack trace). - PAGA
 	final int responseCode = connection.getResponseCode();
 
-	if (m_useCookie) {
-	    final String s = connection.getHeaderField("Set-Cookie");
-	    if (s != null) {
-		m_cookie = s;
+	if (m_useCookies) {
+	    final String setCookieString =
+		connection.getHeaderField("Set-Cookie");
+
+	    if (setCookieString != null) {
+		m_cookieHandler.captureCookies(setCookieString);
 	    }
 	}
 
@@ -180,14 +187,14 @@ public class HttpMsg
 	    return null;
 	}
 	else {
-	    m_pluginThreadContext.logError("Unknown response code: " + responseCode +
-			       " for " + urlString);
+	    m_pluginThreadContext.logError("Unknown response code: " +
+					   responseCode + " for " + urlString);
 	}
 
 	return null;
     }
 
     public void reset(){
-        m_cookie = null;
+        m_cookieHandler = new CookieHandler();
     }
 }
