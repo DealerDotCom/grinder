@@ -163,6 +163,8 @@ class ConsoleCommunication
 			m_deaf = true;
 		    }
 		}
+
+		return message;
 	    }
 	    catch (CommunicationException e) {
 		System.err.println("Communication exception: " + e);
