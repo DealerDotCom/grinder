@@ -165,6 +165,13 @@ There should be an ExternalFilenameFactory, cf ExternalLogger.
 Consider having the agent pass the properties in
 InitialiseGrinderMessage.
 
+*** Interactive mode
+
+Possible to have an interactive mode for debugging? E.g. a simple UI
+that can be launched from a thread which drops the user into a
+console? Can't just run the interpretter as the worker processes don't
+have access to the controlling terminals stdin.
+
 ** Statistics
 
 *** Measure variance (Ambitious)
@@ -189,8 +196,11 @@ another one of the TCPSniffer/HTTPPlugin bug when recording large
 outputs with posts? Also, consider having a filter instance pair per
 connection.
 
-HTTP proxy mode exception handling should send nice HTTP messages to
-the client.
+Internationalise messages.
+
+Support different client certificates for proxied connection.
+
+Fix and test HTTPResonse.
 
 ** HTTP Plugin
 
