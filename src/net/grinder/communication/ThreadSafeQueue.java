@@ -120,11 +120,11 @@ class ThreadSafeQueue {
    * <code>CommunicationException</code>s locally.
    **/
   static final class ShutdownException extends GrinderException {
-    public ShutdownException(String s) {
+    private ShutdownException(String s) {
       super(s);
     }
 
-    public ShutdownException(String s, Exception e) {
+    private ShutdownException(String s, Exception e) {
       super(s, e);
     }
   }
