@@ -46,7 +46,7 @@ conditionally built modules are:
    HTTP SSL plugin (Needs the JSSE 1.0.2)
    TCPSniffer SSL engine (Needs the JSSE 1.0.2)
    TCPSniffer HTTP plugin filter (Needs Apache Jakarta Regexp 1.2)
-   JUnit test cases (Needs JUnit 3.4 and Ant 1.3 optional.jar)
+   JUnit test cases (Needs JUnit 3.7 and Ant 1.3 optional.jar)
    ExampleJTidyStringBean (Needs JTidy and Xalan XPath support)
 -->
 
@@ -140,7 +140,7 @@ conditionally built modules are:
   </target>
 
   <target name="assert-have-junit" depends="init" unless="have.junit">
-   <fail message="Add JUnit 3.4 to your CLASSPATH to build this target"/>
+   <fail message="Add JUnit 3.7 to your CLASSPATH to build this target"/>
   </target>
 
   <target name="assert-have-junit-task" depends="init"
