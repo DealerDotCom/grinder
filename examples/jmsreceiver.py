@@ -1,7 +1,7 @@
 # An example JMS receiver.
 #
 # JMS objects are looked up and messages are created once during
-# initialisation. This default JNDI names are for the WebLogoic Server
+# initialisation. This default JNDI names are for the WebLogic Server
 # 7.0 examples domain - change accordingly.
 #
 # Each worker thread:
@@ -10,7 +10,7 @@
 #  - Closes the queue session
 #
 # This script demonstrates the use of The Grinder statistics API to
-# record a "delivery time" statistic.
+# record a "delivery time" custom statistic.
 
 from java.lang import System
 from java.util import Properties
@@ -62,15 +62,14 @@ grinder.registerSummaryStatisticsView(summaryView)
 # We record each message receipt against a single test. The
 # transaction time is meaningless.
 def recordDeliveryTime(deliveryTime):
-    grinder.currentTestStatistics.addValue(deliveryTimeIndex, deliveryTime)
+    grinder.statistics.setValue(deliveryTimeIndex, deliveryTime)
 
 recordTest = Test(1, "Receive messages").wrap(recordDeliveryTime)
-        
+
 class TestRunner(MessageListener):
-    def __init__(self):
-        self.receivedMessages = 0
-        # Use a Condition to synchronise thread activity.              
-        self.cv = Condition()
+
+    receivedMessages = 0    
+    cv = Condition()                    # Used to synchronise thread activity.
 
     def __call__(self):
         log("Creating queue session and a receiver")
@@ -79,7 +78,7 @@ class TestRunner(MessageListener):
         receiver = session.createReceiver(queue)
         receiver.messageListener = self
 
-        # Read ten messages from the queue.
+        # Read 10 messages from the queue.
         for i in range(0, 10):
 
             # Wait until we have received a message.            
@@ -88,19 +87,24 @@ class TestRunner(MessageListener):
             self.receivedMessages -= 1
             self.cv.release()
 
-            log("Received message")            
+            log("Received message")
 
             # We record the test a here rather than in onMessage
             # because we must do so from a worker thread.
-            recordTest(self.lastDeliveryTime)            
-            
+            recordTest(self.lastDeliveryTime)
+
         log("Closing queue session")
-        session.close()        
+        session.close()
+
+        # Rather than over complicate things with explict message
+        # acknowledgement, we simply discard any additional messages
+        # we may have read.
+        log("Received %d additional messages" % self.receivedMessages)
 
     # Called asynchronously by JMS when a message arrives.
     def onMessage(self, message):
         self.cv.acquire()
-        
+
         self.receivedMessages += 1
 
         # In WebLogic Server JMS, the JMS timestamp is set by the
@@ -109,5 +113,3 @@ class TestRunner(MessageListener):
         self.lastDeliveryTime = System.currentTimeMillis() - message.getJMSTimestamp()
         self.cv.notifyAll()
         self.cv.release()
-
-        
