@@ -240,7 +240,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           // Send a 200 response to send to client. Client
           // will now start sending SSL data to localSocket.
           final StringBuffer response = new StringBuffer();
-          response.append("HTTP/1. 200 OK\r\n");
+          response.append("HTTP/1.0 200 OK\r\n");
           response.append("Host: ");
           response.append(remoteEndPoint);
           response.append("\r\n");

@@ -41,6 +41,9 @@ Grinder 3.0-beta12
   Change the TCPProxy -timeout option so the TCPProxy will not exit
   if there are active connections.
 
+  Fix a TCPProxy HTTPS proxy bug that caused SSLHandshakeExceptions
+  when used with Internet Explorer 6.0.
+
   Enhancement from Richard Perks that allows scripts to specify the
   local interface to use for HTTP connections. See
   HTTPPluginConnection.setLocalAddress().
