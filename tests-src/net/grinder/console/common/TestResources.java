@@ -110,7 +110,7 @@ public class TestResources extends TestCase {
 
     final File file =
       new File(
-        Resources.class.getResource("resources/helloWorld.txt").getFile());
+        Resources.class.getResource("resources/helloworld.txt").getFile());
 
     FileUtilities.setCanAccess(file, false);
 
