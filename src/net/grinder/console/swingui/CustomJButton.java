@@ -21,6 +21,7 @@
 
 package net.grinder.console.swingui;
 
+import java.awt.Insets;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -40,6 +41,8 @@ class CustomJButton extends JButton {
   CustomJButton() {
     putClientProperty("hideActionText", Boolean.TRUE);
     setContentAreaFilled(false);
+
+    setMargin(new Insets(0, 0, 0, 0));
   }
 
   public void setAction(Action a) {
