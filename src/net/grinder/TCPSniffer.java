@@ -23,6 +23,8 @@
 
 package net.grinder;
 
+import java.io.PrintStream;
+import java.io.FileOutputStream;
 import java.lang.reflect.Constructor;
 
 import net.grinder.tools.tcpsniffer.EchoFilter;
@@ -203,6 +205,16 @@ public class TCPSniffer
 		}
 		else if (args[i].equals("-timeout")) {
 		    timeout = Integer.parseInt(args[++i])*1000;
+		}
+		else if (args[i].equals("-output")) {
+		    // -output is used by the TCPSniffer web app only
+		    // and is not publicised, users are expected to
+		    // use shell redirection.
+		    final String outputFile = args[++i];
+		    System.setOut(new PrintStream(
+			new FileOutputStream(outputFile + ".out"), true));
+		    System.setErr(new PrintStream(
+			new FileOutputStream(outputFile + ".err"), true));
 		}
 		else if (args[i].equals("-colour")) {
 		    useColour = true;
