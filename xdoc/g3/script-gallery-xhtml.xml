@@ -932,5 +932,78 @@ emailSendTest1 = Test(1, &quot;<span class="string">Email Send Engine</span>&quo
 </pre>
 </blockquote>
 
+<hr/>
+
+<h3><a name="sequence">Run test scripts in sequence</a></h3>
+
+<blockquote>
+<pre><span class="comment"># Run many scripts in sequence.
+#
+# Scripts are defined in Python modules (helloworld.py, goodbye.py)
+# specified in grinder.properties:
+#
+#   script1=helloworld
+#   script2=goodbye
+</span><span class="zmacs-region">
+</span><span class="keyword">from</span><span class="zmacs-region"> net.grinder.script.Grinder </span><span class="keyword">import</span><span class="zmacs-region"> grinder
+
+</span><span class="keyword">from</span><span class="zmacs-region"> java.util </span><span class="keyword">import</span><span class="zmacs-region"> TreeMap
+
+</span><span class="comment"># TreeMap is the simplest way to sort a Java map.
+</span><span class="zmacs-region">scripts = TreeMap(grinder.properties.getPropertySubset(&quot;</span><span class="string">script</span><span class="zmacs-region">&quot;))
+
+</span><span class="comment"># Ensure modules are initialised in the process thread.
+</span><span class="keyword">for</span><span class="zmacs-region"> module </span><span class="keyword">in</span><span class="zmacs-region"> scripts.values(): </span><span class="keyword">exec</span><span class="zmacs-region">(&quot;</span><span class="string">import %s</span><span class="zmacs-region">&quot; % module)
+
+</span><span class="keyword">def</span><span class="zmacs-region"> </span><span class="function-name">createTestRunner</span><span class="zmacs-region">(module):
+    </span><span class="keyword">exec</span><span class="zmacs-region">(&quot;</span><span class="string">x = %s.TestRunner()</span><span class="zmacs-region">&quot; % module)
+    </span><span class="keyword">return</span><span class="zmacs-region"> x
+
+</span><span class="keyword">class</span><span class="zmacs-region"> </span><span class="type">TestRunner</span><span class="zmacs-region">:
+    </span><span class="keyword">def</span><span class="zmacs-region"> </span><span class="function-name">__init__</span><span class="zmacs-region">(self):
+        self.testRunners = [createTestRunner(m) </span><span class="keyword">for</span><span class="zmacs-region"> m </span><span class="keyword">in</span><span class="zmacs-region"> scripts.values()]
+    
+    </span><span class="comment"># This method is called for every run.
+</span><span class="zmacs-region">    </span><span class="keyword">def</span><span class="zmacs-region"> </span><span class="function-name">__call__</span><span class="zmacs-region">(self):
+        </span><span class="keyword">for</span><span class="zmacs-region"> testRunner </span><span class="keyword">in</span><span class="zmacs-region"> self.testRunners: testRunner()
+</span></pre>
+</blockquote>
+
+<hr/>
+
+<h3><a name="parallel">Run test scripts in parallel</a></h3>
+
+<blockquote>
+<pre><span class="comment"># Run TestScript1 in 50% of threads, TestScript2 in 25% of threads,
+# and TestScript3 in 25% of threads.
+</span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
+
+scripts = [&quot;<span class="string">TestScript1</span>&quot;, &quot;<span class="string">TestScript2</span>&quot;, &quot;<span class="string">TestScript3</span>&quot;]
+
+<span class="comment"># Ensure modules are initialised in the process thread.
+</span><span class="keyword">for</span> script <span class="keyword">in</span> scripts: <span class="keyword">exec</span>(&quot;<span class="string">import %s</span>&quot; % script)
+
+<span class="keyword">def</span> <span class="function-name">createTestRunner</span>(script):
+    <span class="keyword">exec</span>(&quot;<span class="string">x = %s.TestRunner()</span>&quot; % script)
+    <span class="keyword">return</span> x
+
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__init__</span>(self):
+        tid = grinder.threadID
+
+        <span class="keyword">if</span> tid % 4 == 2:
+            self.testRunner = createTestRunner(scripts[1])
+        <span class="keyword">elif</span> tid % 4 == 3:
+            self.testRunner = createTestRunner(scripts[2])
+        <span class="keyword">else:</span>
+            self.testRunner = createTestRunner(scripts[0])
+    
+    <span class="comment"># This method is called for every run.
+</span>    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        self.testRunner()
+</pre>
+</blockquote>
+
 </body>
 </html>
