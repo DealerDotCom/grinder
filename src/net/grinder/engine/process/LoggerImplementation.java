@@ -81,6 +81,7 @@ final class LoggerImplementation
     private final PrintWriter m_errorWriter;
     private final PrintWriter m_dataWriter;
     private boolean m_errorOccurred = false;
+    private Logger m_processLogger = null;
 
     LoggerImplementation(String grinderID, String logDirectoryString, 
 			 boolean logProcessStreams, boolean appendLog)
@@ -135,9 +136,13 @@ final class LoggerImplementation
 	    new DelayedCreationFileWriter(file, appendLog));
     }
 
-    final Logger createProcessLogger() throws EngineException
+    final synchronized Logger getProcessLogger() throws EngineException
     {
-	return createThreadLogger(-1);
+	if (m_processLogger == null) {
+	    m_processLogger = createThreadLogger(-1);
+	}
+
+	return m_processLogger;
     }
 
     final ThreadLogger createThreadLogger(int threadID) throws EngineException
@@ -209,9 +214,9 @@ final class LoggerImplementation
 			   Logger.LOG);
 
 	    if (m_errorOccurred == false) {
-		outputInternal(state,
-			       "There were errors, see error log for details",
-			       Logger.TERMINAL);
+		m_processLogger.output(
+		    "There were errors, see error log for details",
+		    Logger.TERMINAL);
 
 		m_errorOccurred = true;
 	    }

@@ -98,9 +98,6 @@ public final class GrinderProcess implements Monitor
 	}
 	catch (GrinderException e) {
 	    final Logger logger = grinderProcess.m_context;
-
-	    logger.output("Fatal error, see error log for details",
-			  Logger.TERMINAL);
 	    logger.error("Error running worker process");
 	    e.printStackTrace(logger.getErrorLogWriter());
 	    System.exit(-3);

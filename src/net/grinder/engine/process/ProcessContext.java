@@ -86,7 +86,7 @@ class ProcessContext implements PluginProcessContext
 					 "grinder.logProcessStreams", true),
 				     appendLog);
 
-	m_processLogger = m_loggerImplementation.createProcessLogger();
+	m_processLogger = m_loggerImplementation.getProcessLogger();
 
 	m_shouldWriteTitleToDataWriter = !appendLog;
 
