@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
-// Copyright (C) 2000  Philip Aston
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -69,7 +69,6 @@ public class StatisticsTable
 	heading2.append(formatField("Transactions"));
 	heading2.append(formatField("Errors"));
 	heading2.append(formatField("Abortions"));
-	heading2.append(formatField("Total (ms)"));
 	heading2.append(formatField("Average (ms)"));
 	
 	out.println(heading2.toString());
