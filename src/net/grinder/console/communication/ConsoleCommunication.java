@@ -35,29 +35,6 @@ import net.grinder.console.common.ErrorHandler;
 public interface ConsoleCommunication {
 
   /**
-   * Set the error handler. Any errors the
-   * <code>ConsoleCommunication</code> has queued up will be reported
-   * immediately.
-   *
-   * @param errorHandler Where to report errors.
-   */
-  void setErrorHandler(ErrorHandler errorHandler);
-
-  /**
-   * Send a message to the worker processes.
-   *
-   * @param message The message.
-   */
-  void send(Message message);
-
-  /**
-   * Get the ProcessControl.
-   *
-   * @return The <code>ProcessControl</code>.
-   */
-  ProcessControl getProcessControl();
-
-  /**
    * Interface for things that can handle messages.
    */
   public interface MessageHandler {
@@ -87,4 +64,27 @@ public interface ConsoleCommunication {
    * @exception ConsoleException If an error occurred in message processing.
    */
   boolean processOneMessage() throws ConsoleException;
+
+  /**
+   * Get a ProcessControl implementation.
+   *
+   * @return The <code>ProcessControl</code>.
+   */
+  ProcessControl getProcessControl();
+
+  /**
+   * Get a DistributionControl implementation.
+   *
+   * @return The <code>DistributionControl</code>.
+   */
+  DistributionControl getDistributionControl();
+
+  /**
+   * Set the error handler. Any errors the
+   * <code>ConsoleCommunication</code> has queued up will be reported
+   * immediately.
+   *
+   * @param errorHandler Where to report errors.
+   */
+  void setErrorHandler(ErrorHandler errorHandler);
 }

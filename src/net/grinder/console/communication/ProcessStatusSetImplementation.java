@@ -60,7 +60,6 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
   private static final long FLUSH_PERIOD = 2000;
 
   private final Map m_processes = new HashMap();
-  private final Timer m_timer = new Timer(true);
   private final Comparator m_sorter = new ProcessStatusComparator();
 
   /**
@@ -76,21 +75,17 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
 
   /**
    * Constructor.
+   *
+   * @param timer Timer which can be used to schedule housekeeping tasks.
    */
-  public ProcessStatusSetImplementation() {
-  }
-
-  /**
-   * Separate from the constructor for the unit tests.
-   */
-  public void startProcessing() {
-    m_timer.schedule(
+  public ProcessStatusSetImplementation(Timer timer) {
+    timer.schedule(
       new TimerTask() {
         public void run() { update(); }
       },
       0, UPDATE_PERIOD);
 
-    m_timer.schedule(
+    timer.schedule(
       new TimerTask() {
         public void run() { flush(); }
       },
@@ -108,10 +103,7 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
     }
   }
 
-  /**
-   * Package scope for unit tests.
-   */
-  void update() {
+  private void update() {
     if (!m_newData) {
       return;
     }
@@ -181,10 +173,7 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
     m_newData = true;
   }
 
-  /**
-   * Package scope for unit tests.
-   */
-  void flush() {
+  private void flush() {
     final Set zombies = new HashSet();
 
     synchronized (this) {

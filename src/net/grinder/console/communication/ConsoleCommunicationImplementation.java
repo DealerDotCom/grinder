@@ -23,9 +23,13 @@ package net.grinder.console.communication;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.Timer;
 
 import net.grinder.communication.Acceptor;
 import net.grinder.communication.CommunicationException;
@@ -41,7 +45,14 @@ import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ErrorQueue;
 import net.grinder.console.common.Resources;
+import net.grinder.console.messages.ReportStatusMessage;
 import net.grinder.console.model.ConsoleProperties;
+import net.grinder.engine.messages.ClearCacheMessage;
+import net.grinder.engine.messages.DistributeFileMessage;
+import net.grinder.engine.messages.ResetGrinderMessage;
+import net.grinder.engine.messages.StartGrinderMessage;
+import net.grinder.engine.messages.StopGrinderMessage;
+import net.grinder.util.FileContents;
 
 
 /**
@@ -55,9 +66,19 @@ public final class ConsoleCommunicationImplementation
 
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
+  private final ProcessStatusSet m_processStatusSet;
+
   private final ErrorQueue m_errorQueue = new ErrorQueue();
-  private final DistributionStatus m_distributionStatus;
-  private final ProcessControl m_processControl;
+
+  private final ProcessControl m_processControl =
+    new ProcessControlImplementation();
+  private final DistributionControl m_distributionControl =
+    new DistributionControlImplementation();
+
+  /**
+   * Synchronise on m_connectedAgents before accessing.
+   */
+  private final Set m_connectedAgents = new HashSet();
 
   /**
    * Synchronise on m_messageHandlers before accessing.
@@ -67,6 +88,10 @@ public final class ConsoleCommunicationImplementation
   private Acceptor m_acceptor = null;
   private Receiver m_receiver = null;
   private Sender m_sender = null;
+
+  /**
+   * Synchronise on this before accessing.
+   */
   private boolean m_deaf = true;
 
   /**
@@ -74,25 +99,28 @@ public final class ConsoleCommunicationImplementation
    *
    * @param resources Resources.
    * @param properties Console properties.
+   * @param timer Timer that can be used to schedule housekeeping tasks.
    * @throws DisplayMessageConsoleException If properties are invalid.
    */
   public ConsoleCommunicationImplementation(Resources resources,
-                                            ConsoleProperties properties)
+                                            ConsoleProperties properties,
+                                            Timer timer)
     throws DisplayMessageConsoleException {
 
     m_resources = resources;
     m_properties = properties;
 
-    m_distributionStatus = new DistributionStatus();
+    addMessageHandler(
+      new MessageHandler() {
+        public boolean process(Message message) {
+          if (message instanceof ReportStatusMessage) {
+            m_processStatusSet.addStatusReport((ReportStatusMessage)message);
+            return true;
+          }
 
-    m_processControl =
-      new ProcessControlImplementation(
-        this,
-        new ProcessStatusSetImplementation(),
-        m_distributionStatus,
-        properties.getDistributionFileFilterPattern());
-
-    reset();
+          return false;
+        }
+      });
 
     properties.addPropertyChangeListener(
       new PropertyChangeListener() {
@@ -105,6 +133,10 @@ public final class ConsoleCommunicationImplementation
           }
         }
       });
+
+    reset();
+
+    m_processStatusSet = new ProcessStatusSetImplementation(timer);
   }
 
   /**
@@ -149,6 +181,10 @@ public final class ConsoleCommunicationImplementation
       }
     }
 
+    synchronized (m_connectedAgents) {
+      m_connectedAgents.clear();
+    }
+
     try {
       m_acceptor = new Acceptor(m_properties.getConsoleHost(),
                                 m_properties.getConsolePort(),
@@ -159,12 +195,16 @@ public final class ConsoleCommunicationImplementation
         new Acceptor.Listener() {
           public void connectionAccepted(ConnectionType connectionType,
                                          ConnectionIdentity connection) {
-            m_distributionStatus.set(connection, -1);
+            synchronized (m_connectedAgents) {
+              m_connectedAgents.add(connection);
+            }
           }
 
           public void connectionClosed(ConnectionType connectionType,
                                        ConnectionIdentity connection) {
-            m_distributionStatus.remove(connection);
+            synchronized (m_connectedAgents) {
+              m_connectedAgents.remove(connection);
+            }
           }
         });
     }
@@ -206,35 +246,21 @@ public final class ConsoleCommunicationImplementation
   }
 
   /**
-   * Send a message to the worker processes.
-   *
-   * @param message The message.
-   */
-  public void send(Message message) {
-
-    if (m_sender == null) {
-      m_errorQueue.handleResourceErrorMessage(
-        "sendError.text", "Failed to send message");
-    }
-    else {
-      try {
-        m_sender.send(message);
-      }
-      catch (CommunicationException e) {
-        m_errorQueue.handleException(
-          new DisplayMessageConsoleException(
-            m_resources, "sendError.text", e));
-      }
-    }
-  }
-
-  /**
-   * Get the ProcessControl.
+   * Get a ProcessControl implementation.
    *
    * @return The <code>ProcessControl</code>.
    */
   public ProcessControl getProcessControl() {
     return m_processControl;
+  }
+
+  /**
+   * Get a DistributionControl implementation.
+   *
+   * @return The <code>DistributionControl</code>.
+   */
+  public DistributionControl getDistributionControl() {
+    return m_distributionControl;
   }
 
   /**
@@ -299,6 +325,91 @@ public final class ConsoleCommunicationImplementation
         m_errorQueue.handleException(new ConsoleException(e.getMessage(), e));
       }
     }
+  }
 
+  private class ProcessControlImplementation implements ProcessControl {
+
+   /**
+     * Signal the worker processes to start.
+     */
+    public void startWorkerProcesses(File scriptFile) {
+      m_processStatusSet.processEvent();
+      send(new StartGrinderMessage(scriptFile));
+    }
+
+    /**
+     * Signal the worker processes to reset.
+     */
+    public void resetWorkerProcesses() {
+      m_processStatusSet.processEvent();
+      send(new ResetGrinderMessage());
+    }
+
+    /**
+     * Signal the worker processes to stop.
+     */
+    public void stopWorkerProcesses() {
+      m_processStatusSet.processEvent();
+      send(new StopGrinderMessage());
+    }
+
+    /**
+     * Add a listener for process status data.
+     *
+     * @param listener The listener.
+     */
+    public void addProcessStatusListener(ProcessStatusListener listener) {
+      m_processStatusSet.addListener(listener);
+    }
+  }
+
+  private class DistributionControlImplementation
+    implements DistributionControl {
+
+    /**
+     * Signal the agent processes to clear their file caches.
+     */
+    public void clearFileCaches() {
+      send(new ClearCacheMessage());
+    }
+
+    /**
+     * Send a file to the file caches.
+     *
+     * @param fileContents The file contents.
+     */
+    public void sendFile(FileContents fileContents) {
+      send(new DistributeFileMessage(fileContents));
+    }
+
+    /**
+     * Get a Set&lt;ConnectionIdentity&gt; of connected agent
+     * processes.
+     *
+     * @return Set of connection identities. Caller can freely modify
+     * the set.
+     */
+    public Set getConnectedAgents() {
+      synchronized (m_connectedAgents) {
+        return new HashSet(m_connectedAgents);
+      }
+    }
+  }
+
+  private void send(Message message) {
+    if (m_sender == null) {
+       m_errorQueue.handleResourceErrorMessage(
+         "sendError.text", "Failed to send message");
+    }
+    else {
+      try {
+        m_sender.send(message);
+      }
+      catch (CommunicationException e) {
+        m_errorQueue.handleException(
+          new DisplayMessageConsoleException(
+            m_resources, "sendError.text", e));
+      }
+    }
   }
 }

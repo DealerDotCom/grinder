@@ -34,8 +34,6 @@ import net.grinder.common.ProcessStatus;
  */
 interface ProcessStatusSet {
 
-  void startProcessing();
-
   /**
    * Add a new listener.
    *

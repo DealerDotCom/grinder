@@ -23,6 +23,7 @@
 package net.grinder.console;
 
 import java.io.File;
+import java.util.Timer;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
@@ -73,10 +74,14 @@ public class Console {
     m_model = new Model(properties, resources);
 
     m_communication =
-      new ConsoleCommunicationImplementation(resources, properties);
+      new ConsoleCommunicationImplementation(resources,
+                                             properties,
+                                             new Timer(true));
 
     m_userInterface =
-      new ConsoleUI(m_model, m_communication.getProcessControl());
+      new ConsoleUI(m_model,
+                    m_communication.getProcessControl(),
+                    m_communication.getDistributionControl());
 
     m_communication.setErrorHandler(m_userInterface.getErrorHandler());
 

@@ -19,40 +19,46 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
+package net.grinder.console.editor;
 
-import java.io.File;
+import net.grinder.util.FileContents;
 
 
 /**
- * Interface for issuing commands to the agent and worker processes.
+ * Something that can handle the distribution of files.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface ProcessControl {
+public interface FileDistributionHandler {
 
   /**
-   * Signal the worker processes to start.
+   * Result of sending a file.
+   */
+  public interface Result {
+
+    /**
+     * Progress through the file distribution set.
+     *
+     * @return A number between 0 and 99.
+     */
+    int getProgressInCents();
+
+    /**
+     * The file name of file just distributed.
+     *
+     * @return The file name.
+     */
+    String getFileName();
+  }
+
+  /**
+   * Send the next file.
    *
-   * @param script The script file to run.
+   * @return A {@link Result} or <code>null</code> if there are more
+   * files to process.
+   * @throws FileContents.FileContentsException If an error occurs
+   * sending the file.
    */
-  void startWorkerProcesses(File script);
-
-  /**
-   * Signal the worker processes to reset.
-   */
-  void resetWorkerProcesses();
-
-  /**
-   * Signal the worker processes to stop.
-   */
-  void stopWorkerProcesses();
-
-  /**
-   * Add a listener for process status data.
-   *
-   * @param listener The listener.
-   */
-  void addProcessStatusListener(ProcessStatusListener listener);
+  Result sendNextFile() throws FileContents.FileContentsException;
 }

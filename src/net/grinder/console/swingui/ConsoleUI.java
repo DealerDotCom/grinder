@@ -74,9 +74,12 @@ import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
+import net.grinder.console.communication.DistributionControl;
 import net.grinder.console.communication.ProcessControl;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
+import net.grinder.console.editor.FileDistribution;
+import net.grinder.console.editor.FileDistributionHandler;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
@@ -113,6 +116,7 @@ public final class ConsoleUI implements ModelListener {
 
   private final Model m_model;
   private final ProcessControl m_processControl;
+  private final FileDistribution m_fileDistribution;
   private final EditorModel m_editorModel;
 
   private final JFrame m_frame;
@@ -137,13 +141,18 @@ public final class ConsoleUI implements ModelListener {
    *
    * @param model The console model.
    * @param processControl Process control.
+   * @param distributionControl Distribution control.
    * @exception ConsoleException if an error occurs
    */
-  public ConsoleUI(Model model, ProcessControl processControl)
+  public ConsoleUI(Model model,
+                   ProcessControl processControl,
+                   DistributionControl distributionControl)
     throws ConsoleException {
 
     m_model = model;
     m_processControl = processControl;
+
+    m_fileDistribution = new FileDistribution(distributionControl);
 
     final Resources resources = m_model.getResources();
     m_editorModel = new EditorModel(resources, new Editor.TextSourceFactory());
@@ -1264,22 +1273,29 @@ public final class ConsoleUI implements ModelListener {
         return;
       }
 
-      final ProcessControl.FileDistributionHandler distributionHandler =
-        m_processControl.getFileDistributionHandler(directory);
+      final FileDistributionHandler distributionHandler =
+        m_fileDistribution.getHandler(
+          directory,
+          m_model.getProperties().getDistributionFileFilterPattern());
 
       final ProgressMonitor progressMonitor =
-        new ProgressMonitor(m_frame, getValue(NAME), "", 0,
-                            distributionHandler.getNumberOfFiles());
+        new ProgressMonitor(m_frame, getValue(NAME), "", 0, 100);
       progressMonitor.setMillisToDecideToPopup(0);
       progressMonitor.setMillisToPopup(0);
 
       final Runnable distributionRunnable = new Runnable() {
-          private int m_n = 0;
-
           public void run() {
             while (!progressMonitor.isCanceled()) {
               try {
-                if (!distributionHandler.sendNextFile()) {
+                final FileDistributionHandler.Result result =
+                  distributionHandler.sendNextFile();
+
+                if (result != null) {
+                  progressMonitor.setProgress(result.getProgressInCents());
+                  progressMonitor.setNote(result.getFileName());
+                }
+                else {
+                  progressMonitor.close();
                   break;
                 }
               }
@@ -1289,9 +1305,6 @@ public final class ConsoleUI implements ModelListener {
                 // until we have a proper console log.
                 e.printStackTrace();
               }
-
-              progressMonitor.setProgress(++m_n);
-              progressMonitor.setNote(distributionHandler.getNextFileName());
             }
           }
         };

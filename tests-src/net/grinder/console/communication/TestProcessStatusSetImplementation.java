@@ -23,6 +23,11 @@ package net.grinder.console.communication;
 
 import junit.framework.TestCase;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import net.grinder.common.ProcessStatus;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
@@ -37,6 +42,15 @@ import net.grinder.testutility.RandomStubFactory;
  */
 public class TestProcessStatusSetImplementation extends TestCase {
 
+  public void testConstruction() throws Exception {
+    final MyTimer myTimer = new MyTimer();
+
+    final ProcessStatusSetImplementation processStatusSet =
+      new ProcessStatusSetImplementation(myTimer);
+
+    assertEquals(2, myTimer.getNumberOfScheduledTasks());
+  }
+
   public void testUpdate() throws Exception {
 
     final RandomStubFactory listenerStubFactory =
@@ -44,11 +58,16 @@ public class TestProcessStatusSetImplementation extends TestCase {
     final ProcessStatusListener listener =
       (ProcessStatusListener)listenerStubFactory.getStub();
 
+    final MyTimer myTimer = new MyTimer();
+
     final ProcessStatusSetImplementation processStatusSet =
-      new ProcessStatusSetImplementation();
+      new ProcessStatusSetImplementation(myTimer);
+
+    final TimerTask updateTask = myTimer.getTaskByPeriod(500L);
+
     processStatusSet.addListener(listener);
 
-    processStatusSet.update();
+    updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
     final ProcessStatus processStatus =
@@ -57,7 +76,7 @@ public class TestProcessStatusSetImplementation extends TestCase {
 
     processStatusSet.addStatusReport(processStatus);
 
-    processStatusSet.update();
+    updateTask.run();
     final CallData callData =
       listenerStubFactory.assertSuccess("update",
                                         new ProcessStatus[0].getClass(),
@@ -72,7 +91,7 @@ public class TestProcessStatusSetImplementation extends TestCase {
     assertEquals(new Integer(3), callData.getParameters()[1]);
     assertEquals(new Integer(5), callData.getParameters()[2]);
 
-    processStatusSet.update();
+    updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
   }
 
@@ -82,11 +101,17 @@ public class TestProcessStatusSetImplementation extends TestCase {
     final ProcessStatusListener listener =
       (ProcessStatusListener)listenerStubFactory.getStub();
 
+    final MyTimer myTimer = new MyTimer();
+
     final ProcessStatusSetImplementation processStatusSet =
-      new ProcessStatusSetImplementation();
+      new ProcessStatusSetImplementation(myTimer);
+
+    final TimerTask updateTask = myTimer.getTaskByPeriod(500L);
+    final TimerTask flushTask = myTimer.getTaskByPeriod(2000L);
+
     processStatusSet.addListener(listener);
 
-    processStatusSet.update();
+    updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
     final ProcessStatus[] processStatusArray = {
@@ -108,7 +133,7 @@ public class TestProcessStatusSetImplementation extends TestCase {
       processStatusSet.addStatusReport(processStatusArray[i]);
     }
 
-    processStatusSet.update();
+    updateTask.run();
 
     final CallData callData =
       listenerStubFactory.assertSuccess("update",
@@ -136,17 +161,17 @@ public class TestProcessStatusSetImplementation extends TestCase {
     assertEquals(new Integer(11), callData.getParameters()[1]);
     assertEquals(new Integer(23), callData.getParameters()[2]);
 
-    processStatusSet.update();
+    updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
-    processStatusSet.flush();
-    processStatusSet.update();
+    flushTask.run();
+    updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
     processStatusSet.processEvent();
 
-    processStatusSet.flush();
-    processStatusSet.update();
+    flushTask.run();
+    updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
     final ProcessStatus[] processStatusArray2 = {
@@ -164,8 +189,8 @@ public class TestProcessStatusSetImplementation extends TestCase {
 
     // Second flush after processEvent will remove processes that
     // haven't reported.
-    processStatusSet.flush();
-    processStatusSet.update();
+    flushTask.run();
+    updateTask.run();
 
     final CallData callData2 =
       listenerStubFactory.assertSuccess("update",
@@ -189,7 +214,7 @@ public class TestProcessStatusSetImplementation extends TestCase {
     assertEquals(new Integer(7), callData2.getParameters()[1]);
     assertEquals(new Integer(12), callData2.getParameters()[2]);
 
-    processStatusSet.update();
+    updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
   }
 
@@ -266,6 +291,26 @@ public class TestProcessStatusSetImplementation extends TestCase {
         getState() + ", " +
         getNumberOfRunningThreads() + ", " +
         getTotalNumberOfThreads() + ")";
+    }
+  }
+
+  private final class MyTimer extends Timer {
+    private final Map m_taskByPeriod = new HashMap();
+    private int m_numberOfScheduledTasks;
+
+    public void schedule(TimerTask timerTask, long delay, long period) {
+      assertEquals(0, delay);
+      
+      m_taskByPeriod.put(new Long(period), timerTask);
+      ++m_numberOfScheduledTasks;
+    }
+
+    public TimerTask getTaskByPeriod(long period) {
+      return (TimerTask)m_taskByPeriod.get(new Long(period));
+    }
+
+    public int getNumberOfScheduledTasks() {
+      return m_numberOfScheduledTasks;
     }
   }
 }

@@ -21,38 +21,35 @@
 
 package net.grinder.console.communication;
 
-import java.io.File;
+import java.util.Set;
+
+import net.grinder.util.FileContents;
 
 
 /**
- * Interface for issuing commands to the agent and worker processes.
+ * Interface for sending files to the agent process caches.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface ProcessControl {
+public interface DistributionControl {
 
   /**
-   * Signal the worker processes to start.
+   * Signal the agent processes to clear their file caches.
+   */
+  void clearFileCaches();
+
+  /**
+   * Send a file to the file caches.
    *
-   * @param script The script file to run.
+   * @param fileContents The file contents.
    */
-  void startWorkerProcesses(File script);
+  void sendFile(FileContents fileContents);
 
   /**
-   * Signal the worker processes to reset.
-   */
-  void resetWorkerProcesses();
-
-  /**
-   * Signal the worker processes to stop.
-   */
-  void stopWorkerProcesses();
-
-  /**
-   * Add a listener for process status data.
+   * Get a Set&lt;ConnectionIdentity&gt; of connected agent processes.
    *
-   * @param listener The listener.
+   * @return Set of connection identities.
    */
-  void addProcessStatusListener(ProcessStatusListener listener);
+  Set getConnectedAgents();
 }
