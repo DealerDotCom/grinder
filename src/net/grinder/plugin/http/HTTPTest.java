@@ -46,7 +46,7 @@ import net.grinder.plugininterface.PluginTest;
 public class HTTPTest extends PluginTest
 {
     private URI m_uri;
-    private NVPair[] m_defaultHeaders;
+    private NVPair[] m_defaultHeaders = new NVPair[0];
     private byte[] m_defaultData;
     private NVPair[] m_defaultFormData;
 
