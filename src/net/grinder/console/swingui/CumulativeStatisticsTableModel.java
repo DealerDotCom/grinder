@@ -42,9 +42,7 @@ final class CumulativeStatisticsTableModel extends DynamicStatisticsTableModel
 	m_includeTotals = includeTotals;
 	m_totalString = resources.getString("table.total.label");
 
-	final StatisticsView statisticsView = new StatisticsView();
-	statisticsView.add(model.getPeakTPSExpressionView());
-	addColumns(statisticsView);
+	addColumns(model.getCumulativeStatisticsView());
     }
 
     protected final TestStatistics getStatistics(int row)

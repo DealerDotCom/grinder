@@ -205,6 +205,11 @@ public class GrinderProcess
 
 	if (m_consoleSender != null) {
 	    m_consoleSender.send(new RegisterTestsMessage(tests));
+
+	    // Report the default view. This is mainly so the Console
+	    // can figure out what our StatisticsIndexMap is.
+	    m_context.registerStatisticsView(
+		m_context.getTestStatisticsFactory().getStatisticsView());
 	}
 
 	// Wrap tests with our information.

@@ -18,6 +18,8 @@
 
 package net.grinder.statistics;
 
+import net.grinder.common.GrinderException;
+
 
 /**
  * Store an array of raw statistics as unsigned long values. Clients

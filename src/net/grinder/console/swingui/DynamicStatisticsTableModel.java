@@ -33,7 +33,6 @@ import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
-import net.grinder.statistics.TestStatisticsFactory;
 
 
 /**
@@ -69,22 +68,6 @@ abstract class DynamicStatisticsTableModel
 
 	m_modelInvalid = true;
 	m_model.addModelListener(new SwingDispatchedModelListener(this));
-
-	final TestStatisticsFactory testStatisticsFactory =
-	    TestStatisticsFactory.getInstance();
-
-	final StatisticsView statisticsView = new StatisticsView();
-
-	statisticsView.add(testStatisticsFactory.getStatisticsView());
-
-	statisticsView.add(m_model.getTPSExpressionView());
-
-	if (setColumns) {
-	    addColumns(statisticsView);
-	}
-	else {
-	    m_statisticsView.add(statisticsView);
-	}
     }
 
     protected abstract TestStatistics getStatistics(int row);

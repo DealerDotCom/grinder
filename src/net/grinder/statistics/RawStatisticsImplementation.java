@@ -23,6 +23,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 
+import net.grinder.common.GrinderException;
 import net.grinder.util.Serialiser;
 
 
@@ -64,8 +65,12 @@ class RawStatisticsImplementation implements RawStatistics
      * Reset this RawStatistics to default values. Allows instance to
      * be reused. Instance is likely to have the correct sized arrays,
      * so this prevents much resizing.
+     *
+     * Assuming the caller owns this
+     * <code>RawStatisticsImplementation</code> (or they shouldn't be
+     * reseting it), we don't synchronise
      **/
-    public synchronized void reset()
+    public void reset()
     {
 	Arrays.fill(m_longData, 0);
 	Arrays.fill(m_doubleData, 0);
@@ -114,8 +119,7 @@ class RawStatisticsImplementation implements RawStatistics
      * @param index The process specific index.
      * @param value The value.
      **/
-    public final void setValue(StatisticsIndexMap.LongIndex index,
-			       long value)
+    public final void setValue(StatisticsIndexMap.LongIndex index, long value)
     {
 	final int indexValue = index.getValue();
 
@@ -272,6 +276,41 @@ class RawStatisticsImplementation implements RawStatistics
 	return result;
     }
 
+    /**
+     * Resequence our arrays.
+     *
+     * @param newDoubleIndicies New indicies for double values.
+     * @param newLongIndicies New indicies for long values.
+     * @param result A <code>RawStatistics</code> representing the
+     * same data as <code>original</code> but against the new indicies.
+     * @see TestStatisticsMap#convertToProcessIndexMap
+     **/
+    void resequence(StatisticsIndexMap.DoubleIndex[] newDoubleIndicies,
+		    StatisticsIndexMap.LongIndex[] newLongIndicies,
+		    RawStatistics result)
+    {
+	result.reset();
+
+	for (int i=0; i<m_doubleData.length; ++i) {
+	    final StatisticsIndexMap.DoubleIndex newIndex =
+		newDoubleIndicies[i];
+
+	    if (newIndex != null) { // Otherwise no valid mapping,
+				    // leave default value.
+		result.setValue(newIndex, m_doubleData[i]);
+	    }
+	}
+	
+	for (int i=0; i<m_longData.length; ++i) {
+	    final StatisticsIndexMap.LongIndex newIndex = newLongIndicies[i];
+
+	    if (newIndex != null) { // Otherwise no valid mapping,
+				    // leave default value.
+		result.setValue(newIndex, m_longData[i]);
+	    }
+	}
+    }
+    
     /**
      * Implement value based equality.
      *

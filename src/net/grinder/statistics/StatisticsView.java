@@ -112,10 +112,6 @@ public final class StatisticsView implements Externalizable
      **/
     public synchronized void writeExternal(ObjectOutput out) throws IOException
     {
-	// Write out our statistics index map so that the receiver
-	// knows what we're talking about.
-	out.writeObject(StatisticsIndexMap.getProcessInstance());
-
 	out.writeInt(m_columns.size());
 
 	final Iterator iterator = m_columns.iterator();
@@ -135,17 +131,6 @@ public final class StatisticsView implements Externalizable
     public synchronized void readExternal(ObjectInput in)
 	throws ClassNotFoundException, IOException
     {
-	final StatisticsIndexMap statisticsIndexMap =
-	    (StatisticsIndexMap)in.readObject();
-
-	try {
-	    // Add any new statistics keys to our process map.
-	    StatisticsIndexMap.getProcessInstance().add(statisticsIndexMap);
-	}
-	catch (GrinderException e) {
-	    throw new IOException("Incompatible statistics views");
-	}
-
 	final int n = in.readInt();
 
 	m_columns.clear();

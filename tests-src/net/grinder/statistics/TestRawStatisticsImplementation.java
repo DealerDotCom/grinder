@@ -50,7 +50,8 @@ public class TestRawStatisticsImplementation extends TestCase
 	super(name);
     }
 
-    final StatisticsIndexMap m_indexMap = new StatisticsIndexMap();
+    final StatisticsIndexMap m_indexMap =
+	StatisticsIndexMap.getProcessInstance();
 
     StatisticsIndexMap.LongIndex m_longIndex0;
     StatisticsIndexMap.LongIndex m_longIndex1;
@@ -65,8 +66,8 @@ public class TestRawStatisticsImplementation extends TestCase
 	m_longIndex1 = m_indexMap.getIndexForLong("b");
 	m_longIndex2 = m_indexMap.getIndexForLong("c");
 	m_doubleIndex0 = m_indexMap.getIndexForDouble("da");
-	m_doubleIndex1 = m_indexMap.getIndexForDouble("dc");
-	m_doubleIndex2 = m_indexMap.getIndexForDouble("da");
+	m_doubleIndex1 = m_indexMap.getIndexForDouble("db");
+	m_doubleIndex2 = m_indexMap.getIndexForDouble("dc");
     }
 
     public void testCreation() 
@@ -276,7 +277,53 @@ public class TestRawStatisticsImplementation extends TestCase
 
 	assertEquals(original0, received0);
 	assertEquals(original1, received1);
-    }	
+    }
+
+    public void testResequence() throws Exception
+    {
+	final StatisticsIndexMap.DoubleIndex[] newDoubleIndicies = {
+	    m_doubleIndex1,
+	    m_doubleIndex2,
+	    m_doubleIndex0,
+	};
+
+	final StatisticsIndexMap.LongIndex[] newLongIndicies = {
+	    m_longIndex2,
+	    m_longIndex1,
+	    m_longIndex0,
+	};
+
+	final RawStatisticsImplementation original =
+	    new RawStatisticsImplementation();
+
+	original.setValue(m_doubleIndex0, 4);
+	original.setValue(m_doubleIndex1, 5);
+	original.setValue(m_doubleIndex2, 6);
+	original.setValue(m_longIndex0, 1); 
+	original.setValue(m_longIndex1, 2);
+	original.setValue(m_longIndex2, 3);
+
+	final RawStatisticsImplementation result =
+	    new RawStatisticsImplementation();
+
+	original.resequence(newDoubleIndicies, newLongIndicies, result);
+
+	// Check original is unchanged.
+	myAssertEquals(4, original.getValue(m_doubleIndex0));
+	myAssertEquals(5, original.getValue(m_doubleIndex1));
+	myAssertEquals(6, original.getValue(m_doubleIndex2));
+	assertEquals(1, original.getValue(m_longIndex0));
+	assertEquals(2, original.getValue(m_longIndex1));
+	assertEquals(3, original.getValue(m_longIndex2));
+
+	// Check result is remapped.
+	myAssertEquals(4, result.getValue(m_doubleIndex1));
+	myAssertEquals(5, result.getValue(m_doubleIndex2));
+	myAssertEquals(6, result.getValue(m_doubleIndex0));
+	assertEquals(1, result.getValue(m_longIndex2));
+	assertEquals(2, result.getValue(m_longIndex1));
+	assertEquals(3, result.getValue(m_longIndex0));
+    }
 
     private void myAssertEquals(double a, double b)
     {

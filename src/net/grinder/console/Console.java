@@ -21,6 +21,8 @@ package net.grinder.console;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
@@ -30,6 +32,7 @@ import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.swingui.ConsoleUI;
+import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsView;
 
 
@@ -45,6 +48,7 @@ public class Console
     private final ConsoleCommunication m_communication;
     private final Model m_model;
     private final ConsoleUI m_userInterface;
+    private final Map m_senderStatisticsIndexMaps = new HashMap();
 
     public Console()
 	throws GrinderException
@@ -122,14 +126,38 @@ public class Console
 	    }
 	    
 	    if (message instanceof ReportStatisticsMessage) {
-		m_model.add(
-		    ((ReportStatisticsMessage)message).getStatisticsDelta());
+		final ReportStatisticsMessage reportStatisticsMessage =
+		    (ReportStatisticsMessage)message;
+
+		final StatisticsIndexMap senderIndexMap =
+		    (StatisticsIndexMap)m_senderStatisticsIndexMaps.get(
+			reportStatisticsMessage.getSenderUniqueID());
+
+		if (senderIndexMap != null) {
+		    m_model.addTestReport(
+			reportStatisticsMessage.getStatisticsDelta().
+			convertToProcessIndexMap(senderIndexMap));
+		}
+		else {
+		    System.err.println(
+			"Discarding report from unknown sender");
+		}
 	    }
 	    
 	    if (message instanceof RegisterStatisticsViewMessage) {
+		final RegisterStatisticsViewMessage
+		    registerStatisticsViewMessage =
+		    (RegisterStatisticsViewMessage)message;
+
+		final StatisticsIndexMap senderIndexMap =
+		    registerStatisticsViewMessage.getStatisticsIndexMap();
+
+		m_senderStatisticsIndexMaps.put(
+		    registerStatisticsViewMessage.getSenderUniqueID(),
+		    senderIndexMap);
+
 		final StatisticsView statisticsView =
-		    ((RegisterStatisticsViewMessage)message)
-		    .getStatisticsView();
+		    registerStatisticsViewMessage.getStatisticsView();
 
 		m_model.registerStatisticsViews(statisticsView,
 						statisticsView);

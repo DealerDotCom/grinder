@@ -34,6 +34,8 @@ final class SampleStatisticsTableModel extends DynamicStatisticsTableModel
 	throws ConsoleException
     {
 	super(model, resources, true);
+
+	addColumns(model.getIntervalStatisticsView());
     }
 
     protected final TestStatistics getStatistics(int row)

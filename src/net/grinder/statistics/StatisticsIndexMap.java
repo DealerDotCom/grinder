@@ -39,6 +39,8 @@ public class StatisticsIndexMap implements Serializable
     private int m_nextLongIndex = 0;
 
     private final Map m_map = new HashMap();
+    private transient DoubleIndex[] m_doubleSequenceInProcessMap;
+    private transient LongIndex[] m_longSequenceInProcessMap;
 
     public final static StatisticsIndexMap getProcessInstance()
     {
@@ -68,6 +70,7 @@ public class StatisticsIndexMap implements Serializable
 	if (existing == null) {
 	    final DoubleIndex result = new DoubleIndex(m_nextDoubleIndex++);
 	    m_map.put(statisticKey, result);
+	    m_doubleSequenceInProcessMap = null;
 	    return result;
 	}
 	else if (!(existing instanceof DoubleIndex)) {
@@ -92,6 +95,7 @@ public class StatisticsIndexMap implements Serializable
 	if (existing == null) {
 	    final LongIndex result = new LongIndex(m_nextLongIndex++);
 	    m_map.put(statisticKey, result);
+	    m_longSequenceInProcessMap = null;
 	    return result;
 	}
 	else if (!(existing instanceof LongIndex)) {
@@ -135,7 +139,7 @@ public class StatisticsIndexMap implements Serializable
 	}
     }
 
-    final synchronized void add(StatisticsIndexMap statisticsIndexMap)
+    public final synchronized void add(StatisticsIndexMap statisticsIndexMap)
 	throws GrinderException
     {
 	final Iterator iterator = 
@@ -146,18 +150,64 @@ public class StatisticsIndexMap implements Serializable
 	    final String key = (String)entry.getKey();
 	    final AbstractIndex index = (AbstractIndex)entry.getValue();
 
-	    final Object existing = m_map.get(key);
-
-	    if (existing != null) {
-		if (existing.getClass() != index.getClass()) {
-		    throw new GrinderException("Key '" + key +
-					       "' already reserved for a " +
-					       existing.getClass().getName());
-		}
+	    if (index instanceof DoubleIndex) {
+		getIndexForDouble(key);
+	    }
+	    else if (index instanceof LongIndex) {
+		getIndexForLong(key);
 	    }
 	    else {
-		m_map.put(key, index);
+		throw new GrinderException("Key '" + key +
+					   "' is an unknown type: " +
+					   index.getClass().getName());
 	    }
 	}
+    }
+
+    private final synchronized void updateProcessSequences()
+	throws GrinderException
+    {
+	if (m_doubleSequenceInProcessMap == null ||
+	    m_longSequenceInProcessMap == null) {
+
+	    final StatisticsIndexMap processIndexMap = getProcessInstance();
+
+	    m_doubleSequenceInProcessMap = new DoubleIndex[m_map.size()];
+	    m_longSequenceInProcessMap = new LongIndex[m_map.size()];
+
+	    final Iterator iterator = m_map.entrySet().iterator();
+
+	    while (iterator.hasNext()) {
+		final Map.Entry entry = (Map.Entry)iterator.next();
+		final String key = (String)entry.getKey();
+		final AbstractIndex index = (AbstractIndex)entry.getValue();
+			
+		if (index instanceof DoubleIndex) {
+		    m_doubleSequenceInProcessMap[index.getValue()] =
+			processIndexMap.getIndexForDouble(key);
+		}
+		else if (index instanceof LongIndex) {
+		    m_longSequenceInProcessMap[index.getValue()] =
+			processIndexMap.getIndexForLong(key);
+		}
+		else {
+		    throw new GrinderException("Key '" + key +
+					       "' is an unknown type: " +
+					       index.getClass().getName());
+		}
+	    }
+	}
+    }
+
+    final DoubleIndex[] getDoubleSequenceInProcessMap() throws GrinderException
+    {
+	updateProcessSequences();
+	return m_doubleSequenceInProcessMap;
+    }
+
+    final LongIndex[] getLongSequenceInProcessMap() throws GrinderException
+    {
+	updateProcessSequences();
+	return m_longSequenceInProcessMap;
     }
 }

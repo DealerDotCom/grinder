@@ -43,6 +43,7 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
     private boolean m_errorOccurred;
     private long m_startTime;
     private long m_elapsedTime;
+    private TestStatistics m_currentTestStatistics;
 
     private StringBuffer m_scratchBuffer = new StringBuffer();
 
@@ -143,7 +144,7 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
     void invokeTest(ThreadCallbacks threadCallbacks, TestData testData)
     {
 	final Test test = testData.getTest();
-	final TestStatistics statistics = testData.getStatistics();
+	m_currentTestStatistics = testData.getStatistics();
 
 	try {
 	    final boolean success;
@@ -158,11 +159,11 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	    }
 
 	    if (getAborted()) {
-		statistics.addError();
+		m_currentTestStatistics.addError();
 		logError("Plug-in aborted thread");
 	    }
 	    else if (getAbortedCycle()) {
-		statistics.addError();
+		m_currentTestStatistics.addError();
 		logError("Plug-in aborted cycle");
 	    }
 	    else {
@@ -171,14 +172,14 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 
 		if (success) {
 		    if (recordTime) {
-			statistics.addTransaction(time);
+			m_currentTestStatistics.addTransaction(time);
 		    }
 		    else {
-			statistics.addTransaction();
+			m_currentTestStatistics.addTransaction();
 		    }
 		}
 		else {
-		    statistics.addError();
+		    m_currentTestStatistics.addError();
 		    logError("Plug-in reported an error");
 		}
 
@@ -202,12 +203,21 @@ class ThreadContext extends ProcessContext implements PluginThreadContext
 	    }
 	}
 	catch (PluginException e) {
-	    statistics.addError();
+	    m_currentTestStatistics.addError();
 	    logError("Aborting cycle - plug-in threw " + e);
 	    e.printStackTrace(getErrorLogWriter());
 	    abortCycle();
 	}
     }
 
+    public long getStartTime()
+    {
+	return m_startTime;
+    }
+
+    public TestStatistics getCurrentTestStatistics()
+    {
+	return m_currentTestStatistics;
+    }
 }
 

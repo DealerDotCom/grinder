@@ -115,6 +115,10 @@ public class Model
     private final ExpressionView m_tpsExpressionView;
     private final PeakStatisticExpression m_peakTPSExpression;
     private final ExpressionView m_peakTPSExpressionView;
+    private final StatisticsView m_intervalStatisticsView =
+	new StatisticsView();
+    private final StatisticsView m_cumulativeStatisticsView =
+	new StatisticsView();
 
     /**
      * System.currentTimeMillis is expensive. This is acurate to one
@@ -147,6 +151,15 @@ public class Model
 	m_peakTPSExpressionView =
 	    new ExpressionView("Peak TPS", "statistic.peakTPS",
 			       m_peakTPSExpression);
+
+	m_intervalStatisticsView.add(
+	    m_testStatisticsFactory.getStatisticsView());
+	m_intervalStatisticsView.add(m_tpsExpressionView);
+
+	m_cumulativeStatisticsView.add(
+	    m_testStatisticsFactory.getStatisticsView());
+	m_cumulativeStatisticsView.add(m_tpsExpressionView);
+	m_cumulativeStatisticsView.add(m_peakTPSExpressionView);
 
 	m_properties = properties;
 
@@ -241,6 +254,9 @@ public class Model
 	StatisticsView intervalStatisticsView,
 	StatisticsView cumulativeStatisticsView)
     {
+	m_intervalStatisticsView.add(intervalStatisticsView);
+	m_cumulativeStatisticsView.add(cumulativeStatisticsView);
+
 	fireModelNewViews(intervalStatisticsView, cumulativeStatisticsView);
     }
 
@@ -291,6 +307,16 @@ public class Model
     {
 	assertIndiciesValid();
 	return m_accumulatorArray[testIndex].getLastSampleStatistics();
+    }
+
+    public final StatisticsView getCumulativeStatisticsView()
+    {
+	return m_cumulativeStatisticsView;
+    }
+
+    public final StatisticsView getIntervalStatisticsView()
+    {
+	return m_intervalStatisticsView;
     }
 
     public synchronized void addModelListener(ModelListener listener)
@@ -361,7 +387,7 @@ public class Model
 	fireModelUpdate();
     }
 
-    public void add(TestStatisticsMap testStatisticsMap)
+    public void addTestReport(TestStatisticsMap testStatisticsMap)
 	throws ConsoleException
     {
 	m_receivedReport = true;
