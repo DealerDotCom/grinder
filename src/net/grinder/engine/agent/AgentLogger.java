@@ -26,6 +26,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import net.grinder.common.Logger;
+import net.grinder.util.FixedWidthFormatter;
 
 
 /**
@@ -38,6 +39,11 @@ import net.grinder.common.Logger;
  * @version $Revision$
  */
 final class AgentLogger implements Logger {
+
+  private static final FixedWidthFormatter s_formatter =
+    new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
+                            FixedWidthFormatter.FLOW_WORD_WRAP,
+                            80);
 
   private static final DateFormat s_dateFormat =
     DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
@@ -83,7 +89,7 @@ final class AgentLogger implements Logger {
       formattedMessage.append(message);
 
       if ((where & Logger.TERMINAL) != 0) {
-        writer.println(formattedMessage);
+        writer.println(s_formatter.format(formattedMessage.toString()));
         writer.flush();
       }
     }
