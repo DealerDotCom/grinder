@@ -37,6 +37,7 @@ import java.net.Socket;
 public class ClientReceiver implements Receiver {
 
   private final InputStream m_inputStream;
+  private boolean m_shutdown = false;
 
   /**
    * Factory method that makes a TCP connection and returns a
@@ -93,6 +94,10 @@ public class ClientReceiver implements Receiver {
    */
   public final Message waitForMessage() throws CommunicationException {
 
+    if (m_shutdown) {
+      return null;
+    }
+
     try {
       final ObjectInputStream objectStream =
         new ObjectInputStream(m_inputStream);
@@ -115,10 +120,12 @@ public class ClientReceiver implements Receiver {
   }
 
   /**
-   * Cleanly shutdown the <code>Receiver</code>. Ignore errors.
+   * Cleanly shut down the <code>Receiver</code>. Ignore errors.
    * Connection has probably been reset by peer.
    */
   public void shutdown() {
+
+    m_shutdown = true;
 
     try {
       m_inputStream.close();

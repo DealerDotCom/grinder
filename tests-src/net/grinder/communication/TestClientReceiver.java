@@ -187,12 +187,7 @@ public class TestClientReceiver extends TestCase {
 
     clientReceiver.shutdown();
 
-    try {
-      clientReceiver.waitForMessage();
-      fail("Expected CommunicationException");
-    }
-    catch (CommunicationException e) {
-    }
+    assertNull(clientReceiver.waitForMessage());
   }
 
   public void testCloseCommunicationMessage() throws Exception {
