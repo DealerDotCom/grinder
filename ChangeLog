@@ -1,3 +1,22 @@
+2002-12-09  Philip Aston  <paston@bea.com>
+
+	* build.xml: Next is beta 4.
+
+	* src/net/grinder/engine/process/LoggerImplementation.java: Correct.
+
+	* src/net/grinder/engine/process/JythonScriptExecutionException.java:
+	Correct comment.
+
+	* src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ThreadContext.java, tests-src/net/grinder/common/TestGrinderProperties.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/engine/process/ExitProcessException.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/LoggerImplementation.java:
+	Replace mandatory properties with reasonable defaults.
+
+	* src/net/grinder/communication/MulticastSender.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/communication/UnicastSender.java, src/net/grinder/communication/MulticastReceiver.java:
+	Quote addresses in exception messages.
+
+2002-12-05  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/tcpproxy-xhtml.xml: Minor typo.
+
 2002-12-02  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta3 is released.
