@@ -15,7 +15,8 @@ totalNumberOfRuns = 0
 # An instance of the TestRunner class is created for each worker thread.
 class TestRunner:
 
-    # There's an runsForThread variable for each worker thread.
+    # There's a runsForThread variable for each worker thread. This
+    # statement specifies a class-wide initial value.
     runsForThread = 0
     
     # The __init__ method is called once for each thread.

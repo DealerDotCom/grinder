@@ -186,9 +186,6 @@ Pablo Estades Fernández says:
 
 ** Scripting
 
-Check the script life cycle example, runsForThread is actually a class
-attribute!
-
 Consider forcing TestRunner to be registered with grinder.
 
 The Grinder should have error handling for attempts to call the

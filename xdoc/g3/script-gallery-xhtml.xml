@@ -541,7 +541,8 @@ logTest = test1.wrap(grinder.logger.output)
 <span class="comment"># An instance of the TestRunner class is created for each worker thread.
 </span><span class="keyword">class</span> <span class="type">TestRunner</span>:
 
-    <span class="comment"># There's an runsForThread variable for each worker thread.
+    <span class="comment"># There's a runsForThread variable for each worker thread. This
+</span>    <span class="comment"># statement specifies a class-wide initial value.
 </span>    runsForThread = 0
     
     <span class="comment"># The __init__ method is called once for each thread.
