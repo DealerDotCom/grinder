@@ -32,6 +32,15 @@ public class Console
     public static void main(String args[])
 	throws Exception
     {
+	if (args.length == 1) {
+	    GrinderProperties.setPropertiesFileName(args[0]);
+	}
+	else if (args.length > 1) {
+	    System.err.println("Usage: java " + Console.class.getName() +
+			       " [alternatePropertiesFilename]");
+	    System.exit(1);
+	}
+
 	if (GrinderProperties.getProperties() == null) {
 	    return;
 	}

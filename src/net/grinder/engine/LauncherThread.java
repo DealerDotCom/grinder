@@ -53,6 +53,7 @@ public class LauncherThread extends Thread
      * It starts a new thread that will execute the run method.
      */    
     public LauncherThread(String hostID, String processID, String commandLine,
+			  String alternatePropertiesFilename,
 			  boolean appendLog)
     {
 	super(commandLine);
@@ -66,6 +67,12 @@ public class LauncherThread extends Thread
 	stringBuffer.append(hostID);
 	stringBuffer.append(" ");
 	stringBuffer.append(processID);
+
+	if (alternatePropertiesFilename != null) {
+	    stringBuffer.append(" ");
+	    stringBuffer.append(alternatePropertiesFilename);
+	}
+
 	m_commandLine = stringBuffer.toString();
     }
   

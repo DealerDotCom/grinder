@@ -67,15 +67,19 @@ public class GrinderProcess
      */    
     public static void main(String args[])
     {
-	try {
-	    if (args.length != 2) {
-		System.err.println("Usage: java " +
-				   GrinderProcess.class.getName() +
-				   " <hostID> <processID>");
-		System.exit(1);
-	    }
+	if (args.length < 2 || args.length > 3) {
+	    System.err.println("Usage: java " +
+			       GrinderProcess.class.getName() +
+			       " <hostID> <processID>");
+	    System.exit(1);
+	}
 
-	    final GrinderProcess grinderProcess =
+	if (args.length == 3) {
+	    GrinderProperties.setPropertiesFileName(args[2]);
+	}
+
+	try {
+	    final GrinderProcess grinderProcess = 
 		new GrinderProcess(args[0], args[1]);
 
 	    grinderProcess.run();

@@ -29,7 +29,7 @@ import java.util.Properties;
  */
 public class GrinderProperties extends Properties
 {
-    private static final String PROPERTIES_FILENAME = "grinder.properties";
+    private static String m_propertiesFilename = "grinder.properties";
 
     private static GrinderProperties s_singleton;
 
@@ -53,6 +53,11 @@ public class GrinderProperties extends Properties
     {
     }
 
+    public static void setPropertiesFileName(String s) 
+    {
+	m_propertiesFilename = s;
+    }
+
     public static GrinderProperties getProperties()
     {
 	if (s_singleton == null) {
@@ -63,13 +68,13 @@ public class GrinderProperties extends Properties
 
 		    try {
 			final InputStream propertiesInputStream =
-			    new FileInputStream(PROPERTIES_FILENAME);
+			    new FileInputStream(m_propertiesFilename);
 			s_singleton.load(propertiesInputStream);
 		    }
 		    catch (Exception e) {
 			System.err.println(
 			    "Error loading properties file '" +
-			    PROPERTIES_FILENAME + "'");
+			    m_propertiesFilename + "'");
 
 			return null;
 		    }

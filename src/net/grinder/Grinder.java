@@ -42,7 +42,31 @@ public class Grinder
      */
     public static void main(String args[])
     {
-	new Grinder().run();
+	Grinder grinder = null;
+
+	if (args.length == 0) {
+	    grinder = new Grinder(null);
+	}
+	else if (args.length == 1) {
+	    final String propertiesFilename = args[0];
+
+	    GrinderProperties.setPropertiesFileName(propertiesFilename);
+	    grinder = new Grinder(propertiesFilename);
+	}
+	else {
+	    System.err.println("Usage: java " + Grinder.class.getName() +
+			       " [alternatePropertiesFilename]");
+	    System.exit(1);
+	}
+
+	grinder.run();
+    }
+
+    private final String m_alternateFilename;
+
+    private Grinder(String alternateFilename) 
+    {
+	m_alternateFilename = alternateFilename;
     }
     
     protected void run()
@@ -80,9 +104,8 @@ public class Grinder
 	final Thread[] threads = new Thread[numberOfProcesses];
 
 	for (int i=0; i<numberOfProcesses; i++) {
-	    threads[i] = new LauncherThread(hostIDString,
-					    Integer.toString(i),
-					    command,
+	    threads[i] = new LauncherThread(hostIDString, Integer.toString(i),
+					    command, m_alternateFilename,
 					    appendLog);
 	    threads[i].start();
 	}
