@@ -23,6 +23,8 @@ package net.grinder.util;
 
 import junit.framework.TestCase;
 
+import java.lang.reflect.Field;
+
 
 /**
  * Unit test case for <code>FixedWidthFormatter</code>.
@@ -131,5 +133,159 @@ public class TestFixedWidthFormatter extends TestCase {
         assertEquals(text2, remainder.toString());
       }
     }
+  }
+
+  public void testFlowWrap() throws Exception {
+    final String text1 =
+      "Harness your hopes to the folks with the liquor with the ropes. " +
+      "Red, red ropes, periscopes; they've got everything will ever need " +
+      "stored under the chair.";
+
+    final String answerText1 =
+      "Harness you\n" +
+      "r hopes to \n" +
+      "the folks w\n" +
+      "ith the liq\n" +
+      "uor with th\n" +
+      "e ropes. Re\n" +
+      "d, red rope\n" +
+      "s, periscop\n" +
+      "es; they've\n" +
+      " got everyt\n" +
+      "hing will e\n" +
+      "ver need st\n" +
+      "ored under \n" +
+      "the chair. ";
+
+    final FixedWidthFormatter formatter1 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT, 
+                              FixedWidthFormatter.FLOW_WRAP,
+                              11);
+    
+    final String answer1 = formatter1.format(text1);
+    assertEquals(answerText1, answer1);
+
+    final FixedWidthFormatter formatter2 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_CENTRE,
+                              FixedWidthFormatter.FLOW_WRAP,
+                              8);
+    
+    final String text2 =
+      "Simmer, simmer, simmer down. Simmer, simmer, simmer down. " +
+      "Don't waste your precious breath explaining that you are worthwhile.";
+
+    final String answerText2 =
+      "Simmer, \n" +
+      "simmer, \n" +
+      "simmer d\n" +
+      "own. Sim\n" +
+      "mer, sim\n" +
+      "mer, sim\n" +
+      "mer down\n" +
+      ". Don't \n" +
+      "waste yo\n" +
+      "ur preci\n" +
+      "ous brea\n" +
+      "th expla\n" +
+      "ining th\n" +
+      "at you a\n" +
+      "re worth\n" +
+      " while. ";
+
+    final String answer2 = formatter2.format(text2);
+    assertEquals(answerText2, answer2);
+    assertEquals(answerText2, formatter2.format(text2));
+
+    final String text3 = "Embrace the senile genius.";
+
+    final String answerText3 =
+      "E\nm\nb\nr\na\nc\ne\n \nt\nh\ne\n \ns\ne\nn\ni\nl\ne\n \n" +
+      "g\ne\nn\ni\nu\ns\n.";
+
+    final FixedWidthFormatter formatter3 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT, 
+                              FixedWidthFormatter.FLOW_WRAP,
+                              1);
+
+    final String answer3 = formatter3.format(text3);
+    assertEquals(answerText3, answer3);
+  }
+
+  public void testFlowWordWrap() throws Exception {
+    final String text1 =
+      "Harness your hopes to the folks with the liquor with the ropes.\n" +
+      "Red, red ropes, periscopes;\n    they've got everything will ever " +
+      "need stored under the chair.";
+
+    final String answerText1 =
+      "Harness your    \n" +
+      "hopes to the    \n" +
+      "folks with the  \n" +
+      "liquor with the \n" +
+      "ropes.          \n" +
+      "Red, red ropes, \n" +
+      "periscopes;     \n" +
+      "    they've got \n" +
+      "everything will \n" +
+      "ever need stored\n" +
+      "under the chair.";
+
+    final FixedWidthFormatter formatter1 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT, 
+                              FixedWidthFormatter.FLOW_WORD_WRAP,
+                              16);
+    
+    final String answer1 = formatter1.format(text1);
+    assertEquals(answerText1, answer1);
+
+    final String answerText2 =
+      "    Harness your\n" +
+      "    hopes to the\n" +
+      "  folks with the\n" +
+      " liquor with the\n" +
+      "          ropes.\n" +
+      " Red, red ropes,\n" +
+      "     periscopes;\n" +
+      "     they've got\n" +
+      " everything will\n" +
+      "ever need stored\n" +
+      "under the chair.";
+
+    final FixedWidthFormatter formatter2 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT, 
+                              FixedWidthFormatter.FLOW_WORD_WRAP,
+                              16);
+    
+    final String answer2 = formatter2.format(text1);
+    assertEquals(answerText2, answer2);
+
+    final String text3 = "Embrace the senile genius.";
+
+    final String answerText3 =
+      "Embrac\n" +
+      " e the\n" +
+      "senile\n" +
+      "genius\n" +
+      "     .";
+
+    final FixedWidthFormatter formatter3 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_RIGHT, 
+                              FixedWidthFormatter.FLOW_WORD_WRAP,
+                              6);
+
+    final String answer3 = formatter3.format(text3);
+    assertEquals(answerText3, answer3);
+
+    final String text4 = "Space              lah       ";
+
+    final String answerText4 = "Space  \nlah    ";
+
+    final FixedWidthFormatter formatter4 =
+      new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT, 
+                              FixedWidthFormatter.FLOW_WORD_WRAP,
+                              7);
+
+    final String answer4 = formatter4.format(text4);
+    assertEquals(answerText4, answer4);
   }
 }
