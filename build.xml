@@ -473,6 +473,7 @@ what you want. Currently the conditionally built modules are:
 	<exclude name="net/grinder/plugin/http/HTTPRequest.java"/>
         <include name="net/grinder/script/*.java"/>
         <include name="net/grinder/statistics/ExpressionView.java"/>
+        <include name="net/grinder/statistics/RawStatistics.java"/>
         <include name="net/grinder/statistics/StatisticsIndexMap.java"/>
         <include name="net/grinder/statistics/StatisticsView.java"/>
         <include name="net/grinder/statistics/TestStatistics.java"/>
@@ -497,7 +498,7 @@ what you want. Currently the conditionally built modules are:
         <footer><![CDATA[<img src='../images/grinder3.jpg'></img>]]>
         </footer>
         <group title="The Grinder Scripting API"
-               packages="net.grinder.common,net.grinder.script"/>
+               packages="net.grinder.common,net.grinder.script,net.grinder.statistics"/>
         <group title="HTTP Plug-in"
                packages="net.grinder.plugin.http,HTTPClient"/>
     </javadoc>
