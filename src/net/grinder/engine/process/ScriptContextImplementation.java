@@ -35,15 +35,23 @@ import net.grinder.util.Sleeper;
 
 
 /**
+ * Implementation of {@link Grinder.ScriptContext}.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
 final class ScriptContextImplementation implements Grinder.ScriptContext {
 
   private final ProcessContext m_processContext;
+  private final Logger m_logger;
+  private final Sleeper m_sleeper;
 
-  public ScriptContextImplementation(ProcessContext processContext) {
+  public ScriptContextImplementation(ProcessContext processContext,
+                                     Logger logger,
+                                     Sleeper sleeper) {
     m_processContext = processContext;
+    m_logger = logger;
+    m_sleeper = sleeper;
   }
 
   public String getGrinderID() {
@@ -71,35 +79,15 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
   }
 
   public Logger getLogger() {
-    final ThreadContext threadContext = ThreadContext.getThreadInstance();
-
-    if (threadContext != null) {
-      return threadContext.getThreadLogger();
-    }
-
-    return m_processContext.getLogger();
+    return m_logger;
   }
 
-  private Sleeper getSleeper() {
-    final ThreadContext threadContext = ThreadContext.getThreadInstance();
-
-    if (threadContext != null) {
-      return threadContext.getSleeper();
-    }
-
-    return m_processContext.getSleeper();
+  public void sleep(long meanTime) throws GrinderException {
+    m_sleeper.sleepNormal(meanTime);
   }
 
-  public void sleep(long meanTime)
-    throws GrinderException, InvalidContextException {
-
-    getSleeper().sleepNormal(meanTime);
-  }
-
-  public void sleep(long meanTime, long sigma)
-    throws GrinderException, InvalidContextException {
-
-    getSleeper().sleepNormal(meanTime, sigma);
+  public void sleep(long meanTime, long sigma) throws GrinderException {
+    m_sleeper.sleepNormal(meanTime, sigma);
   }
 
   public FilenameFactory getFilenameFactory() {
