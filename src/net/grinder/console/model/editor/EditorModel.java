@@ -48,7 +48,10 @@ public final class EditorModel {
   /** Synchronise on m_listeners before accessing. */
   private final List m_listeners = new LinkedList();
 
+  private final LinkedList m_bufferList = new LinkedList();
   private final Map m_fileBuffers = new HashMap();
+
+  private int m_nextNewBufferNameIndex = 0;
 
   private Buffer m_selectedBuffer;
 
@@ -62,8 +65,14 @@ public final class EditorModel {
                      TextSource.Factory textSourceFactory) {
     m_resources = resources;
     m_textSourceFactory = textSourceFactory;
-    m_defaultBuffer = new Buffer(m_resources, m_textSourceFactory.create());
-    addBufferListener(m_defaultBuffer);
+    m_defaultBuffer = new Buffer(m_resources,
+                                 m_textSourceFactory.create(),
+                                 createNewBufferName());
+    addBuffer(m_defaultBuffer);
+
+    m_defaultBuffer.getTextSource().setText(
+      m_resources.getStringFromFile(
+        "scriptSupportUnderConstruction.text", true));
   }
 
   /**
@@ -86,11 +95,20 @@ public final class EditorModel {
    * Select a new buffer.
    */
   public void selectNewBuffer() {
-    final Buffer buffer =
-      new Buffer(m_resources, m_textSourceFactory.create(), null);
+    final Buffer buffer = new Buffer(m_resources,
+                                     m_textSourceFactory.create(),
+                                     createNewBufferName());
+    addBuffer(buffer);
 
-    addBufferListener(buffer);
+    setSelectedBuffer(buffer);
+  }
 
+  /**
+   * Select a buffer.
+   *
+   * @param buffer The buffer.
+   */
+  public void selectBuffer(Buffer buffer) {
     setSelectedBuffer(buffer);
   }
 
@@ -110,9 +128,8 @@ public final class EditorModel {
     }
     else {
       buffer = new Buffer(m_resources, m_textSourceFactory.create(), file);
-      addBufferListener(buffer);
-
       buffer.load();
+      addBuffer(buffer);
 
       m_fileBuffers.put(file, buffer);
     }
@@ -133,33 +150,47 @@ public final class EditorModel {
   }
 
   /**
-   * Save selected buffer as another file.
+   * Save buffer as another file.
    *
+   * @param buffer The buffer.
    * @param file The file.
    * @throws ConsoleException If a buffer could not be saved as the file.
    */
-  public void saveSelectedBufferAs(File file) throws ConsoleException {
+  public void saveBufferAs(Buffer buffer, File file) throws ConsoleException {
 
-    // TODO consider redoing this with EditorModel responding to a
-    // notification from the Buffer.
-    final Buffer selectedBuffer = getSelectedBuffer();
-    final File oldFile = selectedBuffer.getFile();
+    // Could redo this with EditorModel responding to a notification
+    // from the Buffer.
+    final File oldFile = buffer.getFile();
 
-    selectedBuffer.save(file);
+    // This will fire bufferChanged if the buffer becomes clean.
+    buffer.save(file);
 
     if (!file.equals(oldFile)) {
       if (oldFile != null) {
         m_fileBuffers.remove(oldFile);
       }
 
-      m_fileBuffers.put(file, selectedBuffer);
+      m_fileBuffers.put(file, buffer);
 
-      fireBufferChanged(selectedBuffer);
+      // Fire that bufferChanged because it is associated with a new
+      // file.
+      fireBufferChanged(buffer);
     }
   }
 
+  /**
+   * Return a the current buffer list.
+   *
+   * @return The buffer list.
+   */
+  public Buffer[] getBuffers() {
+    return (Buffer[])m_bufferList.toArray(new Buffer[m_bufferList.size()]);
+  }
+
   private void setSelectedBuffer(Buffer buffer) {
-    if (buffer != m_selectedBuffer) {
+    if (buffer == null && m_selectedBuffer != null ||
+        !buffer.equals(m_selectedBuffer)) {
+
       final Buffer oldBuffer = m_selectedBuffer;
 
       m_selectedBuffer = buffer;
@@ -168,11 +199,42 @@ public final class EditorModel {
         fireBufferChanged(oldBuffer);
       }
 
-      fireBufferChanged(buffer);
+      if (buffer != null) {
+        fireBufferChanged(buffer);
+      }
     }
   }
 
-  private void addBufferListener(final Buffer buffer) {
+
+  /**
+   * Close a buffer.
+   *
+   * @param buffer The buffer.
+   */
+  public void closeBuffer(Buffer buffer) {
+    m_bufferList.remove(buffer);
+
+    final File file = buffer.getFile();
+
+    if (buffer.equals(m_fileBuffers.get(file))) {
+      m_fileBuffers.remove(file);
+    }
+
+    if (buffer.equals(getSelectedBuffer())) {
+      final int numberOfBuffers = m_bufferList.size();
+
+      if (numberOfBuffers > 0) {
+        setSelectedBuffer((Buffer)m_bufferList.get(numberOfBuffers - 1));
+      }
+      else {
+        setSelectedBuffer(null);
+      }
+    }
+
+    fireBufferRemoved(buffer);
+  }
+
+  private void addBuffer(final Buffer buffer) {
     buffer.getTextSource().addListener(new TextSource.Listener() {
         public void textSourceChanged(boolean dirtyStateChanged) {
           if (dirtyStateChanged) {
@@ -180,6 +242,21 @@ public final class EditorModel {
           }
         }
       });
+
+    m_bufferList.add(buffer);
+
+    fireBufferAdded(buffer);
+  }
+
+  private void fireBufferAdded(Buffer buffer) {
+    synchronized (m_listeners) {
+      final Iterator iterator = m_listeners.iterator();
+
+      while (iterator.hasNext()) {
+        final Listener listener = (Listener)iterator.next();
+        listener.bufferAdded(buffer);
+      }
+    }
   }
 
   private void fireBufferChanged(Buffer buffer) {
@@ -190,6 +267,34 @@ public final class EditorModel {
         final Listener listener = (Listener)iterator.next();
         listener.bufferChanged(buffer);
       }
+    }
+  }
+
+  private void fireBufferRemoved(Buffer buffer) {
+    synchronized (m_listeners) {
+      final Iterator iterator = m_listeners.iterator();
+
+      while (iterator.hasNext()) {
+        final Listener listener = (Listener)iterator.next();
+        listener.bufferRemoved(buffer);
+      }
+    }
+  }
+
+  private String createNewBufferName() {
+
+    final String prefix = m_resources.getString("newBuffer.text");
+
+    try {
+      if (m_nextNewBufferNameIndex == 0) {
+        return prefix;
+      }
+      else {
+        return prefix + " " + m_nextNewBufferNameIndex;
+      }
+    }
+    finally {
+      ++m_nextNewBufferNameIndex;
     }
   }
 
@@ -205,9 +310,55 @@ public final class EditorModel {
   }
 
   /**
+   * Return whether the given file should be considered to be a Python
+   * file. For now this is just based on name.
+   *
+   * @param f The file.
+   * @return <code>true</code> => its a Python file.
+   */
+  public boolean isPythonFile(File f) {
+    return f != null && f.getName().endsWith(".py");
+  }
+
+  /**
+   * Return whether the given file should be marked as boring.
+   *
+   * @param f The file.
+   * @return a <code>true</code> => its boring.
+   */
+  public boolean isBoringFile(File f) {
+    if (f == null) {
+      return false;
+    }
+
+    final String name = f.getName();
+
+    return
+      f.isHidden() ||
+      name.endsWith(".class") ||
+      name.startsWith("~") ||
+      name.endsWith("~") ||
+      name.startsWith("#") ||
+      name.startsWith(".") ||
+      name.endsWith(".exe") ||
+      name.endsWith(".gif") ||
+      name.endsWith(".jpeg") ||
+      name.endsWith(".jpg") ||
+      name.endsWith(".tiff");
+  }
+
+
+  /**
    * Interface for listeners.
    */
   public interface Listener extends EventListener {
+
+    /**
+     * Called when a buffer has been added.
+     *
+     * @param buffer The buffer.
+     */
+    void bufferAdded(Buffer buffer);
 
     /**
      * Called when a buffer's state has changed - i.e. the buffer has
@@ -217,5 +368,12 @@ public final class EditorModel {
      * @param buffer The buffer.
      */
     void bufferChanged(Buffer buffer);
+
+    /**
+     * Called when a buffer has been removed.
+     *
+     * @param buffer The buffer.
+     */
+    void bufferRemoved(Buffer buffer);
   }
 }

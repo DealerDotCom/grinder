@@ -35,6 +35,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -64,8 +65,10 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
 
 import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
@@ -96,10 +99,15 @@ public final class ConsoleUI implements ModelListener {
   private final LookAndFeel m_lookAndFeel;
 
   private final Map m_actionTable = new HashMap();
+  private final CloseFileAction m_closeFileAction;
   private final CustomAction m_startAction;
+  private final ExitAction m_exitAction;
   private final StopAction m_stopAction;
+  private final SaveFileAsAction m_saveFileAsAction;
+
   private final Model m_model;
   private final EditorModel m_editorModel;
+
   private final JFrame m_frame;
   private final JLabel m_stateLabel;
   private final SamplingControlPanel m_samplingControlPanel;
@@ -162,23 +170,26 @@ public final class ConsoleUI implements ModelListener {
       resources.getString("state.capturing.label") + " ";
     m_stateUnknownString = resources.getString("state.unknown.label");
 
+    m_closeFileAction = new CloseFileAction();
+    m_exitAction = new ExitAction();
     m_startAction = new StartAction();
     m_stopAction = new StopAction();
+    m_saveFileAsAction = new SaveFileAsAction();
 
+    addAction(m_closeFileAction);
+    addAction(m_exitAction);
     addAction(m_startAction);
     addAction(m_stopAction);
+    addAction(m_saveFileAsAction);
+
     addAction(new AboutAction(resources.getImageIcon("logo.image")));
     addAction(new ChooseDirectoryAction());
-    addAction(new DelegateAction("close-file", null));
     addAction(new DelegateAction("distribute-files", distributeFilesHandler));
     addAction(new DelegateAction("start-processes", startProcessesHandler));
-    addAction(new DelegateAction("save-all-files", null));
-    addAction(new ExitAction());
     addAction(new NewFileAction());
     addAction(new OptionsAction());
     addAction(new ResetProcessesAction(resetProcessesHandler));
     addAction(new SaveFileAction());
-    addAction(new SaveFileAsAction());
     addAction(new SaveResultsAction());
     addAction(new StopProcessesAction(stopProcessesHandler));
 
@@ -283,15 +294,8 @@ public final class ConsoleUI implements ModelListener {
                       processStatusPane,
                       resources.getString("processStatusTableTab.tip"));
 
-    final TitledBorder editorBorder =
-      BorderFactory.createTitledBorder(
-        BorderFactory.createEmptyBorder(0, 1, 3, 1), "x");
 
-    editorBorder.setTitleFont(tabLabelFont);
-    editorBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
-    editorBorder.setTitleJustification(TitledBorder.RIGHT);
-
-    final Editor editor = new Editor(resources, m_editorModel, editorBorder);
+    final Editor editor = new Editor(resources, m_editorModel, tabLabelFont);
 
     m_fileTree = new FileTree(m_model.getProperties(),
                               resources,
@@ -341,7 +345,9 @@ public final class ConsoleUI implements ModelListener {
     toolBarPanel.add(createToolBar("main.toolbar"), BorderLayout.NORTH);
     toolBarPanel.add(contentPanel, BorderLayout.CENTER);
 
+    m_frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     m_frame.addWindowListener(new WindowCloseAdapter());
+
     final Container topLevelPane = m_frame.getContentPane();
     topLevelPane.add(createMenuBar(), BorderLayout.NORTH);
     topLevelPane.add(toolBarPanel, BorderLayout.CENTER);
@@ -622,14 +628,13 @@ public final class ConsoleUI implements ModelListener {
   public void resetTestsAndStatisticsViews() {
   }
 
-  private static final class WindowCloseAdapter extends WindowAdapter {
+  private final class WindowCloseAdapter extends WindowAdapter {
     public void windowClosing(WindowEvent e) {
-      System.exit(0);
+      m_exitAction.exit();
     }
   }
 
   private final class SaveResultsAction extends CustomAction {
-
     private final JFileChooser m_fileChooser = new JFileChooser(".");
 
     SaveResultsAction() {
@@ -656,8 +661,8 @@ public final class ConsoleUI implements ModelListener {
               JOptionPane.showConfirmDialog(
                 m_frame,
                 m_model.getResources().getString("overwriteConfirmation.text"),
-                file.toString(), JOptionPane.YES_NO_OPTION) ==
-              JOptionPane.NO_OPTION) {
+                file.toString(),
+                JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
             return;
           }
 
@@ -681,7 +686,6 @@ public final class ConsoleUI implements ModelListener {
   }
 
   private final class OptionsAction extends CustomAction {
-
     private final OptionsDialogHandler m_optionsDialogHandler;
 
     OptionsAction() {
@@ -751,12 +755,23 @@ public final class ConsoleUI implements ModelListener {
     }
 
     public void actionPerformed(ActionEvent e) {
+      exit();
+    }
+
+    void exit() {
+      final Buffer[] buffers = m_editorModel.getBuffers();
+
+      for (int i = 0; i < buffers.length; ++i) {
+        if (!m_closeFileAction.closeBuffer(buffers[i])) {
+          return;
+        }
+      }
+
       System.exit(0);
     }
   }
 
   private final class StartAction extends CustomAction {
-
     StartAction() {
       super(m_model.getResources(), "start");
     }
@@ -773,7 +788,6 @@ public final class ConsoleUI implements ModelListener {
   }
 
   private final class StopAction extends CustomAction {
-
     StopAction() {
       super(m_model.getResources(), "stop");
     }
@@ -792,7 +806,6 @@ public final class ConsoleUI implements ModelListener {
   }
 
   private final class NewFileAction extends CustomAction {
-
     public NewFileAction() {
       super(m_model.getResources(), "new-file");
     }
@@ -803,24 +816,33 @@ public final class ConsoleUI implements ModelListener {
   }
 
   private final class SaveFileAction extends CustomAction {
-
     public SaveFileAction() {
       super(m_model.getResources(), "save-file");
 
       m_editorModel.addListener(new EditorModel.Listener() {
+          public void bufferAdded(Buffer buffer) { }
+
           public void bufferChanged(Buffer ignored) {
             final Buffer buffer = m_editorModel.getSelectedBuffer();
 
             setEnabled(buffer != null &&
-                       buffer.isDirty() &&
-                       buffer.getFile() != null);
+                       buffer.isDirty());
           }
+
+          public void bufferRemoved(Buffer buffer) { }
         });
     }
 
     public void actionPerformed(ActionEvent event) {
       try {
-        m_editorModel.getSelectedBuffer().save();
+        final Buffer buffer = m_editorModel.getSelectedBuffer();
+
+        if (buffer.getFile() != null) {
+          buffer.save();
+        }
+        else {
+          m_saveFileAsAction.saveBufferAs(buffer);
+        }
       }
       catch (Exception e) {
         getErrorHandler().handleException(e);
@@ -836,19 +858,47 @@ public final class ConsoleUI implements ModelListener {
       super(m_model.getResources(), "save-file-as", true);
 
       m_editorModel.addListener(new EditorModel.Listener() {
+          public void bufferAdded(Buffer buffer) { }
+
           public void bufferChanged(Buffer ignored) {
             setEnabled(m_editorModel.getSelectedBuffer() != null);
           }
+
+          public void bufferRemoved(Buffer buffer) { }
         });
 
       m_fileChooser.setDialogTitle(
         m_model.getResources().getString("save-file-as.label"));
+
+      final String pythonFilesText =
+        m_model.getResources().getString("pythonScripts.label");
+
+      m_fileChooser.addChoosableFileFilter(
+        new FileFilter() {
+          public boolean accept(File file) {
+            return m_editorModel.isPythonFile(file) | file.isDirectory();
+          }
+
+          public String getDescription() {
+            return pythonFilesText;
+          }
+        });
+
+      m_lookAndFeel.addListener(
+        new LookAndFeel.ComponentListener(m_fileChooser));
     }
 
     public void actionPerformed(ActionEvent event) {
+      try {
+        saveBufferAs(m_editorModel.getSelectedBuffer());
+      }
+      catch (Exception e) {
+        getErrorHandler().handleException(e);
+      }
+    }
 
-      final Buffer selectedBuffer = m_editorModel.getSelectedBuffer();
-      final File currentFile = selectedBuffer.getFile();
+    void saveBufferAs(Buffer buffer) throws ConsoleException {
+      final File currentFile = buffer.getFile();
 
       if (currentFile != null) {
         m_fileChooser.setSelectedFile(currentFile);
@@ -862,40 +912,109 @@ public final class ConsoleUI implements ModelListener {
         }
       }
 
-      try {
-        if (m_fileChooser.showSaveDialog(m_frame) ==
-            JFileChooser.APPROVE_OPTION) {
+      if (m_fileChooser.showSaveDialog(m_frame) !=
+          JFileChooser.APPROVE_OPTION) {
+        return;
+      }
 
-          final File file = m_fileChooser.getSelectedFile();
+      final File file = m_fileChooser.getSelectedFile();
 
-          if (file.exists() &&
-              (currentFile == null || !file.equals(currentFile)) &&
-              JOptionPane.showConfirmDialog(
-                m_frame,
-                m_model.getResources().getString("overwriteConfirmation.text"),
-                file.toString(), JOptionPane.YES_NO_OPTION) ==
-              JOptionPane.NO_OPTION) {
-            return;
-          }
+      if (file.exists() &&
+          (currentFile == null || !file.equals(currentFile)) &&
+          JOptionPane.showConfirmDialog(
+            m_frame,
+            m_model.getResources().getString("overwriteConfirmation.text"),
+            file.toString(),
+            JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+        return;
+      }
 
-          if (!file.equals(currentFile) &&
-              m_editorModel.getBufferForFile(file) != null &&
-              JOptionPane.showConfirmDialog(
+      if (!file.equals(currentFile)) {
+        final Buffer oldBuffer = m_editorModel.getBufferForFile(file);
+
+        if (oldBuffer != null) {
+          if (JOptionPane.showConfirmDialog(
                 m_frame,
                 m_model.getResources().getString(
                   "ignoreExistingBufferConfirmation.text"),
-                file.toString(), JOptionPane.YES_NO_OPTION) ==
-              JOptionPane.NO_OPTION
-              ) {
+                file.toString(),
+                JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
             return;
           }
 
-          m_editorModel.saveSelectedBufferAs(file);
+          m_editorModel.closeBuffer(oldBuffer);
         }
+
+        m_editorModel.saveBufferAs(buffer, file);
+
+        return;
       }
-      catch (Exception e) {
-        getErrorHandler().handleException(e);
+    }
+  }
+
+  private final class CloseFileAction extends CustomAction {
+    public CloseFileAction() {
+      super(m_model.getResources(), "close-file");
+
+      m_editorModel.addListener(new EditorModel.Listener() {
+          public void bufferAdded(Buffer buffer) { }
+
+          public void bufferChanged(Buffer ignored) {
+            setEnabled(m_editorModel.getSelectedBuffer() != null);
+          }
+
+          public void bufferRemoved(Buffer buffer) { }
+        });
+    }
+
+    public void actionPerformed(ActionEvent event) {
+      closeBuffer(m_editorModel.getSelectedBuffer());
+    }
+
+    boolean closeBuffer(Buffer buffer) {
+      if (buffer != null) {
+        while (buffer.isDirty()) {
+          // Loop until we've saved the buffer successfully or
+          // cancelled.
+
+          final String confirmationMessage =
+            MessageFormat.format(
+              m_model.getResources().getString(
+                "saveModifiedBufferConfirmation.text"),
+              new Object[] { buffer.getDisplayName() });
+
+          final int chosen =
+            JOptionPane.showConfirmDialog(m_frame,
+                                          confirmationMessage,
+                                          (String) getValue(NAME),
+                                          JOptionPane.YES_NO_CANCEL_OPTION);
+
+          if (chosen == JOptionPane.YES_OPTION) {
+            try {
+              if (buffer.getFile() != null) {
+                buffer.save();
+              }
+              else {
+                m_saveFileAsAction.saveBufferAs(buffer);
+              }
+            }
+            catch (Exception e) {
+              getErrorHandler().handleException(e);
+              return false;
+            }
+          }
+          else if (chosen == JOptionPane.NO_OPTION) {
+            break;
+          }
+          else {
+            return false;
+          }
+        }
+
+        m_editorModel.closeBuffer(buffer);
       }
+
+      return true;
     }
   }
 
@@ -914,7 +1033,6 @@ public final class ConsoleUI implements ModelListener {
   }
 
   private final class ResetProcessesAction extends DelegateAction {
-
     ResetProcessesAction(ActionListener delegateAction) {
       super("reset-processes", delegateAction);
     }
@@ -977,7 +1095,6 @@ public final class ConsoleUI implements ModelListener {
   }
 
   private final class StopProcessesAction extends DelegateAction {
-
     StopProcessesAction(ActionListener delegateAction) {
       super("stop-processes", delegateAction);
     }
@@ -1025,7 +1142,6 @@ public final class ConsoleUI implements ModelListener {
   }
 
   private final class ChooseDirectoryAction extends CustomAction {
-
     private final JFileChooser m_fileChooser = new JFileChooser(".");
 
     ChooseDirectoryAction() {
@@ -1055,8 +1171,8 @@ public final class ConsoleUI implements ModelListener {
             if (JOptionPane.showConfirmDialog(
                   m_frame,
                   m_model.getResources().getString("createDirectory.text"),
-                  file.toString(), JOptionPane.YES_NO_OPTION) ==
-                JOptionPane.NO_OPTION) {
+                  file.toString(),
+                  JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
               return;
             }
 

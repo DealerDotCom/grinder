@@ -21,9 +21,12 @@
 
 package net.grinder.console.swingui;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Insets;
 import java.io.File;
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
@@ -34,6 +37,7 @@ import org.syntax.jedit.JEditTextArea;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.SyntaxStyle;
 import org.syntax.jedit.TextAreaDefaults;
+import org.syntax.jedit.TextAreaPainter;
 import org.syntax.jedit.tokenmarker.BatchFileTokenMarker;
 import org.syntax.jedit.tokenmarker.HTMLTokenMarker;
 import org.syntax.jedit.tokenmarker.JavaTokenMarker;
@@ -61,8 +65,11 @@ import net.grinder.console.model.editor.TextSource;
 final class Editor {
 
   private final EditorModel m_editorModel;
-  private final JEditTextArea m_scriptTextArea;
+  private final CustomJEditTextArea m_scriptTextArea;
   private final TitledBorder m_titledBorder;
+  private final Font m_noFileTitleFont;
+  private final Font m_unmodifiedFileTitleFont;
+  private final Font m_modifiedFileTitleFont;
 
   /**
    * Constructor.
@@ -70,11 +77,11 @@ final class Editor {
    * @param resources Console resources.
    */
   public Editor(final Resources resources, EditorModel editorModel,
-                TitledBorder titledBorder)
+                Font tabLabelFont)
     throws ConsoleException {
 
     m_editorModel = editorModel;
-    m_titledBorder = titledBorder;
+    m_noFileTitleFont = tabLabelFont;
 
     final TextAreaDefaults textAreaDefaults = TextAreaDefaults.getDefaults();
 
@@ -93,39 +100,57 @@ final class Editor {
     textAreaDefaults.selectionColor = Colours.GREY;
     textAreaDefaults.cols = 1;
 
-    m_scriptTextArea = new JEditTextArea(textAreaDefaults) {
-        public Dimension getPreferredSize() {
-          final Dimension parentSize = getParent().getSize();
-          final Insets insets = getParent().getInsets();
+    m_scriptTextArea = new CustomJEditTextArea(textAreaDefaults);
 
-          return new Dimension(parentSize.width - insets.left - insets.right,
-                               parentSize.height - insets.top - insets.bottom);
-        }
-      };
+    m_titledBorder =
+      BorderFactory.createTitledBorder(
+        BorderFactory.createEmptyBorder(0, 1, 3, 1), "x");
+
+    m_unmodifiedFileTitleFont = m_noFileTitleFont.deriveFont(Font.BOLD);
+    m_modifiedFileTitleFont =
+      m_noFileTitleFont.deriveFont(Font.ITALIC | Font.BOLD);
+
+    m_titledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
+    m_titledBorder.setTitleJustification(TitledBorder.RIGHT);
 
     m_scriptTextArea.setBorder(m_titledBorder);
 
-    // Initial focus?
-
     m_editorModel.addListener(new EditorModel.Listener() {
+
+        public void bufferAdded(Buffer buffer) { }
+
         public void bufferChanged(Buffer buffer) {
-          if (buffer == m_editorModel.getSelectedBuffer()) {
+          final Buffer selectedBuffer = m_editorModel.getSelectedBuffer();
+
+          if (selectedBuffer == null) {
+            m_titledBorder.setTitle(resources.getString("editor.title"));
+            m_titledBorder.setTitleFont(m_noFileTitleFont);
+
+            m_scriptTextArea.setDocument(new SyntaxDocument());
+            m_scriptTextArea.setEnabled(false);
+          }
+          else if (buffer.equals(selectedBuffer)) {
             final File file = buffer.getFile();
 
-            m_titledBorder.setTitle(
-              file != null ?
-              file.getPath() : resources.getString("editor.title"));
+            m_titledBorder.setTitle(buffer.getDisplayName());
+            m_titledBorder.setTitleFont(
+              buffer.isDirty() ?
+              m_modifiedFileTitleFont : m_unmodifiedFileTitleFont);
 
             final JEditSyntaxTextSource textSource =
               (JEditSyntaxTextSource)buffer.getTextSource();
 
             m_scriptTextArea.setDocument(textSource.getSyntaxDocument());
             m_scriptTextArea.setTokenMarker(getTokenMarker(buffer.getType()));
-
-            // Repaint so the border is updated.
-            m_scriptTextArea.repaint();
+            m_scriptTextArea.setEnabled(true);
+            m_scriptTextArea.requestFocus();
           }
+
+          // Repaint so the border is updated.
+          m_scriptTextArea.repaint();
         }
+
+        public void bufferRemoved(Buffer buffer) { }
       });
 
     m_editorModel.selectDefaultBuffer();
@@ -228,6 +253,58 @@ final class Editor {
   static class TextSourceFactory implements TextSource.Factory {
     public TextSource create() {
       return new JEditSyntaxTextSource();
+    }
+  }
+
+  /**
+   * Fix JEditTextArea annoyances.
+   */
+  private static final class CustomJEditTextArea extends JEditTextArea {
+    private final Color m_enabledBackground;
+    private final Color m_enabledCaretColour;
+
+    public CustomJEditTextArea(TextAreaDefaults textAreaDefaults) {
+      super(textAreaDefaults);
+
+      final TextAreaPainter painter = getPainter();
+      m_enabledBackground = painter.getBackground();
+      m_enabledCaretColour = painter.getCaretColor();
+    }
+
+    public Dimension getPreferredSize() {
+      final Dimension parentSize = getParent().getSize();
+      final Insets insets = getParent().getInsets();
+
+      return new Dimension(parentSize.width - insets.left - insets.right,
+                           parentSize.height - insets.top - insets.bottom);
+    }
+
+    public void setEnabled(boolean b) {
+      super.setEnabled(b);
+
+      setEditable(b);
+
+      final TextAreaPainter painter = getPainter();
+
+      // JEditTextArea has a MouseListener that calls requestFocus
+      // without checking isRequestFocusEnabled, so there is no way to
+      // stop the text area from receiving focus due to a mouse click.
+      // We can't use setCaretVisible(false) to make the caret
+      // invisible as it is set true by the JEditTextArea focus
+      // handler. Paint it invisibly instead.
+      painter.setCaretColor(b ? m_enabledCaretColour : Colours.GREY);
+      painter.setBackground(b ? m_enabledBackground : Colours.GREY);
+      painter.setLineHighlightEnabled(b);
+
+      if (!b) {
+        transferFocus();
+      }
+
+      setRequestFocusEnabled(b);
+    }
+
+    public boolean isFocusTraversable() {
+      return isEnabled();
     }
   }
 }

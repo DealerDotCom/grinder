@@ -43,10 +43,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -69,6 +66,7 @@ final class FileTree {
   private final Resources m_resources;
   private final ErrorHandler m_errorHandler;
   private final EditorModel m_editorModel;
+  private final BufferTreeModel m_bufferTreeModel;
   private final FileTreeModel m_fileTreeModel;
 
   // Can't initialise tree until model has a valid directory.
@@ -84,8 +82,10 @@ final class FileTree {
     m_resources = resources;
     m_errorHandler = errorHandler;
     m_editorModel = editorModel;
-    m_fileTreeModel = new FileTreeModel(m_editorModel);
 
+    m_bufferTreeModel = new BufferTreeModel(m_editorModel);
+
+    m_fileTreeModel = new FileTreeModel(m_editorModel);
     m_fileTreeModel.setRootDirectory(
       consoleProperties.getDistributionDirectory());
 
@@ -102,20 +102,29 @@ final class FileTree {
 
     final CompositeTreeModel compositeTreeModel = new CompositeTreeModel();
 
+    compositeTreeModel.addTreeModel(m_bufferTreeModel, false);
     compositeTreeModel.addTreeModel(m_fileTreeModel, true);
 
-    final DefaultMutableTreeNode bufferRoot =
-      new DefaultMutableTreeNode("Buffers");
+    m_tree = new JTree(compositeTreeModel) {
+        /**
+         * A new CustomTreeCellRenderer needs to be set whenever the
+         * *L&F changes because its superclass constructor reads the
+         * resources.
+         */
+        public void updateUI() {
+          super.updateUI();
 
-    bufferRoot.add(new DefaultMutableTreeNode("bah"));
-    bufferRoot.add(new DefaultMutableTreeNode("New file 1"));
-    bufferRoot.add(new DefaultMutableTreeNode("New file 2"));
-    bufferRoot.add(new DefaultMutableTreeNode("foo"));
-    final TreeModel bufferModel = new DefaultTreeModel(bufferRoot);
+          // Unfortunately updateUI is called from the JTree
+          // constructor and we can't use the nested
+          // CustomTreeCellRenderer until its enclosing class has been
+          // fully initialised. We hack to prevent this with the
+          // following conditional.
+          if (!isRootVisible()) {
+            setCellRenderer(new CustomTreeCellRenderer());
+          }
+        }
+      };
 
-    compositeTreeModel.addTreeModel(bufferModel, false);
-
-    m_tree = new JTree(compositeTreeModel);
     m_tree.setRootVisible(false);
     m_tree.setShowsRootHandles(true);
 
@@ -136,7 +145,10 @@ final class FileTree {
 
             final Object node = path.getLastPathComponent();
 
-            if (node instanceof FileTreeModel.FileNode) {
+            if (node instanceof BufferTreeModel.BufferNode) {
+              selectBufferNode((BufferTreeModel.BufferNode)node);
+            }
+            else if (node instanceof FileTreeModel.FileNode) {
               final FileTreeModel.FileNode fileNode =
                 (FileTreeModel.FileNode)node;
 
@@ -174,46 +186,73 @@ final class FileTree {
 
     m_scrollPane = new JScrollPane(m_tree);
 
-    m_editorModel.addListener(new EditorModel.Listener() {
-        public void bufferChanged(Buffer buffer) {
+    m_editorModel.addListener(new EditorModelListener());
 
-          final File file = buffer.getFile();
+    updateActionState();
+  }
 
-          if (file != null) {
-            final FileTreeModel.FileNode oldFileNodeForBuffer =
-              m_fileTreeModel.findFileNode(buffer);
+  private class EditorModelListener implements EditorModel.Listener {
 
-            // Find a node, if its in our directory structure. This
-            // may cause parts of the tree to be refreshed.
-            final FileTreeModel.Node node = m_fileTreeModel.findNode(file);
+    public void bufferAdded(Buffer buffer) {
+    }
 
-            if (oldFileNodeForBuffer != null &&
-                !oldFileNodeForBuffer.equals(node)) {
-              oldFileNodeForBuffer.setBuffer(null);
-            }
+    public void bufferChanged(Buffer buffer) {
+      final File file = buffer.getFile();
 
-            if (node instanceof FileTreeModel.FileNode) {
-              final FileTreeModel.FileNode fileNode =
-                (FileTreeModel.FileNode)node;
+      if (file != null) {
+        final FileTreeModel.FileNode oldFileNode =
+          m_fileTreeModel.findFileNode(buffer);
 
-              fileNode.setBuffer(buffer);
+        // Find a node, if its in our directory structure. This
+        // may cause parts of the tree to be refreshed.
+        final FileTreeModel.Node node = m_fileTreeModel.findNode(file);
 
-              final Object[] fileTreePath = fileNode.getPath().getPath();
-              final Object[] path = new Object[fileTreePath.length + 1];
-              System.arraycopy(fileTreePath, 0, path, 1, fileTreePath.length);
-              path[0] = m_tree.getModel().getRoot();
+        if (oldFileNode == null || !oldFileNode.equals(node)) {
+          // Buffer's associated file has changed.
 
-              m_tree.scrollPathToVisible(new TreePath(path));
-            }
+          if (oldFileNode != null) {
+            oldFileNode.setBuffer(null);
           }
 
-          // Couldn't find a nice way to repaint a single node. This:
-          //    m_tree.getSelectionModel().setSelectionPath(fileNode.getPath());
-          // doesn't work if the node is already selected. Give up and
-          // repaint the world:
-          m_tree.treeDidChange();
+          if (node instanceof FileTreeModel.FileNode) {
+            final FileTreeModel.FileNode fileNode =
+              (FileTreeModel.FileNode)node;
+
+            fileNode.setBuffer(buffer);
+            scrollFileTreePathToVisible(fileNode.getPath());
+          }
         }
-      });
+      }
+
+      final FileTreeModel.Node fileNode = m_fileTreeModel.findFileNode(buffer);
+
+      if (fileNode != null) {
+        m_fileTreeModel.valueForPathChanged(fileNode.getPath(), fileNode);
+      }
+
+      m_bufferTreeModel.bufferChanged(buffer);
+
+      updateActionState();
+    }
+
+    public void bufferRemoved(Buffer buffer) {
+      final FileTreeModel.FileNode fileNode =
+        m_fileTreeModel.findFileNode(buffer);
+
+      if (fileNode != null) {
+        fileNode.setBuffer(null);
+        m_fileTreeModel.valueForPathChanged(fileNode.getPath(), fileNode);
+      }
+    }
+  }
+
+  private void scrollFileTreePathToVisible(TreePath fileTreePath) {
+    final Object[] filePath = fileTreePath.getPath();
+    final Object[] path = new Object[filePath.length + 1];
+    System.arraycopy(filePath, 0, path, 1, filePath.length);
+    path[0] = m_tree.getModel().getRoot();
+
+    m_tree.scrollPathToVisible(new TreePath(path));
   }
 
   public JComponent getComponent() {
@@ -233,28 +272,40 @@ final class FileTree {
     }
 
     public void actionPerformed(ActionEvent e) {
-      final FileTreeModel.FileNode fileNode = getSelectedFileNode();
+      final Object selectedNode = m_tree.getLastSelectedPathComponent();
 
-      if (fileNode != null) {
-        selectFileNode(fileNode);
+      if (selectedNode instanceof BufferTreeModel.BufferNode) {
+        selectBufferNode((BufferTreeModel.BufferNode)selectedNode);
+      }
+      else if (selectedNode instanceof FileTreeModel.FileNode) {
+        selectFileNode((FileTreeModel.FileNode)selectedNode);
       }
     }
   }
 
   private void updateActionState() {
-    m_openFileAction.setEnabled(m_tree.isEnabled() &&
-                                getSelectedFileNode() != null);
-  }
+    if (m_tree.isEnabled()) {
+      final Object node = m_tree.getLastSelectedPathComponent();
 
-  private FileTreeModel.FileNode getSelectedFileNode() {
-    final Object node = m_tree.getLastSelectedPathComponent();
+      if (node instanceof FileTreeModel.FileNode) {
+        final FileTreeModel.FileNode fileNode  = (FileTreeModel.FileNode)node;
 
-    if (node instanceof FileTreeModel.FileNode) {
-      return (FileTreeModel.FileNode)node;
+        m_openFileAction.setEnabled(fileNode.getBuffer() == null ||
+                                    !fileNode.getBuffer().equals(
+                                      m_editorModel.getSelectedBuffer()));
+        return;
+      }
+      else if (node instanceof BufferTreeModel.BufferNode) {
+        final BufferTreeModel.BufferNode bufferNode =
+          (BufferTreeModel.BufferNode)node;
+
+        m_openFileAction.setEnabled(!bufferNode.getBuffer().equals(
+                                      m_editorModel.getSelectedBuffer()));
+        return;
+      }
     }
-    else {
-      return null;
-    }
+
+    m_openFileAction.setEnabled(false);
   }
 
   /**
@@ -280,28 +331,21 @@ final class FileTree {
       JTree tree, Object value, boolean selected, boolean expanded,
       boolean leaf, int row, boolean hasFocus) {
 
-      if (value instanceof FileTreeModel.FileNode) {
+      if (value instanceof BufferTreeModel.BufferNode) {
+        final BufferTreeModel.BufferNode bufferNode =
+          (BufferTreeModel.BufferNode)value;
+
+        final Buffer buffer = bufferNode.getBuffer();
+
+        setForFileAndBuffer(buffer.getFile(), buffer);
+
+        return super.getTreeCellRendererComponent(
+          tree, value, selected, expanded, leaf, row, hasFocus);
+      }
+      else if (value instanceof FileTreeModel.FileNode) {
         final FileTreeModel.FileNode fileNode = (FileTreeModel.FileNode)value;
 
-        setLeafIcon(fileNode.isPythonFile() ?
-                    m_pythonIcon : m_defaultRenderer.getLeafIcon());
-
-        final Buffer buffer = fileNode.getBuffer();
-
-        setTextNonSelectionColor(
-          fileNode.isBoringFile() && buffer == null ?
-          Colours.INACTIVE_TEXT :
-          m_defaultRenderer.getTextNonSelectionColor());
-
-        if (buffer != null) {
-          // File is open.
-          setFont(buffer.isDirty() ? m_boldItalicFont : m_boldFont);
-        }
-        else {
-          setFont(m_defaultRenderer.getFont());
-        }
-
-        m_active = m_editorModel.getSelectedBuffer() == buffer;
+        setForFileAndBuffer(fileNode.getFile(), fileNode.getBuffer());
 
         return super.getTreeCellRendererComponent(
           tree, value, selected, expanded, leaf, row, hasFocus);
@@ -310,6 +354,26 @@ final class FileTree {
         return m_defaultRenderer.getTreeCellRendererComponent(
           tree, value, selected, expanded, leaf, row, hasFocus);
       }
+    }
+
+    private void setForFileAndBuffer(File file, Buffer buffer) {
+
+      setLeafIcon(m_editorModel.isPythonFile(file) ?
+                  m_pythonIcon : m_defaultRenderer.getLeafIcon());
+
+      setTextNonSelectionColor(
+        buffer == null && m_editorModel.isBoringFile(file) ?
+        Colours.INACTIVE_TEXT : m_defaultRenderer.getTextNonSelectionColor());
+
+      if (buffer != null) {
+        // File is open.
+        setFont(buffer.isDirty() ? m_boldItalicFont : m_boldFont);
+      }
+      else {
+        setFont(m_defaultRenderer.getFont());
+      }
+
+      m_active = buffer != null && m_editorModel.getSelectedBuffer() == buffer;
     }
 
     /**
@@ -325,16 +389,21 @@ final class FileTree {
     }
 
     public void paint(Graphics g) {
+
       final Color backgroundColour;
 
       if (m_active) {
         backgroundColour = Colours.FAINT_YELLOW;
+        setTextSelectionColor(Colours.BLACK);
+        setTextNonSelectionColor(Colours.BLACK);
       }
       else if (selected) {
         backgroundColour = getBackgroundSelectionColor();
+        setTextSelectionColor(m_defaultRenderer.getTextSelectionColor());
       }
       else {
         backgroundColour = getBackgroundNonSelectionColor();
+        setTextNonSelectionColor(m_defaultRenderer.getTextNonSelectionColor());
       }
 
       if (backgroundColour != null) {
@@ -385,6 +454,10 @@ final class FileTree {
     }
   }
 
+  private void selectBufferNode(BufferTreeModel.BufferNode bufferNode) {
+    m_editorModel.selectBuffer(bufferNode.getBuffer());
+  }
+
   private void selectFileNode(FileTreeModel.FileNode fileNode) {
     try {
       fileNode.setBuffer(
@@ -396,5 +469,3 @@ final class FileTree {
     }
   }
 }
-
-

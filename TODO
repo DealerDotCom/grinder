@@ -48,25 +48,19 @@ Task: Agent receives asynchronously. Agent should clear cache on
 start.
 Task: Console to broadcast. Remove ScriptDistributionFiles work. 
 
+
 Task: Allow editing in the console.
 
 Add dirty file handler to model.
 
-Hang on to FileTreeModel so that it survives LAF change?
-	
 Editing
 	- Need to handle CRLF? (Not for now).
 
-Think very hard about the changes to FileTreeModel for refresh.
+Warnings:
+ - Saving outside of distribution.
 
-Add a "BufferNode" for buffers.
-Rework file tree so it lists BufferNodes at end.
-New buffers get a BufferNode.
-When closed, buffer node removed.
-Buffers need a title. New buffers are "New file 1", ...
-
-Implement Close
-
+Minor bug - each time L&F changes, the saveAs dialog gets another All
+Files filter!
 
 Task: Console to maintain local dirty list based on edits and
 broadcast changes only.
@@ -98,12 +92,6 @@ Allow files to be marked for distribution. Any file.
 Automatically detect, and indicate, scripts.
 When new script is selected, unselect other script.
 
-*** Refactoring
-
-Draw out FileBuffer?
-
-
-
 *** Plans
 
 Allow grinder properties to be set remotely.
@@ -130,7 +118,12 @@ its license terms are acceptable. Apparently now available.
 
 ** Console
 
+*** Refactoring
+
 Refactor Console/ConsoleUI/ConsoleCommunication/Model split.
+
+Consider moving overwrite / save before close / ... handling to the
+model. Needs some kind of command pattern to represent choices.
 
 *** Add log panel
 
@@ -186,6 +179,9 @@ Pablo Estades Fernández says:
  > client cert. 
 
 ** Scripting
+
+Check the script life cycle example, runsForThread is actually a class
+attribute!
 
 Consider forcing TestRunner to be registered with grinder.
 
@@ -317,6 +313,10 @@ happier?
 HTTP plug-in.
 
 Document G2 adapter.
+
+http://213.243.170.17/MrWorm/35
+
+Links to gmane, how to search lists.
 
 ** Examples
 

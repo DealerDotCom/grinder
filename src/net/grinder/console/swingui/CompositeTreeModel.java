@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,8 +22,10 @@
 package net.grinder.console.swingui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -32,11 +34,11 @@ import javax.swing.tree.TreePath;
 
 
 /**
- * TreeModel that combines other tree models.
+ * {@link TreeModel} that combines other tree models.
  *
- * <p>The composed <code>TreeModel</code> implementations must be
- * aware of which nodes belong to them, and return null answers for
- * nodes that don't belong to them.</p>
+ * <p>The composed {@link TreeModel} implementations must be aware of
+ * which nodes belong to them, and return null answers for nodes that
+ * don't belong to them.</p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -68,7 +70,7 @@ final class CompositeTreeModel implements TreeModel {
     if (index < 0) {
       return null;
     }
-    else if (parent == m_rootNode) {
+    else if (parent.equals(getRoot())) {
       int base = 0;
 
       final Iterator iterator = m_wrappers.iterator();
@@ -104,7 +106,7 @@ final class CompositeTreeModel implements TreeModel {
   }
 
   public int getChildCount(Object parent) {
-    if (parent == m_rootNode) {
+    if (parent.equals(getRoot())) {
       int answer = 0;
 
       final Iterator iterator = m_wrappers.iterator();
@@ -140,7 +142,7 @@ final class CompositeTreeModel implements TreeModel {
       return -1;
     }
 
-    if (parent == m_rootNode) {
+    if (parent.equals(getRoot())) {
       int base = 0;
 
       final Iterator iterator = m_wrappers.iterator();
@@ -194,8 +196,7 @@ final class CompositeTreeModel implements TreeModel {
 
     while (iterator.hasNext()) {
       final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
-
-      wrapper.getModel().addTreeModelListener(listener);
+      wrapper.addTreeModelListener(listener);
     }
 
     m_listeners.add(TreeModelListener.class, listener);
@@ -206,8 +207,7 @@ final class CompositeTreeModel implements TreeModel {
 
     while (iterator.hasNext()) {
       final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
-
-      wrapper.getModel().removeTreeModelListener(listener);
+      wrapper.removeTreeModelListener(listener);
     }
 
     m_listeners.remove(TreeModelListener.class, listener);
@@ -234,6 +234,7 @@ final class CompositeTreeModel implements TreeModel {
 
   private abstract static class DelegateWrapper {
     private final TreeModel m_model;
+    private final Map m_delegateListenerMap = new HashMap();
 
     protected DelegateWrapper(TreeModel model) {
       m_model = model;
@@ -278,15 +279,50 @@ final class CompositeTreeModel implements TreeModel {
 
     public final boolean isLeaf(Object node) {
       try {
-        return m_model.isLeaf(node);
+        return getModel().isLeaf(node);
       }
       catch (ClassCastException e) {
         return false;
       }
     }
+
+    protected abstract TreeModelEvent mapTreeModelEvent(TreeModelEvent e);
+
+    public void addTreeModelListener(final TreeModelListener listener) {
+
+      final TreeModelListener delegateListener = new TreeModelListener() {
+          public void treeNodesChanged(TreeModelEvent e) {
+            listener.treeNodesChanged(mapTreeModelEvent(e));
+          }
+
+          public void treeNodesInserted(TreeModelEvent e) {
+            listener.treeNodesInserted(mapTreeModelEvent(e));
+          }
+
+          public void treeNodesRemoved(TreeModelEvent e) {
+            listener.treeNodesRemoved(mapTreeModelEvent(e));
+          }
+
+          public void treeStructureChanged(TreeModelEvent e) {
+            listener.treeStructureChanged(mapTreeModelEvent(e));
+          }
+        };
+
+      m_delegateListenerMap.put(listener, delegateListener);
+      getModel().addTreeModelListener(delegateListener);
+    }
+
+    public void removeTreeModelListener(TreeModelListener listener) {
+      final TreeModelListener delegateListener =
+        (TreeModelListener) m_delegateListenerMap.remove(listener);
+
+      if (delegateListener != null) {
+        getModel().removeTreeModelListener(delegateListener);
+      }
+    }
   }
 
-  private static final class RootWrapper extends DelegateWrapper {
+  private final class RootWrapper extends DelegateWrapper {
     public RootWrapper(TreeModel model) {
       super(model);
     }
@@ -302,9 +338,27 @@ final class CompositeTreeModel implements TreeModel {
     public int getIndexOfTopLevelNode(Object node) {
       return node.equals(getModel().getRoot()) ? 0 : -1;
     }
+
+    protected TreeModelEvent mapTreeModelEvent(TreeModelEvent e) {
+
+      final Object[] path = e.getPath();
+
+      if (path.length > 0 && path[0].equals(getRoot())) {
+        return e;
+      }
+
+      final Object[] newPath = new Object[path.length + 1];
+      System.arraycopy(path, 0, newPath, 1, path.length);
+      newPath[0] = getRoot();
+
+      return new TreeModelEvent(this,
+                                newPath,
+                                e.getChildIndices(),
+                                e.getChildren());
+    }
   }
 
-  private static final class FirstLevelWrapper extends DelegateWrapper {
+  private final class FirstLevelWrapper extends DelegateWrapper {
     public FirstLevelWrapper(TreeModel model) {
       super(model);
     }
@@ -319,6 +373,18 @@ final class CompositeTreeModel implements TreeModel {
 
     public int getIndexOfTopLevelNode(Object node) {
       return this.getIndexOfChild(getModel().getRoot(), node);
+    }
+
+    protected TreeModelEvent mapTreeModelEvent(TreeModelEvent e) {
+
+      final Object[] path = e.getPath();
+
+      if (path.length > 0) {
+        path[0] = getRoot();
+      }
+
+      return
+        new TreeModelEvent(this, path, e.getChildIndices(), e.getChildren());
     }
   }
 }

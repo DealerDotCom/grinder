@@ -24,12 +24,9 @@ package net.grinder.console.swingui;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -38,10 +35,11 @@ import javax.swing.tree.TreePath;
 
 import net.grinder.console.model.editor.Buffer;
 import net.grinder.console.model.editor.EditorModel;
+import net.grinder.util.WeakValueHashMap;
 
 
 /**
- * TreeModel that walks file system.
+ * {@link TreeModel} that walks file system.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -70,12 +68,12 @@ final class FileTreeModel implements TreeModel {
 
   public void setRootDirectory(File rootDirectory) {
     m_rootNode = new RootNode(rootDirectory);
-    fireTreeStructureChanged();
+    fireTreeStructureChanged(m_rootNode);
   }
 
   public void refresh() {
     m_rootNode.refresh();
-    fireTreeStructureChanged();
+    fireTreeStructureChanged(m_rootNode);
   }
 
   public Object getRoot() {
@@ -126,6 +124,69 @@ final class FileTreeModel implements TreeModel {
     return -1;
   }
 
+  public boolean isLeaf(Object node) {
+    if (node instanceof FileNode) {
+      final FileNode fileNode = (FileNode)node;
+
+      if (fileNode.belongsToModel(this)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public void addTreeModelListener(TreeModelListener listener) {
+    m_listeners.add(TreeModelListener.class, listener);
+  }
+
+  public void removeTreeModelListener(TreeModelListener listener) {
+    m_listeners.remove(TreeModelListener.class, listener);
+  }
+
+  private void fireTreeStructureChanged(Node node) {
+    final Object[] listeners = m_listeners.getListenerList();
+
+    final TreeModelEvent event = new TreeModelEvent(this, node.getPath());
+
+    for (int i = listeners.length - 2; i >= 0; i -= 2) {
+      if (listeners[i] == TreeModelListener.class) {
+        ((TreeModelListener)listeners[i + 1]).treeStructureChanged(event);
+      }
+    }
+  }
+
+  private void fireTreeNodesChanged(TreePath path) {
+    final Object[] listeners = m_listeners.getListenerList();
+
+    final TreeModelEvent event = new TreeModelEvent(this, path);
+
+    for (int i = listeners.length - 2; i >= 0; i -= 2) {
+      if (listeners[i] == TreeModelListener.class) {
+        ((TreeModelListener)listeners[i + 1]).treeNodesChanged(event);
+      }
+    }
+  }
+
+  public void valueForPathChanged(TreePath path, Object newValue) {
+    fireTreeNodesChanged(path);
+  }
+
+  private static final FilenameFilter s_directoryFilter =
+    new FilenameFilter() {
+      public boolean accept(File dir, String name) {
+        return new File(dir, name).isDirectory();
+      }
+    };
+
+  private static final FilenameFilter s_fileFilter =
+    new FilenameFilter() {
+      public boolean accept(File dir, String name) {
+        return new File(dir, name).isFile();
+      }
+    };
+
+
   public Node findNode(File file) {
     final Node existingNode = (Node)m_filesToNodes.get(file);
 
@@ -136,7 +197,7 @@ final class FileTreeModel implements TreeModel {
     // Maybe its not been expanded. Lets try harder.
     final File[] paths = fileToArrayOfParentPaths(file);
 
-    boolean treeStructureChanged = false;
+    Node treeStructureChangedNode = null;
 
     for (int i = 0; i < paths.length - 1; ++i) {
       final Node node = (Node)m_filesToNodes.get(paths[i]);
@@ -146,7 +207,10 @@ final class FileTreeModel implements TreeModel {
 
         if (directoryNode.getChildForFile(paths[i + 1]) == null) {
           directoryNode.refresh();
-          treeStructureChanged = true;
+
+          if (treeStructureChangedNode == null) {
+            treeStructureChangedNode = directoryNode;
+          }
 
           if (directoryNode.getChildForFile(paths[i + 1]) == null) {
             return null;
@@ -155,8 +219,8 @@ final class FileTreeModel implements TreeModel {
       }
     }
 
-    if (treeStructureChanged) {
-      fireTreeStructureChanged();
+    if (treeStructureChangedNode != null) {
+      fireTreeStructureChanged(treeStructureChangedNode);
     }
 
     return (Node)m_filesToNodes.get(file);
@@ -180,59 +244,6 @@ final class FileTreeModel implements TreeModel {
   public FileNode findFileNode(Buffer buffer) {
     return (FileNode)m_buffersToFileNodes.get(buffer);
   }
-
-  public boolean isLeaf(Object node) {
-    if (node instanceof FileNode) {
-      final FileNode fileNode = (FileNode)node;
-
-      if (fileNode.belongsToModel(this)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  public void addTreeModelListener(TreeModelListener listener) {
-    m_listeners.add(TreeModelListener.class, listener);
-  }
-
-  public void removeTreeModelListener(TreeModelListener listener) {
-    m_listeners.remove(TreeModelListener.class, listener);
-  }
-
-  private void fireTreeStructureChanged() {
-
-    final Object[] listeners = m_listeners.getListenerList();
-
-    final TreeModelEvent event =
-      new TreeModelEvent(this, new Object[] { getRoot() }, null, null);
-
-    for (int i = listeners.length - 2; i >= 0; i -= 2) {
-      if (listeners[i] == TreeModelListener.class) {
-        ((TreeModelListener)listeners[i + 1]).treeStructureChanged(event);
-      }
-    }
-  }
-
-  public void valueForPathChanged(TreePath path, Object newValue) {
-    System.err.println("valueForPathChanged(" + path + ", " + newValue + ")");
-    // Do nothing.
-  }
-
-  private static final FilenameFilter s_directoryFilter =
-    new FilenameFilter() {
-      public boolean accept(File dir, String name) {
-        return new File(dir, name).isDirectory();
-      }
-    };
-
-  private static final FilenameFilter s_fileFilter =
-    new FilenameFilter() {
-      public boolean accept(File dir, String name) {
-        return new File(dir, name).isFile();
-      }
-    };
 
   /**
    * Node in the tree.
@@ -290,6 +301,10 @@ final class FileTreeModel implements TreeModel {
     }
 
     public void setBuffer(Buffer buffer) {
+      if (m_buffer != null) {
+        m_buffersToFileNodes.remove(m_buffer);
+      }
+
       m_buffer = buffer;
 
       if (buffer != null) {
@@ -300,20 +315,6 @@ final class FileTreeModel implements TreeModel {
     public Buffer getBuffer() {
       return m_buffer;
     }
-
-    public boolean isPythonFile() {
-      return getFile().getName().endsWith(".py");
-    }
-
-    public boolean isBoringFile() {
-      final String name = getFile().getName();
-
-      return
-        getFile().isHidden() ||
-        name.endsWith(".class") ||
-        name.endsWith("~") ||
-        name.startsWith(".");
-    }
   }
 
   /**
@@ -321,9 +322,11 @@ final class FileTreeModel implements TreeModel {
    */
   private class DirectoryNode extends Node {
 
-    private File[] m_childDirectories = new File[0];
+    private final File[] m_noFiles = new File[0];
+
+    private File[] m_childDirectories = m_noFiles;
     private DirectoryNode[] m_childDirectoryNodes;
-    private File[] m_childFiles = new File[0];
+    private File[] m_childFiles = m_noFiles;
     private FileNode[] m_childFileNodes;
 
     DirectoryNode(DirectoryNode parentNode, File file) {
@@ -347,17 +350,16 @@ final class FileTreeModel implements TreeModel {
           (FileNode)m_filesToNodes.remove(m_childFiles[i]);
 
         if (oldFileNode != null) {
-          final Buffer buffer = (Buffer)oldFileNode.getBuffer();
-
-          if (buffer != null) {
-            m_buffersToFileNodes.remove(buffer);
-          }
+          oldFileNode.setBuffer(null);
         }
       }
 
-      m_childDirectories = getFile().listFiles(s_directoryFilter);
+      final File[] directories = getFile().listFiles(s_directoryFilter);
+      m_childDirectories = directories != null ? directories : m_noFiles;
       m_childDirectoryNodes = new DirectoryNode[m_childDirectories.length];
-      m_childFiles = getFile().listFiles(s_fileFilter);
+
+      final File[] files = getFile().listFiles(s_fileFilter);
+      m_childFiles = files != null ? files : m_noFiles;
       m_childFileNodes = new FileNode[m_childFiles.length];
     }
 
@@ -436,23 +438,4 @@ final class FileTreeModel implements TreeModel {
       return getFile().getPath();
     }
   }
-
-  private static final class WeakValueHashMap  {
-    private Map m_map = new HashMap();
-
-    public void put(Object key, Object value) {
-      m_map.put(key, new WeakReference(value));
-    }
-
-    public Object get(Object key) {
-      final WeakReference reference = (WeakReference)m_map.get(key);
-      return reference != null ? reference.get() : null;
-    }
-
-    public Object remove(Object key) {
-      final WeakReference reference = (WeakReference)m_map.remove(key);
-      return reference != null ? reference.get() : null;
-    }
-  }
 }
-

@@ -310,6 +310,15 @@ public final class Buffer {
     return m_name;
   }
 
+    /**
+     * Useful for debugging.
+     *
+     * @return Description of the Buffer.
+     */
+  public String toString() {
+    return "<Buffer " + hashCode() + " '" + getDisplayName() + "'>";
+  }
+
   /**
    * Buffer type enumeration. Uses default (identity) equality semantics.
    */
@@ -323,7 +332,7 @@ public final class Buffer {
     /**
      * Useful for debugging.
      *
-     * @return Description of the type.
+     * @return Description of the Type.
      */
     public String toString() {
       return m_name;
