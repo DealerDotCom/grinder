@@ -127,7 +127,7 @@ public final class ConsoleProperties {
 
     setCollectSampleCount(
       m_properties.getInt(COLLECT_SAMPLES_PROPERTY, 0));
-    setIgnoreSampleCount(m_properties.getInt(IGNORE_SAMPLES_PROPERTY, 1));
+    setIgnoreSampleCount(m_properties.getInt(IGNORE_SAMPLES_PROPERTY, 0));
     setSampleInterval(m_properties.getInt(SAMPLE_INTERVAL_PROPERTY, 1000));
     setSignificantFigures(m_properties.getInt(SIG_FIG_PROPERTY, 3));
 
@@ -255,8 +255,7 @@ public final class ConsoleProperties {
     if (n < 0) {
       throw new DisplayMessageConsoleException(
         "collectNegativeError.text",
-        "You must collect at least one sample, " +
-        "zero means \"forever\"");
+        "You must collect at least one sample, zero means \"forever\"");
     }
 
     setCollectSampleCountInternal(n);
@@ -283,15 +282,15 @@ public final class ConsoleProperties {
   /**
    * Set the number of samples to collect.
    *
-   * @param n The number. Must be at least 1.
+   * @param n The number. Must be positive.
    * @throws DisplayMessageConsoleException If the number is negative or zero.
    */
   public void setIgnoreSampleCount(int n)
     throws DisplayMessageConsoleException {
-    if (n <= 0) {
+    if (n < 0) {
       throw new DisplayMessageConsoleException(
-        "ignoreLessThanOneError.text",
-        "You must ignore at least the first sample");
+        "ignoreSamplesNegativeError.text",
+        "The number of samples to ignore cannot be negative");
     }
 
     setIgnoreSampleCountInternal(n);

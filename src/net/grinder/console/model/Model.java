@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -96,12 +96,12 @@ public class Model {
    * The current test set. A TreeSet is used to maintain the test
    * order. Should synchronise on <code>m_test</code> before
    * accessing it.
-   **/
+   */
   private final Set m_tests = new TreeSet();
 
   /**
    * A {@link SampleAccumulator} for each test.
-   **/
+   */
   private final Map m_accumulators =
     Collections.synchronizedMap(new HashMap());
 
@@ -130,10 +130,12 @@ public class Model {
 
   private final ProcessStatusSet m_processStatusSet = new ProcessStatusSet();
 
+  private final Sampler m_sampler = new Sampler();
+
   /**
    * System.currentTimeMillis() is expensive. This is accurate to one
    * sample interval.
-   **/
+   */
   private long m_currentTime;
 
   /**
@@ -186,7 +188,7 @@ public class Model {
 
     setState(STATE_WAITING_FOR_TRIGGER);
 
-    new Thread(new Sampler()).start();
+    new Thread(m_sampler).start();
 
     m_properties.addPropertyChangeListener(
       ConsoleProperties.SIG_FIG_PROPERTY,
@@ -505,15 +507,21 @@ public class Model {
         }
       }
     }
+    else if (getState() == STATE_WAITING_FOR_TRIGGER &&
+             m_properties.getIgnoreSampleCount() == 0) {
+      synchronized (m_sampler) {
+        m_sampler.notifyAll();
+      }
+    }
   }
 
   /**
    * I've thought a couple of times about replacing this with a
-   * java.util.TimerTask, and giving Model a Timer thread which
-   * things like ProcessStatusSet could share. Its not as nice as it
-   * first seems though because you have to deal with cancelling and
+   * java.util.TimerTask, and giving Model a Timer thread which things
+   * like ProcessStatusSet could share. Its not as nice as it first
+   * seems though because you have to deal with cancelling and
    * rescheduling the TimerTask when the sample period is changed.
-   **/
+   */
   private final class Sampler implements Runnable {
     public void run() {
       while (true) {
@@ -525,7 +533,17 @@ public class Model {
 
         while (m_currentTime < wakeUpTime) {
           try {
-            Thread.sleep(wakeUpTime - m_currentTime);
+            synchronized (this) {
+              wait(wakeUpTime - m_currentTime);
+
+              if (getState() == STATE_WAITING_FOR_TRIGGER &&
+                  m_properties.getIgnoreSampleCount() == 0 &&
+                  m_receivedReport) {
+                m_currentTime = System.currentTimeMillis();
+                break;
+              }
+            }
+
             m_currentTime = wakeUpTime;
           }
           catch (InterruptedException e) {
@@ -570,7 +588,8 @@ public class Model {
           }
         }
         else if (state == STATE_WAITING_FOR_TRIGGER) {
-          if (m_sampleCount >= m_properties.getIgnoreSampleCount()) {
+          if (m_receivedReport &&
+              m_sampleCount >= m_properties.getIgnoreSampleCount()) {
             setState(STATE_CAPTURING);
           }
         }

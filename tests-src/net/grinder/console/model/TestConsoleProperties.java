@@ -1,4 +1,3 @@
-// Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
@@ -23,18 +22,14 @@
 package net.grinder.console.model;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.util.Properties;
 import java.util.Random;
 
-import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.DisplayMessageConsoleException;
@@ -45,10 +40,6 @@ import net.grinder.console.common.DisplayMessageConsoleException;
  * @version $Revision$
  */
 public class TestConsoleProperties extends TestCase {
-
-  public static void main(String[] args) {
-    TestRunner.run(TestConsoleProperties.class);
-  }
 
   public TestConsoleProperties(String name) {
     super(name);
@@ -80,7 +71,7 @@ public class TestConsoleProperties extends TestCase {
 
   public void testIgnoreSamples() throws Exception {
 
-    new TestIntTemplate(ConsoleProperties.IGNORE_SAMPLES_PROPERTY, 1,
+    new TestIntTemplate(ConsoleProperties.IGNORE_SAMPLES_PROPERTY, 0,
 			Integer.MAX_VALUE) {
 
       protected int get(ConsoleProperties properties) {

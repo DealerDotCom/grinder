@@ -22,6 +22,9 @@ Grinder 3.0-beta19
   Added a processResponse method to HTTPRequest so that scripts
   subclasses can process respones.
 
+  The console can now be set to start as soon as the first worker
+  process starts its threads. ("Ignore 0 samples").
+
 
 Grinder 3.0-beta18
 ------------------
