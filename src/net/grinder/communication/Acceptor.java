@@ -27,10 +27,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
+import net.grinder.util.ListenerSupport;
 import net.grinder.util.thread.ThreadPool;
 import net.grinder.util.thread.ThreadSafeQueue;
 
@@ -53,28 +52,10 @@ public final class Acceptor {
   private final Map m_socketSets = new HashMap();
 
   /**
-   * Linked lists of {@link Listener}'s indexed by {@link
-   * ConnectionType}. Synchronise on a list before accessing it.
+   * {@link ListenerSupport}s indexed by {@link ConnectionType}.
+   * Synchronise on a list before accessing it.
    */
   private final Map m_listenerMap = new HashMap();
-
-  private final ListenerNotification m_notifyAccept =
-    new ListenerNotification() {
-      protected void doNotification(Listener listener,
-                                    ConnectionType connectionType,
-                                    ConnectionIdentity connection) {
-        listener.connectionAccepted(connectionType, connection);
-      }
-    };
-
-  private final ListenerNotification m_notifyClose =
-    new ListenerNotification() {
-      protected void doNotification(Listener listener,
-                                    ConnectionType connectionType,
-                                    ConnectionIdentity connection) {
-        listener.connectionClosed(connectionType, connection);
-      }
-    };
 
   /**
    * Constructor.
@@ -209,26 +190,13 @@ public final class Acceptor {
    * @param listener The listener.
    */
   public void addListener(ConnectionType connectionType, Listener listener) {
-    final List listenerList = getListenerList(connectionType);
-    synchronized (listenerList) {
-      listenerList.add(listener);
-    }
+    getListeners(connectionType).add(listener);
   }
 
   private abstract class ListenerNotification {
-    public final void notify(ConnectionType connectionType,
-                             ConnectionIdentity connection) {
+    public final void notify(final ConnectionType connectionType,
+                             final ConnectionIdentity connection) {
 
-      final List listenerList = getListenerList(connectionType);
-
-      synchronized (listenerList) {
-        final Iterator iterator = listenerList.iterator();
-
-        while (iterator.hasNext()) {
-          doNotification((Listener)iterator.next(),
-                         connectionType, connection);
-        }
-      }
     }
 
     protected abstract void doNotification(Listener listener,
@@ -259,16 +227,29 @@ public final class Acceptor {
         newSocketSet.addListener(
           new ResourcePool.Listener() {
             public void resourceAdded(ResourcePool.Resource resource) {
-              final ConnectionIdentity connectionIdentity =
+              final ConnectionIdentity connection =
                 ((SocketWrapper)resource).getConnectionIdentity();
-              m_notifyAccept.notify(connectionType, connectionIdentity);
+
+              getListeners(connectionType).apply(
+                new ListenerSupport.Informer() {
+                  public void inform(Object listener) {
+                    ((Listener)listener).connectionAccepted(connectionType,
+                                                            connection);
+                  }
+                });
             }
 
             public void resourceClosed(ResourcePool.Resource resource) {
-              final ConnectionIdentity connectionIdentity =
+              final ConnectionIdentity connection =
                 ((SocketWrapper)resource).getConnectionIdentity();
 
-              m_notifyClose.notify(connectionType, connectionIdentity);
+              getListeners(connectionType).apply(
+                new ListenerSupport.Informer() {
+                  public void inform(Object listener) {
+                    ((Listener)listener).connectionClosed(connectionType,
+                                                          connection);
+                  }
+                });
             }
           });
 
@@ -281,15 +262,16 @@ public final class Acceptor {
   /**
    * Get the listener list for a particular connection type.
    */
-  List getListenerList(ConnectionType connectionType) {
+  private ListenerSupport getListeners(ConnectionType connectionType) {
     synchronized (m_listenerMap) {
-      final List original = (List)m_listenerMap.get(connectionType);
+      final ListenerSupport original =
+        (ListenerSupport)m_listenerMap.get(connectionType);
 
       if (original != null) {
         return original;
       }
       else {
-        final List newList = new LinkedList();
+        final ListenerSupport newList = new ListenerSupport();
         m_listenerMap.put(connectionType, newList);
         return newList;
       }
