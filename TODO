@@ -101,6 +101,10 @@ Script access to global statistics.
  > Is this what you're after?
 ^^ To do this, might have to behave differently with 1 thread vs many.
 
+** Code
+
+Review use of InterruptedException
+
 ** Other HTTP/HTML libraries
 
 DeSouza, Edwin writes:
