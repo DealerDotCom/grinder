@@ -1,3 +1,12 @@
+2004-01-13  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, build.xml:
+	Fix bug 876097 - ClonePyInstance not included in grinder.jar.
+
+2004-01-11  Philip Aston  <philipa@mail.com>
+
+	* ChangeLog, TODO: Changes and more to do.
+
 2004-01-07  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, src/net/grinder/engine/process/GrinderProcess.java:
