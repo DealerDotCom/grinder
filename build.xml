@@ -70,7 +70,11 @@ what you want. Currently the conditionally built modules are:
 
 <project name="The Grinder" default="jar" basedir=".">
 
-  <taskdef resource="checkstyletask.properties"/>
+  <taskdef resource="checkstyletask.properties">
+    <classpath>
+      <pathelement path="${checkstyle.classpath}"/>
+    </classpath>
+  </taskdef>
 
   <property name="Name" value="The Grinder"/>
   <property name="name" value="grinder"/>
@@ -264,12 +268,8 @@ what you want. Currently the conditionally built modules are:
     <fail message="Define xweb.dir in etc/local.properties to build this target"/>
   </target>
 
-  <target name="assert-have-checkstyle" depends="init" unless="have.checkstyle">
-    <fail message="Add Checkstyle 3.1 to your CLASSPATH to build this target"/>
-  </target>
-
   <target name="assert-have-everything"
-	  depends="assert-have-jsse,assert-have-junit,assert-have-optional-tasks,assert-have-servlet,assert-have-xalan,assert-have-xweb,assert-have-checkstyle">
+	  depends="assert-have-jsse,assert-have-junit,assert-have-optional-tasks,assert-have-servlet,assert-have-xalan,assert-have-xweb">
   </target>
 
   <!-- =================================================================== -->
@@ -395,8 +395,7 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Reports                                                             -->
   <!-- =================================================================== -->
-  <target name="checkstyle" description="Check code formatting"
-          depends="assert-have-checkstyle">
+  <target name="checkstyle" description="Check code formatting">
 
     <mkdir dir="${build.dir}"/>
 
@@ -408,14 +407,6 @@ what you want. Currently the conditionally built modules are:
         <!-- Exclude this because of its public 'grinder' field. -->
         <exclude name="**/net/grinder/script/Grinder.java"/>
 
-        <!-- Exclude the following whilst Bernard is working on them. -->
-        <exclude name="**/HTTPRequest.java"/>
-        <exclude name="**/TCPProxyEngine.java"/>
-        <exclude name="**/TCPProxyEngineImplementation.java"/>
-        <exclude name="**/HTTPProxyTCPProxyEngine.java"/>
-        <exclude name="**/HTTPPluginTCPProxyFilter.java"/>
-        <exclude name="**/HTTPPluginTCPProxyResponseFilter.java"/>
-
         <!-- The following need fixing. -->
         <exclude name="**/snifferwebapp/**"/>
       </fileset>
@@ -426,6 +417,7 @@ what you want. Currently the conditionally built modules are:
       <formatter type="plain"/>
       <formatter type="xml"
                  toFile="${build.dir}/checkstyle_errors.xml"/>
+       <classpath refid="build.classpath"/>
 
     </checkstyle>
   </target>
