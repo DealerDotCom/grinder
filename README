@@ -488,6 +488,33 @@ Under Linux, you may also need to set up the routing table. Try:
 Some Windows VPN clients (e.g Bay Networks Extranet) interfere with
 multicast. You may need to disable them.
 
+With a standalone Windows 2000 machine, you might experience similar
+grief to myself. I found that I could only get multicast to work if my
+LAN NIC had a carrier and the MS loopback adapter is not installed (or
+disabled).
+
+The following links contain experiences that tally with mine:
+
+ http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html
+ http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html
+ http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html
+
+The last of these says:
+
+	"I have been looking for a solution for this problem a long
+	time without success :-( I found several dummy loopback IP
+	stacks but none that supports multicast. The solution I have
+	been using is to bring along a tiny hub and connect my laptop
+	to that hub when doing demos. Windows is a bit stupid in the
+	way that it only checks if it has a carrier."
+
+I know of someone using a slightly cheaper/lighter solution; namely
+crop a network cable short and twist your own physical loopback
+adapter.
+
+Needless to say, if anyone figures out how to get multicast working
+with a standalone W2K machine, I'm more than interested.
+
 
 How do I fix it?
 ****************
