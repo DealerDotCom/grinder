@@ -35,7 +35,7 @@ public class StatisticsTable
 {
     private final TestStatisticsMap m_testStatisticsMap;
     private final Statistics m_totals;
-    private DecimalFormat m_twoDPFormat = new DecimalFormat("0.00");
+    private final DecimalFormat m_twoDPFormat = new DecimalFormat("0.00");
     
     public StatisticsTable(TestStatisticsMap testStatisticsMap)
     {
