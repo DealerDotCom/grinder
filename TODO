@@ -19,6 +19,8 @@ start event.
 
 ** TCPProxy
 
+Should listen on all interfaces if -localhost is not specified.
+
 Fix the proxy to record Authorization again. Can use connection ID.
 The G2 HTTPClient plugin implementation interprets basicAuthentication
 properties wrongly. It first sends a request without the
