@@ -1,4 +1,42 @@
+2002-11-03  Philip Aston  <paston@bea.com>
+
+	* The Grinder 3.0-beta1 is released.
+
+	* CHANGES: Correct comment.
+
+	* src/net/grinder/Grinder.java:
+	Deal more correctly with multiple JVM arguments.
+
+	* build.xml:
+	Remove the classpath from the script javadoc invocation so that
+	additional classes are not documented accidently.
+
+	* CHANGES, src/net/grinder/console/swingui/ConsoleUI.java, TODO:
+	Fix 608392.
+
+2002-11-02  Philip Aston  <paston@bea.com>
+
+	* CHANGES: Doc bug fix.
+
+2002-11-01  Philip Aston  <paston@bea.com>
+
+	* build.xml: Next is beta 1.
+
+	* src/net/grinder/Grinder.java:
+	Don't add empty strings to command line array.
+
+2002-10-31  Philip Aston  <paston@bea.com>
+
+	* xdoc/stylesheets/grinder.xsl: Fix css.
+
+2002-10-28  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/properties-xhtml.xml, xdoc/manual/properties-xhtml.xml:
+	Fix doc for grinder.consoleAddress.
+
 2002-10-27  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/welcome-xhtml.xml: Fix list.
 
 	* The Grinder 3.0-beta0 is released.
 
