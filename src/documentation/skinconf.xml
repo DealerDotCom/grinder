@@ -29,7 +29,7 @@ which will be used to configure the chosen Forrest skin.
     no search box. @domain will enable sitesearch for the specific domain with google.
     In other words google will search the @domain for the query string.
   -->
-  <search box-location="alt" name="" domain="grinder.sourceforge.net" provider="google"/>
+  <search box-location="all" name="" domain="grinder.sourceforge.net" provider="google"/>
 
   <!-- Disable the print link? If enabled, invalid HTML 4.0.1 -->
   <disable-print-link>true</disable-print-link>  
@@ -62,6 +62,8 @@ which will be used to configure the chosen Forrest skin.
 
   <!-- Disable the javascript facility to change the font size -->
   <disable-font-script>true</disable-font-script>
+
+  <group-url>foo</group-url>
 
   <!-- mandatory project logo
        default skin: renders it at the top -->
@@ -155,7 +157,6 @@ which will be used to configure the chosen Forrest skin.
       padding: .3em !important;
     }
 
-
     th {
       padding: .5em !important;
     }
@@ -172,6 +173,7 @@ which will be used to configure the chosen Forrest skin.
     h5 {
       text-decoration: underline;
     }
+
   </extra-css>
 
   <colors>
