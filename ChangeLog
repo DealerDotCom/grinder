@@ -1,5 +1,15 @@
 2001-06-28  Philip Aston  <paston@bea.com>
 
+	* TODO, doc/HTTPPlugin.txt, CHANGES, README: Docs.
+
+	* src/prj.el: Fix.
+
+	* src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java, src/net/grinder/TCPSniffer.java, src/net/grinder/tools/tcpsniffer/SSLSnifferEngineImpl.java:
+	Technicolor sniff.
+
+	* src/net/grinder/util/TerminalColour.java:
+	Red and yellow and pink and blue...
+
 	* src/net/grinder/plugin/http/HTTPClientHandler.java:
 	Close connections and discard cookies at end of cycle.
 
