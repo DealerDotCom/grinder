@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import net.grinder.common.Test;
 import net.grinder.console.model.Model;
@@ -62,12 +63,13 @@ public class TestGraphPanel extends JPanel implements ModelListener
 
 	m_testLabel = resources.getString("graph.test.label") + " ";
 
-	m_model.addModelListener(this);
+	m_model.addModelListener(new SwingDispatchedModelListener(this));
 
 	m_model.addTotalSampleListener(
 	    new SampleListener() {
 		public void update(IntervalStatistics intervalStatistics,
 				   CumulativeStatistics cumulativeStatistics) {
+		    // No requirement to dispatch in Swing thread.
 		    LabelledGraph.resetPeak();
 		}
 	    });
@@ -93,16 +95,17 @@ public class TestGraphPanel extends JPanel implements ModelListener
 
 	    m_model.addSampleListener(
 		test,
-		new SampleListener() {
-		    public void update(
-			IntervalStatistics intervalStatistics,
-			CumulativeStatistics cumulativeStatistics) {
-			testGraph.add(intervalStatistics,
-				      cumulativeStatistics,
-				      m_model.getNumberFormat());
-		    }
-		}
-		);
+		new SwingDispatchedSampleListener(
+		    new SampleListener() {
+			public void update(
+			    final IntervalStatistics intervalStatistics,
+			    final CumulativeStatistics cumulativeStatistics) {
+			    testGraph.add(intervalStatistics,
+					  cumulativeStatistics,
+					  m_model.getNumberFormat());
+			    
+			}
+		    }));
 
 	    m_components.put(test, testGraph);
 	}

@@ -18,29 +18,40 @@
 
 package net.grinder.console.swingui;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
+import java.util.Set;
+import javax.swing.SwingUtilities;
+
+import net.grinder.console.model.SampleListener;
+import net.grinder.statistics.CumulativeStatistics;
+import net.grinder.statistics.IntervalStatistics;
 
 
 /**
+ * SampleListener Decorator that disptaches the reset() and update()
+ * notifications via a Swing thread.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public class AllTests
+class SwingDispatchedSampleListener implements SampleListener
 {
-    public static void main(String[] args)
+    private final SampleListener m_delegate;
+
+    public SwingDispatchedSampleListener(SampleListener delegate)
     {
-	TestRunner.run(AllTests.class);
+	m_delegate = delegate;
     }
 
-    public static Test suite()
+    public void update(final IntervalStatistics intervalStatistics,
+		       final CumulativeStatistics cumulativeStatistics)
     {
-	final TestSuite suite = new TestSuite();
-	suite.addTest(new TestSuite(TestGraph.class));
-	suite.addTest(new TestSuite(TestSwingDispatchedModelListener.class));
-	suite.addTest(new TestSuite(TestSwingDispatchedSampleListener.class));
-	return suite;
+	SwingUtilities.invokeLater(
+	    new Runnable() {
+		public void run() {
+		    m_delegate.update(intervalStatistics,
+				      cumulativeStatistics);
+		}
+	    }
+	    );
     }
 }

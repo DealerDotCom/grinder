@@ -65,7 +65,7 @@ abstract class AbstractStatisticsTableModel
 	// constructors ever do anything significant.
 	m_modelInvalid = true;
 	m_numberFormat = m_model.getNumberFormat();
-	m_model.addModelListener(this);
+	m_model.addModelListener(new SwingDispatchedModelListener(this));
     }
 
     public synchronized void reset(Set newTests)

@@ -264,7 +264,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 	    m_frame.setIconImage(logoImage);
 	}
 
-	m_model.addModelListener(this);
+	m_model.addModelListener(new SwingDispatchedModelListener(this));
 	update();
 
         m_frame.pack();

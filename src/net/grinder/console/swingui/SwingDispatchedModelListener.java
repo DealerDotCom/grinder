@@ -18,29 +18,45 @@
 
 package net.grinder.console.swingui;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
+import java.util.Set;
+import javax.swing.SwingUtilities;
+
+import net.grinder.console.model.ModelListener;
 
 
 /**
+ * ModelListener Decorator that disptaches the reset() and update()
+ * notifications via a Swing thread.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public class AllTests
+class SwingDispatchedModelListener implements ModelListener
 {
-    public static void main(String[] args)
+    private final ModelListener m_delegate;
+    private final Runnable m_updateRunnable;
+
+    public SwingDispatchedModelListener(ModelListener delegate)
     {
-	TestRunner.run(AllTests.class);
+	m_delegate = delegate;
+
+	m_updateRunnable =
+	    new Runnable() {
+		public void run() { m_delegate.update(); }
+	    };
     }
 
-    public static Test suite()
+    public void reset(final Set newTests)
     {
-	final TestSuite suite = new TestSuite();
-	suite.addTest(new TestSuite(TestGraph.class));
-	suite.addTest(new TestSuite(TestSwingDispatchedModelListener.class));
-	suite.addTest(new TestSuite(TestSwingDispatchedSampleListener.class));
-	return suite;
+	SwingUtilities.invokeLater(
+	    new Runnable() {
+		public void run() { m_delegate.reset(newTests); }
+	    }
+	    );
+    }
+
+    public void update()
+    {
+	SwingUtilities.invokeLater(m_updateRunnable);
     }
 }
