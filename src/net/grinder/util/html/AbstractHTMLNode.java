@@ -60,4 +60,13 @@ abstract class AbstractHTMLNode {
     toStringBuffer(result, true);
     return result.toString();
   }
+
+  /**
+   * Override for debugging.
+   *
+   * @return Useful description of object.
+   */
+  public String toString() {
+    return toText();
+  }
 }
