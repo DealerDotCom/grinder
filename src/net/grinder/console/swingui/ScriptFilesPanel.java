@@ -105,6 +105,8 @@ final class ScriptFilesPanel extends JPanel {
     rootDirectoryPanel.add(chooseDirectoryButton);
     rootDirectoryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+    refresh();
+
     final JTree tree = new JTree(m_fileTreeModel);
     tree.setCellRenderer(new CustomTreeCellRenderer());
 
@@ -114,8 +116,6 @@ final class ScriptFilesPanel extends JPanel {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     add(rootDirectoryPanel);
     add(fileTreePane);
-
-    refresh();
   }
 
   public final void refresh() {
