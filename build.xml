@@ -57,7 +57,7 @@ conditionally built modules are:
    HTTP SSL plugin (Needs the JSSE 1.0.2)
    TCPSniffer SSL engine (Needs the JSSE 1.0.2)
    TCPSniffer HTTP plugin filter (Needs Apache Jakarta Regexp 1.2)
-   JUnit test cases (needs JUnit 3.4)
+   JUnit test cases (needs JUnit 3.4 and Ant 1.2 optional.jar)
 
 Ant hint for cygwin users: Copy "ant" from the Ant bin directory into
 a directory earilier in your path and run it through sed -e 's#:#;#g'
@@ -74,18 +74,21 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <!-- what -->
     <property name="Name" value="The Grinder"/>
     <property name="name" value="grinder"/>
-    <property name="version" value="2.1"/>
+    <property name="version" value="2.2"/>
     <property name="year" value="2001"/>
 
     <!--options-->
     <available classname="javax.net.ssl.SSLSocketFactory"
 	       property="have.jsse" />
 
-    <available classname="org.apache.regexp.RE"
-	       property="have.regexp" />
-
     <available classname="junit.framework.TestCase"
 	       property="have.junit" />
+
+    <available classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
+	       property="have.junit.task" />
+
+    <available classname="org.apache.regexp.RE"
+	       property="have.regexp" />
 
     <!-- javac switches -->
     <property name="debug" value="on"/>
@@ -130,6 +133,11 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   </target>
 
   <target name="assert-have-junit" depends="init" unless="have.junit">
+   <fail message="Install the Ant optional.jar to build this target"/>
+  </target>
+
+  <target name="assert-have-junit-task" depends="init"
+	  unless="have.junit.task">
    <fail message="Add JUnit 3.4 to your CLASSPATH to build this target"/>
   </target>
 
@@ -206,6 +214,22 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
 
 
   <!-- =================================================================== -->
+  <!-- Rules to run the tests                                              -->
+  <!-- =================================================================== -->
+  <target name="test" depends="compile-tests,assert-have-junit-task"
+	  description="Run the unit-tests.">
+  <junit printsummary="false">
+    <formatter type="plain" usefile="false"/>
+
+    <classpath path="${tests.classes};${build.classes}"/>
+
+    <test name="net.grinder.AllTests"/>
+  </junit>
+
+  </target>
+
+
+  <!-- =================================================================== -->
   <!-- Rules to create the API documentation                               -->
   <!-- =================================================================== -->
   <target name="javadoc" depends="init" description="Generates the javadoc.">
@@ -225,8 +249,8 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
 	      <pathelement path="${tests.src.dir}"/>
 	    </sourcepath>
     </javadoc>
-
   </target>
+
 
   <!-- =================================================================== -->
   <!-- Creates the distribution hierachy                                   -->
@@ -283,8 +307,13 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
 <!--      <cvs command="tag -R release_${version}" noexec="true"/> -->
     <jar jarfile="${name}-${version}.jar" basedir="${dist.root}"/>
 
+    <echo message="****************************************************"/>
     <echo message="*** Now say 'cvs tag -R release_${version}"/>
     <echo message="*** and update the version number in build.xml"/>
+    <echo message="***"/>
+    <echo message="*** If you forgot to update the ChangeLog or commit"/>
+    <echo message="*** everything, take a deep breath and try again."/>
+    <echo message="****************************************************"/>
   </target>
 
   <!-- =================================================================== -->
