@@ -1,3 +1,18 @@
+Grinder 2.6.1
+-------------
+
+  Various tweaks to the timing code. The response times reported by
+  your test scripts will almost certainly be smaller and more correct
+  with this version. See doc/Timing.txt for information.
+
+  New property: grinder.recordTime. See the file doc/Timing.txt for
+  details.
+
+  New property: grinder.logProcessStreams. See README for details.
+
+  Handle multiple Set-Cookie headers, courtesy of Christian Nedregard.
+
+
 Grinder 2.6
 -----------
 

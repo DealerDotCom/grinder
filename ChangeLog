@@ -1,3 +1,21 @@
+2001-04-22  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 2.6.1 is released.
+
+	* doc/Timing.txt: Notes on timing.
+
+	* README: Document grinder.recordTime.
+
+	* src/net/grinder/engine/process/GrinderThread.java:
+	Grinder processes can now optionally not report timing information.
+
+	* tests-src/net/grinder/statistics/TestStatistics.java, src/net/grinder/statistics/Statistics.java, src/net/grinder/statistics/StatisticsTable.java:
+	Support for "untimed transactions". Remove Statistics.getTotalTime()
+	as there is little need for it.
+
+	* AUTHORS, src/net/grinder/plugin/http/HttpMsg.java:
+	Handle multiple Set-Cookie headers, courtesy of Christian Nedregard.
+
 2001-04-13  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContextImplementation.java:
