@@ -13,7 +13,6 @@ ANT_HOME=./etc/ant
 if [ -n "${CYGWIN}" ]
 then
     ANT_HOME=`cygpath -w ${ANT_HOME}`
-    WLS_HOME=`cygpath -w ${WLS_HOME}`
 
     LOCALCLASSPATH="${ANT_HOME}\ant_1_1.jar;${ANT_HOME}\xerces_1_2.jar;${JAVA_HOME}\lib\tools.jar;${CLASSPATH}"
 else
