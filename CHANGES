@@ -10,6 +10,8 @@ Grinder 3.0-beta8
   Tentative fix to bug 690639. (TCPProxy recorded HTTP script refers
   to header array before declaration.)
 
+  Correct JMS examples.
+
 
 Grinder 3.0-beta7
 -----------------

@@ -585,64 +585,63 @@ request1 = test1.wrap(HTTPRequest())
 #  - Creates a queue session
 #  - Sends ten messages
 #  - Closes the queue session
-</span><span class="zmacs-region">
-</span><span class="keyword">from</span><span class="zmacs-region"> net.grinder.script </span><span class="keyword">import</span><span class="zmacs-region"> Test
-</span><span class="keyword">from</span><span class="zmacs-region"> jarray </span><span class="keyword">import</span><span class="zmacs-region"> zeros
-</span><span class="keyword">from</span><span class="zmacs-region"> java.util </span><span class="keyword">import</span><span class="zmacs-region"> Properties, Random
-</span><span class="keyword">from</span><span class="zmacs-region"> javax.jms </span><span class="keyword">import</span><span class="zmacs-region"> Session
-</span><span class="keyword">from</span><span class="zmacs-region"> javax.naming </span><span class="keyword">import</span><span class="zmacs-region"> Context, InitialContext
-</span><span class="keyword">from</span><span class="zmacs-region"> weblogic.jndi </span><span class="keyword">import</span><span class="zmacs-region"> WLInitialContextFactory
+</span>
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+<span class="keyword">from</span> jarray <span class="keyword">import</span> zeros
+<span class="keyword">from</span> java.util <span class="keyword">import</span> Properties, Random
+<span class="keyword">from</span> javax.jms <span class="keyword">import</span> Session
+<span class="keyword">from</span> javax.naming <span class="keyword">import</span> Context, InitialContext
+<span class="keyword">from</span> weblogic.jndi <span class="keyword">import</span> WLInitialContextFactory
 
-log = grinder.logger.output
-
-</span><span class="comment"># Look up connection factory and queue in JNDI. 
-</span><span class="zmacs-region">properties = Properties()
-properties[Context.PROVIDER_URL] = &quot;</span><span class="string">t3://localhost:7001</span><span class="zmacs-region">&quot;
+<span class="comment"># Look up connection factory and queue in JNDI. 
+</span>properties = Properties()
+properties[Context.PROVIDER_URL] = &quot;<span class="string">t3://localhost:7001</span>&quot;
 properties[Context.INITIAL_CONTEXT_FACTORY] = WLInitialContextFactory.name
 
 initialContext = InitialContext(properties)
 
-connectionFactory = initialContext.lookup(&quot;</span><span class="string">weblogic.examples.jms.QueueConnectionFactory</span><span class="zmacs-region">&quot;)
-queue = initialContext.lookup(&quot;</span><span class="string">weblogic.examples.jms.exampleQueue</span><span class="zmacs-region">&quot;)
+connectionFactory = initialContext.lookup(&quot;<span class="string">weblogic.examples.jms.QueueConnectionFactory</span>&quot;)
+queue = initialContext.lookup(&quot;<span class="string">weblogic.examples.jms.exampleQueue</span>&quot;)
 initialContext.close()
 
-</span><span class="comment"># Create a connection.
-</span><span class="zmacs-region">connection = connectionFactory.createQueueConnection()
+<span class="comment"># Create a connection.
+</span>connection = connectionFactory.createQueueConnection()
 connection.start()
 
-</span><span class="comment"># Create a couple of BytesMessages.
-</span><span class="zmacs-region">session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
+<span class="comment"># Create a couple of BytesMessages.
+</span>session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
 
 random = Random()
 
-</span><span class="keyword">def</span><span class="zmacs-region"> </span><span class="function-name">createBytesMessage</span><span class="zmacs-region">(size):
-    bytes = zeros(size, '</span><span class="string">b</span><span class="zmacs-region">')
+<span class="keyword">def</span> <span class="function-name">createBytesMessage</span>(size):
+    bytes = zeros(size, '<span class="string">b</span>')
     random.nextBytes(bytes)
     message = session.createBytesMessage()
     message.writeBytes(bytes)
-    </span><span class="keyword">return</span><span class="zmacs-region"> message
+    <span class="keyword">return</span> message
 
 message = createBytesMessage(100)
 
 session.close()
 
-</span><span class="keyword">class</span><span class="zmacs-region"> </span><span class="type">TestRunner</span><span class="zmacs-region">:
-    </span><span class="keyword">def</span><span class="zmacs-region"> </span><span class="function-name">__call__</span><span class="zmacs-region">(self):
-        log(&quot;</span><span class="string">Creating queue session</span><span class="zmacs-region">&quot;)
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        log = grinder.logger.output
+
+        log(&quot;<span class="string">Creating queue session</span>&quot;)
         session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
 
         sender = session.createSender(queue)
-        instrumentedSender = Test(1, &quot;</span><span class="string">Send a message</span><span class="zmacs-region">&quot;).wrap(sender)
+        instrumentedSender = Test(1, &quot;<span class="string">Send a message</span>&quot;).wrap(sender)
 
-        log(&quot;</span><span class="string">Sending ten messages</span><span class="zmacs-region">&quot;)
+        log(&quot;<span class="string">Sending ten messages</span>&quot;)
 
-        </span><span class="keyword">for</span><span class="zmacs-region"> i </span><span class="keyword">in</span><span class="zmacs-region"> range(0, 10):
+        <span class="keyword">for</span> i <span class="keyword">in</span> range(0, 10):
             instrumentedSender.send(message)
             grinder.sleep(100)
 
-        log(&quot;</span><span class="string">Closing queue session</span><span class="zmacs-region">&quot;)
+        log(&quot;<span class="string">Closing queue session</span>&quot;)
         session.close()
-</span>
 </pre>
 </blockquote>
 
@@ -673,8 +672,6 @@ session.close()
 <span class="keyword">from</span> net.grinder.statistics <span class="keyword">import</span> ExpressionView, StatisticsIndexMap, StatisticsView
 <span class="keyword">from</span> threading <span class="keyword">import</span> Condition
 <span class="keyword">from</span> weblogic.jndi <span class="keyword">import</span> WLInitialContextFactory
-
-log = grinder.logger.output
 
 <span class="comment"># Look up connection factory and queue in JNDI. 
 </span>properties = Properties()
@@ -721,10 +718,13 @@ recordTest = Test(1, &quot;<span class="string">Receive messages</span>&quot;).w
 
 <span class="keyword">class</span> <span class="type">TestRunner</span>(MessageListener):
 
-    receivedMessages = 0    
-    cv = Condition()                    <span class="comment"># Used to synchronise thread activity.
+    <span class="keyword">def</span> <span class="function-name">__init__</span>(self):
+        self.receivedMessages = 0    
+        self.cv = Condition()           <span class="comment"># Used to synchronise thread activity.
 </span>
     <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        log = grinder.logger.output
+
         log(&quot;<span class="string">Creating queue session and a receiver</span>&quot;)
         session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
 
