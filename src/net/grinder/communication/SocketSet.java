@@ -72,7 +72,6 @@ final class SocketSet {
 
     synchronized (m_handleListMutex) {
       m_handles.add(handle);
-      m_handleListMutex.notifyAll();
     }
   }
 
