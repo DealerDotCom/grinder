@@ -1,6 +1,28 @@
 Grinder 3.0-beta16
 ------------------
 
+  Multicast is no longer used for distributing console messages
+  signals.
+
+  Multicast has been a frequent source of newbie problems, and has
+  also made The Grinder unreasonably hard to use with some corporate
+  network configurations. Console messages are now sent over TCP
+  connections to the agent processes, which fan-out the signals to
+  their worker processes. The processing is multi-threaded and
+  asynchronous and I expect it to scale well.
+
+  IMPORTANT: The communication properties have changed. The following
+  properties can be set in grinder.properties:
+
+    grinder.consoleHost	  (previously grinder.consoleAddress)
+    grinder.consolePort
+    grinder.useConsole    (previously grinder.receiveConsoleSignals /
+	                   grinder.reportToConsole)
+
+  The grinder.grinderAddress and grinder.grinderPort properties have
+  been removed. Corresponding changes have been made to the console
+  options dialog.
+
 
 Grinder 3.0-beta15
 ------------------

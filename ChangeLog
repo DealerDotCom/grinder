@@ -1,3 +1,688 @@
+2004-01-02  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta16 is released.
+
+	* xdoc/g3/faq-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/g3/welcome-xhtml.xml, tests-src/net/grinder/communication/TestThreadSafeQueue.java, tests-src/net/grinder/communication/TestUnicastSenderAndReceiver.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, tests-src/net/grinder/engine/agent/EchoClass.java, tests-src/net/grinder/engine/agent/TestChildProcess.java, tests-src/net/grinder/engine/process/StubProcessContext.java, tests-src/net/grinder/engine/process/TestConsoleListener.java, tests-src/net/grinder/util/TestSleeper.java, xdoc/g3/console-xhtml.xml, xdoc/license-xhtml.xml, tests-src/net/grinder/communication/TestMessagePump.java, tests-src/net/grinder/communication/TestMessageQueue.java, tests-src/net/grinder/communication/TestMulticastSenderAndReceiver.java, tests-src/net/grinder/communication/TestQueuedSenderDecorator.java, tests-src/net/grinder/communication/TestResourcePool.java, tests-src/net/grinder/communication/TestServerReceiver.java, tests-src/net/grinder/communication/TestStreamReceiver.java, tests-src/net/grinder/communication/TestStreamSender.java, tests-src/net/grinder/communication/TestStreamSenderAndStreamReceiver.java, tests-src/net/grinder/communication/TestThreadPool.java, tests-src/net/grinder/communication/TestClientSender.java, tests-src/net/grinder/communication/TestClientSenderAndServerReceiver.java, tests-src/net/grinder/communication/TestConnectionType.java, tests-src/net/grinder/communication/TestConnector.java, tests-src/net/grinder/communication/TestFanOutServerSender.java, tests-src/net/grinder/communication/TestFanOutServerSenderAndClientReceiver.java, tests-src/net/grinder/communication/TestFanOutStreamSender.java, tests-src/net/grinder/communication/TestFanOutStreamSenderAndStreamReceiver.java, tests-src/net/grinder/communication/TestKernel.java, tests-src/net/grinder/communication/TestMessage.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/util/CopyStreamRunnable.java, tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/BlockingActionThread.java, tests-src/net/grinder/communication/SimpleMessage.java, tests-src/net/grinder/communication/SocketAcceptorThread.java, tests-src/net/grinder/communication/StubSender.java, tests-src/net/grinder/communication/TestAcceptor.java, tests-src/net/grinder/communication/TestClientReceiver.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/about.html, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/ChildProcess.java, src/net/grinder/engine/agent/LauncherThread.java, src/net/grinder/engine/agent/ProcessReaper.java, src/net/grinder/engine/agent/Redirector.java, src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/communication/UnicastSender.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/ProcessStatusSet.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/ErrorDialogHandler.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/communication/ResourcePool.java, src/net/grinder/communication/Sender.java, src/net/grinder/communication/ServerReceiver.java, src/net/grinder/communication/SocketSet.java, src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/communication/StreamReceiver.java, src/net/grinder/communication/StreamSender.java, src/net/grinder/communication/ThreadPool.java, src/net/grinder/communication/ThreadSafeQueue.java, src/net/grinder/communication/MessageQueue.java, src/net/grinder/communication/MulticastReceiver.java, src/net/grinder/communication/MulticastSender.java, src/net/grinder/communication/QueuedSender.java, src/net/grinder/communication/QueuedSenderDecorator.java, src/net/grinder/communication/Receiver.java, src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/communication/RegisterTestsMessage.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/ReportStatusMessage.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/communication/CloseCommunicationMessage.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/communication/CommunicationException.java, src/net/grinder/communication/ConnectionType.java, src/net/grinder/communication/Connector.java, src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/FanOutStreamSender.java, src/net/grinder/communication/InitialiseGrinderMessage.java, src/net/grinder/communication/Kernel.java, src/net/grinder/communication/Message.java, src/net/grinder/communication/MessagePump.java, build.xml, examples/grinder.properties, src/net/grinder/Console.java, src/net/grinder/Grinder.java, src/net/grinder/common/ProcessStatus.java, src/net/grinder/communication/AbstractFanOutSender.java, src/net/grinder/communication/AbstractReceiver.java, src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/Acceptor.java, src/net/grinder/communication/ClientReceiver.java, src/net/grinder/communication/ClientSender.java, LICENSE, TODO:
+	Merge communication changes.
+
+	* examples/grinder.properties: Update old properties.
+
+	* build.xml: There are no longer any multicast tests to exclude.
+
+	* tests-src/net/grinder/engine/agent/EchoClass.java, tests-src/net/grinder/engine/agent/TestChildProcess.java:
+	New file.
+
+	* tests-src/net/grinder/engine/agent/EchoClass.java, tests-src/net/grinder/engine/agent/TestChildProcess.java:
+	Test ChildProcess.
+
+	* src/net/grinder/engine/agent/ChildProcess.java:
+	Takes redirection streams as parameters.
+	waitFor now also waits for redirection threads to join.
+
+	* src/net/grinder/engine/agent/Agent.java:
+	ChildProcess takes redirection streams as parameters.
+
+2004-01-01  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/engine/process/TestConsoleListener.java:
+	Test shutdown.
+
+	* tests-src/net/grinder/communication/TestMessage.java:
+	Update copyright.
+
+	* tests-src/net/grinder/communication/TestMessage.java:
+	Test InitialiseGrinderMessage.
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	Split out logger ticker from ReportToConsoleTimerTask so that we can
+	more tightly scope the reporting.
+
+	* src/net/grinder/communication/QueuedSenderDecorator.java:
+	Throw a CommunicationException instead of a RunnableException if
+	queue() is called on a shutdown QueuedSender.
+
+	* src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/process/GrinderProcess.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, tests-src/net/grinder/engine/process/StubProcessContext.java, xdoc/g3/console-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties:
+	Global replace of "address" with "host" for precision.
+
+	* src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/communication/InitialiseGrinderMessage.java:
+	Cope with console failure.
+	Cope with no console.
+
+	* src/net/grinder/communication/InitialiseGrinderMessage.java:
+	New file.
+
+	* src/net/grinder/communication/Connector.java: Better error messages.
+
+	* src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/communication/RegisterTestsMessage.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/ReportStatusMessage.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/communication/CloseCommunicationMessage.java:
+	Update copyright.
+
+	* src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/ReportStatusMessage.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/communication/MessagePump.java, src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/communication/RegisterTestsMessage.java:
+	Update serialVersionUID's.
+
+	* src/net/grinder/communication/AbstractFanOutSender.java:
+	We're happy to ignore send problems.
+
+	* src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/engine/process/GrinderProcess.java:
+	Copy with communication shutdown.
+
+	* src/net/grinder/communication/MessagePump.java:
+	Shutdown the pump, sender, receiver on any CommunicationException.
+
+	* src/net/grinder/communication/FanOutServerSender.java:
+	No need to override shutdown.
+
+	* tests-src/net/grinder/util/TestSleeper.java: Tweak timings.
+
+	* src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, tests-src/net/grinder/console/model/TestConsoleProperties.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/resources/Console.properties:
+	Disallow 0 port.
+
+	* src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/communication/Acceptor.java, tests-src/net/grinder/communication/TestAcceptor.java:
+	Asynchonrous exception notification.
+
+	* LICENSE, src/net/grinder/console/swingui/resources/about.html, xdoc/license-xhtml.xml:
+	Happy New Year.
+
+	* src/net/grinder/communication/CommunicationException.java:
+	Support nested Throwables.
+
+	* src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/process/GrinderProcess.java:
+	Redo ignoreInititalSignal code by shoving a start message at the newly
+	started processes.
+
+2003-12-31  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/AbstractFanOutSender.java:
+	Make shutdown synchronous to give well defined unit test behaviour.
+
+	* src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/engine/process/GrinderProcess.java, tests-src/net/grinder/engine/process/TestConsoleListener.java:
+	Remove console listener shutdown functionality as it seems impossible
+	to interrupt the read on stdin.
+
+	* src/net/grinder/engine/agent/ChildProcess.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/util/CopyStreamRunnable.java:
+	Some CopyStreamRunnable's shouldn't close the streams on exit.
+
+	* src/net/grinder/engine/agent/Agent.java: Improved messages.
+
+	* src/net/grinder/engine/agent/Redirector.java:
+	Replace Redirector with CopyStreamRunnable.
+	Replace LauncherThread with passive ChildProcess.
+
+	* src/net/grinder/engine/agent/ChildProcess.java: New file.
+
+	* src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/ChildProcess.java, src/net/grinder/engine/agent/LauncherThread.java, src/net/grinder/engine/agent/ProcessReaper.java:
+	Replace Redirector with CopyStreamRunnable.
+	Replace LauncherThread with passive ChildProcess.
+
+	* src/net/grinder/engine/process/ProcessContext.java:
+	reportToConsole -> useConsole.
+
+	* xdoc/g3/getting-started-xhtml.xml: Update for grinder.useConsole.
+
+	* src/net/grinder/Grinder.java, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/LauncherThread.java:
+	Move agent implementation to agent package.
+
+	* src/net/grinder/engine/agent/Agent.java: New file.
+
+	* src/net/grinder/console/Console.java: Javadoc.
+
+	* TODO: Documentation updates.
+
+	* src/net/grinder/Console.java: Javadoc.
+
+	* src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java:
+	Remove knowledge of specific messages from ConsoleCommunication.
+
+	* src/net/grinder/Grinder.java:
+	Fan out console commands to worker processes.
+
+	* xdoc/g3/faq-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/g3/welcome-xhtml.xml:
+	Documentation updates.
+
+	* src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties:
+	Remove last traces of multicast.
+
+	* src/net/grinder/Console.java: Javadoc.
+
+	* tests-src/net/grinder/communication/TestConnector.java: New file.
+
+	* tests-src/net/grinder/communication/TestConnector.java:
+	Test Connector.
+
+	* tests-src/net/grinder/communication/TestConnectionType.java:
+	New file.
+
+	* tests-src/net/grinder/communication/TestConnectionType.java:
+	Test ConnectionType.
+
+	* tests-src/net/grinder/engine/process/TestConsoleListener.java, src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/engine/process/GrinderProcess.java:
+	Clean shutdown of ConsoleListener.
+
+	* src/net/grinder/communication/Acceptor.java, src/net/grinder/communication/ConnectionType.java, src/net/grinder/communication/Connector.java, tests-src/net/grinder/communication/TestClientSender.java, tests-src/net/grinder/communication/TestFanOutServerSender.java, tests-src/net/grinder/communication/TestServerReceiver.java:
+	ConnectionType now handles its own serialisation.
+
+2003-12-30  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/Acceptor.java: Better error handling.
+
+	* src/net/grinder/communication/MessageQueue.java:
+	Nicer exception message.
+
+	* src/net/grinder/communication/MessagePump.java:
+	Ensure shutdown is clean.
+
+	* src/net/grinder/communication/AbstractFanOutSender.java:
+	Make package scope.
+
+	* src/net/grinder/communication/Acceptor.java, src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/FanOutStreamSender.java, src/net/grinder/communication/ServerReceiver.java, src/net/grinder/console/ConsoleCommunication.java, tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/TestClientSenderAndServerReceiver.java, tests-src/net/grinder/communication/TestFanOutServerSender.java, tests-src/net/grinder/communication/TestFanOutServerSenderAndClientReceiver.java, tests-src/net/grinder/communication/TestServerReceiver.java, src/net/grinder/communication/AbstractFanOutSender.java:
+	ResourcePool shouldn't be part of the public interface.
+
+	* tests-src/net/grinder/communication/TestFanOutServerSenderAndClientReceiver.java, tests-src/net/grinder/communication/TestFanOutStreamSender.java, tests-src/net/grinder/communication/TestFanOutStreamSenderAndStreamReceiver.java, tests-src/net/grinder/communication/TestQueuedSenderDecorator.java, tests-src/net/grinder/communication/TestServerReceiver.java, src/net/grinder/communication/Sender.java, src/net/grinder/communication/ServerReceiver.java, src/net/grinder/communication/StreamSender.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/engine/process/ProcessContext.java, tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/TestAcceptor.java, tests-src/net/grinder/communication/TestClientReceiver.java, tests-src/net/grinder/communication/TestClientSender.java, tests-src/net/grinder/communication/TestClientSenderAndServerReceiver.java, tests-src/net/grinder/communication/TestFanOutServerSender.java, src/net/grinder/communication/Acceptor.java, src/net/grinder/communication/ClientReceiver.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/ConnectionType.java, src/net/grinder/communication/Connector.java, src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/FanOutStreamSender.java, src/net/grinder/communication/MessagePump.java, src/net/grinder/communication/QueuedSenderDecorator.java, src/net/grinder/communication/Receiver.java:
+	Add connection discrimination.
+
+	* src/net/grinder/communication/ConnectionType.java, src/net/grinder/communication/Connector.java:
+	New file.
+
+	* src/net/grinder/communication/AbstractFanOutSender.java, src/net/grinder/communication/AbstractSender.java:
+	Add connection discrimination.
+
+	* src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/ErrorDialogHandler.java, src/net/grinder/console/swingui/ScriptFilesPanel.java:
+	ErrorDialogHandler now assumes that exceptions other than
+	DisplayMessageConsoleExceptions are unexpected.
+
+	* src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, tests-src/net/grinder/console/model/TestConsoleProperties.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/model/ConsoleProperties.java:
+	Remove grinder address and port properties.
+
+	* src/net/grinder/console/ConsoleCommunication.java:
+	Replace MulticastSender with FanOutStreamSender.
+
+	* src/net/grinder/engine/process/ConsoleListener.java, tests-src/net/grinder/engine/process/TestConsoleListener.java:
+	Update ConsoleListener unit tests.
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ConsoleListener.java:
+	Receive commands from stdin.
+
+	* src/net/grinder/communication/ThreadPool.java, tests-src/net/grinder/communication/TestServerReceiver.java, tests-src/net/grinder/communication/TestThreadPool.java:
+	Extract ThreadPool.
+
+	* tests-src/net/grinder/communication/TestThreadPool.java: New file.
+
+	* src/net/grinder/communication/Acceptor.java, src/net/grinder/communication/Kernel.java, src/net/grinder/communication/MessagePump.java, src/net/grinder/communication/ServerReceiver.java:
+	Extract ThreadPool.
+
+	* src/net/grinder/communication/ThreadPool.java: New file.
+
+2003-12-29  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/MessagePump.java, tests-src/net/grinder/communication/TestMessagePump.java:
+	New file.
+
+	* src/net/grinder/communication/CopyMessagesThread.java, src/net/grinder/communication/MessagePump.java, tests-src/net/grinder/communication/TestCopyMessagesThread.java, tests-src/net/grinder/communication/TestMessagePump.java:
+	Rename CopyMessagesThread to MessagePump and allow multiple worker
+	threads.
+
+	* src/net/grinder/communication/FanOutServerSender.java: Formatting.
+
+	* src/net/grinder/communication/Acceptor.java:
+	Threads should be daemons.
+
+2003-12-28  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/communication/TestCopyMessagesThread.java:
+	Thread which copies from a Reciever to a Sender.
+
+	* src/net/grinder/communication/CopyMessagesThread.java, tests-src/net/grinder/communication/TestCopyMessagesThread.java:
+	New file.
+
+	* src/net/grinder/communication/CopyMessagesThread.java:
+	Thread which copies from a Reciever to a Sender.
+
+	* src/net/grinder/communication/CloseCommunicationMessage.java:
+	Make serialVersionUID private.
+
+	* tests-src/net/grinder/communication/TestServerReceiver.java, tests-src/net/grinder/communication/TestStreamReceiver.java, tests-src/net/grinder/communication/TestStreamSender.java, src/net/grinder/engine/process/ProcessContext.java, tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/SimpleMessage.java, tests-src/net/grinder/communication/TestClientReceiver.java, tests-src/net/grinder/communication/TestClientSender.java, tests-src/net/grinder/communication/TestClientSenderAndServerReceiver.java, tests-src/net/grinder/communication/TestFanOutServerSender.java, tests-src/net/grinder/communication/TestFanOutServerSenderAndClientReceiver.java, tests-src/net/grinder/communication/TestFanOutStreamSender.java, tests-src/net/grinder/communication/TestMessage.java, src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/communication/RegisterTestsMessage.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/ReportStatusMessage.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/communication/StreamSender.java, src/net/grinder/console/Console.java, src/net/grinder/console/model/ProcessStatusSet.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/common/ProcessStatus.java, src/net/grinder/communication/AbstractFanOutSender.java, src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/CloseCommunicationMessage.java, src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/Message.java:
+	Make Message a marker interface. It doesn't need to support
+	equality/sender ID.
+
+	* src/net/grinder/communication/Acceptor.java, src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/ServerReceiver.java, tests-src/net/grinder/communication/TestAcceptor.java:
+	Support multiple acceptor threads.
+
+2003-12-24  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/ServerReceiver.java:
+	getAcceptor can be package scope.
+
+	* src/net/grinder/communication/AbstractFanOutSender.java, src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/FanOutStreamSender.java:
+	Abstract out AbstractFanOutSender.
+
+	* src/net/grinder/communication/AbstractFanOutSender.java: New file.
+
+	* src/net/grinder/communication/FanOutStreamSender.java, tests-src/net/grinder/communication/TestFanOutStreamSender.java:
+	Fix FanOutServerSender so that OutputStreams are reserved before use.
+
+	* src/net/grinder/communication/SocketSet.java, tests-src/net/grinder/communication/TestAcceptor.java, tests-src/net/grinder/communication/TestFanOutServerSender.java, tests-src/net/grinder/communication/TestFanOutServerSenderAndClientReceiver.java, tests-src/net/grinder/communication/TestServerReceiver.java, tests-src/net/grinder/communication/TestSocketSet.java, src/net/grinder/communication/Acceptor.java, src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/ServerReceiver.java:
+	Replace SocketSet with ResourcePool.
+
+	* src/net/grinder/communication/ResourcePool.java, tests-src/net/grinder/communication/TestResourcePool.java:
+	Extract a generic resource pool from SocketSet.
+
+	* src/net/grinder/communication/ResourcePool.java, tests-src/net/grinder/communication/TestResourcePool.java:
+	New file.
+
+	* tests-src/net/grinder/communication/TestFanOutServerSenderAndClientReceiver.java, tests-src/net/grinder/communication/TestFanOutStreamSenderAndStreamReceiver.java, tests-src/net/grinder/communication/TestStreamSenderAndStreamReceiver.java, tests-src/net/grinder/communication/TestClientSenderAndServerReceiver.java:
+	Update copyright.
+
+2003-12-23  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/communication/TestFanOutStreamSender.java, tests-src/net/grinder/communication/TestFanOutStreamSenderAndStreamReceiver.java:
+	New file.
+
+	* tests-src/net/grinder/communication/TestFanOutStreamSender.java, tests-src/net/grinder/communication/TestFanOutStreamSenderAndStreamReceiver.java:
+	Test FanOutStreamSender.
+
+	* tests-src/net/grinder/communication/TestClientSender.java, tests-src/net/grinder/communication/TestStreamSenderAndStreamReceiver.java:
+	Remove redundancy.
+
+	* tests-src/net/grinder/communication/TestKernel.java: New file.
+
+	* tests-src/net/grinder/communication/TestKernel.java: Test Kernel.
+
+	* src/net/grinder/communication/Kernel.java:
+	Fix gracefulShutdown to not complete until all the worker threads have
+	finished.
+
+	* src/net/grinder/communication/FanOutStreamSender.java:
+	A fan-out StreamSender.
+
+	* src/net/grinder/communication/FanOutStreamSender.java: New file.
+
+	* src/net/grinder/communication/FanOutServerSender.java:
+	Update for Kernel.gracefulShutdown().
+
+	* src/net/grinder/communication/Kernel.java: Add gracefulShutdown.
+
+	* tests-src/net/grinder/communication/TestThreadSafeQueue.java:
+	Test getSize().
+
+	* tests-src/net/grinder/communication/TestAcceptor.java: Layout.
+
+	* src/net/grinder/communication/ThreadSafeQueue.java:
+	Notify our mutex on a deque.
+	Checkstyle.
+	Javadoc.
+
+	* src/net/grinder/communication/Message.java: Javadoc.
+
+	* src/net/grinder/communication/AbstractSender.java: Checkstyle.
+
+	* src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/SocketSet.java:
+	Javadoc.
+
+	* src/net/grinder/communication/CloseCommunicationMessage.java, src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/communication/ThreadSafeQueue.java:
+	Class can be final.
+
+	* src/net/grinder/communication/FanOutServerSender.java, tests-src/net/grinder/communication/TestFanOutServerSender.java, tests-src/net/grinder/communication/TestFanOutServerSenderAndClientReceiver.java:
+	New file.
+
+	* src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/ServerFanOutSender.java, tests-src/net/grinder/communication/TestFanOutServerSender.java, tests-src/net/grinder/communication/TestFanOutServerSenderAndClientReceiver.java, tests-src/net/grinder/communication/TestServerFanOutSender.java, tests-src/net/grinder/communication/TestServerFanOutSenderAndClientReceiver.java:
+	Rename ServerFanOutSender to FanOutServerSender.
+
+	* tests-src/net/grinder/communication/TestServerFanOutSender.java:
+	Update for thread changes due to separate Kernel class.
+
+	* src/net/grinder/communication/Kernel.java: New file.
+
+	* src/net/grinder/communication/Kernel.java, src/net/grinder/communication/ServerFanOutSender.java:
+	Single method for handling ObjectOutputStream code in AbstractSender.
+	Split out work queue into separate Kernel class.
+
+	* src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/StreamSender.java:
+	Single method for handling ObjectOutputStream code in AbstractSender.
+
+	* src/net/grinder/communication/ServerReceiver.java: Javadoc.
+
+	* tests-src/net/grinder/communication/TestServerSenderAndClientReceiver.java:
+	Rename ServerSender to ServerFanOutSender.
+
+	* src/net/grinder/communication/ServerFanOutSender.java, tests-src/net/grinder/communication/TestServerFanOutSender.java, tests-src/net/grinder/communication/TestServerFanOutSenderAndClientReceiver.java:
+	New file.
+
+	* src/net/grinder/communication/ServerFanOutSender.java, src/net/grinder/communication/ServerSender.java, tests-src/net/grinder/communication/TestServerFanOutSender.java, tests-src/net/grinder/communication/TestServerFanOutSenderAndClientReceiver.java, tests-src/net/grinder/communication/TestServerSender.java:
+	Rename ServerSender to ServerFanOutSender.
+
+	* src/net/grinder/communication/StreamReceiver.java, src/net/grinder/communication/StreamSender.java, tests-src/net/grinder/communication/TestStreamReceiver.java, tests-src/net/grinder/communication/TestStreamSender.java, tests-src/net/grinder/communication/TestStreamSenderAndStreamReceiver.java:
+	New file.
+
+	* src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/StreamReceiver.java, src/net/grinder/communication/StreamSender.java, tests-src/net/grinder/communication/TestClientReceiver.java, tests-src/net/grinder/communication/TestClientSender.java, tests-src/net/grinder/communication/TestClientSenderAndClientReceiver.java, tests-src/net/grinder/communication/TestStreamReceiver.java, tests-src/net/grinder/communication/TestStreamSender.java, tests-src/net/grinder/communication/TestStreamSenderAndStreamReceiver.java, src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/ClientReceiver.java:
+	Split out StreamReceiver from ClientReceiver.
+	Split out StreamSender from ClientSender.
+
+	* src/net/grinder/engine/agent/LauncherThread.java:
+	Provide access to process stdin.
+
+2003-12-22  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/communication/TestMessage.java:
+	Test concrete messages.
+
+	* tests-src/net/grinder/communication/TestServerSenderAndClientReceiver.java:
+	Don't start until our connection has been accepted.
+
+	* tests-src/net/grinder/communication/TestClientSenderAndClientReceiver.java:
+	Use a smaller buffer.
+
+	* src/net/grinder/communication/ServerSender.java: Checkstyle.
+
+	* tests-src/net/grinder/communication/TestServerReceiver.java, tests-src/net/grinder/communication/TestServerSender.java:
+	Use bindTo() now that constructor is private.
+	Use SocketSet.countActiveConnections() to check for accepted
+	connections.
+
+	* src/net/grinder/communication/ServerSender.java: Formatting.
+
+	* tests-src/net/grinder/communication/TestAcceptor.java:
+	Use SocketSet.countActiveConnections() to check for accepted
+	connections.
+
+	* src/net/grinder/communication/ServerReceiver.java, src/net/grinder/communication/ServerSender.java:
+	Make constructor private. Provide access to Acceptor.
+
+	* src/net/grinder/communication/SocketSet.java, tests-src/net/grinder/communication/TestSocketSet.java:
+	Method that returns number of current connections.
+
+	* tests-src/net/grinder/communication/TestServerSenderAndClientReceiver.java, tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/TestClientSenderAndClientReceiver.java, tests-src/net/grinder/communication/TestClientSenderAndServerReceiver.java:
+	Additional Sender/Receiver tests.
+
+	* tests-src/net/grinder/communication/TestClientSenderAndClientReceiver.java, tests-src/net/grinder/communication/TestClientSenderAndServerReceiver.java, tests-src/net/grinder/communication/TestServerSenderAndClientReceiver.java:
+	New file.
+
+	* src/net/grinder/communication/ServerSender.java:
+	Dump problems to stderr until we add asynchronous exception handling.
+
+	* src/net/grinder/communication/ClientReceiver.java:
+	No point in buffering input, leave to ObjectInputStream.
+
+	* tests-src/net/grinder/communication/BlockingActionThread.java:
+	Remove race condition between thread starting in constructor and
+	subclass being fully intialised.
+
+	* tests-src/net/grinder/communication/BlockingActionThread.java:
+	Rely on Thread API for thread state.
+
+	* tests-src/net/grinder/communication/TestServerReceiver.java:
+	Ensure our ServerReceivers are shutdown.
+
+	* tests-src/net/grinder/engine/process/TestConsoleListener.java:
+	Comment out use of MulticastSender.
+
+	* tests-src/net/grinder/communication/TestUnicastSenderAndReceiver.java, tests-src/net/grinder/communication/TestMulticastSenderAndReceiver.java:
+	Dead.
+
+	* tests-src/net/grinder/communication/TestServerReceiver.java:
+	New file.
+
+	* tests-src/net/grinder/communication/TestServerReceiver.java:
+	Test ServerReceiver.
+
+	* tests-src/net/grinder/communication/BlockingActionThread.java:
+	Better fix to synchronisation.
+
+	* src/net/grinder/communication/ThreadSafeQueue.java:
+	Fix handling of InterruptedExceptions.
+
+	* src/net/grinder/communication/ClientReceiver.java, tests-src/net/grinder/communication/TestClientReceiver.java:
+	Make waitForMessage() return null if ClientReceiver has been shut
+	down.
+
+2003-12-21  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/communication/TestQueuedSenderDecorator.java:
+	Kill extra imports.
+
+	* tests-src/net/grinder/communication/TestQueuedSenderDecorator.java:
+	New file.
+
+	* tests-src/net/grinder/communication/TestQueuedSenderDecorator.java:
+	Test QueuedSenderDecorator.
+
+	* src/net/grinder/communication/QueuedSenderDecorator.java: Javadoc.
+
+	* tests-src/net/grinder/communication/BlockingActionThread.java: Fix.
+
+	* tests-src/net/grinder/communication/TestServerSender.java:
+	Block for expected condition rather than yielding and submitting to
+	chance.
+	Ignore occasional StreamCorruptedException's due to race condition
+	in testShutdown.
+
+	* tests-src/net/grinder/communication/TestAcceptor.java:
+	Block for expected condition rather than yielding and submitting to
+	chance.
+
+	* tests-src/net/grinder/communication/TestServerSender.java: New file.
+
+	* tests-src/net/grinder/communication/TestServerSender.java:
+	Test ServerSender.
+
+	* tests-src/net/grinder/communication/TestClientReceiver.java, tests-src/net/grinder/communication/TestSocketSet.java:
+	Make it clear why BlockingActionThread test failed.
+
+	* tests-src/net/grinder/communication/TestAcceptor.java:
+	Yield thread when shutting down to make it more likely that
+	ThreadGroup has been destroyed.
+
+	* tests-src/net/grinder/communication/BlockingActionThread.java:
+	Attempt at better synchronisation.
+
+	* src/net/grinder/communication/ServerSender.java:
+	Set up grinder ID and sender ID.
+
+	* src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/ClientSender.java:
+	Move shutdown flag to AbstractSender.
+
+	* src/net/grinder/communication/Acceptor.java, tests-src/net/grinder/communication/TestAcceptor.java:
+	Add Acceptor.getPort().
+
+	* tests-src/net/grinder/communication/BlockingActionThread.java, tests-src/net/grinder/communication/TestClientReceiver.java, tests-src/net/grinder/communication/TestSocketSet.java:
+	Check BlockingActionThread exception in main thread so we can see the
+	output.
+
+	* tests-src/net/grinder/communication/TestAcceptor.java: Fix comment.
+
+	* tests-src/net/grinder/communication/TestAcceptor.java: New file.
+
+	* tests-src/net/grinder/communication/TestAcceptor.java: Test Acceptor.
+
+	* src/net/grinder/communication/Acceptor.java:
+	ThreadGroup should be a daemon.
+
+	* tests-src/net/grinder/communication/SocketAcceptorThread.java:
+	Use loopback address for efficiency.
+
+	* src/net/grinder/console/ConsoleCommunication.java: Reminder.
+
+	* src/net/grinder/communication/Acceptor.java: Javadoc.
+
+	* src/net/grinder/communication/SocketSet.java:
+	No waiters on m_handleListMutex so no need to notify.
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Change the SSL proxy engine to listen on the loopback address.
+
+2003-12-20  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/communication/TestSocketSet.java: New file.
+
+	* tests-src/net/grinder/communication/TestSocketSet.java:
+	Test SocketSet.
+
+	* tests-src/net/grinder/communication/BlockingActionThread.java:
+	New file.
+
+	* tests-src/net/grinder/communication/BlockingActionThread.java, tests-src/net/grinder/communication/TestClientReceiver.java:
+	Test waitForMessage() blocks.
+
+	* src/net/grinder/communication/SocketSet.java:
+	reserveNextHandle would never have blocked, remove code that claimed
+	to do so.
+
+	* tests-src/net/grinder/communication/SocketAcceptorThread.java:
+	Support multiple accepts.
+
+	* tests-src/net/grinder/communication/StubSender.java: Not used.
+
+	* tests-src/net/grinder/communication/TestMessage.java: Update.
+
+	* tests-src/net/grinder/communication/SocketAcceptorThread.java, tests-src/net/grinder/communication/TestClientReceiver.java:
+	New file.
+
+	* tests-src/net/grinder/communication/SocketAcceptorThread.java, tests-src/net/grinder/communication/TestClientReceiver.java:
+	Test ClientReceiver.
+
+	* tests-src/net/grinder/communication/TestClientSender.java:
+	Don't need two shutdown tests.
+	Check CloseCommunicationMessage is sent.
+
+	* src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/ServerSender.java:
+	ServerSender needs to send CloseCommunicationMessage on shutdown.
+
+2003-12-18  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/communication/TestClientSender.java:
+	Check acceptor thread didn't catch any exceptions.
+
+	* tests-src/net/grinder/communication/TestClientSender.java: New file.
+
+	* tests-src/net/grinder/communication/TestClientSender.java:
+	Test ClientSender.
+
+	* src/net/grinder/communication/ClientSender.java:
+	Throw exceptions on send if we've been closed, even if delegate stream
+	doesn't care.
+
+	* src/net/grinder/communication/ServerSender.java: Comment.
+
+	* src/net/grinder/communication/MessageQueue.java:
+	Fix dequeueing of exceptions.
+
+	* src/net/grinder/communication/ClientSender.java:
+	Get local host from socket.
+
+	* src/net/grinder/communication/AbstractSender.java: Correct Javadoc.
+
+	* tests-src/net/grinder/communication/SimpleMessage.java: New file.
+
+	* tests-src/net/grinder/communication/SimpleMessage.java, tests-src/net/grinder/communication/TestMessageQueue.java:
+	Update.
+
+2003-12-17  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/communication/TestThreadSafeQueue.java:
+	New file.
+
+	* tests-src/net/grinder/communication/TestThreadSafeQueue.java:
+	Test ThreadSafeQueue.
+
+	* src/net/grinder/communication/ThreadSafeQueue.java:
+	ShutdownException constructors can be private.
+
+	* CHANGES, TODO, build.xml, src/net/grinder/tools/tcpproxy/HTTPMethodAbsoluteURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPMethodRelativeURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Merge changes from HEAD.
+
+	* CHANGES, build.xml: Next is beta 16.
+
+	* src/net/grinder/tools/tcpproxy/HTTPMethodAbsoluteURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPMethodRelativeURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Correct class names to match file names.
+
+2003-12-16  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/ServerSender.java: New file.
+
+	* src/net/grinder/communication/ServerSender.java:
+	ServerSender implementation.
+
+	* src/net/grinder/communication/SocketSet.java: reserveAllHandles.
+
+	* src/net/grinder/communication/ServerReceiver.java: Correct comment.
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java:
+	Use QueuedSenderDecorator.
+
+	* src/net/grinder/communication/ClientReceiver.java: Finality.
+
+	* src/net/grinder/communication/ServerReceiver.java:
+	Split out ThreadSafeQueue from MessageQueue.
+
+	* src/net/grinder/communication/Sender.java:
+	Split out QueuedSender from Sender.
+
+	* src/net/grinder/communication/Receiver.java: Correct Javadoc.
+
+	* src/net/grinder/communication/ClientSender.java: Correct Javadoc.
+	No need to flush after a send.
+
+	* src/net/grinder/communication/QueuedSender.java, src/net/grinder/communication/QueuedSenderDecorator.java:
+	New file.
+
+	* src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/QueuedSender.java, src/net/grinder/communication/QueuedSenderDecorator.java:
+	Split out QueuedSenderDecorator from AbstractSender.
+
+	* src/net/grinder/communication/ThreadSafeQueue.java: New file.
+
+	* src/net/grinder/communication/ThreadSafeQueue.java, src/net/grinder/communication/MessageQueue.java:
+	Split out ThreadSafeQueue from MessageQueue.
+
+2003-12-15  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/ClientSender.java:
+	Introduce "routing only" Senders and allow such a ClientSender to be
+	created around an OutputStream.
+
+	* src/net/grinder/communication/Message.java: Add isInitialised().
+
+	* src/net/grinder/communication/ServerReceiver.java: Javadoc.
+
+	* src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/engine/process/ConsoleListener.java:
+	Comment out use of old multicast sender.
+
+	* src/net/grinder/communication/AbstractReceiver.java, src/net/grinder/communication/MulticastReceiver.java, src/net/grinder/communication/MulticastSender.java:
+	Remove multicast implementation.
+
+	* src/net/grinder/communication/ClientReceiver.java: Formatting.
+
+	* src/net/grinder/communication/ServerReceiver.java, src/net/grinder/console/ConsoleCommunication.java:
+	Replace ServerReceiver constructor with factory method.
+
+	* src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/UnicastSender.java, src/net/grinder/engine/process/ProcessContext.java:
+	ClientSender.
+
+	* src/net/grinder/communication/ClientSender.java: New file.
+
+2003-12-14  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/ClientReceiver.java: Client receiver.
+
+	* src/net/grinder/communication/ClientReceiver.java: New file.
+
+	* src/net/grinder/communication/SocketSet.java:
+	Buffer our output stream.
+
+	* src/net/grinder/communication/ServerReceiver.java: Formatting.
+
+	* src/net/grinder/communication/SocketSet.java:
+	Handles now expose socket input and output streams rather than working
+	at our Message level.
+
+	* src/net/grinder/communication/ServerReceiver.java: New file.
+
+	* src/net/grinder/communication/ServerReceiver.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/console/ConsoleCommunication.java, tests-src/net/grinder/communication/TestUnicastSenderAndReceiver.java:
+	Rename UnicastReceiver to ServerReceiver and merge in
+	AbstractReceiver.
+
+	* src/net/grinder/communication/Acceptor.java: New file.
+
+	* src/net/grinder/communication/Acceptor.java, src/net/grinder/communication/SocketSet.java, src/net/grinder/communication/UnicastReceiver.java:
+	Split out Acceptor from UnicastReceiver.
+
 2003-12-13  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta15 is released.
