@@ -35,5 +35,5 @@
 )
 
 (setq indent-tabs-mode nil)
-(setq buffer-file-coding-system 'raw-text-dos)
-(setq buffer-file-coding-system-for-read 'raw-text-dos)
+;(setq buffer-file-coding-system 'raw-text-dos)
+;(setq buffer-file-coding-system-for-read 'raw-text-dos)
