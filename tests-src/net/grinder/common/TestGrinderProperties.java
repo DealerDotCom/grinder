@@ -22,6 +22,9 @@ import junit.framework.TestCase;
 import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -54,49 +57,57 @@ public class TestGrinderProperties extends TestCase
 	m_prefixSet.put(s_prefix + "A string", "Some more text");
 	m_prefixSet.put(s_prefix + "An int", "9");
 
-	m_stringSet.put("A string", "Some text");
-	m_stringSet.put("Another string", "Some text");
+	m_stringSet.put("A_string", "Some text");
+	m_stringSet.put("Another_String", "Some text");
 	m_stringSet.put("", "Some text");
 	m_stringSet.put("-83*(&(*991(*&(*", "\n\r\n");
-	m_stringSet.put("Another empty string test", ""); 
+	m_stringSet.put("Another_empty_string_test", ""); 
 
-	m_intSet.put("An integer", "9");
+	// A couple of properties that are almots in m_grinderSet.
+	m_stringSet.put("grinder", ".no_dot_suffix"); 
+	m_stringSet.put("grinder_", "blah"); 
+
+	m_intSet.put("An_integer", "9");
 	m_intSet.put("Number", "-9");
 
-	m_brokenIntSet.put("Broken int 1", "9x");
-	m_brokenIntSet.put("Broken int 2", "");
-	m_brokenIntSet.put("Broken int 3", "1234567890123456");
-	m_brokenLongSet.put("Broken long 4", "1e-3");
+	m_brokenIntSet.put("Broken_int_1", "9x");
+	m_brokenIntSet.put("Broken_int_2", "");
+	m_brokenIntSet.put("Broken_int_3", "1234567890123456");
+	m_brokenLongSet.put("Broken_long_4", "1e-3");
 
-	m_longSet.put("A long", "1234542222");
-	m_longSet.put("Another long", "-19");
+	m_longSet.put("A_long", "1234542222");
+	m_longSet.put("Another_long", "-19");
 
-	m_brokenLongSet.put("Broken long 1", "0x9");
-	m_brokenLongSet.put("Broken long 2", "");
-	m_brokenLongSet.put("Broken long 3", "123456789012345612321321321321");
-	m_brokenLongSet.put("Broken long 4", "10.4");
+	m_brokenLongSet.put("Broken_long_1", "0x9");
+	m_brokenLongSet.put("Broken_long_2", "");
+	m_brokenLongSet.put("Broken_long_3", "123456789012345612321321321321");
+	m_brokenLongSet.put("Broken_long_4", "10.4");
 
-	m_shortSet.put("A short", "123");
-	m_shortSet.put("Another short", "0");
+	m_shortSet.put("A_short", "123");
+	m_shortSet.put("Another_short", "0");
 
-	m_brokenShortSet.put("Broken short 1", "0x9");
-	m_brokenShortSet.put("Broken short 2", "1.4");
-	m_brokenShortSet.put("Broken short 3", "-0123456");
+	m_brokenShortSet.put("Broken_short_1", "0x9");
+	m_brokenShortSet.put("Broken_short_2", "1.4");
+	m_brokenShortSet.put("Broken_short_3", "-0123456");
 
-	m_doubleSet.put("A double", "1.0");
-	m_doubleSet.put("Another double", "1");
+	m_doubleSet.put("A_double", "1.0");
+	m_doubleSet.put("Another_double", "1");
 
-	m_brokenDoubleSet.put("Broken double 1", "0x9");
-	m_brokenDoubleSet.put("Broken double 2", "1/0");
+	m_brokenDoubleSet.put("Broken_double_1", "0x9");
+	m_brokenDoubleSet.put("Broken_double_2", "1/0");
 
-	m_booleanSet.put("A boolean", "true");
-	m_booleanSet.put("Another boolean", "false");
-	m_booleanSet.put("Yet another boolean", "yes");
-	m_booleanSet.put("One more boolean", "no");
+	m_booleanSet.put("A_boolean", "true");
+	m_booleanSet.put("Another_boolean", "false");
+	m_booleanSet.put("Yet_another_boolean", "yes");
+	m_booleanSet.put("One_more_boolean", "no");
 
-	m_brokenBooleanSet.put("Broken boolean 1", "abc");
-	m_brokenBooleanSet.put("Broken boolean 2", "019321 xx");
-	m_brokenBooleanSet.put("Broken boolean 3", "uhuh");
+	m_brokenBooleanSet.put("Broken_boolean_1", "abc");
+	m_brokenBooleanSet.put("Broken_boolean_2", "019321 xx");
+	m_brokenBooleanSet.put("Broken_boolean_3", "uhuh");
+
+	// All properties that begin with "grinder."
+	m_grinderSet.put("grinder.abc", "xyz");
+	m_grinderSet.put("grinder.blah.blah", "123");
 
 	m_allSet.putAll(m_prefixSet);
 	m_allSet.putAll(m_stringSet);
@@ -110,6 +121,7 @@ public class TestGrinderProperties extends TestCase
 	m_allSet.putAll(m_brokenDoubleSet);
 	m_allSet.putAll(m_booleanSet);
 	m_allSet.putAll(m_brokenBooleanSet);
+	m_allSet.putAll(m_grinderSet);
 
 	m_grinderProperties = new GrinderProperties();
 	m_grinderProperties.putAll(m_allSet);
@@ -135,6 +147,7 @@ public class TestGrinderProperties extends TestCase
     private final Properties m_brokenDoubleSet = new Properties();
     private final Properties m_booleanSet = new Properties();
     private final Properties m_brokenBooleanSet = new Properties();
+    private final Properties m_grinderSet = new Properties();
 
     public void testGetPropertySubset() throws Exception
     {
@@ -559,6 +572,98 @@ public class TestGrinderProperties extends TestCase
 	 ).run();
     }
 
+    public void testDefaultProperties() throws Exception
+    {
+	setSystemProperties();
+
+	try {
+	    // Default constructor doesn't add system properties.
+	    final GrinderProperties properties = new GrinderProperties();
+	    assertEquals(new Properties(), properties);
+	}
+	finally {
+	    restoreSystemProperties();
+	}
+    }
+    
+    public void testPropertiesFileHanding() throws Exception
+    {
+	setSystemProperties();
+	
+	try {
+	    final File file = File.createTempFile("testing", "123");
+	    file.deleteOnExit();
+
+	    final PrintWriter writer =
+		new PrintWriter(new FileWriter(file), true);
+	
+	    (new IterateOverProperties(m_grinderSet) {
+		    void match(String key, String value) throws Exception
+		    {
+			writer.println(key + ":" + "should be overridden");
+		    }
+		}
+	     ).run();
+	
+	    (new IterateOverProperties(m_stringSet) {
+		    void match(String key, String value) throws Exception
+		    {
+			writer.println(key + ":" + "not overridden");
+		    }
+		}
+	     ).run();
+
+	    // Constructor that takes a file adds system properties
+	    // beginning with "grinder.", and nothing else.
+	    final GrinderProperties properties2 = new GrinderProperties(file);
+
+	    assertEquals(m_grinderSet.size() + m_stringSet.size(),
+			 properties2.size());
+	    
+	    (new IterateOverProperties(m_grinderSet) {
+		    void match(String key, String value) throws Exception
+		    {
+			assertEquals(value,
+				     properties2.getMandatoryProperty(key));
+		    }
+		}
+	     ).run();
+
+
+	    (new IterateOverProperties(m_stringSet) {
+		    void match(String key, String value) throws Exception
+		    {
+			assertEquals("not overridden",
+				     properties2.getMandatoryProperty(key));
+		    }
+		}
+	     ).run();
+	}
+	finally {
+	    restoreSystemProperties();
+	}
+    }
+    
+    private void setSystemProperties() throws Exception
+    {
+	(new IterateOverProperties(m_grinderProperties) {
+		void match(String key, String value) throws Exception
+		{
+		    if (key.length() > 0) {
+			System.setProperty(key, value);
+		    }
+		}
+	    }
+	 ).run();
+    }
+
+    private void restoreSystemProperties()
+    {
+	// Do nothing! When run under Ant, System.getProperties()
+	// returns an empty object, so we can't cach/restore the old
+	// properties.
+    }
+    
     private abstract class IterateOverProperties
     {
 	private final Properties m_properties;

@@ -144,20 +144,17 @@ public class TestConsoleProperties extends TestCase
 	m_fileWriter.close();
 
 	final ConsoleProperties properties = new ConsoleProperties(m_file);
-	assertEquals(s1, properties.getMulticastAddress().getHostAddress());
-	assertEquals(s1, properties.getMulticastAddressAsString());
+	assertEquals(s1, properties.getMulticastAddress());
 
 	final String s2 = "239.99.33.11";
 
 	properties.setMulticastAddress(s2);
-	assertEquals(s2, properties.getMulticastAddress().getHostAddress());
-	assertEquals(s2, properties.getMulticastAddressAsString());
+	assertEquals(s2, properties.getMulticastAddress());
 
 	properties.save();
 
 	final ConsoleProperties properties2 = new ConsoleProperties(m_file);
-	assertEquals(s2, properties2.getMulticastAddress().getHostAddress());
-	assertEquals(s2, properties2.getMulticastAddressAsString());
+	assertEquals(s2, properties2.getMulticastAddress());
 
 	final String s3 = "224.46.68.80";
 
@@ -207,6 +204,51 @@ public class TestConsoleProperties extends TestCase
 		properties.setGrinderPort(i);
 	    }
 	}.doTest();
+    }
+
+    public void testCopyConstructor() throws Exception
+    {
+	final ConsoleProperties p1 = new ConsoleProperties(m_file);
+	final ConsoleProperties p2 = new ConsoleProperties(p1);
+
+	assertEquals(p1.getCollectSampleCount(), p2.getCollectSampleCount());
+	assertEquals(p1.getIgnoreSampleCount(), p2.getIgnoreSampleCount());
+	assertEquals(p1.getSampleInterval(), p2.getSampleInterval());
+	assertEquals(p1.getSignificantFigures(), p2.getSignificantFigures());
+	assertEquals(p1.getMulticastAddress(), p2.getMulticastAddress());
+	assertEquals(p1.getConsolePort(), p2.getConsolePort());
+	assertEquals(p1.getGrinderPort(), p2.getGrinderPort());
+    }
+
+    public void testAssignment() throws Exception
+    {
+	final ConsoleProperties p1 = new ConsoleProperties(m_file);
+	final ConsoleProperties p2 = new ConsoleProperties(m_file);
+	p2.setCollectSampleCount(99);
+	p2.setIgnoreSampleCount(99);
+	p2.setSampleInterval(99);
+	p2.setSignificantFigures(99);
+	p2.setMulticastAddress("239.99.99.99");
+	p2.setConsolePort(99);
+	p2.setGrinderPort(99);
+
+	assert(p1.getCollectSampleCount() != p2.getCollectSampleCount());
+	assert(p1.getIgnoreSampleCount() != p2.getIgnoreSampleCount());
+	assert(p1.getSampleInterval() != p2.getSampleInterval());
+	assert(p1.getSignificantFigures() != p2.getSignificantFigures());
+	assert(!p1.getMulticastAddress().equals(p2.getMulticastAddress()));
+	assert(p1.getConsolePort() != p2.getConsolePort());
+	assert(p1.getGrinderPort() != p2.getGrinderPort());
+
+	p2.set(p1);
+
+	assertEquals(p1.getCollectSampleCount(), p2.getCollectSampleCount());
+	assertEquals(p1.getIgnoreSampleCount(), p2.getIgnoreSampleCount());
+	assertEquals(p1.getSampleInterval(), p2.getSampleInterval());
+	assertEquals(p1.getSignificantFigures(), p2.getSignificantFigures());
+	assertEquals(p1.getMulticastAddress(), p2.getMulticastAddress());
+	assertEquals(p1.getConsolePort(), p2.getConsolePort());
+	assertEquals(p1.getGrinderPort(), p2.getGrinderPort());
     }
 
     private abstract class TestIntTemplate
