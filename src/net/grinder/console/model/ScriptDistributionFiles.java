@@ -55,6 +55,10 @@ public final class ScriptDistributionFiles implements Serializable {
 
   private int m_hashCode;
 
+  public ScriptDistributionFiles() {
+    this("", new GrinderProperties());
+  }
+
   ScriptDistributionFiles(String propertyPrefix,
 			  GrinderProperties properties) {
 

@@ -63,6 +63,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import org.syntax.jedit.JEditTextArea;
 import org.syntax.jedit.SyntaxStyle;
 import org.syntax.jedit.TextAreaPainter;
@@ -217,6 +219,9 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     // Create the tabbed test display.
     final JTabbedPane tabbedPane = new JTabbedPane();
 
+    final Border threePixelBorder =
+      BorderFactory.createEmptyBorder(3, 3, 3, 3);
+
     final TestGraphPanel graphPanel =
       new TestGraphPanel(tabbedPane, model, m_resources);
     graphPanel.resetTestsAndStatisticsViews(); // Show logo.
@@ -233,18 +238,24 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 		      graphTabPane,
 		      m_resources.getString("graphTab.tip"));
 
+    final Font resultsTableLabelFont =
+      new JLabel().getFont().deriveFont(Font.PLAIN | Font.ITALIC);
+
     final CumulativeStatisticsTableModel cumulativeModel =
       new CumulativeStatisticsTableModel(model, m_resources, true);
 
     final JScrollPane cumulativeTablePane =
       new JScrollPane(new Table(cumulativeModel));
 
-    cumulativeTablePane.setBorder(BorderFactory.createEmptyBorder());
+    final TitledBorder cumulativeTableTitledBorder =
+      BorderFactory.createTitledBorder(
+	threePixelBorder, m_resources.getString("cumulativeTable.label"));
 
-    tabbedPane.addTab(m_resources.getString("cumulativeTableTab.title"),
-		      m_resources.getImageIcon("cumulativeTableTab.image"),
-		      cumulativeTablePane,
-		      m_resources.getString("cumulativeTableTab.tip"));
+    cumulativeTableTitledBorder.setTitleFont(resultsTableLabelFont);
+    cumulativeTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
+
+    cumulativeTablePane.setBorder(cumulativeTableTitledBorder);
+    cumulativeTablePane.setMinimumSize(new Dimension(100, 60));
 
     final SampleStatisticsTableModel sampleModel =
       new SampleStatisticsTableModel(model, m_resources);
@@ -252,12 +263,29 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     final JScrollPane sampleTablePane =
       new JScrollPane(new Table(sampleModel));
 
-    sampleTablePane.setBorder(BorderFactory.createEmptyBorder());
+    final TitledBorder sampleTableTitledBorder =
+      BorderFactory.createTitledBorder(
+	threePixelBorder, m_resources.getString("sampleTable.label"));
 
-    tabbedPane.addTab(m_resources.getString("sampleTableTab.title"),
-		      m_resources.getImageIcon("sampleTableTab.image"),
-		      sampleTablePane,
-		      m_resources.getString("sampleTableTab.tip"));
+    sampleTableTitledBorder.setTitleFont(resultsTableLabelFont);
+    sampleTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
+
+    sampleTablePane.setBorder(sampleTableTitledBorder);
+    sampleTablePane.setMinimumSize(new Dimension(100, 60));
+
+    final JSplitPane resultsPane =
+      new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+		     cumulativeTablePane,
+		     sampleTablePane);
+
+    resultsPane.setOneTouchExpandable(true);
+    resultsPane.setResizeWeight(1d);
+    resultsPane.setBorder(BorderFactory.createEmptyBorder());
+
+    tabbedPane.addTab(m_resources.getString("resultsTab.title"),
+		      m_resources.getImageIcon("resultsTab.image"),
+		      resultsPane,
+		      m_resources.getString("resultsTab.tip"));
 
     final ProcessStatusTableModel processStatusModel =
       new ProcessStatusTableModel(model, m_resources);
@@ -265,7 +293,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     final JScrollPane processStatusPane =
       new JScrollPane(new Table(processStatusModel));
 
-    processStatusPane.setBorder(BorderFactory.createEmptyBorder());
+    processStatusPane.setBorder(threePixelBorder);
 
     tabbedPane.addTab(m_resources.getString("processStatusTableTab.title"),
 		      m_resources.getImageIcon(
@@ -294,17 +322,17 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     // Initial focus?
 
     final ScriptFilesPanel scriptFilesPanel =
-      new ScriptFilesPanel(m_resources);
+      new ScriptFilesPanel(m_frame, m_resources);
 
-    scriptFilesPanel.set(m_model.getProperties().getScriptDistributionFiles());
-    
+    scriptFilesPanel.refresh();
 
     final JSplitPane scriptPane =
       new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 		     scriptFilesPanel,
 		     scriptTextArea);
 
-    scriptPane.setOneTouchExpandable(true); 
+    scriptPane.setOneTouchExpandable(true);
+    scriptPane.setBorder(BorderFactory.createEmptyBorder());
 
     tabbedPane.addTab(m_resources.getString("scriptTab.title"),
 		      m_resources.getImageIcon("scriptTab.image"),
@@ -359,11 +387,13 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     // Arbitary sizing that looks good for Phil.
     m_frame.setSize(new Dimension(900, 600));
 
-    final Dimension screenSize =
-      Toolkit.getDefaultToolkit().getScreenSize();
+    final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
     m_frame.setLocation(screenSize.width/2 - m_frame.getSize().width/2,
 			screenSize.height/2 - m_frame.getSize().height/2);
+
+    resultsPane.setDividerLocation(resultsPane.getMaximumDividerLocation());
+
     m_frame.show();
   }
 
@@ -537,7 +567,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
   private final class SaveAction extends CustomAction {
 
-    private final JFileChooser m_fileChooser = new JFileChooser(new File("."));
+    private final JFileChooser m_fileChooser = new JFileChooser(".");
 
     SaveAction() {
       super(m_resources, "save", true);

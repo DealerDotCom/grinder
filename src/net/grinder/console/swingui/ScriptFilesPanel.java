@@ -23,27 +23,36 @@ package net.grinder.console.swingui;
 
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import net.grinder.console.model.ScriptDistributionFiles;
 
 
 /**
+ * Panel containing controls for choosing script file set.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-class ScriptFilesPanel extends JPanel {
+final class ScriptFilesPanel extends JPanel {
+
+  private final Resources m_resources;
+  private final JFileChooser m_fileChooser = new JFileChooser(".");
 
   private final JLabel m_rootDirectoryLabel = new JLabel();
 
-  private final Resources m_resources;
-  private ScriptDistributionFiles m_scriptDistributionFiles = null;
+  private ScriptDistributionFiles m_scriptDistributionFiles =
+    new ScriptDistributionFiles();
 
-  public ScriptFilesPanel(Resources resources) {
+  public ScriptFilesPanel(final JFrame frame, final Resources resources) {
     m_resources = resources;
 
     final JButton chooseDirectoryButton = new CustomJButton();
@@ -52,9 +61,45 @@ class ScriptFilesPanel extends JPanel {
     chooseDirectoryButton.setBorder(
       BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
+    m_scriptDistributionFiles.setRootDirectory(
+      new File("").getAbsoluteFile());
+
+    m_fileChooser.setDialogTitle(
+      resources.getString("script.chooseDirectory.tip"));
+    m_fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
     chooseDirectoryButton.setAction(
       new CustomAction(resources, "script.chooseDirectory") {
-	public final void actionPerformed(ActionEvent e) {
+	public final void actionPerformed(ActionEvent event) {
+	  try {
+	    if (m_fileChooser.showOpenDialog(frame) == 
+		JFileChooser.APPROVE_OPTION) {
+
+	      final File file = m_fileChooser.getSelectedFile();
+
+	      if (!file.exists()) {
+		if (JOptionPane.showConfirmDialog(
+		      frame,
+		      resources.getString("createDirectory.text"),
+		      file.toString(), JOptionPane.YES_NO_OPTION) ==
+		    JOptionPane.NO_OPTION) {
+		  return;
+		}
+
+		file.mkdir();
+	      }
+
+	      m_scriptDistributionFiles.setRootDirectory(file);
+
+	      refresh();
+	    }
+	  }
+	  catch (Exception e) {
+	    JOptionPane.showMessageDialog(
+	      frame, e.getMessage(),
+	      resources.getString("unexpectedError.title"),
+	      JOptionPane.ERROR_MESSAGE);
+	  }
 	}
       }
       );
@@ -72,20 +117,27 @@ class ScriptFilesPanel extends JPanel {
     setLayout(new GridLayout(0, 1));
 
     add(rootDirectoryPanel);
+
+    refresh();
   }
 
-  public void set(ScriptDistributionFiles scriptDistributionFiles) {
+  public final void refresh() {
+    final File rootDirectory = m_scriptDistributionFiles.getRootDirectory();
     
-    m_scriptDistributionFiles = null;
-
-    m_rootDirectoryLabel.setText(
-      scriptDistributionFiles.getRootDirectory().getPath());
-
-    m_scriptDistributionFiles = scriptDistributionFiles;
+    m_rootDirectoryLabel.setText(limitLength(rootDirectory.getPath()));
+    m_fileChooser.setSelectedFile(rootDirectory);
   }
 
-  public void refresh() {
-    set(m_scriptDistributionFiles);
+  private final String limitLength(String s) {
+
+    final String ellipses = "...";
+    final int maximumLength = 25 - ellipses.length();
+    
+    if (s.length() > maximumLength) {
+      return ellipses + s.substring(s.length() - maximumLength);
+    }
+
+    return s;
   }
 }
 
