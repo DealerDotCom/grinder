@@ -62,7 +62,7 @@ public class HTTPRequest
 	}
     }
 
-    private URI m_uri;
+    private URI m_defaultURL;
     private NVPair[] m_defaultHeaders = new NVPair[0];
     private byte[] m_defaultData;
     private NVPair[] m_defaultFormData;
@@ -72,24 +72,23 @@ public class HTTPRequest
     }
 
     /**
-     * Gets the value of m_uri.
+     * Gets the value of m_defaultURL.
      *
-     * @return the value of m_uri.
+     * @return the value of m_defaultURL.
      */
-    public final URI getUri() throws PluginException
+    public final String getUrl() throws PluginException
     {
-	if (m_uri == null) {
-	    throw new PluginException(
-		"Call setURI() before using an HTTPRequest");
-	}
-	
-	return m_uri;
+	return m_defaultURL.toString();
     }
 
     public final void setUrl(String url) throws PluginException
     {
+	if (!isAbsolute(url)) {
+	    throw new PluginException("URL must be absolute");
+	}
+
 	try {
-	    m_uri = new URI(url);
+	    m_defaultURL = new URI(url);
 	}
 	catch (ParseException e) {
 	    throw new PluginException("Bad URI", e);
@@ -158,223 +157,196 @@ public class HTTPRequest
 
     public final HTTPResponse DELETE() throws Exception
     {
-	return DELETE(getUri().getPath(), getHeaders());
+	return DELETE(null, getHeaders());
     }
 
-    public final HTTPResponse DELETE(String path) throws Exception
+    public final HTTPResponse DELETE(String uri) throws Exception
     {
-	return DELETE(path, getHeaders());
+	return DELETE(uri, getHeaders());
     }
 
-    public final HTTPResponse DELETE(final String path,
-				     final NVPair[] headers) throws Exception
+    public final HTTPResponse DELETE(final String uri, final NVPair[] headers)
+	throws Exception
     {
-	final RequestState requestState = new RequestState(path);
+	final RequestState requestState = new RequestState(uri);
 
 	return requestState.processResponse(
-	    requestState.getConnection().Delete(path, headers));
+	    requestState.getConnection().Delete(
+		requestState.getPath(), headers));
     }
 
     public final HTTPResponse GET() throws Exception
     {
-	return GET(getUri().getPath(), getUri().getQueryString(),
-		   getHeaders());
+	return GET(null, getHeaders());
     }
 
-    public final HTTPResponse GET(String path) throws Exception
+    public final HTTPResponse GET(String uri) throws Exception
     {
-	// Path is specified, so don't use default query string.
-	return GET(path, null, getHeaders());
+	return GET(uri, getHeaders());
     }
 
-    public final HTTPResponse GET(String path, String queryString)
+    public final HTTPResponse GET(final String uri, final NVPair[] headers)
 	throws Exception
     {
-	return GET(path, queryString, getHeaders());
-    }
-
-    public final HTTPResponse GET(String path, NVPair[] headers)
-	throws Exception
-    {
-	// Path is specified, so don't use default query string.
-	return GET(path, null, headers);
-    }
-
-    public final HTTPResponse GET(final String path,
-				  final String queryString,
-				  final NVPair[] headers)
-	throws Exception
-    {
-	final RequestState requestState = new RequestState(path);
+	final RequestState requestState = new RequestState(uri);
 
 	return requestState.processResponse(
-	    requestState.getConnection().Get(path, queryString, headers));
+	    requestState.getConnection().Get(
+		requestState.getPath(), (String)null, headers));
     }
 
     public final HTTPResponse HEAD() throws Exception
     {
-	return HEAD(getUri().getPath(), getUri().getQueryString(),
-		    getHeaders());
+	return HEAD(null, getHeaders());
     }
 
-    public final HTTPResponse HEAD(String path) throws Exception
+    public final HTTPResponse HEAD(String uri) throws Exception
     {
-	// Path is specified, so don't use default query string.
-	return HEAD(path, null, getHeaders());
+	return HEAD(uri, getHeaders());
     }
 
-    public final HTTPResponse HEAD(String path, String queryString)
+    public final HTTPResponse HEAD(final String uri, final NVPair[] headers)
 	throws Exception
     {
-	return HEAD(path, queryString, getHeaders());
-    }
-
-    public final HTTPResponse HEAD(String path, NVPair[] headers)
-	throws Exception
-    {
-	// Path is specified, so don't use default query string.
-	return HEAD(path, null, headers);
-    }
-
-    public final HTTPResponse HEAD(final String path,
-				   final String queryString,
-				   final NVPair[] headers) throws Exception
-    {
-	final RequestState requestState = new RequestState(path);
+	final RequestState requestState = new RequestState(uri);
 
 	return requestState.processResponse(
-	    requestState.getConnection().Head(path, queryString, headers));
+	    requestState.getConnection().Head(
+		requestState.getPath(), (String)null, headers));
     }
 
     public final HTTPResponse OPTIONS() throws Exception
     {
-	return OPTIONS(getUri().getPath(), getHeaders(), getData());
+	return OPTIONS(null, getHeaders(), getData());
     }
 
-    public final HTTPResponse OPTIONS(String path) throws Exception
+    public final HTTPResponse OPTIONS(String uri) throws Exception
     {
-	return OPTIONS(path, getHeaders(), getData());
+	return OPTIONS(uri, getHeaders(), getData());
     }
 
-    public final HTTPResponse OPTIONS(final String path,
-				      final NVPair[] headers) throws Exception
+    public final HTTPResponse OPTIONS(final String uri, final NVPair[] headers)
+	throws Exception
     {
-	return OPTIONS(path, headers, getData());
+	return OPTIONS(uri, headers, getData());
     }
 
-    public final HTTPResponse OPTIONS(final String path,
-				      final byte[] data) throws Exception
+    public final HTTPResponse OPTIONS(final String uri, final byte[] data)
+	throws Exception
     {
-	return OPTIONS(path, getHeaders(), data);
+	return OPTIONS(uri, getHeaders(), data);
     }
 
-    public final HTTPResponse OPTIONS(final String path,
+    public final HTTPResponse OPTIONS(final String uri,
 				      final NVPair[] headers,
 				      final byte[] data) throws Exception
     {
-	final RequestState requestState = new RequestState(path);
+	final RequestState requestState = new RequestState(uri);
 
 	return requestState.processResponse(
-	    requestState.getConnection().Options(path, headers, data));
+	    requestState.getConnection().Options(
+		requestState.getPath(), headers, data));
     }
 
     public final HTTPResponse POST() throws Exception
     {
-	return POST(getUri().getPath());
+	return POST(null);
     }
 
-    public final HTTPResponse POST(String path) throws Exception
+    public final HTTPResponse POST(String uri) throws Exception
     {
 	final byte[] data = getData();
 
 	if (data != null) {
-	    return POST(path, data, getHeaders());
+	    return POST(uri, data, getHeaders());
 	}
 	else {
-	    return POST(path, getFormData(), getHeaders());
+	    return POST(uri, getFormData(), getHeaders());
 	}
     }
 
-    public final HTTPResponse POST(String path, NVPair[] formData)
+    public final HTTPResponse POST(String uri, NVPair[] formData)
 	throws Exception
     {
-	return POST(path, formData, getHeaders());
+	return POST(uri, formData, getHeaders());
     }
 
-    public final HTTPResponse POST(final String path,
+    public final HTTPResponse POST(final String uri,
 				   final NVPair[] formData,
 				   final NVPair[] headers) throws Exception
     {
-	final RequestState requestState = new RequestState(path);
+	final RequestState requestState = new RequestState(uri);
 
 	return requestState.processResponse(
-	    requestState.getConnection().Post(path, formData, headers));
+	    requestState.getConnection().Post(
+		requestState.getPath(), formData, headers));
     }
 
-    public final HTTPResponse POST(String path,
-				   byte[] data) throws Exception
+    public final HTTPResponse POST(String uri, byte[] data) throws Exception
     {
-	return POST(path, data, getHeaders());
+	return POST(uri, data, getHeaders());
     }
 
-    public final HTTPResponse POST(final String path,
+    public final HTTPResponse POST(final String uri,
 				   final byte[] data,
 				   final NVPair[] headers) throws Exception
     {
-	final RequestState requestState = new RequestState(path);
+	final RequestState requestState = new RequestState(uri);
 
 	return requestState.processResponse(
-	    requestState.getConnection().Post(path, data, headers));
+	    requestState.getConnection().Post(uri, data, headers));
     }
 
     public final HTTPResponse PUT() throws Exception
     {
-	return PUT(getUri().getPath(), getData(), getHeaders());
+	return PUT(null, getData(), getHeaders());
     }
 
-    public final HTTPResponse PUT(String path) throws Exception
+    public final HTTPResponse PUT(String uri) throws Exception
     {
-	return PUT(path, getData(), getHeaders());
+	return PUT(uri, getData(), getHeaders());
     }
 
-    public final HTTPResponse PUT(String path, byte[] data) throws Exception
+    public final HTTPResponse PUT(String uri, byte[] data) throws Exception
     {
-	return PUT(path, data, getHeaders());
+	return PUT(uri, data, getHeaders());
     }
 
-    public final HTTPResponse PUT(String path, NVPair[] headers)
+    public final HTTPResponse PUT(String uri, NVPair[] headers) 
 	throws Exception
     {
-	return PUT(path, getData(), headers);
+	return PUT(uri, getData(), headers);
     }
 
-    public final HTTPResponse PUT(final String path,
+    public final HTTPResponse PUT(final String uri,
 				  final byte[] data,
 				  final NVPair[] headers) throws Exception
     {
-	final RequestState requestState = new RequestState(path);
+	final RequestState requestState = new RequestState(uri);
 
 	return requestState.processResponse(
-	    requestState.getConnection().Put(path, data, headers));
+	    requestState.getConnection().Put(
+		requestState.getPath(), data, headers));
     }
 
     public final HTTPResponse TRACE() throws Exception
     {
-	return TRACE(getUri().getPath(), getHeaders());
+	return TRACE(null, getHeaders());
     }
 
-    public final HTTPResponse TRACE(String path) throws Exception
+    public final HTTPResponse TRACE(String uri) throws Exception
     {
-	return TRACE(path, getHeaders());
+	return TRACE(uri, getHeaders());
     }
 
-    public final HTTPResponse TRACE(final String path, final NVPair[] headers)
+    public final HTTPResponse TRACE(final String uri, final NVPair[] headers)
 	throws Exception
     {
-	final RequestState requestState = new RequestState(path);
+	final RequestState requestState = new RequestState(uri);
 
 	return requestState.processResponse(
-	    requestState.getConnection().Trace(path, headers));
+	    requestState.getConnection().Trace(
+		requestState.getPath(), headers));
     }
 
     private final class RequestState
@@ -383,25 +355,35 @@ public class HTTPRequest
 	private final HTTPConnectionWrapper m_connectionWrapper;
 	private final String m_path;
 
-	public RequestState(String path)
+	public RequestState(String uri)
 	    throws GrinderException, ParseException, ProtocolNotSuppException
 	{
 	    m_threadState =
 		(HTTPPluginThreadState)
 		s_processContext.getPluginThreadListener();
 
-	    if (isAbsolute(path)) {
-		m_connectionWrapper =
-		    m_threadState.getConnectionWrapper(new URI(path));
+	    final URI url;
+	    
+	    if (uri == null) {
+		if (m_defaultURL == null) {
+		    throw new PluginException("URL not specified");
+		}
 
-		m_path = m_uri.getPathAndQuery();
+		url = m_defaultURL;
+	    }
+	    else if (isAbsolute(uri)) {
+		url = new URI(uri);
 	    }
 	    else {
-		m_connectionWrapper =
-		    m_threadState.getConnectionWrapper(m_uri);
+		if (m_defaultURL == null) {
+		    throw new PluginException("URL must be absolute");
+		}
 
-		m_path = path;
+		url = new URI(m_defaultURL, uri);
 	    }
+
+	    m_connectionWrapper = m_threadState.getConnectionWrapper(url);
+	    m_path = url.getPathAndQuery(); // And for fragment, paramaters?
 	}
 
 	public final HTTPConnection getConnection()
