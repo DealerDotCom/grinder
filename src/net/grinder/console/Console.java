@@ -43,6 +43,9 @@ public class Console implements ActionListener
     private int _interval = 500;     
                  
     public static void main(String args[]) throws Exception {
+	System.err.println("net.grinder.console.Console is deprecated");
+	System.err.println("Use net.grinder.Console instead.");
+
         Console c = new Console();
         c.run();
     }
