@@ -160,6 +160,11 @@ public class JUnitPlugin implements GrinderPlugin
 	{
 	    return m_testCase;
 	}
+
+	public int compareTo(Object o) 
+	{
+	    return m_testNumber.compareTo(((TestWrapper)o).m_testNumber);
+	}
     }
 }
 

@@ -171,5 +171,10 @@ public class PropertiesHelper
 	{
 	    return m_parameters;
 	}
+
+	public int compareTo(Object o) 
+	{
+	    return m_testNumber.compareTo(((PropertiesTest)o).m_testNumber);
+	}
     }
 }

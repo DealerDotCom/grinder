@@ -25,10 +25,10 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface Test
+public interface Test extends Comparable
 {
-    /** Test number is returned as an Integer so that plugins can use
-     * it as a Map key. */
+    /** Test number is returned as an Integer so it can be used it as
+     * a Map key. */
     public Integer getTestNumber();
     public String getDescription();
     public GrinderProperties getParameters();
