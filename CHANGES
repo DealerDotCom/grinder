@@ -7,6 +7,9 @@ Grinder 3.0-beta8
   The TCPProxy now copes with query strings and form data that are not
   name value pairs. Thanks to Ryan Balsam for the report.
 
+  Tentative fix to bug 690639. (TCPProxy recorded HTTP script refers
+  to header array before declaration.)
+
 
 Grinder 3.0-beta7
 -----------------

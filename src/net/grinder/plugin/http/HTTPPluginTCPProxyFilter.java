@@ -580,6 +580,10 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       final String requestVariable = "request" + requestNumber;
       final String headerAssignment;
 
+      // Assigned below to any new headers, if any.
+      String newHeaderString = null;
+      String newHeaderVariable = null;
+
       if (m_headers.size() > 0) {
 	final StringBuffer headerStringBuffer = new StringBuffer();
 
@@ -613,7 +617,13 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 	  testOutput.append(headerString);
 	  testOutput.append(")");
 
-	  m_previousHeaders.put(headerString, headerVariable);
+	  // We have new headers, but don't add them to
+	  // m_previousHeaders until we've flushed the header array to
+	  // the script. Otherwise there's a race condition where
+	  // another Handler can refer to the header array before its
+	  // declared.
+	  newHeaderString = headerString;
+	  newHeaderVariable = headerVariable;
 	}
 
 	headerAssignment = "headers = " + headerVariable;
@@ -739,6 +749,12 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
       m_testFileWriter.print(testOutput.toString());
       m_testFileWriter.flush();
+
+      if (newHeaderString != null) {
+	// We created a new header array, stash for use by other
+	// Handlers.
+	m_previousHeaders.put(newHeaderString, newHeaderVariable);
+      }
 
       m_method = null;
     }
