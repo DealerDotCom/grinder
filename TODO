@@ -26,6 +26,8 @@ a request with the authentication headers.
 
 Should be able to copy and paste from results tables.
 
+L&F options. Consider adding support for Skinit.
+
 *** Script editing
 
 Add file tree control, rooted at root directory.
@@ -40,7 +42,24 @@ which pass to workers. Requires comms enhancement, see below.
 **** Plans
 
 Replace jEdit-syntax with new jEdit syntax package when available, if
-its license terms are acceptable.
+its license terms are acceptable. Apparently now available.
+
+    Clause 2b:
+
+    b) You must cause any work that you distribute or publish, that in
+    whole or in part contains or is derived from the Program or any
+    part thereof, to be licensed as a whole at no charge to all third
+    parties under the terms of this License.
+
+
+    10. If you wish to incorporate parts of the Program into other
+    free programs whose distribution conditions are different, write
+    to the author to ask for permission. For software which is
+    copyrighted by the Free Software Foundation, write to the Free
+    Software Foundation; we sometimes make exceptions for this. Our
+    decision will be guided by the two goals of preserving the free
+    status of all derivatives of our free software and of promoting
+    the sharing and reuse of software generally.
 
 Allow file sets to be saved and loaded.
 
