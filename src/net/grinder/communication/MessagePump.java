@@ -23,53 +23,45 @@ package net.grinder.communication;
 
 
 /**
- * Thread that copies messages from a {@link Receiver} to a {@link
- * Sender}.
+ * Active object that copies messages from a {@link Receiver} to a
+ * {@link Sender}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class CopyMessagesThread extends Thread {
+public final class MessagePump {
 
+  private final ThreadGroup m_threadGroup = new ThreadGroup("Message pump");
+  private final MessagePumpThread[] m_threads;
   private final Receiver m_receiver;
   private final Sender m_sender;
   private boolean m_shutdown = false;
 
   /**
-   * Constructor.
-   *
-   * @param receiver Receiver to read messages from.
-   * @param sender Sender to send messages to.
-   */
-  public CopyMessagesThread(Receiver receiver, Sender sender) {
-    super("CopyMessagesThread");
+     * Constructor.
+     *
+     * @param receiver Receiver to read messages from.
+     * @param sender Sender to send messages to.
+     * @param numberOfThreads Number of worker threads to use. Order
+     * is not guaranteed if more than one thread is used.
+     */
+  public MessagePump(Receiver receiver, Sender sender, int numberOfThreads) {
 
     m_receiver = receiver;
     m_sender = sender;
 
-    setDaemon(true);
-    start();
-  }
+    m_threadGroup.setDaemon(true);
 
-  /**
-   * Main loop.
-   */
-  public void run() {
-    while (!m_shutdown) {
-      try {
-        final Message message = m_receiver.waitForMessage();
-        m_sender.send(message);
-      }
-      catch (CommunicationException e) {
-        if (!m_shutdown) {
-          e.printStackTrace();
-        }
-      }
+    m_threads = new MessagePumpThread[numberOfThreads];
+
+    for (int i = 0; i < m_threads.length; ++i) {
+      m_threads[i] = new MessagePumpThread(i);
+      m_threads[i].start();
     }
   }
 
   /**
-   * Shutdown the thread.
+   * Shut down the MessagePump.
    *
    * @throws InterruptedException If the calling thread is interrupted
    * whilst waiting for this thread to shut down.
@@ -92,8 +84,32 @@ public final class CopyMessagesThread extends Thread {
       // Ignore.
     }
 
-    interrupt();
+    m_threadGroup.interrupt();
 
-    join();
+    for (int i = 0; i < m_threads.length; ++i) {
+      m_threads[i].join();
+    }
+  }
+
+  private class MessagePumpThread extends Thread {
+
+    public MessagePumpThread(int i) {
+      super(m_threadGroup, "Message pump thread " + i);
+      setDaemon(true);
+    }
+
+    public void run() {
+      while (!m_shutdown) {
+        try {
+          final Message message = m_receiver.waitForMessage();
+          m_sender.send(message);
+        }
+        catch (CommunicationException e) {
+          if (!m_shutdown) {
+            e.printStackTrace();
+          }
+        }
+      }
+    }
   }
 }

@@ -28,18 +28,18 @@ import java.io.PipedOutputStream;
 
 
 /**
- *  Unit tests for <code>CopyMessagesThread</code>.
+ *  Unit tests for <code>MessagePump</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestCopyMessagesThread extends AbstractSenderAndReceiverTests {
+public class TestMessagePump extends AbstractSenderAndReceiverTests {
 
-  public TestCopyMessagesThread(String name) throws Exception {
+  public TestMessagePump(String name) throws Exception {
     super(name);
   }
 
-  private CopyMessagesThread m_copyMessagesThread;
+  private MessagePump m_messagePump;
 
   /**
    * Sigh, JUnit treats setUp and tearDown as non-virtual methods -
@@ -62,14 +62,14 @@ public class TestCopyMessagesThread extends AbstractSenderAndReceiverTests {
     final Receiver intermediateReceiver = new StreamReceiver(inputStream2);
     m_sender = new StreamSender(outputStream2);
 
-    m_copyMessagesThread =
-      new CopyMessagesThread(intermediateReceiver, intermediateSender);
+    m_messagePump =
+      new MessagePump(intermediateReceiver, intermediateSender, 1);
   }
 
   protected void tearDown() throws Exception {
     super.tearDown();
 
-    m_copyMessagesThread.shutdown();
+    m_messagePump.shutdown();
 
     m_receiver.shutdown();
     m_sender.shutdown();
