@@ -557,8 +557,8 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
       <answer>
 	<p>The Python standard library contains a number of very
 	useful modules. For example the regular expression module
-	<code>re</code> and the threading module
-	<code>threading</code>. To use these modules you must <a
+	<code>re</code>, the <code>threading</code> module, and the
+	<code>random</code> module. To use these modules you must <a
 	href="site:g3/scripts/jython-installation">install
 	Jython</a>.</p>
       </answer>
