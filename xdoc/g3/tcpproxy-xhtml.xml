@@ -88,7 +88,7 @@ HTTP interactions.</p>
 
 <p>You should set your browser connection settings to specify the
 TCPProxy as the HTTP proxy (set <em>host</em> to be the host on which
-the TCPProxy is running and <em>port></em> to be <code>8001</code>).
+the TCPProxy is running and <em>port</em> to be <code>8001</code>).
 You then use your browser as normal, e.g. in the example in the
 previous section you should use the direct address
 <code>http://localhost:7001</code> in your browser.</p>
