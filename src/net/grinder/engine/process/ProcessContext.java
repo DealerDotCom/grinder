@@ -28,7 +28,7 @@ import net.grinder.common.Logger;
 import net.grinder.common.Test;
 import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.communication.Sender;
-import net.grinder.plugininterface.PluginException;
+import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
@@ -120,25 +120,25 @@ class ProcessContext implements PluginProcessContext
 	return m_pluginParameters;
     }
 
-    public void registerTest(Test test) throws PluginException
+    public void registerTest(Test test) throws GrinderException
     {
 	try {
 	    m_testRegistry.registerTest(test);
 	}
 	catch (GrinderException e) {
 	    // Either we map exceptions, or the plugin has to.
-	    throw new PluginException("Failed to register test", e);
+	    throw new EngineException("Failed to register test", e);
 	}
     }
 
-    public void registerTests(Set tests) throws PluginException
+    public void registerTests(Set tests) throws GrinderException
     {
 	try {
 	    m_testRegistry.registerTests(tests);
 	}
 	catch (GrinderException e) {
 	    // Either we map exceptions, or the plugin has to.
-	    throw new PluginException("Failed to register tests", e);
+	    throw new EngineException("Failed to register tests", e);
 	}
     }
 

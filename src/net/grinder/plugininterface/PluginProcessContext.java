@@ -50,9 +50,9 @@ public interface PluginProcessContext extends Logger, FilenameFactory
      **/
     GrinderProperties getPluginParameters();
 
-    void registerTest(Test test) throws PluginException;
+    void registerTest(Test test) throws GrinderException;
 
-    void registerTests(Set test) throws PluginException;
+    void registerTests(Set test) throws GrinderException;
 
     /**
      * Plugins can use this method to register a new "summary"
