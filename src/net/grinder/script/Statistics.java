@@ -68,8 +68,8 @@ import net.grinder.statistics.StatisticsIndexMap;
  *
  * <p>It is possible to set the statistics from within test
  * implementation itself. This is more useful for user statistics than
- * for the standard statistics (<em>[un]timedTransactions</em>,
- * <em>errors</em>, <em>transactionTime</em>) as the standard
+ * for the standard statistics (<em>[un]timedTests</em>,
+ * <em>errors</em>, <em>testTime</em>) as the standard
  * statistics may be overridden by The Grinder engine when the test
  * finishes.
  *
@@ -217,10 +217,10 @@ public interface Statistics  {
    * Convenience method that sets whether the last test should be
    * considered a success or not.
    *
-   * @param success If <code>true</code>, <em>timedTransactions</em>
-   * (or <em>untimedTransactions</em> if this process isn't recording
+   * @param success If <code>true</code>, <em>timedTests</em>
+   * (or <em>untimedTests</em> if this process isn't recording
    * time) is set to one and <em>errors</em> is set to zero. Otherwise
-   * <em>untimedTransactions</em> and <em>timedTransactions</em> are
+   * <em>untimedTests</em> and <em>timedTests</em> are
    * set to zero and <em>errors</em> is set to one.
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
@@ -244,7 +244,7 @@ public interface Statistics  {
   /**
    * Convenience method that returns the time taken by the last test.
    *
-   * @return The transaction time for the last test.
+   * @return The time for the last test.
    */
   long getTime();
 }

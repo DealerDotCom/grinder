@@ -181,12 +181,12 @@
 	each test across all worker processes. This is the <em>mean
 	time</em>.</p>
 
-	<p>Transactions/Tests per second (TPS) is calculated by the
-	console. It is the sum of the number of tests performed by all
-	worker processes within the sampling period, divided by the
-	duration of the sampling period. Using longer sampling periods
-	will give better averages, but the console display will be
-	updated less frequently.</p>
+	<p>Tests per second (TPS) is calculated by the console. It is
+	the sum of the number of tests performed by all worker
+	processes within the sampling period, divided by the duration
+	of the sampling period. Using longer sampling periods will
+	give better averages, but the console display will be updated
+	less frequently.</p>
 	</answer>
     </faq>
 
@@ -805,8 +805,7 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
 
     <faq id="negative-times">
       <question>
-	I've seen The Grinder report negative transaction
-	times?!
+	I've seen The Grinder report negative test times?!
       </question>
 
       <answer>

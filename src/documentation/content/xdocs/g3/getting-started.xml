@@ -177,7 +177,7 @@ java net.grinder.Grinder myproperties
 Final statistics for this process:
 
               Successful
-              Transactions  Errors        Average (ms)  
+              Tests         Errors        Average (ms)  
 Test 0        25            0             255.52        
 Test 1        25            0             213.40        
 Test 2        25            0             156.80         "Image"
@@ -198,16 +198,16 @@ Totals        250           0             156.70
     <p>Each test has one of two possible outcomes:</p>
 
     <ol>
-      <li>Success. The number of <em>Successful Transactions</em> for
-      that test is incremented The time taken to perform the test is
-      added to the <em>Total</em>.</li>
+      <li>Success. The number of <em>Successful Tests</em> for that
+      test is incremented The time taken to perform the test is added
+      to the <em>Total</em>.</li>
 
       <li>Error. The execution of a test raised an exception. The
       number of <em>Errors</em> for the test is incremented.</li>
     </ol>
 
     <p>The <em>Total</em> and <em>Average</em> figures are calculated
-    based only on successful transactions.</p>
+    based only on successful tests.</p>
   </section>
 
   <section id="properties">

@@ -39,8 +39,8 @@ final class TestStatisticsImplementation
   extends RawStatisticsImplementation implements TestStatistics {
 
   private static final StatisticsIndexMap.LongIndex s_errorsIndex;
-  private static final StatisticsIndexMap.LongIndex s_timedTransactionsIndex;
-  private static final StatisticsIndexMap.LongIndex s_untimedTransactionsIndex;
+  private static final StatisticsIndexMap.LongIndex s_timedTestsIndex;
+  private static final StatisticsIndexMap.LongIndex s_untimedTestsIndex;
   private static final StatisticsIndexMap.LongIndex s_totalTimeIndex;
 
   static {
@@ -48,12 +48,9 @@ final class TestStatisticsImplementation
 
     try {
       s_errorsIndex = indexMap.getIndexForLong("errors");
-      s_timedTransactionsIndex =
-        indexMap.getIndexForLong("timedTransactions");
-      s_untimedTransactionsIndex =
-        indexMap.getIndexForLong("untimedTransactions");
-      s_totalTimeIndex =
-        indexMap.getIndexForLong("timedTransactionTime");
+      s_timedTestsIndex = indexMap.getIndexForLong("timedTests");
+      s_untimedTestsIndex = indexMap.getIndexForLong("untimedTests");
+      s_totalTimeIndex = indexMap.getIndexForLong("timedTestTime");
     }
     catch (GrinderException e) {
       throw new ExceptionInInitializerError(
@@ -86,30 +83,30 @@ final class TestStatisticsImplementation
     addValue(s_errorsIndex, 1);
   }
 
-  public void addTransaction() {
-    addValue(s_untimedTransactionsIndex, 1);
+  public void addTest() {
+    addValue(s_untimedTestsIndex, 1);
   }
 
-  public void addTransaction(long time) {
-    addValue(s_timedTransactionsIndex, 1);
+  public void addTest(long time) {
+    addValue(s_timedTestsIndex, 1);
     addValue(s_totalTimeIndex, time);
   }
 
-  public long getTransactions() {
+  public long getTests() {
     return
-      getValue(s_timedTransactionsIndex) +
-      getValue(s_untimedTransactionsIndex);
+      getValue(s_timedTestsIndex) +
+      getValue(s_untimedTestsIndex);
   }
 
   public long getErrors() {
     return getValue(s_errorsIndex);
   }
 
-  public double getAverageTransactionTime() {
-    final long timedTransactions = getValue(s_timedTransactionsIndex);
+  public double getAverageTestTime() {
+    final long timedTests = getValue(s_timedTestsIndex);
 
     return
-      timedTransactions == 0 ?
-      Double.NaN : getValue(s_totalTimeIndex) / (double)timedTransactions;
+      timedTests == 0 ?
+      Double.NaN : getValue(s_totalTimeIndex) / (double)timedTests;
   }
 }

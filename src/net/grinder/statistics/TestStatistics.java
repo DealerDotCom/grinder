@@ -37,28 +37,28 @@ public interface TestStatistics extends RawStatistics {
   void addError();
 
   /**
-   * Increment the <em>untimedTransactions</em> statistic by one.
-   * @see #addTransaction(long)
+   * Increment the <em>untimedTests</em> statistic by one.
+   * @see #addTest(long)
    **/
-  void addTransaction();
+  void addTest();
 
   /**
-   * Increment the <em>timedTransactions</em> statistic by one and
+   * Increment the <em>timedTests</em> statistic by one and
    * add the given <code>time</code> to the
-   * <em>timedTransactionTime</em> statistic.
+   * <em>timedTestTime</em> statistic.
    *
-   * @param time The transaction time.
-   * @see #addTransaction()
+   * @param time The test time.
+   * @see #addTest()
    */
-  void addTransaction(long time);
+  void addTest(long time);
 
   /**
-   * Return the sum of the <em>timedTransactions</em> and
-   * <em>untimedTransactions</em> statistics.
+   * Return the sum of the <em>timedTests</em> and
+   * <em>untimedTests</em> statistics.
    *
    * @return a <code>long</code> value
    */
-  long getTransactions();
+  long getTests();
 
   /**
    * Return the value of the <em>errors</em> statistic.
@@ -69,10 +69,10 @@ public interface TestStatistics extends RawStatistics {
 
   /**
    * Return the value obtained by dividing the
-   * <em>timedTransactionTime</em> statistic by the
-   * <em>timedTransactions</em> statistic.
+   * <em>timedTestTime</em> statistic by the
+   * <em>timedTests</em> statistic.
    *
    * @return a <code>double</code> value
    */
-  double getAverageTransactionTime();
+  double getAverageTestTime();
 }

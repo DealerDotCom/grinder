@@ -180,12 +180,12 @@ result = request.GET(requestString)
 
     <p>As part of the test execution, we want the ability to check the
     result of the HTTP request. If the response back from the server
-    is not one that we except, we want to mark the transaction as
-    unsuccessful and not include the statistics in the transaction
-    times. To do this, the <code>delayReports</code> variable can be
-    set to 1. Doing so will delay the reporting back of the statistics
-    until after the test has completed and we have had chance to check
-    its operation. The default is to report back when the test returns
+    is not one that we except, we want to mark the test as
+    unsuccessful and not include the statistics in the test times. To
+    do this, the <code>delayReports</code> variable can be set to 1.
+    Doing so will delay the reporting back of the statistics until
+    after the test has completed and we have had chance to check its
+    operation. The default is to report back when the test returns
     control back to the script, i.e. immediately after a test has
     executed.</p>
 

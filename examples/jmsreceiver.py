@@ -44,7 +44,7 @@ deliveryTimeIndex = StatisticsIndexMap.getInstance().getIndexForLong("userLong0"
 # 1. Delivery time:- the mean time taken between the server sending
 # the message and the receiver receiving the message.
 # 2. Mean delivery time:- the delivery time averaged over all
-# transactions.
+# tests.
 
 detailView = StatisticsView()
 detailView.add(ExpressionView("Delivery time", "", "userLong0"))
@@ -53,13 +53,13 @@ summaryView = StatisticsView()
 summaryView.add(ExpressionView(
     "Mean delivery time",
     "statistic.deliveryTime",
-    "(/ userLong0(+ timedTransactions untimedTransactions))"))
+    "(/ userLong0(+ timedTests untimedTests))"))
 	    
 grinder.registerDetailStatisticsView(detailView)
 grinder.registerSummaryStatisticsView(summaryView)
 
 # We record each message receipt against a single test. The
-# transaction time is meaningless.
+# test time is meaningless.
 def recordDeliveryTime(deliveryTime):
     grinder.statistics.setValue(deliveryTimeIndex, deliveryTime)
 

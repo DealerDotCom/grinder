@@ -41,9 +41,9 @@ import net.grinder.common.GrinderException;
  * <p>The standard long statistics used by The Grinder are:
  * <ul>
  * <li><code>errors</code></li>
- * <li><code>timedTransactions</code></li>
- * <li><code>untimedTransactions</code></li>
- * <li><code>timedTransactionTime</code></li>
+ * <li><code>timedTests</code></li>
+ * <li><code>untimedTests</code></li>
+ * <li><code>timedTestTime</code></li>
  * <li><code>period</code></li>
  * </ul>
  *
@@ -126,9 +126,9 @@ public final class StatisticsIndexMap implements Serializable {
     int nextLongIndex = 0;
 
     m_map.put("errors", new LongIndex(nextLongIndex++));
-    m_map.put("timedTransactions", new LongIndex(nextLongIndex++));
-    m_map.put("untimedTransactions", new LongIndex(nextLongIndex++));
-    m_map.put("timedTransactionTime", new LongIndex(nextLongIndex++));
+    m_map.put("timedTests", new LongIndex(nextLongIndex++));
+    m_map.put("untimedTests", new LongIndex(nextLongIndex++));
+    m_map.put("timedTestTime", new LongIndex(nextLongIndex++));
     m_map.put("period", new LongIndex(nextLongIndex++));
     m_map.put("userLong0", new LongIndex(nextLongIndex++));
     m_map.put("userLong1", new LongIndex(nextLongIndex++));

@@ -69,8 +69,8 @@
     <p>The slider controls the period at which the console will take a
     <em>sample</em>. This involves adding up all the reports received
     over that sample interval and calculating the TPS as (number of
-    transactions that occurred)/(interval length). It is also the
-    period at which the console graphs and statistics are updated.</p>
+    tests that occurred)/(interval length). It is also the period at
+    which the console graphs and statistics are updated.</p>
 
     <p>By default, the console discards the first non-zero sample
     period, and starts updating the display and calculating totals
@@ -91,11 +91,11 @@
   <section>
     <title>Display</title>
 
-    <p>Each graph displays the 25 most recent Transactions Per Second
-    (TPS) values for a particular test. A new value is added every
-    console sample period. The y-axis is scaled so that the full
-    height represents the peak TPS value received for the test since
-    the display was last reset.</p>
+    <p>Each graph displays the 25 most recent Tests Per Second (TPS)
+    values for a particular test. A new value is added every console
+    sample period. The y-axis is scaled so that the full height
+    represents the peak TPS value received for the test since the
+    display was last reset.</p>
 
     <p>The colours are based on the relative response time. Long
     response times are more red, short response times are more yellow.

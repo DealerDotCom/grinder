@@ -53,9 +53,9 @@ public final class CommonStatisticsViews {
   private CommonStatisticsViews() {
     try {
       final ExpressionView[] detailExpressionViews = {
-        new ExpressionView("Transaction time",
-                           "statistic.transactionTime",
-                           "timedTransactionTime"),
+        new ExpressionView("Test time",
+                           "statistic.testTime",
+                           "timedTestTime"),
         new ExpressionView("Errors", "statistic.errors", "errors"),
       };
 
@@ -64,14 +64,14 @@ public final class CommonStatisticsViews {
       }
 
       final ExpressionView[] summaryExpressionViews = {
-        new ExpressionView("Transactions", "statistic.transactions",
-                           "(+ timedTransactions untimedTransactions)"
+        new ExpressionView("Tests", "statistic.tests",
+                           "(+ timedTests untimedTests)"
                            ),
         new ExpressionView("Errors", "statistic.errors", "errors"),
         new ExpressionView(
-          "Mean Transaction Time (ms)",
-          "statistic.meanTransactionTime",
-          "(/ timedTransactionTime timedTransactions)"),
+          "Mean Test Time (ms)",
+          "statistic.meanTestTime",
+          "(/ timedTestTime timedTests)"),
       };
 
       for (int i = 0; i < summaryExpressionViews.length; ++i) {

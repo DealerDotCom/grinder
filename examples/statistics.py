@@ -28,9 +28,9 @@ class TestRunner:
 
         if statistics.time > 5:
             # We set success = 0 to mark the test as a failure. This
-            # discards the transaction time to comply with the
-            # convention of only recording time for successful tests,
-            # so lets log the actual time to the error log.
+            # discards the test time to comply with the convention of
+            # only recording time for successful tests, so lets log
+            # the actual time to the error log.
             grinder.logger.error("The last test took too long (%d milliseconds)" %
                      statistics.time)
             statistics.success = 0

@@ -192,7 +192,7 @@ public class HTTPPlugin implements GrinderPlugin {
           "Mean response length",
           "statistic.httpplugin.meanResponseLengthKey",
           "(/ " + StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY +
-          " (+ timedTransactions untimedTransactions))"));
+          " (+ timedTests untimedTests))"));
 
       summaryStatisticsView.add(
         new ExpressionView(
@@ -212,21 +212,21 @@ public class HTTPPlugin implements GrinderPlugin {
           "Mean time to resolve host",
           "statistic.httpplugin.meanDnsTimeKey",
           "(/ " + StatisticsIndexMap.HTTP_PLUGIN_DNS_TIME_KEY +
-          " (+ timedTransactions untimedTransactions))"));
+          " (+ timedTests untimedTests))"));
 
       summaryStatisticsView.add(
         new ExpressionView(
           "Mean time to establish connection",
           "statistic.httpplugin.meanConnectTimeKey",
           "(/ " + StatisticsIndexMap.HTTP_PLUGIN_CONNECT_TIME_KEY +
-          " (+ timedTransactions untimedTransactions))"));
+          " (+ timedTests untimedTests))"));
 
       summaryStatisticsView.add(
         new ExpressionView(
           "Mean time to first byte",
           "statistic.httpplugin.meanFirstByteTimeKey",
           "(/ " + StatisticsIndexMap.HTTP_PLUGIN_FIRST_BYTE_TIME_KEY +
-          " (+ timedTransactions untimedTransactions))"));
+          " (+ timedTests untimedTests))"));
 
       scriptContext.registerSummaryStatisticsView(summaryStatisticsView);
 

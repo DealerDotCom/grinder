@@ -123,7 +123,7 @@ public class TestGraph extends TestCase
 
 	final StatisticExpression tpsExpression =
 	    statisticExpressionFactory.createExpression(
-		"(* 1000 (/(+ untimedTransactions timedTransactions) period))"
+		"(* 1000 (/(+ untimedTests timedTests) period))"
 		);
 
 	final PeakStatisticExpression peakTPSExpression =
@@ -155,13 +155,13 @@ public class TestGraph extends TestCase
 	    intervalStatistics.setValue(periodIndex, period);
 
 	    while (s_random.nextInt() > 0) {
-		intervalStatistics.addTransaction();
+		intervalStatistics.addTest();
 	    }
 
 	    long time;
 
 	    while ((time = s_random.nextInt()) > 0) {
-		intervalStatistics.addTransaction(time % 10000);
+		intervalStatistics.addTest(time % 10000);
 	    }
 
 	    while (s_random.nextFloat() > 0.95) {

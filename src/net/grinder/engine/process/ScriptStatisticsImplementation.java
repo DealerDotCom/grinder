@@ -49,21 +49,21 @@ final class ScriptStatisticsImplementation
   implements Statistics, ThreadLifeCycleListener {
 
   private static final StatisticsIndexMap.LongIndex s_errorsIndex;
-  private static final StatisticsIndexMap.LongIndex s_timedTransactionsIndex;
-  private static final StatisticsIndexMap.LongIndex s_untimedTransactionsIndex;
-  private static final StatisticsIndexMap.LongIndex s_transactionTimeIndex;
+  private static final StatisticsIndexMap.LongIndex s_timedTestsIndex;
+  private static final StatisticsIndexMap.LongIndex s_untimedTestsIndex;
+  private static final StatisticsIndexMap.LongIndex s_testTimeIndex;
 
   static {
     final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
     try {
       s_errorsIndex = indexMap.getIndexForLong("errors");
-      s_timedTransactionsIndex =
-        indexMap.getIndexForLong("timedTransactions");
-      s_untimedTransactionsIndex =
-        indexMap.getIndexForLong("untimedTransactions");
-      s_transactionTimeIndex =
-        indexMap.getIndexForLong("timedTransactionTime");
+      s_timedTestsIndex =
+        indexMap.getIndexForLong("timedTests");
+      s_untimedTestsIndex =
+        indexMap.getIndexForLong("untimedTests");
+      s_testTimeIndex =
+        indexMap.getIndexForLong("timedTestTime");
     }
     catch (GrinderException e) {
       throw new ExceptionInInitializerError(
@@ -221,18 +221,18 @@ final class ScriptStatisticsImplementation
   }
 
   public long getTime() {
-    return getValue(s_transactionTimeIndex);
+    return getValue(s_testTimeIndex);
   }
 
   void setSuccessNoChecks() {
 
     if (m_recordTime) {
-      m_testStatistics.setValue(s_timedTransactionsIndex, 1);
-      m_testStatistics.setValue(s_untimedTransactionsIndex, 0);
+      m_testStatistics.setValue(s_timedTestsIndex, 1);
+      m_testStatistics.setValue(s_untimedTestsIndex, 0);
     }
     else {
-      m_testStatistics.setValue(s_timedTransactionsIndex, 0);
-      m_testStatistics.setValue(s_untimedTransactionsIndex, 1);
+      m_testStatistics.setValue(s_timedTestsIndex, 0);
+      m_testStatistics.setValue(s_untimedTestsIndex, 1);
     }
 
     m_testStatistics.setValue(s_errorsIndex, 0);
@@ -240,16 +240,16 @@ final class ScriptStatisticsImplementation
 
   void setErrorNoChecks() {
 
-    m_testStatistics.setValue(s_untimedTransactionsIndex, 0);
-    m_testStatistics.setValue(s_timedTransactionsIndex, 0);
-    m_testStatistics.setValue(s_transactionTimeIndex, 0);
+    m_testStatistics.setValue(s_untimedTestsIndex, 0);
+    m_testStatistics.setValue(s_timedTestsIndex, 0);
+    m_testStatistics.setValue(s_testTimeIndex, 0);
     m_testStatistics.setValue(s_errorsIndex, 1);
   }
 
   void setTimeNoChecks(long time) {
 
     if (m_recordTime) {
-      m_testStatistics.setValue(s_transactionTimeIndex, time);
+      m_testStatistics.setValue(s_testTimeIndex, time);
     }
   }
 

@@ -232,7 +232,7 @@ class TestRunner:
         <p>The <a
         href="script-javadoc/net/grinder/script/Statistics.html">Statistics</a>
         interface allows scripts to query whether tests where
-        successful and obtain statistic values such as transaction
+        successful and obtain statistic values such as test
         time of the last test. The interface can also be used to
         modify or set a tests statistics before they are sent to the
         log and the console.</p>
@@ -266,9 +266,9 @@ class TestRunner:
         <p>The standard long statistics used by The Grinder are:</p>
         <ul>
           <li><code>errors</code></li>
-          <li><code>timedTransactions</code></li>
-          <li><code>untimedTransactions</code></li>
-          <li><code>timedTransactionTime</code></li>
+          <li><code>timedTests</code></li>
+          <li><code>untimedTests</code></li>
+          <li><code>timedTestTime</code></li>
           <li><code>period</code></li>
         </ul>
 
@@ -287,9 +287,9 @@ class TestRunner:
         <code>userDouble1</code>, ... <code>userDouble4</code>.</p>
 
         <p>Views allow individual statistics to be combined in simple
-        expressions. For example <code>(/ errors (+ timedTransactions
-        untimedTransactions))</code> gives the ratio of errors to
-        successful transactions. New views can be registered using the
+        expressions. For example <code>(/ errors (+ timedTests
+        untimedTests))</code> gives the ratio of errors to successful
+        tests. New views can be registered using the
         <code>grinder</code> object and automatically appear in the
         console and the data file.</p>
       </dd>

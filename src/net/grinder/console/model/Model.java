@@ -167,7 +167,7 @@ public final class Model {
 
     m_tpsExpression =
       statisticExpressionFactory.createExpression(
-        "(* 1000 (/ (+ untimedTransactions timedTransactions) period))");
+        "(* 1000 (/ (+ untimedTests timedTests) period))");
 
     m_tpsExpressionView =
       new ExpressionView("TPS", "statistic.tps", m_tpsExpression);

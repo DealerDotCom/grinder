@@ -12,6 +12,10 @@ Grinder 3.0-beta24 (Not yet released)
   ArrayIndexOutOfBoundsException. Thanks to Alan Droege for the
   report.
 
+  Historically The Grinder has used the terms "transaction" and "test"
+  synomonously - this is inconsistent and confusing. "Test" is now
+  used consistently everywhere.
+
 
 Grinder 3.0-beta23
 ------------------

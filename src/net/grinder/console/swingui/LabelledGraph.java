@@ -152,7 +152,7 @@ class LabelledGraph extends JPanel {
   private final Label m_averageTimeLabel;
   private final Label m_averageTPSLabel;
   private final Label m_peakTPSLabel;
-  private final Label m_transactionsLabel;
+  private final Label m_testsLabel;
   private final Label m_errorsLabel;
   private final Dimension m_preferredSize = new Dimension(250, 110);
 
@@ -171,9 +171,9 @@ class LabelledGraph extends JPanel {
     final String msUnit = resources.getString("ms.unit");
     final String msUnits = resources.getString("ms.units");
     final String tpsUnits = resources.getString("tps.units");
-    final String transactionUnit = resources.getString("transaction.unit");
-    final String transactionUnits =
-      resources.getString("transaction.units");
+    final String testUnit = resources.getString("test.unit");
+    final String testUnits =
+      resources.getString("test.units");
     final String errorUnit = resources.getString("error.unit");
     final String errorUnits = resources.getString("error.units");
 
@@ -185,7 +185,7 @@ class LabelledGraph extends JPanel {
     m_averageTimeLabel = new Label(msUnit, msUnits, averageSuffix);
     m_averageTPSLabel = new Label(tpsUnits, tpsUnits, averageSuffix);
     m_peakTPSLabel = new Label(tpsUnits, tpsUnits, peakSuffix);
-    m_transactionsLabel = new Label(transactionUnit, transactionUnits, "");
+    m_testsLabel = new Label(testUnit, testUnits, "");
     m_errorsLabel = new Label(errorUnit, errorUnits, "");
 
     m_color = color;
@@ -218,7 +218,7 @@ class LabelledGraph extends JPanel {
     labelPanel.add(m_averageTimeLabel);
     labelPanel.add(m_averageTPSLabel);
     labelPanel.add(m_peakTPSLabel);
-    labelPanel.add(m_transactionsLabel);
+    labelPanel.add(m_testsLabel);
     labelPanel.add(m_errorsLabel);
 
     setLayout(new BorderLayout());
@@ -240,7 +240,7 @@ class LabelledGraph extends JPanel {
                   TestStatistics cumulativeStatistics,
                   NumberFormat numberFormat) {
     final double averageTime =
-      cumulativeStatistics.getAverageTransactionTime();
+      cumulativeStatistics.getAverageTestTime();
     final long errors = cumulativeStatistics.getErrors();
     final double peakTPS =
       m_peakTPSExpression.getDoubleValue(cumulativeStatistics);
@@ -262,7 +262,7 @@ class LabelledGraph extends JPanel {
 
     m_peakTPSLabel.set(peakTPS, numberFormat);
 
-    m_transactionsLabel.set(cumulativeStatistics.getTransactions());
+    m_testsLabel.set(cumulativeStatistics.getTests());
 
     m_errorsLabel.set(errors);
     m_errorsLabel.setHighlight(errors > 0);

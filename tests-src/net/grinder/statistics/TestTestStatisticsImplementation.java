@@ -54,8 +54,8 @@ public class TestTestStatisticsImplementation extends TestCase
 	    new TestStatisticsImplementation();
 
 	assertEquals(0, testStatistics1.getErrors());
-	assertEquals(0, testStatistics1.getTransactions());
-	assertTrue(Double.isNaN(testStatistics1.getAverageTransactionTime()));
+	assertEquals(0, testStatistics1.getTests());
+	assertTrue(Double.isNaN(testStatistics1.getAverageTestTime()));
 
 	final TestStatistics testStatistics2 =
 	    new TestStatisticsImplementation();
@@ -71,21 +71,21 @@ public class TestTestStatisticsImplementation extends TestCase
 	testStatistics2.addError();
 	assertEquals(testStatistics1, testStatistics2);
 
-	testStatistics1.addTransaction();
-	assertEquals(1, testStatistics1.getTransactions());
+	testStatistics1.addTest();
+	assertEquals(1, testStatistics1.getTests());
 	assertTrue(!testStatistics1.equals(testStatistics2));
 
-	testStatistics2.addTransaction();
+	testStatistics2.addTest();
 	assertEquals(testStatistics1, testStatistics2);
 
-	testStatistics1.addTransaction(5);
-	testStatistics2.addTransaction(10);
-	assertEquals(2, testStatistics1.getTransactions());
+	testStatistics1.addTest(5);
+	testStatistics2.addTest(10);
+	assertEquals(2, testStatistics1.getTests());
 	assertTrue(!testStatistics1.equals(testStatistics2));
 
-	testStatistics1.addTransaction(10);
-	testStatistics2.addTransaction(5);
+	testStatistics1.addTest(10);
+	testStatistics2.addTest(5);
 	assertEquals(testStatistics1, testStatistics2);
-	assertEquals(7.5d, testStatistics2.getAverageTransactionTime(), 0.01);
+	assertEquals(7.5d, testStatistics2.getAverageTestTime(), 0.01);
     }
 }
