@@ -76,8 +76,8 @@ import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
-import net.grinder.statistics.CumulativeStatistics;
-import net.grinder.statistics.IntervalStatistics;
+import net.grinder.statistics.StatisticExpression;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -138,7 +138,9 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 
 	final LabelledGraph totalGraph =
 	    new LabelledGraph(m_resources.getString("totalGraph.title"),
-			      m_resources, Color.darkGray);
+			      m_resources, Color.darkGray,
+			      m_model.getTPSExpression(),
+			      m_model.getPeakTPSExpression());
 
 	final JLabel tpsLabel = new JLabel();
 	tpsLabel.setForeground(Color.black);
@@ -149,12 +151,14 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 		private final String m_suffix =
 		    " " + m_resources.getString("tps.units");
 
-		public void update(IntervalStatistics intervalStatistics,
-				   CumulativeStatistics cumulativeStatistics) {
+		public void update(TestStatistics intervalStatistics,
+				   TestStatistics cumulativeStatistics) {
 		    final NumberFormat format = m_model.getNumberFormat();
 		    
 		    tpsLabel.setText(
-			format.format(intervalStatistics.getTPS()) + m_suffix);
+			format.format(m_model.getTPSExpression().
+				      getDoubleValue(intervalStatistics)) +
+			m_suffix);
 
 		    totalGraph.add(intervalStatistics, cumulativeStatistics,
 				   format);

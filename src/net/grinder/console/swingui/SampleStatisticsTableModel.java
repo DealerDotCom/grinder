@@ -23,11 +23,10 @@ import java.io.Writer;
 import java.text.NumberFormat;
 import javax.swing.table.AbstractTableModel;
 
+import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
-import net.grinder.statistics.IntervalStatistics;
-
-import net.grinder.console.common.ConsoleException;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -72,8 +71,7 @@ class SampleStatisticsTableModel extends AbstractStatisticsTableModel
 	}
     }
 
-    private String getStatisticsField(IntervalStatistics statistics,
-				      int column)
+    private String getStatisticsField(TestStatistics statistics, int column)
     {
 	switch (column) {
 	case 2:
@@ -93,7 +91,8 @@ class SampleStatisticsTableModel extends AbstractStatisticsTableModel
 	    }
 
 	case 5:
-	    return getNumberFormat().format(statistics.getTPS());
+	    return getNumberFormat().format(
+		getModel().getTPSExpression().getDoubleValue(statistics));
 
 	default:
 	    return "?";

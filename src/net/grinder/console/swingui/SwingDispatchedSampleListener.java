@@ -22,8 +22,7 @@ import java.util.Set;
 import javax.swing.SwingUtilities;
 
 import net.grinder.console.model.SampleListener;
-import net.grinder.statistics.CumulativeStatistics;
-import net.grinder.statistics.IntervalStatistics;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -42,8 +41,8 @@ class SwingDispatchedSampleListener implements SampleListener
 	m_delegate = delegate;
     }
 
-    public void update(final IntervalStatistics intervalStatistics,
-		       final CumulativeStatistics cumulativeStatistics)
+    public void update(final TestStatistics intervalStatistics,
+		       final TestStatistics cumulativeStatistics)
     {
 	SwingUtilities.invokeLater(
 	    new Runnable() {

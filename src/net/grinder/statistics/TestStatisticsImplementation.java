@@ -29,7 +29,7 @@ import net.grinder.util.Serialiser;
  * @author Philip Aston
  * @version $Revision$
  **/
-class TestStatisticsImplementation
+final class TestStatisticsImplementation
     extends RawStatisticsImplementation implements TestStatistics
 {
     private final static StatisticsIndexMap.LongIndex s_errorsIndex;

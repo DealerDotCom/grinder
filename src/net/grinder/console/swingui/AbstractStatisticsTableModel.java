@@ -24,12 +24,10 @@ import java.text.NumberFormat;
 import java.util.Set;
 import javax.swing.table.AbstractTableModel;
 
+import net.grinder.console.common.ConsoleException;
 import net.grinder.common.Test;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
-import net.grinder.statistics.CumulativeStatistics;
-
-import net.grinder.console.common.ConsoleException;
 
 
 /**

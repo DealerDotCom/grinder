@@ -32,8 +32,8 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-import net.grinder.statistics.CumulativeStatistics;
-import net.grinder.statistics.IntervalStatistics;
+import net.grinder.statistics.StatisticExpression;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -72,9 +72,10 @@ class LabelledGraph extends JPanel
 	new Color(0xFF, 0x00, 0x00),
     };
 
-    private Color m_color;
-
-    private Graph m_graph;
+    private final Color m_color;
+    private final Graph m_graph;
+    private final StatisticExpression m_tpsExpression;
+    private final StatisticExpression m_peakTPSExpression;
 
     private static class Label extends JLabel
     {
@@ -162,13 +163,20 @@ class LabelledGraph extends JPanel
     private final Label m_errorsLabel;
     private final Dimension m_preferredSize = new Dimension(250, 110);
 
-    public LabelledGraph(String title, Resources resources)
+    public LabelledGraph(String title, Resources resources,
+			 StatisticExpression tpsExpression,
+			 StatisticExpression peakTPSExpression)
     {
-	this(title, resources, null);
+	this(title, resources, null, tpsExpression, peakTPSExpression);
     }
 
-    public LabelledGraph(String title, Resources resources, Color color)
+    public LabelledGraph(String title, Resources resources, Color color,
+			 StatisticExpression tpsExpression,
+			 StatisticExpression peakTPSExpression)
     {
+	m_tpsExpression = tpsExpression;
+	m_peakTPSExpression = peakTPSExpression;
+
 	final String msUnit = resources.getString("ms.unit");
 	final String msUnits = resources.getString("ms.units");
 	final String tpsUnits = resources.getString("tps.units");
@@ -224,17 +232,18 @@ class LabelledGraph extends JPanel
 	return m_preferredSize;
     }
 
-    public void add(IntervalStatistics intervalStatistics,
-		    CumulativeStatistics cumulativeStatistics,
+    public void add(TestStatistics intervalStatistics,
+		    TestStatistics cumulativeStatistics,
 		    NumberFormat numberFormat)
     {
 	final double averageTime =
 	    cumulativeStatistics.getAverageTransactionTime();
 	final long errors = cumulativeStatistics.getErrors();
-	final double peakTPS = cumulativeStatistics.getPeakTPS();
+	final double peakTPS =
+	    m_peakTPSExpression.getDoubleValue(cumulativeStatistics);
 
 	m_graph.setMaximum(peakTPS);
-	m_graph.add(intervalStatistics.getTPS());
+	m_graph.add(m_tpsExpression.getDoubleValue(intervalStatistics));
 	m_graph.setColor(calculateColour(averageTime));
 
 	if (!Double.isNaN(averageTime)) {
@@ -244,7 +253,10 @@ class LabelledGraph extends JPanel
 	    m_averageTimeLabel.set("----");
 	}
 
-	m_averageTPSLabel.set(cumulativeStatistics.getTPS(), numberFormat);
+	m_averageTPSLabel.set(
+	    m_tpsExpression.getDoubleValue(cumulativeStatistics),
+	    numberFormat);
+
 	m_peakTPSLabel.set(peakTPS, numberFormat);
 
 	m_transactionsLabel.set(cumulativeStatistics.getTransactions());

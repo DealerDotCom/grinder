@@ -23,11 +23,10 @@ import java.io.Writer;
 import java.text.NumberFormat;
 import javax.swing.table.AbstractTableModel;
 
+import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
-import net.grinder.statistics.CumulativeStatistics;
-
-import net.grinder.console.common.ConsoleException;
+import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -102,8 +101,7 @@ class CumulativeStatisticsTableModel extends AbstractStatisticsTableModel
 	}
     }
 
-    private String getStatisticsField(CumulativeStatistics statistics,
-				      int column)
+    private String getStatisticsField(TestStatistics statistics, int column)
     {
 	switch (column) {
 	case 2:
@@ -123,10 +121,12 @@ class CumulativeStatisticsTableModel extends AbstractStatisticsTableModel
 	    }
 
 	case 5:
-	    return getNumberFormat().format(statistics.getTPS());
+	    return getNumberFormat().format(
+		getModel().getTPSExpression().getDoubleValue(statistics));
 
 	case 6:
-	    return getNumberFormat().format(statistics.getPeakTPS());
+	    return getNumberFormat().format(
+		getModel().getPeakTPSExpression().getDoubleValue(statistics));
 
 	default:
 	    return "?";

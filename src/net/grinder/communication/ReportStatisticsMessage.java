@@ -79,12 +79,7 @@ public class ReportStatisticsMessage extends Message implements Serializable
     {
 	in.defaultReadObject();
 
-	try {
-	    m_statisticsDelta = new TestStatisticsMap();
-	    m_statisticsDelta.readExternal(in);
-	}
-	catch (GrinderException e) {
-	    throw new IOException("Could instantiate a TestStatisticsMap");
-	}
+	m_statisticsDelta = new TestStatisticsMap();
+	m_statisticsDelta.readExternal(in);
     }
 }
