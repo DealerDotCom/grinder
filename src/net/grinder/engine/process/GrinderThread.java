@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,7 +38,7 @@ import net.grinder.util.Sleeper;
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 class GrinderThread implements java.lang.Runnable {
 
   /**
@@ -46,7 +46,7 @@ class GrinderThread implements java.lang.Runnable {
    * rather than in run to avoid pathological race conditions. Hence
    * it really means "the number of GrinderThread's that have been
    * created but not run to completion"
-   **/
+   */
   private static short s_numberOfThreads = 0;
 
   private final Monitor m_notifyOnCompletion;
@@ -96,7 +96,7 @@ class GrinderThread implements java.lang.Runnable {
       final JythonScript.JythonRunnable jythonRunnable =
         m_jythonScript.new JythonRunnable();
 
-      m_context.getSleeper().sleepFlat(m_initialSleepTime);
+      m_processContext.getSleeper().sleepFlat(m_initialSleepTime);
 
       if (m_numberOfRuns == 0) {
         logger.output("about to run forever");
