@@ -107,46 +107,4 @@ public class SignificantFigureFormat extends DecimalFormat
     {
 	return format((double)number, buffer, position);
     }
-    
-
-    /**
-     * Tests that really should be a JUnit test case.
-     * Interestingly .012345 -> 0.01234, but I think this is a floating point thing.
-     **/
-    public static void main(String[] args)
-    {
-	final SignificantFigureFormat f = new SignificantFigureFormat(4);
-
-	final double[] numbers = {
-	    1,
-	    -1,
-	    0.1,
-	    123,
-	    10,
-	    .99,
-	    0.00232,
-	    12345,
-	    1234.5,
-	    123.45,
-	    12.345,
-	    1.2345,
-	    .12345,
-	    .012345,
-	    .0012345,
-	    -0.0,
-	    0d,
-	    Double.POSITIVE_INFINITY,
-	    Double.NEGATIVE_INFINITY,
-	    Double.NaN,
-	};
-
-	for (int i=0; i<numbers.length; i++) {
-	    final double d = numbers[i];
-	    final long l = (long)numbers[i];
-
-	    System.out.println(d + " -> " + f.format(d) + ", " +
-	    			       boundingPowerOfTen(d));
-	    System.out.println(l + " -> " + f.format(l));
-	}
-    }
 }
