@@ -37,12 +37,12 @@ public class Statistics implements Cloneable, java.io.Serializable
     }
     
     private Statistics(long transactions, long totalTime, long errors,
-			   long failures)
+		       long abortions)
     {
 	m_transactions = transactions;
 	m_totalTime = totalTime;
 	m_errors = errors;
-	m_abortions = failures;
+	m_abortions = abortions;
     }
 
     public synchronized void addTransaction(long time)
@@ -89,9 +89,9 @@ public class Statistics implements Cloneable, java.io.Serializable
 	else {
 	    result =
 		new Statistics(m_transactions - m_snapshot.m_transactions,
-				   m_totalTime - m_snapshot.m_totalTime,
-				   m_errors - m_snapshot.m_errors,
-				   m_abortions - m_snapshot.m_abortions);
+			       m_totalTime - m_snapshot.m_totalTime,
+			       m_errors - m_snapshot.m_errors,
+			       m_abortions - m_snapshot.m_abortions);
 	}
 
 	if (updateSnapshot) {

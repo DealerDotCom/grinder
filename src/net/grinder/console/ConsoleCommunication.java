@@ -19,7 +19,9 @@
 package net.grinder.console;
 
 import net.grinder.communication.CommunicationException;
+import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
+import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.util.GrinderException;
@@ -55,5 +57,19 @@ class ConsoleCommunication
 	throws CommunicationException
     {
 	m_sender.send(new StartGrinderMessage());
+    }
+
+    ReportStatisticsMessage waitForReport()
+	throws CommunicationException
+    {
+	Message message;
+	
+	do
+	{
+	    message = m_receiver.waitForMessage();
+	}
+	while (!(message instanceof ReportStatisticsMessage));
+
+	return (ReportStatisticsMessage)message;
     }
 }

@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.console.swing;
+package net.grinder.console.swingui;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -38,25 +38,17 @@ class Graph extends JComponent
     private final int m_width;
     private final int m_height;
     private final int m_numberOfValues;
-    private final double m_expectedMaximum;
 
     private final double[] m_values;
     private double m_maximum = 0d;
     private int m_cursor = 0;
+    private Color m_color;
 
     private final int[] m_polygonX;
     private final int[] m_polygonY;
     private boolean m_recalculate = true;
 
-    private Color[] m_colors =
-    {
-	Color.white,
-	Color.yellow,
-	Color.orange,
-	Color.red,
-    };
-
-    Graph(int width, int height, int numberOfValues, double expectedMaximum)
+    Graph(int width, int height, int numberOfValues)
 	throws ConsoleException
     {
 	if (width <= 0) {
@@ -72,19 +64,16 @@ class Graph extends JComponent
 		"Invalid number of values (" + numberOfValues + ")");
 	}
 
-	if (expectedMaximum <= 0) {
-	    throw new ConsoleException(
-		"Invalid expected maximum values (" + expectedMaximum + ")");
-	}
-
 	m_width = width;
 	m_height = height;
 	m_numberOfValues = numberOfValues;
-	m_expectedMaximum = expectedMaximum;
 
         m_values = new double[m_width];
 
-        setPreferredSize(new Dimension(m_width, m_height));
+	final Dimension dimension = new Dimension(m_width, m_height) ;
+	setPreferredSize(dimension);
+	setMinimumSize(dimension);
+	setMaximumSize(dimension);
 
 	// Add 2 for the end points of the polygon.
 	m_polygonX = new int[m_numberOfValues + 2];
@@ -112,10 +101,6 @@ class Graph extends JComponent
     {
 	m_values[m_cursor] = newValue;
 
-	if (newValue > m_maximum) {
-	    m_maximum = newValue;
-	}
-
 	if (++m_cursor >= m_numberOfValues) {
 	    m_cursor = 0;
 	}
@@ -124,23 +109,21 @@ class Graph extends JComponent
         repaint();
     }
 
-    private Color calculateColour()
+    public void setColor(Color color) 
     {
-	final int colorIndex =
-	    (int)(m_colors.length * (m_maximum/m_expectedMaximum));
+	m_color = color;
+    }
 
-	if (colorIndex >= m_colors.length) {
-	    return m_colors[m_colors.length - 1];
-	}
-
-	return m_colors[colorIndex];
+    public void setMaximum(double maximum)
+    {
+	m_maximum = maximum;
     }
 
     public void paintComponent(Graphics graphics)
     {    
         super.paintComponent(graphics);
 
-        graphics.setColor(calculateColour());
+        graphics.setColor(m_color);
 
 	final double scale = m_maximum > 0 ? m_height/(double)m_maximum : 0d;
 
@@ -163,10 +146,5 @@ class Graph extends JComponent
 	}
 
 	graphics.fillPolygon(m_polygonX, m_polygonY, m_numberOfValues + 2);
-    }
-
-    public double getMaximum()
-    {
-	return m_maximum;
     }
 }

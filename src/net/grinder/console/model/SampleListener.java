@@ -1,5 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2000, 2001 Paco Gomez
+// Copyright (C) 2000, 2001 Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,23 +16,18 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.console;
+package net.grinder.console.model;
+
+import java.util.EventListener;
+
+import net.grinder.statistics.Statistics;
+
 
 /**
- * This class is used to share data for statistics.
- * 
- * @author Paco Gomez
+ * @author Philip Aston
  * @version $Revision$
  */
-public class StatInfo{
-    
-  public StatInfo(long time, long trans){
-    _time = time;
-    _trans = trans;
-  }
-    
-  public long _time = 0;
-  public long _trans = 0;
-  public float _tps = 0.0f;
-  public float _art = 0.0f;
+public interface SampleListener extends EventListener
+{
+    public void update(double tps, double peakTPS, Statistics total);
 }

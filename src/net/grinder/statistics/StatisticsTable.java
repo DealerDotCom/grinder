@@ -19,6 +19,7 @@
 package net.grinder.statistics;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 
 import net.grinder.plugininterface.Test;
@@ -43,6 +44,11 @@ public class StatisticsTable
     }
 
     public void print(PrintStream out)
+    {
+	print(new PrintWriter(out));
+    }
+
+    public void print(PrintWriter out)
     {
 	final String blankField = formatField("");
 

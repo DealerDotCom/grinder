@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import net.grinder.plugininterface.Test;
+import net.grinder.util.GrinderException;
 
 
 /**
@@ -71,6 +72,28 @@ public class TestStatisticsMap implements java.io.Serializable
 
 	return result;
     }
+
+    public void add(TestStatisticsMap operand)
+    {
+	final Iterator iterator = operand.new Iterator();
+
+	while (iterator.hasNext()) {
+
+	    final Pair pair = iterator.next();
+
+	    final Test test = pair.getTest();
+	    final Statistics statistics =
+		(Statistics)m_data.get(pair.getTest());
+
+	    if (statistics == null) {
+		put(test, pair.getStatistics().getClone());
+	    }
+	    else {
+		statistics.add(pair.getStatistics());
+	    }
+	}
+    }
+
 
     /**
      * A type safe iterator.
