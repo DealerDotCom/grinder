@@ -59,7 +59,7 @@ public abstract class AbstractFileTestCase extends TestCase {
       final File[] children = f.listFiles();
       
       if (children == null) {
-        System.err.println("Could not list directory ' " + f + "'");
+        System.err.println("Could not list directory '" + f + "'");
       }
       else {
         for (int i=0; i<children.length; ++i) {
