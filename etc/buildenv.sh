@@ -9,4 +9,5 @@ unset CLASSPATH
 
 addToWindowsClasspath CLASSPATH \
     /opt/jakarta-regexp/jakarta-regexp-1.2/jakarta-regexp-1.2.jar \
-    ${WLS_HOME}/examples/ejb/basic/statelessSession/build/ejb_basic_statelessSession.jar
+    ${WLS_HOME}/examples/ejb/basic/statelessSession/build/ejb_basic_statelessSession.jar \
+    /opt/junit/junit3.4/junit.jar
