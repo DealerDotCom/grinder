@@ -1,5 +1,7 @@
 2001-01-28  Philip Aston  <paston@beasys.com>
 
+	* The Grinder 2.2 is released
+
 	* build.xml: 
 	* src/net/grinder/util/GrinderProperties.java: 
 		Fix javadoc.

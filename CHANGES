@@ -1,6 +1,8 @@
 Grinder 2.2
 -----------
 
+  The promised JUnit plugin is here! See README for more information.
+
   I've introduced the concept of a TestSetPlugin that defines the set
   of tests to perform. This is primarily to support the JUnit plugin.
 
@@ -9,6 +11,10 @@ Grinder 2.2
   :-)).
 
   More tweaks to the logging and terminal output.
+
+  The Console _should_ work again. Can't verify this as multicast is
+  currently not working on my machine.
+
 
 Grinder 2.1
 -----------
