@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
@@ -46,7 +45,6 @@ import javax.swing.tree.TreePath;
 final class CompositeTreeModel implements TreeModel {
 
   private final List m_wrappers = new ArrayList();
-  private final EventListenerList m_listeners = new EventListenerList();
 
   private Object m_rootNode = new Object();
 
@@ -198,8 +196,6 @@ final class CompositeTreeModel implements TreeModel {
       final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
       wrapper.addTreeModelListener(listener);
     }
-
-    m_listeners.add(TreeModelListener.class, listener);
   }
 
   public void removeTreeModelListener(TreeModelListener listener) {
@@ -208,22 +204,6 @@ final class CompositeTreeModel implements TreeModel {
     while (iterator.hasNext()) {
       final DelegateWrapper wrapper = (DelegateWrapper)iterator.next();
       wrapper.removeTreeModelListener(listener);
-    }
-
-    m_listeners.remove(TreeModelListener.class, listener);
-  }
-
-  private void fireTreeStructureChanged() {
-
-    final Object[] listeners = m_listeners.getListenerList();
-
-    final TreeModelEvent event =
-      new TreeModelEvent(this, new Object[] { getRoot() }, null, null);
-
-    for (int i = listeners.length - 2; i >= 0; i -= 2) {
-      if (listeners[i] == TreeModelListener.class) {
-        ((TreeModelListener)listeners[i + 1]).treeStructureChanged(event);
-      }
     }
   }
 
