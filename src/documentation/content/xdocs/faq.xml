@@ -229,6 +229,39 @@ void doit() { Thread.sleep(10000); // 10 seconds }
   <faqsection id="running">
     <title>Running the tests</title>
 
+    <faq id="threads-vs-processes">
+      <question>
+        How do I control the number of simulated users?
+      </question>
+
+      <answer>	
+	<p>Typically a worker thread is thought of as a client context
+	which can simulate a concurrent user. You can control the
+	number of worker processes per agent and the number of threads
+	per process. You shouldn't need to run more than one agent
+	process per machine. The number of simulated users is then</p>
+
+	<source>
+number of worker threads x number of worker processes x number test machines
+	</source>
+
+	<p>To simulate additional users it is usually better to
+	increase the number of worker threads rather than the number
+	of processes except where:</p>
+
+	<ul>
+	  <li>Your JVM threading implementation is particularly
+	  inefficient. This is not such a problem nowadays. Running
+	  several hundred threads per process is usually fine.</li>
+
+	  <li>The protocol you are using will behave differently when
+	  distributed across multiple processes. For example, the
+	  WebLogic Server t3 protocol is optimised so that a single
+	  TCP/IP connection is used between any two processes.</li>
+	</ul>
+      </answer>
+    </faq>
+
     <faq id="multiple-scripts">
       <question>
 	Can I run different test scripts against the same console?
