@@ -139,3 +139,39 @@ For those of those on Windows platforms, this _doesn't work_ with the
 CMD.EXE window unless you're using Cygwin. (Of course, if you're using
 Cygwin you'd use rxvt in preference :-)).
 
+
+SSL and HTTPS support
+*********************
+
+The TCPSniffer has SSL support. You must first install the JSSE
+(http://java.sun.com/products/jsse/).
+
+SSL relationships are necessarily point to point. When you interpost
+the TCPSniffer you end up with:
+
+  Client <--- ssl1 ---> TCPSniffer <--- ssl2 ---> Server
+
+Where ssl1 and ssl2 are two separate SSL connections. Each SSL
+connection has its own set of client and server certificates (both of
+which are optional).
+
+The TCPSniffer will negotiate appropriate certficates for both
+connections using certificates specified in a key store. See the JSSE
+documentation for how to set up a key store. There are 3 parameters
+you can pass to the TCPSniffer to specify key store details:
+
+    -keyStore <file>	       The key store file.
+    -keyStorePassword <pass>   The password for the key store.
+    -keyStoreType <type>       The type, defaults to "jks".
+
+You can also specify these with the corresponding javax.net.ssl.XXX
+properties.
+
+Here's an example of starting the TCPSniffer as an HTTPS proxy using
+the "testkeys" key store provided with the JSSE samples:
+
+  sniff -ssl -proxy -keyStore testkeys -keyStorePassword passphrase
+
+You may find NullPointerExceptions when using PKCS12 files generated
+by some tools, e.g. openssl. Use the Java keytool utility to maintain
+keystores and you'll be alright.
