@@ -115,6 +115,13 @@ to be recorded.
 
 Script access to global statistics.
 
+*** Events
+Idea from Nurul Choudhury:
+ > Event counting - The Jython code can create a named event and fire
+ > the event when some condition was met. When the console polls for
+ > statistics the events and their count would be sent to the console.
+
+
 *** Error reporting
 
  > It would be possible for certain classes of error (AttributeError
