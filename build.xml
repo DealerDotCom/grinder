@@ -51,11 +51,12 @@ what you want. Currently the conditionally built modules are:
    ExampleJTidyStringBean (Needs JTidy and Xalan XPath support)
 -->
 
-<project name="The Grinder" default="all" basedir=".">
+<project name="The Grinder" default="jar" basedir=".">
 
   <property name="Name" value="The Grinder"/>
   <property name="name" value="grinder"/>
   <property name="version" value="3.0beta0"/>
+  <property name="cvs.tag" value="release_3_0beta0"/>
 
   <property name="year" value="2002"/>
 
@@ -71,6 +72,8 @@ what you want. Currently the conditionally built modules are:
   <property name="manifest.mf" value="etc/grinder-manifest.mf"/>
   <property name="examples.dir" value="examples"/>
   <property name="doc.dir" value="doc"/>
+  <property name="xdoc.dir" value="xdoc"/>
+  <property name="release.dir" value="releases"/>
 
   <!-- local settings -->
   <property file="${etc.dir}/localpaths.properties"/>
@@ -88,13 +91,51 @@ what you want. Currently the conditionally built modules are:
   <property name="build.dir" value="build"/>
   <property name="prepared-src.dir" value="${build.dir}/src"/>
   <property name="classes.dir" value="${build.dir}/classes"/>
-  <property name="webapp-build.dir" value="${build.dir}/webapps"/>
   <property name="prepared-test-src.dir" value="${build.dir}/test-src"/>
   <property name="test-classes.dir" value="${build.dir}/tests-classes"/>
   <property name="lib.dir" value="lib"/>
   <property name="lib.jar" value="${name}.jar"/>
   <property name="dist.root" value="${build.dir}/distribution"/>
   <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
+
+  <!-- distribution patternsets -->
+  <patternset id="sources.patternset">
+    <include name="build.xml"/>
+    <include name="ChangeLog"/>
+    <include name="${src.dir}/**"/>
+    <include name="${test-src.dir}/**"/>
+    <include name="${webapps.dir}/**"/>
+    <include name="${etc.dir}/**"/>
+    <include name="${xdoc.dir}/**"/>
+    <include name="${javadoc.dir}/**"/>
+    <exclude name="**/.xvpics/**"/>
+    <exclude name="**/prj.el"/>
+    <exclude name="${etc.dir}/*.sh"/>
+    <exclude name="${etc.dir}/*.pl"/>
+  </patternset>
+
+  <patternset id="lib.patternset">
+    <include name="${lib.dir}/*.jar"/>
+    <include name="${lib.dir}/*.war"/>
+  </patternset>
+
+  <patternset id="examples.patternset">
+    <include name="${examples.dir}/**"/>
+    <exclude name="**/log/**"/>
+  </patternset>
+
+  <patternset id="docs.patternset">
+    <include name="${doc.dir}/**"/>
+    <exclude name="${javadoc.dir}/**"/> <!-- shipped with source -->
+    <include name="CHANGES"/>
+    <include name="TODO"/>
+  </patternset>
+
+  <patternset id="license.patternset">
+    <include name="AUTHORS"/>
+    <include name="LICENSE"/>
+    <include name="README"/>
+  </patternset>
 
   <!-- =================================================================== -->
   <!-- Initialization target                                               -->
@@ -111,6 +152,13 @@ what you want. Currently the conditionally built modules are:
       <pathelement path="${servlet.classpath}"/>
       <pathelement path="${xalan.classpath}"/>
       <pathelement path="${classes.dir}"/>
+    </path>
+
+    <path id="xweb.classpath">
+      <pathelement path="${xweb.dir}/xweb.jar"/>
+      <fileset dir="${xweb.dir}/libs">
+        <include name="**/*.jar"/>
+      </fileset>
     </path>
 
     <!-- options -->
@@ -142,6 +190,10 @@ what you want. Currently the conditionally built modules are:
                classname="org.apache.xpath.XPathAPI"
                property="have.xalan"/>
 
+    <available classpathref="xweb.classpath"
+               classname="net.sourceforge.xweb.backend.WebsiteProcessor"
+               property="have.xweb"/>
+
     <condition property="have.jtidy-and-xpath">
       <and>
 	<equals arg1="${have.jtidy}" arg2="true"/>
@@ -155,48 +207,47 @@ what you want. Currently the conditionally built modules are:
     <filter token="date" value="${TODAY}"/>
 
     <mkdir dir="${lib.dir}"/>
-
-
   </target>
-
-  <target name="all" depends="jar"/>
 
   <!-- =================================================================== -->
   <!-- Useful assertions                                                   -->
   <!-- =================================================================== -->
   <target name="assert-have-jsse" depends="init" unless="have.jsse">
-   <fail message="Install JSSE 1.0.2 to build this target"/>
+    <fail message="Install JSSE 1.0.2 to build this target"/>
   </target>
 
   <target name="assert-have-junit" depends="init" unless="have.junit">
-   <fail message="Add JUnit 3.7 to your CLASSPATH to build this target"/>
+    <fail message="Add JUnit 3.7 to your CLASSPATH to build this target"/>
   </target>
 
   <target name="assert-have-servlet" depends="init" unless="have.servlet">
-   <fail message="Define servlet.classpath in etc/localpaths.properties to build this target"/>
+    <fail message="Define servlet.classpath in etc/localpaths.properties to build this target"/>
   </target>
 
   <target name="assert-have-jtidy" depends="init" unless="have.jtidy">
-   <fail message="Define jtidy.classpath in etc/localpaths.properties to build this target"/>
+    <fail message="Define jtidy.classpath in etc/localpaths.properties to build this target"/>
   </target>
 
   <target name="assert-have-optional-tasks" depends="init"
 	  unless="have.optional.tasks">
-   <fail message="Install the Ant optional.jar to build this target"/>
+    <fail message="Install the Ant optional.jar to build this target"/>
   </target>
 
   <target name="assert-have-oro" depends="init" unless="have.oro">
-   <fail message="Define jakarta-oro.dir and jakarta-oro.jar in etc/localpaths.properties to build this target"/>
+    <fail message="Define jakarta-oro.dir and jakarta-oro.jar in etc/localpaths.properties to build this target"/>
   </target>
 
   <target name="assert-have-xalan" depends="init" unless="have.xalan">
-   <fail message="Define xalan.classpath in etc/local.properties to build this target"/>
+    <fail message="Define xalan.classpath in etc/local.properties to build this target"/>
+  </target>
+
+  <target name="assert-have-xweb" depends="init" unless="have.xweb">
+    <fail message="Define xweb.dir in etc/local.properties to build this target"/>
   </target>
 
   <target name="assert-have-everything"
-	  depends="assert-have-jsse,assert-have-junit,assert-have-optional-tasks,assert-have-servlet,assert-have-jtidy,assert-have-xalan">
+	  depends="assert-have-jsse,assert-have-junit,assert-have-optional-tasks,assert-have-servlet,assert-have-jtidy,assert-have-xalan,assert-have-xweb">
   </target>
-
 
   <!-- =================================================================== -->
   <!-- Rules that prepare a filtered copy of the appropriate source code   -->
@@ -220,14 +271,12 @@ what you want. Currently the conditionally built modules are:
 
 
   <!-- =================================================================== -->
-  <!-- Copy resources into the classes hierarcy, and bundled libraries.    -->
+  <!-- Copy resources into the classes hierarchy, and bundled libraries.    -->
   <!-- =================================================================== -->
   <target name="copy-resources" depends="init,assert-have-oro"
 	  description="Copies the resource files into build output">
-    <copy todir="${classes.dir}" filtering="off">
-      <fileset dir="${src.dir}">
-        <include name="**/resources/*.gif"/>
-      </fileset>
+    <copy todir="${classes.dir}">
+      <fileset dir="${src.dir}"  includes="**/resources/*.gif"/>
     </copy>
     <copy todir="${classes.dir}" filtering="on">
       <fileset dir="${src.dir}">
@@ -235,22 +284,19 @@ what you want. Currently the conditionally built modules are:
         <include name="**/resources/*.properties*"/>
       </fileset>
     </copy>
-    <copy todir="${test-classes.dir}" filtering="off">
-      <fileset dir="${test-src.dir}">
-        <include name="**/data/*"/>
-      </fileset>
+    <copy todir="${test-classes.dir}">
+      <fileset dir="${test-src.dir}" includes="**/data/*"/>
     </copy>
     <copy todir="${lib.dir}">
       <fileset dir="${jakarta-oro.dir}" includes="${jakarta-oro.jar}"/>
     </copy>
   </target>
 
-
   <!-- =================================================================== -->
   <!-- Compilation rules                                    -->
   <!-- =================================================================== -->
   <target name="compile" depends="prepare-src"
-	  description="Compiles the source.">
+          description="Compiles the source.">
     <mkdir dir="${classes.dir}"/>
 
     <echo message="Compiling HTTPClient code, ignore deprecation warnings..."/>
@@ -281,7 +327,6 @@ what you want. Currently the conditionally built modules are:
 		unless="have.jtidy-and-xpath"/>
        <classpath refid="build.classpath"/>
     </javac>
-
   </target>
 
   <target name="compile-tests"
@@ -297,7 +342,6 @@ what you want. Currently the conditionally built modules are:
        <classpath refid="build.classpath"/>
    </javac>
   </target>
-
 
   <!-- =================================================================== -->
   <!-- Creates the jar                                                     -->
@@ -319,16 +363,14 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <target name="sniff-war" depends="compile, copy-resources"
 	  description="Creates webapps/sniff-n-grind.war">
-	<mkdir dir="${webapp-build.dir}"/>
 
-	<war warfile="${webapp-build.dir}/sniff-n-grind.war" 
-		 webxml="${sniffer.webapp.dir}/WEB-INF/web.xml">
-	  <fileset dir="${sniffer.webapp.dir}">
-		<include name="*.jsp"/>
-	  </fileset>
-	  <classes dir="${classes.dir}"
-			   includes="**/snifferwebapp/**"/>
-	</war>
+    <war warfile="${lib.dir}/sniff-n-grind.war" 
+	 webxml="${sniffer.webapp.dir}/WEB-INF/web.xml">
+      <fileset dir="${sniffer.webapp.dir}">
+	<include name="*.jsp"/>
+      </fileset>
+      <classes dir="${classes.dir}" includes="**/snifferwebapp/**"/>
+    </war>
   </target>
 
   <target name="testimage" depends="compile-tests,copy-resources">
@@ -344,33 +386,43 @@ what you want. Currently the conditionally built modules are:
     </jar>
   </target>
 
-
   <!-- =================================================================== -->
   <!-- Rules to run the tests                                              -->
   <!-- =================================================================== -->
   <target name="test"
 	  depends="compile-tests,copy-resources,assert-have-optional-tasks"
 	  description="Run the unit-tests.">
-  <junit printsummary="false" haltonfailure="true">
+    <junit printsummary="false" haltonfailure="true">
       <classpath>
 	<pathelement path="${test-classes.dir}"/>
 	<path refid="build.classpath"/>
       </classpath>
-    <batchtest>
-      <formatter type="plain" usefile="false"/>
-      <fileset dir="${prepared-test-src.dir}" includes="**/Test*.java">
-<!--        <exclude name="**/TestMulticastSenderAndReceiver.java"/> -->
-        <exclude name="**/TestMulticastSenderAndReceiver.java"/> 
-      </fileset>
-    </batchtest>
-  </junit>
+      <batchtest>
+	<formatter type="plain" usefile="false"/>
+	<fileset dir="${prepared-test-src.dir}" includes="**/Test*.java">
 
+	  <exclude name="**/TestMulticastSenderAndReceiver.java"/> 
+	  <exclude name="**/TestConsoleListener.java"/> 
+	</fileset>
+      </batchtest>
+    </junit>
   </target>
 
+  <!-- =================================================================== -->
+  <!-- Rules to create the documentation                               -->
+  <!-- =================================================================== -->
+  <target name="xweb" depends="init,assert-have-xweb"
+    description="Generates the HTML docs.">
+    <java classname="net.sourceforge.xweb.backend.WebsiteProcessor"
+          classpathref="xweb.classpath" fork="true">
+     <arg line="-silent"/>
+     <arg path="${xdoc.dir}/documentation.xweb"/>
+    </java>
+    <delete>
+      <fileset dir="${doc.dir}" includes="**/*.svg"/>
+    </delete>
+  </target>
 
-  <!-- =================================================================== -->
-  <!-- Rules to create the API documentation                               -->
-  <!-- =================================================================== -->
   <target name="javadoc" depends="init" description="Generates the javadoc.">
     <mkdir dir="${javadoc.dir}"/>
     <javadoc packagenames="${javadoc.packages}"
@@ -395,86 +447,78 @@ what you want. Currently the conditionally built modules are:
     </javadoc>
   </target>
 
-
-  <!-- =================================================================== -->
-  <!-- Creates the distribution hierachy                                   -->
-  <!-- =================================================================== -->
-  <target name="distribute-doc" depends="javadoc">
-    <copy todir="${dist.dir}/${doc.dir}">
-      <fileset dir="${doc.dir}"/>
-    </copy>
-  </target>
-
-  <target name="distribution-hierarchy" depends="compile,jar">
-
-    <copy todir="${dist.dir}/${src.dir}" filtering="on">
-      <fileset dir="${src.dir}">
-	<exclude name="TAGS"/>
-	<exclude name="**/*.gif"/>
-	<exclude name="**/*.xcf"/>
-	<exclude name="**/.xvpics/**"/>
-      </fileset>
-    </copy>
-
-    <copy todir="${dist.dir}/${src.dir}" filtering="off">
-      <fileset dir="${src.dir}">
-	<include name="**/*.gif"/>
-	<include name="**/*.xvf"/>
-      </fileset>
-    </copy>
-
-    <copy todir="${dist.dir}/${test-src.dir}" filtering="on">
-      <fileset dir="${test-src.dir}">
-	<exclude name="TAGS"/>
-	<exclude name="**/.xvpics/**"/>
-      </fileset>
-    </copy>
-
-    <copy todir="${dist.dir}/${webapps.dir}" filtering="on">
-      <fileset dir="${webapps.dir}"/>
-    </copy>
-
-    <copy todir="${dist.dir}/${lib.dir}">
-      <fileset dir="${lib.dir}" includes="*.jar"/>
-    </copy>
-
-    <copy todir="${dist.dir}/${etc.dir}">
-      <fileset dir="${etc.dir}" excludes="buildenv.sh,munge-license.pl,setenv.sh,localpaths.properties"/>
-    </copy>
-
-    <copy todir="${dist.dir}/${examples.dir}">
-      <fileset dir="${examples.dir}" excludes="**/log/**"/>
-    </copy>
-
-    <copy todir="${dist.dir}" filtering="on">
-      <fileset dir="."
-	       includes="build.xml, AUTHORS, ChangeLog, CHANGES, LICENSE, README, TODO"
-	       excludes="prj.el"/>
-    </copy>
-  </target>
-
   <!-- =================================================================== -->
   <!-- Packages the distribution as .zip                                   -->
   <!-- =================================================================== -->
-  <target name="dist" depends="distribution-hierarchy"
-	  description="Generates a distribution jar.">
-    <zip zipfile="${name}-pre-${version}-${DSTAMP}.zip"
-	 basedir="${dist.root}"/>
+  <target name="do-dist">
+
+    <zip zipfile="${zip.prefix}.zip">
+      <zipfileset dir="." prefix="${name}-${version}/">
+        <patternset refid="lib.patternset"/>
+        <patternset refid="examples.patternset"/>
+        <patternset refid="docs.patternset"/>
+        <patternset refid="license.patternset"/>
+      </zipfileset>
+    </zip>
+
+    <zip zipfile="${zip.prefix}-src.zip">
+      <zipfileset dir="." prefix="${name}-${version}/">
+        <patternset refid="sources.patternset"/>
+        <patternset refid="license.patternset"/>
+      </zipfileset>
+    </zip>
   </target>
 
-  <target name="release" depends="realclean,assert-have-everything,test,distribution-hierarchy,distribute-doc"
-	  description="Generates a release jar.">
-<!--      <cvs command="tag -R release_${version}" noexec="true"/> -->
-    <mkdir dir="releases"/>
-    <zip zipfile="releases/${name}-${version}.zip" basedir="${dist.root}"/>
+  <target name="all"
+          depends="assert-have-everything,test,jar,sniff-war,javadoc,xweb"/>
 
+  <target name="dist" depends="all" description="Generates distribution.">
+    <antcall target="do-dist">
+      <param name="zip.prefix" value="${name}-pre-${version}-${DSTAMP}"/>
+    </antcall>
+  </target>
+
+  <target name="release" depends="realclean,all"
+          description="Generates a release.">
+
+    <echo message="Running cvs diff"/>
+    <cvs command="diff" quiet="true"/>
+
+    <echo message=""/>
+    <echo message=""/>
     <echo message="****************************************************"/>
-    <echo message="*** Now say 'cvs tag -R release_${version}"/>
-    <echo message="*** and update the version number in build.xml"/>
-    <echo message="***"/>
-    <echo message="*** If you forgot to update the ChangeLog or commit"/>
-    <echo message="*** everything, take a deep breath and try again."/>
+    <echo message="*** Is there any diff output above?              ***"/>
+    <echo message="*** Did you update the ChangeLog, CHANGES, etc?  ***"/>
     <echo message="****************************************************"/>
+    <echo message=""/>
+
+    <input message="Continue (y/n)?" validargs="y,n" addproperty="do.release"/>
+
+    <condition property="do.abort">
+      <equals arg1="n" arg2="${do.release}"/>
+    </condition>
+
+    <fail if="do.abort">Build aborted by user.</fail>
+
+    <echo message="Running cvs tag"/>
+    <cvs command="tag -R ${cvs.tag}" quiet="true"/>
+ 
+    <echo message="Building release"/>
+    <mkdir dir="${release.dir}"/>
+
+    <antcall target="do-dist">
+      <param name="zip.prefix" value="${release.dir}/${name}-${version}"/>
+    </antcall>
+  </target>
+
+  <target name="release-doc" depends="xweb" 
+          description="Packages docs for release.">
+    <mkdir dir="${release.dir}"/>
+    <zip zipfile="${release.dir}/${name}-docs.zip">
+      <fileset dir="${doc.dir}">
+        <exclude name="javadoc/**"/> <!-- shipped with source -->
+      </fileset>
+    </zip>
   </target>
 
   <!-- =================================================================== -->
@@ -490,6 +534,9 @@ what you want. Currently the conditionally built modules are:
 	  description="Removes all generated files and temporary files.">
     <delete dir="${dist.root}"/>
     <delete dir="${javadoc.dir}"/>
+    <delete includeEmptyDirs="true">
+      <fileset dir="${doc.dir}"/>
+    </delete>
     <delete dir="${lib.dir}"/>
     <delete>
       <fileset dir="." includes="**/*~" defaultexcludes="no"/>
