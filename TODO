@@ -22,6 +22,31 @@ seconds, however, in the script, there are commands
 inserted that make the Grinder to fall asleep even for an
 hour, e.g. sleep(4348063)
 
+** TCPProxy parsing
+ > 	I get a URL from browse like mentioned below:
+ > 
+ > 	http://localhost:8080/getJSP.jsp?jspname=Books.jsp&code=345&
+ > 
+ > 	As you can see there is an extra "&" (ampersand) at end of the
+ > 	URL, due to this while recording test scripts through
+ > 	TCPProxy, it throws an exception "=" missing . ( From Codecs
+ > 	class::query2nv method)
+ > 
+ > 	Is there a way by which I can modified the URL and remove the
+ > 	last extra & before it gets recorded by TCPProxy.
+
+Apparently fixed?
+
+** Timing
+
+Strange discrepencies between G3 with G2 adapater script and G2.
+Initial request (with connection) is quicker, subsequent requests seem
+to have an overhead. Can reproduce with a single thread. Need to
+investigate what's happening at the packet level.
+
+Suspect discrepency _could_ be due to additional overhead of Jython
+causing more contention on my single CPU. Need to profile.
+
 ** That EOF and retries thing
 
 http://sourceforge.net/mailarchive/message.php?msg_id=2027628
@@ -130,19 +155,15 @@ Incorporate checkstyle.
 	net.grinder.script
 	net.grinder.statistics
 
-Find out how to stop net.grinder.console.swing.TestGraph from
-preventing parent process from detecting exit status. Surely
-System.exit() is not the answer?
-
 
 * Documentation
 
 HTTP plug-in.
 TCPProxy and G3.
 
-** Examples
+Document G2 adapter.
 
-Using grinder.properties from scripts.
+** Examples
 
 HTTPS.
 
