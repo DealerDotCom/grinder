@@ -51,7 +51,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
@@ -129,6 +128,7 @@ public final class ConsoleUI implements ModelListener {
   private final SamplingControlPanel m_samplingControlPanel;
   private final FileTree m_fileTree;
   private final ErrorDialogHandler m_errorHandler;
+  private final OptionalConfirmDialog m_optionalConfirmDialog;
 
   private final CumulativeStatisticsTableModel m_cumulativeTableModel;
 
@@ -176,6 +176,9 @@ public final class ConsoleUI implements ModelListener {
 
     m_errorHandler = new ErrorDialogHandler(m_frame, resources);
     m_errorHandler.registerWithLookAndFeel(m_lookAndFeel);
+
+    m_optionalConfirmDialog =
+      new OptionalConfirmDialog(m_frame, resources, m_model.getProperties());
 
     m_stateIgnoringString = resources.getString("state.ignoring.label") + ' ';
     m_stateWaitingString = resources.getString("state.waiting.label");
@@ -1013,7 +1016,7 @@ public final class ConsoleUI implements ModelListener {
                 m_saveFileAsAction.saveBufferAs(buffer);
               }
             }
-            catch (Exception e) {
+            catch (GrinderException e) {
               getErrorHandler().handleException(e);
               return false;
             }
@@ -1078,79 +1081,75 @@ public final class ConsoleUI implements ModelListener {
     }
 
     public void actionPerformed(ActionEvent event) {
-      final File script = m_editorModel.getMarkedScript();
+      try {
+        final File script = m_editorModel.getMarkedScript();
 
-      final ConsoleProperties properties = m_model.getProperties();
-
-      if (script == null) {
-        if (!properties.getScriptNotSetDontAsk()) {
-          final JCheckBox dontAskMeAgainCheckBox =
-            new JCheckBox(
-              m_model.getResources().getString("dontAskMeAgain.text"));
-          dontAskMeAgainCheckBox.setAlignmentX(Component.RIGHT_ALIGNMENT);
-
-          final Object[] message = {
-            m_model.getResources().getString("scriptNotSetConfirmation.text"),
-            new JLabel(), // Pad.
-            dontAskMeAgainCheckBox,
-          };
-
+        if (script == null) {
           final int chosen =
-            JOptionPane.showConfirmDialog(m_frame, message,
-                                          (String) getValue(NAME),
-                                          JOptionPane.OK_CANCEL_OPTION);
+            m_optionalConfirmDialog.show(
+              m_model.getResources().getString(
+                "scriptNotSetConfirmation.text"),
+              (String) getValue(NAME),
+              JOptionPane.OK_CANCEL_OPTION,
+              "scriptNotSetAsk");
 
-          if (dontAskMeAgainCheckBox.isSelected()) {
-            try {
-              properties.setScriptNotSetDontAsk();
-            }
-            catch (GrinderException e) {
-              getErrorHandler().handleException(e);
+          if (chosen != JOptionPane.OK_OPTION &&
+              chosen != OptionalConfirmDialog.DONT_ASK_OPTION) {
+            return;
+          }
+
+          m_processControl.startWorkerProcesses(null);
+        }
+        else {
+          if (m_fileDistribution.getAgentCacheState().getOutOfDate()) {
+            JOptionPane.showMessageDialog(
+              m_frame,
+              m_model.getResources().getString("cachesOutOfDateWarning.text"),
+              (String) getValue(NAME),
+              JOptionPane.WARNING_MESSAGE);
+            return;
+          }
+
+          if (m_editorModel.isABufferDirty()) {
+            final int chosen =
+              m_optionalConfirmDialog.show(
+                m_model.getResources().getString(
+                  "startWithUnsavedBuffersConfirmation.text"),
+                (String) getValue(NAME),
+                JOptionPane.OK_CANCEL_OPTION,
+                "startWithUnsavedBuffersAsk");
+
+            if (chosen != JOptionPane.OK_OPTION &&
+                chosen != OptionalConfirmDialog.DONT_ASK_OPTION) {
               return;
             }
           }
 
-          if (chosen != JOptionPane.OK_OPTION) {
+          final File directoryFile =
+            m_model.getProperties().getDistributionDirectory();
+
+          final Directory directory = new Directory(directoryFile);
+          final File relativeScript = directory.getRelativePath(script);
+
+          if (relativeScript == null) {
+            getErrorHandler().handleErrorMessage(
+              m_model.getResources().getString(
+                "scriptNotInDirectoryError.text"),
+              (String) getValue(NAME));
+
             return;
           }
-        }
 
-        m_processControl.startWorkerProcesses(null);
+          m_processControl.startWorkerProcesses(relativeScript);
+        }
       }
-      else {
-        if (m_fileDistribution.getAgentCacheState().getOutOfDate()) {
-          JOptionPane.showMessageDialog(
-            m_frame,
-            m_model.getResources().getString("cachesOutOfDateWarning.text"),
-            (String) getValue(NAME),
-            JOptionPane.WARNING_MESSAGE);
-
-          return;
-        }
-
-        final File directoryFile = properties.getDistributionDirectory();
-
-        final Directory directory;
-
-        try {
-          directory = new Directory(directoryFile);
-        }
-        catch (Directory.DirectoryException e) {
-          getErrorHandler().handleException(e);
-          return;
-        }
-
-        final File relativeScript = directory.getRelativePath(script);
-
-        if (relativeScript == null) {
-          getErrorHandler().handleErrorMessage(
-            m_model.getResources().getString("scriptNotInDirectoryError.text"),
-            (String) getValue(NAME));
-
-          return;
-        }
-
-        m_processControl.startWorkerProcesses(relativeScript);
+      catch (Directory.DirectoryException e) {
+        getErrorHandler().handleException(e);
+        return;
+      }
+      catch (GrinderException e) {
+        getErrorHandler().handleException(e);
+        return;
       }
     }
   }
@@ -1165,34 +1164,14 @@ public final class ConsoleUI implements ModelListener {
 
       final ConsoleProperties properties = m_model.getProperties();
 
-      if (!properties.getResetConsoleWithProcessesDontAsk()) {
-
-        final JCheckBox dontAskMeAgainCheckBox =
-          new JCheckBox(
-            m_model.getResources().getString("dontAskMeAgain.text"));
-        dontAskMeAgainCheckBox.setAlignmentX(Component.RIGHT_ALIGNMENT);
-
-        final Object[] message = {
-          m_model.getResources().getString(
-            "resetConsoleWithProcessesConfirmation.text"),
-          new JLabel(), // Pad.
-          dontAskMeAgainCheckBox,
-        };
-
+      try {
         final int chosen =
-          JOptionPane.showConfirmDialog(m_frame, message,
-                                        (String) getValue(NAME),
-                                        JOptionPane.YES_NO_CANCEL_OPTION);
-
-        if (dontAskMeAgainCheckBox.isSelected()) {
-          try {
-            properties.setResetConsoleWithProcessesDontAsk();
-          }
-          catch (GrinderException e) {
-            getErrorHandler().handleException(e);
-            return;
-          }
-        }
+          m_optionalConfirmDialog.show(
+            m_model.getResources().getString(
+              "resetConsoleWithProcessesConfirmation.text"),
+            (String) getValue(NAME),
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            "resetConsoleWithProcessesAsk");
 
         switch (chosen) {
         case JOptionPane.YES_OPTION:
@@ -1203,9 +1182,16 @@ public final class ConsoleUI implements ModelListener {
           properties.setResetConsoleWithProcesses(false);
           break;
 
+        case OptionalConfirmDialog.DONT_ASK_OPTION:
+          break;
+
         default:
           return;
         }
+      }
+      catch (GrinderException e) {
+        getErrorHandler().handleException(e);
+        return;
       }
 
       if (properties.getResetConsoleWithProcesses()) {
@@ -1224,39 +1210,22 @@ public final class ConsoleUI implements ModelListener {
 
     public void actionPerformed(ActionEvent event) {
 
-      final ConsoleProperties properties = m_model.getProperties();
-
-      if (!properties.getStopProcessesDontAsk()) {
-
-        final JCheckBox dontAskMeAgainCheckBox =
-          new JCheckBox(
-            m_model.getResources().getString("dontAskMeAgain.text"));
-        dontAskMeAgainCheckBox.setAlignmentX(Component.RIGHT_ALIGNMENT);
-
-        final Object[] message = {
-          m_model.getResources().getString("stopProcessesConfirmation.text"),
-          new JLabel(), // Pad.
-          dontAskMeAgainCheckBox,
-        };
-
+      try {
         final int chosen =
-          JOptionPane.showConfirmDialog(m_frame, message,
-                                        (String) getValue(NAME),
-                                        JOptionPane.OK_CANCEL_OPTION);
+          m_optionalConfirmDialog.show(
+            m_model.getResources().getString("stopProcessesConfirmation.text"),
+            (String) getValue(NAME),
+            JOptionPane.OK_CANCEL_OPTION,
+            "stopProcessesAsk");
 
-        if (dontAskMeAgainCheckBox.isSelected()) {
-          try {
-            properties.setStopProcessesDontAsk();
-          }
-          catch (GrinderException e) {
-            getErrorHandler().handleException(e);
-            return;
-          }
-        }
-
-        if (chosen != JOptionPane.OK_OPTION) {
+        if (chosen != JOptionPane.OK_OPTION &&
+            chosen != OptionalConfirmDialog.DONT_ASK_OPTION) {
           return;
-        }
+          }
+      }
+      catch (GrinderException e) {
+        getErrorHandler().handleException(e);
+        return;
       }
 
       m_processControl.stopWorkerProcesses();
