@@ -19,23 +19,26 @@
 
 package net.grinder.plugin.socket;
 
-import net.grinder.plugininterface.PluginThreadContext;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.util.Date;
+import java.util.Set;
+
+import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.SimplePluginBase;
+import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.Test;
-import net.grinder.util.FilenameFactory;
+import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 
-import java.net.Socket;
-import java.io.File;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.Date;
 
 /**
  * Grinder Plugin that allows testing of socket based programs
@@ -43,164 +46,20 @@ import java.util.Date;
  * @author  David Freels
  * @version $Revision$
  */
-public class SocketPlugin extends net.grinder.plugininterface.SimplePluginBase
+public class SocketPlugin implements GrinderPlugin
 {
-  
-    private PluginThreadContext m_pluginThreadContext = null;
-    private Socket m_socket = null;
+    private Set m_testsFromPropertiesFile;
     private String m_host = "localhost";
     private int m_port = 7080;
-    private BufferedReader m_reader = null;
-    private BufferedWriter m_writer = null;
-
-    /** Creates new SocketPlugin */
-    public SocketPlugin()
-    {
-    }
   
-    /**
-     * This is called for each method name in grinder.plugin.methods.
-     */
-    public boolean doTest(Test testDefinition) throws PluginException
-    { 
-	//Get the test parameters
-	final GrinderProperties parameters =
-	    testDefinition.getParameters();
-	//Get the test number
-	final Integer testNumber = testDefinition.getTestNumber();
-    
-	/**
-	 * Multiple request/response operations could happen
-	 * during a single test, so we need to cycle through
-	 * each operation.
-	 */
-    
-//Message count
-int i = 0;
-//Look for the first request
-String requestFile = parameters.getProperty("request"+i, "nofile");
-    
-//If no request is found, abort
-if(requestFile.equals("nofile")) {
-    throw new PluginException("No request parameters have been set!");
-}
-    
-while(!requestFile.equals("nofile")) {
-    //Call method to load the next request and save the response
-    sendRequest(requestFile, parameters.getProperty("response"+i,
-						    "test"+testNumber.toString()+"response"+i+".txt"));
-    i++;
-    //Get the next request file
-    requestFile = parameters.getProperty("request"+i, "nofile");
-}
-    
-return true;
-    }
-  
-    /**
-     * This method sends a request and records it the response the the file responseFile
-     */
-    private void sendRequest(String requestFile, String responseFile)
+    public void initialize(PluginProcessContext processContext,
+			   Set testsFromPropertiesFile)
 	throws PluginException
     {
-	try {
-	    //Read the contents of the file and send them to the server
-	    BufferedReader fis =
-		new BufferedReader(
-		    new InputStreamReader(
-			new FileInputStream(requestFile)));
-
-	    StringBuffer message = new StringBuffer("");
-	    String line = "";
-      
-	    while( (line = fis.readLine()) != null) {
-		message.append(line+"\n");
-	    }
-
-	    m_writer.write(message.toString());
-	    m_writer.flush();
-	    fis.close();
-
-	    //Read the response from the server and write it to a file      
-	    message.delete(0, message.length());
-	    line = "";
-
-	    while((line = m_reader.readLine()) != null) {
-		message.append(line+System.getProperty("line.separator"));
-	    }
-
-	    java.io.RandomAccessFile fos = new java.io.RandomAccessFile(responseFile, "rw");
-
-	    fos.seek(fos.length());
-	    fos.writeBytes(message.toString()+System.getProperty("line.separator"));
-	    fos.close();
-
-	    //BufferedWriter fos = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(responseFile)));
-	    //fos.write(message.toString());
-	    //fos.close();
-	}
-	catch(java.io.IOException ioe) {
-	    throw new PluginException("Error communicating with server", ioe);
-	}
-    }
-  
-    /**
-     * This method is executed at the end of every cycle.
-     */
-    public void endCycle() throws PluginException
-    {
-	//close the socket connection
-	if(m_socket != null) {
-	    try {
-		m_socket.close();
-		m_reader.close();
-		m_writer.close();
-	    }
-	    catch(java.io.IOException ioe) {
-		throw new PluginException("Error closing socket connection", ioe);
-	    }
-	}
-    }
-  
-    /**
-     * This method is executed at the beginning of evey cycle.
-     */
-    public void beginCycle() throws PluginException
-    {
-	//open the socket connection
-	try {
-	    Date d = new Date();
-	    m_socket = new Socket(m_host, m_port);
-	    m_pluginThreadContext.logMessage(" Time to connect to "+m_host+" took "+(new Date().getTime() - d.getTime())+" ms");
-	
-	    m_reader =
-		new BufferedReader(
-		    new InputStreamReader(m_socket.getInputStream()));
-
-	    m_writer =
-		new BufferedWriter(
-		    new OutputStreamWriter(m_socket.getOutputStream()));
-
-	}
-	catch(java.net.UnknownHostException uhe) {
-	    throw new PluginException("Cannot locate host "+m_host, uhe);
-	}
-	catch(java.io.IOException ioe) {
-	    throw new PluginException("Unable to connect to host "+m_host, ioe);
-	}
-    }
-  
-    /**
-     * This method is executed when the thread starts. It is only
-     * executed once.
-     */
-    public void initialize(PluginThreadContext pluginThreadContext)
-	throws PluginException
-    {
-	m_pluginThreadContext = pluginThreadContext;
+	m_testsFromPropertiesFile = testsFromPropertiesFile;
 
 	final GrinderProperties parameters =
-	    pluginThreadContext.getPluginParameters();
+	    processContext.getPluginParameters();
     
 	try {
 	    m_host = parameters.getMandatoryProperty("host");
@@ -210,4 +69,171 @@ return true;
 	    throw new PluginException("Missing property", ge);
 	}
     }
+
+    public Set getTests()
+    {
+	return m_testsFromPropertiesFile;
     }
+
+    public ThreadCallbacks createThreadCallbackHandler()
+	throws PluginException
+    {
+	return new SocketPluginThreadCallbacks();
+    }
+
+    private class SocketPluginThreadCallbacks implements ThreadCallbacks
+    {
+	private PluginThreadContext m_pluginThreadContext = null;
+	private Socket m_socket = null;
+	private BufferedReader m_reader = null;
+	private BufferedWriter m_writer = null;
+
+	public void initialize(PluginThreadContext threadContext) 
+	{
+	    m_pluginThreadContext = threadContext;
+	}
+
+	/**
+	 * This is called for each method name in grinder.plugin.methods.
+	 */
+	public boolean doTest(Test testDefinition) throws PluginException
+	{ 
+	    //Get the test parameters
+	    final GrinderProperties parameters =
+		testDefinition.getParameters();
+
+	    //Get the test number
+	    final int testNumber = testDefinition.getTestNumber();
+    
+	    /**
+	     * Multiple request/response operations could happen
+	     * during a single test, so we need to cycle through
+	     * each operation.
+	     */
+    
+	    //Message count
+	    int i = 0;
+
+	    //Look for the first request
+	    String requestFile = parameters.getProperty("request" + i,
+							null);
+    
+	    //If no request is found, abort
+	    if (requestFile == null) {
+		throw new PluginException(
+		    "No request parameters have been set!");
+	    }
+    
+	    while (requestFile != null) {
+		//Call method to load the next request and save the response
+		sendRequest(requestFile,
+			    parameters.getProperty("response"+ i,
+						   "test" + testNumber +
+						   "response" + i + ".txt"));
+		i++;
+
+		//Get the next request file
+		requestFile = parameters.getProperty("request"+i, "nofile");
+	    }
+
+	    return true;
+	}
+  
+	/**
+	 * This method sends a request and records it the response the the file responseFile
+	 */
+	private void sendRequest(String requestFile, String responseFile)
+	    throws PluginException
+	{
+	    try {
+		//Read the contents of the file and send them to the server
+		BufferedReader fis =
+		    new BufferedReader(
+			new InputStreamReader(
+			    new FileInputStream(requestFile)));
+
+		StringBuffer message = new StringBuffer("");
+		String line = "";
+      
+		while( (line = fis.readLine()) != null) {
+		    message.append(line+"\n");
+		}
+
+		m_writer.write(message.toString());
+		m_writer.flush();
+		fis.close();
+
+		//Read the response from the server and write it to a file      
+		message.delete(0, message.length());
+		line = "";
+
+		while((line = m_reader.readLine()) != null) {
+		    message.append(line+System.getProperty("line.separator"));
+		}
+
+		java.io.RandomAccessFile fos =
+		    new java.io.RandomAccessFile(responseFile, "rw");
+
+		fos.seek(fos.length());
+		fos.writeBytes(message.toString() + 
+			       System.getProperty("line.separator"));
+		fos.close();
+	    }
+	    catch(java.io.IOException ioe) {
+		throw new PluginException(
+		    "Error communicating with server", ioe);
+	    }
+	}
+  
+	/**
+	 * This method is executed at the beginning of evey cycle.
+	 */
+	public void beginCycle() throws PluginException
+	{
+	    //open the socket connection
+	    try {
+		Date d = new Date();
+		m_socket = new Socket(m_host, m_port);
+		m_pluginThreadContext.logMessage(
+		    "Time to connect to " + m_host + " took " + 
+		    (new Date().getTime() - d.getTime())+" ms");
+		
+		m_reader =
+		    new BufferedReader(
+			new InputStreamReader(m_socket.getInputStream()));
+
+		m_writer =
+		    new BufferedWriter(
+			new OutputStreamWriter(m_socket.getOutputStream()));
+
+	    }
+	    catch(java.net.UnknownHostException uhe) {
+		throw new PluginException("Cannot locate host "+
+					  m_host, uhe);
+	    }
+	    catch(java.io.IOException ioe) {
+		throw new PluginException("Unable to connect to host "+
+					  m_host, ioe);
+	    }
+	}
+
+	/**
+	 * This method is executed at the end of every cycle.
+	 */
+	public void endCycle() throws PluginException
+	{
+	    //close the socket connection
+	    if(m_socket != null) {
+		try {
+		    m_socket.close();
+		    m_reader.close();
+		    m_writer.close();
+		}
+		catch(java.io.IOException ioe) {
+		    throw new PluginException(
+			"Error closing socket connection", ioe);
+		}
+	    }
+	}
+    }
+}

@@ -89,7 +89,7 @@ public class TestPropertiesHelper extends TestCase
 		final String value = (String)entry.getValue();
 
 		final String propertyName =
-		    PropertiesHelper.getTestPropertyName(new Integer(i),
+		    PropertiesHelper.getTestPropertyName(i,
 							 "parameter." + key);
 
 		m_properties.put(propertyName, value);
@@ -98,8 +98,7 @@ public class TestPropertiesHelper extends TestCase
 
 	for (int i=0; i<m_descriptions.length; i++) {
 	    final String propertyName =
-		PropertiesHelper.getTestPropertyName(new Integer(i),
-						     "description");
+		PropertiesHelper.getTestPropertyName(i, "description");
 	    m_properties.put(propertyName, m_descriptions[i]);
 	}
     }
@@ -140,7 +139,7 @@ public class TestPropertiesHelper extends TestCase
 	final ProcessContextImplementation context =
 	    new ProcessContextImplementation("host", "process");
 
-	final Set tests = helper.getTestSet(helper.instantiatePlugin(context));
+	final Set tests = helper.instantiatePlugin(context).getTests();
 
 	assertEquals(m_testParameters.length, tests.size());
 
@@ -149,7 +148,7 @@ public class TestPropertiesHelper extends TestCase
 	while (testSetIterator.hasNext()) {
 	    final Test test = (Test)testSetIterator.next();
 
-	    final int testNumber = test.getTestNumber().intValue();
+	    final int testNumber = test.getTestNumber();
 
 	    assertEquals(m_descriptions[testNumber], test.getDescription());
 

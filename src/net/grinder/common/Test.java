@@ -29,7 +29,7 @@ public interface Test extends Comparable, java.io.Serializable
 {
     /** Test number is returned as an Integer so it can be used it as
      * a Map key. */
-    public Integer getTestNumber();
+    public int getTestNumber();
     public String getDescription();
     public GrinderProperties getParameters();
 }

@@ -33,9 +33,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import net.grinder.plugininterface.GrinderPlugin;
+import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.SimplePluginBase;
 import net.grinder.plugininterface.Test;
 import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.util.FilenameFactory;
@@ -50,23 +51,69 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-public class HttpPlugin extends SimplePluginBase
+public class HttpPlugin implements GrinderPlugin
 {
-    private PluginThreadContext m_pluginThreadContext = null;
-    private FilenameFactory m_filenameFactory = null;
-    private Map m_callData = new HashMap();
-    private boolean m_logHTML = true;
-    private HTTPHandler m_httpHandler = null;
-    private int m_currentIteration = 0; // How many times we've done all the URL's
-    private Object m_bean = null;
-    private StringBean m_stringBean = null;
-    private Map m_beanMethodMap = null;
+    private final static Object[] s_noArgs = new Object[0];
 
-    /**
-     * Inner class that holds the data for a call.
-     */
-    protected class CallData implements HTTPHandler.RequestData
+    private Set m_testsFromPropertiesFile;
+    private CallData[] m_callData;
+    private boolean m_followRedirects;
+    private boolean m_logHTML;
+    private boolean m_timeIncludesTransaction;
+    private boolean m_useCookies;
+    private boolean m_useCookiesVersionString;
+    private boolean m_useHTTPClient;
+    private String m_stringBeanClassName;
+
+    public void initialize(PluginProcessContext processContext,
+			   Set testsFromPropertiesFile)
+	throws PluginException
     {
+	m_testsFromPropertiesFile = testsFromPropertiesFile;
+	m_callData = new CallData[m_testsFromPropertiesFile.size()];
+
+	final Iterator i = m_testsFromPropertiesFile.iterator();
+
+	while (i.hasNext()) {
+	    final Test test = (Test)i.next();
+
+	    m_callData[test.getTestNumber()] = new CallData(processContext,
+							    test);
+	}
+
+	final GrinderProperties parameters =
+	    processContext.getPluginParameters();
+
+	m_followRedirects = parameters.getBoolean("followRedirects", false);
+	m_logHTML = parameters.getBoolean("logHTML", false);
+	m_timeIncludesTransaction =
+	    parameters.getBoolean("timeIncludesTransaction", false);
+	m_useCookies = parameters.getBoolean("useCookies", true);
+	// tily@sylo.org / 2000/02/16 mod to set version string on or off - breaks jrun otherwise
+	m_useCookiesVersionString =
+	    parameters.getBoolean("useCookiesVersionString", true);
+	m_useHTTPClient = parameters.getBoolean("useHTTPClient", false);
+
+	m_stringBeanClassName = parameters.getProperty("stringBean", null);
+    }
+
+    public Set getTests() throws PluginException
+    {
+	return m_testsFromPropertiesFile;
+    }
+
+    public ThreadCallbacks createThreadCallbackHandler()
+	throws PluginException
+    {
+	return new HTTPPluginThreadCallbacks();
+    }
+    
+    /**
+     * Inner class that holds the configuration data for a call.
+     */
+    protected class CallData
+    {
+	private final Test m_test;
 	private final String m_urlString;
 	private final String m_okString;
 	private final String m_ifModifiedSince;
@@ -77,11 +124,9 @@ public class HttpPlugin extends SimplePluginBase
 	private final String m_basicAuthenticationRealmString;
 	private final String m_basicAuthenticationUserString;
 	private final String m_basicAuthenticationPasswordString;
-	private final StringBuffer m_buffer = new StringBuffer();
-	private final Test m_test;
-	private final Object[] m_noArgs = new Object[0];
 
-	public CallData(Test test) throws PluginException
+	public CallData(PluginProcessContext processContext,
+			Test test) throws PluginException
 	{
 	    m_test = test;
 	    
@@ -124,13 +169,13 @@ public class HttpPlugin extends SimplePluginBase
 		    {
 			writer.write(buffer, 0, charsRead);
 		    }
-		
+
 		    in.close();
 		    writer.close();
 		    m_postString = writer.toString();
 		}
 		catch (IOException e) {
-		    m_pluginThreadContext.logError(
+		    processContext.logError(
 			"Could not read post data from " + postFilename);
 
 		    e.printStackTrace(System.err);
@@ -151,306 +196,343 @@ public class HttpPlugin extends SimplePluginBase
 					   null);
 	}
 
-	private String replaceDynamicKeys(String original) 
-	    throws HTTPHandlerException
+	public Test getTest()
 	{
-	    if (original == null || m_bean == null) {
-		return original;
-	    }
-	    else {
-		// CallData's belong to a HttpPlugin, and there's a
-		// plugin per thread so we can safely reuse our
-		// StringBuffer.
-		m_buffer.delete(0, m_buffer.length());
-		
-		int p = 0;
-		int lastP = p;
-
-		while (true) {
-		    if ((p = original.indexOf('<', lastP)) == -1) {
-			m_buffer.append(original.substring(lastP));
-			break;
-		    }
-		    else {
-			m_buffer.append(original.substring(lastP, p));
-
-			lastP = p + 1;
-		    
-			p = original.indexOf('>', lastP);
-
-			if (p == -1) {
-			    throw new HTTPHandlerException(
-				"URL for Test " + m_test.getTestNumber() +
-				" malformed");    
-			}
-			
-			final String methodName = original.substring(lastP, p);
-
-			final Method method =
-			    (Method)m_beanMethodMap.get(methodName);
-
-			if (method == null ) {
-			    throw new HTTPHandlerException(
-				"URL for Test " + m_test.getTestNumber() +
-				" refers to unknown string bean method '" +
-				methodName + "'");
-			}
-
-			try {
-			    m_buffer.append((String)method.invoke(m_bean,
-								  m_noArgs));
-			}
-			catch (Exception e) {
-			    throw new HTTPHandlerException(
-				"Failure invoking string bean method '" +
-				methodName + "'", e);
-			}
-
-			lastP = p + 1;
-		    }
-		}
-
-		return m_buffer.toString();
-	    }
+	    return m_test;
 	}
 
-	public String getURLString() throws HTTPHandlerException
-	{
-	    return replaceDynamicKeys(m_urlString);
-	}
-
-	public String getPostString() throws HTTPHandlerException
-	{
-	    return replaceDynamicKeys(m_postString);
-	}
-
-	public String getContentType(){
-	    return m_contentType;
-	}
+	public Set getAdditionalHeaders() { return m_additionalHeaders; }
 
 	public HTTPHandler.AuthorizationData getAuthorizationData()
 	    throws HTTPHandlerException
 	{
 	    if (m_basicAuthenticationUserString != null &&
 		m_basicAuthenticationPasswordString != null) {
-		final String realm =
-		    replaceDynamicKeys(m_basicAuthenticationRealmString);
-
-		final String user =
-		    replaceDynamicKeys(m_basicAuthenticationUserString);
-
-		final String password =
-		    replaceDynamicKeys(m_basicAuthenticationPasswordString);
 
 		return new HTTPHandler.BasicAuthorizationData() {
-			public String getRealm()
-			{
-			    return realm;
-			}
-
-			public String getUser()
-			{
-			    return user;
-			}
-
-			public String getPassword()
-			{
-			    return password;
-			}
+			public String getRealm() {
+			    return m_basicAuthenticationRealmString; }
+			public String getUser() {
+			    return m_basicAuthenticationUserString; }
+			public String getPassword() {
+			    return m_basicAuthenticationPasswordString; }
 		    };
+
 	    }
 	    return null;
 	}
-	
+
+	public String getContentType() { return m_contentType; }
 	public String getIfModifiedSince() { return m_ifModifiedSince; }
 	public long getIfModifiedSinceLong() { return m_ifModifiedSinceLong; }
+	public String getPostString() { return m_postString; }
+	public String getURLString() { return m_urlString; }
+
 	public String getOKString() { return m_okString; }
-	public Set getAdditionalHeaders() { return m_additionalHeaders; }
     }
 
-    /**
-     * This method initializes the plug-in.
-     */    
-    public void initialize(PluginThreadContext pluginThreadContext)
-	throws PluginException
+    protected class HTTPPluginThreadCallbacks implements ThreadCallbacks
     {
-	m_pluginThreadContext = pluginThreadContext;
+	private final ThreadCallData[] m_threadCallData =
+	    new ThreadCallData[m_callData.length];
 
-	final GrinderProperties parameters =
-	    pluginThreadContext.getPluginParameters();
+	private PluginThreadContext m_pluginThreadContext = null;
+	private FilenameFactory m_filenameFactory = null;
+	private HTTPHandler m_httpHandler = null;
+	private int m_currentIteration = 0; // How many times we've done all the URL's
+	private Object m_bean = null;
+	private StringBean m_stringBean = null;
+	private Map m_beanMethodMap = null;
 
-	m_filenameFactory = pluginThreadContext.getFilenameFactory();
+	/**
+	 * This method is executed when the thread starts. It is only
+	 * executed once per thread.
+	 */
+	public void initialize(PluginThreadContext pluginThreadContext)
+	    throws PluginException
+	{
+	    m_pluginThreadContext = pluginThreadContext;
 
-	boolean useCookies = parameters.getBoolean("keepSession", false);
+	    for (int i=0; i<m_callData.length; i++) {
+		m_threadCallData[i] =
+		    new ThreadCallData(m_callData[i]);
+	    }
 
-	if (useCookies) {
-	    m_pluginThreadContext.logError(
-		"'keepSession' has been renamed to 'useCookies'." +
-		"Please update your grinder.properties.");
-	}
-	else {
-	    useCookies = parameters.getBoolean("useCookies", true);
-	}
+	    m_filenameFactory = pluginThreadContext.getFilenameFactory();
 
-	final boolean followRedirects =
-	    parameters.getBoolean("followRedirects", false);
+	    if (m_useHTTPClient) {
+		m_httpHandler = new HTTPClientHandler(pluginThreadContext,
+						      m_useCookies,
+						      m_followRedirects);
+	    }
+	    else {
+		m_httpHandler = new HttpMsg(pluginThreadContext, m_useCookies,
+					    m_useCookiesVersionString,
+					    m_followRedirects,
+					    m_timeIncludesTransaction);
+	    }
 
-	if (parameters.getBoolean("useHTTPClient", false)) {
-	    m_httpHandler = new HTTPClientHandler(pluginThreadContext,
-						  useCookies, followRedirects);
-	}
-	else {
-	    // tily@sylo.org / 2000/02/16 mod to set version string on or off - breaks jrun otherwise
-	    final boolean useCookiesVersionString =
-		parameters.getBoolean("useCookiesVersionString", true);
-  
+	    if (m_stringBeanClassName != null) {
+		try {
+		    m_pluginThreadContext.logMessage("Instantiating " +
+						     m_stringBeanClassName);
 
-	    m_httpHandler = new HttpMsg(pluginThreadContext, useCookies,
-					useCookiesVersionString,
-					followRedirects,
-					parameters.getBoolean(
-					    "timeIncludesTransaction", false));
-	}
+		    final Class stringBeanClass =
+			Class.forName(m_stringBeanClassName);
 
-	m_logHTML = parameters.getBoolean("logHTML", false);
+		    m_bean = stringBeanClass.newInstance();
 
-	final String stringBeanClassName =
-	    parameters.getProperty("stringBean", null);
+		    if (StringBean.class.isAssignableFrom(stringBeanClass)) {
+			m_stringBean = (StringBean)m_bean;
+			m_stringBean.initialize(m_pluginThreadContext);
+		    }
+		    else {
+			m_pluginThreadContext.logMessage(
+			    m_stringBeanClassName + " does not implement " +
+			    StringBean.class.getName() +
+			    ", skipping initialisation");
+		    }
 
-	if (stringBeanClassName != null) {
-	    try {
-		m_pluginThreadContext.logMessage("Instantiating " +
-						 stringBeanClassName);
+		    m_beanMethodMap = new HashMap();
 
-		final Class stringBeanClass =
-		    Class.forName(stringBeanClassName);
+		    final Method[] methods = stringBeanClass.getMethods();
 
-		m_bean = stringBeanClass.newInstance();
+		    for (int i=0; i<methods.length; i++) {
+			final String name = methods[i].getName();
 
-		if (StringBean.class.isAssignableFrom(stringBeanClass)) {
-		    m_stringBean = (StringBean)m_bean;
-		    m_stringBean.initialize(m_pluginThreadContext);
+			if (name.startsWith("get") &&
+			    methods[i].getReturnType() == String.class &&
+			    methods[i].getParameterTypes().length == 0) {
+			    m_beanMethodMap.put(name, methods[i]);
+			}
+		    }
 		}
-		else {
-		    m_pluginThreadContext.logMessage(
-			stringBeanClassName + " does not implement " +
-			StringBean.class.getName() +
-			", skipping initialisation");
+		catch(ClassNotFoundException e) {
+		    throw new PluginException(
+			"The specified string bean class '" +
+			m_stringBeanClassName + "' was not found.", e);
 		}
+		catch (Exception e){
+		    throw new PluginException (
+			"An instance of the string bean class '" +
+			m_stringBeanClassName + "' could not be created.", e);
+		}
+	    }
+	}
 
-		m_beanMethodMap = new HashMap();
+	public void beginCycle() throws PluginException
+	{
+	    if (m_stringBean != null) {
+		m_stringBean.beginCycle();
+	    }
 
-		final Method[] methods = stringBeanClass.getMethods();
+	    // Reset cookie if necessary.
+	    m_httpHandler.reset();      
+	}
 
-		for (int i=0; i<methods.length; i++) {
-		    final String name = methods[i].getName();
+	/**
+	 * This method processes the URLs.
+	 */    
+	public boolean doTest(Test test) throws PluginException
+	{
+	    if (m_stringBean != null) {
+		m_stringBean.doTest(test);
+	    }
 
-		    if (name.startsWith("get") &&
-			methods[i].getReturnType() == String.class &&
-			methods[i].getParameterTypes().length == 0) {
-			m_beanMethodMap.put(name, methods[i]);
+	    final int testNumber = test.getTestNumber();
+
+	    final ThreadCallData threadCallData = m_threadCallData[testNumber];
+
+	    // Do the call.
+	    final String page = m_httpHandler.sendRequest(threadCallData);
+
+	    final boolean error;
+	    final String okString = threadCallData.getOKString();
+
+	    if (page == null) {
+		error = okString != null;
+	    }
+	    else {
+		error = okString != null && page.indexOf(okString) == -1;
+		
+		if (m_logHTML || error) {
+		    final String filename =
+			m_filenameFactory.createFilename("page",
+							 "_" +
+							 m_currentIteration +
+							 "_" + testNumber +
+							 ".html");
+		    try {
+			final BufferedWriter htmlFile =
+			    new BufferedWriter(new FileWriter(filename,
+							      false));
+
+			htmlFile.write(page);
+			htmlFile.close();
+		    }
+		    catch (IOException e) {
+			throw new PluginException("Error writing to " +
+						  filename +
+						  ": " + e, e);
+		    }
+
+		    if (error) {
+			m_pluginThreadContext.logError(
+			    "The 'ok' string ('" + okString +
+			    "') was not found in the page received. " +
+			    "The output has been written to '" + filename +
+			    "'");
 		    }
 		}
 	    }
-	    catch(ClassNotFoundException e) {
-		throw new PluginException(
-		    "The specified string bean class '" +
-		    stringBeanClassName + "' was not found.", e);
+
+	    return !error;
+	}
+
+	public void endCycle() throws PluginException
+	{
+	    if (m_stringBean != null) {
+		m_stringBean.endCycle();
 	    }
-	    catch (Exception e){
-		throw new PluginException (
-		"An instance of the string bean class '" +
-		stringBeanClassName + "' could not be created.", e);
+
+	    m_currentIteration++;
+	}
+
+	public class ThreadCallData implements HTTPHandler.RequestData
+	{
+	    private final CallData m_callData;
+	    private final StringBuffer m_buffer = new StringBuffer();
+
+	    public ThreadCallData(CallData callData)
+	    {
+		m_callData = callData;
 	    }
-	}
-    }
 
-    public void beginCycle() throws PluginException
-    {
-	if (m_stringBean != null) {
-	    m_stringBean.beginCycle();
-	}
+	    public Set getAdditionalHeaders() throws HTTPHandlerException
+	    {
+		return m_callData.getAdditionalHeaders();
+	    }
 
-	// Reset cookie if necessary.
-	m_httpHandler.reset();      
-    }
+	    public HTTPHandler.AuthorizationData getAuthorizationData()
+		throws HTTPHandlerException
+	    {
+		final HTTPHandler.AuthorizationData original =
+		    m_callData.getAuthorizationData();
 
-    /**
-     * This method processes the URLs.
-     */    
-    public boolean doTest(Test test) throws PluginException
-    {
-	if (m_stringBean != null) {
-	    m_stringBean.doTest(test);
-	}
+		if (original != null &&
+		    original instanceof HTTPHandler.BasicAuthorizationData) {
 
-	final Integer testNumber = test.getTestNumber();
-	
-	CallData callData = (CallData)m_callData.get(testNumber);
-	
-	if (callData == null) {
-	    callData = createCallData(m_pluginThreadContext, test);
-	    m_callData.put(testNumber, callData);
-	}
-	
-	// Do the call.
-	final String page = m_httpHandler.sendRequest(callData);
+		    final HTTPHandler.BasicAuthorizationData basic =
+			(HTTPHandler.BasicAuthorizationData)original;
 
-	final boolean error;
-	final String okString = callData.getOKString();
+		    final String realm = replaceKeys(basic.getRealm());
+		    final String user = replaceKeys(basic.getUser());
+		    final String password = replaceKeys(basic.getPassword());
 
-	if (page == null) {
-	    error = okString != null;
-	}
-	else {
-	    error = okString != null && page.indexOf(okString) == -1;
-	
-	    if (m_logHTML || error) {
-		final String filename =
-		    m_filenameFactory.createFilename("page",
-						     "_" + m_currentIteration +
-						     "_" + testNumber +
-						     ".html");
-		try {
-		    final BufferedWriter htmlFile =
-			new BufferedWriter(new FileWriter(filename, false));
-
-		    htmlFile.write(page);
-		    htmlFile.close();
-		}
-		catch (IOException e) {
-		    throw new PluginException("Error writing to " + filename +
-					      ": " + e, e);
+		    return new HTTPHandler.BasicAuthorizationData() {
+			    public String getRealm() { return realm; }
+			    public String getUser() { return user; }
+			    public String getPassword() { return password; }
+			};
 		}
 
-		if (error) {
-		    m_pluginThreadContext.logError(
-			"The 'ok' string ('" + okString +
-			"') was not found in the page received. " +
-			"The output has been written to '" + filename + "'");
+		return null;
+	    }
+	    
+	    public String getContentType() throws HTTPHandlerException
+	    {
+		return replaceKeys(m_callData.getContentType());
+	    }
+	    
+	    public String getIfModifiedSince() throws HTTPHandlerException
+	    {
+		return m_callData.getIfModifiedSince();
+	    }
+
+	    public long getIfModifiedSinceLong() throws HTTPHandlerException
+	    {
+		return m_callData.getIfModifiedSinceLong();
+	    }
+
+	    public String getPostString() throws HTTPHandlerException
+	    {
+		return replaceKeys(m_callData.getPostString());
+	    }
+
+	    public String getURLString() throws HTTPHandlerException
+	    {
+		return replaceKeys(m_callData.getURLString());
+	    }
+
+	    public String getOKString() throws HTTPHandlerException
+	    {
+		return replaceKeys(m_callData.getOKString());
+	    }
+
+	    private String replaceKeys(String original) 
+		throws HTTPHandlerException
+	    {
+		if (original == null || m_bean == null) {
+		    return original;
+		}
+		else {
+		    // We belong to a single thread so we can safely
+		    // reuse our StringBuffer.
+		    m_buffer.delete(0, m_buffer.length());
+		    
+		    int p = 0;
+		    int lastP = p;
+
+		    while (true) {
+			if ((p = original.indexOf('<', lastP)) == -1) {
+			    m_buffer.append(original.substring(lastP));
+			    break;
+			}
+			else {
+			    m_buffer.append(original.substring(lastP, p));
+
+			    lastP = p + 1;
+		    
+			    p = original.indexOf('>', lastP);
+			    
+			    if (p == -1) {
+				throw new HTTPHandlerException(
+				    "URL for Test " +
+				    m_callData.getTest().getTestNumber() +
+				    " malformed");    
+			    }
+
+			    final String methodName =
+				original.substring(lastP, p);
+
+			    final Method method =
+				(Method)m_beanMethodMap.get(methodName);
+
+			    if (method == null ) {
+				throw new HTTPHandlerException(
+				    "URL for Test " +
+				    m_callData.getTest().getTestNumber() +
+				    " refers to unknown string bean method '" +
+				    methodName + "'");
+			    }
+
+			    try {
+				m_buffer.append(
+				    (String)method.invoke(m_bean, s_noArgs));
+			    }
+			    catch (Exception e) {
+				throw new HTTPHandlerException(
+				    "Failure invoking string bean method '" +
+				    methodName + "'", e);
+			    }
+
+			    lastP = p + 1;
+			}
+		    }
+
+		    return m_buffer.toString();
 		}
 	    }
 	}
-
-	return !error;
-    }
-
-    /**
-      * Give derived classes a chance to be interesting.
-      */
-    protected CallData createCallData(PluginThreadContext pluginThreadContext,
- 				      Test test)
-	throws PluginException
-    {
- 	return new CallData(test);
-    }
-
-    public void endCycle() throws PluginException
-    {
-	if (m_stringBean != null) {
-	    m_stringBean.endCycle();
-	}
-
-	m_currentIteration++;
     }
 }

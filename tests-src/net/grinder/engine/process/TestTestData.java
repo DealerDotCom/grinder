@@ -25,6 +25,7 @@ import junit.swingui.TestRunner;
 import net.grinder.plugininterface.Test;
 import net.grinder.statistics.Statistics;
 import net.grinder.util.GrinderProperties;
+import net.grinder.util.TestImplementation;
 
 
 /**
@@ -47,46 +48,10 @@ public class TestTestData extends TestCase
     {
     }
 
-    static class MyTest implements Test
-    {
-	private final Integer m_testNumber;
-	private final String m_description;
-	private final GrinderProperties m_parameters;
-
-	public MyTest(Integer testNumber, String description,
-		      GrinderProperties parameters)
-	{
-	    m_testNumber = testNumber;
-	    m_description = description;
-	    m_parameters = parameters;
-	}
-
-	public Integer getTestNumber()
-	{
-	    return m_testNumber;
-	}
-
-	public String getDescription()
-	{
-	    return m_description;
-	}
-
-	public GrinderProperties getParameters()
-	{
-	    return m_parameters;
-	}
-
-	public int compareTo(Object o) 
-	{
-	    return m_testNumber.compareTo(((MyTest)o).m_testNumber);
-	}
-    }
-
-
     public void test0() throws Exception
     {
-	final MyTest test = new MyTest(new Integer(99), "Some stuff",
-				       new GrinderProperties());
+	final Test test = new TestImplementation(99, "Some stuff",
+						 new GrinderProperties());
 	
 	final long sleepTime = 1234;
 	final Statistics statistics = new Statistics();
@@ -103,7 +68,7 @@ public class TestTestData extends TestCase
 	final GrinderProperties properties = new GrinderProperties();
 	properties.put("Something", "blah");
 
-	final MyTest test = new MyTest(new Integer(-33), "", properties);
+	final Test test = new TestImplementation(-33, "", properties);
 	final long sleepTime = 1234;
 	final Statistics statistics = new Statistics();
 

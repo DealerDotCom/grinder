@@ -35,8 +35,12 @@ public interface GrinderPlugin
     /**
      * This method is executed when the process starts. It is only
      * executed once.
+     * @param processContext
+     * @param testsFromPropertiesFile The tests defined in the
+     * properties file. The plugin may or may not care about these.
      */
-    public void initialize(PluginProcessContext processContext)
+    public void initialize(PluginProcessContext processContext,
+			   Set testsFromPropertiesFile)
 	throws PluginException;
 
     /**
@@ -46,8 +50,9 @@ public interface GrinderPlugin
 	throws PluginException;
 
     /**
-     * Returns a Set of Tests. Returns null if the tests are to be
-     * defined in the properties file.
+     * Returns a Set of Tests to use. The plugin may chose to simply
+     * return the set passed to {@link #initialize}.
+     * @see #initialise
      */
     public Set getTests() throws PluginException;
 }

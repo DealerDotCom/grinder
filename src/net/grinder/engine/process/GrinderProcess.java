@@ -202,7 +202,7 @@ public class GrinderProcess
 	m_plugin = propertiesHelper.instantiatePlugin(m_context);
 
 	// Get defined tests.
-	final Set tests = propertiesHelper.getTestSet(m_plugin);
+	final Set tests = m_plugin.getTests();
 
 	// Wrap tests with our information.
 	m_testSet = new TreeMap();

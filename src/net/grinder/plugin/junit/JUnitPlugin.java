@@ -53,7 +53,8 @@ public class JUnitPlugin implements GrinderPlugin
      * This method is executed when the process starts. It is only
      * executed once.
      */
-    public void initialize(PluginProcessContext processContext)
+    public void initialize(PluginProcessContext processContext,
+			   Set testsFromPropertiesFile)
 	throws PluginException
     {
 	m_processContext = processContext;
@@ -227,13 +228,13 @@ public class JUnitPlugin implements GrinderPlugin
 class TestWrapper implements Test
 {
     private static int s_currentTestNumber = 0;
-    private final Integer m_testNumber;
+    private final int m_testNumber;
     private final String m_description;
     private final transient TestCase m_testCase;
 
     public TestWrapper(TestCase jUnitTest)
     {
-	m_testNumber = new Integer(s_currentTestNumber++);
+	m_testNumber = s_currentTestNumber++;
 	m_testCase = jUnitTest;
 
 	// m_testCase doesn't survive serialization, so grab the
@@ -241,7 +242,7 @@ class TestWrapper implements Test
 	m_description = m_testCase.toString();
     }
 
-    public Integer getTestNumber() 
+    public int getTestNumber() 
     {
 	return m_testNumber;
     }
@@ -263,6 +264,7 @@ class TestWrapper implements Test
 
     public int compareTo(Object o) 
     {
-	return m_testNumber.compareTo(((TestWrapper)o).m_testNumber);
+	final int other = ((TestWrapper)o).m_testNumber;
+	return m_testNumber<other ? -1 : (m_testNumber==other ? 0 : 1);
     }
 }

@@ -48,15 +48,13 @@ interface HTTPHandler
 
     interface RequestData
     {
-	public String getPostString() throws HTTPHandlerException;
-
-	public String getContentType() throws HTTPHandlerException;
-	public String getURLString() throws HTTPHandlerException;
-	public String getIfModifiedSince() throws HTTPHandlerException;
-	public long getIfModifiedSinceLong() throws HTTPHandlerException;
 	public Set getAdditionalHeaders() throws HTTPHandlerException;
-
 	public AuthorizationData getAuthorizationData()
 	    throws HTTPHandlerException;
+	public String getContentType() throws HTTPHandlerException;
+	public String getIfModifiedSince() throws HTTPHandlerException;
+	public String getPostString() throws HTTPHandlerException;
+	public String getURLString() throws HTTPHandlerException;
+	public long getIfModifiedSinceLong() throws HTTPHandlerException;
     }
 }

@@ -32,7 +32,7 @@ public interface ThreadCallbacks
 {
     /**
      * This method is executed when the thread starts. It is only
-     * executed once.
+     * executed once per thread.
      */
     public void initialize(PluginThreadContext pluginThreadContext)
 	throws PluginException;

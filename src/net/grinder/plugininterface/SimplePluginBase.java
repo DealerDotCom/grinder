@@ -25,47 +25,44 @@ import net.grinder.util.GrinderProperties;
 
 /**
  * Abstract base class for simple plugins that use the default test
- * set mechanism. (I.E. their tests are always defined in the
- * properties file).
+ * set mechanism and wish to focus on implementing ThreadCallbacks.
  *
  * @author Philip Aston
  * @version $Revision$
+ * @deprecated I now consider plugins that use this to be less simple
+ * than those that explicitly create ThreadCallbacks objects.
  */ 
 public abstract class SimplePluginBase
     implements GrinderPlugin, ThreadCallbacks
 {
-    /**
-     * This method is executed when the process starts. It is only
-     * executed once.
-     */
-    public void initialize(PluginProcessContext processContext)
+    private Set m_testsFromPropertiesFile;
+
+    public void initialize(PluginProcessContext processContext,
+			   Set testsFromPropertiesFile)
 	throws PluginException
     {
+	m_testsFromPropertiesFile = testsFromPropertiesFile;
     }
-    
 
-    /**
-     * This method is called to create a handler for each thread.
-     */
     public ThreadCallbacks createThreadCallbackHandler()
 	throws PluginException
     {
 	try {
-	    return (ThreadCallbacks)getClass().newInstance();
+	    final SimplePluginBase result =
+		(SimplePluginBase)getClass().newInstance();
+
+	    result.m_testsFromPropertiesFile = m_testsFromPropertiesFile;
+	    return result;
 	}
 	catch (Exception e) {
 	    throw new PluginException(
-		"Could not create new insatnce of plugin class " +
+		"Could not create new instance of plugin class " +
 		getClass().getName(), e);
 	}
     }
 
-    /**
-     * Returns a Set of Tests. Returns null if the tests are to be
-     * defined in the properties file.
-     */
     public Set getTests() throws PluginException
     {
-	return null;
+	return m_testsFromPropertiesFile;
     }
 }

@@ -85,7 +85,7 @@ public class Model
 	    propertiesHelper.instantiatePlugin(
 		new ProcessContextImplementation());
 
-	m_tests.addAll(propertiesHelper.getTestSet(grinderPlugin));
+	m_tests.addAll(grinderPlugin.getTests());
 
 	m_numberOfTests = m_tests.size();
 	m_sampleAccumulators = new SampleAccumulator[m_numberOfTests];
@@ -95,7 +95,7 @@ public class Model
 	while (testSetIterator.hasNext())
 	{
 	    final Test test = (Test)testSetIterator.next();
-	    m_sampleAccumulators[test.getTestNumber().intValue()] =
+	    m_sampleAccumulators[test.getTestNumber()] =
 		new SampleAccumulator();
 	}
 
@@ -180,10 +180,10 @@ public class Model
 	    while (iterator.hasNext()) {
 		final TestStatisticsMap.Pair pair = iterator.next();
 
-		final Integer testNumber = pair.getTest().getTestNumber();
+		final int testNumber = pair.getTest().getTestNumber();
 		final Statistics statistics = pair.getStatistics();
 
-		m_sampleAccumulators[testNumber.intValue()].add(statistics);
+		m_sampleAccumulators[testNumber].add(statistics);
 
 		m_totalSampleAccumulator.add(statistics);
 	    }

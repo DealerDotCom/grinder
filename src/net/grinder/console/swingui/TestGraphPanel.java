@@ -50,7 +50,7 @@ public class TestGraphPanel extends JPanel
 	while (testIterator.hasNext()) {
 	    final Test test = (Test)testIterator.next();
 
-	    final int testNumber = test.getTestNumber().intValue();
+	    final int testNumber = test.getTestNumber();
 	    final String description = test.getDescription();
 
 	    String label = testLabel + testNumber;

@@ -18,41 +18,45 @@
 
 package net.grinder.util;
 
-import java.util.Set;
-
-import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.PluginProcessContext;
-import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.plugininterface.Test;
 
 
 /**
- * Null plugin for tests.
- *
- * Package scope.
- * 
  * @author Philip Aston
+ * @version $Revision$
  */
-public class NullPlugin implements GrinderPlugin
+public class TestImplementation implements Test
 {
-    private Set m_testsFromPropertiesFile;
+    private final int m_testNumber;
+    private final String m_description;
+    private transient final GrinderProperties m_parameters;
 
-    public void initialize(PluginProcessContext processContext,
-			   Set testsFromPropertiesFile)
-	throws PluginException
+    public TestImplementation(int testNumber, String description,
+			      GrinderProperties parameters)
     {
-	m_testsFromPropertiesFile = testsFromPropertiesFile;
+	m_testNumber = testNumber;
+	m_description = description;
+	m_parameters = parameters;
     }
 
-    public ThreadCallbacks createThreadCallbackHandler()
-	throws PluginException
+    public int getTestNumber()
     {
-	return null;
+	return m_testNumber;
     }
 
-    public Set getTests()
+    public String getDescription()
     {
-	return m_testsFromPropertiesFile;
+	return m_description;
+    }
+
+    public GrinderProperties getParameters()
+    {
+	return m_parameters;
+    }
+
+    public int compareTo(Object o) 
+    {
+	final int other = ((TestImplementation)o).m_testNumber;
+	return m_testNumber<other ? -1 : (m_testNumber==other ? 0 : 1);
     }
 }
-

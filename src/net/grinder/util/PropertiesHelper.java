@@ -65,7 +65,7 @@ public class PropertiesHelper
 	    final GrinderPlugin plugin =
 		(GrinderPlugin)pluginClass.newInstance();
 
-	    plugin.initialize(processContext);
+	    plugin.initialize(processContext, getPropertiesTestSet());
 
 	    return plugin;
 	}
@@ -80,101 +80,59 @@ public class PropertiesHelper
 	}
     }
 
-    public Set getTestSet(GrinderPlugin plugin) throws GrinderException
+    private Set getPropertiesTestSet() throws GrinderException
     {
-	final Set pluginTests = plugin.getTests();
+	final Map tests = new HashMap();
+	final Iterator nameIterator = m_properties.keySet().iterator();
 
-	if (pluginTests != null) {
-	    return pluginTests;
-	}
-	else {
-	    final Map tests = new HashMap();
-	    final Iterator nameIterator = m_properties.keySet().iterator();
-
-	    while (nameIterator.hasNext()) {
-		final String name = (String)nameIterator.next();
+	while (nameIterator.hasNext()) {
+	    final String name = (String)nameIterator.next();
 		
-		if (!name.startsWith(TEST_PREFIX)) {
-		    continue;	// Not a test property.
-		}
-
-		final int nextSeparator = name.indexOf('.',
-						       TEST_PREFIX.length());
-
-		final Integer testNumber;
-
-		try {
-		    testNumber =
-			new Integer(name.substring(TEST_PREFIX.length(),
-						   nextSeparator));
-		}
-		catch (Exception e) {
-		    throw new GrinderException(
-			"Could not resolve test number from property '" +
-			name + ".");
-		}
-
-		if (tests.containsKey(testNumber)) {
-		    continue;	// Already parsed.
-		}
-
-		final String description =
-		    m_properties.getProperty(
-			getTestPropertyName(testNumber, "description"),
-			null);
-
-		final GrinderProperties parameters =
-		    m_properties.getPropertySubset(
-			getTestPropertyName(testNumber, "parameter") + '.');
-
-		final Test test =
-		    new PropertiesTest(testNumber, description, parameters);
-
-		tests.put(testNumber, test);
+	    if (!name.startsWith(TEST_PREFIX)) {
+		continue;	// Not a test property.
 	    }
 
-	    return new HashSet(tests.values());
+	    final int nextSeparator = name.indexOf('.', TEST_PREFIX.length());
+
+	    final int testNumber;
+
+	    try {
+		testNumber =
+		    Integer.parseInt(name.substring(TEST_PREFIX.length(),
+						    nextSeparator));
+	    }
+	    catch (Exception e) {
+		throw new GrinderException(
+		    "Could not resolve test number from property '" +
+		    name + ".");
+	    }
+
+	    final Integer testNumberInteger = new Integer(testNumber);
+
+	    if (tests.containsKey(testNumberInteger)) {
+		continue;	// Already parsed.
+	    }
+
+	    final String description =
+		m_properties.getProperty(
+		    getTestPropertyName(testNumber, "description"), null);
+
+	    final GrinderProperties parameters =
+		m_properties.getPropertySubset(
+		    getTestPropertyName(testNumber, "parameter") + '.');
+
+	    final Test test =
+		new TestImplementation(testNumber, description, parameters);
+
+	    tests.put(testNumberInteger, test);
 	}
+	
+	return new HashSet(tests.values());
     }
 
-    public static String getTestPropertyName(Integer testNumber,
+    public static String getTestPropertyName(int testNumber,
 					     String unqualifiedName)
     {
 	return TEST_PREFIX + testNumber + '.' + unqualifiedName;
-    }
-
-    private static class PropertiesTest implements Test
-    {
-	private final Integer m_testNumber;
-	private final String m_description;
-	private transient final GrinderProperties m_parameters;
-
-	public PropertiesTest(Integer testNumber, String description,
-			      GrinderProperties parameters)
-	{
-	    m_testNumber = testNumber;
-	    m_description = description;
-	    m_parameters = parameters;
-	}
-
-	public Integer getTestNumber()
-	{
-	    return m_testNumber;
-	}
-
-	public String getDescription()
-	{
-	    return m_description;
-	}
-
-	public GrinderProperties getParameters()
-	{
-	    return m_parameters;
-	}
-
-	public int compareTo(Object o) 
-	{
-	    return m_testNumber.compareTo(((PropertiesTest)o).m_testNumber);
-	}
     }
 }
