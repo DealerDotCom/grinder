@@ -37,7 +37,7 @@ import java.net.Socket;
  **/
 public class ClientSender extends AbstractSender {
 
-  private OutputStream m_outputStream;
+  private final OutputStream m_outputStream;
 
   /**
    * Factory method that makes a TCP connection and returns a
@@ -90,11 +90,21 @@ public class ClientSender extends AbstractSender {
    * @param grinderID A string describing our Grinder process.
    * @param senderID Unique string identifying sender.
    * @param outputStream The output stream to write to.
-   **/
-  ClientSender(String grinderID, String senderID, OutputStream outputStream)
+   */
+  private ClientSender(String grinderID, String senderID,
+                       OutputStream outputStream)
     throws CommunicationException {
 
     super(grinderID, senderID);
+    m_outputStream = new BufferedOutputStream(outputStream);
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param outputStream The output stream to write to.
+   */
+  public ClientSender(OutputStream outputStream) {
     m_outputStream = new BufferedOutputStream(outputStream);
   }
 

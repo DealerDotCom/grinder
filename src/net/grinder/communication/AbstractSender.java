@@ -37,10 +37,21 @@ import java.security.MessageDigest;
 abstract class AbstractSender implements Sender {
 
   private final String m_grinderID;
-  private String m_senderID;
+  private final String m_senderID;
   private long m_nextSequenceID = 0;
+
   private MessageQueue m_messageQueue = new MessageQueue(false);
 
+  /**
+   * Constructor.
+   *
+   * <p>The <code>grinderID</code> and <code>senderID</code>
+   * parameters are used to initialise Messages that originate from
+   * this <code>Server</code>.</p>
+   *
+   * @param grinderID Process identity.
+   * @param senderID Unique sender identity.
+   */
   protected AbstractSender(String grinderID, String senderID)
     throws CommunicationException {
 
@@ -62,6 +73,14 @@ abstract class AbstractSender implements Sender {
     catch (Exception e) {
       throw new CommunicationException("Could not calculate sender ID", e);
     }
+  }
+
+  /**
+   * Constructor for <code>Senders</code> that only route messages.
+   */
+  protected AbstractSender() {
+    m_grinderID = null;
+    m_senderID = null;
   }
 
   /**
@@ -87,9 +106,18 @@ abstract class AbstractSender implements Sender {
    * @see #send
    **/
   public final void queue(Message message) throws CommunicationException {
-    synchronized (this) {
-      message.setSenderInformation(m_grinderID, m_senderID,
-                                   m_nextSequenceID++);
+
+    if (!message.isInitialised()) {
+      if (m_grinderID == null || m_senderID == null) {
+        throw new CommunicationException(
+          "This Sender can only route messages");
+      }
+      else {
+        synchronized (this) {
+          message.setSenderInformation(
+            m_grinderID, m_senderID, m_nextSequenceID++);
+        }
+      }
     }
 
     try {
@@ -97,8 +125,7 @@ abstract class AbstractSender implements Sender {
     }
     catch (MessageQueue.ShutdownException e) {
       // Assertion failure.
-      throw new RuntimeException(
-        "MessageQueue unexpectedly shutdown");
+      throw new RuntimeException("MessageQueue unexpectedly shutdown");
     }
   }
 
@@ -118,13 +145,11 @@ abstract class AbstractSender implements Sender {
       }
     }
     catch (IOException e) {
-      throw new CommunicationException(
-        "Exception whilst sending message", e);
+      throw new CommunicationException("Exception whilst sending message", e);
     }
     catch (MessageQueue.ShutdownException e) {
       // Assertion failure.
-      throw new RuntimeException(
-        "MessageQueue unexpectedly shutdown");
+      throw new RuntimeException("MessageQueue unexpectedly shutdown");
     }
   }
 
