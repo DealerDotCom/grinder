@@ -649,10 +649,10 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
         else if (m_method.equals("DELETE") ||
                  m_method.equals("TRACE")) {
           m_handlingBody = false;
+          m_queryString = "";
 
           if (newQueryString != null) {
             m_url = newURL + newQueryString;
-            m_queryString = "";
           }
           else {
             m_url = newURL;
@@ -665,10 +665,10 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
           m_entityBodyByteStream.reset();
           m_contentLength = -1;
           m_contentType = null;
+          m_queryString = "";
 
           if (newQueryString != null) {
             m_url = newURL + newQueryString;
-            m_queryString = "";
           }
           else {
             m_url = newURL;
