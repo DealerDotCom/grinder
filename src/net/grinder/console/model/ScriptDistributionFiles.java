@@ -90,8 +90,10 @@ public final class ScriptDistributionFiles implements Serializable {
 
     final File scriptFile = getScriptFile();
 
-    properties.setProperty(m_propertyPrefix + SCRIPT_FILE_PROPERTY,
-			   scriptFile != null ? scriptFile.getPath() : "");
+    if (scriptFile != null) {
+      properties.setProperty(m_propertyPrefix + SCRIPT_FILE_PROPERTY,
+			     scriptFile.getPath());
+    }
 
     for (int i=0; i<m_additionalFiles.length; ++i) {
       properties.setProperty(
