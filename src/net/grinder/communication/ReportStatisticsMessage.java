@@ -37,7 +37,7 @@ public class ReportStatisticsMessage extends Message implements Serializable
 {
     private static final long serialVersionUID = 171863391515128541L;
 
-    private transient TestStatisticsMap m_statisticsDelta;
+    private TestStatisticsMap m_statisticsDelta;
 
     /**
      * Constructor.
@@ -55,31 +55,5 @@ public class ReportStatisticsMessage extends Message implements Serializable
     public TestStatisticsMap getStatisticsDelta()
     {
 	return m_statisticsDelta;
-    }
-
-    /**
-     * Customise serialisation for efficiency.
-     *
-     * @param in The stream to write our data to.
-     **/
-    private void writeObject(ObjectOutputStream out)
-	throws IOException
-    {
-	out.defaultWriteObject();
-	m_statisticsDelta.writeExternal(out);
-    }
-
-    /**
-     * Customise serialisation for efficiency.
-     *
-     * @param in The stream to read our data from.
-     **/
-    private void readObject(ObjectInputStream in)
-	throws IOException, ClassNotFoundException
-    {
-	in.defaultReadObject();
-
-	m_statisticsDelta = new TestStatisticsMap();
-	m_statisticsDelta.readExternal(in);
     }
 }
