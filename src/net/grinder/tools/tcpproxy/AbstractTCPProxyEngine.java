@@ -139,7 +139,6 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     while (iterator.hasNext()) {
       ((StreamThread)iterator.next()).stop();
     }
-
   }
 
   public boolean isStopped() {
@@ -361,6 +360,9 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 
           m_outputStreamFilterTee.handle(buffer, bytesRead);
         }
+      }
+      catch (SocketException e) {
+        // Ignore, assume closed.
       }
       catch (IOException e) {
         logIOException(e);
