@@ -48,7 +48,6 @@ import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
-import net.grinder.util.Directory;
 
 
 /**
@@ -87,7 +86,6 @@ public final class Agent {
    * interrupted whilst waiting.
    */
   public void run() throws GrinderException, InterruptedException {
-
     final Timer timer = new Timer(true);
     final Logger logger = new AgentLogger(new PrintWriter(System.out),
                                           new PrintWriter(System.err));
@@ -98,27 +96,27 @@ public final class Agent {
     // initialise it until we've read the properties.
     FileStore fileStore = null;
 
+    Receiver receiver = null;
+    Connector lastConnector = null;
+    final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(3);
+    final Object eventSynchronisation = new Object();
+    final ConsoleListener consoleListener =
+      new ConsoleListener(eventSynchronisation, logger);
+
     while (true) {
       logger.output("The Grinder version " + GrinderBuild.getVersionString());
 
       final GrinderProperties properties =
         new GrinderProperties(m_alternateFile);
 
-      final Object eventSynchronisation = new Object();
-      final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(3);
-      final ConsoleListener consoleListener =
-        new ConsoleListener(eventSynchronisation, logger);
-
       final WorkerProcessCommandLine workerCommandLine =
-        new WorkerProcessCommandLine(properties, System.getProperties(),
-                                     m_alternateFile);
+        new WorkerProcessCommandLine(
+          properties, System.getProperties(), m_alternateFile);
 
       logger.output("Worker process command line: " + workerCommandLine);
 
       final String hostID =
         properties.getProperty("grinder.hostID", getHostName());
-
-      Receiver receiver = null;
 
       if (properties.getBoolean("grinder.useConsole", true)) {
         final Connector connector =
@@ -129,32 +127,45 @@ public final class Agent {
                               CommunicationDefaults.CONSOLE_PORT),
             ConnectionType.CONTROL);
 
-        try {
-          receiver = ClientReceiver.connect(connector);
-
-          if (fileStore == null) {
-            fileStore =
-              new FileStore(new File("./" + hostID + "-file-store"), logger);
+        if (!connector.equals(lastConnector)) {
+          // We only reconnect if the connection details have changed.
+          // This is important as the console currently uses
+          // connections to track whether it needs to transmit the
+          // entire file distribution.
+          if (receiver != null) {
+            receiver.shutdown();
+            receiver = null;
           }
 
-          // Ordering of the TeeSender is important so the child
-          // processes get the stop and reset signals before our
-          // console listener.
-          final Sender sender =
-            fileStore.getSender(
-              new TeeSender(fanOutStreamSender, consoleListener.getSender()));
+          try {
+            receiver = ClientReceiver.connect(connector);
+            lastConnector = connector;
 
-          new MessagePump(receiver, sender, 1);
+            if (fileStore == null) {
+              // Only create the file store if we connected.
+              fileStore =
+                new FileStore(new File("./" + hostID + "-file-store"), logger);
+            }
 
-          if (nextStartMessage == null) {
-            logger.output("waiting for console signal");
-            consoleListener.waitForMessage();
+            // Ordering of the TeeSender is important so the child
+            // processes get the stop and reset signals before our
+            // console listener.
+            final Sender sender =
+              fileStore.getSender(new TeeSender(fanOutStreamSender,
+                                                consoleListener.getSender()));
+
+            new MessagePump(receiver, sender, 1);
+          }
+          catch (CommunicationException e) {
+            logger.error(
+              e.getMessage() + ", proceeding without the console; set " +
+              "grinder.useConsole=false to disable this warning.");
           }
         }
-        catch (CommunicationException e) {
-          logger.error(
-            e.getMessage() + ", proceeding without the console; set " +
-            "grinder.useConsole=false to disable this warning.");
+
+        if (receiver != null && nextStartMessage == null) {
+          logger.output("waiting for console signal");
+          consoleListener.waitForMessage();
         }
       }
 
@@ -178,20 +189,20 @@ public final class Agent {
           }
         }
 
-        final Directory fileStoreDirectory = fileStore.getDirectory();
-
-        if (scriptFromConsole != null && fileStoreDirectory == null) {
+        if (scriptFromConsole != null && fileStore.getDirectory() == null) {
           logger.error("Files have not been distributed from the console");
           initialiseMessage = null;
         }
         else if (scriptFromConsole != null) {
-          final File absoluteFile = new File(fileStoreDirectory.getAsFile(),
-                                             scriptFromConsole.getPath());
+          final File fileStoreDirectory = fileStore.getDirectory().getAsFile();
+
+          final File absoluteFile =
+            new File(fileStoreDirectory, scriptFromConsole.getPath());
 
           if (absoluteFile.canRead()) {
             initialiseMessage =
               new InitialiseGrinderMessage(
-                true, absoluteFile, fileStoreDirectory.getAsFile());
+                true, absoluteFile, fileStoreDirectory);
           }
           else {
             logger.error("The script file '" + scriptFromConsole +
@@ -229,15 +240,12 @@ public final class Agent {
 
       if (initialiseMessage != null) {
         final ProcessFactory workerProcessFactory =
-          new WorkerProcessFactory(workerCommandLine,
-                                   hostID,
-                                   fanOutStreamSender,
-                                   initialiseMessage);
+          new WorkerProcessFactory(workerCommandLine, hostID,
+                                   fanOutStreamSender, initialiseMessage);
 
         final ProcessLauncher processLauncher =
           new ProcessLauncher(properties.getInt("grinder.processes", 1),
-                              workerProcessFactory,
-                              eventSynchronisation,
+                              workerProcessFactory, eventSynchronisation,
                               logger);
 
         final int processIncrement =
@@ -303,8 +311,6 @@ public final class Agent {
           consoleListener.waitForMessage();
         }
 
-        receiver.shutdown();
-
         if (consoleListener.received(ConsoleListener.START)) {
           nextStartMessage = consoleListener.getLastStartGrinderMessage();
         }
@@ -317,6 +323,10 @@ public final class Agent {
           nextStartMessage = null;
         }
       }
+    }
+
+    if (receiver != null) {
+      receiver.shutdown();
     }
 
     logger.output("finished");
