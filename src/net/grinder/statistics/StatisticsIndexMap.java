@@ -62,7 +62,6 @@ import net.grinder.common.GrinderException;
  *
  * @author Philip Aston
  * @version $Revision$
- * @stereotype singleton
  **/
 public class StatisticsIndexMap implements Serializable {
   private final static StatisticsIndexMap s_processInstance =

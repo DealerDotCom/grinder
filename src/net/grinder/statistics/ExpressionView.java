@@ -35,7 +35,7 @@ import net.grinder.common.GrinderException;
  * Associate a statistic expression with display information.
  *
  * <p>Statistic expressions are composed of statistic names (see
- * {@link StatisticIndexMap} in a simple post-fix format using the
+ * {@link StatisticsIndexMap} in a simple post-fix format using the
  * symbols <code>+</code>, <code>-</code>, <code>/</code> and
  * <code>*</code> (with their usual meanings). Precedence can be
  * controlled by grouping expressions in parentheses.
