@@ -1,4 +1,28 @@
+2003-09-29  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, TODO, xdoc/g3/script-gallery-xhtml.xml, xdoc/g3/scripts-xhtml.xml, xdoc/g3/tutorial-perks-xhtml.xml:
+	Document explict import of 'grinder'.
+
+	* examples/helloworld.py: Remove cruft.
+
+	* examples/http.py, examples/httpg2.py, examples/jaxrpc.py, examples/jdbc.py, examples/jmsreceiver.py, examples/jmssender.py, examples/scenario.py, examples/statistics.py, examples/amazon.py, examples/console.py, examples/cookies.py, examples/ejb.py, examples/fba.py, examples/form.py, examples/grinder.properties, examples/helloworld.py, examples/helloworldfunctions.py:
+	Update example scripts to explicitly import 'grinder'.
+	Remove '-' from file names so that they are valid python modules.
+	In general, Don't acquire logger from top-level context as it will be
+	the process logger rather than a thread logger.
+
+	* src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/RegisteredPlugin.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/script/Grinder.java, src/net/grinder/script/ScriptContext.java:
+	Rescope ScriptContext interface within net.grinder.script.Grinder.
+
+	* src/net/grinder/script/Statistics.java: Fix javadoc.
+
+	* CHANGES, TODO, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java:
+	If process detects it can't send data to the console, it shouldn't
+	wait for console signals.
+
 2003-09-28  Philip Aston  <philipa@mail.com>
+
+	* TODO: Progress.
 
 	* src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/script/Grinder.java, src/net/grinder/script/ScriptContext.java, src/net/grinder/script/overview.html, src/net/grinder/common/GrinderProperties.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/RegisteredPlugin.java, src/net/grinder/engine/process/ScriptContextImplementation.java:
 	Change mind. Go back to 'grinder' context object, and allow modules to
