@@ -45,10 +45,10 @@ import net.grinder.plugininterface.PluginTest;
  */ 
 public class HTTPTest extends PluginTest
 {
-    private URI m_uri;
-    private NVPair[] m_defaultHeaders = new NVPair[0];
-    private byte[] m_defaultData;
-    private NVPair[] m_defaultFormData;
+    private transient URI m_uri;
+    private transient NVPair[] m_defaultHeaders = new NVPair[0];
+    private transient byte[] m_defaultData;
+    private transient NVPair[] m_defaultFormData;
 
     public HTTPTest(int number, String description)
 	throws GrinderException
