@@ -91,31 +91,9 @@ an eye-catcher, allowing expensive tests to be easily spotted.</p>
 
 <h3>Internationalisation help wanted</h3>
 
-<p>If you are bilingual and fancy translating the console into a
-language of your choice, please drop a note to <a
-href="mailto:grinder-development@lists.sf.net">grinder-development@lists.sf.net</a>.
-Jose Antonio Zapta Rey did just this and produced a Spanish
-translation.</p>
-
-<blockquote>
-<img src="../images/console-es-g3.png" width="720" height="480"/>
-</blockquote>
-
-<p> This translation will be automaically be the default for users
-with their locale set correctly for the Spanish language. If your
-locale is set otherwise and you are curious to try this out, specify
-the Java <code>user.langauge</code> system property.</p>
-
-<blockquote>
-<pre>
-java -Duser.language="es" net.grinder.Console
-</pre>
-</blockquote>
-
-<p>Bertrand Ave has produced a translation for French speaking users
-(<code>user.language="fr"</code>) and Alblas Huibert has produced a
-German translation (<code>user.language="de"</code>).</p>
-
+<p>If you are bilingual you might fancy <a
+href="../development/translating.html">translating the console</a>
+into a language of your choice.</p>
 </body>
 </html>
 

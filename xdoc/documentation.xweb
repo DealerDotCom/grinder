@@ -69,6 +69,8 @@
              targetFile="index.html" type="xhtml-1"/>
       <entry name="Contributing" sourceFile="contributing-xhtml.xml" 
              targetFile="contributing.html" type="xhtml-1"/>
+      <entry name="Translating" sourceFile="translating-xhtml.xml" 
+             targetFile="translating.html" type="xhtml-1"/>
       <entry name="Timing" sourceFile="timing-xhtml.xml" 
              targetFile="timing.html" type="xhtml-1"/>
     </section>
