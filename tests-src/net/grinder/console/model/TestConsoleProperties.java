@@ -245,43 +245,40 @@ public class TestConsoleProperties extends TestCase {
     listener2.assertCalledOnce();
   }
 
-  public void testScriptDistributionFiles() throws Exception {
-    final String propertyName =
-      ConsoleProperties.SCRIPT_DISTRIBUTION_FILES_PROPERTY_PREFIX;
+  public void testScriptFile() throws Exception {
 
-    final ScriptDistributionFiles scriptDistributionFiles =
-      new ScriptDistributionFiles(propertyName, new GrinderProperties());
+    new TestFileTemplate(ConsoleProperties.SCRIPT_FILE_PROPERTY) {
 
-    final GrinderProperties grinderProperties = new GrinderProperties();
-    scriptDistributionFiles.addToProperties(grinderProperties);
+      protected File get(ConsoleProperties properties) {
+	return properties.getScriptFile();
+      }
 
-    final FileOutputStream outputStream = new FileOutputStream(m_file);
-    grinderProperties.store(outputStream, "");
-    outputStream.close();
+      protected void set(ConsoleProperties properties, File file) {
+	properties.setScriptFile(file);
+      }
+    }.doTest();
+  }
 
-    final ConsoleProperties properties = new ConsoleProperties(m_file);
-    assertEquals(scriptDistributionFiles,
-		 properties.getScriptDistributionFiles());
+  public void testDistributionDirectory() throws Exception {
 
-    final ScriptDistributionFiles scriptDistributionFiles2 =
-      new ScriptDistributionFiles(propertyName, new GrinderProperties());
-    scriptDistributionFiles2.setRootDirectory(new File("blah"));
+    new TestFileTemplate(ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY) {
 
-    final PropertyChangeEvent expected =
-      new PropertyChangeEvent(properties, propertyName, 
-			      scriptDistributionFiles,
-			      scriptDistributionFiles2);
+      protected File get(ConsoleProperties properties) {
+	return properties.getDistributionDirectory();
+      }
 
-    final MyListener listener = new MyListener(expected);
-    final MyListener listener2 = new MyListener(expected);
+      protected void set(ConsoleProperties properties, File file) {
+	properties.setDistributionDirectory(file);
+      }
+    }.doTest();
 
-    properties.addPropertyChangeListener(listener);
-    properties.addPropertyChangeListener(propertyName, listener2);
+    // Check default is not null.
+    final File file = File.createTempFile("testing", "123");
+    file.deleteOnExit();
 
-    properties.setScriptDistributionFiles(scriptDistributionFiles2);
-
-    listener.assertCalledOnce();
-    listener2.assertCalledOnce();
+    final ConsoleProperties properties = new ConsoleProperties(file);
+    properties.setDistributionDirectory(null);
+    assertNotNull(properties.getDistributionDirectory());
   }
 
   public void testLookAndFeel() throws Exception {
@@ -313,8 +310,20 @@ public class TestConsoleProperties extends TestCase {
     assertEquals(p1.getResetConsoleWithProcessesDontAsk(),
 		 p2.getResetConsoleWithProcessesDontAsk());
     assertEquals(p1.getStopProcessesDontAsk(), p2.getStopProcessesDontAsk());
-    assertEquals(p1.getScriptDistributionFiles(),
-		 p2.getScriptDistributionFiles());
+    assertEquals(p1.getScriptFile(), p2.getScriptFile());
+    assertEquals(p1.getDistributionDirectory(), p2.getDistributionDirectory());
+    assertEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
+  }
+  private void assertNotEquals(Object o1, Object o2) {
+    if (o1 == null) {
+      assertNotNull(o2);
+    }
+    else if (o2 == null) {
+      assertNotNull(o1);
+    }
+    else {
+      assertTrue(!o1.equals(o2));
+    }
   }
 
   public void testAssignment() throws Exception {
@@ -329,7 +338,9 @@ public class TestConsoleProperties extends TestCase {
     p2.setResetConsoleWithProcesses(true);
     p2.setResetConsoleWithProcessesDontAsk();
     p2.setStopProcessesDontAsk();
-    p2.getScriptDistributionFiles().setRootDirectory(new File("foo"));
+    p2.setScriptFile(new File("foo"));
+    p2.setDistributionDirectory(new File("bah"));
+    p2.setLookAndFeel("something");
 
     assertTrue(p1.getCollectSampleCount() != p2.getCollectSampleCount());
     assertTrue(p1.getIgnoreSampleCount() != p2.getIgnoreSampleCount());
@@ -342,8 +353,10 @@ public class TestConsoleProperties extends TestCase {
     assertTrue(p1.getResetConsoleWithProcessesDontAsk() !=
 	       p2.getResetConsoleWithProcessesDontAsk());
     assertTrue(p1.getStopProcessesDontAsk() != p2.getStopProcessesDontAsk());
-    assertTrue(p1.getScriptDistributionFiles() !=
-	       p2.getScriptDistributionFiles());
+    assertNotEquals(p1.getScriptFile(), p2.getScriptFile());
+    assertNotEquals(p1.getDistributionDirectory(),
+                    p2.getDistributionDirectory());
+    assertNotEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
 
     p2.set(p1);
 
@@ -358,8 +371,9 @@ public class TestConsoleProperties extends TestCase {
     assertTrue(p1.getResetConsoleWithProcessesDontAsk() ==
 	       p2.getResetConsoleWithProcessesDontAsk());
     assertTrue(p1.getStopProcessesDontAsk() == p2.getStopProcessesDontAsk());
-    assertEquals(p1.getScriptDistributionFiles(),
-		 p2.getScriptDistributionFiles());
+    assertEquals(p1.getScriptFile(), p2.getScriptFile());
+    assertEquals(p1.getDistributionDirectory(), p2.getDistributionDirectory());
+    assertEquals(p1.getLookAndFeel(), p2.getLookAndFeel());
   }
 
   private abstract class TestIntTemplate {
@@ -529,16 +543,7 @@ public class TestConsoleProperties extends TestCase {
     protected abstract void set(ConsoleProperties properties, boolean b);
   }
 
-  private abstract class TestStringTemplate {
-    private final String m_propertyName;
-    private final boolean m_allowNulls;
-
-    public TestStringTemplate(String propertyName, boolean allowNulls) {
-      m_propertyName = propertyName;
-      m_allowNulls = allowNulls;
-    }
-
-    private String getRandomString() {
+  private String getRandomString() {
       final int length = m_random.nextInt(200);
       final char[] characters = new char[length];
 
@@ -547,6 +552,15 @@ public class TestConsoleProperties extends TestCase {
       }
 
       return new String(characters);
+  }
+
+  private abstract class TestStringTemplate {
+    private final String m_propertyName;
+    private final boolean m_allowNulls;
+
+    public TestStringTemplate(String propertyName, boolean allowNulls) {
+      m_propertyName = propertyName;
+      m_allowNulls = allowNulls;
     }
 
     public void doTest() throws Exception {
@@ -601,7 +615,7 @@ public class TestConsoleProperties extends TestCase {
       do {
         s3 = getRandomString();
       }
-      while (s2.equals(s1));
+      while (s3.equals(s2));
 
       final PropertyChangeEvent expected =
 	new PropertyChangeEvent(properties2, m_propertyName, s2, s3);
@@ -621,6 +635,65 @@ public class TestConsoleProperties extends TestCase {
     protected abstract String get(ConsoleProperties properties);
 
     protected abstract void set(ConsoleProperties properties, String i)
+      throws DisplayMessageConsoleException;
+  }
+
+  private abstract class TestFileTemplate {
+
+    private String m_propertyName;
+
+    public TestFileTemplate(String propertyName) {
+      m_propertyName = propertyName;
+    }
+
+    private File getRandomFile() {
+      return new File(getRandomString());
+    }
+
+    public void doTest() throws Exception {
+
+      final File f1 = getRandomFile();
+
+      writePropertyToFile(m_propertyName, f1.getPath());
+
+      final ConsoleProperties properties = new ConsoleProperties(m_file);
+      assertEquals(f1, get(properties));
+
+      final File f2 = getRandomFile();
+
+      set(properties, f2);
+      assertEquals(f2, get(properties));
+
+      properties.save();
+
+      final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+      assertEquals(f2, get(properties2));
+
+      File f3 = getRandomFile();
+
+      do {
+        f3 = getRandomFile();
+      }
+      while (f3.equals(f2));
+
+      final PropertyChangeEvent expected =
+	new PropertyChangeEvent(properties2, m_propertyName, f2, f3);
+
+      final MyListener listener = new MyListener(expected);
+      final MyListener listener2 = new MyListener(expected);
+
+      properties2.addPropertyChangeListener(listener);
+      properties2.addPropertyChangeListener(m_propertyName, listener2);
+
+      set(properties2, f3);
+
+      listener.assertCalledOnce();
+      listener2.assertCalledOnce();
+    }
+
+    protected abstract File get(ConsoleProperties properties);
+
+    protected abstract void set(ConsoleProperties properties, File i)
       throws DisplayMessageConsoleException;
   }
 

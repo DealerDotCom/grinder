@@ -42,6 +42,7 @@ import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.statistics.StatisticsView;
+import net.grinder.util.Directory;
 
 
 /**
@@ -112,7 +113,7 @@ public class Console {
           try {
             m_communication.send(
               new DistributeFilesMessage(
-                properties.getScriptDistributionFiles()
+                new Directory(properties.getDistributionDirectory())
                 .toFileContentsArray()));
           }
           catch (Exception e) {

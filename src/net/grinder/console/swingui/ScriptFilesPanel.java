@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,7 +37,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 
 import net.grinder.console.common.Resources;
-import net.grinder.console.model.ScriptDistributionFiles;
 
 
 /**
@@ -52,8 +51,7 @@ final class ScriptFilesPanel extends JPanel {
   private final JFileChooser m_fileChooser = new JFileChooser();
   private final FileTreeModel m_fileTreeModel = new FileTreeModel();
 
-  private ScriptDistributionFiles m_scriptDistributionFiles =
-    new ScriptDistributionFiles();
+  private File m_distributionDirectory = new File(".");
 
   public ScriptFilesPanel(final JFrame frame, LookAndFeel lookAndFeel,
                           Resources resources,
@@ -89,7 +87,7 @@ final class ScriptFilesPanel extends JPanel {
                 file.mkdir();
               }
 
-              m_scriptDistributionFiles.setRootDirectory(file);
+              m_distributionDirectory = file;
               refresh();
             }
           }
@@ -108,12 +106,12 @@ final class ScriptFilesPanel extends JPanel {
         }
       });
 
-    final JPanel rootDirectoryPanel = new JPanel();
-    rootDirectoryPanel.setLayout(
-      new BoxLayout(rootDirectoryPanel, BoxLayout.X_AXIS));
-    rootDirectoryPanel.add(chooseDirectoryButton);
-    rootDirectoryPanel.add(distributeFilesButton);
-    rootDirectoryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    final JPanel distributionDirectoryPanel = new JPanel();
+    distributionDirectoryPanel.setLayout(
+      new BoxLayout(distributionDirectoryPanel, BoxLayout.X_AXIS));
+    distributionDirectoryPanel.add(chooseDirectoryButton);
+    distributionDirectoryPanel.add(distributeFilesButton);
+    distributionDirectoryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
     refresh();
 
@@ -124,14 +122,13 @@ final class ScriptFilesPanel extends JPanel {
     fileTreePane.setAlignmentX(Component.LEFT_ALIGNMENT);
 
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    add(rootDirectoryPanel);
+    add(distributionDirectoryPanel);
     add(fileTreePane);
   }
 
   public void refresh() {
-    final File rootDirectory = m_scriptDistributionFiles.getRootDirectory();
-    m_fileChooser.setCurrentDirectory(rootDirectory);
-    m_fileTreeModel.setRootDirectory(rootDirectory);
+    m_fileChooser.setCurrentDirectory(m_distributionDirectory);
+    m_fileTreeModel.setRootDirectory(m_distributionDirectory);
   }
 
   private String limitLength(String s) {

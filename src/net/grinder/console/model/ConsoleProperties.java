@@ -24,6 +24,7 @@ package net.grinder.console.model;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -78,8 +79,12 @@ public final class ConsoleProperties {
     "grinder.console.stopProcessesDontAsk";
 
   /** Property name. */
-  public static final String SCRIPT_DISTRIBUTION_FILES_PROPERTY_PREFIX =
-    "grinder.console.scriptDistribution.";
+  public static final String SCRIPT_FILE_PROPERTY =
+    "grinder.console.scriptFile";
+
+  /** Property name. */
+  public static final String DISTRIBUTION_DIRECTORY_PROPERTY =
+    "grinder.console.scriptDistributionDirectory";
 
   /** Property name. */
   public static final String LOOK_AND_FEEL_PROPERTY =
@@ -95,7 +100,8 @@ public final class ConsoleProperties {
   private boolean m_resetConsoleWithProcesses;
   private boolean m_resetConsoleWithProcessesDontAsk;
   private boolean m_stopProcessesDontAsk;
-  private ScriptDistributionFiles m_scriptDistributionFiles;
+  private File m_scriptFile;
+  private File m_distributionDirectory;
   private String m_lookAndFeel;
 
   /**
@@ -149,9 +155,10 @@ public final class ConsoleProperties {
     setStopProcessesDontAskInternal(
       m_properties.getBoolean(STOP_PROCESSES_DONT_ASK_PROPERTY, false));
 
-    setScriptDistributionFiles(
-      new ScriptDistributionFiles(SCRIPT_DISTRIBUTION_FILES_PROPERTY_PREFIX,
-                                  m_properties));
+    setScriptFile(m_properties.getFile(SCRIPT_FILE_PROPERTY, null));
+
+    setDistributionDirectory(
+      m_properties.getFile(DISTRIBUTION_DIRECTORY_PROPERTY, null));
 
     setLookAndFeel(m_properties.getProperty(LOOK_AND_FEEL_PROPERTY, null));
   }
@@ -183,7 +190,8 @@ public final class ConsoleProperties {
     setResetConsoleWithProcessesDontAskInternal(
       properties.m_resetConsoleWithProcessesDontAsk);
     setStopProcessesDontAskInternal(properties.m_stopProcessesDontAsk);
-    setScriptDistributionFiles(properties.m_scriptDistributionFiles);
+    setScriptFile(properties.m_scriptFile);
+    setDistributionDirectory(properties.m_distributionDirectory);
     setLookAndFeel(properties.m_lookAndFeel);
   }
 
@@ -226,7 +234,15 @@ public final class ConsoleProperties {
                             m_resetConsoleWithProcessesDontAsk);
     m_properties.setBoolean(STOP_PROCESSES_DONT_ASK_PROPERTY,
                             m_stopProcessesDontAsk);
-    m_scriptDistributionFiles.addToProperties(m_properties);
+
+    if (m_scriptFile != null) {
+      m_properties.setFile(SCRIPT_FILE_PROPERTY, m_scriptFile);
+    }
+
+    if (m_distributionDirectory != null) {
+      m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
+                           m_distributionDirectory);
+    }
 
     if (m_lookAndFeel != null) {
       m_properties.setProperty(LOOK_AND_FEEL_PROPERTY, m_lookAndFeel);
@@ -569,34 +585,71 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Access for the script files.
+   * Get the script file.
    *
-   * @return The script files.
+   * @return The script file. <code>null</code> => No file set.
    */
-  public ScriptDistributionFiles getScriptDistributionFiles() {
-    return m_scriptDistributionFiles;
+  public File getScriptFile() {
+    return m_scriptFile;
   }
 
   /**
-   * Setter for the script files.
+   * Set the script file.
    *
-   * @param scriptDistributionFiles The script files.
+   * @param scriptFile The script file. <code>null</code> => No file
+   * set.
    */
-  public void setScriptDistributionFiles(
-    ScriptDistributionFiles scriptDistributionFiles) {
+  public void setScriptFile(File scriptFile) {
 
-    if (!scriptDistributionFiles.equals(m_scriptDistributionFiles)) {
-      final ScriptDistributionFiles old = m_scriptDistributionFiles;
-      m_scriptDistributionFiles = scriptDistributionFiles;
-
+    if (different(scriptFile, m_scriptFile)) {
+      final File old = m_scriptFile;
+      m_scriptFile = scriptFile;
       m_changeSupport.firePropertyChange(
-        SCRIPT_DISTRIBUTION_FILES_PROPERTY_PREFIX, old,
-        m_scriptDistributionFiles);
+        SCRIPT_FILE_PROPERTY, old, m_scriptFile);
     }
   }
 
   /**
-   * Get the name of the chosen Look and Feel. It is up to the UI
+   * Get the script distribution directory.
+   *
+   * @return The directory.
+   */
+  public File getDistributionDirectory() {
+    return m_distributionDirectory;
+  }
+
+  /**
+   * Set the script distribution directory.
+   *
+   * @param distributionDirectory The directory. <code>null</code> =>
+   * default to local directory.
+   */
+  public void setDistributionDirectory(File distributionDirectory) {
+
+    if (m_distributionDirectory == null ||
+        different(distributionDirectory, m_distributionDirectory)) {
+      final File old = m_distributionDirectory;
+
+      if (distributionDirectory != null) {
+        m_distributionDirectory = distributionDirectory;
+      }
+      else {
+        try {
+          m_distributionDirectory = new File(".").getCanonicalFile();
+        }
+        catch (IOException e) {
+          // Oh well...
+          m_distributionDirectory = new File("");
+        }
+      }
+
+      m_changeSupport.firePropertyChange(
+        DISTRIBUTION_DIRECTORY_PROPERTY, old, m_distributionDirectory);
+    }
+  }
+
+  /**
+   * Get the name of the Look and Feel. It is up to the UI
    * implementation how this is interpreted.
    *
    * @return The Look and Feel name. <code>null</code> => use default.
@@ -606,21 +659,24 @@ public final class ConsoleProperties {
   }
 
   /**
-   * Set the name of the chosen Look and Feel.
+   * Set the name of the Look and Feel.
    *
    * @param lookAndFeel The Look and Feel name. <code>null</code> =>
    * use default.
    */
   public void setLookAndFeel(String lookAndFeel) {
 
-    if (lookAndFeel == null && m_lookAndFeel != null ||
-        lookAndFeel != null && m_lookAndFeel == null ||
-        lookAndFeel != null && !lookAndFeel.equals(m_lookAndFeel)) {
-
+    if (different(lookAndFeel, m_lookAndFeel)) {
       final String old = m_lookAndFeel;
       m_lookAndFeel = lookAndFeel;
       m_changeSupport.firePropertyChange(LOOK_AND_FEEL_PROPERTY, old,
                                          m_lookAndFeel);
     }
+  }
+
+  private boolean different(Object o1, Object o2) {
+    return (o1 == null && o2 != null ||
+            o1 != null && o2 == null ||
+            o1 != null && !o1.equals(o2));
   }
 }
