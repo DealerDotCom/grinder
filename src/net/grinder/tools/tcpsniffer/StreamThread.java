@@ -68,8 +68,10 @@ public class StreamThread implements Runnable
 	m_resetColour = m_colour.length() > 0 ? TerminalColour.NONE : "";
 	m_outputWriter = outputWriter;
 	
-	final Thread t = new Thread(this,
-				    m_connectionDetails.getDescription());
+	final Thread t =
+	    new Thread(this,
+		       "Filter thread for " +
+		       m_connectionDetails.getDescription());
 
 	try {
 	    m_filter.connectionOpened(m_connectionDetails);
@@ -87,7 +89,7 @@ public class StreamThread implements Runnable
 	    byte[] buffer = new byte[BUFFER_SIZE];
 
 	    while (true) {
-		int bytesRead = m_in.read(buffer, 0, BUFFER_SIZE);
+		final int bytesRead = m_in.read(buffer, 0, BUFFER_SIZE);
 
 		if (bytesRead == -1) {
 		    break;
