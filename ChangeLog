@@ -1,6 +1,24 @@
+2002-05-22  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferResponseFilter.java:
+	New file.
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, src/net/grinder/plugin/http/HttpPluginSnifferResponseFilter.java, src/net/grinder/TCPSniffer.java:
+	Record 401 interactions.
+
+	* src/net/grinder/tools/tcpsniffer/HTTPSProxySnifferEngine.java:
+	Finally spot the silly mistake.
+
+	* src/prj.el: Debug source path.
+
+2002-05-16  Philip Aston  <paston@bea.com>
+
+	* CHANGES, TODO, src/net/grinder/TCPSniffer.java, src/net/grinder/tools/tcpsniffer/HTTPProxySnifferEngine.java, src/net/grinder/tools/tcpsniffer/HTTPSProxySnifferEngine.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImplementation.java:
+	Latest attempt at rational HTTPS proxy.
+
 2002-05-09  Philip Aston  <paston@bea.com>
 
-	* TODO: *** empty log message ***
+	* doc/TCPSniffer.txt: Doc SSL support.
 
 	* build.xml: Fix compilation without JSSE.
 
