@@ -126,8 +126,8 @@ public final class ServerReceiver implements Receiver {
             idle = true;
           }
           else {
-            final Acceptor.SocketResource socketResource =
-              (Acceptor.SocketResource)reservation.getResource();
+            final SocketWrapper socketResource =
+              (SocketWrapper)reservation.getResource();
 
             final InputStream inputStream = socketResource.getInputStream();
 

@@ -75,13 +75,19 @@ final class ResourcePool {
    * Adds a resource to the pool.
    *
    * @param resource The resource to add.
+   * @return Allows the client to notify the resource pool if the
+   * resource has been closed.
    */
-  public void add(Resource resource) {
+  public Closeable add(Resource resource) {
+    final ResourceWrapper resourceWrapper = new ResourceWrapper(resource);
+
     synchronized (m_reservableListMutex) {
-      m_reservables.add(new ResourceWrapper(resource));
+      m_reservables.add(resourceWrapper);
     }
 
     m_notifyAdd.notify(resource);
+
+    return resourceWrapper;
   }
 
   /**
@@ -270,18 +276,25 @@ final class ResourcePool {
   }
 
   /**
+   * Something that can be closed.
+   */
+  public interface Closeable {
+
+    void close();
+
+    boolean isClosed();
+  }
+
+  /**
    * Public interface to a resource reservation.
    */
-  public interface Reservation {
+  public interface Reservation extends Closeable {
 
     boolean isSentinel();
 
     Resource getResource();
 
     void free();
-
-    void close();
-    boolean isClosed();
   }
 
   private interface Reservable extends Reservation {
@@ -368,10 +381,12 @@ final class ResourcePool {
         stateChanged = !m_closed;
 
         if (stateChanged) {
-          m_resource.close();
-
+          // Update state before closing resource to prevent possible
+          // recursion.
           m_busy = false;
           m_closed = true;
+
+          m_resource.close();
         }
       }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -60,10 +60,11 @@ abstract class AbstractSender implements Sender {
    * Template method for subclasses to implement the sending of a
    * message.
    */
-  protected abstract void writeMessage(Message message) throws IOException;
+  protected abstract void writeMessage(Message message)
+    throws CommunicationException, IOException;
 
-  protected static void writeMessageToStream(Message message,
-                                             OutputStream stream)
+  protected static final void writeMessageToStream(Message message,
+                                                   OutputStream stream)
     throws IOException {
 
     // I tried the model of using a single ObjectOutputStream for the

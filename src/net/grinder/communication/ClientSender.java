@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2005, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,7 +31,9 @@ import java.net.Socket;
  * @author Philip Aston
  * @version $Revision$
  **/
-public final class ClientSender extends StreamSender {
+public final class ClientSender
+  extends StreamSender
+  implements CheckIfPeerShutdown {
 
   /**
    * Factory method that makes a TCP connection and returns a
@@ -48,36 +50,41 @@ public final class ClientSender extends StreamSender {
     final Socket socket = connector.connect();
 
     try {
-      return new ClientSender(socket);
+      return new ClientSender(new SocketWrapper(socket));
     }
     catch (IOException e) {
       throw new CommunicationException("Connection failed", e);
     }
   }
 
-  private final Socket m_socket;
+  private final SocketWrapper m_socketWrapper;
 
-  private ClientSender(Socket socket)
+  private ClientSender(SocketWrapper socketWrapper)
     throws CommunicationException, IOException {
 
-    super(socket.getOutputStream());
-    m_socket = socket;
+    super(socketWrapper.getOutputStream());
+    m_socketWrapper = socketWrapper;
   }
 
   /**
-   * Cleanly shutdown the <code>Sender</code>. Ignore most errors,
-   * connection has probably been reset by peer.
+   * Cleanly shutdown the <code>Sender</code>.
    */
   public void shutdown() {
+    // Close the socket wrapper first as that needs to use the socket.
+    m_socketWrapper.close();
 
     super.shutdown();
+  }
 
-    try {
-      m_socket.close();
-    }
-    catch (IOException e) {
-      // Ignore.
-    }
+  /**
+   * Check whether the peer connection has been shut down. If so,
+   * shut down ourselves and return <code>true</code>.
+   *
+   * @return boolean <code>true</code> => yes, the peer has been shut
+   * down.
+   */
+  public boolean isPeerShutdown() {
+    return m_socketWrapper.isPeerShutdown();
   }
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -57,7 +57,8 @@ abstract class AbstractFanOutSender extends AbstractSender {
    * @param message The message.
    * @exception IOException If an error occurs.
    */
-  protected final void writeMessage(Message message) throws IOException {
+  protected final void writeMessage(Message message)
+    throws CommunicationException, IOException {
 
     try {
       // We reserve all the resources here and hand off the
@@ -93,11 +94,12 @@ abstract class AbstractFanOutSender extends AbstractSender {
    *
    * @param resource The resource.
    * @return The output stream.
-   * @throws IOException If the output stream could not be obtained
-   * from the resource.
+   * @throws CommunicationException If the output stream could not be
+   * obtained from the resource.
    */
   protected abstract OutputStream
-    resourceToOutputStream(ResourcePool.Resource resource) throws IOException;
+    resourceToOutputStream(ResourcePool.Resource resource)
+    throws CommunicationException;
 
   /**
    * Allow subclasses to access the resource pool.

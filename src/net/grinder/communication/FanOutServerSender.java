@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,8 +21,8 @@
 
 package net.grinder.communication;
 
-import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
 
 import net.grinder.util.thread.Kernel;
 
@@ -33,7 +33,8 @@ import net.grinder.util.thread.Kernel;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class FanOutServerSender extends AbstractFanOutSender {
+public final class FanOutServerSender
+  extends AbstractFanOutSender implements CheckIfPeerShutdown {
 
   /**
    * Constructor.
@@ -66,12 +67,57 @@ public final class FanOutServerSender extends AbstractFanOutSender {
    *
    * @param resource The resource.
    * @return The output stream.
-   * @throws IOException If the output stream could not be obtained
-   * from the socket.
+   * @throws CommunicationException If the output stream could not be
+   * obtained from the socket.
    */
   protected OutputStream resourceToOutputStream(
-    ResourcePool.Resource resource) throws IOException {
+    ResourcePool.Resource resource) throws CommunicationException {
 
-    return ((Acceptor.SocketResource)resource).getOutputStream();
+    return ((SocketWrapper)resource).getOutputStream();
+  }
+
+  /**
+   * Check whether the peer connection has been shut down. If so,
+   * shut down ourselves and return <code>true</code>.
+   *
+   * @return boolean <code>true</code> => yes, the peer has been shut
+   * down.
+   */
+  public boolean isPeerShutdown() {
+    boolean result = false;
+
+    // Reserve the lot.
+    final Iterator iterator;
+
+    try {
+      iterator = getResourcePool().reserveAll().iterator();
+    }
+    catch (InterruptedException e) {
+      // Assertion failure.
+      throw new RuntimeException("Unexpectedly shutdown");
+    }
+
+    try {
+      while (iterator.hasNext()) {
+        final ResourcePool.Reservation reservation =
+          (ResourcePool.Reservation) iterator.next();
+
+        try {
+          if (((SocketWrapper)reservation.getResource()).isPeerShutdown()) {
+            result = true;
+          }
+        }
+        finally {
+          reservation.free();
+        }
+      }
+    }
+    finally {
+      while (iterator.hasNext()) {
+        ((ResourcePool.Reservation) iterator.next()).free();
+      }
+    }
+
+    return result;
   }
 }

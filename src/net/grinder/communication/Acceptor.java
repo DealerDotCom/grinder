@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,9 +21,7 @@
 
 package net.grinder.communication;
 
-import java.io.InputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -244,7 +242,7 @@ public final class Acceptor {
    * @param connectionType Identifies the set of connections to
    * return.
    * @return A set of sockets, each wrapped in a {@link
-   * SocketResource}.
+   * SocketWrapper}.
    */
   ResourcePool getSocketSet(final ConnectionType connectionType) {
 
@@ -262,13 +260,13 @@ public final class Acceptor {
           new ResourcePool.Listener() {
             public void resourceAdded(ResourcePool.Resource resource) {
               final ConnectionIdentity connectionIdentity =
-                ((SocketResource)resource).getConnectionIdentity();
+                ((SocketWrapper)resource).getConnectionIdentity();
               m_notifyAccept.notify(connectionType, connectionIdentity);
             }
 
             public void resourceClosed(ResourcePool.Resource resource) {
               final ConnectionIdentity connectionIdentity =
-                ((SocketResource)resource).getConnectionIdentity();
+                ((SocketWrapper)resource).getConnectionIdentity();
 
               m_notifyClose.notify(connectionType, connectionIdentity);
             }
@@ -313,9 +311,19 @@ public final class Acceptor {
       final ConnectionType connectionType =
         ConnectionType.read(localSocket.getInputStream());
 
+      final SocketWrapper socketWrapper = new SocketWrapper(localSocket);
+
+      final ResourcePool.Closeable closeable;
+
       synchronized (m_socketSets) {
-        getSocketSet(connectionType).add(new SocketResource(localSocket));
+        closeable = getSocketSet(connectionType).add(socketWrapper);
       }
+
+      socketWrapper.addClosedListener(new SocketWrapper.ClosedListener() {
+          public void socketClosed() {
+            closeable.close();
+          }
+        });
     }
     catch (CommunicationException e) {
       try {
@@ -354,44 +362,6 @@ public final class Acceptor {
       catch (CommunicationException e) {
         // Ignore.
       }
-    }
-  }
-
-  /**
-   * Wrapper for sockets that are managed by our {@link
-   * ResourcePool}s.
-   */
-  static final class SocketResource implements ResourcePool.Resource {
-    private final Socket m_socket;
-    private final ConnectionIdentity m_connectionIdentity;
-
-    private SocketResource(Socket socket) {
-      m_socket = socket;
-      m_connectionIdentity =
-        new ConnectionIdentity(m_socket.getInetAddress(),
-                               m_socket.getPort(),
-                               System.currentTimeMillis());
-    }
-
-    public InputStream getInputStream() throws IOException {
-      return m_socket.getInputStream();
-    }
-
-    public OutputStream getOutputStream() throws IOException {
-      return m_socket.getOutputStream();
-    }
-
-    public void close() {
-      try {
-        m_socket.close();
-      }
-      catch (IOException e) {
-        // Ignore.
-      }
-    }
-
-    public ConnectionIdentity getConnectionIdentity() {
-      return m_connectionIdentity;
     }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,41 +23,19 @@ package net.grinder.communication;
 
 
 /**
- * Manages reciept of messages from a server over a TCP connection.
+ * Used to check whether a socket resources peer has been shut down.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ClientReceiver extends StreamReceiver {
+public interface CheckIfPeerShutdown {
 
   /**
-   * Factory method that makes a TCP connection and returns a
-   * corresponding <code>Receiver</code>.
+   * Check whether the peer connection has been shut down. If so,
+   * shut down ourselves and return <code>true</code>.
    *
-   * @param connector Connector to use to make the connection to the
-   * server.
-   * @return The ClientReceiver.
-   * @throws CommunicationException If failed to connect.
+   * @return boolean <code>true</code> => yes, the peer has been shut
+   * down.
    */
-  public static Receiver connect(Connector connector)
-    throws CommunicationException {
-
-    return new ClientReceiver(new SocketWrapper(connector.connect()));
-  }
-
-  private final SocketWrapper m_socketWrapper;
-
-  private ClientReceiver(SocketWrapper socketWrapper) {
-    super(socketWrapper.getInputStream());
-    m_socketWrapper = socketWrapper;
-  }
-
-  /**
-   * Cleanly shut down the <code>Receiver</code>.
-   */
-  public void shutdown() {
-    // Close the socket wrapper first as that needs to use the socket.
-    m_socketWrapper.close();
-    super.shutdown();
-  }
+  boolean isPeerShutdown();
 }
