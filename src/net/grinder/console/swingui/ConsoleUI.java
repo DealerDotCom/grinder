@@ -159,13 +159,13 @@ public final class ConsoleUI implements ModelListener {
     m_errorHandler = new ErrorDialogHandler(m_frame, resources);
     m_errorHandler.registerWithLookAndFeel(m_lookAndFeel);
 
-    m_stateIgnoringString = resources.getString("state.ignoring.label") + " ";
+    m_stateIgnoringString = resources.getString("state.ignoring.label") + ' ';
     m_stateWaitingString = resources.getString("state.waiting.label");
     m_stateStoppedString = resources.getString("state.stopped.label");
     m_stateStoppedAndIgnoringString =
-      resources.getString("state.stoppedAndIgnoring.label") + " ";
+      resources.getString("state.stoppedAndIgnoring.label") + ' ';
     m_stateCapturingString =
-      resources.getString("state.capturing.label") + " ";
+      resources.getString("state.capturing.label") + ' ';
     m_stateUnknownString = resources.getString("state.unknown.label");
 
     m_closeFileAction = new CloseFileAction();
@@ -262,7 +262,7 @@ public final class ConsoleUI implements ModelListener {
                      sampleTablePane);
 
     resultsPane.setOneTouchExpandable(true);
-    resultsPane.setResizeWeight(1d);
+    resultsPane.setResizeWeight(1.0d);
     resultsPane.setBorder(BorderFactory.createEmptyBorder());
 
     tabbedPane.addTab(resources.getString("resultsTab.title"),
@@ -408,7 +408,7 @@ public final class ConsoleUI implements ModelListener {
 
     m_model.addTotalSampleListener(
       new SampleListener() {
-        private final String m_suffix = " " + resources.getString("tps.units");
+        private final String m_suffix = ' ' + resources.getString("tps.units");
 
         public void update(TestStatistics intervalStatistics,
                            TestStatistics cumulativeStatistics) {
@@ -1268,7 +1268,7 @@ public final class ConsoleUI implements ModelListener {
         m_processControl.getFileDistributionHandler(directory);
 
       final ProgressMonitor progressMonitor =
-        new ProgressMonitor(m_frame, (String) getValue(NAME), "", 0,
+        new ProgressMonitor(m_frame, getValue(NAME), "", 0,
                             distributionHandler.getNumberOfFiles());
       progressMonitor.setMillisToDecideToPopup(0);
       progressMonitor.setMillisToPopup(0);

@@ -64,7 +64,7 @@ abstract class DynamicStatisticsTableModel
 
     final Resources resources = m_model.getResources();
 
-    m_testString = resources.getString("table.test.label") + " ";
+    m_testString = resources.getString("table.test.label") + ' ';
     m_testColumnString = resources.getString("table.testColumn.label");
     m_testDescriptionColumnString =
       resources.getString("table.descriptionColumn.label");

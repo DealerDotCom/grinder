@@ -89,7 +89,7 @@ public abstract class AbstractTestSemantics implements Test {
       return "Test " + getNumber();
     }
     else {
-      return "Test " + getNumber() + " (" + description + ")";
+      return "Test " + getNumber() + " (" + description + ')';
     }
   }
 }

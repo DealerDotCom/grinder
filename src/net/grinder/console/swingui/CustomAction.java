@@ -47,12 +47,12 @@ abstract class CustomAction extends AbstractAction {
   private final String m_key;
   private final Set m_propertyChangeListenersByButton = new HashSet();
 
-  public CustomAction(Resources resources, String key) {
+  protected CustomAction(Resources resources, String key) {
     this(resources, key, false);
   }
 
-  public CustomAction(Resources resources, String key,
-                      boolean isDialogAction) {
+  protected CustomAction(Resources resources, String key,
+                         boolean isDialogAction) {
     super();
 
     m_key = key;

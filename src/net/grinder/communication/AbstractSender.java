@@ -62,8 +62,8 @@ abstract class AbstractSender implements Sender {
    */
   protected abstract void writeMessage(Message message) throws IOException;
 
-  protected static final void writeMessageToStream(Message message,
-                                                   OutputStream stream)
+  protected static void writeMessageToStream(Message message,
+                                             OutputStream stream)
     throws IOException {
 
     // I tried the model of using a single ObjectOutputStream for the

@@ -77,7 +77,7 @@ public class GrinderProperties extends Properties {
       }
       catch (IOException e) {
         throw new GrinderException(
-          "Error loading properties file '" + m_file.getPath() + "'", e);
+          "Error loading properties file '" + m_file.getPath() + '\'', e);
       }
     }
 
@@ -119,7 +119,7 @@ public class GrinderProperties extends Properties {
     }
     catch (IOException e) {
       throw new GrinderException(
-        "Error writing properties file '" + m_file.getPath() + "'", e);
+        "Error writing properties file '" + m_file.getPath() + '\'', e);
     }
   }
 
@@ -155,7 +155,7 @@ public class GrinderProperties extends Properties {
     }
     catch (IOException e) {
       throw new GrinderException(
-        "Error writing properties file '" + m_file.getPath() + "'", e);
+        "Error writing properties file '" + m_file.getPath() + '\'', e);
     }
   }
 

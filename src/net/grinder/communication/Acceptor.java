@@ -98,7 +98,7 @@ public final class Acceptor {
       }
       catch (IOException e) {
         throw new CommunicationException(
-          "Could not bind to address '" + addressString + ":" + port + "'", e);
+          "Could not bind to address '" + addressString + ':' + port + '\'', e);
       }
     }
     else {
@@ -117,7 +117,7 @@ public final class Acceptor {
           return new Runnable() {
               public void run() { process(); }
             };
-        };
+        }
       };
 
     m_threadPool =

@@ -274,11 +274,11 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
 
       final int compareState = p1.getState() - p2.getState();
 
-      if (compareState != 0) {
-        return compareState;
+      if (compareState == 0) {
+        return p1.getName().compareTo(p2.getName());
       }
       else {
-        return p1.getName().compareTo(p2.getName());
+        return compareState;
       }
     }
   }

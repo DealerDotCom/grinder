@@ -73,7 +73,7 @@ public final class Connector {
     }
     catch (UnknownHostException e) {
       throw new CommunicationException(
-        "Could not resolve host '" + m_hostString + "'", e);
+        "Could not resolve host '" + m_hostString + '\'', e);
     }
 
     try {
@@ -86,7 +86,7 @@ public final class Connector {
     }
     catch (IOException e) {
       throw new CommunicationException(
-        "Failed to connect to '" + inetAddress + ":" + m_port + "'", e);
+        "Failed to connect to '" + inetAddress + ':' + m_port + '\'', e);
     }
   }
 

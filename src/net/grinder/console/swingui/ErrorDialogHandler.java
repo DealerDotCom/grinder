@@ -80,7 +80,7 @@ final class ErrorDialogHandler implements ErrorHandler {
   /**
    * Constructor.
    *
-   * @param frame Parent frame.
+   * @param dialog Parent frame.
    * @param resources Resources object to use for strings and things.
    */
   public ErrorDialogHandler(JDialog dialog, Resources resources) {
@@ -305,7 +305,7 @@ final class ErrorDialogHandler implements ErrorHandler {
    * JLabel. This is the result of trial and error as JLabel's
    * comprehension of HTML is rudimentary.
    */
-  private final class StackTraceHTMLPrintWriter extends PrintWriter {
+  private static final class StackTraceHTMLPrintWriter extends PrintWriter {
 
     private static final int NO_INDENT = 0;
     private static final int INDENT = 1;

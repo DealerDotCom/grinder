@@ -185,8 +185,7 @@ public final class EditorModel {
    * @param buffer The buffer.
    */
   public void selectBuffer(Buffer buffer) {
-    if (buffer == null && m_selectedBuffer != null ||
-        !buffer.equals(m_selectedBuffer)) {
+    if (buffer == null || !buffer.equals(m_selectedBuffer)) {
 
       final Buffer oldBuffer = m_selectedBuffer;
 

@@ -25,7 +25,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
-import java.io.File;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.border.TitledBorder;
@@ -130,8 +129,6 @@ final class Editor {
             m_scriptTextArea.setEnabled(false);
           }
           else if (buffer.equals(selectedBuffer)) {
-            final File file = buffer.getFile();
-
             m_titledBorder.setTitle(buffer.getDisplayName());
             m_titledBorder.setTitleFont(
               buffer.isDirty() ?

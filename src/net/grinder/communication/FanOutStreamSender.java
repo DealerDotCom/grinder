@@ -82,7 +82,8 @@ public final class FanOutStreamSender extends AbstractFanOutSender {
     return ((OutputStreamResource)resource).getOutputStream();
   }
 
-  private final class OutputStreamResource implements ResourcePool.Resource {
+  private static final class OutputStreamResource
+          implements ResourcePool.Resource {
 
     private final OutputStream m_outputStream;
 

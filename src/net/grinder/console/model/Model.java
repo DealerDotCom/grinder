@@ -290,7 +290,7 @@ public final class Model {
 
     synchronized (m_accumulators) {
       while (newTestIterator.hasNext()) {
-        m_accumulators.put((Test)newTestIterator.next(),
+        m_accumulators.put(newTestIterator.next(),
                            new SampleAccumulator(m_peakTPSExpression,
                                                  m_periodIndex));
       }

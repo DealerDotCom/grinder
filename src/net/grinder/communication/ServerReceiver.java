@@ -59,7 +59,7 @@ public final class ServerReceiver implements Receiver {
           return new Runnable() {
               public void run() { process(); }
             };
-        };
+        }
       };
 
     m_threadPool =
