@@ -1,3 +1,8 @@
+2001-09-02  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/tools/tcpsniffer/ConnectionDetails.java, src/net/grinder/tools/tcpsniffer/SSLSnifferEngineImpl.java, src/net/grinder/tools/tcpsniffer/SnifferEngine.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java, src/net/grinder/tools/tcpsniffer/StreamThread.java, webapps/sniff-n-grind/WEB-INF/web.xml, webapps/sniff-n-grind/error.jsp, webapps/sniff-n-grind/grndresults.jsp, webapps/sniff-n-grind/index.jsp, webapps/sniff-n-grind/results.jsp, webapps/sniff-n-grind/start.jsp, webapps/sniff-n-grind/startgrnd.jsp, webapps/sniff-n-grind/wait.jsp, AUTHORS, CHANGES, ChangeLog, TODO, build.xml, doc/TCPSniffer.txt, doc/proxy.txt, doc/sniff-n-grind.txt, src/net/grinder/TCPSniffer.java, src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, src/net/grinder/plugin/http/HttpsPluginSnifferFilter.java, src/net/grinder/tools/proxy/HttpProxySnifferEngineImpl.java, src/net/grinder/tools/proxy/HttpsProxySnifferEngineImpl.java, src/net/grinder/tools/snifferwebapp/GrindingServlet.java, src/net/grinder/tools/snifferwebapp/SniffingServlet.java, src/net/grinder/tools/snifferwebapp/util/NoFreePortException.java, src/net/grinder/tools/snifferwebapp/util/PortManager.java:
+	Apply Paddy's proxy/sniff-n-grind patch.
+
 2001-08-22 Paddy Spencer <paddy.spencer@physics.org>
 
 	* src/net/grinder/tools/tcpsniffer/SnifferEngine.java: extends
