@@ -599,7 +599,8 @@ public class HTTPRequest
 	final RequestState requestState = new RequestState(uri);
 
 	return requestState.processResponse(
-	    requestState.getConnection().Post(uri, data, headers));
+	    requestState.getConnection().Post(
+		requestState.getPath(), data, headers));
     }
 
     /**
