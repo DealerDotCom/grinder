@@ -49,9 +49,9 @@ import java.util.Map;
  * </p>
  *
  * <p>
- * Additionally, there are five long statistics for use by scripts and custom
- * plugins, <code>userLong0</code>,<code>userLong1</code>, ...
- * <code>userLong4</code>.
+ * Additionally, there are five long statistics that scripts and custom plug-ins
+ * can use for their own purposes, <code>userLong0</code>,
+ * <code>userLong1</code>, ... <code>userLong4</code>.
  * </p>
  *
  * <p>
@@ -72,11 +72,11 @@ import java.util.Map;
  * {@link LongSampleIndex},{@link #getLongSampleIndex},
  * {@link DoubleSampleIndex},{@link #getDoubleSampleIndex}. Sample statistics
  * are the result of a series of sample values. The values can be either
- * <code>long</code> s or <code>double</code>s. Sample statistics have
- * three attribute values that can be read: the <em>count</em> (number of
- * samples), <em>sum</em> (total of all sample values), and sample
- * <em>variance</em>. These attributes can be queried using the appropriate
- * expression function (e.g. <em>count()</em>), see {@link ExpressionView}.
+ * <em>long</em>s or <em>double</em>s. Sample statistics have three
+ * attribute values that can be read: the <em>count</em> (number of samples),
+ * <em>sum</em> (total of all sample values), and sample <em>variance</em>.
+ * These attributes can be queried using the appropriate expression function
+ * (e.g. <em>count()</em>), see {@link ExpressionView}.
  * </p>
  *
  * <p>
@@ -91,7 +91,7 @@ import java.util.Map;
  * </p>
  *
  * <p>
- * There is currently no provision for user specific sample statistics.
+ * There is currently no provision for user specified sample statistics.
  * </p>
  *
  * @author Philip Aston

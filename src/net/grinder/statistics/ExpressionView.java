@@ -27,22 +27,30 @@ import java.io.ObjectOutput;
 
 
 /**
- * <p>Associate a statistic expression with display information.</p>
+ * <p>
+ * Associate a statistic expression with display information.
+ * </p>
  *
- * <p>Statistic expressions are composed of statistic names (see
- * {@link StatisticsIndexMap}) in a simple post-fix format using the
- * symbols <code>+</code>, <code>-</code>, <code>/</code> and
- * <code>*</code>, which have their usual meanings, in conjunction with
- * simple statistic names or sub-expressions. Precedence can be controlled by
- * grouping expressions in parentheses. For example, the error rate is
- * <code>(* (/ errors period) 1000)</code> errors per second.</p>
+ * <p>
+ * Statistic expressions are composed of statistic names (see
+ * {@link StatisticsIndexMap}) in a simple post-fix format using the symbols
+ * <code>+</code>,<code>-</code>,<code>/</code> and <code>*</code>,
+ * which have their usual meanings, in conjunction with simple statistic names
+ * or sub-expressions. Precedence can be controlled by grouping expressions in
+ * parentheses. For example, the error rate is
+ * <code>(* (/ errors period) 1000)</code> errors per second.
+ * </p>
  *
- * <p>Sample statistics, such as timedTests, must be introduced with one
- * of <code>sum</code>, <code>count</code>, or <code>variance</code>,
- * depending on the attribute of interest.</p>
+ * <p>
+ * Sample statistics, such as <em>timedTests</em>, must be introduced with
+ * one of <code>sum</code>,<code>count</code>, or <code>variance</code>,
+ * depending on the attribute of interest.
+ * </p>
  *
- * <p>For example, the statistic expression "<code>(/ (sum timedTests)
- * (count timedTests))</code>" represents the mean test time in milliseconds.
+ * <p>
+ * For example, the statistic expression <code>(/ (sum timedTests)
+ * (count timedTests))</code>
+ * represents the mean test time in milliseconds.
  *
  * @author Philip Aston
  * @version $Revision$
