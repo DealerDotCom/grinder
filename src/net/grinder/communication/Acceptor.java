@@ -29,6 +29,8 @@ import java.net.Socket;
 import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import net.grinder.util.thread.ThreadPool;
@@ -44,9 +46,37 @@ import net.grinder.util.thread.ThreadSafeQueue;
 public final class Acceptor {
 
   private final ServerSocket m_serverSocket;
-  private final Map m_socketSets = new HashMap();
   private final ThreadPool m_threadPool;
   private final ThreadSafeQueue m_exceptionQueue = new ThreadSafeQueue();
+
+  /**
+   * {@link ResourcePool}s indexed by {@link ConnectionType}.
+   */
+  private final Map m_socketSets = new HashMap();
+
+  /**
+   * Linked lists of {@link Listener}'s indexed by {@link
+   * ConnectionType}. Synchronise on a list before accessing it.
+   */
+  private final Map m_listenerMap = new HashMap();
+
+  private final ListenerNotification m_notifyAccept =
+    new ListenerNotification() {
+      protected void doNotification(Listener listener,
+                                    ConnectionType connectionType,
+                                    ConnectionIdentity connection) {
+        listener.connectionAccepted(connectionType, connection);
+      }
+    };
+
+  private final ListenerNotification m_notifyClose =
+    new ListenerNotification() {
+      protected void doNotification(Listener listener,
+                                    ConnectionType connectionType,
+                                    ConnectionIdentity connection) {
+        listener.connectionClosed(connectionType, connection);
+      }
+    };
 
   /**
    * Constructor.
@@ -152,6 +182,63 @@ public final class Acceptor {
   }
 
   /**
+   * Listener interface.
+   */
+  public interface Listener {
+    /**
+     * A connection has been accepted.
+     *
+     * @param connectionType The type of the connection.
+     * @param connection The connection identity.
+     */
+    void connectionAccepted(ConnectionType connectionType,
+                            ConnectionIdentity connection);
+
+    /**
+     * A connection has been closed.
+     *
+     * @param connectionType The type of the connection.
+     * @param connection The connection identity.
+     */
+    void connectionClosed(ConnectionType connectionType,
+                          ConnectionIdentity connection);
+  }
+
+  /**
+   * Add a new listener.
+   *
+   * @param connectionType The connection type.
+   * @param listener The listener.
+   */
+  public void addListener(ConnectionType connectionType, Listener listener) {
+    final List listenerList = getListenerList(connectionType);
+    synchronized (listenerList) {
+      listenerList.add(listener);
+    }
+  }
+
+  private abstract class ListenerNotification {
+    public final void notify(ConnectionType connectionType,
+                             ConnectionIdentity connection) {
+
+      final List listenerList = getListenerList(connectionType);
+
+      synchronized (listenerList) {
+        final Iterator iterator = listenerList.iterator();
+
+        while (iterator.hasNext()) {
+          doNotification((Listener)iterator.next(),
+                         connectionType, connection);
+        }
+      }
+    }
+
+    protected abstract void doNotification(Listener listener,
+                                           ConnectionType connectionType,
+                                           ConnectionIdentity connection);
+  }
+
+  /**
    * Get a set of accepted connections.
    *
    * @param connectionType Identifies the set of connections to
@@ -159,7 +246,7 @@ public final class Acceptor {
    * @return A set of sockets, each wrapped in a {@link
    * SocketResource}.
    */
-  ResourcePool getSocketSet(ConnectionType connectionType) {
+  ResourcePool getSocketSet(final ConnectionType connectionType) {
 
     synchronized (m_socketSets) {
       final ResourcePool original =
@@ -170,8 +257,43 @@ public final class Acceptor {
       }
       else {
         final ResourcePool newSocketSet = new ResourcePool();
+
+        newSocketSet.addListener(
+          new ResourcePool.Listener() {
+            public void resourceAdded(ResourcePool.Resource resource) {
+              final ConnectionIdentity connectionIdentity =
+                ((SocketResource)resource).getConnectionIdentity();
+              m_notifyAccept.notify(connectionType, connectionIdentity);
+            }
+
+            public void resourceClosed(ResourcePool.Resource resource) {
+              final ConnectionIdentity connectionIdentity =
+                ((SocketResource)resource).getConnectionIdentity();
+
+              m_notifyClose.notify(connectionType, connectionIdentity);
+            }
+          });
+
         m_socketSets.put(connectionType, newSocketSet);
         return newSocketSet;
+      }
+    }
+  }
+
+  /**
+   * Get the listener list for a particular connection type.
+   */
+  List getListenerList(ConnectionType connectionType) {
+    synchronized (m_listenerMap) {
+      final List original = (List)m_listenerMap.get(connectionType);
+
+      if (original != null) {
+        return original;
+      }
+      else {
+        final List newList = new LinkedList();
+        m_listenerMap.put(connectionType, newList);
+        return newList;
       }
     }
   }
@@ -236,13 +358,19 @@ public final class Acceptor {
   }
 
   /**
-   * Wrapper for sockets that are returned by {@link getSocketSet}.
+   * Wrapper for sockets that are managed by our {@link
+   * ResourcePool}s.
    */
   static final class SocketResource implements ResourcePool.Resource {
     private final Socket m_socket;
+    private final ConnectionIdentity m_connectionIdentity;
 
     private SocketResource(Socket socket) {
       m_socket = socket;
+      m_connectionIdentity =
+        new ConnectionIdentity(m_socket.getInetAddress(),
+                               m_socket.getPort(),
+                               System.currentTimeMillis());
     }
 
     public InputStream getInputStream() throws IOException {
@@ -260,6 +388,10 @@ public final class Acceptor {
       catch (IOException e) {
         // Ignore.
       }
+    }
+
+    public ConnectionIdentity getConnectionIdentity() {
+      return m_connectionIdentity;
     }
   }
 }

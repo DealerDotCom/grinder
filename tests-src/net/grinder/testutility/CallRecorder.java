@@ -43,6 +43,10 @@ public class CallRecorder extends Assert {
     m_callDataList.clear();
   }
 
+  public boolean hasBeenCalled() {
+    return m_callDataList.size() > 0;
+  }
+
   public String getCallHistory() {
     final StringBuffer result = new StringBuffer();
 
@@ -80,91 +84,99 @@ public class CallRecorder extends Assert {
    *  Check the given method was called and that it returned the given
    *  result.
    */
-  public final void assertSuccess(String methodName, Object[] parameters,
-				  Object result) {
+  public final CallData assertSuccess(String methodName, Object[] parameters,
+                                      Object result) {
 
     final CallData callData = assertCalledInternal(methodName, parameters);
     assertEquals(result, callData.getResult());
+    return callData;
   }
 
-  public final void assertSuccess(String methodName, Class[] parameterTypes,
-				  Object result) {
+  public final CallData assertSuccess(String methodName,
+                                      Class[] parameterTypes,
+                                      Object result) {
 
     final CallData callData = assertCalledInternal(methodName, parameterTypes);
     assertEquals(result, callData.getResult());
+    return callData;
   }
 
   /**
    *  Check the given method was called.
    */
-  public final void assertSuccess(String methodName, Object[] parameters) {
-    assertCalledInternal(methodName, parameters);
+  public final CallData assertSuccess(String methodName, Object[] parameters) {
+    return assertCalledInternal(methodName, parameters);
   }
 
-  public final void assertSuccess(String methodName, Class[] parameterTypes) {
-    assertCalledInternal(methodName, parameterTypes);
+  public final CallData assertSuccess(String methodName,
+                                      Class[] parameterTypes) {
+    return assertCalledInternal(methodName, parameterTypes);
   }
 
 
-  public final void assertSuccess(String methodName) {
-    assertCalledInternal(methodName, new Class[0]);
+  public final CallData assertSuccess(String methodName) {
+    return assertCalledInternal(methodName, new Class[0]);
   }
 
-  public final void assertSuccess(String methodName, Object object1) {
-    assertCalledInternal(methodName, new Object[] { object1 });
+  public final CallData assertSuccess(String methodName, Object object1) {
+    return assertCalledInternal(methodName, new Object[] { object1 });
   }
 
-  public final void assertSuccess(String methodName, Object object1,
+  public final CallData assertSuccess(String methodName, Object object1,
                                   Object object2) {
-    assertCalledInternal(methodName, new Object[] { object1, object2 });
+    return assertCalledInternal(methodName, new Object[] { object1, object2 });
   }
 
-  public final void assertSuccess(String methodName, Class class1) {
-    assertCalledInternal(methodName, new Class[] { class1 });
+  public final CallData assertSuccess(String methodName, Class class1) {
+    return assertCalledInternal(methodName, new Class[] { class1 });
   }
 
-  public final void assertSuccess(String methodName, Class class1,
-                                  Class class2) {
-    assertCalledInternal(methodName, new Class[] { class1, class2 });
+  public final CallData assertSuccess(String methodName, Class class1,
+                                      Class class2) {
+    return assertCalledInternal(methodName, new Class[] { class1, class2 });
   }
 
   /**
    *  Check the given method was called, and that it threw the given
    *  exception.
    */
-  public final void assertFailed(String methodName, Object[] parameters,
-				 Throwable throwable) {
+  public final CallData assertFailed(String methodName, Object[] parameters,
+                                     Throwable throwable) {
 
     final CallData callData = assertCalledInternal(methodName, parameters);
     assertEquals(throwable, callData.getThrowable());
+    return callData;
   }
 
-  public final void assertFailed(String methodName, Class[] parameterTypes,
-				 Throwable throwable) {
+  public final CallData assertFailed(String methodName, Class[] parameterTypes,
+                                     Throwable throwable) {
 
     final CallData callData = assertCalledInternal(methodName, parameterTypes);
     assertEquals(throwable, callData.getThrowable());
+    return callData;
   }
 
   /**
    *  Check the given method was called, and that it threw an
    *  exception of the given type.
    */
-  public final void assertFailed(String methodName, Object[] parameters,
-				 Class throwableType) {
+  public final CallData assertFailed(String methodName, Object[] parameters,
+                                     Class throwableType) {
 
     final CallData callData = assertCalledInternal(methodName, parameters);
     assertTrue(
       throwableType.isAssignableFrom(callData.getThrowable().getClass()));
+    return callData;
   }
 
-  public final void assertFailed(String methodName, Class[] parameterTypes,
-				 Class throwableType) {
+  public final CallData assertFailed(String methodName, Class[] parameterTypes,
+                                     Class throwableType) {
 
     final CallData callData = assertCalledInternal(methodName, parameterTypes);
     assertNotNull(callData.getThrowable());
     assertTrue(
       throwableType.isAssignableFrom(callData.getThrowable().getClass()));
+    return callData;
   }
 
   public final CallData getCallData() {

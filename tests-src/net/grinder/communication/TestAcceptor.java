@@ -29,6 +29,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import net.grinder.testutility.CallRecorder;
+import net.grinder.testutility.RandomStubFactory;
+
 
 /**
  *  Unit tests for <code>Acceptor</code>.
@@ -82,6 +85,13 @@ public class TestAcceptor extends TestCase {
 
     final Acceptor acceptor = createAcceptor(2);
 
+    final RandomStubFactory listenerStubFactory =
+      new RandomStubFactory(Acceptor.Listener.class);
+    final Acceptor.Listener listener =
+      (Acceptor.Listener)listenerStubFactory.getStub();
+
+    acceptor.addListener(ConnectionType.REPORT, listener);
+
     final ResourcePool controlSocketSet =
       acceptor.getSocketSet(ConnectionType.CONTROL);
 
@@ -98,12 +108,25 @@ public class TestAcceptor extends TestCase {
     controlConnector.connect();
     reportConnector.connect();
 
-    // Sleep until we've accepted both control connections. Give up
-    // after a few seconds.
-    for (int i=0; controlSocketSet.countActive() != 2 && i<10; ++i) {
+    // Sleep until we've accepted both control connections and our
+    // listener has been notified. Give up after a few seconds.
+    for (int i = 0;
+         !(controlSocketSet.countActive() == 2 &&
+           listenerStubFactory.hasBeenCalled()) &&
+           i < 10;
+         ++i) {
       Thread.sleep(i * i * 10);
     }
-    
+
+    final CallRecorder.CallData callData =
+      listenerStubFactory.assertSuccess("connectionAccepted",
+                                        ConnectionType.class,
+                                        ConnectionIdentity.class);
+
+    assertEquals(ConnectionType.REPORT, callData.getParameters()[0]);
+
+    listenerStubFactory.assertNoMoreCalls();
+
     assertSame(controlSocketSet,
                acceptor.getSocketSet(ConnectionType.CONTROL));
 
@@ -124,6 +147,13 @@ public class TestAcceptor extends TestCase {
     assertEquals(1, reportSocketResources.size());
 
     acceptor.shutdown();
+
+    final CallRecorder.CallData callData2 =
+      listenerStubFactory.assertSuccess("connectionClosed",
+                                        ConnectionType.class,
+                                        ConnectionIdentity.class);
+
+    assertEquals(callData.getParameters()[1], callData2.getParameters()[1]);
   }
 
   private Acceptor createAcceptor(int numberOfThreads) throws Exception {
