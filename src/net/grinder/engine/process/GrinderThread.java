@@ -121,7 +121,7 @@ class GrinderThread implements java.lang.Runnable
 	m_currentCycle = -1;
 	m_currentTestData = null;
 
-	try{
+	try {
 	    try {
 		m_threadCallbacks.initialize(m_context);
 	    }
@@ -136,12 +136,14 @@ class GrinderThread implements java.lang.Runnable
 
 	    sleepFlat(m_initialSleepTime);
 
-	    if (m_numberOfCycles == 0) {
-		m_context.logMessage("About to run forever");
-	    }
-	    else {
-		m_context.logMessage("About to run " + m_numberOfCycles +
-				     " cycles");
+	    if (!s_shutdown) {
+		if (m_numberOfCycles == 0) {
+		    m_context.logMessage("About to run forever");
+		}
+		else {
+		    m_context.logMessage("About to run " + m_numberOfCycles +
+					 " cycles");
+		}
 	    }
 
 	    CYCLE_LOOP:
@@ -169,8 +171,12 @@ class GrinderThread implements java.lang.Runnable
 		    m_context.reset();
 
 		    final long sleepTime = m_currentTestData.getSleepTime();
-		    sleepNormal(
-			sleepTime >= 0 ? sleepTime : m_defaultSleepTime);
+		    sleepNormal(sleepTime >= 0 ?
+				sleepTime : m_defaultSleepTime);
+
+		    if (s_shutdown) {
+			break CYCLE_LOOP;
+		    }
 
 		    final StatisticsImplementation statistics =
 			m_currentTestData.getStatistics();
@@ -255,9 +261,10 @@ class GrinderThread implements java.lang.Runnable
 		}
 	    }
 
+	    final int numberOfCycles = m_currentCycle;
 	    m_currentCycle = -1;
 
-	    m_context.logMessage("Finished " + m_numberOfCycles + " cycles");
+	    m_context.logMessage("Finished " + numberOfCycles + " cycles");
 	}
 	catch(Exception e) {
 	    m_context.logError(" threw an exception:" + e);
@@ -279,7 +286,7 @@ class GrinderThread implements java.lang.Runnable
      * Approximately 99.75% of times will be within (100*
      * m_sleepTimeVariation) percent of the meanTime.
      */
-    private void sleepNormal(long meanTime) throws InterruptedException
+    private void sleepNormal(long meanTime)
     {
 	if (meanTime > 0) {
 	    if (m_sleepTimeVariation > 0) {
@@ -299,20 +306,34 @@ class GrinderThread implements java.lang.Runnable
      * The actual time is taken from a pseudo random flat distribution
      * between 0 and maxTime.
      */
-    private void sleepFlat(long maxTime) throws InterruptedException
+    private void sleepFlat(long maxTime)
     {
 	if (maxTime > 0) {
 	    doSleep(Math.abs(m_random.nextLong()) % maxTime);
 	}
     }
 
-    private void doSleep(long time) throws InterruptedException
+    private void doSleep(long time)
     {
 	if (time > 0) {
 	    time = (long)(time * m_sleepTimeFactor);
 
 	    m_context.logMessage("Sleeping for " + time + " ms");
-	    Thread.sleep(time);
+
+	    long currentTime = System.currentTimeMillis();
+	    final long wakeUpTime = currentTime + time;
+
+	    while (currentTime < wakeUpTime && !s_shutdown) {
+		try {
+		    synchronized(GrinderThread.class) {
+			GrinderThread.class.wait(wakeUpTime - currentTime);
+		    }
+		    break;
+		}
+		catch (InterruptedException e) {
+		    currentTime = System.currentTimeMillis();
+		}
+	    }
 	}
     }
 
@@ -347,8 +368,9 @@ class GrinderThread implements java.lang.Runnable
 	return m_numberOfThreads;
     }
 
-    public static void shutdown()
+    public static synchronized void shutdown()
     {
 	s_shutdown = true;
+	GrinderThread.class.notifyAll();
     }
 }
