@@ -30,4 +30,3 @@ class TestRunner:
     # This method is called for every run.
     def __call__(self):
         logWrapper("Hello World")
-        foo.logStuff()
