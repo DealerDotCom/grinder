@@ -246,10 +246,8 @@ public final class ConsoleProperties {
       m_properties.setFile(SCRIPT_FILE_PROPERTY, m_scriptFile);
     }
 
-    if (m_distributionDirectory != null) {
-      m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
-                           m_distributionDirectory);
-    }
+    m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
+                         m_distributionDirectory);
 
     if (m_lookAndFeel != null) {
       m_properties.setProperty(LOOK_AND_FEEL_PROPERTY, m_lookAndFeel);
@@ -520,14 +518,12 @@ public final class ConsoleProperties {
    */
   public void setResetConsoleWithProcessesDontAsk() throws GrinderException {
 
-    if (!m_resetConsoleWithProcessesDontAsk) {
-      setResetConsoleWithProcessesDontAskInternal(true);
+    setResetConsoleWithProcessesDontAskInternal(true);
 
-      m_properties.setBoolean(
-        RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY, true);
-      m_properties.saveSingleProperty(
-        RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY);
-    }
+    m_properties.setBoolean(
+      RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY, true);
+    m_properties.saveSingleProperty(
+      RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY);
   }
 
   private void setResetConsoleWithProcessesDontAskInternal(boolean b) {
@@ -556,13 +552,10 @@ public final class ConsoleProperties {
    */
   public void setStopProcessesDontAsk() throws GrinderException {
 
-    if (!m_stopProcessesDontAsk) {
-      setStopProcessesDontAskInternal(true);
+    setStopProcessesDontAskInternal(true);
 
-      m_properties.setBoolean(STOP_PROCESSES_DONT_ASK_PROPERTY, true);
-      m_properties.saveSingleProperty(STOP_PROCESSES_DONT_ASK_PROPERTY);
-
-    }
+    m_properties.setBoolean(STOP_PROCESSES_DONT_ASK_PROPERTY, true);
+    m_properties.saveSingleProperty(STOP_PROCESSES_DONT_ASK_PROPERTY);
   }
 
   private void setStopProcessesDontAskInternal(boolean b) {
