@@ -74,7 +74,7 @@ class HttpMsg
 	// conjunction with the TCPSniffer.
 	m_dontReadBody = 
 	    pluginThreadContext.getPluginParameters().
-	    getBoolean("dontReadBoolean", false);
+	    getBoolean("dontReadBody", false);
     }
 
     public String sendRequest(HttpRequestData requestData)
