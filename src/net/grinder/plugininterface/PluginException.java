@@ -18,7 +18,8 @@
 
 package net.grinder.plugininterface;
 
-import net.grinder.util.GrinderException;
+import net.grinder.common.GrinderException;
+
 
 /**
  * @author Philip Aston

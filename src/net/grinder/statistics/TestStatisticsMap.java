@@ -21,8 +21,8 @@ package net.grinder.statistics;
 import java.util.Map;
 import java.util.TreeMap;
 
-import net.grinder.plugininterface.Test;
-import net.grinder.util.GrinderException;
+import net.grinder.common.GrinderException;
+import net.grinder.common.Test;
 
 
 /**

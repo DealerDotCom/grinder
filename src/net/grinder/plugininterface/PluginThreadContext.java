@@ -18,8 +18,6 @@
 
 package net.grinder.plugininterface;
 
-import net.grinder.util.FilenameFactory;
-import net.grinder.util.GrinderProperties;
 
 /**
  * This class is used to share data between the Grinder and the 

@@ -18,6 +18,7 @@
 
 package net.grinder.plugininterface;
 
+import net.grinder.common.Logger;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderProperties;
 

@@ -18,7 +18,8 @@
 
 package net.grinder.engine;
 
-import net.grinder.util.GrinderException;
+import net.grinder.common.GrinderException;
+
 
 /**
  * @author Philip Aston

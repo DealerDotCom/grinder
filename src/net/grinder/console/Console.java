@@ -21,12 +21,12 @@ package net.grinder.console;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.console.model.Model;
 import net.grinder.console.swingui.ConsoleUI;
-import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 
 

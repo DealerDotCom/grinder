@@ -18,7 +18,7 @@
 
 package net.grinder.communication;
 
-import net.grinder.util.GrinderException;
+import net.grinder.common.GrinderException;
 
 
 /**

@@ -21,7 +21,6 @@ package net.grinder.engine.process;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.util.FilenameFactory;
-import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 import net.grinder.util.ProcessContextImplementation;
 

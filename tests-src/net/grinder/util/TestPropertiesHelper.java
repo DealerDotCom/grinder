@@ -27,8 +27,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import net.grinder.common.GrinderException;
+import net.grinder.common.Test;
 import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.plugininterface.Test;
 
 
 /**

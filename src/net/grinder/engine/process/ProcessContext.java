@@ -25,7 +25,8 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.util.Date;
 
-import net.grinder.plugininterface.Logger;
+import net.grinder.common.GrinderException;
+import net.grinder.common.Logger;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderProperties;

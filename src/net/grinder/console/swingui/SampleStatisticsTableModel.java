@@ -25,7 +25,6 @@ import javax.swing.table.AbstractTableModel;
 
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
-import net.grinder.plugininterface.Test;
 import net.grinder.statistics.IntervalStatistics;
 
 import net.grinder.console.ConsoleException;

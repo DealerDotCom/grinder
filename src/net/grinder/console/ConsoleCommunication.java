@@ -21,6 +21,7 @@ package net.grinder.console;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import net.grinder.common.GrinderException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
@@ -28,7 +29,6 @@ import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
-import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 
 

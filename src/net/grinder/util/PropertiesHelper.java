@@ -24,9 +24,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import net.grinder.common.GrinderException;
+import net.grinder.common.TestImplementation;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginProcessContext;
-import net.grinder.plugininterface.TestImplementation;
 
 
 /**

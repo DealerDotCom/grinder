@@ -30,13 +30,13 @@ import java.net.Socket;
 import java.util.Date;
 import java.util.Set;
 
+import net.grinder.common.GrinderException;
+import net.grinder.common.Test;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.plugininterface.Test;
 import net.grinder.plugininterface.ThreadCallbacks;
-import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 
 

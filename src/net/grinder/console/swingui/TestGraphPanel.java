@@ -26,10 +26,10 @@ import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+import net.grinder.common.Test;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
-import net.grinder.plugininterface.Test;
 import net.grinder.statistics.CumulativeStatistics;
 import net.grinder.statistics.IntervalStatistics;
 

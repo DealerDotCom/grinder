@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import net.grinder.common.GrinderException;
+
 
 /**
  * @author Philip Aston

@@ -26,7 +26,7 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
 
-import net.grinder.plugininterface.LogCounter;
+import net.grinder.common.LogCounter;
 
 
 /**

@@ -33,7 +33,6 @@ import java.util.Map;
 
 import HTTPClient.Codecs;
 
-import net.grinder.plugininterface.Logger;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 

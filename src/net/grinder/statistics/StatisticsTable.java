@@ -22,7 +22,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 
-import net.grinder.plugininterface.Test;
+import net.grinder.common.Test;
 
 
 /**

@@ -22,8 +22,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
-import net.grinder.plugininterface.Logger;
-import net.grinder.util.GrinderException;
+import net.grinder.common.GrinderException;
+import net.grinder.common.Logger;
 import net.grinder.util.ProcessContextImplementation;
 
 

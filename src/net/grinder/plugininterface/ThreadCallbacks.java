@@ -18,6 +18,7 @@
 
 package net.grinder.plugininterface;
 
+import net.grinder.common.Test;
 import net.grinder.util.GrinderProperties;
 
 

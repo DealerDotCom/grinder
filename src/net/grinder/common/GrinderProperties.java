@@ -23,6 +23,9 @@ import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import net.grinder.common.GrinderException;
+
+
 /**
  * @author Philip Aston
  * @version $Revision$

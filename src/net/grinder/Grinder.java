@@ -22,9 +22,9 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import net.grinder.common.GrinderException;
 import net.grinder.engine.LauncherThread;
 import net.grinder.engine.process.GrinderProcess;
-import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 
 

@@ -28,16 +28,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import net.grinder.common.GrinderException;
+import net.grinder.common.Test;
 import net.grinder.console.ConsoleException;
-import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.plugininterface.Test;
 import net.grinder.statistics.CumulativeStatistics;
 import net.grinder.statistics.IntervalStatistics;
 import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.statistics.TestStatisticsMap;
-import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
-import net.grinder.util.ProcessContextImplementation;
 import net.grinder.util.PropertiesHelper;
 import net.grinder.util.SignificantFigureFormat;
 

@@ -18,10 +18,9 @@
 
 package net.grinder.plugin.http.example;
 
-
+import net.grinder.common.Test;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.plugininterface.Test;
 import net.grinder.plugin.http.StringBean;
 
 

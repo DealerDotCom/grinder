@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
-import net.grinder.plugininterface.Logger;
+import net.grinder.common.Logger;
 
 
 /**
