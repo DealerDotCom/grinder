@@ -102,6 +102,7 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 	TCPProxySocketFactory sslSocketFactory,
 	TCPProxyFilter requestFilter,
 	TCPProxyFilter responseFilter,
+	PrintWriter outputWriter,
 	String localHost,
 	int localPort,
 	boolean useColour,
@@ -113,6 +114,7 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 	super(plainSocketFactory,
 	      new StripAbsoluteURIFilterDecorator(requestFilter),
 	      responseFilter,
+	      outputWriter,
 	      new ConnectionDetails(localHost, localPort, "", -1, false),
 	      useColour, timeout);
 	
@@ -320,11 +322,6 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 	    throws MalformedPatternException
 	{
 	    m_delegate = delegate;
-	}
-
-	public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
-	{
-	    m_delegate.setOutputPrintWriter(outputPrintWriter);
 	}
 
 	public void connectionOpened(ConnectionDetails connectionDetails)

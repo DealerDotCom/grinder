@@ -26,21 +26,14 @@ import java.io.PrintWriter;
 
 
 /**
- * Interface that TCP Proxy filters implement.
+ * Interface that TCP Proxy filters implement. In addition, they must
+ * have a constructor that takes a <code>PrintWriter</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public interface TCPProxyFilter
 {
-    /**
-     * Set the {@link PrintWriter} that the filter should use for
-     * output.
-     *
-     * @param outputPrintWriter a <code>PrintWriter</code> value
-     */
-    void setOutputPrintWriter(PrintWriter outputPrintWriter);
-
     /**
      * Handle a message fragment.
      *

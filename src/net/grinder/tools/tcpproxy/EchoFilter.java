@@ -32,11 +32,10 @@ import java.io.PrintWriter;
  */
 public class EchoFilter implements TCPProxyFilter
 {
-    private PrintWriter m_out = new PrintWriter(System.out, true);
+    private final PrintWriter m_out;
 
-    public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
+    public EchoFilter(PrintWriter outputPrintWriter) 
     {
-	m_out.flush();
 	m_out = outputPrintWriter;
     }
 

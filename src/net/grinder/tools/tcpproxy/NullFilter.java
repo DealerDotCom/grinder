@@ -33,7 +33,11 @@ import java.io.PrintWriter;
  */
 public class NullFilter implements TCPProxyFilter
 {
-    public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
+    public NullFilter() 
+    {
+    }
+
+    public NullFilter(PrintWriter outputPrintWriter) 
     {
     }
 

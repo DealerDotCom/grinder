@@ -55,11 +55,14 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
     public TCPProxyEngineImplementation(TCPProxySocketFactory socketFactory,
 					TCPProxyFilter requestFilter,
 					TCPProxyFilter responseFilter,
+					PrintWriter outputWriter,
 					ConnectionDetails connectionDetails,
 					boolean useColour,
 					int timeout)
 	throws IOException
     {
+	m_outputWriter = outputWriter;
+
 	m_socketFactory = socketFactory;
 	m_requestFilter = requestFilter;
 	m_responseFilter = responseFilter;
@@ -73,10 +76,6 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
 	    m_requestColour = "";
 	    m_responseColour = "";
 	}
-
-	m_outputWriter = new PrintWriter(System.out);
-	requestFilter.setOutputPrintWriter(m_outputWriter);
-	responseFilter.setOutputPrintWriter(m_outputWriter);
 
 	m_serverSocket =
 	    m_socketFactory.createServerSocket(

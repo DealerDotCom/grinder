@@ -23,8 +23,10 @@
 
 package net.grinder;
 
-import java.io.PrintStream;
 import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 
 import net.grinder.plugin.http.HTTPPluginTCPProxyFilter;
 import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter;
@@ -118,9 +120,11 @@ public class TCPProxy
 
     private TCPProxy(String[] args)
     {
+	final PrintWriter outputWriter = new PrintWriter(System.out);
+
 	// Default values.
-	TCPProxyFilter requestFilter = new EchoFilter();
-	TCPProxyFilter responseFilter = new EchoFilter();
+	TCPProxyFilter requestFilter = new EchoFilter(outputWriter);
+	TCPProxyFilter responseFilter = new EchoFilter(outputWriter);
 	int localPort = 8001;
 	String remoteHost = "localhost";
 	String localHost = "localhost";
@@ -149,14 +153,16 @@ public class TCPProxy
 	    for (int i=0; i<args.length; i++)
 	    {
 		if (args[i].equalsIgnoreCase("-requestfilter")) {
-		    requestFilter = instantiateFilter(args[++i]);
+		    requestFilter = instantiateFilter(args[++i], outputWriter);
 		}
 		else if (args[i].equalsIgnoreCase("-responsefilter")) {
-		    responseFilter = instantiateFilter(args[++i]);
+		    responseFilter =
+			instantiateFilter(args[++i], outputWriter);
 		}
 		else if (args[i].equalsIgnoreCase("-httpplugin")) {
-		    requestFilter = new HTTPPluginTCPProxyFilter();
-		    responseFilter = new HTTPPluginTCPProxyResponseFilter();
+		    requestFilter = new HTTPPluginTCPProxyFilter(outputWriter);
+		    responseFilter =
+		    new HTTPPluginTCPProxyResponseFilter(outputWriter);
 		}
 		else if (args[i].equalsIgnoreCase("-localhost")) {
 		    localHost = args[++i];
@@ -272,6 +278,7 @@ public class TCPProxy
 			sslSocketFactory,
 			requestFilter,
 			responseFilter,
+			outputWriter,
 			localHost,
 			localPort,
 			useColour,
@@ -284,6 +291,7 @@ public class TCPProxy
 			sslSocketFactory : new TCPProxyPlainSocketFactory(),
 			requestFilter,
 			responseFilter,
+			outputWriter,
 			new ConnectionDetails(localHost, localPort,
 					      remoteHost, remotePort,
 					      useSSL),
@@ -301,14 +309,15 @@ public class TCPProxy
 	}
     }
 
-    private TCPProxyFilter instantiateFilter(String filterClassName)
+    private TCPProxyFilter instantiateFilter(
+	String filterClassName, PrintWriter outputWriter)
 	throws Exception
     {
 	if (filterClassName.equals("NONE")) {
 	    return new NullFilter();
 	}
 	else if (filterClassName.equals("ECHO")) {
-	    return new EchoFilter();
+	    return new EchoFilter(outputWriter);
 	}
 
 	final Class filterClass;
@@ -329,15 +338,24 @@ public class TCPProxy
 
 	// Instantiate a filter.
 	try {
-	    return (TCPProxyFilter)filterClass.newInstance();
+	    final Constructor constructor = 
+		filterClass.getConstructor(new Class[] {PrintWriter.class} );
+	    
+	    return (TCPProxyFilter)constructor.newInstance(
+		new Object[] {outputWriter});
+	}
+	catch (NoSuchMethodException e) {
+	    throw barfUsage(
+		"The class '" + filterClass.getName() +
+		"' does not have a constructor that takes a PrintWriter");
 	}
 	catch (IllegalAccessException e) {
-	    throw barfUsage("The default constructor of class '" +
+	    throw barfUsage("The constructor of class '" +
 			    filterClass.getName() + "' is not public");
 	}
 	catch (InstantiationException e) {
 	    throw barfUsage("The class '" + filterClass.getName() +
-			    "' does not have a default constructor");
+			    "' is abstract");
 	}
     }
 	

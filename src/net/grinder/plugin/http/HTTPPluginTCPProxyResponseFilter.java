@@ -68,7 +68,8 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
      *
      * @exception MalformedPatternException 
      */
-    public HTTPPluginTCPProxyResponseFilter() throws MalformedPatternException
+    public HTTPPluginTCPProxyResponseFilter(PrintWriter outputWriter)
+	throws MalformedPatternException
     {
 	final PatternCompiler compiler = new Perl5Compiler();
 
@@ -110,16 +111,6 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
 	}
 
 	return null;
-    }
-
-    /**
-     * Set the {@link PrintWriter} that the filter should use for
-     * output.
-     *
-     * @param out The PrintWriter.
-     */
-    public void setOutputPrintWriter(PrintWriter outputPrintWriter) 
-    {
     }
 
     /**
