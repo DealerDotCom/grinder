@@ -107,6 +107,53 @@ with the <code>CMD.EXE</code> window unless you're using <a
 href="http://cygwin.com">Cygwin</a>. (Of course, if you're using
 Cygwin you'd use <code>rxvt</code> in preference :-)).</p>
 
+<h3><a name="statistics">How does the Grinder calculate the mean time
+and TPS?</a></h3>
+
+<p>Each worker process records the time taken by each thread for each
+test and regularly reports the mean time for each test to the console.
+The console calculates the mean time for each test across all worker
+processes. This is the <em>mean time</em>.</p>
+
+<p>Transactions/Tests per second (TPS) is calculated by the console.
+It is the sum of the number of tests performed by all worker processes
+within the sampling period, divided by the duration of the sampling
+period. Using longer sampling periods will give better averages, but
+the console display will be updated less frequently.</p>
+
+<h3><a name="norelation">What is the relation between mean time and
+TPS?</a></h3>
+
+<p>In general there is not a linear relationship between the
+test time and the number of tests per second.</p>
+
+<p>Most time in a typical server-side application is spent waiting on
+I/O. Elapsed time is not the sum the time spent by all of the threads.
+If I have a simple servlet or ejb that does the following:</p>
+
+<blockquote>
+<pre>
+void doit() { Thread.sleep(1000); // 1 second }
+</pre>
+</blockquote>
+
+<p>Say with this I get 100 TPS and a 1.2 second response time. If I
+now change the code to:</p>
+
+<blockquote>
+<pre>
+void doit() { Thread.sleep(10000); // 10 seconds }
+</pre>
+</blockquote>
+
+<p>the system isn't doing any more work, and I'd expect to get 100 TPS
+and a 10.2 second repsonse time.</p>
+
+<p><em>This is only true assuming we have infinite server side
+threads. In practice, the size of a server side thread pool has a
+significant effect on the behaviour of a system. I hope you can see
+that there is no direct connection between TPS and test time
+though.</em></p>
 
 <h3><a name="multicast">What do I need to do to set up
 multicast?</a></h3>
