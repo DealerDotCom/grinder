@@ -33,6 +33,9 @@ import net.grinder.communication.Sender;
 import net.grinder.communication.SenderImplementation;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.plugininterface.RegisteredTest;
+import net.grinder.script.InvokeableTest;
+import net.grinder.script.TestResult;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsView;
@@ -196,25 +199,33 @@ class ProcessContext implements PluginProcessContext
 	return m_pluginParameters;
     }
 
-    public void registerTest(Test test) throws GrinderException
+    public RegisteredTest registerTest(InvokeableTest test)
+	throws GrinderException
     {
-	try {
-	    m_testRegistry.registerTest(test);
-	}
-	catch (GrinderException e) {
-	    // Either we map exceptions, or the plugin has to.
-	    throw new EngineException("Failed to register test", e);
-	}
+	return new TestDataAdapter(m_testRegistry.registerTest(test));
     }
 
-    public void registerTests(Set tests) throws GrinderException
+    public TestResult invokeTest(RegisteredTest registeredTest)
+	throws GrinderException
     {
-	try {
-	    m_testRegistry.registerTests(tests);
+	final TestDataAdapter adapter = (TestDataAdapter)registeredTest;
+
+	return ThreadContext.getThreadInstance().invokeTest(
+	    adapter.getTestData());
+    }
+
+    private final static class TestDataAdapter implements RegisteredTest
+    {
+	private final TestData m_testData;
+
+	public TestDataAdapter(TestData testData)
+	{
+	    m_testData = testData;
 	}
-	catch (GrinderException e) {
-	    // Either we map exceptions, or the plugin has to.
-	    throw new EngineException("Failed to register tests", e);
+
+	public final TestData getTestData()
+	{
+	    return m_testData;
 	}
     }
 

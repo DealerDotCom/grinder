@@ -38,7 +38,9 @@ import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.RegisteredTest;
 import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.script.TestResult;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsView;
@@ -67,8 +69,7 @@ public class HttpPlugin implements GrinderPlugin
     private Map m_beanMethodMap = null;
     private StatisticsIndexMap.LongIndex m_timeToFirstByteIndex;
 
-    public void initialize(PluginProcessContext processContext,
-			   Set testsFromPropertiesFile)
+    public void initialize(PluginProcessContext processContext)
 	throws PluginException
     {
 	HTTPTest.s_temporaryHack = this;
@@ -141,37 +142,19 @@ public class HttpPlugin implements GrinderPlugin
 		    stringBeanClassName + "' was not found.", e);
 	    }
 	}
-
-	registerTests(testsFromPropertiesFile);
     }
 
-    void registerTest(HTTPTest test) throws PluginException
+    final RegisteredTest registerTest(HTTPTest test) throws GrinderException
     {
 	m_callData.put(test, new CallData(test));
 
-	try {
-	    m_processContext.registerTest(test);
-	}
-	catch (GrinderException e) {
-	    throw new PluginException("Failed to register test", e);
-	}
+	return m_processContext.registerTest(test);
     }
 
-    void registerTests(Set newTests) throws PluginException
+    final TestResult invokeTest(RegisteredTest registeredTest)
+	throws GrinderException
     {
-	final Iterator testIterator = newTests.iterator();
-
-	while (testIterator.hasNext()) {
-	    final Test test = (Test)testIterator.next();
-	    m_callData.put(test, new CallData(test));
-	}
-
-	try {
-	    m_processContext.registerTests(newTests);
-	}
-	catch (GrinderException e) {
-	    throw new PluginException("Failed to register tests", e);
-	}
+	return m_processContext.invokeTest(registeredTest);
     }
 
     public ThreadCallbacks createThreadCallbackHandler()

@@ -52,14 +52,11 @@ public class TestTestImplementation extends TestCase
 
     public void testGetters()
     {
-	final GrinderProperties properties = new GrinderProperties();
-
 	final TestImplementation testImplementation =
-	    new TestImplementation(1, "description", properties);
+	    new TestImplementation(1, "description");
 
 	assertEquals(1, testImplementation.getNumber());
 	assertEquals("description", testImplementation.getDescription());
-	assertSame(properties, testImplementation.getParameters());
     }
 
     public void testOrdering()
@@ -79,7 +76,7 @@ public class TestTestImplementation extends TestCase
 
 	while (keyIterator.hasNext()) {
 	    final int i = ((Integer)keyIterator.next()).intValue();
-	    sorted.add(new TestImplementation(i, Integer.toString(i), null));
+	    sorted.add(new TestImplementation(i, Integer.toString(i)));
 	}
 	
 	final Iterator sortedIterator = sorted.iterator();
@@ -96,14 +93,9 @@ public class TestTestImplementation extends TestCase
     public void testEquality()
     {
 	// Equality depends only on test number.
-	final TestImplementation t1 =
-	    new TestImplementation(57, "one thing", new GrinderProperties());
-
-	final TestImplementation t2 =
-	    new TestImplementation(57, "leads to", new GrinderProperties());
-
-	final TestImplementation t3 =
-	    new TestImplementation(58, "another", new GrinderProperties());
+	final TestImplementation t1 = new TestImplementation(57, "one thing");
+	final TestImplementation t2 = new TestImplementation(57, "leads to");
+	final TestImplementation t3 = new TestImplementation(58, "another");
 
 	assertEquals(t1, t2);
 	assertEquals(t2, t1);

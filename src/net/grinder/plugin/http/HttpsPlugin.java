@@ -57,11 +57,10 @@ public class HttpsPlugin extends HttpPlugin
 	    new com.sun.net.ssl.internal.ssl.Provider());
     }
 
-    public void initialize(PluginProcessContext processContext,
-			   Set testsFromPropertiesFile)
+    public void initialize(PluginProcessContext processContext)
 	throws PluginException
     {
-	super.initialize(processContext, testsFromPropertiesFile);
+	super.initialize(processContext);
 
 	final GrinderProperties parameters =
 	    processContext.getPluginParameters();

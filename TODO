@@ -3,18 +3,21 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-Fix "quick and dirty hack" in ProcessContext.
 
-PluginProcessContext - should throw GE's at the plugin.
+Is ditching grinder.properties defined tests sensible?
+
+Separate out a PluginProcessContextImplementation? And for
+ThreadContext?
+
+Need to associate HTTPTest with plugin.
+
+How important is the plugin lifecycle? Can plugins become libraries
+for HTTPTest etc to use? Hmmm.. thread callbacks seem important. But
+don't these just become the relevant subscript?
 
 When HTTPTest etc know about the plugin, where do the lifecycle (begin
 run etc) callbacks go? To all known plugins? Split script into
 declaration and usage?
-
-Make ProcessContext a singleton?
-
-BSFInvokeableTest functionality to move to HTTPTest. Remove onus of
-registering test from script.
 
 Abstract out a TestScheduler interface to allow other algorithms. Add
 a "random order" algorithm, which might work well with the JUnit
@@ -65,7 +68,6 @@ containing embedded script.
   Efficiency: TestStatisticsMap.getDelta() to be able to reuse delta
   object.
 
-  Alter console and engine to use Timer.scheduleAtFixedRater for more
-  accuracy.
+  Alter console to use Timer.scheduleAtFixedRate for more accuracy.
 
   Tidy up logging of plugin initialisation.

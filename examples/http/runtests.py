@@ -8,9 +8,12 @@ logger.logMessage("Hello from Grinder Thread " +
                   `grinder.getThreadID()`)
 
 httpTest = HTTPTest(999, "My test", "http://localhost:9001")
+httpTest.invoke()
 
-t = grinder.registerTest(httpTest)
-t.invoke()
+moreTests = [
+    HTTPTest(1, "", "http://localhost:9001/security"),
+    HTTPTest(2, "", "http://localhost:9001/security/welcome.jsp"),
+    ]
 
 tests = grinder.getTests()
 

@@ -40,6 +40,4 @@ public interface ScriptContext
     Logger getLogger();
 
     InvokeableTest[] getTests();
-
-    InvokeableTest registerTest(Test test) throws ScriptException;
 }

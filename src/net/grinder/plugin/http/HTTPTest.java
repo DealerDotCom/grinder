@@ -18,10 +18,14 @@
 
 package net.grinder.plugin.http;
 
-import net.grinder.common.GrinderProperties;
+import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.common.TestImplementation;
-import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.RegisteredTest;
+import net.grinder.script.AbortRunException;
+import net.grinder.script.InvokeableTest;
+import net.grinder.script.ScriptException;
+import net.grinder.script.TestResult;
 
 
 /**
@@ -30,17 +34,34 @@ import net.grinder.plugininterface.PluginException;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public class HTTPTest extends TestImplementation
+public class HTTPTest extends TestImplementation implements InvokeableTest
 {
     static HttpPlugin s_temporaryHack;
 
+    private transient /* <-- FIX MY PARENT */ RegisteredTest m_registeredTest;
+
     public HTTPTest(int number, String description, String url)
-	throws PluginException
+	throws ScriptException
     {
-	super(number, description, new GrinderProperties());
+	super(number, description);
 
 	getParameters().setProperty("url", url);
 
-	s_temporaryHack.registerTest(this);
+	try {
+	    m_registeredTest = s_temporaryHack.registerTest(this);
+	}
+	catch (GrinderException e) {
+	    throw new ScriptException("Failed to register test", e);
+	}
+    }
+
+    public TestResult invoke() throws AbortRunException
+    {
+	try {
+	    return s_temporaryHack.invokeTest(m_registeredTest);
+	}
+	catch (GrinderException e) {
+	    throw new AbortRunException(e.getMessage(), e);
+	}
     }
 }

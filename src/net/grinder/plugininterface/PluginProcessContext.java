@@ -25,6 +25,9 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
+import net.grinder.script.AbortRunException;
+import net.grinder.script.InvokeableTest;
+import net.grinder.script.TestResult;
 import net.grinder.statistics.StatisticsView;
 
 
@@ -50,9 +53,10 @@ public interface PluginProcessContext extends Logger, FilenameFactory
      **/
     GrinderProperties getPluginParameters();
 
-    void registerTest(Test test) throws GrinderException;
+    RegisteredTest registerTest(InvokeableTest test) throws GrinderException;
 
-    void registerTests(Set test) throws GrinderException;
+    TestResult invokeTest(RegisteredTest registeredTest)
+	throws GrinderException;
 
     /**
      * Plugins can use this method to register a new "summary"

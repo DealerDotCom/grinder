@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2001  Paco Gomez
-// Copyright (C) 2001  Philip Aston
+// Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,38 +16,12 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.common;
-
+package net.grinder.plugininterface;
 
 /**
  * @author Philip Aston
  * @version $Revision$
- */
-public class TestImplementation extends AbstractTestSemantics
+ **/
+public interface RegisteredTest
 {
-    private final int m_number;
-    private final String m_description;
-    private transient final GrinderProperties m_parameters =
-	new GrinderProperties();
-
-    public TestImplementation(int number, String description)
-    {
-	m_number = number;
-	m_description = description;
-    }
-
-    public final int getNumber()
-    {
-	return m_number;
-    }
-
-    public final String getDescription()
-    {
-	return m_description;
-    }
-
-    public final GrinderProperties getParameters()
-    {
-	return m_parameters;
-    }
 }

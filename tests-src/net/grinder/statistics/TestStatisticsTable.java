@@ -79,9 +79,9 @@ public class TestStatisticsTable extends TestCase
 	}
 
 	final Test[] tests = {
-	    new TestImplementation(9, "Test 9", null),
-	    new TestImplementation(3, "Test 3", null),
-	    new TestImplementation(113, "Another test", null),
+	    new TestImplementation(9, "Test 9"),
+	    new TestImplementation(3, "Test 3"),
+	    new TestImplementation(113, "Another test"),
 	};
 
 	final RawStatistics[] rawStatistics = new RawStatistics[tests.length];

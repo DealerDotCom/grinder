@@ -41,8 +41,7 @@ public interface GrinderPlugin
      * @param testsFromPropertiesFile The tests defined in the
      * properties file. The plugin may or may not care about these.
      */
-    public void initialize(PluginProcessContext processContext,
-			   Set testsFromPropertiesFile)
+    public void initialize(PluginProcessContext processContext)
 	throws PluginException;
 
     /**

@@ -95,6 +95,8 @@ class GrinderThread implements java.lang.Runnable
      */     
     public void run()
     {
+	m_context.setThreadInstance();
+
 	final ThreadLogger logger = m_context.getThreadLogger();
 	logger.setCurrentRunNumber(-1);
 
@@ -143,21 +145,7 @@ class GrinderThread implements java.lang.Runnable
 		    continue RUN_LOOP; // .. or should we abort the thread?
 		}
 
-		if (m_bsfThreadContext != null) {
-		    m_bsfThreadContext.run();
-		}
-		else {
-		    final Iterator testIterator =
-			m_testRegistry.getTests().iterator();
-
-		    TEST_LOOP:
-		    while (testIterator.hasNext()) {
-			final TestData testData =
-			    (TestData)testIterator.next();
-
-			m_context.invokeTest(testData);
-		    }
-		}
+		m_bsfThreadContext.run();
 
 		try {
 		    threadCallbackHandler.endRun();
@@ -172,10 +160,10 @@ class GrinderThread implements java.lang.Runnable
 
 	    logger.logMessage("Finished " + currentRun + " runs");
 	}
-	catch (AbortRunException e) {
-	    logger.logError("Aborting run");
-	    e.printStackTrace(logger.getErrorLogWriter());
-	}
+	//	catch (AbortRunException e) {
+	//	    logger.logError("Aborting run");
+	//	    e.printStackTrace(logger.getErrorLogWriter());
+	//	}
 	catch (Sleeper.ShutdownException e) {
 	    logger.logMessage("Shutdown");
 	}

@@ -29,9 +29,9 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.Test;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.Sender;
+import net.grinder.script.InvokeableTest;
 import net.grinder.statistics.TestStatisticsMap;
 
 
@@ -44,14 +44,16 @@ final class TestRegistry
     private final Sender m_consoleSender;
 
     /**
-     * A map of Tests to TestData's. (TestData is the class this
-     * package uses to store information about Tests). Synchronize on
-     * instance when accessesing.
+     * A map of InvokeableTest to TestData's. (TestData is the class
+     * this package uses to store information about InvokeableTests).
+     * Synchronize on instance when accessesing.
      **/
     private final Map m_testMap = new TreeMap();
 
+    private InvokeableTest[] m_tests;
+
     /**
-     * A map of Tests to Statistics for passing elsewhere.
+     * A map of InvokeableTests to Statistics for passing elsewhere.
      **/
     private final TestStatisticsMap m_testStatisticsMap =
 	new TestStatisticsMap();
@@ -61,28 +63,8 @@ final class TestRegistry
 	m_consoleSender = consoleSender;
     }
 
-    public final void registerTests(Set tests) throws GrinderException
-    {
-	final Set newTests = new HashSet(tests);
-
-	synchronized (this) {
-	    newTests.removeAll(m_testMap.keySet());
-
-	    if (newTests.size() > 0) {
-		final Iterator newTestsIterator = newTests.iterator();
-
-		while (newTestsIterator.hasNext()) {
-		    addTest((Test)newTestsIterator.next());
-		}
-	    }
-	}
-	
-	if (newTests.size() > 0) {
-	    m_consoleSender.queue(new RegisterTestsMessage(newTests));
-	}
-    }
-
-    public final TestData registerTest(Test test) throws GrinderException
+    public final TestData registerTest(InvokeableTest test)
+	throws GrinderException
     {
 	final TestData newTestData;
 	
@@ -93,7 +75,11 @@ final class TestRegistry
 		return existing;
 	    }
 	    else {
-		newTestData = addTest(test);
+		newTestData = new TestData(test);
+		m_testMap.put(test, newTestData);
+		m_testStatisticsMap.put(test, newTestData.getStatistics());
+
+		m_tests = null;
 	    }
 	}
 	
@@ -103,17 +89,15 @@ final class TestRegistry
 	return newTestData;
     }
 
-    private synchronized TestData addTest(Test test)
+    public final synchronized InvokeableTest[] getTests()
     {
-	final TestData testData = new TestData(test);	    
-	m_testMap.put(test, testData);
-	m_testStatisticsMap.put(test, testData.getStatistics());
-	return testData;
-    }
+	if (m_tests == null) {
+	    m_tests =
+		(InvokeableTest[])
+		m_testMap.keySet().toArray(new InvokeableTest[0]);
+	}
 
-    public final synchronized Collection getTests()
-    {
-	return Collections.unmodifiableCollection(m_testMap.values());
+	return m_tests;
     }
 
     public final TestStatisticsMap getTestStatisticsMap()

@@ -44,17 +44,17 @@ public interface ThreadCallbacks
 	throws PluginException;
     
     /**
-     * This method is executed at the beginning of evey run.
-     */
+     * This method is executed at the beginning of every run.
+     **/
     public void beginRun() throws PluginException;
 
     /**
      * This is called for each test.
-     */
+     **/
     public boolean doTest(Test testDefinition) throws PluginException;
     
     /**
      * This method is executed at the end of every run.
-     */  
+     **/  
     public void endRun() throws PluginException;
 }

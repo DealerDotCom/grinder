@@ -44,6 +44,8 @@ import net.grinder.util.Sleeper;
  **/
 final class ThreadContext implements PluginThreadContext
 {
+    private final static ThreadLocal s_threadInstance = new ThreadLocal();
+
     private final ThreadCallbacks m_threadCallbackHandler;
     private final ThreadLogger m_threadLogger;
     private final PrintWriter m_dataWriter;
@@ -91,6 +93,16 @@ final class ThreadContext implements PluginThreadContext
 	    properties.getDouble("grinder.thread.sleepTimeFactor", 1.0d),
 	    properties.getDouble("grinder.thread.sleepTimeVariation", 0.2d),
 	    m_threadLogger);
+    }
+
+    public final void setThreadInstance()
+    {
+	s_threadInstance.set(this);
+    }
+
+    public final static ThreadContext getThreadInstance()
+    {
+	return (ThreadContext)s_threadInstance.get();
     }
     
     public final boolean getAbortedRun() {

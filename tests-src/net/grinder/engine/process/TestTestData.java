@@ -51,8 +51,7 @@ public class TestTestData extends TestCase
 
     public void test0() throws Exception
     {
-	final Test test = new TestImplementation(99, "Some stuff",
-						 new GrinderProperties());
+	final Test test = new TestImplementation(99, "Some stuff");
 	
 	final TestData testData = new TestData(test);
 	assertEquals(test, testData.getTest());
@@ -61,10 +60,8 @@ public class TestTestData extends TestCase
 
     public void test1() throws Exception
     {
-	final GrinderProperties properties = new GrinderProperties();
-	properties.put("Something", "blah");
-
-	final Test test = new TestImplementation(-33, "", properties);
+	final Test test = new TestImplementation(-33, "");
+	test.getParameters().put("Something", "blah");
 
 	final TestData testData = new TestData(test);
 	assertEquals(test, testData.getTest());

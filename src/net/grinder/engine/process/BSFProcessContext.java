@@ -121,27 +121,6 @@ class BSFProcessContext
 
 	    public BSFScriptContext()
 	    {
-		recalculateTests();
-	    }
-
-	    private synchronized InvokeableTest[] recalculateTests()
-	    {
-		final Collection testDataSet =
-		    ProcessContext.getInstance().getTestRegistry().getTests();
-
-		if (m_tests == null || m_tests.length != testDataSet.size()) {
-		    m_tests = new InvokeableTest[testDataSet.size()];
-
-		    final Iterator iterator = testDataSet.iterator();
-		    int i = 0;
-	    
-		    while (iterator.hasNext()) {
-			final TestData testData = (TestData)iterator.next();
-			m_tests[i++] = new BSFInvokeableTest(testData);
-		    }
-		}
-
-		return m_tests;
 	    }
 
 	    public String getGrinderID()
@@ -161,64 +140,8 @@ class BSFProcessContext
 
 	    public synchronized InvokeableTest[] getTests()
 	    {
-		return recalculateTests();
-	    }
-
-	    public InvokeableTest registerTest(Test test)
-		throws ScriptException
-	    {
-		final TestRegistry testRegistry =
-		    ProcessContext.getInstance().getTestRegistry();
-
-		try {
-		    return
-			new BSFInvokeableTest(testRegistry.registerTest(test));
-		}
-		catch (GrinderException e) {
-		    throw new ScriptException("Exception registering test", e);
-		}
-	    }
-	}
-	
-	private class BSFInvokeableTest
-	    extends AbstractTestSemantics implements InvokeableTest
-	{
-	    private final TestData m_testData;
-
-	    BSFInvokeableTest(TestData testData)
-	    {
-		m_testData = testData;
-	    }
-
-	    public final int getNumber()
-	    {
-		return m_testData.getTest().getNumber();
-	    }
-
-	    public final String getDescription()
-	    {
-		return m_testData.getTest().getDescription();
-	    }
-
-	    public final GrinderProperties getParameters()
-	    {
-		return m_testData.getTest().getParameters();
-	    }
-
-	    public TestResult invoke()
-		throws net.grinder.script.AbortRunException
-	    {
-		try {
-		    return m_threadContext.invokeTest(m_testData);
-		}
-		catch (AbortRunException e) {
-		    throw new net.grinder.script.AbortRunException("Aborted",
-								   e);
-		}
-		catch (Sleeper.ShutdownException e) {
-		    throw new net.grinder.script.AbortRunException("Shut down",
-								   e);
-		}
+		return
+		    ProcessContext.getInstance().getTestRegistry().getTests();
 	    }
 	}
     }
