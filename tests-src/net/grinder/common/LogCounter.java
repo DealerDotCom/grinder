@@ -29,13 +29,11 @@ public class LogCounter implements Logger
 
     public void logError(String message)
     {
-	System.out.println(message);
 	++m_numberOfErrors;
     }
 
     public void logMessage(String message)
     {
-	System.out.println(message);
 	++m_numberOfMessages;
     }
 
