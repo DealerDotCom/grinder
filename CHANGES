@@ -8,10 +8,10 @@ Grinder 2.7
    - Removed individual sample TPS labels.
 
   Remove distinction between "abortions" and "errors" from the
-  recorded statistics. All tests now result in a "succesful
+  recorded statistics. All tests now result in a "successful
   transaction" or an "error".
 
-  Removed deprectated BookHttpPlugin example. Use StringBeans instead.
+  Removed deprecated BookHttpPlugin example. Use StringBeans instead.
 
   Minor changes to the plugin interface.
 

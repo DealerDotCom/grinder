@@ -1,5 +1,36 @@
 2001-09-16  Philip Aston  <paston@bea.com>
 
+	* build.xml: Don't distribute javadoc in pre-releases.
+
+	* src/net/grinder/plugininterface/GrinderPlugin.java, tests-src/net/grinder/console/swingui/TestImage.java:
+	Fix javadoc.
+
+	* etc/buildenv.sh: Need J2EE to build sniff-n-grind.
+
+	* examples/http/grinder.properties:
+	Update for new arbitrary header support.
+
+	* CHANGES, doc/HTTPPlugin.txt, doc/TCPSniffer.txt: Docs.
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, src/net/grinder/plugin/http/HttpsPluginSnifferFilter.java:
+	"If-Modified-Since" and "Content-Type" are now implemented using the
+	generic header support.
+
+	* src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HTTPHandler.java, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java:
+	HttpURLConnection now has arbitrary header support too.
+	The ability to specify arbitrary headers makes the custom handling of
+	"If-Modified-Since" and "Content-Type" redundant. Remove it.
+
+	* src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/util/ProcessContextImplementation.java:
+	Optimise logging.
+
+	* src/net/grinder/plugininterface/SimplePluginBase.java, src/net/grinder/plugininterface/Test.java, src/net/grinder/plugininterface/ThreadCallbacks.java, src/net/grinder/util/PropertiesHelper.java, src/net/grinder/util/TestImplementation.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/util/NullPlugin.java, tests-src/net/grinder/util/TestPropertiesHelper.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/plugin/http/HTTPHandler.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/http/HttpsPlugin.java, src/net/grinder/plugin/junit/JUnitPlugin.java, src/net/grinder/plugin/socket/SocketPlugin.java, src/net/grinder/plugininterface/GrinderPlugin.java:
+	Changes to the plugin interface:
+	 - SimplePluginBase deprecated, it wasn't simple
+	 - Plugins that relied on SimplePluginBase rewritten
+	 - Properties test set now passed to GrinderPlugin.initialize
+	 - Test.getNumber returns an int instead of an Integer
+
 	* src/net/grinder/console/model/CumulativeStatistics.java:
 	Remove redundant import.
 
