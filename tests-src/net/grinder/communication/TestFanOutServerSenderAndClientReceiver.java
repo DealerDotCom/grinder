@@ -24,16 +24,16 @@ package net.grinder.communication;
 
 
 /**
- *  Unit tests for <code>ServerFanOutSender</code> and
+ *  Unit tests for <code>FanOutServerSender</code> and
  *  <code>ClientReceiver</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestServerFanOutSenderAndClientReceiver
+public class TestFanOutServerSenderAndClientReceiver
   extends AbstractSenderAndReceiverTests {
 
-  public TestServerFanOutSenderAndClientReceiver(String name)
+  public TestFanOutServerSenderAndClientReceiver(String name)
     throws Exception {
     super(name);
   }
@@ -45,8 +45,8 @@ public class TestServerFanOutSenderAndClientReceiver
   protected void setUp() throws Exception {
     super.setUp();
 
-    final ServerFanOutSender sender =
-      ServerFanOutSender.bindTo("Test Sender", getHostName(), getPort());
+    final FanOutServerSender sender =
+      FanOutServerSender.bindTo("Test Sender", getHostName(), getPort());
 
     m_sender = sender;
     m_receiver = ClientReceiver.connectTo(getHostName(), getPort());

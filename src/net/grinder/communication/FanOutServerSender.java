@@ -33,21 +33,21 @@ import java.util.Iterator;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ServerFanOutSender extends AbstractSender {
+public final class FanOutServerSender extends AbstractSender {
 
   /**
-   * Factory method that creates a <code>ServerFanOutSender</code>
+   * Factory method that creates a <code>FanOutServerSender</code>
    * that listens on the given address.
    *
    * @param grinderID A string describing our Grinder process.
    * @param addressString The TCP address to listen on. Zero-length
    * string => listen on all interfaces.
    * @param port The TCP port to listen to. 0 => any local port.
-   * @return The ServerFanOutSender.
+   * @return The FanOutServerSender.
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  public static ServerFanOutSender bindTo(String grinderID,
+  public static FanOutServerSender bindTo(String grinderID,
                                           String addressString,
                                           int port)
     throws CommunicationException {
@@ -59,7 +59,7 @@ public final class ServerFanOutSender extends AbstractSender {
         addressString + ":" + acceptor.getPort() + ":" +
         InetAddress.getLocalHost().getHostName();
 
-      return new ServerFanOutSender(
+      return new FanOutServerSender(
         grinderID, senderID, acceptor, new Kernel(3));
     }
     catch (UnknownHostException e) {
@@ -80,7 +80,7 @@ public final class ServerFanOutSender extends AbstractSender {
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  private ServerFanOutSender(String grinderID, String senderID,
+  private FanOutServerSender(String grinderID, String senderID,
                              Acceptor acceptor, Kernel kernel)
     throws CommunicationException {
 

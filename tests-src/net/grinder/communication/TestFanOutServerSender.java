@@ -34,14 +34,14 @@ import junit.framework.TestCase;
 
 
 /**
- *  Unit tests for <code>ServerFanOutSender</code>.
+ *  Unit tests for <code>FanOutServerSender</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestServerFanOutSender extends TestCase {
+public class TestFanOutServerSender extends TestCase {
 
-  public TestServerFanOutSender(String name) {
+  public TestFanOutServerSender(String name) {
     super(name);
   }
 
@@ -52,11 +52,11 @@ public class TestServerFanOutSender extends TestCase {
     final int port = serverSocket.getLocalPort();
     serverSocket.close();
 
-    final ServerFanOutSender serverSender1 =
-      ServerFanOutSender.bindTo("Test", "", port);
+    final FanOutServerSender serverSender1 =
+      FanOutServerSender.bindTo("Test", "", port);
 
-    final ServerFanOutSender serverSender2 =
-      ServerFanOutSender.bindTo("Test", "", 0);
+    final FanOutServerSender serverSender2 =
+      FanOutServerSender.bindTo("Test", "", 0);
 
     serverSender1.shutdown();
     serverSender2.shutdown();
@@ -64,8 +64,8 @@ public class TestServerFanOutSender extends TestCase {
 
   public void testSend() throws Exception {
 
-    final ServerFanOutSender serverSender =
-      ServerFanOutSender.bindTo("Test", "", 0);
+    final FanOutServerSender serverSender =
+      FanOutServerSender.bindTo("Test", "", 0);
 
     final Acceptor acceptor = serverSender.getAcceptor();
 
@@ -123,8 +123,8 @@ public class TestServerFanOutSender extends TestCase {
 
   public void testShutdown() throws Exception {
 
-    final ServerFanOutSender serverSender =
-      ServerFanOutSender.bindTo("Test", "", 0);
+    final FanOutServerSender serverSender =
+      FanOutServerSender.bindTo("Test", "", 0);
 
     final Acceptor acceptor = serverSender.getAcceptor();
 
