@@ -78,9 +78,17 @@ public class SnifferEngineImplementation implements SnifferEngine
     public void run()
     {
 	while (true) {
-	    try {
-		final Socket localSocket = m_serverSocket.accept();
+	    final Socket localSocket;
 
+	    try {
+		localSocket = m_serverSocket.accept();
+	    }
+	    catch (IOException e) {
+		e.printStackTrace(System.err);
+		return;
+	    }
+
+	    try {
 		launchThreadPair(localSocket,
 				 localSocket.getInputStream(),
 				 localSocket.getOutputStream(),
