@@ -18,6 +18,7 @@ tests = [ Test(i, "Test %s" % i).wrap(doIt) for i in range(0, 10) ]
 class TestRunner:
     def __call__(self):
         statistics = grinder.statistics
+
 #        statistics.delayReports = 1
 
         for test in tests:
