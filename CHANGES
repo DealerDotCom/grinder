@@ -4,6 +4,8 @@ Grinder 3.0-beta18
   Fix console column header resizing by working around Java bug
   4760433.
 
+  Fix the TCPProxy SSL support that I inadvertently broke in beta 17.
+
 
 Grinder 3.0-beta17
 ------------------

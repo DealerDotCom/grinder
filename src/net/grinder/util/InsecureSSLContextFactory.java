@@ -93,7 +93,7 @@ public final class InsecureSSLContextFactory {
       final SSLContext sslContext = SSLContext.getInstance("SSL");
 
       // No KeyManager.
-      sslContext.init(null, s_trustManagers, s_insecureRandom);
+      sslContext.init(m_keyManagers, s_trustManagers, s_insecureRandom);
 
       return sslContext;
     }
