@@ -38,6 +38,9 @@ Grinder 3.0-beta12
   cryptographic strength. Do not rely on the TCPProxy to provide
   strong security.
 
+  Change the TCPProxy -timeout option so the TCPProxy will not exit
+  if there are active connections.
+
   Enhancement from Richard Perks that allows scripts to specify the
   local interface to use for HTTP connections. See
   HTTPPluginConnection.setLocalAddress().

@@ -24,6 +24,7 @@
 package net.grinder.tools.tcpproxy;
 
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -44,6 +45,9 @@ import net.grinder.util.TerminalColour;
  */
 public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 
+  private static final ThreadGroup s_streamHandlerThreadGroup =
+    new ThreadGroup("TCPProxy Stream Handler");
+
   private final TCPProxyFilter m_requestFilter;
   private final TCPProxyFilter m_responseFilter;
   private final String m_requestColour;
@@ -53,9 +57,20 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   private final ServerSocket m_serverSocket;
 
   /**
+   * Allow sub classes to access the <code>ThreadGroup</code> to be
+   * used for stream handling threads.
+   *
+   * @return The thread group.
+   */
+  protected static final ThreadGroup getStreamHandlerThreadGroup() {
+    return s_streamHandlerThreadGroup;
+  }
+
+  /**
    * Constructor.
    *
-   * @param socketFactory Factory for plain old sockets.
+   * @param socketFactory Socket factory for creating our server and
+   * client sockets.
    * @param requestFilter Request filter.
    * @param responseFilter Response filter.
    * @param outputWriter Writer to terminal.
@@ -105,9 +120,9 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 
     // Close socket to stop engine.
     try {
-      getServerSocket().close();
+      m_serverSocket.close();
     }
-    catch (java.io.IOException ioe) {
+    catch (IOException ioe) {
       // Be silent.
     }
   }
@@ -118,12 +133,42 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   public abstract void run();
 
   /**
-   * Accessor for server socket.
-   *
-   * @return The <code>ServerSocket</code> socket.
+   * <code>IOException</code> that indicates that an accept has timed
+   * out on our server socket, and we have no active threads handling
+   * connections.
    */
-  public final ServerSocket getServerSocket() {
-    return m_serverSocket;
+  private static final class NoActivityTimeOutException extends IOException {
+  }
+
+  /**
+   * Accept a connection using our server socket. Blocks until a
+   * connection is accepted.
+   *
+   * @return The client socket.
+   * @throws IOException If an I/O error occurred.
+   * @throws NoActivityTimeOutException If the accept timed out, and
+   * we have no active threads handling connections.
+   */
+  protected Socket accept() throws IOException, NoActivityTimeOutException {
+    while (true) {
+      try {
+        return m_serverSocket.accept();
+      }
+      catch (InterruptedIOException e) {
+        if (getStreamHandlerThreadGroup().activeCount() == 0) {
+          throw new NoActivityTimeOutException();
+        }
+      }
+    }
+  }
+
+  /**
+   * Return the EndPoint we are listening on.
+   *
+   * @return The <code>EndPoint</code>.
+   */
+  protected EndPoint getListenEndPoint() {
+    return EndPoint.serverEndPoint(m_serverSocket);
   }
 
   /**
@@ -241,7 +286,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       m_in = in;
       m_outputStreamFilterTee = outputStreamFilterTee;
 
-      new Thread(this,
+      new Thread(getStreamHandlerThreadGroup(), this,
                  "Filter thread for " +
                  outputStreamFilterTee.getConnectionDetails())
         .start();
@@ -285,8 +330,7 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   }
 
   /**
-   * Log IOExceptions, other than the common ones due to connections
-   * being closed.
+   * Log IOExceptions.
    *
    * @param e The exception.
    */
@@ -295,13 +339,17 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
     final Class c = e.getClass();
     final String message = e.getMessage();
 
-    if (IOException.class.equals(c) && "Stream closed".equals(message) ||
-        SocketException.class.equals(c)) {
-
-      return;
+    if (NoActivityTimeOutException.class.equals(c)) {
+      System.err.println("Listen time out");
     }
-
-    e.printStackTrace(System.err);
+    else if (IOException.class.equals(c) && "Stream closed".equals(message) ||
+             SocketException.class.equals(c)) {
+      // Ignore common exceptions that are due to connections being
+      // closed.
+    }
+    else {
+      e.printStackTrace(System.err);
+    }
   }
 
   /**

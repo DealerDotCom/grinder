@@ -26,7 +26,6 @@ package net.grinder.tools.tcpproxy;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
-import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -167,7 +166,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
     try {
       while (true) {
-        final Socket localSocket = getServerSocket().accept();
+        final Socket localSocket = accept();
 
         // Grab the first upstream packet and grep it for the
         // remote server and port in the method line.
@@ -189,6 +188,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           in.reset();
 
           new Thread(
+            getStreamHandlerThreadGroup(),
             new HTTPProxyStreamDemultiplexer(
               in, localSocket, EndPoint.clientEndPoint(localSocket)),
               "HTTPProxyStreamDemultiplexer for " + localSocket).start();
@@ -226,12 +226,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           // everything we receive over localSocket to
           // sslProxySocket, and vice versa.
           new Thread(
+            getStreamHandlerThreadGroup(),
             new CopyStreamRunnable(in, sslProxySocket.getOutputStream()),
             "Copy to proxy engine for " + remoteEndPoint).start();
 
           final OutputStream out = localSocket.getOutputStream();
 
           new Thread(
+            getStreamHandlerThreadGroup(),
             new CopyStreamRunnable(sslProxySocket.getInputStream(), out),
             "Copy from proxy engine for " + remoteEndPoint).start();
 
@@ -256,9 +258,6 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           System.err.println(line);
         }
       }
-    }
-    catch (InterruptedIOException e) {
-      System.err.println("Listen time out");
     }
     catch (IOException e) {
       logIOException(e);
@@ -436,7 +435,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
       while (true) {
         try {
-          final Socket localSocket = getServerSocket().accept();
+          final Socket localSocket = accept();
 
           launchThreadPair(
             localSocket, m_remoteEndPoint, m_clientEndPoint, true);
@@ -455,10 +454,6 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                                      EndPoint remoteEndPoint) {
       m_clientEndPoint = clientEndPoint;
       m_remoteEndPoint = remoteEndPoint;
-    }
-
-    public EndPoint getListenEndPoint() {
-      return EndPoint.serverEndPoint(getServerSocket());
     }
   }
 

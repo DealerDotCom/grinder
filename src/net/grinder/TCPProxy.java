@@ -121,9 +121,10 @@ public final class TCPProxy {
       "\n to produce a test script suitable for use with the" +
       "\n HTTP plugin." +
       "\n" +
-      "\n -timeout is how long (in seconds) the proxy will wait" +
+      "\n -timeout is how long (in seconds) the TCPProxy will wait" +
       "\n for a request before timing out and freeing the local" +
-      "\n port." +
+      "\n port. The TCPProxy will not time out if there are active" +
+      "\n connections." +
       "\n" +
       "\n -console displays a simple console that allows the TCPProxy" +
       "\n to be shutdown cleanly." +

@@ -22,7 +22,6 @@
 
 package net.grinder.tools.tcpproxy;
 
-import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -101,11 +100,7 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
       final Socket localSocket;
 
       try {
-        localSocket = getServerSocket().accept();
-      }
-      catch (InterruptedIOException e) {
-        System.err.println("Listen time out");
-        return;
+        localSocket = accept();
       }
       catch (IOException e) {
         logIOException(e);
