@@ -30,6 +30,7 @@ import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.HashMap;
@@ -193,7 +194,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           in.reset();
 
           new Thread(
-            new HTTPProxyStreamDemultiplexer(in, localSocket),
+            new HTTPProxyStreamDemultiplexer(
+              in, localSocket, EndPoint.clientEndPoint(localSocket)),
             "HTTPProxyStreamDemultiplexer for " + localSocket).start();
         }
         else if (m_matcher.contains(line, m_httpsConnectPattern)) {
@@ -220,13 +222,13 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
           // Set our proxy engine up to create connections to the
           // remoteEndPoint.
-          m_proxySSLEngine.proxyTo(remoteEndPoint);
+          m_proxySSLEngine.setConnectionDetails(
+            EndPoint.clientEndPoint(localSocket), remoteEndPoint);
 
           // Create a new proxy connection to the proxy engine.
           final Socket sslProxySocket =
             getSocketFactory().createClientSocket(
-              new EndPoint(getLocalHost(),
-                           m_proxySSLEngine.getServerSocket().getLocalPort()));
+              m_proxySSLEngine.getListenEndPoint());
 
           // Now set up a couple of threads to punt
           // everything we receive over localSocket to
@@ -286,13 +288,16 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
     private final InputStream m_in;
     private final Socket m_localSocket;
+    private final EndPoint m_clientEndPoint;
     private final PatternMatcher m_matcher = new Perl5Matcher();
     private final Map m_remoteStreamMap = new HashMap();
     private OutputStreamFilterTee m_lastRemoteStream;
 
-    HTTPProxyStreamDemultiplexer(InputStream in, Socket localSocket) {
+    HTTPProxyStreamDemultiplexer(InputStream in, Socket localSocket,
+                                 EndPoint clientEndPoint) {
       m_in = in;
       m_localSocket = localSocket;
+      m_clientEndPoint = clientEndPoint;
     }
 
     public void run() {
@@ -341,9 +346,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                 getSocketFactory().createClientSocket(remoteEndPoint);
 
               final ConnectionDetails connectionDetails =
-                new ConnectionDetails(
-                  new EndPoint(getLocalHost(), m_localSocket.getPort()),
-                  remoteEndPoint, false);
+                new ConnectionDetails(m_clientEndPoint, remoteEndPoint, false);
 
               m_lastRemoteStream =
                 new OutputStreamFilterTee(connectionDetails,
@@ -406,6 +409,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
   private final class ProxySSLEngine extends AbstractTCPProxyEngine {
 
+    private EndPoint m_clientEndPoint;
     private EndPoint m_remoteEndPoint;
 
     ProxySSLEngine(TCPProxySocketFactory socketFactory,
@@ -415,22 +419,20 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                    boolean useColour)
       throws IOException {
       super(socketFactory, requestFilter, responseFilter, outputWriter,
-            new EndPoint(HTTPProxyTCPProxyEngine.this.getLocalHost(), 0),
-            useColour, 0);
+            new EndPoint(InetAddress.getLocalHost(), 0), useColour, 0);
     }
 
     public void run() {
 
       while (true) {
         try {
-          final Socket localSocket = getServerSocket().accept();
-
           // System.err.println("New proxy proxy connection to " +
           // m_remoteEndPoint);
 
-          launchThreadPair(localSocket, localSocket.getInputStream(),
-                           localSocket.getOutputStream(), m_remoteEndPoint,
-                           true);
+          final Socket localSocket = getServerSocket().accept();
+
+          launchThreadPair(
+            localSocket, m_remoteEndPoint, m_clientEndPoint, true);
         }
         catch (IOException e) {
           e.printStackTrace(System.err);
@@ -442,8 +444,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
      * Set the ProxySSLEngine up so that the next connection will be
      * wired through to <code>remoteHost:remotePort</code>.
      */
-    public void proxyTo(EndPoint remoteEndPoint) {
+    public void setConnectionDetails(EndPoint clientEndPoint,
+                                     EndPoint remoteEndPoint) {
+      m_clientEndPoint = clientEndPoint;
       m_remoteEndPoint = remoteEndPoint;
+    }
+
+    public EndPoint getListenEndPoint() {
+      return EndPoint.serverEndPoint(getServerSocket());
     }
   }
 
@@ -491,8 +499,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                    0, bytesRead, "US-ASCII");
 
       final String result =
-        Util.substitute(m_matcher, getHTTPConnectPattern(),
-                        s_substition, original);
+        Util.substitute(m_matcher, getHTTPConnectPattern(), s_substition,
+                        original);
 
       if (result != original) {    // Yes, I mean reference identity.
         return result.getBytes();

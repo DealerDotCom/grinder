@@ -89,11 +89,8 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
       }
 
       try {
-        launchThreadPair(localSocket,
-                         localSocket.getInputStream(),
-                         localSocket.getOutputStream(),
-                         m_connectionDetails.getRemoteEndPoint(),
-                         false);
+        launchThreadPair(localSocket, m_connectionDetails.getRemoteEndPoint(),
+                         EndPoint.clientEndPoint(localSocket), false);
       }
       catch (IOException e) {
         e.printStackTrace(System.err);

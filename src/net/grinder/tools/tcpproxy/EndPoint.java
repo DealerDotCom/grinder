@@ -21,9 +21,15 @@
 
 package net.grinder.tools.tcpproxy;
 
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 
 /**
- * Class that represents the endpoint of a TCP connection.
+ * Class that represents the endpoint of a TCP connection. One day,
+ * when we can depend on JDK 1.4, this may be replaced by
+ * <code>java.net.InetSocketAddress</code>.
  *
  * @author <a href="mailto:paston@bea.com">Philip Aston</a>
  * @version $Revision$
@@ -46,6 +52,19 @@ public final class EndPoint implements Comparable {
     m_port = port;
 
     m_hashCode = m_host.hashCode() ^ m_port;
+  }
+
+  /**
+   * Constructor.
+   *
+   * <p>In a perfect world, EndPoint would use
+   * <code>InetAddress</code> in its internal representation.</p>
+   *
+   * @param address Address.
+   * @param port Port
+   */
+  public EndPoint(InetAddress address, int port) {
+    this(address.getHostName(), port);
   }
 
   /**
@@ -109,7 +128,8 @@ public final class EndPoint implements Comparable {
   }
 
   /**
-   * Implement <code>Comparable</code>.
+   * Implement <code>Comparable</code> so that we can order pairs of
+   * EndPoint's consistently.
    *
    * @param other Object to be compared.
    * @return A negative integer, zero, or a positive integer as this
@@ -129,5 +149,27 @@ public final class EndPoint implements Comparable {
     else {
       return getPort() - otherEndPoint.getPort();
     }
+  }
+
+  /**
+   * Return an <code>EndPoint</code> describing the remote (client)
+   * side of the given socket.
+   *
+   * @param socket The socket.
+   * @return The end point.
+   */
+  public static EndPoint clientEndPoint(Socket socket) {
+    return new EndPoint(socket.getInetAddress(), socket.getPort());
+  }
+
+  /**
+   * Return an <code>EndPoint</code> describing the local (server)
+   * side of the given server socket.
+   *
+   * @param socket The server socket.
+   * @return The end point.
+   */
+  public static EndPoint serverEndPoint(ServerSocket socket) {
+    return new EndPoint(socket.getInetAddress(), socket.getLocalPort());
   }
 }
