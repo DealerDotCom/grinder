@@ -40,8 +40,8 @@ public final class DelegatingInvocationHandler
     m_delegate = delegate;
   }
 
-  public final Object invokeInternal(Method method, Object[] parameters)
-    throws Throwable {
+  public final Object invokeInternal(
+    Object proxy, Method method, Object[] parameters) throws Throwable {
 
     final Method delegateMethod =
       m_delegate.getClass().getMethod(method.getName(),

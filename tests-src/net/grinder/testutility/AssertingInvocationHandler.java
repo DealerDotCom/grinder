@@ -62,7 +62,7 @@ public abstract class AssertingInvocationHandler
         result = subclassMethod.invoke(this, parameters);
       }
       else {
-        result = invokeInternal(method, parameters);
+        result = invokeInternal(proxy, method, parameters);
       }
       
       recordSuccess(method.getName(), parameters, result);
@@ -84,8 +84,8 @@ public abstract class AssertingInvocationHandler
     }
   }
 
-  protected abstract Object invokeInternal(Method method, Object[] parameters)
-    throws Throwable;
+  protected abstract Object invokeInternal(
+    Object proxy, Method method, Object[] parameters) throws Throwable;
 
   public final Object getProxy() {
     return Proxy.newProxyInstance(
