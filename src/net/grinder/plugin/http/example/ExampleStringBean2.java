@@ -69,4 +69,9 @@ public class ExampleStringBean2 implements StringBean
     {
 	return Long.toString(System.currentTimeMillis());
     }
+
+    public String getCycle()
+    {
+	return Integer.toString(m_pluginThreadContext.getCurrentCycleID());
+    }
 }

@@ -31,6 +31,14 @@ import net.grinder.util.GrinderProperties;
  */
 public interface PluginThreadContext extends PluginProcessContext
 {    
+    /**
+     * Return the current cycle ID.
+     */
+    public int getCurrentCycleID();
+
+    /**
+     * Return the thread ID.
+     */ 
     public int getThreadID();
 
     public void abortCycle();

@@ -83,6 +83,12 @@ class ThreadContextImplementation
     /*
      * Implementation of PluginThreadContext follows
      */
+
+    public int getCurrentCycleID()
+    {
+	return m_grinderThread.getCurrentCycle();
+    }
+
     public int getThreadID()
     {
 	return m_threadID;
@@ -122,7 +128,7 @@ class ThreadContextImplementation
 	buffer.append("(thread ");
 	buffer.append(getThreadID());
 
-	final int currentCycle = m_grinderThread.getCurrentCycle();
+	final int currentCycle = getCurrentCycleID();
 	final TestData currentTestData = m_grinderThread.getCurrentTestData();
 
 	if (currentCycle >= 0) {
