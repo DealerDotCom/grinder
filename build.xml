@@ -89,6 +89,7 @@ what you want. Currently the conditionally built modules are:
   <property name="test-src.dir" value="tests-src"/>
   <property name="etc.dir" value="etc"/>
   <property name="manifest.mf" value="etc/grinder-manifest.mf"/>
+  <property name="outline2xml.py" value="etc/outline2xml.py"/>
   <property name="examples.dir" value="examples"/>
   <property name="contrib.dir" value="contrib"/>
   <property name="doc.dir" value="docs"/>
@@ -109,6 +110,7 @@ what you want. Currently the conditionally built modules are:
   <property name="clover.dir" value="clover"/>
   <property name="lasttest.timestamp" value="last-test-run.timestamp"/>
   <property name="build.log" value="${build.dir}/build.log"/>
+  <property name="python.cachedir" value="${build.dir}/python.cache"/>
 
   <!-- javadoc -->
   <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
@@ -413,7 +415,7 @@ what you want. Currently the conditionally built modules are:
       </classpath>
 
       <!-- Put Jython droppings in one place. -->
-      <sysproperty key="python.cachedir" path="${build.dir}/python.cache"/>
+      <sysproperty key="python.cachedir" path="${python.cachedir}"/>
 
       <!-- Things the tests find useful. -->
       <sysproperty key="classes.dir" path="${classes.dir}"/>
@@ -476,6 +478,27 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Rules to create the documentation                               -->
   <!-- =================================================================== -->
+
+  <target name="generate-project-xml" depends="init"
+    description="Generates the project XML files">
+
+    <property name="forrest.tmpdir" value="${build.dir}/tmp"/>
+    <mkdir dir="${forrest.tmpdir}"/>
+
+    <java classname="org.python.util.jython"
+      output="${forrest.tmpdir}/todo.xml">
+
+      <sysproperty key="python.cachedir" path="${python.cachedir}"/>
+
+      <classpath>
+	<pathelement path="${jython.dir}/${jython.jar}"/>
+      </classpath>
+      <arg path="${outline2xml.py}"/>
+      <arg value="TODO"/>
+
+    </java>
+
+  </target>
 
   <!-- This should really depend on script-javadoc, but we don't for
      speed when testing documentation. The "Release" targets always
