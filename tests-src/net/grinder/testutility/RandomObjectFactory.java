@@ -156,8 +156,7 @@ public final class RandomObjectFactory {
         // passes equals(), hashCode(), toString() through to this
         // instance.
         final Method ourMethod =
-            getClass().getMethod(method.getName(),
-            method.getParameterTypes());
+            getClass().getMethod(method.getName(), method.getParameterTypes());
         return ourMethod.invoke(this, parameters);
       }
       catch (NoSuchMethodException e) {
