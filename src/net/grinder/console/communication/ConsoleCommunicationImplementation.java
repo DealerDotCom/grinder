@@ -30,6 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import net.grinder.communication.Acceptor;
 import net.grinder.communication.CommunicationException;
@@ -38,7 +39,6 @@ import net.grinder.communication.ConnectionType;
 import net.grinder.communication.FanOutServerSender;
 import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
-import net.grinder.communication.Sender;
 import net.grinder.communication.ServerReceiver;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
@@ -63,6 +63,8 @@ import net.grinder.util.FileContents;
  */
 public final class ConsoleCommunicationImplementation
   implements ConsoleCommunication {
+
+  private static final long CHECK_PEER_STATUS_PERIOD = 1000;
 
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
@@ -93,7 +95,7 @@ public final class ConsoleCommunicationImplementation
 
   private Acceptor m_acceptor = null;
   private Receiver m_receiver = null;
-  private Sender m_sender = null;
+  private FanOutServerSender m_sender = null;
 
   /**
    * Synchronise on this before accessing.
@@ -143,6 +145,16 @@ public final class ConsoleCommunicationImplementation
     reset();
 
     m_processStatusSet = new ProcessStatusSetImplementation(timer);
+
+    timer.schedule(new TimerTask() {
+        public void run() {
+          if (m_sender != null) {
+            m_sender.isPeerShutdown();
+          }
+        }
+      },
+                   CHECK_PEER_STATUS_PERIOD,
+                   CHECK_PEER_STATUS_PERIOD);
   }
 
   /**
