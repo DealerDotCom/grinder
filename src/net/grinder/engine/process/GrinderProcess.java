@@ -1,6 +1,7 @@
 // Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2003 Kalyanaraman Venkatasubramaniy
+// Copyright (C) 2004 Slavik Gnatenko
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -120,11 +121,8 @@ public final class GrinderProcess {
 
   private final ProcessContext m_context;
   private final LoggerImplementation m_loggerImplementation;
-  private final short m_numberOfThreads;
   private final InitialiseGrinderMessage m_initialisationMessage;
   private final ConsoleListener m_consoleListener;
-  private final int m_reportToConsoleInterval;
-  private final int m_duration;
   private final Object m_eventSynchronisation = new Object();
 
   private boolean m_shutdownTriggered;
@@ -188,13 +186,6 @@ public final class GrinderProcess {
 
     final Logger logger = m_context.getProcessLogger();
 
-    m_numberOfThreads = properties.getShort("grinder.threads", (short)1);
-
-    m_reportToConsoleInterval =
-      properties.getInt("grinder.reportToConsole.interval", 500);
-
-    m_duration = properties.getInt("grinder.duration", 0);
-
     // If we don't call getLocalHost() before spawning our
     // ConsoleListener thread, any attempt to call it afterwards will
     // silently crash the JVM. Reproduced with both J2SE 1.3.1-b02 and
@@ -235,6 +226,15 @@ public final class GrinderProcess {
                        m_initialisationMessage.getScriptFile(),
                        m_initialisationMessage.getScriptDirectory());
 
+    // These properties are read here so they may be changed in the
+    // script.
+    final GrinderProperties properties = m_context.getProperties();
+    final short numberOfThreads =
+      properties.getShort("grinder.threads", (short)1);
+    final int reportToConsoleInterval =
+      properties.getInt("grinder.reportToConsole.interval", 500);
+    final int duration = properties.getInt("grinder.duration", 0);
+
     // Don't initialise the data writer until now as the script may
     // declare new statistics.
     final PrintWriter dataWriter = m_loggerImplementation.getDataWriter();
@@ -250,9 +250,9 @@ public final class GrinderProcess {
 
     dataWriter.println();
 
-    final GrinderThread[] runnable = new GrinderThread[m_numberOfThreads];
+    final GrinderThread[] runnable = new GrinderThread[numberOfThreads];
 
-    for (int i = 0; i < m_numberOfThreads; i++) {
+    for (int i = 0; i < numberOfThreads; i++) {
       runnable[i] =
         new GrinderThread(m_eventSynchronisation, m_context,
                           m_loggerImplementation, jythonScript, i);
@@ -262,20 +262,21 @@ public final class GrinderProcess {
 
     consoleSender.send(
       m_context.createStatusMessage(
-        ProcessStatus.STATE_STARTED, (short)0, m_numberOfThreads));
+        ProcessStatus.STATE_STARTED, (short)0, numberOfThreads));
 
     logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
 
     m_context.setExecutionStartTime(System.currentTimeMillis());
 
     // Start the threads.
-    for (int i = 0; i < m_numberOfThreads; i++) {
+    for (int i = 0; i < numberOfThreads; i++) {
       final Thread t = new Thread(runnable[i], "Grinder thread " + i);
       t.setDaemon(true);
       t.start();
     }
 
-    final TimerTask reportTimerTask = new ReportToConsoleTimerTask();
+    final TimerTask reportTimerTask =
+      new ReportToConsoleTimerTask(numberOfThreads);
     final TimerTask shutdownTimerTask = new ShutdownTimerTask();
 
     // Schedule a regular statistics report to the console. We don't
@@ -286,15 +287,15 @@ public final class GrinderProcess {
     // not already.
     reportTimerTask.run();
 
-    timer.schedule(reportTimerTask, m_reportToConsoleInterval,
-                   m_reportToConsoleInterval);
+    timer.schedule(reportTimerTask, reportToConsoleInterval,
+                   reportToConsoleInterval);
 
     try {
-      if (m_duration > 0) {
-        logger.output("will shutdown after " + m_duration + " ms",
+      if (duration > 0) {
+        logger.output("will shutdown after " + duration + " ms",
                       Logger.LOG | Logger.TERMINAL);
 
-        timer.schedule(shutdownTimerTask, m_duration);
+        timer.schedule(shutdownTimerTask, duration);
       }
 
       // Wait for a termination event.
@@ -378,9 +379,11 @@ public final class GrinderProcess {
 
   private class ReportToConsoleTimerTask extends TimerTask {
     private final TestStatisticsMap m_testStatisticsMap;
+    private final short m_totalThreads;
 
-    public ReportToConsoleTimerTask() {
+    public ReportToConsoleTimerTask(short totalThreads) {
       m_testStatisticsMap = m_context.getTestRegistry().getTestStatisticsMap();
+      m_totalThreads = totalThreads;
     }
 
     public void run() {
@@ -403,7 +406,7 @@ public final class GrinderProcess {
           consoleSender.send(
             m_context.createStatusMessage(ProcessStatus.STATE_RUNNING,
                                           GrinderThread.getNumberOfThreads(),
-                                          m_numberOfThreads));
+                                          m_totalThreads));
         }
         catch (CommunicationException e) {
           final Logger logger = m_context.getProcessLogger();
