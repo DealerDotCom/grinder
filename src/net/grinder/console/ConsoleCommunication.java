@@ -24,6 +24,7 @@ import net.grinder.communication.Receiver;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StartGrinderMessage;
+import net.grinder.communication.StopGrinderMessage;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 
@@ -57,6 +58,12 @@ class ConsoleCommunication
 	throws CommunicationException
     {
 	m_sender.send(new StartGrinderMessage());
+    }
+
+    void sendStopMessage()
+	throws CommunicationException
+    {
+	m_sender.send(new StopGrinderMessage());
     }
 
     ReportStatisticsMessage waitForReport()

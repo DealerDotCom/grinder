@@ -65,7 +65,21 @@ public class Console
 		    }
 		};
 
-	m_userInterface = new ConsoleUI(m_model, startHandler);
+	final ActionListener stopHandler =
+	    new ActionListener() {
+		    public void actionPerformed(ActionEvent event) {
+			try {
+			    m_communication.sendStopMessage();
+			}
+			catch (GrinderException e) {
+			    System.err.println(
+				"Could not send stop message: " + e);
+			    e.printStackTrace();
+			}
+		    }
+		};
+
+	m_userInterface = new ConsoleUI(m_model, startHandler, stopHandler);
     }
     
     public void run() throws GrinderException

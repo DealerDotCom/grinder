@@ -1,3 +1,8 @@
+Grinder 2.6
+-----------
+
+  grinder.waitForConsoleSignal is now grinder.receiveConsoleSignals
+
 Grinder 2.5
 -----------
 

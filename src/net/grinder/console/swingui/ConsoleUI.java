@@ -93,14 +93,15 @@ public class ConsoleUI implements ModelListener
     private SummaryFrame m_summaryFrame = null;
     private Image m_logoImage = null;
 
-    public ConsoleUI(Model model, ActionListener startProcessesHandler)
+    public ConsoleUI(Model model, ActionListener startProcessesHandler,
+		     ActionListener stopProcessesHandler)
 	throws ConsoleException
     {
 	getResources();
 
 	final Action[] actions = {
 	    new StartProcessesGrinderAction(startProcessesHandler),
-	    new StopProcessesGrinderAction(startProcessesHandler),
+	    new StopProcessesGrinderAction(stopProcessesHandler),
 	    new ResetAction(),
 	    new StartAction(),
 	    new StopAction(),
