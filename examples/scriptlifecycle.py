@@ -45,3 +45,10 @@ class TestRunner:
         # You can also vary behaviour based on thread ID.
         if grinder.threadID % 2 == 0:
             grinder.logger.output("I have an even thread ID.")
+
+    # Scripts can optionally define a __del__ method. The Grinder
+    # guarantees this will be called at shutdown once for each thread
+    # It is useful for closing resources (e.g. database connections)
+    # that were created in __init__.
+    def __del__(self):
+        grinder.logger.output("Thread shutting down")

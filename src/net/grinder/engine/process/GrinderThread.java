@@ -147,6 +147,24 @@ class GrinderThread implements java.lang.Runnable {
 
       logger.output("finished " + currentRun +
                     (currentRun == 1 ? " run" : " runs"));
+
+      try {
+        jythonRunnable.shutdown();
+      }
+      catch (JythonScriptExecutionException e) {
+        final Throwable unwrapped = e.unwrap();
+
+        // Sadly PrintWriter only exposes its lock object
+        // to subclasses.
+        synchronized (errorWriter) {
+          logger.error("Script threw " +
+                       unwrapped.getClass() +
+                       " during test runner shutdown: " +
+                       unwrapped.getMessage());
+
+          unwrapped.printStackTrace(errorWriter);
+        }
+      }
     }
     catch (Exception e) {
       synchronized (errorWriter) {

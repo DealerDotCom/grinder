@@ -571,6 +571,13 @@ logTest = test1.wrap(grinder.logger.output)
         <span class="comment"># You can also vary behaviour based on thread ID.
 </span>        <span class="keyword">if</span> grinder.threadID % 2 == 0:
             grinder.logger.output(&quot;<span class="string">I have an even thread ID.</span>&quot;)
+
+    <span class="comment"># Scripts can optionally define a __del__ method. The Grinder
+</span>    <span class="comment"># guarantees this will be called at shutdown once for each thread
+</span>    <span class="comment"># It is useful for closing resources (e.g. database connections)
+</span>    <span class="comment"># that were created in __init__.
+</span>    <span class="keyword">def</span> <span class="function-name">__del__</span>(self):
+        grinder.logger.output(&quot;<span class="string">Thread shutting down</span>&quot;)
 </pre>
 </blockquote>
 

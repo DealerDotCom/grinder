@@ -10,6 +10,10 @@ Grinder 3.0-beta14
   Clean up the Jython interpreter correctly so that scripts can use
   exit functions. (See the standard Python atexit module).
 
+  Guarantee that the TestRunner __del__ call is called on shutdown so
+  that scripts can use it to tidy up per-thread state. Thanks to
+  Stefano Santoro for inspiration.
+
 
 Grinder 3.0-beta13
 ------------------
