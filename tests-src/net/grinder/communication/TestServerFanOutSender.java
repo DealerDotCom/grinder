@@ -128,7 +128,7 @@ public class TestServerFanOutSender extends TestCase {
 
     final Acceptor acceptor = serverSender.getAcceptor();
 
-    assertEquals(4, acceptor.getThreadGroup().activeCount());
+    assertEquals(1, acceptor.getThreadGroup().activeCount());
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
