@@ -117,7 +117,7 @@ public final class TestRegistry
 	return newTestData;
     }
 
-    public Object invoke(RegisteredTest registeredTest, Object parameters)
+    public Object dispatch(RegisteredTest registeredTest, Object parameters)
 	throws GrinderException
     {
 	final TestData testData = (TestData)registeredTest;
