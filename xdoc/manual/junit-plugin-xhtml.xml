@@ -75,6 +75,15 @@ href="properties.html">core properties</a>.</p>
   <td>Set to <code>true</code> to produce stack traces for failures
   and errors in the error log. The default is <code>false</code>.</td>
  </tr>
+
+ <tr>
+  <td valign="top"><code><a name="grinder.plugin.parameter.initialTestNumber">grinder.plugin.parameter.initialTestNumber</a></code></td>
+  <td>The test number used for the first test, subsequent tests are
+  numbered sequentially. This property is useful if you want to use
+  several worker processes to run different test suites against the
+  same console.The default is <code>0</code>.</td>
+ </tr>
+
 </table>
 </blockquote>
 
