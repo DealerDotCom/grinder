@@ -18,6 +18,10 @@
 
 package net.grinder.util;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import net.grinder.common.GrinderException;
@@ -25,17 +29,20 @@ import net.grinder.common.Logger;
 
 
 /**
- * Manage sleeping. 
+ * Manage sleeping
+ *
+ * <p>Sseveral threads can safely use the same <code>Sleeper</code>.
+ * </p>
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public class Sleeper
 {
-    private static boolean s_shutdown = false;
-
     private static Random s_random = new Random();
+    private static List s_allSleepers = new ArrayList();
 
+    private boolean m_shutdown = false;
     private final double m_factor;
     private final double m_limit99_75Factor;
     private final Logger m_logger;
@@ -53,9 +60,44 @@ public class Sleeper
 	    throw new IllegalArgumentException("Factors must be positive");
 	}
 
+	synchronized (Sleeper.class) {
+	    s_allSleepers.add(new WeakReference(this));
+	}
+
 	m_factor = factor;
 	m_limit99_75Factor = limit99_75Factor;
 	m_logger = logger;
+    }
+
+    /**
+     * Shutdown all Sleepers that are currently constructed.
+     **/
+    public final synchronized static void shutdownAllCurrentSleepers()
+    {
+	final Iterator iterator = s_allSleepers.iterator();
+
+	while (iterator.hasNext()) {
+	    final WeakReference reference = (WeakReference)iterator.next();
+
+	    final Sleeper sleeper = (Sleeper)reference.get();
+
+	    if (sleeper != null) {
+		sleeper.shutdown();
+	    }
+	}
+
+	s_allSleepers.clear();
+    }
+
+    /**
+     * Shutdown this <code>Sleeper</code>. Once called, all sleep
+     * method invocations will throw {@link ShutdownException},
+     * including those already sleeping.
+     **/
+    public final synchronized void shutdown()
+    {
+	m_shutdown = true;
+	notifyAll();
     }
 
     /**
@@ -65,13 +107,11 @@ public class Sleeper
      * of the meanTime.
      *
      * @param meanTime Mean time.
-     * @throws ShutdownException If {@link #shutdown} has ever been called.
+     * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
      **/
     public void sleepNormal(long meanTime) throws ShutdownException
     {
-	if (s_shutdown) {
-	    throw new ShutdownException("Shut down");
-	}
+	checkShutdown();
 
 	if (meanTime > 0) {
 	    if (m_limit99_75Factor > 0) {
@@ -91,31 +131,18 @@ public class Sleeper
      * and maximumTime.
      *
      * @param maximumTime Maximum time.
-     * @throws ShutdownException If {@link #shutdown} has ever been called.
+     * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
      **/
     public void sleepFlat(long maximumTime) throws ShutdownException
     {
-	if (s_shutdown) {
-	    throw new ShutdownException("Shut down");
-	}
+	checkShutdown();
 
 	if (maximumTime > 0) {
 	    doSleep(Math.abs(s_random.nextLong()) % maximumTime);
 	}
     }
 
-    /**
-     * Shutdown all Sleepers. Once called, all sleep method
-     * invocations will throw {@link ShutdownException}, including
-     * those already sleeping.
-     **/
-    public synchronized static void shutdown()
-    {
-	s_shutdown = true;
-	Sleeper.class.notifyAll();
-    }
-
-    private void doSleep(long time) throws ShutdownException
+    private final void doSleep(long time) throws ShutdownException
     {
 	if (time > 0) {
 	    time = (long)(time * m_factor);
@@ -128,20 +155,26 @@ public class Sleeper
 	    final long wakeUpTime = currentTime + time;
 
 	    while (currentTime < wakeUpTime) {
-		if (s_shutdown) {
-		    throw new ShutdownException("Shut down");
-		}
-
 		try {
-		    synchronized(Sleeper.class) {
-			Sleeper.class.wait(wakeUpTime - currentTime);
+		    synchronized(this) {
+			checkShutdown();
+			wait(wakeUpTime - currentTime);
 		    }
 		    break;
 		}
 		catch (InterruptedException e) {
+		    checkShutdown();
+
 		    currentTime = System.currentTimeMillis();
 		}
 	    }
+	}
+    }
+
+    private final void checkShutdown() throws ShutdownException
+    {
+	if (m_shutdown) {
+	    throw new ShutdownException("Shut down");
 	}
     }
 

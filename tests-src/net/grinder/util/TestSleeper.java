@@ -133,19 +133,7 @@ public class TestSleeper extends TestCase
 
     public void testShutdown() throws Exception
     {
-	final Sleeper sleep = new Sleeper(1, 0, null);
-
-	final Thread t1 = new Thread() {
-		public void run()
-		{
-		    try {
-			sleep.sleepNormal(50000);
-		    }
-		    catch (Sleeper.ShutdownException e) {
-		    }
-		}
-	    };
-		    
+	final TakeFifty t1 = new TakeFifty();
 
 	assert(
 	    new Time(1000, 1100)
@@ -153,16 +141,55 @@ public class TestSleeper extends TestCase
 		void doIt() throws Exception
 		{
 		    t1.start();
-		    sleep.sleepNormal(1000);
-		    Sleeper.shutdown();
+		    Thread.sleep(1000);
+		    t1.getSleeper().shutdown();
 		    t1.join();
-		    try {
-			sleep.sleepNormal(50000);
-		    }
-		    catch (Sleeper.ShutdownException e) {
-		    }
 		}
 	    }.run());
+    }
+
+    public void testShutdownAllCurrentSleepers() throws Exception
+    {
+	final Thread t1 = new TakeFifty();
+	final Thread t2 = new TakeFifty();
+
+	assert(
+	    new Time(1000, 1100)
+	    {
+		void doIt() throws Exception
+		{
+		    t1.start();
+		    t2.start();
+		    Thread.sleep(1000);
+		    Sleeper.shutdownAllCurrentSleepers();
+		    t1.join();
+		    t2.join();
+		}
+	    }.run());
+    }
+
+    private final class TakeFifty extends Thread
+    {
+	private final Sleeper m_sleeper;
+
+	public TakeFifty() throws Sleeper.ShutdownException
+	{
+	    m_sleeper = new Sleeper(1, 0, null);
+	}
+
+	public final void run()
+	{
+	    try {
+		m_sleeper.sleepNormal(50000);
+	    }
+	    catch (Sleeper.ShutdownException e) {
+	    }
+	}
+
+	public final Sleeper getSleeper()
+	{
+	    return m_sleeper;
+	}
     }
 
     private abstract class Time
