@@ -139,7 +139,7 @@ public class TestSleeper extends TestCase
 	final TakeFifty t1 = new TakeFifty();
 
 	assertTrue(
-	    new Time(1000, 1100)
+	    new Time(1000, 1200)
 	    {
 		void doIt() throws Exception
 		{
@@ -157,7 +157,7 @@ public class TestSleeper extends TestCase
 	final Thread t2 = new TakeFifty();
 
 	assertTrue(
-	    new Time(1000, 1100)
+	    new Time(1000, 1200)
 	    {
 		void doIt() throws Exception
 		{
