@@ -22,6 +22,7 @@
 package net.grinder.engine.agent;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -32,23 +33,35 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.communication.CommunicationException;
+import net.grinder.communication.FanOutStreamSender;
+import net.grinder.communication.Message;
+import net.grinder.communication.StreamSender;
+import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.GrinderProcess;
 
 
 /**
- * Utility class which builds the worker process command line.
+ * Class that can start worker processes.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-final class WorkerProcessCommandLine {
+final class WorkerProcessFactory implements ProcessFactory {
+
+  private final FanOutStreamSender m_fanOutStreamSender;
+  private final Message m_initialisationMessage;
   private final List m_command;
-  private final int m_grinderIDIndex;
   private final String m_hostIDPrefix;
 
-  public WorkerProcessCommandLine(GrinderProperties properties,
-                                  Properties systemProperties,
-                                  File alternateFile) {
+  public WorkerProcessFactory(GrinderProperties properties,
+                              Properties systemProperties,
+                              File alternateFile,
+                              FanOutStreamSender fanOutStreamSender,
+                              Message initialisationMessage) {
+
+    m_fanOutStreamSender = fanOutStreamSender;
+    m_initialisationMessage = initialisationMessage;
 
     m_command = new ArrayList();
     m_command.add(properties.getProperty("grinder.jvm", "java"));
@@ -75,7 +88,7 @@ final class WorkerProcessCommandLine {
       final String value = (String)entry.getValue();
 
       if (key.startsWith("grinder.")) {
-        m_command.add("-D" + key + "=" + value);
+        m_command.add("-D" + key + "=\"" + value + "\"");
       }
     }
 
@@ -106,8 +119,7 @@ final class WorkerProcessCommandLine {
 
     m_command.add(GrinderProcess.class.getName());
 
-    m_grinderIDIndex = m_command.size();
-    m_command.add("");    // Place holder for grinder ID.
+    m_command.add("<grinderID>"); // Place holder for grinder ID.
 
     if (alternateFile != null) {
       m_command.add(alternateFile.getPath());
@@ -116,29 +128,16 @@ final class WorkerProcessCommandLine {
     m_hostIDPrefix = properties.getProperty("grinder.hostID", getHostName());
   }
 
-  public String getGrinderID(int processIndex) {
-    return m_hostIDPrefix + "-" + processIndex;
-  }
-
-  public String[] getCommandArray(String grinderID) {
-    m_command.set(m_grinderIDIndex, grinderID);
+  private String[] getCommandArray(String grinderID) {
+    m_command.set(m_command.indexOf("<grinderID>"), grinderID);
     return (String[])m_command.toArray(new String[0]);
   }
 
-  public String toString() {
-    final String[] commandArray = getCommandArray("<grinderID>");
-
-    final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
-
-    for (int j = 0; j < commandArray.length; ++j) {
-      if (j != 0) {
-        buffer.append(" ");
-      }
-
-      buffer.append(commandArray[j]);
-    }
-
-    return buffer.toString();
+  /**
+   * Package scope for the unit tests.
+   */
+  List getCommandList() {
+    return m_command;
   }
 
   private String getHostName() {
@@ -148,5 +147,66 @@ final class WorkerProcessCommandLine {
     catch (UnknownHostException e) {
       return "UNNAMED HOST";
     }
+  }
+
+  public ChildProcess create(int processIndex,
+                             OutputStream outputStream,
+                             OutputStream errorStream) throws EngineException {
+
+    final String grinderID = m_hostIDPrefix + "-" + processIndex;
+
+    final ChildProcess process =
+      new ChildProcess(grinderID, getCommandArray(grinderID),
+                       outputStream, errorStream);
+
+    final OutputStream processStdin = process.getStdinStream();
+
+    try {
+      new StreamSender(processStdin).send(m_initialisationMessage);
+    }
+    catch (CommunicationException e) {
+      throw new EngineException("Failed to send initialisation message", e);
+    }
+
+    m_fanOutStreamSender.add(processStdin);
+
+    return process;
+  }
+
+  public String getCommandLine() {
+    final String[] commandArray = getCommandArray("<grinderID>");
+
+    final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
+
+    boolean pastClass = false;
+
+    for (int j = 0; j < commandArray.length; ++j) {
+      if (j != 0) {
+        buffer.append(" ");
+      }
+
+      final boolean jvmArgumentParameter =
+        j > 0 && (commandArray[j - 1].equals("-jar") ||
+                  commandArray[j - 1].equals("-classpath") ||
+                  commandArray[j - 1].equals("-cp"));
+
+      final boolean argument = pastClass || jvmArgumentParameter;
+
+      if (argument) {
+        buffer.append("'");
+      }
+
+      buffer.append(commandArray[j]);
+
+      if (argument) {
+        buffer.append("'");
+      }
+
+      if (j > 0 && !jvmArgumentParameter && !commandArray[j].startsWith("-")) {
+        pastClass = true;
+      }
+    }
+
+    return buffer.toString();
   }
 }

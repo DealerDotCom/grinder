@@ -41,6 +41,7 @@ import net.grinder.util.CopyStreamRunnable;
  */
 final class ChildProcess {
 
+  private final String m_processName;
   private final Process m_process;
   private final Thread m_stdoutRedirectorThread;
   private final Thread m_stderrRedirectorThread;
@@ -48,6 +49,7 @@ final class ChildProcess {
   /**
    * Constructor.
    *
+   * @param processName The process name.
    * @param commandArray Command line arguments.
    * @param outputStream Output stream to which child process stdout
    * should be redirected.
@@ -55,10 +57,13 @@ final class ChildProcess {
    * should be redirected.
    * @throws EngineException If an error occurs.
    */
-  public ChildProcess(String[] commandArray,
+  public ChildProcess(String processName,
+                      String[] commandArray,
                       OutputStream outputStream,
                       OutputStream errorStream)
     throws EngineException {
+
+    m_processName = processName;
 
     try {
       m_process = Runtime.getRuntime().exec(commandArray);
@@ -67,13 +72,20 @@ final class ChildProcess {
       throw new EngineException("Could not start process", e);
     }
 
-    ProcessReaper.getInstance().add(m_process);
-
     m_stdoutRedirectorThread =
       createRedirectorThread(m_process.getInputStream(), outputStream);
 
     m_stderrRedirectorThread =
       createRedirectorThread(m_process.getErrorStream(), errorStream);
+  }
+
+  /**
+   * Return the process name.
+   *
+   * @return The process name.
+   */
+  public String getProcessName() {
+    return m_processName;
   }
 
   /**
@@ -101,8 +113,6 @@ final class ChildProcess {
 
     m_stdoutRedirectorThread.join();
     m_stderrRedirectorThread.join();
-
-    ProcessReaper.getInstance().remove(m_process);
 
     try {
       return m_process.exitValue();

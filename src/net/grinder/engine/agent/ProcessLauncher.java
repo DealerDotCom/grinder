@@ -21,19 +21,11 @@
 
 package net.grinder.engine.agent;
 
-import java.io.OutputStream;
-
 import net.grinder.common.Logger;
-import net.grinder.communication.CommunicationException;
-import net.grinder.communication.FanOutStreamSender;
-import net.grinder.communication.Message;
-import net.grinder.communication.StreamSender;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.thread.Kernel;
-
-
 /**
- * Manages launching of processes.
+ * Manages launching a set of processes.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -41,11 +33,9 @@ import net.grinder.util.thread.Kernel;
 final class ProcessLauncher {
 
   private final Kernel m_kernel = new Kernel(1);
-  private final Logger m_logger;
-  private final WorkerProcessCommandLine m_commandLine;
-  private final FanOutStreamSender m_fanOutStreamSender;
-  private final Message m_initialisationMessage;
+  private final ProcessFactory m_processFactory;
   private final Object m_notifyOnFinish;
+  private final Logger m_logger;
 
   /**
    * Fixed size array with a slot for all potential processes.
@@ -62,26 +52,28 @@ final class ProcessLauncher {
   private int m_nextProcessIndex = 0;
 
   public ProcessLauncher(int numberOfProcesses,
-                         WorkerProcessCommandLine workerProcessCommandLine,
-                         FanOutStreamSender fanOutStreamSender,
-                         Message initialisationMessage,
+                         ProcessFactory processFactory,
                          Object notifyOnFinish,
                          Logger logger) {
 
-    m_logger = logger;
-    m_fanOutStreamSender = fanOutStreamSender;
-    m_initialisationMessage = initialisationMessage;
+    m_processFactory = processFactory;
     m_notifyOnFinish = notifyOnFinish;
-    m_commandLine = workerProcessCommandLine;
+    m_logger = logger;
 
     m_processes = new ChildProcess[numberOfProcesses];
+
+    Runtime.getRuntime().addShutdownHook(
+      new Thread("The Grim Reaper") {
+        public void run() { destroyAllProcesses(); }
+      });
   }
 
-  public void startAllProcesses() {
+  public void startAllProcesses() throws EngineException {
     startSomeProcesses(m_processes.length - m_nextProcessIndex);
   }
 
-  public boolean startSomeProcesses(int numberOfProcesses) {
+  public boolean startSomeProcesses(int numberOfProcesses)
+    throws EngineException {
 
     final int numberToStart =
       Math.min(numberOfProcesses, m_processes.length - m_nextProcessIndex);
@@ -89,35 +81,17 @@ final class ProcessLauncher {
     for (int i = 0; i < numberToStart; ++i) {
       final int processIndex = m_nextProcessIndex;
 
-      final String grinderID = m_commandLine.getGrinderID(processIndex);
+      synchronized (m_processes) {
+        m_processes[processIndex] = m_processFactory.create(processIndex,
+                                                            System.out,
+                                                            System.err);
+      }
+
+      m_logger.output("process " + m_processes[processIndex].getProcessName() +
+                      " started");
 
       try {
-        final ChildProcess process =
-          new ChildProcess(m_commandLine.getCommandArray(grinderID),
-                           System.out, System.err);
-
-        final OutputStream processStdin = process.getStdinStream();
-
-        new StreamSender(processStdin).send(m_initialisationMessage);
-        m_fanOutStreamSender.add(processStdin);
-
-        synchronized (m_processes) {
-          m_processes[processIndex] = process;
-        }
-      }
-      catch (EngineException e) {
-        m_logger.error("Failed to create process");
-        e.printStackTrace(m_logger.getErrorLogWriter());
-        return false;
-      }
-      catch (CommunicationException e) {
-        m_logger.error("Failed to communicate with process");
-        e.printStackTrace(m_logger.getErrorLogWriter());
-        return false;
-      }
-
-      try {
-        m_kernel.execute(new ReapTask(processIndex));
+        m_kernel.execute(new WaitForProcessTask(processIndex));
       }
       catch (Kernel.ShutdownException e) {
         m_logger.error("Kernel unexpectedly shutdown");
@@ -126,19 +100,16 @@ final class ProcessLauncher {
       }
 
       ++m_nextProcessIndex;
-
-      final StringBuffer buffer = new StringBuffer();
-      m_logger.output("process " + grinderID + " started");
     }
 
     return m_processes.length > m_nextProcessIndex;
   }
 
-  private final class ReapTask implements Runnable {
+  private final class WaitForProcessTask implements Runnable {
 
     private final int m_processIndex;
 
-    public ReapTask(int processIndex) {
+    public WaitForProcessTask(int processIndex) {
       m_processIndex = processIndex;
     }
 
@@ -197,7 +168,7 @@ final class ProcessLauncher {
     m_nextProcessIndex = m_processes.length;
   }
 
-  public void destroy() {
+  public void destroyAllProcesses() {
     dontStartAnyMore();
 
     synchronized (m_processes) {

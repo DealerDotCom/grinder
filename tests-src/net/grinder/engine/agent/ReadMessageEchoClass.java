@@ -21,10 +21,12 @@
 
 package net.grinder.engine.agent;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.io.InputStream;
+
+import net.grinder.communication.CommunicationException;
+import net.grinder.communication.Message;
+import net.grinder.communication.Receiver;
+import net.grinder.communication.StreamReceiver;
 
 
 
@@ -34,32 +36,15 @@ import java.io.Writer;
  * @author Philip Aston
  * @version $Revision$
  */
-public class EchoClass {
-  
-  public static final String ECHO_ARGUMENTS = "echo arguments";
-  public static final String ECHO_STREAMS = "echo streams";
+public class ReadMessageEchoClass extends EchoClass {
 
   public static void main(String arguments[]) throws Exception {
 
-    final Writer commandWriter = new StringWriter();
+    final StreamReceiver receiver = new StreamReceiver(System.in);
 
-    final Reader in = new InputStreamReader(System.in);
+    final CommandMessage m = (CommandMessage)receiver.waitForMessage();
 
-    while (true) {
-      final int c = in.read();
-
-      if (c == -1) {
-        throw new Exception("Could not read command");
-      }
-      else if (c == '\n') {
-        break;
-      }
-      else {
-        commandWriter.write(c);
-      }
-    }
-
-    final String command = commandWriter.toString();
+    final String command = m.getCommand();
 
     if (command.equals(ECHO_ARGUMENTS)) {
       for (int i=0; i<arguments.length; ++i) {
@@ -84,6 +69,17 @@ public class EchoClass {
     System.out.flush();
     System.err.flush();
   }
-}
 
+  public static final class CommandMessage implements Message {
+    private final String m_command;
+
+    public CommandMessage(String command) {
+      m_command = command;
+    }
+
+    public String getCommand() {
+      return m_command;
+    }
+  }
+}
 

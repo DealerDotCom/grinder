@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,50 +21,22 @@
 
 package net.grinder.engine.agent;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.io.OutputStream;
+
+import net.grinder.engine.common.EngineException;
 
 
 /**
- * Manages list of child processes and cleans up when we exit. Thanks
- * to ANT source for inspiration.
+ * Interface implemented by classes that can start a process.
  *
  * @author Philip Aston
  * @version $Revision$
- * @see net.grinder.engine.agent.ChildProcess
  */
-final class ProcessReaper extends Thread {
+interface ProcessFactory {
 
-  private static ProcessReaper s_instance = new ProcessReaper();
+  ChildProcess create(int processIndex,
+                      OutputStream outputStream,
+                      OutputStream errorStream) throws EngineException;
 
-  public static ProcessReaper getInstance() {
-    return s_instance;
-  }
-
-  private Set m_processes = new HashSet();
-
-  private ProcessReaper() {
-    super("The Grim Reaper");
-    Runtime.getRuntime().addShutdownHook(this);
-  }
-
-  public synchronized boolean add(Process process) {
-    return m_processes.add(process);
-  }
-
-  public synchronized boolean remove(Process process) {
-    return m_processes.remove(process);
-  }
-
-  public synchronized void run() {
-    final Iterator iterator = m_processes.iterator();
-
-    while (iterator.hasNext()) {
-      final Process process = (Process)iterator.next();
-      process.destroy();
-    }
-
-    m_processes.clear();
-  }
+  String getCommandLine();
 }

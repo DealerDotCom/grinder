@@ -48,7 +48,8 @@ public class TestChildProcess extends TestCase {
     };
 
     try {
-      new ChildProcess(commandArray, m_outputStream, m_errorStream);
+      new ChildProcess("my process", commandArray, m_outputStream,
+                       m_errorStream);
       fail("Expected GrinderException");
     }
     catch (GrinderException e) {
@@ -66,10 +67,12 @@ public class TestChildProcess extends TestCase {
     };
 
     final ChildProcess childProcess =
-      new ChildProcess(commandArray, m_outputStream, m_errorStream);
+      new ChildProcess("my process", commandArray, m_outputStream,
+                       m_errorStream);
 
     childProcess.waitFor();
 
+    assertEquals("my process", childProcess.getProcessName());
     assertEquals(0, m_outputStream.toByteArray().length);
     assertTrue(m_errorStream.toByteArray().length > 0);
   }
@@ -86,7 +89,7 @@ public class TestChildProcess extends TestCase {
     };
 
     final ChildProcess childProcess =
-      new ChildProcess(commandArray, m_outputStream, m_errorStream);
+      new ChildProcess("echo", commandArray, m_outputStream, m_errorStream);
 
     final PrintWriter out = new PrintWriter(childProcess.getStdinStream());
     out.print(EchoClass.ECHO_ARGUMENTS);
@@ -105,6 +108,8 @@ public class TestChildProcess extends TestCase {
                  new String(m_outputStream.toByteArray()));
 
     assertEquals(0, m_errorStream.toByteArray().length);
+
+    assertEquals("echo", childProcess.getProcessName());
   }
 
   public void testConcurrentProcessing() throws Exception {
@@ -116,7 +121,7 @@ public class TestChildProcess extends TestCase {
     };
 
     final ChildProcess childProcess =
-      new ChildProcess(commandArray, m_outputStream, m_errorStream);
+      new ChildProcess("echo", commandArray, m_outputStream, m_errorStream);
 
     final PrintWriter out = new PrintWriter(childProcess.getStdinStream());
     out.print(EchoClass.ECHO_STREAMS);
@@ -151,28 +156,10 @@ public class TestChildProcess extends TestCase {
     };
 
     final ChildProcess childProcess =
-      new ChildProcess(commandArray, m_outputStream, m_errorStream);
+      new ChildProcess("echo", commandArray, m_outputStream, m_errorStream);
 
     childProcess.destroy();
 
-    // Won't return if process is running. Actual exit value is
-    // platform specific, and sometimes 0 on win32!
-    final int exitValue = childProcess.waitFor();
-  }
-
-  public void testProcessesAreRegsiteredWithReaper() throws Exception {
-    final String[] commandArray = {
-      "java",
-      "-classpath",
-      "build/tests-classes",
-      EchoClass.class.getName(),
-    };
-
-    final ChildProcess childProcess =
-      new ChildProcess(commandArray, m_outputStream, m_errorStream);
-
-    ProcessReaper.getInstance().run();
-    
     // Won't return if process is running. Actual exit value is
     // platform specific, and sometimes 0 on win32!
     final int exitValue = childProcess.waitFor();

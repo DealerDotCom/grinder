@@ -44,6 +44,7 @@ import net.grinder.communication.Receiver;
 import net.grinder.communication.Sender;
 import net.grinder.communication.TeeSender;
 import net.grinder.engine.common.ConsoleListener;
+import net.grinder.engine.common.EngineException;
 
 
 /**
@@ -128,18 +129,20 @@ public final class Agent {
         }
       }
 
-      final WorkerProcessCommandLine workerProcessCommandLine =
-        new WorkerProcessCommandLine(
-          properties, System.getProperties(), m_alternateFile);
+      final ProcessFactory workerProcessFactory =
+        new WorkerProcessFactory(properties,
+                                 System.getProperties(),
+                                 m_alternateFile,
+                                 fanOutStreamSender,
+                                 new InitialiseGrinderMessage(
+                                   receiver != null));
 
       logger.output("Worker process command line: " +
-                    workerProcessCommandLine);
+                    workerProcessFactory.getCommandLine());
 
       final ProcessLauncher processLauncher =
         new ProcessLauncher(properties.getInt("grinder.processes", 1),
-                            workerProcessCommandLine,
-                            fanOutStreamSender,
-                            new InitialiseGrinderMessage(receiver != null),
+                            workerProcessFactory,
                             eventSynchronisation,
                             logger);
 
@@ -193,7 +196,7 @@ public final class Agent {
                 maximumShutdownTime) {
 
               logger.output("forcibly terminating unresponsive processes");
-              processLauncher.destroy();
+              processLauncher.destroyAllProcesses();
             }
 
             eventSynchronisation.wait(maximumShutdownTime);
@@ -244,16 +247,23 @@ public final class Agent {
     }
 
     public void run () {
-      final boolean moreProcessesToStart =
-        m_processLauncher.startSomeProcesses(m_processIncrement);
+      try {
+        final boolean moreProcessesToStart =
+          m_processLauncher.startSomeProcesses(m_processIncrement);
 
-      if (!moreProcessesToStart) {
-        super.cancel();
+        if (!moreProcessesToStart) {
+          super.cancel();
 
-        synchronized (this) {
-          m_rampUpFinished = true;
-          notifyAll();
+          synchronized (this) {
+            m_rampUpFinished = true;
+            notifyAll();
+          }
         }
+      }
+      catch (EngineException e) {
+        // Really an assertion. Can't use logger because its not thread-safe.
+        System.err.println("Failed to start processes");
+        e.printStackTrace();
       }
     }
   }
