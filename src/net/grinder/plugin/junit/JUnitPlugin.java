@@ -32,9 +32,10 @@ import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
-import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.plugininterface.Test;
+import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.util.GrinderProperties;
+import net.grinder.util.TestImplementation;
 
 
 /**
@@ -225,46 +226,21 @@ public class JUnitPlugin implements GrinderPlugin
     }
 }
 
-class TestWrapper implements Test
+class TestWrapper extends TestImplementation
 {
-    private static int s_currentTestNumber = 0;
-    private final int m_testNumber;
-    private final String m_description;
+    private static int s_nextTestIndex = 0;
+
     private final transient TestCase m_testCase;
 
     public TestWrapper(TestCase jUnitTest)
     {
-	m_testNumber = s_currentTestNumber++;
+	super(s_nextTestIndex++, jUnitTest.toString(), null);
+
 	m_testCase = jUnitTest;
-
-	// m_testCase doesn't survive serialization, so grab the
-	// description here.
-	m_description = m_testCase.toString();
-    }
-
-    public int getTestNumber() 
-    {
-	return m_testNumber;
-    }
-		    
-    public String getDescription()
-    {
-	return m_description;
-    }
-		    
-    public GrinderProperties getParameters()
-    {
-	return null;
     }
 
     public TestCase getJUnitTestCase()
     {
 	return m_testCase;
-    }
-
-    public int compareTo(Object o) 
-    {
-	final int other = ((TestWrapper)o).m_testNumber;
-	return m_testNumber<other ? -1 : (m_testNumber==other ? 0 : 1);
     }
 }

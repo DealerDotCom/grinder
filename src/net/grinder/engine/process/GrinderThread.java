@@ -232,8 +232,7 @@ class GrinderThread implements java.lang.Runnable
 			logLine.append(", ");
 			logLine.append(m_currentCycle);
 			logLine.append(", " );
-			logLine.append(m_currentTestData.
-				       getTest().getTestNumber());
+			logLine.append(m_currentTestData.getTest().getName());
 
 			if (m_recordTime) {
 			    logLine.append(", ");

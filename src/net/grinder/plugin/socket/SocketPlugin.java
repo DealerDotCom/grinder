@@ -102,8 +102,8 @@ public class SocketPlugin implements GrinderPlugin
 	    final GrinderProperties parameters =
 		testDefinition.getParameters();
 
-	    //Get the test number
-	    final int testNumber = testDefinition.getTestNumber();
+	    //Get the test name
+	    final String testName = testDefinition.getName();
     
 	    /**
 	     * Multiple request/response operations could happen
@@ -128,7 +128,7 @@ public class SocketPlugin implements GrinderPlugin
 		//Call method to load the next request and save the response
 		sendRequest(requestFile,
 			    parameters.getProperty("response"+ i,
-						   "test" + testNumber +
+						   "test" + testName +
 						   "response" + i + ".txt"));
 		i++;
 

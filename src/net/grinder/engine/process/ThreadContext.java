@@ -134,8 +134,7 @@ class ThreadContextImplementation
 	}
 	
 	if (currentTestData != null) {
-	    buffer.append(" test " +
-			  currentTestData.getTest().getTestNumber());
+	    buffer.append(" test " + currentTestData.getTest().getName());
 	}
 
 	buffer.append(") ");

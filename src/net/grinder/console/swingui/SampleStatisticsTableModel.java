@@ -58,7 +58,7 @@ class SampleStatisticsTableModel extends AbstractStatisticsTableModel
 	final Test[] tests = getTests();
 
 	if (column == 0) {
-	    return getTestString() + tests[row].getTestNumber();
+	    return getTestString() + tests[row].getName();
 	}
 	else if (column == 1) {
 	    return tests[row].getDescription();

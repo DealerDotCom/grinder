@@ -27,21 +27,34 @@ import net.grinder.plugininterface.Test;
  */
 public class TestImplementation implements Test
 {
-    private final int m_testNumber;
+    private final int m_index;
+    private final String m_name;
     private final String m_description;
     private transient final GrinderProperties m_parameters;
 
-    public TestImplementation(int testNumber, String description,
+    public TestImplementation(int index, String name, String description,
 			      GrinderProperties parameters)
     {
-	m_testNumber = testNumber;
+	m_index = index;
+	m_name = name;
 	m_description = description;
 	m_parameters = parameters;
     }
 
-    public int getTestNumber()
+    public TestImplementation(int index, String description,
+			      GrinderProperties parameters)
     {
-	return m_testNumber;
+	this(index, Integer.toString(index), description, parameters);
+    }
+
+    public int getIndex()
+    {
+	return m_index;
+    }
+
+    public String getName()
+    {
+	return m_name;
     }
 
     public String getDescription()
@@ -56,7 +69,7 @@ public class TestImplementation implements Test
 
     public int compareTo(Object o) 
     {
-	final int other = ((TestImplementation)o).m_testNumber;
-	return m_testNumber<other ? -1 : (m_testNumber==other ? 0 : 1);
+	final int other = ((TestImplementation)o).m_index;
+	return m_index<other ? -1 : (m_index==other ? 0 : 1);
     }
 }

@@ -97,8 +97,7 @@ public class Model
 	while (testSetIterator.hasNext())
 	{
 	    final Test test = (Test)testSetIterator.next();
-	    m_sampleAccumulators[test.getTestNumber()] =
-		new SampleAccumulator();
+	    m_sampleAccumulators[test.getIndex()] = new SampleAccumulator();
 	}
 
 	setInitialState();
@@ -112,9 +111,9 @@ public class Model
 	return m_tests;
     }
 
-    public CumulativeStatistics getCumulativeStatistics(int testNumber)
+    public CumulativeStatistics getCumulativeStatistics(int testIndex)
     {
-	return m_sampleAccumulators[testNumber];
+	return m_sampleAccumulators[testIndex];
     }
 
     public CumulativeStatistics getTotalCumulativeStatistics()
@@ -122,9 +121,9 @@ public class Model
 	return m_totalSampleAccumulator;
     }
 
-    public IntervalStatistics getLastSampleStatistics(int testNumber)
+    public IntervalStatistics getLastSampleStatistics(int testIndex)
     {
-	return m_sampleAccumulators[testNumber].getLastSampleStatistics();
+	return m_sampleAccumulators[testIndex].getLastSampleStatistics();
     }
 
     public synchronized void addModelListener(ModelListener listener)
@@ -142,10 +141,10 @@ public class Model
 	}
     }
 
-    public void addSampleListener(int testNumber, SampleListener listener)
+    public void addSampleListener(int testIndex, SampleListener listener)
 	throws ConsoleException
     {
-	m_sampleAccumulators[testNumber].addSampleListener(listener);
+	m_sampleAccumulators[testIndex].addSampleListener(listener);
     }
 
     public void addTotalSampleListener(SampleListener listener)
@@ -187,11 +186,11 @@ public class Model
 	    while (iterator.hasNext()) {
 		final TestStatisticsMap.Pair pair = iterator.next();
 
-		final int testNumber = pair.getTest().getTestNumber();
 		final StatisticsImplementation statistics =
 		    pair.getStatistics();
 
-		m_sampleAccumulators[testNumber].add(statistics);
+		m_sampleAccumulators[pair.getTest().getIndex()]
+		    .add(statistics);
 
 		m_totalSampleAccumulator.add(statistics);
 	    }

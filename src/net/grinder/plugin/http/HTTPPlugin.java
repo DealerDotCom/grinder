@@ -77,8 +77,7 @@ public class HttpPlugin implements GrinderPlugin
 	while (i.hasNext()) {
 	    final Test test = (Test)i.next();
 
-	    m_callData[test.getTestNumber()] = new CallData(processContext,
-							    test);
+	    m_callData[test.getIndex()] = new CallData(processContext, test);
 	}
 
 	final GrinderProperties parameters =
@@ -131,8 +130,7 @@ public class HttpPlugin implements GrinderPlugin
 		m_urlString = testParameters.getMandatoryProperty("url");
 	    }
 	    catch (GrinderException e) {
-		throw new PluginException("URL for Test " +
-					  m_test.getTestNumber() +
+		throw new PluginException("URL for Test " + m_test.getName() +
 					  " not specified", e);
 	    }
 
@@ -327,9 +325,8 @@ public class HttpPlugin implements GrinderPlugin
 		m_stringBean.doTest(test);
 	    }
 
-	    final int testNumber = test.getTestNumber();
-
-	    final ThreadCallData threadCallData = m_threadCallData[testNumber];
+	    final ThreadCallData threadCallData =
+		m_threadCallData[test.getIndex()];
 
 	    // Do the call.
 	    final String page = m_httpHandler.sendRequest(threadCallData);
@@ -348,7 +345,8 @@ public class HttpPlugin implements GrinderPlugin
 			m_filenameFactory.createFilename("page",
 							 "_" +
 							 m_currentIteration +
-							 "_" + testNumber +
+							 "_" +
+							 test.getName() +
 							 ".html");
 		    try {
 			final BufferedWriter htmlFile =
@@ -486,7 +484,7 @@ public class HttpPlugin implements GrinderPlugin
 			    if (p == -1) {
 				throw new HTTPHandlerException(
 				    "URL for Test " +
-				    m_callData.getTest().getTestNumber() +
+				    m_callData.getTest().getName() +
 				    " malformed");    
 			    }
 
@@ -499,7 +497,7 @@ public class HttpPlugin implements GrinderPlugin
 			    if (method == null ) {
 				throw new HTTPHandlerException(
 				    "URL for Test " +
-				    m_callData.getTest().getTestNumber() +
+				    m_callData.getTest().getName() +
 				    " refers to unknown string bean method '" +
 				    methodName + "'");
 			    }

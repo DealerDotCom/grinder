@@ -74,7 +74,7 @@ public class TestPropertiesHelper extends TestCase
 	m_testParameters[0].put("the church", "all they want is your money");
 
 	m_testParameters[1].put("we",
-			      "can go for a walk where its quiet and dry");
+				"can go for a walk where its quiet and dry");
 
 	m_testParameters[1].put("and talk about precious things", "");
 	m_testParameters[1].put("like", "love and law and politics");
@@ -89,7 +89,7 @@ public class TestPropertiesHelper extends TestCase
 		final String value = (String)entry.getValue();
 
 		final String propertyName =
-		    PropertiesHelper.getTestPropertyName(i,
+		    PropertiesHelper.getTestPropertyName(Integer.toString(i),
 							 "parameter." + key);
 
 		m_properties.put(propertyName, value);
@@ -98,7 +98,8 @@ public class TestPropertiesHelper extends TestCase
 
 	for (int i=0; i<m_descriptions.length; i++) {
 	    final String propertyName =
-		PropertiesHelper.getTestPropertyName(i, "description");
+		PropertiesHelper.getTestPropertyName(Integer.toString(i),
+						     "description");
 	    m_properties.put(propertyName, m_descriptions[i]);
 	}
     }
@@ -148,11 +149,13 @@ public class TestPropertiesHelper extends TestCase
 	while (testSetIterator.hasNext()) {
 	    final Test test = (Test)testSetIterator.next();
 
-	    final int testNumber = test.getTestNumber();
+	    // N.B. test.getIndex() has no relation to test.getName().
+	    // We're indexing based on the name.
+	    final int ourIndex = Integer.parseInt(test.getName());
 
-	    assertEquals(m_descriptions[testNumber], test.getDescription());
+	    assertEquals(m_descriptions[ourIndex], test.getDescription());
 
-	    final Properties originalParameters = m_testParameters[testNumber];
+	    final Properties originalParameters = m_testParameters[ourIndex];
 	    final Properties parsedParameters = test.getParameters();
 
 	    assertEquals(originalParameters.size(), parsedParameters.size());

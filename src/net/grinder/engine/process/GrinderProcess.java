@@ -215,7 +215,7 @@ public class GrinderProcess
 	    final Test test = (Test)testSetIterator.next();
 
 	    final String sleepTimePropertyName =
-		propertiesHelper.getTestPropertyName(test.getTestNumber(),
+		propertiesHelper.getTestPropertyName(test.getName(),
 						     "sleepTime");
 
 	    final long sleepTime =

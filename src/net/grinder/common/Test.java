@@ -27,9 +27,9 @@ import net.grinder.util.GrinderProperties;
  */ 
 public interface Test extends Comparable, java.io.Serializable
 {
-    /** Test number is returned as an Integer so it can be used it as
-     * a Map key. */
-    public int getTestNumber();
+    /** int that can be used to index into array ofTests. **/
+    public int getIndex();
+    public String getName();
     public String getDescription();
     public GrinderProperties getParameters();
 }
