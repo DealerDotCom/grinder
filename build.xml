@@ -374,7 +374,7 @@ conditionally built modules are:
 	  tofile="${dist.dir}/${lib.dir}/${lib.jar}"/>
 
     <copy todir="${dist.dir}/${etc.dir}">
-      <fileset dir="${etc.dir}" excludes="buildenv.sh,setenv.sh"/>
+      <fileset dir="${etc.dir}" excludes="buildenv.sh,munge-license.pl,setenv.sh"/>
     </copy>
 
     <copy todir="${dist.dir}/${examples.dir}">
