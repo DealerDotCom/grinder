@@ -1,3 +1,146 @@
+2002-10-27  Philip Aston  <paston@bea.com>
+
+	* build.xml, CHANGES: Update for release.
+
+	* examples/.cvsignore, examples/grinder.properties:
+	Tweak for publication.
+
+	* examples/jdbc.py, examples/runtests.py, examples/ejb.py, examples/fba.py, examples/grinder.properties, examples/hello-world-functions.py, examples/hello-world.py, examples/http.py:
+	New world examples.
+
+	* src/net/grinder/common/FilenameFactory.java: Javadoc.
+
+	* xdoc/g3/scripts-xhtml.xml, xdoc/g3/tcpproxy-xhtml.xml, xdoc/g3/welcome-xhtml.xml, xdoc/stylesheets/grinder.xsl, xdoc/g3/console-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/g3/http-plugin-xhtml.xml, xdoc/g3/properties-xhtml.xml, xdoc/g3/script-gallery-xhtml.xml:
+	More doc.
+
+	* build.xml: Tweak.
+
+	* TODO: More to do.
+
+	* src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/script/ScriptContext.java:
+	Allow scripts to get filename factories.
+
+2002-10-26  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/http-plugin-xhtml.xml, xdoc/g3/scripts-xhtml.xml: More doc.
+
+	* src/net/grinder/script/Test.java, src/net/grinder/script/package.html, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginControl.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/plugin/http/package.html, src/net/grinder/script/ScriptContext.java, src/HTTPClient/package.html, src/net/grinder/common/Logger.java, src/net/grinder/common/Test.java, src/net/grinder/common/package.html:
+	Javadoc fixes.
+
+	* src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, src/net/grinder/plugin/http/HTTPPluginControl.java, src/net/grinder/plugin/http/HTTPPluginThreadState.java:
+	Remove per-connection defaults; they wouldn't work with redirection.
+
+	* TODO: Even less to do.
+
+	* TODO: Less to do.
+
+	* build.xml: Script Javadoc.
+
+	* etc/setenv.sh: TCPSniffer is dead, long live TCPProxy.
+
+	* src/net/grinder/plugin/http/HTTPPluginThreadState.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java:
+	Package scope.
+
+	* src/HTTPClient/HTTPResponse.java:
+	Grinder modification to interpret responses with no content type as
+	text.
+
+	* src/net/grinder/script/ScriptContext.java: Remove tautology.
+
+	* xdoc/g3/tcpsniffer-xhtml.xml, xdoc/g3/timing-xhtml.xml, xdoc/g3/welcome-xhtml.xml, xdoc/stylesheets/grinder.xsl, xdoc/g3/faq-xhtml.xml, xdoc/g3/future-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/g3/java-plugin-xhtml.xml, xdoc/g3/script-gallery-xhtml.xml, xdoc/g3/tcpproxy-xhtml.xml, xdoc/documentation.xweb:
+	Checkpoint documentation.
+
+	* src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java:
+	Shorter mehod names.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java:
+	POST() that takes just form data.
+
+	* src/net/grinder/tools/tcpsniffer/StreamThread.java, tests-src/net/grinder/plugin/http/TestHTTPPluginTCPProxyFilter.java, tests-src/net/grinder/plugin/http/TestHttpPluginSnifferFilter.java, tests-src/net/grinder/tools/tcpproxy/TestConnectionDetails.java, src/net/grinder/tools/tcpsniffer/SnifferPlainSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferSSLSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferSocketFactory.java, src/net/grinder/tools/tcpsniffer/SnifferEngine.java, src/net/grinder/tools/tcpsniffer/SnifferEngineImplementation.java, src/net/grinder/tools/tcpsniffer/SnifferFilter.java, src/net/grinder/tools/tcpsniffer/EchoFilter.java, src/net/grinder/tools/tcpsniffer/HTTPProxySnifferEngine.java, src/net/grinder/tools/tcpsniffer/JSSEConstants.java, src/net/grinder/tools/tcpsniffer/NullFilter.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactory.java, src/net/grinder/tools/tcpproxy/TCPProxySocketFactory.java, src/net/grinder/tools/tcpsniffer/ConnectionDetails.java, src/net/grinder/tools/tcpproxy/NullFilter.java, src/net/grinder/tools/tcpproxy/StreamThread.java, src/net/grinder/tools/tcpproxy/TCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java, src/net/grinder/tools/tcpproxy/TCPProxyFilter.java, src/net/grinder/tools/tcpproxy/TCPProxyPlainSocketFactory.java, src/net/grinder/tools/snifferwebapp/GrindingServlet.java, src/net/grinder/tools/snifferwebapp/SniffingServlet.java, src/net/grinder/tools/tcpproxy/ConnectionDetails.java, src/net/grinder/tools/tcpproxy/EchoFilter.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/JSSEConstants.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, src/net/grinder/plugin/http/HttpPluginSnifferResponseFilter.java, src/net/grinder/TCPProxy.java, src/net/grinder/TCPSniffer.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java:
+	TCPSniffer is dead, long live TCPProxy.
+
+	* tests-src/net/grinder/plugininterface/TestPluginTest.java: Dead.
+
+	* src/net/grinder/engine/process/TestPyJavaInstance.java: Fix.
+
+2002-10-25  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HTTPRequest.java: Fix URI overriding.
+
+	* src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestPyJavaInstance.java:
+	Wrap exceptions in a PyException.
+
+2002-10-24  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/PluginProcessContextImplementation.java:
+	Dead.
+
+	* src/net/grinder/engine/process/ThreadContext.java:
+	Fix exception handling.
+
+	* tests-src/net/grinder/plugininterface/StubGrinderPlugin.java, tests-src/net/grinder/script/TestTest.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/plugin/http/TestHTTPTest.java:
+	Update tests.
+
+	* src/net/grinder/script/ScriptContext.java, src/net/grinder/script/ScriptPluginContext.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/PluginTest.java, src/net/grinder/plugininterface/PluginThreadCallbacks.java, src/net/grinder/plugininterface/PluginThreadContext.java, src/net/grinder/plugininterface/PluginThreadListener.java, src/net/grinder/plugin/http/HTTPPluginControl.java, src/net/grinder/plugin/http/HTTPPluginThreadState.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/plugininterface/GrinderPlugin.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/engine/process/RegisteredPlugin.java:
+	Rework for one true Test - part 2.
+
+	* src/net/grinder/plugininterface/PluginThreadCallbacks.java, src/net/grinder/script/Test.java, src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/engine/process/TestPyJavaInstance.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestData.java:
+	Rework for one true Test.
+
+	* xdoc/g3/script-gallery-xhtml.xml, xdoc/stylesheets/add-g3-decoration.xsl, xdoc/stylesheets/grinder.xsl:
+	More doc.
+
+2002-10-23  Philip Aston  <paston@bea.com>
+
+	* xdoc/g3/script-gallery-xhtml.xml, xdoc/g3/scripts-xhtml.xml, xdoc/g3/welcome-xhtml.xml, xdoc/documentation.xweb, xdoc/g3/getting-started-xhtml.xml, xdoc/images/script-logo.png, xdoc/images/script-logo.xcf, xdoc/stylesheets/add-g3-decoration.xsl, xdoc/g3/future-xhtml.xml, xdoc/g3/properties-xhtml.xml:
+	More docs.
+
+	* src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContext.java:
+	Simplify sleep property names.
+
+	* src/net/grinder/engine/process/PluginProcessContextImplementation.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugininterface/PluginProcessContext.java:
+	Plug-ins no longer have parameters.
+
+	* src/net/grinder/engine/process/PluginProcessContextImplementation.java:
+	Comment.
+
+	* src/net/grinder/plugin/http/HTTPTest.java: Fix serialization.
+
+	* tests-src/net/grinder/plugin/http/TestHTTPTest.java:
+	Serialization tests.
+
+	* xdoc/stylesheets/grinder3.xsl, xdoc/manual/console-xhtml.xml, xdoc/manual/manual-xhtml.xml, xdoc/stylesheets/add-g3-decoration.xsl, xdoc/stylesheets/grinder.xsl, xdoc/images/console-es.png, xdoc/images/console-screenshot.gif, xdoc/images/console-screenshot.png, xdoc/g3/script-gallery-xhtml.xml, xdoc/g3/scripts-xhtml.xml, xdoc/g3/tcpsniffer-xhtml.xml, xdoc/g3/timing-xhtml.xml, xdoc/g3/welcome-xhtml.xml, xdoc/g3/faq-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/g3/http-plugin-xhtml.xml, xdoc/g3/java-plugin-xhtml.xml, xdoc/g3/properties-xhtml.xml, xdoc/documentation.xweb, xdoc/g3/console-xhtml.xml:
+	More documentation.
+
+2002-10-22  Philip Aston  <paston@bea.com>
+
+	* xdoc/stylesheets/grinder.xsl, xdoc/stylesheets/grinder3.xsl, xdoc/g3/future-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/g3/script-gallery-xhtml.xml, xdoc/g3/welcome-xhtml.xml, xdoc/images/PythonPoweredSmall.gif, xdoc/documentation.xweb, xdoc/welcome-xhtml.xml:
+	Start of G3 documentation changes.
+
+	* src/net/grinder/engine/process/RentrantInvocationException.java, src/net/grinder/engine/process/ThreadContext.java:
+	Catch reentrant invocations.
+
+	* TODO: Tweak for progress.
+
+	* src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java:
+	More connection control options.
+
+	* src/net/grinder/plugin/http/HTTPTest.java: Fix default headers.
+
+	* tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/plugininterface/StubGrinderPlugin.java, tests-src/net/grinder/plugininterface/TestPluginTest.java:
+	Update tests.
+
+2002-10-21  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/plugininterface/PluginTest.java, src/net/grinder/plugin/http/HTTPPlugin.java:
+	No need to keep track of the run number, the engine does this for us.
+
+	* src/net/grinder/engine/process/TestRegistry.java:
+	Rename invoke to dispatch.
+
+	* src/net/grinder/plugin/http/ConnectionDefaults.java, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginConnection.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java:
+	Checkpoint connection control support.
+
 2002-10-20  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/plugininterface/PluginTest.java, src/net/grinder/common/Test.java:
