@@ -22,7 +22,10 @@
 package net.grinder.console.model.editor;
 
 import java.io.File;
+import java.io.EOFException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
@@ -48,10 +51,12 @@ public class TestBuffer extends AbstractFileTestCase {
 
     assertEquals(text, textSource.getText());
 
-    final Buffer buffer = new Buffer(s_resources, textSource);
+    final Buffer buffer = new Buffer(s_resources, textSource, "My Buffer");
 
     assertNotNull(textSource.getText());
-    assertNotEquals(text, textSource.getText());
+    assertEquals(text, textSource.getText());
+    assertEquals("My Buffer", buffer.getDisplayName());
+    assertTrue( buffer.toString().indexOf(buffer.getDisplayName()) >= 0);
 
     try {
       buffer.load();
@@ -81,8 +86,8 @@ public class TestBuffer extends AbstractFileTestCase {
   }
 
   private static final class Expectation {
-    private Buffer.Type m_type;
-    private File m_file;
+    private final Buffer.Type m_type;
+    private final File m_file;
 
     public Expectation(Buffer.Type type, String filename) {
       m_type = type;
@@ -106,7 +111,7 @@ public class TestBuffer extends AbstractFileTestCase {
       assertNotNull(o1);
     }
     else {
-      assertTrue(o1 + " is not equal to " + o2, !o1.equals(o2));
+      assertTrue("'" + o1 + "' is not equal to '" + o2 + "'", !o1.equals(o2));
     }
   }
 
@@ -225,6 +230,51 @@ public class TestBuffer extends AbstractFileTestCase {
     }
     catch (DisplayMessageConsoleException e) {
       assertTrue(e.getNestedThrowable() instanceof IOException);
+    }
+  }
+
+  private static final class ExtractReasonExpectation {
+    private final IOException m_ioException;
+    private final String m_reason;
+
+    public ExtractReasonExpectation(IOException ioException, String reason) {
+      m_ioException = ioException;
+      m_reason = reason;
+    }
+
+    public IOException getIOException() {
+      return m_ioException;
+    }
+
+    public String getReason() {
+      return m_reason;
+    }
+  }
+
+  public void testExtractReasonFromIOException() throws Exception {
+    final ExtractReasonExpectation[] wordsOfExpectation = {
+      new ExtractReasonExpectation(new EOFException("Blah"), ""),
+      new ExtractReasonExpectation(new IOException("Blah (foo)"), ""),
+      new ExtractReasonExpectation(new UnknownHostException("Blah"), ""),
+      new ExtractReasonExpectation(new FileNotFoundException("Blah"), ""),
+      new ExtractReasonExpectation(
+        new FileNotFoundException("Blah (Some info)"),
+        "Some info"),
+      new ExtractReasonExpectation(
+        new FileNotFoundException("Blah (invalid"),
+        ""),
+      new ExtractReasonExpectation(
+        new FileNotFoundException("Blah (a different message) (blah)"),
+        "a different message"),
+    };
+    
+    for (int i = 0; i < wordsOfExpectation.length; ++i) {
+      final ExtractReasonExpectation expectation = wordsOfExpectation[i];
+
+      final String reason =
+        Buffer.extractReasonFromIOException(expectation.getIOException());
+
+      assertEquals(expectation.getReason(), reason);
     }
   }
 }
