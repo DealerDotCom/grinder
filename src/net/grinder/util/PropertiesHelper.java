@@ -171,10 +171,5 @@ public class PropertiesHelper
 	{
 	    return m_parameters;
 	}
-
-	public String toString() 
-	{
-	    return "Test " + getTestNumber();
-	}
     }
 }
