@@ -69,6 +69,9 @@ abstract class AbstractFanOutSender extends AbstractSender {
         final OutputStream outputStream =
           resourceToOutputStream(reservation.getResource());
 
+        // WriteMessageToStream owns the reservation. This guarantees
+        // order of messages to a given resource for this
+        // AbstractFanOutSender.
         m_kernel.execute(
           new WriteMessageToStream(message, outputStream, reservation));
       }
