@@ -51,7 +51,7 @@ abstract class BlockingActionThread extends Thread {
     notifyAll();
   }
 
-  public synchronized Exception getException() {
+  public synchronized Exception getException() throws Exception {
 
     if (!m_finished) {
       interrupt();
