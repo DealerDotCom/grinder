@@ -179,7 +179,7 @@ public final class Agent {
 
       final int numberOfProcesses = properties.getInt("grinder.processes", 1);
 
-      final LauncherThread[] threads = new LauncherThread[numberOfProcesses];
+      final ChildProcess[] processes = new ChildProcess[numberOfProcesses];
 
       final String[] stringArray = new String[0];
 
@@ -190,10 +190,21 @@ public final class Agent {
 
         commandArray[grinderIDIndex] = grinderID;
 
-        threads[i] = new LauncherThread(grinderID, commandArray);
-        threads[i].start();
+        processes[i] = new ChildProcess(grinderID, commandArray);
 
-        fanOutStreamSender.add(threads[i].getOutputStream());
+        fanOutStreamSender.add(processes[i].getOutputStream());
+
+        final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
+        buffer.append("Worker processes (");
+        buffer.append(grinderID);
+        buffer.append(") started with command line:");
+
+        for (int j = 0; j < commandArray.length; ++j) {
+          buffer.append(" ");
+          buffer.append(commandArray[i]);
+        }
+
+        System.out.println(buffer.toString());
       }
 
       final String version = GrinderBuild.getVersionString();
@@ -203,16 +214,15 @@ public final class Agent {
       int combinedExitStatus = 0;
 
       for (int i = 0; i < numberOfProcesses; ++i) {
-        threads[i].join();
-
-        final int exitStatus = threads[i].getExitStatus();
+        final int exitStatus = processes[i].waitFor();
 
         if (exitStatus > 0) { // Not an error
           if (combinedExitStatus == 0) {
             combinedExitStatus = exitStatus;
           }
           else if (combinedExitStatus != exitStatus) {
-            System.out.println("WARNING, threads disagree on exit status");
+            System.out.println(
+              "WARNING, worker processes disagree on exit status");
           }
         }
       }
