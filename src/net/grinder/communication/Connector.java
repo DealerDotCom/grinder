@@ -89,4 +89,37 @@ public final class Connector {
         "Failed to connect to '" + inetAddress + ":" + m_port + "'", e);
     }
   }
+
+  /**
+   * Equality.
+   *
+   * @return Hash code.
+   */
+  public int hashCode() {
+    return m_hostString.hashCode() ^ m_port ^ m_connectionType.hashCode();
+  }
+
+  /**
+   * Equality.
+   *
+   * @param o Object to compare.
+   * @return <code>true</code> => its equal to this
+   * <code>Connector</code>.
+   */
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    }
+
+    if (!(o instanceof Connector)) {
+      return false;
+    }
+
+    final Connector other = (Connector)o;
+
+    return
+      m_port == other.m_port &&
+      m_connectionType.equals(other.m_connectionType) &&
+      m_hostString.equals(other.m_hostString);
+  }
 }
