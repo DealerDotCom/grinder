@@ -52,7 +52,7 @@ public interface GrinderPlugin
     /**
      * Returns a Set of Tests to use. The plugin may chose to simply
      * return the set passed to {@link #initialize}.
-     * @see #initialise
+     * @see #initialize
      */
     public Set getTests() throws PluginException;
 }
