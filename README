@@ -211,6 +211,10 @@ What can I set in grinder.properties?
 				start until a Console signal is
 				recieved.
 
+				If this is set, the Grinder processes
+				will not exit until receiving a stop
+				signal from the console.
+
     grinder.reportToConsole -	Set to true to send stats to the Console.
 
     grinder.multicastAddress -  The multicast address to use for
@@ -336,6 +340,11 @@ The process controls:
   The controls "Start processes" and "Stop processes" send signals to
   start and stop any Grinder processes that are currently listening.
 
+  The "Reset processes" button causes the processes to reread the
+  properties file and reset - press "Start processes" to start them
+  again. *Warning* - if appendLog is false, this will overwrite any
+  process output files from the previous run.
+
 The sample controls:
 
   There are a set of controls that determine the samples that the
@@ -362,10 +371,7 @@ The sample controls:
   will collect before stopping capture.
 
   You can also manually start and stop the sampling with the "Capture
-  statistics" and "Stop capture" controls. Using the "Capture
-  statistics" button resets all the captured statistics and "arms" the
-  Console to ignore the specified number of non-zero samples before
-  starting capture again.
+  statistics"/"Stop capture" control.
 
   Finally, the "Summary" control displays a table of results, similar
   to what the individual Grinder processes produce but based on

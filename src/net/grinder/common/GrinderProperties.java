@@ -29,7 +29,7 @@ import java.util.Properties;
  */
 public class GrinderProperties extends Properties
 {
-    private static String m_propertiesFilename = "grinder.properties";
+    private static String s_propertiesFilename = "grinder.properties";
 
     private static GrinderProperties s_singleton;
 
@@ -55,37 +55,39 @@ public class GrinderProperties extends Properties
 
     public static void setPropertiesFileName(String s) 
     {
-	m_propertiesFilename = s;
+	s_propertiesFilename = s;
     }
 
-    public static GrinderProperties getProperties()
+    public synchronized static GrinderProperties getProperties()
     {
 	if (s_singleton == null) {
-	    synchronized (GrinderProperties.class) {
-		if (s_singleton == null) { // Double checked locking.
 
-		    s_singleton = new GrinderProperties();
+	    s_singleton = new GrinderProperties();
 
-		    try {
-			final InputStream propertiesInputStream =
-			    new FileInputStream(m_propertiesFilename);
+	    try {
+		final InputStream propertiesInputStream =
+		    new FileInputStream(s_propertiesFilename);
 			s_singleton.load(propertiesInputStream);
-		    }
-		    catch (Exception e) {
-			System.err.println(
-			    "Error loading properties file '" +
-			    m_propertiesFilename + "'");
-
-			return null;
-		    }
-
-		    // Allow overriding on command line.
-		    s_singleton.putAll(System.getProperties());
-		}
 	    }
-	}
+	    catch (Exception e) {
+		System.err.println(
+		    "Error loading properties file '" +
+		    s_propertiesFilename + "'");
 
+		return null;
+	    }
+
+	    // Allow overriding on command line.
+	    s_singleton.putAll(System.getProperties());
+	}
+    
 	return s_singleton;
+    }
+
+    public synchronized static GrinderProperties reloadProperties()
+    {
+	s_singleton = null;
+	return getProperties();
     }
 
     public GrinderProperties getPropertySubset(String prefix)

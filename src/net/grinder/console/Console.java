@@ -65,6 +65,20 @@ public class Console
 		    }
 		};
 
+	final ActionListener resetHandler =
+	    new ActionListener() {
+		    public void actionPerformed(ActionEvent event) {
+			try {
+			    m_communication.sendResetMessage();
+			}
+			catch (GrinderException e) {
+			    System.err.println(
+				"Could not send start message: " + e);
+			    e.printStackTrace();
+			}
+		    }
+		};
+
 	final ActionListener stopHandler =
 	    new ActionListener() {
 		    public void actionPerformed(ActionEvent event) {
@@ -79,7 +93,8 @@ public class Console
 		    }
 		};
 
-	m_userInterface = new ConsoleUI(m_model, startHandler, stopHandler);
+	m_userInterface = new ConsoleUI(m_model, startHandler, resetHandler,
+					stopHandler);
     }
     
     public void run() throws GrinderException

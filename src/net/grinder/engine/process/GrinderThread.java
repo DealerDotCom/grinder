@@ -137,7 +137,9 @@ class GrinderThread implements java.lang.Runnable
 				 " cycles");
 
 	    CYCLE_LOOP:
-	    for (m_currentCycle=0; m_currentCycle<m_numberOfCycles;
+	    for (m_currentCycle=0;
+		 m_currentCycle<m_numberOfCycles &&
+		     !m_grinderProcess.shouldStop();
 		 m_currentCycle++)
 	    {
 		try {
@@ -351,6 +353,11 @@ class GrinderThread implements java.lang.Runnable
     private static synchronized void decrementThreadCount() 
     {
 	m_numberOfThreads--;
+    }
+
+    public static synchronized void resetThreadCount() 
+    {
+	m_numberOfThreads = 0;
     }
 
     public static int numberOfUncompletedThreads()

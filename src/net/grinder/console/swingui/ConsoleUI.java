@@ -50,6 +50,7 @@ import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -103,6 +104,7 @@ public class ConsoleUI implements ModelListener
     private final JFrame m_frame;
 
     public ConsoleUI(Model model, ActionListener startProcessesHandler,
+		     ActionListener resetProcessesHandler,
 		     ActionListener stopProcessesHandler)
 	throws ConsoleException
     {
@@ -113,6 +115,7 @@ public class ConsoleUI implements ModelListener
 
 	final MyAction[] actions = {
 	    new StartProcessesGrinderAction(startProcessesHandler),
+	    new ResetProcessesGrinderAction(resetProcessesHandler),
 	    new StopProcessesGrinderAction(stopProcessesHandler),
 	    m_startAction,
 	    m_stopAction,
@@ -203,15 +206,24 @@ public class ConsoleUI implements ModelListener
 	textFieldPanel.add(textFieldLabelPanel, BorderLayout.CENTER);
 	textFieldPanel.add(textFieldControlPanel, BorderLayout.EAST);
 
+	final JButton stateButton = new JButton();
+	stateButton.putClientProperty("hideActionText", Boolean.TRUE);
+	stateButton.setAction(m_stopAction);
+	stateButton.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+	m_stopAction.registerButton(stateButton);
 	m_stateLabel = new JLabel();
+	m_stateLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
+	final Box statePanel = Box.createHorizontalBox();
+	statePanel.add(stateButton);
+	statePanel.add(m_stateLabel);
 
 	final JPanel controlPanel = new JPanel();
 	controlPanel.setLayout(new GridLayout(0, 1));
 	controlPanel.add(m_intervalLabel);
 	controlPanel.add(intervalSlider);
 	controlPanel.add(textFieldPanel);
-	controlPanel.add(m_stateLabel);
-	controlPanel.setBorder(new EmptyBorder(0, 10, 0, 10));
+	controlPanel.add(statePanel);
+	controlPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
 	final JPanel controlAndTotalPanel = new JPanel();
 	controlAndTotalPanel.setLayout(
@@ -371,15 +383,11 @@ public class ConsoleUI implements ModelListener
 	}
     }
 
-    public void update()
+    private int updateStateLabel()
     {
-	// Ignoring synchronisation issues for now.
 	final int state = m_model.getState();
-	final long sampleInterval = m_model.getSampleInterval();
-	final long sampleCount = m_model.getSampleCount();
-	final int ignoreCount = m_model.getIgnoreSampleCount();
-	final int collectCount = m_model.getCollectSampleCount();
 	final boolean receivedSample = m_model.getRecievedSample();
+	final long sampleCount = m_model.getSampleCount();
 
 	if (state == Model.STATE_WAITING_FOR_TRIGGER) {
 	    if (receivedSample) {
@@ -405,6 +413,22 @@ public class ConsoleUI implements ModelListener
 	else {
 	    m_stateLabel.setText("UNKNOWN STATE");
 	}
+
+	return state;
+    }
+
+    public void update()
+    {
+	final int state = updateStateLabel();
+
+	if (state == Model.STATE_STOPPED) {
+	    m_stopAction.stopped();
+	}
+
+	// Ignoring synchronisation issues for now.
+	final long sampleInterval = m_model.getSampleInterval();
+	final int ignoreCount = m_model.getIgnoreSampleCount();
+	final int collectCount = m_model.getCollectSampleCount();
 
 	m_intervalLabel.setText("Sample interval: " + sampleInterval + " ms");
 
@@ -576,6 +600,7 @@ public class ConsoleUI implements ModelListener
 	    //  putValue() won't work here as the event won't // fire
 	    //  if the value doesn't change.
 	    firePropertyChange(SET_ACTION_PROPERTY, null, m_stopAction);
+	    updateStateLabel();
 	}
     }
 
@@ -589,10 +614,15 @@ public class ConsoleUI implements ModelListener
         public void actionPerformed(ActionEvent e)
 	{
 	    m_model.stop();
+	    stopped();
+	}
 
+	public void stopped()
+	{
 	    //  putValue() won't work here as the event won't // fire
 	    //  if the value doesn't change.
 	    firePropertyChange(SET_ACTION_PROPERTY, null, m_startAction);
+	    updateStateLabel();
 	}
     }
 
@@ -603,6 +633,22 @@ public class ConsoleUI implements ModelListener
 	StartProcessesGrinderAction(ActionListener delegateAction)
 	{
 	    super("start-processes");
+	    m_delegateAction = delegateAction;
+	}
+
+        public void actionPerformed(ActionEvent e)
+	{
+	    m_delegateAction.actionPerformed(e);
+	}
+    }
+
+    private class ResetProcessesGrinderAction extends MyAction
+    {
+	private final ActionListener m_delegateAction;
+
+	ResetProcessesGrinderAction(ActionListener delegateAction)
+	{
+	    super("reset-processes");
 	    m_delegateAction = delegateAction;
 	}
 

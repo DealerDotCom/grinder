@@ -31,6 +31,7 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.ReportStatisticsMessage;
+import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
@@ -83,10 +84,14 @@ public class GrinderProcess
 	}
 
 	try {
-	    final GrinderProcess grinderProcess = 
-		new GrinderProcess(args[0], args[1]);
+	    while (true) {
+		final GrinderProcess grinderProcess = 
+		    new GrinderProcess(args[0], args[1]);
 
-	    grinderProcess.run();
+		if (!grinderProcess.run()) {
+		    break;
+		}
+	    }
 	}
 	catch (GrinderException e) {
 	    System.err.println("Error initialising grinder process: " + e);
@@ -115,7 +120,9 @@ public class GrinderProcess
     public GrinderProcess(String hostID, String processID)
 	throws GrinderException
     {
-	final GrinderProperties properties = GrinderProperties.getProperties();
+	final GrinderProperties properties =
+	    GrinderProperties.reloadProperties();
+
 	final PropertiesHelper propertiesHelper = new PropertiesHelper();
 
 	m_context = new ProcessContextImplementation(hostID, processID);
@@ -210,8 +217,10 @@ public class GrinderProcess
      * as theoretically it might be called multiple times. The
      * constructor sets up the static configuration, this does a
      * single execution.
+     *
+     * @returns true if the process should be restarted.
      */        
-    protected void run() throws GrinderException
+    protected boolean run() throws GrinderException
     {
 	m_context.logMessage(System.getProperty("java.vm.vendor") + " " + 
 			     System.getProperty("java.vm.name") + " " +
@@ -248,6 +257,8 @@ public class GrinderProcess
 				      dataFilename + "'", e);
 	}
 
+	GrinderThread.resetThreadCount();
+
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
 
 	for (int i=0; i<m_numberOfThreads; i++) {
@@ -262,13 +273,13 @@ public class GrinderProcess
 					    dataPrintWriter, m_recordTime,
 					    m_testSet);
 	}
-        
+
 	if (m_consoleListener != null) {
 	    m_context.logMessage("waiting for console signal",
 				 Logger.LOG | Logger.TERMINAL);
 
 	    m_consoleListener.reset();
-
+		
 	    do {
 		try {
 		    synchronized (this) {
@@ -285,7 +296,7 @@ public class GrinderProcess
 	if (!shouldStop()) {
 	    m_context.logMessage("starting threads",
 				 Logger.LOG | Logger.TERMINAL);
-
+	    
 	    //   Start the threads
 	    for (int i=0; i<m_numberOfThreads; i++) {
 		final Thread t = new Thread(runnable[i],
@@ -293,29 +304,47 @@ public class GrinderProcess
 		t.setDaemon(true);
 		t.start();
 	    }
-	}
-
-	do			// We want at least one report.
-	{
-	    try {
-		synchronized (this) {
-		    wait(m_reportToConsoleInterval);
+	    
+	    do			// We want at least one report.
+	    {
+		try {
+		    synchronized (this) {
+			wait(m_reportToConsoleInterval);
+		    }
+		}
+		catch (InterruptedException e) {
+		    continue;
+		}
+		
+		if (m_consoleSender != null) {
+		    m_consoleSender.send(
+			new ReportStatisticsMessage(
+			    m_context.getHostIDString(),
+			    m_context.getProcessIDString(),
+			    m_testStatisticsMap.getDelta(true)));
 		}
 	    }
-	    catch (InterruptedException e) {
-		continue;
-	    }
+	    while (GrinderThread.numberOfUncompletedThreads() > 0 &&
+		   !shouldStop());
 
-	    if (m_consoleSender != null) {
-		m_consoleSender.send(
-		    new ReportStatisticsMessage(
-			m_context.getHostIDString(),
-			m_context.getProcessIDString(),
-			m_testStatisticsMap.getDelta(true)));
+	    if (m_consoleListener != null &&
+		m_consoleListener.resetReceived()) {
+	    
+		// Only wait for threads if we're resetting.
+		m_context.logMessage("waiting for threads to terminate",
+				     Logger.LOG | Logger.TERMINAL);
+		
+		while (GrinderThread.numberOfUncompletedThreads() > 0) {
+		    synchronized (this) {
+			try {
+			    wait();
+			}
+			catch (InterruptedException e) {
+			}
+		    }
+		}
 	    }
 	}
-	while (GrinderThread.numberOfUncompletedThreads() > 0 &&
-	       !shouldStop());
 
         if (dataPrintWriter != null) {
 	    dataPrintWriter.close();
@@ -329,11 +358,39 @@ public class GrinderProcess
 	    new StatisticsTable(m_testStatisticsMap);
 
 	statisticsTable.print(m_context.getOutputLogWriter());
+
+	if (m_consoleListener != null) {
+
+	    if (!shouldStop()) {
+		m_context.logMessage(
+		    "waiting for console reset or stop signal",
+		    Logger.LOG | Logger.TERMINAL);
+	    }
+
+	    // Need definite instruction to stop or restart.
+	    while (!shouldStop()) {
+		try {
+		    synchronized (this) {
+			wait();
+		    }
+		}
+		catch (InterruptedException e) {
+		    continue;
+		}
+	    }
+
+	    m_consoleListener.kill();
+	    return m_consoleListener.resetReceived();
+	}
+
+	return false;
     }
 
-    private boolean shouldStop()
+    public boolean shouldStop()
     {
-	return m_consoleListener != null && m_consoleListener.stopReceived();
+	return m_consoleListener != null &&
+	    (m_consoleListener.stopReceived() |
+	     m_consoleListener.resetReceived());
     }
 
     /**
@@ -344,8 +401,12 @@ public class GrinderProcess
     {
 	private final PluginProcessContext m_context;
 	private final Receiver m_receiver;
+	private final String m_address;
+	private final int m_port;
 	private boolean m_startReceived = false;
+	private boolean m_resetReceived = false;
 	private boolean m_stopReceived = false;
+	private boolean m_zombie = false;
 
 	public ConsoleListener(PluginProcessContext context, String address,
 			       int port)
@@ -353,6 +414,15 @@ public class GrinderProcess
 	{
 	    m_context = context;
 	    m_receiver = new Receiver(address, port);
+	    m_address = address;
+	    m_port = port;
+	}
+
+	public void kill()
+	    throws CommunicationException
+	{
+	    // Can you spell hack?
+	    new Sender(m_address, m_port).send(new DieMessage());
 	}
 	
 	public void run()
@@ -362,10 +432,18 @@ public class GrinderProcess
 		
 		try {
 		    message = m_receiver.waitForMessage();
+
+		    if (m_zombie) {
+			return;
+		    }
 		}
 		catch (CommunicationException e) {
 		    m_context.logError("Error receiving console signal: " + e);
 		    continue;
+		}
+
+		if (message instanceof DieMessage) {
+		    return;
 		}
 
 		if (message instanceof StartGrinderMessage) {
@@ -376,12 +454,15 @@ public class GrinderProcess
 		    m_context.logMessage("Got a stop message from console");
 		    m_stopReceived = true;
 		}
+		else if (message instanceof ResetGrinderMessage) {
+		    m_context.logMessage("Got a reset message from console");
+		    m_resetReceived = true;
+		}
 		else {
 		    m_context.logMessage(
 			"Got an unknown message from console");
 		}
 
-		m_context.logMessage("notifying " + GrinderProcess.this);
 		synchronized(GrinderProcess.this) {
 		    GrinderProcess.this.notifyAll();
 		}
@@ -391,6 +472,7 @@ public class GrinderProcess
 	public void reset()
 	{
 	    m_startReceived = false;
+	    m_resetReceived = false;
 	    m_stopReceived = false;
 	}
 
@@ -399,10 +481,19 @@ public class GrinderProcess
 	    return m_startReceived;
 	}
 
+	public boolean resetReceived()
+	{
+	    return m_resetReceived;
+	}
+
 	public boolean stopReceived()
 	{
 	    return m_stopReceived;
 	}
+    }
+
+    private static class DieMessage implements Message
+    {
     }
 }
 
