@@ -117,6 +117,8 @@ public final class TCPProxySSLSocketFactoryImplementation
       new InsecureSSLContextFactory(keyStoreInputStream, keyStorePassword,
                                     keyStoreType);
 
+    keyStoreInputStream.close();
+
     final SSLContext sslContext = sslContextFactory.getSSLContext();
 
     m_clientSocketFactory = sslContext.getSocketFactory();
