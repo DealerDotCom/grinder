@@ -164,8 +164,13 @@ public class HttpPlugin extends SimplePluginBase
 	    useCookies = parameters.getBoolean("useCookies", true);
 	}
 
-	m_httpMsg = new HttpMsg(pluginThreadContext,
-				useCookies,
+        // tily@sylo.org / 2000/02/16 mod to set version string on or off - breaks jrun otherwise
+        final boolean useCookiesVersionString =
+	    parameters.getBoolean("useCookiesVersionString", true);
+  
+
+	m_httpMsg = new HttpMsg(pluginThreadContext, useCookies,
+				useCookiesVersionString,
 				parameters.getBoolean("followRedirects",
 						      false));
 

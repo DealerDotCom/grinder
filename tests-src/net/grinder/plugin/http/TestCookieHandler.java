@@ -278,14 +278,14 @@ public class TestCookieHandler extends TestCase
 	m_cookieHandler.setCookies("name=value", url);
 
 	assertEquals("$Version=\"0\"; name=value",
-		     m_cookieHandler.getCookieString(url));
+		     m_cookieHandler.getCookieString(url, true));
 
 
 	m_cookieHandler.setCookies("name=value; version=10", url);
 	assertEquals(1, store.getSize());
 
 	assertEquals("$Version=\"10\"; name=value",
-		     m_cookieHandler.getCookieString(url));
+		     m_cookieHandler.getCookieString(url, true));
 
 
 	m_cookieHandler.setCookies("name=value; version=10; path=/", url);
@@ -294,7 +294,7 @@ public class TestCookieHandler extends TestCase
 	assertEquals("$Version=\"10\"; " +
 		     "name=value; $Path=\"/\"; " +
 		     "name=value",
-		     m_cookieHandler.getCookieString(url));
+		     m_cookieHandler.getCookieString(url, true));
 
 	m_cookieHandler.setCookies(
 	    "name=value; version=10; path=/resource/abc.html", url);
@@ -304,7 +304,7 @@ public class TestCookieHandler extends TestCase
 		     "name=value; $Path=\"/resource/abc.html\"; " +
 		     "name=value; $Path=\"/\"; " +
 		     "name=value",
-		     m_cookieHandler.getCookieString(url));
+		     m_cookieHandler.getCookieString(url, true));
 
 	m_cookieHandler.setCookies("name=value; version=10; path=/resource/",
 				   url);
@@ -315,7 +315,7 @@ public class TestCookieHandler extends TestCase
 		     "name=value; $Path=\"/resource\"; " +
 		     "name=value; $Path=\"/\"; " +
 		     "name=value",
-		     m_cookieHandler.getCookieString(url));
+		     m_cookieHandler.getCookieString(url, true));
 		     
 	assertEquals(0, m_logCounter.getNumberOfErrors());
     }
@@ -336,7 +336,8 @@ public class TestCookieHandler extends TestCase
 
 	final URL url2 = new URL("http", m_domain, "/acme/pickitem");
 
-	final String cookieString1 = m_cookieHandler.getCookieString(url2);
+	final String cookieString1 = m_cookieHandler.getCookieString(url2,
+								     true);
 	final String expectedVersionString = "$Version=\"1\"";
 	final String expectedCookie1String =
 	    "; Customer=\"WILE_E_COYOTE\"; $Path=\"/acme\"";
@@ -356,7 +357,8 @@ public class TestCookieHandler extends TestCase
 
 	final URL url3 = new URL("http", m_domain, "/acme/shipping");
 
-	final String cookieString2 = m_cookieHandler.getCookieString(url3);
+	final String cookieString2 = m_cookieHandler.getCookieString(url3,
+								     true);
 	final String expectedCookie2String =
 	    "; Part_Number=\"Rocket_Launcher_0001\"; $Path=\"/acme\"";
 
@@ -378,7 +380,8 @@ public class TestCookieHandler extends TestCase
 
 	final URL url4 = new URL("http", m_domain, "/acme/process");
 
-	final String cookieString3 = m_cookieHandler.getCookieString(url4);
+	final String cookieString3 = m_cookieHandler.getCookieString(url4,
+								     true);
 	final String expectedCookie3String =
 	    "; Shipping=\"FedEx\"; $Path=\"/acme\"";
 
@@ -414,14 +417,14 @@ public class TestCookieHandler extends TestCase
 		     "Part_Number=\"Riding_Rocket_0023\"; " +
 		     "$Path=\"/acme/ammo\"; " +
 		     "Part_Number=\"Rocket_Launcher_0001\"; $Path=\"/acme\"",
-		     m_cookieHandler.getCookieString(url2));
+		     m_cookieHandler.getCookieString(url2, true));
 
 	final URL url3 = new URL("http", "host.domain",
 				 "/acme/parts");
 
 	assertEquals("$Version=\"1\"; " +
 		     "Part_Number=\"Rocket_Launcher_0001\"; $Path=\"/acme\"",
-		     m_cookieHandler.getCookieString(url3));
+		     m_cookieHandler.getCookieString(url3, true));
     }
 
     public void testMaxAge()
@@ -437,8 +440,19 @@ public class TestCookieHandler extends TestCase
 
 	sleep(1000);
 
-	m_cookieHandler.getCookieString(m_url);
+	m_cookieHandler.getCookieString(m_url, true);
 	assertEquals(1, store.getSize());
+    }
+
+    public void testOmittingVersionString()
+    {
+	m_cookieHandler.setCookies("name=value", m_url);
+
+	assertEquals("$Version=\"0\"; name=value",
+		     m_cookieHandler.getCookieString(m_url, true));
+
+	assertEquals("; name=value",
+		     m_cookieHandler.getCookieString(m_url, false));
     }
 
     private void sleep(long time)

@@ -133,7 +133,7 @@ class CookieHandler
 	}
     }
 
-    String getCookieString(URL url)
+    String getCookieString(URL url, boolean useCookiesVersionString)
     {
 	final List cookies = m_store.get(url);
 
@@ -173,11 +173,20 @@ class CookieHandler
 	    // be).This conflicts directly with section 4.3.4 which
 	    // says it defaults to "0". I've chosen to implement the
 	    // later.
-	    result.append("$Version=\"");
-	    result.append(version == -1 ? 0 : version);
-	    result.append("\"");
-	    result.append(cookieString);
 
+	    // tily@sylo.org / 2000/02/16
+            // .. and I chose to make it a config file thing as it 
+            // was breaking the JRun 2.3.3 build 157 that I was 
+            // testing against :(
+            // hope this doesn't break anything else?
+ 
+           if (useCookiesVersionString) {
+	       result.append("$Version=\"");
+	       result.append(version == -1 ? 0 : version);
+	       result.append("\"");
+           } 
+
+	    result.append(cookieString);
 	    return result.toString();
 	}
     }

@@ -1,5 +1,5 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2000, 2001  Paco Gomez
 // Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
@@ -58,15 +58,17 @@ class HttpMsg
 {
     private final PluginThreadContext m_pluginThreadContext;
     private boolean m_useCookies;
+    private boolean m_useCookiesVersionString;
     private boolean m_followRedirects;
     private CookieHandler m_cookieHandler;
     private boolean m_dontReadBody;
 
     public HttpMsg(PluginThreadContext pluginThreadContext, boolean useCookies,
-		   boolean followRedirects)
+		   boolean useCookiesVersionString, boolean followRedirects)
     {
 	m_pluginThreadContext = pluginThreadContext;
 	m_useCookies = useCookies;
+	m_useCookiesVersionString = useCookiesVersionString;
 	m_followRedirects = followRedirects;
 	reset();
 
@@ -118,9 +120,11 @@ class HttpMsg
 	connection.setInstanceFollowRedirects(m_followRedirects);
             
 	// Think "=;" will match nothing but empty cookies. If your
-	// bother by this, please read RFC 2109 and fix.
+	// bothered by this, please read RFC 2109 and fix.
 	if (m_useCookies) {
-	    final String cookieString = m_cookieHandler.getCookieString(url);
+	    final String cookieString =
+		m_cookieHandler.getCookieString(url,
+						m_useCookiesVersionString);
 
 	    if (cookieString != null) {
 		connection.setRequestProperty("Cookie", cookieString);

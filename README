@@ -252,6 +252,12 @@ What can I set in grinder.properties for the HTTP plugin?
 				Set to false to disable cookie
 				handling (it defaults to true).
 
+    grinder.plugin.parameter.useCookiesVersionString -
+				Set to false to remove $Version string
+				from cookies (it defaults to true).
+				This is to work around broken (?)
+				JRun 2.3.3. behavour.
+
     grinder.plugin.parameter.followRedirects -
 				Set to true to automatically follow
 				redirects, so you don't have to have
