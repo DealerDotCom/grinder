@@ -3,9 +3,9 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
-  Update HTTPClient to allow multiple servers per client.
+  TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 
-  Allow the saving of results from the console.
+  Update HTTPClient to allow multiple servers per client.
 
   Update HTTPClient to measure "time to first byte" and "Time to last
   byte" as an alternitive to implementing timeIncludesTransaction.
@@ -34,6 +34,7 @@ it too :-). The list is roughly in priority order.]
   invoke "set" methods).
 
   Add an assertion for the expected status code to the HTTP plugin.
+  HTTP Plugin "not ok".
 
   TCPSniffer enhancements: Should be able to use -proxy without HTTP
   plugin. Should be able to use different remote ports.

@@ -18,11 +18,11 @@
 
 package net.grinder.console.swingui;
 
-import java.io.StringWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.text.DecimalFormat;
 import javax.swing.table.AbstractTableModel;
 
-import net.grinder.console.ConsoleException;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.plugininterface.Test;
@@ -48,14 +48,18 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
     private final DecimalFormat m_twoDPFormat = new DecimalFormat("0.00");
 
     private final Model m_model;
+    private final boolean m_includeTotals;
     private Statistics m_totals = new Statistics();
     private int m_lastMapSize = 0;
     private TestStatisticsMap m_testStatisticsMap = null;
-    private TestStatisticsMap.Pair[] m_testIndex = new TestStatisticsMap.Pair[0];
+    private TestStatisticsMap.Pair[] m_testIndex =
+	new TestStatisticsMap.Pair[0];
 
-    public StatisticsTableModel(Model model)
+    public StatisticsTableModel(Model model, boolean includeTotals)
     {
 	m_model = model;
+	m_includeTotals = includeTotals;
+
 	m_model.addModelListener(this);
     }
 
@@ -63,7 +67,6 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
     {
 	final TestStatisticsMap testStatisticsMap =
 	    m_model.getSummaryStatistics();
-
 
 	m_totals = testStatisticsMap.getTotal();
 
@@ -102,7 +105,7 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 
     public int getRowCount()
     {
-	return m_testIndex.length + 1;
+	return m_testIndex.length + (m_includeTotals ? 1 : 0);
     }
 
     public int getColumnCount()
@@ -161,5 +164,30 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 	}
 
 	return "?";
+    }
+
+    public synchronized void write(Writer writer, String columnDelimiter,
+				   String lineDelimeter)
+	throws IOException
+    {
+	final int numberOfRows = getRowCount();
+	final int numberOfColumns = getColumnCount();
+
+	for (int column=0; column<numberOfColumns; column++) {
+	    writer.write(m_columnNames[column]);
+	    writer.write(columnDelimiter);
+	}
+
+	writer.write(lineDelimeter);
+
+	for (int row=0; row<numberOfRows; row++) {
+	    for (int column=0; column<numberOfColumns; column++) {
+		final Object o = getValueAt(row, column);
+		writer.write(o != null ? o.toString() : "");
+		writer.write(columnDelimiter);
+	    }
+
+	    writer.write(lineDelimeter);
+	}
     }
 }

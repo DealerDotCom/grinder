@@ -104,14 +104,14 @@ class Graph extends JComponent
 	    }
 
 	    final double yScale =
-		m_maximum > 0 ? getHeight()/(double)m_maximum : 0d;
+		m_maximum > 0 ? getHeight()/m_maximum : 0d;
 
 	    int cursor = m_cursor;
 
 	    for (int i=0; i<m_numberOfValues; i++) {
 		int y = (int)((m_maximum - m_values[cursor]) * yScale);
 
-		if (y == 0 && m_maximum != m_values[cursor]) {
+		if (y == 0 && m_maximum > m_values[cursor]) {
 		    y = 1;
 		}
 

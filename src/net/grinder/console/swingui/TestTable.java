@@ -18,44 +18,20 @@
 
 package net.grinder.console.swingui;
 
-import java.awt.Dimension;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 
-import net.grinder.console.ConsoleException;
 import net.grinder.console.model.Model;
-import net.grinder.plugininterface.Test;
-import net.grinder.statistics.Statistics;
-import net.grinder.statistics.StatisticsTable;
 
 
 /**
  * @author Philip Aston
  * @version $Revision$
  */
-public class SummaryFrame extends JFrame
+public class TestTable extends JTable
 {
-    private final StatisticsTableModel m_tableModel;
-
-    public SummaryFrame(Model model, String title)
+    public TestTable(Model model)
     {
-	super(title);
-
-	m_tableModel = new StatisticsTableModel(model);
-
-	final JTable table = new JTable(m_tableModel);
-	table.setPreferredScrollableViewportSize(new Dimension(800, 400));
-        final JScrollPane scrollPane = new JScrollPane(table);
-
-	getContentPane().add(scrollPane);
-	pack();
-    }
-
-    public void displaySummary()
-    {
-	/* Fix to refresh
-	*/
-	show();
+	super(new StatisticsTableModel(model, true));
     }
 }

@@ -32,10 +32,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -49,14 +51,17 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
@@ -67,7 +72,6 @@ import net.grinder.console.ConsoleException;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
-import net.grinder.plugininterface.Test;
 import net.grinder.statistics.Statistics;
 
 
@@ -85,14 +89,13 @@ public class ConsoleUI implements ModelListener
     private final static NumberFormat s_twoDPFormat =
 	new DecimalFormat("0.00");
 
-    private final HashMap m_actionTable;
+    private final HashMap m_actionTable = new HashMap();
     private final Model m_model;
     private final JLabel m_collectSampleLabel;
     private final JLabel m_ignoreSampleLabel;
     private final JLabel m_intervalLabel;
     private final JLabel m_stateLabel;
-    private SummaryFrame m_summaryFrame = null;
-    private Image m_logoImage = null;
+    private final JFrame m_frame;
 
     public ConsoleUI(Model model, ActionListener startProcessesHandler,
 		     ActionListener stopProcessesHandler)
@@ -105,59 +108,15 @@ public class ConsoleUI implements ModelListener
 	    new StopProcessesGrinderAction(stopProcessesHandler),
 	    new StartAction(),
 	    new StopAction(),
-	    new SummaryAction(),
+	    new SaveAction(),
 	    new ExitAction(),
 	};
-
-	m_actionTable = new HashMap();
 
 	for (int i=0; i<actions.length; i++) {
 	    m_actionTable.put(actions[i].getValue(Action.NAME), actions[i]);
 	}
 
 	m_model = model;
-
-	// Create a scrolled pane of test graphs.
-        final JPanel testPanel = new JPanel();
-	testPanel.setLayout(new GridLayout(0, 2, 20, 0));
-
-	final Iterator testIterator = m_model.getTests().iterator();
-
-	while (testIterator.hasNext())
-	{
-	    final Test test = (Test)testIterator.next();
-
-	    final Integer testNumber = test.getTestNumber();
-	    final String description = test.getDescription();
-
-	    String label = "Test " + testNumber;
-
-	    if (description != null) {
-		label = label + " (" + description + ")";
-	    }
-
-	    final LabelledGraph testGraph = new LabelledGraph(label);
-
-	    m_model.addSampleListener(
-		testNumber,
-		new SampleListener() {
-			public void update(double tps, double averageTPS,
-					   double peakTPS, Statistics total) {
-			    testGraph.add(tps, averageTPS, peakTPS, total);
-			}
-		    }
-		);
-
-	    testPanel.add(testGraph);
-	}
-
-	// Make space for vertical scroll bar.
-	testPanel.setBorder(new EmptyBorder(0, 0, 0, 40));
-
-        final JScrollPane scrollPane =
-	    new JScrollPane(testPanel,
-			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-			    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
 	final LabelledGraph totalGraph = new LabelledGraph("Total",
 							   Color.darkGray);
@@ -263,20 +222,33 @@ public class ConsoleUI implements ModelListener
 	final JPanel hackToFixLayout = new JPanel();
 	hackToFixLayout.add(controlAndTotalPanel);
 
-	final URL logoURL = getResource("logo.image");
+	// Create the tabbed test display.
+	final JTabbedPane tabbedPane = new JTabbedPane();
+
+	tabbedPane.addTab(getResourceString("graphTab.title"),
+			  getImageIcon("graphTab.image"),
+			  new JScrollPane(new TestGraphPanel(model)),
+			  getResourceString("graphTab.tip"));
+
+	tabbedPane.addTab(getResourceString("tableTab.title"),
+			  getImageIcon("tableTab.image"),
+			  new JScrollPane(new TestTable(model)),
+			  getResourceString("tableTab.tip"));
 
 	final JPanel contentPanel = new JPanel();
 
 	contentPanel.setLayout(new BorderLayout());
 	contentPanel.add(hackToFixLayout, BorderLayout.WEST);
-	contentPanel.add(scrollPane, BorderLayout.CENTER);
+	contentPanel.add(tabbedPane, BorderLayout.CENTER);
 
-	if (logoURL != null) {
-	    final ImageIcon imageIcon = new ImageIcon(logoURL);
-	    final JLabel logo = new JLabel(imageIcon, SwingConstants.LEADING);
+	final ImageIcon logoIcon = getImageIcon("logo.image");
+	Image logoImage = null;
+
+	if (logoIcon != null) {
+	    final JLabel logo = new JLabel(logoIcon, SwingConstants.LEADING);
 	    contentPanel.add(logo, BorderLayout.EAST);
 
-	    m_logoImage = imageIcon.getImage();
+	    logoImage = logoIcon.getImage();
 	}
 
 	// Create a panel to hold the tool bar and the test pane.
@@ -286,37 +258,37 @@ public class ConsoleUI implements ModelListener
 	toolBarPanel.add(contentPanel, BorderLayout.CENTER);
 
 	// Create the frame, containing the a menu and the top level pane.
-	final JFrame frame = new JFrame(getResourceString("title"));
+	m_frame = new JFrame(getResourceString("title"));
 
-        frame.addWindowListener(new WindowCloseAdapter());
-	final Container topLevelPane= frame.getContentPane();
+        m_frame.addWindowListener(new WindowCloseAdapter());
+	final Container topLevelPane= m_frame.getContentPane();
 	topLevelPane.add(createMenuBar(), BorderLayout.NORTH);
         topLevelPane.add(toolBarPanel, BorderLayout.CENTER);
 
-	if (m_logoImage != null) {
-	    frame.setIconImage(m_logoImage);
+	if (logoImage != null) {
+	    m_frame.setIconImage(logoImage);
 	}
 
 	m_model.addModelListener(this);
 	update();
 
-        frame.pack();
+        m_frame.pack();
 
 	// Arbitary sizing that looks good for Phil.
 	final int minHeight = 480;
 	final int maxHeight = 800;
-	final Dimension d = frame.getSize();
+	final Dimension d = m_frame.getSize();
 
 	if (d.height > maxHeight) {
 	    d.height = maxHeight;
-	    frame.setSize(d);
+	    m_frame.setSize(d);
 	}
 	else if (d.height < minHeight) {
 	    d.height = minHeight;
-	    frame.setSize(d);
+	    m_frame.setSize(d);
 	}
 
-        frame.show();
+        m_frame.show();
     }
 
     private JMenuBar createMenuBar()
@@ -345,11 +317,11 @@ public class ConsoleUI implements ModelListener
 			new JMenuItem(
 			    getResourceString(menuItemKey + ".label"));
 
-		    final URL imageURL = getResource(menuItemKey + ".image",
-						     false);
+		    final ImageIcon imageIcon =
+			getImageIcon(menuItemKey + ".image");
 
-		    if (imageURL != null) {
-			menuItem.setIcon(new ImageIcon(imageURL));
+		    if (imageIcon != null) {
+			menuItem.setIcon(imageIcon);
 		    }
 
 		    setAction(menuItem, menuItemKey);
@@ -377,10 +349,10 @@ public class ConsoleUI implements ModelListener
 		toolBar.addSeparator();
 	    }
 	    else {
-		final URL url = getResource(toolKey + ".image");
+		final ImageIcon imageIcon = getImageIcon(toolKey + ".image");
 
-		if (url != null) {
-		    final JButton button = new JButton(new ImageIcon(url));
+		if (imageIcon != null) {
+		    final JButton button = new JButton(imageIcon);
 		
 		    setAction(button, toolKey);
 
@@ -480,7 +452,7 @@ public class ConsoleUI implements ModelListener
 
     private class ActionChangedListener implements PropertyChangeListener
     {
-        final AbstractButton m_button;
+        final private AbstractButton m_button;
         
         ActionChangedListener(AbstractButton button)
 	{
@@ -510,6 +482,55 @@ public class ConsoleUI implements ModelListener
 	public void windowClosing(WindowEvent e)
 	{
 	    System.exit(0);
+	}
+    }
+
+    private class SaveAction extends AbstractAction
+    {
+	private final JFileChooser m_fileChooser = 
+	    new JFileChooser(new File("."));
+
+	SaveAction()
+	{
+	    super("save");
+
+	    m_fileChooser.setDialogTitle(getResourceString("save.label"));
+	    m_fileChooser.setSelectedFile(new File(getResourceString(
+						       "default.filename")));
+	}
+
+        public void actionPerformed(ActionEvent event)
+	{
+	    if (m_fileChooser.showSaveDialog(m_frame) ==
+		JFileChooser.APPROVE_OPTION) {
+		final File file = m_fileChooser.getSelectedFile();
+
+		if (file.exists() &&
+		    JOptionPane.showConfirmDialog(
+			m_frame,
+			getResourceString("overwriteConfirmation.text"),
+			file.toString(), JOptionPane.YES_NO_OPTION) ==
+		    JOptionPane.NO_OPTION) {
+		    return;
+		}
+
+		final StatisticsTableModel model =
+		    new StatisticsTableModel(m_model, false);
+		model.update();
+
+		try {
+		    final FileWriter writer = new FileWriter(file);
+		    model.write(writer, ",",
+				System.getProperty("line.separator"));
+		    writer.close();
+		}
+		catch (IOException e) {
+		    JOptionPane.showMessageDialog(
+			m_frame, e.getMessage(),
+			getResourceString("fileError.title"),
+			JOptionPane.ERROR_MESSAGE);
+		}
+	    }
 	}
     }
 
@@ -584,32 +605,6 @@ public class ConsoleUI implements ModelListener
 	}
     }
 
-    private class SummaryAction extends AbstractAction
-    {
-	SummaryAction()
-	{
-	    super("summary");
-	}
-
-        public void actionPerformed(ActionEvent e)
-	{
-	    synchronized(ConsoleUI.this) {
-		if (m_summaryFrame == null) {
-		    m_summaryFrame =
-			new SummaryFrame(m_model,
-					 getResourceString(
-					     "summaryTitle"));
-
-		    if (m_logoImage != null) {
-			m_summaryFrame.setIconImage(m_logoImage);
-		    }
-		}
-	    }
-
-	    m_summaryFrame.displaySummary();
-	}
-    }
-
     private static void getResources()
 	throws ConsoleException
     {
@@ -675,5 +670,12 @@ public class ConsoleUI implements ModelListener
 	}
 
 	return url;
+    }
+
+    private ImageIcon getImageIcon(String resourceName)
+    {
+	final URL resource = getResource(resourceName, false);
+
+	return resource != null ? new ImageIcon(resource) : null;
     }
 }
