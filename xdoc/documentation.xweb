@@ -17,7 +17,7 @@
     <section name="User Manual" sourceDir="manual" targetDir="manual"
              type="section">
       <entry name="Manual" sourceFile="manual-xhtml.xml" 
-             targetFile="manual.html" type="xhtml-1"/>
+             targetFile="index.html" type="xhtml-1"/>
       <entry name="Getting Started" sourceFile="getting-started-xhtml.xml" 
              targetFile="getting-started.html" type="xhtml-1"/>
       <entry name="Properties" sourceFile="properties-xhtml.xml" 
@@ -35,15 +35,15 @@
       <entry name="FAQ" sourceFile="faq-xhtml-toc.xml" 
              targetFile="faq.html" type="xhtml-toc-1"/>
     </section>
-    <section name="Development" sourceDir="development" targetDir="future"
+    <section name="Development" sourceDir="development" targetDir="development"
              type="section">
       <entry name="Building" sourceFile="development-xhtml.xml" 
-             targetFile="development.html" type="xhtml-1"/>
+             targetFile="index.html" type="xhtml-1"/>
     </section>
     <section name="The Future" title="The Grinder 3" sourceDir="future"
              targetDir="future" type="section">
       <entry name="The Grinder 3" sourceFile="future-xhtml.xml" 
-             targetFile="future.html" type="xhtml-1"/>
+             targetFile="index.html" type="xhtml-1"/>
     </section>
 
     <directory sourceDir="images" targetDir="images" type="copy">
