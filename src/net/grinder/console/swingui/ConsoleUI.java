@@ -49,6 +49,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -99,6 +100,7 @@ public final class ConsoleUI implements ModelListener {
   private final JFrame m_frame;
   private final JLabel m_stateLabel;
   private final SamplingControlPanel m_samplingControlPanel;
+  private final FileTree m_fileTree;
   private final ErrorDialogHandler m_errorHandler;
 
   private final CumulativeStatisticsTableModel m_cumulativeTableModel;
@@ -139,9 +141,9 @@ public final class ConsoleUI implements ModelListener {
     // LookAndFeel constructor will set initial Look and Feel from properties.
     m_lookAndFeel = new LookAndFeel(m_model.getProperties());
 
-    // Create the frame to contain the a menu and the top level
-    // pane. Need to do this before our actions are constructed as
-    // the use the frame to create dialogs.
+    // Create the frame to contain the a menu and the top level pane.
+    // Need to do this before our actions are constructed as we use
+    // the frame to create dialogs.
     m_frame = new JFrame(resources.getString("title"));
 
     m_errorHandler = new ErrorDialogHandler(m_frame, resources);
@@ -159,69 +161,25 @@ public final class ConsoleUI implements ModelListener {
     m_startAction = new StartAction();
     m_stopAction = new StopAction();
 
-    final LabelledGraph totalGraph =
-      new LabelledGraph(resources.getString("totalGraph.title"),
-                        resources, Colours.DARK_GREY,
-                        model.getTPSExpression(),
-                        model.getPeakTPSExpression());
+    addAction(m_startAction);
+    addAction(m_stopAction);
+    addAction(new AboutAction(resources.getImageIcon("logo.image")));
+    addAction(new ChooseDirectoryAction());
+    addAction(new DelegateAction("close-file", null));
+    addAction(new DelegateAction("distribute-files", distributeFilesHandler));
+    addAction(new DelegateAction("save-file", null));
+    addAction(new DelegateAction("save-file-as", null));
+    addAction(new DelegateAction("start-processes", startProcessesHandler));
+    addAction(new ExitAction());
+    addAction(new OptionsAction());
+    addAction(new ResetProcessesAction(resetProcessesHandler));
+    addAction(new SaveAction());
+    addAction(new StopProcessesAction(stopProcessesHandler));
 
-    final JLabel tpsLabel = new JLabel();
-    tpsLabel.setForeground(Colours.BLACK);
-    tpsLabel.setFont(new Font("helvetica", Font.ITALIC | Font.BOLD, 40));
-    tpsLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-
-    m_model.addTotalSampleListener(
-      new SampleListener() {
-        private final String m_suffix = " " + resources.getString("tps.units");
-
-        public void update(TestStatistics intervalStatistics,
-                           TestStatistics cumulativeStatistics) {
-          final NumberFormat format = m_model.getNumberFormat();
-
-          tpsLabel.setText(
-            format.format(
-              m_model.getTPSExpression().getDoubleValue(intervalStatistics)) +
-            m_suffix);
-
-          totalGraph.add(intervalStatistics, cumulativeStatistics, format);
-        }
-      });
-
-    final JButton stateButton = new CustomJButton();
-    stateButton.setBorderPainted(true);
-    stateButton.setAction(m_stopAction);
-    stateButton.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
-    m_stopAction.registerButton(stateButton);
     m_stateLabel = new JLabel();
-    m_stateLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
-
-    final JPanel statePanel = new JPanel();
-    statePanel.setLayout(new BoxLayout(statePanel, BoxLayout.X_AXIS));
-    statePanel.add(stateButton);
-    statePanel.add(m_stateLabel);
-
     m_samplingControlPanel = new SamplingControlPanel(resources);
-    statePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    m_samplingControlPanel.add(Box.createRigidArea(new Dimension(0, 40)));
-    m_samplingControlPanel.add(statePanel);
 
-    m_samplingControlPanel.setBorder(
-      BorderFactory.createEmptyBorder(10, 10, 0, 10));
-    m_samplingControlPanel.setProperties(m_model.getProperties());
-
-    final JPanel controlAndTotalPanel = new JPanel();
-    controlAndTotalPanel.setLayout(
-      new BoxLayout(controlAndTotalPanel, BoxLayout.Y_AXIS));
-
-    m_samplingControlPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    tpsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-    totalGraph.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-    controlAndTotalPanel.add(m_samplingControlPanel);
-    controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 100)));
-    controlAndTotalPanel.add(tpsLabel);
-    controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-    controlAndTotalPanel.add(totalGraph);
+    final JPanel controlAndTotalPanel = createControlAndTotalPanel();
 
     final JPanel hackToFixLayout = new JPanel();
     hackToFixLayout.add(controlAndTotalPanel);
@@ -333,14 +291,11 @@ public final class ConsoleUI implements ModelListener {
     final JPanel editorPanel = new JPanel();
     editorPanel.add(editor.getComponent());
 
-    final ScriptFilesPanel scriptFilesPanel =
-      new ScriptFilesPanel(m_frame, m_lookAndFeel, resources,
-                           distributeFilesHandler);
-    scriptFilesPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-    scriptFilesPanel.setMinimumSize(new Dimension(200, 100));
+    m_fileTree = new FileTree(m_model.getProperties(), resources);
+    addAction(m_fileTree.getOpenFileAction());
 
-    scriptFilesPanel.addListener(
-      new ScriptFilesPanel.Listener() {
+    m_fileTree.addListener(
+      new FileTree.Listener() {
         public void newFileSelection(FileTreeModel.FileNode fileNode) {
           try {
             if (fileNode.getBuffer() != null) {
@@ -360,13 +315,28 @@ public final class ConsoleUI implements ModelListener {
     editor.addListener(
       new Editor.Listener() {
         public void stateChanged() {
-          scriptFilesPanel.repaint();
+          m_fileTree.repaint();
         }
       });
 
+    final JToolBar editorToolBar = createToolBar("editor.toolbar");
+    editorToolBar.setFloatable(false);
+    editorToolBar.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    final JComponent fileTreeComponent = m_fileTree.getComponent();
+    fileTreeComponent.setAlignmentX(Component.LEFT_ALIGNMENT);
+    fileTreeComponent.setPreferredSize(new Dimension(200, 100));
+
+    final JPanel editorControlPanel = new JPanel();
+    editorControlPanel.setLayout(
+      new BoxLayout(editorControlPanel, BoxLayout.Y_AXIS));
+    editorControlPanel.setBorder(BorderFactory.createEmptyBorder());
+    editorControlPanel.add(editorToolBar);
+    editorControlPanel.add(fileTreeComponent);
+
     final JSplitPane scriptPane =
       new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                     scriptFilesPanel,
+                     editorControlPanel,
                      editorPanel);
 
     scriptPane.setOneTouchExpandable(true);
@@ -381,33 +351,17 @@ public final class ConsoleUI implements ModelListener {
     contentPanel.add(hackToFixLayout, BorderLayout.WEST);
     contentPanel.add(tabbedPane, BorderLayout.CENTER);
 
-    final ImageIcon logoIcon = resources.getImageIcon("logo.image");
-
-    final CustomAction[] actions = {
-      new StartProcessesAction(startProcessesHandler),
-      new ResetProcessesAction(resetProcessesHandler),
-      new StopProcessesAction(stopProcessesHandler),
-      m_startAction,
-      m_stopAction,
-      new SaveAction(),
-      new OptionsAction(),
-      new ExitAction(),
-      new AboutAction(logoIcon),
-    };
-
-    for (int i = 0; i < actions.length; i++) {
-      m_actionTable.put(actions[i].getKey(), actions[i]);
-    }
-
     // Create a panel to hold the tool bar and the test pane.
     final JPanel toolBarPanel = new JPanel(new BorderLayout());
-    toolBarPanel.add(createToolBar(), BorderLayout.NORTH);
+    toolBarPanel.add(createToolBar("main.toolbar"), BorderLayout.NORTH);
     toolBarPanel.add(contentPanel, BorderLayout.CENTER);
 
     m_frame.addWindowListener(new WindowCloseAdapter());
     final Container topLevelPane = m_frame.getContentPane();
     topLevelPane.add(createMenuBar(), BorderLayout.NORTH);
     topLevelPane.add(toolBarPanel, BorderLayout.CENTER);
+
+    final ImageIcon logoIcon = resources.getImageIcon("logo.image");
 
     if (logoIcon != null) {
       final Image logoImage = logoIcon.getImage();
@@ -446,6 +400,75 @@ public final class ConsoleUI implements ModelListener {
 
     // Arbitary sizing that looks good for Phil.
     frame.setSize(new Dimension(900, 600));
+  }
+
+  private JPanel createControlAndTotalPanel() {
+    final Resources resources = m_model.getResources();
+
+    final LabelledGraph totalGraph =
+      new LabelledGraph(resources.getString("totalGraph.title"),
+                        resources, Colours.DARK_GREY,
+                        m_model.getTPSExpression(),
+                        m_model.getPeakTPSExpression());
+
+    final JLabel tpsLabel = new JLabel();
+    tpsLabel.setForeground(Colours.BLACK);
+    tpsLabel.setFont(new Font("helvetica", Font.ITALIC | Font.BOLD, 40));
+    tpsLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+
+    m_model.addTotalSampleListener(
+      new SampleListener() {
+        private final String m_suffix = " " + resources.getString("tps.units");
+
+        public void update(TestStatistics intervalStatistics,
+                           TestStatistics cumulativeStatistics) {
+          final NumberFormat format = m_model.getNumberFormat();
+
+          tpsLabel.setText(
+            format.format(
+              m_model.getTPSExpression().getDoubleValue(intervalStatistics)) +
+            m_suffix);
+
+          totalGraph.add(intervalStatistics, cumulativeStatistics, format);
+        }
+      });
+
+    final JButton stateButton = new CustomJButton();
+    stateButton.setBorderPainted(true);
+    stateButton.setAction(m_stopAction);
+    stateButton.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+    m_stopAction.registerButton(stateButton);
+
+    m_stateLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
+
+    final JPanel statePanel = new JPanel();
+    statePanel.setLayout(new BoxLayout(statePanel, BoxLayout.X_AXIS));
+    statePanel.add(stateButton);
+    statePanel.add(m_stateLabel);
+
+    statePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    m_samplingControlPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+    m_samplingControlPanel.add(statePanel);
+
+    m_samplingControlPanel.setBorder(
+      BorderFactory.createEmptyBorder(10, 10, 0, 10));
+    m_samplingControlPanel.setProperties(m_model.getProperties());
+
+    final JPanel controlAndTotalPanel = new JPanel();
+    controlAndTotalPanel.setLayout(
+      new BoxLayout(controlAndTotalPanel, BoxLayout.Y_AXIS));
+
+    m_samplingControlPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    tpsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    totalGraph.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    controlAndTotalPanel.add(m_samplingControlPanel);
+    controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 100)));
+    controlAndTotalPanel.add(tpsLabel);
+    controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+    controlAndTotalPanel.add(totalGraph);
+
+    return controlAndTotalPanel;
   }
 
   private JMenuBar createMenuBar() {
@@ -488,12 +511,12 @@ public final class ConsoleUI implements ModelListener {
     return menuBar;
   }
 
-  private JToolBar createToolBar() {
+  private JToolBar createToolBar(String resourceName) {
 
     final JToolBar toolBar = new JToolBar();
 
     final Iterator toolBarIterator =
-      tokenise(m_model.getResources().getString("toolbar"));
+      tokenise(m_model.getResources().getString(resourceName));
 
     while (toolBarIterator.hasNext()) {
       final String toolKey = (String)toolBarIterator.next();
@@ -512,6 +535,10 @@ public final class ConsoleUI implements ModelListener {
     }
 
     return toolBar;
+  }
+
+  private void addAction(CustomAction action) {
+    m_actionTable.put(action.getKey(), action);
   }
 
   private void setAction(AbstractButton button, String actionKey) {
@@ -625,6 +652,7 @@ public final class ConsoleUI implements ModelListener {
 
       m_fileChooser.setDialogTitle(
         m_model.getResources().getString("save.label"));
+
       m_fileChooser.setSelectedFile(
         new File(m_model.getResources().getString("default.filename")));
 
@@ -779,27 +807,24 @@ public final class ConsoleUI implements ModelListener {
     }
   }
 
-  private final class StartProcessesAction extends CustomAction {
+  private class DelegateAction extends CustomAction {
 
-    private final ActionListener m_delegateAction;
+    private final ActionListener m_delegate;
 
-    StartProcessesAction(ActionListener delegateAction) {
-      super(m_model.getResources(), "start-processes");
-      m_delegateAction = delegateAction;
+    DelegateAction(String resourceKey, ActionListener delegate) {
+      super(m_model.getResources(), resourceKey);
+      m_delegate = delegate;
     }
 
     public void actionPerformed(ActionEvent e) {
-      m_delegateAction.actionPerformed(e);
+      m_delegate.actionPerformed(e);
     }
   }
 
-  private  final class ResetProcessesAction extends CustomAction {
-
-    private final ActionListener m_delegateAction;
+  private final class ResetProcessesAction extends DelegateAction {
 
     ResetProcessesAction(ActionListener delegateAction) {
-      super(m_model.getResources(), "reset-processes");
-      m_delegateAction = delegateAction;
+      super("reset-processes", delegateAction);
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -855,17 +880,14 @@ public final class ConsoleUI implements ModelListener {
         m_model.reset();
       }
 
-      m_delegateAction.actionPerformed(event);
+      super.actionPerformed(event);
     }
   }
 
-  private final class StopProcessesAction extends CustomAction {
-
-    private final ActionListener m_delegateAction;
+  private final class StopProcessesAction extends DelegateAction {
 
     StopProcessesAction(ActionListener delegateAction) {
-      super(m_model.getResources(), "stop-processes");
-      m_delegateAction = delegateAction;
+      super("stop-processes", delegateAction);
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -906,7 +928,52 @@ public final class ConsoleUI implements ModelListener {
         }
       }
 
-      m_delegateAction.actionPerformed(event);
+      super.actionPerformed(event);
+    }
+  }
+
+  private final class ChooseDirectoryAction extends CustomAction {
+
+    private final JFileChooser m_fileChooser =
+      new JFileChooser(m_model.getProperties().getDistributionDirectory());
+
+    ChooseDirectoryAction() {
+      super(m_model.getResources(), "choose-directory", true);
+
+      m_fileChooser.setDialogTitle(
+        m_model.getResources().getString("choose-directory.tip"));
+
+      m_fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+      m_lookAndFeel.addListener(
+        new LookAndFeel.ComponentListener(m_fileChooser));
+    }
+
+    public void actionPerformed(ActionEvent event) {
+      try {
+        if (m_fileChooser.showOpenDialog(m_frame) ==
+            JFileChooser.APPROVE_OPTION) {
+
+          final File file = m_fileChooser.getSelectedFile();
+
+          if (!file.exists()) {
+            if (JOptionPane.showConfirmDialog(
+                  m_frame,
+                  m_model.getResources().getString("createDirectory.text"),
+                  file.toString(), JOptionPane.YES_NO_OPTION) ==
+                JOptionPane.NO_OPTION) {
+              return;
+            }
+
+            file.mkdir();
+          }
+
+          m_model.getProperties().setDistributionDirectory(file);
+        }
+      }
+      catch (Exception e) {
+        getErrorHandler().handleException(e);
+      }
     }
   }
 

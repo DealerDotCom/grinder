@@ -45,7 +45,6 @@ final class FileTreeModel implements TreeModel {
   private final EventListenerList m_listeners = new EventListenerList();
 
   FileTreeModel() {
-    m_rootNode = null;
   }
 
   public void setRootDirectory(File rootDirectory) {

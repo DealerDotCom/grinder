@@ -27,18 +27,14 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.ActionMap;
-import javax.swing.BoxLayout;
 import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -53,6 +49,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.grinder.console.common.Resources;
+import net.grinder.console.model.ConsoleProperties;
 
 
 /**
@@ -61,94 +58,50 @@ import net.grinder.console.common.Resources;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ScriptFilesPanel extends JPanel {
+final class FileTree extends JPanel {
 
   private final Resources m_resources;
-  private final JFileChooser m_fileChooser = new JFileChooser();
   private final FileTreeModel m_fileTreeModel = new FileTreeModel();
 
   // Can't initialise tree until model has a valid directory.
-  private final JTree m_fileTree;
-
-  private File m_distributionDirectory = new File(".").getAbsoluteFile();
+  private final JTree m_tree;
+  private final CustomAction m_openFileAction;
+  private final JScrollPane m_scrollPane;
 
   /** Synchronise on m_listeners before accessing. */
   private final List m_listeners = new LinkedList();
 
-  public ScriptFilesPanel(final JFrame frame, LookAndFeel lookAndFeel,
-                          Resources resources,
-                          final ActionListener distributeFilesHandler) {
+  public FileTree(final ConsoleProperties consoleProperties,
+                  Resources resources) {
 
     m_resources = resources;
 
-    m_fileChooser.setDialogTitle(
-      m_resources.getString("choose-directory.tip"));
-    m_fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    lookAndFeel.addListener(new LookAndFeel.ComponentListener(m_fileChooser));
+    m_fileTreeModel.setRootDirectory(
+      consoleProperties.getDistributionDirectory());
 
-    final JButton chooseDirectoryButton = new CustomJButton();
-
-    chooseDirectoryButton.setAction(
-      new CustomAction(m_resources, "choose-directory") {
-        public void actionPerformed(ActionEvent event) {
-          try {
-            if (m_fileChooser.showOpenDialog(frame) ==
-                JFileChooser.APPROVE_OPTION) {
-
-              final File file = m_fileChooser.getSelectedFile();
-
-              if (!file.exists()) {
-                if (JOptionPane.showConfirmDialog(
-                      frame,
-                      m_resources.getString("createDirectory.text"),
-                      file.toString(), JOptionPane.YES_NO_OPTION) ==
-                    JOptionPane.NO_OPTION) {
-                  return;
-                }
-
-                file.mkdir();
-              }
-
-              m_distributionDirectory = file;
-              refresh();
-            }
-          }
-          catch (Exception e) {
-            new ErrorDialogHandler(frame, m_resources).handleException(e);
+    consoleProperties.addPropertyChangeListener(
+      new PropertyChangeListener()  {
+        public void propertyChange(PropertyChangeEvent e) {
+          if (e.getPropertyName().equals(
+                ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY)) {
+            m_fileTreeModel.setRootDirectory(
+              consoleProperties.getDistributionDirectory());
           }
         }
       });
 
-    final JButton distributeFilesButton = new CustomJButton();
+    m_tree = new JTree(m_fileTreeModel);
 
-    distributeFilesButton.setAction(
-      new CustomAction(m_resources, "distribute-files") {
-        public void actionPerformed(ActionEvent event) {
-          distributeFilesHandler.actionPerformed(event);
-        }
-      });
-
-    final JPanel distributionDirectoryPanel = new JPanel();
-    distributionDirectoryPanel.setLayout(
-      new BoxLayout(distributionDirectoryPanel, BoxLayout.X_AXIS));
-    distributionDirectoryPanel.add(chooseDirectoryButton);
-    distributionDirectoryPanel.add(distributeFilesButton);
-    distributionDirectoryPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-    refresh();
-
-    m_fileTree = new JTree(m_fileTreeModel);
-
-    m_fileTree.setCellRenderer(new CustomTreeCellRenderer());
-    m_fileTree.getSelectionModel().setSelectionMode(
+    m_tree.setCellRenderer(new CustomTreeCellRenderer());
+    m_tree.getSelectionModel().setSelectionMode(
       TreeSelectionModel.SINGLE_TREE_SELECTION);
 
     // Left double-click -> open file.
-    m_fileTree.addMouseListener(new MouseAdapter() {
+    m_tree.addMouseListener(new MouseAdapter() {
         public void mousePressed(MouseEvent e) {
           if (SwingUtilities.isLeftMouseButton(e)) {
             final TreePath path =
-              m_fileTree.getPathForLocation(e.getX(), e.getY());
+              m_tree.getPathForLocation(e.getX(), e.getY());
 
             if (path == null) {
               return;
@@ -170,26 +123,30 @@ final class ScriptFilesPanel extends JPanel {
         }
       });
 
+    m_openFileAction = new OpenFileAction();
+
     // J2SE 1.4 drops the mapping from "ENTER" -> "toggle"
     // (expand/collapse) that J2SE 1.3 has. I like it this mapping, so
     // we combine the "toggle" action with our OpenFileAction and let
     // TeeAction figure out which to call based on what's enabled.
-    final InputMap inputMap = m_fileTree.getInputMap();
+    final InputMap inputMap = m_tree.getInputMap();
 
     inputMap.put(KeyStroke.getKeyStroke("ENTER"), "activateNode");
     inputMap.put(KeyStroke.getKeyStroke("SPACE"), "activateNode");
 
-    final ActionMap actionMap = m_fileTree.getActionMap();
+    final ActionMap actionMap = m_tree.getActionMap();
     actionMap.put("activateNode",
-                  new TeeAction(actionMap.get("toggle"),
-                                new OpenFileAction()));
+                  new TeeAction(actionMap.get("toggle"), m_openFileAction));
 
-    final JScrollPane fileTreePane = new JScrollPane(m_fileTree);
-    fileTreePane.setAlignmentX(Component.LEFT_ALIGNMENT);
+    m_scrollPane = new JScrollPane(m_tree);
+  }
 
-    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    add(distributionDirectoryPanel);
-    add(fileTreePane);
+  public JComponent getComponent() {
+    return m_scrollPane;
+  }
+
+  public CustomAction getOpenFileAction() {
+    return m_openFileAction;
   }
 
   /**
@@ -209,11 +166,11 @@ final class ScriptFilesPanel extends JPanel {
     }
 
     public boolean isEnabled() {
-      return m_fileTree.isEnabled() && getSelectedFileNode() != null;
+      return m_tree.isEnabled() && getSelectedFileNode() != null;
     }
 
     private FileTreeModel.FileNode getSelectedFileNode() {
-      final Object node = m_fileTree.getLastSelectedPathComponent();
+      final Object node = m_tree.getLastSelectedPathComponent();
 
       if (node instanceof FileTreeModel.FileNode) {
         return (FileTreeModel.FileNode)node;
@@ -222,11 +179,6 @@ final class ScriptFilesPanel extends JPanel {
         return null;
       }
     }
-  }
-
-  public void refresh() {
-    m_fileChooser.setCurrentDirectory(m_distributionDirectory);
-    m_fileTreeModel.setRootDirectory(m_distributionDirectory);
   }
 
   /**
@@ -372,12 +324,12 @@ final class ScriptFilesPanel extends JPanel {
 
   public void repaint() {
     // Couldn't find a nice way to repaint a single node. This:
-    //    m_fileTree.getSelectionModel().setSelectionPath(fileNode.getPath());
+    //    m_tree.getSelectionModel().setSelectionPath(fileNode.getPath());
     // doesn't work if the node is already selected. Give up and
     // repaint the world:
 
-    if (m_fileTree != null) {
-      m_fileTree.treeDidChange();
+    if (m_tree != null) {
+      m_tree.treeDidChange();
     }
   }
 
