@@ -78,7 +78,7 @@ Its easy:
 	3. Say
 		java net.grinder.Grinder
 
-If you want to use the console, tweak out the following properties	
+If you want to use the console, tweak the following properties	
 
 	grinder.waitForConsoleSignal
 	grinder.multicastAddress
