@@ -69,6 +69,41 @@ properties wrongly. It first sends a request without the
 authentication headers, then catches the 401 and automatically resends
 a request with the authentication headers.
 
+*** Query strings
+
+Ryan_Balsam@chcmail.com writes:
+ > 
+ > I believe that this is the output you requested. Is the format of
+ > the session id in the url causing the problem? If so, what can I do
+ > to get around this issue. Thanks in advance.
+ > 
+ > --- localhost:2398->www.qa.columbiahouse.com:80 opened --
+ > --- www.qa.columbiahouse.com:80->localhost:2398 opened --
+ > ------ localhost:2398->www.qa.columbiahouse.com:80 ------
+ > GET http://www.qa.columbiahouse.com/cl1/ch/homepage.jsp?
+ > &init_flag=1&dt=1046472967647&pin=40&bak=41&wl_sid=Pl1pBwdYvc6orH7N1qC7we4tCfE5UcH1F0hVHpN9Pdw0MkOtD9aS|7840758981801063487/184354344/6/80/80/7002/7002/80/-1|-5204672580245477377/184354345/6/80/80/7002/7002/80/-1
+
+OK, having tried the site myself I find it uses query strings which
+The Grinder considers invalid.
+
+For example:
+
+	http://test.coremetrics.com/eluminate?pt%3DC%26vn1%3De2.5%26pn%3DCH-MAIN%253A/ch/homepage.jsp%26pi%3DCH-MAIN%253A/ch/homepage.jsp%26ul%3D/ch/homepage.jsp%26se%3D%26ci%3D90001000%26rf%3Dhttp%253A//www.qa.columbiahouse.com/cl1/ch/authentication/signIn.jsp%253F%2526dt%253D1047817034980%2526pin%253D40%2526bak%253D42%2526wl_sid%253DPnRrSgZD4KelkenRAsto2dblWXviivmj9KtBeUt9KTKlCJB1x6M1%257C-850425960992501384/184354344/6/80/80/7002/7002/80/-1%257C-6016861855175717169/184354346/6/80/80/7002/7002/80/-1%26pc%3DYes%26ts%3DYes%26tp%3DYes%26rnd%3D7383440
+
+and
+	 http://a248.e.akamai.net/f/1596/1167/1d/images.columbiahouse.com/ch/images/se2/homepage/rotating/dvd_02.jpg?03100
+
+The Grinder TCPProxy expects query strings to be name-value pairs
+(e.g. ?a=1&b=2). Having checked the RFC's I find that, whilst query
+strings usually contain name-value pairs, it is not mandatory.
+
+Interestingly the first of these examples becomes a "normal" query
+string if un-escaped. I don't think its right for the TCPProxy to do
+this un-escaping however.
+
+I'll fix the TCPProxy to be relaxed about these query strings. Thanks
+for the report.
+
 
 * Enhancements
 
