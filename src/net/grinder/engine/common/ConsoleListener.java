@@ -140,6 +140,16 @@ public final class ConsoleListener {
   }
 
   /**
+   * Discard pending messages that match the given mask.
+   *
+   * @parm mask The messages to discard.
+   */
+  public void discardMessages(int mask) {
+    m_lastMessagesReceived &= ~mask;
+    m_messagesReceived &= ~mask;
+  }
+
+  /**
    * Query the messages set up by the last {@link #checkForMessage} or
    * {@link #waitForMessage} call.
    *
@@ -172,8 +182,8 @@ public final class ConsoleListener {
         public void send(Message message) {
           if (message instanceof StartGrinderMessage) {
             m_logger.output("received a start message");
-            setReceived(START);
             m_lastStartGrinderMessage = (StartGrinderMessage) message;
+            setReceived(START);
           }
           else if (message instanceof StopGrinderMessage) {
             m_logger.output("received a stop message");

@@ -153,6 +153,53 @@ public class TestConsoleListener extends TestCase {
     assertTrue(listener.received(ConsoleListener.SHUTDOWN));
   }
 
+  public void testDiscardMessages() throws Exception {
+    final Object myMonitor = new Object();
+    final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
+
+    assertFalse(listener.checkForMessage(ConsoleListener.ANY));
+    assertFalse(listener.checkForMessage(ConsoleListener.RESET |
+                                         ConsoleListener.SHUTDOWN));
+    assertFalse(listener.checkForMessage(ConsoleListener.SHUTDOWN));
+
+    final Sender sender = listener.getSender();
+
+    listener.discardMessages(ConsoleListener.ANY);
+
+    sender.send(new StartGrinderMessage(new File("foo")));
+    sender.send(new MyMessage()); // Unknown message.
+    sender.send(new ResetGrinderMessage());
+
+    assertTrue(listener.checkForMessage(ConsoleListener.START |
+                                        ConsoleListener.STOP));
+    assertTrue(listener.received(ConsoleListener.START));
+    assertFalse(listener.received(ConsoleListener.RESET));
+
+    listener.discardMessages(ConsoleListener.RESET);
+
+    assertFalse(listener.checkForMessage(ConsoleListener.RESET));
+    assertFalse(listener.received(ConsoleListener.RESET));
+
+    sender.send(new ResetGrinderMessage());
+
+    assertTrue(listener.checkForMessage(ConsoleListener.RESET));
+
+    listener.discardMessages(ConsoleListener.RESET);
+
+    assertFalse(listener.received(ConsoleListener.RESET));
+
+    listener.discardMessages(ConsoleListener.RESET);
+
+    assertFalse(listener.received(ConsoleListener.RESET));
+
+    sender.shutdown();
+
+    assertTrue(listener.checkForMessage(ConsoleListener.SHUTDOWN));
+    assertTrue(listener.received(ConsoleListener.SHUTDOWN));
+    listener.discardMessages(ConsoleListener.SHUTDOWN);
+    assertFalse(listener.received(ConsoleListener.SHUTDOWN));
+  }
+
   public void testWaitForMessage() throws Exception {
     final Object myMonitor = new Object();
     final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
