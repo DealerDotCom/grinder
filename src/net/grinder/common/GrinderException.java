@@ -162,8 +162,6 @@ public class GrinderException extends Exception {
         }
       }
       while (Character.isWhitespace(other.charAt(otherP)));
-
-      
     }
     while (original.charAt(p) == other.charAt(otherP));
 
