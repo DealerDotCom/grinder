@@ -26,13 +26,17 @@ is roughly in priority order.]
   Add option to ignore the first 5 cycles so that hotspot has chance
   to work.
 
+  Abstract out a TestScheduler interface to allow other algorithms.
+  Add a "random order" algorithm, which might work well with the JUnit
+  plugin. Flesh out the API so custom script schedulers can be
+  supported.
+
   Add a switch to the HttpPluginSnifferFilter which specifies the
   initial test number for the output.
 
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
 	Fix javadoc warnings.
-	Add JUnit target. (Then test thyself with the JUnit plugin!)
 	
   Minor fixes to HttpPluginSnifferFilter:
 	Respect charset information.
