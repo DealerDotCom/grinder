@@ -1,6 +1,7 @@
 // Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2004 Bertrand Ave
+// Copyright (C) 2004 John Stanford White
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -78,6 +79,7 @@ public class HTTPPlugin implements GrinderPlugin {
   private PluginProcessContext m_pluginProcessContext;
   private StatisticsIndexMap.LongIndex m_responseStatusIndex;
   private StatisticsIndexMap.LongIndex m_responseLengthIndex;
+  private StatisticsIndexMap.LongIndex m_responseErrorsIndex;
 
   final PluginProcessContext getPluginProcessContext() {
     return m_pluginProcessContext;
@@ -89,6 +91,10 @@ public class HTTPPlugin implements GrinderPlugin {
 
   final StatisticsIndexMap.LongIndex getResponseLengthIndex() {
     return m_responseLengthIndex;
+  }
+
+  final StatisticsIndexMap.LongIndex getResponseErrorsIndex() {
+      return m_responseErrorsIndex;
   }
 
   /**
@@ -135,6 +141,11 @@ public class HTTPPlugin implements GrinderPlugin {
           "HTTP Response Length", "statistic.httpplugin.responseLengthKey",
           StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY));
 
+      detailsStatisticsView.add(
+        new ExpressionView(
+          "HTTP Response Errors", "statistic.httpplugin.responseErrorsKey",
+          StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY));
+
       scriptContext.registerDetailStatisticsView(detailsStatisticsView);
 
       final StatisticsView summaryStatisticsView = new StatisticsView();
@@ -153,6 +164,12 @@ public class HTTPPlugin implements GrinderPlugin {
           "(* 1000 (/ " + StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY +
           " period))"));
 
+      summaryStatisticsView.add(
+        new ExpressionView(
+          "Response Errors",
+          "statistic.httpplugin.responseErrorsKey",
+          StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY));
+
       scriptContext.registerSummaryStatisticsView(summaryStatisticsView);
 
       final StatisticsIndexMap statisticsIndexMap =
@@ -165,6 +182,10 @@ public class HTTPPlugin implements GrinderPlugin {
       m_responseLengthIndex =
         statisticsIndexMap.getIndexForLong(
           StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY);
+
+      m_responseErrorsIndex =
+        statisticsIndexMap.getIndexForLong(
+          StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_ERRORS_KEY);
     }
     catch (GrinderException e) {
       throw new PluginException("Could not register custom statistics", e);

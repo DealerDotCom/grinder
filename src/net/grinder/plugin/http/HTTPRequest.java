@@ -1,6 +1,7 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2003 Bill Schnellinger
 // Copyright (C) 2003 Bertrand Ave
+// Copyright (C) 2004 John Stanford White
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -67,6 +68,7 @@ public class HTTPRequest {
   private static final PluginProcessContext s_pluginProcessContext;
   private static final StatisticsIndexMap.LongIndex s_responseStatusIndex;
   private static final StatisticsIndexMap.LongIndex s_responseLengthIndex;
+  private static final StatisticsIndexMap.LongIndex s_responseErrorsIndex;
 
   static {
     // Ensure that the HTTPPlugin is registered.
@@ -74,6 +76,7 @@ public class HTTPRequest {
     s_pluginProcessContext = plugin.getPluginProcessContext();
     s_responseStatusIndex = plugin.getResponseStatusIndex();
     s_responseLengthIndex = plugin.getResponseLengthIndex();
+    s_responseErrorsIndex = plugin.getResponseErrorsIndex();
   }
 
   private URI m_defaultURL;
@@ -872,13 +875,17 @@ public class HTTPRequest {
           //If many HTTPRequests are wrapped in the same test, the
           //last one wins.
           statistics.setValue(s_responseStatusIndex, statusCode);
+
+          if (statusCode >= HttpURLConnection.HTTP_BAD_REQUEST) {
+            statistics.addValue(s_responseErrorsIndex, 1);
+          }
         }
       }
       catch (InvalidContextException e) {
-        throw new PluginException("Failed to set status code statistic", e);
+        throw new PluginException("Failed to set statistic", e);
       }
       catch (StatisticsAlreadyReportedException e) {
-        throw new PluginException("Failed to set status code statistic", e);
+        throw new PluginException("Failed to set statistic", e);
       }
 
       return httpResponse;
