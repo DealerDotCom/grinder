@@ -196,7 +196,10 @@ public class TestScriptContextImplementation extends TestCase {
     assertTrue(Arrays.asList(detailExpressionViews).contains(expressionView));
   }
 
-  /** Must be public so that stub_ methods can be called externally. */
+  /**
+   * Must be public so that override_ methods can be called
+   * externally.
+   */
   public static class ThreadContextStubFactory extends StubInvocationHandler {
 
     private PluginThreadContext m_pluginThreadContext;
@@ -210,7 +213,8 @@ public class TestScriptContextImplementation extends TestCase {
       return (ThreadContext)getProxy();
     }
 
-    public final PluginThreadContext stub_getPluginThreadContext() {
+    public final PluginThreadContext override_getPluginThreadContext(
+      Object proxy) {
       return m_pluginThreadContext;
     }
 
@@ -219,7 +223,7 @@ public class TestScriptContextImplementation extends TestCase {
       m_pluginThreadContext = pluginThreadContext;
     }
 
-    public final Statistics stub_getScriptStatistics() {
+    public final Statistics override_getScriptStatistics(Object proxy) {
       return m_scriptStatistics;
     }
 
@@ -244,11 +248,11 @@ public class TestScriptContextImplementation extends TestCase {
       return (PluginThreadContext)getProxy();
     }
 
-    public int stub_getThreadID() {
+    public int override_getThreadID(Object proxy) {
       return m_threadID;
     }
 
-    public int stub_getRunNumber() {
+    public int override_getRunNumber(Object proxy) {
       return m_runNumber;
     }
   }

@@ -105,8 +105,8 @@ public class TestTestData extends TestCase {
 
   /**
    * Creates dynamic ThreadContext stubs which implement invokeTest by
-   * delegating directly to the invokeable. Must be public so stub_
-   * methods can be invoked.
+   * delegating directly to the invokeable. Must be public so
+   * override_ methods can be invoked.
    */
   public static class ThreadContextStubFactory extends StubInvocationHandler {
     private final TestData m_expectedTestData;
@@ -116,8 +116,9 @@ public class TestTestData extends TestCase {
       m_expectedTestData = expectedTestData;
     }
 
-    public Object stub_invokeTest(TestData testData,
-                                  TestData.Invokeable invokeable) {
+    public Object override_invokeTest(Object proxy,
+                                      TestData testData,
+                                      TestData.Invokeable invokeable) {
       assertSame(m_expectedTestData, testData);
       return invokeable.call();
     }

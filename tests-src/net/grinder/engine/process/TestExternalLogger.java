@@ -217,7 +217,10 @@ public class TestExternalLogger extends TestCase {
     }
   }
 
-  /** Must be public so that stub_ methods can be called externally. */
+  /**
+   * Must be public so that override_ methods can be called
+   * externally.
+   */
   public static class ThreadContextStubFactory extends StubInvocationHandler {
 
     private final ThreadLogger m_threadLogger;
@@ -231,7 +234,7 @@ public class TestExternalLogger extends TestCase {
       return (ThreadContext)getProxy();
     }
 
-    public ThreadLogger stub_getThreadLogger() {
+    public ThreadLogger override_getThreadLogger(Object proxy) {
       return m_threadLogger;
     }
   }

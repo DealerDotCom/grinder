@@ -202,7 +202,10 @@ public class TestExternalFilenameFactory extends TestCase {
     }
   }
 
-  /** Must be public so that stub_ methods can be called externally. */
+  /**
+   * Must be public so that override_ methods can be called
+   * externally.
+   */
   public static class ThreadContextStubFactory extends StubInvocationHandler {
 
     private final FilenameFactory m_filenameFactory;
@@ -216,7 +219,7 @@ public class TestExternalFilenameFactory extends TestCase {
       return (ThreadContext)getProxy();
     }
 
-    public FilenameFactory stub_getFilenameFactory() {
+    public FilenameFactory override_getFilenameFactory(Object proxy) {
       return m_filenameFactory;
     }
   }

@@ -47,11 +47,11 @@ public class LoggerStubFactory extends StubInvocationHandler {
     return (Logger) getProxy();
   }
 
-  public PrintWriter stub_getErrorLogWriter() {
+  public PrintWriter override_getErrorLogWriter(Object proxy) {
     return m_errorLineCounter;
   }
 
-  public PrintWriter stub_getOutputLogWriter() {
+  public PrintWriter override_getOutputLogWriter(Object proxy) {
     return m_outputLineCounter;
   }
 
