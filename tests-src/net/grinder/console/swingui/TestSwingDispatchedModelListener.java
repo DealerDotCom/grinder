@@ -88,6 +88,7 @@ public class TestSwingDispatchedModelListener extends TestCase {
     public ModelTestIndex m_modelTestIndex;
 
     public boolean m_updateCalled = false;
+    private boolean m_resetTestsAndStatisticsViewsCalled = false;
 
     public boolean m_newStatisticsViewsCalled = false;
     public StatisticsView m_intervalStatisticsView;
@@ -109,6 +110,11 @@ public class TestSwingDispatchedModelListener extends TestCase {
       m_newStatisticsViewsCalled = true;
       m_intervalStatisticsView = intervalStatisticsView;
       m_cumulativeStatisticsView = cumulativeStatisticsView;
+    }
+
+    public void resetTestsAndStatisticsViews()
+    {
+      m_resetTestsAndStatisticsViewsCalled = true;
     }
   }
 }
