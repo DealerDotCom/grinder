@@ -76,7 +76,7 @@ what you want. Currently the conditionally built modules are:
   <property name="version" value="3.0-beta24"/> <!-- AND THE NEXT LINE -->
   <property name="cvs.tag" value="release_3_0_beta24"/>
 
-  <property name="year" value="2004"/>
+  <property name="year" value="2005"/>
 
   <!-- javac switches -->
   <property name="debug" value="on"/>
