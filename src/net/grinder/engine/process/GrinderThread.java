@@ -212,7 +212,7 @@ class GrinderThread implements java.lang.Runnable
 	final StringBuffer buffer = new StringBuffer(
 	    "Thread (Host " + m_grinderContext.getHostIDString() +
 	    " Process " + m_grinderContext.getProcessIDString() +
-	    " Thread " + m_grinderContext.getProcessIDString());
+	    " Thread " + m_grinderContext.getThreadID());
 
 	if (cycle > 0) {
 	    buffer.append(" Cycle " + cycle);
