@@ -539,7 +539,7 @@ what you want. Currently the conditionally built modules are:
     <fail if="do.abort">Build aborted by user.</fail>
 
     <echo message="Running cvs tag"/>
-    <cvs command="tag -R ${cvs.tag}" quiet="true"/>
+    <cvs command="tag -R -F ${cvs.tag}" quiet="true"/>
  
     <echo message="Building release"/>
     <mkdir dir="${release.dir}"/>
