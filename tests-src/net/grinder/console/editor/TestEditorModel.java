@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileWriter;
 
 import net.grinder.console.common.Resources;
+import net.grinder.console.distribution.AgentCacheState;
 
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.CallData;
@@ -374,8 +375,13 @@ public class TestEditorModel extends AbstractFileTestCase {
     final StringTextSource.Factory stringTextSourceFactory =
       new StringTextSource.Factory();
 
+    final RandomStubFactory agentCacheStateStubFactory =
+      new RandomStubFactory(AgentCacheState.class);
+    final AgentCacheState agentCacheState =
+      (AgentCacheState)agentCacheStateStubFactory.getStub();
+
     final EditorModel editorModel =
-      new EditorModel(s_resources, stringTextSourceFactory, null);
+      new EditorModel(s_resources, stringTextSourceFactory, agentCacheState);
 
     final RandomStubFactory listenerStubFactory =
       new RandomStubFactory(EditorModel.Listener.class);
@@ -396,9 +402,13 @@ public class TestEditorModel extends AbstractFileTestCase {
     // Buffer changed because it is associated with a new file.
     listenerStubFactory.assertSuccess("bufferChanged", buffer);
     listenerStubFactory.assertNoMoreCalls();
+    agentCacheStateStubFactory.assertSuccess("setOutOfDate");
+    agentCacheStateStubFactory.assertNoMoreCalls();
 
     editorModel.saveBufferAs(buffer, file1);
     listenerStubFactory.assertNoMoreCalls();
+    agentCacheStateStubFactory.assertSuccess("setOutOfDate");
+    agentCacheStateStubFactory.assertNoMoreCalls();
 
     assertEquals(buffer, editorModel.getBufferForFile(file1));
 
@@ -407,6 +417,8 @@ public class TestEditorModel extends AbstractFileTestCase {
     // Buffer changed because it is associated with a new file.
     listenerStubFactory.assertSuccess("bufferChanged", buffer);
     listenerStubFactory.assertNoMoreCalls();
+    agentCacheStateStubFactory.assertSuccess("setOutOfDate");
+    agentCacheStateStubFactory.assertNoMoreCalls();
 
     assertNull(editorModel.getBufferForFile(file1));
     assertEquals(buffer, editorModel.getBufferForFile(file2));
