@@ -42,6 +42,7 @@ href="mailto:grinder-use@lists.sf.net">grinder-use@lists.sf.net</a>.</p>
 # instance of TestRunner for each worker thread, and repeatedly calls
 # the instance for each run of that thread.
 </span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 
 <span class="comment"># A shorter alias for the grinder.logger.output() method.
@@ -149,11 +150,10 @@ page1Test = Test(1, &quot;<span class="string">First page</span>&quot;).wrap(pag
 # contains a form that POSTs username and password fields to a special
 # j_security_check page.
 </span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
 <span class="keyword">from</span> HTTPClient <span class="keyword">import</span> NVPair
-
-log = grinder.logger.output
 
 protectedResourceTest = Test(1, &quot;<span class="string">Request resource</span>&quot;)
 authenticationTest = Test(2, &quot;<span class="string">POST to j_security_check</span>&quot;)
@@ -175,8 +175,8 @@ authenticationTest = Test(2, &quot;<span class="string">POST to j_security_check
 </span><span class="keyword">def</span> <span class="function-name">maybeAuthenticate</span>(lastResult):
     <span class="keyword">if</span> lastResult.statusCode == 401 \
     <span class="keyword">or</span> lastResult.text.find(&quot;<span class="string">j_security_check</span>&quot;) != -1:
-        
-        log(&quot;<span class="string">Challenged, authenticating</span>&quot;)
+
+        grinder.logger.output(&quot;<span class="string">Challenged, authenticating</span>&quot;)
 
         authenticationFormData = ( NVPair(&quot;<span class="string">j_username</span>&quot;, &quot;<span class="string">weblogic</span>&quot;),
                                    NVPair(&quot;<span class="string">j_password</span>&quot;, &quot;<span class="string">weblogic</span>&quot;),)
@@ -236,12 +236,11 @@ request1 = test1.wrap(HTTPRequest())
 <pre><span class="comment"># This script uses the HTTPClient.Codecs class to post itself to the
 # server as a multi-part form. Thanks to Marc Gemis.
 </span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
 <span class="keyword">from</span> HTTPClient <span class="keyword">import</span> Codecs, NVPair
 <span class="keyword">from</span> jarray <span class="keyword">import</span> zeros
-
-log = grinder.logger.output
 
 test1 = Test(1, &quot;<span class="string">Upload Image</span>&quot;)
 request1 = test1.wrap(HTTPRequest(url=&quot;<span class="string">http://localhost:7001/</span>&quot;))
@@ -258,7 +257,7 @@ request1 = test1.wrap(HTTPRequest(url=&quot;<span class="string">http://localhos
 
         <span class="comment"># Create a multi-part form encoded byte array.
 </span>        data = Codecs.mpFormDataEncode(parameters, files, headers)
-        log(&quot;<span class="string">Content type set to %s</span>&quot; % headers[0].value)
+        grinder.logger.output(&quot;<span class="string">Content type set to %s</span>&quot; % headers[0].value)
 
         <span class="comment"># Call the version of POST that takes a byte array.
 </span>        result = request1.POST(&quot;<span class="string">/upload</span>&quot;, data, headers);
