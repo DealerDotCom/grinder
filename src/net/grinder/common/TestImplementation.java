@@ -37,24 +37,24 @@ public class TestImplementation implements Test
 	m_parameters = parameters;
     }
 
-    public int getNumber()
+    public final int getNumber()
     {
 	return m_number;
     }
 
-    public String getDescription()
+    public final String getDescription()
     {
 	return m_description;
     }
 
-    public GrinderProperties getParameters()
+    public final GrinderProperties getParameters()
     {
 	return m_parameters;
     }
 
-    public int compareTo(Object o) 
+    public final int compareTo(Object o) 
     {
-	final int other = ((TestImplementation)o).m_number;
+	final int other = ((Test)o).getNumber();
 	return m_number<other ? -1 : (m_number==other ? 0 : 1);
     }
 
@@ -64,21 +64,21 @@ public class TestImplementation implements Test
      * range of an int, but using the value is good enough for
      * <code>java.lang.Integer</code> so its good enough for us.
      **/
-    public int hashCode()
+    public final int hashCode()
     {
 	return m_number;
     }
 
-    public boolean equals(Object o)
+    public final boolean equals(Object o)
     {
-	if (o instanceof TestImplementation) {
-	    return m_number == ((TestImplementation)o).m_number;
+	if (o instanceof Test) {
+	    return m_number == ((Test)o).getNumber();
 	}
 
 	return false;
     }
 
-    public String toString()
+    public final String toString()
     {
 	final String description = getDescription();
 
