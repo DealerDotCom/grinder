@@ -133,6 +133,7 @@ final class Acceptor {
 
     public AcceptorThread(int threadIndex) {
       super(m_threadGroup, "Acceptor thread " + threadIndex);
+      setDaemon(true);
     }
 
     public void run() {
