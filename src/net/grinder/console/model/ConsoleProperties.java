@@ -28,6 +28,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Compiler;
+
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationDefaults;
@@ -92,6 +96,10 @@ public final class ConsoleProperties {
     "grinder.console.scriptDistributionDirectory";
 
   /** Property name. */
+  public static final String DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY =
+    "grinder.console.distributionFileFilterExpression";
+
+  /** Property name. */
   public static final String LOOK_AND_FEEL_PROPERTY =
     "grinder.console.lookAndFeel";
 
@@ -108,6 +116,7 @@ public final class ConsoleProperties {
   private boolean m_stopProcessesDontAsk;
   private File m_scriptFile;
   private File m_distributionDirectory;
+  private Pattern m_distributionFileFilterPattern;
   private String m_lookAndFeel;
 
   /**
@@ -174,6 +183,11 @@ public final class ConsoleProperties {
     setDistributionDirectory(
       m_properties.getFile(DISTRIBUTION_DIRECTORY_PROPERTY, null));
 
+    setDistributionFileFilterExpression(
+      m_properties.getProperty(
+        DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
+        ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION));
+
     setLookAndFeel(m_properties.getProperty(LOOK_AND_FEEL_PROPERTY, null));
   }
 
@@ -208,6 +222,8 @@ public final class ConsoleProperties {
     setStopProcessesDontAskInternal(properties.m_stopProcessesDontAsk);
     setScriptFile(properties.m_scriptFile);
     setDistributionDirectory(properties.m_distributionDirectory);
+    setDistributionFileFilterPattern(
+      properties.m_distributionFileFilterPattern);
     setLookAndFeel(properties.m_lookAndFeel);
   }
 
@@ -260,6 +276,9 @@ public final class ConsoleProperties {
     m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
                          m_distributionDirectory);
 
+    m_properties.setProperty(DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
+                             m_distributionFileFilterPattern.getPattern());
+
     if (m_lookAndFeel != null) {
       m_properties.setProperty(LOOK_AND_FEEL_PROPERTY, m_lookAndFeel);
     }
@@ -284,6 +303,7 @@ public final class ConsoleProperties {
    */
   public void setCollectSampleCount(int n)
     throws DisplayMessageConsoleException {
+
     if (n < 0) {
       throw new DisplayMessageConsoleException(
         m_resources, "collectNegativeError.text");
@@ -316,6 +336,7 @@ public final class ConsoleProperties {
    */
   public void setIgnoreSampleCount(int n)
     throws DisplayMessageConsoleException {
+
     if (n < 0) {
       throw new DisplayMessageConsoleException(
         m_resources, "ignoreSamplesNegativeError.text");
@@ -348,6 +369,7 @@ public final class ConsoleProperties {
    */
   public void setSampleInterval(int interval)
     throws DisplayMessageConsoleException {
+
     if (interval <= 0) {
       throw new DisplayMessageConsoleException(
         m_resources, "intervalLessThanOneError.text");
@@ -380,6 +402,7 @@ public final class ConsoleProperties {
    */
   public void setSignificantFigures(int n)
     throws DisplayMessageConsoleException {
+
     if (n <= 0) {
       throw new DisplayMessageConsoleException(
         m_resources, "significantFiguresNegativeError.text");
@@ -458,8 +481,7 @@ public final class ConsoleProperties {
    * @param i The port number.
    * @throws DisplayMessageConsoleException If the port number is not sensible.
    */
-  public void setConsolePort(int i)
-    throws DisplayMessageConsoleException {
+  public void setConsolePort(int i) throws DisplayMessageConsoleException {
     assertValidPort(i);
     setConsolePortInternal(i);
   }
@@ -473,6 +495,7 @@ public final class ConsoleProperties {
 
   private void assertValidPort(int port)
     throws DisplayMessageConsoleException {
+
     if (port < CommunicationDefaults.MIN_PORT ||
         port > CommunicationDefaults.MAX_PORT) {
       throw new DisplayMessageConsoleException(
@@ -681,6 +704,54 @@ public final class ConsoleProperties {
     m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
                          m_distributionDirectory);
     m_properties.saveSingleProperty(DISTRIBUTION_DIRECTORY_PROPERTY);
+  }
+
+  /**
+   * Get the distribution file filter pattern.
+   *
+   * <p>The original regular expresion can be obtained with
+   * <code>getDistributionFileFilterPattern().getPattern().</p>
+   *
+   * @return The pattern.
+   * @sett #setDistributionFileFilterExpression
+   */
+  public Pattern getDistributionFileFilterPattern() {
+    return m_distributionFileFilterPattern;
+  }
+
+  /**
+   * Set the distribution file filter regular expression.
+   *
+   * <p>Files and directory names (not full paths) that match the
+   * regular expresion are not distributed. Directory names are
+   * distinguished by a trailing '/'. The expression is in Perl 5
+   * format.</p>
+   *
+   * @param expression A Perl 5 format expression.
+   * @throws DisplayMessageConsoleException If the pattern is not
+   * valid.
+   */
+  public void setDistributionFileFilterExpression(String expression)
+    throws DisplayMessageConsoleException {
+
+    try {
+      setDistributionFileFilterPattern(
+        new Perl5Compiler().compile(expression, Perl5Compiler.READ_ONLY_MASK));
+    }
+    catch (MalformedPatternException e) {
+      throw new DisplayMessageConsoleException(
+        m_resources, "distributionFileFilterExpressionError.text", e);
+    }
+  }
+
+  private void setDistributionFileFilterPattern(Pattern pattern) {
+    final Pattern old = pattern;
+    m_distributionFileFilterPattern = pattern;
+
+    m_changeSupport.firePropertyChange(
+      DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
+      old,
+      m_distributionFileFilterPattern);
   }
 
   /**

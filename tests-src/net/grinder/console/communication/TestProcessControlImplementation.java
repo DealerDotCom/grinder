@@ -23,6 +23,8 @@ package net.grinder.console.communication;
 
 import junit.framework.TestCase;
 
+import org.apache.oro.text.regex.Pattern;
+
 import net.grinder.console.messages.ReportStatusMessage;
 import net.grinder.engine.messages.ResetGrinderMessage;
 
@@ -66,11 +68,15 @@ public class TestProcessControlImplementation extends TestCase {
 
   public void testConstruction() throws Exception {
 
+    final Pattern stubPattern =
+      (Pattern)new RandomStubFactory(Pattern.class).getStub();
+
     final ProcessControlImplementation
       processControlImplementation =
       new ProcessControlImplementation(m_consoleCommunication,
                                        m_processStatusSet,
-                                       m_distributionStatus);
+                                       m_distributionStatus,
+                                       stubPattern);
 
     m_processStatusSetStubFactory.assertSuccess("startProcessing");
     m_distributionStatusStubFactory.assertNoMoreCalls();

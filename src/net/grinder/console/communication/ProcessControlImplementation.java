@@ -24,6 +24,10 @@ package net.grinder.console.communication;
 import java.io.File;
 import java.io.FileFilter;
 
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.PatternMatcher;
+import org.apache.oro.text.regex.Perl5Matcher;
+
 import net.grinder.communication.Message;
 import net.grinder.console.messages.ReportStatusMessage;
 import net.grinder.engine.messages.ClearCacheMessage;
@@ -46,14 +50,20 @@ final class ProcessControlImplementation implements ProcessControl {
   private final ConsoleCommunication m_communication;
   private final ProcessStatusSet m_processStatusSet;
   private final DistributionStatus m_distributionStatus;
+
+  private final Pattern m_distributionFileFilterPattern;
+
   private Directory m_lastDirectory;
 
   ProcessControlImplementation(ConsoleCommunication consoleCommunication,
                                ProcessStatusSet processStatusSet,
-                               DistributionStatus distributionStatus) {
+                               DistributionStatus distributionStatus,
+                               Pattern distributionFileFilterPattern)  {
+
     m_communication = consoleCommunication;
     m_processStatusSet = processStatusSet;
     m_distributionStatus = distributionStatus;
+    m_distributionFileFilterPattern = distributionFileFilterPattern;
 
     consoleCommunication.addMessageHandler(
       new ConsoleCommunication.MessageHandler() {
@@ -66,6 +76,7 @@ final class ProcessControlImplementation implements ProcessControl {
           return false;
         }
       });
+
 
     m_processStatusSet.startProcessing();
   }
@@ -126,20 +137,40 @@ final class ProcessControlImplementation implements ProcessControl {
         new Filter(m_distributionStatus.getEarliestLastModifiedTime())));
   }
 
-  private static final class Filter implements FileFilter {
+  private final class Filter implements FileFilter {
     private final long m_earliestLastModifiedTime;
+    private final PatternMatcher m_matcher = new Perl5Matcher();
 
     public Filter(long earliestLastModifiedTime) {
       m_earliestLastModifiedTime = earliestLastModifiedTime;
     }
 
     public boolean accept(File file) {
-      if (!file.isDirectory() &&
-          file.lastModified() <= m_earliestLastModifiedTime) {
-        return false;
-      }
 
-      return true;
+      final String name = file.getName();
+
+      if (file.isDirectory()) {
+        if (m_matcher.contains(name + "/", m_distributionFileFilterPattern)) {
+          return false;
+        }
+
+        if (name.endsWith("-file-store")) {
+          final File readmeFile = new File(file, "README.txt");
+
+          if (readmeFile.isFile()) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+      else {
+        if (m_matcher.contains(name, m_distributionFileFilterPattern)) {
+          return false;
+        }
+
+        return file.lastModified() > m_earliestLastModifiedTime;
+      }
     }
   }
 

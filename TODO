@@ -71,6 +71,9 @@ cache.
 
 Task: File Store directory should have a README describing what its
 for.
+Task: Guard against distributing agent cache directory. Can mark with
+a special file - maybe the README? Also prevent distribution of
+temporary files, CVS directories, grinder log files.
 
 Task: Console to indicate dirty state.
 	Where should this be stored?
@@ -89,8 +92,6 @@ Task: Console to check dirty state on play and auto broadcast. Need
 some way of synchronising before starting run.
 Task: Console to watch local file system for edits. 
 Task: Add warning if saving outside of distribution.
-Task: Guard against distributing agent cache directory. Can mark with
-a special file - maybe the README?
 Task: The agent should pick up secondary grinder.properties from file
 cache.
 
@@ -105,6 +106,7 @@ Task: Add agent initiation channel so agent can send a checksum across
 file names/sizes. Console compares with its cache and generates a good
 last update time for the agent. Thus agents starting with a good cache
 skip sync.
+Task: Distribution file filter should be dynamically settable.
 
 ** Console
 

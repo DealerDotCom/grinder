@@ -37,10 +37,10 @@ import net.grinder.communication.Receiver;
 import net.grinder.communication.Sender;
 import net.grinder.communication.ServerReceiver;
 import net.grinder.console.common.ConsoleException;
+import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ErrorQueue;
 import net.grinder.console.common.Resources;
-import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.model.ConsoleProperties;
 
 
@@ -74,18 +74,23 @@ public final class ConsoleCommunicationImplementation
    *
    * @param resources Resources.
    * @param properties Console properties.
+   * @throws DisplayMessageConsoleException If properties are invalid.
    */
   public ConsoleCommunicationImplementation(Resources resources,
-                                            ConsoleProperties properties) {
+                                            ConsoleProperties properties)
+    throws DisplayMessageConsoleException {
+
     m_resources = resources;
     m_properties = properties;
 
     m_distributionStatus = new DistributionStatus();
 
     m_processControl =
-      new ProcessControlImplementation(this,
-                                       new ProcessStatusSetImplementation(),
-                                       m_distributionStatus);
+      new ProcessControlImplementation(
+        this,
+        new ProcessStatusSetImplementation(),
+        m_distributionStatus,
+        properties.getDistributionFileFilterPattern());
 
     reset();
 

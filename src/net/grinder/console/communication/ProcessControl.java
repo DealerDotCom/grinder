@@ -68,7 +68,6 @@ public interface ProcessControl {
    */
   void addProcessStatusListener(ProcessStatusListener listener);
 
-
   /**
    * Something that can handle the distribution of files.
    */
