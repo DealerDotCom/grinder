@@ -52,6 +52,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -66,6 +67,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 
+import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ConsoleExceptionHandler;
 import net.grinder.console.model.ConsoleProperties;
@@ -215,8 +217,9 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     // Create the tabbed test display.
     final JTabbedPane tabbedPane = new JTabbedPane();
 
-    final JPanel graphPanel =
+    final TestGraphPanel graphPanel =
       new TestGraphPanel(tabbedPane, model, m_resources);
+    graphPanel.resetTestsAndStatisticsViews(); // Show logo.
 
     final JScrollPane graphTabPane =
       new JScrollPane(graphPanel,
@@ -277,9 +280,9 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     final ImageIcon logoIcon = m_resources.getImageIcon("logo.image");
 
     final MyAction[] actions = {
-      new StartProcessesGrinderAction(startProcessesHandler),
-      new ResetProcessesGrinderAction(resetProcessesHandler),
-      new StopProcessesGrinderAction(stopProcessesHandler),
+      new StartProcessesAction(startProcessesHandler),
+      new ResetProcessesAction(resetProcessesHandler),
+      new StopProcessesAction(stopProcessesHandler),
       m_startAction,
       m_stopAction,
       new SaveAction(),
@@ -751,10 +754,10 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
 
-  private final class StartProcessesGrinderAction extends MyAction {
+  private final class StartProcessesAction extends MyAction {
     private final ActionListener m_delegateAction;
 
-    StartProcessesGrinderAction(ActionListener delegateAction) {
+    StartProcessesAction(ActionListener delegateAction) {
       super("start-processes");
       m_delegateAction = delegateAction;
     }
@@ -764,23 +767,74 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
 
-  private  final class ResetProcessesGrinderAction extends MyAction {
+  private  final class ResetProcessesAction extends MyAction {
     private final ActionListener m_delegateAction;
 
-    ResetProcessesGrinderAction(ActionListener delegateAction) {
+    ResetProcessesAction(ActionListener delegateAction) {
       super("reset-processes");
       m_delegateAction = delegateAction;
     }
 
     public final void actionPerformed(ActionEvent e) {
+
+      final ConsoleProperties properties = m_model.getProperties();
+
+      if (!properties.getResetConsoleWithProcessesDontAsk()) {
+
+	final JCheckBox dontAskMeAgainCheckBox =
+	  new JCheckBox(m_resources.getString("dontAskMeAgain.text"));
+	dontAskMeAgainCheckBox.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+	final Object[] message = {
+	  m_resources.getString("resetConsoleWithProcessesConfirmation1.text"),
+	  m_resources.getString("resetConsoleWithProcessesConfirmation2.text"),
+	  new JLabel(), // Pad.
+	  dontAskMeAgainCheckBox,
+	};
+
+	final int chosen =
+	  JOptionPane.showConfirmDialog(m_frame, message, "",
+					JOptionPane.YES_NO_CANCEL_OPTION);
+
+	if (dontAskMeAgainCheckBox.isSelected()) {
+	  try {
+	    properties.setResetConsoleWithProcessesDontAsk();
+	  }
+	  catch (GrinderException exception) {
+	    JOptionPane.showMessageDialog(
+	      m_frame, exception.getMessage(),
+	      m_resources.getString("unexpectedError.title"),
+	      JOptionPane.ERROR_MESSAGE);
+	    return;
+	  }
+	}
+
+	switch (chosen) {
+	case JOptionPane.YES_OPTION:
+	  properties.setResetConsoleWithProcesses(true);
+	  break;
+
+	case JOptionPane.NO_OPTION:
+	  properties.setResetConsoleWithProcesses(false);
+	  break;
+
+	default:
+	  return;
+	}
+      }
+
+      if (properties.getResetConsoleWithProcesses()) {
+	m_model.reset();
+      }
+
       m_delegateAction.actionPerformed(e);
     }
   }
 
-  private final class StopProcessesGrinderAction extends MyAction {
+  private final class StopProcessesAction extends MyAction {
     private final ActionListener m_delegateAction;
 
-    StopProcessesGrinderAction(ActionListener delegateAction) {
+    StopProcessesAction(ActionListener delegateAction) {
       super("stop-processes");
       m_delegateAction = delegateAction;
     }

@@ -21,10 +21,12 @@
 
 package net.grinder.console.swingui;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import javax.swing.Box;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -59,6 +61,7 @@ abstract class OptionsDialogHandler {
     new IntegerField(0, CommunicationDefaults.MAX_PORT);
   private final SamplingControlPanel m_samplingControlPanel;
   private final JSlider m_sfSlider = new JSlider(1, 6, 1);
+  private final JCheckBox m_resetConsoleWithProcessesCheckBox;
   private final JOptionPane m_optionPane;
   private final JOptionPaneDialog m_dialog;
 
@@ -120,9 +123,18 @@ abstract class OptionsDialogHandler {
       new JLabel(resources.getString("significantFigures.label")));
     sfPanel.add(m_sfSlider);
 
+    m_resetConsoleWithProcessesCheckBox =
+      new JCheckBox(resources.getString("resetConsoleWithProcesses.label"));
+    final JPanel checkBoxPanel = new JPanel();
+    checkBoxPanel.add(m_resetConsoleWithProcessesCheckBox);
+
+    final JPanel miscellaneousPanel = new JPanel(new GridLayout(0,1));
+    miscellaneousPanel.add(sfPanel);
+    miscellaneousPanel.add(checkBoxPanel);
+
     final JPanel miscellaneousTab =
       new JPanel(new FlowLayout(FlowLayout.LEFT));
-    miscellaneousTab.add(sfPanel);
+    miscellaneousTab.add(miscellaneousPanel);
 
     final JTabbedPane tabbedPane = new JTabbedPane();
 
@@ -175,6 +187,8 @@ abstract class OptionsDialogHandler {
 		m_grinderPort.getValue());
 	      m_properties.setSignificantFigures(
 		m_sfSlider.getValue());
+	      m_properties.setResetConsoleWithProcesses(
+		m_resetConsoleWithProcessesCheckBox.isSelected());
 	    }
 	    catch (ConsoleException e) {
 	      JOptionPane.showMessageDialog(
@@ -233,6 +247,8 @@ abstract class OptionsDialogHandler {
     m_grinderAddress.setText(m_properties.getGrinderAddress());
     m_grinderPort.setValue(m_properties.getGrinderPort());
     m_sfSlider.setValue(m_properties.getSignificantFigures());
+    m_resetConsoleWithProcessesCheckBox.setSelected(
+      m_properties.getResetConsoleWithProcesses());
 
     m_samplingControlPanel.refresh();
 

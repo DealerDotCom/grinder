@@ -73,6 +73,14 @@ public final class ConsoleProperties {
   public static final String GRINDER_PORT_PROPERTY =
     "grinder.console.grinderPort";
 
+  /** Property name **/
+  public static final String RESET_CONSOLE_WITH_PROCESSES_PROPERTY =
+    "grinder.console.resetConsoleWithProcesses";
+
+  /** Property name **/
+  public static final String RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY =
+    "grinder.console.resetConsoleWithProcessesDontAsk";
+
   private final PropertyChangeSupport m_changeSupport =
     new PropertyChangeSupport(this);
 
@@ -80,6 +88,8 @@ public final class ConsoleProperties {
   private int m_ignoreSampleCount;
   private int m_sampleInterval;
   private int m_significantFigures;
+  private boolean m_resetConsoleWithProcesses;
+  private boolean m_resetConsoleWithProcessesDontAsk;
 
   /**
    *We hang onto the addresses as strings so we can copy and
@@ -131,6 +141,13 @@ public final class ConsoleProperties {
     setGrinderPort(
       m_properties.getInt(GRINDER_PORT_PROPERTY,
 			  CommunicationDefaults.GRINDER_PORT));
+
+    setResetConsoleWithProcesses(
+      m_properties.getBoolean(RESET_CONSOLE_WITH_PROCESSES_PROPERTY, false));
+
+    setResetConsoleWithProcessesDontAskInternal(
+      m_properties.getBoolean(RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
+			      false));
   }
 
   /**
@@ -150,14 +167,17 @@ public final class ConsoleProperties {
    * @param properties The properties to copy.
    **/
   public final void set(ConsoleProperties properties) {
-    setCollectSampleCountNoCheck(properties.m_collectSampleCount);
-    setIgnoreSampleCountNoCheck(properties.m_ignoreSampleCount);
-    setSampleIntervalNoCheck(properties.m_sampleInterval);
-    setSignificantFiguresNoCheck(properties.m_significantFigures);
-    setConsoleAddressNoCheck(properties.m_consoleAddressString);
-    setConsolePortNoCheck(properties.m_consolePort);
-    setGrinderAddressNoCheck(properties.m_grinderAddressString);
-    setGrinderPortNoCheck(properties.m_grinderPort);
+    setCollectSampleCountInternal(properties.m_collectSampleCount);
+    setIgnoreSampleCountInternal(properties.m_ignoreSampleCount);
+    setSampleIntervalInternal(properties.m_sampleInterval);
+    setSignificantFiguresInternal(properties.m_significantFigures);
+    setConsoleAddressInternal(properties.m_consoleAddressString);
+    setConsolePortInternal(properties.m_consolePort);
+    setGrinderAddressInternal(properties.m_grinderAddressString);
+    setGrinderPortInternal(properties.m_grinderPort);
+    setResetConsoleWithProcesses(properties.m_resetConsoleWithProcesses);
+    setResetConsoleWithProcessesDontAskInternal(
+      properties.m_resetConsoleWithProcessesDontAsk);
   }
 
   /**
@@ -199,6 +219,10 @@ public final class ConsoleProperties {
     m_properties.setProperty(GRINDER_ADDRESS_PROPERTY,
 			     m_grinderAddressString);
     m_properties.setInt(GRINDER_PORT_PROPERTY, m_grinderPort);
+    m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_PROPERTY,
+			    m_resetConsoleWithProcesses);
+    m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
+			    m_resetConsoleWithProcessesDontAsk);
 
     m_properties.save();
   }
@@ -227,15 +251,10 @@ public final class ConsoleProperties {
 	"zero means \"forever\"");
     }
 
-    setCollectSampleCountNoCheck(n);
+    setCollectSampleCountInternal(n);
   }
 
-  /**
-   * Set the number of samples to collect. 
-   *
-   * @param n The number. 0 => forever.
-   **/
-  private final void setCollectSampleCountNoCheck(int n) {
+  private final void setCollectSampleCountInternal(int n) {
     if (n != m_collectSampleCount) {
       final int old = m_collectSampleCount;
       m_collectSampleCount = n;
@@ -267,15 +286,10 @@ public final class ConsoleProperties {
 	"You must ignore at least the first sample");
     }
 
-    setIgnoreSampleCountNoCheck(n);
+    setIgnoreSampleCountInternal(n);
   }
 
-  /**
-   * Set the number of samples to collect.
-   *
-   * @param n The number. Must be at least 1.
-   **/
-  public final void setIgnoreSampleCountNoCheck(int n) {
+  private final void setIgnoreSampleCountInternal(int n) {
     if (n != m_ignoreSampleCount) {
       final int old = m_ignoreSampleCount;
       m_ignoreSampleCount = n;
@@ -307,15 +321,10 @@ public final class ConsoleProperties {
 	"Minimum sample interval is 1 ms");
     }
 
-    setSampleIntervalNoCheck(interval);
+    setSampleIntervalInternal(interval);
   }
 
-  /**
-   * Set the sample interval.
-   *
-   * @param interval The interval in milliseconds.
-   **/
-  public final void setSampleIntervalNoCheck(int interval) {
+  private final void setSampleIntervalInternal(int interval) {
     if (interval != m_sampleInterval) {
       final int old = m_sampleInterval;
       m_sampleInterval = interval;
@@ -347,16 +356,10 @@ public final class ConsoleProperties {
 	"Number of significant figures cannot be negative");
     }
 
-    setSignificantFiguresNoCheck(n);
+    setSignificantFiguresInternal(n);
   }
 
-
-  /**
-   * Set the number of significant figures.
-   *
-   * @param n The number of significant figures.
-   **/
-  public final void setSignificantFiguresNoCheck(int n) {
+  private final void setSignificantFiguresInternal(int n) {
     if (n != m_significantFigures) {
       final int old = m_significantFigures;
       m_significantFigures = n;
@@ -406,15 +409,10 @@ public final class ConsoleProperties {
       }
     }
 
-    setConsoleAddressNoCheck(s);
+    setConsoleAddressInternal(s);
   }
 
-  /**
-   * Set the console address.
-   *
-   * @param s Either a machine name or the IP address.
-   **/
-  public final void setConsoleAddressNoCheck(String s) {
+  private final void setConsoleAddressInternal(String s) {
     if (!s.equals(m_consoleAddressString)) {
       final String old = m_consoleAddressString;
       m_consoleAddressString = s;
@@ -441,15 +439,10 @@ public final class ConsoleProperties {
   public final void setConsolePort(int i)
     throws DisplayMessageConsoleException {
     assertValidPort(i);
-    setConsolePortNoCheck(i);
+    setConsolePortInternal(i);
   }
 
-  /**
-   * Set the console port.
-   *
-   * @param i The port number.
-   **/
-  public final void setConsolePortNoCheck(int i) {
+  private final void setConsolePortInternal(int i) {
     if (i != m_consolePort) {
       final int old = m_consolePort;
       m_consolePort = i;
@@ -492,15 +485,10 @@ public final class ConsoleProperties {
 	"Invalid multicast address");
     }
 
-    setGrinderAddressNoCheck(s);
+    setGrinderAddressInternal(s);
   }
 
-  /**
-   * Set the grinder process multicast address.
-   *
-   * @param s Either a machine name or the IP address.
-   **/
-  public final void setGrinderAddressNoCheck(String s) {
+  private final void setGrinderAddressInternal(String s) {
     if (!s.equals(m_grinderAddressString)) {
       final String old = m_grinderAddressString;
       m_grinderAddressString = s;
@@ -527,15 +515,10 @@ public final class ConsoleProperties {
   public final void setGrinderPort(int port)
     throws DisplayMessageConsoleException {
     assertValidPort(port);
-    setGrinderPortNoCheck(port);
+    setGrinderPortInternal(port);
   }
 
-  /**
-   * Set the grinder process multicast port.
-   *
-   * @param port The port number.
-   **/
-  public final void setGrinderPortNoCheck(int port) {
+  private final void setGrinderPortInternal(int port) {
     if (port != m_grinderPort) {
       final int old = m_grinderPort;
       m_grinderPort = port;
@@ -544,18 +527,77 @@ public final class ConsoleProperties {
     }
   }
 
-  /**
-   * Check the given port number is sensible.
-   *
-   * @param port The port number.
-   * @throws DisplayMessageConsoleException If the port number is not sensible.
-   **/
-  private void assertValidPort(int port)
+  private final void assertValidPort(int port)
     throws DisplayMessageConsoleException {
     if (port < 0 || port > CommunicationDefaults.MAX_PORT) {
       throw new DisplayMessageConsoleException(
 	"invalidPortNumberError.text", 
 	"Port numbers should be in the range [0, 65535]");
+    }
+  }
+
+  /**
+   * Get whether the console should be reset with the worker
+   * processes.
+   *
+   * @return <code>true</code> => the console should be reset with the worker processes.
+   */
+  public final boolean getResetConsoleWithProcesses() {
+    return m_resetConsoleWithProcesses;
+  }
+
+  /**
+   * Set whether the console should be reset with the worker
+   * processes.
+   *
+   * @param b <code>true</code> => the console should be reset with the worker processes.
+   */
+  public final void setResetConsoleWithProcesses(boolean b) {
+
+    if (b != m_resetConsoleWithProcesses) {
+      final boolean old = m_resetConsoleWithProcesses;
+      m_resetConsoleWithProcesses = b;
+
+      m_changeSupport.firePropertyChange(RESET_CONSOLE_WITH_PROCESSES_PROPERTY,
+					 old, m_resetConsoleWithProcesses);
+    }
+  }
+
+  /**
+   * Get whether the user wants to be asked if console should be reset
+   * with the worker processes.
+   *
+   * @return <code>true</code> => the user wants to be asked.
+   */
+  public final boolean getResetConsoleWithProcessesDontAsk() {
+    return m_resetConsoleWithProcessesDontAsk;
+  }
+
+  /**
+   * Set that the user doesn't want to be asked if console should be
+   * reset with the worker processes.
+   * @exception GrinderException If the property couldn't be persisted.
+   */
+  public final void setResetConsoleWithProcessesDontAsk()
+    throws GrinderException {
+
+    if (!m_resetConsoleWithProcessesDontAsk) {
+      setResetConsoleWithProcessesDontAskInternal(true);
+
+      m_properties.saveSingleProperty(
+	RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY, "true");
+    }
+  }
+
+  private final void setResetConsoleWithProcessesDontAskInternal(boolean b) {
+
+    if (b != m_resetConsoleWithProcessesDontAsk) {
+      final boolean old = m_resetConsoleWithProcessesDontAsk;
+      m_resetConsoleWithProcessesDontAsk = b;
+
+      m_changeSupport.firePropertyChange(
+	RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
+	old, m_resetConsoleWithProcessesDontAsk);
     }
   }
 }
