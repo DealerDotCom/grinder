@@ -1,5 +1,13 @@
 2004-01-19  Philip Aston  <philipa@mail.com>
 
+	* TODO: Progress.
+
+	* src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties:
+	Explicit line breaks are no longer necessary for TextArea text.
+
+	* CHANGES, src/net/grinder/console/swingui/Table.java:
+	Fix console column header resizing by working around Java bug 4760433.
+
 	* src/net/grinder/engine/process/LoggerImplementation.java:
 	"There were errors" message now prints out log file name.
 
