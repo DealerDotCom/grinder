@@ -17,11 +17,14 @@
       <table>
 	<td>
 	  <p class="beta-warning">These pages are about
-	    <em>The Grinder 3</em>. The Grinder 3 is currently in beta
-	      release; if you want a stable version of The Grinder, look
-	      to <a href="../manual/index.html"><em>The Grinder 2</em></a>
-	      series. The information here is partially complete, and may
-	      not reflect the final form of The Grinder 3.
+	    <em>The Grinder 3</em>. The Grinder 3 is in
+	    active development and its beta status reflects the
+	    incomplete nature of the console script distribution
+	    feature, and also the documentation. The information here is
+	    partially complete and may not reflect the final form of
+	    The Grinder 3. If you want the most stable version of The
+	    Grinder, look to <a href="../manual/index.html"><em>The
+	    Grinder 2</em></a> series.
 	  </p>
 	  <br/>
 	  <xsl:copy-of select="./*"/>
