@@ -45,68 +45,48 @@ final class FileStore {
 
   private final Logger m_logger;
 
-  private final File m_rootDirectory;
-  private Directory m_currentDirectory;
-  private Directory m_incomingDirectory;
-  private int m_nextDirectoryIndex = 0;
+  private final Directory m_incomingDirectory;
+  private final Directory m_currentDirectory;
+  private boolean m_incremental;
 
   public FileStore(File directory, Logger logger) throws FileStoreException {
 
-    m_rootDirectory = directory.getAbsoluteFile();
+    final File rootDirectory = directory.getAbsoluteFile();
     m_logger = logger;
 
-    if (m_rootDirectory.exists()) {
-      if (!m_rootDirectory.isDirectory()) {
+    if (rootDirectory.exists()) {
+      if (!rootDirectory.isDirectory()) {
         throw new FileStoreException(
-          "Could not write to directory '" + m_rootDirectory +
+          "Could not write to directory '" + rootDirectory +
           "' as file with that name already exists");
       }
 
-      if (!m_rootDirectory.canWrite()) {
+      if (!rootDirectory.canWrite()) {
         throw new FileStoreException(
-          "Could not write to directory '" + m_rootDirectory + "'");
+          "Could not write to directory '" + rootDirectory + "'");
       }
     }
-  }
-
-  private Directory createDirectory() throws FileStoreException {
-    if (!m_rootDirectory.exists()) {
-      if (!m_rootDirectory.mkdir()) {
-        throw new FileStoreException(
-          "Could not create directory '" + m_rootDirectory + "'");
-      }
-    }
-
-    final File file =
-      new File(m_rootDirectory, "distribution-" + m_nextDirectoryIndex);
-    ++m_nextDirectoryIndex;
 
     try {
-      final Directory result = new Directory(file);
-      result.create();
-      result.deleteContents();
-      return result;
+      m_incomingDirectory = new Directory(new File(rootDirectory, "incoming"));
+      m_currentDirectory = new Directory(new File(rootDirectory, "current"));
     }
     catch (Directory.DirectoryException e) {
-      throw new FileStoreException("Could not create file store directory", e);
+      throw new FileStoreException(e.getMessage(), e);
     }
+
+    m_incremental = false;
   }
 
   public Directory getDirectory() throws FileStoreException {
     try {
-      synchronized (m_rootDirectory) {
-        if (m_incomingDirectory != null) {
-          if (m_currentDirectory != null) {
-            m_currentDirectory.deleteContents();
-            m_currentDirectory.delete();
-          }
-
-          m_currentDirectory = m_incomingDirectory;
-          m_incomingDirectory = null;
-        }
-
-        return m_currentDirectory;
+      synchronized (m_incomingDirectory) {
+        m_incomingDirectory.copyTo(m_currentDirectory, m_incremental);
       }
+
+      m_incremental = true;
+
+      return m_currentDirectory;
     }
     catch (Directory.DirectoryException e) {
       throw new FileStoreException("Could not create file store directory", e);
@@ -121,21 +101,21 @@ final class FileStore {
             m_logger.output("Clearing file store");
 
             try {
-              synchronized (m_rootDirectory) {
-                m_incomingDirectory = createDirectory();
+              synchronized (m_incomingDirectory) {
+                m_incomingDirectory.create();
+                m_incomingDirectory.deleteContents();
               }
             }
-            catch (FileStoreException e) {
+            catch (Directory.DirectoryException e) {
               throw new CommunicationException(e.getMessage(), e);
             }
+
+            m_incremental = false;
           }
           else if (message instanceof DistributeFileMessage) {
-
             try {
-              synchronized (m_rootDirectory) {
-                if (m_incomingDirectory == null) {
-                  m_incomingDirectory = createDirectory();
-                }
+              synchronized (m_incomingDirectory) {
+                m_incomingDirectory.create();
 
                 final FileContents fileContents =
                   ((DistributeFileMessage)message).getFileContents();
@@ -149,7 +129,7 @@ final class FileStore {
               m_logger.error(e.getMessage());
               throw new CommunicationException(e.getMessage(), e);
             }
-            catch (FileStoreException e) {
+            catch (Directory.DirectoryException e) {
               m_logger.error(e.getMessage());
               throw new CommunicationException(e.getMessage(), e);
             }
