@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,6 @@ package net.grinder.tools.tcpproxy;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 
 /**
@@ -50,13 +49,8 @@ class HTTPMethodAbsoluteURIFilterDecorator implements TCPProxyFilter {
   private static final Pattern s_httpMethodLine;
 
   static {
-    try {
-      s_httpMethodLine = Pattern.compile("^([A-Z]+[ \\t]+)(.*)",
-                                         Pattern.MULTILINE);
-    }
-    catch (PatternSyntaxException e) {
-      throw new ExceptionInInitializerError(e);
-    }
+    s_httpMethodLine = Pattern.compile("^([A-Z]+[ \\t]+)(.*)",
+                                       Pattern.DOTALL);
   }
 
   private final TCPProxyFilter m_delegate;
@@ -72,7 +66,7 @@ class HTTPMethodAbsoluteURIFilterDecorator implements TCPProxyFilter {
   public HTTPMethodAbsoluteURIFilterDecorator(TCPProxyFilter delegate,
                                               EndPoint remoteEndPoint) {
     m_delegate = delegate;
-    m_absoluteURIPrefix = " http://" + remoteEndPoint;
+    m_absoluteURIPrefix = "http://" + remoteEndPoint;
   }
 
   /**
