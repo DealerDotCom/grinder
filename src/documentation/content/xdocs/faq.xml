@@ -131,6 +131,18 @@
 	using The Grinder for production load testing.</p>
       </answer>
     </faq>
+
+    <faq id="subscribe">
+      <question>
+	How do I subscribe/unsubscribe from The Grinder mailing lists?
+      </question>
+
+      <answer>
+	<p>You can subscirbe and unsubscribe at <a
+	href="ext:sourceforge/grinder-mail">Sourceforge</a>. <a
+	href="site:support">More details</a>.</p>
+      </answer>
+    </faq>
   </faqsection>
 
   <faqsection id="statistics">
