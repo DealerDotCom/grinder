@@ -1,8 +1,8 @@
 GRINDER_HOME=/work/src/grinder
 
 #GRINDER=${GRINDER_HOME}/lib/grinder.jar
-GRINDER=${GRINDER_HOME}/build/classes
-GRINDER=${GRINDER}:${GRINDER_HOME}/build/tests-classes # for testing JUnit plugin
+GRINDER=${GRINDER_HOME}/build/classes:${GRINDER_HOME}/lib/jakarta-oro-2.0.6.jar
+GRINDER=${GRINDER_HOME}/build/tests-classes:${GRINDER} # for testing JUnit plugin
 
 JUNIT=/opt/junit/junit3.7/junit.jar
 
