@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,18 +21,12 @@
 
 package net.grinder.console.editor;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.Perl5Matcher;
 
 import net.grinder.console.communication.DistributionControl;
 import net.grinder.util.Directory;
-import net.grinder.util.FileContents;
 
 
 /**
@@ -44,10 +38,8 @@ import net.grinder.util.FileContents;
 public final class FileDistribution {
 
   private final DistributionControl m_distributionControl;
-
-  private long m_earliestLastModifiedTime = -1;
-  private Set m_lastConnectedAgents = new HashSet();
-  private Directory m_lastDirectory;
+  private CacheStateImplementation m_cacheState =
+    new CacheStateImplementation();
 
   /**
    * Constructor.
@@ -62,6 +54,11 @@ public final class FileDistribution {
    * Get a {@link FileDistributionHandler} for a new file
    * distribution.
    *
+   * <p>The FileDistributionHandler updates our simple model of the
+   * remote cache state. Callers should only use one
+   * FileDistributionHandler at a time. Using multiple instances
+   * concurrently will result in undefined behaviour.</p>
+   *
    * @param directory The base distribution directory.
    * @param distributionFileFilterPattern Current filter pattern.
    * @return Handler for new file distribution.
@@ -72,99 +69,78 @@ public final class FileDistribution {
 
     final Set connectedAgents = m_distributionControl.getConnectedAgents();
 
-    if (m_lastDirectory == null ||
-        !m_lastDirectory.equals(directory) ||
-        !m_lastConnectedAgents.containsAll(connectedAgents)) {
+    if (!m_cacheState.isValid(directory,
+                              distributionFileFilterPattern,
+                              connectedAgents)) {
       m_distributionControl.clearFileCaches();
-      m_earliestLastModifiedTime = -1;
+      m_cacheState =
+        new CacheStateImplementation(directory,
+                                     distributionFileFilterPattern,
+                                     connectedAgents);
     }
-
-    m_lastDirectory = directory;
-    m_lastConnectedAgents = connectedAgents;
 
     return new FileDistributionHandlerImplementation(
       directory.getAsFile(),
-      directory.listContents(new Filter(distributionFileFilterPattern)));
+      directory.listContents(
+        new FileDistributionFilter(distributionFileFilterPattern,
+                                   m_cacheState.getTimeLastUpdateCompleted())),
+      m_distributionControl,
+      m_cacheState);
+  }
+
+  /**
+   * Simplistic model of remote caches.
+   */
+  interface CacheState {
+    long getTimeLastUpdateCompleted();
+    void updateComplete();
   }
 
   /**
    * Package scope for the unit tests.
    */
-  final class Filter implements FileFilter {
-    private final PatternMatcher m_matcher = new Perl5Matcher();
-    private final Pattern m_distributionFileFilterPattern;
+  static class CacheStateImplementation implements CacheState {
+    private final Directory m_directory;
+    private final Pattern m_fileFilterPattern;
+    private final Set m_connectedAgents;
 
-    public Filter(Pattern distributionFileFilterPattern) {
-      m_distributionFileFilterPattern = distributionFileFilterPattern;
+    private long m_timeLastUpdateCompleted = -1;
+
+    public CacheStateImplementation() {
+      m_directory = null;
+      m_fileFilterPattern = null;
+      m_connectedAgents = null;
     }
 
-    public boolean accept(File file) {
-      final String name = file.getName();
-
-      if (file.isDirectory()) {
-        if (m_matcher.contains(name + "/", m_distributionFileFilterPattern)) {
-          return false;
-        }
-
-        if (name.endsWith("-file-store")) {
-          final File readmeFile = new File(file, "README.txt");
-
-          if (readmeFile.isFile()) {
-            return false;
-          }
-        }
-
-        return true;
-      }
-      else {
-        if (m_matcher.contains(name, m_distributionFileFilterPattern)) {
-          return false;
-        }
-
-        return file.lastModified() > m_earliestLastModifiedTime;
-      }
-    }
-  }
-
-  private final class FileDistributionHandlerImplementation
-    implements FileDistributionHandler {
-
-    private final File m_directory;
-    private final File[] m_files;
-    private int m_fileIndex = 0;
-
-    FileDistributionHandlerImplementation(File directory, File[] files) {
+    public CacheStateImplementation(Directory directory,
+                                    Pattern fileFilterPattern,
+                                    Set connectedAgents) {
       m_directory = directory;
-      m_files = files;
+      m_fileFilterPattern = fileFilterPattern;
+      m_connectedAgents = connectedAgents;
     }
 
-    public Result sendNextFile() throws FileContents.FileContentsException {
-
-      if (m_fileIndex < m_files.length) {
-        try {
-          final int index = m_fileIndex;
-          final File file = m_files[index];
-
-          m_distributionControl.sendFile(new FileContents(m_directory, file));
-
-          return new Result() {
-              public int getProgressInCents() {
-                return (index * 100) / m_files.length;
-              }
-
-              public String getFileName() {
-                return file.getPath();
-              }
-            };
-        }
-        finally {
-          ++m_fileIndex;
-        }
+    public boolean isValid(Directory directory,
+                           Pattern fileFilterPattern,
+                           Set connectedAgents) {
+      if (m_directory == null ||
+          m_fileFilterPattern == null ||
+          m_connectedAgents == null) {
+        return false;
       }
 
-      m_earliestLastModifiedTime = System.currentTimeMillis();
+      return
+        m_directory.equals(directory) &&
+        m_fileFilterPattern.equals(fileFilterPattern) &&
+        m_connectedAgents.containsAll(connectedAgents);
+    }
 
-      return null;
+    public long getTimeLastUpdateCompleted() {
+      return m_timeLastUpdateCompleted;
+    }
+
+    public void updateComplete() {
+      m_timeLastUpdateCompleted = System.currentTimeMillis();
     }
   }
 }
