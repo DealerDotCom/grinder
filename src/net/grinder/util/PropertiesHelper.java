@@ -143,7 +143,7 @@ public class PropertiesHelper
 	return TEST_PREFIX + testNumber + '.' + unqualifiedName;
     }
 
-    private class PropertiesTest implements Test
+    private static class PropertiesTest implements Test
     {
 	private final Integer m_testNumber;
 	private final String m_description;
