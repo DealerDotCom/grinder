@@ -10,3 +10,5 @@ clover
 .externalToolBuilders
 .classpath
 .project
+.checkclipse
+.checkstyle
