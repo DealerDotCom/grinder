@@ -23,9 +23,7 @@
 package net.grinder.engine.process;
 
 import java.io.PrintWriter;
-import java.util.Set;
 
-import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
