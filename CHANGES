@@ -7,6 +7,9 @@ Grinder 2.6.3
 
   Thread safety fix from Mikael Suokas.
 
+  Fix basic authentication property names. Thanks to Andrew
+  Sliwkowski for reporting this.
+
 
 Grinder 2.6.2
 -------------

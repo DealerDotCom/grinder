@@ -73,8 +73,8 @@ public class HttpPlugin extends SimplePluginBase
 	private String m_okString;
 	private long m_ifModifiedSince = -1;
 	private String m_postString;
-	private final String m_basicAuthorizationUserString;
-	private final String m_basicAuthorizationPasswordString;
+	private final String m_basicAuthenticationUserString;
+	private final String m_basicAuthenticationPasswordString;
 	private final StringBuffer m_buffer = new StringBuffer();
 	private final Test m_test;
 	private Object[] m_noArgs = new Object[0];
@@ -141,11 +141,12 @@ public class HttpPlugin extends SimplePluginBase
 		}
 	    }
 
-	    m_basicAuthorizationUserString =
-		testParameters.getProperty("basicAuthorizationUser", null);
+	    m_basicAuthenticationUserString =
+		testParameters.getProperty("basicAuthenticationUser", null);
 
-	    m_basicAuthorizationPasswordString =
-		testParameters.getProperty("basicAuthorizationPassword", null);
+	    m_basicAuthenticationPasswordString =
+		testParameters.getProperty("basicAuthenticationPassword",
+					   null);
 	}
 
 	private String replaceDynamicKeys(String original) 
@@ -226,16 +227,16 @@ public class HttpPlugin extends SimplePluginBase
 	public String getAuthorizationString()
 	    throws PluginException
 	{
-	    if (m_basicAuthorizationUserString == null ||
-		m_basicAuthorizationPasswordString == null) {
+	    if (m_basicAuthenticationUserString == null ||
+		m_basicAuthenticationPasswordString == null) {
 		return null;
 	    }
 
 	    final String user =
-		replaceDynamicKeys(m_basicAuthorizationUserString);
+		replaceDynamicKeys(m_basicAuthenticationUserString);
 
 	    final String password =
-		replaceDynamicKeys(m_basicAuthorizationPasswordString);
+		replaceDynamicKeys(m_basicAuthenticationPasswordString);
 	    
 	    return
 		"Basic " +
