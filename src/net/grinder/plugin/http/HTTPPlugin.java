@@ -190,87 +190,18 @@ public class HTTPPlugin implements GrinderPlugin
 	public Object invokeTest(Test test, Object parameters)
 	    throws PluginException
 	{
-	    final HTTPTest httpTest = (HTTPTest)test;
-
-	    //	    final CallData callData = (CallData)m_callData.get(test);
+	    final HTTPTest.DelayedInvocation delayedInvocation =
+		(HTTPTest.DelayedInvocation)parameters;
 
 	    HTTPResponse httpResponse = null;
 
 	    try {
-		final URI uri = new URI(httpTest.getUrl());
-
-		final NVPair[] headers = httpTest.getHeaders();
-		final int numberOfTestHeaders =
-		    headers != null ? headers.length : 0;
-
-		// HTTPClient ignores null header values.
-		final NVPair[] additionalHeaders =
-		    new NVPair[5 + numberOfTestHeaders];
-
-		int nextHeader = 0;
-
-		boolean seenContentType = false;
-
-		for (int i=0; i<numberOfTestHeaders; ++i) {
-		    final NVPair header = headers[i];
-		    
-		    additionalHeaders[nextHeader++] = header;
-
-		    // Some browsers send "Content-type" instead of
-		    // "Content-Type."
-		    if (!seenContentType &&
-			"Content-Type".equalsIgnoreCase(header.getName())) {
-			seenContentType = true;
-		    }
-		}
-
-		final String queryString = uri.getQueryString();
-		final String pathString;
-
-		if ((queryString != null) && (queryString.length() > 0)) {  
-		    pathString = uri.getPath() + '?' + queryString;
-		}
-		else {
-		    pathString = uri.getPath();
-		}
-
-		final byte[] postData = httpTest.getPostData();
-
-		//		final BasicAuthorizationData basicAuthorizationData =
-		//		    callData.getAuthorizationData();
-
 		m_threadContext.startTimer();
 
-		final HTTPConnection httpConnection = getConnection(uri);
+		final HTTPConnection httpConnection =
+		    getConnection(delayedInvocation.getURI());
 
-		/*
-		if (basicAuthorizationData != null) {
-		    httpConnection.addBasicAuthorization(
-			basicAuthorizationData.getRealm(),
-			basicAuthorizationData.getUser(),
-			basicAuthorizationData.getPassword());
-		}
-		*/
-
-		if (postData == null) {
-		    // We don't pass the query string to the second
-		    // parameter of Get() as we don't want it to be URL
-		    // encoded.
-		    httpResponse = httpConnection.Get(pathString, (String)null,
-						      additionalHeaders);
-		}
-		else {
-		    // HTTPClient defaults to application/octet-stream,
-		    // but this is a better default.
-		    if (!seenContentType) {
-			additionalHeaders[nextHeader++] =
-			    new NVPair("Content-Type",
-				       "application/x-www-form-urlencoded");
-		    }
-
-		    httpResponse = httpConnection.Post(pathString, postData,
-						       additionalHeaders);
-		}
+		httpResponse = delayedInvocation.request(httpConnection);
 
 		httpResponse.getData();
 		httpResponse.getInputStream().close();
@@ -279,7 +210,7 @@ public class HTTPPlugin implements GrinderPlugin
 		final int statusCode = httpResponse.getStatusCode();
 
 		final String message =
-		    uri + "->" + statusCode + " " +
+		    delayedInvocation.getPath() + "->" + statusCode + " " +
 		    httpResponse.getReasonLine();
 
 		switch (statusCode) {
@@ -330,14 +261,14 @@ public class HTTPPlugin implements GrinderPlugin
 	    catch (Exception e) {
 		throw new PluginException(
 		    "Failed whilst making HTTP request to " +
-		    httpTest.getUrl(), e);
+		    delayedInvocation.getPath(), e);
 	    }
 	    finally {
 		// Back stop.
 		m_threadContext.stopTimer();
 	    }
 
-	    return new HTTPPluginTestResult(httpResponse);
+	    return httpResponse;
 	}
 
 	public void endRun() throws PluginException
@@ -345,12 +276,4 @@ public class HTTPPlugin implements GrinderPlugin
 	    m_currentIteration++;
 	}
     }
-    /*
-    interface BasicAuthorizationData
-    {
-	public String getRealm();
-	public String getUser();
-	public String getPassword();
-    }
-    */
 }
