@@ -122,7 +122,7 @@
 	Barf helpfully if user tries to use -initialTest.
 
 	* src/net/grinder/tools/tcpproxy/TCPProxyConsole.java, src/net/grinder/tools/tcpproxy/TCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java, src/net/griXnder/tools/tcpproxy/TCPProxyFilter.java, CHANGES, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/tools/tcpproxy/EchoFilter.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/NullFilter.java:
-	First set of enhancements to the TCPProxy from Bertrande:
+	First set of enhancements to the TCPProxy from Bertrand:
 	   - Added a "-console" switch. When used, the TCPProxy creates a
 	     simple Swing dialog that allows it to be cleanly interrupted.
 
