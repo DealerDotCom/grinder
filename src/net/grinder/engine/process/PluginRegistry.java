@@ -105,7 +105,7 @@ public final class PluginRegistry {
                                     plugin.getClass().getName() +
                                     "' could not be initialised.", e);
         }
-        
+
         m_plugins.put(plugin, registeredPlugin);
         m_logger.output("registered plug-in " + plugin.getClass().getName());
       }
