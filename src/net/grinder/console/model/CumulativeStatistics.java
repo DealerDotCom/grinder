@@ -18,14 +18,21 @@
 
 package net.grinder.console.model;
 
-import java.util.EventListener;
+import net.grinder.plugininterface.Test;
 
 
 /**
+ * Cumulative statistics.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface SampleListener extends EventListener
+public interface CumulativeStatistics
 {
-    public void update(CumulativeStatistics cumulativeStatistics, double tps);
+    public double getAverageTransactionTime();
+    public long getTransactions();
+    public long getErrors();
+
+    public double getAverageTPS();
+    public double getPeakTPS();
 }

@@ -20,14 +20,13 @@ package net.grinder.console.swingui;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import javax.swing.table.AbstractTableModel;
 
+import net.grinder.console.model.CumulativeStatistics;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.plugininterface.Test;
-import net.grinder.statistics.Statistics;
-import net.grinder.statistics.TestStatisticsMap;
 
 import net.grinder.console.ConsoleException;
 
@@ -45,18 +44,18 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
     private final String m_testString;
     private final String m_totalString;
 
-    private Statistics m_totals = new Statistics();
-    private int m_lastMapSize = 0;
-    private TestStatisticsMap m_testStatisticsMap = null;
-    private TestStatisticsMap.Pair[] m_testIndex =
-	new TestStatisticsMap.Pair[0];
+    private final Test[] m_tests;
+
+    private NumberFormat m_numberFormat = null;
 
     public StatisticsTableModel(Model model, boolean includeTotals,
 				Resources resources)
 	throws ConsoleException
     {
 	m_model = model;
+	m_tests = (Test[])model.getTests().toArray(new Test[0]);
 	m_includeTotals = includeTotals;
+	m_numberFormat = m_model.getNumberFormat();
 
 	m_model.addModelListener(this);
 
@@ -65,7 +64,9 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 	    "table.descriptionColumn.label",
 	    "table.transactionColumn.label",
 	    "table.errorColumn.label",
-	    "table.responseTimeColumn.label",
+	    "table.averageTimeColumn.label",
+	    "table.averageTPSColumn.label",
+	    "table.peakTPSColumn.label",
 	};
 
 	m_columnLabels = new String[resourceNames.length];
@@ -80,37 +81,8 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 
     public synchronized void update()
     {
-	final TestStatisticsMap testStatisticsMap =
-	    m_model.getSummaryStatistics();
-
-	m_totals = testStatisticsMap.getTotal();
-
-	final int size = testStatisticsMap.getSize();
-
-	// Crude way of figuring out whether the TestStatisticsMap has
-	// changed.
-	if (size != m_lastMapSize ||
-	    testStatisticsMap != m_testStatisticsMap) {
-	    // Its changed, rebuild the index.
-	    m_lastMapSize = size;
-	    m_testStatisticsMap = testStatisticsMap;
-
-	    m_testIndex = new TestStatisticsMap.Pair[size];
-
-	    final TestStatisticsMap.Iterator iterator =
-		m_testStatisticsMap.new Iterator();
-
-	    int index = 0;
-
-	    while (iterator.hasNext()) {
-		m_testIndex[index++] = iterator.next();
-	    }
-
-	    fireTableDataChanged();
-	}
-	else {
-	    fireTableRowsUpdated(0, getRowCount());
-	}
+	m_numberFormat = m_model.getNumberFormat();
+	fireTableRowsUpdated(0, getRowCount());
     }
 
     public String getColumnName(int column)
@@ -120,7 +92,7 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 
     public int getRowCount()
     {
-	return m_testIndex.length + (m_includeTotals ? 1 : 0);
+	return m_tests.length + (m_includeTotals ? 1 : 0);
     }
 
     public int getColumnCount()
@@ -130,17 +102,16 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 
     public synchronized Object getValueAt(int row, int column)
     {
-	if (row < m_testIndex.length) {
+	if (row < m_tests.length) {
 	    if (column == 0) {
-		return
-		    m_testString + m_testIndex[row].getTest().getTestNumber();
+		return m_testString + m_tests[row].getTestNumber();
 	    }
 	    else if (column == 1) {
-		return m_testIndex[row].getTest().getDescription();
+		return m_tests[row].getDescription();
 	    }
 	    else
 	    {
-		return getStatisticsField(m_testIndex[row].getStatistics(),
+		return getStatisticsField(m_model.getCumulativeStatistics(row),
 					  column - 2);
 	    }
 	}
@@ -152,31 +123,61 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 		return "";
 	    }
 	    else {
-		return getStatisticsField(m_totals, column - 2);
+		return
+		    getStatisticsField(m_model.getTotalCumulativeStatistics(),
+				       column - 2);
 	    }
 	}
     }
 
-    private String getStatisticsField(Statistics statistics, int field)
+    private String getStatisticsField(CumulativeStatistics statistics,
+				      int field)
     {
-	if (field == 0) {
+	switch (field) {
+	case 0:
 	    return String.valueOf(statistics.getTransactions());
-	}
-	else if (field == 1) {
+
+	case 1:
 	    return String.valueOf(statistics.getErrors());
-	}
-	else if (field == 2) {
+
+	case 2:
 	    final double average = statistics.getAverageTransactionTime();
 
 	    if (Double.isNaN(average)) {
 		return "";
 	    }
 	    else {
-		return m_model.getNumberFormat().format(average);
+		return m_numberFormat.format(average);
+	    }
+
+	case 3:
+	    return m_numberFormat.format(statistics.getAverageTPS());
+
+	case 4:
+	    return m_numberFormat.format(statistics.getPeakTPS());
+
+	default:
+	    return "?";
+	}
+    }
+
+    public boolean isBold(int row, int column) 
+    {
+	return row >= m_tests.length || isRed(row, column);
+    }
+
+    public boolean isRed(int row, int column)
+    {
+	if (column == 3) {
+	    if (row < m_tests.length) {
+		return m_model.getCumulativeStatistics(row).getErrors() > 0;
+	    }
+	    else {
+		return m_model.getTotalCumulativeStatistics().getErrors() > 0;
 	    }
 	}
 
-	return "?";
+	return false;
     }
 
     public synchronized void write(Writer writer, String columnDelimiter,

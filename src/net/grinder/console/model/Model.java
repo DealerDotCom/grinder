@@ -23,9 +23,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.TreeSet;
 
 import net.grinder.console.ConsoleException;
 import net.grinder.plugininterface.GrinderPlugin;
@@ -52,10 +51,13 @@ public class Model
     private long m_startTime;
     private long m_stopTime;
 
-    private final Map m_tests = new TreeMap();
-    private final HashMap m_samples = new HashMap();
-    private final Sample m_totalSample = new Sample();
-    private TestStatisticsMap m_summaryStatistics = new TestStatisticsMap();
+    /** Keep the tests into a TreeSet so that they're ordered. **/
+    private final Set m_tests = new TreeSet();
+    private final int m_numberOfTests;
+    private final SampleAccumulator[] m_sampleAccumulators;
+    private final SampleAccumulator m_totalSampleAccumulator =
+	new SampleAccumulator();
+
     private final Thread m_sampleThread;
     private int m_sampleInterval = 1000;
     private int m_significantFigures = 3;
@@ -83,16 +85,18 @@ public class Model
 	    propertiesHelper.instantiatePlugin(
 		new ProcessContextImplementation());
 
-	// Shove the tests into a TreeMap so that they're ordered.
-	final Iterator testSetIterator =
-	    propertiesHelper.getTestSet(grinderPlugin).iterator();
+	m_tests.addAll(propertiesHelper.getTestSet(grinderPlugin));
+
+	m_numberOfTests = m_tests.size();
+	m_sampleAccumulators = new SampleAccumulator[m_numberOfTests];
+
+	final Iterator testSetIterator = m_tests.iterator();
 
 	while (testSetIterator.hasNext())
 	{
 	    final Test test = (Test)testSetIterator.next();
-	    final Integer testNumber = test.getTestNumber();
-	    m_tests.put(test.getTestNumber(), test);
-	    m_samples.put(test.getTestNumber(), new Sample());
+	    m_sampleAccumulators[test.getTestNumber().intValue()] =
+		new SampleAccumulator();
 	}
 
 	setInitialState();
@@ -101,26 +105,19 @@ public class Model
 	m_sampleThread.start();
     }
 
-    public Collection getTests() 
+    public Set getTests()
     {
-	return m_tests.values();
+	return m_tests;
     }
 
-    public TestStatisticsMap getSummaryStatistics()
+    public CumulativeStatistics getCumulativeStatistics(int testNumber)
     {
-	return m_summaryStatistics;
+	return m_sampleAccumulators[testNumber];
     }
 
-    private Sample getSample(Integer testNumber)
-	throws ConsoleException
+    public CumulativeStatistics getTotalCumulativeStatistics()
     {
-	final Sample sample =(Sample)m_samples.get(testNumber);
-
-	if (sample == null) {
-	    throw new ConsoleException("Unknown test '" + testNumber + "'");
-	}
-
-	return sample;
+	return m_totalSampleAccumulator;
     }
 
     public synchronized void addModelListener(ModelListener listener)
@@ -138,15 +135,15 @@ public class Model
 	}
     }
 
-    public void addSampleListener(Integer testNumber, SampleListener listener)
+    public void addSampleListener(int testNumber, SampleListener listener)
 	throws ConsoleException
     {
-	getSample(testNumber).addSampleListener(listener);
+	m_sampleAccumulators[testNumber].addSampleListener(listener);
     }
 
     public void addTotalSampleListener(SampleListener listener)
     {
-	m_totalSample.addSampleListener(listener);
+	m_totalSampleAccumulator.addSampleListener(listener);
     }
 
     private void setInitialState()
@@ -186,20 +183,19 @@ public class Model
 		final Integer testNumber = pair.getTest().getTestNumber();
 		final Statistics statistics = pair.getStatistics();
 
-		getSample(testNumber).add(statistics);
+		m_sampleAccumulators[testNumber.intValue()].add(statistics);
 
-		m_totalSample.add(statistics);
+		m_totalSampleAccumulator.add(statistics);
 	    }
-
-	    m_summaryStatistics.add(testStatisticsMap);
 	}
     }
 
-    private class Sample
+    private class SampleAccumulator implements CumulativeStatistics
     {
 	private final List m_listeners = new LinkedList();
 	private Statistics m_total;
 	private long m_transactionsInInterval;
+	private double m_averageTPS;
 	private double m_peakTPS;
 	
 	{
@@ -222,23 +218,22 @@ public class Model
 	    final double tps =
 		1000d*m_transactionsInInterval/(double)m_sampleInterval;
 
-	    final long totalTime =
-		(getState() == STATE_STOPPED ? m_stopTime : m_currentTime) -
-		m_startTime;
-
-	    final double averageTPS =
-		1000d*m_total.getTransactions()/(double)totalTime;
-
 	    if (tps > m_peakTPS) {
 		m_peakTPS = tps;
 	    }
+
+	    final double totalTime =
+		(getState() == STATE_STOPPED ? m_stopTime : m_currentTime) -
+		m_startTime;
+
+	    m_averageTPS = 1000d*m_total.getTransactions()/totalTime;
 
 	    final Iterator iterator = m_listeners.iterator();
 
 	    while (iterator.hasNext()) {
 		final SampleListener listener =
 		    (SampleListener)iterator.next();
-		listener.update(tps, averageTPS, m_peakTPS, m_total);
+		listener.update(this, tps);
 	    }
 
 	    m_transactionsInInterval = 0;
@@ -247,8 +242,34 @@ public class Model
 	private void reset()
 	{
 	    m_transactionsInInterval = 0;
+	    m_averageTPS = 0;
 	    m_peakTPS = 0;
 	    m_total = new Statistics();
+	}
+
+	public double getAverageTransactionTime()
+	{
+	    return m_total.getAverageTransactionTime();
+	}
+
+	public long getTransactions()
+	{
+	    return m_total.getTransactions();
+	}
+
+	public long getErrors()
+	{
+	    return m_total.getErrors();
+	}
+
+	public double getAverageTPS()
+	{
+	    return m_averageTPS;
+	}
+
+	public double getPeakTPS()
+	{
+	    return m_peakTPS;
 	}
     }
 
@@ -271,13 +292,11 @@ public class Model
 		    }
 		}
 
-		final Iterator iterator = m_samples.values().iterator();
-
-		while (iterator.hasNext()) {
-		    ((Sample)iterator.next()).fireSample();
+		for (int i=0; i<m_numberOfTests; i++) {
+		    m_sampleAccumulators[i].fireSample();
 		}
 
-		m_totalSample.fireSample();
+		m_totalSampleAccumulator.fireSample();
 
 		final int state = getState();
 
@@ -382,15 +401,11 @@ public class Model
 
     private void reset()
     {
-	final Iterator iterator = m_samples.values().iterator();
-
-	while (iterator.hasNext()) {
-	    final Sample sample = (Sample)iterator.next();
-	    sample.reset();
+	for (int i=0; i<m_numberOfTests; i++) {
+	    m_sampleAccumulators[i].reset();
 	}
 
-	m_totalSample.reset();
-	m_summaryStatistics = new TestStatisticsMap();
+	m_totalSampleAccumulator.reset();
 
 	m_startTime = m_currentTime;
 

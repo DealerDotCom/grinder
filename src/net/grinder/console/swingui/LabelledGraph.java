@@ -33,6 +33,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
 import net.grinder.console.ConsoleException;
+import net.grinder.console.model.CumulativeStatistics;
 import net.grinder.statistics.Statistics;
 
 
@@ -93,13 +94,13 @@ class LabelledGraph extends JPanel
 	    s_defaultForeground = label.getForeground();
 	}
 
-	private final String m_text;
+	private final String m_suffix;
 	private final String m_unit;
 	private final String m_units;
 
-	public Label(String text, String unit, String units)
+	public Label(String unit, String units, String suffix)
 	{
-	    m_text = text.length() > 0 ? text + " " : "";
+	    m_suffix = " " + suffix;
 	    m_unit = " " + unit;
 	    m_units = " " + units;
 	    setFont(s_plainFont);
@@ -108,17 +109,21 @@ class LabelledGraph extends JPanel
 
 	public void set(long value)
 	{
-	    super.setText(m_text + value + (value == 1 ? m_unit : m_units));
+	    super.setText(Long.toString(value) +
+			  (value == 1 ? m_unit : m_units) +
+			  m_suffix);
 	}
 
 	public void set(double value, NumberFormat numberFormat)
 	{
-	    super.setText(m_text + numberFormat.format(value) + m_units);
+	    super.setText(numberFormat.format(value) +
+			  m_units +
+			  m_suffix);
 	}
 
 	public void set(String value)
 	{
-	    super.setText(m_text + value + m_units);
+	    super.setText(value + m_units + m_suffix);
 	}
 
 	/**
@@ -128,7 +133,7 @@ class LabelledGraph extends JPanel
 	public Dimension getPreferredSize()
 	{
 	    final Dimension d = super.getPreferredSize();
-	    d.width = 110;
+	    d.width = 120;
 	    d.height -= 2;
 	    return d;
 	}
@@ -151,8 +156,7 @@ class LabelledGraph extends JPanel
 	}
     }
 
-    private final Label m_responseTimeLabel;
-    private final Label m_tpsLabel;
+    private final Label m_averageTimeLabel;
     private final Label m_averageTPSLabel;
     private final Label m_peakTPSLabel;
     private final Label m_transactionsLabel;
@@ -177,29 +181,16 @@ class LabelledGraph extends JPanel
 	final String errorUnit = resources.getString("error.unit");
 	final String errorUnits = resources.getString("error.units");
 
-	m_responseTimeLabel =
-	    new Label(resources.getString("graph.responseTime.label"),
-		      msUnit, msUnits);
+	final String averageSuffix =
+	    resources.getString("graph.averageSuffix.label");
+	final String peakSuffix =
+	    resources.getString("graph.peakSuffix.label");
 
-	m_tpsLabel =
-	    new Label(resources.getString("graph.tps.label"),
-		      tpsUnits, tpsUnits);
-
-	m_averageTPSLabel =
-	    new Label(resources.getString("graph.averageTPS.label"),
-		      tpsUnits, tpsUnits);
-
-	m_peakTPSLabel =
-	    new Label(resources.getString("graph.peakTPS.label"),
-		      tpsUnits, tpsUnits);
-
-	m_transactionsLabel =
-	    new Label(resources.getString("graph.transactions.label"),
-		      transactionUnit, transactionUnits);
-
-	m_errorsLabel =
-	    new Label(resources.getString("graph.errors.label"),
-		      errorUnit, errorUnits);
+	m_averageTimeLabel = new Label(msUnit, msUnits, averageSuffix);
+	m_averageTPSLabel = new Label(tpsUnits, tpsUnits, averageSuffix);
+	m_peakTPSLabel = new Label(tpsUnits, tpsUnits, peakSuffix);
+	m_transactionsLabel = new Label(transactionUnit, transactionUnits, "");
+	m_errorsLabel = new Label(errorUnit, errorUnits, "");
 
 	m_color = color;
 	m_graph = new Graph(25);
@@ -208,13 +199,13 @@ class LabelledGraph extends JPanel
 
 	final JPanel labelPanel = new JPanel();
 	labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
+	labelPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 0));
 
 	final JLabel titleLabel= new JLabel();
 	titleLabel.setText(title);
 	titleLabel.setForeground(Color.black);
 
-	labelPanel.add(m_responseTimeLabel);
-	labelPanel.add(m_tpsLabel);
+	labelPanel.add(m_averageTimeLabel);
 	labelPanel.add(m_averageTPSLabel);
 	labelPanel.add(m_peakTPSLabel);
 	labelPanel.add(m_transactionsLabel);
@@ -236,31 +227,32 @@ class LabelledGraph extends JPanel
 	return m_preferredSize;
     }
 
-    public void add(double tps, double averageTPS, double peakTPS,
-		    Statistics total, NumberFormat numberFormat)
+    public void add(CumulativeStatistics cumulativeStatistics,
+		    double tps, NumberFormat numberFormat)
     {
-	final double responseTime = total.getAverageTransactionTime();
+	final double averageTime =
+	    cumulativeStatistics.getAverageTransactionTime();
+	final long errors = cumulativeStatistics.getErrors();
+	final double peakTPS = cumulativeStatistics.getPeakTPS();
 
 	m_graph.setMaximum(peakTPS);
-	m_graph.setColor(calculateColour(responseTime));
+	m_graph.setColor(calculateColour(averageTime));
 	m_graph.add(tps);
 
-	if (!Double.isNaN(responseTime)) {
-	    m_responseTimeLabel.set(responseTime, numberFormat);
+	if (!Double.isNaN(averageTime)) {
+	    m_averageTimeLabel.set(averageTime, numberFormat);
 	}
 	else {
-	    m_responseTimeLabel.set("----");
+	    m_averageTimeLabel.set("----");
 	}
 
-	m_tpsLabel.set(tps, numberFormat);
-	m_averageTPSLabel.set(averageTPS, numberFormat);
+	m_averageTPSLabel.set(cumulativeStatistics.getAverageTPS(),
+			      numberFormat);
 	m_peakTPSLabel.set(peakTPS, numberFormat);
 
-	m_transactionsLabel.set(total.getTransactions());
+	m_transactionsLabel.set(cumulativeStatistics.getTransactions());
 
-	final long errors = total.getErrors();
 	m_errorsLabel.set(errors);
-
 	m_errorsLabel.setHighlight(errors > 0);
     }
 

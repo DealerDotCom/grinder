@@ -23,6 +23,7 @@ import java.util.Iterator;
 import javax.swing.JPanel;
 
 import net.grinder.console.ConsoleException;
+import net.grinder.console.model.CumulativeStatistics;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.SampleListener;
 import net.grinder.plugininterface.Test;
@@ -42,15 +43,17 @@ public class TestGraphPanel extends JPanel
     {
 	setLayout(new GridLayout(0, 2, 20, 0));
 
+	final String testLabel = resources.getString("graph.test.label") + " ";
+
 	final Iterator testIterator = model.getTests().iterator();
 
 	while (testIterator.hasNext()) {
 	    final Test test = (Test)testIterator.next();
 
-	    final Integer testNumber = test.getTestNumber();
+	    final int testNumber = test.getTestNumber().intValue();
 	    final String description = test.getDescription();
 
-	    String label = "Test " + testNumber;
+	    String label = testLabel + testNumber;
 
 	    if (description != null) {
 		label = label + " (" + description + ")";
@@ -62,9 +65,10 @@ public class TestGraphPanel extends JPanel
 	    model.addSampleListener(
 		testNumber,
 		new SampleListener() {
-		    public void update(double tps, double averageTPS,
-				       double peakTPS, Statistics total) {
-			testGraph.add(tps, averageTPS, peakTPS, total,
+		    public void update(
+			CumulativeStatistics cumulativeStatistics,
+			double tps) {
+			testGraph.add(cumulativeStatistics, tps,
 				      model.getNumberFormat());
 		    }
 		}
@@ -75,8 +79,8 @@ public class TestGraphPanel extends JPanel
 
 	model.addTotalSampleListener(
 	    new SampleListener() {
-		public void update(double tps, double averageTPS,
-				   double peakTPS, Statistics total) {
+		public void update(CumulativeStatistics cumulativeStatistics,
+				   double tps) {
 		    LabelledGraph.resetPeak();
 		}
 	    });

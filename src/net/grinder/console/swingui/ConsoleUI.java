@@ -69,6 +69,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.grinder.console.ConsoleException;
+import net.grinder.console.model.CumulativeStatistics;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
@@ -180,12 +181,12 @@ public class ConsoleUI implements ModelListener
 		private final String m_suffix =
 		    " " + m_resources.getString("tps.units");
 
-		public void update(double tps, double average,
-				   double peak, Statistics total) {
+		public void update(CumulativeStatistics cumulativeStatistics,
+				   double tps) {
 		    final NumberFormat format = m_model.getNumberFormat();
 		    
 		    tpsLabel.setText(format.format(tps) + m_suffix);
-		    totalGraph.add(tps, average, peak, total, format);
+		    totalGraph.add(cumulativeStatistics, tps, format);
 		}
 	    });
 
