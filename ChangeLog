@@ -1,6 +1,10 @@
 2003-11-29  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta14 is released.
+
+	* CHANGES, xdoc/g3/features-xhtml.xml:
+	Fix bug 850939 - dead link in documentation. Thanks to Danny Faught
+	for the report.
 	
 	* src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPRequest.java:
 	Checkstyle.
