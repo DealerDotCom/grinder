@@ -34,23 +34,27 @@ public interface ThreadCallbacks
     /**
      * This method is executed when the thread starts. It is only
      * executed once per thread.
+     * @param pluginThreadContext Thread information. {@link
+     * PluginThreadContext} implements {@link Logger} but for
+     * efficiency the implementation isn't synchronised. Consequently
+     * you should only call this object using the thread that which
+     * the engine uses to invoke the {@link ThreadCallbacks}.
      */
     public void initialize(PluginThreadContext pluginThreadContext)
 	throws PluginException;
     
     /**
-     * This method is executed at the beginning of evey cycle.
+     * This method is executed at the beginning of evey run.
      */
     public void beginRun() throws PluginException;
 
     /**
-     * This is called for each method name in grinder.plugin.methods.
+     * This is called for each test.
      */
-    public boolean doTest(Test testDefinition)
-	throws PluginException;
+    public boolean doTest(Test testDefinition) throws PluginException;
     
     /**
-     * This method is executed at the end of every cycle.
+     * This method is executed at the end of every run.
      */  
     public void endRun() throws PluginException;
 }
