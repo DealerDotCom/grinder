@@ -89,6 +89,15 @@ public class ProcessContextImplementation implements PluginProcessContext
     public void logError(String message) 
     {
 	System.err.println(formatMessage(message));
+
+	final int summaryLength = 20;
+
+	final String summary = 
+	    message.length() > summaryLength ?
+	    message.substring(0, summaryLength) + "..." : message;
+
+	System.out.println(formatMessage("ERROR (\"" + summary +
+					 "\"), see error log for details"));
     }
 
     protected String formatMessage(String message)
