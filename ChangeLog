@@ -2,6 +2,8 @@
 
 	* The Grinder 3.0-beta9 is released.
 	
+	* etc/localpaths.properties: Fix path.
+
 	* CHANGES, TODO: Documentation.
 
 	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_es.properties:
