@@ -1,4 +1,46 @@
+2005-03-21  Philip Aston  <philipa@mail.com>
+
+	* examples/console.py: Test eclipse CVS line ending handling.
+
+	* examples/console.py: Exercise standard deviation.
+
+	* etc/buildenv.sh, etc/localpaths.properties: Latest Clover.
+
 2005-03-19  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/ScriptStatisticsImplementation.java:
+	Fix getSuccess().
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties:
+	Tweak table column headings.
+
+	* src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/communication/ConsoleCommunicationImplementation.java, src/net/grinder/console/distribution/FileDistribution.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/script/Statistics.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ThreadLogger.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ThreadContextLocator.java, src/net/grinder/util/Sleeper.java, src/net/grinder/util/FixedWidthFormatter.java, src/net/grinder/util/ListenerSupport.java, src/net/grinder/util/html/HTMLElement.java, src/net/grinder/console/editor/EditorModel.java, src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/Connector.java, src/net/grinder/communication/SocketWrapper.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsSetFactory.java, src/net/grinder/statistics/StatisticsSetImplementation.java:
+	Fix Javadoc references.
+
+	* etc/checkstyle.filters, etc/checkstyle.properties: Checklipse.
+
+	* .cvsignore: Ignore clover working directory.
+
+	* tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/TestMessagePump.java, tests-src/net/grinder/communication/TestFanOutStreamSenderAndStreamReceiver.java, tests-src/net/grinder/communication/TestStreamSenderAndStreamReceiver.java:
+	Replace anonymous inner classes to avoid difference in behaviour
+	between javac and eclipse regarding importing exceptions that
+	can be thrown by the supertype constructor.
+
+	* src/net/grinder/statistics/StatisticsSetImplementation.java:
+	Make final.
+	Simplify snapshot() now we have no subtypes.
+
+	* src/net/grinder/script/Statistics.java: Remove TODO.
+
+	* src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/SwingDispatchedSampleListener.java, src/net/grinder/console/swingui/TestGraphPanel.java, tests-src/net/grinder/console/swingui/TestGraph.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedSampleListener.java, tests-src/net/grinder/statistics/TestStatisticsSetFactory.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java, tests-src/net/grinder/statistics/TestTestStatisticsImplementation.java, tests-src/net/grinder/statistics/TestStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticsView.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestStatisticsSetImplementation.java, tests-src/net/grinder/statistics/TestCommonStatisticsViews.java, tests-src/net/grinder/statistics/TestTestStatisticsQueries.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelTestIndex.java, src/net/grinder/console/model/SampleAccumulator.java, src/net/grinder/console/model/SampleListener.java, src/net/grinder/statistics/PeakStatisticExpression.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpression.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsSetImplementation.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatistics.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsSet.java, src/net/grinder/statistics/StatisticsSetFactory.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsQueries.java:
+	Rename RawStatistics to StatisticsSet.
+	Replace TestStatistics with a singleton query helper.
+
+	* build.xml, tests-src/net/grinder/plugin/http/TestHTTPPluginTCPProxyFilter.java:
+	Remove rotten test.
+
+	* tests-src/net/grinder/util/html/TestHTML.java, tests-src/net/grinder/console/distribution/TestFileDistributionFilter.java, tests-src/net/grinder/testutility/Time.java, tests-src/net/grinder/console/distribution/TestFileDistribution.java, tests-src/net/grinder/engine/agent/ReadMessageEchoClass.java, tests-src/net/grinder/engine/agent/TestWorkerProcessCommandLine.java, tests-src/net/grinder/util/TestDirectory.java, tests-src/net/grinder/script/TestTest.java, tests-src/net/grinder/util/TestFixedWidthFormatter.java, tests-src/net/grinder/communication/TestMessagePump.java, tests-src/net/grinder/communication/TestStreamReceiver.java, tests-src/net/grinder/communication/TestStreamSender.java, tests-src/net/grinder/communication/TestResourcePool.java, tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/BlockingActionThread.java, tests-src/net/grinder/communication/TestAcceptor.java, tests-src/net/grinder/communication/TestClientReceiver.java, tests-src/net/grinder/communication/TestFanOutServerSender.java, tests-src/net/grinder/communication/TestFanOutStreamSenderAndStreamReceiver.java, tests-src/net/grinder/communication/TestStreamSenderAndStreamReceiver.java, tests-src/net/grinder/console/swingui/ImageTest.java, tests-src/net/grinder/console/swingui/TestGraph.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedSampleListener.java, tests-src/net/grinder/plugin/http/TestHTTPPluginTCPProxyFilter.java, tests-src/net/grinder/tools/tcpproxy/TestConnectionDetails.java, tests-src/net/grinder/tools/tcpproxy/TestEndPoint.java, tests-src/net/grinder/common/LoggerStubFactory.java, tests-src/net/grinder/common/TestGrinderProperties.java, tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java, tests-src/net/grinder/console/editor/TestBuffer.java, tests-src/net/grinder/console/editor/TestEditorModel.java, tests-src/net/grinder/engine/process/StubTestRegistry.java, tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java, tests-src/net/grinder/util/thread/TestKernel.java, tests-src/net/grinder/util/thread/TestThreadPool.java:
+	Remove unused imports.
 
 	* tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestRawStatisticsImplementation.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestStatisticsView.java, tests-src/net/grinder/statistics/TestTestStatisticsFactory.java, tests-src/net/grinder/statistics/TestTestStatisticsImplementation.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java:
 	Update tests.
