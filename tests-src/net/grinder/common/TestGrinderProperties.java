@@ -64,6 +64,7 @@ public class TestGrinderProperties extends TestCase {
   private final Properties m_brokenDoubleSet = new Properties();
   private final Properties m_booleanSet = new Properties();
   private final Properties m_brokenBooleanSet = new Properties();
+  private final Properties m_fileSet = new Properties();
   private final Properties m_grinderSet = new Properties();
 
   protected void setUp() {
@@ -90,7 +91,7 @@ public class TestGrinderProperties extends TestCase {
     m_brokenIntSet.put("Broken_int_1", "9x");
     m_brokenIntSet.put("Broken_int_2", "");
     m_brokenIntSet.put("Broken_int_3", "1234567890123456");
-    m_brokenLongSet.put("Broken_long_4", "1e-3");
+    m_brokenIntSet.put("Broken_int_4", "1e-3");
 
     m_longSet.put("A_long", "1234542222");
     m_longSet.put("Another_long", "-19");
@@ -122,6 +123,9 @@ public class TestGrinderProperties extends TestCase {
     m_brokenBooleanSet.put("Broken_boolean_2", "019321 xx");
     m_brokenBooleanSet.put("Broken_boolean_3", "uhuh");
 
+    m_fileSet.put("A_file", "a/b");
+    m_fileSet.put("Another_file", "b");
+
     // All properties that begin with "grinder."
     m_grinderSet.put("grinder.abc", "xyz");
     m_grinderSet.put("grinder.blah.blah", "123");
@@ -138,6 +142,7 @@ public class TestGrinderProperties extends TestCase {
     m_allSet.putAll(m_brokenDoubleSet);
     m_allSet.putAll(m_booleanSet);
     m_allSet.putAll(m_brokenBooleanSet);
+    m_allSet.putAll(m_fileSet);
     m_allSet.putAll(m_grinderSet);
 
     m_grinderProperties = new GrinderProperties();
@@ -176,8 +181,7 @@ public class TestGrinderProperties extends TestCase {
     assertEquals(1, m_grinderProperties.getInt("Not there", 1));
 
     (new IterateOverProperties(m_intSet) {
-        void match(String key, String value) throws Exception
-        {
+        void match(String key, String value) throws Exception {
           assertEquals(Integer.parseInt(value),
                        m_grinderProperties.getInt(key, 99));
         }
@@ -187,8 +191,7 @@ public class TestGrinderProperties extends TestCase {
     m_loggerFactory.resetCallHistory();
 
     (new IterateOverProperties(m_brokenIntSet) {
-        void match(String key, String value)
-        {
+        void match(String key, String value) {
           assertEquals(99, m_grinderProperties.getInt(key, 99));
         }
       }
@@ -202,8 +205,7 @@ public class TestGrinderProperties extends TestCase {
     assertEquals(1, m_grinderProperties.getLong("Not there", 1));
 
     (new IterateOverProperties(m_longSet) {
-        void match(String key, String value) throws Exception
-        {
+        void match(String key, String value) throws Exception {
           assertEquals(Long.parseLong(value),
                        m_grinderProperties.getLong(key, 99));
         }
@@ -213,8 +215,7 @@ public class TestGrinderProperties extends TestCase {
     m_loggerFactory.resetCallHistory();
 
     (new IterateOverProperties(m_brokenLongSet) {
-        void match(String key, String value)
-        {
+        void match(String key, String value) {
           assertEquals(99, m_grinderProperties.getLong(key, 99));
         }
       }
@@ -229,8 +230,7 @@ public class TestGrinderProperties extends TestCase {
                                                         (short)1));
 
     (new IterateOverProperties(m_shortSet) {
-        void match(String key, String value) throws Exception
-        {
+        void match(String key, String value) throws Exception {
           assertEquals(Short.parseShort(value),
                        m_grinderProperties.getShort(key, (short)99));
         }
@@ -240,8 +240,7 @@ public class TestGrinderProperties extends TestCase {
     m_loggerFactory.resetCallHistory();
 
     (new IterateOverProperties(m_brokenShortSet) {
-        void match(String key, String value)
-        {
+        void match(String key, String value) {
           assertEquals(99, m_grinderProperties.getShort(key,
                                                         (short)99));
         }
@@ -256,8 +255,7 @@ public class TestGrinderProperties extends TestCase {
     assertEquals(1.0, m_grinderProperties.getDouble("Not there", 1.0), 0);
 
     (new IterateOverProperties(m_doubleSet) {
-        void match(String key, String value) throws Exception
-        {
+        void match(String key, String value) throws Exception {
           assertEquals(Double.parseDouble(value),
                        m_grinderProperties.getDouble(key, 99.0), 0);
         }
@@ -267,8 +265,7 @@ public class TestGrinderProperties extends TestCase {
     m_loggerFactory.resetCallHistory();
 
     (new IterateOverProperties(m_brokenDoubleSet) {
-        void match(String key, String value)
-        {
+        void match(String key, String value) {
           assertEquals(99.0,
                        m_grinderProperties.getDouble(key, 99.0),
                        0);
@@ -285,8 +282,7 @@ public class TestGrinderProperties extends TestCase {
     assertTrue(!m_grinderProperties.getBoolean("Not there", false));
 
     (new IterateOverProperties(m_booleanSet) {
-        void match(String key, String value) throws Exception
-        {
+        void match(String key, String value) throws Exception {
           assertTrue(!(Boolean.valueOf(value).booleanValue() ^
                        m_grinderProperties.getBoolean(key, false)));
         }
@@ -294,11 +290,23 @@ public class TestGrinderProperties extends TestCase {
      ).run();
 
     (new IterateOverProperties(m_brokenBooleanSet) {
-        void match(String key, String value)
-        {
+        void match(String key, String value) {
           // If the key exists, the boolean will always
           // parse as false.
           assertTrue(!m_grinderProperties.getBoolean(key, false));
+        }
+      }
+     ).run();
+  }
+
+  public void testGetFile() throws Exception {
+    final File f = new File("foo");
+    assertEquals(f, m_grinderProperties.getFile("Not there", f));
+
+    (new IterateOverProperties(m_fileSet) {
+        void match(String key, String value) throws Exception {
+          assertEquals(new File(value),
+                       m_grinderProperties.getFile(key, null));
         }
       }
      ).run();
@@ -308,8 +316,7 @@ public class TestGrinderProperties extends TestCase {
     final GrinderProperties properties = new GrinderProperties();
 	
     (new IterateOverProperties(m_intSet) {
-        void match(String key, String value) throws Exception
-        {
+        void match(String key, String value) throws Exception {
           properties.setInt(key, Integer.parseInt(value));
           assertEquals(value, properties.getProperty(key, null));
         }
@@ -321,8 +328,7 @@ public class TestGrinderProperties extends TestCase {
     final GrinderProperties properties = new GrinderProperties();
 	
     (new IterateOverProperties(m_longSet) {
-        void match(String key, String value) throws Exception
-        {
+        void match(String key, String value) throws Exception {
           properties.setLong(key, Long.parseLong(value));
           assertEquals(value, properties.getProperty(key, null));
         }
@@ -334,8 +340,7 @@ public class TestGrinderProperties extends TestCase {
     final GrinderProperties properties = new GrinderProperties();
 	
     (new IterateOverProperties(m_shortSet) {
-        void match(String key, String value) throws Exception
-        {
+        void match(String key, String value) throws Exception {
           properties.setShort(key, Short.parseShort(value));
           assertEquals(value, properties.getProperty(key, null));
         }
@@ -347,8 +352,7 @@ public class TestGrinderProperties extends TestCase {
     final GrinderProperties properties = new GrinderProperties();
 	
     (new IterateOverProperties(m_doubleSet) {
-        void match(String key, String value) throws Exception
-        {
+        void match(String key, String value) throws Exception {
           properties.setDouble(key, Double.parseDouble(value));
           assertEquals(Double.parseDouble(value),
                        Double.parseDouble(
@@ -363,12 +367,25 @@ public class TestGrinderProperties extends TestCase {
     final GrinderProperties properties = new GrinderProperties();
 	
     (new IterateOverProperties(m_booleanSet) {
-        void match(String key, String value) throws Exception
-        {
+        void match(String key, String value) throws Exception {
           properties.setBoolean(key,
                                 Boolean.valueOf(value).
                                 booleanValue());
           assertEquals(new Boolean(value).toString(),
+                       properties.getProperty(key, null));
+        }
+      }
+     ).run();
+  }
+
+  public void testSetFile() throws Exception {
+    final GrinderProperties properties = new GrinderProperties();
+	
+    (new IterateOverProperties(m_fileSet) {
+        void match(String key, String value) throws Exception {
+          properties.setFile(key, new File(value));
+
+          assertEquals(new File(value).getPath(),
                        properties.getProperty(key, null));
         }
       }

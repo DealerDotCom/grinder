@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -49,7 +49,7 @@ public class GrinderProperties extends Properties {
 
   /**
    * Construct an empty GrinderProperties with no associated file.
-   **/
+   */
   public GrinderProperties() {
     m_file = null;
   }
@@ -223,7 +223,7 @@ public class GrinderProperties extends Properties {
    * value.
    * @param propertyName The property name.
    * @param value The value to set.
-   **/
+   */
   public final void setInt(String propertyName, int value) {
     setProperty(propertyName, Integer.toString(value));
   }
@@ -259,7 +259,7 @@ public class GrinderProperties extends Properties {
    * value.
    * @param propertyName The property name.
    * @param value The value to set.
-   **/
+   */
   public final void setLong(String propertyName, long value) {
     setProperty(propertyName, Long.toString(value));
   }
@@ -294,7 +294,7 @@ public class GrinderProperties extends Properties {
    * value.
    * @param propertyName The property name.
    * @param value The value to set.
-   **/
+   */
   public final void setShort(String propertyName, short value) {
     setProperty(propertyName, Short.toString(value));
   }
@@ -329,7 +329,7 @@ public class GrinderProperties extends Properties {
    * value.
    * @param propertyName The property name.
    * @param value The value to set.
-   **/
+   */
   public final void setDouble(String propertyName, double value) {
     setProperty(propertyName, Double.toString(value));
   }
@@ -358,8 +358,37 @@ public class GrinderProperties extends Properties {
    * value.
    * @param propertyName The property name.
    * @param value The value to set.
-   **/
+   */
   public final void setBoolean(String propertyName, boolean value) {
     setProperty(propertyName, String.valueOf(value));
+  }
+
+  /**
+   * Get the value of the property with the given name, return the
+   * value as a <code>File</code>.
+   * @param propertyName The property name.
+   * @param defaultValue The value to return if a property with the
+   * given name does not exist.
+   *
+   * @return The value.
+   */
+  public final File getFile(String propertyName, File defaultValue) {
+    final String s = getProperty(propertyName);
+
+    if (s != null) {
+      return new File(s);
+    }
+
+    return defaultValue;
+  }
+
+  /**
+   * Set the property with the given name to a <code>File</code>
+   * value.
+   * @param propertyName The property name.
+   * @param value The value to set.
+   */
+  public final void setFile(String propertyName, File value) {
+    setProperty(propertyName, value.getPath());
   }
 }
