@@ -26,6 +26,8 @@ Grinder 3.0-beta17
   test run to be significantly higher. Thanks to Joshua Reedy for
   prompting me to do this, and for testing the change.
 
+  Example of how to use The Grinder with HTTPUnit from Tony Lodge.
+
   Email script example from Tom Pittard.
 
   Implement HTTPPluginConnection.removeBasicAuthorization() and

@@ -20,14 +20,6 @@ properties wrongly. It first sends a request without the
 authentication headers, then catches the 401 and automatically resends
 a request with the authentication headers.
 
-** Session Resumption - bug 868587
-
-In progress.
-
-Document the "go faster", insecure approach.
-
-Factor out common TrustManager.
-
 ** Support scripts that sleep up front
 
 And fix error logging too.
@@ -239,5 +231,3 @@ Document G2 adapter.
 HTTPS.
 
 Basic authentication.
-
-Add Tony Lodge's HttpUnit example.

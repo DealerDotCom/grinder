@@ -830,6 +830,54 @@ recordTest = Test(1, &quot;</span><span class="string">Receive messages</span><s
 
 <hr/>
 
+<h3><a name="httpunit">Using The Grinder with other test frameworks</a></h3>
+
+<blockquote>
+<pre><span class="comment"># Example showing how The Grinder can be used with HTTPUnit.
+#
+# Copyright (C) 2003, 2004 Tony Lodge
+# Copyright (C) 2004 Philip Aston
+# Distributed under the terms of The Grinder license.
+</span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+
+<span class="keyword">from</span> com.zaplet.test.frontend.http <span class="keyword">import</span> HttpTest
+
+<span class="comment"># These correspond to method names on the test class.
+</span>testNames = [ &quot;<span class="string">testRedirect</span>&quot;,
+              &quot;<span class="string">testRefresh</span>&quot;,
+              &quot;<span class="string">testNegativeLogin</span>&quot;,
+              &quot;<span class="string">testLogin</span>&quot;,
+              &quot;<span class="string">testPortal</span>&quot;,
+              &quot;<span class="string">testHeader</span>&quot;,
+              &quot;<span class="string">testAuthoringLink</span>&quot;,
+              &quot;<span class="string">testTemplateDesign</span>&quot;,
+              &quot;<span class="string">testSearch</span>&quot;,
+              &quot;<span class="string">testPreferences</span>&quot;,
+              &quot;<span class="string">testAboutZaplet</span>&quot;,
+              &quot;<span class="string">testHelp</span>&quot;,
+              &quot;<span class="string">testLogoutLink</span>&quot;,
+              &quot;<span class="string">testNavigationFrame</span>&quot;,
+              &quot;<span class="string">testBlankFrame</span>&quot;,
+              &quot;<span class="string">testContentFrame</span>&quot;,
+              &quot;<span class="string">testLogout</span>&quot;, ]
+
+tests = [Test(i, name).wrap(HttpTest(name))
+         <span class="keyword">for</span> name, i <span class="keyword">in</span> zip(testNames, range(len(testNames)))]
+
+<span class="comment"># A TestRunner instance is created for each thread. It can be used to
+# store thread-specific data.
+</span><span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        <span class="keyword">for</span> t <span class="keyword">in</span> tests:
+            result = t.run();
+
+</pre>
+</blockquote>
+
+<hr/>
+
 <h3><a name="javamail">Email</a></h3>
 
 <blockquote>
@@ -843,7 +891,7 @@ recordTest = Test(1, &quot;</span><span class="string">Receive messages</span><s
 #
 # Copyright (C) 2004 Tom Pittard
 # Copyright (C) 2004 Philip Aston
-# All rights reserved.
+# Distributed under the terms of The Grinder license.
 </span>
 <span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
