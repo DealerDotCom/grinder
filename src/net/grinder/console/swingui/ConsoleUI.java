@@ -69,10 +69,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.grinder.console.ConsoleException;
-import net.grinder.console.model.CumulativeStatistics;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
+import net.grinder.statistics.CumulativeStatistics;
 
 
 /**

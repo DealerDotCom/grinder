@@ -29,6 +29,7 @@ import java.util.TreeSet;
 import net.grinder.console.ConsoleException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.Test;
+import net.grinder.statistics.CumulativeStatistics;
 import net.grinder.statistics.StatisticsImplementation;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.GrinderException;

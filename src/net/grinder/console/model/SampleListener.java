@@ -20,6 +20,8 @@ package net.grinder.console.model;
 
 import java.util.EventListener;
 
+import net.grinder.statistics.CumulativeStatistics;
+
 
 /**
  * @author Philip Aston

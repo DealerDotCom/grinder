@@ -31,7 +31,7 @@ import java.util.Random;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import net.grinder.console.model.CumulativeStatistics;
+import net.grinder.statistics.CumulativeStatistics;
 
 
 /**

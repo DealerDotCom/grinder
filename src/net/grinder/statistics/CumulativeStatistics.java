@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.console.model;
+package net.grinder.statistics;
 
 
 /**
@@ -25,12 +25,8 @@ package net.grinder.console.model;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface CumulativeStatistics
+public interface CumulativeStatistics extends Statistics
 {
-    public double getAverageTransactionTime();
-    public long getTransactions();
-    public long getErrors();
-
     public double getAverageTPS();
     public double getPeakTPS();
 }

@@ -23,10 +23,10 @@ import java.io.Writer;
 import java.text.NumberFormat;
 import javax.swing.table.AbstractTableModel;
 
-import net.grinder.console.model.CumulativeStatistics;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.plugininterface.Test;
+import net.grinder.statistics.CumulativeStatistics;
 
 import net.grinder.console.ConsoleException;
 

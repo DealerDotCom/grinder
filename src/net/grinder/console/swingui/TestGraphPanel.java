@@ -23,10 +23,10 @@ import java.util.Iterator;
 import javax.swing.JPanel;
 
 import net.grinder.console.ConsoleException;
-import net.grinder.console.model.CumulativeStatistics;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.SampleListener;
 import net.grinder.plugininterface.Test;
+import net.grinder.statistics.CumulativeStatistics;
 
 
 /**
