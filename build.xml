@@ -236,8 +236,10 @@ conditionally built modules are:
     <mkdir dir="${lib.dir}"/>
 
     <jar jarfile="${lib.dir}/${lib.jar}"
-         basedir="${build.classes}"
-         includes="net/grinder/"/>
+         basedir="${build.classes}">
+        <include name="net/grinder/"/>
+        <include name="HTTPClient/"/>
+    </jar>
   </target>
 
 
