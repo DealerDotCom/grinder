@@ -105,17 +105,17 @@ The final statistics summary looks something like this:
 
  Final statistics for this process:
             Successful
-            Transactions  Errors     Abortions  Total (ms) Average (ms)  
- Test 0     100           0          0          30         0.30
- Test 1     100           0          0          20         0.20
- Test 2     100           0          0          0          0.00
- Test 3     100           0          0          10         0.10
- Test 4     100           0          0          10         0.10
- Test 5     100           0          0          10         0.10
- Test 6     100           0          0          0          0.00
- Test 7     100           0          0          0          0.00
- Test 8     100           0          0          50         0.50
- Test 9     100           0          0          30         0.30
+            Transactions  Errors     Abortions  Average (ms)  
+ Test 0     100           0          0          0.30
+ Test 1     100           0          0          0.20
+ Test 2     100           0          0          0.00
+ Test 3     100           0          0          0.10
+ Test 4     100           0          0          0.10
+ Test 5     100           0          0          0.10
+ Test 6     100           0          0          0.00
+ Test 7     100           0          0          0.00
+ Test 8     100           0          0          0.50
+ Test 9     100           0          0          0.30
 
 Each test has one of 3 possible outcomes:
 
@@ -263,8 +263,18 @@ What can I set in grinder.properties?
 
     grinder.logProcessStreams - Set to false to disable the logging of
 				standard out and standard error steams
-				for individual Grinder processes. Default
-				is true.
+				for individual Grinder processes.
+				Default is true. You might want to use
+				this to reduce the overhead of running
+				a client thread. When recording
+				timings with multiple clients it will
+				probably reduce the measured time -
+				see etc/Timing.txt.
+
+    grinder.recordTime	   -	Set to false to disable reporting of
+				timing information; other statistics
+				are still reported. Default is true.
+				See etc/Timing.txt.
 
 
 What can I set in grinder.properties for the HTTP plugin?
