@@ -75,15 +75,4 @@ public class TestProcessStatisticsIndexMap extends TestCase
 	    assertEquals(results[i], indexMap.getIndexFor(data[i]));
 	}
     }
-
-    public void testSingleton() throws Exception
-    {
-	final ProcessStatisticsIndexMap map1 =
-	    ProcessStatisticsIndexMap.getInstance();
-
-	final ProcessStatisticsIndexMap map2 =
-	    ProcessStatisticsIndexMap.getInstance();
-
-	assertSame(map1, map2);
-    }
 }
