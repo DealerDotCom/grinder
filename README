@@ -117,3 +117,23 @@ What can I set in grinder.properties?
 				used to start the grinder itself.
 
     grinder.jvm.arguments -	Additional arguments to child JVM's.
+
+
+What can I set in grinder.properties for the HTTP plugin?
+*********************************************************
+
+    grinder.plugin.parameter.followRedirects -
+				Set to true to automatically follow
+				redirects, so you don't have to have
+				additional URL's in you scripts. The
+				default is false.
+
+				If you are using WebLogic Server and
+				Web Application form-based
+				authentication you leave this property
+				set to false. This is because a
+				redirect request that follows
+				authentication contains a key cookie -
+				setting the property to true prevents
+				the cookie from being picked up by the
+				plugin.

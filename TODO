@@ -12,6 +12,12 @@ is roughly in priority order.]
   The sniffer servlet probably has to reencode post data before
   writing to file.
 
+  Replace the SnifferServlets with a standalone proxy based on PhilD's
+  tcpSniffer.
+
+  Add ability to engine to have different delays for different
+  methods. As an encore, make the SnifferServlets record timings.
+
   Documenatation, in text format. Volunteers please!
 
   Test harness
@@ -21,8 +27,12 @@ is roughly in priority order.]
   Add option to ignore the first 5 cycles so that hotspot has chance
   to work.
 
-  Add ability to engine to have different delays for different
-  methods. As an encore, make the SnifferServlets record timings.
+  Print the number of cycles and threads to the console on start up.
+
+  Print the number of cycle it is processing at that moment. This is
+  only as a reference, so you can do it for process 0. I would like to
+  know how far the benchmark is going, especially if there are 100 or
+  1000 cycles.
 
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
@@ -30,3 +40,4 @@ is roughly in priority order.]
 	Optionally build the weblogic dependent classes.
 	Fix javadoc warnings.
 
+  Repackage Console to java.net.grinder for consistency?

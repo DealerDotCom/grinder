@@ -1,3 +1,8 @@
+2001-01-08  Philip Aston  <paston@beasys.com>
+
+	* src/net/grinder/engine/process/GrinderThread.java: 
+		Correct display of thread ID.
+
 2001-01-04  Philip Aston  <paston@beasys.com>
 
 	* src/net/grinder/plugin/http/HttpMsg.java: 

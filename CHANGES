@@ -1,7 +1,20 @@
+Grinder 2.0
+-----------
+
+  "Huh - what happened to the naming?": This release of the Grinder
+  should be published on http://developer.bea.com/ and its logically a
+  "1.0" release. However, Paco's original was released as 1.6 and I
+  don't want to confuse the public too much as to the latest and
+  greatest.
+
+
   The HTTP plugin now automatically follows redirects only if you
   set the property
 
 	grinder.plugin.parameter.followRedirects=true
+
+  See the README file for details.
+
 
   The build system is now "smarter" about building things that depend
   on external code. It looks in the CLASSPATH to deterine whether the
@@ -19,6 +32,9 @@
    The class it looks for is given in parentheses. The upshot of this
    is that you need to ensure your CLASSPATH contains the above
    classes if you want the dependencies to build.
+
+
+   Fixed a bug that caused the thread ID to be displayed incorrectly.
 
 Grinder 0.9
 -----------
