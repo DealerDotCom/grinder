@@ -451,8 +451,8 @@ with more than one remote sever.</p>
 </tr>
 
 <tr>
- <td valign="top"><code><a name="-timeout">-timeout</a></code>
- <em>seconds</em></td>
+ <td valign="top"><code><a name="-timeout">-timeout</a>
+ <em>seconds</em></code></td>
  <td>Set an idle timeout. This is how long the TCPProxy will wait for
  a request before timing out and freeing the local port. The TCPProxy
  will not time out if there are active connections.</td>
