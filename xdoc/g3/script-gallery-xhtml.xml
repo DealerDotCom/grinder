@@ -201,6 +201,7 @@ authenticationTest = Test(2, &quot;<span class="string">POST to j_security_check
 # defines a CookiePolicyHandler that simply logs all cookies that are
 # sent or received.
 </span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest, HTTPPluginControl
 <span class="keyword">from</span> HTTPClient <span class="keyword">import</span> CookieModule, CookiePolicyHandler
@@ -279,10 +280,9 @@ request1 = test1.wrap(HTTPRequest(url=&quot;<span class="string">http://localhos
 <span class="keyword">from</span> java.lang <span class="keyword">import</span> String
 <span class="keyword">from</span> java.util <span class="keyword">import</span> Properties,Random
 <span class="keyword">from</span> javax.naming <span class="keyword">import</span> Context,InitialContext
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> weblogic.jndi <span class="keyword">import</span> WLInitialContextFactory
-
-log = grinder.logger.output
 
 tests = {
     &quot;<span class="string">home</span>&quot; : Test(1, &quot;<span class="string">TraderHome</span>&quot;),
@@ -301,6 +301,8 @@ random = Random()
 
 <span class="keyword">class</span> <span class="type">TestRunner</span>:
     <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        log = grinder.logger.output
+        
         trader = homeTest.create()
 
         tradeTest = tests[&quot;<span class="string">trade</span>&quot;].wrap(trader)
@@ -415,9 +417,10 @@ ensureClosed(connection)
 # You may also need to obtain your own Amazon.com web service license
 # and replace the script text &lt;insert license key here&gt; with the
 # license key, although currently that doesn't appear to be necessary.
-</span><span class="string">
-from net.grinder.script import Test
-</span><span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
+</span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+<span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
 <span class="keyword">from</span> HTTPClient <span class="keyword">import</span> NVPair
 <span class="keyword">from</span> xml.dom <span class="keyword">import</span> javadom
 <span class="keyword">from</span> org.xml.sax <span class="keyword">import</span> InputSource
