@@ -1,4 +1,4 @@
-// Copyright (C) 2002 Philip Aston
+// Copyright (C) 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,166 +24,140 @@ package net.grinder.plugin.http;
 import java.util.Iterator;
 
 import HTTPClient.CookieModule;
-import HTTPClient.DefaultAuthHandler;
 import HTTPClient.HTTPConnection;
 import HTTPClient.NVPair;
-import HTTPClient.ProtocolNotSuppException;
-import HTTPClient.URI;
+
 
 /**
+ * Implementation of {@link HTTPPluginConnection} using {@link
+ * HTTPClient.HTTPPluginConnection}.
+ *
  * @author Philip Aston
  * @version $Revision$
  **/
-final class HTTPConnectionWrapper implements HTTPPluginConnection
-{
-    private final static Class s_redirectionModule;
-    
-    static
-    {
-	// Remove standard HTTPClient modules which we don't want.
-	try {
-	    // Don't want additional post-processing of response data.
-	    HTTPConnection.removeDefaultModule(
-		Class.forName("HTTPClient.ContentEncodingModule"));
-	    HTTPConnection.removeDefaultModule(
-		Class.forName("HTTPClient.TransferEncodingModule"));
+final class HTTPConnectionWrapper implements HTTPPluginConnection {
 
-	    // Don't want to retry requests.
-	    HTTPConnection.removeDefaultModule(
-		Class.forName("HTTPClient.RetryModule"));
+  private static final Class s_redirectionModule;
 
-	    s_redirectionModule =
-		Class.forName("HTTPClient.RedirectionModule");
-	}
-	catch (ClassNotFoundException e) {
-	    throw new RuntimeException("Failed to load HTTPClient classes");
-	}
+  private final HTTPConnection m_httpConnection;
 
-	// Turn off cookie permission checks.
-	CookieModule.setCookiePolicyHandler(null);
-
-	// Turn off authorisation UI.
-	DefaultAuthHandler.setAuthorizationPrompter(null);
+  static {
+    // Load HTTPClient modules dynamically as we don't have public
+    // access.
+    try {
+      s_redirectionModule = Class.forName("HTTPClient.RedirectionModule");
     }
-
-    private final HTTPConnection m_httpConnection;
-
-    public HTTPConnectionWrapper(HTTPConnection httpConnection,
-				 HTTPPluginConnectionDefaults defaults)
-    {
-	m_httpConnection = httpConnection;
-	m_httpConnection.setAllowUserInteraction(false);
-
-	synchronized (defaults) {
-	    setFollowRedirects(defaults.getFollowRedirects());
-	    setUseCookies(defaults.getUseCookies());
-	    setDefaultHeaders(defaults.getDefaultHeaders());
-	    setTimeout(defaults.getTimeout());
-
-	    final Iterator basicAuthenticationIterator = 
-		defaults.getBasicAuthorizations().iterator();
-
-	    while (basicAuthenticationIterator.hasNext()) {
-		final HTTPPluginConnectionDefaults.AuthorizationDetails
-		    authorizationDetails =
-		    (HTTPPluginConnectionDefaults.AuthorizationDetails)
-		    basicAuthenticationIterator.next();
-
-		addBasicAuthorization(authorizationDetails.getRealm(),
-				      authorizationDetails.getUser(),
-				      authorizationDetails.getPassword());
-	    }
-
-	    final Iterator digestAuthenticationIterator = 
-		defaults.getBasicAuthorizations().iterator();
-
-	    while (digestAuthenticationIterator.hasNext()) {
-		final HTTPPluginConnectionDefaults.AuthorizationDetails
-		    authorizationDetails =
-		    (HTTPPluginConnectionDefaults.AuthorizationDetails)
-		    digestAuthenticationIterator.next();
-
-		addDigestAuthorization(authorizationDetails.getRealm(),
-				       authorizationDetails.getUser(),
-				       authorizationDetails.getPassword());
-	    }
-
-	    setProxyServer(defaults.getProxyHost(), defaults.getProxyPort());
-	}
+    catch (ClassNotFoundException e) {
+      throw new ExceptionInInitializerError(e);
     }
+  }
 
-    final HTTPConnection getConnection() 
-    {
-	return m_httpConnection;
-    }
+  public HTTPConnectionWrapper(HTTPConnection httpConnection,
+			       HTTPPluginConnectionDefaults defaults) {
 
-    public final void setFollowRedirects(boolean followRedirects) 
-    {
-	if (followRedirects) {
-	    m_httpConnection.addModule(s_redirectionModule, 0);
-	}
-	else {
-	    m_httpConnection.removeModule(s_redirectionModule);
-	}
-    }
+    m_httpConnection = httpConnection;
+    m_httpConnection.setAllowUserInteraction(false);
 
-    public final void setUseCookies(boolean useCookies) 
-    {
-	if (useCookies) {
-	    m_httpConnection.addModule(CookieModule.class, 0);
-	}
-	else {
-	    m_httpConnection.removeModule(CookieModule.class);
-	}
-    }
+    synchronized (defaults) {
+      setFollowRedirects(defaults.getFollowRedirects());
+      setUseCookies(defaults.getUseCookies());
+      setDefaultHeaders(defaults.getDefaultHeaders());
+      setTimeout(defaults.getTimeout());
 
-    public final void setDefaultHeaders(NVPair[] defaultHeaders) 
-    {
-	m_httpConnection.setDefaultHeaders(defaultHeaders);
-    }
+      final Iterator basicAuthenticationIterator = 
+	defaults.getBasicAuthorizations().iterator();
 
-    public void setTimeout(int timeout) 
-    {
-	m_httpConnection.setTimeout(timeout);
-    }
+      while (basicAuthenticationIterator.hasNext()) {
+	final HTTPPluginConnectionDefaults.AuthorizationDetails
+	  authorizationDetails =
+	  (HTTPPluginConnectionDefaults.AuthorizationDetails)
+	  basicAuthenticationIterator.next();
 
-    public final void addBasicAuthorization(String realm, String user,
-					    String password)
-    {
-	m_httpConnection.addBasicAuthorization(realm, user, password);
-    }
+	addBasicAuthorization(authorizationDetails.getRealm(),
+			      authorizationDetails.getUser(),
+			      authorizationDetails.getPassword());
+      }
 
-    public final void removeBasicAuthorization(String realm, String user,
-					       String password)
-    {
-	// TODO
-    }
+      final Iterator digestAuthenticationIterator = 
+	defaults.getBasicAuthorizations().iterator();
 
-    public final void clearAllBasicAuthorizations()
-    {
-	// TODO
-    }
+      while (digestAuthenticationIterator.hasNext()) {
+	final HTTPPluginConnectionDefaults.AuthorizationDetails
+	  authorizationDetails =
+	  (HTTPPluginConnectionDefaults.AuthorizationDetails)
+	  digestAuthenticationIterator.next();
 
-    public final void addDigestAuthorization(String realm, String user,
-					     String password)
-    {
-	m_httpConnection.addDigestAuthorization(realm, user, password);
-    }
+	addDigestAuthorization(authorizationDetails.getRealm(),
+			       authorizationDetails.getUser(),
+			       authorizationDetails.getPassword());
+      }
 
-    public final void removeDigestAuthorization(String realm, String user,
-						String password)
-    {
-	// TODO
+      setProxyServer(defaults.getProxyHost(), defaults.getProxyPort());
     }
+  }
 
-    public final void clearAllDigestAuthorizations()
-    {
-	// TODO
-    }
+  final HTTPConnection getConnection() {
+    return m_httpConnection;
+  }
 
-    public void setProxyServer(String host, int port) 
-    {
-	m_httpConnection.setCurrentProxy(host, port);
+  public final void setFollowRedirects(boolean followRedirects) {
+
+    if (followRedirects) {
+      m_httpConnection.addModule(s_redirectionModule, 0);
     }
+    else {
+      m_httpConnection.removeModule(s_redirectionModule);
+    }
+  }
+
+  public final void setUseCookies(boolean useCookies) {
+
+    if (useCookies) {
+      m_httpConnection.addModule(CookieModule.class, 0);
+    }
+    else {
+      m_httpConnection.removeModule(CookieModule.class);
+    }
+  }
+
+  public final void setDefaultHeaders(NVPair[] defaultHeaders) {
+    m_httpConnection.setDefaultHeaders(defaultHeaders);
+  }
+
+  public void setTimeout(int timeout) {
+    m_httpConnection.setTimeout(timeout);
+  }
+
+  public final void addBasicAuthorization(String realm, String user,
+					  String password) {
+    m_httpConnection.addBasicAuthorization(realm, user, password);
+  }
+
+  public final void removeBasicAuthorization(String realm, String user,
+					     String password) {
+    // TODO
+  }
+
+  public final void clearAllBasicAuthorizations() {
+    // TODO
+  }
+
+  public final void addDigestAuthorization(String realm, String user,
+					   String password) {
+    m_httpConnection.addDigestAuthorization(realm, user, password);
+  }
+
+  public final void removeDigestAuthorization(String realm, String user,
+					      String password) {
+    // TODO
+  }
+
+  public final void clearAllDigestAuthorizations() {
+    // TODO
+  }
+
+  public void setProxyServer(String host, int port) {
+    m_httpConnection.setCurrentProxy(host, port);
+  }
 }
 

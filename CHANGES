@@ -6,6 +6,10 @@ Grinder 3.0-beta4
 
   Replace mandatory properties with reasonable defaults.
 
+  Fix HTTPPlugin static initialisation order so that script settings
+  are not overridden by default initialisation. Thanks to Mark Wilson
+  and Brett Schmoll for reports.
+
 
 Grinder 3.0-beta3
 -----------------
