@@ -27,6 +27,8 @@ package net.grinder.statistics;
 public class StatisticsImplementation
     implements Statistics, Cloneable, java.io.Serializable
 {
+    private static final long serialVersionUID = -8055876976127793454L;
+
     private long m_untimedTransactions = 0;
 
     private long m_timedTransactions = 0;
@@ -34,7 +36,7 @@ public class StatisticsImplementation
 
     private long m_errors = 0;
 
-    private StatisticsImplementation m_snapshot = null;
+    private transient StatisticsImplementation m_snapshot = null;
 
     public StatisticsImplementation()
     {
