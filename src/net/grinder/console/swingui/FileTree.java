@@ -153,11 +153,10 @@ final class FileTree {
                 (BufferTreeModel.BufferNode)node;
 
               if (clickCount == 2) {
-                m_editorModel.setMarkedScript(
-                  bufferNode.getBuffer().getFile());
+                setMarkedScript(bufferNode);
               }
 
-              selectBufferNode(bufferNode);
+              select(bufferNode);
             }
             else if (node instanceof FileTreeModel.FileNode) {
               final FileTreeModel.FileNode fileNode =
@@ -166,11 +165,11 @@ final class FileTree {
               final boolean fileOpen = fileNode.getBuffer() != null;
 
               if (clickCount == 2 && fileOpen) {
-                m_editorModel.setMarkedScript(fileNode.getFile());
+                setMarkedScript(fileNode);
               }
 
               if (clickCount == 2 || clickCount == 1 && fileOpen) {
-                selectFileNode(fileNode);
+                select(fileNode);
               }
             }
           }
@@ -290,10 +289,10 @@ final class FileTree {
       final Object selectedNode = m_tree.getLastSelectedPathComponent();
 
       if (selectedNode instanceof BufferTreeModel.BufferNode) {
-        selectBufferNode((BufferTreeModel.BufferNode)selectedNode);
+        select((BufferTreeModel.BufferNode)selectedNode);
       }
       else if (selectedNode instanceof FileTreeModel.FileNode) {
-        selectFileNode((FileTreeModel.FileNode)selectedNode);
+        select((FileTreeModel.FileNode)selectedNode);
       }
     }
   }
@@ -307,21 +306,10 @@ final class FileTree {
       final Object selectedNode = m_tree.getLastSelectedPathComponent();
 
       if (selectedNode instanceof BufferTreeModel.BufferNode) {
-        final BufferTreeModel.BufferNode bufferNode =
-          (BufferTreeModel.BufferNode)selectedNode;
-
-        m_editorModel.setMarkedScript(bufferNode.getBuffer().getFile());
-
-        m_bufferTreeModel.valueForPathChanged(bufferNode.getPath(),
-                                              bufferNode);
+        setMarkedScript((BufferTreeModel.BufferNode)selectedNode);
       }
       else if (selectedNode instanceof FileTreeModel.FileNode) {
-        final FileTreeModel.FileNode fileNode =
-          (FileTreeModel.FileNode)selectedNode;
-
-        m_editorModel.setMarkedScript(fileNode.getFile());
-
-        m_fileTreeModel.valueForPathChanged(fileNode.getPath(), fileNode);
+        setMarkedScript((FileTreeModel.FileNode)selectedNode);
       }
     }
   }
@@ -333,12 +321,8 @@ final class FileTree {
       if (node instanceof FileTreeModel.FileNode) {
         final FileTreeModel.FileNode fileNode  = (FileTreeModel.FileNode)node;
 
-        m_openFileAction.setEnabled(fileNode.getBuffer() == null ||
-                                    !fileNode.getBuffer().equals(
-                                      m_editorModel.getSelectedBuffer()));
-
-        m_setScriptAction.setEnabled(
-          m_editorModel.isPythonFile(fileNode.getFile()));
+        m_openFileAction.setEnabled(canOpenBuffer(fileNode.getBuffer()));
+        m_setScriptAction.setEnabled(canMarkFileAsScript(fileNode.getFile()));
 
         return;
       }
@@ -346,11 +330,9 @@ final class FileTree {
         final BufferTreeModel.BufferNode bufferNode =
           (BufferTreeModel.BufferNode)node;
 
-        m_openFileAction.setEnabled(!bufferNode.getBuffer().equals(
-                                      m_editorModel.getSelectedBuffer()));
-
+        m_openFileAction.setEnabled(canOpenBuffer(bufferNode.getBuffer()));
         m_setScriptAction.setEnabled(
-          m_editorModel.isPythonFile(bufferNode.getBuffer().getFile()));
+          canMarkFileAsScript(bufferNode.getBuffer().getFile()));
 
         return;
       }
@@ -534,11 +516,11 @@ final class FileTree {
     return new TreePath(result);
   }
 
-  private void selectBufferNode(BufferTreeModel.BufferNode bufferNode) {
+  private void select(BufferTreeModel.BufferNode bufferNode) {
     m_editorModel.selectBuffer(bufferNode.getBuffer());
   }
 
-  private void selectFileNode(FileTreeModel.FileNode fileNode) {
+  private void select(FileTreeModel.FileNode fileNode) {
     try {
       fileNode.setBuffer(
         m_editorModel.selectBufferForFile(fileNode.getFile()));
@@ -554,5 +536,38 @@ final class FileTree {
       m_errorHandler.handleException(
         e, m_resources.getString("fileError.title"));
     }
+  }
+
+  private void setMarkedScript(BufferTreeModel.BufferNode bufferNode) {
+    final File file = bufferNode.getBuffer().getFile();
+
+    if (canMarkFileAsScript(file)) {
+      m_editorModel.setMarkedScript(file);
+      m_bufferTreeModel.valueForPathChanged(bufferNode.getPath(), bufferNode);
+      updateActionState();
+    }
+  }
+
+  private void setMarkedScript(FileTreeModel.FileNode fileNode) {
+    final File file = fileNode.getFile();
+
+    if (canMarkFileAsScript(file)) {
+      m_editorModel.setMarkedScript(file);
+      m_fileTreeModel.valueForPathChanged(fileNode.getPath(), fileNode);
+      updateActionState();
+    }
+  }
+
+  private boolean canOpenBuffer(Buffer buffer) {
+    return
+      buffer != null &&
+      !buffer.equals(m_editorModel.getSelectedBuffer());
+  }
+
+  private boolean canMarkFileAsScript(File file) {
+    return
+      file != null &&
+      m_editorModel.isPythonFile(file) &&
+      !file.equals(m_editorModel.getMarkedScript());
   }
 }
