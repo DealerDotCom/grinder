@@ -75,7 +75,7 @@ final class ScriptContextImplementation implements ScriptContext {
     final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext != null) {
-      return threadContext.getThreadID();
+      return threadContext.getPluginThreadContext().getThreadID();
     }
 
     return -1;
@@ -85,7 +85,7 @@ final class ScriptContextImplementation implements ScriptContext {
     final ThreadContext threadContext = m_threadContextLocator.get();
 
     if (threadContext != null) {
-      return threadContext.getRunNumber();
+      return threadContext.getPluginThreadContext().getRunNumber();
     }
 
     return -1;

@@ -69,7 +69,7 @@ class GrinderThread implements java.lang.Runnable {
     m_notifyOnCompletion = notifyOnCompletion;
     m_processContext = processContext;
     m_jythonScript = jythonScript;
-    m_context = new ThreadContext(processContext, threadID);
+    m_context = new ThreadContextImplementation(processContext, threadID);
 
     final GrinderProperties properties = processContext.getProperties();
 

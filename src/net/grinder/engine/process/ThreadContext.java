@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,8 +22,6 @@
 package net.grinder.engine.process;
 
 import net.grinder.common.FilenameFactory;
-import net.grinder.common.GrinderProperties;
-import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Statistics;
 
@@ -35,155 +32,19 @@ import net.grinder.script.Statistics;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ThreadContext implements PluginThreadContext {
+interface ThreadContext {
 
-  private final ProcessContext m_processContext;
-  private final ThreadLogger m_threadLogger;
-  private final FilenameFactory m_filenameFactory;
+  ThreadLogger getThreadLogger();
 
-  private final ScriptStatisticsImplementation m_scriptStatistics;
+  FilenameFactory getFilenameFactory();
 
-  private boolean m_startTimeOverridenByPlugin;
-  private long m_startTime;
-  private long m_elapsedTime;
+  Statistics getScriptStatistics();
 
-  public ThreadContext(ProcessContext processContext, int threadID)
-    throws EngineException {
+  void endRun();
 
-    m_processContext = processContext;
+  PluginThreadContext getPluginThreadContext();
 
-    final LoggerImplementation loggerImplementation =
-      processContext.getLoggerImplementation();
-
-    m_threadLogger = loggerImplementation.createThreadLogger(threadID);
-
-    m_filenameFactory =
-      loggerImplementation.getFilenameFactory().
-      createSubContextFilenameFactory(Integer.toString(threadID));
-
-    m_scriptStatistics =
-      new ScriptStatisticsImplementation(
-        processContext.getThreadContextLocator(),
-        loggerImplementation.getDataWriter(),
-        threadID,
-        processContext.getRecordTime());
-
-    final GrinderProperties properties = processContext.getProperties();
-  }
-
-  FilenameFactory getFilenameFactory() {
-    return m_filenameFactory;
-  }
-
-  public int getThreadID() {
-    return m_threadLogger.getThreadID();
-  }
-
-  public int getRunNumber() {
-    return m_threadLogger.getCurrentRunNumber();
-  }
-
-  public void startTimedSection() {
-    if (!m_startTimeOverridenByPlugin) {
-      m_startTimeOverridenByPlugin = true;
-      m_startTime = System.currentTimeMillis();
-    }
-  }
-
-  public void stopTimedSection() {
-    m_elapsedTime = System.currentTimeMillis() - m_startTime;
-  }
-
-  private void startTimer() {
-    // This is to make it more likely that the timed section has a
-    // "clear run".
-    Thread.yield();
-
-    m_startTime = System.currentTimeMillis();
-    m_startTimeOverridenByPlugin = false;
-    m_elapsedTime = -1;
-  }
-
-  private void stopTimer() {
-    if (m_elapsedTime < 0) { // Not already stopped.
-      stopTimedSection();
-    }
-  }
-
-  ThreadLogger getThreadLogger() {
-    return m_threadLogger;
-  }
-
-  /**
-   * This could be factored out to a separate "TestInvoker" class.
-   * However, the sensible owner for a TestInvoker would be
-   * ThreadContext, so keep it here for now. Also, all the
-   * startTimer/stopTimer interface is part of the PluginThreadContext
-   * interface.
-   */
   Object invokeTest(TestData testData, TestData.Invokeable invokeable)
-    throws JythonScriptExecutionException, ShutdownException {
-
-    if (m_processContext.getShutdown()) {
-      throw new ShutdownException("Process has been shutdown");
-    }
-
-    if (m_threadLogger.getCurrentTestNumber() != -1) {
-      // Originally we threw a ReentrantInvocationException here.
-      // However, this caused problems when wrapping Jython objects
-      // that call themselves; in our scheme the wrapper shares a
-      // dictionary so self = self and we recurse up our own.
-      return invokeable.call();
-    }
-
-    m_threadLogger.setCurrentTestNumber(testData.getTest().getNumber());
-
-    m_scriptStatistics.beginTest(testData, getRunNumber());
-
-    try {
-      startTimer();
-
-      final Object testResult;
-
-      try {
-        testResult = invokeable.call();
-      }
-      finally {
-        stopTimer();
-      }
-
-      m_scriptStatistics.setSuccessNoChecks();
-      m_scriptStatistics.setTimeNoChecks(m_elapsedTime);
-
-      return testResult;
-    }
-    catch (org.python.core.PyException e) {
-      m_scriptStatistics.setErrorNoChecks();
-
-      // We don't log the exception. If the script doesn't handle the
-      // exception it will be logged when the run is aborted,
-      // otherwise we assume the script writer knows what they're
-      // doing.
-      throw e;
-    }
-    finally {
-      m_scriptStatistics.endTest(
-        m_startTime - m_processContext.getExecutionStartTime());
-
-      m_threadLogger.setCurrentTestNumber(-1);
-    }
-  }
-
-  void endRun() {
-    m_scriptStatistics.endRun();
-  }
-
-  public long getStartTime() {
-    return m_startTime;
-  }
-
-  Statistics getScriptStatistics() {
-    return m_scriptStatistics;
-  }
+    throws JythonScriptExecutionException, ShutdownException;
 }
 
