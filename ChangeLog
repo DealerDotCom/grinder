@@ -1,3 +1,20 @@
+2002-05-24  Philip Aston  <paston@bea.com>
+
+	* TODO, doc/TCPSniffer.txt: Update doc.
+
+	* src/net/grinder/tools/tcpsniffer/HTTPProxySnifferEngine.java, src/net/grinder/tools/tcpsniffer/HTTPSProxySnifferEngine.java:
+	Remove debug output.
+
+2002-05-23  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java:
+	Tart up script a bit.
+
+	* CHANGES, TODO, doc/HTTPPlugin.txt, src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HttpPlugin.java:
+	disablePersistentConnections option courtesy of Todd Wasson.
+
+	* AUTHORS: Welcome Todd Wasson.
+
 2002-05-22  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/plugin/http/HttpPluginSnifferResponseFilter.java:
