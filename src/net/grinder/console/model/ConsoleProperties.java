@@ -626,6 +626,12 @@ public final class ConsoleProperties {
       DISTRIBUTION_DIRECTORY_PROPERTY, old, m_distributionDirectory);
   }
 
+  /**
+   * Save the distribution directory property value to the user's
+   * preferences file.
+   *
+   * @throws GrinderException If the property could not be saved.
+   */
   public void saveDistributionDirectory() throws GrinderException {
     m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
                          m_distributionDirectory);
