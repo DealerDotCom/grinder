@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
@@ -330,12 +330,10 @@ public final class TCPProxy {
     appendFilterList(startMessage, requestFilter);
     startMessage.append("\n   Response filters:   ");
     appendFilterList(startMessage, responseFilter);
-    startMessage.append("\n   Local host:         " + localHost);
-    startMessage.append("\n   Local port:         " + localPort);
+    startMessage.append("\n   Local address:      " + localEndPoint);
 
     if (!isHTTPProxy) {
-      startMessage.append("\n   Remote host:        " + remoteHost +
-                          "\n   Remote port:        " + remotePort);
+      startMessage.append("\n   Remote address:     " + remoteEndPoint);
     }
 
     if (chainedHTTPProxy != null) {
@@ -347,23 +345,24 @@ public final class TCPProxy {
         startMessage.append("\n   HTTPS proxy:        " + chainedHTTPSProxy);
       }
 
-      startMessage.append("\n   Key store:          ");
-      startMessage.append(keyStoreFile != null ?
-                          keyStoreFile.toString() : "NOT SET");
+      if (keyStoreFile != null) {
+        startMessage.append("\n   Key store:          ");
+        startMessage.append(keyStoreFile.toString());
 
-      // Key store password is optional.
-      if (keyStorePassword != null) {
-        startMessage.append("\n   Key store password: ");
-        for (int i = 0; i < keyStorePassword.length; ++i) {
-          startMessage.append('*');
+        // Key store password is optional.
+        if (keyStorePassword != null) {
+          startMessage.append("\n   Key store password: ");
+          for (int i = 0; i < keyStorePassword.length; ++i) {
+            startMessage.append('*');
+          }
         }
-      }
 
-      // Key store type can be null => use whatever
-      // KeyStore.getDefaultType() says (we can't print the default
-      // here without loading the JSSE).
-      if (keyStoreType != null) {
-        startMessage.append("\n   Key store type:     " + keyStoreType);
+        // Key store type can be null => use whatever
+        // KeyStore.getDefaultType() says (we can't print the default
+        // here without loading the JSSE).
+        if (keyStoreType != null) {
+          startMessage.append("\n   Key store type:     " + keyStoreType);
+        }
       }
     }
 
@@ -379,14 +378,21 @@ public final class TCPProxy {
           final Class socketFactoryClass =
             Class.forName(SSL_SOCKET_FACTORY_CLASS);
 
-          final Constructor socketFactoryConstructor =
-            socketFactoryClass.getConstructor(
-              new Class[] { File.class, new char[0].getClass(), String.class,
-              });
+          if (keyStoreFile != null) {
+            final Constructor socketFactoryConstructor =
+              socketFactoryClass.getConstructor(
+                new Class[] { File.class, new char[0].getClass(), String.class,
+                });
 
-          sslSocketFactory = (TCPProxySSLSocketFactory)
-            socketFactoryConstructor.newInstance(
-              new Object[] { keyStoreFile, keyStorePassword, keyStoreType, });
+            sslSocketFactory = (TCPProxySSLSocketFactory)
+              socketFactoryConstructor.newInstance(
+                new Object[] { keyStoreFile, keyStorePassword, keyStoreType,
+                });
+          }
+          else {
+            sslSocketFactory =
+              (TCPProxySSLSocketFactory) socketFactoryClass.newInstance();
+          }
         }
         catch (InvocationTargetException e) {
           throw e.getTargetException();
@@ -400,22 +406,19 @@ public final class TCPProxy {
         m_proxyEngine =
           new HTTPProxyTCPProxyEngine(
             sslSocketFactory,
-            requestFilter,
-            responseFilter,
+            requestFilter, responseFilter,
             outputWriter,
             localEndPoint,
             useColour,
             timeout,
-            chainedHTTPProxy,
-            chainedHTTPSProxy);
+            chainedHTTPProxy, chainedHTTPSProxy);
       }
       else {
         if (useSSL) {
           m_proxyEngine =
             new PortForwarderTCPProxyEngine(
               sslSocketFactory,
-              requestFilter,
-              responseFilter,
+              requestFilter, responseFilter,
               outputWriter,
               new ConnectionDetails(localEndPoint, remoteEndPoint, useSSL),
               useColour,
@@ -424,8 +427,7 @@ public final class TCPProxy {
         else {
           m_proxyEngine =
             new PortForwarderTCPProxyEngine(
-              requestFilter,
-              responseFilter,
+              requestFilter, responseFilter,
               outputWriter,
               new ConnectionDetails(localEndPoint, remoteEndPoint, useSSL),
               useColour,

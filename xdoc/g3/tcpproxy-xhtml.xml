@@ -44,8 +44,7 @@ following information:</p>
 Initialising as an HTTP proxy with the parameters:
    Request filters:  EchoFilter
    Response filters: EchoFilter
-   Local host:       localhost
-   Local port:       8001
+   Local address:    localhost:8001
 Engine initialised, listening on port 8001
 </pre>
 </blockquote>
@@ -90,8 +89,7 @@ Script will be generated to the files 'httpscript.py' and 'httpscript_tests.py'
 Initialising as an HTTP proxy with the parameters:
    Request filters:  HTTPPluginTCPProxyFilter
    Response filters: HTTPPluginTCPProxyResponseFilter
-   Local host:       localhost
-   Local port:       8001
+   Local address:    localhost:8001
 Engine initialised, listening on port 8001
 </pre>
 </blockquote>
@@ -196,11 +194,27 @@ optional).</p>
 </blockquote>
 
 <p>The TCPProxy will negotiate appropriate certificates for both
-connections using certificates specified in a Java key store. See the
-J2SE/JSSE documentation for how to set up a key store. You should
-specify your key store details using the <code>-keystore</code>,
-<code>-keystorepassword</code> and <code>-keystoretype</code>
-options.</p>
+connections using built-in certificates or in a user-specified Java
+key store. In particular, the TCPProxy needs a self-signed server
+certificate for the connection from the browser. By default, the
+TCPProxy will use a built-in certificate.</p>
+
+<p>Here's an example of starting the TCPProxy as an HTTP/HTTPS
+proxy:</p>
+
+<blockquote>
+<pre>
+java net.grinder.TCPProxy -ssl
+</pre>
+</blockquote>
+
+<p>When first establishing a connection, your browser will present a
+warning and confirmation dialog. This is because the built-in
+certficate isn't authorised by any of the certificate authorities that
+the browser trusts. Additionally the built-in certificate authorises
+<code>localhost</code>, so if your server doesn't listen at this
+address the browser will complain. Choose the "accept this certificate
+for this session" option.</p>
 
 <p><em><strong>Warning</strong>The Grinder deliberately accelerates
 SSL initialisation by using a random number generator that is seeded
@@ -209,33 +223,20 @@ theoretcially makes it less secure. No guarantee is made as to the
 cryptographical strength of any SSL communication using The
 Grinder.</em></p>
 
-<p>Here's an example of starting the TCPProxy as an HTTP/HTTPS proxy
-using the <em>testkeys</em> key store provided with the <a
-href="http://java.sun.com/j2se/1.4.1/docs/guide/security/jsse/samples/">JSSE
-samples</a>:</p>
-
-<blockquote>
-<pre>
-java net.grinder.TCPProxy -ssl -keyStore testkeys -keyStorePassword passphrase
-</pre>
-</blockquote>
-
-<p>You will need to specify a key store even if you are not using
-client certificates. This is because the proxy needs a server
-certificate of its own. You need to start the proxy with a key store
-containing a self-signed server certificate. This is the certificate
-that the browser will be presented with. If you fail to provide a key
-store with a valid server certificate, you may get a <em>No available
-certificate corresponds to the SSL cipher suites which are
-enabled</em> exception, and your browser may report that it cannot
-communicate as it has no common encryption algorithms. Internet
-Explorer likes to be different. If start the TCPProxy without a valid
-server certificate and then connect through it using Internet
-Explorer, the TCPProxy will report "SSL peer shut down incorrectly.
-The browser will just spin away until it times out.
-</p>
-
-<p>The easiest way to provide a certificate is to copy the
+<p>Advanced users can specify their own server certificate for the
+connection from the browser, or add client certificates for the
+connection to the server, using the <code>-keystore</code>,
+<code>-keystorepassword</code>, and <code>-keystoretype</code>
+options. See the J2SE/JSSE documentation for how to set up a key
+store. If you fail to provide a key store with a valid server
+certificate, you may get a <em>No available certificate corresponds to
+the SSL cipher suites which are enabled</em> exception, and your
+browser may report that it cannot communicate as it has no common
+encryption algorithms. Internet Explorer likes to be different. If
+start the TCPProxy without a valid server certificate and then connect
+through it using Internet Explorer, the TCPProxy will report "SSL peer
+shut down incorrectly. The browser will just spin away until it times
+out. The easiest way to provide a server certificate is to copy the
 <em>testkeys</em> file from the <a
 href="http://java.sun.com/j2se/1.4.1/docs/guide/security/jsse/samples/">JSSE
 samples distribution</a> and start the proxy using:</p>
@@ -245,44 +246,6 @@ samples distribution</a> and start the proxy using:</p>
 java net.grinder.TCPProxy -ssl -keyStore testkeys -keyStorePassword passphrase
 </pre>
 </blockquote>
-
-<p>Alternatively you might want to generate your own certificate.
-Here's an example:</p>
-
-<blockquote>
-<pre>
-  PASTON:philipa% keytool -genkey -keystore testkeys -storepass passphrase -keyalg rsa
-  What is your first and last name?
-    [Unknown]:  localhost
-  What is the name of your organizational unit?
-    [Unknown]:  Engineering
-  What is the name of your organization?
-    [Unknown]:  Grinders Inc
-  What is the name of your City or Locality?
-    [Unknown]:  Grindsville
-  What is the name of your State or Province?
-    [Unknown]:  Grindshire
-  What is the two-letter country code for this unit?
-    [Unknown]:  GR
-  Is &lt;CN=localhost, OU=Engineering, O=Grinders Inc, L=Grindsville, ST=Grindshire, C=GR&gt; correct?
-    [no]:  yes
-  
-  Enter key password for &lt;mykey&gt;
-          (RETURN if same as keystore password):
-  PASTON:philipa%
-</pre>
-</blockquote>
-
-<p>The <em>first and last name</em> ought to match the server which
-you run the proxy on, and you must specify <code>-keyalg rsa</code> to
-generate a certificate that works with common browsers. See the
-<code>keytool</code> notes in the J2SE documentation for how to do
-more tricks.</p>
-
-<p>You may find <code>NullPointerException</code>s when using PKCS12
-files generated by some tools, e.g. <code>openssl</code>. Use the Java
-<code>keytool</code> utility to maintain key stores and you'll be
-all right.</p>
 
 <h3><a name="chained-proxies">Using the TCPProxy with other proxies</a></h3>
 
@@ -365,24 +328,27 @@ with more than one remote sever.</p>
 <tr>
  <td valign="top"><code><a name="-keystore">-keystore</a>
  <em>file</em></code></td>
- <td>Set the key store file name. Only used if <a
- href="#-ssl">-ssl</a> is set.</td>
+ <td>Specify a custom key store. Usually the built-in keystore is good
+ enough so <code>-keystore</code> does not need to be specified. Only
+ used if <a href="#-ssl">-ssl</a> is set.</td>
 </tr>
 
 <tr>
  <td valign="top"><code><a
  name="-keystorepassword">-keystorepassword</a>
  <em>password</em></code></td>
- <td>Set the key store password. Only used if <a href="#-ssl">-ssl</a>
- is set. Optional for some key store types.</td>
+ <td>Set the key store password. Only used if <a
+ href="-keystore">-keystore</a> and <a href="#-ssl">-ssl</a>
+ are set. Optional for some key store types.</td>
 </tr>
 
 <tr>
  <td valign="top"><code><a name="-keystoretype">-keystoretype</a>
  <em>type</em></code></td>
- <td>Set the key store type. Only used if <a href="#-ssl">-ssl</a> is
- set. If not specified, the default value depends on JSSE
- configuration but is usually <code>jks</code>.</td>
+ <td>Set the key store type. Only used if <a
+ href="-keystore">-keystore</a> and <a href="#-ssl">-ssl</a> are set.
+ If not specified, the default value depends on JSSE configuration but
+ is usually <code>jks</code>.</td>
 </tr>
 
 <tr>

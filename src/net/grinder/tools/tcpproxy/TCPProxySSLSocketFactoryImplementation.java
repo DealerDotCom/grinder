@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.tools.tcpproxy;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -44,10 +45,18 @@ import net.grinder.util.InsecureSSLContextFactory;
 /**
  * {@link TCPProxySocketFactory} for SSL connections.
  *
+ * <p>ARGHH. I hate JSSE.</p>
+ *
  * <p>The JSSE docs rabbit on about being able to create factories
  * with the required parameters, this is a lie. Where is
  * "SSL[Server]SocketFactory.setEnabledCipherSuites()"? Hence the need
  * for our own abstract factories.</p>
+ *
+ * <p>We can't install our own TrustManagerFactory without messing
+ * with the security properties file. Hence we create our own
+ * SSLContext and initialise it. </p>
+ *
+ * - PhilA
  *
  * @author Philip Aston
  * @author Phil Dawes
@@ -60,21 +69,10 @@ public final class TCPProxySSLSocketFactoryImplementation
   private final SSLSocketFactory m_clientSocketFactory;
 
   /**
-   * ARGHH. I hate JSSE.
+   * Construct a TCPProxySSLSocketFactoryImplementation that uses the
+   * specified key store.
    *
-   * <p>The JSSE docs rabbit on about being able to create factories
-   * with the required parameters, this is a lie. Where is
-   * "SSL[Server]SocketFactory.setEnabledCipherSuites()"? Hence the
-   * need for our own abstract factories.</p>
-   *
-   * <p>We can't install our own TrustManagerFactory without messing
-   * with the security properties file. Hence we create our own
-   * SSLContext and initialise it. </p>
-   *
-   * - PhilA
-   *
-   * @param keyStoreFile Key store file, or <code>null</code> for no
-   * key store.
+   * @param keyStoreFile Key store file.
    * @param keyStorePassword Key store password, or <code>null</code>
    * if no password.
    * @param keyStoreType Key store type, or <code>null</code> if the
@@ -90,21 +88,42 @@ public final class TCPProxySSLSocketFactoryImplementation
     throws IOException, GeneralSecurityException,
            InsecureSSLContextFactory.CreateException {
 
+    this(new FileInputStream(keyStoreFile),
+         keyStoreType != null ? keyStoreType : KeyStore.getDefaultType(),
+         keyStorePassword);
+  }
+
+  /**
+   * Construct a TCPProxySSLSocketFactoryImplementation that uses the
+   * built-in key store.
+   *
+   * @exception IOException If an I/O error occurs.
+   * @exception GeneralSecurityException If a security error occurs.
+   * @exception InsecureSSLContextFactory.CreateException If
+   * SSLContext could not be created.
+   */
+  public TCPProxySSLSocketFactoryImplementation()
+    throws IOException, GeneralSecurityException,
+           InsecureSSLContextFactory.CreateException {
+
+    this(TCPProxySSLSocketFactoryImplementation.class.getResourceAsStream(
+           "resources/default.keystore"),
+         "jks",
+         "passphrase".toCharArray());
+  }
+
+  private TCPProxySSLSocketFactoryImplementation(
+    InputStream keyStoreInputStream,
+    String keyStoreType,
+    char[] keyStorePassword)
+    throws IOException, GeneralSecurityException,
+           InsecureSSLContextFactory.CreateException {
+
+    final KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+    keyStore.load(keyStoreInputStream, keyStorePassword);
+
     final KeyManagerFactory keyManagerFactory =
       KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-
-    final KeyStore keyStore;
-
-    if (keyStoreFile != null) {
-      keyStore =
-        KeyStore.getInstance(keyStoreType != null ?
-                             keyStoreType : KeyStore.getDefaultType());
-
-      keyStore.load(new FileInputStream(keyStoreFile), keyStorePassword);
-    }
-    else {
-      keyStore = null;
-    }
 
     keyManagerFactory.init(keyStore, keyStorePassword);
 
