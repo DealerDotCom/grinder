@@ -112,9 +112,18 @@ final class TestData implements TestRegistry.RegisteredTest {
    *
    * <p>The specialised PyJavaInstance works suprisingly well for
    * everything bar PyInstances. It can't work for PyInstances,
-   * because invoking on the PyJavaInstance calls the PyInstance
-   * which in turn attempts to call back on the PyJavaInstance. Use
-   * specialised PyInstance objects to handle this case.</p>
+   * because invoking on the PyJavaInstance calls the PyInstance which
+   * in turn attempts to call back on the PyJavaInstance. Use
+   * specialised PyInstance clone objects to handle this case.</p>
+   *
+   * <p>There's a subtle difference in the equlity semantics of
+   * TestPyInstances and TestPyJavaInstances. TestPyInstances compare
+   * do not equal to the wrapped objects, where as due to
+   * <code>PyJavaInstance._is()</code> semantics, TestPyJavaInstances
+   * <em>do</em> compare equal to the wrapped objects. We can only
+   * influence one side of the comparison (we can't easily alter the
+   * <code>_is</code> implementation of wrapped objects) so we can't
+   * do anything nice about this.</p>
    */
   public Object createProxy(Object o) throws NotWrappableTypeException {
 
