@@ -1,3 +1,64 @@
+2003-12-08  Philip Aston  <philipa@mail.com>
+
+	* examples/grinder.properties: Update for grinder.numberOfOldLogs.
+
+	* CHANGES, TODO, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Add a confirm dialog to "Stop Processes".
+
+	* TODO: Multicast replacement scheme.
+
+2003-12-07  Philip Aston  <philipa@mail.com>
+
+	* xdoc/g3/console-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/LoggerImplementation.java, CHANGES:
+	Replace grinder.renameOldLogs with grinder.numberOfOldLogs.
+
+2003-12-06  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/ProcessContext.java, xdoc/g3/console-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/g3/properties-xhtml.xml, CHANGES, TODO:
+	Remove grinder.appendLog.
+	Add grinder.renameOldLogs.
+
+	* CHANGES, src/net/grinder/console/ConsoleCommunication.java:
+	Fix bug 852298 - null pointer exception when multicast fails.
+
+	* src/net/grinder/console/common/ErrorHandler.java, src/net/grinder/console/swingui/ErrorDialogHandler.java:
+	Allow error messages to be specified with a resource string.
+
+	* src/net/grinder/console/swingui/JOptionPaneDialog.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/common/ErrorHandler.java, src/net/grinder/console/common/ExceptionHandler.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/ErrorDialogHandler.java:
+	Better UI handling of exceptions.
+
+	* src/net/grinder/common/GrinderException.java: Tweak println()s.
+
+2003-12-05  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Fix and enhancements for HTTPS chained proxies: HTTP protocol field is
+	now sent. Additional headers sent with the CONNECT from the browser
+	are propagated to the chained proxy. The response from the chained
+	proxy is passed back to the browser.
+
+	* src/net/grinder/common/GrinderException.java:
+	Use println() rather than "\n".
+
+	* src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/common/ConsoleExceptionHandler.java, src/net/grinder/console/common/ExceptionHandler.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/ErrorDialogHandler.java, src/net/grinder/console/swingui/JOptionPaneDialog.java, src/net/grinder/console/swingui/OptionsDialogHandler.java:
+	Initial cut of better exception handling in the UI.
+
+	* TODO: Thoughts.
+
+2003-12-04  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/common/DisplayMessageConsoleException.java:
+	Allow nested exceptions.
+
+	* src/net/grinder/common/GrinderException.java: Remove old comment.
+
+	* AUTHORS: Remove defunct email address.
+
+	* CHANGES: Update attribution for Jython subclassing bug report.
+
+	* CHANGES, src/net/grinder/console/swingui/SamplingControlPanel.java:
+	Fix bug 852217 - sample interval jumps after I set it.
+
 2003-12-03  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/engine/process/TestData.java: Document subtlety.
