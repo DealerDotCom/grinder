@@ -8,16 +8,15 @@ it too :-). The list is roughly in priority order.]
   large outputs with posts? Also, consider having a filter instance
   pair per connection.
 
-  DOC
-  Use -jar to start tools?
-
-  Write some tests for sniffer
-
-  Check proxy HTTP parsing.
+  Test HTTPS proxy.
 
   BUG, problems when post split across fragments.
 
-  <<> quoting
+  DOC TCPSniffer
+
+  pesimitic <> parsing - test
+
+  TCPSniffer should record 401 iteractions.
 
   Update HTTPClient to support "mean time to first byte".
 
@@ -28,15 +27,8 @@ it too :-). The list is roughly in priority order.]
   when used with the JUnit plugin). Surely System.exit() is not the
   answer?
 
-  Get the communications tests and the swing tests running under the
-  JUnit plugin.
-
   Add an assertion for the expected status code to the HTTP plugin.
   HTTP Plugin "not ok".
-
-  TCPSniffer enhancements: proxying works on a per-protocol basis, so
-  write some plugins for the proxy to handle different protocols, and
-  integrate it more fully into the TCPSniffer
 
   Measure test variance. This would involve the console broadcasting
   the total mean, and then listening for the reported variance.
@@ -44,19 +36,10 @@ it too :-). The list is roughly in priority order.]
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
 	
-  Minor fixes to HttpPluginSnifferFilter:
-	Respect charset information.
-	Sanity check the processing against RFC 2616
-
-  Efficiency: TestStatisticsMap.getDelta() to be able to reuse delta
-  object.
-
-  Alter console and engine to use Timer.scheduleAtFixedRater for more
+  Alter console and engine to use Timer.scheduleAtFixedRate for more
   accuracy.
 
   Tidy up logging of plugin initialisation.
-
-  TCPSniffer should record 401 iteractions.
 
 The following are under way for Grinder 3:
 

@@ -344,6 +344,11 @@ public class HttpPlugin implements GrinderPlugin
 		    int p = 0;
 		    int lastP = p;
 
+		    // Look for <methodName> and replace with
+		    // m_bean.methodName(). If we don't find an exact
+		    // match, just chuck out the literal text -
+		    // otherwise string bean tags are a pain in XML
+		    // POST data.
 		    while (true) {
 			if ((p = original.indexOf('<', lastP)) == -1) {
 			    m_buffer.append(original.substring(lastP));
@@ -357,24 +362,25 @@ public class HttpPlugin implements GrinderPlugin
 			    p = original.indexOf('>', lastP);
 			    
 			    if (p == -1) {
-				throw new HTTPHandlerException(
-				    "URL for Test " +
-				    getTest().getNumber() +
-				    " malformed");    
+				// No point looking for any more matches,
+				// no potential end delimiter.
+				m_buffer.append(original.substring(lastP-1));
+				break;
 			    }
 
 			    final String methodName =
 				original.substring(lastP, p);
 
+			    lastP = p + 1;
+
 			    final Method method =
 				(Method)m_beanMethodMap.get(methodName);
 
-			    if (method == null ) {
-				throw new HTTPHandlerException(
-				    "URL for Test " +
-				    getTest().getNumber() +
-				    " refers to unknown string bean method '" +
-				    methodName + "'");
+			    if (method == null) {
+				m_buffer.append('<');
+				m_buffer.append(methodName);
+				m_buffer.append('>');
+				continue;
 			    }
 
 			    try {
@@ -386,8 +392,6 @@ public class HttpPlugin implements GrinderPlugin
 				    "Failure invoking string bean method '" +
 				    methodName + "'", e);
 			    }
-
-			    lastP = p + 1;
 			}
 		    }
 

@@ -1,16 +1,25 @@
 Grinder 2.8.3
 -------------
 
-   StringBeans can now implement an interface that allows them to
+   String beans can now implement an interface that allows them to
    access the HTTPClient HTTPResponse object. This means that
    StringBeans can perform assertions on the HTTP response, and snarf
    data from that response for use in subsequent requests.
+
+   The HTTP plugin is now relaxed when it finds a partial string bean
+   tag, it just outputs the literal text. This allows string bean tags
+   to be used within XML POST data.
 
    Fix sleepTimeVariation documentation. Thanks to Mika Laitio for the
    report.
 
    Allow query strings to be passed with POSTs. Thanks to Kjetil JD
    for the fix.
+
+   The TCP Sniffer -proxy mode can now be used with any filters.
+
+   I've removed the TCP Sniffer URL rewriting filter; use -proxy
+   instead.
 
    Reworked HttpPluginSnifferFilter:
 	- Outputs a full usable test script.
@@ -31,11 +40,6 @@ Grinder 2.8.3
    This means that the sniffer should just chuck the data directly
    into the POST file, which is what it now does. And no Cynthia, we
    don't support multipart/byteranges.)
-
-   I've removed the TCP Sniffer URL rewriting filter; use -proxy
-   instead.
-
-   The TCP Sniffer -proxy mode can now be used with any filters.
 
    Other miscellaneous fixes and documentation.
 

@@ -127,9 +127,17 @@ Alter the test URL parameter as follows:
   grinder.test0.parameter.url=http://myhost/test.jsp?n=<getRandomInteger>
 
 
-The <beanMethodName> syntax can be used in any URL string or POST data
-file. It must correspond to a public method of the string bean that
-takes no parameters and returns a String.
+The <beanMethodName> syntax can be used in any URL string, POST data
+file, HTTP headers and in OK strings. It must correspond to a public
+method of the string bean that takes no parameters and returns a
+String.
+
+The HTTP plugin is relaxed about a partial string bean tag matchess,
+for example "<notAMethod> or "<abc<def>xyz>" it simply outputs the
+literal text. This allows string bean tags to be used within XML POST
+data. If you find that your StringBean is not invoked when you expect
+it to be, use the TCPSniffer to find out what is actually being sent
+and check your spelling.
 
 Each string bean instance is instantiated per thread, and maintains
 its state between invocations. If your bean needs additional
