@@ -18,23 +18,25 @@
 
 package net.grinder.plugin.http;
 
-import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.plugininterface.ThreadCallbacks;
 
 
 /**
- * This interface can be optionally implemented by "StringBean"
- * classes used by the HTTP plugin.
+ * This interface can be optionally implemented by "String Bean"
+ * classes used by the HTTP plugin that want to know more about the
+ * test lifecycle.
+ *
+ * If a String Bean implements this interface, the corresponding
+ * methods are called on the bean before they are called on the
+ * plugin's ThreadCallbacks object.
+ *
+ * Not sure whether extending ThreadCallbacks is the right thing to do
+ * because the "doTest" method needs to return a boolean. For now,
+ * lets not worry too much about this.
  *
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface StringBean
+public interface StringBean extends ThreadCallbacks
 {
-    /**
-     * This method is executed when the process starts. It is only
-     * executed once.
-     */
-    public void initialize(PluginThreadContext pluginThreadContext)
-	throws PluginException;
 }

@@ -59,8 +59,9 @@ public class HttpPlugin extends SimplePluginBase
     private final DateFormat m_dateFormat =
 	new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss zzz");
 
-    private Object m_stringBean = null;
-    private final Map m_stringBeanMethodMap = new HashMap();
+    private Object m_bean = null;
+    private StringBean m_stringBean = null;
+    private Map m_beanMethodMap = null;
 
     /**
      * Inner class that holds the data for a call.
@@ -141,7 +142,7 @@ public class HttpPlugin extends SimplePluginBase
 	private String replaceDynamicKeys(String original) 
 	    throws PluginException
 	{
-	    if (original == null || m_stringBean == null) {
+	    if (original == null || m_bean == null) {
 		return original;
 	    }
 	    else {
@@ -174,7 +175,7 @@ public class HttpPlugin extends SimplePluginBase
 			final String methodName = original.substring(lastP, p);
 
 			final Method method =
-			    (Method)m_stringBeanMethodMap.get(methodName);
+			    (Method)m_beanMethodMap.get(methodName);
 
 			if (method == null ) {
 			    throw new PluginException(
@@ -184,7 +185,7 @@ public class HttpPlugin extends SimplePluginBase
 			}
 
 			try {
-			    m_buffer.append((String)method.invoke(m_stringBean,
+			    m_buffer.append((String)method.invoke(m_bean,
 								  m_noArgs));
 			}
 			catch (Exception e) {
@@ -270,11 +271,11 @@ public class HttpPlugin extends SimplePluginBase
 		final Class stringBeanClass =
 		    Class.forName(stringBeanClassName);
 
-		m_stringBean = stringBeanClass.newInstance();
+		m_bean = stringBeanClass.newInstance();
 
 		if (StringBean.class.isAssignableFrom(stringBeanClass)) {
-		    ((StringBean)m_stringBean).initialize(
-			m_pluginThreadContext);
+		    m_stringBean = (StringBean)m_bean;
+		    m_stringBean.initialize(m_pluginThreadContext);
 		}
 		else {
 		    m_pluginThreadContext.logMessage(
@@ -282,6 +283,8 @@ public class HttpPlugin extends SimplePluginBase
 			StringBean.class.getName() +
 			", skipping initialisation");
 		}
+
+		m_beanMethodMap = new HashMap();
 
 		final Method[] methods = stringBeanClass.getMethods();
 
@@ -291,7 +294,7 @@ public class HttpPlugin extends SimplePluginBase
 		    if (name.startsWith("get") &&
 			methods[i].getReturnType() == String.class &&
 			methods[i].getParameterTypes().length == 0) {
-			m_stringBeanMethodMap.put(name, methods[i]);
+			m_beanMethodMap.put(name, methods[i]);
 		    }
 		}
 	    }
@@ -310,6 +313,10 @@ public class HttpPlugin extends SimplePluginBase
 
     public void beginCycle() throws PluginException
     {
+	if (m_stringBean != null) {
+	    m_stringBean.beginCycle();
+	}
+
 	// Reset cookie if necessary.
 	m_httpMsg.reset();      
     }
@@ -319,6 +326,10 @@ public class HttpPlugin extends SimplePluginBase
      */    
     public boolean doTest(Test test) throws PluginException
     {
+	if (m_stringBean != null) {
+	    m_stringBean.doTest(test);
+	}
+
 	final Integer testNumber = test.getTestNumber();
 	
 	CallData callData = (CallData)m_callData.get(testNumber);
@@ -389,6 +400,10 @@ public class HttpPlugin extends SimplePluginBase
 
     public void endCycle() throws PluginException
     {
+	if (m_stringBean != null) {
+	    m_stringBean.endCycle();
+	}
+
 	m_currentIteration++;
     }
 }
