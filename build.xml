@@ -441,6 +441,10 @@ what you want. Currently the conditionally built modules are:
       <sourcepath>
 	<pathelement path="${src.dir}"/>
       </sourcepath>
+      <include name="net.grinder.**"/>
+      <cvgset dir="${gj-coverage.dir}">
+        <include name="*.cvg"/>
+      </cvgset>
     </gjreport>
   </target>
 
