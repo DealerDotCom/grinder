@@ -21,6 +21,7 @@
 
 package net.grinder.engine.process;
 
+import org.python.core.Py;
 import org.python.core.PyJavaInstance;
 import org.python.core.PyObject;
 
@@ -49,7 +50,7 @@ class TestPyJavaInstance extends PyJavaInstance
 	    return (PyObject)m_testData.dispatch(invokeable);
 	}
 	catch (Exception e) {
-	    throw Py.JavaError(t);
+	    throw Py.JavaError(e);
 	}
     }
 
