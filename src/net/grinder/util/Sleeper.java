@@ -114,12 +114,15 @@ public class Sleeper
      **/
     public void sleepNormal(long meanTime) throws ShutdownException
     {
+	sleepNormal(meanTime, (long)((meanTime * m_limit99_75Factor)/3.0));
+    }
+
+    public void sleepNormal(long meanTime, long sigma) throws ShutdownException
+    {
 	checkShutdown();
 
 	if (meanTime > 0) {
-	    if (m_limit99_75Factor > 0) {
-		final double sigma = (meanTime * m_limit99_75Factor)/3.0;
-
+	    if (sigma > 0) {
 		doSleep(meanTime + (long)(s_random.nextGaussian() * sigma));
 	    }
 	    else {

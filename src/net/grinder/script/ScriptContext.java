@@ -21,6 +21,7 @@
 
 package net.grinder.script;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
 
@@ -64,4 +65,25 @@ public interface ScriptContext
      * @return a <code>Logger</code> value
      */
     Logger getLogger();
+
+    /**
+     * Sleep for a time based on the meanTime parameter. The actual
+     * time may be greater or less than meanTime, and is distributed
+     * according to a a pseudo normal distribution.
+     *
+     * @param meanTime Mean time in milliseconds.
+     * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
+     **/
+    void sleep(long meanTime) throws GrinderException;
+
+    /**
+     * Sleep for a time based on the meanTime parameter. The actual
+     * time may be greater or less than meanTime, and is distributed
+     * according to a a pseudo normal distribution.
+     *
+     * @param meanTime Mean time in milliseconds.
+     * @param sigma The standard deviation, in milliseconds.
+     * @throws ShutdownException If this <code>Sleeper</code> has been shutdown.
+     **/
+    void sleep(long meanTime, long sigma) throws GrinderException;
 }

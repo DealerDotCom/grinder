@@ -30,6 +30,7 @@ import org.python.core.PyString;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.script.ScriptContext;
@@ -167,6 +168,32 @@ class JythonScript
 	    }
 
 	    return m_processContext;
+	}
+
+	public void sleep(long meanTime) throws GrinderException
+	{
+	    final ThreadContext threadContext =
+		ThreadContext.getThreadInstance();
+
+	    if (threadContext == null) {
+		throw new EngineException(
+		    "sleep is currently only supported for worker threads");
+	    }
+
+	    threadContext.getSleeper().sleepNormal(meanTime);
+	}
+
+	public void sleep(long meanTime, long sigma) throws GrinderException
+	{
+	    final ThreadContext threadContext =
+		ThreadContext.getThreadInstance();
+
+	    if (threadContext == null) {
+		throw new EngineException(
+		    "sleep is currently only supported for worker threads");
+	    }
+
+	    threadContext.getSleeper().sleepNormal(meanTime, sigma);
 	}
     }
 }
