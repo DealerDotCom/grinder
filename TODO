@@ -44,46 +44,51 @@ directory chosen by console. The root directory is part of python
 path.
 
 
-Task: Agent receives asynchronously. Agent should clear cache on
-start.
+Task: Agent receives asynchronously.
 Task: Console to broadcast. Remove ScriptDistributionFiles work. 
-
-
 Task: Allow editing in the console.
 
-Add dirty file handler to model.
-
-Editing
-	- Need to handle CRLF? (Not for now).
-
-Warnings:
- - Saving outside of distribution.
-
-Minor bug - each time L&F changes, the saveAs dialog gets another All
-Files filter!
-
-Task: Console to maintain local dirty list based on edits and
-broadcast changes only.
-Task: Agent connects and syncs on start up via one time connection.
-- Needs sync comms channel.
+Task: Console to maintain map of remote agent address to last update
+time. For now assume that agent cache should be overwritten. For now,
+find the oldest time and broadcast since then. Null -> send the lot.
+Task: Console to clear cache state on root change -> broadcast full
+cache on distribution. Need a special "clear cache" message.
+Task: DistributeFilesMessage -> DistributeFileMessage (send a single
+file). Send in a background thread with a progress bar.      
 Task: Console to allow selection of script. Warn if no script
 selected.
-Task: Console to check dirty state on play and auto broadcast.
-Task: Console to set special dirty flag on root change, broadcast full
-cache on distribution. Includes indication to agents to reset cache.
-Task: Add guard to console which warns if changing to a directory with
-more than X bytes of data below it.
 Task: Agent FileStore to update copy of cache asynchronously. Main
 agent thread to move it into place at good point in lifecycle to
 prevent locking of stale files by worker processes.
+
+- RELEASE - 
+
+Task: Console to check dirty state on play and auto broadcast. Need
+some way of synchronising before starting run.
 Task: Console to watch local file system for edits. 
-Task: Add checksum across file names/sizes so that agents starting
-with a good cache skip sync.
+Task: Add warning if saving outside of distribution.
 Task: File Store directory should have a README describing what its
 for.
 
+
+- RELEASE -
+
+Task: Addressed messaging. Every Acceptor.SocketResource to know its
+remote EndPoint. Add FilteredFanOutServerSender (Extend
+FanOutServerSender, allow resourceToOutputStream to return null
+indicating the resource shouldn't be sent anything. Supplied Filter
+method is given a SocketResource and the Message and can then veto.)
+Task: Add agent initiation channel so agent can send a checksum across
+file names/sizes. Console compares with its cache and generates a good
+last update time for the agent. Thus agents starting with a good cache
+skip sync.
+Task: Better CRLF handling.
+
 Bug: Agent doesn't hang onto last start message when starting
 immediately.
+Bug: Each time L&F changes, the saveAs dialog gets another All
+Files filter!
+
 
 *** Console Script editing
 
@@ -120,7 +125,8 @@ its license terms are acceptable. Apparently now available.
 
 *** Refactoring
 
-Refactor Console/ConsoleUI/ConsoleCommunication/Model split.
+Refactor Console/ConsoleUI/ConsoleCommunication/Model split. Add an
+API. DistributeFilesHandler is start of this?
 
 Consider moving overwrite / save before close / ... handling to the
 model. Needs some kind of command pattern to represent choices.
