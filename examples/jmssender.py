@@ -49,10 +49,8 @@ message = createBytesMessage(100)
 
 session.close()
 
-
 class TestRunner:
     def __call__(self):
-
         log("Creating queue session")
         session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
 
