@@ -21,14 +21,9 @@
 
 package net.grinder.tools.tcpproxy;
 
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternCompiler;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-import org.apache.oro.text.regex.Perl5Substitution;
-import org.apache.oro.text.regex.Util;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 
 /**
@@ -58,25 +53,19 @@ import org.apache.oro.text.regex.Util;
 class HTTPMethodRelativeURIFilterDecorator implements TCPProxyFilter {
 
   private static final Pattern s_httpMethodLine;
-  private static final Perl5Substitution s_substition =
-    new Perl5Substitution("$1 $2");
 
   static {
-    final PatternCompiler compiler = new Perl5Compiler();
-
     try {
       s_httpMethodLine =
-        compiler.compile("^([A-Z]+)[ \\t]+http://[^/:]+:?\\d*(/.*)",
-                         Perl5Compiler.MULTILINE_MASK  |
-                         Perl5Compiler.READ_ONLY_MASK);
+        Pattern.compile("^([A-Z]+)[ \\t]+http://[^/:]+:?\\d*(/.*)",
+                        Pattern.MULTILINE);
     }
-    catch (MalformedPatternException e) {
+    catch (PatternSyntaxException e) {
       throw new ExceptionInInitializerError(e);
     }
   }
 
   private final TCPProxyFilter m_delegate;
-  private final PatternMatcher m_matcher = new Perl5Matcher();
 
   /**
    * Constructor.
@@ -137,11 +126,11 @@ class HTTPMethodRelativeURIFilterDecorator implements TCPProxyFilter {
     // '?').
     final String original = new String(buffer, 0, bytesRead, "ISO8859_1");
 
-    final String result =
-      Util.substitute(m_matcher, s_httpMethodLine, s_substition, original);
+    final Matcher matcher = s_httpMethodLine.matcher(original);
 
-    // Yes, I mean reference identity.
-    if (result != original) {
+    if (matcher.matches()) {
+      final String result = matcher.group(1) + " " + matcher.group(2);
+
       final byte[] resultBytes = result.getBytes();
 
       final byte[] delegateResult =

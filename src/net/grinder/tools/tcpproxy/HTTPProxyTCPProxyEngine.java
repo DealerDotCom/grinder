@@ -36,14 +36,9 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternCompiler;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.Logger;
@@ -75,7 +70,6 @@ import net.grinder.util.html.HTMLElement;
  */
 public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
-  private final PatternMatcher m_matcher = new Perl5Matcher();
   private final Pattern m_httpConnectPattern;
   private final Pattern m_httpsConnectPattern;
   private final ProxySSLEngine m_proxySSLEngine;
@@ -99,7 +93,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
    * through, or <code>null</code> for no proxy.
    *
    * @exception IOException If an I/O error occurs
-   * @exception MalformedPatternException If a regular expression
+   * @exception PatternSyntaxException If a regular expression
    * error occurs.
    */
   public HTTPProxyTCPProxyEngine(TCPProxySSLSocketFactory sslSocketFactory,
@@ -111,7 +105,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                                  int timeout,
                                  EndPoint chainedHTTPProxy,
                                  EndPoint chainedHTTPSProxy)
-    throws IOException, MalformedPatternException {
+    throws IOException, PatternSyntaxException {
 
     // We set this engine up for handling plain connections. We
     // delegate HTTPS to a proxy engine.
@@ -121,15 +115,13 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     m_proxyAddress = localEndPoint;
     m_chainedHTTPProxy = chainedHTTPProxy;
 
-    final PatternCompiler compiler = new Perl5Compiler();
+    m_httpConnectPattern =
+    	Pattern.compile("^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
+    			            Pattern.MULTILINE);
 
-    m_httpConnectPattern = compiler.compile(
-      "^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
-      Perl5Compiler.MULTILINE_MASK  | Perl5Compiler.READ_ONLY_MASK);
-
-    m_httpsConnectPattern = compiler.compile(
-      "^CONNECT[ \\t]+([^:]+):(\\d+)",
-      Perl5Compiler.MULTILINE_MASK | Perl5Compiler.READ_ONLY_MASK);
+    m_httpsConnectPattern =
+    	Pattern.compile("^CONNECT[ \\t]+([^:]+):(\\d+)",
+                      Pattern.MULTILINE);
 
     // When handling HTTPS proxies, we use our plain socket to accept
     // connections on. We suck the bit we understand off the front and
@@ -183,7 +175,13 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         final String line =
           bytesRead > 0 ? new String(buffer, 0, bytesRead, "US-ASCII") : "";
 
-        if (m_matcher.contains(line, m_httpConnectPattern)) {
+        final Matcher httpConnectMatcher =
+          m_httpConnectPattern.matcher(line);
+
+        final Matcher httpsConnectMatcher =
+          m_httpsConnectPattern.matcher(line);
+
+        if (httpConnectMatcher.matches()) {
           // HTTP proxy request.
 
           // Reset stream to beginning of request.
@@ -195,14 +193,13 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
               in, localSocket, EndPoint.clientEndPoint(localSocket)),
               "HTTPProxyStreamDemultiplexer for " + localSocket).start();
         }
-        else if (m_matcher.contains(line, m_httpsConnectPattern)) {
+        else if (httpsConnectMatcher.matches()) {
           // HTTPS proxy request.
 
-          final MatchResult match = m_matcher.getMatch();
-
-          // Match.group(2) must be a port number by specification.
+          // group(2) must be a port number by specification.
           final EndPoint remoteEndPoint =
-            new EndPoint(match.group(1), Integer.parseInt(match.group(2)));
+            new EndPoint(httpsConnectMatcher.group(1),
+                         Integer.parseInt(httpsConnectMatcher.group(2)));
 
           if (m_httpsProxySocketFactory != null) {
             // Read additional data from the client (HTTP protocol
@@ -214,7 +211,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
               new ByteArrayOutputStream();
 
             additionalRequestBytes.write(
-              line.substring(match.end(2)).getBytes());
+              line.substring(httpsConnectMatcher.end(2)).getBytes());
 
             int n;
 
@@ -334,7 +331,6 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     private final InputStream m_in;
     private final Socket m_localSocket;
     private final EndPoint m_clientEndPoint;
-    private final PatternMatcher m_matcher = new Perl5Matcher();
     private final Map m_remoteStreamMap = new HashMap();
     private OutputStreamFilterTee m_lastRemoteStream;
 
@@ -362,15 +358,17 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           final String bytesReadAsString =
             new String(buffer, 0, bytesRead, "US-ASCII");
 
-          if (m_matcher.contains(bytesReadAsString, m_httpConnectPattern)) {
+          final Matcher matcher =
+            m_httpConnectPattern.matcher(bytesReadAsString);
 
-            final MatchResult match = m_matcher.getMatch();
-            final String remoteHost = match.group(2);
+          if (matcher.matches()) {
+
+            final String remoteHost = matcher.group(2);
 
             int remotePort = 80;
 
             try {
-              remotePort = Integer.parseInt(match.group(3));
+              remotePort = Integer.parseInt(matcher.group(3));
             }
             catch (NumberFormatException e) {
               // remotePort = 80;

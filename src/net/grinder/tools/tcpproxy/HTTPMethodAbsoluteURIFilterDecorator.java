@@ -21,14 +21,9 @@
 
 package net.grinder.tools.tcpproxy;
 
-import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.Pattern;
-import org.apache.oro.text.regex.PatternCompiler;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-import org.apache.oro.text.regex.Perl5Substitution;
-import org.apache.oro.text.regex.Util;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 
 /**
@@ -55,21 +50,17 @@ class HTTPMethodAbsoluteURIFilterDecorator implements TCPProxyFilter {
   private static final Pattern s_httpMethodLine;
 
   static {
-    final PatternCompiler compiler = new Perl5Compiler();
-
     try {
-      s_httpMethodLine = compiler.compile("^([A-Z]+[ \\t]+)(.*)",
-                                          Perl5Compiler.MULTILINE_MASK  |
-                                          Perl5Compiler.READ_ONLY_MASK);
+      s_httpMethodLine = Pattern.compile("^([A-Z]+[ \\t]+)(.*)",
+                                         Pattern.MULTILINE);
     }
-    catch (MalformedPatternException e) {
+    catch (PatternSyntaxException e) {
       throw new ExceptionInInitializerError(e);
     }
   }
 
   private final TCPProxyFilter m_delegate;
-  private final Perl5Substitution m_substitution;
-  private final PatternMatcher m_matcher = new Perl5Matcher();
+  private final String m_absoluteURIPrefix;
 
   /**
    * Constructor.
@@ -81,8 +72,7 @@ class HTTPMethodAbsoluteURIFilterDecorator implements TCPProxyFilter {
   public HTTPMethodAbsoluteURIFilterDecorator(TCPProxyFilter delegate,
                                               EndPoint remoteEndPoint) {
     m_delegate = delegate;
-    m_substitution =
-      new Perl5Substitution("$1 http://" + remoteEndPoint + "$2");
+    m_absoluteURIPrefix = " http://" + remoteEndPoint;
   }
 
   /**
@@ -145,10 +135,11 @@ class HTTPMethodAbsoluteURIFilterDecorator implements TCPProxyFilter {
       original = new String(buffer, 0, bytesRead, "ISO8859_1");
     }
 
-    final String result =
-      Util.substitute(m_matcher, s_httpMethodLine, m_substitution, original);
+    final Matcher matcher = s_httpMethodLine.matcher(original);
 
-    if (result != original) {    // Yes, I mean reference identity.
+    if (matcher.matches()) {
+      final String result =
+        matcher.group(1) + m_absoluteURIPrefix + matcher.group(2);
       return result.getBytes();
     }
     else if (delegateResult != null) {
