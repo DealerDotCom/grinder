@@ -85,6 +85,7 @@ what you want. Currently the conditionally built modules are:
 
   <!-- source of all evil -->
   <property name="src.dir" value="src"/>
+  <property name="native-src.dir" value="native"/>
   <property name="test-src.dir" value="tests-src"/>
   <property name="etc.dir" value="etc"/>
   <property name="manifest.mf" value="etc/grinder-manifest.mf"/>
@@ -325,6 +326,25 @@ what you want. Currently the conditionally built modules are:
        <include name="net/grinder/**"/>
        <classpath refid="build.classpath"/>
     </javac>
+  </target>
+
+  <target name="compile-native" depends="init"
+          description="Compiles the native source.">
+    <exec executable="gcc">
+      <arg line="-mno-cygwin"/>
+      <arg line="-I"/>
+      <arg file="${java.home}/../include"/>
+      <arg line="-I"/>
+      <arg file="${java.home}/../include/win32"/>
+      <arg line="-L"/>
+      <arg file="${java.home}/../lib"/>
+      <arg line="-Wl,--add-stdcall-alias -shared"/>
+      <arg line="-o"/>
+      <arg file="${lib.dir}/threaddump.dll"/>
+      <arg file="${native-src.dir}/threaddump.c"/>
+      <arg line="-ljvm"/>
+    </exec>
+
   </target>
 
   <target name="compile-tests"
