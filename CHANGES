@@ -22,13 +22,16 @@ Grinder 2.6.3
   http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html
   for a comparision. I hope to lever features such as proxy support,
   connection timeouts and persistent cookies into future versions of
-  The Grinder. Unfortunately experimentation shows HTTPClient does not
-  perform well in a multithreaded environment, but I'm guessing this
-  should be straightforward to fix. See the file doc/HTTPPlugin.txt
-  for details on how to turn on the HTTPClient support.
+  The Grinder. Unfortunately experimentation shows HTTPClient
+  sometimes does not perform well in a multithreaded environment. I'm
+  guessing this should be straightforward to fix. See the file
+  doc/HTTPPlugin.txt for details on how to turn on the HTTPClient
+  support.
 
   The TCPSniffer echo filter now reports connection open and close
   events.
+
+  The TCPSniffer now has a funky "-colour" option.
 
 
 Grinder 2.6.2

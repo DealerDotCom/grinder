@@ -161,16 +161,25 @@ account when comparing round trip times, as a compiled browser version
 is likely to be a *lot* faster.
 
 
+HTTPClient
+**********
 
-TO DO:
+The HTTP plugin now has *experimental* support for Ronald Tschalär's
+excellent HTTPClient library instead of HttpURLConnection. HTTPClient
+has many more features than HttpURLConnection, see
+http://www.innovation.ch/java/HTTPClient/urlcon_vs_httpclient.html for
+a comparision. One of the key advantages for The Grinder is that
+HTTPClient allows explicit control of connection management, whereas
+HttpURLConnection uses connection pooling "under the covers".
 
-WHY HTTPCLIENT IS BETTER
-Explicit connection model
-Can be used to support:
-	Proxies
-	Connection timeouts
-	Persistent cookies
+I hope to lever features such as proxy support, connection timeouts
+and persistent cookies into future versions of The Grinder.
 
-basicAuthenticationRealm
+Unfortunately experimentation shows HTTPClient sometimes does not
+perform well in a multithreaded environment. I'm guessing this should
+be straightforward to fix.
 
-timeIncludesTransaction
+To use specify that the HTTP plugin should use HTTPClient instead of
+HttpURLConnection, say
+
+    grinder.plugin.parameter.useHTTPClient=true
