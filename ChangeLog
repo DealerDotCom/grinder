@@ -1,5 +1,12 @@
 2004-11-21  Philip Aston  <philipa@mail.com>
 
+	* build.xml: Exclude patch artefacts from distribution.
+
+	* build.xml: Next is beta 24.
+	Correct year.
+
+	* tests-src/net/grinder/plugin/http/TestHTTPRequest.java: Sigh.
+
 	* The Grinder 3.0-beta23 is released.
 
 	* tests-src/net/grinder/plugin/http/TestHTTPRequest.java:
