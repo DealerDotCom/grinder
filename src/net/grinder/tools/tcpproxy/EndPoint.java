@@ -28,7 +28,7 @@ package net.grinder.tools.tcpproxy;
  * @author <a href="mailto:paston@bea.com">Philip Aston</a>
  * @version $Revision$
  */
-public final class EndPoint {
+public final class EndPoint implements Comparable {
 
   private final String m_host;
   private final int m_port;
@@ -106,5 +106,28 @@ public final class EndPoint {
    */
   public String toString()  {
     return m_host + ":" + m_port;
+  }
+
+  /**
+   * Implement <code>Comparable</code>.
+   *
+   * @param other Object to be compared.
+   * @return A negative integer, zero, or a positive integer as this
+   * object is less than, equal to, or greater than the specified
+   * object.
+   */
+  public int compareTo(Object other) {
+
+    // May throw ClassCastException - this is fine.
+    final EndPoint otherEndPoint = (EndPoint)other;
+
+    final int c = getHost().compareTo(otherEndPoint.getHost());
+
+    if (c != 0) {
+      return c;
+    }
+    else {
+      return getPort() - otherEndPoint.getPort();
+    }
   }
 }

@@ -341,8 +341,9 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                 getSocketFactory().createClientSocket(remoteEndPoint);
 
               final ConnectionDetails connectionDetails =
-                new ConnectionDetails(getLocalHost(), m_localSocket.getPort(),
-                                      remoteHost, remotePort, false);
+                new ConnectionDetails(
+                  new EndPoint(getLocalHost(), m_localSocket.getPort()),
+                  remoteEndPoint, false);
 
               m_lastRemoteStream =
                 new OutputStreamFilterTee(connectionDetails,

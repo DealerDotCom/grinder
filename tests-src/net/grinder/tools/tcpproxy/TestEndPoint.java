@@ -73,4 +73,32 @@ public class TestEndPoint extends TestCase {
     assertTrue(!endPoint[1].equals(endPoint[3]));
     assertTrue(!endPoint[1].equals(endPoint[4]));
   }
+
+  public void testComparable() throws Exception {
+    final EndPoint[] ordered = {
+      new EndPoint("abc", 21331),
+      new EndPoint("abc", 21431),
+      new EndPoint("x", 131),
+      new EndPoint("X", 132),
+      new EndPoint("X", 91321),
+    };
+    
+    for (int i=0; i<ordered.length; ++i) {
+      for (int j=0; j<i; ++j) {
+        assertTrue("EndPoint " + i + " is greater than EndPoint " + j,
+                   ordered[i].compareTo(ordered[j]) > 0);
+      }
+
+      assertEquals(0, ordered[i].compareTo(ordered[i]));
+
+      for (int j=i+1; j<ordered.length; ++j) {
+        assertTrue("EndPoint " + i + " is less than EndPoint " + j,
+                   ordered[i].compareTo(ordered[j]) < 0);
+      }
+    }
+
+    // Check two different but equal EndPoint's.
+    assertEquals(0, new EndPoint("blah", 999).compareTo(
+                   new EndPoint("blah", 999)));
+  }
 }

@@ -40,18 +40,16 @@ public final class ConnectionDetails {
   /**
    * Creates a new <code>ConnectionDetails</code> instance.
    *
-   * @param localHost a <code>String</code> value
-   * @param localPort an <code>int</code> value
-   * @param remoteHost a <code>String</code> value
-   * @param remotePort an <code>int</code> value
-   * @param isSecure a <code>boolean</code> value
+   * @param localEndPoint Local host and port.
+   * @param remoteEndPoint Remote host and port.
+   * @param isSecure Whether the connection is secure.
    * @throws IllegalArgumentException If local and remote details are the same.
    */
-  public ConnectionDetails(String localHost, int localPort, String remoteHost,
-                           int remotePort, boolean isSecure) {
+  public ConnectionDetails(EndPoint localEndPoint, EndPoint remoteEndPoint,
+                           boolean isSecure) {
 
-    m_localEndPoint = new EndPoint(localHost, localPort);
-    m_remoteEndPoint = new EndPoint(remoteHost, remotePort);
+    m_localEndPoint = localEndPoint;
+    m_remoteEndPoint = remoteEndPoint;
     m_isSecure = isSecure;
 
     m_hashCode =
@@ -59,32 +57,20 @@ public final class ConnectionDetails {
       m_remoteEndPoint.hashCode() ^
       (m_isSecure ? 0x55555555 : 0);
 
-    final int c = localHost.compareTo(remoteHost);
-    final boolean localIsLeast;
+    final int c = localEndPoint.compareTo(remoteEndPoint);
 
     if (c == 0) {
-      if (localPort == remotePort) {
-        throw new IllegalArgumentException(
-          "Local and remote sockets are the same");
-      }
-
-      localIsLeast = localPort < remotePort;
-    }
-    else {
-      localIsLeast = c < 0;
+      throw new IllegalArgumentException(
+        "Local and remote sockets are the same");
     }
 
-    if (localIsLeast) {
+    if (c < 0) {
       m_connectionIdentity =
-        localHost + "|" + localPort + "|" +
-        remoteHost + "|" + remotePort + "|" +
-        isSecure;
+        localEndPoint + "|" + remoteEndPoint + "|" + isSecure;
     }
     else {
       m_connectionIdentity =
-        remoteHost + "|" + remotePort + "|" +
-        localHost + "|" + localPort + "|" +
-        isSecure;
+        remoteEndPoint + "|" + localEndPoint + "|" + isSecure;
     }
   }
 
@@ -132,44 +118,8 @@ public final class ConnectionDetails {
    *
    * @return a <code>String</code> value
    */
-  public String getRemoteHost() {
-    return m_remoteEndPoint.getHost();
-  }
-
-  /**
-   * Accessor.
-   *
-   * @return an <code>int</code> value
-   */
-  public int getRemotePort() {
-    return m_remoteEndPoint.getPort();
-  }
-
-  /**
-   * Accessor.
-   *
-   * @return a <code>String</code> value
-   */
   public EndPoint getLocalEndPoint() {
     return m_localEndPoint;
-  }
-
-  /**
-   * Accessor.
-   *
-   * @return a <code>String</code> value
-   */
-  public String getLocalHost() {
-    return m_localEndPoint.getHost();
-  }
-
-  /**
-   * Accessor.
-   *
-   * @return an <code>int</code> value
-   */
-  public int getLocalPort() {
-    return m_localEndPoint.getPort();
   }
 
   /**
@@ -226,8 +176,7 @@ public final class ConnectionDetails {
    */
   public ConnectionDetails getOtherEnd() {
 
-    return new ConnectionDetails(getRemoteHost(), getRemotePort(),
-                                 getLocalHost(), getLocalPort(),
-                                 isSecure());
+    return new ConnectionDetails(
+      getRemoteEndPoint(), getLocalEndPoint(), isSecure());
   }
 }

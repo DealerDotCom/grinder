@@ -205,11 +205,10 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
       m_socketFactory.createClientSocket(remoteEndPoint);
 
     final ConnectionDetails connectionDetails =
-      new ConnectionDetails(getLocalHost(),
-                            localSocket.getPort(),
-                            remoteEndPoint.getHost(),
-                            remoteSocket.getPort(),
-                            isSecure);
+      new ConnectionDetails(
+        new EndPoint(getLocalHost(), localSocket.getPort()),
+        new EndPoint(remoteEndPoint.getHost(), remoteSocket.getPort()),
+        isSecure);
 
     new FilteredStreamThread(localInputStream,
                              new OutputStreamFilterTee(

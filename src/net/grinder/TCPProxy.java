@@ -318,6 +318,7 @@ public final class TCPProxy {
       }
 
       final EndPoint localEndPoint = new EndPoint(localHost, localPort);
+      final EndPoint remoteEndPoint = new EndPoint(remoteHost, remotePort);
 
       if (proxy) {
         m_proxyEngine =
@@ -339,8 +340,7 @@ public final class TCPProxy {
             requestFilter,
             responseFilter,
             outputWriter,
-            new ConnectionDetails(localHost, localPort, remoteHost, remotePort,
-                                  useSSL),
+            new ConnectionDetails(localEndPoint, remoteEndPoint, useSSL),
             useColour,
             timeout);
       }
