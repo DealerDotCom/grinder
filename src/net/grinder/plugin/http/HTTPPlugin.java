@@ -130,7 +130,7 @@ public class HttpPlugin extends SimplePluginBase
 		    e.printStackTrace(System.err);
 		}
 
-		m_contentType = testParameters.getProperty("contentType",
+		m_contentType = testParameters.getProperty("postContentType",
 							   null);
 	    }
 

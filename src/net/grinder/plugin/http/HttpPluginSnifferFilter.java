@@ -187,7 +187,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 
 	if (contentTypeExpression.match(request)) {
             outputProperty(sessionState.getRequestNumber(),
-			   "parameter.contentType",
+			   "parameter.postContentType",
 			   contentTypeExpression.getParen(2).trim());
 
 	    // If multipart content type, set sessionState to
