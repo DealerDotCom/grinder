@@ -37,8 +37,8 @@ import net.grinder.common.GrinderException;
  * <code>*</code> (with their usual meanings). Precedence can be
  * controlled by grouping expressions in parentheses.
  *
- * <p>For example, the statistic expression "<code>(/ timedTestTime
- * timedTests)</code>" represents the mean test time in milliseconds.
+ * <p>For example, the statistic expression "<code>(/ (sum timedTests)
+ * (count timedTests))</code>" represents the mean test time in milliseconds.
  *
  * @author Philip Aston
  * @version $Revision$
