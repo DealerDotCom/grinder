@@ -32,6 +32,7 @@ import net.grinder.communication.RegisterStatisticsViewMessage;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ReportStatusMessage;
+import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ProcessStatusSet;
@@ -69,7 +70,11 @@ public class Console {
     final ConsoleProperties properties =
       new ConsoleProperties(new File(homeDirectory, ".grinder_console"));
 
-    m_model = new Model(properties);
+    final Resources resources =
+      new Resources("net.grinder.console.swingui.resources.Console");
+
+    m_model = new Model(properties, resources);
+
     final ProcessStatusSet processStatusSet = m_model.getProcessStatusSet();
 
     final ActionListener startHandler =

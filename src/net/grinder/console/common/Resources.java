@@ -21,6 +21,14 @@
 
 package net.grinder.console.common;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.net.URL;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import javax.swing.ImageIcon;
 
 
@@ -30,27 +38,64 @@ import javax.swing.ImageIcon;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface Resources {
+public final class Resources {
+
+  private static ResourceBundle s_resources = null;
+
+  /**
+   * Constructor.
+   *
+   * @param bundleName Name of resource bundle.
+   * @exception ConsoleException If an error occurs.
+   */
+  public Resources(String bundleName) throws ConsoleException {
+
+    synchronized (Resources.class) {
+      if (s_resources == null) {
+        try {
+          s_resources = ResourceBundle.getBundle(bundleName);
+        }
+        catch (MissingResourceException e) {
+          throw new ConsoleException("Resource bundle not found");
+        }
+      }
+
+      DisplayMessageConsoleException.setResources(this);
+    }
+  }
 
   /**
    * Overloaded version of {@link #getString(String, boolean)} which
    * writes out a waning if the resource is missing.
-   *
    * @param key The resource key.
    * @return The string.
    **/
-  String getString(String key);
+  public String getString(String key) {
+    return getString(key, true);
+  }
 
   /**
-   * Use key to look up resource which names image URL. Return the
-   * image.
-   *
+   * Use key to look up resource which names image URL. Return the image.
    * @param key The resource key.
    * @param warnIfMissing true => write out an error message if the
    * resource is missing.
    * @return The string.
    **/
-  String getString(String key, boolean warnIfMissing);
+  public String getString(String key, boolean warnIfMissing) {
+
+    try {
+      return s_resources.getString(key);
+    }
+    catch (MissingResourceException e) {
+      if (warnIfMissing) {
+        System.err.println(
+          "Warning - resource " + key + " not specified");
+        return "";
+      }
+
+      return null;
+    }
+  }
 
   /**
    * Overloaded version of {@link #getImageIcon(String, boolean)}
@@ -59,16 +104,76 @@ public interface Resources {
    * @param key The resource key.
    * @return The image.
    **/
-  ImageIcon getImageIcon(String key);
+  public ImageIcon getImageIcon(String key) {
+    return getImageIcon(key, false);
+  }
 
   /**
-   * Use key to look up resource which names image URL. Return the
-   * image.
+   * Use key to look up resource which names image URL. Return the image.
    *
    * @param key The resource key.
    * @param warnIfMissing true => write out an error message if the
    * resource is missing.
    * @return The image
    **/
-  ImageIcon getImageIcon(String key, boolean warnIfMissing);
+  public ImageIcon getImageIcon(String key, boolean warnIfMissing) {
+    final URL resource = get(key, warnIfMissing);
+
+    return resource != null ? new ImageIcon(resource) : null;
+  }
+
+  /**
+   * Use <code>key</code> to identify a file by URL. Return contents
+   * of file as a String.
+   *
+   * @param key Resource key used to look up URL of file.
+   * @param warnIfMissing true => write out an error message if the
+   * resource is missing.
+   * @return Contents of file.
+   */
+  public String getStringFromFile(String key, boolean warnIfMissing) {
+
+    final URL resource = get(key, warnIfMissing);
+
+    if (resource != null) {
+      try {
+        final Reader in =
+          new BufferedReader(new InputStreamReader(resource.openStream()));
+
+        final StringWriter out = new StringWriter();
+
+        int c;
+
+        while ((c = in.read()) > 0) {
+          out.write(c);
+        }
+
+        in.close();
+        out.close();
+
+        return out.toString();
+      }
+      catch (IOException e) {
+        System.err.println("Warning - could not read " + resource);
+      }
+    }
+
+    return null;
+  }
+
+  private URL get(String key, boolean warnIfMissing) {
+    final String name = getString(key, warnIfMissing);
+
+    if (name == null || name.length() == 0) {
+      return null;
+    }
+
+    final URL url = this.getClass().getResource("resources/" + name);
+
+    if (url == null) {
+      System.err.println("Warning - could not load resource " + name);
+    }
+
+    return url;
+  }
 }

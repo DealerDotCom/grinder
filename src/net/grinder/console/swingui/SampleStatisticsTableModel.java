@@ -35,9 +35,8 @@ import net.grinder.statistics.TestStatistics;
  */
 final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
 
-  public SampleStatisticsTableModel(Model model, Resources resources)
-    throws ConsoleException {
-    super(model, resources);
+  public SampleStatisticsTableModel(Model model) throws ConsoleException {
+    super(model);
   }
 
   public final synchronized void resetTestsAndStatisticsViews() {

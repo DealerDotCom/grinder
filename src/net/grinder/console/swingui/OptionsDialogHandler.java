@@ -37,6 +37,7 @@ import javax.swing.JTextField;
 import net.grinder.common.GrinderException;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.ConsoleException;
+import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
 
 

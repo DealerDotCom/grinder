@@ -178,7 +178,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
         Perl5Compiler.CASE_INSENSITIVE_MASK // and sigh again.
         );
 
-    for (int i=0; i<s_mirroredHeaders.length; i++) {
+    for (int i = 0; i < s_mirroredHeaders.length; i++) {
       m_mirroredHeaderPatterns[i] =
         compiler.compile(
           getHeaderExpression(s_mirroredHeaders[i]),
@@ -266,9 +266,8 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
    * @param connectionDetails The TCP connection.
    * @param buffer The message fragment buffer.
    * @param bytesRead The number of bytes of buffer to process.
-   * @return Filters can optionally return a <code>byte[]</code>
-   * which will be transmitted to the server instead of
-   * <code>buffer</code.
+   * @return Filters can optionally return a <code>byte[]</code> which
+   * will be transmitted to the server instead of <code>buffer</code>.
    * @exception IOException if an error occurs
    */
   public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
@@ -466,7 +465,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       // Stuff we do whatever.
 
       if (m_parsingHeaders) {
-        for (int i=0; i<s_mirroredHeaders.length; i++) {
+        for (int i = 0; i < s_mirroredHeaders.length; i++) {
           if (m_matcher.contains(asciiString,
                                  m_mirroredHeaderPatterns[i])) {
 
@@ -545,14 +544,16 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     private void addToEntityBody(byte[] bytes, int start, int length)
       throws IOException {
 
+      int l = length;
+
       if (m_contentLength != -1 &&
-          length > m_contentLength - m_entityBodyByteStream.size()) {
+          l > m_contentLength - m_entityBodyByteStream.size()) {
 
         warn("Expected content length exceeded, truncating to content length");
-        length = m_contentLength - m_entityBodyByteStream.size();
+        l = m_contentLength - m_entityBodyByteStream.size();
       }
 
-      m_entityBodyByteStream.write(bytes, start, length);
+      m_entityBodyByteStream.write(bytes, start, l);
 
       // We flush our entity data output now if we've reached the
       // specified Content-Length. If no contentLength was specified
@@ -570,6 +571,9 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       m_out.flush();
     }
 
+    /**
+     * Called when end of message is reached.
+     */
     public final synchronized void endMessage() throws IOException {
       if (m_method == null) {
         return;
@@ -615,9 +619,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
         }
 
         final String headerString = headerStringBuffer.toString();
-
-        String headerVariable =
-          (String)m_previousHeaders.get(headerString);
+        String headerVariable = (String)m_previousHeaders.get(headerString);
 
         if (headerVariable == null) {
           headerVariable = "headers" + requestNumber;
@@ -710,7 +712,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
         boolean parsedFormData = false;
 
         if ("application/x-www-form-urlencoded".equals(m_contentType)) {
-
           try {
             final String nameValueString =
               parseNameValueString(m_entityBodyByteStream.toString("US-ASCII"),
@@ -755,7 +756,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
             testOutput.append(dataParameter);
             testOutput.append(" = ( ");
 
-            for (int i=0; i<bytes.length; ++i) {
+            for (int i = 0; i < bytes.length; ++i) {
               final int x =
                 bytes[i] < 0 ? (int)bytes[i] + 0x100 : (int)bytes[i];
 
@@ -794,7 +795,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
                                             int indentLevel) {
     resultBuffer.append(s_newLine);
 
-    for (int k=0; k<indentLevel; ++k) {
+    for (int k = 0; k < indentLevel; ++k) {
       resultBuffer.append(s_indent);
     }
   }
@@ -806,7 +807,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
     final NVPair[] pairs = Codecs.query2nv(input);
 
-    for (int i=0; i<pairs.length; ++i) {
+    for (int i = 0; i < pairs.length; ++i) {
       if (i != 0) {
         appendNewLineAndIndent(result, indentLevel);
       }
@@ -832,7 +833,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
     final int length = value.length();
 
-    for (int i=0; i<length; ++i) {
+    for (int i = 0; i < length; ++i) {
       final char c = value.charAt(i);
 
       switch (c) {

@@ -30,6 +30,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.grinder.console.common.ConsoleException;
+import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
 
 

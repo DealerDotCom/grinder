@@ -22,29 +22,16 @@
 
 package net.grinder.plugin.http;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.text.DateFormat;
 
 import org.apache.oro.text.regex.MalformedPatternException;
-import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.PatternCompiler;
-import org.apache.oro.text.regex.PatternMatcher;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 
-import HTTPClient.Codecs;
-
-import net.grinder.TCPProxy;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
-import net.grinder.tools.tcpproxy.EchoFilter;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
 
 
@@ -58,8 +45,7 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * @author Bertrand Ave
  * @version $Revision$
  */
-public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
-{
+public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter {
   private final Pattern m_wwwAuthenticateHeaderPattern;
   private final Perl5Matcher m_matcher = new Perl5Matcher();
 
@@ -68,16 +54,17 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
   /**
    * Constructor.
    *
-   * @exception MalformedPatternException
+   * @param outputWriter PrintWriter to terminal.
+   * @throws MalformedPatternException If a regular expression error occurs.
    */
   public HTTPPluginTCPProxyResponseFilter(PrintWriter outputWriter)
-    throws MalformedPatternException
-  {
+    throws MalformedPatternException {
     final PatternCompiler compiler = new Perl5Compiler();
 
     m_wwwAuthenticateHeaderPattern =
       compiler.compile(
-        "^WWW-Authenticate:[ \\t]*Basic realm[  \\t]*=[ \\t]*\"([^\"]*)\".*\\r?$",
+        "^WWW-Authenticate:[ \\t]*Basic realm[  \\t]*=" +
+        "[ \\t]*\"([^\"]*)\".*\\r?$",
         Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
   }
 
@@ -92,13 +79,13 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
    * @param bytesRead The number of bytes of buffer to process.
    * @return Filters can optionally return a <code>byte[]</code>
    * which will be transmitted to the server instead of
-   * <code>buffer</code.
+   * <code>buffer</code>.
    * @exception IOException if an error occurs
    */
   public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
                        int bytesRead)
-    throws IOException
-  {
+    throws IOException {
+
     HTTPPluginTCPProxyFilter.markLastResponseTime();
 
     // String used to parse headers - header names are
@@ -120,8 +107,7 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
    *
    * @param connectionDetails a <code>ConnectionDetails</code> value
    */
-  public void connectionOpened(ConnectionDetails connectionDetails)
-  {
+  public void connectionOpened(ConnectionDetails connectionDetails) {
   }
 
   /**
@@ -131,8 +117,7 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
    * @exception IOException if an error occurs
    */
   public void connectionClosed(ConnectionDetails connectionDetails)
-    throws IOException
-  {
+    throws IOException {
   }
 
   /**
@@ -148,8 +133,7 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
    * @return The realm from the last recorded authentication
    * challenge.
    */
-  static String getLastAuthenticationRealm()
-  {
+  static String getLastAuthenticationRealm() {
     return s_lastAuthenticationRealm;
   }
 }

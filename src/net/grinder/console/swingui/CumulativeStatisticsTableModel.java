@@ -40,11 +40,11 @@ final class CumulativeStatisticsTableModel
   private boolean m_includeTotals = true;
   private final String m_totalString;
 
-  public CumulativeStatisticsTableModel(Model model, Resources resources)
-    throws ConsoleException {
-    super(model, resources);
+  public CumulativeStatisticsTableModel(Model model) throws ConsoleException {
 
-    m_totalString = resources.getString("table.total.label");
+    super(model);
+
+    m_totalString = model.getResources().getString("table.total.label");
   }
 
   /**

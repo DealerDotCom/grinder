@@ -35,14 +35,15 @@ import net.grinder.util.TerminalColour;
 
 
 /**
+ * Standard implementation of TCPProxyEngine.
  *
  * @author Phil Dawes
  * @author Philip Aston
  * @author Bertrand Ave
  * @version $Revision$
  */
-public class TCPProxyEngineImplementation implements TCPProxyEngine
-{
+public class TCPProxyEngineImplementation implements TCPProxyEngine {
+
   private final TCPProxyFilter m_requestFilter;
   private final TCPProxyFilter m_responseFilter;
   private final ConnectionDetails m_connectionDetails;
@@ -54,6 +55,19 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
   private final TCPProxySocketFactory m_socketFactory;
   private final ServerSocket m_serverSocket;
 
+  /**
+   * Constructor.
+   *
+   * @param socketFactory Factory for plain old sockets.
+   * @param requestFilter Request filter.
+   * @param responseFilter Response filter.
+   * @param outputWriter Writer to terminal.
+   * @param connectionDetails Connection details.
+   * @param useColour Whether to use colour.
+   * @param timeout Timeout in milliseconds.
+   *
+   * @exception IOException If an I/O error occurs.
+   */
   public TCPProxyEngineImplementation(TCPProxySocketFactory socketFactory,
                                       TCPProxyFilter requestFilter,
                                       TCPProxyFilter responseFilter,
@@ -61,8 +75,8 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
                                       ConnectionDetails connectionDetails,
                                       boolean useColour,
                                       int timeout)
-    throws IOException
-  {
+    throws IOException {
+
     m_outputWriter = outputWriter;
 
     m_socketFactory = socketFactory;
@@ -86,9 +100,11 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
         timeout);
   }
 
-  /* Stop the engine and flush filter buffer. */
-  public void stop()
-  {
+  /**
+   * Stop the engine and flush filter buffer.
+   */
+  public void stop() {
+
     m_requestFilter.stop();
     m_responseFilter.stop();
 
@@ -101,8 +117,11 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
     }
   }
 
-  public void run()
-  {
+  /**
+   * Main event loop.
+   */
+  public void run() {
+
     while (true) {
       final Socket localSocket;
 
@@ -110,7 +129,7 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
         localSocket = m_serverSocket.accept();
       }
       catch (InterruptedIOException e) {
-        System.err.println(ACCEPT_TIMEOUT_MESSAGE);
+        System.err.println("Listen time out");
         return;
       }
       catch (IOException e) {
@@ -125,34 +144,57 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
                          m_connectionDetails.getRemoteHost(),
                          m_connectionDetails.getRemotePort());
       }
-      catch(IOException e) {
+      catch (IOException e) {
         e.printStackTrace(System.err);
       }
     }
   }
 
-  public final ServerSocket getServerSocket()
-  {
+  /**
+   * Accesser for server socket.
+   *
+   * @return The <code>ServerSocket</code> socket.
+   */
+  public final ServerSocket getServerSocket() {
     return m_serverSocket;
   }
 
-  protected final TCPProxySocketFactory getSocketFactory()
-  {
+  /**
+   * Allow subclasses to access socket factory.
+   *
+   * @return The socket factory.
+   */
+  protected final TCPProxySocketFactory getSocketFactory() {
     return m_socketFactory;
   }
 
-  protected final ConnectionDetails getConnectionDetails()
-  {
+  /**
+   * Allow subclasses to access connection details.
+   *
+   * @return The connection details.
+   */
+  protected final ConnectionDetails getConnectionDetails() {
     return m_connectionDetails;
   }
 
+  /**
+   * Launch a pair of threads to handle bi-directional stream
+   * communication.
+   *
+   * @param localSocket Local socket.
+   * @param localInputStream Input stream.
+   * @param localOutputStream Outuput stream.
+   * @param remoteHost Remote host name.
+   * @param remotePort Remote host port.
+   * @exception IOException If an I/O error occurs.
+   */
   protected final void launchThreadPair(Socket localSocket,
                                         InputStream localInputStream,
                                         OutputStream localOutputStream,
                                         String remoteHost,
                                         int remotePort)
-    throws IOException
-  {
+    throws IOException {
+
     final Socket remoteSocket =
       m_socketFactory.createClientSocket(remoteHost, remotePort);
 

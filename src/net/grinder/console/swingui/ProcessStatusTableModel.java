@@ -26,6 +26,7 @@ import javax.swing.table.AbstractTableModel;
 
 import net.grinder.common.ProcessStatus;
 import net.grinder.console.common.ConsoleException;
+import net.grinder.console.common.Resources;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ProcessStatusSetListener;
 

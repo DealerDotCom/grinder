@@ -73,6 +73,7 @@ import org.syntax.jedit.tokenmarker.Token;
 import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ConsoleExceptionHandler;
+import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
@@ -102,8 +103,6 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
   private final JFrame m_frame;
   private final JLabel m_stateLabel = new JLabel();
   private final SamplingControlPanel m_samplingControlPanel;
-
-  private final Resources m_resources;
 
   private final CumulativeStatisticsTableModel m_cumulativeTableModel;
 
@@ -135,31 +134,30 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     throws ConsoleException {
 
     m_model = model;
-    m_resources = new Resources();
+    final Resources resources = m_model.getResources();
 
     // Create the frame to contain the a menu and the top level
     // pane. Need to do this before our actions are constructed as
     // the use the frame to create dialogs.
-    m_frame = new JFrame(m_resources.getString("title"));
+    m_frame = new JFrame(resources.getString("title"));
 
-    m_stateIgnoringString =
-      m_resources.getString("state.ignoring.label") + " ";
-    m_stateWaitingString = m_resources.getString("state.waiting.label");
-    m_stateStoppedString = m_resources.getString("state.stopped.label");
+    m_stateIgnoringString = resources.getString("state.ignoring.label") + " ";
+    m_stateWaitingString = resources.getString("state.waiting.label");
+    m_stateStoppedString = resources.getString("state.stopped.label");
     m_stateStoppedAndIgnoringString =
-      m_resources.getString("state.stoppedAndIgnoring.label") + " ";
+      resources.getString("state.stoppedAndIgnoring.label") + " ";
     m_stateCapturingString =
-      m_resources.getString("state.capturing.label") + " ";
-    m_stateUnknownString = m_resources.getString("state.unknown.label");
+      resources.getString("state.capturing.label") + " ";
+    m_stateUnknownString = resources.getString("state.unknown.label");
 
     m_startAction = new StartAction();
     m_stopAction = new StopAction();
 
     final LabelledGraph totalGraph =
-      new LabelledGraph(m_resources.getString("totalGraph.title"),
-                        m_resources, Colours.DARK_GREY,
-                        m_model.getTPSExpression(),
-                        m_model.getPeakTPSExpression());
+      new LabelledGraph(resources.getString("totalGraph.title"),
+                        resources, Colours.DARK_GREY,
+                        model.getTPSExpression(),
+                        model.getPeakTPSExpression());
 
     final JLabel tpsLabel = new JLabel();
     tpsLabel.setForeground(Colours.BLACK);
@@ -167,8 +165,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
     m_model.addTotalSampleListener(
       new SampleListener() {
-        private final String m_suffix =
-          " " + m_resources.getString("tps.units");
+        private final String m_suffix = " " + resources.getString("tps.units");
 
         public void update(TestStatistics intervalStatistics,
                            TestStatistics cumulativeStatistics) {
@@ -193,7 +190,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     statePanel.add(stateButton);
     statePanel.add(m_stateLabel);
 
-    m_samplingControlPanel = new SamplingControlPanel(m_resources);
+    m_samplingControlPanel = new SamplingControlPanel(resources);
 
     m_samplingControlPanel.add(statePanel);
 
@@ -225,7 +222,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       BorderFactory.createEmptyBorder(3, 3, 3, 3);
 
     final TestGraphPanel graphPanel =
-      new TestGraphPanel(tabbedPane, model, m_resources);
+      new TestGraphPanel(tabbedPane, model, resources);
     graphPanel.resetTestsAndStatisticsViews(); // Show logo.
 
     final JScrollPane graphTabPane =
@@ -235,23 +232,22 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
     graphTabPane.setBorder(BorderFactory.createEmptyBorder());
 
-    tabbedPane.addTab(m_resources.getString("graphTab.title"),
-                      m_resources.getImageIcon("graphTab.image"),
+    tabbedPane.addTab(resources.getString("graphTab.title"),
+                      resources.getImageIcon("graphTab.image"),
                       graphTabPane,
-                      m_resources.getString("graphTab.tip"));
+                      resources.getString("graphTab.tip"));
 
     final Font resultsTableLabelFont =
       new JLabel().getFont().deriveFont(Font.PLAIN | Font.ITALIC);
 
-    m_cumulativeTableModel =
-      new CumulativeStatisticsTableModel(model, m_resources);
+    m_cumulativeTableModel = new CumulativeStatisticsTableModel(model);
 
     final JScrollPane cumulativeTablePane =
       new JScrollPane(new Table(m_cumulativeTableModel));
 
     final TitledBorder cumulativeTableTitledBorder =
       BorderFactory.createTitledBorder(
-        threePixelBorder, m_resources.getString("cumulativeTable.label"));
+        threePixelBorder, resources.getString("cumulativeTable.label"));
 
     cumulativeTableTitledBorder.setTitleFont(resultsTableLabelFont);
     cumulativeTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_BLUE);
@@ -261,14 +257,14 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     cumulativeTablePane.setMinimumSize(new Dimension(100, 60));
 
     final SampleStatisticsTableModel sampleModel =
-      new SampleStatisticsTableModel(model, m_resources);
+      new SampleStatisticsTableModel(model);
 
     final JScrollPane sampleTablePane =
       new JScrollPane(new Table(sampleModel));
 
     final TitledBorder sampleTableTitledBorder =
       BorderFactory.createTitledBorder(
-        threePixelBorder, m_resources.getString("sampleTable.label"));
+        threePixelBorder, resources.getString("sampleTable.label"));
 
     sampleTableTitledBorder.setTitleFont(resultsTableLabelFont);
     sampleTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_BLUE);
@@ -286,20 +282,20 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     resultsPane.setResizeWeight(1d);
     resultsPane.setBorder(BorderFactory.createEmptyBorder());
 
-    tabbedPane.addTab(m_resources.getString("resultsTab.title"),
-                      m_resources.getImageIcon("resultsTab.image"),
+    tabbedPane.addTab(resources.getString("resultsTab.title"),
+                      resources.getImageIcon("resultsTab.image"),
                       resultsPane,
-                      m_resources.getString("resultsTab.tip"));
+                      resources.getString("resultsTab.tip"));
 
     final ProcessStatusTableModel processStatusModel =
-      new ProcessStatusTableModel(model, m_resources);
+      new ProcessStatusTableModel(model, resources);
 
     final JScrollPane processStatusPane =
       new JScrollPane(new Table(processStatusModel));
 
     final TitledBorder processTableTitledBorder =
       BorderFactory.createTitledBorder(
-        threePixelBorder, m_resources.getString("processStatusTableTab.tip"));
+        threePixelBorder, resources.getString("processStatusTableTab.tip"));
 
     processTableTitledBorder.setTitleFont(resultsTableLabelFont);
     processTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_BLUE);
@@ -307,11 +303,11 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
     processStatusPane.setBorder(processTableTitledBorder);
 
-    tabbedPane.addTab(m_resources.getString("processStatusTableTab.title"),
-                      m_resources.getImageIcon(
+    tabbedPane.addTab(resources.getString("processStatusTableTab.title"),
+                      resources.getImageIcon(
                         "processStatusTableTab.image"),
                       processStatusPane,
-                      m_resources.getString("processStatusTableTab.tip"));
+                      resources.getString("processStatusTableTab.tip"));
 
     final JEditTextArea scriptTextArea = new JEditTextArea();
     scriptTextArea.setTokenMarker(new PythonTokenMarker());
@@ -335,12 +331,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
     scriptTextArea.setMinimumSize(new Dimension(200, 100));
     scriptTextArea.setText(
-      m_resources.getStringFromFile("scriptSupportUnderConstruction.text",
-                                    true));
+      resources.getStringFromFile("scriptSupportUnderConstruction.text",
+                                  true));
     scriptTextArea.setFirstLine(0);
 
     final ScriptFilesPanel scriptFilesPanel =
-      new ScriptFilesPanel(m_frame, m_resources);
+      new ScriptFilesPanel(m_frame, resources);
     scriptFilesPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
     scriptFilesPanel.setMinimumSize(new Dimension(100, 100));
 
@@ -354,16 +350,16 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     scriptPane.setOneTouchExpandable(true);
     scriptPane.setBorder(BorderFactory.createEmptyBorder());
 
-    tabbedPane.addTab(m_resources.getString("scriptTab.title"),
-                      m_resources.getImageIcon("scriptTab.image"),
+    tabbedPane.addTab(resources.getString("scriptTab.title"),
+                      resources.getImageIcon("scriptTab.image"),
                       scriptPane,
-                      m_resources.getString("scriptTab.tip"));
+                      resources.getString("scriptTab.tip"));
 
     final JPanel contentPanel = new JPanel(new BorderLayout());
     contentPanel.add(hackToFixLayout, BorderLayout.WEST);
     contentPanel.add(tabbedPane, BorderLayout.CENTER);
 
-    final ImageIcon logoIcon = m_resources.getImageIcon("logo.image");
+    final ImageIcon logoIcon = resources.getImageIcon("logo.image");
 
     final CustomAction[] actions = {
       new StartProcessesAction(startProcessesHandler),
@@ -422,7 +418,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     final JMenuBar menuBar = new JMenuBar();
 
     final Iterator menuBarIterator =
-      tokenise(m_resources.getString("menubar"));
+      tokenise(m_model.getResources().getString("menubar"));
 
     while (menuBarIterator.hasNext()) {
       final String menuKey = (String)menuBarIterator.next();
@@ -432,10 +428,10 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       }
       else {
         final JMenu menu =
-          new JMenu(m_resources.getString(menuKey + ".menu.label"));
+          new JMenu(m_model.getResources().getString(menuKey + ".menu.label"));
 
         final Iterator menuIterator =
-          tokenise(m_resources.getString(menuKey + ".menu"));
+          tokenise(m_model.getResources().getString(menuKey + ".menu"));
 
         while (menuIterator.hasNext()) {
           final String menuItemKey = (String)menuIterator.next();
@@ -462,7 +458,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     final JToolBar toolBar = new JToolBar();
 
     final Iterator toolBarIterator =
-      tokenise(m_resources.getString("toolbar"));
+      tokenise(m_model.getResources().getString("toolbar"));
 
     while (toolBarIterator.hasNext()) {
       final String toolKey = (String)toolBarIterator.next();
@@ -590,11 +586,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     private final JFileChooser m_fileChooser = new JFileChooser(".");
 
     SaveAction() {
-      super(m_resources, "save", true);
+      super(m_model.getResources(), "save", true);
 
-      m_fileChooser.setDialogTitle(m_resources.getString("save.label"));
+      m_fileChooser.setDialogTitle(
+        m_model.getResources().getString("save.label"));
       m_fileChooser.setSelectedFile(
-        new File(m_resources.getString("default.filename")));
+        new File(m_model.getResources().getString("default.filename")));
     }
 
     public final void actionPerformed(ActionEvent event) {
@@ -608,7 +605,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
           if (file.exists() &&
               JOptionPane.showConfirmDialog(
                 m_frame,
-                m_resources.getString("overwriteConfirmation.text"),
+                m_model.getResources().getString("overwriteConfirmation.text"),
                 file.toString(), JOptionPane.YES_NO_OPTION) ==
               JOptionPane.NO_OPTION) {
             return;
@@ -623,7 +620,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
           catch (IOException e) {
             JOptionPane.showMessageDialog(
               m_frame, e.getMessage(),
-              m_resources.getString("fileError.title"),
+              m_model.getResources().getString("fileError.title"),
               JOptionPane.ERROR_MESSAGE);
           }
         }
@@ -631,7 +628,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       catch (Exception e) {
         JOptionPane.showMessageDialog(
           m_frame, e.getMessage(),
-          m_resources.getString("unexpectedError.title"),
+          m_model.getResources().getString("unexpectedError.title"),
           JOptionPane.ERROR_MESSAGE);
       }
     }
@@ -642,11 +639,11 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     private final OptionsDialogHandler m_optionsDialogHandler;
 
     OptionsAction() {
-      super(m_resources, "options", true);
+      super(m_model.getResources(), "options", true);
 
       m_optionsDialogHandler =
         new OptionsDialogHandler(m_frame, m_model.getProperties(),
-                                 m_resources) {
+                                 m_model.getResources()) {
           protected void setNewOptions(ConsoleProperties newOptions) {
             m_model.getProperties().set(newOptions);
             m_samplingControlPanel.refresh();
@@ -666,10 +663,10 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     private final Component m_contents;
 
     AboutAction(ImageIcon logoIcon) {
-      super(m_resources, "about", true);
+      super(m_model.getResources(), "about", true);
 
       m_logoIcon = logoIcon;
-      m_title = m_resources.getString("about.label");
+      m_title = m_model.getResources().getString("about.label");
 
       JLabel text =
         new JLabel() {
@@ -682,7 +679,8 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
       text.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
       text.setForeground(Colours.BLACK);
-      text.setText(m_resources.getStringFromFile("about.text", true));
+      text.setText(
+        m_model.getResources().getStringFromFile("about.text", true));
 
       m_contents =
         new JScrollPane(text,
@@ -707,7 +705,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
   private final class ExitAction extends CustomAction {
 
     ExitAction() {
-      super(m_resources, "exit");
+      super(m_model.getResources(), "exit");
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -718,7 +716,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
   private final class StartAction extends CustomAction {
 
     StartAction() {
-      super(m_resources, "start");
+      super(m_model.getResources(), "start");
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -735,7 +733,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
   private final class StopAction extends CustomAction {
 
     StopAction() {
-      super(m_resources, "stop");
+      super(m_model.getResources(), "stop");
     }
 
     public final void actionPerformed(ActionEvent e) {
@@ -756,7 +754,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     private final ActionListener m_delegateAction;
 
     StartProcessesAction(ActionListener delegateAction) {
-      super(m_resources, "start-processes");
+      super(m_model.getResources(), "start-processes");
       m_delegateAction = delegateAction;
     }
 
@@ -770,7 +768,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     private final ActionListener m_delegateAction;
 
     ResetProcessesAction(ActionListener delegateAction) {
-      super(m_resources, "reset-processes");
+      super(m_model.getResources(), "reset-processes");
       m_delegateAction = delegateAction;
     }
 
@@ -781,12 +779,15 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
       if (!properties.getResetConsoleWithProcessesDontAsk()) {
 
         final JCheckBox dontAskMeAgainCheckBox =
-          new JCheckBox(m_resources.getString("dontAskMeAgain.text"));
+          new JCheckBox(
+            m_model.getResources().getString("dontAskMeAgain.text"));
         dontAskMeAgainCheckBox.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         final Object[] message = {
-          m_resources.getString("resetConsoleWithProcessesConfirmation1.text"),
-          m_resources.getString("resetConsoleWithProcessesConfirmation2.text"),
+          m_model.getResources().getString(
+            "resetConsoleWithProcessesConfirmation1.text"),
+          m_model.getResources().getString(
+            "resetConsoleWithProcessesConfirmation2.text"),
           new JLabel(), // Pad.
           dontAskMeAgainCheckBox,
         };
@@ -802,7 +803,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
           catch (GrinderException exception) {
             JOptionPane.showMessageDialog(
               m_frame, exception.getMessage(),
-              m_resources.getString("unexpectedError.title"),
+              m_model.getResources().getString("unexpectedError.title"),
               JOptionPane.ERROR_MESSAGE);
             return;
           }
@@ -835,7 +836,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     private final ActionListener m_delegateAction;
 
     StopProcessesAction(ActionListener delegateAction) {
-      super(m_resources, "stop-processes");
+      super(m_model.getResources(), "stop-processes");
       m_delegateAction = delegateAction;
     }
 
@@ -864,7 +865,8 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
    */
   public final void consoleExceptionOccurred(ConsoleException e) {
     JOptionPane.showMessageDialog(m_frame, e.getMessage(),
-                                  m_resources.getString("error.title"),
+                                  m_model.getResources().getString(
+                                    "error.title"),
                                   JOptionPane.ERROR_MESSAGE);
   }
 }

@@ -35,6 +35,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
 
+import net.grinder.console.common.Resources;
 import net.grinder.console.model.ScriptDistributionFiles;
 
 

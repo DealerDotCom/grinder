@@ -55,15 +55,4 @@ public class DisplayMessageConsoleException extends ConsoleException {
     super(s_resources != null ?
           s_resources.getString(resourceKey) : defaultMessage);
   }
-
-  /** We define this purely to shut up the useful, but broken,
-   * HideUtilityClassConstructor Checkstyle check.. See Checkstyle bug
-   * 824754.
-   *
-   * @return A <code>Throwable</code> value, or <code>null</code> if
-   * none.
-   */
-  public Throwable getNestedThrowable() {
-    return super.getNestedThrowable();
-  }
 }

@@ -38,6 +38,7 @@ import java.util.TreeSet;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.console.common.ConsoleException;
+import net.grinder.console.common.Resources;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.PeakStatisticExpression;
@@ -107,6 +108,7 @@ public class Model {
   private final SampleAccumulator m_totalSampleAccumulator;
 
   private final ConsoleProperties m_properties;
+  private final Resources m_resources;
   private int m_sampleInterval;
   private NumberFormat m_numberFormat;
 
@@ -138,11 +140,14 @@ public class Model {
    * Creates a new <code>Model</code> instance.
    *
    * @param properties The console properties.
+   * @param resources Resources.
    * @exception GrinderException if an error occurs
    */
-  public Model(ConsoleProperties properties) throws GrinderException {
+  public Model(ConsoleProperties properties, Resources resources)
+    throws GrinderException {
 
     m_properties = properties;
+    m_resources = resources;
 
     m_sampleInterval = m_properties.getSampleInterval();
     m_numberFormat =
@@ -584,6 +589,15 @@ public class Model {
    */
   public final ConsoleProperties getProperties() {
     return m_properties;
+  }
+
+  /**
+   * Return the resources for this model.
+   *
+   * @return The properties.
+   */
+  public final Resources getResources() {
+    return m_resources;
   }
 
   /**

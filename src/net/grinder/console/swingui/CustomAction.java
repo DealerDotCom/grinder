@@ -30,6 +30,8 @@ import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 
+import net.grinder.console.common.Resources;
+
 
 /**
  * Customised Action.

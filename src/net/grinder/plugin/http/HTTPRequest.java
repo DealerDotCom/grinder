@@ -812,9 +812,9 @@ public class HTTPRequest {
 
     char ch = '\0';
     int  pos = 0;
-    int len = uri.length();
+    final int length = uri.length();
 
-    while (pos < len &&
+    while (pos < length &&
            (ch = uri.charAt(pos)) != ':' &&
            ch != '/' &&
            ch != '?' &&

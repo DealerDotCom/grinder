@@ -62,9 +62,12 @@
 
         <module name="FileLength"/>
         <module name="LineLength"/>
+
+        <!-- Should aim to reduce these maxima over time. -->
+
         <module name="MethodLength">
           <property name="tokens" value="METHOD_DEF"/>
-          <property name="max" value="200"/>
+          <property name="max" value="250"/>
         </module>
         <module name="MethodLength">
           <property name="tokens" value="CTOR_DEF"/>
@@ -73,7 +76,9 @@
         <module name="AnonInnerLength">
           <property name="max" value="50"/>
         </module>
-        <module name="ParameterNumber"/>
+        <module name="ParameterNumber">
+          <property name="max" value="9"/>
+        </module>
 
         <module name="EmptyForIteratorPad"/>
         <module name="NoWhitespaceAfter">
@@ -128,6 +133,9 @@
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
+        <!-- This check requires JDK 1.4, see Checkstyle bug 824756. 
+        <module name="MutableException"/>
+         -->
         <module name="VisibilityModifier"/>
 
         <module name="CyclomaticComplexity">
@@ -147,9 +155,10 @@
         <!-- May fix code for the following some day. -->
         <!-- <module name="IllegalCatch"/> -->
 
-        <!-- Would like to use the following, but they appear broken.
-        Get NoClassDefFoundError. -->
-        <!-- <module name="MutableException"/> -->
+        <!-- I would like to use the following, but they appear broken.
+        Get NullPointerExceptions which appear to arise from
+        the "Usage" classes confusing the net.grinder.Console
+        class with the package. -->
         <!-- <module name="usage.OneMethodPrivateField"/> -->
         <!-- <module name="usage.UnusedLocalVariable"/> -->
         <!-- <module name="usage.UnusedParameter"/> -->

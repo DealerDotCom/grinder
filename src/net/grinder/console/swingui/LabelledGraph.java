@@ -36,6 +36,7 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
+import net.grinder.console.common.Resources;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.TestStatistics;
 

@@ -35,6 +35,7 @@ import java.util.Random;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+import net.grinder.console.common.Resources;
 import net.grinder.statistics.PeakStatisticExpression;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticExpressionFactory;
@@ -130,8 +131,11 @@ public class TestGraph extends TestCase
 		indexMap.getIndexForDouble("peakTPS"), tpsExpression);
 
 	final LabelledGraph labelledGraph =
-	    new LabelledGraph("Test", new Resources(), tpsExpression,
-			      peakTPSExpression);
+	    new LabelledGraph(
+              "Test",
+              new Resources("net.grinder.console.swingui.resources.Console"),
+              tpsExpression,
+              peakTPSExpression);
 
 	createUI(labelledGraph);
 

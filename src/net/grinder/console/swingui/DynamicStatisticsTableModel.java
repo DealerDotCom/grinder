@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.swing.table.AbstractTableModel;
 
 import net.grinder.console.common.ConsoleException;
+import net.grinder.console.common.Resources;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
@@ -44,7 +45,6 @@ abstract class DynamicStatisticsTableModel
   extends AbstractTableModel implements ModelListener, Table.TableModel {
 
   private final Model m_model;
-  private final Resources m_resources;
 
   private final String m_testString;
   private final String m_testColumnString;
@@ -55,11 +55,12 @@ abstract class DynamicStatisticsTableModel
   private ExpressionView[] m_columnViews;
   private String[] m_columnLabels;
 
-  protected DynamicStatisticsTableModel(Model model, Resources resources)
+  protected DynamicStatisticsTableModel(Model model)
     throws ConsoleException {
 
     m_model = model;
-    m_resources = resources;
+
+    final Resources resources = m_model.getResources();
 
     m_testString = resources.getString("table.test.label") + " ";
     m_testColumnString = resources.getString("table.testColumn.label");
@@ -95,7 +96,7 @@ abstract class DynamicStatisticsTableModel
 
       for (int i = 0; i < m_columnLabels.length; ++i) {
         final String resource =
-          m_resources.getString(
+          m_model.getResources().getString(
             m_columnViews[i].getDisplayNameResourceKey(), false);
 
         m_columnLabels[i] =

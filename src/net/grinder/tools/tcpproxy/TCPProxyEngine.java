@@ -24,17 +24,20 @@
 package net.grinder.tools.tcpproxy;
 
 /**
+ * Interface for TCPProxy engines.
+ *
  * @author Philip Aston
  * @author Bertrand Ave
  * @version $Revision$
  */
-public interface TCPProxyEngine extends Runnable
-{
+public interface TCPProxyEngine extends Runnable {
+
   // void run();
 
-  public static final String ACCEPT_TIMEOUT_MESSAGE = "Listen time out";
-
-  public void stop();
+  /**
+   *Stop the engine.
+   */
+  void stop();
 }
 
 
