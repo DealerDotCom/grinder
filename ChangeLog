@@ -1,4 +1,60 @@
+2004-07-06  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta22 is released.
+
+	* CHANGES: Alter doc.
+
+	* tests-src/net/grinder/console/swingui/TestCompositeTreeModel.java:
+	Some tests for CompositeTreeModel.
+
+	* src/net/grinder/console/swingui/CompositeTreeModel.java: Layout.
+
+	* tests-src/net/grinder/console/editor/TestBuffer.java:
+	Increase uptodate laxity.
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	Remove assertSuccessMethods that check result. Caller can do this from
+	CallData.
+
+	* tests-src/net/grinder/console/swingui/TestBufferTreeModel.java:
+	Fix javadoc.
+
+	* tests-src/net/grinder/console/swingui/TestBufferTreeModel.java:
+	Test BufferTreeModel.
+
+	* src/net/grinder/console/swingui/BufferTreeModel.java:
+	Use simpler TreeModelEvent constructor.
+
+2004-07-05  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/console/communication/TestProcessControlImplementation.java:
+	Initial unit tests for ProcessControlImplementation.
+
+	* tests-src/net/grinder/console/communication/TestProcessStatusSet.java, tests-src/net/grinder/console/communication/TestProcessStatusSetImplementation.java, src/net/grinder/console/Console.java, src/net/grinder/console/communication/ConsoleCommunication.java, src/net/grinder/console/communication/ConsoleCommunicationImplementation.java, src/net/grinder/console/communication/ProcessStatusSet.java, src/net/grinder/console/communication/ProcessStatusSetImplementation.java:
+	Extract interfaces from ConsoleCommunication and ProcessStatusSet for
+	unit tests.
+
+	* src/net/grinder/util/Directory.java: Simplify listContents().
+
+	* tests-src/net/grinder/util/TestDirectory.java: Test copyTo().
+
+	* tests-src/net/grinder/testutility/AbstractFileTestCase.java, tests-src/net/grinder/util/TestFileContents.java:
+	Abstract out creation of a random file.
+
+	* tests-src/net/grinder/console/editor/TestEditorModel.java:
+	Test setMarkedScript(), getMarkedScript().
+
+	* src/net/grinder/console/Console.java: Remove a code path.
+
+	* tests-src/net/grinder/communication/TestConnector.java:
+	Test equality.
+
+	* tests-src/net/grinder/engine/agent/TestFileStore.java, tests-src/net/grinder/console/editor/TestAbstractTextSource.java:
+	Update.
+
 2004-07-04  Philip Aston  <philipa@mail.com>
+
+	* ChangeLog: *** empty log message ***
 
 	* CHANGES: Release documentation.
 
