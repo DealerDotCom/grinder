@@ -74,6 +74,12 @@ Request 801129).
 
 Consider forcing TestRunner to be registered with grinder.
 
+There should be an ExternalFilenameFactory, cf ExternalLogger.
+
+Factor out a ThreadContextFinder interface so that dependencies on it
+can be better captured.
+
+
 ** Statistics
 *** Measure variance (Ambitious)
 

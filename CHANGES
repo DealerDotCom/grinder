@@ -1,6 +1,13 @@
 Grinder 3.0-beta19
 ------------------
 
+  Removed redundant getLogger() and getFilenameFactory() from
+  PluginProcessContext and PluginThreadContext. Plug-ins can get these
+  services from the script context object.
+
+  Fix bug 820481 - StringIndexOutOfBoundsException when logging.
+  Thanks to Dragos Cernahoschi and Gordon Reid for reports.
+
 
 Grinder 3.0-beta18
 ------------------
