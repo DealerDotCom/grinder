@@ -85,11 +85,16 @@ If you want to use the console, tweak out the following properties
 	grinder.multicastPort
 
 	grinder.reportToConsole
-	grinder.console.multicastAddress.1.1.2
 	grinder.console.multicastPort
 
 and say
 	java net.grinder.console.Console
+
+
+You can also specify an explicit properties file to both the Grinder
+and the Console as the first argument. For example:
+
+	java net.grinder.Grinder myproperties
 
 
 The output
@@ -172,6 +177,23 @@ What can I set in grinder.properties?
 
     grinder.appendLog	-	Append to, rather than overwrite,
 				existing log files.
+
+    grinder.waitForConsoleSignal -
+				Set to true to wait for a signal from
+				the console before starting.
+
+    grinder.reportToConsole -	Set to true to send stats to the console.
+
+    grinder.multicastAddress -  The multicast address to use for
+				communication between the grinder
+				processes and the console.
+
+    grinder.multicastPort -     The multicast port to use for communication
+				from the console to the grinder processes.
+
+    grinder.console.multicastPort -
+				The multicast port to use for communication
+				from the grinder processes to the console.
 
     grinder.thread.beginCycleSleepTime	-
 				The time in milliseconds to wait before
