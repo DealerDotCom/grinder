@@ -153,13 +153,26 @@ public final class Acceptor {
       while (true) {
         final Socket localSocket = m_serverSocket.accept();
 
-        final InputStream inputStream = localSocket.getInputStream();
+        final int connectionType;
 
-        final int connectionType = inputStream.read();
+        try {
+          connectionType = localSocket.getInputStream().read();
+        }
+        catch (IOException e) {
+          e.printStackTrace();
+          continue;
+        }
 
         if (connectionType < 0 ||
             connectionType >= ConnectionType.NUMBER_OF_CONNECTION_TYPES) {
           System.err.println("Unknown connection type: " + connectionType);
+
+          try {
+            localSocket.close();
+          }
+          catch (IOException e) {
+            // Ignore.
+          }
         }
         else {
           m_socketSets[connectionType].add(new SocketResource(localSocket));
