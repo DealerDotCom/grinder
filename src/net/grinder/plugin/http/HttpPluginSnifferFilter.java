@@ -130,13 +130,14 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	}
 
 	// Base default description on test URL.
-	String description = "Test " + sessionState.getRequestNumber();
-
+	final String description;
 	final RE descriptionExpresion = getLastURLPathElementExpression();
 
 	if (descriptionExpresion.match(url)) {
-	    description =
-		description + ": " + descriptionExpresion.getParen(2);
+	    description = descriptionExpresion.getParen(2);
+	}
+	else {
+	    description = "";
 	}
 
 	outputProperty(requestNumber, "description", description);
