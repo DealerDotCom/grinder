@@ -24,6 +24,7 @@ import java.net.UnknownHostException;
 
 import net.grinder.engine.LauncherThread;
 import net.grinder.engine.process.GrinderProcess;
+import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 
 
@@ -41,6 +42,7 @@ public class Grinder
      *
      */
     public static void main(String args[])
+	throws GrinderException
     {
 	Grinder grinder = null;
 
@@ -69,7 +71,7 @@ public class Grinder
 	m_alternateFilename = alternateFilename;
     }
     
-    protected void run()
+    protected void run() throws GrinderException
     {
 	final GrinderProperties properties = GrinderProperties.getProperties();
 
@@ -98,15 +100,12 @@ public class Grinder
 	    properties.getProperty("grinder.jvm.arguments", "") + " " +
 	    GrinderProcess.class.getName();
 
-	final boolean appendLog = properties.getBoolean("grinder.appendLog",
-							false);
-
 	final Thread[] threads = new Thread[numberOfProcesses];
 
 	for (int i=0; i<numberOfProcesses; i++) {
-	    threads[i] = new LauncherThread(hostIDString, Integer.toString(i),
-					    command, m_alternateFilename,
-					    appendLog);
+	    threads[i] = new LauncherThread(hostIDString,
+					    Integer.toString(i),
+					    command, m_alternateFilename);
 	    threads[i].start();
 	}
 

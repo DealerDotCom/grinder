@@ -87,8 +87,7 @@ public class HttpsPlugin extends HttpPlugin
 	    HttpsURLConnection.setDefaultSSLSocketFactory(sFactory);
 	    HttpsURLConnection.setDefaultHostnameVerifier(new VerifyAll());
 	} catch(Exception ex) {
-	    ex.printStackTrace();
-	    throw new PluginException(ex.toString());
+	    throw new PluginException(ex.toString(), ex);
 	}
 
 	super.initialize(pluginThreadContext);

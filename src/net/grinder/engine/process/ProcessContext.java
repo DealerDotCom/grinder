@@ -18,6 +18,14 @@
 
 package net.grinder.util;
 
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.util.Date;
+
+import net.grinder.plugininterface.Logger;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderProperties;
@@ -29,26 +37,32 @@ import net.grinder.util.GrinderProperties;
  */
 public class ProcessContextImplementation implements PluginProcessContext
 {
+    private final static DateFormat s_dateFormat =
+	DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
+
     private final GrinderProperties m_pluginParameters;
     private final String m_hostIDString;
     private final String m_processIDString;
     private final boolean m_logProcessStreams;
+    private final PrintWriter m_outputWriter;
+    private final PrintWriter m_errorWriter;
 
     private final FilenameFactory m_filenameFactory;
-    
+
     {
 	m_logProcessStreams =
 	    GrinderProperties.getProperties().getBoolean(
-		"grinder.logProcessStreams", true);	
+		"grinder.logProcessStreams", true);
     }
     
-
     protected ProcessContextImplementation(PluginProcessContext processContext,
 					   String threadID)
     {
 	m_pluginParameters = processContext.getPluginParameters();
 	m_hostIDString = processContext.getHostIDString();
 	m_processIDString = processContext.getProcessIDString();
+	m_outputWriter = processContext.getOutputLogWriter();
+	m_errorWriter = processContext.getErrorLogWriter();
 
 	m_filenameFactory = new FilenameFactory(m_hostIDString,
 						m_processIDString, threadID);
@@ -56,6 +70,7 @@ public class ProcessContextImplementation implements PluginProcessContext
 
     public ProcessContextImplementation(String hostIDString,
 					String processIDString)
+	throws GrinderException
     {
 	m_hostIDString = hostIDString;
 	m_processIDString = processIDString;
@@ -67,6 +82,30 @@ public class ProcessContextImplementation implements PluginProcessContext
 
 	m_filenameFactory = new FilenameFactory(m_hostIDString,
 						m_processIDString, null);
+
+
+	final boolean appendLog = properties.getBoolean("grinder.appendLog",
+							false);      
+	try {
+	    m_outputWriter =
+		new PrintWriter(
+		    new BufferedOutputStream(
+			new FileOutputStream(
+			    m_filenameFactory.createFilename("out"),
+			    appendLog)),
+		    true);
+
+	    m_errorWriter =
+		new PrintWriter(
+		    new BufferedOutputStream(
+			new FileOutputStream(
+			    m_filenameFactory.createFilename("error"),
+			    appendLog)),
+		    true);
+	}
+	catch (FileNotFoundException e) {
+	    throw new GrinderException("Could not create output streams", e);
+	}
     }
 
     public String getHostIDString()
@@ -91,15 +130,49 @@ public class ProcessContextImplementation implements PluginProcessContext
 
     public void logMessage(String message)
     {
-	if (m_logProcessStreams) {
-	    System.out.println(formatMessage(message));
+	logMessage(message, Logger.LOG);
+    }
+
+    public void logMessage(String message, int where)
+    {
+	if (!m_logProcessStreams) {
+	    where &= ~Logger.LOG;
+	}
+
+	if (where != 0) {
+	    final String s = formatMessage(message);
+
+	    if ((where & Logger.LOG) != 0) {
+		m_outputWriter.println(s);
+	    }
+
+	    if ((where & Logger.TERMINAL) != 0) {
+		System.out.println(s);
+	    }
 	}
     }
 
-    public void logError(String message) 
+    public void logError(String message)
     {
-	if (m_logProcessStreams) {
-	    System.err.println(formatMessage(message));
+	logError(message, Logger.LOG);
+    }
+    
+    public void logError(String message, int where) 
+    {
+	if (!m_logProcessStreams) {
+	    where &= ~Logger.LOG;
+	}
+
+	if (where != 0) {
+	    final String s = formatMessage(message);
+
+	    if ((where & Logger.LOG) != 0) {
+		m_errorWriter.println(s);
+	    }
+
+	    if ((where & Logger.TERMINAL) != 0) {
+		System.err.println(s);
+	    }
 
 	    final int summaryLength = 20;
 
@@ -107,25 +180,43 @@ public class ProcessContextImplementation implements PluginProcessContext
 		message.length() > summaryLength ?
 		message.substring(0, summaryLength) + "..." : message;
 
-	    System.out.println(
-		formatMessage("ERROR (\"" + summary +
-			      "\"), see error log for details"));
+	    logMessage("ERROR (\"" + summary +
+		       "\"), see error log for details",
+		       where);
 	}
     }
 
-    protected String formatMessage(String message)
+    public PrintWriter getOutputLogWriter()
+    {
+	return m_outputWriter;
+    }
+
+    public PrintWriter getErrorLogWriter()
+    {
+	return m_errorWriter;
+    }
+
+    private String formatMessage(String message)
     {
 	final StringBuffer buffer = new StringBuffer();
 
+	buffer.append(s_dateFormat.format(new Date()));
+	buffer.append(": ");
+
+	appendMessageContext(buffer);
+
+	buffer.append(message);
+
+	return buffer.toString();
+    }
+
+    protected void appendMessageContext(StringBuffer buffer)
+    {
 	buffer.append("Grinder Process (Host ");
 	buffer.append(getHostIDString());
 	buffer.append(" JVM ");
 	buffer.append(getProcessIDString());
 	buffer.append(") ");
-
-	buffer.append(message);
-
-	return buffer.toString();
     }
 }
 

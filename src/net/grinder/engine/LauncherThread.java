@@ -18,13 +18,11 @@
 
 package net.grinder.engine;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
-import net.grinder.util.FilenameFactory;
+import net.grinder.plugininterface.Logger;
 import net.grinder.util.GrinderException;
 import net.grinder.util.ProcessContextImplementation;
 
@@ -46,23 +44,21 @@ public class LauncherThread extends Thread
 {
     private final String m_commandLine;
     private final ProcessContextImplementation m_processContext;
-    private final boolean m_appendLog;
     
     /**
      * The constructor.
      * It starts a new thread that will execute the run method.
      */    
     public LauncherThread(String hostID, String processID, String commandLine,
-			  String alternatePropertiesFilename,
-			  boolean appendLog)
+			  String alternatePropertiesFilename)
+	throws GrinderException
     {
 	super(commandLine);
 
 	m_processContext =
 	    new ProcessContextImplementation(hostID, processID);
-	m_appendLog = appendLog;
 
-	final StringBuffer stringBuffer = new StringBuffer( commandLine);
+	final StringBuffer stringBuffer = new StringBuffer(commandLine);
 	stringBuffer.append(" ");
 	stringBuffer.append(hostID);
 	stringBuffer.append(" ");
@@ -83,12 +79,9 @@ public class LauncherThread extends Thread
     public void run(){
 
 	try{
-	    final FilenameFactory filenameFactory =
-		m_processContext.getFilenameFactory();
-
 	    m_processContext.logMessage("started with command line: " +
-					m_commandLine);
-	    
+					m_commandLine, Logger.TERMINAL);
+
 	    final Process process = Runtime.getRuntime().exec(m_commandLine);
       
 	    final BufferedReader outputReader =
@@ -99,29 +92,17 @@ public class LauncherThread extends Thread
 		new BufferedReader(
 		    new InputStreamReader(process.getErrorStream()));
       
-	    final PrintWriter outputFile =
-		new PrintWriter(
-		    new BufferedOutputStream(
-			new FileOutputStream(
-			    filenameFactory.createFilename("out"),
-			    m_appendLog)),
-		    true);  
+	    final Redirector r1 =
+		new Redirector(new PrintWriter(System.out, true),
+			       outputReader);
 
-	    final PrintWriter errorFile =
-		new PrintWriter(
-		    new BufferedOutputStream(
-			new FileOutputStream(
-			    filenameFactory.createFilename("error"),
-			    m_appendLog)),
-		    true);
-      
-	    final Redirector r1 = new Redirector(outputFile, outputReader);
-	    final Redirector r2 = new Redirector(errorFile, errorReader);
+	    final Redirector r2 =
+		new Redirector(new PrintWriter(System.err, true), errorReader);
 
 	    process.waitFor();
 
-	    m_processContext.logMessage("exited with status " + 
-					process.exitValue());      
+	    m_processContext.logMessage("exited with status " +
+					process.exitValue(), Logger.TERMINAL);
 	}
 	catch(Exception e){
 	    e.printStackTrace();

@@ -21,6 +21,9 @@ Grinder 2.6.2
   are always recorded. This is too subtle for some users ;-) so I've
   made this change for an easy life).
 
+  I've reworked the logging code. The visible change is improved
+  logging of sub-process events to the controlling terminal.
+
 
 Grinder 2.6.1
 -------------

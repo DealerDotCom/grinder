@@ -124,7 +124,7 @@ class GrinderThread implements java.lang.Runnable
 	    }
 	    catch (PluginException e) {
 		m_context.logError("Plug-in initialize() threw " + e);
-		e.printStackTrace();
+		e.printStackTrace(m_context.getErrorLogWriter());
 		return;
 	    }
 	    
@@ -146,7 +146,7 @@ class GrinderThread implements java.lang.Runnable
 		catch (PluginException e) {
 		    m_context.logError(
 			"Aborting cycle - plug-in beginCycle() threw " + e);
-		    e.printStackTrace();
+		    e.printStackTrace(m_context.getErrorLogWriter());
 		    continue CYCLE_LOOP;
 		}
 		
@@ -183,7 +183,7 @@ class GrinderThread implements java.lang.Runnable
 			statistics.addAbortion();
 			m_context.logError(
 			    "Aborting cycle - plug-in threw " + e);
-			e.printStackTrace();
+			e.printStackTrace(m_context.getErrorLogWriter());
 			continue CYCLE_LOOP;
 		    }
 
@@ -240,7 +240,7 @@ class GrinderThread implements java.lang.Runnable
 		}
 		catch (PluginException e) {
 		    m_context.logError("Plugin endCycle() threw: " + e);
-		    e.printStackTrace();
+		    e.printStackTrace(m_context.getErrorLogWriter());
 		}
 	    }
 
@@ -250,7 +250,7 @@ class GrinderThread implements java.lang.Runnable
 	}
 	catch(Exception e) {
 	    m_context.logError(" threw an exception:" + e);
-	    e.printStackTrace(System.err);
+	    e.printStackTrace(m_context.getErrorLogWriter());
 	}
 	finally {
 	    decrementThreadCount();

@@ -18,8 +18,11 @@
 
 package net.grinder.plugininterface;
 
+import java.io.PrintWriter;
+
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderProperties;
+
 
 /**
  * This class is used to share data between the Grinder and the 
@@ -30,13 +33,21 @@ import net.grinder.util.GrinderProperties;
  */
 public interface Logger
 {
+    public int LOG = 1 << 0;
+    public int TERMINAL = 1 << 1;
+
     /**
      * Log a message with context information.
      */
     public void logMessage(String message);
+    public void logMessage(String message, int where);
 
     /**
      * Log an error with context information.
      */
     public void logError(String message);
+    public void logError(String message, int where);
+
+    public PrintWriter getOutputLogWriter();
+    public PrintWriter getErrorLogWriter();
 }

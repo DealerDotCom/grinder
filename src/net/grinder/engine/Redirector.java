@@ -20,8 +20,7 @@ package net.grinder.engine;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.util.Date;
+
 
 /**
  * This class is used to redirect the standard output and error
@@ -35,6 +34,9 @@ import java.util.Date;
  */
 class Redirector implements java.lang.Runnable
 {
+    private final PrintWriter m_printWriter;
+    private final BufferedReader m_bufferedReader;
+
     /**
      * The constructor. It starts a thread that executes 
      * the <tt>run</tt> method.
@@ -59,8 +61,7 @@ class Redirector implements java.lang.Runnable
 	    String s;
 
 	    while ((s = m_bufferedReader.readLine()) != null) {
-		m_printWriter.println(m_dateFormat.format(new Date()) +
-				      ": " + s);
+		m_printWriter.println(s);
 	    }
 
 	    m_bufferedReader.close();
@@ -69,9 +70,4 @@ class Redirector implements java.lang.Runnable
 	    System.err.println(e);
 	}
     }
-
-    private final PrintWriter m_printWriter;
-    private final BufferedReader m_bufferedReader;
-    private final DateFormat m_dateFormat =
-	DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
 }

@@ -121,10 +121,8 @@ class ThreadContextImplementation
 	}
     }
 
-    protected String formatMessage(String message) 
+    protected void appendMessageContext(StringBuffer buffer) 
     {
-	final StringBuffer buffer = new StringBuffer();
-	
 	buffer.append("(thread ");
 	buffer.append(getThreadID());
 
@@ -141,9 +139,6 @@ class ThreadContextImplementation
 	}
 
 	buffer.append(") ");
-	buffer.append(message);
-
-	return buffer.toString();
     }
 }
 

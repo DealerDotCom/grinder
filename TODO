@@ -26,9 +26,6 @@ that too :-). The list is roughly in priority order.]
   Allow String Beans to optionally capture request results. (Would
   invoke "set" methods).
 
-  Print out to terminal that processes are waiting for console to
-  start them. Print the current time when they are finally started.
-
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
 	

@@ -36,6 +36,7 @@ import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
+import net.grinder.plugininterface.Logger;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.Test;
 import net.grinder.plugininterface.ThreadCallbacks;
@@ -263,9 +264,10 @@ public class GrinderProcess
 	}
         
 	if (m_consoleListener != null) {
-	    m_consoleListener.reset();
+	    m_context.logMessage("waiting for console signal",
+				 Logger.LOG | Logger.TERMINAL);
 
-	    m_context.logMessage("waiting for console signal");
+	    m_consoleListener.reset();
 
 	    do {
 		try {
@@ -281,7 +283,8 @@ public class GrinderProcess
 	}
 
 	if (!shouldStop()) {
-	    m_context.logMessage("starting threads");
+	    m_context.logMessage("starting threads",
+				 Logger.LOG | Logger.TERMINAL);
 
 	    //   Start the threads
 	    for (int i=0; i<m_numberOfThreads; i++) {
@@ -318,14 +321,14 @@ public class GrinderProcess
 	    dataPrintWriter.close();
 	}
 
-	m_context.logMessage("finished");
+	m_context.logMessage("finished", Logger.LOG | Logger.TERMINAL);
 
- 	System.out.println("Final statistics for this process:");
+ 	m_context.logMessage("Final statistics for this process:");
 
 	final StatisticsTable statisticsTable =
 	    new StatisticsTable(m_testStatisticsMap);
 
-	statisticsTable.print(System.out);
+	statisticsTable.print(m_context.getOutputLogWriter());
     }
 
     private boolean shouldStop()
