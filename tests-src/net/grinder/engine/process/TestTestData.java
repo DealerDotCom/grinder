@@ -47,7 +47,7 @@ public class TestTestData extends TestCase
     {
     }
 
-    class MyTest implements Test
+    static class MyTest implements Test
     {
 	private final Integer m_testNumber;
 	private final String m_description;
