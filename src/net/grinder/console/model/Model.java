@@ -33,6 +33,7 @@ import net.grinder.statistics.Statistics;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
+import net.grinder.util.ProcessContextImplementation;
 import net.grinder.util.PropertiesHelper;
 
 
@@ -56,7 +57,8 @@ public class Model
 	final PropertiesHelper propertiesHelper = new PropertiesHelper();
 
 	final GrinderPlugin grinderPlugin =
-	    propertiesHelper.instantiatePlugin(null);
+	    propertiesHelper.instantiatePlugin(
+		new ProcessContextImplementation("", ""));
 
 	// Shove the tests into a TreeMap so that they're ordered.
 	final Iterator testSetIterator =
