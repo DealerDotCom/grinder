@@ -198,6 +198,7 @@ Incorporate checkstyle.
  Compliant packages:
 	net.grinder
 	net.grinder.common
+	net.grinder.communication
 	net.grinder.console.model
 	net.grinder.engine
 	net.grinder.engine.agent

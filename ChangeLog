@@ -1,3 +1,12 @@
+2003-09-30  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/communication/UnicastSender.java, src/net/grinder/communication/AbstractReceiver.java, src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/CloseCommunicationMessage.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/communication/CommunicationException.java, src/net/grinder/communication/Message.java, src/net/grinder/communication/MessageQueue.java, src/net/grinder/communication/MulticastReceiver.java, src/net/grinder/communication/MulticastSender.java, src/net/grinder/communication/Receiver.java, src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/ReportStatusMessage.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/communication/Sender.java, src/net/grinder/communication/SocketSet.java:
+	Checkstyle compliance.
+
+	* CHANGES, TODO, src/net/grinder/engine/process/GrinderThread.java:
+	Fix bug so that TestRunners are now initialised using their worker
+	thread.
+
 2003-09-29  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, TODO, xdoc/g3/script-gallery-xhtml.xml, xdoc/g3/scripts-xhtml.xml, xdoc/g3/tutorial-perks-xhtml.xml:
