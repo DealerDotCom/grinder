@@ -175,7 +175,23 @@ public class CallRecorder extends Assert {
     // Just check method names match. Don't worry about modifiers
     // etc., or even which class the method belongs to.
     assertEquals(methodName, callData.getMethodName());
-    assertArraysEqual(parameterTypes, callData.getParameterTypes());
+
+    final Class[] actualParameterTypes = callData.getParameterTypes();
+
+    if (parameterTypes != null || actualParameterTypes != null) {
+      assertNotNull(parameterTypes);
+      assertNotNull(actualParameterTypes);
+
+      assertEquals(parameterTypes.length, actualParameterTypes.length);
+
+      for (int i = 0; i < parameterTypes.length; ++i) {
+        assertTrue("Parameter  " + i + " is instance of  " +
+                   parameterTypes[i].getClass().getName(),
+                   parameterTypes[i].isAssignableFrom(
+                     actualParameterTypes[i]));
+      }
+    }
+
 
     return callData;
   }
