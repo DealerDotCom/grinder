@@ -22,6 +22,8 @@
 
 package net.grinder.console;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Timer;
 
@@ -81,6 +83,30 @@ public class Console {
 
     final FileDistribution fileDistribution =
       new FileDistribution(m_communication.getDistributionControl());
+
+    m_communication.addAgentConnectionListener(
+      new ConsoleCommunication.AgentConnectionListener() {
+        public void agentConnected() {
+          fileDistribution.getAgentCacheState().setOutOfDate();
+        }
+
+        public void agentDisconnected() { }
+      });
+
+    properties.addPropertyChangeListener(
+      new PropertyChangeListener() {
+        public void propertyChange(PropertyChangeEvent e) {
+          final String propertyName = e.getPropertyName();
+
+          if (propertyName.equals(
+                ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY) ||
+              propertyName.equals(
+                ConsoleProperties.
+                DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY)) {
+            fileDistribution.getAgentCacheState().setOutOfDate();
+          }
+        }
+      });
 
     m_userInterface =
       new ConsoleUI(m_model,
