@@ -46,7 +46,7 @@ public interface PluginThreadContext extends Logger, FilenameFactory
     public int getThreadID();
 
     /**
-     * Return the current run ID.
+     * Return the current run number.
      */
     public int getCurrentRunNumber();
 
