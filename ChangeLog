@@ -1,6 +1,17 @@
 2001-04-03  Philip Aston  <paston@bea.com>
 
-	* CHANGES, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/engine/process/GrinderProcess.java:
+	* src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/resources/Console.properties:
+	YACCM (Yet Another Console Control Model).
+
+	* examples/junit/grinder.properties: No longer need to specify host ID.
+
+	* examples/http/grinder.properties: Changed property name.
+
+	* TODO: Thoughts
+
+	* README: Multicast help.
+
+	* CHANGES, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/communication/StopGrinderMessage.java:
 	Support for stopping the grinder processes from the console.
 
 	* src/net/grinder/util/PropertiesHelper.java:
