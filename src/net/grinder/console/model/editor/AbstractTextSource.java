@@ -21,30 +21,25 @@
 
 package net.grinder.console.model.editor;
 
-import java.util.EventListener;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 
 /**
- * Something that can edit text.
+ * Base {@link TextSource} implementation that adds {@link
+ * TextSource.Listener} and {@link #isDirty} support. See {@link
+ * #setClean} for important subclass responsibilities.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface TextSource {
+public abstract class AbstractTextSource implements TextSource {
 
-  /**
-   * Return the current text.
-   *
-   * @return The text.
-   */
-  String getText();
+  private boolean m_dirty;
 
-  /**
-   * Set the text.
-   *
-   * @param text The new text.
-   */
-  void setText(String text);
+  /** Synchronise on m_listeners before accessing. */
+  private final List m_listeners = new LinkedList();
 
   /**
    * Return whether the text has changed since the last call to {@link
@@ -52,30 +47,50 @@ public interface TextSource {
    *
    * @return <code>true</code> => the text has changed.
    */
-  boolean isDirty();
+  public boolean isDirty() {
+    return m_dirty;
+  }
 
   /**
+   * Used by subclasses to mark that the <code>TextSource</code> is
+   * clean. Subclasses should call <code>setClean()</code> in their
+   * {@link TextSource.setText} and {@link TextSource.getText}
+   * implementations.
+   *
+   */
+  protected final void setClean() {
+    m_dirty = false;
+  }
+
+
+  /**
+   * Used by subclasses to mark that the <code>TextSource</code> has
+   * changed.
+   */
+  protected final void setChanged() {
+    m_dirty = true;
+    fireTextChanged();
+  }
+
+    /**
    * Listener registration.
    *
    * @param listener The listener.
    */
-  void addListener(Listener listener);
-
-  /**
-   * Listener interface.
-   */
-  interface Listener extends EventListener {
-
-    /**
-     * Called when the {@link TextSource} has changed.
-     */
-    void textChanged();
+  public void addListener(Listener listener) {
+    synchronized (m_listeners) {
+      m_listeners.add(listener);
+    }
   }
 
-  /**
-   * Factory interface.
-   */
-  interface Factory {
-    TextSource create();
+  private void fireTextChanged() {
+    synchronized (m_listeners) {
+      final Iterator iterator = m_listeners.iterator();
+
+      while (iterator.hasNext()) {
+        final Listener listener = (Listener)iterator.next();
+        listener.textChanged();
+      }
+    }
   }
 }

@@ -21,8 +21,6 @@
 
 package net.grinder.console.model.editor;
 
-import junit.framework.TestCase;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -45,7 +43,14 @@ public class TestBuffer extends AbstractFileTestCase {
   public void testBufferWithNoFile() throws Exception {
     final String text = "Some text for testing with";
 
-    final Buffer buffer = new Buffer(s_resources, new StringTextSource(text));
+    final TextSource textSource = new StringTextSource(text);
+
+    assertEquals(text, textSource.getText());
+
+    final Buffer buffer = new Buffer(s_resources, textSource);
+
+    assertNotNull(textSource.getText());
+    assertNotEquals(text, textSource.getText());
 
     try {
       buffer.load();
@@ -64,12 +69,14 @@ public class TestBuffer extends AbstractFileTestCase {
     assertTrue(!buffer.isDirty());
     assertTrue(buffer.isUpToDate());
     assertNull(buffer.getFile());
+    assertEquals(textSource, buffer.getTextSource());
 
     assertEquals(Buffer.UNKNOWN_BUFFER, buffer.getType());
 
     assertTrue(!buffer.isDirty());
     assertTrue(buffer.isUpToDate());
     assertNull(buffer.getFile());
+    assertEquals(textSource, buffer.getTextSource());
   }
 
   private static final class Expectation {
@@ -133,6 +140,7 @@ public class TestBuffer extends AbstractFileTestCase {
         new Buffer(s_resources, textSource, expectation.getFile());
 
       assertEquals(expectation.getType(), buffer.getType());
+      assertEquals(textSource, buffer.getTextSource());
     }
 
     assertEquals(Buffer.HTML_BUFFER, Buffer.HTML_BUFFER);
@@ -163,7 +171,7 @@ public class TestBuffer extends AbstractFileTestCase {
     assertTrue(!buffer.isDirty());
     assertTrue(!buffer.isUpToDate());
     assertEquals(file, buffer.getFile());
-    assertTrue(!textSource.isActive());
+    assertEquals(textSource, buffer.getTextSource());
 
     buffer.save();
 
@@ -193,7 +201,7 @@ public class TestBuffer extends AbstractFileTestCase {
     buffer.load();
 
     assertTrue(buffer.isUpToDate());
-    assertTrue(!textSource.isActive());
+    assertEquals(textSource, buffer.getTextSource());
   }
 
   public void testBufferWithBadAssociatedFile() throws Exception {
@@ -224,45 +232,14 @@ public class TestBuffer extends AbstractFileTestCase {
     final File file = new File(getDirectory(), "myfile.txt");
     final Buffer buffer = new Buffer(s_resources, textSource, file);
 
-    assertTrue(!textSource.isActive());
+    assertTrue(!buffer.isActive());
+
     buffer.setActive(true);
-    assertTrue(textSource.isActive());
-  }
 
-  private static final class StringTextSource implements TextSource {
+    assertTrue(buffer.isActive());
 
-    private String m_text;
-    private boolean m_dirty = false;
-    private boolean m_active = false;
+    buffer.setActive(false);
 
-    public StringTextSource(String text) {
-      m_text = text;
-    }
-
-    public String getText() {
-      m_dirty = false;
-      return m_text;
-    }
-
-    public void setText(String text) {
-      m_text = text;
-      m_dirty = false;
-    }
-
-    public boolean isDirty() {
-      return m_dirty;
-    }
-
-    public void setActive() {
-      m_active = true;
-    }
-
-    void markDirty() {
-      m_dirty = true;
-    }
-
-    public boolean isActive() {
-      return m_active;
-    }
+    assertTrue(!buffer.isActive());
   }
 }

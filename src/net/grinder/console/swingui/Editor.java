@@ -24,10 +24,6 @@ package net.grinder.console.swingui;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.io.File;
-import java.util.EventListener;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
@@ -50,7 +46,9 @@ import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
+import net.grinder.console.model.editor.AbstractTextSource;
 import net.grinder.console.model.editor.Buffer;
+import net.grinder.console.model.editor.EditorModel;
 import net.grinder.console.model.editor.TextSource;
 
 
@@ -62,25 +60,20 @@ import net.grinder.console.model.editor.TextSource;
  */
 final class Editor {
 
-  private final Resources m_resources;
+  private final EditorModel m_editorModel;
   private final JEditTextArea m_scriptTextArea;
   private final TitledBorder m_titledBorder;
-
-  /** Synchronise on m_listeners before accessing. */
-  private final List m_listeners = new LinkedList();
-
-  private Buffer m_previousBuffer;
-
 
   /**
    * Constructor.
    *
    * @param resources Console resources.
    */
-  public Editor(Resources resources, TitledBorder titledBorder)
+  public Editor(final Resources resources, EditorModel editorModel,
+                TitledBorder titledBorder)
     throws ConsoleException {
 
-    m_resources = resources;
+    m_editorModel = editorModel;
     m_titledBorder = titledBorder;
 
     final TextAreaDefaults textAreaDefaults = TextAreaDefaults.getDefaults();
@@ -114,13 +107,30 @@ final class Editor {
 
     // Initial focus?
 
-    final TextSource textSource = new JEditSyntaxTextSource();
+    m_editorModel.addListener(new EditorModel.Listener() {
+        public void bufferActivated(Buffer buffer) {
+          final File file = buffer.getFile();
 
-    textSource.setText(
-      m_resources.getStringFromFile(
-        "scriptSupportUnderConstruction.text", true));
+          m_titledBorder.setTitle(
+            file != null ?
+            file.getPath() : resources.getString("editor.title"));
 
-    activateBuffer(new Buffer(m_resources, textSource));
+          final JEditSyntaxTextSource textSource =
+            (JEditSyntaxTextSource)buffer.getTextSource();
+
+          m_scriptTextArea.setDocument(textSource.getSyntaxDocument());
+
+          //    m_scriptTextArea.setCaretPosition(0);
+          m_scriptTextArea.setTokenMarker(getTokenMarker(buffer.getType()));
+
+          // Repaint so the border is updated.
+          m_scriptTextArea.repaint();
+        }
+
+        public void bufferChanged(Buffer buffer) { }
+      });
+
+    m_editorModel.selectDefaultBuffer();
   }
 
   /**
@@ -130,44 +140,6 @@ final class Editor {
    */
   public JComponent getComponent() {
     return m_scriptTextArea;
-  }
-
-  public Buffer newFileSelection(File file)
-    throws ConsoleException {
-
-    final Buffer buffer =
-      new Buffer(m_resources, new JEditSyntaxTextSource(), file);
-
-    buffer.load();
-
-    activateBuffer(buffer);
-
-    return buffer;
-  }
-
-  public void activateBuffer(Buffer buffer) {
-
-    final File file = buffer.getFile();
-
-    if (file != null) {
-      m_titledBorder.setTitle(file.getPath());
-    }
-    else {
-      m_titledBorder.setTitle(m_resources.getString("editor.title"));
-    }
-
-    if (m_previousBuffer != null) {
-      m_previousBuffer.setActive(false);
-    }
-
-    buffer.setActive(true);
-    m_previousBuffer = buffer;
-
-    //    m_scriptTextArea.setCaretPosition(0);
-    m_scriptTextArea.setTokenMarker(getTokenMarker(buffer.getType()));
-
-    // Repaint so the border is updated.
-    m_scriptTextArea.repaint();
   }
 
   private TokenMarker getTokenMarker(Buffer.Type bufferType) {
@@ -200,12 +172,11 @@ final class Editor {
     }
   }
 
-  private class JEditSyntaxTextSource implements TextSource {
+  private static class JEditSyntaxTextSource extends AbstractTextSource {
 
     private final SyntaxDocument m_syntaxDocument = new SyntaxDocument();
-    private boolean m_dirty;
 
-    public JEditSyntaxTextSource() {
+    JEditSyntaxTextSource() {
 
       m_syntaxDocument.addDocumentListener(
         new DocumentListener() {
@@ -214,18 +185,17 @@ final class Editor {
           public void changedUpdate(DocumentEvent event) { documentChanged(); }
 
           private void documentChanged() {
-            m_dirty = true;
-
-            // Should do this through buffer.
-            // Buffer should add itself as a TextSource listener.
-            // Buffer should expose a listener API.
-            fireStateChanged();
+            setChanged();
           }
         });
     }
 
+    SyntaxDocument getSyntaxDocument() {
+      return m_syntaxDocument;
+    }
+
     public String getText() {
-      m_dirty = false;
+      setClean();
 
       try {
         return m_syntaxDocument.getText(0, m_syntaxDocument.getLength());
@@ -249,49 +219,17 @@ final class Editor {
         m_syntaxDocument.endCompoundEdit();
       }
 
-      m_dirty = false;
-    }
-
-    public boolean isDirty() {
-      return m_dirty;
-    }
-
-    public void setActive() {
-      m_scriptTextArea.setDocument(m_syntaxDocument);
-      fireStateChanged();
+      setClean();
     }
   }
 
   /**
-   * Add a new listener.
-   *
-   * @param listener The listener.
+   * Factory for {@link TextSource}s that can be used with {@link
+   * Editor}.
    */
-  public void addListener(Listener listener) {
-    synchronized (m_listeners) {
-      m_listeners.add(listener);
+  static class TextSourceFactory implements TextSource.Factory {
+    public TextSource create() {
+      return new JEditSyntaxTextSource();
     }
-  }
-
-  private void fireStateChanged() {
-    synchronized (m_listeners) {
-      final Iterator iterator = m_listeners.iterator();
-
-      while (iterator.hasNext()) {
-        final Listener listener = (Listener)iterator.next();
-        listener.stateChanged();
-      }
-    }
-  }
-
-  /**
-   * Interface for listeners.
-   */
-  public interface Listener extends EventListener {
-
-    /**
-     * Called when the state associated with a buffer has changed.
-     */
-    void stateChanged();
   }
 }

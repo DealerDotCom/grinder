@@ -21,61 +21,50 @@
 
 package net.grinder.console.model.editor;
 
-import java.util.EventListener;
-
 
 /**
- * Something that can edit text.
+ * Simple {@link TextSource} for the unit tests.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface TextSource {
+public class StringTextSource extends AbstractTextSource {
 
-  /**
-   * Return the current text.
-   *
-   * @return The text.
-   */
-  String getText();
+  private String m_text;
 
-  /**
-   * Set the text.
-   *
-   * @param text The new text.
-   */
-  void setText(String text);
-
-  /**
-   * Return whether the text has changed since the last call to {@link
-   * #getText} or {@link #setText}.
-   *
-   * @return <code>true</code> => the text has changed.
-   */
-  boolean isDirty();
-
-  /**
-   * Listener registration.
-   *
-   * @param listener The listener.
-   */
-  void addListener(Listener listener);
-
-  /**
-   * Listener interface.
-   */
-  interface Listener extends EventListener {
-
-    /**
-     * Called when the {@link TextSource} has changed.
-     */
-    void textChanged();
+  public StringTextSource() {
+    this(null);
   }
 
-  /**
-   * Factory interface.
-   */
-  interface Factory {
-    TextSource create();
+  public StringTextSource(String text) {
+    m_text = text;
+  }
+
+  public String getText() {
+    setClean();
+    return m_text;
+  }
+
+  public void setText(String text) {
+    m_text = text;
+    setClean();
+  }
+
+  void markDirty() {
+    setChanged();
+  }
+
+  public static final class Factory implements TextSource.Factory {
+    private TextSource m_last;
+
+    public TextSource create() {
+      m_last = new StringTextSource();
+      return m_last;
+    }
+
+    public TextSource getLast() {
+      return m_last;
+    }
   }
 }
+

@@ -185,7 +185,7 @@ final class FileTreeModel implements TreeModel {
       m_buffer = buffer;
     }
 
-    public Buffer getBuffer() {
+    private Buffer getBuffer() {
       return m_buffer;
     }
 

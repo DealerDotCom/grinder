@@ -102,8 +102,11 @@ public final class Buffer {
    * @param resources Console resources.
    * @param textSource The text editor.
    */
-  public Buffer(Resources resources, TextSource textSource) {
+  Buffer(Resources resources, TextSource textSource) {
     this(resources, textSource, null);
+
+    m_textSource.setText(m_resources.getStringFromFile(
+                           "scriptSupportUnderConstruction.text", true));
   }
 
   /**
@@ -113,11 +116,20 @@ public final class Buffer {
    * @param textSource The text editor.
    * @param file The file.
    */
-  public Buffer(Resources resources, TextSource textSource, File file) {
+  Buffer(Resources resources, TextSource textSource, File file) {
     m_resources = resources;
     m_textSource = textSource;
     m_file = file;
     m_lastModified = -1;
+  }
+
+  /**
+   * Return the buffer's {@link TextSource}.
+   *
+   * @return The text source.
+   */
+  public TextSource getTextSource() {
+    return m_textSource;
   }
 
   /**
@@ -128,8 +140,8 @@ public final class Buffer {
    * @exception EditorException If an unexpected problem occurs.
    */
   public void load() throws DisplayMessageConsoleException, EditorException {
-    // The UI should never call save if there is no associated file,
-    // but check anyway.
+    // Should never be called if there is no associated file, but
+    // check anyway.
     if (m_file == null) {
       throw new EditorException(
         "Can't load a buffer that has no associated file");
@@ -265,9 +277,8 @@ public final class Buffer {
    * @param  active <code>true</code> the buffer is active else the buffer is
    * inactive.
    */
-  public void setActive(boolean active) {
+  void setActive(boolean active) {
     m_active = active;
-    m_textSource.setActive();
   }
 
   /**

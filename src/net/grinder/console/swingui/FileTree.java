@@ -32,6 +32,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.ActionMap;
+import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -50,8 +51,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.grinder.console.common.ConsoleException;
+import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.model.ConsoleProperties;
+import net.grinder.console.model.editor.Buffer;
+import net.grinder.console.model.editor.EditorModel;
 
 
 /**
@@ -74,7 +79,9 @@ final class FileTree extends JPanel {
   private final List m_listeners = new LinkedList();
 
   public FileTree(final ConsoleProperties consoleProperties,
-                  Resources resources) {
+                  Resources resources,
+                  final ErrorHandler errorHandler,
+                  final EditorModel editorModel) {
 
     m_resources = resources;
 
@@ -147,6 +154,30 @@ final class FileTree extends JPanel {
                   new TeeAction(actionMap.get("toggle"), m_openFileAction));
 
     m_scrollPane = new JScrollPane(m_tree);
+
+    editorModel.addListener(new EditorModel.Listener() {
+        public void bufferActivated(Buffer buffer) {
+          refreshTree();
+        }
+
+        public void bufferChanged(Buffer buffer) {
+          refreshTree();
+        }
+      });
+
+    addListener(
+      new FileTree.Listener() {
+        public void newFileSelection(FileTreeModel.FileNode fileNode) {
+          try {
+            fileNode.setBuffer(
+              editorModel.selectBufferForFile(fileNode.getFile()));
+          }
+          catch (ConsoleException e) {
+            errorHandler.handleException(
+              e, m_resources.getString("fileError.title"));
+          }
+        }
+      });
   }
 
   public JComponent getComponent() {
@@ -331,15 +362,13 @@ final class FileTree extends JPanel {
     }
   }
 
-  public void repaint() {
+  private void refreshTree() {
     // Couldn't find a nice way to repaint a single node. This:
     //    m_tree.getSelectionModel().setSelectionPath(fileNode.getPath());
     // doesn't work if the node is already selected. Give up and
     // repaint the world:
 
-    if (m_tree != null) {
-      m_tree.treeDidChange();
-    }
+    m_tree.treeDidChange();
   }
 
   private void fireFileSelected(FileTreeModel.FileNode fileNode) {

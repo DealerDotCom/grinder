@@ -76,6 +76,7 @@ import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
+import net.grinder.console.model.editor.EditorModel;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
 
@@ -285,39 +286,21 @@ public final class ConsoleUI implements ModelListener {
     editorBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
     editorBorder.setTitleJustification(TitledBorder.RIGHT);
 
-    final Editor editor = new Editor(resources, editorBorder);
+    final EditorModel editorModel =
+      new EditorModel(resources, new Editor.TextSourceFactory());
+
+    final Editor editor = new Editor(resources, editorModel, editorBorder);
+
+    m_fileTree = new FileTree(m_model.getProperties(),
+                              resources,
+                              getErrorHandler(),
+                              editorModel);
+
+    addAction(m_fileTree.getOpenFileAction());
 
     // Place JEditTextArea in JPanel so border background is correct.
     final JPanel editorPanel = new JPanel();
     editorPanel.add(editor.getComponent());
-
-    m_fileTree = new FileTree(m_model.getProperties(), resources);
-    addAction(m_fileTree.getOpenFileAction());
-
-    m_fileTree.addListener(
-      new FileTree.Listener() {
-        public void newFileSelection(FileTreeModel.FileNode fileNode) {
-          try {
-            if (fileNode.getBuffer() != null) {
-              editor.activateBuffer(fileNode.getBuffer());
-            }
-            else {
-              fileNode.setBuffer(editor.newFileSelection(fileNode.getFile()));
-            }
-          }
-          catch (ConsoleException e) {
-            getErrorHandler().handleException(
-              e, m_model.getResources().getString("fileError.title"));
-          }
-        }
-      });
-
-    editor.addListener(
-      new Editor.Listener() {
-        public void stateChanged() {
-          m_fileTree.repaint();
-        }
-      });
 
     final JToolBar editorToolBar = createToolBar("editor.toolbar");
     editorToolBar.setFloatable(false);
