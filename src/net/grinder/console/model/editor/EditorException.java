@@ -34,9 +34,5 @@ public class EditorException extends ConsoleException {
   EditorException(String message) {
     super(message);
   }
-
-  EditorException(String message, Throwable e) {
-    super(message, e);
-  }
 }
 
