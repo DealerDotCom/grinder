@@ -48,6 +48,7 @@ import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
+import net.grinder.util.Directory;
 
 
 /**
@@ -177,11 +178,20 @@ public final class Agent {
           }
         }
 
-        if (scriptFromConsole != null) {
-          if (scriptFromConsole.canRead()) {
+        final Directory fileStoreDirectory = fileStore.getDirectory();
+
+        if (scriptFromConsole != null && fileStoreDirectory == null) {
+          logger.error("Files have not been distributed from the console");
+          initialiseMessage = null;
+        }
+        else if (scriptFromConsole != null) {
+          final File absoluteFile = new File(fileStoreDirectory.getAsFile(),
+                                             scriptFromConsole.getPath());
+
+          if (absoluteFile.canRead()) {
             initialiseMessage =
-              new InitialiseGrinderMessage(true, scriptFromConsole,
-                                           fileStore.getDirectory());
+              new InitialiseGrinderMessage(
+                true, absoluteFile, fileStoreDirectory.getAsFile());
           }
           else {
             logger.error("The script file '" + scriptFromConsole +
