@@ -18,6 +18,10 @@
 
 package net.grinder.util;
 
+import junit.framework.TestCase;
+import junit.swingui.TestRunner;
+//import junit.textui.TestRunner;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -25,12 +29,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
 
-import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
-
 
 /**
+ * Unit test case for {@link Serialiser}.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -101,7 +103,7 @@ public class TestSerialiser extends TestCase
 	final ObjectOutputStream objectOutputStream =
 	    new ObjectOutputStream(byteArrayOutputStream);
 
-	final long[] longs = new long[10000];
+	final long[] longs = new long[3002];
 
 	final Serialiser serialiser = new Serialiser();
 
@@ -109,9 +111,15 @@ public class TestSerialiser extends TestCase
 	    if (i < 1000) {
 		longs[i] = i;
 	    }
+	    else if (i <2000) {
+		longs[i] = i - 2000;
+	    }
 	    else {
 		longs[i] = m_random.nextLong();
 	    }
+
+	    longs[3000] = Long.MIN_VALUE;
+	    longs[3001] = Long.MAX_VALUE;
 
 	    serialiser.writeLong(objectOutputStream, longs[i]);
 	}
@@ -120,8 +128,7 @@ public class TestSerialiser extends TestCase
 
 	final byte[] bytes = byteArrayOutputStream.toByteArray();
 
-	// To do, make this work.
-	//assert("We should compress", bytes.length < 8 * longs.length);
+	assert("We should compress", bytes.length < 8 * longs.length);
 
 	final ObjectInputStream objectInputStream =
 	    new ObjectInputStream(new ByteArrayInputStream(bytes));

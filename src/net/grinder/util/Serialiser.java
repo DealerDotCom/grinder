@@ -31,7 +31,7 @@ import java.io.IOException;
  */
 public class Serialiser
 {
-    private final byte[] m_readBuffer = new byte[8];
+    private final byte[] m_byteBuffer = new byte[8];
 
     /**
      * Write a <code>long</code> to a stream in such a way it can be
@@ -66,28 +66,32 @@ public class Serialiser
     public final long readUnsignedLong(DataInput input)
 	throws IOException
     {
-	m_readBuffer[0] = input.readByte();
+	m_byteBuffer[0] = input.readByte();
 
-	if (m_readBuffer[0] >= 0) {
-	    return m_readBuffer[0];
+	if (m_byteBuffer[0] >= 0) {
+	    return m_byteBuffer[0];
 	}
 	else {
-	    input.readFully(m_readBuffer, 1, 7);
+	    input.readFully(m_byteBuffer, 1, 7);
 
-	    return - (((long)(m_readBuffer[0] & 0xFF) << 56) |
-		      ((long)(m_readBuffer[1] & 0xFF) << 48) |
-		      ((long)(m_readBuffer[2] & 0xFF) << 40) |
-		      ((long)(m_readBuffer[3] & 0xFF) << 32) |
-		      ((long)(m_readBuffer[4] & 0xFF) << 24) |
-		      ((long)(m_readBuffer[5] & 0xFF) << 16) |
-		      ((long)(m_readBuffer[6] & 0xFF) << 8) |
-		      ((long)(m_readBuffer[7] & 0xFF)));
+	    return - (((long)(m_byteBuffer[0] & 0xFF) << 56) |
+		      ((long)(m_byteBuffer[1] & 0xFF) << 48) |
+		      ((long)(m_byteBuffer[2] & 0xFF) << 40) |
+		      ((long)(m_byteBuffer[3] & 0xFF) << 32) |
+		      ((long)(m_byteBuffer[4] & 0xFF) << 24) |
+		      ((long)(m_byteBuffer[5] & 0xFF) << 16) |
+		      ((long)(m_byteBuffer[6] & 0xFF) << 8) |
+		      ((long)(m_byteBuffer[7] & 0xFF)));
 	}
     }
 
     /**
      * Write a <code>long</code> to a stream in such a way it can be
      * read by {@link #readLong}. 
+     *
+     * <p>Efficient for small, positive longs. Values less than 16
+     * take one byte. The worst cases (including all negative values)
+     * take nine bytes.</p>
      *
      * @param output The stream.
      * @param long The value.
@@ -96,9 +100,37 @@ public class Serialiser
     public final void writeLong(DataOutput output, long l)
 	throws IOException
     {
-	// One day we'll make this efficient again.
-	output.writeLong(l);
+	boolean startedToWrite = false;
+
+	for (byte i=(byte)(m_byteBuffer.length-1); i>=0; --i) {
+	    final byte b = (byte)((l >>> i*8) & 0xFF);
+
+	    if (startedToWrite) {
+		output.writeByte(b);
+	    }
+	    else {
+		if ((b & 0xFF) != 0) {
+		    if ((b & 0xF0) != 0) {
+			// Write length.
+			output.writeByte((i+1) << 4);
+			output.writeByte(b);
+		    }
+		    else {
+			// Special case, byte will fit in one nibble.
+			// Combine with length.
+			output.writeByte(b | (i << 4));
+		    }
+
+		    startedToWrite = true;
+		}
+	    }
+	}
+
+	if (!startedToWrite) {
+	    output.writeByte(0);
+	}
     }
+
 
     /**
      * Read a <code>long</code> written by {@link #writeLong}.
@@ -106,7 +138,15 @@ public class Serialiser
     public final long readLong(DataInput input)
 	throws IOException
     {
-	return input.readLong();
+	byte b = input.readByte();
+	long length = (b & 0xF0) >>> 4;
+	long result = (long)(b & 0x0F);
+
+	while (length-- > 0) {
+	    result = (result << 8) | input.readUnsignedByte();
+	}
+
+	return result;
     }
 
     /**
