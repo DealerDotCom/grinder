@@ -88,6 +88,7 @@ final class ProcessContext {
 
     m_pluginRegistry = new PluginRegistry(externalLogger, m_scriptContext,
                                           m_threadContextLocator);
+    PluginRegistry.setInstance(m_pluginRegistry);
 
     m_testRegistry = new TestRegistry(m_threadContextLocator);
     TestRegistry.setInstance(m_testRegistry);
