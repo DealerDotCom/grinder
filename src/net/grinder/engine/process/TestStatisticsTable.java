@@ -60,16 +60,12 @@ class MethodStatisticsTable
 	
 	out.println(heading.toString());
 
-	final MethodStatistics totals = new MethodStatistics();
-
 	for (int i=0; i<m_methodStatistics.length; i++) {
 	    out.println(formatLine(m_methodNames[i], m_methodStatistics[i]));
-
-	    totals.add(m_methodStatistics[i]);
 	}
 
 	out.println();
-	out.println(formatLine("Totals", totals));
+	out.println(formatLine("Totals", m_totals));
     }
 
     private String formatField(String string)

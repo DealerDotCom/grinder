@@ -63,11 +63,11 @@ class MethodStatistics
     /**
      * Assumes we don't need to synchronise access to operand.
      */
-    public synchronized MethodStatistics add(MethodStatistics operand)
+    public synchronized void add(MethodStatistics operand)
     {
-	return new MethodStatistics(m_transactions + operand.m_transactions,
-				    m_totalTime + operand.m_totalTime,
-				    m_errors + operand.m_errors);
+	m_transactions += operand.m_transactions;
+	m_totalTime += operand.m_totalTime;
+	m_errors += operand.m_errors;
     }
     
     private MethodStatistics(long transactions, long totalTime,
