@@ -2,6 +2,9 @@
 
 	* The Grinder 3.0-beta22 is released.
 
+	* tests-src/net/grinder/engine/process/TestExternalFilenameFactory.java, tests-src/net/grinder/engine/process/TestExternalLogger.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java:
+	Update for changes to CallRecorder.assertSuccess().
+
 	* src/net/grinder/console/communication/ProcessStatusSet.java:
 	Checkstyle.
 
