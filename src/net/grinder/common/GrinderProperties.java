@@ -69,8 +69,7 @@ public class GrinderProperties extends Properties {
 
     if (m_file.exists()) {
       try {
-        final InputStream propertiesInputStream =
-          new FileInputStream(m_file);
+        final InputStream propertiesInputStream = new FileInputStream(m_file);
 
         load(propertiesInputStream);
 
@@ -92,6 +91,13 @@ public class GrinderProperties extends Properties {
         put(name, System.getProperty(name));
       }
     }
+  }
+
+  /**
+   * Accessor for unit tests.
+   */
+  File getAssociatedFile() {
+    return m_file;
   }
 
   /**

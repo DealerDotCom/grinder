@@ -406,6 +406,21 @@ public class TestGrinderProperties extends TestCase {
   }
     
   public void testPropertiesFileHanding() throws Exception {
+
+    try {
+      assertNull(m_grinderProperties.getAssociatedFile());
+      m_grinderProperties.save();
+      fail("Expected GrinderException as no associated file");
+    }
+    catch (GrinderException e) {
+    }
+
+    // Construct with null => default file.
+    final GrinderProperties defaultFileProperties =
+      new GrinderProperties(null);
+    assertEquals(new File("grinder.properties"),
+                 defaultFileProperties.getAssociatedFile());
+
     setSystemProperties();
 	
     try {
@@ -416,16 +431,14 @@ public class TestGrinderProperties extends TestCase {
         new PrintWriter(new FileWriter(file), true);
 	
       (new IterateOverProperties(m_grinderSet) {
-          void match(String key, String value) throws Exception
-          {
+          void match(String key, String value) throws Exception {
             writer.println(key + ":" + "should be overridden");
           }
         }
        ).run();
 	
       (new IterateOverProperties(m_stringSet) {
-          void match(String key, String value) throws Exception
-          {
+          void match(String key, String value) throws Exception {
             writer.println(key + ":" + "not overridden");
           }
         }
@@ -439,20 +452,15 @@ public class TestGrinderProperties extends TestCase {
                    properties2.size());
 	    
       (new IterateOverProperties(m_grinderSet) {
-          void match(String key, String value) throws Exception
-          {
-            assertEquals(value,
-                         properties2.getProperty(key, null));
+          void match(String key, String value) throws Exception {
+            assertEquals(value, properties2.getProperty(key, null));
           }
         }
        ).run();
 
-
       (new IterateOverProperties(m_stringSet) {
-          void match(String key, String value) throws Exception
-          {
-            assertEquals("not overridden",
-                         properties2.getProperty(key, null));
+          void match(String key, String value) throws Exception {
+            assertEquals("not overridden", properties2.getProperty(key, null));
           }
         }
        ).run();
@@ -461,7 +469,7 @@ public class TestGrinderProperties extends TestCase {
       restoreSystemProperties();
     }
   }
-    
+
   private void setSystemProperties() throws Exception {
     (new IterateOverProperties(m_grinderProperties) {
         void match(String key, String value) throws Exception
