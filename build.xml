@@ -55,7 +55,7 @@ what you want. Currently the conditionally built modules are:
 
   <property name="Name" value="The Grinder"/>
   <property name="name" value="grinder"/>
-  <property name="version" value="2.8.3"/>
+  <property name="version" value="2.8.4"/>
   <property name="year" value="2002"/>
 
   <!-- javac switches -->
