@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.SSLSocket;
+
 import junit.framework.TestCase;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
@@ -71,11 +73,16 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
   private TCPProxySSLSocketFactory m_sslSocketFactory;
 
+  private EndPoint createFreeLocalEndPoint() throws IOException {
+    final ServerSocket serverSocket = new ServerSocket(0);
+    final EndPoint result =
+      new EndPoint("localhost", serverSocket.getLocalPort());
+    serverSocket.close();
+    return result;
+  }
 
   protected void setUp() throws Exception {
-    final ServerSocket serverSocket = new ServerSocket(0);
-    m_localEndPoint = new EndPoint("localhost", serverSocket.getLocalPort());
-    serverSocket.close();
+    m_localEndPoint = createFreeLocalEndPoint();
 
     m_sslSocketFactory = new TCPProxySSLSocketFactoryImplementation();
 
@@ -155,6 +162,13 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     throws IOException, InterruptedException {
     final InputStream clientInputStream = clientSocket.getInputStream();
 
+    if (clientSocket instanceof SSLSocket) {
+      // Another reason to hate JSSE: available() returns 0 until the
+      // first read after the server has sent someting; reading nothing
+      // works around this.
+      clientSocket.getInputStream().read(new byte[0]);
+    }
+
     while (clientInputStream.available() <= 0) {
       Thread.sleep(10);
     }
@@ -192,6 +206,19 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
              " seconds and the terminal expression '" + terminalExpression +
              "' does not match received data:\n" + s);
       }
+    }
+  }
+
+  private void waitUntilAllStreamThreadsStopped() throws InterruptedException {
+    for (int i = 0;
+         i < 10 &&
+         AbstractTCPProxyEngine.getStreamThreadGroup().activeCount() > 0;
+         ++i) {
+      Thread.sleep(50);
+    }
+
+    if (AbstractTCPProxyEngine.getStreamThreadGroup().activeCount() > 0) {
+      fail("Failed waiting for all stream threads to stop");
     }
   }
 
@@ -238,6 +265,8 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     }
 
     clientSocket2.close();
+
+    waitUntilAllStreamThreadsStopped();
 
     m_requestFilterStubFactory.assertNoMoreCalls();
     m_responseFilterStubFactory.assertNoMoreCalls();
@@ -291,11 +320,11 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     m_loggerStubFactory.assertNoMoreCalls();
 
-    final String message1a =
+    final String message1Headers =
       "POST http://" + echoer.getEndPoint() + "/blah?x=123&y=99 HTTP/1.0\r\n" +
       "\r\n" +
       "Another message";
-    clientWriter.print(message1a);
+    clientWriter.print(message1Headers);
     clientWriter.flush();
 
     final String message1PostBody = "Some data, lah 0x810x820x830x84 dah";
@@ -310,6 +339,20 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
                                           "\r\n\r\nAnother message" +
                                           message1PostBody + "$");
 
+    // Do again, but force engine to handle body in two parts.
+    clientWriter.print(message1Headers);
+    clientWriter.flush();
+
+    final String response2a = readResponse(clientSocket, "Another message$");
+
+    AssertUtilities.assertStartsWith(response2a,
+                                     "POST /blah?x=123&y=99 HTTP/1.0\r\n");
+
+    clientWriter.print(message1PostBody);
+    clientWriter.flush();
+
+    final String response2b = readResponse(clientSocket, "dah$");
+
     clientSocket.close();
 
     m_requestFilterStubFactory.assertSuccess("handle",
@@ -320,9 +363,14 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
                                              ConnectionDetails.class,
                                              new byte[0].getClass(),
                                              Integer.class);
-    m_requestFilterStubFactory.assertSuccess("connectionClosed",
-                                             ConnectionDetails.class);
-    m_requestFilterStubFactory.assertNoMoreCalls();
+    m_requestFilterStubFactory.assertSuccess("handle",
+                                             ConnectionDetails.class,
+                                             new byte[0].getClass(),
+                                             Integer.class);
+    m_requestFilterStubFactory.assertSuccess("handle",
+                                             ConnectionDetails.class,
+                                             new byte[0].getClass(),
+                                             Integer.class);
 
     m_responseFilterStubFactory.assertSuccess("handle",
                                               ConnectionDetails.class,
@@ -332,6 +380,21 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
                                               ConnectionDetails.class,
                                               new byte[0].getClass(),
                                               Integer.class);
+    m_responseFilterStubFactory.assertSuccess("handle",
+                                              ConnectionDetails.class,
+                                              new byte[0].getClass(),
+                                              Integer.class);
+    m_responseFilterStubFactory.assertSuccess("handle",
+                                              ConnectionDetails.class,
+                                              new byte[0].getClass(),
+                                              Integer.class);
+
+    waitUntilAllStreamThreadsStopped();
+
+    m_requestFilterStubFactory.assertSuccess("connectionClosed",
+                                             ConnectionDetails.class);
+    m_requestFilterStubFactory.assertNoMoreCalls();
+
     m_responseFilterStubFactory.assertSuccess("connectionClosed",
                                               ConnectionDetails.class);
     m_responseFilterStubFactory.assertNoMoreCalls();
@@ -342,7 +405,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
   private void httpsProxyEngineGoodRequestTest(AbstractTCPProxyEngine engine)
     throws Exception {
 
-    final AcceptAndEcho echoer = new AcceptAndEcho();
+    final AcceptAndEcho echoer = new SSLAcceptAndEcho();
 
     final Socket clientPlainSocket =
       new Socket(engine.getListenEndPoint().getHost(),
@@ -363,6 +426,55 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     final Socket clientSSLSocket =
       m_sslSocketFactory.createClientSocket(clientPlainSocket,
                                             echoer.getEndPoint());
+
+    final PrintWriter secureClientWriter =
+      new PrintWriter(clientSSLSocket.getOutputStream(), true);
+
+    final String message0 =
+      "GET http://galafray/foo HTTP/1.1\r\n" +
+      "foo: bah\r\n" +
+      "\r\n" +
+      "A \u00e0 message";
+    secureClientWriter.print(message0);
+    secureClientWriter.flush();
+
+    final String response0 = readResponse(clientSSLSocket, "message$");
+
+    AssertUtilities.assertStartsWith(response0,
+                                     "GET http://galafray/foo HTTP/1.1\r\n");
+    AssertUtilities.assertContainsHeader(response0, "foo", "bah");
+    AssertUtilities.assertContainsPattern(response0,
+                                          "\r\n\r\nA \u00e0 message$");
+
+    m_requestFilterStubFactory.assertSuccess("connectionOpened",
+                                             ConnectionDetails.class);
+    m_requestFilterStubFactory.assertSuccess("handle",
+                                             ConnectionDetails.class,
+                                             new byte[0].getClass(),
+                                             Integer.class);
+    m_requestFilterStubFactory.assertNoMoreCalls();
+
+    m_responseFilterStubFactory.assertSuccess("connectionOpened",
+                                              ConnectionDetails.class);
+    m_responseFilterStubFactory.assertSuccess("handle",
+                                              ConnectionDetails.class,
+                                              new byte[0].getClass(),
+                                              Integer.class);
+    m_responseFilterStubFactory.assertNoMoreCalls();
+
+    clientSSLSocket.close();
+
+    waitUntilAllStreamThreadsStopped();
+
+    m_requestFilterStubFactory.assertSuccess("connectionClosed",
+                                             ConnectionDetails.class);
+    m_requestFilterStubFactory.assertNoMoreCalls();
+
+    m_responseFilterStubFactory.assertSuccess("connectionClosed",
+                                              ConnectionDetails.class);
+    m_responseFilterStubFactory.assertNoMoreCalls();
+
+    m_loggerStubFactory.assertNoMoreCalls();
   }
 
   public void testHTTPProxyEngine() throws Exception {
@@ -449,10 +561,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
   public void testWithChainedHTTPProxy() throws Exception {
     final AcceptAndEcho echoer = new AcceptAndEcho();
 
-    final ServerSocket serverSocket = new ServerSocket(0);
-    final EndPoint chainedProxyEndPoint =
-      new EndPoint("localhost", serverSocket.getLocalPort());
-    serverSocket.close();
+    final EndPoint chainedProxyEndPoint = createFreeLocalEndPoint();
 
     final AbstractTCPProxyEngine chainedProxy =
       new HTTPProxyTCPProxyEngine(m_sslSocketFactory,
@@ -523,20 +632,29 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
                                               Integer.class);
     m_responseFilterStubFactory.assertNoMoreCalls();
 
-    m_loggerStubFactory.assertNoMoreCalls();
-
     chainedProxy.stop();
     chainedProxyThread.join();
 
     engine.stop();
     engineThread.join();
+
+    waitUntilAllStreamThreadsStopped();
+
+    m_requestFilterStubFactory.assertSuccess("stop");
+    m_responseFilterStubFactory.assertSuccess("stop");
+
+    m_loggerStubFactory.assertNoMoreCalls();
   }
 
-  private final class AcceptAndEcho implements Runnable {
+  private class AcceptAndEcho implements Runnable {
     private final ServerSocket m_serverSocket;
 
     public AcceptAndEcho() throws IOException {
-      m_serverSocket = new ServerSocket(0);
+      this(new ServerSocket(0));
+    }
+
+    protected AcceptAndEcho(ServerSocket serverSocket) throws IOException {
+      m_serverSocket = serverSocket;
       new Thread(this, getClass().getName()).start();
       m_echoers.add(this);
     }
@@ -566,6 +684,13 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
 
     public void shutdown() throws IOException {
       m_serverSocket.close();
+    }
+  }
+
+  private class SSLAcceptAndEcho extends AcceptAndEcho {
+    public SSLAcceptAndEcho() throws IOException {
+      super(
+        m_sslSocketFactory.createServerSocket(createFreeLocalEndPoint(), 0));
     }
   }
 }
