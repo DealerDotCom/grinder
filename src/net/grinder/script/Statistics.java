@@ -28,7 +28,7 @@ import net.grinder.statistics.StatisticsIndexMap;
  * Script statisistics reporting API.
  *
  * <p>An instance of this interface can be obtained using
- * {@link ScriptContext#getStatistics}.
+ * {@link Grinder.ScriptContext#getStatistics}.
  *  This can be used in a script to query * the result of the last
  *  test. For example:
  *

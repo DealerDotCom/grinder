@@ -40,8 +40,8 @@ import net.grinder.common.GrinderException;
  *
  * @author Philip Aston
  * @version $Revision$
- * @see net.grinder.script.ScriptContext#registerDetailStatisticsView
- * @see net.grinder.script.ScriptContext#registerSummaryStatisticsView
+ * @see net.grinder.script.Grinder.ScriptContext#registerDetailStatisticsView
+ * @see net.grinder.script.Grinder.ScriptContext#registerSummaryStatisticsView
  **/
 public final class StatisticsView implements Externalizable {
 

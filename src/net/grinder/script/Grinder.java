@@ -46,6 +46,12 @@ public class Grinder {
    * <code>net.grinder.script.Grinder.grinder</code> object that
    * supports this interface.
    *
+   * <p>Whilst this <code>grinder</code> object is implicitly
+   * available to all scripts, it is good practice to add an explict
+   * import (<code>from net.grinder.script.Grinder import grinder
+   * </code>) to the top of your scripts so that they can be called as
+   * Python modules from other scripts.
+   *
    * @author Philip Aston
    * @version $Revision$
    */ 
