@@ -167,8 +167,11 @@ class HTTPClientHandler implements HTTPHandler
 	    final HTTPResponse response;
 
 	    if (postString == null) {
-		response = httpConnection.Get(uri.getPath(),
+		// Don't pass the query string to the second
+		// parameter, we don't want it to be URL encoded.
+		response = httpConnection.Get(uri.getPath() + '?' +
 					      uri.getQueryString(),
+					      (String)null,
 					      headers);
 	    }
 	    else {

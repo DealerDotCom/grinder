@@ -829,10 +829,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     {
 	String File = stripRef(file);
 	if (query != null  &&  query.length() > 0)
-	    // ++GRINDER MODIFICATION
-	    // File += "?" + Codecs.URLEncode(query);
-	    File += "?" + query;
-	    // --GRINDER MODIFICATION
+	    File += "?" + Codecs.URLEncode(query);
 
 	return setupRequest("HEAD", File, headers, null, null);
     }
@@ -928,10 +925,7 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
     {
 	String File = stripRef(file);
 	if (query != null  &&  query.length() > 0)
-	    // ++GRINDER MODIFICATION
-	    // File += "?" + Codecs.URLEncode(query);
-	    File += "?" + query;
-	    // --GRINDER MODIFICATION
+	    File += "?" + Codecs.URLEncode(query);
 
 	return setupRequest("GET", File, headers, null, null);
     }
