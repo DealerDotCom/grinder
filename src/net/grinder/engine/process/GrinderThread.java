@@ -51,7 +51,7 @@ class GrinderThread implements java.lang.Runnable
 
     private static Random m_random = new Random();
 
-    private final Class m_pluginClass;
+    private final GrinderPlugin m_plugin;
     private final PluginContextImplementation m_pluginContext;
     private final Map m_tests;
     private final PrintWriter m_dataPrintWriter;
@@ -69,16 +69,16 @@ class GrinderThread implements java.lang.Runnable
 
     /** This is a member so that PluginContextImplementation can
      * generate context sensitive log messages. */
-    private Test m_currentTest = null;
+    private TestData m_currentTest = null;
 
     /**
      * The constructor.
      */        
-    public GrinderThread(Class pluginClass,
+    public GrinderThread(GrinderPlugin plugin,
 			 PluginContextImplementation pluginContext,
 			 PrintWriter dataPrintWriter, Map tests)
     {
-	m_pluginClass = pluginClass;
+	m_plugin = plugin;
 	m_pluginContext = pluginContext;
 	m_dataPrintWriter = dataPrintWriter;
 	m_tests = tests;
@@ -111,11 +111,8 @@ class GrinderThread implements java.lang.Runnable
 	m_currentTest = null;
 
 	try{
-	    final GrinderPlugin pluginInstance =
-		(GrinderPlugin)m_pluginClass.newInstance();
-            
 	    try {
-		pluginInstance.initialize(m_pluginContext);
+		m_plugin.initialize(m_pluginContext);
 	    }
 	    catch (PluginException e) {
 		logError("Plug-in initialize() threw " + e);
@@ -123,7 +120,7 @@ class GrinderThread implements java.lang.Runnable
 		return;
 	    }
 	    
-	    logMessage("Initialized plug-in");
+	    logMessage("Initialized " + m_plugin.getClass().getName());
 	    logMessage("About to run " + m_numberOfCycles + " cycles");
 
 	    CYCLE_LOOP:
@@ -134,7 +131,7 @@ class GrinderThread implements java.lang.Runnable
 		sleep(m_beginCycleSleepTime);
 
 		try {
-		    pluginInstance.beginCycle();
+		    m_plugin.beginCycle();
 		}
 		catch (PluginException e) {
 		    logError("Aborting cycle - plug-in beginCycle() threw " +
@@ -149,7 +146,7 @@ class GrinderThread implements java.lang.Runnable
 		while (testIterator.hasNext()) {
 		    final Map.Entry entry = (Map.Entry)testIterator.next();
 		    final Integer testNumber = (Integer)entry.getKey();
-		    m_currentTest = (Test)entry.getValue();
+		    m_currentTest = (TestData)entry.getValue();
 
 		    m_pluginContext.reset();
 
@@ -162,7 +159,7 @@ class GrinderThread implements java.lang.Runnable
 
 		    try {
 			try {
-			    success = pluginInstance.doTest(m_currentTest);
+			    success = m_plugin.doTest(m_currentTest);
 			}
 			finally {
 			    m_pluginContext.stopTimer();		
@@ -207,7 +204,7 @@ class GrinderThread implements java.lang.Runnable
 		m_currentTest = null;
 
 		try {
-		    pluginInstance.endCycle();
+		    m_plugin.endCycle();
 		}
 		catch (PluginException e) {
 		    logError("Plugin endCycle() threw: " + e);

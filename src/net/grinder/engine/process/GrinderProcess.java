@@ -30,6 +30,8 @@ import java.lang.reflect.Method;
 
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
+import net.grinder.plugininterface.TestDefinition;
+import net.grinder.plugininterface.TestSetPlugin;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
@@ -95,7 +97,7 @@ public class GrinderProcess
 
     private final Class m_pluginClass;
     private final GrinderProperties m_pluginParameters;
-    private final TreeMap m_tests;
+    private final Map m_tests;
 
     public GrinderProcess() throws GrinderException
     {
@@ -156,7 +158,7 @@ public class GrinderProcess
 	    }
 	}
 
-	// Parse plug-in class.
+	// Parse plugin class.
 	try{
 	    m_pluginClass =
 		Class.forName(properties.getProperty("grinder.plugin"));
@@ -178,46 +180,53 @@ public class GrinderProcess
 	m_pluginParameters =
 	    properties.getPropertySubset("grinder.plugin.parameter.");
 
-	// Parse tests.
-	m_tests = new TreeMap();
+	// Optional Test Set plugin.
+	final TestSetPlugin testSet;
 
-	final String TEST_PREFIX = "grinder.test";
+	final String testSetClassName =
+	    properties.getProperty("grinder.testSetPlugin");
 
-	final Iterator nameIterator = properties.keySet().iterator();
+	if (testSetClassName != null) {
+	    try{
+		final Class testSetClass = Class.forName(testSetClassName);
 
-	while (nameIterator.hasNext()) {
-	    final String name = (String)nameIterator.next();
+		if (!TestSetPlugin.class.isAssignableFrom(m_pluginClass)) {
+		    throw new EngineException(
+			"The specified test set plug-in class ('" +
+			m_pluginClass.getName() +
+			"') does not implement the interface: '" +
+			TestSetPlugin.class.getName() + "'");
+		}
 
-	    if (!name.startsWith(TEST_PREFIX)) {
-		continue;	// Not a test property.
+		testSet = (TestSetPlugin)testSetClass.newInstance();
 	    }
-
-	    final int nextSeparator = name.indexOf('.',
-						   TEST_PREFIX.length());
-
-	    final Integer testNumber;
-
-	    try {
-		testNumber =
-		    new Integer(name.substring(TEST_PREFIX.length(),
-					       nextSeparator));
-	    }
-	    catch (Exception e) {
+	    catch(Exception e){
 		throw new EngineException(
-		    "Could not resolve test number from property '" + name +
-		    ".");
+		    "An instance of the specified plug-in class " +
+		    "could not be created.", e);
 	    }
+	}
+	else {
+	    testSet = new PropertiesTestSet(properties);
+	}
 
-	    if (m_tests.containsKey(testNumber)) {
-		continue;	// Already parsed.
-	    }
+	// Wrap tests with our information.
+	m_tests = new TreeMap();
+	
+	final Iterator testSetIterator = testSet.getTests().iterator();
 
-	    final Test test =
-		new Test(testNumber,
-			 properties.getPropertySubset(
-			     name.substring(0,nextSeparator + 1)));
+	while (testSetIterator.hasNext())
+	{
+	    final TestDefinition test = (TestDefinition)testSetIterator.next();
+	    final Integer testNumber = test.getTestNumber();
 
-	    m_tests.put(testNumber, test);
+	    final String sleepTimePropertyName =
+		PropertiesTestSet.getTestPropertyName(testNumber, "sleepTime");
+
+	    final long sleepTime =
+		properties.getInt(sleepTimePropertyName, -1);
+
+	    m_tests.put(test.getTestNumber(), new TestData(test, sleepTime));
 	}
     }
     
@@ -255,18 +264,27 @@ public class GrinderProcess
 		new PluginContextImplementation(m_pluginParameters,
 						m_hostID, m_jvmID, i);
 
-	    runnable[i] = new GrinderThread(m_pluginClass, pluginContext,
+	    final GrinderPlugin pluginInstance;
+
+	    try {
+		pluginInstance = (GrinderPlugin)m_pluginClass.newInstance();
+	    }
+	    catch (Exception e) {
+		throw new EngineException("Cannot instantate instance of '" +
+					  m_pluginClass + "'");
+	    }
+
+	    runnable[i] = new GrinderThread(pluginInstance, pluginContext,
 					    dataPrintWriter, m_tests);
 	}
         
 	if (m_waitForConsoleSignal) {
-	    System.out.println("Grinder (" + getContextString() +
-			       ") waiting for console signal");
+	    System.out.println(getContextString() +
+			       " waiting for console signal");
 	    waitForSignal();
 	}
 
-	System.out.println("Grinder (" + getContextString() +
-			   ") starting threads");
+	System.out.println(getContextString() + ") starting threads");
 
 	//   Start the threads
 	for (int i=0; i<m_numberOfThreads; i++) {
@@ -289,7 +307,7 @@ public class GrinderProcess
 		while (testIterator.hasNext()) {
 		    final Map.Entry entry = (Map.Entry)testIterator.next();
 		    final Integer testNumber = (Integer)entry.getKey();
-		    final Test test = (Test)entry.getValue();
+		    final TestData test = (TestData)entry.getValue();
 
 		    final TestStatistics delta =
 			test.getStatistics().getDelta(true);
@@ -329,7 +347,7 @@ public class GrinderProcess
 	    dataPrintWriter.close();
 	}
 
-	System.out.println("Grinder (" + getContextString() +
+	System.out.println(getContextString() +
 			   ") finished");
 
  	System.out.println("Final statistics for this process:");
@@ -362,7 +380,7 @@ public class GrinderProcess
 
     private String getContextString()
     {
-	return "Host " + m_hostID + " JVM " + m_jvmID;
+	return "Grinder (host " + m_hostID + " JVM " + m_jvmID + ")";
     }
 }
 

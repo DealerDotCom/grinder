@@ -45,7 +45,7 @@ class TestStatisticsTable
 	final Iterator testIterator = m_tests.values().iterator();
 
 	while (testIterator.hasNext()) {
-	    final Test test = (Test)testIterator.next();
+	    final TestData test = (TestData)testIterator.next();
 	    m_totals.add(test.getStatistics());
 	}
     }
@@ -66,7 +66,7 @@ class TestStatisticsTable
 	while (testIterator.hasNext()) {
 	    final Map.Entry entry = (Map.Entry)testIterator.next();
 	    final Integer testNumber = (Integer)entry.getKey();
-	    final Test test = (Test)entry.getValue();
+	    final TestData test = (TestData)entry.getValue();
 
 	    StringBuffer output = formatLine(test.toString(),
 					     test.getStatistics());

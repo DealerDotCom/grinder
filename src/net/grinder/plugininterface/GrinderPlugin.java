@@ -30,12 +30,6 @@ import net.grinder.util.GrinderProperties;
  */ 
 public interface GrinderPlugin
 {
-    public interface Test
-    {
-	public String getDescription();
-	public GrinderProperties getParameters();
-    }
-    
     /**
      * This method is executed the first time the plug-in is loaded. It
      * is only executed once.

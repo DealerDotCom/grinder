@@ -32,40 +32,37 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-class Test implements TestDefinition
+class TestData implements TestDefinition
 {
-    private final Integer m_testNumber;
-    private final String m_description;
-    private final int m_sleepTime;
-    private final GrinderProperties m_parameters;
+    private final TestDefinition m_testDefinition;
+    
+    private final long m_sleepTime;
     private final TestStatistics m_statistics = new TestStatistics();
 
-    public Test(Integer testNumber, GrinderProperties testProperties)
+    public TestData(TestDefinition testDefinition, long sleepTime)
     {
-	m_testNumber = testNumber;
-	m_description = testProperties.getProperty("description", null);
-	m_sleepTime = testProperties.getInt("sleepTime", -1);
-	m_parameters = testProperties.getPropertySubset("parameter.");
+	m_testDefinition = testDefinition;
+	m_sleepTime = sleepTime;
     }
 
     public Integer getTestNumber()
     {
-	return m_testNumber;
+	return m_testDefinition.getTestNumber();
     }
 
     public String getDescription()
     {
-	return m_description;
+	return m_testDefinition.getDescription();
     }
 
-    public int getSleepTime()
+    public long getSleepTime()
     {
 	return m_sleepTime;
     }
 
     public GrinderProperties getParameters()
     {
-	return m_parameters;
+	return m_testDefinition.getParameters();
     }
 
     public TestStatistics getStatistics() 
@@ -75,6 +72,6 @@ class Test implements TestDefinition
 
     public String toString() 
     {
-	return "Test " + m_testNumber;
+	return "Test " + getTestNumber();
     }
 }
