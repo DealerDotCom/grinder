@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,7 +31,7 @@ import net.grinder.common.GrinderException;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 final class ThreadSafeQueue {
 
   private LinkedList m_messages = new LinkedList();
@@ -50,7 +50,7 @@ final class ThreadSafeQueue {
    * @param item The object.
    * @exception ShutdownException If the queue has been shutdown.
    * @see #shutdown
-   **/
+   */
   public void queue(Object item) throws ShutdownException {
     synchronized (getMutex()) {
       checkIfShutdown();
@@ -67,7 +67,7 @@ final class ThreadSafeQueue {
    * message is available.
    * @exception ShutdownException If the queue has been shutdown.
    * @see #shutdown
-   **/
+   */
   public Object dequeue(boolean block) throws ShutdownException {
     synchronized (getMutex()) {
       while (!m_shutdown && block && m_messages.size() == 0) {
@@ -92,9 +92,9 @@ final class ThreadSafeQueue {
   }
 
   /**
-   * Shutdown the <code>MessageQueue</code>. Any <code>Objects</code>
+   * Shutdown the <code>ThreadSafeQueue</code>. Any <code>Objects</code>
    * in the queue are discarded.
-   **/
+   */
   public void shutdown() {
     synchronized (getMutex()) {
       m_shutdown = true;
@@ -124,7 +124,7 @@ final class ThreadSafeQueue {
 
   private void checkIfShutdown() throws ShutdownException {
     if (m_shutdown) {
-      throw new ShutdownException("MessageQueue shutdown");
+      throw new ShutdownException("ThreadSafeQueue shutdown");
     }
   }
 
@@ -134,7 +134,7 @@ final class ThreadSafeQueue {
    * because typically callers want to propagate
    * <code>ShutdownException</code>s but handle
    * <code>CommunicationException</code>s locally.
-   **/
+   */
   static final class ShutdownException extends GrinderException {
     private ShutdownException(String s) {
       super(s);
