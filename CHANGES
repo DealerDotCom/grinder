@@ -1,6 +1,11 @@
 Grinder 2.6.2
 -------------
 
+  Added support for HTTP basic authentication. You can now use two new
+  HTTP plugin test parameters, basicAuthenticationUser and
+  basicAuthenticationPassword, to specify the appropriate parameters
+  for each request. See README for details.
+
   New HTTP plugin parameter: timeIncludesTransaction. By default the
   time that the HTTP plugin reports is the time it takes for the
   remote server to accept the connection request. When using the times

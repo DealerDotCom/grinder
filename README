@@ -14,6 +14,10 @@ General Public License for more details.
 
 Please see the file COPYING for details of the General Public License.
 
+This software uses software from the W3C's PICS project. See the file
+etc/w3c-liense.html for details of the license.
+
+
 
 What is it?
 ***********
@@ -363,13 +367,21 @@ What can I set in grinder.properties for the HTTP plugin?
 				should be a date of the form
 				Sat, 06 Jan 2001 13:36:39 GMT.
 
+    grinder.test0.parameter.basicAuthenticationUser -
+    grinder.test0.parameter.basicAuthenticationPassword -
+				Used togther, these specify an HTTP
+				basic authentication header that will
+				be sent with the request. The values
+				can be varied using a String Bean, see
+				"What's a String Bean?" below.
 
 What's a String Bean?
 *********************
 
 When using the HTTP plugin, it is often necessary to parametrise parts
-of URL's and POST data. The easy way to do this is to use a "String
-Bean" - a Java Bean that returns Strings from its "get" methods.
+of URL's, POST data, and other request strings. The easy way to do
+this is to use a "String Bean" - a Java Bean that returns Strings from
+its "get" methods.
 
 For example, supporse you wanted to modify the URL
 "http://myhost/test.jsp?n=1" such that n is set to a random number

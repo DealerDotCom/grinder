@@ -3,7 +3,9 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 that too :-). The list is roughly in priority order.]
 
-  Add support for HTTP authentication.
+  Fix norewriteURLs
+
+  Fix layout of TPS.
 
   More documentation - both user level and javadoc. Volunteers please!
 

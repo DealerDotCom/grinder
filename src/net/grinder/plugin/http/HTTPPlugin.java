@@ -39,6 +39,7 @@ import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
+import w3c.tools.codec.Base64Encoder;
 
 
 /**
@@ -69,9 +70,11 @@ public class HttpPlugin extends SimplePluginBase
     protected class CallData implements HttpRequestData
     {
 	private String m_urlString;
-	private  String m_okString;
+	private String m_okString;
 	private long m_ifModifiedSince = -1;
-	private String m_postString = null;
+	private String m_postString;
+	private final String m_basicAuthorizationUserString;
+	private final String m_basicAuthorizationPasswordString;
 	private final StringBuffer m_buffer = new StringBuffer();
 	private final Test m_test;
 	private Object[] m_noArgs = new Object[0];
@@ -136,7 +139,13 @@ public class HttpPlugin extends SimplePluginBase
 
 		    e.printStackTrace(System.err);
 		}
-	    }	    
+	    }
+
+	    m_basicAuthorizationUserString =
+		testParameters.getProperty("basicAuthorizationUser", null);
+
+	    m_basicAuthorizationPasswordString =
+		testParameters.getProperty("basicAuthorizationPassword", null);
 	}
 
 	private String replaceDynamicKeys(String original) 
@@ -212,6 +221,25 @@ public class HttpPlugin extends SimplePluginBase
 	    throws PluginException
 	{
 	    return replaceDynamicKeys(m_postString);
+	}
+
+	public String getAuthorizationString()
+	    throws PluginException
+	{
+	    if (m_basicAuthorizationUserString == null ||
+		m_basicAuthorizationPasswordString == null) {
+		return null;
+	    }
+
+	    final String user =
+		replaceDynamicKeys(m_basicAuthorizationUserString);
+
+	    final String password =
+		replaceDynamicKeys(m_basicAuthorizationPasswordString);
+	    
+	    return
+		"Basic " +
+		new Base64Encoder(user + ":" + password).processString();
 	}
 
 	public String getContextURLString() { return null; }

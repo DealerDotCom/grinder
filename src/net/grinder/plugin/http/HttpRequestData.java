@@ -29,9 +29,10 @@ import net.grinder.plugininterface.PluginException;
  * @version $Revision$
  */
 public interface HttpRequestData {
-    public String getURLString() throws PluginException;
+    public String getAuthorizationString() throws PluginException;
     public String getContextURLString();
     public String getPostString() throws PluginException;
+    public String getURLString() throws PluginException;
     public long getIfModifiedSince();
 }
 

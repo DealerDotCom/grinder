@@ -113,6 +113,14 @@ class HttpMsg
 	    connection.setIfModifiedSince(ifModifiedSince);
 	}
 
+	final String authorizationString =
+	    requestData.getAuthorizationString();
+
+	if (authorizationString != null) {
+	    connection.setRequestProperty("Authorization",
+					  authorizationString);
+	}
+
 	// Optionally stop URLConnection from handling http 302
 	// forwards, because these contain the cookie when handling
 	// web app form based authentication.
