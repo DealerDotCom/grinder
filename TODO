@@ -176,8 +176,6 @@ Review use of InterruptedException
 
 Shouldn't really throw GrinderException anywhere.
 
-Rename CallRecorder.assertNotCalled() to assertNoMoreCalls().
-
 ** Other HTTP/HTML libraries
 
 DeSouza, Edwin writes:

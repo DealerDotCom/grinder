@@ -98,16 +98,16 @@ public class TestPluginRegistryImplementation extends TestCase {
     assertEquals(scriptContext, registeredPlugin.getScriptContext());
 
     skipHashCodeCalls(grinderPluginStubFactory);
-    grinderPluginStubFactory.assertNotCalled();
+    grinderPluginStubFactory.assertNoMoreCalls();
 
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
-    loggerStubFactory.assertNotCalled();
+    loggerStubFactory.assertNoMoreCalls();
 
     pluginRegistry.register(grinderPlugin);
 
     skipHashCodeCalls(grinderPluginStubFactory);
-    grinderPluginStubFactory.assertNotCalled();
-    loggerStubFactory.assertNotCalled();
+    grinderPluginStubFactory.assertNoMoreCalls();
+    loggerStubFactory.assertNoMoreCalls();
   }
 
   private static final CallData skipHashCodeCalls(CallRecorder callRecorder) {

@@ -877,11 +877,11 @@ public class TestHTTPRequest extends TestCase {
     final String message = (String)loggerCall.getParameters()[0];
     assertTrue(message.indexOf("200") >= 0);
     assertEquals(-1, message.indexOf("Redirect"));
-    loggerStubFactory.assertNotCalled();
+    loggerStubFactory.assertNoMoreCalls();
 
     m_statisticsStubFactory.assertSuccess(
       "availableForUpdate", new Object[0], Boolean.FALSE);
-    m_statisticsStubFactory.assertNotCalled();
+    m_statisticsStubFactory.assertNoMoreCalls();
 
     handler.setStatusString("302 Moved Temporarily");
     m_statisticsStubFactory.setResult("availableForUpdate", Boolean.TRUE);
@@ -893,7 +893,7 @@ public class TestHTTPRequest extends TestCase {
     final String message2 = (String)loggerCall2.getParameters()[0];
     assertTrue(message2.indexOf("302") >= 0);
     assertTrue(message2.indexOf("Redirect") >= 0);
-    loggerStubFactory.assertNotCalled();
+    loggerStubFactory.assertNoMoreCalls();
 
     final HTTPPlugin httpPlugin = HTTPPlugin.getPlugin();
 
@@ -908,7 +908,7 @@ public class TestHTTPRequest extends TestCase {
       "setValue",
       new Object[] { httpPlugin.getResponseStatusIndex(), new Long(302), });
 
-    m_statisticsStubFactory.assertNotCalled();
+    m_statisticsStubFactory.assertNoMoreCalls();
 
     handler.setStatusString("400 Bad Request");
 
@@ -918,7 +918,7 @@ public class TestHTTPRequest extends TestCase {
     assertEquals("output", loggerCall3.getMethodName());
     final String message3 = (String)loggerCall3.getParameters()[0];
     assertTrue(message3.indexOf("400") >= 0);
-    loggerStubFactory.assertNotCalled();
+    loggerStubFactory.assertNoMoreCalls();
 
     m_statisticsStubFactory.assertSuccess(
       "availableForUpdate", new Object[0], Boolean.TRUE);
@@ -935,7 +935,7 @@ public class TestHTTPRequest extends TestCase {
       "addValue",
       new Object[] { httpPlugin.getResponseErrorsIndex(), new Long(1), });
 
-    m_statisticsStubFactory.assertNotCalled();
+    m_statisticsStubFactory.assertNoMoreCalls();
   }
 
   public final void testSubclassProcessResponse() throws Exception {

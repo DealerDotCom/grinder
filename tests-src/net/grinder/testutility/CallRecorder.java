@@ -71,7 +71,7 @@ public class CallRecorder extends Assert {
   /**
    *  Check that no methods have been called.
    */
-  public final void assertNotCalled() {
+  public final void assertNoMoreCalls() {
     assertEquals("Call history:\n" + getCallHistory(),
                  0, m_callDataList.size());
   }

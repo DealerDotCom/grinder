@@ -58,13 +58,13 @@ public class TestTeeSender extends TestCase {
     sender1StubFactory.assertSuccess("send", new Object[] { m2 });
     sender1StubFactory.assertSuccess("send", new Object[] { m2 });
     sender1StubFactory.assertSuccess("shutdown", new Object[] { });
-    sender1StubFactory.assertNotCalled();
+    sender1StubFactory.assertNoMoreCalls();
 
     sender2StubFactory.assertSuccess("send", new Object[] { m1 });
     sender2StubFactory.assertSuccess("send", new Object[] { m2 });
     sender2StubFactory.assertSuccess("send", new Object[] { m2 });
     sender2StubFactory.assertSuccess("shutdown", new Object[] { });
-    sender2StubFactory.assertNotCalled();
+    sender2StubFactory.assertNoMoreCalls();
   }
 
   final class BadSender implements Sender {
@@ -116,7 +116,7 @@ public class TestTeeSender extends TestCase {
     }
 
     goodSenderStubFactory.assertSuccess("send", new Object[] { m });
-    goodSenderStubFactory.assertNotCalled();
+    goodSenderStubFactory.assertNoMoreCalls();
 
     try {
       teeSender1.shutdown();
@@ -127,7 +127,7 @@ public class TestTeeSender extends TestCase {
     }
 
     goodSenderStubFactory.assertSuccess("shutdown", new Object[] {});
-    goodSenderStubFactory.assertNotCalled();
+    goodSenderStubFactory.assertNoMoreCalls();
 
     // goodSender is second, so will never be invoked.
     final TeeSender teeSender2 = new TeeSender(badSender, goodSender);
@@ -140,7 +140,7 @@ public class TestTeeSender extends TestCase {
       assertSame(exceptionToThrowFromSend, e);
     }
 
-    goodSenderStubFactory.assertNotCalled();
+    goodSenderStubFactory.assertNoMoreCalls();
 
     try {
       teeSender2.shutdown();
@@ -150,6 +150,6 @@ public class TestTeeSender extends TestCase {
       assertSame(exceptionToThrowFromShutdown, e);
     }
 
-    goodSenderStubFactory.assertNotCalled();
+    goodSenderStubFactory.assertNoMoreCalls();
   }
 }

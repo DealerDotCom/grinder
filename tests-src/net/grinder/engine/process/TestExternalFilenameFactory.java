@@ -56,14 +56,14 @@ public class TestExternalFilenameFactory extends TestCase {
 
     filenameFactoryStubFactory.assertSuccess(
       "createFilename", new Object[] { "Prefix" }, result1);
-    filenameFactoryStubFactory.assertNotCalled();
+    filenameFactoryStubFactory.assertNoMoreCalls();
 
     final String result2 =
       externalFilenameFactory.createFilename("Prefix", "Suffix");
 
     filenameFactoryStubFactory.assertSuccess(
       "createFilename", new Object[] { "Prefix", "Suffix" }, result2);
-    filenameFactoryStubFactory.assertNotCalled();
+    filenameFactoryStubFactory.assertNoMoreCalls();
   }
 
   public void testSeveralFilenameFactories() throws Exception {
@@ -104,16 +104,16 @@ public class TestExternalFilenameFactory extends TestCase {
     final String result1 = externalFilenameFactory.createFilename("p");
     threadFilenameFactoryStubFactory1.assertSuccess(
       "createFilename", new Object[] { "p" }, result1);
-    processFilenameFactoryStubFactory.assertNotCalled();
-    threadFilenameFactoryStubFactory1.assertNotCalled();
-    threadFilenameFactoryStubFactory2.assertNotCalled();
+    processFilenameFactoryStubFactory.assertNoMoreCalls();
+    threadFilenameFactoryStubFactory1.assertNoMoreCalls();
+    threadFilenameFactoryStubFactory2.assertNoMoreCalls();
 
     final String result2 = externalFilenameFactory.createFilename("p", "s");
     threadFilenameFactoryStubFactory1.assertSuccess(
       "createFilename", new Object[] { "p", "s" }, result2);
-    processFilenameFactoryStubFactory.assertNotCalled();
-    threadFilenameFactoryStubFactory1.assertNotCalled();
-    threadFilenameFactoryStubFactory2.assertNotCalled();
+    processFilenameFactoryStubFactory.assertNoMoreCalls();
+    threadFilenameFactoryStubFactory1.assertNoMoreCalls();
+    threadFilenameFactoryStubFactory2.assertNoMoreCalls();
 
     threadContextLocator.set(null);
 
@@ -121,9 +121,9 @@ public class TestExternalFilenameFactory extends TestCase {
       externalFilenameFactory.createFilename("foo", "bah");
     processFilenameFactoryStubFactory.assertSuccess(
       "createFilename", new Object[] { "foo", "bah" }, result3);
-    processFilenameFactoryStubFactory.assertNotCalled();
-    threadFilenameFactoryStubFactory1.assertNotCalled();
-    threadFilenameFactoryStubFactory2.assertNotCalled();
+    processFilenameFactoryStubFactory.assertNoMoreCalls();
+    threadFilenameFactoryStubFactory1.assertNoMoreCalls();
+    threadFilenameFactoryStubFactory2.assertNoMoreCalls();
   }
 
   public void testMultithreaded() throws Exception {
@@ -152,7 +152,7 @@ public class TestExternalFilenameFactory extends TestCase {
       assertTrue(threads[i].getOK());
     }
 
-    processFilenameFactoryStubFactory.assertNotCalled();
+    processFilenameFactoryStubFactory.assertNoMoreCalls();
   } 
 
   private static class TestThread extends Thread {
@@ -191,7 +191,7 @@ public class TestExternalFilenameFactory extends TestCase {
 
         threadFilenameFactoryStubFactory.assertSuccess(
           "createFilename", new Object[] { "xxx" }, result2);
-        threadFilenameFactoryStubFactory.assertNotCalled();
+        threadFilenameFactoryStubFactory.assertNoMoreCalls();
       }
 
       m_ok = true;

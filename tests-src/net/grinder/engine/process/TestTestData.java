@@ -100,7 +100,7 @@ public class TestTestData extends TestCase {
     threadContextStubFactory.assertSuccess(
       "invokeTest", new Object[] { testData, invokeable}, o );
 
-    threadContextStubFactory.assertNotCalled();
+    threadContextStubFactory.assertNoMoreCalls();
   }
 
   /**

@@ -111,14 +111,14 @@ public class TestRegisteredPlugin extends TestCase {
     threadContextStubFactory.assertSuccess(
       "getPluginThreadContext", new Object[0]);
     threadContextStubFactory.assertSuccess("getThreadLogger", new Object[0]);
-    threadContextStubFactory.assertNotCalled();
+    threadContextStubFactory.assertNoMoreCalls();
 
     grinderPluginStubFactory.assertFailed(
       "createThreadListener",
       new Class[] { PluginThreadContext.class },
       PluginException.class);
 
-    grinderPluginStubFactory.assertNotCalled();
+    grinderPluginStubFactory.assertNoMoreCalls();
 
     grinderPluginStubFactory.setThrowExceptionFromCreateThreadListener(false);
 
@@ -133,8 +133,8 @@ public class TestRegisteredPlugin extends TestCase {
     final PluginThreadListener pluginThreadListener2 =
       registeredPlugin.getPluginThreadListener();
 
-    threadContextStubFactory.assertNotCalled();
-    grinderPluginStubFactory.assertNotCalled();
+    threadContextStubFactory.assertNoMoreCalls();
+    grinderPluginStubFactory.assertNoMoreCalls();
 
     assertSame(pluginThreadListener1, pluginThreadListener2);
 

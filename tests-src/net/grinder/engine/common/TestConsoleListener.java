@@ -62,7 +62,7 @@ public class TestConsoleListener extends TestCase {
     final Sender sender = listener0.getSender();
     assertNotNull(sender);
 
-    m_loggerFactory.assertNotCalled();
+    m_loggerFactory.assertNoMoreCalls();
   }
 
   public void testSendNotification() throws Exception {
@@ -97,7 +97,7 @@ public class TestConsoleListener extends TestCase {
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
     m_loggerFactory.assertSuccess("error", new Class[] { String.class });
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
-    m_loggerFactory.assertNotCalled();
+    m_loggerFactory.assertNoMoreCalls();
 
     assertFalse(listener.checkForMessage(ConsoleListener.ANY ^
                                          (ConsoleListener.START |
@@ -129,14 +129,14 @@ public class TestConsoleListener extends TestCase {
 
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
-    m_loggerFactory.assertNotCalled();
+    m_loggerFactory.assertNoMoreCalls();
 
     assertTrue(listener.checkForMessage(ConsoleListener.RESET |
                                         ConsoleListener.START));
     sender.send(new ResetGrinderMessage());
 
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
-    m_loggerFactory.assertNotCalled();
+    m_loggerFactory.assertNoMoreCalls();
 
     assertTrue(listener.checkForMessage(ConsoleListener.RESET |
                                         ConsoleListener.START));
@@ -195,7 +195,7 @@ public class TestConsoleListener extends TestCase {
     m_loggerFactory.assertSuccess("output",
                                   new Class[] { String.class, Integer.class });
 
-    m_loggerFactory.assertNotCalled();
+    m_loggerFactory.assertNoMoreCalls();
 
     assertFalse(listener.checkForMessage(ConsoleListener.ANY ^
                                           ConsoleListener.SHUTDOWN));

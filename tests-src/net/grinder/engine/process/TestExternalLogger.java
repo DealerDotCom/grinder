@@ -54,7 +54,7 @@ public class TestExternalLogger extends TestCase {
 
     processLoggerFactory.assertSuccess("output",
                                        new Object[] { "Hello" }, null);
-    processLoggerFactory.assertNotCalled();
+    processLoggerFactory.assertNoMoreCalls();
 
     externalLogger.error("Hello again", Logger.TERMINAL);
 
@@ -62,7 +62,7 @@ public class TestExternalLogger extends TestCase {
       "error", new Object[] { "Hello again", new Integer(Logger.TERMINAL) },
       null);
 
-    processLoggerFactory.assertNotCalled();
+    processLoggerFactory.assertNoMoreCalls();
 
     final Object errorLogWriter = externalLogger.getErrorLogWriter();
     processLoggerFactory.assertSuccess("getErrorLogWriter", new Object[] {},
@@ -109,17 +109,17 @@ public class TestExternalLogger extends TestCase {
       new Object[] { "Testing", new Integer(Logger.LOG | Logger.TERMINAL) },
       null);
 
-    processLoggerFactory.assertNotCalled();
-    threadLoggerFactory1.assertNotCalled();
-    threadLoggerFactory2.assertNotCalled();
+    processLoggerFactory.assertNoMoreCalls();
+    threadLoggerFactory1.assertNoMoreCalls();
+    threadLoggerFactory2.assertNoMoreCalls();
 
     final Object errorLogWriter = externalLogger.getErrorLogWriter();
     threadLoggerFactory1.assertSuccess(
       "getErrorLogWriter", new Object[] {}, errorLogWriter);
 
-    processLoggerFactory.assertNotCalled();
-    threadLoggerFactory1.assertNotCalled();
-    threadLoggerFactory2.assertNotCalled();
+    processLoggerFactory.assertNoMoreCalls();
+    threadLoggerFactory1.assertNoMoreCalls();
+    threadLoggerFactory2.assertNoMoreCalls();
 
     threadContextLocator.set(null);
 
@@ -127,9 +127,9 @@ public class TestExternalLogger extends TestCase {
     processLoggerFactory.assertSuccess(
       "error", new Object[] { "Another test" }, null);
 
-    processLoggerFactory.assertNotCalled();
-    threadLoggerFactory1.assertNotCalled();
-    threadLoggerFactory2.assertNotCalled();
+    processLoggerFactory.assertNoMoreCalls();
+    threadLoggerFactory1.assertNoMoreCalls();
+    threadLoggerFactory2.assertNoMoreCalls();
   }
 
   public void testMultithreaded() throws Exception {
@@ -155,7 +155,7 @@ public class TestExternalLogger extends TestCase {
       assertTrue(threads[i].getOK());
     }
 
-    processLoggerFactory.assertNotCalled();
+    processLoggerFactory.assertNoMoreCalls();
   } 
 
   private static class TestThread extends Thread {
@@ -192,7 +192,7 @@ public class TestExternalLogger extends TestCase {
         threadLoggerFactory.assertSuccess(
           "getOutputLogWriter", new Object[] {}, outputLogWriter);
 
-        threadLoggerFactory.assertNotCalled();
+        threadLoggerFactory.assertNoMoreCalls();
       }
 
       m_ok = true;

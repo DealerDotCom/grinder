@@ -89,7 +89,7 @@ public class TestProcessLauncher extends TestCase {
     assertEquals(1, parameters.length);
     final String s = (String)parameters[0];
     assertTrue(s.indexOf(childProcess.getProcessName()) >= 0);
-    loggerStubFactory.assertNotCalled();
+    loggerStubFactory.assertNoMoreCalls();
 
     processLauncher.startSomeProcesses(10);
     assertEquals(4, myProcessFactory.getLastProcessIndex());
@@ -98,7 +98,7 @@ public class TestProcessLauncher extends TestCase {
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
-    loggerStubFactory.assertNotCalled();
+    loggerStubFactory.assertNoMoreCalls();
 
     assertEquals(5, myProcessFactory.getChildProcesses().size());
 

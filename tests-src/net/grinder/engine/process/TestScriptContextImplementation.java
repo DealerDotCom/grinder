@@ -174,7 +174,7 @@ public class TestScriptContextImplementation extends TestCase {
     final RegisterStatisticsViewMessage message =
       (RegisterStatisticsViewMessage)parameters[0];
     assertEquals(statisticsView, message.getStatisticsView());
-    queuedSenderStubFactory.assertNotCalled();
+    queuedSenderStubFactory.assertNoMoreCalls();
 
     final ExpressionView[] summaryExpressionViews =
       CommonStatisticsViews.getSummaryStatisticsView().getExpressionViews();
