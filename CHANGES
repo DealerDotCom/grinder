@@ -15,8 +15,13 @@ Grinder 2.1
   now be specified. All sleep times are now randomly varied according
   to a Normal distribution. See README for details.
 
-  The HttpPluginSnifferFilter has been updated to record sleep times
-  and reflect the property format changes.
+  The HttpPlugin now supports an "ifModifiedSince" parameter. This
+  translates to the HTTP "If-Modified-Since" request header. This
+  allows the grinder to simulate the mechanism browsers use to check
+  for cached pages.
+
+  The HttpPluginSnifferFilter has been updated to record sleep times,
+  If-Modified-Since headers, and reflect the property format changes.
 
   The logging of the HTTP plugin has been improved.
 

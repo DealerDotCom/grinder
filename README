@@ -203,6 +203,14 @@ What can I set in grinder.properties for the HTTP plugin?
 				Specify a file containing POST data to
 			 	send.
 
+    grinder.test0.parameter.ifModifiedSince -
+				This appears in the HTTP
+			 	"If-Modified-Since" request header,
+			 	allowing the grinder to simulate the
+			 	a browser's caching of pages. Its value
+				should be a date of the form
+				Sat, 06 Jan 2001 13:36:39 GMT.
+
 
 How do I use the HTTPS plugin?
 ******************************

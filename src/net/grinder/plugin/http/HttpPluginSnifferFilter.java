@@ -23,10 +23,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.apache.regexp.RE;
 import org.apache.regexp.RESyntaxException;
@@ -54,9 +50,6 @@ public class HttpPluginSnifferFilter implements SnifferFilter
      */
     private static SessionState s_sessionState = new SessionState();
     private EchoFilter m_echoFilter = new EchoFilter();
-
-    private final DateFormat m_dateFormat =
-	new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss zzz");
 
     public void handle(ConnectionDetails connectionDetails, byte[] buffer,
 		       int bytesRead)
@@ -125,16 +118,8 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	    getHeaderExpression("If-Modified-Since");
 
 	if (ifModifiedExpression.match(request)) {
-	    try {
-		final Date date =
-		    m_dateFormat.parse(ifModifiedExpression.getParen(1));
-	
-		outputProperty(requestNumber, "parameter.ifModifiedSince",
-			       Long.toString(date.getTime()));
-	    }
-	    catch (ParseException e) {
-		System.err.println(e);
-	    }
+	    outputProperty(requestNumber, "parameter.ifModifiedSince",
+			   ifModifiedExpression.getParen(1));
 	}
     }
 

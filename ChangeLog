@@ -1,5 +1,10 @@
 2001-01-23  Philip Aston  <paston@beasys.com>
 
+ 	* src/net/grinder/plugin/http/HttpPlugin.java: 
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java:
+		The If-Modified-Since date in grinder.properties
+		is now human parse-able.
+
 	* build.xml: 
 		Simplify and update.
 

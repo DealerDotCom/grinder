@@ -23,6 +23,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import net.grinder.plugininterface.PluginContext;
@@ -48,6 +52,8 @@ public class HttpPlugin implements GrinderPlugin
     private boolean m_logHTML = true;
     private HttpMsg m_httpMsg = null;
     private int m_currentIteration = 0; // How many times we've done all the URL's
+    private final DateFormat m_dateFormat =
+	new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss zzz");
 
     /**
      * Inner class that holds the data for a call.
@@ -55,9 +61,9 @@ public class HttpPlugin implements GrinderPlugin
     protected class CallData implements HttpRequestData
     {
 	private String m_urlString;
-	private String m_postString;
-	private String m_okString;
-	private long m_ifModifiedSince;
+	private  String m_okString;
+	private long m_ifModifiedSince = -1;
+	private String m_postString = null;
     
 	public CallData(TestDefinition test)
 	{
@@ -65,7 +71,23 @@ public class HttpPlugin implements GrinderPlugin
 
 	    m_urlString = testParameters.getProperty("url", null);
 	    m_okString = testParameters.getProperty("ok", null);
-	    m_ifModifiedSince = testParameters.getLong("ifModifiedSince", -1);
+
+	    final String ifModifiedSinceString =
+		testParameters.getProperty("ifModifiedSince", null);
+
+	    if (ifModifiedSinceString != null) {
+		try {
+		    final Date date =
+			m_dateFormat.parse(ifModifiedSinceString);
+	
+		    m_ifModifiedSince = date.getTime();
+		}
+		catch (ParseException e) {
+		    m_pluginContext.logError(
+			"Couldn't parse ifModifiedSince date '" +
+			ifModifiedSinceString + "'");
+		}
+	    }
 
 	    final String postFilename =
 		testParameters.getProperty("post", null);
@@ -104,6 +126,7 @@ public class HttpPlugin implements GrinderPlugin
 
 	protected void setURLString(String s) { m_urlString = s; }
 	protected void setPostString(String s) { m_postString = s; }
+	protected void setIfModifiedSince(long l) { m_ifModifiedSince = l; }
 	protected void setOKString(String s) { m_okString = s; }
     }
 
