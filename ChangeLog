@@ -1,3 +1,20 @@
+2003-12-03  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/TestData.java: Document subtlety.
+
+	* TODO: More to do.
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java:
+	Record User-Agent.
+
+	* xdoc/g3/faq-xhtml.xml: Cross-reference grinder.duration.
+
+	* src/net/grinder/engine/process/TestData.java: Checkstyle.
+
+	* src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestPyFinalizableInstance.java, src/net/grinder/engine/process/TestPyInstance.java, src/org/python/core/ClonePyInstance.java:
+	Really correct wrapping of Jython objects that are subclassed from
+	Java objects.
+
 2003-12-02  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, src/net/grinder/engine/process/TestData.java:
