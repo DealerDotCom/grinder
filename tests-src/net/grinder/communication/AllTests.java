@@ -18,12 +18,27 @@
 
 package net.grinder.communication;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.swingui.TestRunner;
+//import junit.textui.TestRunner;
+
+
 /**
- * Marker interface for messages.
- * 
  * @author Philip Aston
  * @version $Revision$
  */
-public interface Message extends java.io.Serializable
+public class AllTests
 {
+    public static void main(String[] args)
+    {
+	TestRunner.run(AllTests.class);
+    }
+
+    public static Test suite()
+    {
+	final TestSuite suite = new TestSuite();
+	suite.addTest(new TestSuite(TestSenderAndReceiver.class));
+	return suite;
+    }
 }

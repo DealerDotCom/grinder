@@ -18,12 +18,22 @@
 
 package net.grinder.communication;
 
+import net.grinder.util.GrinderException;
+
+
 /**
- * Marker interface for messages.
- * 
  * @author Philip Aston
  * @version $Revision$
- */
-public interface Message extends java.io.Serializable
+ */ 
+public class CommunicationException extends GrinderException
 {
+    public CommunicationException(String s)
+    {
+	super(s);
+    }
+
+    public CommunicationException(String s, Exception e)
+    {
+	super(s, e);
+    }
 }

@@ -18,12 +18,23 @@
 
 package net.grinder.communication;
 
+
 /**
- * Marker interface for messages.
- * 
  * @author Philip Aston
  * @version $Revision$
  */
-public interface Message extends java.io.Serializable
+public class ReportMessage implements Message
 {
+    final TestStatistics m_statisticsDelta;
+
+    public ReportMessage(String hostIDString, String processIDString,
+			 TestStatistics statisticsDelta)
+    {
+	m_statisticsDelta = statisticsDelta;
+    }
+
+    public TestStatistics getStatisticsDelta()
+    {
+	return m_statisticsDelta;
+    }
 }

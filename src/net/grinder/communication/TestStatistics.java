@@ -18,12 +18,16 @@
 
 package net.grinder.communication;
 
+
 /**
- * Marker interface for messages.
- * 
  * @author Philip Aston
  * @version $Revision$
  */
-public interface Message extends java.io.Serializable
+public interface TestStatistics
 {
+    public long getTransactions();
+    public long getTotalTime();
+    public long getErrors();
+    public long getAbortions();
+    public double getAverageTransactionTime();
 }

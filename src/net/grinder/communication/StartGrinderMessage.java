@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
-// Copyright (C) 2000  Philip Aston
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.engine.communication;
+package net.grinder.communication;
 
 /**
  * @author Philip Aston
@@ -24,4 +24,4 @@ package net.grinder.engine.communication;
  */
 public class StartGrinderMessage implements Message
 {
-};
+}

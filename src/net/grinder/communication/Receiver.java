@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
-// Copyright (C) 2000  Philip Aston
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,11 +16,13 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.engine.communication;
+package net.grinder.communication;
 
-
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.Serializable;
+import java.io.ObjectInputStream;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 
@@ -32,33 +34,42 @@ import java.net.MulticastSocket;
  */
 public class Receiver
 {
-    /*
-    private byte[] m_buffer = new byte[1024];
+    private final byte[] m_buffer = new byte[4096];
+    private final MulticastSocket m_socket;
 
-    public Receiver()
+    public Receiver(String multicastAddressString, int multicastPort)
+	throws CommunicationException
     {
+	try {
+	    m_socket = new MulticastSocket(multicastPort);
+	    m_socket.joinGroup(InetAddress.getByName(multicastAddressString));
+	}
+	catch (IOException e) {
+	    throw new CommunicationException(
+		"Could not bind to multicast address " +
+		multicastAddressString + ":" + multicastPort, e);
+	}
     }
     
-    public Message waitForConsoleMessage() throws IOException
+    public Message waitForMessage() throws CommunicationException
     {
-    }
+	final DatagramPacket packet = new DatagramPacket(m_buffer,
+							 m_buffer.length);
 
-    public Message waitForGrinderMessage() throws IOException
-    {
-    }
+	try {
+	    m_socket.receive(packet);
 
-    public Message wait() throws IOException
-    {
-      MulticastSocket msocket = new MulticastSocket(
-        Integer.getInteger("grinder.multicastPort").intValue());
-      InetAddress group = InetAddress.getByName(
-        System.getProperty("grinder.multicastAddress"));
-      msocket.joinGroup(group);
-            
-      DatagramPacket packet = new DatagramPacket(inbuf, inbuf.length);
-      msocket.receive(packet);
-      int numBytesReceived = packet.getLength();
+	    final ByteArrayInputStream byteStream =
+		new ByteArrayInputStream(m_buffer, 0, packet.getLength());
 
+	    final ObjectInputStream objectStream =
+		new ObjectInputStream(byteStream);
+
+	    return (Message)objectStream.readObject();
+	}
+	catch (Exception e) {
+	    throw new CommunicationException(
+		"Error receving multicast packet", e);
+	}
     }
-    */
 }

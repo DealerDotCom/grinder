@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
-// Copyright (C) 2000  Philip Aston
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.engine.communication;
+package net.grinder.communication;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,46 +27,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 
-/**
- * Abuse Java API to avoid a proliferation of temporary objects.
-*
- * @author Philip Aston
- * @version $Revision$
- */
-class Serialiser
-{
-    private class MyByteArrayOutputStream extends ByteArrayOutputStream
-    {
-	public byte[] getBytes() 
-	{
-	    return buf;
-	}
-    }
-
-    private final MyByteArrayOutputStream m_byteStream =
-	new MyByteArrayOutputStream();
-
-    private final ObjectOutputStream m_out;
-
-    public Serialiser() throws IOException
-    {
-	m_out = new ObjectOutputStream(m_byteStream);
-    }
-    
-
-    public byte[] getBytes() 
-    {
-	return m_byteStream.getBytes();
-    }
-
-    public void writeObject(Serializable object) throws IOException
-    {
-	m_out.reset();
-	m_out.writeObject(object);
-	m_out.flush();
-    }
-}
-
 
 /**
  * <em>Not thread safe.</em>
@@ -76,44 +36,70 @@ class Serialiser
  */
 public class Sender
 {
-    private MulticastSocket m_localSocket;
-    private InetAddress m_multicastAddress;
+    private final MulticastSocket m_localSocket;
+    private final InetAddress m_multicastAddress;
+    private final int m_multicastPort;
 
-    private final Serialiser m_serialiser;
-
-    public Sender() throws IOException
+    public Sender(String multicastAddressString, int multicastPort)
+	throws CommunicationException
     {
-	m_serialiser = new Serialiser();
+	try {
+	    // Our socket - bind to any port.
+	    m_localSocket = new MulticastSocket();
 
-	// Our socket - bind to any port.
-	m_localSocket = new MulticastSocket();
+	    // Remote address.
+	    m_multicastAddress =
+		InetAddress.getByName(multicastAddressString);
+	}
+	catch (IOException e) {
+	    throw new CommunicationException(
+		"Could not bind to multicast address " +
+		multicastAddressString);
+	}
 
-	// Remote address.
-	m_multicastAddress =
-	    InetAddress.getByName(
-		CommunicationProperties.getMulticastAddressString());
+	m_multicastPort = multicastPort;
     }
 
-    public void sendToConsole(Message message) throws IOException
+    public void send(Message message)
+	throws CommunicationException
     {
-	send(message, CommunicationProperties.getConsoleMulticastPort());
-    }
-    
-    public void sendToGrinder(Message message) throws IOException
-    {
-	send(message, CommunicationProperties.getGrinderMulticastPort());
-    }
+	try {
+	    final MyByteArrayOutputStream byteStream =
+		new MyByteArrayOutputStream();
 
-    private void send(Message message, int port) throws IOException
-    {
-	m_serialiser.writeObject(message);
+	    final ObjectOutputStream objectStream =
+		new ObjectOutputStream(byteStream);
+	
+	    objectStream.writeObject(message);
+	    objectStream.flush();
+	
+	    final byte[] bytes = byteStream.getBytes();
 
-	final byte[] bytes = m_serialiser.getBytes();
+	    final DatagramPacket packet
+		= new DatagramPacket(bytes, bytes.length, m_multicastAddress,
+				     m_multicastPort);
 
-	final DatagramPacket packet = new DatagramPacket(bytes, bytes.length,
-							 m_multicastAddress,
-							 port); 
-
-	m_localSocket.send(packet);
+	    m_localSocket.send(packet);
+	}
+	catch (IOException e) {
+	    throw new CommunicationException(
+		"Exception whilst sending message", e);
+	}
     }
 }
+
+
+/**
+ * Abuse Java API to avoid needless proliferation of temporary
+ * objects.
+ * @author Philip Aston
+ * @version $Revision$
+ */
+class MyByteArrayOutputStream extends ByteArrayOutputStream
+{
+    public byte[] getBytes() 
+    {
+	return buf;
+    }
+}
+
