@@ -54,8 +54,8 @@ final class SocketWrapper
   private final ListenerSupport m_closedListeners = new ListenerSupport();
 
   private final ListenerSupport.Informer m_closedInformer =
-    m_closedListeners.new AbstractInformer() {
-      protected void inform(ListenerSupport.Listener listener) {
+    new ListenerSupport.Informer() {
+      public void inform(Object listener) {
         ((ClosedListener)listener).socketClosed();
       }
     };
@@ -139,7 +139,7 @@ final class SocketWrapper
 
       // Mark closed before informing listeners to prevent recursion.
       m_closed = true;
-      m_closedInformer.informListeners();
+      m_closedListeners.apply(m_closedInformer);
     }
   }
 
@@ -163,7 +163,7 @@ final class SocketWrapper
   /**
    * Socket event notification interface.
    */
-  public interface ClosedListener extends ListenerSupport.Listener {
+  public interface ClosedListener {
     void socketClosed();
   }
 

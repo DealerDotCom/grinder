@@ -37,86 +37,40 @@ public final class ListenerSupport {
   private final List m_listeners = new LinkedList();
 
   /**
-   * Marker interface for listeners.
-   */
-  public interface Listener {
-  }
-
-  /**
-   * Simple inform interface.
-   */
-  public interface Informer {
-    /**
-     * Inform the listeners that something has happened.
-     */
-    void informListeners();
-  }
-
-  /**
    * Add a listener.
    *
    * @param listener The listener.
    */
-  public void add(Listener listener) {
+  public void add(Object listener) {
     synchronized (m_listeners) {
       m_listeners.add(listener);
     }
   }
 
   /**
-   * Abstract class for notifying the listeners. Should be subclassed
-   * to perform the appropriate listener invocation in {@link
-   * #inform}.
-   *
-   * <p>If the subclass needs to pass additional state to the
-   * listener, it can do so using member state. It can synchronise on
-   * the result of {@link #getMutex} whilst doing so. For example:</p>
-   *
-   * <code>
-   *   private Foo m_foo;
-   *
-   *   public void informOfFoo(Foo foo) {
-   *     synchronized (getMutex()) {
-   *       m_foo = foo;
-   *       informListeners();
-   *     }
-   *   }
-   *
-   *  protected void inform(Listener listener) {
-   *    ((MyListener)listener).informOfFoo(m_foo);
-   *  }
-   * </code>
+   * Adapter interface for use with an {@link informListeners}.
    */
-  public abstract class AbstractInformer implements Informer {
-
+  public interface Informer {
     /**
-     * Call to notify the listeners.
+     * Should notify the listener appropriately.
+     *
+     * @param listener The listener.
      */
-    public void informListeners() {
-      synchronized (m_listeners) {
-        final Iterator iterator = m_listeners.iterator();
+    void inform(Object listener);
+  }
 
-        while (iterator.hasNext()) {
-          inform((Listener)iterator.next());
-        }
+  /**
+   * Notify the listeners of an event.
+   *
+   * @param informer An adapter to be applied to each listener.
+   */
+  public void apply(Informer informer) {
+    synchronized (m_listeners) {
+      final Iterator iterator = m_listeners.iterator();
+
+      while (iterator.hasNext()) {
+        informer.inform(iterator.next());
       }
-    }
-
-    /**
-     * Subclasses should implement this to invoke the listener appropriately.
-     *
-     * @param listener The listener to be notifed.
-     */
-    protected abstract void inform(Listener listener);
-
-    /**
-     * An object the subclass can use to protect member state it is
-     * tunnelling throught to {@link #inform}.
-     *
-     * @return A suitable lock object.
-     */
-    protected final Object getMutex() {
-      return m_listeners;
     }
   }
 }
