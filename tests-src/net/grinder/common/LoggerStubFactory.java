@@ -39,6 +39,10 @@ public class LoggerStubFactory extends StubInvocationHandler {
     super(Logger.class);
   }
 
+  protected LoggerStubFactory(Class c) {
+    super(c);
+  }
+
   public Logger getLogger() {
     return (Logger) getProxy();
   }
