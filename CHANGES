@@ -4,6 +4,8 @@ Grinder 3.0-beta4
   Correct implementation to read grinder.consolePort rather than
   grinder.console.consolePort. Thanks to Dave Tauzell for the report.
 
+  Replace mandatory properties with reasonable defaults.
+
 
 Grinder 3.0-beta3
 -----------------
