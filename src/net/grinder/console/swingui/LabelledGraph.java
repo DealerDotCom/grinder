@@ -46,22 +46,31 @@ import net.grinder.statistics.Statistics;
  */
 class LabelledGraph extends JPanel
 {
-    private static double m_peak = 0;
+    private static double s_peak = 0d;
+    private static double s_lastPeak = 0d;
 
     final static Border s_blackLine =
 	BorderFactory.createLineBorder(Color.black);
 
     private Color[] m_colors =
     {
-	new Color(0xFF, 0x00, 0x00),
-	new Color(0xFF, 0x20, 0x00),
-	new Color(0xFF, 0x40, 0x00),
-	new Color(0xFF, 0x60, 0x00),
-	new Color(0xFF, 0x80, 0x00),
-	new Color(0xFF, 0xA0, 0x00),
-	new Color(0xFF, 0xC0, 0x00),
-	new Color(0xFF, 0xE0, 0x00),
 	new Color(0xFF, 0xFF, 0x00),
+	new Color(0xFF, 0xF0, 0x00),
+	new Color(0xFF, 0xE0, 0x00),
+	new Color(0xFF, 0xD0, 0x00),
+	new Color(0xFF, 0xC0, 0x00),
+	new Color(0xFF, 0xB0, 0x00),
+	new Color(0xFF, 0xA0, 0x00),
+	new Color(0xFF, 0x90, 0x00),
+	new Color(0xFF, 0x80, 0x00),
+	new Color(0xFF, 0x70, 0x00),
+	new Color(0xFF, 0x60, 0x00),
+	new Color(0xFF, 0x50, 0x00),
+	new Color(0xFF, 0x40, 0x00),
+	new Color(0xFF, 0x30, 0x00),
+	new Color(0xFF, 0x20, 0x00),
+	new Color(0xFF, 0x10, 0x00),
+	new Color(0xFF, 0x00, 0x00),
     };
 
     private Color m_color;
@@ -168,11 +177,11 @@ class LabelledGraph extends JPanel
     public void add(double tps, double averageTPS, double peakTPS,
 		    Statistics total)
     {
-	m_graph.setMaximum(peakTPS);
-	m_graph.setColor(calculateColour(tps));
-	m_graph.add(tps);
-
 	final double responseTime = total.getAverageTransactionTime();
+
+	m_graph.setMaximum(peakTPS);
+	m_graph.setColor(calculateColour(responseTime));
+	m_graph.add(tps);
 
 	if (!Double.isNaN(responseTime)) {
 	    m_responseTimeLabel.set(responseTime);
@@ -190,17 +199,17 @@ class LabelledGraph extends JPanel
 	m_abortionsLabel.set(total.getAbortions());
     }
 
-    private Color calculateColour(double tps)
+    private Color calculateColour(double time)
     {
 	if (m_color != null) {
 	    return m_color;
 	}
 	else {
-	    if (tps > m_peak) { // Not worth the cost of synchornization.
-		m_peak = tps;
+	    if (time > s_peak) { // Not worth the cost of synchornization.
+		s_peak = time;
 	    }
 
-	    final int colorIndex = (int)(m_colors.length * (tps/m_peak));
+	    final int colorIndex = (int)(m_colors.length * (time/s_lastPeak));
 
 	    if (colorIndex >= m_colors.length) {
 		return m_colors[m_colors.length - 1];
@@ -212,6 +221,7 @@ class LabelledGraph extends JPanel
 
     public static void resetPeak()
     {
-	m_peak = 0d;
+	s_lastPeak = s_peak;
+	s_peak = 0;
     }
 }

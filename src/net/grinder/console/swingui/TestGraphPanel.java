@@ -69,5 +69,13 @@ public class TestGraphPanel extends JPanel
 
 	    add(testGraph);
 	}
+
+	model.addTotalSampleListener(
+	    new SampleListener() {
+		public void update(double tps, double averageTPS,
+				   double peakTPS, Statistics total) {
+		    LabelledGraph.resetPeak();
+		}
+	    });
     }
 }
