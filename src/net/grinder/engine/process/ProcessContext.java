@@ -197,24 +197,24 @@ class ProcessContext implements PluginProcessContext
 	return m_pluginParameters;
     }
 
-    public final void logMessage(String message)
+    public final void output(String message)
     {
-	m_processLogger.logMessage(message);
+	m_processLogger.output(message);
     }
 
-    public final void logMessage(String message, int where)
+    public final void output(String message, int where)
     {
-	m_processLogger.logMessage(message, where);
+	m_processLogger.output(message, where);
     }
 
-    public final void logError(String message)
+    public final void error(String message)
     {
-	m_processLogger.logError(message);
+	m_processLogger.error(message);
     }
     
-    public final void logError(String message, int where)
+    public final void error(String message, int where)
     {
-	m_processLogger.logError(message, where);
+	m_processLogger.error(message, where);
     }
 
     public final PrintWriter getOutputLogWriter()

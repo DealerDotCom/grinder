@@ -130,7 +130,7 @@ public class JUnitPlugin implements GrinderPlugin
 	    tests.add(new TestWrapper((TestCase)test));
 	}
 	else {
-	    m_processContext.logError("Unknown Test: " + test);
+	    m_processContext.error("Unknown Test: " + test);
 	}
     }
 
@@ -165,7 +165,7 @@ public class JUnitPlugin implements GrinderPlugin
 
 	public boolean doTest(Test testDefinition) throws PluginException
 	{
-	    m_context.logMessage("performing test");
+	    m_context.output("performing test");
 
 	    final TestWrapper testWrapper = (TestWrapper)testDefinition;
 	    final TestCase testCase = testWrapper.getJUnitTestCase();
@@ -196,7 +196,7 @@ public class JUnitPlugin implements GrinderPlugin
 
 	    public void addError(junit.framework.Test test, Throwable t) 
 	    {
-		m_context.logError("error: " + t);
+		m_context.error("error: " + t);
 
 		if (m_logStackTraces) {
 		    t.printStackTrace();
@@ -208,7 +208,7 @@ public class JUnitPlugin implements GrinderPlugin
 	    public void addFailure(junit.framework.Test test,
 				   AssertionFailedError failure) 
 	    {
-		m_context.logError("failure: " + failure);
+		m_context.error("failure: " + failure);
 
 		if (m_logStackTraces) {
 		    failure.printStackTrace();

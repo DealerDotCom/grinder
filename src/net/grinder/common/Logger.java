@@ -40,14 +40,14 @@ public interface Logger
     /**
      * Log a message with context information.
      */
-    public void logMessage(String message);
-    public void logMessage(String message, int where);
+    public void output(String message);
+    public void output(String message, int where);
 
     /**
      * Log an error with context information.
      */
-    public void logError(String message);
-    public void logError(String message, int where);
+    public void error(String message);
+    public void error(String message, int where);
 
     public PrintWriter getOutputLogWriter();
     public PrintWriter getErrorLogWriter();

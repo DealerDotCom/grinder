@@ -292,13 +292,13 @@ public class HTTPPlugin implements GrinderPlugin
 		    // It would be possible to perform the check
 		    // automatically, but for now just chuck out some
 		    // information.
-		    m_threadContext.logMessage(
+		    m_threadContext.output(
 			message + " [Redirect, ensure the next URL is " + 
 			httpResponse.getHeader("Location") + "]");
 		    break;
 
 		default:
-		    m_threadContext.logMessage(message);
+		    m_threadContext.output(message);
 		    break;
 		}
 

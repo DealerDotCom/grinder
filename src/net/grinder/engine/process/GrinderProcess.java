@@ -108,9 +108,9 @@ public final class GrinderProcess implements Monitor
 	catch (GrinderException e) {
 	    final Logger logger = grinderProcess.m_context;
 
-	    logger.logError("Fatal error, see error log for details",
-			    Logger.TERMINAL);
-	    logger.logError("Error running Worker Process");
+	    logger.error("Fatal error, see error log for details",
+			 Logger.TERMINAL);
+	    logger.error("Error running Worker Process");
 	    e.printStackTrace(logger.getErrorLogWriter());
 	    System.exit(-3);
 	}
@@ -160,16 +160,15 @@ public final class GrinderProcess implements Monitor
      **/        
     private final int run() throws GrinderException
     {
-	m_context.logMessage("The Grinder version @version@");
+	m_context.output("The Grinder version @version@");
 
-	m_context.logMessage(System.getProperty("java.vm.vendor") + " " + 
-			     System.getProperty("java.vm.name") + " " +
-			     System.getProperty("java.vm.version") +
-			     " on " +
-			     System.getProperty("os.name") + " " +
-			     System.getProperty("os.arch") + " " +
-			     System.getProperty("os.version"));
-
+	m_context.output(System.getProperty("java.vm.vendor") + " " + 
+			 System.getProperty("java.vm.name") + " " +
+			 System.getProperty("java.vm.version") +
+			 " on " + System.getProperty("os.name") + " " +
+			 System.getProperty("os.arch") + " " +
+			 System.getProperty("os.version"));
+	
 	final JythonScript jythonScript = new JythonScript(m_scriptFile);
 
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
@@ -186,16 +185,15 @@ public final class GrinderProcess implements Monitor
 
 	if (m_consoleListener != null &&
 	    !Boolean.getBoolean(DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME)) {
-	    m_context.logMessage("waiting for console signal",
-				 Logger.LOG | Logger.TERMINAL);
+	    m_context.output("waiting for console signal",
+			     Logger.LOG | Logger.TERMINAL);
 
 	    waitForMessage();
 	}
 
 	if (!received(ConsoleListener.STOP | ConsoleListener.RESET)) {
 
-	    m_context.logMessage("starting threads",
-				 Logger.LOG | Logger.TERMINAL);
+	    m_context.output("starting threads", Logger.LOG | Logger.TERMINAL);
 	    
 	    // Start the threads
 	    for (int i=0; i<m_numberOfThreads; i++) {
@@ -247,9 +245,8 @@ public final class GrinderProcess implements Monitor
 	    synchronized (this) {
 		if (GrinderThread.getNumberOfThreads() > 0) {
 		    
-		    m_context.logMessage(
-			"waiting for threads to terminate",
-			Logger.LOG | Logger.TERMINAL);
+		    m_context.output("waiting for threads to terminate",
+				     Logger.LOG | Logger.TERMINAL);
 			
 		    GrinderThread.shutdown();
 
@@ -260,10 +257,9 @@ public final class GrinderProcess implements Monitor
 			try {
 			    if (System.currentTimeMillis() - time >
 				maxShutdownTime) {
-				m_context.logMessage(
-				    "threads not terminating, " +
-				    "continuing anyway",
-				    Logger.LOG | Logger.TERMINAL);
+				m_context.output("threads not terminating, " +
+						 "continuing anyway",
+						 Logger.LOG | Logger.TERMINAL);
 				break;
 			    }
 
@@ -287,7 +283,7 @@ public final class GrinderProcess implements Monitor
 
 	consoleSender.shutdown();
 
- 	m_context.logMessage("Final statistics for this process:");
+ 	m_context.output("Final statistics for this process:");
 
 	final StatisticsTable statisticsTable =
 	    new StatisticsTable(
@@ -299,26 +295,26 @@ public final class GrinderProcess implements Monitor
 	if (m_consoleListener != null &&
 	    m_lastMessagesReceived == 0) {
 	    // We've got here naturally, without a console signal.
-	    m_context.logMessage("finished, waiting for console signal",
-				 Logger.LOG | Logger.TERMINAL);
+	    m_context.output("finished, waiting for console signal",
+			     Logger.LOG | Logger.TERMINAL);
 	    
 	    waitForMessage();
 	}
 
 	if (received(ConsoleListener.START)) {
-	    m_context.logMessage("requesting reset and start");
+	    m_context.output("requesting reset and start");
 	    return EXIT_START_SIGNAL;
 	}
 	else if (received(ConsoleListener.RESET)) {
-	    m_context.logMessage("requesting reset");
+	    m_context.output("requesting reset");
 	    return EXIT_RESET_SIGNAL;
 	}
 	else if (received(ConsoleListener.STOP)) {
-	    m_context.logMessage("requesting stop");
+	    m_context.output("requesting stop");
 	    return EXIT_STOP_SIGNAL;
 	}
 	else {
-	    m_context.logMessage("finished", Logger.LOG | Logger.TERMINAL);
+	    m_context.output("finished", Logger.LOG | Logger.TERMINAL);
 	    return EXIT_NATURAL_DEATH;
 	}
     }
@@ -379,9 +375,8 @@ public final class GrinderProcess implements Monitor
 				       m_numberOfThreads));
 	    }
 	    catch (CommunicationException e) {
-		m_context.logMessage(
-		    "Report to console failed: " +e.getMessage(),
-		    Logger.LOG | Logger.TERMINAL);
+		m_context.output("Report to console failed: " +e.getMessage(),
+				 Logger.LOG | Logger.TERMINAL);
 
 		e.printStackTrace(m_context.getErrorLogWriter());
 	    }

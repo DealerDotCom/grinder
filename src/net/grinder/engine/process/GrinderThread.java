@@ -98,10 +98,10 @@ class GrinderThread implements java.lang.Runnable
 	    m_context.getSleeper().sleepFlat(m_initialSleepTime);
 
 	    if (m_numberOfRuns == 0) {
-		logger.logMessage("About to run forever");
+		logger.output("About to run forever");
 	    }
 	    else {
-		logger.logMessage("About to do " + m_numberOfRuns + " runs");
+		logger.output("About to do " + m_numberOfRuns + " runs");
 	    }
 
 	    int currentRun;	    
@@ -123,13 +123,13 @@ class GrinderThread implements java.lang.Runnable
 
 	    logger.setCurrentRunNumber(-1);
 
-	    logger.logMessage("Finished " + currentRun + " runs");
+	    logger.output("Finished " + currentRun + " runs");
 	}
 	catch (Sleeper.ShutdownException e) {
-	    logger.logMessage("Shutdown");
+	    logger.output("Shutdown");
 	}
 	catch(Exception e) {
-	    logger.logError(" threw an exception:" + e);
+	    logger.error(" threw an exception:" + e);
 	    e.printStackTrace(logger.getErrorLogWriter());
 	}
 	finally {
@@ -194,7 +194,7 @@ class GrinderThread implements java.lang.Runnable
 		catch (PluginException e) {
 		    final ThreadLogger logger = m_context.getThreadLogger();
 
-		    logger.logError(
+		    logger.error(
 			"Aborting thread - " +
 			pluginThreadCallbacks.getClass().getName() +
 			".beginRun() threw " + e);
@@ -215,7 +215,7 @@ class GrinderThread implements java.lang.Runnable
 		catch (PluginException e) {
 		    final ThreadLogger logger = m_context.getThreadLogger();
 
-		    logger.logError(
+		    logger.error(
 			"Aborting thread - " +
 			pluginThreadCallbacks.getClass().getName() +
 			".endRun() threw " + e);

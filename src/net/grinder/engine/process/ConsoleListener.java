@@ -166,25 +166,25 @@ final class ConsoleListener
 		    message = m_receiver.waitForMessage();
 		}
 		catch (CommunicationException e) {
-		    m_logger.logError("error receiving console signal: " + e,
+		    m_logger.error("error receiving console signal: " + e,
 				      Logger.LOG | Logger.TERMINAL);
 		    continue;
 		}
 
 		if (message instanceof StartGrinderMessage) {
-		    m_logger.logMessage("got a start message from console");
+		    m_logger.output("got a start message from console");
 		    setReceived(START);
 		}
 		else if (message instanceof StopGrinderMessage) {
-		    m_logger.logMessage("got a stop message from console");
+		    m_logger.output("got a stop message from console");
 		    setReceived(STOP);
 		}
 		else if (message instanceof ResetGrinderMessage) {
-		    m_logger.logMessage("got a reset message from console");
+		    m_logger.output("got a reset message from console");
 		    setReceived(RESET);
 		}
 		else {
-		    m_logger.logMessage("got an unknown message from console");
+		    m_logger.output("got an unknown message from console");
 		}
 	    }
 	}

@@ -155,8 +155,8 @@ final class LoggerImplementation
 	return m_dataWriter;
     }
 
-    private final void logMessageInternal(ThreadState state, String message,
-					  int where)
+    private final void outputInternal(ThreadState state, String message,
+				      int where)
     {
 	if (!m_logProcessStreams) {
 	    where &= ~Logger.LOG;
@@ -177,8 +177,8 @@ final class LoggerImplementation
 	}
     }
     
-    private final void logErrorInternal(ThreadState state, String message,
-					int where) 
+    private final void errorInternal(ThreadState state, String message,
+				     int where) 
     {
 	if (!m_logProcessStreams) {
 	    where &= ~Logger.LOG;
@@ -203,10 +203,10 @@ final class LoggerImplementation
 		message.length() > summaryLength ?
 		message.substring(0, summaryLength) + "..." : message;
 
-	    logMessageInternal(state,
-			       "ERROR (\"" + summary +
-			       "\"), see error log for details",
-			       Logger.LOG);
+	    outputInternal(state,
+			   "ERROR (\"" + summary +
+			   "\"), see error log for details",
+			   Logger.LOG);
 	}
     }
 
@@ -300,24 +300,24 @@ final class LoggerImplementation
 	    m_currentTestNumber = testNumber;
 	}
 
-	public final void logMessage(String message)
+	public final void output(String message)
 	{
-	    logMessageInternal(this, message, Logger.LOG);
+	    outputInternal(this, message, Logger.LOG);
 	}
 
-	public final void logMessage(String message, int where)
+	public final void output(String message, int where)
 	{
-	    logMessageInternal(this, message, where);
+	    outputInternal(this, message, where);
 	}
 
-	public final void logError(String message)
+	public final void error(String message)
 	{
-	    logErrorInternal(this, message, Logger.LOG);
+	    errorInternal(this, message, Logger.LOG);
 	}
     
-	public final void logError(String message, int where)
+	public final void error(String message, int where)
 	{
-	    logErrorInternal(this, message, where);
+	    errorInternal(this, message, where);
 	}
 
 	public final PrintWriter getOutputLogWriter()

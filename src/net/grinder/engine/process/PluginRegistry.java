@@ -123,14 +123,13 @@ final class PluginRegistry
 		newPluginThreadCallbacks.initialize(threadContext);
 		m_threadCallbacksThreadLocal.set(newPluginThreadCallbacks);
 
-		logger.logMessage(
-		    "Initialized " +
-		    newPluginThreadCallbacks.getClass().getName());
+		logger.output("Initialized " +
+			      newPluginThreadCallbacks.getClass().getName());
 
 		return newPluginThreadCallbacks;
 	    }
 	    catch (PluginException e) {
-		logger.logError("Thread could not initialise plugin" + e);
+		logger.error("Thread could not initialise plugin" + e);
 		e.printStackTrace(logger.getErrorLogWriter());
 
 		throw new EngineException(

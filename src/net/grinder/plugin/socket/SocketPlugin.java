@@ -197,7 +197,7 @@ public class SocketPlugin implements GrinderPlugin
 	    try {
 		Date d = new Date();
 		m_socket = new Socket(m_host, m_port);
-		m_threadContext.logMessage(
+		m_threadContext.output(
 		    "Time to connect to " + m_host + " took " + 
 		    (new Date().getTime() - d.getTime())+" ms");
 		

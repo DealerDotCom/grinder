@@ -134,24 +134,24 @@ final class ThreadContext implements PluginThreadContext
 	}
     }
 
-    public final void logMessage(String message)
+    public final void output(String message)
     {
-	m_threadLogger.logMessage(message);
+	m_threadLogger.output(message);
     }
 
-    public final void logMessage(String message, int where)
+    public final void output(String message, int where)
     {
-	m_threadLogger.logMessage(message, where);
+	m_threadLogger.output(message, where);
     }
 
-    public final void logError(String message)
+    public final void error(String message)
     {
-	m_threadLogger.logError(message);
+	m_threadLogger.error(message);
     }
     
-    public final void logError(String message, int where)
+    public final void error(String message, int where)
     {
-	m_threadLogger.logError(message, where);
+	m_threadLogger.error(message, where);
     }
 
     public final PrintWriter getOutputLogWriter()
@@ -228,7 +228,7 @@ final class ThreadContext implements PluginThreadContext
 	catch (PluginException e) {
 	    m_currentTestStatistics.addError();
 
-	    m_threadLogger.logError("Plug-in threw: " + e);
+	    m_threadLogger.error("Plug-in threw: " + e);
 	    e.printStackTrace(m_threadLogger.getErrorLogWriter());
 
 	    return null;
