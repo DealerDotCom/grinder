@@ -31,8 +31,7 @@
  * This file contains modifications for use with "The Grinder"
  * (http://grinder.sourceforge.net) under the terms of the LGPL.
  * Modifications made by Philip Aston on 9th July 2001. They are
- * marked below with the comment "GRINDER MODIFICATION". See the file
- * doc/HTTPPlugin.txt in The Grinder distribution for more details.
+ * marked below with the comment "GRINDER MODIFICATION". 
  *
  */
 
