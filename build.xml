@@ -32,10 +32,10 @@ As well as ANT, to build and run The Grinder you need:
 The following additional packages are necesary to run The Grinder unit
 tests, reports, and to create the documentation:
 
-  - JUnit 3.7
+  - JUnit 3.8.1
   - XWeb 1.0RC3
   - Xalan 2.3.1
-  - Checkstyle 3.1
+  - Checkstyle 3.3
   - Glass JAR Tool Kit V2.2.9A
 
   (You might not need these exact versions, 

@@ -136,10 +136,7 @@
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
-        <!-- This check requires JDK 1.4, see Checkstyle bug 824756.  -->
-        <!--
         <module name="MutableException"/>
-        -->
 
         <module name="VisibilityModifier"/>
 
@@ -158,14 +155,11 @@
         <module name="UpperEll"/>
 
 
-
         <!-- May fix code for the following some day. -->
         <!-- <module name="IllegalCatch"/> -->
 
-        <!-- I would like to use the following, but they appear
-        broken. Get NullPointerExceptions which appear to arise from
-        the "Usage" classes confusing the net.grinder.Console class
-        with the package. Checkstyle bug 842781-->
+        <!-- I would like to use the following, but they require J2SE
+        1.4.1. Checkstyle bug 910892. -->
         <!-- <module name="usage.OneMethodPrivateField"/> -->
         <!-- <module name="usage.UnusedLocalVariable"/> -->
         <!-- <module name="usage.UnusedParameter"/> -->
@@ -188,8 +182,10 @@
         <!-- <module name="DeclarationOrder"/> -->
 
         <!-- Not flexible enough to cope with my preferred
-        indentation. -->
-        <!-- <module name="Indentation"/> -->
+    indentation. -->
+        <!-- <module name="Indentation">
+          <property name="basicOffset" value="2"/>
+        </module> -->
 
         <!-- I disagree with the following... -->
         <!-- <module name="AvoidInlineConditionals"/> -->
