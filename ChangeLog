@@ -1,3 +1,9 @@
+2001-09-17  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java, CHANGES, TODO, src/net/grinder/TCPSniffer.java:
+	Switch to HTTP plugin sniffer filter which specifies the initial test
+	number.
+
 2001-09-16  Philip Aston  <paston@bea.com>
 
 	* build.xml: Don't distribute javadoc in pre-releases.
