@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // Copyright (C) 2000 Phil Dawes
 // Copyright (C) 2001 Kalle Burbeck
 // Copyright (C) 2003 Bill Schnellinger
@@ -221,13 +221,12 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     // Request-Line = Method SP Request-URI SP HTTP-Version CRLF
     // HTTP-Version = "HTTP" "/" 1*DIGIT "." 1*DIGIT
     // http_URL = "http:" "//" host [ ":" port ] [ abs_path [ "?" query ]]
-    // ";" can also be used as a query separator.
     //
     // We're flexible about SP and CRLF, see RFC 2616, 19.3.
 
     m_requestLinePattern =
       compiler.compile(
-        "^([A-Z]+)[ \\t]+([^\\?;]+)([\\?;].+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?$",
+        "^([A-Z]+)[ \\t]+([^\\?]+)(\\?.+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?$",
         Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
 
     m_contentLengthPattern =

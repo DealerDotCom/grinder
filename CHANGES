@@ -1,3 +1,11 @@
+Grinder 3.0-beta25 (Not yet released)
+-------------------------------------
+
+  Change the HTTPlugin TCPProxy filters so that they no longer
+  interpret ';' as a query string separator. Thanks to Nichole
+  Holthoefer for the problem report.
+
+
 Grinder 3.0-beta24
 ------------------
 
