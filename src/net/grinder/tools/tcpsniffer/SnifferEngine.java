@@ -29,6 +29,8 @@ package net.grinder.tools.tcpsniffer;
 public interface SnifferEngine extends Runnable
 {
     // void run();
+
+    public static final String ACCEPT_TIMEOUT_MESSAGE = "Listen time out";
 }
 
 
