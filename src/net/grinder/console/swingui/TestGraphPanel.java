@@ -21,6 +21,7 @@
 
 package net.grinder.console.swingui;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
@@ -29,6 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.grinder.common.Test;
@@ -49,7 +51,9 @@ import net.grinder.statistics.TestStatistics;
 public class TestGraphPanel extends JPanel implements ModelListener {
 
   private final JComponent m_parentComponent;
-  private final FlowLayout m_layout = new FlowLayout(FlowLayout.LEFT);
+  private final BorderLayout m_borderLayout = new BorderLayout();
+  private final FlowLayout m_flowLayout = new FlowLayout(FlowLayout.LEFT);
+  private final JLabel m_logoLabel;
 
   private final Dimension m_preferredSize = new Dimension();
 
@@ -65,8 +69,6 @@ public class TestGraphPanel extends JPanel implements ModelListener {
 
   TestGraphPanel(final JComponent parentComponent, final Model model,
 		 Resources resources) {
-
-    setLayout(m_layout);
 
     m_parentComponent = parentComponent;
 
@@ -85,6 +87,9 @@ public class TestGraphPanel extends JPanel implements ModelListener {
 	  LabelledGraph.resetPeak();
 	}
       });
+
+    m_logoLabel =
+      new JLabel(m_resources.getImageIcon("logo-transparent.image"));
   }
 
   /**
@@ -94,6 +99,9 @@ public class TestGraphPanel extends JPanel implements ModelListener {
    * @param modelTestIndex Updated test index.
    */
   public void newTests(Set newTests, ModelTestIndex modelTestIndex) {
+
+    remove(m_logoLabel);
+    setLayout(m_flowLayout);
 
     final Iterator newTestIterator = newTests.iterator();
 
@@ -149,6 +157,10 @@ public class TestGraphPanel extends JPanel implements ModelListener {
    */
   public final Dimension getPreferredSize() {
 
+    if (m_components.size() == 0) {
+      return super.getPreferredSize();
+    }
+
     // Width is whatever our parent says.
     final Insets parentComponentInsets = m_parentComponent.getInsets();
 
@@ -166,7 +178,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
     // Now ape the FlowLayout algorithm to calculate desired height,
     // *sigh*.
     final int n = getComponentCount();
-    final int hgap = m_layout.getHgap();
+    final int hgap = m_flowLayout.getHgap();
 
     final Insets insets = getInsets();
 
@@ -194,11 +206,8 @@ public class TestGraphPanel extends JPanel implements ModelListener {
 
 	// numberDown is always >= 1.
 	m_preferredSize.height =
-	  numberDown * componentHeight + (numberDown-1) * m_layout.getVgap();
-
-	System.err.println("getPreferredSize() called, numberAcross=" +
-			   numberAcross + " numberDown=" + numberDown +
-			   " hgap=" + hgap);
+	  numberDown * componentHeight +
+	  (numberDown-1) * m_flowLayout.getVgap();
       }
     }
 
@@ -231,6 +240,8 @@ public class TestGraphPanel extends JPanel implements ModelListener {
   public final void resetTestsAndStatisticsViews() {
     m_components.clear();
     removeAll();
-    repaint();
+    setLayout(m_borderLayout);
+    add(m_logoLabel, BorderLayout.CENTER);
+    invalidate();
   }
 }
