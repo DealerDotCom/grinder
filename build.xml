@@ -53,8 +53,8 @@ what you want. Currently the conditionally built modules are:
 
   <property name="Name" value="The Grinder"/>
   <property name="name" value="grinder"/>
-  <property name="version" value="3.0-beta1"/>
-  <property name="cvs.tag" value="release_3_0_beta0"/>
+  <property name="version" value="3.0-beta1"/> <!-- AND THE NEXT LINE -->
+  <property name="cvs.tag" value="release_3_0_beta1"/>
 
   <property name="year" value="2002"/>
 
@@ -527,7 +527,7 @@ what you want. Currently the conditionally built modules are:
     <echo message="****************************************************"/>
     <echo message=""/>
 
-    <input message="Continue (y/n)?" validargs="y,n" addproperty="do.release"/>
+    <input message="Continue? " validargs="y,n" addproperty="do.release"/>
 
     <condition property="do.abort">
       <equals arg1="n" arg2="${do.release}"/>
