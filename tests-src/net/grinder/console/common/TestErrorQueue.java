@@ -100,5 +100,23 @@ public class TestErrorQueue extends TestCase {
     }
 
     delegateErrorHandlerStubFactory.assertNoMoreCalls();
+
+    // Set no delegate, assert last delegate gets no new events.
+    errorQueue.setErrorHandler(null);
+
+    for (int i = 0; i < methods.length; ++i) {
+      final Method method = methods[i];
+
+      if (method.getName().startsWith("handle")) {
+        final Object[] parameters =
+          randomObjectFactory.generateParameters(method.getParameterTypes());
+
+        callData.add(new CallData(method, parameters, null));
+
+        method.invoke(errorQueue, parameters);
+      }
+    }
+
+    delegateErrorHandlerStubFactory.assertNoMoreCalls();
   }
 }
