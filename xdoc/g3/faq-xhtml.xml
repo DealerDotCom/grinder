@@ -51,6 +51,9 @@ for an hour and your sample interval is set to 5 seconds, set the
 console to collect 720 samples.
 </p>
 
+<p>If you're not using the console, see <a
+href="getting-started.html#grinder.duration">grinder.duration</a>.</p>
+
 <h3><a name="serverside-stats">Is there any way to record CPU
 utilisation of the server?</a></h3>
 
