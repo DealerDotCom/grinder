@@ -117,7 +117,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     m_chainedHTTPProxy = chainedHTTPProxy;
 
     m_httpConnectPattern =
-      Pattern.compile("^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
+      Pattern.compile("^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)/",
                       Pattern.MULTILINE);
 
     m_httpsConnectPattern =
@@ -182,7 +182,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         final Matcher httpsConnectMatcher =
           m_httpsConnectPattern.matcher(line);
 
-        if (httpConnectMatcher.matches()) {
+        if (httpConnectMatcher.find()) {
           // HTTP proxy request.
 
           // Reset stream to beginning of request.
@@ -194,7 +194,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
               in, localSocket, EndPoint.clientEndPoint(localSocket)),
               "HTTPProxyStreamDemultiplexer for " + localSocket).start();
         }
-        else if (httpsConnectMatcher.matches()) {
+        else if (httpsConnectMatcher.find()) {
           // HTTPS proxy request.
 
           // group(2) must be a port number by specification.
@@ -362,7 +362,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           final Matcher matcher =
             m_httpConnectPattern.matcher(bytesReadAsString);
 
-          if (matcher.matches()) {
+          if (matcher.find()) {
 
             final String remoteHost = matcher.group(2);
 
