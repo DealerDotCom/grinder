@@ -1,5 +1,24 @@
 2002-10-08  Philip Aston  <paston@bea.com>
 
+	* build.xml, etc/buildenv.sh, xdoc/download-xhtml.xml: Use ANT 1.5.1.
+
+	* doc/sniff-n-grind.txt, doc/Timing.txt, doc/Jakarta-ORO-license.txt, doc/Problems.txt, doc/TCPSniffer.txt, doc/HTTPClient-license.txt, doc/HTTPPlugin.txt, doc/JUnitPlugin.txt, doc/.cvsignore:
+	Remove old text document.
+
+	* .cvsignore: Content of doc directory is now all generated.
+
+	* xdoc/manual/http-plugin-xhtml.xml:
+	Folk are still confused about StringBeans and POST files.
+
+	* xdoc/future/future-xhtml.xml: Jython is the future.
+
+	* xdoc/documentation.xweb: Build output in doc directory.
+
+	* doc/GrinderVLoadRunner.txt: Remove old text document.
+
+	* CHANGES, src/net/grinder/console/swingui/resources/Console_es.properties, xdoc/welcome-xhtml.xml, AUTHORS:
+	Spanish console from Jose Antonio Zapata Rey.
+
 	* xdoc/manual/tcpsniffer-xhtml.xml, src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/PluginThreadContext.java, src/net/grinder/script/AbortRunException.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/BSFProcessContext.java, src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/Redirector.java, src/net/grinder/engine/agent/LauncherThread.java, src/net/grinder/engine/agent/Redirector.java, src/net/grinder/engine/process/AbortRunException.java, src/net/grinder/Grinder.java, src/net/grinder/engine/LauncherThread.java, src/prj.el, etc/buildenv.sh, etc/localpaths.properties, etc/setenv.sh, examples/http/grinder.properties, examples/http/runtests.py, TODO, build.xml:
 	Checkpoint: Finished initial rework for Jython scripts.
 
