@@ -36,9 +36,10 @@ import HTTPClient.URI;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
+import net.grinder.engine.process.PluginRegistry;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
-import net.grinder.engine.process.PluginRegistry;
+
 
 /**
  * An individual HTTP request for use in scripts.
