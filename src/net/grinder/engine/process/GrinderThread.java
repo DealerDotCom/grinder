@@ -28,27 +28,22 @@ import net.grinder.plugininterface.ThreadCallbacks;
 
 
 /**
- * The class executed by each thread.
- * The total number of threads per JVM is specified in the property "grinder.threads".
- * This class is responsible for instantiating an object of the class specified in the
- * property "grinder.cycleClass". It also invokes the methods specified in the
- * property "grinder.cycleMethods". It records the time spent in each method invocation.
- * The elapsed time is printed out in the "dat" file and stored in the shared space 
- * of the GrinderProcess object, shared by all threads.
+ * The class encapsulating the control for each thread.
  * 
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 class GrinderThread implements java.lang.Runnable
 {
     /**
-     * m_numberOfThreads is incremented in constructor rather than in
-     * run to avoid pathological race conditions. Hence it really
-     * means "the number of GrinderThread's that have been created but
-     * not run to completion"
+     * m_numberOfThreads is incremented in constructor
+     * rather than in run to avoid pathological race conditions. Hence
+     * it really means "the number of GrinderThread's that have been
+     * created but not run to completion"
      **/
-    private static int m_numberOfThreads = 0;
+    private static short m_numberOfThreads = 0;
+
     private static boolean s_shutdown = false;
 
     private static Random m_random = new Random();
@@ -297,7 +292,7 @@ class GrinderThread implements java.lang.Runnable
 	m_numberOfThreads--;
     }
 
-    public static int numberOfUncompletedThreads()
+    public static short getNumberOfThreads()
     {
 	return m_numberOfThreads;
     }
