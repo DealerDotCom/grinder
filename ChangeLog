@@ -1,4 +1,26 @@
+2002-10-09  Philip Aston  <paston@bea.com>
+
+	* README: "doc"->"docs".
+
+	* xdoc/documentation.xweb: Generate to "docs".
+
+	* build.xml:
+	Rename doc directory to docs so that now I've removed it from CVS it
+	doesn't clash with older versions.
+
+	* README: Moved README information to xdocs.
+
 2002-10-08  Philip Aston  <paston@bea.com>
+
+	* build.xml: Add XWeb.
+	Rework distribution.
+
+	* etc/localpaths.properties: XWeb path.
+
+	* tests-src/net/grinder/util/TestSleeper.java:
+	A little more timing leeway.
+
+	* xdoc/future/future-xhtml.xml: Correct HTML.
 
 	* build.xml, etc/buildenv.sh, xdoc/download-xhtml.xml: Use ANT 1.5.1.
 
