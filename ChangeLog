@@ -1,3 +1,8 @@
+2000-12-27  Philip Aston  <paston@beasys.com>
+
+	* build.xml:
+		Smarter detection of what to build.
+
 2000-12-20  Philip Aston  <paston@beasys.com>
 
 	* Grinder 0.9 is released.

@@ -71,7 +71,17 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <property name="year" value="2000"/>
 
     <!--options-->
-    <available classname="weblogic.Server" property="weblogic.present" />
+    <available classname="javax.servlet.ServletContext"
+	       property="have.servlet" />
+
+    <available classname="javax.net.ssl.SSLSocketFactory"
+	       property="have.jsse" />
+
+    <available classname="weblogic.t3.srvr.T3Srvr"
+	       property="have.weblogic" />
+
+    <available classname="examples.ejb.basic.statelessSession.Trader"
+	       property="have.weblogic.traderEJB" />
 
     <!-- javac switches -->
     <property name="debug" value="on"/>
@@ -108,15 +118,58 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   <!-- =================================================================== -->
   <!-- Prepares a copy of the source code                                  -->
   <!-- =================================================================== -->
-  <target name="prepare-weblogic-src" if="weblogic.present" depends="init">
+
+    <!-- No idea why, but ant doesn't expand ${src.dir} in the following. -->
+  <fileset id="base.src"
+	   dir="src"
+	   excludes="net/grinder/plugin/http/HttpsPlugin.java,net/grinder/plugin/http/tools/,net/grinder/plugin/weblogic/"/>
+
+  <fileset id="servlet.dependent.src"
+	   dir="src"
+	   includes="net/grinder/plugin/http/tools/"
+	   excludes="net/grinder/plugin/http/tools/WebLogicSnifferServlet.java"/>
+
+  <fileset id="jsse.dependent.src"
+	   dir="src"
+	   includes="net/grinder/plugin/http/HttpsPlugin.java"/>
+
+  <fileset id="weblogic.dependent.src"
+	   dir="src"
+	   includes="net/grinder/plugin/http/tools/WebLogicSnifferServlet.java"/>
+
+  <fileset id="weblogic.traderEJB.dependent.src"
+	   dir="src"
+	   includes="net/grinder/plugin/weblogic/"/>
+
+  <target name="prepare-servlet-src" if="have.servlet" depends="init">
     <copy todir="${build.src}" filtering="on">
-      <fileset dir="${src.dir}" includes="**/weblogic/,**/plugin/http/tools/"/>
+      <fileset refid="servlet.dependent.src"/>
     </copy>
   </target>
 
-  <target name="prepare-src" depends="init,prepare-weblogic-src">
+  <target name="prepare-jsse-src" if="have.jsse" depends="init">
     <copy todir="${build.src}" filtering="on">
-      <fileset dir="${src.dir}" excludes="**/weblogic/,**/plugin/http/tools/"/>
+      <fileset refid="jsse.dependent.src"/>
+    </copy>
+  </target>
+
+  <target name="prepare-weblogic-src" if="have.weblogic" depends="init">
+    <copy todir="${build.src}" filtering="on">
+      <fileset refid="weblogic.dependent.src"/>
+    </copy>
+  </target>
+
+  <target name="prepare-weblogic-traderEJB-src" if="have.weblogic.traderEJB"
+	  depends="init">
+    <copy todir="${build.src}" filtering="on">
+      <fileset refid="weblogic.traderEJB.dependent.src"/>
+    </copy>
+  </target>
+
+  <target name="prepare-src"
+	  depends="init,prepare-servlet-src,prepare-jsse-src,prepare-weblogic-src,prepare-weblogic-traderEJB-src">
+    <copy todir="${build.src}" filtering="on">
+      <fileset refid="base.src"/>
     </copy>
   </target>
 
@@ -143,7 +196,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <jar jarfile="${lib.dir}/${lib.jar}"
          basedir="${build.classes}"
          manifest="${build.src}/manifest.mf"
-         includes="net/grinder/**"/>
+         includes="net/grinder/"/>
   </target>
 
   <!-- =================================================================== -->
