@@ -29,8 +29,6 @@ http://sourceforge.net/mailarchive/message.php?msg_id=3626264
 
 ** TCPProxy
 
-Recording \n's?
-
 Fix the proxy to record Authorization again. Can use connection ID.
 The G2 HTTPClient plugin implementation interprets basicAuthentication
 properties wrongly. It first sends a request without the
@@ -83,16 +81,13 @@ Tim McNerney writes:
  > TCPProxy do this for me. So is there some existing method for doing
  > such filtering? Say on target suffix ("filter=.gif,.js,.css")
 
-Allow "chained proxying", where details of real proxy server can be
-specified.
-	- Refactor so two PF mode ctors, one for plain one for SSL.
-	- Abstract blah needs to know so it knows what proxy to build?
-	- Move HTTPS proxy socket munging to ssl socket factory.
-
-Change TCPProxy filters to a stream oriented model. This should
-cure another one of the TCPSniffer/HTTPPlugin bug when recording large
+Change TCPProxy filters to a stream oriented model. This should cure
+another one of the TCPSniffer/HTTPPlugin bug when recording large
 outputs with posts? Also, consider having a filter instance pair per
 connection.
+
+HTTP proxy mode exception handling should send nice HTTP messages to
+the client.
 
 ** HTTP Plugin
 
