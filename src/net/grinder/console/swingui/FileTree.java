@@ -45,10 +45,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import java.util.EventListener;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
@@ -67,6 +63,8 @@ import net.grinder.console.model.editor.EditorModel;
 final class FileTree {
 
   private final Resources m_resources;
+  private final ErrorHandler m_errorHandler;
+  private final EditorModel m_editorModel;
   private final FileTreeModel m_fileTreeModel = new FileTreeModel();
 
   // Can't initialise tree until model has a valid directory.
@@ -74,15 +72,14 @@ final class FileTree {
   private final CustomAction m_openFileAction;
   private final JScrollPane m_scrollPane;
 
-  /** Synchronise on m_listeners before accessing. */
-  private final List m_listeners = new LinkedList();
-
   public FileTree(final ConsoleProperties consoleProperties,
                   Resources resources,
-                  final ErrorHandler errorHandler,
-                  final EditorModel editorModel) {
+                  ErrorHandler errorHandler,
+                  EditorModel editorModel) {
 
     m_resources = resources;
+    m_errorHandler = errorHandler;
+    m_editorModel = editorModel;
 
     m_fileTreeModel.setRootDirectory(
       consoleProperties.getDistributionDirectory());
@@ -123,8 +120,9 @@ final class FileTree {
 
               final int clickCount = e.getClickCount();
 
-              if (clickCount == 1 && fileNode.isOpen() || clickCount == 2) {
-                fireFileSelected(fileNode);
+              if (clickCount == 1 && fileNode.getBuffer() != null ||
+                  clickCount == 2) {
+                selectFileNode(fileNode);
               }
             }
           }
@@ -154,27 +152,13 @@ final class FileTree {
 
     m_scrollPane = new JScrollPane(m_tree);
 
-    editorModel.addListener(new EditorModel.Listener() {
+    m_editorModel.addListener(new EditorModel.Listener() {
         public void bufferChanged(Buffer buffer) {
           // Couldn't find a nice way to repaint a single node. This:
           //    m_tree.getSelectionModel().setSelectionPath(fileNode.getPath());
           // doesn't work if the node is already selected. Give up and
           // repaint the world:
           m_tree.treeDidChange();
-        }
-      });
-
-    addListener(
-      new FileTree.Listener() {
-        public void newFileSelection(FileTreeModel.FileNode fileNode) {
-          try {
-            fileNode.setBuffer(
-              editorModel.selectBufferForFile(fileNode.getFile()));
-          }
-          catch (ConsoleException e) {
-            errorHandler.handleException(
-              e, m_resources.getString("fileError.title"));
-          }
         }
       });
   }
@@ -199,7 +183,7 @@ final class FileTree {
       final FileTreeModel.FileNode fileNode = getSelectedFileNode();
 
       if (fileNode != null) {
-        fireFileSelected(fileNode);
+        selectFileNode(fileNode);
       }
     }
   }
@@ -251,22 +235,22 @@ final class FileTree {
         setLeafIcon(fileNode.isPythonFile() ?
                     m_pythonIcon : m_defaultRenderer.getLeafIcon());
 
+        final Buffer buffer = fileNode.getBuffer();
+
         setTextNonSelectionColor(
-          fileNode.isBoringFile() && !fileNode.isOpen() ?
+          fileNode.isBoringFile() && buffer == null ?
           Colours.INACTIVE_TEXT :
           m_defaultRenderer.getTextNonSelectionColor());
 
-        if (fileNode.isDirty()) {
-          setFont(m_boldItalicFont);
-        }
-        else if (fileNode.isOpen()) {
-          setFont(m_boldFont);
+        if (buffer != null) {
+          // File is open.
+          setFont(buffer.isDirty() ? m_boldItalicFont : m_boldFont);
         }
         else {
           setFont(m_defaultRenderer.getFont());
         }
 
-        m_active = fileNode.isActive();
+        m_active = m_editorModel.getSelectedBuffer() == buffer;
 
         return super.getTreeCellRendererComponent(
           tree, value, selected, expanded, leaf, row, hasFocus);
@@ -350,39 +334,15 @@ final class FileTree {
     }
   }
 
-  /**
-   * Add a new listener.
-   *
-   * @param listener The listener.
-   */
-  public void addListener(Listener listener) {
-    synchronized (m_listeners) {
-      m_listeners.add(listener);
+  private void selectFileNode(FileTreeModel.FileNode fileNode) {
+    try {
+      fileNode.setBuffer(
+        m_editorModel.selectBufferForFile(fileNode.getFile()));
     }
-  }
-
-  private void fireFileSelected(FileTreeModel.FileNode fileNode) {
-    synchronized (m_listeners) {
-      final Iterator iterator = m_listeners.iterator();
-
-      while (iterator.hasNext()) {
-        final Listener listener = (Listener)iterator.next();
-        listener.newFileSelection(fileNode);
-      }
+    catch (ConsoleException e) {
+      m_errorHandler.handleException(
+        e, m_resources.getString("fileError.title"));
     }
-  }
-
-  /**
-   * Interface for listeners.
-   */
-  public interface Listener extends EventListener {
-
-    /**
-     * Called when a new file node has been selected.
-     *
-     * @param fileNode The file node.
-     */
-    void newFileSelection(FileTreeModel.FileNode fileNode);
   }
 }
 

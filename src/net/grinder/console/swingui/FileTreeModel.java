@@ -185,7 +185,7 @@ final class FileTreeModel implements TreeModel {
       m_buffer = buffer;
     }
 
-    private Buffer getBuffer() {
+    public Buffer getBuffer() {
       return m_buffer;
     }
 
@@ -201,18 +201,6 @@ final class FileTreeModel implements TreeModel {
         name.endsWith(".class") ||
         name.endsWith("~") ||
         name.startsWith(".");
-    }
-
-    public boolean isOpen() {
-      return getBuffer() != null;
-    }
-
-    public boolean isDirty() {
-      return getBuffer() != null && getBuffer().isDirty();
-    }
-
-    public boolean isActive() {
-      return getBuffer() != null && getBuffer().isActive();
     }
   }
 

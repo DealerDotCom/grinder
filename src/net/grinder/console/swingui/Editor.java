@@ -111,7 +111,9 @@ final class Editor {
 
     m_editorModel.addListener(new EditorModel.Listener() {
         public void bufferChanged(Buffer buffer) {
-          if (buffer.isActive() && buffer != m_viewedBuffer) {
+          if (buffer == m_editorModel.getSelectedBuffer() &&
+              buffer != m_viewedBuffer) {
+
             m_viewedBuffer = buffer;
 
             final File file = buffer.getFile();

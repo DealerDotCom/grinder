@@ -76,6 +76,7 @@ import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.ModelTestIndex;
 import net.grinder.console.model.SampleListener;
+import net.grinder.console.model.editor.Buffer;
 import net.grinder.console.model.editor.EditorModel;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
@@ -97,7 +98,6 @@ public final class ConsoleUI implements ModelListener {
   private final Map m_actionTable = new HashMap();
   private final CustomAction m_startAction;
   private final StopAction m_stopAction;
-  private final CustomAction m_saveFileAction;
   private final Model m_model;
   private final EditorModel m_editorModel;
   private final JFrame m_frame;
@@ -164,20 +164,21 @@ public final class ConsoleUI implements ModelListener {
 
     m_startAction = new StartAction();
     m_stopAction = new StopAction();
-    m_saveFileAction = new SaveFileAction();
 
     addAction(m_startAction);
     addAction(m_stopAction);
-    addAction(m_saveFileAction);
     addAction(new AboutAction(resources.getImageIcon("logo.image")));
     addAction(new ChooseDirectoryAction());
     addAction(new DelegateAction("close-file", null));
     addAction(new DelegateAction("distribute-files", distributeFilesHandler));
-    addAction(new DelegateAction("save-file-as", null));
     addAction(new DelegateAction("start-processes", startProcessesHandler));
+    addAction(new DelegateAction("save-all-files", null));
     addAction(new ExitAction());
+    addAction(new NewFileAction());
     addAction(new OptionsAction());
     addAction(new ResetProcessesAction(resetProcessesHandler));
+    addAction(new SaveFileAction());
+    addAction(new SaveFileAsAction());
     addAction(new SaveResultsAction());
     addAction(new StopProcessesAction(stopProcessesHandler));
 
@@ -645,7 +646,6 @@ public final class ConsoleUI implements ModelListener {
     }
 
     public void actionPerformed(ActionEvent event) {
-
       try {
         if (m_fileChooser.showSaveDialog(m_frame) ==
             JFileChooser.APPROVE_OPTION) {
@@ -791,17 +791,89 @@ public final class ConsoleUI implements ModelListener {
     }
   }
 
-  /**
-   * Action for opening the currently selected file in the tree.
-   */
+  private final class NewFileAction extends CustomAction {
+
+    public NewFileAction() {
+      super(m_model.getResources(), "new-file");
+    }
+
+    public void actionPerformed(ActionEvent event) {
+      m_editorModel.selectNewBuffer();
+    }
+  }
+
   private final class SaveFileAction extends CustomAction {
+
     public SaveFileAction() {
       super(m_model.getResources(), "save-file");
+
+      m_editorModel.addListener(new EditorModel.Listener() {
+          public void bufferChanged(Buffer ignored) {
+            final Buffer buffer = m_editorModel.getSelectedBuffer();
+
+            setEnabled(buffer != null &&
+                       buffer.isDirty() &&
+                       buffer.getFile() != null);
+          }
+        });
     }
 
     public void actionPerformed(ActionEvent event) {
       try {
         m_editorModel.getSelectedBuffer().save();
+      }
+      catch (Exception e) {
+        getErrorHandler().handleException(e);
+      }
+    }
+  }
+
+  private final class SaveFileAsAction extends CustomAction {
+
+    private final JFileChooser m_fileChooser = new JFileChooser(".");
+
+    public SaveFileAsAction() {
+      super(m_model.getResources(), "save-file-as", true);
+
+      m_editorModel.addListener(new EditorModel.Listener() {
+          public void bufferChanged(Buffer ignored) {
+            setEnabled(m_editorModel.getSelectedBuffer() != null);
+          }
+        });
+
+      m_fileChooser.setDialogTitle(
+        m_model.getResources().getString("save-file-as.label"));
+    }
+
+    public void actionPerformed(ActionEvent event) {
+
+      final Buffer selectedBuffer = m_editorModel.getSelectedBuffer();
+      final File currentFile = selectedBuffer.getFile();
+
+      m_fileChooser.setSelectedFile(currentFile);
+
+      // TODO fallback to selected root directory.
+
+      try {
+        if (m_fileChooser.showSaveDialog(m_frame) ==
+            JFileChooser.APPROVE_OPTION) {
+
+          final File file = m_fileChooser.getSelectedFile();
+
+          if (file.exists() &&
+              (currentFile == null || !file.equals(currentFile)) &&
+              JOptionPane.showConfirmDialog(
+                m_frame,
+                m_model.getResources().getString("overwriteConfirmation.text"),
+                file.toString(), JOptionPane.YES_NO_OPTION) ==
+              JOptionPane.NO_OPTION) {
+            return;
+          }
+
+          // TODO
+          m_editorModel.getSelectedBuffer().save();
+
+        }
       }
       catch (Exception e) {
         getErrorHandler().handleException(e);
