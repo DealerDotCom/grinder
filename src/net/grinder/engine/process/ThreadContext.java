@@ -41,6 +41,7 @@ final class ThreadContext extends ProcessContext implements PluginThreadContext
     private GrinderThread m_grinderThread = null;
     private final int m_threadID;
     private final Sleeper m_sleeper;
+    private final long m_defaultSleepTime;
     private final ThreadCallbacks m_threadCallbackHandler;
     private final TestResult m_testResult = new TestResult();
 
@@ -60,6 +61,8 @@ final class ThreadContext extends ProcessContext implements PluginThreadContext
 	m_threadCallbackHandler = threadCallbackHandler;
 
 	final GrinderProperties properties = getProperties();
+
+	m_defaultSleepTime = properties.getLong("grinder.thread.sleepTime", 0);
 
 	m_sleeper = new Sleeper(
 	    properties.getDouble("grinder.thread.sleepTimeFactor", 1.0d),
@@ -150,7 +153,8 @@ final class ThreadContext extends ProcessContext implements PluginThreadContext
 	final Test test = testData.getTest();
 	final StatisticsImplementation statistics = testData.getStatistics();
 
-	m_sleeper.sleepNormal(testData.getSleepTime());
+	m_sleeper.sleepNormal(
+	    test.getParameters().getLong("sleepTime", m_defaultSleepTime));
 
 	try {
 	    startTimer();

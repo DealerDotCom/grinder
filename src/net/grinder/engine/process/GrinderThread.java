@@ -140,7 +140,7 @@ class GrinderThread implements java.lang.Runnable
 		}
 		else {
 		    final Iterator testIterator =
-			m_context.getTests().iterator();
+			m_context.getTestRegistry().getTests().iterator();
 
 		    TEST_LOOP:
 		    while (testIterator.hasNext()) {

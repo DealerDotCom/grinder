@@ -21,10 +21,9 @@ package net.grinder.engine.process;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeMap;
 
 import com.ibm.bsf.BSFException;
@@ -122,10 +121,12 @@ class BSFFacade
 
 	public BSFScriptContext() 
 	{
-	    final List testDataList =  m_threadContext.getTests();
-	    m_tests = new Test[testDataList.size()];
+	    final SortedSet testDataSet =
+		m_threadContext.getTestRegistry().getTests();
 
-	    final Iterator iterator = testDataList.iterator();
+	    m_tests = new Test[testDataSet.size()];
+
+	    final Iterator iterator = testDataSet.iterator();
 	    int i = 0;
 	    
 	    while (iterator.hasNext()) {

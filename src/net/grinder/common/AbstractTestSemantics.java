@@ -23,12 +23,14 @@ package net.grinder.common;
  * @author Philip Aston
  * @version $Revision$
  */
-public abstract class AbstractTestSemantics implements Test
+public abstract class AbstractTestSemantics implements Comparable
 {
+    public abstract int getNumber();
+
     public final int compareTo(Object o) 
     {
 	final int ours = getNumber();
-	final int others = ((Test)o).getNumber();
+	final int others = ((AbstractTestSemantics)o).getNumber();
 	return ours<others ? -1 : (ours==others ? 0 : 1);
     }
 
@@ -49,22 +51,10 @@ public abstract class AbstractTestSemantics implements Test
 	    return true;
 	}
 
-	if (!(o instanceof Test)) {
+	if (!(o instanceof AbstractTestSemantics)) {
 	    return false;
 	}
 	
-	return getNumber() == ((Test)o).getNumber();
-    }
-
-    public final String toString()
-    {
-	final String description = getDescription();
-
-	if (description == null) {
-	    return "Test " + getNumber();
-	}
-	else {
-	    return "Test " + getNumber() + " (" + description + ")";
-	}
+	return getNumber() == ((AbstractTestSemantics)o).getNumber();
     }
 }

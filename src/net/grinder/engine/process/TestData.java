@@ -18,6 +18,7 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.common.AbstractTestSemantics;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.engine.EngineException;
@@ -33,24 +34,21 @@ import net.grinder.statistics.StatisticsImplementation;
  * @author Philip Aston
  * @version $Revision$
  */
-final class TestData
+final class TestData extends AbstractTestSemantics
 {
     private final Test m_test;
     
-    private final long m_sleepTime;
     private final StatisticsImplementation m_statistics;
 
-    TestData(Test testDefinition, long sleepTime,
-	     StatisticsImplementation statistics)
+    TestData(Test testDefinition)
     {
 	m_test = testDefinition;
-	m_sleepTime = sleepTime;
-	m_statistics = statistics;
+	m_statistics = new StatisticsImplementation();
     }
 
-    final long getSleepTime()
+    final Test getTest()
     {
-	return m_sleepTime;
+	return m_test;
     }
 
     final StatisticsImplementation getStatistics() 
@@ -58,8 +56,8 @@ final class TestData
 	return m_statistics;
     }
 
-    final Test getTest()
+    public final int getNumber()
     {
-	return m_test;
+	return m_test.getNumber();
     }
 }

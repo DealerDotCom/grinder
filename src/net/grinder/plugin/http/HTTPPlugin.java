@@ -25,10 +25,9 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,8 +52,9 @@ public class HttpPlugin implements GrinderPlugin
 {
     private final static Object[] s_noArgs = new Object[0];
 
-    private Set m_testsFromPropertiesFile;
-    private List m_callData;
+    private PluginProcessContext m_processContext;
+    private Set m_callData = new HashSet();
+
     private boolean m_followRedirects;
     private boolean m_logHTML;
     private boolean m_timeIncludesTransaction;
@@ -64,22 +64,13 @@ public class HttpPlugin implements GrinderPlugin
     private Class m_stringBeanClass;
     private Map m_beanMethodMap = null;
 
-    public void initialize(PluginProcessContext processContext,
-			   Set testsFromPropertiesFile)
+    public void initialize(PluginProcessContext processContext)
 	throws PluginException
     {
-	m_testsFromPropertiesFile = testsFromPropertiesFile;
-	m_callData = new ArrayList(m_testsFromPropertiesFile.size());
-
-	final Iterator testIterator = m_testsFromPropertiesFile.iterator();
-
-	while (testIterator.hasNext()) {
-	    m_callData.add(new CallData(processContext,
-					(Test)testIterator.next()));
-	}
+	m_processContext = processContext;
 
 	final GrinderProperties parameters =
-	    processContext.getPluginParameters();
+	    m_processContext.getPluginParameters();
 
 	m_followRedirects = parameters.getBoolean("followRedirects", false);
 	m_logHTML = parameters.getBoolean("logHTML", false);
@@ -117,13 +108,18 @@ public class HttpPlugin implements GrinderPlugin
 		    "The specified string bean class '" +
 		    stringBeanClassName + "' was not found.", e);
 	    }
-	}
-	
+	}	
     }
 
-    public Set getTests() throws PluginException
+    public Set registerTests(Set newTests) throws PluginException
     {
-	return m_testsFromPropertiesFile;
+	final Iterator testIterator = newTests.iterator();
+
+	while (testIterator.hasNext()) {
+	    m_callData.add(new CallData((Test)testIterator.next()));
+	}
+
+	return newTests;
     }
 
     public ThreadCallbacks createThreadCallbackHandler()
@@ -144,8 +140,7 @@ public class HttpPlugin implements GrinderPlugin
 	private final Map m_headers;
 	private final HTTPHandler.AuthorizationData m_authorizationData;
 
-	public CallData(PluginProcessContext processContext, Test test)
-	    throws PluginException
+	public CallData(Test test) throws PluginException
 	{
 	    m_test = test;
 	    
@@ -184,7 +179,7 @@ public class HttpPlugin implements GrinderPlugin
 		    m_postString = writer.toString();
 		}
 		catch (IOException e) {
-		    processContext.logError(
+		    m_processContext.logError(
 			"Could not read post data from " + postFilename);
 
 		    e.printStackTrace(System.err);

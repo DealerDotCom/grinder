@@ -51,4 +51,16 @@ public class TestImplementation extends AbstractTestSemantics implements Test
     {
 	return m_parameters;
     }
+
+    public final String toString()
+    {
+	final String description = getDescription();
+
+	if (description == null) {
+	    return "Test " + getNumber();
+	}
+	else {
+	    return "Test " + getNumber() + " (" + description + ")";
+	}
+    }
 }

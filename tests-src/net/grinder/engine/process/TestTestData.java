@@ -53,14 +53,12 @@ public class TestTestData extends TestCase
 	final Test test = new TestImplementation(99, "Some stuff",
 						 new GrinderProperties());
 	
-	final long sleepTime = 1234;
 	final StatisticsImplementation statistics =
 	    new StatisticsImplementation();
 
-	final TestData testData = new TestData(test, sleepTime, statistics);
+	final TestData testData = new TestData(test, statistics);
 
 	assertEquals(test, testData.getTest());
-	assertEquals(sleepTime, testData.getSleepTime());
 	assertNotNull(testData.getStatistics());
     }
 
@@ -70,14 +68,12 @@ public class TestTestData extends TestCase
 	properties.put("Something", "blah");
 
 	final Test test = new TestImplementation(-33, "", properties);
-	final long sleepTime = 1234;
 	final StatisticsImplementation statistics =
 	    new StatisticsImplementation();
 
-	final TestData testData = new TestData(test, sleepTime, statistics);
+	final TestData testData = new TestData(test, statistics);
 
 	assertEquals(test, testData.getTest());
-	assertEquals(sleepTime, testData.getSleepTime());
 	assertNotNull(testData.getStatistics());
     }
 }

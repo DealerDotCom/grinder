@@ -19,13 +19,11 @@
 package net.grinder.engine.process;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
@@ -36,7 +34,6 @@ import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
-import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
@@ -120,9 +117,6 @@ public class GrinderProcess
 
     private final GrinderPlugin m_plugin;
 
-    /** A map of Tests to Statistics for passing elsewhere. */
-    private final TestStatisticsMap m_testStatisticsMap;
-
     public GrinderProcess(String grinderID, File propertiesFile)
 	throws GrinderException
     {
@@ -135,9 +129,6 @@ public class GrinderProcess
 
 	// Parse plugin class.
 	m_plugin = instantiatePlugin();
-
-	// Get defined tests.
-	final Set tests = m_plugin.getTests();
 
 	// Parse console configuration.
 	final String multicastAddress = 
@@ -186,8 +177,6 @@ public class GrinderProcess
 
 		m_reportToConsoleInterval =
 		    properties.getInt("grinder.reportToConsole.interval", 500);
-
-		m_consoleSender.send(new RegisterTestsMessage(tests));
 	    }
 	    else {
 		throw new EngineException(
@@ -199,34 +188,14 @@ public class GrinderProcess
 	    m_consoleSender = null;
 	}
 
-	// Wrap tests with our information. Use a TreeMap to order
-	// them accoridng to the order defined by Test
-	final Map testMap = new TreeMap();
-	m_testStatisticsMap = new TestStatisticsMap();
+	final TestRegistry testRegistry = new TestRegistry(m_consoleSender);
 
-	final long defaultSleepTime =
-	    properties.getLong("grinder.thread.sleepTime", 0);
+	m_context.setTestRegistry(testRegistry);
 
-	final Iterator testsIterator = tests.iterator();
+	final Set initialTests =
+	    m_plugin.registerTests(getPropertiesTestSet());
 
-	while (testsIterator.hasNext())
-	{
-	    final Test test = (Test)testsIterator.next();
-
-	    final String sleepTimePropertyName =
-		getTestPropertyName(test.getNumber(), "sleepTime");
-
-	    final long sleepTime =
-		properties.getLong(sleepTimePropertyName, defaultSleepTime);
-
-	    final StatisticsImplementation statistics =
-		new StatisticsImplementation();
-
-	    testMap.put(test, new TestData(test, sleepTime, statistics));
-	    m_testStatisticsMap.put(test, statistics);
-	}
-
-	m_context.setTests(new ArrayList(testMap.values()));
+	testRegistry.registerTests(initialTests);
 
 	final String scriptFilename = properties.getProperty("grinder.script");
 
@@ -260,7 +229,7 @@ public class GrinderProcess
 	    final GrinderPlugin plugin =
 		(GrinderPlugin)pluginClass.newInstance();
 
-	    plugin.initialize(m_context, getPropertiesTestSet());
+	    plugin.initialize(m_context);
 
 	    return plugin;
 	}
@@ -401,7 +370,8 @@ public class GrinderProcess
 		if (m_consoleSender != null) {
 		    m_consoleSender.send(
 			new ReportStatisticsMessage(
-			    m_testStatisticsMap.getDelta(true)));
+			    m_context.getTestRegistry().getTestStatisticsMap()
+			    .getDelta(true)));
 		}
 	    }
 	    while (GrinderThread.numberOfUncompletedThreads() > 0 &&
@@ -444,7 +414,8 @@ public class GrinderProcess
  	m_context.logMessage("Final statistics for this process:");
 
 	final StatisticsTable statisticsTable =
-	    new StatisticsTable(m_testStatisticsMap);
+	    new StatisticsTable(
+		m_context.getTestRegistry().getTestStatisticsMap());
 
 	statisticsTable.print(m_context.getOutputLogWriter());
 
@@ -599,5 +570,3 @@ public class GrinderProcess
 	}
     }
 }
-
-

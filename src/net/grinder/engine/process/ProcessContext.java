@@ -42,7 +42,7 @@ import net.grinder.util.DelayedCreationFileWriter;
  * @author Philip Aston
  * @version $Revision$
  */
-public class ProcessContext implements PluginProcessContext
+class ProcessContext implements PluginProcessContext
 {
     private static final PrintWriter s_stdoutWriter;
     private static final PrintWriter s_stderrWriter;
@@ -77,14 +77,9 @@ public class ProcessContext implements PluginProcessContext
     private final StringBuffer m_buffer = new StringBuffer();
     private final char[] m_outputLine = new char[512];
 
-    /**
-     * A list of TestData's. (TestData is the class this package uses
-     * to store information about Tests).
-     **/
-    private List m_tests;
-
     private final String m_grinderID;
     private final GrinderProperties m_properties;
+    private TestRegistry m_testRegistry;
     private final boolean m_logProcessStreams;
     private final boolean m_recordTime;
     private final GrinderProperties m_pluginParameters;
@@ -99,13 +94,13 @@ public class ProcessContext implements PluginProcessContext
     {
 	m_grinderID = processContext.m_grinderID;
 	m_properties = processContext.m_properties;
+	m_testRegistry = processContext.m_testRegistry;
 	m_logProcessStreams = processContext.m_logProcessStreams;
 	m_recordTime = processContext.m_recordTime;
 	m_pluginParameters = processContext.m_pluginParameters;
 	m_outputWriter = processContext.m_outputWriter;
 	m_errorWriter = processContext.m_errorWriter;
 	m_dataWriter = processContext.m_dataWriter;
-	m_tests = processContext.m_tests;
 
 	m_filenameFactory =
 	    new FilenameFactoryImplementation(
@@ -167,14 +162,14 @@ public class ProcessContext implements PluginProcessContext
 	}
     }
 
-    void setTests(List tests)
+    void setTestRegistry(TestRegistry testRegistry)
     {
-	m_tests = tests;
+	m_testRegistry = testRegistry;
     }
 
-    List getTests()
+    TestRegistry getTestRegistry()
     {
-	return m_tests;
+	return m_testRegistry;
     }
 
     private Writer createWriter(String prefix, boolean appendLog)
