@@ -74,11 +74,18 @@ What can I set in grinder.properties for the HTTP plugin?
     grinder.test0.parameter.basicAuthenticationPassword -
 				Used togther, these specify an HTTP
 				basic authentication header that will
-				be sent with the request.
+				be sent with the request. If you
+				specify one of these values, you must
+				specify all three.
 
-				Note, the HTTPClient implementation
-				(see below) only sends this if
-				challenged, as a browser would.
+				Note, the default HTTPClient
+				implementation only sends this if
+				challenged by the server, as a browser
+				would, and the specified
+				basicAuthenticationRealm must match
+				the realm required by the
+				WWW-Authenticate header in the
+				challenge.
 
 				The values can be varied using a
 				String Bean, see "What's a String

@@ -118,9 +118,7 @@ public class HttpPlugin implements GrinderPlugin
 	private final String m_okString;
 	private String m_postString;
 	private final Map m_headers;
-	private final String m_basicAuthenticationRealmString;
-	private final String m_basicAuthenticationUserString;
-	private final String m_basicAuthenticationPasswordString;
+	private final HTTPHandler.AuthorizationData m_authorizationData;
 
 	public CallData(PluginProcessContext processContext,
 			Test test) throws PluginException
@@ -169,15 +167,37 @@ public class HttpPlugin implements GrinderPlugin
 		}
 	    }
 
-	    m_basicAuthenticationRealmString =
+	    final String basicAuthenticationRealmString =
 		testParameters.getProperty("basicAuthenticationRealm", null);
 
-	    m_basicAuthenticationUserString =
+	    final String basicAuthenticationUserString =
 		testParameters.getProperty("basicAuthenticationUser", null);
 
-	    m_basicAuthenticationPasswordString =
+	    final String basicAuthenticationPasswordString =
 		testParameters.getProperty("basicAuthenticationPassword",
 					   null);
+
+	    if (basicAuthenticationUserString != null &&
+		basicAuthenticationPasswordString != null &&
+		basicAuthenticationRealmString != null) {
+		m_authorizationData =
+		    new HTTPHandler.BasicAuthorizationData() {
+			public String getRealm() {
+			    return basicAuthenticationRealmString; }
+			public String getUser() {
+			    return basicAuthenticationUserString; }
+			public String getPassword() {
+			    return basicAuthenticationPasswordString; }
+		    };
+	    }
+	    else if (basicAuthenticationUserString == null &&
+		     basicAuthenticationPasswordString == null &&
+		     basicAuthenticationRealmString == null) {
+		m_authorizationData = null;
+	    }
+	    else {
+		throw new PluginException("If you specify one of { basicAuthenticationUser, basicAuthenticationPassword, basicAuthenticationRealm } you must specify all three.");
+	    }
 	}
 
 	public Test getTest()
@@ -190,20 +210,7 @@ public class HttpPlugin implements GrinderPlugin
 	public HTTPHandler.AuthorizationData getAuthorizationData()
 	    throws HTTPHandlerException
 	{
-	    if (m_basicAuthenticationUserString != null &&
-		m_basicAuthenticationPasswordString != null) {
-
-		return new HTTPHandler.BasicAuthorizationData() {
-			public String getRealm() {
-			    return m_basicAuthenticationRealmString; }
-			public String getUser() {
-			    return m_basicAuthenticationUserString; }
-			public String getPassword() {
-			    return m_basicAuthenticationPasswordString; }
-		    };
-
-	    }
-	    return null;
+	    return m_authorizationData;
 	}
 
 	public String getPostString() { return m_postString; }
@@ -451,7 +458,9 @@ public class HttpPlugin implements GrinderPlugin
 	    private String replaceKeys(String original) 
 		throws HTTPHandlerException
 	    {
-		if (original == null || m_bean == null) {
+		if (original == null ||
+		    m_bean == null ||
+		    original.length() == 0) {
 		    return original;
 		}
 		else {
