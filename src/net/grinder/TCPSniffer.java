@@ -281,7 +281,7 @@ public class TCPSniffer
 		m_snifferEngine =
 		    new SnifferEngineImplementation(
 			useSSL ?
-			new SnifferPlainSocketFactory() : sslSocketFactory,
+			sslSocketFactory : new SnifferPlainSocketFactory(),
 			requestFilter,
 			responseFilter,
 			new ConnectionDetails(localHost, localPort,
