@@ -3,9 +3,19 @@
 <html>
 <body>
 
+<p>This page contains links to commercial products and services
+related to The Grinder. You should not assume any relationship other
+than those documented below between the listed individuals and
+companies and The Grinder project.</p>
+
+<p>If you have a product or service related to The Grinder and would
+like to add information to this page, please email details to <a
+href="mailto:grinder-use@lists.sourceforge.net">grinder-use@lists.sourceforge.net</a>.</p>
+
 <table>
+<tr>
 <td>
-    <h1>J2EE Performance Testing</h1>
+    <h2>J2EE Performance Testing</h2>
 
     <p>I'm pleased to announce the availability of <em><a
     href="http://www.amazon.com/exec/obidos/tg/detail/-/159059181X/qid=1064753861/sr=1-1/ref=sr_1_1/002-5481898-2224815">J2EE
@@ -30,6 +40,25 @@
 <td valign="top">
     <img align="right" src="images/book-cover.jpg" alt="The Book"/>
 </td>
+</tr>
+<tr>
+<td>
+    <h2>TestPros</h2>
+
+    <p>TestPros provides load testing and performance tuning services
+    using Grinder. We can provide our services in one or a combination
+    of three ways - remotely via our Internet server farm, at our test
+    labs, or at our customer's location.</p>
+
+    <p>For more information:
+      <ul>
+        <li>1-877-783-7855</li>
+	<li><a href="mailto:info@TestPros.com">info@TestPros.com</a></li>
+	<li><a href="http://www.TestPros.com">www.TestPros.com</a></li>
+      </ul>
+    </p>
+</td>
+</tr>
 </table>
 
 </body>
