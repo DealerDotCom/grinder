@@ -1,5 +1,9 @@
 2001-04-03  Philip Aston  <paston@bea.com>
 
+	* tests-src/net/grinder/console/swingui/TestGraph.java: Cheesy fix.
+
+	* build.xml: 2.6 will be the next.
+
 	* src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/resources/Console.properties:
 	YACCM (Yet Another Console Control Model).
 
