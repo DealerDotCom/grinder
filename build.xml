@@ -62,7 +62,7 @@ conditionally built modules are:
 
 -->
 
-<project name="The Grinder" default="jar" basedir=".">
+<project name="The Grinder" default="all" basedir=".">
 
   <!-- =================================================================== -->
   <!-- Initialization target                                               -->
@@ -130,6 +130,8 @@ conditionally built modules are:
 
     <echo message="** Building ${Name} ${version} on ${TODAY} **"/>
   </target>
+
+  <target name="all" depends="jar"/>
 
   <!-- =================================================================== -->
   <!-- Useful assertions                                                   -->
