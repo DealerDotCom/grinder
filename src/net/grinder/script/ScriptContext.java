@@ -26,7 +26,6 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatistics;
 
 
 /**
@@ -77,7 +76,8 @@ public interface ScriptContext {
    *
    * @param meanTime Mean time in milliseconds.
    * @exception GrinderException If the sleep failed.
-   * @exception InvalidContextException If called from a non-worker thread.
+   * @exception InvalidContextException If called from a non-worker
+   * thread.
    */
   void sleep(long meanTime) throws GrinderException, InvalidContextException;
 
@@ -89,7 +89,8 @@ public interface ScriptContext {
    * @param meanTime Mean time in milliseconds.
    * @param sigma The standard deviation, in milliseconds.
    * @exception GrinderException If the sleep failed.
-   * @exception InvalidContextException If called from a non-worker thread.
+   * @exception InvalidContextException If called from a non-worker
+   * thread.
    **/
   void sleep(long meanTime, long sigma)
     throws GrinderException, InvalidContextException;
@@ -135,11 +136,12 @@ public interface ScriptContext {
     throws GrinderException;
 
   /**
-   * Get the current test statistics for the calling thread. This
-   * method is only valid within instrumented ("wrapped") code.
+   * Get the Statistics the calling worker thread. This holds the
+   * statistics of the last test invoked by the thread.
    *
-   * @return The test statistics.
-   * @exception InvalidContextException If called from non-instrumented code.
+   * @return The statistics.
+   * @exception InvalidContextException If called from a non-worker
+   * thread.
    */
-  TestStatistics getCurrentTestStatistics() throws InvalidContextException;
+  Statistics getStatistics() throws InvalidContextException;
 }
