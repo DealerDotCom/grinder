@@ -181,9 +181,9 @@ public final class Agent {
 
         commandArray[grinderIDIndex] = grinderID;
 
-        processes[i] = new ChildProcess(grinderID, commandArray);
+        processes[i] = new ChildProcess(commandArray, System.out, System.err);
 
-        fanOutStreamSender.add(processes[i].getOutputStream());
+        fanOutStreamSender.add(processes[i].getStdinStream());
 
         final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
         buffer.append("Worker processes (");
