@@ -85,7 +85,7 @@ class LabelledGraph extends JPanel
 	    m_prefix = prefix;
 	    m_suffix = suffix;
 	    setFont(s_labelFont);
-	    setPreferredSize(new Dimension(100, 14));
+
 	    set(0);
 	}
 
@@ -94,7 +94,7 @@ class LabelledGraph extends JPanel
 	    super.setText(m_prefix + value + m_suffix);
 	}
 
-	void set(double value)
+	private void set(double value)
 	{
 	    super.setText(m_prefix + s_decimalFormat.format(value) + m_suffix);
 	}
@@ -102,6 +102,13 @@ class LabelledGraph extends JPanel
 	private void set(String value)
 	{
 	    super.setText(m_prefix + value + m_suffix);
+	}
+
+	public Dimension getPreferredSize()
+	{
+	    final Dimension d = super.getPreferredSize();
+	    d.width = 100;
+	    return d;
 	}
     }
 
@@ -112,6 +119,7 @@ class LabelledGraph extends JPanel
     private final Label m_transactionsLabel = new Label("", " transactions");
     private final Label m_errorsLabel = new Label("", " errors");
     private final Label m_abortionsLabel = new Label("", " abortions");
+    private final Dimension m_preferredSize = new Dimension(300, 130);
 
     public LabelledGraph(String title)
 	throws ConsoleException
@@ -124,9 +132,8 @@ class LabelledGraph extends JPanel
     {
 	m_color = color;
 	m_graph = new Graph(25);
-	m_graph.setPreferredSize(new Dimension(150, 90));
+	m_graph.setPreferredSize(null); // We are the master now.
 	m_graph.setBorder(s_blackLine);
-        setPreferredSize(new Dimension(250, 120));
 
 	final JPanel labelPanel = new JPanel();
 	labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
@@ -147,17 +154,16 @@ class LabelledGraph extends JPanel
 
 	add(titleLabel, BorderLayout.NORTH);
 	add(labelPanel, BorderLayout.WEST);
-	add(m_graph);
+	add(m_graph, BorderLayout.CENTER);
 
 	final Border border = getBorder();
 	final Border margin = new EmptyBorder(10, 10, 10, 10);
 	setBorder(new CompoundBorder(border, margin));
     }
 
-    private JLabel createLabel() 
+    public Dimension getPreferredSize()
     {
-	final JLabel result = new JLabel();
-	return result;
+	return m_preferredSize;
     }
 
     public void add(double tps, double averageTPS, double peakTPS,

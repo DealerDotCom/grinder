@@ -45,6 +45,7 @@ import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -150,7 +151,13 @@ public class ConsoleUI implements ModelListener
 	    testPanel.add(testGraph);
 	}
 
-        final JScrollPane scrollPane = new JScrollPane(testPanel);
+	// Make space for vertical scroll bar.
+	testPanel.setBorder(new EmptyBorder(0, 0, 0, 40));
+
+        final JScrollPane scrollPane =
+	    new JScrollPane(testPanel,
+			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+			    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
 	final LabelledGraph totalGraph = new LabelledGraph("Total",
 							   Color.darkGray);
@@ -158,7 +165,6 @@ public class ConsoleUI implements ModelListener
 	final JLabel tpsLabel = new JLabel("", SwingConstants.CENTER);
 	tpsLabel.setForeground(Color.black);
 	tpsLabel.setFont(s_tpsFont);
-	//tpsLabel.setText(s_twoDPFormat.format(0) + " TPS");
 
 	m_model.addTotalSampleListener(
 	    new SampleListener() {
@@ -235,23 +241,30 @@ public class ConsoleUI implements ModelListener
 	controlPanel.setBorder(new EmptyBorder(0, 10, 0, 10));
 
 	final JPanel controlAndTotalPanel = new JPanel();
-	controlAndTotalPanel.setLayout(new GridLayout(0, 1));
+	controlAndTotalPanel.setLayout(
+	    new BoxLayout(controlAndTotalPanel, BoxLayout.Y_AXIS));
+	
 	controlAndTotalPanel.add(controlPanel);
+	controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 50)));
 	controlAndTotalPanel.add(tpsLabel);
+	controlAndTotalPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 	controlAndTotalPanel.add(totalGraph);
+
+	final JPanel hackToFixLayout = new JPanel();
+	hackToFixLayout.add(controlAndTotalPanel);
 
 	final URL logoURL = getResource("logo.image");
 
 	final JPanel contentPanel = new JPanel();
 
 	contentPanel.setLayout(new BorderLayout());
-	contentPanel.add("West", controlAndTotalPanel);
-	contentPanel.add(scrollPane);
+	contentPanel.add(hackToFixLayout, BorderLayout.WEST);
+	contentPanel.add(scrollPane, BorderLayout.CENTER);
 
 	if (logoURL != null) {
 	    final ImageIcon imageIcon = new ImageIcon(logoURL);
 	    final JLabel logo = new JLabel(imageIcon, SwingConstants.LEADING);
-	    contentPanel.add("East", logo);
+	    contentPanel.add(logo, BorderLayout.EAST);
 
 	    m_logoImage = imageIcon.getImage();
 	}
@@ -259,15 +272,16 @@ public class ConsoleUI implements ModelListener
 	// Create a panel to hold the tool bar and the test pane.
         final JPanel toolBarPanel = new JPanel();
 	toolBarPanel.setLayout(new BorderLayout());
-	toolBarPanel.add("North", createToolBar());
-	toolBarPanel.add("Center", contentPanel);
+	toolBarPanel.add(createToolBar(), BorderLayout.NORTH);
+	toolBarPanel.add(contentPanel, BorderLayout.CENTER);
 
 	// Create the frame, containing the a menu and the top level pane.
 	final JFrame frame = new JFrame(getResourceString("title"));
+
         frame.addWindowListener(new WindowCloseAdapter());
 	final Container topLevelPane= frame.getContentPane();
-	topLevelPane.add("North", createMenuBar());
-        topLevelPane.add("Center", toolBarPanel);
+	topLevelPane.add(createMenuBar(), BorderLayout.NORTH);
+        topLevelPane.add(toolBarPanel, BorderLayout.CENTER);
 
 	if (m_logoImage != null) {
 	    frame.setIconImage(m_logoImage);
@@ -277,6 +291,16 @@ public class ConsoleUI implements ModelListener
 	update();
 
         frame.pack();
+
+	// Arbitary sizing that looks good for Phil.
+	final int maxHeight = 600;
+	final Dimension d = frame.getSize();
+
+	if (d.height > maxHeight) {
+	    d.height = maxHeight;
+	    frame.setSize(d);
+	}
+
         frame.show();
     }
 
