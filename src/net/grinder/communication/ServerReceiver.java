@@ -38,7 +38,8 @@ public final class ServerReceiver implements Receiver {
   private final MessageQueue m_messageQueue = new MessageQueue(true);
 
   /**
-   * Constructor.
+   * Factory method that creates a <code>ServerReceiver</code> that
+   * listens on the given address.
    *
    * @param addressString The TCP address to listen on. Zero-length
    * string => listen on all interfaces.
@@ -46,10 +47,10 @@ public final class ServerReceiver implements Receiver {
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  public ServerReceiver(String addressString, int port)
+  public static ServerReceiver bindTo(String addressString, int port)
     throws CommunicationException {
 
-    this(new Acceptor(addressString, port), 5);
+    return new ServerReceiver(new Acceptor(addressString, port), 5);
   }
 
   /**

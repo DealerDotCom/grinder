@@ -99,8 +99,8 @@ final class ConsoleCommunication {
         }
       }
 
-      m_receiver = new ServerReceiver(m_properties.getConsoleAddress(),
-                                      m_properties.getConsolePort());
+      m_receiver = ServerReceiver.bindTo(m_properties.getConsoleAddress(),
+                                         m_properties.getConsolePort());
 
       synchronized (this) {
         m_deaf = false;
