@@ -112,6 +112,7 @@ public class TestScriptContextImplementation extends TestCase {
     assertEquals(filenameFactory, scriptContext.getFilenameFactory());
     assertEquals(properties, scriptContext.getProperties());
     assertEquals(statistics, scriptContext.getStatistics());
+    assertEquals(sslControl, scriptContext.getSSLControl());
 
     threadContextLocator.set(null);
     assertEquals(-1, scriptContext.getThreadID());
