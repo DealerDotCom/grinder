@@ -31,6 +31,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -83,7 +84,6 @@ class LabelledGraph extends JPanel {
 
     private static final Font s_plainFont;
     private static final Font s_boldFont;
-    private static final Color s_defaultForeground;
 
     static {
       final JLabel label = new JLabel();
@@ -92,7 +92,6 @@ class LabelledGraph extends JPanel {
 
       s_plainFont = defaultFont.deriveFont(Font.PLAIN, size);
       s_boldFont = defaultFont.deriveFont(Font.BOLD, size);
-      s_defaultForeground = label.getForeground();
     }
 
     private final String m_suffix;
@@ -126,7 +125,7 @@ class LabelledGraph extends JPanel {
     /**
      * Make all labels the same width.
      * Pack more tightly vertically.
-     **/
+     */
     public Dimension getPreferredSize() {
       final Dimension d = super.getPreferredSize();
       d.width = 120;
@@ -144,7 +143,7 @@ class LabelledGraph extends JPanel {
         setFont(s_boldFont);
       }
       else {
-        setForeground(s_defaultForeground);
+        setForeground(UIManager.getColor("Label.foreground"));
         setFont(s_plainFont);
       }
     }
@@ -209,7 +208,7 @@ class LabelledGraph extends JPanel {
 
     final JPanel labelPanel = new JPanel();
     labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
-    labelPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 0, 0));
+    labelPanel.setBorder(BorderFactory.createEmptyBorder(2, 10, 0, 0));
 
     final JLabel titleLabel = new JLabel();
     titleLabel.setText(title);
