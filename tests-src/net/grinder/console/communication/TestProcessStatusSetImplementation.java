@@ -91,11 +91,11 @@ public class TestProcessStatusSetImplementation extends TestCase {
 
     final ProcessStatus[] processStatusArray = {
       new ProcessStatusImplementation(
-        "a", "a process", ProcessStatus.STATE_STARTED, 1, 1),
+        "a", "a process A", ProcessStatus.STATE_STARTED, 1, 1),
       new ProcessStatusImplementation(
-        "b", "a process", ProcessStatus.STATE_STARTED, 1, 1),
+        "b", "a process B", ProcessStatus.STATE_STARTED, 1, 1),
       new ProcessStatusImplementation(
-        "a", "a process", ProcessStatus.STATE_RUNNING, 5, 10),
+        "a", "a process A", ProcessStatus.STATE_RUNNING, 5, 10),
       new ProcessStatusImplementation(
         "e", "another process name", ProcessStatus.STATE_RUNNING, 1, 1),
       new ProcessStatusImplementation(
@@ -118,9 +118,9 @@ public class TestProcessStatusSetImplementation extends TestCase {
 
     final ProcessStatus[] expectedProcessStatusArray = {
       new ProcessStatusImplementation(
-        "b", "a process", ProcessStatus.STATE_STARTED, 1, 1),
+        "b", "a process B", ProcessStatus.STATE_STARTED, 1, 1),
       new ProcessStatusImplementation(
-        "a", "a process", ProcessStatus.STATE_RUNNING, 5, 10),
+        "a", "a process A", ProcessStatus.STATE_RUNNING, 5, 10),
       new ProcessStatusImplementation(
         "e", "another process name", ProcessStatus.STATE_RUNNING, 1, 1),
       new ProcessStatusImplementation(
@@ -151,9 +151,9 @@ public class TestProcessStatusSetImplementation extends TestCase {
 
     final ProcessStatus[] processStatusArray2 = {
       new ProcessStatusImplementation(
-        "b", "a process", ProcessStatus.STATE_RUNNING, 1, 1),
+        "b", "a process B", ProcessStatus.STATE_RUNNING, 1, 1),
       new ProcessStatusImplementation(
-        "a", "a process", ProcessStatus.STATE_RUNNING, 5, 10),
+        "a", "a process A", ProcessStatus.STATE_RUNNING, 5, 10),
       new ProcessStatusImplementation(
         "e", "another process name", ProcessStatus.STATE_FINISHED, 1, 1),
     };
@@ -175,9 +175,9 @@ public class TestProcessStatusSetImplementation extends TestCase {
 
     final ProcessStatus[] expectedProcessStatusArray2 = {
       new ProcessStatusImplementation(
-        "b", "a process", ProcessStatus.STATE_RUNNING, 1, 1),
+        "a", "a process A", ProcessStatus.STATE_RUNNING, 5, 10),
       new ProcessStatusImplementation(
-        "a", "a process", ProcessStatus.STATE_RUNNING, 5, 10),
+        "b", "a process B", ProcessStatus.STATE_RUNNING, 1, 1),
       new ProcessStatusImplementation(
         "e", "another process name", ProcessStatus.STATE_FINISHED, 1, 1),
     };
