@@ -34,7 +34,7 @@ import java.io.OutputStream;
  * @author Philip Aston
  * @version $Revision$
  */
-public class CopyStream {
+public class StreamCopier {
 
   private final byte[] m_buffer;
   private final boolean m_closeStreams;
@@ -46,7 +46,7 @@ public class CopyStream {
    * @param closeStreams <code>true</code> => ensure the streams are
    * closed after copying.
    */
-  public CopyStream(int bufferSize, boolean closeStreams) {
+  public StreamCopier(int bufferSize, boolean closeStreams) {
     m_buffer = new byte[bufferSize];
     m_closeStreams = closeStreams;
   }
@@ -55,7 +55,7 @@ public class CopyStream {
    * Copies from the input stream to the output stream until the input
    * stream is empty or one of the streams reports an error.
    *
-   * <p>Not thread safe - use multiple <code>CopyStream</code>
+   * <p>Not thread safe - use multiple <code>StreamCopier</code>
    * instances instead.
    *
    * @param in Input stream.
