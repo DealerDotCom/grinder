@@ -188,12 +188,15 @@ public class FixedWidthFormatter {
         }
       }
 
+      // end will be set to the length of the new buffer after
+      // accounting for possible split position and trailing space.
+      int end = length;
+
       final int splitPosition = findWordWrapSplitPosition(buffer);
 
       if (splitPosition >= 0) {
-        // Search forward to ignore white space (except for
-        // new lines), and set everything from there on as the
-        // remainder.
+        // Search forward to ignore white space until the first new
+        // line, and set everything from there on as the remainder.
         int nextText = splitPosition;
 
         while (nextText < length) {
@@ -206,27 +209,28 @@ public class FixedWidthFormatter {
           ++nextText;
 
           if (c == '\n') {
+            // If alignment is ALIGN_LEFT, white space after the new
+            // line will become leading space on the next line.
             break;
           }
         }
 
-        if (nextText <= length) {
+        if (nextText < length) {
           remainder.insert(0, buffer.substring(nextText));
         }
 
-        buffer.setLength(splitPosition);
+        end = splitPosition;
       }
 
-      // Strip leading and trailing space.
-      int end = buffer.length();
-
+      // Strip trailing space.
       while (end > 0 && Character.isWhitespace(buffer.charAt(end - 1))) {
         --end;
       }
 
       buffer.setLength(end);
 
-      if (end > 0) {
+      if (m_alignment != ALIGN_LEFT && end > 0) {
+        // Strip leading space.
         int start = 0;
 
         while (Character.isWhitespace(buffer.charAt(start))) {
