@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
@@ -46,7 +47,7 @@ public class JUnitPlugin implements GrinderPlugin
 {
     private PluginProcessContext m_processContext;
     private junit.framework.Test m_testSuite;
-    private int m_currentTestNumber = 0;
+    private boolean m_logStackTraces;
 
     /**
      * This method is executed when the process starts. It is only
@@ -59,6 +60,8 @@ public class JUnitPlugin implements GrinderPlugin
 	
 	final GrinderProperties parameters =
 	    processContext.getPluginParameters();
+
+	m_logStackTraces = parameters.getBoolean("logStackTraces", false);
 
 	try {
 	    final String testSuiteName =
@@ -130,88 +133,134 @@ public class JUnitPlugin implements GrinderPlugin
 	return new JUnitThreadCallbacks();
     }
 
-    class TestWrapper implements Test
+    private class JUnitThreadCallbacks implements ThreadCallbacks
     {
-	private Integer m_testNumber;
-	private TestCase m_testCase;
+	PluginThreadContext m_context = null;
+	final TestListener m_testListener = new TestListener();
+	final TestResult m_testResult = new TestResult();
 
-	public TestWrapper(TestCase jUnitTest)
+	public JUnitThreadCallbacks()
 	{
-	    m_testNumber = new Integer(m_currentTestNumber++);
-	    m_testCase = jUnitTest;
-	}
-
-	public Integer getTestNumber() 
-	{
-	    return m_testNumber;
-	}
-		    
-	public String getDescription()
-	{
-	    return m_testCase.toString();
-	}
-		    
-	public GrinderProperties getParameters()
-	{
-	    return null;
+	    m_testResult.addListener(m_testListener);
 	}
 
-	public TestCase getJUnitTestCase()
+	public void initialize(PluginThreadContext pluginThreadContext)
 	{
-	    return m_testCase;
+	    m_context = pluginThreadContext;
 	}
 
-	public int compareTo(Object o) 
+	public void beginCycle() throws PluginException
 	{
-	    return m_testNumber.compareTo(((TestWrapper)o).m_testNumber);
+	}
+
+	public boolean doTest(Test testDefinition) throws PluginException
+	{
+	    m_context.startTimer();
+
+	    try {
+		m_context.logMessage("performing test");
+
+		final TestWrapper testWrapper = (TestWrapper)testDefinition;
+		testWrapper.getJUnitTestCase().run(m_testResult);
+	    }
+	    finally {
+		m_context.stopTimer();
+	    }
+
+	    if (m_testResult.shouldStop()) {
+		m_context.abortCycle();
+	    }
+
+	    return m_testListener.getResult();
+	}
+		
+	public void endCycle() throws PluginException
+	{
+	}
+
+	private class TestListener implements junit.framework.TestListener
+	{
+	    private boolean m_result = false;
+
+	    public void addError(junit.framework.Test test, Throwable t) 
+	    {
+		m_context.logError("error: " + t);
+
+		if (m_logStackTraces) {
+		    t.printStackTrace();
+		}
+		
+		m_result = false;
+	    }
+
+	    public void addFailure(junit.framework.Test test,
+				   AssertionFailedError failure) 
+	    {
+		m_context.logError("failure: " + failure);
+
+		if (m_logStackTraces) {
+		    failure.printStackTrace();
+		}
+		
+		m_result = false;
+	    }
+
+	    public void startTest(junit.framework.Test test) 
+	    {
+		m_result = true;	// Success.
+	    }
+
+	    public void endTest(junit.framework.Test test) 
+	    {
+	    }
+
+	    boolean getResult()
+	    {
+		return m_result;
+	    }
 	}
     }
 }
 
-class JUnitThreadCallbacks implements ThreadCallbacks
+class TestWrapper implements Test
 {
-    PluginThreadContext m_context = null;
-    TestResult m_testResult = null;
+    private static int s_currentTestNumber = 0;
+    private final Integer m_testNumber;
+    private final String m_description;
+    private final transient TestCase m_testCase;
 
-    public void initialize(PluginThreadContext pluginThreadContext)
+    public TestWrapper(TestCase jUnitTest)
     {
-	m_context = pluginThreadContext;
+	m_testNumber = new Integer(s_currentTestNumber++);
+	m_testCase = jUnitTest;
+
+	// m_testCase doesn't survive serialization, so grab the
+	// description here.
+	m_description = m_testCase.toString();
     }
 
-    public void beginCycle() throws PluginException
+    public Integer getTestNumber() 
     {
-	m_testResult = new TestResult();
+	return m_testNumber;
+    }
+		    
+    public String getDescription()
+    {
+	return m_description;
+    }
+		    
+    public GrinderProperties getParameters()
+    {
+	return null;
     }
 
-    public boolean doTest(Test testDefinition) throws PluginException
+    public TestCase getJUnitTestCase()
     {
-	final JUnitPlugin.TestWrapper testWrapper =
-	    (JUnitPlugin.TestWrapper)testDefinition;
-
-	final int oldErrorCount = m_testResult.errorCount();
-	final int oldFailureCount = m_testResult.failureCount();
-
-	m_context.startTimer();
-
-	try {
-	    testWrapper.getJUnitTestCase().run(m_testResult);
-	}
-	finally {
-	    m_context.stopTimer();
-	}
-
-	final boolean result =
-	    m_testResult.errorCount() == oldErrorCount &&
-	    m_testResult.failureCount() == oldFailureCount;
-
-	if (m_testResult.shouldStop()) {
-	    m_context.abortCycle();
-	}
-
-	return result;
+	return m_testCase;
     }
-		
-    public void endCycle() throws PluginException
+
+    public int compareTo(Object o) 
     {
+	return m_testNumber.compareTo(((TestWrapper)o).m_testNumber);
     }
 }
