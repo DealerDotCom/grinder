@@ -77,10 +77,10 @@ public class Model
     /** A {@link SampleAccumulator} for each test. **/
     private final Map m_accumulators = new HashMap();
 
-    /** Index into m_tests by test number. **/
+    /** Index into m_tests by test index. **/
     private Test[] m_testArray;
 
-    /** Index into m_accumulators by test number. **/
+    /** Index into m_accumulators by test index. **/
     private SampleAccumulator[] m_accumulatorArray;
 
     /** true => m_testArray and m_accumulatorArray are valid. **/
