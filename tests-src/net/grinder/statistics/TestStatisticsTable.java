@@ -57,8 +57,12 @@ public class TestStatisticsTable extends TestCase
     {    
 	m_testStatisticsMap = new TestStatisticsMap();
 
-	final ProcessStatisticsIndexMap indexMap =
-	    new ProcessStatisticsIndexMap();
+	final StatisticsIndexMap indexMap = new StatisticsIndexMap();
+
+	final StatisticsIndexMap.LongIndex aIndex =
+	    indexMap.getIndexForLong("a");
+	final StatisticsIndexMap.LongIndex bIndex =
+	    indexMap.getIndexForLong("b");
 
 	final ExpressionView[] expressionViews = {
 	    new ExpressionView("A plus B", "", "(+ a b)", indexMap),
@@ -80,9 +84,6 @@ public class TestStatisticsTable extends TestCase
 	};
 
 	final RawStatistics[] rawStatistics = new RawStatistics[tests.length];
-
-	final int aIndex = indexMap.getIndexFor("a");
-	final int bIndex = indexMap.getIndexFor("b");
 
 	final TestStatisticsFactory factory =
 	    TestStatisticsFactory.getInstance();

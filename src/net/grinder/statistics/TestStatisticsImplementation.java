@@ -21,6 +21,7 @@ package net.grinder.statistics;
 import java.io.IOException;
 import java.io.ObjectInput;
 
+import net.grinder.common.GrinderException;
 import net.grinder.util.Serialiser;
 
 
@@ -31,21 +32,31 @@ import net.grinder.util.Serialiser;
 class TestStatisticsImplementation
     extends RawStatisticsImplementation implements TestStatistics
 {
-    private final static int s_errorsIndex;
-    private final static int s_timedTransactionsIndex;
-    private final static int s_untimedTransactionsIndex;
-    private final static int s_totalTimeIndex;
+    private final static StatisticsIndexMap.LongIndex s_errorsIndex;
+    private final static StatisticsIndexMap.LongIndex s_timedTransactionsIndex;
+    private final static StatisticsIndexMap.LongIndex
+	s_untimedTransactionsIndex;
+    private final static StatisticsIndexMap.LongIndex s_totalTimeIndex;
 
     static
     {
-	final ProcessStatisticsIndexMap indexMap =
+	final StatisticsIndexMap indexMap =
 	    TestStatisticsFactory.getInstance().getIndexMap();
 
-	s_errorsIndex = indexMap.getIndexFor("errors");
-	s_timedTransactionsIndex = indexMap.getIndexFor("timedTransactions");
-	s_untimedTransactionsIndex =
-	    indexMap.getIndexFor("untimedTransactions");
-	s_totalTimeIndex = indexMap.getIndexFor("totalTime");
+	try {
+	    s_errorsIndex = indexMap.getIndexForLong("errors");
+	    s_timedTransactionsIndex =
+		indexMap.getIndexForLong("timedTransactions");
+	    s_untimedTransactionsIndex =
+		indexMap.getIndexForLong("untimedTransactions");
+	    s_totalTimeIndex = indexMap.getIndexForLong("totalTime");
+	}
+	catch (GrinderException e) {
+	    throw new RuntimeException(
+		"Assertion failure, " +
+		"TestStatisticsImplementation could not initialise: " +
+		e.getMessage());
+	}
     }
 
     /**

@@ -44,33 +44,21 @@ public class TestStatisticsMap implements java.io.Externalizable
      *
      * @supplierCardinality 0..*
      * @link aggregation 
-     * @associates <{net.grinder.statistics.TestStatistics}>
+     * @associates <{TestStatisticsImplementation}>
      **/
     private final Map m_data = new TreeMap();
 
     /**
      * @supplierCardinality 1 
      **/
-    private final TestStatisticsFactory m_testStatisticsFactory;
+    private final TestStatisticsFactory m_testStatisticsFactory	=
+	TestStatisticsFactory.getInstance();
 
     /**
      * Creates a new <code>TestStatisticsMap</code> instance.
-     * @throws GrinderException If a <code>TestStatisticsFactory</code> cannot be obtained.
      **/
     public TestStatisticsMap()
-	throws GrinderException
     {
-	m_testStatisticsFactory = TestStatisticsFactory.getInstance();
-    }
-
-    /**
-     * Creates a new <code>TestStatisticsMap</code> instance.
-     *
-     * @param testStatisticsFactory A<code>TestStatisticsFactory</code>.
-     */
-    private TestStatisticsMap(TestStatisticsFactory testStatisticsFactory)
-    {
-	m_testStatisticsFactory = testStatisticsFactory;
     }
 
     /**
@@ -99,8 +87,7 @@ public class TestStatisticsMap implements java.io.Externalizable
      **/
     public final TestStatisticsMap getDelta(boolean updateSnapshot)
     {
-	final TestStatisticsMap result =
-	    new TestStatisticsMap(m_testStatisticsFactory);
+	final TestStatisticsMap result = new TestStatisticsMap();
 
 	final Iterator iterator = new Iterator();
 
@@ -108,8 +95,8 @@ public class TestStatisticsMap implements java.io.Externalizable
 
 	    final Pair pair = iterator.next();
 
-	    final TestStatistics testStatistics =
-		m_testStatisticsFactory.create();
+	    final TestStatisticsImplementation testStatistics =
+		m_testStatisticsFactory.createImplementation();
 
 	    testStatistics.add(pair.getStatistics().getDelta(updateSnapshot));
 
@@ -127,7 +114,8 @@ public class TestStatisticsMap implements java.io.Externalizable
      **/
     public final TestStatistics getTotal()
     {
-	final TestStatistics result = m_testStatisticsFactory.create();
+	final TestStatisticsImplementation result =
+	    m_testStatisticsFactory.createImplementation();
 
 	final java.util.Iterator iterator = m_data.values().iterator();
 
@@ -167,8 +155,8 @@ public class TestStatisticsMap implements java.io.Externalizable
 		(TestStatistics)m_data.get(pair.getTest());
 
 	    if (statistics == null) {
-		final TestStatistics newStatistics =
-		    m_testStatisticsFactory.create();
+		final TestStatisticsImplementation newStatistics =
+		    m_testStatisticsFactory.createImplementation();
 
 		newStatistics.add(pair.getStatistics());
 

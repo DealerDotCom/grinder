@@ -26,7 +26,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import net.grinder.common.GrinderException;
-import net.grinder.statistics.ProcessStatisticsIndexMap;
+import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.RawStatistics;
 
 
@@ -49,13 +49,15 @@ public class TestStatisticsView extends TestCase
 	super(name);
     }
 
-    private final ProcessStatisticsIndexMap m_indexMap =
-	new ProcessStatisticsIndexMap();
+    private final StatisticsIndexMap m_indexMap = new StatisticsIndexMap();
 
     private ExpressionView[] m_views;
 
     protected void setUp() throws Exception
     {
+	m_indexMap.getIndexForLong("one");
+	m_indexMap.getIndexForLong("two");
+
 	m_views = new ExpressionView[] {
 	    new ExpressionView("One", "my.view", "(+ one two)", m_indexMap),
 	    new ExpressionView("Two", "my.view", "one", m_indexMap),

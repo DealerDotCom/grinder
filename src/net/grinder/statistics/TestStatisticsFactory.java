@@ -39,8 +39,7 @@ public final class TestStatisticsFactory
      * @link aggregation
      * @supplierCardinality 1 
      */
-    private final ProcessStatisticsIndexMap m_indexMap =
-	new ProcessStatisticsIndexMap();
+    private final StatisticsIndexMap m_indexMap = new StatisticsIndexMap();
 
     private final Serialiser m_serialiser = new Serialiser();
 
@@ -65,9 +64,12 @@ public final class TestStatisticsFactory
 
     private TestStatisticsFactory()
     {
-	final StatisticsView statisticsView = new StatisticsView();
-
 	try {
+	    m_indexMap.getIndexForLong("errors");
+	    m_indexMap.getIndexForLong("timedTransactions");
+	    m_indexMap.getIndexForLong("untimedTransactions");
+	    m_indexMap.getIndexForLong("totalTime");
+
 	    final ExpressionView[] expressionViews = {
 		new ExpressionView("Transactions", "statistic.transactions", 
 				   "(+ timedTransactions untimedTransactions)",
@@ -81,7 +83,7 @@ public final class TestStatisticsFactory
 	    };
 
 	    for (int i=0; i<expressionViews.length; ++i) {
-		statisticsView.add(expressionViews[i]);
+		m_statisticsView.add(expressionViews[i]);
 	    }
 	}
 	catch (GrinderException e) {
@@ -92,7 +94,7 @@ public final class TestStatisticsFactory
 	}
     }
 
-    public final ProcessStatisticsIndexMap getIndexMap()
+    public final StatisticsIndexMap getIndexMap()
     {
 	return m_indexMap;
     }
@@ -103,6 +105,15 @@ public final class TestStatisticsFactory
     }
 
     public final TestStatistics create()
+    {
+	return createImplementation();
+    }
+
+    /**
+     * Package scope factory method that returns instances of our implementation type.
+     * @see #create
+     **/
+    final TestStatisticsImplementation createImplementation()
     {
 	return new TestStatisticsImplementation();
     }

@@ -52,7 +52,7 @@ public class ExpressionView implements Comparable
 
     public ExpressionView(String displayName, String displayNameResourceKey,
 			  String expressionString,
-			  ProcessStatisticsIndexMap indexMap)
+			  StatisticsIndexMap indexMap)
 	throws GrinderException
     {
 	m_displayName = displayName;
@@ -72,7 +72,7 @@ public class ExpressionView implements Comparable
     }
 
     public ExpressionView(ObjectInput in,
-			  ProcessStatisticsIndexMap indexMap)
+			  StatisticsIndexMap indexMap)
 	throws GrinderException, IOException
     {
 	this(in.readUTF(), in.readUTF(), in.readUTF(), indexMap);

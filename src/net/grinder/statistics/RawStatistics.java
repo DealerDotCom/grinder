@@ -31,42 +31,71 @@ package net.grinder.statistics;
 public interface RawStatistics
 {
     /**
+     * Return the value specified by <code>index</code>.
+     *
+     * @param index The process specific index.
+     * @return The value.
+     */
+    long getValue(StatisticsIndexMap.LongIndex index);
+
+    /**
+     * Return the value specified by <code>index</code>.
+     *
+     * @param index The process specific index.
+     * @return The value.
+     */
+    double getValue(StatisticsIndexMap.DoubleIndex index);
+
+    /**
+     * Set the value specified by <code>index</code>.
+     *
+     * @param index The process specific index.
+     * @param value The value.
+     **/
+    void setValue(StatisticsIndexMap.LongIndex index, long value);
+
+    /**
+     * Set the value specified by <code>index</code>.
+     *
+     * @param index The process specific index.
+     * @param value The value.
+     **/
+    void setValue(StatisticsIndexMap.DoubleIndex index, double value);
+
+    /**
+     * Add <code>value</code> to the value specified by
+     * <code>index</code>.
+     *
+     * @param index The process specific index.
+     * @param value The value.
+     **/
+    void addValue(StatisticsIndexMap.LongIndex index, long value);
+
+    /**
+     * Add <code>value</code> to the value specified by
+     * <code>index</code>.
+     *
+     * @param index The process specific index.
+     * @param value The value.
+     **/
+    void addValue(StatisticsIndexMap.DoubleIndex index, double value);
+
+    /**
+     * Equivalent to <code>addValue(index, 1)</code>.
+     *
+     * @param index The process specific index.
+     * @exception IllegalArgumentException If the <code>index</code> is negative. 
+     *
+     * @see {@link #addValue}
+     */
+    void incrementValue(StatisticsIndexMap.LongIndex index);
+
+    /**
      * Add the values of another <code>RawStatistics</code> to ours.
      * Assumes we don't need to synchronise access to operand.
      * @param operand The <code>RawStatistics</code> value to add.
      **/
     void add(RawStatistics operand);
-
-    /**
-     * Add <code>value</code> to the value specified by
-     * <code>processStatisticsIndex</code>.
-     *
-     * @param processStatisticsIndex The process specific index.
-     * @param value The value.
-     * @throws IllegalArgumentException If the <code>processStatisticsIndex</code> is negative. 
-     * @throws IllegalArgumentException If the <code>value</code> is negative. 
-     **/
-    void addValue(int processStatisticsIndex, long value);
-
-    /**
-     * Equivalent to <code>addValue(processStatisticsIndex, 1)</code>.
-     *
-     * @param processStatisticsIndex The process specific index.
-     * @exception IllegalArgumentException If the <code>processStatisticsIndex</code> is negative. 
-     *
-     * @see {@link #addValue}
-     */
-    void incrementValue(int processStatisticsIndex);
-
-    /**
-     * Return the value specified by
-     * <code>processStatisticsIndex</code>.
-     *
-     * @param processStatisticsIndex The process specific index.
-     * @return The value.
-     * @throws IllegalArgumentException If the <code>processStatisticsIndex</code> is negative. 
-     */
-    long getValue(int processStatisticsIndex);
 
     /**
      * Return a <code>RawStatistics</code> representing the change

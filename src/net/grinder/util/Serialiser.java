@@ -84,4 +84,52 @@ public class Serialiser
 		      ((long)(m_readBuffer[7] & 0xFF)));
 	}
     }
+
+    /**
+     * Write a <code>long</code> to a stream in such a way it can be
+     * read by {@link #readLong}. 
+     *
+     * @param output The stream.
+     * @param long The value.
+     * @throws IOException If the stream raises an error.
+     **/
+    public final void writeLong(DataOutput output, long l)
+	throws IOException
+    {
+	// One day we'll make this efficient again.
+	output.writeLong(l);
+    }
+
+    /**
+     * Read a <code>long</code> written by {@link #writeLong}.
+     **/
+    public final long readLong(DataInput input)
+	throws IOException
+    {
+	return input.readLong();
+    }
+
+    /**
+     * Write a <code>double</code> to a stream in such a way it can be
+     * read by {@link #readDouble}. 
+     *
+     * @param output The stream.
+     * @param double The value.
+     * @throws IOException If the stream raises an error.
+     **/
+    public final void writeDouble(DataOutput output, double l)
+	throws IOException
+    {
+	// One day we'll make this efficient again.
+	output.writeDouble(l);
+    }
+
+    /**
+     * Read a <code>double</code> written by {@link #writeDouble}.
+     **/
+    public final double readDouble(DataInput input)
+	throws IOException
+    {
+	return input.readDouble();
+    }
 }

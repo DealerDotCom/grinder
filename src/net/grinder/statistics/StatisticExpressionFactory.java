@@ -56,16 +56,14 @@ public final class StatisticExpressionFactory
 	final ParseContext parseContext = new ParseContext(expression);
 	final StringBuffer result = new StringBuffer(expression.length());
 
-	try {
-	    normaliseExpressionString(parseContext, result);
-	    return result.toString();
+	normaliseExpressionString(parseContext, result);
+
+	if (parseContext.hasMoreCharacters()) {
+	    throw parseContext.new ParseException(
+		"Additional characters found");
 	}
-	finally {
-	    if (parseContext.hasMoreCharacters()) {
-		throw parseContext.new ParseException(
-		    "Additional characters found");
-	    }
-	}	
+
+	return result.toString();
     }
 
     private final void normaliseExpressionString(ParseContext parseContext,
@@ -90,76 +88,85 @@ public final class StatisticExpressionFactory
     }
 
     public final StatisticExpression
-	createExpression(String expression, ProcessStatisticsIndexMap indexMap)
+	createExpression(String expression, StatisticsIndexMap indexMap)
 	throws GrinderException
     {
 	final ParseContext parseContext = new ParseContext(expression);
 
-	try {
-	    return createExpression(parseContext, indexMap);
+	final StatisticExpression result =
+	    createExpression(parseContext, indexMap);
+
+	if (parseContext.hasMoreCharacters()) {
+	    throw parseContext.new ParseException(
+		"Additional characters found");
 	}
-	finally {
-	    if (parseContext.hasMoreCharacters()) {
-		throw parseContext.new ParseException(
-		    "Additional characters found");
-	    }
-	}
+
+	return result;
     }
 
     private final StatisticExpression
 	createExpression(ParseContext parseContext,
-			 ProcessStatisticsIndexMap indexMap)
+			 StatisticsIndexMap indexMap)
 	throws GrinderException
     {
 	if (parseContext.peekCharacter() == '(') {
 	    parseContext.readCharacter();
 
 	    final String operation = parseContext.readToken();
+	    final StatisticExpression result;
 
-	    try {
-		if ("+".equals(operation)) {
-		    return createSum(readOperands(parseContext, indexMap, 2));
-		}
-		else if ("*".equals(operation)) {
-		    return
-			createProduct(readOperands(parseContext, indexMap, 2));
-		}
-		else if ("/".equals(operation)) {
-		    return
-			createDivision(
-			    createExpression(parseContext, indexMap),
-			    createExpression(parseContext, indexMap));
-		}
+	    if ("+".equals(operation)) {
+		result = createSum(readOperands(parseContext, indexMap, 2));
 	    }
-	    finally {
-		if (parseContext.readCharacter() != ')') {
-		    throw parseContext.new ParseException("Expecting ')'");
-		}
+	    else if ("*".equals(operation)) {
+		result =
+		    createProduct(readOperands(parseContext, indexMap, 2));
+	    }
+	    else if ("/".equals(operation)) {
+		result =
+		    createDivision(
+			createExpression(parseContext, indexMap),
+			createExpression(parseContext, indexMap));
+	    }
+	    else {
+		throw parseContext.new ParseException(
+		    "Unknown operation '" + operation + "'");
 	    }
 
-	    throw parseContext.new ParseException(
-		"Unknown operation '" + operation + "'");
+	    if (parseContext.readCharacter() != ')') {
+		throw parseContext.new ParseException("Expecting ')'");
+	    }
+
+	    return result;
 	}
 	else {
 	    final String token = parseContext.readToken();
 
 	    try {
-		return createConstantExpression(Long.parseLong(token));
+		return createConstant(Long.parseLong(token));
 	    }
 	    catch (NumberFormatException e) {
 		try {
-		    return createConstantExpression(Double.parseDouble(token));
+		    return createConstant(Double.parseDouble(token));
 		}
 		catch (NumberFormatException e2) {
-		    // Raw statistic name.
-		    return createPrimitiveStatistic(
-			indexMap.getIndexFor(token));
+		    if (indexMap.isLongIndex(token)) {
+			return createPrimitive(
+			    indexMap.getIndexForLong(token));
+		    }
+		    else if (indexMap.isDoubleIndex(token)) {
+			return createPrimitive(
+			    indexMap.getIndexForDouble(token));
+		    }
 		}
 	    }
+
+	    throw parseContext.new ParseException("Unknown token '" + token +
+						  "'");
 	}
     }
 
-    public final StatisticExpression createConstantExpression(final long value)
+    public final StatisticExpression createConstant(final long value)
     {
 	return new LongStatistic() {
 		public final long getValue(RawStatistics rawStatistics) {
@@ -168,8 +175,7 @@ public final class StatisticExpressionFactory
 	    };
     }
 
-    public final StatisticExpression
-	createConstantExpression(final double value)
+    public final StatisticExpression createConstant(final double value)
     {
 	return new DoubleStatistic() {
 		public final double getValue(RawStatistics rawStatistics) {
@@ -179,9 +185,15 @@ public final class StatisticExpressionFactory
     }
 
     public final StatisticExpression
-	createPrimitiveStatistic(final int processStatisticsIndex) 
+	createPrimitive(StatisticsIndexMap.DoubleIndex index) 
     {
-	return new PrimitiveStatistic(processStatisticsIndex);
+	return new PrimitiveDoubleStatistic(index);
+    }
+
+    public final StatisticExpression 
+	createPrimitive(StatisticsIndexMap.LongIndex index) 
+    {
+	return new PrimitiveLongStatistic(index);
     }
 
     public final StatisticExpression
@@ -278,7 +290,7 @@ public final class StatisticExpressionFactory
 
     private final StatisticExpression[]
 	readOperands(ParseContext parseContext,
-		     ProcessStatisticsIndexMap indexMap, int minimumSize)
+		     StatisticsIndexMap indexMap, int minimumSize)
 	throws GrinderException
     {
 	final List arrayList = new ArrayList();
@@ -323,6 +335,25 @@ public final class StatisticExpressionFactory
 	protected abstract double getValue(RawStatistics rawStatistics);
     }
 
+    private final static class PrimitiveDoubleStatistic extends DoubleStatistic
+    {
+	private final StatisticsIndexMap.DoubleIndex m_index;
+
+	public PrimitiveDoubleStatistic(StatisticsIndexMap.DoubleIndex index)
+	{
+	    m_index = index;
+	}
+
+	public final double getValue(RawStatistics rawStatistics) {
+	    return rawStatistics.getValue(m_index);
+	}
+
+	public boolean isPrimitive()
+	{
+	    return true;
+	}
+    }
+
     private static abstract class PeakDoubleStatistic
 	extends DoubleStatistic implements PeakStatisticExpression 
     {
@@ -354,17 +385,17 @@ public final class StatisticExpressionFactory
 	protected abstract long getValue(RawStatistics rawStatistics);
     }
 
-    private final static class PrimitiveStatistic extends LongStatistic
+    private final static class PrimitiveLongStatistic extends LongStatistic
     {
-	private final int m_processStatisticsIndex;
+	private final StatisticsIndexMap.LongIndex m_index;
 
-	public PrimitiveStatistic(int processStatisticsIndex)
+	public PrimitiveLongStatistic(StatisticsIndexMap.LongIndex index)
 	{
-	    m_processStatisticsIndex = processStatisticsIndex;
+	    m_index = index;
 	}
 
 	public final long getValue(RawStatistics rawStatistics) {
-	    return rawStatistics.getValue(m_processStatisticsIndex);
+	    return rawStatistics.getValue(m_index);
 	}
 
 	public boolean isPrimitive()

@@ -41,13 +41,13 @@ public class AllTests
     {
 	final TestSuite suite = new TestSuite();
 	suite.addTest(new TestSuite(TestExpressionView.class));
-	suite.addTest(new TestSuite(TestProcessStatisticsIndexMap.class));
 	suite.addTest(new TestSuite(TestRawStatisticsImplementation.class));
 	suite.addTest(new TestSuite(TestStatisticExpressionFactory.class));
 	suite.addTest(new TestSuite(TestStatisticsTable.class));
 	suite.addTest(new TestSuite(TestStatisticsView.class));
 	suite.addTest(new TestSuite(TestTestStatisticsFactory.class));
 	suite.addTest(new TestSuite(TestTestStatisticsImplementation.class));
+	suite.addTest(new TestSuite(TestStatisticsIndexMap.class));
 	suite.addTest(new TestSuite(TestTestStatisticsMap.class));
 	return suite;
     }

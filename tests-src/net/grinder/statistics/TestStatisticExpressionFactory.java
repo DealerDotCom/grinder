@@ -23,8 +23,6 @@ import junit.swingui.TestRunner;
 //import junit.textui.TestRunner;
 
 import net.grinder.common.GrinderException;
-import net.grinder.statistics.ProcessStatisticsIndexMap;
-import net.grinder.statistics.RawStatistics;
 
 
 /**
@@ -49,31 +47,31 @@ public class TestStatisticExpressionFactory extends TestCase
     private final StatisticExpressionFactory m_factory =
 	StatisticExpressionFactory.getInstance();
 
-    private final ProcessStatisticsIndexMap m_indexMap =
-	new ProcessStatisticsIndexMap();
+    private final StatisticsIndexMap m_indexMap =
+	new StatisticsIndexMap();
 
     private final RawStatistics m_rawStatistics =
 	new RawStatisticsImplementation();
 
     private final double m_accuracy = 0.00001d;
 
-    protected void setUp()
+    protected void setUp() throws Exception
     {
-	m_rawStatistics.addValue(m_indexMap.getIndexFor("One"), 1);
-	m_rawStatistics.addValue(m_indexMap.getIndexFor("Two"), 2);
+	m_rawStatistics.addValue(m_indexMap.getIndexForLong("One"), 1);
+	m_rawStatistics.addValue(m_indexMap.getIndexForLong("Two"), 2);
     }
 
     public void testConstant() throws Exception
     {
 	final StatisticExpression longExpression =
-	    m_factory.createConstantExpression(-22);
+	    m_factory.createConstant(-22);
 
 	myAssertEquals(-22, longExpression);
 	assert(!longExpression.isPrimitive());
 	assert(!longExpression.isDouble());
 
 	final StatisticExpression doubleExpression =
-	    m_factory.createConstantExpression(2.3);
+	    m_factory.createConstant(2.3);
 
 	myAssertEquals(2.3d, doubleExpression);
 	assert(!doubleExpression.isPrimitive());
@@ -93,13 +91,21 @@ public class TestStatisticExpressionFactory extends TestCase
     public void testPrimitive() throws Exception
     {
 	final StatisticExpression expression =
-	    m_factory.createPrimitiveStatistic(m_indexMap.getIndexFor("One"));
+	    m_factory.createPrimitive(m_indexMap.getIndexForLong("One"));
 
 	myAssertEquals(1, expression);
 	assert(expression.isPrimitive());
 	assert(!expression.isDouble());
 
-	myAssertEquals(0, m_factory.createExpression("  Test ", m_indexMap));
+	final StatisticsIndexMap.DoubleIndex anotherIndex =
+	    m_indexMap.getIndexForDouble("Test");
+
+	final StatisticExpression doubleExpresson =
+	    m_factory.createExpression("  Test", m_indexMap);
+
+	myAssertEquals(0d, doubleExpresson);
+	assert(doubleExpresson.isPrimitive());
+	assert(doubleExpresson.isDouble());
 
 	myAssertEquals(2, m_factory.createExpression("Two", m_indexMap));
 
@@ -112,6 +118,13 @@ public class TestStatisticExpressionFactory extends TestCase
 
 	try {
 	    m_factory.createExpression("One Two", m_indexMap);
+	    fail("Expected a GrinderException");
+	}
+	catch (GrinderException e) {
+	}
+
+	try {
+	    m_factory.createExpression("Madeup", m_indexMap);
 	    fail("Expected a GrinderException");
 	}
 	catch (GrinderException e) {
@@ -248,7 +261,8 @@ public class TestStatisticExpressionFactory extends TestCase
 	assert(!expression.isPrimitive());
 	assert(!expression.isDouble());
 
-	final int statIndex = m_indexMap.getIndexFor("testPeak");
+	final StatisticsIndexMap.LongIndex statIndex =
+	    m_indexMap.getIndexForLong("testPeak");
 
 	final RawStatistics rawStatistics2 =
 	    new RawStatisticsImplementation();
@@ -291,8 +305,10 @@ public class TestStatisticExpressionFactory extends TestCase
 	assert(!expression.isPrimitive());
 	assert(expression.isDouble());
 
-	final int xIndex = m_indexMap.getIndexFor("x");
-	final int yIndex = m_indexMap.getIndexFor("y");
+	final StatisticsIndexMap.LongIndex xIndex =
+	    m_indexMap.getIndexForLong("x");
+	final StatisticsIndexMap.LongIndex yIndex =
+	    m_indexMap.getIndexForLong("y");
 
 	final RawStatistics rawStatisticsHalf =
 	    new RawStatisticsImplementation();
@@ -363,8 +379,8 @@ public class TestStatisticExpressionFactory extends TestCase
 
     public void testNormaliseExpressionString() throws Exception
     {
-	assertEquals("Test",
-		     m_factory.normaliseExpressionString(" Test "));
+	assertEquals("One",
+		     m_factory.normaliseExpressionString(" One "));
 
 	assertEquals("(+ One Two (* One Two))",
 		     m_factory.normaliseExpressionString(

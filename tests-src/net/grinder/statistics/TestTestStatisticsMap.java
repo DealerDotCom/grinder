@@ -54,6 +54,7 @@ public class TestTestStatisticsMap extends TestCase
     private final Test m_test1 = new TestImplementation(1, "", null);
     private TestStatistics m_statistics0;
     private TestStatistics m_statistics1;
+    private StatisticsIndexMap.LongIndex m_index;
 
     protected void setUp() throws Exception
     {
@@ -63,7 +64,10 @@ public class TestTestStatisticsMap extends TestCase
 	m_statistics0 = factory.create();
 	m_statistics1 = factory.create();
 
-	m_statistics0.addValue(0, 10);
+	final StatisticsIndexMap indexMap = new StatisticsIndexMap();
+	m_index = indexMap.getIndexForLong("abc");
+
+	m_statistics0.addValue(m_index, 10);
     }
 
     public void testPut() throws Exception
@@ -169,11 +173,11 @@ public class TestTestStatisticsMap extends TestCase
 
 	final TestStatisticsMap.Pair first = iterator.next();
 	assertEquals(0, first.getTest().getNumber());
-	assertEquals(10, first.getStatistics().getValue(0));
+	assertEquals(10, first.getStatistics().getValue(m_index));
 
 	final TestStatisticsMap.Pair second = iterator.next();
 	assertEquals(1, second.getTest().getNumber());
-	assertEquals(0, second.getStatistics().getValue(0));
+	assertEquals(0, second.getStatistics().getValue(m_index));
     }
 
     public void testGetTotal() throws Exception

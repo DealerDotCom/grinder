@@ -36,16 +36,14 @@ import net.grinder.util.Serialiser;
  **/
 class RawStatisticsImplementation implements RawStatistics
 {
-    // Implementation notes
-    // 1. The public interface only allows the values to be increased.
-    //     We rely on the fact that the values are non-negative to
-    //     implement efficient serialisation.
-    // 2. Our array of values grows in size to accomodate new process
-    //     index values. It never shrinks.
+    // Implementation notes: Our arrays of values grow in size to
+    // accomodate new process index values. They never shrink.
 
     private final static long[] s_emptyLongArray = new long[0];
+    private final static double[] s_emptyDoubleArray = new double[0];
 
-    private long[] m_data = s_emptyLongArray;
+    private long[] m_longData = s_emptyLongArray;
+    private double[] m_doubleData = s_emptyDoubleArray;
 
     /**
      * @clientRole snapshot 
@@ -62,6 +60,109 @@ class RawStatisticsImplementation implements RawStatistics
     }
 
     /**
+     * Return the value specified by <code>index</code>.
+     *
+     * @param index The process specific index.
+     * @return The value.
+     */
+    public final long getValue(StatisticsIndexMap.LongIndex index)
+    {
+	final int indexValue = index.getValue();
+
+	expandLongDataToSize(indexValue + 1);
+	return m_longData[indexValue];
+    }
+
+    /**
+     * Return the value specified by <code>index</code>.
+     *
+     * @param index The process specific index.
+     * @return The value.
+     */
+    public final double getValue(StatisticsIndexMap.DoubleIndex index)
+    {
+	final int indexValue = index.getValue();
+
+	expandDoubleDataToSize(indexValue + 1);
+	return m_doubleData[indexValue];
+    }
+
+   /**
+     * Set the value specified by <code>index</code>.
+     *
+     * @param index The process specific index.
+     * @param value The value.
+     **/
+    public final synchronized void setValue(StatisticsIndexMap.LongIndex index,
+					    long value)
+    {
+	final int indexValue = index.getValue();
+
+	expandLongDataToSize(indexValue + 1);
+	m_longData[indexValue] = value;
+    }
+
+   /**
+     * Set the value specified by <code>index</code>.
+     *
+     * @param index The process specific index.
+     * @param value The value.
+     **/
+    public final synchronized
+	void setValue(StatisticsIndexMap.DoubleIndex index, double value)
+    {
+	final int indexValue = index.getValue();
+
+	expandDoubleDataToSize(indexValue + 1);
+	m_doubleData[indexValue] = value;
+    }
+
+    /**
+     * Add <code>value</code> to the value specified by
+     * <code>index</code>.
+     *
+     * @param index The process specific index.
+     * @param value The value.
+     **/
+    public final synchronized void addValue(StatisticsIndexMap.LongIndex index,
+					    long value)
+    {
+	final int indexValue = index.getValue();
+
+	expandLongDataToSize(indexValue + 1);
+	m_longData[indexValue] += value;
+    }
+
+    /**
+     * Add <code>value</code> to the value specified by
+     * <code>index</code>.
+     *
+     * @param index The process specific index.
+     * @param value The value.
+     **/
+    public final synchronized void
+	addValue(StatisticsIndexMap.DoubleIndex index, double value)
+    {
+	final int indexValue = index.getValue();
+
+	expandDoubleDataToSize(indexValue + 1);
+	m_doubleData[indexValue] += value;
+    }
+
+    /**
+     * Equivalent to <code>addValue(index, 1)</code>.
+     *
+     * @param index The process specific index.
+     *
+     * @see {@link #addValue}
+     */
+    public final synchronized 
+	void incrementValue(StatisticsIndexMap.LongIndex index)
+    {
+	addValue(index, 1);
+    }
+
+    /**
      * Add the values of another <code>RawStatistics</code> to ours.
      * Assumes we don't need to synchronise access to operand.
      *
@@ -73,68 +174,24 @@ class RawStatisticsImplementation implements RawStatistics
      **/
     public final synchronized void add(RawStatistics operand)
     {
-	final long[] data = ((RawStatisticsImplementation)operand).m_data;
+	final RawStatisticsImplementation operandImplementation =
+	    (RawStatisticsImplementation)operand;
 
-	expandToSize(data.length);
+	final long[] longData = operandImplementation.m_longData;
 
-	for (int i=0; i<data.length; i++) {
-	    m_data[i] += data[i];
-	}
-    }
+	expandLongDataToSize(longData.length);
 
-    /**
-     * Add <code>value</code> to the value specified by
-     * <code>processStatisticsIndex</code>.
-     *
-     * @param processStatisticsIndex The process specific index.
-     * @param value The value.
-     * @throws IllegalArgumentException If the <code>processStatisticsIndex</code> is negative. 
-     * @throws IllegalArgumentException If the <code>value</code> is negative. 
-     **/
-    public final synchronized void addValue(int processStatisticsIndex,
-					    long value)
-    {
-	if (processStatisticsIndex < 0) {
-	    throw new IllegalArgumentException("Negative value");
+	for (int i=0; i<longData.length; i++) {
+	    m_longData[i] += longData[i];
 	}
 
-	if (value < 0) {
-	    throw new IllegalArgumentException("Negative value");
+	final double[] doubleData = operandImplementation.m_doubleData;
+
+	expandDoubleDataToSize(doubleData.length);
+
+	for (int i=0; i<doubleData.length; i++) {
+	    m_doubleData[i] += doubleData[i];
 	}
-
-	expandToSize(processStatisticsIndex + 1);
-	m_data[processStatisticsIndex] += value;
-    }
-
-    /**
-     * Equivalent to <code>addValue(processStatisticsIndex, 1)</code>.
-     *
-     * @param processStatisticsIndex The process specific index.
-     * @exception IllegalArgumentException If the <code>processStatisticsIndex</code> is negative. 
-     *
-     * @see {@link #addValue}
-     */
-    public final synchronized void incrementValue(int processStatisticsIndex)
-    {
-	addValue(processStatisticsIndex, 1);
-    }
-
-    /**
-     * Return the value specified by
-     * <code>processStatisticsIndex</code>.
-     *
-     * @param processStatisticsIndex The process specific index.
-     * @return The value.
-     * @throws IllegalArgumentException If the <code>processStatisticsIndex</code> is negative. 
-     */
-    public final long getValue(int processStatisticsIndex)
-    {
-	if (processStatisticsIndex < 0) {
-	    throw new IllegalArgumentException("Negative value");
-	}
-
-	expandToSize(processStatisticsIndex + 1);
-	return m_data[processStatisticsIndex];
     }
 
     /**
@@ -156,16 +213,23 @@ class RawStatisticsImplementation implements RawStatistics
 	result.add(this);
 
 	if (m_snapshot != null) {
-	    if (m_data.length < m_snapshot.m_data.length) {
+	    if (m_longData.length < m_snapshot.m_longData.length ||
+		m_doubleData.length < m_snapshot.m_doubleData.length) {
 		throw new IllegalStateException(
 		    "Assertion failure: " +
 		    "Snapshot data size is larger than ours");
 	    }
 
-	    final long[] data = m_snapshot.m_data;
+	    final long[] longData = m_snapshot.m_longData;
 
-	    for (int i=0; i<data.length; i++) {
-		result.m_data[i] -= data[i];
+	    for (int i=0; i<longData.length; i++) {
+		result.m_longData[i] -= longData[i];
+	    }
+
+	    final double[] doubleData = m_snapshot.m_doubleData;
+
+	    for (int i=0; i<doubleData.length; i++) {
+		result.m_doubleData[i] -= doubleData[i];
 	    }
 	}
 
@@ -196,13 +260,23 @@ class RawStatisticsImplementation implements RawStatistics
 	final RawStatisticsImplementation otherStatistics =
 	    (RawStatisticsImplementation)o;
 
-	expandToSize(otherStatistics.m_data.length);
-	otherStatistics.expandToSize(m_data.length);
+	expandLongDataToSize(otherStatistics.m_longData.length);
+	otherStatistics.expandLongDataToSize(m_longData.length);
+	expandDoubleDataToSize(otherStatistics.m_doubleData.length);
+	otherStatistics.expandDoubleDataToSize(m_doubleData.length);
 
-	final long[] otherData = otherStatistics.m_data;
+	final long[] otherLongData = otherStatistics.m_longData;
 
-	for (int i=0; i<m_data.length; i++) {
-	    if (m_data[i] != otherData[i]) {
+	for (int i=0; i<m_longData.length; i++) {
+	    if (m_longData[i] != otherLongData[i]) {
+		return false;
+	    }
+	}
+
+	final double[] otherDoubleData = otherStatistics.m_doubleData;
+
+	for (int i=0; i<m_doubleData.length; i++) {
+	    if (m_doubleData[i] != otherDoubleData[i]) {
 		return false;
 	    }
 	}
@@ -222,10 +296,18 @@ class RawStatisticsImplementation implements RawStatistics
 
 	result.append("RawStatistics = {");
 
-	for (int i=0; i<m_data.length; i++) {
-	    result.append(m_data[i]);
+	for (int i=0; i<m_longData.length; i++) {
+	    result.append(m_longData[i]);
 
-	    if (i!= m_data.length-1) {
+	    if (i!= m_longData.length-1 || m_doubleData.length > 0) {
+		result.append(", ");
+	    }
+	}
+
+	for (int i=0; i<m_doubleData.length; i++) {
+	    result.append(m_doubleData[i]);
+
+	    if (i!= m_doubleData.length-1) {
 		result.append(", ");
 	    }
 	}
@@ -246,10 +328,16 @@ class RawStatisticsImplementation implements RawStatistics
     final void myWriteExternal(ObjectOutput out, Serialiser serialiser)
 	throws IOException
     {
-	out.writeInt(m_data.length);
+	out.writeInt(m_longData.length);
 
-	for (int i=0; i<m_data.length; i++) {
-	    serialiser.writeUnsignedLong(out, m_data[i]);
+	for (int i=0; i<m_longData.length; i++) {
+	    serialiser.writeLong(out, m_longData[i]);
+	}
+
+	out.writeInt(m_doubleData.length);
+
+	for (int i=0; i<m_doubleData.length; i++) {
+	    serialiser.writeDouble(out, m_doubleData[i]);
 	}
     }
 
@@ -265,24 +353,44 @@ class RawStatisticsImplementation implements RawStatistics
 					  Serialiser serialiser)
 	throws IOException
     {
-	final int length = in.readInt();
+	final int longLength = in.readInt();
 
-	m_data = new long[length];
+	m_longData = new long[longLength];
 
-	for (int i=0; i<m_data.length; i++) {
-	    m_data[i] = serialiser.readUnsignedLong(in);
+	for (int i=0; i<m_longData.length; i++) {
+	    m_longData[i] = serialiser.readLong(in);
+	}
+
+	final int doubleLength = in.readInt();
+
+	m_doubleData = new double[doubleLength];
+
+	for (int i=0; i<m_doubleData.length; i++) {
+	    m_doubleData[i] = serialiser.readDouble(in);
 	}
     }
 
-    private final void expandToSize(int size)
+    private final void expandLongDataToSize(int size)
     {
-	if (m_data.length < size) {
+	if (m_longData.length < size) {
 	    final long[] newStatistics = new long[size];
 
-	    System.arraycopy(m_data, 0, newStatistics, 0,
-			     m_data.length);
+	    System.arraycopy(m_longData, 0, newStatistics, 0,
+			     m_longData.length);
 
-	    m_data = newStatistics;
+	    m_longData = newStatistics;
+	}
+    }
+
+    private final void expandDoubleDataToSize(int size)
+    {
+	if (m_doubleData.length < size) {
+	    final double[] newStatistics = new double[size];
+
+	    System.arraycopy(m_doubleData, 0, newStatistics, 0,
+			     m_doubleData.length);
+
+	    m_doubleData = newStatistics;
 	}
     }
 }

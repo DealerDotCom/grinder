@@ -50,79 +50,135 @@ public class TestRawStatisticsImplementation extends TestCase
 	super(name);
     }
 
-    public void testCreation() 
-    {
-	final RawStatisticsImplementation statistics = new RawStatisticsImplementation();
+    final StatisticsIndexMap m_indexMap = new StatisticsIndexMap();
 
-	assertEquals(0, statistics.getValue(10));
+    StatisticsIndexMap.LongIndex m_longIndex0;
+    StatisticsIndexMap.LongIndex m_longIndex1;
+    StatisticsIndexMap.LongIndex m_longIndex2;
+    StatisticsIndexMap.DoubleIndex m_doubleIndex0;
+    StatisticsIndexMap.DoubleIndex m_doubleIndex1;
+    StatisticsIndexMap.DoubleIndex m_doubleIndex2;
+
+    protected void setUp() throws Exception
+    {
+	m_longIndex0 = m_indexMap.getIndexForLong("a");
+	m_longIndex1 = m_indexMap.getIndexForLong("b");
+	m_longIndex2 = m_indexMap.getIndexForLong("c");
+	m_doubleIndex0 = m_indexMap.getIndexForDouble("da");
+	m_doubleIndex1 = m_indexMap.getIndexForDouble("dc");
+	m_doubleIndex2 = m_indexMap.getIndexForDouble("da");
     }
 
-    public void testAddValueIncrementAndEquals() 
+    public void testCreation() 
     {
-	final RawStatisticsImplementation statistics0 = new RawStatisticsImplementation();
-	final RawStatisticsImplementation statistics1 = new RawStatisticsImplementation();
+	final RawStatisticsImplementation statistics =
+	    new RawStatisticsImplementation();
+
+	assertEquals(0, statistics.getValue(m_longIndex1));
+	myAssertEquals(0d, statistics.getValue(m_doubleIndex2));
+    }
+
+    public void testGetValueSetValueAndEquals()
+    {
+	final RawStatisticsImplementation statistics0 =
+	    new RawStatisticsImplementation();
+	final RawStatisticsImplementation statistics1 =
+	    new RawStatisticsImplementation();
 
 	assertEquals(statistics0, statistics0);
 	assertEquals(statistics0, statistics1);
 	
-	final int indexA = 1;
+	statistics0.setValue(m_longIndex1, 700);
+	assertEquals(700, statistics0.getValue(m_longIndex1));
+	statistics0.setValue(m_longIndex1, -300);
+	assertEquals(-300, statistics0.getValue(m_longIndex1));
+	assert(!statistics0.equals(statistics1));
 
-	statistics0.addValue(indexA, 700);
-	statistics0.addValue(indexA, 300);
+	statistics1.setValue(m_longIndex1, 500);
 	assert(!statistics0.equals(statistics1));
-	statistics1.addValue(indexA, 500);
-	assert(!statistics0.equals(statistics1));
-	statistics1.addValue(indexA, 500);
+	statistics1.setValue(m_longIndex1, -300);
 	assertEquals(statistics0, statistics1);
 
-	final int indexB = 3;
-
-	statistics0.incrementValue(indexB);
+	statistics0.setValue(m_longIndex0, 1);
 	assert(!statistics0.equals(statistics1));
-	statistics1.incrementValue(indexB);
+	statistics1.setValue(m_longIndex0, 1);
 	assertEquals(statistics0, statistics1);
 
 	assertEquals(statistics0, statistics0);
 	assertEquals(statistics1, statistics1);
 
-	statistics0.addValue(9, 0);
-	assertEquals(statistics0, statistics1);	// Statistics1.getValue(9)
+	statistics0.setValue(m_longIndex2, 0);
+	assertEquals(statistics0, statistics1);	// Statistics1.getValue(m_longIndex2)
 						// defaults to 0.
 
-	try {
-	    statistics0.addValue(-1, 1);
-	    fail("Expected IllegalArgumentException");
-	}
-	catch (IllegalArgumentException e) {
-	}
+	statistics0.setValue(m_doubleIndex2, 7.00d);
+	myAssertEquals(7.00d, statistics0.getValue(m_doubleIndex2));
+	statistics0.setValue(m_doubleIndex2, 3.00d);
+	myAssertEquals(3.00d, statistics0.getValue(m_doubleIndex2));
+	assert(!statistics0.equals(statistics1));
 
-	try {
-	    statistics0.incrementValue(-1);
-	    fail("Expected IllegalArgumentException");
-	}
-	catch (IllegalArgumentException e) {
-	}
+	statistics1.setValue(m_doubleIndex2, 5.00d);
+	assert(!statistics0.equals(statistics1));
+	statistics1.setValue(m_doubleIndex2, 3.00d);
+	assertEquals(statistics0, statistics1);
 
-	try {
-	    statistics0.addValue(1, -1);
-	    fail("Expected IllegalArgumentException");
-	}
-	catch (IllegalArgumentException e) {
-	}
+	statistics0.setValue(m_doubleIndex0, -1.0d);
+	assert(!statistics0.equals(statistics1));
+	statistics1.setValue(m_doubleIndex0, -1.0d);
+	assertEquals(statistics0, statistics1);
+
+	assertEquals(statistics0, statistics0);
+	assertEquals(statistics1, statistics1);
+
+	statistics0.setValue(m_doubleIndex1, 0);
+	assertEquals(statistics0, statistics1);	// Statistics1.getValue(m_longIndex1)
+						// defaults to 0.
+    }
+
+    public void testAddValueAndIncrement() 
+    {
+	final RawStatisticsImplementation statistics0 =
+	    new RawStatisticsImplementation();
+	final RawStatisticsImplementation statistics1 =
+	    new RawStatisticsImplementation();
+	
+	statistics0.addValue(m_longIndex1, 700);
+	statistics0.addValue(m_longIndex1, 300);
+	assert(!statistics0.equals(statistics1));
+	statistics1.addValue(m_longIndex1, 500);
+	assert(!statistics0.equals(statistics1));
+	statistics1.addValue(m_longIndex1, 500);
+	assertEquals(statistics0, statistics1);
+	
+	statistics0.addValue(m_doubleIndex1, 7.00d);
+	statistics0.addValue(m_doubleIndex1, 3.00d);
+	assert(!statistics0.equals(statistics1));
+	statistics1.addValue(m_doubleIndex1, 5.00d);
+	assert(!statistics0.equals(statistics1));
+	statistics1.addValue(m_doubleIndex1, 5.00d);
+	assertEquals(statistics0, statistics1);
+
+
+	statistics0.incrementValue(m_longIndex0);
+	assert(!statistics0.equals(statistics1));
+	statistics1.incrementValue(m_longIndex0);
+	assertEquals(statistics0, statistics1);
     }
 
     public void testAdd() throws Exception
     {
-	final RawStatisticsImplementation statistics0 = new RawStatisticsImplementation();
-	final RawStatisticsImplementation statistics1 = new RawStatisticsImplementation();
+	final RawStatisticsImplementation statistics0 =
+	    new RawStatisticsImplementation();
+	final RawStatisticsImplementation statistics1 =
+	    new RawStatisticsImplementation();
 
 	// 0 + 0 = 0
 	statistics0.add(statistics1);
 	assertEquals(statistics0, statistics1);
 
 	// 0 + 1 = 1
-	statistics0.addValue(0, 100);
-	statistics0.addValue(3, 55);
+	statistics0.addValue(m_longIndex0, 100);
+	statistics0.addValue(m_doubleIndex2, -5.5);
 	statistics1.add(statistics0);
 	assertEquals(statistics0, statistics1);
 
@@ -134,14 +190,16 @@ public class TestRawStatisticsImplementation extends TestCase
 	statistics0.add(statistics0); // Test add to self.
 	assertEquals(statistics0, statistics1);
 
-	assertEquals(200, statistics0.getValue(0));
-	assertEquals(110, statistics0.getValue(3));
+	assertEquals(200, statistics0.getValue(m_longIndex0));
+	myAssertEquals(-11d, statistics0.getValue(m_doubleIndex2));
     }
 
     public void testGetDelta() throws Exception
     {
-	final RawStatisticsImplementation statistics0 = new RawStatisticsImplementation();
-	statistics0.addValue(0, 1234);
+	final RawStatisticsImplementation statistics0 =
+	    new RawStatisticsImplementation();
+	statistics0.addValue(m_longIndex0, 1234);
+	statistics0.addValue(m_doubleIndex0, 1.234);
 
 	final RawStatistics statistics1 = statistics0.getDelta(false);
 	assertEquals(statistics0, statistics1);
@@ -153,29 +211,30 @@ public class TestRawStatisticsImplementation extends TestCase
 	final RawStatistics statistics3 = statistics0.getDelta(false);
 	assert(!statistics0.equals(statistics3));
 
-	statistics0.addValue(1, 2345);
+	statistics0.addValue(m_doubleIndex0, 2.345);
 	final RawStatistics statistics4 = statistics0.getDelta(true);
 
-	assertEquals(0, statistics4.getValue(0));
-	assertEquals(2345, statistics4.getValue(1));
+	assertEquals(0, statistics4.getValue(m_longIndex0));
+	myAssertEquals(2.345, statistics4.getValue(m_doubleIndex0));
 
-	statistics0.addValue(0, 5678);
+	statistics0.addValue(m_longIndex0, 5678);
 
 	final RawStatistics statistics5 = statistics0.getDelta(true);
-	assertEquals(5678, statistics5.getValue(0));
-	assertEquals(0, statistics5.getValue(1));
+	assertEquals(5678, statistics5.getValue(m_longIndex0));
+	myAssertEquals(0, statistics5.getValue(m_doubleIndex0));
     }
 
     public void testSerialisation() throws Exception
     {
 	final Random random = new Random();
 
-	final RawStatisticsImplementation original0 = new RawStatisticsImplementation();
-	original0.addValue(0, Math.abs(random.nextLong()));
-	original0.addValue(1, Math.abs(random.nextLong()));
-	original0.addValue(5, Math.abs(random.nextLong()));
+	final RawStatisticsImplementation original0 =
+	    new RawStatisticsImplementation();
+	original0.addValue(m_longIndex0, Math.abs(random.nextLong()));
+	original0.addValue(m_longIndex2, Math.abs(random.nextLong()));
 
-	final RawStatisticsImplementation original1 = new RawStatisticsImplementation();
+	final RawStatisticsImplementation original1 =
+	    new RawStatisticsImplementation();
 
 	final ByteArrayOutputStream byteOutputStream =
 	    new ByteArrayOutputStream();
@@ -202,6 +261,10 @@ public class TestRawStatisticsImplementation extends TestCase
 
 	assertEquals(original0, received0);
 	assertEquals(original1, received1);
+    }	
+
+    private void myAssertEquals(double a, double b)
+    {
+	assertEquals(a, b, 0.000000001d);
     }
-	
 }
