@@ -97,6 +97,10 @@ See http://forrest.apache.org/docs/linking.html for more info
       <dtd-docs href="docs/dtd-docs.html"/>
     </forrest>
 
+    <gmane href="http://gmane.org/">
+      <grinder-lists href="find.php?list=grinder"/>
+    </gmane>
+
     <iso-639 href="http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt"/>
 
     <innovation href="http://www.innovation.ch/">
