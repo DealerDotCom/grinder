@@ -43,6 +43,7 @@ public class TestThreadSafeQueue extends TestCase {
     final ThreadSafeQueue threadSafeQueue = new ThreadSafeQueue();
     assertNotNull(threadSafeQueue.getMutex());
     assertSame(threadSafeQueue.getMutex(), threadSafeQueue.getMutex());
+    assertEquals(0, threadSafeQueue.getSize());
   }
 
   public void testQueueAndDequeSingleThreaded() throws Exception {
@@ -55,15 +56,19 @@ public class TestThreadSafeQueue extends TestCase {
     threadSafeQueue.queue(o1);
     threadSafeQueue.queue(o2);
     threadSafeQueue.queue(o3);
+    assertEquals(3, threadSafeQueue.getSize());
 
     assertSame(o1, threadSafeQueue.dequeue(false));
     assertSame(o2, threadSafeQueue.dequeue(true));
+    assertEquals(1, threadSafeQueue.getSize());
     assertSame(o3, threadSafeQueue.dequeue(false));
 
     assertNull(threadSafeQueue.dequeue(false));
+    assertEquals(0, threadSafeQueue.getSize());
 
     threadSafeQueue.queue(o2);
     threadSafeQueue.queue(o3);
+    assertEquals(2, threadSafeQueue.getSize());
 
     assertSame(o2, threadSafeQueue.dequeue(false));
     assertSame(o3, threadSafeQueue.dequeue(true));
@@ -104,6 +109,7 @@ public class TestThreadSafeQueue extends TestCase {
       assertNull(dequeuers[i].getException());
     }
 
+    assertEquals(0, threadSafeQueue.getSize());
     assertEquals(100, answerList.size());
 
     final MyMessage[] messages = new MyMessage[100];
