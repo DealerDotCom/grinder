@@ -22,7 +22,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.tools.proxy;
+package net.grinder.tools.tcpsniffer;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -38,11 +38,6 @@ import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 import org.apache.oro.text.regex.Perl5Substitution;
 import org.apache.oro.text.regex.Util;
-
-import net.grinder.tools.tcpsniffer.ConnectionDetails;
-import net.grinder.tools.tcpsniffer.SnifferEngineImplementation;
-import net.grinder.tools.tcpsniffer.SnifferFilter;
-import net.grinder.tools.tcpsniffer.SnifferSocketFactory;
 
 
 /**
