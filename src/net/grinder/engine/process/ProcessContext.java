@@ -110,8 +110,7 @@ class ProcessContext
 	}
 
 	m_pluginRegistry = new PluginRegistry(this);
-	m_testRegistry =
-	    new TestRegistry(m_pluginRegistry, getConsoleSender());
+	m_testRegistry = new TestRegistry(getConsoleSender());
     }
 
     void initialiseDataWriter()

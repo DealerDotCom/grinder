@@ -41,16 +41,32 @@ import net.grinder.plugininterface.PluginThreadCallbacks;
  * @author Philip Aston
  * @version $Revision$
  */
-final class PluginRegistry
+public final class PluginRegistry
 {
+    private static PluginRegistry s_instance;
+
     private final ProcessContext m_processContext;
     private final Map m_plugins = new HashMap();
 
     /**
+     * Singleton accessor.
+     */
+    public static final PluginRegistry getInstance()
+    {
+	return s_instance;
+    }
+
+    /**
      * Constructor.
      */
-    public PluginRegistry(ProcessContext processContext)
+    PluginRegistry(ProcessContext processContext) throws EngineException
     {
+	if (s_instance != null) {
+	    throw new EngineException("Already initialised");
+	}
+
+	s_instance = this;
+	
 	m_processContext = processContext;
     }
 
@@ -113,6 +129,13 @@ final class PluginRegistry
 	    return m_plugin;
 	}
 
+	public final PluginThreadCallbacks getPluginThreadCallbacks()
+	    throws EngineException
+	{
+	    // TODO handle if not worker thread.
+	    return getPluginThreadCallbacks(ThreadContext.getThreadInstance());
+	}
+
 	final PluginThreadCallbacks getPluginThreadCallbacks(
 	    ThreadContext threadContext) throws EngineException
 	{
@@ -143,7 +166,7 @@ final class PluginRegistry
 	}
     }
 
-    public final List getPluginThreadCallbacksList(ThreadContext threadContext)
+    final List getPluginThreadCallbacksList(ThreadContext threadContext)
 	throws EngineException
     {
 	synchronized(m_plugins) {

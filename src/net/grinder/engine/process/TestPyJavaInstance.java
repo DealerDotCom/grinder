@@ -19,9 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.plugin.java;
-
-import net.grinder.common.GrinderException;
+package net.grinder.engine.process;
 
 import org.python.core.PyJavaInstance;
 import org.python.core.PyObject;
@@ -34,15 +32,15 @@ import org.python.core.PyObject;
  */ 
 class TestPyJavaInstance extends PyJavaInstance
 {
-    private final JavaTest m_test;
+    private final TestData m_testData;
     private final PyObject m_pyTest;
     
-    public TestPyJavaInstance(JavaTest test, Object target)
+    public TestPyJavaInstance(TestData testData, Object target)
     {
         super(target);
 
-	m_test = test;
-	m_pyTest = new PyJavaInstance(test);
+	m_testData = testData;
+	m_pyTest = new PyJavaInstance(testData.getTest());
     }
 
     protected PyObject ifindlocal(String name) {
@@ -53,30 +51,20 @@ class TestPyJavaInstance extends PyJavaInstance
 	return super.ifindlocal(name);
     }
 
-    private final PyObject dispatch(JavaPlugin.Invokeable invokeable) 
-    {
-	try {
-	    return (PyObject)m_test.dispatch(invokeable);
-	}
-	catch (GrinderException e) {
-	    throw new RuntimeException("FIX ME" + e);
-	}
-    }
-
     public PyObject invoke(final String name) 
     {
-	return dispatch(
-	    new JavaPlugin.Invokeable() {
-		public Object invoke() {
+	return (PyObject)m_testData.dispatch(
+	    new TestData.Invokeable() {
+		public Object call() {
 		    return TestPyJavaInstance.super.invoke(name);
 		}});
     }
 
     public PyObject invoke(final String name, final PyObject arg1) 
     {
-	return dispatch(
-	    new JavaPlugin.Invokeable() {
-		public Object invoke() {
+	return (PyObject)m_testData.dispatch(
+	    new TestData.Invokeable() {
+		public Object call() {
 		    return TestPyJavaInstance.super.invoke(name, arg1);
 		}});
     }
@@ -84,18 +72,18 @@ class TestPyJavaInstance extends PyJavaInstance
     public PyObject invoke(final String name, final PyObject arg1,
 			   final PyObject arg2) 
     {
-	return dispatch(
-	    new JavaPlugin.Invokeable() {
-		public Object invoke() {
+	return (PyObject)m_testData.dispatch(
+	    new TestData.Invokeable() {
+		public Object call() {
 		    return TestPyJavaInstance.super.invoke(name, arg1, arg2);
 		}});
     }
 
     public PyObject invoke(final String name, final PyObject[] args) 
     {
-	return dispatch(
-	    new JavaPlugin.Invokeable() {
-		public Object invoke() {
+	return (PyObject)m_testData.dispatch(
+	    new TestData.Invokeable() {
+		public Object call() {
 		    return TestPyJavaInstance.super.invoke(name, args);
 		}});
     }
@@ -103,9 +91,9 @@ class TestPyJavaInstance extends PyJavaInstance
     public PyObject invoke(final String name, final PyObject[] args,
 			   final String[] keywords) 
     {
-	return dispatch(
-	    new JavaPlugin.Invokeable() {
-		public Object invoke() {
+	return (PyObject)m_testData.dispatch(
+	    new TestData.Invokeable() {
+		public Object call() {
 		    return TestPyJavaInstance.super.invoke(name, args,
 							   keywords);
 		}});

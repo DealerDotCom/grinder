@@ -72,7 +72,7 @@ public class HTTPPlugin implements GrinderPlugin
 	return new HTTPPluginThreadCallbacks(threadContext);
     }
 
-    private class HTTPPluginThreadCallbacks implements PluginThreadCallbacks
+    class HTTPPluginThreadCallbacks implements PluginThreadCallbacks
     {
 	private final PluginThreadContext m_threadContext;
 
@@ -131,12 +131,10 @@ public class HTTPPlugin implements GrinderPlugin
 	    m_httpConnectionWrappers.clear();
 	}
 
-	public Object invokeTest(Test test, Object parameters)
+	public Object makeRequest(HTTPRequest.DelayedInvocation
+				  delayedInvocation)
 	    throws PluginException
 	{
-	    final HTTPTest.DelayedInvocation delayedInvocation =
-		(HTTPTest.DelayedInvocation)parameters;
-
 	    HTTPResponse httpResponse = null;
 
 	    try {

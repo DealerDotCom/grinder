@@ -19,44 +19,45 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.plugin.java;
+package net.grinder.script;
 
+import java.io.Serializable;
+
+import net.grinder.common.AbstractTestSemantics;
 import net.grinder.common.GrinderException;
-import net.grinder.plugininterface.PluginTest;
+import net.grinder.engine.process.TestRegistry;
 
 
 /**
  * @author Philip Aston
  * @version $Revision$
  */ 
-public class JavaTest extends PluginTest
+public class Test extends AbstractTestSemantics implements Serializable
 {
-    public JavaTest(int number, String description) throws GrinderException
-    {
-	super(JavaPlugin.class, number, description);
+    private final int m_number;
+    private final String m_description;
+    private transient final TestRegistry.RegisteredTest m_registeredTest;
+
+    public Test(int number, String description) throws GrinderException
+    {	
+	m_number = number;
+	m_description = description;
+	m_registeredTest = TestRegistry.getInstance().register(this);
     }
 
-    /**
-     * Expose dispatch method to our package.
-     */
-    protected Object dispatch(Object parameters) throws GrinderException
+    public final int getNumber()
     {
-	return super.dispatch(parameters);
+	return m_number;
     }
 
-    /**
-     * We could have defined overloaded createProxy methdos that
-     * take a PyInstance, PyFunction etc., and return decorator
-     * PyObjects. There's no obvious way of doing this in a
-     * polymorphic way, so we would be forced to have n factories,
-     * n types of decorator, and probably run into identity
-     * issues. Instead we lean on Jython and force it to give us
-     * Java proxy which we then dynamically subclass with our own
-     * type of PyJavaInstance.
-     */
-    public final Object createProxy(Object target)
+    public final String getDescription()
     {
-	return new TestPyJavaInstance(this, target);
+	return m_description;
+    }
+
+    public final Object wrap(Object target)
+    {
+	return m_registeredTest.createProxy(target);
     }
 }
 

@@ -185,14 +185,15 @@ final class ThreadContext implements PluginThreadContext
      * startTimer/stopTimer/getElapsedTime interface is part of the
      * PluginThreadContext interface.
      */
-    final Object invokeTest(TestData testData, Object parameters)
+    final Object invokeTest(TestData testData, TestData.Invokeable invokeable)
 	throws EngineException, Sleeper.ShutdownException
     {
 	final Test test = testData.getTest();
 	
 	if (m_currentTest != null) {
 	    throw new RentrantInvocationException(
-		"Thread is already processing test invocation for " +
+		"Can't make invocation for test " + test +
+		", thread is already processing test invocation for " +
 		m_currentTest);
 	}
 
@@ -202,16 +203,12 @@ final class ThreadContext implements PluginThreadContext
 	m_currentTestStatistics.reset();
 
 	try {
-	    final PluginThreadCallbacks pluginThreadCallbacks =
-		testData.getRegisteredPlugin().getPluginThreadCallbacks(this);
-
 	    final Object testResult;
 
 	    startTimer();
 
 	    try {
-		testResult =
-		    pluginThreadCallbacks.invokeTest(test, parameters);
+		testResult = invokeable.call();
 	    }
 	    finally {
 		stopTimer();
@@ -228,6 +225,7 @@ final class ThreadContext implements PluginThreadContext
 
 	    return testResult;
 	}
+	/* TODO
 	catch (PluginException e) {
 	    m_currentTestStatistics.addError();
 
@@ -236,6 +234,7 @@ final class ThreadContext implements PluginThreadContext
 
 	    return null;
 	}
+	*/
 	finally {
 	    if (m_dataWriter != null) {
 		m_scratchBuffer.setLength(0);

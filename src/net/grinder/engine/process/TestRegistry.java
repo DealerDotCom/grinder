@@ -30,13 +30,11 @@ import net.grinder.common.Test;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.Sender;
 import net.grinder.engine.EngineException;
-import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.statistics.TestStatisticsMap;
 
 
 /**
- * Registry of Tests. Also facade to Test-related behaviour that is
- * used by {@link net.grinder.plugininterface.PluginTest}.
+ * Registry of Tests.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -45,7 +43,6 @@ public final class TestRegistry
 {
     private static TestRegistry s_instance;
 
-    private final PluginRegistry m_pluginRegistry;
     private final Sender m_consoleSender;
 
     /**
@@ -72,8 +69,7 @@ public final class TestRegistry
     /**
      * Constructor.
      */
-    TestRegistry(PluginRegistry pluginRegistry, Sender consoleSender)
-	throws EngineException
+    TestRegistry(Sender consoleSender) throws EngineException
     {
 	if (s_instance != null) {
 	    throw new EngineException("Already initialised");
@@ -81,31 +77,22 @@ public final class TestRegistry
 
 	s_instance = this;
 
-	m_pluginRegistry = pluginRegistry;
 	m_consoleSender = consoleSender;
     }
 
-    public RegisteredTest register(Class pluginClass, Test test)
+    public RegisteredTest register(Test test)
 	throws GrinderException
     {
-	final PluginRegistry.RegisteredPlugin registeredPlugin =
-	    m_pluginRegistry.register(pluginClass);
-
 	final TestData newTestData;
 
 	synchronized (this) {
 	    final TestData existing = (TestData)m_testMap.get(test);
 
 	    if (existing != null) {
-		return new TestData(registeredPlugin, test,
-				    existing.getStatistics());
-
-		// Might optionally do this one day:
-		//throw new EngineException("Test " + test.getNumber() +
-		//  " has already been registered");
+		return new TestData(test, existing.getStatistics());
 	    }
 	    else {
-		newTestData = new TestData(registeredPlugin, test);
+		newTestData = new TestData(test);
 		m_testMap.put(test, newTestData);
 		m_testStatisticsMap.put(test, newTestData.getStatistics());
 	    }
@@ -117,25 +104,12 @@ public final class TestRegistry
 	return newTestData;
     }
 
-    public Object dispatch(RegisteredTest registeredTest, Object parameters)
-	throws GrinderException
-    {
-	final TestData testData = (TestData)registeredTest;
-
-	final ThreadContext threadContext = ThreadContext.getThreadInstance();
-	
-	if (threadContext == null) {
-	    throw new EngineException("Only Worker Threads can invoke tests");
-	}
-	
-	return threadContext.invokeTest(testData, parameters);
-    }
-
     final TestStatisticsMap getTestStatisticsMap()
     {
 	return m_testStatisticsMap;
     }
 
     public interface RegisteredTest {
+	Object createProxy(Object o);
     }
 }

@@ -43,12 +43,6 @@ public interface PluginThreadCallbacks
     public void beginRun() throws PluginException;
 
     /**
-     * This is called for each test.
-     **/
-    public Object invokeTest(Test testDefinition, Object parameters)
-	throws PluginException;
-    
-    /**
      * This method is executed at the end of every run.
      **/  
     public void endRun() throws PluginException;

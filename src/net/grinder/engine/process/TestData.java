@@ -22,7 +22,9 @@
 
 package net.grinder.engine.process;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
+import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.statistics.TestStatistics;
 import net.grinder.statistics.TestStatisticsFactory;
@@ -39,28 +41,18 @@ import net.grinder.statistics.TestStatisticsFactory;
  **/
 final class TestData implements TestRegistry.RegisteredTest
 {
-    private final PluginRegistry.RegisteredPlugin m_registeredPlugin;
     private final Test m_test;
     private final TestStatistics m_statistics;
 
-    TestData(PluginRegistry.RegisteredPlugin registeredPlugin,
-	     Test testDefinition)
+    TestData(Test testDefinition)
     {
-	this(registeredPlugin, testDefinition,
-	     TestStatisticsFactory.getInstance().create());
+	this(testDefinition, TestStatisticsFactory.getInstance().create());
     }
 
-    TestData(PluginRegistry.RegisteredPlugin registeredPlugin,
-	     Test testDefinition, TestStatistics testStatistics)
+    TestData(Test testDefinition, TestStatistics testStatistics)
     {
-	m_registeredPlugin = registeredPlugin;
 	m_test = testDefinition;
 	m_statistics = testStatistics;
-    }
-
-    final PluginRegistry.RegisteredPlugin getRegisteredPlugin() 
-    {
-	return m_registeredPlugin;
     }
 
     final Test getTest()
@@ -71,5 +63,44 @@ final class TestData implements TestRegistry.RegisteredTest
     final TestStatistics getStatistics() 
     {
 	return m_statistics;
+    }
+
+    Object dispatch(Invokeable invokeable) //throws GrinderException
+    {
+	try {	
+	    final ThreadContext threadContext =
+		ThreadContext.getThreadInstance();
+	
+	    if (threadContext == null) {
+		throw new EngineException(
+		    "Only Worker Threads can invoke tests");
+	    }
+
+	    return threadContext.invokeTest(this, invokeable);
+	}
+	catch (GrinderException e) {
+	    throw new RuntimeException("FIX ME" + e);
+	}
+    }
+
+    interface Invokeable 
+    {
+	public Object call();
+    }
+
+
+    /**
+     * We could have defined overloaded createProxy methods that
+     * take a PyInstance, PyFunction etc., and return decorator
+     * PyObjects. There's no obvious way of doing this in a
+     * polymorphic way, so we would be forced to have n factories,
+     * n types of decorator, and probably run into identity
+     * issues. Instead we lean on Jython and force it to give us
+     * Java proxy which we then dynamically subclass with our own
+     * type of PyJavaInstance.
+     */
+    public final Object createProxy(Object o) 
+    {
+	return new TestPyJavaInstance(this, o);
     }
 }

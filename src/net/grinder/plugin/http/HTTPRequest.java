@@ -34,8 +34,7 @@ import HTTPClient.URI;
 
 import net.grinder.common.GrinderException;
 import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.PluginTest;
-
+import net.grinder.engine.process.PluginRegistry;
 
 /**
  * Represents an individual HTTP test.
@@ -43,17 +42,27 @@ import net.grinder.plugininterface.PluginTest;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public class HTTPTest extends PluginTest
+public class HTTPRequest
 {
-    private transient URI m_uri;
-    private transient NVPair[] m_defaultHeaders = new NVPair[0];
-    private transient byte[] m_defaultData;
-    private transient NVPair[] m_defaultFormData;
+    private URI m_uri;
+    private NVPair[] m_defaultHeaders = new NVPair[0];
+    private byte[] m_defaultData;
+    private NVPair[] m_defaultFormData;
+    private final PluginRegistry.RegisteredPlugin m_registeredPlugin;
 
-    public HTTPTest(int number, String description)
-	throws GrinderException
+    public HTTPRequest() throws GrinderException
     {
-	super(HTTPPlugin.class, number, description);
+	m_registeredPlugin =
+	    PluginRegistry.getInstance().register(HTTPPlugin.class);
+    }
+
+    public Object dispatch(DelayedInvocation o) throws GrinderException
+    {
+	final HTTPPlugin.HTTPPluginThreadCallbacks threadCallbacks =
+	    (HTTPPlugin.HTTPPluginThreadCallbacks) 
+	    m_registeredPlugin.getPluginThreadCallbacks();
+
+	return threadCallbacks.makeRequest(o);
     }
 
 
@@ -66,7 +75,7 @@ public class HTTPTest extends PluginTest
     {
 	if (m_uri == null) {
 	    throw new PluginException(
-		"Call setURI() before using an HTTPTest");
+		"Call setURI() before using an HTTPRequest");
 	}
 	
 	return m_uri;
@@ -143,20 +152,20 @@ public class HTTPTest extends PluginTest
     }
 
     public final HTTPResponse DELETE()
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return DELETE(getUri().getPath(), getHeaders());
     }
 
     public final HTTPResponse DELETE(String path)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return DELETE(path, getHeaders());
     }
 
     public final HTTPResponse DELETE(final String path,
 				     final NVPair[] headers)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
@@ -167,27 +176,27 @@ public class HTTPTest extends PluginTest
     }
 
     public final HTTPResponse GET()
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return GET(getUri().getPath(), getUri().getQueryString(),
 		   getHeaders());
     }
 
     public final HTTPResponse GET(String path)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	// Path is specified, so don't use default query string.
 	return GET(path, null, getHeaders());
     }
 
     public final HTTPResponse GET(String path, String queryString)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return GET(path, queryString, getHeaders());
     }
 
     public final HTTPResponse GET(String path, NVPair[] headers)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	// Path is specified, so don't use default query string.
 	return GET(path, null, headers);
@@ -196,7 +205,7 @@ public class HTTPTest extends PluginTest
     public final HTTPResponse GET(final String path,
 				  final String queryString,
 				  final NVPair[] headers)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
@@ -209,27 +218,27 @@ public class HTTPTest extends PluginTest
     }
 
     public final HTTPResponse HEAD()
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return HEAD(getUri().getPath(), getUri().getQueryString(),
 		    getHeaders());
     }
 
     public final HTTPResponse HEAD(String path)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	// Path is specified, so don't use default query string.
 	return HEAD(path, null, getHeaders());
     }
 
     public final HTTPResponse HEAD(String path, String queryString)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return HEAD(path, queryString, getHeaders());
     }
 
     public final HTTPResponse HEAD(String path, NVPair[] headers)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	// Path is specified, so don't use default query string.
 	return HEAD(path, null, headers);
@@ -238,7 +247,7 @@ public class HTTPTest extends PluginTest
     public final HTTPResponse HEAD(final String path,
 				   final String queryString,
 				   final NVPair[] headers)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
@@ -251,27 +260,27 @@ public class HTTPTest extends PluginTest
     }
 
     public final HTTPResponse OPTIONS()
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return OPTIONS(getUri().getPath(), getHeaders(), getData());
     }
 
     public final HTTPResponse OPTIONS(String path)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return OPTIONS(path, getHeaders(), getData());
     }
 
     public final HTTPResponse OPTIONS(final String path,
 				      final NVPair[] headers)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return OPTIONS(path, headers, getData());
     }
 
     public final HTTPResponse OPTIONS(final String path,
 				      final byte[] data)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return OPTIONS(path, getHeaders(), data);
     }
@@ -279,7 +288,7 @@ public class HTTPTest extends PluginTest
     public final HTTPResponse OPTIONS(final String path,
 				      final NVPair[] headers,
 				      final byte[] data)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
@@ -292,13 +301,13 @@ public class HTTPTest extends PluginTest
     }
 
     public final HTTPResponse POST()
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return POST(getUri().getPath());
     }
 
     public final HTTPResponse POST(String path)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	final byte[] data = getData();
 
@@ -312,7 +321,7 @@ public class HTTPTest extends PluginTest
 
     public final HTTPResponse POST(String path,
 				   NVPair[] formData)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return POST(path, formData, getHeaders());
     }
@@ -320,7 +329,7 @@ public class HTTPTest extends PluginTest
     public final HTTPResponse POST(final String path,
 				   final NVPair[] formData,
 				   final NVPair[] headers)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
@@ -334,7 +343,7 @@ public class HTTPTest extends PluginTest
 
     public final HTTPResponse POST(String path,
 				   byte[] data)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return POST(path, data, getHeaders());
     }
@@ -342,7 +351,7 @@ public class HTTPTest extends PluginTest
     public final HTTPResponse POST(final String path,
 				   final byte[] data,
 				   final NVPair[] headers)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
@@ -355,25 +364,25 @@ public class HTTPTest extends PluginTest
     }
 
     public final HTTPResponse PUT()
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return PUT(getUri().getPath(), getData(), getHeaders());
     }
 
     public final HTTPResponse PUT(String path)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return PUT(path, getData(), getHeaders());
     }
 
     public final HTTPResponse PUT(String path, byte[] data)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return PUT(path, data, getHeaders());
     }
 
     public final HTTPResponse PUT(String path, NVPair[] headers)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return PUT(path, getData(), headers);
     }
@@ -381,7 +390,7 @@ public class HTTPTest extends PluginTest
     public final HTTPResponse PUT(final String path,
 				  final byte[] data,
 				  final NVPair[] headers)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
@@ -394,19 +403,19 @@ public class HTTPTest extends PluginTest
     }
 
     public final HTTPResponse TRACE()
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return TRACE(getUri().getPath(), getHeaders());
     }
 
     public final HTTPResponse TRACE(String path)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return TRACE(path, getHeaders());
     }
 
     public final HTTPResponse TRACE(final String path, final NVPair[] headers)
-	throws GrinderException
+	throws GrinderException, ParseException
     {
 	return (HTTPResponse)dispatch(
 	    new DelayedInvocation(path) {
@@ -418,10 +427,18 @@ public class HTTPTest extends PluginTest
 
     abstract class DelayedInvocation
     {
+	private final URI m_uri;
 	private final String m_path;
 
-	DelayedInvocation(String path) {
-	    m_path = path;
+	DelayedInvocation(String path) throws ParseException {
+	    if (isAbsolute(path)) {
+		m_uri = new URI(path);
+		m_path = m_uri.getPathAndQuery();
+	    }
+	    else {
+		m_uri = HTTPRequest.this.m_uri;
+		m_path = path;
+	    }
 	}
 
 	public final URI getURI() {
@@ -434,5 +451,19 @@ public class HTTPTest extends PluginTest
 	
 	public abstract HTTPResponse request(HTTPConnection connection)
 	    throws IOException, ModuleException;
+    }
+
+    private static final boolean isAbsolute(String uri)
+    {
+	char ch = '\0';
+	int  pos = 0;
+	int len = uri.length();
+
+	while (pos < len && (ch = uri.charAt(pos)) != ':' &&
+	       ch != '/' && ch != '?' &&  ch != '#') {
+	    pos++;
+	}
+	    
+	return (ch == ':');
     }
 }
