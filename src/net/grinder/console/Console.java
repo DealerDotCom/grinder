@@ -59,15 +59,14 @@ public class Console implements ActionListener
     public Console() throws GrinderException
     {
 	m_properties = GrinderProperties.getProperties();
-	final PropertiesHelper propertiesHelper =
-	    new PropertiesHelper(m_properties);
+	final PropertiesHelper propertiesHelper = new PropertiesHelper();
 
 	final GrinderPlugin grinderPlugin =
-	    propertiesHelper.getPlugin();
+	    propertiesHelper.instantiatePlugin(null);
 
 	// Shove the tests into a TreeMap so that they're ordered.
 	final Iterator testSetIterator =
-	    propertiesHelper.getTestSet().iterator();
+	    propertiesHelper.getTestSet(grinderPlugin).iterator();
 
 	while (testSetIterator.hasNext())
 	{
