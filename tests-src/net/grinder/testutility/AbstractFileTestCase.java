@@ -24,6 +24,10 @@ package net.grinder.testutility;
 import junit.framework.TestCase;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Random;
 
 
 /**
@@ -33,6 +37,8 @@ import java.io.File;
  * @version $Revision$
  */
 public abstract class AbstractFileTestCase extends TestCase {
+
+  private static Random s_random  = new Random();
 
   private File m_directory;
 
@@ -69,5 +75,15 @@ public abstract class AbstractFileTestCase extends TestCase {
 
   protected final File getDirectory() {
     return m_directory;
+  }
+
+  protected final void createRandomFile(File file) throws IOException {
+    file.getParentFile().mkdirs();
+
+    final OutputStream out = new FileOutputStream(file);
+    final byte[] bytes = new byte[s_random.nextInt(2000)];
+    s_random.nextBytes(bytes);
+    out.write(bytes);
+    out.close();
   }
 }

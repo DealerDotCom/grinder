@@ -103,12 +103,7 @@ public class TestFileContents extends AbstractFileTestCase {
       final File relativePath = new File(files[i]);
       final File fullPath = new File(getDirectory(), relativePath.getPath());
 
-      fullPath.getParentFile().mkdirs();
-      final OutputStream outputStream = new FileOutputStream(fullPath);
-      final byte[] bytes = new byte[500];
-      new Random().nextBytes(bytes);
-      outputStream.write(bytes);
-      outputStream.close();
+      createRandomFile(fullPath);
     
       final FileContents fileContents =
         new FileContents(getDirectory(), relativePath);
