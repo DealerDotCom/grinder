@@ -134,12 +134,6 @@ class RawStatisticsImplementation implements RawStatistics {
    */
   public final synchronized void setValue(StatisticsIndexMap.LongIndex index,
                                           long value) {
-
-    if (index.isReadOnly()) {
-      // TODO fix exceptions.
-      throw new RuntimeException("This statistic cannot be set directly");
-    }
-
     m_longData[index.getValue()] = value;
   }
 
@@ -154,12 +148,6 @@ class RawStatisticsImplementation implements RawStatistics {
    */
   public final synchronized void setValue(StatisticsIndexMap.DoubleIndex index,
                                           double value) {
-
-    if (index.isReadOnly()) {
-      // TODO fix exceptions.
-      throw new RuntimeException("This statistic cannot be set directly");
-    }
-
     m_doubleData[index.getValue()] = value;
   }
 
@@ -174,11 +162,6 @@ class RawStatisticsImplementation implements RawStatistics {
    */
   public final synchronized void addValue(StatisticsIndexMap.LongIndex index,
                                           long value) {
-    if (index.isReadOnly()) {
-      // TODO fix exceptions.
-      throw new RuntimeException("This statistic cannot be set directly");
-    }
-
     m_longData[index.getValue()] += value;
   }
 
@@ -194,11 +177,6 @@ class RawStatisticsImplementation implements RawStatistics {
   public final synchronized void
     addValue(StatisticsIndexMap.DoubleIndex index, double value) {
 
-    if (index.isReadOnly()) {
-      // TODO fix exceptions.
-      throw new RuntimeException("This statistic cannot be set directly");
-    }
-
     m_doubleData[index.getValue()] += value;
   }
 
@@ -211,12 +189,11 @@ class RawStatisticsImplementation implements RawStatistics {
    */
   public final synchronized void addSample(LongSampleIndex index, long value) {
 
-    // We don't use setValue() as we want to avoid the read-only check.
-    m_doubleData[index.getVarianceIndex().getValue()] =
+    setValue(index.getVarianceIndex(),
         calculateVariance(getValue(index.getSumIndex()),
                           getValue(index.getCountIndex()),
                           getValue(index.getVarianceIndex()),
-                          value);
+                          value));
 
     m_longData[index.getSumIndex().getValue()] += value;
     ++m_longData[index.getCountIndex().getValue()];
@@ -231,12 +208,12 @@ class RawStatisticsImplementation implements RawStatistics {
    */
   public final synchronized void addSample(DoubleSampleIndex index,
                                            double value) {
-    // We don't use setValue() as we want to avoid the read-only check.
-    m_doubleData[index.getVarianceIndex().getValue()] =
+
+    setValue(index.getVarianceIndex(),
         calculateVariance(getValue(index.getSumIndex()),
                           getValue(index.getCountIndex()),
                           getValue(index.getVarianceIndex()),
-                          value);
+                          value));
 
     m_doubleData[index.getSumIndex().getValue()] += value;
     ++m_longData[index.getCountIndex().getValue()];
@@ -248,10 +225,9 @@ class RawStatisticsImplementation implements RawStatistics {
    * @param index
    */
   public final synchronized void reset(LongSampleIndex index) {
-    // We don't use setValue() as we want to avoid the read-only check.
-    m_longData[index.getSumIndex().getValue()] = 0;
-    m_longData[index.getCountIndex().getValue()] = 0;
-    m_doubleData[index.getVarianceIndex().getValue()] = 0;
+    setValue(index.getSumIndex(), 0);
+    setValue(index.getCountIndex(), 0);
+    setValue(index.getVarianceIndex(), 0);
   }
 
   /**
@@ -260,10 +236,9 @@ class RawStatisticsImplementation implements RawStatistics {
    * @param index
    */
   public final synchronized void reset(DoubleSampleIndex index) {
-    // We don't use setValue() as we want to avoid the read-only check.
-    m_doubleData[index.getSumIndex().getValue()] = 0;
-    m_longData[index.getCountIndex().getValue()] = 0;
-    m_doubleData[index.getVarianceIndex().getValue()] = 0;
+    setValue(index.getSumIndex(), 0);
+    setValue(index.getCountIndex(), 0);
+    setValue(index.getVarianceIndex(), 0);
   }
 
   /**
@@ -383,6 +358,7 @@ class RawStatisticsImplementation implements RawStatistics {
    *          The <code>RawStatistics</code> value to add.
    */
   public final synchronized void add(RawStatistics operand) {
+
     final RawStatisticsImplementation operandImplementation =
       (RawStatisticsImplementation)operand;
 
@@ -400,14 +376,13 @@ class RawStatisticsImplementation implements RawStatistics {
       final StatisticsIndexMap.DoubleIndex varianceIndex =
         index.getVarianceIndex();
 
-      // We don't use setValue() as we want to avoid the read-only check.
-      m_doubleData[varianceIndex.getValue()] =
+      setValue(varianceIndex,
         calculateVariance(getValue(sumIndex),
                           getValue(countIndex),
                           getValue(varianceIndex),
                           operand.getValue(sumIndex),
                           operand.getValue(countIndex),
-                          operand.getValue(varianceIndex));
+                          operand.getValue(varianceIndex)));
 
       isVarianceIndex[varianceIndex.getValue()] = true;
     }
@@ -417,21 +392,20 @@ class RawStatisticsImplementation implements RawStatistics {
 
     while (doubleSampleIndexIterator.hasNext()) {
       final StatisticsIndexMap.DoubleSampleIndex index =
-        (StatisticsIndexMap.DoubleSampleIndex)longSampleIndexIterator.next();
+        (StatisticsIndexMap.DoubleSampleIndex)doubleSampleIndexIterator.next();
 
       final StatisticsIndexMap.DoubleIndex sumIndex = index.getSumIndex();
       final StatisticsIndexMap.LongIndex countIndex = index.getCountIndex();
       final StatisticsIndexMap.DoubleIndex varianceIndex =
         index.getVarianceIndex();
 
-      // We don't use setValue() as we want to avoid the read-only check.
-      m_doubleData[varianceIndex.getValue()] =
+      setValue(varianceIndex,
                calculateVariance(getValue(sumIndex),
                                  getValue(countIndex),
                                  getValue(varianceIndex),
                                  operand.getValue(sumIndex),
                                  operand.getValue(countIndex),
-                                 operand.getValue(varianceIndex));
+                                 operand.getValue(varianceIndex)));
 
       isVarianceIndex[varianceIndex.getValue()] = true;
     }
@@ -495,7 +469,17 @@ class RawStatisticsImplementation implements RawStatistics {
    * @return The hash code.
    */
   public final int hashCode() {
-    return super.hashCode();
+    long result = 0;
+
+    for (int i = 0; i < m_longData.length; i++) {
+      result ^= m_longData[i];
+    }
+
+    for (int i = 0; i < m_doubleData.length; i++) {
+      result ^= Double.doubleToRawLongBits(m_doubleData[i]);
+    }
+
+    return (int)(result ^ (result >> 32));
   }
 
   /**
@@ -507,25 +491,27 @@ class RawStatisticsImplementation implements RawStatistics {
   public final String toString() {
     final StringBuffer result = new StringBuffer();
 
-    result.append("RawStatistics = {");
+    result.append("RawStatistics = {{");
 
     for (int i = 0; i < m_longData.length; i++) {
-      result.append(m_longData[i]);
-
-      if (i != m_longData.length - 1 || m_doubleData.length > 0) {
+      if (i != 0) {
         result.append(", ");
       }
+
+      result.append(m_longData[i]);
     }
+
+    result.append("}, {");
 
     for (int i = 0; i < m_doubleData.length; i++) {
-      result.append(m_doubleData[i]);
-
-      if (i != m_doubleData.length - 1) {
+      if (i != 0) {
         result.append(", ");
       }
+
+      result.append(m_doubleData[i]);
     }
 
-    result.append("}");
+    result.append("}}");
 
     return result.toString();
   }
