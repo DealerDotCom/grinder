@@ -14,8 +14,8 @@
 <h3><a name="startup-time">Why does The Grinder take a while to start
 up?</a></h3>
 
-<p>The Grinder 3 worker proces start up time is marginally slower than
-The Grinder 2. However, it is much slower when you add new Java
+<p>The Grinder 3 worker process start up time is marginally slower
+than The Grinder 2. However, it is much slower when you add new Java
 libraries to your <code>CLASSPATH</code>. Why?</p>
 
 <p>At start up, the Jython engine processes all new Java libraries it
