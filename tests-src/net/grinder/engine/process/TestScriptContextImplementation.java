@@ -1,0 +1,255 @@
+// Copyright (C) 2004 Philip Aston
+// All rights reserved.
+//
+// This file is part of The Grinder software distribution. Refer to
+// the file LICENSE which is part of The Grinder distribution for
+// licensing details. The Grinder distribution is available on the
+// Internet at http://grinder.sourceforge.net/
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+// OF THE POSSIBILITY OF SUCH DAMAGE.
+
+package net.grinder.engine.process;
+
+import junit.framework.TestCase;
+
+import java.util.Arrays;
+
+import net.grinder.common.GrinderProperties;
+import net.grinder.common.FilenameFactory;
+import net.grinder.common.Logger;
+import net.grinder.communication.QueuedSender;
+import net.grinder.communication.RegisterStatisticsViewMessage;
+import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.script.Grinder.ScriptContext;
+import net.grinder.script.InvalidContextException;
+import net.grinder.script.Statistics;
+import net.grinder.statistics.CommonStatisticsViews;
+import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticsView;
+import net.grinder.testutility.CallRecorder.CallData;
+import net.grinder.testutility.StubInvocationHandler;
+import net.grinder.testutility.Time;
+import net.grinder.util.Sleeper;
+
+
+/**
+ * Unit test case for <code>ScriptContextImplementation</code>.
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
+public class TestScriptContextImplementation extends TestCase {
+
+  public TestScriptContextImplementation(String name) {
+    super(name);
+  }
+
+  public void testConstructorAndGetters() throws Exception {
+
+    final String grinderID = "test grinder ID";
+    final GrinderProperties properties = new GrinderProperties();
+
+    final StubInvocationHandler queuedSenderStubFactory =
+      new StubInvocationHandler(QueuedSender.class);
+    final QueuedSender queuedSender =
+      (QueuedSender)queuedSenderStubFactory.getProxy();
+
+    final StubInvocationHandler loggerStubFactory =
+      new StubInvocationHandler(Logger.class);
+    final Logger logger = (Logger)loggerStubFactory.getProxy();
+
+    final StubInvocationHandler filenameFactoryStubFactory =
+      new StubInvocationHandler(FilenameFactory.class);
+
+    final FilenameFactory filenameFactory =
+      (FilenameFactory)filenameFactoryStubFactory.getProxy();
+
+    final int threadID = 99;
+    final int runNumber = 3;
+    final ThreadContextLocator threadContextLocator =
+      new StubThreadContextLocator();
+    final ThreadContextStubFactory threadContextStubFactory =
+      new ThreadContextStubFactory();
+    threadContextLocator.set(threadContextStubFactory.getThreadContext());
+
+    final PluginThreadContextStubFactory pluginContextStubFactory =
+      new PluginThreadContextStubFactory(threadID, runNumber);
+    threadContextStubFactory.setPluginThreadContext(
+      pluginContextStubFactory.getPluginThreadContext());
+
+    final StubInvocationHandler statisticsStubFactory =
+      new StubInvocationHandler(Statistics.class);
+    final Statistics statistics = (Statistics)statisticsStubFactory.getProxy();
+    threadContextStubFactory.setScriptStatistics(statistics);
+
+    final Sleeper sleeper = new Sleeper(1, 0, logger);
+
+    final ScriptContextImplementation scriptContext =
+      new ScriptContextImplementation(
+        grinderID, threadContextLocator, properties, queuedSender, logger,
+        filenameFactory, sleeper);
+
+    assertEquals(grinderID, scriptContext.getGrinderID());
+    assertEquals(threadID, scriptContext.getThreadID());
+    assertEquals(runNumber, scriptContext.getRunNumber());
+    assertEquals(logger, scriptContext.getLogger());
+    assertEquals(filenameFactory, scriptContext.getFilenameFactory());
+    assertEquals(properties, scriptContext.getProperties());
+    assertEquals(statistics, scriptContext.getStatistics());
+
+    threadContextLocator.set(null);
+    assertEquals(-1, scriptContext.getThreadID());
+    assertEquals(-1, scriptContext.getRunNumber());
+
+    try {
+      scriptContext.getStatistics();
+      fail("Expected InvalidContextException");
+    }
+    catch (InvalidContextException e) {
+    }
+  }
+
+  public void testSleep() throws Exception {
+
+    final StubInvocationHandler loggerStubFactory =
+      new StubInvocationHandler(Logger.class);
+    final Logger logger = (Logger)loggerStubFactory.getProxy();
+
+    final Sleeper sleeper = new Sleeper(1, 0, logger);
+
+    final ScriptContextImplementation scriptContext =
+      new ScriptContextImplementation(null, null, null, null, null, null,
+                                      sleeper);
+
+    assertTrue(
+      new Time(50, 70) {
+        public void doIt() throws Exception  { scriptContext.sleep(50); }
+      }.run());
+
+    assertTrue(
+      new Time(40, 70) {
+        public void doIt() throws Exception  { scriptContext.sleep(50, 5); }
+      }.run());
+  }
+
+  public void testRegisterStatisticsViews() throws Exception {
+
+    final StubInvocationHandler queuedSenderStubFactory =
+      new StubInvocationHandler(QueuedSender.class);
+    final QueuedSender queuedSender =
+      (QueuedSender)queuedSenderStubFactory.getProxy();
+
+    final ThreadContextLocator threadContextLocator =
+      new StubThreadContextLocator();
+    final ThreadContextStubFactory threadContextStubFactory =
+      new ThreadContextStubFactory();
+    threadContextLocator.set(threadContextStubFactory.getThreadContext());
+
+    final ScriptContextImplementation scriptContext =
+      new ScriptContextImplementation(null, threadContextLocator, null, 
+                                      queuedSender, null, null, null);
+    
+    final ExpressionView expressionView =
+      new ExpressionView("display", "resource key", "errors");
+    final StatisticsView statisticsView = new StatisticsView();
+    statisticsView.add(expressionView);
+    scriptContext.registerSummaryStatisticsView(statisticsView);
+
+    final CallData callData = queuedSenderStubFactory.getCallData();
+    assertEquals("queue", callData.getMethodName());
+    assertEquals(null, callData.getResult());
+    final Object[] parameters = callData.getParameters();
+    assertEquals(1, parameters.length);
+    final RegisterStatisticsViewMessage message =
+      (RegisterStatisticsViewMessage)parameters[0];
+    assertEquals(statisticsView, message.getStatisticsView());
+    queuedSenderStubFactory.assertNotCalled();
+
+    final ExpressionView[] summaryExpressionViews =
+      CommonStatisticsViews.getSummaryStatisticsView().getExpressionViews();
+    assertTrue(Arrays.asList(summaryExpressionViews).contains(expressionView));
+    
+    try {
+      scriptContext.registerDetailStatisticsView(statisticsView);
+      fail("Expected InvalidContextException");
+    }
+    catch (InvalidContextException e) {
+    }
+
+    threadContextLocator.set(null);
+
+    scriptContext.registerDetailStatisticsView(statisticsView);
+
+    final ExpressionView[] detailExpressionViews =
+      CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
+    assertTrue(Arrays.asList(detailExpressionViews).contains(expressionView));
+  }
+
+  /** Must be public so that stub_ methods can be called externally. */
+  public static class ThreadContextStubFactory extends StubInvocationHandler {
+
+    private PluginThreadContext m_pluginThreadContext;
+    private Statistics m_scriptStatistics;
+
+    ThreadContextStubFactory() {
+      super(ThreadContext.class);
+    }
+
+    final ThreadContext getThreadContext() {
+      return (ThreadContext)getProxy();
+    }
+
+    public final PluginThreadContext stub_getPluginThreadContext() {
+      return m_pluginThreadContext;
+    }
+
+    final void setPluginThreadContext(
+      PluginThreadContext pluginThreadContext) {
+      m_pluginThreadContext = pluginThreadContext;
+    }
+
+    public final Statistics stub_getScriptStatistics() {
+      return m_scriptStatistics;
+    }
+
+    final void setScriptStatistics(Statistics scriptStatistics) {
+      m_scriptStatistics = scriptStatistics;
+    }
+  }
+
+  public static class PluginThreadContextStubFactory
+    extends StubInvocationHandler {
+
+    private final int m_threadID;
+    private final int m_runNumber;
+
+    public PluginThreadContextStubFactory(int threadID, int runNumber) {
+      super(PluginThreadContext.class);
+      m_threadID = threadID;
+      m_runNumber = runNumber;
+    }
+
+    public final PluginThreadContext getPluginThreadContext() {
+      return (PluginThreadContext)getProxy();
+    }
+
+    public int stub_getThreadID() {
+      return m_threadID;
+    }
+
+    public int stub_getRunNumber() {
+      return m_runNumber;
+    }
+  }
+}
