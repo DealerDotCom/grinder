@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
-// Copyright (C) 2000  Philip Aston
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -110,12 +110,12 @@ class ThreadContextImplementation
 	// "clear run".
 	Thread.yield();
 	m_startTime = System.currentTimeMillis();
-	m_elapsedTime = 0;
+	m_elapsedTime = -1;
     }
 
     public void stopTimer()
     {
-	if (m_elapsedTime == 0)	// Not already stopped.
+	if (m_elapsedTime < 0) // Not already stopped.
 	{
 	    m_elapsedTime = System.currentTimeMillis() - m_startTime;
 	}
