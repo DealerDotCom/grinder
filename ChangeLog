@@ -1,3 +1,36 @@
+2001-04-05  Philip Aston  <paston@bea.com>
+	
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	Log JVM and OS version information.
+
+2001-04-05  Paddy Spencer  <pspencer@bea.com>
+
+	* src/net/grinder/tools/tcpsniffer/GrinderSocket.java:
+	A GrinderSocket class that's not currently used but might be to
+	get around the socket bug I emailed to the dev list earlier today.
+
+	* build.xml:
+	added conditional exclude for junit in compile target
+
+	* src/net/grinder/plugin/http/URLRewriteFilter.java:
+	new class for rewriting urls in responses
+
+	* src/net/grinder/tools/tcpsniffer/ConnectionDetails.java:
+	changed all the members from final, as the proxy needs to call
+	setXxx methods, which have also been added.
+
+	* src/net/grinder/plugin/http/HttpProxySnifferEngineImpl.java:
+	new class to enable the grinder to act as an http proxy
+
+	* src/net/grinder/plugin/http/HttpPluginSnifferFilter.java:
+	added code to stop urls of the for http://foo/barhttp://foo/bar
+	when proxying
+
+	* src/net/grinder/TCPSniffer.java:
+	added noRewriteURLs cmd arg and associated code - rewrite absolute
+	urls to remote host is now default behaviour added proxy cmd args
+	and associated code
+
 2001-04-03  Philip Aston  <paston@bea.com>
 
 	* tests-src/net/grinder/console/swingui/TestGraph.java: Cheesy fix.
