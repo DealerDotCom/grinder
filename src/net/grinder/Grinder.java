@@ -96,6 +96,9 @@ public class Grinder
 		(additionalClasspath != null ? additionalClasspath + ";" : "")
 		+ System.getProperty("java.class.path");
 
+	    classpath.replace(';', File.pathSeparatorChar);
+	    classpath.replace(':', File.pathSeparatorChar);
+
 	    final String hostIDString =
 		properties.getProperty("grinder.hostID", getHostName());
 
