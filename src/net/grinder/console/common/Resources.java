@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.console.common;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URL;
@@ -40,6 +41,7 @@ import javax.swing.ImageIcon;
  */
 public final class Resources {
 
+  private PrintWriter m_errorWriter = new PrintWriter(System.err, true);
   private final ResourceBundle m_resources;
   private final String m_package;
 
@@ -65,11 +67,20 @@ public final class Resources {
   }
 
   /**
+   * Set a writer to report warnings to.
+   *
+   * @param writer The writer.
+   */
+  public final void setErrorWriter(PrintWriter writer) {
+    m_errorWriter = writer;
+  }
+
+  /**
    * Overloaded version of {@link #getString(String, boolean)} which
    * writes out a waning if the resource is missing.
    * @param key The resource key.
    * @return The string.
-   **/
+   */
   public String getString(String key) {
     return getString(key, true);
   }
@@ -80,7 +91,7 @@ public final class Resources {
    * @param warnIfMissing true => write out an error message if the
    * resource is missing.
    * @return The string.
-   **/
+   */
   public String getString(String key, boolean warnIfMissing) {
 
     try {
@@ -88,7 +99,7 @@ public final class Resources {
     }
     catch (MissingResourceException e) {
       if (warnIfMissing) {
-        System.err.println(
+        m_errorWriter.println(
           "Warning - resource " + key + " not specified");
         return "";
       }
@@ -103,7 +114,7 @@ public final class Resources {
    *
    * @param key The resource key.
    * @return The image.
-   **/
+   */
   public ImageIcon getImageIcon(String key) {
     return getImageIcon(key, false);
   }
@@ -115,7 +126,7 @@ public final class Resources {
    * @param warnIfMissing true => write out an error message if the
    * resource is missing.
    * @return The image
-   **/
+   */
   public ImageIcon getImageIcon(String key, boolean warnIfMissing) {
     final URL resource = get(key, warnIfMissing);
 
@@ -154,7 +165,7 @@ public final class Resources {
         return out.toString();
       }
       catch (IOException e) {
-        System.err.println("Warning - could not read " + resource);
+        m_errorWriter.println("Warning - could not read " + resource);
       }
     }
 
@@ -171,7 +182,7 @@ public final class Resources {
     final URL url = this.getClass().getResource(m_package + name);
 
     if (url == null) {
-      System.err.println("Warning - could not load resource " + name);
+      m_errorWriter.println("Warning - could not load resource " + name);
     }
 
     return url;
