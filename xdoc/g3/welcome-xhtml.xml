@@ -94,12 +94,12 @@ the remaining property names have been renamed.</li>
 
 <li>HTTP tests can now be directed through an HTTP proxy.</li>
 
-<p>String beans and OK strings have been removed from the HTTP
+<li>String beans and OK strings have been removed from the HTTP
 plug-in. String beans and OK strings are very limited in comparison to
-to the flexibility now provided by Jython scripts.</p>
+to the flexibility now provided by Jython scripts.</li>
 
-<p>The <code>HttpURLConnection</code> implementation has been
-removed from the HTTP plug-in.</p>
+<li>The <code>HttpURLConnection</code> implementation has been
+removed from the HTTP plug-in.</li>
 
 <li>The JUnit and Socket plug-ins have been removed. Their
 functionality can be achieved directly by using the appropriate Java
