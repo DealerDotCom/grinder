@@ -114,6 +114,8 @@ Make 'grinder' a member of an implicit module that gets auto-imported
 into the top level script module => you can import the special module
 elsewhere.
 
+'grinder' object should be valid in __init__.
+
 *** Error reporting
 
  > It would be possible for certain classes of error (AttributeError
