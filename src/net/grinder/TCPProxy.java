@@ -260,7 +260,7 @@ public final class TCPProxy {
           /* Already handled */
           ++i;
         }
-        else if (args[i].equalsIgnoreCase("-httproxy")) {
+        else if (args[i].equalsIgnoreCase("-httpproxy")) {
           chainedHTTPProxy =
             new EndPoint(args[++i], Integer.parseInt(args[++i]));
         }
