@@ -46,10 +46,10 @@ import net.grinder.statistics.TestStatisticsFactory;
  **/
 final class ScriptStatisticsImplementation implements Statistics {
 
-  private final static StatisticsIndexMap.LongIndex s_errorsIndex;
-  private final static StatisticsIndexMap.LongIndex s_timedTransactionsIndex;
-  private final static StatisticsIndexMap.LongIndex s_untimedTransactionsIndex;
-  private final static StatisticsIndexMap.LongIndex s_transactionTimeIndex;
+  private static final StatisticsIndexMap.LongIndex s_errorsIndex;
+  private static final StatisticsIndexMap.LongIndex s_timedTransactionsIndex;
+  private static final StatisticsIndexMap.LongIndex s_untimedTransactionsIndex;
+  private static final StatisticsIndexMap.LongIndex s_transactionTimeIndex;
 
   static {
     final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();

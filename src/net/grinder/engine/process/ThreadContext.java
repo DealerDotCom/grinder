@@ -39,7 +39,7 @@ import net.grinder.util.Sleeper;
  **/
 final class ThreadContext implements PluginThreadContext {
 
-  private final static ThreadLocal s_threadInstance = new ThreadLocal();
+  private static final ThreadLocal s_threadInstance = new ThreadLocal();
 
   private final ThreadLogger m_threadLogger;
   private final FilenameFactory m_filenameFactory;
@@ -79,7 +79,7 @@ final class ThreadContext implements PluginThreadContext {
     s_threadInstance.set(this);
   }
 
-  final static ThreadContext getThreadInstance() {
+  static final ThreadContext getThreadInstance() {
     return (ThreadContext)s_threadInstance.get();
   }
 
@@ -112,8 +112,7 @@ final class ThreadContext implements PluginThreadContext {
   }
 
   public final void stopTimer() {
-    if (m_elapsedTime < 0) // Not already stopped.
-    {
+    if (m_elapsedTime < 0) { // Not already stopped.
       m_elapsedTime = System.currentTimeMillis() - m_startTime;
     }
   }

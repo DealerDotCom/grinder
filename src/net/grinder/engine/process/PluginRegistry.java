@@ -1,4 +1,4 @@
-// Copyright (C) 2002 Philip Aston
+// Copyright (C) 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,93 +38,96 @@ import net.grinder.plugininterface.GrinderPlugin;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class PluginRegistry
-{
-    private static PluginRegistry s_instance;
+public final class PluginRegistry {
+  private static PluginRegistry s_instance;
 
-    private final ProcessContext m_processContext;
-    private final Map m_plugins = new HashMap();
+  private final ProcessContext m_processContext;
+  private final Map m_plugins = new HashMap();
 
-    /**
-     * Singleton accessor.
-     */
-    public static final PluginRegistry getInstance()
-    {
-	return s_instance;
+  /**
+   * Singleton accessor.
+   * @return The singleton.
+   */
+  public static final PluginRegistry getInstance() {
+    return s_instance;
+  }
+
+  /**
+   * Constructor.
+   */
+  PluginRegistry(ProcessContext processContext) throws EngineException {
+    if (s_instance != null) {
+      throw new EngineException("Already initialised");
     }
 
-    /**
-     * Constructor.
-     */
-    PluginRegistry(ProcessContext processContext) throws EngineException
-    {
-	if (s_instance != null) {
-	    throw new EngineException("Already initialised");
-	}
-
-	s_instance = this;
+    s_instance = this;
 	
-	m_processContext = processContext;
+    m_processContext = processContext;
+  }
+
+  /**
+   * Used to register a new plugin.
+   *
+   * @param pluginClass The plugin's class.
+   * @return A handle to the plugin.
+   * @exception EngineException if an error occurs
+   */
+  public RegisteredPlugin register(Class pluginClass) throws EngineException {
+    if (!GrinderPlugin.class.isAssignableFrom(pluginClass)) {
+      throw new EngineException(
+	"The plugin class ('" + pluginClass.getName() +
+	"') does not implement the interface '" +
+	GrinderPlugin.class.getName() + "'");
     }
 
-    public RegisteredPlugin register(Class pluginClass) throws EngineException
-    {
-	if (!GrinderPlugin.class.isAssignableFrom(pluginClass)) {
-	    throw new EngineException(
-		"The plugin class ('" + pluginClass.getName() +
-		"') does not implement the interface '" +
-		GrinderPlugin.class.getName() + "'");
+    try {
+      synchronized(m_plugins) {
+	final RegisteredPlugin existingRegisteredPlugin =
+	  (RegisteredPlugin)m_plugins.get(pluginClass);
+
+	if (existingRegisteredPlugin != null) {
+	  return existingRegisteredPlugin;
 	}
-
-	try {
-	    synchronized(m_plugins) {
-		final RegisteredPlugin existingRegisteredPlugin =
-		    (RegisteredPlugin)m_plugins.get(pluginClass);
-
-		if (existingRegisteredPlugin != null) {
-		    return existingRegisteredPlugin;
-		}
 		
-		final GrinderPlugin plugin =
-		    (GrinderPlugin)pluginClass.newInstance();
+	final GrinderPlugin plugin =
+	  (GrinderPlugin)pluginClass.newInstance();
 
-		final RegisteredPlugin registeredPlugin =
-		    new RegisteredPlugin(plugin, m_processContext);
+	final RegisteredPlugin registeredPlugin =
+	  new RegisteredPlugin(plugin, m_processContext);
 
-		plugin.initialize(registeredPlugin);
+	plugin.initialize(registeredPlugin);
     
-		m_plugins.put(pluginClass, registeredPlugin);
+	m_plugins.put(pluginClass, registeredPlugin);
 
-		m_processContext.getLogger().output(
-		    "registered plug-in " + pluginClass.getName());
+	m_processContext.getLogger().output(
+	  "registered plug-in " + pluginClass.getName());
 
-		return registeredPlugin;
-	    }
-	}
-	catch (Exception e){
-	    throw new EngineException(
-		"An instance of the plug-in class '" + pluginClass.getName() +
-		"' could not be created.", e);
-	}
+	return registeredPlugin;
+      }
     }
+    catch (Exception e){
+      throw new EngineException(
+	"An instance of the plug-in class '" + pluginClass.getName() +
+	"' could not be created.", e);
+    }
+  }
 
-    final List getPluginThreadListenerList(ThreadContext threadContext)
-	throws EngineException
-    {
-	synchronized(m_plugins) {
-	    final List result = new ArrayList(m_plugins.size());
+  final List getPluginThreadListenerList(ThreadContext threadContext)
+    throws EngineException {
+    synchronized(m_plugins) {
+      final List result = new ArrayList(m_plugins.size());
 
-	    final Iterator iterator = m_plugins.values().iterator();
+      final Iterator iterator = m_plugins.values().iterator();
 
-	    while (iterator.hasNext()) {
-		final RegisteredPlugin registeredPlugin =
-		    (RegisteredPlugin)iterator.next();
+      while (iterator.hasNext()) {
+	final RegisteredPlugin registeredPlugin =
+	  (RegisteredPlugin)iterator.next();
 		
-		result.add(
-		    registeredPlugin.getPluginThreadListener(threadContext));
-	    }
+	result.add(
+	  registeredPlugin.getPluginThreadListener(threadContext));
+      }
 
-	    return result;
-	}
+      return result;
     }
+  }
 }

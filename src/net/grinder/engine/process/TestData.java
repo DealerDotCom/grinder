@@ -25,7 +25,6 @@ package net.grinder.engine.process;
 import org.python.core.PyFinalizableInstance;
 import org.python.core.PyFunction;
 import org.python.core.PyInstance;
-import org.python.core.PyJavaInstance;
 import org.python.core.PyMethod;
 import org.python.core.PyObject;
 
@@ -79,7 +78,7 @@ final class TestData implements TestRegistry.RegisteredTest {
   }
 
   interface Invokeable {
-    public Object call();
+    Object call();
   }
 
 
@@ -100,7 +99,7 @@ final class TestData implements TestRegistry.RegisteredTest {
    *   <li>PyClass</li>
    *   <li>PyFunction</li>
    *   <li>PyMethod</li>
-   *   <li>Python primitive types (integers, strings, floats, complexes, ...)</li>
+   *   <li>Python primitives (integers, strings, floats, complexes, ...)</li>
    *   <li>Python tuples, lists, dictionaries</li>
    *  </ul>
    * </p>

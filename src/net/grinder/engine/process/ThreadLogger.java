@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,34 +28,33 @@ import net.grinder.common.Logger;
  * @author Philip Aston
  * @version $Revision$
  */ 
-interface ThreadLogger extends Logger
-{
-    /**
-     * @returns The thread ID.
-     **/
-    int getThreadID();
+interface ThreadLogger extends Logger {
+  /**
+   * @returns The thread ID.
+   **/
+  int getThreadID();
 
-    /**
-     * @returns The current run number. -1 indicates that there is
-     * no current run. 
-     **/
-    int getCurrentRunNumber();
+  /**
+   * @returns The current run number. -1 indicates that there is
+   * no current run. 
+   **/
+  int getCurrentRunNumber();
 
-    /**
-     * @param The current run number. Pass -1 to indicate that
-     * there is no current run.
-     **/
-    void setCurrentRunNumber(int run);
+  /**
+   * @param The current run number. Pass -1 to indicate that
+   * there is no current run.
+   **/
+  void setCurrentRunNumber(int run);
 
-    /**
-     * @returns The current test number. -1 indicates that there is
-     * no current test. 
-     **/
-    int getCurrentTestNumber();
+  /**
+   * @returns The current test number. -1 indicates that there is
+   * no current test. 
+   **/
+  int getCurrentTestNumber();
 
-    /**
-     * @param The current test number. Pass -1 to indicate that
-     * there is no current test.
-     **/
-    void setCurrentTestNumber(int testNumber);
+  /**
+   * @param The current test number. Pass -1 to indicate that
+   * there is no current test.
+   **/
+  void setCurrentTestNumber(int testNumber);
 }

@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -38,73 +37,70 @@ import net.grinder.engine.EngineException;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public class JythonScriptExecutionException extends EngineException
-{
-    public JythonScriptExecutionException(String doingWhat, PyException e)
-    {
-	super("Jython error encountered " + doingWhat, stripPyException(e));
+public class JythonScriptExecutionException extends EngineException {
+  /**
+   * Creates a new <code>JythonScriptExecutionException</code> instance.
+   *
+   * @param doingWhat What we were doing.
+   * @param e <code>PyException</code> that we caught.
+   */
+  public JythonScriptExecutionException(String doingWhat, PyException e) {
+    super("Jython error encountered " + doingWhat, stripPyException(e));
+  }
+
+  private static Throwable stripPyException(PyException e) {
+    final Object javaError = e.value.__tojava__(Throwable.class);
+
+    if (javaError == null || javaError == Py.NoConversion) {
+      return e;
     }
 
-    private static Throwable stripPyException(PyException e) 
-    {
-	final Object javaError = e.value.__tojava__(Throwable.class);
+    return new BriefPyException((Throwable)javaError, e.traceback);
+  }
 
-	if (javaError == null || javaError == Py.NoConversion) {
-	    return e;
-	}
+  /**
+   * Remove any JythonScriptExecutionException wrapping and return
+   * the underlying exception thrown from the script.
+   */
+  final Throwable unwrap() {
+    Throwable result = this;
 
-	return new BriefPyException((Throwable)javaError, e.traceback);
+    do {
+      result = ((EngineException)result).getNestedThrowable();
+    }
+    while (result instanceof JythonScriptExecutionException ||
+	   result instanceof BriefPyException);
+
+    return result;
+  }
+
+  /**
+   * Used to replace PyExceptions that encapsulate Java exceptions.
+   * (The PyException stack trace is much too verbose my tastes and
+   * repeats a lot of information found in the Java exception).
+   */
+  private static final class BriefPyException extends EngineException {
+    private final String m_where;
+
+    public BriefPyException(Throwable wrapped, PyTraceback traceback) {
+      super("", wrapped);
+
+      m_where = "(Passed through Jython script \"" +
+	traceback.tb_frame.f_code.co_filename +
+	"\" at line " + traceback.tb_lineno + ")";
     }
 
-    /**
-     * Remove any JythonScriptExecutionException wrapping and return
-     * the underlying exception thrown from the script.
-     */
-    final Throwable unwrap() 
-    {
-	Throwable result = this;
-
-	do {
-	    result = ((EngineException)result).getNestedThrowable();
-	}
-	while (result instanceof JythonScriptExecutionException ||
-	       result instanceof BriefPyException);
-
-	return result;
+    public final void printStackTrace(PrintWriter s) {
+      s.println(m_where);
+      getNestedThrowable().printStackTrace(s);
     }
 
-    /**
-     * Used to replace PyExceptions that encapsulate Java exceptions.
-     * (The PyException stack trace is much too verbose my tastes and
-     * repeats a lot of information found in the Java exception).
-     */
-    private static final class BriefPyException extends EngineException
-    {
-	private final String m_where;
-
-	public BriefPyException(Throwable wrapped, PyTraceback traceback) 
-	{
-	    super("", wrapped);
-
-	    m_where = "(Passed through Jython script \"" +
-		traceback.tb_frame.f_code.co_filename +
-		"\" at line " + traceback.tb_lineno + ")";
-	}
-
-	public void printStackTrace(PrintWriter s)
-	{
-	    s.println(m_where);
-	    getNestedThrowable().printStackTrace(s);
-	}
-
-	public String getMessage() 
-	{
-	    return getNestedThrowable().getMessage();
-	}
-
-	public String toString() 
-	{
-	    return getNestedThrowable().toString();
-	}
+    public final String getMessage() {
+      return getNestedThrowable().getMessage();
     }
+
+    public final String toString() {
+      return getNestedThrowable().toString();
+    }
+  }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,16 +21,13 @@
 
 package net.grinder.engine.process;
 
-import java.util.EventListener;
-
-
 /**
+ * Marker interface for monitor objects.
  * 
  * @author Philip Aston
  * @version $Revision$
  */
-interface Monitor
-{
-    //void notifyAll();
+interface Monitor {
+  //void notifyAll();
 }
   

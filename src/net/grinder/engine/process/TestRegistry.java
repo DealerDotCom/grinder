@@ -60,6 +60,7 @@ public final class TestRegistry {
 
   /**
    * Singleton accessor.
+   * @return The singleton.
    */
   public static final TestRegistry getInstance() {
     return s_instance;
@@ -78,6 +79,13 @@ public final class TestRegistry {
     m_consoleSender = consoleSender;
   }
 
+  /**
+   * Register a new test.
+   *
+   * @param test The test.
+   * @return A handle to the test.
+   * @exception GrinderException if an error occurs
+   */
   public RegisteredTest register(Test test) throws GrinderException {
 
     final TestData newTestData;
@@ -104,7 +112,17 @@ public final class TestRegistry {
     return m_testStatisticsMap;
   }
 
+  /**
+   * Interface for test handles.
+   */
   public interface RegisteredTest {
+    /**
+     * Create a proxy object that wraps an target object for this test.
+     *
+     * @param o Object to wrap.
+     * @return The proxy.
+     * @exception NotWrappableTypeException If the target is not wrappable.
+     */
     Object createProxy(Object o) throws NotWrappableTypeException;
   }
 }

@@ -25,7 +25,6 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.engine.EngineException;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.ScriptContext;
 import net.grinder.script.Statistics;

@@ -29,4 +29,7 @@
  '(jde-db-source-directories '("/work/src/grinder3/src" "/opt/jdk1.3.1_02/src/j2sdk1.3.1/src/share/classes/"))
 
  '(jde-compile-option-directory "../build/classes")
+
+ '(jde-checkstyle-properties-file "../etc/checkstyle.properties")
+ '(jde-checkstyle-option-cache-file (jde-normalize-path "/work/src/grinder3/build/checkstyle.cache"))
 )

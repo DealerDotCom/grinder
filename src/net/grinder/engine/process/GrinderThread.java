@@ -47,7 +47,7 @@ class GrinderThread implements java.lang.Runnable {
    * it really means "the number of GrinderThread's that have been
    * created but not run to completion"
    **/
-  private static short m_numberOfThreads = 0;
+  private static short s_numberOfThreads = 0;
 
   private final Monitor m_notifyOnCompletion;
   private final ProcessContext m_processContext;
@@ -79,7 +79,7 @@ class GrinderThread implements java.lang.Runnable {
 
     m_numberOfRuns = properties.getInt("grinder.runs", 1);
 
-    incrementThreadCount();	// See m_numberOfThreads javadoc.
+    incrementThreadCount();	// See s_numberOfThreads javadoc.
   }
     
   /**
@@ -123,7 +123,7 @@ class GrinderThread implements java.lang.Runnable {
 		    
 	  // Sadly PrintWriter only exposes its lock object
 	  // to subclasses.
-	  synchronized(errorWriter) {
+	  synchronized (errorWriter) {
 	    logger.error("Aborted run, script threw " +
 			 unwrapped.getClass() + ": " +
 			 unwrapped.getMessage());
@@ -161,19 +161,18 @@ class GrinderThread implements java.lang.Runnable {
   }
 
   private static final synchronized void incrementThreadCount() {
-    m_numberOfThreads++;
+    s_numberOfThreads++;
   }
 
   private static final synchronized void decrementThreadCount() {
-    m_numberOfThreads--;
+    s_numberOfThreads--;
   }
 
   public static final short getNumberOfThreads() {
-    return m_numberOfThreads;
+    return s_numberOfThreads;
   }
 
-  public static synchronized void shutdown()
-  {
+  public static synchronized void shutdown() {
     // We rely on everyone picking this up next time they sleep.
     Sleeper.shutdownAllCurrentSleepers();
   }

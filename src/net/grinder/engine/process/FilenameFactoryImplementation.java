@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,48 +30,42 @@ import net.grinder.common.FilenameFactory;
  * @author Philip Aston
  * @version $Revision$
  */ 
-final class FilenameFactoryImplementation implements FilenameFactory
-{
-    private final String m_logDirectory;
-    private final String m_contextString;
+final class FilenameFactoryImplementation implements FilenameFactory {
+  private final String m_logDirectory;
+  private final String m_contextString;
 
-    FilenameFactoryImplementation(File logDirectory, String grinderID)
-    {
-	this(logDirectory.getPath(), "_" + grinderID);
-    }
+  FilenameFactoryImplementation(File logDirectory, String grinderID) {
+    this(logDirectory.getPath(), "_" + grinderID);
+  }
 
-    private FilenameFactoryImplementation(String logDirectory,
-					  String contextString)
-    {
-	m_logDirectory = logDirectory;
-	m_contextString = contextString;
-    }
+  private FilenameFactoryImplementation(String logDirectory,
+					String contextString) {
+    m_logDirectory = logDirectory;
+    m_contextString = contextString;
+  }
     
 
-    final FilenameFactoryImplementation
-	createSubContextFilenameFactory(String subContext)
-    {
-	return
-	    new FilenameFactoryImplementation(m_logDirectory,
-					      m_contextString +
-					      "_" + subContext);
-    }
+  final FilenameFactoryImplementation
+    createSubContextFilenameFactory(String subContext) {
+    return
+      new FilenameFactoryImplementation(m_logDirectory,
+					m_contextString +
+					"_" + subContext);
+  }
 
-    public final String createFilename(String prefix, String suffix)
-    {
-	final StringBuffer result = new StringBuffer();
+  public final String createFilename(String prefix, String suffix) {
+    final StringBuffer result = new StringBuffer();
 
-	result.append(m_logDirectory);
-	result.append(File.separator);
-	result.append(prefix);
-	result.append(m_contextString);
-	result.append(suffix);
+    result.append(m_logDirectory);
+    result.append(File.separator);
+    result.append(prefix);
+    result.append(m_contextString);
+    result.append(suffix);
 
-	return result.toString();
-    }
+    return result.toString();
+  }
 
-    public final String createFilename(String prefix)
-    {
-	return createFilename(prefix, ".log");
-    }
+  public final String createFilename(String prefix) {
+    return createFilename(prefix, ".log");
+  }
 }

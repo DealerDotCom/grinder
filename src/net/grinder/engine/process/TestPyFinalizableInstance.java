@@ -1,4 +1,4 @@
-// Copyright (C) 2002 Philip Aston
+// Copyright (C) 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,87 +32,79 @@ import org.python.core.PyObject;
  * @author Philip Aston
  * @version $Revision$
  */ 
-class TestPyFinalizableInstance extends PyFinalizableInstance
-{
-    private final TestData m_testData;
-    private final PyObject m_pyTest;
+class TestPyFinalizableInstance extends PyFinalizableInstance {
+  private final TestData m_testData;
+  private final PyObject m_pyTest;
     
-    public TestPyFinalizableInstance(TestData testData,
-				     PyFinalizableInstance target)
-    {
-        super(target.__class__);
+  public TestPyFinalizableInstance(TestData testData,
+				   PyFinalizableInstance target) {
+    super(target.__class__);
 
-	__dict__ = target.__dict__;
+    __dict__ = target.__dict__;
 
-	m_testData = testData;
-	m_pyTest = new PyJavaInstance(testData.getTest());
+    m_testData = testData;
+    m_pyTest = new PyJavaInstance(testData.getTest());
+  }
+
+  private final PyObject dispatch(TestData.Invokeable invokeable) {
+    try {
+      return (PyObject)m_testData.dispatch(invokeable);
+    }
+    catch (Exception e) {
+      throw Py.JavaError(e);
+    }
+  }
+
+  protected PyObject ifindlocal(String name) {
+    if (name == "__test__") { // Valid because name is interned.
+      return m_pyTest;
     }
 
-    private final PyObject dispatch(TestData.Invokeable invokeable)
-    {
-	try {
-	    return (PyObject)m_testData.dispatch(invokeable);
-	}
-	catch (Exception e) {
-	    throw Py.JavaError(e);
-	}
-    }
+    return super.ifindlocal(name);
+  }
 
-    protected PyObject ifindlocal(String name) {
-        if (name == "__test__") { // Valid because name is interned.
-	    return m_pyTest;
-	}
+  public PyObject invoke(final String name) {
+    return dispatch(
+      new TestData.Invokeable() {
+	public Object call() {
+	  return TestPyFinalizableInstance.super.invoke(name);
+	}});
+  }
 
-	return super.ifindlocal(name);
-    }
+  public PyObject invoke(final String name, final PyObject arg1) {
+    return dispatch(
+      new TestData.Invokeable() {
+	public Object call() {
+	  return TestPyFinalizableInstance.super.invoke(name, arg1);
+	}});
+  }
 
-    public PyObject invoke(final String name)
-    {
-	return dispatch(
-	    new TestData.Invokeable() {
-		public Object call() {
-		    return TestPyFinalizableInstance.super.invoke(name);
-		}});
-    }
+  public PyObject invoke(final String name, final PyObject arg1,
+			 final PyObject arg2) {
+    return dispatch(
+      new TestData.Invokeable() {
+	public Object call() {
+	  return TestPyFinalizableInstance.super.invoke(name, arg1,
+							arg2);
+	}});
+  }
 
-    public PyObject invoke(final String name, final PyObject arg1) 
-    {
-	return dispatch(
-	    new TestData.Invokeable() {
-		public Object call() {
-		    return TestPyFinalizableInstance.super.invoke(name, arg1);
-		}});
-    }
+  public PyObject invoke(final String name, final PyObject[] args) {
+    return dispatch(
+      new TestData.Invokeable() {
+	public Object call() {
+	  return TestPyFinalizableInstance.super.invoke(name, args);
+	}});
+  }
 
-    public PyObject invoke(final String name, final PyObject arg1,
-			   final PyObject arg2) 
-    {
-	return dispatch(
-	    new TestData.Invokeable() {
-		public Object call() {
-		    return TestPyFinalizableInstance.super.invoke(name, arg1,
-								  arg2);
-		}});
-    }
-
-    public PyObject invoke(final String name, final PyObject[] args) 
-    {
-	return dispatch(
-	    new TestData.Invokeable() {
-		public Object call() {
-		    return TestPyFinalizableInstance.super.invoke(name, args);
-		}});
-    }
-
-    public PyObject invoke(final String name, final PyObject[] args,
-			   final String[] keywords) 
-    {
-	return dispatch(
-	    new TestData.Invokeable() {
-		public Object call() {
-		    return TestPyFinalizableInstance.super.invoke(name, args,
-								  keywords);
-		}});
-    }
+  public PyObject invoke(final String name, final PyObject[] args,
+			 final String[] keywords) {
+    return dispatch(
+      new TestData.Invokeable() {
+	public Object call() {
+	  return TestPyFinalizableInstance.super.invoke(name, args,
+							keywords);
+	}});
+  }
 }
 
