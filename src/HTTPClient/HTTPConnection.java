@@ -28,11 +28,6 @@
  *
  *  http://www.innovation.ch/java/HTTPClient/ 
  *
- * This file contains modifications for use with "The Grinder"
- * (http://grinder.sourceforge.net) under the terms of the LGPL.
- * Modifications made by Philip Aston on 9th July 2001. They are
- * marked below with the comment "GRINDER MODIFICATION". 
- *
  */
 
 package HTTPClient;
@@ -299,11 +294,6 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
      * configured to do so. */
             static boolean       deferStreamed = false;
 
-    /** ++GRINDER MODIFICATION **/
-    /** hack to disable trailers */
-    private static boolean       noTrailers = false;
-    /** --GRINDER MODIFICATION **/
-
     /** the default timeout to use for new connections */
     private static int	         DefaultTimeout = 0;
 
@@ -502,20 +492,6 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	}
 	catch (Exception e)
 	    { }
-
-	/** ++GRINDER MODIFICATION **/
-	/*
-	 * Hack: disable trailers
-	 */
-	try
-	{
-	    noTrailers = Boolean.getBoolean("HTTPClient.disableTrailers");
-	    if (noTrailers)
-		Log.write(Log.CONN, "Conn:  disabling trailers");
-	}
-	catch (Exception e)
-	    { }
-	/** --GRINDER MODIFICATION **/
 
 	/*
 	 * Deferring the handling of responses to requests which used an output
@@ -3417,24 +3393,18 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 	    }
 	}
 
-	/** ++GRINDER MODIFICATION **/
-	if (!noTrailers) {
-        /** --GRINDER MODIFICATION **/
-	    if (co_hdr != null)
+	if (co_hdr != null)
+	{
+	    try
 	    {
-		try
-		{
-		    if (!Util.hasToken(co_hdr, "TE"))
-			co_hdr += ", TE";
-		}
-		catch (ParseException pe)
-		{ throw new IOException(pe.toString()); }
+		if (!Util.hasToken(co_hdr, "TE"))
+		    co_hdr += ", TE";
 	    }
-	    else
-		co_hdr = "TE";
-        /** ++GRINDER MODIFICATION **/
+	    catch (ParseException pe)
+		{ throw new IOException(pe.toString()); }
 	}
-	/** --GRINDER MODIFICATION **/
+	else
+	    co_hdr = "TE";
 
 	if (ug_idx != -1)
 	    co_hdr += ", Upgrade";
@@ -3449,28 +3419,23 @@ public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstant
 
 
 	// handle TE header
-	/** ++GRINDER MODIFICATION **/
-	if (!noTrailers) {
-	/** --GRINDER MODIFICATION **/
-	    if (te_idx != -1)
-	    {
-		dataout.writeBytes("TE: ");
-		Vector pte;
-		try
+
+	if (te_idx != -1)
+	{
+	    dataout.writeBytes("TE: ");
+	    Vector pte;
+	    try
 		{ pte = Util.parseHeader(hdrs[te_idx].getValue()); }
-		catch (ParseException pe)
+	    catch (ParseException pe)
 		{ throw new IOException(pe.toString()); }
 
-		if (!pte.contains(new HttpHeaderElement("trailers")))
-		    dataout.writeBytes("trailers, ");
+	    if (!pte.contains(new HttpHeaderElement("trailers")))
+		dataout.writeBytes("trailers, ");
 
-		dataout.writeBytes(hdrs[te_idx].getValue().trim() + "\r\n");
-	    }
-	    else
-		dataout.writeBytes("TE: trailers\r\n");
-        /** ++GRINDER MODIFICATION **/
+	    dataout.writeBytes(hdrs[te_idx].getValue().trim() + "\r\n");
 	}
-	/** --GRINDER MODIFICATION **/
+	else
+	    dataout.writeBytes("TE: trailers\r\n");
 
 
 	// User-Agent
