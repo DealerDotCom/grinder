@@ -133,9 +133,11 @@
         <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
         <module name="InterfaceIsType"/>
-        <!-- This check requires JDK 1.4, see Checkstyle bug 824756. 
+        <!-- This check requires JDK 1.4, see Checkstyle bug 824756.  -->
+        <!--
         <module name="MutableException"/>
-         -->
+        -->
+
         <module name="VisibilityModifier"/>
 
         <module name="CyclomaticComplexity">
@@ -155,10 +157,10 @@
         <!-- May fix code for the following some day. -->
         <!-- <module name="IllegalCatch"/> -->
 
-        <!-- I would like to use the following, but they appear broken.
-        Get NullPointerExceptions which appear to arise from
-        the "Usage" classes confusing the net.grinder.Console
-        class with the package. -->
+        <!-- I would like to use the following, but they appear
+        broken. Get NullPointerExceptions which appear to arise from
+        the "Usage" classes confusing the net.grinder.Console class
+        with the package. Checkstyle bug 842781-->
         <!-- <module name="usage.OneMethodPrivateField"/> -->
         <!-- <module name="usage.UnusedLocalVariable"/> -->
         <!-- <module name="usage.UnusedParameter"/> -->
