@@ -250,6 +250,7 @@ what you want. Currently the conditionally built modules are:
 
     <copy todir="${classes.dir}">
       <fileset dir="${src.dir}"  includes="**/resources/*.gif"/>
+      <fileset dir="${src.dir}"  includes="**/resources/*.png"/>
     </copy>
 
     <copy todir="${classes.dir}" filtering="on">
