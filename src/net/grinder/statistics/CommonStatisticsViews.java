@@ -21,8 +21,6 @@
 
 package net.grinder.statistics;
 
-import net.grinder.common.GrinderException;
-
 
 /**
  * Provides references to commonly used {@link StatisticsView}s.
@@ -72,10 +70,9 @@ public final class CommonStatisticsViews {
         m_summaryStatisticsView.add(summaryExpressionViews[i]);
       }
     }
-    catch (GrinderException e) {
+    catch (StatisticsException e) {
       throw new RuntimeException(
-        "Assertion failure, " +
-        "CommonStatisticsViews could not initialise: " +
+        "Assertion failure: CommonStatisticsViews could not initialise: " +
         e.getMessage());
     }
   }

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,17 +25,21 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import net.grinder.common.GrinderException;
-
 
 /**
- * Associate a statistic expression with display information.
+ * <p>Associate a statistic expression with display information.</p>
  *
  * <p>Statistic expressions are composed of statistic names (see
- * {@link StatisticsIndexMap} in a simple post-fix format using the
+ * {@link StatisticsIndexMap}) in a simple post-fix format using the
  * symbols <code>+</code>, <code>-</code>, <code>/</code> and
- * <code>*</code> (with their usual meanings). Precedence can be
- * controlled by grouping expressions in parentheses.
+ * <code>*</code>, which have their usual meanings, in conjunction with
+ * simple statistic names or sub-expressions. Precedence can be controlled by
+ * grouping expressions in parentheses. For example, the error rate is
+ * <code>(* (/ errors period) 1000)</code> errors per second.</p>
+ *
+ * <p>Sample statistics, such as timedTests, must be introduced with one
+ * of <code>sum</code>, <code>count</code>, or <code>variance</code>,
+ * depending on the attribute of interest.</p>
  *
  * <p>For example, the statistic expression "<code>(/ (sum timedTests)
  * (count timedTests))</code>" represents the mean test time in milliseconds.
@@ -55,11 +59,6 @@ public class ExpressionView {
   private final int m_hashCode;
   private final int m_creationOrder;
 
-  /**
-   * @clientCardinality 1
-   * @link aggregationByValue
-   * @supplierCardinality 1
-   **/
   private final StatisticExpression m_expression;
 
   static {
@@ -76,12 +75,12 @@ public class ExpressionView {
    * an internationalised display name.
    * @param expressionString An expression string, used to create
    * the {@link StatisticExpression}.
-   * @exception GrinderException if an error occurs
+   * @exception StatisticsException If the expression is invalid.
    * @see StatisticExpressionFactory
    */
   public ExpressionView(String displayName, String displayNameResourceKey,
                         String expressionString)
-    throws GrinderException {
+    throws StatisticsException {
     this(displayName, displayNameResourceKey,
          s_statisticExpressionFactory.normaliseExpressionString(
            expressionString),
@@ -95,18 +94,15 @@ public class ExpressionView {
    * @param displayNameResourceKey A resource key to use to look up
    * an internationalised display name.
    * @param expression A {@link StatisticExpression}.
-   * @exception GrinderException if an error occurs
    */
   public ExpressionView(String displayName, String displayNameResourceKey,
-                        StatisticExpression expression)
-    throws GrinderException {
+                        StatisticExpression expression) {
     this(displayName, displayNameResourceKey, "", expression);
   }
 
   private ExpressionView(String displayName, String displayNameResourceKey,
                          String expressionString,
-                         StatisticExpression expression)
-    throws GrinderException {
+                         StatisticExpression expression) {
     m_displayName = displayName;
     m_displayNameResourceKey = displayNameResourceKey;
     m_expressionString = expressionString;
@@ -124,14 +120,14 @@ public class ExpressionView {
 
   /**
    * @see StatisticsView#readExternal
-   **/
-  ExpressionView(ObjectInput in) throws GrinderException, IOException {
+   */
+  ExpressionView(ObjectInput in) throws IOException, StatisticsException {
     this(in.readUTF(), in.readUTF(), in.readUTF());
   }
 
   /**
    * @see StatisticsView#writeExternal
-   **/
+   */
   final void myWriteExternal(ObjectOutput out) throws IOException {
     if (m_expressionString == "") {
       throw new IOException(
@@ -147,7 +143,7 @@ public class ExpressionView {
    * Get the common display name.
    *
    * @return The display name.
-   **/
+   */
   public final String getDisplayName() {
     return m_displayName;
   }
@@ -157,7 +153,7 @@ public class ExpressionView {
    *
    * @return A key that might be used to look up an
    * internationalised display name.
-   **/
+   */
   public final String getDisplayNameResourceKey() {
     return m_displayNameResourceKey;
   }
@@ -166,7 +162,7 @@ public class ExpressionView {
    * Return the {@link StatisticExpression}.
    *
    * @return The {@link StatisticExpression}.
-   **/
+   */
   public final StatisticExpression getExpression() {
     return m_expression;
   }
@@ -176,7 +172,7 @@ public class ExpressionView {
    *
    * @param other An <code>Object</code> to compare.
    * @return <code>true</code> => <code>other</code> is equal to this object.
-   **/
+   */
   public boolean equals(Object other) {
     if (other == this) {
       return true;
@@ -216,7 +212,7 @@ public class ExpressionView {
    * <code>ExpressionView</code>.
    *
    * @return The <code>String</code>
-   **/
+   */
   public final String toString() {
     return
       "ExpressionView(" + m_displayName + ", " +
