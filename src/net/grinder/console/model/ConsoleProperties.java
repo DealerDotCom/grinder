@@ -18,6 +18,8 @@
 
 package net.grinder.console.model;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,15 +38,16 @@ import net.grinder.communication.CommunicationDefaults;
  */
 public class ConsoleProperties
 {
-    private final static String COLLECT_SAMPLES_PROPERTY = "numberToCollect";
-    private final static String IGNORE_SAMPLES_PROPERTY = "numberToIgnore";
-    private final static String SAMPLE_INTERVAL_PROPERTY = "sampleInterval";
-    private final static String SIG_FIG_PROPERTY = "significantFigures";
+    public final static String COLLECT_SAMPLES_PROPERTY = "numberToCollect";
+    public final static String IGNORE_SAMPLES_PROPERTY = "numberToIgnore";
+    public final static String SAMPLE_INTERVAL_PROPERTY = "sampleInterval";
+    public final static String SIG_FIG_PROPERTY = "significantFigures";
+    public final static String MULTICAST_ADDRESS_PROPERTY = "multicastAddress";
+    public final static String CONSOLE_PORT_PROPERTY = "consolePort";
+    public final static String GRINDER_PORT_PROPERTY = "grinderPort";
 
-    private final static String ADDRESS_PROPERTY = "multicastAddress";
-    private final static String CONSOLE_PORT_PROPERTY = "consolePort";
-    private final static String GRINDER_PORT_PROPERTY = "grinderPort";
-
+    private final PropertyChangeSupport m_changeSupport =
+	new PropertyChangeSupport(this);
     private final File m_file;
 
     private int m_collectSampleCount;
@@ -56,15 +59,31 @@ public class ConsoleProperties
     private int m_consolePort;
     private int m_grinderPort;
 
+    /**
+     * Construct a ConsoleProperties backed by the file .grinder_console in the user's home directory.
+     **/
     public ConsoleProperties() throws GrinderException
     {
-	String home = System.getProperty("user.home");
+	this(new File(getHomeDirectory(), ".grinder_console"));
+    }
 
-	if (home == null) {
-	    home = System.getProperty("java.home");
-	}
-
-	m_file = new File(home, ".grinder_console");
+    /**
+     * Return the user's home directory, or the location of the Java
+     * installation on platforms that do not support the concept.
+     **/
+    private final static String getHomeDirectory()
+    {
+	final String home = System.getProperty("user.home");
+	return home != null ? home : System.getProperty("java.home");
+    }
+    
+    /**
+     * Construct a ConsoleProperties backed by the given file.
+     * @param file The properties file.
+     **/
+    public ConsoleProperties(File file) throws GrinderException
+    {
+	m_file = file;
 
 	final GrinderProperties properties = new GrinderProperties();
 
@@ -88,7 +107,7 @@ public class ConsoleProperties
 	m_significantFigures = properties.getInt(SIG_FIG_PROPERTY, 3);
 
 	m_multicastAddress =
-	    properties.getProperty(ADDRESS_PROPERTY,
+	    properties.getProperty(MULTICAST_ADDRESS_PROPERTY,
 				   CommunicationDefaults.MULTICAST_ADDRESS);
 
 	m_consolePort = properties.getInt(CONSOLE_PORT_PROPERTY,
@@ -107,18 +126,29 @@ public class ConsoleProperties
 	set(consoleProperties);
     }
 
+    public void addPropertyChangeListener(PropertyChangeListener listener)
+    {
+	m_changeSupport.addPropertyChangeListener(listener);
+    }
+
+    public void addPropertyChangeListener(String property,
+					  PropertyChangeListener listener)
+    {
+	m_changeSupport.addPropertyChangeListener(property, listener);
+    }
+
     /**
      * Assignment.
      **/
     public final void set(final ConsoleProperties consoleProperties)
     {
-	m_collectSampleCount = consoleProperties.m_collectSampleCount;
-	m_ignoreSampleCount = consoleProperties.m_ignoreSampleCount;
-	m_sampleInterval = consoleProperties.m_sampleInterval;
-	m_significantFigures = consoleProperties.m_significantFigures;
-	m_multicastAddress = consoleProperties.m_multicastAddress;
-	m_consolePort = consoleProperties.m_consolePort;
-	m_grinderPort = consoleProperties.m_grinderPort;
+	setCollectSampleCount(consoleProperties.m_collectSampleCount);
+	setIgnoreSampleCount(consoleProperties.m_ignoreSampleCount);
+	setSampleInterval(consoleProperties.m_sampleInterval);
+	setSignificantFigures(consoleProperties.m_significantFigures);
+	setMulticastAddress(consoleProperties.m_multicastAddress);
+	setConsolePort(consoleProperties.m_consolePort);
+	setGrinderPort(consoleProperties.m_grinderPort);
     }
 
     public void save() throws IOException
@@ -130,7 +160,7 @@ public class ConsoleProperties
 	properties.setInt(SAMPLE_INTERVAL_PROPERTY, m_sampleInterval);
 	properties.setInt(SIG_FIG_PROPERTY, m_significantFigures);
 
-	properties.setProperty(ADDRESS_PROPERTY, m_multicastAddress);
+	properties.setProperty(MULTICAST_ADDRESS_PROPERTY, m_multicastAddress);
 	properties.setInt(CONSOLE_PORT_PROPERTY, m_consolePort);
 	properties.setInt(GRINDER_PORT_PROPERTY, m_grinderPort);
 
@@ -145,7 +175,12 @@ public class ConsoleProperties
 
     public final void setCollectSampleCount(int i)
     {
-	m_collectSampleCount = i;
+	if (i != m_collectSampleCount) {
+	    final int old = m_collectSampleCount;
+	    m_collectSampleCount = i;
+	    m_changeSupport.firePropertyChange(COLLECT_SAMPLES_PROPERTY,
+					       old, m_collectSampleCount);
+	}
     }
 
     public final int getIgnoreSampleCount()
@@ -155,7 +190,12 @@ public class ConsoleProperties
 
     public final void setIgnoreSampleCount(int i)
     {
-	m_ignoreSampleCount = i;
+	if (i != m_ignoreSampleCount) {
+	    final int old = m_ignoreSampleCount;
+	    m_ignoreSampleCount = i;
+	    m_changeSupport.firePropertyChange(IGNORE_SAMPLES_PROPERTY,
+					       old, m_ignoreSampleCount);
+	}
     }
 
     public final int getSampleInterval()
@@ -165,7 +205,12 @@ public class ConsoleProperties
 
     public final void setSampleInterval(int i)
     {
-	m_sampleInterval = i;
+	if (i != m_sampleInterval) {
+	    final int old = m_sampleInterval;
+	    m_sampleInterval = i;
+	    m_changeSupport.firePropertyChange(SAMPLE_INTERVAL_PROPERTY,
+					       old, m_sampleInterval);
+	}
     }
 
     public final int getSignificantFigures()
@@ -175,7 +220,12 @@ public class ConsoleProperties
 
     public final void setSignificantFigures(int i)
     {
-	m_significantFigures = i;
+	if (i != m_significantFigures) {
+	    final int old = m_significantFigures;
+	    m_significantFigures = i;
+	    m_changeSupport.firePropertyChange(SIG_FIG_PROPERTY,
+					       old, m_significantFigures);
+	}
     }
 
     public final String getMulticastAddress()
@@ -185,7 +235,12 @@ public class ConsoleProperties
 
     public final void setMulticastAddress(String s)
     {
-	m_multicastAddress = s;
+	if (s != m_multicastAddress) {
+	    final String old = m_multicastAddress;
+	    m_multicastAddress = s;
+	    m_changeSupport.firePropertyChange(MULTICAST_ADDRESS_PROPERTY,
+					       old, m_multicastAddress);
+	}
     }
 
     public final int getConsolePort()
@@ -195,7 +250,12 @@ public class ConsoleProperties
 
     public final void setConsolePort(int i)
     {
-	m_consolePort = i;
+	if (i != m_consolePort) {
+	    final int old = m_consolePort;
+	    m_consolePort = i;
+	    m_changeSupport.firePropertyChange(CONSOLE_PORT_PROPERTY,
+					       old, m_consolePort);
+	}
     }
 
     public final int getGrinderPort()
@@ -205,6 +265,11 @@ public class ConsoleProperties
 
     public final void setGrinderPort(int i)
     {
-	m_grinderPort = i;
+	if (i != m_grinderPort) {
+	    final int old = m_grinderPort;
+	    m_grinderPort = i;
+	    m_changeSupport.firePropertyChange(GRINDER_PORT_PROPERTY,
+					       old, m_grinderPort);
+	}
     }
 }
