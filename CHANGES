@@ -8,6 +8,7 @@ Grinder 2.7.2
       processes.
     - Can no longer set ignore samples to 0, doing this used to cause
       incorrect triggering.
+    - Colour coded state label.
 
    Miscellaneous engine enhancements:
     - Sleeping processes can now be interrupted by the Console, so

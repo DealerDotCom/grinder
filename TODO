@@ -43,6 +43,4 @@ The following are scheduled for Grinder 3:
   plugin. Flesh out the API so custom script schedulers can be
   supported.
 
-  Resolve the dependency of the console on a particular configuration
-  file. Or use the console to broadcast configuration to the grinder
-  processes.
+  Use the console to broadcast scripts to grinder processes.
