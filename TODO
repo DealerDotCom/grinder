@@ -13,8 +13,6 @@ declaration and usage?
 
 Make ProcessContext a singleton?
 
-Sender to be an active object.
-
 BSFInvokeableTest functionality to move to HTTPTest. Remove onus of
 registering test from script.
 
@@ -25,7 +23,6 @@ supported.
 
 Use the console to broadcast scripts to grinder processes. XML
 containing embedded script.
-
 
 
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
@@ -51,6 +48,12 @@ containing embedded script.
 
   Measure test variance. This would involve the console broadcasting
   the total mean, and then listening for the reported variance.
+
+  Tests show that, at least with the NT IP stack, it is quite possible
+  to overflow the multicast buffering and hence lose messages. We
+  detect this condition and raise error messages, so this doesn't
+  concern me from the "correctness perspective", but the communication
+  to the console should be changed to be unicast.
 
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
