@@ -35,6 +35,7 @@ import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.testutility.CallData;
 import net.grinder.util.StreamCopier;
+import net.grinder.util.TerminalColour;
 
 
 /**
@@ -116,50 +117,14 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
-  public void testEngine() throws Exception {
-
-    final AcceptSingleConnectionAndEcho echoer =
-      new AcceptSingleConnectionAndEcho();
-
-    final EndPoint localEndPoint =
-      new EndPoint("localhost", m_localPort);
-
-    final ConnectionDetails connectionDetails =
-      new ConnectionDetails(localEndPoint,
-                            echoer.getEndPoint(),
-                            false);
-
-    // Set the filters not to randomly generate output.
-    m_requestFilterStubFactory.setResult(null);
-    m_responseFilterStubFactory.setResult(null);
-
-    final AbstractTCPProxyEngine engine =
-      new PortForwarderTCPProxyEngine(m_requestFilter,
-                                      m_responseFilter,
-                                      m_logger,
-                                      connectionDetails,
-                                      false,
-                                      100000);
-
-    m_responseFilterStubFactory.assertNoMoreCalls();
-    m_requestFilterStubFactory.assertNoMoreCalls();
-
-    assertEquals(localEndPoint, engine.getListenEndPoint());
-    assertNotNull(engine.getSocketFactory());
-    assertEquals(m_requestFilter, engine.getRequestFilter());
-    assertEquals(m_responseFilter, engine.getResponseFilter());
-    assertEquals("", engine.getRequestColour());
-    assertEquals("", engine.getResponseColour());
-
-    m_loggerStubFactory.resetCallHistory();
-    m_requestFilterStubFactory.resetCallHistory();
-    m_responseFilterStubFactory.resetCallHistory();
+  private void engineTests(AbstractTCPProxyEngine engine) throws Exception {
 
     final Thread engineThread = new Thread(engine, "Run engine");
     engineThread.start();
 
     final Socket clientSocket =
-      new Socket(localEndPoint.getHost(), localEndPoint.getPort());
+      new Socket(engine.getListenEndPoint().getHost(),
+                 engine.getListenEndPoint().getPort());
 
     final PrintWriter clientWriter =
       new PrintWriter(clientSocket.getOutputStream(), true);
@@ -216,6 +181,89 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
     m_responseFilterStubFactory.assertNoMoreCalls();
 
     m_loggerStubFactory.assertNoMoreCalls();
+
+  }
+
+  public void testEngine() throws Exception {
+
+    final AcceptSingleConnectionAndEcho echoer =
+      new AcceptSingleConnectionAndEcho();
+
+    final EndPoint localEndPoint = new EndPoint("localhost", m_localPort);
+
+    final ConnectionDetails connectionDetails =
+      new ConnectionDetails(localEndPoint,
+                            echoer.getEndPoint(),
+                            false);
+
+    // Set the filters not to randomly generate output.
+    m_requestFilterStubFactory.setResult(null);
+    m_responseFilterStubFactory.setResult(null);
+
+    final AbstractTCPProxyEngine engine =
+      new PortForwarderTCPProxyEngine(m_requestFilter,
+                                      m_responseFilter,
+                                      m_logger,
+                                      connectionDetails,
+                                      false,
+                                      100000);
+
+    m_responseFilterStubFactory.assertNoMoreCalls();
+    m_requestFilterStubFactory.assertNoMoreCalls();
+
+    assertEquals(localEndPoint, engine.getListenEndPoint());
+    assertNotNull(engine.getSocketFactory());
+    assertEquals(m_requestFilter, engine.getRequestFilter());
+    assertEquals(m_responseFilter, engine.getResponseFilter());
+    assertEquals("", engine.getRequestColour());
+    assertEquals("", engine.getResponseColour());
+
+    m_loggerStubFactory.resetCallHistory();
+    m_requestFilterStubFactory.resetCallHistory();
+    m_responseFilterStubFactory.resetCallHistory();
+
+    engineTests(engine);
+  }
+
+  public void testColourEngine() throws Exception {
+
+    final AcceptSingleConnectionAndEcho echoer =
+      new AcceptSingleConnectionAndEcho();
+
+    final EndPoint localEndPoint = new EndPoint("localhost", m_localPort);
+
+    final ConnectionDetails connectionDetails =
+      new ConnectionDetails(localEndPoint,
+                            echoer.getEndPoint(),
+                            false);
+
+    // Set the filters not to randomly generate output.
+    m_requestFilterStubFactory.setResult(null);
+    m_responseFilterStubFactory.setResult(null);
+
+    final AbstractTCPProxyEngine engine =
+      new PortForwarderTCPProxyEngine(m_requestFilter,
+                                      m_responseFilter,
+                                      m_logger,
+                                      connectionDetails,
+                                      true,
+                                      100000);
+
+    m_responseFilterStubFactory.assertNoMoreCalls();
+    m_requestFilterStubFactory.assertNoMoreCalls();
+
+    assertEquals(localEndPoint, engine.getListenEndPoint());
+    assertNotNull(engine.getSocketFactory());
+    assertEquals(m_requestFilter, engine.getRequestFilter());
+    assertEquals(m_responseFilter, engine.getResponseFilter());
+    assertEquals(TerminalColour.RED, engine.getRequestColour());
+    assertEquals(TerminalColour.BLUE, engine.getResponseColour());
+
+    m_loggerStubFactory.resetCallHistory();
+    m_requestFilterStubFactory.resetCallHistory();
+    m_responseFilterStubFactory.resetCallHistory();
+
+    engineTests(engine);
   }
 
   private final class AcceptSingleConnectionAndEcho implements Runnable {
