@@ -70,6 +70,19 @@ Jython</a>.</p>
 
 <p><em>New answer required for G3.</em></p>
 
+<h3><a name="http-caching">How do I replay a scenario, caching image
+files but not text files?</a></h3>
+
+<p>The Grinder itself does not cache files. It merely simulates
+browser behaviour. The <code>Not-Modified-Since</code> headers are
+recorded by the TCPProxy filter, so what you record with the TCPProxy
+is the caching behaviour of the browser you are using.</p>
+
+<p>If this is not what you want you could add a function to your test
+script which takes an HTTPRequest, decides whether it should be
+considered as "cached" or not, and adds a
+<code>Not-Modified-Since</code> header as appropriate.</p>
+
 <h3><a name="use-the-tcpproxy">My server works fine with a browser but
 has errors when I use the HTTP plugin?</a></h3>
 
