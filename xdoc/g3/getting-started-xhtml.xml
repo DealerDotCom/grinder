@@ -143,10 +143,11 @@ agents:</p>
 <p>These values must match those specified in the console options
 dialog.</p>
 
-<p>If an agent process fails to connect to the console, it will
-continue independently without the console and will start its worker
-processes. The worker processes will run to completion and not report
-to the console.</p>
+<p>If an agent process fails to connect to the console, or the <a
+href="#grinder.useConsole">grinder.useConsole</a> property is
+<code>false</code>, the agent will continue independently without the
+console and automatically will start its worker processes. The worker
+processes will run to completion and not report to the console.</p>
 
 <h2>Output</h2>
 
@@ -307,9 +308,15 @@ engine.</p>
 
  <tr>
   <td valign="top"><code><a name="grinder.consolePort">grinder.consolePort</a></code></td>
-  <td> The IP port to use for communication that the agent and worker
+  <td>The IP port to use for communication that the agent and worker
   processes use to contact to the console. Default is
   <code>6372</code>.</td>
+ </tr>
+
+ <tr>
+  <td valign="top"><code><a name="grinder.useConsole">grinder.useConsole</a></code></td>
+  <td>Set to <code>false</code> to set the agent and worker processes
+  not to use the console. Default is <code>true</code>.</td>
  </tr>
 
  <tr>
