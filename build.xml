@@ -257,7 +257,7 @@ what you want. Currently the conditionally built modules are:
            destdir="${classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
-		   deprecation="false"> <!-- Uses deprecated API's -->
+	   deprecation="false"> <!-- Uses deprecated API's -->
        <classpath refid="build.classpath"/>
        <include name="HTTPClient/**"/>
     </javac>
@@ -408,7 +408,16 @@ what you want. Currently the conditionally built modules are:
     <copy todir="${dist.dir}/${src.dir}" filtering="on">
       <fileset dir="${src.dir}">
 	<exclude name="TAGS"/>
+	<exclude name="**/*.gif"/>
+	<exclude name="**/*.xcf"/>
 	<exclude name="**/.xvpics/**"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${dist.dir}/${src.dir}" filtering="off">
+      <fileset dir="${src.dir}">
+	<include name="**/*.gif"/>
+	<include name="**/*.xvf"/>
       </fileset>
     </copy>
 
