@@ -25,12 +25,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
 import net.grinder.common.TestImplementation;
+import net.grinder.communication.CommunicationException;
+import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.Sender;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
@@ -286,41 +290,49 @@ public final class GrinderProcess implements Monitor
 		t.start();
 	    }
 
-	    // Wait for a termination event.
-	    synchronized (this) {
-		while (GrinderThread.numberOfUncompletedThreads() > 0) {
+	    final Timer timer = new Timer();
+	    final TimerTask reportToConsoleTimerTask =
+		new ReportToConsoleTimerTask();
 
-		    m_lastMessagesReceived =
-			m_consoleListener.received(ConsoleListener.RESET |
-						   ConsoleListener.STOP);
+	    try {
+		// Schedule a regular statsitics report to the
+		// console. We don't need to schedule this at a fixed
+		// rate. Each report contains the work done since the
+		// last report.
+		timer.schedule(reportToConsoleTimerTask, 0,
+			       m_reportToConsoleInterval);
 
-		    if (m_lastMessagesReceived != 0) {
-			break;
-		    }
+		// Wait for a termination event.
+		synchronized (this) {
+		    while (GrinderThread.numberOfUncompletedThreads() > 0) {
 
-		    try {
-			wait();
-		    }
-		    catch (InterruptedException e) {
+			m_lastMessagesReceived =
+			    m_consoleListener.received(ConsoleListener.RESET |
+						       ConsoleListener.STOP);
+
+			if (m_lastMessagesReceived != 0) {
+			    break;
+			}
+
+			try {
+			    wait();
+			}
+			catch (InterruptedException e) {
+			}
 		    }
 		}
 	    }
-
-	    /*
-	      m_dataWriter.flush();
-
-	      m_context.getConsoleSender().send(
-	      new ReportStatisticsMessage(
-	      m_context.getTestRegistry().getTestStatisticsMap()
-	      .getDelta(true)));
-	    */
+	    finally {
+		timer.cancel();
+	    }
 
 	    synchronized (this) {
 		if (GrinderThread.numberOfUncompletedThreads() > 0) {
-
-		    m_context.logMessage("waiting for threads to terminate",
-					 Logger.LOG | Logger.TERMINAL);
-
+		    
+		    m_context.logMessage(
+			"waiting for threads to terminate",
+			Logger.LOG | Logger.TERMINAL);
+			
 		    GrinderThread.shutdown();
 
 		    final long time = System.currentTimeMillis();
@@ -344,8 +356,11 @@ public final class GrinderProcess implements Monitor
 		    }
 		}
 	    }
-	}
 
+	    // Final report to the console.
+	    reportToConsoleTimerTask.run();
+	}
+	
 	m_dataWriter.close();
 
  	m_context.logMessage("Final statistics for this process:");
@@ -409,6 +424,35 @@ public final class GrinderProcess implements Monitor
 		wait();
 	    }
 	    catch (InterruptedException e) {
+	    }
+	}
+    }
+
+    private class ReportToConsoleTimerTask extends TimerTask
+    {
+	private final TestStatisticsMap m_testStatiticsMap;
+
+	public ReportToConsoleTimerTask() 
+	{
+	    m_testStatiticsMap =
+		m_context.getTestRegistry().getTestStatisticsMap();
+	    
+	}
+
+	public void run() {
+	    m_dataWriter.flush();
+
+	    try {
+		m_context.getConsoleSender().send(
+		    new ReportStatisticsMessage(
+			m_testStatiticsMap.getDelta(true)));
+	    }
+	    catch (CommunicationException e) {
+		m_context.logMessage(
+		    "Report to console failed: " +e.getMessage(),
+		    Logger.LOG | Logger.TERMINAL);
+
+		e.printStackTrace(m_context.getErrorLogWriter());
 	    }
 	}
     }
