@@ -116,7 +116,7 @@ public class TestFileContents extends AbstractFileTestCase {
       final File outputDirectory = new File(getDirectory(), "output");
       outputDirectory.mkdir();
 
-      fileContents.create(outputDirectory);
+      fileContents.create(new Directory(outputDirectory));
 
       final FileContents fileContents2 =
         new FileContents(outputDirectory, relativePath);

@@ -130,9 +130,10 @@ public final class FileContents implements Serializable {
    * @param baseDirectory The base directory.
    * @exception FileContentsException If an error occurs.
    */
-  public void create(File baseDirectory) throws FileContentsException {
+  public void create(Directory baseDirectory) throws FileContentsException {
 
-    final File localFile = new File(baseDirectory, getFilename().getPath());
+    final File localFile = new File(baseDirectory.getAsFile(),
+                                    getFilename().getPath());
 
     localFile.getParentFile().mkdirs();
 
