@@ -50,7 +50,6 @@ import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.script.StatisticsAlreadyReportedException;
-import net.grinder.statistics.StatisticsIndexMap;
 
 
 /**
