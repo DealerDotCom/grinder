@@ -76,7 +76,7 @@ public final class FanOutServerSender extends AbstractSender {
    * @param grinderID A string describing our Grinder process.
    * @param senderID Unique string identifying sender.
    * @param acceptor Acceptor that manages connections to our server socket.
-   * @param numberOfThreads Number of sender threads to use.
+   * @param kernel A kernel to use.
    * @throws CommunicationException If server socket could not be
    * bound.
    */

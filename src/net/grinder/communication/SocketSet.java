@@ -80,7 +80,7 @@ final class SocketSet {
    * order. A SentinelHandle is returned once every cycle; if no
    * Handles are free the SentinelHandle is always returned.
    *
-   * @returns The Handle. It is up to the caller to free the Handle.
+   * @return The Handle. It is up to the caller to free the Handle.
    */
   public Handle reserveNextHandle() {
     synchronized (m_handleListMutex) {
@@ -104,7 +104,7 @@ final class SocketSet {
    * Returns a list of all the current Handles. Blocks until Handles
    * can be reserved. The SentinelHandle is not included.
    *
-   * @returns The Handles. It is up to the caller to free each Handle.
+   * @return The Handles. It is up to the caller to free each Handle.
    * @throws InterruptedException If the caller's thread is
    * interrupted. This can occur if thread belongs to the Acceptor
    * thread group and the Acceptor is shut down.
@@ -220,7 +220,7 @@ final class SocketSet {
      * Caller should {@link #reserve} the Handle before calling this
      * method.
      *
-     * @returns The input stream.
+     * @return The input stream.
      */
     InputStream getInputStream() throws IOException;
 
@@ -228,7 +228,7 @@ final class SocketSet {
      * Caller should {@link #reserve} the Handle before calling this
      * method.
      *
-     * @returns The output stream.
+     * @return The output stream.
      */
     OutputStream getOutputStream() throws IOException;
 
