@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,50 +29,50 @@ package net.grinder.statistics;
  * @author Philip Aston
  * @version $Revision$
  **/
-public interface TestStatistics extends RawStatistics
-{
-    /**
-     * Increment the <em>errors</em> statistic by one.
-     **/
-    void addError();
+public interface TestStatistics extends RawStatistics {
 
-    /**
-     * Increment the <em>untimedTransactions</em> statistic by one.
-     * @see #addTransaction(long)
-     **/
-    void addTransaction();
+  /**
+   * Increment the <em>errors</em> statistic by one.
+   **/
+  void addError();
 
-    /**
-     * Increment the <em>timedTransactions</em> statistic by one and
-     * add the given <code>time</code> to the
-     * <em>timedTransactionTime</em> statistic.
-     *
-     * @param time The transaction time.
-     * @see #addTransaction()
-     */
-    void addTransaction(long time);
+  /**
+   * Increment the <em>untimedTransactions</em> statistic by one.
+   * @see #addTransaction(long)
+   **/
+  void addTransaction();
 
-    /**
-     * Return the sum of the <em>timedTransactions</em> and
-     * <em>untimedTransactions</em> statistics.
-     *
-     * @return a <code>long</code> value
-     */
-    long getTransactions();
+  /**
+   * Increment the <em>timedTransactions</em> statistic by one and
+   * add the given <code>time</code> to the
+   * <em>timedTransactionTime</em> statistic.
+   *
+   * @param time The transaction time.
+   * @see #addTransaction()
+   */
+  void addTransaction(long time);
 
-    /**
-     * Return the value of the <em>errors</em> statistic.
-     *
-     * @return a <code>long</code> value
-     */
-    long getErrors();
+  /**
+   * Return the sum of the <em>timedTransactions</em> and
+   * <em>untimedTransactions</em> statistics.
+   *
+   * @return a <code>long</code> value
+   */
+  long getTransactions();
 
-    /**
-     * Return the value obtained by dividing the
-     * <em>timedTransactionTime</em> statistic by the
-     * <em>timedTransactions</em> statistic.
-     *
-     * @return a <code>double</code> value
-     */
-    double getAverageTransactionTime();
+  /**
+   * Return the value of the <em>errors</em> statistic.
+   *
+   * @return a <code>long</code> value
+   */
+  long getErrors();
+
+  /**
+   * Return the value obtained by dividing the
+   * <em>timedTransactionTime</em> statistic by the
+   * <em>timedTransactions</em> statistic.
+   *
+   * @return a <code>double</code> value
+   */
+  double getAverageTransactionTime();
 }

@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,7 +28,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import net.grinder.common.AbstractTestSemantics;
-import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 
@@ -43,360 +41,337 @@ import net.grinder.common.Test;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class TestStatisticsMap implements java.io.Externalizable
-{
-    private static final long serialVersionUID = 3781345128009455699L;
+public class TestStatisticsMap implements java.io.Externalizable {
 
-    /**
-     * Use a TreeMap so we store in test number order.
-     *
-     * @supplierCardinality 0..*
-     * @link aggregation 
-     * @associates <{TestStatisticsImplementation}>
-     **/
-    private final Map m_data = new TreeMap();
+  private static final long serialVersionUID = 3781345128009455699L;
 
-    /**
-     * @supplierCardinality 1 
-     **/
-    private final TestStatisticsFactory m_testStatisticsFactory	=
-	TestStatisticsFactory.getInstance();
+  /**
+   * Use a TreeMap so we store in test number order.
+   *
+   * @supplierCardinality 0..*
+   * @link aggregation 
+   * @associates <{TestStatisticsImplementation}>
+   **/
+  private final Map m_data = new TreeMap();
 
-    /**
-     * Creates a new <code>TestStatisticsMap</code> instance.
-     **/
-    public TestStatisticsMap()
-    {
+  /**
+   * @supplierCardinality 1 
+   **/
+  private final TestStatisticsFactory m_testStatisticsFactory =
+    TestStatisticsFactory.getInstance();
+
+  /**
+   * Creates a new <code>TestStatisticsMap</code> instance.
+   **/
+  public TestStatisticsMap() {
+  }
+
+  /**
+   * Put a new {test, statistics} pair in the map.
+   *
+   * @param test A test.
+   * @param statistics The test's statistics.
+   **/
+  public final void put(Test test, TestStatistics statistics) {
+    if (!(statistics instanceof TestStatisticsImplementation)) {
+      throw new RuntimeException(
+	"TestStatistics implementation not supported");
     }
 
-    /**
-     * Put a new {test, statistics} pair in the map.
-     *
-     * @param test A test.
-     * @param statistics The test's statistics.
-     **/
-    public final void put(Test test, TestStatistics statistics)
-    {
-	if (!(statistics instanceof TestStatisticsImplementation)) {
-	    throw new RuntimeException(
-		"TestStatistics implementation not supported");
-	}
+    m_data.put(test, statistics);
+  }
 
-	m_data.put(test, statistics);
+  /**
+   * Return a <code>TestStatisticsMap</code> representing the change
+   * since the last snapshot.
+   *
+   * <p>We rely on the synchronisation of {@link
+   * RawStatisticsImplementation#getDelta} to ensure that
+   * information is not lost.</p>
+   *
+   * @param updateSnapshot <code>true</code> => update the snapshot.
+   * @return A <code>TestStatisticsMap</code> representing the
+   * difference between our values and the snapshot's values.
+   **/
+  public final TestStatisticsMap getDelta(boolean updateSnapshot) {
+    final TestStatisticsMap result = new TestStatisticsMap();
+
+    final Iterator iterator = new Iterator();
+
+    while (iterator.hasNext()) {
+      final Pair pair = iterator.next();
+
+      final TestStatisticsImplementation testStatistics =
+	m_testStatisticsFactory.createImplementation();
+
+      testStatistics.add(pair.getStatistics().getDelta(updateSnapshot));
+
+      result.put(pair.getTest(), testStatistics);
     }
 
-    /**
-     * Return a <code>TestStatisticsMap</code> representing the change
-     * since the last snapshot.
-     *
-     * <p>We rely on the synchronisation of {@link
-     * RawStatisticsImplementation#getDelta} to ensure that
-     * information is not lost.</p>
-     *
-     * @param updateSnapshot <code>true</code> => update the snapshot.
-     * @return A <code>TestStatisticsMap</code> representing the
-     * difference between our values and the snapshot's values.
-     **/
-    public final TestStatisticsMap getDelta(boolean updateSnapshot)
-    {
-	final TestStatisticsMap result = new TestStatisticsMap();
+    return result;
+  }
 
-	final Iterator iterator = new Iterator();
+  /**
+   * Get a new <code>TestStatistics</code> containing the totals of
+   * all our entries.
+   *
+   * @return The totals <code>TestStatistics</code>.
+   **/
+  public final TestStatistics getTotal() {
+    final TestStatisticsImplementation result =
+      m_testStatisticsFactory.createImplementation();
 
-	while (iterator.hasNext()) {
-	    final Pair pair = iterator.next();
+    final java.util.Iterator iterator = m_data.values().iterator();
 
-	    final TestStatisticsImplementation testStatistics =
-		m_testStatisticsFactory.createImplementation();
-
-	    testStatistics.add(pair.getStatistics().getDelta(updateSnapshot));
-
-	    result.put(pair.getTest(), testStatistics);
-	}
-
-	return result;
+    while (iterator.hasNext()) {
+      result.add((TestStatistics)iterator.next());
     }
 
-    /**
-     * Get a new <code>TestStatistics</code> containing the totals of
-     * all our entries.
-     *
-     * @return The totals <code>TestStatistics</code>.
-     **/
-    public final TestStatistics getTotal()
-    {
-	final TestStatisticsImplementation result =
-	    m_testStatisticsFactory.createImplementation();
+    return result;
+  }
 
-	final java.util.Iterator iterator = m_data.values().iterator();
+  /**
+   * Return the number of entries in the
+   * <code>TestStatisticsMap</code>.
+   *
+   * @return an <code>int</code> value
+   **/
+  public final int size() {
+    return m_data.size();
+  }
 
-	while (iterator.hasNext()) {
-	    result.add((TestStatistics)iterator.next());
-	}
+  /**
+   * Add <code>operand</code> to our values.
+   *
+   * @param operand The <code>TestStatisticsMap</code> containing
+   * values to add.
+   **/
+  public final void add(TestStatisticsMap operand) {
+    final Iterator iterator = operand.new Iterator();
 
-	return result;
+    while (iterator.hasNext()) {
+      final Pair pair = iterator.next();
+
+      final Test test = pair.getTest();
+      final TestStatistics statistics =
+	(TestStatistics)m_data.get(pair.getTest());
+
+      if (statistics == null) {
+	final TestStatisticsImplementation newStatistics =
+	  m_testStatisticsFactory.createImplementation();
+
+	newStatistics.add(pair.getStatistics());
+
+	put(test, newStatistics);
+      }
+      else {
+	statistics.add(pair.getStatistics());
+      }
     }
+  }
 
-    /**
-     * Return the number of entries in the
-     * <code>TestStatisticsMap</code>.
-     *
-     * @return an <code>int</code> value
-     **/
-    public final int size()
-    {
-	return m_data.size();
+  /**
+   * Implement value based equality. Mainly used by unit tests.
+   *
+   * <p><em>Note, no <code>hashCode()</code> method is defined by
+   * this class.</em></p>.
+   *
+   * @param o <code>Object</code> to compare to.
+   * @return <code>true</code> if and only if the two objects are equal.
+   **/
+  public final boolean equals(Object o) {
+    if (o == this) {
+      return true;
     }
-
-    /**
-     * Add <code>operand</code> to our values.
-     *
-     * @param operand The <code>TestStatisticsMap</code> containing
-     * values to add.
-     **/
-    public final void add(TestStatisticsMap operand)
-    {
-	final Iterator iterator = operand.new Iterator();
-
-	while (iterator.hasNext()) {
-	    final Pair pair = iterator.next();
-
-	    final Test test = pair.getTest();
-	    final TestStatistics statistics =
-		(TestStatistics)m_data.get(pair.getTest());
-
-	    if (statistics == null) {
-		final TestStatisticsImplementation newStatistics =
-		    m_testStatisticsFactory.createImplementation();
-
-		newStatistics.add(pair.getStatistics());
-
-		put(test, newStatistics);
-	    }
-	    else {
-		statistics.add(pair.getStatistics());
-	    }
-	}
-    }
-
-    /**
-     * Implement value based equality. Mainly used by unit tests.
-     *
-     * <p><em>Note, no <code>hashCode()</code> method is defined by
-     * this class.</em></p>.
-     *
-     * @param o <code>Object</code> to compare to.
-     * @return <code>true</code> if and only if the two objects are equal.
-     **/
-    public final boolean equals(Object o)
-    {
-	if (o == this) {
-	    return true;
-	}
 	
-	if (!(o instanceof TestStatisticsMap)) {
-	    return false;
-	}
+    if (!(o instanceof TestStatisticsMap)) {
+      return false;
+    }
 
-	final TestStatisticsMap otherMap = (TestStatisticsMap)o;
+    final TestStatisticsMap otherMap = (TestStatisticsMap)o;
 
-	if (size() != otherMap.size()) {
-	    return false;
-	}
+    if (size() != otherMap.size()) {
+      return false;
+    }
 
-	final Iterator iterator = new Iterator();
-	final Iterator otherIterator = otherMap.new Iterator();
+    final Iterator iterator = new Iterator();
+    final Iterator otherIterator = otherMap.new Iterator();
 
-	while (iterator.hasNext()) {
-	    final Pair pair = iterator.next();
-	    final Pair otherPair = otherIterator.next();
+    while (iterator.hasNext()) {
+      final Pair pair = iterator.next();
+      final Pair otherPair = otherIterator.next();
 
-	    if (!pair.getTest().equals(otherPair.getTest()) ||
-		!pair.getStatistics().equals(otherPair.getStatistics())) {
-		return false;
-	    }
-	}
+      if (!pair.getTest().equals(otherPair.getTest()) ||
+	  !pair.getStatistics().equals(otherPair.getStatistics())) {
+	return false;
+      }
+    }
 
-	return true;
+    return true;
+  }
+
+  /**
+   * Return a <code>String</code> representation of this
+   * <code>TestStatisticsMap</code>.
+   *
+   * @return The <code>String</code>
+   **/
+  public String toString() {
+    final StringBuffer result = new StringBuffer();
+
+    result.append("TestStatisticsMap = {");
+
+    final Iterator iterator = new Iterator();
+
+    while (iterator.hasNext()) {
+      final Pair pair = iterator.next();
+
+      result.append("(");
+      result.append(pair.getTest());
+      result.append(", ");
+      result.append(pair.getStatistics());
+      result.append(")");
+    }
+
+    result.append("}");
+
+    return result.toString();
+  }
+
+  /**
+   * Efficient externalisation method.
+   *
+   * @param out Handle to the output stream.
+   * @exception IOException If an I/O error occurs.
+   **/
+  public void writeExternal(ObjectOutput out) throws IOException {
+    out.writeInt(m_data.size());
+
+    final Iterator iterator = new Iterator();
+
+    while (iterator.hasNext()) {
+      final Pair pair = iterator.next();
+
+      out.writeInt(pair.getTest().getNumber());
+
+      // Its a class invariant that our TestStatistics are all
+      // TestStatisticsImplementations.
+      m_testStatisticsFactory.writeStatisticsExternal(
+	out, (TestStatisticsImplementation)pair.getStatistics());
+    }
+  }
+
+  /**
+   * Efficient externalisation method.
+   *
+   * @param in Handle to the input stream.
+   * @exception IOException If an I/O error occurs.
+   **/
+  public void readExternal(ObjectInput in) throws IOException {
+    final int n = in.readInt();
+
+    m_data.clear();
+
+    for (int i=0; i<n; i++) {
+      m_data.put(new LightweightTest(in.readInt()),
+		 m_testStatisticsFactory.readStatisticsExternal(in));
+    }
+  }
+
+  /**
+   * Light weight test implementation that the console uses.
+   **/
+  private static final class LightweightTest extends AbstractTestSemantics {
+    private final int m_number;
+
+    public LightweightTest(int number) {
+      m_number = number;
+    }
+
+    public final int getNumber() {
+      return m_number;
+    }
+
+    public final String getDescription() {
+      return "";	    
+    }
+
+    public final GrinderProperties getParameters() {
+      throw new UnsupportedOperationException(
+	getClass().getName() + ".LightweightTest.getParameters()");
+    }
+  }
+
+  /**
+   * A type safe iterator.
+   **/
+  public final class Iterator {
+    private final java.util.Iterator m_iterator;
+
+    /**
+     * Creates a new <code>Iterator</code> instance.
+     **/
+    public Iterator() {
+      m_iterator = m_data.entrySet().iterator();
     }
 
     /**
-     * Return a <code>String</code> representation of this
-     * <code>TestStatisticsMap</code>.
+     * Check whether we are at the end of the {@link
+     * TestStatisticsMap}.
      *
-     * @return The <code>String</code>
+     * @return <code>true</code> if there is a next {@link
+     * TestStatisticsMap.Pair}.
      **/
-    public String toString()
-    {
-	final StringBuffer result = new StringBuffer();
-
-	result.append("TestStatisticsMap = {");
-
-	final Iterator iterator = new Iterator();
-
-	while (iterator.hasNext()) {
-	    final Pair pair = iterator.next();
-
-	    result.append("(");
-	    result.append(pair.getTest());
-	    result.append(", ");
-	    result.append(pair.getStatistics());
-	    result.append(")");
-	}
-
-	result.append("}");
-
-	return result.toString();
+    public final boolean hasNext() {
+      return m_iterator.hasNext();
     }
 
     /**
-     * Efficient externalisation method.
+     * Get the next {@link TestStatisticsMap.Pair} from the {@link
+     * TestStatisticsMap}.
      *
-     * @param out Handle to the output stream.
-     * @exception IOException If an I/O error occurs.
+     * @return The next {@link TestStatisticsMap.Pair}.
+     * @throws java.util.NoSuchElementException If there is no next element.
      **/
-    public void writeExternal(ObjectOutput out) throws IOException
-    {
-	out.writeInt(m_data.size());
+    public final Pair next() {
+      final Map.Entry entry = (Map.Entry)m_iterator.next();
+      final Test test = (Test)entry.getKey();
+      final TestStatistics statistics = (TestStatistics)entry.getValue();
 
-	final Iterator iterator = new Iterator();
+      return new Pair(test, statistics);
+    }
+  }
 
-	while (iterator.hasNext()) {
-	    final Pair pair = iterator.next();
+  /**
+   * A type safe pair of a {@link net.grinder.common.Test} and a
+   * {@link TestStatistics}.
+   **/
+  public final class Pair {
+    private final Test m_test;
+    private final TestStatistics m_statistics;
 
-	    out.writeInt(pair.getTest().getNumber());
-
-	    // Its a class invariant that our TestStatistics are all
-	    // TestStatisticsImplementations.
-	    m_testStatisticsFactory.writeStatisticsExternal(
-		out, (TestStatisticsImplementation)pair.getStatistics());
-	}
+    private Pair(Test test, TestStatistics statistics) {
+      m_test = test;
+      m_statistics = statistics;
     }
 
     /**
-     * Efficient externalisation method.
+     * Get the {@link net.grinder.common.Test}.
      *
-     * @param in Handle to the input stream.
-     * @exception IOException If an I/O error occurs.
-     **/
-    public void readExternal(ObjectInput in) throws IOException
-    {
-	final int n = in.readInt();
-
-	m_data.clear();
-
-	for (int i=0; i<n; i++) {
-	    m_data.put(new LightweightTest(in.readInt()),
-		       m_testStatisticsFactory.readStatisticsExternal(in));
-	}
+     * @return  The {@link net.grinder.common.Test}.
+     */
+    public final Test getTest() {
+      return m_test;
     }
 
     /**
-     * Light weight test implementation that the console uses.
-     **/
-    private final static class LightweightTest extends AbstractTestSemantics
-    {
-	private final int m_number;
-
-	public LightweightTest(int number)
-	{
-	    m_number = number;
-	}
-
-	public final int getNumber()
-	{
-	    return m_number;
-	}
-
-	public final String getDescription()
-	{
-	    return "";	    
-	}
-
-	public final GrinderProperties getParameters()
-	{
-	    throw new UnsupportedOperationException(
-		getClass().getName() + ".LightweightTest.getParameters()");
-	}
+     * Get the {@link TestStatistics}.
+     *
+     * @return The {@link TestStatistics}.
+     */
+    public final TestStatistics getStatistics() {
+      return m_statistics;
     }
-
-    /**
-     * A type safe iterator.
-     **/
-    public final class Iterator
-    {
-	private final java.util.Iterator m_iterator;
-
-	/**
-	 * Creates a new <code>Iterator</code> instance.
-	 **/
-	public Iterator()
-	{
-	    m_iterator = m_data.entrySet().iterator();
-	}
-
-	/**
-	 * Check whether we are at the end of the {@link
-	 * TestStatisticsMap}.
-	 *
-	 * @return <code>true</code> if there is a next {@link
-	 * TestStatisticsMap.Pair}.
-	 **/
-	public final boolean hasNext()
-	{
-	    return m_iterator.hasNext();
-	}
-
-	/**
-	 * Get the next {@link TestStatisticsMap.Pair} from the {@link
-	 * TestStatisticsMap}.
-	 *
-	 * @return The next {@link TestStatisticsMap.Pair}.
-	 * @throws java.util.NoSuchElementException If there is no next element.
-	 **/
-	public final Pair next()
-	{
-	    final Map.Entry entry = (Map.Entry)m_iterator.next();
-	    final Test test = (Test)entry.getKey();
-	    final TestStatistics statistics = (TestStatistics)entry.getValue();
-
-	    return new Pair(test, statistics);
-	}
-    }
-
-    /**
-     * A type safe pair of a {@link net.grinder.common.Test} and a
-     * {@link TestStatistics}.
-     **/
-    public final class Pair
-    {
-	private final Test m_test;
-	private final TestStatistics m_statistics;
-
-	private Pair(Test test, TestStatistics statistics)
-	{
-	    m_test = test;
-	    m_statistics = statistics;
-	}
-
-	/**
-	 * Get the {@link net.grinder.common.Test}.
-	 *
-	 * @return  The {@link net.grinder.common.Test}.
-	 */
-	public final Test getTest()
-	{
-	    return m_test;
-	}
-
-	/**
-	 * Get the {@link TestStatistics}.
-	 *
-	 * @return The {@link TestStatistics}.
-	 */
-	public final TestStatistics getStatistics()
-	{
-	    return m_statistics;
-	}
-    }
+  }
 }

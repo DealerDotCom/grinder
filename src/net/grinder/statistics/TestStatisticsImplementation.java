@@ -35,10 +35,10 @@ import net.grinder.util.Serialiser;
 final class TestStatisticsImplementation
   extends RawStatisticsImplementation implements TestStatistics {
 
-  private final static StatisticsIndexMap.LongIndex s_errorsIndex;
-  private final static StatisticsIndexMap.LongIndex s_timedTransactionsIndex;
-  private final static StatisticsIndexMap.LongIndex s_untimedTransactionsIndex;
-  private final static StatisticsIndexMap.LongIndex s_totalTimeIndex;
+  private static final StatisticsIndexMap.LongIndex s_errorsIndex;
+  private static final StatisticsIndexMap.LongIndex s_timedTransactionsIndex;
+  private static final StatisticsIndexMap.LongIndex s_untimedTransactionsIndex;
+  private static final StatisticsIndexMap.LongIndex s_totalTimeIndex;
 
   static {
     final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();

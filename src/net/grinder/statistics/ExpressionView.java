@@ -1,4 +1,3 @@
-// Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
@@ -22,11 +21,9 @@
 
 package net.grinder.statistics;
 
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.io.Serializable;
 
 import net.grinder.common.GrinderException;
 

@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,8 +21,6 @@
 
 package net.grinder.statistics;
 
-import net.grinder.statistics.RawStatistics;
-
 
 /**
  * A {@link StatisticExpression} that tracks the peak value of another
@@ -36,17 +33,16 @@ import net.grinder.statistics.RawStatistics;
  * @version $Revision$
  * @see StatisticExpressionFactory
  **/
-public interface PeakStatisticExpression extends StatisticExpression
-{
-    /**
-     * When called, the peak value of monitored expression applied to
-     * <code>monitoredStatistics</code> is calculated and stored in the
-     * given <code>peakStorageStatistics</code>.
-     *
-     * @param monitoredStatistics The monitored <code>RawStatistics</code>.
-     * @param peakStorageStatistics The <code>RawStatistics</code> in
-     * which to store the result.
-     */
-    void update(RawStatistics monitoredStatistics,
-		RawStatistics peakStorageStatistics);
+public interface PeakStatisticExpression extends StatisticExpression {
+  /**
+   * When called, the peak value of monitored expression applied to
+   * <code>monitoredStatistics</code> is calculated and stored in the
+   * given <code>peakStorageStatistics</code>.
+   *
+   * @param monitoredStatistics The monitored <code>RawStatistics</code>.
+   * @param peakStorageStatistics The <code>RawStatistics</code> in
+   * which to store the result.
+   */
+  void update(RawStatistics monitoredStatistics,
+	      RawStatistics peakStorageStatistics);
 }

@@ -1,4 +1,3 @@
-// Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
@@ -24,7 +23,6 @@ package net.grinder.statistics;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import net.grinder.common.GrinderException;
@@ -64,7 +62,7 @@ import net.grinder.common.GrinderException;
  * @version $Revision$
  **/
 public class StatisticsIndexMap implements Serializable {
-  private final static StatisticsIndexMap s_processInstance =
+  private static final StatisticsIndexMap s_processInstance =
     new StatisticsIndexMap();
 
   private final Map m_map = new HashMap();
@@ -76,7 +74,7 @@ public class StatisticsIndexMap implements Serializable {
    *
    * @return The singleton <code>StatisticsIndexMap</code>.
    */
-  public final static StatisticsIndexMap getInstance() {
+  public static final StatisticsIndexMap getInstance() {
     return s_processInstance;
   }
 
@@ -181,7 +179,7 @@ public class StatisticsIndexMap implements Serializable {
   /**
    * Opaque object that represents a double statistic.
    */
-  public final static class DoubleIndex extends AbstractIndex {
+  public static final class DoubleIndex extends AbstractIndex {
     private DoubleIndex(int i) {
       super(i);
     }
@@ -190,7 +188,7 @@ public class StatisticsIndexMap implements Serializable {
   /**
    * Opaque object that represents a long statistic.
    */
-  public final static class LongIndex extends AbstractIndex {
+  public static final class LongIndex extends AbstractIndex {
     private LongIndex(int i) {
       super(i);
     }

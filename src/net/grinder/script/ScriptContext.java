@@ -96,10 +96,10 @@ public interface ScriptContext {
     throws GrinderException, InvalidContextException;
 
   /**
-   * Get a {@link net.grinder.common.FilenameFactory} that can be
-   * used to create unique filenames. The value returned when invoked from script
-   * initialisation differs from the value returned when called from
-   * a worker thread, so its best not to keep references to the
+   * Get a {@link net.grinder.common.FilenameFactory} that can be used
+   * to create unique filenames. The value returned when invoked from
+   * script initialisation differs from the value returned when called
+   * from a worker thread, so its best not to keep references to the
    * result.
    *
    * @return A <code>FilenameFactory</code>.

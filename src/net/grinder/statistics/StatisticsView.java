@@ -1,4 +1,3 @@
-// Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
@@ -53,7 +52,7 @@ public final class StatisticsView implements Externalizable {
    * rather than having the <code>ExpressionView</code> implement
    * <code>Comparable</code> because our sort order is inconsistent with equals.
    **/
-  private final static Comparator s_expressionViewComparator =
+  private static final Comparator s_expressionViewComparator =
     new Comparator() {
       public final int compare(Object a, Object b) {
 	final ExpressionView viewA = (ExpressionView)a;

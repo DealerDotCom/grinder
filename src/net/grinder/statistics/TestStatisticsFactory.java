@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,57 +25,64 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import net.grinder.common.GrinderException;
 import net.grinder.util.Serialiser;
 
 
 /**
+ * Factory for {@link TestStatistics} objects.
+ *
  * @author Philip Aston
  * @version $Revision$
  * @stereotype singleton
  **/
-public final class TestStatisticsFactory
-{
-    private final static TestStatisticsFactory s_instance =
-	new TestStatisticsFactory();
+public final class TestStatisticsFactory {
 
-    private final Serialiser m_serialiser = new Serialiser();
+  private static final TestStatisticsFactory s_instance =
+    new TestStatisticsFactory();
 
-    /**
-     * @link dependency 
-     * @stereotype instantiate
-     **/
-    /*#TestStatisticsImplementation lnkTestStatistics;*/
+  private final Serialiser m_serialiser = new Serialiser();
 
-    public final synchronized static TestStatisticsFactory getInstance()
-    {
-	return s_instance;
-    }
+  /**
+   * @link dependency 
+   * @stereotype instantiate
+   **/
+  /*#TestStatisticsImplementation lnkTestStatistics;*/
 
-    public final TestStatistics create()
-    {
-	return createImplementation();
-    }
+  /**
+   * Singleton accessor.
+   *
+   * @return The singleton.
+   */
+  public static final synchronized TestStatisticsFactory getInstance() {
+    return s_instance;
+  }
 
-    /**
-     * Package scope factory method that returns instances of our implementation type.
-     * @see #create
-     **/
-    final TestStatisticsImplementation createImplementation()
-    {
-	return new TestStatisticsImplementation();
-    }
+  /**
+   * Factory menthod.
+   *
+   * @return A new <code>TestStatistics</code>.
+   */
+  public final TestStatistics create() {
+    return createImplementation();
+  }
 
-    final void writeStatisticsExternal(ObjectOutput out,
-				       TestStatisticsImplementation statistics)
-	throws IOException
-    {
-	statistics.myWriteExternal(out, m_serialiser);
-    }
+  /**
+   * Package scope factory method that returns instances of our
+   * implementation type.
+   * @see #create
+   **/
+  final TestStatisticsImplementation createImplementation() {
+    return new TestStatisticsImplementation();
+  }
 
-    final TestStatistics readStatisticsExternal(ObjectInput in)
-	throws IOException
-    {
-	return new TestStatisticsImplementation(in, m_serialiser);
-    }
+  final void writeStatisticsExternal(ObjectOutput out,
+				     TestStatisticsImplementation statistics)
+    throws IOException {
+    statistics.myWriteExternal(out, m_serialiser);
+  }
+
+  final TestStatistics readStatisticsExternal(ObjectInput in)
+    throws IOException {
+    return new TestStatisticsImplementation(in, m_serialiser);
+  }
 }

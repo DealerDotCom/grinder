@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,34 +30,34 @@ package net.grinder.statistics;
  * @version $Revision$
  * @see StatisticExpressionFactory
  **/
-public interface StatisticExpression
-{
-    /**
-     * Apply this {@link StatisticExpression} to the given {@link
-     * RawStatistics} and return the result as a <code>double</code>.
-     *
-     * @param rawStatistics A <code>RawStatistics</code> value.
-     * @return The result.
-     **/
-    double getDoubleValue(RawStatistics rawStatistics);
+public interface StatisticExpression {
 
-    /**
-     * Apply this {@link StatisticExpression} to the given {@link
-     * RawStatistics} and return the result as a <code>long</code>,
-     * ronding as necessary.
-     *
-     * @param rawStatistics A <code>RawStatistics</code> value.
-     * @return The result.
-     **/
-    long getLongValue(RawStatistics rawStatistics);
+  /**
+   * Apply this {@link StatisticExpression} to the given {@link
+   * RawStatistics} and return the result as a <code>double</code>.
+   *
+   * @param rawStatistics A <code>RawStatistics</code> value.
+   * @return The result.
+   **/
+  double getDoubleValue(RawStatistics rawStatistics);
 
-    /**
-     * Returns <code>true</code> if the type of this {@link
-     * StatisticExpression} is non integral. Callers might use this to
-     * decide which accessor to call to ensure that information is not
-     * lost, or how to format the result.
-     *
-     * @return a <code>boolean</code> value
-     **/
-    boolean isDouble();
+  /**
+   * Apply this {@link StatisticExpression} to the given {@link
+   * RawStatistics} and return the result as a <code>long</code>,
+   * ronding as necessary.
+   *
+   * @param rawStatistics A <code>RawStatistics</code> value.
+   * @return The result.
+   **/
+  long getLongValue(RawStatistics rawStatistics);
+
+  /**
+   * Returns <code>true</code> if the type of this {@link
+   * StatisticExpression} is non integral. Callers might use this to
+   * decide which accessor to call to ensure that information is not
+   * lost, or how to format the result.
+   *
+   * @return a <code>boolean</code> value
+   **/
+  boolean isDouble();
 }

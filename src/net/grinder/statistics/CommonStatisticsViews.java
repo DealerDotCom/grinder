@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,80 +31,76 @@ import net.grinder.common.GrinderException;
  * @version $Revision$
  * @stereotype singleton
  **/
-public final class CommonStatisticsViews
-{
-    private final static CommonStatisticsViews s_instance =
-	new CommonStatisticsViews();
+public final class CommonStatisticsViews {
+  private static final CommonStatisticsViews s_instance =
+    new CommonStatisticsViews();
 
-    /**
-     * @supplierCardinality 1
-     * @link aggregation
-     * @clientRole detailStatisticsView 
-     **/
-    private final StatisticsView m_detailStatisticsView = new StatisticsView();
+  /**
+   * @supplierCardinality 1
+   * @link aggregation
+   * @clientRole detailStatisticsView 
+   **/
+  private final StatisticsView m_detailStatisticsView = new StatisticsView();
 
-    /**
-     * @supplierCardinality 1
-     * @link aggregation
-     * @clientRole summaryStatisticsView 
-     **/
-    private final StatisticsView m_summaryStatisticsView =
-	new StatisticsView();
+  /**
+   * @supplierCardinality 1
+   * @link aggregation
+   * @clientRole summaryStatisticsView 
+   **/
+  private final StatisticsView m_summaryStatisticsView =
+    new StatisticsView();
 
-    private CommonStatisticsViews()
-    {
-	try {
-	    final ExpressionView[] detailExpressionViews = {
-		new ExpressionView("Transaction time",
-				   "statistic.transactionTime", 
-				   "timedTransactionTime"),
-		new ExpressionView("Errors", "statistic.errors", "errors"),
-	    };
+  private CommonStatisticsViews() {
+    try {
+      final ExpressionView[] detailExpressionViews = {
+	new ExpressionView("Transaction time",
+			   "statistic.transactionTime", 
+			   "timedTransactionTime"),
+	new ExpressionView("Errors", "statistic.errors", "errors"),
+      };
 
-	    for (int i=0; i<detailExpressionViews.length; ++i) {
-		m_detailStatisticsView.add(detailExpressionViews[i]);
-	    }
+      for (int i=0; i<detailExpressionViews.length; ++i) {
+	m_detailStatisticsView.add(detailExpressionViews[i]);
+      }
 
-	    final ExpressionView[] summaryExpressionViews = {
-		new ExpressionView("Transactions", "statistic.transactions", 
-				   "(+ timedTransactions untimedTransactions)"
-				   ),
-		new ExpressionView("Errors", "statistic.errors", "errors"),
-		new ExpressionView(
-		    "Mean Transaction Time (ms)",
-		    "statistic.meanTransactionTime",
-		    "(/ timedTransactionTime timedTransactions)"),
-	    };
+      final ExpressionView[] summaryExpressionViews = {
+	new ExpressionView("Transactions", "statistic.transactions", 
+			   "(+ timedTransactions untimedTransactions)"
+			   ),
+	new ExpressionView("Errors", "statistic.errors", "errors"),
+	new ExpressionView(
+	  "Mean Transaction Time (ms)",
+	  "statistic.meanTransactionTime",
+	  "(/ timedTransactionTime timedTransactions)"),
+      };
 
-	    for (int i=0; i<summaryExpressionViews.length; ++i) {
-		m_summaryStatisticsView.add(summaryExpressionViews[i]);
-	    }
-	}
-	catch (GrinderException e) {
-	    throw new RuntimeException(
-		"Assertion failure, " +
-		"CommonStatisticsViews could not initialise: " +
-		e.getMessage());
-	}
+      for (int i=0; i<summaryExpressionViews.length; ++i) {
+	m_summaryStatisticsView.add(summaryExpressionViews[i]);
+      }
     }
-
-    /**
-     * Get the detail {@link StatisticsView}.
-     *
-     * @return The {@link StatisticsView}.
-     **/
-    public final static StatisticsView getDetailStatisticsView()
-    {
-	return s_instance.m_detailStatisticsView;
+    catch (GrinderException e) {
+      throw new RuntimeException(
+	"Assertion failure, " +
+	"CommonStatisticsViews could not initialise: " +
+	e.getMessage());
     }
+  }
 
-    /**
-     * Get the summary {@link StatisticsView}.
-     *
-     * @return The {@link StatisticsView}.
-     **/
-    public final static StatisticsView getSummaryStatisticsView()
-    {
-	return s_instance.m_summaryStatisticsView;
-    }
+  /**
+   * Get the detail {@link StatisticsView}.
+   *
+   * @return The {@link StatisticsView}.
+   **/
+  public static final StatisticsView getDetailStatisticsView() {
+    return s_instance.m_detailStatisticsView;
+  }
+
+  /**
+   * Get the summary {@link StatisticsView}.
+   *
+   * @return The {@link StatisticsView}.
+   **/
+  public static final StatisticsView getSummaryStatisticsView() {
+    return s_instance.m_summaryStatisticsView;
+  }
 }

@@ -196,7 +196,7 @@ public interface Statistics  {
   /**
    * Convenience method that returns the time taken by the last test.
    *
-   * @param time The transaction time.
+   * @return The transaction time for the last test.
    */
   long getTime();
 }

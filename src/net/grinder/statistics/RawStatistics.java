@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +21,6 @@
 
 package net.grinder.statistics;
 
-import net.grinder.common.GrinderException;
 
 
 /**
@@ -34,88 +32,86 @@ import net.grinder.common.GrinderException;
  * @version $Revision$
  * @see net.grinder.script.ScriptContext#getCurrentTestStatistics
  **/
-public interface RawStatistics
-{
-    /**
-     * Reset this RawStatistics to default values. Allows instance to
-     * be reused.
-     **/
-    void reset();
+public interface RawStatistics {
 
-    /**
-     * Return the value specified by <code>index</code>.
-     *
-     * @param index The process specific index.
-     * @return The value.
-     */
-    long getValue(StatisticsIndexMap.LongIndex index);
+  /**
+   * Reset this RawStatistics to default values. Allows instance to
+   * be reused.
+   **/
+  void reset();
 
-    /**
-     * Return the value specified by <code>index</code>.
-     *
-     * @param index The process specific index.
-     * @return The value.
-     */
-    double getValue(StatisticsIndexMap.DoubleIndex index);
+  /**
+   * Return the value specified by <code>index</code>.
+   *
+   * @param index The process specific index.
+   * @return The value.
+   */
+  long getValue(StatisticsIndexMap.LongIndex index);
 
-    /**
-     * Set the value specified by <code>index</code>.
-     *
-     * @param index The process specific index.
-     * @param value The value.
-     **/
-    void setValue(StatisticsIndexMap.LongIndex index, long value);
+  /**
+   * Return the value specified by <code>index</code>.
+   *
+   * @param index The process specific index.
+   * @return The value.
+   */
+  double getValue(StatisticsIndexMap.DoubleIndex index);
 
-    /**
-     * Set the value specified by <code>index</code>.
-     *
-     * @param index The process specific index.
-     * @param value The value.
-     **/
-    void setValue(StatisticsIndexMap.DoubleIndex index, double value);
+  /**
+   * Set the value specified by <code>index</code>.
+   *
+   * @param index The process specific index.
+   * @param value The value.
+   **/
+  void setValue(StatisticsIndexMap.LongIndex index, long value);
 
-    /**
-     * Add <code>value</code> to the value specified by
-     * <code>index</code>.
-     *
-     * @param index The process specific index.
-     * @param value The value.
-     **/
-    void addValue(StatisticsIndexMap.LongIndex index, long value);
+  /**
+   * Set the value specified by <code>index</code>.
+   *
+   * @param index The process specific index.
+   * @param value The value.
+   **/
+  void setValue(StatisticsIndexMap.DoubleIndex index, double value);
 
-    /**
-     * Add <code>value</code> to the value specified by
-     * <code>index</code>.
-     *
-     * @param index The process specific index.
-     * @param value The value.
-     **/
-    void addValue(StatisticsIndexMap.DoubleIndex index, double value);
+  /**
+   * Add <code>value</code> to the value specified by
+   * <code>index</code>.
+   *
+   * @param index The process specific index.
+   * @param value The value.
+   **/
+  void addValue(StatisticsIndexMap.LongIndex index, long value);
 
-    /**
-     * Equivalent to <code>addValue(index, 1)</code>.
-     *
-     * @param index The process specific index.
-     * @exception IllegalArgumentException If the <code>index</code> is negative. 
-     *
-     * @see #addValue
-     */
-    void incrementValue(StatisticsIndexMap.LongIndex index);
+  /**
+   * Add <code>value</code> to the value specified by
+   * <code>index</code>.
+   *
+   * @param index The process specific index.
+   * @param value The value.
+   **/
+  void addValue(StatisticsIndexMap.DoubleIndex index, double value);
 
-    /**
-     * Add the values of another {@link RawStatistics} to ours.
-     * Assumes we don't need to synchronise access to operand.
-     * @param operand The {@link RawStatistics} value to add.
-     **/
-    void add(RawStatistics operand);
+  /**
+   * Equivalent to <code>addValue(index, 1)</code>.
+   *
+   * @param index The process specific index.
+   * @see #addValue
+   */
+  void incrementValue(StatisticsIndexMap.LongIndex index);
 
-    /**
-     * Return a {@link RawStatistics} representing the change since
-     * the last snapshot.
-     *
-     * @param updateSnapshot <code>true</code> => update the snapshot.
-     * @return A {@link RawStatistics} representing the difference
-     * between our values and the snapshot's values.
-     **/
-    RawStatistics getDelta(boolean updateSnapshot);
+  /**
+   * Add the values of another {@link RawStatistics} to ours.
+   * Assumes we don't need to synchronise access to operand.
+   * @param operand The {@link RawStatistics} value to add.
+   **/
+  void add(RawStatistics operand);
+
+  /**
+   * Return a {@link RawStatistics} representing the change since
+   * the last snapshot.
+   *
+   * @param updateSnapshot <code>true</code> => update the snapshot.
+   * @return A {@link RawStatistics} representing the difference
+   * between our values and the snapshot's values.
+   **/
+  RawStatistics getDelta(boolean updateSnapshot);
 }

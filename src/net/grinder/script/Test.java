@@ -1,4 +1,4 @@
-// Copyright (C) 2002 Philip Aston
+// Copyright (C) 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -44,60 +44,57 @@ import net.grinder.engine.process.TestRegistry;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public class Test extends AbstractTestSemantics implements Serializable
-{
-    private final int m_number;
-    private final String m_description;
-    private transient final TestRegistry.RegisteredTest m_registeredTest;
+public class Test extends AbstractTestSemantics implements Serializable {
 
-    /**
-     * Creates a new <code>Test</code> instance.
-     *
-     * @param number Test number.
-     * @param description Test description.
-     * @exception GrinderException If an error occurs.
-     */
-    public Test(int number, String description) throws GrinderException
-    {	
-	m_number = number;
-	m_description = description;
-	m_registeredTest = TestRegistry.getInstance().register(this);
-    }
+  private final int m_number;
+  private final String m_description;
+  private final transient TestRegistry.RegisteredTest m_registeredTest;
 
-    /**
-     * Get the test number.
-     *
-     * @return The test number.
-     */
-    public final int getNumber()
-    {
-	return m_number;
-    }
+  /**
+   * Creates a new <code>Test</code> instance.
+   *
+   * @param number Test number.
+   * @param description Test description.
+   * @exception GrinderException If an error occurs.
+   */
+  public Test(int number, String description) throws GrinderException {	
+    m_number = number;
+    m_description = description;
+    m_registeredTest = TestRegistry.getInstance().register(this);
+  }
 
-    /**
-     * Get the test description.
-     *
-     * @return The test description.
-     */
-    public final String getDescription()
-    {
-	return m_description;
-    }
+  /**
+   * Get the test number.
+   *
+   * @return The test number.
+   */
+  public final int getNumber() {
+    return m_number;
+  }
 
-    /**
-     * Creates a proxy script object that has the same interface as
-     * the passed object. The Grinder will delegate invocations on the
-     * proxy object to the target object, timing and record the
-     * success or failure of the invocation against the
-     * <code>Test</code> statistics. This method can be called many
-     * times, for many different targets.
-     *
-     * @param target Object to wrap.
-     * @return The proxy.
-     */
-    public final Object wrap(Object target) throws NotWrappableTypeException
-    {
-	return m_registeredTest.createProxy(target);
-    }
+  /**
+   * Get the test description.
+   *
+   * @return The test description.
+   */
+  public final String getDescription() {
+    return m_description;
+  }
+
+  /**
+   * Creates a proxy script object that has the same interface as
+   * the passed object. The Grinder will delegate invocations on the
+   * proxy object to the target object, timing and record the
+   * success or failure of the invocation against the
+   * <code>Test</code> statistics. This method can be called many
+   * times, for many different targets.
+   *
+   * @param target Object to wrap.
+   * @return The proxy.
+   * @exception NotWrappableTypeException If the target object is not wrappable.
+   */
+  public final Object wrap(Object target) throws NotWrappableTypeException {
+    return m_registeredTest.createProxy(target);
+  }
 }
 
