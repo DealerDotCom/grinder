@@ -98,10 +98,10 @@ public class TestTestStatisticsMap extends TestCase
 	assertEquals(map0, map1);
 
 	map0.put(m_test0, m_statistics0);
-	assert(!map0.equals(map1));
+	assertTrue(!map0.equals(map1));
 
 	map1.put(m_test1, m_statistics0);
-	assert(!map0.equals(map1));
+	assertTrue(!map0.equals(map1));
 
 	map0.put(m_test1, m_statistics0);
 	map1.put(m_test0, m_statistics0);
@@ -109,7 +109,7 @@ public class TestTestStatisticsMap extends TestCase
 	assertEquals(map0, map1);
 
 	map1.put(m_test0, m_statistics1);
-	assert(!map0.equals(map1));
+	assertTrue(!map0.equals(map1));
     }
 
     public void testAdd() throws Exception
@@ -129,7 +129,7 @@ public class TestTestStatisticsMap extends TestCase
 
 	// 1 + 1 != 1
 	map1.add(map0);
-	assert(!map0.equals(map1));
+	assertTrue(!map0.equals(map1));
 
 	// 1 + 1 = 2
 	map0.add(map0);		// Test add to self.
@@ -158,7 +158,7 @@ public class TestTestStatisticsMap extends TestCase
 	// snap shot is {(Test 0 (), RawStatistics = {10})}.
 
 	final TestStatisticsMap map3 = map0.getDelta(false);
-	assert(!map0.equals(map3));
+	assertTrue(!map0.equals(map3));
 	assertEquals(map0.size(), map3.size());
 
 	map0.add(map0);
@@ -193,7 +193,7 @@ public class TestTestStatisticsMap extends TestCase
 	map.put(m_test0, m_statistics0);
 
 	assertEquals(m_statistics0, map.getTotal());
-	assert(m_statistics0 != map.getTotal());
+	assertTrue(m_statistics0 != map.getTotal());
 
 	map.put(m_test1, m_statistics1);
 
@@ -209,31 +209,31 @@ public class TestTestStatisticsMap extends TestCase
 	final TestStatisticsMap map = new TestStatisticsMap();
 
 	final TestStatisticsMap.Iterator iterator1 = map.new Iterator();
-	assert(!iterator1.hasNext());
+	assertTrue(!iterator1.hasNext());
 
 	map.put(m_test1, m_statistics1);
 
 	final TestStatisticsMap.Iterator iterator2 = map.new Iterator();
-	assert(iterator2.hasNext());
-	assert(!iterator1.hasNext());
+	assertTrue(iterator2.hasNext());
+	assertTrue(!iterator1.hasNext());
 
 	final TestStatisticsMap.Pair pair1 = iterator2.next();
-	assert(!iterator2.hasNext());
+	assertTrue(!iterator2.hasNext());
 	assertEquals(m_test1, pair1.getTest());
 	assertEquals(m_statistics1, pair1.getStatistics());
 
 	map.put(m_test0, m_statistics0);
 
 	final TestStatisticsMap.Iterator iterator3 = map.new Iterator();
-	assert(iterator3.hasNext());
+	assertTrue(iterator3.hasNext());
 
 	final TestStatisticsMap.Pair pair2 = iterator3.next();
-	assert(iterator3.hasNext());
+	assertTrue(iterator3.hasNext());
 	assertEquals(m_test0, pair2.getTest());
 	assertEquals(m_statistics0, pair2.getStatistics());
 
 	final TestStatisticsMap.Pair pair3 = iterator3.next();
-	assert(!iterator3.hasNext());
+	assertTrue(!iterator3.hasNext());
 	assertEquals(m_test1, pair3.getTest());
 	assertEquals(m_statistics1, pair3.getStatistics());
 

@@ -68,7 +68,7 @@ public class TestSwingDispatchedProcessStatusSetListener extends TestCase
 	// queue.
 	SwingUtilities.invokeAndWait(m_voidRunnable);
 
-	assert(listener.m_updateCalled);
+	assertTrue(listener.m_updateCalled);
 	assertEquals(data, listener.m_updateData);
 	assertEquals(running, listener.m_updateRunning);
 	assertEquals(total, listener.m_updateTotal);

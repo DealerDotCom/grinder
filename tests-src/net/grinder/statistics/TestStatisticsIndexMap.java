@@ -71,11 +71,12 @@ public class TestStatisticsIndexMap extends TestCase
 	for (int i=0; i<data.length; i++) {
 	    longResults[i] = m_indexMap.getIndexForLong(data[i]);
 
-	    assert(m_indexMap.isLongIndex(data[i]));
-	    assert(!m_indexMap.isDoubleIndex(data[i]));
+	    assertTrue(m_indexMap.isLongIndex(data[i]));
+	    assertTrue(!m_indexMap.isDoubleIndex(data[i]));
 
 	    for (int j=0; j<i; ++j) {
-		assert(longResults[i].getValue() != longResults[j].getValue());
+		assertTrue(longResults[i].getValue() !=
+			   longResults[j].getValue());
 	    }
 	}
 
@@ -100,12 +101,12 @@ public class TestStatisticsIndexMap extends TestCase
 	for (int i=0; i<data.length; i++) {
 	    doubleResults[i] = m_indexMap.getIndexForDouble(data[i]);
 
-	    assert(m_indexMap.isDoubleIndex(data[i]));
-	    assert(!m_indexMap.isLongIndex(data[i]));
+	    assertTrue(m_indexMap.isDoubleIndex(data[i]));
+	    assertTrue(!m_indexMap.isLongIndex(data[i]));
 
 	    for (int j=0; j<i; ++j) {
-		assert(doubleResults[i].getValue() !=
-		       doubleResults[j].getValue());
+		assertTrue(doubleResults[i].getValue() !=
+			   doubleResults[j].getValue());
 	    }
 	}
 

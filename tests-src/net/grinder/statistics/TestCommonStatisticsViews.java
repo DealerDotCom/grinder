@@ -54,7 +54,7 @@ public class TestCommonStatisticsViews extends TestCase
 	final ExpressionView[] detailExpressionViews =
 	    detail.getExpressionViews();
 
-	assert(detailExpressionViews.length > 0);
+	assertTrue(detailExpressionViews.length > 0);
 
 	final StatisticsView summary =
 	    CommonStatisticsViews.getSummaryStatisticsView();
@@ -62,6 +62,6 @@ public class TestCommonStatisticsViews extends TestCase
 	final ExpressionView[] summaryExpressionViews =
 	    summary.getExpressionViews();
 
-	assert(summaryExpressionViews.length > 0);
+	assertTrue(summaryExpressionViews.length > 0);
     }
 }

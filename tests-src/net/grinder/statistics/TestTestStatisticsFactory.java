@@ -68,10 +68,10 @@ public class TestTestStatisticsFactory extends TestCase
 	    TestStatisticsFactory.getInstance();
 
 	final TestStatistics testStatistics1 = factory.createImplementation();
-	assert(testStatistics1 != null);
+	assertTrue(testStatistics1 != null);
 
 	final TestStatistics testStatistics2 = factory.create();
-	assert(testStatistics2 instanceof TestStatisticsImplementation);
+	assertTrue(testStatistics2 instanceof TestStatisticsImplementation);
     }
 
     public void testSerialisation() throws Exception

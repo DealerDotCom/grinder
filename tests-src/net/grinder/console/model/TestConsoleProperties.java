@@ -275,14 +275,14 @@ public class TestConsoleProperties extends TestCase
 	p2.setGrinderAddress("239.99.99.99");
 	p2.setGrinderPort(99);
 
-	assert(p1.getCollectSampleCount() != p2.getCollectSampleCount());
-	assert(p1.getIgnoreSampleCount() != p2.getIgnoreSampleCount());
-	assert(p1.getSampleInterval() != p2.getSampleInterval());
-	assert(p1.getSignificantFigures() != p2.getSignificantFigures());
-	assert(!p1.getConsoleAddress().equals(p2.getConsoleAddress()));
-	assert(p1.getConsolePort() != p2.getConsolePort());
-	assert(!p1.getGrinderAddress().equals(p2.getGrinderAddress()));
-	assert(p1.getGrinderPort() != p2.getGrinderPort());
+	assertTrue(p1.getCollectSampleCount() != p2.getCollectSampleCount());
+	assertTrue(p1.getIgnoreSampleCount() != p2.getIgnoreSampleCount());
+	assertTrue(p1.getSampleInterval() != p2.getSampleInterval());
+	assertTrue(p1.getSignificantFigures() != p2.getSignificantFigures());
+	assertTrue(!p1.getConsoleAddress().equals(p2.getConsoleAddress()));
+	assertTrue(p1.getConsolePort() != p2.getConsolePort());
+	assertTrue(!p1.getGrinderAddress().equals(p2.getGrinderAddress()));
+	assertTrue(p1.getGrinderPort() != p2.getGrinderPort());
 
 	p2.set(p1);
 

@@ -111,15 +111,15 @@ public class TestRawStatisticsImplementation extends TestCase
 	assertEquals(700, statistics0.getValue(m_longIndex1));
 	statistics0.setValue(m_longIndex1, -300);
 	assertEquals(-300, statistics0.getValue(m_longIndex1));
-	assert(!statistics0.equals(statistics1));
+	assertTrue(!statistics0.equals(statistics1));
 
 	statistics1.setValue(m_longIndex1, 500);
-	assert(!statistics0.equals(statistics1));
+	assertTrue(!statistics0.equals(statistics1));
 	statistics1.setValue(m_longIndex1, -300);
 	assertEquals(statistics0, statistics1);
 
 	statistics0.setValue(m_longIndex0, 1);
-	assert(!statistics0.equals(statistics1));
+	assertTrue(!statistics0.equals(statistics1));
 	statistics1.setValue(m_longIndex0, 1);
 	assertEquals(statistics0, statistics1);
 
@@ -134,15 +134,15 @@ public class TestRawStatisticsImplementation extends TestCase
 	myAssertEquals(7.00d, statistics0.getValue(m_doubleIndex2));
 	statistics0.setValue(m_doubleIndex2, 3.00d);
 	myAssertEquals(3.00d, statistics0.getValue(m_doubleIndex2));
-	assert(!statistics0.equals(statistics1));
+	assertTrue(!statistics0.equals(statistics1));
 
 	statistics1.setValue(m_doubleIndex2, 5.00d);
-	assert(!statistics0.equals(statistics1));
+	assertTrue(!statistics0.equals(statistics1));
 	statistics1.setValue(m_doubleIndex2, 3.00d);
 	assertEquals(statistics0, statistics1);
 
 	statistics0.setValue(m_doubleIndex0, -1.0d);
-	assert(!statistics0.equals(statistics1));
+	assertTrue(!statistics0.equals(statistics1));
 	statistics1.setValue(m_doubleIndex0, -1.0d);
 	assertEquals(statistics0, statistics1);
 
@@ -163,23 +163,23 @@ public class TestRawStatisticsImplementation extends TestCase
 	
 	statistics0.addValue(m_longIndex1, 700);
 	statistics0.addValue(m_longIndex1, 300);
-	assert(!statistics0.equals(statistics1));
+	assertTrue(!statistics0.equals(statistics1));
 	statistics1.addValue(m_longIndex1, 500);
-	assert(!statistics0.equals(statistics1));
+	assertTrue(!statistics0.equals(statistics1));
 	statistics1.addValue(m_longIndex1, 500);
 	assertEquals(statistics0, statistics1);
 	
 	statistics0.addValue(m_doubleIndex1, 7.00d);
 	statistics0.addValue(m_doubleIndex1, 3.00d);
-	assert(!statistics0.equals(statistics1));
+	assertTrue(!statistics0.equals(statistics1));
 	statistics1.addValue(m_doubleIndex1, 5.00d);
-	assert(!statistics0.equals(statistics1));
+	assertTrue(!statistics0.equals(statistics1));
 	statistics1.addValue(m_doubleIndex1, 5.00d);
 	assertEquals(statistics0, statistics1);
 
 
 	statistics0.incrementValue(m_longIndex0);
-	assert(!statistics0.equals(statistics1));
+	assertTrue(!statistics0.equals(statistics1));
 	statistics1.incrementValue(m_longIndex0);
 	assertEquals(statistics0, statistics1);
     }
@@ -203,7 +203,7 @@ public class TestRawStatisticsImplementation extends TestCase
 
 	// 1 + 1 != 1
 	statistics1.add(statistics0);
-	assert(!statistics0.equals(statistics1));
+	assertTrue(!statistics0.equals(statistics1));
 
 	// 1 + 1 = 2
 	statistics0.add(statistics0); // Test add to self.
@@ -228,7 +228,7 @@ public class TestRawStatisticsImplementation extends TestCase
 	assertEquals(statistics0, statistics2);
 
 	final RawStatistics statistics3 = statistics0.getDelta(false);
-	assert(!statistics0.equals(statistics3));
+	assertTrue(!statistics0.equals(statistics3));
 
 	statistics0.addValue(m_doubleIndex0, 2.345);
 	final RawStatistics statistics4 = statistics0.getDelta(true);

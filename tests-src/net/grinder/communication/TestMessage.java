@@ -121,13 +121,13 @@ public class TestMessage extends TestCase
 	final Message m1 = new MyMessage();
 	final Message m2 = new MyMessage();
 
-	assert("No uninitialised message is equal to another Message",
-	       !m1.equals(m2));
+	assertTrue("No uninitialised message is equal to another Message",
+		   !m1.equals(m2));
 
 	m1.setSenderInformation("grinderID", "uniqueID", 12345l);
 
-	assert("No uninitialised message is equal to another Message",
-	       !m1.equals(m2));
+	assertTrue("No uninitialised message is equal to another Message",
+		   !m1.equals(m2));
 
 	m2.setSenderInformation("grinderID2", "uniqueID", 12345l);
 
@@ -145,13 +145,13 @@ public class TestMessage extends TestCase
 
 	m2.setSenderInformation("grinderID2", "uniqueID2", 12345l);
 
-	assert("Initialised messages equal iff uniqueID and sequenceID equal",
-	       !m1.equals(m2));
+	assertTrue("Initialised messages equal iff uniqueID and sequenceID equal",
+		   !m1.equals(m2));
 
 	m1.setSenderInformation("grinderID2", "uniqueID2", 12445l);
 
-	assert("Initialised messages equal iff uniqueID and sequenceID equal",
-	       !m1.equals(m2));
+	assertTrue("Initialised messages equal iff uniqueID and sequenceID equal",
+		   !m1.equals(m2));
     }
 
     private static class MyMessage extends Message

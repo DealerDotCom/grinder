@@ -88,7 +88,7 @@ public class TestSerialiser extends TestCase
 
 	final byte[] bytes = byteArrayOutputStream.toByteArray();
 
-	assert("We should compress", bytes.length < 8 * longs.length);
+	assertTrue("We should compress", bytes.length < 8 * longs.length);
 
 	final ObjectInputStream objectInputStream =
 	    new ObjectInputStream(new ByteArrayInputStream(bytes));
@@ -132,7 +132,7 @@ public class TestSerialiser extends TestCase
 
 	final byte[] bytes = byteArrayOutputStream.toByteArray();
 
-	assert("We should compress", bytes.length < 8 * longs.length);
+	assertTrue("We should compress", bytes.length < 8 * longs.length);
 
 	final ObjectInputStream objectInputStream =
 	    new ObjectInputStream(new ByteArrayInputStream(bytes));
@@ -170,7 +170,7 @@ public class TestSerialiser extends TestCase
 	final byte[] bytes = byteArrayOutputStream.toByteArray();
 
 	// To do, make this work.
-	//assert("We should compress", bytes.length < 8 * doubles.length);
+	//assertTrue("We should compress", bytes.length < 8 * doubles.length);
 
 	final ObjectInputStream objectInputStream =
 	    new ObjectInputStream(new ByteArrayInputStream(bytes));
