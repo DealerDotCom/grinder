@@ -9,7 +9,7 @@ Introduction
 Ant
 ===
 
-The Grinder build system is based on Jakarta Ant 1.4.1, which is a
+The Grinder build system is based on Jakarta Ant 1.5.1, which is a
 Java building tool originally developed for the Jakarta Tomcat project
 but now used in many other Apache projects and extended by many
 developers.
@@ -24,7 +24,7 @@ What do I do?
 
 Do the following:
 
-	1. Acquire and install Ant 1.4.1
+	1. Acquire and install Ant 1.5.1
 	   (http://jakarta.apache.org/ant/index.html).
 
 	2. Set/export ANT_HOME, JAVA_HOME and PATH as described
@@ -47,7 +47,7 @@ what you want. Currently the conditionally built modules are:
    HTTP SSL plugin (Needs JSSE 1.0.2)
    TCPSniffer SSL engine (Needs JSSE 1.0.2)
    JUnit plugin (Needs JUnit 3.7)
-   JUnit test cases (Needs JUnit 3.7 and Ant 1.4.1 optional.jar)
+   JUnit test cases (Needs JUnit 3.7 and Ant 1.5.1 optional.jar)
    ExampleJTidyStringBean (Needs JTidy and Xalan XPath support)
 -->
 
