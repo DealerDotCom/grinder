@@ -115,14 +115,10 @@ public class HTTPPlugin implements GrinderPlugin {
 
     // Register Response Status detail statistic.
     try {
-      final StatisticsView detailView = new StatisticsView();
-
-      detailView.add(
+      CommonStatisticsViews.getDetailStatisticsView().add(
 	new ExpressionView(
 	  "HTTP Response Code", "statistic.httpplugin.responseStatusKey",
 	  StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY));
-
-      CommonStatisticsViews.getDetailStatisticsView().add(detailView);
 
       m_responseStatusIndex =
 	StatisticsIndexMap.getInstance().getIndexForLong(
