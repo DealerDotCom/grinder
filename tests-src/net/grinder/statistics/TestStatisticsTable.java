@@ -97,6 +97,7 @@ public class TestStatisticsTable extends TestCase
 	final PrintWriter in = new PrintWriter(expected);
 	in.println("             A            B            A plus B     A divided by ");
 	in.println("                                                    B            ");
+	in.println();
 	in.println("Test 3       1            2            3            0.50          \"Test 3\"");
 	in.println("Test 9       0            1            1            0.00          \"Test 9\"");
 	in.println("Test 113     2            3            5            0.67          \"Another test\"");

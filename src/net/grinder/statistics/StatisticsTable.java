@@ -122,6 +122,8 @@ public class StatisticsTable
 	}
 	while (wrapped);
 
+	out.println();
+
 	final TestStatisticsMap.Iterator iterator =
 	    m_testStatisticsMap.new Iterator();
 
