@@ -78,13 +78,13 @@ class RawStatisticsImplementation implements RawStatistics
     /**
      * Return the value specified by <code>index</code>.
      *
-     * <p>We are working with primitive types so don't need to
-     * synchronise.</p>
+     * <p>Unfortunately the Java language specification does not make
+     * long access atomic, so we must synchronise.</p>
      *
      * @param index The process specific index.
      * @return The value.
      */
-    public final long getValue(StatisticsIndexMap.LongIndex index)
+    public final synchronized long getValue(StatisticsIndexMap.LongIndex index)
     {
 	return m_longData[index.getValue()];
     }
@@ -92,13 +92,14 @@ class RawStatisticsImplementation implements RawStatistics
     /**
      * Return the value specified by <code>index</code>.
      *
-     * <p>We are working with primitive types so only need to
-     * synchronise if we allocate a new array.</p>
+     * <p>Unfortunately the Java language specification does not make
+     * double access atomic, so we must synchronise.</p>
      *
      * @param index The process specific index.
      * @return The value.
      */
-    public final double getValue(StatisticsIndexMap.DoubleIndex index)
+    public final synchronized
+	double getValue(StatisticsIndexMap.DoubleIndex index)
     {
 	ensureDoubleDataAllocated();
 	return m_doubleData[index.getValue()];
@@ -107,13 +108,14 @@ class RawStatisticsImplementation implements RawStatistics
    /**
      * Set the value specified by <code>index</code>.
      *
-     * <p>We are working with primitive types so dont need to
-     * synchronise.</p>
+     * <p>Unfortunately the Java language specification does not make
+     * long access atomic, so we must synchronise.</p>
      *
      * @param index The process specific index.
      * @param value The value.
      **/
-    public final void setValue(StatisticsIndexMap.LongIndex index, long value)
+    public final synchronized
+	void setValue(StatisticsIndexMap.LongIndex index, long value)
     {
 	m_longData[index.getValue()] = value;
     }
@@ -121,14 +123,14 @@ class RawStatisticsImplementation implements RawStatistics
    /**
      * Set the value specified by <code>index</code>.
      *
-     * <p>We are working with primitive types so only need to
-     * synchronise if we allocate a new array.</p>
+     * <p>Unfortunately the Java language specification does not make
+     * double access atomic, so we must synchronise.</p>
      *
      * @param index The process specific index.
      * @param value The value.
      **/
-    public final void setValue(StatisticsIndexMap.DoubleIndex index,
-			       double value)
+    public final synchronized
+	void setValue(StatisticsIndexMap.DoubleIndex index, double value)
     {
 	ensureDoubleDataAllocated();
 	m_doubleData[index.getValue()] = value;
@@ -389,15 +391,11 @@ class RawStatisticsImplementation implements RawStatistics
 	}
     }
 
-    private final void ensureDoubleDataAllocated()
+    private final synchronized void ensureDoubleDataAllocated()
     {
 	if (m_doubleData.length == 0) {
-	    synchronized (this) {
-		m_doubleData =
-		    new double[
-			StatisticsIndexMap.getInstance().
-			getNumberOfDoubleIndicies()];
-	    }
+	    m_doubleData = new double[StatisticsIndexMap.getInstance().
+				      getNumberOfDoubleIndicies()];
 	}
     }
 }
