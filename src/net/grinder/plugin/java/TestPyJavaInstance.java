@@ -34,10 +34,10 @@ import org.python.core.PyObject;
  */ 
 class TestPyJavaInstance extends PyJavaInstance
 {
-    private final JavaPlugin.JavaTest m_test;
+    private final JavaTest m_test;
     private final PyObject m_pyTest;
     
-    public TestPyJavaInstance(JavaPlugin.JavaTest test, Object target)
+    public TestPyJavaInstance(JavaTest test, Object target)
     {
         super(target);
 
@@ -53,7 +53,7 @@ class TestPyJavaInstance extends PyJavaInstance
 	return super.ifindlocal(name);
     }
 
-    private final PyObject dispatch(Invokeable invokeable) 
+    private final PyObject dispatch(JavaPlugin.Invokeable invokeable) 
     {
 	try {
 	    return (PyObject)m_test.dispatch(invokeable);
@@ -66,8 +66,8 @@ class TestPyJavaInstance extends PyJavaInstance
     public PyObject invoke(final String name) 
     {
 	return dispatch(
-	    new Invokeable() {
-		public PyObject invoke() {
+	    new JavaPlugin.Invokeable() {
+		public Object invoke() {
 		    return TestPyJavaInstance.super.invoke(name);
 		}});
     }
@@ -75,8 +75,8 @@ class TestPyJavaInstance extends PyJavaInstance
     public PyObject invoke(final String name, final PyObject arg1) 
     {
 	return dispatch(
-	    new Invokeable() {
-		public PyObject invoke() {
+	    new JavaPlugin.Invokeable() {
+		public Object invoke() {
 		    return TestPyJavaInstance.super.invoke(name, arg1);
 		}});
     }
@@ -85,8 +85,8 @@ class TestPyJavaInstance extends PyJavaInstance
 			   final PyObject arg2) 
     {
 	return dispatch(
-	    new Invokeable() {
-		public PyObject invoke() {
+	    new JavaPlugin.Invokeable() {
+		public Object invoke() {
 		    return TestPyJavaInstance.super.invoke(name, arg1, arg2);
 		}});
     }
@@ -94,8 +94,8 @@ class TestPyJavaInstance extends PyJavaInstance
     public PyObject invoke(final String name, final PyObject[] args) 
     {
 	return dispatch(
-	    new Invokeable() {
-		public PyObject invoke() {
+	    new JavaPlugin.Invokeable() {
+		public Object invoke() {
 		    return TestPyJavaInstance.super.invoke(name, args);
 		}});
     }
@@ -104,16 +104,11 @@ class TestPyJavaInstance extends PyJavaInstance
 			   final String[] keywords) 
     {
 	return dispatch(
-	    new Invokeable() {
-		public PyObject invoke() {
+	    new JavaPlugin.Invokeable() {
+		public Object invoke() {
 		    return TestPyJavaInstance.super.invoke(name, args,
 							   keywords);
 		}});
-    }
-
-    public interface Invokeable 
-    {
-	public PyObject invoke();
     }
 }
 

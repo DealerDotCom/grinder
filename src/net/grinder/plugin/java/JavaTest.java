@@ -22,59 +22,41 @@
 package net.grinder.plugin.java;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.Test;
-import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.PluginProcessContext;
-import net.grinder.plugininterface.PluginThreadCallbacks;
-import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginTest;
-import net.grinder.script.ScriptPluginContext;
 
 
 /**
- * Java plugin.
- * 
  * @author Philip Aston
  * @version $Revision$
- **/
-public class JavaPlugin implements GrinderPlugin
+ */ 
+public class JavaTest extends PluginTest
 {
-    public void initialize(PluginProcessContext processContext)
+    public JavaTest(int number, String description) throws GrinderException
     {
+	super(JavaPlugin.class, number, description);
     }
 
-    public PluginThreadCallbacks createThreadCallbackHandler(
-	PluginThreadContext threadContext)
+    /**
+     * Expose dispatch method to our package.
+     */
+    protected Object dispatch(Object parameters) throws GrinderException
     {
-	return new JavaPluginThreadCallbacks();
+	return super.dispatch(parameters);
     }
 
-    private static class JavaPluginThreadCallbacks
-	implements PluginThreadCallbacks
+    /**
+     * We could have defined overloaded createProxy methdos that
+     * take a PyInstance, PyFunction etc., and return decorator
+     * PyObjects. There's no obvious way of doing this in a
+     * polymorphic way, so we would be forced to have n factories,
+     * n types of decorator, and probably run into identity
+     * issues. Instead we lean on Jython and force it to give us
+     * Java proxy which we then dynamically subclass with our own
+     * type of PyJavaInstance.
+     */
+    public final Object createProxy(Object target)
     {
-	public void beginRun() throws PluginException
-	{
-	}
-
-	public Object invokeTest(Test test, Object parameters)
-	    throws PluginException
-	{
-	    return ((Invokeable)parameters).invoke();
-	}
-
-	public void endRun() throws PluginException
-	{
-	}
-    }
-
-    public final ScriptPluginContext getScriptPluginContext()
-    {
-	return null;
-    }
-
-    interface Invokeable 
-    {
-	public Object invoke();
+	return new TestPyJavaInstance(this, target);
     }
 }
+
