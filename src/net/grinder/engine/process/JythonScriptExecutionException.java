@@ -57,7 +57,7 @@ public class JythonScriptExecutionException extends EngineException
     }
 
     /**
-     * Remove an JythonScriptExecutionException wrapping and return
+     * Remove any JythonScriptExecutionException wrapping and return
      * the underlying exception thrown from the script.
      */
     final Throwable unwrap() 
