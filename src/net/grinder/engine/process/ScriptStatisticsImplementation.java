@@ -136,7 +136,7 @@ final class ScriptStatisticsImplementation
 
     if (m_noTests) {
       throw new InvalidContextException(
-        "This worker thread has not yet perfomed any tests.");
+        "This worker thread has not yet performed any tests.");
     }
   }
 
