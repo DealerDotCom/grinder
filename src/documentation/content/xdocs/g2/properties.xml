@@ -228,7 +228,7 @@ grinder.test0.parameter.url=http://localhost:80/index.html
 	</tr>
 
 	<tr>
-	  <td><code>grinder.test0.paramete</code></td>
+	  <td><code>grinder.test0.parameter</code></td>
 
 	  <td>Prefix for test specific properties interpreted by the
 	  plugin. See the the <a href="site:http-plugin">HTTP plugin
