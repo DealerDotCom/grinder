@@ -44,8 +44,7 @@ import net.grinder.util.GrinderProperties;
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- * @see net.grinder.engine.GrinderThread
- * @see net.grinder.engine.CycleRunnable
+ * @see net.grinder.engine.process.GrinderThread
  */
 public class GrinderProcess
 {

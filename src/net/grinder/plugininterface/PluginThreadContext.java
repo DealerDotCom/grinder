@@ -49,7 +49,7 @@ public interface GrinderContext {
      * calling this method overrides the start time with the current
      * time.
      *
-     * @see stopTimer
+     * @see #stopTimer
      */
     public void startTimer();
 
@@ -59,7 +59,7 @@ public interface GrinderContext {
      * automatically sets the end time after calling a method unless
      * the method called stopTimer().
      *
-     * @see startTimer
+     * @see #startTimer
      */
     public void stopTimer();
 }

@@ -29,7 +29,7 @@ import net.grinder.util.FilenameFactory;
  *
  * @see net.grinder.Grinder
  * @see net.grinder.engine.Redirector
- * @see net.grinder.engine.GrinderProcess
+ * @see net.grinder.engine.process.GrinderProcess
  *
  * @author Paco Gomez
  * @author Philip Aston
