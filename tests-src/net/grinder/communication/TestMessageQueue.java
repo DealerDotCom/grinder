@@ -200,7 +200,7 @@ public class TestMessageQueue extends TestCase
 		fail("Expected a CommunicationException");
 	    }
 	    catch (CommunicationException e) {
-		assertSame(exceptions[i], e.getNestedException());
+		assertSame(exceptions[i], e.getNestedThrowable());
 	    }
 
 	    assertSame(messages[i], exceptionQueue.dequeue(false));
