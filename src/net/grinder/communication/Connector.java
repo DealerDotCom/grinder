@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +22,9 @@
 package net.grinder.communication;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 
 /**
@@ -33,20 +35,20 @@ import java.net.Socket;
  */
 public final class Connector {
 
-  private final String m_addressString;
+  private final String m_hostString;
   private final int m_port;
   private final ConnectionType m_connectionType;
 
   /**
    * Constructor.
    *
-   * @param addressString TCP address to connect to.
+   * @param hostString TCP address to connect to.
    * @param port TCP port to connect to.
    * @param connectionType Connection type.
    */
-  public Connector(String addressString, int port,
+  public Connector(String hostString, int port,
                    ConnectionType connectionType) {
-    m_addressString = addressString;
+    m_hostString = hostString;
     m_port = port;
     m_connectionType = connectionType;
   }
@@ -55,7 +57,7 @@ public final class Connector {
    * Factory method that makes a TCP connection and returns a
    * corresponding socket.
    *
-   * @param addressString TCP address to connect to.
+   * @param hostString TCP address to connect to.
    * @param port TCP port to connect to.
    * @param connectionType The connection type.
    * @return A socket wired to the connection.
@@ -64,9 +66,19 @@ public final class Connector {
    */
   Socket connect() throws CommunicationException {
 
+    final InetAddress inetAddress;
+
+    try {
+      inetAddress = InetAddress.getByName(m_hostString);
+    }
+    catch (UnknownHostException e) {
+      throw new CommunicationException(
+        "Could not resolve host '" + m_hostString + "'", e);
+    }
+
     try {
       // Bind to any local port.
-      final Socket socket = new Socket(m_addressString, m_port);
+      final Socket socket = new Socket(inetAddress, m_port);
 
       m_connectionType.write(socket.getOutputStream());
 
@@ -74,8 +86,7 @@ public final class Connector {
     }
     catch (IOException e) {
       throw new CommunicationException(
-        "Could not connect to '" + m_addressString + ":" + m_port + "'", e);
+        "Failed to connect to '" + inetAddress + ":" + m_port + "'", e);
     }
   }
 }
-
