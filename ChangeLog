@@ -1,3 +1,49 @@
+2003-02-09  Philip Aston  <paston@bea.com>
+
+	* The Grinder 3.0-beta5 is released.
+
+	* build.xml, src/net/grinder/plugin/http/HTTPPluginControl.java:
+	javadoc fixes.
+
+	* TODO, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/plugin/http/URLException.java:
+	HTTPRequest no longer throws Exceptions that are not part of the
+	script API.
+
+	* xdoc/g3/scripts-xhtml.xml: Don't launch API in separate windows.
+
+	* TODO: Merge personal TODO into public version.
+
+	* CHANGES: Script documentation.
+
+	* xdoc/manual/http-plugin-xhtml.xml:
+	Link to Geoff Corey's comments on HTTPS set up.
+
+	* xdoc/g3/timing-xhtml.xml, xdoc/g3/welcome-xhtml.xml, xdoc/manual/timing-xhtml.xml, xdoc/development/timing-xhtml.xml, xdoc/g3/console-xhtml.xml, xdoc/g3/getting-started-xhtml.xml, xdoc/g3/properties-xhtml.xml, xdoc/g3/script-gallery-xhtml.xml, xdoc/g3/scripts-xhtml.xml, examples/hello-world.py, xdoc/documentation.xweb:
+	Script documentation.
+
+	* build.xml: Javadoc tweaks to reduce number of warnings.
+
+2003-02-06  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/ExpressionView.java:
+	Fix a couple of javadoc warnings.
+
+	* src/net/grinder/engine/agent/LauncherThread.java, src/net/grinder/engine/agent/ProcessReaper.java, CHANGES:
+	Improve cleaning up of child processes when the agent is killed.
+
+	* CHANGES: Add JMS examples.
+
+	* build.xml: Document statistics API for scripts.
+
+	* CHANGES: Doc.
+
+	* examples/jms-sender.py: Fix spacing.
+
+	* src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/statistics/package.html:
+	Document statistics API for scripts.
+
+	* xdoc/g3/script-gallery-xhtml.xml: Add JMS examples.
+
 2003-02-04  Philip Aston  <paston@bea.com>
 
 	* etc/setenv.sh: Turn off the rocket.
