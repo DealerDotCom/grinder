@@ -1,3 +1,20 @@
+2001-02-05  Philip Aston  <paston@beasys.com>
+
+	* src/net/grinder/plugin/http/CookieHandler.java: 
+	* src/net/grinder/plugin/http/HttpMsg.java: 
+	* src/net/grinder/plugin/http/HttpPlugin.java: 
+	* src/net/grinder/plugininterface/Logger.java: 
+	* src/net/grinder/plugininterface/PluginProcessContext.java: 
+	* src/net/grinder/plugininterface/ThreadCallbacks.java: 
+		Upgrade the CookieHandler to be an almost complete
+		implementation of RFC 2109.
+
+	* tests-src/net/grinder/AllTests.java: 
+	* tests-src/net/grinder/plugin/http/AllTests.java: 
+	* tests-src/net/grinder/plugin/http/TestCookieHandler.java: 
+	* tests-src/net/grinder/plugininterface/LogCounter.java: 
+		Test the CookieHandler.
+
 2001-02-04  Philip Aston  <paston@beasys.com>
 
 	* src/net/grinder/plugin/http/CookieHandler.java: 

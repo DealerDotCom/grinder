@@ -1,3 +1,17 @@
+Grinder 2.3.1
+-------------
+
+  Even more bug fixes to the HTTP plugin. The cookie handling has been
+  reworked to more accurately reflect RFC 2109. Multiple cookies
+  should now work, with the exception that only one Set-Cookie header
+  is recognised per request. This is a limitation of the
+  java.net.HttpURLConnection class, which I will rant about at length
+  to anyone who asks.
+
+  The HTTP plugin parameter 'grinder.plugin.parameter.keepSession' has
+  been renamed to 'grinder.plugin.parameter.useCookies'.
+
+
 Grinder 2.3
 -----------
 
