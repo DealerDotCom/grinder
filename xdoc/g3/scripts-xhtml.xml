@@ -73,7 +73,7 @@ run.</p></li>
 
 <p>The engine makes an object called <code>grinder</code> available to
 the script. This is an instance of the <code><a
-href="../script-javadoc/net/grinder/script/ScriptContext.html">ScriptContext</a></code>
+href="../script-javadoc/net/grinder/script/Grinder.ScriptContext.html">Grinder.ScriptContext</a></code>
 class and provides access to context information (such as the worker
 thread ID) and services (such as logging and statistics).</p></li>
 </ol>
@@ -111,9 +111,7 @@ display new <code>Test</code>s as they are created.</p>
 <blockquote>
 <pre>
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
-
-<span class="comment"># A shorter alias for the grinder.logger.output() method.
-</span>log = grinder.logger.output
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 
 <span class="comment"># Create a Test with a test number and a description.
 </span>test1 = Test(1, &quot;<span class="string">Log method</span>&quot;)
@@ -127,28 +125,29 @@ display new <code>Test</code>s as they are created.</p>
 <p>Here we have created a single <code>Test</code> with the test
 number <em>1</em> and the description <em>Log method</em>. Note how
 must import the <code>Test</code> class in a similar manner to Java.
-We've also take the opportunity to add a shorter alias for the
-<code>grinder.logger.output</code> method.</p>
+We've also explicitly imported the <code>grinder</code> object, this
+is good practice as it allows our script to be called from other
+scripts as a Python <em>module</em>.</p>
 
-<p>So the console knows about the test, but we're still not using it
-to record anything. Let's record how long our <code>log</code> method
-takes. To instrument the <code>log</code> method we use our
-<code>Test</code> to wrap it with a proxy <em>wrapper</em>. The
-wrapper object looks exactly like the <code>log</code> method and can
-be called in the same manner. If we call the wrapper the call will be
-delegated through to the <code>log</code> method but additionally the
-time taken to do the call and the number of calls will be recorded and
-reported to the console.</p>
+<p>Now the console knows about our <code>Test</code>, but we're still
+not using it to record anything. Let's record how long our
+<code>grinder.logger.output</code> method takes. To instrument the
+<code>grinder.logger.output</code> method we use our <code>Test</code>
+to wrap it with a proxy <em>wrapper</em>. The wrapper object looks
+exactly like the <code>grinder.logger.output</code> method and can be
+called in the same manner. If we call the wrapper the call will be
+delegated through to the <code>grinder.logger.output</code> method but
+additionally the time taken to do the call and the number of calls
+will be recorded and reported to the console.</p>
 
 <blockquote>
 <pre><span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
-
-log = grinder.logger.output
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 
 test1 = Test(1, &quot;<span class="string">Log method</span>&quot;)
 
 <span class="comment"># Wrap the log() method with our Test and call the result logWrapper.
-</span>logWrapper = test1.wrap(log)
+</span>logWrapper = test1.wrap(grinder.logger.output)
 
 <span class="keyword">class</span> <span class="type">TestRunner</span>:
     <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
@@ -168,6 +167,7 @@ href="./http-plugin.html">HTTP plug-in</a>.</p>
 # single page via HTTP.
 </span>
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
 
 test1 = Test(1, &quot;<span class="string">Request resource</span>&quot;)
@@ -196,10 +196,12 @@ href="./http-plugin.html">HTTP plugin documentation</a>.</p>
 <h3>The <code><a href="../script-javadoc/net/grinder/script/package-summary.html">net.grinder.script</a></code> package</h3>
 
 <p>An instance of <code><a
-href="../script-javadoc/net/grinder/script/ScriptContext.html">ScriptContext</a></code>
-called <code>grinder</code> is available to all scripts. This object
-provides access to context information and acts a starting point for
-accessing other services.</p>
+href="../script-javadoc/net/grinder/script/Grinder.ScriptContext.html">Grinder.ScriptContext</a></code>
+called <code>grinder</code> is automatically available to all scripts.
+This object provides access to context information and acts a starting
+point for accessing other services. The instance can be explicitly
+imported from other Python modules as
+<code>net.grinder.script.Grinder.grinder</code>.</p>
 
 <p>We have described the use of the <code><a
 href="../script-javadoc/net/grinder/script/Test.html">Test</a></code>

@@ -105,10 +105,6 @@ to be recorded.
 
 Script access to global statistics.
 
-Document: Make 'grinder' a member of an implicit module that gets
-auto-imported into the top level script module => you can import the
-special module elsewhere.
-
 'grinder' object - getThreadID should be valid in __init__.
 
 *** Error reporting

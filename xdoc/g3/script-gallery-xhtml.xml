@@ -113,11 +113,10 @@ request1 = test1.wrap(HTTPRequest())
 <pre><span class="comment"># This example shows how many HTTP interactions can be grouped as a
 # single test by wrapping them in a function.
 </span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
 <span class="keyword">from</span> HTTPClient <span class="keyword">import</span> NVPair
-
-log = grinder.logger.output
 
 <span class="comment"># We declare a default URL for the HTTPRequest.
 </span>request = HTTPRequest(url = &quot;<span class="string">http://localhost:7001</span>&quot;)
@@ -525,14 +524,12 @@ logTest = test1.wrap(grinder.logger.output)
 <h3><a name="statistics">Accessing test statistics</a></h3>
 
 <blockquote>
-    <pre><span class="comment"># Examples of using The Grinder statistics API with standard
+<pre><span class="comment"># Examples of using The Grinder statistics API with standard
 # statistics.
 </span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
-
-log = grinder.logger.output
-logError = grinder.logger.error
 
 test1 = Test(1, &quot;<span class="string">Request resource</span>&quot;)
 request1 = test1.wrap(HTTPRequest())
@@ -543,7 +540,7 @@ request1 = test1.wrap(HTTPRequest())
 
         <span class="comment"># Example 1. You can get the time of the last test as follows.
 </span>        result = request1.GET(&quot;<span class="string">http://localhost:7001/</span>&quot;)
-        log(&quot;<span class="string">The last test took %d milliseconds</span>&quot; % statistics.time)
+        grinder.logger.output(&quot;<span class="string">The last test took %d milliseconds</span>&quot; % statistics.time)
 
         
         <span class="comment"># Example 2. Normally test results are reported automatically
@@ -560,7 +557,7 @@ request1 = test1.wrap(HTTPRequest())
 </span>            <span class="comment"># discards the transaction time to comply with the
 </span>            <span class="comment"># convention of only recording time for successful tests,
 </span>            <span class="comment"># so lets log the actual time to the error log.
-</span>            logError(&quot;<span class="string">The last test took too long (%d milliseconds)</span>&quot; %
+</span>            grinder.logger.error(&quot;<span class="string">The last test took too long (%d milliseconds)</span>&quot; %
                      statistics.time)
             statistics.success = 0
 
@@ -588,6 +585,7 @@ request1 = test1.wrap(HTTPRequest())
 #  - Sends ten messages
 #  - Closes the queue session
 </span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> jarray <span class="keyword">import</span> zeros
 <span class="keyword">from</span> java.util <span class="keyword">import</span> Properties, Random

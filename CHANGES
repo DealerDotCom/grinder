@@ -23,6 +23,11 @@ Grinder 3.0-beta11
 
   If console cannot be contacted, don't expect console signals.
 
+  The 'grinder' context object can now be explicitly imported from
+  net.grinder.Grinder.grinder. It is good practice to add an explict
+  import to the top of your scripts so that they can be called as
+  Python modules from other scripts.
+
 
 Grinder 3.0-beta10
 ------------------

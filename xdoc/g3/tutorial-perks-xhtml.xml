@@ -21,7 +21,7 @@
 <span class="keyword">import</span> random
 <span class="keyword">from</span> java.lang <span class="keyword">import</span> String
 <span class="keyword">from</span> java.net <span class="keyword">import</span> URLEncoder
-<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test, ScriptContext
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> net.grinder.statistics <span class="keyword">import</span> TestStatistics
 <span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
 <span class="keyword">from</span> net.grinder.common <span class="keyword">import</span> GrinderException
@@ -229,7 +229,7 @@ result = request.GET(requestString)
 <span class="keyword">from</span> java.lang <span class="keyword">import</span> String
 <span class="keyword">from</span> java.net <span class="keyword">import</span> URLEncoder
 
-<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test, ScriptContext
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 <span class="keyword">from</span> net.grinder.statistics <span class="keyword">import</span> TestStatistics
 <span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
 <span class="keyword">from</span> net.grinder.common <span class="keyword">import</span> GrinderException
