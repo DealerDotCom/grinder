@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.agent;
+package net.grinder.util;
 
 import junit.framework.TestCase;
 
@@ -30,12 +30,12 @@ import net.grinder.common.Logger;
 
 
 /**
- *  Unit tests for <code>AgentLogger</code>.
+ *  Unit tests for <code>SimpleLogger</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestAgentLogger extends TestCase {
+public class TestSimpleLogger extends TestCase {
 
   public void testLogging() throws Exception {
 
@@ -45,14 +45,14 @@ public class TestAgentLogger extends TestCase {
     final StringWriter errorStringWriter = new StringWriter();
     final PrintWriter errorWriter = new PrintWriter(errorStringWriter);
 
-    final Logger logger = new AgentLogger(outWriter, errorWriter);
+    final Logger logger = new SimpleLogger("testme", outWriter, errorWriter);
 
     assertSame(outWriter, logger.getOutputLogWriter());
     assertSame(errorWriter, logger.getErrorLogWriter());
     
     logger.output("Hello");
     final String outString1 = outStringWriter.toString();
-    assertTrue(outString1.indexOf("agent") >= 0);
+    assertTrue(outString1.indexOf("testme") >= 0);
     assertTrue(outString1.indexOf("Hello") >= 0);
     assertEquals("", errorStringWriter.toString());
 
@@ -61,18 +61,21 @@ public class TestAgentLogger extends TestCase {
 
     logger.error("meanwhile back", Logger.LOG | Logger.TERMINAL);
     final String errorString1 = errorStringWriter.toString();
-    assertTrue(errorString1.indexOf("agent") >= 0);
+    assertTrue(errorString1.indexOf("testme") >= 0);
     assertTrue(errorString1.indexOf("meanwhile back") >= 0);
     assertEquals(outString1, outStringWriter.toString());
 
     logger.error("1234");
     final String errorString2 =
       errorStringWriter.toString().substring(errorString1.length());
-    assertTrue(errorString2.indexOf("agent") >= 0);
+    assertTrue(errorString2.indexOf("testme") >= 0);
     assertTrue(errorString2.indexOf("1234") >= 0);
     assertEquals(outString1, outStringWriter.toString());
 
     logger.error("No culture icons", Logger.LOG);
+    assertEquals(errorString1 + errorString2, errorStringWriter.toString());
+
+    logger.error("No culture icons", 0);
     assertEquals(errorString1 + errorString2, errorStringWriter.toString());
   }
 }
