@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -61,8 +61,7 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
   }
 
   public int getRunNumber() {
-    final ThreadContext threadContext =
-      ThreadContext.getThreadInstance();
+    final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
     if (threadContext != null) {
       return threadContext.getRunNumber();
@@ -131,13 +130,18 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
 
   public void registerDetailStatisticsView(StatisticsView statisticsView)
     throws GrinderException {
+
+    if (ThreadContext.getThreadInstance() != null) {
+      throw new InvalidContextException(
+        "registerDetailStatisticsView() is not supported from worker threads");
+    }
+
     // DetailStatisticsViews are only for the data logs, so we don't
     // register the view with the console.
     CommonStatisticsViews.getDetailStatisticsView().add(statisticsView);
   }
 
   public Statistics getStatistics() throws InvalidContextException {
-
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
     if (threadContext == null) {
