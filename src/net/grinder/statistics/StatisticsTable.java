@@ -45,7 +45,9 @@ public class StatisticsTable
 
     public void print(PrintStream out)
     {
-	print(new PrintWriter(out));
+	final PrintWriter writer = new PrintWriter(out);
+	print(writer);
+	writer.flush();
     }
 
     public void print(PrintWriter out)
