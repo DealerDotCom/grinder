@@ -142,11 +142,15 @@ public class CallRecorder extends Assert {
       throwableType.isAssignableFrom(callData.getThrowable().getClass()));
   }
 
+  public final CallData getCallData() {
+    // Check the earliest call first.
+    return (CallData) m_callDataList.removeFirst();
+  }
+
   private final CallData assertCalledInternal(String methodName,
 					      Object[] parameters) {
 
-    // Check the earliest call first.
-    final CallData callData = (CallData) m_callDataList.removeFirst();
+    final CallData callData = getCallData();
 
     if (parameters.length == 0) {
       parameters = null;
@@ -166,8 +170,7 @@ public class CallRecorder extends Assert {
   private final CallData assertCalledInternal(String methodName,
 					      Class[] parameterTypes) {
 
-    // Check the earliest call first.
-    final CallData callData = (CallData) m_callDataList.removeFirst();
+    final CallData callData = getCallData();
 
     // Just check method names match. Don't worry about modifiers
     // etc., or even which class the method belongs to.
@@ -177,21 +180,20 @@ public class CallRecorder extends Assert {
     return callData;
   }
 
-  private static final class CallData {
+  public static final class CallData {
     private final String m_methodName;
     private final Object[] m_parameters;
     private final Object m_result;
     private final Throwable m_throwable;
 
-    public CallData(String methodName, Object[] parameters, Object result) {
+    CallData(String methodName, Object[] parameters, Object result) {
       m_methodName = methodName;
       m_parameters = parameters;
       m_result = result;
       m_throwable = null;
     }
 
-    public CallData(String methodName, Object[] parameters,
-                    Throwable throwable) {
+    CallData(String methodName, Object[] parameters, Throwable throwable) {
       m_methodName = methodName;
       m_parameters = parameters;
       m_result = null;
