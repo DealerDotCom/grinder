@@ -202,9 +202,9 @@ final class ThreadContext implements PluginThreadContext
 	m_currentTestStatistics.reset();
 
 	try {
-	    final Object testResult;
-
 	    startTimer();
+
+	    final Object testResult;
 
 	    try {
 		testResult = invokeable.call();
@@ -224,8 +224,7 @@ final class ThreadContext implements PluginThreadContext
 
 	    return testResult;
 	}
-	/* TODO
-	catch (PluginException e) {
+	catch (Exception e) {
 	    m_currentTestStatistics.addError();
 
 	    m_threadLogger.error("Plug-in threw: " + e);
@@ -233,7 +232,6 @@ final class ThreadContext implements PluginThreadContext
 
 	    return null;
 	}
-	*/
 	finally {
 	    if (m_dataWriter != null) {
 		m_scratchBuffer.setLength(0);
