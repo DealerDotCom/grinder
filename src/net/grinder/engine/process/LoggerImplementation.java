@@ -23,10 +23,13 @@ package net.grinder.engine.process;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 
 import net.grinder.common.Logger;
@@ -72,7 +75,8 @@ final class LoggerImplementation {
     ++s_currentTick;
   }
 
-  /** Use our DateFormat at most once a tick. Don't synchronise, who
+  /**
+   * Use our DateFormat at most once a tick. Don't synchronise, who
    * cares if its wrong?
    */
   private static /* synchronized */ String getDateString() {
@@ -87,6 +91,7 @@ final class LoggerImplementation {
 
   private final String m_grinderID;
   private final boolean m_logProcessStreams;
+  private final File m_logDirectory;
   private final FilenameFactoryImplementation m_filenameFactory;
   private final PrintWriter m_outputWriter;
   private final PrintWriter m_errorWriter;
@@ -95,74 +100,173 @@ final class LoggerImplementation {
   private boolean m_errorOccurred = false;
 
   LoggerImplementation(String grinderID, String logDirectoryString,
-                       boolean logProcessStreams, boolean renameOldLogs)
+                       boolean logProcessStreams, int numberOfOldLogs)
     throws EngineException {
 
     m_grinderID = grinderID;
     m_logProcessStreams = logProcessStreams;
 
-    final File logDirectory = new File(logDirectoryString, "");
-
-    try {
-      logDirectory.mkdirs();
-    }
-    catch (Exception e) {
-      throw new EngineException(e.getMessage(), e);
-    }
-
-    if (!logDirectory.canWrite()) {
-      throw new EngineException("Cannot write to log directory '" +
-                                logDirectory.getPath() + "'");
-    }
+    m_logDirectory = new File(logDirectoryString, "");
 
     m_filenameFactory =
-      new FilenameFactoryImplementation(logDirectory, grinderID);
+      new FilenameFactoryImplementation(m_logDirectory, grinderID);
+
+    final FileManager fileManager = new FileManager(numberOfOldLogs);
 
     // Although we manage the flushing ourselves and don't call
     // println, we set auto flush on these PrintWriters because
     // clients can get direct access to them.
-    m_outputWriter =
-      new PrintWriter(createWriter("out", renameOldLogs), true);
-
-    m_errorWriter =
-      new PrintWriter(createWriter("error", renameOldLogs), true);
+    m_outputWriter = new PrintWriter(fileManager.getOutWriter(), true);
+    m_errorWriter = new PrintWriter(fileManager.getErrorWriter(), true);
 
     // Don't autoflush, we explictly control flushing of this writer.
-    m_dataWriter = new PrintWriter(createWriter("data", renameOldLogs), false);
+    m_dataWriter = new PrintWriter(fileManager.getDataWriter(), false);
 
     m_processLogger = createThreadLogger(-1);
   }
 
-  private Writer createWriter(String prefix, boolean renameOldLogs)
-    throws EngineException {
+  private final class FileManager {
 
-    final File file = new File(m_filenameFactory.createFilename(prefix));
+    private final Writer m_outWriter;
+    private final Writer m_errorWriter;
+    private final Writer m_dataWriter;
 
-    if (renameOldLogs && file.exists()) {
-      int n = 0;
+    public FileManager(int numberOfOldLogs) throws EngineException {
 
-      File renamedFile;
-
-      do {
-        renamedFile = new File(m_filenameFactory.createFilename(
-                                 prefix,
-                                 ".log" + s_fiveDigitFormat.format(++n)));
+      try {
+        m_logDirectory.mkdirs();
       }
-      while (renamedFile.exists());
+      catch (Exception e) {
+        throw new EngineException(e.getMessage(), e);
+      }
 
-      file.renameTo(renamedFile);
+      if (!m_logDirectory.canWrite()) {
+        throw new EngineException("Cannot write to log directory '" +
+                                  m_logDirectory + "'");
+      }
+
+      final File[] files = {
+        new File(m_filenameFactory.createFilename("out")),
+        new File(m_filenameFactory.createFilename("error")),
+        new File(m_filenameFactory.createFilename("data")),
+      };
+
+      // Remove old archived logs and find the highest index.
+      int highestIndex = 0;
+
+      for (int i = 0; i < files.length; ++i) {
+
+        final int keep;
+
+        if (files[i].exists()) {
+          keep = Math.max(0, numberOfOldLogs - 1);
+        }
+        else {
+          keep = Math.max(0, numberOfOldLogs);
+        }
+
+        highestIndex =
+          Math.max(highestIndex, removeOldFiles(files[i].getName(), keep));
+      }
+
+      if (numberOfOldLogs > 0) {
+        // Archive the most recent logs.
+        final String suffix = s_fiveDigitFormat.format(highestIndex + 1);
+
+        for (int i = 0; i < files.length; ++i) {
+          if (files[i].exists()) {
+            final File newFile = new File(files[i] + suffix);
+
+            if (!files[i].renameTo(newFile)) {
+              throw new EngineException(
+                "Cannot rename '" + files[i] + "' to '" + newFile + "'");
+            }
+          }
+        }
+      }
+
+      // We have to be careful as we won't see problems later because
+      // PrintWriters eat exceptions. We're pretty sure we can create
+      // the new files because we checked we can write to the log
+      // directory.
+
+      m_outWriter = createWriter(files[0]);
+      m_errorWriter = createWriter(files[1]);
+      m_dataWriter = createWriter(files[2]);
     }
 
-    // Check we can write to the file and moan now. We won't see the
-    // problem later because PrintWriters eat exceptions. If the file
-    // doesn't exist, we're pretty sure we can create it because we
-    // checked we can write to the log directory.
-    if (file.exists() && !file.canWrite()) {
-      throw new EngineException("Cannot write to '" + file.getPath() + "'");
+    private int removeOldFiles(String prefix, int keep)
+      throws EngineException {
+
+      final File[] files =
+        m_logDirectory.listFiles(new ArchiveFileFilter(prefix));
+
+      if (files.length == 0) {
+        return 0;
+      }
+
+      Arrays.sort(files,
+                  new Comparator() {
+                    public int compare(Object o1, Object o2) {
+                      final File f1 = (File)o1;
+                      final File f2 = (File)o2;
+                      return f1.getName().compareTo(f2.getName());
+                    }
+                  });
+
+      for (int i = 0; i < files.length - keep; ++i) {
+        if (!files[i].delete()) {
+          throw new EngineException("Cannot delete '" + files[i] + "'");
+        }
+      }
+
+      final String lastFileName = files[files.length - 1].getName();
+
+      return
+        Integer.valueOf(lastFileName.substring(prefix.length())).intValue();
     }
 
-    return new BufferedWriter(new DelayedCreationFileWriter(file, false));
+    private Writer createWriter(File file) {
+      return new BufferedWriter(new DelayedCreationFileWriter(file, false));
+    }
+
+    public Writer getOutWriter() {
+      return m_outWriter;
+    }
+
+    public Writer getErrorWriter() {
+      return m_errorWriter;
+    }
+
+    public Writer getDataWriter() {
+      return m_dataWriter;
+    }
   }
+
+  private static final class ArchiveFileFilter implements FileFilter {
+    private final String m_prefix;
+
+    public ArchiveFileFilter(String prefix) {
+      m_prefix = prefix;
+    }
+
+    public boolean accept(File file) {
+      if (file.isFile() && file.getName().startsWith(m_prefix)) {
+
+        try {
+          Integer.valueOf(file.getName().substring(m_prefix.length()));
+        }
+        catch (NumberFormatException e) {
+          return false;
+        }
+
+        return true;
+      }
+
+      return false;
+    }
+  }
+
 
   Logger getProcessLogger() throws EngineException {
     return m_processLogger;
@@ -172,16 +276,16 @@ final class LoggerImplementation {
     return new ThreadState(threadID);
   }
 
-  FilenameFactoryImplementation getFilenameFactory()  {
+  public FilenameFactoryImplementation getFilenameFactory()  {
     return m_filenameFactory;
   }
 
-  PrintWriter getDataWriter() {
+  public PrintWriter getDataWriter() {
     return m_dataWriter;
   }
 
-  private void outputInternal(ThreadState state, String message,
-                                    int where) {
+  private void outputInternal(ThreadState state, String message, int where) {
+
     int w = where;
 
     if (!m_logProcessStreams) {

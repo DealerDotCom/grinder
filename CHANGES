@@ -25,9 +25,9 @@ Grinder 3.0-beta15
   to Danny Faught for the report.
 
   Remove support for grinder.appendLog, I suspect it was rarely used.
-  Add new feature which backs up old logs (see grinder.renameOldLogs).
-  This should be much more useful when resetting processes with the
-  console.
+  Add new feature which keeps archives of old logs, see
+  grinder.numberOfOldLogs. This should be much more useful when
+  resetting processes with the console.
 
 
 Grinder 3.0-beta14

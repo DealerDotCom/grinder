@@ -66,8 +66,8 @@ class ProcessContext {
 
     m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
-    final boolean renameOldLogs =
-      properties.getBoolean("grinder.renameOldLogs", false);
+    final int numberOfOldLogs =
+      properties.getInt("grinder.numberOfOldLogs", 1);
 
     m_loggerImplementation =
       new LoggerImplementation(m_grinderID,
@@ -75,7 +75,7 @@ class ProcessContext {
                                  "grinder.logDirectory", "."),
                                properties.getBoolean(
                                  "grinder.logProcessStreams", true),
-                               renameOldLogs);
+                               numberOfOldLogs);
 
     m_processLogger = m_loggerImplementation.getProcessLogger();
 

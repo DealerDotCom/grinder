@@ -40,12 +40,16 @@ launch new worker processes in the running state.</p>
 processes to exit. The agent process will then reread the properties
 file and launch new worker processes.</p>
 
-<p>The <em>Stop processes</em> control signals all processes to exit.</p>
+<p>The <em>Stop processes</em> control signals all processes,
+including the agent processes, to exit. You usually want to use
+<em>Reset processes</em> instead.</p>
 
-<p><em><strong>Warning</strong> - New worker process logs will
-overwrite those from previous runs. (See <a
-href="getting-started.html#grinder.renameOldLogs">
-grinder.renameOldLogs</a>).</em></p>
+<p><em><strong>Warning</strong> - Each time the worker processes run,
+they generate a new set of logs. Logs from previous runs are
+"archived" by renaming them. The number of logs that are kept from
+previous runs can be controlled with <a
+href="getting-started.html#grinder.numberOfOldLogs">
+grinder.numberOfOldLogs</a>.</em></p>
 
 <h3>Sample controls</h3>
 
