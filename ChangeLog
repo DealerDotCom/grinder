@@ -2,6 +2,12 @@
 
 	* The Grinder 3.0-beta9 is released.
 	
+	* src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugininterface/GrinderPlugin.java, src/net/grinder/script/Statistics.java, src/net/grinder/statistics/RawStatistics.java:
+	Fix Javadoc warnings.
+
+	* tests-src/net/grinder/console/model/TestScriptDistributionFiles.java:
+	Fix test.
+
 	* etc/localpaths.properties: Fix path.
 
 	* CHANGES, TODO: Documentation.
