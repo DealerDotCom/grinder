@@ -24,11 +24,6 @@ package net.grinder.engine.process;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -36,16 +31,12 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.ProcessStatus;
-import net.grinder.common.Test;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ReportStatusMessage;
 import net.grinder.communication.Sender;
-import net.grinder.engine.EngineException;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsTable;
-import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatistics;
 import net.grinder.statistics.TestStatisticsMap;
 
 
@@ -108,8 +99,8 @@ public final class GrinderProcess implements Monitor
 	catch (GrinderException e) {
 	    final Logger logger = grinderProcess.m_context;
 
-	    logger.error("Fatal error, see error log for details",
-			 Logger.TERMINAL);
+	    logger.output("Fatal error, see error log for details",
+			  Logger.TERMINAL);
 	    logger.error("Error running Worker Process");
 	    e.printStackTrace(logger.getErrorLogWriter());
 	    System.exit(-3);
