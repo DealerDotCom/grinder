@@ -1,3 +1,41 @@
+2004-04-30  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPRequest.java:
+	Cope with responses that have zero Content-Length.
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java:
+	Follow redirects should be false by default.
+
+	* src/net/grinder/common/GrinderException.java: Checkstyle.
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java: Fix NPE.
+
+2004-04-29  Philip Aston  <philipa@mail.com>
+
+	* examples/grinder.properties, examples/helloworld.py, examples/proportion.py, xdoc/g3/script-gallery-xhtml.xml:
+	Examples of composite scripts.
+
+2004-03-30  Philip Aston  <philipa@mail.com>
+
+	* xdoc/commercials-xhtml.xml, xdoc/g3/features-xhtml.xml, xdoc/manual/manual-xhtml.xml, xdoc/welcome-xhtml.xml:
+	Fix cross references to book.
+
+2004-03-29  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/common/TestGrinderException.java:
+	Improve test coverage.
+
+	* src/net/grinder/common/GrinderException.java:
+	Don't mark stack trace as "truncated" if only whitespace has been
+	removed.
+
+	* tests-src/net/grinder/engine/agent/TestProcessLauncher.java:
+	Test ProcessLauncher.
+
+	* TODO: Script editing plans.
+
+	* build.xml: Next is beta22.
+
 2004-03-28  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta21 is released.
