@@ -339,19 +339,6 @@ what you want. Currently the conditionally built modules are:
     </jar>
   </target>
 
-  <target name="testimage" depends="compile-tests,copy-resources">
-
-    <jar jarfile="${lib.dir}/testimage.jar"
-         manifest="etc/testimage.mf">
-        <fileset dir="${classes.dir}"
-		 includes="net/grinder/console/swingui/resources/"/>
-        <fileset dir="${test-classes.dir}"
-		 includes="net/grinder/console/swingui/TestImage*.class"/>
-        <fileset dir="${test-src.dir}"
-		 includes="net/grinder/console/swingui/TestImage*.java"/>
-    </jar>
-  </target>
-
   <!-- =================================================================== -->
   <!-- Reports                                                             -->
   <!-- =================================================================== -->
@@ -412,7 +399,7 @@ what you want. Currently the conditionally built modules are:
 	  <exclude name="**/TestHTTPPluginTCPProxyFilter.java"/>
 
 	  <include name="**/Test*.java"/>
-	  <include name="**/TestDisplayMessageConsoleException.java"/>
+	  <include name="**/TestDirectory.java"/>
 
 	  <exclude name="**/TestSleeper.java"/>
 	</fileset>

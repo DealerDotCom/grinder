@@ -1,2 +1,0 @@
-Manifest-Verstion: 1.0
-Main-Class: net.grinder.console.swingui.TestImage
