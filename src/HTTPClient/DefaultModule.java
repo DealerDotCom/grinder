@@ -1,5 +1,5 @@
 /*
- * @(#)DefaultModule.java				0.3-3 06/05/2001
+ * @(#)DefaultModule.java                0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -40,8 +40,8 @@ import java.net.ProtocolException;
  * This is the default module which gets called after all other modules
  * have done their stuff.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
  */
 class DefaultModule implements HTTPClientModule
 {
@@ -56,7 +56,7 @@ class DefaultModule implements HTTPClientModule
      */
     DefaultModule()
     {
-	req_timeout_retries = 3;
+    req_timeout_retries = 3;
     }
 
 
@@ -67,7 +67,7 @@ class DefaultModule implements HTTPClientModule
      */
     public int requestHandler(Request req, Response[] resp)
     {
-	return REQ_CONTINUE;
+    return REQ_CONTINUE;
     }
 
 
@@ -83,56 +83,56 @@ class DefaultModule implements HTTPClientModule
      * Invoked by the HTTPClient.
      */
     public int responsePhase2Handler(Response resp, Request req)
-	    throws IOException
+        throws IOException
     {
-	/* handle various response status codes until satisfied */
+    /* handle various response status codes until satisfied */
 
-	int sts  = resp.getStatusCode();
-	switch(sts)
-	{
-	    case 408: // Request Timeout
+    int sts  = resp.getStatusCode();
+    switch(sts)
+    {
+        case 408: // Request Timeout
 
-		if (req_timeout_retries-- == 0  ||  req.getStream() != null)
-		{
-		    Log.write(Log.MODS, "DefM:  Status " + sts + " " +
-				    resp.getReasonLine() + " not handled - " +
-				    "maximum number of retries exceeded");
+        if (req_timeout_retries-- == 0  ||  req.getStream() != null)
+        {
+            Log.write(Log.MODS, "DefM:  Status " + sts + " " +
+                    resp.getReasonLine() + " not handled - " +
+                    "maximum number of retries exceeded");
 
-		    return RSP_CONTINUE;
-		}
-		else
-		{
-		    Log.write(Log.MODS, "DefM:  Handling " + sts + " " +
-					resp.getReasonLine() + " - " +
-					"resending request");
+            return RSP_CONTINUE;
+        }
+        else
+        {
+            Log.write(Log.MODS, "DefM:  Handling " + sts + " " +
+                    resp.getReasonLine() + " - " +
+                    "resending request");
 
-		    return RSP_REQUEST;
-		}
+            return RSP_REQUEST;
+        }
 
-	    case 411: // Length Required
-		if (req.getStream() != null  &&
-		    req.getStream().getLength() == -1)
-		    return RSP_CONTINUE;
+        case 411: // Length Required
+        if (req.getStream() != null  &&
+            req.getStream().getLength() == -1)
+            return RSP_CONTINUE;
 
-		try { resp.getInputStream().close(); }
-		catch (IOException ioe) { }
-		if (req.getData() != null)
-		    throw new ProtocolException("Received status code 411 even"+
-					    " though Content-Length was sent");
+        try { resp.getInputStream().close(); }
+        catch (IOException ioe) { }
+        if (req.getData() != null)
+            throw new ProtocolException("Received status code 411 even"+
+                        " though Content-Length was sent");
 
-		Log.write(Log.MODS, "DefM:  Handling " + sts + " " +
-				    resp.getReasonLine() + " - resending " +
-				    "request with 'Content-length: 0'");
+        Log.write(Log.MODS, "DefM:  Handling " + sts + " " +
+                    resp.getReasonLine() + " - resending " +
+                    "request with 'Content-length: 0'");
 
-		req.setData(new byte[0]);	// will send Content-Length: 0
-		return RSP_REQUEST;
+        req.setData(new byte[0]);    // will send Content-Length: 0
+        return RSP_REQUEST;
 
-	    case 505: // HTTP Version not supported
-		return RSP_CONTINUE;
+        case 505: // HTTP Version not supported
+        return RSP_CONTINUE;
 
-	    default:
-		return RSP_CONTINUE;
-	}
+        default:
+        return RSP_CONTINUE;
+    }
     }
 
 

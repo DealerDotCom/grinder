@@ -23,15 +23,14 @@ package net.grinder.tools.snifferwebapp.util;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.io.IOException;
 
-public class PortManager {
+public final class PortManager {
   private int m_lower;
   private int m_upper;
   private int[] m_activePorts;
-  private static PortManager m_instance;
+  private static PortManager s_instance;
 
   private PortManager() {
     try {
@@ -46,7 +45,8 @@ public class PortManager {
       int size = m_upper - m_lower;
       m_activePorts = new int[size];
 
-    } catch (NamingException e) {
+    }
+    catch (NamingException e) {
       e.printStackTrace();
     }
   }
@@ -56,10 +56,10 @@ public class PortManager {
 
     // first we check our list to see if we have any ports marked
     // as free...
-    for(int i = 0; i < size; ++i) {
-      if(m_activePorts[i] == 0) {
-	m_activePorts[i] = i + m_lower;
-	return m_activePorts[i];
+    for (int i = 0; i < size; ++i) {
+      if (m_activePorts[i] == 0) {
+    m_activePorts[i] = i + m_lower;
+    return m_activePorts[i];
       }
     }
 
@@ -69,12 +69,13 @@ public class PortManager {
     // and we haven't been told.
     for (int i = 0; i < size; ++i) {
       try {
-	ServerSocket s = new ServerSocket(m_activePorts[i]);
-	System.out.println("Port " + m_activePorts[i] + " not in use.");
-	s.close();
-	return m_activePorts[i];
-      } catch (IOException e) {
-	// port is in use
+    ServerSocket s = new ServerSocket(m_activePorts[i]);
+    System.out.println("Port " + m_activePorts[i] + " not in use.");
+    s.close();
+    return m_activePorts[i];
+      }
+      catch (IOException e) {
+    // port is in use
       }
     }
 
@@ -87,9 +88,9 @@ public class PortManager {
   }
 
   public static synchronized PortManager getInstance() {
-    if (m_instance == null) {
-      m_instance = new PortManager();
+    if (s_instance == null) {
+      s_instance = new PortManager();
     }
-    return m_instance;
+    return s_instance;
   }
 }

@@ -87,7 +87,7 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
 
     if (threadContext == null) {
       throw new InvalidContextException(
-	"sleep() is currently only supported for worker threads");
+    "sleep() is currently only supported for worker threads");
     }
 
     threadContext.getSleeper().sleepNormal(meanTime);
@@ -99,7 +99,7 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
 
     if (threadContext == null) {
       throw new InvalidContextException(
-	"sleep is currently only supported for worker threads");
+    "sleep is currently only supported for worker threads");
     }
 
     threadContext.getSleeper().sleepNormal(meanTime, sigma);
@@ -143,7 +143,7 @@ final class ScriptContextImplementation implements Grinder.ScriptContext {
 
     if (threadContext == null) {
       throw new InvalidContextException(
-	"getCurrentTestStatistics() is only supported for worker threads");
+    "getCurrentTestStatistics() is only supported for worker threads");
     }
 
     return threadContext.getScriptStatistics();

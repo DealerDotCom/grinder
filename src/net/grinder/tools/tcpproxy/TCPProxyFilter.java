@@ -46,7 +46,7 @@ public interface TCPProxyFilter {
    * @exception Exception If an error occurs.
    */
   byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
-		int bytesRead)
+        int bytesRead)
     throws Exception;
 
   /**

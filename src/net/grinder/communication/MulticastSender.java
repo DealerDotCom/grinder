@@ -49,8 +49,8 @@ public class MulticastSender extends AbstractSender {
    * failed to generate a unique process identifer.
    */
   public MulticastSender(String grinderID,
-			 String multicastAddressString,
-			 int multicastPort)
+             String multicastAddressString,
+             int multicastPort)
     throws CommunicationException {
 
     super(grinderID);
@@ -69,20 +69,20 @@ public class MulticastSender extends AbstractSender {
     }
     catch (IOException e) {
       throw new CommunicationException(
-	"Could not bind to multicast address '" +
-	multicastAddressString + "'",
-	e);
+    "Could not bind to multicast address '" +
+    multicastAddressString + "'",
+    e);
     }
 
     m_packet = new DatagramPacket(getScratchByteStream().getBytes(), 0,
-				  multicastAddress, multicastPort);
+                  multicastAddress, multicastPort);
 
     // Calculate a globally unique string for this sender. We
     // avoid calling multicastAddress.toString() since this
     // involves a DNS lookup.
     setSenderID(multicastAddressString + ":" + multicastPort + ":" +
-		localHost + ":" + m_localSocket.getLocalPort() + ":" +
-		System.currentTimeMillis());
+        localHost + ":" + m_localSocket.getLocalPort() + ":" +
+        System.currentTimeMillis());
   }
 
   /**
@@ -108,7 +108,7 @@ public class MulticastSender extends AbstractSender {
     objectStream.flush();
 
     m_packet.setData(scratchByteStream.getBytes(), 0,
-		     scratchByteStream.size());
+             scratchByteStream.size());
     m_localSocket.send(m_packet);
   }
 }

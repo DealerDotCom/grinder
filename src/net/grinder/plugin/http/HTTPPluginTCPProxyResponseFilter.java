@@ -71,14 +71,14 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
      * @exception MalformedPatternException
      */
     public HTTPPluginTCPProxyResponseFilter(PrintWriter outputWriter)
-	throws MalformedPatternException
+    throws MalformedPatternException
     {
-	final PatternCompiler compiler = new Perl5Compiler();
+    final PatternCompiler compiler = new Perl5Compiler();
 
-	m_wwwAuthenticateHeaderPattern =
-	    compiler.compile(
-		"^WWW-Authenticate:[ \\t]*Basic realm[  \\t]*=[ \\t]*\"([^\"]*)\".*\\r?$",
-		Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
+    m_wwwAuthenticateHeaderPattern =
+        compiler.compile(
+        "^WWW-Authenticate:[ \\t]*Basic realm[  \\t]*=[ \\t]*\"([^\"]*)\".*\\r?$",
+        Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
     }
 
     /**
@@ -96,23 +96,23 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
      * @exception IOException if an error occurs
      */
     public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
-			 int bytesRead)
-	throws IOException
+             int bytesRead)
+    throws IOException
     {
-	HTTPPluginTCPProxyFilter.markLastResponseTime();
+    HTTPPluginTCPProxyFilter.markLastResponseTime();
 
-	// String used to parse headers - header names are
-	// US-ASCII encoded and anchored to start of line.
-	final String asciiString =
-	    new String(buffer, 0, bytesRead, "US-ASCII");
+    // String used to parse headers - header names are
+    // US-ASCII encoded and anchored to start of line.
+    final String asciiString =
+        new String(buffer, 0, bytesRead, "US-ASCII");
 
-	if (m_matcher.contains(asciiString, m_wwwAuthenticateHeaderPattern)) {
-	    // Packet is start of new request message.
+    if (m_matcher.contains(asciiString, m_wwwAuthenticateHeaderPattern)) {
+        // Packet is start of new request message.
 
-	    s_lastAuthenticationRealm = m_matcher.getMatch().group(1).trim();
-	}
+        s_lastAuthenticationRealm = m_matcher.getMatch().group(1).trim();
+    }
 
-	return null;
+    return null;
     }
 
     /**
@@ -131,7 +131,7 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
      * @exception IOException if an error occurs
      */
     public void connectionClosed(ConnectionDetails connectionDetails)
-	throws IOException
+    throws IOException
     {
     }
 
@@ -150,6 +150,6 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
      */
     static String getLastAuthenticationRealm()
     {
-	return s_lastAuthenticationRealm;
+    return s_lastAuthenticationRealm;
     }
 }

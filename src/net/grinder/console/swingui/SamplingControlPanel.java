@@ -79,20 +79,20 @@ class SamplingControlPanel extends JPanel {
 
     m_intervalSlider.addChangeListener(
       new ChangeListener() {
-	public void stateChanged(ChangeEvent event) {
-	  final int value = m_intervalSlider.getValue();
+    public void stateChanged(ChangeEvent event) {
+      final int value = m_intervalSlider.getValue();
 
-	  setIntervalLabelText(intervalLabel, value);
+      setIntervalLabelText(intervalLabel, value);
 
-	  if (m_properties != null) {
-	    try {
-	      m_properties.setSampleInterval(value);
-	    }
-	    catch (ConsoleException e) {
-	      assertionFailure(e);
-	    }
-	  }
-	}
+      if (m_properties != null) {
+        try {
+          m_properties.setSampleInterval(value);
+        }
+        catch (ConsoleException e) {
+          assertionFailure(e);
+        }
+      }
+    }
       }
       );
 
@@ -100,20 +100,20 @@ class SamplingControlPanel extends JPanel {
 
     m_ignoreSampleField.addChangeListener(
       new ChangeListener() {
-	public void stateChanged(ChangeEvent event) {
-	  final int value = m_ignoreSampleField.getValue();
+    public void stateChanged(ChangeEvent event) {
+      final int value = m_ignoreSampleField.getValue();
 
-	  setIgnoreSampleLabelText(ignoreSampleLabel, value);
+      setIgnoreSampleLabelText(ignoreSampleLabel, value);
 
-	  if (m_properties != null) {
-	    try {
-	      m_properties.setIgnoreSampleCount(value);
-	    }
-	    catch (ConsoleException e) {
-	      assertionFailure(e);
-	    }
-	  }
-	}
+      if (m_properties != null) {
+        try {
+          m_properties.setIgnoreSampleCount(value);
+        }
+        catch (ConsoleException e) {
+          assertionFailure(e);
+        }
+      }
+    }
       }
       );
 
@@ -121,20 +121,20 @@ class SamplingControlPanel extends JPanel {
 
     m_collectSampleField.addChangeListener(
       new ChangeListener() {
-	public void stateChanged(ChangeEvent event) {
-	  final int value = m_collectSampleField.getValue();
+    public void stateChanged(ChangeEvent event) {
+      final int value = m_collectSampleField.getValue();
 
-	  setCollectSampleLabelText(collectSampleLabel, value);
+      setCollectSampleLabelText(collectSampleLabel, value);
 
-	  if (m_properties != null) {
-	    try {
-	      m_properties.setCollectSampleCount(value);
-	    }
-	    catch (ConsoleException e) {
-	      assertionFailure(e);
-	    }
-	  }
-	}
+      if (m_properties != null) {
+        try {
+          m_properties.setCollectSampleCount(value);
+        }
+        catch (ConsoleException e) {
+          assertionFailure(e);
+        }
+      }
+    }
       }
       );
 
@@ -175,12 +175,12 @@ class SamplingControlPanel extends JPanel {
 
   private void setIntervalLabelText(JLabel label, int sampleInterval) {
     label.setText(m_sampleIntervalString + sampleInterval +
-		  (sampleInterval == 1 ? m_msUnit : m_msUnits));
+          (sampleInterval == 1 ? m_msUnit : m_msUnits));
   }
 
   private void setIgnoreSampleLabelText(JLabel label, int ignoreSample) {
     label.setText(m_ignoreSampleString + ignoreSample +
-		  (ignoreSample == 1 ? m_sampleUnit : m_sampleUnits));
+          (ignoreSample == 1 ? m_sampleUnit : m_sampleUnits));
   }
 
   private void setCollectSampleLabelText(JLabel label, int collectSample) {
@@ -189,7 +189,7 @@ class SamplingControlPanel extends JPanel {
     }
     else {
       label.setText(m_collectSampleString + collectSample +
-		    (collectSample == 1 ? m_sampleUnit : m_sampleUnits));
+            (collectSample == 1 ? m_sampleUnit : m_sampleUnits));
     }
   }
 

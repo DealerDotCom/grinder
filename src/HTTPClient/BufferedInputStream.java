@@ -1,5 +1,5 @@
 /*
- * @(#)BufferedInputStream.java				0.3-3 06/05/2001
+ * @(#)BufferedInputStream.java                0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -43,8 +43,8 @@ import java.io.IOException;
  * <P>Note: none of the methods here are synchronized because we assume the
  * caller is already taking care of that.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
  */
 class BufferedInputStream extends FilterInputStream
 {
@@ -71,7 +71,7 @@ class BufferedInputStream extends FilterInputStream
      */
     BufferedInputStream(InputStream stream)
     {
-	super(stream);
+    super(stream);
     }
 
     /**
@@ -82,10 +82,10 @@ class BufferedInputStream extends FilterInputStream
      */
     public int read() throws IOException
     {
-	if (pos >= end)
-	    fillBuff();
+    if (pos >= end)
+        fillBuff();
 
-	return (end > pos) ? (buffer[pos++] & 0xFF) : -1;
+    return (end > pos) ? (buffer[pos++] & 0xFF) : -1;
     }
 
     /**
@@ -99,26 +99,26 @@ class BufferedInputStream extends FilterInputStream
      */
     public int read(byte[] buf, int off, int len) throws IOException
     {
-	if (len <= 0)
-	    return 0;
+    if (len <= 0)
+        return 0;
 
-	// optimize for large reads
-	if (pos >= end  &&  len >= lr_thrshld  &&  mark_pos < 0)
-	    return in.read(buf, off, len);
+    // optimize for large reads
+    if (pos >= end  &&  len >= lr_thrshld  &&  mark_pos < 0)
+        return in.read(buf, off, len);
 
-	if (pos >= end)
-	    fillBuff();
+    if (pos >= end)
+        fillBuff();
 
-	if (pos >= end)
-	    return -1;
+    if (pos >= end)
+        return -1;
 
-	int left = end - pos;
-	if (len > left)
-	    len = left;
-	System.arraycopy(buffer, pos, buf, off, len);
-	pos += len;
+    int left = end - pos;
+    if (len > left)
+        len = left;
+    System.arraycopy(buffer, pos, buf, off, len);
+    pos += len;
 
-	return len;
+    return len;
     }
 
     /**
@@ -130,20 +130,20 @@ class BufferedInputStream extends FilterInputStream
      */
     public long skip(long n) throws IOException
     {
-	if (n <= 0)
-	    return 0;
+    if (n <= 0)
+        return 0;
 
-	int left = end - pos;
-	if (n <= left)
-	{
-	    pos += n;
-	    return n;
-	}
-	else
-	{
-	    pos = end;
-	    return left + in.skip(n - left);
-	}
+    int left = end - pos;
+    if (n <= left)
+    {
+        pos += n;
+        return n;
+    }
+    else
+    {
+        pos = end;
+        return left + in.skip(n - left);
+    }
     }
 
     /**
@@ -152,26 +152,26 @@ class BufferedInputStream extends FilterInputStream
      */
     private final void fillBuff() throws IOException
     {
-	if (mark_pos > 0)	// keep the marked stuff around if possible
-	{
-	    // only copy if we don't have any space left
-	    if (end >= buffer.length)
-	    {
-		System.arraycopy(buffer, mark_pos, buffer, 0, end - mark_pos);
-		pos = end - mark_pos;
-	    }
-	}
-	else if (mark_pos == 0  &&  end < buffer.length)
-	    ;			// pos == end, so we just fill what's left
-	else
-	    pos = 0;		// try to fill complete buffer
+    if (mark_pos > 0)    // keep the marked stuff around if possible
+    {
+        // only copy if we don't have any space left
+        if (end >= buffer.length)
+        {
+        System.arraycopy(buffer, mark_pos, buffer, 0, end - mark_pos);
+        pos = end - mark_pos;
+        }
+    }
+    else if (mark_pos == 0  &&  end < buffer.length)
+        ;            // pos == end, so we just fill what's left
+    else
+        pos = 0;        // try to fill complete buffer
 
-	// make sure our state is consistent even if read() throws InterruptedIOException
-	end = pos;
+    // make sure our state is consistent even if read() throws InterruptedIOException
+    end = pos;
 
-	int got = in.read(buffer, pos, buffer.length - pos);
-	if (got > 0)
-	    end = pos + got;
+    int got = in.read(buffer, pos, buffer.length - pos);
+    if (got > 0)
+        end = pos + got;
     }
 
     /**
@@ -181,15 +181,15 @@ class BufferedInputStream extends FilterInputStream
      */
     public int available() throws IOException
     {
-	int avail = end - pos;  
-	if (avail == 0)
-	    return in.available();
+    int avail = end - pos;  
+    if (avail == 0)
+        return in.available();
 
-	try
-	    { avail += in.available(); }
-	catch (IOException ignored)
-	    { /* ignore this because we have something available */ }
-	return avail;
+    try
+        { avail += in.available(); }
+    catch (IOException ignored)
+        { /* ignore this because we have something available */ }
+    return avail;
     }
 
     /**
@@ -197,7 +197,7 @@ class BufferedInputStream extends FilterInputStream
      */
     void markForSearch()
     {
-	mark_pos = pos;
+    mark_pos = pos;
     }
 
     /**
@@ -214,17 +214,17 @@ class BufferedInputStream extends FilterInputStream
      */
     int pastEnd(byte[] search, int[] search_cmp)
     {
-	int idx = Util.findStr(search, search_cmp, buffer, mark_pos, pos);
-	if (idx == -1)
-	    mark_pos = (pos > search.length) ? pos - search.length : 0;
-	else
-	{
-	    int eos  = idx + search.length;
-	    idx      = pos - eos;
-	    pos      = eos;
-	    mark_pos = -1;
-	}
+    int idx = Util.findStr(search, search_cmp, buffer, mark_pos, pos);
+    if (idx == -1)
+        mark_pos = (pos > search.length) ? pos - search.length : 0;
+    else
+    {
+        int eos  = idx + search.length;
+        idx      = pos - eos;
+        pos      = eos;
+        mark_pos = -1;
+    }
 
-	return idx;
+    return idx;
     }
 }

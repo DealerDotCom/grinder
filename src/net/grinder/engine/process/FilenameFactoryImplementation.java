@@ -39,7 +39,7 @@ final class FilenameFactoryImplementation implements FilenameFactory {
   }
 
   private FilenameFactoryImplementation(String logDirectory,
-					String contextString) {
+                    String contextString) {
     m_logDirectory = logDirectory;
     m_contextString = contextString;
   }
@@ -48,8 +48,8 @@ final class FilenameFactoryImplementation implements FilenameFactory {
     createSubContextFilenameFactory(String subContext) {
     return
       new FilenameFactoryImplementation(m_logDirectory,
-					m_contextString +
-					"_" + subContext);
+                    m_contextString +
+                    "_" + subContext);
   }
 
   public final String createFilename(String prefix, String suffix) {

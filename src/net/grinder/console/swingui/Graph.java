@@ -52,7 +52,7 @@ class Graph extends JComponent {
 
     if (numberOfValues <= 0) {
       throw new IllegalArgumentException(
-	"Invalid number of values (" + numberOfValues + ")");
+    "Invalid number of values (" + numberOfValues + ")");
     }
 
     m_numberOfValues = numberOfValues;
@@ -96,29 +96,29 @@ class Graph extends JComponent {
       final double xScale = (getWidth() / (double)m_numberOfValues);
 
       for (int i = 0; i <= m_numberOfValues; i++) {
-	final int x = (int)(i * xScale);
-	m_polygonX[2 * i] = x;
-	m_polygonX[2 * i + 1] = x;
+    final int x = (int)(i * xScale);
+    m_polygonX[2 * i] = x;
+    m_polygonX[2 * i + 1] = x;
       }
 
       final double yScale =
-	m_maximum > 0 ? getHeight() / m_maximum : 0d;
+    m_maximum > 0 ? getHeight() / m_maximum : 0d;
 
       int cursor = m_cursor;
 
       for (int i = 0; i < m_numberOfValues; i++) {
-	int y = (int)((m_maximum - m_values[cursor]) * yScale);
+    int y = (int)((m_maximum - m_values[cursor]) * yScale);
 
-	if (y == 0 && m_maximum > m_values[cursor]) {
-	  y = 1;
-	}
+    if (y == 0 && m_maximum > m_values[cursor]) {
+      y = 1;
+    }
 
-	m_polygonY[2 * i + 1] = y;
-	m_polygonY[2 * i + 2] = y;
+    m_polygonY[2 * i + 1] = y;
+    m_polygonY[2 * i + 2] = y;
 
-	if (++cursor >= m_numberOfValues) {
-	  cursor = 0;
-	}
+    if (++cursor >= m_numberOfValues) {
+      cursor = 0;
+    }
       }
 
       m_polygonY[0] = (int)(m_maximum * yScale);

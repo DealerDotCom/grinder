@@ -85,233 +85,233 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
     private static Pattern s_httpConnectPattern;
 
     private static synchronized final Pattern getHTTPConnectPattern()
-	throws MalformedPatternException
+    throws MalformedPatternException
     {
-	if (s_httpConnectPattern == null) {
-	    final PatternCompiler compiler = new Perl5Compiler();
+    if (s_httpConnectPattern == null) {
+        final PatternCompiler compiler = new Perl5Compiler();
 
-	    s_httpConnectPattern =
-		compiler.compile(
-		    "^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
-		    Perl5Compiler.MULTILINE_MASK |
-		    Perl5Compiler.READ_ONLY_MASK);
-	}
+        s_httpConnectPattern =
+        compiler.compile(
+            "^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
+            Perl5Compiler.MULTILINE_MASK |
+            Perl5Compiler.READ_ONLY_MASK);
+    }
 
-	return s_httpConnectPattern;
+    return s_httpConnectPattern;
     }
 
     public HTTPProxyTCPProxyEngine(
-	TCPProxyPlainSocketFactory plainSocketFactory,
-	TCPProxySocketFactory sslSocketFactory,
-	TCPProxyFilter requestFilter,
-	TCPProxyFilter responseFilter,
-	PrintWriter outputWriter,
-	String localHost,
-	int localPort,
-	boolean useColour,
-	int timeout)
+    TCPProxyPlainSocketFactory plainSocketFactory,
+    TCPProxySocketFactory sslSocketFactory,
+    TCPProxyFilter requestFilter,
+    TCPProxyFilter responseFilter,
+    PrintWriter outputWriter,
+    String localHost,
+    int localPort,
+    boolean useColour,
+    int timeout)
         throws IOException, MalformedPatternException
     {
-	// We set this engine up for handling plain HTTP and delegate
-	// to a proxy for HTTPS.
-	super(plainSocketFactory,
-	      new StripAbsoluteURIFilterDecorator(requestFilter),
-	      responseFilter,
-	      outputWriter,
-	      new ConnectionDetails(localHost, localPort, "", -1, false),
-	      useColour, timeout);
+    // We set this engine up for handling plain HTTP and delegate
+    // to a proxy for HTTPS.
+    super(plainSocketFactory,
+          new StripAbsoluteURIFilterDecorator(requestFilter),
+          responseFilter,
+          outputWriter,
+          new ConnectionDetails(localHost, localPort, "", -1, false),
+          useColour, timeout);
 
-	final PatternCompiler compiler = new Perl5Compiler();
+    final PatternCompiler compiler = new Perl5Compiler();
 
- 	m_httpsConnectPattern =
- 	    compiler.compile(
- 		"^CONNECT[ \\t]+([^:]+):(\\d+)",
- 		Perl5Compiler.MULTILINE_MASK | Perl5Compiler.READ_ONLY_MASK);
+     m_httpsConnectPattern =
+         compiler.compile(
+         "^CONNECT[ \\t]+([^:]+):(\\d+)",
+         Perl5Compiler.MULTILINE_MASK | Perl5Compiler.READ_ONLY_MASK);
 
-	// When handling HTTPS proxies, we use our plain socket to
-	// accept connections on. We suck the bit we understand off
-	// the front and forward the rest through our proxy engine.
-	// The proxy engine listens for connection attempts (which
-	// come from us), then sets up a thread pair which pushes data
-	// back and forth until either the server closes the
-	// connection, or we do (in response to our client closing the
-	// connection). The engine handles multiple connections by
-	// spawning multiple thread pairs.
-	if (sslSocketFactory != null) {
-	    m_proxySSLEngine =
-		new ProxySSLEngine(sslSocketFactory, requestFilter,
-				   responseFilter, outputWriter, useColour);
-	    new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine").start();
-	}
-	else {
-	    m_proxySSLEngine = null;
-	}
+    // When handling HTTPS proxies, we use our plain socket to
+    // accept connections on. We suck the bit we understand off
+    // the front and forward the rest through our proxy engine.
+    // The proxy engine listens for connection attempts (which
+    // come from us), then sets up a thread pair which pushes data
+    // back and forth until either the server closes the
+    // connection, or we do (in response to our client closing the
+    // connection). The engine handles multiple connections by
+    // spawning multiple thread pairs.
+    if (sslSocketFactory != null) {
+        m_proxySSLEngine =
+        new ProxySSLEngine(sslSocketFactory, requestFilter,
+                   responseFilter, outputWriter, useColour);
+        new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine").start();
+    }
+    else {
+        m_proxySSLEngine = null;
+    }
     }
 
     public void run()
     {
-	// Should be more than adequate.
-	final byte[] buffer = new byte[4096];
+    // Should be more than adequate.
+    final byte[] buffer = new byte[4096];
 
         while (true) {
             try {
                 final Socket localSocket = getServerSocket().accept();
 
-		// Grab the first upstream packet and grep it for the
-		// remote server and port in the method line.
-		final BufferedInputStream in =
-		    new BufferedInputStream(localSocket.getInputStream(),
-					    buffer.length);
+        // Grab the first upstream packet and grep it for the
+        // remote server and port in the method line.
+        final BufferedInputStream in =
+            new BufferedInputStream(localSocket.getInputStream(),
+                        buffer.length);
 
-		in.mark(buffer.length);
+        in.mark(buffer.length);
 
-		// Read a buffer full.
-		final int bytesRead = in.read(buffer);
+        // Read a buffer full.
+        final int bytesRead = in.read(buffer);
 
-		final String line =
-		    bytesRead > 0 ?
-		    new String(buffer, 0, bytesRead, "US-ASCII") : "";
+        final String line =
+            bytesRead > 0 ?
+            new String(buffer, 0, bytesRead, "US-ASCII") : "";
 
-		if (m_matcher.contains(line, getHTTPConnectPattern())) {
-		    // HTTP proxy request.
+        if (m_matcher.contains(line, getHTTPConnectPattern())) {
+            // HTTP proxy request.
 
-		    // Reset stream to beginning of request.
-		    in.reset();
+            // Reset stream to beginning of request.
+            in.reset();
 
-		    final MatchResult match = m_matcher.getMatch();
-		    final String remoteHost = match.group(2);
+            final MatchResult match = m_matcher.getMatch();
+            final String remoteHost = match.group(2);
 
-		    int remotePort = 80;
+            int remotePort = 80;
 
-		    try {
-			remotePort = Integer.parseInt(match.group(3));
-		    }
-		    catch (NumberFormatException e) {
-			// remotePort = 80;
-		    }
+            try {
+            remotePort = Integer.parseInt(match.group(3));
+            }
+            catch (NumberFormatException e) {
+            // remotePort = 80;
+            }
 
-		    //System.err.println("New HTTP proxy connection to " +
-		    //  remoteHost + ":" + remotePort);
+            //System.err.println("New HTTP proxy connection to " +
+            //  remoteHost + ":" + remotePort);
 
-		    launchThreadPair(localSocket, in,
-				     localSocket.getOutputStream(),
-				     remoteHost, remotePort);
-		}
-		else if (m_matcher.contains(line, m_httpsConnectPattern)) {
-		    // HTTPS proxy request.
+            launchThreadPair(localSocket, in,
+                     localSocket.getOutputStream(),
+                     remoteHost, remotePort);
+        }
+        else if (m_matcher.contains(line, m_httpsConnectPattern)) {
+            // HTTPS proxy request.
 
-		    // Discard anything else the client has to say.
-		    while (in.read(buffer, 0, in.available()) > 0) {
-		    }
+            // Discard anything else the client has to say.
+            while (in.read(buffer, 0, in.available()) > 0) {
+            }
 
-		    final MatchResult match = m_matcher.getMatch();
-		    final String remoteHost = match.group(1);
+            final MatchResult match = m_matcher.getMatch();
+            final String remoteHost = match.group(1);
 
-		    // Must be a port number by specification.
-		    final int remotePort = Integer.parseInt(match.group(2));
+            // Must be a port number by specification.
+            final int remotePort = Integer.parseInt(match.group(2));
 
-		    final String target = remoteHost + ":" + remotePort;
+            final String target = remoteHost + ":" + remotePort;
 
-		    // System.err.println("New HTTPS proxy connection
-		    // to " + target);
+            // System.err.println("New HTTPS proxy connection
+            // to " + target);
 
-		    if (m_proxySSLEngine == null) {
-			System.err.println(
-			    "Specify -ssl for HTTPS proxy support");
-			continue;
-		    }
+            if (m_proxySSLEngine == null) {
+            System.err.println(
+                "Specify -ssl for HTTPS proxy support");
+            continue;
+            }
 
-		    m_tempRemoteHost = remoteHost;
-		    m_tempRemotePort = remotePort;
+            m_tempRemoteHost = remoteHost;
+            m_tempRemotePort = remotePort;
 
-		    // Create a new proxy connection to our proxy
-		    // engine.
-		    final Socket sslProxySocket =
-			getSocketFactory().createClientSocket(
-			    getConnectionDetails().getLocalHost(),
-			    m_proxySSLEngine.getServerSocket().getLocalPort());
+            // Create a new proxy connection to our proxy
+            // engine.
+            final Socket sslProxySocket =
+            getSocketFactory().createClientSocket(
+                getConnectionDetails().getLocalHost(),
+                m_proxySSLEngine.getServerSocket().getLocalPort());
 
-		    // Now set up a couple of threads to punt
-		    // everything we receive over localSocket to
-		    // sslProxySocket, and vice versa.
-		    new Thread(new CopyStreamRunnable(
-				   in, sslProxySocket.getOutputStream()),
-			       "Copy to proxy engine for " + target).start();
+            // Now set up a couple of threads to punt
+            // everything we receive over localSocket to
+            // sslProxySocket, and vice versa.
+            new Thread(new CopyStreamRunnable(
+                   in, sslProxySocket.getOutputStream()),
+                   "Copy to proxy engine for " + target).start();
 
-		    final OutputStream out = localSocket.getOutputStream();
+            final OutputStream out = localSocket.getOutputStream();
 
-		    new Thread(new CopyStreamRunnable(
-				   sslProxySocket.getInputStream(), out),
-			       "Copy from proxy engine for " + target).start();
+            new Thread(new CopyStreamRunnable(
+                   sslProxySocket.getInputStream(), out),
+                   "Copy from proxy engine for " + target).start();
 
-		    // Send a 200 response to send to client. Client
-		    // will now start sending SSL data to localSocket.
-		    final StringBuffer response = new StringBuffer();
-		    response.append("HTTP/1. 200 OK\r\n");
-		    response.append("Host: ");
-		    response.append(remoteHost);
-		    response.append(":");
-		    response.append(remotePort);
-		    response.append("\r\n");
-		    response.append("Proxy-agent: The Grinder/");
-		    response.append(GrinderBuild.getVersionString());
-		    response.append("\r\n");
-		    response.append("\r\n");
+            // Send a 200 response to send to client. Client
+            // will now start sending SSL data to localSocket.
+            final StringBuffer response = new StringBuffer();
+            response.append("HTTP/1. 200 OK\r\n");
+            response.append("Host: ");
+            response.append(remoteHost);
+            response.append(":");
+            response.append(remotePort);
+            response.append("\r\n");
+            response.append("Proxy-agent: The Grinder/");
+            response.append(GrinderBuild.getVersionString());
+            response.append("\r\n");
+            response.append("\r\n");
 
-		    out.write(response.toString().getBytes());
-		    out.flush();
-		}
-		else {
-		    System.err.println(
-			"Failed to determine proxy destination from message:");
-		    System.err.println(line);
-		}
-	    }
-	    catch (InterruptedIOException e) {
-		System.err.println(ACCEPT_TIMEOUT_MESSAGE);
-		break;
-	    }
-	    catch (Exception e) {
-		e.printStackTrace(System.err);
-	    }
+            out.write(response.toString().getBytes());
+            out.flush();
+        }
+        else {
+            System.err.println(
+            "Failed to determine proxy destination from message:");
+            System.err.println(line);
+        }
+        }
+        catch (InterruptedIOException e) {
+        System.err.println(ACCEPT_TIMEOUT_MESSAGE);
+        break;
+        }
+        catch (Exception e) {
+        e.printStackTrace(System.err);
+        }
         }
     }
 
     private class ProxySSLEngine extends TCPProxyEngineImplementation {
 
-	ProxySSLEngine(TCPProxySocketFactory socketFactory,
-		       TCPProxyFilter requestFilter,
-		       TCPProxyFilter responseFilter,
-		       PrintWriter outputWriter,
-		       boolean useColour)
-	    throws IOException
-	{
-	    super(socketFactory, requestFilter, responseFilter, outputWriter,
-		  new ConnectionDetails(HTTPProxyTCPProxyEngine.this.
-					getConnectionDetails().getLocalHost(),
-					0, "", -1, true),
-		  useColour, 0);
-	}
+    ProxySSLEngine(TCPProxySocketFactory socketFactory,
+               TCPProxyFilter requestFilter,
+               TCPProxyFilter responseFilter,
+               PrintWriter outputWriter,
+               boolean useColour)
+        throws IOException
+    {
+        super(socketFactory, requestFilter, responseFilter, outputWriter,
+          new ConnectionDetails(HTTPProxyTCPProxyEngine.this.
+                    getConnectionDetails().getLocalHost(),
+                    0, "", -1, true),
+          useColour, 0);
+    }
 
-	public void run()
-	{
-	    while (true) {
-		try {
-		    final Socket localSocket = this.getServerSocket().accept();
+    public void run()
+    {
+        while (true) {
+        try {
+            final Socket localSocket = this.getServerSocket().accept();
 
-		    // System.err.println("New proxy proxy connection to " +
-		    //   m_tempRemoteHost + ":" + m_tempRemotePort);
+            // System.err.println("New proxy proxy connection to " +
+            //   m_tempRemoteHost + ":" + m_tempRemotePort);
 
-		    this.launchThreadPair(localSocket,
-					  localSocket.getInputStream(),
-					  localSocket.getOutputStream(),
-					  m_tempRemoteHost, m_tempRemotePort);
-		}
-		catch(IOException e) {
-		    e.printStackTrace(System.err);
-		}
-	    }
-	}
+            this.launchThreadPair(localSocket,
+                      localSocket.getInputStream(),
+                      localSocket.getOutputStream(),
+                      m_tempRemoteHost, m_tempRemotePort);
+        }
+        catch(IOException e) {
+            e.printStackTrace(System.err);
+        }
+        }
+    }
     }
 
     /**
@@ -319,59 +319,59 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
      * HTTP 1.0 servers don't expect them.
      */
     private static class StripAbsoluteURIFilterDecorator
-	implements TCPProxyFilter
+    implements TCPProxyFilter
     {
-	private static final Perl5Substitution m_substition =
-	    new Perl5Substitution("$1 $4");
+    private static final Perl5Substitution m_substition =
+        new Perl5Substitution("$1 $4");
 
-	private final TCPProxyFilter m_delegate;
-	private final PatternMatcher m_matcher = new Perl5Matcher();
+    private final TCPProxyFilter m_delegate;
+    private final PatternMatcher m_matcher = new Perl5Matcher();
 
-	public StripAbsoluteURIFilterDecorator(TCPProxyFilter delegate)
-	    throws MalformedPatternException
-	{
-	    m_delegate = delegate;
-	}
+    public StripAbsoluteURIFilterDecorator(TCPProxyFilter delegate)
+        throws MalformedPatternException
+    {
+        m_delegate = delegate;
+    }
 
-	public void connectionOpened(ConnectionDetails connectionDetails)
-	    throws Exception
-	{
-	    m_delegate.connectionOpened(connectionDetails);
-	}
+    public void connectionOpened(ConnectionDetails connectionDetails)
+        throws Exception
+    {
+        m_delegate.connectionOpened(connectionDetails);
+    }
 
-	public void connectionClosed(ConnectionDetails connectionDetails)
-	    throws Exception
-	{
-	    m_delegate.connectionClosed(connectionDetails);
-	}
+    public void connectionClosed(ConnectionDetails connectionDetails)
+        throws Exception
+    {
+        m_delegate.connectionClosed(connectionDetails);
+    }
 
       public void stop() {
-	m_delegate.stop();
+    m_delegate.stop();
       }
 
-	public byte[] handle(ConnectionDetails connectionDetails,
-			     byte[] buffer, int bytesRead)
-	    throws Exception
-	{
-	    final byte[] delegateResult =
-		m_delegate.handle(connectionDetails, buffer, bytesRead);
+    public byte[] handle(ConnectionDetails connectionDetails,
+                 byte[] buffer, int bytesRead)
+        throws Exception
+    {
+        final byte[] delegateResult =
+        m_delegate.handle(connectionDetails, buffer, bytesRead);
 
-	    if (delegateResult != null) {
-		buffer = delegateResult;
-	    }
+        if (delegateResult != null) {
+        buffer = delegateResult;
+        }
 
-	    final String original =
-		new String(buffer, 0, bytesRead, "US-ASCII");
+        final String original =
+        new String(buffer, 0, bytesRead, "US-ASCII");
 
-	    final String result =
-		Util.substitute(m_matcher, getHTTPConnectPattern(),
-				m_substition, original);
+        final String result =
+        Util.substitute(m_matcher, getHTTPConnectPattern(),
+                m_substition, original);
 
-	    if (result != original) {	// Yes, I mean reference identity.
-		return result.getBytes();
-	    }
+        if (result != original) {    // Yes, I mean reference identity.
+        return result.getBytes();
+        }
 
-	    return null;
-	}
+        return null;
+    }
     }
 }

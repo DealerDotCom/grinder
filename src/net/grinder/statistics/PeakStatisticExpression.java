@@ -44,5 +44,5 @@ public interface PeakStatisticExpression extends StatisticExpression {
    * which to store the result.
    */
   void update(RawStatistics monitoredStatistics,
-	      RawStatistics peakStorageStatistics);
+          RawStatistics peakStorageStatistics);
 }

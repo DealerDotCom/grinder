@@ -62,7 +62,7 @@ public final class ScriptDistributionFiles implements Serializable {
   }
 
   ScriptDistributionFiles(String propertyPrefix,
-			  GrinderProperties properties) {
+              GrinderProperties properties) {
 
     m_propertyPrefix = propertyPrefix;
 
@@ -77,11 +77,11 @@ public final class ScriptDistributionFiles implements Serializable {
     }
     else {
       try {
-	setRootDirectory(new File(".").getCanonicalFile());
+    setRootDirectory(new File(".").getCanonicalFile());
       }
       catch (IOException e) {
-	// Oh well...
-	setRootDirectory(new File(""));
+    // Oh well...
+    setRootDirectory(new File(""));
       }
     }
 
@@ -100,24 +100,24 @@ public final class ScriptDistributionFiles implements Serializable {
       ourProperties.getProperty(SCRIPT_FILE_PROPERTY, null);
 
     setFiles(scriptFileString != null ? new File(scriptFileString) : null,
-	     additionalFiles);
+         additionalFiles);
   }
 
   final void addToProperties(GrinderProperties properties) {
     properties.setProperty(m_propertyPrefix + ROOT_DIRECTORY_PROPERTY,
-			   getRootDirectory().getPath());
+               getRootDirectory().getPath());
 
     final File scriptFile = getScriptFile();
 
     if (scriptFile != null) {
       properties.setProperty(m_propertyPrefix + SCRIPT_FILE_PROPERTY,
-			     scriptFile.getPath());
+                 scriptFile.getPath());
     }
 
     for (int i = 0; i < m_additionalFiles.length; ++i) {
       properties.setProperty(
-	m_propertyPrefix + ADDITIONAL_FILES_PROPERTY + "." + i,
-	m_additionalFiles[i].getPath());
+    m_propertyPrefix + ADDITIONAL_FILES_PROPERTY + "." + i,
+    m_additionalFiles[i].getPath());
     }
   }
 
@@ -205,7 +205,7 @@ public final class ScriptDistributionFiles implements Serializable {
     final File otherScriptFile = other.getScriptFile();
 
     if (scriptFile == null && otherScriptFile != null ||
-	scriptFile != null && otherScriptFile == null) {
+    scriptFile != null && otherScriptFile == null) {
       return false;
     }
 
@@ -222,7 +222,7 @@ public final class ScriptDistributionFiles implements Serializable {
 
     for (int i = 0; i < additionalFiles.length; ++i) {
       if (!additionalFiles[i].equals(otherAdditionalFiles[i])) {
-	return false;
+    return false;
       }
     }
 
@@ -242,7 +242,7 @@ public final class ScriptDistributionFiles implements Serializable {
 
     if (additionalFiles != null) {
       for (int i = 0; i < additionalFiles.length; ++i) {
-	m_hashCode ^= additionalFiles[i].hashCode();
+    m_hashCode ^= additionalFiles[i].hashCode();
       }
     }
   }
@@ -275,7 +275,7 @@ public final class ScriptDistributionFiles implements Serializable {
     for (int i = 0; i < additionalFiles.length; ++i) {
 
       if (i != 0) {
-	result.append(", ");
+    result.append(", ");
       }
 
       result.append(additionalFiles[i]);

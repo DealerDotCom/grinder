@@ -1,5 +1,5 @@
 /*
- * @(#)CookieModule.java				0.3-3 06/05/2001
+ * @(#)CookieModule.java                0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -92,9 +92,9 @@ import java.awt.event.WindowAdapter;
  *
  * @see <a href="http://home.netscape.com/newsref/std/cookie_spec.html">Netscape's cookie spec</a>
  * @see <a href="http://www.ietf.org/rfc/rfc2965.txt">HTTP State Management Mechanism spec</a>
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.3
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
+ * @since    V0.3
  */
 public class CookieModule implements HTTPClientModule
 {
@@ -109,7 +109,7 @@ public class CookieModule implements HTTPClientModule
 
     /** the cookie policy handler */
     private static CookiePolicyHandler cookie_handler =
-					    new DefaultCookiePolicyHandler();
+                        new DefaultCookiePolicyHandler();
 
 
 
@@ -117,135 +117,135 @@ public class CookieModule implements HTTPClientModule
 
     static
     {
-	boolean persist;
-	try
-	    { persist = Boolean.getBoolean("HTTPClient.cookies.save"); }
-	catch (Exception e)
-	    { persist = false; }
+    boolean persist;
+    try
+        { persist = Boolean.getBoolean("HTTPClient.cookies.save"); }
+    catch (Exception e)
+        { persist = false; }
 
-	if (persist)
-	{
-	    loadCookies();
+    if (persist)
+    {
+        loadCookies();
 
-	    // the nearest thing to atexit() I know of...
+        // the nearest thing to atexit() I know of...
 
-	    cookieSaver = new Object()
-		{
-		    public void finalize() { saveCookies(); }
-		};
-	    try
-		{ System.runFinalizersOnExit(true); }
-	    catch (Throwable t)
-		{ }
-	}
+        cookieSaver = new Object()
+        {
+            public void finalize() { saveCookies(); }
+        };
+        try
+        { System.runFinalizersOnExit(true); }
+        catch (Throwable t)
+        { }
+    }
     }
 
 
     private static void loadCookies()
     {
-	// The isFile() etc need to be protected by the catch as signed
-	// applets may be allowed to read properties but not do IO
-	try
-	{
-	    cookie_jar = new File(getCookieJarName());
-	    if (cookie_jar.isFile()  &&  cookie_jar.canRead())
-	    {
-		ObjectInputStream ois =
-		    new ObjectInputStream(new FileInputStream(cookie_jar));
-		cookie_cntxt_list.put(HTTPConnection.getDefaultContext(),
-				      (Hashtable) ois.readObject());
-		ois.close();
-	    }
-	}
-	catch (Throwable t)
-	    { cookie_jar = null; }
+    // The isFile() etc need to be protected by the catch as signed
+    // applets may be allowed to read properties but not do IO
+    try
+    {
+        cookie_jar = new File(getCookieJarName());
+        if (cookie_jar.isFile()  &&  cookie_jar.canRead())
+        {
+        ObjectInputStream ois =
+            new ObjectInputStream(new FileInputStream(cookie_jar));
+        cookie_cntxt_list.put(HTTPConnection.getDefaultContext(),
+                      (Hashtable) ois.readObject());
+        ois.close();
+        }
+    }
+    catch (Throwable t)
+        { cookie_jar = null; }
     }
 
 
     private static void saveCookies()
     {
-	if (cookie_jar != null  &&  (!cookie_jar.exists()  ||
-	     cookie_jar.isFile()  &&  cookie_jar.canWrite()))
-	{
-	    Hashtable cookie_list = new Hashtable();
-	    Enumeration enum = Util.getList(cookie_cntxt_list,
-					    HTTPConnection.getDefaultContext())
-				   .elements();
+    if (cookie_jar != null  &&  (!cookie_jar.exists()  ||
+         cookie_jar.isFile()  &&  cookie_jar.canWrite()))
+    {
+        Hashtable cookie_list = new Hashtable();
+        Enumeration enum = Util.getList(cookie_cntxt_list,
+                        HTTPConnection.getDefaultContext())
+                   .elements();
 
-	    // discard cookies which are not to be kept across sessions
+        // discard cookies which are not to be kept across sessions
 
-	    while (enum.hasMoreElements())
-	    {
-		Cookie cookie = (Cookie) enum.nextElement();
-		if (!cookie.discard())
-		    cookie_list.put(cookie, cookie);
-	    }
+        while (enum.hasMoreElements())
+        {
+        Cookie cookie = (Cookie) enum.nextElement();
+        if (!cookie.discard())
+            cookie_list.put(cookie, cookie);
+        }
 
 
-	    // save any remaining cookies in jar
+        // save any remaining cookies in jar
 
-	    if (cookie_list.size() > 0)
-	    {
-		try
-		{
-		    ObjectOutputStream oos =
-			new ObjectOutputStream(new FileOutputStream(cookie_jar));
-		    oos.writeObject(cookie_list);
-		    oos.close();
-		}
-		catch (Throwable t)
-		    { }
-	    }
-	}
+        if (cookie_list.size() > 0)
+        {
+        try
+        {
+            ObjectOutputStream oos =
+            new ObjectOutputStream(new FileOutputStream(cookie_jar));
+            oos.writeObject(cookie_list);
+            oos.close();
+        }
+        catch (Throwable t)
+            { }
+        }
+    }
     }
 
 
     private static String getCookieJarName()
     {
-	String file = null;
+    String file = null;
 
-	try
-	    { file = System.getProperty("HTTPClient.cookies.jar"); }
-	catch (Exception e)
-	    { }
+    try
+        { file = System.getProperty("HTTPClient.cookies.jar"); }
+    catch (Exception e)
+        { }
 
-	if (file == null)
-	{
-	    // default to something reasonable
+    if (file == null)
+    {
+        // default to something reasonable
 
-	    String os = System.getProperty("os.name");
-	    if (os.equalsIgnoreCase("Windows 95")  ||
-		os.equalsIgnoreCase("16-bit Windows")  ||
-		os.equalsIgnoreCase("Windows"))
-	    {
-		file = System.getProperty("java.home") +
-		       File.separator + ".httpclient_cookies";
-	    }
-	    else if (os.equalsIgnoreCase("Windows NT"))
-	    {
-		file = System.getProperty("user.home") +
-		       File.separator + ".httpclient_cookies";
-	    }
-	    else if (os.equalsIgnoreCase("OS/2"))
-	    {
-		file = System.getProperty("user.home") +
-		       File.separator + ".httpclient_cookies";
-	    }
-	    else if (os.equalsIgnoreCase("Mac OS")  ||
-		     os.equalsIgnoreCase("MacOS"))
-	    {
-		file = "System Folder" + File.separator +
-		       "Preferences" + File.separator +
-		       "HTTPClientCookies";
-	    }
-	    else		// it's probably U*IX or VMS
-	    {
-		file = System.getProperty("user.home") +
-		       File.separator + ".httpclient_cookies";
-	    }
-	}
+        String os = System.getProperty("os.name");
+        if (os.equalsIgnoreCase("Windows 95")  ||
+        os.equalsIgnoreCase("16-bit Windows")  ||
+        os.equalsIgnoreCase("Windows"))
+        {
+        file = System.getProperty("java.home") +
+               File.separator + ".httpclient_cookies";
+        }
+        else if (os.equalsIgnoreCase("Windows NT"))
+        {
+        file = System.getProperty("user.home") +
+               File.separator + ".httpclient_cookies";
+        }
+        else if (os.equalsIgnoreCase("OS/2"))
+        {
+        file = System.getProperty("user.home") +
+               File.separator + ".httpclient_cookies";
+        }
+        else if (os.equalsIgnoreCase("Mac OS")  ||
+             os.equalsIgnoreCase("MacOS"))
+        {
+        file = "System Folder" + File.separator +
+               "Preferences" + File.separator +
+               "HTTPClientCookies";
+        }
+        else        // it's probably U*IX or VMS
+        {
+        file = System.getProperty("user.home") +
+               File.separator + ".httpclient_cookies";
+        }
+    }
 
-	return file;
+    return file;
     }
 
 
@@ -263,125 +263,125 @@ public class CookieModule implements HTTPClientModule
      */
     public int requestHandler(Request req, Response[] resp)
     {
-	// First remove any Cookie headers we might have set for a previous
-	// request
+    // First remove any Cookie headers we might have set for a previous
+    // request
 
-	NVPair[] hdrs = req.getHeaders();
-	int length = hdrs.length;
-	for (int idx=0; idx<hdrs.length; idx++)
-	{
-	    int beg = idx;
-	    while (idx < hdrs.length  &&
-		   hdrs[idx].getName().equalsIgnoreCase("Cookie"))
-		idx++;
+    NVPair[] hdrs = req.getHeaders();
+    int length = hdrs.length;
+    for (int idx=0; idx<hdrs.length; idx++)
+    {
+        int beg = idx;
+        while (idx < hdrs.length  &&
+           hdrs[idx].getName().equalsIgnoreCase("Cookie"))
+        idx++;
 
-	    if (idx-beg > 0)
-	    {
-		length -= idx-beg;
-		System.arraycopy(hdrs, idx, hdrs, beg, length-beg);
-	    }
-	}
-	if (length < hdrs.length)
-	{
-	    hdrs = Util.resizeArray(hdrs, length);
-	    req.setHeaders(hdrs);
-	}
+        if (idx-beg > 0)
+        {
+        length -= idx-beg;
+        System.arraycopy(hdrs, idx, hdrs, beg, length-beg);
+        }
+    }
+    if (length < hdrs.length)
+    {
+        hdrs = Util.resizeArray(hdrs, length);
+        req.setHeaders(hdrs);
+    }
 
 
-	// Now set any new cookie headers
+    // Now set any new cookie headers
 
-	Hashtable cookie_list =
-	    Util.getList(cookie_cntxt_list, req.getConnection().getContext());
-	if (cookie_list.size() == 0)
-	    return REQ_CONTINUE;	// no need to create a lot of objects
+    Hashtable cookie_list =
+        Util.getList(cookie_cntxt_list, req.getConnection().getContext());
+    if (cookie_list.size() == 0)
+        return REQ_CONTINUE;    // no need to create a lot of objects
 
-	Vector  names   = new Vector();
-	Vector  lens    = new Vector();
-	int     version = 0;
+    Vector  names   = new Vector();
+    Vector  lens    = new Vector();
+    int     version = 0;
 
-	synchronized (cookie_list)
-	{
-	    Enumeration list = cookie_list.elements();
-	    Vector remove_list = null;
+    synchronized (cookie_list)
+    {
+        Enumeration list = cookie_list.elements();
+        Vector remove_list = null;
 
-	    while (list.hasMoreElements())
-	    {
-		Cookie cookie = (Cookie) list.nextElement();
+        while (list.hasMoreElements())
+        {
+        Cookie cookie = (Cookie) list.nextElement();
 
-		if (cookie.hasExpired())
-		{
-		    Log.write(Log.COOKI, "CookM: cookie has expired and is " +
-					 "being removed: " + cookie);
-		    if (remove_list == null)  remove_list = new Vector();
-		    remove_list.addElement(cookie);
-		    continue;
-		}
+        if (cookie.hasExpired())
+        {
+            Log.write(Log.COOKI, "CookM: cookie has expired and is " +
+                     "being removed: " + cookie);
+            if (remove_list == null)  remove_list = new Vector();
+            remove_list.addElement(cookie);
+            continue;
+        }
 
-		if (cookie.sendWith(req)  &&  (cookie_handler == null  ||
-		    cookie_handler.sendCookie(cookie, req)))
-		{
-		    int len = cookie.getPath().length();
-		    int idx;
+        if (cookie.sendWith(req)  &&  (cookie_handler == null  ||
+            cookie_handler.sendCookie(cookie, req)))
+        {
+            int len = cookie.getPath().length();
+            int idx;
 
-		    // insert in correct position
-		    for (idx=0; idx<lens.size(); idx++)
-			if (((Integer) lens.elementAt(idx)).intValue() < len)
-			    break;
+            // insert in correct position
+            for (idx=0; idx<lens.size(); idx++)
+            if (((Integer) lens.elementAt(idx)).intValue() < len)
+                break;
 
-		    names.insertElementAt(cookie.toExternalForm(), idx);
-		    lens.insertElementAt(new Integer(len), idx);
+            names.insertElementAt(cookie.toExternalForm(), idx);
+            lens.insertElementAt(new Integer(len), idx);
 
-		    if (cookie instanceof Cookie2)
-			version = Math.max(version, ((Cookie2) cookie).getVersion());
-		}
-	    }
+            if (cookie instanceof Cookie2)
+            version = Math.max(version, ((Cookie2) cookie).getVersion());
+        }
+        }
 
-	    // remove any marked cookies
-	    // Note: we can't do this during the enumeration!
-	    if (remove_list != null)
-	    {
-		for (int idx=0; idx<remove_list.size(); idx++)
-		    cookie_list.remove(remove_list.elementAt(idx));
-	    }
-	}
+        // remove any marked cookies
+        // Note: we can't do this during the enumeration!
+        if (remove_list != null)
+        {
+        for (int idx=0; idx<remove_list.size(); idx++)
+            cookie_list.remove(remove_list.elementAt(idx));
+        }
+    }
 
-	if (!names.isEmpty())
-	{
-	    StringBuffer value = new StringBuffer();
+    if (!names.isEmpty())
+    {
+        StringBuffer value = new StringBuffer();
 
-	    if (version > 0)
-		value.append("$Version=\"" + version + "\"; ");
+        if (version > 0)
+        value.append("$Version=\"" + version + "\"; ");
 
-	    value.append((String) names.elementAt(0));
-	    for (int idx=1; idx<names.size(); idx++)
-	    {
-		value.append("; ");
-		value.append((String) names.elementAt(idx));
-	    }
-	    hdrs = Util.resizeArray(hdrs, hdrs.length+1);
-	    hdrs[hdrs.length-1] = new NVPair("Cookie", value.toString());
+        value.append((String) names.elementAt(0));
+        for (int idx=1; idx<names.size(); idx++)
+        {
+        value.append("; ");
+        value.append((String) names.elementAt(idx));
+        }
+        hdrs = Util.resizeArray(hdrs, hdrs.length+1);
+        hdrs[hdrs.length-1] = new NVPair("Cookie", value.toString());
 
-	    // add Cookie2 header if necessary
-	    if (version != 1)	// we currently know about version 1 only
-	    {
-		int idx;
-		for (idx=0; idx<hdrs.length; idx++)
-		    if (hdrs[idx].getName().equalsIgnoreCase("Cookie2"))
-			break;
-		if (idx == hdrs.length)
-		{
-		    hdrs = Util.resizeArray(hdrs, hdrs.length+1);
-		    hdrs[hdrs.length-1] =
-				    new NVPair("Cookie2", "$Version=\"1\"");
-		}
-	    }
+        // add Cookie2 header if necessary
+        if (version != 1)    // we currently know about version 1 only
+        {
+        int idx;
+        for (idx=0; idx<hdrs.length; idx++)
+            if (hdrs[idx].getName().equalsIgnoreCase("Cookie2"))
+            break;
+        if (idx == hdrs.length)
+        {
+            hdrs = Util.resizeArray(hdrs, hdrs.length+1);
+            hdrs[hdrs.length-1] =
+                    new NVPair("Cookie2", "$Version=\"1\"");
+        }
+        }
 
-	    req.setHeaders(hdrs);
+        req.setHeaders(hdrs);
 
-	    Log.write(Log.COOKI, "CookM: Sending cookies '" + value + "'");
-	}
+        Log.write(Log.COOKI, "CookM: Sending cookies '" + value + "'");
+    }
 
-	return REQ_CONTINUE;
+    return REQ_CONTINUE;
     }
 
 
@@ -389,20 +389,20 @@ public class CookieModule implements HTTPClientModule
      * Invoked by the HTTPClient.
      */
     public void responsePhase1Handler(Response resp, RoRequest req)
-	    throws IOException
+        throws IOException
     {
-	String set_cookie  = resp.getHeader("Set-Cookie");
-	String set_cookie2 = resp.getHeader("Set-Cookie2");
-	if (set_cookie == null  &&  set_cookie2 == null)
-	    return;
+    String set_cookie  = resp.getHeader("Set-Cookie");
+    String set_cookie2 = resp.getHeader("Set-Cookie2");
+    if (set_cookie == null  &&  set_cookie2 == null)
+        return;
 
-	resp.deleteHeader("Set-Cookie");
-	resp.deleteHeader("Set-Cookie2");
+    resp.deleteHeader("Set-Cookie");
+    resp.deleteHeader("Set-Cookie2");
 
-	if (set_cookie != null)
-	    handleCookie(set_cookie, false, req, resp);
-	if (set_cookie2 != null)
-	    handleCookie(set_cookie2, true, req, resp);
+    if (set_cookie != null)
+        handleCookie(set_cookie, false, req, resp);
+    if (set_cookie2 != null)
+        handleCookie(set_cookie2, true, req, resp);
     }
 
 
@@ -411,7 +411,7 @@ public class CookieModule implements HTTPClientModule
      */
     public int responsePhase2Handler(Response resp, Request req)
     {
-	return RSP_CONTINUE;
+    return RSP_CONTINUE;
     }
 
 
@@ -428,60 +428,60 @@ public class CookieModule implements HTTPClientModule
      */
     public void trailerHandler(Response resp, RoRequest req)  throws IOException
     {
-	String set_cookie = resp.getTrailer("Set-Cookie");
-	String set_cookie2 = resp.getTrailer("Set-Cookie2");
-	if (set_cookie == null  &&  set_cookie2 == null)
-	    return;
+    String set_cookie = resp.getTrailer("Set-Cookie");
+    String set_cookie2 = resp.getTrailer("Set-Cookie2");
+    if (set_cookie == null  &&  set_cookie2 == null)
+        return;
 
-	resp.deleteTrailer("Set-Cookie");
-	resp.deleteTrailer("Set-Cookie2");
+    resp.deleteTrailer("Set-Cookie");
+    resp.deleteTrailer("Set-Cookie2");
 
-	if (set_cookie != null)
-	    handleCookie(set_cookie, false, req, resp);
-	if (set_cookie2 != null)
-	    handleCookie(set_cookie2, true, req, resp);
+    if (set_cookie != null)
+        handleCookie(set_cookie, false, req, resp);
+    if (set_cookie2 != null)
+        handleCookie(set_cookie2, true, req, resp);
     }
 
 
     private void handleCookie(String set_cookie, boolean cookie2, RoRequest req,
-			      Response resp)
-	    throws ProtocolException
+                  Response resp)
+        throws ProtocolException
     {
-	Cookie[] cookies;
-	if (cookie2)
-	    cookies = Cookie2.parse(set_cookie, req);
-	else
-	    cookies = Cookie.parse(set_cookie, req);
+    Cookie[] cookies;
+    if (cookie2)
+        cookies = Cookie2.parse(set_cookie, req);
+    else
+        cookies = Cookie.parse(set_cookie, req);
 
-	if (Log.isEnabled(Log.COOKI))
-	{
-	    Log.write(Log.COOKI, "CookM: Received and parsed " + cookies.length +
-				 " cookies:");
-	    for (int idx=0; idx<cookies.length; idx++)
-		Log.write(Log.COOKI, "CookM: Cookie " + idx + ": " + cookies[idx]);
-	}
+    if (Log.isEnabled(Log.COOKI))
+    {
+        Log.write(Log.COOKI, "CookM: Received and parsed " + cookies.length +
+                 " cookies:");
+        for (int idx=0; idx<cookies.length; idx++)
+        Log.write(Log.COOKI, "CookM: Cookie " + idx + ": " + cookies[idx]);
+    }
 
-	Hashtable cookie_list =
-	    Util.getList(cookie_cntxt_list, req.getConnection().getContext());
-	synchronized (cookie_list)
-	{
-	    for (int idx=0; idx<cookies.length; idx++)
-	    {
-		Cookie cookie = (Cookie) cookie_list.get(cookies[idx]);
-		if (cookie != null  &&  cookies[idx].hasExpired())
-		{
-		    Log.write(Log.COOKI, "CookM: cookie has expired and is " +
-					 "being removed: " + cookie);
-		    cookie_list.remove(cookie);		// expired, so remove
-		}
-		else if (!cookies[idx].hasExpired())	// new or replaced
-		{
-		    if (cookie_handler == null  ||
-			cookie_handler.acceptCookie(cookies[idx], req, resp))
-			cookie_list.put(cookies[idx], cookies[idx]);
-		}
-	    }
-	}
+    Hashtable cookie_list =
+        Util.getList(cookie_cntxt_list, req.getConnection().getContext());
+    synchronized (cookie_list)
+    {
+        for (int idx=0; idx<cookies.length; idx++)
+        {
+        Cookie cookie = (Cookie) cookie_list.get(cookies[idx]);
+        if (cookie != null  &&  cookies[idx].hasExpired())
+        {
+            Log.write(Log.COOKI, "CookM: cookie has expired and is " +
+                     "being removed: " + cookie);
+            cookie_list.remove(cookie);        // expired, so remove
+        }
+        else if (!cookies[idx].hasExpired())    // new or replaced
+        {
+            if (cookie_handler == null  ||
+            cookie_handler.acceptCookie(cookies[idx], req, resp))
+            cookie_list.put(cookies[idx], cookies[idx]);
+        }
+        }
+    }
     }
 
 
@@ -491,7 +491,7 @@ public class CookieModule implements HTTPClientModule
      */
     public static void discardAllCookies()
     {
-	cookie_cntxt_list.clear();
+    cookie_cntxt_list.clear();
     }
 
 
@@ -503,8 +503,8 @@ public class CookieModule implements HTTPClientModule
      */
     public static void discardAllCookies(Object context)
     {
-	if (context != null)
-	    cookie_cntxt_list.remove(context);
+    if (context != null)
+        cookie_cntxt_list.remove(context);
     }
 
 
@@ -516,26 +516,26 @@ public class CookieModule implements HTTPClientModule
      */
     public static Cookie[] listAllCookies()
     {
-	synchronized (cookie_cntxt_list)
-	{
-	    Cookie[] cookies = new Cookie[0];
-	    int idx = 0;
+    synchronized (cookie_cntxt_list)
+    {
+        Cookie[] cookies = new Cookie[0];
+        int idx = 0;
 
-	    Enumeration cntxt_list = cookie_cntxt_list.elements();
-	    while (cntxt_list.hasMoreElements())
-	    {
-		Hashtable cntxt = (Hashtable) cntxt_list.nextElement();
-		synchronized (cntxt)
-		{
-		    cookies = Util.resizeArray(cookies, idx+cntxt.size());
-		    Enumeration cookie_list = cntxt.elements();
-		    while (cookie_list.hasMoreElements())
-			cookies[idx++] = (Cookie) cookie_list.nextElement();
-		}
-	    }
+        Enumeration cntxt_list = cookie_cntxt_list.elements();
+        while (cntxt_list.hasMoreElements())
+        {
+        Hashtable cntxt = (Hashtable) cntxt_list.nextElement();
+        synchronized (cntxt)
+        {
+            cookies = Util.resizeArray(cookies, idx+cntxt.size());
+            Enumeration cookie_list = cntxt.elements();
+            while (cookie_list.hasMoreElements())
+            cookies[idx++] = (Cookie) cookie_list.nextElement();
+        }
+        }
 
-	    return cookies;
-	}
+        return cookies;
+    }
     }
 
 
@@ -548,19 +548,19 @@ public class CookieModule implements HTTPClientModule
      */
     public static Cookie[] listAllCookies(Object context)
     {
-	Hashtable cookie_list = Util.getList(cookie_cntxt_list, context);
+    Hashtable cookie_list = Util.getList(cookie_cntxt_list, context);
 
-	synchronized (cookie_list)
-	{
-	    Cookie[] cookies = new Cookie[cookie_list.size()];
-	    int idx = 0;
+    synchronized (cookie_list)
+    {
+        Cookie[] cookies = new Cookie[cookie_list.size()];
+        int idx = 0;
 
-	    Enumeration enum = cookie_list.elements();
-	    while (enum.hasMoreElements())
-		cookies[idx++] = (Cookie) enum.nextElement();
+        Enumeration enum = cookie_list.elements();
+        while (enum.hasMoreElements())
+        cookies[idx++] = (Cookie) enum.nextElement();
 
-	    return cookies;
-	}
+        return cookies;
+    }
     }
 
 
@@ -574,9 +574,9 @@ public class CookieModule implements HTTPClientModule
      */
     public static void addCookie(Cookie cookie)
     {
-	Hashtable cookie_list =
-	    Util.getList(cookie_cntxt_list, HTTPConnection.getDefaultContext());
-	cookie_list.put(cookie, cookie);
+    Hashtable cookie_list =
+        Util.getList(cookie_cntxt_list, HTTPConnection.getDefaultContext());
+    cookie_list.put(cookie, cookie);
     }
 
 
@@ -592,8 +592,8 @@ public class CookieModule implements HTTPClientModule
      */
     public static void addCookie(Cookie cookie, Object context)
     {
-	Hashtable cookie_list = Util.getList(cookie_cntxt_list, context);
-	cookie_list.put(cookie, cookie);
+    Hashtable cookie_list = Util.getList(cookie_cntxt_list, context);
+    cookie_list.put(cookie, cookie);
     }
 
 
@@ -607,9 +607,9 @@ public class CookieModule implements HTTPClientModule
      */
     public static void removeCookie(Cookie cookie)
     {
-	Hashtable cookie_list =
-	    Util.getList(cookie_cntxt_list, HTTPConnection.getDefaultContext());
-	cookie_list.remove(cookie);
+    Hashtable cookie_list =
+        Util.getList(cookie_cntxt_list, HTTPConnection.getDefaultContext());
+    cookie_list.remove(cookie);
     }
 
 
@@ -624,8 +624,8 @@ public class CookieModule implements HTTPClientModule
      */
     public static void removeCookie(Cookie cookie, Object context)
     {
-	Hashtable cookie_list = Util.getList(cookie_cntxt_list, context);
-	cookie_list.remove(cookie);
+    Hashtable cookie_list = Util.getList(cookie_cntxt_list, context);
+    cookie_list.remove(cookie);
     }
 
 
@@ -672,11 +672,11 @@ public class CookieModule implements HTTPClientModule
      * @return the previous policy handler
      */
     public static synchronized CookiePolicyHandler
-			    setCookiePolicyHandler(CookiePolicyHandler handler)
+                setCookiePolicyHandler(CookiePolicyHandler handler)
     {
-	CookiePolicyHandler old = cookie_handler;
-	cookie_handler = handler;
-	return old;
+    CookiePolicyHandler old = cookie_handler;
+    cookie_handler = handler;
+    return old;
     }
 }
 
@@ -698,24 +698,24 @@ class DefaultCookiePolicyHandler implements CookiePolicyHandler
 
     DefaultCookiePolicyHandler()
     {
-	// have all cookies been accepted or rejected?
-	String list;
+    // have all cookies been accepted or rejected?
+    String list;
 
-	try
-	    { list = System.getProperty("HTTPClient.cookies.hosts.accept"); }
-	catch (Exception e)
-	    { list = null; }
-	String[] domains = Util.splitProperty(list);
-	for (int idx=0; idx<domains.length; idx++)
-	    addAcceptDomain(domains[idx].toLowerCase());
+    try
+        { list = System.getProperty("HTTPClient.cookies.hosts.accept"); }
+    catch (Exception e)
+        { list = null; }
+    String[] domains = Util.splitProperty(list);
+    for (int idx=0; idx<domains.length; idx++)
+        addAcceptDomain(domains[idx].toLowerCase());
 
-	try
-	    { list = System.getProperty("HTTPClient.cookies.hosts.reject"); }
-	catch (Exception e)
-	    { list = null; }
-	domains = Util.splitProperty(list);
-	for (int idx=0; idx<domains.length; idx++)
-	    addRejectDomain(domains[idx].toLowerCase());
+    try
+        { list = System.getProperty("HTTPClient.cookies.hosts.reject"); }
+    catch (Exception e)
+        { list = null; }
+    domains = Util.splitProperty(list);
+    for (int idx=0; idx<domains.length; idx++)
+        addRejectDomain(domains[idx].toLowerCase());
     }
 
 
@@ -731,41 +731,41 @@ class DefaultCookiePolicyHandler implements CookiePolicyHandler
      */
     public boolean acceptCookie(Cookie cookie, RoRequest req, RoResponse resp)
     {
-	String server = req.getConnection().getHost();
-	if (server.indexOf('.') == -1)  server += ".local";
+    String server = req.getConnection().getHost();
+    if (server.indexOf('.') == -1)  server += ".local";
 
 
-	// Check lists. Reject takes priority over accept
+    // Check lists. Reject takes priority over accept
 
-	for (int idx=0; idx<reject_domains.length; idx++)
-	{
-	    if (reject_domains[idx].length() == 0  ||
-		reject_domains[idx].charAt(0) == '.'  &&
-		server.endsWith(reject_domains[idx])  ||
-		reject_domains[idx].charAt(0) != '.'  &&
-		server.equals(reject_domains[idx]))
-		    return false;
-	}
+    for (int idx=0; idx<reject_domains.length; idx++)
+    {
+        if (reject_domains[idx].length() == 0  ||
+        reject_domains[idx].charAt(0) == '.'  &&
+        server.endsWith(reject_domains[idx])  ||
+        reject_domains[idx].charAt(0) != '.'  &&
+        server.equals(reject_domains[idx]))
+            return false;
+    }
 
-	for (int idx=0; idx<accept_domains.length; idx++)
-	{
-	    if (accept_domains[idx].length() == 0  ||
-		accept_domains[idx].charAt(0) == '.'  &&
-		server.endsWith(accept_domains[idx])  ||
-		accept_domains[idx].charAt(0) != '.'  &&
-		server.equals(accept_domains[idx]))
-		    return true;
-	}
+    for (int idx=0; idx<accept_domains.length; idx++)
+    {
+        if (accept_domains[idx].length() == 0  ||
+        accept_domains[idx].charAt(0) == '.'  &&
+        server.endsWith(accept_domains[idx])  ||
+        accept_domains[idx].charAt(0) != '.'  &&
+        server.equals(accept_domains[idx]))
+            return true;
+    }
 
 
-	// Ok, not in any list, so ask the user (if allowed).
+    // Ok, not in any list, so ask the user (if allowed).
 
-	if (!req.allowUI())  return true;
+    if (!req.allowUI())  return true;
 
-	if (popup == null)
-	    popup = new BasicCookieBox();
+    if (popup == null)
+        popup = new BasicCookieBox();
 
-	return popup.accept(cookie, this, server);
+    return popup.accept(cookie, this, server);
     }
 
 
@@ -777,49 +777,49 @@ class DefaultCookiePolicyHandler implements CookiePolicyHandler
      */
     public boolean sendCookie(Cookie cookie, RoRequest req)
     {
-	return true;
+    return true;
     }
 
 
     void addAcceptDomain(String domain)
     {
-	if (domain.indexOf('.') == -1  &&  domain.length() > 0)
-	    domain += ".local";
+    if (domain.indexOf('.') == -1  &&  domain.length() > 0)
+        domain += ".local";
 
-	for (int idx=0; idx<accept_domains.length; idx++)
-	{
-	    if (domain.endsWith(accept_domains[idx]))
-		return;
-	    if (accept_domains[idx].endsWith(domain))
-	    {
-		accept_domains[idx] = domain;
-		return;
-	    }
-	}
-	accept_domains =
-		    Util.resizeArray(accept_domains, accept_domains.length+1);
-	accept_domains[accept_domains.length-1] = domain;
+    for (int idx=0; idx<accept_domains.length; idx++)
+    {
+        if (domain.endsWith(accept_domains[idx]))
+        return;
+        if (accept_domains[idx].endsWith(domain))
+        {
+        accept_domains[idx] = domain;
+        return;
+        }
+    }
+    accept_domains =
+            Util.resizeArray(accept_domains, accept_domains.length+1);
+    accept_domains[accept_domains.length-1] = domain;
     }
 
     void addRejectDomain(String domain)
     {
-	if (domain.indexOf('.') == -1  &&  domain.length() > 0)
-	    domain += ".local";
+    if (domain.indexOf('.') == -1  &&  domain.length() > 0)
+        domain += ".local";
 
-	for (int idx=0; idx<reject_domains.length; idx++)
-	{
-	    if (domain.endsWith(reject_domains[idx]))
-		return;
-	    if (reject_domains[idx].endsWith(domain))
-	    {
-		reject_domains[idx] = domain;
-		return;
-	    }
-	}
+    for (int idx=0; idx<reject_domains.length; idx++)
+    {
+        if (domain.endsWith(reject_domains[idx]))
+        return;
+        if (reject_domains[idx].endsWith(domain))
+        {
+        reject_domains[idx] = domain;
+        return;
+        }
+    }
 
-	reject_domains =
-		    Util.resizeArray(reject_domains, reject_domains.length+1);
-	reject_domains[reject_domains.length-1] = domain;
+    reject_domains =
+            Util.resizeArray(reject_domains, reject_domains.length+1);
+    reject_domains[reject_domains.length-1] = domain;
     }
 }
 
@@ -828,29 +828,29 @@ class DefaultCookiePolicyHandler implements CookiePolicyHandler
  * A simple popup that asks whether the cookie should be accepted or rejected,
  * or if cookies from whole domains should be silently accepted or rejected.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
  */
 class BasicCookieBox extends Frame
 {
     private final static String title = "Set Cookie Request";
     private Dimension           screen;
     private GridBagConstraints  constr;
-    private Label		name_value_label;
-    private Label		domain_value;
-    private Label		ports_label;
-    private Label		ports_value;
-    private Label		path_value;
-    private Label		expires_value;
-    private Label		discard_note;
-    private Label		secure_note;
-    private Label		c_url_note;
-    private Panel		left_panel;
-    private Panel		right_panel;
-    private Label   		comment_label;
-    private TextArea		comment_value;
-    private TextField		domain;
-    private Button		default_focus;
+    private Label        name_value_label;
+    private Label        domain_value;
+    private Label        ports_label;
+    private Label        ports_value;
+    private Label        path_value;
+    private Label        expires_value;
+    private Label        discard_note;
+    private Label        secure_note;
+    private Label        c_url_note;
+    private Panel        left_panel;
+    private Panel        right_panel;
+    private Label           comment_label;
+    private TextArea        comment_value;
+    private TextField        domain;
+    private Button        default_focus;
     private boolean             accept;
     private boolean             accept_domain;
 
@@ -860,98 +860,98 @@ class BasicCookieBox extends Frame
      */
     BasicCookieBox()
     {
-	super(title);
+    super(title);
 
-	screen = getToolkit().getScreenSize();
+    screen = getToolkit().getScreenSize();
 
-	addNotify();
-	addWindowListener(new Close());
+    addNotify();
+    addWindowListener(new Close());
 
-	GridBagLayout layout;
-	setLayout(layout = new GridBagLayout());
-	constr = new GridBagConstraints();
+    GridBagLayout layout;
+    setLayout(layout = new GridBagLayout());
+    constr = new GridBagConstraints();
 
-	constr.gridwidth = GridBagConstraints.REMAINDER;
-	constr.anchor = GridBagConstraints.WEST;
-	add(new Label("The server would like to set the following cookie:"), constr);
+    constr.gridwidth = GridBagConstraints.REMAINDER;
+    constr.anchor = GridBagConstraints.WEST;
+    add(new Label("The server would like to set the following cookie:"), constr);
 
-	Panel p = new Panel();
-	left_panel = new Panel();
-	left_panel.setLayout(new GridLayout(4,1));
-	left_panel.add(new Label("Name=Value:"));
-	left_panel.add(new Label("Domain:"));
-	left_panel.add(new Label("Path:"));
-	left_panel.add(new Label("Expires:"));
-	ports_label = new Label("Ports:");
-	p.add(left_panel);
+    Panel p = new Panel();
+    left_panel = new Panel();
+    left_panel.setLayout(new GridLayout(4,1));
+    left_panel.add(new Label("Name=Value:"));
+    left_panel.add(new Label("Domain:"));
+    left_panel.add(new Label("Path:"));
+    left_panel.add(new Label("Expires:"));
+    ports_label = new Label("Ports:");
+    p.add(left_panel);
 
-	right_panel = new Panel();
-	right_panel.setLayout(new GridLayout(4,1));
-	right_panel.add(name_value_label = new Label());
-	right_panel.add(domain_value = new Label());
-	right_panel.add(path_value = new Label());
-	right_panel.add(expires_value = new Label());
-	ports_value = new Label();
-	p.add(right_panel);
-	add(p, constr);
-	secure_note = new Label("This cookie will only be sent over secure connections");
-	discard_note = new Label("This cookie will be discarded at the end of the session");
-	c_url_note = new Label("");
-	comment_label = new Label("Comment:");
-	comment_value =
-		new TextArea("", 3, 45, TextArea.SCROLLBARS_VERTICAL_ONLY);
-	comment_value.setEditable(false);
+    right_panel = new Panel();
+    right_panel.setLayout(new GridLayout(4,1));
+    right_panel.add(name_value_label = new Label());
+    right_panel.add(domain_value = new Label());
+    right_panel.add(path_value = new Label());
+    right_panel.add(expires_value = new Label());
+    ports_value = new Label();
+    p.add(right_panel);
+    add(p, constr);
+    secure_note = new Label("This cookie will only be sent over secure connections");
+    discard_note = new Label("This cookie will be discarded at the end of the session");
+    c_url_note = new Label("");
+    comment_label = new Label("Comment:");
+    comment_value =
+        new TextArea("", 3, 45, TextArea.SCROLLBARS_VERTICAL_ONLY);
+    comment_value.setEditable(false);
 
-	add(new Panel(), constr);
+    add(new Panel(), constr);
 
-	constr.gridwidth = 1;
-	constr.anchor = GridBagConstraints.CENTER;
-	constr.weightx = 1.0;
-	add(default_focus = new Button("Accept"), constr);
-	default_focus.addActionListener(new Accept());
+    constr.gridwidth = 1;
+    constr.anchor = GridBagConstraints.CENTER;
+    constr.weightx = 1.0;
+    add(default_focus = new Button("Accept"), constr);
+    default_focus.addActionListener(new Accept());
 
-	Button b;
-	constr.gridwidth = GridBagConstraints.REMAINDER;
-	add(b= new Button("Reject"), constr);
-	b.addActionListener(new Reject());
+    Button b;
+    constr.gridwidth = GridBagConstraints.REMAINDER;
+    add(b= new Button("Reject"), constr);
+    b.addActionListener(new Reject());
 
-	constr.weightx = 0.0;
-	p = new Separator();
-	constr.fill = GridBagConstraints.HORIZONTAL;
-	add(p, constr);
+    constr.weightx = 0.0;
+    p = new Separator();
+    constr.fill = GridBagConstraints.HORIZONTAL;
+    add(p, constr);
 
-	constr.fill   = GridBagConstraints.NONE;
-	constr.anchor = GridBagConstraints.WEST;
-	add(new Label("Accept/Reject all cookies from a host or domain:"), constr);
+    constr.fill   = GridBagConstraints.NONE;
+    constr.anchor = GridBagConstraints.WEST;
+    add(new Label("Accept/Reject all cookies from a host or domain:"), constr);
 
-	p = new Panel();
-	p.add(new Label("Host/Domain:"));
-	p.add(domain = new TextField(30));
-	add(p, constr);
+    p = new Panel();
+    p.add(new Label("Host/Domain:"));
+    p.add(domain = new TextField(30));
+    add(p, constr);
 
-	add(new Label("domains are characterized by a leading dot (`.');"), constr);
-	add(new Label("an empty string matches all hosts"), constr);
+    add(new Label("domains are characterized by a leading dot (`.');"), constr);
+    add(new Label("an empty string matches all hosts"), constr);
 
-	constr.anchor    = GridBagConstraints.CENTER;
-	constr.gridwidth = 1;
-	constr.weightx   = 1.0;
-	add(b = new Button("Accept All"), constr);
-	b.addActionListener(new AcceptDomain());
+    constr.anchor    = GridBagConstraints.CENTER;
+    constr.gridwidth = 1;
+    constr.weightx   = 1.0;
+    add(b = new Button("Accept All"), constr);
+    b.addActionListener(new AcceptDomain());
 
-	constr.gridwidth = GridBagConstraints.REMAINDER;
-	add(b = new Button("Reject All"), constr);
-	b.addActionListener(new RejectDomain());
+    constr.gridwidth = GridBagConstraints.REMAINDER;
+    add(b = new Button("Reject All"), constr);
+    b.addActionListener(new RejectDomain());
 
-	pack();
+    pack();
 
-	constr.anchor    = GridBagConstraints.WEST;
-	constr.gridwidth = GridBagConstraints.REMAINDER;
+    constr.anchor    = GridBagConstraints.WEST;
+    constr.gridwidth = GridBagConstraints.REMAINDER;
     }
 
 
     public Dimension getMaximumSize()
     {
-	return new Dimension(screen.width*3/4, screen.height*3/4);
+    return new Dimension(screen.width*3/4, screen.height*3/4);
     }
 
 
@@ -962,53 +962,53 @@ class BasicCookieBox extends Frame
     {
         public void actionPerformed(ActionEvent ae)
         {
-	    accept = true;
-	    accept_domain = false;
+        accept = true;
+        accept_domain = false;
             synchronized (BasicCookieBox.this)
-		{ BasicCookieBox.this.notifyAll(); }
+        { BasicCookieBox.this.notifyAll(); }
         }
     }
 
     private class Reject implements ActionListener
     {
         public void actionPerformed(ActionEvent ae)
-	{
-	    accept = false;
-	    accept_domain = false;
+    {
+        accept = false;
+        accept_domain = false;
             synchronized (BasicCookieBox.this)
-		{ BasicCookieBox.this.notifyAll(); }
-	}
+        { BasicCookieBox.this.notifyAll(); }
+    }
     }
 
     private class AcceptDomain implements ActionListener
     {
         public void actionPerformed(ActionEvent ae)
         {
-	    accept = true;
-	    accept_domain = true;
+        accept = true;
+        accept_domain = true;
             synchronized (BasicCookieBox.this)
-		{ BasicCookieBox.this.notifyAll(); }
-	}
+        { BasicCookieBox.this.notifyAll(); }
+    }
     }
 
     private class RejectDomain implements ActionListener
     {
         public void actionPerformed(ActionEvent ae)
-	{
-	    accept = false;
-	    accept_domain = true;
+    {
+        accept = false;
+        accept_domain = true;
             synchronized (BasicCookieBox.this)
-		{ BasicCookieBox.this.notifyAll(); }
-	}
+        { BasicCookieBox.this.notifyAll(); }
+    }
     }
 
 
     private class Close extends WindowAdapter
     {
-	public void windowClosing(WindowEvent we)
-	{
-	    new Reject().actionPerformed(null);
-	}
+    public void windowClosing(WindowEvent we)
+    {
+        new Reject().actionPerformed(null);
+    }
     }
 
 
@@ -1018,129 +1018,129 @@ class BasicCookieBox extends Frame
      * @return true if the cookie should be accepted
      */
     public synchronized boolean accept(Cookie cookie,
-				       DefaultCookiePolicyHandler h,
-				       String server)
+                       DefaultCookiePolicyHandler h,
+                       String server)
     {
-	// set the new values
+    // set the new values
 
-	name_value_label.setText(cookie.getName() + "=" + cookie.getValue());
-	domain_value.setText(cookie.getDomain());
-	path_value.setText(cookie.getPath());
-	if (cookie.expires() == null)
-	    expires_value.setText("never");
-	else
-	    expires_value.setText(cookie.expires().toString());
-	int pos = 2;
-	if (cookie.isSecure())
-	    add(secure_note, constr, pos++);
-	if (cookie.discard())
-	    add(discard_note, constr, pos++);
+    name_value_label.setText(cookie.getName() + "=" + cookie.getValue());
+    domain_value.setText(cookie.getDomain());
+    path_value.setText(cookie.getPath());
+    if (cookie.expires() == null)
+        expires_value.setText("never");
+    else
+        expires_value.setText(cookie.expires().toString());
+    int pos = 2;
+    if (cookie.isSecure())
+        add(secure_note, constr, pos++);
+    if (cookie.discard())
+        add(discard_note, constr, pos++);
 
-	if (cookie instanceof Cookie2)
-	{
-	    Cookie2 cookie2 = (Cookie2) cookie;
+    if (cookie instanceof Cookie2)
+    {
+        Cookie2 cookie2 = (Cookie2) cookie;
 
-	    // set ports list
-	    if (cookie2.getPorts() != null)
-	    {
-		((GridLayout) left_panel.getLayout()).setRows(5);
-		left_panel.add(ports_label, 2);
-		((GridLayout) right_panel.getLayout()).setRows(5);
-		int[] ports = cookie2.getPorts();
-		StringBuffer plist = new StringBuffer();
-		plist.append(ports[0]);
-		for (int idx=1; idx<ports.length; idx++)
-		{
-		    plist.append(", ");
-		    plist.append(ports[idx]);
-		}
-		ports_value.setText(plist.toString());
-		right_panel.add(ports_value, 2);
-	    }
+        // set ports list
+        if (cookie2.getPorts() != null)
+        {
+        ((GridLayout) left_panel.getLayout()).setRows(5);
+        left_panel.add(ports_label, 2);
+        ((GridLayout) right_panel.getLayout()).setRows(5);
+        int[] ports = cookie2.getPorts();
+        StringBuffer plist = new StringBuffer();
+        plist.append(ports[0]);
+        for (int idx=1; idx<ports.length; idx++)
+        {
+            plist.append(", ");
+            plist.append(ports[idx]);
+        }
+        ports_value.setText(plist.toString());
+        right_panel.add(ports_value, 2);
+        }
 
-	    // set comment url
-	    if (cookie2.getCommentURL() != null)
-	    {
-		c_url_note.setText("For more info on this cookie see: " +
-				    cookie2.getCommentURL());
-		add(c_url_note, constr, pos++);
-	    }
+        // set comment url
+        if (cookie2.getCommentURL() != null)
+        {
+        c_url_note.setText("For more info on this cookie see: " +
+                    cookie2.getCommentURL());
+        add(c_url_note, constr, pos++);
+        }
 
-	    // set comment
-	    if (cookie2.getComment() != null)
-	    {
-		comment_value.setText(cookie2.getComment());
-		add(comment_label, constr, pos++);
-		add(comment_value, constr, pos++);
-	    }
-	}
-
-
-	// invalidate all labels, so that new values are displayed correctly
-
-	name_value_label.invalidate();
-	domain_value.invalidate();
-	ports_value.invalidate();
-	path_value.invalidate();
-	expires_value.invalidate();
-	left_panel.invalidate();
-	right_panel.invalidate();
-	secure_note.invalidate();
-	discard_note.invalidate();
-	c_url_note.invalidate();
-	comment_value.invalidate();
-	invalidate();
+        // set comment
+        if (cookie2.getComment() != null)
+        {
+        comment_value.setText(cookie2.getComment());
+        add(comment_label, constr, pos++);
+        add(comment_value, constr, pos++);
+        }
+    }
 
 
-	// set default domain test
+    // invalidate all labels, so that new values are displayed correctly
 
-	domain.setText(cookie.getDomain());
-
-
-	// display
-
-	setResizable(true);
-	pack();
-	setResizable(false);
-	setLocation((screen.width-getPreferredSize().width)/2,
-		    (int) ((screen.height-getPreferredSize().height)/2*.7));
-	setVisible(true);
-	default_focus.requestFocus();
-
-
-	// wait for user input
-
-	try { wait(); } catch (InterruptedException e) { }
-
-	setVisible(false);
+    name_value_label.invalidate();
+    domain_value.invalidate();
+    ports_value.invalidate();
+    path_value.invalidate();
+    expires_value.invalidate();
+    left_panel.invalidate();
+    right_panel.invalidate();
+    secure_note.invalidate();
+    discard_note.invalidate();
+    c_url_note.invalidate();
+    comment_value.invalidate();
+    invalidate();
 
 
-	// reset popup
+    // set default domain test
 
-	remove(secure_note);
-	remove(discard_note);
-	left_panel.remove(ports_label);
-	((GridLayout) left_panel.getLayout()).setRows(4);
-	right_panel.remove(ports_value);
-	((GridLayout) right_panel.getLayout()).setRows(4);
-	remove(c_url_note);
-	remove(comment_label);
-	remove(comment_value);
+    domain.setText(cookie.getDomain());
 
 
-	// handle accept/reject domain buttons
+    // display
 
-	if (accept_domain)
-	{
-	    String dom = domain.getText().trim().toLowerCase();
+    setResizable(true);
+    pack();
+    setResizable(false);
+    setLocation((screen.width-getPreferredSize().width)/2,
+            (int) ((screen.height-getPreferredSize().height)/2*.7));
+    setVisible(true);
+    default_focus.requestFocus();
 
-	    if (accept)
-		h.addAcceptDomain(dom);
-	    else
-		h.addRejectDomain(dom);
-	}
 
-	return accept;
+    // wait for user input
+
+    try { wait(); } catch (InterruptedException e) { }
+
+    setVisible(false);
+
+
+    // reset popup
+
+    remove(secure_note);
+    remove(discard_note);
+    left_panel.remove(ports_label);
+    ((GridLayout) left_panel.getLayout()).setRows(4);
+    right_panel.remove(ports_value);
+    ((GridLayout) right_panel.getLayout()).setRows(4);
+    remove(c_url_note);
+    remove(comment_label);
+    remove(comment_value);
+
+
+    // handle accept/reject domain buttons
+
+    if (accept_domain)
+    {
+        String dom = domain.getText().trim().toLowerCase();
+
+        if (accept)
+        h.addAcceptDomain(dom);
+        else
+        h.addRejectDomain(dom);
+    }
+
+    return accept;
     }
 }
 
@@ -1152,17 +1152,17 @@ class Separator extends Panel
 {
     public void paint(Graphics g)
     {
-	int w = getSize().width,
-	    h = getSize().height/2;
+    int w = getSize().width,
+        h = getSize().height/2;
 
-	g.setColor(Color.darkGray);
-	g.drawLine(2, h-1, w-2, h-1);
-	g.setColor(Color.white);
-	g.drawLine(2, h, w-2, h);
+    g.setColor(Color.darkGray);
+    g.drawLine(2, h-1, w-2, h-1);
+    g.setColor(Color.white);
+    g.drawLine(2, h, w-2, h);
     }
 
     public Dimension getMinimumSize()
     {
-	return new Dimension(4, 2);
+    return new Dimension(4, 2);
     }
 }

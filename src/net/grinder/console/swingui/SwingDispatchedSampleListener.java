@@ -43,14 +43,14 @@ class SwingDispatchedSampleListener implements SampleListener {
   }
 
   public void update(final TestStatistics intervalStatistics,
-		     final TestStatistics cumulativeStatistics) {
+             final TestStatistics cumulativeStatistics) {
 
     SwingUtilities.invokeLater(
       new Runnable() {
-	public void run() {
-	  m_delegate.update(intervalStatistics,
-			    cumulativeStatistics);
-	}
+    public void run() {
+      m_delegate.update(intervalStatistics,
+                cumulativeStatistics);
+    }
       }
       );
   }

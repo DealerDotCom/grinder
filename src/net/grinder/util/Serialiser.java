@@ -81,13 +81,13 @@ public class Serialiser {
       input.readFully(m_byteBuffer, 1, 7);
 
       return -(((long)(m_byteBuffer[0] & 0xFF) << 56) |
-	       ((long)(m_byteBuffer[1] & 0xFF) << 48) |
-	       ((long)(m_byteBuffer[2] & 0xFF) << 40) |
-	       ((long)(m_byteBuffer[3] & 0xFF) << 32) |
-	       ((long)(m_byteBuffer[4] & 0xFF) << 24) |
-	       ((long)(m_byteBuffer[5] & 0xFF) << 16) |
-	       ((long)(m_byteBuffer[6] & 0xFF) << 8) |
-	       ((long)(m_byteBuffer[7] & 0xFF)));
+           ((long)(m_byteBuffer[1] & 0xFF) << 48) |
+           ((long)(m_byteBuffer[2] & 0xFF) << 40) |
+           ((long)(m_byteBuffer[3] & 0xFF) << 32) |
+           ((long)(m_byteBuffer[4] & 0xFF) << 24) |
+           ((long)(m_byteBuffer[5] & 0xFF) << 16) |
+           ((long)(m_byteBuffer[6] & 0xFF) << 8) |
+           ((long)(m_byteBuffer[7] & 0xFF)));
     }
   }
 
@@ -112,23 +112,23 @@ public class Serialiser {
       final byte b = (byte)((l >>> i * 8) & 0xFF);
 
       if (startedToWrite) {
-	output.writeByte(b);
+    output.writeByte(b);
       }
       else {
-	if ((b & 0xFF) != 0) {
-	  if ((b & 0xF0) != 0) {
-	    // Write length.
-	    output.writeByte((i + 1) << 4);
-	    output.writeByte(b);
-	  }
-	  else {
-	    // Special case, byte will fit in one nibble.
-	    // Combine with length.
-	    output.writeByte(b | (i << 4));
-	  }
+    if ((b & 0xFF) != 0) {
+      if ((b & 0xF0) != 0) {
+        // Write length.
+        output.writeByte((i + 1) << 4);
+        output.writeByte(b);
+      }
+      else {
+        // Special case, byte will fit in one nibble.
+        // Combine with length.
+        output.writeByte(b | (i << 4));
+      }
 
-	  startedToWrite = true;
-	}
+      startedToWrite = true;
+    }
       }
     }
 

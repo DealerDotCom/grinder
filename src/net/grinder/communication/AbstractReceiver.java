@@ -78,13 +78,13 @@ abstract class AbstractReceiver implements Receiver {
 
     if (m_sequenceValues != null) {
       final SequenceValue sequenceValue =
-	(SequenceValue)m_sequenceValues.get(senderID);
+    (SequenceValue)m_sequenceValues.get(senderID);
 
       if (sequenceValue != null) {
-	sequenceValue.nextValue(sequenceNumber, message);
+    sequenceValue.nextValue(sequenceNumber, message);
       }
       else {
-	m_sequenceValues.put(senderID, new SequenceValue(sequenceNumber));
+    m_sequenceValues.put(senderID, new SequenceValue(sequenceNumber));
       }
     }
 
@@ -122,14 +122,14 @@ abstract class AbstractReceiver implements Receiver {
     public final void nextValue(long newValue, Message message)
       throws CommunicationException {
       if (newValue != ++m_value) {
-	final CommunicationException e = new CommunicationException(
-	  "Out of sequence message from Sender '" +
-	  message.getSenderGrinderID() + "' (received " + newValue +
-	  ", expected " + m_value + ")");
+    final CommunicationException e = new CommunicationException(
+      "Out of sequence message from Sender '" +
+      message.getSenderGrinderID() + "' (received " + newValue +
+      ", expected " + m_value + ")");
 
-	m_value = newValue;
+    m_value = newValue;
 
-	throw e;
+    throw e;
       }
     }
   }

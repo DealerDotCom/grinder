@@ -65,7 +65,7 @@ public class LauncherThread extends Thread {
 
     for (int i = 0; i < commandArray.length; ++i) {
       if (i != 0) {
-	buffer.append(" ");
+    buffer.append(" ");
       }
 
       buffer.append(commandArray[i]);
@@ -81,38 +81,38 @@ public class LauncherThread extends Thread {
   public void run() {
 
     System.out.println("Worker process (" + m_grinderID +
-		       ") started with command line: " +
-		       m_commandString);
+               ") started with command line: " +
+               m_commandString);
 
     try {
       final Process process = Runtime.getRuntime().exec(m_commandArray);
 
       try {
-	final BufferedReader outputReader =
-	  new BufferedReader(
-	    new InputStreamReader(process.getInputStream()));
+    final BufferedReader outputReader =
+      new BufferedReader(
+        new InputStreamReader(process.getInputStream()));
 
-	final BufferedReader errorReader =
-	  new BufferedReader(
-	    new InputStreamReader(process.getErrorStream()));
+    final BufferedReader errorReader =
+      new BufferedReader(
+        new InputStreamReader(process.getErrorStream()));
 
-	final Redirector r1 =
-	  new Redirector(new PrintWriter(System.out, true),
-			 outputReader);
+    final Redirector r1 =
+      new Redirector(new PrintWriter(System.out, true),
+             outputReader);
 
-	final Redirector r2 =
-	  new Redirector(new PrintWriter(System.err, true), errorReader);
+    final Redirector r2 =
+      new Redirector(new PrintWriter(System.err, true), errorReader);
 
-	final ProcessReaper reaper = ProcessReaper.getInstance();
-	reaper.add(process);
+    final ProcessReaper reaper = ProcessReaper.getInstance();
+    reaper.add(process);
 
-	process.waitFor();
-	m_exitStatus = process.exitValue();
+    process.waitFor();
+    m_exitStatus = process.exitValue();
 
-	reaper.remove(process);
+    reaper.remove(process);
       }
       finally {
-	process.destroy();
+    process.destroy();
       }
     }
     catch (Exception e) {

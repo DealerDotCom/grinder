@@ -1,5 +1,5 @@
 /*
- * @(#)FilenameMangler.java				0.3-3 06/05/2001
+ * @(#)FilenameMangler.java                0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -42,9 +42,9 @@ package HTTPClient;
  * order to control names of the decoded files or the names sent in the encoded
  * data.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.3-1
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
+ * @since    V0.3-1
  */
 public interface FilenameMangler
 {

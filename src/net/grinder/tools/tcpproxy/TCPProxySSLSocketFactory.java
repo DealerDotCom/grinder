@@ -109,8 +109,8 @@ public final class TCPProxySSLSocketFactory implements TCPProxySocketFactory {
     keyManagerFactory.init(keyStore, keyStorePassword);
 
     sslContext.init(keyManagerFactory.getKeyManagers(),
-		    new TrustManager[] { new TrustEveryone() },
-		    null);
+            new TrustManager[] { new TrustEveryone() },
+            null);
 
     m_clientSocketFactory = sslContext.getSocketFactory();
     m_serverSocketFactory = sslContext.getServerSocketFactory();
@@ -126,13 +126,13 @@ public final class TCPProxySSLSocketFactory implements TCPProxySocketFactory {
    * @exception IOException If an error occurs.
    */
   public final ServerSocket createServerSocket(String localHost,
-					       int localPort,
-					       int timeout)
+                           int localPort,
+                           int timeout)
     throws IOException {
 
     final SSLServerSocket socket =
       (SSLServerSocket)m_serverSocketFactory.createServerSocket(
-	localPort, 50, InetAddress.getByName(localHost));
+    localPort, 50, InetAddress.getByName(localHost));
 
     socket.setSoTimeout(timeout);
 

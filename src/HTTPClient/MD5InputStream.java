@@ -1,5 +1,5 @@
 /*
- * @(#)MD5InputStream.java				0.3-3 06/05/2001
+ * @(#)MD5InputStream.java                0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -44,8 +44,8 @@ import java.security.NoSuchAlgorithmException;
  * stream is closed the calculated digest is passed to a HashVerifier which
  * is expected to verify this digest and to throw an Exception if it fails.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
  */
 class MD5InputStream extends FilterInputStream
 {
@@ -61,51 +61,51 @@ class MD5InputStream extends FilterInputStream
      */
     public MD5InputStream(InputStream is, HashVerifier verifier)
     {
-	super(is);
-	this.verifier = verifier;
-	try
-	    { md5 = MessageDigest.getInstance("MD5"); }
-	catch (NoSuchAlgorithmException nsae)
-	    { throw new Error(nsae.toString()); }
+    super(is);
+    this.verifier = verifier;
+    try
+        { md5 = MessageDigest.getInstance("MD5"); }
+    catch (NoSuchAlgorithmException nsae)
+        { throw new Error(nsae.toString()); }
     }
 
 
     public synchronized int read() throws IOException
     {
-	int b = in.read();
-	if (b != -1)
-	    md5.update((byte) b);
-	else
-	    real_close();
+    int b = in.read();
+    if (b != -1)
+        md5.update((byte) b);
+    else
+        real_close();
 
-	rcvd++;
-	return b;
+    rcvd++;
+    return b;
     }
 
 
     public synchronized int read(byte[] buf, int off, int len)
-	    throws IOException
+        throws IOException
     {
-	int num = in.read(buf, off, len);
-	if (num > 0)
-	    md5.update(buf, off, num);
-	else
-	    real_close();
+    int num = in.read(buf, off, len);
+    if (num > 0)
+        md5.update(buf, off, num);
+    else
+        real_close();
 
-	rcvd += num;
-	return num;
+    rcvd += num;
+    return num;
     }
 
 
     public synchronized long skip(long num)  throws IOException
     {
-	byte[] tmp = new byte[(int) num];
-	int got = read(tmp, 0, (int) num);
+    byte[] tmp = new byte[(int) num];
+    int got = read(tmp, 0, (int) num);
 
-	if (got > 0)
-	    return (long) got;
-	else
-	    return 0L;
+    if (got > 0)
+        return (long) got;
+    else
+        return 0L;
     }
 
 
@@ -120,8 +120,8 @@ class MD5InputStream extends FilterInputStream
      */
     public synchronized void close()  throws IOException
     {
-	while (skip(10000) > 0) ;
-	real_close();
+    while (skip(10000) > 0) ;
+    real_close();
     }
 
 
@@ -134,10 +134,10 @@ class MD5InputStream extends FilterInputStream
      */
     private void real_close()  throws IOException
     {
-	if (closed)  return;
-	closed = true;
+    if (closed)  return;
+    closed = true;
 
-	in.close();
-	verifier.verifyHash(md5.digest(), rcvd);
+    in.close();
+    verifier.verifyHash(md5.digest(), rcvd);
     }
 }

@@ -58,9 +58,9 @@ public final class MulticastReceiver extends AbstractReceiver {
     }
     catch (IOException e) {
       throw new CommunicationException(
-	"Could not bind to multicast address '" +
-	multicastAddressString + ":" + multicastPort + "'",
-	e);
+    "Could not bind to multicast address '" +
+    multicastAddressString + ":" + multicastPort + "'",
+    e);
     }
 
     m_packet = new DatagramPacket(m_buffer, m_buffer.length);
@@ -78,37 +78,37 @@ public final class MulticastReceiver extends AbstractReceiver {
       final MessageQueue messageQueue = getMessageQueue();
 
       final ByteArrayInputStream byteStream =
-	new ByteArrayInputStream(m_buffer, 0, m_buffer.length);
+    new ByteArrayInputStream(m_buffer, 0, m_buffer.length);
 
       try {
-	while (true) {
-	  try {
-	    m_packet.setData(m_buffer, 0, m_buffer.length);
-	    m_socket.receive(m_packet);
+    while (true) {
+      try {
+        m_packet.setData(m_buffer, 0, m_buffer.length);
+        m_socket.receive(m_packet);
 
-	    byteStream.reset();
+        byteStream.reset();
 
-	    // ObjectInputStream does not support reset(),
-	    // we need a new one each time.
-	    final ObjectInputStream objectStream =
-	      new ObjectInputStream(byteStream);
+        // ObjectInputStream does not support reset(),
+        // we need a new one each time.
+        final ObjectInputStream objectStream =
+          new ObjectInputStream(byteStream);
 
-	    messageQueue.queue((Message)objectStream.readObject());
-	  }
-	  catch (ClassNotFoundException e) {
-	    // Propagate exceptions to threads calling
-	    // waitForMessage.
-	    messageQueue.queue(e);
-	  }
-	  catch (IOException e) {
-	    // Propagate exceptions to threads calling
-	    // waitForMessage.
-	    messageQueue.queue(e);
-	  }
-	}
+        messageQueue.queue((Message)objectStream.readObject());
+      }
+      catch (ClassNotFoundException e) {
+        // Propagate exceptions to threads calling
+        // waitForMessage.
+        messageQueue.queue(e);
+      }
+      catch (IOException e) {
+        // Propagate exceptions to threads calling
+        // waitForMessage.
+        messageQueue.queue(e);
+      }
+    }
       }
       catch (MessageQueue.ShutdownException e) {
-	// We've been shutdown, exit this thread.
+    // We've been shutdown, exit this thread.
       }
     }
   }

@@ -1,5 +1,5 @@
 /*
- * @(#)Log.java						0.3-3 06/05/2001
+ * @(#)Log.java                        0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -64,9 +64,9 @@ import java.util.TimeZone;
  * value of -1 would enable logging for all facilities. By default logging is
  * disabled.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.3-3
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
+ * @since    V0.3-3
  */
 public class Log
 {
@@ -99,37 +99,37 @@ public class Log
 
     static
     {
-	Calendar now = Calendar.getInstance();
-	TZ_OFF = TimeZone.getDefault().getOffset(now.get(Calendar.ERA),
-						 now.get(Calendar.YEAR),
-						 now.get(Calendar.MONTH),
-						 now.get(Calendar.DAY_OF_MONTH),
-						 now.get(Calendar.DAY_OF_WEEK),
-						 now.get(Calendar.MILLISECOND));
+    Calendar now = Calendar.getInstance();
+    TZ_OFF = TimeZone.getDefault().getOffset(now.get(Calendar.ERA),
+                         now.get(Calendar.YEAR),
+                         now.get(Calendar.MONTH),
+                         now.get(Calendar.DAY_OF_MONTH),
+                         now.get(Calendar.DAY_OF_WEEK),
+                         now.get(Calendar.MILLISECOND));
 
-	try
-	{
-	    String file = System.getProperty("HTTPClient.log.file");
-	    if (file != null)
-	    {
-		try 
-		    { setLogWriter(new FileWriter(file), true); }
-		catch (IOException ioe)
-		{
-		    System.err.println("failed to open file log stream `" +
-				       file + "': " + ioe);
-		}
-	    }
-	}
-	catch (Exception e)
-	    { }
+    try
+    {
+        String file = System.getProperty("HTTPClient.log.file");
+        if (file != null)
+        {
+        try 
+            { setLogWriter(new FileWriter(file), true); }
+        catch (IOException ioe)
+        {
+            System.err.println("failed to open file log stream `" +
+                       file + "': " + ioe);
+        }
+        }
+    }
+    catch (Exception e)
+        { }
 
-	try
-	{
-	    facMask = Integer.getInteger("HTTPClient.log.mask", 0).intValue();
-	}
-	catch (Exception e)
-	    { }
+    try
+    {
+        facMask = Integer.getInteger("HTTPClient.log.mask", 0).intValue();
+    }
+    catch (Exception e)
+        { }
     }
 
 
@@ -154,21 +154,21 @@ public class Log
      */
     public static void write(int facility, String msg)
     {
-	if ((facMask & facility) == 0)
-	    return;
+    if ((facMask & facility) == 0)
+        return;
 
-	try
-	{
-	    writePrefix();
-	    logWriter.write(msg);
-	    logWriter.write(NL);
-	    logWriter.flush();
-	}
-	catch (IOException ioe)
-	{
-	    System.err.println("Failed to write to log: " + ioe);
-	    System.err.println("Failed log Entry was: " + msg);
-	}
+    try
+    {
+        writePrefix();
+        logWriter.write(msg);
+        logWriter.write(NL);
+        logWriter.flush();
+    }
+    catch (IOException ioe)
+    {
+        System.err.println("Failed to write to log: " + ioe);
+        System.err.println("Failed log Entry was: " + msg);
+    }
     }
 
     /**
@@ -181,29 +181,29 @@ public class Log
      */
     public static void write(int facility, String prefix, Throwable t)
     {
-	if ((facMask & facility) == 0)
-	    return;
+    if ((facMask & facility) == 0)
+        return;
 
-	synchronized (Log.class)
-	{
-	    if (!(logWriter instanceof PrintWriter))
-		logWriter = new PrintWriter(logWriter);
-	}
+    synchronized (Log.class)
+    {
+        if (!(logWriter instanceof PrintWriter))
+        logWriter = new PrintWriter(logWriter);
+    }
 
-	try
-	{
-	    writePrefix();
-	    if (prefix != null)
-		logWriter.write(prefix);
-	    t.printStackTrace((PrintWriter) logWriter);
-	    logWriter.flush();
-	}
-	catch (IOException ioe)
-	{
-	    System.err.println("Failed to write to log: " + ioe);
-	    System.err.print("Failed log Entry was: " + prefix);
-	    t.printStackTrace(System.err);
-	}
+    try
+    {
+        writePrefix();
+        if (prefix != null)
+        logWriter.write(prefix);
+        t.printStackTrace((PrintWriter) logWriter);
+        logWriter.flush();
+    }
+    catch (IOException ioe)
+    {
+        System.err.println("Failed to write to log: " + ioe);
+        System.err.print("Failed log Entry was: " + prefix);
+        t.printStackTrace(System.err);
+    }
     }
 
     /**
@@ -217,24 +217,24 @@ public class Log
      */
     public static void write(int facility, String prefix, ByteArrayOutputStream buf)
     {
-	if ((facMask & facility) == 0)
-	    return;
+    if ((facMask & facility) == 0)
+        return;
 
-	try
-	{
-	    writePrefix();
-	    if (prefix != null)
-		logWriter.write(prefix);
-	    logWriter.write(NL);
-	    logWriter.write(new String(buf.toByteArray(), "ISO_8859-1"));
-	    logWriter.flush();
-	}
-	catch (IOException ioe)
-	{
-	    System.err.println("Failed to write to log: " + ioe);
-	    System.err.println("Failed log Entry was: " + prefix);
-	    System.err.println(new String(buf.toByteArray()));
-	}
+    try
+    {
+        writePrefix();
+        if (prefix != null)
+        logWriter.write(prefix);
+        logWriter.write(NL);
+        logWriter.write(new String(buf.toByteArray(), "ISO_8859-1"));
+        logWriter.flush();
+    }
+    catch (IOException ioe)
+    {
+        System.err.println("Failed to write to log: " + ioe);
+        System.err.println("Failed log Entry was: " + prefix);
+        System.err.println(new String(buf.toByteArray()));
+    }
     }
 
     /**
@@ -244,23 +244,23 @@ public class Log
      * </PRE>
      */
     private static final void writePrefix() throws IOException {
-	logWriter.write("{" + Thread.currentThread().getName() + "} ");
+    logWriter.write("{" + Thread.currentThread().getName() + "} ");
 
-	int mill  = (int) ((System.currentTimeMillis() + TZ_OFF) % (24 * 3600000));
-	int secs  = mill / 1000;
-	int mins  = secs / 60;
-	int hours = mins / 60;
-	logWriter.write("[" + fill2(hours) + ':' + fill2(mins - hours*60) +
-			':' + fill2(secs - mins * 60) + '.' +
-			fill3(mill - secs * 1000) + "] ");
+    int mill  = (int) ((System.currentTimeMillis() + TZ_OFF) % (24 * 3600000));
+    int secs  = mill / 1000;
+    int mins  = secs / 60;
+    int hours = mins / 60;
+    logWriter.write("[" + fill2(hours) + ':' + fill2(mins - hours*60) +
+            ':' + fill2(secs - mins * 60) + '.' +
+            fill3(mill - secs * 1000) + "] ");
     }
 
     private static final String fill2(int num) {
-	return ((num < 10) ? "0" : "") + num;
+    return ((num < 10) ? "0" : "") + num;
     }
 
     private static final String fill3(int num) {
-	return ((num < 10) ? "00" : (num < 100) ? "0" : "") + num;
+    return ((num < 10) ? "00" : (num < 100) ? "0" : "") + num;
     }
 
     /**
@@ -271,7 +271,7 @@ public class Log
      */
     public static boolean isEnabled(int facility)
     {
-	return ((facMask & facility) != 0);
+    return ((facMask & facility) != 0);
     }
 
     /**
@@ -285,10 +285,10 @@ public class Log
      */
     public static void setLogging(int facilities, boolean enable)
     {
-	if (enable)
-	    facMask |= facilities;
-	else
-	    facMask &= ~facilities;
+    if (enable)
+        facMask |= facilities;
+    else
+        facMask &= ~facilities;
     }
 
     /**
@@ -301,18 +301,18 @@ public class Log
      */
     public static void setLogWriter(Writer log, boolean closeWhenDone)
     {
-	if (log == null)
-	    return;
+    if (log == null)
+        return;
 
-	if (closeWriter)
-	{
-	  try
-	      { logWriter.close(); }
-	  catch (IOException ioe)
-	      { System.err.println("Error closing log stream: " + ioe); }
-	}
+    if (closeWriter)
+    {
+      try
+          { logWriter.close(); }
+      catch (IOException ioe)
+          { System.err.println("Error closing log stream: " + ioe); }
+    }
 
-	logWriter   = log;
-	closeWriter = closeWhenDone;
+    logWriter   = log;
+    closeWriter = closeWhenDone;
     }
 }

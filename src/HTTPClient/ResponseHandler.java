@@ -1,5 +1,5 @@
 /*
- * @(#)ResponseHandler.java				0.3-3 06/05/2001
+ * @(#)ResponseHandler.java                0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -38,9 +38,9 @@ import java.io.IOException;
  * This holds various information about an active response. Used by the
  * StreamDemultiplexor and RespInputStream.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.2
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
+ * @since    V0.2
  */
 final class ResponseHandler
 {
@@ -54,7 +54,7 @@ final class ResponseHandler
     Request             request;
 
     /** signals that the demux has closed the response stream, and that
-	therefore no more data can be read */
+    therefore no more data can be read */
     boolean             eof = false;
 
     /** this is non-null if the stream has an exception pending */
@@ -71,17 +71,17 @@ final class ResponseHandler
      */
     ResponseHandler(Response resp, Request request, StreamDemultiplexor demux)
     {
-	this.resp     = resp;
-	this.request  = request;
-	this.stream   = new RespInputStream(demux, this);
+    this.resp     = resp;
+    this.request  = request;
+    this.stream   = new RespInputStream(demux, this);
 
-	Log.write(Log.DEMUX, "Demux: Opening stream " + this.stream.hashCode() +
-			     " for demux (" + demux.hashCode() + ")");
+    Log.write(Log.DEMUX, "Demux: Opening stream " + this.stream.hashCode() +
+                 " for demux (" + demux.hashCode() + ")");
     }
 
 
     /** holds the string that marks the end of this stream; used for
-	multipart delimited responses. */
+    multipart delimited responses. */
     private byte[] endbndry = null;
 
     /** holds the compilation of the above string */
@@ -96,12 +96,12 @@ final class ResponseHandler
      * @return the boundary string.
      */
     byte[] getEndBoundary(BufferedInputStream MasterStream)
-		throws IOException, ParseException
+        throws IOException, ParseException
     {
-	if (endbndry == null)
-	    setupBoundary(MasterStream);
+    if (endbndry == null)
+        setupBoundary(MasterStream);
 
-	return endbndry;
+    return endbndry;
     }
 
     /**
@@ -113,12 +113,12 @@ final class ResponseHandler
      * @return the compiled boundary string.
      */
     int[] getEndCompiled(BufferedInputStream MasterStream)
-		throws IOException, ParseException
+        throws IOException, ParseException
     {
-	if (end_cmp == null)
-	    setupBoundary(MasterStream);
+    if (end_cmp == null)
+        setupBoundary(MasterStream);
 
-	return end_cmp;
+    return end_cmp;
     }
 
     /**
@@ -126,13 +126,13 @@ final class ResponseHandler
      * the buffered input stream.
      */
     void setupBoundary(BufferedInputStream MasterStream)
-		throws IOException, ParseException
+        throws IOException, ParseException
     {
-	String endstr = "--" + Util.getParameter("boundary",
-			    resp.getHeader("Content-Type")) +
-			"--\r\n";
-	endbndry = endstr.getBytes("8859_1");
-	end_cmp = Util.compile_search(endbndry);
-	MasterStream.markForSearch();
+    String endstr = "--" + Util.getParameter("boundary",
+                resp.getHeader("Content-Type")) +
+            "--\r\n";
+    endbndry = endstr.getBytes("8859_1");
+    end_cmp = Util.compile_search(endbndry);
+    MasterStream.markForSearch();
     }
 }

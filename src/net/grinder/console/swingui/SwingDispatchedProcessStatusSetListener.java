@@ -45,11 +45,11 @@ class SwingDispatchedProcessStatusSetListener
   }
 
   public void update(final ProcessStatus[] data, final int running,
-		     final int total) {
+             final int total) {
 
     SwingUtilities.invokeLater(
       new Runnable() {
-	public void run() { m_delegate.update(data, running, total); }
+    public void run() { m_delegate.update(data, running, total); }
       }
       );
   }

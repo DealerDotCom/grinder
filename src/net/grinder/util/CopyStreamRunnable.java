@@ -60,23 +60,23 @@ public class CopyStreamRunnable implements Runnable {
       short idle = 0;
 
       while (true) {
-	final int bytesRead = m_in.read(buffer, 0, buffer.length);
+    final int bytesRead = m_in.read(buffer, 0, buffer.length);
 
-	if (bytesRead ==  -1) {
-	  break;
-	}
+    if (bytesRead ==  -1) {
+      break;
+    }
 
-	if (bytesRead == 0) {
-	  idle++;
-	}
-	else {
-	  m_out.write(buffer, 0, bytesRead);
-	  idle = 0;
-	}
+    if (bytesRead == 0) {
+      idle++;
+    }
+    else {
+      m_out.write(buffer, 0, bytesRead);
+      idle = 0;
+    }
 
-	if (idle > 0) {
-	  Thread.sleep(Math.max(idle * 200, 2000));
-	}
+    if (idle > 0) {
+      Thread.sleep(Math.max(idle * 200, 2000));
+    }
       }
     }
     catch (IOException e) {

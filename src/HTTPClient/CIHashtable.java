@@ -1,5 +1,5 @@
 /*
- * @(#)CIHashtable.java					0.3-3 06/05/2001
+ * @(#)CIHashtable.java                    0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -38,8 +38,8 @@ import java.util.Enumeration;
 /**
  * This class implements a Hashtable with case-insensitive Strings as keys.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
  */
 class CIHashtable extends Hashtable
 {
@@ -55,7 +55,7 @@ class CIHashtable extends Hashtable
      */
     public CIHashtable(int initialCapacity, float loadFactor)
     {
-	super(initialCapacity, loadFactor);
+    super(initialCapacity, loadFactor);
     }
 
 
@@ -67,7 +67,7 @@ class CIHashtable extends Hashtable
      */
     public CIHashtable(int initialCapacity)
     {
-	super(initialCapacity);
+    super(initialCapacity);
     }
 
 
@@ -78,7 +78,7 @@ class CIHashtable extends Hashtable
      */
     public CIHashtable()
     {
-	super();
+    super();
     }
 
 
@@ -94,7 +94,7 @@ class CIHashtable extends Hashtable
      */
     public Object get(String key)
     {
-	return super.get(new CIString(key));
+    return super.get(new CIString(key));
     }
 
 
@@ -109,7 +109,7 @@ class CIHashtable extends Hashtable
      */
     public Object put(String key, Object value)
     {
-	return super.put(new CIString(key), value);
+    return super.put(new CIString(key), value);
     }
 
 
@@ -123,7 +123,7 @@ class CIHashtable extends Hashtable
      */
     public boolean containsKey(String key)
     {
-	return super.containsKey(new CIString(key));
+    return super.containsKey(new CIString(key));
     }
 
 
@@ -137,7 +137,7 @@ class CIHashtable extends Hashtable
      */
     public Object remove(String key)
     {
-	return super.remove(new CIString(key));
+    return super.remove(new CIString(key));
     }
 
 
@@ -149,7 +149,7 @@ class CIHashtable extends Hashtable
      */
     public Enumeration keys()
     {
-	return new CIHashtableEnumeration(super.keys());
+    return new CIHashtableEnumeration(super.keys());
     }
 }
 
@@ -165,21 +165,21 @@ final class CIHashtableEnumeration implements Enumeration
 
     public CIHashtableEnumeration(Enumeration enum)
     {
-	HTEnum = enum;
+    HTEnum = enum;
     }
 
     public boolean hasMoreElements()
     {
-	return HTEnum.hasMoreElements();
+    return HTEnum.hasMoreElements();
     }
 
     public Object nextElement()
     {
-	Object tmp = HTEnum.nextElement();
-	if (tmp instanceof CIString)
-	    return ((CIString) tmp).getString();
+    Object tmp = HTEnum.nextElement();
+    if (tmp instanceof CIString)
+        return ((CIString) tmp).getString();
 
-	return tmp;
+    return tmp;
     }
 }
 
@@ -204,20 +204,20 @@ final class CIString
     /** the constructor */
     public CIString(String string)
     {
-	this.string = string;
-	this.hash   = calcHashCode(string);
+    this.string = string;
+    this.hash   = calcHashCode(string);
     }
 
     /** return the original string */
     public final String getString()
     {
-	return string;
+    return string;
     }
 
     /** the hash code was precomputed */
     public int hashCode()
     {
-	return hash;
+    return hash;
     }
 
 
@@ -228,14 +228,14 @@ final class CIString
      */
     private static final int calcHashCode(String str)
     {
-	int  hash  = 0;
-	char llc[] = lc;
-	int  len   = str.length();
+    int  hash  = 0;
+    char llc[] = lc;
+    int  len   = str.length();
 
-	for (int idx= 0; idx<len; idx++)
-	    hash = 31*hash + llc[str.charAt(idx)];
+    for (int idx= 0; idx<len; idx++)
+        hash = 31*hash + llc[str.charAt(idx)];
 
-	return hash;
+    return hash;
     }
 
 
@@ -244,16 +244,16 @@ final class CIString
      */
     public boolean equals(Object obj)
     {
-	if (obj != null)
-	{
-	    if (obj instanceof CIString)
-		return string.equalsIgnoreCase(((CIString) obj).string);
+    if (obj != null)
+    {
+        if (obj instanceof CIString)
+        return string.equalsIgnoreCase(((CIString) obj).string);
 
-	    if (obj instanceof String)
-		return string.equalsIgnoreCase((String) obj);
-	}
+        if (obj instanceof String)
+        return string.equalsIgnoreCase((String) obj);
+    }
 
-	return false;
+    return false;
     }
 
     /**
@@ -261,7 +261,7 @@ final class CIString
      */
     public String toString()
     {
-	return string;
+    return string;
     }
 
 
@@ -269,8 +269,8 @@ final class CIString
 
     static
     {
-	// just ISO-8859-1
-	for (char idx=0; idx<256; idx++)
-	    lc[idx] = Character.toLowerCase(idx);
+    // just ISO-8859-1
+    for (char idx=0; idx<256; idx++)
+        lc[idx] = Character.toLowerCase(idx);
     }
 }

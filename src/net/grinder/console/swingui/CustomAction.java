@@ -50,7 +50,7 @@ abstract class CustomAction extends AbstractAction {
   }
 
   public CustomAction(Resources resources, String key,
-		      boolean isDialogAction) {
+              boolean isDialogAction) {
     super();
 
     m_key = key;
@@ -59,10 +59,10 @@ abstract class CustomAction extends AbstractAction {
 
     if (label != null) {
       if (isDialogAction) {
-	putValue(Action.NAME, label + "...");
+    putValue(Action.NAME, label + "...");
       }
       else {
-	putValue(Action.NAME, label);
+    putValue(Action.NAME, label);
       }
     }
 
@@ -93,18 +93,18 @@ abstract class CustomAction extends AbstractAction {
   public final void registerButton(final AbstractButton button) {
     if (!m_propertyChangeListenersByButton.contains(button)) {
       addPropertyChangeListener(
-	new PropertyChangeListener() {
-	  public void propertyChange(PropertyChangeEvent e) {
-	    if (e.getPropertyName().equals(SET_ACTION_PROPERTY)) {
+    new PropertyChangeListener() {
+      public void propertyChange(PropertyChangeEvent e) {
+        if (e.getPropertyName().equals(SET_ACTION_PROPERTY)) {
 
-	      final CustomAction newAction = (CustomAction)e.getNewValue();
+          final CustomAction newAction = (CustomAction)e.getNewValue();
 
-	      button.setAction(newAction);
-	      newAction.registerButton(button);
-	    }
-	  }
-	}
-	);
+          button.setAction(newAction);
+          newAction.registerButton(button);
+        }
+      }
+    }
+    );
 
       m_propertyChangeListenersByButton.add(button);
     }

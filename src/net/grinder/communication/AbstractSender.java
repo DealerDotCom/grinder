@@ -52,14 +52,14 @@ abstract class AbstractSender implements Sender {
     throws CommunicationException {
     try {
       final BufferedWriter bufferedWriter =
-	new BufferedWriter(new OutputStreamWriter(m_scratchByteStream));
+    new BufferedWriter(new OutputStreamWriter(m_scratchByteStream));
 
       bufferedWriter.write(uniqueString);
       bufferedWriter.flush();
 
       m_senderID =
-	new String(MessageDigest.getInstance("MD5").digest(
-		     m_scratchByteStream.getBytes()));
+    new String(MessageDigest.getInstance("MD5").digest(
+             m_scratchByteStream.getBytes()));
     }
     catch (Exception e) {
       throw new CommunicationException("Could not calculate sender ID", e);
@@ -91,7 +91,7 @@ abstract class AbstractSender implements Sender {
   public final void queue(Message message) throws CommunicationException {
     synchronized (this) {
       message.setSenderInformation(m_grinderID, m_senderID,
-				   m_nextSequenceID++);
+                   m_nextSequenceID++);
     }
 
     try {
@@ -100,7 +100,7 @@ abstract class AbstractSender implements Sender {
     catch (MessageQueue.ShutdownException e) {
       // Assertion failure.
       throw new RuntimeException(
-	"MessageQueue unexpectedly shutdown");
+    "MessageQueue unexpectedly shutdown");
     }
   }
 
@@ -112,21 +112,21 @@ abstract class AbstractSender implements Sender {
   public final void flush() throws CommunicationException {
     try {
       synchronized (m_messageQueue.getMutex()) {
-	Message message;
+    Message message;
 
-	while ((message = m_messageQueue.dequeue(false)) != null) {
-	  writeMessage(message);
-	}
+    while ((message = m_messageQueue.dequeue(false)) != null) {
+      writeMessage(message);
+    }
       }
     }
     catch (IOException e) {
       throw new CommunicationException(
-	"Exception whilst sending message", e);
+    "Exception whilst sending message", e);
     }
     catch (MessageQueue.ShutdownException e) {
       // Assertion failure.
       throw new RuntimeException(
-	"MessageQueue unexpectedly shutdown");
+    "MessageQueue unexpectedly shutdown");
     }
   }
 

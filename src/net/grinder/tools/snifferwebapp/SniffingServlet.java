@@ -35,11 +35,7 @@ import javax.naming.NamingException;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.InputStream;
-
 import java.util.Random;
-import java.util.Enumeration;
 
 import net.grinder.tools.snifferwebapp.util.PortManager;
 import net.grinder.tools.snifferwebapp.util.NoFreePortException;
@@ -52,7 +48,7 @@ public class SniffingServlet extends HttpServlet {
      JVM, this will not reuse any filenames (or at least, not for a
      long time...)
   */
-  private static int m_count = (new Random()).nextInt() & 0xffff;;
+  private static int s_count = (new Random()).nextInt() & 0xffff;;
 
   private static final int TIMEOUT = 30;
 
@@ -89,20 +85,20 @@ public class SniffingServlet extends HttpServlet {
 
 
   public void doGet(HttpServletRequest request,
-		    HttpServletResponse response)
+            HttpServletResponse response)
     throws IOException {
     processRequest(request, response);
   }
 
   public void doPost(HttpServletRequest request,
-		     HttpServletResponse response)
+             HttpServletResponse response)
     throws IOException {
     processRequest(request, response);
   }
 
 
   private void processRequest(HttpServletRequest request,
-			      HttpServletResponse response)
+                  HttpServletResponse response)
     throws IOException {
 
     response.setContentType("text/html");
@@ -123,63 +119,65 @@ public class SniffingServlet extends HttpServlet {
       // Kludge alert!
       boolean isSecure = false;
       if (url.startsWith("https://")) {
-	isSecure = true;
-      } else if (!url.startsWith("http")) {
-	url = "http://" + url;
+    isSecure = true;
+      }
+      else if (!url.startsWith("http")) {
+    url = "http://" + url;
       }
 
       System.out.println(isSecure ? "secure" : "insecure");
 
       session.setAttribute(START_URL_TAG, url);
-      session.setAttribute(SECURE_TAG, new Boolean(isSecure));
+      session.setAttribute(SECURE_TAG,
+               isSecure ? Boolean.TRUE : Boolean.FALSE);
 
       // we reset this if anythings goes awry
       rd = ctx.getRequestDispatcher(GO_JSP);
 
       try {
-	File workdir = null;
-	try {
+    File workdir = null;
+    try {
 
-	  workdir  = new File("sniffer." + (m_count++) + ".tmp");
-	  workdir.deleteOnExit();
-	  boolean result = workdir.mkdir();
-	  if (result) {
-	    session.setAttribute(OUTPUT_TAG, workdir.getName());
-	  } else {
-	    session.setAttribute(OUTPUT_TAG, ".");
-	  }
-	} catch (Exception e) {
-	  e.printStackTrace();
-	}
+      workdir  = new File("sniffer." + (s_count++) + ".tmp");
+      workdir.deleteOnExit();
+      boolean result = workdir.mkdir();
+      if (result) {
+        session.setAttribute(OUTPUT_TAG, workdir.getName());
+      } else {
+        session.setAttribute(OUTPUT_TAG, ".");
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
 
-	String[] cmd = commandStrings(session);
+    String[] cmd = commandStrings(session);
 
-	Process p = Runtime.getRuntime().exec(cmd, null, workdir);
+    Process p = Runtime.getRuntime().exec(cmd, null, workdir);
 
-	session.setAttribute(PROCESS_TAG, p);
+    session.setAttribute(PROCESS_TAG, p);
 
       } catch (NoFreePortException e) {
-	session.setAttribute(
-	  ERROR_MSG_TAG,
-	  "No ports are currently available, " +
-	  "please try again in a few minutes."
-	  );
+    session.setAttribute(
+      ERROR_MSG_TAG,
+      "No ports are currently available, " +
+      "please try again in a few minutes."
+      );
 
-	session.setMaxInactiveInterval(TIMEOUT);
-	rd = ctx.getRequestDispatcher(ERROR_JSP);
+    session.setMaxInactiveInterval(TIMEOUT);
+    rd = ctx.getRequestDispatcher(ERROR_JSP);
 
       } catch (NamingException e) {
-	e.printStackTrace();
-	session.setAttribute(
-	  ERROR_MSG_TAG, e.toString()
-	  );
+    e.printStackTrace();
+    session.setAttribute(
+      ERROR_MSG_TAG, e.toString()
+      );
 
-	session.setMaxInactiveInterval(TIMEOUT);
-	rd = ctx.getRequestDispatcher(ERROR_JSP);
+    session.setMaxInactiveInterval(TIMEOUT);
+    rd = ctx.getRequestDispatcher(ERROR_JSP);
 
       } catch (Throwable t) {
-	t.printStackTrace(response.getWriter());
-	throw new IOException(t.getMessage());
+    t.printStackTrace(response.getWriter());
+    throw new IOException(t.getMessage());
       }
 
     } else if(pValue != null && pValue.equals(STOP_TAG)) {
@@ -227,7 +225,7 @@ public class SniffingServlet extends HttpServlet {
     int extraArgs = isSecure ? 12 : 3;
 
     String[] cmd = new String[JAVA_PROCESS.length + 1 +
-			      SNIFFER_PROCESS.length + extraArgs];
+                  SNIFFER_PROCESS.length + extraArgs];
 
     int i = 0;
     int n = JAVA_PROCESS.length;
@@ -265,7 +263,7 @@ public class SniffingServlet extends HttpServlet {
       cmd[++i] = "" + sslport;
     }
 
-    for(int j = 0; j < cmd.length; ++j) {
+    for (int j = 0; j < cmd.length; ++j) {
       System.out.print(cmd[j] + " ");
     }
     System.out.println("\n---------------------------------------------");

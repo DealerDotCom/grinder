@@ -1,5 +1,5 @@
 /*
- * @(#)SocksException.java				0.3-3 06/05/2001
+ * @(#)SocksException.java                0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -38,8 +38,8 @@ import java.io.IOException;
  * Signals that an error was received while trying to set up a connection
  * with the Socks server.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
  */
 public class SocksException extends IOException
 {
@@ -49,7 +49,7 @@ public class SocksException extends IOException
      */
     public SocksException()
     {
-	super();
+    super();
     }
 
 
@@ -61,7 +61,7 @@ public class SocksException extends IOException
      */
     public SocksException(String s)
     {
-	super(s);
+    super(s);
     }
 
 }

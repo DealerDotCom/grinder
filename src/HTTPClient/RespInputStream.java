@@ -1,5 +1,5 @@
 /*
- * @(#)RespInputStream.java				0.3-3 06/05/2001
+ * @(#)RespInputStream.java                0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -41,9 +41,9 @@ import java.io.InterruptedIOException;
  * consist of the capability to have the data pushed into a buffer if the
  * stream demux needs to.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.2
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
+ * @since    V0.2
  */
 final class RespInputStream extends InputStream implements GlobalConstants
 {
@@ -57,8 +57,8 @@ final class RespInputStream extends InputStream implements GlobalConstants
     private ResponseHandler     resph;
 
     /** signals that the user has closed the stream and will therefore
-	not read any further data */
-	    boolean             closed = false;
+    not read any further data */
+        boolean             closed = false;
 
     /** signals that the connection may not be closed prematurely */
     private boolean             dont_truncate = false;
@@ -80,15 +80,15 @@ final class RespInputStream extends InputStream implements GlobalConstants
 
     static
     {
-	try
-	{
-	    dontTimeoutBody = Boolean.getBoolean("HTTPClient.dontTimeoutRespBody");
-	    if (dontTimeoutBody)
-		Log.write(Log.DEMUX, "RspIS: disabling timeouts when " +
-				     "reading response body");
-	}
-	catch (Exception e)
-	    { }
+    try
+    {
+        dontTimeoutBody = Boolean.getBoolean("HTTPClient.dontTimeoutRespBody");
+        if (dontTimeoutBody)
+        Log.write(Log.DEMUX, "RspIS: disabling timeouts when " +
+                     "reading response body");
+    }
+    catch (Exception e)
+        { }
     }
 
 
@@ -96,8 +96,8 @@ final class RespInputStream extends InputStream implements GlobalConstants
 
     RespInputStream(StreamDemultiplexor demux, ResponseHandler resph)
     {
-	this.demux = demux;
-	this.resph = resph;
+    this.demux = demux;
+    this.resph = resph;
     }
 
 
@@ -112,11 +112,11 @@ final class RespInputStream extends InputStream implements GlobalConstants
      */
     public synchronized int read() throws IOException
     {
-	int rcvd = read(ch, 0, 1);
-	if (rcvd == 1)
-	    return ch[0] & 0xff;
-	else
-	    return -1;
+    int rcvd = read(ch, 0, 1);
+    if (rcvd == 1)
+        return ch[0] & 0xff;
+    else
+        return -1;
     }
 
 
@@ -129,35 +129,35 @@ final class RespInputStream extends InputStream implements GlobalConstants
      */
     public synchronized int read(byte[] b, int off, int len) throws IOException
     {
-	if (closed)
-	    return -1;
+    if (closed)
+        return -1;
 
-	int left = end - offset;
-	if (buffer != null  &&  !(left == 0  &&  interrupted))
-	{
-	    if (left == 0)  return -1;
+    int left = end - offset;
+    if (buffer != null  &&  !(left == 0  &&  interrupted))
+    {
+        if (left == 0)  return -1;
 
-	    len = (len > left ? left : len);
-	    System.arraycopy(buffer, offset, b, off, len);
-	    offset += len;
+        len = (len > left ? left : len);
+        System.arraycopy(buffer, offset, b, off, len);
+        offset += len;
 
-	    return len;
-	}
-	else
-	{
-	    if (resph.resp.cd_type != CD_HDRS)
-		Log.write(Log.DEMUX, "RspIS: Reading stream " + this.hashCode());
+        return len;
+    }
+    else
+    {
+        if (resph.resp.cd_type != CD_HDRS)
+        Log.write(Log.DEMUX, "RspIS: Reading stream " + this.hashCode());
 
-	    int rcvd;
-	    if (dontTimeoutBody  &&  resph.resp.cd_type != CD_HDRS)
-		rcvd = demux.read(b, off, len, resph, 0);
-	    else
-		rcvd = demux.read(b, off, len, resph, resph.resp.timeout);
-	    if (rcvd != -1  &&  resph.resp.got_headers)
-		count += rcvd;
+        int rcvd;
+        if (dontTimeoutBody  &&  resph.resp.cd_type != CD_HDRS)
+        rcvd = demux.read(b, off, len, resph, 0);
+        else
+        rcvd = demux.read(b, off, len, resph, resph.resp.timeout);
+        if (rcvd != -1  &&  resph.resp.got_headers)
+        count += rcvd;
 
-	    return rcvd;
-	}
+        return rcvd;
+    }
     }
 
 
@@ -169,23 +169,23 @@ final class RespInputStream extends InputStream implements GlobalConstants
      */
     public synchronized long skip(long num) throws IOException
     {
-	if (closed)
-	    return 0;
+    if (closed)
+        return 0;
 
-	int left = end - offset;
-	if (buffer != null  &&  !(left == 0  &&  interrupted))
-	{
-	    num = (num > left ? left : num);
-	    offset  += num;
-	    return num;
-	}
-	else
-	{
-	    long skpd = demux.skip(num, resph);
-	    if (resph.resp.got_headers)
-		count += skpd;
-	    return skpd;
-	}
+    int left = end - offset;
+    if (buffer != null  &&  !(left == 0  &&  interrupted))
+    {
+        num = (num > left ? left : num);
+        offset  += num;
+        return num;
+    }
+    else
+    {
+        long skpd = demux.skip(num, resph);
+        if (resph.resp.got_headers)
+        count += skpd;
+        return skpd;
+    }
     }
 
 
@@ -197,13 +197,13 @@ final class RespInputStream extends InputStream implements GlobalConstants
      */
     public synchronized int available() throws IOException
     {
-	if (closed)
-	    return 0;
+    if (closed)
+        return 0;
 
-	if (buffer != null  &&  !(end-offset == 0  &&  interrupted))
-	    return end-offset;
-	else
-	    return demux.available(resph);
+    if (buffer != null  &&  !(end-offset == 0  &&  interrupted))
+        return end-offset;
+    else
+        return demux.available(resph);
     }
 
 
@@ -215,25 +215,25 @@ final class RespInputStream extends InputStream implements GlobalConstants
      */
     public synchronized void close()  throws IOException
     {
-	if (!closed)
-	{
-	    closed = true;
+    if (!closed)
+    {
+        closed = true;
 
-	    if (dont_truncate  &&  (buffer == null  ||  interrupted))
-		readAll(resph.resp.timeout);
+        if (dont_truncate  &&  (buffer == null  ||  interrupted))
+        readAll(resph.resp.timeout);
 
-	    Log.write(Log.DEMUX, "RspIS: User closed stream " + hashCode());
+        Log.write(Log.DEMUX, "RspIS: User closed stream " + hashCode());
 
-	    demux.closeSocketIfAllStreamsClosed();
+        demux.closeSocketIfAllStreamsClosed();
 
-	    if (dont_truncate)
-	    {
-		try
-		    { resph.resp.http_resp.invokeTrailerHandlers(false); }
-		catch (ModuleException me)
-		    { throw new IOException(me.toString()); }
-	    }
-	}
+        if (dont_truncate)
+        {
+        try
+            { resph.resp.http_resp.invokeTrailerHandlers(false); }
+        catch (ModuleException me)
+            { throw new IOException(me.toString()); }
+        }
+    }
     }
 
 
@@ -242,10 +242,10 @@ final class RespInputStream extends InputStream implements GlobalConstants
      */
     protected void finalize()  throws Throwable
     {
-	try
-	    { close(); }
-	finally
-	    { super.finalize(); }
+    try
+        { close(); }
+    finally
+        { super.finalize(); }
     }
 
 
@@ -266,70 +266,70 @@ final class RespInputStream extends InputStream implements GlobalConstants
      */
     void readAll(int timeout)  throws IOException
     {
-	Log.write(Log.DEMUX, "RspIS: Read-all on stream " + this.hashCode());
+    Log.write(Log.DEMUX, "RspIS: Read-all on stream " + this.hashCode());
 
-	synchronized (resph.resp)
-	{
-	    if (!resph.resp.got_headers)	// force headers to be read
-	    {
-		int sav_to = resph.resp.timeout;
-		resph.resp.timeout = timeout;
-		resph.resp.getStatusCode();
-		resph.resp.timeout = sav_to;
-	    }
-	}
+    synchronized (resph.resp)
+    {
+        if (!resph.resp.got_headers)    // force headers to be read
+        {
+        int sav_to = resph.resp.timeout;
+        resph.resp.timeout = timeout;
+        resph.resp.getStatusCode();
+        resph.resp.timeout = sav_to;
+        }
+    }
 
-	synchronized (this)
-	{
-	    if (buffer != null  &&  !interrupted)  return;
+    synchronized (this)
+    {
+        if (buffer != null  &&  !interrupted)  return;
 
-	    int rcvd = 0;
-	    try
-	    {
-		if (closed)			// throw away
-		{
-		    buffer = new byte[10000];
-		    do
-		    {
-			count += rcvd;
-			rcvd   = demux.read(buffer, 0, buffer.length, resph,
-					    timeout);
-		    } while (rcvd != -1);
-		    buffer = null;
-		}
-		else
-		{
-		    if (buffer == null)
-		    {
-			buffer = new byte[10000];
-			offset = 0;
-			end    = 0;
-		    }
+        int rcvd = 0;
+        try
+        {
+        if (closed)            // throw away
+        {
+            buffer = new byte[10000];
+            do
+            {
+            count += rcvd;
+            rcvd   = demux.read(buffer, 0, buffer.length, resph,
+                        timeout);
+            } while (rcvd != -1);
+            buffer = null;
+        }
+        else
+        {
+            if (buffer == null)
+            {
+            buffer = new byte[10000];
+            offset = 0;
+            end    = 0;
+            }
 
-		    do
-		    {
-			rcvd = demux.read(buffer, end, buffer.length-end, resph,
-					  timeout);
-			if (rcvd < 0)  break;
+            do
+            {
+            rcvd = demux.read(buffer, end, buffer.length-end, resph,
+                      timeout);
+            if (rcvd < 0)  break;
 
-			count  += rcvd;
-			end    += rcvd;
-			buffer  = Util.resizeArray(buffer, end+10000);
-		    } while (true);
-		}
-	    }
-	    catch (InterruptedIOException iioe)
-	    {
-		interrupted = true;
-		throw iioe;
-	    }
-	    catch (IOException ioe)
-	    {
-		buffer = null;	// force a read on demux for exception
-	    }
+            count  += rcvd;
+            end    += rcvd;
+            buffer  = Util.resizeArray(buffer, end+10000);
+            } while (true);
+        }
+        }
+        catch (InterruptedIOException iioe)
+        {
+        interrupted = true;
+        throw iioe;
+        }
+        catch (IOException ioe)
+        {
+        buffer = null;    // force a read on demux for exception
+        }
 
-	    interrupted = false;
-	}
+        interrupted = false;
+    }
     }
 
 
@@ -340,6 +340,6 @@ final class RespInputStream extends InputStream implements GlobalConstants
      */
     synchronized void dontTruncate()
     {
-	dont_truncate = true;
+    dont_truncate = true;
     }
 }

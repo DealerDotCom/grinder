@@ -48,8 +48,8 @@ public final class TCPProxyPlainSocketFactory
    * @exception IOException If an error occurs.
    */
   public final ServerSocket createServerSocket(String localHost,
-					       int localPort,
-					       int timeout)
+                           int localPort,
+                           int timeout)
     throws IOException {
 
     final ServerSocket socket =

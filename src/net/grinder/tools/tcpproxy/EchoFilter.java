@@ -59,7 +59,7 @@ public class EchoFilter implements TCPProxyFilter {
    * @exception IOException If an error occurs.
    */
   public byte[] handle(ConnectionDetails connectionDetails,
-		       byte[] buffer, int bytesRead)
+               byte[] buffer, int bytesRead)
     throws IOException {
 
     final StringBuffer stringBuffer = new StringBuffer();
@@ -72,25 +72,25 @@ public class EchoFilter implements TCPProxyFilter {
       // If it's ASCII, print it as a char.
       if (value == '\r' || value == '\n' || (value >= ' ' && value <= '~')) {
 
-	if (inHex) {
-	  stringBuffer.append(']');
-	  inHex = false;
-	}
+    if (inHex) {
+      stringBuffer.append(']');
+      inHex = false;
+    }
 
-	stringBuffer.append((char)value);
+    stringBuffer.append((char)value);
       }
       // Else print the value.
       else {
-	if (!inHex) {
-	  stringBuffer.append('[');
-	  inHex = true;
-	}
+    if (!inHex) {
+      stringBuffer.append('[');
+      inHex = true;
+    }
 
-	if (value <= 0xf) { // Where's "HexNumberFormatter?"
-	  stringBuffer.append("0");
-	}
+    if (value <= 0xf) { // Where's "HexNumberFormatter?"
+      stringBuffer.append("0");
+    }
 
-	stringBuffer.append(Integer.toHexString(value).toUpperCase());
+    stringBuffer.append(Integer.toHexString(value).toUpperCase());
       }
     }
 

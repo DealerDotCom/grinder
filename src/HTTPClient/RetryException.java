@@ -1,5 +1,5 @@
 /*
- * @(#)RetryException.java				0.3-3 06/05/2001
+ * @(#)RetryException.java                0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -38,8 +38,8 @@ import java.io.IOException;
  * Signals that an exception was thrown and caught, and the request was
  * retried.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
  */
 class RetryException extends IOException
 {
@@ -71,7 +71,7 @@ class RetryException extends IOException
      */
     public RetryException()
     {
-	super();
+    super();
     }
 
 
@@ -83,7 +83,7 @@ class RetryException extends IOException
      */
     public RetryException(String s)
     {
-	super(s);
+    super(s);
     }
 
 
@@ -96,10 +96,10 @@ class RetryException extends IOException
      */
     void addToListAfter(RetryException re)
     {
-	if (re == null)  return;
+    if (re == null)  return;
 
-	if (re.next != null)
-	    this.next = re.next;
-	re.next = this;
+    if (re.next != null)
+        this.next = re.next;
+    re.next = this;
     }
 }

@@ -108,14 +108,14 @@ class LabelledGraph extends JPanel {
 
     public void set(long value) {
       super.setText(Long.toString(value) +
-		    (value == 1 ? m_unit : m_units) +
-		    m_suffix);
+            (value == 1 ? m_unit : m_units) +
+            m_suffix);
     }
 
     public void set(double value, NumberFormat numberFormat) {
       super.setText(numberFormat.format(value) +
-		    m_units +
-		    m_suffix);
+            m_units +
+            m_suffix);
     }
 
     public void set(String value) {
@@ -139,12 +139,12 @@ class LabelledGraph extends JPanel {
 
     public void setHighlight(boolean highlight) {
       if (highlight) {
-	setForeground(Colours.RED);
-	setFont(s_boldFont);
+    setForeground(Colours.RED);
+    setFont(s_boldFont);
       }
       else {
-	setForeground(s_defaultForeground);
-	setFont(s_plainFont);
+    setForeground(s_defaultForeground);
+    setFont(s_plainFont);
       }
     }
   }
@@ -157,14 +157,14 @@ class LabelledGraph extends JPanel {
   private final Dimension m_preferredSize = new Dimension(250, 110);
 
   public LabelledGraph(String title, Resources resources,
-		       StatisticExpression tpsExpression,
-		       StatisticExpression peakTPSExpression) {
+               StatisticExpression tpsExpression,
+               StatisticExpression peakTPSExpression) {
     this(title, resources, null, tpsExpression, peakTPSExpression);
   }
 
   public LabelledGraph(String title, Resources resources, Color color,
-		       StatisticExpression tpsExpression,
-		       StatisticExpression peakTPSExpression) {
+               StatisticExpression tpsExpression,
+               StatisticExpression peakTPSExpression) {
     m_tpsExpression = tpsExpression;
     m_peakTPSExpression = peakTPSExpression;
 
@@ -197,11 +197,11 @@ class LabelledGraph extends JPanel {
 
     if (s_thinBevelBorder == null) {
       s_thinBevelBorder =
-	BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-					getBackground(),
-					getBackground().brighter(),
-					getBackground(),
-					getBackground().darker());
+    BorderFactory.createBevelBorder(BevelBorder.LOWERED,
+                    getBackground(),
+                    getBackground().brighter(),
+                    getBackground(),
+                    getBackground().darker());
     }
 
     graphPanel.setBorder(s_thinBevelBorder);
@@ -237,8 +237,8 @@ class LabelledGraph extends JPanel {
   }
 
   public void add(TestStatistics intervalStatistics,
-		  TestStatistics cumulativeStatistics,
-		  NumberFormat numberFormat) {
+          TestStatistics cumulativeStatistics,
+          NumberFormat numberFormat) {
     final double averageTime =
       cumulativeStatistics.getAverageTransactionTime();
     final long errors = cumulativeStatistics.getErrors();
@@ -274,13 +274,13 @@ class LabelledGraph extends JPanel {
     }
     else {
       if (time > s_peak) { // Not worth the cost of synchronization.
-	s_peak = time;
+    s_peak = time;
       }
 
       final int colorIndex = (int)(m_colors.length * (time / s_lastPeak));
 
       if (colorIndex >= m_colors.length) {
-	return m_colors[m_colors.length - 1];
+    return m_colors[m_colors.length - 1];
       }
 
       return m_colors[colorIndex];

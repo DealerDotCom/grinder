@@ -61,7 +61,7 @@ class Redirector implements java.lang.Runnable {
       String s;
 
       while ((s = m_bufferedReader.readLine()) != null) {
-	m_printWriter.println(s);
+    m_printWriter.println(s);
       }
 
       m_bufferedReader.close();

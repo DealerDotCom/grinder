@@ -1,5 +1,5 @@
 /*
- * @(#)Handler.java					0.3-3 18/06/1999
+ * @(#)Handler.java                    0.3-3 18/06/1999
  *
  *  This file is part of the HTTPClient.http package 
  *  Copyright (C) 1996-1999  Ronald Tschalär
@@ -40,18 +40,18 @@ import HTTPClient.ProtocolNotSuppException;
  * can use the HTTPClient package as a replacement for the JDK's client.
  * To do so define the property java.protocol.handler.pkgs=HTTPClient .
  *
- * @version	0.3-3  18/06/1999
- * @author	Ronald Tschalär
+ * @version    0.3-3  18/06/1999
+ * @author    Ronald Tschalär
  */
 public class Handler extends URLStreamHandler
 {
     public Handler()  throws ProtocolNotSuppException
     {
-	new HTTPClient.HTTPConnection("http", "", -1);
+    new HTTPClient.HTTPConnection("http", "", -1);
     }
 
     public URLConnection openConnection(URL url)
-	    throws IOException, ProtocolNotSuppException
+        throws IOException, ProtocolNotSuppException
     {
         return new HTTPClient.HttpURLConnection(url);
     }

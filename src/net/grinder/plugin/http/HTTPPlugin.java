@@ -94,13 +94,13 @@ public class HTTPPlugin implements GrinderPlugin {
     try {
       // Don't want additional post-processing of response data.
       HTTPConnection.removeDefaultModule(
-	Class.forName("HTTPClient.ContentEncodingModule"));
+    Class.forName("HTTPClient.ContentEncodingModule"));
       HTTPConnection.removeDefaultModule(
-	Class.forName("HTTPClient.TransferEncodingModule"));
+    Class.forName("HTTPClient.TransferEncodingModule"));
 
       // Don't want to retry requests.
       HTTPConnection.removeDefaultModule(
-	Class.forName("HTTPClient.RetryModule"));
+    Class.forName("HTTPClient.RetryModule"));
     }
     catch (ClassNotFoundException e) {
       throw new PluginException("Could not load HTTPClient modules", e);
@@ -115,13 +115,13 @@ public class HTTPPlugin implements GrinderPlugin {
     // Register Response Status detail statistic.
     try {
       CommonStatisticsViews.getDetailStatisticsView().add(
-	new ExpressionView(
-	  "HTTP Response Code", "statistic.httpplugin.responseStatusKey",
-	  StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY));
+    new ExpressionView(
+      "HTTP Response Code", "statistic.httpplugin.responseStatusKey",
+      StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY));
 
       m_responseStatusIndex =
-	StatisticsIndexMap.getInstance().getIndexForLong(
-	  StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY);
+    StatisticsIndexMap.getInstance().getIndexForLong(
+      StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY);
     }
     catch (GrinderException e) {
       throw new PluginException("Could not register new statistic", e);

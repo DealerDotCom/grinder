@@ -43,7 +43,7 @@ final class RegisteredPlugin implements PluginProcessContext {
   private final ThreadLocal m_threadListenerThreadLocal = new ThreadLocal();
 
   public RegisteredPlugin(GrinderPlugin plugin,
-			  ProcessContext processContext) {
+              ProcessContext processContext) {
     m_plugin = plugin;
     m_processContext = processContext;
   }
@@ -79,12 +79,12 @@ final class RegisteredPlugin implements PluginProcessContext {
       (PluginThreadListener)m_threadListenerThreadLocal.get();
 
     if (existingPluginThreadListener != null) {
-	  return existingPluginThreadListener;
+      return existingPluginThreadListener;
     }
 
     try {
       final PluginThreadListener newPluginThreadListener =
-	m_plugin.createThreadListener(threadContext);
+    m_plugin.createThreadListener(threadContext);
 
       m_threadListenerThreadLocal.set(newPluginThreadListener);
 

@@ -68,15 +68,15 @@ final class ThreadContext implements PluginThreadContext {
 
     m_scriptStatistics =
       new ScriptStatisticsImplementation(this,
-					 loggerImplementation.getDataWriter(),
-					 processContext.getRecordTime());
+                     loggerImplementation.getDataWriter(),
+                     processContext.getRecordTime());
 
     final GrinderProperties properties = processContext.getProperties();
 
     m_sleeper =
       new Sleeper(properties.getDouble("grinder.sleepTimeFactor", 1.0d),
-		  properties.getDouble("grinder.sleepTimeVariation", 0.2d),
-		  m_threadLogger);
+          properties.getDouble("grinder.sleepTimeVariation", 0.2d),
+          m_threadLogger);
   }
 
   final void setThreadInstance() {
@@ -166,10 +166,10 @@ final class ThreadContext implements PluginThreadContext {
       final Object testResult;
 
       try {
-	testResult = invokeable.call();
+    testResult = invokeable.call();
       }
       finally {
-	stopTimer();
+    stopTimer();
       }
 
       m_scriptStatistics.setSuccessNoChecks();
@@ -188,7 +188,7 @@ final class ThreadContext implements PluginThreadContext {
     }
     finally {
       m_scriptStatistics.endTest(
-	m_startTime - m_processContext.getExecutionStartTime());
+    m_startTime - m_processContext.getExecutionStartTime());
 
       m_threadLogger.setCurrentTestNumber(-1);
     }

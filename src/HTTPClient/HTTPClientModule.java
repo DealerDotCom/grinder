@@ -1,5 +1,5 @@
 /*
- * @(#)HTTPClientModule.java				0.3-3 06/05/2001
+ * @(#)HTTPClientModule.java                0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -77,9 +77,9 @@ import java.io.IOException;
  * made to detect redirect loops; it could do this by defining an instance
  * variable and incrementing it each time the request handler is invoked.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
- * @since	V0.3
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
+ * @since    V0.3
  */
 public interface HTTPClientModule extends HTTPClientModuleConstants
 {
@@ -92,7 +92,7 @@ public interface HTTPClientModule extends HTTPClientModuleConstants
      *
      * <P>Return codes for phase 1 (defined in HTTPClientModuleConstants.java)
      * <DL>
-     * <DT>REQ_CONTINUE	  <DI>continue processing
+     * <DT>REQ_CONTINUE      <DI>continue processing
      * <DT>REQ_RESTART    <DI>restart processing with first module
      * <DT>REQ_SHORTCIRC  <DI>stop processing and send
      * <DT>REQ_RESPONSE   <DI>go to phase 2
@@ -109,7 +109,7 @@ public interface HTTPClientModule extends HTTPClientModuleConstants
      *                            of the request
      */
     public int requestHandler(Request request, Response[] response)
-	    throws IOException, ModuleException;
+        throws IOException, ModuleException;
 
 
     /**
@@ -124,7 +124,7 @@ public interface HTTPClientModule extends HTTPClientModuleConstants
      *                            of the response
      */
     public void responsePhase1Handler(Response response, RoRequest request)
-	    throws IOException, ModuleException;
+        throws IOException, ModuleException;
 
     /**
      * The phase 2 response handler. A module may modify the response or
@@ -157,7 +157,7 @@ public interface HTTPClientModule extends HTTPClientModuleConstants
      *                            of the response
      */
     public int  responsePhase2Handler(Response response, Request request)
-	    throws IOException, ModuleException;
+        throws IOException, ModuleException;
 
 
     /**
@@ -173,7 +173,7 @@ public interface HTTPClientModule extends HTTPClientModuleConstants
      *                            of the response
      */
     public void responsePhase3Handler(Response response, RoRequest request)
-	    throws IOException, ModuleException;
+        throws IOException, ModuleException;
 
 
     /**
@@ -195,5 +195,5 @@ public interface HTTPClientModule extends HTTPClientModuleConstants
      *                            of the trailers
      */
     public void trailerHandler(Response response, RoRequest request)
-	    throws IOException, ModuleException;
+        throws IOException, ModuleException;
 }

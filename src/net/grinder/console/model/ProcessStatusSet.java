@@ -64,30 +64,30 @@ public final class ProcessStatusSet {
    */
   public ProcessStatusSet() {
     m_sorter = new Comparator() {
-	public int compare(Object o1, Object o2) {
-	  final ProcessStatus p1 = (ProcessStatus)o1;
-	  final ProcessStatus p2 = (ProcessStatus)o2;
+    public int compare(Object o1, Object o2) {
+      final ProcessStatus p1 = (ProcessStatus)o1;
+      final ProcessStatus p2 = (ProcessStatus)o2;
 
-	  final int compareState = p1.getState() - p2.getState();
+      final int compareState = p1.getState() - p2.getState();
 
-	  if (compareState != 0) {
-	    return compareState;
-	  }
-	  else {
-	    return p1.getName().compareTo(p2.getName());
-	  }
-	}
+      if (compareState != 0) {
+        return compareState;
+      }
+      else {
+        return p1.getName().compareTo(p2.getName());
+      }
+    }
       };
 
     m_timer.scheduleAtFixedRate(
       new TimerTask() {
-	public void run() { fireUpdate(); }
+    public void run() { fireUpdate(); }
       },
       0, REFRESH_TIME);
 
     m_timer.scheduleAtFixedRate(
       new TimerTask() {
-	public void run() { flush(); }
+    public void run() { flush(); }
       },
       0, FLUSH_TIME);
   }
@@ -105,7 +105,7 @@ public final class ProcessStatusSet {
   private final synchronized void fireUpdate() {
     if (m_newData) {
       final ProcessStatus[] data = (ProcessStatus[])
-	m_processes.values().toArray(new ProcessStatus[0]);
+    m_processes.values().toArray(new ProcessStatus[0]);
 
       Arrays.sort(data, m_sorter);
 
@@ -113,17 +113,17 @@ public final class ProcessStatusSet {
       int totalSum = 0;
 
       for (int i = 0; i < data.length; ++i) {
-	runningSum += data[i].getNumberOfRunningThreads();
-	totalSum += data[i].getTotalNumberOfThreads();
+    runningSum += data[i].getNumberOfRunningThreads();
+    totalSum += data[i].getTotalNumberOfThreads();
       }
 
       final Iterator iterator = m_listeners.iterator();
 
       while (iterator.hasNext()) {
-	final ProcessStatusSetListener listener =
-	  (ProcessStatusSetListener)iterator.next();
+    final ProcessStatusSetListener listener =
+      (ProcessStatusSetListener)iterator.next();
 
-	listener.update(data, runningSum, totalSum);
+    listener.update(data, runningSum, totalSum);
       }
 
       m_newData = false;
@@ -144,14 +144,14 @@ public final class ProcessStatusSet {
    * @param processStatus Process status.
    */
   public final synchronized void addStatusReport(String uniqueID,
-						 ProcessStatus processStatus) {
+                         ProcessStatus processStatus) {
 
     ProcessStatusImplementation processStatusImplementation =
       (ProcessStatusImplementation)m_processes.get(uniqueID);
 
     if (processStatusImplementation == null) {
       processStatusImplementation =
-	new ProcessStatusImplementation(processStatus.getName());
+    new ProcessStatusImplementation(processStatus.getName());
 
       m_processes.put(uniqueID, processStatusImplementation);
     }
@@ -171,10 +171,10 @@ public final class ProcessStatusSet {
       final Map.Entry entry = (Map.Entry)iterator.next();
       final String key = (String)entry.getKey();
       final ProcessStatusImplementation processStatusImplementation =
-	(ProcessStatusImplementation)entry.getValue();
+    (ProcessStatusImplementation)entry.getValue();
 
       if (processStatusImplementation.shouldPurge()) {
-	zombies.add(key);
+    zombies.add(key);
       }
     }
 
@@ -204,18 +204,18 @@ public final class ProcessStatusSet {
       m_state = processStatus.getState();
       m_totalNumberOfThreads = processStatus.getTotalNumberOfThreads();
       m_numberOfRunningThreads =
-	processStatus.getNumberOfRunningThreads();
+    processStatus.getNumberOfRunningThreads();
       touch();
     }
 
     final boolean shouldPurge() {
       if (m_reapable) {
-	return true;
+    return true;
       }
       else if (m_lastTouchedGeneration <= m_lastProcessEventGeneration) {
-	// Processes have a short time to report after a
-	// {start|reset|stop} event.
-	m_reapable = true;
+    // Processes have a short time to report after a
+    // {start|reset|stop} event.
+    m_reapable = true;
       }
 
       return false;

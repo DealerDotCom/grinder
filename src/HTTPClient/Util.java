@@ -1,5 +1,5 @@
 /*
- * @(#)Util.java					0.3-3 06/05/2001
+ * @(#)Util.java                    0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -48,8 +48,8 @@ import java.text.SimpleDateFormat;
 /**
  * This class holds various utility methods.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
  */
 public class Util
 {
@@ -65,57 +65,57 @@ public class Util
 
     static
     {
-	// rfc-2616 tspecial
-	Separators.set('(');
-	Separators.set(')');
-	Separators.set('<');
-	Separators.set('>');
-	Separators.set('@');
-	Separators.set(',');
-	Separators.set(';');
-	Separators.set(':');
-	Separators.set('\\');
-	Separators.set('"');
-	Separators.set('/');
-	Separators.set('[');
-	Separators.set(']');
-	Separators.set('?');
-	Separators.set('=');
-	Separators.set('{');
-	Separators.set('}');
-	Separators.set(' ');
-	Separators.set('\t');
+    // rfc-2616 tspecial
+    Separators.set('(');
+    Separators.set(')');
+    Separators.set('<');
+    Separators.set('>');
+    Separators.set('@');
+    Separators.set(',');
+    Separators.set(';');
+    Separators.set(':');
+    Separators.set('\\');
+    Separators.set('"');
+    Separators.set('/');
+    Separators.set('[');
+    Separators.set(']');
+    Separators.set('?');
+    Separators.set('=');
+    Separators.set('{');
+    Separators.set('}');
+    Separators.set(' ');
+    Separators.set('\t');
 
-	// rfc-2616 token
-	for (int ch=32; ch<127; ch++)  TokenChar.set(ch);
-	TokenChar.xor(Separators);
+    // rfc-2616 token
+    for (int ch=32; ch<127; ch++)  TokenChar.set(ch);
+    TokenChar.xor(Separators);
 
-	// rfc-1738 unsafe characters, including CTL and SP, and excluding
-	// "#" and "%"
-	for (int ch=0; ch<32; ch++)  UnsafeChar.set(ch);
-	UnsafeChar.set(' ');
-	UnsafeChar.set('<');
-	UnsafeChar.set('>');
-	UnsafeChar.set('"');
-	UnsafeChar.set('{');
-	UnsafeChar.set('}');
-	UnsafeChar.set('|');
-	UnsafeChar.set('\\');
-	UnsafeChar.set('^');
-	UnsafeChar.set('~');
-	UnsafeChar.set('[');
-	UnsafeChar.set(']');
-	UnsafeChar.set('`');
-	UnsafeChar.set(127);
+    // rfc-1738 unsafe characters, including CTL and SP, and excluding
+    // "#" and "%"
+    for (int ch=0; ch<32; ch++)  UnsafeChar.set(ch);
+    UnsafeChar.set(' ');
+    UnsafeChar.set('<');
+    UnsafeChar.set('>');
+    UnsafeChar.set('"');
+    UnsafeChar.set('{');
+    UnsafeChar.set('}');
+    UnsafeChar.set('|');
+    UnsafeChar.set('\\');
+    UnsafeChar.set('^');
+    UnsafeChar.set('~');
+    UnsafeChar.set('[');
+    UnsafeChar.set(']');
+    UnsafeChar.set('`');
+    UnsafeChar.set(127);
 
-	// rfc-1123 date format (restricted to GMT, as per rfc-2616)
-	/* This initialization has been moved to httpDate() because it
-	 * takes an awfully long time and is often not needed
-	 *
-	http_format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'",
-					   Locale.US);
-	http_format.setTimeZone(new SimpleTimeZone(0, "GMT"));
-	*/
+    // rfc-1123 date format (restricted to GMT, as per rfc-2616)
+    /* This initialization has been moved to httpDate() because it
+     * takes an awfully long time and is often not needed
+     *
+    http_format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'",
+                       Locale.US);
+    http_format.setTimeZone(new SimpleTimeZone(0, "GMT"));
+    */
     }
 
 
@@ -131,76 +131,76 @@ public class Util
 
     final static Object[] resizeArray(Object[] src, int new_size)
     {
-	Class compClass = src.getClass().getComponentType();
-	Object tmp[] = (Object[]) Array.newInstance(compClass, new_size);
-	System.arraycopy(src, 0, tmp, 0,
-			(src.length < new_size ? src.length : new_size));
-	return tmp;
+    Class compClass = src.getClass().getComponentType();
+    Object tmp[] = (Object[]) Array.newInstance(compClass, new_size);
+    System.arraycopy(src, 0, tmp, 0,
+            (src.length < new_size ? src.length : new_size));
+    return tmp;
     }
 
     final static NVPair[] resizeArray(NVPair[] src, int new_size)
     {
-	NVPair tmp[] = new NVPair[new_size];
-	System.arraycopy(src, 0, tmp, 0,
-			(src.length < new_size ? src.length : new_size));
-	return tmp;
+    NVPair tmp[] = new NVPair[new_size];
+    System.arraycopy(src, 0, tmp, 0,
+            (src.length < new_size ? src.length : new_size));
+    return tmp;
     }
 
     final static AuthorizationInfo[] resizeArray(AuthorizationInfo[] src,
-						 int new_size)
+                         int new_size)
     {
-	AuthorizationInfo tmp[] = new AuthorizationInfo[new_size];
-	System.arraycopy(src, 0, tmp, 0,
-			(src.length < new_size ? src.length : new_size));
-	return tmp;
+    AuthorizationInfo tmp[] = new AuthorizationInfo[new_size];
+    System.arraycopy(src, 0, tmp, 0,
+            (src.length < new_size ? src.length : new_size));
+    return tmp;
     }
 
     final static Cookie[] resizeArray(Cookie[] src, int new_size)
     {
-	Cookie tmp[] = new Cookie[new_size];
-	System.arraycopy(src, 0, tmp, 0,
-			(src.length < new_size ? src.length : new_size));
-	return tmp;
+    Cookie tmp[] = new Cookie[new_size];
+    System.arraycopy(src, 0, tmp, 0,
+            (src.length < new_size ? src.length : new_size));
+    return tmp;
     }
 
     final static String[] resizeArray(String[] src, int new_size)
     {
-	String tmp[] = new String[new_size];
-	System.arraycopy(src, 0, tmp, 0,
-			(src.length < new_size ? src.length : new_size));
-	return tmp;
+    String tmp[] = new String[new_size];
+    System.arraycopy(src, 0, tmp, 0,
+            (src.length < new_size ? src.length : new_size));
+    return tmp;
     }
 
     final static boolean[] resizeArray(boolean[] src, int new_size)
     {
-	boolean tmp[] = new boolean[new_size];
-	System.arraycopy(src, 0, tmp, 0,
-			(src.length < new_size ? src.length : new_size));
-	return tmp;
+    boolean tmp[] = new boolean[new_size];
+    System.arraycopy(src, 0, tmp, 0,
+            (src.length < new_size ? src.length : new_size));
+    return tmp;
     }
 
     final static byte[] resizeArray(byte[] src, int new_size)
     {
-	byte tmp[] = new byte[new_size];
-	System.arraycopy(src, 0, tmp, 0,
-			(src.length < new_size ? src.length : new_size));
-	return tmp;
+    byte tmp[] = new byte[new_size];
+    System.arraycopy(src, 0, tmp, 0,
+            (src.length < new_size ? src.length : new_size));
+    return tmp;
     }
 
     final static char[] resizeArray(char[] src, int new_size)
     {
-	char tmp[] = new char[new_size];
-	System.arraycopy(src, 0, tmp, 0,
-			(src.length < new_size ? src.length : new_size));
-	return tmp;
+    char tmp[] = new char[new_size];
+    System.arraycopy(src, 0, tmp, 0,
+            (src.length < new_size ? src.length : new_size));
+    return tmp;
     }
 
     final static int[] resizeArray(int[] src, int new_size)
     {
-	int tmp[] = new int[new_size];
-	System.arraycopy(src, 0, tmp, 0,
-			(src.length < new_size ? src.length : new_size));
-	return tmp;
+    int tmp[] = new int[new_size];
+    System.arraycopy(src, 0, tmp, 0,
+            (src.length < new_size ? src.length : new_size));
+    return tmp;
     }
 
 
@@ -210,14 +210,14 @@ public class Util
      */
     static String[] splitProperty(String prop)
     {
-	if (prop == null)  return new String[0];
+    if (prop == null)  return new String[0];
 
-	StringTokenizer tok = new StringTokenizer(prop, "|");
-	String[] list = new String[tok.countTokens()];
-	for (int idx=0; idx<list.length; idx++)
-	    list[idx] = tok.nextToken().trim();
+    StringTokenizer tok = new StringTokenizer(prop, "|");
+    String[] list = new String[tok.countTokens()];
+    for (int idx=0; idx<list.length; idx++)
+        list[idx] = tok.nextToken().trim();
 
-	return list;
+    return list;
     }
 
 
@@ -231,17 +231,17 @@ public class Util
      */
     final static Hashtable getList(Hashtable cntxt_list, Object cntxt)
     {
-	synchronized (cntxt_list)
-	{
-	    Hashtable list = (Hashtable) cntxt_list.get(cntxt);
-	    if (list == null)
-	    {
-		list = new Hashtable();
-		cntxt_list.put(cntxt, list);
-	    }
+    synchronized (cntxt_list)
+    {
+        Hashtable list = (Hashtable) cntxt_list.get(cntxt);
+        if (list == null)
+        {
+        list = new Hashtable();
+        cntxt_list.put(cntxt, list);
+        }
 
-	    return list;
-	}
+        return list;
+    }
     }
 
 
@@ -257,45 +257,45 @@ public class Util
      */
     final static int[] compile_search(byte[] search)
     {
-	int[] cmp = {0, 1, 0, 1, 0, 1};
-	int   end;
+    int[] cmp = {0, 1, 0, 1, 0, 1};
+    int   end;
 
-	for (int idx=0; idx<search.length; idx++)
-	{
-	    for (end=idx+1; end<search.length; end++)
-	    {
-		if (search[idx] == search[end])  break;
-	    }
-	    if (end < search.length)
-	    {
-		if ((end-idx) > cmp[1])
-		{
-		    cmp[4] = cmp[2];
-		    cmp[5] = cmp[3];
-		    cmp[2] = cmp[0];
-		    cmp[3] = cmp[1];
-		    cmp[0] = idx;
-		    cmp[1] = end - idx;
-		}
-		else if ((end-idx) > cmp[3])
-		{
-		    cmp[4] = cmp[2];
-		    cmp[5] = cmp[3];
-		    cmp[2] = idx;
-		    cmp[3] = end - idx;
-		}
-		else if ((end-idx) > cmp[3])
-		{
-		    cmp[4] = idx;
-		    cmp[5] = end - idx;
-		}
-	    }
-	}
+    for (int idx=0; idx<search.length; idx++)
+    {
+        for (end=idx+1; end<search.length; end++)
+        {
+        if (search[idx] == search[end])  break;
+        }
+        if (end < search.length)
+        {
+        if ((end-idx) > cmp[1])
+        {
+            cmp[4] = cmp[2];
+            cmp[5] = cmp[3];
+            cmp[2] = cmp[0];
+            cmp[3] = cmp[1];
+            cmp[0] = idx;
+            cmp[1] = end - idx;
+        }
+        else if ((end-idx) > cmp[3])
+        {
+            cmp[4] = cmp[2];
+            cmp[5] = cmp[3];
+            cmp[2] = idx;
+            cmp[3] = end - idx;
+        }
+        else if ((end-idx) > cmp[3])
+        {
+            cmp[4] = idx;
+            cmp[5] = end - idx;
+        }
+        }
+    }
 
-	cmp[1] += cmp[0];
-	cmp[3] += cmp[2];
-	cmp[5] += cmp[4];
-	return cmp;
+    cmp[1] += cmp[0];
+    cmp[3] += cmp[2];
+    cmp[5] += cmp[4];
+    return cmp;
     }
 
     /**
@@ -313,60 +313,60 @@ public class Util
      *         found, or -1 if not found.
      */
     final static int findStr(byte[] search, int[] cmp, byte[] str,
-				     int beg, int end)
+                     int beg, int end)
     {
-	int c1f  = cmp[0],
-	    c1l  = cmp[1],
-	    d1   = c1l - c1f,
-	    c2f  = cmp[2],
-	    c2l  = cmp[3],
-	    d2   = c2l - c2f,
-	    c3f  = cmp[4],
-	    c3l  = cmp[5],
-	    d3   = c3l - c3f;
+    int c1f  = cmp[0],
+        c1l  = cmp[1],
+        d1   = c1l - c1f,
+        c2f  = cmp[2],
+        c2l  = cmp[3],
+        d2   = c2l - c2f,
+        c3f  = cmp[4],
+        c3l  = cmp[5],
+        d3   = c3l - c3f;
 
-	Find: while (beg+search.length <= end)
-	{
-	    if (search[c1l] == str[beg+c1l])
-	    {
-		/* This is correct, but Visual J++ can't cope with it...
-		Comp: if (search[c1f] == str[beg+c1f])
-		{
-		    for (int idx=0; idx<search.length; idx++)
-			if (search[idx] != str[beg+idx])  break Comp;
+    Find: while (beg+search.length <= end)
+    {
+        if (search[c1l] == str[beg+c1l])
+        {
+        /* This is correct, but Visual J++ can't cope with it...
+        Comp: if (search[c1f] == str[beg+c1f])
+        {
+            for (int idx=0; idx<search.length; idx++)
+            if (search[idx] != str[beg+idx])  break Comp;
 
-		    break Find;		// we found it
-		}
-		*  so here is the replacement: */
-		if (search[c1f] == str[beg+c1f])
-		{
-		    boolean same = true;
+            break Find;        // we found it
+        }
+        *  so here is the replacement: */
+        if (search[c1f] == str[beg+c1f])
+        {
+            boolean same = true;
 
-		    for (int idx=0; idx<search.length; idx++)
-			if (search[idx] != str[beg+idx])
-			{
-				same = false;
-				break;
-			}
+            for (int idx=0; idx<search.length; idx++)
+            if (search[idx] != str[beg+idx])
+            {
+                same = false;
+                break;
+            }
 
-		    if (same)
-			break Find;         // we found it
-		}
+            if (same)
+            break Find;         // we found it
+        }
 
-		beg += d1;
-	    }
-	    else if (search[c2l] == str[beg+c2l])
-		beg += d2;
-	    else if (search[c3l] == str[beg+c3l])
-		beg += d3;
-	    else
-		beg++;
-	}
+        beg += d1;
+        }
+        else if (search[c2l] == str[beg+c2l])
+        beg += d2;
+        else if (search[c3l] == str[beg+c3l])
+        beg += d3;
+        else
+        beg++;
+    }
 
-	if (beg+search.length > end)
-	    return -1;
-	else
-	    return beg;
+    if (beg+search.length > end)
+        return -1;
+    else
+        return beg;
     }
 
 
@@ -383,21 +383,21 @@ public class Util
      */
     public final static String dequoteString(String str)
     {
-	if (str.indexOf('\\') == -1)  return str;
+    if (str.indexOf('\\') == -1)  return str;
 
-	char[] buf = str.toCharArray();
-	int pos = 0, num_deq = 0;
-	while (pos < buf.length)
-	{
-	    if (buf[pos] == '\\'  &&  pos+1 < buf.length)
-	    {
-		System.arraycopy(buf, pos+1, buf, pos, buf.length-pos-1);
-		num_deq++;
-	    }
-	    pos++;
-	}
+    char[] buf = str.toCharArray();
+    int pos = 0, num_deq = 0;
+    while (pos < buf.length)
+    {
+        if (buf[pos] == '\\'  &&  pos+1 < buf.length)
+        {
+        System.arraycopy(buf, pos+1, buf, pos, buf.length-pos-1);
+        num_deq++;
+        }
+        pos++;
+    }
 
-	return new String(buf, 0, buf.length-num_deq);
+    return new String(buf, 0, buf.length-num_deq);
     }
 
 
@@ -414,31 +414,31 @@ public class Util
      */
     public final static String quoteString(String str, String qlist)
     {
-	char[] list = qlist.toCharArray();
-	int idx;
-	for (idx=0; idx<list.length; idx++)
-	    if (str.indexOf(list[idx]) != -1)  break;
-	if (idx == list.length)  return str;
+    char[] list = qlist.toCharArray();
+    int idx;
+    for (idx=0; idx<list.length; idx++)
+        if (str.indexOf(list[idx]) != -1)  break;
+    if (idx == list.length)  return str;
 
-	int len = str.length();
-	char[] buf = new char[len*2];
-	str.getChars(0, len, buf, 0);
-	int pos = 0;
-	while (pos < len)
-	{
-	    if (qlist.indexOf(buf[pos], 0) != -1)
-	    {
-		if (len == buf.length)
-		    buf = Util.resizeArray(buf, len+str.length());
+    int len = str.length();
+    char[] buf = new char[len*2];
+    str.getChars(0, len, buf, 0);
+    int pos = 0;
+    while (pos < len)
+    {
+        if (qlist.indexOf(buf[pos], 0) != -1)
+        {
+        if (len == buf.length)
+            buf = Util.resizeArray(buf, len+str.length());
 
-		System.arraycopy(buf, pos, buf, pos+1, len-pos);
-		len++;
-		buf[pos++] = '\\';
-	    }
-	    pos++;
-	}
+        System.arraycopy(buf, pos, buf, pos+1, len-pos);
+        len++;
+        buf[pos++] = '\\';
+        }
+        pos++;
+    }
 
-	return new String(buf, 0, len);
+    return new String(buf, 0, len);
     }
 
 
@@ -454,7 +454,7 @@ public class Util
      */
     public final static Vector parseHeader(String header)  throws ParseException
     {
-	return parseHeader(header, true);
+    return parseHeader(header, true);
     }
 
 
@@ -490,115 +490,115 @@ public class Util
      * @see HTTPClient.HttpHeaderElement
      */
     public final static Vector parseHeader(String header, boolean dequote)
-	    throws ParseException
+        throws ParseException
     {
-	if (header == null)  return null;
-	char[]  buf    = header.toCharArray();
-	Vector  elems  = new Vector();
-	boolean first  = true;
-	int     beg = -1, end = 0, len = buf.length, abeg[] = new int[1];
-	String  elem_name, elem_value;
+    if (header == null)  return null;
+    char[]  buf    = header.toCharArray();
+    Vector  elems  = new Vector();
+    boolean first  = true;
+    int     beg = -1, end = 0, len = buf.length, abeg[] = new int[1];
+    String  elem_name, elem_value;
 
 
-	elements: while (true)
-	{
-	    if (!first)				// find required ","
-	    {
-		beg = skipSpace(buf, end);
-		if (beg == len)  break;
-		if (buf[beg] != ',')
-		    throw new ParseException("Bad header format: '" + header +
-					     "'\nExpected \",\" at position " +
-					     beg);
-	    }
-	    first = false;
+    elements: while (true)
+    {
+        if (!first)                // find required ","
+        {
+        beg = skipSpace(buf, end);
+        if (beg == len)  break;
+        if (buf[beg] != ',')
+            throw new ParseException("Bad header format: '" + header +
+                         "'\nExpected \",\" at position " +
+                         beg);
+        }
+        first = false;
 
-	    beg = skipSpace(buf, beg+1);
-	    if (beg == len)  break elements;
-	    if (buf[beg] == ',')		// skip empty elements
-	    {
-		end = beg;
-		continue elements;
-	    }
+        beg = skipSpace(buf, beg+1);
+        if (beg == len)  break elements;
+        if (buf[beg] == ',')        // skip empty elements
+        {
+        end = beg;
+        continue elements;
+        }
 
-	    if (buf[beg] == '='  ||  buf[beg] == ';'  ||  buf[beg] == '"')
-		throw new ParseException("Bad header format: '" + header +
-					 "'\nEmpty element name at position " +
-					 beg);
+        if (buf[beg] == '='  ||  buf[beg] == ';'  ||  buf[beg] == '"')
+        throw new ParseException("Bad header format: '" + header +
+                     "'\nEmpty element name at position " +
+                     beg);
 
-	    end = beg+1;			// extract element name
-	    while (end < len  &&  !Character.isWhitespace(buf[end])  &&
-		   buf[end] != '='  &&  buf[end] != ','  &&  buf[end] != ';')
-		end++;
-	    elem_name = new String(buf, beg, end-beg);
+        end = beg+1;            // extract element name
+        while (end < len  &&  !Character.isWhitespace(buf[end])  &&
+           buf[end] != '='  &&  buf[end] != ','  &&  buf[end] != ';')
+        end++;
+        elem_name = new String(buf, beg, end-beg);
 
-	    beg = skipSpace(buf, end);
-	    if (beg < len  &&  buf[beg] == '=')	// element value
-	    {
-		abeg[0] = beg+1;
-		elem_value = parseValue(buf, abeg, header, dequote);
-		end = abeg[0];
-	    }
-	    else
-	    {
-		elem_value = null;
-		end = beg;
-	    }
+        beg = skipSpace(buf, end);
+        if (beg < len  &&  buf[beg] == '=')    // element value
+        {
+        abeg[0] = beg+1;
+        elem_value = parseValue(buf, abeg, header, dequote);
+        end = abeg[0];
+        }
+        else
+        {
+        elem_value = null;
+        end = beg;
+        }
 
-	    NVPair[] params = new NVPair[0];
-	    params: while (true)
-	    {
-		String param_name, param_value;
+        NVPair[] params = new NVPair[0];
+        params: while (true)
+        {
+        String param_name, param_value;
 
-		beg = skipSpace(buf, end);	// expect ";"
-		if (beg == len  ||  buf[beg] != ';')
-		    break params;
+        beg = skipSpace(buf, end);    // expect ";"
+        if (beg == len  ||  buf[beg] != ';')
+            break params;
 
-		beg = skipSpace(buf, beg+1);
-		if (beg == len  ||  buf[beg] == ',')
-		{
-		    end = beg;
-		    break params;
-		}
-		if (buf[beg] == ';')		// skip empty parameters
-		{
-		    end = beg;
-		    continue params;
-		}
+        beg = skipSpace(buf, beg+1);
+        if (beg == len  ||  buf[beg] == ',')
+        {
+            end = beg;
+            break params;
+        }
+        if (buf[beg] == ';')        // skip empty parameters
+        {
+            end = beg;
+            continue params;
+        }
 
-		if (buf[beg] == '='  ||  buf[beg] == '"')
-		    throw new ParseException("Bad header format: '" + header +
-					 "'\nEmpty parameter name at position "+
-					 beg);
+        if (buf[beg] == '='  ||  buf[beg] == '"')
+            throw new ParseException("Bad header format: '" + header +
+                     "'\nEmpty parameter name at position "+
+                     beg);
 
-		end = beg+1;			// extract param name
-		while (end < len  &&  !Character.isWhitespace(buf[end])  &&
-		       buf[end] != '='  &&  buf[end] != ','  && buf[end] != ';')
-		    end++;
-		param_name = new String(buf, beg, end-beg);
+        end = beg+1;            // extract param name
+        while (end < len  &&  !Character.isWhitespace(buf[end])  &&
+               buf[end] != '='  &&  buf[end] != ','  && buf[end] != ';')
+            end++;
+        param_name = new String(buf, beg, end-beg);
 
-		beg = skipSpace(buf, end);
-		if (beg < len  &&  buf[beg] == '=')	// element value
-		{
-		    abeg[0] = beg+1;
-		    param_value = parseValue(buf, abeg, header, dequote);
-		    end = abeg[0];
-		}
-		else
-		{
-		    param_value = null;
-		    end = beg;
-		}
+        beg = skipSpace(buf, end);
+        if (beg < len  &&  buf[beg] == '=')    // element value
+        {
+            abeg[0] = beg+1;
+            param_value = parseValue(buf, abeg, header, dequote);
+            end = abeg[0];
+        }
+        else
+        {
+            param_value = null;
+            end = beg;
+        }
 
-		params = Util.resizeArray(params, params.length+1);
-		params[params.length-1] = new NVPair(param_name, param_value);
-	    }
+        params = Util.resizeArray(params, params.length+1);
+        params[params.length-1] = new NVPair(param_name, param_value);
+        }
 
-	    elems.addElement(
-		      new HttpHeaderElement(elem_name, elem_value, params));
-	}
+        elems.addElement(
+              new HttpHeaderElement(elem_name, elem_value, params));
+    }
 
-	return elems;
+    return elems;
     }
 
 
@@ -606,68 +606,68 @@ public class Util
      * Parse the value part. Accepts either token or quoted string.
      */
     private static String parseValue(char[] buf, int[] abeg, String header,
-				     boolean dequote)
-		throws ParseException
+                     boolean dequote)
+        throws ParseException
     {
-	int beg = abeg[0], end = beg, len = buf.length;
-	String value;
+    int beg = abeg[0], end = beg, len = buf.length;
+    String value;
 
 
-	beg = skipSpace(buf, beg);
+    beg = skipSpace(buf, beg);
 
-	if (beg < len  &&  buf[beg] == '"')	// it's a quoted-string
-	{
-	    beg++;
-	    end = beg;
-	    char[] deq_buf = null;
-	    int    deq_pos = 0, lst_pos = beg;
+    if (beg < len  &&  buf[beg] == '"')    // it's a quoted-string
+    {
+        beg++;
+        end = beg;
+        char[] deq_buf = null;
+        int    deq_pos = 0, lst_pos = beg;
 
-	    while (end < len  &&  buf[end] != '"')
-	    {
-		if (buf[end] == '\\')
-		{
-		    if (dequote)	// dequote char
-		    {
-			if (deq_buf == null)
-			    deq_buf = new char[buf.length];
-			System.arraycopy(buf, lst_pos, deq_buf, deq_pos,
-					 end-lst_pos);
-			deq_pos += end-lst_pos;
-			lst_pos = ++end;
-		    }
-		    else
-			end++;		// skip quoted char
-		}
+        while (end < len  &&  buf[end] != '"')
+        {
+        if (buf[end] == '\\')
+        {
+            if (dequote)    // dequote char
+            {
+            if (deq_buf == null)
+                deq_buf = new char[buf.length];
+            System.arraycopy(buf, lst_pos, deq_buf, deq_pos,
+                     end-lst_pos);
+            deq_pos += end-lst_pos;
+            lst_pos = ++end;
+            }
+            else
+            end++;        // skip quoted char
+        }
 
-		end++;
-	    }
-	    if (end == len)
-		throw new ParseException("Bad header format: '" + header +
-					 "'\nClosing <\"> for quoted-string"+
-					 " starting at position " +
-					 (beg-1) + " not found");
-	    if (deq_buf != null)
-	    {
-		System.arraycopy(buf, lst_pos, deq_buf, deq_pos, end-lst_pos);
-		deq_pos += end-lst_pos;
-		value = new String(deq_buf, 0, deq_pos);
-	    }
-	    else
-		value = new String(buf, beg, end-beg);
-	    end++;
-	}
-	else					// it's a simple token value
-	{
-	    end = beg;
-	    while (end < len  &&  !Character.isWhitespace(buf[end])  &&
-		   buf[end] != ','  &&  buf[end] != ';')
-		end++;
+        end++;
+        }
+        if (end == len)
+        throw new ParseException("Bad header format: '" + header +
+                     "'\nClosing <\"> for quoted-string"+
+                     " starting at position " +
+                     (beg-1) + " not found");
+        if (deq_buf != null)
+        {
+        System.arraycopy(buf, lst_pos, deq_buf, deq_pos, end-lst_pos);
+        deq_pos += end-lst_pos;
+        value = new String(deq_buf, 0, deq_pos);
+        }
+        else
+        value = new String(buf, beg, end-beg);
+        end++;
+    }
+    else                    // it's a simple token value
+    {
+        end = beg;
+        while (end < len  &&  !Character.isWhitespace(buf[end])  &&
+           buf[end] != ','  &&  buf[end] != ';')
+        end++;
 
-	    value = new String(buf, beg, end-beg);
-	}
+        value = new String(buf, beg, end-beg);
+    }
 
-	abeg[0] = end;
-	return value;
+    abeg[0] = end;
+    return value;
     }
 
 
@@ -682,12 +682,12 @@ public class Util
      * @exception ParseException if this is thrown parseHeader().
      */
     public final static boolean hasToken(String header, String token)
-	    throws ParseException
+        throws ParseException
     {
-	if (header == null)
-	    return false;
-	else
-	    return parseHeader(header).contains(new HttpHeaderElement(token));
+    if (header == null)
+        return false;
+    else
+        return parseHeader(header).contains(new HttpHeaderElement(token));
     }
 
 
@@ -703,11 +703,11 @@ public class Util
      */
     public final static HttpHeaderElement getElement(Vector header, String name)
     {
-	int idx = header.indexOf(new HttpHeaderElement(name));
-	if (idx == -1)
-	    return null;
-	else
-	    return (HttpHeaderElement) header.elementAt(idx);
+    int idx = header.indexOf(new HttpHeaderElement(name));
+    if (idx == -1)
+        return null;
+    else
+        return (HttpHeaderElement) header.elementAt(idx);
     }
 
 
@@ -727,18 +727,18 @@ public class Util
      * @exception ParseException if the above syntax rules are violated.
      */
     public final static String getParameter(String param, String hdr)
-	    throws ParseException
+        throws ParseException
     {
-	NVPair[] params = ((HttpHeaderElement) parseHeader(hdr).firstElement()).
-			    getParams();
+    NVPair[] params = ((HttpHeaderElement) parseHeader(hdr).firstElement()).
+                getParams();
 
-	for (int idx=0; idx<params.length; idx++)
-	{
-	    if (params[idx].getName().equalsIgnoreCase(param))
-		return params[idx].getValue();
-	}
+    for (int idx=0; idx<params.length; idx++)
+    {
+        if (params[idx].getName().equalsIgnoreCase(param))
+        return params[idx].getValue();
+    }
 
-	return null;
+    return null;
     }
 
 
@@ -751,17 +751,17 @@ public class Util
      */
     public final static String assembleHeader(Vector pheader)
     {
-	StringBuffer hdr = new StringBuffer(200);
-	int len = pheader.size();
+    StringBuffer hdr = new StringBuffer(200);
+    int len = pheader.size();
 
-	for (int idx=0; idx<len; idx++)
-	{
-	    ((HttpHeaderElement) pheader.elementAt(idx)).appendTo(hdr);
-	    hdr.append(", ");
-	}
-	hdr.setLength(hdr.length()-2);
+    for (int idx=0; idx<len; idx++)
+    {
+        ((HttpHeaderElement) pheader.elementAt(idx)).appendTo(hdr);
+        hdr.append(", ");
+    }
+    hdr.setLength(hdr.length()-2);
 
-	return hdr.toString();
+    return hdr.toString();
     }
 
 
@@ -775,9 +775,9 @@ public class Util
      */
     final static int skipSpace(char[] str, int pos)
     {
-	int len = str.length;
-	while (pos < len  &&  Character.isWhitespace(str[pos]))  pos++;
-	return pos;
+    int len = str.length;
+    while (pos < len  &&  Character.isWhitespace(str[pos]))  pos++;
+    return pos;
     }
 
     /**
@@ -791,9 +791,9 @@ public class Util
      */
     final static int findSpace(char[] str, int pos)
     {
-	int len = str.length;
-	while (pos < len  &&  !Character.isWhitespace(str[pos]))  pos++;
-	return pos;
+    int len = str.length;
+    while (pos < len  &&  !Character.isWhitespace(str[pos]))  pos++;
+    return pos;
     }
 
     /**
@@ -807,9 +807,9 @@ public class Util
      */
     final static int skipToken(char[] str, int pos)
     {
-	int len = str.length;
-	while (pos < len  &&  TokenChar.get(str[pos]))  pos++;
-	return pos;
+    int len = str.length;
+    while (pos < len  &&  TokenChar.get(str[pos]))  pos++;
+    return pos;
     }
 
 
@@ -822,10 +822,10 @@ public class Util
      */
     final static boolean needsQuoting(String str)
     {
-	int len = str.length(), pos = 0;
+    int len = str.length(), pos = 0;
 
-	while (pos < len  &&  TokenChar.get(str.charAt(pos)))  pos++;
-	return (pos < len);
+    while (pos < len  &&  TokenChar.get(str.charAt(pos)))  pos++;
+    return (pos < len);
     }
 
 
@@ -845,22 +845,22 @@ public class Util
      */
     public final static boolean sameHttpURL(URL url1, URL url2)
     {
-	if (!url1.getProtocol().equalsIgnoreCase(url2.getProtocol()))
-	    return false;
+    if (!url1.getProtocol().equalsIgnoreCase(url2.getProtocol()))
+        return false;
 
-	if (!url1.getHost().equalsIgnoreCase(url2.getHost()))
-	    return false;
+    if (!url1.getHost().equalsIgnoreCase(url2.getHost()))
+        return false;
 
-	int port1 = url1.getPort(), port2 = url2.getPort();
-	if (port1 == -1)  port1 = URI.defaultPort(url1.getProtocol());
-	if (port2 == -1)  port2 = URI.defaultPort(url1.getProtocol());
-	if (port1 != port2)
-	    return false;
+    int port1 = url1.getPort(), port2 = url2.getPort();
+    if (port1 == -1)  port1 = URI.defaultPort(url1.getProtocol());
+    if (port2 == -1)  port2 = URI.defaultPort(url1.getProtocol());
+    if (port1 != port2)
+        return false;
 
-	try
-	    { return URI.unescape(url1.getFile(), null).equals(URI.unescape(url2.getFile(), null)); }
-	catch (ParseException pe)
-	    { return url1.getFile().equals(url2.getFile());}
+    try
+        { return URI.unescape(url1.getFile(), null).equals(URI.unescape(url2.getFile(), null)); }
+    catch (ParseException pe)
+        { return url1.getFile().equals(url2.getFile());}
     }
 
 
@@ -874,7 +874,7 @@ public class Util
      */
     public final static int defaultPort(String protocol)
     {
-	return URI.defaultPort(protocol);
+    return URI.defaultPort(protocol);
     }
 
 
@@ -887,42 +887,42 @@ public class Util
      */
     final static Date parseHttpDate(String dstr)
     {
-	synchronized (http_parse_lock)
-	{
-	    if (parse_1123 == null)
-		setupParsers();
-	}
+    synchronized (http_parse_lock)
+    {
+        if (parse_1123 == null)
+        setupParsers();
+    }
 
-	try
-	    { return parse_1123.parse(dstr); }
-	catch (java.text.ParseException pe)
-	    { }
-	try
-	    { return parse_850.parse(dstr); }
-	catch (java.text.ParseException pe)
-	    { }
-	try
-	    { return parse_asctime.parse(dstr); }
-	catch (java.text.ParseException pe)
-	    { throw new IllegalArgumentException(pe.toString()); }
+    try
+        { return parse_1123.parse(dstr); }
+    catch (java.text.ParseException pe)
+        { }
+    try
+        { return parse_850.parse(dstr); }
+    catch (java.text.ParseException pe)
+        { }
+    try
+        { return parse_asctime.parse(dstr); }
+    catch (java.text.ParseException pe)
+        { throw new IllegalArgumentException(pe.toString()); }
     }
 
     private static final void setupParsers()
     {
-	parse_1123 =
-	    new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);
-	parse_850 =
-	    new SimpleDateFormat("EEEE, dd-MMM-yy HH:mm:ss 'GMT'", Locale.US);
-	parse_asctime =
-	    new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy", Locale.US);
+    parse_1123 =
+        new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);
+    parse_850 =
+        new SimpleDateFormat("EEEE, dd-MMM-yy HH:mm:ss 'GMT'", Locale.US);
+    parse_asctime =
+        new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy", Locale.US);
 
-	parse_1123.setTimeZone(new SimpleTimeZone(0, "GMT"));
-	parse_850.setTimeZone(new SimpleTimeZone(0, "GMT"));
-	parse_asctime.setTimeZone(new SimpleTimeZone(0, "GMT"));
+    parse_1123.setTimeZone(new SimpleTimeZone(0, "GMT"));
+    parse_850.setTimeZone(new SimpleTimeZone(0, "GMT"));
+    parse_asctime.setTimeZone(new SimpleTimeZone(0, "GMT"));
 
-	parse_1123.setLenient(true);
-	parse_850.setLenient(true);
-	parse_asctime.setLenient(true);
+    parse_1123.setLenient(true);
+    parse_850.setLenient(true);
+    parse_asctime.setLenient(true);
     }
 
     /**
@@ -942,20 +942,20 @@ public class Util
      */
     public static final String httpDate(Date date)
     {
-	synchronized (http_format_lock)
-	{
-	    if (http_format == null)
-		setupFormatter();
-	}
+    synchronized (http_format_lock)
+    {
+        if (http_format == null)
+        setupFormatter();
+    }
 
-	return http_format.format(date);
+    return http_format.format(date);
     }
 
     private static final void setupFormatter()
     {
-	http_format =
-	    new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);
-	http_format.setTimeZone(new SimpleTimeZone(0, "GMT"));
+    http_format =
+        new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.US);
+    http_format.setTimeZone(new SimpleTimeZone(0, "GMT"));
     }
 
 
@@ -967,31 +967,31 @@ public class Util
      */
     final static String escapeUnsafeChars(String path)
     {
-	int len = path.length();
-	char[] buf = new char[3*len];
+    int len = path.length();
+    char[] buf = new char[3*len];
 
-	int dst = 0;
-	for (int src=0; src<len; src++)
-	{
-	    char ch = path.charAt(src);
-	    if (ch >= 128  ||  UnsafeChar.get(ch))
-	    {
-		buf[dst++] = '%';
-		buf[dst++] = hex_map[(ch & 0xf0) >>> 4];
-		buf[dst++] = hex_map[ch & 0x0f];
-	    }
-	    else
-		buf[dst++] = ch;
-	}
+    int dst = 0;
+    for (int src=0; src<len; src++)
+    {
+        char ch = path.charAt(src);
+        if (ch >= 128  ||  UnsafeChar.get(ch))
+        {
+        buf[dst++] = '%';
+        buf[dst++] = hex_map[(ch & 0xf0) >>> 4];
+        buf[dst++] = hex_map[ch & 0x0f];
+        }
+        else
+        buf[dst++] = ch;
+    }
 
-	if (dst > len)
-	    return new String(buf, 0, dst);
-	else
-	    return path;
+    if (dst > len)
+        return new String(buf, 0, dst);
+    else
+        return path;
     }
 
     static final char[] hex_map =
-	    {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
 
     /**
@@ -1014,14 +1014,14 @@ public class Util
      */
     public final static String getPath(String resource)
     {
-	int p, end = resource.length();
-	if ((p = resource.indexOf('#')) != -1)			// find fragment
-	    end = p;
-	if ((p = resource.indexOf('?')) != -1  &&  p < end)	// find query
-	    end = p;
-	if ((p = resource.indexOf(';')) != -1  &&  p < end)	// find params
-	    end = p;
-	return resource.substring(0, end);
+    int p, end = resource.length();
+    if ((p = resource.indexOf('#')) != -1)            // find fragment
+        end = p;
+    if ((p = resource.indexOf('?')) != -1  &&  p < end)    // find query
+        end = p;
+    if ((p = resource.indexOf(';')) != -1  &&  p < end)    // find params
+        end = p;
+    return resource.substring(0, end);
     }
 
 
@@ -1034,19 +1034,19 @@ public class Util
      */
     public final static String getParams(String resource)
     {
-	int beg, f, q;
-	if ((beg = resource.indexOf(';')) == -1)		// find params
-	    return null;
-	if ((f = resource.indexOf('#')) != -1  &&  f < beg)	// find fragment
-	    return null;
-	if ((q = resource.indexOf('?')) != -1  &&  q < beg)	// find query
-	    return null;
-	if (q == -1  &&  f == -1)
-	    return resource.substring(beg+1);
-	if (f == -1  ||  (q != -1  &&  q < f))
-	    return resource.substring(beg+1, q);
-	else
-	    return resource.substring(beg+1, f);
+    int beg, f, q;
+    if ((beg = resource.indexOf(';')) == -1)        // find params
+        return null;
+    if ((f = resource.indexOf('#')) != -1  &&  f < beg)    // find fragment
+        return null;
+    if ((q = resource.indexOf('?')) != -1  &&  q < beg)    // find query
+        return null;
+    if (q == -1  &&  f == -1)
+        return resource.substring(beg+1);
+    if (f == -1  ||  (q != -1  &&  q < f))
+        return resource.substring(beg+1, q);
+    else
+        return resource.substring(beg+1, f);
     }
 
 
@@ -1059,15 +1059,15 @@ public class Util
      */
     public final static String getQuery(String resource)
     {
-	int beg, f;
-	if ((beg = resource.indexOf('?')) == -1)		// find query
-	    return null;
-	if ((f = resource.indexOf('#')) != -1  &&  f < beg)	// find fragment
-	    return null;				// '?' is in fragment
-	if (f == -1)
-	    return resource.substring(beg+1);		// no fragment
-	else
-	    return resource.substring(beg+1, f);	// strip fragment
+    int beg, f;
+    if ((beg = resource.indexOf('?')) == -1)        // find query
+        return null;
+    if ((f = resource.indexOf('#')) != -1  &&  f < beg)    // find fragment
+        return null;                // '?' is in fragment
+    if (f == -1)
+        return resource.substring(beg+1);        // no fragment
+    else
+        return resource.substring(beg+1, f);    // strip fragment
     }
 
 
@@ -1080,11 +1080,11 @@ public class Util
      */
     public final static String getFragment(String resource)
     {
-	int beg;
-	if ((beg = resource.indexOf('#')) == -1)	// find fragment
-	    return null;
-	else
-	    return resource.substring(beg+1);
+    int beg;
+    if ((beg = resource.indexOf('#')) == -1)    // find fragment
+        return null;
+    else
+        return resource.substring(beg+1);
     }
 
 
@@ -1100,32 +1100,32 @@ public class Util
      */
     public static final boolean wildcardMatch(String pattern, String name)
     {
-	return
-	    wildcardMatch(pattern, name, 0, 0, pattern.length(), name.length());
+    return
+        wildcardMatch(pattern, name, 0, 0, pattern.length(), name.length());
     }
 
     private static final boolean wildcardMatch(String pattern, String name,
-					       int ppos, int npos, int plen,
-					       int nlen)
+                           int ppos, int npos, int plen,
+                           int nlen)
     {
-	// find wildcard
-	int star = pattern.indexOf('*', ppos);
-	if (star < 0)
-	{
-	    return ((plen-ppos) == (nlen-npos)  &&
-		    pattern.regionMatches(ppos, name, npos, plen-ppos));
-	}
+    // find wildcard
+    int star = pattern.indexOf('*', ppos);
+    if (star < 0)
+    {
+        return ((plen-ppos) == (nlen-npos)  &&
+            pattern.regionMatches(ppos, name, npos, plen-ppos));
+    }
 
-	// match prefix
-	if (!pattern.regionMatches(ppos, name, npos, star-ppos))
-	    return false;
+    // match prefix
+    if (!pattern.regionMatches(ppos, name, npos, star-ppos))
+        return false;
 
-	// match suffix
-	if (star == plen-1)
-	    return true;
-	while(!wildcardMatch(pattern, name, star+1, npos, plen, nlen)  &&
-	      npos < nlen)
-	    npos++;
-	return (npos < nlen);
+    // match suffix
+    if (star == plen-1)
+        return true;
+    while(!wildcardMatch(pattern, name, star+1, npos, plen, nlen)  &&
+          npos < nlen)
+        npos++;
+    return (npos < nlen);
     }
 }

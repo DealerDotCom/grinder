@@ -81,12 +81,12 @@ public class ExpressionView {
    * @see StatisticExpressionFactory
    */
   public ExpressionView(String displayName, String displayNameResourceKey,
-			String expressionString)
+            String expressionString)
     throws GrinderException {
     this(displayName, displayNameResourceKey,
-	 s_statisticExpressionFactory.normaliseExpressionString(
-	   expressionString),
-	 s_statisticExpressionFactory.createExpression(expressionString));
+     s_statisticExpressionFactory.normaliseExpressionString(
+       expressionString),
+     s_statisticExpressionFactory.createExpression(expressionString));
   }
 
   /**
@@ -99,14 +99,14 @@ public class ExpressionView {
    * @exception GrinderException if an error occurs
    */
   public ExpressionView(String displayName, String displayNameResourceKey,
-			StatisticExpression expression)
+            StatisticExpression expression)
     throws GrinderException {
     this(displayName, displayNameResourceKey, "", expression);
   }
 
   private ExpressionView(String displayName, String displayNameResourceKey,
-			 String expressionString,
-			 StatisticExpression expression)
+             String expressionString,
+             StatisticExpression expression)
     throws GrinderException {
     m_displayName = displayName;
     m_displayNameResourceKey = displayNameResourceKey;
@@ -136,7 +136,7 @@ public class ExpressionView {
   final void myWriteExternal(ObjectOutput out) throws IOException {
     if (m_expressionString == "") {
       throw new IOException(
-	"This expression view is not externalisable");
+    "This expression view is not externalisable");
     }
 
     out.writeUTF(m_displayName);
@@ -193,7 +193,7 @@ public class ExpressionView {
       m_hashCode == otherView.m_hashCode &&
       m_displayName.equals(otherView.m_displayName) &&
       m_displayNameResourceKey.equals(
-	otherView.m_displayNameResourceKey) &&
+    otherView.m_displayNameResourceKey) &&
 
       // If either expression string is null, one of the views
       // is not externalisable. We then only compare on the

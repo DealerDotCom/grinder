@@ -74,44 +74,44 @@ public class Console {
 
     final ActionListener startHandler =
       new ActionListener() {
-	public void actionPerformed(ActionEvent event) {
-	  try {
-	    processStatusSet.processEvent();
-	    m_communication.sendStartMessage();
-	  }
-	  catch (GrinderException e) {
-	    System.err.println("Could not send start message: " + e);
-	    e.printStackTrace();
-	  }
-	}
+    public void actionPerformed(ActionEvent event) {
+      try {
+        processStatusSet.processEvent();
+        m_communication.sendStartMessage();
+      }
+      catch (GrinderException e) {
+        System.err.println("Could not send start message: " + e);
+        e.printStackTrace();
+      }
+    }
       };
 
     final ActionListener resetHandler =
       new ActionListener() {
-	public void actionPerformed(ActionEvent event) {
-	  try {
-	    processStatusSet.processEvent();
-	    m_communication.sendResetMessage();
-	  }
-	  catch (GrinderException e) {
-	    System.err.println("Could not send reset message: " + e);
-	    e.printStackTrace();
-	  }
-	}
+    public void actionPerformed(ActionEvent event) {
+      try {
+        processStatusSet.processEvent();
+        m_communication.sendResetMessage();
+      }
+      catch (GrinderException e) {
+        System.err.println("Could not send reset message: " + e);
+        e.printStackTrace();
+      }
+    }
       };
 
     final ActionListener stopHandler =
       new ActionListener() {
-	public void actionPerformed(ActionEvent event) {
-	  try {
-	    processStatusSet.processEvent();
-	    m_communication.sendStopMessage();
-	  }
-	  catch (GrinderException e) {
-	    System.err.println("Could not send stop message: " + e);
-	    e.printStackTrace();
-	  }
-	}
+    public void actionPerformed(ActionEvent event) {
+      try {
+        processStatusSet.processEvent();
+        m_communication.sendStopMessage();
+      }
+      catch (GrinderException e) {
+        System.err.println("Could not send stop message: " + e);
+        e.printStackTrace();
+      }
+    }
       };
 
     m_userInterface =
@@ -132,24 +132,24 @@ public class Console {
       final Message message = m_communication.waitForMessage();
 
       if (message instanceof RegisterTestsMessage) {
-	m_model.registerTests(((RegisterTestsMessage)message).getTests());
+    m_model.registerTests(((RegisterTestsMessage)message).getTests());
       }
 
       if (message instanceof ReportStatisticsMessage) {
-	m_model.addTestReport(
-	  ((ReportStatisticsMessage)message).getStatisticsDelta());
+    m_model.addTestReport(
+      ((ReportStatisticsMessage)message).getStatisticsDelta());
       }
 
       if (message instanceof RegisterStatisticsViewMessage) {
-	final StatisticsView statisticsView =
-	  ((RegisterStatisticsViewMessage)message).getStatisticsView();
+    final StatisticsView statisticsView =
+      ((RegisterStatisticsViewMessage)message).getStatisticsView();
 
-	m_model.registerStatisticsViews(statisticsView, statisticsView);
+    m_model.registerStatisticsViews(statisticsView, statisticsView);
       }
 
       if (message instanceof ReportStatusMessage) {
-	m_model.getProcessStatusSet().addStatusReport(
-	  message.getSenderUniqueID(), (ReportStatusMessage)message);
+    m_model.getProcessStatusSet().addStatusReport(
+      message.getSenderUniqueID(), (ReportStatusMessage)message);
       }
     }
   }

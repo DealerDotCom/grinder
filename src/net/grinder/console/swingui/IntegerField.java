@@ -65,7 +65,7 @@ class IntegerField extends JTextField {
 
     if (minimumValue > maximumValue) {
       throw new IllegalArgumentException(
-	"Minimum value exceeds maximum value");
+    "Minimum value exceeds maximum value");
     }
 
     m_minimumValue = minimumValue;
@@ -101,28 +101,28 @@ class IntegerField extends JTextField {
   public class FormattedDocument extends PlainDocument {
 
     public void insertString(int offset, String string,
-			     AttributeSet attributeSet)
+                 AttributeSet attributeSet)
       throws BadLocationException {
 
       final String currentText = super.getText(0, getLength());
 
       final String result =
-	currentText.substring(0, offset) + string +
-	currentText.substring(offset);
+    currentText.substring(0, offset) + string +
+    currentText.substring(offset);
 
       if (m_minimumValue >= 0 || !result.equals("-")) {
-	try {
-	  final int x = Integer.parseInt(result);
+    try {
+      final int x = Integer.parseInt(result);
 
-	  if (x < m_minimumValue || x > m_maximumValue) {
-	    s_toolkit.beep();
-	    return;
-	  }
-	}
-	catch (NumberFormatException e) {
-	  s_toolkit.beep();
-	  return;
-	}
+      if (x < m_minimumValue || x > m_maximumValue) {
+        s_toolkit.beep();
+        return;
+      }
+    }
+    catch (NumberFormatException e) {
+      s_toolkit.beep();
+      return;
+    }
       }
 
       super.insertString(offset, string, attributeSet);
@@ -133,21 +133,21 @@ class IntegerField extends JTextField {
 
     getDocument().addDocumentListener(new DocumentListener() {
 
-	private void notifyChangeListener() {
-	  listener.stateChanged(new ChangeEvent(this));
-	}
+    private void notifyChangeListener() {
+      listener.stateChanged(new ChangeEvent(this));
+    }
 
-	public void changedUpdate(DocumentEvent e) {
-	  notifyChangeListener();
-	}
+    public void changedUpdate(DocumentEvent e) {
+      notifyChangeListener();
+    }
 
-	public void insertUpdate(DocumentEvent e) {
-	  notifyChangeListener();
-	}
+    public void insertUpdate(DocumentEvent e) {
+      notifyChangeListener();
+    }
 
-	public void removeUpdate(DocumentEvent e) {
-	  notifyChangeListener();
-	}
+    public void removeUpdate(DocumentEvent e) {
+      notifyChangeListener();
+    }
       });
   }
 }

@@ -80,14 +80,14 @@ public final class StatisticExpressionFactory {
 
     if (parseContext.hasMoreCharacters()) {
       throw parseContext.new ParseException(
-	"Additional characters found");
+    "Additional characters found");
     }
 
     return result.toString();
   }
 
   private final void normaliseExpressionString(ParseContext parseContext,
-					       StringBuffer result)
+                           StringBuffer result)
     throws GrinderException {
     if (parseContext.peekCharacter() == '(') {
       // Compound expression.
@@ -95,8 +95,8 @@ public final class StatisticExpressionFactory {
       result.append(parseContext.readToken());
 
       while (parseContext.peekCharacter() != ')') {
-	result.append(' ');
-	normaliseExpressionString(parseContext, result);
+    result.append(' ');
+    normaliseExpressionString(parseContext, result);
       }
 
       result.append(parseContext.readCharacter());
@@ -122,7 +122,7 @@ public final class StatisticExpressionFactory {
 
     if (parseContext.hasMoreCharacters()) {
       throw parseContext.new ParseException(
-	"Additional characters found");
+    "Additional characters found");
     }
 
     return result;
@@ -138,23 +138,23 @@ public final class StatisticExpressionFactory {
       final StatisticExpression result;
 
       if ("+".equals(operation)) {
-	result = createSum(readOperands(parseContext, 2));
+    result = createSum(readOperands(parseContext, 2));
       }
       else if ("*".equals(operation)) {
-	result =
-	  createProduct(readOperands(parseContext, 2));
+    result =
+      createProduct(readOperands(parseContext, 2));
       }
       else if ("/".equals(operation)) {
-	result = createDivision(createExpression(parseContext),
-				createExpression(parseContext));
+    result = createDivision(createExpression(parseContext),
+                createExpression(parseContext));
       }
       else {
-	throw parseContext.new ParseException(
-	  "Unknown operation '" + operation + "'");
+    throw parseContext.new ParseException(
+      "Unknown operation '" + operation + "'");
       }
 
       if (parseContext.readCharacter() != ')') {
-	throw parseContext.new ParseException("Expecting ')'");
+    throw parseContext.new ParseException("Expecting ')'");
       }
 
       return result;
@@ -163,26 +163,26 @@ public final class StatisticExpressionFactory {
       final String token = parseContext.readToken();
 
       try {
-	return createConstant(Long.parseLong(token));
+    return createConstant(Long.parseLong(token));
       }
       catch (NumberFormatException e) {
-	try {
-	  return createConstant(Double.parseDouble(token));
-	}
-	catch (NumberFormatException e2) {
-	  if (m_indexMap.isLongIndex(token)) {
-	    return createPrimitive(
-	      m_indexMap.getIndexForLong(token));
-	  }
-	  else if (m_indexMap.isDoubleIndex(token)) {
-	    return createPrimitive(
-	      m_indexMap.getIndexForDouble(token));
-	  }
-	}
+    try {
+      return createConstant(Double.parseDouble(token));
+    }
+    catch (NumberFormatException e2) {
+      if (m_indexMap.isLongIndex(token)) {
+        return createPrimitive(
+          m_indexMap.getIndexForLong(token));
+      }
+      else if (m_indexMap.isDoubleIndex(token)) {
+        return createPrimitive(
+          m_indexMap.getIndexForDouble(token));
+      }
+    }
       }
 
       throw parseContext.new ParseException("Unknown token '" + token +
-					    "'");
+                        "'");
     }
   }
 
@@ -195,9 +195,9 @@ public final class StatisticExpressionFactory {
   public final StatisticExpression createConstant(final long value) {
 
     return new LongStatistic() {
-	public final long getValue(RawStatistics rawStatistics) {
-	  return value;
-	}
+    public final long getValue(RawStatistics rawStatistics) {
+      return value;
+    }
       };
   }
 
@@ -210,9 +210,9 @@ public final class StatisticExpressionFactory {
   public final StatisticExpression createConstant(final double value) {
 
     return new DoubleStatistic() {
-	public final double getValue(RawStatistics rawStatistics) {
-	  return value;
-	}
+    public final double getValue(RawStatistics rawStatistics) {
+      return value;
+    }
       };
   }
 
@@ -248,17 +248,17 @@ public final class StatisticExpressionFactory {
     createSum(final StatisticExpression[] operands) {
 
     return new VariableArgumentsExpression(0, operands) {
-	public final double doDoubleOperation(
-	  double result, StatisticExpression operand,
-	  RawStatistics rawStatistics) {
-	  return result + operand.getDoubleValue(rawStatistics);
-	}
+    public final double doDoubleOperation(
+      double result, StatisticExpression operand,
+      RawStatistics rawStatistics) {
+      return result + operand.getDoubleValue(rawStatistics);
+    }
 
-	public final long doLongOperation(
-	  long result, StatisticExpression operand,
-	  RawStatistics rawStatistics) {
-	  return result + operand.getLongValue(rawStatistics);
-	}
+    public final long doLongOperation(
+      long result, StatisticExpression operand,
+      RawStatistics rawStatistics) {
+      return result + operand.getLongValue(rawStatistics);
+    }
       }
       .getExpression();
   }
@@ -273,17 +273,17 @@ public final class StatisticExpressionFactory {
     createProduct(final StatisticExpression[] operands) {
 
     return new VariableArgumentsExpression(1, operands) {
-	public final double doDoubleOperation(
-	  double result, StatisticExpression operand,
-	  RawStatistics rawStatistics) {
-	  return result * operand.getDoubleValue(rawStatistics);
-	}
+    public final double doDoubleOperation(
+      double result, StatisticExpression operand,
+      RawStatistics rawStatistics) {
+      return result * operand.getDoubleValue(rawStatistics);
+    }
 
-	public final long doLongOperation(
-	  long result, StatisticExpression operand,
-	  RawStatistics rawStatistics) {
-	  return result * operand.getLongValue(rawStatistics);
-	}
+    public final long doLongOperation(
+      long result, StatisticExpression operand,
+      RawStatistics rawStatistics) {
+      return result * operand.getLongValue(rawStatistics);
+    }
       }
       .getExpression();
   }
@@ -297,14 +297,14 @@ public final class StatisticExpressionFactory {
    */
   public final StatisticExpression
     createDivision(final StatisticExpression numerator,
-		   final StatisticExpression denominator) {
+           final StatisticExpression denominator) {
 
     return new DoubleStatistic() {
-	public double getValue(RawStatistics rawStatistics) {
-	  return
-	    numerator.getDoubleValue(rawStatistics) /
-	    denominator.getDoubleValue(rawStatistics);
-	}
+    public double getValue(RawStatistics rawStatistics) {
+      return
+        numerator.getDoubleValue(rawStatistics) /
+        denominator.getDoubleValue(rawStatistics);
+    }
       };
   }
 
@@ -317,7 +317,7 @@ public final class StatisticExpressionFactory {
    */
   public final PeakStatisticExpression
     createPeak(StatisticsIndexMap.DoubleIndex peakIndex,
-	       StatisticExpression monitoredStatistic) {
+           StatisticExpression monitoredStatistic) {
     return new PeakDoubleStatistic(peakIndex, monitoredStatistic);
   }
 
@@ -330,12 +330,12 @@ public final class StatisticExpressionFactory {
    */
   public final PeakStatisticExpression
     createPeak(StatisticsIndexMap.LongIndex peakIndex,
-	       StatisticExpression monitoredStatistic) {
+           StatisticExpression monitoredStatistic) {
     return new PeakLongStatistic(peakIndex, monitoredStatistic);
   }
 
   private final StatisticExpression[] readOperands(ParseContext parseContext,
-						   int minimumSize)
+                           int minimumSize)
     throws GrinderException {
     final List arrayList = new ArrayList();
 
@@ -345,7 +345,7 @@ public final class StatisticExpressionFactory {
 
     if (arrayList.size() < minimumSize) {
       throw parseContext.new ParseException(
-	"Operation must have at least two operands");
+    "Operation must have at least two operands");
     }
 
     return (StatisticExpression[])
@@ -392,17 +392,17 @@ public final class StatisticExpressionFactory {
     private final StatisticExpression m_monitoredStatistic;
 
     public PeakDoubleStatistic(StatisticsIndexMap.DoubleIndex peakIndex,
-			       StatisticExpression monitoredStatistic) {
+                   StatisticExpression monitoredStatistic) {
       super(peakIndex);
       m_monitoredStatistic = monitoredStatistic;
     }
 
     public void update(RawStatistics monitoredStatistics,
-		       RawStatistics peakStorageStatistics) {
+               RawStatistics peakStorageStatistics) {
       setValue(peakStorageStatistics,
-	       Math.max(getValue(peakStorageStatistics),
-			m_monitoredStatistic.getDoubleValue(
-			  monitoredStatistics)));
+           Math.max(getValue(peakStorageStatistics),
+            m_monitoredStatistic.getDoubleValue(
+              monitoredStatistics)));
     }
   }
 
@@ -445,17 +445,17 @@ public final class StatisticExpressionFactory {
     private final StatisticExpression m_monitoredStatistic;
 
     public PeakLongStatistic(StatisticsIndexMap.LongIndex peakIndex,
-			     StatisticExpression monitoredStatistic) {
+                 StatisticExpression monitoredStatistic) {
       super(peakIndex);
       m_monitoredStatistic = monitoredStatistic;
     }
 
     public void update(RawStatistics monitoredStatistics,
-		       RawStatistics peakStorageStatistics) {
+               RawStatistics peakStorageStatistics) {
       setValue(peakStorageStatistics,
-	       Math.max(getValue(peakStorageStatistics),
-			m_monitoredStatistic.getLongValue(
-			  monitoredStatistics)));
+           Math.max(getValue(peakStorageStatistics),
+            m_monitoredStatistic.getLongValue(
+              monitoredStatistics)));
     }
   }
 
@@ -469,48 +469,48 @@ public final class StatisticExpressionFactory {
       boolean doubleResult = false;
 
       for (int i = 0; i < operands.length && !doubleResult; ++i) {
-	if (operands[i].isDouble()) {
-	  doubleResult = true;
-	}
+    if (operands[i].isDouble()) {
+      doubleResult = true;
+    }
       }
 
       if (doubleResult) {
-	m_expression = new DoubleStatistic() {
-	    public final double getValue(
-	      RawStatistics rawStatistics) {
-	      double result = initialValue;
+    m_expression = new DoubleStatistic() {
+        public final double getValue(
+          RawStatistics rawStatistics) {
+          double result = initialValue;
 
-	      for (int i = 0; i < operands.length; ++i) {
-		result = doDoubleOperation(result, operands[i], rawStatistics);
-	      }
+          for (int i = 0; i < operands.length; ++i) {
+        result = doDoubleOperation(result, operands[i], rawStatistics);
+          }
 
-	      return result;
-	    }
-	  };
+          return result;
+        }
+      };
       }
       else {
-	m_expression = new LongStatistic() {
-	    public final long getValue(
-	      RawStatistics rawStatistics) {
-	      long result = (long)initialValue;
+    m_expression = new LongStatistic() {
+        public final long getValue(
+          RawStatistics rawStatistics) {
+          long result = (long)initialValue;
 
-	      for (int i = 0; i < operands.length; ++i) {
-		result = doLongOperation(result, operands[i], rawStatistics);
-	      }
+          for (int i = 0; i < operands.length; ++i) {
+        result = doLongOperation(result, operands[i], rawStatistics);
+          }
 
-	      return result;
-	    }
-	  };
+          return result;
+        }
+      };
       }
     }
 
     protected abstract double
       doDoubleOperation(double result, StatisticExpression operand,
-			RawStatistics rawStatistics);
+            RawStatistics rawStatistics);
 
     protected abstract long
       doLongOperation(long result, StatisticExpression operand,
-		      RawStatistics rawStatistics);
+              RawStatistics rawStatistics);
 
     final StatisticExpression getExpression() {
       return m_expression;
@@ -540,7 +540,7 @@ public final class StatisticExpressionFactory {
 
     private final char peekCharacterNoEat() {
       if (m_index >= m_expression.length) {
-	return EOS_SENTINEL;
+    return EOS_SENTINEL;
       }
 
       return m_expression[m_index];
@@ -550,7 +550,7 @@ public final class StatisticExpressionFactory {
       final char result = peekCharacter();
 
       if (result != EOS_SENTINEL) {
-	++m_index;
+    ++m_index;
       }
 
       return result;
@@ -562,13 +562,13 @@ public final class StatisticExpressionFactory {
       final int start = m_index;
 
       while (isTokenCharacter(peekCharacterNoEat())) {
-	++m_index;
+    ++m_index;
       }
 
       final int stringLength = m_index - start;
 
       if (stringLength == 0) {
-	throw new ParseException("Expected a token", start);
+    throw new ParseException("Expected a token", start);
       }
 
       return new String(m_expression, start, stringLength);
@@ -576,26 +576,26 @@ public final class StatisticExpressionFactory {
 
     private final boolean isTokenCharacter(char c) {
       return
-	c != EOS_SENTINEL &&
-	c != '(' &&
-	c != ')' &&
-	!Character.isWhitespace(c);
+    c != EOS_SENTINEL &&
+    c != '(' &&
+    c != ')' &&
+    !Character.isWhitespace(c);
     }
 
     private final void eatWhiteSpace() {
       while (Character.isWhitespace(peekCharacterNoEat())) {
-	++m_index;
+    ++m_index;
       }
     }
 
     public final class ParseException extends GrinderException {
       private ParseException(String message) {
-	this(message, m_index);
+    this(message, m_index);
       }
 
       public ParseException(String message, int where) {
-	super("Parse exception: " + message + ", at character " + where +
-	      " of '" + m_expression + "'");
+    super("Parse exception: " + message + ", at character " + where +
+          " of '" + m_expression + "'");
       }
     }
   }

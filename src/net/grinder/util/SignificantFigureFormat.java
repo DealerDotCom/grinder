@@ -55,8 +55,8 @@ public class SignificantFigureFormat extends DecimalFormat {
   private static int boundingPowerOfTen(double number) {
 
     if (number == 0d ||
-	Double.isInfinite(number) ||
-	Double.isNaN(number)) {
+    Double.isInfinite(number) ||
+    Double.isNaN(number)) {
       return 1;
     }
 
@@ -67,16 +67,16 @@ public class SignificantFigureFormat extends DecimalFormat {
 
     if (abs < 1) {
       while (x > abs) {
-	x /= 10;
-	--i;
+    x /= 10;
+    --i;
       }
 
       return i + 1;
     }
     else {
       while (!(x > abs)) {
-	x *= 10;
-	++i;
+    x *= 10;
+    ++i;
       }
 
       return i;
@@ -92,10 +92,10 @@ public class SignificantFigureFormat extends DecimalFormat {
    * @return a <code>StringBuffer</code> value
    */
   public StringBuffer format(double number, StringBuffer buffer,
-			     FieldPosition position) {
+                 FieldPosition position) {
 
     if (Double.isInfinite(number) ||
-	Double.isNaN(number)) {
+    Double.isNaN(number)) {
       return super.format(number, buffer, position);
     }
 
@@ -121,7 +121,7 @@ public class SignificantFigureFormat extends DecimalFormat {
    * @return a <code>StringBuffer</code> value
    */
   public StringBuffer format(long number, StringBuffer buffer,
-			     FieldPosition position) {
+                 FieldPosition position) {
 
     return format((double)number, buffer, position);
   }

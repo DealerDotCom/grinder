@@ -51,8 +51,19 @@ public class DisplayMessageConsoleException extends ConsoleException {
    * <code>resourceKey</code> not found.
    */
   public DisplayMessageConsoleException(String resourceKey,
-					String defaultMessage) {
+                    String defaultMessage) {
     super(s_resources != null ?
-	  s_resources.getString(resourceKey) : defaultMessage);
+      s_resources.getString(resourceKey) : defaultMessage);
+  }
+
+  /** We define this purely to shut up the useful, but broken,
+   * HideUtilityClassConstructor Checkstyle check.. See Checkstyle bug
+   * 824754.
+   *
+   * @return A <code>Throwable</code> value, or <code>null</code> if
+   * none.
+   */
+  public Throwable getNestedThrowable() {
+    return super.getNestedThrowable();
   }
 }

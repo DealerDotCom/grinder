@@ -121,16 +121,16 @@ final class TestData implements TestRegistry.RegisteredTest {
     if (o instanceof PyObject) {
       // Jython object.
       if (o instanceof PyFinalizableInstance) {
-	return new TestPyFinalizableInstance(this, (PyFinalizableInstance)o);
+    return new TestPyFinalizableInstance(this, (PyFinalizableInstance)o);
       }
       else if (o instanceof PyInstance) {
-	return new TestPyInstance(this, (PyInstance)o);
+    return new TestPyInstance(this, (PyInstance)o);
       }
       else if (o instanceof PyFunction) {
-	return new TestPyJavaInstance(this, o);
+    return new TestPyJavaInstance(this, o);
       }
       else if (o instanceof PyMethod) {
-	return new TestPyJavaInstance(this, o);
+    return new TestPyJavaInstance(this, o);
       }
     }
     else {
@@ -140,9 +140,9 @@ final class TestData implements TestRegistry.RegisteredTest {
 
       // NB Jython uses Java types for some primitives and strings.
       if (!c.isArray() &&
-	  !(o instanceof Number) &&
-	  !(o instanceof String)) {
-	return new TestPyJavaInstance(this, o);
+      !(o instanceof Number) &&
+      !(o instanceof String)) {
+    return new TestPyJavaInstance(this, o);
       }
     }
 

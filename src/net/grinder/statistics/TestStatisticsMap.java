@@ -71,7 +71,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
   public final void put(Test test, TestStatistics statistics) {
     if (!(statistics instanceof TestStatisticsImplementation)) {
       throw new RuntimeException(
-	"TestStatistics implementation not supported");
+    "TestStatistics implementation not supported");
     }
 
     synchronized (this) {
@@ -102,14 +102,14 @@ public class TestStatisticsMap implements java.io.Externalizable {
       final Iterator iterator = new Iterator();
 
       while (iterator.hasNext()) {
-	final Pair pair = iterator.next();
+    final Pair pair = iterator.next();
 
-	final TestStatisticsImplementation testStatistics =
-	  testStatisticsFactory.createImplementation();
+    final TestStatisticsImplementation testStatistics =
+      testStatisticsFactory.createImplementation();
 
-	testStatistics.add(pair.getStatistics().getDelta(updateSnapshot));
+    testStatistics.add(pair.getStatistics().getDelta(updateSnapshot));
 
-	result.put(pair.getTest(), testStatistics);
+    result.put(pair.getTest(), testStatistics);
       }
     }
 
@@ -156,8 +156,8 @@ public class TestStatisticsMap implements java.io.Externalizable {
       final Pair otherPair = otherIterator.next();
 
       if (!pair.getTest().equals(otherPair.getTest()) ||
-	  !pair.getStatistics().equals(otherPair.getStatistics())) {
-	return false;
+      !pair.getStatistics().equals(otherPair.getStatistics())) {
+    return false;
       }
     }
 
@@ -191,13 +191,13 @@ public class TestStatisticsMap implements java.io.Externalizable {
       final Iterator iterator = new Iterator();
 
       while (iterator.hasNext()) {
-	final Pair pair = iterator.next();
+    final Pair pair = iterator.next();
 
-	result.append("(");
-	result.append(pair.getTest());
-	result.append(", ");
-	result.append(pair.getStatistics());
-	result.append(")");
+    result.append("(");
+    result.append(pair.getTest());
+    result.append(", ");
+    result.append(pair.getStatistics());
+    result.append(")");
       }
     }
 
@@ -223,14 +223,14 @@ public class TestStatisticsMap implements java.io.Externalizable {
       final Iterator iterator = new Iterator();
 
       while (iterator.hasNext()) {
-	final Pair pair = iterator.next();
+    final Pair pair = iterator.next();
 
-	out.writeInt(pair.getTest().getNumber());
+    out.writeInt(pair.getTest().getNumber());
 
-	// Its a class invariant that our TestStatistics are all
-	// TestStatisticsImplementations.
-	testStatisticsFactory.writeStatisticsExternal(
-	  out, (TestStatisticsImplementation)pair.getStatistics());
+    // Its a class invariant that our TestStatistics are all
+    // TestStatisticsImplementations.
+    testStatisticsFactory.writeStatisticsExternal(
+      out, (TestStatisticsImplementation)pair.getStatistics());
       }
     }
   }
@@ -253,7 +253,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
     for (int i = 0; i < n; i++) {
       m_data.put(new LightweightTest(in.readInt()),
-		 testStatisticsFactory.readStatisticsExternal(in));
+         testStatisticsFactory.readStatisticsExternal(in));
     }
   }
 
@@ -277,7 +277,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
     public final GrinderProperties getParameters() {
       throw new UnsupportedOperationException(
-	getClass().getName() + ".LightweightTest.getParameters()");
+    getClass().getName() + ".LightweightTest.getParameters()");
     }
   }
 

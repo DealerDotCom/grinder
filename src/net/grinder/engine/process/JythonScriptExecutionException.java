@@ -69,7 +69,7 @@ public class JythonScriptExecutionException extends EngineException {
       result = ((EngineException)result).getNestedThrowable();
     }
     while (result instanceof JythonScriptExecutionException ||
-	   result instanceof BriefPyException);
+       result instanceof BriefPyException);
 
     return result;
   }
@@ -86,8 +86,8 @@ public class JythonScriptExecutionException extends EngineException {
       super("", wrapped);
 
       m_where = "(Passed through Jython script \"" +
-	traceback.tb_frame.f_code.co_filename +
-	"\" at line " + traceback.tb_lineno + ")";
+    traceback.tb_frame.f_code.co_filename +
+    "\" at line " + traceback.tb_lineno + ")";
     }
 
     public final void printStackTrace(PrintWriter s) {

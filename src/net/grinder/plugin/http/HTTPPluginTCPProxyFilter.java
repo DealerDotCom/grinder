@@ -145,8 +145,8 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
     m_messageBodyPattern =
       compiler.compile(
-	"\\r\\n\\r\\n(.*)",
-	Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
+    "\\r\\n\\r\\n(.*)",
+    Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
 
     // From RFC 2616:
     //
@@ -159,58 +159,58 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
     m_requestLinePattern =
       compiler.compile(
-	"^([A-Z]+)[ \\t]+([^\\?;]+)([\\?;].+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?$",
-	Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
+    "^([A-Z]+)[ \\t]+([^\\?;]+)([\\?;].+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?$",
+    Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
 
     m_contentLengthPattern =
       compiler.compile(
-	getHeaderExpression("Content-Length"),
-	Perl5Compiler.READ_ONLY_MASK |
-	Perl5Compiler.MULTILINE_MASK |
-	Perl5Compiler.CASE_INSENSITIVE_MASK // Sigh...
-	);
+    getHeaderExpression("Content-Length"),
+    Perl5Compiler.READ_ONLY_MASK |
+    Perl5Compiler.MULTILINE_MASK |
+    Perl5Compiler.CASE_INSENSITIVE_MASK // Sigh...
+    );
 
     m_contentTypePattern =
       compiler.compile(
-	getHeaderExpression("Content-Type"),
-	Perl5Compiler.READ_ONLY_MASK |
-	Perl5Compiler.MULTILINE_MASK |
-	Perl5Compiler.CASE_INSENSITIVE_MASK // and sigh again.
-	);
+    getHeaderExpression("Content-Type"),
+    Perl5Compiler.READ_ONLY_MASK |
+    Perl5Compiler.MULTILINE_MASK |
+    Perl5Compiler.CASE_INSENSITIVE_MASK // and sigh again.
+    );
 
     for (int i=0; i<s_mirroredHeaders.length; i++) {
       m_mirroredHeaderPatterns[i] =
-	compiler.compile(
-	  getHeaderExpression(s_mirroredHeaders[i]),
-	  Perl5Compiler.READ_ONLY_MASK |
-	  Perl5Compiler.MULTILINE_MASK);
+    compiler.compile(
+      getHeaderExpression(s_mirroredHeaders[i]),
+      Perl5Compiler.READ_ONLY_MASK |
+      Perl5Compiler.MULTILINE_MASK);
     }
 
     m_basicAuthorizationHeaderPattern =
       compiler.compile(
-	"^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?$",
-	Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
+    "^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?$",
+    Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
 
     // Ignore maximum amount of stuff thats not a '?' followed by
     // a '/', then grab the next until the first '?'.
     m_lastURLPathElementPattern =
       compiler.compile(
-	"^[^\\?]*/([^\\?]*)",
-	Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
+    "^[^\\?]*/([^\\?]*)",
+    Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.SINGLELINE_MASK);
 
     // Should generate unique file names?
     m_scriptFileName = "httpscript.py";
 
     m_scriptFileWriter =
       new PrintWriter(
-	new BufferedWriter(new FileWriter(m_scriptFileName)), false);
+    new BufferedWriter(new FileWriter(m_scriptFileName)), false);
 
     final String testFileNamePrefix = "httpscript_tests";
     m_testFileName = testFileNamePrefix + ".py";
 
     m_testFileWriter =
       new PrintWriter(
-	new BufferedWriter(new FileWriter(m_testFileName)), false);
+    new BufferedWriter(new FileWriter(m_testFileName)), false);
 
     final String version = GrinderBuild.getVersionString();
 
@@ -218,8 +218,8 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     m_scriptFileWriter.println("# The Grinder version " + version);
     m_scriptFileWriter.println("#");
     m_scriptFileWriter.println("# Script recorded by the TCPProxy at " +
-			       DateFormat.getDateTimeInstance().format(
-				 Calendar.getInstance().getTime()));
+                   DateFormat.getDateTimeInstance().format(
+                 Calendar.getInstance().getTime()));
     m_scriptFileWriter.println("#");
     m_scriptFileWriter.println();
     m_scriptFileWriter.println("from " + testFileNamePrefix + " import *");
@@ -231,8 +231,8 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     m_testFileWriter.println("# The Grinder version " + version);
     m_testFileWriter.println("#");
     m_testFileWriter.println("# HTTP tests recorded by the TCPProxy at " +
-			     DateFormat.getDateTimeInstance().format(
-			       Calendar.getInstance().getTime()));
+                 DateFormat.getDateTimeInstance().format(
+                   Calendar.getInstance().getTime()));
     m_testFileWriter.println("#");
     m_testFileWriter.println();
     m_testFileWriter.println("from HTTPClient import NVPair");
@@ -243,7 +243,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     m_testFileWriter.println("tests = {}");
 
     m_out.println("Script will be generated to the files '" +
-		  m_scriptFileName + "' and '" + m_testFileName + "'");
+          m_scriptFileName + "' and '" + m_testFileName + "'");
     m_out.flush();
   }
 
@@ -272,7 +272,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
    * @exception IOException if an error occurs
    */
   public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
-		       int bytesRead) throws IOException {
+               int bytesRead) throws IOException {
     getHandler(connectionDetails).handle(buffer, bytesRead);
     return null;
   }
@@ -306,15 +306,15 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
   private Handler getHandler(ConnectionDetails connectionDetails) {
     synchronized (m_handlers) {
       final Handler oldHandler =
-	(Handler)m_handlers.get(connectionDetails);
+    (Handler)m_handlers.get(connectionDetails);
 
       if (oldHandler != null) {
-	return oldHandler;
+    return oldHandler;
       }
       else {
-	final Handler newHandler = new Handler(connectionDetails);
-	m_handlers.put(connectionDetails, newHandler);
-	return newHandler;
+    final Handler newHandler = new Handler(connectionDetails);
+    m_handlers.put(connectionDetails, newHandler);
+    return newHandler;
       }
     }
   }
@@ -328,7 +328,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
     if (handler == null) {
       throw new IllegalArgumentException(
-	"Unknown connection " + connectionDetails);
+    "Unknown connection " + connectionDetails);
     }
 
     return handler;
@@ -382,9 +382,9 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       m_connectionDetails = connectionDetails;
 
       /*
-	m_out.print(s_newLine + s_indent + s_indent +
-	"# New connection: " +
-	connectionDetails.getDescription());
+    m_out.print(s_newLine + s_indent + s_indent +
+    "# New connection: " +
+    connectionDetails.getDescription());
       */
     }
 
@@ -396,149 +396,149 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       final String asciiString = new String(buffer, 0, length, "US-ASCII");
 
       if (m_matcher.contains(asciiString, m_requestLinePattern)) {
-	// Packet is start of new request message.
+    // Packet is start of new request message.
 
-	final MatchResult matchResult = m_matcher.getMatch();
+    final MatchResult matchResult = m_matcher.getMatch();
 
-	// Grab match results because endMessage plays with
-	// out Matcher.
-	final String newMethod = matchResult.group(1);
-	final String newURL = matchResult.group(2);
-	final String newQueryString = matchResult.group(3);
+    // Grab match results because endMessage plays with
+    // out Matcher.
+    final String newMethod = matchResult.group(1);
+    final String newURL = matchResult.group(2);
+    final String newQueryString = matchResult.group(3);
 
-	endMessage();
+    endMessage();
 
-	m_method = newMethod;
-	m_parsingHeaders = true;
+    m_method = newMethod;
+    m_parsingHeaders = true;
 
-	if (m_method.equals("GET") ||
-	    m_method.equals("HEAD")) {
-	  m_handlingBody = false;
-	  m_url = newURL;
-	  m_queryString = newQueryString;
-	}
-	else if (m_method.equals("DELETE") ||
-		 m_method.equals("TRACE")) {
-	  m_handlingBody = false;
+    if (m_method.equals("GET") ||
+        m_method.equals("HEAD")) {
+      m_handlingBody = false;
+      m_url = newURL;
+      m_queryString = newQueryString;
+    }
+    else if (m_method.equals("DELETE") ||
+         m_method.equals("TRACE")) {
+      m_handlingBody = false;
 
-	  if (newQueryString != null) {
-	    m_url = newURL + newQueryString;
-	    m_queryString = null;
-	  }
-	  else {
-	    m_url = newURL;
-	  }
-	}
-	else if (m_method.equals("OPTIONS") ||
-		 m_method.equals("PUT") ||
-		 m_method.equals("POST")) {
-	  m_handlingBody = true;
-	  m_entityBodyByteStream.reset();
-	  m_contentLength = -1;
-	  m_contentType = null;
+      if (newQueryString != null) {
+        m_url = newURL + newQueryString;
+        m_queryString = null;
+      }
+      else {
+        m_url = newURL;
+      }
+    }
+    else if (m_method.equals("OPTIONS") ||
+         m_method.equals("PUT") ||
+         m_method.equals("POST")) {
+      m_handlingBody = true;
+      m_entityBodyByteStream.reset();
+      m_contentLength = -1;
+      m_contentType = null;
 
-	  if (newQueryString != null) {
-	    m_url = newURL + newQueryString;
-	    m_queryString = null;
-	  }
-	  else {
-	    m_url = newURL;
-	  }
-	}
-	else {
-	  warn("Ignoring '" + m_method + "' from " +
-	       m_connectionDetails.getDescription());
-	  return;
-	}
+      if (newQueryString != null) {
+        m_url = newURL + newQueryString;
+        m_queryString = null;
+      }
+      else {
+        m_url = newURL;
+      }
+    }
+    else {
+      warn("Ignoring '" + m_method + "' from " +
+           m_connectionDetails.getDescription());
+      return;
+    }
 
-	if (!m_url.startsWith("http")) {
-	  // Relative URL given, calculate absolute URL.
-	  m_url = m_connectionDetails.getURLBase("http") + m_url;
-	}
+    if (!m_url.startsWith("http")) {
+      // Relative URL given, calculate absolute URL.
+      m_url = m_connectionDetails.getURLBase("http") + m_url;
+    }
 
-	// Stuff we do at start of request only.
-	m_time = s_lastResponseTime > 0 ?
-	  System.currentTimeMillis() - s_lastResponseTime : 0;
+    // Stuff we do at start of request only.
+    m_time = s_lastResponseTime > 0 ?
+      System.currentTimeMillis() - s_lastResponseTime : 0;
 
-	m_headers.clear();
+    m_headers.clear();
       }
 
       // Stuff we do whatever.
 
       if (m_parsingHeaders) {
-	for (int i=0; i<s_mirroredHeaders.length; i++) {
-	  if (m_matcher.contains(asciiString,
-				 m_mirroredHeaderPatterns[i])) {
+    for (int i=0; i<s_mirroredHeaders.length; i++) {
+      if (m_matcher.contains(asciiString,
+                 m_mirroredHeaderPatterns[i])) {
 
-	    m_headers.add(
-	      new NVPair(s_mirroredHeaders[i],
-			 m_matcher.getMatch().group(1).trim()));
-	  }
-	}
-	/*
-	  if (m_matcher.contains(asciiString,
-	  m_basicAuthorizationHeaderPattern)) {
+        m_headers.add(
+          new NVPair(s_mirroredHeaders[i],
+             m_matcher.getMatch().group(1).trim()));
+      }
+    }
+    /*
+      if (m_matcher.contains(asciiString,
+      m_basicAuthorizationHeaderPattern)) {
 
-	  final String decoded =
-	  Codecs.base64Decode(
-	  m_matcher.getMatch().group(1).trim());
+      final String decoded =
+      Codecs.base64Decode(
+      m_matcher.getMatch().group(1).trim());
 
-	  final int colon = decoded.indexOf(":");
+      final int colon = decoded.indexOf(":");
 
-	  if (colon < 0) {
-	  warn("Could not decode Authorization header");
-	  }
-	  else {
-	  outputProperty(
-	  "parameter.basicAuthenticationUser",
-	  decoded.substring(0, colon));
-
-	  outputProperty(
-	  "parameter.basicAuthenticationPassword",
-	  decoded.substring(colon+1));
-
-	  outputProperty(
-	  "parameter.basicAuthenticationRealm",
-	  HTTPPluginTCPProxyResponseFilter.
-	  getLastAuthenticationRealm());
-	  }
-	  }
-	*/
-
-	if (m_handlingBody) {
-	  // Look for the content length and type in the header.
-	  if (m_matcher.contains(asciiString,
-				 m_contentLengthPattern)) {
-	    m_contentLength =
-	      Integer.parseInt(
-		m_matcher.getMatch().group(1).trim());
-	  }
-
-	  if (m_matcher.contains(asciiString,
-				 m_contentTypePattern)) {
-	    m_contentType = m_matcher.getMatch().group(1).trim();
-	    m_headers.add(
-	      new NVPair("Content-Type", m_contentType));
-	  }
-
-	  if (m_matcher.contains(asciiString,
-				 m_messageBodyPattern)) {
-
-	    m_parsingHeaders = false;
-	    final MatchResult matchResult = m_matcher.getMatch();
-	    final int beginOffset = matchResult.beginOffset(1);
-	    final int endOffset = matchResult.endOffset(1);
-	    addToEntityBody(buffer, beginOffset, endOffset - beginOffset);
-	  }
-	}
+      if (colon < 0) {
+      warn("Could not decode Authorization header");
       }
       else {
-	if (m_handlingBody) {
-	  addToEntityBody(buffer, 0, length);
-	}
-	else {
-	  warn("UNEXPECTED - Not parsing headers or handling POST");
-	}
+      outputProperty(
+      "parameter.basicAuthenticationUser",
+      decoded.substring(0, colon));
+
+      outputProperty(
+      "parameter.basicAuthenticationPassword",
+      decoded.substring(colon+1));
+
+      outputProperty(
+      "parameter.basicAuthenticationRealm",
+      HTTPPluginTCPProxyResponseFilter.
+      getLastAuthenticationRealm());
+      }
+      }
+    */
+
+    if (m_handlingBody) {
+      // Look for the content length and type in the header.
+      if (m_matcher.contains(asciiString,
+                 m_contentLengthPattern)) {
+        m_contentLength =
+          Integer.parseInt(
+        m_matcher.getMatch().group(1).trim());
+      }
+
+      if (m_matcher.contains(asciiString,
+                 m_contentTypePattern)) {
+        m_contentType = m_matcher.getMatch().group(1).trim();
+        m_headers.add(
+          new NVPair("Content-Type", m_contentType));
+      }
+
+      if (m_matcher.contains(asciiString,
+                 m_messageBodyPattern)) {
+
+        m_parsingHeaders = false;
+        final MatchResult matchResult = m_matcher.getMatch();
+        final int beginOffset = matchResult.beginOffset(1);
+        final int endOffset = matchResult.endOffset(1);
+        addToEntityBody(buffer, beginOffset, endOffset - beginOffset);
+      }
+    }
+      }
+      else {
+    if (m_handlingBody) {
+      addToEntityBody(buffer, 0, length);
+    }
+    else {
+      warn("UNEXPECTED - Not parsing headers or handling POST");
+    }
       }
     }
 
@@ -546,10 +546,10 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       throws IOException {
 
       if (m_contentLength != -1 &&
-	  length > m_contentLength - m_entityBodyByteStream.size()) {
+      length > m_contentLength - m_entityBodyByteStream.size()) {
 
-	warn("Expected content length exceeded, truncating to content length");
-	length = m_contentLength - m_entityBodyByteStream.size();
+    warn("Expected content length exceeded, truncating to content length");
+    length = m_contentLength - m_entityBodyByteStream.size();
       }
 
       m_entityBodyByteStream.write(bytes, start, length);
@@ -559,9 +559,9 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       // we rely on next message or connection close event to flush
       // the data.
       if (m_contentLength != -1 &&
-	  m_entityBodyByteStream.size() >= m_contentLength) {
+      m_entityBodyByteStream.size() >= m_contentLength) {
 
-	  endMessage();
+      endMessage();
       }
     }
 
@@ -572,17 +572,17 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
     public final synchronized void endMessage() throws IOException {
       if (m_method == null) {
-	return;
+    return;
       }
 
       final StringBuffer scriptOutput = new StringBuffer();
       final StringBuffer testOutput = new StringBuffer();
 
       if (m_time > 10) {
-	appendNewLineAndIndent(scriptOutput, 2);
-	scriptOutput.append("grinder.sleep(");
-	scriptOutput.append(Long.toString(m_time));
-	scriptOutput.append(")");
+    appendNewLineAndIndent(scriptOutput, 2);
+    scriptOutput.append("grinder.sleep(");
+    scriptOutput.append(Long.toString(m_time));
+    scriptOutput.append(")");
       }
 
       testOutput.append(s_newLine);
@@ -596,51 +596,51 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       String newHeaderVariable = null;
 
       if (m_headers.size() > 0) {
-	final StringBuffer headerStringBuffer = new StringBuffer();
+    final StringBuffer headerStringBuffer = new StringBuffer();
 
-	final Iterator iterator = m_headers.iterator();
-	boolean first = true;
+    final Iterator iterator = m_headers.iterator();
+    boolean first = true;
 
-	while (iterator.hasNext()) {
-	  final NVPair entry = (NVPair)iterator.next();
+    while (iterator.hasNext()) {
+      final NVPair entry = (NVPair)iterator.next();
 
-	  if (!first) {
-	    appendNewLineAndIndent(headerStringBuffer, 3);
-	  }
-	  else {
-	    first = false;
-	  }
-
-	  appendNVPair(headerStringBuffer, entry);
-	}
-
-	final String headerString = headerStringBuffer.toString();
-
-	String headerVariable =
-	  (String)m_previousHeaders.get(headerString);
-
-	if (headerVariable == null) {
-	  headerVariable = "headers" + requestNumber;
-
-	  testOutput.append(s_newLine);
-	  testOutput.append(headerVariable);
-	  testOutput.append(" = ( ");
-	  testOutput.append(headerString);
-	  testOutput.append(")");
-
-	  // We have new headers, but don't add them to
-	  // m_previousHeaders until we've flushed the header array to
-	  // the script. Otherwise there's a race condition where
-	  // another Handler can refer to the header array before its
-	  // declared.
-	  newHeaderString = headerString;
-	  newHeaderVariable = headerVariable;
-	}
-
-	headerAssignment = "headers = " + headerVariable;
+      if (!first) {
+        appendNewLineAndIndent(headerStringBuffer, 3);
       }
       else {
-	headerAssignment = "";
+        first = false;
+      }
+
+      appendNVPair(headerStringBuffer, entry);
+    }
+
+    final String headerString = headerStringBuffer.toString();
+
+    String headerVariable =
+      (String)m_previousHeaders.get(headerString);
+
+    if (headerVariable == null) {
+      headerVariable = "headers" + requestNumber;
+
+      testOutput.append(s_newLine);
+      testOutput.append(headerVariable);
+      testOutput.append(" = ( ");
+      testOutput.append(headerString);
+      testOutput.append(")");
+
+      // We have new headers, but don't add them to
+      // m_previousHeaders until we've flushed the header array to
+      // the script. Otherwise there's a race condition where
+      // another Handler can refer to the header array before its
+      // declared.
+      newHeaderString = headerString;
+      newHeaderVariable = headerVariable;
+    }
+
+    headerAssignment = "headers = " + headerVariable;
+      }
+      else {
+    headerAssignment = "";
       }
 
       testOutput.append(s_newLine);
@@ -653,10 +653,10 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       final String description;
 
       if (m_matcher.contains(m_url, m_lastURLPathElementPattern)) {
-	description = m_method + " " + m_matcher.getMatch().group(1);
+    description = m_method + " " + m_matcher.getMatch().group(1);
       }
       else {
-	description = m_method;
+    description = m_method;
       }
 
       testOutput.append(s_newLine);
@@ -682,93 +682,93 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
       if (m_queryString != null && m_queryString.length() > 1) {
 
-	try {
-	  final String queryStringAsNameValuePairs =
-	    parseNameValueString(m_queryString.substring(1), 3);
+    try {
+      final String queryStringAsNameValuePairs =
+        parseNameValueString(m_queryString.substring(1), 3);
 
-	  scriptOutput.append("'");
-	  scriptOutput.append(",");
-	  appendNewLineAndIndent(scriptOutput, 2);
-	  scriptOutput.append("  ( ");
-	  scriptOutput.append(queryStringAsNameValuePairs);
-	  scriptOutput.append(")");
-	}
-	catch (ParseException e) {
-	  // Failed to split query string into name-value pairs. Oh
-	  // well, bolt it back onto the URL.
-	  scriptOutput.append(m_queryString);
-	  scriptOutput.append("'");
-	}
+      scriptOutput.append("'");
+      scriptOutput.append(",");
+      appendNewLineAndIndent(scriptOutput, 2);
+      scriptOutput.append("  ( ");
+      scriptOutput.append(queryStringAsNameValuePairs);
+      scriptOutput.append(")");
+    }
+    catch (ParseException e) {
+      // Failed to split query string into name-value pairs. Oh
+      // well, bolt it back onto the URL.
+      scriptOutput.append(m_queryString);
+      scriptOutput.append("'");
+    }
       }
       else {
-	scriptOutput.append("'");
+    scriptOutput.append("'");
       }
 
       if (!m_parsingHeaders && m_handlingBody) {
-	m_handlingBody = false;
+    m_handlingBody = false;
 
-	boolean parsedFormData = false;
+    boolean parsedFormData = false;
 
-	if ("application/x-www-form-urlencoded".equals(m_contentType)) {
+    if ("application/x-www-form-urlencoded".equals(m_contentType)) {
 
-	  try {
-	    final String nameValueString =
-	      parseNameValueString(m_entityBodyByteStream.toString("US-ASCII"),
-				   3);
+      try {
+        final String nameValueString =
+          parseNameValueString(m_entityBodyByteStream.toString("US-ASCII"),
+                   3);
 
-	    parsedFormData = true;
+        parsedFormData = true;
 
-	    scriptOutput.append(",");
-	    appendNewLineAndIndent(scriptOutput, 2);
-	    scriptOutput.append("  ( ");
-	    scriptOutput.append(nameValueString);
-	    scriptOutput.append(")");
-	  }
-	  catch (ParseException e) {
-	    // Failed to parse form data as name-value pairs, we'll
-	    // treat it as raw data instead.
-	  }
-	}
+        scriptOutput.append(",");
+        appendNewLineAndIndent(scriptOutput, 2);
+        scriptOutput.append("  ( ");
+        scriptOutput.append(nameValueString);
+        scriptOutput.append(")");
+      }
+      catch (ParseException e) {
+        // Failed to parse form data as name-value pairs, we'll
+        // treat it as raw data instead.
+      }
+    }
 
-	if (!parsedFormData) {
-	  final String dataParameter = "data" + requestNumber;
+    if (!parsedFormData) {
+      final String dataParameter = "data" + requestNumber;
 
-	  testOutput.append(s_newLine);
+      testOutput.append(s_newLine);
 
-	  final byte[] bytes = m_entityBodyByteStream.toByteArray();
+      final byte[] bytes = m_entityBodyByteStream.toByteArray();
 
-	  if (bytes.length > 0x400) {
-	    // Large amount of data, use a file.
-	    final String fileName = dataParameter + ".dat";
+      if (bytes.length > 0x400) {
+        // Large amount of data, use a file.
+        final String fileName = dataParameter + ".dat";
 
-	    final FileOutputStream dataStream = new FileOutputStream(fileName);
-	    dataStream.write(bytes, 0, bytes.length);
-	    dataStream.close();
+        final FileOutputStream dataStream = new FileOutputStream(fileName);
+        dataStream.write(bytes, 0, bytes.length);
+        dataStream.close();
 
             testOutput.append(requestVariable);
             testOutput.append(".setDataFromFile('");
-	    testOutput.append(fileName);
-	    testOutput.append("')");
+        testOutput.append(fileName);
+        testOutput.append("')");
             testOutput.append(s_newLine);
-	  }
-	  else {
-	    testOutput.append(dataParameter);
-	    testOutput.append(" = ( ");
+      }
+      else {
+        testOutput.append(dataParameter);
+        testOutput.append(" = ( ");
 
-	    for (int i=0; i<bytes.length; ++i) {
-	      final int x =
-		bytes[i] < 0 ? (int)bytes[i] + 0x100 : (int)bytes[i];
+        for (int i=0; i<bytes.length; ++i) {
+          final int x =
+        bytes[i] < 0 ? (int)bytes[i] + 0x100 : (int)bytes[i];
 
-	      testOutput.append(Integer.toString(x));
-	      testOutput.append(", ");
-	    }
+          testOutput.append(Integer.toString(x));
+          testOutput.append(", ");
+        }
 
-	    testOutput.append(")");
+        testOutput.append(")");
 
-	    scriptOutput.append(", ");
-	    scriptOutput.append(dataParameter);
-	  }
-	}
+        scriptOutput.append(", ");
+        scriptOutput.append(dataParameter);
+      }
+    }
       }
 
       scriptOutput.append(")");
@@ -781,9 +781,9 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       m_testFileWriter.flush();
 
       if (newHeaderString != null) {
-	// We created a new header array, stash for use by other
-	// Handlers.
-	m_previousHeaders.put(newHeaderString, newHeaderVariable);
+    // We created a new header array, stash for use by other
+    // Handlers.
+    m_previousHeaders.put(newHeaderString, newHeaderVariable);
       }
 
       m_method = null;
@@ -791,7 +791,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
   }
 
   private final void appendNewLineAndIndent(StringBuffer resultBuffer,
-					    int indentLevel) {
+                        int indentLevel) {
     resultBuffer.append(s_newLine);
 
     for (int k=0; k<indentLevel; ++k) {
@@ -808,7 +808,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
     for (int i=0; i<pairs.length; ++i) {
       if (i != 0) {
-	appendNewLineAndIndent(result, indentLevel);
+    appendNewLineAndIndent(result, indentLevel);
       }
 
       appendNVPair(result, pairs[i]);
@@ -838,10 +838,10 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
       switch (c) {
       case '\'':
       case '\\':
-	resultBuffer.append('\\');
-	// fall through.
+    resultBuffer.append('\\');
+    // fall through.
       default:
-	resultBuffer.append(c);
+    resultBuffer.append(c);
       }
     }
 

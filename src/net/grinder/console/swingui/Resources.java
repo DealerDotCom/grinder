@@ -54,13 +54,13 @@ public class Resources implements net.grinder.console.common.Resources {
 
     synchronized (Resources.class) {
       if (s_resources == null) {
-	try {
-	  s_resources = ResourceBundle.getBundle(
-	    "net.grinder.console.swingui.resources.Console");
-	}
-	catch (MissingResourceException e) {
-	  throw new ConsoleException("Resource bundle not found");
-	}
+    try {
+      s_resources = ResourceBundle.getBundle(
+        "net.grinder.console.swingui.resources.Console");
+    }
+    catch (MissingResourceException e) {
+      throw new ConsoleException("Resource bundle not found");
+    }
       }
 
       DisplayMessageConsoleException.setResources(this);
@@ -91,9 +91,9 @@ public class Resources implements net.grinder.console.common.Resources {
     }
     catch (MissingResourceException e) {
       if (warnIfMissing) {
-	System.err.println(
-	  "Warning - resource " + key + " not specified");
-	return "";
+    System.err.println(
+      "Warning - resource " + key + " not specified");
+    return "";
       }
 
       return null;
@@ -140,24 +140,24 @@ public class Resources implements net.grinder.console.common.Resources {
 
     if (resource != null) {
       try {
-	final Reader in =
-	  new BufferedReader(new InputStreamReader(resource.openStream()));
+    final Reader in =
+      new BufferedReader(new InputStreamReader(resource.openStream()));
 
-	final StringWriter out = new StringWriter();
+    final StringWriter out = new StringWriter();
 
-	int c;
+    int c;
 
-	while ((c = in.read()) > 0) {
-	  out.write(c);
-	}
+    while ((c = in.read()) > 0) {
+      out.write(c);
+    }
 
-	in.close();
-	out.close();
+    in.close();
+    out.close();
 
-	return out.toString();
+    return out.toString();
       }
       catch (IOException e) {
-	System.err.println("Warning - could not read " + resource);
+    System.err.println("Warning - could not read " + resource);
       }
     }
 

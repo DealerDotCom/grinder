@@ -54,9 +54,9 @@ public final class TCPProxyConsole extends JFrame {
     setResizable(false);
 
     addWindowListener(new WindowAdapter() {
-	public void windowClosing(WindowEvent e) {
-	  System.exit(0);
-	}
+    public void windowClosing(WindowEvent e) {
+      System.exit(0);
+    }
       });
 
     final Container content = getContentPane();
@@ -90,7 +90,7 @@ public final class TCPProxyConsole extends JFrame {
 
     public void actionPerformed(ActionEvent e) {
       if (e.getActionCommand().equals(STOP_BUTTON_LABEL)) {
-	System.exit(0);
+    System.exit(0);
       }
     }
   }

@@ -78,14 +78,14 @@ final class CumulativeStatisticsTableModel
     else {
       switch (column) {
       case 0:
-	return m_totalString;
+    return m_totalString;
 
       case 1:
-	return "";
+    return "";
 
       default:
-	return getDynamicField(
-	  getModel().getTotalCumulativeStatistics(), column - 2);
+    return getDynamicField(
+      getModel().getTotalCumulativeStatistics(), column - 2);
       }
     }
   }
@@ -107,13 +107,13 @@ final class CumulativeStatisticsTableModel
     }
     else {
       return
-	column == 3 &&
-	getModel().getTotalCumulativeStatistics().getErrors() > 0;
+    column == 3 &&
+    getModel().getTotalCumulativeStatistics().getErrors() > 0;
     }
   }
 
   public synchronized void write(Writer writer, String columnDelimiter,
-				 String lineDelimeter)
+                 String lineDelimeter)
     throws IOException {
 
     try {

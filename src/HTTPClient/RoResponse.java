@@ -1,5 +1,5 @@
 /*
- * @(#)RoResponse.java					0.3-3 06/05/2001
+ * @(#)RoResponse.java                    0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -42,8 +42,8 @@ import java.util.Date;
  * response. It is the compile-time type passed to various handlers which
  * might the response info but musn't modify the response.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
  */
 public interface RoResponse
 {
@@ -94,7 +94,7 @@ public interface RoResponse
      * @exception IOException if any exception occurs on the socket.
      */
     public int getHeaderAsInt(String hdr)
-		throws IOException, NumberFormatException;
+        throws IOException, NumberFormatException;
 
     /**
      * retrieves the field for a given header. The value is parsed as a
@@ -109,7 +109,7 @@ public interface RoResponse
      *            as a date or time.
      */
     public Date getHeaderAsDate(String hdr)
-	    throws IOException, IllegalArgumentException;
+        throws IOException, IllegalArgumentException;
 
     /**
      * Retrieves the field for a given trailer. Note that this should not
@@ -133,7 +133,7 @@ public interface RoResponse
      * @exception IOException if any exception occurs on the socket.
      */
     public int getTrailerAsInt(String trailer)
-		throws IOException, NumberFormatException;
+        throws IOException, NumberFormatException;
 
 
     /**
@@ -152,7 +152,7 @@ public interface RoResponse
      *            as a date or time.
      */
     public Date getTrailerAsDate(String trailer)
-		throws IOException, IllegalArgumentException;
+        throws IOException, IllegalArgumentException;
 
     /**
      * Reads all the response data into a byte array. Note that this method
@@ -166,7 +166,7 @@ public interface RoResponse
      * @return an array containing the data (body) returned. If no data
      *         was returned then it's set to a zero-length array.
      * @exception IOException If any io exception occured while reading
-     *			      the data
+     *                  the data
      */
     public byte[] getData()  throws IOException;
 

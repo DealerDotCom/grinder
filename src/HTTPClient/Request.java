@@ -1,5 +1,5 @@
 /*
- * @(#)Request.java					0.3-3 06/05/2001
+ * @(#)Request.java                    0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -37,8 +37,8 @@ package HTTPClient;
  * This class represents an http request. It's used by classes which
  * implement the HTTPClientModule interface.
  *
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
  */
 public final class Request implements RoRequest, Cloneable
 {
@@ -67,7 +67,7 @@ public final class Request implements RoRequest, Cloneable
     private boolean        allow_ui;
 
     /** number of millisecs to wait for an error from the server before sending
-	the entity (used when retrying requests) */
+    the entity (used when retrying requests) */
             long           delay_entity = 0;
 
     /** number of retries so far */
@@ -97,16 +97,16 @@ public final class Request implements RoRequest, Cloneable
      * @param allow_ui allow user interaction
      */
     public Request(HTTPConnection con, String method, String req_uri,
-		   NVPair[] headers, byte[] data, HttpOutputStream stream,
-		   boolean allow_ui)
+           NVPair[] headers, byte[] data, HttpOutputStream stream,
+           boolean allow_ui)
     {
-	this.connection = con;
-	this.method     = method;
-	setRequestURI(req_uri);
-	setHeaders(headers);
-	this.data       = data;
-	this.stream     = stream;
-	this.allow_ui   = allow_ui;
+    this.connection = con;
+    this.method     = method;
+    setRequestURI(req_uri);
+    setHeaders(headers);
+    this.data       = data;
+    this.stream     = stream;
+    this.allow_ui   = allow_ui;
     }
 
 
@@ -117,7 +117,7 @@ public final class Request implements RoRequest, Cloneable
      */
     public HTTPConnection getConnection()
     {
-	return connection;
+    return connection;
     }
 
     /**
@@ -125,7 +125,7 @@ public final class Request implements RoRequest, Cloneable
      */
     public void setConnection(HTTPConnection  con)
     {
-	this.connection = con;
+    this.connection = con;
     }
 
 
@@ -134,7 +134,7 @@ public final class Request implements RoRequest, Cloneable
      */
     public String getMethod()
     {
-	return method;
+    return method;
     }
 
     /**
@@ -142,7 +142,7 @@ public final class Request implements RoRequest, Cloneable
      */
     public void setMethod(String method)
     {
-	this.method = method;
+    this.method = method;
     }
 
 
@@ -151,7 +151,7 @@ public final class Request implements RoRequest, Cloneable
      */
     public String getRequestURI()
     {
-	return req_uri;
+    return req_uri;
     }
 
     /**
@@ -159,27 +159,27 @@ public final class Request implements RoRequest, Cloneable
      */
     public void setRequestURI(String req_uri)
     {
-	if (req_uri != null  &&  req_uri.trim().length() > 0)
-	{
-	    req_uri = req_uri.trim();
-	    if (req_uri.charAt(0) != '/'  &&  !req_uri.equals("*")  &&
-		!method.equals("CONNECT")  &&  !isAbsolute(req_uri))
-		req_uri = "/" + req_uri;
-	    this.req_uri = req_uri;
-	}
-	else
-	    this.req_uri = "/";
+    if (req_uri != null  &&  req_uri.trim().length() > 0)
+    {
+        req_uri = req_uri.trim();
+        if (req_uri.charAt(0) != '/'  &&  !req_uri.equals("*")  &&
+        !method.equals("CONNECT")  &&  !isAbsolute(req_uri))
+        req_uri = "/" + req_uri;
+        this.req_uri = req_uri;
+    }
+    else
+        this.req_uri = "/";
     }
 
     private static final boolean isAbsolute(String uri)
     {
-	char ch = '\0';
-	int  pos = 0, len = uri.length();
-	while (pos < len  &&  (ch = uri.charAt(pos)) != ':'  &&
-	       ch != '/'  &&  ch != '?'  &&  ch != '#')
-	  pos++;
+    char ch = '\0';
+    int  pos = 0, len = uri.length();
+    while (pos < len  &&  (ch = uri.charAt(pos)) != ':'  &&
+           ch != '/'  &&  ch != '?'  &&  ch != '#')
+      pos++;
 
-	return (ch == ':');
+    return (ch == ':');
     }
 
 
@@ -188,7 +188,7 @@ public final class Request implements RoRequest, Cloneable
      */
     public NVPair[] getHeaders()
     {
-	return headers;
+    return headers;
     }
 
     /**
@@ -196,10 +196,10 @@ public final class Request implements RoRequest, Cloneable
      */
     public void setHeaders(NVPair[] headers)
     {
-	if (headers != null)
-	    this.headers = headers;
-	else
-	    this.headers = empty;
+    if (headers != null)
+        this.headers = headers;
+    else
+        this.headers = empty;
     }
 
 
@@ -208,7 +208,7 @@ public final class Request implements RoRequest, Cloneable
      */
     public byte[] getData()
     {
-	return data;
+    return data;
     }
 
     /**
@@ -216,7 +216,7 @@ public final class Request implements RoRequest, Cloneable
      */
     public void setData(byte[] data)
     {
-	this.data = data;
+    this.data = data;
     }
 
 
@@ -225,7 +225,7 @@ public final class Request implements RoRequest, Cloneable
      */
     public HttpOutputStream getStream()
     {
-	return stream;
+    return stream;
     }
 
     /**
@@ -233,7 +233,7 @@ public final class Request implements RoRequest, Cloneable
      */
     public void setStream(HttpOutputStream stream)
     {
-	this.stream = stream;
+    this.stream = stream;
     }
 
 
@@ -243,7 +243,7 @@ public final class Request implements RoRequest, Cloneable
      */
     public boolean allowUI()
     {
-	return allow_ui;
+    return allow_ui;
     }
 
     /**
@@ -252,7 +252,7 @@ public final class Request implements RoRequest, Cloneable
      */
     public void setAllowUI(boolean allow_ui)
     {
-	this.allow_ui = allow_ui;
+    this.allow_ui = allow_ui;
     }
 
 
@@ -261,16 +261,16 @@ public final class Request implements RoRequest, Cloneable
      */
     public Object clone()
     {
-	Request cl;
-	try
-	    { cl = (Request) super.clone(); }
-	catch (CloneNotSupportedException cnse)
-	    { throw new InternalError(cnse.toString()); /* shouldn't happen */ }
+    Request cl;
+    try
+        { cl = (Request) super.clone(); }
+    catch (CloneNotSupportedException cnse)
+        { throw new InternalError(cnse.toString()); /* shouldn't happen */ }
 
-	cl.headers = new NVPair[headers.length];
-	System.arraycopy(headers, 0, cl.headers, 0, headers.length);
+    cl.headers = new NVPair[headers.length];
+    System.arraycopy(headers, 0, cl.headers, 0, headers.length);
 
-	return cl;
+    return cl;
     }
 
 
@@ -281,18 +281,18 @@ public final class Request implements RoRequest, Cloneable
      */
     public void copyFrom(Request other)
     {
-	this.connection          = other.connection;
-	this.method              = other.method;
-	this.req_uri             = other.req_uri;
-	this.headers             = other.headers;
-	this.data                = other.data;
-	this.stream              = other.stream;
-	this.allow_ui            = other.allow_ui;
-	this.delay_entity        = other.delay_entity;
-	this.num_retries         = other.num_retries;
-	this.dont_pipeline       = other.dont_pipeline;
-	this.aborted             = other.aborted;
-	this.internal_subrequest = other.internal_subrequest;
+    this.connection          = other.connection;
+    this.method              = other.method;
+    this.req_uri             = other.req_uri;
+    this.headers             = other.headers;
+    this.data                = other.data;
+    this.stream              = other.stream;
+    this.allow_ui            = other.allow_ui;
+    this.delay_entity        = other.delay_entity;
+    this.num_retries         = other.num_retries;
+    this.dont_pipeline       = other.dont_pipeline;
+    this.aborted             = other.aborted;
+    this.internal_subrequest = other.internal_subrequest;
     }
 
 
@@ -301,6 +301,6 @@ public final class Request implements RoRequest, Cloneable
      */
     public String toString()
     {
-	return getClass().getName() + ": " + method + " " + req_uri;
+    return getClass().getName() + ": " + method + " " + req_uri;
     }
 }

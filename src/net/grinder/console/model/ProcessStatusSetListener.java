@@ -42,5 +42,5 @@ public interface ProcessStatusSetListener extends EventListener {
    * @param totalThreadsSum The total number of potential threads.
    **/
   void update(ProcessStatus[] data, int runningThreadsSum,
-	      int totalThreadsSum);
+          int totalThreadsSum);
 }

@@ -51,7 +51,7 @@ public class JOptionPaneDialog extends JDialog {
    * @param modal <code>true</code> => dialog should be modal.
    */
   public JOptionPaneDialog(JFrame frame, final JOptionPane optionPane,
-			   String title, boolean modal) {
+               String title, boolean modal) {
 
     super(frame, title, modal);
 
@@ -65,51 +65,51 @@ public class JOptionPaneDialog extends JDialog {
 
     addWindowListener(
       new WindowAdapter() {
-	private boolean m_gotFocus = false;
+    private boolean gotFocus = false;
 
-	public void windowClosing(WindowEvent e) {
-	  optionPane.setValue(null);
-	}
+    public void windowClosing(WindowEvent e) {
+      optionPane.setValue(null);
+    }
 
-	public void windowActivated(WindowEvent e) {
-	  // Once window gets focus, set initial focus
-	  if (!m_gotFocus) {
-	    optionPane.selectInitialValue();
-	    m_gotFocus = true;
-	  }
-	}
+    public void windowActivated(WindowEvent e) {
+      // Once window gets focus, set initial focus
+      if (!gotFocus) {
+        optionPane.selectInitialValue();
+        gotFocus = true;
+      }
+    }
       });
 
     optionPane.addPropertyChangeListener(
       new PropertyChangeListener() {
 
-	private boolean m_disable = false;
+    private boolean disable = false;
 
-	public void propertyChange(PropertyChangeEvent e) {
-	  if (isVisible() &&
-	     e.getSource() == optionPane &&
-	     !m_disable &&
-	     (e.getPropertyName().equals(JOptionPane.VALUE_PROPERTY) ||
-	      e.getPropertyName().equals(JOptionPane.INPUT_VALUE_PROPERTY))) {
+    public void propertyChange(PropertyChangeEvent e) {
+      if (isVisible() &&
+         e.getSource() == optionPane &&
+         !disable &&
+         (e.getPropertyName().equals(JOptionPane.VALUE_PROPERTY) ||
+          e.getPropertyName().equals(JOptionPane.INPUT_VALUE_PROPERTY))) {
 
-	    final Cursor oldCursor = getCursor();
-	    setCursor(
-	      Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        final Cursor oldCursor = getCursor();
+        setCursor(
+          Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-	    try {
-	      if (shouldClose()) {
-		setVisible(false);
-		dispose();
-	      }
-	    }
-	    finally {
-	      m_disable = true;
-	      optionPane.setValue(null);
-	      m_disable = false;
-	      setCursor(oldCursor);
-	    }
-	  }
-	}
+        try {
+          if (shouldClose()) {
+        setVisible(false);
+        dispose();
+          }
+        }
+        finally {
+          disable = true;
+          optionPane.setValue(null);
+          disable = false;
+          setCursor(oldCursor);
+        }
+      }
+    }
       });
 
     optionPane.setValue(null);

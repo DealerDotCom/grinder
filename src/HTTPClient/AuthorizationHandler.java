@@ -1,5 +1,5 @@
 /*
- * @(#)AuthorizationHandler.java			0.3-3 06/05/2001
+ * @(#)AuthorizationHandler.java            0.3-3 06/05/2001
  *
  *  This file is part of the HTTPClient package
  *  Copyright (C) 1996-2001 Ronald Tschalär
@@ -43,8 +43,8 @@ import java.io.IOException;
  * way of getting the necessary auth info.
  *
  * @see AuthorizationInfo#setAuthHandler(HTTPClient.AuthorizationHandler)
- * @version	0.3-3  06/05/2001
- * @author	Ronald Tschalär
+ * @version    0.3-3  06/05/2001
+ * @author    Ronald Tschalär
  */
 public interface AuthorizationHandler
 {
@@ -77,8 +77,8 @@ public interface AuthorizationHandler
      *                        challenge
      */
     AuthorizationInfo getAuthorization(AuthorizationInfo challenge,
-				       RoRequest req, RoResponse resp)
-	    throws AuthSchemeNotImplException, IOException;
+                       RoRequest req, RoResponse resp)
+        throws AuthSchemeNotImplException, IOException;
 
 
     /**
@@ -107,8 +107,8 @@ public interface AuthorizationHandler
      *                        info
      */
     AuthorizationInfo fixupAuthInfo(AuthorizationInfo info, RoRequest req,
-				   AuthorizationInfo challenge, RoResponse resp)
-	    throws AuthSchemeNotImplException, IOException;
+                   AuthorizationInfo challenge, RoResponse resp)
+        throws AuthSchemeNotImplException, IOException;
 
 
     /**
@@ -127,8 +127,8 @@ public interface AuthorizationHandler
      *            the headers.
      */
     void handleAuthHeaders(Response resp, RoRequest req,
-			   AuthorizationInfo prev, AuthorizationInfo prxy)
-	    throws IOException;
+               AuthorizationInfo prev, AuthorizationInfo prxy)
+        throws IOException;
 
 
     /**
@@ -146,6 +146,6 @@ public interface AuthorizationHandler
      * @see #handleAuthHeaders(HTTPClient.Response, HTTPClient.RoRequest, HTTPClient.AuthorizationInfo, HTTPClient.AuthorizationInfo)
      */
     void handleAuthTrailers(Response resp, RoRequest req,
-			    AuthorizationInfo prev, AuthorizationInfo prxy)
-	    throws IOException;
+                AuthorizationInfo prev, AuthorizationInfo prxy)
+        throws IOException;
 }

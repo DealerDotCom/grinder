@@ -101,20 +101,20 @@ public class GrinderException extends Exception {
       final PrintWriter printWriter2 = new PrintWriter(stringWriter2);
 
       if (m_nestedThrowable instanceof GrinderException) {
-	final GrinderException nestedGrinderException =
-	  (GrinderException)m_nestedThrowable;
+    final GrinderException nestedGrinderException =
+      (GrinderException)m_nestedThrowable;
 
-	nestedGrinderException.printNestedTrace(s);
-	nestedGrinderException.printImmediateTrace(printWriter2);
+    nestedGrinderException.printNestedTrace(s);
+    nestedGrinderException.printImmediateTrace(printWriter2);
       }
       else {
-	m_nestedThrowable.printStackTrace(printWriter2);
+    m_nestedThrowable.printStackTrace(printWriter2);
       }
 
       printWriter2.flush();
       final StringBuffer nestedTrace = stringWriter2.getBuffer();
       final boolean truncatedNestedTrace =
-	removeCommonSuffix(nestedTrace, immediateTrace);
+    removeCommonSuffix(nestedTrace, immediateTrace);
 
       s.print("(Nested exception) ");
       s.print(nestedTrace);
@@ -135,7 +135,7 @@ public class GrinderException extends Exception {
    * @return Whether original was truncated or not.
    */
   static boolean removeCommonSuffix(StringBuffer original,
-				    StringBuffer other) {
+                    StringBuffer other) {
     int p = original.length();
     int otherP = other.length();
 
@@ -144,17 +144,17 @@ public class GrinderException extends Exception {
     OUTER:
     do {
       do {
-	if (--p < 0) {
-	  // original is contained at end of other.
-	  break OUTER;
-	}
+    if (--p < 0) {
+      // original is contained at end of other.
+      break OUTER;
+    }
       }
       while (Character.isWhitespace(original.charAt(p)));
 
       do {
-	if (--otherP < 0) {
-	  break OUTER;
-	}
+    if (--otherP < 0) {
+      break OUTER;
+    }
       }
       while (Character.isWhitespace(other.charAt(otherP)));
     }
@@ -175,7 +175,7 @@ public class GrinderException extends Exception {
       ++p;
 
       if (p == original.length()) {
-	return false;
+    return false;
       }
     }
     while (original.charAt(p) != '\n');

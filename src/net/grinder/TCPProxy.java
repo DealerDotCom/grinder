@@ -146,91 +146,91 @@ public final class TCPProxy {
     try {
       // Parse 1.
       for (int i = 0; i < args.length; i++) {
-      	if (args[i].equalsIgnoreCase("-properties")) {
-	  final Properties properties = new Properties();
-	  properties.load(new FileInputStream(new File(args[++i])));
-	  System.getProperties().putAll(properties);
-	}
-	else if (args[i].equalsIgnoreCase("-initialtest")) {
-	  final String argument = i + 1 < args.length ? args[++i] : "123";
+          if (args[i].equalsIgnoreCase("-properties")) {
+      final Properties properties = new Properties();
+      properties.load(new FileInputStream(new File(args[++i])));
+      System.getProperties().putAll(properties);
+    }
+    else if (args[i].equalsIgnoreCase("-initialtest")) {
+      final String argument = i + 1 < args.length ? args[++i] : "123";
 
-	  barfUsage("-initialTest is no longer supported.\n\n" +
-		    "Use -DHTTPPlugin.initialTest=" + argument +
-		    " or the -properties option instead.");
-	}
+      barfUsage("-initialTest is no longer supported.\n\n" +
+            "Use -DHTTPPlugin.initialTest=" + argument +
+            " or the -properties option instead.");
+    }
       }
 
       // Parse 2.
       for (int i = 0; i < args.length; i++) {
-	if (args[i].equalsIgnoreCase("-requestfilter")) {
-	  requestFilter = instantiateFilter(args[++i], outputWriter);
-	}
-	else if (args[i].equalsIgnoreCase("-responsefilter")) {
-	  responseFilter =
-	    instantiateFilter(args[++i], outputWriter);
-	}
-	else if (args[i].equalsIgnoreCase("-httpplugin")) {
-	  requestFilter = new HTTPPluginTCPProxyFilter(outputWriter);
-	  responseFilter =
-	    new HTTPPluginTCPProxyResponseFilter(outputWriter);
-	}
-	else if (args[i].equalsIgnoreCase("-localhost")) {
-	  localHost = args[++i];
-	}
-	else if (args[i].equalsIgnoreCase("-localport")) {
-	  localPort = Integer.parseInt(args[++i]);
-	}
-	else if (args[i].equalsIgnoreCase("-remotehost")) {
-	  remoteHost = args[++i];
-	}
-	else if (args[i].equalsIgnoreCase("-remoteport")) {
-	  remotePort = Integer.parseInt(args[++i]);
-	}
-	else if (args[i].equalsIgnoreCase("-ssl")) {
-	  useSSL = true;
-	}
-	else if (args[i].equalsIgnoreCase("-keystore")) {
-	  System.setProperty(JSSEConstants.KEYSTORE_PROPERTY,
-			     args[++i]);
-	}
-	else if (args[i].equalsIgnoreCase("-keystorepassword")) {
-	  System.setProperty(
-	    JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, args[++i]);
-	}
-	else if (args[i].equalsIgnoreCase("-keystoretype")) {
-	  System.setProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY,
-			     args[++i]);
-	}
-	else if (args[i].equalsIgnoreCase("-proxy")) {
-	  proxy = true;
-	}
-	else if (args[i].equalsIgnoreCase("-timeout")) {
-	  timeout = Integer.parseInt(args[++i]) * 1000;
-	}
-	else if (args[i].equalsIgnoreCase("-output")) {
-	  // -output is used by the TCPProxy web app only
-	  // and is not publicised, users are expected to
-	  // use shell redirection.
-	  final String outputFile = args[++i];
-	  System.setOut(new PrintStream(
-			  new FileOutputStream(outputFile + ".out"), true));
-	  System.setErr(new PrintStream(
-			  new FileOutputStream(outputFile + ".err"), true));
-	}
-	else if (args[i].equalsIgnoreCase("-displayconsole")) {
-	  console = true;
-	}
-	else if (args[i].equalsIgnoreCase("-colour") ||
-		 args[i].equalsIgnoreCase("-color")) {
-	  useColour = true;
-	}
-	else if (args[i].equals("-properties")) {
-	  /* Already handled */
-	  ++i;
-	}
-	else {
-	  throw barfUsage();
-	}
+    if (args[i].equalsIgnoreCase("-requestfilter")) {
+      requestFilter = instantiateFilter(args[++i], outputWriter);
+    }
+    else if (args[i].equalsIgnoreCase("-responsefilter")) {
+      responseFilter =
+        instantiateFilter(args[++i], outputWriter);
+    }
+    else if (args[i].equalsIgnoreCase("-httpplugin")) {
+      requestFilter = new HTTPPluginTCPProxyFilter(outputWriter);
+      responseFilter =
+        new HTTPPluginTCPProxyResponseFilter(outputWriter);
+    }
+    else if (args[i].equalsIgnoreCase("-localhost")) {
+      localHost = args[++i];
+    }
+    else if (args[i].equalsIgnoreCase("-localport")) {
+      localPort = Integer.parseInt(args[++i]);
+    }
+    else if (args[i].equalsIgnoreCase("-remotehost")) {
+      remoteHost = args[++i];
+    }
+    else if (args[i].equalsIgnoreCase("-remoteport")) {
+      remotePort = Integer.parseInt(args[++i]);
+    }
+    else if (args[i].equalsIgnoreCase("-ssl")) {
+      useSSL = true;
+    }
+    else if (args[i].equalsIgnoreCase("-keystore")) {
+      System.setProperty(JSSEConstants.KEYSTORE_PROPERTY,
+                 args[++i]);
+    }
+    else if (args[i].equalsIgnoreCase("-keystorepassword")) {
+      System.setProperty(
+        JSSEConstants.KEYSTORE_PASSWORD_PROPERTY, args[++i]);
+    }
+    else if (args[i].equalsIgnoreCase("-keystoretype")) {
+      System.setProperty(JSSEConstants.KEYSTORE_TYPE_PROPERTY,
+                 args[++i]);
+    }
+    else if (args[i].equalsIgnoreCase("-proxy")) {
+      proxy = true;
+    }
+    else if (args[i].equalsIgnoreCase("-timeout")) {
+      timeout = Integer.parseInt(args[++i]) * 1000;
+    }
+    else if (args[i].equalsIgnoreCase("-output")) {
+      // -output is used by the TCPProxy web app only
+      // and is not publicised, users are expected to
+      // use shell redirection.
+      final String outputFile = args[++i];
+      System.setOut(new PrintStream(
+              new FileOutputStream(outputFile + ".out"), true));
+      System.setErr(new PrintStream(
+              new FileOutputStream(outputFile + ".err"), true));
+    }
+    else if (args[i].equalsIgnoreCase("-displayconsole")) {
+      console = true;
+    }
+    else if (args[i].equalsIgnoreCase("-colour") ||
+         args[i].equalsIgnoreCase("-color")) {
+      useColour = true;
+    }
+    else if (args[i].equals("-properties")) {
+      /* Already handled */
+      ++i;
+    }
+    else {
+      throw barfUsage();
+    }
       }
     }
     catch (Exception e) {
@@ -253,18 +253,18 @@ public final class TCPProxy {
 
     if (proxy) {
       startMessage.append(
-	"\n   Listening as " + (useSSL ? "an HTTP/HTTPS" : "an HTTP") +
-	" proxy");
+    "\n   Listening as " + (useSSL ? "an HTTP/HTTPS" : "an HTTP") +
+    " proxy");
     }
     else {
       startMessage.append(
-	"\n   Remote host:      " + remoteHost +
-	"\n   Remote port:      " + remotePort);
+    "\n   Remote host:      " + remoteHost +
+    "\n   Remote port:      " + remotePort);
     }
 
     if (useSSL) {
       startMessage.append(
-	"\n   (SSL setup could take a few seconds)");
+    "\n   (SSL setup could take a few seconds)");
     }
 
     System.err.println(startMessage);
@@ -273,52 +273,52 @@ public final class TCPProxy {
       final TCPProxySocketFactory sslSocketFactory;
 
       if (useSSL) {
-	// TCPProxySSLSocketFactory depends on JSSE, load
-	// dynamically.
-	final Class socketFactoryClass =
-	  Class.forName(SSL_SOCKET_FACTORY_CLASS);
+    // TCPProxySSLSocketFactory depends on JSSE, load
+    // dynamically.
+    final Class socketFactoryClass =
+      Class.forName(SSL_SOCKET_FACTORY_CLASS);
 
-	sslSocketFactory =
-	  (TCPProxySocketFactory)socketFactoryClass.newInstance();
+    sslSocketFactory =
+      (TCPProxySocketFactory)socketFactoryClass.newInstance();
       }
       else {
-	sslSocketFactory = null;
+    sslSocketFactory = null;
       }
 
       if (proxy) {
-	m_proxyEngine =
-	  new HTTPProxyTCPProxyEngine(
-	    new TCPProxyPlainSocketFactory(),
-	    sslSocketFactory,
-	    requestFilter,
-	    responseFilter,
-	    outputWriter,
-	    localHost,
-	    localPort,
-	    useColour,
-	    timeout);
+    m_proxyEngine =
+      new HTTPProxyTCPProxyEngine(
+        new TCPProxyPlainSocketFactory(),
+        sslSocketFactory,
+        requestFilter,
+        responseFilter,
+        outputWriter,
+        localHost,
+        localPort,
+        useColour,
+        timeout);
       }
       else {
-	m_proxyEngine =
-	  new TCPProxyEngineImplementation(
-	    useSSL ?
-	    sslSocketFactory : new TCPProxyPlainSocketFactory(),
-	    requestFilter,
-	    responseFilter,
-	    outputWriter,
-	    new ConnectionDetails(localHost, localPort,
-				  remoteHost, remotePort,
-				  useSSL),
-	    useColour,
-	    timeout);
+    m_proxyEngine =
+      new TCPProxyEngineImplementation(
+        useSSL ?
+        sslSocketFactory : new TCPProxyPlainSocketFactory(),
+        requestFilter,
+        responseFilter,
+        outputWriter,
+        new ConnectionDetails(localHost, localPort,
+                  remoteHost, remotePort,
+                  useSSL),
+        useColour,
+        timeout);
       }
 
       if (console) {
-	new TCPProxyConsole(m_proxyEngine);
+    new TCPProxyConsole(m_proxyEngine);
       }
 
       System.err.println("Engine initialised, listening on port " +
-			 localPort);
+             localPort);
     }
     catch (Exception e) {
       System.err.println("Could not initialise engine:");
@@ -348,38 +348,38 @@ public final class TCPProxy {
 
     if (!TCPProxyFilter.class.isAssignableFrom(filterClass)) {
       throw barfUsage("The specified filter class ('" +
-		      filterClass.getName() +
-		      "') does not implement the interface: '" +
-		      TCPProxyFilter.class.getName() + "'");
+              filterClass.getName() +
+              "') does not implement the interface: '" +
+              TCPProxyFilter.class.getName() + "'");
     }
 
     // Instantiate a filter.
     try {
       final Constructor constructor =
-	filterClass.getConstructor(new Class[] {PrintWriter.class});
+    filterClass.getConstructor(new Class[] {PrintWriter.class});
 
       return (TCPProxyFilter)constructor.newInstance(
-	new Object[] {outputWriter});
+    new Object[] {outputWriter});
     }
     catch (NoSuchMethodException e) {
       throw barfUsage(
-	"The class '" + filterClass.getName() +
-	"' does not have a constructor that takes a PrintWriter");
+    "The class '" + filterClass.getName() +
+    "' does not have a constructor that takes a PrintWriter");
     }
     catch (IllegalAccessException e) {
       throw barfUsage("The constructor of class '" +
-		      filterClass.getName() + "' is not public");
+              filterClass.getName() + "' is not public");
     }
     catch (InstantiationException e) {
       throw barfUsage("The class '" + filterClass.getName() +
-		      "' is abstract");
+              "' is abstract");
     }
   }
 
   private final void run() {
     Runtime.getRuntime().addShutdownHook(
       new Thread() {
-	public final void run() { m_proxyEngine.stop(); }
+    public final void run() { m_proxyEngine.stop(); }
       });
 
     m_proxyEngine.run();

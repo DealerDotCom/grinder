@@ -68,25 +68,25 @@ final class SocketSet {
       int checked = 0;
 
       while (true) {
-	if (++m_lastHandle >= m_handles.size()) {
-	  m_lastHandle = 0;
-	}
+    if (++m_lastHandle >= m_handles.size()) {
+      m_lastHandle = 0;
+    }
 
-	if (checked++ >= m_handles.size()) {
-	  // All current Handles are busy => too many
-	  // threads. Put this one to sleep until we have
-	  // more work.
-	  m_mutex.wait();
+    if (checked++ >= m_handles.size()) {
+      // All current Handles are busy => too many
+      // threads. Put this one to sleep until we have
+      // more work.
+      m_mutex.wait();
 
-	  checked = 0;
-	}
-	else {
-	  final Handle handle = (Handle)m_handles.get(m_lastHandle);
+      checked = 0;
+    }
+    else {
+      final Handle handle = (Handle)m_handles.get(m_lastHandle);
 
-	  if (handle.reserve()) {
-	    return handle;
-	  }
-	}
+      if (handle.reserve()) {
+        return handle;
+      }
+    }
       }
     }
   }
@@ -96,8 +96,8 @@ final class SocketSet {
       final Iterator iterator = m_handles.iterator();
 
       while (iterator.hasNext()) {
-	final Handle handle = (Handle)iterator.next();
-	handle.close();
+    final Handle handle = (Handle)iterator.next();
+    handle.close();
       }
     }
   }
@@ -105,22 +105,22 @@ final class SocketSet {
   private final void purgeZombieHandles() {
     synchronized (m_mutex) {
       if (++m_nextPurge > PURGE_FREQUENCY) {
-	m_nextPurge = 0;
+    m_nextPurge = 0;
 
-	final List newHandles = new ArrayList(m_handles.size());
+    final List newHandles = new ArrayList(m_handles.size());
 
-	final Iterator iterator = m_handles.iterator();
+    final Iterator iterator = m_handles.iterator();
 
-	while (iterator.hasNext()) {
-	  final Handle handle = (Handle)iterator.next();
+    while (iterator.hasNext()) {
+      final Handle handle = (Handle)iterator.next();
 
-	  if (!handle.isClosed()) {
-	    newHandles.add(handle);
-	  }
-	}
+      if (!handle.isClosed()) {
+        newHandles.add(handle);
+      }
+    }
 
-	m_handles = newHandles;
-	m_lastHandle = 0;
+    m_handles = newHandles;
+    m_lastHandle = 0;
       }
     }
   }
@@ -187,7 +187,7 @@ final class SocketSet {
       // Don't synchronise, assume caller has correctly reserved
       // this Handle.
       if (m_inputStream.available() == 0) {
-	return null;
+    return null;
       }
 
       m_objectStream = new ObjectInputStream(m_inputStream);
@@ -197,7 +197,7 @@ final class SocketSet {
 
     public final synchronized boolean reserve() {
       if (m_busy || m_closed) {
-	return false;
+    return false;
       }
 
       m_busy = true;
@@ -211,14 +211,14 @@ final class SocketSet {
 
     public final synchronized void close() {
       if (!m_closed) {
-	m_closed = true;
+    m_closed = true;
 
-	try {
-	  m_socket.close();
-	}
-	catch (IOException e) {
-	  // Ignore.
-	}
+    try {
+      m_socket.close();
+    }
+    catch (IOException e) {
+      // Ignore.
+    }
       }
     }
 

@@ -49,7 +49,7 @@ final class SampleAccumulator {
   private TestStatistics m_lastSampleStatistics;
 
   public SampleAccumulator(PeakStatisticExpression peakTPSExpression,
-			   StatisticsIndexMap.LongIndex periodIndex) {
+               StatisticsIndexMap.LongIndex periodIndex) {
 
     m_peakTPSExpression = peakTPSExpression;
     m_periodIndex = periodIndex;

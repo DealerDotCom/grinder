@@ -76,7 +76,7 @@ public final class TestStatisticsFactory {
   }
 
   final void writeStatisticsExternal(ObjectOutput out,
-				     TestStatisticsImplementation statistics)
+                     TestStatisticsImplementation statistics)
     throws IOException {
     statistics.myWriteExternal(out, m_serialiser);
   }

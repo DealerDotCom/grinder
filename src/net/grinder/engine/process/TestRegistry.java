@@ -96,7 +96,7 @@ public final class TestRegistry {
       final TestData existing = (TestData)m_testMap.get(test);
 
       if (existing != null) {
-	return existing;
+    return existing;
       }
 
       newTestData = new TestData(test);
@@ -104,7 +104,7 @@ public final class TestRegistry {
       m_testStatisticsMap.put(test, newTestData.getStatistics());
 
       if (m_newTests == null) {
-	m_newTests = new ArrayList();
+    m_newTests = new ArrayList();
       }
 
       // To avoid many minor console updates we store a collection of
