@@ -1,3 +1,17 @@
+2001-09-21  Philip Aston  <paston@bea.com>
+
+	* etc/HTTPClient-license.txt, src/HTTPClient/HTTPConnection.java, src/net/grinder/plugin/http/HTTPClientHandler.java:
+	Remove disabling of trailers hack to HTTPClient. This was added
+	because WLS 6.1 beta had issues with trailer headers, but WLS 6.1 GA
+	is fine.
+
+	* CHANGES, doc/HTTPPlugin.txt, src/net/grinder/plugin/http/HttpPlugin.java:
+	HTTPClient is the default HttpPlugin implementation, long live
+	HTTPClient.
+
+	* src/HTTPClient/Util.java:
+	Revert our hack to expose parseHttpDate, no longer needed.
+
 2001-09-20  Philip Aston  <paston@bea.com>
 
 	* CHANGES, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties:
