@@ -78,6 +78,8 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	System.getProperty("line.separator");
     private static final String s_indent = "    ";
 
+    private static long s_lastResponseTime = 0;
+
     /**
      * A list of headers which we record and replay. HTTPConnection
      * sets up many things for us (Host, Connection, User-Agent,
@@ -114,7 +116,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
     private final Map m_handlers = new HashMap();
 
     private int m_currentRequestNumber;
-    private long m_lastTime = 0;
 
     /**
      * Constructor.
@@ -229,6 +230,17 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
     }
 
     /**
+     * Called when any response activity is detected. Because the test
+     * script is a single thread of control we need to calculate the
+     * sleep deltas using the last time any activity occurred on any
+     * connection.
+     */
+    public static synchronized void markLastResponseTime()
+    {
+	s_lastResponseTime = System.currentTimeMillis();
+    }
+
+    /**
      * Set the {@link PrintWriter} that the filter should use for
      * output.
      *
@@ -325,22 +337,14 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	return handler;
     }
 
-    private synchronized int getRequestNumber()
+    private final synchronized int getRequestNumber()
     {
 	return m_currentRequestNumber;
     }
 
-    private synchronized int incrementRequestNumber() 
+    private final synchronized int incrementRequestNumber() 
     {
 	return ++m_currentRequestNumber;
-    }
-
-    private synchronized long markTime()
-    {
-	final long currentTime = System.currentTimeMillis();
-	final long result = m_lastTime > 0 ? currentTime - m_lastTime : 0;
-	m_lastTime = currentTime;
-	return result;
     }
 
     /**
@@ -464,11 +468,15 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 
 		// Stuff we do at start of request only.
 		m_requestNumber = incrementRequestNumber();
-		m_time = markTime();
+
+		m_time = s_lastResponseTime > 0 ?
+		    System.currentTimeMillis() - s_lastResponseTime : 0;
+
 		m_headers.clear();
 	    }
 
 	    // Stuff we do whatever.
+
 	    if (m_parsingHeaders) {
 		for (int i=0; i<s_mirroredHeaders.length; i++) {
 		    if (m_matcher.contains(asciiString,
@@ -582,7 +590,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	    final StringBuffer scriptOutput = new StringBuffer();
 	    final StringBuffer testOutput = new StringBuffer();
 
-	    if (m_time > 0) {
+	    if (m_time > 10) {
 		appendNewLineAndIndent(scriptOutput, 2);
 		scriptOutput.append("grinder.sleep(");
 		scriptOutput.append(Long.toString(m_time));

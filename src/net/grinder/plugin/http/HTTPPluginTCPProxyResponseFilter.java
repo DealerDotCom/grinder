@@ -96,6 +96,8 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
 			 int bytesRead)
 	throws IOException
     {
+	HTTPPluginTCPProxyFilter.markLastResponseTime();
+	
 	// String used to parse headers - header names are
 	// US-ASCII encoded and anchored to start of line.
 	final String asciiString =
