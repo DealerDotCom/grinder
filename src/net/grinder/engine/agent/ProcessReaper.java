@@ -64,5 +64,7 @@ final class ProcessReaper extends Thread {
       final Process process = (Process)iterator.next();
       process.destroy();
     }
+
+    m_processes.clear();
   }
 }
