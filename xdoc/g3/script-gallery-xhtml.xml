@@ -505,12 +505,11 @@ portTest = Test(1, &quot;<span class="string">JAXP Port test</span>&quot;).wrap(
 # creates a callable thing called TestRunner that can be called to
 # create another callable thing.
 </span>
+<span class="keyword">from</span> net.grinder.script.Grinder <span class="keyword">import</span> grinder
 <span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
 
-log = grinder.logger.output
-
 test1 = Test(1, &quot;<span class="string">Log method</span>&quot;)
-logTest = test1.wrap(log)
+logTest = test1.wrap(grinder.logger.output)
 
 <span class="keyword">def</span> <span class="function-name">doRun</span>():
     logTest(&quot;<span class="string">Hello World</span>&quot;)
