@@ -27,7 +27,7 @@ import java.net.UnknownHostException;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationDefaults;
-import net.grinder.console.ConsoleException;
+import net.grinder.console.common.DisplayMessageConsoleException;
 
 
 /**
@@ -98,7 +98,7 @@ public class ConsoleProperties
      * @param file The properties file.
      *
      * @throws GrinderException If the properties file cannot be read.
-     * @throws ConsoleException If the properties file contains invalid data.
+     * @throws DisplayMessageConsoleException If the properties file contains invalid data.
      **/
     public ConsoleProperties(File file) throws GrinderException
     {
@@ -177,13 +177,16 @@ public class ConsoleProperties
      * Set the number of samples to collect.
      *
      * @param n The number. 0 => forever.
-     * @throws ConsoleException If the number is negative.
+     * @throws DisplayMessageConsoleException If the number is negative.
      **/
-    public final void setCollectSampleCount(int n) throws ConsoleException
+    public final void setCollectSampleCount(int n)
+	throws DisplayMessageConsoleException
     {
 	if (n < 0) {
-	    throw new ConsoleException(
-		"Collect sample count must be at least zero");
+	    throw new DisplayMessageConsoleException(
+		"collectNegativeError.text",
+		"You must collect at least one sample, " +
+		"zero means \"forever\"");
 	}
 
 	if (n != m_collectSampleCount) {
@@ -208,13 +211,15 @@ public class ConsoleProperties
      * Set the number of samples to collect.
      *
      * @param n The number. Must be at least 1.
-     * @throws ConsoleException If the number is negative or zero.
+     * @throws DisplayMessageConsoleException If the number is negative or zero.
      **/
-    public final void setIgnoreSampleCount(int n) throws ConsoleException
+    public final void setIgnoreSampleCount(int n)
+	throws DisplayMessageConsoleException
     {
 	if (n <= 0) {
-	    throw new ConsoleException(
-		"Ignore sample count must be greater than zero");
+	    throw new DisplayMessageConsoleException(
+		"ignoreLessThanOneError.text",
+		"You must ignore at least the first sample");
 	}
 
 	if (n != m_ignoreSampleCount) {
@@ -239,13 +244,15 @@ public class ConsoleProperties
      * Set the sample interval.
      *
      * @param interval The interval in milliseconds.
-     * @throws ConsoleException If the number is negative or zero.
+     * @throws DisplayMessageConsoleException If the number is negative or zero.
      **/
-    public final void setSampleInterval(int interval) throws ConsoleException
+    public final void setSampleInterval(int interval)
+	throws DisplayMessageConsoleException
     {
 	if (interval <= 0) {
-	    throw new ConsoleException(
-		"Sample interval must be greater than zero");
+	    throw new DisplayMessageConsoleException(
+		"intervalLessThanOneError.text",
+		"Minimum sample interval is 1 ms");
 	}
 
 	if (interval != m_sampleInterval) {
@@ -270,13 +277,15 @@ public class ConsoleProperties
      * Set the number of significant figures.
      *
      * @param n The number of significant figures.
-     * @throws ConsoleException If the number is negative.
+     * @throws DisplayMessageConsoleException If the number is negative.
      **/
-    public final void setSignificantFigures(int n) throws ConsoleException
+    public final void setSignificantFigures(int n)
+	throws DisplayMessageConsoleException
     {
 	if (n <= 0) {
-	    throw new ConsoleException(
-		"Number of significant figures must be at least zero");
+	    throw new DisplayMessageConsoleException(
+		"significantFiguresNegativeError.text",
+		"Number of significant figures cannot be negative");
 	}
 
 	if (n != m_significantFigures) {
@@ -298,13 +307,24 @@ public class ConsoleProperties
     }
 
     /**
+     * Get the multicast address as a string.
+     *
+     * @returns The address.
+     **/
+    public final String getMulticastAddressAsString()
+    {
+	return m_multicastAddressString;
+    }
+
+    /**
      * Set the multicast address.
      *
      * @param String s Either a machine name or the IP address.
-     * @throws ConsoleException If the multicast address is
+     * @throws DisplayMessageConsoleException If the multicast address is
      * not valid.
      **/
-    public final void setMulticastAddress(String s) throws ConsoleException
+    public final void setMulticastAddress(String s)
+	throws DisplayMessageConsoleException
     {
 	final InetAddress newAddress;
 
@@ -312,12 +332,14 @@ public class ConsoleProperties
 	    newAddress = InetAddress.getByName(s);
 	}
 	catch (UnknownHostException e) {
-	    throw new ConsoleException("Unknown host", e);
+	    throw new DisplayMessageConsoleException(
+		"unknownHostError.text", "Unknown hostname");
 	}
 
 	if (!newAddress.isMulticastAddress()) {
-	    throw new ConsoleException(s +
-				       " is not a valid multicast address");
+	    throw new DisplayMessageConsoleException(
+		"invalidMulticastAddressError.text",
+		"Invalid multicast address");
 	}
 
 	m_multicastAddress = newAddress;
@@ -348,9 +370,10 @@ public class ConsoleProperties
      * Set the Console multicast port.
      *
      * @param port The port number.
-     * @throws ConsoleException If the port number is not sensible.
+     * @throws DisplayMessageConsoleException If the port number is not sensible.
      **/
-    public final void setConsolePort(int i) throws ConsoleException
+    public final void setConsolePort(int i)
+	throws DisplayMessageConsoleException
     {
 	assertValidPort(i);
 
@@ -376,9 +399,10 @@ public class ConsoleProperties
      * Set the Grinder process multicast port.
      *
      * @param port The port number.
-     * @throws ConsoleException If the port number is not sensible.
+     * @throws DisplayMessageConsoleException If the port number is not sensible.
      **/
-    public final void setGrinderPort(int port) throws ConsoleException
+    public final void setGrinderPort(int port)
+	throws DisplayMessageConsoleException
     {
 	assertValidPort(port);
 
@@ -394,12 +418,14 @@ public class ConsoleProperties
      * Check the given port number is sensible.
      *
      * @param port The port number.
-     * @throws ConsoleException If the port number is not sensible.
+     * @throws DisplayMessageConsoleException If the port number is not sensible.
      **/
-    private void assertValidPort(int port) throws ConsoleException
+    private void assertValidPort(int port)
+	throws DisplayMessageConsoleException
     {
-	if (port < 0 || port > 0xFFFF) {
-	    throw new ConsoleException(
+	if (port < 0 || port > CommunicationDefaults.MAX_PORT) {
+	    throw new DisplayMessageConsoleException(
+		"invalidPortNumberError.text", 
 		"Port numbers should be in the range [0, 65535]");
 	}
     }

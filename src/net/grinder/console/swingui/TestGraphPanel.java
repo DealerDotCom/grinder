@@ -121,8 +121,6 @@ public class TestGraphPanel extends JPanel implements ModelListener
 	    for (int i=0; i<numberOfTests; i++) {
 		add((JComponent)m_components.get(m_model.getTest(i)));
 	    }
-
-	    repaint();
 	}
     }
 }

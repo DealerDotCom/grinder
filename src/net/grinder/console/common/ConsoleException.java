@@ -16,24 +16,37 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.console;
+package net.grinder.console.common;
 
 import net.grinder.common.GrinderException;
 
 
 /**
+ * Console exception class.
+ *
  * @author Philip Aston
  * @version $Revision$
  */ 
 public class ConsoleException extends GrinderException
 {
-    public ConsoleException(String s)
+    /**
+     * Constructor.
+     *
+     * @param message The exception message.
+     **/
+    public ConsoleException(String message)
     {
-	super(s);
+	super(message);
     }
 
-    public ConsoleException(String s, Exception e)
+    /**
+     * Constructor.
+     *
+     * @param message The exception message.
+     * @param e Nested exception
+     **/
+    public ConsoleException(String message, Exception e)
     {
-	super(s, e);
+	super(message, e);
     }
 }

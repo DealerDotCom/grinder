@@ -83,8 +83,9 @@ class ConsoleCommunication
 		m_receiver.shutdown();
 	    }
 
-	    m_receiver = new Receiver(m_properties.getMulticastAddress(),
-				      m_properties.getConsolePort());
+	    m_receiver =
+		new Receiver(m_properties.getMulticastAddressAsString(),
+			     m_properties.getConsolePort());
 
 	    synchronized(this) {
 		m_deaf = false;
@@ -110,7 +111,7 @@ class ConsoleCommunication
 
 	try {
 	    m_sender = new Sender("Console (" + host + ")",
-				  m_properties.getMulticastAddress(),
+				  m_properties.getMulticastAddressAsString(),
 				  m_properties.getGrinderPort());
 	}
 	catch(GrinderException e) {

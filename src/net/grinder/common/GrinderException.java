@@ -30,23 +30,22 @@ import java.io.PrintWriter;
  */
 public class GrinderException extends Exception
 {
-    private final String m_message;
-    private Exception m_nestedException = null;
+    private final Exception m_nestedException;
 
     public GrinderException(String message)
     {
-	m_message = message;
+	this(message, null);
     }
 
     public GrinderException(String message, Exception nestedException)
     {
-	m_message = message;
+	super(message);
 	m_nestedException = nestedException;
     }
     
     public String toString()
     {
-	return getClass().getName() + ": " + m_message +
+	return getClass().getName() + ": " + getMessage() +
 	    (m_nestedException != null ? 
 	     ", nested exception: " + m_nestedException : "");
     }

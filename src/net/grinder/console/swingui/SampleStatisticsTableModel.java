@@ -27,7 +27,7 @@ import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
 import net.grinder.statistics.IntervalStatistics;
 
-import net.grinder.console.ConsoleException;
+import net.grinder.console.common.ConsoleException;
 
 
 /**

@@ -26,6 +26,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.ConsoleProperties;
 
 
@@ -37,9 +38,9 @@ class SamplingControlPanel extends JPanel
 {
     private final JSlider m_intervalSlider  = new JSlider(100, 10000, 100);
     private final IntegerField m_collectSampleField =
-	new IntegerField(0, 999999);
+	new IntegerField(1, 999999);
     private final IntegerField m_ignoreSampleField =
-	new IntegerField(0, 999999);
+	new IntegerField(1, 999999);
 
     private final String m_sampleIntervalString;
     private final String m_ignoreSampleZeroString;
@@ -138,6 +139,7 @@ class SamplingControlPanel extends JPanel
     }
 
     public void get(ConsoleProperties properties)
+	throws ConsoleException
     {
 	properties.setSampleInterval(m_intervalSlider.getValue());
 	properties.setIgnoreSampleCount(m_ignoreSampleField.getValue());

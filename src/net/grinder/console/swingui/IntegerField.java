@@ -66,6 +66,7 @@ class IntegerField extends JTextField
 	m_minimumValue = minimumValue;
 	m_maximumValue = maximumValue;
 
+	setValue(m_minimumValue);
 	setDocument(new FormattedDocument());
     }
 
@@ -76,7 +77,7 @@ class IntegerField extends JTextField
 	}
 	catch (NumberFormatException e) {
 	    // Occurs if field is blank or "-".
-	    return 0;
+	    return m_minimumValue;
 	}
     }
 

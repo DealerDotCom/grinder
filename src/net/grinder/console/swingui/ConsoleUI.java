@@ -70,7 +70,8 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import net.grinder.common.GrinderException;
-import net.grinder.console.ConsoleException;
+import net.grinder.communication.CommunicationDefaults;
+import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
@@ -189,9 +190,16 @@ public class ConsoleUI implements ModelListener
 				      int ignoreSampleCount,
 				      int collectSampleCount) {
 		    final ConsoleProperties p = m_model.getProperties();
-		    p.setSampleInterval(sampleInterval);
-		    p.setIgnoreSampleCount(ignoreSampleCount);
-		    p.setCollectSampleCount(collectSampleCount);
+		    try {
+			p.setSampleInterval(sampleInterval);
+			p.setIgnoreSampleCount(ignoreSampleCount);
+			p.setCollectSampleCount(collectSampleCount);
+		    }
+		    catch (ConsoleException e) {
+			// Assertion failure.
+			e.printStackTrace();
+			throw new RuntimeException(e.getMessage());
+		    }
 		}
 	    };
 
@@ -541,9 +549,9 @@ public class ConsoleUI implements ModelListener
 	private final JOptionPane m_optionPane;
 	private final JTextField m_multicastAddress = new JTextField();
 	private final IntegerField m_consolePort =
-	    new IntegerField(0, Short.MAX_VALUE);
+	    new IntegerField(0, CommunicationDefaults.MAX_PORT);
 	private final IntegerField m_grinderPort =
-	    new IntegerField(0, Short.MAX_VALUE);
+	    new IntegerField(0, CommunicationDefaults.MAX_PORT);
 	private final SamplingControlPanel m_samplingControlPanel;
 	private final JSlider m_sfSlider = new JSlider(1, 6, 1);
 	private final Object[] m_options = {"OK", "Cancel", "Save Defaults"};
@@ -635,7 +643,8 @@ public class ConsoleUI implements ModelListener
 
 	    final ConsoleProperties properties = m_model.getProperties();
 
-	    m_multicastAddress.setText(properties.getMulticastAddress());
+	    m_multicastAddress.setText(
+		properties.getMulticastAddressAsString());
 	    m_consolePort.setValue(properties.getConsolePort());
 	    m_grinderPort.setValue(properties.getGrinderPort());
 	    m_sfSlider.setValue(properties.getSignificantFigures());
@@ -649,11 +658,21 @@ public class ConsoleUI implements ModelListener
 	    final Object value = m_optionPane.getValue();
 
 	    if (value != m_options[1]) {
-		properties.setMulticastAddress(m_multicastAddress.getText());
-		properties.setConsolePort(m_consolePort.getValue());
-		properties.setGrinderPort(m_grinderPort.getValue());
-		properties.setSignificantFigures(m_sfSlider.getValue());
-		m_samplingControlPanel.get(properties);
+		try {
+		    properties.setMulticastAddress(
+			m_multicastAddress.getText());
+		    properties.setConsolePort(m_consolePort.getValue());
+		    properties.setGrinderPort(m_grinderPort.getValue());
+		    properties.setSignificantFigures(m_sfSlider.getValue());
+		    m_samplingControlPanel.get(properties);
+		}
+		catch (ConsoleException e) {
+		    JOptionPane.showMessageDialog(
+			m_frame, e.getMessage(),
+			m_resources.getString("propertyError.title"),
+			JOptionPane.ERROR_MESSAGE);
+		    return;
+		}
 
 		ConsoleUI.this.m_samplingControlPanel.set(properties);
 

@@ -33,7 +33,7 @@ import java.util.TreeSet;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
-import net.grinder.console.ConsoleException;
+import net.grinder.console.common.ConsoleException;
 import net.grinder.statistics.CumulativeStatistics;
 import net.grinder.statistics.IntervalStatistics;
 import net.grinder.statistics.StatisticsImplementation;
@@ -120,7 +120,7 @@ public class Model
 	m_accumulatorArray = new SampleAccumulator[0];
 	m_indicesValid = true;
 
-	setInitialState();
+	setState(STATE_WAITING_FOR_TRIGGER);
 
 	new Thread(new Sampler()).start();
 
@@ -131,16 +131,6 @@ public class Model
 		    m_numberFormat =
 			new SignificantFigureFormat(
 			    ((Integer)event.getNewValue()).intValue());
-		}
-	    });
-
-	m_properties.addPropertyChangeListener(
-	    ConsoleProperties.IGNORE_SAMPLES_PROPERTY,
-	    new PropertyChangeListener() {
-		public void propertyChange(PropertyChangeEvent event) {
-		    if (getState() == STATE_WAITING_FOR_TRIGGER) {
-			setInitialState();
-		    }
 		}
 	    });
 
@@ -186,6 +176,8 @@ public class Model
 	    }
 
 	    m_indicesValid = true;
+
+	    fireModelUpdate();
 	}
     }
 
@@ -281,19 +273,9 @@ public class Model
 	}
     }
 
-    private void setInitialState()
-    {
-	if (m_properties.getIgnoreSampleCount() != 0) {
-	    setState(STATE_WAITING_FOR_TRIGGER);
-	}
-	else {
-	    setState(STATE_CAPTURING);
-	}
-    }
-
     public void start()
     {
-	setInitialState();
+	setState(STATE_WAITING_FOR_TRIGGER);
 	fireModelUpdate();
     }
 
@@ -540,6 +522,7 @@ public class Model
 	}
 
 	if (i == STATE_WAITING_FOR_TRIGGER) {
+	    // Zero everything because it looks pretty.
 	    reset();
 	}
 
@@ -551,7 +534,7 @@ public class Model
 	    m_stopTime = m_currentTime;
 	}
 
-	m_state = i;
 	m_sampleCount = 0;
+	m_state = i;
     }
 }

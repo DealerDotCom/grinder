@@ -26,7 +26,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 
-import net.grinder.console.ConsoleException;
+import net.grinder.console.common.ConsoleException;
 
 
 /**

@@ -16,20 +16,26 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.communication;
+package net.grinder.console.common;
 
 
 /**
- * Default communication constants.
- *
  * @author Philip Aston
  * @version $Revision$
- */
-public interface CommunicationDefaults
+ */ 
+public class DisplayMessageConsoleException extends ConsoleException
 {
-    final String MULTICAST_ADDRESS = "228.1.1.1";
-    final int CONSOLE_PORT = 1235;
-    final int GRINDER_PORT = 1234;
+    private static Resources s_resources;
 
-    final int MAX_PORT = 0xFFFF;
+    public final static void setResources(Resources resources)
+    {
+	s_resources = resources;
+    }
+
+    public DisplayMessageConsoleException(String resourceKey,
+					  String defaultMessage)
+    {
+	super(s_resources != null ?
+	      s_resources.getString(resourceKey) : defaultMessage);
+    }
 }

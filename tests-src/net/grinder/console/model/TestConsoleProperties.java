@@ -29,7 +29,8 @@ import java.io.FileWriter;
 import java.util.Random;
 
 import net.grinder.common.GrinderException;
-import net.grinder.console.ConsoleException;
+import net.grinder.communication.CommunicationDefaults;
+import net.grinder.console.common.DisplayMessageConsoleException;
 
 
 /**
@@ -71,7 +72,7 @@ public class TestConsoleProperties extends TestCase
 	    }
 
 	    protected void set(ConsoleProperties properties, int i)
-		throws ConsoleException
+		throws DisplayMessageConsoleException
 	    {
 		properties.setCollectSampleCount(i);
 	    }
@@ -89,7 +90,7 @@ public class TestConsoleProperties extends TestCase
 	    }
 
 	    protected void set(ConsoleProperties properties, int i)
-		throws ConsoleException
+		throws DisplayMessageConsoleException
 	    {
 		properties.setIgnoreSampleCount(i);
 	    }
@@ -107,7 +108,7 @@ public class TestConsoleProperties extends TestCase
 	    }
 
 	    protected void set(ConsoleProperties properties, int i)
-		throws ConsoleException
+		throws DisplayMessageConsoleException
 	    {
 		properties.setSampleInterval(i);
 	    }
@@ -125,7 +126,7 @@ public class TestConsoleProperties extends TestCase
 	    }
 
 	    protected void set(ConsoleProperties properties, int i)
-		throws ConsoleException
+		throws DisplayMessageConsoleException
 	    {
 		properties.setSignificantFigures(i);
 	    }
@@ -144,16 +145,19 @@ public class TestConsoleProperties extends TestCase
 
 	final ConsoleProperties properties = new ConsoleProperties(m_file);
 	assertEquals(s1, properties.getMulticastAddress().getHostAddress());
+	assertEquals(s1, properties.getMulticastAddressAsString());
 
 	final String s2 = "239.99.33.11";
 
 	properties.setMulticastAddress(s2);
 	assertEquals(s2, properties.getMulticastAddress().getHostAddress());
+	assertEquals(s2, properties.getMulticastAddressAsString());
 
 	properties.save();
 
 	final ConsoleProperties properties2 = new ConsoleProperties(m_file);
 	assertEquals(s2, properties2.getMulticastAddress().getHostAddress());
+	assertEquals(s2, properties2.getMulticastAddressAsString());
 
 	final String s3 = "224.46.68.80";
 
@@ -172,7 +176,7 @@ public class TestConsoleProperties extends TestCase
     public void testConsolePort() throws Exception
     {
 	new TestIntTemplate(ConsoleProperties.CONSOLE_PORT_PROPERTY, 0,
-			    0xFFFF) 
+			    CommunicationDefaults.MAX_PORT) 
 	{
 	    protected int get(ConsoleProperties properties)
 	    {
@@ -180,7 +184,7 @@ public class TestConsoleProperties extends TestCase
 	    }
 
 	    protected void set(ConsoleProperties properties, int i)
-		throws ConsoleException
+		throws DisplayMessageConsoleException
 	    {
 		properties.setConsolePort(i);
 	    }
@@ -190,7 +194,7 @@ public class TestConsoleProperties extends TestCase
     public void testGrinderPort() throws Exception
     {
 	new TestIntTemplate(ConsoleProperties.GRINDER_PORT_PROPERTY, 0,
-			    0xFFFF) 
+			    CommunicationDefaults.MAX_PORT) 
 	{
 	    protected int get(ConsoleProperties properties)
 	    {
@@ -198,7 +202,7 @@ public class TestConsoleProperties extends TestCase
 	    }
 
 	    protected void set(ConsoleProperties properties, int i)
-		throws ConsoleException
+		throws DisplayMessageConsoleException
 	    {
 		properties.setGrinderPort(i);
 	    }
@@ -278,14 +282,14 @@ public class TestConsoleProperties extends TestCase
 		    set(properties, m_minimum - 1);
 		    fail("Should not reach");
 		}
-		catch (ConsoleException e) {
+		catch (DisplayMessageConsoleException e) {
 		}
 
 		try {
 		    set(properties, Integer.MIN_VALUE);
 		    fail("Should not reach");
 		}
-		catch (ConsoleException e) {
+		catch (DisplayMessageConsoleException e) {
 		}
 
 		try {
@@ -293,7 +297,7 @@ public class TestConsoleProperties extends TestCase
 						 m_minimum - 1));
 		    fail("Should not reach");
 		}
-		catch (ConsoleException e) {
+		catch (DisplayMessageConsoleException e) {
 		}
 	    }
 
@@ -303,14 +307,14 @@ public class TestConsoleProperties extends TestCase
 		    set(properties, m_maximum + 1);
 		    fail("Should not reach");
 		}
-		catch (ConsoleException e) {
+		catch (DisplayMessageConsoleException e) {
 		}
 
 		try {
 		    set(properties, Integer.MAX_VALUE);
 		    fail("Should not reach");
 		}
-		catch (ConsoleException e) {
+		catch (DisplayMessageConsoleException e) {
 		}
 
 		try {
@@ -318,7 +322,7 @@ public class TestConsoleProperties extends TestCase
 						 Integer.MAX_VALUE));
 		    fail("Should not reach");
 		}
-		catch (ConsoleException e) {
+		catch (DisplayMessageConsoleException e) {
 		}
 	    }
 	}
@@ -326,7 +330,7 @@ public class TestConsoleProperties extends TestCase
 	protected abstract int get(ConsoleProperties properties);
 
 	protected abstract void set(ConsoleProperties properties, int i)
-	    throws ConsoleException;
+	    throws DisplayMessageConsoleException;
     }
 
     private class MyListener implements PropertyChangeListener
