@@ -22,8 +22,13 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.engine.EngineException;
+import java.io.PrintWriter;
+
+import org.python.core.Py;
 import org.python.core.PyException;
+import org.python.core.PyTraceback;
+
+import net.grinder.engine.EngineException;
 
 
 /**
@@ -37,6 +42,43 @@ public class JythonScriptExecutionException extends EngineException
 {
     public JythonScriptExecutionException(String doingWhat, PyException e)
     {
-	super("Jython error encountered " + doingWhat, e);
+	super("Jython error encountered " + doingWhat, stripPyException(e));
+    }
+
+    private static Throwable stripPyException(PyException e) 
+    {
+	final Object javaError = e.value.__tojava__(Throwable.class);
+
+	if (javaError == null || javaError == Py.NoConversion) {
+	    return e;
+	}
+
+	return new BriefPyException((Throwable)javaError, e.traceback);
+    }
+
+    /**
+     * Used to replace PyExceptions that encapsulate Java exceptions.
+     * (The PyException stack trace is much too verbose my tastes and
+     * repeats a lot of information found in the Java exception).
+     */
+    private static class BriefPyException extends Throwable
+    {
+	private final Throwable m_wrapped;
+	private final String m_where;
+
+	public BriefPyException(Throwable wrapped, PyTraceback traceback) 
+	{
+	    m_wrapped = wrapped;
+
+	    m_where = "(Passed through Jython script \"" +
+		traceback.tb_frame.f_code.co_filename +
+		"\" at line " + traceback.tb_lineno + ")";
+	}
+
+	public void printStackTrace(PrintWriter s)
+	{
+	    s.println(m_where);
+	    m_wrapped.printStackTrace(s);
+	}
     }
 }
