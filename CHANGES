@@ -15,7 +15,7 @@ Grinder 3.0-beta18
 
    - Minor updates to HTTPPluginTCPProxyFilter2.
 
-  Remvoe the Sniffer web app.
+  Remove the Sniffer web app.
 
   Fail hard if script attempts to register detail statistics view from
   worker thread.
