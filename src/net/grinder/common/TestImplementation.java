@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2001, 2002 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,12 +25,13 @@ package net.grinder.common;
 /**
  * @author Philip Aston
  * @version $Revision$
- */
+ **/
 public class TestImplementation extends AbstractTestSemantics
 {
     private final int m_number;
     private final String m_description;
-    private transient final GrinderProperties m_parameters =
+
+    private final GrinderProperties m_parameters =
 	new GrinderProperties();
 
     public TestImplementation(int number, String description)

@@ -33,7 +33,7 @@ import net.grinder.common.GrinderProperties;
  * @version $Revision$
  * @see TestImplementation
  */ 
-public interface Test extends Comparable, java.io.Serializable
+public interface Test extends Comparable
 {
     /** Test number, defines test identity and ordering. **/
     public int getNumber();
