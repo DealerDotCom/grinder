@@ -35,6 +35,7 @@ import javax.swing.text.PlainDocument;
  */
 class IntegerField extends JTextField
 {
+    private static final Toolkit s_toolkit = Toolkit.getDefaultToolkit();
     private final static double s_log10 = Math.log(10);
     private final int m_minimumValue;
     private final int m_maximumValue;
@@ -90,8 +91,6 @@ class IntegerField extends JTextField
 
     public class FormattedDocument extends PlainDocument
     {
-	private static final Toolkit s_toolkit = Toolkit.getDefaultToolkit();
-
 	public void insertString(int offset, String string,
 				 AttributeSet attributeSet)
 	    throws BadLocationException
