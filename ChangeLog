@@ -1,3 +1,110 @@
+2005-03-28  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java:
+	Temporary fix for race.
+
+2005-03-27  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java:
+	More tests.
+
+	* tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java:
+	Test PortForwarderTCPProxyEngine.
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	More helpful assert message.
+
+2005-03-26  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/tools/tcpproxy/TestTCPProxySocketFactories.java:
+	More tests.
+
+	* src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java:
+	Close stream used to read key store.
+
+	* tests-src/net/grinder/tools/tcpproxy/TestHTTPMethodRelativeURIFilterDecorator.java, tests-src/net/grinder/tools/tcpproxy/TestHTTPResponse.java:
+	More tests.
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPResponse.java:
+	Inline HTTPResponse.toByteArray().
+
+	* tests-src/net/grinder/tools/tcpproxy/TestCompositeFilter.java, tests-src/net/grinder/tools/tcpproxy/TestEndPoint.java, tests-src/net/grinder/tools/tcpproxy/TestHTTPMethodAbsoluteURIFilterDecorator.java:
+	Remove unused imports.
+
+	* src/net/grinder/tools/tcpproxy/HTTPMethodRelativeURIFilterDecorator.java:
+	Fix typo.
+
+2005-03-25  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/tools/tcpproxy/TestHTTPMethodAbsoluteURIFilterDecorator.java:
+	Test HTTPPemthodAbsoluteURIFilterDecorator.
+
+	* tests-src/net/grinder/tools/tcpproxy/MyFilterStubFactory.java, tests-src/net/grinder/tools/tcpproxy/TestCompositeFilter.java:
+	Extract MyFilterStubFactory for other tests to use.
+
+	* src/net/grinder/tools/tcpproxy/HTTPMethodAbsoluteURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPMethodRelativeURIFilterDecorator.java:
+	Fix regular expressions.
+	Don't bother catching unchecked PatternSyntaxExpression
+	for standard regular expressions.
+
+	* tests-src/net/grinder/tools/tcpproxy/TestEndPoint.java: Coverage.
+
+	* src/net/grinder/tools/tcpproxy/HTTPMethodRelativeURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPMethodAbsoluteURIFilterDecorator.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java:
+	find() not matches().
+
+	* tests-src/net/grinder/tools/tcpproxy/TestCompositeFilter.java, tests-src/net/grinder/tools/tcpproxy/TestNullFilter.java:
+	More tests.
+
+	* src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/CompositeFilter.java, src/net/grinder/tools/tcpproxy/CompositeTCPProxyFilter.java:
+	Rename CompositeTCPProxyFilter to CompositeFilter.
+
+	* tests-src/net/grinder/tools/tcpproxy/TestConnectionDetails.java:
+	Coverage.
+
+	* tests-src/net/grinder/tools/tcpproxy/TestEchoFilter.java:
+	Test EchoFilter.
+
+	* src/net/grinder/tools/tcpproxy/resources/default.keystore:
+	Keystore is binary.
+
+2005-03-24  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	find(), not matches().
+
+	* src/prj.el: Don't frig with coding system.
+
+	* etc/buildenv.sh, etc/setenv.sh: J2SE 1.4.
+
+	* src/net/grinder/util/FixedWidthFormatter.java:
+	Remove reliance on J2SE 1.4 so we can at least get a helpful
+	message to those trying to use earlier J2SE's.
+
+	* build.xml, src/net/grinder/util/JVM.java: We now depend on J2SE 1.4.
+
+	* LICENSE, LICENSE-Jakarta-ORO, etc/localpaths.properties, etc/setenv.cmd, etc/setenv.sh, src/net/grinder/console/swingui/resources/about.html:
+	Remove direct dependency on Jakarta ORO.
+
+	* .cvsignore: Ignore eclipse metadata.
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter2.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java:
+	Replace Jakarta ORO with J2SE regular expressions.
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Remove tabs.
+
+	* src/net/grinder/tools/tcpproxy/HTTPMethodAbsoluteURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPMethodRelativeURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/console/distribution/FileDistribution.java, src/net/grinder/console/distribution/FileDistributionFilter.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/ConsolePropertyDefaults.java, tests-src/net/grinder/console/distribution/TestFileDistribution.java, tests-src/net/grinder/console/distribution/TestFileDistributionFilter.java, tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Replace Jakarta ORO with J2SE regular expressions.
+
+2005-03-23  Philip Aston  <philipa@mail.com>
+
+	* TODO: Remember defect.
+
+	* build.xml: Next is beta 26.
+
+	* src/net/grinder/common/SSLContextFactory.java, src/net/grinder/console/swingui/Editor.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java, src/net/grinder/util/InsecureSSLContextFactory.java, tests-src/net/grinder/util/TestInsecureSSLContextFactory.java, src/net/grinder/engine/process/SSLControlImplementation.java, src/net/grinder/script/SSLControl.java:
+	Use J2SE 1.4 methods to remove deprecation warnings.
+
 2005-03-22  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta25 is released.	
