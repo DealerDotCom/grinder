@@ -22,6 +22,8 @@ import java.util.Set;
 
 
 /**
+ * Message used to register tests with Console.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -29,11 +31,19 @@ public class RegisterTestsMessage extends Message
 {
     final Set m_tests;
 
+    /**
+     * Constructor.
+     *
+     * @param tests The test set to register.
+     **/
     public RegisterTestsMessage(Set tests)
     {
 	m_tests = tests;
     }
 
+    /**
+     * Get the test set.
+     **/
     public Set getTests()
     {
 	return m_tests;
