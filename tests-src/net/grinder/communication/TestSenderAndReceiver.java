@@ -112,17 +112,45 @@ public class TestSenderAndReceiver extends TestCase
 	assertEquals(sentMessage, receivedMessage);
     }
 
+    public void testShutdownReciever() throws Exception
+    {
+	final ReceiverThread receiverThread = new ReceiverThread();
+	receiverThread.start();
+
+	m_receiver.shutdown();
+
+	receiverThread.join();
+
+	assertNull(receiverThread.getMessage());
+	}
+
+    public void testTwoListenersException() throws Exception
+    {
+	final ReceiverThread r1 = new ReceiverThread();
+	final ReceiverThread r2 = new ReceiverThread();
+	r1.start();
+	r2.start();
+
+	Thread.yield();		// Give threads time to hit waitForMessage().
+	m_receiver.shutdown();
+
+	r1.join();
+	r2.join();
+
+	assert(r1.getException() == null ^ r2.getException() == null);
+    }
+
     private class ReceiverThread extends Thread
     {
 	private Message m_message;
 	private Exception m_exception;
 
-	Message getMessage()
+	public Message getMessage()
 	{
 	    return m_message;
 	}
 
-	Exception getException()
+	public Exception getException()
 	{
 	    return m_exception;
 	}
