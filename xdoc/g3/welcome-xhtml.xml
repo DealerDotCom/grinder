@@ -85,6 +85,10 @@ Gallery</a> where you can sample the power of The Grinder 3.</p>
 <code>zip</code> files. They can be downloaded from <a
 href="http://www.sourceforge.net/projects/grinder">SourceForge.net</a>.</p>
 
+<p>To simplify SSL and HTTPS configuration, JSSE is now
+<em>required</em> for The Grinder 3. Consequently you may find it
+easier to use J2SE 1.4.1 with The Grinder 3.</p>
+
 <h2>Other changes</h2>
 
 <ul>

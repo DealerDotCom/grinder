@@ -14,12 +14,12 @@
 
     <h2>What else do I need?</h2>
 
-    <p>To run the Grinder:</p>
+    <p>To run The Grinder:</p>
 
     <blockquote>
       <table>
         <tr>
-          <td><a href="http://java.sun.com/j2se/">J2SE 1.3.1</a> or equivalent</td>
+          <td><a href="http://java.sun.com/j2se/">Java 2 Standard Edition 1.3.1</a>, equivalent, or later</td>
         </tr>
       </table>
     </blockquote>
@@ -31,7 +31,8 @@
         <tr>
           <td><a href="http://java.sun.com/products/jsse/">JSSE 1.0.2</a></td>
           <td>&#160;</td>
-          <td>for SSL support</td>
+          <td>for SSL support (see below)</td>
+          <td>&#160;</td>
         </tr>
         <tr>
           <td><a href="http://jakarta.apache.org/ant/index.html">Apache Jakarta Ant 1.5.1</a></td>
@@ -47,6 +48,13 @@
     </blockquote>
 
    <p>Later versions of these packages should also work.</p>
+
+   <p>JSSE (Java Secure Socket Extension) is a standard part of Java 2
+   Standard Edition 1.4.1 and later. To simplify SSL and HTTPS
+   configuration, JSSE is now <em>required</em> for The Grinder 3.
+   Consequently you may find it easier to use J2SE 1.4.1 with The
+   Grinder 3.</p>
+
 
 </body>
 </html>
