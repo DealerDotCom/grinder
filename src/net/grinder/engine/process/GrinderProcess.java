@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2001  Paco Gomez
-// Copyright (C) 2001  Philip Aston
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,13 +26,19 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.*;
-import java.lang.reflect.Method;
 
+import net.grinder.communication.Message;
+import net.grinder.communication.Receiver;
+import net.grinder.communication.ReportStatisticsMessage;
+import net.grinder.communication.Sender;
+import net.grinder.communication.StartGrinderMessage;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.Test;
 import net.grinder.plugininterface.ThreadCallbacks;
+import net.grinder.statistics.Statistics;
+import net.grinder.statistics.StatisticsTable;
+import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
@@ -87,24 +93,23 @@ public class GrinderProcess
     private final String m_logDirectory;
     private final boolean m_appendToLog;
 
-    private final boolean m_waitForConsoleSignal;
-    private final GrinderCommunication m_communication;
-
-    private final boolean m_reportToConsole;
+    private final Receiver m_consoleReceiver;
+    private final Sender m_consoleSender;
     private int m_reportToConsoleInterval = 0;
-    private InetAddress m_consoleAddress = null;
-    private int m_consolePort = 0;
-    private DatagramSocket m_datagramSocket = null;
 
     private final GrinderPlugin m_plugin;
-    private final Map m_tests;
+
+    /** A map of Tests to TestData. (TestData is the class this
+     * package uses to store information about Tests). */
+    private final Map m_testSet;
+
+    /** A map of Tests to Statistics for passing elsewhere. */
+    private final TestStatisticsMap m_testStatisticsMap;
 
     public GrinderProcess() throws GrinderException
     {
 	final GrinderProperties properties = GrinderProperties.getProperties();
 	final PropertiesHelper propertiesHelper = new PropertiesHelper();
-
-	m_communication = new GrinderCommunication(properties);
 
 	m_context = new ProcessContextImplementation();
 
@@ -114,32 +119,39 @@ public class GrinderProcess
 	m_appendToLog = properties.getBoolean("grinder.appendLog", false);
 
 	// Parse console configuration.
-	m_waitForConsoleSignal =
+	final boolean waitForConsoleSignal =
 	    properties.getBoolean("grinder.waitForConsoleSignal", false);
 
-	m_reportToConsole =
+	if (waitForConsoleSignal) {
+	    final String multicastAddress = 
+		properties.getProperty("grinder.multicastAddress");
+
+	    final int grinderPort =
+		properties.getMandatoryInt("grinder.multicastPort");
+	
+	    m_consoleReceiver = new Receiver(multicastAddress, grinderPort);
+	}
+	else {
+	    m_consoleReceiver = null;
+	}
+
+	final boolean reportToConsole =
 	    properties.getBoolean("grinder.reportToConsole", false);
 
-	if (m_reportToConsole) {
+	if (reportToConsole) {
+	    final String multicastAddress = 
+		properties.getProperty("grinder.multicastAddress");
+
+	    final int consolePort =
+		properties.getMandatoryInt("grinder.console.multicastPort");
+
+	    m_consoleSender = new Sender(multicastAddress, consolePort);
+
 	    m_reportToConsoleInterval =
 		properties.getInt("grinder.reportToConsole.interval", 500);
-
-	    try{
-		m_consoleAddress =
-		    InetAddress.getByName(
-			properties.getMandatoryProperty(
-			    "grinder.console.multicastAddress"));
-
-		m_consolePort =
-		    properties.getMandatoryInt(
-			"grinder.console.multicastPort");
-
-		m_datagramSocket = new DatagramSocket();
-	    }
-	    catch(Exception e) {
-		throw new EngineException("Couldn't resolve console address",
-					  e);
-	    }
+	}
+	else {
+	    m_consoleSender = null;
 	}
 
 	// Parse plugin class.
@@ -149,22 +161,25 @@ public class GrinderProcess
 	final Set tests = propertiesHelper.getTestSet(m_plugin);
 
 	// Wrap tests with our information.
-	m_tests = new TreeMap();
+	m_testSet = new TreeMap();
+	m_testStatisticsMap = new TestStatisticsMap();
 	
 	final Iterator testSetIterator = tests.iterator();
 
 	while (testSetIterator.hasNext())
 	{
 	    final Test test = (Test)testSetIterator.next();
-	    final Integer testNumber = test.getTestNumber();
 
 	    final String sleepTimePropertyName =
-		propertiesHelper.getTestPropertyName(testNumber, "sleepTime");
+		propertiesHelper.getTestPropertyName(test.getTestNumber(),
+						     "sleepTime");
 
 	    final long sleepTime =
 		properties.getInt(sleepTimePropertyName, -1);
 
-	    m_tests.put(test.getTestNumber(), new TestData(test, sleepTime));
+	    final Statistics statistics = new Statistics();
+	    m_testSet.put(test, new TestData(test, sleepTime, statistics));
+	    m_testStatisticsMap.put(test, statistics);
 	}
     }    
 
@@ -207,12 +222,21 @@ public class GrinderProcess
 
 	    runnable[i] = new GrinderThread(threadCallbackHandler,
 					    pluginThreadContext,
-					    dataPrintWriter, m_tests);
+					    dataPrintWriter, m_testSet);
 	}
         
-	if (m_waitForConsoleSignal) {
+	if (m_consoleReceiver != null) {
 	    m_context.logMessage("waiting for console signal");
-	    m_communication.waitForStartMessage();
+
+	    while (true) {
+		final Message message = m_consoleReceiver.waitForMessage();
+
+		m_context.logMessage("Got a message");
+
+		if (message instanceof StartGrinderMessage) {
+		    break;
+		}
+	    }
 	}
 
 	m_context.logMessage("starting threads");
@@ -232,45 +256,12 @@ public class GrinderProcess
 		continue;
 	    }
 
-	    if (m_reportToConsole) {
-		final Iterator testIterator = m_tests.entrySet().iterator();
-
-		while (testIterator.hasNext()) {
-		    final Map.Entry entry = (Map.Entry)testIterator.next();
-		    final Integer testNumber = (Integer)entry.getKey();
-		    final TestData test = (TestData)entry.getValue();
-
-		    final TestStatistics delta =
-			test.getStatistics().getDelta(true);
-
-		    final String msg =
-			m_context.getHostIDString() + "," + 
-			m_context.getProcessIDString() + "," + 
-			m_numberOfThreads + "," + 
-			testNumber + "," +
-			delta.getTotalTime() + "," +
-			delta.getTransactions() + "," +
-			delta.getAverageTransactionTime();
-		    
-		    //Java 1.1 (it doesn't work)
-		    // b = msg.getBytes();
-		    // Java 1.0 Deprecated in Java 1.1, but it works:
-		    final byte[] b = new byte[msg.length() + 1];
-		    msg.getBytes(0, msg.length(), b, 0);
-
-		    try{
-			final DatagramPacket packet =
-			    new DatagramPacket(b, b.length, m_consoleAddress,
-					       m_consolePort);
-			m_datagramSocket.send(packet);
-		    }
-		    catch(SocketException e) {
-			System.err.println(e);
-		    } 
-		    catch(IOException e) {
-			System.err.println(e);
-		    }
-		} 
+	    if (m_consoleSender != null) {
+		m_consoleSender.send(
+		    new ReportStatisticsMessage(
+			m_context.getHostIDString(),
+			m_context.getProcessIDString(),
+			m_testStatisticsMap.getDelta(true)));
 	    }
 	}
 
@@ -282,8 +273,8 @@ public class GrinderProcess
 
  	System.out.println("Final statistics for this process:");
 
-	final TestStatisticsTable statisticsTable =
-	    new TestStatisticsTable(m_tests);
+	final StatisticsTable statisticsTable =
+	    new StatisticsTable(m_testStatisticsMap);
 
 	statisticsTable.print(System.out);
     }
