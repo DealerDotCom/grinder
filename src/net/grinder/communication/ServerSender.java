@@ -79,8 +79,8 @@ public final class ServerSender extends AbstractSender {
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  ServerSender(String grinderID, String senderID, Acceptor acceptor,
-               int numberOfThreads)
+  private ServerSender(String grinderID, String senderID, Acceptor acceptor,
+                       int numberOfThreads)
     throws CommunicationException {
 
     super(grinderID, senderID);
@@ -134,6 +134,15 @@ public final class ServerSender extends AbstractSender {
 
     // Will also shut down our SenderThreads.
     m_acceptor.shutdown();
+  }
+
+  /**
+   * Return the Acceptor. Used by the unit tests.
+   *
+   * @return The number of connections.
+   */
+  public Acceptor getAcceptor() {
+    return m_acceptor;
   }
 
   private final class SenderThread extends Thread {

@@ -62,7 +62,7 @@ public final class ServerReceiver implements Receiver {
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  ServerReceiver(Acceptor acceptor, int numberOfThreads)
+  private ServerReceiver(Acceptor acceptor, int numberOfThreads)
     throws CommunicationException {
 
     m_acceptor = acceptor;
@@ -105,6 +105,15 @@ public final class ServerReceiver implements Receiver {
 
     // Will also shut down our ListenThreads.
     m_acceptor.shutdown();
+  }
+
+  /**
+   * Return the Acceptor. Used by the unit tests.
+   *
+   * @return The number of connections.
+   */
+  public Acceptor getAcceptor() {
+    return m_acceptor;
   }
 
   private final class ListenThread extends Thread {
