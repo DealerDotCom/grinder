@@ -122,9 +122,10 @@ class LabelledGraph extends JPanel
 	throws ConsoleException
     {
 	m_color = color;
-	m_graph = new Graph(150, 90, 25);
+	m_graph = new Graph(25);
+	m_graph.setPreferredSize(new Dimension(150, 90));
 	m_graph.setBorder(s_blackLine);
-        setPreferredSize(new Dimension(250, 100));
+        setPreferredSize(new Dimension(250, 120));
 
 	final JPanel labelPanel = new JPanel();
 	labelPanel.setLayout(new BoxLayout(labelPanel, BoxLayout.Y_AXIS));
