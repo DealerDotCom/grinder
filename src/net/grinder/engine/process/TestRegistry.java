@@ -102,6 +102,8 @@ public final class TestRegistry {
       m_testStatisticsMap.put(test, newTestData.getStatistics());
     }
 	
+    // Queue up, will get flushed with next process status or
+    // statistics report.
     m_consoleSender.queue(
       new RegisterTestsMessage(Collections.singleton(test)));
 

@@ -124,6 +124,8 @@ final class ScriptContextImplementation implements ScriptContext {
     throws GrinderException {
     CommonStatisticsViews.getSummaryStatisticsView().add(statisticsView);
 
+    // Queue up, will get flushed with next process status or
+    // statistics report.
     m_processContext.getConsoleSender().queue(
       new RegisterStatisticsViewMessage(statisticsView));
   }
