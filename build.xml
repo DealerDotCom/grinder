@@ -52,10 +52,10 @@ The build auto-detects what modules to build by checking your
 classpath for classes the module depends on. You may have to unset your
 classpath if this doesn't do what you want. Currently the conditionally built modules are:
 
-   HTTP SSL plugin (Needs the JSSE)
-   TCPSniffer SSL engine (Needs the JSSE)
-   TCPSniffer HTTP plugin filter (Needs Apache Jakarta Regexp)
-   WebLogic Server 5.1 Trader EJB plugin (needs WLS Trader EJB)
+   HTTP SSL plugin (Needs the JSSE 1.0.2)
+   TCPSniffer SSL engine (Needs the JSSE 1.0.2)
+   TCPSniffer HTTP plugin filter (Needs Apache Jakarta Regexp 1.2)
+   WebLogic Server Trader EJB plugin (needs WLS 5.1 Trader EJB)
 
 Ant hint for cygwin users: Copy "ant" from the Ant bin directory into
 a directory earilier in your path and run it through sed -e 's#:#;#g'
