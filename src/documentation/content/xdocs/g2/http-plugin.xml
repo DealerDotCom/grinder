@@ -18,7 +18,7 @@ grinder.plugin=net.grinder.plugin.http.HttpPlugin
     </section>
 
     <section>
-      <title>>HTTP plug-in properties</title>
+      <title>HTTP plug-in properties</title>
 
       <p>This table lists the HTTP plug-in properties that you can set
       in <code>grinder.properties</code> in addition to the <a
