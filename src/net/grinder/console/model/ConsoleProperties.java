@@ -386,10 +386,9 @@ public final class ConsoleProperties {
    **/
   public void setConsoleAddress(String s)
     throws DisplayMessageConsoleException {
-    // We treat any non-multicast address that we can look up as
-    // valid. I guess we could also try binding to it to discover
-    // whether it is local, but that could take an indeterminate
-    // amount of time.
+    // We treat any address that we can look up as valid. I guess we
+    // could also try binding to it to discover whether it is local,
+    // but that could take an indeterminate amount of time.
 
     if (s.length() > 0) {    // Empty string => all local hosts.
       final InetAddress newAddress;
