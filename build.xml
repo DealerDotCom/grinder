@@ -358,7 +358,7 @@ what you want. Currently the conditionally built modules are:
     <batchtest>
       <formatter type="plain" usefile="false"/>
       <fileset dir="${prepared-test-src.dir}" includes="**/Test*.java">
-        <exclude name="**/TestMulticastSenderAndReceiver.java"/>
+<!--        <exclude name="**/TestMulticastSenderAndReceiver.java"/> -->
       </fileset>
     </batchtest>
   </junit>
