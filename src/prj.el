@@ -33,3 +33,5 @@
  '(jde-checkstyle-properties-file "../etc/checkstyle.properties")
  '(jde-checkstyle-option-cache-file (jde-normalize-path "/work/src/grinder3/build/checkstyle.cache"))
 )
+
+(setq indent-tabs-mode nil)
