@@ -49,21 +49,38 @@ public class CopyStreamRunnable implements Runnable
 	final byte[] buffer = new byte[4096];
 
 	try {
-	    while (true) {
-		int length;
+	    short idle = 0;
 
-		while ((length = m_in.read(buffer, 0, buffer.length)) > 0) {
-		    m_out.write(buffer, 0, length);
+	    while (true) {
+		final int bytesRead = m_in.read(buffer, 0, buffer.length);
+
+		if (bytesRead ==  -1) {
+		    break;
+		}
+
+		if (bytesRead == 0) {
+		    idle++;
+		}
+		else {
+		    m_out.write(buffer, 0, bytesRead);
+		    idle = 0;
+		}
+
+		if (idle > 0) {
+		    Thread.sleep(Math.max(idle * 200, 2000));
 		}
 	    }
 	}
 	catch (IOException e) {
-	    // Be silent about IOExceptions.
+	    // Be silent about IOExceptions ...
+	}
+	catch (InterruptedException e) {
+	    // ... and InterruptedExceptions.
 	}
 
 	// We're exiting, usually because the in stream has been
 	// closed. Whatever, close our streams. This will cause the
-	// paired thread to exit to.
+	// paired thread to exit too.
 	try {
 	    m_out.close();
 	}
