@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,7 +25,7 @@ package net.grinder.engine.agent;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import net.grinder.common.GrinderException;
+import net.grinder.engine.EngineException;
 import net.grinder.util.CopyStreamRunnable;
 
 
@@ -53,18 +53,18 @@ final class ChildProcess {
    * should be redirected.
    * @param errorStream Output stream to which child process stderr
    * should be redirected.
-   * @throws GrinderException If an error occurs.
+   * @throws EngineException If an error occurs.
    */
   public ChildProcess(String[] commandArray,
                       OutputStream outputStream,
                       OutputStream errorStream)
-    throws GrinderException {
+    throws EngineException {
 
     try {
       m_process = Runtime.getRuntime().exec(commandArray);
     }
     catch (Exception e) {
-      throw new GrinderException("Could not start process", e);
+      throw new EngineException("Could not start process", e);
     }
 
     ProcessReaper.getInstance().add(m_process);
@@ -91,11 +91,11 @@ final class ChildProcess {
    *
    * @return See {@link net.grinder.engine.process.GrinderProcess} for
    * valid values.
-   * @throws GrinderException If an error occurs.
+   * @throws EngineException If an error occurs.
    * @throws InterruptedException If this thread is interrupted whilst
    * waiting.
    */
-  public int waitFor() throws InterruptedException, GrinderException {
+  public int waitFor() throws InterruptedException, EngineException {
 
     m_process.waitFor();
 
@@ -109,7 +109,7 @@ final class ChildProcess {
     }
     catch (IllegalThreadStateException e) {
       // Can't happen.
-      throw new GrinderException("Unexpected exception", e);
+      throw new EngineException("Unexpected exception", e);
     }
   }
 
