@@ -9,7 +9,6 @@
 #from net.grinder.script.Grinder import grinder
 from net.grinder.script.Grinder import grinder
 from net.grinder.script import Test
-import foo
 
 # A shorter alias for the grinder.logger.output() method.
 log = grinder.logger.output
