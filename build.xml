@@ -402,10 +402,14 @@ conditionally built modules are:
   </target>
 
   <target name="realclean" depends="clean"
-	  description="Removes all generated files.">
+	  description="Removes all generated files and temporary files.">
     <delete dir="${dist.root}"/>
     <delete dir="${javadoc.dir}"/>
     <delete dir="${lib.dir}"/>
+    <delete>
+      <fileset dir="." includes="**/*~" defaultexcludes="no"/>
+    </delete>
+
   </target>
 
 </project>
