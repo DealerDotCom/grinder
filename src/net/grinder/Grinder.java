@@ -47,7 +47,7 @@ public class Grinder
     {
 	final GrinderProperties properties = GrinderProperties.getProperties();
 
-	System.out.println("Grinder (version FIXME) started");        
+	System.out.println("Grinder version @version@ started");        
         
 	final int numberOfProcesses =
 	    properties.getInt("grinder.processes", 1);
