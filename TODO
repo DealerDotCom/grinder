@@ -5,8 +5,7 @@ it too :-). The list is roughly in priority order.]
 
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 
-  Update HTTPClient to measure "time to first byte" and "Time to last
-  byte" as an alternative to implementing timeIncludesTransaction.
+  Update HTTPClient to support "mean time to first byte".
 
   Write more JUnit tests.
 
@@ -35,8 +34,11 @@ it too :-). The list is roughly in priority order.]
 	Respect charset information.
 	Sanity check the processing against RFC 2616
 
+  Efficiency: TestStatisticsMap.getDelta() to be able to reuse delta
+  object.
 
-The following are scheduled for Grinder 3:
+
+The following are under way for Grinder 3:
 
   Abstract out a TestScheduler interface to allow other algorithms.
   Add a "random order" algorithm, which might work well with the JUnit

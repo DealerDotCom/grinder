@@ -8,7 +8,7 @@ Grinder 2.8
    additional "mean time to first byte" for the HttpURLConnection
    implementation of the HTTPPlugin. This replaces the old
    "timeIncludesTransaction" parameter. Support for HTTPClient is
-   harder and is slated for a future release.
+   more involved and is slated for a future release.
 
    Console "about" dialog.
 
