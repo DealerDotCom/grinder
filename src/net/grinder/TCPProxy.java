@@ -101,7 +101,7 @@ public final class TCPProxy {
       "\n   [-colour]                    Be pretty on ANSI terminals" +
       "\n   [-console]                   Display the console" +
       "\n   [-proxy <host> <port>]       Route via HTTP/HTTPS proxy" +
-      "\n   [-sslproxy <host> <port>]    Override -proxy settings for HTTPS" +
+      "\n   [-httpsproxy <host> <port>]  Override -proxy settings for HTTPS" +
       "\n" +
       "\n <filter> can be the name of a class that implements" +
       "\n " + TCPProxyFilter.class.getName() + " or" +
@@ -128,9 +128,9 @@ public final class TCPProxy {
       "\n -console displays a simple console that allows the TCPProxy" +
       "\n to be shutdown cleanly." +
       "\n" +
-      "\n -proxy and -sslproxy allow output to be directed through another" +
-      "\n HTTP/HTTPS proxy; this may help you reach the Internet. These" +
-      "\n options are not supported in port forwarding mode." +
+      "\n -proxy and -httpsproxy allow output to be directed through" +
+      "\n another HTTP/HTTPS proxy; this may help you reach the Internet." +
+      "\n These options are not supported in port forwarding mode." +
       "\n"
       );
 
@@ -263,7 +263,7 @@ public final class TCPProxy {
           chainedHTTPProxy =
             new EndPoint(args[++i], Integer.parseInt(args[++i]));
         }
-        else if (args[i].equalsIgnoreCase("-sslproxy")) {
+        else if (args[i].equalsIgnoreCase("-httpsproxy")) {
           chainedHTTPSProxy =
             new EndPoint(args[++i], Integer.parseInt(args[++i]));
         }
@@ -330,11 +330,11 @@ public final class TCPProxy {
       startMessage.append("\n   HTTP proxy:         " + chainedHTTPProxy);
     }
 
-    if (chainedHTTPSProxy != null) {
-      startMessage.append("\n   HTTPS proxy:        " + chainedHTTPSProxy);
-    }
-
     if (useSSL) {
+      if (chainedHTTPSProxy != null) {
+        startMessage.append("\n   HTTPS proxy:        " + chainedHTTPSProxy);
+      }
+
       startMessage.append("\n   Key store:          ");
       startMessage.append(keyStoreFile != null ?
                           keyStoreFile.toString() : "NOT SET");
