@@ -382,11 +382,9 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           m_lastRemoteStream.handle(buffer, bytesRead);
         }
       }
-      catch (SocketException e) {
-        // Most likely socket closed. Ignore.
-      }
       catch (IOException e) {
-        e.printStackTrace(System.err);
+        // Most likely SocketException("socket closed") or
+        // IOException("Stream closed"). Ignore.
       }
       catch (MalformedPatternException e) {
         e.printStackTrace(System.err);

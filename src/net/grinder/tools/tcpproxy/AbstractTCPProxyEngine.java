@@ -29,7 +29,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 
 import net.grinder.util.TerminalColour;
 
@@ -283,11 +282,9 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
           m_outputStreamFilterTee.handle(buffer, bytesRead);
         }
       }
-      catch (SocketException e) {
-        // Be silent about SocketExceptions.
-      }
       catch (IOException e) {
-        e.printStackTrace(System.err);
+        // Most likely SocketException("socket closed") or
+        // IOException("Stream closed"). Ignore.
       }
       finally {
         m_outputStreamFilterTee.connectionClosed();
