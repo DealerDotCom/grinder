@@ -12,6 +12,20 @@ Grinder 3.0-beta17
   Fix implicit grinder object deprecation message. Thanks to Christian
   Sell for the report.
 
+  Minor updates and fixes to the HTTPPluginTCPProxyFilters from
+  Bertrand Ave.
+
+  Fix the HTTP plugin to use a new SSL session for each thread and
+  for each run. This corresponds to the orthodox grinder model of
+  one run corresponding to one user browser session. Previously SSL
+  sessions were pooled across threads, leading to unrealistic results
+  when using The Grinder to drive a cluster of servers through SSL
+  session-aware load balancers. More SSL sessions will be created, so
+  expect high CPU load on both client and server, and average times
+  for first contact with an HTTPS server within a test run to be
+  significantly higher. Thanks to Joshua Reedy for prompting me to do
+  this, and for testing the change.
+
 
 Grinder 3.0-beta16
 ------------------

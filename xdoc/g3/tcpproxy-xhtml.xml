@@ -202,6 +202,13 @@ specify your key store details using the <code>-keystore</code>,
 <code>-keystorepassword</code> and <code>-keystoretype</code>
 options.</p>
 
+<p><em><strong>Warning</strong>The Grinder deliberately accelerates
+SSL initialisation by using a random number generator that is seeded
+with a fixed number. This does not hinder SSL communication, but
+theoretcially makes it less secure. No guarantee is made as to the
+cryptographical strength of any SSL communication using The
+Grinder.</em></p>
+
 <p>Here's an example of starting the TCPProxy as an HTTP/HTTPS proxy
 using the <em>testkeys</em> key store provided with the JSSE
 samples:</p>

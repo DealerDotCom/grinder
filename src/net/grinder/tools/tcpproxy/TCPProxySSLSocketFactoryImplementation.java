@@ -30,8 +30,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.SSLServerSocket;
@@ -39,8 +37,8 @@ import javax.net.ssl.SSLSocket;
 
 import com.sun.net.ssl.KeyManagerFactory;
 import com.sun.net.ssl.SSLContext;
-import com.sun.net.ssl.TrustManager;
-import com.sun.net.ssl.X509TrustManager;
+
+import net.grinder.util.InsecureSSLContextFactory;
 
 
 /**
@@ -83,13 +81,14 @@ public final class TCPProxySSLSocketFactoryImplementation
    * default keystore type should be used.
    * @exception IOException If an I/O error occurs.
    * @exception GeneralSecurityException If a security error occurs.
+   * @exception InsecureSSLContextFactory.CreateException If
+   * SSLContext could not be created.
    */
   public TCPProxySSLSocketFactoryImplementation(File keyStoreFile,
                                                 char[] keyStorePassword,
                                                 String keyStoreType)
-    throws IOException, GeneralSecurityException {
-
-    final SSLContext sslContext = SSLContext.getInstance("SSL");
+    throws IOException, GeneralSecurityException,
+           InsecureSSLContextFactory.CreateException {
 
     final KeyManagerFactory keyManagerFactory =
       KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
@@ -109,14 +108,10 @@ public final class TCPProxySSLSocketFactoryImplementation
 
     keyManagerFactory.init(keyStore, keyStorePassword);
 
-    // We don't care about cryptographic strength, so avoid the costly
-    // generation of a strongly random seed.
-    final SecureRandom insecureRandom = new SecureRandom();
-    insecureRandom.setSeed(new byte[0]);
+    final InsecureSSLContextFactory sslContextFactory =
+      new InsecureSSLContextFactory(keyManagerFactory.getKeyManagers());
 
-    sslContext.init(keyManagerFactory.getKeyManagers(),
-                    new TrustManager[] { new TrustEveryone() },
-                    insecureRandom);
+    final SSLContext sslContext = sslContextFactory.create();
 
     m_clientSocketFactory = sslContext.getSocketFactory();
     m_serverSocketFactory = sslContext.getServerSocketFactory();
@@ -187,26 +182,6 @@ public final class TCPProxySSLSocketFactoryImplementation
 
     socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
     return socket;
-  }
-
-  /**
-   * For the purposes of sniffing, we don't care whether the cert
-   * chain is trusted or not, so here's an implementation which
-   * accepts everything.
-   */
-  private static class TrustEveryone implements X509TrustManager {
-
-    public boolean isClientTrusted (X509Certificate[] chain) {
-      return true;
-    }
-
-    public boolean isServerTrusted (X509Certificate[] chain) {
-      return true;
-    }
-
-    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-      return null;
-    }
   }
 }
 
