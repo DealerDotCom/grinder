@@ -21,7 +21,7 @@
     number of machines. The framework is comprised of three types of
     <em>process</em> (or program). <em>Worker processes</em>,
     <em>agent processes</em> and the <em> <a
-    href="site:console">console</a> </em>. The responsibilities of
+    href="site:console">console</a></em>. The responsibilities of
     each of the process types are:</p>
 
     <ul>
