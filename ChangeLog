@@ -1,9 +1,12 @@
 2001-05-23  Philip Aston  <paston@bea.com>
 
+	* src/net/grinder/plugininterface/Logger.java, src/net/grinder/util/ProcessContextImplementation.java, src/net/grinder/Grinder.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/engine/Redirector.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/plugin/http/HttpsPlugin.java, CHANGES, TODO:
+	Rework logging.
+
 	* CHANGES, TODO, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java:
 	Don't log time to the data file when run with recordTime=false.
 
-	* CHANGES, TODO, examples/http/grinder.properties, README, src/net/grinder/engine/process/GrinderThread.java:
+	* ChangeLog, CHANGES, TODO, examples/http/grinder.properties, README, src/net/grinder/engine/process/GrinderThread.java:
 	Remove grinder.thread.beginCycleSleepTime.
 	Add grinder.thread.initialSleepTime.
 
