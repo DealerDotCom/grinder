@@ -21,7 +21,6 @@
 
 package net.grinder.engine.process;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
@@ -98,7 +97,7 @@ final class SSLControlImplementation implements SSLControl {
     setKeyStore(keyStoreInputStream, password, "jks");
   }
 
-  public void setKeyStoreFile(File keyStoreFile,
+  public void setKeyStoreFile(String keyStoreFileName,
                               String password,
                               String keyStoreType)
     throws GeneralSecurityException, InvalidContextException, IOException {
@@ -110,7 +109,8 @@ final class SSLControlImplementation implements SSLControl {
         "setKeyStoreFile is only supported for worker threads.");
     }
 
-    final FileInputStream fileInputStream = new FileInputStream(keyStoreFile);
+    final FileInputStream fileInputStream =
+      new FileInputStream(keyStoreFileName);
 
     try {
       setKeyStore(fileInputStream, password, keyStoreType);
@@ -120,9 +120,9 @@ final class SSLControlImplementation implements SSLControl {
     }
   }
 
-  public void setKeyStoreFile(File keyStoreFile, String password)
+  public void setKeyStoreFile(String keyStoreFileName, String password)
     throws GeneralSecurityException, InvalidContextException, IOException {
-    setKeyStoreFile(keyStoreFile, password, "jks");
+    setKeyStoreFile(keyStoreFileName, password, "jks");
   }
 
   public SSLContext getSSLContext() throws SSLContextFactoryException {
@@ -189,7 +189,9 @@ final class SSLControlImplementation implements SSLControl {
     }
 
     public void endRun() {
-      m_sslContext = null;
+      if (!m_shareContextBetweenRuns) {
+        m_sslContext = null;
+      }
     }
   }
 }
