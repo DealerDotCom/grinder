@@ -98,7 +98,7 @@ which will be used to configure the chosen Forrest skin.
     For some skins just set the attributes to blank.
   -->
   <trail location="none">
-    <link1 name="The Grinder" href="http://grinder.sourceforge.net/"/>
+    <link1 name="The Grinder" href="/"/>
     <link2 name="" href=""/>
     <link3 name="" href=""/>
   </trail>
