@@ -27,10 +27,6 @@ properties wrongly. It first sends a request without the
 authentication headers, then catches the 401 and automatically resends
 a request with the authentication headers.
 
-* Enhancements
-
-Produce nice error message if started with incorrect Java version.
-
 ** Script Distribution
 
 *** Model

@@ -48,6 +48,7 @@ import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
+import net.grinder.util.JVM;
 
 
 /**
@@ -86,10 +87,14 @@ public final class Agent {
    * interrupted whilst waiting.
    */
   public void run() throws GrinderException, InterruptedException {
-    final Timer timer = new Timer(true);
     final Logger logger = new AgentLogger(new PrintWriter(System.out),
                                           new PrintWriter(System.err));
 
+    if (!JVM.getInstance().haveRequisites(logger)) {
+      return;
+    }
+
+    final Timer timer = new Timer(true);
     StartGrinderMessage nextStartMessage = null;
 
     // We use one file store throughout an agent's life, but can't
@@ -104,7 +109,7 @@ public final class Agent {
       new ConsoleListener(eventSynchronisation, logger);
 
     while (true) {
-      logger.output("The Grinder version " + GrinderBuild.getVersionString());
+      logger.output(GrinderBuild.getName());
 
       final GrinderProperties properties =
         new GrinderProperties(m_alternateFile);
@@ -202,7 +207,7 @@ public final class Agent {
           if (absoluteFile.canRead()) {
             initialiseMessage =
               new InitialiseGrinderMessage(
-                true, absoluteFile, fileStoreDirectory);
+              true, absoluteFile, fileStoreDirectory);
           }
           else {
             logger.error("The script file '" + scriptFromConsole +
