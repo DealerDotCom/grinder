@@ -108,9 +108,9 @@ public class Model
      **/
     private long m_currentTime;
 
-    public Model() throws GrinderException
+    public Model(ConsoleProperties properties) throws GrinderException
     {
-	m_properties = new ConsoleProperties();
+	m_properties = properties;
 
 	m_sampleInterval = m_properties.getSampleInterval();
 	m_numberFormat =

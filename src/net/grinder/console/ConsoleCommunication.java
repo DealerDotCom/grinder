@@ -32,6 +32,8 @@ import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
+import net.grinder.console.common.ConsoleExceptionHandler;
+import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.model.ConsoleProperties;
 
 
@@ -42,13 +44,18 @@ import net.grinder.console.model.ConsoleProperties;
 class ConsoleCommunication
 {
     private final ConsoleProperties m_properties;
+    private final ConsoleExceptionHandler m_exceptionHandler;
+
     private Receiver m_receiver = null;
     private Sender m_sender = null;
     private boolean m_deaf = true;
 
-    ConsoleCommunication(ConsoleProperties properties)
+    ConsoleCommunication(ConsoleProperties properties,
+			 ConsoleExceptionHandler exceptionHandler)
     {
 	m_properties = properties;
+	m_exceptionHandler = exceptionHandler;
+
 	resetReceiver();
 	resetSender();
 
@@ -84,7 +91,7 @@ class ConsoleCommunication
 	    }
 
 	    m_receiver =
-		new Receiver(m_properties.getMulticastAddressAsString(),
+		new Receiver(m_properties.getMulticastAddress(),
 			     m_properties.getConsolePort());
 
 	    synchronized(this) {
@@ -92,9 +99,8 @@ class ConsoleCommunication
 		notifyAll();
 	    }
 	}
-	catch(GrinderException e) {
-	    System.err.println(e.getMessage());
-	    e.printStackTrace();
+	catch(CommunicationException e) {
+	    handleBindException();
 	}
     }
 
@@ -111,13 +117,19 @@ class ConsoleCommunication
 
 	try {
 	    m_sender = new Sender("Console (" + host + ")",
-				  m_properties.getMulticastAddressAsString(),
+				  m_properties.getMulticastAddress(),
 				  m_properties.getGrinderPort());
 	}
-	catch(GrinderException e) {
-	    System.err.println(e.getMessage());
-	    e.printStackTrace();
+	catch(CommunicationException e) {
+	    handleBindException();
 	}
+    }
+
+    private void handleBindException()
+    {
+	m_exceptionHandler.consoleExceptionOccurred(
+	    new DisplayMessageConsoleException(
+		"bindError.text", "Failed to bind to multicast address"));
     }
 
     void sendStartMessage()

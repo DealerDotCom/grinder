@@ -27,6 +27,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -52,7 +53,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -70,8 +70,8 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import net.grinder.common.GrinderException;
-import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.ConsoleException;
+import net.grinder.console.common.ConsoleExceptionHandler;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ModelListener;
@@ -84,7 +84,7 @@ import net.grinder.statistics.IntervalStatistics;
  * @author Philip Aston
  * @version $Revision$
  */
-public class ConsoleUI implements ModelListener
+public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
 {
     private final static Font s_tpsFont =
 	new Font("helvetica", Font.ITALIC | Font.BOLD, 40);
@@ -106,22 +106,19 @@ public class ConsoleUI implements ModelListener
     private final String m_stateCapturingString;
     private final String m_stateUnknownString;
 
-
     public ConsoleUI(Model model,
 		     ActionListener startProcessesHandler,
 		     ActionListener resetProcessesHandler,
 		     ActionListener stopProcessesHandler)
 	throws ConsoleException
     {
+	m_model = model;
 	m_resources = new Resources();
 
 	// Create the frame to contain the a menu and the top level
 	// pane. Need to do this before our actions are constructed as
 	// the use the frame to create dialogs.
 	m_frame = new JFrame(m_resources.getString("title"));
-
-	m_startAction = new StartAction();
-	m_stopAction = new StopAction();
 
 	m_stateIgnoringString = 
 	    m_resources.getString("state.ignoring.label") + " ";
@@ -132,6 +129,9 @@ public class ConsoleUI implements ModelListener
 	m_stateCapturingString =
 	    m_resources.getString("state.capturing.label") + " ";
 	m_stateUnknownString = m_resources.getString("state.unknown.label");
+
+	m_startAction = new StartAction();
+	m_stopAction = new StopAction();
 
 	final MyAction[] actions = {
 	    new StartProcessesGrinderAction(startProcessesHandler),
@@ -147,8 +147,6 @@ public class ConsoleUI implements ModelListener
 	for (int i=0; i<actions.length; i++) {
 	    m_actionTable.put(actions[i].getKey(), actions[i]);
 	}
-
-	m_model = model;
 
 	final LabelledGraph totalGraph =
 	    new LabelledGraph(m_resources.getString("totalGraph.title"),
@@ -184,30 +182,14 @@ public class ConsoleUI implements ModelListener
 	final Box statePanel = Box.createHorizontalBox();
 	statePanel.add(stateButton);
 	statePanel.add(m_stateLabel);
-	    
-	m_samplingControlPanel = new SamplingControlPanel(m_resources) {
-		protected void update(int sampleInterval,
-				      int ignoreSampleCount,
-				      int collectSampleCount) {
-		    final ConsoleProperties p = m_model.getProperties();
-		    try {
-			p.setSampleInterval(sampleInterval);
-			p.setIgnoreSampleCount(ignoreSampleCount);
-			p.setCollectSampleCount(collectSampleCount);
-		    }
-		    catch (ConsoleException e) {
-			// Assertion failure.
-			e.printStackTrace();
-			throw new RuntimeException(e.getMessage());
-		    }
-		}
-	    };
+
+	m_samplingControlPanel = new SamplingControlPanel(m_resources);
 
 	m_samplingControlPanel.add(statePanel);
 	
 	m_samplingControlPanel.setBorder(
 	    BorderFactory.createEmptyBorder(0, 10, 0, 10));
-	m_samplingControlPanel.set(m_model.getProperties());
+	m_samplingControlPanel.setProperties(m_model.getProperties());
 
 	final JPanel controlAndTotalPanel = new JPanel();
 	controlAndTotalPanel.setLayout(
@@ -286,6 +268,12 @@ public class ConsoleUI implements ModelListener
 
 	// Arbitary sizing that looks good for Phil.
 	m_frame.setSize(new Dimension(900, 600));
+
+	final Dimension screenSize =
+	    Toolkit.getDefaultToolkit().getScreenSize();
+
+	m_frame.setLocation(screenSize.width/2 - m_frame.getSize().width/2,
+			    screenSize.height/2 - m_frame.getSize().height/2);
         m_frame.show();
     }
 
@@ -546,151 +534,27 @@ public class ConsoleUI implements ModelListener
 
     private class OptionsAction extends MyAction
     {
-	private final JOptionPane m_optionPane;
-	private final JTextField m_multicastAddress = new JTextField();
-	private final IntegerField m_consolePort =
-	    new IntegerField(0, CommunicationDefaults.MAX_PORT);
-	private final IntegerField m_grinderPort =
-	    new IntegerField(0, CommunicationDefaults.MAX_PORT);
-	private final SamplingControlPanel m_samplingControlPanel;
-	private final JSlider m_sfSlider = new JSlider(1, 6, 1);
-	private final Object[] m_options = {"OK", "Cancel", "Save Defaults"};
+	private final OptionsDialogHandler m_optionsDialogHandler;
 
 	OptionsAction()
 	{
 	    super("options");
 
-	    final GridLayout addressLayout = new GridLayout(0, 2);
-	    addressLayout.setHgap(5);
-	    final JPanel addressPanel = new JPanel(addressLayout);
-	    addressPanel.add(
-		new JLabel(m_resources.getString("multicastAddress.label")));
-	    addressPanel.add(m_multicastAddress);
-	    addressPanel.add(
-		new JLabel(m_resources.getString("consolePort.label")));
-	    addressPanel.add(m_consolePort);
-	    addressPanel.add(
-		new JLabel(m_resources.getString("grinderPort.label")));
-	    addressPanel.add(m_grinderPort);
-
-	    // Use an additional flow layout so the GridLayout doesn't
-	    // steal all the space.
-	    final JPanel communicationTab =
-		new JPanel(new FlowLayout(FlowLayout.LEFT));
-	    communicationTab.add(addressPanel);
-
-	    m_samplingControlPanel = new SamplingControlPanel(m_resources);
-	    final JPanel samplingControlTab =
-		new JPanel(new FlowLayout(FlowLayout.LEFT));
-	    samplingControlTab.add(m_samplingControlPanel);
-
-	    m_sfSlider.setMajorTickSpacing(1);
-	    m_sfSlider.setPaintLabels(true);
-	    m_sfSlider.setSnapToTicks(true);
-	    final Dimension d = m_sfSlider.getPreferredSize();
-	    d.width = 0;
-	    m_sfSlider.setPreferredSize(d);
-
-	    final JPanel sfPanel = new JPanel(new GridLayout(0, 2));
-	    sfPanel.add(
-		new JLabel(m_resources.getString("significantFigures.label")));
-	    sfPanel.add(m_sfSlider);
-
-	    final JPanel miscellaneousTab = 
-		new JPanel(new FlowLayout(FlowLayout.LEFT));
-	    miscellaneousTab.add(sfPanel);
-
-	    final JTabbedPane tabbedPane = new JTabbedPane();
-
-	    tabbedPane.addTab(m_resources.getString(
-				  "options.communicationTab.title"),
-			      null, communicationTab,
-			      m_resources.getString(
-				  "options.communicationTab.tip"));
-
-	    tabbedPane.addTab(m_resources.getString(
-				  "options.samplingTab.title"),
-			      null, samplingControlTab,
-			      m_resources.getString(
-				  "options.samplingTab.tip"));
-
-	    tabbedPane.addTab(m_resources.getString(
-				  "options.miscellaneousTab.title"),
-			      null, miscellaneousTab,
-			      m_resources.getString(
-				  "options.miscellaneousTab.tip"));
-
-	    m_optionPane = new JOptionPane(tabbedPane,
-					   JOptionPane.PLAIN_MESSAGE,
-					   JOptionPane.YES_NO_OPTION,
-					   null,
-					   m_options);
+	    m_optionsDialogHandler =
+		new OptionsDialogHandler(m_frame, m_model.getProperties(),
+					 m_resources)
+		{
+		    protected void setNewOptions(ConsoleProperties newOptions)
+		    {
+			m_model.getProperties().set(newOptions);
+			m_samplingControlPanel.refresh();
+		    }
+		};
 	}
 
         public void actionPerformed(ActionEvent event)
 	{
-	    // Good grief. We have to create a brand new dialog each
-	    // time otherwise the button we pressed to last close the
-	    // dialog goes "deaf", leaving the user with no choice but
-	    // to chose a different option. I believe this to be a
-	    // Swing bug.
-	    final JDialog dialog =
-		m_optionPane.createDialog(m_frame,
-					  m_resources.getString(
-					      "options.label"));
-	    dialog.pack();
-	    dialog.setLocationRelativeTo(m_frame);
-
-	    final ConsoleProperties properties = m_model.getProperties();
-
-	    m_multicastAddress.setText(
-		properties.getMulticastAddressAsString());
-	    m_consolePort.setValue(properties.getConsolePort());
-	    m_grinderPort.setValue(properties.getGrinderPort());
-	    m_sfSlider.setValue(properties.getSignificantFigures());
-
-	    m_samplingControlPanel.set(properties);
-
-	    m_optionPane.setValue(null);
-
-	    dialog.setVisible(true);
-
-	    final Object value = m_optionPane.getValue();
-
-	    if (value != m_options[1]) {
-		try {
-		    properties.setMulticastAddress(
-			m_multicastAddress.getText());
-		    properties.setConsolePort(m_consolePort.getValue());
-		    properties.setGrinderPort(m_grinderPort.getValue());
-		    properties.setSignificantFigures(m_sfSlider.getValue());
-		    m_samplingControlPanel.get(properties);
-		}
-		catch (ConsoleException e) {
-		    JOptionPane.showMessageDialog(
-			m_frame, e.getMessage(),
-			m_resources.getString("propertyError.title"),
-			JOptionPane.ERROR_MESSAGE);
-		    return;
-		}
-
-		ConsoleUI.this.m_samplingControlPanel.set(properties);
-
-		if (value == m_options[2]) {
-		    try {
-			properties.save();
-		    }
-		    catch (GrinderException e) {
-			final Exception nested = e.getNestedException();
-
-			JOptionPane.showMessageDialog(
-			    m_frame,
-			    (nested != null ? nested : e).getMessage(),
-			    m_resources.getString("fileError.title"),
-			    JOptionPane.ERROR_MESSAGE);
-		    }
-		}
-	    }
+	    m_optionsDialogHandler.showOptionsDialog(m_model.getProperties());
 	}
     }
     
@@ -718,8 +582,8 @@ public class ConsoleUI implements ModelListener
 	{
 	    m_model.start();
 
-	    //  putValue() won't work here as the event won't // fire
-	    //  if the value doesn't change.
+	    //  putValue() won't work here as the event won't fire if
+	    //  the value doesn't change.
 	    firePropertyChange(SET_ACTION_PROPERTY, null, m_stopAction);
 	    updateStateLabel();
 	}
@@ -740,8 +604,8 @@ public class ConsoleUI implements ModelListener
 
 	public void stopped()
 	{
-	    //  putValue() won't work here as the event won't // fire
-	    //  if the value doesn't change.
+	    //  putValue() won't work here as the event won't fire if
+	    //  the value doesn't change.
 	    firePropertyChange(SET_ACTION_PROPERTY, null, m_startAction);
 	    updateStateLabel();
 	}
@@ -807,4 +671,11 @@ public class ConsoleUI implements ModelListener
 
 	return list.iterator();
     }
+
+    public void consoleExceptionOccurred(ConsoleException e)
+    {
+	JOptionPane.showMessageDialog(m_frame, e.getMessage(),
+				      m_resources.getString("error.title"),
+				      JOptionPane.ERROR_MESSAGE);
+    }    
 }

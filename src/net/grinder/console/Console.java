@@ -20,14 +20,15 @@ package net.grinder.console;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
+import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.swingui.ConsoleUI;
-
 
 
 /**
@@ -46,8 +47,18 @@ public class Console
     public Console()
 	throws GrinderException
     {
-	m_model = new Model();
-	m_communication = new ConsoleCommunication(m_model.getProperties());
+	String homeDirectory = System.getProperty("user.home");
+
+	if (homeDirectory == null) {
+	    // Some platforms do not have user home directories.
+	    homeDirectory = System.getProperty("java.home");
+	}
+
+	final ConsoleProperties properties =
+	    new ConsoleProperties(new File(homeDirectory,
+					   ".grinder_console"));
+
+	m_model = new Model(properties);
 
 	final ActionListener startHandler =
 	    new ActionListener() {
@@ -93,6 +104,9 @@ public class Console
 
 	m_userInterface = new ConsoleUI(m_model, startHandler, resetHandler,
 					stopHandler);
+
+	m_communication = new ConsoleCommunication(properties,
+						   m_userInterface);
     }
     
     public void run() throws GrinderException

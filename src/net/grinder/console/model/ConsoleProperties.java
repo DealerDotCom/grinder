@@ -39,27 +39,33 @@ import net.grinder.console.common.DisplayMessageConsoleException;
 public class ConsoleProperties
 {
     /** Property name **/
-    public final static String COLLECT_SAMPLES_PROPERTY = "numberToCollect";
+    public final static String COLLECT_SAMPLES_PROPERTY = 
+	"grinder.console.numberToCollect";
 
     /** Property name **/
-    public final static String IGNORE_SAMPLES_PROPERTY = "numberToIgnore";
+    public final static String IGNORE_SAMPLES_PROPERTY =
+	"grinder.console.numberToIgnore";
 
     /** Property name **/
-    public final static String SAMPLE_INTERVAL_PROPERTY = "sampleInterval";
+    public final static String SAMPLE_INTERVAL_PROPERTY =
+	"grinder.console.sampleInterval";
 
     /** Property name **/
-    public final static String SIG_FIG_PROPERTY = "significantFigures";
+    public final static String SIG_FIG_PROPERTY =
+	"grinder.console.significantFigures";
 
     /** Property name **/
-    public final static String MULTICAST_ADDRESS_PROPERTY = "multicastAddress";
+    public final static String MULTICAST_ADDRESS_PROPERTY =
+	"grinder.multicastAddress";
 
     /** Property name **/
-    public final static String CONSOLE_PORT_PROPERTY = "consolePort";
+    public final static String CONSOLE_PORT_PROPERTY = 
+	"grinder.console.multicastPort";
 
     /** Property name **/
-    public final static String GRINDER_PORT_PROPERTY = "grinderPort";
+    public final static String GRINDER_PORT_PROPERTY =
+	"grinder.multicastPort";
 
-    private final GrinderProperties m_properties;
     private final PropertyChangeSupport m_changeSupport =
 	new PropertyChangeSupport(this);
 
@@ -68,31 +74,20 @@ public class ConsoleProperties
     private int m_sampleInterval;
     private int m_significantFigures;
 
-    private InetAddress m_multicastAddress;
+    /**
+     *We hang onto the address as a string so we can copy and
+     * externalise it reasonably. 
+     **/
     private String m_multicastAddressString;
     private int m_consolePort;
     private int m_grinderPort;
 
     /**
-     * Construct a ConsoleProperties backed by the file .grinder_console in the user's home directory.
+     * Use to save and load properties, and to keep track of the
+     * associated file.
      **/
-    public ConsoleProperties() throws GrinderException
-    {
-	this(new File(getHomeDirectory(), ".grinder_console"));
-    }
+     private final GrinderProperties m_properties;;
 
-    /**
-     * Return the user's home directory, or the location of the Java
-     * installation on platforms that do not support the concept.
-     *
-     * @returns The home directory.
-     **/
-    private final static String getHomeDirectory()
-    {
-	final String home = System.getProperty("user.home");
-	return home != null ? home : System.getProperty("java.home");
-    }
-    
     /**
      * Construct a ConsoleProperties backed by the given file.
      * @param file The properties file.
@@ -102,7 +97,9 @@ public class ConsoleProperties
      **/
     public ConsoleProperties(File file) throws GrinderException
     {
-	m_properties = new GrinderProperties(file.getPath());
+	m_properties =
+	    file != null ? 
+	    new GrinderProperties(file.getPath()) : new GrinderProperties();
 
 	setCollectSampleCount(
 	    m_properties.getInt(COLLECT_SAMPLES_PROPERTY, 0));
@@ -121,6 +118,34 @@ public class ConsoleProperties
 	setGrinderPort(
 	    m_properties.getInt(GRINDER_PORT_PROPERTY,
 				CommunicationDefaults.GRINDER_PORT));
+    }
+
+    /**
+     * Copy constructor. Does not copy property change listeners.
+     *
+     * @param properties The properties to copy.
+     **/
+    public ConsoleProperties(ConsoleProperties properties)
+    {
+	m_properties = properties.m_properties;
+	set(properties);
+    }
+
+    /**
+     * Assignment. Does not copy property change listeners, nor the
+     * associated file.
+     *
+     * @param properties The properties to copy.
+     **/
+    public void set(ConsoleProperties properties)
+    {
+	setCollectSampleCountNoCheck(properties.m_collectSampleCount);
+	setIgnoreSampleCountNoCheck(properties.m_ignoreSampleCount);
+	setSampleIntervalNoCheck(properties.m_sampleInterval);
+	setSignificantFiguresNoCheck(properties.m_significantFigures);
+	setMulticastAddressNoCheck(properties.m_multicastAddressString);
+	setConsolePortNoCheck(properties.m_consolePort);
+	setGrinderPortNoCheck(properties.m_grinderPort);
     }
 
     /**
@@ -147,7 +172,7 @@ public class ConsoleProperties
     }
 
     /**
-     * Save to the users <code>.grinder_console</code> file.
+     * Save to the associated file.
      **/
     public void save() throws GrinderException
     {
@@ -189,6 +214,16 @@ public class ConsoleProperties
 		"zero means \"forever\"");
 	}
 
+	setCollectSampleCountNoCheck(n);
+    }
+
+    /**
+     * Set the number of samples to collect. 
+     *
+     * @param n The number. 0 => forever.
+     **/
+    private final void setCollectSampleCountNoCheck(int n)
+    {
 	if (n != m_collectSampleCount) {
 	    final int old = m_collectSampleCount;
 	    m_collectSampleCount = n;
@@ -222,6 +257,16 @@ public class ConsoleProperties
 		"You must ignore at least the first sample");
 	}
 
+	setIgnoreSampleCountNoCheck(n);
+    }
+
+    /**
+     * Set the number of samples to collect.
+     *
+     * @param n The number. Must be at least 1.
+     **/
+    public final void setIgnoreSampleCountNoCheck(int n)
+    {
 	if (n != m_ignoreSampleCount) {
 	    final int old = m_ignoreSampleCount;
 	    m_ignoreSampleCount = n;
@@ -255,6 +300,16 @@ public class ConsoleProperties
 		"Minimum sample interval is 1 ms");
 	}
 
+	setSampleIntervalNoCheck(interval);
+    }
+
+    /**
+     * Set the sample interval.
+     *
+     * @param interval The interval in milliseconds.
+     **/
+    public final void setSampleIntervalNoCheck(int interval)
+    {
 	if (interval != m_sampleInterval) {
 	    final int old = m_sampleInterval;
 	    m_sampleInterval = interval;
@@ -288,6 +343,17 @@ public class ConsoleProperties
 		"Number of significant figures cannot be negative");
 	}
 
+	setSignificantFiguresNoCheck(n);
+    }
+
+
+    /**
+     * Set the number of significant figures.
+     *
+     * @param n The number of significant figures.
+     **/
+    public final void setSignificantFiguresNoCheck(int n)
+    {
 	if (n != m_significantFigures) {
 	    final int old = m_significantFigures;
 	    m_significantFigures = n;
@@ -297,21 +363,11 @@ public class ConsoleProperties
     }
 
     /**
-     * Get the multicast address.
-     *
-     * @returns The address.
-     **/
-    public final InetAddress getMulticastAddress()
-    {
-	return m_multicastAddress;
-    }
-
-    /**
      * Get the multicast address as a string.
      *
      * @returns The address.
      **/
-    public final String getMulticastAddressAsString()
+    public final String getMulticastAddress()
     {
 	return m_multicastAddressString;
     }
@@ -342,17 +398,21 @@ public class ConsoleProperties
 		"Invalid multicast address");
 	}
 
-	m_multicastAddress = newAddress;
+	setMulticastAddressNoCheck(s);
+    }
 
-	// Hang onto the address as a string so we can externalise it
-	// reasonably.
-	m_multicastAddressString = s;
-
-	if (!newAddress.equals(m_multicastAddress)) {
-	    final InetAddress old = m_multicastAddress;
-	    m_multicastAddress = newAddress;
+    /**
+     * Set the multicast address.
+     *
+     * @param String s Either a machine name or the IP address.
+     **/
+    public final void setMulticastAddressNoCheck(String s)
+    {
+	if (!s.equals(m_multicastAddressString)) {
+	    final String old = m_multicastAddressString;
+	    m_multicastAddressString = s;
 	    m_changeSupport.firePropertyChange(MULTICAST_ADDRESS_PROPERTY,
-					       old, m_multicastAddress);
+					       old, m_multicastAddressString);
 	}
     }
 
@@ -376,7 +436,16 @@ public class ConsoleProperties
 	throws DisplayMessageConsoleException
     {
 	assertValidPort(i);
+	setConsolePortNoCheck(i);
+    }
 
+    /**
+     * Set the Console multicast port.
+     *
+     * @param port The port number.
+     **/
+    public final void setConsolePortNoCheck(int i)
+    {
 	if (i != m_consolePort) {
 	    final int old = m_consolePort;
 	    m_consolePort = i;
@@ -405,7 +474,16 @@ public class ConsoleProperties
 	throws DisplayMessageConsoleException
     {
 	assertValidPort(port);
+	setGrinderPortNoCheck(port);
+    }
 
+    /**
+     * Set the Grinder process multicast port.
+     *
+     * @param port The port number.
+     **/
+    public final void setGrinderPortNoCheck(int port)
+    {
 	if (port != m_grinderPort) {
 	    final int old = m_grinderPort;
 	    m_grinderPort = port;
