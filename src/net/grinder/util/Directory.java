@@ -214,8 +214,9 @@ public final class Directory  {
    * Find the given file in the directory and return a File
    * representing its path relative to the root of the directory.
    *
-   * @param absoluteFile The file to search for, or <code>null</code>
-   * if the file was not found.
+   * @param absoluteFile The file to search for.
+   * @return The relatvie file, , or <code>null</code> if the file was
+   * not found.
    */
   public File getRelativePath(File absoluteFile) {
 
