@@ -86,3 +86,15 @@ grinder.properties script. Additionaly, the parsing of HTTP messages
 probably contains bugs. Don't let this put you off, using the
 HttpPluginSnifferFilter is a very quick way of doing 95% of a tedious
 job.
+
+
+What are all those funny [31 characters?
+******************************************
+
+Did you use the -colour switch? If so, the TCP sniffer generates
+escape codes which work on ANSI compliant terminals and look very
+pretty.
+
+For those of those on NT, this _doesn't work_ with the CMD.EXE window
+unless you're using Cygwin. (Of course, if you're using Cygwin you'd
+use rxvt in preference :-)).
