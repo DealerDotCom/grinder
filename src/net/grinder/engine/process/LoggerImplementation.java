@@ -28,7 +28,6 @@ import java.io.Writer;
 import java.text.DateFormat;
 import java.util.Date;
 
-import net.grinder.common.FilenameFactory;
 import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.util.DelayedCreationFileWriter;
@@ -81,6 +80,7 @@ final class LoggerImplementation
     private final PrintWriter m_outputWriter;
     private final PrintWriter m_errorWriter;
     private final PrintWriter m_dataWriter;
+    private boolean m_errorOccurred = false;
 
     LoggerImplementation(String grinderID, String logDirectoryString, 
 			 boolean logProcessStreams, boolean appendLog)
@@ -207,6 +207,14 @@ final class LoggerImplementation
 			   "ERROR (\"" + summary +
 			   "\"), see error log for details",
 			   Logger.LOG);
+
+	    if (m_errorOccurred == false) {
+		outputInternal(state,
+			       "There were errors, see error log for details",
+			       Logger.TERMINAL);
+
+		m_errorOccurred = true;
+	    }
 	}
     }
 
