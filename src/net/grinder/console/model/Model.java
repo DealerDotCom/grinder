@@ -75,7 +75,7 @@ public class Model
 
 	final GrinderPlugin grinderPlugin =
 	    propertiesHelper.instantiatePlugin(
-		new ProcessContextImplementation("", ""));
+		new ProcessContextImplementation());
 
 	// Shove the tests into a TreeMap so that they're ordered.
 	final Iterator testSetIterator =

@@ -115,6 +115,22 @@ public class ProcessContextImplementation implements PluginProcessContext
 	}
     }
 
+    public ProcessContextImplementation()
+    {
+	m_hostIDString = "";
+	m_processIDString = "";
+
+	final GrinderProperties properties = GrinderProperties.getProperties();
+
+	m_pluginParameters =
+	    properties.getPropertySubset("grinder.plugin.parameter.");
+
+	m_filenameFactory = new FilenameFactory(null, null, null);
+
+	m_outputWriter = new PrintWriter(System.out, true);
+	m_errorWriter = new PrintWriter(System.err, true);
+    }
+
     public String getHostIDString()
     {
 	return m_hostIDString;
