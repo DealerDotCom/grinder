@@ -7,4 +7,6 @@ unset CLASSPATH
 
 . /work/src/scripts/wls/wls5.1-client.bash
 
-addToWindowsClasspath CLASSPATH ${WLS_HOME}/examples/ejb/basic/statelessSession/build/ejb_basic_statelessSession.jar
+addToWindowsClasspath CLASSPATH \
+    /opt/jakarta-regexp/jakarta-regexp-1.2/jakarta-regexp-1.2.jar \
+    ${WLS_HOME}/examples/ejb/basic/statelessSession/build/ejb_basic_statelessSession.jar
