@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,8 @@ package net.grinder.communication;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 
 
@@ -41,6 +43,7 @@ public final class ServerSender extends AbstractSender {
    * Factory method that creates a <code>ServerSender</code> that
    * listens on the given address.
    *
+   * @param grinderID A string describing our Grinder process.
    * @param addressString The TCP address to listen on. Zero-length
    * string => listen on all interfaces.
    * @param port The TCP port to listen to. 0 => any local port.
@@ -48,22 +51,39 @@ public final class ServerSender extends AbstractSender {
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  public static ServerSender bindTo(String addressString, int port)
+  public static ServerSender bindTo(String grinderID, String addressString,
+                                    int port)
     throws CommunicationException {
 
-    return new ServerSender(new Acceptor(addressString, port), 3);
+    final Acceptor acceptor = new Acceptor(addressString, port);
+
+    try {
+      final String senderID =
+        addressString + ":" + acceptor.getPort() + ":" +
+        InetAddress.getLocalHost().getHostName();
+
+      return new ServerSender(grinderID, senderID, acceptor, 3);
+    }
+    catch (UnknownHostException e) {
+      throw new CommunicationException("Can't get local host", e);
+    }
   }
 
   /**
    * Constructor.
    *
+   * @param grinderID A string describing our Grinder process.
+   * @param senderID Unique string identifying sender.
    * @param acceptor Acceptor that manages connections to our server socket.
    * @param numberOfThreads Number of sender threads to use.
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  ServerSender(Acceptor acceptor, int numberOfThreads)
+  ServerSender(String grinderID, String senderID, Acceptor acceptor,
+               int numberOfThreads)
     throws CommunicationException {
+
+    super(grinderID, senderID);
 
     m_acceptor = acceptor;
 
