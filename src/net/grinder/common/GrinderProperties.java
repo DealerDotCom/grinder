@@ -44,7 +44,7 @@ public class GrinderProperties extends Properties
     private final File m_file;
 
     /**
-     * Construct a GrinderProperties with no associated file.
+     * Construct an empty GrinderProperties with no associated file.
      **/
     public GrinderProperties()
     {
@@ -53,7 +53,7 @@ public class GrinderProperties extends Properties
 
     /**
      * Construct a GrinderProperties, reading initial values from the specified file. System properties
-     * are also added to allow values to be overriden on the command line.
+     * beginning with "<code>grinder.</code>"are also added to allow values to be overriden on the command line.
      * @param filename The file to read the properties from. null => use grinder.properties.
      **/
     public GrinderProperties(String filename) throws GrinderException
@@ -74,7 +74,16 @@ public class GrinderProperties extends Properties
 	    }
 	}
 
-	putAll(System.getProperties());
+	final Enumeration systemProperties =
+	    System.getProperties().propertyNames();
+
+	while (systemProperties.hasMoreElements()) {
+	    final String name = (String)systemProperties.nextElement();
+
+	    if (name.startsWith("grinder.")) {
+		put(name, System.getProperty(name));
+	    }
+	}
     }
 
     /**
