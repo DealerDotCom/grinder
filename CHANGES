@@ -34,6 +34,10 @@ Grinder 3.0-beta12
   SSL mode. Support for setting the key store using system properties
   has been removed.
 
+  Optimise TCPProxy SSL initialisation for speed rather than
+  cryptographic strength. Do not rely on the TCPProxy to provide
+  strong security.
+
   Enhancement from Richard Perks that allows scripts to specify the
   local interface to use for HTTP connections. See
   HTTPPluginConnection.setLocalAddress().

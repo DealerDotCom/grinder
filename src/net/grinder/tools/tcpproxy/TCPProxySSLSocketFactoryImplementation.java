@@ -30,6 +30,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
@@ -111,9 +112,14 @@ public final class TCPProxySSLSocketFactoryImplementation
 
     keyManagerFactory.init(keyStore, keyStorePassword);
 
+    // We don't care about cryptographic strength, so avoid the costly
+    // generation of a strongly random seed.
+    final SecureRandom insecureRandom = new SecureRandom();
+    insecureRandom.setSeed(new byte[0]);
+
     sslContext.init(keyManagerFactory.getKeyManagers(),
                     new TrustManager[] { new TrustEveryone() },
-                    null);
+                    insecureRandom);
 
     m_clientSocketFactory = sslContext.getSocketFactory();
     m_serverSocketFactory = sslContext.getServerSocketFactory();

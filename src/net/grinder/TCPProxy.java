@@ -353,9 +353,6 @@ public final class TCPProxy {
       if (keyStoreType != null) {
         startMessage.append("\n   Key store type:     " + keyStoreType);
       }
-
-      startMessage.append(
-        "\n   (SSL setup could take a few seconds)");
     }
 
     System.err.println(startMessage);
