@@ -36,14 +36,14 @@ public abstract class AbstractFileTestCase extends TestCase {
 
   private File m_directory;
 
-  public void setUp() throws Exception {
+  protected void setUp() throws Exception {
     m_directory = File.createTempFile(getClass().getName(), "test");
     m_directory.delete();
     m_directory.mkdir();
     m_directory.deleteOnExit();
   }
 
-  public void tearDown() throws Exception {
+  protected void tearDown() throws Exception {
     delete(m_directory);
   }
 
