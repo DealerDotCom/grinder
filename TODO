@@ -61,6 +61,10 @@ test runs etc.
 Linear initial sleep time to allow thread's to ramp up. (Feature
 Request 801129).
 
+Add deprecation warning for use of grinder without import.
+
+Consider forcing TestRunner to be registered with grinder.
+
 ** TCPProxy
 
 Tim McNerney writes:
