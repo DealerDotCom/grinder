@@ -170,7 +170,8 @@ public final class Buffer {
         m_resources,
         "fileReadError.text",
         new Object[] { m_file,
-                       "./n(" + extractReasonFromIOException(e) + ")" },
+                       "./n(" + extractReasonFromIOException(e) + ")",
+        },
         e);
     }
     finally {
@@ -229,7 +230,8 @@ public final class Buffer {
         m_resources,
         "fileWriteError.text",
         new Object[] { m_file,
-                       "./n(" + extractReasonFromIOException(e) + ")" },
+                       "./n(" + extractReasonFromIOException(e) + ")",
+        },
         e);
     }
     finally {
