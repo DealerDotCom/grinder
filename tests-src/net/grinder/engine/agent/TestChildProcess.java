@@ -149,6 +149,26 @@ public class TestChildProcess extends TestCase {
     }
   }
 
+  public void testDestroy() throws Exception {
+    final String[] commandArray = {
+      "java",
+      "-classpath",
+      "build/tests-classes",
+      EchoClass.class.getName(),
+    };
+
+    final ChildProcess childProcess =
+      new ChildProcess(commandArray, m_outputStream, m_errorStream);
+
+    childProcess.destroy();
+
+    // Won't return if process is running.
+    final int exitValue = childProcess.waitFor();
+
+    // Actual value is platform specific.
+    assertTrue(exitValue != 0);
+  }
+
   private static final class WriteData implements Runnable {
     private final OutputStream m_outputStream;
 
