@@ -1,3 +1,7 @@
+2001-04-07  Philip Aston  <paston@bea.com>
+
+	* build.xml, etc/buildenv.sh: Ant 1.3 groks cygwin - hurrah.
+
 2001-04-06  Philip Aston  <paston@bea.com>
 
 	* The Grinder 2.6 is released.
