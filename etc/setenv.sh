@@ -5,7 +5,6 @@ GRINDER=${GRINDER_HOME}/build/classes:${GRINDER_HOME}/lib/jython.jar
 GRINDER=${GRINDER_HOME}/build/tests-classes:${GRINDER} # for testing JUnit plugin
 
 JUNIT=/opt/junit/junit3.7/junit.jar
-JTIDY=/opt/jtidy/jtidy-04aug2000r7-dev/build/Tidy.jar
 XALAN=/opt/xalan/xalan-j_2_3_1/bin/xalan.jar:/opt/xalan/xalan-j_2_3_1/bin/xml-apis.jar
 
 export CLASSPATH=$(cygpath -w -p "${GRINDER}:${JUNIT}:${JTIDY}")
