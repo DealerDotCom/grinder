@@ -66,6 +66,7 @@ final class ConsoleListener {
   private final Monitor m_notifyOnMessage;
   private final Logger m_logger;
   private int m_messagesReceived = 0;
+  private Thread m_receiverThread;
 
   /**
    * Constructor.
@@ -81,7 +82,8 @@ final class ConsoleListener {
     m_notifyOnMessage = notifyOnMessage;
     m_logger = logger;
 
-    new ReceiverThread(receiver).start();
+    m_receiverThread = new ReceiverThread(receiver);
+    m_receiverThread.start();
   }
 
   /**
@@ -106,6 +108,15 @@ final class ConsoleListener {
   }
 
   /**
+   * Accessor for unit tests. Package scope.
+   *
+   * @returns The receiver thread.
+   */
+  Thread getReceiverThread() {
+    return m_receiverThread;
+  }
+
+  /**
    * Thread that uses a {@link net.grinder.communication.Receiver}
    * to receive console messages.
    */
@@ -117,7 +128,7 @@ final class ConsoleListener {
      *
      * @param receiver The receiver.
      */
-    private ReceiverThread(Receiver receiver) {
+    public ReceiverThread(Receiver receiver) {
       super("Console Listener");
       m_receiver = receiver;
       setDaemon(true);
@@ -139,7 +150,11 @@ final class ConsoleListener {
           continue;
         }
 
-        if (message instanceof StartGrinderMessage) {
+        if (message == null) {
+          // Receiver has been shut down.
+          break;
+        }
+        else if (message instanceof StartGrinderMessage) {
           m_logger.output("got a start message from console");
           setReceived(START);
         }
