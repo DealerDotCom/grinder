@@ -109,8 +109,9 @@ public class Grinder
 		: "";
 
 	    final String command =
-		jvm + " -classpath " + classpath + " " +
-		properties.getProperty("grinder.jvm.arguments", "") + " " +
+		jvm + " " +
+		properties.getProperty("grinder.jvm.arguments", "") +
+		" -classpath " + classpath + " " +
 		ignoreInitialSignalHack + GrinderProcess.class.getName();
 
 	    final LauncherThread[] threads =
