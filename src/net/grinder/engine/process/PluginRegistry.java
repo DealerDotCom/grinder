@@ -82,7 +82,7 @@ final class PluginRegistry
 		m_plugins.put(pluginClass, result);
 
 		m_processContext.output(
-		    "initialised plug-in " + pluginClass.getName());
+		    "registered plug-in " + pluginClass.getName());
 
 		return result;
 	    }
