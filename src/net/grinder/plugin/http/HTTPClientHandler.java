@@ -236,6 +236,10 @@ class HTTPClientHandler implements HTTPHandler
     }
 
     public void reset() {
+	if (m_httpConnection != null) {
+	    m_httpConnection.stop();
+	    CookieModule.discardAllCookies(HTTPClientHandler.this);
+	}
         m_httpConnection = null;
     }
 }
