@@ -514,4 +514,14 @@ public final class GrinderProcess implements Monitor {
       LoggerImplementation.tick();
     }
   }
+
+  /**
+   * <code>EngineException</code> that indicates that the process should
+   * exit with no additional logging.
+   */
+  private static final class ExitProcessException extends EngineException {
+    public ExitProcessException() {
+      super("Fatal error, see logs for messages");
+    }
+  }
 }
