@@ -1,3 +1,16 @@
+2003-01-24  Philip Aston  <paston@bea.com>
+
+	* CHANGES: Doc.
+
+	* CHANGES, src/net/grinder/engine/process/ProcessContext.java:
+	Correct implementation to read grinder.consolePort rather than
+	grinder.console.consolePort.
+
+2003-01-06  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/resources/about.html, LICENSE, README, build.xml, xdoc/license-xhtml.xml:
+	Happy new year.
+
 2002-12-09  Philip Aston  <paston@bea.com>
 
 	* build.xml: Next is beta 4.
