@@ -24,11 +24,27 @@ package net.grinder.common;
 
 
 /**
+ * Creates context-specific filenames.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
 public interface FilenameFactory
 {
+    /**
+     * Creates a filename based on the process and thread identities,
+     * and the given <code>prefix</code>.
+     * @param prefix Prepended to the result.
+     * @return A filename.
+     */
     public String createFilename(String prefix);
+
+    /**
+     * Creates a filename based on the process and thread identities,
+     * and the given <code>prefix</code> and <code>suffix</code>.
+     * @param prefix Prepended to the result.
+     * @param suffix Appended to the result.
+     * @return A filename.
+     */
     public String createFilename(String prefix, String suffix);
 }
