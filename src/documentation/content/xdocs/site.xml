@@ -19,7 +19,10 @@ See http://forrest.apache.org/docs/linking.html for more info
     <license label="License" href="license.html"/>
     <download label="Download" href="download.html"/>
     <support label="Support" href="support.html"/>
-    <faq label="FAQ" href="faq.html"/>
+    <faq label="FAQ" href="faq.html">
+      <multicast href="#multicast"/>
+      <post-and-string-beans href="#post-and-string-beans"/>
+    </faq>
     <links label="Links" href="links.html">
       <book href="#book"/>
     </links>
@@ -42,12 +45,14 @@ See http://forrest.apache.org/docs/linking.html for more info
   <g2 label="The Grinder 2" href="g2/" tab="manual">
     <getting-started label="Getting started" href="getting-started.html"/>    
     <properties label="Properties" href="properties.html"/>
-    <http-plugin label="HTTP Plug-in" href="http-plugin.html">
+    <http-plugin label="HTTP plug-in" href="http-plugin.html">
       <string-bean href="#string-bean"/>
     </http-plugin>  
-    <junit-plugin label="JUnit Plug-in" href="junit-plugin.html"/>
+    <junit-plugin label="JUnit plug-in" href="junit-plugin.html"/>
     <console label="The Console" href="console.html"/>
-    <tcpsniffer label="TCPSniffer" href="tcpsniffer.html"/>
+    <tcpsniffer label="The TCPSniffer" href="tcpsniffer.html">
+      <HttpPluginSnifferFilter href="#HttpPluginSnifferFilter"/>
+    </tcpsniffer>
   </g2>
 
   <g3 label="The Grinder 3" href="g3/" tab="manual">
@@ -61,15 +66,15 @@ See http://forrest.apache.org/docs/linking.html for more info
     <http-plugin label="HTTP plug-in" href="http-plugin.html">
       <string-bean href="#string-bean"/>
     </http-plugin>
-    <ssl label="SSL support" href="ssl-support.html"/>
     <console label="The Console" href="console.html">
       <process-controls href="#process-controls"/>
     </console>
     <script-gallery label="Script Gallery" href="script-gallery.html">
       <helloworldfunctions href="#helloworldfunctions"/>
     </script-gallery>
-    <tcpproxy label="TCPProxy" href="tcpproxy.html"/>
+    <tcpproxy label="The TCPProxy" href="tcpproxy.html"/>
     <tutorial label="Tutorial" href="tutorial-perks.html"/>
+    <ssl label="SSL support" href="ssl-support.html"/>
     <features label="Features" href="features.html"/>
   </g3>
 
@@ -95,7 +100,14 @@ See http://forrest.apache.org/docs/linking.html for more info
     <iso-639 href="http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt"/>
 
     <innovation href="http://www.innovation.ch/">
-      <httpclient href="java/HTTPClient/index.html"/>
+      <httpclient href="java/HTTPClient">
+	<advanced href="advanced_info.html">
+	  <pers_con href="#pers_con"/>
+	</advanced>
+	<https href="https.html"/>
+        <urlcon-vs-httpclient href="urlcon_vs_httpclient.html"/>
+	<jsse-zip href="jsse.zip"/>
+      </httpclient>
     </innovation>
 
     <jakarta href="http://jakarta.apache.org/">
@@ -105,11 +117,15 @@ See http://forrest.apache.org/docs/linking.html for more info
 
     <javasoft href="http://java.sun.com/">
       <j2se href="j2se/"/>
-      <jsse href="products/jsse/"/>
+      <jsse href="products/jsse/">
+	<install href="INSTALL.html"/>
+      </jsse>
       <jsse-samples href="j2se/1.4.1/docs/guide/security/jsse/samples/"/>
     </javasoft>
 
     <jedit-syntax href="http://sntax.jedit.org/"/>
+
+    <junit href="http://junit.sourceforge.net/"/>
 
     <jython href="http://www.jython.org/">
       <registry href="docs/registry.html"/>
