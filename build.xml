@@ -48,9 +48,14 @@ Say
 
 for details of other targets.
 
-The build tries to auto-detect whether you want the weblogic dependent
-stuff by checking your classpath. You may have to unset your classpath
-if this doesn't do what you want.
+The build auto-detects what modules to build by checking your
+classpath for classes the module depends on. You may have to unset your
+classpath if this doesn't do what you want. Currently the conditionally built modules are:
+
+   HTTP SSL plugin (Needs the JSSE)
+   TCPSniffer SSL engine (Needs the JSSE)
+   TCPSniffer HTTP plugin filter (Needs Apache Jakarta Regexp)
+   WebLogic Server 5.1 Trader EJB plugin (needs WLS Trader EJB)
 
 Ant hint for cygwin users: Copy "ant" from the Ant bin directory into
 a directory earilier in your path and run it through sed -e 's#:#;#g'
@@ -67,21 +72,18 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <!-- what -->
     <property name="Name" value="Grinder"/>
     <property name="name" value="grinder"/>
-    <property name="version" value="0.9"/>
+    <property name="version" value="2.0-pre"/>
     <property name="year" value="2000"/>
 
     <!--options-->
-    <available classname="javax.servlet.ServletContext"
-	       property="have.servlet" />
-
     <available classname="javax.net.ssl.SSLSocketFactory"
 	       property="have.jsse" />
 
-    <available classname="weblogic.t3.srvr.T3Srvr"
-	       property="have.weblogic" />
-
     <available classname="examples.ejb.basic.statelessSession.Trader"
 	       property="have.weblogic.traderEJB" />
+
+    <available classname="org.apache.regexp.RE"
+	       property="have.jakarta.regexp" />
 
     <!-- javac switches -->
     <property name="debug" value="on"/>
@@ -122,40 +124,23 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <!-- No idea why, but ant doesn't expand ${src.dir} in the following. -->
   <fileset id="base.src"
 	   dir="src"
-	   excludes="net/grinder/plugin/http/HttpsPlugin.java,net/grinder/plugin/http/tools/,net/grinder/plugin/weblogic/"/>
-
-  <fileset id="servlet.dependent.src"
-	   dir="src"
-	   includes="net/grinder/plugin/http/tools/"
-	   excludes="net/grinder/plugin/http/tools/WebLogicSnifferServlet.java"/>
+	   excludes="net/grinder/plugin/http/HttpsPlugin.java,net/grinder/tools/tcpsniffer/SSLSnifferEngineImpl.java,net/grinder/plugin/weblogic/,net/grinder/plugin/http/HttpsPluginSnifferFilter.java"/>
 
   <fileset id="jsse.dependent.src"
 	   dir="src"
-	   includes="net/grinder/plugin/http/HttpsPlugin.java"/>
-
-  <fileset id="weblogic.dependent.src"
-	   dir="src"
-	   includes="net/grinder/plugin/http/tools/WebLogicSnifferServlet.java"/>
+	   includes="net/grinder/plugin/http/HttpsPlugin.java,net/grinder/tools/tcpsniffer/SSLSnifferEngineImpl.java"/>
 
   <fileset id="weblogic.traderEJB.dependent.src"
 	   dir="src"
 	   includes="net/grinder/plugin/weblogic/"/>
 
-  <target name="prepare-servlet-src" if="have.servlet" depends="init">
-    <copy todir="${build.src}" filtering="on">
-      <fileset refid="servlet.dependent.src"/>
-    </copy>
-  </target>
+  <fileset id="jakarta.regexp.dependent.src"
+	   dir="src"
+	   includes="net/grinder/plugin/http/HttpsPluginSnifferFilter.java"/>
 
   <target name="prepare-jsse-src" if="have.jsse" depends="init">
     <copy todir="${build.src}" filtering="on">
       <fileset refid="jsse.dependent.src"/>
-    </copy>
-  </target>
-
-  <target name="prepare-weblogic-src" if="have.weblogic" depends="init">
-    <copy todir="${build.src}" filtering="on">
-      <fileset refid="weblogic.dependent.src"/>
     </copy>
   </target>
 
@@ -166,8 +151,15 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     </copy>
   </target>
 
+  <target name="prepare-jakarta-regexp-src" if="have.jakarta.regexp"
+	  depends="init">
+    <copy todir="${build.src}" filtering="on">
+      <fileset refid="jakarta.regexp.dependent.src"/>
+    </copy>
+  </target>
+
   <target name="prepare-src"
-	  depends="init,prepare-servlet-src,prepare-jsse-src,prepare-weblogic-src,prepare-weblogic-traderEJB-src">
+	  depends="init,prepare-jsse-src,prepare-weblogic-traderEJB-src,prepare-jakarta-regexp-src">
     <copy todir="${build.src}" filtering="on">
       <fileset refid="base.src"/>
     </copy>
