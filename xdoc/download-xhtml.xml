@@ -5,14 +5,14 @@
 
     <h1>Download</h1>
 
-    <p>The Grinder can be downloaded from <a
+    <p>The Grinder 2 and The Grinder 3 can be downloaded from <a
     href="http://www.sourceforge.net/projects/grinder">SourceForge.net</a>.
-    It is packaged as a <code>zip</code> format file which you should
-    expand using <code>unzip</code>, <a
+    They are packaged as a <code>zip</code> format files which you
+    should expand using <code>unzip</code>, <a
     href="http://www.winzip.com">WinZip</a> or similar.
     </p>
 
-    <h1>What else do I need?</h1>
+    <h2>What else do I need?</h2>
 
     <p>To run the Grinder:</p>
 
@@ -45,6 +45,8 @@
         </tr>
       </table>
     </blockquote>
+
+   <p>Later versions of these packages should also work.</p>
 
 </body>
 </html>

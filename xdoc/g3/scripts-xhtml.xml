@@ -3,11 +3,12 @@
 <html>
 <body>
 
-<em>More material to come! For now see the <a
-href="../script-javadoc/index.html">script API</a> and the <a
-href="script-gallery.html">script gallery</a>.</em>
-
 <h1>Scripts</h1>
+
+<p><em>This page describes The Grinder 3 scripting API. If you've used
+The Grinder 2 for HTTP testing and you're not a programmer, you might
+be a bit daunted. Don't worry, its just as easy to record and replay
+HTTP scripts with The Grinder 3.</em></p>
 
 <h2>Jython and Python</h2>
 
@@ -15,8 +16,8 @@ href="script-gallery.html">script gallery</a>.</em>
 of Python. Python is powerful, popular and easy on the eye. If you've
 never seen any Python before, don't panic. Take a look at the <a
 href="script-gallery">script gallery</a> to get a taste of what its
-like. There are plenty of resources on the web, here are a few to get
-you started:</p>
+like. There are plenty of resources on the web, here are a few of them
+to get you started:</p>
 
 <blockquote>
 <table>
@@ -45,11 +46,10 @@ at first, the examples are much easier to comprehend.</p>
 <li><h4>Scripts must define a class called <code>TestRunner</code></h4>
 
 <p>When a worker process starts up it runs the test script once. The
-test script must define a class thing called
-<em><code>TestRunner</code></em>. When it starts, the Grinder engine
-creates an instance of <code>TestRunner</code> for each worker thread
-and assigns the instance to the worker thread. A thread's TestRunner
-instance can be used to store information specific to that thread.</p>
+test script must define a class thing called <code>TestRunner</code>.
+The Grinder engine then creates an instance of <code>TestRunner</code>
+for each worker thread. A thread's TestRunner instance can be used to
+store information specific to that thread.</p>
 </li>
 
 <p><em>(Although strongly recommended, strictly
@@ -59,10 +59,13 @@ Functions</a> example.)</em></p>
 
 <li><h4>The <code>TestRunner</code> instance must be callable</h4>
 
-<p>Each worker thread performs a number of <em>runs</em> of the test
-script, as configured by the <a
-href="./getting-started.html#grinder.runs"/> property. For each run,
-the worker thread calls its TestRunner instance.</p></li>
+<p>A Python object is callable if it defines a <code>__call__</code>
+method. Each worker thread performs a number of <em>runs</em> of the
+test script, as configured by the property <a
+href="./getting-started.html#grinder.runs">grinder.runs</a>. For each
+run, the worker thread calls its <code>TestRunner</code>; thus the
+<code>__call__</code> method can be thought of as the definition of a
+run.</p></li>
 
 <li><h4>The test script can access services through the
 <code>grinder</code> object</h4>
@@ -71,7 +74,7 @@ the worker thread calls its TestRunner instance.</p></li>
 the script. This is an instance of the <a
 href="../script-javadoc/net/grinder/script/ScriptContext.html">ScriptContext</a>
 class and provides access to context information (such as the worker
-thread ID) and services (such as logging).</p></li>
+thread ID) and services (such as logging and statistics).</p></li>
 </ol>
 
 
@@ -94,12 +97,13 @@ output log.</p>
 <h2>Tests</h2>
 
 <p>Although our simple test script can be used with The Grinder
-framework and can easily be started in many threads on many machines,
-it does record any statistics. For this we need to create some tests.
-A <a href="../script-javadoc/net/grinder/script/Test.html">Test</a>
-has a unique test number and description. If you are using the <a
+framework and can easily be started in many times in many worker
+processes on many machines, it doesn't report any statistics. For this
+we need to create some tests. A <a
+href="../script-javadoc/net/grinder/script/Test.html">Test</a> has a
+unique test number and description. If you are using the <a
 href="./console.html">console</a>, it will automatically update to
-display new tests as they are created.</p>
+display new <code>Test</code>s as they are created.</p>
 
 <p>Let's add a <code>Test</code> to our script.</p>
 
@@ -126,9 +130,8 @@ We've also take the opportunity to add a shorter alias for the
 <code>grinder.logger.output</code> method.</p>
 
 <p>So the console knows about the test, but we're still not using it
-to record anything. To do that we must instrument the thing we want to
-record. For this example let's record how long our <code>log</code>
-method takes. To instrument the <code>log</code> method we use our
+to record anything. Let's record how long our <code>log</code> method
+takes. To instrument the <code>log</code> method we use our
 <code>Test</code> to wrap it with a proxy <em>wrapper</em>. The
 wrapper object looks exactly like the <code>log</code> method and can
 be called in the same manner. If we call the wrapper the call will be
@@ -189,7 +192,8 @@ can be used to access services from The Grinder.</p>
 
 <p class="draft-warning">Draft material follows</p>
 
-<h2>The Jython distribution and installation</h2>
+<h2><a name="jython-installation">The Jython distribution and
+installation</a></h2>
 
 <p>The Grinder is shipped with a version of Jython but does not
 package the Jython distribution of the standard Python library. If you

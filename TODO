@@ -79,11 +79,11 @@ answer?
 
 * Documentation
 
+Overview process diagram. Animated?
 TCPProxy and G3.
 Statistics.
-Using grinder.properties
-
-Document default grinder.properties. (grinder.py).
+Using grinder.properties from scripts.
+Basic authentication example.
 
 * Ambitious enhancements
 

@@ -51,8 +51,6 @@
              targetFile="tcpproxy.html" type="g3-xhtml-1"/>
       <entry name="FAQ" sourceFile="faq-xhtml.xml" 
              targetFile="faq.html" type="g3-xhtml-toc-1"/>
-      <entry name="The Future" sourceFile="future-xhtml.xml" 
-             targetFile="future.html" type="g3-xhtml-1"/>
     </section>
     <section name="Development" sourceDir="development" targetDir="development"
              type="section">

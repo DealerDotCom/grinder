@@ -25,8 +25,17 @@
 <br/>
 <h1>What's new in The Grinder 3?</h1>
 
-<p>The Grinder 3 introduces a scripting engine and uses it to execute
-test scripts. Test scripts replace the specification of tests in the
+<p><em>This section summarises the changes between The Grinder 2 and
+The Grinder 3. If you're not familiar with The Grinder 2, skim read
+this and move on to <a href="./getting-started.html">Getting
+Started</a>.</em></p>
+
+<h2>Jython</h2>
+
+<p>The most significant change that The Grinder 3 introduces is a <a
+href="http://www.jython.org">Jython</a> (the Java implementation of
+Python) scripting engine that is used to execute test scripts. Test
+scripts replace the specification of tests in the
 <code>grinder.properties</code> file. The
 <code>grinder.properties</code> file is still used to specify general
 control information (how to contact the console, how many worker
@@ -34,11 +43,8 @@ processes to use, ..), as well as the name of the test script. Many
 other key features of The Grinder 2, such as the console and the
 process architecture, remain unchanged.</p>
 
-<h2>Jython</h2>
 
-<p><a href="http://www.jython.org">Jython</a> is the Java
-implementation of the Python scripting language. A Jython engine has
-been introduced into The Grinder to address the following.</p>
+<p>The scripting engine provides the following new capabilities:</p>
 
 <blockquote>
 <h4>Test any Java code</h4>
@@ -46,7 +52,7 @@ been introduced into The Grinder to address the following.</p>
 <p>The Grinder 3 allows any Java (or Jython) code to be encapsulated
 as a test. This practically removes the need to write custom plug-ins.
 Although plug-ins are no longer responsible for performing tests, they
-can still be useful to manage state that the tests use. For example,
+can still be useful to manage objects that the tests use. For example,
 the HTTP plug-in manages a pool of connections for each worker thread,
 and provides an <code>HTTPRequest</code> object that makes use of
 these connections.</p>
@@ -92,7 +98,7 @@ The Grinder 3.</li>
 
 <li>Many <a
 href="./getting-started.html#properties"><code>grinder.properties</code></a>
-have been removed. The features formally accessed through setting
+have been removed. The features formerly accessed through setting
 properties are now set by making calls to the plug-in from the test
 script. Some of the remaining property names have been renamed.</li>
 
@@ -113,8 +119,23 @@ objects in scripts.</li>
 
 <h1>Roadmap</h1>
 
-<p>Look to <a href="future.html">the future</a>, The Grinder 3 has
-only just begun.</p>
+<p>This section documents things that are planned for The Grinder 3.
+There are no current release dates for these features.</p>
+
+<h3>Test script distribution</h3>
+
+<p>From the Grinder 3 console you will be able to edit test scripts
+and then distribute them to the worker processes. It will no longer be
+necessary to copy grinder.properties files around or to use a shared
+disk.
+</p>
+
+<h3>Embedded Agent</h3>
+
+<p>A new agent will be provided that can be loaded within an existing
+Java Virtual Machine. This will allow, for example, threads to be
+started within an application server which can run test scripts that
+make direct calls against local resources such as EJBs.</p>
 
 </body>
 </html>

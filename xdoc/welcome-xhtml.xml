@@ -5,15 +5,17 @@
 
     <h1>What is The Grinder?</h1>
   
-    <p>The Grinder is a Java&#8482; load-testing framework that is
+    <p>The Grinder is a Java&#8482; load-testing framework. It is
     freely available under a BSD-style open-source license.</p>
 
-    <p>Test client code is written in the form Java <em>plug-ins</em>.
-    Most users of The Grinder do not write plug-ins themselves,
-    instead they use one of the supplied plug-ins. The Grinder comes
-    with a mature plug-in for testing HTTP services. A JUnit plug-in is
-    also provided which opens up interesting possibilities for bake
-    testing Java code to discover race conditions and other bugs.</p>
+    <p>The Grinder makes it easy to orchestrate the activities of a
+    test script in many processes across many machines, using a
+    graphical console application. Test scripts make use of client
+    code embodied in Java <em>plug-ins</em>. Most users of The Grinder
+    do not write plug-ins themselves, instead they use one of the
+    supplied plug-ins. The Grinder comes with a mature plug-in for
+    testing HTTP services, as well as a tool which allows HTTP scripts
+    to be automatically recorded.</p>
 
     <p>The Grinder was originally developed for the book
     <em>Professional Java 2 Enterprise Edition with BEA WebLogic
@@ -27,7 +29,14 @@
 
     <p>The next major version of The Grinder, <a
     href="./g3/index.html">The Grinder 3</a> is currently available as
-    a beta quality release.</p>
+    a beta quality release. The Grinder 3 uses the powerful scripting
+    language Jython, and allows any Java code to be tested without the
+    need to write a plug-in.</p>
+
+    <p>The latest news, downloads, and mailing list archives can be
+    found on <a
+    href="http://www.sourceforge.net/projects/grinder">SourceForge.net</a>.
+    </p>
 
     <h2>Authors</h2>
     <table>

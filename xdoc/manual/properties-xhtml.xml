@@ -213,10 +213,11 @@ properties understood by the plugin you are using.</p>
  </tr>
 
  <tr>
-  <td><code><a name="grinder.recordTime">grinder.recordTime</a></code></td>
+  <td><code><a
+  name="grinder.recordTime">grinder.recordTime</a></code></td>
   <td>Set to <code>false</code> to disable reporting of <a
-  href="timing.html">timing information</a>; other statistics are
-  still reported. Default <code>true</code>.</td>
+  href="../development/timing.html">timing information</a>; other
+  statistics are still reported. Default <code>true</code>.</td>
  </tr>
 
 </table>

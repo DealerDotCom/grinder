@@ -15,7 +15,6 @@
   <!-- Currently only support one TOC per page. -->
   <xsl:template match="toc">
     <ol>
-      <a name="TOP"/>
       <xsl:for-each select="//a[@name]">
 	<li>
 	  <xsl:copy>
@@ -34,7 +33,7 @@
     <xsl:copy>
       <xsl:apply-templates select="@*"/>
       <xsl:attribute name="href">
-	<xsl:text>#TOP</xsl:text>
+	<xsl:text>#</xsl:text>
       </xsl:attribute>
       <xsl:apply-templates/>
     </xsl:copy>

@@ -11,6 +11,39 @@
 
 <p>Yes.</p>
 
+<h3><a name="startup-time">Why does The Grinder take a while to start
+up?</a></h3>
+
+<p>The Grinder 3 worker proces start up time is marginally slower than
+The Grinder 2. However, it is much slower when you add new Java
+libraries to your <code>CLASSPATH</code>. Why?</p>
+
+<p>At start up, the Jython engine processes all new Java libraries it
+finds. When it does this you'll see output similar to the following in
+the window you used to start The Grinder:
+
+<blockquote><pre>
+*sys-package-mgr*: processing new jar, 'E:\src\grinder3\lib\jakarta-oro-2.0.6.jar'
+*sys-package-mgr*: processing new jar, 'E:\src\grinder3\lib\jython.jar'
+</pre></blockquote>
+</p>
+
+<p>Jython caches the result of this processing, so subsequent start up
+times are much reduced. You can control the location of the cache
+directory, see the information on <a
+href="./scripts.html#jython-installation">Jython installation</a>.</p>
+
+<h3><a name="multiple-scripts">Can I run different test scripts
+against the same console?</a></h3>
+
+<p>Yes.</p>
+
+<p>The console receives reports and updates the graph based on test
+number. Thus it is possible to have different agent processes
+running scripts with different test numbers (e.g. one process running
+tests 1 to 5 and another running tests 6 to 10)., reporting to the
+same console.</p>
+
 <h3><a name="string-beans">How do I simulate different users?</a></h3>
 
 <p><em>New answer required for G3.</em></p>
@@ -40,17 +73,6 @@ your tests so that all requests go via the TCPProxy (the best way is
 to set the test script connections to direct requests via the TCPProxy
 acting an HTTP proxy); again record the output to a file. Now grab a
 coffee and compare.</p>
-
-<h3><a name="multiple-scripts">Can I run different test scripts against
-the same console?</a></h3>
-
-<p>Yes.</p>
-
-<p>The console receives reports and updates the graph based on test
-number. Thus it is possible to have different agent processes
-running scripts with different test numbers (e.g. one process running
-tests 1 to 5 and another running tests 6 to 10)., reporting to the
-same console.</p>
 
 <h3><a name="tcpproxy-colour-codes">What are all those funny ^[[31
 characters in the TCPProxy output?</a></h3>
