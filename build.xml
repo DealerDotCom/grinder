@@ -73,7 +73,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   <target name="init">
     <tstamp/>
     <!-- what -->
-    <property name="Name" value="Grinder"/>
+    <property name="Name" value="The Grinder"/>
     <property name="name" value="grinder"/>
     <property name="version" value="2.1"/>
     <property name="year" value="2001"/>
