@@ -80,7 +80,7 @@ request1 = test1.wrap(HTTPRequest())
 
 <p class="script-description">This script uses the
 <code>HTTPClient.Codecs</code> class to post itself to the server as a
-multi-part form.</p>
+multi-part form. Thanks to Marc Gemis.</p>
 
 <blockquote>
 
