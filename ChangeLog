@@ -1,3 +1,10 @@
+2001-09-03  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HTTPClientHandler.java:
+	Fix broken query string handling - thanks to Mikael Suokas.
+
+	* README: Multicast advice.
+
 2001-09-02  Philip Aston  <paston@bea.com>
 
 	* examples/junit/grinder.properties: Update property.
