@@ -44,6 +44,9 @@ of the process types are:</p>
 <p>As The Grinder is written in Java, each of these processes is a
 Java Virtual Machine (JVM).</p>
 
+<p><a href="./getting-started-viewlet.html">Viewlet&#8482; of the
+processes in action</a> (Flash&#8482; required).</p>
+
 <p>For heavy duty testing, you start an agent process on each of
 several client machines. The worker processes they launch can be
 controlled and monitored using the console. There is little reason to

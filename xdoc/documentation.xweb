@@ -39,6 +39,8 @@
              targetFile="index.html" type="g3-xhtml-1"/>
       <entry name="Getting Started" sourceFile="getting-started-xhtml.xml" 
              targetFile="getting-started.html" type="g3-xhtml-1"/>
+      <entry name="Viewlet" sourceFile="getting-started-viewlet-xhtml.xml" 
+             targetFile="getting-started-viewlet.html" type="g3-xhtml-1"/>
       <entry name="Scripts" sourceFile="scripts-xhtml.xml" 
              targetFile="scripts.html" type="g3-xhtml-1"/>
       <entry name="HTTP Plug-in" sourceFile="http-plugin-xhtml.xml" 
@@ -74,6 +76,7 @@
             type="copy"/>
       <file sourceFile="script-logo.png" targetFile="script-logo.png"
             type="copy"/>
+      <file sourceFile="grinder.swf" targetFile="grinder.swf" type="copy"/>
     </directory>
 
   </structure>
