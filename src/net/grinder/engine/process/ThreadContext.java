@@ -229,8 +229,8 @@ final class ThreadContext implements PluginThreadContext
 	catch (Exception e) {
 	    m_currentTestStatistics.addError();
 
- 	    m_threadLogger.error("Test invocation threw: " + e)
- 	    e.printStackTrace(m_threadLogger.getErrorLogWriter())
+ 	    m_threadLogger.error("Test invocation threw: " + e);
+ 	    e.printStackTrace(m_threadLogger.getErrorLogWriter());
 
 	    throw e;		// This should be wrapped in something
 				// so we know we don't need to log it
