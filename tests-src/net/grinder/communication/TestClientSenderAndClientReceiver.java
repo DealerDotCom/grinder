@@ -55,7 +55,7 @@ public class TestClientSenderAndClientReceiver
     final PipedOutputStream outputStream = new PipedOutputStream();
     final InputStream inputStream = new PipedInputStream(outputStream) {{
       // JDK, I laugh at your puny buffer.
-          buffer = new byte[655350];
+      buffer = new byte[32768];
         }
       };
 
