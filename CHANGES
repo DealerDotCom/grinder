@@ -10,7 +10,12 @@ Grinder 3.0-beta8
   Tentative fix to bug 690639. (TCPProxy recorded HTTP script refers
   to header array before declaration.)
 
-  Correct JMS examples.
+  Correct JMS example scripts.
+
+  Spruce up console UI.
+
+  Allow the console to be optionally reset with the worker processes.
+  (Feature request 686632).
 
 
 Grinder 3.0-beta7
