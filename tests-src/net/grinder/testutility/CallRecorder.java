@@ -148,6 +148,10 @@ public class CallRecorder extends Assert {
     // Check the earliest call first.
     final CallData callData = (CallData) m_callDataList.removeFirst();
 
+    if (parameters.length == 0) {
+      parameters = null;
+    }
+
     // Just check method names match. Don't worry about modifiers
     // etc., or even which class the method belongs to.
     assertEquals(methodName, callData.getMethodName());
@@ -246,21 +250,23 @@ public class CallRecorder extends Assert {
 
     result.append('(');
 
-    for (int i = 0; i < parameters.length; ++i) {
-      if (i != 0) {
-        result.append(", ");
-      }
+    if (parameters != null) {
+      for (int i = 0; i < parameters.length; ++i) {
+        if (i != 0) {
+          result.append(", ");
+        }
 
-      if (!parameters[i].getClass().isPrimitive()) {
-        result.append("\"");
-        result.append(parameters[i]);
-        result.append("\"");
-      }
-      else {
-        result.append(parameters[i]);
+        if (!parameters[i].getClass().isPrimitive()) {
+          result.append("\"");
+          result.append(parameters[i]);
+          result.append("\"");
+        }
+        else {
+          result.append(parameters[i]);
+        }
       }
     }
-
+    
     result.append(')');
 
     return result.toString();
