@@ -3,6 +3,9 @@ Grinder 3.0-beta26 (Not yet released)
 
   The Grinder now requires J2SE 1.4.
 
+  Fix the TCPProxy to cope correctly with 8 bit strings in all
+  locales (Bug 1167731). Thanks to Anton Malykh for the report.
+
 
 Grinder 3.0-beta25
 ------------------
@@ -273,7 +276,7 @@ Grinder 3.0-beta16
     grinder.consoleHost	  (previously grinder.consoleAddress)
     grinder.consolePort
     grinder.useConsole    (previously grinder.receiveConsoleSignals /
-	                   grinder.reportToConsole)
+                     grinder.reportToConsole)
 
   The grinder.grinderAddress and grinder.grinderPort properties have
   been removed. Corresponding changes have been made to the console
@@ -689,21 +692,21 @@ Grinder 2.8.3
    Sniffer should no longer spin CPU when idle.
 
    Reworked HttpPluginSnifferFilter:
-	- Outputs a full usable test script.
-	- Copes with POST data split across TCP packets.
-	- Fixed bug where POST with multiple lines was read incorrectly,
-	  this required moving to Jakarta ORO because Jakarta Regexp
-	  bombed with a trivial regexp.
-	- Removed multipart form handling.
-	- Records 401 (authentication) exchanges.
+  - Outputs a full usable test script.
+  - Copes with POST data split across TCP packets.
+  - Fixed bug where POST with multiple lines was read incorrectly,
+    this required moving to Jakarta ORO because Jakarta Regexp
+    bombed with a trivial regexp.
+  - Removed multipart form handling.
+  - Records 401 (authentication) exchanges.
 
    (A note is necessary on the multipart form handling. The more I
    looked at the existing support in the sniffer, the more dubious it
    looked. Here's what the HTTP specification says on the subject:
 
-	"In general, HTTP treats a multipart message-body no
-	differently than any other media type: strictly as payload.
-	The one exception is the "multipart/byteranges" type ..."
+  "In general, HTTP treats a multipart message-body no
+  differently than any other media type: strictly as payload.
+  The one exception is the "multipart/byteranges" type ..."
 
    This means that the sniffer should just chuck the data directly
    into the POST file, which is what it now does. And no Cynthia, we
@@ -736,8 +739,8 @@ Grinder 2.8.1
    unicast TCP connection. Multicast has been used here since the
    beginning (it was cheap and cheerful to implement) but caused
    several problems:
-	- Under heavy load, multicast packets are lost.
-	- I've had a report of multicast packets being duplicated.
+  - Under heavy load, multicast packets are lost.
+  - I've had a report of multicast packets being duplicated.
 
    Clearly neither of these are good for statistics reporting. Signals
    from the Console to the worker processes still use multicast.
@@ -745,10 +748,10 @@ Grinder 2.8.1
    IMPORTANT: The communication properties have changed, you must set
    the following in grinder.properties:
 
-	grinder.consoleAddress	(Address of machine running Console)
-	grinder.consolePort
-	grinder.grinderAddress	(Multicast address)
-	grinder.grinderPort
+  grinder.consoleAddress	(Address of machine running Console)
+  grinder.consolePort
+  grinder.grinderAddress	(Multicast address)
+  grinder.grinderPort
 
    [grinder.consoleAddress is a new property. grinder.multicastAddress
    and grinder.multicastPort have been renamed to
@@ -1056,7 +1059,7 @@ Grinder 2.4
   You can now specify an explicit properties file to both the Grinder
   and the Console as the first argument. For example:
 
-	java net.grinder.Grinder myproperties
+  java net.grinder.Grinder myproperties
 
   Credit to Marc Stogner for this idea and initial implementaion.
 
@@ -1178,7 +1181,7 @@ Grinder 2.0
   The HTTP plugin now automatically follows redirects only if you
   set the property
 
-	grinder.plugin.parameter.followRedirects=true
+  grinder.plugin.parameter.followRedirects=true
 
   See the README file for details.
 
@@ -1210,14 +1213,14 @@ Grinder 0.9
   properties:
 
     grinder.jvm.path	-	Specifies the java executable used for
-				the child JVMs. Defaults to "java" so
-				you do not need to specify this if
-				your path is sensible.
+        the child JVMs. Defaults to "java" so
+        you do not need to specify this if
+        your path is sensible.
 
     grinder.jvm.classpath -	Use to adjust the classpath used for
-				the child VMs. Anything specified here
-				will be prepended to the classpath
-				used to start the grinder itself.
+        the child VMs. Anything specified here
+        will be prepended to the classpath
+        used to start the grinder itself.
 
     grinder.jvm.arguments -	Additional arguments to child JVM's.
 

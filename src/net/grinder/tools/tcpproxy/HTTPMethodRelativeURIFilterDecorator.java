@@ -38,9 +38,9 @@ import java.util.regex.Pattern;
  * independent of whether the TCPProxy is being used as in HTTP proxy
  * mode or port forwarding mode.</li>
  *
- * <li>When the sucessor server is not an HTTP proxy, we don't want to
+ * <li>When the successor server is not an HTTP proxy, we don't want to
  * pass absolute URL's as HTTP 1.0 servers don't know what to do with
- * them. When the sucessor server is an HTTP proxy, we use a {@link
+ * them. When the successor server is an HTTP proxy, we use a {@link
  * HTTPMethodAbsoluteURIFilterDecorator} as well.</li>
  *
  * </ol>
@@ -125,7 +125,7 @@ class HTTPMethodRelativeURIFilterDecorator implements TCPProxyFilter {
     if (matcher.find()) {
       final String result = matcher.group(1) + " " + matcher.group(2);
 
-      final byte[] resultBytes = result.getBytes();
+      final byte[] resultBytes = result.getBytes("ISO8859_1");
 
       final byte[] delegateResult =
         m_delegate.handle(connectionDetails, resultBytes, resultBytes.length);
