@@ -1,3 +1,8 @@
+2001-06-11  Philip Aston  <paston@bea.com>
+
+	* CHANGES, doc/Problems.txt:
+	Add new file doc/Problems.txt to hold wisdom from Mikael Suokas.
+
 2001-06-09  Philip Aston  <philipa@mail.com>
 
 	* CHANGES, src/net/grinder/plugin/http/HttpPlugin.java:
