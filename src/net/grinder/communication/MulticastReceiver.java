@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,87 +35,81 @@ import java.net.MulticastSocket;
  * @author Philip Aston
  * @version $Revision$
  **/
-public final class MulticastReceiver extends AbstractReceiver
-{
-    private final byte[] m_buffer = new byte[65536];
-    private final MulticastSocket m_socket;
-    private final DatagramPacket m_packet;
+public final class MulticastReceiver extends AbstractReceiver {
+  private final byte[] m_buffer = new byte[65536];
+  private final MulticastSocket m_socket;
+  private final DatagramPacket m_packet;
 
+  /**
+   * Constructor.
+   *
+   * @param multicastAddressString The multicast address to bind on.
+   * @param multicastPort The port to bind to.
+   *
+   * @throws CommunicationException If socket could not be bound to.
+   **/
+  public MulticastReceiver(String multicastAddressString, int multicastPort)
+    throws CommunicationException {
+    super(true);
 
-    /**
-     * Constructor.
-     *
-     * @param multicastAddressString The multicast address to bind on.
-     * @param multicastPort The port to bind to.
-     *
-     * @ throws CommunicationException If socket could not be bound to.
-     **/
-    public MulticastReceiver(String multicastAddressString, int multicastPort)
-	throws CommunicationException
-    {
-	super(true);
-
-	try {
-	    m_socket = new MulticastSocket(multicastPort);
-	    m_socket.joinGroup(InetAddress.getByName(multicastAddressString));
-	}
-	catch (IOException e) {
-	    throw new CommunicationException(
-		"Could not bind to multicast address '" +
-		multicastAddressString + ":" + multicastPort + "'",
-		e);
-	}
-
-	m_packet = new DatagramPacket(m_buffer, m_buffer.length);
-
-	new ListenThread().start();
+    try {
+      m_socket = new MulticastSocket(multicastPort);
+      m_socket.joinGroup(InetAddress.getByName(multicastAddressString));
+    }
+    catch (IOException e) {
+      throw new CommunicationException(
+	"Could not bind to multicast address '" +
+	multicastAddressString + ":" + multicastPort + "'",
+	e);
     }
 
-    private final class ListenThread extends Thread
-    {
-	public ListenThread()
-	{
-	    super("Multicast listen thread");
-	    setDaemon(true);
-	}
+    m_packet = new DatagramPacket(m_buffer, m_buffer.length);
 
-	public void run()
-	{
-	    final MessageQueue messageQueue = getMessageQueue();
+    new ListenThread().start();
+  }
 
-	    final ByteArrayInputStream byteStream =
-		new ByteArrayInputStream(m_buffer, 0, m_buffer.length);
-
-	    try {
-		while (true) {
-		    try {
-			m_packet.setData(m_buffer, 0, m_buffer.length);
-			m_socket.receive(m_packet);
-
-			byteStream.reset();
-
-			// ObjectInputStream does not support reset(),
-			// we need a new one each time.
-			final ObjectInputStream objectStream =
-			    new ObjectInputStream(byteStream);
-
-			messageQueue.queue((Message)objectStream.readObject());
-		    }
-		    catch (ClassNotFoundException e) {
-			// Propagate exceptions to threads calling
-			// waitForMessage.
-			messageQueue.queue(e);
-		    }
-		    catch (IOException e) {
-			// Propagate exceptions to threads calling
-			// waitForMessage.
-			messageQueue.queue(e);
-		    }
-		}
-	    }
-	    catch (MessageQueue.ShutdownException e) {
-		// We've been shutdown, exit this thread.
-	    }
-	}
+  private final class ListenThread extends Thread {
+    public ListenThread() {
+      super("Multicast listen thread");
+      setDaemon(true);
     }
+
+    public void run() {
+      final MessageQueue messageQueue = getMessageQueue();
+
+      final ByteArrayInputStream byteStream =
+	new ByteArrayInputStream(m_buffer, 0, m_buffer.length);
+
+      try {
+	while (true) {
+	  try {
+	    m_packet.setData(m_buffer, 0, m_buffer.length);
+	    m_socket.receive(m_packet);
+
+	    byteStream.reset();
+
+	    // ObjectInputStream does not support reset(),
+	    // we need a new one each time.
+	    final ObjectInputStream objectStream =
+	      new ObjectInputStream(byteStream);
+
+	    messageQueue.queue((Message)objectStream.readObject());
+	  }
+	  catch (ClassNotFoundException e) {
+	    // Propagate exceptions to threads calling
+	    // waitForMessage.
+	    messageQueue.queue(e);
+	  }
+	  catch (IOException e) {
+	    // Propagate exceptions to threads calling
+	    // waitForMessage.
+	    messageQueue.queue(e);
+	  }
+	}
+      }
+      catch (MessageQueue.ShutdownException e) {
+	// We've been shutdown, exit this thread.
+      }
+    }
+  }
 }

@@ -80,8 +80,7 @@ abstract class AbstractReceiver implements Receiver {
 	sequenceValue.nextValue(sequenceNumber, message);
       }
       else {
-	m_sequenceValues.put(senderID,
-			     new SequenceValue(sequenceNumber));
+	m_sequenceValues.put(senderID, new SequenceValue(sequenceNumber));
       }
     }
 	    

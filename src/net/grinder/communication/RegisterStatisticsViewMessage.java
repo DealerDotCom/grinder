@@ -22,12 +22,6 @@
 
 package net.grinder.communication;
 
-import java.io.Serializable;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
-import net.grinder.common.GrinderException;
 import net.grinder.statistics.StatisticsView;
 
 
@@ -37,27 +31,27 @@ import net.grinder.statistics.StatisticsView;
  * @author Philip Aston
  * @version $Revision$
  */
-public class RegisterStatisticsViewMessage extends Message
-{
-    private static final long serialVersionUID = -7078786346425431655L;
+public class RegisterStatisticsViewMessage extends Message {
 
-    private StatisticsView m_statisticsView;
+  private static final long serialVersionUID = -7078786346425431655L;
 
-    /**
-     * Constructor.
-     *
-     * @param tests The test set to register.
-     **/
-    public RegisterStatisticsViewMessage(StatisticsView statisticsView)
-    {
-	m_statisticsView = statisticsView;
-    }
+  private StatisticsView m_statisticsView;
 
-    /**
-     * Get the statistics view.
-     **/
-    public StatisticsView getStatisticsView()
-    {
-	return m_statisticsView;
-    }
+  /**
+   * Constructor.
+   *
+   * @param statisticsView Definition of statistics view.
+   */
+  public RegisterStatisticsViewMessage(StatisticsView statisticsView) {
+    m_statisticsView = statisticsView;
+  }
+
+  /**
+   * Get the statistics view.
+   *
+   * @return The statistics view.
+   **/
+  public StatisticsView getStatisticsView() {
+    return m_statisticsView;
+  }
 }

@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,12 +21,6 @@
 
 package net.grinder.communication;
 
-import java.io.Serializable;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
-import net.grinder.common.GrinderException;
 import net.grinder.statistics.TestStatisticsMap;
 
 
@@ -37,27 +30,27 @@ import net.grinder.statistics.TestStatisticsMap;
  * @author Philip Aston
  * @version $Revision$
  */
-public class ReportStatisticsMessage extends Message implements Serializable
-{
-    private static final long serialVersionUID = 171863391515128541L;
+public class ReportStatisticsMessage extends Message {
 
-    private TestStatisticsMap m_statisticsDelta;
+  private static final long serialVersionUID = 171863391515128541L;
 
-    /**
-     * Constructor.
-     *
-     * @param statisticsDelta The test statistics.
-     **/
-    public ReportStatisticsMessage(TestStatisticsMap statisticsDelta)
-    {
-	m_statisticsDelta = statisticsDelta;
-    }
+  private TestStatisticsMap m_statisticsDelta;
 
-    /**
-     * Get the test statistics.
-     **/
-    public TestStatisticsMap getStatisticsDelta()
-    {
-	return m_statisticsDelta;
-    }
+  /**
+   * Constructor.
+   *
+   * @param statisticsDelta The test statistics.
+   **/
+  public ReportStatisticsMessage(TestStatisticsMap statisticsDelta) {
+    m_statisticsDelta = statisticsDelta;
+  }
+
+  /**
+   * Get the test statistics.
+   *
+   * @return The test statistics.
+   */
+  public TestStatisticsMap getStatisticsDelta() {
+    return m_statisticsDelta;
+  }
 }

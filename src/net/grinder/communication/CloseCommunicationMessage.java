@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,6 +28,5 @@ package net.grinder.communication;
  * @author Philip Aston
  * @version $Revision$
  **/
-class CloseCommunicationMessage extends Message
-{
+class CloseCommunicationMessage extends Message {
 }

@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,14 +21,11 @@
 
 package net.grinder.communication;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.LinkedList;
 
 
 /**
@@ -38,75 +34,81 @@ import java.util.LinkedList;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class MulticastSender extends AbstractSender
-{
-    private final MulticastSocket m_localSocket;
-    private final DatagramPacket m_packet;
+public class MulticastSender extends AbstractSender {
 
-    /**
-     * Constructor.
-     *
-     * @param grinderID A string describing our Grinder process.
-     * @param multicastAddressString Multicast address to send to.
-     * @param multicastPort Multicast port to send to.
-     * @throws CommunicationException If failed to bind to socket or
-     * failed to generate a unique process identifer.
-     **/    
-    public MulticastSender(String grinderID,
-			   String multicastAddressString,
-			   int multicastPort)
-	throws CommunicationException
-    {
-	super(grinderID);
+  private final MulticastSocket m_localSocket;
+  private final DatagramPacket m_packet;
 
-	final InetAddress multicastAddress;
-	final String localHost;
+  /**
+   * Constructor.
+   *
+   * @param grinderID A string describing our Grinder process.
+   * @param multicastAddressString Multicast address to send to.
+   * @param multicastPort Multicast port to send to.
+   * @throws CommunicationException If failed to bind to socket or
+   * failed to generate a unique process identifer.
+   **/    
+  public MulticastSender(String grinderID,
+			 String multicastAddressString,
+			 int multicastPort)
+    throws CommunicationException {
 
-	try {
-	    // Remote address.
-	    multicastAddress = InetAddress.getByName(multicastAddressString);
+    super(grinderID);
 
-	    // Our socket - bind to any port.
-	    m_localSocket = new MulticastSocket();
+    final InetAddress multicastAddress;
+    final String localHost;
 
-	    localHost = InetAddress.getLocalHost().getHostName();
-	}
-	catch (IOException e) {
-	    throw new CommunicationException(
-		"Could not bind to multicast address '" +
-		multicastAddressString + "'",
-		e);
-	}
+    try {
+      // Remote address.
+      multicastAddress = InetAddress.getByName(multicastAddressString);
 
-	m_packet = new DatagramPacket(getScratchByteStream().getBytes(), 0,
-				      multicastAddress, multicastPort);
+      // Our socket - bind to any port.
+      m_localSocket = new MulticastSocket();
 
-	// Calculate a globally unique string for this sender. We
-	// avoid calling multicastAddress.toString() since this
-	// involves a DNS lookup.
-	setSenderID(multicastAddressString + ":" + multicastPort + ":" +
-		    localHost + ":" + m_localSocket.getLocalPort() + ":" +
-		    System.currentTimeMillis());
+      localHost = InetAddress.getLocalHost().getHostName();
+    }
+    catch (IOException e) {
+      throw new CommunicationException(
+	"Could not bind to multicast address '" +
+	multicastAddressString + "'",
+	e);
     }
 
-    protected final void writeMessage(Message message) throws IOException
-    {
-	// Hang onto byte stream object and reset it
-	// rather than creating garbage.
-	final MyByteArrayOutputStream scratchByteStream =
-	    getScratchByteStream();
+    m_packet = new DatagramPacket(getScratchByteStream().getBytes(), 0,
+				  multicastAddress, multicastPort);
 
-	scratchByteStream.reset();
+    // Calculate a globally unique string for this sender. We
+    // avoid calling multicastAddress.toString() since this
+    // involves a DNS lookup.
+    setSenderID(multicastAddressString + ":" + multicastPort + ":" +
+		localHost + ":" + m_localSocket.getLocalPort() + ":" +
+		System.currentTimeMillis());
+  }
 
-	// Sadly reuse isn't possible with an ObjectOutputStream.
-	final ObjectOutputStream objectStream =
-	    new ObjectOutputStream(scratchByteStream);
+  /**
+   * Publish a message.
+   *
+   * @param message The message.
+   * @exception IOException If an error occurs.
+   */
+  protected final void writeMessage(Message message) throws IOException {
 
-	objectStream.writeObject(message);
-	objectStream.flush();
+    // Hang onto byte stream object and reset it
+    // rather than creating garbage.
+    final MyByteArrayOutputStream scratchByteStream =
+      getScratchByteStream();
 
-	m_packet.setData(scratchByteStream.getBytes(), 0,
-			 scratchByteStream.size());
-	m_localSocket.send(m_packet);
-    }
+    scratchByteStream.reset();
+
+    // Sadly reuse isn't possible with an ObjectOutputStream.
+    final ObjectOutputStream objectStream =
+      new ObjectOutputStream(scratchByteStream);
+
+    objectStream.writeObject(message);
+    objectStream.flush();
+
+    m_packet.setData(scratchByteStream.getBytes(), 0,
+		     scratchByteStream.size());
+    m_localSocket.send(m_packet);
+  }
 }

@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,38 +28,38 @@ package net.grinder.communication;
  * @author Philip Aston
  * @version $Revision$
  **/
-public interface Sender
-{
-    /**
-     * First flush any pending messages queued with {@link #queue} and
-     * then send the given message.
-     *
-     * @param message A {@link Message}.
-     * @exception CommunicationException If an error occurs.
-     **/
-    void send(Message message) throws CommunicationException;
+public interface Sender {
 
-    /**
-     * Flush any pending messages queued with {@link #queue}.
-     *
-     * @exception CommunicationException If an error occurs.
-     **/
-    void flush() throws CommunicationException;
+  /**
+   * First flush any pending messages queued with {@link #queue} and
+   * then send the given message.
+   *
+   * @param message A {@link Message}.
+   * @exception CommunicationException If an error occurs.
+   **/
+  void send(Message message) throws CommunicationException;
 
-    /**
-     * Queue the given message for later sending.
-     *
-     * @param message A {@link Message}.
-     * @exception CommunicationException If an error occurs.
-     * @see #flush
-     * @see #send
-     **/
-    void queue(Message message) throws CommunicationException;
+  /**
+   * Flush any pending messages queued with {@link #queue}.
+   *
+   * @exception CommunicationException If an error occurs.
+   **/
+  void flush() throws CommunicationException;
 
-    /**
-     * Cleanly shutdown the <code>Sender</code>.
-     *
-     * @exception CommunicationException If an error occurs.
-     **/
-    void shutdown() throws CommunicationException;
+  /**
+   * Queue the given message for later sending.
+   *
+   * @param message A {@link Message}.
+   * @exception CommunicationException If an error occurs.
+   * @see #flush
+   * @see #send
+   **/
+  void queue(Message message) throws CommunicationException;
+
+  /**
+   * Cleanly shutdown the <code>Sender</code>.
+   *
+   * @exception CommunicationException If an error occurs.
+   **/
+  void shutdown() throws CommunicationException;
 }

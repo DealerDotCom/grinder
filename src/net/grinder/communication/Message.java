@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,123 +33,120 @@ import java.io.Serializable;
  * @author Philip Aston
  * @version $Revision$
  */
-public abstract class Message implements Serializable
-{
-    private static final long serialVersionUID = 6389542594440493966L;
+public abstract class Message implements Serializable {
+  private static final long serialVersionUID = 6389542594440493966L;
 
-    /**  The ID of the Grinder process which owns this {@link Sender}. **/
-    private transient String m_senderGrinderID = null;
+  /**  The ID of the Grinder process which owns this {@link Sender}. **/
+  private transient String m_senderGrinderID = null;
 
-    /** Unique ID of {@link Sender}. **/
-    private transient String m_senderUniqueID = null;
+  /** Unique ID of {@link Sender}. **/
+  private transient String m_senderUniqueID = null;
 
-    /** Sequence ID of message. **/
-    private transient long m_sequenceNumber = -1;
-
-    /**
-     * Called by {@link Sender} before dispatching the Message.
-     **/
-    final void setSenderInformation(String grinderID, String senderUniqueID,
-				    long sequenceNumber) 
-    {
-	m_senderGrinderID = grinderID;
-	m_senderUniqueID = senderUniqueID;
-	m_sequenceNumber = sequenceNumber;
-    }
-
-    /**
-     * Returns a string describing the Grinder process associated of the {@link Sender}.
-     *
-     * @throws RuntimeException If {@link #setSenderInformation} has not been called.
-     **/
-    final String getSenderGrinderID()
-    {
-	assertInitialised();
-	return m_senderGrinderID;
-    }
-
-    /**
-     * Returns a unique ID for the {@link Sender}.
-     *
-     * @throws RuntimeException If {@link #setSenderInformation} has not been called.
-     **/
-    public final String getSenderUniqueID()
-    {
-	assertInitialised();
-	return m_senderUniqueID;
-    }
-
-    /**
-     * Get the message sequence ID.
-     *
-     * @throws RuntimeException If {@link #setSenderInformation} has not been called.
-     **/
-    final long getSequenceNumber()
-    {
-	assertInitialised();
-	return m_sequenceNumber;
-    }
+  /** Sequence ID of message. **/
+  private transient long m_sequenceNumber = -1;
 
   /**
-     * @throws RuntimeException If {@link #setSenderInformation} has not been called.
-     **/
-    private final void assertInitialised()
-    {
-	if (m_senderUniqueID == null) {
-	    throw new RuntimeException("Message not initialised");
-	}
+   * Called by {@link Sender} before dispatching the Message.
+   **/
+  final void setSenderInformation(String grinderID, String senderUniqueID,
+				  long sequenceNumber) {
+    m_senderGrinderID = grinderID;
+    m_senderUniqueID = senderUniqueID;
+    m_sequenceNumber = sequenceNumber;
+  }
+
+  /**
+   * Returns a string describing the Grinder process associated of the
+   * {@link Sender}.
+   *
+   * @throws RuntimeException If {@link #setSenderInformation} has not
+   * been called.
+   **/
+  final String getSenderGrinderID() {
+    assertInitialised();
+    return m_senderGrinderID;
+  }
+
+  /**
+   * Returns a unique ID for the {@link Sender}.
+   *
+   * @return The unique ID.
+   * @exception RuntimeException If {@link #setSenderInformation} has not
+   * been called.
+   */
+  public final String getSenderUniqueID() {
+    assertInitialised();
+    return m_senderUniqueID;
+  }
+
+  /**
+   * Get the message sequence ID.
+   *
+   * @throws RuntimeException If {@link #setSenderInformation} has not
+   * been called.
+   **/
+  final long getSequenceNumber() {
+    assertInitialised();
+    return m_sequenceNumber;
+  }
+
+  /**
+   * @throws RuntimeException If {@link #setSenderInformation} has not
+   * been called.
+   **/
+  private final void assertInitialised() {
+    if (m_senderUniqueID == null) {
+      throw new RuntimeException("Message not initialised");
+    }
+  }
+
+  /**
+   * Customise serialisation for efficiency.
+   *
+   * @param out The stream to write our data to.
+   **/
+  private void writeObject(ObjectOutputStream out) throws IOException {
+    out.defaultWriteObject();
+    out.writeUTF(m_senderGrinderID);
+    out.writeUTF(m_senderUniqueID);
+    out.writeLong(m_sequenceNumber);
+  }
+
+  /**
+   * Customise serialisation for efficiency.
+   *
+   * @param in The stream to read our data from.
+   **/
+  private void readObject(ObjectInputStream in)
+    throws IOException, ClassNotFoundException {
+    in.defaultReadObject();
+    m_senderGrinderID = in.readUTF();
+    m_senderUniqueID = in.readUTF();
+    m_sequenceNumber = in.readLong();
+  }
+
+  /**
+   * Compare two Messages. Sent messages have enhanced equality
+   * semantics - they are equivalent if they have the same sender ID
+   * and sequence number.
+   *
+   * @param o The other object.
+   * @return <code>true</code> => Messages are equal.
+   */
+  public final boolean equals(Object o) {
+    if (o == this) {
+      return true;
     }
 
-    /**
-     * Customise serialisation for efficiency.
-     *
-     * @param out The stream to write our data to.
-     **/
-    private void writeObject(ObjectOutputStream out)
-	throws IOException
-    {
-	out.defaultWriteObject();
-	out.writeUTF(m_senderGrinderID);
-	out.writeUTF(m_senderUniqueID);
-	out.writeLong(m_sequenceNumber);
+    if (!(o instanceof Message)) {
+      return false;
     }
-
-    /**
-     * Customise serialisation for efficiency.
-     *
-     * @param in The stream to read our data from.
-     **/
-    private void readObject(ObjectInputStream in)
-	throws IOException, ClassNotFoundException
-    {
-	in.defaultReadObject();
-	m_senderGrinderID = in.readUTF();
-	m_senderUniqueID = in.readUTF();
-	m_sequenceNumber = in.readLong();
-    }
-
-    /**
-     * Compare two Messages. Sent messages have enhanced equality
-     * semantics - they are equivalent if they have the same sender ID
-     * and sequence number.
-     *
-     * @param o The other object.
-     **/
-    public final boolean equals(Object o)
-    {
-	if (o == this) {
-	    return true;
-	}
-
-	if (!(o instanceof Message)) {
-	    return false;
-	}
 	
-	final Message message = (Message)o;
+    final Message message = (Message)o;
 
-	return
-	    m_sequenceNumber != -1 && 
-	    m_sequenceNumber == message.m_sequenceNumber &&
-	    m_senderUniqueID.equals(message.m_senderUniqueID);
-    }
+    return
+      m_sequenceNumber != -1 && 
+      m_sequenceNumber == message.m_sequenceNumber &&
+      m_senderUniqueID.equals(message.m_senderUniqueID);
+  }
 }

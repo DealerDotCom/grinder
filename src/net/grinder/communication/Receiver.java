@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,25 +28,24 @@ package net.grinder.communication;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface Receiver
-{
-    /**
-     * Block until a message is available, or another thread has
-     * called {@link #shutdown}. Typically called from a message
-     * dispatch loop.
-     *
-     * <p>Multiple threads can call this method, but only one thread
-     * will receive a given message.</p>
-     *
-     * @return The message or <code>null</code> if shut down.
-     * @throws CommunicationException If an IO exception occurs
-     * reading the mesage.
-     **/
-    Message waitForMessage() throws CommunicationException;
+public interface Receiver {
+  /**
+   * Block until a message is available, or another thread has
+   * called {@link #shutdown}. Typically called from a message
+   * dispatch loop.
+   *
+   * <p>Multiple threads can call this method, but only one thread
+   * will receive a given message.</p>
+   *
+   * @return The message or <code>null</code> if shut down.
+   * @throws CommunicationException If an IO exception occurs
+   * reading the mesage.
+   **/
+  Message waitForMessage() throws CommunicationException;
 
-    /**
-     * Shut down this reciever.
-     * @throws CommunicationException If an IO exception occurs.
-     **/
-    void shutdown() throws CommunicationException;
+  /**
+   * Shut down this reciever.
+   * @throws CommunicationException If an IO exception occurs.
+   **/
+  void shutdown() throws CommunicationException;
 }

@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,16 +21,10 @@
 
 package net.grinder.communication;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -40,186 +33,178 @@ import java.util.List;
  * @author Philip Aston
  * @version $Revision$
  **/
-public final class UnicastReceiver extends AbstractReceiver
-{
-    private int m_listenThreadIndex = 0;
-    private final ServerSocket m_serverSocket;
-    private final SocketSet m_connections = new SocketSet();
-    private final ThreadGroup m_threadGroup =
-	new ThreadGroup("UnicastReceiver");
+public final class UnicastReceiver extends AbstractReceiver {
 
-    /**
-     * Constructor.
-     *
-     * @param addressString The TCP address to listen on.
-     * @param port The TCP port to listen to.
-     *
-     * @ throws CommunicationException If socket could not be bound to.
-     **/
-    public UnicastReceiver(String addressString, int port)
-	throws CommunicationException
-    {
-	super(false);		// TCP guarantees message sequence so
+  private int m_listenThreadIndex = 0;
+  private final ServerSocket m_serverSocket;
+  private final SocketSet m_connections = new SocketSet();
+  private final ThreadGroup m_threadGroup =
+    new ThreadGroup("UnicastReceiver");
+
+  /**
+   * Constructor.
+   *
+   * @param addressString The TCP address to listen on.
+   * @param port The TCP port to listen to.
+   *
+   * @throws CommunicationException If socket could not be bound to.
+   **/
+  public UnicastReceiver(String addressString, int port)
+    throws CommunicationException {
+
+    super(false);		// TCP guarantees message sequence so
 				// we don't have to.
 
-	if (addressString.length() > 0) {
-	    try {
-		m_serverSocket =
-		    new ServerSocket(port, 50,
-				     InetAddress.getByName(addressString));
-	    }
-	    catch (IOException e) {
-		throw new CommunicationException(
-		    "Could not bind to TCP address '" + addressString + ":" + 
-		    port + "'",
-		    e);
-	    }
-	}
-	else {
-	    try {
-		m_serverSocket = new ServerSocket(port, 50);
-	    }
-	    catch (IOException e) {
-		throw new CommunicationException(
-		    "Could not bind to port '" + port +
-		    "' on local interfaces",
-		    e);
-	    }
-	}
-
-	new AcceptorThread().start();
-
-	for (int i=0; i<5; ++i) {
-	    new ListenThread().start();
-	}
+    if (addressString.length() > 0) {
+      try {
+	m_serverSocket =
+	  new ServerSocket(port, 50,
+			   InetAddress.getByName(addressString));
+      }
+      catch (IOException e) {
+	throw new CommunicationException(
+	  "Could not bind to TCP address '" + addressString + ":" + 
+	  port + "'",
+	  e);
+      }
+    }
+    else {
+      try {
+	m_serverSocket = new ServerSocket(port, 50);
+      }
+      catch (IOException e) {
+	throw new CommunicationException(
+	  "Could not bind to port '" + port +
+	  "' on local interfaces",
+	  e);
+      }
     }
 
-    /**
-     * Shut down this reciever.
-     * @throws CommunicationException If an IO exception occurs.
-     **/
-    public final void shutdown() throws CommunicationException
-    {
-	super.shutdown();
+    new AcceptorThread().start();
 
-	try {
-	    m_serverSocket.close();
-	}
-	catch (IOException e) {
-	    throw new CommunicationException("Error closing socket", e);
-	}
+    for (int i=0; i<5; ++i) {
+      new ListenThread().start();
+    }
+  }
 
-	m_connections.close();
+  /**
+   * Shut down this reciever.
+   * @throws CommunicationException If an IO exception occurs.
+   **/
+  public final void shutdown() throws CommunicationException {
 
-	m_threadGroup.interrupt();
+    super.shutdown();
+
+    try {
+      m_serverSocket.close();
+    }
+    catch (IOException e) {
+      throw new CommunicationException("Error closing socket", e);
     }
 
-    private final class AcceptorThread extends Thread
-    {
-	public AcceptorThread()
-	{
-	    super(m_threadGroup, "Acceptor thread");
-	}
+    m_connections.close();
 
-	public void run()
-	{
-	    try {
-		while (true) {
-		    final Socket localSocket = m_serverSocket.accept();
+    m_threadGroup.interrupt();
+  }
+
+  private final class AcceptorThread extends Thread {
+
+    public AcceptorThread() {
+      super(m_threadGroup, "Acceptor thread");
+    }
+
+    public void run() {
+      try {
+	while (true) {
+	  final Socket localSocket = m_serverSocket.accept();
 		    
-		    try {
-			m_connections.add(localSocket);
-		    }
-		    catch (Exception e) {
-			// Propagate exceptions to threads calling
-			// waitForMessage.
-			getMessageQueue().queue(e);
-		    }
-		}
-	    }
-	    catch (IOException e) {
-		// Treat accept socket errors as fatal - we've
-		// probably been shutdown.
-	    }
-	    catch (MessageQueue.ShutdownException e) {
-		// We've been shutdown, exit this thread.
-	    }
-	    finally {
-		// Best effort to ensure our server socket is closed.
-		try {
-		    shutdown();
-		}
-		catch (CommunicationException ce) {
-		}
-	    }
+	  try {
+	    m_connections.add(localSocket);
+	  }
+	  catch (Exception e) {
+	    // Propagate exceptions to threads calling
+	    // waitForMessage.
+	    getMessageQueue().queue(e);
+	  }
 	}
+      }
+      catch (IOException e) {
+	// Treat accept socket errors as fatal - we've
+	// probably been shutdown.
+      }
+      catch (MessageQueue.ShutdownException e) {
+	// We've been shutdown, exit this thread.
+      }
+      finally {
+	// Best effort to ensure our server socket is closed.
+	try {
+	  shutdown();
+	}
+	catch (CommunicationException ce) {
+	  // Ignore.
+	}
+      }
+    }
+  }
+
+  private final class ListenThread extends Thread {
+
+    public ListenThread() {
+      super(m_threadGroup, "Unicast listen thread " + m_listenThreadIndex++);
+      setDaemon(true);
     }
 
-    private final class ListenThread extends Thread
-    {
-	public ListenThread()
-	{
-	    super(m_threadGroup,
-		  "Unicast listen thread " + m_listenThreadIndex++);
-	    setDaemon(true);
-	}
+    public void run() {
+      final MessageQueue messageQueue = getMessageQueue();
 
-	public void run()
-	{
-	    final MessageQueue messageQueue = getMessageQueue();
+      try {
+	// Did we do some work on the last pass?
+	boolean idle = false;
 
-	    try {
-		// Did we do some work on the last pass?
-		boolean idle = false;
+	while (true) {
+	  final SocketSet.Handle socketHandle =
+	    m_connections.reserveNextHandle();
 
-		while (true) {
-		    final SocketSet.Handle socketHandle =
-			m_connections.reserveNextHandle();
-
-		    try {
-			if (socketHandle.isSentinel()) {
-			    if (idle) {
-				Thread.sleep(500);
-			    }
+	  try {
+	    if (socketHandle.isSentinel()) {
+	      if (idle) {
+		Thread.sleep(500);
+	      }
 			    
-			    idle = true;
-			}
-			else {
-			    final Message m = socketHandle.pollForMessage();
+	      idle = true;
+	    }
+	    else {
+	      final Message m = socketHandle.pollForMessage();
 
-			    if (m instanceof CloseCommunicationMessage) {
-				socketHandle.close();
-				idle = false;
-			    }
-			    else if (m != null) {
-				messageQueue.queue(m);
-				idle = false;
-			    }
-			}
-		    }
-		    catch (IOException e) {
-			socketHandle.close();
-			messageQueue.queue(e);
-		    }
-		    catch (ClassNotFoundException e) {
-			socketHandle.close();
-			messageQueue.queue(e);
-		    }
-		    finally {
-			socketHandle.free();
-		    }
-		}
+	      if (m instanceof CloseCommunicationMessage) {
+		socketHandle.close();
+		idle = false;
+	      }
+	      else if (m != null) {
+		messageQueue.queue(m);
+		idle = false;
+	      }
 	    }
-	    catch (MessageQueue.ShutdownException e) {
-		// We've been shutdown, exit this thread.
-	    }
-	    catch (InterruptedException e) {
-	    }
+	  }
+	  catch (IOException e) {
+	    socketHandle.close();
+	    messageQueue.queue(e);
+	  }
+	  catch (ClassNotFoundException e) {
+	    socketHandle.close();
+	    messageQueue.queue(e);
+	  }
+	  finally {
+	    socketHandle.free();
+	  }
 	}
+      }
+      catch (MessageQueue.ShutdownException e) {
+	// We've been shutdown, exit this thread.
+      }
+      catch (InterruptedException e) {
+	// Ignore.
+      }
     }
-
-    private static void log(String s)
-    {
-	System.err.println(Thread.currentThread().getName() + ": " + s);
-    }
+  }
 }

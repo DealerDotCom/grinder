@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,9 +25,6 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,212 +39,186 @@ import java.util.List;
  * @author Philip Aston
  * @version $Revision$
  **/
-final class SocketSet
-{
-    private static final int PURGE_FREQUENCY = 1000;
+final class SocketSet {
+  private static final int PURGE_FREQUENCY = 1000;
 
-    private final Object m_mutex = new Object();
-    private List m_handles = new ArrayList();
-    private int m_lastHandle = 0;
-    private int m_nextPurge = 0;
+  private final Object m_mutex = new Object();
+  private List m_handles = new ArrayList();
+  private int m_lastHandle = 0;
+  private int m_nextPurge = 0;
 
-    public SocketSet()
-    {
-	m_handles.add(new SentinelHandle());
+  public SocketSet() {
+    m_handles.add(new SentinelHandle());
+  }
+
+  public final void add(Socket socket) throws IOException {
+    final Handle handle = new HandleImplementation(socket);
+
+    synchronized (m_mutex) {
+      m_handles.add(handle);
+      m_mutex.notifyAll();
+    }
+  }
+
+  public final Handle reserveNextHandle() throws InterruptedException {
+    synchronized (m_mutex) {
+      purgeZombieHandles();
+
+      int checked = 0;
+
+      while (true) {
+	if (++m_lastHandle >= m_handles.size()) {
+	  m_lastHandle = 0;
+	}
+
+	if (checked++ >= m_handles.size()) {
+	  // All current Handles are busy => too many
+	  // threads. Put this one to sleep until we have
+	  // more work.
+	  m_mutex.wait();
+
+	  checked = 0;
+	}
+	else {
+	  final Handle handle = (Handle)m_handles.get(m_lastHandle);
+
+	  if (handle.reserve()) {
+	    return handle;
+	  }
+	}
+      }
+    }
+  }
+
+  public final void close() {
+    synchronized (m_mutex) {
+      final Iterator iterator = m_handles.iterator();
+
+      while (iterator.hasNext()) {
+	final Handle handle = (Handle)iterator.next();
+	handle.close();
+      }
+    }
+  }
+
+  private final void purgeZombieHandles() {
+    synchronized (m_mutex) {
+      if (++m_nextPurge > PURGE_FREQUENCY) {
+	m_nextPurge = 0;
+
+	final List newHandles = new ArrayList(m_handles.size());
+
+	final Iterator iterator = m_handles.iterator();
+
+	while (iterator.hasNext()) {
+	  final Handle handle = (Handle)iterator.next();
+
+	  if (!handle.isClosed()) {
+	    newHandles.add(handle);
+	  }
+	}
+
+	m_handles = newHandles;
+	m_lastHandle = 0;
+      }
+    }
+  }
+
+  public interface Handle {
+    boolean isSentinel();
+
+    Message pollForMessage() throws ClassNotFoundException, IOException;
+
+    boolean reserve();
+    void free();	
+
+    void close();
+    boolean isClosed();
+  }
+
+  private static final class SentinelHandle implements Handle {
+    public final boolean isSentinel() {
+      return true;
     }
 
-    public final void add(Socket socket) throws IOException
-    {
-	final Handle handle = new HandleImplementation(socket);
-
-	synchronized (m_mutex) {
-	    m_handles.add(handle);
-	    m_mutex.notifyAll();
-	}
+    public final Message pollForMessage() {
+      throw new RuntimeException("Assertion failure");
     }
 
-    public final Handle reserveNextHandle() throws InterruptedException
-    {
-	synchronized (m_mutex) {
-	    purgeZombieHandles();
-
-	    int checked = 0;
-
-	    while (true) {
-		if (++m_lastHandle >= m_handles.size()) {
-		    m_lastHandle = 0;
-		}
-
-		if (checked++ >= m_handles.size())
-		{
-		    // All current Handles are busy => too many
-		    // threads. Put this one to sleep until we have
-		    // more work.
-		    m_mutex.wait();
-
-		    checked = 0;
-		}
-		else {
-		    final Handle handle = (Handle)m_handles.get(m_lastHandle);
-
-		    if (handle.reserve()) {
-			return handle;
-		    }
-		}
-	    }
-	}
+    public final boolean reserve() {
+      return true;
     }
 
-    public final void close()
-    {
-	synchronized (m_mutex) {
-	    final Iterator iterator = m_handles.iterator();
-
-	    while (iterator.hasNext()) {
-		final Handle handle = (Handle)iterator.next();
-		handle.close();
-	    }
-	}
+    public final void free() {
     }
 
-    private final void purgeZombieHandles()
-    {
-	synchronized (m_mutex) {
-	    if (++m_nextPurge > PURGE_FREQUENCY) {
-		m_nextPurge = 0;
-
-		final List newHandles = new ArrayList(m_handles.size());
-
-		final Iterator iterator = m_handles.iterator();
-
-		while (iterator.hasNext()) {
-		    final Handle handle = (Handle)iterator.next();
-
-		    if (!handle.isClosed()) {
-			newHandles.add(handle);
-		    }
-		}
-
-		m_handles = newHandles;
-		m_lastHandle = 0;
-	    }
-	}
+    public final void close() {
     }
 
-    public interface Handle
-    {
-	boolean isSentinel();
+    public final boolean isClosed() {
+      return false;
+    }
+  }
 
-	Message pollForMessage() throws ClassNotFoundException, IOException;
+  private static final class HandleImplementation implements Handle {
+    private final Socket m_socket;
+    private final InputStream m_inputStream;
+    private ObjectInputStream m_objectStream;
+    private boolean m_busy = false;
+    private boolean m_closed = false;
 
-	boolean reserve();
-	void free();	
-
-	void close();
-	boolean isClosed();
+    HandleImplementation(Socket socket) throws IOException {
+      m_socket = socket;
+      m_inputStream = new BufferedInputStream(m_socket.getInputStream());
     }
 
-    private final static class SentinelHandle implements Handle
-    {
-	public final boolean isSentinel()
-	{
-	    return true;
-	}
-
-	public final Message pollForMessage()
-	{
-	    throw new RuntimeException("Assertion failure");
-	}
-
-	public final boolean reserve()
-	{
-	    return true;
-	}
-
-	public final void free()
-	{
-	}
-
-	public final void close()
-	{
-	}
-
-	public final boolean isClosed()
-	{
-	    return false;
-	}
+    public final boolean isSentinel() {
+      return false;
     }
 
-    private final static class HandleImplementation implements Handle
-    {
-	private final Socket m_socket;
-	private final InputStream m_inputStream;
-	private ObjectInputStream m_objectStream;
-	private boolean m_busy = false;
-	private boolean m_closed = false;
+    public final Message pollForMessage()
+      throws ClassNotFoundException, IOException {
 
-	HandleImplementation(Socket socket) throws IOException
-	{
-	    m_socket = socket;
-	    m_inputStream = new BufferedInputStream(m_socket.getInputStream());
-	}
+      // Don't synchronise, assume caller has correctly reserved
+      // this Handle.
+      if (m_inputStream.available() == 0) {
+	return null;
+      }
 
-	public final boolean isSentinel()
-	{
-	    return false;
-	}
+      m_objectStream = new ObjectInputStream(m_inputStream);
 
-	public final Message pollForMessage()
-	    throws ClassNotFoundException, IOException
-	{
-	    // Don't synchronise, assume caller has correctly reserved
-	    // this Handle.
-	    if (m_inputStream.available() == 0) {
-		return null;
-	    }
+      return (Message)m_objectStream.readObject();
+    }
 
-	    m_objectStream = new ObjectInputStream(m_inputStream);
-
-	    return (Message)m_objectStream.readObject();
-	}
-
-	public final synchronized boolean reserve()
-	{
-	    if (m_busy || m_closed) {
-		return false;
-	    }
+    public final synchronized boolean reserve() {
+      if (m_busy || m_closed) {
+	return false;
+      }
 	    
-	    m_busy = true;
+      m_busy = true;
 
-	    return true;
-	}
-
-	public final synchronized void free()
-	{
-	    m_busy = false;
-	}
-
-	public final synchronized void close()
-	{
-	    if (!m_closed) {
-		m_closed = true;
-
-		try {
-		    m_socket.close();
-		}
-		catch (IOException e){
-		}
-	    }
-	}
-
-	public final synchronized boolean isClosed()
-	{
-	    return m_closed;
-	}
+      return true;
     }
 
-    private static void log(String s)
-    {
-	System.err.println(Thread.currentThread().getName() + ": " + s);
+    public final synchronized void free() {
+      m_busy = false;
     }
+
+    public final synchronized void close() {
+      if (!m_closed) {
+	m_closed = true;
+
+	try {
+	  m_socket.close();
+	}
+	catch (IOException e) {
+	  // Ignore.
+	}
+      }
+    }
+
+    public final synchronized boolean isClosed() {
+      return m_closed;
+    }
+  }
 }

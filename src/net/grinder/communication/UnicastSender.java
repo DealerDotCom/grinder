@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,7 +27,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.LinkedList;
 
 
 /**
@@ -37,95 +35,104 @@ import java.util.LinkedList;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class UnicastSender extends AbstractSender
-{
-    private OutputStream m_outputStream;
-    private final Socket m_socket;
+public class UnicastSender extends AbstractSender {
 
-    /**
-     * Constructor.
-     *
-     * @param grinderID A string describing our Grinder process.
-     * @param addressString TCP address to send to.
-     * @param port TCP port to send to.
-     * @throws CommunicationException If failed to bind to socket or
-     * failed to generate a unique process identifer.
-     **/    
-    public UnicastSender(String grinderID, String addressString, int port)
-	throws CommunicationException
-    {
-	super(grinderID);
+  private OutputStream m_outputStream;
+  private final Socket m_socket;
 
-	final String localHost;
-	final int localPort;
+  /**
+   * Constructor.
+   *
+   * @param grinderID A string describing our Grinder process.
+   * @param addressString TCP address to send to.
+   * @param port TCP port to send to.
+   * @throws CommunicationException If failed to bind to socket or
+   * failed to generate a unique process identifer.
+   **/    
+  public UnicastSender(String grinderID, String addressString, int port)
+    throws CommunicationException {
 
-	try {
-	    // Our socket - bind to any local port.
-	    m_socket = new Socket(addressString, port);
+    super(grinderID);
 
-	    m_outputStream =
-		new BufferedOutputStream(m_socket.getOutputStream());
+    final String localHost;
+    final int localPort;
 
-	    localHost = InetAddress.getLocalHost().getHostName();
-	    localPort = m_socket.getLocalPort();
-	}
-	catch (IOException e) {
-	    throw new CommunicationException(
-		"Could not bind to TCP address '" + addressString + ":" +
-		port + "'",
-		e);
-	}
+    try {
+      // Our socket - bind to any local port.
+      m_socket = new Socket(addressString, port);
 
-	// Calculate a globally unique string for this sender. We
-	// avoid calling addressString.toString() since this involves
-	// a DNS lookup.
-	setSenderID(
-	    addressString + ":" + port + ":" + localHost + ":" +
-	    localPort + ":" + System.currentTimeMillis());
+      m_outputStream =
+	new BufferedOutputStream(m_socket.getOutputStream());
+
+      localHost = InetAddress.getLocalHost().getHostName();
+      localPort = m_socket.getLocalPort();
+    }
+    catch (IOException e) {
+      throw new CommunicationException(
+	"Could not bind to TCP address '" + addressString + ":" +
+	port + "'",
+	e);
     }
 
-    protected final void writeMessage(Message message) throws IOException
-    {
-	// I tried the model of using a single ObjectOutputStream for
-	// the lifetime of the socket, but the corresponding
-	// ObjectInputStream would get occasional EOF's during
-	// readObject. Seems like voodoo to me, but creating a new
-	// ObjectOutputStream for every message fixes this.
+    // Calculate a globally unique string for this sender. We
+    // avoid calling addressString.toString() since this involves
+    // a DNS lookup.
+    setSenderID(
+      addressString + ":" + port + ":" + localHost + ":" +
+      localPort + ":" + System.currentTimeMillis());
+  }
 
-	final ObjectOutputStream objectStream =
-	    new ObjectOutputStream(m_outputStream);
+  /**
+   * Send a message.
+   *
+   * @param message The message.
+   * @exception IOException If an error occurs.
+   */
+  protected final void writeMessage(Message message) throws IOException {
+
+    // I tried the model of using a single ObjectOutputStream for
+    // the lifetime of the socket, but the corresponding
+    // ObjectInputStream would get occasional EOF's during
+    // readObject. Seems like voodoo to me, but creating a new
+    // ObjectOutputStream for every message fixes this.
+
+    final ObjectOutputStream objectStream =
+      new ObjectOutputStream(m_outputStream);
 	
-	objectStream.writeObject(message);
-	objectStream.flush();
+    objectStream.writeObject(message);
+    objectStream.flush();
+  }
+
+  /**
+   * Cleanly shutdown the <code>Sender</code>. Ignore most errors.
+   * Connection has probably been reset by peer.
+   *
+   * @exception CommunicationException If an error occurs.
+   **/
+  public void shutdown() throws CommunicationException {
+
+    try {
+      send(new CloseCommunicationMessage());
+      flush();
+    }
+    catch (CommunicationException e) {
+      // Ignore.
     }
 
-    /**
-     * Cleanly shutdown the <code>Sender</code>. Ignore most errors.
-     * Connection has probably been reset by peer.
-     *
-     * @exception CommunicationException If an error occurs.
-     **/
-    public void shutdown() throws CommunicationException
-    {
-	try {
-	    send(new CloseCommunicationMessage());
-	    flush();
-	}
-	catch (CommunicationException e) {
-	}
+    super.shutdown();
 
-	super.shutdown();
-
-	try {
-	    m_socket.close();
-	}
-	catch (IOException e) {
-	}
-
-	try {
-	    m_socket.close();
-	}
-	catch (IOException e) {
-	}
+    try {
+      m_socket.close();
     }
+    catch (IOException e) {
+      // Ignore.
+    }
+
+    try {
+      m_socket.close();
+    }
+    catch (IOException e) {
+      // Ignore.
+    }
+  }
 }
