@@ -22,16 +22,22 @@
 package net.grinder.engine.common;
 
 import net.grinder.common.Logger;
-import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
-import net.grinder.communication.Receiver;
 import net.grinder.communication.ResetGrinderMessage;
+import net.grinder.communication.Sender;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
 
 
 /**
- * Active object which listens for console messages.
+ * Process console messages and allows them to be asynchronously
+ * queried.
+ *
+ * <p><code>ConsoleListener</code> is passive; the message is
+ * "received" through a {@link Sender} implementation obtained from
+ * {@link #getSender}. Use this class in conjunction with an
+ * appropriate {@link net.grinder.communication.Receiver} and a {@link
+ * net.grinder.communication.MessagePump}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -71,25 +77,19 @@ public final class ConsoleListener {
 
   private final Object m_notifyOnMessage;
   private final Logger m_logger;
-  private final ReceiverThread m_receiverThread;
   private int m_messagesReceived = 0;
 
   /**
    * Constructor.
    *
-   * @param receiver Receiver connected to the console.
    * @param notifyOnMessage An <code>Object</code> to notify when a
    * message arrives.
    * @param logger A {@link net.grinder.common.Logger} to log received
    * event messages to.
    */
-  public ConsoleListener(Receiver receiver, Object notifyOnMessage,
-                         Logger logger) {
+  public ConsoleListener(Object notifyOnMessage, Logger logger) {
     m_notifyOnMessage = notifyOnMessage;
     m_logger = logger;
-
-    m_receiverThread = new ReceiverThread(receiver);
-    m_receiverThread.start();
   }
 
   /**
@@ -113,73 +113,47 @@ public final class ConsoleListener {
     }
   }
 
-  /**
-   * Thread that uses a {@link net.grinder.communication.Receiver}
-   * to receive console messages.
-   */
-  private final class ReceiverThread extends Thread {
-    private final Receiver m_receiver;
-
-    /**
-     * Creates a new <code>ReceiverThread</code> instance.
-     *
-     * @param receiver The receiver.
-     */
-    public ReceiverThread(Receiver receiver) {
-      super("Console Listener");
-      m_receiver = receiver;
-      setDaemon(true);
+  private void setReceived(int message) {
+    synchronized (ConsoleListener.this) {
+      m_messagesReceived |= message;
     }
 
-    /**
-     * Event loop that receives messages from the console.
-     */
-    public void run() {
-      while (true) {
-        final Message message;
+    synchronized (m_notifyOnMessage) {
+      m_notifyOnMessage.notifyAll();
+    }
+  }
 
-        try {
-          message = m_receiver.waitForMessage();
-        }
-        catch (CommunicationException e) {
-          m_logger.error("error receiving console signal: " + e,
-                         Logger.LOG | Logger.TERMINAL);
-          continue;
+  /**
+   * Returns a {@link Sender} that can be used to pass {@link
+   * Message}s to the <code>ConsoleListener</code>.
+   *
+   * @return The <code>Sender</code>.
+   */
+  public Sender getSender() {
+    return new Sender() {
+        public void send(Message message) {
+          if (message instanceof StartGrinderMessage) {
+            m_logger.output("received a start message");
+            setReceived(START);
+          }
+          else if (message instanceof StopGrinderMessage) {
+            m_logger.output("received a stop message");
+            setReceived(STOP);
+          }
+          else if (message instanceof ResetGrinderMessage) {
+            m_logger.output("received a reset message");
+            setReceived(RESET);
+          }
+          else {
+            m_logger.error("received an unknown message");
+          }
         }
 
-        if (message == null) {
+        public void shutdown() {
           m_logger.output("communication shutdown",
                           Logger.LOG | Logger.TERMINAL);
           setReceived(SHUTDOWN);
-          break;
         }
-        else if (message instanceof StartGrinderMessage) {
-          m_logger.output("received a start message");
-          setReceived(START);
-        }
-        else if (message instanceof StopGrinderMessage) {
-          m_logger.output("received a stop message");
-          setReceived(STOP);
-        }
-        else if (message instanceof ResetGrinderMessage) {
-          m_logger.output("received a reset message");
-          setReceived(RESET);
-        }
-        else {
-          m_logger.error("received an unknown message");
-        }
-      }
-    }
-
-    private void setReceived(int message) {
-      synchronized (ConsoleListener.this) {
-        m_messagesReceived |= message;
-      }
-
-      synchronized (m_notifyOnMessage) {
-        m_notifyOnMessage.notifyAll();
-      }
-    }
+      };
   }
 }
-
