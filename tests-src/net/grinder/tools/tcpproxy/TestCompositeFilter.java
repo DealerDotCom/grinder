@@ -165,29 +165,4 @@ public class TestCompositeFilter extends TestCase {
     m_filter1StubFactory.assertNoMoreCalls();
     m_filter2StubFactory.assertNoMoreCalls();
   }
-
-  public class MyFilterStubFactory extends RandomStubFactory {
-    private boolean m_resultSet;
-    private byte[] m_result;
-
-    public MyFilterStubFactory() {
-      super(TCPProxyFilter.class);
-    }
-
-    public TCPProxyFilter getFilter() {
-      return (TCPProxyFilter)getStub();
-    }
-
-    public byte[] override_handle(Object proxy,
-                                  ConnectionDetails connectionDetails,
-                                  byte[] originalBuffer,
-                                  int bytesRead) {
-      return m_resultSet ? m_result : originalBuffer;
-    }
-
-    public void setResult(byte[] result) {
-      m_resultSet = true;
-      m_result = result;
-    }
-  }
 }
