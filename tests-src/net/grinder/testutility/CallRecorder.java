@@ -82,27 +82,6 @@ public class CallRecorder extends Assert {
   }
 
   /**
-   *  Check the given method was called and that it returned the given
-   *  result.
-   */
-  public final CallData assertSuccess(String methodName, Object[] parameters,
-                                      Object result) {
-
-    final CallData callData = assertCalledInternal(methodName, parameters);
-    assertEquals(result, callData.getResult());
-    return callData;
-  }
-
-  public final CallData assertSuccess(String methodName,
-                                      Class[] parameterTypes,
-                                      Object result) {
-
-    final CallData callData = assertCalledInternal(methodName, parameterTypes);
-    assertEquals(result, callData.getResult());
-    return callData;
-  }
-
-  /**
    *  Check the given method was called.
    */
   public final CallData assertSuccess(String methodName, Object[] parameters) {
