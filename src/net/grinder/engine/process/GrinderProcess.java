@@ -97,7 +97,6 @@ public class GrinderProcess
 
     private final ProcessContextImplementation m_context;
     private final int m_numberOfThreads;
-    private final boolean m_appendToLog;
     private final boolean m_recordTime;
 
     private final ConsoleListener m_consoleListener;
@@ -122,7 +121,6 @@ public class GrinderProcess
 	m_context = new ProcessContextImplementation(hostID, processID);
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
-	m_appendToLog = properties.getBoolean("grinder.appendLog", false);
 	m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
 	// Parse console configuration.
@@ -229,12 +227,14 @@ public class GrinderProcess
 	final PrintWriter dataPrintWriter;
 
 	try {
+	    final boolean appendToLog = m_context.getAppendToLog();
+
 	    dataPrintWriter =
 		new PrintWriter(
 		    new BufferedWriter(
-			new FileWriter(dataFilename, m_appendToLog)));
+			new FileWriter(dataFilename, appendToLog)));
 
-	    if (!m_appendToLog) {
+	    if (!appendToLog) {
 		if (m_recordTime) {
 		    dataPrintWriter.println("Thread, Cycle, Method, Time");
 		}

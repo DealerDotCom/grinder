@@ -46,13 +46,18 @@ public class ProcessContextImplementation implements PluginProcessContext
     private final boolean m_logProcessStreams;
     private final PrintWriter m_outputWriter;
     private final PrintWriter m_errorWriter;
+    private final boolean m_appendToLog;
 
     private final FilenameFactory m_filenameFactory;
 
     {
+	final GrinderProperties properties =
+	    GrinderProperties.getProperties();	
+
 	m_logProcessStreams =
-	    GrinderProperties.getProperties().getBoolean(
-		"grinder.logProcessStreams", true);
+	    properties.getBoolean("grinder.logProcessStreams", true);
+
+	m_appendToLog = properties.getBoolean("grinder.appendLog", false);
     }
     
     protected ProcessContextImplementation(PluginProcessContext processContext,
@@ -83,16 +88,13 @@ public class ProcessContextImplementation implements PluginProcessContext
 	m_filenameFactory = new FilenameFactory(m_hostIDString,
 						m_processIDString, null);
 
-
-	final boolean appendLog = properties.getBoolean("grinder.appendLog",
-							false);      
 	try {
 	    m_outputWriter =
 		new PrintWriter(
 		    new BufferedOutputStream(
 			new FileOutputStream(
 			    m_filenameFactory.createFilename("out"),
-			    appendLog)),
+			    m_appendToLog)),
 		    true);
 
 	    m_errorWriter =
@@ -100,7 +102,7 @@ public class ProcessContextImplementation implements PluginProcessContext
 		    new BufferedOutputStream(
 			new FileOutputStream(
 			    m_filenameFactory.createFilename("error"),
-			    appendLog)),
+			    m_appendToLog)),
 		    true);
 	}
 	catch (FileNotFoundException e) {
@@ -126,6 +128,11 @@ public class ProcessContextImplementation implements PluginProcessContext
     public GrinderProperties getPluginParameters()
     {
 	return m_pluginParameters;
+    }
+
+    public boolean getAppendToLog()
+    {
+	return m_appendToLog;
     }
 
     public void logMessage(String message)
