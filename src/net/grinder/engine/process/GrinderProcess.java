@@ -34,14 +34,15 @@ import net.grinder.common.TestImplementation;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
+import net.grinder.communication.MulticastReceiver;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
-import net.grinder.communication.SenderImplementation;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
+import net.grinder.communication.UnicastSender;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginProcessContext;
@@ -140,18 +141,18 @@ public class GrinderProcess
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 
 	// Parse console configuration.
-	final String multicastAddress = 
-	    properties.getProperty("grinder.multicastAddress",
-				   CommunicationDefaults.MULTICAST_ADDRESS);
-
 	if (properties.getBoolean("grinder.receiveConsoleSignals", true)) {
+	    final String grinderAddress = 
+		properties.getProperty("grinder.grinderAddress",
+				       CommunicationDefaults.GRINDER_ADDRESS);
+
 	    final int grinderPort =
-		properties.getInt("grinder.multicastPort",
+		properties.getInt("grinder.grinderPort",
 				  CommunicationDefaults.GRINDER_PORT);
 
-	    if (multicastAddress != null && grinderPort > 0) {
+	    if (grinderAddress != null && grinderPort > 0) {
 		final ConsoleListener listener =
-		    new ConsoleListener(m_context, multicastAddress,
+		    new ConsoleListener(m_context, grinderAddress,
 					grinderPort);
 
 		final Thread t = new Thread(listener, "Console Listener");
@@ -163,7 +164,7 @@ public class GrinderProcess
 	    else {
 		throw new EngineException(
 		    "Unable to receive console signals: " +
-		    "multicast address or port not specified");
+		    "grinder address or port not specified");
 	    }
 	}
 	else {
@@ -176,14 +177,18 @@ public class GrinderProcess
 	}
 
 	if (properties.getBoolean("grinder.reportToConsole", true)) {
+	    final String consoleAddress =
+		properties.getProperty("grinder.console.consoleAddress",
+				       CommunicationDefaults.CONSOLE_ADDRESS);
+
 	    final int consolePort =
-		properties.getInt("grinder.console.multicastPort",
+		properties.getInt("grinder.console.consolePort",
 				  CommunicationDefaults.CONSOLE_PORT);
 
-	    if (multicastAddress != null && consolePort > 0) {
+	    if (consoleAddress != null && consolePort > 0) {
 		m_consoleSender =
-		    new SenderImplementation(m_context.getGrinderID(),
-					     multicastAddress, consolePort);
+		    new UnicastSender(m_context.getGrinderID(),
+				      consoleAddress, consolePort);
 
 		m_context.m_consoleSender = m_consoleSender;
 
@@ -193,7 +198,7 @@ public class GrinderProcess
 	    else {
 		throw new EngineException(
 		    "Unable to report to console: " +
-		    "multicast address or console port not specified");
+		    "console address or console port not specified");
 	    }
 	}
 	else {
@@ -532,7 +537,7 @@ public class GrinderProcess
 	    throws CommunicationException
 	{
 	    m_context = context;
-	    m_receiver = new Receiver(address, port);
+	    m_receiver = new MulticastReceiver(address, port);
 	}
 	
 	public void run()

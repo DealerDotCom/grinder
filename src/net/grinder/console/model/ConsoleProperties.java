@@ -55,16 +55,20 @@ public class ConsoleProperties
 	"grinder.console.significantFigures";
 
     /** Property name **/
-    public final static String MULTICAST_ADDRESS_PROPERTY =
-	"grinder.multicastAddress";
+    public final static String CONSOLE_ADDRESS_PROPERTY =
+	"grinder.address";
 
     /** Property name **/
     public final static String CONSOLE_PORT_PROPERTY = 
-	"grinder.console.multicastPort";
+	"grinder.console.port";
+
+    /** Property name **/
+    public final static String GRINDER_ADDRESS_PROPERTY =
+	"grinder.grinderAddress";
 
     /** Property name **/
     public final static String GRINDER_PORT_PROPERTY =
-	"grinder.multicastPort";
+	"grinder.grinderPort";
 
     private final PropertyChangeSupport m_changeSupport =
 	new PropertyChangeSupport(this);
@@ -75,11 +79,12 @@ public class ConsoleProperties
     private int m_significantFigures;
 
     /**
-     *We hang onto the address as a string so we can copy and
-     * externalise it reasonably. 
+     *We hang onto the addresses as strings so we can copy and
+     *externalise them reasonably.
      **/
-    private String m_multicastAddressString;
+    private String m_consoleAddressString;
     private int m_consolePort;
+    private String m_grinderAddressString;
     private int m_grinderPort;
 
     /**
@@ -105,13 +110,17 @@ public class ConsoleProperties
 	setSampleInterval(m_properties.getInt(SAMPLE_INTERVAL_PROPERTY, 1000));
 	setSignificantFigures(m_properties.getInt(SIG_FIG_PROPERTY, 3));
 
-	setMulticastAddress(
-	    m_properties.getProperty(MULTICAST_ADDRESS_PROPERTY,
-				     CommunicationDefaults.MULTICAST_ADDRESS));
+	setConsoleAddress(
+	    m_properties.getProperty(CONSOLE_ADDRESS_PROPERTY,
+				     CommunicationDefaults.CONSOLE_ADDRESS));
 
 	setConsolePort(
 	    m_properties.getInt(CONSOLE_PORT_PROPERTY,
 				CommunicationDefaults.CONSOLE_PORT));
+
+	setGrinderAddress(
+	    m_properties.getProperty(GRINDER_ADDRESS_PROPERTY,
+				     CommunicationDefaults.GRINDER_ADDRESS));
 
 	setGrinderPort(
 	    m_properties.getInt(GRINDER_PORT_PROPERTY,
@@ -141,8 +150,9 @@ public class ConsoleProperties
 	setIgnoreSampleCountNoCheck(properties.m_ignoreSampleCount);
 	setSampleIntervalNoCheck(properties.m_sampleInterval);
 	setSignificantFiguresNoCheck(properties.m_significantFigures);
-	setMulticastAddressNoCheck(properties.m_multicastAddressString);
+	setConsoleAddressNoCheck(properties.m_consoleAddressString);
 	setConsolePortNoCheck(properties.m_consolePort);
+	setGrinderAddressNoCheck(properties.m_grinderAddressString);
 	setGrinderPortNoCheck(properties.m_grinderPort);
     }
 
@@ -178,9 +188,11 @@ public class ConsoleProperties
 	m_properties.setInt(IGNORE_SAMPLES_PROPERTY, m_ignoreSampleCount);
 	m_properties.setInt(SAMPLE_INTERVAL_PROPERTY, m_sampleInterval);
 	m_properties.setInt(SIG_FIG_PROPERTY, m_significantFigures);
-	m_properties.setProperty(MULTICAST_ADDRESS_PROPERTY,
-				 m_multicastAddressString);
+	m_properties.setProperty(CONSOLE_ADDRESS_PROPERTY,
+				 m_consoleAddressString);
 	m_properties.setInt(CONSOLE_PORT_PROPERTY, m_consolePort);
+	m_properties.setProperty(GRINDER_ADDRESS_PROPERTY,
+				 m_grinderAddressString);
 	m_properties.setInt(GRINDER_PORT_PROPERTY, m_grinderPort);
 
 	m_properties.save();
@@ -361,25 +373,30 @@ public class ConsoleProperties
     }
 
     /**
-     * Get the multicast address as a string.
+     * Get the console address as a string.
      *
      * @returns The address.
      **/
-    public final String getMulticastAddress()
+    public final String getConsoleAddress()
     {
-	return m_multicastAddressString;
+	return m_consoleAddressString;
     }
 
     /**
-     * Set the multicast address.
+     * Set the console address.
      *
      * @param String s Either a machine name or the IP address.
-     * @throws DisplayMessageConsoleException If the multicast address is
-     * not valid.
+     * @throws DisplayMessageConsoleException If the address is not
+     * valid.
      **/
-    public final void setMulticastAddress(String s)
+    public final void setConsoleAddress(String s)
 	throws DisplayMessageConsoleException
     {
+	// We treat any non-multicast address that we can look up as
+	// valid. I guess we could also try binding to it to discover
+	// whether it is local, but that could take an indeterminate
+	// amount of time.
+
 	final InetAddress newAddress;
 
 	try {
@@ -390,32 +407,32 @@ public class ConsoleProperties
 		"unknownHostError.text", "Unknown hostname");
 	}
 
-	if (!newAddress.isMulticastAddress()) {
+	if (newAddress.isMulticastAddress()) {
 	    throw new DisplayMessageConsoleException(
-		"invalidMulticastAddressError.text",
-		"Invalid multicast address");
+		"invalidConsoleAddressError.text",
+		"Invalid console address");
 	}
 
-	setMulticastAddressNoCheck(s);
+	setConsoleAddressNoCheck(s);
     }
 
     /**
-     * Set the multicast address.
+     * Set the console address.
      *
      * @param String s Either a machine name or the IP address.
      **/
-    public final void setMulticastAddressNoCheck(String s)
+    public final void setConsoleAddressNoCheck(String s)
     {
-	if (!s.equals(m_multicastAddressString)) {
-	    final String old = m_multicastAddressString;
-	    m_multicastAddressString = s;
-	    m_changeSupport.firePropertyChange(MULTICAST_ADDRESS_PROPERTY,
-					       old, m_multicastAddressString);
+	if (!s.equals(m_consoleAddressString)) {
+	    final String old = m_consoleAddressString;
+	    m_consoleAddressString = s;
+	    m_changeSupport.firePropertyChange(CONSOLE_ADDRESS_PROPERTY,
+					       old, m_consoleAddressString);
 	}
     }
 
     /**
-     * Get the Console multicast port.
+     * Get the console port.
      *
      * @returns The port.
      **/
@@ -425,7 +442,7 @@ public class ConsoleProperties
     }
 
     /**
-     * Set the Console multicast port.
+     * Set the console port.
      *
      * @param port The port number.
      * @throws DisplayMessageConsoleException If the port number is not sensible.
@@ -438,7 +455,7 @@ public class ConsoleProperties
     }
 
     /**
-     * Set the Console multicast port.
+     * Set the console port.
      *
      * @param port The port number.
      **/
@@ -453,7 +470,61 @@ public class ConsoleProperties
     }
 
     /**
-     * Get the Grinder process multicast port.
+     * Get the grinder process multicast address as a string.
+     *
+     * @returns The address.
+     **/
+    public final String getGrinderAddress()
+    {
+	return m_grinderAddressString;
+    }
+
+    /**
+     * Set the grinder process multicast address.
+     *
+     * @param String s Either a machine name or the IP address.
+     * @throws DisplayMessageConsoleException If the multicast address is
+     * not valid.
+     **/
+    public final void setGrinderAddress(String s)
+	throws DisplayMessageConsoleException
+    {
+	final InetAddress newAddress;
+
+	try {
+	    newAddress = InetAddress.getByName(s);
+	}
+	catch (UnknownHostException e) {
+	    throw new DisplayMessageConsoleException(
+		"unknownHostError.text", "Unknown hostname");
+	}
+
+	if (!newAddress.isMulticastAddress()) {
+	    throw new DisplayMessageConsoleException(
+		"invalidGrinderAddressError.text",
+		"Invalid multicast address");
+	}
+
+	setGrinderAddressNoCheck(s);
+    }
+
+    /**
+     * Set the grinder process multicast address.
+     *
+     * @param String s Either a machine name or the IP address.
+     **/
+    public final void setGrinderAddressNoCheck(String s)
+    {
+	if (!s.equals(m_grinderAddressString)) {
+	    final String old = m_grinderAddressString;
+	    m_grinderAddressString = s;
+	    m_changeSupport.firePropertyChange(GRINDER_ADDRESS_PROPERTY,
+					       old, m_grinderAddressString);
+	}
+    }
+
+    /**
+     * Get the grinder process multicast port.
      *
      * @returns The port.
      **/
@@ -463,7 +534,7 @@ public class ConsoleProperties
     }
 
     /**
-     * Set the Grinder process multicast port.
+     * Set the grinder process multicast port.
      *
      * @param port The port number.
      * @throws DisplayMessageConsoleException If the port number is not sensible.
@@ -476,7 +547,7 @@ public class ConsoleProperties
     }
 
     /**
-     * Set the Grinder process multicast port.
+     * Set the grinder process multicast port.
      *
      * @param port The port number.
      **/

@@ -21,6 +21,7 @@ package net.grinder.console.swingui;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -49,9 +50,10 @@ abstract class OptionsDialogHandler
     /** A working copy of console properties. **/
     private final ConsoleProperties m_properties;
 
-    private final JTextField m_multicastAddress = new JTextField();
+    private final JTextField m_consoleAddress = new JTextField();
     private final IntegerField m_consolePort =
 	    new IntegerField(0, CommunicationDefaults.MAX_PORT);
+    private final JTextField m_grinderAddress = new JTextField();
     private final IntegerField m_grinderPort =
 	    new IntegerField(0, CommunicationDefaults.MAX_PORT);
     private final SamplingControlPanel m_samplingControlPanel;
@@ -78,11 +80,18 @@ abstract class OptionsDialogHandler
 	addressLayout.setHgap(5);
 	final JPanel addressPanel = new JPanel(addressLayout);
 	addressPanel.add(
-	    new JLabel(resources.getString("multicastAddress.label")));
-	addressPanel.add(m_multicastAddress);
+	    new JLabel(resources.getString("consoleAddress.label")));
+	addressPanel.add(m_consoleAddress);
 	addressPanel.add(
 	    new JLabel(resources.getString("consolePort.label")));
 	addressPanel.add(m_consolePort);
+
+	addressPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+	addressPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+	addressPanel.add(
+	    new JLabel(resources.getString("grinderAddress.label")));
+	addressPanel.add(m_grinderAddress);
 	addressPanel.add(
 	    new JLabel(resources.getString("grinderPort.label")));
 	addressPanel.add(m_grinderPort);
@@ -156,10 +165,12 @@ abstract class OptionsDialogHandler
 		    }
 		    else {
 			try {
-			    m_properties.setMulticastAddress(
-				m_multicastAddress.getText());
+			    m_properties.setConsoleAddress(
+				m_consoleAddress.getText());
 			    m_properties.setConsolePort(
 				m_consolePort.getValue());
+			    m_properties.setGrinderAddress(
+				m_grinderAddress.getText());
 			    m_properties.setGrinderPort(
 				m_grinderPort.getValue());
 			    m_properties.setSignificantFigures(
@@ -210,8 +221,9 @@ abstract class OptionsDialogHandler
 	m_properties.set(initialProperties);
 
 	// Initialise input values.
-	m_multicastAddress.setText(m_properties.getMulticastAddress());
+	m_consoleAddress.setText(m_properties.getConsoleAddress());
 	m_consolePort.setValue(m_properties.getConsolePort());
+	m_grinderAddress.setText(m_properties.getGrinderAddress());
 	m_grinderPort.setValue(m_properties.getGrinderPort());
 	m_sfSlider.setValue(m_properties.getSignificantFigures());
 

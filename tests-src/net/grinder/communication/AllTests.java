@@ -39,7 +39,9 @@ public class AllTests
     {
 	final TestSuite suite = new TestSuite();
 	suite.addTest(new TestSuite(TestMessage.class));
-	suite.addTest(new TestSuite(TestSenderAndReceiver.class));
+	suite.addTest(new TestSuite(TestMessageQueue.class));
+	suite.addTest(new TestSuite(TestMulticastSenderAndReceiver.class));
+	suite.addTest(new TestSuite(TestUnicastSenderAndReceiver.class));
 	return suite;
     }
 }

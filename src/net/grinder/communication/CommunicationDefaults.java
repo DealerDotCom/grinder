@@ -27,8 +27,10 @@ package net.grinder.communication;
  */
 public interface CommunicationDefaults
 {
-    final String MULTICAST_ADDRESS = "228.1.1.1";
-    final int CONSOLE_PORT = 1235;
+    final String CONSOLE_ADDRESS = ""; // Bind to all interfaces by default.
+    final int CONSOLE_PORT = 6372;
+
+    final String GRINDER_ADDRESS = "228.1.1.1";
     final int GRINDER_PORT = 1234;
 
     final int MAX_PORT = 0xFFFF;

@@ -28,51 +28,34 @@ import java.util.Random;
 
 
 /**
- *  Unit test case for <code>Sender</code> and <code>Receiver</code>.
+ *  Abstract unit test cases for <code>Sender</code> and
+ *  <code>Receiver</code> implementations..
  *
  * @author Philip Aston
  * @version $Revision$
  **/
-public class TestSenderAndReceiver extends TestCase
+public abstract class AbstractSenderAndReceiverTests extends TestCase
 {
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestSenderAndReceiver.class);
-    }
-
-    public TestSenderAndReceiver(String name)
+    public AbstractSenderAndReceiverTests(String name)
     {
 	super(name);
     }
 
-    private final String MULTICAST_ADDRESS="237.0.0.1";
-    private final int MULTICAST_PORT=1234;
+    private static Random s_random = new Random();
+    protected Receiver m_receiver;
+    protected Sender m_sender;
 
-    private Receiver m_receiver;
-    private Sender m_sender;
-
-    protected void setUp() throws Exception
-    {
-	m_receiver = new Receiver(MULTICAST_ADDRESS, MULTICAST_PORT);
-	m_sender = new SenderImplementation("Test Sender", MULTICAST_ADDRESS,
-					    MULTICAST_PORT);
-    }
+    protected abstract Receiver createReceiver() throws Exception;
+    protected abstract Sender createSender() throws Exception;
 
     public void testSendSimpleMessage() throws Exception
     {
 	final ReceiverThread receiverThread = new ReceiverThread();
 
-	receiverThread.start();
-
-	// Hmm.. can't think of an easy way to ensure the
-	// receiverThread is listening before we do this. Test seems
-	// to work anyway. Hey ho.
 	final SimpleMessage sentMessage = new SimpleMessage(0);
 	m_sender.send(sentMessage);
 
-	receiverThread.join();
-
-	final Message receivedMessage = receiverThread.getMessage();
+	final Message receivedMessage = m_receiver.waitForMessage();
 	assertEquals(sentMessage, receivedMessage);
 	assert(sentMessage.payloadEquals(receivedMessage));
 	assert(sentMessage != receivedMessage);
@@ -82,80 +65,99 @@ public class TestSenderAndReceiver extends TestCase
     {
 	long sequenceNumber = -1;
 
-	for (int i=0; i<100; i++)
+	for (int i=1; i<=10; ++i)
 	{
-	    final ReceiverThread receiverThread = new ReceiverThread();
+	    final SimpleMessage[] sentMessages = new SimpleMessage[i];
 
-	    receiverThread.start();
-
-	    final SimpleMessage sentMessage = new SimpleMessage(i);
-	    m_sender.send(sentMessage);
-
-	    receiverThread.join();
-
-	    final SimpleMessage receivedMessage =
-		(SimpleMessage)receiverThread.getMessage();
-
-	    if (sequenceNumber != -1) {
-		assertEquals(sequenceNumber+1,
-			     receivedMessage.getSequenceNumber());
+	    for (int j=0; j<i; ++j) {
+		sentMessages[j] = new SimpleMessage(i);
+		m_sender.send(sentMessages[j]);
 	    }
 
-	    sequenceNumber = receivedMessage.getSequenceNumber();
+	    for (int j=0; j<i; ++j) {
+		final SimpleMessage receivedMessage =
+		    (SimpleMessage)m_receiver.waitForMessage();
 
-	    assertEquals(sentMessage, receivedMessage);
-	    assert(sentMessage.payloadEquals(receivedMessage));
-	    assert(sentMessage != receivedMessage);
+		if (sequenceNumber != -1) {
+		    assertEquals(sequenceNumber+1,
+				 receivedMessage.getSequenceNumber());
+		}
+
+		sequenceNumber = receivedMessage.getSequenceNumber();
+
+		assert(sentMessages[j].payloadEquals(receivedMessage));
+		assert(sentMessages[j] != receivedMessage);
+	    }
+	}
+    }
+
+    static int s_numberOfMessages = 0;
+
+    private class SenderThread extends Thread
+    {
+	public void run()
+	{
+	    try {
+		final Sender m_sender = createSender();
+
+		final int n = s_random.nextInt(10);
+
+		for (int i=0; i<n; ++i) {
+		    m_sender.send(new SimpleMessage(1));
+		    sleep(s_random.nextInt(30));
+		}
+
+		synchronized(Sender.class) {
+		    s_numberOfMessages += n;
+		}
+
+		m_sender.shutdown();
+	    }
+	    catch (Exception e) {
+		e.printStackTrace();
+	    }
+	}
+    }
+
+    public void testManySenders() throws Exception
+    {
+	s_numberOfMessages = 0;
+
+	final Thread[] senderThreads = new Thread[5];
+
+	for (int i=0; i<senderThreads.length; ++i) {
+	    senderThreads[i] = new SenderThread();
+	    senderThreads[i].start();
+	}
+
+	for (int i=0; i<senderThreads.length; ++i) {
+	    senderThreads[i].join();
+	}
+
+	for (int i=0; i<s_numberOfMessages; ++i) {
+	    m_receiver.waitForMessage();
 	}
     }
 
     public void testSendLargeMessage() throws Exception
     {
-	final ReceiverThread receiverThread = new ReceiverThread();
-
-	receiverThread.start();
-
 	// This causes a message size of about 38K. Should be limited
 	// by the buffer size in Receiver.
 	final SimpleMessage sentMessage = new SimpleMessage(8000);
 	m_sender.send(sentMessage);
 
-	receiverThread.join();
-
 	final SimpleMessage receivedMessage =
-	    (SimpleMessage)receiverThread.getMessage();
+	    (SimpleMessage)m_receiver.waitForMessage();
 
 	assertEquals(sentMessage, receivedMessage);
 	assert(sentMessage.payloadEquals(receivedMessage));
 	assert(sentMessage != receivedMessage);
     }
 
-    public void testShutdownReciever() throws Exception
+    public void testShutdownReceiver() throws Exception
     {
-	final ReceiverThread receiverThread = new ReceiverThread();
-	receiverThread.start();
-
 	m_receiver.shutdown();
-
-	receiverThread.join();
-
-	assertNull(receiverThread.getMessage());
-    }
-
-    public void testTwoListenersException() throws Exception
-    {
-	final ReceiverThread r1 = new ReceiverThread();
-	final ReceiverThread r2 = new ReceiverThread();
-	r1.start();
-	r2.start();
-
-	Thread.yield();		// Give threads time to hit waitForMessage().
-	m_receiver.shutdown();
-
-	r1.join();
-	r2.join();
-
-	assert(r1.getException() == null ^ r2.getException() == null);
+	assertNull(m_receiver.waitForMessage());
     }
 
     public void testQueueAndFlush() throws Exception
@@ -175,32 +177,21 @@ public class TestSenderAndReceiver extends TestCase
 	    m_sender.queue(messages[i]);
 	}
 
-	final ReceiveNMessagesThread receiverThread =
-	    new ReceiveNMessagesThread(messages.length);
-
-	receiverThread.start();
-
 	m_sender.flush();
 
-	receiverThread.join();
-
-	final SimpleMessage[] receivedMessages =
-	    (SimpleMessage[])
-	    receiverThread.getMessages().toArray(new SimpleMessage[0]);
-
-	assertEquals(messages.length, receivedMessages.length);
-
 	for (int i=0; i<messages.length; ++i) {
+	    final Message receivedMessage = m_receiver.waitForMessage();
+
 	    if (sequenceNumber != -1) {
 		assertEquals(sequenceNumber+1,
-			     receivedMessages[i].getSequenceNumber());
+			     receivedMessage.getSequenceNumber());
 	    }
 
-	    sequenceNumber = receivedMessages[i].getSequenceNumber();
+	    sequenceNumber = receivedMessage.getSequenceNumber();
 
-	    assertEquals(messages[i], receivedMessages[i]);
-	    assert(messages[i].payloadEquals(receivedMessages[i]));
-	    assert(messages[i] != receivedMessages[i]);
+	    assertEquals(messages[i], receivedMessage);
+	    assert(messages[i].payloadEquals(receivedMessage));
+	    assert(messages[i] != receivedMessage);
 	}
     }
 
@@ -221,37 +212,25 @@ public class TestSenderAndReceiver extends TestCase
 	    m_sender.queue(messages[i]);
 	}
 
-	final ReceiveNMessagesThread receiverThread =
-	    new ReceiveNMessagesThread(messages.length+1);
-
-	receiverThread.start();
-
 	final SimpleMessage finalMessage = new SimpleMessage(0);
 	m_sender.send(finalMessage);
 
-	receiverThread.join();
-
-	final SimpleMessage[] receivedMessages =
-	    (SimpleMessage[])
-	    receiverThread.getMessages().toArray(new SimpleMessage[0]);
-
-	assertEquals(messages.length + 1, receivedMessages.length);
-
 	for (int i=0; i<messages.length; ++i) {
+	    final Message receivedMessage = m_receiver.waitForMessage();
+
 	    if (sequenceNumber != -1) {
 		assertEquals(sequenceNumber+1,
-			     receivedMessages[i].getSequenceNumber());
+			     receivedMessage.getSequenceNumber());
 	    }
 
-	    sequenceNumber = receivedMessages[i].getSequenceNumber();
+	    sequenceNumber = receivedMessage.getSequenceNumber();
 
-	    assertEquals(messages[i], receivedMessages[i]);
-	    assert(messages[i].payloadEquals(receivedMessages[i]));
-	    assert(messages[i] != receivedMessages[i]);
+	    assertEquals(messages[i], receivedMessage);
+	    assert(messages[i].payloadEquals(receivedMessage));
+	    assert(messages[i] != receivedMessage);
 	}
 
-	final SimpleMessage receivedFinalMessage =
-	    receivedMessages[messages.length];
+	final Message receivedFinalMessage = m_receiver.waitForMessage();
 
 	assertEquals(sequenceNumber+1,
 		     receivedFinalMessage.getSequenceNumber());
@@ -289,43 +268,7 @@ public class TestSenderAndReceiver extends TestCase
 	}
     }
 
-    private class ReceiveNMessagesThread extends Thread
-    {
-	private List m_messages = new LinkedList();
-	private Exception m_exception;
-	private int m_howMany;
-
-	public ReceiveNMessagesThread(int howMany) 
-	{
-	    m_howMany = howMany;
-	}
-
-	public List getMessages()
-	{
-	    return m_messages;
-	}
-
-	public Exception getException()
-	{
-	    return m_exception;
-	}
-
-	public void run()
-	{
-	    m_exception = null;
-
-	    try {
-		while (m_howMany-- > 0) {
-		    m_messages.add(m_receiver.waitForMessage());
-		}
-	    }
-	    catch (Exception e) {
-		m_exception = e;
-	    }
-	}
-    }
-
-    private  static class SimpleMessage extends Message
+    private static class SimpleMessage extends Message
     {
 	private static Random s_random = new Random();
 
