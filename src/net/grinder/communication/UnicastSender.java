@@ -95,18 +95,22 @@ public class UnicastSender extends AbstractSender
     }
 
     /**
-     * Cleanly shutdown the <code>Sender</code>.
+     * Cleanly shutdown the <code>Sender</code>. Ignore most errors.
+     * Connection has probably been reset by peer.
      *
      * @exception CommunicationException If an error occurs.
      **/
     public void shutdown() throws CommunicationException
     {
-	send(new CloseCommunicationMessage());
-	flush();
+	try {
+	    send(new CloseCommunicationMessage());
+	    flush();
+	}
+	catch (CommunicationException e) {
+	}
 
 	super.shutdown();
 
-	// Ignore errors. Connection has probably been reset by peer.
 	try {
 	    m_socket.close();
 	}
