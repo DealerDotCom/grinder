@@ -283,13 +283,10 @@ public class GrinderProcess
 			m_hostID + "," + 
 			m_jvmID + "," + 
 			m_numberOfThreads + "," + 
-			m_methodNames[i] + "," +
-			//be aware of this!!!
-			(i-1) + "," +
+			i + "," +
 			delta.getTotalTime() + "," +
 			delta.getTransactions() + "," +
-			delta.getAverageTransactionTime() + "," +
-			0 + ","; // FIXEME: was "tps"
+			delta.getAverageTransactionTime();
 		    
 		    //Java 1.1 (it doesn't work)
 		    // b = msg.getBytes();
