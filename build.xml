@@ -233,7 +233,7 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <target name="assert-have-junit" depends="init" unless="have.junit">
-    <fail message="Add JUnit 3.7 to your CLASSPATH to build this target"/>
+    <fail message="Add JUnit 3.8.1 to your CLASSPATH to build this target"/>
   </target>
 
   <target name="assert-have-optional-tasks" depends="init"
