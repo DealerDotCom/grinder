@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -198,6 +198,42 @@ public class TestBuffer extends AbstractFileTestCase {
 
     assertTrue(buffer.isUpToDate());
     assertEquals(textSource, buffer.getTextSource());
+  }
+
+  public void testBufferWithLargeFile() throws Exception {
+    final char[] chars = "0123456789abcdef".toCharArray();
+    final char[] manyChars = new char[10000];
+
+    for (int i=0; i<manyChars.length; ++i) {
+      manyChars[i] = chars[i % chars.length];
+    }
+
+    final String s0 = new String(manyChars);
+    final StringTextSource textSource = new StringTextSource(s0);
+    assertSame(s0, textSource.getText());
+
+    final File file = new File(getDirectory(), "myfile.txt");
+
+    final Buffer buffer = new Buffer(s_resources, textSource, file);
+
+    assertEquals(Buffer.TEXT_BUFFER, buffer.getType());
+    assertTrue(!buffer.isDirty());
+    assertTrue(!buffer.isUpToDate());
+    assertEquals(file, buffer.getFile());
+    assertEquals(textSource, buffer.getTextSource());
+
+    buffer.save();
+
+    assertTrue(!buffer.isDirty());
+    assertTrue(buffer.isUpToDate());
+    assertSame(s0, textSource.getText());
+
+    buffer.load();
+
+    assertTrue(!buffer.isDirty());
+    assertTrue(buffer.isUpToDate());
+    assertEquals(s0, textSource.getText());
+    assertNotSame(s0, textSource.getText());
   }
 
   public void testBufferWithBadAssociatedFile() throws Exception {
