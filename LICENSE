@@ -50,3 +50,6 @@ Foundation (http://www.apache.org/), specifically the Jakarta ORO
 regular expression library. See the file LICENSE-Jakarta-ORO for
 license and copyright details.
 
+The Grinder includes the jEdit Syntax highlighting package
+(http://www.jedit-syntax.org). See the file LICENSE-jEditSyntax for
+license and copyright details.
