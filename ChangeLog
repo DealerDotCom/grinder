@@ -1,3 +1,19 @@
+2000-12-13  Philip Aston  <paston@beasys.com>
+
+	* Grinder 0.7 is released.
+
+	* All java files: 
+		Alter the javadoc headers to use cvs info for @version.
+
+	* build.bat: 
+	* build.sh: 
+	* etc/build.xml:
+	* etc/javadoc.css:
+	* etc/setenv.sh
+	* README
+		Use Ant to build everything.
+	
+
 2000-12-11  Philip Aston  <paston@beasys.com>
 
 	* Grinder 0.6 is released.
