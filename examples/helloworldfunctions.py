@@ -1,6 +1,6 @@
 from net.grinder.script import Test
 
-log = grinder.getLogger().output
+log = grinder.logger.output
 
 test1 = Test(1, "Log method")
 

@@ -2,7 +2,7 @@ from net.grinder.script import Test
 from net.grinder.plugin.http import HTTPRequest
 from HTTPClient import NVPair
 
-log = grinder.getLogger().output
+log = grinder.logger.output
 
 protectedResourceTest = Test(1, "Request resource")
 authenticationTest = Test(2, "POST to j_security_check")
