@@ -1,3 +1,24 @@
+2001-01-31  Philip Aston  <paston@beasys.com>
+
+	* build.xml: 
+		dist depends on test.
+
+	* src/net/grinder/plugin/http/HttpMsg.java:
+		Drop "key=" cookies on the floor.
+
+	* src/net/grinder/plugin/http/HttpPlugin.java: 
+		Avoid NPE when no page is returned.
+
+	* src/net/grinder/engine/process/GrinderThread.java: 
+		Log exception details.
+
+	* src/net/grinder/engine/process/GrinderProcess.java: 
+	* src/net/grinder/plugininterface/SimplePluginBase.java: 
+		Handle defaulting to property set test definitions.
+
+	* src/net/grinder/util/ProcessContextImplementation.java: 
+		When logging an error, put a note in the output stream.
+
 2001-01-28  Philip Aston  <paston@beasys.com>
 
 	* The Grinder 2.2 is released
