@@ -1,6 +1,6 @@
 // The Grinder
 // Copyright (C) 2000  Paco Gomez
-// Copyright (C) 2000  Philip Aston
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface PluginProcessContext
+public interface PluginProcessContext extends Logger
 {    
     public String getHostIDString();
     public String getProcessIDString();
@@ -39,14 +39,4 @@ public interface PluginProcessContext
      * Returns the parameters specified with "grinder.plugin.parameter="
      */
     public GrinderProperties getPluginParameters();
-
-    /**
-     * Log a message with context information.
-     */
-    public void logMessage(String message);
-
-    /**
-     * Log an error with context information.
-     */
-    public void logError(String message);
 }

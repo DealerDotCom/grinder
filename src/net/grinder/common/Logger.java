@@ -18,38 +18,25 @@
 
 package net.grinder.plugininterface;
 
+import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderProperties;
 
-
 /**
- * This interface defines the callbacks that an individual Grinder
- * thread can make on a plugin.
- *
+ * This class is used to share data between the Grinder and the 
+ * plug-in.
+ * 
  * @author Philip Aston
  * @version $Revision$
- */ 
-public interface ThreadCallbacks
+ */
+public interface Logger
 {
     /**
-     * This method is executed when the thread starts. It is only
-     * executed once.
+     * Log a message with context information.
      */
-    public void initialize(PluginThreadContext pluginThreadContext)
-	throws PluginException;
-    
-    /**
-     * This method is executed at the beginning of evey cycle.
-     */
-    public void beginCycle() throws PluginException;
+    public void logMessage(String message);
 
     /**
-     * This is called for each method name in grinder.plugin.methods.
+     * Log an error with context information.
      */
-    public boolean doTest(Test testDefinition)
-	throws PluginException;
-    
-    /**
-     * This method is executed at the end of every cycle.
-     */  
-    public void endCycle() throws PluginException;
+    public void logError(String message);
 }
