@@ -533,10 +533,7 @@ what you want. Currently the conditionally built modules are:
   <target name="realclean" depends="clean"
 	  description="Removes all generated files and temporary files.">
     <delete dir="${dist.root}"/>
-    <delete dir="${doc.dir}"/>
-    <delete includeEmptyDirs="true">
-      <fileset dir="${doc.dir}"/>
-    </delete>
+    <delete dir="${doc.dir}" quiet="true"/>
     <delete dir="${lib.dir}"/>
     <delete>
       <fileset dir="." includes="**/*~" defaultexcludes="no"/>
