@@ -382,7 +382,11 @@ public class Model
 	    throw new IllegalArgumentException("Unknown state: " + i);
 	}
 
-	if (m_state != STATE_CAPTURING && i == STATE_CAPTURING) {
+	if (i == STATE_WAITING_FOR_TRIGGER) {
+	    reset();
+	}
+
+	if (i == STATE_CAPTURING) {
 	    reset();
 	}
 
