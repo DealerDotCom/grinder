@@ -2,6 +2,8 @@
 
 	* The Grinder 3.0-beta18 is released.
 
+	* CHANGES: Typo.
+
 	* src/net/grinder/common/GrinderException.java, tests-src/net/grinder/common/TestGrinderException.java:
 	Test with different line separators.
 
