@@ -434,9 +434,6 @@ what you want. Currently the conditionally built modules are:
 
 	<fileset dir="${test-src.dir}">
 
-	  <!-- Until I can be bothered to rewrite it. -->
-	  <exclude name="**/TestHTTPPluginTCPProxyFilter.java"/>
-
 	  <depend targetdir="${build.dir}">
 	    <mapper type="merge" to="${lasttest.timestamp}"/>
 	  </depend>
