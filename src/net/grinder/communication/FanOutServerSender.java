@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -71,12 +71,5 @@ public final class FanOutServerSender extends AbstractFanOutSender {
     ResourcePool.Resource resource) throws IOException {
 
     return ((Acceptor.SocketResource)resource).getOutputStream();
-  }
-
-  /**
-   * Shut down this sender.
-   */
-  public void shutdown() {
-    super.shutdown();
   }
 }
