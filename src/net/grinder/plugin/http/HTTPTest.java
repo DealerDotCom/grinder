@@ -22,6 +22,7 @@
 package net.grinder.plugin.http;
 
 import net.grinder.common.GrinderException;
+import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginTest;
 
 
@@ -33,20 +34,26 @@ import net.grinder.plugininterface.PluginTest;
  */ 
 public class HTTPTest extends PluginTest
 {
-    private final String m_url;
-
-    public HTTPTest(int number, String description, String url)
+    private String m_url;
+    
+    public HTTPTest(int number, String description)
 	throws GrinderException
     {
 	super(HttpPlugin.class, number, description);
-
-	m_url = url;
-
 	((HttpPlugin)getPlugin()).registerTest(this); 	// Temporary.
     }
 
-    public final String getURL() 
+    public final String getUrl() throws PluginException
     {
+	if (m_url == null) {
+	    throw new PluginException("URL has not been specified");
+	}
+
 	return m_url;
+    }
+
+    public final void setUrl(String url) 
+    {
+	m_url = url;
     }
 }

@@ -309,7 +309,7 @@ public class HttpPlugin implements GrinderPlugin
 
 	    public String getURLString() throws HTTPHandlerException
 	    {
-		return replaceKeys(m_test.getURL());
+		return replaceKeys(m_test.getUrl());
 	    }
 
 	    public String getOKString() throws HTTPHandlerException
