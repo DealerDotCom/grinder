@@ -98,8 +98,6 @@ HTTP plugin to support "mean time to first byte".
 
 Script support for HTTP "system property" options.
 
-Support for setting User-Agent.
-
 ** Scripting
 
 Add per-run statistics. This would also allow number of aborted runs
@@ -116,7 +114,6 @@ Script access to global statistics.
  > 
  > Is this what you're after?
 ^^ To do this, might have to behave differently with 1 thread vs many.
-
 
 ** Other HTTP/HTML libraries
 
@@ -196,11 +193,6 @@ efficiency here.
 Also http://www.nogoop.com/product_16.html#compare
 
 * Build
-
-Incorporate checkstyle.
- Non-compliant packages:
-	net.grinder.plugin.http
-	net.grinder.plugin.tools
 
 Convert all sources back to unix file encoding so that diff etc. are
 happier?
