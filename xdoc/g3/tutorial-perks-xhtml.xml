@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html>
+  <body>
+    <h1>A Step-By-Step Script Tutorial</h1>
+
+    <h2>Introduction</h2>
+
+    <p>The is a step-by-step tutorial of how to write a number of
+    dynamic HTTP tests using various aspects of The Grinder and Jython
+    APIs. The test script contains a number of tests that are requests
+    to the same URL. For each request, a different XML parameter is
+    specified. The resulting HTML data is checked on return and if the
+    test was not successful, the statistics API is used to mark that
+    test as failed.</p>
+
+    <h2>Script Imports</h2>
+
+    <blockquote>
+      <pre>
+<span class="keyword">import</span> string
+<span class="keyword">import</span> random
+<span class="keyword">from</span> java.lang <span class="keyword">import</span> String
+<span class="keyword">from</span> java.net <span class="keyword">import</span> URLEncoder
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test, ScriptContext
+<span class="keyword">from</span> net.grinder.statistics <span class="keyword">import</span> TestStatistics
+<span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
+<span class="keyword">from</span> net.grinder.common <span class="keyword">import</span> GrinderException
+</pre>
+    </blockquote>
+
+    <p>Firstly when writing a script come the import statements. These
+    include imports of standard Python modules such as
+    <code>string</code> and <code>random</code>, and other Java
+    imports including some language and network classes. Finally there
+    are imports for Grinder specific methods. A powerful feature of
+    the Jython scripts that are used with The Grinder is the ability
+    to take a mix and match approach to script programming. In some
+    cases using a Python API is quicker and easier than always using
+    the corresponding Java API calls, so feel free to use whichever
+    API makes most sense.</p>
+
+    <h2>Test Definition</h2>
+
+    <blockquote>
+      <pre>
+tests = {
+    &quot;<span class="string">News01</span>&quot;      : Test(1, &quot;<span class="string">News 1 posting</span>&quot;),
+    &quot;<span class="string">Sport01</span>&quot;     : Test(2, &quot;<span class="string">Sport 1 posting</span>&quot;),
+    &quot;<span class="string">Sport02</span>&quot;     : Test(3, &quot;<span class="string">Sport 2 posting</span>&quot;),
+    &quot;<span class="string">Trading01</span>&quot;   : Test(4, &quot;<span class="string">Trading 1 query</span>&quot;),
+    &quot;<span class="string">LifeStyle01</span>&quot; : Test(5, &quot;<span class="string">LifeStyle 1 posting</span>&quot;),
+}
+</pre>
+    </blockquote>
+
+    <p>To keep the script code easy to read, we next define all the
+    tests we are going to be running within this script. These are
+    created as a Python dictionary and are name-value pairs. The name
+    is the name of the test and the value is a <code>Test</code>
+    object with a test numeric identifier and description.</p>
+
+    <h2>Bread crumbs</h2>
+    <blockquote>
+      <pre>
+log = grinder.logger.output
+out = grinder.logger.TERMINAL
+
+<span class="comment"># Server Properties</span>
+SERVER     = &quot;<span class="string">http://serverhost:7001</span>&quot;
+URI        = &quot;<span class="string">/myServlet</span>&quot;
+</pre>
+    </blockquote>
+
+    <p>We next define some variables such as Grinder helper methods
+    and server properties. The <code>log</code> variable is used to
+    hold a reference to The Grinder logging mechanism and is used
+    throughout the script. The <code>out</code> variable is also used
+    in conjunction with logging. The two possible values for this
+    variable are <code>TERMINAL</code> and <code>LOG</code>. We have
+    set the output to terminal for ease of debugging, which means that
+    any log output goes to the terminal window used to start The
+    Grinder test runs. The alternative is to switch this to logging
+    the output to The Grinder log files.</p>
+
+    <h2>The Test Interface</h2>
+    <blockquote>
+      <pre>
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+</pre>
+    </blockquote>
+
+    <p>Here is the definition of our test class and the method called
+    by The Grinder by each test thread. All scripts must define this
+    class and method. Whilst we are discussing classes and methods, an
+    important point to remember when new to Jython script development
+    is that Jython/Python code is scoped by indentation, rather than
+    using braces like in a language like C or Java. The colon is used
+    to delimit the start scope such as an <code>if</code> or method
+    definition.</p>
+
+    <h2>Using the Dictionary and Random Python Modules</h2>
+
+    <blockquote>
+      <pre>
+<span class="keyword">for</span> idx <span class="keyword">in</span> range(len(tests)):
+       testId = random.choice(tests.keys())
+       log(&quot;<span class="string">Reading XML file %s </span>&quot; % testId, out)
+</pre>
+    </blockquote>
+
+    <p>As discussed earlier, the use of Python modules is encouraged
+    during Grinder script development and I have used a few examples
+    above when performing the test run. Within the test run, each of
+    the tests defined in the test dictionary is looped round so that
+    each Grinder thread executes five separate tests. Within the loop,
+    a test is chosen randomly from one of the five tests. This
+    prevents all threads of executing all the tests in the same order
+    and helps simulate a more random load on the server.</p>
+
+    <p>Within the dictionary defined as <code>tests</code>, there are
+    a number of useful methods such as are <code>keys()</code>,
+    <code>items()</code> and <code>sort()</code>. We use the keys
+    returned from the tests dictionary as the parameter to the
+    <code>choice()</code> method in the random module. This randomly
+    selects one of the tests keys as the current test identifier.</p>
+
+    <h2>Forget the Java IO Package when Handling Files</h2>
+
+    <blockquote>
+      <pre>
+file = open(&quot;<span class="string">./CAAssets/</span>&quot;+testId+&quot;<span class="string">.xml</span>&quot;, '<span class="string">r</span>')  
+fileStr = URLEncoder.encode(String(file.read()))
+file.close()
+
+requestString = &quot;<span class="string">%s%s%s%s</span>&quot; % (SERVER, URI, &quot;<span class="string">?xmldata=</span>&quot;, fileStr)
+</pre>
+    </blockquote>
+
+    <p>When having to retrieve the contents of files using Jython
+    script, the use of the file operations blitz's Java IO for pure
+    script development speed. In the code above, we need to open an
+    XML document that has the name of a test, for example
+    <code>News01.xml</code>. This will be used as a request parameter
+    for the News01 test. The file is opened for reading and encoded
+    using the Java URLEncoder.</p>
+
+    <p>We next construct the request string to the server by
+    concatenating the server, URI and XML documents together.
+    <em>Tip</em>: if you need to remove spaces from within a string,
+    you can use a method like the following:</p>
+
+    <blockquote>
+      <pre>
+requestString = string.join(requestString.split(), &quot;&quot;)
+</pre>
+    </blockquote>
+
+    <h2>Sending the Request and the Statistics API</h2>
+
+    <blockquote>
+      <pre>
+grinder.statistics.delayReports = 1
+request = tests[testId].wrap(HTTPRequest())
+	
+log(&quot;<span class="string">Sending request %s </span>&quot; % requestString, out)
+result = request.GET(requestString)
+</pre>
+    </blockquote>
+
+    <p>As part of the test execution, we want the ability to check the
+    result of the HTTP request. If the response back from the server
+    is not one that we except, we want to mark the transaction as
+    unsuccessful and not include the statistics in the transaction
+    times. To do this, the <code>delayReports</code> variable can be
+    set to 1. Doing so will delay the reporting back of the statistics
+    until after the test has completed and we have had chance to check
+    its operation. The default is to report back when the test returns
+    control back to the script, i.e. immediately after a test has
+    executed.</p>
+
+    <p>Next we wrap the HTTPRequest with the test being executed. This
+    enables any calls through the test wrapper to be monitored by the
+    Grinder. Only wrapped tests will be used when collecting test
+    statistics. Any other time spent within the script will not be
+    recorded by The Grinder. Be careful not to include extra script
+    processing within a test; doing so will not give the correct
+    statistics. Only test what is required.</p>
+
+    <p>The test itself is next executed which is a HTTP GET to the
+    server using our previously constructed test string. Remember -
+    these tests execute in a loop for the number of tests we have
+    defined, using a random test each time.</p>
+
+    <blockquote>
+      <pre>
+<span class="keyword">if</span> string.find(result.getText(), &quot;<span class="string">SUCCESS</span>&quot;) &lt; 1:
+    grinder.statistics.setSuccess(0)
+    writeToFile(result.getText(), testId)
+</pre>
+    </blockquote>
+
+    <p>On return from the HTTP GET, we check the result for the string
+    "SUCCESS". If the test has failed, this value will not be returned
+    and the statistics object can be marked as unsuccessful. In the
+    case of an unsuccessful test, we write the HTML output to a file
+    for later analysis:</p>
+
+    <blockquote>
+      <pre>
+<span class="keyword">def</span> <span class="function-name">writeToFile</span>(text, testId):
+    filename = grinder.getFilenameFactory().createFilename(
+        testId + &quot;<span class="string">-page</span>&quot;, &quot;<span class="string">-%d.html</span>&quot; % grinder.runNumber)
+
+    file = open(filename, &quot;<span class="string">w</span>&quot;)
+    <span class="keyword">print</span> &gt;&gt; file, text
+    file.close()
+</pre>
+    </blockquote>
+
+    <h2>Full Script Listing</h2>
+
+    <blockquote>
+      <pre>
+<span class="comment"># Send an HTTP request to the server with XML request values
+</span>
+<span class="keyword">import</span> string
+<span class="keyword">import</span> random
+<span class="keyword">from</span> java.lang <span class="keyword">import</span> String
+<span class="keyword">from</span> java.net <span class="keyword">import</span> URLEncoder
+
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test, ScriptContext
+<span class="keyword">from</span> net.grinder.statistics <span class="keyword">import</span> TestStatistics
+<span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
+<span class="keyword">from</span> net.grinder.common <span class="keyword">import</span> GrinderException
+
+tests = {
+    &quot;<span class="string">News01</span>&quot;      : Test(1, &quot;<span class="string">News 1 posting</span>&quot;),
+    &quot;<span class="string">Sport01</span>&quot;     : Test(2, &quot;<span class="string">Sport 1 posting</span>&quot;),
+    &quot;<span class="string">Sport02</span>&quot;     : Test(3, &quot;<span class="string">Sport 2 posting</span>&quot;),
+    &quot;<span class="string">Trading01</span>&quot;   : Test(4, &quot;<span class="string">Trading 1 query</span>&quot;),
+    &quot;<span class="string">LifeStyle01</span>&quot; : Test(5, &quot;<span class="string">LifeStyle 1 posting</span>&quot;),
+}
+
+log = grinder.logger.output
+out = grinder.logger.TERMINAL
+
+<span class="comment"># Server Properties
+</span>
+SERVER     = &quot;<span class="string">http://serverhost:7001</span>&quot;
+URI        = &quot;<span class="string">/myServlet</span>&quot;
+
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):      
+
+        <span class="keyword">for</span> idx <span class="keyword">in</span> range(len(tests)):
+        
+           testId = random.choice(tests.keys())
+           
+           log(&quot;<span class="string">Reading XML file %s </span>&quot; % testId, out)
+	
+	   file = open(&quot;<span class="string">./CAAssets/</span>&quot;+testId+&quot;<span class="string">.xml</span>&quot;, '<span class="string">r</span>')  
+	   fileStr = URLEncoder.encode(String(file.read()))
+	   file.close()
+	
+	   <span class="comment"># Send the request to the server
+</span>	   requestString = &quot;<span class="string">%s%s%s%s</span>&quot; % (SERVER, URI, &quot;<span class="string">?xmldata=</span>&quot;, fileStr)
+	   requestString = string.join(requestString.split(), &quot;&quot;)
+	 
+	   grinder.statistics.delayReports = 1
+	   request = tests[testId].wrap(HTTPRequest())
+	
+	   log(&quot;<span class="string">Sending request %s </span>&quot; % requestString, out)
+	   result = request.GET(requestString)
+	   
+	   <span class="keyword">if</span> string.find(result.getText(), &quot;<span class="string">SUCCESS</span>&quot;) &lt; 1:
+	      grinder.statistics.setSuccess(0)
+	      writeToFile(result.getText(), testId)
+	     
+	     
+<span class="comment"># Write the response
+</span><span class="keyword">def</span> <span class="function-name">writeToFile</span>(text, testId):
+    filename = grinder.getFilenameFactory().createFilename(
+        testId + &quot;<span class="string">-page</span>&quot;, &quot;<span class="string">-%d.html</span>&quot; % grinder.runNumber)
+
+    file = open(filename, &quot;<span class="string">w</span>&quot;)
+    <span class="keyword">print</span> &gt;&gt; file, text
+    file.close()
+</pre>
+    </blockquote>
+
+
+    <p align="right"><strong>Richard Perks</strong></p>
+  </body>
+</html>

@@ -15,9 +15,10 @@ HTTP scripts with The Grinder 3.</em></p>
 <p>The Grinder 3 scripting engine is Jython - the Java implementation
 of Python. Python is powerful, popular and easy on the eye. If you've
 never seen any Python before, don't panic. Take a look at the <a
-href="script-gallery.html">script gallery</a> to get a taste of what
-its like. There are plenty of resources on the web, here are a few of
-them to get you started:</p>
+href="script-gallery.html">script gallery</a> and Richard Perks' <a
+href="tutorial-perks.html">tutorial</a> to get a taste of what its
+like. There are plenty of resources on the web, here are a few of them
+to get you started:</p>
 
 <blockquote>
 <table>
