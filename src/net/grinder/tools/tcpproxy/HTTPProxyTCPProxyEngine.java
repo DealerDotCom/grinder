@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // Copyright (C) 2000, 2001 Phil Dawes
 // Copyright (C) 2001 Paddy Spencer
 // Copyright (C) 2003 Bertrand Ave
@@ -48,7 +48,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.util.StreamCopier;
-
+import net.grinder.util.html.HTMLElement;
 
 
 /**
@@ -81,6 +81,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
   private final ProxySSLEngine m_proxySSLEngine;
   private final EndPoint m_chainedHTTPProxy;
   private final HTTPSProxySocketFactory m_httpsProxySocketFactory;
+  private final EndPoint m_proxyAddress;
 
   /**
    * Constructor.
@@ -117,6 +118,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     super(new TCPProxySocketFactoryImplementation(), requestFilter,
           responseFilter, outputWriter, localEndPoint, useColour, timeout);
 
+    m_proxyAddress = localEndPoint;
     m_chainedHTTPProxy = chainedHTTPProxy;
 
     final PatternCompiler compiler = new Perl5Compiler();
@@ -211,6 +213,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
           if (m_proxySSLEngine == null) {
             System.err.println("Specify -ssl for HTTPS proxy support");
+            localSocket.close();
             continue;
           }
 
@@ -291,15 +294,46 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           }
         }
         else {
-          System.err.println(
-            "Failed to determine proxy destination from message:");
-          System.err.println(line);
+          final HTMLElement message = new HTMLElement();
+
+          message.addElement("p").addText(
+            "Failed to determine proxy destination from message. ");
+
+          final HTMLElement paragraph1 = message.addElement("p");
+          paragraph1.addText(
+            "Do not type TCPProxy address into your browser. ");
+          paragraph1.addText("The browser proxy settings should be set to" +
+                             "use the TCPProxy address (");
+          paragraph1.addElement("code").addText(m_proxyAddress.toString());
+          paragraph1.addText("), and you should type the address of the " +
+                           "target server into the browser.");
+
+          message.addElement("p").addText("Text of received message follows:");
+
+          message.addElement("pre").addElement("blockquote").addText(line);
+
+          sendHTTPErrorResponse(message, "400 Bad Request",
+                                localSocket.getOutputStream());
+
+          localSocket.close();
         }
       }
     }
     catch (IOException e) {
       logIOException(e);
     }
+  }
+
+  private void sendHTTPErrorResponse(HTMLElement message, String status,
+                                     OutputStream outputStream)
+    throws IOException {
+    System.err.println(message.toText());
+
+    final HTTPResponse response = new HTTPResponse();
+    response.setStatus(status);
+    response.setMessage(status, message);
+
+    outputStream.write(response.toByteArray());
   }
 
   /**
