@@ -127,12 +127,10 @@ public class GrinderProperties extends Properties {
    * Save a single property to our file.
    *
    * @param name Property name.
-   * @param value Property value.
    * @exception GrinderException If there is no file associated with this
    * {@link GrinderProperties} or an I/O exception occurs..
    */
-  public final void saveSingleProperty(String name, String value)
-    throws GrinderException {
+  public final void saveSingleProperty(String name) throws GrinderException {
 
     if (m_file == null) {
       throw new GrinderException("No associated file");
@@ -151,7 +149,7 @@ public class GrinderProperties extends Properties {
       }
 
       final OutputStream outputStream = new FileOutputStream(m_file);
-      properties.setProperty(name, value);
+      properties.setProperty(name, getProperty(name));
       properties.store(outputStream, generateFileHeader());
       outputStream.close();
     }

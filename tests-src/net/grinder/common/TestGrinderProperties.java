@@ -500,7 +500,8 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     try {
       assertNull(m_grinderProperties.getAssociatedFile());
-      m_grinderProperties.saveSingleProperty("foo", "bah");
+      m_grinderProperties.setProperty("foo", "bah");
+      m_grinderProperties.saveSingleProperty("foo");
       fail("Expected GrinderException as no associated file");
     }
     catch (GrinderException e) {
@@ -518,15 +519,20 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     assertEquals(file, properties.getAssociatedFile());
     properties.putAll(m_allSet);
 
-    properties.saveSingleProperty("foo", "bah");
+    properties.setProperty("foo", "bah");
+    properties.saveSingleProperty("foo");
+
+    properties.setBoolean("blah", true);
+    properties.saveSingleProperty("blah");
 
     final InputStream in = new FileInputStream(file);
     plainProperties.load(in);
     in.close();
 
-    assertEquals(2, plainProperties.size());
+    assertEquals(3, plainProperties.size());
     assertEquals("bah", plainProperties.getProperty("foo"));
     assertEquals("property", plainProperties.getProperty("existing"));
+    assertEquals("true", plainProperties.getProperty("blah"));
   }
 
   private void setSystemProperties() throws Exception {
