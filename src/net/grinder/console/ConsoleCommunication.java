@@ -30,11 +30,8 @@ import net.grinder.communication.ConnectionType;
 import net.grinder.communication.FanOutServerSender;
 import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
-import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.ServerReceiver;
-import net.grinder.communication.StartGrinderMessage;
-import net.grinder.communication.StopGrinderMessage;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.DisplayMessageConsoleException;
@@ -132,11 +129,11 @@ final class ConsoleCommunication {
     }
   }
 
-  private void send(Message message) {
+  public void send(Message message) {
 
     if (m_sender == null) {
-      m_errorHandler.handleResourceErrorMessage("sendError.text",
-                                                "Failed to send message");
+      m_errorHandler.handleResourceErrorMessage(
+        "sendError.text", "Failed to send message");
     }
     else {
       try {
@@ -144,28 +141,15 @@ final class ConsoleCommunication {
       }
       catch (CommunicationException e) {
         m_errorHandler.handleException(
-          new DisplayMessageConsoleException("sendError.text",
-                                             "Failed to send message",
-                                             e));
+          new DisplayMessageConsoleException(
+            "sendError.text", "Failed to send message", e));
       }
     }
   }
 
-  public void sendStartMessage() {
-    send(new StartGrinderMessage());
-  }
-
-  public void sendResetMessage() {
-    send(new ResetGrinderMessage());
-  }
-
-  public void sendStopMessage() {
-    send(new StopGrinderMessage());
-  }
-
   /**
    * @return The message.
-   **/
+   */
   public Message waitForMessage() {
     while (true) {
       synchronized (this) {
