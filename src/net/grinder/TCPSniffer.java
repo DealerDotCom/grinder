@@ -54,7 +54,7 @@ public class TCPSniffer
 	    "\n   [-requestFilter <filter>]      Add request filter" +
 	    "\n   [-responseFilter <filter>]     Add response filter" +
 	    "\n   [-httpPluginFilter             See below" +
-	    "\n     [-norewriteURLs]             See below" +
+	    "\n     [-rewriteURLs]               See below" +
 	    "\n     [-proxy]                     See below" +
 	    "\n   ]" +
 	    "\n   [-localPort <port>]            Default is 8001" +
@@ -71,11 +71,10 @@ public class TCPSniffer
 	    "\n one of NONE, ECHO, or HTTP_PLUGIN. Default is ECHO." +
 	    "\n" +
 	    "\n -httpPluginFilter is a synonym for" +
-	    "\n   '-requestFilter HTTP_PLUGIN -responseFilter NONE'" +
+	    "\n '-requestFilter HTTP_PLUGIN -responseFilter NONE'" +
 	    "\n" +
-	    "\n -norewriteURLs will cause absolute URLs to remoteHost in" +
-	    "\n    pages from remoteHost not to be rewritten as relative" +
-	    "\n    URLs." +
+	    "\n -rewriteURLs will cause absolute URLs to remoteHost in" +
+	    "\n pages from remoteHost to be rewritten as relative URLs." +
 	    "\n" +
 	    "\n -proxy means the sniffer will act as an http proxy" +
 	    "\n"
@@ -113,7 +112,7 @@ public class TCPSniffer
 	boolean useSSL = false;
 	String keystore = null;
 	String keystorePassword = null;
-	boolean rewriteURLs = true;
+	boolean rewriteURLs = false;
 	boolean proxy = false;
 
 	int i = 0;
@@ -149,13 +148,12 @@ public class TCPSniffer
 		else if (args[i].equals("-password")) {
 		    keystorePassword = args[++i];
 		}
-				else if (args[i].equals("-norewriteURLs")) {
-					rewriteURLs = false;
-				}
-				else if (args[i].equals("-proxy")) {
-					proxy = true;
-					rewriteURLs = false;					
-				}
+		else if (args[i].equals("-rewriteURLs")) {
+		    rewriteURLs = true;
+		}
+		else if (args[i].equals("-proxy")) {
+		    proxy = true;
+		}
 		else {
 		    throw barfUsage();
 		}
@@ -175,17 +173,15 @@ public class TCPSniffer
 	    }
 
 	    if (!filterIsHttpFilter(requestFilter)) {
-		throw barfUsage("Using proxy means " + 
-				"request filter needs to be " + 
-				HTTP_PLUGIN_FILTER_CLASS);
+		throw barfUsage("Specify HTTP_PLUGIN as the request filter " +
+				"when using -proxy");
 	    }
 	}
 
 	if (rewriteURLs) {
 	    if (!filterIsHttpFilter(requestFilter)) {
-		throw barfUsage("Using rewriteURLs means " + 
-				"request filter needs to be " + 
-				HTTP_PLUGIN_FILTER_CLASS);
+		throw barfUsage("Specify HTTP_PLUGIN as the request filter " +
+				"when using -rewriteURLs");
 	    }
 	    responseFilter = urlRewriteFilterInstance();
 	}

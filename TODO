@@ -3,10 +3,6 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 that too :-). The list is roughly in priority order.]
 
-  Fix norewriteURLs
-
-  Fix layout of TPS.
-
   More documentation - both user level and javadoc. Volunteers please!
 
   Write more JUnit tests. In particular, TestStatisticsMap, new

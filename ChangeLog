@@ -1,3 +1,16 @@
+2001-05-25  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/ConsoleUI.java:
+	Fix allignment of TPS label.
+
+2001-05-24  Philip Aston  <paston@bea.com>
+
+	* src/w3c/tools/codec/Base64Decoder.java, src/w3c/tools/codec/Base64Encoder.java, src/w3c/tools/codec/Base64FormatException.java, CHANGES, README, TODO, build.xml, etc/w3c-license.html, src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpPlugin.java, src/net/grinder/plugin/http/HttpRequestData.java:
+	Support for HTTP basic authentication.
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/util/ProcessContextImplementation.java:
+	Only read the "appendLog" parameter once.
+
 2001-05-23  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/plugininterface/Logger.java, src/net/grinder/util/ProcessContextImplementation.java, src/net/grinder/Grinder.java, src/net/grinder/engine/LauncherThread.java, src/net/grinder/engine/Redirector.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/plugin/http/HttpsPlugin.java, CHANGES, TODO:
