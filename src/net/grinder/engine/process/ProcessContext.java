@@ -76,7 +76,7 @@ class ProcessContext implements PluginProcessContext
 	throws GrinderException
     {
 	if (s_instance != null) {
-	    throw new GrinderException("Already initialised");
+	    throw new EngineException("Already initialised");
 	}
 
 	s_instance = new ProcessContext(grinderID, properties);

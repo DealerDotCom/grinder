@@ -18,7 +18,7 @@
        "/opt/jdk1.3.1_02/jre/lib/ext/jcert.jar"
        "/opt/jdk1.3.1_02/jre/lib/ext/jnet.jar"
        "/opt/jdk1.3.1_02/jre/lib/ext/jsse.jar"
-       "/opt/bsf/bsf-2_2-jython/build/lib/bsf.jar"
+       "/opt/jython/jython-2.1/jython.jar"
        "/opt/bea/wlserver6.1/lib/weblogic.jar")
      ":")))
 

@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
-import net.grinder.engine.LauncherThread;
+import net.grinder.engine.agent.LauncherThread;
 import net.grinder.engine.process.GrinderProcess;
 
 

@@ -109,8 +109,7 @@ public final class GrinderProcess implements Monitor
     private final ProcessContext m_context;
     private final PrintWriter m_dataWriter;
     private final short m_numberOfThreads;
-    private final BSFProcessContext m_bsfContext;
-
+    private final File m_scriptFile;
     private final ConsoleListener m_consoleListener;
     private final int m_reportToConsoleInterval;
 
@@ -135,18 +134,17 @@ public final class GrinderProcess implements Monitor
 	m_reportToConsoleInterval =
 	    properties.getInt("grinder.reportToConsole.interval", 500);
 
-	// Parse plugin class.
-	m_plugin = instantiatePlugin();
-
 	m_context.initialiseDataWriter();
 
-	m_bsfContext =
-	    new BSFProcessContext(
-		new File(properties.getMandatoryProperty("grinder.script")));
+	m_scriptFile =
+	    new File(properties.getMandatoryProperty("grinder.script"));
 
 	m_consoleListener =
 	    properties.getBoolean("grinder.receiveConsoleSignals", true) ?
 	    new ConsoleListener(properties, this, m_context): null;
+
+	// Parse plugin class.
+	m_plugin = instantiatePlugin();
     }
 
     private final GrinderPlugin instantiatePlugin() throws GrinderException
@@ -172,11 +170,11 @@ public final class GrinderProcess implements Monitor
 	    return plugin;
 	}
 	catch(ClassNotFoundException e){
-	    throw new GrinderException(
+	    throw new EngineException(
 		"The specified plug-in class was not found.", e);
 	}
 	catch (Exception e){
-	    throw new GrinderException(
+	    throw new EngineException(
 		"An instance of the specified plug-in class " +
 		"could not be created.", e);
 	}
@@ -202,6 +200,8 @@ public final class GrinderProcess implements Monitor
 			     System.getProperty("os.arch") + " " +
 			     System.getProperty("os.version"));
 
+	final JythonScript jythonScript = new JythonScript(m_scriptFile);
+
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
 
 	for (int i=0; i<m_numberOfThreads; i++) {
@@ -209,7 +209,7 @@ public final class GrinderProcess implements Monitor
 		m_plugin.createThreadCallbackHandler();
 
 	    runnable[i] =
-		new GrinderThread(this, m_context, m_bsfContext, i, 
+		new GrinderThread(this, m_context, jythonScript, i, 
 				  threadCallbacks);
 	}
 
@@ -390,11 +390,11 @@ public final class GrinderProcess implements Monitor
 
     private class ReportToConsoleTimerTask extends TimerTask
     {
-	private final TestStatisticsMap m_testStatiticsMap;
+	private final TestStatisticsMap m_testStatisticsMap;
 
 	public ReportToConsoleTimerTask() 
 	{
-	    m_testStatiticsMap =
+	    m_testStatisticsMap =
 		m_context.getTestRegistry().getTestStatisticsMap();
 	    
 	}
@@ -406,7 +406,7 @@ public final class GrinderProcess implements Monitor
 
 	    try {
 		consoleSender.send(new ReportStatisticsMessage(
-				       m_testStatiticsMap.getDelta(true)));
+				       m_testStatisticsMap.getDelta(true)));
 
 		consoleSender.send(new ReportStatusMessage(
 				       ProcessStatus.STATE_RUNNING,

@@ -1,61 +1,9 @@
-
-ARGHH
-
-Crisis:
-	How to make script simple, but efficient.
-	Probably need to split into lifecycle events.
-	This probably means distching BSF and going pure Jython.
-
-
-New notes
-*********
-*******
-
-HTTPPlugin:
-	String bean
-	OK strings
-	HttpURLConnection support
-
-
-Thought
-*******
-
-Is ditching grinder.properties defined tests sensible? Yes. Don't want
-dual maintenance. Cost is everyone needs jython.
-
-
-
-
-Old/G2
-******
-
 [If anyone wants to pick something of this wish list, I prefer unified
 diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
 
-Separate out a PluginProcessContextImplementation? And for
-ThreadContext?
-
-Try to get rid of StringBeans...
-
-When HTTPTest etc know about the plugin, where do the lifecycle (begin
-brun etc) callbacks go? To all known plugins? Probably. How important
-is the plugin lifecycle? Can plugins become libraries for HTTPTest etc
-to use? Hmmm.. thread callbacks seem important.
-
-Abstract out a TestScheduler interface to allow other algorithms. Add
-a "random order" algorithm, which might work well with the JUnit
-plugin. Flesh out the API so custom script schedulers can be
-supported.
-
-Use the console to broadcast scripts to grinder processes. XML
-containing embedded script.
-
-Code clean up:
-	- All files should use DOS format.
-	- Consider checkstyle
 
 
   Find out how to stop net.grinder.console.swing.TestGraph from

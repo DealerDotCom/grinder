@@ -227,7 +227,7 @@ java net.grinder.TCPSniffer -ssl -proxy -keyStore testkeys -keyStorePassword pas
 </pre>
 </blockquote>
 
-<p>Alternatively you might want to generate you're own. Here's an
+<p>Alternatively you might want to generate your own. Here's an
 example:</p>
 
 <blockquote>

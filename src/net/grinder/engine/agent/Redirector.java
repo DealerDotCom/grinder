@@ -20,17 +20,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine;
+package net.grinder.engine.agent;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 
 
 /**
- * This class is used to redirect the standard output and error
- * to disk files. 
- * It reads characters from a BufferedRead and prints them out
- * in a PrintStream.
+ * This class is used to redirect the standard output and error to
+ * disk files. It reads characters from a BufferedRead and prints them
+ * out in a PrintStream.
  * 
  * @author Paco Gomez
  * @author Philip Aston

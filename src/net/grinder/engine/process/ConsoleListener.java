@@ -31,7 +31,6 @@ import net.grinder.communication.Receiver;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
-import net.grinder.engine.EngineException;
 
 
 /**

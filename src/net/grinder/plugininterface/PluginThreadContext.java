@@ -50,8 +50,6 @@ public interface PluginThreadContext extends Logger, FilenameFactory
      */
     public int getCurrentRunNumber();
 
-    public void abortRun();
-
     /**
      * The plug-in should call startTimer() if it wishes to have more
      * precise control over the measured section of code. The Grinder

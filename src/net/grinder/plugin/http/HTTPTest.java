@@ -25,7 +25,6 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.common.TestImplementation;
 import net.grinder.plugininterface.RegisteredTest;
-import net.grinder.script.AbortRunException;
 import net.grinder.script.InvokeableTest;
 import net.grinder.script.ScriptException;
 import net.grinder.script.TestResult;

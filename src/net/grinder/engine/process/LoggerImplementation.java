@@ -29,7 +29,6 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import net.grinder.common.FilenameFactory;
-import net.grinder.common.GrinderException;
 import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
 import net.grinder.util.DelayedCreationFileWriter;
@@ -85,7 +84,7 @@ final class LoggerImplementation
 
     LoggerImplementation(String grinderID, String logDirectoryString, 
 			 boolean logProcessStreams, boolean appendLog)
-	throws GrinderException
+	throws EngineException
     {
 	m_grinderID = grinderID;
 	m_logProcessStreams = logProcessStreams;
@@ -96,12 +95,12 @@ final class LoggerImplementation
 	    logDirectory.mkdirs();
 	}
 	catch (Exception e) {
-	    throw new GrinderException(e.getMessage(), e);
+	    throw new EngineException(e.getMessage(), e);
 	}
 
 	if (!logDirectory.canWrite()) {
-	    throw new GrinderException("Cannot write to log directory '" +
-				       logDirectory.getPath() + "'");
+	    throw new EngineException("Cannot write to log directory '" +
+				      logDirectory.getPath() + "'");
 	}
 
 	m_filenameFactory =
@@ -111,7 +110,7 @@ final class LoggerImplementation
 	// println, we set auto flush on these PrintWriters because
 	// clients can get direct access to them.
 	m_outputWriter = new PrintWriter(createWriter("out", appendLog), true);
-	m_errorWriter =
+	m_errorWriter = 
 	    new PrintWriter(createWriter("error", appendLog), true);
 
 	// Don't autoflush, we explictly control flushing of this writer.
@@ -119,7 +118,7 @@ final class LoggerImplementation
     }
 
     private Writer createWriter(String prefix, boolean appendLog)
-	throws GrinderException
+	throws EngineException
     {
 	final File file = new File(m_filenameFactory.createFilename(prefix));
 
@@ -128,8 +127,8 @@ final class LoggerImplementation
 	// the file doesn't exist, we're pretty sure we can create it
 	// because we checked we can write to the log directory.
 	if (file.exists() && !file.canWrite()) {
-	    throw new GrinderException("Cannot write to '" + file.getPath() +
-				       "'");
+	    throw new EngineException("Cannot write to '" + file.getPath() +
+				      "'");
 	}
 
 	return new BufferedWriter(

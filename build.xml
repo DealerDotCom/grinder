@@ -107,6 +107,7 @@ what you want. Currently the conditionally built modules are:
     <path id="build.classpath">
       <pathelement path="${jakarta-oro.dir}/${jakarta-oro.jar}"/>
       <pathelement path="${jtidy.classpath}"/>
+      <pathelement path="${jython.classpath}"/>
       <pathelement path="${servlet.classpath}"/>
       <pathelement path="${xalan.classpath}"/>
       <pathelement path="${classes.dir}"/>

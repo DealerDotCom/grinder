@@ -1,4 +1,5 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2000 Paco Gomez
+// Copyright (C) 2000, 2001, 2002 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,35 +22,21 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.GrinderException;
+import net.grinder.engine.EngineException;
+import org.python.core.PyException;
 
 
 /**
- * Exception indicating that the current run should be aborted.
+ * Exception that wraps errors encountered when invoking Jython
+ * scripts.
  *
  * @author Philip Aston
  * @version $Revision$
  */ 
-final class AbortRunException extends GrinderException
+public class JythonScriptExecutionException extends EngineException
 {
-    /**
-     * Constructor.
-     *
-     * @param message The exception message.
-     **/
-    public AbortRunException(String message)
+    public JythonScriptExecutionException(String doingWhat, PyException e)
     {
-	super(message);
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param message The exception message.
-     * @param e Nested exception
-     **/
-    public AbortRunException(String message, Exception e)
-    {
-	super(message, e);
+	super("Jython runtime error encountered whilst " + doingWhat, e);
     }
 }

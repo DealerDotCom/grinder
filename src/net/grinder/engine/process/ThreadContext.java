@@ -25,7 +25,6 @@ package net.grinder.engine.process;
 import java.io.PrintWriter;
 
 import net.grinder.common.FilenameFactory;
-import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.engine.EngineException;
@@ -109,10 +108,6 @@ final class ThreadContext implements PluginThreadContext
 	return (ThreadContext)s_threadInstance.get();
     }
     
-    public final boolean getAbortedRun() {
-	return m_abortedRun;
-    } 
-
     public final long getElapsedTime() {
 	return m_elapsedTime;
     }
@@ -125,11 +120,6 @@ final class ThreadContext implements PluginThreadContext
     public final int getCurrentRunNumber()
     {
 	return m_threadLogger.getCurrentRunNumber();
-    }
-
-    public final void abortRun()
-    {
-	m_testResult.abortRun();
     }
 
     public void startTimer()
@@ -200,7 +190,7 @@ final class ThreadContext implements PluginThreadContext
     }
 
     final TestResult invokeTest(TestData testData)
-	throws AbortRunException, Sleeper.ShutdownException
+	throws PluginException, Sleeper.ShutdownException
     {
 	m_testResult.reset();
 	m_currentTestStatistics.reset();
@@ -221,59 +211,53 @@ final class ThreadContext implements PluginThreadContext
 		stopTimer();
 	    }
 
-	    if (m_testResult.getAbortedRun()) {
-		m_currentTestStatistics.addError();
-		throw new AbortRunException("Plugin aborted run");
-	    }
-	    else {
-		final long time = getElapsedTime();
+	    final long time = getElapsedTime();
 
-		if (m_testResult.isSuccessful()) {
-		    if (m_recordTime) {
-			m_currentTestStatistics.addTransaction(time);
-		    }
-		    else {
-			m_currentTestStatistics.addTransaction();
-		    }
+	    if (m_testResult.isSuccessful()) {
+		if (m_recordTime) {
+		    m_currentTestStatistics.addTransaction(time);
 		}
 		else {
-		    m_currentTestStatistics.addError();
-		    m_threadLogger.logError("Plug-in reported an error");
+		    m_currentTestStatistics.addTransaction();
 		}
+	    }
+	    else {
+		m_currentTestStatistics.addError();
+		m_threadLogger.logError("Plug-in reported an error");
+	    }
 
-		if (m_dataWriter != null) {
-		    m_scratchBuffer.setLength(0);
-		    m_scratchBuffer.append(getThreadID());
+	    if (m_dataWriter != null) {
+		m_scratchBuffer.setLength(0);
+		m_scratchBuffer.append(getThreadID());
+		m_scratchBuffer.append(", ");
+		m_scratchBuffer.append(getCurrentRunNumber());
+		m_scratchBuffer.append(", " );
+		m_scratchBuffer.append(test.getNumber());
+
+		for (int i=0; i<m_detailExpressionViews.length; ++i) {
 		    m_scratchBuffer.append(", ");
-		    m_scratchBuffer.append(getCurrentRunNumber());
-		    m_scratchBuffer.append(", " );
-		    m_scratchBuffer.append(test.getNumber());
 
-		    for (int i=0; i<m_detailExpressionViews.length; ++i) {
-			m_scratchBuffer.append(", ");
+		    final StatisticExpression expression =
+			m_detailExpressionViews[i].getExpression();
 
-			final StatisticExpression expression =
-			    m_detailExpressionViews[i].getExpression();
-
-			if (expression.isDouble()) {
-			    m_scratchBuffer.append(
-				expression.getDoubleValue(
-				    m_currentTestStatistics));
-			}
-			else {
-			    m_scratchBuffer.append(
-				expression.getLongValue(
-				    m_currentTestStatistics));
-			}
+		    if (expression.isDouble()) {
+			m_scratchBuffer.append(
+			    expression.getDoubleValue(
+				m_currentTestStatistics));
 		    }
-
-		    m_dataWriter.println(m_scratchBuffer);
+		    else {
+			m_scratchBuffer.append(
+			    expression.getLongValue(
+				m_currentTestStatistics));
+		    }
 		}
+		
+		m_dataWriter.println(m_scratchBuffer);
 	    }
 	}
 	catch (PluginException e) {
 	    m_currentTestStatistics.addError();
-	    throw new AbortRunException("Plugin threw exception", e);
+	    throw e;
 	}
 	finally {
 	    m_threadLogger.setCurrentTestNumber(-1);
@@ -292,7 +276,6 @@ final class ThreadContext implements PluginThreadContext
 	implements net.grinder.script.TestResult
     {
 	private boolean m_successful;
-	private boolean m_abortRun;
 
 	public final boolean isSuccessful()
 	{
@@ -306,18 +289,7 @@ final class ThreadContext implements PluginThreadContext
 
 	final void reset()
 	{
-	    m_abortRun = false;
 	    m_successful = false;
-	}
-
-	final void abortRun()
-	{
-	    m_abortRun = true;
-	}
-
-	final boolean getAbortedRun()
-	{
-	    return m_abortRun;
 	}
     }
 

@@ -29,7 +29,6 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
-import net.grinder.script.AbortRunException;
 import net.grinder.script.InvokeableTest;
 import net.grinder.script.TestResult;
 import net.grinder.statistics.StatisticsView;

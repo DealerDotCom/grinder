@@ -56,7 +56,7 @@ class GrinderThread implements java.lang.Runnable
 
     private final Monitor m_notifyOnCompletion;
     private final ThreadContext m_context;
-    private final BSFProcessContext.BSFThreadContext m_bsfThreadContext;
+    private final JythonScript.JythonRunnable m_jythonRunnable;
 
     private final long m_initialSleepTime;
     private final int m_numberOfRuns;
@@ -66,7 +66,8 @@ class GrinderThread implements java.lang.Runnable
      */        
     public GrinderThread(Monitor notifyOnCompletion,
 			 ProcessContext processContext,
-			 BSFProcessContext bsfProcessContext, int threadID, 
+			 JythonScript jythonScript,
+			 int threadID, 
 			 ThreadCallbacks threadCallbacks)
 	throws EngineException
     {
@@ -75,8 +76,7 @@ class GrinderThread implements java.lang.Runnable
 	m_context =
 	    new ThreadContext(processContext, threadID, threadCallbacks);
 
-	m_bsfThreadContext =
-	    bsfProcessContext.new BSFThreadContext(m_context);
+	m_jythonRunnable = jythonScript.new JythonRunnable();
 
 	final GrinderProperties properties = processContext.getProperties();
 
@@ -112,7 +112,7 @@ class GrinderThread implements java.lang.Runnable
 	    }
 	    
 	    logger.logMessage("Initialized " +
-				threadCallbackHandler.getClass().getName());
+			      threadCallbackHandler.getClass().getName());
 
 	    m_context.getSleeper().sleepFlat(m_initialSleepTime);
 
@@ -142,7 +142,8 @@ class GrinderThread implements java.lang.Runnable
 		    continue RUN_LOOP; // .. or should we abort the thread?
 		}
 
-		m_bsfThreadContext.run();
+		// What exceptionhandling here?
+		m_jythonRunnable.run();
 
 		try {
 		    threadCallbackHandler.endRun();
@@ -157,10 +158,6 @@ class GrinderThread implements java.lang.Runnable
 
 	    logger.logMessage("Finished " + currentRun + " runs");
 	}
-	//	catch (AbortRunException e) {
-	//	    logger.logError("Aborting run");
-	//	    e.printStackTrace(logger.getErrorLogWriter());
-	//	}
 	catch (Sleeper.ShutdownException e) {
 	    logger.logMessage("Shutdown");
 	}
