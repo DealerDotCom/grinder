@@ -153,7 +153,7 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 
 		    final String target = remoteHost + ":" + remotePort;
 
-		    System.err.println("New proxy connection to " + target);
+		    // System.err.println("New proxy connection to " + target);
 
 		    m_tempRemoteHost = remoteHost;
 		    m_tempRemotePort = remotePort;
@@ -223,9 +223,8 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 		try {
 		    final Socket localSocket = getServerSocket().accept();
 
-		    System.err.println("New proxy proxy connection to " +
-				       m_tempRemoteHost + ":" +
-				       m_tempRemotePort);
+		    // System.err.println("New proxy proxy connection to " +
+		    //   m_tempRemoteHost + ":" + m_tempRemotePort);
 
 		    launchThreadPair(localSocket,
 				     localSocket.getInputStream(),

@@ -140,8 +140,8 @@ public class HTTPProxySnifferEngine extends SnifferEngineImplementation
 			// remotePort = 80; 
 		    }
 
-		    System.err.println("New proxy connection to " +
-				       remoteHost + ":" + remotePort);
+		    //System.err.println("New proxy connection to " +
+		    //  remoteHost + ":" + remotePort);
 
 		    launchThreadPair(
 			localSocket, in, localSocket.getOutputStream(),
