@@ -21,6 +21,9 @@
 
 package net.grinder.plugin.http;
 
+import java.util.Iterator;
+
+import HTTPClient.CookieModule;
 import HTTPClient.HTTPConnection;
 
 /**
@@ -31,16 +34,57 @@ public final class HTTPConnectionWrapper implements HTTPPluginConnection
 {
     private final HTTPConnection m_httpConnection;
     private boolean m_followRedirects;
+    private boolean m_useCookies;
 
-    public HTTPConnectionWrapper(HTTPConnection httpConnection) 
+    public HTTPConnectionWrapper(HTTPConnection httpConnection,
+				 HTTPPluginConnectionDefaults defaults) 
     {
 	m_httpConnection = httpConnection;
+
+
+	synchronized (defaults) {
+	    setFollowRedirects(defaults.getFollowRedirects());
+	    setUseCookies(defaults.getUseCookies());
+
+	    final Iterator basicAuthenticationIterator = 
+		defaults.getBasicAuthorizations().iterator();
+
+	    while (basicAuthenticationIterator.hasNext()) {
+		final HTTPPluginConnectionDefaults.AuthorizationDetails
+		    authorizationDetails =
+		    (HTTPPluginConnectionDefaults.AuthorizationDetails)
+		    basicAuthenticationIterator.next();
+
+		addBasicAuthorization(authorizationDetails.getRealm(),
+				      authorizationDetails.getUser(),
+				      authorizationDetails.getPassword());
+	    }
+
+	    final Iterator digestAuthenticationIterator = 
+		defaults.getBasicAuthorizations().iterator();
+
+	    while (digestAuthenticationIterator.hasNext()) {
+		final HTTPPluginConnectionDefaults.AuthorizationDetails
+		    authorizationDetails =
+		    (HTTPPluginConnectionDefaults.AuthorizationDetails)
+		    digestAuthenticationIterator.next();
+
+		addDigestAuthorization(authorizationDetails.getRealm(),
+				       authorizationDetails.getUser(),
+				       authorizationDetails.getPassword());
+	    }
+
+	}
+    }
+
+    final HTTPConnection getConnection() 
+    {
+	return m_httpConnection;
     }
 
     public final boolean getFollowRedirects() 
     {
 	return m_followRedirects;
-
     }
 
     public final void setFollowRedirects(boolean followRedirects) 
@@ -57,16 +101,55 @@ public final class HTTPConnectionWrapper implements HTTPPluginConnection
 	}
     }
 
+    public final boolean getUseCookies() 
+    {
+	return m_useCookies;
+    }
+
+    public final void setUseCookies(boolean useCookies) 
+    {
+	m_useCookies = useCookies;
+
+	if (m_useCookies) {
+	    m_httpConnection.addModule(CookieModule.class, 0);
+	}
+	else {
+	    m_httpConnection.removeModule(CookieModule.class);
+	}
+    }
+
     public final void addBasicAuthorization(String realm, String user,
 					    String password)
     {
 	m_httpConnection.addBasicAuthorization(realm, user, password);
     }
 
+    public final void removeBasicAuthorization(String realm, String user,
+					       String password)
+    {
+	// TODO
+    }
+
+    public final void clearAllBasicAuthorizations()
+    {
+	// TODO
+    }
+
     public final void addDigestAuthorization(String realm, String user,
 					     String password)
     {
 	m_httpConnection.addDigestAuthorization(realm, user, password);
+    }
+
+    public final void removeDigestAuthorization(String realm, String user,
+						String password)
+    {
+	// TODO
+    }
+
+    public final void clearAllDigestAuthorizations()
+    {
+	// TODO
     }
 }
 

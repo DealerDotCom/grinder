@@ -96,12 +96,10 @@ public class HTTPPlugin implements GrinderPlugin
     }
 
     private PluginProcessContext m_processContext;
-    private final ScriptPluginContext m_scriptPluginContext =
-	new HTTPPluginScriptPluginContext();
+    private final HTTPPluginScriptContext m_scriptPluginContext =
+	new HTTPPluginScriptContext();
 
-    private boolean m_disablePersistentConnections;
     private boolean m_logHTML;
-    private boolean m_useCookies;
 
     public void initialize(PluginProcessContext processContext)
 	throws PluginException
@@ -111,10 +109,7 @@ public class HTTPPlugin implements GrinderPlugin
 	final GrinderProperties parameters =
 	    m_processContext.getPluginParameters();
 
-	m_disablePersistentConnections =
-	    parameters.getBoolean("disablePersistentConnections", false);
 	m_logHTML = parameters.getBoolean("logHTML", false);
-	m_useCookies = parameters.getBoolean("useCookies", true);
     }
 
     public PluginThreadCallbacks createThreadCallbackHandler(
@@ -132,38 +127,34 @@ public class HTTPPlugin implements GrinderPlugin
 	private final DecimalFormat m_threeFiguresFormat =
 	    new DecimalFormat("000");
 
-	private Map m_httpConnections = new HashMap();
+	private Map m_httpConnectionWrappers = new HashMap();
 
-	private HTTPConnection getConnection(URI uri)
+	private HTTPConnectionWrapper getConnectionWrapper(URI uri)
 	    throws ParseException, ProtocolNotSuppException
 	{
 	    final URI keyURI =
 		new URI(uri.getScheme(), uri.getHost(), uri.getPort(), "");
 
-	    HTTPConnection connection =
-		(HTTPConnection)m_httpConnections.get(keyURI);
+	    final HTTPConnectionWrapper existingConnectionWrapper =
+		(HTTPConnectionWrapper)m_httpConnectionWrappers.get(keyURI);
 
-	    if (connection == null) {
-		connection = new HTTPConnection(uri);
-		connection.setContext(HTTPPlugin.this);
-		connection.setAllowUserInteraction(false);
-
-		if (m_useCookies) {
-		    connection.addModule(CookieModule.class, 0);
-		}
-		else {
-		    connection.removeModule(CookieModule.class);
-		}
-
-		if (m_disablePersistentConnections) {
-		    NVPair[] def_hdrs = { new NVPair("Connection", "close") };
-		    connection.setDefaultHeaders(def_hdrs);
-		}
-	    
-		m_httpConnections.put(keyURI, connection);
+	    if (existingConnectionWrapper != null) {
+		return existingConnectionWrapper;
 	    }
 
-	    return connection;
+	    final HTTPConnection connection = new HTTPConnection(uri);
+	    connection.setContext(HTTPPlugin.this);
+	    connection.setAllowUserInteraction(false);
+
+	    final HTTPPluginConnectionDefaults connectionDefaults =
+		m_scriptPluginContext.getHTTPPluginConnectionDefaults(keyURI);
+
+	    final HTTPConnectionWrapper newConnectionWrapper =
+		new HTTPConnectionWrapper(connection, connectionDefaults);
+
+	    m_httpConnectionWrappers.put(keyURI, newConnectionWrapper);
+
+	    return newConnectionWrapper;
 	}
 
 	public HTTPPluginThreadCallbacks(PluginThreadContext threadContext)
@@ -180,13 +171,13 @@ public class HTTPPlugin implements GrinderPlugin
 	    // SHOULD ALSO REMOVE OLD AUTHORIZATIONS.
 
 	    // Close connections from previous run.
-	    final Iterator i = m_httpConnections.values().iterator();
+	    final Iterator i = m_httpConnectionWrappers.values().iterator();
 	
 	    while (i.hasNext()) {
-		((HTTPConnection)i.next()).stop();
+		((HTTPConnectionWrapper)i.next()).getConnection().stop();
 	    }
 	    
-	    m_httpConnections.clear();
+	    m_httpConnectionWrappers.clear();
 	}
 
 	public Object invokeTest(Test test, Object parameters)
@@ -201,7 +192,8 @@ public class HTTPPlugin implements GrinderPlugin
 		m_threadContext.startTimer();
 
 		final HTTPConnection httpConnection =
-		    getConnection(delayedInvocation.getURI());
+		    getConnectionWrapper(delayedInvocation.getURI()).
+		    getConnection();
 
 		httpResponse = delayedInvocation.request(httpConnection);
 
@@ -283,20 +275,68 @@ public class HTTPPlugin implements GrinderPlugin
 	return m_scriptPluginContext;
     }
 
-    public final class HTTPPluginScriptPluginContext
-	implements ScriptPluginContext
+    public final class HTTPPluginScriptContext implements ScriptPluginContext
     {
-	public final HTTPPluginConnection getConnection(URI uri)
+	private final HTTPPluginConnectionDefaults
+	    m_defaultConnectionDefaults = new HTTPPluginConnectionDefaults();
+
+	private final Map m_connectionDefaults = new HashMap();
+
+	final HTTPPluginConnectionDefaults
+	    getHTTPPluginConnectionDefaults(URI keyURI)
+	{
+	    synchronized (m_connectionDefaults) {
+		final HTTPPluginConnectionDefaults connectionSpecificDefaults =
+		    (HTTPPluginConnectionDefaults)
+		    m_connectionDefaults.get(keyURI);
+
+		if (connectionSpecificDefaults != null) {
+		    return connectionSpecificDefaults;
+		}
+
+		return m_defaultConnectionDefaults;
+	    }
+	}
+
+	public final HTTPPluginConnection getDefaultConnectionDefaults() 
+	{
+	    return m_defaultConnectionDefaults;
+	}
+
+	public final HTTPPluginConnection getConnectionDefaults(
+	    String uriString)
+	    throws ParseException, ProtocolNotSuppException
+	{
+	    final URI uri = new URI(uriString);
+	    
+	    final URI keyURI =
+		new URI(uri.getScheme(), uri.getHost(), uri.getPort(), "");
+
+	    synchronized (m_connectionDefaults) {
+		final HTTPPluginConnection existingConnectionDefaults =
+		    (HTTPPluginConnection)m_connectionDefaults.get(keyURI);
+
+		if (existingConnectionDefaults != null) {
+		    return existingConnectionDefaults;
+		}
+
+		final HTTPPluginConnection newConnectionDefaults =
+		    new HTTPPluginConnectionDefaults();
+
+		m_connectionDefaults.put(keyURI, newConnectionDefaults);
+
+		return newConnectionDefaults;
+	    }
+	}
+
+	public final HTTPPluginConnection getConnection(String uriString)
 	    throws GrinderException, ParseException, ProtocolNotSuppException
 	{
 	    final HTTPPluginThreadCallbacks threadCallbacks =
 		(HTTPPluginThreadCallbacks)
 		m_processContext.getPluginThreadCallbacks();
 	    
-	    final HTTPConnection httpConnection =
-		threadCallbacks.getConnection(uri);
-	    
-	    return new HTTPConnectionWrapper(httpConnection);
+	    return threadCallbacks.getConnectionWrapper(new URI(uriString));
 	}
     }
 }

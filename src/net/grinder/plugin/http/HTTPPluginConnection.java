@@ -34,9 +34,19 @@ public interface HTTPPluginConnection
     boolean getFollowRedirects();
 
     void setFollowRedirects(boolean followRedirects);
+
+    boolean getUseCookies();
+
+    void setUseCookies(boolean followRedirects);
 	
     void addBasicAuthorization(String realm, String user, String password);
 
+    void removeBasicAuthorization(String realm, String user, String password);
+
+    void clearAllBasicAuthorizations();
+
     void addDigestAuthorization(String realm, String user,
 				String password);
+
+    void clearAllDigestAuthorizations();
 }
