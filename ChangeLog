@@ -1,3 +1,232 @@
+2002-10-20  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugininterface/PluginTest.java, src/net/grinder/common/Test.java:
+	Tests no longer have properties.
+
+	* src/net/grinder/plugin/http/HTTPPlugin.java:
+	Tidy logging of requests.
+
+	* src/net/grinder/plugin/http/ConnectionDefaults.java, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginConnection.java:
+	Separate out a plugin instance specific PluginProcessContext.
+	Provide script plugin control objects.
+	First cut of HTTP connection control interface.
+
+	* src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/plugin/java/JavaPlugin.java, src/net/grinder/plugininterface/GrinderPlugin.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/PluginTest.java, src/net/grinder/script/ScriptContext.java, src/net/grinder/script/ScriptPluginContext.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/PluginProcessContextImplementation.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/JythonScript.java:
+	Separate out a plugin instance specific PluginProcessContext.
+	Provide script plugin control objects.
+
+	* etc/setenv.sh: Add WLS example client classpath.
+
+	* build.xml: SocketPlugin is dead.
+
+	* src/net/grinder/TCPSniffer.java: Fix non-proxy, non-ssl start up bug.
+
+	* src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginTestResult.java:
+	HTTPTest now supports GET, POST, HEAD, ... methods that allow default
+	path, query string, headers, data to be overridden on a per-request
+	basis.
+	Result of a call is now an HTTPResponse.
+
+	* src/net/grinder/script/InvokeableTest.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/plugininterface/PluginTest.java:
+	The InvokeableTest interface is dead. Plugins define test call
+	inteface.
+
+2002-10-19  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/JythonScript.java:
+	Rename "TestCase" to "TestRunnable".
+
+	* src/net/grinder/plugininterface/GrinderPlugin.java, src/net/grinder/plugininterface/PluginThreadCallbacks.java, tests-src/net/grinder/plugininterface/StubGrinderPlugin.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/java/JavaPlugin.java:
+	Slight simplification of the plugin interface.
+
+	* tests-src/net/grinder/engine/process/StubTestRegistryInitialisation.java, tests-src/net/grinder/plugininterface/TestPluginTest.java, tests-src/net/grinder/engine/process/StubProcessContext.java:
+	Fix tests.
+
+	* src/net/grinder/engine/process/JythonScript.java, src/net/grinder/script/ScriptContext.java, src/net/grinder/util/Sleeper.java:
+	Allow scripts to sleep.
+
+	* src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/GrinderProcess.java:
+	Tweak logging.
+
+	* src/net/grinder/engine/process/ThreadContext.java:
+	Don't sleep for each test, the script will do that.
+
+	* src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/util/Sleeper.java:
+	Tweak logging.
+
+	* src/net/grinder/engine/process/ProcessContext.java:
+	"Cycle" has been renamed "run".
+
+	* src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/agent/LauncherThread.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java:
+	Tweak logging.
+	Remove ProcessContext.getInstance().
+
+	* src/net/grinder/plugin/java/JavaTest.java, src/net/grinder/plugin/java/AdditionalProxyInterface.java, src/net/grinder/plugin/java/DelayedInvocation.java, src/net/grinder/plugin/java/JavaPlugin.java:
+	Scripts no longer directly access the JavaTest, instead they get a
+	proxy via JavaPlugin.createTest().
+
+	* src/net/grinder/engine/process/JythonScript.java, src/net/grinder/script/ScriptContext.java:
+	Shorten getCurrentRunNumber() to getRunNumber().
+
+	* build.xml, etc/localpaths.properties, etc/setenv.sh:
+	Remove JTidy. We'll use the Python htmllib in the future.
+
+	* src/net/grinder/plugininterface/PluginTest.java, src/net/grinder/plugininterface/PluginThreadCallbacks.java, src/net/grinder/script/InvokeableTest.java, src/net/grinder/script/TestResult.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginTestResult.java, src/net/grinder/plugin/java/JavaPlugin.java, src/net/grinder/plugin/java/JavaTest.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/TestRegistry.java:
+	First cut of reflecting test case.
+	(Required tweaks to the invocation protocol: dropped TestResult, we
+	need to be able to return arbitrary things; allow optional parameters
+	to be passed through the engine)
+
+2002-10-17  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/LoggerImplementation.java:
+	Log message to terminal if anything is written to the error log.
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	Remove redundant import statements.
+	Fatal error message to stdout.
+
+	* src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestRegistry.java:
+	Remove redundant import statements.
+
+	* examples/http/grinder.properties, examples/http/runtests.py:
+	Checkpoint example.
+
+	* tests-src/net/grinder/common/LogCounter.java:
+	Rename Logger.logMessage() to Logger.output() and Logger.logError() to
+	Logger.error().
+
+	* tests-src/net/grinder/plugin/http/TestCookieHandler.java:
+	CookieHandler is dead.
+
+	* src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/junit/JUnitPlugin.java, src/net/grinder/util/Sleeper.java, src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/common/Logger.java:
+	Rename Logger.logMessage() to Logger.output() and Logger.logError() to
+	Logger.error().
+
+	* src/net/grinder/plugin/http/HTTPHandler.java: Dead.
+
+	* src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/plugin/http/HTTPPlugin.java:
+	Remove old thread specific test state classes that were necessary to
+	support string beans.
+
+	* src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java:
+	Allow multiple tests to be registered using the same test number.
+	Tests with the same number share statistics.
+
+	* src/net/grinder/plugin/http/HTTPPluginTestResult.java:
+	TestResult for HTTPPlugin.
+
+	* src/net/grinder/plugin/http/HTTPTest.java:
+	HttpPlugin renamed to HTTPPlugin.
+
+	* src/net/grinder/plugininterface/PluginThreadCallbacks.java:
+	invoke() returns TestResult.
+
+	* src/net/grinder/script/TestResult.java: Now just a marker interface.
+
+	* src/net/grinder/plugin/http/HTTPPlugin.java: jde-import-organize :-)
+
+	* src/prj.el: Add JDK source directory.
+
+	* src/net/grinder/plugin/http/HTTPPlugin.java:
+	HttpPlugin renamed to HTTPPlugin.
+	HttpURLConnection support, string beans etc. dropped.
+	HTTPClientHandler merged into HTTPPlugin.
+
+	* src/net/grinder/plugin/http/HTTPClientHandler.java, src/net/grinder/plugin/http/HTTPHandlerException.java:
+	Merged into HTTPPlugin.
+
+	* src/net/grinder/engine/process/ThreadContext.java:
+	TestResult is now created by the plugin.
+
+2002-10-16  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/plugin/http/HttpMsg.java, src/net/grinder/plugin/http/HttpsPlugin.java, src/net/grinder/plugin/http/StringBean.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/CookieHandler.java:
+	Remove HttpURLConnection implementation.
+	Remove string beans.
+	Rename HttpPlugin to HTTPPlugin.
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	Log detail of process failure to the error log rather than the
+	terminal.
+
+	* src/net/grinder/engine/process/JythonScriptExecutionException.java:
+	Replace PyExceptions that wrap Java Throwables with a less verbose
+	wrapper.
+
+	* src/net/grinder/common/GrinderException.java, tests-src/net/grinder/common/TestGrinderException.java:
+	Nested exception stack trace common suffix truncation now ignores
+	white space.
+
+	* tests-src/net/grinder/communication/TestMessageQueue.java:
+	Fix for GrinderException changes.
+
+2002-10-15  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/script/ScriptContext.java:
+	Scripts can no longer get a collection of all registered tests.
+	(Introspecting plugins will provide another way to find things to do).
+	Scripts can ask for the current run number.
+
+	* src/net/grinder/engine/EngineException.java:
+	GrinderException now accepts nested Throwables.
+
+	* src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPTest.java:
+	Make HTTPTest.url a property.
+
+	* src/net/grinder/plugininterface/PluginThreadContext.java: Javadoc.
+
+	* src/net/grinder/engine/process/JythonScriptExecutionException.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/agent/LauncherThread.java:
+	Tweak message.
+
+	* tests-src/net/grinder/common/TestGrinderException.java:
+	Test GrinderException.
+
+	* src/net/grinder/plugininterface/PluginException.java, src/net/grinder/plugin/http/HTTPHandlerException.java:
+	GrinderException now contains nested Throwables.
+
+	* src/net/grinder/plugin/http/HTTPClientHandler.java:
+	Better test failure message.
+
+	* src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/script/InvokeableTest.java, src/net/grinder/script/TestResult.java:
+	TestResult now hangs on to any PluginException that was raised during
+	test invocation.
+
+	* src/net/grinder/console/swingui/OptionsDialogHandler.java:
+	GrinderException now supports nested Throwables (not just Exceptions).
+
+	* src/net/grinder/common/GrinderException.java:
+	Support nested Throwables (not just Exceptions).
+	Truncated common parts of nested stack trace.
+
+2002-10-14  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/TestRegistry.java: Javadoc.
+
+	* src/net/grinder/plugininterface/ThreadCallbacks.java, tests-src/net/grinder/engine/process/StubTestRegistryInitialisation.java, tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/plugininterface/StubGrinderPlugin.java, tests-src/net/grinder/plugininterface/TestPluginTest.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/plugin/http/HttpsPlugin.java, src/net/grinder/plugininterface/GrinderPlugin.java, src/net/grinder/plugininterface/PluginTest.java, src/net/grinder/plugininterface/PluginThreadCallbacks.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/GrinderProcess.java:
+	Add plugin registry and support for multiple activated plugins.
+
+2002-10-13  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/common/TestImplementation.java, tests-src/net/grinder/common/TestTestImplementation.java:
+	Dead.
+
+	* tests-src/net/grinder/engine/process/TestTestData.java, tests-src/net/grinder/plugininterface/StubGrinderPlugin.java, tests-src/net/grinder/plugininterface/TestPluginTest.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java, src/net/grinder/script/InvokeableTest.java, src/net/grinder/script/ScriptException.java, tests-src/net/grinder/common/StubTest.java, tests-src/net/grinder/communication/StubSender.java, tests-src/net/grinder/engine/process/StubTestRegistryInitialisation.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPTest.java, src/net/grinder/plugininterface/PluginProcessContext.java, src/net/grinder/plugininterface/PluginTest.java, src/net/grinder/plugininterface/RegisteredTest.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java:
+	Refactor to introduce PluginTest base class.
+
+	* .cvsignore: Ignore generated docs directory.
+
+	* xdoc/future/future-xhtml.xml: Organise the future.
+
+2002-10-10  Philip Aston  <paston@bea.com>
+
+	* TODO: *** empty log message ***
+
+	* xdoc/book-xhtml.xml: Tweak.
+
+	* build.xml, etc/grinder-manifest.mf, etc/localpaths.properties, etc/setenv.sh, src/net/grinder/console/swingui/resources/about.html, xdoc/license-xhtml.xml, LICENSE, LICENSE-HTTPClient, LICENSE-Jakarta-ORO, LICENSE-Jython:
+	Ship Jython.
+
 2002-10-09  Philip Aston  <paston@bea.com>
 
 	* README: "doc"->"docs".
