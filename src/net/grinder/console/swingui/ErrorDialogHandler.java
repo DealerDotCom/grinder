@@ -142,7 +142,6 @@ final class ErrorDialogHandler implements ErrorHandler {
 
         final JLabel label = new JLabel();
         label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        label.setForeground(Colours.BLACK);
         label.setText(stringWriter.toString());
 
         final Component scrollPane =
@@ -313,7 +312,7 @@ final class ErrorDialogHandler implements ErrorHandler {
     private int m_state = NO_INDENT;
 
     private static final String OPEN_TOP_LEVEL_LINE_FORMAT =
-      "<font size='-1'><strong>";
+      "<font size='-1' color='#000000'><strong>";
 
     private static final String CLOSE_TOP_LEVEL_LINE_FORMAT =
       "</strong></font>";
