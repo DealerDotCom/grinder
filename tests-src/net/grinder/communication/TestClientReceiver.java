@@ -101,11 +101,13 @@ public class TestClientReceiver extends TestCase {
     assertEquals(message2, receivedMessage2);
     assertTrue(message2.payloadEquals(receivedMessage2));
 
-    assertTrue(new BlockingActionThread() {
+    assertEquals(
+      CommunicationException.class,
+      new BlockingActionThread() {
         protected void blockingAction() throws CommunicationException {
           clientReceiver.waitForMessage();
         }
-      }.getException() instanceof CommunicationException);
+      }.getException().getClass());
 
     outputStream.close();
     

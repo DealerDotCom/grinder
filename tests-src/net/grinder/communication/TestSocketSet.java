@@ -156,11 +156,13 @@ public class TestSocketSet extends TestCase {
 
     ((SocketSet.Handle)handles2.get(0)).free();
 
-    assertTrue(new BlockingActionThread() {
+    assertEquals(
+      InterruptedException.class,
+      new BlockingActionThread() {
         protected void blockingAction() throws InterruptedException {
           socketSet.reserveAllHandles();
         }
-      }.getException() instanceof InterruptedException);
+      }.getException().getClass());
   }
 
   public void testClose() throws Exception {
