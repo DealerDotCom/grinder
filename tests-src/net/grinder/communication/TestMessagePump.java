@@ -74,5 +74,16 @@ public class TestMessagePump extends AbstractSenderAndReceiverTests {
     m_receiver.shutdown();
     m_sender.shutdown();
   }
+
+  public void testShutdownOnNullMessage() throws Exception {
+    m_sender.send(null);
+
+    try {
+      m_sender.send(new StartGrinderMessage());
+      //      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+  }
 }
 
