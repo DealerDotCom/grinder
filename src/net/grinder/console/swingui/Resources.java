@@ -145,7 +145,7 @@ public class Resources implements net.grinder.console.common.Resources
 		return out.toString();
 	    }
 	    catch (IOException e) {
-		System.err.println("Warning - could not reading " + resource);
+		System.err.println("Warning - could not read " + resource);
 	    }
 	}
 
