@@ -32,7 +32,14 @@ import java.util.Set;
 
 
 /**
- * Utility methods for working with directories.
+ * Wrapper around a directory path that behaves in a similar manner to
+ * <code>java.io.File</code>. Provides utility methods for working
+ * with the directory represented by the path.
+ *
+ * <p>A <code>Directory</code> be constructed with a path that
+ * represents an existing directory, or a path that represents no
+ * existing file. The physical directory can be created later using
+ * {@link #create}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -45,10 +52,10 @@ public final class Directory  {
   /**
    * Constructor.
    *
-   * @param directory The directory which this <code>Directory</code>
-   * operates upon.
-   * @exception DirectoryException If <code>directory</code> is not a
-   * directory, or if the directory could not be created.
+   * @param directory The directory path upon which this
+   * <code>Directory</code> operates.
+   * @exception DirectoryException If the path <code>directory</code>
+   * represents a file that exists but is not a directory.
    */
   public Directory(File directory) throws DirectoryException {
     if (directory.exists() && !directory.isDirectory()) {
@@ -65,10 +72,10 @@ public final class Directory  {
    * @exception DirectoryException If the directory could not be created.
    */
   public void create() throws DirectoryException {
-    if (!m_directory.exists()) {
-      if (!m_directory.mkdirs()) {
+    if (!getAsFile().exists()) {
+      if (!getAsFile().mkdirs()) {
         throw new DirectoryException(
-          "Could not create directory '" + m_directory + "'");
+          "Could not create directory '" + getAsFile() + "'");
       }
     }
   }
@@ -76,7 +83,7 @@ public final class Directory  {
   /**
    * Get as a <code>java.io.File</code>.
    *
-   * @return The <code>File</code>
+   * @return The <code>File</code>.
    */
   public File getAsFile() {
     return m_directory;
@@ -86,7 +93,8 @@ public final class Directory  {
    * List the files in the hierarchy below the directory.
    *
    * @return The list of files. Files are relative to the directory,
-   * not absolute. More deeply nested files are later in the list.
+   * not absolute. More deeply nested files are later in the list. The
+   * list is empty if the directory does not exist.
    */
   public File[] listContents() {
     return listContents(-1);
@@ -100,7 +108,8 @@ public final class Directory  {
    * that are older than this. Specify <code>-1</code> to return all
    * files.
    * @return The list of files. Files are relative to the directory,
-   * not absolute. More deeply nested files are later in the list.
+   * not absolute. More deeply nested files are later in the list. The
+   * list is empty if the directory does not exist.
    */
   public File[] listContents(long since) {
     return listContents(false, false, since);
@@ -114,8 +123,9 @@ public final class Directory  {
     final Set visited = new HashSet();
     final List directoriesToVisit = new ArrayList();
 
-    // new File(null, path) is equivalent to new File(path).
-    directoriesToVisit.add(null);
+    if (getAsFile().exists()) {
+      directoriesToVisit.add(null);
+    }
 
     while (directoriesToVisit.size() > 0) {
       final File[] directories =
@@ -167,6 +177,8 @@ public final class Directory  {
   /**
    * Delete the contents of the directory.
    *
+   * <p>Does nothing if the directory does not exist.</p>
+   *
    * @throws DirectoryException If a file could not be deleted. The
    * contents of the directory are left in an indeterminate state.
    * @see #delete
@@ -192,18 +204,19 @@ public final class Directory  {
    * @see #deleteContents
    */
   public void delete() throws DirectoryException {
-    if (!m_directory.delete()) {
-      throw new DirectoryException("Could not delete '" + m_directory + "'");
+    if (!getAsFile().delete()) {
+      throw new DirectoryException("Could not delete '" + getAsFile() + "'");
     }
   }
 
   /**
-   * Find the given file in the directory and return a File
-   * representing its path relative to the root of the directory.
+   * Find the given file in the directory and return a
+   * <code>File</code> representing its path relative to the root of
+   * the directory.
    *
    * @param absoluteFile The file to search for.
-   * @return The relatvie file, or <code>null</code> if the file was
-   * not found.
+   * @return The relative file, or <code>null</code> if the directory
+   * does not exist of <code>absoluteFile</code> was not found.
    */
   public File getRelativePath(File absoluteFile) {
 
@@ -230,7 +243,9 @@ public final class Directory  {
   public void copyTo(Directory target, boolean incremental)
     throws IOException {
 
-    target.create();
+    if (getAsFile().exists()) {
+      target.create();
+    }
 
     if (!incremental) {
       target.deleteContents();
@@ -260,9 +275,13 @@ public final class Directory  {
             in = new FileInputStream(source);
             out = new FileOutputStream(destination);
 
-            int n;
+            while (true) {
+              final int n = in.read(buffer);
 
-            while ((n = in.read(buffer)) != -1) {
+              if (n == -1) {
+                break;
+              }
+
               out.write(buffer, 0, n);
             }
           }
@@ -306,7 +325,8 @@ public final class Directory  {
   }
 
   /**
-   * An exception type used to report Directory related problems.
+   * An exception type used to report <code>Directory</code> related
+   * problems.
    */
   public static final class DirectoryException extends IOException {
     DirectoryException(String message) {
