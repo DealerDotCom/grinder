@@ -111,7 +111,7 @@ How do I use it?
 
 Its easy:
 
-	1. Set your classpath to include the grinder.jar file in the
+	1. Set your CLASSPATH to include the grinder.jar file in the
 	   lib directory.
 
 	2. Say

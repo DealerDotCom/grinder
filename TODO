@@ -6,8 +6,6 @@ Crisis:
 	Probably need to split into lifecycle events.
 	This probably means distching BSF and going pure Jython.
 
-Whats jython like for implementing interfaces?
-
 
 New notes
 *********
@@ -43,7 +41,7 @@ ThreadContext?
 Try to get rid of StringBeans...
 
 When HTTPTest etc know about the plugin, where do the lifecycle (begin
-run etc) callbacks go? To all known plugins? Probably. How important
+brun etc) callbacks go? To all known plugins? Probably. How important
 is the plugin lifecycle? Can plugins become libraries for HTTPTest etc
 to use? Hmmm.. thread callbacks seem important.
 
@@ -58,6 +56,7 @@ containing embedded script.
 Code clean up:
 	- All files should use DOS format.
 	- Consider checkstyle
+
 
   Find out how to stop net.grinder.console.swing.TestGraph from
   preventing parent process from detecting exit status. (For example,
@@ -77,6 +76,17 @@ Code clean up:
   TCPSniffer and HTTP plugin should be able to work through proxies.
 
   Update HTTPClient to support "mean time to first byte".
+
+  Philippe Renon notes:
+	The JUnitGrinder fails to get the tests from a TestSuite when
+	the suite is wrapped by a TestDecorator. The problem is that
+	the getTests() method in JUnitPlugin.java does a "instanceof
+	TestCase" test. Checking for "instanceof Test" will solve the
+	problem.
+
+	TestCase implements both Test and Assert interfaces. The
+	grinder will incorrectly fail when encountering a Test class
+	that doesn't derive from TestCase.
 
   Write more JUnit tests.
 

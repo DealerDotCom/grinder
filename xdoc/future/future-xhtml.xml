@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html>
+<body>
+
+<table>
+<td>
+<h1>The Grinder 3</h1>
+
+<p>This page documents things that are planned for The Grinder 3.
+There is currently no release date for The Grinder 3. Estimates vary
+from four to twelve months based on how much development time Phil
+gets.</p>
+
+<h3>Scripting engine</h3>
+
+<p>A scripting engine (either Jython or the Bean Scripting Framework)
+will be introduced to address the following.</p>
+
+<h4>Fixed test schedule</h4>
+
+The Grinder 2 is limited in that each worker process executes the
+tests in the test script sequentially, in a fixed order. The Grinder 3
+will address this using scripting. Plug-ins will be provided for the
+TCP Sniffer, which will generate simple test scripts. These can then
+be modified to introduce arbitrary branching and looping.
+
+<h4>Dynamic data</h4>
+
+<p>Currently the HTTP plug-in's <a
+href="../manual/http-plugin.html#string-bean">string bean</a> feature
+provides simple support for requests that contain dynamic data. The
+Grinder 3 will provide interfaces that allow the scripting language to
+create dynamic requests of arbitrary complexity.</p>
+
+<h4>Checking responses</h4>
+
+<p>There is very limited support in some of the The Grinder 2 plug-ins
+for checking the results of tests. The Grinder 3 will make these
+results directly available to the test script. This will allow various
+test paths to be taken based on the responses returned by the server.</p>
+
+<h3>Test script distribution</h3>
+
+<p>From the Grinder 3 console you will be able to edit test scripts
+and then distribute them to the worker processes. It will no longer be
+necessary to copy grinder.properties files around or to use a shared
+disk.
+</p>
+</td>
+<td valign="top">
+<img align="right" src="../images/grinder3.jpg" alt="The Grinder 3"/>
+</td>
+</table>
+</body>
+</html>

@@ -58,13 +58,13 @@ public class HTTPTest extends TestImplementation implements InvokeableTest
 	}
     }
 
-    public TestResult invoke() throws AbortRunException
+    public TestResult invoke() throws ScriptException
     {
 	try {
 	    return s_temporaryHack.invokeTest(m_registeredTest);
 	}
 	catch (GrinderException e) {
-	    throw new AbortRunException(e.getMessage(), e);
+	    throw new ScriptException(e.getMessage(), e);
 	}
     }
 }

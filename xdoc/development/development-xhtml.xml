@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<html>
+<body>
+
+    <h1>Building The Grinder</h1>
+
+    <p>The Grinder is distributed pre-built so you can use it straight
+    away. The source code is provided too. If you want to rebuild it
+    refer to the instructions in <code>build.xml</code>.</p>
+
+    <p>One day this page will contain more information about the
+    internals of The Grinder. Until that day, use the source.</p>
+
+</body>
+</html>
