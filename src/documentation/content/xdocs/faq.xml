@@ -533,23 +533,24 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
       </question>
 
       <answer>
-	<p>Calum Fitzgerald writes:</p>
+	<p><a
+	href="mailto:calum.fitzgerald@environment-agency.gov.uk">Calum
+	Fitzgerald</a> writes:</p>
 
 	<dl>
           <dt/>
 	  <dd class="quote">
 	    <p>This is a method we use to generate random users for
-	    tests on web applications. Its a fairly basic method but
-	    maybe fit for purpose.</p>
+	    tests on web applications.</p>
 
-	    <p>We store the usernames and passwords in a text file
-	    (eg.users.txt) with the format:
+	    <p>We store the usernames and
+	    passwords in a text file (eg.users.txt) with the format:
 	    <code>user,password</code></p>
 
 	    <p>We then read in the file and grab the components. The
 	    reason for using a file to store the usernames is that if
 	    you are using hundreds or throusands of usernames then
-	    jython/java has a limitation with arrays over 64KB.</p>
+	    Jython/Java has a limitation with arrays over 64KB.</p>
 
 	    <source>
 #
