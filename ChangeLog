@@ -1,5 +1,7 @@
 2001-11-18  Philip Aston  <paston@bea.com>
 
+	* build.xml: Next is 2.8.1.
+
 	* examples/http/grinder.properties, examples/junit/grinder.properties, examples/socket/grinder.properties:
 	Update examples.
 
