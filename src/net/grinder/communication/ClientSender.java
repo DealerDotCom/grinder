@@ -37,7 +37,6 @@ import java.net.Socket;
 public class ClientSender extends AbstractSender {
 
   private final OutputStream m_outputStream;
-  private boolean m_closed = false;
 
   /**
    * Factory method that makes a TCP connection and returns a
@@ -116,10 +115,6 @@ public class ClientSender extends AbstractSender {
    */
   protected final void writeMessage(Message message) throws IOException {
 
-    if (m_closed) {
-      throw new IOException("Closed");
-    }
-
     // I tried the model of using a single ObjectOutputStream for the
     // lifetime of the socket and a single ObjectInputStream. However,
     // the corresponding ObjectInputStream would get occasional EOF's
@@ -149,11 +144,6 @@ public class ClientSender extends AbstractSender {
     catch (IOException e) {
       // Ignore.
     }
-
-    // IOException if we attempt to send() to them after close(): some
-    // implementations don't do anything with close(), e.g.
-    // ByteArrayOutputStream.
-    m_closed = true;
   }
 }
 

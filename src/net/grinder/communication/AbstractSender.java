@@ -39,6 +39,7 @@ abstract class AbstractSender implements Sender {
   private final String m_grinderID;
   private final String m_senderID;
   private long m_nextSequenceID = 0;
+  private boolean m_shutdown = false;
 
   /**
    * Constructor.
@@ -90,6 +91,10 @@ abstract class AbstractSender implements Sender {
    */
   public final void send(Message message) throws CommunicationException {
 
+    if (m_shutdown) {
+      throw new CommunicationException("Shut down");
+    }
+
     if (!message.isInitialised()) {
       if (m_grinderID == null || m_senderID == null) {
         throw new CommunicationException(
@@ -127,5 +132,10 @@ abstract class AbstractSender implements Sender {
     catch (CommunicationException e) {
       // Ignore.
     }
+
+    // Keep track of whether we've been closed. Can't rely on delegate
+    // as some implementations don't do anything with close(), e.g.
+    // ByteArrayOutputStream.
+    m_shutdown = true;
   }
 }
