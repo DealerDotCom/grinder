@@ -13,6 +13,8 @@ against it too :-).
 
 - Philip Aston
 
+Defect 1167731 - URI decorators screw POST data.
+
 
 * Enhancements
 
@@ -33,7 +35,7 @@ path.
 ***** Release 1 (done)
 
 Task: Agent receives asynchronously.
-Task: Console to broadcast. Remove ScriptDistributionFiles work. 
+Task: Console to broadcast. Remove ScriptDistributionFiles work.
 Task: Allow editing in the console.
 Task: DistributeFilesMessage -> DistributeFileMessage (send a single
 file). Send in a background thread with a progress bar.
@@ -74,7 +76,7 @@ Task: If dirty buffers on play, optionally warn.
 
 ***** Release 4
 
-Task: Console to watch local file system for edits. 
+Task: Console to watch local file system for edits.
 
 Task: Add warning if saving outside of distribution.
 
@@ -220,7 +222,7 @@ Pablo Estades Fernández says:
  > I need to use client cert on TCPProxy to be able to
  > record the test case but also I need to configure
  > grinder workers to run the test case presenting a
- > client cert. 
+ > client cert.
 
 ** Scripting
 
@@ -248,9 +250,9 @@ Idea from Nurul Choudhury:
 
  > It would be possible for certain classes of error (AttributeError
  > being a good example) to spew out just
- > 
+ >
  >       Unknown attribute GETx at "http.py", line 9 in __call__.
- > 
+ >
  > Is this what you're after?
 
 To do this, might have to behave differently with 1 thread vs many.
@@ -280,8 +282,8 @@ Shouldn't really throw GrinderException anywhere.
 DeSouza, Edwin writes:
  > Instead of using:
  > http://www.innovation.ch/java/HTTPClient/index.html
- > <http://www.innovation.ch/java/HTTPClient/FAQ.html> 
- >  
+ > <http://www.innovation.ch/java/HTTPClient/FAQ.html>
+ >
  > How about using Jakarta Commons HttpClient (more popular and Apache
  > License):
  > http://jakarta.apache.org/commons/httpclient/index.html
@@ -292,15 +294,15 @@ Justin Spears writes:
  > little lacking in functionality.  I might suggest using
  > httpunit (http://httpunit.sourceforge.net) instead.  It
  > works well with jython, and has extremely powerful methods
- > for handling links, posts, gets, etc.  
- > 
+ > for handling links, posts, gets, etc.
+ >
  > It uses nekohtml to parse malformed HTML documents into
  > valid XML then exposes a useful DOM based on these results.
- > 
+ >
  > It also handles HTTPS connections, forms, links and other
  > useful things in an easy to use easy to understand
  > manner, (no more NVPAIRS or regex's, or patching HTTPClient!).
- > 
+ >
  > ...
 
 OK, this amounts to a campaign against HTTPClient!
@@ -338,14 +340,14 @@ But they're lovely!
 
 In the next beta I'll supply HTTPClient pre-patched for JSSE.
 
-*** Summary 
+*** Summary
 On balance, yes HttpClient looks good and we should use it if it
 proves to be efficient. I'll add it to the TODO, but its a significant
 change => low priority.
 
 We perhaps need to look more closely at parsing support for
 functional assertions, but I don't want to lose The Grinder's
-efficiency here. 
+efficiency here.
 
 Also http://www.nogoop.com/product_16.html#compare
 
