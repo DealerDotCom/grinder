@@ -19,6 +19,7 @@
 package net.grinder.engine;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
@@ -49,7 +50,7 @@ public class LauncherThread extends Thread
      * It starts a new thread that will execute the run method.
      */    
     public LauncherThread(String grinderID, String commandLine,
-			  String alternatePropertiesFilename)
+			  File alternatePropertiesFile)
 	throws GrinderException
     {
 	super(grinderID);
@@ -60,9 +61,9 @@ public class LauncherThread extends Thread
 	stringBuffer.append(" ");
 	stringBuffer.append(grinderID);
 
-	if (alternatePropertiesFilename != null) {
+	if (alternatePropertiesFile != null) {
 	    stringBuffer.append(" ");
-	    stringBuffer.append(alternatePropertiesFilename);
+	    stringBuffer.append(alternatePropertiesFile.getPath());
 	}
 
 	m_commandLine = stringBuffer.toString();

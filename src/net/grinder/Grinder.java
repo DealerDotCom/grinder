@@ -50,14 +50,14 @@ public class Grinder
 	    System.exit(1);
 	}
 
-	new Grinder(args.length == 0 ? null: args[0]).run();
+	new Grinder(args.length != 0 ? new File(args[0]) : null).run();
     }
 
-    private final String m_alternateFilename;
+    private final File m_alternateFile;
 
-    private Grinder(String alternateFilename) 
+    private Grinder(File alternateFile) 
     {
-	m_alternateFilename = alternateFilename;
+	m_alternateFile = alternateFile;
     }
     
     protected void run() throws GrinderException
@@ -66,7 +66,7 @@ public class Grinder
 
 	while (true) {
 	    final GrinderProperties properties =
-		new GrinderProperties(new File(m_alternateFilename));
+		new GrinderProperties(m_alternateFile);
 
 	    final int numberOfProcesses =
 		properties.getInt("grinder.processes", 1);
@@ -104,7 +104,7 @@ public class Grinder
 	    for (int i=0; i<numberOfProcesses; i++) {
 		threads[i] = new LauncherThread(hostIDString + "-" +
 						Integer.toString(i),
-						command, m_alternateFilename);
+						command, m_alternateFile);
 		threads[i].start();
 	    }
 
