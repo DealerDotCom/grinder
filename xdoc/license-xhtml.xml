@@ -61,7 +61,7 @@ License, The Grinder is a "work that uses the Library".</p>
 
 <p>The Grinder includes the software Jython, created by Jum Hugunin,
 Barry Warsaw and the Jython team (<a
-href="http://www.jython.org/">http://www.jython.org</a>). This is
+href="http://www.jython.org/">http://www.jython.org/</a>). This is
 distributed under the terms of the <a href="#JythonLicense">Jython and
 JPython software licenses</a>.</p>
 
@@ -77,10 +77,9 @@ href="#JakartaOROLicense">Apache Software License</a>.</p>
 <h1>jEdit Syntax</h1>
 
 <p>The Grinder includes the jEdit Syntax highlighting package (<a
-href="http://www.jedit-syntax.org">http://www.jedit-syntax.org</a>).
-This is distributed according to the <a
-href="#jEditSyntaxLicense">jEdit Syntax copyright and usage
-statement</a>.</p>
+href="http://syntax.jedit.org/">http://syntax.jedit.org/</a>). This is
+distributed according to the <a href="#jEditSyntaxLicense">jEdit
+Syntax copyright and usage statement</a>.</p>
 
 <h1><a name="LGPL">The GNU Lesser General Public License</a></h1>
 <pre>

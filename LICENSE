@@ -42,8 +42,8 @@ uses the Library". See the file LICENSE-HTTPClient for license and
 copyright details.
 
 The Grinder includes the software Jython, created by Jum Hugunin,
-Barry Warsaw and the Jython team. See the file LICENSE-Jython for
-license and copyright details.
+Barry Warsaw and the Jython team (http://www.jython.org/). See the
+file LICENSE-Jython for license and copyright details.
 
 The Grinder includes software developed by the Apache Software
 Foundation (http://www.apache.org/), specifically the Jakarta ORO
@@ -51,5 +51,5 @@ regular expression library. See the file LICENSE-Jakarta-ORO for
 license and copyright details.
 
 The Grinder includes the jEdit Syntax highlighting package
-(http://www.jedit-syntax.org). See the file LICENSE-jEditSyntax for
+(http://syntax.jedit.org/). See the file LICENSE-jEditSyntax for
 license and copyright details.
