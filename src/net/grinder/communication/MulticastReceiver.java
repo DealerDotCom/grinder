@@ -50,6 +50,8 @@ public final class MulticastReceiver extends AbstractReceiver
     public MulticastReceiver(String multicastAddressString, int multicastPort)
 	throws CommunicationException
     {
+	super(true);
+
 	try {
 	    m_socket = new MulticastSocket(multicastPort);
 	    m_socket.joinGroup(InetAddress.getByName(multicastAddressString));

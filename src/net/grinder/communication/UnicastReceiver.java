@@ -55,6 +55,9 @@ public final class UnicastReceiver extends AbstractReceiver
     public UnicastReceiver(String addressString, int port)
 	throws CommunicationException
     {
+	super(false);		// TCP guarantees message sequence so
+				// we don't have to.
+
 	try {
 	    m_serverSocket =
 		new ServerSocket(port, 50,

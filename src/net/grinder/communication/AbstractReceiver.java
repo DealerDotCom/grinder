@@ -30,7 +30,7 @@ import java.util.Map;
  **/
 abstract class AbstractReceiver implements Receiver
 {
-    private final Map m_sequenceValues = new HashMap();
+    private final Map m_sequenceValues;
     private boolean m_listening = false;
 
     private final MessageQueue m_messageQueue = new MessageQueue(true);
@@ -38,8 +38,9 @@ abstract class AbstractReceiver implements Receiver
     /**
      * Constructor.
      **/
-    protected AbstractReceiver()
+    protected AbstractReceiver(boolean checkSequence)
     {
+	m_sequenceValues = checkSequence ? new HashMap() : null;
     }
 
     protected final MessageQueue getMessageQueue()
@@ -73,14 +74,17 @@ abstract class AbstractReceiver implements Receiver
 	final String senderID = message.getSenderUniqueID();
 	final long sequenceNumber = message.getSequenceNumber();
 
-	final SequenceValue sequenceValue =
-	    (SequenceValue)m_sequenceValues.get(senderID);
+	if (m_sequenceValues != null) {
+	    final SequenceValue sequenceValue =
+		(SequenceValue)m_sequenceValues.get(senderID);
 
-	if (sequenceValue != null) {
-	    sequenceValue.nextValue(sequenceNumber, senderID);
-	}
-	else {
-	    m_sequenceValues.put(senderID, new SequenceValue(sequenceNumber));
+	    if (sequenceValue != null) {
+		sequenceValue.nextValue(sequenceNumber, senderID);
+	    }
+	    else {
+		m_sequenceValues.put(senderID,
+				     new SequenceValue(sequenceNumber));
+	    }
 	}
 	    
 	return message;
