@@ -324,8 +324,14 @@ public final class GrinderProcess {
 
       // Schedule a regular statistics report to the console. We don't
       // need to schedule this at a fixed rate. Each report contains
-      // the work done since the last report.
-      timer.schedule(reportTimerTask, 0, m_reportToConsoleInterval);
+      // the work done since the last report. 
+
+      // First (empty) report to console to start it recording if its
+      // not already.
+      reportTimerTask.run();
+
+      timer.schedule(reportTimerTask, m_reportToConsoleInterval,
+                     m_reportToConsoleInterval);
 
       try {
         if (m_duration > 0) {
@@ -474,9 +480,7 @@ public final class GrinderProcess {
     private final TestStatisticsMap m_testStatisticsMap;
 
     public ReportToConsoleTimerTask() {
-      m_testStatisticsMap =
-        m_context.getTestRegistry().getTestStatisticsMap();
-
+      m_testStatisticsMap = m_context.getTestRegistry().getTestStatisticsMap();
     }
 
     public void run() {
