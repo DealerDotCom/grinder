@@ -28,9 +28,6 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.common.Test;
-import net.grinder.script.InvokeableTest;
-import net.grinder.script.TestResult;
 import net.grinder.statistics.StatisticsView;
 
 
@@ -56,15 +53,10 @@ public interface PluginProcessContext extends Logger, FilenameFactory
      **/
     GrinderProperties getPluginParameters();
 
-    RegisteredTest registerTest(InvokeableTest test) throws GrinderException;
-
-    TestResult invokeTest(RegisteredTest registeredTest)
-	throws GrinderException;
-
     /**
      * Plugins can use this method to register a new "summary"
-     * statistics view. These views appear in the Grinder summary
-     * table and the Console.
+     * statistics view. These views appear in the worker process
+     * summary table and the console.
      *
      * @param view The new view.
      * @exception GrinderException If the view cannot be registered.

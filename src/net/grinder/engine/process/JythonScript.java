@@ -36,7 +36,6 @@ import net.grinder.common.Test;
 import net.grinder.engine.EngineException;
 import net.grinder.script.InvokeableTest;
 import net.grinder.script.ScriptContext;
-import net.grinder.script.ScriptException;
 import net.grinder.script.TestResult;
 
 

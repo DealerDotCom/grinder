@@ -31,8 +31,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import net.grinder.common.StubTest;
 import net.grinder.common.Test;
-import net.grinder.common.TestImplementation;
 
 
 /**
@@ -54,8 +54,8 @@ public class TestTestStatisticsMap extends TestCase
 	super(name);
     }
 
-    private final Test m_test0 = new TestImplementation(0, "");
-    private final Test m_test1 = new TestImplementation(1, "");
+    private final Test m_test0 = new StubTest(0, "");
+    private final Test m_test1 = new StubTest(1, "");
     private TestStatistics m_statistics0;
     private TestStatistics m_statistics1;
     private StatisticsIndexMap.LongIndex m_index;

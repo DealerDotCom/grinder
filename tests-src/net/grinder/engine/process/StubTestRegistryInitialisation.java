@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2002 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,46 +21,24 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.common.Test;
-import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.statistics.TestStatistics;
-import net.grinder.statistics.TestStatisticsFactory;
-
+import net.grinder.communication.StubSender;
 
 /**
- * Represents an individual test. Holds configuration information and
- * the tests statistics.
+ * Stubbed TestRegistry initialisation. Allows the unit tests to
+ * bypass package interface.
  *
- * Package scope.
- * 
  * @author Philip Aston
  * @version $Revision$
  **/
-final class TestData implements TestRegistry.RegisteredTest
+public class StubTestRegistryInitialisation
 {
-    private final GrinderPlugin m_plugin;
-    private final Test m_test;
-    private final TestStatistics m_statistics;
+    private static boolean s_initialised = false;
 
-    TestData(GrinderPlugin plugin, Test testDefinition)
+    public static void initialise() throws Exception
     {
-	m_plugin = plugin;
-	m_test = testDefinition;
-	m_statistics = TestStatisticsFactory.getInstance().create();
-    }
-
-    final GrinderPlugin getPlugin() 
-    {
-	return m_plugin;
-    }
-
-    final Test getTest()
-    {
-	return m_test;
-    }
-
-    final TestStatistics getStatistics() 
-    {
-	return m_statistics;
+	if (!s_initialised) {
+	    new TestRegistry(new StubSender());
+	    s_initialised = true;
+	}
     }
 }

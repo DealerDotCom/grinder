@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2002 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,37 +19,41 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.script;
-
-import net.grinder.common.GrinderException;
+package net.grinder.common;
 
 
 /**
- * Script exception class.
+ * Stub implementation of <code>AbstractTestSemantics</code> for the unit tests.
  *
  * @author Philip Aston
  * @version $Revision$
- */ 
-public class ScriptException extends GrinderException
+ **/
+public class StubTest extends AbstractTestSemantics
 {
-    /**
-     * Constructor.
-     *
-     * @param message The exception message.
-     **/
-    public ScriptException(String message)
+    private final int m_number;
+    private final String m_description;
+
+    private final GrinderProperties m_parameters =
+	new GrinderProperties();
+
+    public StubTest(int number, String description)
     {
-	super(message);
+	m_number = number;
+	m_description = description;
     }
 
-    /**
-     * Constructor.
-     *
-     * @param message The exception message.
-     * @param e Nested exception
-     **/
-    public ScriptException(String message, Exception e)
+    public final int getNumber()
     {
-	super(message, e);
+	return m_number;
+    }
+
+    public final String getDescription()
+    {
+	return m_description;
+    }
+
+    public final GrinderProperties getParameters()
+    {
+	return m_parameters;
     }
 }

@@ -34,7 +34,10 @@ import java.util.TreeMap;
 import net.grinder.common.GrinderException;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.Sender;
+import net.grinder.engine.EngineException;
+import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.script.InvokeableTest;
+import net.grinder.script.TestResult;
 import net.grinder.statistics.TestStatisticsMap;
 
 
@@ -42,8 +45,10 @@ import net.grinder.statistics.TestStatisticsMap;
  * @author Philip Aston
  * @version $Revision$
  */
-final class TestRegistry
+public final class TestRegistry
 {
+    private static TestRegistry s_instance;
+
     private final Sender m_consoleSender;
 
     /**
@@ -61,12 +66,30 @@ final class TestRegistry
     private final TestStatisticsMap m_testStatisticsMap =
 	new TestStatisticsMap();
 
-    public TestRegistry(Sender consoleSender)
+
+    public static final TestRegistry getInstance()
     {
+	return s_instance;
+    }
+
+
+    /**
+     * Constructor.
+     */
+
+    TestRegistry(Sender consoleSender) throws EngineException
+    {
+	if (s_instance != null) {
+	    throw new EngineException("Already initialised");
+	}
+
+	s_instance = this;
+
 	m_consoleSender = consoleSender;
     }
 
-    public final TestData registerTest(InvokeableTest test)
+    public RegisteredTest registerTest(GrinderPlugin plugin,
+				       InvokeableTest test)
 	throws GrinderException
     {
 	final TestData newTestData;
@@ -78,7 +101,7 @@ final class TestRegistry
 		return existing;
 	    }
 	    else {
-		newTestData = new TestData(test);
+		newTestData = new TestData(plugin, test);
 		m_testMap.put(test, newTestData);
 		m_testStatisticsMap.put(test, newTestData.getStatistics());
 
@@ -92,6 +115,14 @@ final class TestRegistry
 	return newTestData;
     }
 
+    public TestResult invokeTest(RegisteredTest registeredTest)
+	throws GrinderException
+    {
+	final TestData testData = (TestData)registeredTest;
+
+	return ThreadContext.getThreadInstance().invokeTest(testData);
+    }
+
     public final synchronized InvokeableTest[] getTests()
     {
 	if (m_tests == null) {
@@ -103,8 +134,12 @@ final class TestRegistry
 	return m_tests;
     }
 
-    public final TestStatisticsMap getTestStatisticsMap()
+    final TestStatisticsMap getTestStatisticsMap()
     {
 	return m_testStatisticsMap;
+    }
+
+    public interface RegisteredTest
+    {
     }
 }

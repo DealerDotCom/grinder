@@ -22,12 +22,7 @@
 package net.grinder.plugin.http;
 
 import net.grinder.common.GrinderException;
-import net.grinder.common.Test;
-import net.grinder.common.TestImplementation;
-import net.grinder.plugininterface.RegisteredTest;
-import net.grinder.script.InvokeableTest;
-import net.grinder.script.ScriptException;
-import net.grinder.script.TestResult;
+import net.grinder.plugininterface.PluginTest;
 
 
 /**
@@ -36,34 +31,26 @@ import net.grinder.script.TestResult;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public class HTTPTest extends TestImplementation implements InvokeableTest
+public class HTTPTest extends PluginTest
 {
-    static HttpPlugin s_temporaryHack;
+    /* private */ static /* final */ HttpPlugin s_plugin;
+    
+    //	= Blah.register(HttpPlugin.KEY, HttpPlugin.class);
 
-    private transient /* <-- FIX MY PARENT */ RegisteredTest m_registeredTest;
+    private final String m_url;
 
     public HTTPTest(int number, String description, String url)
-	throws ScriptException
+	throws GrinderException
     {
-	super(number, description);
+	super(s_plugin, number, description);
 
-	getParameters().setProperty("url", url);
+	m_url = url;
 
-	try {
-	    m_registeredTest = s_temporaryHack.registerTest(this);
-	}
-	catch (GrinderException e) {
-	    throw new ScriptException("Failed to register test", e);
-	}
+	s_plugin.registerTest(this); 	// Temporary.
     }
 
-    public TestResult invoke() throws ScriptException
+    public final String getURL() 
     {
-	try {
-	    return s_temporaryHack.invokeTest(m_registeredTest);
-	}
-	catch (GrinderException e) {
-	    throw new ScriptException(e.getMessage(), e);
-	}
+	return m_url;
     }
 }

@@ -123,9 +123,7 @@ public final class GrinderProcess implements Monitor
 	final GrinderProperties properties =
 	    new GrinderProperties(propertiesFile);
 
-	ProcessContext.initialiseSingleton(grinderID, properties);
-
-	m_context = ProcessContext.getInstance();
+	m_context = new ProcessContext(grinderID, properties);
 
 	m_dataWriter = m_context.getLoggerImplementation().getDataWriter();
 

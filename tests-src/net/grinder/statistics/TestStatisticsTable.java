@@ -30,8 +30,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.StubTest;
 import net.grinder.common.Test;
-import net.grinder.common.TestImplementation;
 
 
 /**
@@ -83,9 +83,9 @@ public class TestStatisticsTable extends TestCase
 	}
 
 	final Test[] tests = {
-	    new TestImplementation(9, "Test 9"),
-	    new TestImplementation(3, "Test 3"),
-	    new TestImplementation(113, "Another test"),
+	    new StubTest(9, "Test 9"),
+	    new StubTest(3, "Test 3"),
+	    new StubTest(113, "Another test"),
 	};
 
 	final RawStatistics[] rawStatistics = new RawStatistics[tests.length];

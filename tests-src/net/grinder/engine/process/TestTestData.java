@@ -28,7 +28,12 @@ import junit.swingui.TestRunner;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
-import net.grinder.common.TestImplementation;
+import net.grinder.common.StubTest;
+import net.grinder.plugininterface.GrinderPlugin;
+import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.plugininterface.StubGrinderPlugin;
+import net.grinder.plugininterface.ThreadCallbacks;
 
 
 /**
@@ -49,26 +54,23 @@ public class TestTestData extends TestCase
 	super(name);
     }
 
-    protected void setUp()
+    public void testTestData() throws Exception
     {
-    }
-
-    public void test0() throws Exception
-    {
-	final Test test = new TestImplementation(99, "Some stuff");
+	final GrinderPlugin plugin = new StubGrinderPlugin();
 	
-	final TestData testData = new TestData(test);
-	assertEquals(test, testData.getTest());
-	assertNotNull(testData.getStatistics());
-    }
+	final Test test1 = new StubTest(99, "Some stuff");
+	
+	final TestData testData1 = new TestData(plugin, test1);
+	assertEquals(plugin, testData1.getPlugin());
+	assertEquals(test1, testData1.getTest());
+	assertNotNull(testData1.getStatistics());
 
-    public void test1() throws Exception
-    {
-	final Test test = new TestImplementation(-33, "");
-	test.getParameters().put("Something", "blah");
+	final Test test2 = new StubTest(-33, "");
+	test2.getParameters().put("Something", "blah");
 
-	final TestData testData = new TestData(test);
-	assertEquals(test, testData.getTest());
-	assertNotNull(testData.getStatistics());
+	final TestData testData2 = new TestData(plugin, test2);
+	assertEquals(plugin, testData2.getPlugin());
+	assertEquals(test2, testData2.getTest());
+	assertNotNull(testData2.getStatistics());
     }
 }

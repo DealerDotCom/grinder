@@ -37,9 +37,6 @@ import net.grinder.communication.Sender;
 import net.grinder.communication.UnicastSender;
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginProcessContext;
-import net.grinder.plugininterface.RegisteredTest;
-import net.grinder.script.InvokeableTest;
-import net.grinder.script.TestResult;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsView;
@@ -70,26 +67,20 @@ class ProcessContext implements PluginProcessContext
     private final TestStatisticsFactory m_testStatisticsFactory =
 	TestStatisticsFactory.getInstance();
 
-    final synchronized static
-	void initialiseSingleton(String grinderID,
-				 GrinderProperties properties)
+    public static final ProcessContext getInstance()
+    {
+	return s_instance;
+    }
+
+    ProcessContext(String grinderID, GrinderProperties properties)
 	throws GrinderException
     {
 	if (s_instance != null) {
 	    throw new EngineException("Already initialised");
 	}
 
-	s_instance = new ProcessContext(grinderID, properties);
-    }
+	s_instance = this;
 
-    public final synchronized static ProcessContext getInstance()
-    {
-	return s_instance;
-    }
-
-    private ProcessContext(String grinderID, GrinderProperties properties)
-	throws GrinderException
-    {
 	m_grinderID = grinderID;
 	m_properties = properties;
 
@@ -196,36 +187,6 @@ class ProcessContext implements PluginProcessContext
     public GrinderProperties getPluginParameters()
     {
 	return m_pluginParameters;
-    }
-
-    public RegisteredTest registerTest(InvokeableTest test)
-	throws GrinderException
-    {
-	return new TestDataAdapter(m_testRegistry.registerTest(test));
-    }
-
-    public TestResult invokeTest(RegisteredTest registeredTest)
-	throws GrinderException
-    {
-	final TestDataAdapter adapter = (TestDataAdapter)registeredTest;
-
-	return ThreadContext.getThreadInstance().invokeTest(
-	    adapter.getTestData());
-    }
-
-    private final static class TestDataAdapter implements RegisteredTest
-    {
-	private final TestData m_testData;
-
-	public TestDataAdapter(TestData testData)
-	{
-	    m_testData = testData;
-	}
-
-	public final TestData getTestData()
-	{
-	    return m_testData;
-	}
     }
 
     public final void logMessage(String message)

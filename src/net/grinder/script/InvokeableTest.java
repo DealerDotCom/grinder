@@ -21,6 +21,7 @@
 
 package net.grinder.script;
 
+import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 
 
@@ -32,5 +33,5 @@ import net.grinder.common.Test;
  */ 
 public interface InvokeableTest extends Test
 {
-    TestResult invoke() throws ScriptException;
+    TestResult invoke() throws GrinderException;
 }

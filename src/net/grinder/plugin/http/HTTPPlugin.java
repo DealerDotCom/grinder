@@ -39,10 +39,10 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
 import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.plugininterface.PluginProcessContext;
-import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.RegisteredTest;
+import net.grinder.plugininterface.PluginProcessContext;
+import net.grinder.plugininterface.PluginTest;
+import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.script.TestResult;
 import net.grinder.statistics.ExpressionView;
@@ -77,7 +77,7 @@ public class HttpPlugin implements GrinderPlugin
     public void initialize(PluginProcessContext processContext)
 	throws PluginException
     {
-	HTTPTest.s_temporaryHack = this;
+	HTTPTest.s_plugin = this;
 
 	m_processContext = processContext;
 
@@ -151,17 +151,13 @@ public class HttpPlugin implements GrinderPlugin
 	}
     }
 
-    final RegisteredTest registerTest(HTTPTest test) throws GrinderException
-    {
-	m_callData.put(test, new CallData(test));
-
-	return m_processContext.registerTest(test);
-    }
-
-    final TestResult invokeTest(RegisteredTest registeredTest)
+    // Will go once CallData stuff is moved to HTTPTest.
+    final void registerTest(HTTPTest test)
 	throws GrinderException
     {
-	return m_processContext.invokeTest(registeredTest);
+	synchronized(m_callData) {
+	    m_callData.put(test, new CallData(test));
+	}
     }
 
     public ThreadCallbacks createThreadCallbackHandler()
@@ -175,27 +171,17 @@ public class HttpPlugin implements GrinderPlugin
      */
     protected class CallData
     {
-	private final Test m_test;
-	private final String m_urlString;
+	private final HTTPTest m_test;
 	private final String m_okString;
 	private String m_postString;
 	private final Map m_headers;
 	private final HTTPHandler.AuthorizationData m_authorizationData;
 
-	public CallData(Test test) throws PluginException
+	public CallData(HTTPTest test) throws PluginException
 	{
 	    m_test = test;
 	    
 	    final GrinderProperties testParameters = m_test.getParameters();
-
-	    try {
-		m_urlString = testParameters.getMandatoryProperty("url");
-	    }
-	    catch (GrinderException e) {
-		throw new PluginException("URL for Test " +
-					  m_test.getNumber() +
-					  " not specified", e);
-	    }
 
 	    m_okString = testParameters.getProperty("ok", null);
 	    m_headers = testParameters.getPropertySubset("header.");
@@ -325,7 +311,7 @@ public class HttpPlugin implements GrinderPlugin
 
 	    public String getURLString() throws HTTPHandlerException
 	    {
-		return replaceKeys(m_urlString);
+		return replaceKeys(m_test.getURL());
 	    }
 
 	    public String getOKString() throws HTTPHandlerException
@@ -427,7 +413,7 @@ public class HttpPlugin implements GrinderPlugin
 
     protected class HTTPPluginThreadCallbacks implements ThreadCallbacks
     {
-	private final Map m_threadData = new HashMap(m_callData.size());
+	private Map m_threadData;
 
 	private PluginThreadContext m_threadContext = null;
 	private HTTPHandler m_httpHandler = null;
@@ -493,10 +479,15 @@ public class HttpPlugin implements GrinderPlugin
 		m_bean = null;
 	    }
 
-	    final Iterator callDataIterator = m_callData.values().iterator();
+	    synchronized(m_callData) {
+		m_threadData = new HashMap(m_callData.size());
 
-	    while (callDataIterator.hasNext()) {
-		initialiseThreadData((CallData)callDataIterator.next());
+		final Iterator callDataIterator =
+		    m_callData.values().iterator();
+
+		while (callDataIterator.hasNext()) {
+		    initialiseThreadData((CallData)callDataIterator.next());
+		}
 	    }
 	}
 
@@ -522,10 +513,12 @@ public class HttpPlugin implements GrinderPlugin
 		return threadData;
 	    }
 	    else {
-		final CallData callData = (CallData)m_callData.get(test);
-		//!! TODO HANDLE NOT REGISTERED CASE.
+		synchronized(m_callData) {
+		    final CallData callData = (CallData)m_callData.get(test);
 
-		return initialiseThreadData(callData);
+		    // TODO: handle not registered case.
+		    return initialiseThreadData(callData);
+		}
 	    }
 	}
 

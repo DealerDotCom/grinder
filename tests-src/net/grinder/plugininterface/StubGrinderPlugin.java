@@ -20,48 +20,24 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process;
-
-import net.grinder.common.Test;
-import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.statistics.TestStatistics;
-import net.grinder.statistics.TestStatisticsFactory;
-
+package net.grinder.plugininterface;
 
 /**
- * Represents an individual test. Holds configuration information and
- * the tests statistics.
+ * <code>GrinderPlugin</code> stub.
  *
- * Package scope.
- * 
  * @author Philip Aston
  * @version $Revision$
  **/
-final class TestData implements TestRegistry.RegisteredTest
+public class StubGrinderPlugin implements GrinderPlugin
 {
-    private final GrinderPlugin m_plugin;
-    private final Test m_test;
-    private final TestStatistics m_statistics;
-
-    TestData(GrinderPlugin plugin, Test testDefinition)
+    public void initialize(PluginProcessContext processContext)
+	throws PluginException 
     {
-	m_plugin = plugin;
-	m_test = testDefinition;
-	m_statistics = TestStatisticsFactory.getInstance().create();
     }
 
-    final GrinderPlugin getPlugin() 
+    public ThreadCallbacks createThreadCallbackHandler()
+	throws PluginException
     {
-	return m_plugin;
-    }
-
-    final Test getTest()
-    {
-	return m_test;
-    }
-
-    final TestStatistics getStatistics() 
-    {
-	return m_statistics;
+	return null;
     }
 }

@@ -1,4 +1,5 @@
-// Copyright (C) 2001, 2002 Philip Aston
+// Copyright (C) 2000 Paco Gomez
+// Copyright (C) 2000, 2001, 2002 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,12 +20,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.plugininterface;
+package net.grinder.communication;
+
 
 /**
+ * <code>Sender</code> stub.
+ *
  * @author Philip Aston
  * @version $Revision$
  **/
-public interface RegisteredTest
+public class StubSender implements Sender
 {
+    public void send(Message message) throws CommunicationException
+    {
+    }
+
+    public void flush() throws CommunicationException
+    {
+    }
+
+    public void queue(Message message) throws CommunicationException
+    {
+    }
+
+    public void shutdown() throws CommunicationException
+    {
+    }
 }
