@@ -47,14 +47,14 @@ path.
 Task: Agent receives asynchronously.
 Task: Console to broadcast. Remove ScriptDistributionFiles work. 
 Task: Allow editing in the console.
+Task: DistributeFilesMessage -> DistributeFileMessage (send a single
+file). Send in a background thread with a progress bar.      
 
 Task: Console to maintain map of remote agent address to last update
 time. For now assume that agent cache should be overwritten. For now,
 find the oldest time and broadcast since then. Null -> send the lot.
 Task: Console to clear cache state on root change -> broadcast full
 cache on distribution. Need a special "clear cache" message.
-Task: DistributeFilesMessage -> DistributeFileMessage (send a single
-file). Send in a background thread with a progress bar.      
 Task: Console to allow selection of script. Warn if no script
 selected.
 Task: Agent FileStore to update copy of cache asynchronously. Main
@@ -69,7 +69,6 @@ Task: Console to watch local file system for edits.
 Task: Add warning if saving outside of distribution.
 Task: File Store directory should have a README describing what its
 for.
-
 
 - RELEASE -
 

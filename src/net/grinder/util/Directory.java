@@ -57,6 +57,15 @@ public final class Directory  {
   }
 
   /**
+   * Get as a <code>java.io.File</code>.
+   *
+   * @return The <code>File</code>
+   */
+  public File getAsFile() {
+    return m_directory;
+  }
+
+  /**
    * List the files in the hierarchy below the directory.
    *
    * @return The list of files. Files are relative to the directory,
@@ -133,28 +142,6 @@ public final class Directory  {
     for (int i = deleteList.length - 1; i >= 0; --i) {
       deleteList[i].delete();
     }
-  }
-
-  /**
-   * Return the files as an array of {@link FileContents}.
-
-   * @return The array.
-   */
-  public FileContents[] toFileContentsArray() {
-
-    final File[] files = listContents();
-    final List result = new ArrayList();
-
-    for (int i = 0; i < files.length; ++i) {
-      try {
-        result.add(new FileContents(m_directory, files[i]));
-      }
-      catch (FileContents.FileContentsException e) {
-        m_warnings.add(e.getMessage());
-      }
-    }
-
-    return (FileContents[])result.toArray(new FileContents[result.size()]);
   }
 
   /**

@@ -29,6 +29,7 @@ import java.util.List;
 
 import net.grinder.communication.Acceptor;
 import net.grinder.communication.CommunicationException;
+import net.grinder.communication.ConnectionIdentity;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.FanOutServerSender;
 import net.grinder.communication.Message;
@@ -54,14 +55,13 @@ public final class ConsoleCommunication {
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
   private final ErrorQueue m_errorQueue = new ErrorQueue();
+  private final DistributionStatus m_distributionStatus;
+  private final ProcessControl m_processControl;
 
   /**
    * Synchronise on m_messageHandlers before accessing.
    */
   private final List m_messageHandlers = new LinkedList();
-
-  private final ProcessControl m_processControl =
-    new ProcessControlImplementation(this);
 
   private Acceptor m_acceptor = null;
   private Receiver m_receiver = null;
@@ -78,6 +78,12 @@ public final class ConsoleCommunication {
                               ConsoleProperties properties) {
     m_resources = resources;
     m_properties = properties;
+
+    m_distributionStatus = new DistributionStatus();
+
+    m_processControl = new ProcessControlImplementation(this,
+                                                        new ProcessStatusSet(),
+                                                        m_distributionStatus);
 
     reset();
 
@@ -140,6 +146,20 @@ public final class ConsoleCommunication {
       m_acceptor = new Acceptor(m_properties.getConsoleHost(),
                                 m_properties.getConsolePort(),
                                 1);
+
+      m_acceptor.addListener(
+        ConnectionType.CONTROL,
+        new Acceptor.Listener() {
+          public void connectionAccepted(ConnectionType connectionType,
+                                         ConnectionIdentity connection) {
+            m_distributionStatus.set(connection, -1);
+          }
+
+          public void connectionClosed(ConnectionType connectionType,
+                                       ConnectionIdentity connection) {
+            m_distributionStatus.remove(connection);
+          }
+        });
     }
     catch (CommunicationException e) {
       m_errorQueue.handleException(

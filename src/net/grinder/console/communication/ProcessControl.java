@@ -21,6 +21,7 @@
 
 package net.grinder.console.communication;
 
+import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 
 
@@ -48,11 +49,13 @@ public interface ProcessControl {
   void stopWorkerProcesses();
 
   /**
-   * Distribute a list of {@link FileContents}.
+   * Get a {@link FileDistributionHandler} which will handle the
+   * distribution of files from the given directory.
    *
-   * @param files The {@link FileContents} list.
+   * @param  directory The directory.
+   * @return The distribution handler.
    */
-  void distributeFiles(FileContents[] files);
+  FileDistributionHandler getFileDistributionHandler(Directory directory);
 
   /**
    * Add a listener for process status data.
@@ -60,4 +63,34 @@ public interface ProcessControl {
    * @param listener The listener.
    */
   void addProcessStatusListener(ProcessStatusListener listener);
+
+
+  /**
+   * Something that can handle the distribution of files.
+   */
+  public interface FileDistributionHandler {
+
+    /**
+     * Estimate of the number of files to process.
+     *
+     * @return How many.
+     */
+    int getNumberOfFiles();
+
+    /**
+     * Send the next file.
+     *
+     * @return <code>true</code> => there are more files to process.
+     * @throws FileContents.FileContentsException If an error occurs
+     * sending the file.
+     */
+    boolean sendNextFile() throws FileContents.FileContentsException;
+
+    /**
+     * Get the name of the next file to distribute.
+     *
+     * @return The name of the next file.
+     */
+    String getNextFileName();
+  }
 }

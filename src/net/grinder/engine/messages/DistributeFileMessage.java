@@ -26,32 +26,33 @@ import net.grinder.util.FileContents;
 
 
 /**
- * Message used to distribute files from the console to agent processes.
+ * Message used to distribute a file from the console to the agent
+ * processes.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class DistributeFilesMessage implements Message {
+public final class DistributeFileMessage implements Message {
 
   private static final long serialVersionUID = -4338519775293350257L;
 
-  private final FileContents[] m_files;
+  private final FileContents m_fileContents;
 
   /**
    * Constructor.
    *
-   * @param files Array of file contents to distribute.
+   * @param fileContents The file contents to distribute.
    */
-  public DistributeFilesMessage(FileContents[] files) {
-    m_files = files;
+  public DistributeFileMessage(FileContents fileContents) {
+    m_fileContents = fileContents;
   }
 
   /**
-   * Return the array of file contents.
+   * Return the file contents.
    *
-   * @return Array of {@link FileContents}.
+   * @return The file contents.
    */
-  public FileContents[] getFiles() {
-    return m_files;
+  public FileContents getFileContents() {
+    return m_fileContents;
   }
 }

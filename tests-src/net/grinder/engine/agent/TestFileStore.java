@@ -32,7 +32,7 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
 import net.grinder.communication.SimpleMessage;
-import net.grinder.engine.messages.DistributeFilesMessage;
+import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.FileContents;
@@ -100,18 +100,12 @@ public class TestFileStore extends AbstractFileTestCase {
 
     final Sender sender = fileStore.getSender(delegateSender);
 
-    // Messages that aren't DistributeFilesMessages get passed through
+    // Messages that aren't DistributeFileMessages get passed through
     // to delegate.
     final Message message0 = new SimpleMessage();
     sender.send(message0);
     loggerStubFactory.assertNoMoreCalls();
     delegateSenderStubFactory.assertSuccess("send", new Object[] { message0 });
-    delegateSenderStubFactory.assertNoMoreCalls();
-
-    // No action if DistributeFilesMessages is empty.
-    final Message message1 = new DistributeFilesMessage(new FileContents[0]);
-    sender.send(message1);
-    loggerStubFactory.assertNoMoreCalls();
     delegateSenderStubFactory.assertNoMoreCalls();
 
     // Shutdown is delegated.
@@ -124,35 +118,28 @@ public class TestFileStore extends AbstractFileTestCase {
     final File sourceDirectory = new File(getDirectory(), "source");
     sourceDirectory.mkdirs();
 
-    final File file0 = new File(sourceDirectory, "file0");
+    final File file0 = new File(sourceDirectory, "dir/file0");
+    file0.getParentFile().mkdirs();
     final OutputStream outputStream = new FileOutputStream(file0);
     final byte[] bytes = new byte[500];
     new Random().nextBytes(bytes);
     outputStream.write(bytes);
     outputStream.close();
 
-    final File file1 = new File(sourceDirectory, "dir/file1");
-    file1.getParentFile().mkdirs();
-    file1.createNewFile();
-
     final FileContents fileContents0 =
-      new FileContents(sourceDirectory, new File("file0"));
+      new FileContents(sourceDirectory, new File("dir/file0"));
 
-    final FileContents fileContents1 =
-      new FileContents(sourceDirectory, new File("dir/file1"));
-
-    final Message message2 = new DistributeFilesMessage(
-      new FileContents[] { fileContents0, fileContents1, });
-    sender.send(message2);
+    final Message message1 = new DistributeFileMessage(fileContents0);
+    sender.send(message1);
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
     delegateSenderStubFactory.assertNoMoreCalls();
 
     // Test with a bad message.
-    new File(getDirectory(), "file0").setReadOnly();
+    new File(getDirectory(), "dir/file0").setReadOnly();
 
     try {
-      sender.send(message2);
+      sender.send(message1);
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {

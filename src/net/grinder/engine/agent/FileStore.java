@@ -23,20 +23,19 @@ package net.grinder.engine.agent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
-import net.grinder.engine.messages.DistributeFilesMessage;
+import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 
 
 /**
- * Process {@link DistributeFilesMessage}s received from the console.
+ * Process {@link DistributeFileMessage}s received from the console.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -87,25 +86,21 @@ final class FileStore {
 
     return new Sender() {
         public void send(Message message) throws CommunicationException {
-          if (message instanceof DistributeFilesMessage) {
-            final FileContents[] files =
-              ((DistributeFilesMessage)message).getFiles();
+          if (message instanceof DistributeFileMessage) {
+            final FileContents fileContents =
+              ((DistributeFileMessage)message).getFileContents();
 
-            if (files.length > 0) {
-              m_logger.output("Updating file store: " + Arrays.asList(files));
+            m_logger.output("Updating file store: " + fileContents);
 
-              for (int i = 0; i < files.length; ++i) {
-                try {
-                  files[i].create(m_directory);
-                }
-                catch (FileContents.FileContentsException e) {
-                  m_logger.error("Could not write file: " + e.getMessage());
+            try {
+              fileContents.create(m_directory);
+            }
+            catch (FileContents.FileContentsException e) {
+              m_logger.error("Could not write file: " + e.getMessage());
 
-                  // Throwing an exception causes the agent to
-                  // silently exit.
-                  throw new CommunicationException(e.getMessage(), e);
-                }
-              }
+              // Throwing an exception causes the agent to silently
+              // exit.
+              throw new CommunicationException(e.getMessage(), e);
             }
           }
           else {

@@ -63,6 +63,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.ProgressMonitor;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.Border;
@@ -1187,23 +1188,50 @@ public final class ConsoleUI implements ModelListener {
 
     public void actionPerformed(ActionEvent event) {
 
+      final Directory directory;
+
       try {
-        final Directory directory =
+        directory =
           new Directory(m_model.getProperties().getDistributionDirectory());
-
-        final FileContents[] files = directory.toFileContentsArray();
-        final String[] warnings = directory.getWarnings();
-
-        for (int i = 0; i < warnings.length; ++i) {
-          // Should really present these through the UI.
-          System.err.println(warnings[i]);
-        }
-
-        m_processControl.distributeFiles(files);
       }
       catch (Directory.DirectoryException e) {
         getErrorHandler().handleException(e);
+        return;
       }
+
+      final ProcessControl.FileDistributionHandler distributionHandler =
+        m_processControl.getFileDistributionHandler(directory);
+
+      final ProgressMonitor progressMonitor =
+        new ProgressMonitor(m_frame, (String) getValue(NAME), "", 0,
+                            distributionHandler.getNumberOfFiles());
+      progressMonitor.setMillisToDecideToPopup(0);
+      progressMonitor.setMillisToPopup(0);
+
+      final Runnable distributionRunnable = new Runnable() {
+          private int m_n = 0;
+
+          public void run() {
+            while (!progressMonitor.isCanceled()) {
+              try {
+                if (!distributionHandler.sendNextFile()) {
+                  break;
+                }
+              }
+              catch (FileContents.FileContentsException e) {
+                // We don't want to put a dialog in the user's face
+                // for every problem. Lets just log the the terminal
+                // until we have a proper console log.
+                e.printStackTrace();
+              }
+
+              progressMonitor.setProgress(++m_n);
+              progressMonitor.setNote(distributionHandler.getNextFileName());
+            }
+          }
+        };
+
+      new Thread(distributionRunnable).start();
     }
   }
 

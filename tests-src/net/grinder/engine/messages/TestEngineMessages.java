@@ -21,11 +21,10 @@
 
 package net.grinder.engine.messages;
 
-import junit.framework.TestCase;
-
 import java.io.File;
 
 import net.grinder.communication.Message;
+import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.Serializer;
 import net.grinder.util.FileContents;
 
@@ -37,7 +36,7 @@ import net.grinder.util.FileContents;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestEngineMessages extends TestCase {
+public class TestEngineMessages extends AbstractFileTestCase {
 
   private static Message serialise(Message original) throws Exception {
     return (Message) Serializer.serialize(original);
@@ -51,7 +50,7 @@ public class TestEngineMessages extends TestCase {
     final InitialiseGrinderMessage original =
       new InitialiseGrinderMessage(false, file0, file1);
 
-    final InitialiseGrinderMessage recevied =
+    final InitialiseGrinderMessage received =
       (InitialiseGrinderMessage) serialise(original);
 
     assertTrue(!original.getReportToConsole());
@@ -75,18 +74,28 @@ public class TestEngineMessages extends TestCase {
 
     final StartGrinderMessage startGrinderMessage =
       new StartGrinderMessage(file);
-    assertEquals(file, startGrinderMessage.getScriptFile());
 
-    serialise(startGrinderMessage);
+    final StartGrinderMessage received =
+      (StartGrinderMessage)serialise(new StartGrinderMessage(file));
+
+    assertEquals(file, received.getScriptFile());
   }
 
   public void testStopGrinderMessage() throws Exception {
     serialise(new StopGrinderMessage());
   }
 
-  public void testDistributeFilesMessage() throws Exception {
-    final FileContents[] fileContents = new FileContents[0];
+  public void testDistributeFileMessage() throws Exception {
+    final File file = new File("test");
+    new File(getDirectory(), file.getPath()).createNewFile();
 
-    serialise(new DistributeFilesMessage(fileContents));
+    final FileContents fileContents = new FileContents(getDirectory(), file);
+
+    final DistributeFileMessage received =
+      (DistributeFileMessage)
+      serialise(new DistributeFileMessage(fileContents));
+    
+    assertEquals(fileContents.toString(),
+                 received.getFileContents().toString());
   }
 }
