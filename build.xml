@@ -9,9 +9,9 @@ Introduction
 Ant
 ===
 
-The Grinder build system is based on Jakarta Ant 1.3, which is a Java
-building tool originally developed for the Jakarta Tomcat project but
-now used in many other Apache projects and extended by many
+The Grinder build system is based on Jakarta Ant 1.4.1, which is a
+Java building tool originally developed for the Jakarta Tomcat project
+but now used in many other Apache projects and extended by many
 developers.
 
 Ant is a very handy tool that uses a build file written in XML (this
@@ -30,7 +30,7 @@ Do the following:
 	2. Set/export ANT_HOME, JAVA_HOME and PATH as described
 	   in the Ant user guide.
 
-       	3. Type ant
+       	3. Type ant (or ant.bat on Windows platforms)
 
 Say 
 	ant -projecthelp
@@ -39,92 +39,122 @@ for details of other targets. The compilation targets do depend on the
 "clean" target, to rebuild you need to say "ant clean compile".
 
 The build auto-detects what modules to build by checking your
-CLASSPATH for classes the module depends on. You may have to unset
-your CLASSPATH if this doesn't do what you want. Currently the
-conditionally built modules are:
+CLASSPATH and paths defined in the file etc/localpaths.properties for
+classes the module depends on. You may have to modify
+etc/localpaths.properties or unset your CLASSPATH if this doesn't do
+what you want. Currently the conditionally built modules are:
 
-   HTTP SSL plugin (Needs the JSSE 1.0.2)
-   TCPSniffer SSL engine (Needs the JSSE 1.0.2)
-   JUnit test cases (Needs JUnit 3.7 and Ant 1.3 optional.jar)
+   HTTP SSL plugin (Needs JSSE 1.0.2)
+   TCPSniffer SSL engine (Needs JSSE 1.0.2)
+   JUnit plugin (Needs JUnit 3.7)
+   JUnit test cases (Needs JUnit 3.7 and Ant 1.4.1 optional.jar)
    ExampleJTidyStringBean (Needs JTidy and Xalan XPath support)
 -->
 
 <project name="The Grinder" default="all" basedir=".">
+
+  <property name="Name" value="The Grinder"/>
+  <property name="name" value="grinder"/>
+  <property name="version" value="2.8.3"/>
+  <property name="year" value="2002"/>
+
+  <!-- javac switches -->
+  <property name="debug" value="on"/>
+  <property name="optimize" value="on"/>
+  <property name="deprecation" value="on"/>
+
+  <!-- source of all evil -->
+  <property name="src.dir" value="src"/>
+  <property name="test-src.dir" value="tests-src"/>
+  <property name="etc.dir" value="etc"/>
+  <property name="manifest.mf" value="etc/grinder-manifest.mf"/>
+  <property name="examples.dir" value="examples"/>
+
+  <!-- local settings -->
+  <property file="${etc.dir}/localpaths.properties"/>
+
+  <!-- javadoc -->
+  <property name="doc.dir" value="doc"/>
+  <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
+  <property name="javadoc.packages" value="net.grinder.*"/>
+  <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
+
+  <!-- webapps, in general and specific -->
+  <property name="webapps.dir" value="webapps"/>
+  <property name="sniffer.webapp.dir" value="${webapps.dir}/sniff-n-grind"/>
+
+  <!-- output -->
+  <property name="build.dir" value="build"/>
+  <property name="prepared-src.dir" value="${build.dir}/src"/>
+  <property name="classes.dir" value="${build.dir}/classes"/>
+  <property name="webapp-build.dir" value="${build.dir}/webapps"/>
+  <property name="prepared-test-src.dir" value="${build.dir}/test-src"/>
+  <property name="test-classes.dir" value="${build.dir}/tests-classes"/>
+  <property name="lib.dir" value="lib"/>
+  <property name="lib.jar" value="${name}.jar"/>
+  <property name="dist.root" value="${build.dir}/distribution"/>
+  <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
 
   <!-- =================================================================== -->
   <!-- Initialization target                                               -->
   <!-- =================================================================== -->
   <target name="init">
     <tstamp/>
-    <!-- what -->
-    <property name="Name" value="The Grinder"/>
-    <property name="name" value="grinder"/>
-    <property name="version" value="2.8.3"/>
-    <property name="year" value="2002"/>
+
+    <echo message="** Building ${Name} ${version} on ${TODAY} **"/>
+
+    <path id="build.classpath">
+      <pathelement path="${jakarta-oro.dir}/${jakarta-oro.jar}"/>
+      <pathelement path="${jtidy.classpath}"/>
+      <pathelement path="${servlet.classpath}"/>
+      <pathelement path="${xalan.classpath}"/>
+      <pathelement path="${classes.dir}"/>
+    </path>
 
     <!-- options -->
-    <available classname="com.sun.net.ssl.HostnameVerifier"
-	       property="have.jsse" />
+    <available classpathref="build.classpath"
+               classname="com.sun.net.ssl.HostnameVerifier"
+               property="have.jsse" />
 
-    <available classname="junit.framework.TestCase"
-	       property="have.junit" />
+    <available classpathref="build.classpath"
+               classname="junit.framework.TestCase"
+               property="have.junit" />
 
-    <available classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
+    <available classpathref="build.classpath"
+               classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
 	       property="have.junit.task" />
 
-    <available classname="javax.servlet.http.HttpServletRequest"
+    <available classpathref="build.classpath"
+               classname="javax.servlet.http.HttpServletRequest"
 	       property="have.servlet"/>
 
-    <available classname="org.w3c.tidy.Tidy" property="have.jtidy"/>
+    <available classpathref="build.classpath"
+               classname="org.w3c.tidy.Tidy"
+               property="have.jtidy"/>
 
-    <available classname="org.apache.xpath.XPathAPI" property="have.xpath"/>
+    <available classpathref="build.classpath"
+               classname="org.apache.oro.text.regex.Pattern"
+               property="have.oro"/>
+
+    <available classpathref="build.classpath"
+               classname="org.apache.xpath.XPathAPI"
+               property="have.xalan"/>
 
     <condition property="have.jtidy-and-xpath">
       <and>
 	<equals arg1="${have.jtidy}" arg2="true"/>
-	<equals arg1="${have.xpath}" arg2="true"/>
+	<equals arg1="${have.xalan}" arg2="true"/>
       </and>
     </condition>
-
-    <!-- javac switches -->
-    <property name="debug" value="on"/>
-    <property name="optimize" value="on"/>
-    <property name="deprecation" value="on"/>
-
-    <!-- source of all evil -->
-    <property name="src.dir" value="src"/>
-    <property name="test-src.dir" value="tests-src"/>
-    <property name="etc.dir" value="etc"/>
-    <property name="examples.dir" value="examples"/>
-
-    <!-- javadoc -->
-    <property name="doc.dir" value="doc"/>
-    <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
-    <property name="javadoc.packages" value="net.grinder.*"/>
-    <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
-
-    <!-- webapps, in general and specific -->
-    <property name="webapps.dir" value="webapps"/>
-    <property name="sniffer.webapp.dir" value="${webapps.dir}/sniff-n-grind"/>
-
-    <!-- output -->
-    <property name="build.dir" value="build"/>
-    <property name="prepared-src.dir" value="${build.dir}/src"/>
-    <property name="classes.dir" value="${build.dir}/classes"/>
-    <property name="webapp-build.dir" value="${build.dir}/webapps"/>
-    <property name="prepared-test-src.dir" value="${build.dir}/test-src"/>
-    <property name="test-classes.dir" value="${build.dir}/tests-classes"/>
-    <property name="lib.dir" value="lib"/>
-    <property name="lib.jar" value="${name}.jar"/>
-    <property name="dist.root" value="${build.dir}/distribution"/>
-    <property name="dist.dir" value="${dist.root}/${name}-${version}"/>
 
     <!-- filter tokens -->
     <filter token="year" value="${year}"/>
     <filter token="version" value="${version}"/>
     <filter token="date" value="${TODAY}"/>
 
-    <echo message="** Building ${Name} ${version} on ${TODAY} **"/>
+    <mkdir dir="${lib.dir}"/>
+
+
   </target>
 
   <target name="all" depends="jar"/>
@@ -133,7 +163,7 @@ conditionally built modules are:
   <!-- Useful assertions                                                   -->
   <!-- =================================================================== -->
   <target name="assert-have-jsse" depends="init" unless="have.jsse">
-   <fail message="Add JSSE 1.0.2 to your CLASSPATH to build this target"/>
+   <fail message="Install JSSE 1.0.2 to build this target"/>
   </target>
 
   <target name="assert-have-junit" depends="init" unless="have.junit">
@@ -146,19 +176,23 @@ conditionally built modules are:
   </target>
 
   <target name="assert-have-servlet" depends="init" unless="have.servlet">
-   <fail message="Add Servlet classes to your CLASSPATH to build this target"/>
+   <fail message="Define servlet.classpath in etc/localpaths.properties to build this target"/>
   </target>
 
   <target name="assert-have-jtidy" depends="init" unless="have.jtidy">
-   <fail message="Add JTidy classes to your CLASSPATH to build this target"/>
+   <fail message="Define jtidy.classpath in etc/localpaths.properties to build this target"/>
   </target>
 
-  <target name="assert-have-xpath" depends="init" unless="have.xpath">
-   <fail message="Add Xalan XPath classes to your CLASSPATH to build this target"/>
+  <target name="assert-have-oro" depends="init" unless="have.oro">
+   <fail message="Define jakarta-oro.dir and jakarta-oro.jar in etc/localpaths.properties to build this target"/>
+  </target>
+
+  <target name="assert-have-xalan" depends="init" unless="have.xalan">
+   <fail message="Define xalan.classpath in etc/local.properties to build this target"/>
   </target>
 
   <target name="assert-have-everything"
-	  depends="assert-have-jsse,assert-have-junit,assert-have-junit-task,assert-have-servlet,assert-have-jtidy,assert-have-xpath">
+	  depends="assert-have-jsse,assert-have-junit,assert-have-junit-task,assert-have-servlet,assert-have-jtidy,assert-have-xalan">
   </target>
 
 
@@ -184,9 +218,9 @@ conditionally built modules are:
 
 
   <!-- =================================================================== -->
-  <!-- Copy resources into the classes hierarcy                            -->
+  <!-- Copy resources into the classes hierarcy, and bundled libraries.    -->
   <!-- =================================================================== -->
-  <target name="copy-resources" depends="init"
+  <target name="copy-resources" depends="init,assert-have-oro"
 	  description="Copies the resource files into build output">
     <copy todir="${classes.dir}" filtering="off">
       <fileset dir="${src.dir}">
@@ -203,6 +237,9 @@ conditionally built modules are:
       <fileset dir="${test-src.dir}">
         <include name="**/data/*"/>
       </fileset>
+    </copy>
+    <copy todir="${lib.dir}">
+      <fileset dir="${jakarta-oro.dir}" includes="${jakarta-oro.jar}"/>
     </copy>
   </target>
 
@@ -221,6 +258,7 @@ conditionally built modules are:
            debug="${debug}"
            optimize="${optimize}"
 		   deprecation="false"> <!-- Uses deprecated API's -->
+       <classpath refid="build.classpath"/>
        <include name="HTTPClient/**"/>
     </javac>
 
@@ -235,9 +273,10 @@ conditionally built modules are:
        <exclude name="**/HttpsPlugin.java" unless="have.jsse"/>
        <exclude name="**/SSLSocketFactory.java" unless="have.jsse"/>
        <exclude name="**/JUnitPlugin.java" unless="have.junit"/>
-       <exclude name="**/snifferwebapp" unless="have.servlet"/>
+       <exclude name="**/snifferwebapp/**" unless="have.servlet"/>
        <exclude name="**/ExampleJTidyStringBean.java"
 		unless="have.jtidy-and-xpath"/>
+       <classpath refid="build.classpath"/>
     </javac>
 
   </target>
@@ -249,11 +288,13 @@ conditionally built modules are:
 
     <javac srcdir="${prepared-test-src.dir}"
            destdir="${test-classes.dir}"
-	   classpath="${classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
 	   deprecation="${deprecation}">
-    </javac>
+      <classpath>
+	<path refid="build.classpath"/>
+      </classpath>
+   </javac>
   </target>
 
 
@@ -262,10 +303,10 @@ conditionally built modules are:
   <!-- =================================================================== -->
   <target name="jar" depends="compile, copy-resources"
 	  description="Default target, creates lib/grinder.jar.">
-    <mkdir dir="${lib.dir}"/>
 
     <jar jarfile="${lib.dir}/${lib.jar}"
-         basedir="${classes.dir}">
+         basedir="${classes.dir}"
+	 manifest="${manifest.mf}">
         <include name="net/grinder/"/>
         <include name="HTTPClient/"/>
         <exclude name="**/snifferwebapp"/>
@@ -290,7 +331,6 @@ conditionally built modules are:
   </target>
 
   <target name="testimage" depends="compile-tests,copy-resources">
-    <mkdir dir="${lib.dir}"/>
 
     <jar jarfile="${lib.dir}/testimage.jar"
          manifest="etc/testimage.mf">
@@ -311,11 +351,15 @@ conditionally built modules are:
 	  depends="compile-tests,copy-resources,assert-have-junit-task"
 	  description="Run the unit-tests.">
   <junit printsummary="false" haltonfailure="true">
-    <classpath path="${test-classes.dir};${classes.dir}"/>
-
+      <classpath>
+	<pathelement path="${test-classes.dir}"/>
+	<path refid="build.classpath"/>
+      </classpath>
     <batchtest>
       <formatter type="plain" usefile="false"/>
-      <fileset dir="${prepared-test-src.dir}" includes="**/Test*.java"/>
+      <fileset dir="${prepared-test-src.dir}" includes="**/Test*.java">
+        <exclude name="**/TestMulticastSenderAndReceiver.java"/>
+      </fileset>
     </batchtest>
   </junit>
 
@@ -342,6 +386,10 @@ conditionally built modules are:
 	      <pathelement path="${src.dir}"/>
 	      <pathelement path="${test-src.dir}"/>
 	    </sourcepath>
+            <classpath>
+              <path refid="build.classpath"/>
+              <pathelement path="${java.class.path}"/>
+            </classpath>
     </javadoc>
   </target>
 
@@ -375,11 +423,12 @@ conditionally built modules are:
       <fileset dir="${webapps.dir}"/>
     </copy>
 
-    <copy file="${lib.dir}/${lib.jar}"
-	  tofile="${dist.dir}/${lib.dir}/${lib.jar}"/>
+    <copy todir="${dist.dir}/${lib.dir}">
+      <fileset dir="${lib.dir}" includes="*.jar"/>
+    </copy>
 
     <copy todir="${dist.dir}/${etc.dir}">
-      <fileset dir="${etc.dir}" excludes="buildenv.sh,munge-license.pl,setenv.sh"/>
+      <fileset dir="${etc.dir}" excludes="buildenv.sh,munge-license.pl,setenv.sh,localpaths.properties"/>
     </copy>
 
     <copy todir="${dist.dir}/${examples.dir}">
@@ -394,19 +443,19 @@ conditionally built modules are:
   </target>
 
   <!-- =================================================================== -->
-  <!-- Packages the distribution as .jar                                   -->
+  <!-- Packages the distribution as .zip                                   -->
   <!-- =================================================================== -->
   <target name="dist" depends="distribution-hierarchy"
 	  description="Generates a distribution jar.">
-    <jar jarfile="${name}-pre-${version}-${DSTAMP}.jar"
+    <zip zipfile="${name}-pre-${version}-${DSTAMP}.zip"
 	 basedir="${dist.root}"/>
   </target>
 
-  <target name="release" depends="assert-have-everything,realclean,test,distribution-hierarchy,distribute-doc"
+  <target name="release" depends="realclean,assert-have-everything,test,distribution-hierarchy,distribute-doc"
 	  description="Generates a release jar.">
 <!--      <cvs command="tag -R release_${version}" noexec="true"/> -->
     <mkdir dir="releases"/>
-    <jar jarfile="releases/${name}-${version}.jar" basedir="${dist.root}"/>
+    <zip zipfile="releases/${name}-${version}.zip" basedir="${dist.root}"/>
 
     <echo message="****************************************************"/>
     <echo message="*** Now say 'cvs tag -R release_${version}"/>
@@ -420,7 +469,9 @@ conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Clean targets                                                       -->
   <!-- =================================================================== -->
-  <target name="clean" depends="init" description="Removes class files.">
+
+  <!-- Doesn't depend on init, or it will undo directories created there -->
+  <target name="clean" description="Removes class files.">
     <delete dir="${build.dir}"/>
   </target>
 
