@@ -19,6 +19,9 @@ Grinder 3.0-beta12
   HTTP Plugin enhancemnt: If the User-Agent header is specified, don't
   append the HTTPClient version string.
 
+  Fix bug 836028 - incorrect platform specific separator for
+  classpath. Thanks to Stefano Santoro for the report.
+
 
 Grinder 3.0-beta11
 ------------------
