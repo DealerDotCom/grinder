@@ -309,7 +309,7 @@ What can I set in grinder.properties for the HTTP plugin?
 What's a String Bean?
 *********************
 
-When using the HTTP plugin, it is often necessary to parametise parts
+When using the HTTP plugin, it is often necessary to parametrise parts
 of URL's and POST data. The easy way to do this is to use a "String
 Bean" - a Java Bean that returns Strings from its "get" methods.
 
