@@ -39,6 +39,7 @@ public class AllTests
     {
 	final TestSuite suite = new TestSuite();
 	suite.addTest(new TestSuite(TestGrinderProperties.class));
+	suite.addTest(new TestSuite(TestTestImplementation.class));
 	return suite;
     }
 }
