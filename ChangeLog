@@ -1,3 +1,24 @@
+2004-09-10  Philip Aston  <philipa@mail.com>
+
+	* CHANGES: German console trnaslation updates from Marc Born.
+
+	* src/net/grinder/console/swingui/resources/Console_de.properties:
+	Updates from Marc Born.
+	set-script needs localisation.
+	menubar does not need localisation.
+
+	* src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties:
+	set-script needs localisation.
+	menubar does not need localisation.
+
+	* AUTHORS, xdoc/welcome-xhtml.xml: Welcome Marc Born.
+
+	* xdoc/development/translating-xhtml.xml: Correct Huibert's name.
+
+	* TODO: More thoughts.
+
+	* etc/setenv.sh: Update paths.
+
 2004-08-26  Philip Aston  <philipa@mail.com>
 
 	* TODO, src/net/grinder/engine/agent/FileStore.java, src/net/grinder/engine/agent/resources/FileStoreReadme.txt, tests-src/net/grinder/engine/agent/TestFileStore.java:
