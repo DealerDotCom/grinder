@@ -42,7 +42,7 @@ import net.grinder.common.GrinderException;
  * @see net.grinder.engine.process.GrinderProcess
  *
  */
-public class LauncherThread extends Thread {
+class LauncherThread extends Thread {
   private final String m_grinderID;
   private final String[] m_commandArray;
   private final String m_commandString;
