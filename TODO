@@ -42,6 +42,9 @@ properties wrongly. It first sends a request without the
 authentication headers, then catches the 401 and automatically resends
 a request with the authentication headers.
 
+Allow "chained proxying", where details of real proxy server can be
+specified.
+
 ** Console detection
 
 If process detects it can't send data to the console, it shouldn't
@@ -99,6 +102,8 @@ Authorisation tear down
 HTTP plugin to support "mean time to first byte".
 
 Script support for HTTP "system property" options.
+
+Support option to disable certificate check.
 
 ** Scripting
 
