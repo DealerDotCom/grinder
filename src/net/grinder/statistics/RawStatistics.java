@@ -209,7 +209,7 @@ public final class RawStatistics
      *
      * @return The <code>String</code>
      **/
-    public String toString()
+    public final String toString()
     {
 	final StringBuffer result = new StringBuffer();
 

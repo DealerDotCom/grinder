@@ -26,7 +26,7 @@ import net.grinder.statistics.RawStatistics;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface PeakStatistic extends StatisticExpression
+public interface PeakStatisticExpression extends StatisticExpression
 {
     void reset(RawStatistics rawStatistics);
     void update(RawStatistics rawStatistics);

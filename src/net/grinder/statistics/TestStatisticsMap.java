@@ -335,8 +335,7 @@ public class TestStatisticsMap implements java.io.Externalizable
 	 * TestStatisticsMap}.
 	 *
 	 * @return <code>true</code> if there is a next {@link Pair}.
-	 *
-	 */
+	 **/
 	public final boolean hasNext()
 	{
 	    return m_iterator.hasNext();
@@ -347,8 +346,8 @@ public class TestStatisticsMap implements java.io.Externalizable
 	 * TestStatisticsMap}.
 	 *
 	 * @return The next {@link Pair}.
-	 *
-	 */
+	 * @throws java.util.NoSuchElementException If there is no next element.
+	 **/
 	public final Pair next()
 	{
 	    final Map.Entry entry = (Map.Entry)m_iterator.next();

@@ -222,6 +222,13 @@ public class TestTestStatisticsMap extends TestCase
 	assert(!iterator3.hasNext());
 	assertEquals(m_test1, pair3.getTest());
 	assertEquals(m_rawStatistics1, pair3.getStatistics());
+
+	try {
+	    iterator3.next();
+	    fail("Expected a NoSuchElementException");
+	}
+	catch (java.util.NoSuchElementException e) {
+	}
     }
 
     public void testSerialisation() throws Exception

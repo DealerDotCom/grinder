@@ -49,6 +49,45 @@ final class StatisticExpressionFactory
 	return s_instance;
     }
 
+    public final String normaliseExpressionString(String expression)
+	throws GrinderException
+    {
+	final ParseContext parseContext = new ParseContext(expression);
+	final StringBuffer result = new StringBuffer(expression.length());
+
+	try {
+	    normaliseExpressionString(parseContext, result);
+	    return result.toString();
+	}
+	finally {
+	    if (parseContext.hasMoreCharacters()) {
+		throw parseContext.new ParseException(
+		    "Additional characters found");
+	    }
+	}	
+    }
+
+    private final void normaliseExpressionString(ParseContext parseContext,
+						 StringBuffer result)
+	throws GrinderException
+    {
+	if (parseContext.peekCharacter() == '(') {
+	    // Compound expression.
+	    result.append(parseContext.readCharacter());
+	    result.append(parseContext.readToken());
+
+	    while (parseContext.peekCharacter() != ')') {
+		result.append(' ');
+		normaliseExpressionString(parseContext, result);
+	    }
+
+	    result.append(parseContext.readCharacter());
+	}
+	else {
+	    result.append(parseContext.readToken());
+	}
+    }
+
     public final StatisticExpression
 	createExpression(String expression, ProcessStatisticsIndexMap indexMap)
 	throws GrinderException
@@ -79,11 +118,11 @@ final class StatisticExpressionFactory
 	    final String operation = parseContext.readToken();
 
 	    if ("+".equals(operation)) {
-		result = createSum(parseOperands(parseContext, indexMap, 2));
+		result = createSum(readOperands(parseContext, indexMap, 2));
 	    }
 	    else if ("*".equals(operation)) {
 		result =
-		    createProduct(parseOperands(parseContext, indexMap, 2));
+		    createProduct(readOperands(parseContext, indexMap, 2));
 	    }
 	    else if ("/".equals(operation)) {
 		result = createDivision(
@@ -102,7 +141,7 @@ final class StatisticExpressionFactory
 	else {
 	    // Raw statistic name. Should extend to handle constants.
 	    result =
-		createRawStatistic(
+		createPrimitiveStatistic(
 		    indexMap.getIndexFor(parseContext.readToken()));
 	}
 
@@ -110,13 +149,9 @@ final class StatisticExpressionFactory
     }
 
     public StatisticExpression
-	createRawStatistic(final int processStatisticsIndex) 
+	createPrimitiveStatistic(final int processStatisticsIndex) 
     {
-	return new LongStatistic() {
-		public long getValue(RawStatistics rawStatistics) {
-		    return rawStatistics.getValue(processStatisticsIndex);
-		}
-	    };
+	return new PrimitiveStatistic(processStatisticsIndex);
     }
 
     public StatisticExpression
@@ -168,9 +203,10 @@ final class StatisticExpressionFactory
 	    };
     }
 
-    public PeakStatistic createPeak(final StatisticExpression operand)
+    public final PeakStatisticExpression
+	createPeak(final StatisticExpression operand)
     {
-	if (shouldPromoteResultToDouble(operand)) {
+	if (operand.isDouble()) {
 	    return new PeakDoubleStatistic() {
 		    private double m_value = 0;
 
@@ -211,8 +247,8 @@ final class StatisticExpressionFactory
     }
 
     private StatisticExpression[]
-	parseOperands(ParseContext parseContext,
-		      ProcessStatisticsIndexMap indexMap, int minimumSize)
+	readOperands(ParseContext parseContext,
+		     ProcessStatisticsIndexMap indexMap, int minimumSize)
 	throws GrinderException
     {
 	final List arrayList = new ArrayList();
@@ -230,23 +266,6 @@ final class StatisticExpressionFactory
 	    arrayList.toArray(new StatisticExpression[0]);
     }
 
-    private static final boolean
-	shouldPromoteResultToDouble(StatisticExpression operand)
-    {
-	return operand instanceof DoubleStatistic;
-    }
-
-    private static final boolean
-	shouldPromoteResultToDouble(StatisticExpression[] operands)
-    {
-	for (int i=0; i<operands.length; ++i) {
-	    if (shouldPromoteResultToDouble(operands[i]))
-		return true;
-	}
-
-	return false;
-    }
-
     private static abstract class DoubleStatistic
 	implements StatisticExpression
     {
@@ -260,11 +279,22 @@ final class StatisticExpressionFactory
 	    return (long)getValue(rawStatistics);
 	}
 
-	abstract double getValue(RawStatistics rawStatistics);
+	public final boolean isDouble()
+	{
+	    return true;
+	}
+
+	/** Default to false so only PrimitiveStatistic needs to override. **/
+	public boolean isPrimitive()
+	{
+	    return false;
+	}
+
+	protected abstract double getValue(RawStatistics rawStatistics);
     }
 
     private static abstract class PeakDoubleStatistic
-	extends DoubleStatistic implements PeakStatistic 
+	extends DoubleStatistic implements PeakStatisticExpression 
     {
     }
 
@@ -280,22 +310,64 @@ final class StatisticExpressionFactory
 	    return getValue(rawStatistics);
 	}
 
-	abstract long getValue(RawStatistics rawStatistics);
+	public final boolean isDouble()
+	{
+	    return false;
+	}
+
+	/** Default to false so only PrimitiveStatistic needs to override. **/
+	public boolean isPrimitive()
+	{
+	    return false;
+	}
+
+	protected abstract long getValue(RawStatistics rawStatistics);
+    }
+
+    private final static class PrimitiveStatistic extends LongStatistic
+    {
+	private final int m_processStatisticsIndex;
+
+	public PrimitiveStatistic(int processStatisticsIndex)
+	{
+	    m_processStatisticsIndex = processStatisticsIndex;
+	}
+
+	public final long getValue(RawStatistics rawStatistics) {
+	    return rawStatistics.getValue(m_processStatisticsIndex);
+	}
+
+	public boolean isPrimitive()
+	{
+	    return true;
+	}
     }
 
     private static abstract class PeakLongStatistic
-	extends LongStatistic implements PeakStatistic 
+	extends LongStatistic implements PeakStatisticExpression 
     {
+	public boolean isPrimitive()
+	{
+	    return false;
+	}
     }
 
     private static abstract class VariableArgumentsExpression
     {
 	final StatisticExpression m_expression;
 
-	VariableArgumentsExpression(final double initialValue,
-				    final StatisticExpression[] operands) 
+	public VariableArgumentsExpression(
+	    final double initialValue, final StatisticExpression[] operands) 
 	{
-	    if (shouldPromoteResultToDouble(operands)) {
+	    boolean doubleResult = false;
+
+	    for (int i=0; i<operands.length && !doubleResult; ++i) {
+		if (operands[i].isDouble()) {
+		    doubleResult = true;
+		}
+	    }
+
+	    if (doubleResult) {
 		m_expression = new DoubleStatistic() {
 			public final double getValue(
 			    RawStatistics rawStatistics) {

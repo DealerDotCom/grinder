@@ -62,10 +62,14 @@ public class TestStatisticExpressionFactory extends TestCase
 	m_rawStatistics.addValue(m_indexMap.getIndexFor("Two"), 2);
     }
 
-    public void testRawStatistic() throws Exception
+    public void testPrimitiveStatistic() throws Exception
     {
-	myAssertEquals(1, m_factory.createRawStatistic(
-			   m_indexMap.getIndexFor("One")));
+	final StatisticExpression expression =
+	    m_factory.createPrimitiveStatistic(m_indexMap.getIndexFor("One"));
+
+	myAssertEquals(1, expression);
+	assert(expression.isPrimitive());
+	assert(!expression.isDouble());
 
 	myAssertEquals(0, m_factory.createExpression("  Test ", m_indexMap));
 
@@ -88,6 +92,19 @@ public class TestStatisticExpressionFactory extends TestCase
 
     public void testSum() throws Exception
     {
+	final StatisticExpression[] expressions = {
+	    m_factory.createExpression("One", m_indexMap),
+	    m_factory.createExpression("Two", m_indexMap),
+	    m_factory.createExpression("Two", m_indexMap),
+	};
+
+	final StatisticExpression expression =
+	    m_factory.createSum(expressions);
+
+	myAssertEquals(5, expression);
+	assert(!expression.isPrimitive());
+	assert(!expression.isDouble());
+
 	myAssertEquals(2, m_factory.createExpression(
 			   "(+ One One)", m_indexMap));
 
@@ -114,6 +131,19 @@ public class TestStatisticExpressionFactory extends TestCase
 
     public void testProduct() throws Exception
     {
+	final StatisticExpression[] expressions = {
+	    m_factory.createExpression("One", m_indexMap),
+	    m_factory.createExpression("Two", m_indexMap),
+	    m_factory.createExpression("Two", m_indexMap),
+	};
+
+	final StatisticExpression expression =
+	    m_factory.createProduct(expressions);
+
+	myAssertEquals(4, expression);
+	assert(!expression.isPrimitive());
+	assert(!expression.isDouble());
+
 	myAssertEquals(1, m_factory.createExpression(
 			   "(* One One)", m_indexMap));
 
@@ -140,6 +170,15 @@ public class TestStatisticExpressionFactory extends TestCase
 
     public void testDivision() throws Exception
     {
+	final StatisticExpression expression =
+	    m_factory.createDivision(
+		m_factory.createExpression("Two", m_indexMap),
+		m_factory.createExpression("Two", m_indexMap));
+
+	myAssertEquals(1, expression);
+	assert(!expression.isPrimitive());
+	assert(expression.isDouble());
+
 	myAssertEquals(1d, m_factory.createExpression(
 			   "(/ One One)", m_indexMap));
 
@@ -173,6 +212,14 @@ public class TestStatisticExpressionFactory extends TestCase
 
     public void testLongPeak() throws Exception
     {
+	final StatisticExpression expression =
+	    m_factory.createPeak(
+		m_factory.createExpression("Two", m_indexMap));
+
+	myAssertEquals(0, expression);
+	assert(!expression.isPrimitive());
+	assert(!expression.isDouble());
+
 	final int statIndex = m_indexMap.getIndexFor("testPeak");
 
 	final RawStatistics rawStatistics2 = new RawStatistics();
@@ -184,10 +231,9 @@ public class TestStatisticExpressionFactory extends TestCase
 	final RawStatistics rawStatistics33 = new RawStatistics();
 	rawStatistics33.addValue(statIndex, 33);
 
-	final PeakStatistic peak = 
+	final PeakStatisticExpression peak = 
 	    m_factory.createPeak(m_factory.createExpression("testPeak",
 							    m_indexMap));
-
 	myAssertEquals(0, peak, rawStatistics9);
 	peak.update(rawStatistics9);
 	myAssertEquals(9, peak, rawStatistics9);
@@ -205,6 +251,14 @@ public class TestStatisticExpressionFactory extends TestCase
 
     public void testDoublePeak() throws Exception
     {
+	final StatisticExpression expression =
+	    m_factory.createPeak(
+		m_factory.createExpression("(/ Two One)", m_indexMap));
+
+	myAssertEquals(0, expression);
+	assert(!expression.isPrimitive());
+	assert(expression.isDouble());
+
 	final int xIndex = m_indexMap.getIndexFor("x");
 	final int yIndex = m_indexMap.getIndexFor("y");
 
@@ -220,10 +274,9 @@ public class TestStatisticExpressionFactory extends TestCase
 	rawStatistics33.addValue(xIndex, 33);
 	rawStatistics33.addValue(yIndex, 1);
 
-	final PeakStatistic peak = 
+	final PeakStatisticExpression peak = 
 	    m_factory.createPeak(m_factory.createExpression("(/ x y)",
 							    m_indexMap));
-
 	myAssertEquals(0d, peak, rawStatistics9);
 	peak.update(rawStatistics9);
 	myAssertEquals(9d, peak, rawStatistics9);
@@ -253,7 +306,6 @@ public class TestStatisticExpressionFactory extends TestCase
 		       m_factory.createExpression(
 			   "(+ One (/ One (* Two Two)) One)", m_indexMap));
 
-
 	try {
 	    m_factory.createExpression("(+", m_indexMap);
 	    fail("Expected a GrinderException");
@@ -267,6 +319,16 @@ public class TestStatisticExpressionFactory extends TestCase
 	}
 	catch (GrinderException e) {
 	}
+    }
+
+    public void testNormaliseExpressionString() throws Exception
+    {
+	assertEquals("Test",
+		     m_factory.normaliseExpressionString(" Test "));
+
+	assertEquals("(+ One Two (* One Two))",
+		     m_factory.normaliseExpressionString(
+			 "\t(+ One Two( \n  * One Two) )"));
     }
 
     private void myAssertEquals(long expected, StatisticExpression expression)

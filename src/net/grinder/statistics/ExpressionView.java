@@ -32,10 +32,16 @@ import net.grinder.common.GrinderException;
  * @author Philip Aston
  * @version $Revision$
  */
-public abstract class ExpressionView implements Comparable
+public class ExpressionView implements Comparable
 {
+    private static int s_creationOrder;
+    private static StatisticExpressionFactory s_statisticExpressionFactory =
+	StatisticExpressionFactory.getInstance();
+
     private final String m_displayName;
+    private final String m_displayNameResourceKey;
     private final String m_expressionString;
+    private final int m_creationOrder;
 
     /**
      * @clientCardinality 1
@@ -44,42 +50,59 @@ public abstract class ExpressionView implements Comparable
      **/
     private final StatisticExpression m_expression;
 
-    /**
-     *@link dependency 
-     * @stereotype use
-     **/
-    /*#StatisticExpressionFactory lnkStatisticExpressionFactory;*/
-
-    public ExpressionView(String displayName, String expressionString,
+    public ExpressionView(String displayName, String displayNameResourceKey,
+			  String expressionString,
 			  ProcessStatisticsIndexMap indexMap)
 	throws GrinderException
     {
 	m_displayName = displayName;
-	m_expressionString = expressionString; // SHOULD NORMALISE.
+	m_displayNameResourceKey = displayNameResourceKey;
+
+	m_expressionString =
+	    s_statisticExpressionFactory.normaliseExpressionString(
+		expressionString);
 
 	m_expression =
-	    StatisticExpressionFactory.getInstance()
-	    .createExpression(expressionString, indexMap);
+	    s_statisticExpressionFactory.createExpression(expressionString,
+							  indexMap);
+
+	synchronized(ExpressionView.class) {
+	    m_creationOrder = s_creationOrder++;
+	}
     }
 
     public ExpressionView(ObjectInput in,
 			  ProcessStatisticsIndexMap indexMap)
 	throws GrinderException, IOException
     {
-	this(in.readUTF(), in.readUTF(), indexMap);
+	this(in.readUTF(), in.readUTF(), in.readUTF(), indexMap);
     }
 
     public final void myWriteExternal(ObjectOutput out) throws IOException
     {
 	out.writeUTF(m_displayName);
+	out.writeUTF(m_displayNameResourceKey);
 	out.writeUTF(m_expressionString);
     }
 
-    public String getDisplayName()
+    public final String getDisplayName()
     {
         return m_displayName;
     }
 
+    public final String getDisplayNameResourceKey()
+    {
+        return m_displayNameResourceKey;
+    }
+
+    public final StatisticExpression getExpression()
+    {
+	return m_expression;
+    }
+
+    /**
+     * Value based equality.
+     **/
     public boolean equals(Object other)
     {
 	if (other == this) {
@@ -92,12 +115,54 @@ public abstract class ExpressionView implements Comparable
 
 	final ExpressionView otherView = (ExpressionView)other;
 
-	return m_expressionString.equals(otherView.m_expressionString);
+	return
+	    m_expressionString.equals(otherView.m_expressionString) &&
+	    m_displayName.equals(otherView.m_displayName) &&
+	    m_displayNameResourceKey.equals(
+		otherView.m_displayNameResourceKey);
     }
 
-    public final int compareTo(Object other)
+    /**
+    * The JDK documentation says I have to say "<em>Note: this class
+    * has a natural ordering that is inconsistent with equals</em>. In
+    * our case <code>x.compareTo(y)==0) => (x.equals(y))</code>, but
+    * the reverse implication does not hold.
+    **/
+    public final int compareTo(Object otherObject)
     {
-	// !TODO
-	return 0;
+	final ExpressionView other = (ExpressionView)otherObject;
+
+	if (m_expression.isPrimitive() &&
+	    !other.m_expression.isPrimitive()) {
+	    return -1;
+	}
+	else if (!m_expression.isPrimitive() &&
+		 other.m_expression.isPrimitive()) {
+	    return 1;
+	}
+
+	if (m_creationOrder < other.m_creationOrder) {
+	    return -1;
+	}
+	else if (m_creationOrder > other.m_creationOrder) {
+	    return 1;
+	}
+	else {
+	    // Should assert ? Same creation order => same instance.
+	    return 0;
+	}
+    }
+
+    /**
+     * Return a <code>String</code> representation of this
+     * <code>ExpressionView</code>.
+     *
+     * @return The <code>String</code>
+     **/
+    public final String toString()
+    {
+	return
+	    "ExpressionView(" + m_displayName + ", " +
+	    m_displayNameResourceKey + ", " + m_expressionString + ")";
     }
 }
