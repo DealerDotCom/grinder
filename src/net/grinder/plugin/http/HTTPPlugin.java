@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,9 +32,10 @@ import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginThreadListener;
-import net.grinder.statistics.CommonStatisticsViews;
+import net.grinder.script.Grinder;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.StatisticsView;
 
 
 /**
@@ -43,7 +44,7 @@ import net.grinder.statistics.StatisticsIndexMap;
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 public class HTTPPlugin implements GrinderPlugin {
 
   private static HTTPPlugin s_initialisedPluginInstance;
@@ -77,6 +78,7 @@ public class HTTPPlugin implements GrinderPlugin {
 
   private PluginProcessContext m_pluginProcessContext;
   private StatisticsIndexMap.LongIndex m_responseStatusIndex;
+  private StatisticsIndexMap.LongIndex m_responseLengthIndex;
 
   final PluginProcessContext getPluginProcessContext() {
     return m_pluginProcessContext;
@@ -84,6 +86,10 @@ public class HTTPPlugin implements GrinderPlugin {
 
   final StatisticsIndexMap.LongIndex getResponseStatusIndex() {
     return m_responseStatusIndex;
+  }
+
+  final StatisticsIndexMap.LongIndex getResponseLengthIndex() {
+    return m_responseLengthIndex;
   }
 
   /**
@@ -120,19 +126,55 @@ public class HTTPPlugin implements GrinderPlugin {
     // Turn off authorisation UI.
     DefaultAuthHandler.setAuthorizationPrompter(null);
 
-    // Register Response Status detail statistic.
+    // Register custom statistics.
     try {
-      CommonStatisticsViews.getDetailStatisticsView().add(
+      final Grinder.ScriptContext scriptContext =
+        processContext.getScriptContext();
+
+      final StatisticsView detailsStatisticsView = new StatisticsView();
+      detailsStatisticsView.add(
         new ExpressionView(
           "HTTP Response Code", "statistic.httpplugin.responseStatusKey",
           StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY));
 
+      detailsStatisticsView.add(
+        new ExpressionView(
+          "HTTP Response Length", "statistic.httpplugin.responseLengthKey",
+          StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY));
+
+      scriptContext.registerDetailStatisticsView(detailsStatisticsView);
+
+      final StatisticsView summaryStatisticsView = new StatisticsView();
+
+      summaryStatisticsView.add(
+        new ExpressionView(
+          "Mean response length",
+          "statistic.httpplugin.meanResponseLengthKey",
+          "(/ " + StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY +
+          " (+ timedTransactions untimedTransactions))"));
+
+      summaryStatisticsView.add(
+        new ExpressionView(
+          "Response bytes per second",
+          "statistic.httpplugin.responseBPSKey",
+          "(* 1000 (/ " + StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY +
+          " period))"));
+
+      scriptContext.registerSummaryStatisticsView(summaryStatisticsView);
+
+      final StatisticsIndexMap statisticsIndexMap =
+        StatisticsIndexMap.getInstance();
+
       m_responseStatusIndex =
-        StatisticsIndexMap.getInstance().getIndexForLong(
+        statisticsIndexMap.getIndexForLong(
           StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_STATUS_KEY);
+
+      m_responseLengthIndex =
+        statisticsIndexMap.getIndexForLong(
+          StatisticsIndexMap.HTTP_PLUGIN_RESPONSE_LENGTH_KEY);
     }
     catch (GrinderException e) {
-      throw new PluginException("Could not register new statistic", e);
+      throw new PluginException("Could not register custom statistics", e);
     }
 
     s_initialisedPluginInstance = this;

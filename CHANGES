@@ -38,6 +38,10 @@ Grinder 3.0-beta17
 
   Add addValue() methods to the script Statistics API.
 
+  The HTTP plugin now records the length of responses and reports mean
+  response length and response bytes per second to the console. Thanks
+  to John Stafford White for prompting me to do this.
+
 
 Grinder 3.0-beta16
 ------------------

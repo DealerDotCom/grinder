@@ -65,12 +65,14 @@ public class HTTPRequest {
 
   private static final PluginProcessContext s_pluginProcessContext;
   private static final StatisticsIndexMap.LongIndex s_responseStatusIndex;
+  private static final StatisticsIndexMap.LongIndex s_responseLengthIndex;
 
   static {
     // Ensure that the HTTPPlugin is registered.
     final HTTPPlugin plugin = HTTPPlugin.getPlugin();
     s_pluginProcessContext = plugin.getPluginProcessContext();
     s_responseStatusIndex = plugin.getResponseStatusIndex();
+    s_responseLengthIndex = plugin.getResponseLengthIndex();
   }
 
   private URI m_defaultURL;
@@ -824,7 +826,8 @@ public class HTTPRequest {
     public HTTPResponse processResponse(HTTPResponse httpResponse)
       throws IOException, ModuleException, PluginException {
 
-      httpResponse.getData();
+      // Read the entire response.
+      final int responseLength = httpResponse.getData().length;
       httpResponse.getInputStream().close();
 
       m_threadState.getThreadContext().stopTimedSection();
@@ -833,7 +836,7 @@ public class HTTPRequest {
 
       final String message =
         httpResponse.getOriginalURI() + " -> " + statusCode + " " +
-        httpResponse.getReasonLine();
+        httpResponse.getReasonLine() + ", " + responseLength + " bytes";
 
       final Logger logger = m_threadState.getThreadContext().getLogger();
 
@@ -859,9 +862,12 @@ public class HTTPRequest {
           s_pluginProcessContext.getScriptContext().getStatistics();
 
         if (statistics.availableForUpdate()) {
-          //Log the response code if we have a statistics context. If
-          //many HTTPRequests are wrapped in the same test, the last
-          //one wins.
+          //Log the custom statistics if we have a statistics context.
+
+          statistics.addValue(s_responseLengthIndex, responseLength);
+
+          //If many HTTPRequests are wrapped in the same test, the
+          //last one wins.
           statistics.setValue(s_responseStatusIndex, statusCode);
         }
       }
