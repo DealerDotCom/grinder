@@ -1,15 +1,26 @@
 Grinder 2.7.2
 -------------
 
-   Add dropped message detection to the communications.
+   Console no longer reads grinder.properties:
+    - New options dialog to set communication details.
+    - Console responds dynamically new tests registered by Grinder
+      processes.
+
+   Miscellaneous engine enhancements:
+    - Sleeping processes can now be interrupted by the Console, so
+      they respond more quickly.
+    - Logging tweaks.
+    - Add dropped message detection to the communications.
 
    HTTPPlugin enhancements:
     - Filenames of result pages now contain test description.
 
-   More changes to the plugin interface:
+   More changes to the plugin API:
     - A better fix for non-contiguous test numbers that doesn't
       pollute the Test interface.
     - Coallese processID and hostID into a single grinderID.
+    - Much repackaging and rationalisation. Plugins should only need
+      to use the "common" and "plugininterface" packages.
 
 
 Grinder 2.7.1
