@@ -24,6 +24,7 @@ package net.grinder.console.model.editor;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
@@ -94,12 +95,13 @@ public final class Buffer {
 
   private final Resources m_resources;
   private final TextSource m_textSource;
+  private String m_name;
   private File m_file;
 
   /** Synchronise on m_listeners before accessing. */
   private final List m_listeners = new LinkedList();
 
-  private long m_lastModified;
+  private long m_lastModified = -1;
 
   /**
    * Constructor for buffers with no associated file.
@@ -107,11 +109,11 @@ public final class Buffer {
    * @param resources Console resources.
    * @param textSource The text editor.
    */
-  Buffer(Resources resources, TextSource textSource) {
-    this(resources, textSource, null);
-
-    m_textSource.setText(m_resources.getStringFromFile(
-                           "scriptSupportUnderConstruction.text", true));
+  Buffer(Resources resources, TextSource textSource, String name) {
+    m_resources = resources;
+    m_textSource = textSource;
+    m_file = null;
+    m_name = name;
   }
 
   /**
@@ -124,8 +126,7 @@ public final class Buffer {
   Buffer(Resources resources, TextSource textSource, File file) {
     m_resources = resources;
     m_textSource = textSource;
-    m_file = file;
-    m_lastModified = -1;
+    setFile(file);
   }
 
   /**
@@ -166,7 +167,10 @@ public final class Buffer {
     }
     catch (IOException e) {
       throw new DisplayMessageConsoleException(
-        m_resources, "fileReadError.text", new Object[] { m_file }, e);
+        m_resources,
+        "fileReadError.text",
+        new Object[] { m_file, extractReasonFromIOException(e) },
+        e);
     }
     finally {
       if (reader != null) {
@@ -216,12 +220,15 @@ public final class Buffer {
     try {
       writer = new FileWriter(file);
       writer.write(m_textSource.getText());
-      m_file = file;
+      setFile(file);
       m_lastModified = m_file.lastModified();
     }
     catch (IOException e) {
       throw new DisplayMessageConsoleException(
-        m_resources, "fileWriteError.text", new Object[] { file }, e);
+        m_resources,
+        "fileWriteError.text",
+        new Object[] { file, extractReasonFromIOException(e) },
+        e);
     }
     finally {
       if (writer != null) {
@@ -243,6 +250,11 @@ public final class Buffer {
    */
   public boolean isDirty() {
     return m_textSource.isDirty();
+  }
+
+  private void setFile(File file) {
+    m_file = file;
+    m_name = file.getName();
   }
 
   /**
@@ -290,6 +302,15 @@ public final class Buffer {
   }
 
   /**
+   * Return display name of buffer.
+   *
+   * @return The buffer's name.
+   */
+  public String getDisplayName() {
+    return m_name;
+  }
+
+  /**
    * Buffer type enumeration. Uses default (identity) equality semantics.
    */
   public static final class Type {
@@ -307,5 +328,23 @@ public final class Buffer {
     public String toString() {
       return m_name;
     }
+  }
+
+  private String extractReasonFromIOException(IOException e) {
+    if (e instanceof FileNotFoundException) {
+      final String message = e.getMessage();
+
+      final int firstParenthesis = message.indexOf('(');
+      final int secondsParenthesis = message.indexOf(')', firstParenthesis);
+
+      if (firstParenthesis >= 0 && secondsParenthesis > firstParenthesis + 1) {
+        return
+          ".\n(" +
+          message.substring(firstParenthesis + 1, secondsParenthesis) +
+          ")";
+      }
+    }
+
+    return "";
   }
 }
