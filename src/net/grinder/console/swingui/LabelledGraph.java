@@ -32,7 +32,6 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-import net.grinder.console.ConsoleException;
 import net.grinder.statistics.CumulativeStatistics;
 import net.grinder.statistics.IntervalStatistics;
 
@@ -164,13 +163,11 @@ class LabelledGraph extends JPanel
     private final Dimension m_preferredSize = new Dimension(300, 130);
 
     public LabelledGraph(String title, Resources resources)
-	throws ConsoleException
     {
 	this(title, resources, null);
     }
 
     public LabelledGraph(String title, Resources resources, Color color)
-	throws ConsoleException
     {
 	final String msUnit = resources.getString("ms.unit");
 	final String msUnits = resources.getString("ms.units");

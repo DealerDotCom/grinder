@@ -23,8 +23,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import javax.swing.JComponent;
 
-import net.grinder.console.ConsoleException;
-
 
 /**
  * This class is used graphically show statistics.
@@ -47,10 +45,9 @@ class Graph extends JComponent
     private boolean m_recalculate = true;
 
     Graph(int numberOfValues)
-	throws ConsoleException
     {
 	if (numberOfValues <= 0) {
-	    throw new ConsoleException(
+	    throw new IllegalArgumentException(
 		"Invalid number of values (" + numberOfValues + ")");
 	}
 

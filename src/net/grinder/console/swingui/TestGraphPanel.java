@@ -19,11 +19,15 @@
 package net.grinder.console.swingui;
 
 import java.awt.GridLayout;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import net.grinder.console.ConsoleException;
 import net.grinder.console.model.Model;
+import net.grinder.console.model.ModelListener;
 import net.grinder.console.model.SampleListener;
 import net.grinder.plugininterface.Test;
 import net.grinder.statistics.CumulativeStatistics;
@@ -36,53 +40,87 @@ import net.grinder.statistics.IntervalStatistics;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestGraphPanel extends JPanel
+public class TestGraphPanel extends JPanel implements ModelListener
 {
+    private final Model m_model;
+    private final Resources m_resources;
+    private final String m_testLabel;
+
+    /**
+     * Map of {@link net.grinder.plugininterface.Test}s to {@link
+     * javax.swing.JComponent}s.
+     **/
+    private final Map m_components = new HashMap();
+
+    private boolean m_modelReset = true;
+
     TestGraphPanel(final Model model, Resources resources)
-	throws ConsoleException
     {
 	setLayout(new GridLayout(0, 2, 20, 0));
+	m_model = model;
+	m_resources = resources;
 
-	final String testLabel = resources.getString("graph.test.label") + " ";
+	m_testLabel = resources.getString("graph.test.label") + " ";
 
-	final int numberOfTests = model.getNumberOfTests();
+	m_model.addModelListener(this);
 
-	for (int i=0; i<numberOfTests; i++) {
-	    final Test test = model.getTest(i);
-
-	    String label = testLabel + test.getNumber();
-
-	    final String description = test.getDescription();
-
-	    if (description != null) {
-		label = label + " (" + description + ")";
-	    }
-
-	    final LabelledGraph testGraph =
-		new LabelledGraph(label, resources);
-
-	    model.addSampleListener(
-		i,
-		new SampleListener() {
-		    public void update(
-			IntervalStatistics intervalStatistics,
-			CumulativeStatistics cumulativeStatistics) {
-			testGraph.add(intervalStatistics,
-				      cumulativeStatistics,
-				      model.getNumberFormat());
-		    }
-		}
-		);
-
-	    add(testGraph);
-	}
-
-	model.addTotalSampleListener(
+	m_model.addTotalSampleListener(
 	    new SampleListener() {
 		public void update(IntervalStatistics intervalStatistics,
 				   CumulativeStatistics cumulativeStatistics) {
 		    LabelledGraph.resetPeak();
 		}
 	    });
+    }
+
+    public void reset(Set newTests)
+    {
+	m_modelReset = true;
+
+	final Iterator newTestIterator = newTests.iterator();
+	
+	while (newTestIterator.hasNext()) {
+	    final Test test = (Test)newTestIterator.next();
+
+	    final String description = test.getDescription();
+
+	    final String label =
+		m_testLabel + test.getNumber() +
+		(description != null ? " (" + description + ")" : "");
+
+	    final LabelledGraph testGraph =
+		new LabelledGraph(label, m_resources);
+
+	    m_model.addSampleListener(
+		test,
+		new SampleListener() {
+		    public void update(
+			IntervalStatistics intervalStatistics,
+			CumulativeStatistics cumulativeStatistics) {
+			testGraph.add(intervalStatistics,
+				      cumulativeStatistics,
+				      m_model.getNumberFormat());
+		    }
+		}
+		);
+
+	    m_components.put(test, testGraph);
+	}
+    }
+
+    public void update()
+    {
+	if (m_modelReset) {
+	    m_modelReset = false;
+
+	    final int numberOfTests = m_model.getNumberOfTests();
+
+	    // We add all the tests components again. The container
+	    // ignores duplicates, but inserts the new components in
+	    // the correct order.
+	    for (int i=0; i<numberOfTests; i++) {
+		add((JComponent)m_components.get(m_model.getTest(i)));
+	    }
+	}
     }
 }

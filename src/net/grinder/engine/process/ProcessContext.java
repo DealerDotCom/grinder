@@ -140,20 +140,6 @@ public class ProcessContextImplementation implements PluginProcessContext
 	}
     }
 
-    public ProcessContextImplementation()
-    {
-	m_grinderID = "";
-	final GrinderProperties properties = GrinderProperties.getProperties();
-
-	m_pluginParameters =
-	    properties.getPropertySubset("grinder.plugin.parameter.");
-
-	m_filenameFactory = new FilenameFactory(null, null);
-
-	m_outputWriter = s_stdoutWriter;
-	m_errorWriter = s_stderrWriter;
-    }
-
     public String getGrinderID()
     {
 	return m_grinderID;

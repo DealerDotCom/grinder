@@ -21,6 +21,7 @@ package net.grinder.console.swingui;
 import java.io.IOException;
 import java.io.Writer;
 import java.text.NumberFormat;
+import java.util.Set;
 import javax.swing.table.AbstractTableModel;
 
 import net.grinder.console.model.Model;
@@ -39,7 +40,8 @@ abstract class AbstractStatisticsTableModel
     extends AbstractTableModel implements ModelListener
 {
     private final Model m_model;
-    private NumberFormat m_numberFormat = null;
+    private NumberFormat m_numberFormat;
+    private boolean m_modelInvalid;
 
     private final String[] m_columnLabels;
     private final String m_testString;
@@ -49,9 +51,6 @@ abstract class AbstractStatisticsTableModel
 	throws ConsoleException
     {
 	m_model = model;
-	m_numberFormat = m_model.getNumberFormat();
-
-	m_model.addModelListener(this);
 
 	m_columnLabels = new String[columnTitleResourceNames.length];
 
@@ -61,12 +60,33 @@ abstract class AbstractStatisticsTableModel
 	}
 
 	m_testString = resources.getString("table.test.label") + " ";
+
+	// May need to move these to subclass constructors if those
+	// constructors ever do anything significant.
+	m_modelInvalid = true;
+	m_numberFormat = m_model.getNumberFormat();
+	m_model.addModelListener(this);
+    }
+
+    public synchronized void reset(Set newTests)
+    {
+	m_modelInvalid = newTests.size() > 0;
     }
 
     public synchronized void update()
     {
+	final boolean wasInvalid = m_modelInvalid;
+	m_modelInvalid = false;
+
 	m_numberFormat = m_model.getNumberFormat();
-	fireTableRowsUpdated(0, getRowCount());
+
+	if (wasInvalid) {
+	    // We've been reset, number of rows may have changed.
+	    fireTableDataChanged();
+	}
+	else {
+	    fireTableRowsUpdated(0, getRowCount());
+	}
     }
 
     public String getColumnName(int column)
@@ -116,6 +136,11 @@ abstract class AbstractStatisticsTableModel
     protected final Model getModel()
     {
 	return m_model;
+    }
+
+    protected final boolean isModelInvalid()
+    {
+	return m_modelInvalid;
     }
 
     protected final NumberFormat getNumberFormat()

@@ -67,32 +67,38 @@ class CumulativeStatisticsTableModel extends AbstractStatisticsTableModel
 
     public synchronized Object getValueAt(int row, int column)
     {
-	final Model model = getModel();
-
-	if (row < model.getNumberOfTests()) {
-	    if (column == 0) {
-		return getTestString() + model.getTest(row).getNumber();
-	    }
-	    else if (column == 1) {
-		return model.getTest(row).getDescription();
-	    }
-	    else
-	    {
-		return getStatisticsField(model.getCumulativeStatistics(row),
-					  column);
-	    }
+	if (isModelInvalid()) {
+	    return "";
 	}
 	else {
-	    if (column == 0) {
-		return m_totalString;
-	    }
-	    else if (column == 1) {
-		return "";
+	    final Model model = getModel();
+
+	    if (row < model.getNumberOfTests()) {
+		if (column == 0) {
+		    return getTestString() + model.getTest(row).getNumber();
+		}
+		else if (column == 1) {
+		    return model.getTest(row).getDescription();
+		}
+		else
+		{
+		    return
+			getStatisticsField(
+			    model.getCumulativeStatistics(row), column);
+		}
 	    }
 	    else {
-		return
-		    getStatisticsField(model.getTotalCumulativeStatistics(),
-				       column);
+		if (column == 0) {
+		    return m_totalString;
+		}
+		else if (column == 1) {
+		    return "";
+		}
+		else {
+		    return
+			getStatisticsField(
+			    model.getTotalCumulativeStatistics(), column);
+		}
 	    }
 	}
     }

@@ -19,6 +19,7 @@
 package net.grinder.console.model;
 
 import java.util.EventListener;
+import java.util.Set;
 
 
 /**
@@ -27,5 +28,14 @@ import java.util.EventListener;
  */
 public interface ModelListener extends EventListener
 {
+    /**
+     * Called when the structure of the model has changed and
+     * listeners should reinitialise.
+     *
+     * @param newTests Tests added to the model.
+     **/
+    public void reset(Set newTests);
+
+    /** Called when the model has new information. **/
     public void update();
 }

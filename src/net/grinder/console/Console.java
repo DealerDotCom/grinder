@@ -51,7 +51,7 @@ public class Console
 
 	m_communication = new ConsoleCommunication(properties);
 
-	m_model = new Model(properties);
+	m_model = new Model();
 
 	final ActionListener startHandler =
 	    new ActionListener() {
@@ -105,7 +105,6 @@ public class Console
 	    final Message message = m_communication.waitForMessage();
 
 	    if (message instanceof RegisterTestsMessage) {
-		System.err.println("Register tests message");
 		m_model.registerTests(
 		    ((RegisterTestsMessage)message).getTests());
 	    }

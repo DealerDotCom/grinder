@@ -496,6 +496,17 @@ public class ConsoleUI implements ModelListener
 	return state;
     }
 
+    /**
+     * {@link ModelListener} interface. The test set has probably
+     * changed. We need do nothing
+     **/
+    public void reset(Set newTests)
+    {
+    }
+
+    /**
+     * {@link ModelListener} interface.
+     **/
     public void update()
     {
 	final int state = updateStateLabel();

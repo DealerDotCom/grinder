@@ -19,6 +19,7 @@
 package net.grinder.console.model;
 
 import java.text.NumberFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -42,6 +43,23 @@ import net.grinder.util.SignificantFigureFormat;
 
 
 /**
+ * The console model.
+ *
+ * <p>This class uses synchronisation sparingly, in particular it is
+ * not used to protect accessor methods across a model structure
+ * change. Instead clients should implement {@link ModelListener}, and
+ * should not call any of the following methods in between receiving a
+ * {@link ModelListener#reset} and a {@link ModelListener#update}.
+ * <ul>
+ * <li>{@link #getCumulativeStatistics}</li>
+ * <li>{@link #getLastSampleStatistics}</li>
+ * <li>{@link #getNumberOfTests}</li>
+ * <li>{@link #getTest}</li>
+ * </ul>
+ * These methods will throw a {@link IllegalStateException} if called between a 
+ * @link ModelListener#reset} and a {@link ModelListener#update}.
+ * </p>
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -54,9 +72,24 @@ public class Model
     private long m_startTime;
     private long m_stopTime;
 
-    private final Test[] m_tests;
-    private final Map m_testToIndex;
-    private final SampleAccumulator[] m_sampleAccumulators;
+    /**
+     * The current test set. A TreeSet is used to maintain the test
+     * order.
+     **/
+    private final Set m_tests = new TreeSet();
+
+    /** A {@link SampleAccumulator} for each test. **/
+    private final Map m_accumulators = new HashMap();
+
+    /** Index into m_tests by test number. **/
+    private Test[] m_testArray;
+
+    /** Index into m_accumulators by test number. **/
+    private SampleAccumulator[] m_accumulatorArray;
+
+    /** true => m_testArray and m_accumulatorArray are valid. **/
+    private boolean m_indicesValid = false;
+
     private final SampleAccumulator m_totalSampleAccumulator =
 	new SampleAccumulator();
 
@@ -74,30 +107,17 @@ public class Model
     private boolean m_receivedReport = false;
     private final List m_modelListeners = new LinkedList();
 
-    /* System.currentTimeMillis is expensive. This is acurate to one
-       sample period. */
+    /**
+     * System.currentTimeMillis is expensive. This is acurate to one
+     * sample period.
+     **/
     private long m_currentTime;
 
-    public Model(GrinderProperties properties)
-	throws GrinderException
+    public Model() throws GrinderException
     {
-	final PropertiesHelper propertiesHelper = new PropertiesHelper();
-
-	final GrinderPlugin grinderPlugin =
-	    propertiesHelper.instantiatePlugin(
-		// Want to get rid of the ctor when we scrap this.
-		new ProcessContextImplementation());
-
-	final Set orderedTests = new TreeSet(grinderPlugin.getTests());
-
-	m_tests = (Test[])orderedTests.toArray(new Test[0]);
-	m_testToIndex = new HashMap();
-	m_sampleAccumulators = new SampleAccumulator[m_tests.length];
-
-	for (int i=0; i<m_tests.length; i++) {
-	    m_testToIndex.put(m_tests[i], new Integer(i));
-	    m_sampleAccumulators[i] = new SampleAccumulator();
-	}
+	m_testArray = new Test[0];
+	m_accumulatorArray = new SampleAccumulator[0];
+	m_indicesValid = true;
 
 	setInitialState();
 
@@ -105,19 +125,67 @@ public class Model
 	m_sampleThread.start();
     }
 
+    public synchronized void registerTests(Set newTests)
+    {
+	newTests.removeAll(m_tests);
+
+	if (newTests.size() > 0) {
+	    m_tests.addAll(newTests);
+
+	    final Iterator newTestIterator = newTests.iterator();
+
+	    while (newTestIterator.hasNext()) {
+		m_accumulators.put((Test)newTestIterator.next(),
+				   new SampleAccumulator());
+	    }	
+
+	    fireModelReset(Collections.unmodifiableSet(newTests));
+
+	    m_indicesValid = false;
+
+	    m_testArray = (Test[])m_tests.toArray(new Test[0]);
+	    m_accumulatorArray = new SampleAccumulator[m_testArray.length];
+
+	    for (int i=0; i<m_accumulatorArray.length; i++) {
+		m_accumulatorArray[i] =
+		    (SampleAccumulator)m_accumulators.get(m_testArray[i]);
+	    }
+
+	    m_indicesValid = true;
+	}
+    }
+
+    /**
+     * See note on sychronisation in {@link Model} class
+     * description. 
+     * @throws IllegalStateException if called when model structure is changing.
+     **/
     public Test getTest(int testIndex)
     {
-	return m_tests[testIndex];
+	assertIndiciesValid();
+	return m_testArray[testIndex];
     }
 
+    /**
+     * See note on sychronisation in {@link Model} class
+     * description. 
+     * @throws IllegalStateException if called when model structure is changing.
+     **/
     public int getNumberOfTests()
     {
-	return m_tests.length;
+	assertIndiciesValid();
+	return m_testArray.length;
     }
 
+    /**
+     * See note on sychronisation in {@link Model} class
+     * description. 
+     * @throws IllegalStateException if called when model structure is changing.
+     **/
     public CumulativeStatistics getCumulativeStatistics(int testIndex)
     {
-	return m_sampleAccumulators[testIndex];
+	assertIndiciesValid();
+	return m_accumulatorArray[testIndex];
     }
 
     public CumulativeStatistics getTotalCumulativeStatistics()
@@ -125,14 +193,48 @@ public class Model
 	return m_totalSampleAccumulator;
     }
 
+    /**
+     * See note on sychronisation in {@link Model} class
+     * description. 
+     * @throws IllegalStateException if called when model structure is changing.
+     **/
     public IntervalStatistics getLastSampleStatistics(int testIndex)
     {
-	return m_sampleAccumulators[testIndex].getLastSampleStatistics();
+	assertIndiciesValid();
+	return m_accumulatorArray[testIndex].getLastSampleStatistics();
     }
 
     public synchronized void addModelListener(ModelListener listener)
     {
 	m_modelListeners.add(listener);
+    }
+
+    public void addSampleListener(Test test, SampleListener listener)
+    {
+	((SampleAccumulator)m_accumulators.get(test))
+	    .addSampleListener(listener);
+    }
+
+    public void addTotalSampleListener(SampleListener listener)
+    {
+	m_totalSampleAccumulator.addSampleListener(listener);
+    }
+
+    private void assertIndiciesValid()
+    {
+	if (!m_indicesValid) {
+	    throw new IllegalStateException("Invalid model state");
+	}
+    }
+
+    private synchronized void fireModelReset(Set newTests)
+    {
+	final Iterator iterator = m_modelListeners.iterator();
+
+	while (iterator.hasNext()) {
+	    final ModelListener listener = (ModelListener)iterator.next();
+	    listener.reset(newTests);
+	}
     }
 
     private synchronized void fireModelUpdate()
@@ -143,17 +245,6 @@ public class Model
 	    final ModelListener listener = (ModelListener)iterator.next();
 	    listener.update();
 	}
-    }
-
-    public void addSampleListener(int testIndex, SampleListener listener)
-	throws ConsoleException
-    {
-	m_sampleAccumulators[testIndex].addSampleListener(listener);
-    }
-
-    public void addTotalSampleListener(SampleListener listener)
-    {
-	m_totalSampleAccumulator.addSampleListener(listener);
     }
 
     private void setInitialState()
@@ -178,19 +269,6 @@ public class Model
 	fireModelUpdate();
     }
 
-    public void registerTests(Set tests)
-    {
-	final Iterator iterator = tests.iterator();
-
-	while (iterator.hasNext()) {
-	    final Test test = (Test)iterator.next();
-
-	    if (!m_testToIndex.containsKey(test)) {
-		System.err.println("New test " + test);
-	    }
-	}
-    }
-
     public void add(TestStatisticsMap testStatisticsMap)
 	throws ConsoleException
     {
@@ -206,15 +284,15 @@ public class Model
 		final StatisticsImplementation statistics =
 		    pair.getStatistics();
 
-		final Integer index =
-		    (Integer)m_testToIndex.get(pair.getTest());
+		final SampleAccumulator sampleAccumulator =
+		    (SampleAccumulator)m_accumulators.get(pair.getTest());
 
-		if (index == null) {
+		if (sampleAccumulator == null) {
 		    System.err.println("Ignoring unknown test: " +
 				       pair.getTest());
 		}
 		else {
-		    m_sampleAccumulators[index.intValue()].add(statistics);
+		    sampleAccumulator.add(statistics);
 		    m_totalSampleAccumulator.add(statistics);
 		}
 	    }
@@ -341,8 +419,8 @@ public class Model
 		    }
 		}
 
-		for (int i=0; i<m_tests.length; i++) {
-		    m_sampleAccumulators[i].fireSample();
+		for (int i=0; i<m_accumulatorArray.length; i++) {
+		    m_accumulatorArray[i].fireSample();
 		}
 
 		m_totalSampleAccumulator.fireSample();
@@ -381,8 +459,10 @@ public class Model
 	return m_sampleInterval;
     }
 
-    /** Should really wait until the next sample boundary before
-     * changing. **/
+    /** 
+     * Should really wait until the next sample boundary before
+     * changing.
+     **/
     public void setSampleInterval(int i)
     {
 	m_sampleInterval = i;
@@ -452,8 +532,8 @@ public class Model
 
     private void reset()
     {
-	for (int i=0; i<m_tests.length; i++) {
-	    m_sampleAccumulators[i].reset();
+	for (int i=0; i<m_accumulatorArray.length; i++) {
+	    m_accumulatorArray[i].reset();
 	}
 
 	m_totalSampleAccumulator.reset();
