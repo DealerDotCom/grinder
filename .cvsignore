@@ -1,6 +1,7 @@
 .cvsignore
 build
 distribution
+doc
 lib
 releases
 grinder.jpl
