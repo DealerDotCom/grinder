@@ -31,6 +31,9 @@ import java.io.FileOutputStream;
 import java.util.Properties;
 import java.util.Random;
 
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.Pattern;
+
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
@@ -150,8 +153,8 @@ public class TestConsoleProperties extends TestCase {
     final PropertyChangeEvent expected =
       new PropertyChangeEvent(properties2, propertyName, s2, s3);
 
-    final MyListener listener = new MyListener(expected);
-    final MyListener listener2 = new MyListener(expected);
+    final ChangeListener listener = new ChangeListener(expected);
+    final ChangeListener listener2 = new ChangeListener(expected);
 
     properties2.addPropertyChangeListener(listener);
     properties2.addPropertyChangeListener(propertyName, listener2);
@@ -164,6 +167,13 @@ public class TestConsoleProperties extends TestCase {
     try {
       properties.setConsoleHost("234.12.23.2");
       fail("Expected a DisplayMessageConsoleException for multicast address");
+    }
+    catch (DisplayMessageConsoleException e) {
+    }
+
+    try {
+      properties.setConsoleHost("not a host");
+      fail("Expected a DisplayMessageConsoleException for unknown host");
     }
     catch (DisplayMessageConsoleException e) {
     }
@@ -217,8 +227,8 @@ public class TestConsoleProperties extends TestCase {
       new PropertyChangeEvent(properties, propertyName, 
 			      new Boolean(false), new Boolean(true));
 
-    final MyListener listener = new MyListener(expected);
-    final MyListener listener2 = new MyListener(expected);
+    final ChangeListener listener = new ChangeListener(expected);
+    final ChangeListener listener2 = new ChangeListener(expected);
 
     properties.addPropertyChangeListener(listener);
     properties.addPropertyChangeListener(propertyName, listener2);
@@ -250,8 +260,8 @@ public class TestConsoleProperties extends TestCase {
       new PropertyChangeEvent(properties, propertyName, 
 			      new Boolean(false), new Boolean(true));
 
-    final MyListener listener = new MyListener(expected);
-    final MyListener listener2 = new MyListener(expected);
+    final ChangeListener listener = new ChangeListener(expected);
+    final ChangeListener listener2 = new ChangeListener(expected);
 
     properties.addPropertyChangeListener(listener);
     properties.addPropertyChangeListener(propertyName, listener2);
@@ -283,8 +293,8 @@ public class TestConsoleProperties extends TestCase {
       new PropertyChangeEvent(properties, propertyName, 
 			      new Boolean(false), new Boolean(true));
 
-    final MyListener listener = new MyListener(expected);
-    final MyListener listener2 = new MyListener(expected);
+    final ChangeListener listener = new ChangeListener(expected);
+    final ChangeListener listener2 = new ChangeListener(expected);
 
     properties.addPropertyChangeListener(listener);
     properties.addPropertyChangeListener(propertyName, listener2);
@@ -359,6 +369,23 @@ public class TestConsoleProperties extends TestCase {
 	properties.setLookAndFeel(name);
       }
     }.doTest();
+  }
+
+  public void testDistributionFileFilter() throws Exception {
+
+    new TestPatternTemplate(
+      ConsoleProperties.DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY) {
+
+      protected Pattern get(ConsoleProperties properties) {
+	return properties.getDistributionFileFilterPattern();
+      }
+
+      protected void set(ConsoleProperties properties, String expression)
+        throws DisplayMessageConsoleException {
+	properties.setDistributionFileFilterExpression(expression);
+      }
+    }.doTest();
+    
   }
 
   public void testCopyConstructor() throws Exception {
@@ -493,8 +520,8 @@ public class TestConsoleProperties extends TestCase {
 	new PropertyChangeEvent(properties2, m_propertyName, 
 				new Integer(i2), new Integer(i3));
 
-      final MyListener listener = new MyListener(expected);
-      final MyListener listener2 = new MyListener(expected);
+      final ChangeListener listener = new ChangeListener(expected);
+      final ChangeListener listener2 = new ChangeListener(expected);
 
       properties2.addPropertyChangeListener(listener);
       properties2.addPropertyChangeListener(m_propertyName, listener2);
@@ -589,8 +616,8 @@ public class TestConsoleProperties extends TestCase {
 	new PropertyChangeEvent(properties2, m_propertyName, 
 				new Boolean(true), new Boolean(false));
 
-      final MyListener listener = new MyListener(expected);
-      final MyListener listener2 = new MyListener(expected);
+      final ChangeListener listener = new ChangeListener(expected);
+      final ChangeListener listener2 = new ChangeListener(expected);
 
       properties2.addPropertyChangeListener(listener);
       properties2.addPropertyChangeListener(m_propertyName, listener2);
@@ -692,8 +719,8 @@ public class TestConsoleProperties extends TestCase {
       final PropertyChangeEvent expected =
 	new PropertyChangeEvent(properties2, m_propertyName, s2, s3);
 
-      final MyListener listener = new MyListener(expected);
-      final MyListener listener2 = new MyListener(expected);
+      final ChangeListener listener = new ChangeListener(expected);
+      final ChangeListener listener2 = new ChangeListener(expected);
 
       properties2.addPropertyChangeListener(listener);
       properties2.addPropertyChangeListener(m_propertyName, listener2);
@@ -755,8 +782,8 @@ public class TestConsoleProperties extends TestCase {
       final PropertyChangeEvent expected =
 	new PropertyChangeEvent(properties2, m_propertyName, f2, f3);
 
-      final MyListener listener = new MyListener(expected);
-      final MyListener listener2 = new MyListener(expected);
+      final ChangeListener listener = new ChangeListener(expected);
+      final ChangeListener listener2 = new ChangeListener(expected);
 
       properties2.addPropertyChangeListener(listener);
       properties2.addPropertyChangeListener(m_propertyName, listener2);
@@ -773,18 +800,87 @@ public class TestConsoleProperties extends TestCase {
       throws DisplayMessageConsoleException;
   }
 
-  private static final class MyListener implements PropertyChangeListener {
+  private abstract class TestPatternTemplate {
+    private final String m_propertyName;
+
+    public TestPatternTemplate(String propertyName) {
+      m_propertyName = propertyName;
+    }
+
+    public void doTest() throws Exception {
+
+      final String s1 = "[a-z]*";
+
+      writePropertyToFile(m_propertyName, s1);
+
+      final ConsoleProperties properties =
+        new ConsoleProperties(s_resources, m_file);
+
+      assertEquals(s1, get(properties).getPattern());
+
+      final String s2 = "(some|a)\\w*pattern";
+
+      set(properties, s2);
+      assertEquals(s2, get(properties).getPattern());
+
+      properties.save();
+
+      final ConsoleProperties properties2 =
+        new ConsoleProperties(s_resources, m_file);
+
+      assertEquals(s2, get(properties2).getPattern());
+
+      final String s3 = "^abc$";
+
+      final PropertyChangeEvent expected =
+	new PropertyChangeEvent(properties2, m_propertyName, s2, s3);
+
+      final ChangeListener listener = new PatternChangeListener(expected);
+      final ChangeListener listener2 = new PatternChangeListener(expected);
+
+      properties2.addPropertyChangeListener(listener);
+      properties2.addPropertyChangeListener(m_propertyName, listener2);
+
+      set(properties2, s3);
+
+      listener.assertCalledOnce();
+      listener2.assertCalledOnce();
+
+      set(properties, null);
+      assertEquals(ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION,
+                   get(properties).getPattern());
+
+      try {
+        set(properties, "malformed(((");
+        fail("Malformed expression, expected DisplayMessageConsoleException");
+      }
+      catch (DisplayMessageConsoleException e) {
+        assertTrue("Nested exception is a MalformedPatternException",
+                   e.getNestedThrowable()
+                   instanceof MalformedPatternException);
+      }
+
+      assertEquals(ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION,
+                   get(properties).getPattern());
+    }
+
+    protected abstract Pattern get(ConsoleProperties properties);
+
+    protected abstract void set(ConsoleProperties properties, String i)
+      throws DisplayMessageConsoleException;
+  }
+
+  private static class ChangeListener implements PropertyChangeListener {
     private final PropertyChangeEvent m_expected;
     private int m_callCount;
 
-    MyListener(PropertyChangeEvent expected) {
+    ChangeListener(PropertyChangeEvent expected) {
       m_expected = expected;
     }
 
     public void propertyChange(PropertyChangeEvent event) {
       ++m_callCount;
-      assertEquals(m_expected.getOldValue(), event.getOldValue());
-      assertEquals(m_expected.getNewValue(), event.getNewValue());
+      assertAreEqual(m_expected.getOldValue(), event.getOldValue());
       assertEquals(m_expected.getPropertyName(), event.getPropertyName());
     }
 
@@ -794,6 +890,31 @@ public class TestConsoleProperties extends TestCase {
 
     public void assertCalled() {
       assertTrue(m_callCount > 0);
+    }
+
+    public void assertAreEqual(Object expected, Object result) {
+      assertEquals(expected, result);
+    }
+  }
+
+  private static class PatternChangeListener extends ChangeListener {
+
+    /**
+     * For convenience, the expectedExpressions object contains old
+     * and new attributes as Strings, rather than compiled Patterns.
+     */
+    PatternChangeListener(PropertyChangeEvent expectedExpressions) {
+      super(expectedExpressions);
+    }
+
+    public void assertAreEqual(Object expected, Object result) {
+      if (expected == null) {
+        assertNull(result);
+      }
+      else {
+        assertNotNull(result);
+        assertEquals(expected, ((Pattern)result).getPattern());
+      }
     }
   }
 
