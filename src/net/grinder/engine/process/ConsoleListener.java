@@ -65,8 +65,8 @@ final class ConsoleListener {
 
   private final Monitor m_notifyOnMessage;
   private final Logger m_logger;
+  private final ReceiverThread m_receiverThread;
   private int m_messagesReceived = 0;
-  private Thread m_receiverThread;
 
   /**
    * Constructor.
@@ -108,6 +108,13 @@ final class ConsoleListener {
   }
 
   /**
+   * Shutdown this listener.
+   */
+  public void shutdown() {
+    m_receiverThread.shutdown();
+  }
+
+  /**
    * Accessor for unit tests. Package scope.
    *
    * @returns The receiver thread.
@@ -132,6 +139,11 @@ final class ConsoleListener {
       super("Console Listener");
       m_receiver = receiver;
       setDaemon(true);
+    }
+
+    public void shutdown() {
+      m_receiver.shutdown();
+      interrupt();
     }
 
     /**

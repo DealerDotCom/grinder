@@ -74,6 +74,9 @@ public class TestConsoleListener extends TestCase {
     final ConsoleListener listener1 =
       new ConsoleListener(m_receiver, myMonitor, m_logger);
 
+    listener0.shutdown();
+    listener1.shutdown();
+
     assertEquals(0, m_logger.getNumberOfMessages());
     assertEquals(0, m_logger.getNumberOfErrors());
   }
@@ -115,6 +118,8 @@ public class TestConsoleListener extends TestCase {
 
     assertEquals(4, m_logger.getNumberOfMessages());
     assertEquals(0, m_logger.getNumberOfErrors());
+
+    listener.shutdown();
   }
 
   public void testShutdown() throws Exception {
@@ -123,7 +128,7 @@ public class TestConsoleListener extends TestCase {
       new ConsoleListener(m_receiver, new MyMonitor(), m_logger);
 
     assertTrue(listener.getReceiverThread().isAlive());
-    m_receiver.shutdown();
+    listener.shutdown();
 
     while (listener.getReceiverThread().isAlive()) {
       Thread.sleep(10);

@@ -353,6 +353,8 @@ public final class GrinderProcess implements Monitor {
       waitForMessage();
     }
 
+    m_consoleListener.shutdown();
+
     if (received(ConsoleListener.START)) {
       logger.output("requesting reset and start");
       return EXIT_START_SIGNAL;
