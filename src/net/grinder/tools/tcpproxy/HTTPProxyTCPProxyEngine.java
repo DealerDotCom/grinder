@@ -73,6 +73,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
   private final Pattern m_httpConnectPattern;
   private final Pattern m_httpsConnectPattern;
   private final ProxySSLEngine m_proxySSLEngine;
+  private final Thread m_proxySSLEngineThread;
   private final EndPoint m_chainedHTTPProxy;
   private final HTTPSProxySocketFactory m_httpsProxySocketFactory;
   private final EndPoint m_proxyAddress;
@@ -148,7 +149,9 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
                            logger, useColour);
     }
 
-    new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine").start();
+    m_proxySSLEngineThread =
+      new Thread(m_proxySSLEngine, "HTTPS proxy SSL engine");
+    m_proxySSLEngineThread.start();
   }
 
   /**
@@ -310,6 +313,13 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
   public void stop() {
     super.stop();
     m_proxySSLEngine.stop();
+
+    try {
+      m_proxySSLEngineThread.join();
+    }
+    catch (InterruptedException e) {
+      // Ignore.
+    }
   }
 
   private void sendHTTPErrorResponse(HTMLElement message, String status,
@@ -502,6 +512,10 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
             localSocket, m_remoteEndPoint, m_clientEndPoint, true);
         }
         catch (IOException e) {
+          if (isStopped()) {
+            break;
+          }
+
           logIOException(e);
         }
       }
