@@ -31,17 +31,7 @@ package net.grinder.console.common;
  */
 public class DisplayMessageConsoleException extends ConsoleException {
 
-  private static Resources s_resources;
-
-  /**
-   * Set a global {@link Resources} object that instances should use
-   * to look up messages.
-   *
-   * @param resources Used to look up messages.
-   */
-  public static final void setResources(Resources resources) {
-    s_resources = resources;
-  }
+  //  private final Resources m_resources;
 
   /**
    * Constructor.
@@ -52,7 +42,20 @@ public class DisplayMessageConsoleException extends ConsoleException {
    */
   public DisplayMessageConsoleException(String resourceKey,
                                         String defaultMessage) {
-    super(s_resources != null ?
-          s_resources.getString(resourceKey) : defaultMessage);
+    super(getMessage(resourceKey, defaultMessage));
+  }
+
+  private static String getMessage(String resourceKey, String defaultMessage) {
+    final Resources resources = Resources.getSingleton();
+
+    if (resources != null) {
+      final String resourceValue = resources.getString(resourceKey, false);
+
+      if (resourceValue != null) {
+        return resourceValue;
+      }
+    }
+
+    return defaultMessage;
   }
 }

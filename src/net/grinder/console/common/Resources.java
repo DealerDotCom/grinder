@@ -41,6 +41,7 @@ import javax.swing.ImageIcon;
 public final class Resources {
 
   private static ResourceBundle s_resources = null;
+  private static Resources s_singleton = null;
 
   /**
    * Constructor.
@@ -59,9 +60,18 @@ public final class Resources {
           throw new ConsoleException("Resource bundle not found");
         }
       }
-
-      DisplayMessageConsoleException.setResources(this);
     }
+
+    s_singleton = this;
+  }
+
+  /**
+   * Package scope accessor for DisplayMessageConsoleException. Would
+   * be better if DisplayMessageConsoleException took a Resources as a
+   * parameter.
+   */
+  static final Resources getSingleton() {
+    return m_singleton;
   }
 
   /**
