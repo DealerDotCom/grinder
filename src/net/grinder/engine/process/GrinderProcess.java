@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
+import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
@@ -136,14 +137,17 @@ public class GrinderProcess
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 	m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
+	// Parse plugin class.
+	m_plugin = propertiesHelper.instantiatePlugin(m_context);
+
+	// Get defined tests.
+	final Set tests = m_plugin.getTests();
+
 	// Parse console configuration.
 	final String multicastAddress = 
 	    properties.getProperty("grinder.multicastAddress");
 
-	final boolean receiveConsoleSignals =
-		properties.getBoolean("grinder.receiveConsoleSignals", false);
-
-	if (receiveConsoleSignals) {
+	if (properties.getBoolean("grinder.receiveConsoleSignals", false)) {
 	    final int grinderPort = properties.getInt("grinder.multicastPort",
 						      0);
 
@@ -173,10 +177,7 @@ public class GrinderProcess
 		};
 	}
 
-	final boolean reportToConsole =
-	    properties.getBoolean("grinder.reportToConsole", false);
-
-	if (reportToConsole) {
+	if (properties.getBoolean("grinder.reportToConsole", false)) {
 	    final int consolePort =
 		properties.getInt("grinder.console.multicastPort", 0);
 
@@ -186,6 +187,8 @@ public class GrinderProcess
 
 		m_reportToConsoleInterval =
 		    properties.getInt("grinder.reportToConsole.interval", 500);
+
+		m_consoleSender.send(new RegisterTestsMessage(tests));
 	    }
 	    else {
 		throw new EngineException(
@@ -196,12 +199,6 @@ public class GrinderProcess
 	else {
 	    m_consoleSender = null;
 	}
-
-	// Parse plugin class.
-	m_plugin = propertiesHelper.instantiatePlugin(m_context);
-
-	// Get defined tests.
-	final Set tests = m_plugin.getTests();
 
 	// Wrap tests with our information.
 	m_testSet = new TreeMap();
@@ -225,7 +222,7 @@ public class GrinderProcess
 	    m_testSet.put(test, new TestData(test, sleepTime, statistics));
 	    m_testStatisticsMap.put(test, statistics);
 	}
-    }    
+    }
 
     /**
      * The application's main loop. This is split from the constructor

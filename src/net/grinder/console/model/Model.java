@@ -178,6 +178,19 @@ public class Model
 	fireModelUpdate();
     }
 
+    public void registerTests(Set tests)
+    {
+	final Iterator iterator = tests.iterator();
+
+	while (iterator.hasNext()) {
+	    final Test test = (Test)iterator.next();
+
+	    if (!m_testToIndex.containsKey(test)) {
+		System.err.println("New test " + test);
+	    }
+	}
+    }
+
     public void add(TestStatisticsMap testStatisticsMap)
 	throws ConsoleException
     {

@@ -21,6 +21,8 @@ package net.grinder.console;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import net.grinder.communication.Message;
+import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.console.model.Model;
 import net.grinder.console.swingui.ConsoleUI;
@@ -100,10 +102,18 @@ public class Console
     public void run() throws GrinderException
     {
         while (true) {
-	    final ReportStatisticsMessage report =
-		m_communication.waitForReport();
+	    final Message message = m_communication.waitForMessage();
 
-	    m_model.add(report.getStatisticsDelta());
+	    if (message instanceof RegisterTestsMessage) {
+		System.err.println("Register tests message");
+		m_model.registerTests(
+		    ((RegisterTestsMessage)message).getTests());
+	    }
+	    
+	    if (message instanceof ReportStatisticsMessage) {
+		m_model.add(
+		    ((ReportStatisticsMessage)message).getStatisticsDelta());
+	    }
         } 
     }
 }

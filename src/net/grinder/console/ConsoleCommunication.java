@@ -24,7 +24,6 @@ import java.net.UnknownHostException;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
-import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StartGrinderMessage;
@@ -39,8 +38,8 @@ import net.grinder.util.GrinderProperties;
  */
 class ConsoleCommunication
 {
-    final Receiver m_receiver;
-    final Sender m_sender;
+    private final Receiver m_receiver;
+    private final Sender m_sender;
 
     ConsoleCommunication(GrinderProperties properties)
 	throws GrinderException
@@ -88,16 +87,12 @@ class ConsoleCommunication
 	m_sender.send(new StopGrinderMessage());
     }
 
-    ReportStatisticsMessage waitForReport()
+    Message waitForMessage()
     {
 	while (true)
 	{
 	    try {
-		final Message message = m_receiver.waitForMessage();
-
-		if (message instanceof ReportStatisticsMessage) {
-		    return (ReportStatisticsMessage)message;
-		}
+		return m_receiver.waitForMessage();
 	    }
 	    catch (CommunicationException e) {
 		System.err.println("Communication exception: " + e);
