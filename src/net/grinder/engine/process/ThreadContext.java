@@ -185,7 +185,7 @@ final class ThreadContext implements PluginThreadContext
      * PluginThreadContext interface.
      */
     final Object invokeTest(TestData testData, TestData.Invokeable invokeable)
-	throws Exception
+	throws JythonScriptExecutionException
     {
 	if (m_currentTest != null) {
 	    // Originally we threw a ReentrantInvocationException
@@ -226,15 +226,22 @@ final class ThreadContext implements PluginThreadContext
 
 	    return testResult;
 	}
-	catch (Exception e) {
+	catch (org.python.core.PyException e) {
 	    m_currentTestStatistics.addError();
 
- 	    m_threadLogger.error("Test invocation threw: " + e);
- 	    e.printStackTrace(m_threadLogger.getErrorLogWriter());
+	    final JythonScriptExecutionException jythonException =
+		new JythonScriptExecutionException("invoking test", e);
 
-	    throw e;		// This should be wrapped in something
-				// so we know we don't need to log it
-				// again.
+	    final Throwable unwrapped = jythonException.unwrap();
+
+	    // We don't log the stack trace. If the script doesn't
+	    // handle the exception it will be logged when the run is
+	    // aborted, otherwise we assume the script writer knows
+	    // what they're doing.
+ 	    m_threadLogger.error("Test threw " + unwrapped.getClass() + ": " +
+				 unwrapped.getMessage());
+
+	    throw jythonException;
 	}
 	finally {
 	    if (m_dataWriter != null) {

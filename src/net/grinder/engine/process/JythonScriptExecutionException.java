@@ -57,18 +57,34 @@ public class JythonScriptExecutionException extends EngineException
     }
 
     /**
+     * Remove an JythonScriptExecutionException wrapping and return
+     * the underlying exception thrown from the script.
+     */
+    final Throwable unwrap() 
+    {
+	Throwable result = this;
+
+	do {
+	    result = ((EngineException)result).getNestedThrowable();
+	}
+	while (result instanceof JythonScriptExecutionException ||
+	       result instanceof BriefPyException);
+
+	return result;
+    }
+
+    /**
      * Used to replace PyExceptions that encapsulate Java exceptions.
      * (The PyException stack trace is much too verbose my tastes and
      * repeats a lot of information found in the Java exception).
      */
-    private static class BriefPyException extends Throwable
+    private static final class BriefPyException extends EngineException
     {
-	private final Throwable m_wrapped;
 	private final String m_where;
 
 	public BriefPyException(Throwable wrapped, PyTraceback traceback) 
 	{
-	    m_wrapped = wrapped;
+	    super("", wrapped);
 
 	    m_where = "(Passed through Jython script \"" +
 		traceback.tb_frame.f_code.co_filename +
@@ -78,7 +94,17 @@ public class JythonScriptExecutionException extends EngineException
 	public void printStackTrace(PrintWriter s)
 	{
 	    s.println(m_where);
-	    m_wrapped.printStackTrace(s);
+	    getNestedThrowable().printStackTrace(s);
+	}
+
+	public String getMessage() 
+	{
+	    return getNestedThrowable().getMessage();
+	}
+
+	public String toString() 
+	{
+	    return getNestedThrowable().toString();
 	}
     }
 }

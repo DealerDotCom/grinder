@@ -22,6 +22,7 @@
 
 package net.grinder.engine.process;
 
+import java.io.PrintWriter;
 import java.util.Iterator;
 
 import net.grinder.common.GrinderProperties;
@@ -90,6 +91,8 @@ class GrinderThread implements java.lang.Runnable
 	m_context.setThreadInstance();
 
 	final ThreadLogger logger = m_context.getThreadLogger();
+	final PrintWriter errorWriter = logger.getErrorLogWriter();
+
 	logger.setCurrentRunNumber(-1);
 
 	try {
@@ -105,7 +108,6 @@ class GrinderThread implements java.lang.Runnable
 
 	    int currentRun;	    
 
-	    RUN_LOOP:
 	    for (currentRun = 0;
 		 (m_numberOfRuns == 0 || currentRun < m_numberOfRuns);
 		 currentRun++)
@@ -114,23 +116,39 @@ class GrinderThread implements java.lang.Runnable
 
 		m_beginRunPluginThreadCaller.run();
 
-		// What exceptionhandling here?
-		m_jythonRunnable.run();
+		try {
+		    m_jythonRunnable.run();
+		}
+		catch (JythonScriptExecutionException e) {
+		    final Throwable unwrapped = e.unwrap();
+		    
+		    // Sadly PrintWriter only exposes its lock object
+		    // to subclasses.
+		    synchronized(errorWriter) {
+			logger.error("Aborted run, script threw " +
+				     unwrapped.getClass() + ": " +
+				     unwrapped.getMessage());
+
+			unwrapped.printStackTrace(errorWriter);
+		    }
+		}
 
 		m_endRunPluginThreadCaller.run();
 	    }
 
 	    logger.setCurrentRunNumber(-1);
 
-	    logger.output("finished " + currentRun + " run" +
-			  (currentRun == 1 ? "" : "s"));
+	    logger.output("finished " + currentRun +
+			  (currentRun == 1 ? " run" : " runs"));
 	}
 	catch (Sleeper.ShutdownException e) {
 	    logger.output("shutdown");
 	}
 	catch(Exception e) {
-	    logger.error(" threw an exception:" + e);
-	    e.printStackTrace(logger.getErrorLogWriter());
+	    synchronized(errorWriter) {
+		logger.error("Aborting thread due to " + e);
+		e.printStackTrace(errorWriter);
+	    }
 	}
 	finally {
 	    logger.setCurrentRunNumber(-1);
@@ -165,7 +183,7 @@ class GrinderThread implements java.lang.Runnable
 
     private abstract class PluginThreadCaller
     {
-	public void run() throws EngineException
+	public void run() throws EngineException, PluginException
 	{
 	    final Iterator iterator =
 		m_processContext.getPluginRegistry().
@@ -181,48 +199,22 @@ class GrinderThread implements java.lang.Runnable
 
 	protected abstract void doOne(
 	    PluginThreadListener pluginThreadListener)
-	    throws EngineException;
+	    throws PluginException;
     }
 
     private final PluginThreadCaller m_beginRunPluginThreadCaller =
 	new PluginThreadCaller() {
 	    protected void doOne(PluginThreadListener pluginThreadListener)
-		throws EngineException {
-		try {
-		    pluginThreadListener.beginRun();
-		}
-		catch (PluginException e) {
-		    final ThreadLogger logger = m_context.getThreadLogger();
-
-		    logger.error(
-			"Aborting thread - " +
-			pluginThreadListener.getClass().getName() +
-			".beginRun() threw " + e);
-		    e.printStackTrace(logger.getErrorLogWriter());
-
-		    throw new EngineException("Thread could not begin run", e);
-		}
+		throws PluginException {
+		pluginThreadListener.beginRun();
 	    }
 	};
 
     private final PluginThreadCaller m_endRunPluginThreadCaller =
 	new PluginThreadCaller() {
 	    protected void doOne(PluginThreadListener pluginThreadListener)
-		throws EngineException {
-		try {
-		    pluginThreadListener.endRun();
-		}
-		catch (PluginException e) {
-		    final ThreadLogger logger = m_context.getThreadLogger();
-
-		    logger.error(
-			"Aborting thread - " +
-			pluginThreadListener.getClass().getName() +
-			".endRun() threw " + e);
-		    e.printStackTrace(logger.getErrorLogWriter());
-
-		    throw new EngineException("Thread could not end run", e);
-		}
+		throws PluginException {
+		pluginThreadListener.endRun();
 	    }
 	};
 }
