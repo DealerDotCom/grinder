@@ -2,6 +2,7 @@
 // Copyright (C) 2000 Phil Dawes
 // Copyright (C) 2001 Kalle Burbeck
 // Copyright (C) 2003 Bill Schnellinger
+// Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -50,7 +51,6 @@ import HTTPClient.Codecs;
 import HTTPClient.NVPair;
 import HTTPClient.ParseException;
 
-import net.grinder.TCPProxy;
 import net.grinder.common.GrinderBuild;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
@@ -71,9 +71,12 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * </ul>
  *
  * @author Philip Aston
+ * @author Bertrand Ave
  * @version $Revision$
  */
 public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
+
+  private static final String INITIAL_TEST_PROPERTY = "HTTPPlugin.initialTest";
 
   private static final String FILENAME_PREFIX = "http-plugin-tcpproxy-post-";
   private static final String s_newLine =
@@ -136,8 +139,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     m_out = outputPrintWriter;
 
     m_currentRequestNumber =
-      Integer.getInteger(TCPProxy.INITIAL_TEST_PROPERTY, 0).intValue()
-      - 1;
+      Integer.getInteger(INITIAL_TEST_PROPERTY, 0).intValue() - 1;
 
     final PatternCompiler compiler = new Perl5Compiler();
 
@@ -293,6 +295,12 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
   public void connectionClosed(ConnectionDetails connectionDetails)
     throws IOException {
     removeHandler(connectionDetails).endMessage();
+  }
+
+  /**
+   * Called just before stop.
+   */
+  public final void stop() {
   }
 
   private Handler getHandler(ConnectionDetails connectionDetails) {

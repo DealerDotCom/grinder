@@ -1,6 +1,7 @@
 // Copyright (C) 2000 Phil Dawes
 // Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // Copyright (C) 2001 Paddy Spencer
+// Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,10 +24,13 @@
 
 package net.grinder;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
+import java.util.Properties;
 
 import net.grinder.plugin.http.HTTPPluginTCPProxyFilter;
 import net.grinder.plugin.http.HTTPPluginTCPProxyResponseFilter;
@@ -35,6 +39,7 @@ import net.grinder.tools.tcpproxy.EchoFilter;
 import net.grinder.tools.tcpproxy.HTTPProxyTCPProxyEngine;
 import net.grinder.tools.tcpproxy.JSSEConstants;
 import net.grinder.tools.tcpproxy.NullFilter;
+import net.grinder.tools.tcpproxy.TCPProxyConsole;
 import net.grinder.tools.tcpproxy.TCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyEngineImplementation;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
@@ -47,16 +52,11 @@ import net.grinder.tools.tcpproxy.TCPProxySocketFactory;
  *
  * @author Phil Dawes
  * @author Philip Aston
+ * @author Bertrand Ave
  * @version $Revision$
  */
 public class TCPProxy {
-
-  /**
-   * System property name that is used to pass the initial test number
-   * to filter implementations.
-   */
-  public static final String INITIAL_TEST_PROPERTY = "TCPProxy.initialTest";
-
+  
   private static final String SSL_SOCKET_FACTORY_CLASS =
     "net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory";
 
@@ -65,12 +65,12 @@ public class TCPProxy {
    *
    * @param args Command line arguments.
    */
-  public static void main(String[] args) {
+  public static final void main(String[] args) {
     final TCPProxy tcpProxy = new TCPProxy(args);
     tcpProxy.run();
   }
 
-  private Error barfUsage() {
+  private final Error barfUsage() {
     System.err.println(
       "\n" +
       "Usage: " +
@@ -80,9 +80,8 @@ public class TCPProxy {
       "\n" +
       "\n   [-requestFilter <filter>]    Add request filter" +
       "\n   [-responseFilter <filter>]   Add response filter" +
-      "\n   [-httpPlugin                 See below" +
-      "\n     [-initialTest <n>]         Number tests from n" +
-      "\n   ]" +
+      "\n   [-httpPlugin]                See below" +
+      "\n   [-properties <file>]         Properties passed to the filters" +
       "\n   [-localHost <host name/ip>]  Default is localhost" +
       "\n   [-localPort <port>]          Default is 8001" +
       "\n   [-remoteHost <host name>]    Default is localhost" +
@@ -95,6 +94,7 @@ public class TCPProxy {
       "\n   ]" +
       "\n   [-colour]                    Be pretty on ANSI terminals" +
       "\n   [-timeout]                   Proxy engine timeout" +
+      "\n   [-console]                   Display the console" +
       "\n" +
       "\n <filter> can be the name of a class that implements" +
       "\n " + TCPProxyFilter.class.getName() + " or" +
@@ -137,7 +137,7 @@ public class TCPProxy {
     int remotePort = 7001;
     boolean useSSL = false;
     boolean proxy = false;
-    int initialTest = 0;
+    boolean console = false;
 
     int timeout = 0; 
 
@@ -146,16 +146,15 @@ public class TCPProxy {
     try {
       // Parse 1.
       for (int i=0; i < args.length; i++) {
-	if (args[i].equalsIgnoreCase("-initialtest")) {
-	  initialTest = Integer.parseInt(args[++i]);
+      	if (args[i].equalsIgnoreCase("-properties")) {
+	  final Properties properties = new Properties();
+	  properties.load(new FileInputStream(new File(args[++i])));
+	  System.getProperties().putAll(properties);
 	}
       }
-
-      System.setProperty(INITIAL_TEST_PROPERTY,
-			 Integer.toString(initialTest));
-
-      // Parse 2
-      for (int i=0; i<args.length; i++) {
+      
+      // Parse 2.
+      for (int i=0; i < args.length; i++) {      
 	if (args[i].equalsIgnoreCase("-requestfilter")) {
 	  requestFilter = instantiateFilter(args[++i], outputWriter);
 	}
@@ -211,11 +210,14 @@ public class TCPProxy {
 	  System.setErr(new PrintStream(
 			  new FileOutputStream(outputFile + ".err"), true));
 	}
+	else if (args[i].equalsIgnoreCase("-displayconsole")) {
+	  console = true;
+	}
 	else if (args[i].equalsIgnoreCase("-colour") ||
 		 args[i].equalsIgnoreCase("-color")) {
 	  useColour = true;
 	}
-	else if (args[i].equals("-initialtest")) {
+	else if (args[i].equals("-properties")) {
 	  /* Already handled */
 	  ++i;
 	}
@@ -303,6 +305,10 @@ public class TCPProxy {
 	    useColour,
 	    timeout);
       }
+      
+      if (console) {
+	new TCPProxyConsole(m_proxyEngine);
+      }
 		
       System.err.println("Engine initialised, listening on port " +
 			 localPort);
@@ -362,7 +368,12 @@ public class TCPProxy {
     }
   }
 	
-  private void run() {
+  private final void run() {
+    Runtime.getRuntime().addShutdownHook(
+      new Thread() {
+	public final void run() { m_proxyEngine.stop(); }
+      });
+    
     m_proxyEngine.run();
     System.err.println("Engine exited");
     System.exit(0);

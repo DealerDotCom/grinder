@@ -1,3 +1,18 @@
+Grinder 3.0-beta12
+------------------
+
+  Updates to the TCPProxy from Betrand Ave:
+
+   - Added a "-console" switch. When used, the TCPProxy creates a
+     simple Swing dialog that allows it to be cleanly interrupted.
+
+   - Added a "-properties" switch to pass System properties to
+     filter implementations. Removed the HTTPPluginTCPProxyFilter's
+     "-initialTest" option in favour of this more general mechanism.
+
+   - Added a shutdown hook to increase chance of clean shutdown.
+
+
 Grinder 3.0-beta11
 ------------------
 

@@ -1,5 +1,6 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -28,6 +29,7 @@ import java.io.PrintWriter;
 /**
  *
  * @author Philip Aston
+ * @author Bertrand Ave
  * @version $Revision$
  */
 public class EchoFilter implements TCPProxyFilter
@@ -93,6 +95,8 @@ public class EchoFilter implements TCPProxyFilter
 	m_out.println("--- " +  connectionDetails.getDescription() +
 		      " closed --");
     }
+    
+    public void stop() {}
 }
 
 

@@ -1,7 +1,8 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // Copyright (C) 2000, 2001 Phil Dawes
 // Copyright (C) 2001 Paddy Spencer
+// Copyright (C) 2003 Bertrande Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -68,6 +69,7 @@ import net.grinder.util.CopyStreamRunnable;
  *
  * @author Paddy Spencer
  * @author Philip Aston
+ * @author Bertrand Ave
  * @version $Revision$
  */
 public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
@@ -342,6 +344,10 @@ public class HTTPProxyTCPProxyEngine extends TCPProxyEngineImplementation
 	{
 	    m_delegate.connectionClosed(connectionDetails);
 	}
+
+      public void stop() {
+	m_delegate.stop();
+      }
 
 	public byte[] handle(ConnectionDetails connectionDetails,
 			     byte[] buffer, int bytesRead)

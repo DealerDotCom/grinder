@@ -1,4 +1,5 @@
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,6 +55,7 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * authentication realm.
  *
  * @author Philip Aston
+ * @author Bertrand Ave
  * @version $Revision$
  */
 public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
@@ -131,6 +133,12 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
     public void connectionClosed(ConnectionDetails connectionDetails)
 	throws IOException
     {
+    }
+
+      /**
+       * Called just before stop.
+       */
+    public final void stop() {
     }
 
     /**

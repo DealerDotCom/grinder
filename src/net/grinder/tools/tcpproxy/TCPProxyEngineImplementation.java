@@ -1,5 +1,6 @@
 // Copyright (C) 2000 Phil Dawes
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,6 +38,7 @@ import net.grinder.util.TerminalColour;
  *
  * @author Phil Dawes
  * @author Philip Aston
+ * @author Bertrand Ave
  * @version $Revision$
  */
 public class TCPProxyEngineImplementation implements TCPProxyEngine
@@ -84,6 +86,21 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
 		timeout);
     }
     
+
+    /* Stop the engine and flush filter buffer. */
+    public void stop() 
+    {
+      m_responseFilter.stop();
+
+      // Close socket to stop engine.
+      try {
+	getServerSocket().close();
+      }
+      catch (java.io.IOException ioe) {
+	// Be silent.
+      }
+    }
+    
     public void run()
     {
 	while (true) {
@@ -113,7 +130,7 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
 	    }
 	}
     }
-
+    
     public final ServerSocket getServerSocket() 
     {
 	return m_serverSocket;
