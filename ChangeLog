@@ -1,3 +1,38 @@
+2003-02-02  Philip Aston  <paston@bea.com>
+
+	* build.xml: More tweaking of script javadoc.
+
+	* etc/setenv.sh: Got a silver rocket.
+
+	* CHANGES: Doc.
+
+	* xdoc/g3/script-gallery-xhtml.xml, xdoc/stylesheets/grinder.xsl, examples/ejb.py, examples/fba.py, examples/form.py, examples/grinder.properties, examples/hello-world-functions.py, examples/hello-world.py, examples/http.py, examples/jaxrpc.py, examples/jdbc.py, examples/scenario.py, examples/amazon.py, examples/cookies.py:
+	Annotate the scripts.
+
+	* src/net/grinder/script/ScriptContext.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/engine/process/ScriptContextImplementation.java:
+	Allow scripts access to GrinderProperties.
+
+	* build.xml:
+	Add the HTTPClient public interface to the script javadoc, and a
+	couple of other things.
+
+	* src/net/grinder/common/AbstractTestSemantics.java, src/net/grinder/common/Test.java, src/net/grinder/plugin/http/HTTPPluginControl.java:
+	Improve javadoc.
+
+	* src/net/grinder/common/GrinderBuild.java: Make constructor private.
+
+	* src/net/grinder/common/Logger.java: Fix javadoc typo.
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, build.xml, src/net/grinder/Grinder.java, src/net/grinder/common/GrinderBuild.java, src/net/grinder/common/resources/build.properties, src/net/grinder/engine/process/GrinderProcess.java:
+	Ditch the "prepare source" build stage. Introduce a class that knows
+	about build version for those that want it at runtime.
+
+	* src/net/grinder/plugin/http/HTTPPlugin.java: Fix.
+
+	* src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginControl.java, src/net/grinder/plugin/http/HTTPRequest.java, CHANGES:
+	Fix HTTPPlugin static initialisation order so that script settings are
+	not overridden by default initialisation.
+
 2003-01-24  Philip Aston  <paston@bea.com>
 
 	* CHANGES: Doc.
