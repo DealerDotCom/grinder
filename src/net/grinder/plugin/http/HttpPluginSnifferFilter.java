@@ -181,10 +181,13 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 	m_out.println("");
 	m_out.println("grinder.processes=1");
 	m_out.println("grinder.threads=1");
-	m_out.println("grinder.cycles=0         # Until console sends stop.");
+	m_out.println("# Change to grinder.cycles=0 to continue until console sends stop.");
+	m_out.println("grinder.cycles=1");
+	m_out.println("");
+	m_out.println("grinder.receiveConsoleSignals=true");
+	m_out.println("grinder.reportToConsole=true");
 	m_out.println("");
 	m_out.println("grinder.plugin=net.grinder.plugin.http.HttpPlugin");
-	m_out.println("");
     }
 
     /**
@@ -363,6 +366,7 @@ public class HttpPluginSnifferFilter implements SnifferFilter
 		}
 
 		// Stuff we do at start of request only.
+		m_outputBuffer.append(s_newLine);
 		m_requestNumber = incrementRequestNumber();
 		outputProperty("parameter.url", url);
 		outputProperty("sleepTime", Long.toString(markTime()));
