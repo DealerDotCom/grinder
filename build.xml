@@ -411,9 +411,17 @@ what you want. Currently the conditionally built modules are:
     </junit>
   </target>
 
+  <target name="gj-instrument-uptodate">
+    <uptodate property="gj-instrument.uptodate"
+              targetfile="${gj-instrumented.jar}">
+      <srcfiles dir="${classes.dir}" includes="net/grinder/**/*.class"/>
+    </uptodate>
+  </target>
+
   <target name="gj-instrument"
-          depends="compile"
-          description="Instruments the code for Glass JAR">
+          depends="compile,gj-instrument-uptodate"
+          description="Instruments the code for Glass JAR"
+          unless="gj-instrument.uptodate">
 
     <taskdef name="iclass"
              classname="com.glassjartoolkit.ant.InstrumentTask"
