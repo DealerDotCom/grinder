@@ -105,7 +105,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
 	final Pair pair = iterator.next();
 
 	final TestStatisticsImplementation testStatistics =
-	  testStatisticsFactory.getInstance().createImplementation();
+	  testStatisticsFactory.createImplementation();
 
 	testStatistics.add(pair.getStatistics().getDelta(updateSnapshot));
 
