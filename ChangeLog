@@ -1,3 +1,10 @@
+2001-02-09  Philip Aston  <paston@beasys.com>
+
+	* build.xml: 
+	* README: 
+	* web/index.html
+		Spell Paco's name correctly.
+
 2001-02-06  Philip Aston  <paston@beasys.com>
 
 	* The Grinder 2.3.1 is released
