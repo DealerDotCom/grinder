@@ -23,5 +23,9 @@
 
  '(jde-run-option-classpath (cons "../build/classes" jde-global-classpath));
 
+ '(jde-db-option-classpath (cons "../build/classes" jde-global-classpath));
+
+ '(jde-db-source-directories '("/work/src/grinder/src"))
+
  '(jde-compile-option-directory "../build/classes")
 )
