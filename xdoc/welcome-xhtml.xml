@@ -38,6 +38,59 @@
     href="http://www.sourceforge.net/projects/grinder">SourceForge.net</a>.
     </p>
 
+<!-- START - Get your free poll @ www.Votations.com -->
+<form method="post" action="http://www.votations.com/asp/vote.asp">
+ <table bgcolor="#e0e0e0" border="0" bordercolor="#cc0000" cellpadding="0"
+        cellspacing="0" width="400">
+  <input type="hidden" name="pollid" value="110588"/>
+
+  <tr>
+   <td bgcolor="#000080"><font color="#ffffff">
+    <center><strong>Which version of The Grinder do you use?</strong></center>
+    </font>
+   </td>
+  </tr>
+
+  <tr/>
+
+  <tr>
+   <td background="">
+    <br/>
+    <table border="0" cellpadding="0">
+     <tr>
+      <td valign="top"><input name="vote" type="radio" value="1110504"/></td>
+      <td valign="top" width="99%">I'm happy with The Grinder 2, it does everything I want</td>
+     </tr>
+     <tr>
+      <td valign="top"><input name="vote" type="radio" value="1110505"/></td>
+      <td valign="top" width="99%">I'd like to use The Grinder 3, but the scripting looks hard</td>
+     </tr>
+     <tr>
+      <td valign="top"><input name="vote" type="radio" value="1110506"/></td>
+      <td valign="top" width="99%">I'll use The Grinder 3 when it is non-beta</td>
+     </tr>
+     <tr>
+      <td valign="top"><input name="vote" type="radio" value="1110507"/></td>
+      <td valign="top" width="99%">I use The Grinder 3</td>
+     </tr>
+    </table>
+    <br/>
+   </td>
+  </tr>
+
+  <tr>
+   <td align="center"><input type="submit" name="voteon" value="Submit Vote"/>
+    <br/>
+    <small><a href="http://www.votations.com/asp/resultsview.asp?pollid=110588">View current results</a></small>
+    <br/>
+    <a href="http://www.votations.com/index.asp?refid=110588"><img src="http://www.votations.com/images/default/logos/minilogo1.gif" border="0" alt="free polls and surveys @ www.votations.com"/></a>
+   </td>
+  </tr>
+ </table>
+</form>
+
+<!-- END - Get your free poll @ www.Votations.com -->
+
     <h2>Authors</h2>
     <table>
       <tr><td>Paco G&#xf3;mez</td></tr>
