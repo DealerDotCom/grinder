@@ -32,7 +32,7 @@ import net.grinder.common.GrinderException;
  * @author Philip Aston
  * @version $Revision$
  */
-public class ExpressionView implements Comparable
+public class ExpressionView
 {
     private static int s_creationOrder;
     private static StatisticExpressionFactory s_statisticExpressionFactory =
@@ -41,6 +41,7 @@ public class ExpressionView implements Comparable
     private final String m_displayName;
     private final String m_displayNameResourceKey;
     private final String m_expressionString;
+    private final int m_hashCode;
     private final int m_creationOrder;
 
     /**
@@ -76,6 +77,11 @@ public class ExpressionView implements Comparable
 	m_displayNameResourceKey = displayNameResourceKey;
 	m_expressionString = expressionString;
 	m_expression = expression;
+
+	m_hashCode =
+	    m_displayName.hashCode() ^
+	    m_displayNameResourceKey.hashCode() ^
+	    m_expressionString.hashCode();	
 
 	synchronized(ExpressionView.class) {
 	    m_creationOrder = s_creationOrder++;
@@ -137,6 +143,7 @@ public class ExpressionView implements Comparable
 	final ExpressionView otherView = (ExpressionView)other;
 
 	return
+	    m_hashCode == otherView.m_hashCode &&
 	    m_displayName.equals(otherView.m_displayName) &&
 	    m_displayNameResourceKey.equals(
 		otherView.m_displayNameResourceKey) &&
@@ -149,26 +156,9 @@ public class ExpressionView implements Comparable
 	     m_expressionString.equals(otherView.m_expressionString));
     }
 
-    /**
-    * The JDK documentation says I have to say "<em>Note: this class
-    * has a natural ordering that is inconsistent with equals</em>. In
-    * our case <code>x.compareTo(y)==0) => (x.equals(y))</code>, but
-    * the reverse implication does not hold.
-    **/
-    public final int compareTo(Object otherObject)
+    public final int hashCode()
     {
-	final ExpressionView other = (ExpressionView)otherObject;
-
-	if (m_creationOrder < other.m_creationOrder) {
-	    return -1;
-	}
-	else if (m_creationOrder > other.m_creationOrder) {
-	    return 1;
-	}
-	else {
-	    // Should assert ? Same creation order => same instance.
-	    return 0;
-	}
+	return m_hashCode;
     }
 
     /**
@@ -182,5 +172,10 @@ public class ExpressionView implements Comparable
 	return
 	    "ExpressionView(" + m_displayName + ", " +
 	    m_displayNameResourceKey + ", " + m_expressionString + ")";
+    }
+
+    final int getCreationOrder()
+    {
+	return m_creationOrder;
     }
 }

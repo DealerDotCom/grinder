@@ -100,28 +100,6 @@ public class TestExpressionView extends TestCase
 	assert(!views[1].equals(views[4]));
     }
 
-    public void testOrdering() throws Exception
-    {
-	final ExpressionView[] views = {
-	    new ExpressionView("One", "my.view", "(+ one two)"),
-	    new ExpressionView("Two", "my.view", "one"),
-	    new ExpressionView("Three", "my.view", "(+ one two)"),
-	    new ExpressionView("Four", "my.view", "two"),
-	};
-
-	final SortedSet sortedSet = new TreeSet();
-
-	for (int i=0; i<views.length; ++i) { sortedSet.add(views[i]); }
-
-	final ExpressionView[] sorted =
-	    (ExpressionView[])sortedSet.toArray(new ExpressionView[0]);
-
-	assertEquals("One", sorted[0].getDisplayName());
-	assertEquals("Two", sorted[1].getDisplayName());
-	assertEquals("Three", sorted[2].getDisplayName());
-	assertEquals("Four", sorted[3].getDisplayName());
-    }   
-
     public void testExternalisation() throws Exception
     {
 	final ExpressionView original =

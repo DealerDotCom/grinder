@@ -18,7 +18,9 @@
 
 package net.grinder.statistics;
 
+import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import net.grinder.common.GrinderException;
@@ -28,7 +30,7 @@ import net.grinder.common.GrinderException;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class StatisticsIndexMap
+public class StatisticsIndexMap implements Serializable
 {
     private final static StatisticsIndexMap s_processInstance =
 	new StatisticsIndexMap();
@@ -102,7 +104,7 @@ public class StatisticsIndexMap
 	}
     }
 
-    abstract static class AbstractIndex
+    abstract static class AbstractIndex implements Serializable
     {
 	private final int m_value;
 
@@ -130,6 +132,32 @@ public class StatisticsIndexMap
 	private LongIndex(int i)
 	{
 	    super(i);
+	}
+    }
+
+    final synchronized void add(StatisticsIndexMap statisticsIndexMap)
+	throws GrinderException
+    {
+	final Iterator iterator = 
+	    statisticsIndexMap.m_map.entrySet().iterator();
+
+	while (iterator.hasNext()) {
+	    final Map.Entry entry = (Map.Entry)iterator.next();
+	    final String key = (String)entry.getKey();
+	    final AbstractIndex index = (AbstractIndex)entry.getValue();
+
+	    final Object existing = m_map.get(key);
+
+	    if (existing != null) {
+		if (existing.getClass() != index.getClass()) {
+		    throw new GrinderException("Key '" + key +
+					       "' already reserved for a " +
+					       existing.getClass().getName());
+		}
+	    }
+	    else {
+		m_map.put(key, index);
+	    }
 	}
     }
 }

@@ -58,6 +58,7 @@ public class TestStatisticsView extends TestCase
 	StatisticsIndexMap.getProcessInstance();
 
     private ExpressionView[] m_views;
+    private int m_numberOfUniqueViews;
 
     protected void setUp() throws Exception
     {
@@ -69,7 +70,10 @@ public class TestStatisticsView extends TestCase
 	    new ExpressionView("Two", "my.view", "one"),
 	    new ExpressionView("Three", "my.view", "(+ one two)"),
 	    new ExpressionView("Four", "my.view", "two"),
+	    new ExpressionView("One", "my.view", "(+ one two)"),
 	};
+
+	m_numberOfUniqueViews = 4;
     }
 
     public void testGetExpressionViews() throws Exception
@@ -85,8 +89,9 @@ public class TestStatisticsView extends TestCase
 	final ExpressionView[] expressionViews =
 	    statisticsView.getExpressionViews();
 
-	assertEquals(m_views.length, expressionViews.length);
-
+	assertEquals(m_numberOfUniqueViews, expressionViews.length);
+	
+	// Ordered in order of creation.
 	assertEquals(m_views[0], expressionViews[0]);
 	assertEquals(m_views[1], expressionViews[1]);
 	assertEquals(m_views[2], expressionViews[2]);
@@ -110,11 +115,11 @@ public class TestStatisticsView extends TestCase
 	}
 
 	statisticsView2.add(statisticsView);
-	assertEquals(m_views.length,
+	assertEquals(m_numberOfUniqueViews,
 		     statisticsView2.getExpressionViews().length);
 
 	statisticsView2.add(statisticsView);
-	assertEquals(m_views.length,
+	assertEquals(m_numberOfUniqueViews,
 		     statisticsView2.getExpressionViews().length);
     }
 
