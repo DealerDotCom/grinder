@@ -35,9 +35,7 @@ final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
 
   public SampleStatisticsTableModel(Model model, Resources resources)
     throws ConsoleException {
-    super(model, resources, true);
-
-    //    addColumns(model.getIntervalStatisticsView());
+    super(model, resources);
   }
 
   public final synchronized void resetTestsAndStatisticsViews() {

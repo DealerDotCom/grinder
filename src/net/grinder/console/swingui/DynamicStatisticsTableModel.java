@@ -55,8 +55,7 @@ abstract class DynamicStatisticsTableModel
   private ExpressionView[] m_columnViews;
   private String[] m_columnLabels;
 
-  protected DynamicStatisticsTableModel(Model model, Resources resources,
-					boolean setColumns)
+  protected DynamicStatisticsTableModel(Model model, Resources resources)
     throws ConsoleException {
 
     m_model = model;

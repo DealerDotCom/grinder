@@ -106,6 +106,8 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
   private final Resources m_resources;
 
+  private final CumulativeStatisticsTableModel m_cumulativeTableModel;
+
   private final String m_stateIgnoringString;
   private final String m_stateWaitingString;
   private final String m_stateStoppedString;
@@ -241,11 +243,11 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     final Font resultsTableLabelFont =
       new JLabel().getFont().deriveFont(Font.PLAIN | Font.ITALIC);
 
-    final CumulativeStatisticsTableModel cumulativeModel =
-      new CumulativeStatisticsTableModel(model, m_resources, true);
+    m_cumulativeTableModel =
+      new CumulativeStatisticsTableModel(model, m_resources);
 
     final JScrollPane cumulativeTablePane =
-      new JScrollPane(new Table(cumulativeModel));
+      new JScrollPane(new Table(m_cumulativeTableModel));
 
     final TitledBorder cumulativeTableTitledBorder =
       BorderFactory.createTitledBorder(
@@ -612,14 +614,10 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	    return;
 	  }
 
-	  final CumulativeStatisticsTableModel model =
-	    new CumulativeStatisticsTableModel(m_model,
-					       m_resources, false);
-	  model.update();
-
 	  try {
 	    final FileWriter writer = new FileWriter(file);
-	    model.write(writer, "\t", System.getProperty("line.separator"));
+	    m_cumulativeTableModel.write(writer, "\t",
+					 System.getProperty("line.separator"));
 	    writer.close();
 	  }
 	  catch (IOException e) {

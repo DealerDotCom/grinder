@@ -21,6 +21,9 @@
 
 package net.grinder.console.swingui;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
 import net.grinder.statistics.StatisticsView;
@@ -34,15 +37,13 @@ import net.grinder.statistics.TestStatistics;
 final class CumulativeStatisticsTableModel
   extends DynamicStatisticsTableModel {
 
-  private final boolean m_includeTotals;
+  private boolean m_includeTotals = true;
   private final String m_totalString;
 
-  public CumulativeStatisticsTableModel(Model model, Resources resources,
-					boolean includeTotals)
+  public CumulativeStatisticsTableModel(Model model, Resources resources)
     throws ConsoleException {
-    super(model, resources, false);
+    super(model, resources);
 
-    m_includeTotals = includeTotals;
     m_totalString = resources.getString("table.total.label");
   }
 
@@ -108,6 +109,20 @@ final class CumulativeStatisticsTableModel
       return
 	column == 3 &&
 	getModel().getTotalCumulativeStatistics().getErrors() > 0;
+    }
+  }
+
+  public synchronized void write(Writer writer, String columnDelimiter,
+				 String lineDelimeter)
+    throws IOException {
+
+    try {
+      m_includeTotals = false;
+
+      super.write(writer, columnDelimiter, lineDelimeter);
+    }
+    finally {
+      m_includeTotals = true;
     }
   }
 }
