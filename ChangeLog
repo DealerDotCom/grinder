@@ -1,3 +1,15 @@
+2001-07-13  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/util/GrinderProperties.java, src/net/grinder/cOmmunication/ResetGrinderMessage.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/reset-processes.gif, src/net/grinder/console/swingui/resources/reset-processes.xcf, README, TODO:
+	Grinder processes are now resetable from the console.
+
+2001-07-12  Philip Aston  <paston@bea.com>
+
+	* TODO, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/resources/Console.properties:
+	Merge arm/stop into single control.
+
+	* src/prj.el: WLS weblogicaux.jar contains rotting swing classes.
+
 2001-07-11  Philip Aston  <paston@bea.com>
 
 	* build.xml: Next is 2.6.5.
