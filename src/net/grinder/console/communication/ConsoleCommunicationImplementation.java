@@ -242,7 +242,8 @@ public final class ConsoleCommunicationImplementation
    *
    * @param messageHandler The message handler.
    */
-  public void addMessageHandler(MessageHandler messageHandler) {
+  public void addMessageHandler(
+    ConsoleCommunication.MessageHandler messageHandler) {
     synchronized (m_messageHandlers) {
       m_messageHandlers.add(messageHandler);
     }

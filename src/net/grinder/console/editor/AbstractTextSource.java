@@ -81,7 +81,7 @@ public abstract class AbstractTextSource implements TextSource {
    *
    * @param listener The listener.
    */
-  public void addListener(Listener listener) {
+  public void addListener(TextSource.Listener listener) {
     synchronized (m_listeners) {
       m_listeners.add(listener);
     }
