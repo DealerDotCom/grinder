@@ -23,6 +23,7 @@ package net.grinder.console.swingui;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
+import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
 
 
@@ -44,7 +45,22 @@ final class CumulativeStatisticsTableModel
     m_includeTotals = includeTotals;
     m_totalString = resources.getString("table.total.label");
 
-    addColumns(model.getCumulativeStatisticsView());
+    //    addColumns(model.getCumulativeStatisticsView());
+  }
+
+  /**
+   * {@link net.grinder.console.model.ModelListener} interface. New
+   * <code>StatisticsView</code>s have been added. 
+   **/
+  public final synchronized void newStatisticsViews(
+    StatisticsView intervalStatisticsView,
+    StatisticsView cumulativeStatisticsView) {
+    addColumns(cumulativeStatisticsView);
+  }
+
+  public final synchronized void resetTestsAndStatisticsViews() {
+    super.resetTestsAndStatisticsViews();
+    addColumns(getModel().getCumulativeStatisticsView());
   }
 
   protected final TestStatistics getStatistics(int row) {

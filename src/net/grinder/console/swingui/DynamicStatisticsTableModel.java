@@ -46,14 +46,13 @@ abstract class DynamicStatisticsTableModel
   private final Model m_model;
   private final Resources m_resources;
 
-  private ModelTestIndex m_lastModelTestIndex = new ModelTestIndex();
-
   private final String m_testString;
   private final String m_testColumnString;
   private final String m_testDescriptionColumnString;
 
-  private StatisticsView m_statisticsView = new StatisticsView();
-  private ExpressionView[] m_columnViews = new ExpressionView[0];
+  private ModelTestIndex m_lastModelTestIndex;
+  private StatisticsView m_statisticsView;
+  private ExpressionView[] m_columnViews;
   private String[] m_columnLabels;
 
   protected DynamicStatisticsTableModel(Model model, Resources resources,
@@ -67,6 +66,8 @@ abstract class DynamicStatisticsTableModel
     m_testColumnString = resources.getString("table.testColumn.label");
     m_testDescriptionColumnString =
       resources.getString("table.descriptionColumn.label");
+
+    resetTestsAndStatisticsViews();
 
     m_model.addModelListener(new SwingDispatchedModelListener(this));
   }
@@ -121,14 +122,11 @@ abstract class DynamicStatisticsTableModel
     fireTableRowsUpdated(0, getRowCount());
   }
 
-  /**
-   * {@link net.grinder.console.model.ModelListener} interface. New
-   * <code>StatisticsView</code>s have been added. 
-   **/
-  public final synchronized void newStatisticsViews(
-    StatisticsView intervalStatisticsView,
-    StatisticsView cumulativeStatisticsView) {
-    addColumns(cumulativeStatisticsView);
+  public synchronized void resetTestsAndStatisticsViews() {
+    m_lastModelTestIndex = new ModelTestIndex();
+    m_statisticsView = new StatisticsView();
+    m_columnViews = new ExpressionView[0];
+    m_columnLabels = new String[0];
   }
 
   public final synchronized int getColumnCount() {
@@ -166,6 +164,7 @@ abstract class DynamicStatisticsTableModel
 
   protected synchronized String getDynamicField(TestStatistics statistics,
 						int dynamicColumn) {
+
     if (dynamicColumn < m_columnViews.length) {
       final StatisticExpression expression =
 	m_columnViews[dynamicColumn].getExpression();

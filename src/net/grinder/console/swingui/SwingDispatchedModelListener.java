@@ -74,4 +74,14 @@ class SwingDispatchedModelListener implements ModelListener {
       }
       );
   }
+
+  public void resetTestsAndStatisticsViews() {
+    SwingUtilities.invokeLater(
+      new Runnable() {
+	public void run() {
+	  m_delegate.resetTestsAndStatisticsViews();
+	}
+      }
+      );
+  }
 }

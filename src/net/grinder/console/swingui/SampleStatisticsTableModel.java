@@ -23,6 +23,7 @@ package net.grinder.console.swingui;
 
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
+import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatistics;
 
 
@@ -36,7 +37,22 @@ final class SampleStatisticsTableModel extends DynamicStatisticsTableModel {
     throws ConsoleException {
     super(model, resources, true);
 
-    addColumns(model.getIntervalStatisticsView());
+    //    addColumns(model.getIntervalStatisticsView());
+  }
+
+  public final synchronized void resetTestsAndStatisticsViews() {
+    super.resetTestsAndStatisticsViews();
+    addColumns(getModel().getIntervalStatisticsView());
+  }
+
+  /**
+   * {@link net.grinder.console.model.ModelListener} interface. New
+   * <code>StatisticsView</code>s have been added. 
+   **/
+  public final synchronized void newStatisticsViews(
+    StatisticsView intervalStatisticsView,
+    StatisticsView cumulativeStatisticsView) {
+    addColumns(intervalStatisticsView);
   }
 
   protected final TestStatistics getStatistics(int row) {

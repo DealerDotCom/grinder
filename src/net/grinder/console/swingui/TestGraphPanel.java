@@ -139,4 +139,15 @@ public class TestGraphPanel extends JPanel implements ModelListener {
   public void newStatisticsViews(StatisticsView intervalStatisticsView,
 				 StatisticsView cumulativeStatisticsView) {
   }
+
+    /**
+   * {@link net.grinder.console.model.ModelListener} interface.
+   * Existing <code>Test</code<s and <code>StatisticsView</code>s have
+   * been discarded.
+   */
+  public final void resetTestsAndStatisticsViews() {
+    m_components.clear();
+    removeAll();
+    repaint();
+  }
 }
