@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.engine.process.StubTestRegistry;
 
 
 /**
@@ -45,6 +46,10 @@ public class TestTest extends TestCase {
 
   public TestTest(String name) {
     super(name);
+  }
+
+  protected void setUp() throws Exception {
+    StubTestRegistry.stubTestRegistry();
   }
 
   public void testGetters() throws Exception {

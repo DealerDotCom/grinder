@@ -77,17 +77,16 @@ public final class TestRegistry {
   }
 
   /**
+   * Set the singleton.
+   */
+  static void setInstance(TestRegistry testRegistry) {
+    s_instance = testRegistry;
+  }
+
+  /**
    * Constructor.
    */
-  TestRegistry(ThreadContextLocator threadContextLocator)
-    throws EngineException {
-
-    if (s_instance != null) {
-      throw new EngineException("Already initialised");
-    }
-
-    s_instance = this;
-
+  TestRegistry(ThreadContextLocator threadContextLocator) {
     m_threadContextLocator = threadContextLocator;
   }
 

@@ -93,6 +93,7 @@ final class ProcessContext {
                                           m_threadContextLocator);
 
     m_testRegistry = new TestRegistry(m_threadContextLocator);
+    TestRegistry.setInstance(m_testRegistry);
 
     Grinder.grinder = m_scriptContext;
     m_shutdown = false;
