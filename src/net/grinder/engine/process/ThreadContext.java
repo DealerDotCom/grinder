@@ -185,16 +185,18 @@ final class ThreadContext implements PluginThreadContext
      * PluginThreadContext interface.
      */
     final Object invokeTest(TestData testData, TestData.Invokeable invokeable)
-	throws EngineException, Sleeper.ShutdownException
+	throws Exception
     {
-	final Test test = testData.getTest();
-	
 	if (m_currentTest != null) {
-	    throw new RentrantInvocationException(
-		"Can't make invocation for test " + test +
-		", thread is already processing test invocation for " +
-		m_currentTest);
+	    // Originally we threw a ReentrantInvocationException
+	    // here. However, this caused problems when wrapping
+	    // Jython objects that themselves; in our scheme the
+	    // wrapper shares a dictionary so self = self we recurse
+	    // up our own.
+	    return invokeable.call();
 	}
+
+	final Test test = testData.getTest();
 
 	m_currentTest = test;
 	m_threadLogger.setCurrentTestNumber(test.getNumber());
@@ -227,10 +229,12 @@ final class ThreadContext implements PluginThreadContext
 	catch (Exception e) {
 	    m_currentTestStatistics.addError();
 
-	    m_threadLogger.error("Plug-in threw: " + e);
-	    e.printStackTrace(m_threadLogger.getErrorLogWriter());
+ 	    m_threadLogger.error("Test invocation threw: " + e)
+ 	    e.printStackTrace(m_threadLogger.getErrorLogWriter())
 
-	    return null;
+	    throw e;		// This should be wrapped in something
+				// so we know we don't need to log it
+				// again.
 	}
 	finally {
 	    if (m_dataWriter != null) {
