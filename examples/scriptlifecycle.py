@@ -6,6 +6,7 @@
 # import all the modules, set up shared data structures, and declare
 # all the Test objects you will use.
 
+from net.grinder.script.Grinder import grinder
 from java.lang import System
 
 # The totalNumberOfRuns variable is shared by all worker threads.
