@@ -40,7 +40,7 @@ import net.grinder.util.Sleeper;
  * @version $Revision$
  * @stereotype singleton
  */
-class ProcessContext {
+final class ProcessContext {
   private final String m_grinderID;
   private final String m_uniqueProcessID;
   private final GrinderProperties m_properties;
@@ -72,24 +72,24 @@ class ProcessContext {
 
     m_pluginRegistry = new PluginRegistry(this);
     m_testRegistry = new TestRegistry();
-    m_scriptContext = new ScriptContextImplementation(this);
-    m_sleeper = createSleeper(properties, getLogger());
+
+    final Logger externalLogger =
+      new ExternalLogger(m_loggerImplementation.getProcessLogger());
+
+    m_sleeper = new Sleeper(
+      properties.getDouble("grinder.sleepTimeFactor", 1.0d),
+      properties.getDouble("grinder.sleepTimeVariation", 0.2d),
+      externalLogger);
+
+    m_scriptContext = new ScriptContextImplementation(this,
+                                                      externalLogger,
+                                                      m_sleeper);
 
     Grinder.grinder = m_scriptContext;
     m_shutdown = false;
   }
 
-  /**
-   * Factory for Sleepers. Also used by {@link ThreadContext}.
-   */
-  public Sleeper createSleeper(GrinderProperties properties, Logger logger) {
-    return new Sleeper(
-      properties.getDouble("grinder.sleepTimeFactor", 1.0d),
-      properties.getDouble("grinder.sleepTimeVariation", 0.2d),
-      logger);
-  }
-
-  public final void initialiseDataWriter() {
+  public void initialiseDataWriter() {
 
     final PrintWriter dataWriter = m_loggerImplementation.getDataWriter();
 
@@ -105,46 +105,46 @@ class ProcessContext {
     dataWriter.println();
   }
 
-  public final QueuedSender getConsoleSender() {
+  public QueuedSender getConsoleSender() {
     return m_consoleSender;
   }
 
-  public final ReportStatusMessage createStatusMessage(
+  public ReportStatusMessage createStatusMessage(
     short state, short numberOfThreads, short totalNumberOfThreads) {
 
     return new ReportStatusMessage(m_uniqueProcessID, getGrinderID(), state,
                                    numberOfThreads, totalNumberOfThreads);
   }
 
-  public final LoggerImplementation getLoggerImplementation() {
+  public LoggerImplementation getLoggerImplementation() {
     return m_loggerImplementation;
   }
 
-  public final Logger getLogger() {
+  public Logger getProcessLogger() {
     return m_loggerImplementation.getProcessLogger();
   }
 
-  public final PluginRegistry getPluginRegistry() {
+  public PluginRegistry getPluginRegistry() {
     return m_pluginRegistry;
   }
 
-  public final TestRegistry getTestRegistry() {
+  public TestRegistry getTestRegistry() {
     return m_testRegistry;
   }
 
-  public final String getGrinderID() {
+  public String getGrinderID() {
     return m_grinderID;
   }
 
-  public final GrinderProperties getProperties() {
+  public GrinderProperties getProperties() {
     return m_properties;
   }
 
-  public final boolean getRecordTime() {
+  public boolean getRecordTime() {
     return m_recordTime;
   }
 
-  public final Grinder.ScriptContext getScriptContext() {
+  public Grinder.ScriptContext getScriptContext() {
     return m_scriptContext;
   }
 
@@ -155,7 +155,7 @@ class ProcessContext {
    *
    * @param startTime Start of execution, in milliseconds since Epoch.
    */
-  public final void setExecutionStartTime(long startTime) {
+  public void setExecutionStartTime(long startTime) {
     m_executionStartTime = startTime;
   }
 
@@ -166,15 +166,15 @@ class ProcessContext {
    *
    * @return Start of execution, in milliseconds since Epoch.
    */
-  public final long getExecutionStartTime() {
+  public long getExecutionStartTime() {
     return m_executionStartTime;
   }
 
-  public final boolean getShutdown() {
+  public boolean getShutdown() {
     return m_shutdown;
   }
 
-  public final void shutdown() {
+  public void shutdown() {
     // Interrupt any sleepers.
     Sleeper.shutdownAllCurrentSleepers();
 
