@@ -1,5 +1,7 @@
 2001-10-12  Philip Aston  <paston@bea.com>
 
+	* The Grinder 2.7.2 is released.
+	
 	* examples/http/grinder.properties: Bring up to date.
 
 	* src/net/grinder/console/swingui/AbstractStatisticsTableModel.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/SwingDispatchedModelListener.java, src/net/grinder/console/swingui/SwingDispatchedSampleListener.java, src/net/grinder/console/swingui/TestGraphPanel.java, tests-src/net/grinder/console/swingui/AllTests.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedModelListener.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedSampleListener.java:
