@@ -379,9 +379,9 @@ final class ResourcePool {
         synchronized (m_reservableMutex) {
           m_reservableMutex.notifyAll();
         }
-      }
 
-      m_notifyClose.notify(m_resource);
+        m_notifyClose.notify(m_resource);
+      }
     }
 
     public synchronized boolean isClosed() {
