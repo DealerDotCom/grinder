@@ -63,16 +63,16 @@ which will be used to configure the chosen Forrest skin.
   <!-- Disable the javascript facility to change the font size -->
   <disable-font-script>true</disable-font-script>
 
-  <!-- A group URL must be specified or the inclusion of external link
-  images is broken. -->
-  <group-url>http://grinder.sourceforge.net/</group-url>
-
   <!-- mandatory project logo
        default skin: renders it at the top -->
   <project-name>The Grinder</project-name>
   <project-description>The Grinder</project-description>
   <project-url>http://grinder.sourceforge.net/</project-url>
   <project-logo>images/grinder-logo.png</project-logo>
+
+  <!-- A group URL must be specified or the inclusion of external link
+  images is broken. -->
+  <group-url>http://grinder.sourceforge.net/</group-url>
 
   <!-- optional host logo (e.g. sourceforge logo)
        default skin: renders it at the bottom-left corner -->
