@@ -1,0 +1,22 @@
+Grinder 0.9:
+
+  I've finally got rid of PropsLoader. This entails a few changes to
+  properties:
+
+    grinder.jvm.path	-	Specifies the java executable used for
+				the child JVMs. Defaults to "java" so
+				you do not need to specify this if
+				your path is sensible.
+
+    grinder.jvm.classpath -	Use to adjust the classpath used for
+				the child VMs. Anything specified here
+				will be prepended to the classpath
+				used to start the grinder itself.
+
+    grinder.jvm.arguments -	Additional arguments to child JVM's.
+
+
+  Additionally, grinder.properties does not have to be in your
+  classpath anymore. (I know I said this before - I mean it this
+  time).
+
