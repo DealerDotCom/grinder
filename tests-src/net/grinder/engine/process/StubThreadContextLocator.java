@@ -29,13 +29,13 @@ package net.grinder.engine.process;
  */
 public class StubThreadContextLocator implements ThreadContextLocator {
 
-  private ThreadContext m_threadContext;
+  private final ThreadLocal m_threadContextThreadLocal = new ThreadLocal();
 
   public ThreadContext get() {
-    return m_threadContext;
+    return (ThreadContext)m_threadContextThreadLocal.get();
   }
 
   public void set(ThreadContext threadContext) {
-    m_threadContext = threadContext;
+    m_threadContextThreadLocal.set(threadContext);
   }
 }
