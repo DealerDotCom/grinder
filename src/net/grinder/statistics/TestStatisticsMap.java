@@ -40,8 +40,6 @@ import net.grinder.util.Serialiser;
  */
 public class TestStatisticsMap implements java.io.Externalizable
 {
-    private static final long serialVersionUID = -8058790429635766121L;
-
     /** Use a TreeMap so we store in test number order. */
     private final Map m_data = new TreeMap();
 
@@ -171,7 +169,6 @@ public class TestStatisticsMap implements java.io.Externalizable
 
 	    out.writeInt(pair.getTest().getNumber());
 	    pair.getStatistics().myWriteExternal(out, serialiser);
-	    //	    out.writeObject(pair.getStatistics());
 	}
     }
 
@@ -186,7 +183,6 @@ public class TestStatisticsMap implements java.io.Externalizable
 
 	for (int i=0; i<n; i++) {
 	    m_data.put(new LightweightTest(in.readInt()),
-		       //		       (Statistics)in.readObject());
 		       new StatisticsImplementation(in, serialiser));
 	}
     }
