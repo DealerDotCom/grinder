@@ -31,7 +31,7 @@ import net.grinder.util.Serialiser;
 
 
 /**
- * A map of test numbers to {@link RawStatistics}s.
+ * A map of test numbers to {@link TestStatistics}s.
  *
  * Unsynchronised.
  *
@@ -45,9 +45,34 @@ public class TestStatisticsMap implements java.io.Externalizable
      *
      * @supplierCardinality 0..*
      * @link aggregation 
-     * @associates <{net.grinder.statistics.RawStatistics}>
+     * @associates <{net.grinder.statistics.TestStatistics}>
      **/
     private final Map m_data = new TreeMap();
+
+    /**
+     * @supplierCardinality 1 
+     **/
+    private final TestStatisticsFactory m_testStatisticsFactory;
+
+    /**
+     * Creates a new <code>TestStatisticsMap</code> instance.
+     * @throws GrinderException If a <code>TestStatisticsFactory</code> cannot be obtained.
+     **/
+    public TestStatisticsMap()
+	throws GrinderException
+    {
+	m_testStatisticsFactory = TestStatisticsFactory.getInstance();
+    }
+
+    /**
+     * Creates a new <code>TestStatisticsMap</code> instance.
+     *
+     * @param testStatisticsFactory A<code>TestStatisticsFactory</code>.
+     */
+    private TestStatisticsMap(TestStatisticsFactory testStatisticsFactory)
+    {
+	m_testStatisticsFactory = testStatisticsFactory;
+    }
 
     /**
      * Put a new {test, statistics} pair in the map.
@@ -55,7 +80,7 @@ public class TestStatisticsMap implements java.io.Externalizable
      * @param test A test.
      * @param statistics The test's statistics.
      **/
-    public final void put(Test test, RawStatistics statistics)
+    public final void put(Test test, TestStatistics statistics)
     {
 	m_data.put(test, statistics);
     }
@@ -70,7 +95,8 @@ public class TestStatisticsMap implements java.io.Externalizable
      **/
     public final TestStatisticsMap getDelta(boolean updateSnapshot)
     {
-	final TestStatisticsMap result = new TestStatisticsMap();
+	final TestStatisticsMap result =
+	    new TestStatisticsMap(m_testStatisticsFactory);
 
 	final Iterator iterator = new Iterator();
 
@@ -79,26 +105,27 @@ public class TestStatisticsMap implements java.io.Externalizable
 	    final Pair pair = iterator.next();
 
 	    result.put(pair.getTest(),
-		       pair.getStatistics().getDelta(updateSnapshot));
+		       m_testStatisticsFactory.create(
+			   pair.getStatistics().getDelta(updateSnapshot)));
 	}
 
 	return result;
     }
 
     /**
-     * Get a new <code>RawStatistics</code> containing the totals of
+     * Get a new <code>TestStatistics</code> containing the totals of
      * all our entries.
      *
-     * @return The totals <code>RawStatistics</code>.
+     * @return The totals <code>TestStatistics</code>.
      **/
-    public final RawStatistics getTotal()
+    public final TestStatistics getTotal()
     {
-	final RawStatistics result = new RawStatistics();
+	final TestStatistics result = m_testStatisticsFactory.create();
 
 	final java.util.Iterator iterator = m_data.values().iterator();
 
 	while (iterator.hasNext()) {
-	    result.add((RawStatistics)iterator.next());
+	    result.add((TestStatistics)iterator.next());
 	}
 
 	return result;
@@ -129,14 +156,12 @@ public class TestStatisticsMap implements java.io.Externalizable
 	    final Pair pair = iterator.next();
 
 	    final Test test = pair.getTest();
-	    final RawStatistics statistics =
-		(RawStatistics)m_data.get(pair.getTest());
+	    final TestStatistics statistics =
+		(TestStatistics)m_data.get(pair.getTest());
 
 	    if (statistics == null) {
-		final RawStatistics newStatistics = new RawStatistics();
-		newStatistics.add(pair.getStatistics());
-
-		put(test, newStatistics);
+		put(test,
+		    m_testStatisticsFactory.create(pair.getStatistics()));
 	    }
 	    else {
 		statistics.add(pair.getStatistics());
@@ -249,7 +274,8 @@ public class TestStatisticsMap implements java.io.Externalizable
 
 	for (int i=0; i<n; i++) {
 	    m_data.put(new LightweightTest(in.readInt()),
-		       new RawStatistics(in, serialiser));
+		       m_testStatisticsFactory.create(
+			   new RawStatistics(in, serialiser)));
 	}
     }
 
@@ -352,7 +378,7 @@ public class TestStatisticsMap implements java.io.Externalizable
 	{
 	    final Map.Entry entry = (Map.Entry)m_iterator.next();
 	    final Test test = (Test)entry.getKey();
-	    final RawStatistics statistics = (RawStatistics)entry.getValue();
+	    final TestStatistics statistics = (TestStatistics)entry.getValue();
 
 	    return new Pair(test, statistics);
 	}
@@ -360,14 +386,14 @@ public class TestStatisticsMap implements java.io.Externalizable
 
     /**
      * A type safe pair of a {@link net.grinder.common.Test} and a
-     * {@link RawStatistics}.
+     * {@link TestStatistics}.
      **/
     public final class Pair
     {
 	private final Test m_test;
-	private final RawStatistics m_statistics;
+	private final TestStatistics m_statistics;
 
-	private Pair(Test test, RawStatistics statistics)
+	private Pair(Test test, TestStatistics statistics)
 	{
 	    m_test = test;
 	    m_statistics = statistics;
@@ -384,11 +410,11 @@ public class TestStatisticsMap implements java.io.Externalizable
 	}
 
 	/**
-	 * Get the {@link RawStatistics}.
+	 * Get the {@link TestStatistics}.
 	 *
-	 * @return The {@link RawStatistics}.
+	 * @return The {@link TestStatistics}.
 	 */
-	public final RawStatistics getStatistics()
+	public final TestStatistics getStatistics()
 	{
 	    return m_statistics;
 	}

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import net.grinder.common.GrinderException;
 import net.grinder.statistics.TestStatisticsMap;
 
 
@@ -77,7 +78,13 @@ public class ReportStatisticsMessage extends Message implements Serializable
 	throws IOException, ClassNotFoundException
     {
 	in.defaultReadObject();
-	m_statisticsDelta = new TestStatisticsMap();
-	m_statisticsDelta.readExternal(in);
+
+	try {
+	    m_statisticsDelta = new TestStatisticsMap();
+	    m_statisticsDelta.readExternal(in);
+	}
+	catch (GrinderException e) {
+	    throw new IOException("Could instantiate a TestStatisticsMap");
+	}
     }
 }

@@ -39,6 +39,12 @@ public class StatisticsTable
      * @supplierCardinality 1
      **/
     private final TestStatisticsMap m_testStatisticsMap;
+
+    /**
+     * @clientRole totals 
+     * @supplierCardinality 1
+     * @link aggregation
+     **/
     private final RawStatistics m_totals;
     private final DecimalFormat m_twoDPFormat = new DecimalFormat("0.00");
     private final int m_columnWidth = 12;

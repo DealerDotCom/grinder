@@ -26,9 +26,9 @@ import net.grinder.common.GrinderException;
  * @version $Revision$
  * @stereotype singleton
  **/
-public final class CommonStatistics
+public final class TestStatisticsFactory
 {
-    private static CommonStatistics s_instance;
+    private static TestStatisticsFactory s_instance;
 
     /**
      * @link aggregation
@@ -48,17 +48,21 @@ public final class CommonStatistics
      */
     private final StatisticsView m_statisticsView = new StatisticsView();
 
-    public final synchronized static CommonStatistics getInstance()
+    /** @link dependency 
+     * @stereotype instantiate*/
+    /*#TestStatistics lnkTestStatistics;*/
+
+    public final synchronized static TestStatisticsFactory getInstance()
 	throws GrinderException
     {
 	if (s_instance == null) {
-	    s_instance = new CommonStatistics();
+	    s_instance = new TestStatisticsFactory();
 	}
 
 	return s_instance;
     }
 
-    private CommonStatistics() throws GrinderException
+    private TestStatisticsFactory() throws GrinderException
     {
 	m_errorsIndex = m_indexMap.getIndexFor("errors");
 	m_timedTransactionsIndex = m_indexMap.getIndexFor("timedTransactions");
@@ -94,8 +98,27 @@ public final class CommonStatistics
 	return m_statisticsView;
     }
 
-    public final class TestStatisticsImplementation extends TestStatistics
+    public final TestStatistics create()
     {
+	return new TestStatisticsImplementation();
+    }
+
+    public final TestStatistics create(RawStatistics rawStatistics)
+    {
+	return new TestStatisticsImplementation(rawStatistics);
+    }
+
+    private final class TestStatisticsImplementation extends TestStatistics
+    {
+	private TestStatisticsImplementation()
+	{
+	}
+
+	private TestStatisticsImplementation(RawStatistics rawStatistics)
+	{
+	    add(rawStatistics);
+	}
+
 	public final void addError()
 	{
 	    addValue(m_errorsIndex, 1);

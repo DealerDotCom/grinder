@@ -26,48 +26,47 @@ import net.grinder.common.GrinderException;
 
 
 /**
- * Unit test case for <code>CommonStatistics</code>.
+ * Unit test case for <code>TestStatisticsFactory</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  * @see RawStatistics
  */
-public class TestCommonStatistics extends TestCase
+public class TestTestStatisticsFactory extends TestCase
 {
     public static void main(String[] args)
     {
-	TestRunner.run(TestCommonStatistics.class);
+	TestRunner.run(TestTestStatisticsFactory.class);
     }
 
-    public TestCommonStatistics(String name)
+    public TestTestStatisticsFactory(String name)
     {
 	super(name);
     }
 
     public void testCreation() throws Exception
     {
-	final CommonStatistics commonStatistics =
-	    CommonStatistics.getInstance();
+	final TestStatisticsFactory factory =
+	    TestStatisticsFactory.getInstance();
 
-	assertSame(commonStatistics, CommonStatistics.getInstance());
-	assert(commonStatistics.getIndexMap() != null);
-	assert(commonStatistics.getStatisticsView() != null);
+	assertSame(factory, TestStatisticsFactory.getInstance());
+	assert(factory.getIndexMap() != null);
+	assert(factory.getStatisticsView() != null);
     }
 
     public void testTestStatisticsImplementation() throws Exception
     {
-	final CommonStatistics commonStatistics =
-	    CommonStatistics.getInstance();
+	final TestStatisticsFactory factory =
+	    TestStatisticsFactory.getInstance();
 
-	final TestStatistics testStatistics1 =
-	    commonStatistics.new TestStatisticsImplementation();
+	final TestStatistics testStatistics1 = factory.create();
 
 	assertEquals(0, testStatistics1.getErrors());
 	assertEquals(0, testStatistics1.getTransactions());
 	assert(Double.isNaN(testStatistics1.getAverageTransactionTime()));
 
 	final TestStatistics testStatistics2 =
-	    commonStatistics.new TestStatisticsImplementation();
+	    factory.create(new RawStatistics());
 
 	assert(testStatistics1 != testStatistics2);
 

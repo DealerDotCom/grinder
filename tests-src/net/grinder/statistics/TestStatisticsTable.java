@@ -49,13 +49,14 @@ public class TestStatisticsTable extends TestCase
 	super(name);
     }
 
-    private final TestStatisticsMap m_testStatisticsMap =
-	new TestStatisticsMap();
+    private TestStatisticsMap m_testStatisticsMap;
 
     private StatisticsView m_statisticsView;
 
     protected void setUp() throws Exception
-    {
+    {    
+	m_testStatisticsMap = new TestStatisticsMap();
+
 	final ProcessStatisticsIndexMap indexMap =
 	    new ProcessStatisticsIndexMap();
 
@@ -83,11 +84,15 @@ public class TestStatisticsTable extends TestCase
 	final int aIndex = indexMap.getIndexFor("a");
 	final int bIndex = indexMap.getIndexFor("b");
 
+	final TestStatisticsFactory factory =
+	    TestStatisticsFactory.getInstance();
+
 	for (int i=0; i<tests.length; ++i) {
 	    rawStatistics[i] = new RawStatistics();
 	    rawStatistics[i].addValue(aIndex, i);
 	    rawStatistics[i].addValue(bIndex, i+1);
-	    m_testStatisticsMap.put(tests[i], rawStatistics[i]);
+	    m_testStatisticsMap.put(tests[i],
+				    factory.create(rawStatistics[i]));
 	}
     }
 

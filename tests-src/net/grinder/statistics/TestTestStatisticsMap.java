@@ -52,30 +52,36 @@ public class TestTestStatisticsMap extends TestCase
 
     private final Test m_test0 = new TestImplementation(0, "", null);
     private final Test m_test1 = new TestImplementation(1, "", null);
-    private final RawStatistics m_rawStatistics0 = new RawStatistics();
-    private final RawStatistics m_rawStatistics1 = new RawStatistics();
+    private TestStatistics m_statistics0;
+    private TestStatistics m_statistics1;
 
-    protected void setUp()
+    protected void setUp() throws Exception
     {
-	m_rawStatistics0.addValue(0, 10);
+	final TestStatisticsFactory factory =
+	    TestStatisticsFactory.getInstance();
+
+	m_statistics0 = factory.create();
+	m_statistics1 = factory.create();
+
+	m_statistics0.addValue(0, 10);
     }
 
-    public void testPut()
+    public void testPut() throws Exception
     {
 	final TestStatisticsMap map = new TestStatisticsMap();
 	assertEquals(0, map.size());
 
-	map.put(m_test0, m_rawStatistics0);
+	map.put(m_test0, m_statistics0);
 	assertEquals(1, map.size());
 
-	map.put(m_test0, m_rawStatistics1);
+	map.put(m_test0, m_statistics1);
 	assertEquals(1, map.size());
 
-	map.put(m_test1, m_rawStatistics1);
+	map.put(m_test1, m_statistics1);
 	assertEquals(2, map.size());
     }
 
-    public void testEquals() 
+    public void testEquals() throws Exception
     {
 	final TestStatisticsMap map0 = new TestStatisticsMap();
 	final TestStatisticsMap map1 = new TestStatisticsMap();
@@ -83,18 +89,18 @@ public class TestTestStatisticsMap extends TestCase
 	assertEquals(map0, map0);
 	assertEquals(map0, map1);
 
-	map0.put(m_test0, m_rawStatistics0);
+	map0.put(m_test0, m_statistics0);
 	assert(!map0.equals(map1));
 
-	map1.put(m_test1, m_rawStatistics0);
+	map1.put(m_test1, m_statistics0);
 	assert(!map0.equals(map1));
 
-	map0.put(m_test1, m_rawStatistics0);
-	map1.put(m_test0, m_rawStatistics0);
+	map0.put(m_test1, m_statistics0);
+	map1.put(m_test0, m_statistics0);
 	assertEquals(map0, map0);
 	assertEquals(map0, map1);
 
-	map1.put(m_test0, m_rawStatistics1);
+	map1.put(m_test0, m_statistics1);
 	assert(!map0.equals(map1));
     }
 
@@ -108,8 +114,8 @@ public class TestTestStatisticsMap extends TestCase
 	assertEquals(map0, map1);
 
 	// 0 + 1 = 1
-	map0.put(m_test0, m_rawStatistics0);
-	map0.put(m_test1, m_rawStatistics1);
+	map0.put(m_test0, m_statistics0);
+	map0.put(m_test1, m_statistics1);
 	map1.add(map0);
 	assertEquals(map0, map1);
 
@@ -125,7 +131,7 @@ public class TestTestStatisticsMap extends TestCase
     public void testGetDelta() throws Exception
     {
 	final TestStatisticsMap map0 = new TestStatisticsMap();
-	map0.put(m_test0, m_rawStatistics0);
+	map0.put(m_test0, m_statistics0);
 
 	// map0 is now {(Test 0 (), RawStatistics = {10})}
 	// snap shot is not set.
@@ -148,7 +154,7 @@ public class TestTestStatisticsMap extends TestCase
 	assertEquals(map0.size(), map3.size());
 
 	map0.add(map0);
-	map0.put(m_test1, m_rawStatistics1);
+	map0.put(m_test1, m_statistics1);
 
 	// map0 is {(Test 0 (), RawStatistics = {20}), (Test 1 (), RawStatistics = {0})}
 	// snap shot is {(Test 0 (), RawStatistics = {10})}.
@@ -176,16 +182,16 @@ public class TestTestStatisticsMap extends TestCase
 
 	assertEquals(new RawStatistics(), map.getTotal());
 
-	map.put(m_test0, m_rawStatistics0);
+	map.put(m_test0, m_statistics0);
 
-	assertEquals(m_rawStatistics0, map.getTotal());
-	assert(m_rawStatistics0 != map.getTotal());
+	assertEquals(m_statistics0, map.getTotal());
+	assert(m_statistics0 != map.getTotal());
 
-	map.put(m_test1, m_rawStatistics1);
+	map.put(m_test1, m_statistics1);
 
 	final RawStatistics sum = new RawStatistics();
-	sum.add(m_rawStatistics0);
-	sum.add(m_rawStatistics1);
+	sum.add(m_statistics0);
+	sum.add(m_statistics1);
 
 	assertEquals(sum, map.getTotal());
     }
@@ -197,7 +203,7 @@ public class TestTestStatisticsMap extends TestCase
 	final TestStatisticsMap.Iterator iterator1 = map.new Iterator();
 	assert(!iterator1.hasNext());
 
-	map.put(m_test1, m_rawStatistics1);
+	map.put(m_test1, m_statistics1);
 
 	final TestStatisticsMap.Iterator iterator2 = map.new Iterator();
 	assert(iterator2.hasNext());
@@ -206,9 +212,9 @@ public class TestTestStatisticsMap extends TestCase
 	final TestStatisticsMap.Pair pair1 = iterator2.next();
 	assert(!iterator2.hasNext());
 	assertEquals(m_test1, pair1.getTest());
-	assertEquals(m_rawStatistics1, pair1.getStatistics());
+	assertEquals(m_statistics1, pair1.getStatistics());
 
-	map.put(m_test0, m_rawStatistics0);
+	map.put(m_test0, m_statistics0);
 
 	final TestStatisticsMap.Iterator iterator3 = map.new Iterator();
 	assert(iterator3.hasNext());
@@ -216,12 +222,12 @@ public class TestTestStatisticsMap extends TestCase
 	final TestStatisticsMap.Pair pair2 = iterator3.next();
 	assert(iterator3.hasNext());
 	assertEquals(m_test0, pair2.getTest());
-	assertEquals(m_rawStatistics0, pair2.getStatistics());
+	assertEquals(m_statistics0, pair2.getStatistics());
 
 	final TestStatisticsMap.Pair pair3 = iterator3.next();
 	assert(!iterator3.hasNext());
 	assertEquals(m_test1, pair3.getTest());
-	assertEquals(m_rawStatistics1, pair3.getStatistics());
+	assertEquals(m_statistics1, pair3.getStatistics());
 
 	try {
 	    iterator3.next();
@@ -234,8 +240,8 @@ public class TestTestStatisticsMap extends TestCase
     public void testSerialisation() throws Exception
     {
 	final TestStatisticsMap original0 = new TestStatisticsMap();
-	original0.put(m_test0, m_rawStatistics0);
-	original0.put(m_test1, m_rawStatistics0);
+	original0.put(m_test0, m_statistics0);
+	original0.put(m_test1, m_statistics0);
 
 	final TestStatisticsMap original1 = new TestStatisticsMap();
 
