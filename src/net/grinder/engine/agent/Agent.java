@@ -139,28 +139,31 @@ public final class Agent {
         }
       }
 
-      // For now we read script file from properties, even when we use
-      // the console.
-
-      final File scriptFile =
-        new File(properties.getProperty("grinder.script", "grinder.py"));
-
-      // Check that the script file is readable so we can chuck out a
-      // nicer error message up front.
-      if (!scriptFile.canRead()) {
-        logger.error("The script file '" + scriptFile +
-                     "' does not exist or is not readable",
-                     Logger.LOG | Logger.TERMINAL);
-        return;
-      }
-
       final InitialiseGrinderMessage initialiseGrinderMessage;
 
       if (receiver != null) {
+        // For now we read script file from properties, even when we
+        // use the console.
+        final File scriptFile =
+          new File(fileStoreDirectory,
+                   properties.getProperty("grinder.script", "grinder.py"));
+
         initialiseGrinderMessage =
           new InitialiseGrinderMessage(true, scriptFile, fileStoreDirectory);
       }
       else {
+        final File scriptFile =
+          new File(properties.getProperty("grinder.script", "grinder.py"));
+
+        // Check that the script file is readable so we can chuck out
+        // a nicer error message up front.
+        if (!scriptFile.canRead()) {
+          logger.error("The script file '" + scriptFile +
+                       "' does not exist or is not readable",
+                       Logger.LOG | Logger.TERMINAL);
+          return;
+        }
+
         initialiseGrinderMessage =
           new InitialiseGrinderMessage(
             false, scriptFile, scriptFile.getParentFile());
