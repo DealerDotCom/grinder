@@ -159,6 +159,9 @@ public class TestConsoleProperties extends TestCase {
     properties2.addPropertyChangeListener(propertyName, listener2);
 
     properties2.setConsoleHost(s3);
+
+    listener.assertCalledOnce();
+    listener2.assertCalledOnce();
   }
 
   public void testConsolePort() throws Exception {
@@ -216,7 +219,10 @@ public class TestConsoleProperties extends TestCase {
     properties.setResetConsoleWithProcessesDontAsk();
     
     final ConsoleProperties properties2 = new ConsoleProperties(m_file);
-    assertTrue(properties2.getResetConsoleWithProcessesDontAsk());    
+    assertTrue(properties2.getResetConsoleWithProcessesDontAsk());
+
+    listener.assertCalledOnce();
+    listener2.assertCalledOnce();
   }
 
   public void testStopProcessesDontAsk() throws Exception {
@@ -242,7 +248,10 @@ public class TestConsoleProperties extends TestCase {
     properties.setStopProcessesDontAsk();
     
     final ConsoleProperties properties2 = new ConsoleProperties(m_file);
-    assertTrue(properties2.getStopProcessesDontAsk());    
+    assertTrue(properties2.getStopProcessesDontAsk());
+
+    listener.assertCalledOnce();
+    listener2.assertCalledOnce();
   }
 
   public void testScriptDistributionFiles() throws Exception {
@@ -279,6 +288,9 @@ public class TestConsoleProperties extends TestCase {
     properties.addPropertyChangeListener(propertyName, listener2);
 
     properties.setScriptDistributionFiles(scriptDistributionFiles2);
+
+    listener.assertCalledOnce();
+    listener2.assertCalledOnce();
   }
 
   public void testLookAndFeel() throws Exception {
@@ -472,6 +484,9 @@ public class TestConsoleProperties extends TestCase {
 	catch (DisplayMessageConsoleException e) {
 	}
       }
+
+      listener.assertCalled();
+      listener2.assertCalled();
     }
 
     protected abstract int get(ConsoleProperties properties);
@@ -513,6 +528,9 @@ public class TestConsoleProperties extends TestCase {
       properties2.addPropertyChangeListener(m_propertyName, listener2);
 
       set(properties2, false);
+
+      listener.assertCalledOnce();
+      listener2.assertCalledOnce();
     }
 
     protected abstract boolean get(ConsoleProperties properties);
@@ -604,6 +622,9 @@ public class TestConsoleProperties extends TestCase {
       properties2.addPropertyChangeListener(m_propertyName, listener2);
 
       set(properties2, s3);
+
+      listener.assertCalledOnce();
+      listener2.assertCalledOnce();
     }
 
     protected abstract String get(ConsoleProperties properties);
@@ -612,18 +633,27 @@ public class TestConsoleProperties extends TestCase {
       throws DisplayMessageConsoleException;
   }
 
-  private class MyListener implements PropertyChangeListener {
-    final PropertyChangeEvent m_expected;
+  private static final class MyListener implements PropertyChangeListener {
+    private final PropertyChangeEvent m_expected;
+    private int m_callCount;
 
     MyListener(PropertyChangeEvent expected) {
       m_expected = expected;
     }
 
     public void propertyChange(PropertyChangeEvent event) {
+      ++m_callCount;
       assertEquals(m_expected.getOldValue(), event.getOldValue());
       assertEquals(m_expected.getNewValue(), event.getNewValue());
-      assertEquals(m_expected.getPropertyName(),
-		   event.getPropertyName());
+      assertEquals(m_expected.getPropertyName(), event.getPropertyName());
+    }
+
+    public void assertCalledOnce() {
+      assertEquals(1, m_callCount);
+    }
+
+    public void assertCalled() {
+      assertTrue(m_callCount > 0);
     }
   }
 
