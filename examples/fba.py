@@ -1,3 +1,14 @@
+# A more complex HTTP example based on an authentication conversation
+# with the server. This script demonstrates how to follow different
+# paths based on a response returned by the server and how to post
+# HTTP form data to a server.
+#
+# The J2EE Servlet specification defines a common model for form based
+# authentication. When unauthenticated users try to access a protected
+# resource, they are challenged with a logon page. The logon page
+# contains a form that POSTs username and password fields to a special
+# j_security_check page.
+
 from net.grinder.script import Test
 from net.grinder.plugin.http import HTTPRequest
 from HTTPClient import NVPair
@@ -13,15 +24,15 @@ class TestRunner:
             HTTPRequest(url="http://localhost:7001/console"))
 
         result = request.GET()
-        
+       
         result = maybeAuthenticate(result)
 
         result = request.GET()
 
+# Function that checks the passed HTTPResult to see whether
+# authentication is necessary. If it is, perform the authentication
+# and record performance information against Test 2.
 def maybeAuthenticate(lastResult):
-    """Function that checks the given result and performs J2EE Form
-    Based authentication if necessary."""
-
     if lastResult.statusCode == 401 \
     or lastResult.text.find("j_security_check") != -1:
         

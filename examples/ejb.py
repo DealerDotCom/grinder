@@ -1,5 +1,12 @@
+# Exercise a stateful session EJB from the BEA WebLogic Server 7.0
+# examples. Additionally this script demonstrates the use of the
+# ScriptContext sleep(), getThreadId() and getRunNumber() methods.
+#
+# Before running this example you will need to add the EJB client
+# classes to your CLASSPATH.
+
 from java.lang import String
-from java.util import Properties,Random,HashMap
+from java.util import Properties,Random
 from javax.naming import Context,InitialContext
 from net.grinder.script import Test
 from weblogic.jndi import WLInitialContextFactory
@@ -51,9 +58,3 @@ class TestRunner:
             d = queryTest.__test__
             log("Query test is test %d, (%s)" % (d.number, d.description))
 
-
-
-
-
-
-            

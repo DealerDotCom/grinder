@@ -1,9 +1,13 @@
+# This example shows how many HTTP interactions can be grouped as a
+# single test by wrapping them in a function.
+
 from net.grinder.script import Test
 from net.grinder.plugin.http import HTTPRequest
 from HTTPClient import NVPair
 
 log = grinder.logger.output
 
+# We declare a default URL for the HTTPRequest.
 request = HTTPRequest(url = "http://localhost:7001")
 
 def page1():
@@ -15,5 +19,4 @@ page1Test = Test(1, "First page").wrap(page1)
 
 class TestRunner:
     def __call__(self):
-
         page1Test()

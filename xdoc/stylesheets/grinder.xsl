@@ -35,7 +35,6 @@
 	    }
 	    .beta-warning { background-color: rgb(224,224,255); font-weight: bold; padding: 3pt; width="50%"; margin-left: 10pt; }
 	    .draft-warning { color: red; font-weight: bold; margin-top: 50pt; }
-	    .script-description { font-style: italic }
 	    .sidebar { float: right; background-color: rgb(224,224,255); padding: 10pt; margin-left: 20pt; margin-right:20pt; font-size: 8pt; }
 
 	    /* HTMLize */
@@ -43,7 +42,7 @@
 	    .type { color: #4682b4; background-color: #ffffff; } /* font-lock-type-face */
 	    .function-name { color: #ff0000; background-color: #ffffff; } /* font-lock-function-name-face */
 	    .keyword { color: #ff0000; background-color: #ffffff; } /* font-lock-keyword-face */
-	    .comment { color: #00008b; background-color: #ffffff; } /* font-lock-comment-face */
+	    .comment { color: #00008b; background-color: #ffffff; font-family:Arial,Helvetica,sans-serif; } /* font-lock-comment-face */
 	  </xsl:comment>
 	</style>
 

@@ -1,3 +1,18 @@
+# Calls an Amazon.com web service to obtain information about a book.
+#
+# To run this script you must install the standard Python xml module.
+# Here's one way to do that:
+#
+#   1. Download and install Jython 2.1
+#   2. Add the following line to grinder.properties (changing the path appropriately):
+#           grinder.jvm.arguments=-Dpython.home=c:/jython-2.1
+#   3. Add Jakarta Xerces (or one of the other parsers supported by
+#       the xml module) to your CLASSPATH.
+#
+# You may also need to obtain your own Amazon.com web service license
+# and replace the script text <insert license key here> with the
+# license key, although currently that doesn't appear to be necessary.
+
 from net.grinder.script import Test
 from net.grinder.plugin.http import HTTPRequest
 from HTTPClient import NVPair

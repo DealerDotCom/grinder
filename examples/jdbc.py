@@ -1,3 +1,8 @@
+# Some simple database playing with JDBC.
+#
+# To run this, set the Oracle login details appropriately and add the
+# Oracle thin driver classes to your CLASSPATH.
+
 from java.sql import DriverManager
 from net.grinder.script import Test
 from oracle.jdbc import OracleDriver
@@ -7,7 +12,7 @@ log = grinder.logger.output
 test1 = Test(1, "Database insert")
 test2 = Test(2, "Database query")
 
-# Load the Oracle JDBC driver
+# Load the Oracle JDBC driver.
 DriverManager.registerDriver(OracleDriver());
 
 def getConnection():
@@ -18,6 +23,7 @@ def ensureClosed(object):
     try: object.close()
     except: pass
 
+# One time initialisation that cleans out old data.
 connection = getConnection()
 statement = connection.createStatement()
 
