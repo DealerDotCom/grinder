@@ -116,6 +116,7 @@ what you want. Currently the conditionally built modules are:
             value="${build.dir}/script-javadoc"/>
   <property name="script-javadoc.dir" value="${doc.dir}/g3/script-javadoc"/>
   <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
+  <property name="package-lists.dir" value="${etc.dir}/packagelists"/>
 
   <!-- distribution patternsets -->
   <patternset id="sources.patternset">
@@ -534,6 +535,9 @@ what you want. Currently the conditionally built modules are:
               <path refid="build.classpath"/>
               <pathelement path="${java.class.path}"/>
             </classpath>
+            <link offline="true"
+                  href="http://java.sun.com/j2se/1.4.1/docs/api/"
+                  packagelistLoc="${package-lists.dir}/jdk1.4.1"/>
     </javadoc>
   </target>
 
@@ -586,6 +590,9 @@ what you want. Currently the conditionally built modules are:
                packages="net.grinder.common,net.grinder.script,net.grinder.statistics"/>
         <group title="HTTP Plug-in"
                packages="net.grinder.plugin.http,HTTPClient"/>
+        <link offline="true"
+              href="http://java.sun.com/j2se/1.4.1/docs/api/"
+              packagelistLoc="${package-lists.dir}/jdk1.4.1"/>
     </javadoc>
   </target>
 
