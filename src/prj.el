@@ -26,7 +26,7 @@
 
  '(jde-db-option-classpath (cons "../build/classes" jde-global-classpath));
 
- '(jde-db-source-directories '("/work/src/grinder3/src"))
+ '(jde-db-source-directories '("/work/src/grinder3/src" "/opt/jdk1.3.1_02/src/j2sdk1.3.1/src/share/classes/"))
 
  '(jde-compile-option-directory "../build/classes")
 )
