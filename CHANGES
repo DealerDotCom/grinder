@@ -1,3 +1,10 @@
+Grinder 2.8.2
+-------------
+
+   Fix SocketPlugin bug where multiple request files where incorrectly
+   handled. Thanks to Hussein Badakhchani for the report.
+
+
 Grinder 2.8.1
 -------------
 

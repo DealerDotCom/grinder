@@ -1,3 +1,8 @@
+2001-12-21  Philip Aston  <paston@bea.com>
+
+	* CHANGES, src/net/grinder/plugin/socket/SocketPlugin.java:
+	Fix handling of multiple requests.
+
 2001-11-18  Philip Aston  <paston@bea.com>
 
 	* The Grinder 2.8.1 is released.
