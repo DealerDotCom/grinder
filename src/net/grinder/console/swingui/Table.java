@@ -23,6 +23,7 @@ package net.grinder.console.swingui;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.lang.reflect.Method;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -57,7 +58,19 @@ final class Table extends JTable {
   public Table(TableModel tableModel) {
     super(tableModel);
 
-    setRowSelectionAllowed(false);
+    setRowSelectionAllowed(true);
+    setColumnSelectionAllowed(true);
+
+    // setDragEnabled() is available with J2SE 1.4 and later.
+    try {
+      final Method setDragEnabledMethod =
+        getClass().getMethod("setDragEnabled", new Class[] { Boolean.TYPE, });
+
+      setDragEnabledMethod.invoke(this, new Object[] { Boolean.TRUE, });
+    }
+    catch (Exception e) {
+      // Oh well.
+    }
 
     m_defaultFont = m_cellRenderer.getFont();
     m_boldFont = m_defaultFont.deriveFont(Font.BOLD);
