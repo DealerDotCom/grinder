@@ -24,6 +24,7 @@ package net.grinder.engine.agent;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import net.grinder.common.GrinderException;
@@ -45,7 +46,7 @@ public class LauncherThread extends Thread {
   private final String m_grinderID;
   private final String[] m_commandArray;
   private final String m_commandString;
-  private int m_exitStatus = 0;
+  private Process m_process;
 
   /**
    * The constructor.
@@ -81,43 +82,59 @@ public class LauncherThread extends Thread {
   public void run() {
 
     System.out.println("Worker process (" + m_grinderID +
-                       ") started with command line: " +
-                       m_commandString);
+                       ") started with command line: " + m_commandString);
 
     try {
-      final Process process = Runtime.getRuntime().exec(m_commandArray);
-
-      try {
-        final BufferedReader outputReader =
-          new BufferedReader(
-            new InputStreamReader(process.getInputStream()));
-
-        final BufferedReader errorReader =
-          new BufferedReader(
-            new InputStreamReader(process.getErrorStream()));
-
-        final Redirector r1 =
-          new Redirector(new PrintWriter(System.out, true),
-                         outputReader);
-
-        final Redirector r2 =
-          new Redirector(new PrintWriter(System.err, true), errorReader);
-
-        final ProcessReaper reaper = ProcessReaper.getInstance();
-        reaper.add(process);
-
-        process.waitFor();
-        m_exitStatus = process.exitValue();
-
-        reaper.remove(process);
+      synchronized (this) {
+        m_process = Runtime.getRuntime().exec(m_commandArray);
+        notifyAll();
       }
-      finally {
-        process.destroy();
-      }
+
+      final BufferedReader outputReader =
+        new BufferedReader(new InputStreamReader(m_process.getInputStream()));
+
+      final BufferedReader errorReader =
+        new BufferedReader(new InputStreamReader(m_process.getErrorStream()));
+
+      final Redirector r1 =
+        new Redirector(new PrintWriter(System.out, true), outputReader);
+
+      final Redirector r2 =
+        new Redirector(new PrintWriter(System.err, true), errorReader);
+
+      final ProcessReaper reaper = ProcessReaper.getInstance();
+      reaper.add(m_process);
+
+      m_process.waitFor();
+
+      reaper.remove(m_process);
     }
     catch (Exception e) {
       e.printStackTrace();
     }
+    finally {
+      if (m_process != null) {
+        m_process.destroy();
+      }
+    }
+  }
+
+  /**
+   * Return the output stream for the launched process. Blocks until
+   * process is started.
+   *
+   * @return The stream.
+   * @throws InterruptedException If thread interrupted whilst waiting
+   * for process to start.
+   */
+  public OutputStream getOutputStream() throws InterruptedException {
+    synchronized (this) {
+      while (m_process == null) {
+        wait();
+      }
+    }
+
+    return m_process.getOutputStream();
   }
 
   /**
@@ -125,8 +142,15 @@ public class LauncherThread extends Thread {
    *
    * @return See {@link net.grinder.engine.process.GrinderProcess} for
    * valid values.
+   * @throws IllegalStateException If sub-process has not yet
+   * terminated.
    */
-  public int getExitStatus() {
-    return m_exitStatus;
+  public int getExitStatus() throws IllegalStateException {
+    try {
+      return m_process.exitValue();
+    }
+    catch (IllegalThreadStateException stupidJDKItsNotAThread) {
+      throw new IllegalStateException(stupidJDKItsNotAThread.getMessage());
+    }
   }
 }
