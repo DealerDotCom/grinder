@@ -39,7 +39,7 @@ final class FileDistributionHandlerImplementation
   private final File m_directory;
   private final File[] m_files;
   private final DistributionControl m_distributionControl;
-  private final FileDistribution.CacheState m_cacheState;
+  private final FileDistribution.UpdateAgentCacheState m_updateCacheState;
 
   private int m_fileIndex = 0;
   private long m_earliestLastModifiedTime = -1;
@@ -48,17 +48,21 @@ final class FileDistributionHandlerImplementation
     File directory,
     File[] files,
     DistributionControl distributionControl,
-    FileDistribution.CacheState cacheState) {
+    FileDistribution.UpdateAgentCacheState updateCacheState) {
 
     m_directory = directory;
     m_files = files;
     m_distributionControl = distributionControl;
-    m_cacheState = cacheState;
+    m_updateCacheState = updateCacheState;
   }
 
   public Result sendNextFile() throws FileContents.FileContentsException {
 
     if (m_fileIndex < m_files.length) {
+      if (m_fileIndex == 0) {
+        m_updateCacheState.updateStarted();
+      }
+
       try {
         final int index = m_fileIndex;
         final File file = m_files[index];
@@ -80,7 +84,7 @@ final class FileDistributionHandlerImplementation
       }
     }
 
-    m_cacheState.updateComplete();
+    m_updateCacheState.updateComplete();
 
     return null;
   }

@@ -131,13 +131,24 @@ public class TestFileDistribution extends AbstractFileTestCase {
     distributionControlStubFactory.assertNoMoreCalls();
   }
 
-  public void testCacheStateImplementation() throws Exception {
-    final FileDistribution.CacheStateImplementation cacheStateImplementation =
-      new FileDistribution.CacheStateImplementation();
+  public void testAgentCacheStateImplementation() throws Exception {
+    final FileDistribution.AgentCacheStateImplementation
+      cacheState = new FileDistribution.AgentCacheStateImplementation();
 
-    assertEquals(-1, cacheStateImplementation.getTimeLastUpdateCompleted());
-    cacheStateImplementation.updateComplete();
-    assertFalse(cacheStateImplementation.getTimeLastUpdateCompleted() == -1);
+    assertEquals(-1, cacheState.getTimeLastUpdateCompleted());
+    assertFalse(cacheState.getUpToDate());
+
+    cacheState.updateStarted();
+    assertEquals(-1, cacheState.getTimeLastUpdateCompleted());
+    assertFalse(cacheState.getUpToDate());
+
+    cacheState.updateComplete();
+    assertTrue(cacheState.getUpToDate());
+    assertFalse(cacheState.getTimeLastUpdateCompleted() == -1);
+
+    cacheState.setOutOfDate();
+    assertFalse(cacheState.getUpToDate());
+    assertFalse(cacheState.getTimeLastUpdateCompleted() == -1);
   }
 
   public static class DistributionControlStubFactory

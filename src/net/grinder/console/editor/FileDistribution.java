@@ -38,8 +38,8 @@ import net.grinder.util.Directory;
 public final class FileDistribution {
 
   private final DistributionControl m_distributionControl;
-  private CacheStateImplementation m_cacheState =
-    new CacheStateImplementation();
+  private final AgentCacheStateImplementation m_cacheState =
+    new AgentCacheStateImplementation();
 
   /**
    * Constructor.
@@ -69,14 +69,10 @@ public final class FileDistribution {
 
     final Set connectedAgents = m_distributionControl.getConnectedAgents();
 
-    if (!m_cacheState.isValid(directory,
-                              distributionFileFilterPattern,
-                              connectedAgents)) {
+    if (!m_cacheState.validate(directory,
+                               distributionFileFilterPattern,
+                               connectedAgents)) {
       m_distributionControl.clearFileCaches();
-      m_cacheState =
-        new CacheStateImplementation(directory,
-                                     distributionFileFilterPattern,
-                                     connectedAgents);
     }
 
     return new FileDistributionHandlerImplementation(
@@ -89,57 +85,75 @@ public final class FileDistribution {
   }
 
   /**
-   * Simplistic model of remote caches.
+   * Used to update the cache state.
    */
-  interface CacheState {
-    long getTimeLastUpdateCompleted();
+  interface UpdateAgentCacheState {
+    void updateStarted();
     void updateComplete();
   }
 
   /**
    * Package scope for the unit tests.
    */
-  static class CacheStateImplementation implements CacheState {
-    private final Directory m_directory;
-    private final Pattern m_fileFilterPattern;
-    private final Set m_connectedAgents;
+  static final class AgentCacheStateImplementation
+    implements AgentCacheState, UpdateAgentCacheState {
 
+    private static final int UP_TO_DATE = 0;
+    private static final int UPDATING = 1;
+    private static final int OUT_OF_DATE = 2;
+
+    private Directory m_directory;
+    private Pattern m_fileFilterPattern;
+    private Set m_connectedAgents;
+
+    private int m_state = OUT_OF_DATE;
     private long m_timeLastUpdateCompleted = -1;
 
-    public CacheStateImplementation() {
+    public AgentCacheStateImplementation() {
       m_directory = null;
       m_fileFilterPattern = null;
       m_connectedAgents = null;
     }
 
-    public CacheStateImplementation(Directory directory,
-                                    Pattern fileFilterPattern,
-                                    Set connectedAgents) {
-      m_directory = directory;
-      m_fileFilterPattern = fileFilterPattern;
-      m_connectedAgents = connectedAgents;
-    }
-
-    public boolean isValid(Directory directory,
-                           Pattern fileFilterPattern,
-                           Set connectedAgents) {
+    public boolean validate(Directory directory,
+                            Pattern fileFilterPattern,
+                            Set connectedAgents) {
       if (m_directory == null ||
+          !m_directory.equals(directory) ||
           m_fileFilterPattern == null ||
-          m_connectedAgents == null) {
+          !m_fileFilterPattern.equals(fileFilterPattern) ||
+          m_connectedAgents == null ||
+          !m_connectedAgents.containsAll(connectedAgents)) {
+
+        m_directory = directory;
+        m_fileFilterPattern = fileFilterPattern;
+        m_connectedAgents = connectedAgents;
         return false;
       }
-
-      return
-        m_directory.equals(directory) &&
-        m_fileFilterPattern.equals(fileFilterPattern) &&
-        m_connectedAgents.containsAll(connectedAgents);
+      else {
+        m_connectedAgents = connectedAgents;
+        return true;
+      }
     }
 
     public long getTimeLastUpdateCompleted() {
       return m_timeLastUpdateCompleted;
     }
 
+    public boolean getUpToDate() {
+      return UP_TO_DATE == m_state;
+    }
+
+    public void setOutOfDate() {
+      m_state = OUT_OF_DATE;
+    }
+
+    public void updateStarted() {
+      m_state = UPDATING;
+    }
+
     public void updateComplete() {
+      m_state = UP_TO_DATE;
       m_timeLastUpdateCompleted = System.currentTimeMillis();
     }
   }
