@@ -59,7 +59,7 @@ final class SocketAcceptorThread extends Thread {
   }
 
   public String getHostName() throws UnknownHostException {
-    return InetAddress.getLocalHost().getHostName();
+    return InetAddress.getByName(null).getHostName();
   }
 
   public int getPort() {
