@@ -60,7 +60,7 @@ final class JythonScript {
     final String parentPath = scriptFile.getParent();
 
     m_systemState.path.insert(0, new PyString(parentPath != null ?
-                          parentPath : ""));
+                                              parentPath : ""));
 
     processContext.getLogger().output(
       "executing \"" + scriptFile.getPath() + "\"");
@@ -71,7 +71,7 @@ final class JythonScript {
     }
     catch (PyException e) {
       throw new JythonScriptExecutionException(
-    "initialising test runner", e);
+        "initialising test runner", e);
     }
 
     // Find the callable that acts as a factory for test runner instances.
@@ -79,8 +79,8 @@ final class JythonScript {
 
     if (m_testRunnerFactory == null || !m_testRunnerFactory.isCallable()) {
       throw new EngineException(
-    "There is no callable (class or function) named '" +
-    TEST_RUNNER_CALLABLE_NAME + "' in " + scriptFile);
+        "There is no callable (class or function) named '" +
+        TEST_RUNNER_CALLABLE_NAME + "' in " + scriptFile);
     }
   }
 
@@ -94,29 +94,29 @@ final class JythonScript {
     public JythonRunnable() throws EngineException {
 
       try {
-    // Script does per-thread initialisation here and
-    // returns a callable object.
-    m_testRunner = m_testRunnerFactory.__call__();
+        // Script does per-thread initialisation here and
+        // returns a callable object.
+        m_testRunner = m_testRunnerFactory.__call__();
       }
       catch (PyException e) {
-    throw new JythonScriptExecutionException(
-      "creating per-thread test runner object", e);
+        throw new JythonScriptExecutionException(
+          "creating per-thread test runner object", e);
       }
 
       if (!m_testRunner.isCallable()) {
-    throw new EngineException(
-      "The result of '" + TEST_RUNNER_CALLABLE_NAME +
-      "()' is not callable");
+        throw new EngineException(
+          "The result of '" + TEST_RUNNER_CALLABLE_NAME +
+          "()' is not callable");
       }
     }
 
     public final void run() throws EngineException {
 
       try {
-    m_testRunner.__call__();
+        m_testRunner.__call__();
       }
       catch (PyException e) {
-    throw new JythonScriptExecutionException("invoking script", e);
+        throw new JythonScriptExecutionException("invoking script", e);
       }
     }
   }

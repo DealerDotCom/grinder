@@ -43,26 +43,26 @@ import net.grinder.util.TerminalColour;
  */
 public class TCPProxyEngineImplementation implements TCPProxyEngine
 {
-    private final TCPProxyFilter m_requestFilter;
-    private final TCPProxyFilter m_responseFilter;
-    private final ConnectionDetails m_connectionDetails;
-    private final String m_requestColour;
-    private final String m_responseColour;
+  private final TCPProxyFilter m_requestFilter;
+  private final TCPProxyFilter m_responseFilter;
+  private final ConnectionDetails m_connectionDetails;
+  private final String m_requestColour;
+  private final String m_responseColour;
 
-    private final PrintWriter m_outputWriter;
+  private final PrintWriter m_outputWriter;
 
-    private final TCPProxySocketFactory m_socketFactory;
-    private final ServerSocket m_serverSocket;
+  private final TCPProxySocketFactory m_socketFactory;
+  private final ServerSocket m_serverSocket;
 
-    public TCPProxyEngineImplementation(TCPProxySocketFactory socketFactory,
-                    TCPProxyFilter requestFilter,
-                    TCPProxyFilter responseFilter,
-                    PrintWriter outputWriter,
-                    ConnectionDetails connectionDetails,
-                    boolean useColour,
-                    int timeout)
+  public TCPProxyEngineImplementation(TCPProxySocketFactory socketFactory,
+                                      TCPProxyFilter requestFilter,
+                                      TCPProxyFilter responseFilter,
+                                      PrintWriter outputWriter,
+                                      ConnectionDetails connectionDetails,
+                                      boolean useColour,
+                                      int timeout)
     throws IOException
-    {
+  {
     m_outputWriter = outputWriter;
 
     m_socketFactory = socketFactory;
@@ -71,111 +71,111 @@ public class TCPProxyEngineImplementation implements TCPProxyEngine
     m_connectionDetails = connectionDetails;
 
     if (useColour) {
-        m_requestColour = TerminalColour.RED;
-        m_responseColour = TerminalColour.BLUE;
+      m_requestColour = TerminalColour.RED;
+      m_responseColour = TerminalColour.BLUE;
     }
     else {
-        m_requestColour = "";
-        m_responseColour = "";
+      m_requestColour = "";
+      m_responseColour = "";
     }
 
     m_serverSocket =
-        m_socketFactory.createServerSocket(
+      m_socketFactory.createServerSocket(
         connectionDetails.getLocalHost(),
         connectionDetails.getLocalPort(),
         timeout);
+  }
+
+
+  /* Stop the engine and flush filter buffer. */
+  public void stop()
+  {
+    m_responseFilter.stop();
+
+    // Close socket to stop engine.
+    try {
+      getServerSocket().close();
     }
-
-
-    /* Stop the engine and flush filter buffer. */
-    public void stop()
-    {
-      m_responseFilter.stop();
-
-      // Close socket to stop engine.
-      try {
-    getServerSocket().close();
-      }
-      catch (java.io.IOException ioe) {
-    // Be silent.
-      }
+    catch (java.io.IOException ioe) {
+      // Be silent.
     }
+  }
 
-    public void run()
-    {
+  public void run()
+  {
     while (true) {
-        final Socket localSocket;
+      final Socket localSocket;
 
-        try {
+      try {
         localSocket = m_serverSocket.accept();
-        }
-        catch (InterruptedIOException e) {
+      }
+      catch (InterruptedIOException e) {
         System.err.println(ACCEPT_TIMEOUT_MESSAGE);
         return;
-        }
-        catch (IOException e) {
+      }
+      catch (IOException e) {
         e.printStackTrace(System.err);
         return;
-        }
+      }
 
-        try {
+      try {
         launchThreadPair(localSocket,
-                 localSocket.getInputStream(),
-                 localSocket.getOutputStream(),
-                 m_connectionDetails.getRemoteHost(),
-                 m_connectionDetails.getRemotePort());
-        }
-        catch(IOException e) {
+                         localSocket.getInputStream(),
+                         localSocket.getOutputStream(),
+                         m_connectionDetails.getRemoteHost(),
+                         m_connectionDetails.getRemotePort());
+      }
+      catch(IOException e) {
         e.printStackTrace(System.err);
-        }
+      }
     }
-    }
+  }
 
-    public final ServerSocket getServerSocket()
-    {
+  public final ServerSocket getServerSocket()
+  {
     return m_serverSocket;
-    }
+  }
 
-    protected final TCPProxySocketFactory getSocketFactory()
-    {
+  protected final TCPProxySocketFactory getSocketFactory()
+  {
     return m_socketFactory;
-    }
+  }
 
-    protected final ConnectionDetails getConnectionDetails()
-    {
+  protected final ConnectionDetails getConnectionDetails()
+  {
     return m_connectionDetails;
-    }
+  }
 
-    protected final void launchThreadPair(Socket localSocket,
-                      InputStream localInputStream,
-                      OutputStream localOutputStream,
-                      String remoteHost,
-                      int remotePort)
+  protected final void launchThreadPair(Socket localSocket,
+                                        InputStream localInputStream,
+                                        OutputStream localOutputStream,
+                                        String remoteHost,
+                                        int remotePort)
     throws IOException
-    {
+  {
     final Socket remoteSocket =
-        m_socketFactory.createClientSocket(remoteHost, remotePort);
+      m_socketFactory.createClientSocket(remoteHost, remotePort);
 
     final ConnectionDetails connectionDetails =
-        new ConnectionDetails(m_connectionDetails.getLocalHost(),
-                  localSocket.getPort(),
-                  remoteHost,
-                  remoteSocket.getPort(),
-                  m_connectionDetails.isSecure());
+      new ConnectionDetails(m_connectionDetails.getLocalHost(),
+                            localSocket.getPort(),
+                            remoteHost,
+                            remoteSocket.getPort(),
+                            m_connectionDetails.isSecure());
 
     new StreamThread(connectionDetails,
-             localInputStream,
-             remoteSocket.getOutputStream(),
-             m_requestFilter,
-             m_outputWriter,
-             m_requestColour);
+                     localInputStream,
+                     remoteSocket.getOutputStream(),
+                     m_requestFilter,
+                     m_outputWriter,
+                     m_requestColour);
 
     new StreamThread(connectionDetails.getOtherEnd(),
-             remoteSocket.getInputStream(),
-             localOutputStream,
-             m_responseFilter,
-             m_outputWriter,
-             m_responseColour);
-    }
+                     remoteSocket.getInputStream(),
+                     localOutputStream,
+                     m_responseFilter,
+                     m_outputWriter,
+                     m_responseColour);
+  }
 }
 

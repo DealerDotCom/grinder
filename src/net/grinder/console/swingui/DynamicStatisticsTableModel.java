@@ -94,13 +94,13 @@ abstract class DynamicStatisticsTableModel
       m_columnLabels = new String[m_columnViews.length];
 
       for (int i = 0; i < m_columnLabels.length; ++i) {
-    final String resource =
-      m_resources.getString(
-        m_columnViews[i].getDisplayNameResourceKey(), false);
+        final String resource =
+          m_resources.getString(
+            m_columnViews[i].getDisplayNameResourceKey(), false);
 
-    m_columnLabels[i] =
-      resource != null ?
-      resource : m_columnViews[i].getDisplayName();
+        m_columnLabels[i] =
+          resource != null ?
+          resource : m_columnViews[i].getDisplayName();
       }
 
       fireTableStructureChanged();
@@ -108,7 +108,7 @@ abstract class DynamicStatisticsTableModel
   }
 
   public final synchronized void newTests(Set newTests,
-                      ModelTestIndex modelTestIndex) {
+                                          ModelTestIndex modelTestIndex) {
 
     m_lastModelTestIndex = modelTestIndex;
 
@@ -161,24 +161,24 @@ abstract class DynamicStatisticsTableModel
   }
 
   protected synchronized String getDynamicField(TestStatistics statistics,
-                        int dynamicColumn) {
+                                                int dynamicColumn) {
 
     if (dynamicColumn < m_columnViews.length) {
       final StatisticExpression expression =
-    m_columnViews[dynamicColumn].getExpression();
+        m_columnViews[dynamicColumn].getExpression();
 
       if (expression.isDouble()) {
-    final double value = expression.getDoubleValue(statistics);
+        final double value = expression.getDoubleValue(statistics);
 
-    if (Double.isNaN(value)) {
-      return "";
-    }
-    else {
-      return m_model.getNumberFormat().format(value);
-    }
+        if (Double.isNaN(value)) {
+          return "";
+        }
+        else {
+          return m_model.getNumberFormat().format(value);
+        }
       }
       else {
-    return String.valueOf(expression.getLongValue(statistics));
+        return String.valueOf(expression.getLongValue(statistics));
       }
     }
     else {
@@ -195,7 +195,7 @@ abstract class DynamicStatisticsTableModel
   }
 
   public synchronized void write(Writer writer, String columnDelimiter,
-                 String lineDelimeter)
+                                 String lineDelimeter)
     throws IOException {
     final int numberOfRows = getRowCount();
     final int numberOfColumns = getColumnCount();
@@ -206,7 +206,7 @@ abstract class DynamicStatisticsTableModel
     writer.write(columnDelimiter);
 
     for (int dynamicColumn = 0; dynamicColumn < numberOfColumns - 2;
-     dynamicColumn++) {
+         dynamicColumn++) {
       writer.write(m_columnLabels[dynamicColumn]);
       writer.write(columnDelimiter);
     }
@@ -215,9 +215,9 @@ abstract class DynamicStatisticsTableModel
 
     for (int row = 0; row < numberOfRows; row++) {
       for (int column = 0; column < numberOfColumns; column++) {
-    final Object o = getValueAt(row, column);
-    writer.write(o != null ? o.toString() : "");
-    writer.write(columnDelimiter);
+        final Object o = getValueAt(row, column);
+        writer.write(o != null ? o.toString() : "");
+        writer.write(columnDelimiter);
       }
 
       writer.write(lineDelimeter);

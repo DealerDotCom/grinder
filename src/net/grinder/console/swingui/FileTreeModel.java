@@ -69,7 +69,7 @@ final class FileTreeModel implements TreeModel {
 
     if (parent == null || child == null) {
       return -1;        // The TreeModel Javadoc says we
-                // should do this.
+      // should do this.
     }
 
     return ((Node)parent).getIndexOfChild((Node)child);
@@ -96,7 +96,7 @@ final class FileTreeModel implements TreeModel {
 
     for (int i = listeners.length - 2; i >= 0; i -= 2) {
       if (listeners[i] == TreeModelListener.class) {
-    ((TreeModelListener)listeners[i + 1]).treeStructureChanged(event);
+        ((TreeModelListener)listeners[i + 1]).treeStructureChanged(event);
       }
     }
   }
@@ -108,14 +108,14 @@ final class FileTreeModel implements TreeModel {
   private static final FilenameFilter s_directoryFilter =
     new FilenameFilter() {
       public final boolean accept(File dir, String name) {
-    return new File(dir, name).isDirectory();
+        return new File(dir, name).isDirectory();
       }
     };
 
   private static final FilenameFilter s_fileFilter =
     new FilenameFilter() {
       public final boolean accept(File dir, String name) {
-    return new File(dir, name).isFile();
+        return new File(dir, name).isFile();
       }
     };
 
@@ -133,20 +133,20 @@ final class FileTreeModel implements TreeModel {
       final File[] childFiles = file.listFiles(s_fileFilter);
 
       final int numberOfDirectories =
-    childDirectories != null ? childDirectories.length : 0;
+        childDirectories != null ? childDirectories.length : 0;
 
       final int numberOfFiles =    childFiles != null ? childFiles.length : 0;
 
       m_children = new File[numberOfDirectories + numberOfFiles];
 
       if (numberOfDirectories != 0) {
-    System.arraycopy(childDirectories, 0, m_children, 0,
-             numberOfDirectories);
+        System.arraycopy(childDirectories, 0, m_children, 0,
+                         numberOfDirectories);
       }
 
       if (numberOfFiles != 0) {
-    System.arraycopy(childFiles, 0, m_children, numberOfDirectories,
-             numberOfFiles);
+        System.arraycopy(childFiles, 0, m_children, numberOfDirectories,
+                         numberOfFiles);
       }
     }
 
@@ -160,9 +160,9 @@ final class FileTreeModel implements TreeModel {
 
     public final int getIndexOfChild(Node child) {
       for (int i = 0; i < m_children.length; ++i) {
-    if (m_children[i].equals(child.getFile())) {
-      return i;
-    }
+        if (m_children[i].equals(child.getFile())) {
+          return i;
+        }
       }
 
       return -1;

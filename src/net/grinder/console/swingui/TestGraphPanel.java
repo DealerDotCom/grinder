@@ -68,7 +68,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
   private final Map m_components = new HashMap();
 
   TestGraphPanel(final JComponent parentComponent, final Model model,
-         Resources resources) {
+                 Resources resources) {
 
     m_parentComponent = parentComponent;
 
@@ -81,11 +81,11 @@ public class TestGraphPanel extends JPanel implements ModelListener {
 
     m_model.addTotalSampleListener(
       new SampleListener() {
-    public void update(TestStatistics intervalStatistics,
-               TestStatistics cumulativeStatistics) {
-      // No requirement to dispatch in Swing thread.
-      LabelledGraph.resetPeak();
-    }
+        public void update(TestStatistics intervalStatistics,
+                           TestStatistics cumulativeStatistics) {
+          // No requirement to dispatch in Swing thread.
+          LabelledGraph.resetPeak();
+        }
       });
 
     m_logoLabel =
@@ -111,23 +111,23 @@ public class TestGraphPanel extends JPanel implements ModelListener {
       final String description = test.getDescription();
 
       final String label =
-    m_testLabel + test.getNumber() +
-    (description != null ? " (" + description + ")" : "");
+        m_testLabel + test.getNumber() +
+        (description != null ? " (" + description + ")" : "");
 
       final LabelledGraph testGraph =
-    new LabelledGraph(label, m_resources, m_model.getTPSExpression(),
-              m_model.getPeakTPSExpression());
+        new LabelledGraph(label, m_resources, m_model.getTPSExpression(),
+                          m_model.getPeakTPSExpression());
 
       m_model.addSampleListener(
-    test,
-    new SwingDispatchedSampleListener(
-      new SampleListener() {
-        public void update(final TestStatistics intervalStatistics,
-                   final TestStatistics cumulativeStatistics) {
-          testGraph.add(intervalStatistics, cumulativeStatistics,
-                m_model.getNumberFormat());
-        }
-      }));
+        test,
+        new SwingDispatchedSampleListener(
+          new SampleListener() {
+            public void update(final TestStatistics intervalStatistics,
+                               final TestStatistics cumulativeStatistics) {
+              testGraph.add(intervalStatistics, cumulativeStatistics,
+                            m_model.getNumberFormat());
+            }
+          }));
 
       m_components.put(test, testGraph);
     }
@@ -183,7 +183,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
     final Insets insets = getInsets();
 
     final int fudgeFactor = 6;    // I've no idea where this extra space
-                // comes from, but we need it.
+    // comes from, but we need it.
 
     int availableWidth =
       preferredWidth - insets.left - insets.right - hgap + fudgeFactor;
@@ -196,18 +196,18 @@ public class TestGraphPanel extends JPanel implements ModelListener {
       int numberAcross = -1;
 
       while (componentWidth > 0 && availableWidth > 0) {
-    ++numberAcross;
-    availableWidth -= componentWidth;
-    availableWidth -= hgap;
+        ++numberAcross;
+        availableWidth -= componentWidth;
+        availableWidth -= hgap;
       }
 
       if (numberAcross > 0) {
-    final int numberDown = (n + numberAcross - 1) / numberAcross;
+        final int numberDown = (n + numberAcross - 1) / numberAcross;
 
-    // numberDown is always >= 1.
-    m_preferredSize.height =
-      numberDown * componentHeight +
-      (numberDown - 1) * m_flowLayout.getVgap();
+        // numberDown is always >= 1.
+        m_preferredSize.height =
+          numberDown * componentHeight +
+          (numberDown - 1) * m_flowLayout.getVgap();
       }
     }
 
@@ -229,10 +229,10 @@ public class TestGraphPanel extends JPanel implements ModelListener {
    * @param cumulativeStatisticsView Cumulative statistics view.
    */
   public void newStatisticsViews(StatisticsView intervalStatisticsView,
-                 StatisticsView cumulativeStatisticsView) {
+                                 StatisticsView cumulativeStatisticsView) {
   }
 
-    /**
+  /**
    * {@link net.grinder.console.model.ModelListener} interface.
    * Existing <code>Test</code<s and <code>StatisticsView</code>s have
    * been discarded.

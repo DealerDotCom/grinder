@@ -49,7 +49,7 @@ public abstract class Message implements Serializable {
    * Called by {@link Sender} before dispatching the Message.
    **/
   final void setSenderInformation(String grinderID, String senderUniqueID,
-                  long sequenceNumber) {
+                                  long sequenceNumber) {
     m_senderGrinderID = grinderID;
     m_senderUniqueID = senderUniqueID;
     m_sequenceNumber = sequenceNumber;

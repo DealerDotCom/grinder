@@ -54,7 +54,7 @@ public final class Grinder {
   public static void main(String[] args) throws GrinderException {
     if (args.length > 1) {
       System.err.println("Usage: java " + Grinder.class.getName() +
-             " [alternatePropertiesFilename]");
+                         " [alternatePropertiesFilename]");
       System.exit(1);
     }
 
@@ -77,91 +77,91 @@ public final class Grinder {
 
     while (true) {
       final GrinderProperties properties =
-    new GrinderProperties(m_alternateFile);
+        new GrinderProperties(m_alternateFile);
 
       final ArrayList command = new ArrayList();
 
       command.add(properties.getProperty("grinder.jvm", "java"));
 
       final String jvmArguments =
-    properties.getProperty("grinder.jvm.arguments");
+        properties.getProperty("grinder.jvm.arguments");
 
       if (jvmArguments != null) {
-    // Really should allow whitespace to be
-    // escaped/quoted.
-    final StringTokenizer tokenizer =
-      new StringTokenizer(jvmArguments);
+        // Really should allow whitespace to be
+        // escaped/quoted.
+        final StringTokenizer tokenizer =
+          new StringTokenizer(jvmArguments);
 
-    while (tokenizer.hasMoreTokens()) {
-      command.add(tokenizer.nextToken());
-    }
+        while (tokenizer.hasMoreTokens()) {
+          command.add(tokenizer.nextToken());
+        }
       }
 
       // Pass through any "grinder" system properties.
       final Iterator systemProperties =
-    System.getProperties().entrySet().iterator();
+        System.getProperties().entrySet().iterator();
 
       while (systemProperties.hasNext()) {
-    final Map.Entry entry = (Map.Entry)systemProperties.next();
-    final String key = (String)entry.getKey();
-    final String value = (String)entry.getValue();
+        final Map.Entry entry = (Map.Entry)systemProperties.next();
+        final String key = (String)entry.getKey();
+        final String value = (String)entry.getValue();
 
-    if (key.startsWith("grinder.")) {
-      command.add("-D" + key + "=" + value);
-    }
+        if (key.startsWith("grinder.")) {
+          command.add("-D" + key + "=" + value);
+        }
       }
 
       final String additionalClasspath =
-    properties.getProperty("grinder.jvm.classpath", null);
+        properties.getProperty("grinder.jvm.classpath", null);
 
       final String classpath =
-    (additionalClasspath != null ? additionalClasspath + ";" : "") +
-    System.getProperty("java.class.path");
+        (additionalClasspath != null ? additionalClasspath + ";" : "") +
+        System.getProperty("java.class.path");
 
       classpath.replace(';', File.pathSeparatorChar);
       classpath.replace(':', File.pathSeparatorChar);
 
       if (classpath.length() > 0) {
-    command.add("-classpath");
-    command.add(classpath);
+        command.add("-classpath");
+        command.add(classpath);
       }
 
       if (ignoreInitialSignal) {
-    command.add(
-      "-D" + GrinderProcess.DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME +
-      "=true");
+        command.add(
+          "-D" + GrinderProcess.DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME +
+          "=true");
       }
 
       command.add(GrinderProcess.class.getName());
 
       final String hostIDString =
-    properties.getProperty("grinder.hostID", getHostName());
+        properties.getProperty("grinder.hostID", getHostName());
 
       final int grinderIDIndex = command.size();
       command.add("");    // Place holder for grinder ID.
 
       if (m_alternateFile != null) {
-    command.add(m_alternateFile.getPath());
+        command.add(m_alternateFile.getPath());
       }
 
       final int numberOfProcesses =
-    properties.getInt("grinder.processes", 1);
+        properties.getInt("grinder.processes", 1);
 
       final LauncherThread[] threads =
-    new LauncherThread[numberOfProcesses];
+        new LauncherThread[numberOfProcesses];
 
       final String[] stringArray = new String[0];
 
       for (int i = 0; i < numberOfProcesses; i++) {
-    final String grinderID = hostIDString + "-" + i;
+        final String grinderID = hostIDString + "-" + i;
 
-    final String[] commandArray =
-      (String[])command.toArray(stringArray);
+        final String[] commandArray =
+          (String[])command.toArray(stringArray);
 
-    commandArray[grinderIDIndex] = grinderID;
+        commandArray[grinderIDIndex] = grinderID;
 
-    threads[i] = new LauncherThread(grinderID, commandArray);
-    threads[i].start();
+        threads[i] = new LauncherThread(grinderID, commandArray);
+        threads[i].start();
       }
 
       final String version = GrinderBuild.getVersionString();
@@ -171,40 +171,40 @@ public final class Grinder {
       int combinedExitStatus = 0;
 
       for (int i = 0; i < numberOfProcesses;) {
-    try {
-      threads[i].join();
+        try {
+          threads[i].join();
 
-      final int exitStatus = threads[i].getExitStatus();
+          final int exitStatus = threads[i].getExitStatus();
 
-      if (exitStatus > 0) { // Not an error
-        if (combinedExitStatus == 0) {
-          combinedExitStatus = exitStatus;
+          if (exitStatus > 0) { // Not an error
+            if (combinedExitStatus == 0) {
+              combinedExitStatus = exitStatus;
+            }
+            else if (combinedExitStatus != exitStatus) {
+              System.out.println(
+                "WARNING, threads disagree on exit status");
+            }
+          }
+
+          i++;
         }
-        else if (combinedExitStatus != exitStatus) {
-          System.out.println(
-        "WARNING, threads disagree on exit status");
+        catch (InterruptedException e) {
+          // Ignore.
         }
-      }
-
-      i++;
-    }
-    catch (InterruptedException e) {
-      // Ignore.
-    }
       }
 
       System.out.println("The Grinder version " + version + " finished");
 
       if (combinedExitStatus == GrinderProcess.EXIT_START_SIGNAL) {
-    System.out.println("Start signal received");
-    ignoreInitialSignal = true;
+        System.out.println("Start signal received");
+        ignoreInitialSignal = true;
       }
       else if (combinedExitStatus == GrinderProcess.EXIT_RESET_SIGNAL) {
-    System.out.println("Reset signal received");
-    ignoreInitialSignal = false;
+        System.out.println("Reset signal received");
+        ignoreInitialSignal = false;
       }
       else {
-    break;
+        break;
       }
 
       System.out.println();

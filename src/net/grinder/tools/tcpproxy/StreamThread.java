@@ -66,8 +66,8 @@ class StreamThread implements Runnable {
    * colours for this stream.
    */
   public StreamThread(ConnectionDetails connectionDetails, InputStream in,
-              OutputStream out, TCPProxyFilter filter,
-              PrintWriter outputWriter, String colourString) {
+                      OutputStream out, TCPProxyFilter filter,
+                      PrintWriter outputWriter, String colourString) {
 
     m_connectionDetails = connectionDetails;
     m_in = in;
@@ -79,8 +79,8 @@ class StreamThread implements Runnable {
 
     final Thread t =
       new Thread(this,
-         "Filter thread for " +
-         m_connectionDetails.getDescription());
+                 "Filter thread for " +
+                 m_connectionDetails.getDescription());
 
     try {
       m_filter.connectionOpened(m_connectionDetails);
@@ -101,26 +101,26 @@ class StreamThread implements Runnable {
       byte[] buffer = new byte[BUFFER_SIZE];
 
       while (true) {
-    final int bytesRead = m_in.read(buffer, 0, BUFFER_SIZE);
+        final int bytesRead = m_in.read(buffer, 0, BUFFER_SIZE);
 
-    if (bytesRead == -1) {
-      break;
-    }
+        if (bytesRead == -1) {
+          break;
+        }
 
-    m_outputWriter.print(m_colour);
+        m_outputWriter.print(m_colour);
 
-    final byte[] newBytes =
-      m_filter.handle(m_connectionDetails, buffer, bytesRead);
+        final byte[] newBytes =
+          m_filter.handle(m_connectionDetails, buffer, bytesRead);
 
-    m_outputWriter.print(m_resetColour);
-    m_outputWriter.flush();
+        m_outputWriter.print(m_resetColour);
+        m_outputWriter.flush();
 
-    if (newBytes != null) {
-      m_out.write(newBytes);
-    }
-    else {
-      m_out.write(buffer, 0, bytesRead);
-    }
+        if (newBytes != null) {
+          m_out.write(newBytes);
+        }
+        else {
+          m_out.write(buffer, 0, bytesRead);
+        }
       }
     }
     catch (SocketException e) {

@@ -62,16 +62,16 @@ public class UnicastSender extends AbstractSender {
       m_socket = new Socket(addressString, port);
 
       m_outputStream =
-    new BufferedOutputStream(m_socket.getOutputStream());
+        new BufferedOutputStream(m_socket.getOutputStream());
 
       localHost = InetAddress.getLocalHost().getHostName();
       localPort = m_socket.getLocalPort();
     }
     catch (IOException e) {
       throw new CommunicationException(
-    "Could not bind to TCP address '" + addressString + ":" +
-    port + "'",
-    e);
+        "Could not bind to TCP address '" + addressString + ":" +
+        port + "'",
+        e);
     }
 
     // Calculate a globally unique string for this sender. We

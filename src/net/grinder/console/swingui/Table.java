@@ -87,15 +87,15 @@ final class Table extends JTable {
 
     public final
       Component getTableCellRendererComponent(JTable table,
-                          Object value,
-                          boolean isSelected,
-                          boolean hasFocus,
-                          int row,
-                          int column) {
+                                              Object value,
+                                              boolean isSelected,
+                                              boolean hasFocus,
+                                              int row,
+                                              int column) {
       final DefaultTableCellRenderer defaultRenderer =
-    (DefaultTableCellRenderer)
-    super.getTableCellRendererComponent(table, value, isSelected,
-                        hasFocus, row, column);
+        (DefaultTableCellRenderer)
+        super.getTableCellRendererComponent(table, value, isSelected,
+                                            hasFocus, row, column);
 
       // DefaultTableCellRenderer strangely only supports a
       // single font per Table. We override to set font on a per

@@ -69,16 +69,16 @@ public class GrinderProperties extends Properties {
 
     if (m_file.exists()) {
       try {
-    final InputStream propertiesInputStream =
-      new FileInputStream(m_file);
+        final InputStream propertiesInputStream =
+          new FileInputStream(m_file);
 
-    load(propertiesInputStream);
+        load(propertiesInputStream);
 
-    propertiesInputStream.close();
+        propertiesInputStream.close();
       }
       catch (IOException e) {
-    throw new GrinderException(
-      "Error loading properties file '" + m_file.getPath() + "'", e);
+        throw new GrinderException(
+          "Error loading properties file '" + m_file.getPath() + "'", e);
       }
     }
 
@@ -89,7 +89,7 @@ public class GrinderProperties extends Properties {
       final String name = (String)systemProperties.nextElement();
 
       if (name.startsWith("grinder.")) {
-    put(name, System.getProperty(name));
+        put(name, System.getProperty(name));
       }
     }
   }
@@ -113,7 +113,7 @@ public class GrinderProperties extends Properties {
     }
     catch (IOException e) {
       throw new GrinderException(
-    "Error writing properties file '" + m_file.getPath() + "'", e);
+        "Error writing properties file '" + m_file.getPath() + "'", e);
     }
   }
 
@@ -136,12 +136,12 @@ public class GrinderProperties extends Properties {
       final Properties properties = new Properties();
 
       try {
-    final InputStream inputStream = new FileInputStream(m_file);
-    properties.load(inputStream);
-    inputStream.close();
+        final InputStream inputStream = new FileInputStream(m_file);
+        properties.load(inputStream);
+        inputStream.close();
       }
       catch (IOException e) {
-    // Can't read the file, maybe its not there. Ignore.
+        // Can't read the file, maybe its not there. Ignore.
       }
 
       final OutputStream outputStream = new FileOutputStream(m_file);
@@ -151,7 +151,7 @@ public class GrinderProperties extends Properties {
     }
     catch (IOException e) {
       throw new GrinderException(
-    "Error writing properties file '" + m_file.getPath() + "'", e);
+        "Error writing properties file '" + m_file.getPath() + "'", e);
     }
   }
 
@@ -185,8 +185,8 @@ public class GrinderProperties extends Properties {
       final String name = (String)propertyNames.nextElement();
 
       if (name.startsWith(prefix)) {
-    result.setProperty(name.substring(prefix.length()),
-               getProperty(name));
+        result.setProperty(name.substring(prefix.length()),
+                           getProperty(name));
       }
     }
 
@@ -207,11 +207,11 @@ public class GrinderProperties extends Properties {
 
     if (s != null) {
       try {
-    return Integer.parseInt(s);
+        return Integer.parseInt(s);
       }
       catch (NumberFormatException e) {
-    m_errorWriter.println("Warning, property '" + propertyName +
-                  "' does not specify an integer value");
+        m_errorWriter.println("Warning, property '" + propertyName +
+                              "' does not specify an integer value");
       }
     }
 
@@ -243,11 +243,11 @@ public class GrinderProperties extends Properties {
 
     if (s != null) {
       try {
-    return Long.parseLong(s);
+        return Long.parseLong(s);
       }
       catch (NumberFormatException e) {
-    m_errorWriter.println("Warning, property '" + propertyName +
-                  "' does not specify an integer value");
+        m_errorWriter.println("Warning, property '" + propertyName +
+                              "' does not specify an integer value");
       }
     }
 
@@ -278,11 +278,11 @@ public class GrinderProperties extends Properties {
 
     if (s != null) {
       try {
-    return Short.parseShort(s);
+        return Short.parseShort(s);
       }
       catch (NumberFormatException e) {
-    m_errorWriter.println("Warning, property '" + propertyName +
-                  "' does not specify a short value");
+        m_errorWriter.println("Warning, property '" + propertyName +
+                              "' does not specify a short value");
       }
     }
 
@@ -313,11 +313,11 @@ public class GrinderProperties extends Properties {
 
     if (s != null) {
       try {
-    return Double.parseDouble(s);
+        return Double.parseDouble(s);
       }
       catch (NumberFormatException e) {
-    m_errorWriter.println("Warning, property '" + propertyName +
-                  "' does not specify a double value");
+        m_errorWriter.println("Warning, property '" + propertyName +
+                              "' does not specify a double value");
       }
     }
 

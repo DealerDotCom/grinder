@@ -55,19 +55,19 @@ public final class StatisticsView implements Externalizable {
   private static final Comparator s_expressionViewComparator =
     new Comparator() {
       public final int compare(Object a, Object b) {
-    final ExpressionView viewA = (ExpressionView)a;
-    final ExpressionView viewB = (ExpressionView)b;
+        final ExpressionView viewA = (ExpressionView)a;
+        final ExpressionView viewB = (ExpressionView)b;
 
-    if (viewA.getCreationOrder() < viewB.getCreationOrder()) {
-      return -1;
-    }
-    else if (viewA.getCreationOrder() > viewB.getCreationOrder()) {
-      return 1;
-    }
-    else {
-      // Should assert ? Same creation order => same instance.
-      return 0;
-    }
+        if (viewA.getCreationOrder() < viewB.getCreationOrder()) {
+          return -1;
+        }
+        else if (viewA.getCreationOrder() > viewB.getCreationOrder()) {
+          return 1;
+        }
+        else {
+          // Should assert ? Same creation order => same instance.
+          return 0;
+        }
       }
     };
 
@@ -158,11 +158,11 @@ public final class StatisticsView implements Externalizable {
 
     for (int i = 0; i < n; i++) {
       try {
-    add(new ExpressionView(in));
+        add(new ExpressionView(in));
       }
       catch (GrinderException e) {
-    throw new IOException(
-      "Could not instantiate ExpressionView: " + e.getMessage());
+        throw new IOException(
+          "Could not instantiate ExpressionView: " + e.getMessage());
       }
     }
   }

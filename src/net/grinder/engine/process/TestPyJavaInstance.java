@@ -63,9 +63,9 @@ class TestPyJavaInstance extends PyJavaInstance {
   public PyObject invoke(final String name) {
     return dispatch(
       new TestData.Invokeable() {
-    public Object call() {
-      return TestPyJavaInstance.super.invoke(name);
-    }
+        public Object call() {
+          return TestPyJavaInstance.super.invoke(name);
+        }
       }
       );
   }
@@ -73,20 +73,20 @@ class TestPyJavaInstance extends PyJavaInstance {
   public PyObject invoke(final String name, final PyObject arg1) {
     return dispatch(
       new TestData.Invokeable() {
-    public Object call() {
-      return TestPyJavaInstance.super.invoke(name, arg1);
-    }
+        public Object call() {
+          return TestPyJavaInstance.super.invoke(name, arg1);
+        }
       }
       );
   }
 
   public PyObject invoke(final String name, final PyObject arg1,
-             final PyObject arg2) {
+                         final PyObject arg2) {
     return dispatch(
       new TestData.Invokeable() {
-    public Object call() {
-      return TestPyJavaInstance.super.invoke(name, arg1, arg2);
-    }
+        public Object call() {
+          return TestPyJavaInstance.super.invoke(name, arg1, arg2);
+        }
       }
       );
   }
@@ -94,20 +94,20 @@ class TestPyJavaInstance extends PyJavaInstance {
   public PyObject invoke(final String name, final PyObject[] args) {
     return dispatch(
       new TestData.Invokeable() {
-    public Object call() {
-      return TestPyJavaInstance.super.invoke(name, args);
-    }
+        public Object call() {
+          return TestPyJavaInstance.super.invoke(name, args);
+        }
       }
       );
   }
 
   public PyObject invoke(final String name, final PyObject[] args,
-             final String[] keywords) {
+                         final String[] keywords) {
     return dispatch(
       new TestData.Invokeable() {
-    public Object call() {
-      return TestPyJavaInstance.super.invoke(name, args, keywords);
-    }
+        public Object call() {
+          return TestPyJavaInstance.super.invoke(name, args, keywords);
+        }
       }
       );
   }

@@ -45,15 +45,15 @@ class SwingDispatchedModelListener implements ModelListener {
 
     m_updateRunnable =
       new Runnable() {
-    public void run() { m_delegate.update(); }
+        public void run() { m_delegate.update(); }
       };
   }
 
   public void newTests(final Set newTests,
-               final ModelTestIndex modelTestIndex) {
+                       final ModelTestIndex modelTestIndex) {
     SwingUtilities.invokeLater(
       new Runnable() {
-    public void run() { m_delegate.newTests(newTests, modelTestIndex); }
+        public void run() { m_delegate.newTests(newTests, modelTestIndex); }
       }
       );
   }
@@ -67,10 +67,10 @@ class SwingDispatchedModelListener implements ModelListener {
     final StatisticsView cumulativeStatisticsView) {
     SwingUtilities.invokeLater(
       new Runnable() {
-    public void run() {
-      m_delegate.newStatisticsViews(intervalStatisticsView,
-                    cumulativeStatisticsView);
-    }
+        public void run() {
+          m_delegate.newStatisticsViews(intervalStatisticsView,
+                                        cumulativeStatisticsView);
+        }
       }
       );
   }
@@ -78,9 +78,9 @@ class SwingDispatchedModelListener implements ModelListener {
   public void resetTestsAndStatisticsViews() {
     SwingUtilities.invokeLater(
       new Runnable() {
-    public void run() {
-      m_delegate.resetTestsAndStatisticsViews();
-    }
+        public void run() {
+          m_delegate.resetTestsAndStatisticsViews();
+        }
       }
       );
   }

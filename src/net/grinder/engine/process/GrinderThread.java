@@ -61,9 +61,9 @@ class GrinderThread implements java.lang.Runnable {
    * The constructor.
    */
   public GrinderThread(Monitor notifyOnCompletion,
-               ProcessContext processContext,
-               JythonScript jythonScript,
-               int threadID)
+                       ProcessContext processContext,
+                       JythonScript jythonScript,
+                       int threadID)
     throws EngineException {
 
     m_notifyOnCompletion = notifyOnCompletion;
@@ -94,64 +94,64 @@ class GrinderThread implements java.lang.Runnable {
 
     try {
       final JythonScript.JythonRunnable jythonRunnable =
-    m_jythonScript.new JythonRunnable();
+        m_jythonScript.new JythonRunnable();
 
       m_context.getSleeper().sleepFlat(m_initialSleepTime);
 
       if (m_numberOfRuns == 0) {
-    logger.output("about to run forever");
+        logger.output("about to run forever");
       }
       else {
-    logger.output("about to do " + m_numberOfRuns + " run" +
-              (m_numberOfRuns == 1 ? "" : "s"));
+        logger.output("about to do " + m_numberOfRuns + " run" +
+                      (m_numberOfRuns == 1 ? "" : "s"));
       }
 
       int currentRun;
 
       for (currentRun = 0;
-       (m_numberOfRuns == 0 || currentRun < m_numberOfRuns);
-       currentRun++) {
+           (m_numberOfRuns == 0 || currentRun < m_numberOfRuns);
+           currentRun++) {
 
-    logger.setCurrentRunNumber(currentRun);
+        logger.setCurrentRunNumber(currentRun);
 
-    m_beginRunPluginThreadCaller.run();
+        m_beginRunPluginThreadCaller.run();
 
-    try {
-      jythonRunnable.run();
-    }
-    catch (JythonScriptExecutionException e) {
-      final Throwable unwrapped = e.unwrap();
+        try {
+          jythonRunnable.run();
+        }
+        catch (JythonScriptExecutionException e) {
+          final Throwable unwrapped = e.unwrap();
 
-      if (unwrapped instanceof ShutdownException ||
-          unwrapped instanceof Sleeper.ShutdownException) {
-        logger.output("shutdown");
-        break;
-      }
+          if (unwrapped instanceof ShutdownException ||
+              unwrapped instanceof Sleeper.ShutdownException) {
+            logger.output("shutdown");
+            break;
+          }
 
-      // Sadly PrintWriter only exposes its lock object
-      // to subclasses.
-      synchronized (errorWriter) {
-        logger.error("Aborted run, script threw " +
-             unwrapped.getClass() + ": " +
-             unwrapped.getMessage());
+          // Sadly PrintWriter only exposes its lock object
+          // to subclasses.
+          synchronized (errorWriter) {
+            logger.error("Aborted run, script threw " +
+                         unwrapped.getClass() + ": " +
+                         unwrapped.getMessage());
 
-        unwrapped.printStackTrace(errorWriter);
-      }
-    }
+            unwrapped.printStackTrace(errorWriter);
+          }
+        }
 
-    m_endRunPluginThreadCaller.run();
-    m_context.endRun();
+        m_endRunPluginThreadCaller.run();
+        m_context.endRun();
       }
 
       logger.setCurrentRunNumber(-1);
 
       logger.output("finished " + currentRun +
-            (currentRun == 1 ? " run" : " runs"));
+                    (currentRun == 1 ? " run" : " runs"));
     }
     catch (Exception e) {
       synchronized (errorWriter) {
-    logger.error("Aborting thread due to " + e);
-    e.printStackTrace(errorWriter);
+        logger.error("Aborting thread due to " + e);
+        e.printStackTrace(errorWriter);
       }
     }
     finally {
@@ -159,7 +159,7 @@ class GrinderThread implements java.lang.Runnable {
       decrementThreadCount();
 
       synchronized (m_notifyOnCompletion) {
-    m_notifyOnCompletion.notifyAll();
+        m_notifyOnCompletion.notifyAll();
       }
     }
   }
@@ -180,14 +180,14 @@ class GrinderThread implements java.lang.Runnable {
 
     public void run() throws EngineException, PluginException {
       final Iterator iterator =
-    m_processContext.getPluginRegistry().
-    getPluginThreadListenerList(m_context).iterator();
+        m_processContext.getPluginRegistry().
+        getPluginThreadListenerList(m_context).iterator();
 
       while (iterator.hasNext()) {
-    final PluginThreadListener pluginThreadListener =
-      (PluginThreadListener)iterator.next();
+        final PluginThreadListener pluginThreadListener =
+          (PluginThreadListener)iterator.next();
 
-    doOne(pluginThreadListener);
+        doOne(pluginThreadListener);
       }
     }
 
@@ -198,16 +198,16 @@ class GrinderThread implements java.lang.Runnable {
   private final PluginThreadCaller m_beginRunPluginThreadCaller =
     new PluginThreadCaller() {
       protected void doOne(PluginThreadListener pluginThreadListener)
-    throws PluginException {
-    pluginThreadListener.beginRun();
+        throws PluginException {
+        pluginThreadListener.beginRun();
       }
     };
 
   private final PluginThreadCaller m_endRunPluginThreadCaller =
     new PluginThreadCaller() {
       protected void doOne(PluginThreadListener pluginThreadListener)
-    throws PluginException {
-    pluginThreadListener.endRun();
+        throws PluginException {
+        pluginThreadListener.endRun();
       }
     };
 }

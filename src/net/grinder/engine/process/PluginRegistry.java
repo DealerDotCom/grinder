@@ -75,40 +75,40 @@ public final class PluginRegistry {
   public RegisteredPlugin register(Class pluginClass) throws EngineException {
     if (!GrinderPlugin.class.isAssignableFrom(pluginClass)) {
       throw new EngineException(
-    "The plugin class ('" + pluginClass.getName() +
-    "') does not implement the interface '" +
-    GrinderPlugin.class.getName() + "'");
+        "The plugin class ('" + pluginClass.getName() +
+        "') does not implement the interface '" +
+        GrinderPlugin.class.getName() + "'");
     }
 
     try {
       synchronized (m_plugins) {
-    final RegisteredPlugin existingRegisteredPlugin =
-      (RegisteredPlugin)m_plugins.get(pluginClass);
+        final RegisteredPlugin existingRegisteredPlugin =
+          (RegisteredPlugin)m_plugins.get(pluginClass);
 
-    if (existingRegisteredPlugin != null) {
-      return existingRegisteredPlugin;
-    }
+        if (existingRegisteredPlugin != null) {
+          return existingRegisteredPlugin;
+        }
 
-    final GrinderPlugin plugin =
-      (GrinderPlugin)pluginClass.newInstance();
+        final GrinderPlugin plugin =
+          (GrinderPlugin)pluginClass.newInstance();
 
-    final RegisteredPlugin registeredPlugin =
-      new RegisteredPlugin(plugin, m_processContext);
+        final RegisteredPlugin registeredPlugin =
+          new RegisteredPlugin(plugin, m_processContext);
 
-    plugin.initialize(registeredPlugin);
+        plugin.initialize(registeredPlugin);
 
-    m_plugins.put(pluginClass, registeredPlugin);
+        m_plugins.put(pluginClass, registeredPlugin);
 
-    m_processContext.getLogger().output(
-      "registered plug-in " + pluginClass.getName());
+        m_processContext.getLogger().output(
+          "registered plug-in " + pluginClass.getName());
 
-    return registeredPlugin;
+        return registeredPlugin;
       }
     }
     catch (Exception e) {
       throw new EngineException(
-    "An instance of the plug-in class '" + pluginClass.getName() +
-    "' could not be created.", e);
+        "An instance of the plug-in class '" + pluginClass.getName() +
+        "' could not be created.", e);
     }
   }
 
@@ -120,11 +120,11 @@ public final class PluginRegistry {
       final Iterator iterator = m_plugins.values().iterator();
 
       while (iterator.hasNext()) {
-    final RegisteredPlugin registeredPlugin =
-      (RegisteredPlugin)iterator.next();
+        final RegisteredPlugin registeredPlugin =
+          (RegisteredPlugin)iterator.next();
 
-    result.add(
-      registeredPlugin.getPluginThreadListener(threadContext));
+        result.add(
+          registeredPlugin.getPluginThreadListener(threadContext));
       }
 
       return result;

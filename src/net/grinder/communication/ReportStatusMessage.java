@@ -50,7 +50,7 @@ public final class ReportStatusMessage
    * @param runningThreads The number of threads that are still running.
    **/
   public ReportStatusMessage(short state, short runningThreads,
-                 short totalThreads) {
+                             short totalThreads) {
     m_state = state;
     m_numberOfRunningThreads = runningThreads;
     m_totalNumberOfThreads = totalThreads;

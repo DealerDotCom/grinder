@@ -53,30 +53,30 @@ public final class UnicastReceiver extends AbstractReceiver {
     throws CommunicationException {
 
     super(false);        // TCP guarantees message sequence so
-                // we don't have to.
+    // we don't have to.
 
     if (addressString.length() > 0) {
       try {
-    m_serverSocket =
-      new ServerSocket(port, 50,
-               InetAddress.getByName(addressString));
+        m_serverSocket =
+          new ServerSocket(port, 50,
+                           InetAddress.getByName(addressString));
       }
       catch (IOException e) {
-    throw new CommunicationException(
-      "Could not bind to TCP address '" + addressString + ":" +
-      port + "'",
-      e);
+        throw new CommunicationException(
+          "Could not bind to TCP address '" + addressString + ":" +
+          port + "'",
+          e);
       }
     }
     else {
       try {
-    m_serverSocket = new ServerSocket(port, 50);
+        m_serverSocket = new ServerSocket(port, 50);
       }
       catch (IOException e) {
-    throw new CommunicationException(
-      "Could not bind to port '" + port +
-      "' on local interfaces",
-      e);
+        throw new CommunicationException(
+          "Could not bind to port '" + port +
+          "' on local interfaces",
+          e);
       }
     }
 
@@ -115,34 +115,34 @@ public final class UnicastReceiver extends AbstractReceiver {
 
     public void run() {
       try {
-    while (true) {
-      final Socket localSocket = m_serverSocket.accept();
+        while (true) {
+          final Socket localSocket = m_serverSocket.accept();
 
-      try {
-        m_connections.add(localSocket);
-      }
-      catch (Exception e) {
-        // Propagate exceptions to threads calling
-        // waitForMessage.
-        getMessageQueue().queue(e);
-      }
-    }
+          try {
+            m_connections.add(localSocket);
+          }
+          catch (Exception e) {
+            // Propagate exceptions to threads calling
+            // waitForMessage.
+            getMessageQueue().queue(e);
+          }
+        }
       }
       catch (IOException e) {
-    // Treat accept socket errors as fatal - we've
-    // probably been shutdown.
+        // Treat accept socket errors as fatal - we've
+        // probably been shutdown.
       }
       catch (MessageQueue.ShutdownException e) {
-    // We've been shutdown, exit this thread.
+        // We've been shutdown, exit this thread.
       }
       finally {
-    // Best effort to ensure our server socket is closed.
-    try {
-      shutdown();
-    }
-    catch (CommunicationException ce) {
-      // Ignore.
-    }
+        // Best effort to ensure our server socket is closed.
+        try {
+          shutdown();
+        }
+        catch (CommunicationException ce) {
+          // Ignore.
+        }
       }
     }
   }
@@ -158,52 +158,52 @@ public final class UnicastReceiver extends AbstractReceiver {
       final MessageQueue messageQueue = getMessageQueue();
 
       try {
-    // Did we do some work on the last pass?
-    boolean idle = false;
+        // Did we do some work on the last pass?
+        boolean idle = false;
 
-    while (true) {
-      final SocketSet.Handle socketHandle =
-        m_connections.reserveNextHandle();
+        while (true) {
+          final SocketSet.Handle socketHandle =
+            m_connections.reserveNextHandle();
 
-      try {
-        if (socketHandle.isSentinel()) {
-          if (idle) {
-        Thread.sleep(500);
+          try {
+            if (socketHandle.isSentinel()) {
+              if (idle) {
+                Thread.sleep(500);
+              }
+
+              idle = true;
+            }
+            else {
+              final Message m = socketHandle.pollForMessage();
+
+              if (m instanceof CloseCommunicationMessage) {
+                socketHandle.close();
+                idle = false;
+              }
+              else if (m != null) {
+                messageQueue.queue(m);
+                idle = false;
+              }
+            }
           }
-
-          idle = true;
+          catch (IOException e) {
+            socketHandle.close();
+            messageQueue.queue(e);
+          }
+          catch (ClassNotFoundException e) {
+            socketHandle.close();
+            messageQueue.queue(e);
+          }
+          finally {
+            socketHandle.free();
+          }
         }
-        else {
-          final Message m = socketHandle.pollForMessage();
-
-          if (m instanceof CloseCommunicationMessage) {
-        socketHandle.close();
-        idle = false;
-          }
-          else if (m != null) {
-        messageQueue.queue(m);
-        idle = false;
-          }
-        }
-      }
-      catch (IOException e) {
-        socketHandle.close();
-        messageQueue.queue(e);
-      }
-      catch (ClassNotFoundException e) {
-        socketHandle.close();
-        messageQueue.queue(e);
-      }
-      finally {
-        socketHandle.free();
-      }
-    }
       }
       catch (MessageQueue.ShutdownException e) {
-    // We've been shutdown, exit this thread.
+        // We've been shutdown, exit this thread.
       }
       catch (InterruptedException e) {
-    // Ignore.
+        // Ignore.
       }
     }
   }

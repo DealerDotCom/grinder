@@ -30,11 +30,11 @@ package net.grinder.tools.tcpproxy;
  */
 public interface TCPProxyEngine extends Runnable
 {
-    // void run();
+  // void run();
 
-    public static final String ACCEPT_TIMEOUT_MESSAGE = "Listen time out";
+  public static final String ACCEPT_TIMEOUT_MESSAGE = "Listen time out";
 
-    public void stop();
+  public void stop();
 }
 
 

@@ -46,17 +46,17 @@ final class TestStatisticsImplementation
     try {
       s_errorsIndex = indexMap.getIndexForLong("errors");
       s_timedTransactionsIndex =
-    indexMap.getIndexForLong("timedTransactions");
+        indexMap.getIndexForLong("timedTransactions");
       s_untimedTransactionsIndex =
-    indexMap.getIndexForLong("untimedTransactions");
+        indexMap.getIndexForLong("untimedTransactions");
       s_totalTimeIndex =
-    indexMap.getIndexForLong("timedTransactionTime");
+        indexMap.getIndexForLong("timedTransactionTime");
     }
     catch (GrinderException e) {
       throw new ExceptionInInitializerError(
-    "Assertion failure, " +
-    "TestStatisticsImplementation could not initialise: " +
-    e.getMessage());
+        "Assertion failure, " +
+        "TestStatisticsImplementation could not initialise: " +
+        e.getMessage());
     }
   }
 

@@ -92,10 +92,10 @@ public class Model {
   private long m_stopTime;
 
   /**
-     * The current test set. A TreeSet is used to maintain the test
-     * order. Should synchronise on <code>m_test</code> before
-     * accessing it.
-     **/
+   * The current test set. A TreeSet is used to maintain the test
+   * order. Should synchronise on <code>m_test</code> before
+   * accessing it.
+   **/
   private final Set m_tests = new TreeSet();
 
   /**
@@ -162,14 +162,14 @@ public class Model {
 
     m_tpsExpression =
       statisticExpressionFactory.createExpression(
-    "(* 1000 (/ (+ untimedTransactions timedTransactions) period))");
+        "(* 1000 (/ (+ untimedTransactions timedTransactions) period))");
 
     m_tpsExpressionView =
       new ExpressionView("TPS", "statistic.tps", m_tpsExpression);
 
     m_peakTPSExpression =
       statisticExpressionFactory.createPeak(
-    indexMap.getIndexForDouble("peakTPS"), m_tpsExpression);
+        indexMap.getIndexForDouble("peakTPS"), m_tpsExpression);
 
     m_peakTPSExpressionView =
       new ExpressionView("Peak TPS", "statistic.peakTPS", m_peakTPSExpression);
@@ -186,19 +186,19 @@ public class Model {
     m_properties.addPropertyChangeListener(
       ConsoleProperties.SIG_FIG_PROPERTY,
       new PropertyChangeListener() {
-    public void propertyChange(PropertyChangeEvent event) {
-      m_numberFormat =
-        new SignificantFigureFormat(
-          ((Integer)event.getNewValue()).intValue());
-    }
+        public void propertyChange(PropertyChangeEvent event) {
+          m_numberFormat =
+            new SignificantFigureFormat(
+              ((Integer)event.getNewValue()).intValue());
+        }
       });
 
     m_properties.addPropertyChangeListener(
       ConsoleProperties.SAMPLE_INTERVAL_PROPERTY,
       new PropertyChangeListener() {
-    public void propertyChange(PropertyChangeEvent event) {
-      m_sampleInterval = ((Integer)event.getNewValue()).intValue();
-    }
+        public void propertyChange(PropertyChangeEvent event) {
+          m_sampleInterval = ((Integer)event.getNewValue()).intValue();
+        }
       });
   }
 
@@ -277,8 +277,8 @@ public class Model {
       newTests.removeAll(m_tests);
 
       if (newTests.size() == 0) {
-    // No new tests.
-    return;
+        // No new tests.
+        return;
       }
 
       m_tests.addAll(newTests);
@@ -294,19 +294,19 @@ public class Model {
 
     synchronized (m_accumulators) {
       while (newTestIterator.hasNext()) {
-    m_accumulators.put((Test)newTestIterator.next(),
-               new SampleAccumulator(m_peakTPSExpression,
-                         m_periodIndex));
+        m_accumulators.put((Test)newTestIterator.next(),
+                           new SampleAccumulator(m_peakTPSExpression,
+                                                 m_periodIndex));
       }
 
       for (int i = 0; i < accumulatorArray.length; i++) {
-    accumulatorArray[i] =
-      (SampleAccumulator)m_accumulators.get(testArray[i]);
+        accumulatorArray[i] =
+          (SampleAccumulator)m_accumulators.get(testArray[i]);
       }
     }
 
     fireModelNewTests(newTests,
-              new ModelTestIndex(testArray, accumulatorArray));
+                      new ModelTestIndex(testArray, accumulatorArray));
   }
 
   /**
@@ -388,21 +388,21 @@ public class Model {
       final Iterator iterator = m_modelListeners.iterator();
 
       while (iterator.hasNext()) {
-    final ModelListener listener = (ModelListener)iterator.next();
-    listener.update();
+        final ModelListener listener = (ModelListener)iterator.next();
+        listener.update();
       }
     }
   }
 
   private final void fireModelNewTests(Set newTests,
-                       ModelTestIndex modelTestIndex) {
+                                       ModelTestIndex modelTestIndex) {
 
     synchronized (m_modelListeners) {
       final Iterator iterator = m_modelListeners.iterator();
 
       while (iterator.hasNext()) {
-    final ModelListener listener = (ModelListener)iterator.next();
-    listener.newTests(newTests, modelTestIndex);
+        final ModelListener listener = (ModelListener)iterator.next();
+        listener.newTests(newTests, modelTestIndex);
       }
     }
   }
@@ -415,9 +415,9 @@ public class Model {
       final Iterator iterator = m_modelListeners.iterator();
 
       while (iterator.hasNext()) {
-    final ModelListener listener = (ModelListener)iterator.next();
-    listener.newStatisticsViews(intervalStatisticsView,
-                    cumulativeStatisticsView);
+        final ModelListener listener = (ModelListener)iterator.next();
+        listener.newStatisticsViews(intervalStatisticsView,
+                                    cumulativeStatisticsView);
       }
     }
   }
@@ -428,8 +428,8 @@ public class Model {
       final Iterator iterator = m_modelListeners.iterator();
 
       while (iterator.hasNext()) {
-    final ModelListener listener = (ModelListener)iterator.next();
-    listener.resetTestsAndStatisticsViews();
+        final ModelListener listener = (ModelListener)iterator.next();
+        listener.resetTestsAndStatisticsViews();
       }
     }
   }
@@ -481,23 +481,23 @@ public class Model {
       // TestStatisticsMap doesn't change within the console so we
       // don't need to synchronise.
       final TestStatisticsMap.Iterator iterator =
-    testStatisticsMap.new Iterator();
+        testStatisticsMap.new Iterator();
 
       while (iterator.hasNext()) {
-    final TestStatisticsMap.Pair pair = iterator.next();
+        final TestStatisticsMap.Pair pair = iterator.next();
 
-    final TestStatistics statistics = pair.getStatistics();
+        final TestStatistics statistics = pair.getStatistics();
 
-    final SampleAccumulator sampleAccumulator =
-      (SampleAccumulator)m_accumulators.get(pair.getTest());
+        final SampleAccumulator sampleAccumulator =
+          (SampleAccumulator)m_accumulators.get(pair.getTest());
 
-    if (sampleAccumulator == null) {
-      System.err.println("Ignoring unknown test: " + pair.getTest());
-    }
-    else {
-      sampleAccumulator.add(statistics);
-      m_totalSampleAccumulator.add(statistics);
-    }
+        if (sampleAccumulator == null) {
+          System.err.println("Ignoring unknown test: " + pair.getTest());
+        }
+        else {
+          sampleAccumulator.add(statistics);
+          m_totalSampleAccumulator.add(statistics);
+        }
       }
     }
   }
@@ -512,67 +512,67 @@ public class Model {
   private final class Sampler implements Runnable {
     public void run() {
       while (true) {
-    m_currentTime = System.currentTimeMillis();
-
-    final long sampleInterval = m_sampleInterval;
-
-    final long wakeUpTime = m_currentTime + sampleInterval;
-
-    while (m_currentTime < wakeUpTime) {
-      try {
-        Thread.sleep(wakeUpTime - m_currentTime);
-        m_currentTime = wakeUpTime;
-      }
-      catch (InterruptedException e) {
         m_currentTime = System.currentTimeMillis();
-      }
-    }
 
-    final int state = getState();
+        final long sampleInterval = m_sampleInterval;
 
-    final long period =
-      (state == STATE_STOPPED ? m_stopTime : m_currentTime) - m_startTime;
+        final long wakeUpTime = m_currentTime + sampleInterval;
 
-    synchronized (m_accumulators) {
-      final Iterator iterator = m_accumulators.values().iterator();
-
-      while (iterator.hasNext()) {
-        final SampleAccumulator sampleAccumulator =
-          ((SampleAccumulator)iterator.next());
-        sampleAccumulator.fireSample(sampleInterval, period);
-      }
-    }
-
-    m_totalSampleAccumulator.fireSample(sampleInterval, period);
-
-    if (m_receivedReport) {
-      ++m_sampleCount;
-      m_receivedReportInLastInterval = true;
-    }
-    else {
-      m_receivedReportInLastInterval = false;
-    }
-
-    if (state == STATE_CAPTURING) {
-      if (m_receivedReport) {
-        final int collectSampleCount =
-          m_properties.getCollectSampleCount();
-
-        if (collectSampleCount != 0 &&
-        m_sampleCount >= collectSampleCount) {
-          setState(STATE_STOPPED);
+        while (m_currentTime < wakeUpTime) {
+          try {
+            Thread.sleep(wakeUpTime - m_currentTime);
+            m_currentTime = wakeUpTime;
+          }
+          catch (InterruptedException e) {
+            m_currentTime = System.currentTimeMillis();
+          }
         }
-      }
-    }
-    else if (state == STATE_WAITING_FOR_TRIGGER) {
-      if (m_sampleCount >= m_properties.getIgnoreSampleCount()) {
-        setState(STATE_CAPTURING);
-      }
-    }
 
-    fireModelUpdate();
+        final int state = getState();
 
-    m_receivedReport = false;
+        final long period =
+          (state == STATE_STOPPED ? m_stopTime : m_currentTime) - m_startTime;
+
+        synchronized (m_accumulators) {
+          final Iterator iterator = m_accumulators.values().iterator();
+
+          while (iterator.hasNext()) {
+            final SampleAccumulator sampleAccumulator =
+              ((SampleAccumulator)iterator.next());
+            sampleAccumulator.fireSample(sampleInterval, period);
+          }
+        }
+
+        m_totalSampleAccumulator.fireSample(sampleInterval, period);
+
+        if (m_receivedReport) {
+          ++m_sampleCount;
+          m_receivedReportInLastInterval = true;
+        }
+        else {
+          m_receivedReportInLastInterval = false;
+        }
+
+        if (state == STATE_CAPTURING) {
+          if (m_receivedReport) {
+            final int collectSampleCount =
+              m_properties.getCollectSampleCount();
+
+            if (collectSampleCount != 0 &&
+                m_sampleCount >= collectSampleCount) {
+              setState(STATE_STOPPED);
+            }
+          }
+        }
+        else if (state == STATE_WAITING_FOR_TRIGGER) {
+          if (m_sampleCount >= m_properties.getIgnoreSampleCount()) {
+            setState(STATE_CAPTURING);
+          }
+        }
+
+        fireModelUpdate();
+
+        m_receivedReport = false;
       }
     }
   }
@@ -627,9 +627,9 @@ public class Model {
       final Iterator iterator = m_accumulators.values().iterator();
 
       while (iterator.hasNext()) {
-    final SampleAccumulator sampleAccumulator =
-      ((SampleAccumulator)iterator.next());
-    sampleAccumulator.zero();
+        final SampleAccumulator sampleAccumulator =
+          ((SampleAccumulator)iterator.next());
+        sampleAccumulator.zero();
       }
     }
 
@@ -642,8 +642,8 @@ public class Model {
 
   private void setState(int i) {
     if (i != STATE_WAITING_FOR_TRIGGER &&
-    i != STATE_STOPPED &&
-    i != STATE_CAPTURING) {
+        i != STATE_STOPPED &&
+        i != STATE_CAPTURING) {
       throw new IllegalArgumentException("Unknown state: " + i);
     }
 

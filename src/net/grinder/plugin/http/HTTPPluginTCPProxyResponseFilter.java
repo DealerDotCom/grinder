@@ -60,96 +60,96 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  */
 public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter
 {
-    private final Pattern m_wwwAuthenticateHeaderPattern;
-    private final Perl5Matcher m_matcher = new Perl5Matcher();
+  private final Pattern m_wwwAuthenticateHeaderPattern;
+  private final Perl5Matcher m_matcher = new Perl5Matcher();
 
-    private static String s_lastAuthenticationRealm;
+  private static String s_lastAuthenticationRealm;
 
-    /**
-     * Constructor.
-     *
-     * @exception MalformedPatternException
-     */
-    public HTTPPluginTCPProxyResponseFilter(PrintWriter outputWriter)
+  /**
+   * Constructor.
+   *
+   * @exception MalformedPatternException
+   */
+  public HTTPPluginTCPProxyResponseFilter(PrintWriter outputWriter)
     throws MalformedPatternException
-    {
+  {
     final PatternCompiler compiler = new Perl5Compiler();
 
     m_wwwAuthenticateHeaderPattern =
-        compiler.compile(
+      compiler.compile(
         "^WWW-Authenticate:[ \\t]*Basic realm[  \\t]*=[ \\t]*\"([^\"]*)\".*\\r?$",
         Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
-    }
+  }
 
-    /**
-     * The main handler method called by the proxy engine.
-     *
-     * <p>NOTE, this is called for message fragments, don't assume
-     * that its passed a complete HTTP message at a time.</p>
-     *
-     * @param connectionDetails The TCP connection.
-     * @param buffer The message fragment buffer.
-     * @param bytesRead The number of bytes of buffer to process.
-     * @return Filters can optionally return a <code>byte[]</code>
-     * which will be transmitted to the server instead of
-     * <code>buffer</code.
-     * @exception IOException if an error occurs
-     */
-    public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
-             int bytesRead)
+  /**
+   * The main handler method called by the proxy engine.
+   *
+   * <p>NOTE, this is called for message fragments, don't assume
+   * that its passed a complete HTTP message at a time.</p>
+   *
+   * @param connectionDetails The TCP connection.
+   * @param buffer The message fragment buffer.
+   * @param bytesRead The number of bytes of buffer to process.
+   * @return Filters can optionally return a <code>byte[]</code>
+   * which will be transmitted to the server instead of
+   * <code>buffer</code.
+   * @exception IOException if an error occurs
+   */
+  public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
+                       int bytesRead)
     throws IOException
-    {
+  {
     HTTPPluginTCPProxyFilter.markLastResponseTime();
 
     // String used to parse headers - header names are
     // US-ASCII encoded and anchored to start of line.
     final String asciiString =
-        new String(buffer, 0, bytesRead, "US-ASCII");
+      new String(buffer, 0, bytesRead, "US-ASCII");
 
     if (m_matcher.contains(asciiString, m_wwwAuthenticateHeaderPattern)) {
-        // Packet is start of new request message.
+      // Packet is start of new request message.
 
-        s_lastAuthenticationRealm = m_matcher.getMatch().group(1).trim();
+      s_lastAuthenticationRealm = m_matcher.getMatch().group(1).trim();
     }
 
     return null;
-    }
+  }
 
-    /**
-     * A connection has been opened.
-     *
-     * @param connectionDetails a <code>ConnectionDetails</code> value
-     */
-    public void connectionOpened(ConnectionDetails connectionDetails)
-    {
-    }
+  /**
+   * A connection has been opened.
+   *
+   * @param connectionDetails a <code>ConnectionDetails</code> value
+   */
+  public void connectionOpened(ConnectionDetails connectionDetails)
+  {
+  }
 
-    /**
-     * A connection has been closed.
-     *
-     * @param connectionDetails a <code>ConnectionDetails</code> value
-     * @exception IOException if an error occurs
-     */
-    public void connectionClosed(ConnectionDetails connectionDetails)
+  /**
+   * A connection has been closed.
+   *
+   * @param connectionDetails a <code>ConnectionDetails</code> value
+   * @exception IOException if an error occurs
+   */
+  public void connectionClosed(ConnectionDetails connectionDetails)
     throws IOException
-    {
-    }
+  {
+  }
 
-      /**
-       * Called just before stop.
-       */
-    public final void stop() {
-    }
+  /**
+   * Called just before stop.
+   */
+  public final void stop() {
+  }
 
-    /**
-     * Return the realm used in the last recorded authentication
-     * challenge, or null if none exists.
-     *
-     * @return The realm from the last recorded authentication
-     * challenge.
-     */
-    static String getLastAuthenticationRealm()
-    {
+  /**
+   * Return the realm used in the last recorded authentication
+   * challenge, or null if none exists.
+   *
+   * @return The realm from the last recorded authentication
+   * challenge.
+   */
+  static String getLastAuthenticationRealm()
+  {
     return s_lastAuthenticationRealm;
-    }
+  }
 }

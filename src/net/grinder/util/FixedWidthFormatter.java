@@ -82,14 +82,14 @@ public class FixedWidthFormatter {
    **/
   public FixedWidthFormatter(int alignment, int flow, int width) {
     if (alignment != ALIGN_LEFT &&
-    alignment != ALIGN_CENTRE &&
-    alignment != ALIGN_RIGHT) {
+        alignment != ALIGN_CENTRE &&
+        alignment != ALIGN_RIGHT) {
       throw new IllegalArgumentException("Invalid alignment value");
     }
 
     if (flow != FLOW_TRUNCATE &&
-    flow != FLOW_WRAP &&
-    flow != FLOW_WORD_WRAP) {
+        flow != FLOW_WRAP &&
+        flow != FLOW_WORD_WRAP) {
       throw new IllegalArgumentException("Invalid flow value");
     }
 
@@ -126,7 +126,7 @@ public class FixedWidthFormatter {
 
     while (splitPosition < right) {
       if (buffer.charAt(splitPosition) == '\n') {
-    return splitPosition;
+        return splitPosition;
       }
 
       ++splitPosition;
@@ -136,9 +136,9 @@ public class FixedWidthFormatter {
       splitPosition = m_width;
 
       do {
-    if (Character.isWhitespace(buffer.charAt(splitPosition))) {
-      return splitPosition;
-    }
+        if (Character.isWhitespace(buffer.charAt(splitPosition))) {
+          return splitPosition;
+        }
       }
       while (--splitPosition >= 0);
 
@@ -167,76 +167,76 @@ public class FixedWidthFormatter {
 
     case FLOW_TRUNCATE:
       if (length > m_width) {
-    // Truncate.
-    buffer.setLength(m_width);
+        // Truncate.
+        buffer.setLength(m_width);
       }
       break;
 
     case FLOW_WRAP:
       if (length > m_width) {
-    // We prepend our remainder to the existing one.
-    remainder.insert(0, buffer.substring(m_width));
+        // We prepend our remainder to the existing one.
+        remainder.insert(0, buffer.substring(m_width));
 
-    // Truncate.
-    buffer.setLength(m_width);
+        // Truncate.
+        buffer.setLength(m_width);
       }
       break;
 
     case FLOW_WORD_WRAP:
       if (m_width == 1 && length > 1) {
-    // Enhancement to allow single column of "vertical"
-    // text. Replace white space with line breaks.
-    if (Character.isWhitespace(buffer.charAt(0))) {
-      buffer.setCharAt(0, '\n');
-    }
+        // Enhancement to allow single column of "vertical"
+        // text. Replace white space with line breaks.
+        if (Character.isWhitespace(buffer.charAt(0))) {
+          buffer.setCharAt(0, '\n');
+        }
       }
 
       final int splitPosition = findWordWrapSplitPosition(buffer);
 
       if (splitPosition >= 0) {
-    // Search forward to ignore white space (except for
-    // new lines), and set everything from there on as the
-    // remainder.
-    int nextText = splitPosition;
+        // Search forward to ignore white space (except for
+        // new lines), and set everything from there on as the
+        // remainder.
+        int nextText = splitPosition;
 
-    while (nextText < length) {
-      final char c = buffer.charAt(nextText);
+        while (nextText < length) {
+          final char c = buffer.charAt(nextText);
 
-      if  (!Character.isWhitespace(c)) {
-        break;
-      }
+          if  (!Character.isWhitespace(c)) {
+            break;
+          }
 
-      ++nextText;
+          ++nextText;
 
-      if (c == '\n') {
-        break;
-      }
-    }
+          if (c == '\n') {
+            break;
+          }
+        }
 
-    if (nextText <= length) {
-      remainder.insert(0, buffer.substring(nextText));
-    }
+        if (nextText <= length) {
+          remainder.insert(0, buffer.substring(nextText));
+        }
 
-    buffer.setLength(splitPosition);
+        buffer.setLength(splitPosition);
       }
 
       // Strip leading and trailing space.
       int end = buffer.length();
 
       while (end > 0 && Character.isWhitespace(buffer.charAt(end - 1))) {
-    --end;
+        --end;
       }
 
       buffer.setLength(end);
 
       if (end > 0) {
-    int start = 0;
+        int start = 0;
 
-    while (Character.isWhitespace(buffer.charAt(start))) {
-      ++start;
-    }
+        while (Character.isWhitespace(buffer.charAt(start))) {
+          ++start;
+        }
 
-    buffer.delete(0, start);
+        buffer.delete(0, start);
       }
 
       break;
@@ -250,7 +250,7 @@ public class FixedWidthFormatter {
     // Canonicalise remaining space.
     for (int k = 0; k < length; k++) {
       if (Character.isWhitespace(buffer.charAt(k))) {
-    buffer.setCharAt(k, ' ');
+        buffer.setCharAt(k, ' ');
       }
     }
 
@@ -259,22 +259,22 @@ public class FixedWidthFormatter {
 
       switch (m_alignment) {
       case ALIGN_LEFT:
-    buffer.append(s_space, 0, m_width - length);
-    break;
+        buffer.append(s_space, 0, m_width - length);
+        break;
 
       case ALIGN_CENTRE:
-    final int charsLeft = (m_width - length + 1) / 2;
-    final int charsRight = (m_width - length) / 2;
-    buffer.insert(0, s_space, 0, charsLeft);
-    buffer.append(s_space, 0, charsRight);
-    break;
+        final int charsLeft = (m_width - length + 1) / 2;
+        final int charsRight = (m_width - length) / 2;
+        buffer.insert(0, s_space, 0, charsLeft);
+        buffer.append(s_space, 0, charsRight);
+        break;
 
       case ALIGN_RIGHT:
-    buffer.insert(0, s_space, 0, m_width - length);
-    break;
+        buffer.insert(0, s_space, 0, m_width - length);
+        break;
 
       default:
-    throw new GrinderException("Assertion failed: invalid alignment");
+        throw new GrinderException("Assertion failed: invalid alignment");
       }
     }
   }

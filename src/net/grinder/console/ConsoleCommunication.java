@@ -57,7 +57,7 @@ final class ConsoleCommunication {
   private boolean m_deaf = true;
 
   ConsoleCommunication(ConsoleProperties properties,
-               ConsoleExceptionHandler exceptionHandler) {
+                       ConsoleExceptionHandler exceptionHandler) {
     m_properties = properties;
     m_exceptionHandler = exceptionHandler;
 
@@ -66,56 +66,56 @@ final class ConsoleCommunication {
 
     properties.addPropertyChangeListener(
       new PropertyChangeListener() {
-    public void propertyChange(PropertyChangeEvent event) {
-      final String property = event.getPropertyName();
+        public void propertyChange(PropertyChangeEvent event) {
+          final String property = event.getPropertyName();
 
-      if (property.equals(
-        ConsoleProperties.CONSOLE_ADDRESS_PROPERTY) ||
-          property.equals(
-        ConsoleProperties.CONSOLE_PORT_PROPERTY)) {
-        resetReceiver();
-      }
-      else if (property.equals(
-             ConsoleProperties.GRINDER_ADDRESS_PROPERTY) ||
-           property.equals(
-             ConsoleProperties.GRINDER_PORT_PROPERTY)) {
-        resetSender();
-      }
-    }
+          if (property.equals(
+                ConsoleProperties.CONSOLE_ADDRESS_PROPERTY) ||
+              property.equals(
+                ConsoleProperties.CONSOLE_PORT_PROPERTY)) {
+            resetReceiver();
+          }
+          else if (property.equals(
+                     ConsoleProperties.GRINDER_ADDRESS_PROPERTY) ||
+                   property.equals(
+                     ConsoleProperties.GRINDER_PORT_PROPERTY)) {
+            resetSender();
+          }
+        }
       });
   }
 
   private final void resetReceiver() {
     try {
       if (m_receiver != null) {
-    m_receiver.shutdown();
+        m_receiver.shutdown();
       }
 
       synchronized (this) {
-    while (!m_deaf) {
-      try {
-        wait();
-      }
-      catch (InterruptedException e) {
-        // Ignore because its a pain to propagate.
-      }
-    }
+        while (!m_deaf) {
+          try {
+            wait();
+          }
+          catch (InterruptedException e) {
+            // Ignore because its a pain to propagate.
+          }
+        }
       }
 
       m_receiver =
-    new UnicastReceiver(m_properties.getConsoleAddress(),
-                m_properties.getConsolePort());
+        new UnicastReceiver(m_properties.getConsoleAddress(),
+                            m_properties.getConsolePort());
 
       synchronized (this) {
-    m_deaf = false;
-    notifyAll();
+        m_deaf = false;
+        notifyAll();
       }
     }
     catch (CommunicationException e) {
       m_exceptionHandler.consoleExceptionOccurred(
-    new DisplayMessageConsoleException(
-      "localBindError.text",
-      "Failed to bind to local address"));
+        new DisplayMessageConsoleException(
+          "localBindError.text",
+          "Failed to bind to local address"));
     }
   }
 
@@ -131,15 +131,15 @@ final class ConsoleCommunication {
 
     try {
       m_sender =
-    new MulticastSender("Console (" + host + ")",
-                m_properties.getGrinderAddress(),
-                m_properties.getGrinderPort());
+        new MulticastSender("Console (" + host + ")",
+                            m_properties.getGrinderAddress(),
+                            m_properties.getGrinderPort());
     }
     catch (CommunicationException e) {
       m_exceptionHandler.consoleExceptionOccurred(
-    new DisplayMessageConsoleException(
-      "multicastConnectError.text",
-      "Failed to connect to multicast address"));
+        new DisplayMessageConsoleException(
+          "multicastConnectError.text",
+          "Failed to connect to multicast address"));
     }
   }
 
@@ -161,33 +161,33 @@ final class ConsoleCommunication {
   final Message waitForMessage() {
     while (true) {
       synchronized (this) {
-    while (m_deaf) {
-      try {
-        wait();
-      }
-      catch (InterruptedException e) {
-        // Ignore because its a pain to propagate.
-      }
-    }
+        while (m_deaf) {
+          try {
+            wait();
+          }
+          catch (InterruptedException e) {
+            // Ignore because its a pain to propagate.
+          }
+        }
       }
 
       try {
-    final Message message = m_receiver.waitForMessage();
+        final Message message = m_receiver.waitForMessage();
 
-    if (message == null) {
-      // Current receiver has been shutdown.
-      synchronized (this) {
-        m_deaf = true;
-        notifyAll();
-      }
-    }
+        if (message == null) {
+          // Current receiver has been shutdown.
+          synchronized (this) {
+            m_deaf = true;
+            notifyAll();
+          }
+        }
 
-    return message;
+        return message;
       }
       catch (CommunicationException e) {
-    e.printStackTrace();
-    m_exceptionHandler.consoleExceptionOccurred(
-      new ConsoleException(e.getMessage(), e));
+        e.printStackTrace();
+        m_exceptionHandler.consoleExceptionOccurred(
+          new ConsoleException(e.getMessage(), e));
       }
     }
   }

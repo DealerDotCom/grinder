@@ -73,7 +73,7 @@ class MessageQueue {
     if (!m_passExceptions) {
       // Assertion failure.
       throw new RuntimeException(
-    "This MessageQueue does not allow Exceptions to be queued");
+        "This MessageQueue does not allow Exceptions to be queued");
     }
 
     doQueue(exception);
@@ -103,26 +103,26 @@ class MessageQueue {
     throws CommunicationException, ShutdownException {
     synchronized (getMutex()) {
       while (!m_shutdown && block && m_messages.size() == 0) {
-    try {
-      getMutex().wait();
-    }
-    catch (InterruptedException e) {
-      // Probably being shutdown, fall through.
-    }
+        try {
+          getMutex().wait();
+        }
+        catch (InterruptedException e) {
+          // Probably being shutdown, fall through.
+        }
       }
 
       assertNotShutdown();
 
       if (m_messages.size() == 0) {
-    return null;
+        return null;
       }
       else {
-    final Object o = m_messages.removeFirst();
+        final Object o = m_messages.removeFirst();
 
-    if (m_passExceptions && o instanceof Exception) {
-      throw new CommunicationException("Queued exception", (Exception)o);
-    }
-    return (Message)o;
+        if (m_passExceptions && o instanceof Exception) {
+          throw new CommunicationException("Queued exception", (Exception)o);
+        }
+        return (Message)o;
       }
     }
   }

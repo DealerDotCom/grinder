@@ -57,7 +57,7 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
   }
 
   public HTTPConnectionWrapper(HTTPConnection httpConnection,
-                   HTTPPluginConnectionDefaults defaults) {
+                               HTTPPluginConnectionDefaults defaults) {
 
     m_httpConnection = httpConnection;
     m_httpConnection.setAllowUserInteraction(false);
@@ -68,36 +68,36 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
       setDefaultHeaders(defaults.getDefaultHeaders());
       setTimeout(defaults.getTimeout());
       setVerifyServerDistinguishedName(
-    defaults.getVerifyServerDistinguishedName());
+        defaults.getVerifyServerDistinguishedName());
       setProxyServer(defaults.getProxyHost(), defaults.getProxyPort());
       setLocalAddress(defaults.getLocalAddress());
 
       final Iterator basicAuthenticationIterator =
-    defaults.getBasicAuthorizations().iterator();
+        defaults.getBasicAuthorizations().iterator();
 
       while (basicAuthenticationIterator.hasNext()) {
-    final HTTPPluginConnectionDefaults.AuthorizationDetails
-      authorizationDetails =
-      (HTTPPluginConnectionDefaults.AuthorizationDetails)
-      basicAuthenticationIterator.next();
+        final HTTPPluginConnectionDefaults.AuthorizationDetails
+          authorizationDetails =
+          (HTTPPluginConnectionDefaults.AuthorizationDetails)
+          basicAuthenticationIterator.next();
 
-    addBasicAuthorization(authorizationDetails.getRealm(),
-                  authorizationDetails.getUser(),
-                  authorizationDetails.getPassword());
+        addBasicAuthorization(authorizationDetails.getRealm(),
+                              authorizationDetails.getUser(),
+                              authorizationDetails.getPassword());
       }
 
       final Iterator digestAuthenticationIterator =
-    defaults.getBasicAuthorizations().iterator();
+        defaults.getBasicAuthorizations().iterator();
 
       while (digestAuthenticationIterator.hasNext()) {
-    final HTTPPluginConnectionDefaults.AuthorizationDetails
-      authorizationDetails =
-      (HTTPPluginConnectionDefaults.AuthorizationDetails)
-      digestAuthenticationIterator.next();
+        final HTTPPluginConnectionDefaults.AuthorizationDetails
+          authorizationDetails =
+          (HTTPPluginConnectionDefaults.AuthorizationDetails)
+          digestAuthenticationIterator.next();
 
-    addDigestAuthorization(authorizationDetails.getRealm(),
-                   authorizationDetails.getUser(),
-                   authorizationDetails.getPassword());
+        addDigestAuthorization(authorizationDetails.getRealm(),
+                               authorizationDetails.getUser(),
+                               authorizationDetails.getPassword());
       }
     }
   }
@@ -143,12 +143,12 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
   }
 
   public final void addBasicAuthorization(String realm, String user,
-                      String password) {
+                                          String password) {
     m_httpConnection.addBasicAuthorization(realm, user, password);
   }
 
   public final void removeBasicAuthorization(String realm, String user,
-                         String password) {
+                                             String password) {
     // TODO
   }
 
@@ -157,12 +157,12 @@ final class HTTPConnectionWrapper implements HTTPPluginConnection {
   }
 
   public final void addDigestAuthorization(String realm, String user,
-                       String password) {
+                                           String password) {
     m_httpConnection.addDigestAuthorization(realm, user, password);
   }
 
   public final void removeDigestAuthorization(String realm, String user,
-                          String password) {
+                                              String password) {
     // TODO
   }
 

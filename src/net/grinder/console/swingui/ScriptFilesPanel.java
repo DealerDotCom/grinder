@@ -64,36 +64,36 @@ final class ScriptFilesPanel extends JPanel {
 
     chooseDirectoryButton.setAction(
       new CustomAction(resources, "script.chooseDirectory") {
-    public final void actionPerformed(ActionEvent event) {
-      try {
-        if (m_fileChooser.showOpenDialog(frame) ==
-        JFileChooser.APPROVE_OPTION) {
+        public final void actionPerformed(ActionEvent event) {
+          try {
+            if (m_fileChooser.showOpenDialog(frame) ==
+                JFileChooser.APPROVE_OPTION) {
 
-          final File file = m_fileChooser.getSelectedFile();
+              final File file = m_fileChooser.getSelectedFile();
 
-          if (!file.exists()) {
-        if (JOptionPane.showConfirmDialog(
-              frame,
-              resources.getString("createDirectory.text"),
-              file.toString(), JOptionPane.YES_NO_OPTION) ==
-            JOptionPane.NO_OPTION) {
-          return;
-        }
+              if (!file.exists()) {
+                if (JOptionPane.showConfirmDialog(
+                      frame,
+                      resources.getString("createDirectory.text"),
+                      file.toString(), JOptionPane.YES_NO_OPTION) ==
+                    JOptionPane.NO_OPTION) {
+                  return;
+                }
 
-        file.mkdir();
+                file.mkdir();
+              }
+
+              m_scriptDistributionFiles.setRootDirectory(file);
+              refresh();
+            }
           }
-
-          m_scriptDistributionFiles.setRootDirectory(file);
-          refresh();
+          catch (Exception e) {
+            JOptionPane.showMessageDialog(
+              frame, e.getMessage(),
+              resources.getString("unexpectedError.title"),
+              JOptionPane.ERROR_MESSAGE);
+          }
         }
-      }
-      catch (Exception e) {
-        JOptionPane.showMessageDialog(
-          frame, e.getMessage(),
-          resources.getString("unexpectedError.title"),
-          JOptionPane.ERROR_MESSAGE);
-      }
-    }
       }
       );
 
@@ -145,7 +145,7 @@ final class ScriptFilesPanel extends JPanel {
 
     CustomTreeCellRenderer() {
       m_pythonFileRenderer.setLeafIcon(
-    m_resources.getImageIcon("script.pythonfile.image"));
+        m_resources.getImageIcon("script.pythonfile.image"));
     }
 
     public final Component getTreeCellRendererComponent(
@@ -155,12 +155,12 @@ final class ScriptFilesPanel extends JPanel {
       final FileTreeModel.Node node = (FileTreeModel.Node)value;
 
       if (node.isPythonFile()) {
-    return m_pythonFileRenderer.getTreeCellRendererComponent(
-      tree, value, selected, expanded, leaf, row, hasFocus);
+        return m_pythonFileRenderer.getTreeCellRendererComponent(
+          tree, value, selected, expanded, leaf, row, hasFocus);
       }
 
       return m_standardRenderer.getTreeCellRendererComponent(
-    tree, value, selected, expanded, leaf, row, hasFocus);
+        tree, value, selected, expanded, leaf, row, hasFocus);
     }
   }
 }

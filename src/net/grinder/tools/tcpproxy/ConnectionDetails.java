@@ -50,7 +50,7 @@ public final class ConnectionDetails {
    * @throws IllegalArgumentException If local and remote details are the same.
    */
   public ConnectionDetails(String localHost, int localPort, String remoteHost,
-               int remotePort, boolean isSecure) {
+                           int remotePort, boolean isSecure) {
 
     m_localHost = localHost.toLowerCase();
     m_localPort = localPort;
@@ -70,8 +70,8 @@ public final class ConnectionDetails {
 
     if (c == 0) {
       if (localPort == remotePort) {
-    throw new IllegalArgumentException(
-      "Local and remote sockets are the same");
+        throw new IllegalArgumentException(
+          "Local and remote sockets are the same");
       }
 
       localIsLeast = localPort < remotePort;
@@ -82,15 +82,15 @@ public final class ConnectionDetails {
 
     if (localIsLeast) {
       m_connectionIdentity =
-    localHost + "|" + localPort + "|" +
-    remoteHost + "|" + remotePort + "|" +
-    isSecure;
+        localHost + "|" + localPort + "|" +
+        remoteHost + "|" + remotePort + "|" +
+        isSecure;
     }
     else {
       m_connectionIdentity =
-    remoteHost + "|" + remotePort + "|" +
-    localHost + "|" + localPort + "|" +
-    isSecure;
+        remoteHost + "|" + remotePort + "|" +
+        localHost + "|" + localPort + "|" +
+        isSecure;
     }
   }
 
@@ -221,7 +221,7 @@ public final class ConnectionDetails {
   public final ConnectionDetails getOtherEnd() {
 
     return new ConnectionDetails(getRemoteHost(), getRemotePort(),
-                 getLocalHost(), getLocalPort(),
-                 isSecure());
+                                 getLocalHost(), getLocalPort(),
+                                 isSecure());
   }
 }

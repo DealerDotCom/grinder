@@ -58,7 +58,7 @@ class RawStatisticsImplementation implements RawStatistics {
   public RawStatisticsImplementation() {
     m_longData =
       new long[
-    StatisticsIndexMap.getInstance().getNumberOfLongIndicies()];
+        StatisticsIndexMap.getInstance().getNumberOfLongIndicies()];
   }
 
   /**
@@ -141,7 +141,7 @@ class RawStatisticsImplementation implements RawStatistics {
    * @param value The value.
    **/
   public final synchronized void addValue(StatisticsIndexMap.LongIndex index,
-                      long value) {
+                                          long value) {
     m_longData[index.getValue()] += value;
   }
 
@@ -199,7 +199,7 @@ class RawStatisticsImplementation implements RawStatistics {
       ensureDoubleDataAllocated();
 
       for (int i = 0; i < doubleData.length; i++) {
-    m_doubleData[i] += doubleData[i];
+        m_doubleData[i] += doubleData[i];
       }
     }
   }
@@ -225,21 +225,21 @@ class RawStatisticsImplementation implements RawStatistics {
 
     if (m_snapshot != null) {
       if (m_doubleData.length < m_snapshot.m_doubleData.length) {
-    throw new IllegalStateException(
-      "Assertion failure: " +
-      "Snapshot double data allocated but ours isn't");
+        throw new IllegalStateException(
+          "Assertion failure: " +
+          "Snapshot double data allocated but ours isn't");
       }
 
       final long[] longData = m_snapshot.m_longData;
 
       for (int i = 0; i < longData.length; i++) {
-    result.m_longData[i] -= longData[i];
+        result.m_longData[i] -= longData[i];
       }
 
       final double[] doubleData = m_snapshot.m_doubleData;
 
       for (int i = 0; i < doubleData.length; i++) {
-    result.m_doubleData[i] -= doubleData[i];
+        result.m_doubleData[i] -= doubleData[i];
       }
     }
 
@@ -273,19 +273,19 @@ class RawStatisticsImplementation implements RawStatistics {
 
     for (int i = 0; i < m_longData.length; i++) {
       if (m_longData[i] != otherLongData[i]) {
-    return false;
+        return false;
       }
     }
 
     if (m_doubleData.length > 0 ||
-    otherStatistics.m_doubleData.length > 0) {
+        otherStatistics.m_doubleData.length > 0) {
       ensureDoubleDataAllocated();
       otherStatistics.ensureDoubleDataAllocated();
 
       for (int i = 0; i < m_doubleData.length; i++) {
-    if (m_doubleData[i] != otherStatistics.m_doubleData[i]) {
-      return false;
-    }
+        if (m_doubleData[i] != otherStatistics.m_doubleData[i]) {
+          return false;
+        }
       }
     }
 
@@ -319,7 +319,7 @@ class RawStatisticsImplementation implements RawStatistics {
       result.append(m_longData[i]);
 
       if (i != m_longData.length - 1 || m_doubleData.length > 0) {
-    result.append(", ");
+        result.append(", ");
       }
     }
 
@@ -327,7 +327,7 @@ class RawStatisticsImplementation implements RawStatistics {
       result.append(m_doubleData[i]);
 
       if (i != m_doubleData.length - 1) {
-    result.append(", ");
+        result.append(", ");
       }
     }
 
@@ -347,7 +347,7 @@ class RawStatisticsImplementation implements RawStatistics {
    * @exception IOException If an error occurs.
    **/
   final synchronized void myWriteExternal(ObjectOutput out,
-                      Serialiser serialiser)
+                                          Serialiser serialiser)
     throws IOException {
     for (int i = 0; i < m_longData.length; i++) {
       serialiser.writeLong(out, m_longData[i]);
@@ -380,7 +380,7 @@ class RawStatisticsImplementation implements RawStatistics {
       ensureDoubleDataAllocated();
 
       for (int i = 0; i < m_doubleData.length; i++) {
-    m_doubleData[i] = serialiser.readDouble(in);
+        m_doubleData[i] = serialiser.readDouble(in);
       }
     }
   }
@@ -388,7 +388,7 @@ class RawStatisticsImplementation implements RawStatistics {
   private final synchronized void ensureDoubleDataAllocated() {
     if (m_doubleData.length == 0) {
       m_doubleData = new double[StatisticsIndexMap.getInstance().
-                getNumberOfDoubleIndicies()];
+                                getNumberOfDoubleIndicies()];
     }
   }
 }

@@ -85,7 +85,7 @@ public class Sleeper {
       final Sleeper sleeper = (Sleeper)reference.get();
 
       if (sleeper != null) {
-    sleeper.shutdown();
+        sleeper.shutdown();
       }
     }
 
@@ -130,10 +130,10 @@ public class Sleeper {
 
     if (meanTime > 0) {
       if (sigma > 0) {
-    doSleep(meanTime + (long)(s_random.nextGaussian() * sigma));
+        doSleep(meanTime + (long)(s_random.nextGaussian() * sigma));
       }
       else {
-    doSleep(meanTime);
+        doSleep(meanTime);
       }
     }
   }
@@ -160,25 +160,25 @@ public class Sleeper {
       time = (long)(time * m_factor);
 
       if (m_logger != null) {
-    m_logger.output("sleeping for " + time + " ms");
+        m_logger.output("sleeping for " + time + " ms");
       }
 
       long currentTime = System.currentTimeMillis();
       final long wakeUpTime = currentTime + time;
 
       while (currentTime < wakeUpTime) {
-    try {
-      synchronized (this) {
-        checkShutdown();
-        wait(wakeUpTime - currentTime);
-      }
-      break;
-    }
-    catch (InterruptedException e) {
-      checkShutdown();
+        try {
+          synchronized (this) {
+            checkShutdown();
+            wait(wakeUpTime - currentTime);
+          }
+          break;
+        }
+        catch (InterruptedException e) {
+          checkShutdown();
 
-      currentTime = System.currentTimeMillis();
-    }
+          currentTime = System.currentTimeMillis();
+        }
       }
     }
   }

@@ -55,7 +55,7 @@ public interface ModelListener extends EventListener {
    * @param cumulativeStatisticsView a <code>StatisticsView</code> value
    */
   void newStatisticsViews(StatisticsView intervalStatisticsView,
-              StatisticsView cumulativeStatisticsView);
+                          StatisticsView cumulativeStatisticsView);
 
   /**
    * Called when existing tests and statistics views should be

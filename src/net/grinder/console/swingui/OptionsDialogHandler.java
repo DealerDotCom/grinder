@@ -74,7 +74,7 @@ abstract class OptionsDialogHandler {
    * @param resources Resources object to use for strings and things.
    **/
   public OptionsDialogHandler(JFrame frame, ConsoleProperties properties,
-                  final Resources resources) {
+                              final Resources resources) {
     m_frame = frame;
     m_properties = new ConsoleProperties(properties);
 
@@ -133,16 +133,16 @@ abstract class OptionsDialogHandler {
     final JTabbedPane tabbedPane = new JTabbedPane();
 
     tabbedPane.addTab(resources.getString("options.communicationTab.title"),
-              null, communicationTab,
-              resources.getString("options.communicationTab.tip"));
+                      null, communicationTab,
+                      resources.getString("options.communicationTab.tip"));
 
     tabbedPane.addTab(resources.getString("options.samplingTab.title"),
-              null, samplingControlTab,
-              resources.getString("options.samplingTab.tip"));
+                      null, samplingControlTab,
+                      resources.getString("options.samplingTab.tip"));
 
     tabbedPane.addTab(resources.getString("options.miscellaneousTab.title"),
-              null, miscellaneousTab,
-              resources.getString("options.miscellaneousTab.tip"));
+                      null, miscellaneousTab,
+                      resources.getString("options.miscellaneousTab.tip"));
 
 
     final Object[] options = {
@@ -159,53 +159,53 @@ abstract class OptionsDialogHandler {
 
     m_dialog =
       new JOptionPaneDialog(m_frame, m_optionPane,
-                resources.getString("options.label"), true) {
+                            resources.getString("options.label"), true) {
 
-    protected boolean shouldClose() {
-      final Object value = m_optionPane.getValue();
+        protected boolean shouldClose() {
+          final Object value = m_optionPane.getValue();
 
-      if (value == options[1]) {
-        return true;
-      }
-      else {
-        try {
-          m_properties.setConsoleAddress(m_consoleAddress.getText());
-          m_properties.setConsolePort(m_consolePort.getValue());
-          m_properties.setGrinderAddress(m_grinderAddress.getText());
-          m_properties.setGrinderPort(m_grinderPort.getValue());
-          m_properties.setSignificantFigures(m_sfSlider.getValue());
-          m_properties.setResetConsoleWithProcesses(
-        m_resetConsoleWithProcessesCheckBox.isSelected());
-        }
-        catch (ConsoleException e) {
-          JOptionPane.showMessageDialog(
-        m_dialog, e.getMessage(), resources.getString("error.title"),
-        JOptionPane.ERROR_MESSAGE);
-          return false;
-        }
-
-        if (value == options[2]) {
-          try {
-        m_properties.save();
+          if (value == options[1]) {
+            return true;
           }
-          catch (GrinderException e) {
-        final Throwable nested = e.getNestedThrowable();
+          else {
+            try {
+              m_properties.setConsoleAddress(m_consoleAddress.getText());
+              m_properties.setConsolePort(m_consolePort.getValue());
+              m_properties.setGrinderAddress(m_grinderAddress.getText());
+              m_properties.setGrinderPort(m_grinderPort.getValue());
+              m_properties.setSignificantFigures(m_sfSlider.getValue());
+              m_properties.setResetConsoleWithProcesses(
+                m_resetConsoleWithProcessesCheckBox.isSelected());
+            }
+            catch (ConsoleException e) {
+              JOptionPane.showMessageDialog(
+                m_dialog, e.getMessage(), resources.getString("error.title"),
+                JOptionPane.ERROR_MESSAGE);
+              return false;
+            }
 
-        JOptionPane.showMessageDialog(
-          m_dialog, (nested != null ? nested : e).getMessage(),
-          resources.getString("fileError.title"),
-          JOptionPane.ERROR_MESSAGE);
+            if (value == options[2]) {
+              try {
+                m_properties.save();
+              }
+              catch (GrinderException e) {
+                final Throwable nested = e.getNestedThrowable();
 
-        return false;
+                JOptionPane.showMessageDialog(
+                  m_dialog, (nested != null ? nested : e).getMessage(),
+                  resources.getString("fileError.title"),
+                  JOptionPane.ERROR_MESSAGE);
+
+                return false;
+              }
+            }
+
+            // Success.
+            setNewOptions(m_properties);
+
+            return true;
           }
         }
-
-        // Success.
-        setNewOptions(m_properties);
-
-        return true;
-      }
-    }
       };
 
     // Increase the width a bit so that all the tabs fit on a single

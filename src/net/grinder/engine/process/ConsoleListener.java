@@ -86,7 +86,7 @@ final class ConsoleListener {
    * @exception CommunicationException If a multicast error occurs.
    **/
   public ConsoleListener(GrinderProperties properties,
-             Monitor notifyOnMessage, Logger logger)
+                         Monitor notifyOnMessage, Logger logger)
     throws CommunicationException {
     m_notifyOnMessage = notifyOnMessage;
     m_logger = logger;
@@ -94,11 +94,11 @@ final class ConsoleListener {
     // Parse console configuration.
     final String grinderAddress =
       properties.getProperty("grinder.grinderAddress",
-                 CommunicationDefaults.GRINDER_ADDRESS);
+                             CommunicationDefaults.GRINDER_ADDRESS);
 
     final int grinderPort =
       properties.getInt("grinder.grinderPort",
-            CommunicationDefaults.GRINDER_PORT);
+                        CommunicationDefaults.GRINDER_PORT);
 
     final ReceiverThread receiverThread =
       new ReceiverThread(grinderAddress, grinderPort);
@@ -155,42 +155,42 @@ final class ConsoleListener {
      **/
     public final void run() {
       while (true) {
-    final Message message;
+        final Message message;
 
-    try {
-      message = m_receiver.waitForMessage();
-    }
-    catch (CommunicationException e) {
-      m_logger.error("error receiving console signal: " + e,
-             Logger.LOG | Logger.TERMINAL);
-      continue;
-    }
+        try {
+          message = m_receiver.waitForMessage();
+        }
+        catch (CommunicationException e) {
+          m_logger.error("error receiving console signal: " + e,
+                         Logger.LOG | Logger.TERMINAL);
+          continue;
+        }
 
-    if (message instanceof StartGrinderMessage) {
-      m_logger.output("got a start message from console");
-      setReceived(START);
-    }
-    else if (message instanceof StopGrinderMessage) {
-      m_logger.output("got a stop message from console");
-      setReceived(STOP);
-    }
-    else if (message instanceof ResetGrinderMessage) {
-      m_logger.output("got a reset message from console");
-      setReceived(RESET);
-    }
-    else {
-      m_logger.output("got an unknown message from console");
-    }
+        if (message instanceof StartGrinderMessage) {
+          m_logger.output("got a start message from console");
+          setReceived(START);
+        }
+        else if (message instanceof StopGrinderMessage) {
+          m_logger.output("got a stop message from console");
+          setReceived(STOP);
+        }
+        else if (message instanceof ResetGrinderMessage) {
+          m_logger.output("got a reset message from console");
+          setReceived(RESET);
+        }
+        else {
+          m_logger.output("got an unknown message from console");
+        }
       }
     }
 
     private final void setReceived(int message) {
       synchronized (ConsoleListener.this) {
-    m_messagesReceived |= message;
+        m_messagesReceived |= message;
       }
 
       synchronized (m_notifyOnMessage) {
-    m_notifyOnMessage.notifyAll();
+        m_notifyOnMessage.notifyAll();
       }
     }
   }

@@ -181,7 +181,7 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
       m_user = user;
       m_password = password;
       m_hashCode =
-    realm.hashCode() ^ m_user.hashCode() ^ m_password.hashCode();
+        realm.hashCode() ^ m_user.hashCode() ^ m_password.hashCode();
     }
 
     public final String getRealm() {
@@ -202,15 +202,15 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection {
 
     public final boolean equals(Object o) {
       if (!(o instanceof AuthorizationDetails)) {
-    return false;
+        return false;
       }
 
       final AuthorizationDetails other = (AuthorizationDetails)o;
 
       return hashCode() == other.hashCode() &&
-    getUser().equals(other.getUser()) &&
-    getPassword().equals(other.getPassword()) &&
-    getRealm().equals(other.getRealm());
+        getUser().equals(other.getUser()) &&
+        getPassword().equals(other.getPassword()) &&
+        getRealm().equals(other.getRealm());
     }
   }
 

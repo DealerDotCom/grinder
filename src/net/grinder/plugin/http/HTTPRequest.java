@@ -288,13 +288,13 @@ public class HTTPRequest {
    * @exception Exception If an error occurs.
    */
   public final HTTPResponse GET(final String uri,
-                final NVPair[] queryData,
-                final NVPair[] headers) throws Exception {
+                                final NVPair[] queryData,
+                                final NVPair[] headers) throws Exception {
     final RequestState requestState = new RequestState(uri);
 
     return requestState.processResponse(
       requestState.getConnection().Get(
-    requestState.getPath(), queryData, headers));
+        requestState.getPath(), queryData, headers));
   }
 
   /**
@@ -365,13 +365,13 @@ public class HTTPRequest {
    * @exception Exception If an error occurs.
    */
   public final HTTPResponse HEAD(final String uri,
-                 final NVPair[] queryData,
-                 final NVPair[] headers) throws Exception {
+                                 final NVPair[] queryData,
+                                 final NVPair[] headers) throws Exception {
     final RequestState requestState = new RequestState(uri);
 
     return requestState.processResponse(
       requestState.getConnection().Head(
-    requestState.getPath(), queryData, headers));
+        requestState.getPath(), queryData, headers));
   }
 
   /**
@@ -447,13 +447,13 @@ public class HTTPRequest {
    * @exception Exception If an error occurs.
    */
   public final HTTPResponse OPTIONS(final String uri,
-                    final NVPair[] headers,
-                    final byte[] data) throws Exception {
+                                    final NVPair[] headers,
+                                    final byte[] data) throws Exception {
     final RequestState requestState = new RequestState(uri);
 
     return requestState.processResponse(
       requestState.getConnection().Options(
-    requestState.getPath(), headers, data));
+        requestState.getPath(), headers, data));
   }
 
   /**
@@ -534,13 +534,13 @@ public class HTTPRequest {
    * @exception Exception If an error occurs.
    */
   public final HTTPResponse POST(final String uri,
-                 final NVPair[] formData,
-                 final NVPair[] headers) throws Exception {
+                                 final NVPair[] formData,
+                                 final NVPair[] headers) throws Exception {
     final RequestState requestState = new RequestState(uri);
 
     return requestState.processResponse(
       requestState.getConnection().Post(
-    requestState.getPath(), formData, headers));
+        requestState.getPath(), formData, headers));
   }
 
   /**
@@ -574,13 +574,13 @@ public class HTTPRequest {
    * @exception Exception If an error occurs.
    */
   public final HTTPResponse POST(final String uri,
-                 final byte[] data,
-                 final NVPair[] headers) throws Exception {
+                                 final byte[] data,
+                                 final NVPair[] headers) throws Exception {
     final RequestState requestState = new RequestState(uri);
 
     return requestState.processResponse(
       requestState.getConnection().Post(
-    requestState.getPath(), data, headers));
+        requestState.getPath(), data, headers));
   }
 
   /**
@@ -655,8 +655,8 @@ public class HTTPRequest {
    * @exception Exception If an error occurs.
    */
   public final HTTPResponse PUT(final String uri,
-                final byte[] data,
-                final NVPair[] headers) throws Exception {
+                                final byte[] data,
+                                final NVPair[] headers) throws Exception {
     final RequestState requestState = new RequestState(uri);
 
     return requestState.processResponse(
@@ -716,27 +716,27 @@ public class HTTPRequest {
       throws GrinderException, ParseException, ProtocolNotSuppException {
 
       m_threadState =
-    (HTTPPluginThreadState)
-    s_pluginProcessContext.getPluginThreadListener();
+        (HTTPPluginThreadState)
+        s_pluginProcessContext.getPluginThreadListener();
 
       final URI url;
 
       if (uri == null) {
-    if (m_defaultURL == null) {
-      throw new URLException("URL not specified");
-    }
+        if (m_defaultURL == null) {
+          throw new URLException("URL not specified");
+        }
 
-    url = m_defaultURL;
+        url = m_defaultURL;
       }
       else if (isAbsolute(uri)) {
-    url = new URI(uri);
+        url = new URI(uri);
       }
       else {
-    if (m_defaultURL == null) {
-      throw new URLException("URL must be absolute");
-    }
+        if (m_defaultURL == null) {
+          throw new URLException("URL must be absolute");
+        }
 
-    url = new URI(m_defaultURL, uri);
+        url = new URI(m_defaultURL, uri);
       }
 
       m_path = url.getPathAndQuery(); // And for fragment, paramaters?
@@ -764,8 +764,8 @@ public class HTTPRequest {
       final int statusCode = httpResponse.getStatusCode();
 
       final String message =
-    httpResponse.getOriginalURI() + " -> " + statusCode + " " +
-    httpResponse.getReasonLine();
+        httpResponse.getOriginalURI() + " -> " + statusCode + " " +
+        httpResponse.getReasonLine();
 
       final Logger logger = m_threadState.getThreadContext().getLogger();
 
@@ -773,35 +773,35 @@ public class HTTPRequest {
       case HttpURLConnection.HTTP_MOVED_PERM:
       case HttpURLConnection.HTTP_MOVED_TEMP:
       case 307:
-    // It would be possible to perform the check
-    // automatically, but for now just chuck out some
-    // information.
-    logger.output(message +
-              " [Redirect, ensure the next URL is " +
-              httpResponse.getHeader("Location") + "]");
-    break;
+        // It would be possible to perform the check
+        // automatically, but for now just chuck out some
+        // information.
+        logger.output(message +
+                      " [Redirect, ensure the next URL is " +
+                      httpResponse.getHeader("Location") + "]");
+        break;
 
       default:
-    logger.output(message);
-    break;
+        logger.output(message);
+        break;
       }
 
       try {
-    final Statistics statistics =
-      s_pluginProcessContext.getScriptContext().getStatistics();
+        final Statistics statistics =
+          s_pluginProcessContext.getScriptContext().getStatistics();
 
-    if (statistics.availableForUpdate()) {
-      //Log the response code if we have a statistics context. If
-      //many HTTPRequests are wrapped in the same test, the last
-      //one wins.
-      statistics.setValue(s_responseStatusIndex, statusCode);
-    }
+        if (statistics.availableForUpdate()) {
+          //Log the response code if we have a statistics context. If
+          //many HTTPRequests are wrapped in the same test, the last
+          //one wins.
+          statistics.setValue(s_responseStatusIndex, statusCode);
+        }
       }
       catch (InvalidContextException e) {
-    throw new PluginException("Failed to set status code statistic", e);
+        throw new PluginException("Failed to set status code statistic", e);
       }
       catch (StatisticsAlreadyReportedException e) {
-    throw new PluginException("Failed to set status code statistic", e);
+        throw new PluginException("Failed to set status code statistic", e);
       }
 
       return httpResponse;
@@ -815,10 +815,10 @@ public class HTTPRequest {
     int len = uri.length();
 
     while (pos < len &&
-       (ch = uri.charAt(pos)) != ':' &&
-       ch != '/' &&
-       ch != '?' &&
-       ch != '#') {
+           (ch = uri.charAt(pos)) != ':' &&
+           ch != '/' &&
+           ch != '?' &&
+           ch != '#') {
       pos++;
     }
 

@@ -75,7 +75,7 @@ class ProcessStatusTableModel
   }
 
   public final void update(ProcessStatus[] data, int runningSum,
-               int totalSum) {
+                           int totalSum) {
     m_data = data;
     m_totalDataString = formatThreadCounts(runningSum, totalSum);
 
@@ -114,48 +114,48 @@ class ProcessStatusTableModel
 
       switch (column) {
       case ID_COLUMN_INDEX:
-    return processStatus.getName();
+        return processStatus.getName();
 
       case STATE_COLUMN_INDEX:
-    switch (processStatus.getState()) {
-    case ProcessStatus.STATE_STARTED:
-      return m_stateStartedString;
+        switch (processStatus.getState()) {
+        case ProcessStatus.STATE_STARTED:
+          return m_stateStartedString;
 
-    case ProcessStatus.STATE_RUNNING:
-      return m_stateRunningString;
+        case ProcessStatus.STATE_RUNNING:
+          return m_stateRunningString;
 
-    case ProcessStatus.STATE_FINISHED:
-      return m_stateFinishedString;
+        case ProcessStatus.STATE_FINISHED:
+          return m_stateFinishedString;
 
-    default:
-      return "UNKNOWN STATE";
-    }
+        default:
+          return "UNKNOWN STATE";
+        }
 
       case THREADS_COLUMN_INDEX:
-    if (processStatus.getState() != ProcessStatus.STATE_FINISHED) {
-      return
-        formatThreadCounts(
-          processStatus.getNumberOfRunningThreads(),
-          processStatus.getTotalNumberOfThreads());
-    }
-    else {
-      return "";
-    }
+        if (processStatus.getState() != ProcessStatus.STATE_FINISHED) {
+          return
+            formatThreadCounts(
+              processStatus.getNumberOfRunningThreads(),
+              processStatus.getTotalNumberOfThreads());
+        }
+        else {
+          return "";
+        }
 
       default:
-    return "?";
+        return "?";
       }
     }
     else {
       switch (column) {
       case ID_COLUMN_INDEX:
-    return m_totalString;
+        return m_totalString;
 
       case THREADS_COLUMN_INDEX:
-    return m_totalDataString;
+        return m_totalDataString;
 
       default:
-    return "";
+        return "";
       }
     }
   }

@@ -55,18 +55,18 @@ public class StatisticsTable {
 
   private final FixedWidthFormatter m_headingFormatter =
     new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                FixedWidthFormatter.FLOW_WORD_WRAP,
-                COLUMN_WIDTH);
+                            FixedWidthFormatter.FLOW_WORD_WRAP,
+                            COLUMN_WIDTH);
 
   private final FixedWidthFormatter m_rowLabelFormatter =
     new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                FixedWidthFormatter.FLOW_TRUNCATE,
-                COLUMN_WIDTH);
+                            FixedWidthFormatter.FLOW_TRUNCATE,
+                            COLUMN_WIDTH);
 
   private final FixedWidthFormatter m_rowCellFormatter =
     new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
-                FixedWidthFormatter.FLOW_TRUNCATE,
-                COLUMN_WIDTH);
+                            FixedWidthFormatter.FLOW_TRUNCATE,
+                            COLUMN_WIDTH);
 
   /**
    * @supplierCardinality 1
@@ -80,7 +80,7 @@ public class StatisticsTable {
    * @param testStatisticsMap Tests and associated statistics.
    */
   public StatisticsTable(StatisticsView statisticsView,
-             TestStatisticsMap testStatisticsMap) {
+                         TestStatisticsMap testStatisticsMap) {
     m_statisticsView = statisticsView;
     m_testStatisticsMap = testStatisticsMap;
   }
@@ -114,7 +114,7 @@ public class StatisticsTable {
 
     for (int i = 0; i < numberOfHeaderColumns; i++) {
       cells[i] = new StringBuffer(
-    i == 0 ? "" : expressionViews[i - 1].getDisplayName());
+        i == 0 ? "" : expressionViews[i - 1].getDisplayName());
 
       remainders[i] = new StringBuffer();
     }
@@ -125,15 +125,15 @@ public class StatisticsTable {
       wrapped = false;
 
       for (int i = 0; i < numberOfHeaderColumns; ++i) {
-    remainders[i].setLength(0);
-    m_headingFormatter.transform(cells[i], remainders[i]);
+        remainders[i].setLength(0);
+        m_headingFormatter.transform(cells[i], remainders[i]);
 
-    out.print(cells[i].toString());
-    out.print(COLUMN_SEPARATOR);
+        out.print(cells[i].toString());
+        out.print(COLUMN_SEPARATOR);
 
-    if (remainders[i].length() > 0) {
-      wrapped = true;
-    }
+        if (remainders[i].length() > 0) {
+          wrapped = true;
+        }
       }
 
       out.println();
@@ -152,25 +152,25 @@ public class StatisticsTable {
     synchronized (m_testStatisticsMap) {
 
       final TestStatisticsMap.Iterator iterator =
-    m_testStatisticsMap.new Iterator();
+        m_testStatisticsMap.new Iterator();
 
       while (iterator.hasNext()) {
-    final TestStatisticsMap.Pair pair = iterator.next();
+        final TestStatisticsMap.Pair pair = iterator.next();
 
-    final Test test = pair.getTest();
-    totals.add(pair.getStatistics());
+        final Test test = pair.getTest();
+        totals.add(pair.getStatistics());
 
-    StringBuffer output = formatLine("Test " + test.getNumber(),
-                     pair.getStatistics(),
-                     expressionViews);
+        StringBuffer output = formatLine("Test " + test.getNumber(),
+                                         pair.getStatistics(),
+                                         expressionViews);
 
-    final String testDescription = test.getDescription();
+        final String testDescription = test.getDescription();
 
-    if (testDescription != null) {
-      output.append(" \"" + testDescription + "\"");
-    }
+        if (testDescription != null) {
+          output.append(" \"" + testDescription + "\"");
+        }
 
-    out.println(output.toString());
+        out.println(output.toString());
       }
 
       out.println();
@@ -179,8 +179,8 @@ public class StatisticsTable {
   }
 
   private StringBuffer formatLine(String rowLabel,
-                  RawStatistics rawStatistics,
-                  ExpressionView[] expressionViews)
+                                  RawStatistics rawStatistics,
+                                  ExpressionView[] expressionViews)
     throws GrinderException {
     final StringBuffer result = new StringBuffer();
 
@@ -194,16 +194,16 @@ public class StatisticsTable {
     for (int i = 0; i < expressionViews.length; ++i) {
 
       final StatisticExpression expression =
-    expressionViews[i].getExpression();
+        expressionViews[i].getExpression();
 
       final String text;
 
       if (expression.isDouble()) {
-    text = m_twoDPFormat.format(expression.getDoubleValue(
-                      rawStatistics));
+        text = m_twoDPFormat.format(expression.getDoubleValue(
+                                      rawStatistics));
       }
       else {
-    text = String.valueOf(expression.getLongValue(rawStatistics));
+        text = String.valueOf(expression.getLongValue(rawStatistics));
       }
 
       cell.replace(0, cell.length(), text);

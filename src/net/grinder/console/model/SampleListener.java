@@ -41,5 +41,5 @@ public interface SampleListener extends EventListener {
    * @param cumulativeStatistics Statistics since last reset.
    */
   void update(TestStatistics intervalStatistics,
-          TestStatistics cumulativeStatistics);
+              TestStatistics cumulativeStatistics);
 }

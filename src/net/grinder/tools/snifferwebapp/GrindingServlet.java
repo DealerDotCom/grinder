@@ -78,20 +78,20 @@ public class GrindingServlet extends HttpServlet {
   private static final String SECURE_TAG = "IsSecure";
 
   public void doGet(HttpServletRequest request,
-            HttpServletResponse response)
+                    HttpServletResponse response)
     throws IOException {
     processRequest(request, response);
   }
 
   public void doPost(HttpServletRequest request,
-             HttpServletResponse response)
+                     HttpServletResponse response)
     throws IOException {
     processRequest(request, response);
   }
 
 
   private void processRequest(HttpServletRequest request,
-                  HttpServletResponse response)
+                              HttpServletResponse response)
     throws IOException {
 
     response.setContentType("text/html");
@@ -105,9 +105,9 @@ public class GrindingServlet extends HttpServlet {
       // running the proxy.
       session = request.getSession(true);
       session.setAttribute(
-    ERROR_TAG, "You need to have run the Proxy before running " +
-    "the Grinder. Go to <a href=\"/index.jsp\">the start page</a> " +
-    " to run the Proxy.");
+        ERROR_TAG, "You need to have run the Proxy before running " +
+        "the Grinder. Go to <a href=\"/index.jsp\">the start page</a> " +
+        " to run the Proxy.");
       rd = ctx.getRequestDispatcher(ERROR_JSP);
     }
     else {
@@ -120,160 +120,160 @@ public class GrindingServlet extends HttpServlet {
 
       if (pValue != null && pValue.equals(START_TAG)) {
 
-    rd = ctx.getRequestDispatcher(WAIT_JSP);
+        rd = ctx.getRequestDispatcher(WAIT_JSP);
 
-    // basic default values - make them good and low so
-    // some bozo who clicks "OK" without setting the
-    // numbers doesn't shag the system
-    int p = 1;
-    int t = 1;
-    int c = 1;
+        // basic default values - make them good and low so
+        // some bozo who clicks "OK" without setting the
+        // numbers doesn't shag the system
+        int p = 1;
+        int t = 1;
+        int c = 1;
 
-    try {
-      p = Integer.parseInt(request.getParameter("procs"));
-      p = p > MAX_PROCS ? MAX_PROCS : p;
-    }
-    catch (NumberFormatException e) {
-      // ignore the error and stick with the default
-    }
+        try {
+          p = Integer.parseInt(request.getParameter("procs"));
+          p = p > MAX_PROCS ? MAX_PROCS : p;
+        }
+        catch (NumberFormatException e) {
+          // ignore the error and stick with the default
+        }
 
-    try {
-      t = Integer.parseInt(request.getParameter("threads"));
-      t = t > MAX_THREADS ? MAX_THREADS : t;
-    }
-    catch (NumberFormatException e) {
-      // ignore the error and stick with the default
-    }
+        try {
+          t = Integer.parseInt(request.getParameter("threads"));
+          t = t > MAX_THREADS ? MAX_THREADS : t;
+        }
+        catch (NumberFormatException e) {
+          // ignore the error and stick with the default
+        }
 
-    try {
-      c = Integer.parseInt(request.getParameter("cycles"));
-      c = c > MAX_CYCLES ? MAX_CYCLES : c;
-    }
-    catch (NumberFormatException e) {
-      // ignore the error and stick with the default
-    }
+        try {
+          c = Integer.parseInt(request.getParameter("cycles"));
+          c = c > MAX_CYCLES ? MAX_CYCLES : c;
+        }
+        catch (NumberFormatException e) {
+          // ignore the error and stick with the default
+        }
 
-    try {
-      String dirname = (String)session.getAttribute(OUTPUT_TAG);
-      File workdir = new File(dirname);
+        try {
+          String dirname = (String)session.getAttribute(OUTPUT_TAG);
+          File workdir = new File(dirname);
 
-      // create the logs directory
-      (new File(dirname + File.separator + LOG_DIR)).mkdir();
+          // create the logs directory
+          (new File(dirname + File.separator + LOG_DIR)).mkdir();
 
-      // create the grinder.properties file
-      FileInputStream gpin = new FileInputStream(GPROPS);
-      FileOutputStream gpout = new FileOutputStream(
-        dirname + File.separator + GPROPS);
+          // create the grinder.properties file
+          FileInputStream gpin = new FileInputStream(GPROPS);
+          FileOutputStream gpout = new FileOutputStream(
+            dirname + File.separator + GPROPS);
 
-      copyBytes(gpin, gpout);
-      gpin.close();
+          copyBytes(gpin, gpout);
+          gpin.close();
 
-      InitialContext ictx = new InitialContext();
+          InitialContext ictx = new InitialContext();
 
-      Boolean isSecure = (Boolean)session.getAttribute(SECURE_TAG);
-      if (isSecure.booleanValue()) {
-        gpout.write(
-          ("grinder.plugin=" +
-           "net.grinder.plugin.http.HttpsPlugin" +
-           "\n").getBytes());
+          Boolean isSecure = (Boolean)session.getAttribute(SECURE_TAG);
+          if (isSecure.booleanValue()) {
+            gpout.write(
+              ("grinder.plugin=" +
+               "net.grinder.plugin.http.HttpsPlugin" +
+               "\n").getBytes());
 
-        // cert name and password are in the web.xml
-        String certificate = (String)ictx.lookup(CERTIFICATE);
-        String password = (String)ictx.lookup(PASSWORD);
+            // cert name and password are in the web.xml
+            String certificate = (String)ictx.lookup(CERTIFICATE);
+            String password = (String)ictx.lookup(PASSWORD);
 
 
-        gpout.write(
-          ("grinder.plugin.parameter.clientCert=" +
-           certificate + "\n").getBytes());
-        gpout.write(
-          ("grinder.plugin.parameter.clientCertPassword=" +
-           password + "\n").getBytes());
-      }
-      else {
-        gpout.write(
-          ("grinder.plugin=" +
-           "net.grinder.plugin.http.HttpPlugin\n").getBytes());
-      }
+            gpout.write(
+              ("grinder.plugin.parameter.clientCert=" +
+               certificate + "\n").getBytes());
+            gpout.write(
+              ("grinder.plugin.parameter.clientCertPassword=" +
+               password + "\n").getBytes());
+          }
+          else {
+            gpout.write(
+              ("grinder.plugin=" +
+               "net.grinder.plugin.http.HttpPlugin\n").getBytes());
+          }
 
-      gpout.write(("grinder.processes=" + p + "\n").getBytes());
-      gpout.write(("grinder.threads=" + t + "\n").getBytes());
-      gpout.write(("grinder.cycles=" + c + "\n").getBytes());
+          gpout.write(("grinder.processes=" + p + "\n").getBytes());
+          gpout.write(("grinder.threads=" + t + "\n").getBytes());
+          gpout.write(("grinder.cycles=" + c + "\n").getBytes());
 
-      gpin = new FileInputStream(
-        dirname + File.separator + SNIFFOUT);
+          gpin = new FileInputStream(
+            dirname + File.separator + SNIFFOUT);
 
-      copyBytes(gpin, gpout);
-      gpin.close();
-      gpout.close();
+          copyBytes(gpin, gpout);
+          gpin.close();
+          gpout.close();
 
-      String classpath = (String)ictx.lookup(CLASSPATH);
-      String[] cmd = new String[JAVA_PROCESS.length + 1 +
-                    GRINDER_PROCESS.length];
-      int i = 0;
-      int n = JAVA_PROCESS.length;
-      System.arraycopy(JAVA_PROCESS, 0, cmd, i, n);
-      cmd[n] = classpath;
-      i = n + 1;
-      n = GRINDER_PROCESS.length;
-      System.arraycopy(GRINDER_PROCESS, 0, cmd, i, n);
+          String classpath = (String)ictx.lookup(CLASSPATH);
+          String[] cmd = new String[JAVA_PROCESS.length + 1 +
+                                    GRINDER_PROCESS.length];
+          int i = 0;
+          int n = JAVA_PROCESS.length;
+          System.arraycopy(JAVA_PROCESS, 0, cmd, i, n);
+          cmd[n] = classpath;
+          i = n + 1;
+          n = GRINDER_PROCESS.length;
+          System.arraycopy(GRINDER_PROCESS, 0, cmd, i, n);
 
-      for (int j = 0; j < cmd.length; ++j) {
-        System.out.print(cmd[j] + " ");
-      }
-      Process proc = Runtime.getRuntime().exec(cmd, null, workdir);
+          for (int j = 0; j < cmd.length; ++j) {
+            System.out.print(cmd[j] + " ");
+          }
+          Process proc = Runtime.getRuntime().exec(cmd, null, workdir);
 
-      /*
-        InputStream err = proc.getErrorStream();
-        copyBytes(err, System.out);
-      */
+          /*
+            InputStream err = proc.getErrorStream();
+            copyBytes(err, System.out);
+          */
 
-      session.setAttribute(PROCESS_TAG, proc);
+          session.setAttribute(PROCESS_TAG, proc);
 
-    }
-    catch (NamingException e) {
-      e.printStackTrace();
-      session.setAttribute(
-        ERROR_MSG_TAG, e.toString()
-        );
+        }
+        catch (NamingException e) {
+          e.printStackTrace();
+          session.setAttribute(
+            ERROR_MSG_TAG, e.toString()
+            );
 
-      session.setMaxInactiveInterval(TIMEOUT);
-      rd = ctx.getRequestDispatcher(ERROR_JSP);
+          session.setMaxInactiveInterval(TIMEOUT);
+          rd = ctx.getRequestDispatcher(ERROR_JSP);
 
-    }
-    catch (Throwable e) {
-      e.printStackTrace(response.getWriter());
-      throw new IOException(e.getMessage());
-    }
+        }
+        catch (Throwable e) {
+          e.printStackTrace(response.getWriter());
+          throw new IOException(e.getMessage());
+        }
 
       }
       else if (pValue != null && pValue.equals(CHECK_TAG)) {
-    // check whether the process is still valid
-    boolean finished = true;
-    try {
-      Process p = (Process)session.getAttribute(PROCESS_TAG);
-      int result = p.exitValue();
-    }
-    catch (IllegalThreadStateException e) {
-      // we're not done yet
-      finished = false;
-    }
+        // check whether the process is still valid
+        boolean finished = true;
+        try {
+          Process p = (Process)session.getAttribute(PROCESS_TAG);
+          int result = p.exitValue();
+        }
+        catch (IllegalThreadStateException e) {
+          // we're not done yet
+          finished = false;
+        }
 
-    // now we want to timeout
-    if (finished) {
-      session.setMaxInactiveInterval(TIMEOUT);
-      rd = ctx.getRequestDispatcher(RESULTS_JSP);
-    }
-    else {
-      rd = ctx.getRequestDispatcher(WAIT_JSP);
-    }
+        // now we want to timeout
+        if (finished) {
+          session.setMaxInactiveInterval(TIMEOUT);
+          rd = ctx.getRequestDispatcher(RESULTS_JSP);
+        }
+        else {
+          rd = ctx.getRequestDispatcher(WAIT_JSP);
+        }
       }
 
       try {
-    rd.forward(request, response);
+        rd.forward(request, response);
       }
       catch (ServletException e) {
-    e.printStackTrace(response.getWriter());
-    throw new IOException(e.getMessage());
+        e.printStackTrace(response.getWriter());
+        throw new IOException(e.getMessage());
       }
     }
   }

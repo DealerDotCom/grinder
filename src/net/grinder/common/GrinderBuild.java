@@ -40,11 +40,11 @@ public final class GrinderBuild {
   static {
     try {
       final InputStream buildPropertiesStream =
-    GrinderBuild.class.getClassLoader().getResourceAsStream(
-      "net/grinder/common/resources/build.properties");
+        GrinderBuild.class.getClassLoader().getResourceAsStream(
+          "net/grinder/common/resources/build.properties");
 
       if (buildPropertiesStream == null) {
-    throw new IOException("Could not find build.properties");
+        throw new IOException("Could not find build.properties");
       }
 
       final Properties properties = new Properties();

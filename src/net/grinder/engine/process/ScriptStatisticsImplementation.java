@@ -57,17 +57,17 @@ final class ScriptStatisticsImplementation implements Statistics {
     try {
       s_errorsIndex = indexMap.getIndexForLong("errors");
       s_timedTransactionsIndex =
-    indexMap.getIndexForLong("timedTransactions");
+        indexMap.getIndexForLong("timedTransactions");
       s_untimedTransactionsIndex =
-    indexMap.getIndexForLong("untimedTransactions");
+        indexMap.getIndexForLong("untimedTransactions");
       s_transactionTimeIndex =
-    indexMap.getIndexForLong("timedTransactionTime");
+        indexMap.getIndexForLong("timedTransactionTime");
     }
     catch (GrinderException e) {
       throw new ExceptionInInitializerError(
-    "Assertion failure, " +
-    "ScriptStatisticsImplementation could not initialise: " +
-    e.getMessage());
+        "Assertion failure, " +
+        "ScriptStatisticsImplementation could not initialise: " +
+        e.getMessage());
     }
   }
 
@@ -90,8 +90,8 @@ final class ScriptStatisticsImplementation implements Statistics {
   private int m_bufferAfterRunNumberIndex = -1;
 
   public ScriptStatisticsImplementation(ThreadContext threadContext,
-                    PrintWriter dataWriter,
-                    boolean recordTime) {
+                                        PrintWriter dataWriter,
+                                        boolean recordTime) {
     m_threadContext = threadContext;
     m_dataWriter = dataWriter;
     m_recordTime = recordTime;
@@ -120,18 +120,18 @@ final class ScriptStatisticsImplementation implements Statistics {
 
     if (threadContext == null) {
       throw new InvalidContextException(
-    "Statistics interface is only supported for worker threads.");
+        "Statistics interface is only supported for worker threads.");
     }
 
     if (threadContext != m_threadContext) {
       throw new InvalidContextException(
-    "Statistics objects must be used from the worker thread from" +
-    "which they are acquired.");
+        "Statistics objects must be used from the worker thread from" +
+        "which they are acquired.");
     }
 
     if (m_noTests) {
       throw new InvalidContextException(
-    "This worker thread has not yet perfomed any tests.");
+        "This worker thread has not yet perfomed any tests.");
     }
   }
 
@@ -140,9 +140,9 @@ final class ScriptStatisticsImplementation implements Statistics {
 
     if (m_currentTestData == null) {
       throw new StatisticsAlreadyReportedException(
-    "The statistics for the last test performed by this thread have " +
-    "already been reported. Perhaps you should have called " +
-    "setDelayReports(true)?");
+        "The statistics for the last test performed by this thread have " +
+        "already been reported. Perhaps you should have called " +
+        "setDelayReports(true)?");
     }
   }
 
@@ -165,7 +165,7 @@ final class ScriptStatisticsImplementation implements Statistics {
   }
 
   public final void setValue(StatisticsIndexMap.DoubleIndex index,
-                 double value)
+                             double value)
     throws InvalidContextException, StatisticsAlreadyReportedException {
 
     checkCallContext();
@@ -260,40 +260,40 @@ final class ScriptStatisticsImplementation implements Statistics {
 
     if (m_currentTestData != null) {
       if (m_dataWriter != null) {
-    final int runNumber = m_threadContext.getRunNumber();
+        final int runNumber = m_threadContext.getRunNumber();
 
-    if (runNumber == m_lastRunNumber) {
-      m_buffer.setLength(m_bufferAfterRunNumberIndex);
-    }
-    else {
-      m_lastRunNumber = runNumber;
+        if (runNumber == m_lastRunNumber) {
+          m_buffer.setLength(m_bufferAfterRunNumberIndex);
+        }
+        else {
+          m_lastRunNumber = runNumber;
 
-      m_buffer.setLength(m_bufferAfterThreadIDIndex);
-      m_buffer.append(runNumber);
-      m_buffer.append(", ");
-      m_bufferAfterRunNumberIndex = m_buffer.length();
-    }
+          m_buffer.setLength(m_bufferAfterThreadIDIndex);
+          m_buffer.append(runNumber);
+          m_buffer.append(", ");
+          m_bufferAfterRunNumberIndex = m_buffer.length();
+        }
 
-    m_buffer.append(m_currentTestData.getTest().getNumber());
+        m_buffer.append(m_currentTestData.getTest().getNumber());
 
-    m_buffer.append(", ");
-    m_buffer.append(m_currentTestStartTime);
+        m_buffer.append(", ");
+        m_buffer.append(m_currentTestStartTime);
 
-    for (int i = 0; i < m_detailExpressionViews.length; ++i) {
-      m_buffer.append(", ");
+        for (int i = 0; i < m_detailExpressionViews.length; ++i) {
+          m_buffer.append(", ");
 
-      final StatisticExpression expression =
-        m_detailExpressionViews[i].getExpression();
+          final StatisticExpression expression =
+            m_detailExpressionViews[i].getExpression();
 
-      if (expression.isDouble()) {
-        m_buffer.append(expression.getDoubleValue(m_testStatistics));
-      }
-      else {
-        m_buffer.append(expression.getLongValue(m_testStatistics));
-      }
-    }
+          if (expression.isDouble()) {
+            m_buffer.append(expression.getDoubleValue(m_testStatistics));
+          }
+          else {
+            m_buffer.append(expression.getLongValue(m_testStatistics));
+          }
+        }
 
-    m_dataWriter.println(m_buffer);
+        m_dataWriter.println(m_buffer);
       }
 
       m_currentTestData.getStatistics().add(m_testStatistics);

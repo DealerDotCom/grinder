@@ -134,30 +134,30 @@ public final class ConsoleProperties {
 
     setConsoleAddress(
       m_properties.getProperty(CONSOLE_ADDRESS_PROPERTY,
-                   CommunicationDefaults.CONSOLE_ADDRESS));
+                               CommunicationDefaults.CONSOLE_ADDRESS));
 
     setConsolePort(
       m_properties.getInt(CONSOLE_PORT_PROPERTY,
-              CommunicationDefaults.CONSOLE_PORT));
+                          CommunicationDefaults.CONSOLE_PORT));
 
     setGrinderAddress(
       m_properties.getProperty(GRINDER_ADDRESS_PROPERTY,
-                   CommunicationDefaults.GRINDER_ADDRESS));
+                               CommunicationDefaults.GRINDER_ADDRESS));
 
     setGrinderPort(
       m_properties.getInt(GRINDER_PORT_PROPERTY,
-              CommunicationDefaults.GRINDER_PORT));
+                          CommunicationDefaults.GRINDER_PORT));
 
     setResetConsoleWithProcesses(
       m_properties.getBoolean(RESET_CONSOLE_WITH_PROCESSES_PROPERTY, false));
 
     setResetConsoleWithProcessesDontAskInternal(
       m_properties.getBoolean(RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
-                  false));
+                              false));
 
     setScriptDistributionFiles(
       new ScriptDistributionFiles(SCRIPT_DISTRIBUTION_FILES_PROPERTY,
-                  m_properties));
+                                  m_properties));
   }
 
   /**
@@ -225,15 +225,15 @@ public final class ConsoleProperties {
     m_properties.setInt(SAMPLE_INTERVAL_PROPERTY, m_sampleInterval);
     m_properties.setInt(SIG_FIG_PROPERTY, m_significantFigures);
     m_properties.setProperty(CONSOLE_ADDRESS_PROPERTY,
-                 m_consoleAddressString);
+                             m_consoleAddressString);
     m_properties.setInt(CONSOLE_PORT_PROPERTY, m_consolePort);
     m_properties.setProperty(GRINDER_ADDRESS_PROPERTY,
-                 m_grinderAddressString);
+                             m_grinderAddressString);
     m_properties.setInt(GRINDER_PORT_PROPERTY, m_grinderPort);
     m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_PROPERTY,
-                m_resetConsoleWithProcesses);
+                            m_resetConsoleWithProcesses);
     m_properties.setBoolean(RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
-                m_resetConsoleWithProcessesDontAsk);
+                            m_resetConsoleWithProcessesDontAsk);
 
     m_scriptDistributionFiles.addToProperties(m_properties);
 
@@ -259,9 +259,9 @@ public final class ConsoleProperties {
     throws DisplayMessageConsoleException {
     if (n < 0) {
       throw new DisplayMessageConsoleException(
-    "collectNegativeError.text",
-    "You must collect at least one sample, " +
-    "zero means \"forever\"");
+        "collectNegativeError.text",
+        "You must collect at least one sample, " +
+        "zero means \"forever\"");
     }
 
     setCollectSampleCountInternal(n);
@@ -272,7 +272,7 @@ public final class ConsoleProperties {
       final int old = m_collectSampleCount;
       m_collectSampleCount = n;
       m_changeSupport.firePropertyChange(COLLECT_SAMPLES_PROPERTY,
-                     old, m_collectSampleCount);
+                                         old, m_collectSampleCount);
     }
   }
 
@@ -295,8 +295,8 @@ public final class ConsoleProperties {
     throws DisplayMessageConsoleException {
     if (n <= 0) {
       throw new DisplayMessageConsoleException(
-    "ignoreLessThanOneError.text",
-    "You must ignore at least the first sample");
+        "ignoreLessThanOneError.text",
+        "You must ignore at least the first sample");
     }
 
     setIgnoreSampleCountInternal(n);
@@ -307,7 +307,7 @@ public final class ConsoleProperties {
       final int old = m_ignoreSampleCount;
       m_ignoreSampleCount = n;
       m_changeSupport.firePropertyChange(IGNORE_SAMPLES_PROPERTY,
-                     old, m_ignoreSampleCount);
+                                         old, m_ignoreSampleCount);
     }
   }
 
@@ -330,8 +330,8 @@ public final class ConsoleProperties {
     throws DisplayMessageConsoleException {
     if (interval <= 0) {
       throw new DisplayMessageConsoleException(
-    "intervalLessThanOneError.text",
-    "Minimum sample interval is 1 ms");
+        "intervalLessThanOneError.text",
+        "Minimum sample interval is 1 ms");
     }
 
     setSampleIntervalInternal(interval);
@@ -342,7 +342,7 @@ public final class ConsoleProperties {
       final int old = m_sampleInterval;
       m_sampleInterval = interval;
       m_changeSupport.firePropertyChange(SAMPLE_INTERVAL_PROPERTY,
-                     old, m_sampleInterval);
+                                         old, m_sampleInterval);
     }
   }
 
@@ -365,8 +365,8 @@ public final class ConsoleProperties {
     throws DisplayMessageConsoleException {
     if (n <= 0) {
       throw new DisplayMessageConsoleException(
-    "significantFiguresNegativeError.text",
-    "Number of significant figures cannot be negative");
+        "significantFiguresNegativeError.text",
+        "Number of significant figures cannot be negative");
     }
 
     setSignificantFiguresInternal(n);
@@ -377,7 +377,7 @@ public final class ConsoleProperties {
       final int old = m_significantFigures;
       m_significantFigures = n;
       m_changeSupport.firePropertyChange(SIG_FIG_PROPERTY,
-                     old, m_significantFigures);
+                                         old, m_significantFigures);
     }
   }
 
@@ -408,17 +408,17 @@ public final class ConsoleProperties {
       final InetAddress newAddress;
 
       try {
-    newAddress = InetAddress.getByName(s);
+        newAddress = InetAddress.getByName(s);
       }
       catch (UnknownHostException e) {
-    throw new DisplayMessageConsoleException(
-      "unknownHostError.text", "Unknown hostname");
+        throw new DisplayMessageConsoleException(
+          "unknownHostError.text", "Unknown hostname");
       }
 
       if (newAddress.isMulticastAddress()) {
-    throw new DisplayMessageConsoleException(
-      "invalidConsoleAddressError.text",
-      "Invalid console address");
+        throw new DisplayMessageConsoleException(
+          "invalidConsoleAddressError.text",
+          "Invalid console address");
       }
     }
 
@@ -430,7 +430,7 @@ public final class ConsoleProperties {
       final String old = m_consoleAddressString;
       m_consoleAddressString = s;
       m_changeSupport.firePropertyChange(CONSOLE_ADDRESS_PROPERTY,
-                     old, m_consoleAddressString);
+                                         old, m_consoleAddressString);
     }
   }
 
@@ -460,7 +460,7 @@ public final class ConsoleProperties {
       final int old = m_consolePort;
       m_consolePort = i;
       m_changeSupport.firePropertyChange(CONSOLE_PORT_PROPERTY,
-                     old, m_consolePort);
+                                         old, m_consolePort);
     }
   }
 
@@ -489,13 +489,13 @@ public final class ConsoleProperties {
     }
     catch (UnknownHostException e) {
       throw new DisplayMessageConsoleException(
-    "unknownHostError.text", "Unknown hostname");
+        "unknownHostError.text", "Unknown hostname");
     }
 
     if (!newAddress.isMulticastAddress()) {
       throw new DisplayMessageConsoleException(
-    "invalidGrinderAddressError.text",
-    "Invalid multicast address");
+        "invalidGrinderAddressError.text",
+        "Invalid multicast address");
     }
 
     setGrinderAddressInternal(s);
@@ -506,7 +506,7 @@ public final class ConsoleProperties {
       final String old = m_grinderAddressString;
       m_grinderAddressString = s;
       m_changeSupport.firePropertyChange(GRINDER_ADDRESS_PROPERTY,
-                     old, m_grinderAddressString);
+                                         old, m_grinderAddressString);
     }
   }
 
@@ -536,7 +536,7 @@ public final class ConsoleProperties {
       final int old = m_grinderPort;
       m_grinderPort = port;
       m_changeSupport.firePropertyChange(GRINDER_PORT_PROPERTY,
-                     old, m_grinderPort);
+                                         old, m_grinderPort);
     }
   }
 
@@ -544,8 +544,8 @@ public final class ConsoleProperties {
     throws DisplayMessageConsoleException {
     if (port < 0 || port > CommunicationDefaults.MAX_PORT) {
       throw new DisplayMessageConsoleException(
-    "invalidPortNumberError.text",
-    "Port numbers should be in the range [0, 65535]");
+        "invalidPortNumberError.text",
+        "Port numbers should be in the range [0, 65535]");
     }
   }
 
@@ -574,7 +574,7 @@ public final class ConsoleProperties {
       m_resetConsoleWithProcesses = b;
 
       m_changeSupport.firePropertyChange(RESET_CONSOLE_WITH_PROCESSES_PROPERTY,
-                     old, m_resetConsoleWithProcesses);
+                                         old, m_resetConsoleWithProcesses);
     }
   }
 
@@ -600,7 +600,7 @@ public final class ConsoleProperties {
       setResetConsoleWithProcessesDontAskInternal(true);
 
       m_properties.saveSingleProperty(
-    RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY, "true");
+        RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY, "true");
     }
   }
 
@@ -611,8 +611,8 @@ public final class ConsoleProperties {
       m_resetConsoleWithProcessesDontAsk = b;
 
       m_changeSupport.firePropertyChange(
-    RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
-    old, m_resetConsoleWithProcessesDontAsk);
+        RESET_CONSOLE_WITH_PROCESSES_DONT_ASK_PROPERTY,
+        old, m_resetConsoleWithProcessesDontAsk);
     }
   }
 
@@ -638,7 +638,7 @@ public final class ConsoleProperties {
       m_scriptDistributionFiles = scriptDistributionFiles;
 
       m_changeSupport.firePropertyChange(
-    SCRIPT_DISTRIBUTION_FILES_PROPERTY, old, m_scriptDistributionFiles);
+        SCRIPT_DISTRIBUTION_FILES_PROPERTY, old, m_scriptDistributionFiles);
     }
   }
 }

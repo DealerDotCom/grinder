@@ -119,7 +119,7 @@ public final class TerminalColour {
    * reset colors with SGR-0; I've added the 39, 49 codes for those *
    * that are ISO compliant. (The black/white codes are for emulators
    * written by people who don't bother reading standards)."</p>
-  */
+   */
   public static final String NONE = controlString("0;40;37;39;49");
 
   private static String controlString(String body) {

@@ -72,8 +72,8 @@ final class LoggerImplementation {
   private static final /* synchronized */ String getDateString() {
 
     if (s_lastTick != s_currentTick) {
-    s_dateString = s_dateFormat.format(new Date());
-    s_lastTick = s_currentTick;
+      s_dateString = s_dateFormat.format(new Date());
+      s_lastTick = s_currentTick;
     }
 
     return s_dateString;
@@ -89,7 +89,7 @@ final class LoggerImplementation {
   private boolean m_errorOccurred = false;
 
   LoggerImplementation(String grinderID, String logDirectoryString,
-               boolean logProcessStreams, boolean appendLog)
+                       boolean logProcessStreams, boolean appendLog)
     throws EngineException {
     m_grinderID = grinderID;
     m_logProcessStreams = logProcessStreams;
@@ -105,7 +105,7 @@ final class LoggerImplementation {
 
     if (!logDirectory.canWrite()) {
       throw new EngineException("Cannot write to log directory '" +
-                logDirectory.getPath() + "'");
+                                logDirectory.getPath() + "'");
     }
 
     m_filenameFactory =
@@ -134,7 +134,7 @@ final class LoggerImplementation {
     // because we checked we can write to the log directory.
     if (file.exists() && !file.canWrite()) {
       throw new EngineException("Cannot write to '" + file.getPath() +
-                "'");
+                                "'");
     }
 
     return new BufferedWriter(
@@ -158,7 +158,7 @@ final class LoggerImplementation {
   }
 
   private final void outputInternal(ThreadState state, String message,
-                    int where) {
+                                    int where) {
     if (!m_logProcessStreams) {
       where &= ~Logger.LOG;
     }
@@ -167,19 +167,19 @@ final class LoggerImplementation {
       final int lineLength = state.formatMessage(message);
 
       if ((where & Logger.LOG) != 0) {
-    m_outputWriter.write(state.m_outputLine, 0, lineLength);
-    m_outputWriter.flush();
+        m_outputWriter.write(state.m_outputLine, 0, lineLength);
+        m_outputWriter.flush();
       }
 
       if ((where & Logger.TERMINAL) != 0) {
-    s_stdoutWriter.write(state.m_outputLine, 0, lineLength);
-    s_stdoutWriter.flush();
+        s_stdoutWriter.write(state.m_outputLine, 0, lineLength);
+        s_stdoutWriter.flush();
       }
     }
   }
 
   private final void errorInternal(ThreadState state, String message,
-                   int where) {
+                                   int where) {
     if (!m_logProcessStreams) {
       where &= ~Logger.LOG;
     }
@@ -188,32 +188,32 @@ final class LoggerImplementation {
       final int lineLength = state.formatMessage(message);
 
       if ((where & Logger.LOG) != 0) {
-    m_errorWriter.write(state.m_outputLine, 0, lineLength);
-    m_errorWriter.flush();
+        m_errorWriter.write(state.m_outputLine, 0, lineLength);
+        m_errorWriter.flush();
       }
 
       if ((where & Logger.TERMINAL) != 0) {
-    s_stderrWriter.write(state.m_outputLine, 0, lineLength);
-    s_stderrWriter.flush();
+        s_stderrWriter.write(state.m_outputLine, 0, lineLength);
+        s_stderrWriter.flush();
       }
 
       final int summaryLength = 20;
 
       final String summary =
-    message.length() > summaryLength ?
-    message.substring(0, summaryLength) + "..." : message;
+        message.length() > summaryLength ?
+        message.substring(0, summaryLength) + "..." : message;
 
       outputInternal(state,
-             "ERROR (\"" + summary +
-             "\"), see error log for details",
-             Logger.LOG);
+                     "ERROR (\"" + summary +
+                     "\"), see error log for details",
+                     Logger.LOG);
 
       if (!m_errorOccurred && (where | Logger.TERMINAL) != 0) {
-    m_processLogger.output(
-      "There were errors, see error log for details",
-      Logger.TERMINAL);
+        m_processLogger.output(
+          "There were errors, see error log for details",
+          Logger.TERMINAL);
 
-    m_errorOccurred = true;
+        m_errorOccurred = true;
       }
     }
   }
@@ -246,13 +246,13 @@ final class LoggerImplementation {
       m_buffer.setLength(0);
 
       if (m_threadID == -1) {
-    m_buffer.append(" (process ");
-    m_buffer.append(m_grinderID);
-    m_buffer.append("): ");
+        m_buffer.append(" (process ");
+        m_buffer.append(m_grinderID);
+        m_buffer.append("): ");
       }
       else {
-    m_buffer.append(" (thread ");
-    m_buffer.append(m_threadID);
+        m_buffer.append(" (thread ");
+        m_buffer.append(m_threadID);
       }
 
       m_processOrThreadIDCharacters = getBufferCharacters(0);
@@ -276,7 +276,7 @@ final class LoggerImplementation {
 
     public final void setCurrentRunNumber(int runNumber) {
       if (runNumber != m_currentRunNumber) {
-    m_currentRunNumberCharacters = null;
+        m_currentRunNumberCharacters = null;
       }
 
       m_currentRunNumber = runNumber;
@@ -322,28 +322,28 @@ final class LoggerImplementation {
       m_buffer.append(m_processOrThreadIDCharacters);
 
       if (m_threadID != -1) {
-    // We're a real thread, bolt on the rest of the context.
+        // We're a real thread, bolt on the rest of the context.
 
-    if (m_currentRunNumber >= 0) {
-      if (m_currentRunNumberCharacters == null) {
-        final int start = m_buffer.length();
-        m_buffer.append(" run ");
-        m_buffer.append(Integer.toString(m_currentRunNumber));
-        m_currentRunNumberCharacters = getBufferCharacters(start);
-      }
-      else {
-        m_buffer.append(m_currentRunNumberCharacters);
-      }
-    }
+        if (m_currentRunNumber >= 0) {
+          if (m_currentRunNumberCharacters == null) {
+            final int start = m_buffer.length();
+            m_buffer.append(" run ");
+            m_buffer.append(Integer.toString(m_currentRunNumber));
+            m_currentRunNumberCharacters = getBufferCharacters(start);
+          }
+          else {
+            m_buffer.append(m_currentRunNumberCharacters);
+          }
+        }
 
-    if (m_currentTestNumber >= 0) {
-      // We don't cache the test number part of the string because
-      // it is rarely used twice.
-      m_buffer.append(" test ");
-      m_buffer.append(Integer.toString(m_currentTestNumber));
-    }
+        if (m_currentTestNumber >= 0) {
+          // We don't cache the test number part of the string because
+          // it is rarely used twice.
+          m_buffer.append(" test ");
+          m_buffer.append(Integer.toString(m_currentTestNumber));
+        }
 
-    m_buffer.append("): ");
+        m_buffer.append("): ");
       }
 
       m_buffer.append(message);
@@ -355,12 +355,12 @@ final class LoggerImplementation {
       final int outputLineSpace = m_outputLine.length - s_lineSeparator.length;
 
       final int lineLength =
-    bufferLength > outputLineSpace ? outputLineSpace : bufferLength;
+        bufferLength > outputLineSpace ? outputLineSpace : bufferLength;
 
       m_buffer.getChars(0, lineLength, m_outputLine, 0);
 
       System.arraycopy(s_lineSeparator, 0, m_outputLine, lineLength,
-               s_lineSeparator.length);
+                       s_lineSeparator.length);
 
       return lineLength + s_lineSeparator.length;
     }

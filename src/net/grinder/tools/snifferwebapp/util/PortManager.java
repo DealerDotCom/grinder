@@ -58,8 +58,8 @@ public final class PortManager {
     // as free...
     for (int i = 0; i < size; ++i) {
       if (m_activePorts[i] == 0) {
-    m_activePorts[i] = i + m_lower;
-    return m_activePorts[i];
+        m_activePorts[i] = i + m_lower;
+        return m_activePorts[i];
       }
     }
 
@@ -69,13 +69,13 @@ public final class PortManager {
     // and we haven't been told.
     for (int i = 0; i < size; ++i) {
       try {
-    ServerSocket s = new ServerSocket(m_activePorts[i]);
-    System.out.println("Port " + m_activePorts[i] + " not in use.");
-    s.close();
-    return m_activePorts[i];
+        ServerSocket s = new ServerSocket(m_activePorts[i]);
+        System.out.println("Port " + m_activePorts[i] + " not in use.");
+        s.close();
+        return m_activePorts[i];
       }
       catch (IOException e) {
-    // port is in use
+        // port is in use
       }
     }
 

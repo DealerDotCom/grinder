@@ -55,7 +55,7 @@ public class NullFilter implements TCPProxyFilter {
    * <code>buffer</code.
    */
   public byte[] handle(ConnectionDetails connectionDetails, byte[] buffer,
-               int bytesRead) {
+                       int bytesRead) {
     return null;
   }
 

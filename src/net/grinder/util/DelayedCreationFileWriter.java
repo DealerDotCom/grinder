@@ -67,7 +67,7 @@ public class DelayedCreationFileWriter extends Writer {
   public void close() throws IOException {
     synchronized (this) {
       if (m_delegate == null) {
-    return;
+        return;
       }
     }
 
@@ -82,7 +82,7 @@ public class DelayedCreationFileWriter extends Writer {
   public void flush() throws IOException {
     synchronized (this) {
       if (m_delegate == null) {
-    return;
+        return;
       }
     }
 
@@ -92,10 +92,10 @@ public class DelayedCreationFileWriter extends Writer {
   private synchronized void checkOpen() throws IOException {
     if (m_delegate == null) {
       try {
-    m_delegate = new FileWriter(m_file.getPath(), m_append);
+        m_delegate = new FileWriter(m_file.getPath(), m_append);
       }
       catch (FileNotFoundException e) {
-    throw new IOException(e.getMessage());
+        throw new IOException(e.getMessage());
       }
     }
   }

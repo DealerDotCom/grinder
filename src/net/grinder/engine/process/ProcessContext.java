@@ -72,11 +72,11 @@ class ProcessContext {
 
     m_loggerImplementation =
       new LoggerImplementation(m_grinderID,
-                   properties.getProperty(
-                 "grinder.logDirectory", "."),
-                   properties.getBoolean(
-                 "grinder.logProcessStreams", true),
-                   appendLog);
+                               properties.getProperty(
+                                 "grinder.logDirectory", "."),
+                               properties.getBoolean(
+                                 "grinder.logProcessStreams", true),
+                               appendLog);
 
     m_processLogger = m_loggerImplementation.getProcessLogger();
 
@@ -86,23 +86,23 @@ class ProcessContext {
 
     if (properties.getBoolean("grinder.reportToConsole", true)) {
       final String consoleAddress =
-    properties.getProperty("grinder.consoleAddress",
-                   CommunicationDefaults.CONSOLE_ADDRESS);
+        properties.getProperty("grinder.consoleAddress",
+                               CommunicationDefaults.CONSOLE_ADDRESS);
 
       final int consolePort =
-    properties.getInt("grinder.consolePort",
-              CommunicationDefaults.CONSOLE_PORT);
+        properties.getInt("grinder.consolePort",
+                          CommunicationDefaults.CONSOLE_PORT);
 
       try {
-    consoleSender =
-      new UnicastSender(getGrinderID(), consoleAddress, consolePort);
+        consoleSender =
+          new UnicastSender(getGrinderID(), consoleAddress, consolePort);
       }
       catch (CommunicationException e) {
-    m_processLogger.output(
-      "Unable to report to console (" + e.getMessage() +
-      "); proceeding without the console. Set " +
-      "grinder.reportToConsole=false to disable this warning.",
-      Logger.LOG | Logger.TERMINAL);
+        m_processLogger.output(
+          "Unable to report to console (" + e.getMessage() +
+          "); proceeding without the console. Set " +
+          "grinder.reportToConsole=false to disable this warning.",
+          Logger.LOG | Logger.TERMINAL);
       }
     }
 
@@ -110,16 +110,16 @@ class ProcessContext {
       m_consoleSender = consoleSender;
 
       m_receiveConsoleSignals =
-    properties.getBoolean("grinder.receiveConsoleSignals", true);
+        properties.getBoolean("grinder.receiveConsoleSignals", true);
     }
     else {
       // Null Sender implementation.
       m_consoleSender = new Sender() {
-      public void send(Message message) { }
-      public void flush() { }
-      public void queue(Message message) { }
-      public void shutdown() { }
-    };
+          public void send(Message message) { }
+          public void flush() { }
+          public void queue(Message message) { }
+          public void shutdown() { }
+        };
 
       m_receiveConsoleSignals = false;
     }
@@ -135,15 +135,15 @@ class ProcessContext {
 
     if (m_shouldWriteTitleToDataWriter) {
       final PrintWriter dataWriter =
-    m_loggerImplementation.getDataWriter();
+        m_loggerImplementation.getDataWriter();
 
       dataWriter.print("Thread, Run, Test, Milliseconds since start");
 
       final ExpressionView[] detailExpressionViews =
-    CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
+        CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
 
       for (int i = 0; i < detailExpressionViews.length; ++i) {
-    dataWriter.print(", " + detailExpressionViews[i].getDisplayName());
+        dataWriter.print(", " + detailExpressionViews[i].getDisplayName());
       }
 
       dataWriter.println();
