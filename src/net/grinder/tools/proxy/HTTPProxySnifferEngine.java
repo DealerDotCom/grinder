@@ -40,9 +40,9 @@ import org.apache.oro.text.regex.Perl5Substitution;
 import org.apache.oro.text.regex.Util;
 
 import net.grinder.tools.tcpsniffer.ConnectionDetails;
-import net.grinder.tools.tcpsniffer.SocketFactory;
 import net.grinder.tools.tcpsniffer.SnifferEngineImplementation;
 import net.grinder.tools.tcpsniffer.SnifferFilter;
+import net.grinder.tools.tcpsniffer.SnifferSocketFactory;
 
 
 /**
@@ -75,7 +75,7 @@ public class HTTPProxySnifferEngine extends SnifferEngineImplementation
     private final Pattern m_proxyConnectPattern;
     private final PatternMatcher m_matcher = new Perl5Matcher();
 
-    public HTTPProxySnifferEngine(SocketFactory socketFactory,
+    public HTTPProxySnifferEngine(SnifferSocketFactory socketFactory,
 				  SnifferFilter requestFilter,
 				  SnifferFilter responseFilter,
 				  String localHost,

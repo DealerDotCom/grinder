@@ -40,11 +40,11 @@ import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 
 import net.grinder.tools.tcpsniffer.ConnectionDetails;
-import net.grinder.tools.tcpsniffer.PlainSocketFactory;
 import net.grinder.tools.tcpsniffer.SnifferEngine;
 import net.grinder.tools.tcpsniffer.SnifferEngineImplementation;
 import net.grinder.tools.tcpsniffer.SnifferFilter;
-import net.grinder.tools.tcpsniffer.SocketFactory;
+import net.grinder.tools.tcpsniffer.SnifferPlainSocketFactory;
+import net.grinder.tools.tcpsniffer.SnifferSocketFactory;
 import net.grinder.util.CopyStreamRunnable;
 
 
@@ -72,11 +72,11 @@ import net.grinder.util.CopyStreamRunnable;
  */
 public class HTTPSProxySnifferEngine implements SnifferEngine
 {
-    private final SocketFactory m_localSocketFactory =
-	new PlainSocketFactory();
+    private final SnifferSocketFactory m_localSocketFactory =
+	new SnifferPlainSocketFactory();
     private final ServerSocket m_serverSocket;
 
-    private final SocketFactory m_sslSocketFactory;
+    private final SnifferSocketFactory m_sslSocketFactory;
     private final SnifferFilter m_requestFilter;
     private final SnifferFilter m_responseFilter;
     private final String m_localHost;
@@ -86,7 +86,7 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
     private final PatternMatcher m_matcher = new Perl5Matcher();
     private final Pattern m_connectPattern;
 
-    public HTTPSProxySnifferEngine(SocketFactory sslSocketFactory,
+    public HTTPSProxySnifferEngine(SnifferSocketFactory sslSocketFactory,
 				   SnifferFilter requestFilter,
 				   SnifferFilter responseFilter,
 				   String localHost,
@@ -137,8 +137,7 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 		while (in.read(buffer) > -1) {
 		}
 
-		// Check whether message has its a CONNECT method
-		// string.
+		// Check whether message has a CONNECT method string.
 		if (m_matcher.contains(line, m_connectPattern)) {
 		    final MatchResult match = m_matcher.getMatch();
 		

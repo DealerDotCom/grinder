@@ -33,11 +33,11 @@ import net.grinder.tools.proxy.HTTPSProxySnifferEngine;
 import net.grinder.tools.tcpsniffer.ConnectionDetails;
 import net.grinder.tools.tcpsniffer.EchoFilter;
 import net.grinder.tools.tcpsniffer.NullFilter;
-import net.grinder.tools.tcpsniffer.PlainSocketFactory;
 import net.grinder.tools.tcpsniffer.SnifferEngine;
 import net.grinder.tools.tcpsniffer.SnifferEngineImplementation;
 import net.grinder.tools.tcpsniffer.SnifferFilter;
-import net.grinder.tools.tcpsniffer.SocketFactory;
+import net.grinder.tools.tcpsniffer.SnifferPlainSocketFactory;
+import net.grinder.tools.tcpsniffer.SnifferSocketFactory;
 
 
 /**
@@ -52,7 +52,7 @@ public class TCPSniffer
 	"TCPSniffer.initialTest";
 
     private static final String SSL_SOCKET_FACTORY_CLASS =
-	"net.grinder.tools.tcpsniffer.SSLSocketFactory";
+	"net.grinder.tools.tcpsniffer.SnifferSSLSocketFactory";
 
     public static void main(String[] args)
     {
@@ -69,22 +69,19 @@ public class TCPSniffer
 	    "\n" +
 	    "\n Where options can include:" +
 	    "\n" +
-	    "\n   [-requestFilter <filter>]      Add request filter" +
-	    "\n   [-responseFilter <filter>]     Add response filter" +
-	    "\n   [-httpPluginFilter             See below" +
-	    "\n     [-initialTest <n>]           Number tests from n" +
+	    "\n   [-requestFilter <filter>]    Add request filter" +
+	    "\n   [-responseFilter <filter>]   Add response filter" +
+	    "\n   [-httpPluginFilter           See below" +
+	    "\n     [-initialTest <n>]         Number tests from n" +
 	    "\n   ]" +
-	    "\n   [-localHost <host name/ip>]    Default is localhost" +
-	    "\n   [-localPort <port>]            Default is 8001" +
-	    "\n   [-remoteHost <host name>]      Default is localhost" +
-	    "\n   [-remotePort <port>]           Default is 7001" +
-	    "\n   [-proxy]                       Be an HTTP or HTTPS proxy" +
-	    "\n   [-ssl                          Use SSL" +
-	    "\n    [-certificate <PKCS12 file>   Optional client certificate" +
-	    "\n     -password <password>]        Certificate keystore pass" +
-	    "\n   ]" +
-	    "\n   [-colour]                      Be pretty on ANSI terminals" +
-	    "\n   [-timeout]                     Sniffer engine timeout" +
+	    "\n   [-localHost <host name/ip>]  Default is localhost" +
+	    "\n   [-localPort <port>]          Default is 8001" +
+	    "\n   [-remoteHost <host name>]    Default is localhost" +
+	    "\n   [-remotePort <port>]         Default is 7001" +
+	    "\n   [-proxy]                     Be an HTTP or HTTPS proxy" +
+	    "\n   [-ssl]                       Use SSL" +
+	    "\n   [-colour]                    Be pretty on ANSI terminals" +
+	    "\n   [-timeout]                   Sniffer engine timeout" +
 	    "\n" +
 	    "\n <filter> can be the name of a class that implements" +
 	    "\n " + SnifferFilter.class.getName() + " or" +
@@ -125,9 +122,6 @@ public class TCPSniffer
 	String localHost = "localhost";
 	int remotePort = 7001;
 	boolean useSSL = false;
-	String keystore = null;
-	String keystorePassword = null;
-
 	boolean proxy = false;
 	int initialTest = 0;
 
@@ -176,10 +170,17 @@ public class TCPSniffer
 		    useSSL = true;
 		}
 		else if (args[i].equals("-certificate")) {
-		    keystore = args[++i];
+		    // -certificate is used by the TCPSniffer web app
+		    // only and is not publicised, users are expected
+		    // to use system property or JSSE configuration.
+		    System.setProperty("javax.net.ssl.keyStore", args[++i]);
 		}
 		else if (args[i].equals("-password")) {
-		    keystorePassword = args[++i];
+		    // -password is used by the TCPSniffer web app
+		    // only and is not publicised, users are expected
+		    // to use system property or JSSE configuration.
+		    System.setProperty("javax.net.ssl.keyStorePassword",
+				       args[++i]);
 		}
 		else if (args[i].equals("-proxy")) {
 		    proxy = true;
@@ -217,18 +218,6 @@ public class TCPSniffer
 	    throw barfUsage("Proxy timeout must be non-negative");
 	}
 
-	if (!useSSL) {
-	    if (keystore != null || keystorePassword != null) {
-		throw barfUsage("Keystore parameters only valid with '-ssl'");
-	    }
-	}
-	else {
-	    if ((keystore != null) ^ (keystorePassword != null)) {
-		throw barfUsage(
-		    "Specify both -keystore and -keystorePassword or neither");
-	    }
-	}
-
 	final StringBuffer startMessage = new StringBuffer();
 
 	startMessage.append(
@@ -251,31 +240,25 @@ public class TCPSniffer
 
 	if (useSSL) {
 	    startMessage.append(
-		"\n   Key store:        "  + keystore +
-		"\n   Key password:     "  + keystorePassword +
 		"\n (This could take a few seconds)");
 	}
 
 	System.err.println(startMessage);
 
 	try {
-	    final SocketFactory socketFactory;
+	    final SnifferSocketFactory socketFactory;
 
 	    if (useSSL) {
-		// SSLSocketFactory depends on JSSE, load dynamically.
+		// SnifferSSLSocketFactory depends on JSSE, load
+		// dynamically.
 		final Class socketFactoryClass =
 		    Class.forName(SSL_SOCKET_FACTORY_CLASS);
 
-		final Constructor constructor = 
-		    socketFactoryClass.getConstructor(
-			new Class[] { String.class, String.class });
-
 		socketFactory =
-		    (SocketFactory)constructor.newInstance(
-			new Object[] { keystore, keystorePassword });
+		    (SnifferSocketFactory)socketFactoryClass.newInstance();
 	    }
 	    else {
-		socketFactory = new PlainSocketFactory();
+		socketFactory = new SnifferPlainSocketFactory();
 	    }
 
 	    if (proxy) {
@@ -367,7 +350,7 @@ public class TCPSniffer
 	
     public void run() 
     {
-	System.err.println("Starting engine");
+	System.err.println("Engine started");
 	m_snifferEngine.run();
 	System.err.println("Engine exited");
 	System.exit(0);

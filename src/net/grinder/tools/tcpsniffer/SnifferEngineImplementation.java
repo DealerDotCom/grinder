@@ -47,10 +47,10 @@ public class SnifferEngineImplementation implements SnifferEngine
 
     private final PrintWriter m_outputWriter;
 
-    private final SocketFactory m_socketFactory;
+    private final SnifferSocketFactory m_socketFactory;
     private final ServerSocket m_serverSocket;
 
-    public SnifferEngineImplementation(SocketFactory socketFactory,
+    public SnifferEngineImplementation(SnifferSocketFactory socketFactory,
 				       SnifferFilter requestFilter,
 				       SnifferFilter responseFilter,
 				       ConnectionDetails connectionDetails,

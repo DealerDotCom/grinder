@@ -31,7 +31,7 @@ import java.net.Socket;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface SocketFactory
+public interface SnifferSocketFactory
 {
     ServerSocket createServerSocket(String localHost, int localPort,
 				    int timeout)

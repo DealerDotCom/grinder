@@ -3,14 +3,17 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
+  move proxy directory below tcpsniffer
+check you can build without jsse
+
+keep -certificate etc for snifferwebapp
+
   Change TCP sniffer filters to a stream oriented model. This should
   cure another one of the TCPSniffer/HTTPPlugin bug when recording
   large outputs with posts? Also, consider having a filter instance
   pair per connection.
 
   Test HTTPS proxy.
-
-  DOC TCPSniffer
 
   TCPSniffer should record 401 iteractions.
 

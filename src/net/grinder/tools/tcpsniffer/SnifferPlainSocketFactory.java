@@ -30,12 +30,12 @@ import java.net.Socket;
 
 
 /**
- * {@link SocketFactory} for plain connections.
+ * {@link SnifferSocketFactory} for plain connections.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class PlainSocketFactory implements SocketFactory
+public final class SnifferPlainSocketFactory implements SnifferSocketFactory
 {
     public final ServerSocket createServerSocket(String localHost,
 						 int localPort,
