@@ -2,6 +2,9 @@
 
 	* The Grinder 3.0-beta1 is released.
 
+	* build.xml: Correct prompt.
+	Add eye-catcher so I remember to update both version tags.
+
 	* CHANGES: Correct comment.
 
 	* src/net/grinder/Grinder.java:
