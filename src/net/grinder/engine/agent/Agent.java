@@ -1,5 +1,6 @@
 // Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +24,7 @@
 package net.grinder.engine.agent;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -30,6 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
@@ -41,8 +45,11 @@ import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Connector;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.InitialiseGrinderMessage;
+import net.grinder.communication.Message;
 import net.grinder.communication.MessagePump;
 import net.grinder.communication.Receiver;
+import net.grinder.communication.StreamSender;
+import net.grinder.engine.EngineException;
 import net.grinder.engine.process.GrinderProcess;
 
 
@@ -51,6 +58,7 @@ import net.grinder.engine.process.GrinderProcess;
  *
  * @author Paco Gomez
  * @author Philip Aston
+ * @author Bertrand Ave
  * @version $Revision$
  */
 public final class Agent {
@@ -112,8 +120,91 @@ public final class Agent {
         }
       }
 
-      final List command = new ArrayList();
+      final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(3);
 
+      final boolean haveConsole = receiver != null;
+
+      final MessagePump messagePump =
+        haveConsole ? new MessagePump(receiver, fanOutStreamSender, 1) : null;
+
+      final ProcessStarter processStarter =
+        new ProcessStarter(properties, fanOutStreamSender, haveConsole);
+
+      // If we're using the console, wait for a console start signal here.
+
+      final int processIncrement =
+        properties.getInt("grinder.processIncrement", 0);
+
+      if (processIncrement > 0) {
+        final boolean moreProcessesToStart =
+          processStarter.startSomeProcesses(
+            properties.getInt("grinder.initialProcesses", processIncrement));
+
+        if (moreProcessesToStart) {
+          final int incrementInterval =
+            properties.getInt("grinder.processIncrementInterval", 60000);
+
+          final Timer timer = new Timer(true);
+          final RampUpTimerTask rampUpTimerTask =
+            new RampUpTimerTask(processStarter, processIncrement);
+
+          timer.scheduleAtFixedRate(
+            rampUpTimerTask, incrementInterval, incrementInterval);
+
+          rampUpTimerTask.waitUntilFinished();
+          timer.cancel();
+        }
+      }
+      else {
+        processStarter.startAllProcesses();
+      }
+
+      final int combinedExitStatus = processStarter.waitForProcessesToFinish();
+
+      // If we're using the console, wait for a stop or reset signal here.
+
+      if (messagePump != null) {
+        messagePump.shutdown();
+      }
+
+      if (combinedExitStatus == GrinderProcess.EXIT_START_SIGNAL) {
+        startImmediately = true;
+      }
+      else if (combinedExitStatus == GrinderProcess.EXIT_RESET_SIGNAL) {
+        startImmediately = false;
+      }
+      else {
+        break;
+      }
+    }
+
+    System.out.println("The Grinder version " + version + " finished");
+  }
+
+  private class ProcessStarter {
+
+    private final FanOutStreamSender m_fanOutStreamSender;
+    private final Message m_initialiseMessage;
+
+    private final String[] m_commandArray;
+    private final int m_grinderIDIndex;
+    private final String m_hostIDString;
+
+    private final ChildProcess[] m_processes;
+    private int m_nextProcessIndex = 0;
+
+    public ProcessStarter(GrinderProperties properties,
+                          FanOutStreamSender fanOutStreamSender,
+                          boolean haveConsole) {
+
+      m_fanOutStreamSender = fanOutStreamSender;
+      m_initialiseMessage =
+        new InitialiseGrinderMessage(false, haveConsole, haveConsole);
+
+      m_processes =
+        new ChildProcess[properties.getInt("grinder.processes", 1)];
+
+      final List command = new ArrayList();
       command.add(properties.getProperty("grinder.jvm", "java"));
 
       final String jvmArguments =
@@ -157,98 +248,142 @@ public final class Agent {
 
       command.add(GrinderProcess.class.getName());
 
-      final String hostIDString =
-        properties.getProperty("grinder.hostID", getHostName());
+      m_hostIDString = properties.getProperty("grinder.hostID", getHostName());
 
-      final int grinderIDIndex = command.size();
+      m_grinderIDIndex = command.size();
       command.add("");    // Place holder for grinder ID.
 
       if (m_alternateFile != null) {
         command.add(m_alternateFile.getPath());
       }
 
-      final int numberOfProcesses = properties.getInt("grinder.processes", 1);
+      m_commandArray = (String[])command.toArray(new String[0]);
+    }
 
-      final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(3);
-      final ChildProcess[] processes = new ChildProcess[numberOfProcesses];
+    public void startAllProcesses() {
+      startSomeProcesses(m_processes.length - m_nextProcessIndex);
+    }
 
-      final String[] stringArray = new String[0];
+    public boolean startSomeProcesses(int numberOfProcesses) {
 
-      for (int i = 0; i < numberOfProcesses; i++) {
-        final String grinderID = hostIDString + "-" + i;
+      final int numberToStart =
+        Math.min(numberOfProcesses, m_processes.length - m_nextProcessIndex);
 
-        final String[] commandArray = (String[])command.toArray(stringArray);
+      for (int i = 0; i < numberToStart; ++i) {
+        final int processIndex = m_nextProcessIndex;
 
-        commandArray[grinderIDIndex] = grinderID;
+        final String grinderID = m_hostIDString + "-" + processIndex;
+        m_commandArray[m_grinderIDIndex] = grinderID;
 
-        processes[i] = new ChildProcess(commandArray, System.out, System.err);
+        try {
+          m_processes[processIndex] =
+            new ChildProcess(m_commandArray, System.out, System.err);
 
-        fanOutStreamSender.add(processes[i].getStdinStream());
+          final OutputStream processStdin =
+            m_processes[processIndex].getStdinStream();
 
-        final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
+          new StreamSender(processStdin).send(m_initialiseMessage);
+
+          m_fanOutStreamSender.add(processStdin);
+        }
+        catch (EngineException e) {
+          System.err.println("Failed to create process");
+          e.printStackTrace(System.err);
+          return false;
+        }
+        catch (CommunicationException e) {
+          System.err.println("Failed to communicate with process");
+          e.printStackTrace(System.err);
+          return false;
+        }
+
+        ++m_nextProcessIndex;
+
+        final StringBuffer buffer =
+          new StringBuffer(m_commandArray.length * 10);
         buffer.append("Worker processes (");
         buffer.append(grinderID);
         buffer.append(") started with command line:");
 
-        for (int j = 0; j < commandArray.length; ++j) {
+        for (int j = 0; j < m_commandArray.length; ++j) {
           buffer.append(" ");
-          buffer.append(commandArray[j]);
+          buffer.append(m_commandArray[j]);
         }
 
         System.out.println(buffer.toString());
       }
 
-      final boolean haveConsole = receiver != null;
+      return m_processes.length > m_nextProcessIndex;
+    }
 
-      fanOutStreamSender.send(
-        new InitialiseGrinderMessage(haveConsole && !startImmediately,
-                                     haveConsole,
-                                     haveConsole));
-
-      final MessagePump messagePump =
-        haveConsole ? new MessagePump(receiver, fanOutStreamSender, 1) : null;
+    public int waitForProcessesToFinish()
+      throws EngineException, InterruptedException {
 
       int combinedExitStatus = 0;
 
-      for (int i = 0; i < numberOfProcesses; ++i) {
-        final int exitStatus = processes[i].waitFor();
+      for (int i = 0; i < m_nextProcessIndex; i++) {
+        final int exitStatus = m_processes[i].waitFor();
 
         if (exitStatus > 0) { // Not an error
           if (combinedExitStatus == 0) {
             combinedExitStatus = exitStatus;
           }
           else if (combinedExitStatus != exitStatus) {
-            System.out.println(
+            System.err.println(
               "WARNING, worker processes disagree on exit status");
           }
         }
       }
 
-      if (messagePump != null) {
-        messagePump.shutdown();
-      }
-
-      if (combinedExitStatus == GrinderProcess.EXIT_START_SIGNAL) {
-        startImmediately = true;
-      }
-      else if (combinedExitStatus == GrinderProcess.EXIT_RESET_SIGNAL) {
-        startImmediately = false;
-      }
-      else {
-        break;
-      }
+      return combinedExitStatus;
     }
 
-    System.out.println("The Grinder version " + version + " finished");
+    private String getHostName() {
+      try {
+        return InetAddress.getLocalHost().getHostName();
+      }
+      catch (UnknownHostException e) {
+        return "UNNAMED HOST";
+      }
+    }
   }
 
-  private String getHostName() {
-    try {
-      return InetAddress.getLocalHost().getHostName();
+  private class RampUpTimerTask extends TimerTask {
+
+    private final ProcessStarter m_processStarter;
+    private final int m_processIncrement;
+    private boolean m_rampUpFinished = false;
+
+    public RampUpTimerTask(ProcessStarter processStarter,
+                           int processIncrement) {
+      m_processStarter = processStarter;
+      m_processIncrement = processIncrement;
     }
-    catch (UnknownHostException e) {
-      return "UNNAMED HOST";
+
+    public void run () {
+      final boolean moreProcessesToStart =
+        m_processStarter.startSomeProcesses(m_processIncrement);
+
+      if (!moreProcessesToStart) {
+        markFinished();
+      }
+    }
+
+    private void markFinished() {
+      super.cancel();
+
+      synchronized (this) {
+        m_rampUpFinished = true;
+        notifyAll();
+      }
+    }
+
+    public void waitUntilFinished() throws InterruptedException {
+      synchronized (this) {
+        while (!m_rampUpFinished) {
+          wait();
+        }
+      }
     }
   }
 }
-
