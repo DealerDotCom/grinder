@@ -21,7 +21,9 @@
 
 package net.grinder.communication;
 
+import java.io.InputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.ServerSocket;
@@ -36,7 +38,7 @@ import java.net.ServerSocket;
 final class Acceptor {
 
   private final ServerSocket m_serverSocket;
-  private final SocketSet m_connections = new SocketSet();
+  private final ResourcePool m_socketSet = new ResourcePool();
   private final ThreadGroup m_threadGroup = new ThreadGroup("Acceptor");
 
   /**
@@ -90,7 +92,7 @@ final class Acceptor {
       throw new CommunicationException("Error closing socket", e);
     }
     finally {
-      m_connections.close();
+      m_socketSet.close();
       m_threadGroup.interrupt();
     }
   }
@@ -107,10 +109,11 @@ final class Acceptor {
   /**
    * Get the set of accepted connections.
    *
-   * @return The set of accepted connections.
+   * @return A set of sockets, each wrapped in a {@link
+   * SocketResource}.
    */
-  public SocketSet getSocketSet() {
-    return m_connections;
+  public ResourcePool getSocketSet() {
+    return m_socketSet;
   }
 
   /**
@@ -134,7 +137,7 @@ final class Acceptor {
         while (true) {
           final Socket localSocket = m_serverSocket.accept();
 
-          m_connections.add(localSocket);
+          m_socketSet.add(new SocketResource(localSocket));
         }
       }
       catch (IOException e) {
@@ -149,6 +152,34 @@ final class Acceptor {
         catch (CommunicationException e) {
           // Ignore.
         }
+      }
+    }
+  }
+
+  /**
+   * Wrapper for sockets that are returned by {@link getSocketSet}.
+   */
+  public static final class SocketResource implements ResourcePool.Resource {
+    private final Socket m_socket;
+
+    private SocketResource(Socket socket) {
+      m_socket = socket;
+    }
+
+    public InputStream getInputStream() throws IOException {
+      return m_socket.getInputStream();
+    }
+
+    public OutputStream getOutputStream() throws IOException {
+      return m_socket.getOutputStream();
+    }
+
+    public void close() {
+      try {
+        m_socket.close();
+      }
+      catch (IOException e) {
+        // Ignore.
       }
     }
   }

@@ -50,7 +50,7 @@ public class TestFanOutServerSenderAndClientReceiver
     m_sender = sender;
     m_receiver = ClientReceiver.connectTo(getHostName(), getPort());
 
-    while (sender.getAcceptor().getSocketSet().countActiveSockets() != 1) {
+    while (sender.getAcceptor().getSocketSet().countActive() != 1) {
       Thread.sleep(10);
     }
   }

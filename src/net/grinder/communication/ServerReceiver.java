@@ -130,11 +130,11 @@ public final class ServerReceiver implements Receiver {
         boolean idle = false;
 
         while (true) {
-          final SocketSet.Handle socketHandle =
-            m_acceptor.getSocketSet().reserveNextHandle();
+          final ResourcePool.Reservation reservation =
+            m_acceptor.getSocketSet().reserveNext();
 
           try {
-            if (socketHandle.isSentinel()) {
+            if (reservation.isSentinel()) {
               if (idle) {
                 Thread.sleep(500);
               }
@@ -142,7 +142,10 @@ public final class ServerReceiver implements Receiver {
               idle = true;
             }
             else {
-              final InputStream inputStream = socketHandle.getInputStream();
+              final Acceptor.SocketResource socketResource =
+                (Acceptor.SocketResource)reservation.getResource();
+
+              final InputStream inputStream = socketResource.getInputStream();
 
               if (inputStream.available() > 0) {
 
@@ -152,7 +155,7 @@ public final class ServerReceiver implements Receiver {
                 final Message message = (Message)objectStream.readObject();
 
                 if (message instanceof CloseCommunicationMessage) {
-                  socketHandle.close();
+                  reservation.close();
                 }
                 else {
                   m_messageQueue.queue(message);
@@ -163,15 +166,15 @@ public final class ServerReceiver implements Receiver {
             }
           }
           catch (IOException e) {
-            socketHandle.close();
+            reservation.close();
             m_messageQueue.queue(e);
           }
           catch (ClassNotFoundException e) {
-            socketHandle.close();
+            reservation.close();
             m_messageQueue.queue(e);
           }
           finally {
-            socketHandle.free();
+            reservation.free();
           }
         }
       }

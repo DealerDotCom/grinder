@@ -80,9 +80,9 @@ public class TestAcceptor extends TestCase {
 
     final Acceptor acceptor = createAcceptor();
 
-    final SocketSet socketSet = acceptor.getSocketSet();
+    final ResourcePool socketSet = acceptor.getSocketSet();
     assertNotNull(socketSet);
-    assertTrue(socketSet.reserveNextHandle().isSentinel());
+    assertTrue(socketSet.reserveNext().isSentinel());
 
     final Socket socket1 =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
@@ -92,12 +92,14 @@ public class TestAcceptor extends TestCase {
 
     // Sleep until we've accepted both connections. Give up after a
     // few seconds.
-    for (int i=0; socketSet.countActiveSockets() != 2 && i<10; ++i) {
+    for (int i=0; socketSet.countActive() != 2 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
     
     assertSame(socketSet, acceptor.getSocketSet());
-    assertEquals(2, socketSet.reserveAllHandles().size());
+
+    final List socketResources = socketSet.reserveAll();
+    assertEquals(2, socketResources.size());
 
     acceptor.shutdown();
   }
@@ -136,16 +138,14 @@ public class TestAcceptor extends TestCase {
 
     final Acceptor acceptor = createAcceptor();
 
-    final SocketSet socketSet = acceptor.getSocketSet();
+    final ResourcePool socketSet = acceptor.getSocketSet();
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
-    for (int i=0;
-         acceptor.getSocketSet().countActiveSockets() != 1 && i<10;
-         ++i) {
+    for (int i=0; acceptor.getSocketSet().countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
 
@@ -153,6 +153,6 @@ public class TestAcceptor extends TestCase {
 
     assertTrue(acceptor.getThreadGroup().isDestroyed());
 
-    assertTrue(socketSet.reserveNextHandle().isSentinel());
+    assertTrue(socketSet.reserveNext().isSentinel());
   } 
 }

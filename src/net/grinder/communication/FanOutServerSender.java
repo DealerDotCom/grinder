@@ -100,12 +100,12 @@ public final class FanOutServerSender extends AbstractSender {
 
     try {
       final Iterator iterator =
-        m_acceptor.getSocketSet().reserveAllHandles().iterator();
+        m_acceptor.getSocketSet().reserveAll().iterator();
 
       while (iterator.hasNext()) {
         m_kernel.execute(
-          new WriteMessageToStream(message,
-                                   (SocketSet.Handle) iterator.next()));
+          new WriteMessageToStream(
+            message, (ResourcePool.Reservation) iterator.next()));
       }
     }
     catch (Kernel.ShutdownException e) {
@@ -142,24 +142,28 @@ public final class FanOutServerSender extends AbstractSender {
 
   private static final class WriteMessageToStream implements Runnable {
     private final Message m_message;
-    private final SocketSet.Handle m_handle;
+    private final ResourcePool.Reservation m_reservation;
 
-    public WriteMessageToStream(Message message, SocketSet.Handle handle) {
+    public WriteMessageToStream(Message message,
+                                ResourcePool.Reservation reservation) {
       m_message = message;
-      m_handle = handle;
+      m_reservation = reservation;
     }
 
     public void run() {
       try {
-        writeMessageToStream(m_message, m_handle.getOutputStream());
+        final Acceptor.SocketResource socketResource =
+          (Acceptor.SocketResource)m_reservation.getResource();
+
+        writeMessageToStream(m_message, socketResource.getOutputStream());
       }
       catch (IOException e) {
-        m_handle.close();
+        m_reservation.close();
         //            m_messageQueue.queue(e);
         e.printStackTrace();
       }
       finally {
-        m_handle.free();
+        m_reservation.free();
       }
     }
   }

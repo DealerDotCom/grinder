@@ -77,9 +77,7 @@ public class TestFanOutServerSender extends TestCase {
 
     // Sleep until we've accepted all connections. Give up after a few
     // seconds.
-    for (int i=0;
-         acceptor.getSocketSet().countActiveSockets() != 5 && i<10;
-         ++i) {
+    for (int i=0; acceptor.getSocketSet().countActive() != 5 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
 
@@ -135,9 +133,7 @@ public class TestFanOutServerSender extends TestCase {
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
-    for (int i=0;
-         acceptor.getSocketSet().countActiveSockets() != 1 && i<10;
-         ++i) {
+    for (int i=0; acceptor.getSocketSet().countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
 
