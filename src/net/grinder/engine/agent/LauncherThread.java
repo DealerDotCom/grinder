@@ -81,7 +81,7 @@ public class LauncherThread extends Thread
     public void run(){
 
 	try{
-	    System.out.println("Grinder Process (" + m_grinderID +
+	    System.out.println("Worker Process (" + m_grinderID +
 			       ") started with command line: " +
 			       m_commandString);
 

@@ -98,7 +98,7 @@ public final class GrinderProcess implements Monitor
 	    System.exit(status);
 	}
 	catch (GrinderException e) {
-	    System.err.println("Error initialising grinder process: " + e);
+	    System.err.println("Error running Worker Process:\n" + e);
 	    e.printStackTrace();
 	    System.exit(-2);
 	}

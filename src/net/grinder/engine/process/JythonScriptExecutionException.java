@@ -37,6 +37,6 @@ public class JythonScriptExecutionException extends EngineException
 {
     public JythonScriptExecutionException(String doingWhat, PyException e)
     {
-	super("Jython runtime error encountered whilst " + doingWhat, e);
+	super("Jython error encountered " + doingWhat, e);
     }
 }
