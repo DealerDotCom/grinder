@@ -46,12 +46,12 @@ import net.grinder.script.ScriptContext;
  */
 class JythonScript
 {
-    private static final String TEST_CASE_CALLABLE_NAME = "TestCase";
+    private static final String TEST_RUNNER_CALLABLE_NAME = "TestRunner";
 
     private final ProcessContext m_processContext;
     private final PySystemState m_systemState;
     private final PythonInterpreter m_interpreter;
-    private final PyObject m_testCaseFactory;
+    private final PyObject m_testRunnerFactory;
     private final JythonScriptContext m_scriptContext;
 
     public JythonScript(ProcessContext processContext, File scriptFile)
@@ -80,38 +80,38 @@ class JythonScript
         }
 	catch (PyException e) {
             throw new JythonScriptExecutionException(
-		"initialising test case", e);
+		"initialising test runner", e);
         }
 
-	// Find the callable that acts as a factory for test case instances.
-	m_testCaseFactory = m_interpreter.get(TEST_CASE_CALLABLE_NAME);
+	// Find the callable that acts as a factory for test runner instances.
+	m_testRunnerFactory = m_interpreter.get(TEST_RUNNER_CALLABLE_NAME);
 
-	if (m_testCaseFactory == null || !m_testCaseFactory.isCallable()) {
+	if (m_testRunnerFactory == null || !m_testRunnerFactory.isCallable()) {
 	    throw new EngineException(
 		"There is no callable (class or function) named '" +
-		TEST_CASE_CALLABLE_NAME + "' in " + scriptFile);
+		TEST_RUNNER_CALLABLE_NAME + "' in " + scriptFile);
 	}
     }
 
     class JythonRunnable
     {
-	private final PyObject m_testCase;
+	private final PyObject m_testRunner;
 
 	public JythonRunnable() throws EngineException
 	{
 	    try {
 		// Script does per-thread initialisation here and
 		// returns a callable object.
-		m_testCase = m_testCaseFactory.__call__();
+		m_testRunner = m_testRunnerFactory.__call__();
 	    }
 	    catch (PyException e) {
 		throw new JythonScriptExecutionException(
-		    "creating per-thread test case object", e);
+		    "creating per-thread test runner object", e);
 	    }	    
 
-            if (!m_testCase.isCallable()) {
+            if (!m_testRunner.isCallable()) {
                 throw new EngineException(
-		    "The result of '" + TEST_CASE_CALLABLE_NAME +
+		    "The result of '" + TEST_RUNNER_CALLABLE_NAME +
 		    "()' is not callable");
 	    }
 	}
@@ -119,7 +119,7 @@ class JythonScript
 	public void run() throws EngineException
 	{
 	    try {
-		m_testCase.__call__();
+		m_testRunner.__call__();
 	    }
 	    catch (PyException e) {
 		throw new JythonScriptExecutionException("invoking script", e);
