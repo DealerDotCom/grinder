@@ -22,7 +22,7 @@
 	    /* Sigh, IE doesn't inherit from body correctly; set children... */
 	    p,ul,dl,ol,td,dd { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif;  font-size: 10pt; }
 	    pre { color: rgb(80,80,80); font-family:Courier, monospace; }
-            code ( color: rgb(80,80,80); font-family:Courier, monospace; )
+            code { color: rgb(80,80,80); font-family:Courier, monospace; }
 	    dt { color: rgb(0,0,0); font-family:Arial,Helvetica,sans-serif; font-size: 11pt; font-weight: bold; }
 	    a:link { color: rgb(0,0,128); text-decoration: none; font-weight: bold; }
 	    a:visited { color: rgb(0,0,128); text-decoration: none; font-weight: bold; }
