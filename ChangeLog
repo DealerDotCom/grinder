@@ -1,3 +1,7 @@
+2001-07-06  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/tools/tcpsniffer/SnifferEngineImpl.java: Fix -colour.
+
 2001-07-02  Philip Aston  <paston@bea.com>
 
 	* build.xml: Add HTTPClient classes to grinder.jar.
