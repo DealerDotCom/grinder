@@ -396,6 +396,17 @@ what you want. Currently the conditionally built modules are:
 	  <exclude name="**/TestHTTPPluginTCPProxyFilter.java"/>
 
 	  <include name="**/Test*.java"/>
+	  <exclude name="**/TestSleeper.java"/>
+	</fileset>
+      </batchtest>
+
+      <!-- Fork a separate JVM for the Sleeper test to make the timings
+      more consistent. -->
+      <batchtest fork="true">
+	<formatter type="plain" usefile="false"/>
+
+	<fileset dir="${test-src.dir}">
+	  <include name="**/TestSleeper.java"/>
 	</fileset>
       </batchtest>
     </junit>
