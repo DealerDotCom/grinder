@@ -31,6 +31,7 @@ import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadCallbacks;
 import net.grinder.plugininterface.PluginThreadContext;
+import net.grinder.script.TestResult;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticExpression;
@@ -55,7 +56,6 @@ final class ThreadContext implements PluginThreadContext
     private final boolean m_recordTime;
     private final long m_defaultSleepTime;
     private final Sleeper m_sleeper;
-    private final TestResult m_testResult = new TestResult();
 
     private final TestStatistics m_currentTestStatistics =
 	TestStatisticsFactory.getInstance().create();
@@ -181,17 +181,16 @@ final class ThreadContext implements PluginThreadContext
 
     /**
      * This could be factored out to a separate "TestInvoker" class.
-     * Most of the members used (m_currentTestStatistics,
-     * m_testResult, m_scratchBuffer) are reused purely to prevent
-     * object proliferation. However, the sensible owner for a
-     * TestInvoker would be ThreadContext, so keep it here for now.
-     * Also, all the startTimer/stopTimer/getElapsedTime interface is
-     * part of the PluginThreadContext interface.
+     * Some of the members used (m_currentTestStatistics,
+     * m_scratchBuffer) are reused purely to prevent object
+     * proliferation. However, the sensible owner for a TestInvoker
+     * would be ThreadContext, so keep it here for now. Also, all the
+     * startTimer/stopTimer/getElapsedTime interface is part of the
+     * PluginThreadContext interface.
      */
     final TestResult invokeTest(TestData testData)
 	throws EngineException, Sleeper.ShutdownException
     {
-	m_testResult.reset();
 	m_currentTestStatistics.reset();
 
 	final Test test = testData.getTest();
@@ -204,11 +203,12 @@ final class ThreadContext implements PluginThreadContext
 	    final PluginThreadCallbacks pluginThreadCallbacks =
 		testData.getRegisteredPlugin().getPluginThreadCallbacks(this);
 
+	    final TestResult testResult;
+
 	    startTimer();
 
 	    try {
-		m_testResult.setSuccess(
-		    pluginThreadCallbacks.doTest(test));
+		testResult = pluginThreadCallbacks.invokeTest(test);
 	    }
 	    finally {
 		stopTimer();
@@ -216,26 +216,22 @@ final class ThreadContext implements PluginThreadContext
 
 	    final long time = getElapsedTime();
 
-	    if (m_testResult.isSuccessful()) {
-		if (m_recordTime) {
-		    m_currentTestStatistics.addTransaction(time);
-		}
-		else {
-		    m_currentTestStatistics.addTransaction();
-		}
+	    if (m_recordTime) {
+		m_currentTestStatistics.addTransaction(time);
 	    }
 	    else {
-		m_currentTestStatistics.addError();
-		m_threadLogger.logError("Plug-in reported an error");
+		m_currentTestStatistics.addTransaction();
 	    }
+
+	    return testResult;
 	}
 	catch (PluginException e) {
 	    m_currentTestStatistics.addError();
-	    m_testResult.setSuccess(false);
-	    m_testResult.setException(e);
 
 	    m_threadLogger.logError("Plug-in threw: " + e);
 	    e.printStackTrace(m_threadLogger.getErrorLogWriter());
+
+	    return null;
 	}
 	finally {
 	    if (m_dataWriter != null) {
@@ -270,8 +266,6 @@ final class ThreadContext implements PluginThreadContext
 	    m_threadLogger.setCurrentTestNumber(-1);
 	    testData.getStatistics().add(m_currentTestStatistics);
 	}
-
-	return m_testResult;
     }
 
     final Sleeper getSleeper()
@@ -279,39 +273,6 @@ final class ThreadContext implements PluginThreadContext
 	return m_sleeper;
     }
     
-    private final static class TestResult
-	implements net.grinder.script.TestResult
-    {
-	private boolean m_successful;
-	private Exception m_exception;
-
-	public final boolean isSuccessful()
-	{
-	    return m_successful;
-	}
-
-	final void setSuccess(boolean b)
-	{
-	    m_successful = b;
-	}
-
-	public final Exception getException() 
-	{
-	    return m_exception;
-	}
-
-	final void setException(Exception e)
-	{
-	    m_exception = e;
-	}
-
-	final void reset()
-	{
-	    m_successful = false;
-	    m_exception = null;
-	}
-    }
-
     public long getStartTime()
     {
 	return m_startTime;
