@@ -78,8 +78,8 @@ public class ConsoleUI implements ModelListener
 {
     private static ResourceBundle s_resources = null;
 
-    private final static Font s_totalTPSFont =
-	new Font("helvetica", Font.ITALIC | Font.BOLD, 48);
+    private final static Font s_tpsFont =
+	new Font("helvetica", Font.ITALIC | Font.BOLD, 40);
 
     private final static NumberFormat s_twoDPFormat =
 	new DecimalFormat("0.00");
@@ -140,9 +140,9 @@ public class ConsoleUI implements ModelListener
 	    m_model.addSampleListener(
 		testNumber,
 		new SampleListener() {
-			public void update(double tps, double peakTPS,
-					   Statistics total) {
-			    testGraph.add(tps, peakTPS, total);
+			public void update(double tps, double averageTPS,
+					   double peakTPS, Statistics total) {
+			    testGraph.add(tps, averageTPS, peakTPS, total);
 			}
 		    }
 		);
@@ -155,26 +155,17 @@ public class ConsoleUI implements ModelListener
 	final LabelledGraph totalGraph = new LabelledGraph("Total",
 							   Color.darkGray);
 
-	m_model.addTotalSampleListener(
-	    new SampleListener() {
-		    public void update(double tps, double peakTPS,
-				       Statistics total) {
-			totalGraph.add(tps, peakTPS, total);
-		    }
-		}
-	    );
-
-	final JLabel totalTPSLabel = new JLabel("", SwingConstants.CENTER);
-	totalTPSLabel.setForeground(Color.black);
-	totalTPSLabel.setFont(s_totalTPSFont);
-	totalTPSLabel.setText(s_twoDPFormat.format(0) + " TPS");
+	final JLabel tpsLabel = new JLabel("", SwingConstants.CENTER);
+	tpsLabel.setForeground(Color.black);
+	tpsLabel.setFont(s_tpsFont);
+	//tpsLabel.setText(s_twoDPFormat.format(0) + " TPS");
 
 	m_model.addTotalSampleListener(
 	    new SampleListener() {
-		    public void update(double tps, double peakTPS,
-				       Statistics total) {
-			totalTPSLabel.setText(
-			    s_twoDPFormat.format(tps) + " TPS");
+		    public void update(double tps, double average,
+				       double peak, Statistics total) {
+			tpsLabel.setText(s_twoDPFormat.format(tps) + " TPS");
+			totalGraph.add(tps, average, peak, total);
 		    }
 		}
 	    );
@@ -242,13 +233,12 @@ public class ConsoleUI implements ModelListener
 	controlPanel.add(collectSampleSlider);
 	controlPanel.add(m_stateLabel);
 	controlPanel.setBorder(new EmptyBorder(0, 10, 0, 10));
-	
 
 	final JPanel controlAndTotalPanel = new JPanel();
 	controlAndTotalPanel.setLayout(new GridLayout(0, 1));
-	controlAndTotalPanel.add(totalGraph);
 	controlAndTotalPanel.add(controlPanel);
-	controlAndTotalPanel.add(totalTPSLabel);
+	controlAndTotalPanel.add(tpsLabel);
+	controlAndTotalPanel.add(totalGraph);
 
 	final URL logoURL = getResource("logo.image");
 
