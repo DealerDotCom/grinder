@@ -56,7 +56,6 @@ public class TestStatistics extends TestCase
 
 	assertEquals(0, statistics.getTransactions());
 	assertEquals(0, statistics.getErrors());
-	assertEquals(0, statistics.getAbortions());
     }
 
     public void testAddsAndEquals() 
@@ -78,11 +77,6 @@ public class TestStatistics extends TestCase
 	statistics0.addError();
 	assert(!statistics0.equals(statistics1));
 	statistics1.addError();
-	assertEquals(statistics0, statistics1);
-
-	statistics1.addAbortion();
-	assert(!statistics0.equals(statistics1));
-	statistics0.addAbortion();
 	assertEquals(statistics0, statistics1);
 
 	assertEquals(statistics0, statistics0);
@@ -109,8 +103,6 @@ public class TestStatistics extends TestCase
 
 	// 0 + 1 = 1
 	statistics0.addTransaction(100);
-	statistics0.addAbortion();
-	statistics0.addAbortion();
 	statistics1.add(statistics0);
 	assertEquals(statistics0, statistics1);
 
@@ -124,7 +116,6 @@ public class TestStatistics extends TestCase
 
 	assertEquals(2, statistics0.getTransactions());
 	assertEquals(0, statistics0.getErrors());
-	assertEquals(4, statistics0.getAbortions());
     }
 
     public void testGetDelta()
@@ -142,18 +133,15 @@ public class TestStatistics extends TestCase
 	assert(!statistics0.equals(statistics3));
 
 	statistics0.addError();
-	statistics0.addAbortion();
 
 	final Statistics statistics4 = statistics0.getDelta(true);
 	assertEquals(0, statistics4.getTransactions());
 	assertEquals(1, statistics4.getErrors());
-	assertEquals(1, statistics4.getAbortions());
 
 	statistics0.addTransaction(5678);
 	final Statistics statistics5 = statistics0.getDelta(true);
 	assertEquals(1, statistics5.getTransactions());
 	assertEquals(0, statistics5.getErrors());
-	assertEquals(0, statistics5.getAbortions());
     }
 
     public void testGetAverageTransactionTime()

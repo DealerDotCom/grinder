@@ -99,13 +99,13 @@ public class TestGraph extends TestCase
 
     public void testLabelledGraph() throws Exception
     {
-	final LabelledGraph labelledGraph = new LabelledGraph("Test");
+	final LabelledGraph labelledGraph =
+	    new LabelledGraph("Test", new Resources());
 
 	createUI(labelledGraph);
 
 	double peak = 0d;
 	final Statistics statistics = new Statistics();
-	statistics.addAbortion();
 	statistics.addError();
 	statistics.addTransaction(1);
 
