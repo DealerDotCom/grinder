@@ -115,7 +115,7 @@ public final class RandomObjectFactory {
     }
 
     // Resort to something that supports same interfaces as type.
-    return new DummyInvocationHandler(type).getProxy();
+    return new NullInvocationHandler(type).getProxy();
   }
 
   public Object[] generateParameters(Class[] parameterTypes) {
@@ -135,56 +135,51 @@ public final class RandomObjectFactory {
   }
 
   /**
-   *  Factory for dummy objects that support a particular interface.
+   *  Factory for null objects that support a particular interface.
    */
-  public static class DummyInvocationHandler implements InvocationHandler {
+  public static class NullInvocationHandler implements InvocationHandler {
 
-    private final Class m_delegateInterface;
-    private final Class[] m_allDelegateInterfaces;
+    private final Object m_proxy;
 
-    public DummyInvocationHandler(Class delegateInterface) {
-      m_delegateInterface = delegateInterface;
-      m_allDelegateInterfaces =
-        StubInvocationHandler.getAllInterfaces(delegateInterface);
+    public NullInvocationHandler(Class simulatedInterface) {
+
+      final ObjectDecoration objectDecoration =
+        new ObjectDecoration("a null " + simulatedInterface.getName());
+      
+      m_proxy = Proxy.newProxyInstance(
+        simulatedInterface.getClassLoader(),
+        AssertingInvocationHandler.getAllInterfaces(simulatedInterface),
+        new OverrideInvocationHandlerDecorator(this, objectDecoration));
+
     }
 
     public Object invoke(Object proxy, Method method, Object[] parameters)
          throws Throwable {
-
-      try {
-        // Allow this class or any subclass to override methods. Also
-        // passes equals(), hashCode(), toString() through to this
-        // instance.
-        final Method ourMethod =
-            getClass().getMethod(method.getName(), method.getParameterTypes());
-        return ourMethod.invoke(this, parameters);
-      }
-      catch (NoSuchMethodException e) {
-      }
-
       return null;
     }
 
     public Object getProxy() {
-      return Proxy.newProxyInstance(getClass().getClassLoader(),
-                                    m_allDelegateInterfaces,
-                                    this);
+      return m_proxy;
     }
 
-    /**
-     *  Fix up equals() so we can correctly be compared to one of our
-     *  Proxy's.
-     */
-    public boolean equals(Object o) {
-      if (o instanceof Proxy) {
-        return super.equals(Proxy.getInvocationHandler(o));
+    public final class ObjectDecoration {
+      private final String m_name;
+
+      public ObjectDecoration(String name) {
+        m_name = name;
       }
 
-      return super.equals(o);
-    }
+      public String override_toString(Object proxy) {
+        return m_name + ":" + System.identityHashCode(proxy);
+      }
 
-    public String toString() {
-      return "a null " + m_delegateInterface.getName();
+      public boolean override_equals(Object proxy, Object o) {
+        return proxy == o;
+      }
+
+      public int override_hashCode(Object proxy) {
+        return System.identityHashCode(proxy);
+      }
     }
   }
 }

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
 /**
  *  Dynamic proxy based test utility class that records details of
  *  invocations and allows a controlling unit test to later enquire
@@ -40,56 +41,44 @@ import java.util.List;
 public abstract class AssertingInvocationHandler
      extends CallRecorder implements InvocationHandler {
 
-  private final Class m_delegateClass;
-  private final Class[] m_delegateInterfaces;
+  private final Object m_proxy;
 
-  public AssertingInvocationHandler(Class delegateClass) {
-    m_delegateClass = delegateClass;
-    m_delegateInterfaces = getAllInterfaces(m_delegateClass);
+  public AssertingInvocationHandler(Class simulatedInterface) {
+
+    final InvocationHandler invocationHandler =
+      new RecordingInvocationHandler(
+        new OverrideInvocationHandlerDecorator(this, this));
+
+    m_proxy = Proxy.newProxyInstance(simulatedInterface.getClassLoader(),
+                                     getAllInterfaces(simulatedInterface),
+                                     invocationHandler);
   }
 
-  public final Object invoke(Object proxy, Method method, Object[] parameters)
-    throws Throwable {
+  private final class RecordingInvocationHandler implements InvocationHandler {
 
-    try {
-      // We allow our subclass to override methods, but insist on a
-      // prefix to ensure it really wants to.
-      final Method subclassMethod = getSubclassMethod(method);
+    private final InvocationHandler m_delegate;
 
-      final Object result;
+    public RecordingInvocationHandler(InvocationHandler delegate) {
+      m_delegate = delegate;
+    }
 
-      if (subclassMethod != null) {
-        result = subclassMethod.invoke(this, parameters);
+    public Object invoke(Object proxy, Method method, Object[] parameters)
+      throws Throwable {
+
+      try {
+        final Object result = m_delegate.invoke(proxy, method, parameters);
+        recordSuccess(method.getName(), parameters, result);
+        return result;
       }
-      else {
-        result = invokeInternal(proxy, method, parameters);
+      catch (Throwable t) {
+        recordFailure(method.getName(), parameters, t);
+        throw t;
       }
-      
-      recordSuccess(method.getName(), parameters, result);
-      return result;
-    }
-    catch (Throwable t) {
-      recordFailure(method.getName(), parameters, t);
-      throw t;
     }
   }
-
-  private Method getSubclassMethod(Method method) {
-    try {
-      return getClass().getMethod("stub_" + method.getName(),
-                                  method.getParameterTypes());
-    }
-    catch (NoSuchMethodException e) {
-      return null;
-    }
-  }
-
-  protected abstract Object invokeInternal(
-    Object proxy, Method method, Object[] parameters) throws Throwable;
 
   public final Object getProxy() {
-    return Proxy.newProxyInstance(
-      m_delegateClass.getClassLoader(), m_delegateInterfaces, this);
+    return m_proxy;
   }
 
   public static Class[] getAllInterfaces(Class c) {

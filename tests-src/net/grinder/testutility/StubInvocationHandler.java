@@ -34,23 +34,32 @@ public class StubInvocationHandler extends AssertingInvocationHandler {
 
   private final RandomObjectFactory m_randomObjectFactory =
     new RandomObjectFactory();
+  private final String m_name;
 
-  public StubInvocationHandler(Class delegateClass) {
-    super(delegateClass);
+  public StubInvocationHandler(Class simulatedInterface) {
+    super(simulatedInterface);
+    m_name = "a stub " + simulatedInterface.getName();
   }
 
-  public final Object invokeInternal(
-    Object proxy, Method method, Object[] parameters) throws Throwable {
-
-    if ("equals".equals(method.getName()) &&
-        parameters.length == 1) {
-      return new Boolean(proxy == parameters[0]);
-    }
+  public Object invoke(Object proxy, Method method, Object[] parameters)
+    throws Throwable {
 
     return m_randomObjectFactory.generateParameter(method.getReturnType());
   }
 
-  public String stub_toString() {
-    return toString();
+  public String override_toString(Object proxy) {
+    return m_name + ":" + System.identityHashCode(proxy);
+  }
+
+  public boolean override_equals(Object proxy, Object o) {
+    return proxy == o;
+  }
+
+  public int override_hashCode(Object proxy) {
+    return System.identityHashCode(proxy);
+  }
+
+  public int override_compareTo(Object proxy, Object o) {
+    return System.identityHashCode(proxy) - System.identityHashCode(o);
   }
 }
