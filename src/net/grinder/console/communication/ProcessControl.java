@@ -21,6 +21,8 @@
 
 package net.grinder.console.communication;
 
+import java.io.File;
+
 import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 
@@ -35,8 +37,10 @@ public interface ProcessControl {
 
   /**
    * Signal the worker processes to start.
+   *
+   * @param script The script file to run.
    */
-  void startWorkerProcesses();
+  void startWorkerProcesses(File script);
 
   /**
    * Signal the worker processes to reset.

@@ -72,9 +72,9 @@ final class ProcessControlImplementation implements ProcessControl {
   /**
    * Signal the worker processes to start.
    */
-  public void startWorkerProcesses() {
+  public void startWorkerProcesses(File scriptFile) {
     m_processStatusSet.processEvent();
-    m_communication.send(new StartGrinderMessage(null));
+    m_communication.send(new StartGrinderMessage(scriptFile));
   }
 
   /**
