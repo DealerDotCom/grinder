@@ -60,11 +60,11 @@ public class TCPSniffer
 	    "\n   [-localPort <port>]            Default is 8001" +
 	    "\n   [-remoteHost <host name>]      Default is localhost" +
 	    "\n   [-remotePort <port>]           Default is 7001" +
-	    "\n" +
 	    "\n   [-ssl                          Use SSL" +
 	    "\n    [-certificate <PKCS12 file>   Optional client certificate" +
 	    "\n     -password <password>]        Certificate keystore pass" +
 	    "\n   ]" +
+	    "\n   [-colour]                      Be pretty on ANSI terminals" +
 	    "\n" +
 	    "\n <filter> can be the name of a class that implements " +
 	    "\n " + SnifferFilter.class.getName() + " or " +
@@ -114,6 +114,7 @@ public class TCPSniffer
 	String keystorePassword = null;
 	boolean rewriteURLs = false;
 	boolean proxy = false;
+	boolean useColour = false;
 
 	int i = 0;
 
@@ -153,6 +154,9 @@ public class TCPSniffer
 		}
 		else if (args[i].equals("-proxy")) {
 		    proxy = true;
+		}
+		else if (args[i].equals("-colour")) {
+		    useColour = true;
 		}
 		else {
 		    throw barfUsage();
@@ -236,7 +240,8 @@ public class TCPSniffer
 					  responseFilter,
 					  localPort,
 					  remoteHost,
-					  remotePort);
+					  remotePort,
+					  useColour);
 	    }
 	    else if (!useSSL) {
 		// proxy engine uses regexp so load it dynamically
@@ -262,7 +267,7 @@ public class TCPSniffer
 		final Object[] arguments = {
 		    requestFilter,
 		    responseFilter,
-		    new Integer(localPort),
+		    new Integer(localPort)
 		};
 
 		m_snifferEngine =
@@ -289,6 +294,7 @@ public class TCPSniffer
 		    java.lang.Integer.TYPE,
 		    String.class,
 		    java.lang.Integer.TYPE,
+		    java.lang.Boolean.TYPE,
 		    String.class,
 		    String.class };
 
@@ -301,6 +307,7 @@ public class TCPSniffer
 		    new Integer(localPort),
 		    remoteHost,
 		    new Integer(remotePort),
+		    new Boolean(useColour),
 		    keystore,
 		    keystorePassword
 		};

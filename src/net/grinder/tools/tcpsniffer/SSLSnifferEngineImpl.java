@@ -53,10 +53,12 @@ public class SSLSnifferEngineImpl extends SnifferEngineImpl
 				SnifferFilter responseFilter,
 				int localPort,
 				String remoteHost, int remotePort,
+				boolean useColour,
 				String keystoreName, String keystorePassword)
 	throws Exception
     {
-	super(requestFilter, responseFilter, remoteHost, remotePort);
+	super(requestFilter, responseFilter, remoteHost, remotePort,
+	      useColour);
 		
 	System.setProperty("java.protocol.handler.pkgs",
 			   "com.sun.net.ssl.internal.www.protocol");
