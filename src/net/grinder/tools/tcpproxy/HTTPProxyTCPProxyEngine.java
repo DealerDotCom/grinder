@@ -454,7 +454,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
             }
           }
           else if (m_lastRemoteStream == null) {
-            throw new IOException("Assertion failure - no last stream");
+            throw new AssertionError("No last stream");
           }
 
           // Should do filtering etc.

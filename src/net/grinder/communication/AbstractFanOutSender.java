@@ -79,12 +79,10 @@ abstract class AbstractFanOutSender extends AbstractSender {
       }
     }
     catch (Kernel.ShutdownException e) {
-      // Assertion failure.
-      throw new RuntimeException("Kernel unexpectedly shutdown");
+      throw new AssertionError(e);
     }
     catch (InterruptedException e) {
-      // Assertion failure.
-      throw new RuntimeException("Unexpectedly shutdown");
+      throw new AssertionError(e);
     }
   }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -101,7 +101,7 @@ class SamplingControlPanel extends JPanel {
               m_properties.setSampleInterval(value);
             }
             catch (ConsoleException e) {
-              assertionFailure(e);
+              throw new AssertionError(e.getMessage());
             }
           }
         }
@@ -122,7 +122,7 @@ class SamplingControlPanel extends JPanel {
               m_properties.setIgnoreSampleCount(value);
             }
             catch (ConsoleException e) {
-              assertionFailure(e);
+              throw new AssertionError(e.getMessage());
             }
           }
         }
@@ -143,7 +143,7 @@ class SamplingControlPanel extends JPanel {
               m_properties.setCollectSampleCount(value);
             }
             catch (ConsoleException e) {
-              assertionFailure(e);
+              throw new AssertionError(e.getMessage());
             }
           }
         }
@@ -210,11 +210,6 @@ class SamplingControlPanel extends JPanel {
       label.setText(m_collectSampleString + collectSample +
                     (collectSample == 1 ? m_sampleUnit : m_sampleUnits));
     }
-  }
-
-  private void assertionFailure(ConsoleException e) {
-    e.printStackTrace();
-    throw new RuntimeException(e.getMessage());
   }
 }
 

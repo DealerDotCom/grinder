@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -235,7 +235,7 @@ public class FixedWidthFormatter {
       break;
 
     default:
-      throw new RuntimeException("Assertion failed: invalid flow");
+      throw new AssertionError("Invalid flow: " + m_flow);
     }
 
     length = buffer.length();
@@ -267,7 +267,7 @@ public class FixedWidthFormatter {
         break;
 
       default:
-        throw new RuntimeException("Assertion failed: invalid alignment");
+        throw new AssertionError("Invalid alignment: " + m_alignment);
       }
     }
   }

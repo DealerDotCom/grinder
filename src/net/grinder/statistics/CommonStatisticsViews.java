@@ -70,9 +70,7 @@ public final class CommonStatisticsViews {
       }
     }
     catch (StatisticsException e) {
-      throw new RuntimeException(
-        "Assertion failure: CommonStatisticsViews could not initialise: " +
-        e.getMessage());
+      throw new AssertionError(e);
     }
   }
 

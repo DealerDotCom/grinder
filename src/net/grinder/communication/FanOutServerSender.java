@@ -93,8 +93,7 @@ public final class FanOutServerSender
       iterator = getResourcePool().reserveAll().iterator();
     }
     catch (InterruptedException e) {
-      // Assertion failure.
-      throw new RuntimeException("Unexpectedly shutdown");
+      throw new AssertionError(e);
     }
 
     try {
