@@ -26,6 +26,8 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import net.grinder.common.GrinderBuild;
@@ -93,6 +95,20 @@ public class Grinder {
 		while (tokenizer.hasMoreTokens()) {
 		    command.add(tokenizer.nextToken());
 		}
+	    }
+
+	    // Pass through any "grinder" system properties.
+	    final Iterator systemProperties =
+	      System.getProperties().entrySet().iterator();
+
+	    while (systemProperties.hasNext()) {
+	      final Map.Entry entry = (Map.Entry)systemProperties.next();
+	      final String key = (String)entry.getKey();
+	      final String value = (String)entry.getValue();
+
+	      if (key.startsWith("grinder.")) {
+		command.add("-D" + key + "=" + value);
+	      }
 	    }
 	    
 	    final String additionalClasspath =

@@ -5,6 +5,10 @@ Grinder 3.0-beta11
 
   German console translation from Alblas Huibert.
 
+  "grinder." properties specified on the agent command line are now
+  passed through to worker processes. The original motivation for this
+  was to allow the log directory to be set based on the system date.
+
 
 Grinder 3.0-beta10
 ------------------
