@@ -217,7 +217,8 @@ ensureClosed(connection)
 <h3><a name="ejb">Enterprise Java Beans</a></h3>
 
 <p class="script-description">Exercise a stateful session EJB from the
-BEA WebLogic Server 7.0 examples.</p>
+BEA WebLogic Server 7.0 examples. Before running this example you will need to
+add the EJB client classes to your <code>CLASSPATH</code>.</p>
 
 <blockquote>
 <pre>
@@ -278,11 +279,92 @@ random = Random()
 
 <hr/>
 
-<h3><a name="web_service">Web Services</a></h3>
+<h3><a name="amazon">Simple HTTP Web Service</a></h3>
 
-<p class="script-description">To be written.</p>
+<p class="script-description">Call an Amazon.com web service to obtain
+information about a book. Before running this example you will need to
+obtain your own Amazon.com web service license and replace the script
+text <code>&lt;insert license key here&gt;</code> with the license
+key.</p>
 
-<h3><a name="web_service">Java Message Service</a></h3>
+<blockquote>
+<pre>
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+<span class="keyword">from</span> net.grinder.plugin.http <span class="keyword">import</span> HTTPRequest
+<span class="keyword">from</span> HTTPClient <span class="keyword">import</span> NVPair
+<span class="keyword">from</span> xml.dom <span class="keyword">import</span> javadom
+<span class="keyword">from</span> org.xml.sax <span class="keyword">import</span> InputSource
+
+bookDetailsTest = Test(1, &quot;<span class="string">Get book details from Amazon</span>&quot;)
+parser = javadom.XercesDomImplementation()
+        
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        <span class="keyword">if</span> grinder.runNumber &gt; 0 <span class="keyword">or</span> grinder.threadID &gt; 0:
+            <span class="keyword">raise</span> RuntimeError(&quot;<span class="string">Use limited to one thread, one run; </span>&quot;
+                               &quot;<span class="string">see Amazon Web Services terms and conditions</span>&quot;)
+        
+        request = bookDetailsTest.wrap(
+            HTTPRequest(url=&quot;<span class="string">http://xml.amazon.com/onca/xml</span>&quot;))
+
+        parameters = (
+            NVPair(&quot;<span class="string">v</span>&quot;, &quot;<span class="string">1.0</span>&quot;),
+            NVPair(&quot;<span class="string">f</span>&quot;, &quot;<span class="string">xml</span>&quot;),
+            NVPair(&quot;<span class="string">t</span>&quot;, &quot;<span class="string">webservices-20</span>&quot;),
+            NVPair(&quot;<span class="string">dev-t</span>&quot;, &quot;<span class="string">&lt;insert license key here&gt;</span>&quot;),
+            NVPair(&quot;<span class="string">type</span>&quot;, &quot;<span class="string">heavy</span>&quot;),
+            NVPair(&quot;<span class="string">AsinSearch</span>&quot;, &quot;<span class="string">1904284000</span>&quot;),
+            )
+        
+        bytes = request.POST(parameters).inputStream
+
+        <span class="comment"># Parse results
+</span>        document = parser.buildDocumentUrl(InputSource(bytes))
+
+        result = {}
+        
+        <span class="keyword">for</span> details <span class="keyword">in</span> document.getElementsByTagName(&quot;<span class="string">Details</span>&quot;):
+            <span class="keyword">for</span> detailName <span class="keyword">in</span> (&quot;<span class="string">ProductName</span>&quot;, &quot;<span class="string">SalesRank</span>&quot;, &quot;<span class="string">ListPrice</span>&quot;):
+                result[detailName] = details.getElementsByTagName(
+                    detailName)[0].firstChild.nodeValue
+
+        grinder.logger.output(str(result))
+</pre>
+</blockquote>
+
+<hr/>
+
+<h3><a name="jaxrpc">JAX-RPC Web Service</a></h3>
+
+<p class="script-description">Exercise a basic Web Service from the
+BEA WebLogic Server 7.0 examples. Before running this example you will
+need to add the generated JAX-RPC client classes and
+<code>webserviceclient.jar</code> to your <code>CLASSPATH</code>.</p>
+
+<blockquote>
+<pre>
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+<span class="keyword">from</span> examples.webservices.basic.javaclass <span class="keyword">import</span> HelloWorld_Impl
+<span class="keyword">from</span> java.lang <span class="keyword">import</span> System
+
+System.setProperty( &quot;<span class="string">javax.xml.rpc.ServiceFactory</span>&quot;,
+ &quot;<span class="string">weblogic.webservice.core.rpc.ServiceFactoryImpl</span>&quot;);
+
+webService = HelloWorld_Impl(&quot;<span class="string">http://localhost:7001/basic_javaclass/HelloWorld?WSDL</span>&quot;);
+
+port  = webService.getHelloWorldPort();
+portTest = Test(1, &quot;<span class="string">JAXP Port test</span>&quot;).wrap(port)
+
+<span class="keyword">class</span> <span class="type">TestRunner</span>:
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        result = portTest.sayHello(grinder.threadID, grinder.grinderID);
+        grinder.logger.output(&quot;<span class="string">Got '%s'</span>&quot; % result);
+</pre>
+</blockquote>
+
+<hr/>
+
+<h3><a name="jms">Java Message Service</a></h3>
 
 <p class="script-description">To be written.</p>
 
