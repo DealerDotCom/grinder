@@ -65,12 +65,12 @@ public class TestInsecureSSLContextFactory extends TestCase {
     };
 
     final InsecureSSLContextFactory sslContextFactory =
-      new InsecureSSLContextFactory(keyManagers);
+      new InsecureSSLContextFactory();
 
-    final SSLContext context = sslContextFactory.create();
+    final SSLContext context = sslContextFactory.create(keyManagers);
     assertNotNull(context);
 
-    final SSLContext context2 = sslContextFactory.create();
+    final SSLContext context2 = sslContextFactory.create(keyManagers);
 
     assertNotNull(context2);
     assertTrue(context != context2);

@@ -128,9 +128,10 @@ public final class TCPProxySSLSocketFactoryImplementation
     keyManagerFactory.init(keyStore, keyStorePassword);
 
     final InsecureSSLContextFactory sslContextFactory =
-      new InsecureSSLContextFactory(keyManagerFactory.getKeyManagers());
+      new InsecureSSLContextFactory();
 
-    final SSLContext sslContext = sslContextFactory.create();
+    final SSLContext sslContext =
+      sslContextFactory.create(keyManagerFactory.getKeyManagers());
 
     m_clientSocketFactory = sslContext.getSocketFactory();
     m_serverSocketFactory = sslContext.getServerSocketFactory();

@@ -47,8 +47,6 @@ import net.grinder.common.GrinderException;
  */
 public final class InsecureSSLContextFactory {
 
-  private final KeyManager[] m_keyManagers;
-
   private static final TrustManager[] s_trustManagers = {
     new TrustEveryone(),
   };
@@ -66,33 +64,33 @@ public final class InsecureSSLContextFactory {
 
   /**
    * Constructor.
-   *
-   * Uses default KeyManager.
    */
   public InsecureSSLContextFactory() {
-    this(null);
   }
 
   /**
-   * Constructor.
-   *
-   * @param keyManagers The sources of authentication keys.
-   */
-  public InsecureSSLContextFactory(KeyManager[] keyManagers) {
-    m_keyManagers = keyManagers;
-  }
-
-  /**
-   * Factory method.
+   * Factory method. Uses default {@link KeyManager}.
    *
    * @return An SSLContext.
    * @exception CreateException If SSLContext couldn't be created.
    */
   public SSLContext create() throws CreateException {
+    return create(null);
+  }
+
+  /**
+   * Factory method.
+   *
+   * @param keyManagers The sources of authentication keys.
+   *
+   * @return An SSLContext.
+   * @exception CreateException If SSLContext couldn't be created.
+   */
+  public SSLContext create(KeyManager[] keyManagers) throws CreateException {
     try {
       final SSLContext sslContext = SSLContext.getInstance("SSL");
 
-      sslContext.init(m_keyManagers, s_trustManagers, s_insecureRandom);
+      sslContext.init(keyManagers, s_trustManagers, s_insecureRandom);
 
       return sslContext;
     }
