@@ -1,0 +1,38 @@
+2000-12-04  Philip Aston  <paston@beasys.com>
+
+	* SnifferServlet.java: Separate post data parameters with &.
+
+2000-12-02 Philip Aston <paston@beasys.com>
+
+	* Grinder version 0.2 is released.
+
+2000-12-02 Philip Aston <paston@beasys.com>
+
+	* Added WebAppSnifferServlet.
+
+2000-12-01 Philip Aston <paston@beasys.com>
+
+	* Grinder version 0.2 is released.
+
+2000-12-01 Philip Aston <paston@beasys.com>	
+
+	* Reorgansised distribution and repackaged:
+		net.grinder
+		net.grinder.console
+		net.grinder.engine
+		net.grinder.plugin
+		net.grinder.plugin.http
+		net.grinder.plugin.http.tools
+		net.grinder.plugin.simple
+		net.grinder.plugin.weblogic
+		net.grinder.plugin.weblogic.ejb
+		net.grinder.plugin.weblogic.util
+
+	* Renamed *Bmk.java to *Plugin.java
+
+	* GrinderProcess.java: Used isAssignableFrom to check plugin,
+	rather than string comparison on interface names.
+
+	* Removed my extension that made the HTTP plugin simulate a
+	browser cache. Better done by SnifferServlet.
+	
