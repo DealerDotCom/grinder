@@ -959,13 +959,13 @@ public class TestHTTPRequest extends TestCase {
 
       m_statisticsStubFactory.assertSuccess(
         "addValue", StatisticsIndexMap.LongIndex.class, Long.class);
+
+      m_statisticsStubFactory.assertSuccess(
+        "addValue", httpPlugin.getResponseErrorsIndex(), new Long(1));
     }
     catch (java.util.NoSuchElementException e) {
       // Whatever.
     }
-
-    m_statisticsStubFactory.assertSuccess(
-      "addValue", httpPlugin.getResponseErrorsIndex(), new Long(1));
 
     m_statisticsStubFactory.assertNoMoreCalls();
   }
