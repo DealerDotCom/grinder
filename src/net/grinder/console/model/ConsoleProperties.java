@@ -609,7 +609,8 @@ public final class ConsoleProperties {
   /**
    * Set the name of the chosen Look and Feel.
    *
-   * @param lookAndFeel The Look and Feel name. <code>null</code> => use default.
+   * @param lookAndFeel The Look and Feel name. <code>null</code> =>
+   * use default.
    */
   public void setLookAndFeel(String lookAndFeel) {
 
