@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,13 +21,10 @@
 
 package net.grinder.communication;
 
-import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import junit.framework.TestCase;
 
 
 /**
@@ -37,278 +33,292 @@ import java.util.Random;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
-public abstract class AbstractSenderAndReceiverTests extends TestCase
-{
-    public AbstractSenderAndReceiverTests(String name)
-    {
-	super(name);
+ */
+public abstract class AbstractSenderAndReceiverTests extends TestCase {
+
+  private final boolean m_messagesNeedInitialising;
+  private final String m_hostName;
+  private final int m_port;
+
+  protected Receiver m_receiver;
+  protected Sender m_sender;
+
+  private ExecuteThread m_executeThread;
+
+  public AbstractSenderAndReceiverTests(String name) throws Exception {
+    this(name, false);
+  }
+
+  public AbstractSenderAndReceiverTests(String name,
+                                        boolean messagesNeedInitialising) 
+    throws Exception {
+    
+    super(name);
+
+    m_messagesNeedInitialising = messagesNeedInitialising;
+
+    m_hostName = InetAddress.getByName(null).getHostName();
+
+    // Find a free port.
+    final ServerSocket socket = new ServerSocket(0);
+    m_port = socket.getLocalPort();
+    socket.close();
+  }
+
+  protected final String getHostName() {
+    return m_hostName;
+  }
+
+  protected final int getPort() {
+    return m_port;
+  }
+
+  protected void setUp() throws Exception {
+    m_executeThread = new ExecuteThread();
+  }
+
+  protected void tearDown() throws Exception {
+    m_executeThread.shutdown();
+  }
+  
+
+  public void testSendSimpleMessage() throws Exception {
+
+    final SimpleMessage sentMessage = new SimpleMessage(0);
+    maybeInitialiseMessage(sentMessage);
+    m_sender.send(sentMessage);
+
+    final Message receivedMessage = m_executeThread.waitForMessage();
+    assertEquals(sentMessage, receivedMessage);
+    assertTrue(sentMessage.payloadEquals(receivedMessage));
+    assertTrue(sentMessage != receivedMessage);
+  }
+
+  public void testSendManyMessages() throws Exception {
+    long sequenceNumber = -1;
+
+    for (int i=1; i<=10; ++i) {
+      final SimpleMessage[] sentMessages = new SimpleMessage[i];
+
+      for (int j=0; j<i; ++j) {
+        sentMessages[j] = new SimpleMessage(i);
+        maybeInitialiseMessage(sentMessages[j]);
+        m_sender.send(sentMessages[j]);
+      }
+
+      for (int j=0; j<i; ++j) {
+        final SimpleMessage receivedMessage =
+          (SimpleMessage) m_executeThread.waitForMessage();
+
+        if (sequenceNumber != -1) {
+          assertEquals(sequenceNumber+1, receivedMessage.getSequenceNumber());
+        }
+
+        sequenceNumber = receivedMessage.getSequenceNumber();
+
+        assertTrue(sentMessages[j].payloadEquals(receivedMessage));
+        assertTrue(sentMessages[j] != receivedMessage);
+      }
+    }
+  }
+
+  public void testSendLargeMessage() throws Exception {
+    // This causes a message size of about 38K. Should be limited by
+    // the buffer size in Receiver.
+    final SimpleMessage sentMessage = new SimpleMessage(8000);
+    maybeInitialiseMessage(sentMessage);
+    m_sender.send(sentMessage);
+
+    final SimpleMessage receivedMessage =
+      (SimpleMessage) m_executeThread.waitForMessage();
+
+    assertEquals(sentMessage, receivedMessage);
+    assertTrue(sentMessage.payloadEquals(receivedMessage));
+    assertTrue(sentMessage != receivedMessage);
+  }
+
+  public void testShutdownReceiver() throws Exception {
+    m_receiver.shutdown();
+    assertNull(m_executeThread.waitForMessage());
+  }
+
+  public void testQueueAndFlush() throws Exception {
+
+    final QueuedSender sender = new QueuedSenderDecorator(m_sender);
+
+    long sequenceNumber = -1;
+
+    final SimpleMessage[] messages = new SimpleMessage[25];
+
+    for (int i=0; i<messages.length; ++i) {
+      messages[i] = new SimpleMessage(0);
+      maybeInitialiseMessage(messages[i]);
+      sender.queue(messages[i]);
     }
 
-    private static Random s_random = new Random();
-    protected Receiver m_receiver;
-    protected Sender m_sender;
+    sender.flush();
 
-    protected abstract Receiver createReceiver() throws Exception;
-    protected abstract Sender createSender() throws Exception;
+    for (int i=0; i<messages.length; ++i) {
+      final Message receivedMessage = m_executeThread.waitForMessage();
 
-    public void testSendSimpleMessage() throws Exception
-    {
-	final ReceiverThread receiverThread = new ReceiverThread();
+      if (sequenceNumber != -1) {
+        assertEquals(sequenceNumber+1, receivedMessage.getSequenceNumber());
+      }
 
-	final SimpleMessage sentMessage = new SimpleMessage(0);
-	m_sender.send(sentMessage);
+      sequenceNumber = receivedMessage.getSequenceNumber();
 
-	final Message receivedMessage = m_receiver.waitForMessage();
-	assertEquals(sentMessage, receivedMessage);
-	assertTrue(sentMessage.payloadEquals(receivedMessage));
-	assertTrue(sentMessage != receivedMessage);
+      assertEquals(messages[i], receivedMessage);
+      assertTrue(messages[i].payloadEquals(receivedMessage));
+      assertTrue(messages[i] != receivedMessage);
+    }
+  }
+
+  public void testQueueAndSend() throws Exception {
+
+    final QueuedSender sender = new QueuedSenderDecorator(m_sender);
+
+    long sequenceNumber = -1;
+
+    final SimpleMessage[] messages = new SimpleMessage[25];
+
+    for (int i=0; i<messages.length; ++i) {
+      messages[i] = new SimpleMessage(0);
+      maybeInitialiseMessage(messages[i]);
+      sender.queue(messages[i]);
     }
 
-    public void testSendManyMessages() throws Exception
-    {
-	long sequenceNumber = -1;
+    final SimpleMessage finalMessage = new SimpleMessage(0);
+    maybeInitialiseMessage(finalMessage);
+    sender.send(finalMessage);
 
-	for (int i=1; i<=10; ++i)
-	{
-	    final SimpleMessage[] sentMessages = new SimpleMessage[i];
+    for (int i=0; i<messages.length; ++i) {
+      final Message receivedMessage = m_executeThread.waitForMessage();
 
-	    for (int j=0; j<i; ++j) {
-		sentMessages[j] = new SimpleMessage(i);
-		m_sender.send(sentMessages[j]);
-	    }
+      if (sequenceNumber != -1) {
+        assertEquals(sequenceNumber+1, receivedMessage.getSequenceNumber());
+      }
 
-	    for (int j=0; j<i; ++j) {
-		final SimpleMessage receivedMessage =
-		    (SimpleMessage)m_receiver.waitForMessage();
+      sequenceNumber = receivedMessage.getSequenceNumber();
 
-		if (sequenceNumber != -1) {
-		    assertEquals(sequenceNumber+1,
-				 receivedMessage.getSequenceNumber());
-		}
-
-		sequenceNumber = receivedMessage.getSequenceNumber();
-
-		assertTrue(sentMessages[j].payloadEquals(receivedMessage));
-		assertTrue(sentMessages[j] != receivedMessage);
-	    }
-	}
+      assertEquals(messages[i], receivedMessage);
+      assertTrue(messages[i].payloadEquals(receivedMessage));
+      assertTrue(messages[i] != receivedMessage);
     }
 
-    static int s_numberOfMessages = 0;
+    final Message receivedFinalMessage = m_executeThread.waitForMessage();
 
-    private class SenderThread extends Thread
-    {
-	public void run()
-	{
-	    try {
-		final Sender m_sender = createSender();
+    assertEquals(sequenceNumber+1, receivedFinalMessage.getSequenceNumber());
+    assertEquals(finalMessage, receivedFinalMessage);
+    assertTrue(finalMessage.payloadEquals(receivedFinalMessage));
+    assertTrue(finalMessage != receivedFinalMessage);
+  }
 
-		final int n = s_random.nextInt(10);
+  /**
+   * Pico-kernel! Need a long running thread because of the half-baked
+   * PipedInputStream/PipedOutputStream thread checking.
+   */
+  private final class ExecuteThread extends Thread {
 
-		for (int i=0; i<n; ++i) {
-		    m_sender.send(new SimpleMessage(1));
-		    sleep(s_random.nextInt(30));
-		}
+    private Action m_action;
 
-		synchronized(Sender.class) {
-		    s_numberOfMessages += n;
-		}
-
-		m_sender.shutdown();
-	    }
-	    catch (Exception e) {
-		e.printStackTrace();
-	    }
-	}
+    public ExecuteThread() {
+      super("ExecuteThread");
+      start();
     }
 
-    public void testManySenders() throws Exception
-    {
-	s_numberOfMessages = 0;
+    public synchronized void run() {
 
-	final Thread[] senderThreads = new Thread[5];
+      try {
+        while (true) {
+          while (m_action == null) {
+            wait();
+          }
 
-	for (int i=0; i<senderThreads.length; ++i) {
-	    senderThreads[i] = new SenderThread();
-	    senderThreads[i].start();
-	}
+          m_action.run();
+          m_action = null;
 
-	for (int i=0; i<senderThreads.length; ++i) {
-	    senderThreads[i].join();
-	}
-
-	for (int i=0; i<s_numberOfMessages; ++i) {
-	    m_receiver.waitForMessage();
-	}
+          notifyAll();
+        }
+      }
+      catch (InterruptedException e) {
+      }
     }
 
-    public void testSendLargeMessage() throws Exception
-    {
-	// This causes a message size of about 38K. Should be limited
-	// by the buffer size in Receiver.
-	final SimpleMessage sentMessage = new SimpleMessage(8000);
-	m_sender.send(sentMessage);
+    private synchronized Object execute(Action action) throws Exception {
 
-	final SimpleMessage receivedMessage =
-	    (SimpleMessage)m_receiver.waitForMessage();
+      m_action = action;
+      notifyAll();
 
-	assertEquals(sentMessage, receivedMessage);
-	assertTrue(sentMessage.payloadEquals(receivedMessage));
-	assertTrue(sentMessage != receivedMessage);
+      while (!action.getHasRun()) {
+        wait();
+      }
+
+      return action.getResult();
     }
 
-    public void testShutdownReceiver() throws Exception
-    {
-	m_receiver.shutdown();
-	assertNull(m_receiver.waitForMessage());
+    public Message waitForMessage() throws Exception {
+      return (Message) execute(
+        new Action() {
+          public Object doAction() throws Exception {
+            return m_receiver.waitForMessage();
+          }
+        }
+        );
     }
 
-    public void testQueueAndFlush() throws Exception
-    {
-	long sequenceNumber = -1;
+    public void shutdown() throws Exception {
+      execute(
+        new Action() {
+          public Object doAction() throws Exception {
+            throw new InterruptedException();
+          }
+        }
+        );
+    }    
 
-	// This number is deliberately low. Tests show that the
-	// multicast buffer on my NT machine only holds between about
-	// 30 and 70 SimpleMessage(0)'s before dropping the least
-	// recent message. Really need something more reliable than
-	// this.
-	SimpleMessage[] messages = new SimpleMessage[25];
+    private abstract class Action {
 
-	for (int i=0; i<messages.length; ++i)
-	{
-	    messages[i] = new SimpleMessage(0);
-	    m_sender.queue(messages[i]);
-	}
+      private Object m_result;
+      private Exception m_exception;
+      private boolean m_hasRun = false;
 
-	m_sender.flush();
+      public void run() throws InterruptedException {
+        try {
+          m_result = doAction();
+        }
+        catch (InterruptedException e) {
+          throw e;
+        }
+        catch (Exception e) {
+          m_exception = e;
+        }
+        finally {
+          m_hasRun = true;
+        }
+      }
 
-	for (int i=0; i<messages.length; ++i) {
-	    final Message receivedMessage = m_receiver.waitForMessage();
+      public Object getResult() throws Exception {
+        if (m_exception != null) {
+          throw m_exception;
+        }
 
-	    if (sequenceNumber != -1) {
-		assertEquals(sequenceNumber+1,
-			     receivedMessage.getSequenceNumber());
-	    }
+        return m_result;
+      }
 
-	    sequenceNumber = receivedMessage.getSequenceNumber();
+      public boolean getHasRun() {
+        return m_hasRun;
+      }
 
-	    assertEquals(messages[i], receivedMessage);
-	    assertTrue(messages[i].payloadEquals(receivedMessage));
-	    assertTrue(messages[i] != receivedMessage);
-	}
+      protected abstract Object doAction() throws Exception;
     }
+  }
+  
+  private int m_sequenceNumber = 0;
 
-    public void testQueueAndSend() throws Exception
-    {
-	long sequenceNumber = -1;
-
-	// This number is deliberately low. Tests show that the
-	// multicast buffer on my NT machine only holds between about
-	// 30 and 70 SimpleMessage(0)'s before dropping the least
-	// recent message. Really need something more reliable than
-	// this.
-	SimpleMessage[] messages = new SimpleMessage[25];
-
-	for (int i=0; i<messages.length; ++i)
-	{
-	    messages[i] = new SimpleMessage(0);
-	    m_sender.queue(messages[i]);
-	}
-
-	final SimpleMessage finalMessage = new SimpleMessage(0);
-	m_sender.send(finalMessage);
-
-	for (int i=0; i<messages.length; ++i) {
-	    final Message receivedMessage = m_receiver.waitForMessage();
-
-	    if (sequenceNumber != -1) {
-		assertEquals(sequenceNumber+1,
-			     receivedMessage.getSequenceNumber());
-	    }
-
-	    sequenceNumber = receivedMessage.getSequenceNumber();
-
-	    assertEquals(messages[i], receivedMessage);
-	    assertTrue(messages[i].payloadEquals(receivedMessage));
-	    assertTrue(messages[i] != receivedMessage);
-	}
-
-	final Message receivedFinalMessage = m_receiver.waitForMessage();
-
-	assertEquals(sequenceNumber+1,
-		     receivedFinalMessage.getSequenceNumber());
-	assertEquals(finalMessage, receivedFinalMessage);
-	assertTrue(finalMessage.payloadEquals(receivedFinalMessage));
-	assertTrue(finalMessage != receivedFinalMessage);
+  private void maybeInitialiseMessage(Message message) {
+    if (m_messagesNeedInitialising) {
+      message.setSenderInformation("Test", getClass().getName(),
+                                   m_sequenceNumber++);
     }
-
-    private class ReceiverThread extends Thread
-    {
-	private Message m_message;
-	private Exception m_exception;
-
-	public Message getMessage()
-	{
-	    return m_message;
-	}
-
-	public Exception getException()
-	{
-	    return m_exception;
-	}
-
-	public void run()
-	{
-	    m_message = null;
-	    m_exception = null;
-
-	    try {
-		m_message = m_receiver.waitForMessage();
-	    }
-	    catch (Exception e) {
-		m_exception = e;
-	    }
-	}
-    }
-
-    private static class SimpleMessage extends Message
-    {
-	private static Random s_random = new Random();
-
-	private final String m_text = "Some message";
-	private final int m_random = s_random.nextInt();
-	private final int[] m_padding;
-
-	public SimpleMessage(int paddingSize)
-	{
-	    m_padding = new int[paddingSize];
-
-	    for (int i=0; i<paddingSize; i++) {
-		m_padding[i] = i;
-	    }
-	}
-
-	public String toString()
-	{
-	    return "(" + m_text + ", " + m_random + ")";
-	}
-
-	public boolean payloadEquals(Message o) 
-	{
-	    if (o == this) {
-		return true;
-	    }
-
-	    if (!(o instanceof SimpleMessage)) {
-		return false;
-	    }
-
-	    final SimpleMessage other = (SimpleMessage)o;
-
-	    return
-		m_text.equals(other.m_text) &&
-		m_random == other.m_random;
-	}
-    }
+  }
 }
