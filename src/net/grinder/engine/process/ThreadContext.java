@@ -176,11 +176,12 @@ final class ThreadContext implements PluginThreadContext
     final TestResult invokeTest(TestData testData)
 	throws AbortRunException, Sleeper.ShutdownException
     {
-	m_threadLogger.setCurrentTestNumber(testData.getNumber());
-
 	m_testResult.reset();
 
 	final Test test = testData.getTest();
+
+	m_threadLogger.setCurrentTestNumber(test.getNumber());
+
 	final StatisticsImplementation statistics = testData.getStatistics();
 
 	m_sleeper.sleepNormal(

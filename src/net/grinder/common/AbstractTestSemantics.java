@@ -23,7 +23,7 @@ package net.grinder.common;
  * @author Philip Aston
  * @version $Revision$
  */
-public abstract class AbstractTestSemantics implements Comparable
+public abstract class AbstractTestSemantics implements Test
 {
     public abstract int getNumber();
 
@@ -56,5 +56,17 @@ public abstract class AbstractTestSemantics implements Comparable
 	}
 	
 	return getNumber() == ((AbstractTestSemantics)o).getNumber();
+    }
+
+    public final String toString()
+    {
+	final String description = getDescription();
+
+	if (description == null) {
+	    return "Test " + getNumber();
+	}
+	else {
+	    return "Test " + getNumber() + " (" + description + ")";
+	}
     }
 }

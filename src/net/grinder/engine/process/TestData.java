@@ -34,7 +34,7 @@ import net.grinder.statistics.StatisticsImplementation;
  * @author Philip Aston
  * @version $Revision$
  */
-final class TestData extends AbstractTestSemantics
+final class TestData
 {
     private final Test m_test;
     
@@ -54,10 +54,5 @@ final class TestData extends AbstractTestSemantics
     final StatisticsImplementation getStatistics() 
     {
 	return m_statistics;
-    }
-
-    public final int getNumber()
-    {
-	return m_test.getNumber();
     }
 }

@@ -23,7 +23,7 @@ package net.grinder.common;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestImplementation extends AbstractTestSemantics implements Test
+public class TestImplementation extends AbstractTestSemantics
 {
     private final int m_number;
     private final String m_description;
@@ -50,17 +50,5 @@ public class TestImplementation extends AbstractTestSemantics implements Test
     public final GrinderProperties getParameters()
     {
 	return m_parameters;
-    }
-
-    public final String toString()
-    {
-	final String description = getDescription();
-
-	if (description == null) {
-	    return "Test " + getNumber();
-	}
-	else {
-	    return "Test " + getNumber() + " (" + description + ")";
-	}
     }
 }

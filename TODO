@@ -3,6 +3,28 @@ diff patches. Mail them to grinder-development@lists.sourceforge.net.
 The wish list is part of the distribution, I'll accept patches against
 it too :-). The list is roughly in priority order.]
 
+
+When HTTPTest etc know about the plugin, where do the lifecycle (begin
+run etc) callbacks go? To all known plugins? Split script into
+declaration and usage?
+
+Make ProcessContext a singleton?
+
+Sender to be an active object.
+
+BSFInvokeableTest functionality to move to HTTPTest. Remove onus of
+registering test from script.
+
+Abstract out a TestScheduler interface to allow other algorithms. Add
+a "random order" algorithm, which might work well with the JUnit
+plugin. Flesh out the API so custom script schedulers can be
+supported.
+
+Use the console to broadcast scripts to grinder processes. XML
+containing embedded script.
+
+
+
   TCPSniffer/HTTPPlugin bug when recording large outputs with posts?
 
   Update HTTPClient to measure "time to first byte" and "Time to last
@@ -35,12 +57,3 @@ it too :-). The list is roughly in priority order.]
 	Respect charset information.
 	Sanity check the processing against RFC 2616
 
-
-The following are scheduled for Grinder 3:
-
-  Abstract out a TestScheduler interface to allow other algorithms.
-  Add a "random order" algorithm, which might work well with the JUnit
-  plugin. Flesh out the API so custom script schedulers can be
-  supported.
-
-  Use the console to broadcast scripts to grinder processes.
