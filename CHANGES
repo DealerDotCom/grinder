@@ -1,3 +1,27 @@
+Grinder 2.4
+-----------
+
+  The console UI has been slightly tidied up. Graphs are now
+  histograms.
+
+  The JUnit plugin should work again. It also has a new parameter
+  (logStackTraces) and improved logging.
+
+  You can now specify an explicit properties file to both the Grinder
+  and the Console as the first argument. For example:
+
+	java net.grinder.Grinder myproperties
+
+  Credit to Marc Stogner for this idea and initial implementaion.
+
+  (More version musings: The last version was _meant_ to named be 2.4,
+  not 2.3.2. According to my schem, increments the third number is
+  meant to be reserved for bug fix releases only. The new console
+  funtionallity really deserves something more significant. Rather
+  than rewriting history, I'm treating 2.3.2 as a "beta" of the
+  console functionality, and upping the second number here.)
+
+
 Grinder 2.3.2
 -------------
 

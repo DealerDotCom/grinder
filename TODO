@@ -29,9 +29,11 @@ that too :-). The list is roughly in priority order.]
 
   Find out how to stop net.grinder.console.swing.TestGraph from
   preventing parent process from detecting exit status. (For example,
-  when used with the JUnit plugin).
+  when used with the JUnit plugin). Surely System.exit() is not the
+  answer?
 
-  Change the console Graph to be a historgram.
+  Get the communications tests and the swing tests running under the
+  JUnit plugin.
 
   Add dropped packet detection to the communications.
 
