@@ -1,3 +1,24 @@
+2004-01-19  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/LoggerImplementation.java:
+	"There were errors" message now prints out log file name.
+
+	* CHANGES: Next is beta18.
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties:
+	Manually insert line breaks to work around TextArea preferred size
+	issues.
+
+	* src/net/grinder/console/swingui/resources/Console.properties:
+	Add text for new HTTP plugin statistics.
+	Manually insert line breaks to work around TextArea preferred size
+	issues.
+
+	* src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties:
+	Add text for new HTTP plugin statistics.
+
+	* build.xml: Next is beta18.
+
 2004-01-18  Philip Aston  <paston@bea.com>
 
 	* The Grinder 3.0-beta17 is released.
