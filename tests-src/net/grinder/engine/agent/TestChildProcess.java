@@ -155,11 +155,27 @@ public class TestChildProcess extends TestCase {
 
     childProcess.destroy();
 
-    // Won't return if process is running.
+    // Won't return if process is running. Actual exit value is
+    // platform specific, and sometimes 0 on win32!
     final int exitValue = childProcess.waitFor();
+  }
 
-    // Actual value is platform specific.
-    assertTrue(exitValue != 0);
+  public void testProcessesAreRegsiteredWithReaper() throws Exception {
+    final String[] commandArray = {
+      "java",
+      "-classpath",
+      "build/tests-classes",
+      EchoClass.class.getName(),
+    };
+
+    final ChildProcess childProcess =
+      new ChildProcess(commandArray, m_outputStream, m_errorStream);
+
+    ProcessReaper.getInstance().run();
+    
+    // Won't return if process is running. Actual exit value is
+    // platform specific, and sometimes 0 on win32!
+    final int exitValue = childProcess.waitFor();
   }
 
   private static final class WriteData implements Runnable {
