@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2001  Paco Gomez
-// Copyright (C) 2001  Philip Aston
+// Copyright (C) 2000  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,10 +18,22 @@
 
 package net.grinder.plugin.http;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URLConnection;
+import java.net.URL;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
+import net.grinder.plugininterface.Logger;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 
@@ -32,6 +44,12 @@ import net.grinder.plugininterface.PluginThreadContext;
  * Wrap up HTTP requests, cache a cookie across a number of calls,
  * simulate a browser cache.
  * 
+ * BUGS:
+ *   One shouldn't expect much from a class with such a the duffly
+ *   capitalised name, but HttpURLConnection sucks. It refuses to accept
+ *   the reality of multiple header fields. This means that only one
+ *   Set-Cookie header can be honoured per message.
+ *
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
@@ -102,7 +120,7 @@ class HttpMsg
 	// Think "=;" will match nothing but empty cookies. If your
 	// bother by this, please read RFC 2109 and fix.
 	if (m_useCookies) {
-	    final String cookieString = m_cookieHandler.getCookieString();
+	    final String cookieString = m_cookieHandler.getCookieString(url);
 
 	    if (cookieString != null) {
 		connection.setRequestProperty("Cookie", cookieString);
@@ -132,11 +150,13 @@ class HttpMsg
 	final int responseCode = connection.getResponseCode();
 
 	if (m_useCookies) {
+	    // Sadly HttpURLConnection gives us no way to get at more
+	    // than one Set-Cookie header.
 	    final String setCookieString =
 		connection.getHeaderField("Set-Cookie");
 
 	    if (setCookieString != null) {
-		m_cookieHandler.captureCookies(setCookieString);
+		m_cookieHandler.setCookies(setCookieString, url);
 	    }
 	}
 
@@ -195,6 +215,6 @@ class HttpMsg
     }
 
     public void reset(){
-        m_cookieHandler = new CookieHandler();
+        m_cookieHandler = new CookieHandler(m_pluginThreadContext);
     }
 }

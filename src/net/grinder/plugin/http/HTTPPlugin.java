@@ -152,9 +152,20 @@ public class HttpPlugin extends SimplePluginBase
 	    pluginThreadContext.getPluginParameters();
 
 	m_filenameFactory = pluginThreadContext.getFilenameFactory();
-    
+
+	boolean useCookies = parameters.getBoolean("keepSession", false);
+
+	if (useCookies) {
+	    m_pluginThreadContext.logError(
+		"'keepSession' has been renamed to 'useCookies'." +
+		"Please update your grinder.properties.");
+	}
+	else {
+	    useCookies = parameters.getBoolean("useCookies", true);
+	}
+
 	m_httpMsg = new HttpMsg(pluginThreadContext,
-				parameters.getBoolean("keepSession", false),
+				useCookies,
 				parameters.getBoolean("followRedirects",
 						      false));
 
