@@ -34,14 +34,13 @@ public class GraphStatInfo extends javax.swing.JPanel{
     public GraphStatInfo(String msg, float min, float max){
         _eg = new EvolGraph(_x, _y, min, max);
                
-        _title = new JLabel(msg + " (tps)");
+        _title = new JLabel(msg + " (ART ms)");
         _min = new JLabel("" + min);
         _max = new JLabel("" + max);
         _cur = new JLabel("" + min);
         _time = new JLabel("processing time: " + 0 + " s");
         _trans = new JLabel("transactions: " + 0);
         _art = new JLabel("ART: " + 0 + " s");
-        _tps = new JLabel("TPS: " + 0 + " t/s");
         
         Border blackline;
         blackline = BorderFactory.createLineBorder(Color.black);
@@ -55,7 +54,6 @@ public class GraphStatInfo extends javax.swing.JPanel{
         _time.setForeground(Color.black);
         _trans.setForeground(Color.black);
         _art.setForeground(Color.black);
-        _tps.setForeground(Color.black);
         
         Font f = new Font("helvetica", Font.PLAIN, 10);
         _title.setFont(f);
@@ -65,7 +63,6 @@ public class GraphStatInfo extends javax.swing.JPanel{
         _time.setFont(f);
         _trans.setFont(f);
         _art.setFont(f);
-        _tps.setFont(f);        
         _title.setVerticalAlignment(SwingConstants.TOP);
         _min.setVerticalAlignment(SwingConstants.TOP);
         _max.setVerticalAlignment(SwingConstants.BOTTOM);
@@ -73,7 +70,6 @@ public class GraphStatInfo extends javax.swing.JPanel{
         _time.setVerticalAlignment(SwingConstants.TOP);
         _trans.setVerticalAlignment(SwingConstants.TOP);
         _art.setVerticalAlignment(SwingConstants.BOTTOM);
-        _tps.setVerticalAlignment(SwingConstants.TOP);
         
         
         setLayout(null);
@@ -86,7 +82,6 @@ public class GraphStatInfo extends javax.swing.JPanel{
         add(_time);
         add(_trans);
         add(_art);
-        add(_tps);
         
         //FontMetrics fm = max.getFontMetrics();
         //int as = fm.getAscent();
@@ -95,7 +90,6 @@ public class GraphStatInfo extends javax.swing.JPanel{
         _trans.setBounds(5 + insets.left, 25 + insets.top, 150, 20);
         _time.setBounds(5 + insets.left, 45 + insets.top, 150, 20);
         _art.setBounds(5 + insets.left, 55 + insets.top, 150, 20);
-        _tps.setBounds(5 + insets.left, 75 + insets.top, 150, 20);
         
         _eg.setBounds(170 + insets.left, 20 + insets.top, _x, _y);
         _min.setBounds(247 + insets.left, 79 + insets.top, _x, 20);
@@ -116,12 +110,11 @@ public class GraphStatInfo extends javax.swing.JPanel{
         _time.setText("processing time: " + ((float)si._time/1000.0f) + " s");
         _trans.setText("transactions: " + si._trans);
         _art.setText("ART: " + ((float)si._time/(float)si._trans)/1000.0f + " s");
-        _tps.setText("TPS: " + ((float)si._trans/(float)si._time)*1000.0f + " t/s");
     }
     
     protected EvolGraph _eg = null;
     protected JLabel _title, _min, _max, _cur;
-    protected JLabel _time, _trans, _art, _tps;
+    protected JLabel _time, _trans, _art;
     protected int _x = 75;
     protected int _y = 60;
     

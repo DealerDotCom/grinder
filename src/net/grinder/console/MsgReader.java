@@ -59,7 +59,7 @@ public class MsgReader implements java.lang.Runnable{
       }
     }
     catch(Exception e){
-      System.err.println(e);
+      e.printStackTrace();
     }
   }
     
@@ -84,12 +84,6 @@ public class MsgReader implements java.lang.Runnable{
                   _trans = Long.parseLong(_st.nextToken());
                   if (_st.hasMoreElements()){
                     _art = Float.valueOf(_st.nextToken()).floatValue();
-                    if (_st.hasMoreElements()){
-                      _tps = Float.valueOf(_st.nextToken()).floatValue();
-                    }
-                    else{
-                      _tps = 0.0f;
-                    }
                   }
                   else{
                     _art = 0.0f;
@@ -127,14 +121,12 @@ public class MsgReader implements java.lang.Runnable{
       _time = 0;
       _trans = 0;
       _art = 0.0f;
-      _tps = 0.0f;
     }   
         
     synchronized(_si[_method]){
       _si[_method]._time += _time;
       _si[_method]._trans += _trans;
       _si[_method]._art = _art;
-      _si[_method]._tps = _tps;
     }
  
   }
@@ -148,7 +140,6 @@ public class MsgReader implements java.lang.Runnable{
   long _time = 0;
   long _trans = 0;
   float _art = 0.0f;
-  float _tps = 0.0f;
   StatInfo _si[] = null;
     
 }

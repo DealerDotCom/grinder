@@ -53,7 +53,7 @@ public class Console extends PropsLoader
                 Thread.sleep(_interval);
                 
                 for (int i=0; i<_si.length; i++){
-                    _gsi[i].add(_si[i]._tps);
+                    _gsi[i].add(_si[i]._art);
                     _gsi[i].update(_si[i]);
                 }
             }
@@ -82,10 +82,7 @@ public class Console extends PropsLoader
 	    StringTokenizer st;
 	    
 	    st = new StringTokenizer(System.getProperty("grinder.plugin.methods"), "\t\n\r,");
-	    int n = st.countTokens() - 1;
-	    //skip init
-	    if (st.hasMoreElements())
-	        st.nextElement();
+	    int n = st.countTokens();
 	    
 	    //be aware of the index!!!
         _gsi = new GraphStatInfo[n];
