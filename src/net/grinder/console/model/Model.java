@@ -150,6 +150,11 @@ public class Model {
 
     final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
+    // Ensure that the common statistics views are registered before
+    // our new ones - otherwise the order can vary depending on how
+    // classes are packaged.. See bug 804272.
+    CommonStatisticsViews.getSummaryStatisticsView();
+
     m_periodIndex = indexMap.getIndexForLong("period");
 
     final StatisticExpressionFactory statisticExpressionFactory =

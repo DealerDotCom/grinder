@@ -16,6 +16,9 @@ Grinder 3.0-beta11
      doesn't match the host name. The default behaviour has been
      changed to disable this check.
 
+  Fix bug 804272 - console results table column order varies according
+  to how classes are packaged. Thanks to Karl Wyer for the report.
+
 
 Grinder 3.0-beta10
 ------------------
