@@ -77,39 +77,25 @@ final class SocketSet {
   }
 
   /**
-   * Returns a Handle. Blocks until a Handle is available. The Handles
-   * are handed out to callers in order. A SentinelHandle is returned
-   * to one of the threads once every cycle.
+   * Returns a Handle. Free Handles are handed out to callers in
+   * order. A SentinelHandle is returned once every cycle; if no
+   * Handles are free the SentinelHandle is always returned.
    *
    * @returns The Handle. It is up to the caller to free the Handle.
-   * @throws InterruptedException If the caller's thread is
-   * interrupted. This can occur if thread belongs to the Acceptor
-   * thread group and the Acceptor is shut down.
    */
-  public Handle reserveNextHandle() throws InterruptedException {
+  public Handle reserveNextHandle() {
     synchronized (m_handleListMutex) {
       purgeZombieHandles();
-
-      int checked = 0;
 
       while (true) {
         if (++m_lastHandle >= m_handles.size()) {
           m_lastHandle = 0;
         }
 
-        if (checked++ >= m_handles.size()) {
-          // All current Handles are busy => too many threads. Put
-          // this one to sleep until we have more work.
-          m_handleListMutex.wait();
+        final Handle handle = (Handle)m_handles.get(m_lastHandle);
 
-          checked = 0;
-        }
-        else {
-          final Handle handle = (Handle)m_handles.get(m_lastHandle);
-
-          if (handle.reserve()) {
-            return handle;
-          }
+        if (handle.reserve()) {
+          return handle;
         }
       }
     }
