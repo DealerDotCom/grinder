@@ -124,6 +124,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
     "Cache-Control",
     "If-Modified-Since",
     "Referer",
+    "User-Agent",
   };
 
   private static final int s_length = 100;

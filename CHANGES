@@ -9,6 +9,9 @@ Grinder 3.0-beta15
   You can now wrap Jython objects that are subclassed from Java
   objects. Thanks to John Stanford White for requesting this.
 
+  HTTPPluginTCPProxyFilter now records the User-Agent header. Thanks
+  to Danny Faught for pointing out the opportunity.
+
 
 Grinder 3.0-beta14
 ------------------

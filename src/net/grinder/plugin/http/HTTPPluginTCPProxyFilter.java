@@ -98,6 +98,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
     "Cache-Control",
     "If-Modified-Since",
     "Referer",
+    "User-Agent",
   };
 
   private final PrintWriter m_out;
