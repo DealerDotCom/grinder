@@ -1,5 +1,7 @@
 2001-05-25  Philip Aston  <paston@bea.com>
 
+	* The Grinder 2.6.2 is released.
+	
 	* build.xml: Distribute docs.
 
 	* tests-src/net/grinder/plugininterface/LogCounter.java: "Fix" test.
