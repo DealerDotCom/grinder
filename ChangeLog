@@ -1,3 +1,21 @@
+2003-10-30  Philip Aston  <philipa@mail.com>
+
+	* build.xml: Next is beta-11.
+
+	* src/net/grinder/TCPProxy.java:
+	Barf helpfully if user tries to use -initialTest.
+
+	* src/net/grinder/tools/tcpproxy/TCPProxyConsole.java, src/net/grinder/tools/tcpproxy/TCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java, src/net/grinder/tools/tcpproxy/TCPProxyFilter.java, CHANGES, src/net/grinder/TCPProxy.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/tools/tcpproxy/EchoFilter.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/NullFilter.java:
+	First set of enhancements to the TCPProxy from Bernard:
+	   - Added a "-console" switch. When used, the TCPProxy creates a
+	     simple Swing dialog that allows it to be cleanly interrupted.
+
+	   - Added a "-properties" switch to pass System properties to
+	     filter implementations. Removed the HTTPPluginTCPProxyFilter's
+	     "-initialTest" option in favour of this more general mechanism.
+
+	   - Added a shutdown hook to increase chance of clean shutdown.
+
 2003-10-27  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/script/overview.html, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/script/Grinder.java, src/net/grinder/script/Statistics.java:
