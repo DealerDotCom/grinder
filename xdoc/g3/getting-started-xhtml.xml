@@ -31,8 +31,7 @@ responsibilities of each type of process are:</p>
     <p/>
   </li>
 </ul>
-
-<p>As the Grinder is written in Java, each of these processes is a
+<p>As The Grinder is written in Java, each of these processes is a
 Java Virtual Machine (JVM).</p>
 
 <p>For heavy duty testing, you can start an agent process on each of
@@ -57,7 +56,7 @@ same test, The Grinder will aggregate the results.</p>
 <ol>
 
 <li>Create a <a href="#properties"><code>grinder.properties</code></a>
-file which specifes general control information (how the worker
+file which specifies general control information (how the worker
 processes should contact the console, how many worker processes to
 use, ..), as well as the name of the <a href="scripts.html">Jython
 script</a> that will be used to run the tests.<p/></li>
@@ -359,6 +358,8 @@ engine.</p>
 
 </table>
 </blockquote>
-
+<small>
+$Date$
+</small>
 </body>
 </html>
