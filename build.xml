@@ -57,7 +57,6 @@ conditionally built modules are:
    HTTP SSL plugin (Needs the JSSE 1.0.2)
    TCPSniffer SSL engine (Needs the JSSE 1.0.2)
    TCPSniffer HTTP plugin filter (Needs Apache Jakarta Regexp 1.2)
-   WebLogic Server Trader EJB plugin (needs WLS 5.1 Trader EJB)
    JUnit test cases (needs JUnit 3.4)
 
 Ant hint for cygwin users: Copy "ant" from the Ant bin directory into
@@ -82,11 +81,8 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <available classname="javax.net.ssl.SSLSocketFactory"
 	       property="have.jsse" />
 
-    <available classname="examples.ejb.basic.statelessSession.Trader"
-	       property="have.weblogic.traderEJB" />
-
     <available classname="org.apache.regexp.RE"
-	       property="have.jakarta.regexp" />
+	       property="have.regexp" />
 
     <available classname="junit.framework.TestCase"
 	       property="have.junit" />
@@ -127,6 +123,27 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   </target>
 
   <!-- =================================================================== -->
+  <!-- Useful assertions                                                   -->
+  <!-- =================================================================== -->
+  <target name="assert-have-jsse" depends="init" unless="have.jsse">
+   <fail message="Add JSSE 1.0.2 to your CLASSPATH to build this target"/>
+  </target>
+
+  <target name="assert-have-junit" depends="init" unless="have.junit">
+   <fail message="Add JUnit 3.4 to your CLASSPATH to build this target"/>
+  </target>
+
+  <target name="assert-have-regexp" depends="init" unless="have.regexp">
+   <fail message="Add Apache Regexp 1.2 to your CLASSPATH to build this target"/>
+  </target>
+
+  <target name="assert-have-everything"
+	  depends="assert-have-jsse,assert-have-junit,assert-have-regexp">
+  </target>
+
+
+
+  <!-- =================================================================== -->
   <!-- Rules that prepare a filtered copy of the appropriate source code   -->
   <!-- =================================================================== -->
   <target name="prepare-src" depends="init">
@@ -156,15 +173,9 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
 	   deprecation="${deprecation}">
        <exclude name="**/HttpsPlugin.java" unless="have.jsse"/>
        <exclude name="**/SSLSnifferEngineImpl.java" unless="have.jsse"/>
-       <exclude name="**/weblogic/*" unless= "have.weblogic.traderEJB"/>
-       <exclude name="**/HttpPluginSnifferFilter.java"
-		unless="have.jakarta.regexp"/>
+       <exclude name="**/HttpPluginSnifferFilter.java" unless="have.regexp"/>
 
     </javac>
-  </target>
-
-  <target name="assert-have-junit" depends="init" unless="have.junit">
-   <fail message="Add JUnit 3.4 to your CLASSPATH to compile/run the tests"/>
   </target>
 
   <target name="compile-tests"
@@ -263,21 +274,17 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   <!-- =================================================================== -->
   <target name="dist" depends="distribution-hierarchy"
 	  description="Generates a distribution jar.">
-    <jar jarfile="${name}-${version}-${DSTAMP}.jar" basedir="${dist.root}"/>
+    <jar jarfile="${name}-pre-${version}-${DSTAMP}.jar"
+	 basedir="${dist.root}"/>
   </target>
 
-  <target name="assert-have-eveything" depends="init"
-	  unless="have.jakarta.regexp,have.jsse,have.junit,have.weblogic.traderEJB"
-	  >
-   <fail message="Something option is missing from your CLASSPATH"/>
-  </target>
-
-  <target name="release" depends="assert-have-eveything,realclean,distribution-hierarchy,distribute-javadoc"
+  <target name="release" depends="assert-have-everything,realclean,distribution-hierarchy,distribute-javadoc"
 	  description="Generates a release jar.">
 <!--      <cvs command="tag -R release_${version}" noexec="true"/> -->
     <jar jarfile="${name}-${version}.jar" basedir="${dist.root}"/>
 
     <echo message="*** Now say 'cvs tag -R release_${version}"/>
+    <echo message="*** and update the version number in build.xml"/>
   </target>
 
   <!-- =================================================================== -->
