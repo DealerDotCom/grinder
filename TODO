@@ -54,7 +54,13 @@ Allow grinder properties to be set remotely.
 *** Add log panel
 
 Report log messages that currently go to terminal, plus start, stop
-test runs etc. Logs should be timestamped.
+test runs etc. Logs should be timestamped. Use log to replace use of
+System.err for warnings.
+
+*** Controls
+
+Consider removing "stop processes" button, or protecting with "Are you
+sure?"
 
 ** Engine
 
