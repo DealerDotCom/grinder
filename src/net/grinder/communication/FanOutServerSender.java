@@ -44,8 +44,7 @@ public final class FanOutServerSender extends AbstractFanOutSender {
    * @throws CommunicationException If server socket could not be
    * bound.
    */
-  public static FanOutServerSender bindTo(String addressString,
-                                          int port)
+  public static FanOutServerSender bindTo(String addressString, int port)
     throws CommunicationException {
 
     return new FanOutServerSender(new Acceptor(addressString, port, 1),
