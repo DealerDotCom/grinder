@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,10 +23,6 @@
 package net.grinder.statistics;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
-
-import net.grinder.common.GrinderException;
 
 
 /**
@@ -36,20 +32,21 @@ import net.grinder.common.GrinderException;
  * @version $Revision$
  * @see RawStatistics
  */
-public class TestTestStatisticsImplementation extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestTestStatisticsImplementation.class);
-    }
-
-    public TestTestStatisticsImplementation(String name)
-    {
+public class TestTestStatisticsImplementation extends TestCase {
+  public TestTestStatisticsImplementation(String name) {
 	super(name);
-    }
+  }
 
-    public void testTestStatisticsImplementation() throws Exception
-    {
+  public void testTestStatisticsImplementation() throws Exception {
+    final StatisticsIndexMap statisticsIndexMap =
+      StatisticsIndexMap.getInstance();
+    final StatisticsIndexMap.LongIndex errorStatisticIndex =
+      statisticsIndexMap.getIndexForLong("errors");
+    final StatisticsIndexMap.LongIndex untimedTestsIndex =
+      statisticsIndexMap.getIndexForLong("untimedTests");
+    final StatisticsIndexMap.LongSampleIndex timedTestsIndex =
+      statisticsIndexMap.getIndexForLongSample("timedTests");
+
 	final TestStatistics testStatistics1 =
 	    new TestStatisticsImplementation();
 
@@ -64,28 +61,28 @@ public class TestTestStatisticsImplementation extends TestCase
 
 	assertEquals(testStatistics1, testStatistics2);
 
-	testStatistics1.addError();
+	testStatistics1.addValue(errorStatisticIndex, 1);
 	assertEquals(1, testStatistics1.getErrors());
 	assertTrue(!testStatistics1.equals(testStatistics2));
 
-	testStatistics2.addError();
+	testStatistics2.addValue(errorStatisticIndex, 1);
 	assertEquals(testStatistics1, testStatistics2);
 
-	testStatistics1.addTest();
+	testStatistics1.addValue(untimedTestsIndex, 1);
 	assertEquals(1, testStatistics1.getTests());
 	assertTrue(!testStatistics1.equals(testStatistics2));
 
-	testStatistics2.addTest();
+	testStatistics2.addValue(untimedTestsIndex, 1);
 	assertEquals(testStatistics1, testStatistics2);
 
-	testStatistics1.addTest(5);
-	testStatistics2.addTest(10);
+	testStatistics1.addSample(timedTestsIndex, 5);
+	testStatistics2.addSample(timedTestsIndex, 10);
 	assertEquals(2, testStatistics1.getTests());
 	assertTrue(!testStatistics1.equals(testStatistics2));
 
-	testStatistics1.addTest(10);
-	testStatistics2.addTest(5);
+	testStatistics1.addSample(timedTestsIndex, 10);
+	testStatistics2.addSample(timedTestsIndex, 5);
 	assertEquals(testStatistics1, testStatistics2);
 	assertEquals(7.5d, testStatistics2.getAverageTestTime(), 0.01);
-    }
+  }
 }

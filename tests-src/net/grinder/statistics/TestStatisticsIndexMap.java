@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,126 +23,106 @@ package net.grinder.statistics;
 
 import junit.framework.TestCase;
 import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
-
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import net.grinder.common.GrinderException;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.RawStatistics;
 
-
 /**
  * Unit test case for <code>StatisticsIndexMap</code>.
- *
+ * 
  * @author Philip Aston
  * @version $Revision$
  * @see RawStatistics
  */
-public class TestStatisticsIndexMap extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestStatisticsIndexMap.class);
+public class TestStatisticsIndexMap extends TestCase {
+
+  public static void main(String[] args) {
+    TestRunner.run(TestStatisticsIndexMap.class);
+  }
+
+  public TestStatisticsIndexMap(String name) {
+    super(name);
+  }
+
+  private final StatisticsIndexMap m_indexMap =
+    StatisticsIndexMap.getInstance();
+
+  public void testLongs() throws Exception {
+    final String[] data = {
+        "userLong0", "userLong1", "userLong2", "userLong3", };
+
+    final StatisticsIndexMap.LongIndex[] longResults =
+      new StatisticsIndexMap.LongIndex[data.length];
+
+    for (int i = 0; i < data.length; i++) {
+      longResults[i] = m_indexMap.getIndexForLong(data[i]);
+
+      assertTrue(m_indexMap.isLongIndex(data[i]));
+      assertTrue(!m_indexMap.isDoubleIndex(data[i]));
+
+      for (int j = 0; j < i; ++j) {
+        assertTrue(longResults[i].getValue() != longResults[j].getValue());
+      }
     }
 
-    public TestStatisticsIndexMap(String name)
-    {
-	super(name);
+    for (int i = 0; i < data.length; i++) {
+      assertEquals(longResults[i].getValue(), m_indexMap.getIndexForLong(
+          data[i]).getValue());
+    }
+  }
+
+  public void testDoubles() throws Exception {
+    final String[] data = {
+        "userDouble0", "userDouble1", "userDouble2", "userDouble3", };
+
+    final StatisticsIndexMap.DoubleIndex[] doubleResults =
+      new StatisticsIndexMap.DoubleIndex[data.length];
+
+    for (int i = 0; i < data.length; i++) {
+      doubleResults[i] = m_indexMap.getIndexForDouble(data[i]);
+
+      assertTrue(m_indexMap.isDoubleIndex(data[i]));
+      assertTrue(!m_indexMap.isLongIndex(data[i]));
+
+      for (int j = 0; j < i; ++j) {
+        assertTrue(doubleResults[i].getValue() != doubleResults[j].getValue());
+      }
     }
 
-    private final StatisticsIndexMap m_indexMap = 
-	StatisticsIndexMap.getInstance();
+    for (int i = 0; i < data.length; i++) {
+      assertEquals(doubleResults[i].getValue(), m_indexMap.getIndexForDouble(
+          data[i]).getValue());
+    }
+  }
 
-    public void testLongs() throws Exception
-    {
-	final String[] data = {
-	    "userLong0",
-	    "userLong1",
-	    "userLong2",
-	    "userLong3",
-	};
-
-	final StatisticsIndexMap.LongIndex[] longResults =
-	    new StatisticsIndexMap.LongIndex[data.length];
-
-	for (int i=0; i<data.length; i++) {
-	    longResults[i] = m_indexMap.getIndexForLong(data[i]);
-
-	    assertTrue(m_indexMap.isLongIndex(data[i]));
-	    assertTrue(!m_indexMap.isDoubleIndex(data[i]));
-
-	    for (int j=0; j<i; ++j) {
-		assertTrue(longResults[i].getValue() !=
-			   longResults[j].getValue());
-	    }
-	}
-
-	for (int i=0; i<data.length; i++) {
-	    assertEquals(longResults[i].getValue(),
-			 m_indexMap.getIndexForLong(data[i]).getValue());
-	}
+  public void testExceptions() throws Exception {
+    try {
+      m_indexMap.getIndexForDouble("madeup");
+      fail("Expected GrinderException");
+    }
+    catch (GrinderException e) {
     }
 
-    public void testDoubles() throws Exception
-    {
-	final String[] data = {
-	    "userDouble0",
-	    "userDouble1",
-	    "userDouble2",
-	    "userDouble3",
-	};
-
-	final StatisticsIndexMap.DoubleIndex[] doubleResults =
-	    new StatisticsIndexMap.DoubleIndex[data.length];
-
-	for (int i=0; i<data.length; i++) {
-	    doubleResults[i] = m_indexMap.getIndexForDouble(data[i]);
-
-	    assertTrue(m_indexMap.isDoubleIndex(data[i]));
-	    assertTrue(!m_indexMap.isLongIndex(data[i]));
-
-	    for (int j=0; j<i; ++j) {
-		assertTrue(doubleResults[i].getValue() !=
-			   doubleResults[j].getValue());
-	    }
-	}
-
-	for (int i=0; i<data.length; i++) {
-	    assertEquals(doubleResults[i].getValue(),
-			 m_indexMap.getIndexForDouble(data[i]).getValue());
-	}
+    try {
+      m_indexMap.getIndexForDouble("userLong0");
+      fail("Expected GrinderException");
+    }
+    catch (GrinderException e) {
     }
 
-    public void testExceptions() throws Exception
-    {
-	try {
-	    m_indexMap.getIndexForDouble("madeup");
-	    fail("Expected GrinderException");
-	}
-	catch (GrinderException e) {
-	}
-
-	try {
-	    m_indexMap.getIndexForDouble("userLong0");
-	    fail("Expected GrinderException");
-	}
-	catch (GrinderException e) {
-	}
-
-	try {
-	    m_indexMap.getIndexForLong("madeup");
-	    fail("Expected GrinderException");
-	}
-	catch (GrinderException e) {
-	}
-
-	try {
-	    m_indexMap.getIndexForLong("userDouble3");
-	    fail("Expected GrinderException");
-	}
-	catch (GrinderException e) {
-	}
+    try {
+      m_indexMap.getIndexForLong("madeup");
+      fail("Expected GrinderException");
     }
+    catch (GrinderException e) {
+    }
+
+    try {
+      m_indexMap.getIndexForLong("userDouble3");
+      fail("Expected GrinderException");
+    }
+    catch (GrinderException e) {
+    }
+  }
 }

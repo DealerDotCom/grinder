@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,8 +22,6 @@
 package net.grinder.statistics;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,10 +40,6 @@ import net.grinder.common.Test;
  * @see TestStatisticsMap
  */
 public class TestTestStatisticsMap extends TestCase {
-
-  public static void main(String[] args) {
-    TestRunner.run(TestTestStatisticsMap.class);
-  }
 
   public TestTestStatisticsMap(String name) {
     super(name);
@@ -104,54 +98,6 @@ public class TestTestStatisticsMap extends TestCase {
 
     map1.put(m_test0, m_statistics1);
     assertTrue(!map0.equals(map1));
-  }
-
-  public void testGetDelta() throws Exception   {
-
-    final TestStatisticsMap map0 = new TestStatisticsMap();
-    map0.put(m_test0, m_statistics0);
-
-    // map0 is now {(Test 0 (), RawStatistics = {10})}
-    // snap shot is not set.
-
-    final TestStatisticsMap map1 = map0.getDelta(false);
-    assertEquals(map0, map1);
-
-    // map0 is {(Test 0 (), RawStatistics = {10})}
-    // snap shot is not set.
-
-    final TestStatisticsMap map2 = map0.getDelta(true);
-    assertEquals(map0, map1);
-    assertEquals(map0, map2);
-
-    // map0 is {(Test 0 (), RawStatistics = {10})}
-    // snap shot is {(Test 0 (), RawStatistics = {10})}.
-
-    final TestStatisticsMap map3 = map0.getDelta(false);
-    assertTrue(!map0.equals(map3));
-    assertEquals(map0.size(), map3.size());
-
-    m_statistics0.add(m_statistics0);
-    map0.put(m_test1, m_statistics1);
-
-    // map0 is {(Test 0 (), RawStatistics = {20}), (Test 1 (), RawStatistics = {0})}
-    // snap shot is {(Test 0 (), RawStatistics = {10})}.
-
-    final TestStatisticsMap map4 = map0.getDelta(true);
-
-    // map0 is {(Test 0 (), RawStatistics = {20}), (Test 1 (), RawStatistics = {0})}
-    // snap shot is  {(Test 0 (), RawStatistics = {20}), (Test 1 (), RawStatistics = {0})}
-
-    assertEquals(2, map4.size());
-    final TestStatisticsMap.Iterator iterator = map4.new Iterator();
-
-    final TestStatisticsMap.Pair first = iterator.next();
-    assertEquals(0, first.getTest().getNumber());
-    assertEquals(10, first.getStatistics().getValue(m_index));
-
-    final TestStatisticsMap.Pair second = iterator.next();
-    assertEquals(1, second.getTest().getNumber());
-    assertEquals(0, second.getStatistics().getValue(m_index));
   }
 
   public void testIteratorAndOrder() throws Exception {

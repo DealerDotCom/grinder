@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,19 +23,12 @@
 package net.grinder.statistics;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
-import net.grinder.common.GrinderException;
-import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.RawStatistics;
 
 
@@ -46,36 +39,28 @@ import net.grinder.statistics.RawStatistics;
  * @version $Revision$
  * @see RawStatistics
  */
-public class TestStatisticsView extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestStatisticsView.class);
-    }
+public class TestStatisticsView extends TestCase {
 
-    public TestStatisticsView(String name)
-    {
+  public TestStatisticsView(String name) {
 	super(name);
-    }
+  }
 
-    private ExpressionView[] m_views;
-    private int m_numberOfUniqueViews;
+  private ExpressionView[] m_views;
+  private int m_numberOfUniqueViews;
 
-    protected void setUp() throws Exception
-    {
+  protected void setUp() throws Exception {
 	m_views = new ExpressionView[] {
 	    new ExpressionView("One", "my.view", "(+ userLong0 userLong1)"),
 	    new ExpressionView("Two", "my.view", "userLong0"),
 	    new ExpressionView("Three", "my.view", "(+ userLong0 userLong1)"),
 	    new ExpressionView("Four", "my.view", "userLong1"),
 	    new ExpressionView("One", "my.view", "(+ userLong0 userLong1)"),
-	};
+    };
 
-	m_numberOfUniqueViews = 4;
-    }
+    m_numberOfUniqueViews = 4;
+  }
 
-    public void testGetExpressionViews() throws Exception
-    {
+  public void testGetExpressionViews() throws Exception {
 	final StatisticsView statisticsView = new StatisticsView();
 
 	assertEquals(0, statisticsView.getExpressionViews().length);
@@ -94,10 +79,9 @@ public class TestStatisticsView extends TestCase
 	assertEquals(m_views[1], expressionViews[1]);
 	assertEquals(m_views[2], expressionViews[2]);
 	assertEquals(m_views[3], expressionViews[3]);
-    }
+  }
 
-    public void testAddStatisticsView() throws Exception
-    {
+  public void testAddStatisticsView() throws Exception {
 	final StatisticsView statisticsView = new StatisticsView();
 
 	statisticsView.add(statisticsView);
@@ -119,10 +103,9 @@ public class TestStatisticsView extends TestCase
 	statisticsView2.add(statisticsView);
 	assertEquals(m_numberOfUniqueViews,
 		     statisticsView2.getExpressionViews().length);
-    }
+  }
 
-    public void testSerialisation() throws Exception
-    {
+  public void testSerialisation() throws Exception {
 	final StatisticsView original1 = new StatisticsView();
 
 	for (int i=0; i<m_views.length; ++i) {
@@ -158,5 +141,5 @@ public class TestStatisticsView extends TestCase
 	assertEquals(original2.getExpressionViews().length,
 		     received2.getExpressionViews().length);
 	assertTrue(original2 != received2);
-    }
+  }
 }

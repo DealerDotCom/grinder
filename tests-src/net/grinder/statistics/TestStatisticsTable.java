@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,13 +23,10 @@
 package net.grinder.statistics;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import net.grinder.common.GrinderException;
 import net.grinder.common.StubTest;
 import net.grinder.common.Test;
 
@@ -41,24 +38,16 @@ import net.grinder.common.Test;
  * @version $Revision$
  * @see RawStatistics
  */
-public class TestStatisticsTable extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestStatisticsTable.class);
-    }
-
-    public TestStatisticsTable(String name)
-    {
+public class TestStatisticsTable extends TestCase {
+  public TestStatisticsTable(String name) {
 	super(name);
-    }
+  }
 
-    private TestStatisticsMap m_testStatisticsMap;
+  private TestStatisticsMap m_testStatisticsMap;
 
-    private StatisticsView m_statisticsView;
+  private StatisticsView m_statisticsView;
 
-    protected void setUp() throws Exception
-    {
+  protected void setUp() throws Exception {
 	m_testStatisticsMap = new TestStatisticsMap();
 
 	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
@@ -103,10 +92,9 @@ public class TestStatisticsTable extends TestCase
 
 	    m_testStatisticsMap.put(tests[i], testStatistics);
 	}
-    }
+  }
 
-    public void testStatisticsTable() throws Exception
-    {
+  public void testStatisticsTable() throws Exception {
 	final StringWriter expected = new StringWriter();
 	final PrintWriter in = new PrintWriter(expected);
 	in.println("             A            B            A plus B     A divided by ");
@@ -129,5 +117,5 @@ public class TestStatisticsTable extends TestCase
 
 	assertEquals(expected.getBuffer().toString(),
 		     stringWriter.getBuffer().toString());
-    }
+  }
 }

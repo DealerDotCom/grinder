@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,8 +23,6 @@
 package net.grinder.statistics;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,27 +40,20 @@ import net.grinder.util.Serialiser;
  * @version $Revision$
  * @see RawStatisticsImplementation
  */
-public class TestRawStatisticsImplementation extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestRawStatisticsImplementation.class);
-    }
+public class TestRawStatisticsImplementation extends TestCase {
 
-    public TestRawStatisticsImplementation(String name)
-    {
-	super(name);
-    }
+  public TestRawStatisticsImplementation(String name) {
+    super(name);
+  }
 
-    StatisticsIndexMap.LongIndex m_longIndex0;
-    StatisticsIndexMap.LongIndex m_longIndex1;
-    StatisticsIndexMap.LongIndex m_longIndex2;
-    StatisticsIndexMap.DoubleIndex m_doubleIndex0;
-    StatisticsIndexMap.DoubleIndex m_doubleIndex1;
-    StatisticsIndexMap.DoubleIndex m_doubleIndex2;
+  private StatisticsIndexMap.LongIndex m_longIndex0;
+  private StatisticsIndexMap.LongIndex m_longIndex1;
+  private StatisticsIndexMap.LongIndex m_longIndex2;
+  private StatisticsIndexMap.DoubleIndex m_doubleIndex0;
+  private StatisticsIndexMap.DoubleIndex m_doubleIndex1;
+  private StatisticsIndexMap.DoubleIndex m_doubleIndex2;
 
-    protected void setUp() throws Exception
-    {
+  protected void setUp() throws Exception {
 	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
 	m_longIndex0 = indexMap.getIndexForLong("userLong0");
@@ -71,19 +62,17 @@ public class TestRawStatisticsImplementation extends TestCase
 	m_doubleIndex0 = indexMap.getIndexForDouble("userDouble0");
 	m_doubleIndex1 = indexMap.getIndexForDouble("userDouble1");
 	m_doubleIndex2 = indexMap.getIndexForDouble("userDouble2");
-    }
+  }
 
-    public void testCreation() 
-    {
+  public void testCreation() {
 	final RawStatisticsImplementation statistics =
 	    new RawStatisticsImplementation();
 
 	assertEquals(0, statistics.getValue(m_longIndex1));
 	myAssertEquals(0d, statistics.getValue(m_doubleIndex2));
-    }
+  }
 
-    public void testReset()
-    {
+  public void testReset() {
 	final RawStatisticsImplementation statistics0 =
 	    new RawStatisticsImplementation();
 
@@ -95,10 +84,9 @@ public class TestRawStatisticsImplementation extends TestCase
 	statistics0.reset();
 	assertEquals(0, statistics0.getValue(m_longIndex2));
 	myAssertEquals(0d, statistics0.getValue(m_doubleIndex2));
-    }
+  }
 
-    public void testGetValueSetValueAndEquals()
-    {
+  public void testGetValueSetValueAndEquals() {
 	final RawStatisticsImplementation statistics0 =
 	    new RawStatisticsImplementation();
 	final RawStatisticsImplementation statistics1 =
@@ -152,40 +140,32 @@ public class TestRawStatisticsImplementation extends TestCase
 	statistics0.setValue(m_doubleIndex1, 0);
 	assertEquals(statistics0, statistics1);	// Statistics1.getValue(m_longIndex1)
 						// defaults to 0.
-    }
+  }
 
-    public void testAddValueAndIncrement() 
-    {
-	final RawStatisticsImplementation statistics0 =
-	    new RawStatisticsImplementation();
-	final RawStatisticsImplementation statistics1 =
-	    new RawStatisticsImplementation();
-	
-	statistics0.addValue(m_longIndex1, 700);
-	statistics0.addValue(m_longIndex1, 300);
-	assertTrue(!statistics0.equals(statistics1));
-	statistics1.addValue(m_longIndex1, 500);
-	assertTrue(!statistics0.equals(statistics1));
-	statistics1.addValue(m_longIndex1, 500);
-	assertEquals(statistics0, statistics1);
-	
-	statistics0.addValue(m_doubleIndex1, 7.00d);
-	statistics0.addValue(m_doubleIndex1, 3.00d);
-	assertTrue(!statistics0.equals(statistics1));
-	statistics1.addValue(m_doubleIndex1, 5.00d);
-	assertTrue(!statistics0.equals(statistics1));
-	statistics1.addValue(m_doubleIndex1, 5.00d);
-	assertEquals(statistics0, statistics1);
+  public void testAddValue() {
+    final RawStatisticsImplementation statistics0 =
+      new RawStatisticsImplementation();
+    final RawStatisticsImplementation statistics1 =
+      new RawStatisticsImplementation();
 
+    statistics0.addValue(m_longIndex1, 700);
+    statistics0.addValue(m_longIndex1, 300);
+    assertTrue(!statistics0.equals(statistics1));
+    statistics1.addValue(m_longIndex1, 500);
+    assertTrue(!statistics0.equals(statistics1));
+    statistics1.addValue(m_longIndex1, 500);
+    assertEquals(statistics0, statistics1);
 
-	statistics0.incrementValue(m_longIndex0);
-	assertTrue(!statistics0.equals(statistics1));
-	statistics1.incrementValue(m_longIndex0);
-	assertEquals(statistics0, statistics1);
-    }
+    statistics0.addValue(m_doubleIndex1, 7.00d);
+    statistics0.addValue(m_doubleIndex1, 3.00d);
+    assertTrue(!statistics0.equals(statistics1));
+    statistics1.addValue(m_doubleIndex1, 5.00d);
+    assertTrue(!statistics0.equals(statistics1));
+    statistics1.addValue(m_doubleIndex1, 5.00d);
+    assertEquals(statistics0, statistics1);
+  }
 
-    public void testAdd() throws Exception
-    {
+  public void testAdd() throws Exception {
 	final RawStatisticsImplementation statistics0 =
 	    new RawStatisticsImplementation();
 	final RawStatisticsImplementation statistics1 =
@@ -211,40 +191,9 @@ public class TestRawStatisticsImplementation extends TestCase
 
 	assertEquals(200, statistics0.getValue(m_longIndex0));
 	myAssertEquals(-11d, statistics0.getValue(m_doubleIndex2));
-    }
+  }
 
-    public void testGetDelta() throws Exception
-    {
-	final RawStatisticsImplementation statistics0 =
-	    new RawStatisticsImplementation();
-	statistics0.addValue(m_longIndex0, 1234);
-	statistics0.addValue(m_doubleIndex0, 1.234);
-
-	final RawStatistics statistics1 = statistics0.getDelta(false);
-	assertEquals(statistics0, statistics1);
-
-	final RawStatistics statistics2 = statistics0.getDelta(true);
-	assertEquals(statistics0, statistics1);
-	assertEquals(statistics0, statistics2);
-
-	final RawStatistics statistics3 = statistics0.getDelta(false);
-	assertTrue(!statistics0.equals(statistics3));
-
-	statistics0.addValue(m_doubleIndex0, 2.345);
-	final RawStatistics statistics4 = statistics0.getDelta(true);
-
-	assertEquals(0, statistics4.getValue(m_longIndex0));
-	myAssertEquals(2.345, statistics4.getValue(m_doubleIndex0));
-
-	statistics0.addValue(m_longIndex0, 5678);
-
-	final RawStatistics statistics5 = statistics0.getDelta(true);
-	assertEquals(5678, statistics5.getValue(m_longIndex0));
-	myAssertEquals(0, statistics5.getValue(m_doubleIndex0));
-    }
-
-    public void testSerialisation() throws Exception
-    {
+  public void testSerialisation() throws Exception {
 	final Random random = new Random();
 
 	final RawStatisticsImplementation original0 =
@@ -280,10 +229,9 @@ public class TestRawStatisticsImplementation extends TestCase
 
 	assertEquals(original0, received0);
 	assertEquals(original1, received1);
-    }
+  }
 
-    private void myAssertEquals(double a, double b)
-    {
+  private void myAssertEquals(double a, double b) {
 	assertEquals(a, b, 0.000000001d);
-    }
+  }
 }

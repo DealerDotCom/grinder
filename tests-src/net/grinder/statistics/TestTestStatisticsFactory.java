@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,16 +23,12 @@
 package net.grinder.statistics;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
-
-import net.grinder.common.GrinderException;
 
 
 /**
@@ -42,40 +38,28 @@ import net.grinder.common.GrinderException;
  * @version $Revision$
  * @see RawStatistics
  */
-public class TestTestStatisticsFactory extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestTestStatisticsFactory.class);
-    }
-
-    public TestTestStatisticsFactory(String name)
-    {
+public class TestTestStatisticsFactory extends TestCase {
+  
+  public TestTestStatisticsFactory(String name) {
 	super(name);
-    }
+  }
 
-    public void testCreation() throws Exception
-    {
+  public void testCreation() throws Exception {
 	final TestStatisticsFactory factory =
 	    TestStatisticsFactory.getInstance();
 
 	assertSame(factory, TestStatisticsFactory.getInstance());
-    }
+  }
 
-    public void testFactory() throws Exception
-    {
+  public void testFactory() throws Exception {
 	final TestStatisticsFactory factory =
 	    TestStatisticsFactory.getInstance();
 
-	final TestStatistics testStatistics1 = factory.createImplementation();
-	assertTrue(testStatistics1 != null);
+	final TestStatistics testStatistics = factory.create();
+	assertTrue(testStatistics instanceof TestStatisticsImplementation);
+  }
 
-	final TestStatistics testStatistics2 = factory.create();
-	assertTrue(testStatistics2 instanceof TestStatisticsImplementation);
-    }
-
-    public void testSerialisation() throws Exception
-    {
+  public void testSerialisation() throws Exception {
 	final TestStatisticsFactory factory =
 	    TestStatisticsFactory.getInstance();
 
@@ -89,14 +73,12 @@ public class TestTestStatisticsFactory extends TestCase
 	final StatisticsIndexMap.LongIndex cIndex =
 	    indexMap.getIndexForLong("userLong2");
 
-	final TestStatisticsImplementation original0 =
-	    factory.createImplementation();
+	final TestStatistics original0 = factory.create();
 	original0.addValue(aIndex, Math.abs(random.nextLong()));
 	original0.addValue(bIndex, Math.abs(random.nextLong()));
 	original0.addValue(cIndex, Math.abs(random.nextLong()));
 
-	final TestStatisticsImplementation original1 =
-	    factory.createImplementation();
+	final TestStatistics original1 = factory.create();
 
 	final ByteArrayOutputStream byteOutputStream =
 	    new ByteArrayOutputStream();
@@ -104,8 +86,10 @@ public class TestTestStatisticsFactory extends TestCase
 	final ObjectOutputStream objectOutputStream =
 	    new ObjectOutputStream(byteOutputStream);
 
-	factory.writeStatisticsExternal(objectOutputStream, original0);
-	factory.writeStatisticsExternal(objectOutputStream, original1);
+	factory.writeStatisticsExternal(objectOutputStream,
+      (TestStatisticsImplementation)original0);
+	factory.writeStatisticsExternal(objectOutputStream,
+      (TestStatisticsImplementation)original1);
 
 	objectOutputStream.close();
 
