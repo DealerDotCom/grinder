@@ -54,6 +54,10 @@ class HTTPClientHandler implements HTTPHandler
     
     static
     {
+	// Use our hack to disable the trailer-related headers. Do
+	// this first before HTTPClient is class loaded.
+	System.getProperties().put("HTTPClient.disableTrailers", "true");
+
 	// Remove standard HTTPClient modules which we don't want.
 	try {
 	    // Don't want additional post-processing of response data.
@@ -76,7 +80,7 @@ class HTTPClientHandler implements HTTPHandler
 	// Turn off cookie permission checks.
 	CookieModule.setCookiePolicyHandler(null);
 
-	// Turn off authoirsation UI.
+	// Turn off authorisation UI.
 	DefaultAuthHandler.setAuthorizationPrompter(null);
     }
 
