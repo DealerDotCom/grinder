@@ -61,10 +61,17 @@ import net.grinder.common.SSLContextFactory.SSLContextFactoryException;
  * <p><b>Do not use The Grinder to implement any SSL communication
  * that you want to be secure.</b></p>
  *
- * <a name="set_methods"/> <p>This interface provides several methods
- * for specifying the appropriate key to use for a thread: {@link
- * #setKeyManagers}, {@link #setKeyStore}, {@link #setKeyStoreFile}.
- * Each of these methods creates a new SSL context when called. (They
+ * <p> <a name="set_methods"></a> This interface provides several
+ * methods for specifying the appropriate certificate and key pair to
+ * use for a thread:</p>
+ *
+ * <ul>
+ * <li>{@link #setKeyManagers}</li>
+ * <li>{@link #setKeyStore}</li>
+ * <li>{@link #setKeyStoreFile}</li>
+ * </ul>
+ *
+ * <p>Each of these methods creates a new SSL context when called. (They
  * do not invalidate existing connections that use the previous
  * context). Consequently you will want to call these methods before
  * making connections for a particular run.</p>
@@ -81,6 +88,12 @@ public interface SSLControl extends SSLContextFactory {
    * <p>This will create a new SSL context. See {@link <a
    * href="#set_methods">the note above</a>} for details.</p>
    *
+   * <p>For compatibility with JSSE 1.0.X running under J2SE 1.3, The
+   * Grinder uses the <code>X509KeyManager</code> in the legacy JSSE
+   * <code>com.sun.net.ssl</code> package. This is slightly different
+   * to the <code>X509KeyManager</code> packaged in
+   * <code>javax.net.ssl</code> in J2SE 1.4 and later.</p>
+   *
    * @param keyManagers The key managers.
    * @exception InvalidContextException If called from a non-worker
    * thread.
@@ -88,6 +101,44 @@ public interface SSLControl extends SSLContextFactory {
    * @see #setKeyStoreFile
    */
   void setKeyManagers(KeyManager[] keyManagers) throws InvalidContextException;
+
+  /**
+   * Set a key store to use for the calling worker thread/run.
+   * Convenient alternative to {@link #setKeyManagers}.
+   *
+   * <p>This will create a new SSL context. See {@link <a
+   * href="#set_methods">the note above</a>} for details.</p>
+   *
+   * @param keyStoreFileName Key store file name.
+   * @param password Key store password. Also used as the private key
+   * password.
+   * @param keyStoreType Key store type.
+   * @exception GeneralSecurityException If JSSE could not load the key store.
+   * @exception InvalidContextException If called from a non-worker
+   * thread.
+   * @exception IOException If key store could not be read.
+   * @see #setKeyManagers
+   * @see #setKeyStoreFile
+   */
+  void setKeyStoreFile(String keyStoreFileName, String password,
+                       String keyStoreType)
+    throws GeneralSecurityException, InvalidContextException, IOException;
+
+  /**
+   * Overloaded version of <code>setKeyStoreFile</code> for key stores of
+   * the default type (usually <code>jks</code>).
+   *
+   * @param keyStoreFileName Key store file name.
+   * @param password Key store password. Also used as the private key
+   * password.
+   * @exception GeneralSecurityException If JSSE could not load the key store.
+   * @exception InvalidContextException If called from a non-worker
+   * thread.
+   * @exception IOException If key store could not be read.
+   * @see #setKeyStoreFile(String, String, String)
+   */
+  void setKeyStoreFile(String keyStoreFileName, String password)
+    throws GeneralSecurityException, InvalidContextException, IOException;
 
   /**
    * Set a key store to use for the calling worker thread/run.
@@ -114,7 +165,7 @@ public interface SSLControl extends SSLContextFactory {
 
   /**
    * Overloaded version of <code>setKeyStore</code> for key stores of
-   * type <code>jks</code>.
+   * the default type (usually <code>jks</code>).
    *
    * @param keyStoreInputStream Input stream to key store.
    * @param password Key store password. Also used as the private key
@@ -126,44 +177,6 @@ public interface SSLControl extends SSLContextFactory {
    * @see #setKeyStore(InputStream, String, String)
    */
   void setKeyStore(InputStream keyStoreInputStream, String password)
-    throws GeneralSecurityException, InvalidContextException, IOException;
-
-  /**
-   * Set a key store to use for the calling worker thread/run.
-   * Convenient alternative to {@link #setKeyManagers}.
-   *
-   * <p>This will create a new SSL context. See {@link <a
-   * href="#set_methods">the note above</a>} for details.</p>
-   *
-   * @param keyStoreFileName Key store file name.
-   * @param password Key store password. Also used as the private key
-   * password.
-   * @param keyStoreType Key store type.
-   * @exception GeneralSecurityException If JSSE could not load the key store.
-   * @exception InvalidContextException If called from a non-worker
-   * thread.
-   * @exception IOException If key store could not be read.
-   * @see #setKeyManagers
-   * @see #setKeyStoreFile
-   */
-  void setKeyStoreFile(String keyStoreFileName, String password,
-                       String keyStoreType)
-    throws GeneralSecurityException, InvalidContextException, IOException;
-
-  /**
-   * Overloaded version of <code>setKeyStoreFile</code> for key stores of
-   * type <code>jks</code>.
-   *
-   * @param keyStoreFileName Key store file name.
-   * @param password Key store password. Also used as the private key
-   * password.
-   * @exception GeneralSecurityException If JSSE could not load the key store.
-   * @exception InvalidContextException If called from a non-worker
-   * thread.
-   * @exception IOException If key store could not be read.
-   * @see #setKeyStoreFile(String, String, String)
-   */
-  void setKeyStoreFile(String keyStoreFileName, String password)
     throws GeneralSecurityException, InvalidContextException, IOException;
 
   /**
@@ -207,9 +220,11 @@ public interface SSLControl extends SSLContextFactory {
    *   def __call__(self):
    *     if grinder.runNumber == 0:
    *       # First run.
-   *       grinder.SSLControl.setKeyStoreFile(File("mykeystore.jks"), "pass")
-   * </pre>
+   *       grinder.SSLControl.setKeyStoreFile("mykeystore.jks", "pass")</pre>
    * </p>
+   *
+   * <p>Alternatively, set the appropriate key store for the thread in
+   * the <code>TestRunner</code> constructor.</p>
    *
    * @param b <code>true</code> => share SSL contexts between runs,
    * <code>false</code> => each run should have a new SSL context.

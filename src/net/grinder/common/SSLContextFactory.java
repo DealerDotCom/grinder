@@ -26,7 +26,7 @@ import com.sun.net.ssl.SSLContext;
 
 
 /**
- * Factory for SSLContext's.
+ * Factory for {@link SSLContext}s.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -34,11 +34,15 @@ import com.sun.net.ssl.SSLContext;
 public interface SSLContextFactory {
 
   /**
-   * Get a JSSE {@link SSLContext}. This can be used to obtain an
-   * {@link javax.net.ssl.SSLSocketFactory}.
+   * Returns an appropriate JSSE {@link SSLContext}. This can be used
+   * to obtain an {@link javax.net.ssl.SSLSocketFactory}.
    *
-   * <p><b>Do not use The Grinder to implement any SSL communication that
-   * you want to be secure.</b></p>
+   * <p>The Grinder optimises client SSL processing to increase the
+   * number of simultaneous client threads it is reasonable to run. It
+   * uses an insecure source of random information, and does not
+   * perform checks on the certificates presented by a server. <b>Do
+   * not use The Grinder to implement any SSL communication that you
+   * want to be secure.</b></p>
    *
    * @return The SSL context.
    * @exception SSLContextFactoryException If the SSLContext could not
