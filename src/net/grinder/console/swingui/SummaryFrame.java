@@ -38,7 +38,7 @@ public class SummaryFrame extends JFrame
 {
     private final StatisticsTableModel m_tableModel;
 
-    public SummaryFrame(Model model, String title) throws ConsoleException
+    public SummaryFrame(Model model, String title)
     {
 	super(title);
 

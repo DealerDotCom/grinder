@@ -53,7 +53,7 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
     private TestStatisticsMap m_testStatisticsMap = null;
     private TestStatisticsMap.Pair[] m_testIndex = new TestStatisticsMap.Pair[0];
 
-    public StatisticsTableModel(Model model) throws ConsoleException
+    public StatisticsTableModel(Model model)
     {
 	m_model = model;
 	m_model.addModelListener(this);

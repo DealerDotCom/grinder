@@ -118,7 +118,6 @@ public class Model
     }
 
     public synchronized void addModelListener(ModelListener listener)
-	throws ConsoleException
     {
 	m_modelListeners.add(listener);
     }

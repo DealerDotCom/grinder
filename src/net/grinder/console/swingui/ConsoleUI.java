@@ -582,17 +582,15 @@ public class ConsoleUI implements ModelListener
 
         public void actionPerformed(ActionEvent e)
 	{
-	    if (m_summaryFrame == null) {
-		synchronized(ConsoleUI.this) {
-		    if (m_summaryFrame == null) {
-			m_summaryFrame =
-			    new SummaryFrame(m_model,
-					     getResourceString(
-						 "summaryTitle"));
+	    synchronized(ConsoleUI.this) {
+		if (m_summaryFrame == null) {
+		    m_summaryFrame =
+			new SummaryFrame(m_model,
+					 getResourceString(
+					     "summaryTitle"));
 
-			if (m_logoImage != null) {
-			    m_summaryFrame.setIconImage(m_logoImage);
-			}
+		    if (m_logoImage != null) {
+			m_summaryFrame.setIconImage(m_logoImage);
 		    }
 		}
 	    }
