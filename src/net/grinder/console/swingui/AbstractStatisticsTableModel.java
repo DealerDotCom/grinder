@@ -29,6 +29,8 @@ import net.grinder.plugininterface.Test;
 import net.grinder.statistics.Statistics;
 import net.grinder.statistics.TestStatisticsMap;
 
+import net.grinder.console.ConsoleException;
+
 
 /**
  * @author Philip Aston
@@ -36,29 +38,44 @@ import net.grinder.statistics.TestStatisticsMap;
  */
 class StatisticsTableModel extends AbstractTableModel implements ModelListener
 {
-    private String[] m_columnNames = {
-	"Test",
-	"Description",
-	"Sucessful Transactions",
-	"Errors",
-	"Abortions",
-	"Average (ms)",
-    };
-
     private final Model m_model;
     private final boolean m_includeTotals;
+
+    private final String[] m_columnLabels;
+    private final String m_testString;
+    private final String m_totalString;
+
     private Statistics m_totals = new Statistics();
     private int m_lastMapSize = 0;
     private TestStatisticsMap m_testStatisticsMap = null;
     private TestStatisticsMap.Pair[] m_testIndex =
 	new TestStatisticsMap.Pair[0];
 
-    public StatisticsTableModel(Model model, boolean includeTotals)
+    public StatisticsTableModel(Model model, boolean includeTotals,
+				Resources resources)
+	throws ConsoleException
     {
 	m_model = model;
 	m_includeTotals = includeTotals;
 
 	m_model.addModelListener(this);
+
+	final String[] resourceNames = {
+	    "table.testColumn.label",
+	    "table.descriptionColumn.label",
+	    "table.transactionColumn.label",
+	    "table.errorColumn.label",
+	    "table.responseTimeColumn.label",
+	};
+
+	m_columnLabels = new String[resourceNames.length];
+
+	for (int i=0; i<resourceNames.length; i++) {
+	    m_columnLabels[i] = resources.getString(resourceNames[i]);
+	}
+
+	m_testString = resources.getString("table.test.label") + " ";
+	m_totalString = resources.getString("table.total.label");
     }
 
     public synchronized void update()
@@ -98,7 +115,7 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 
     public String getColumnName(int column)
     {
-        return m_columnNames[column]; 
+        return m_columnLabels[column]; 
     }
 
     public int getRowCount()
@@ -108,14 +125,15 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 
     public int getColumnCount()
     {
-	return m_columnNames.length;
+	return m_columnLabels.length;
     }
 
     public synchronized Object getValueAt(int row, int column)
     {
 	if (row < m_testIndex.length) {
 	    if (column == 0) {
-		return "Test " + m_testIndex[row].getTest().getTestNumber();
+		return
+		    m_testString + m_testIndex[row].getTest().getTestNumber();
 	    }
 	    else if (column == 1) {
 		return m_testIndex[row].getTest().getDescription();
@@ -128,7 +146,7 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 	}
 	else {
 	    if (column == 0) {
-		return "Totals";
+		return m_totalString;
 	    }
 	    else if (column == 1) {
 		return "";
@@ -148,9 +166,6 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 	    return String.valueOf(statistics.getErrors());
 	}
 	else if (field == 2) {
-	    return String.valueOf(statistics.getAbortions());
-	}
-	else if (field == 3) {
 	    final double average = statistics.getAverageTransactionTime();
 
 	    if (Double.isNaN(average)) {
@@ -172,7 +187,7 @@ class StatisticsTableModel extends AbstractTableModel implements ModelListener
 	final int numberOfColumns = getColumnCount();
 
 	for (int column=0; column<numberOfColumns; column++) {
-	    writer.write(m_columnNames[column]);
+	    writer.write(m_columnLabels[column]);
 	    writer.write(columnDelimiter);
 	}
 

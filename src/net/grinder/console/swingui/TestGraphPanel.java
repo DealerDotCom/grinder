@@ -30,14 +30,15 @@ import net.grinder.statistics.Statistics;
 
 
 /**
- * A paneL of test graphs.
+ * A panel of test graphs.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public class TestGraphPanel extends JPanel
 {
-    TestGraphPanel(final Model model) throws ConsoleException
+    TestGraphPanel(final Model model, Resources resources)
+	throws ConsoleException
     {
 	setLayout(new GridLayout(0, 2, 20, 0));
 
@@ -55,7 +56,8 @@ public class TestGraphPanel extends JPanel
 		label = label + " (" + description + ")";
 	    }
 
-	    final LabelledGraph testGraph = new LabelledGraph(label);
+	    final LabelledGraph testGraph =
+		new LabelledGraph(label, resources);
 
 	    model.addSampleListener(
 		testNumber,

@@ -35,15 +35,12 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
@@ -84,8 +81,6 @@ import net.grinder.statistics.Statistics;
  */
 public class ConsoleUI implements ModelListener
 {
-    private static ResourceBundle s_resources = null;
-
     private final static Font s_tpsFont =
 	new Font("helvetica", Font.ITALIC | Font.BOLD, 40);
 
@@ -99,15 +94,62 @@ public class ConsoleUI implements ModelListener
     private final JLabel m_stateLabel;
     private final JFrame m_frame;
 
+    private final Resources m_resources;
+
+    private final String m_sampleIntervalString;
+    private final String m_msUnit;
+    private final String m_msUnits;
+    private final String m_ignoreCountZeroString;
+    private final String m_ignoreCountString;
+    private final String m_collectCountZeroString;
+    private final String m_collectCountString;
+    private final String m_sampleUnit;
+    private final String m_sampleUnits;
+    private final String m_stateIgnoringString;
+    private final String m_stateWaitingString;
+    private final String m_stateStoppedString;
+    private final String m_stateStoppedAndIgnoringString;
+    private final String m_stateCapturingString;
+    private final String m_stateUnknownString;
+
+
     public ConsoleUI(Model model, ActionListener startProcessesHandler,
 		     ActionListener resetProcessesHandler,
 		     ActionListener stopProcessesHandler)
 	throws ConsoleException
     {
-	getResources();
+	m_resources = new Resources();
+
+	m_sampleIntervalString =
+	    m_resources.getString("sampleInterval.label") + " ";
+
+	m_msUnit = " " + m_resources.getString("ms.unit");
+	m_msUnits = " " + m_resources.getString("ms.units");
+
+	m_ignoreCountZeroString =
+	    m_resources.getString("ignoreCountZero.label", false);
+	m_ignoreCountString = m_resources.getString("ignoreCount.label") + " ";
+
+	m_collectCountZeroString =
+	    m_resources.getString("collectCountZero.label", false);
+	m_collectCountString =
+	    m_resources.getString("collectCount.label") + " ";
+
+	m_sampleUnit = " " + m_resources.getString("sample.unit");
+	m_sampleUnits = " " + m_resources.getString("sample.units");
 
 	m_startAction = new StartAction();
 	m_stopAction = new StopAction();
+
+	m_stateIgnoringString =
+	    m_resources.getString("state.ignoring.label") + " ";
+	m_stateWaitingString = m_resources.getString("state.waiting.label");
+	m_stateStoppedString = m_resources.getString("state.stopped.label");
+	m_stateStoppedAndIgnoringString =
+	    m_resources.getString("state.stoppedAndIgnoring.label");
+	m_stateCapturingString =
+	    m_resources.getString("state.capturing.label") + " ";
+	m_stateUnknownString = m_resources.getString("state.unknown.label");
 
 	final MyAction[] actions = {
 	    new StartProcessesGrinderAction(startProcessesHandler),
@@ -125,8 +167,9 @@ public class ConsoleUI implements ModelListener
 
 	m_model = model;
 
-	final LabelledGraph totalGraph = new LabelledGraph("Total",
-							   Color.darkGray);
+	final LabelledGraph totalGraph =
+	    new LabelledGraph(m_resources.getString("totalGraph.title"),
+			      m_resources, Color.darkGray);
 
 	final JLabel tpsLabel = new JLabel();
 	tpsLabel.setForeground(Color.black);
@@ -134,15 +177,17 @@ public class ConsoleUI implements ModelListener
 
 	m_model.addTotalSampleListener(
 	    new SampleListener() {
-		    public void update(double tps, double average,
-				       double peak, Statistics total) {
-			final NumberFormat format = m_model.getNumberFormat();
+		private final String m_suffix =
+		    " " + m_resources.getString("tps.units");
 
-			tpsLabel.setText(format.format(tps) + " TPS");
-			totalGraph.add(tps, average, peak, total, format);
-		    }
+		public void update(double tps, double average,
+				   double peak, Statistics total) {
+		    final NumberFormat format = m_model.getNumberFormat();
+		    
+		    tpsLabel.setText(format.format(tps) + m_suffix);
+		    totalGraph.add(tps, average, peak, total, format);
 		}
-	    );
+	    });
 
 	final JSlider intervalSlider =
 	    new JSlider(100, 10000, m_model.getSampleInterval());
@@ -178,7 +223,8 @@ public class ConsoleUI implements ModelListener
 
 	final JPanel sfPanel = new JPanel();
 	sfPanel.setLayout(new GridLayout(1, 0));
-	sfPanel.add(new JLabel("Significant figures:"));
+	sfPanel.add(new JLabel(
+			m_resources.getString("significantFigures.label")));
 	sfPanel.add(sfSlider);
 
 	final IntegerField ignoreSampleField = new IntegerField(0, 999999);
@@ -264,15 +310,16 @@ public class ConsoleUI implements ModelListener
 	// Create the tabbed test display.
 	final JTabbedPane tabbedPane = new JTabbedPane();
 
-	tabbedPane.addTab(getResourceString("graphTab.title"),
-			  getImageIcon("graphTab.image"),
-			  new JScrollPane(new TestGraphPanel(model)),
-			  getResourceString("graphTab.tip"));
+	tabbedPane.addTab(m_resources.getString("graphTab.title"),
+			  m_resources.getImageIcon("graphTab.image"),
+			  new JScrollPane(new TestGraphPanel(model,
+							     m_resources)),
+			  m_resources.getString("graphTab.tip"));
 
-	tabbedPane.addTab(getResourceString("tableTab.title"),
-			  getImageIcon("tableTab.image"),
-			  new JScrollPane(new TestTable(model)),
-			  getResourceString("tableTab.tip"));
+	tabbedPane.addTab(m_resources.getString("tableTab.title"),
+			  m_resources.getImageIcon("tableTab.image"),
+			  new JScrollPane(new TestTable(model, m_resources)),
+			  m_resources.getString("tableTab.tip"));
 
 	final JPanel contentPanel = new JPanel();
 
@@ -280,7 +327,7 @@ public class ConsoleUI implements ModelListener
 	contentPanel.add(hackToFixLayout, BorderLayout.WEST);
 	contentPanel.add(tabbedPane, BorderLayout.CENTER);
 
-	final ImageIcon logoIcon = getImageIcon("logo.image");
+	final ImageIcon logoIcon = m_resources.getImageIcon("logo.image");
 	Image logoImage = null;
 
 	if (logoIcon != null) {
@@ -297,7 +344,7 @@ public class ConsoleUI implements ModelListener
 	toolBarPanel.add(contentPanel, BorderLayout.CENTER);
 
 	// Create the frame, containing the a menu and the top level pane.
-	m_frame = new JFrame(getResourceString("title"));
+	m_frame = new JFrame(m_resources.getString("title"));
 
         m_frame.addWindowListener(new WindowCloseAdapter());
 	final Container topLevelPane= m_frame.getContentPane();
@@ -335,15 +382,15 @@ public class ConsoleUI implements ModelListener
 	final JMenuBar menuBar = new JMenuBar();
 
 	final Iterator menuBarIterator =
-	    tokenise(getResourceString("menubar"));
+	    tokenise(m_resources.getString("menubar"));
 	
 	while (menuBarIterator.hasNext()) {
 	    final String menuKey = (String)menuBarIterator.next();
 	    final JMenu menu =
-		new JMenu(getResourceString(menuKey + ".menu.label"));
+		new JMenu(m_resources.getString(menuKey + ".menu.label"));
 
 	    final Iterator menuIterator =
-		tokenise(getResourceString(menuKey + ".menu"));
+		tokenise(m_resources.getString(menuKey + ".menu"));
 
 	    while (menuIterator.hasNext()) {
 		final String menuItemKey = (String)menuIterator.next();
@@ -369,7 +416,7 @@ public class ConsoleUI implements ModelListener
 	final JToolBar toolBar = new JToolBar();
 	
 	final Iterator toolBarIterator =
-	    tokenise(getResourceString("toolbar"));
+	    tokenise(m_resources.getString("toolbar"));
 
 	while (toolBarIterator.hasNext()) {
 	    final String toolKey = (String)toolBarIterator.next();
@@ -410,27 +457,25 @@ public class ConsoleUI implements ModelListener
 
 	if (state == Model.STATE_WAITING_FOR_TRIGGER) {
 	    if (receivedSample) {
-		m_stateLabel.setText(
-		    "Waiting for samples (ignoring: " + sampleCount + ")");
+		m_stateLabel.setText(m_stateIgnoringString + sampleCount);
 	    }
 	    else {
-		m_stateLabel.setText("Waiting for samples");
+		m_stateLabel.setText(m_stateWaitingString);
 	    }
 	}
 	else if (state == Model.STATE_STOPPED) {
 	    if (receivedSample) {
-		m_stateLabel.setText(
-		    "Collection stopped, ignoring samples");
+		m_stateLabel.setText(m_stateStoppedAndIgnoringString);
 	    }
 	    else {
-		m_stateLabel.setText("Collection stopped");
+		m_stateLabel.setText(m_stateStoppedString);
 	    }
 	}
 	else if (state == Model.STATE_CAPTURING) {
-	    m_stateLabel.setText("Collecting samples: " + sampleCount);
+	    m_stateLabel.setText(m_stateCapturingString + sampleCount);
 	}
 	else {
-	    m_stateLabel.setText("UNKNOWN STATE");
+	    m_stateLabel.setText(m_stateUnknownString);
 	}
 
 	return state;
@@ -449,28 +494,25 @@ public class ConsoleUI implements ModelListener
 	final int ignoreCount = m_model.getIgnoreSampleCount();
 	final int collectCount = m_model.getCollectSampleCount();
 
-	m_intervalLabel.setText("Sample interval: " + sampleInterval + " ms");
+	m_intervalLabel.setText(m_sampleIntervalString + sampleInterval +
+				(sampleInterval == 1 ? m_msUnit : m_msUnits));
 
-	if (ignoreCount == 0) {
-	    m_ignoreSampleLabel.setText("Start on first sample");
-	}
-	else if (ignoreCount == 1) {
-	    m_ignoreSampleLabel.setText("Ignore first sample");
+	if (ignoreCount == 0 && m_ignoreCountZeroString != null) {
+	    m_ignoreSampleLabel.setText(m_ignoreCountZeroString);
 	}
 	else {
-	    m_ignoreSampleLabel.setText("Ignore first " + ignoreCount +
-					" samples");
+	    m_ignoreSampleLabel.setText(m_ignoreCountString + ignoreCount +
+					(ignoreCount == 1 ?
+					 m_sampleUnit : m_sampleUnits));
 	}
 
-	if (collectCount == 0) {
-	    m_collectSampleLabel.setText("Collect samples forever");
-	}
-	else if (collectCount == 1) {
-	    m_collectSampleLabel.setText("Stop after 1 sample");
+	if (collectCount == 0 && m_collectCountZeroString != null) {
+	    m_collectSampleLabel.setText(m_collectCountZeroString);
 	}
 	else {
-	    m_collectSampleLabel.setText("Stop after " + collectCount +
-					 " samples");
+	    m_collectSampleLabel.setText(m_collectCountString + collectCount +
+					 (collectCount == 1 ?
+					  m_sampleUnit : m_sampleUnits));
 	}
     }
 
@@ -495,19 +537,21 @@ public class ConsoleUI implements ModelListener
 
 	    m_key = key;
 
-	    final String label = getResourceString(m_key + ".label", false);
+	    final String label =
+		m_resources.getString(m_key + ".label", false);
 
 	    if (label != null) {
 		putValue(Action.NAME, label);
 	    }
 
-	    final String tip = getResourceString(m_key + ".tip", false);
+	    final String tip = m_resources.getString(m_key + ".tip", false);
 
 	    if (tip != null) {
 		putValue(Action.SHORT_DESCRIPTION, tip);
 	    }
 
-	    final ImageIcon imageIcon = getImageIcon(m_key + ".image");
+	    final ImageIcon imageIcon =
+		m_resources.getImageIcon(m_key + ".image");
 	    
 	    if (imageIcon != null) {
 		putValue(Action.SMALL_ICON, imageIcon);
@@ -552,42 +596,50 @@ public class ConsoleUI implements ModelListener
 	{
 	    super("save");
 
-	    m_fileChooser.setDialogTitle(getResourceString("save.label"));
-	    m_fileChooser.setSelectedFile(new File(getResourceString(
+	    m_fileChooser.setDialogTitle(m_resources.getString("save.label"));
+	    m_fileChooser.setSelectedFile(new File(m_resources.getString(
 						       "default.filename")));
 	}
 
         public void actionPerformed(ActionEvent event)
 	{
-	    if (m_fileChooser.showSaveDialog(m_frame) ==
-		JFileChooser.APPROVE_OPTION) {
-		final File file = m_fileChooser.getSelectedFile();
+	    try {
+		if (m_fileChooser.showSaveDialog(m_frame) ==
+		    JFileChooser.APPROVE_OPTION) {
+		    final File file = m_fileChooser.getSelectedFile();
 
-		if (file.exists() &&
-		    JOptionPane.showConfirmDialog(
-			m_frame,
-			getResourceString("overwriteConfirmation.text"),
-			file.toString(), JOptionPane.YES_NO_OPTION) ==
-		    JOptionPane.NO_OPTION) {
-		    return;
-		}
+		    if (file.exists() &&
+			JOptionPane.showConfirmDialog(
+			    m_frame,
+			    m_resources.getString("overwriteConfirmation.text"),
+			    file.toString(), JOptionPane.YES_NO_OPTION) ==
+			JOptionPane.NO_OPTION) {
+			return;
+		    }
 
-		final StatisticsTableModel model =
-		    new StatisticsTableModel(m_model, false);
-		model.update();
+		    final StatisticsTableModel model =
+			new StatisticsTableModel(m_model, false, m_resources);
+		    model.update();
 
-		try {
-		    final FileWriter writer = new FileWriter(file);
-		    model.write(writer, ",",
-				System.getProperty("line.separator"));
-		    writer.close();
+		    try {
+			final FileWriter writer = new FileWriter(file);
+			model.write(writer, ",",
+				    System.getProperty("line.separator"));
+			writer.close();
+		    }
+		    catch (IOException e) {
+			JOptionPane.showMessageDialog(
+			    m_frame, e.getMessage(),
+			    m_resources.getString("fileError.title"),
+			    JOptionPane.ERROR_MESSAGE);
+		    }
 		}
-		catch (IOException e) {
-		    JOptionPane.showMessageDialog(
-			m_frame, e.getMessage(),
-			getResourceString("fileError.title"),
-			JOptionPane.ERROR_MESSAGE);
-		}
+	    }
+	    catch (Exception e) {
+		JOptionPane.showMessageDialog(
+		    m_frame, e.getMessage(),
+		    m_resources.getString("unexpectedError.title"),
+		    JOptionPane.ERROR_MESSAGE);
 	    }
 	}
     }
@@ -693,18 +745,6 @@ public class ConsoleUI implements ModelListener
 	}
     }
 
-    private static void getResources()
-	throws ConsoleException
-    {
-	try {
-	    s_resources = ResourceBundle.getBundle(
-		"net.grinder.console.swingui.resources.Console");
-	}
-	catch (MissingResourceException e) {
-	    throw new ConsoleException("Resource bundle not found");
-	}
-    }
-
     private static Iterator tokenise(String string)
     {
 	final LinkedList list = new LinkedList();
@@ -716,54 +756,5 @@ public class ConsoleUI implements ModelListener
 	}
 
 	return list.iterator();
-    }
-
-    private String getResourceString(String key)
-    {
-	return getResourceString(key, true);
-    }
-
-    private String getResourceString(String key, boolean warnIfMissing)
-    {
-	try {
-	    return s_resources.getString(key);
-	}
-	catch (MissingResourceException e) {
-	    if (warnIfMissing) {
-		System.err.println(
-		    "Warning - resource " + key + " not specified");
-	    }
-	    
-	    return "";
-	}
-    }
-
-    private URL getResource(String key)
-    {
-	return getResource(key, true);
-    }
-
-    private URL getResource(String key, boolean warnIfMissing)
-    {
-	final String name = getResourceString(key, true);
-
-	if (name.length() == 0) {
-	    return null;
-	}
-	
-	final URL url = this.getClass().getResource("resources/" + name);
-
-	if (warnIfMissing && url == null) {
-	    System.err.println("Warning - could not load resource " + name);
-	}
-
-	return url;
-    }
-
-    private ImageIcon getImageIcon(String resourceName)
-    {
-	final URL resource = getResource(resourceName, false);
-
-	return resource != null ? new ImageIcon(resource) : null;
     }
 }

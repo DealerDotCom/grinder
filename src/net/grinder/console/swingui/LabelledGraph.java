@@ -78,62 +78,129 @@ class LabelledGraph extends JPanel
 
     private static class Label extends JLabel
     {
-	private final static Font s_labelFont =
-	    new Font("helvetica", Font.PLAIN, 9);
+	private static final Font s_plainFont;
+	private static final Font s_boldFont;
+	private static final Color s_defaultForeground;
 
-	private final String m_prefix;
-	private final String m_suffix;
-
-	private Label(String prefix, String suffix)
+	static 
 	{
-	    m_prefix = prefix;
-	    m_suffix = suffix;
-	    setFont(s_labelFont);
+	    final JLabel label = new JLabel();
+	    final Font defaultFont = label.getFont();
+	    final float size = defaultFont.getSize2D() - 1;
 
+	    s_plainFont = defaultFont.deriveFont(Font.PLAIN, size);
+	    s_boldFont = defaultFont.deriveFont(Font.BOLD, size);
+	    s_defaultForeground = label.getForeground();
+	}
+
+	private final String m_text;
+	private final String m_unit;
+	private final String m_units;
+
+	public Label(String text, String unit, String units)
+	{
+	    m_text = text.length() > 0 ? text + " " : "";
+	    m_unit = " " + unit;
+	    m_units = " " + units;
+	    setFont(s_plainFont);
 	    set(0);
 	}
 
-	private void set(long value)
+	public void set(long value)
 	{
-	    super.setText(m_prefix + value + m_suffix);
+	    super.setText(m_text + value + (value == 1 ? m_unit : m_units));
 	}
 
-	private void set(double value, NumberFormat numberFormat)
+	public void set(double value, NumberFormat numberFormat)
 	{
-	    super.setText(m_prefix + numberFormat.format(value) + m_suffix);
+	    super.setText(m_text + numberFormat.format(value) + m_units);
 	}
 
-	private void set(String value)
+	public void set(String value)
 	{
-	    super.setText(m_prefix + value + m_suffix);
+	    super.setText(m_text + value + m_units);
 	}
 
+	/**
+	 * Make all labels the same width.
+	 * Pack more tightly vertically.
+	 **/
 	public Dimension getPreferredSize()
 	{
 	    final Dimension d = super.getPreferredSize();
-	    d.width = 100;
+	    d.width = 110;
+	    d.height -= 2;
 	    return d;
+	}
+
+	public Dimension getMaximumSize()
+	{
+	    return getPreferredSize();
+	}
+
+	public void setHighlight(boolean highlight)
+	{
+	    if (highlight) {
+		setForeground(Color.red);
+		setFont(s_boldFont);
+	    }
+	    else {
+		setForeground(s_defaultForeground);
+		setFont(s_plainFont);
+	    }
 	}
     }
 
-    private final Label m_responseTimeLabel = new Label("", " ms");
-    private final Label m_tpsLabel = new Label(" ", " tps");
-    private final Label m_averageTPSLabel = new Label("Avg: ", " tps");
-    private final Label m_peakTPSLabel = new Label("Peak: ", " tps");
-    private final Label m_transactionsLabel = new Label("", " transactions");
-    private final Label m_errorsLabel = new Label("", " errors");
-    private final Label m_abortionsLabel = new Label("", " abortions");
+    private final Label m_responseTimeLabel;
+    private final Label m_tpsLabel;
+    private final Label m_averageTPSLabel;
+    private final Label m_peakTPSLabel;
+    private final Label m_transactionsLabel;
+    private final Label m_errorsLabel;
     private final Dimension m_preferredSize = new Dimension(300, 130);
 
-    public LabelledGraph(String title)
+    public LabelledGraph(String title, Resources resources)
 	throws ConsoleException
     {
-	this(title, null);
+	this(title, resources, null);
     }
 
-    public LabelledGraph(String title, Color color)
+    public LabelledGraph(String title, Resources resources, Color color)
 	throws ConsoleException
     {
+	final String msUnit = resources.getString("ms.unit");
+	final String msUnits = resources.getString("ms.units");
+	final String tpsUnits = resources.getString("tps.units");
+	final String transactionUnit = resources.getString("transaction.unit");
+	final String transactionUnits =
+	    resources.getString("transaction.units");
+	final String errorUnit = resources.getString("error.unit");
+	final String errorUnits = resources.getString("error.units");
+
+	m_responseTimeLabel =
+	    new Label(resources.getString("graph.responseTime.label"),
+		      msUnit, msUnits);
+
+	m_tpsLabel =
+	    new Label(resources.getString("graph.tps.label"),
+		      tpsUnits, tpsUnits);
+
+	m_averageTPSLabel =
+	    new Label(resources.getString("graph.averageTPS.label"),
+		      tpsUnits, tpsUnits);
+
+	m_peakTPSLabel =
+	    new Label(resources.getString("graph.peakTPS.label"),
+		      tpsUnits, tpsUnits);
+
+	m_transactionsLabel =
+	    new Label(resources.getString("graph.transactions.label"),
+		      transactionUnit, transactionUnits);
+
+	m_errorsLabel =
+	    new Label(resources.getString("graph.errors.label"),
+		      errorUnit, errorUnits);
+
 	m_color = color;
 	m_graph = new Graph(25);
 	m_graph.setPreferredSize(null); // We are the master now.
@@ -152,7 +219,6 @@ class LabelledGraph extends JPanel
 	labelPanel.add(m_peakTPSLabel);
 	labelPanel.add(m_transactionsLabel);
 	labelPanel.add(m_errorsLabel);
-	labelPanel.add(m_abortionsLabel);
 
 	setLayout(new BorderLayout());
 
@@ -191,8 +257,11 @@ class LabelledGraph extends JPanel
 	m_peakTPSLabel.set(peakTPS, numberFormat);
 
 	m_transactionsLabel.set(total.getTransactions());
-	m_errorsLabel.set(total.getErrors());
-	m_abortionsLabel.set(total.getAbortions());
+
+	final long errors = total.getErrors();
+	m_errorsLabel.set(errors);
+
+	m_errorsLabel.setHighlight(errors > 0);
     }
 
     private Color calculateColour(double time)

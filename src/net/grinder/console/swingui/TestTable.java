@@ -21,6 +21,7 @@ package net.grinder.console.swingui;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 
+import net.grinder.console.ConsoleException;
 import net.grinder.console.model.Model;
 
 
@@ -30,8 +31,9 @@ import net.grinder.console.model.Model;
  */
 public class TestTable extends JTable
 {
-    public TestTable(Model model)
+    public TestTable(Model model, Resources resources)
+	throws ConsoleException
     {
-	super(new StatisticsTableModel(model, true));
+	super(new StatisticsTableModel(model, true, resources));
     }
 }
