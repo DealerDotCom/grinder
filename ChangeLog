@@ -1,3 +1,58 @@
+2004-03-03  Philip Aston  <philipa@mail.com>
+
+	* CHANGES:
+	Refactor HTTPRequest so that subclasses can post-process responses.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java:
+	Refactor so that subclasses can post-process responses.
+
+2004-03-02  Philip Aston  <philipa@mail.com>
+
+	* AUTHORS, xdoc/welcome-xhtml.xml: Welcome John Stanford White.
+
+	* CHANGES, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/statistics/StatisticsIndexMap.java:
+	HTTP response errors statistic from John Stanford White.
+
+	* src/net/grinder/engine/process/PluginRegistry.java: Checkstyle.
+
+2004-02-29  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/engine/process/PluginRegistry.java:
+	PluginRegistry.register() no longer returns a handle.
+
+	* tests-src/net/grinder/engine/process/TestPluginRegistry.java:
+	Test register.
+
+2004-02-24  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/plugin/http/HTTPPlugin.java:
+	The PluginRegistry.register() method now takes an instance of
+	GrinderPlugin, rather than a class that implements GrinderPlugin.
+
+	* src/HTTPClient/HTTPResponse.java:
+	A better fix to 805013 that eat memory if the read doesn't fill the
+	buffer. Thanks to Jan Wilmaers for pointing out the problem.
+
+	* tests-src/net/grinder/engine/process/TestRegisteredPlugin.java:
+	Fix assertions.
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	Better diagnostic.
+
+2004-02-23  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/testutility/DelegatingStubFactory.java:
+	Formatting.
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	Handle another null.
+
+	* tests-src/net/grinder/engine/process/TestRegisteredPlugin.java:
+	Test bad plugin.
+
+	* tests-src/net/grinder/testutility/AbstractStubFactory.java:
+	Unwrap InvocationTargetExceptions.
+
 2004-02-22  Philip Aston  <philipa@mail.com>
 
 	* TODO: More.
