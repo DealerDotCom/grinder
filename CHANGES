@@ -1,4 +1,5 @@
-Grinder 0.9:
+Grinder 0.9
+-----------
 
   I've finally got rid of PropsLoader. This entails a few changes to
   properties:
@@ -25,3 +26,11 @@ Grinder 0.9:
   I'm now using Ant 1.2 as the build engine, and have decided to
   remove Ant from the distrubution. See the build.xml file for more
   information.
+
+
+Grinder 0.8
+-----------
+
+  HTTPS support from Phil Dawes.
+
+  HTTP 302/307 handling from Phil Dawes.
