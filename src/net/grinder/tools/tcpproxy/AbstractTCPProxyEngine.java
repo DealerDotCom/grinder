@@ -48,11 +48,11 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
   private final TCPProxyFilter m_responseFilter;
   private final String m_requestColour;
   private final String m_responseColour;
-
   private final PrintWriter m_outputWriter;
-
   private final TCPProxySocketFactory m_socketFactory;
   private final ServerSocket m_serverSocket;
+  private final EndPoint m_chainedHTTPProxy;
+  private final EndPoint m_chainedHTTPSProxy;
 
   /**
    * Constructor.
@@ -66,6 +66,10 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
    * assigned.
    * @param useColour Whether to use colour.
    * @param timeout Timeout in milliseconds.
+   * @param chainedHTTPProxy HTTP proxy which output should be routed
+   * through, or <code>null</code> for no proxy.
+   * @param chainedHTTPSProxy HTTP proxy which output should be routed
+   * through, or <code>null</code> for no proxy.
    *
    * @exception IOException If an I/O error occurs.
    */
@@ -75,7 +79,9 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
                                 PrintWriter outputWriter,
                                 EndPoint localEndPoint,
                                 boolean useColour,
-                                int timeout)
+                                int timeout,
+                                EndPoint chainedHTTPProxy,
+                                EndPoint chainedHTTPSProxy)
     throws IOException {
 
     m_outputWriter = outputWriter;
@@ -95,6 +101,9 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
 
     m_serverSocket =
       m_socketFactory.createServerSocket(localEndPoint, timeout);
+
+    m_chainedHTTPProxy = chainedHTTPProxy;
+    m_chainedHTTPSProxy = chainedHTTPSProxy;
   }
 
   /**
@@ -268,13 +277,8 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
           m_outputStreamFilterTee.handle(buffer, bytesRead);
         }
       }
-      catch (SocketException e) {
-        // Ignore.
-      }
       catch (IOException e) {
-        if (!"Stream closed".equals(e.getMessage())) {
-          e.printStackTrace(System.err);
-        }
+        logIOException(e);
       }
       finally {
         m_outputStreamFilterTee.connectionClosed();
@@ -288,6 +292,44 @@ public abstract class AbstractTCPProxyEngine implements TCPProxyEngine {
         // Ignore.
       }
     }
+  }
+
+  /**
+   * Log IOExceptions, other than the common ones due to connections
+   * being closed.
+   *
+   * @param e The exception.
+   */
+  protected final void logIOException(IOException e) {
+
+    final Class c = e.getClass();
+    final String message = e.getMessage();
+
+    if (IOException.class.equals(c) && "Stream closed".equals(message) ||
+        SocketException.class.equals(c)) {
+
+      return;
+    }
+
+    e.printStackTrace(System.err);
+  }
+
+  /**
+   * Return the chained HTTP proxy, if any.
+   *
+   * @return The chained HTTP proxy, or <code>null</code>.
+   */
+  protected final EndPoint getChainedHTTPProxy() {
+    return m_chainedHTTPProxy;
+  }
+
+  /**
+   * Return the chained HTTPS proxy, if any.
+   *
+   * @return The chained HTTPS proxy, or <code>null</code>.
+   */
+  protected final EndPoint getChainedHTTPSProxy() {
+    return m_chainedHTTPSProxy;
   }
 
   /**

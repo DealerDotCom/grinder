@@ -50,6 +50,10 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
    * @param connectionDetails Connection details.
    * @param useColour Whether to use colour.
    * @param timeout Timeout in milliseconds.
+   * @param chainedHTTPProxy HTTP proxy which output should be routed
+   * through, or <code>null</code> for no proxy.
+   * @param chainedHTTPSProxy HTTP proxy which output should be routed
+   * through, or <code>null</code> for no proxy.
    *
    * @exception IOException If an I/O error occurs.
    */
@@ -59,11 +63,14 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
                                      PrintWriter outputWriter,
                                      ConnectionDetails connectionDetails,
                                      boolean useColour,
-                                     int timeout)
+                                     int timeout,
+                                     EndPoint chainedHTTPProxy,
+                                     EndPoint chainedHTTPSProxy)
     throws IOException {
 
     super(socketFactory, requestFilter, responseFilter, outputWriter,
-          connectionDetails.getLocalEndPoint(), useColour, timeout);
+          connectionDetails.getLocalEndPoint(), useColour, timeout,
+          chainedHTTPProxy, chainedHTTPSProxy);
 
     m_connectionDetails = connectionDetails;
   }
@@ -84,7 +91,7 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
         return;
       }
       catch (IOException e) {
-        e.printStackTrace(System.err);
+        logIOException(e);
         return;
       }
 
@@ -93,7 +100,7 @@ public final class PortForwarderTCPProxyEngine extends AbstractTCPProxyEngine {
                          EndPoint.clientEndPoint(localSocket), false);
       }
       catch (IOException e) {
-        e.printStackTrace(System.err);
+        logIOException(e);
       }
     }
   }

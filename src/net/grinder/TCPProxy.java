@@ -49,8 +49,9 @@ import net.grinder.tools.tcpproxy.PortForwarderTCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyConsole;
 import net.grinder.tools.tcpproxy.TCPProxyEngine;
 import net.grinder.tools.tcpproxy.TCPProxyFilter;
-import net.grinder.tools.tcpproxy.TCPProxyPlainSocketFactory;
 import net.grinder.tools.tcpproxy.TCPProxySocketFactory;
+import net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory;
+import net.grinder.tools.tcpproxy.TCPProxySocketFactoryImplementation;
 
 
 /**
@@ -64,7 +65,7 @@ import net.grinder.tools.tcpproxy.TCPProxySocketFactory;
 public final class TCPProxy {
 
   private static final String SSL_SOCKET_FACTORY_CLASS =
-    "net.grinder.tools.tcpproxy.TCPProxySSLSocketFactory";
+    "net.grinder.tools.tcpproxy.TCPProxySSLSocketFactoryImplementation";
 
   /**
    * Entry point.
@@ -101,6 +102,8 @@ public final class TCPProxy {
       "\n   [-timeout]                   Proxy engine timeout" +
       "\n   [-colour]                    Be pretty on ANSI terminals" +
       "\n   [-console]                   Display the console" +
+      "\n   [-proxy <host> <port>]       Route via HTTP/S proxy" +
+      "\n   [-sslproxy <host> <port>]    Override -proxy settings for HTTPS" +
       "\n" +
       "\n <filter> can be the name of a class that implements" +
       "\n " + TCPProxyFilter.class.getName() + " or" +
@@ -155,8 +158,10 @@ public final class TCPProxy {
     File keyStoreFile = null;
     char[] keyStorePassword = null;
     String keyStoreType = null;
-    boolean proxy = true;
+    boolean isHTTPProxy = true;
     boolean console = false;
+    EndPoint chainedHTTPProxy = null;
+    EndPoint chainedHTTPSProxy = null;
 
     int timeout = 0;
 
@@ -208,11 +213,11 @@ public final class TCPProxy {
         }
         else if (args[i].equalsIgnoreCase("-remotehost")) {
           remoteHost = args[++i];
-          proxy = false;
+          isHTTPProxy = false;
         }
         else if (args[i].equalsIgnoreCase("-remoteport")) {
           remotePort = Integer.parseInt(args[++i]);
-          proxy = false;
+          isHTTPProxy = false;
         }
         else if (args[i].equalsIgnoreCase("-ssl")) {
           useSSL = true;
@@ -220,10 +225,12 @@ public final class TCPProxy {
         else if (args[i].equalsIgnoreCase("-keystore")) {
           keyStoreFile = new File(args[++i]);
         }
-        else if (args[i].equalsIgnoreCase("-keystorepassword")) {
+        else if (args[i].equalsIgnoreCase("-keystorepassword") ||
+                 args[i].equalsIgnoreCase("-storepass")) {
           keyStorePassword = args[++i].toCharArray();
         }
-        else if (args[i].equalsIgnoreCase("-keystoretype")) {
+        else if (args[i].equalsIgnoreCase("-keystoretype") ||
+                 args[i].equalsIgnoreCase("-storetype")) {
           keyStoreType = args[++i];
         }
         else if (args[i].equalsIgnoreCase("-timeout")) {
@@ -246,9 +253,17 @@ public final class TCPProxy {
                  args[i].equalsIgnoreCase("-color")) {
           useColour = true;
         }
-        else if (args[i].equals("-properties")) {
+        else if (args[i].equalsIgnoreCase("-properties")) {
           /* Already handled */
           ++i;
+        }
+        else if (args[i].equalsIgnoreCase("-proxy")) {
+          chainedHTTPProxy =
+            new EndPoint(args[++i], Integer.parseInt(args[++i]));
+        }
+        else if (args[i].equalsIgnoreCase("-sslproxy")) {
+          chainedHTTPSProxy =
+            new EndPoint(args[++i], Integer.parseInt(args[++i]));
         }
         else {
           throw barfUsage();
@@ -260,14 +275,26 @@ public final class TCPProxy {
     }
 
     if (timeout < 0) {
-      throw barfUsage("Timeout must be non-negative");
+      throw barfUsage("Timeout must be non-negative.");
+    }
+
+    final EndPoint localEndPoint = new EndPoint(localHost, localPort);
+    final EndPoint remoteEndPoint = new EndPoint(remoteHost, remotePort);
+
+    if (chainedHTTPSProxy == null && chainedHTTPProxy != null) {
+      chainedHTTPSProxy = chainedHTTPProxy;
+    }
+
+    if (chainedHTTPSProxy != null && !isHTTPProxy) {
+      barfUsage("Routing through a chained HTTP/HTTPS proxy " +
+                "\nis currently not supported in port forwarding mode.");
     }
 
     final StringBuffer startMessage = new StringBuffer();
 
     startMessage.append("Initialising as ");
 
-    if (proxy) {
+    if (isHTTPProxy) {
       if (useSSL) {
         startMessage.append("an HTTP/HTTPS proxy");
       }
@@ -292,9 +319,17 @@ public final class TCPProxy {
     startMessage.append("\n   Local host:         " + localHost);
     startMessage.append("\n   Local port:         " + localPort);
 
-    if (!proxy) {
+    if (!isHTTPProxy) {
       startMessage.append("\n   Remote host:        " + remoteHost +
                           "\n   Remote port:        " + remotePort);
+    }
+
+    if (chainedHTTPProxy != null) {
+      startMessage.append("\n   HTTP proxy:         " + chainedHTTPProxy);
+    }
+
+    if (chainedHTTPSProxy != null) {
+      startMessage.append("\n   HTTPS proxy:        " + chainedHTTPSProxy);
     }
 
     if (useSSL) {
@@ -324,12 +359,12 @@ public final class TCPProxy {
     System.err.println(startMessage);
 
     try {
-      final TCPProxySocketFactory sslSocketFactory;
+      final TCPProxySSLSocketFactory sslSocketFactory;
 
       if (useSSL) {
         try {
-          // TCPProxySSLSocketFactory depends on JSSE, load
-          // dynamically.
+          // TCPProxySSLSocketFactoryImplementation depends on JSSE,
+          // load dynamically.
           final Class socketFactoryClass =
             Class.forName(SSL_SOCKET_FACTORY_CLASS);
 
@@ -338,7 +373,7 @@ public final class TCPProxy {
               new Class[] { File.class, new char[0].getClass(),
                             String.class, });
 
-          sslSocketFactory = (TCPProxySocketFactory)
+          sslSocketFactory = (TCPProxySSLSocketFactory)
             socketFactoryConstructor.newInstance(
               new Object[] { keyStoreFile, keyStorePassword, keyStoreType, });
         }
@@ -350,32 +385,34 @@ public final class TCPProxy {
         sslSocketFactory = null;
       }
 
-      final EndPoint localEndPoint = new EndPoint(localHost, localPort);
-      final EndPoint remoteEndPoint = new EndPoint(remoteHost, remotePort);
-
-      if (proxy) {
+      if (isHTTPProxy) {
         m_proxyEngine =
           new HTTPProxyTCPProxyEngine(
-            new TCPProxyPlainSocketFactory(),
+            new TCPProxySocketFactoryImplementation(),
             sslSocketFactory,
             requestFilter,
             responseFilter,
             outputWriter,
             localEndPoint,
             useColour,
-            timeout);
+            timeout,
+            chainedHTTPProxy,
+            chainedHTTPSProxy);
       }
       else {
         m_proxyEngine =
           new PortForwarderTCPProxyEngine(
             useSSL ?
-            sslSocketFactory : new TCPProxyPlainSocketFactory(),
+            (TCPProxySocketFactory)
+            sslSocketFactory : new TCPProxySocketFactoryImplementation(),
             requestFilter,
             responseFilter,
             outputWriter,
             new ConnectionDetails(localEndPoint, remoteEndPoint, useSSL),
             useColour,
-            timeout);
+            timeout,
+            chainedHTTPProxy,
+            chainedHTTPSProxy);
       }
 
       if (console) {
@@ -407,13 +444,13 @@ public final class TCPProxy {
       filterClass = Class.forName(filterClassName);
     }
     catch (ClassNotFoundException e) {
-      throw barfUsage("Class '" + filterClassName + "' not found");
+      throw barfUsage("Class '" + filterClassName + "' not found.");
     }
 
     if (!TCPProxyFilter.class.isAssignableFrom(filterClass)) {
       throw barfUsage("The specified filter class ('" + filterClass.getName() +
                       "') does not implement the interface: '" +
-                      TCPProxyFilter.class.getName() + "'");
+                      TCPProxyFilter.class.getName() + "'.");
     }
 
     // Instantiate a filter.
@@ -427,14 +464,15 @@ public final class TCPProxy {
     catch (NoSuchMethodException e) {
       throw barfUsage(
         "The class '" + filterClass.getName() +
-        "' does not have a constructor that takes a PrintWriter");
+        "' does not have a constructor that takes a PrintWriter.");
     }
     catch (IllegalAccessException e) {
       throw barfUsage("The constructor of class '" + filterClass.getName() +
-                      "' is not public");
+                      "' is not public.");
     }
     catch (InstantiationException e) {
-      throw barfUsage("The class '" + filterClass.getName() + "' is abstract");
+      throw barfUsage("The class '" + filterClass.getName() +
+                      "' is abstract.");
     }
   }
 

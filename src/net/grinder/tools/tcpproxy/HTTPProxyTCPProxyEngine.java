@@ -1,7 +1,7 @@
 // Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // Copyright (C) 2000, 2001 Phil Dawes
 // Copyright (C) 2001 Paddy Spencer
-// Copyright (C) 2003 Bertrande Ave
+// Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,7 +32,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -44,8 +43,6 @@ import org.apache.oro.text.regex.PatternCompiler;
 import org.apache.oro.text.regex.PatternMatcher;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
-import org.apache.oro.text.regex.Perl5Substitution;
-import org.apache.oro.text.regex.Util;
 
 import net.grinder.common.GrinderBuild;
 import net.grinder.util.CopyStreamRunnable;
@@ -77,29 +74,9 @@ import net.grinder.util.CopyStreamRunnable;
 public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
   private final PatternMatcher m_matcher = new Perl5Matcher();
+  private final Pattern m_httpConnectPattern;
   private final Pattern m_httpsConnectPattern;
-
   private final ProxySSLEngine m_proxySSLEngine;
-
-  /**
-   * Static so it can be used by {@link
-   * StripAbsoluteURIFilterDecorator} as well.
-   */
-  private static Pattern s_httpConnectPattern;
-
-  private static synchronized Pattern getHTTPConnectPattern()
-    throws MalformedPatternException {
-
-    if (s_httpConnectPattern == null) {
-      final PatternCompiler compiler = new Perl5Compiler();
-
-      s_httpConnectPattern = compiler.compile(
-        "^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
-        Perl5Compiler.MULTILINE_MASK  | Perl5Compiler.READ_ONLY_MASK);
-    }
-
-    return s_httpConnectPattern;
-  }
 
   /**
    * Constructor.
@@ -112,32 +89,44 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
    * @param localEndPoint Local host and port.
    * @param useColour Whether to use colour.
    * @param timeout Timeout in milliseconds.
+   * @param chainedHTTPProxy HTTP proxy which output should be routed
+   * through, or <code>null</code> for no proxy.
+   * @param chainedHTTPSProxy HTTP proxy which output should be routed
+   * through, or <code>null</code> for no proxy.
    *
    * @exception IOException If an I/O error occurs
    * @exception MalformedPatternException If a regular expression
    * error occurs.
    */
-  public HTTPProxyTCPProxyEngine(TCPProxyPlainSocketFactory plainSocketFactory,
-                                 TCPProxySocketFactory sslSocketFactory,
+  public HTTPProxyTCPProxyEngine(TCPProxySocketFactory plainSocketFactory,
+                                 TCPProxySSLSocketFactory sslSocketFactory,
                                  TCPProxyFilter requestFilter,
                                  TCPProxyFilter responseFilter,
                                  PrintWriter outputWriter,
                                  EndPoint localEndPoint,
                                  boolean useColour,
-                                 int timeout)
+                                 int timeout,
+                                 EndPoint chainedHTTPProxy,
+                                 EndPoint chainedHTTPSProxy)
     throws IOException, MalformedPatternException {
 
     // We set this engine up for handling plain HTTP and delegate
     // to a proxy for HTTPS.
     super(plainSocketFactory,
-          new StripAbsoluteURIFilterDecorator(requestFilter),
+          requestFilter,
           responseFilter,
           outputWriter,
           localEndPoint,
           useColour,
-          timeout);
+          timeout,
+          chainedHTTPProxy,
+          chainedHTTPSProxy);
 
     final PatternCompiler compiler = new Perl5Compiler();
+
+    m_httpConnectPattern = compiler.compile(
+      "^([A-Z]+)[ \\t]+http://([^/:]+):?(\\d*)(/.*)",
+      Perl5Compiler.MULTILINE_MASK  | Perl5Compiler.READ_ONLY_MASK);
 
     m_httpsConnectPattern = compiler.compile(
       "^CONNECT[ \\t]+([^:]+):(\\d+)",
@@ -187,7 +176,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         final String line =
           bytesRead > 0 ? new String(buffer, 0, bytesRead, "US-ASCII") : "";
 
-        if (m_matcher.contains(line, getHTTPConnectPattern())) {
+        if (m_matcher.contains(line, m_httpConnectPattern)) {
           // HTTP proxy request.
 
           // Reset stream to beginning of request.
@@ -196,7 +185,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           new Thread(
             new HTTPProxyStreamDemultiplexer(
               in, localSocket, EndPoint.clientEndPoint(localSocket)),
-            "HTTPProxyStreamDemultiplexer for " + localSocket).start();
+              "HTTPProxyStreamDemultiplexer for " + localSocket).start();
         }
         else if (m_matcher.contains(line, m_httpsConnectPattern)) {
           // HTTPS proxy request.
@@ -211,9 +200,6 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           // Match.group(2) must be a port number by specification.
           final EndPoint remoteEndPoint =
             new EndPoint(match.group(1), Integer.parseInt(match.group(2)));
-
-          // System.err.println("New HTTPS proxy connection to " +
-          // remoteEndPoint);
 
           if (m_proxySSLEngine == null) {
             System.err.println("Specify -ssl for HTTPS proxy support");
@@ -265,24 +251,18 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         }
       }
     }
-    catch (SocketException e) {
-      // Most likely "socket closed" - ignore.
-    }
     catch (InterruptedIOException e) {
       System.err.println("Listen time out");
     }
     catch (IOException e) {
-      e.printStackTrace(System.err);
-    }
-    catch (MalformedPatternException e) {
-      e.printStackTrace(System.err);
+      logIOException(e);
     }
   }
 
   /**
    * Runnable that actively reads from an Input stream, greps every
    * outgoing packet, and directs appropriately. This is necessary to
-   * support HTTP/1.1 between browser and proxy.
+   * support HTTP/1.1 between the browser and TCPProxy.
    */
   private final class HTTPProxyStreamDemultiplexer implements Runnable {
 
@@ -317,7 +297,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           final String bytesReadAsString =
             new String(buffer, 0, bytesRead, "US-ASCII");
 
-          if (m_matcher.contains(bytesReadAsString, getHTTPConnectPattern())) {
+          if (m_matcher.contains(bytesReadAsString, m_httpConnectPattern)) {
 
             final MatchResult match = m_matcher.getMatch();
             final String remoteHost = match.group(2);
@@ -342,16 +322,40 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
             if (m_lastRemoteStream == null) {
 
               // New connection.
+
+              // When running through a chained HTTP proxy, we still
+              // create a new thread pair to handle each target
+              // server. This allows us to reuse FilteredStreamThread
+              // and OutputStreamFilterTee to log the correct
+              // connection details. It may also be beneficial for
+              // performance.
+              final EndPoint chainedHTTPProxy = getChainedHTTPProxy();
+
               final Socket remoteSocket =
-                getSocketFactory().createClientSocket(remoteEndPoint);
+                getSocketFactory().createClientSocket(
+                  chainedHTTPProxy != null ?
+                  chainedHTTPProxy : remoteEndPoint);
 
               final ConnectionDetails connectionDetails =
                 new ConnectionDetails(m_clientEndPoint, remoteEndPoint, false);
 
+              final TCPProxyFilter requestFilter;
+
+              if (chainedHTTPProxy != null) {
+                requestFilter =
+                  new HTTPMethodAbsoluteFilterDecorator(
+                    new HTTPMethodRelativeFilterDecorator(getRequestFilter()),
+                    remoteEndPoint);
+              }
+              else {
+                requestFilter =
+                  new HTTPMethodRelativeFilterDecorator(getRequestFilter());
+              }
+
               m_lastRemoteStream =
                 new OutputStreamFilterTee(connectionDetails,
                                           remoteSocket.getOutputStream(),
-                                          getRequestFilter(),
+                                          requestFilter,
                                           getRequestColour());
 
               m_lastRemoteStream.connectionOpened();
@@ -377,14 +381,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         }
       }
       catch (IOException e) {
-        // Most likely SocketException("socket closed") or
-        // IOException("Stream closed"). Ignore.
-      }
-      catch (MalformedPatternException e) {
-        e.printStackTrace(System.err);
+        // Perhaps we should decorate the OutputStreamFilterTee's so
+        // that we can return exceptions as some simple HTTP error
+        // page?
+
+        logIOException(e);
       }
       finally {
-        // When exiting close all our outgoing streams. This will
+        // When exiting, close all our outgoing streams. This will
         // force all the FilteredStreamThreads we've launched to
         // handle the paired streams to shut down.
         final Iterator iterator = m_remoteStreamMap.values().iterator();
@@ -412,23 +416,21 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     private EndPoint m_clientEndPoint;
     private EndPoint m_remoteEndPoint;
 
-    ProxySSLEngine(TCPProxySocketFactory socketFactory,
+    ProxySSLEngine(TCPProxySSLSocketFactory socketFactory,
                    TCPProxyFilter requestFilter,
                    TCPProxyFilter responseFilter,
                    PrintWriter outputWriter,
                    boolean useColour)
       throws IOException {
       super(socketFactory, requestFilter, responseFilter, outputWriter,
-            new EndPoint(InetAddress.getLocalHost(), 0), useColour, 0);
+            new EndPoint(InetAddress.getLocalHost(), 0), useColour, 0,
+            null, null); /** TODO */
     }
 
     public void run() {
 
       while (true) {
         try {
-          // System.err.println("New proxy proxy connection to " +
-          // m_remoteEndPoint);
-
           final Socket localSocket = getServerSocket().accept();
 
           launchThreadPair(
@@ -452,61 +454,6 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
     public EndPoint getListenEndPoint() {
       return EndPoint.serverEndPoint(getServerSocket());
-    }
-  }
-
-  /**
-   * Filter decorator to convert absolute URLs in the method line as
-   * HTTP 1.0 servers don't expect them.
-   */
-  private static class StripAbsoluteURIFilterDecorator
-    implements TCPProxyFilter {
-
-    private static final Perl5Substitution s_substition =
-      new Perl5Substitution("$1 $4");
-
-    private final TCPProxyFilter m_delegate;
-    private final PatternMatcher m_matcher = new Perl5Matcher();
-
-    public StripAbsoluteURIFilterDecorator(TCPProxyFilter delegate)
-      throws MalformedPatternException {
-      m_delegate = delegate;
-    }
-
-    public void connectionOpened(ConnectionDetails connectionDetails)
-      throws Exception {
-      m_delegate.connectionOpened(connectionDetails);
-    }
-
-    public void connectionClosed(ConnectionDetails connectionDetails)
-      throws Exception {
-      m_delegate.connectionClosed(connectionDetails);
-    }
-
-    public void stop() {
-      m_delegate.stop();
-    }
-
-    public byte[] handle(ConnectionDetails connectionDetails,
-                         byte[] buffer, int bytesRead)
-      throws Exception {
-
-      final byte[] delegateResult =
-        m_delegate.handle(connectionDetails, buffer, bytesRead);
-
-      final String original =
-        new String(delegateResult != null ? delegateResult : buffer,
-                   0, bytesRead, "US-ASCII");
-
-      final String result =
-        Util.substitute(m_matcher, getHTTPConnectPattern(), s_substition,
-                        original);
-
-      if (result != original) {    // Yes, I mean reference identity.
-        return result.getBytes();
-      }
-
-      return null;
     }
   }
 }
