@@ -149,6 +149,11 @@ public class Grinder {
      * worker process data logs. Each test invocation will have an entry
      * displayed for the detail statistics views.
      *
+     * <p>You should call <code>registerSummaryStatisticsView</code>
+     * from the top level of your script. It cannot be called from a
+     * worker thread - the data logs are initialised by the time the
+     * worker threads start.</p>
+     *
      * @param statisticsView The new statistics view.
      * @exception GrinderException If the view could not be registered.
      */
