@@ -338,27 +338,27 @@ The process controls:
 
 The sample controls:
 
-  There are a set of slider controls that determine the samples that
-  the Console will capture. It is important to understand that these
+  There are a set of controls that determine the samples that the
+  Console will capture. It is important to understand that these
   sliders control the Console behaviour _only_. For example, they do
-  not adjust the frequency at which the Grinder processes report (see
-  grinder.reportToConsole.interval for that). Additionally, the do not
-  interact in any way with the process controls.
+  not adjust the frequency at which the Grinder sends reports (see
+  grinder.reportToConsole.interval for that). Additionally, they do
+  not interact in any way with the process controls.
 
-  The first slider controls the period at which the console will take
-  a "sample". This involves adding up all the reports recieved over
-  that sample interval and calculating the TPS as (number of
-  transactions that occured)/(interval length). It is also the period
-  at which the Console graphs and statistics are updated.
+  The slider controls the period at which the console will take a
+  "sample". This involves adding up all the reports recieved over that
+  sample interval and calculating the TPS as (number of transactions
+  that occured)/(interval length). It is also the period at which the
+  Console graphs and statistics are updated.
 
   By default, the Console discards the first non-zero sample period,
   and starts updating the display and calcluating totals from the
   second sample. A non-zero sample period is one in which an update
   from a Grinder process was received. You can adjust how many
   non-zero sample periods the Console ignores before starting capture
-  with the second slider.
+  with the "ignore samples" text field.
 
-  The third slider allows you to adjust how many samples the Console
+  The third control allows you to adjust how many samples the Console
   will collect before stopping capture.
 
   You can also manually start and stop the sampling with the "Capture
