@@ -12,6 +12,11 @@ it too :-).
 
 * Bugs
 
+** Console/agent
+
+Clicking on "start" whilst processes are running should not queue up a
+start event.
+
 ** TCPProxy
 
 Fix the proxy to record Authorization again. Can use connection ID.
@@ -68,9 +73,6 @@ test runs etc. Logs should be timestamped. Use log to replace use of
 System.err for warnings.
 
 ** Engine
-
-Linear initial sleep time to allow thread's to ramp up. (Feature
-Request 801129).
 
 There should be an ExternalFilenameFactory, cf ExternalLogger.
 
@@ -148,6 +150,8 @@ Idea from Nurul Choudhury:
 
 ** Code
 
+Review use of Kernel. Probably want to share them.
+
 Remove ThreadLocal from RegisteredPlugin.
 
 Figure out the UndeclaredThrowableException problem in
@@ -156,6 +160,8 @@ TestRegisteredPlugin.
 Review use of InterruptedException
 
 Shouldn't really throw GrinderException anywhere.
+
+Rename CallRecorder.assertNotCalled() to assertNoMoreCalls().
 
 ** Other HTTP/HTML libraries
 
