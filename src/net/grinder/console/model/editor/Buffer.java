@@ -94,6 +94,7 @@ public final class Buffer {
   private final TextSource m_textSource;
   private final File m_file;
   private long m_lastModified;
+  private boolean m_active;
 
   /**
    * Constructor for buffers with no associated file.
@@ -129,7 +130,7 @@ public final class Buffer {
   public void load() throws DisplayMessageConsoleException, EditorException {
     // The UI should never call save if there is no associated file,
     // but check anyway.
-    if (!hasAssociatedFile()) {
+    if (m_file == null) {
       throw new EditorException(
         "Can't load a buffer that has no associated file");
     }
@@ -175,7 +176,7 @@ public final class Buffer {
   public void save() throws DisplayMessageConsoleException, EditorException {
     // The UI should never call save if there is no associated file,
     // but check anyway.
-    if (!hasAssociatedFile()) {
+    if (m_file == null) {
       throw new EditorException(
         "Can't save a buffer that has no associated file");
     }
@@ -215,12 +216,12 @@ public final class Buffer {
   }
 
   /**
-   * Return whether the buffer has an associated file.
+   * Return the buffer's associated file.
    *
-   * @return <code>true</code> => the buffer has an associated file.
+   * @return The file. <code>null</code> if there is no associated file.
    */
-  public boolean hasAssociatedFile() {
-    return m_file != null;
+  public File getFile() {
+    return m_file;
   }
 
   /**
@@ -231,7 +232,7 @@ public final class Buffer {
    * of the buffer.
    */
   public boolean isUpToDate() {
-    return !hasAssociatedFile() || m_lastModified == m_file.lastModified();
+    return m_file == null || m_lastModified == m_file.lastModified();
   }
 
   /**
@@ -241,7 +242,7 @@ public final class Buffer {
    */
   public Type getType() {
 
-    if (hasAssociatedFile()) {
+    if (m_file != null) {
       final String name = m_file.getName();
       final int lastDot = name.lastIndexOf('.');
 
@@ -260,9 +261,22 @@ public final class Buffer {
 
   /**
    * Tell the buffer it is active.
+   *
+   * @param  active <code>true</code> the buffer is active else the buffer is
+   * inactive.
    */
-  public void setActive() {
+  public void setActive(boolean active) {
+    m_active = active;
     m_textSource.setActive();
+  }
+
+  /**
+   * Get whether the buffer is active.
+   *
+   * @return <code>true</code> => the buffer is active.
+   */
+  public boolean isActive() {
+    return m_active;
   }
 
   /**
