@@ -47,12 +47,12 @@ abstract class BlockingActionThread extends Thread {
     }
   }
 
-  public boolean checkSuccess(Class c) {
+  public Exception getException() {
     Thread.yield();
 
     this.interrupt();
 
-    return m_exception != null && m_exception.getClass().equals(c);
+    return m_exception;
   }
 
   protected abstract void blockingAction() throws Exception;

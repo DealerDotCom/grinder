@@ -105,7 +105,7 @@ public class TestClientReceiver extends TestCase {
         protected void blockingAction() throws CommunicationException {
           clientReceiver.waitForMessage();
         }
-      }.checkSuccess(CommunicationException.class));
+      }.getException() instanceof CommunicationException);
 
     outputStream.close();
     
