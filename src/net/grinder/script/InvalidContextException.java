@@ -20,46 +20,35 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.plugininterface;
+package net.grinder.script;
 
-import net.grinder.common.FilenameFactory;
-import net.grinder.common.Logger;
-import net.grinder.statistics.TestStatistics;
+import net.grinder.common.GrinderException;
 
 
 /**
- * <p>This class is used to share thread information between the
- * Grinder and the plug-in. </p>
- * 
- * @author Paco Gomez
+ * Exception that represents an attempt to make an API call from an
+ * invalid context.
+ *
  * @author Philip Aston
  * @version $Revision$
- **/
-public interface PluginThreadContext {    
-
+ */ 
+public class InvalidContextException extends GrinderException {
   /**
-   * Return the thread ID.
-   */ 
-  int getThreadID();
- 
-  /**
-   * Return the current run number.
-   */
-  int getRunNumber();
-  
-  /**
-   * Get the thread {@link net.grinder.common.Logger}.
+   * Creates a new <code>InvalidContextException</code> instance.
    *
-   * @return A <code>Logger</code>.
+   * @param s Exception message.
    */
-  Logger getLogger();
+  public InvalidContextException(String s) {
+    super(s);
+  }
 
   /**
-   * Get the thread {@link net.grinder.common.FilenameFactory}.
+   * Creates a new <code>InvalidContextException</code> instance.
    *
-   * @return A <code>Logger</code>.
+   * @param s Exception message.
+   * @param t Nested exception.
    */
-  FilenameFactory getFilenameFactory();
-
-  long getStartTime();
+  public InvalidContextException(String s, Throwable t) {
+    super(s, t);
+  }
 }

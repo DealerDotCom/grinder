@@ -26,9 +26,11 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.engine.EngineException;
+import net.grinder.script.InvalidContextException;
 import net.grinder.script.ScriptContext;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsView;
+import net.grinder.statistics.TestStatistics;
 import net.grinder.communication.RegisterStatisticsViewMessage;
 
 
@@ -80,22 +82,24 @@ final class ScriptContextImplementation implements ScriptContext {
     return m_processContext.getLogger();
   }
 
-  public final void sleep(long meanTime) throws GrinderException {
+  public final void sleep(long meanTime)
+    throws GrinderException, InvalidContextException {
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
     if (threadContext == null) {
-      throw new EngineException(
-	"sleep is currently only supported for worker threads");
+      throw new InvalidContextException(
+	"sleep() is currently only supported for worker threads");
     }
 
     threadContext.getSleeper().sleepNormal(meanTime);
   }
 
-  public final void sleep(long meanTime, long sigma) throws GrinderException {
+  public final void sleep(long meanTime, long sigma)
+    throws GrinderException, InvalidContextException {
     final ThreadContext threadContext = ThreadContext.getThreadInstance();
 
     if (threadContext == null) {
-      throw new EngineException(
+      throw new InvalidContextException(
 	"sleep is currently only supported for worker threads");
     }
 
@@ -130,5 +134,26 @@ final class ScriptContextImplementation implements ScriptContext {
     // DetailStatisticsViews are only for the data logs, so we don't
     // register the view with the console.
     CommonStatisticsViews.getDetailStatisticsView().add(statisticsView);
+  }
+
+  public final TestStatistics getCurrentTestStatistics()
+    throws InvalidContextException {
+
+    final ThreadContext threadContext = ThreadContext.getThreadInstance();
+
+    if (threadContext == null) {
+      throw new InvalidContextException(
+	"getCurrentTestStatistics() is only supported for worker threads");
+    }
+
+    final TestStatistics currentTestStatistics =
+      threadContext.getCurrentTestStatistics();
+
+    if (currentTestStatistics == null) {
+      throw new InvalidContextException(
+	"Call to getCurrentTestStatistics() from outside instrumented code");
+    }
+    
+    return currentTestStatistics;
   }
 }

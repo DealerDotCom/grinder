@@ -154,8 +154,6 @@ public final class GrinderProcess implements Monitor
 	m_reportToConsoleInterval =
 	    properties.getInt("grinder.reportToConsole.interval", 500);
 
-	m_context.initialiseDataWriter();
-
 	ConsoleListener consoleListener = null;
 
 	if (properties.getBoolean("grinder.receiveConsoleSignals", true)) {
@@ -200,6 +198,10 @@ public final class GrinderProcess implements Monitor
 	
 	final JythonScript jythonScript =
 	    new JythonScript(m_context, m_scriptFile);
+
+	// Don't initialise the data writer until know as the script
+	// may declare new statistics.
+	m_context.initialiseDataWriter();
 
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
 

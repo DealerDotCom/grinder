@@ -149,11 +149,10 @@ final class ThreadContext implements PluginThreadContext {
     throws JythonScriptExecutionException {
 
     if (m_currentTest != null) {
-      // Originally we threw a ReentrantInvocationException
-      // here. However, this caused problems when wrapping
-      // Jython objects that themselves; in our scheme the
-      // wrapper shares a dictionary so self = self we recurse
-      // up our own.
+      // Originally we threw a ReentrantInvocationException here.
+      // However, this caused problems when wrapping Jython objects
+      // that call themselves; in our scheme the wrapper shares a
+      // dictionary so self = self we recurse up our own.
       return invokeable.call();
     }
 
@@ -241,7 +240,11 @@ final class ThreadContext implements PluginThreadContext {
     return m_startTime;
   }
 
-  public TestStatistics getCurrentTestStatistics() {
+  TestStatistics getCurrentTestStatistics() {
+    if (m_currentTest == null) {
+      return null;
+    }
+
     return m_currentTestStatistics;
   }
 }
