@@ -1,3 +1,14 @@
+2004-08-10  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/HTTPClient/HTTPResponse.java:
+	getData() now returns a zero length array if the response
+	Content-Length is 0. Previously it returned null which caused
+	getText() to NPE.
+
+2004-07-23  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/ConsoleUI.java: totally...
+
 2004-07-22  Philip Aston  <philipa@mail.com>
 
 	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java, src/net/grinder/tools/tcpproxy/HTTPMethodAbsoluteURIFilterDecorator.java, src/net/grinder/tools/tcpproxy/HTTPMethodRelativeURIFilterDecorator.java:
