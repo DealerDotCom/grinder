@@ -79,8 +79,7 @@ class GrinderThread implements java.lang.Runnable
 	    new ThreadContext(processContext, threadID, threadCallbacks);
 
 	m_bsfThreadContext =
-	    bsfProcessContext != null ?
-	    bsfProcessContext.new BSFThreadContext(m_context) : null;
+	    bsfProcessContext.new BSFThreadContext(m_context);
 
 	m_threadID = threadID;
 	m_testRegistry = processContext.getTestRegistry();

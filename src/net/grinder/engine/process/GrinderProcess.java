@@ -141,11 +141,9 @@ public final class GrinderProcess implements Monitor
 
 	m_context.initialiseDataWriter();
 
-	final String scriptFilename = properties.getProperty("grinder.script");
-
 	m_bsfContext =
-	    scriptFilename != null ?
-	    new BSFProcessContext(new File(scriptFilename)) : null;
+	    new BSFProcessContext(
+		new File(properties.getMandatoryProperty("grinder.script")));
 
 	m_consoleListener =
 	    properties.getBoolean("grinder.receiveConsoleSignals", true) ?
