@@ -22,6 +22,8 @@
 package net.grinder.console.swingui;
 
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -29,6 +31,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,7 +39,6 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeSelectionModel;
 import java.util.EventListener;
 import java.util.Iterator;
@@ -136,8 +138,8 @@ final class ScriptFilesPanel extends JPanel {
           final FileTreeModel.Node node =
             (FileTreeModel.Node)tree.getLastSelectedPathComponent();
 
-          if (node != null && node.isLeaf()) {
-            fireFileSelected(node.getFile());
+          if (node != null && node instanceof FileTreeModel.FileNode) {
+            fireFileSelected((FileTreeModel.FileNode) node);
           }
         }
       }
@@ -171,18 +173,16 @@ final class ScriptFilesPanel extends JPanel {
   /**
    * Custom cell renderer.
    */
-  final class CustomTreeCellRenderer implements TreeCellRenderer {
-    private final DefaultTreeCellRenderer m_standardRenderer =
-      new DefaultTreeCellRenderer();
-    private final DefaultTreeCellRenderer m_pythonFileRenderer =
-      new DefaultTreeCellRenderer();
-    private final DefaultTreeCellRenderer m_boringFileRenderer =
+  final class CustomTreeCellRenderer extends DefaultTreeCellRenderer {
+    private final DefaultTreeCellRenderer m_defaultRenderer =
       new DefaultTreeCellRenderer();
 
+    private final Font m_boldFont;
+    private final Font m_boldItalicFont;
+
     CustomTreeCellRenderer() {
-      m_pythonFileRenderer.setLeafIcon(
-        m_resources.getImageIcon("script.pythonfile.image"));
-      m_boringFileRenderer.setTextNonSelectionColor(Colours.INACTIVE_TEXT);
+      m_boldFont = new JLabel().getFont().deriveFont(Font.BOLD);
+      m_boldItalicFont = m_boldFont.deriveFont(Font.BOLD | Font.ITALIC);
     }
 
     public Component getTreeCellRendererComponent(
@@ -191,20 +191,48 @@ final class ScriptFilesPanel extends JPanel {
 
       final FileTreeModel.Node node = (FileTreeModel.Node)value;
 
-      final TreeCellRenderer renderer;
+      if (node instanceof FileTreeModel.FileNode) {
+        final FileTreeModel.FileNode fileNode = (FileTreeModel.FileNode)node;
 
-      if (node.isPythonFile()) {
-        renderer = m_pythonFileRenderer;
-      }
-      else if (node.isBoringFile()) {
-        renderer = m_boringFileRenderer;
+        setLeafIcon(
+          fileNode.isPythonFile() ?
+          m_resources.getImageIcon("script.pythonfile.image") :
+          m_defaultRenderer.getLeafIcon());
+
+        setTextNonSelectionColor(
+          fileNode.isBoringFile() && !fileNode.isOpen() ?
+          Colours.INACTIVE_TEXT :
+          m_defaultRenderer.getTextNonSelectionColor());
+
+        if (fileNode.isDirty()) {
+          setFont(m_boldItalicFont);
+        }
+        else if (fileNode.isOpen()) {
+          setFont(m_boldFont);
+        }
+        else {
+          setFont(m_defaultRenderer.getFont());
+        }
+
+        return super.getTreeCellRendererComponent(
+          tree, value, selected, expanded, leaf, row, hasFocus);
       }
       else {
-        renderer = m_standardRenderer;
+        return m_defaultRenderer.getTreeCellRendererComponent(
+          tree, value, selected, expanded, leaf, row, hasFocus);
       }
+    }
 
-      return renderer.getTreeCellRendererComponent(
-        tree, value, selected, expanded, leaf, row, hasFocus);
+    /**
+     * Our parent overrides validate() and revalidate() for speed.
+     * This means it never resizes. Go with this, but be a few pixels
+     * wider to allow text to be italicised.
+     */
+    public Dimension getPreferredSize() {
+      final Dimension result = super.getPreferredSize();
+
+      return result != null ?
+        new Dimension(result.width + 3, result.height) : null;
     }
   }
 
@@ -219,13 +247,13 @@ final class ScriptFilesPanel extends JPanel {
     }
   }
 
-  private void fireFileSelected(File file) {
+  private void fireFileSelected(FileTreeModel.FileNode fileNode) {
     synchronized (m_listeners) {
       final Iterator iterator = m_listeners.iterator();
 
       while (iterator.hasNext()) {
         final Listener listener = (Listener)iterator.next();
-        listener.newFileSelection(file);
+        listener.newFileSelection(fileNode);
       }
     }
   }
@@ -236,11 +264,11 @@ final class ScriptFilesPanel extends JPanel {
   public interface Listener extends EventListener {
 
     /**
-     * Called when a new file has been selected.
+     * Called when a new file node has been selected.
      *
-     * @param file The file.
+     * @param fileNode The file node.
      */
-    void newFileSelection(File file);
+    void newFileSelection(FileTreeModel.FileNode fileNode);
   }
 }
 

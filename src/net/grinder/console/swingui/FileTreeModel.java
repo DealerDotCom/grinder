@@ -30,6 +30,8 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import net.grinder.console.model.editor.Buffer;
+
 
 /**
  * TreeModel that walks file system.
@@ -57,26 +59,39 @@ final class FileTreeModel implements TreeModel {
 
   public Object getChild(Object parent, int index) {
 
-    return ((Node)parent).getChild(index);
+    if (parent instanceof DirectoryNode) {
+      return ((DirectoryNode)parent).getChild(index);
+    }
+
+    return null;
   }
 
   public int getChildCount(Object parent) {
 
-    return ((Node)parent).getChildCount();
+    if (parent instanceof DirectoryNode) {
+      return ((DirectoryNode)parent).getChildCount();
+    }
+
+    return 0;
   }
 
   public int getIndexOfChild(Object parent, Object child) {
 
     if (parent == null || child == null) {
-      return -1;        // The TreeModel Javadoc says we should do
-                        // this.
+      // The TreeModel Javadoc says we should do this.
+      return -1;
     }
 
-    return ((Node)parent).getIndexOfChild((Node)child);
+    if (parent instanceof DirectoryNode) {
+      return ((DirectoryNode)parent).getIndexOfChild((Node)child);
+    }
+    else {
+      return -1;
+    }
   }
 
   public boolean isLeaf(Object node) {
-    return ((Node)node).isLeaf();
+    return node instanceof FileNode;
   }
 
   public void addTreeModelListener(TreeModelListener listener) {
@@ -102,6 +117,7 @@ final class FileTreeModel implements TreeModel {
   }
 
   public void valueForPathChanged(TreePath path, Object newValue) {
+    System.err.println("valueForPathChanged(" + path + ", " + newValue + ")");
     // Do nothing.
   }
 
@@ -122,33 +138,86 @@ final class FileTreeModel implements TreeModel {
   /**
    * Node in the tree.
    */
-  public class Node {
+  public abstract class Node {
 
     private final File m_file;
-    private final boolean m_isDirectory;
+
+    protected Node(File file) {
+      m_file = file;
+    }
+
+    public String toString() {
+      return m_file.getName();
+    }
+
+    public final File getFile() {
+      return m_file;
+    }
+  }
+
+  /**
+   * Node that represents a file. Used for the leaves of the tree.
+   */
+  public final class FileNode extends Node {
+
+    private Buffer m_buffer = null;
+
+    private FileNode(File file) {
+      super(file);
+    }
+
+    public void setBuffer(Buffer buffer) {
+      m_buffer = buffer;
+    }
+
+    public Buffer getBuffer() {
+      return m_buffer;
+    }
+
+    public boolean isPythonFile() {
+      return getFile().getName().endsWith(".py");
+    }
+
+    public boolean isBoringFile() {
+      final String name = getFile().getName();
+
+      return
+        getFile().isHidden() ||
+        name.endsWith(".class") ||
+        name.endsWith("~") ||
+        name.startsWith(".");
+    }
+
+    public boolean isOpen() {
+      return getBuffer() != null;
+    }
+
+    public boolean isDirty() {
+      return getBuffer() != null && getBuffer().isDirty();
+    }
+  }
+
+  /**
+   * Node that represents a directory.
+   */
+  private class DirectoryNode extends Node {
+
     private final File[] m_childDirectories;
     private final File[] m_childFiles;
 
-    protected Node(File file, boolean isDirectory) {
-      m_file = file;
-      m_isDirectory = isDirectory;
-      final File[] childDirectories = file.listFiles(s_directoryFilter);
+    DirectoryNode(File file) {
+      super(file);
 
-      m_childDirectories =
-        childDirectories != null ? childDirectories : new File[0];
-
-      final File[] childFiles = file.listFiles(s_fileFilter);
-
-      m_childFiles = childFiles != null ? childFiles : new File[0];
+      m_childDirectories = file.listFiles(s_directoryFilter);
+      m_childFiles = file.listFiles(s_fileFilter);
     }
 
     public final Node getChild(int index) {
       if (index < m_childDirectories.length) {
-        return new Node(m_childDirectories[index], true);
+        return new DirectoryNode(m_childDirectories[index]);
       }
       else {
-        return new Node(m_childFiles[index - m_childDirectories.length],
-                        false);
+        return new FileNode(m_childFiles[index - m_childDirectories.length]);
       }
     }
 
@@ -171,41 +240,15 @@ final class FileTreeModel implements TreeModel {
 
       return -1;
     }
-
-    public final boolean isLeaf() {
-      return !m_isDirectory;
-    }
-
-    public final boolean isPythonFile() {
-      return !m_isDirectory && m_file.getName().endsWith(".py");
-    }
-
-    public final boolean isBoringFile() {
-      final String name = m_file.getName();
-
-      return !m_isDirectory &&
-        (m_file.isHidden() ||
-         name.endsWith(".class") ||
-         name.endsWith("~") ||
-         name.startsWith("."));
-    }
-
-    public String toString() {
-      return m_file.getName();
-    }
-
-    public final File getFile() {
-      return m_file;
-    }
   }
 
   /**
    * Root node of the tree.
    */
-  public final class RootNode extends Node {
+  private final class RootNode extends DirectoryNode {
 
     private RootNode(File file) {
-      super(file, true);
+      super(file);
     }
 
     public String toString() {

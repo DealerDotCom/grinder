@@ -247,7 +247,7 @@ public final class ConsoleUI implements ModelListener {
                       graphTabPane,
                       resources.getString("graphTab.tip"));
 
-    final Font resultsTableLabelFont =
+    final Font tabLabelFont =
       new JLabel().getFont().deriveFont(Font.PLAIN | Font.ITALIC);
 
     m_cumulativeTableModel = new CumulativeStatisticsTableModel(model);
@@ -259,7 +259,7 @@ public final class ConsoleUI implements ModelListener {
       BorderFactory.createTitledBorder(
         threePixelBorder, resources.getString("cumulativeTable.label"));
 
-    cumulativeTableTitledBorder.setTitleFont(resultsTableLabelFont);
+    cumulativeTableTitledBorder.setTitleFont(tabLabelFont);
     cumulativeTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
     cumulativeTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
 
@@ -276,7 +276,7 @@ public final class ConsoleUI implements ModelListener {
       BorderFactory.createTitledBorder(
         threePixelBorder, resources.getString("sampleTable.label"));
 
-    sampleTableTitledBorder.setTitleFont(resultsTableLabelFont);
+    sampleTableTitledBorder.setTitleFont(tabLabelFont);
     sampleTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
     sampleTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
 
@@ -307,7 +307,7 @@ public final class ConsoleUI implements ModelListener {
       BorderFactory.createTitledBorder(
         threePixelBorder, resources.getString("processStatusTableTab.tip"));
 
-    processTableTitledBorder.setTitleFont(resultsTableLabelFont);
+    processTableTitledBorder.setTitleFont(tabLabelFont);
     processTableTitledBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
     processTableTitledBorder.setTitleJustification(TitledBorder.RIGHT);
 
@@ -319,6 +319,20 @@ public final class ConsoleUI implements ModelListener {
                       processStatusPane,
                       resources.getString("processStatusTableTab.tip"));
 
+    final TitledBorder editorBorder =
+      BorderFactory.createTitledBorder(
+        BorderFactory.createEmptyBorder(0, 1, 3, 1), "x");
+
+    editorBorder.setTitleFont(tabLabelFont);
+    editorBorder.setTitleColor(Colours.HIGHLIGHT_TEXT);
+    editorBorder.setTitleJustification(TitledBorder.RIGHT);
+
+    final Editor editor = new Editor(resources, editorBorder);
+
+    // Place JEditTextArea in JPanel so border background is correct.
+    final JPanel editorPanel = new JPanel();
+    editorPanel.add(editor.getComponent());
+
     final ScriptFilesPanel scriptFilesPanel =
       new ScriptFilesPanel(m_frame, m_lookAndFeel, resources,
                            distributeFilesHandler);
@@ -327,13 +341,11 @@ public final class ConsoleUI implements ModelListener {
 
     scriptFilesPanel.refresh();
 
-    final Editor editor = new Editor(resources);
-
     scriptFilesPanel.addListener(
       new ScriptFilesPanel.Listener() {
-        public void newFileSelection(File file) {
+        public void newFileSelection(FileTreeModel.FileNode fileNode) {
           try {
-            editor.newFileSelection(file);
+            editor.newFileSelection(fileNode);
           }
           catch (ConsoleException e) {
             getErrorHandler().handleException(
@@ -345,7 +357,7 @@ public final class ConsoleUI implements ModelListener {
     final JSplitPane scriptPane =
       new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                      scriptFilesPanel,
-                     editor.getComponent());
+                     editorPanel);
 
     scriptPane.setOneTouchExpandable(true);
     scriptPane.setBorder(BorderFactory.createEmptyBorder());
