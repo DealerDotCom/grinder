@@ -1,3 +1,8 @@
+2001-10-25  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/util/Serialiser.java, tests-src/net/grinder/util/TestSerialiser.java:
+	Efficient serialisation for small positive longs.
+
 2001-10-24  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/statistics/RawStatistics.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpression.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/TestStatistics.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/PeakStatisticExpression.java, src/net/grinder/console/swingui/ConsoleUI.java:
