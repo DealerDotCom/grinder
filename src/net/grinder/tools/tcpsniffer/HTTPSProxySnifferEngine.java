@@ -221,7 +221,7 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 	{
 	    while (true) {
 		try {
-		    final Socket localSocket = m_serverSocket.accept();
+		    final Socket localSocket = getServerSocket().accept();
 
 		    System.err.println("New proxy proxy connection to " +
 				       m_tempRemoteHost + ":" +
