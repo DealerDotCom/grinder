@@ -52,7 +52,7 @@ public class StatisticsIndexMap implements Serializable
 	m_map.put("errors", new LongIndex(nextLongIndex++));
 	m_map.put("timedTransactions", new LongIndex(nextLongIndex++));
 	m_map.put("untimedTransactions", new LongIndex(nextLongIndex++));
-	m_map.put("totalTime", new LongIndex(nextLongIndex++));
+	m_map.put("timedTransactionTime", new LongIndex(nextLongIndex++));
 	m_map.put("period", new LongIndex(nextLongIndex++));
 	m_map.put("userLong0", new LongIndex(nextLongIndex++));
 	m_map.put("userLong1", new LongIndex(nextLongIndex++));

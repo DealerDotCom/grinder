@@ -28,6 +28,7 @@ import net.grinder.common.GrinderException;
 
 
 /**
+ * Associate a {@link StatisticExpression} with display information.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -51,6 +52,17 @@ public class ExpressionView
      **/
     private final StatisticExpression m_expression;
 
+    /**
+     * Creates a new <code>ExpressionView</code> instance.
+     *
+     * @param displayName A common display name.
+     * @param displayNameResourceKey A resource key to use to look up
+     * an internationalised display name.
+     * @param expressionString An expression string, used to create
+     * the {@link StatisticExpression}.
+     * @exception GrinderException if an error occurs
+     * @see StatisticExpressionFactory
+     */
     public ExpressionView(String displayName, String displayNameResourceKey,
 			  String expressionString)
 	throws GrinderException
@@ -61,6 +73,15 @@ public class ExpressionView
 	     s_statisticExpressionFactory.createExpression(expressionString));
     }
 
+    /**
+     * Creates a new <code>ExpressionView</code> instance.
+     *
+     * @param displayName A common display name.
+     * @param displayNameResourceKey A resource key to use to look up
+     * an internationalised display name.
+     * @param expression A {@link StatisticExpression}.
+     * @exception GrinderException if an error occurs
+     */
     public ExpressionView(String displayName, String displayNameResourceKey,
 			  StatisticExpression expression)
 	throws GrinderException
@@ -112,16 +133,32 @@ public class ExpressionView
 	out.writeUTF(m_expressionString);
     }
 
+    /**
+     * Get the common display name.
+     *
+     * @return The display name.
+     **/
     public final String getDisplayName()
     {
         return m_displayName;
     }
 
+    /**
+     * Get the display name resource key.
+     *
+     * @return A key that might be used to look up an
+     * internationalised display name.
+     **/
     public final String getDisplayNameResourceKey()
     {
         return m_displayNameResourceKey;
     }
 
+    /**
+     * Return the {@link StatisticExpression}.
+     *
+     * @return The {@link StatisticExpression}.
+     **/
     public final StatisticExpression getExpression()
     {
 	return m_expression;
@@ -129,6 +166,9 @@ public class ExpressionView
 
     /**
      * Value based equality.
+     *
+     * @param other An <code>Object</code> to compare.
+     * @return <code>true</code> => <code>other</code> is equal to this object.
      **/
     public boolean equals(Object other)
     {
@@ -156,6 +196,11 @@ public class ExpressionView
 	     m_expressionString.equals(otherView.m_expressionString));
     }
 
+    /**
+     * Implement {@link Object#hashCode}.
+     *
+     * @return an <code>int</code> value
+     */
     public final int hashCode()
     {
 	return m_hashCode;

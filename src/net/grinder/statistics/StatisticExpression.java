@@ -20,14 +20,41 @@ package net.grinder.statistics;
 
 
 /**
+ * Interface to apply a statistics calculation to a {@link
+ * RawStatistics}.
  *
  * @author Philip Aston
  * @version $Revision$
- */
+ * @see StatisticExpressionFactory
+ **/
 public interface StatisticExpression
 {
+    /**
+     * Apply this {@link StatisticExpression} to the given {@link
+     * RawStatistics} and return the result as a <code>double</code>.
+     *
+     * @param rawStatistics A <code>RawStatistics</code> value.
+     * @return The result.
+     **/
     double getDoubleValue(RawStatistics rawStatistics);
+
+    /**
+     * Apply this {@link StatisticExpression} to the given {@link
+     * RawStatistics} and return the result as a <code>long</code>,
+     * ronding as necessary.
+     *
+     * @param rawStatistics A <code>RawStatistics</code> value.
+     * @return The result.
+     **/
     long getLongValue(RawStatistics rawStatistics);
 
+    /**
+     * Returns <code>true</code> if the type of this {@link
+     * StatisticExpression} is non integral. Callers might use this to
+     * decide which accessor to call to ensure that information is not
+     * lost, or how to format the result.
+     *
+     * @return a <code>boolean</code> value
+     **/
     boolean isDouble();
 }

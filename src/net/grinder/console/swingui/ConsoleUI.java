@@ -398,7 +398,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
     }
 
     /**
-     * {@link ModelListener} interface. The test set has probably
+     * {@link net.grinder.console.model.ModelListener} interface. The test set has probably
      * changed. We need do nothing
      **/
     public void reset(Set newTests)
@@ -406,7 +406,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
     }
 
     /**
-     * {@link ModelListener} interface.
+     * {@link net.grinder.console.model.ModelListener} interface.
      **/
     public void update()
     {
@@ -418,7 +418,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler
     }
 
     /**
-     * {@link ModelListener} interface. New
+     * {@link net.grinder.console.model.ModelListener} interface. New
      * <code>StatisticsView</code>s have been added. We need do
      * nothing
      **/

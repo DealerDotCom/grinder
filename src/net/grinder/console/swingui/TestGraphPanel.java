@@ -130,7 +130,7 @@ public class TestGraphPanel extends JPanel implements ModelListener
     }
 
     /**
-     * {@link ModelListener} interface. New
+     * {@link net.grinder.console.model.ModelListener} interface. New
      * <code>StatisticsView</code>s have been added. We need do
      * nothing
      **/

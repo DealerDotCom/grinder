@@ -44,7 +44,7 @@ final class SampleStatisticsTableModel extends DynamicStatisticsTableModel
     }
 
     /**
-     * {@link ModelListener} interface. New
+     * {@link net.grinder.console.model.ModelListener} interface. New
      * <code>StatisticsView</code>s have been added. We need do
      * nothing
      **/

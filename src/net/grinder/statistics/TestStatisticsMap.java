@@ -170,6 +170,9 @@ public class TestStatisticsMap implements java.io.Externalizable
     /**
      * Implement value based equality. Mainly used by unit tests.
      *
+     * <p><em>Note, no <code>hashCode()</code> method is defined by
+     * this class.</em></p>.
+     *
      * @param o <code>Object</code> to compare to.
      * @return <code>true</code> if and only if the two objects are equal.
      **/
@@ -357,7 +360,8 @@ public class TestStatisticsMap implements java.io.Externalizable
 	 * Check whether we are at the end of the {@link
 	 * TestStatisticsMap}.
 	 *
-	 * @return <code>true</code> if there is a next {@link Pair}.
+	 * @return <code>true</code> if there is a next {@link
+	 * TestStatisticsMap.Pair}.
 	 **/
 	public final boolean hasNext()
 	{
@@ -365,10 +369,10 @@ public class TestStatisticsMap implements java.io.Externalizable
 	}
 
 	/**
-	 * Get the next {@link Pair} from the {@link
+	 * Get the next {@link TestStatisticsMap.Pair} from the {@link
 	 * TestStatisticsMap}.
 	 *
-	 * @return The next {@link Pair}.
+	 * @return The next {@link TestStatisticsMap.Pair}.
 	 * @throws java.util.NoSuchElementException If there is no next element.
 	 **/
 	public final Pair next()

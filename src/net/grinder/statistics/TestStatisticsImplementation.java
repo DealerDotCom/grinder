@@ -48,7 +48,8 @@ final class TestStatisticsImplementation
 		indexMap.getIndexForLong("timedTransactions");
 	    s_untimedTransactionsIndex =
 		indexMap.getIndexForLong("untimedTransactions");
-	    s_totalTimeIndex = indexMap.getIndexForLong("totalTime");
+	    s_totalTimeIndex =
+		indexMap.getIndexForLong("timedTransactionTime");
 	}
 	catch (GrinderException e) {
 	    throw new RuntimeException(

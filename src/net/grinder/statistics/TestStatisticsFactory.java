@@ -64,9 +64,10 @@ public final class TestStatisticsFactory
 				   "(+ timedTransactions untimedTransactions)"
 				   ),
 		new ExpressionView("Errors", "statistic.errors", "errors"),
-		new ExpressionView("Average Response Time (ms)",
-				   "statistic.averageResponseTime",
-				   "(/ totalTime timedTransactions)"),
+		new ExpressionView(
+		    "Average Response Time (ms)",
+		    "statistic.averageResponseTime",
+		    "(/ timedTransactionTime timedTransactions)"),
 	    };
 
 	    for (int i=0; i<expressionViews.length; ++i) {

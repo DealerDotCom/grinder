@@ -170,7 +170,7 @@ class RawStatisticsImplementation implements RawStatistics
      *
      * @param index The process specific index.
      *
-     * @see {@link #addValue}
+     * @see #addValue
      */
     public final void incrementValue(StatisticsIndexMap.LongIndex index)
     {
@@ -260,7 +260,10 @@ class RawStatisticsImplementation implements RawStatistics
     }
 
     /**
-     * Implement value based equality.
+     * Implement value based equality. Mainly used by unit tests.
+     *
+     * <p><em>Note, no <code>hashCode()</code> method is defined by
+     * this class.</em></p>.
      *
      * @param o <code>Object</code> to compare to.
      * @return <code>true</code> if and only if the two objects are equal.

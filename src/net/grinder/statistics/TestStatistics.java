@@ -20,16 +20,56 @@ package net.grinder.statistics;
 
 
 /**
+ * Provide a utility interface to a {@link RawStatistics} which
+ * provides access to common values.
+ *
  * @author Philip Aston
  * @version $Revision$
  **/
 public interface TestStatistics extends RawStatistics
 {
+    /**
+     * Increment the <em>errors</em> statistic by one.
+     **/
     void addError();
+
+    /**
+     * Increment the <em>untimedTransactions</em> statistic by one.
+     * @see #addTransaction(long)
+     **/
     void addTransaction();
+
+    /**
+     * Increment the <em>timedTransactions</em> statistic by one and
+     * add the given <code>time</code> to the
+     * <em>timedTransactionTime</em> statistic.
+     *
+     * @param time The transaction time.
+     * @see #addTransaction()
+     */
     void addTransaction(long time);
 
+    /**
+     * Return the sum of the <em>timedTransactions</em> and
+     * <em>untimedTransactions</em> statistics.
+     *
+     * @return a <code>long</code> value
+     */
     long getTransactions();
+
+    /**
+     * Return the value of the <em>errors</em> statistic.
+     *
+     * @return a <code>long</code> value
+     */
     long getErrors();
+
+    /**
+     * Return the value obtained by dividing the
+     * <em>timedTransactionTime</em> statistic by the
+     * <em>timedTransactions</em> statistic.
+     *
+     * @return a <code>double</code> value
+     */
     double getAverageTransactionTime();
 }

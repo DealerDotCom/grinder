@@ -22,10 +22,9 @@ import net.grinder.common.GrinderException;
 
 
 /**
- * Store an array of raw statistics as unsigned long values. Clients
- * can access individual values using a process specific index
- * obtained from a {@link ProcessStatisticsIndexMap}. Effectively a
- * cheap array list.
+ * Access to a set of long and double values. Clients can access
+ * individual values using a process specific index obtained from a
+ * {@link StatisticsIndexMap}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -94,24 +93,24 @@ public interface RawStatistics
      * @param index The process specific index.
      * @exception IllegalArgumentException If the <code>index</code> is negative. 
      *
-     * @see {@link #addValue}
+     * @see #addValue
      */
     void incrementValue(StatisticsIndexMap.LongIndex index);
 
     /**
-     * Add the values of another <code>RawStatistics</code> to ours.
+     * Add the values of another {@link RawStatistics} to ours.
      * Assumes we don't need to synchronise access to operand.
-     * @param operand The <code>RawStatistics</code> value to add.
+     * @param operand The {@link RawStatistics} value to add.
      **/
     void add(RawStatistics operand);
 
     /**
-     * Return a <code>RawStatistics</code> representing the change
-     * since the last snapshot.
+     * Return a {@link RawStatistics} representing the change since
+     * the last snapshot.
      *
      * @param updateSnapshot <code>true</code> => update the snapshot.
-     * @return A <code>RawStatistics</code> representing the
-     * difference between our values and the snapshot's values.
+     * @return A {@link RawStatistics} representing the difference
+     * between our values and the snapshot's values.
      **/
     RawStatistics getDelta(boolean updateSnapshot);
 }
