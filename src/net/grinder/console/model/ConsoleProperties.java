@@ -622,7 +622,7 @@ public final class ConsoleProperties {
       }
       catch (IOException e) {
         // Oh well...
-        m_distributionDirectory = new File("");
+        m_distributionDirectory = new File(".");
       }
     }
 
