@@ -191,33 +191,39 @@ public class HttpPlugin extends SimplePluginBase
 	    throw new PluginException("HTTP IOException: " + e, e);
 	}
 
+	final boolean error;
 	final String okString = callData.getOKString();
 
-	final boolean error =
-	    okString != null && page != null && page.indexOf(okString) == -1;
+	if (page == null) {
+	    error = okString != null;
+	}
+	else {
+	    error = okString != null && page.indexOf(okString) == -1;
 	
-	if (m_logHTML || error) {
-	    final String filename =
-		m_filenameFactory.createFilename("page",
-						 "_" + m_currentIteration +
-						 "_" + testNumber + ".html");
-	    try {
-		final BufferedWriter htmlFile =
-		    new BufferedWriter(new FileWriter(filename, false));
+	    if (m_logHTML || error) {
+		final String filename =
+		    m_filenameFactory.createFilename("page",
+						     "_" + m_currentIteration +
+						     "_" + testNumber +
+						     ".html");
+		try {
+		    final BufferedWriter htmlFile =
+			new BufferedWriter(new FileWriter(filename, false));
 
-		htmlFile.write(page);
-		htmlFile.close();
-	    }
-	    catch (IOException e) {
-		throw new PluginException("Error writing to " + filename +
-					  ": " + e, e);
-	    }
+		    htmlFile.write(page);
+		    htmlFile.close();
+		}
+		catch (IOException e) {
+		    throw new PluginException("Error writing to " + filename +
+					      ": " + e, e);
+		}
 
-	    if (error) {
-		m_pluginThreadContext.logError(
-		    "The 'ok' string ('" + okString +
-		    "') was not found in the page received. " +
-		    "The output has been written to '" + filename + "'");
+		if (error) {
+		    m_pluginThreadContext.logError(
+			"The 'ok' string ('" + okString +
+			"') was not found in the page received. " +
+			"The output has been written to '" + filename + "'");
+		}
 	    }
 	}
 
