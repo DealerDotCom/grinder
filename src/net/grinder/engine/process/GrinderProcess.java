@@ -34,11 +34,20 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.ProcessStatus;
+import net.grinder.communication.ClientSender;
+import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
+import net.grinder.communication.ConnectionType;
+import net.grinder.communication.Connector;
+import net.grinder.communication.InitialiseGrinderMessage;
+import net.grinder.communication.Message;
 import net.grinder.communication.QueuedSender;
+import net.grinder.communication.QueuedSenderDecorator;
+import net.grinder.communication.Receiver;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.StreamReceiver;
+import net.grinder.engine.EngineException;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
@@ -134,6 +143,7 @@ public final class GrinderProcess implements Monitor {
   private final PrintWriter m_dataWriter;
   private final short m_numberOfThreads;
   private final File m_scriptFile;
+  private final InitialiseGrinderMessage m_initialisationMessage;
   private final ConsoleListener m_consoleListener;
   private final int m_reportToConsoleInterval;
   private final int m_duration;
@@ -151,10 +161,51 @@ public final class GrinderProcess implements Monitor {
    */
   public GrinderProcess(String grinderID, File propertiesFile)
     throws GrinderException {
-    final GrinderProperties properties =
-      new GrinderProperties(propertiesFile);
 
-    m_context = new ProcessContext(grinderID, properties);
+    final Receiver receiver = new StreamReceiver(System.in);
+    m_initialisationMessage =
+      (InitialiseGrinderMessage)receiver.waitForMessage();
+
+    if (m_initialisationMessage == null) {
+      throw new EngineException("No control stream from agent");
+    }
+
+    final GrinderProperties properties = new GrinderProperties(propertiesFile);
+
+    final LoggerImplementation loggerImplementation =
+      new LoggerImplementation(
+        grinderID,
+        properties.getProperty("grinder.logDirectory", "."),
+        properties.getBoolean("grinder.logProcessStreams", true),
+        properties.getInt("grinder.numberOfOldLogs", 1));
+
+    final QueuedSender consoleSender;
+
+    if (m_initialisationMessage.getReportToConsole()) {
+      final Connector connector =
+        new Connector(
+          properties.getProperty("grinder.consoleAddress",
+                                 CommunicationDefaults.CONSOLE_ADDRESS),
+          properties.getInt("grinder.consolePort",
+                            CommunicationDefaults.CONSOLE_PORT),
+          ConnectionType.REPORT);
+
+      consoleSender =
+        new QueuedSenderDecorator(ClientSender.connect(connector));
+    }
+    else {
+      // Null Sender implementation.
+      consoleSender = new QueuedSender() {
+          public void send(Message message) { }
+          public void flush() { }
+          public void queue(Message message) { }
+          public void shutdown() { }
+        };
+    }
+
+    m_context =
+      new ProcessContext(grinderID, properties, loggerImplementation,
+                         consoleSender);
 
     m_scriptFile =
       new File(properties.getProperty("grinder.script", "grinder.py"));
@@ -170,17 +221,16 @@ public final class GrinderProcess implements Monitor {
       throw new ExitProcessException();
     }
 
-    m_dataWriter = m_context.getLoggerImplementation().getDataWriter();
+    m_dataWriter = loggerImplementation.getDataWriter();
 
     m_numberOfThreads = properties.getShort("grinder.threads", (short)1);
 
     m_reportToConsoleInterval =
       properties.getInt("grinder.reportToConsole.interval", 500);
 
-    m_consoleListener =
-      new ConsoleListener(new StreamReceiver(System.in), this, logger);
-
     m_duration = properties.getInt("grinder.duration", 0);
+
+    m_consoleListener = new ConsoleListener(receiver, this, logger);
   }
 
   /**
@@ -231,14 +281,15 @@ public final class GrinderProcess implements Monitor {
     // also ticks the logger.
     timer.schedule(reportToConsoleTimerTask, 0, m_reportToConsoleInterval);
 
-    if (m_consoleListener != null) {
+    if (m_initialisationMessage.getWaitForStartMessage()) {
       logger.output("waiting for console signal",
                     Logger.LOG | Logger.TERMINAL);
 
-      waitForMessage(ConsoleListener.ANY);
+      waitForMessage();
     }
 
-    if (received(ConsoleListener.START)) {
+    if (received(ConsoleListener.START) ||
+        !m_initialisationMessage.getWaitForStartMessage()) {
 
       logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
 
@@ -263,12 +314,8 @@ public final class GrinderProcess implements Monitor {
         synchronized (this) {
           while (GrinderThread.getNumberOfThreads() > 0) {
 
-            if (m_consoleListener != null) {
-              waitForMessage(ConsoleListener.ANY ^ ConsoleListener.START);
-
-              if (received(ConsoleListener.ANY)) {
-                break;
-              }
+            if (checkForMessage(ConsoleListener.ANY ^ ConsoleListener.START)) {
+              break;
             }
 
             if (m_shutdownTriggered) {
@@ -330,12 +377,13 @@ public final class GrinderProcess implements Monitor {
 
     statisticsTable.print(logger.getOutputLogWriter());
 
-    if (m_consoleListener != null && !received(ConsoleListener.ANY)) {
+    if (m_initialisationMessage.getWaitForStopMessage() &&
+        !received(ConsoleListener.ANY)) {
       // We've got here naturally, without a console signal.
       logger.output("finished, waiting for console signal",
                     Logger.LOG | Logger.TERMINAL);
 
-      waitForMessage(ConsoleListener.ANY);
+      waitForMessage();
     }
 
     // Sadly it appears its impossible to interrupt a read() on stdin,
@@ -364,31 +412,32 @@ public final class GrinderProcess implements Monitor {
     return (m_lastMessagesReceived & mask) != 0;
   }
 
+  private void waitForMessage() throws InterruptedException {
+    synchronized (this) {
+      while (!checkForMessage(ConsoleListener.ANY)) {
+        wait();
+      }
+    }
+  }
+
   /**
-   * Wait for until a console message matching the requirement
-   * arrives.
+   * Check for a console message belonging to a particular set, or for
+   * shutdown.
+   *
    * @param mask The mask of constants defined by {@link Listener}
-   * which specify the messages to wait for.
-   * @throws InterruptedException If the calling thread is interrupted
-   * whilst waiting.
+   * which specify the messages to check for.
+   * @param return <code>true</code> if a message was received.
    * @see #received
    */
-  private synchronized void waitForMessage(int mask)
-    throws InterruptedException {
+  private boolean checkForMessage(int mask) {
 
-    while (true) {
-      m_lastMessagesReceived = m_consoleListener.received(mask);
+    m_lastMessagesReceived = m_consoleListener.received(mask);
 
-      if (received(ConsoleListener.SHUTDOWN)) {
-        m_communicationShutdown = true;
-      }
-
-      if (received(ConsoleListener.ANY)) {
-        break;
-      }
-
-      wait();
+    if (received(ConsoleListener.SHUTDOWN)) {
+      m_communicationShutdown = true;
     }
+
+    return received(ConsoleListener.ANY);
   }
 
   private class ReportToConsoleTimerTask extends TimerTask {

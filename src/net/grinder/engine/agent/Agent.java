@@ -40,9 +40,9 @@ import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Connector;
 import net.grinder.communication.FanOutStreamSender;
+import net.grinder.communication.InitialiseGrinderMessage;
 import net.grinder.communication.MessagePump;
 import net.grinder.communication.Receiver;
-import net.grinder.communication.StartGrinderMessage;
 import net.grinder.engine.process.GrinderProcess;
 
 
@@ -91,29 +91,23 @@ public final class Agent {
       final GrinderProperties properties =
         new GrinderProperties(m_alternateFile);
 
-      // TODO.
-      // - How to cope with no Receiver?
       Receiver receiver = null;
 
       if (properties.getBoolean("grinder.useConsole", true)) {
-        final String consoleAddress =
-          properties.getProperty("grinder.consoleAddress",
-                                 CommunicationDefaults.CONSOLE_ADDRESS);
-
-        final int consolePort =
-          properties.getInt("grinder.consolePort",
-                            CommunicationDefaults.CONSOLE_PORT);
-
         final Connector connector =
-          new Connector(consoleAddress, consolePort, ConnectionType.CONTROL);
+          new Connector(
+            properties.getProperty("grinder.consoleAddress",
+                                   CommunicationDefaults.CONSOLE_ADDRESS),
+            properties.getInt("grinder.consolePort",
+                              CommunicationDefaults.CONSOLE_PORT),
+            ConnectionType.CONTROL);
 
         try {
           receiver = ClientReceiver.connect(connector);
         }
         catch (CommunicationException e) {
           System.out.println(
-            "Unable to connect to console (" + e.getMessage() +
-            "); proceeding without the console. Set " +
+            e.getMessage() + ", proceeding without the console; set " +
             "grinder.useConsole=false to disable this warning.");
         }
       }
@@ -204,12 +198,15 @@ public final class Agent {
         System.out.println(buffer.toString());
       }
 
-      if (startImmediately) {
-        fanOutStreamSender.send(new StartGrinderMessage());
-      }
+      final boolean haveConsole = receiver != null;
+
+      fanOutStreamSender.send(
+        new InitialiseGrinderMessage(haveConsole && !startImmediately,
+                                     haveConsole,
+                                     haveConsole));
 
       final MessagePump messagePump =
-        new MessagePump(receiver, fanOutStreamSender, 1);
+        haveConsole ? new MessagePump(receiver, fanOutStreamSender, 1) : null;
 
       int combinedExitStatus = 0;
 
@@ -227,7 +224,9 @@ public final class Agent {
         }
       }
 
-      messagePump.shutdown();
+      if (messagePump != null) {
+        messagePump.shutdown();
+      }
 
       if (combinedExitStatus == GrinderProcess.EXIT_START_SIGNAL) {
         startImmediately = true;

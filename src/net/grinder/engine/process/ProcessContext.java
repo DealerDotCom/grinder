@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,14 +27,7 @@ import java.io.PrintWriter;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.communication.ClientSender;
-import net.grinder.communication.CommunicationDefaults;
-import net.grinder.communication.CommunicationException;
-import net.grinder.communication.Connector;
-import net.grinder.communication.ConnectionType;
-import net.grinder.communication.Message;
 import net.grinder.communication.QueuedSender;
-import net.grinder.communication.QueuedSenderDecorator;
 import net.grinder.communication.ReportStatusMessage;
 import net.grinder.script.Grinder;
 import net.grinder.statistics.CommonStatisticsViews;
@@ -62,7 +55,9 @@ class ProcessContext {
   private long m_executionStartTime;
   private boolean m_shutdown;
 
-  ProcessContext(String grinderID, GrinderProperties properties)
+  ProcessContext(String grinderID, GrinderProperties properties,
+                 LoggerImplementation loggerImplementation,
+                 QueuedSender consoleSender)
     throws GrinderException {
 
     m_grinderID = grinderID;
@@ -71,58 +66,10 @@ class ProcessContext {
 
     m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
-    final int numberOfOldLogs =
-      properties.getInt("grinder.numberOfOldLogs", 1);
+    m_loggerImplementation = loggerImplementation;
+    m_processLogger = loggerImplementation.getProcessLogger();
 
-    m_loggerImplementation =
-      new LoggerImplementation(m_grinderID,
-                               properties.getProperty(
-                                 "grinder.logDirectory", "."),
-                               properties.getBoolean(
-                                 "grinder.logProcessStreams", true),
-                               numberOfOldLogs);
-
-    m_processLogger = m_loggerImplementation.getProcessLogger();
-
-    QueuedSender consoleSender = null;
-
-    if (properties.getBoolean("grinder.useConsole", true)) {
-      final String consoleAddress =
-        properties.getProperty("grinder.consoleAddress",
-                               CommunicationDefaults.CONSOLE_ADDRESS);
-
-      final int consolePort =
-        properties.getInt("grinder.consolePort",
-                          CommunicationDefaults.CONSOLE_PORT);
-
-      final Connector connector =
-        new Connector(consoleAddress, consolePort, ConnectionType.REPORT);
-
-      try {
-        consoleSender =
-          new QueuedSenderDecorator(ClientSender.connect(connector));
-      }
-      catch (CommunicationException e) {
-        m_processLogger.output(
-          "Unable to report to console (" + e.getMessage() +
-          "); proceeding without the console. Set " +
-          "grinder.useConsole=false to disable this warning.",
-          Logger.LOG | Logger.TERMINAL);
-      }
-    }
-
-    if (consoleSender != null) {
-      m_consoleSender = consoleSender;
-    }
-    else {
-      // Null Sender implementation.
-      m_consoleSender = new QueuedSender() {
-          public void send(Message message) { }
-          public void flush() { }
-          public void queue(Message message) { }
-          public void shutdown() { }
-        };
-    }
+    m_consoleSender = consoleSender;
 
     m_pluginRegistry = new PluginRegistry(this);
     m_testRegistry = new TestRegistry();
