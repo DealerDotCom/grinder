@@ -1,4 +1,24 @@
+2001-09-16  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/model/CumulativeStatistics.java:
+	Remove redundant import.
+
+	* tests-src/net/grinder/console/swingui/TestGraph.java: Fix test.
+
 2001-09-15  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/model/CumulativeStatistics.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/SampleListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/StatisticsTableModel.java, src/net/grinder/console/swingui/TestGraphPanel.java:
+	Console table view now shows the average TPS and peak TPS.
+	Remove sample instant TPS from individual tests, its pretty
+	meaningless.
+	Layout and font tweaks.
+
+	* etc/buildenv.sh: //e is not longer valid.
+
+	* tests-src/net/grinder/statistics/TestStatistics.java, tests-src/net/grinder/console/swingui/TestGraph.java:
+	Fix tests.
+
+	* build.xml: realclean target now removes temporary ("*~") files.
 
 	* src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/Resources.java, src/net/grinder/console/swingui/StatisticsTableModel.java:
 	All text is now read from Console.properties.
