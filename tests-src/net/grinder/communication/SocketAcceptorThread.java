@@ -33,17 +33,25 @@ import java.net.UnknownHostException;
 final class SocketAcceptorThread extends Thread {
     
   private final ServerSocket m_serverSocket;
+  private final int m_numberOfAccepts;
   private Exception m_exception;
   private Socket m_acceptedSocket;
   
   public SocketAcceptorThread() throws Exception {
+    this(1);
+  }
+
+  public SocketAcceptorThread(int numberOfAccepts) throws Exception {
     m_serverSocket = new ServerSocket(0);
+    m_numberOfAccepts = numberOfAccepts;
     start();
   }
 
   public void run() {
     try {
-      m_acceptedSocket = m_serverSocket.accept();
+      for (int i=0; i<m_numberOfAccepts; ++i) {
+        m_acceptedSocket = m_serverSocket.accept();
+      }
     }
     catch (Exception e) {
       m_exception = e;
