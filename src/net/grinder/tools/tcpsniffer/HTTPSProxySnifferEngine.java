@@ -24,6 +24,7 @@
 
 package net.grinder.tools.tcpsniffer;
 
+import java.io.InterruptedIOException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -75,7 +76,6 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
     private final SnifferFilter m_responseFilter;
     private final String m_localHost;
     private final boolean m_useColour;
-    private final int m_timeout;
 
     private final PatternMatcher m_matcher = new Perl5Matcher();
     private final Pattern m_connectPattern;
@@ -94,7 +94,6 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 	m_responseFilter = responseFilter;
 	m_localHost = localHost;
 	m_useColour = useColour;
-	m_timeout = timeout;
 	
 	final PatternCompiler compiler = new Perl5Compiler();
 
@@ -140,26 +139,36 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 		    // Must be a port number by specification.
 		    final int remotePort = Integer.parseInt(match.group(2));
 
-		    System.err.println("New proxy connection to " +
-				       remoteHost + ":" + remotePort);
+		    final String target = remoteHost + ":" + remotePort;
+
+		    System.err.println("New proxy connection to " + target);
 
 		    // Create and start a proxy SnifferEngine to
 		    // handle the SSL connection.
+		    //
+		    // The engine is set to time out if an accept
+		    // takes > 30s. AFAIK, it should only get one
+		    // "connection" from the client. The timeout
+		    // ensures that we cope if I'm wrong and the
+		    // thread does receive more than one connection
+		    // attempt, and that the thread will die in a
+		    // timely manner otherwise.
 		    final SnifferEngineImplementation sslEngine =
 			new SnifferEngineImplementation(
 			    m_sslSocketFactory,
 			    m_requestFilter,
 			    m_responseFilter,
-			    new ConnectionDetails(
-				m_localHost,
-				0,	// Arbitrary port.
-				remoteHost, 
-				remotePort,
-				true),
+			    new ConnectionDetails(m_localHost,
+						  0,	// Arbitrary port.
+						  remoteHost, 
+						  remotePort,
+						  true),
 			    m_useColour,
-			    m_timeout);
+			    30000,
+			    false); 
 
-		    new Thread(sslEngine).start();
+		    new Thread(sslEngine,
+			       "HTTPS proxy engine for " + target).start();
 
 		    final Socket sslProxySocket =
 			m_localSocketFactory.createClientSocket(
@@ -167,16 +176,17 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 			    sslEngine.getServerSocket().getLocalPort());
 
 		    // Now set up a couple of threads to copy
-		    // everything we receive over localSocket.
-		    new Thread(
-			new CopyStreamRunnable(
-			    in, sslProxySocket.getOutputStream())).start();
+		    // everything we receive over localSocket to
+		    // sslProxySocket. and vice versa.
+		    new Thread(new CopyStreamRunnable(
+				   in, sslProxySocket.getOutputStream()),
+			       "Copy to proxy engine for " + target).start();
 
-		    new Thread(
-			new CopyStreamRunnable(
-			    sslProxySocket.getInputStream(), out)).start();
+		    new Thread(new CopyStreamRunnable(
+				   sslProxySocket.getInputStream(), out),
+			       "Copy from proxy engine for " + target).start();
 
-		    // Send 200 response to send to client. Client
+		    // Send a 200 response to send to client. Client
 		    // will now start sending SSL data to our socket.
 		    final StringBuffer response = new StringBuffer();
 		    response.append("HTTP/1. 200 OK\r\n");
@@ -194,8 +204,12 @@ public class HTTPSProxySnifferEngine implements SnifferEngine
 		    System.err.println(line);
 		}
 	    }
+	    catch (InterruptedIOException e) {
+		System.err.println(ACCEPT_TIMEOUT_MESSAGE);
+		break;
+	    }
 	    catch (Exception e) {
-		e.printStackTrace();
+		e.printStackTrace(System.err);
 	    }
         }
     }
