@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -283,7 +283,8 @@ final class ScriptStatisticsImplementation
 
     if (m_currentTestData != null) {
       if (m_dataWriter != null) {
-        if (m_runNumber == m_lastRunNumber) {
+        if (m_runNumber == m_lastRunNumber &&
+            m_lastRunNumber != -1) {
           m_buffer.setLength(m_bufferAfterRunNumberIndex);
         }
         else {
