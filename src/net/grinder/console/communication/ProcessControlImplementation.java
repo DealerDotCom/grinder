@@ -22,6 +22,7 @@
 package net.grinder.console.communication;
 
 import java.io.File;
+import java.io.FileFilter;
 
 import net.grinder.communication.Message;
 import net.grinder.console.messages.ReportStatusMessage;
@@ -122,7 +123,24 @@ final class ProcessControlImplementation implements ProcessControl {
     return new FileDistributionHandlerImplementation(
       directory.getAsFile(),
       directory.listContents(
-        m_distributionStatus.getEarliestLastModifiedTime()));
+        new Filter(m_distributionStatus.getEarliestLastModifiedTime())));
+  }
+
+  private static final class Filter implements FileFilter {
+    private final long m_earliestLastModifiedTime;
+
+    public Filter(long earliestLastModifiedTime) {
+      m_earliestLastModifiedTime = earliestLastModifiedTime;
+    }
+
+    public boolean accept(File file) {
+      if (!file.isDirectory() &&
+          file.lastModified() <= m_earliestLastModifiedTime) {
+        return false;
+      }
+
+      return true;
+    }
   }
 
   private final class FileDistributionHandlerImplementation

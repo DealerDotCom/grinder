@@ -22,6 +22,7 @@
 package net.grinder.util;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -126,7 +127,12 @@ public class TestDirectory extends AbstractFileTestCase {
       FileUtilities.setCanAccess(badDirectories[i], false);
     }
 
-    final File[] filesAfterTimeT = directory.listContents(50000L);
+    final File[] filesAfterTimeT = directory.listContents(
+      new FileFilter() {
+        public boolean accept(File file) {
+          return file.isDirectory() || file.lastModified() > 50000L;
+        }
+      });
 
     for (int i=0; i<filesAfterTimeT.length; ++i) {
       assertTrue("Contains " + filesAfterTimeT[i],

@@ -23,6 +23,7 @@ package net.grinder.util;
 
 import java.io.IOException;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -45,6 +46,8 @@ import java.util.Set;
  * @version $Revision$
  */
 public final class Directory  {
+
+  private static final FileFilter s_nullFileFilter = new NullFileFilter();
 
   private final File m_directory;
   private final List m_warnings = new ArrayList();
@@ -97,27 +100,25 @@ public final class Directory  {
    * list is empty if the directory does not exist.
    */
   public File[] listContents() {
-    return listContents(-1);
+    return listContents(s_nullFileFilter);
   }
 
   /**
    * List the files in the hierarchy below the directory that have
    * been modified after <code>since</code>.
    *
-   * @param since Milliseconds since the Epoch. Don't return files
-   * that are older than this. Specify <code>-1</code> to return all
-   * files.
+   * @param filter Filter that controls the files that are returned.
    * @return The list of files. Files are relative to the directory,
    * not absolute. More deeply nested files are later in the list. The
    * list is empty if the directory does not exist.
    */
-  public File[] listContents(long since) {
-    return listContents(false, false, since);
+  public File[] listContents(FileFilter filter) {
+    return listContents(false, false, filter);
   }
 
   private File[] listContents(boolean includeDirectories,
                               boolean absolutePaths,
-                              long since) {
+                              FileFilter filter) {
 
     final List resultList = new ArrayList();
     final Set visited = new HashSet();
@@ -157,15 +158,15 @@ public final class Directory  {
           final File relativeChild = new File(relativeDirectory, children[j]);
           final File absoluteChild = new File(absoluteDirectory, children[j]);
 
-          if (includeDirectories || !absoluteChild.isDirectory()) {
-            if (absoluteChild.lastModified() > since) {
+          if (filter.accept(absoluteChild)) {
+            if (includeDirectories || !absoluteChild.isDirectory()) {
               resultList.add(absolutePaths ? absoluteChild : relativeChild);
             }
-          }
 
-          if (absoluteChild.isDirectory() &&
-              !visited.contains(relativeChild)) {
-            directoriesToVisit.add(relativeChild);
+            if (absoluteChild.isDirectory() &&
+                !visited.contains(relativeChild)) {
+              directoriesToVisit.add(relativeChild);
+            }
           }
         }
       }
@@ -186,7 +187,7 @@ public final class Directory  {
   public void deleteContents() throws DirectoryException {
     // We rely on the order of the listContents result: more deeply
     // nested files are later in the list.
-    final File[] deleteList = listContents(true, true, -1);
+    final File[] deleteList = listContents(true, true, s_nullFileFilter);
 
     for (int i = deleteList.length - 1; i >= 0; --i) {
       if (!deleteList[i].delete()) {
@@ -220,7 +221,7 @@ public final class Directory  {
    */
   public File getRelativePath(File absoluteFile) {
 
-    final File[] contents = listContents();
+    final File[] contents = listContents(false, false, s_nullFileFilter);
 
     for (int i = 0; i < contents.length; ++i) {
       if (new File(getAsFile(), contents[i].getPath()).equals(absoluteFile)) {
@@ -251,7 +252,7 @@ public final class Directory  {
       target.deleteContents();
     }
 
-    final File[] files = listContents(true, false, -1);
+    final File[] files = listContents(true, false, s_nullFileFilter);
     final StreamCopier streamCopier = new StreamCopier(4096, true);
 
     for (int i = 0; i < files.length; ++i) {
@@ -330,5 +331,12 @@ public final class Directory  {
     }
 
     return getAsFile().equals(((Directory)o).getAsFile());
+  }
+
+  private static class NullFileFilter implements FileFilter {
+
+    public boolean accept(File file) {
+      return true;
+    }
   }
 }
