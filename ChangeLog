@@ -1,3 +1,88 @@
+2003-11-16  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, ChangeLog, TODO, src/net/grinder/TCPProxy.java, src/net/grinder/tools/tcpproxy/AbstractTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/SingleServerTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/StreamThread.java, src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java:
+	Fix TCPProxy -proxy mode so that it supports HTTP/1.1 from the
+	browser. Refactor engine implementations accordingly.
+
+	* build.xml: Go back to putting checkstyle on the classpath.
+
+	* etc/buildenv.sh:
+	Put checkstyle back on the classpath, can't be bothered to argue with
+	ANT.
+
+2003-11-15  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/util/FixedWidthFormatter.java, src/net/grinder/util/Sleeper.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/tools/tcpproxy/ConnectionDetails.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxyPlainSocketFactory.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactory.java, src/net/grinder/engine/process/RegisteredPlugin.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestPyFinalizableInstance.java, src/net/grinder/engine/process/TestPyInstance.java, src/net/grinder/engine/process/TestPyJavaInstance.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, src/net/grinder/plugin/http/HTTPPluginControl.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/Table.java, src/net/grinder/engine/agent/ProcessReaper.java, src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/engine/process/FilenameFactoryImplementation.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/communication/ReportStatusMessage.java, src/net/grinder/communication/SocketSet.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/common/Resources.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelTestIndex.java, src/net/grinder/console/model/ProcessStatusSet.java, src/net/grinder/console/model/SampleAccumulator.java, src/net/grinder/console/model/ScriptDistributionFiles.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/FileTreeModel.java, src/net/grinder/TCPProxy.java, src/net/grinder/common/GrinderBuild.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/communication/AbstractReceiver.java, src/net/grinder/communication/Message.java, src/net/grinder/communication/MessageQueue.java, src/net/grinder/communication/RegisterTestsMessage.java:
+	Yet more checkstyle compliance.
+
+	* build.xml, etc/checkstyle-suppressions.xml, etc/checkstyle.xml:
+	Use suppressions file.
+
+	* src/net/grinder/statistics/StatisticExpressionFactory.java: Layout.
+
+	* src/net/grinder/console/common/Resources.java: Fix.
+
+	* build.xml, etc/buildenv.sh, etc/localpaths.properties:
+	Don't require Checkstyle on the classpath.
+
+	* src/net/grinder/console/common/DisplayMessageConsoleException.java, src/net/grinder/console/common/Resources.java:
+	Satisfy MutableException.
+
+	* etc/checkstyle.xml: Document checkstyle bugs.
+
+	* src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java, tests-src/net/grinder/console/swingui/TestGraph.java, src/net/grinder/console/common/DisplayMessageConsoleException.java, src/net/grinder/console/common/Resources.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/CustomAction.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/Resources.java, src/net/grinder/console/swingui/SampleStatisticsTableModel.java, src/net/grinder/console/swingui/SamplingControlPanel.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, etc/checkstyle.xml, src/net/grinder/console/Console.java:
+	More changes for Checkstyle 3.2.
+
+	* src/net/grinder/Grinder.java, src/net/grinder/common/AbstractTestSemantics.java, src/net/grinder/common/ProcessStatus.java:
+	Changes for Checkstyle 3.2.
+
+	* TODO: Update on -proxy vs multiple servers.
+
+	* src/net/grinder/tools/tcpproxy/TCPProxyFilter.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactory.java, src/net/grinder/util/Serialiser.java, src/net/grinder/util/SignificantFigureFormat.java, src/net/grinder/util/Sleeper.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/JOptionPaneDialog.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/plugin/http/HTTPPluginControl.java, src/net/grinder/plugin/http/HTTPPluginThreadState.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/tools/tcpproxy/EchoFilter.java, src/net/grinder/tools/tcpproxy/NullFilter.java, src/net/grinder/tools/tcpproxy/StreamThread.java, build.xml, etc/buildenv.sh, etc/checkstyle.xml, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ScriptDistributionFiles.java:
+	Changes for Checkstyle 3.2.
+
+2003-11-14  Philip Aston  <philipa@mail.com>
+
+	* etc/buildenv.sh: Checkstyle 3.2.
+
+	* xdoc/g3/faq-xhtml.xml: FAQ on TCPProxy -proxy and HTTP/1.1.
+
+2003-11-08  Philip Aston  <philipa@mail.com>
+
+	* TODO: TCPProxy idea.
+
+2003-11-07  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java:
+	Fix from Bertrand - both filters must be stopped.
+
+	* CHANGES: *** empty log message ***
+
+	* src/net/grinder/Grinder.java:
+	Fix platform specific separator for classpath.
+
+	* tests-src/prj.el, src/prj.el: Don't use tabs.
+
+	* build.xml:
+	Create the build style in <checkstyle> target so it works from clean.
+
+	* src/HTTPClient/Util.java, src/HTTPClient/http/Handler.java, src/HTTPClient/https/Handler.java, src/HTTPClient/shttp/Handler.java, src/HTTPClient/RedirectionModule.java, src/HTTPClient/Request.java, src/HTTPClient/RespInputStream.java, src/HTTPClient/Response.java, src/HTTPClient/ResponseHandler.java, src/HTTPClient/RetryException.java, src/HTTPClient/RetryModule.java, src/HTTPClient/RoRequest.java, src/HTTPClient/RoResponse.java, src/HTTPClient/SocksClient.java, src/HTTPClient/SocksException.java, src/HTTPClient/StreamDemultiplexor.java, src/HTTPClient/TransferEncodingModule.java, src/HTTPClient/URI.java, src/HTTPClient/UncompressInputStream.java, src/HTTPClient/HTTPResponse.java, src/HTTPClient/HashVerifier.java, src/HTTPClient/HttpHeaderElement.java, src/HTTPClient/HttpOutputStream.java, src/HTTPClient/HttpURLConnection.java, src/HTTPClient/IdempotentSequence.java, src/HTTPClient/LinkedList.java, src/HTTPClient/Log.java, src/HTTPClient/MD5.java, src/HTTPClient/MD5InputStream.java, src/HTTPClient/ModuleException.java, src/HTTPClient/NVPair.java, src/HTTPClient/ParseException.java, src/HTTPClient/ProtocolNotSuppException.java, src/HTTPClient/ChunkedInputStream.java, src/HTTPClient/Codecs.java, src/HTTPClient/ContentEncodingModule.java, src/HTTPClient/ContentMD5Module.java, src/HTTPClient/Cookie.java, src/HTTPClient/Cookie2.java, src/HTTPClient/CookieModule.java, src/HTTPClient/CookiePolicyHandler.java, src/HTTPClient/DefaultAuthHandler.java, src/HTTPClient/DefaultModule.java, src/HTTPClient/FilenameMangler.java, src/HTTPClient/GlobalConstants.java, src/HTTPClient/HTTPClientModule.java, src/HTTPClient/HTTPClientModuleConstants.java, src/HTTPClient/HTTPConnection.java, src/HTTPClient/AuthSchemeNotImplException.java, src/HTTPClient/AuthorizationHandler.java, src/HTTPClient/AuthorizationInfo.java, src/HTTPClient/AuthorizationModule.java, src/HTTPClient/AuthorizationPrompter.java, src/HTTPClient/BufferedInputStream.java, src/HTTPClient/CIHashtable.java:
+	Didn't mean to remove tabs from HTTPClient source. Revert.
+
+	* src/net/grinder/util/FixedWidthFormatter.java, src/net/grinder/util/Serialiser.java, src/net/grinder/util/SignificantFigureFormat.java, src/net/grinder/util/Sleeper.java, src/net/grinder/util/TerminalColour.java, src/net/grinder/tools/snifferwebapp/util/PortManager.java, src/net/grinder/tools/tcpproxy/ConnectionDetails.java, src/net/grinder/tools/tcpproxy/EchoFilter.java, src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java, src/net/grinder/tools/tcpproxy/NullFilter.java, src/net/grinder/tools/tcpproxy/StreamThread.java, src/net/grinder/tools/tcpproxy/TCPProxyConsole.java, src/net/grinder/tools/tcpproxy/TCPProxyEngine.java, src/net/grinder/tools/tcpproxy/TCPProxyEngineImplementation.java, src/net/grinder/tools/tcpproxy/TCPProxyFilter.java, src/net/grinder/tools/tcpproxy/TCPProxyPlainSocketFactory.java, src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactory.java, src/net/grinder/util/CopyStreamRunnable.java, src/net/grinder/util/DelayedCreationFileWriter.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/PeakStatisticExpression.java, src/net/grinder/statistics/RawStatisticsImplementation.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/StatisticsView.java, src/net/grinder/statistics/TestStatisticsFactory.java, src/net/grinder/statistics/TestStatisticsImplementation.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/tools/snifferwebapp/GrindingServlet.java, src/net/grinder/tools/snifferwebapp/SniffingServlet.java, src/net/grinder/plugin/http/HTTPConnectionWrapper.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPPluginConnectionDefaults.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/plugin/http/HTTPRequest.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/engine/process/RegisteredPlugin.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestPyFinalizableInstance.java, src/net/grinder/engine/process/TestPyInstance.java, src/net/grinder/engine/process/TestPyJavaInstance.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ConsoleListener.java, src/net/grinder/engine/process/FilenameFactoryImplementation.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/JythonScript.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, src/net/grinder/engine/process/LoggerImplementation.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/console/swingui/JOptionPaneDialog.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/OptionsDialogHandler.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/Resources.java, src/net/grinder/console/swingui/SamplingControlPanel.java, src/net/grinder/console/swingui/ScriptFilesPanel.java, src/net/grinder/console/swingui/SwingDispatchedModelListener.java, src/net/grinder/console/swingui/SwingDispatchedProcessStatusSetListener.java, src/net/grinder/console/swingui/SwingDispatchedSampleListener.java, src/net/grinder/console/swingui/Table.java, src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/engine/agent/LauncherThread.java, src/net/grinder/engine/agent/Redirector.java, src/net/grinder/console/model/ProcessStatusSetListener.java, src/net/grinder/console/model/SampleAccumulator.java, src/net/grinder/console/model/SampleListener.java, src/net/grinder/console/model/ScriptDistributionFiles.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, src/net/grinder/console/swingui/CustomAction.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/FileTreeModel.java, src/net/grinder/console/swingui/Graph.java, src/net/grinder/console/swingui/IntegerField.java, src/net/grinder/communication/MulticastReceiver.java, src/net/grinder/communication/MulticastSender.java, src/net/grinder/communication/ReportStatusMessage.java, src/net/grinder/communication/SocketSet.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/communication/UnicastSender.java, src/net/grinder/console/Console.java, src/net/grinder/console/ConsoleCommunication.java, src/net/grinder/console/common/DisplayMessageConsoleException.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/ModelListener.java, src/net/grinder/console/model/ProcessStatusSet.java, src/net/grinder/Grinder.java, src/net/grinder/TCPProxy.java, src/net/grinder/common/GrinderBuild.java, src/net/grinder/common/GrinderException.java, src/net/grinder/common/GrinderProperties.java, src/net/grinder/communication/AbstractReceiver.java, src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/Message.java, src/net/grinder/communication/MessageQueue.java:
+	Reindent to replace tabs with the correct number of spaces.
+
+	* src/org/syntax/jedit/tokenmarker/SQLTokenMarker.java, src/org/syntax/jedit/tokenmarker/ShellScriptTokenMarker.java, src/org/syntax/jedit/tokenmarker/TSQLTokenMarker.java, src/org/syntax/jedit/tokenmarker/TeXTokenMarker.java, src/org/syntax/jedit/tokenmarker/Token.java, src/org/syntax/jedit/tokenmarker/TokenMarker.java, src/org/syntax/jedit/tokenmarker/XMLTokenMarker.java, src/org/syntax/jedit/tokenmarker/CTokenMarker.java, src/org/syntax/jedit/tokenmarker/EiffelTokenMarker.java, src/org/syntax/jedit/tokenmarker/HTMLTokenMarker.java, src/org/syntax/jedit/tokenmarker/IDLTokenMarker.java, src/org/syntax/jedit/tokenmarker/JavaScriptTokenMarker.java, src/org/syntax/jedit/tokenmarker/JavaTokenMarker.java, src/org/syntax/jedit/tokenmarker/MakefileTokenMarker.java, src/org/syntax/jedit/tokenmarker/PHPTokenMarker.java, src/org/syntax/jedit/tokenmarker/PLSQLTokenMarker.java, src/org/syntax/jedit/tokenmarker/PatchTokenMarker.java, src/org/syntax/jedit/tokenmarker/PerlTokenMarker.java, src/org/syntax/jedit/tokenmarker/PropsTokenMarker.java, src/org/syntax/jedit/tokenmarker/PythonTokenMarker.java, src/org/syntax/jedit/DefaultInputHandler.java, src/org/syntax/jedit/InputHandler.java, src/org/syntax/jedit/JEditTextArea.java, src/org/syntax/jedit/KeywordMap.java, src/org/syntax/jedit/SyntaxDocument.java, src/org/syntax/jedit/SyntaxStyle.java, src/org/syntax/jedit/SyntaxUtilities.java, src/org/syntax/jedit/TextAreaDefaults.java, src/org/syntax/jedit/TextAreaPainter.java, src/org/syntax/jedit/TextUtilities.java, src/org/syntax/jedit/tokenmarker/BatchFileTokenMarker.java, src/org/syntax/jedit/tokenmarker/CCTokenMarker.java:
+	Didn't mean to remove tabs from JEdit source. Revert.
+
+2003-11-04  Philip Aston  <philipa@mail.com>
+
+	* etc/checkstyle.properties: Defunct.
+
+2003-11-03  Philip Aston  <philipa@mail.com>
+
+	* TODO: Progress.
+
 2003-11-02  Philip Aston  <philipa@mail.com>
 
 	* xdoc/development/contributing-xhtml.xml, xdoc/download-xhtml.xml, build.xml, etc/buildenv.sh, etc/checkstyle.xml:
