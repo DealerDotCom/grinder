@@ -11,7 +11,7 @@
 
     <p>If you feel you have something worth sharing, please send
     patches to the <a
-    href="mailto:grinder-development@lists.sourceforge.net>grinder-development">grinder-development
+    href="mailto:grinder-development@lists.sourceforge.net">grinder-development
     list</a>. Ideally patches should be in 'unified diff' (<code>diff
     -u</code>) format against the latest released version of The
     Grinder 3. Patches should also include updates to the relevant
