@@ -1,3 +1,31 @@
+2004-03-28  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta21 is released.
+	
+	* xdoc/commercials-xhtml.xml: More info on the book.
+
+	* TODO: Progress.
+
+2004-03-25  Philip Aston  <philipa@mail.com>
+
+	* build.xml, tests-src/net/grinder/engine/agent/TestChildProcess.java, tests-src/net/grinder/engine/agent/TestWorkerProcessFactory.java:
+	Pass directory paths through to unit tests so ANT can be invoked from
+	other directories.
+
+	* src/net/grinder/engine/agent/WorkerProcessFactory.java:
+	Fix silly bug.
+
+	* src/net/grinder/engine/agent/ProcessFactory.java, src/net/grinder/engine/agent/ProcessLauncher.java, src/net/grinder/engine/agent/ProcessReaper.java, src/net/grinder/engine/agent/WorkerProcessCommandLine.java, src/net/grinder/engine/agent/WorkerProcessFactory.java, tests-src/net/grinder/engine/agent/EchoClass.java, tests-src/net/grinder/engine/agent/ReadMessageEchoClass.java, tests-src/net/grinder/engine/agent/TestChildProcess.java, tests-src/net/grinder/engine/agent/TestProcessReaper.java, tests-src/net/grinder/engine/agent/TestWorkerProcessFactory.java, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/ChildProcess.java:
+	Futher refactoring.
+
+2004-03-23  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/ProcessLauncher.java, src/net/grinder/engine/agent/WorkerProcessCommandLine.java:
+	Split out command line building into separate class.
+
+	* tests-src/net/grinder/engine/agent/TestAgentLogger.java:
+	Test AgentLogger.
+
 2004-03-22  Philip Aston  <philipa@mail.com>
 
 	* tests-src/net/grinder/communication/TestTeeSender.java:
