@@ -54,7 +54,7 @@ public final class HTTPPluginControl
     }
 
     /**
-     * Get an {@link net.grinder.http.plugin.HTTPPluginConnnection}
+     * Get an {@link net.grinder.plugin.http.HTTPPluginConnnection}
      * that can be used to set the default behaviour of new
      * connections.
      * @return An <code>HTTPPluginConnection</code>.
@@ -65,7 +65,7 @@ public final class HTTPPluginControl
     }
 
     /**
-     * Get an {@link net.grinder.http.plugin.HTTPPluginConnnection}
+     * Get an {@link net.grinder.plugin.http.HTTPPluginConnnection}
      * for a particular URL.
      *
      * <p>This method will throw a GrinderException if not called from
