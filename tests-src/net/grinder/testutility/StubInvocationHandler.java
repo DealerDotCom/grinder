@@ -48,12 +48,4 @@ public class StubInvocationHandler extends AssertingInvocationHandler {
   public String stub_toString() {
     return toString();
   }
-
-  public boolean stub_equals(Object o) {
-    return equals(o);
-  }
-
-  public int stub_hashCode() {
-    return hashCode();
-  }
 }
