@@ -22,7 +22,7 @@
 package net.grinder.tools.tcpproxy;
 
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;x
+import java.util.regex.Pattern;
 
 
 /**
