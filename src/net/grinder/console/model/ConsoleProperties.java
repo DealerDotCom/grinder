@@ -185,8 +185,7 @@ public final class ConsoleProperties {
 
     setDistributionFileFilterExpression(
       m_properties.getProperty(
-        DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
-        ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION));
+        DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY, null));
 
     setLookAndFeel(m_properties.getProperty(LOOK_AND_FEEL_PROPERTY, null));
   }
@@ -727,7 +726,8 @@ public final class ConsoleProperties {
    * distinguished by a trailing '/'. The expression is in Perl 5
    * format.</p>
    *
-   * @param expression A Perl 5 format expression.
+   * @param expression A Perl 5 format expression. <code>null</code>
+   * => use default pattern.
    * @throws DisplayMessageConsoleException If the pattern is not
    * valid.
    */
@@ -735,8 +735,18 @@ public final class ConsoleProperties {
     throws DisplayMessageConsoleException {
 
     try {
-      setDistributionFileFilterPattern(
-        new Perl5Compiler().compile(expression, Perl5Compiler.READ_ONLY_MASK));
+      final Perl5Compiler compiler = new Perl5Compiler();
+
+      if (expression == null) {
+        setDistributionFileFilterPattern(
+          compiler.compile(
+            ConsolePropertyDefaults.DISTRIBUTION_FILE_FILTER_EXPRESSION,
+            Perl5Compiler.READ_ONLY_MASK));
+      }
+      else {
+        setDistributionFileFilterPattern(
+          compiler.compile(expression, Perl5Compiler.READ_ONLY_MASK));
+      }
     }
     catch (MalformedPatternException e) {
       throw new DisplayMessageConsoleException(
@@ -745,7 +755,7 @@ public final class ConsoleProperties {
   }
 
   private void setDistributionFileFilterPattern(Pattern pattern) {
-    final Pattern old = pattern;
+    final Pattern old = m_distributionFileFilterPattern;
     m_distributionFileFilterPattern = pattern;
 
     m_changeSupport.firePropertyChange(
