@@ -26,7 +26,7 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 
 import net.grinder.common.GrinderProperties;
-import net.grinder.engine.EngineException;
+import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.util.Sleeper;

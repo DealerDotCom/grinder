@@ -25,7 +25,7 @@ package net.grinder.engine.agent;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import net.grinder.engine.EngineException;
+import net.grinder.engine.common.EngineException;
 import net.grinder.util.CopyStreamRunnable;
 
 

@@ -33,7 +33,7 @@ import java.util.Comparator;
 import java.util.Date;
 
 import net.grinder.common.Logger;
-import net.grinder.engine.EngineException;
+import net.grinder.engine.common.EngineException;
 import net.grinder.util.DelayedCreationFileWriter;
 
 

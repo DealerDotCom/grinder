@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.grinder.common.Logger;
-import net.grinder.engine.EngineException;
+import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginRegistry;

@@ -49,7 +49,7 @@ import net.grinder.communication.Message;
 import net.grinder.communication.MessagePump;
 import net.grinder.communication.Receiver;
 import net.grinder.communication.StreamSender;
-import net.grinder.engine.EngineException;
+import net.grinder.engine.common.EngineException;
 import net.grinder.engine.process.GrinderProcess;
 
 

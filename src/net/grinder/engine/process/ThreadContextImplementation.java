@@ -25,7 +25,7 @@ package net.grinder.engine.process;
 import java.io.PrintWriter;
 
 import net.grinder.common.FilenameFactory;
-import net.grinder.engine.EngineException;
+import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Statistics;
 

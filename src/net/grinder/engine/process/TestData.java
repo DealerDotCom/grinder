@@ -29,7 +29,7 @@ import org.python.core.PyObject;
 import org.python.core.PyProxy;
 
 import net.grinder.common.Test;
-import net.grinder.engine.EngineException;
+import net.grinder.engine.common.EngineException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.statistics.TestStatistics;
 import net.grinder.statistics.TestStatisticsFactory;

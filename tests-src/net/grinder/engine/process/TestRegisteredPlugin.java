@@ -23,7 +23,7 @@ package net.grinder.engine.process;
 
 import junit.framework.TestCase;
 
-import net.grinder.engine.EngineException;
+import net.grinder.engine.common.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;

@@ -37,7 +37,7 @@ import org.python.util.PythonInterpreter;
 
 import net.grinder.common.Test;
 import net.grinder.common.StubTest;
-import net.grinder.engine.EngineException;
+import net.grinder.engine.common.EngineException;
 import net.grinder.script.NotWrappableTypeException;
 import net.grinder.testutility.RandomStubFactory;
 

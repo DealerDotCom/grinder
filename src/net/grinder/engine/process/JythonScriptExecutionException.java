@@ -27,7 +27,7 @@ import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyTraceback;
 
-import net.grinder.engine.EngineException;
+import net.grinder.engine.common.EngineException;
 
 
 /**

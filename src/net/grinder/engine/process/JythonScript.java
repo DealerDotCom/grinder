@@ -33,7 +33,7 @@ import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
 import net.grinder.common.Logger;
-import net.grinder.engine.EngineException;
+import net.grinder.engine.common.EngineException;
 import net.grinder.script.Grinder;
 
 

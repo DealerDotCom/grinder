@@ -21,7 +21,7 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.engine.EngineException;
+import net.grinder.engine.common.EngineException;
 
 /**
  * Exception used to indicate that the process has been shutdown.
