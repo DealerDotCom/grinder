@@ -157,12 +157,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
     final LabelledGraph totalGraph =
       new LabelledGraph(m_resources.getString("totalGraph.title"),
-			m_resources, Color.darkGray,
+			m_resources, Colours.DARK_GREY,
 			m_model.getTPSExpression(),
 			m_model.getPeakTPSExpression());
 
     final JLabel tpsLabel = new JLabel();
-    tpsLabel.setForeground(Color.black);
+    tpsLabel.setForeground(Colours.BLACK);
     tpsLabel.setFont(s_tpsFont);
 
     m_model.addTotalSampleListener(
@@ -285,17 +285,17 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     final TextAreaPainter painter = textArea.getPainter();
 
     final SyntaxStyle[] styles = painter.getStyles();
-    styles[Token.KEYWORD1] = new SyntaxStyle(Color.RED, false, false);
+    styles[Token.KEYWORD1] = new SyntaxStyle(Colours.RED, false, false);
     styles[Token.KEYWORD2] = styles[Token.KEYWORD1];
     styles[Token.KEYWORD3] = styles[Token.KEYWORD1];
-    styles[Token.COMMENT1] = new SyntaxStyle(Colours.GREEN, true, false);
-    styles[Token.LITERAL1] = new SyntaxStyle(Color.BLUE, false, false);
+    styles[Token.COMMENT1] = new SyntaxStyle(Colours.DARK_GREEN, true, false);
+    styles[Token.LITERAL1] = new SyntaxStyle(Colours.BLUE, false, false);
     styles[Token.LITERAL2] = styles[Token.LITERAL1];
 
-    painter.setCaretColor(Colours.RED);
-    painter.setLineHighlightColor(new Color(0xFF, 0xFF, 0xD0));
-    painter.setBracketHighlightColor(Color.GRAY);
-    painter.setSelectionColor(Color.GRAY);
+    painter.setCaretColor(Colours.DARK_RED);
+    painter.setLineHighlightColor(Colours.FEINT_YELLOW);
+    painter.setBracketHighlightColor(Colours.GREY);
+    painter.setSelectionColor(Colours.GREY);
     // Initial focus?
 
     tabbedPane.addTab(m_resources.getString("scriptTab.title"),
@@ -465,11 +465,11 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	m_stateLabel.setText(m_stateStoppedString);
       }
 
-      m_stateLabel.setForeground(Colours.RED);
+      m_stateLabel.setForeground(Colours.DARK_RED);
     }
     else if (state == Model.STATE_CAPTURING) {
       m_stateLabel.setText(m_stateCapturingString + sampleCount);
-      m_stateLabel.setForeground(Colours.GREEN);
+      m_stateLabel.setForeground(Colours.DARK_GREEN);
     }
     else {
       m_stateLabel.setText(m_stateUnknownString);
@@ -717,7 +717,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	};
 
       text.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-      text.setForeground(Color.black);
+      text.setForeground(Colours.BLACK);
       text.setText(m_resources.getStringFromFile("about.text", true));
 
       m_contents =

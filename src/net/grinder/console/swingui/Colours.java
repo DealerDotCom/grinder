@@ -32,7 +32,12 @@ import java.awt.Color;
  */
 interface Colours {
 
-  static final Color GREEN = new Color(0, 0x80, 0);
-  static final Color RED = new Color(0xE0, 0, 00);
-  static final Color ERROR_RED = Color.RED;
+  static final Color BLACK = Color.black;
+  static final Color BLUE = Color.blue;
+  static final Color DARK_GREEN = new Color(0, 0x80, 0);
+  static final Color DARK_GREY = Color.darkGray;
+  static final Color DARK_RED = new Color(0xE0, 0, 00);
+  static final Color FEINT_YELLOW = new Color(0xFF, 0xFF, 0xD0);
+  static final Color GREY = Color.gray;
+  static final Color RED = Color.red;
 }

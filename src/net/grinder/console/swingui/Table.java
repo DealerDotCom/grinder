@@ -71,9 +71,7 @@ final class Table extends JTable {
     final boolean bold = model.isBold(row, column);
 
     if (red | bold) {
-      m_myCellRenderer.setForeground(
-	red ? Colours.ERROR_RED : m_defaultForeground);
-
+      m_myCellRenderer.setForeground(red ? Colours.RED : m_defaultForeground);
       m_myCellRenderer.setTheFont(bold ? m_boldFont : m_defaultFont);
 
       return m_myCellRenderer;

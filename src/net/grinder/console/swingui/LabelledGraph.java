@@ -139,7 +139,7 @@ class LabelledGraph extends JPanel {
 
     public void setHighlight(boolean highlight) {
       if (highlight) {
-	setForeground(Colours.ERROR_RED);
+	setForeground(Colours.RED);
 	setFont(s_boldFont);
       }
       else {
@@ -212,7 +212,7 @@ class LabelledGraph extends JPanel {
 
     final JLabel titleLabel= new JLabel();
     titleLabel.setText(title);
-    titleLabel.setForeground(Color.black);
+    titleLabel.setForeground(Colours.BLACK);
     titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 
     labelPanel.add(m_averageTimeLabel);
