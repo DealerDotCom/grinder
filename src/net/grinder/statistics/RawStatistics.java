@@ -1,0 +1,277 @@
+// The Grinder
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
+
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+package net.grinder.statistics;
+
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.Serializable;
+
+import net.grinder.util.Serialiser;
+
+
+/**
+ * Store an array of raw statistics as unsigned long values. Clients
+ * can access individual values using a process specific index
+ * obtained from a {@link ProcessStatisticsMap}. Effectively a cheap
+ * array list.
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
+public final class RawStatistics
+{
+    // Implementation notes
+    // 1. The public interface only allows the values to be increased.
+    //     We rely on the fact that the values are non-negative to
+    //     implement efficient serialisation.
+    // 2. Our array of values grows in size to accomodate new process
+    //     index values. It never shrinks.
+
+    private final static long serialVersionUID = -8055876976127793454L;
+    private final static long[] s_emptyLongArray = new long[0];
+
+    private long[] m_statistics = s_emptyLongArray;
+
+    /**
+     * @clientRole snapshot 
+     * @supplierCardinality 0..1
+     * @link aggregation
+     **/
+    private transient RawStatistics m_snapshot = null;
+
+    /**
+     * Creates a new <code>RawStatistics</code> instance.
+     **/
+    public RawStatistics()
+    {
+    }
+
+    /**
+     * Add the values of another <code>RawStatistics</code> to ours.
+     * Assumes we don't need to synchronise access to operand.
+     * @param operand The <code>RawStatistics</code> value to add.
+     **/
+    public final synchronized void add(RawStatistics operand)
+    {
+	final long[] statistics = operand.m_statistics;
+
+	expandToSize(statistics.length);
+
+	for (int i=0; i<statistics.length; i++) {
+	    m_statistics[i] += statistics[i];
+	}
+    }
+
+    /**
+     * Add <code>value</code> to the value specified by
+     * <code>processStatisticsIndex</code>.
+     *
+     * @param processStatisticsIndex The process specific index.
+     * @param value The value.
+     * @throws IllegalArgumentException If the <code>processStatisticsIndex</code> is negative. 
+     * @throws IllegalArgumentException If the <code>value</code> is negative. 
+     **/
+    public final synchronized void addValue(int processStatisticsIndex,
+					    long value)
+    {
+	if (processStatisticsIndex < 0) {
+	    throw new IllegalArgumentException("Negative value");
+	}
+
+	if (value < 0) {
+	    throw new IllegalArgumentException("Negative value");
+	}
+
+	expandToSize(processStatisticsIndex + 1);
+	m_statistics[processStatisticsIndex] += value;
+    }
+
+    /**
+     * Equivalent to <code>addValue(processStatisticsIndex, 1)</code>.
+     *
+     * @param processStatisticsIndex The process specific index.
+     * @exception IllegalArgumentException If the <code>processStatisticsIndex</code> is negative. 
+     *
+     * @see {@link #addValue}
+     */
+    public final synchronized void incrementValue(int processStatisticsIndex)
+    {
+	addValue(processStatisticsIndex, 1);
+    }
+
+    /**
+     * Return the value specified by
+     * <code>processStatisticsIndex</code>.
+     *
+     * @param processStatisticsIndex The process specific index.
+     * @return The value.
+     * @throws IllegalArgumentException If the <code>processStatisticsIndex</code> is negative. 
+     */
+    public final long getValue(int processStatisticsIndex)
+    {
+	if (processStatisticsIndex < 0) {
+	    throw new IllegalArgumentException("Negative value");
+	}
+
+	expandToSize(processStatisticsIndex + 1);
+	return m_statistics[processStatisticsIndex];
+    }
+
+    /**
+     * Return a <code>RawStatistics</code> representing the change
+     * since the last snapshot.
+     *
+     * @param updateSnapshot <code>true</code> => update the snapshot.
+     * @return A <code>RawStatistics</code> representing the
+     * difference between our values and the snapshot's values.
+     **/
+    public final synchronized RawStatistics getDelta(boolean updateSnapshot)
+    {
+	// This is the only method that accesses m_snapshot so we
+	// don't worry about the synchronisation of it.
+
+	final RawStatistics result = new RawStatistics();
+	result.add(this);
+
+	if (m_snapshot != null) {
+	    if (m_statistics.length < m_snapshot.m_statistics.length) {
+		throw new IllegalStateException(
+		    "Assertion failure: " +
+		    "Snapshot statistics size is larger than ours");
+	    }
+
+	    final long[] statistics = m_snapshot.m_statistics;
+
+	    for (int i=0; i<statistics.length; i++) {
+		result.m_statistics[i] -= statistics[i];
+	    }
+	}
+
+	if (updateSnapshot) {
+	    m_snapshot = new RawStatistics();
+	    m_snapshot.add(this);
+	}
+
+	return result;
+    }
+
+    /**
+     * Implement value based equality.
+     *
+     * @param o <code>Object</code> to compare to.
+     * @return <code>true</code> if and only if the two objects are equal.
+     **/
+    public final boolean equals(Object o)
+    {
+	if (o == this) {
+	    return true;
+	}
+	
+	if (!(o instanceof RawStatistics)) {
+	    return false;
+	}
+
+	final long[] otherStatistics = ((RawStatistics)o).m_statistics;
+
+	if (m_statistics.length != otherStatistics.length) {
+	    return false;
+	}
+
+	for (int i=0; i<m_statistics.length; i++) {
+	    if (m_statistics[i] != otherStatistics[i]) {
+		return false;
+	    }
+	}
+
+	return true;
+    }
+
+    /**
+     * Return a <code>String</code> representation of this
+     * <code>RawStatistics</code>.
+     *
+     * @return The <code>String</code>
+     **/
+    public String toString()
+    {
+	final StringBuffer result = new StringBuffer();
+
+	result.append("RawStatistics = {");
+
+	for (int i=0; i<m_statistics.length; i++) {
+	    result.append(m_statistics[i]);
+
+	    if (i!= m_statistics.length-1) {
+		result.append(", ");
+	    }
+	}
+
+	result.append("}");
+
+	return result.toString();
+    }
+
+    /**
+     * Efficient externalisation method used by {@link TestStatisticsMap}.
+     *
+     * @param out Handle to the output stream.
+     * @param serialiser <code>Serialiser</code> helper object.
+     * @exception IOException If an error occurs.
+     **/
+    final void myWriteExternal(ObjectOutput out, Serialiser serialiser)
+	throws IOException
+    {
+	out.writeInt(m_statistics.length);
+
+	for (int i=0; i<m_statistics.length; i++) {
+	    serialiser.writeUnsignedLong(out, m_statistics[i]);
+	}
+    }
+
+    /**
+     * Efficient externalisation method used by {@link TestStatisticsMap}.
+     *
+     * @param in Handle to the input stream.
+     * @param serialiser <code>Serialiser</code> helper object.
+     * @exception IOException If an error occurs.
+     **/
+    RawStatistics(ObjectInput in, Serialiser serialiser) throws IOException
+    {
+	final int length = in.readInt();
+
+	m_statistics = new long[length];
+
+	for (int i=0; i<m_statistics.length; i++) {
+	    m_statistics[i] = serialiser.readUnsignedLong(in);
+	}
+    }
+
+    private final void expandToSize(int size)
+    {
+	if (m_statistics.length < size) {
+	    final long[] newStatistics = new long[size];
+
+	    System.arraycopy(m_statistics, 0, newStatistics, 0,
+			     m_statistics.length);
+
+	    m_statistics = newStatistics;
+	}
+    }
+}

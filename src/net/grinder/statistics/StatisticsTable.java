@@ -33,9 +33,15 @@ import net.grinder.common.Test;
  */
 public class StatisticsTable
 {
+    /**
+     * @supplierCardinality 1*/
     private final TestStatisticsMap m_testStatisticsMap;
     private final Statistics m_totals;
     private final DecimalFormat m_twoDPFormat = new DecimalFormat("0.00");
+
+    /**
+     * @supplierCardinality 1*/
+    private StatisticsView lnkStatisticsView;
     
     public StatisticsTable(TestStatisticsMap testStatisticsMap)
     {
