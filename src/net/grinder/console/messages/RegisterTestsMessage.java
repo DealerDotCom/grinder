@@ -33,7 +33,7 @@ import java.util.Collection;
  */
 public final class RegisterTestsMessage implements Message {
 
-  private static final long serialVersionUID = -3094564130214126517L;
+  private static final long serialVersionUID = -4005260033024209616L;
 
   private final Collection m_tests;
 
@@ -41,7 +41,7 @@ public final class RegisterTestsMessage implements Message {
    * Constructor.
    *
    * @param tests The test set to register.
-   **/
+   */
   public RegisterTestsMessage(Collection tests) {
     m_tests = tests;
   }

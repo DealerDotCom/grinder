@@ -32,5 +32,5 @@ import net.grinder.communication.Message;
  * @version $Revision$
  */
 public final class StartGrinderMessage implements Message {
-  private static final long serialVersionUID = -4477386141780816347L;
+  private static final long serialVersionUID = 5297469216172758366L;
 }

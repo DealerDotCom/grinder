@@ -33,7 +33,7 @@ import net.grinder.statistics.TestStatisticsMap;
  */
 public final class ReportStatisticsMessage implements Message {
 
-  private static final long serialVersionUID = 2510450305349735882L;
+  private static final long serialVersionUID = 5659643598627115683L;
 
   private TestStatisticsMap m_statisticsDelta;
 
@@ -41,7 +41,7 @@ public final class ReportStatisticsMessage implements Message {
    * Constructor.
    *
    * @param statisticsDelta The test statistics.
-   **/
+   */
   public ReportStatisticsMessage(TestStatisticsMap statisticsDelta) {
     m_statisticsDelta = statisticsDelta;
   }

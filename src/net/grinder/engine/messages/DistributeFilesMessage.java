@@ -31,5 +31,5 @@ import net.grinder.communication.Message;
  * @version $Revision$
  */
 public final class DistributeFilesMessage implements Message {
-  private static final long serialVersionUID = -4731666882631274492L;
+  private static final long serialVersionUID = -3304271062967640532L;
 }

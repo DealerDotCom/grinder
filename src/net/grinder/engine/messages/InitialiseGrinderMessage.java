@@ -32,7 +32,7 @@ import net.grinder.communication.Message;
  */
 public final class InitialiseGrinderMessage implements Message {
 
-  private static final long serialVersionUID = 8918644538189967340L;
+  private static final long serialVersionUID = -2558283395728307206L;
 
   private final boolean m_reportToConsole;
 

@@ -35,7 +35,7 @@ import net.grinder.communication.Message;
  */
 public final class ReportStatusMessage implements Message, ProcessStatus {
 
-  private static final long serialVersionUID = -8714328117132230200L;
+  private static final long serialVersionUID = -2073574340466531680L;
 
   private final String m_identity;
   private final String m_name;
@@ -52,7 +52,7 @@ public final class ReportStatusMessage implements Message, ProcessStatus {
    * net.grinder.common.ProcessStatus}.
    * @param totalThreads The total number of threads.
    * @param runningThreads The number of threads that are still running.
-   **/
+   */
   public ReportStatusMessage(String identity, String name, short state,
                              short runningThreads, short totalThreads) {
     m_identity = identity;
