@@ -44,6 +44,7 @@ public class LauncherThread extends Thread
 {
     private final String m_commandLine;
     private final ProcessContextImplementation m_processContext;
+    private int m_exitStatus = 0;
     
     /**
      * The constructor.
@@ -55,8 +56,7 @@ public class LauncherThread extends Thread
     {
 	super(commandLine);
 
-	m_processContext =
-	    new ProcessContextImplementation(hostID, processID);
+	m_processContext = new ProcessContextImplementation(hostID, processID);
 
 	final StringBuffer stringBuffer = new StringBuffer(commandLine);
 	stringBuffer.append(" ");
@@ -101,11 +101,15 @@ public class LauncherThread extends Thread
 
 	    process.waitFor();
 
-	    m_processContext.logMessage("exited with status " +
-					process.exitValue(), Logger.TERMINAL);
+	    m_exitStatus = process.exitValue();   
 	}
 	catch(Exception e){
 	    e.printStackTrace();
 	}
+    }
+
+    public int getExitStatus()
+    {
+	return m_exitStatus;
     }
 }

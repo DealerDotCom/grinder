@@ -17,7 +17,7 @@ Please see the file COPYING for details of the General Public License.
 The Grinder incorporates software from the Ronald Tschalär's
 HTTPClient library
 (http://www.innovation.ch/java/HTTPClient/index.html) which is
-distributed under the GNU Lesser Public License and repackaged in The
+distributed under the GNU Lesser Public License and repackaged in the
 Grinder distribution under the GNU Public License. See
 etc/HTTPClient-license.txt for details of the GNU Lesser Public
 License.
@@ -36,7 +36,7 @@ and maintain The Grinder.
 
 Test client code is written in the form Java "plug-ins". Sample
 plug-ins for testing HTTP services are provided. It is particularly
-suitable for testing BEA WebLogic Server based applications.
+suitable for testing BEA WebLogic Server applications.
 
 A JUnit plugin is also supplied. This opens up interesting
 possibilities for bake testing Java code to discover race conditions
@@ -56,7 +56,7 @@ There are also some mailing lists you might like to join.
 What else do I need?
 ********************
 
-To run The Grinder:
+To run the Grinder:
 
   JDK 1.3, or equivalent
 
@@ -64,8 +64,8 @@ and optionally:
 
   JSSE 1.0.2			for SSL support
   Apache Jakarta Regexp 1.2	for the TCPSniffer HTTP plugin
-  Apache Jakarta Ant 1.3	to build The Grinder from source
-  JUnit 3.5			to test The Grinder itself
+  Apache Jakarta Ant 1.3	to build the Grinder from source
+  JUnit 3.5			to test the Grinder itself
 
 
 These can be obtained from the following places.
@@ -90,15 +90,18 @@ Its easy:
 	1. Set your classpath to include the grinder.jar file in the
 	   lib directory.
 
-	2. Change to a test directory, and set up a grinder.properties
+	2. Change to a test directory and set up a grinder.properties
 	   file which defines the test you want to perform. See the
 	   examples directory for inspiration.
 
 	3. Say
 		java net.grinder.Grinder
 
-If you want to use the Console, (and you probably do), tweak the
-following properties
+This starts a master process that forks child Java processes to do the
+work.
+
+If you want to use the Console, (and you probably do), set the
+following properties before starting the Grinder
 
 	grinder.receiveConsoleSignals
 	grinder.multicastAddress
@@ -107,9 +110,9 @@ following properties
 	grinder.reportToConsole
 	grinder.console.multicastPort
 
-and say
-	java net.grinder.Console
+Start the Console against the same properties file with
 
+	java net.grinder.Console
 
 You can also specify an explicit properties file to both the Grinder
 and the Console as the first argument. For example:
@@ -147,7 +150,7 @@ Each test has one of 3 possible outcomes:
 	   Errors for the test is incremented.
 
 	3. Abortion. The plugin chooses to abort the cycle or thread.
-	   Again, when this might happens depends on the plugin. The
+	   Again, when this might happen depends on the plugin. The
 	   number of Abortions for the test is incremented.
 
 The Total and Average figures are calculated based only on successful
@@ -160,28 +163,19 @@ I don't get it, help!
 Try asking at grinder-use@lists.sourceforge.net
 
 
-How do I fix it?
-****************
-
-Please send bug fixes and enhancements you make to
-grinder-development@lists.sourceforge.net.
-
-BEA keeps me very busy so the timeliness and quality of any email
-support I provide may vary.
-
-
 What can I set in grinder.properties?
 *************************************
 
 [This is not complete - volunteer work required!]
 
-    grinder.processes	-	The number of child VM processes to start.
+    grinder.processes	-	The number of child processes to start.
 
     grinder.threads	-	The number cycles of the threads each 
 				process spawns.
 
     grinder.cycles	-	The number cycles of the test script
-				each thread performs.
+				each thread performs. 0 means "run
+				forever".
 
     grinder.jvm		-	Use an alternate JVM for child processes.
 
@@ -193,7 +187,7 @@ What can I set in grinder.properties?
     grinder.jvm.classpath -	Use to adjust the classpath used for
 				the child VMs. Anything specified here
 				will be prepended to the classpath
-				used to start the grinder itself.
+				used to start the Grinder processes.
 
     grinder.jvm.arguments -	Additional arguments to child JVM's.
 
@@ -206,29 +200,24 @@ What can I set in grinder.properties?
 
     grinder.receiveConsoleSignals -
 				Set to true to respond to Console
-				"start" and "stop" signals. This will
-				mean that the test cycles will not
-				start until a Console signal is
-				recieved.
+				signals. See "Tell me about the
+				Console controls" below.
 
-				If this is set, the Grinder processes
-				will not exit until receiving a stop
-				signal from the console.
-
-    grinder.reportToConsole -	Set to true to send stats to the Console.
+    grinder.reportToConsole -	Set to true to send statistics to the
+				Console.
 
     grinder.multicastAddress -  The multicast address to use for
-				communication between the grinder
-				processes and the Console.
-				(See "What do I need to do to set up
-				multicast?" below).
+				communication between the Grinder
+				processes and the Console. (See "What
+				do I need to do to set up multicast?"
+				below).
 
     grinder.multicastPort -     The multicast port to use for communication
-				from the Console to the grinder processes.
+				from the Console to the Grinder processes.
 
     grinder.console.multicastPort -
 				The multicast port to use for communication
-				from the grinder processes to the Console.
+				from the Grinder processes to the Console.
 
     grinder.reportToConsole.interval -
 				The period at which each process sends
@@ -313,37 +302,37 @@ You should read the files doc/HTTPPlugin.txt and doc/JUnitPlugin.txt
 for details on the properties for individual plugins.
 
 
-What do I need to do to set up multicast?
-*****************************************
-
-You must set up multicast if you want to use the Console. It is used
-to send signals from the Console to the Grinder processes (start,
-stop) and to send statistics reports from the Grinder processes to the
-Console.
-
-For most modern TCP stacks, e.g Windows 95/98/NT, Linux, multicast
-works out of the box.
-
-Under Linux, you may also need to set up the routing table. Try:
-
- $ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
-
-Some Windows VPN clients (e.g Bay Networks Extranet) interfere with
-multicast. You may need to disable them.
-
-
-Tell me more about the Console controls?
-****************************************
+Tell me about the Console controls?
+***********************************
 
 The process controls:
 
-  The controls "Start processes" and "Stop processes" send signals to
-  start and stop any Grinder processes that are currently listening.
+  The controls "Start processes", "Reset processes" and "Stop
+  processes" send signals to Grinder processes that are listening.
+  (See the properties grinder.receiveConsoleSignals,
+  grinder.multicastAddress and grinder.multicastPort.)
 
-  The "Reset processes" button causes the processes to reread the
-  properties file and reset - press "Start processes" to start them
-  again. *Warning* - if appendLog is false, this will overwrite any
-  process output files from the previous run.
+  Grinder child processes that are configured to receive console
+  signals go through three states:
+
+	1. Initiated (waiting for a console signal)
+	2. Running   (performing tests, reporting to console)
+	3. Finished  (waiting for a console signal)
+
+  The "Start processes" button signals to child processes that they
+  should move into the running state. Processes that are already
+  running ignore this signal. Processes that are in the finished state
+  exit; the master process will then reread the properties file and
+  launch new child processes in the running state.
+
+  The "Reset processes" control signals all the child processes to
+  exit. The master process will then reread the properties file and
+  launch new child processes.
+
+  The "Stop processes" contol signals all processes to exit.
+
+  *Warning* - unless grinder.appendLog is true, new child process logs
+  will overwrite those from previous runs.
 
 The sample controls:
 
@@ -371,13 +360,8 @@ The sample controls:
   will collect before stopping capture.
 
   You can also manually start and stop the sampling with the "Capture
-  statistics"/"Stop capture" control.
-
-  Finally, the "Summary" control displays a table of results, similar
-  to what the individual Grinder processes produce but based on
-  statistics collected from all of the processes over the sample
-  period. In future we hope to add "File/Save" type functionality to
-  save the results of a capture.
+  statistics"/"Stop capture" control. Use the "Save statistics"
+  control to save the current set of statistics to a file.
 
 
 Can I run different test scripts against the same Console?
@@ -397,6 +381,35 @@ contained all the tests (e.g 1 to 10).
 This is definitely a hack at the moment. We plan to resolve this with
 a much better Console/Grinder model in the Grinder 3. (James Bond will
 return in ....).
+
+
+What do I need to do to set up multicast?
+*****************************************
+
+You must set up multicast if you want to use the Console. It is used
+to send signals from the Console to the Grinder processes (start,
+stop) and to send statistics reports from the Grinder processes to the
+Console.
+
+For most modern TCP stacks, e.g Windows 95/98/NT, Linux, multicast
+works out of the box.
+
+Under Linux, you may also need to set up the routing table. Try:
+
+ $ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
+
+Some Windows VPN clients (e.g Bay Networks Extranet) interfere with
+multicast. You may need to disable them.
+
+
+How do I fix it?
+****************
+
+Please send bug fixes and enhancements you make to
+grinder-development@lists.sourceforge.net.
+
+BEA keeps me very busy so the timeliness and quality of any email
+support I provide may vary.
 
 
 Development goals

@@ -73,54 +73,95 @@ public class Grinder
     
     protected void run() throws GrinderException
     {
-	final GrinderProperties properties = GrinderProperties.getProperties();
+	boolean ignoreInitialSignal = false;
 
-	if (properties == null) {
-	    // GrinderProperties will have output a message to stderr.
-	    return;
-	}
+	while (true) {
+	    final GrinderProperties properties =
+		GrinderProperties.reloadProperties();
 
-	final int numberOfProcesses =
-	    properties.getInt("grinder.processes", 1);
-
-	final String jvm = properties.getProperty("grinder.jvm", "java");
-
-	final String additionalClasspath =
-	    properties.getProperty("grinder.jvm.classpath", null);
-
-	final String classpath =
-	    (additionalClasspath != null ? additionalClasspath + ";" : "") +
-	    System.getProperty("java.class.path");
-
-	final String hostIDString =
-	    properties.getProperty("grinder.hostID", getHostName());
-
-	final String command =
-	    jvm + " -classpath " + classpath + " " +
-	    properties.getProperty("grinder.jvm.arguments", "") + " " +
-	    GrinderProcess.class.getName();
-
-	final Thread[] threads = new Thread[numberOfProcesses];
-
-	for (int i=0; i<numberOfProcesses; i++) {
-	    threads[i] = new LauncherThread(hostIDString,
-					    Integer.toString(i),
-					    command, m_alternateFilename);
-	    threads[i].start();
-	}
-
-	System.out.println("The Grinder version @version@ started");
-
-	for (int i=0; i<numberOfProcesses;) {
-	    try {
-		threads[i].join();
-		i++;
+	    if (properties == null) {
+		// GrinderProperties will have output a message to stderr.
+		return;
 	    }
-	    catch (InterruptedException e) {
-	    }
-	}
 
-	System.out.println("The Grinder version @version@ finished");
+	    final int numberOfProcesses =
+		properties.getInt("grinder.processes", 1);
+
+	    final String jvm = properties.getProperty("grinder.jvm", "java");
+
+	    final String additionalClasspath =
+		properties.getProperty("grinder.jvm.classpath", null);
+
+	    final String classpath =
+		(additionalClasspath != null ? additionalClasspath + ";" : "")
+		+ System.getProperty("java.class.path");
+
+	    final String hostIDString =
+		properties.getProperty("grinder.hostID", getHostName());
+
+	    final String ignoreInitialSignalHack =
+		ignoreInitialSignal ?
+		("-D" +
+		 GrinderProcess.DONT_WAIT_FOR_SIGNAL_PROPERTY_NAME + "=true ")
+		: "";
+
+	    final String command =
+		jvm + " -classpath " + classpath + " " +
+		properties.getProperty("grinder.jvm.arguments", "") + " " +
+		ignoreInitialSignalHack + GrinderProcess.class.getName();
+
+	    final LauncherThread[] threads =
+		new LauncherThread[numberOfProcesses];
+
+	    for (int i=0; i<numberOfProcesses; i++) {
+		threads[i] = new LauncherThread(hostIDString,
+						Integer.toString(i),
+						command, m_alternateFilename);
+		threads[i].start();
+	    }
+
+	    System.out.println("The Grinder version @version@ started");
+
+	    int combinedExitStatus = 0;
+
+	    for (int i=0; i<numberOfProcesses;) {
+		try {
+		    threads[i].join();
+		
+		    final int exitStatus = threads[i].getExitStatus();
+
+		    if (exitStatus > 0) { // Not an error
+			if (combinedExitStatus == 0) {
+			    combinedExitStatus = exitStatus;
+			}
+			else if (combinedExitStatus != exitStatus) {
+			    System.out.println(
+				"WARNING, threads disagree on exit status");
+			}
+		    }
+		
+		    i++;
+		}
+		catch (InterruptedException e) {
+		}
+	    }
+
+	    System.out.println("The Grinder version @version@ finished");
+
+	    if (combinedExitStatus == GrinderProcess.EXIT_START_SIGNAL) {
+		System.out.println("Start signal received");
+		ignoreInitialSignal = true;
+	    }
+	    else if (combinedExitStatus == GrinderProcess.EXIT_RESET_SIGNAL) {
+		System.out.println("Reset signal received");
+		ignoreInitialSignal = false;
+	    }
+	    else {
+		break;
+	    }
+
+	    System.out.println();
+	}
     }
 
     private String getHostName()

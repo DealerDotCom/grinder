@@ -49,6 +49,7 @@ class GrinderThread implements java.lang.Runnable
      * means "the number of GrinderThread's that have been created but
      * not run to completion" */
     private static int m_numberOfThreads = 0;
+    private static boolean s_shutdown = false;
 
     private static Random m_random = new Random();
 
@@ -133,13 +134,18 @@ class GrinderThread implements java.lang.Runnable
 
 	    sleepFlat(m_initialSleepTime);
 
-	    m_context.logMessage("About to run " + m_numberOfCycles +
-				 " cycles");
+	    if (m_numberOfCycles == 0) {
+		m_context.logMessage("About to run forever");
+	    }
+	    else {
+		m_context.logMessage("About to run " + m_numberOfCycles +
+				     " cycles");
+	    }
 
 	    CYCLE_LOOP:
 	    for (m_currentCycle=0;
-		 m_currentCycle<m_numberOfCycles &&
-		     !m_grinderProcess.shouldStop();
+		 (m_numberOfCycles == 0 || m_currentCycle < m_numberOfCycles)
+		     && !s_shutdown;
 		 m_currentCycle++)
 	    {
 		try {
@@ -355,13 +361,13 @@ class GrinderThread implements java.lang.Runnable
 	m_numberOfThreads--;
     }
 
-    public static synchronized void resetThreadCount() 
-    {
-	m_numberOfThreads = 0;
-    }
-
     public static int numberOfUncompletedThreads()
     {
 	return m_numberOfThreads;
+    }
+
+    public static void shutdown()
+    {
+	s_shutdown = true;
     }
 }
