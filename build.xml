@@ -241,7 +241,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
              noindex="false"
              windowtitle="${Name}"
              doctitle="${Name}"
-             bottom="Copyright &#169; ${year} Paco Gomez, Philip Aston. All Rights Reserved."
+             bottom="Copyright &#169; ${year} Paco Gómez, Philip Aston. All Rights Reserved."
              stylesheetfile="${javadoc.css}"
 	     package="true">
 	    <sourcepath>
