@@ -22,8 +22,8 @@
 
 package net.grinder.plugin.http;
 
-import java.io.ByteArrayOutputStream;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,9 +32,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
-import HTTPClient.Cookie;
 import HTTPClient.CookieModule;
 import HTTPClient.DefaultAuthHandler;
 import HTTPClient.HTTPConnection;
@@ -50,7 +48,6 @@ import net.grinder.common.Test;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
-import net.grinder.plugininterface.PluginTest;
 import net.grinder.plugininterface.PluginThreadCallbacks;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.TestResult;
@@ -284,7 +281,7 @@ public class HTTPPlugin implements GrinderPlugin
 		connection = new HTTPConnection(uri);
 		connection.setContext(HTTPPlugin.this);
 		connection.setAllowUserInteraction(false);
-		
+
 		if (m_useCookies) {
 		    connection.addModule(CookieModule.class, 0);
 		}
