@@ -16,6 +16,7 @@ Grinder 2.6.6
    - TCPSniffer changes:
      -timeout to set the proxy to timeout;
      -localSSLPort for use with the HTTPS proxy;
+     -localHost for use with multiple local IP addresses;
      doesn't barf if you set remote host/port with proxy;
 
 
