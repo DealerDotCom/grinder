@@ -41,24 +41,24 @@ public class ProcessContextImplementation implements PluginProcessContext
 	m_pluginParameters = processContext.getPluginParameters();
 	m_hostIDString = processContext.getHostIDString();
 	m_processIDString = processContext.getProcessIDString();
-	m_filenameFactory = new FilenameFactory(m_processIDString, threadID);
+
+	m_filenameFactory = new FilenameFactory(m_hostIDString,
+						m_processIDString, threadID);
     }
 
-    public ProcessContextImplementation()
-	throws GrinderException
+    public ProcessContextImplementation(String hostIDString,
+					String processIDString)
     {
-	GrinderProperties properties = GrinderProperties.getProperties();
+	m_hostIDString = hostIDString;
+	m_processIDString = processIDString;
+
+	final GrinderProperties properties = GrinderProperties.getProperties();
 
 	m_pluginParameters =
 	    properties.getPropertySubset("grinder.plugin.parameter.");
 
-	m_hostIDString = properties.getProperty("grinder.hostID",
-						"UNNAMED HOST");
-	
-	m_processIDString = properties.getProperty("grinder.jvmID",
-						   "UNNAMED PROCESS");
-
-	m_filenameFactory = new FilenameFactory(m_processIDString, null);
+	m_filenameFactory = new FilenameFactory(m_hostIDString,
+						m_processIDString, null);
     }
 
     public String getHostIDString()
@@ -104,7 +104,7 @@ public class ProcessContextImplementation implements PluginProcessContext
     {
 	final StringBuffer buffer = new StringBuffer();
 
-	buffer.append("Grinder (host ");
+	buffer.append("Grinder Process (Host ");
 	buffer.append(getHostIDString());
 	buffer.append(" JVM ");
 	buffer.append(getProcessIDString());
