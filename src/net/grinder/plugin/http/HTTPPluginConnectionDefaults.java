@@ -37,7 +37,7 @@ import HTTPClient.URI;
  * @author Philip Aston
  * @version $Revision$
  **/
-final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
+public final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
 {
     private boolean m_followRedirects = true;
     private boolean m_useCookies = true;
@@ -231,12 +231,12 @@ final class HTTPPluginConnectionDefaults implements HTTPPluginConnection
 	}
     }
 
-    public static final HTTPPluginConnection getDefaultConnectionDefaults() 
+    public static final HTTPPluginConnection getDefaultDefaults() 
     {
 	return s_defaultConnectionDefaults;
     }
 
-    public static final HTTPPluginConnection getConnectionDefaults(
+    public static final HTTPPluginConnection getDefaults(
 	String uriString)
 	throws ParseException, ProtocolNotSuppException
     {
