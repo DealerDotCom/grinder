@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,8 +22,6 @@
 package net.grinder.engine.process;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Test;
@@ -40,32 +38,24 @@ import net.grinder.plugininterface.StubGrinderPlugin;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class TestTestData extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestTestData.class);
-    }
+public class TestTestData extends TestCase {
+  public TestTestData(String name) {
+    super(name);
+  }
 
-    public TestTestData(String name)
-    {
-	super(name);
-    }
+  public void testTestData() throws Exception {
+    final GrinderPlugin plugin = new StubGrinderPlugin();
 
-    public void testTestData() throws Exception
-    {
-	final GrinderPlugin plugin = new StubGrinderPlugin();
-
-	final Test test1 = new StubTest(99, "Some stuff");
+    final Test test1 = new StubTest(99, "Some stuff");
 	
-	final TestData testData1 = new TestData(test1);
-	assertEquals(test1, testData1.getTest());
-	assertNotNull(testData1.getStatistics());
+    final TestData testData1 = new TestData(null, test1);
+    assertEquals(test1, testData1.getTest());
+    assertNotNull(testData1.getStatistics());
 
-	final Test test2 = new StubTest(-33, "");
+    final Test test2 = new StubTest(-33, "");
 
-	final TestData testData2 = new TestData(test2);
-	assertEquals(test2, testData2.getTest());
-	assertNotNull(testData2.getStatistics());
-    }
+    final TestData testData2 = new TestData(null, test2);
+    assertEquals(test2, testData2.getTest());
+    assertNotNull(testData2.getStatistics());
+  }
 }
