@@ -38,6 +38,9 @@ import junit.framework.TestCase;
  */
 public class TestChildProcess extends TestCase {
 
+  private static final String s_testClassesDir =
+    System.getProperty("test-classes.dir");
+
   private ByteArrayOutputStream m_outputStream = new ByteArrayOutputStream();
   private ByteArrayOutputStream m_errorStream = new ByteArrayOutputStream();
 
@@ -81,7 +84,7 @@ public class TestChildProcess extends TestCase {
     final String[] commandArray = {
       "java",
       "-classpath",
-      "build/tests-classes",
+      s_testClassesDir,
       EchoClass.class.getName(),
       "some stuff",
       "blah",
@@ -104,10 +107,10 @@ public class TestChildProcess extends TestCase {
       expected.append(commandArray[i]);
     }
 
+    assertEquals("", new String(m_errorStream.toByteArray()));
+
     assertEquals(expected.toString(),
                  new String(m_outputStream.toByteArray()));
-
-    assertEquals(0, m_errorStream.toByteArray().length);
 
     assertEquals("echo", childProcess.getProcessName());
   }
@@ -116,7 +119,7 @@ public class TestChildProcess extends TestCase {
     final String[] commandArray = {
       "java",
       "-classpath",
-      "build/tests-classes",
+      s_testClassesDir,
       EchoClass.class.getName(),
     };
 
@@ -151,7 +154,7 @@ public class TestChildProcess extends TestCase {
     final String[] commandArray = {
       "java",
       "-classpath",
-      "build/tests-classes",
+      s_testClassesDir,
       EchoClass.class.getName(),
     };
 

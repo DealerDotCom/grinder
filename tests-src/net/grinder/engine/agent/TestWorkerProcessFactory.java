@@ -45,6 +45,10 @@ import net.grinder.engine.process.GrinderProcess;
  */
 public class TestWorkerProcessFactory extends TestCase {
 
+  private static final String s_classesDir = System.getProperty("classes.dir");
+  private static final String s_testClassesDir =
+    System.getProperty("test-classes.dir");
+
   public void testConstructorWithEmptyProperties() throws Exception {
 
     final WorkerProcessFactory workerProcessFactory =
@@ -77,6 +81,10 @@ public class TestWorkerProcessFactory extends TestCase {
                                null,
                                null);
 
+    assertEquals("java -server -Xmx1024M -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '<grinderID>' '" + alternateFile.getPath() + "'",
+                 workerProcessFactory.getCommandLine());
+
+    // Should work twice.
     assertEquals("java -server -Xmx1024M -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '<grinderID>' '" + alternateFile.getPath() + "'",
                  workerProcessFactory.getCommandLine());
   }
@@ -140,8 +148,7 @@ public class TestWorkerProcessFactory extends TestCase {
   public void testCreate() throws Exception {
     final GrinderProperties grinderProperties = new GrinderProperties() {{
       setProperty("grinder.jvm.classpath",
-                  "build/tests-classes" + File.pathSeparatorChar +
-                  "build/classes");
+                  s_testClassesDir + File.pathSeparatorChar + s_classesDir);
     }};
 
     final Properties overrideProperties = new Properties();

@@ -387,6 +387,11 @@ what you want. Currently the conditionally built modules are:
 	<pathelement path="${gj-instrumented.jar}"/>
 	<path refid="build.classpath"/>
       </classpath>
+
+      <!-- Things the tests find useful. -->
+      <sysproperty key="classes.dir" path="${classes.dir}"/>
+      <sysproperty key="test-classes.dir" path="${test-classes.dir}"/>
+
       <batchtest>
 	<formatter type="plain" usefile="false"/>
 
