@@ -50,7 +50,8 @@ public class TestSenderAndReceiver extends TestCase
     protected void setUp() throws Exception
     {
 	m_receiver = new Receiver(MULTICAST_ADDRESS, MULTICAST_PORT);
-	m_sender = new Sender(MULTICAST_ADDRESS, MULTICAST_PORT);
+	m_sender = new Sender("Test Sender", MULTICAST_ADDRESS,
+			      MULTICAST_PORT);
     }
 
     public void testSendSimpleMessage() throws Exception
@@ -140,7 +141,7 @@ public class TestSenderAndReceiver extends TestCase
 	}
     }
 
-    private  static class SimpleMessage implements Message
+    private  static class SimpleMessage extends Message
     {
 	private static Random s_random = new Random();
 
