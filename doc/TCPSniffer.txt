@@ -154,6 +154,7 @@ Where ssl1 and ssl2 are two separate SSL connections. Each SSL
 connection has its own set of client and server certificates (both of
 which are optional).
 
+
 The TCPSniffer will negotiate appropriate certficates for both
 connections using certificates specified in a key store. See the JSSE
 documentation for how to set up a key store. There are 3 parameters
@@ -169,7 +170,54 @@ properties.
 Here's an example of starting the TCPSniffer as an HTTPS proxy using
 the "testkeys" key store provided with the JSSE samples:
 
-  sniff -ssl -proxy -keyStore testkeys -keyStorePassword passphrase
+  java net.grinder.TCPSniffer -ssl -proxy -keyStore testkeys -keyStorePassword passphrase
+
+
+Even if you are not using client certificates, you probably need to
+specify a key store. This is because the proxy needs a server
+certificate of its own:
+
+   Browser ----->  [ServerCert] Proxy ----> [ServerCert2] Target
+
+You need to start the proxy with a key store containing a self signed
+server certificate. This is the certificate that the browser will be
+presented with. If you fail to provide a server certificate, you will
+get a "No available certificate corresponds to the SSL cipher suites
+which are enabled" exception.
+
+The easiest way to provide a certificate is to copy the "testkeys"
+file from the JSSE samples distribution and start the sniffer using:
+
+     java net.grinder.TCPSniffer -ssl -proxy -keyStore testkeys
+-keyStorePassword passphrase
+
+Alternatively you might want to generate you're own. Here's an
+example:
+
+  PASTON:philipa% keytool -genkey -keystore testkeys -storepass passphrase -keyalg rsa
+  What is your first and last name?
+    [Unknown]:  localhost
+  What is the name of your organizational unit?
+    [Unknown]:  Engineering
+  What is the name of your organization?
+    [Unknown]:  Grinders Inc
+  What is the name of your City or Locality?
+    [Unknown]:  Grindsville
+  What is the name of your State or Province?
+    [Unknown]:  Grindshire
+  What is the two-letter country code for this unit?
+    [Unknown]:  GR
+  Is <CN=localhost, OU=Engineering, O=Grinders Inc, L=Grindsville, ST=Grindshire, C=GR> correct?
+    [no]:  yes
+  
+  Enter key password for <mykey>
+          (RETURN if same as keystore password):  
+  PASTON:philipa%
+
+The "first and last name" ought to match the server which you run the
+proxy on, and you must specify "-keyalg rsa" to generate a certificate
+that works with common browsers. See the keytool notes in the JDK
+documentation for how to do more tricks.
 
 You may find NullPointerExceptions when using PKCS12 files generated
 by some tools, e.g. openssl. Use the Java keytool utility to maintain
