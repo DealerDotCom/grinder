@@ -80,6 +80,10 @@ public final class Agent {
    * interrupted whilst waiting.
    */
   public void run() throws GrinderException, InterruptedException {
+
+    final String version = GrinderBuild.getVersionString();
+    System.out.println("The Grinder version " + version);
+
     boolean ignoreInitialSignal = false;
 
     while (true) {
@@ -201,15 +205,11 @@ public final class Agent {
 
         for (int j = 0; j < commandArray.length; ++j) {
           buffer.append(" ");
-          buffer.append(commandArray[i]);
+          buffer.append(commandArray[j]);
         }
 
         System.out.println(buffer.toString());
       }
-
-      final String version = GrinderBuild.getVersionString();
-
-      System.out.println("The Grinder version " + version + " started");
 
       int combinedExitStatus = 0;
 
@@ -229,22 +229,18 @@ public final class Agent {
 
       messagePump.shutdown();
 
-      System.out.println("The Grinder version " + version + " finished");
-
       if (combinedExitStatus == GrinderProcess.EXIT_START_SIGNAL) {
-        System.out.println("Start signal received");
         ignoreInitialSignal = true;
       }
       else if (combinedExitStatus == GrinderProcess.EXIT_RESET_SIGNAL) {
-        System.out.println("Reset signal received");
         ignoreInitialSignal = false;
       }
       else {
         break;
       }
-
-      System.out.println();
     }
+
+    System.out.println("The Grinder version " + version + " finished");
   }
 
   private String getHostName() {
