@@ -26,7 +26,11 @@ Grinder 3.0-beta9
 
   Incorporate patch from Bill Schnellinger: Fix
   HTTPPluginTCPProxyFilter so that large data uploads (>1K) are stored
-  in separate data files rather than inlined in the script.
+  in separate data files rather than inlined in the script. This
+  should fix bug 702022.
+
+  Fulfil Feature Request 732676 raised by "bertrand (jwk330)" by
+  adding a "milliseconds since start" column to the data file.
 
 
 Grinder 3.0-beta8

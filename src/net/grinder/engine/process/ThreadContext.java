@@ -41,6 +41,7 @@ final class ThreadContext implements PluginThreadContext {
 
   private static final ThreadLocal s_threadInstance = new ThreadLocal();
 
+  private final ProcessContext m_processContext;
   private final ThreadLogger m_threadLogger;
   private final FilenameFactory m_filenameFactory;
   private final Sleeper m_sleeper;
@@ -53,6 +54,8 @@ final class ThreadContext implements PluginThreadContext {
 
   public ThreadContext(ProcessContext processContext, int threadID)
     throws EngineException {
+
+    m_processContext = processContext;
 
     final LoggerImplementation loggerImplementation =
       processContext.getLoggerImplementation();
@@ -145,7 +148,7 @@ final class ThreadContext implements PluginThreadContext {
       // Originally we threw a ReentrantInvocationException here.
       // However, this caused problems when wrapping Jython objects
       // that call themselves; in our scheme the wrapper shares a
-      // dictionary so self = self we recurse up our own.
+      // dictionary so self = self and we recurse up our own.
       return invokeable.call();
     }
 
@@ -180,7 +183,9 @@ final class ThreadContext implements PluginThreadContext {
       throw e;
     }
     finally {
-      m_scriptStatistics.endTest();
+      m_scriptStatistics.endTest(
+	m_startTime - m_processContext.getExecutionStartTime());
+
       m_threadLogger.setCurrentTestNumber(-1);
     }
   }

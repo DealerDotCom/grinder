@@ -224,8 +224,8 @@ public final class GrinderProcess implements Monitor {
     final JythonScript jythonScript =
       new JythonScript(m_context, m_scriptFile);
 
-    // Don't initialise the data writer until know as the script
-    // may declare new statistics.
+    // Don't initialise the data writer until now as the script may
+    // declare new statistics.
     m_context.initialiseDataWriter();
 
     final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
@@ -251,11 +251,12 @@ public final class GrinderProcess implements Monitor {
     if (!received(ConsoleListener.STOP | ConsoleListener.RESET)) {
 
       logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
-	    
+
+      m_context.setExecutionStartTime(System.currentTimeMillis());	    
+
       // Start the threads
       for (int i=0; i<m_numberOfThreads; i++) {
-	final Thread t = new Thread(runnable[i],
-				    "Grinder thread " + i);
+	final Thread t = new Thread(runnable[i], "Grinder thread " + i);
 	t.setDaemon(true);
 	t.start();
       }

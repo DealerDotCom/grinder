@@ -54,6 +54,7 @@ class ProcessContext {
   private final ScriptContext m_scriptContext;
 
   private boolean m_shouldWriteTitleToDataWriter;
+  private long m_executionStartTime;
 
   ProcessContext(String grinderID, GrinderProperties properties)
     throws GrinderException {
@@ -126,7 +127,7 @@ class ProcessContext {
       final PrintWriter dataWriter =
 	m_loggerImplementation.getDataWriter();
 
-      dataWriter.print("Thread, Run, Test");
+      dataWriter.print("Thread, Run, Test, Milliseconds since start");
 
       final ExpressionView[] detailExpressionViews =
 	CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
@@ -173,5 +174,27 @@ class ProcessContext {
 
   public final ScriptContext getScriptContext() {
     return m_scriptContext;
+  }
+
+  /**
+   * Unsynchronised for efficiency. {@link GrinderProcess} calls
+   * {@link #setExecutionStartTime} just before launching threads,
+   * after which it is never called again.
+   *
+   * @param startTime Start of execution, in milliseconds since Epoch.
+   */
+  public final void setExecutionStartTime(long startTime) {
+    m_executionStartTime = startTime;
+  }
+
+  /**
+   * Unsynchronised for efficiency. {@link GrinderProcess} calls
+   * {@link #setExecutionStartTime} just before launching threads,
+   * after which it is never called again.
+   *
+   * @return Start of execution, in milliseconds since Epoch.
+   */
+  public final long getExecutionStartTime() {
+    return m_executionStartTime;
   }
 }

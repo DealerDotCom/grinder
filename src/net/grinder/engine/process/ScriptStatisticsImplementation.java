@@ -83,6 +83,7 @@ final class ScriptStatisticsImplementation implements Statistics {
     TestStatisticsFactory.getInstance().create();
 
   private TestData m_currentTestData = null;
+  private long m_currentTestStartTime = -1;
   private boolean m_noTests = true;
   private boolean m_delayReports = false;
   private int m_lastRunNumber = -1;
@@ -243,7 +244,9 @@ final class ScriptStatisticsImplementation implements Statistics {
     m_noTests = false;
   }
 
-  final void endTest() {
+  final void endTest(long startTime) {
+    m_currentTestStartTime = startTime;
+
     if (!m_delayReports) {
       reportInternal();
     }
@@ -267,11 +270,14 @@ final class ScriptStatisticsImplementation implements Statistics {
 
 	  m_buffer.setLength(m_bufferAfterThreadIDIndex);
 	  m_buffer.append(runNumber);
-	  m_buffer.append(", " );
+	  m_buffer.append(", ");
 	  m_bufferAfterRunNumberIndex = m_buffer.length();
 	}
 
 	m_buffer.append(m_currentTestData.getTest().getNumber());
+
+	m_buffer.append(", ");
+	m_buffer.append(m_currentTestStartTime);
 
 	for (int i=0; i<m_detailExpressionViews.length; ++i) {
 	  m_buffer.append(", ");

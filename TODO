@@ -132,6 +132,82 @@ elsewhere.
 ^^ To do this, might have to behave differently with 1 thread vs many.
 
 
+** Other HTTP/HTML libraries
+
+DeSouza, Edwin writes:
+ > Instead of using:
+ > http://www.innovation.ch/java/HTTPClient/index.html
+ > <http://www.innovation.ch/java/HTTPClient/FAQ.html> 
+ >  
+ > How about using Jakarta Commons HttpClient (more popular and Apache
+ > License):
+ > http://jakarta.apache.org/commons/httpclient/index.html
+
+
+Justin Spears writes:
+ > I am new to grinder, however I found the built in HTTPClient a
+ > little lacking in functionality.  I might suggest using
+ > httpunit (http://httpunit.sourceforge.net) instead.  It
+ > works well with jython, and has extremely powerful methods
+ > for handling links, posts, gets, etc.  
+ > 
+ > It uses nekohtml to parse malformed HTML documents into
+ > valid XML then exposes a useful DOM based on these results.
+ > 
+ > It also handles HTTPS connections, forms, links and other
+ > useful things in an easy to use easy to understand
+ > manner, (no more NVPAIRS or regex's, or patching HTTPClient!).
+ > 
+ > ...
+
+OK, this amounts to a campaign against HTTPClient!
+
+
+Reasons for HTTPClient:
+
+	- Its solid, (and not 'alpha' which is the case for
+	  HttpClient).
+	- Its small and comprehensible.
+	- It is efficient.
+	- Its extremely well written.
+	- Its the incumbent.
+
+Reasons for Commons HttpClient:
+
+	- Its actively maintained.
+	- It is more modular.
+	- It is richer.
+
+Reasons for HttpUnit:
+	- nekohtml, parsing support
+
+I prefer HttpUnit, HTTPClient over HttpUnit for The Grinder as they
+are "closer to the wire".
+
+Specific responses to Justin:
+
+ >(no more NVPAIRS
+
+NameValuePair = NVPair # More readable alias
+
+ > or regex's,
+
+But they're lovely!
+
+ > or patching HTTPClient!
+
+In the next beta I'll supply HTTPClient pre-patched for JSSE.
+
+
+On balance, yes HttpClient looks good and we should use it if it
+proves to be efficient. I'll add it to the TODO, but its a significant
+change => low priority.
+
+We perhaps need to look more closely at parsing support for
+functional assertions, but I don't want to lose The Grinder's
+efficiency here. 
+
+
 * Build
 
 Incorporate checkstyle.
