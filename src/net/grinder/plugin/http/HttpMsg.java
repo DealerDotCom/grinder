@@ -158,10 +158,12 @@ class HttpMsg implements HTTPHandler
 	    // getResponseCode (with the original stack trace). - PAGA
 	    final int responseCode = connection.getResponseCode();
 
-	    m_pluginThreadContext.getCurrentTestStatistics().addValue(
-		m_timeToFirstByteIndex,
-		System.currentTimeMillis() -
-		m_pluginThreadContext.getStartTime());
+	    if (m_timeToFirstByteIndex != null) {
+		m_pluginThreadContext.getCurrentTestStatistics().addValue(
+		    m_timeToFirstByteIndex,
+		    System.currentTimeMillis() -
+		    m_pluginThreadContext.getStartTime());
+	    }
 
 	    if (m_useCookies) {
 		// set to 1 because we're skipping the HTTP status line

@@ -26,24 +26,52 @@ import net.grinder.statistics.StatisticsView;
 
 
 /**
- * This class is used to share data between the Grinder and the 
- * plug-in.
+ * This class is used to share data about the process context between
+ * the Grinder and the plugin.
  * 
  * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  */
 public interface PluginProcessContext extends Logger
-{    
+{
+    /**
+     * Returns the name of this Grinder Process.
+     *
+     * @return The name.
+     **/
     String getGrinderID();
 
+    /**
+     * Return a {@link FilenameFactory} that can be used to generate
+     * file names appropriate to the process context.
+     *
+     * @return The {@link FilenameFactory}.
+     **/
     FilenameFactory getFilenameFactory();
     
     /**
      * Returns the parameters specified with "grinder.plugin.parameter="
-     */
+     *
+     * @return The parameters.
+     **/
     GrinderProperties getPluginParameters();
 
-    void registerStatisticsView(StatisticsView view)
-	throws GrinderException;
+    /**
+     * Plugins can use this method to register a new statistics view
+     * with the Grinder and the Console.
+     *
+     * @param view The new view.
+     * @exception GrinderException If the view cannot be registered.
+     **/
+    void registerStatisticsView(StatisticsView view) throws GrinderException;
+
+    /**
+     * Check whether this process is reporting times to the console or
+     * not. Refer to the <code>grinder.recordTime</code> property for
+     * more information.
+     *
+     * @return <code>true => this process should report times.
+     **/
+    boolean getRecordTime();
 }

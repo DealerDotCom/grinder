@@ -93,7 +93,7 @@ public class HttpPlugin implements GrinderPlugin
 	    parameters.getBoolean("useCookiesVersionString", true);
 	m_useHTTPClient = parameters.getBoolean("useHTTPClient", true);
 
-	if (!m_useHTTPClient) {
+	if (!m_useHTTPClient && processContext.getRecordTime()) {
 	    try {
 		m_timeToFirstByteIndex =
 		    StatisticsIndexMap.getInstance().getIndexForLong(

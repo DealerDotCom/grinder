@@ -309,7 +309,7 @@ public class ProcessContext implements PluginProcessContext
 	return lineLength + s_lineSeparatorLength;
     }
 
-    protected final boolean getRecordTime()
+    public final boolean getRecordTime()
     {
 	return m_recordTime;
     }
