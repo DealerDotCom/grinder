@@ -257,41 +257,62 @@ class TestRunner:
         and to register additional views of standard and custom
         statistics.</p>
 
-        <p>Each statistic has a unique index object and a name. A
-        statistic's index is used when reporting values with the <a
-        href="script-javadoc/net/grinder/script/Statistics.html">Statistics</a>
-        interface. Statistics can either be <em>long</em> integer
-        values or <em>double</em> floating-point values.</p>
+	<p>Each statistic has a unique index object and a name. The
+	index objects are used with the <a
+	href="script-javadoc/net/grinder/script/Statistics.html">Statistics</a>
+	interface and the names can be used in expressions (see <a
+	href="script-javadoc/net/grinder/statistics/ExpressionView.html">ExpressionView</a>).
+	Statistics can either be <em>long</em> integer values or
+	<em>double</em> floating-point values.</p>
 
-        <p>The standard long statistics used by The Grinder are:</p>
-        <ul>
-          <li><code>errors</code></li>
-          <li><code>timedTests</code></li>
-          <li><code>untimedTests</code></li>
-          <li><code>timedTestTime</code></li>
-          <li><code>period</code></li>
-        </ul>
+	<p>The standard long statistics used by The Grinder are:</p>
+
+	<ul>
+	  <li><code>errors</code></li>
+	  <li><code>untimedTests</code></li>
+	  <li><code>period</code></li>
+	</ul>
 
         <p>Additionally, there are five long statistics that scripts
         and custom plug-ins can use for their own purposes,
-        <code>userLong0</code>, <code>userLong1</code>, ...
-        <code>userLong4</code>.</p>
+        <code>userLong0</code>,<code>userLong1</code>, ...
+        <code>userLong4</code>.
+	</p>
 
-        <p>The standard double statistics used by The Grinder are:</p>
-        <ul>
-          <li><code>peakTPS</code></li>
-        </ul>
+	<p>The standard double statistics used by The Grinder are:</p>
 
-        <p>Additionally, there are five double statistics for use by
-        scripts and custom plug-ins, <code>userDouble0</code>,
-        <code>userDouble1</code>, ... <code>userDouble4</code>.</p>
+	<ul>
+	    <li><code>peakTPS</code></li>
+	</ul>
 
-        <p>Views allow individual statistics to be combined in simple
+	<p>Additionally, there are five double statistics for use by
+	scripts and custom plugins,
+	<code>userDouble0</code>,<code>userDouble1</code>, ...
+	<code>userDouble4</code>.
+	</p>
+
+	<p>There is a special type of index object for <em>sample</em>
+	statistics. Sample statistics are the result of a series of
+	sample values. The values can be either <em>long</em> s or
+	<em>double</em>s. Sample statistics have three attribute
+	values that can be read: the <em>count</em> (number of
+	samples), <em>sum</em> (total of all sample values), and
+	sample <em>variance</em>. The only way for a script to query
+	these attributes is through an <a
+	href="script-javadoc/net/grinder/statistics/ExpressionView.html">ExpressionView</a>,
+	using the appropriate expression function (e.g.
+	<em>count()</em>).</p>
+
+        <p><a
+        href="script-javadoc/net/grinder/statistics/ExpressionView.html">ExpressionView</a>s
+        allow individual statistics to be combined in simple
         expressions. For example <code>(/ errors (+ timedTests
         untimedTests))</code> gives the ratio of errors to successful
         tests. New views can be registered using the
-        <code>grinder</code> object and automatically appear in the
-        console and the data file.</p>
+        <code>grinder</code> <a
+        href="script-javadoc/net/grinder/script/Grinder.ScriptContext.html">Grinder.ScriptContext</a>
+        object and automatically appear in the console and the data
+        file.</p>
       </dd>
     </dl>
   </section>

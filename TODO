@@ -261,6 +261,9 @@ Perhaps JasperReports?
 
 ** Code
 
+Change to use J2SE 1.4. Remove deprecated warnings. Replace Jakarta
+ORO. Use assrtions rather than throwing RuntimeExceptions.
+
 Review use of Kernel. Probably want to share them.
 
 Remove ThreadLocal from RegisteredPlugin.

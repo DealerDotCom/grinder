@@ -589,6 +589,7 @@ what you want. Currently the conditionally built modules are:
         <include name="net/grinder/script/*.java"/>
         <include name="net/grinder/statistics/ExpressionView.java"/>
         <include name="net/grinder/statistics/StatisticsIndexMap.java"/>
+        <include name="net/grinder/statistics/StatisticsException.java"/>
         <include name="net/grinder/statistics/StatisticsView.java"/>
         <include name="**/*.html"/>
       </fileset>
