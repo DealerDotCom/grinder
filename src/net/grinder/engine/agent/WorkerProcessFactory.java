@@ -52,6 +52,7 @@ final class WorkerProcessFactory implements ProcessFactory {
   private final FanOutStreamSender m_fanOutStreamSender;
   private final Message m_initialisationMessage;
   private final List m_command;
+  private final int m_commandGrinderIDIndex;
   private final String m_hostIDPrefix;
 
   public WorkerProcessFactory(GrinderProperties properties,
@@ -119,6 +120,7 @@ final class WorkerProcessFactory implements ProcessFactory {
 
     m_command.add(GrinderProcess.class.getName());
 
+    m_commandGrinderIDIndex = m_command.size();
     m_command.add("<grinderID>"); // Place holder for grinder ID.
 
     if (alternateFile != null) {
@@ -129,7 +131,7 @@ final class WorkerProcessFactory implements ProcessFactory {
   }
 
   private String[] getCommandArray(String grinderID) {
-    m_command.set(m_command.indexOf("<grinderID>"), grinderID);
+    m_command.set(m_commandGrinderIDIndex, grinderID);
     return (String[])m_command.toArray(new String[0]);
   }
 
