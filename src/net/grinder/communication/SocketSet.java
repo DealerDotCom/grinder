@@ -53,8 +53,6 @@ final class SocketSet
 	synchronized (m_mutex) {
 	    m_handles.add(handle);
 	    m_mutex.notifyAll();
-
-	    log("Added " + handle.m_socket);
 	}
     }
 
