@@ -1,6 +1,6 @@
 The Grinder
-Copyright (C) 2000 Paco Gomez
-Copyright (C) 2000 Philip Aston
+Copyright (C) 2001 Paco Gomez
+Copyright (C) 2001 Philip Aston
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,6 +26,10 @@ Páco Gomez and Peter Zadrozny.
 Test client code is written in the form Java "plug-ins". Sample
 plug-ins for testing HTTP services are provided. It is particularly
 suitable for testing BEA WebLogic Server based applications.
+
+A JUnit plugin is also supplied. This opens up interesting
+possibilities for bake testing Java code to discover race conditions
+and other bugs.
 
 
 Where do I get it?
@@ -88,10 +92,48 @@ and say
 	java net.grinder.console.Console
 
 
+The output
+**********
+
+The final statistics summary looks something like this:
+
+ Final statistics for this process:
+            Successful
+            Transactions  Errors     Abortions  Total (ms) Average (ms)  
+ Test 0     100           0          0          30         0.30
+ Test 1     100           0          0          20         0.20
+ Test 2     100           0          0          0          0.00
+ Test 3     100           0          0          10         0.10
+ Test 4     100           0          0          10         0.10
+ Test 5     100           0          0          10         0.10
+ Test 6     100           0          0          0          0.00
+ Test 7     100           0          0          0          0.00
+ Test 8     100           0          0          50         0.50
+ Test 9     100           0          0          30         0.30
+
+Each test has one of 3 possible outcomes:
+
+	1. Success. The number of Successful Transactions for that test is
+	   incremented The time taken to perform the test is added to
+	   the Total.
+
+	2. Error - "false" is returned from doTest(). The exact
+	   interpretation of this depends on the plugin. The number of
+	   Errors for the test is incremented.
+
+	3. Abortion. The plugin chooses to abort the cycle or thread.
+	   Again, when this might happens depends on the plugin. The
+	   number of Abortions for the test is incremented.
+
+The Total and Average figures are calculated based only on successful
+transactions.
+
+
 How do I fix it?
 ****************
 
-Please send bug fixes and enhancements you make to paston@bea.com.
+Please send bug fixes and enhancements you make to
+grinder-development@lists.sourceforge.net.
 
 BEA keeps me very busy so the timeliness and quality of any email
 support I provide will vary.
@@ -311,11 +353,18 @@ The output of the HttpPluginSnifferFilter looks like:
      Remote port:      7001
   Engine initialised, listening on port 8001
   Starting engine
-  grinder.plugin.parameter.url0=http://localhost:7001/
-  grinder.plugin.parameter.url1=http://localhost:7001/lah.html
-  grinder.plugin.parameter.url2=http://localhost:7001/test.gif
-  grinder.plugin.parameter.url3=http://localhost:7001/snoop
-  grinder.plugin.parameter.post3=http-plugin-sniffer-post-3
+  grinder.test0.sleepTime=11336
+  grinder.test0.parameter.url=http://localhost:7001/
+  grinder.test1.sleepTime=12168
+  grinder.test1.parameter.url=http://localhost:7001/lah.html
+  grinder.test2.sleepTime=411
+  grinder.test2.parameter.url=http://localhost:7001/test.gif
+  grinder.test3.sleepTime=4786
+  grinder.test3.parameter.url=http://localhost:7001/lah.html
+  grinder.test3.parameter.ifModifiedSince=Tue, 16 Jan 2001 16:26:42 GMT
+  grinder.test4.sleepTime=311
+  grinder.test4.parameter.url=http://localhost:7001/test.gif
+  grinder.test4.parameter.ifModifiedSince=Mon, 06 Nov 2000 08:35:58 GMT
 
 The script part of this is sent to the stdout stream, whereas the
 information messages are sent to stderr. You can redirect the script
@@ -324,11 +373,69 @@ part to a file if you wish:
   java net.grinder.TCPSniffer -httpPluginFilter > myscript
 
 The HttpPluginSnifferFilter does not produce a complete
-grinder.properties script.
+grinder.properties script. Additionaly, the parsing of HTTP messages
+probably contains bugs. Don't let this put you off, using the
+HttpPluginSnifferFilter is a very quick way of doing 95% of a tedious
+job.
 
-Additionaly, the parsing of HTTP messages probably contains bugs.
-Don't let this put you off, using the HttpPluginSnifferFilter is a
-very quick way of doing 95% of a tedious job.
+
+How should I use the JUnit Plugin?
+**********************************
+
+Set grinder.plugin to "net.grinder.plugin.junit.JUnitPlugin" and set
+the following plugin parameter property:
+
+    grinder.plugin.parameter.testSuite -
+				The fully qualified name of the JUnit
+				Test Suite class.
+
+The class can be anything you can normally pass to a JUnit TestRunner.
+A quick summary: it can either have a method, "public static
+junit.framework.Test suite()" which returns the TestSuite _or_ it can
+define a number of tests methods which will be discovered through
+introspection - the method names must begin with "test".
+
+(Confusingly, it matters not whether the class directly implements
+junit.framework.TestSuite; this is a JUnit thing, so take any
+complaints there).
+
+Why would you want to do this? Three possible reasons spring to mind:
+
+ - To write a simple test case around arbitrary Java code, rather than
+   defining a new Grinder plugin. This is the recommended way to
+   replace the functionallity of the old "TraderEJBPlugin". (As an
+   added bonus you end up with some JUnit test cases which you can use
+   to impresses your boss _and_ to bug people with tales of what an
+   extreeeeme ...err.. doood you are).
+
+ - To thrash the heck out of your code in an attempt to discover race
+   conditions (bugs).
+
+ - To investigate the statistical effects of subatomic particles
+   passing through your hardware.
+
+Looking for race conditions requires that each instance of the JUnit
+tests should run against a common fixture - how to achieve in general
+this is left as an exercise. Please send any useful patterns to
+grinder-use@lists.sourceforge.net. Additionally, because The Grinder
+currently runs each test cycle in the same order, most race conditions
+will be hidden. The fix for this is to implement a test scheduler
+abstraction, see TODO. Patches welcome.
+
+
+The tests to run are automatically sucked out of the test suite class
+- you shouldn't specify them individually in grinder.properties.
+However, you can tweak with individual tests' sleep time as normal.
+For example, if you want to wait a second before the 6th test in the
+test suite, you should say
+
+   grinder.test5.sleepTime=1000
+
+JUnit has the concept of "Failures" (which occur due to assertions
+failing) and "Errors" (which occur when tests throw exceptions). If a
+test causes _either_ a Failure or an Error, the Grinder "Errors" count
+for that test is incremented by one. Currently running tests should
+not cause Grinder "Abortions".
 
 
 Development goals

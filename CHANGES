@@ -1,9 +1,14 @@
 Grinder 2.2
 -----------
 
+  I've introduced the concept of a TestSetPlugin that defines the set
+  of tests to perform. This is primarily to support the JUnit plugin.
+
   Bug fix to SSLSnifferEngine from Paddy Spencer. (You're first name
   doesn't _have_ to begin with 'P' to get into AUTHORS, but it helps
   :-)).
+
+  More tweaks to the logging and terminal output.
 
 Grinder 2.1
 -----------

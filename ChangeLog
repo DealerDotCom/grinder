@@ -1,3 +1,77 @@
+2001-01-28  Philip Aston  <paston@beasys.com>
+
+	* CHANGES:
+	* README: 
+	* TODO:  
+		Latest musings.
+
+	* examples/junit/grinder.properties: 
+	* src/net/grinder/plugin/junit/JUnitPlugin.java:
+		Shiny new JUnit plugin.
+
+	* src/net/grinder/engine/process/GrinderThread.java): 
+	* src/net/grinder/engine/process/TestStatistics.java: 
+	* src/net/grinder/engine/process/TestStatisticsTable.java:
+		Track and display abortions.
+
+	* src/net/grinder/engine/process/GrinderThread.java): 
+	* src/net/grinder/engine/process/TestData.java: 
+	* src/net/grinder/engine/process/ThreadContextImplementation.java: 
+		TestData no longer implements Test.
+
+	* tests-src/net/grinder/engine/process/AllTests.java: 
+	* tests-src/net/grinder/engine/process/TestTestData.java: 
+	* tests-src/net/grinder/engine/process/TestTestStatistics.java: 
+		More tests.
+
+2001-01-27  Philip Aston  <paston@beasys.com>
+
+	* src/net/grinder/console/Console.java: 
+	* src/net/grinder/engine/process/GrinderProcess.java: 
+	* src/net/grinder/engine/process/GrinderThread.java: 
+	* src/net/grinder/engine/process/TestData.java: 
+	* src/net/grinder/engine/process/TestStatisticsTable.java:
+	* src/net/grinder/engine/process/ThreadContextImplementation.java: 
+	* src/net/grinder/plugininterface/GrinderPlugin.java: 
+	* src/net/grinder/plugininterface/PluginThreadContext.java: 
+	* src/net/grinder/plugininterface/Test.java: 
+	* src/net/grinder/plugininterface/ThreadCallbacks.java
+	* src/net/grinder/util/ProcessContextImplementation.java: 
+	* src/net/grinder/util/PropertiesHelper.java: 
+	* tests-src/net/grinder/engine/process/AllTests.java: 
+	* tests-src/net/grinder/engine/process/TestTestData.java: 
+	* tests-src/net/grinder/util/AllTests.java: 
+	* tests-src/net/grinder/util/NullPlugin.java: 
+	* tests-src/net/grinder/util/TestPropertiesHelper.java: 	
+		Alter plugin interface to allow the test set to be
+		defined.
+
+	* src/net/grinder/plugin/http/BookHttpPlugin.java 
+	* src/net/grinder/plugin/http/HttpPlugin.java
+	* src/net/grinder/plugin/http/HttpsPlugin.java
+		Updates for new plugin interface.
+
+	* src/net/grinder/engine/process/PluginContextImplementation.java: 
+	* src/net/grinder/engine/process/Test.java: 
+	* src/net/grinder/plugininterface/PluginContext.java: 
+	* src/net/grinder/plugininterface/TestDefinition.java: 
+	* tests-src/net/grinder/engine/process/TestTest.java):	
+		Dead. [Renamed "TestDefinition" to "Test". Renamed
+		"PluginContext" to "PluginThreadContext. Renamed
+		"PluginContextImplementation" to
+		"ThreadContextImplementation".]
+
+	* src/net/grinder/plugin/http/HttpPlugin.java: 
+	* src/net/grinder/plugin/http/BookHttpPlugin.java: 
+		URL test property is mandatory.
+
+	* src/net/grinder/util/GrinderProperties.java: 
+		Get rid of the "default" properties.
+
+	* src/net/grinder/Grinder.java: 
+	* src/net/grinder/engine/LauncherThread.java: 
+		Print message when The Grinder completes.
+
 2001-01-25  Philip Aston  <paston@beasys.com>
 
 	* AUTHORS: 
