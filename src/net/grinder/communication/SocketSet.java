@@ -30,6 +30,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 
 /**
@@ -48,7 +49,8 @@ import java.util.List;
 final class SocketSet {
   private static final int PURGE_FREQUENCY = 1000;
 
-  private final Object m_mutex = new Object();
+  private final Object m_handleListMutex = new Object();
+  private final Object m_reservedHandleMutex = new Object();
   private List m_handles = new ArrayList();
   private int m_lastHandle = 0;
   private int m_nextPurge = 0;
@@ -68,14 +70,24 @@ final class SocketSet {
   public void add(Socket socket) {
     final Handle handle = new HandleImplementation(socket);
 
-    synchronized (m_mutex) {
+    synchronized (m_handleListMutex) {
       m_handles.add(handle);
-      m_mutex.notifyAll();
+      m_handleListMutex.notifyAll();
     }
   }
 
+  /**
+   * Returns a Handle. Blocks until a Handle is available. The Handles
+   * are handed out to callers in order. A SentinelHandle is returned
+   * to one of the threads once every cycle.
+   *
+   * @returns The Handle. It is up to the caller to free the Handle.
+   * @throws InterruptedException If the caller's thread is
+   * interrupted. This can occur if thread belongs to the Acceptor
+   * thread group and the Acceptor is shut down.
+   */
   public Handle reserveNextHandle() throws InterruptedException {
-    synchronized (m_mutex) {
+    synchronized (m_handleListMutex) {
       purgeZombieHandles();
 
       int checked = 0;
@@ -88,7 +100,7 @@ final class SocketSet {
         if (checked++ >= m_handles.size()) {
           // All current Handles are busy => too many threads. Put
           // this one to sleep until we have more work.
-          m_mutex.wait();
+          m_handleListMutex.wait();
 
           checked = 0;
         }
@@ -103,8 +115,60 @@ final class SocketSet {
     }
   }
 
+  /**
+   * Returns a list of all the current Handles. Blocks until Handles
+   * can be reserved. The SentinelHandle is not included.
+   *
+   * @returns The Handles. It is up to the caller to free each Handle.
+   * @throws InterruptedException If the caller's thread is
+   * interrupted. This can occur if thread belongs to the Acceptor
+   * thread group and the Acceptor is shut down.
+   */
+  public List reserveAllHandles() throws InterruptedException {
+
+    final List result;
+    final List reserveList;
+
+    synchronized (m_handleListMutex) {
+      purgeZombieHandles();
+
+      result = new ArrayList(m_handles.size());
+      reserveList = new ArrayList(m_handles);
+    }
+
+    while (reserveList.size() > 0) {
+      // Iterate backwards so remove is cheap.
+      final ListIterator iterator =
+        reserveList.listIterator(reserveList.size());
+
+      while (iterator.hasPrevious()) {
+        final Handle handle = (Handle)iterator.previous();
+
+        if (handle.isSentinel()) {
+          iterator.remove();
+        }
+        else if (handle.reserve()) {
+          result.add(handle);
+          iterator.remove();
+        }
+        else if (handle.isClosed()) {
+          iterator.remove();
+        }
+      }
+
+      if (reserveList.size() > 0) {
+        // Block until more handles are freed.
+        synchronized (m_reservedHandleMutex) {
+          m_reservedHandleMutex.wait();
+        }
+      }
+    }
+
+    return result;
+  }
+
   public void close() {
-    synchronized (m_mutex) {
+    synchronized (m_handleListMutex) {
       final Iterator iterator = m_handles.iterator();
 
       while (iterator.hasNext()) {
@@ -115,7 +179,7 @@ final class SocketSet {
   }
 
   private void purgeZombieHandles() {
-    synchronized (m_mutex) {
+    synchronized (m_handleListMutex) {
       if (++m_nextPurge > PURGE_FREQUENCY) {
         m_nextPurge = 0;
 
@@ -195,7 +259,7 @@ final class SocketSet {
     }
   }
 
-  private static final class HandleImplementation implements Handle {
+  private final class HandleImplementation implements Handle {
     private final Socket m_socket;
     private final InputStream m_inputStream;
     private final OutputStream m_outputStream;
@@ -257,19 +321,45 @@ final class SocketSet {
       return true;
     }
 
-    public synchronized void free() {
-      m_busy = false;
+    public void free() {
+
+      final boolean stateChanged;
+
+      synchronized (this) {
+        stateChanged = m_busy;
+        m_busy = false;
+      }
+
+      if (stateChanged) {
+        synchronized (m_reservedHandleMutex) {
+          m_reservedHandleMutex.notifyAll();
+        }
+      }
     }
 
-    public synchronized void close() {
-      if (!m_closed) {
-        m_closed = true;
+    public void close() {
 
-        try {
-          m_socket.close();
+      final boolean stateChanged;
+
+      synchronized (this) {
+        stateChanged = !m_closed;
+
+        if (stateChanged) {
+          m_busy = false;
+          m_closed = true;
+
+          try {
+            m_socket.close();
+          }
+          catch (IOException e) {
+            // Ignore.
+          }
         }
-        catch (IOException e) {
-          // Ignore.
+      }
+
+      if (stateChanged) {
+        synchronized (m_reservedHandleMutex) {
+          m_reservedHandleMutex.notifyAll();
         }
       }
     }
