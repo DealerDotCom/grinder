@@ -152,8 +152,7 @@ class HTTPClientHandler implements HTTPHandler
 
 	    m_threadContext.startTimer();
 
-	    final HTTPConnection httpConnection =
-		getConnection(uri);
+	    final HTTPConnection httpConnection = getConnection(uri);
 
 	    final AuthorizationData authorizationData =
 		requestData.getAuthorizationData();
@@ -195,7 +194,7 @@ class HTTPClientHandler implements HTTPHandler
 		}
 	    }
 
-	    final String queryString =  uri.getQueryString();
+	    final String queryString = uri.getQueryString();
 	    final String pathString;
 
 	    if ((queryString != null) && (queryString.length() > 0)) {  
@@ -261,7 +260,9 @@ class HTTPClientHandler implements HTTPHandler
 	    return data != null? new String(data) : null;
 	}
 	catch (Exception e) {
-	    throw new HTTPHandlerException(e.getMessage(), e);
+	    throw new HTTPHandlerException(
+		"Failed whilst making HTTP request to " +
+		requestData.getURLString(), e);
 	}
 	finally {
 	    // Back stop.
