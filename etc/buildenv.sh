@@ -1,5 +1,5 @@
 export ANT_HOME=/opt/ant/jakarta-ant-1.5.1
-export JAVA_HOME=/opt/j2sdk1.4.1
+export JAVA_HOME=/system/bea-8.1b/jdk141_02
 export PATH=${ANT_HOME}/bin:${JAVA_HOME}/bin:$PATH
 
 CHECKSTYLE=/opt/checkstyle/checkstyle-2.1/checkstyle-all-2.1.jar
