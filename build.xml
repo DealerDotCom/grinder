@@ -56,6 +56,7 @@ classpath if this doesn't do what you want. Currently the conditionally built mo
    TCPSniffer SSL engine (Needs the JSSE 1.0.2)
    TCPSniffer HTTP plugin filter (Needs Apache Jakarta Regexp 1.2)
    WebLogic Server Trader EJB plugin (needs WLS 5.1 Trader EJB)
+   JUnit test cases (needs JUnit 3.4)
 
 Ant hint for cygwin users: Copy "ant" from the Ant bin directory into
 a directory earilier in your path and run it through sed -e 's#:#;#g'
@@ -84,6 +85,9 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
 
     <available classname="org.apache.regexp.RE"
 	       property="have.jakarta.regexp" />
+
+    <available classname="junit.framework.TestCase"
+	       property="have.junit" />
 
     <!-- javac switches -->
     <property name="debug" value="on"/>
@@ -124,7 +128,7 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     <!-- No idea why, but ant doesn't expand ${src.dir} in the following. -->
   <fileset id="base.src"
 	   dir="src"
-	   excludes="net/grinder/plugin/http/HttpsPlugin.java,net/grinder/tools/tcpsniffer/SSLSnifferEngineImpl.java,net/grinder/plugin/weblogic/,net/grinder/plugin/http/HttpsPluginSnifferFilter.java"/>
+	   excludes="net/grinder/plugin/http/HttpsPlugin.java,net/grinder/tools/tcpsniffer/SSLSnifferEngineImpl.java,net/grinder/plugin/weblogic/,net/grinder/plugin/http/HttpsPluginSnifferFilter.java,**/JUnit*.java"/>
 
   <fileset id="jsse.dependent.src"
 	   dir="src"
@@ -137,6 +141,10 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   <fileset id="jakarta.regexp.dependent.src"
 	   dir="src"
 	   includes="net/grinder/plugin/http/HttpsPluginSnifferFilter.java"/>
+
+  <fileset id="junit.dependent.src"
+	   dir="src"
+	   includes="**/JUnit*.java"/>
 
   <target name="prepare-jsse-src" if="have.jsse" depends="init">
     <copy todir="${build.src}" filtering="on">
@@ -158,8 +166,14 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
     </copy>
   </target>
 
+  <target name="prepare-junit-src" if="have.junit" depends="init">
+    <copy todir="${build.src}" filtering="on">
+      <fileset refid="junit.dependent.src"/>
+    </copy>
+  </target>
+
   <target name="prepare-src"
-	  depends="init,prepare-jsse-src,prepare-weblogic-traderEJB-src,prepare-jakarta-regexp-src">
+	  depends="init,prepare-jsse-src,prepare-weblogic-traderEJB-src,prepare-jakarta-regexp-src,prepare-junit-src">
     <copy todir="${build.src}" filtering="on">
       <fileset refid="base.src"/>
     </copy>
