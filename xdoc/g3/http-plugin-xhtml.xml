@@ -25,8 +25,9 @@ control.setProxyServer("localhost", 8001)
 
 <blockquote>
 <pre>
-connection = HTTPPluginControl.getThreadConnection("http://localhost:8001")
-connection.addBasicAuthorization("proxyrealm", "phil", "password")
+AuthorizationInfo.addBasicAuthorization("localhost",
+    8001, "proxyrealm", "proxyusername", "proxypassword",
+    HTTPPluginControl.getHTTPClientContext())
 </pre>
 </blockquote>
 
