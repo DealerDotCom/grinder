@@ -22,8 +22,6 @@
 
 package net.grinder.plugininterface;
 
-import net.grinder.common.Test;
-
 
 /**
  * This interface defines the callbacks that an individual Grinder
@@ -32,18 +30,22 @@ import net.grinder.common.Test;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface PluginThreadListener
-{
-    /**
-     * This method is executed at the beginning of every run. Scripts
-     * might create their first tests in the middle of a run and
-     * indirectly cause the plugin to be registered at that point, so
-     * don't rely on this being called before the first test.
-     **/
-    public void beginRun() throws PluginException;
+public interface PluginThreadListener {
 
-    /**
-     * This method is executed at the end of every run.
-     **/  
-    public void endRun() throws PluginException;
+  /**
+   * This method is executed at the beginning of every run. Scripts
+   * might create their first tests in the middle of a run and
+   * indirectly cause the plugin to be registered at that point, so
+   * don't rely on this being called before the first test.
+   *
+   * @exception PluginException If an error occurs.
+   */
+  void beginRun() throws PluginException;
+
+  /**
+   * This method is executed at the end of every run.
+   *
+   * @exception PluginException If an error occurs.
+   */
+  void endRun() throws PluginException;
 }

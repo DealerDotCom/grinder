@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,8 +25,6 @@ package net.grinder.console;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
@@ -38,7 +36,6 @@ import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.model.ProcessStatusSet;
 import net.grinder.console.swingui.ConsoleUI;
-import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsView;
 
 
@@ -49,110 +46,111 @@ import net.grinder.statistics.StatisticsView;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class Console
-{
-    private final ConsoleCommunication m_communication;
-    private final Model m_model;
-    private final ConsoleUI m_userInterface;
+public class Console {
 
-    public Console()
-	throws GrinderException
-    {
-	String homeDirectory = System.getProperty("user.home");
+  private final ConsoleCommunication m_communication;
+  private final Model m_model;
+  private final ConsoleUI m_userInterface;
 
-	if (homeDirectory == null) {
-	    // Some platforms do not have user home directories.
-	    homeDirectory = System.getProperty("java.home");
+  /**
+   * Constructor.
+   *
+   * @exception GrinderException If an error occurs.
+   */
+  public Console() throws GrinderException {
+
+    String homeDirectory = System.getProperty("user.home");
+
+    if (homeDirectory == null) {
+      // Some platforms do not have user home directories.
+      homeDirectory = System.getProperty("java.home");
+    }
+
+    final ConsoleProperties properties =
+      new ConsoleProperties(new File(homeDirectory, ".grinder_console"));
+
+    m_model = new Model(properties);
+    final ProcessStatusSet processStatusSet = m_model.getProcessStatusSet();
+
+    final ActionListener startHandler =
+      new ActionListener() {
+	public void actionPerformed(ActionEvent event) {
+	  try {
+	    processStatusSet.processEvent();
+	    m_communication.sendStartMessage();
+	  }
+	  catch (GrinderException e) {
+	    System.err.println("Could not send start message: " + e);
+	    e.printStackTrace();
+	  }
 	}
+      };
 
-	final ConsoleProperties properties =
-	    new ConsoleProperties(new File(homeDirectory,
-					   ".grinder_console"));
+    final ActionListener resetHandler =
+      new ActionListener() {
+	public void actionPerformed(ActionEvent event) {
+	  try {
+	    processStatusSet.processEvent();
+	    m_communication.sendResetMessage();
+	  }
+	  catch (GrinderException e) {
+	    System.err.println("Could not send reset message: " + e);
+	    e.printStackTrace();
+	  }
+	}
+      };
 
-	m_model = new Model(properties);
-	final ProcessStatusSet processStatusSet = 
-	    m_model.getProcessStatusSet();
+    final ActionListener stopHandler =
+      new ActionListener() {
+	public void actionPerformed(ActionEvent event) {
+	  try {
+	    processStatusSet.processEvent();
+	    m_communication.sendStopMessage();
+	  }
+	  catch (GrinderException e) {
+	    System.err.println("Could not send stop message: " + e);
+	    e.printStackTrace();
+	  }
+	}
+      };
 
-	final ActionListener startHandler =
-	    new ActionListener() {
-		    public void actionPerformed(ActionEvent event) {
-			try {
-			    processStatusSet.processEvent();
-			    m_communication.sendStartMessage();
-			}
-			catch (GrinderException e) {
-			    System.err.println(
-				"Could not send start message: " + e);
-			    e.printStackTrace();
-			}
-		    }
-		};
+    m_userInterface =
+      new ConsoleUI(m_model, startHandler, resetHandler, stopHandler);
 
-	final ActionListener resetHandler =
-	    new ActionListener() {
-		    public void actionPerformed(ActionEvent event) {
-			try {
-			    processStatusSet.processEvent();
-			    m_communication.sendResetMessage();
-			}
-			catch (GrinderException e) {
-			    System.err.println(
-				"Could not send start message: " + e);
-			    e.printStackTrace();
-			}
-		    }
-		};
-
-	final ActionListener stopHandler =
-	    new ActionListener() {
-		    public void actionPerformed(ActionEvent event) {
-			try {
-			    processStatusSet.processEvent();
-			    m_communication.sendStopMessage();
-			}
-			catch (GrinderException e) {
-			    System.err.println(
-				"Could not send stop message: " + e);
-			    e.printStackTrace();
-			}
-		    }
-		};
-
-	m_userInterface = new ConsoleUI(m_model, startHandler, resetHandler,
-					stopHandler);
-
-	m_communication = new ConsoleCommunication(properties,
-						   m_userInterface);
-    }
+    m_communication = new ConsoleCommunication(properties, m_userInterface);
+  }
     
-    public void run() throws GrinderException
-    {
-        while (true) {
-	    final Message message = m_communication.waitForMessage();
+  /**
+   * Console message event loop. Dispatches communication messages
+   * appropriately to the console model.
+   *
+   * @exception GrinderException If an error occurs.
+   */
+  public void run() throws GrinderException {
 
-	    if (message instanceof RegisterTestsMessage) {
-		m_model.registerTests(
-		    ((RegisterTestsMessage)message).getTests());
-	    }
+    while (true) {
+      final Message message = m_communication.waitForMessage();
+
+      if (message instanceof RegisterTestsMessage) {
+	m_model.registerTests(((RegisterTestsMessage)message).getTests());
+      }
 	    
-	    if (message instanceof ReportStatisticsMessage) {
-		m_model.addTestReport(
-		    ((ReportStatisticsMessage)message).getStatisticsDelta());
-	    }
+      if (message instanceof ReportStatisticsMessage) {
+	m_model.addTestReport(
+	  ((ReportStatisticsMessage)message).getStatisticsDelta());
+      }
 	    
-	    if (message instanceof RegisterStatisticsViewMessage) {
-		final StatisticsView statisticsView =
-		    ((RegisterStatisticsViewMessage)message)
-		    .getStatisticsView();
+      if (message instanceof RegisterStatisticsViewMessage) {
+	final StatisticsView statisticsView =
+	  ((RegisterStatisticsViewMessage)message).getStatisticsView();
 
-		m_model.registerStatisticsViews(statisticsView,
-						statisticsView);
-	    }
+	m_model.registerStatisticsViews(statisticsView, statisticsView);
+      }
 
-            if (message instanceof ReportStatusMessage) {
-		m_model.getProcessStatusSet().addStatusReport(
-		    message.getSenderUniqueID(), (ReportStatusMessage)message);
-            }
-        } 
-    }
+      if (message instanceof ReportStatusMessage) {
+	m_model.getProcessStatusSet().addStatusReport(
+	  message.getSenderUniqueID(), (ReportStatusMessage)message);
+      }
+    } 
+  }
 }

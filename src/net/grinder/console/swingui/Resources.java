@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,130 +41,142 @@ import net.grinder.console.common.DisplayMessageConsoleException;
  * @author Philip Aston
  * @version $Revision$
  */
-public class Resources implements net.grinder.console.common.Resources
-{
-    private static ResourceBundle s_resources = null;
+public class Resources implements net.grinder.console.common.Resources {
 
-    public Resources()
-	throws ConsoleException
-    {
-	synchronized (Resources.class) {
-	    if (s_resources == null) {
-		try { 
-		    s_resources = ResourceBundle.getBundle(
-			"net.grinder.console.swingui.resources.Console");
-		}
-		catch (MissingResourceException e) {
-		    throw new ConsoleException("Resource bundle not found");
-		}
-	    }
+  private static ResourceBundle s_resources = null;
 
-	    DisplayMessageConsoleException.setResources(this);
-	}
-    }
+  /**
+   * Constructor.
+   *
+   * @exception ConsoleException If an error occurs.
+   */
+  public Resources() throws ConsoleException {
 
-    /**
-     * Overloaded version of {@link #getString(String, boolean)} which writes out a
-     * waning if the resource is missing.
-     * @param key The resource key.
-     * @return The string.
-     **/
-    public String getString(String key)
-    {
-	return getString(key, true);
-    }
-
-    /**
-     * Use key to look up resource which names image URL. Return the image.
-     * @param key The resource key.
-     * @param warnIfMissing true => write out an error message if the resource is missing.
-     * @return The string.
-     **/
-    public String getString(String key, boolean warnIfMissing)
-    {
-	try {
-	    return s_resources.getString(key);
+    synchronized (Resources.class) {
+      if (s_resources == null) {
+	try { 
+	  s_resources = ResourceBundle.getBundle(
+	    "net.grinder.console.swingui.resources.Console");
 	}
 	catch (MissingResourceException e) {
-	    if (warnIfMissing) {
-		System.err.println(
-		    "Warning - resource " + key + " not specified");
-		return "";
-	    }
-
-	    return null;
+	  throw new ConsoleException("Resource bundle not found");
 	}
+      }
+
+      DisplayMessageConsoleException.setResources(this);
     }
+  }
 
-    /**
-     * Overloaded version of {@link #getImageIcon(String, boolean)} which doesn't write out a
-     * waning if the resource is missing.
-     * @param key The resource key.
-     * @return The image.
-     **/
-    public ImageIcon getImageIcon(String key)
-    {
-	return getImageIcon(key, false);
+  /**
+   * Overloaded version of {@link #getString(String, boolean)} which
+   * writes out a waning if the resource is missing.
+   * @param key The resource key.
+   * @return The string.
+   **/
+  public String getString(String key) {
+    return getString(key, true);
+  }
+
+  /**
+   * Use key to look up resource which names image URL. Return the image.
+   * @param key The resource key.
+   * @param warnIfMissing true => write out an error message if the
+   * resource is missing.
+   * @return The string.
+   **/
+  public String getString(String key, boolean warnIfMissing) {
+
+    try {
+      return s_resources.getString(key);
     }
+    catch (MissingResourceException e) {
+      if (warnIfMissing) {
+	System.err.println(
+	  "Warning - resource " + key + " not specified");
+	return "";
+      }
 
-    /**
-     * Use key to look up resource which names image URL. Return the image.
-     * @param key The resource key.
-     * @param warnIfMissing true => write out an error message if the resource is missing.
-     * @return The image
-     **/
-    public ImageIcon getImageIcon(String key, boolean warnIfMissing)
-    {
-	final URL resource = get(key, warnIfMissing);
-
-	return resource != null ? new ImageIcon(resource) : null;
+      return null;
     }
+  }
 
-    public String getStringFromFile(String key, boolean warnIfMissing)
-    {
-	final URL resource = get(key, warnIfMissing);
+  /**
+   * Overloaded version of {@link #getImageIcon(String, boolean)}
+   * which doesn't write out a waning if the resource is missing.
+   *
+   * @param key The resource key.
+   * @return The image.
+   **/
+  public ImageIcon getImageIcon(String key) {
+    return getImageIcon(key, false);
+  }
 
-	if (resource != null) {
-	    try {
-		final Reader in =
-		    new BufferedReader(
-			new InputStreamReader(resource.openStream()));
+  /**
+   * Use key to look up resource which names image URL. Return the image.
+   *
+   * @param key The resource key.
+   * @param warnIfMissing true => write out an error message if the
+   * resource is missing.
+   * @return The image
+   **/
+  public ImageIcon getImageIcon(String key, boolean warnIfMissing) {
+    final URL resource = get(key, warnIfMissing);
 
-		final StringWriter out = new StringWriter();
+    return resource != null ? new ImageIcon(resource) : null;
+  }
 
-		int c;
+  /**
+   * Use <code>key</code> to identify a file by URL. Return contents
+   * of file as a String.
+   *
+   * @param key Resource key used to look up URL of file.
+   * @param warnIfMissing true => write out an error message if the
+   * resource is missing.
+   * @return Contents of file.
+   */
+  public String getStringFromFile(String key, boolean warnIfMissing) {
 
-		while ((c = in.read()) > 0) {
-		    out.write(c);
-		}
+    final URL resource = get(key, warnIfMissing);
 
-		in.close();
-		out.close();
+    if (resource != null) {
+      try {
+	final Reader in =
+	  new BufferedReader(new InputStreamReader(resource.openStream()));
 
-		return out.toString();
-	    }
-	    catch (IOException e) {
-		System.err.println("Warning - could not read " + resource);
-	    }
+	final StringWriter out = new StringWriter();
+
+	int c;
+
+	while ((c = in.read()) > 0) {
+	  out.write(c);
 	}
 
-	return null;
+	in.close();
+	out.close();
+
+	return out.toString();
+      }
+      catch (IOException e) {
+	System.err.println("Warning - could not read " + resource);
+      }
     }
 
-    private URL get(String key, boolean warnIfMissing)
-    {
-	final String name = getString(key, warnIfMissing);
+    return null;
+  }
 
-	if (name == null || name.length() == 0) {
-	    return null;
-	}
+  private URL get(String key, boolean warnIfMissing) {
+    final String name = getString(key, warnIfMissing);
+
+    if (name == null || name.length() == 0) {
+      return null;
+    }
 	
-	final URL url = this.getClass().getResource("resources/" + name);
+    final URL url = this.getClass().getResource("resources/" + name);
 
-	if (url == null) {
-	    System.err.println("Warning - could not load resource " + name);
-	}
-
-	return url;
+    if (url == null) {
+      System.err.println("Warning - could not load resource " + name);
     }
+
+    return url;
+  }
 }

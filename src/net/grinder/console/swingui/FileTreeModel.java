@@ -105,14 +105,14 @@ final class FileTreeModel implements TreeModel {
     // Do nothing.
   }
 
-  private final static FilenameFilter s_directoryFilter =
+  private static final FilenameFilter s_directoryFilter =
     new FilenameFilter() {
       public final boolean accept(File dir, String name) {
 	return new File(dir, name).isDirectory();
       }
     };
     
-  private final static FilenameFilter s_fileFilter =
+  private static final FilenameFilter s_fileFilter =
     new FilenameFilter() {
       public final boolean accept(File dir, String name) {
 	return new File(dir, name).isFile();

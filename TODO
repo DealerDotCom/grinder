@@ -198,16 +198,9 @@ Also http://www.nogoop.com/product_16.html#compare
 * Build
 
 Incorporate checkstyle.
- Compliant packages:
-	net.grinder
-	net.grinder.common
-	net.grinder.communication
-	net.grinder.console.model
-	net.grinder.engine
-	net.grinder.engine.agent
-	net.grinder.engine.process
-	net.grinder.script
-	net.grinder.statistics
+ Non-compliant packages:
+	net.grinder.plugin.http
+	net.grinder.plugin.tools
 
 Convert all sources back to unix file encoding so that diff etc. are
 happier?

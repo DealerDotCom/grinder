@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,8 +23,6 @@ package net.grinder.console.common;
 
 import javax.swing.ImageIcon;
 
-import net.grinder.console.common.ConsoleException;
-
 
 /**
  * Type safe interface to resource bundle.
@@ -33,37 +30,45 @@ import net.grinder.console.common.ConsoleException;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface Resources
-{
-    /**
-     * Overloaded version of {@link #getString(String, boolean)} which writes out a
-     * waning if the resource is missing.
-     * @param key The resource key.
-     * @return The string.
-     **/
-    String getString(String key);
+public interface Resources {
 
-    /**
-     * Use key to look up resource which names image URL. Return the image.
-     * @param key The resource key.
-     * @param warnIfMissing true => write out an error message if the resource is missing.
-     * @return The string.
-     **/
-    String getString(String key, boolean warnIfMissing);
+  /**
+   * Overloaded version of {@link #getString(String, boolean)} which
+   * writes out a waning if the resource is missing.
+   *
+   * @param key The resource key.
+   * @return The string.
+   **/
+  String getString(String key);
 
-    /**
-     * Overloaded version of {@link #getImageIcon(String, boolean)} which doesn't write out a
-     * waning if the resource is missing.
-     * @param key The resource key.
-     * @return The image.
-     **/
-    ImageIcon getImageIcon(String key);
+  /**
+   * Use key to look up resource which names image URL. Return the
+   * image.
+   *
+   * @param key The resource key.
+   * @param warnIfMissing true => write out an error message if the
+   * resource is missing.
+   * @return The string.
+   **/
+  String getString(String key, boolean warnIfMissing);
 
-    /**
-     * Use key to look up resource which names image URL. Return the image.
-     * @param key The resource key.
-     * @param warnIfMissing true => write out an error message if the resource is missing.
-     * @return The image
-     **/
-    ImageIcon getImageIcon(String key, boolean warnIfMissing);
+  /**
+   * Overloaded version of {@link #getImageIcon(String, boolean)}
+   * which doesn't write out a waning if the resource is missing.
+   *
+   * @param key The resource key.
+   * @return The image.
+   **/
+  ImageIcon getImageIcon(String key);
+
+  /**
+   * Use key to look up resource which names image URL. Return the
+   * image.
+   *
+   * @param key The resource key.
+   * @param warnIfMissing true => write out an error message if the
+   * resource is missing.
+   * @return The image
+   **/
+  ImageIcon getImageIcon(String key, boolean warnIfMissing);
 }

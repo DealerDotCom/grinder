@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,7 +21,6 @@
 
 package net.grinder.console.swingui;
 
-import java.util.Set;
 import javax.swing.SwingUtilities;
 
 import net.grinder.console.model.SampleListener;
@@ -36,25 +34,24 @@ import net.grinder.statistics.TestStatistics;
  * @author Philip Aston
  * @version $Revision$
  */
-class SwingDispatchedSampleListener implements SampleListener
-{
-    private final SampleListener m_delegate;
+class SwingDispatchedSampleListener implements SampleListener {
 
-    public SwingDispatchedSampleListener(SampleListener delegate)
-    {
-	m_delegate = delegate;
-    }
+  private final SampleListener m_delegate;
 
-    public void update(final TestStatistics intervalStatistics,
-		       final TestStatistics cumulativeStatistics)
-    {
-	SwingUtilities.invokeLater(
-	    new Runnable() {
-		public void run() {
-		    m_delegate.update(intervalStatistics,
-				      cumulativeStatistics);
-		}
-	    }
-	    );
-    }
+  public SwingDispatchedSampleListener(SampleListener delegate) {
+    m_delegate = delegate;
+  }
+
+  public void update(final TestStatistics intervalStatistics,
+		     final TestStatistics cumulativeStatistics) {
+
+    SwingUtilities.invokeLater(
+      new Runnable() {
+	public void run() {
+	  m_delegate.update(intervalStatistics,
+			    cumulativeStatistics);
+	}
+      }
+      );
+  }
 }

@@ -42,6 +42,8 @@ import net.grinder.console.model.ConsoleProperties;
 
 
 /**
+ * Handles communication for the console.
+ *
  * @author Philip Aston
  * @version $Revision$
  */

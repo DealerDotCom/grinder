@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,23 +35,22 @@ import net.grinder.console.model.ProcessStatusSetListener;
  * @version $Revision$
  **/
 class SwingDispatchedProcessStatusSetListener
-    implements ProcessStatusSetListener
-{
-    private final ProcessStatusSetListener m_delegate;
+  implements ProcessStatusSetListener {
 
-    public SwingDispatchedProcessStatusSetListener(
-	ProcessStatusSetListener delegate)
-    {
-	m_delegate = delegate;
-    }
+  private final ProcessStatusSetListener m_delegate;
 
-    public void update(final ProcessStatus[] data, final int running,
-		       final int total)
-    {
-	SwingUtilities.invokeLater(
-	    new Runnable() {
-		public void run() { m_delegate.update(data, running, total); }
-	    }
-	    );
-    }
+  public SwingDispatchedProcessStatusSetListener(
+    ProcessStatusSetListener delegate) {
+    m_delegate = delegate;
+  }
+
+  public void update(final ProcessStatus[] data, final int running,
+		     final int total) {
+
+    SwingUtilities.invokeLater(
+      new Runnable() {
+	public void run() { m_delegate.update(data, running, total); }
+      }
+      );
+  }
 }

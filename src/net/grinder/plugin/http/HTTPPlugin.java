@@ -35,7 +35,6 @@ import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsIndexMap;
-import net.grinder.statistics.StatisticsView;
 
 
 /**

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,101 +35,98 @@ import javax.swing.JComponent;
  * @author Philip Aston
  * @version $Revision$
  */
-class Graph extends JComponent
-{
-    private final int m_numberOfValues;
+class Graph extends JComponent {
 
-    private final double[] m_values;
-    private double m_maximum = 0d;
-    private int m_cursor = 0;
-    private Color m_color;
+  private final int m_numberOfValues;
 
-    private final int[] m_polygonX;
-    private final int[] m_polygonY;
-    private boolean m_recalculate = true;
+  private final double[] m_values;
+  private double m_maximum = 0d;
+  private int m_cursor = 0;
+  private Color m_color;
 
-    Graph(int numberOfValues)
-    {
-	if (numberOfValues <= 0) {
-	    throw new IllegalArgumentException(
-		"Invalid number of values (" + numberOfValues + ")");
+  private final int[] m_polygonX;
+  private final int[] m_polygonY;
+  private boolean m_recalculate = true;
+
+  Graph(int numberOfValues) {
+
+    if (numberOfValues <= 0) {
+      throw new IllegalArgumentException(
+	"Invalid number of values (" + numberOfValues + ")");
+    }
+
+    m_numberOfValues = numberOfValues;
+
+    m_values = new double[numberOfValues];
+
+    // Add 2 for the end points of the polygon.
+    m_polygonX = new int[2*m_numberOfValues + 2];
+    m_polygonY = new int[2*m_numberOfValues + 2];
+
+    // Set default so we're visable.
+    setPreferredSize(new Dimension(200, 100));
+  }
+
+  public void add(double newValue) {
+
+    m_values[m_cursor] = newValue;
+
+    if (++m_cursor >= m_numberOfValues) {
+      m_cursor = 0;
+    }
+
+    m_recalculate = true;
+    repaint();
+  }
+
+  public void setColor(Color color) {
+    m_color = color;
+  }
+
+  public void setMaximum(double maximum) {
+    m_maximum = maximum;
+  }
+
+  public void paintComponent(Graphics graphics) {
+    super.paintComponent(graphics);
+
+    graphics.setColor(m_color);
+
+    if (m_recalculate) {
+      final double xScale = (getWidth()/(double)m_numberOfValues);
+
+      for (int i=0; i<=m_numberOfValues; i++) {
+	final int x = (int)(i * xScale);
+	m_polygonX[2*i] = x;
+	m_polygonX[2*i+1] = x;
+      }
+
+      final double yScale =
+	m_maximum > 0 ? getHeight()/m_maximum : 0d;
+
+      int cursor = m_cursor;
+
+      for (int i=0; i<m_numberOfValues; i++) {
+	int y = (int)((m_maximum - m_values[cursor]) * yScale);
+
+	if (y == 0 && m_maximum > m_values[cursor]) {
+	  y = 1;
 	}
 
-	m_numberOfValues = numberOfValues;
+	m_polygonY[2*i+1] = y;
+	m_polygonY[2*i+2] = y;
 
-        m_values = new double[numberOfValues];
-
-	// Add 2 for the end points of the polygon.
-	m_polygonX = new int[2*m_numberOfValues + 2];
-	m_polygonY = new int[2*m_numberOfValues + 2];
-
-	// Set default so we're visable.
-	setPreferredSize(new Dimension(200, 100));
-    }
-
-    public void add(double newValue)
-    {
-	m_values[m_cursor] = newValue;
-
-	if (++m_cursor >= m_numberOfValues) {
-	    m_cursor = 0;
+	if (++cursor >= m_numberOfValues) {
+	  cursor = 0;
 	}
+      }
 
-	m_recalculate = true;
-        repaint();
+      m_polygonY[0] = (int)(m_maximum * yScale);
+      m_polygonY[2*m_numberOfValues + 1] = m_polygonY[0];
+
+      m_recalculate = false;
     }
 
-    public void setColor(Color color) 
-    {
-	m_color = color;
-    }
-
-    public void setMaximum(double maximum)
-    {
-	m_maximum = maximum;
-    }
-
-    public void paintComponent(Graphics graphics)
-    {    
-        super.paintComponent(graphics);
-
-        graphics.setColor(m_color);
-
-	if (m_recalculate) {
-	    final double xScale = (getWidth()/(double)m_numberOfValues);
-
-	    for (int i=0; i<=m_numberOfValues; i++) {
-		final int x = (int)(i * xScale);
-		m_polygonX[2*i] = x;
-		m_polygonX[2*i+1] = x;
-	    }
-
-	    final double yScale =
-		m_maximum > 0 ? getHeight()/m_maximum : 0d;
-
-	    int cursor = m_cursor;
-
-	    for (int i=0; i<m_numberOfValues; i++) {
-		int y = (int)((m_maximum - m_values[cursor]) * yScale);
-
-		if (y == 0 && m_maximum > m_values[cursor]) {
-		    y = 1;
-		}
-
-		m_polygonY[2*i+1] = y;
-		m_polygonY[2*i+2] = y;
-
-		if (++cursor >= m_numberOfValues) {
-		    cursor = 0;
-		}
-	    }
-
-	    m_polygonY[0] = (int)(m_maximum * yScale);
-	    m_polygonY[2*m_numberOfValues + 1] = m_polygonY[0];
-
-	    m_recalculate = false;
-	}
-
-	graphics.fillPolygon(m_polygonX, m_polygonY, 2*m_numberOfValues + 2);
-    }
+    graphics.fillPolygon(m_polygonX, m_polygonY, 2*m_numberOfValues + 2);
+  }
 }

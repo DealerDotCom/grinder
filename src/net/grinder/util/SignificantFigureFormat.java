@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,81 +33,96 @@ import java.text.FieldPosition;
  * @author Philip Aston
  * @version $Revision$
  */
-public class SignificantFigureFormat extends DecimalFormat
-{
-    private final static int s_decimalPlaces = 40;
+public class SignificantFigureFormat extends DecimalFormat {
 
-    private final int m_significantFigures;
+  private static final int s_decimalPlaces = 40;
 
-    public SignificantFigureFormat(int significantFigures)
-    {
-	// 40 DP, should match value of s_decimalPlaces.
-	super("0.0000000000000000000000000000000000000000");
+  private final int m_significantFigures;
+
+  /**
+   * Constructor.
+   *
+   * @param significantFigures Number of significant figures.
+   */
+  public SignificantFigureFormat(int significantFigures) {
+
+    // 40 DP, should match value of s_decimalPlaces.
+    super("0.0000000000000000000000000000000000000000");
 	
-	m_significantFigures = significantFigures;
+    m_significantFigures = significantFigures;
+  }
+
+  private static int boundingPowerOfTen(double number) {
+
+    if (number == 0d ||
+	Double.isInfinite(number) ||
+	Double.isNaN(number)) {
+      return 1;
     }
 
-    private static int boundingPowerOfTen(double number)
-    {
-	if (number == 0d ||
-	    Double.isInfinite(number) ||
-	    Double.isNaN(number)) {
-	    return 1;
-	}
+    final double abs = Math.abs(number);
 
-	final double abs = Math.abs(number);
+    int i = 0;
+    double x = 1;
 
-	int i = 0;
-	double x = 1;
+    if (abs < 1) {
+      while (x > abs) {
+	x /= 10;
+	--i;
+      }
 
-	if (abs < 1) {
-	    while (x > abs) {
-		x /= 10;
-		--i;
-	    }
-
-	    return i + 1;
-	}
-	else {
-	    while (!(x > abs)) {
-		x *= 10;
-		++i;
-	    }
-
-	    return i;
-	}
+      return i + 1;
     }
+    else {
+      while (!(x > abs)) {
+	x *= 10;
+	++i;
+      }
+
+      return i;
+    }
+  }
     
-    /**
-     * Almost certainly doesn't set position correctly
-     **/
-    public StringBuffer format(double number, StringBuffer buffer,
-			FieldPosition position) 
-    {
-	if (Double.isInfinite(number) ||
-	    Double.isNaN(number)) {
-	    return super.format(number, buffer, position);
-	}
+  /**
+   * Almost certainly doesn't set position correctly
+   *
+   * @param number Number to format.
+   * @param buffer Buffer to append result to.
+   * @param position Field position.
+   * @return a <code>StringBuffer</code> value
+   */
+  public StringBuffer format(double number, StringBuffer buffer,
+			     FieldPosition position) {
 
-	final int shift = boundingPowerOfTen(number) - m_significantFigures;
-	final double factor = Math.pow(10, shift);
+    if (Double.isInfinite(number) ||
+	Double.isNaN(number)) {
+      return super.format(number, buffer, position);
+    }
+
+    final int shift = boundingPowerOfTen(number) - m_significantFigures;
+    final double factor = Math.pow(10, shift);
 	
-	super.format(factor * Math.round(number/factor), buffer, position);
+    super.format(factor * Math.round(number/factor), buffer, position);
 
-	final int truncate =
-	    shift < 0 ? s_decimalPlaces + shift : s_decimalPlaces + 1;
+    final int truncate =
+      shift < 0 ? s_decimalPlaces + shift : s_decimalPlaces + 1;
 
-	buffer.setLength(buffer.length() - truncate);
+    buffer.setLength(buffer.length() - truncate);
 
-	return buffer;
-    }
+    return buffer;
+  }
 
-    /**
-     * Almost certainly doesn't set position correctly
-     **/
-    public StringBuffer format(long number, StringBuffer buffer,
-			       FieldPosition position) 
-    {
-	return format((double)number, buffer, position);
-    }
+  /**
+   * Almost certainly doesn't set position correctly
+   *
+   * @param number Number to format.
+   * @param buffer Buffer to append result to.
+   * @param position Field position.
+   * @return a <code>StringBuffer</code> value
+   */
+  public StringBuffer format(long number, StringBuffer buffer,
+			     FieldPosition position){
+
+    return format((double)number, buffer, position);
+  }
 }

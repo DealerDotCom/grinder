@@ -69,6 +69,8 @@ public class FixedWidthFormatter {
   private final int m_width;
 
   /**
+   * Constructor.
+   *
    * @param alignment Alignment policy. One of {
    * <code>ALIGN_LEFT</code>, <code>ALIGN_CENTRE</code>,
    * <code>ALIGN_RIGHT</code> }
@@ -147,8 +149,18 @@ public class FixedWidthFormatter {
     }
   }
 
+  /**
+   * Alter buffer to contain a single line according to the policy of
+   * this <code>FixedWidthFormatter</code>. Insert remaining text at
+   * the start of <code>remainder</code>.
+   *
+   * @param buffer Buffer to transform to a single line.
+   * @param remainder Left overs.
+   * @exception GrinderException If an error occurs.
+   */
   public final void transform(StringBuffer buffer, StringBuffer remainder)
     throws GrinderException {
+
     int length = buffer.length();
 
     switch (m_flow) {
@@ -230,7 +242,6 @@ public class FixedWidthFormatter {
       break;
 
     default:
-      // assert.
       throw new GrinderException("Assertion failed: invalid flow");
     }
 
@@ -263,9 +274,7 @@ public class FixedWidthFormatter {
 	break;
 
       default:
-	// assert.
-	throw new GrinderException(
-	  "Assertion failed: invalid alignment");
+	throw new GrinderException("Assertion failed: invalid alignment");
       }
     }
   }

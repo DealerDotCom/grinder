@@ -28,6 +28,8 @@ import net.grinder.statistics.TestStatistics;
 
 
 /**
+ * <code>TableModel</code> for the sample statistics table.
+ *
  * @author Philip Aston
  * @version $Revision$
  */

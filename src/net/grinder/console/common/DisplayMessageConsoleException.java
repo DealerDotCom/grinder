@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,22 +23,36 @@ package net.grinder.console.common;
 
 
 /**
+ * Exception that can be displayed through the user interface.
+ * Supports internationalised text through {@link Resources}.
+ *
  * @author Philip Aston
  * @version $Revision$
  */ 
-public class DisplayMessageConsoleException extends ConsoleException
-{
-    private static Resources s_resources;
+public class DisplayMessageConsoleException extends ConsoleException {
 
-    public final static void setResources(Resources resources)
-    {
-	s_resources = resources;
-    }
+  private static Resources s_resources;
 
-    public DisplayMessageConsoleException(String resourceKey,
-					  String defaultMessage)
-    {
-	super(s_resources != null ?
-	      s_resources.getString(resourceKey) : defaultMessage);
-    }
+  /**
+   * Set a global {@link Resources} object that instances should use
+   * to look up messages.
+   *
+   * @param resources Used to look up messages.
+   */
+  public static final void setResources(Resources resources) {
+    s_resources = resources;
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param resourceKey Resource key that specifies message.
+   * @param defaultMessage Default message to use if
+   * <code>resourceKey</code> not found.
+   */
+  public DisplayMessageConsoleException(String resourceKey,
+					String defaultMessage) {
+    super(s_resources != null ?
+	  s_resources.getString(resourceKey) : defaultMessage);
+  }
 }

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,10 +22,6 @@
 
 package net.grinder.plugininterface;
 
-import java.util.Set;
-
-import net.grinder.common.GrinderProperties;
-
 
 /**
  * This interface defines the callbacks that an individual Grinder
@@ -34,31 +30,32 @@ import net.grinder.common.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface GrinderPlugin
-{
-    /**
-     * This method is executed when the process starts. It is only
-     * executed once.
-     * @param processContext Process information. {@link
-     * PluginProcessContext} implements {@link
-     * net.grinder.common.Logger} but for efficiency the
-     * implementation isn't synchronised.
-     */
-    public void initialize(PluginProcessContext processContext)
-	throws PluginException;
+public interface GrinderPlugin {
 
-    /**
-     * This method is called to create a handler for each thread.
-     *
-     * @param pluginThreadContext Thread context information. {@link
-     * PluginThreadContext} implements {@link
-     * net.grinder.common.Logger} but for efficiency the
-     * implementation isn't synchronised. Consequently you should only
-     * call this object using the thread that which the engine uses to
-     * invoke the {@link PluginThreadListener}.
-     * @return a <code>PluginThreadListener</code> implementation.
-     */
-    public PluginThreadListener createThreadListener(
-	PluginThreadContext pluginThreadContext)
-	throws PluginException;
+  /**
+   * This method is executed when the process starts. It is only
+   * executed once.
+   * @param processContext Process information. {@link
+   * PluginProcessContext} implements {@link
+   * net.grinder.common.Logger} but for efficiency the
+   * implementation isn't synchronised.
+   * @exception PluginException If an error occurs.
+   */
+  void initialize(PluginProcessContext processContext) throws PluginException;
+
+  /**
+   * This method is called to create a handler for each thread.
+   *
+   * @param pluginThreadContext Thread context information. {@link
+   * PluginThreadContext} implements {@link
+   * net.grinder.common.Logger} but for efficiency the
+   * implementation isn't synchronised. Consequently you should only
+   * call this object using the thread that which the engine uses to
+   * invoke the {@link PluginThreadListener}.
+   * @return a <code>PluginThreadListener</code> implementation.
+   * @exception PluginException If an error occurs.
+   */
+  PluginThreadListener createThreadListener(
+    PluginThreadContext pluginThreadContext)
+    throws PluginException;
 }

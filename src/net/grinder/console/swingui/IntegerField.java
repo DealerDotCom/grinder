@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,116 +36,113 @@ import javax.swing.text.PlainDocument;
  * @author Philip Aston
  * @version $Revision$
  */
-class IntegerField extends JTextField
-{
-    private static final Toolkit s_toolkit = Toolkit.getDefaultToolkit();
-    private final static double s_log10 = Math.log(10);
-    private final int m_minimumValue;
-    private final int m_maximumValue;
+class IntegerField extends JTextField {
 
-    private static int log10(long x)
-    {
-	final double d = Math.floor(Math.log(x)/s_log10);
-	return new Double(d).intValue();
-    }
+  private static final Toolkit s_toolkit = Toolkit.getDefaultToolkit();
+  private static final double s_log10 = Math.log(10);
+  private final int m_minimumValue;
+  private final int m_maximumValue;
 
-    private static int maxFieldWidth(int minimumValue, int maximumValue)
-    {
-	final long min = minimumValue < 0 ? 10 * -minimumValue : minimumValue;
-	final long max = maximumValue < 0 ? 10 * -maximumValue : maximumValue;
+  private static int log10(long x) {
+
+    final double d = Math.floor(Math.log(x)/s_log10);
+    return new Double(d).intValue();
+  }
+
+  private static int maxFieldWidth(int minimumValue, int maximumValue) {
+
+    final long min = minimumValue < 0 ? 10 * -minimumValue : minimumValue;
+    final long max = maximumValue < 0 ? 10 * -maximumValue : maximumValue;
 	
-	return log10(Math.max(min, max));
+    return log10(Math.max(min, max));
+  }
+
+  public IntegerField(int minimumValue, int maximumValue) {
+
+    super(maxFieldWidth(minimumValue, maximumValue));
+
+    if (minimumValue > maximumValue) {
+      throw new IllegalArgumentException(
+	"Minimum value exceeds maximum value");
     }
 
-    public IntegerField(int minimumValue, int maximumValue)
-    {
-	super(maxFieldWidth(minimumValue, maximumValue));
+    m_minimumValue = minimumValue;
+    m_maximumValue = maximumValue;
 
-	if (minimumValue > maximumValue) {
-	    throw new IllegalArgumentException(
-		"Minimum value exceeds maximum value");
-	}
+    setValue(m_minimumValue);
+    setDocument(new FormattedDocument());
+  }
 
-	m_minimumValue = minimumValue;
-	m_maximumValue = maximumValue;
+  public int getValue() {
 
-	setValue(m_minimumValue);
-	setDocument(new FormattedDocument());
+    try {
+      return Integer.parseInt(getText());
     }
+    catch (NumberFormatException e) {
+      // Occurs if field is blank or "-".
+      return m_minimumValue;
+    }
+  }
 
-    public int getValue()
-    {
+  public void setValue(int value) {
+
+    if (value < m_minimumValue || value > m_maximumValue) {
+      throw new IllegalArgumentException("Value out of bounds");
+    }
+	
+    setText(Integer.toString(value));
+  }
+
+  public class FormattedDocument extends PlainDocument {
+
+    public void insertString(int offset, String string,
+			     AttributeSet attributeSet)
+      throws BadLocationException {
+
+      final String currentText = super.getText(0, getLength());
+
+      final String result =
+	currentText.substring(0, offset) + string +
+	currentText.substring(offset);
+
+      if (m_minimumValue >= 0 || !result.equals("-")) {
 	try {
-	    return Integer.parseInt(getText());
+	  final int x = Integer.parseInt(result);
+
+	  if (x < m_minimumValue || x > m_maximumValue) {
+	    s_toolkit.beep();
+	    return;
+	  }
 	}
 	catch (NumberFormatException e) {
-	    // Occurs if field is blank or "-".
-	    return m_minimumValue;
+	  s_toolkit.beep();
+	  return;
 	}
-    }
+      }
 
-    public void setValue(int value)
-    {
-	if (value < m_minimumValue || value > m_maximumValue) {
-	    throw new IllegalArgumentException("Value out of bounds");
+      super.insertString(offset, string, attributeSet);
+    }
+  }
+
+  public void addChangeListener(final ChangeListener listener) {
+
+    getDocument().addDocumentListener(new DocumentListener() {
+
+	private void notifyChangeListener() {
+	  listener.stateChanged(new ChangeEvent(this));
 	}
-	
-	setText(Integer.toString(value));
-    }
-
-    public class FormattedDocument extends PlainDocument
-    {
-	public void insertString(int offset, String string,
-				 AttributeSet attributeSet)
-	    throws BadLocationException
-	{
-	    final String currentText = super.getText(0, getLength());
-	    final String result =
-		currentText.substring(0, offset) + string +
-		currentText.substring(offset);
-
-	    if (m_minimumValue >= 0 || !result.equals("-")) {
-		try {
-		    final int x = Integer.parseInt(result);
-
-		    if (x < m_minimumValue || x > m_maximumValue) {
-			s_toolkit.beep();
-			return;
-		    }
-		}
-		catch (NumberFormatException e) {
-		    s_toolkit.beep();
-		    return;
-		}
-	    }
-
-	    super.insertString(offset, string, attributeSet);
-	}
-    }
-
-    public void addChangeListener(final ChangeListener listener)
-    {
-	getDocument().addDocumentListener(new DocumentListener() {
-
-		private void notifyChangeListener() 
-		{
-		    listener.stateChanged(new ChangeEvent(this));
-		}
 		    
-		public void changedUpdate(DocumentEvent e) 
-		{
-		    notifyChangeListener();
-		}
+	public void changedUpdate(DocumentEvent e) {
+	  notifyChangeListener();
+	}
 
-		public void insertUpdate(DocumentEvent e) 
-		{
-		    notifyChangeListener();
-		}
+	public void insertUpdate(DocumentEvent e) {
+	  notifyChangeListener();
+	}
 
-		public void removeUpdate(DocumentEvent e) 
-		{
-		    notifyChangeListener();
-		}
-	    });
-    }
+	public void removeUpdate(DocumentEvent e) {
+	  notifyChangeListener();
+	}
+      });
+  }
 }

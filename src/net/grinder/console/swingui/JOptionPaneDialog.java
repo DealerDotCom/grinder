@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -41,79 +40,89 @@ import javax.swing.JOptionPane;
  * @author Philip Aston
  * @version $Revision$
  */
-public class JOptionPaneDialog extends JDialog
-{
-    public JOptionPaneDialog(JFrame frame, final JOptionPane optionPane,
-			     String title, boolean modal) 
-    {
-	super(frame, title, modal);
+public class JOptionPaneDialog extends JDialog {
 
-	setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+  /**
+   * Constructor.
+   *
+   * @param frame Parent frame.
+   * @param optionPane JOptionPane to wrap.
+   * @param title The title.
+   * @param modal <code>true</code> => dialog should be modal.
+   */
+  public JOptionPaneDialog(JFrame frame, final JOptionPane optionPane,
+			   String title, boolean modal) {
 
-	final Container contentPane = getContentPane();
-	contentPane.setLayout(new BorderLayout());
-	contentPane.add(optionPane, BorderLayout.CENTER);
-	pack();
-	setLocationRelativeTo(frame);
+    super(frame, title, modal);
 
-	addWindowListener(
-	    new WindowAdapter() {
-		private boolean m_gotFocus = false;
+    setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 
-		public void windowClosing(WindowEvent e)
-		{
-		    optionPane.setValue(null);
-		}
+    final Container contentPane = getContentPane();
+    contentPane.setLayout(new BorderLayout());
+    contentPane.add(optionPane, BorderLayout.CENTER);
+    pack();
+    setLocationRelativeTo(frame);
 
-		public void windowActivated(WindowEvent e)
-		{
-		    // Once window gets focus, set initial focus
-		    if (!m_gotFocus) {
-			optionPane.selectInitialValue();
-			m_gotFocus = true;
-		    }
-		}
-	    });
+    addWindowListener(
+      new WindowAdapter() {
+	private boolean m_gotFocus = false;
 
-	optionPane.addPropertyChangeListener(
-	    new PropertyChangeListener()
-	    {
-		private boolean m_disable = false;
+	public void windowClosing(WindowEvent e) {
+	  optionPane.setValue(null);
+	}
 
-		public void propertyChange(PropertyChangeEvent e) {
-		    if(isVisible() && 
-		       e.getSource() == optionPane &&
-		       !m_disable &&
-		       (e.getPropertyName().equals(JOptionPane.VALUE_PROPERTY)
-			||
-			e.getPropertyName().equals(
-			    JOptionPane.INPUT_VALUE_PROPERTY))) {
+	public void windowActivated(WindowEvent e) {
+	  // Once window gets focus, set initial focus
+	  if (!m_gotFocus) {
+	    optionPane.selectInitialValue();
+	    m_gotFocus = true;
+	  }
+	}
+      });
 
-			final Cursor oldCursor = getCursor();
-			setCursor(
-			    Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+    optionPane.addPropertyChangeListener(
+      new PropertyChangeListener() {
 
-			try {
-			    if (shouldClose()) {
-				setVisible(false);
-				dispose();
-			    }
-			}
-			finally {
-			    m_disable = true;
-			    optionPane.setValue(null);
-			    m_disable = false;
-			    setCursor(oldCursor);
-			}
-		    }
-		}
-	    });
+	private boolean m_disable = false;
 
-	optionPane.setValue(null);
-    }
+	public void propertyChange(PropertyChangeEvent e) {
+	  if(isVisible() && 
+	     e.getSource() == optionPane &&
+	     !m_disable &&
+	     (e.getPropertyName().equals(JOptionPane.VALUE_PROPERTY)
+	      ||
+	      e.getPropertyName().equals(
+		JOptionPane.INPUT_VALUE_PROPERTY))) {
 
-    protected boolean shouldClose()
-    {
-	return true;
-    }
+	    final Cursor oldCursor = getCursor();
+	    setCursor(
+	      Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+	    try {
+	      if (shouldClose()) {
+		setVisible(false);
+		dispose();
+	      }
+	    }
+	    finally {
+	      m_disable = true;
+	      optionPane.setValue(null);
+	      m_disable = false;
+	      setCursor(oldCursor);
+	    }
+	  }
+	}
+      });
+
+    optionPane.setValue(null);
+  }
+
+  /**
+   * Whether dialog should be closed on a property change.
+   *
+   * @return <code>true</code> => it should.
+   */
+  protected boolean shouldClose() {
+    return true;
+  }
 }

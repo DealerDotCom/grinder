@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,18 +26,29 @@ import net.grinder.common.GrinderException;
 
 
 /**
+ * Exception that can be thrown by plugins.
+ *
  * @author Philip Aston
  * @version $Revision$
  */ 
-public class PluginException extends GrinderException
-{
-    public PluginException(String s)
-    {
-	super(s);
-    }
+public class PluginException extends GrinderException {
 
-    public PluginException(String s, Throwable t)
-    {
-	super(s, t);
-    }
+  /**
+   * Creates a new <code>PluginException</code>.
+   *
+   * @param s Message.
+   */
+  public PluginException(String s) {
+    super(s);
+  }
+
+  /**
+   * Creates a new <code>PluginException</code>.
+   *
+   * @param s Message.
+   * @param t Chained exception.
+   */
+  public PluginException(String s, Throwable t) {
+    super(s, t);
+  }
 }
