@@ -1,4 +1,26 @@
+2003-11-29  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta14 is released.
+	
+	* src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugin/http/HTTPRequest.java:
+	Checkstyle.
+
+	* src/net/grinder/tools/tcpproxy/TCPProxySSLSocketFactoryImplementation.java:
+	Correct comment.
+
+	* build.xml, contrib/httpplugin/WebUtils.py, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java, CHANGES:
+	Bertrand's new HTTPPluginTCPProxyFilter.
+
+	* src/net/grinder/plugin/http/HTTPRequest.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java:
+	Changes to support Bertrands new HTTPPluginTCPProxyFilter: addHeader,
+	deleteHeader.
+
+	* src/net/grinder/plugin/http/HTTPPlugin.java:
+	Crippled set-up for unit tests.
+
 2003-11-26  Philip Aston  <philipa@mail.com>
+
+	* TODO: Yet more.
 
 	* TODO: More work.
 
@@ -416,7 +438,7 @@
 	German console translation from Albas Huibert.
 
 	* src/net/grinder/console/swingui/resources/Console_fr.properties:
-	Updates from Betrand.
+	Updates from Bertrand.
 	Rely on default image specification.
 
 2003-07-06  Philip Aston  <paston@bea.com>
