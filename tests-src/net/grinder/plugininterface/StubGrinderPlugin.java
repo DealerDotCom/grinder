@@ -22,8 +22,6 @@
 
 package net.grinder.plugininterface;
 
-import net.grinder.script.ScriptPluginContext;
-
 
 /**
  * <code>GrinderPlugin</code> stub.
@@ -33,28 +31,15 @@ import net.grinder.script.ScriptPluginContext;
  **/
 public class StubGrinderPlugin implements GrinderPlugin
 {
-    private ScriptPluginContext m_scriptPluginContext;
-
     public void initialize(PluginProcessContext processContext)
 	throws PluginException 
     {
     }
 
-    public PluginThreadCallbacks createThreadCallbackHandler(
+    public PluginThreadListener createThreadListener(
 	PluginThreadContext threadContext)
 	throws PluginException
     {
 	return null;
-    }
-
-    public void setScriptPluginContext(ScriptPluginContext context) 
-    {
-	m_scriptPluginContext = context;
-    }
-
-
-    public ScriptPluginContext getScriptPluginContext() 
-    {
-	return m_scriptPluginContext;
     }
 }

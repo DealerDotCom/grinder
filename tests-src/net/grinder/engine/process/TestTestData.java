@@ -1,4 +1,3 @@
-// Copyright (C) 2000 Paco Gomez
 // Copyright (C) 2000, 2001, 2002 Philip Aston
 // All rights reserved.
 //
@@ -57,22 +56,15 @@ public class TestTestData extends TestCase
     {
 	final GrinderPlugin plugin = new StubGrinderPlugin();
 
-	final PluginRegistry.RegisteredPlugin registeredPlugin =
-	    new PluginRegistry.RegisteredPlugin(plugin);
-	
 	final Test test1 = new StubTest(99, "Some stuff");
 	
-	final TestData testData1 =
-	    new TestData(registeredPlugin, test1);
-	assertEquals(registeredPlugin, testData1.getRegisteredPlugin());
+	final TestData testData1 = new TestData(test1);
 	assertEquals(test1, testData1.getTest());
 	assertNotNull(testData1.getStatistics());
 
 	final Test test2 = new StubTest(-33, "");
 
-	final TestData testData2 =
-	    new TestData(registeredPlugin, test2);
-	assertEquals(registeredPlugin, testData2.getRegisteredPlugin());
+	final TestData testData2 = new TestData(test2);
 	assertEquals(test2, testData2.getTest());
 	assertNotNull(testData2.getStatistics());
     }

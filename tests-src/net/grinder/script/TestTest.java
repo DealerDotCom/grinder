@@ -19,7 +19,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.plugin.http;
+package net.grinder.script;
 
 import junit.framework.TestCase;
 import junit.swingui.TestRunner;
@@ -27,26 +27,31 @@ import junit.swingui.TestRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-import HTTPClient.NVPair;
-
+import net.grinder.common.GrinderProperties;
 import net.grinder.engine.process.StubProcessContext;
 
 
 /**
- * Unit test case for <code>HTTPTest</code>.
+ * Unit test case for <code>Test</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  **/
-public class TestHTTPTest extends TestCase
+public class TestTest extends TestCase
 {
     public static void main(String[] args)
     {
-	TestRunner.run(TestHTTPTest.class);
+	TestRunner.run(TestTest.class);
     }
 
-    public TestHTTPTest(String name)
+    public TestTest(String name)
     {
 	super(name);
     }
@@ -56,15 +61,61 @@ public class TestHTTPTest extends TestCase
 	StubProcessContext.get();
     }
 
+    public void testGetters() throws Exception
+    {
+	final Test test  = new Test(1, "description");
+
+	assertEquals(1, test.getNumber());
+	assertEquals("description", test.getDescription());
+    }
+
+    public void testOrdering() throws Exception
+    {
+	final int size = 100;
+
+	final Set sorted = new TreeSet();
+	final List keys = new ArrayList(size);
+
+	for (int i=0; i<size; i++) {
+	    keys.add(new Integer(i));
+	}
+	
+	Collections.shuffle(keys);
+
+	final Iterator keyIterator = keys.iterator();
+
+	while (keyIterator.hasNext()) {
+	    final int i = ((Integer)keyIterator.next()).intValue();
+	    sorted.add(new Test(i, Integer.toString(i)));
+	}
+	
+	final Iterator sortedIterator = sorted.iterator();
+	int i = 0;
+
+	while (keyIterator.hasNext()) {
+	    final Test test = (Test)sortedIterator.next();
+	    assertEquals(i++, test.getNumber());
+	}
+    }
+
+    public void testEquality() throws Exception
+    {
+	// Equality depends only on test number.
+	final Test t1 = new Test(57, "one thing");
+	final Test t2 = new Test(57, "leads to");
+	final Test t3 = new Test(58, "another");
+
+	assertEquals(t1, t2);
+	assertEquals(t2, t1);
+	assertTrue(!t1.equals(t3));
+	assertTrue(!t3.equals(t1));
+	assertTrue(!t2.equals(t3));
+	assertTrue(!t3.equals(t2));
+    }
+
     public void testIsSerializable() throws Exception
     {
-	final NVPair[] formData = {
-	    new NVPair("foo", "bar"),
-	};
-
-	final HTTPTest httpTest = new HTTPTest(123, "test");
-	httpTest.setUrl("http://grinder.sf.net");
-	httpTest.setFormData(formData);
+	final Test test = new Test(123, "test");
 
 	final ByteArrayOutputStream byteArrayOutputStream =
 	    new ByteArrayOutputStream();
@@ -72,6 +123,6 @@ public class TestHTTPTest extends TestCase
 	final ObjectOutputStream objectOutputStream =
 	    new ObjectOutputStream(byteArrayOutputStream);
 
-	objectOutputStream.writeObject(httpTest);
+	objectOutputStream.writeObject(test);
     }
 }
