@@ -33,7 +33,7 @@ import java.net.Socket;
  *
  * @author Philip Aston
  * @version $Revision$
- **/
+ */
 public class ClientReceiver implements Receiver {
 
   private final InputStream m_inputStream;
@@ -46,7 +46,7 @@ public class ClientReceiver implements Receiver {
    * @param port TCP port to connect to.
    * @return The ClientReceiver.
    * @throws CommunicationException If failed to connect to socket.
-   **/
+   */
   public static ClientReceiver connectTo(String addressString, int port)
     throws CommunicationException {
 
