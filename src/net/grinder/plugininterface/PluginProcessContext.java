@@ -44,8 +44,9 @@ public interface PluginProcessContext {
   Grinder.ScriptContext getScriptContext();
 
   /**
-   * Returns the {@link PluginThreadListener} for the current
-   * thread.
+   * Returns the {@link PluginThreadListener} for the current thread.
+   * Instances are created by the plug-in's implemenation of {@link
+   * GrinderPlugin#createThreadListener}.
    *
    * @return The thread listener for the current thread.
    * @exception GrinderException If the thread listener could not be obtained.
