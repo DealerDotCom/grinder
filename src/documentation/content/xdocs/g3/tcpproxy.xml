@@ -406,7 +406,7 @@ java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
       <td><code>-localhost host</code></td>
 
       <td>Set the host name or IP address to listen on. This must
-      correspond to a local interface of the machine the TCPProxy is
+      correspond to an interface of the machine the TCPProxy is
       started on. The default is <code>localhost</code>.</td>
     </tr>
 
