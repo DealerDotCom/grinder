@@ -269,12 +269,12 @@ What can I set in grinder.properties?
 				a client thread. When recording
 				timings with multiple clients it will
 				probably reduce the measured time -
-				see etc/Timing.txt.
+				see doc/Timing.txt.
 
     grinder.recordTime	   -	Set to false to disable reporting of
 				timing information; other statistics
 				are still reported. Default is true.
-				See etc/Timing.txt.
+				See doc/Timing.txt.
 
 
 What can I set in grinder.properties for the HTTP plugin?
