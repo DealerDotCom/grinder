@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -32,8 +32,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import net.grinder.common.GrinderException;
-
 
 /**
  * An ordered collection of {@link ExpressionView}s.
@@ -42,7 +40,7 @@ import net.grinder.common.GrinderException;
  * @version $Revision$
  * @see net.grinder.script.Grinder.ScriptContext#registerDetailStatisticsView
  * @see net.grinder.script.Grinder.ScriptContext#registerSummaryStatisticsView
- **/
+ */
 public final class StatisticsView implements Externalizable {
 
   private static final long serialVersionUID = -4846650473903375223L;
@@ -51,38 +49,22 @@ public final class StatisticsView implements Externalizable {
    * We define a <code>Comparator</code> for {@link ExpressionView}s
    * rather than having the <code>ExpressionView</code> implement
    * <code>Comparable</code> because our sort order is inconsistent with equals.
-   **/
+   */
   private static final Comparator s_expressionViewComparator =
-    new Comparator() {
-      public int compare(Object a, Object b) {
-        final ExpressionView viewA = (ExpressionView)a;
-        final ExpressionView viewB = (ExpressionView)b;
-
-        if (viewA.getCreationOrder() < viewB.getCreationOrder()) {
-          return -1;
-        }
-        else if (viewA.getCreationOrder() > viewB.getCreationOrder()) {
-          return 1;
-        }
-        else {
-          // Should assert ? Same creation order => same instance.
-          return 0;
-        }
-      }
-    };
+    new CreationOrderComparator();
 
   /**
    * We use this set to ensure that new views are unique. We can't
    * do this with a SortedSet because our sort order is inconsistent
    * with equals.
-   **/
+   */
   private final transient Set m_unique = new HashSet();
 
   private final SortedSet m_columns;
 
   /**
    * Creates a new <code>StatisticsView</code> instance.
-   **/
+   */
   public StatisticsView() {
     m_columns = new TreeSet(s_expressionViewComparator);
   }
@@ -92,7 +74,7 @@ public final class StatisticsView implements Externalizable {
    * this <code>StatisticsView</code>.
    *
    * @param other Another <code>StatisticsView</code>.
-   **/
+   */
   public synchronized void add(StatisticsView other) {
     final Iterator iterator = other.m_columns.iterator();
 
@@ -106,7 +88,7 @@ public final class StatisticsView implements Externalizable {
    * <code>StatisticsView</code>.
    *
    * @param statistic An {@link ExpressionView}.
-   **/
+   */
   public synchronized void add(ExpressionView statistic) {
     if (!m_unique.contains(statistic)) {
       m_unique.add(statistic);
@@ -118,7 +100,7 @@ public final class StatisticsView implements Externalizable {
    * Return our {@link ExpressionView}s as an array.
    *
    * @return The {@link ExpressionView}s.
-   **/
+   */
   public synchronized ExpressionView[] getExpressionViews() {
     return (ExpressionView[])m_columns.toArray(new ExpressionView[0]);
   }
@@ -128,7 +110,7 @@ public final class StatisticsView implements Externalizable {
    *
    * @param out Handle to the output stream.
    * @exception IOException If an I/O error occurs.
-   **/
+   */
   public synchronized void writeExternal(ObjectOutput out) throws IOException {
     out.writeInt(m_columns.size());
 
@@ -145,7 +127,7 @@ public final class StatisticsView implements Externalizable {
    *
    * @param in Handle to the input stream.
    * @exception IOException If an I/O error occurs.
-   **/
+   */
   public synchronized void readExternal(ObjectInput in) throws IOException {
     final int n = in.readInt();
 
@@ -155,9 +137,30 @@ public final class StatisticsView implements Externalizable {
       try {
         add(new ExpressionView(in));
       }
-      catch (GrinderException e) {
+      catch (StatisticsException e) {
         throw new IOException(
           "Could not instantiate ExpressionView: " + e.getMessage());
+      }
+    }
+  }
+
+  /**
+   * Package scope for unit tests.
+   */
+  static final class CreationOrderComparator implements Comparator {
+    public int compare(Object a, Object b) {
+      final ExpressionView viewA = (ExpressionView)a;
+      final ExpressionView viewB = (ExpressionView)b;
+
+      if (viewA.getCreationOrder() < viewB.getCreationOrder()) {
+        return -1;
+      }
+      else if (viewA.getCreationOrder() > viewB.getCreationOrder()) {
+        return 1;
+      }
+      else {
+        // Should assert ? Same creation order => same instance.
+        return 0;
       }
     }
   }
