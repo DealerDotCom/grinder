@@ -73,7 +73,7 @@ conditionally built modules are:
     <property name="Name" value="The Grinder"/>
     <property name="name" value="grinder"/>
     <property name="version" value="2.8.2"/>
-    <property name="year" value="2001"/>
+    <property name="year" value="2002"/>
 
     <!--options-->
     <available classname="javax.net.ssl.SSLSocketFactory"
