@@ -9,11 +9,17 @@ Grinder 2.6.2
   HTTP transaction takes, including the time required to read the HTTP
   response over the network. If so, set this parameter to true.
 
-  Removed "grinder.thread.beginCycleSleepTime", as its redundant. (Use
-  grinder.test0.sleepTime instead).
+  Removed property grinder.thread.beginCycleSleepTime, as its
+  redundant. (Use grinder.test0.sleepTime instead).
 
-  New property "grinder.thread.initialSleepTime". See README for
+  New property: grinder.thread.initialSleepTime. See README for
   details.
+
+  When the property grinder.recordTime is false, the time is no longer
+  logged in the data file. (The prime purpose of recordTime is to
+  control whether times are _reported_ to the console, in fact times
+  are always recorded. This is too subtle for some users ;-) so I've
+  made this change for an easy life).
 
 
 Grinder 2.6.1

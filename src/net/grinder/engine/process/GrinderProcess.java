@@ -97,6 +97,7 @@ public class GrinderProcess
     private final ProcessContextImplementation m_context;
     private final int m_numberOfThreads;
     private final boolean m_appendToLog;
+    private final boolean m_recordTime;
 
     private final ConsoleListener m_consoleListener;
     private final Sender m_consoleSender;
@@ -121,6 +122,7 @@ public class GrinderProcess
 
 	m_numberOfThreads = properties.getInt("grinder.threads", 1);
 	m_appendToLog = properties.getBoolean("grinder.appendLog", false);
+	m_recordTime = properties.getBoolean("grinder.recordTime", true);
 
 	// Parse console configuration.
 	final String multicastAddress = 
@@ -232,7 +234,12 @@ public class GrinderProcess
 			new FileWriter(dataFilename, m_appendToLog)));
 
 	    if (!m_appendToLog) {
-		dataPrintWriter.println("Thread, Cycle, Method, Time");
+		if (m_recordTime) {
+		    dataPrintWriter.println("Thread, Cycle, Method, Time");
+		}
+		else {
+		    dataPrintWriter.println("Thread, Cycle, Method");
+		}
 	    }
 	}
 	catch(Exception e){
@@ -251,7 +258,8 @@ public class GrinderProcess
 
 	    runnable[i] = new GrinderThread(this, threadCallbackHandler,
 					    pluginThreadContext,
-					    dataPrintWriter, m_testSet);
+					    dataPrintWriter, m_recordTime,
+					    m_testSet);
 	}
         
 	if (m_consoleListener != null) {

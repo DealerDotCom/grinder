@@ -29,14 +29,12 @@ that too :-). The list is roughly in priority order.]
   Print out to terminal that processes are waiting for console to
   start them. Print the current time when they are finally started.
 
-  When run with recordTime=false, shouldn't log time to the data file.
-
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
 	
   Minor fixes to HttpPluginSnifferFilter:
 	Respect charset information.
-	Sanity check the processing agains RFC 2616
+	Sanity check the processing against RFC 2616
 
 
 The following are scheduled for Grinder 3:

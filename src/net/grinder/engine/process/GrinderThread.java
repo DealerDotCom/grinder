@@ -81,12 +81,14 @@ class GrinderThread implements java.lang.Runnable
     public GrinderThread(GrinderProcess grinderProcess,
 			 ThreadCallbacks threadCallbacks,
 			 ThreadContextImplementation threadContext,
-			 PrintWriter dataPrintWriter, Map tests)
+			 PrintWriter dataPrintWriter, boolean recordTime,
+			 Map tests)
     {
 	m_grinderProcess = grinderProcess;
 	m_threadCallbacks = threadCallbacks;
 	m_context = threadContext;
 	m_dataPrintWriter = dataPrintWriter;
+	m_recordTime = recordTime;
 	m_testSet = tests;
 
 	m_context.setGrinderThread(this);
@@ -105,10 +107,8 @@ class GrinderThread implements java.lang.Runnable
 
 	m_numberOfCycles = properties.getInt("grinder.cycles", 1);
 
-	m_recordTime = properties.getBoolean("grinder.recordTime", true);
-
 	incrementThreadCount();	// See m_numberOfThreads javadoc.
-  }
+    }
     
     /**
      * The thread's main loop.
@@ -215,11 +215,21 @@ class GrinderThread implements java.lang.Runnable
 		    }
 
 		    if (m_dataPrintWriter != null) {
-			m_dataPrintWriter.println(
-			    m_context.getThreadID() + ", " +
-			    m_currentCycle + ", " + 
-			    m_currentTestData.getTest().getTestNumber() +
-			    ", " + time);
+			final StringBuffer logLine = new StringBuffer();
+
+			logLine.append(m_context.getThreadID());
+			logLine.append(", ");
+			logLine.append(m_currentCycle);
+			logLine.append(", " );
+			logLine.append(m_currentTestData.
+				       getTest().getTestNumber());
+
+			if (m_recordTime) {
+			    logLine.append(", ");
+			    logLine.append(time);
+			}
+
+			m_dataPrintWriter.println(logLine);
 		    }
 		}
 
