@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.1//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_1.dtd">
+
+<module name="Checker">
+
+    <module name="PackageHtml"/>
+
+    <module name="NewlineAtEndOfFile"/>
+
+    <module name="Translation"/>
+
+    <module name="TreeWalker">
+        <property name="cacheFile" value="${checkstyle.cache.file}"/>
+        <property name="tabWidth" value="4"/>
+
+        <module name="JavadocType">
+          <property name="scope" value="package"/>
+          <property name="authorFormat" value="\S"/>
+          <property name="versionFormat" value="\$Revision.*\$"/>
+        </module>
+        <module name="JavadocMethod">
+          <property name="scope" value="protected"/>
+          <property name="allowUndeclaredRTE" value="true"/>
+        </module>
+        <module name="JavadocVariable">
+          <property name="scope" value="package"/>
+        </module>
+
+        <module name="ConstantName">
+          <property name="format"
+	            value="^(s_[a-z][a-zA-Z0-9]*)|([A-Z][A-Z0-9_]*)$"/>
+        </module>
+        <module name="LocalFinalVariableName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName">
+          <property name="format" value="^m_[a-z][a-zA-Z0-9]*$"/>
+        </module>
+        <module name="MethodName">
+          <!-- Allow for HTTPRequest methods. -->
+          <property name="format"
+                    value="^([a-z][a-zA-Z0-9]*|DELETE|GET|HEAD|OPTIONS|POST|PUT|TRACE)$"/>
+        </module>
+        <module name="PackageName"/>
+        <module name="ParameterName"/>
+        <module name="StaticVariableName">
+          <property name="format" value="^s_[a-z][a-zA-Z0-9]*$"/>
+        </module>
+        <module name="TabCharacter"/>
+        <module name="TypeName"/>
+
+        <!-- There are currently problems with multi-line headers and
+        RegexpHeader.
+        <module name="RegexpHeader">
+            <property name="headerFile"
+                      value="${basedir}/etc/header.txt"/>
+        </module>
+        -->
+
+        <module name="AvoidStarImport"/>
+        <module name="IllegalImport"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+
+        <module name="FileLength"/>
+        <module name="LineLength"/>
+        <module name="MethodLength">
+          <property name="tokens" value="METHOD_DEF"/>
+          <property name="max" value="200"/>
+        </module>
+        <!-- Allow constructors to be slightly longer. -->
+        <module name="MethodLength">
+          <property name="tokens" value="CTOR_DEF"/>
+          <property name="max" value="300"/>
+        </module>
+        <module name="ParameterNumber"/>
+
+        <module name="EmptyForIteratorPad"/>
+        <module name="NoWhitespaceAfter">
+          <property name="tokens"
+                    value="BNOT,DEC,DOT,INC,LNOT,UNARY_MINUS,UNARY_PLUS"/>
+        </module>
+        <module name="NoWhitespaceBefore"/>
+        <module name="OperatorWrap">
+          <property name="option" value="eol"/>
+        </module>
+        <module name="ParenPad"/>
+        <module name="WhitespaceAfter">
+          <property name="tokens" value="COMMA,SEMI"/>
+        </module>
+        <module name="WhitespaceAround"/>
+
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
+
+        <module name="AvoidNestedBlocks"/>
+        <module name="EmptyBlock">
+          <property name="option" value="text"/>
+        </module>
+        <module name="LeftCurly"/>
+        <module name="NeedBraces"/>
+        <module name="RightCurly">
+          <property name="option" value="alone"/>
+        </module>
+
+        <module name="DoubleCheckedLocking"/>
+        <module name="EmptyStatement"/>
+        <module name="EqualsHashCode"/>
+        <module name="HiddenField"/>
+        <module name="IllegalInstantiation">
+          <property name="classes" value="java.lang.Boolean"/>
+        </module>
+        <module name="InnerAssignment"/>
+        <module name="MissingSwitchDefault"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+
+        <module name="FinalClass"/>
+        <module name="HideUtilityClassConstructor"/>
+        <module name="InterfaceIsType"/>
+        <module name="VisibilityModifier"/>
+
+        <module name="ArrayTypeStyle"/>
+        <module name="GenericIllegalRegexp">
+            <property name="format" value="\s+$"/>
+            <property name="message" value="Line has trailing spaces."/>
+        </module>
+        <module name="TodoComment"/>
+        <module name="UpperEll"/>
+
+        <!-- I disagree with the following... -->
+        <!-- <module name="AvoidInlineConditionals"/> -->
+        <!-- <module name="DesignForExtension"/> -->
+        <!-- <module name="FinalParameters"/> -->
+        <!-- <module name="MagicNumber"/> -->
+        <!-- <module name="RedundantThrows"/> -->
+
+    </module>
+
+</module>
+

@@ -44,6 +44,11 @@
           <td>&#160;</td>
           <td>to test The Grinder itself</td>
         </tr>
+        <tr>
+          <td><a href="http://checkstyle.sourceforge.net/">Checkstyle 3.1</a></td>
+          <td>&#160;</td>
+          <td>to check the formatting of changes you may make to The Grinder</td>
+        </tr>
       </table>
     </blockquote>
 

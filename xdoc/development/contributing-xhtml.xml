@@ -22,11 +22,12 @@
     <p>Please pay attention to the existing coding style of The
     Grinder. There is a <a
     href="http://checkstyle.sourceforge.net/">Checkstyle</a>
-    properties file in <code>etc</code> which you should use to check
-    the formatting of your code. (Not all packages are yet compliant,
-    but any newly edited files should be). This not only helps to make
-    the code readable, but makes applying patches a much nicer
-    experience.
+    configuration file for The Grinder in <code>etc</code> which you
+    should use to check the formatting of your code. You can do this
+    using the <code>checkstyle</code> build target. Checkstyle helps
+    to make the code readable, catches quite a few silly errors, and
+    makes applying patches a much nicer experience. I will reject any
+    patches that do not pass the Checkstyle rules.
     </p>
 
 </body>
