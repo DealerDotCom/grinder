@@ -435,10 +435,6 @@ what you want. Currently the conditionally built modules are:
 
 	<fileset dir="${test-src.dir}">
 
-	  <!-- Tests that rely on multicast. -->
-	  <exclude name="**/TestMulticastSenderAndReceiver.java"/> 
-	  <exclude name="**/TestConsoleListener.java"/> 
-
 	  <!-- Until I can be bothered to rewrite it. -->
 	  <exclude name="**/TestHTTPPluginTCPProxyFilter.java"/>
 
