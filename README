@@ -88,7 +88,7 @@ If you want to use the console, tweak out the following properties
 	grinder.console.multicastPort
 
 and say
-	java net.grinder.console.Console
+	java net.grinder.Console
 
 
 You can also specify an explicit properties file to both the Grinder

@@ -1,3 +1,24 @@
+2001-03-05  Philip Aston  <paston@beasys.com>
+
+	* src/net/grinder/communication/Receiver.java: 
+	* tests-src/net/grinder/communication/TestSenderAndReceiver.java: 
+		Up the read buffer size.
+
+2001-02-22  Philip Aston  <paston@beasys.com>
+
+	* AUTHORS:
+		Welcome Stuart Tily.
+
+2001-02-22  Stuart Tily  <tily@sylo.org>
+
+	* README: 
+	* src/net/grinder/plugin/http/CookieHandler.java: 
+	* src/net/grinder/plugin/http/HttpMsg.java: 
+	* src/net/grinder/plugin/http/HttpPlugin.java: 
+	* tests-src/net/grinder/plugin/http/TestCookieHandler.java: 
+		Add parameter to remove $Version strings from cookies.
+		Work around for broken JRun 2.3.3 behaviour.
+
 2001-02-21  Philip Aston  <paston@beasys.com>
 
 	* The Grinder 2.4 is released.

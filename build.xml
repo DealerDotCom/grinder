@@ -134,12 +134,12 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
   </target>
 
   <target name="assert-have-junit" depends="init" unless="have.junit">
-   <fail message="Install the Ant optional.jar to build this target"/>
+   <fail message="Add JUnit 3.4 to your CLASSPATH to build this target"/>
   </target>
 
   <target name="assert-have-junit-task" depends="init"
 	  unless="have.junit.task">
-   <fail message="Add JUnit 3.4 to your CLASSPATH to build this target"/>
+   <fail message="Install the Ant optional.jar to build this target"/>
   </target>
 
   <target name="assert-have-regexp" depends="init" unless="have.regexp">
@@ -304,14 +304,10 @@ a directory earilier in your path and run it through sed -e 's#:#;#g'
 	       includes="build.xml, AUTHORS, ChangeLog, CHANGES, COPYING, README, TODO"
 	       excludes="prj.el"/>
     </copy>
-
-    <chmod perm="+x" file="${dist.dir}/build.sh"/>
-    <fixcrlf srcdir="${dist.dir}" includes="build.sh" cr="remove"/>
-    <fixcrlf srcdir="${dist.dir}" includes="build.bat" cr="add"/>
   </target>
 
   <!-- =================================================================== -->
-  <!-- Packages the distribution as .zip                                   -->
+  <!-- Packages the distribution as .jar                                   -->
   <!-- =================================================================== -->
   <target name="dist" depends="distribution-hierarchy,test"
 	  description="Generates a distribution jar.">
