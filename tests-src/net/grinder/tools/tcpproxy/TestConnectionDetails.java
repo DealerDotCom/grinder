@@ -84,4 +84,49 @@ public class TestConnectionDetails extends TestCase
 	assertTrue(!connectionDetails[1].equals(connectionDetails[3]));
 	assertTrue(!connectionDetails[1].equals(connectionDetails[4]));
     }
+
+    public void testGetOtherEnd() throws Exception
+    {
+	final ConnectionDetails connectionDetails =
+	    new ConnectionDetails("blah", 123, "blurgh", 9999, true);
+
+	final ConnectionDetails otherEnd = connectionDetails.getOtherEnd();
+	
+	assertEquals(connectionDetails.getLocalHost(),
+		     otherEnd.getRemoteHost());
+
+	assertEquals(connectionDetails.getRemoteHost(),
+		     otherEnd.getLocalHost());
+
+	assertEquals(connectionDetails.getLocalPort(),
+		     otherEnd.getRemotePort());
+
+	assertEquals(connectionDetails.getRemotePort(),
+		     otherEnd.getLocalPort());
+
+	assertEquals(connectionDetails.isSecure(), otherEnd.isSecure());
+
+	assertEquals(connectionDetails, otherEnd.getOtherEnd());
+    }
+
+    public void testGetConnectionIdentity() throws Exception
+    {
+	final ConnectionDetails connectionDetails1 =
+	    new ConnectionDetails("foo", 123, "bar", 9999, true);
+
+	final ConnectionDetails connectionDetails2 =
+	    new ConnectionDetails("foo", 123, "beer", 9999, true);
+
+	assertTrue(!(connectionDetails1.getConnectionIdentity().equals(
+			 connectionDetails2.getConnectionIdentity())));
+
+	assertEquals(connectionDetails1.getConnectionIdentity(),
+		     connectionDetails1.getConnectionIdentity());
+
+	assertEquals(connectionDetails1.getConnectionIdentity(),
+		     connectionDetails1.getOtherEnd().getConnectionIdentity());
+
+	assertEquals(connectionDetails2.getConnectionIdentity(),
+		     connectionDetails2.getOtherEnd().getConnectionIdentity());
+    }
 }
