@@ -165,7 +165,7 @@ public class ProcessContext implements PluginProcessContext
     public void initialiseDataWriter()
     {
 	if (!m_shouldWriteTitleToDataWriter) {
-	    m_dataWriter.print("Thread, Cycle, Method");
+	    m_dataWriter.print("Thread, Cycle, Test");
 
 	    final ExpressionView[] detailExpressionViews =
 		CommonStatisticsViews.getDetailStatisticsView()
