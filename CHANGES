@@ -16,6 +16,9 @@ Grinder 3.0-beta15
   Fix bug 852217 - sample interval jumps after I set it. Thanks to
   Danny Faught for the report.
 
+  Fix/enhance the TCPProxy's support for chained HTTPS proxies. This
+  should now work with a wider range of proxies.
+
 
 Grinder 3.0-beta14
 ------------------
