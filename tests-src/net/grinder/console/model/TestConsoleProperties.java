@@ -274,6 +274,33 @@ public class TestConsoleProperties extends TestCase {
     assertTrue(properties2.getResetConsoleWithProcessesDontAsk());    
   }
 
+  public void testStopProcessesDontAsk() throws Exception {
+
+    final String propertyName =
+      ConsoleProperties.STOP_PROCESSES_DONT_ASK_PROPERTY;
+
+    m_fileWriter.write(propertyName + ": false");
+    m_fileWriter.close();
+
+    final ConsoleProperties properties = new ConsoleProperties(m_file);
+    assertTrue(!properties.getStopProcessesDontAsk());
+
+    final PropertyChangeEvent expected =
+      new PropertyChangeEvent(properties, propertyName, 
+			      new Boolean(false), new Boolean(true));
+
+    final MyListener listener = new MyListener(expected);
+    final MyListener listener2 = new MyListener(expected);
+
+    properties.addPropertyChangeListener(listener);
+    properties.addPropertyChangeListener(propertyName, listener2);
+
+    properties.setStopProcessesDontAsk();
+    
+    final ConsoleProperties properties2 = new ConsoleProperties(m_file);
+    assertTrue(properties2.getStopProcessesDontAsk());    
+  }
+
   public void testScriptDistributionFiles() throws Exception {
     final String propertyName =
       ConsoleProperties.SCRIPT_DISTRIBUTION_FILES_PROPERTY;
@@ -326,6 +353,7 @@ public class TestConsoleProperties extends TestCase {
 		 p2.getResetConsoleWithProcesses());
     assertEquals(p1.getResetConsoleWithProcessesDontAsk(),
 		 p2.getResetConsoleWithProcessesDontAsk());
+    assertEquals(p1.getStopProcessesDontAsk(), p2.getStopProcessesDontAsk());
     assertEquals(p1.getScriptDistributionFiles(),
 		 p2.getScriptDistributionFiles());
   }
@@ -343,6 +371,7 @@ public class TestConsoleProperties extends TestCase {
     p2.setGrinderPort(99);
     p2.setResetConsoleWithProcesses(true);
     p2.setResetConsoleWithProcessesDontAsk();
+    p2.setStopProcessesDontAsk();
     p2.getScriptDistributionFiles().setRootDirectory(new File("foo"));
 
     assertTrue(p1.getCollectSampleCount() != p2.getCollectSampleCount());
@@ -357,6 +386,7 @@ public class TestConsoleProperties extends TestCase {
 	       p2.getResetConsoleWithProcesses());
     assertTrue(p1.getResetConsoleWithProcessesDontAsk() !=
 	       p2.getResetConsoleWithProcessesDontAsk());
+    assertTrue(p1.getStopProcessesDontAsk() != p2.getStopProcessesDontAsk());
     assertTrue(p1.getScriptDistributionFiles() !=
 	       p2.getScriptDistributionFiles());
 
@@ -374,6 +404,7 @@ public class TestConsoleProperties extends TestCase {
 	       p2.getResetConsoleWithProcesses());
     assertTrue(p1.getResetConsoleWithProcessesDontAsk() ==
 	       p2.getResetConsoleWithProcessesDontAsk());
+    assertTrue(p1.getStopProcessesDontAsk() == p2.getStopProcessesDontAsk());
     assertEquals(p1.getScriptDistributionFiles(),
 		 p2.getScriptDistributionFiles());
   }

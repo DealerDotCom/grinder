@@ -793,7 +793,8 @@ public final class ConsoleUI implements ModelListener {
         };
 
         final int chosen =
-          JOptionPane.showConfirmDialog(m_frame, message, "",
+          JOptionPane.showConfirmDialog(m_frame, message,
+                                        (String) getValue(NAME),
                                         JOptionPane.YES_NO_CANCEL_OPTION);
 
         if (dontAskMeAgainCheckBox.isSelected()) {
@@ -838,8 +839,46 @@ public final class ConsoleUI implements ModelListener {
       m_delegateAction = delegateAction;
     }
 
-    public void actionPerformed(ActionEvent e) {
-      m_delegateAction.actionPerformed(e);
+    public void actionPerformed(ActionEvent event) {
+
+      final ConsoleProperties properties = m_model.getProperties();
+
+      if (!properties.getStopProcessesDontAsk()) {
+
+        final JCheckBox dontAskMeAgainCheckBox =
+          new JCheckBox(
+            m_model.getResources().getString("dontAskMeAgain.text"));
+        dontAskMeAgainCheckBox.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        final Object[] message = {
+          m_model.getResources().getString("stopProcessesConfirmation1.text"),
+          m_model.getResources().getString("stopProcessesConfirmation2.text"),
+          new JLabel(), // Pad.
+          dontAskMeAgainCheckBox,
+        };
+
+        final int chosen =
+          JOptionPane.showConfirmDialog(m_frame, message,
+                                        (String) getValue(NAME),
+                                        JOptionPane.OK_CANCEL_OPTION);
+
+        if (dontAskMeAgainCheckBox.isSelected()) {
+          try {
+            properties.setStopProcessesDontAsk();
+          }
+          catch (GrinderException e) {
+            getErrorHandler().handleException(
+              e, m_model.getResources().getString("unexpectedError.title"));
+            return;
+          }
+        }
+
+        if (chosen != JOptionPane.OK_OPTION) {
+          return;
+        }
+      }
+
+      m_delegateAction.actionPerformed(event);
     }
   }
 
