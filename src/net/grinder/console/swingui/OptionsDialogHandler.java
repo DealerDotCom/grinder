@@ -193,8 +193,8 @@ abstract class OptionsDialogHandler
 				m_properties.save();
 			    }
 			    catch (GrinderException e) {
-				final Exception nested =
-				    e.getNestedException();
+				final Throwable nested =
+				    e.getNestedThrowable();
 				
 				JOptionPane.showMessageDialog(
 				    m_dialog, (nested != null ? nested : e)
