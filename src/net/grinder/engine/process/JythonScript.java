@@ -43,15 +43,12 @@ import net.grinder.engine.EngineException;
 final class JythonScript {
   private static final String TEST_RUNNER_CALLABLE_NAME = "TestRunner";
 
-  private final ProcessContext m_processContext;
   private final PySystemState m_systemState;
   private final PythonInterpreter m_interpreter;
   private final PyObject m_testRunnerFactory;
 
   public JythonScript(ProcessContext processContext, File scriptFile)
     throws EngineException {
-
-    m_processContext = processContext;
 
     PySystemState.initialize();
 

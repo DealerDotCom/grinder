@@ -37,6 +37,10 @@ import net.grinder.util.FixedWidthFormatter;
  * @version $Revision$
  */
 public class StatisticsTable {
+
+  private static final int COLUMN_WIDTH = 12;
+  private static final String COLUMN_SEPARATOR = " ";
+
   /**
    * @supplierCardinality 1
    **/
@@ -48,23 +52,21 @@ public class StatisticsTable {
    * @link aggregation
    **/
   private final DecimalFormat m_twoDPFormat = new DecimalFormat("0.00");
-  private final int m_columnWidth = 12;
-  private final String m_columnSeparator = " ";
 
   private final FixedWidthFormatter m_headingFormatter =
     new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
 			    FixedWidthFormatter.FLOW_WORD_WRAP,
-			    m_columnWidth);
+			    COLUMN_WIDTH);
 
   private final FixedWidthFormatter m_rowLabelFormatter =
     new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
 			    FixedWidthFormatter.FLOW_TRUNCATE,
-			    m_columnWidth);
+			    COLUMN_WIDTH);
 
   private final FixedWidthFormatter m_rowCellFormatter =
     new FixedWidthFormatter(FixedWidthFormatter.ALIGN_LEFT,
 			    FixedWidthFormatter.FLOW_TRUNCATE,
-			    m_columnWidth);
+			    COLUMN_WIDTH);
 
   /**
    * @supplierCardinality 1
@@ -127,7 +129,7 @@ public class StatisticsTable {
 	m_headingFormatter.transform(cells[i], remainders[i]);
 
 	out.print(cells[i].toString());
-	out.print(m_columnSeparator);
+	out.print(COLUMN_SEPARATOR);
 
 	if (remainders[i].length() > 0) {
 	  wrapped = true;
@@ -187,7 +189,7 @@ public class StatisticsTable {
 
     m_rowLabelFormatter.transform(cell, remainder);
     result.append(cell.toString());
-    result.append(m_columnSeparator);
+    result.append(COLUMN_SEPARATOR);
 
     for (int i=0; i<expressionViews.length; ++i) {
 
@@ -207,7 +209,7 @@ public class StatisticsTable {
       cell.replace(0, cell.length(), text);
       m_rowCellFormatter.transform(cell, remainder);
       result.append(cell.toString());
-      result.append(m_columnSeparator);
+      result.append(COLUMN_SEPARATOR);
     }
 
     return result;

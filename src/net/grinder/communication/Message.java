@@ -132,7 +132,7 @@ public abstract class Message implements Serializable
     /**
      * Compare two Messages. Sent messages have enhanced equality
      * semantics - they are equivalent if they have the same sender ID
-     * and sequnce number.
+     * and sequence number.
      *
      * @param o The other object.
      **/

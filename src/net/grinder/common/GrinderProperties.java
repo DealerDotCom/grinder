@@ -359,6 +359,6 @@ public class GrinderProperties extends Properties {
    * @param value The value to set.
    **/
   public final void setBoolean(String propertyName, boolean value) {
-    setProperty(propertyName, new Boolean(value).toString());
+    setProperty(propertyName, String.valueOf(value));
   }
 }

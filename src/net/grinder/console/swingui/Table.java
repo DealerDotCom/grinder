@@ -47,7 +47,6 @@ final class Table extends JTable {
 
   private final MyCellRenderer m_myCellRenderer;
   private final Color m_defaultForeground;
-  private final Color m_defaultBackground;
   private final Font m_boldFont;
   private final Font m_defaultFont;
 
@@ -59,7 +58,6 @@ final class Table extends JTable {
     m_myCellRenderer = new MyCellRenderer();
 
     m_defaultForeground = m_myCellRenderer.getForeground();
-    m_defaultBackground = m_myCellRenderer.getBackground();
     m_defaultFont = m_myCellRenderer.getFont();
     m_boldFont = m_defaultFont.deriveFont(Font.BOLD);
   }

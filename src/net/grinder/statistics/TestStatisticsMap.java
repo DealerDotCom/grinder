@@ -317,7 +317,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
    * A type safe pair of a {@link net.grinder.common.Test} and a
    * {@link TestStatistics}.
    **/
-  public final class Pair {
+  public static final class Pair {
     private final Test m_test;
     private final TestStatistics m_statistics;
 

@@ -52,12 +52,9 @@ class SamplingControlPanel extends JPanel {
   private final String m_sampleUnit;
   private final String m_sampleUnits;
 
-  private final Resources m_resources;
   private ConsoleProperties m_properties = null;
 
   public SamplingControlPanel(Resources resources) {
-    m_resources = resources;
-
     m_sampleIntervalString =
       resources.getString("sampleInterval.label") + " ";
 
