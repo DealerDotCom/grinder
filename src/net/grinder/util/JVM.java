@@ -64,8 +64,8 @@ public final class JVM {
     final String name = "The Grinder " + GrinderBuild.getVersionString();
 
     if (!isAtLeastVersion(1, 3)) {
-      logger.error("\nFatal Error - incompatible version of Java: " + this +
-                   "\n\n" + name + " requires at least Java 1.3.");
+      logger.error("Fatal Error - incompatible version of Java (" + this +
+                   ")\n" + name + " requires at least Java 1.3.");
       return false;
     }
 
@@ -74,8 +74,8 @@ public final class JVM {
     }
     catch (ClassNotFoundException e) {
       logger.error(
-        "\nFatal Error - no SSL support." +
-        "\n\n" + name + " requires the Java Secure Sockets Extension " +
+        "Fatal Error - no SSL support." +
+        "\n" + name + " requires the Java Secure Sockets Extension " +
         "(JSSE). The JSSE is included with Java 1.4 and higher, and a " +
         "separate download for Java 1.3 is available from JavaSoft.");
 
