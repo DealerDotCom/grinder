@@ -36,9 +36,9 @@ public class BookHttpPlugin extends HttpPlugin {
 	private String m_phone = "2000";
 	private DecimalFormat m_twoDigitsFormat = new DecimalFormat("00");
 
-	public CallData(GrinderContext grinderContext, int n)
+	public CallData(GrinderContext grinderContext, String methodName)
 	{
-	    super(n);
+	    super(methodName);
 
 	    final String original = getURLString();
 
@@ -66,8 +66,8 @@ public class BookHttpPlugin extends HttpPlugin {
     }
 
     protected HttpPlugin.CallData createCallData(GrinderContext gc,
-						 int urlNumber)
+						 String methodName)
     {
-	return new CallData(gc, urlNumber);
+	return new CallData(gc, methodName);
     }
 }
