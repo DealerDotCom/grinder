@@ -9,6 +9,9 @@ Grinder 3.0-beta17
   Fix bug 876097 - ClonePyInstance not included in grinder.jar. Thanks
   to Karl Wyer for the report.
 
+  Fix implicit grinder object deprecation message. Thanks to Christian
+  Sell for the report.
+
 
 Grinder 3.0-beta16
 ------------------

@@ -217,7 +217,7 @@ final class JythonScript {
                         "Add the following line to the start of your script " +
                         "to ensure it is compatible with future versions of " +
                         "The Grinder:" +
-                        "\n\tfrom net.grinder.Grinder import grinder",
+                        "\n\tfrom net.grinder.script.Grinder import grinder",
                         Logger.LOG | Logger.TERMINAL);
       }
 
