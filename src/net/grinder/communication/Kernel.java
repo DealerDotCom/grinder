@@ -33,9 +33,7 @@ import net.grinder.common.GrinderException;
 final class Kernel {
 
   private final ThreadSafeQueue m_workQueue = new ThreadSafeQueue();
-  private final ThreadGroup m_threadGroup = new ThreadGroup("Kernel");
-  private boolean m_shutdown = false;
-  private int m_workerThreads;
+  private final ThreadPool m_threadPool;
 
   /**
    * Constructor.
@@ -44,11 +42,17 @@ final class Kernel {
    */
   public Kernel(int numberOfThreads) {
 
-    m_threadGroup.setDaemon(true);
+    final ThreadPool.RunnableFactory runnableFactory =
+      new ThreadPool.RunnableFactory() {
+        public Runnable create() {
+          return new Runnable() {
+              public void run() { process(); }
+            };
+        };
+      };
 
-    for (int i = 0; i < numberOfThreads; ++i) {
-      new WorkerThread(m_threadGroup, i).start();
-    }
+    m_threadPool = new ThreadPool("Kernel", numberOfThreads, runnableFactory);
+    m_threadPool.start();
   }
 
   /**
@@ -58,7 +62,7 @@ final class Kernel {
    * @throws ShutdownException If the Kernel has been stopped.
    */
   public void execute(Runnable work) throws ShutdownException {
-    if (m_shutdown) {
+    if (m_threadPool.isStopped()) {
       throw new ShutdownException("Kernel is stopped");
     }
 
@@ -78,8 +82,6 @@ final class Kernel {
    */
   public void gracefulShutdown() throws InterruptedException {
 
-    m_shutdown = true;
-
     // Wait until the queue is empty.
     synchronized (m_workQueue.getMutex()) {
       while (m_workQueue.getSize() > 0) {
@@ -87,63 +89,33 @@ final class Kernel {
       }
     }
 
-    // In case a worker thread is waiting in a Runnable.
-    m_threadGroup.interrupt();
-
-    // Now wait until all the worker threads have completed.
-    synchronized (m_threadGroup) {
-      while (m_workerThreads > 0) {
-        m_threadGroup.wait();
-      }
-    }
+    m_threadPool.stopAndWait();
   }
-
 
   /**
    * Shut down this kernel, discarding any outstanding work.
    */
   public void forceShutdown() {
-
-    m_shutdown = true;
-
     m_workQueue.shutdown();
-
-    // In case a worker thread is waiting in a Runnable.
-    m_threadGroup.interrupt();
+    m_threadPool.stop();
   }
 
-  private final class WorkerThread extends Thread {
+  private void process() {
+    try {
+      while (true) {
+        final Runnable runnable =
+          (Runnable) m_workQueue.dequeue(!m_threadPool.isStopped());
 
-    public WorkerThread(ThreadGroup threadGroup, int workerThreadIndex) {
-      super(threadGroup, "Worker thread " + workerThreadIndex);
-      setDaemon(true);
-      ++m_workerThreads;
+        if (runnable == null) {
+          // We're shutting down and the queue is empty.
+          break;
+        }
+
+        runnable.run();
+      }
     }
-
-    public void run() {
-
-      try {
-        while (true) {
-          final Runnable runnable =
-            (Runnable) m_workQueue.dequeue(!m_shutdown);
-
-          if (runnable == null) {
-            // We're shutting down and the queue is empty.
-            break;
-          }
-
-          runnable.run();
-        }
-      }
-      catch (ThreadSafeQueue.ShutdownException e) {
-        // We've been shutdown, exit this thread.
-      }
-      finally {
-        synchronized (m_threadGroup) {
-          --m_workerThreads;
-          m_threadGroup.notifyAll();
-        }
-      }
+    catch (ThreadSafeQueue.ShutdownException e) {
+      // We've been shutdown, exit this thread.
     }
   }
 
@@ -153,8 +125,9 @@ final class Kernel {
    * typically callers want to propagate
    * <code>ShutdownException</code>s but handle
    * <code>CommunicationException</code>s locally.
-   **/
-  static final class ShutdownException extends GrinderException {
+   */
+  public static final class ShutdownException extends GrinderException {
+
     private ShutdownException(String s) {
       super(s);
     }

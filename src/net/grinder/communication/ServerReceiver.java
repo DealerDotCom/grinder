@@ -36,6 +36,7 @@ public final class ServerReceiver implements Receiver {
 
   private final Acceptor m_acceptor;
   private final MessageQueue m_messageQueue = new MessageQueue(true);
+  private final ThreadPool m_threadPool;
 
   /**
    * Factory method that creates a <code>ServerReceiver</code> that
@@ -67,11 +68,19 @@ public final class ServerReceiver implements Receiver {
 
     m_acceptor = acceptor;
 
-    final ThreadGroup threadGroup = acceptor.getThreadGroup();
+    final ThreadPool.RunnableFactory runnableFactory =
+      new ThreadPool.RunnableFactory() {
+        public Runnable create() {
+          return new Runnable() {
+              public void run() { process(); }
+            };
+        };
+      };
 
-    for (int i = 0; i < numberOfThreads; ++i) {
-      new ListenThread(threadGroup, i).start();
-    }
+    m_threadPool =
+      new ThreadPool("Server receiver", numberOfThreads, runnableFactory);
+
+    m_threadPool.start();
   }
 
   /**
@@ -102,13 +111,12 @@ public final class ServerReceiver implements Receiver {
   public void shutdown() throws CommunicationException {
 
     m_messageQueue.shutdown();
-
-    // Will also shut down our ListenThreads.
     m_acceptor.shutdown();
+    m_threadPool.stop();
   }
 
   /**
-   * Return the Acceptor. Package scope, used by the unit tests.
+   * Return the Acceptor. Package scope; used by the unit tests.
    *
    * @return The acceptor.
    */
@@ -116,74 +124,76 @@ public final class ServerReceiver implements Receiver {
     return m_acceptor;
   }
 
-  private final class ListenThread extends Thread {
+  /**
+   * Return the thread group used for our threads. Package scope; used
+   * by the unit tests.
+   *
+   * @return The thread group.
+   */
+  ThreadGroup getThreadGroup() {
+    return m_threadPool.getThreadGroup();
+  }
 
-    public ListenThread(ThreadGroup threadGroup, int listenThreadIndex) {
-      super(threadGroup, "Listen thread " + listenThreadIndex);
-      setDaemon(true);
-    }
+  private void process() {
 
-    public void run() {
+    try {
+      // Did we do some work on the last pass?
+      boolean idle = false;
 
-      try {
-        // Did we do some work on the last pass?
-        boolean idle = false;
+      while (true) {
+        final ResourcePool.Reservation reservation =
+          m_acceptor.getSocketSet().reserveNext();
 
-        while (true) {
-          final ResourcePool.Reservation reservation =
-            m_acceptor.getSocketSet().reserveNext();
+        try {
+          if (reservation.isSentinel()) {
+            if (idle) {
+              Thread.sleep(500);
+            }
 
-          try {
-            if (reservation.isSentinel()) {
-              if (idle) {
-                Thread.sleep(500);
+            idle = true;
+          }
+          else {
+            final Acceptor.SocketResource socketResource =
+              (Acceptor.SocketResource)reservation.getResource();
+
+            final InputStream inputStream = socketResource.getInputStream();
+
+            if (inputStream.available() > 0) {
+
+              final ObjectInputStream objectStream =
+                new ObjectInputStream(inputStream);
+
+              final Message message = (Message)objectStream.readObject();
+
+              if (message instanceof CloseCommunicationMessage) {
+                reservation.close();
+              }
+              else {
+                m_messageQueue.queue(message);
               }
 
-              idle = true;
+              idle = false;
             }
-            else {
-              final Acceptor.SocketResource socketResource =
-                (Acceptor.SocketResource)reservation.getResource();
-
-              final InputStream inputStream = socketResource.getInputStream();
-
-              if (inputStream.available() > 0) {
-
-                final ObjectInputStream objectStream =
-                  new ObjectInputStream(inputStream);
-
-                final Message message = (Message)objectStream.readObject();
-
-                if (message instanceof CloseCommunicationMessage) {
-                  reservation.close();
-                }
-                else {
-                  m_messageQueue.queue(message);
-                }
-
-                idle = false;
-              }
-            }
-          }
-          catch (IOException e) {
-            reservation.close();
-            m_messageQueue.queue(e);
-          }
-          catch (ClassNotFoundException e) {
-            reservation.close();
-            m_messageQueue.queue(e);
-          }
-          finally {
-            reservation.free();
           }
         }
+        catch (IOException e) {
+          reservation.close();
+          m_messageQueue.queue(e);
+        }
+        catch (ClassNotFoundException e) {
+          reservation.close();
+          m_messageQueue.queue(e);
+        }
+        finally {
+          reservation.free();
+        }
       }
-      catch (ThreadSafeQueue.ShutdownException e) {
-        // We've been shutdown, exit this thread.
-      }
-      catch (InterruptedException e) {
-        // We've been shutdown, exit this thread.
-      }
+    }
+    catch (ThreadSafeQueue.ShutdownException e) {
+      // We've been shutdown, exit this thread.
+    }
+    catch (InterruptedException e) {
+      // We've been shutdown, exit this thread.
     }
   }
 }

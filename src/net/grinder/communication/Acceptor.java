@@ -39,7 +39,7 @@ final class Acceptor {
 
   private final ServerSocket m_serverSocket;
   private final ResourcePool m_socketSet = new ResourcePool();
-  private final ThreadGroup m_threadGroup = new ThreadGroup("Acceptor");
+  private final ThreadPool m_threadPool;
 
   /**
    * Constructor.
@@ -74,11 +74,19 @@ final class Acceptor {
       }
     }
 
-    for (int i = 0; i < numberOfThreads; ++i) {
-      new AcceptorThread(i).start();
-    }
+    final ThreadPool.RunnableFactory runnableFactory =
+      new ThreadPool.RunnableFactory() {
+        public Runnable create() {
+          return new Runnable() {
+              public void run() { process(); }
+            };
+        };
+      };
 
-    m_threadGroup.setDaemon(true);
+    m_threadPool =
+      new ThreadPool("Acceptor", numberOfThreads, runnableFactory);
+
+    m_threadPool.start();
   }
 
   /**
@@ -96,7 +104,7 @@ final class Acceptor {
     }
     finally {
       m_socketSet.close();
-      m_threadGroup.interrupt();
+      m_threadPool.stop();
     }
   }
 
@@ -120,42 +128,33 @@ final class Acceptor {
   }
 
   /**
-   * Get a <code>ThreadGroup</code> which should be used for threads
-   * to be shutdown with the Acceptor.
+   * Return the thread group used for our threads. Package scope; used
+   * by the unit tests.
    *
    * @return The thread group.
    */
-  public ThreadGroup getThreadGroup() {
-    return m_threadGroup;
+  ThreadGroup getThreadGroup() {
+    return m_threadPool.getThreadGroup();
   }
 
-  private final class AcceptorThread extends Thread {
-
-    public AcceptorThread(int threadIndex) {
-      super(m_threadGroup, "Acceptor thread " + threadIndex);
-      setDaemon(true);
+  private void process() {
+    try {
+      while (true) {
+        final Socket localSocket = m_serverSocket.accept();
+        m_socketSet.add(new SocketResource(localSocket));
+      }
     }
-
-    public void run() {
+    catch (IOException e) {
+      // Treat accept socket errors as fatal - we've probably been
+      // shutdown.
+    }
+    finally {
+      // Best effort to ensure our server socket is closed.
       try {
-        while (true) {
-          final Socket localSocket = m_serverSocket.accept();
-
-          m_socketSet.add(new SocketResource(localSocket));
-        }
+        shutdown();
       }
-      catch (IOException e) {
-        // Treat accept socket errors as fatal - we've probably been
-        // shutdown.
-      }
-      finally {
-        // Best effort to ensure our server socket is closed.
-        try {
-          shutdown();
-        }
-        catch (CommunicationException e) {
-          // Ignore.
-        }
+      catch (CommunicationException e) {
+        // Ignore.
       }
     }
   }

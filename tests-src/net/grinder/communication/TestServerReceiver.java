@@ -133,7 +133,8 @@ public class TestServerReceiver extends TestCase {
     final ServerReceiver serverReceiver = ServerReceiver.bindTo("", 0);
     final Acceptor acceptor = serverReceiver.getAcceptor();
 
-    assertEquals(6, acceptor.getThreadGroup().activeCount());
+    assertEquals(1, acceptor.getThreadGroup().activeCount());
+    assertEquals(5, serverReceiver.getThreadGroup().activeCount());
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
@@ -163,7 +164,8 @@ public class TestServerReceiver extends TestCase {
     final ServerReceiver serverReceiver = ServerReceiver.bindTo("", 0);
     final Acceptor acceptor = serverReceiver.getAcceptor();
 
-    assertEquals(6, acceptor.getThreadGroup().activeCount());
+    assertEquals(1, acceptor.getThreadGroup().activeCount());
+    assertEquals(5, serverReceiver.getThreadGroup().activeCount());
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());

@@ -31,11 +31,9 @@ package net.grinder.communication;
  */
 public final class MessagePump {
 
-  private final ThreadGroup m_threadGroup = new ThreadGroup("Message pump");
-  private final MessagePumpThread[] m_threads;
+  private final ThreadPool m_threadPool;
   private final Receiver m_receiver;
   private final Sender m_sender;
-  private boolean m_shutdown = false;
 
   /**
      * Constructor.
@@ -50,14 +48,19 @@ public final class MessagePump {
     m_receiver = receiver;
     m_sender = sender;
 
-    m_threadGroup.setDaemon(true);
+    final ThreadPool.RunnableFactory runnableFactory =
+      new ThreadPool.RunnableFactory() {
+        public Runnable create() {
+          return new Runnable() {
+              public void run() { process(); }
+            };
+        }
+      };
 
-    m_threads = new MessagePumpThread[numberOfThreads];
+    m_threadPool =
+      new ThreadPool("Message pump", numberOfThreads, runnableFactory);
 
-    for (int i = 0; i < m_threads.length; ++i) {
-      m_threads[i] = new MessagePumpThread(i);
-      m_threads[i].start();
-    }
+    m_threadPool.start();
   }
 
   /**
@@ -67,8 +70,6 @@ public final class MessagePump {
    * whilst waiting for this thread to shut down.
    */
   public void shutdown() throws InterruptedException {
-
-    m_shutdown = true;
 
     try {
       m_receiver.shutdown();
@@ -84,30 +85,18 @@ public final class MessagePump {
       // Ignore.
     }
 
-    m_threadGroup.interrupt();
-
-    for (int i = 0; i < m_threads.length; ++i) {
-      m_threads[i].join();
-    }
+    m_threadPool.stopAndWait();
   }
 
-  private class MessagePumpThread extends Thread {
-
-    public MessagePumpThread(int i) {
-      super(m_threadGroup, "Message pump thread " + i);
-      setDaemon(true);
-    }
-
-    public void run() {
-      while (!m_shutdown) {
-        try {
-          final Message message = m_receiver.waitForMessage();
-          m_sender.send(message);
-        }
-        catch (CommunicationException e) {
-          if (!m_shutdown) {
-            e.printStackTrace();
-          }
+  private void process() {
+    while (!m_threadPool.isStopped()) {
+      try {
+        final Message message = m_receiver.waitForMessage();
+        m_sender.send(message);
+      }
+      catch (CommunicationException e) {
+        if (!m_threadPool.isStopped()) {
+          e.printStackTrace();
         }
       }
     }
