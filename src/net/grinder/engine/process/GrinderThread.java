@@ -24,11 +24,11 @@ package net.grinder.engine.process;
 
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.List;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.engine.common.EngineException;
-import net.grinder.plugininterface.PluginException;
-import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.util.Sleeper;
 
 
@@ -122,7 +122,7 @@ class GrinderThread implements java.lang.Runnable {
 
         logger.setCurrentRunNumber(currentRun);
 
-        m_beginRunPluginThreadCaller.run();
+        m_beginRunCaller.run();
 
         try {
           jythonRunnable.run();
@@ -147,8 +147,7 @@ class GrinderThread implements java.lang.Runnable {
           }
         }
 
-        m_endRunPluginThreadCaller.run();
-        m_context.endRun();
+        m_endRunCaller.run();
       }
 
       logger.setCurrentRunNumber(-1);
@@ -202,38 +201,38 @@ class GrinderThread implements java.lang.Runnable {
     return s_numberOfThreads;
   }
 
-  private abstract class PluginThreadCaller {
+  private abstract class ThreadLifeCycleListenerCaller {
 
-    public void run() throws EngineException, PluginException {
-      final Iterator iterator =
-        m_processContext.getPluginRegistry().
-        getPluginThreadListenerList(m_context).iterator();
+    public void run() throws EngineException {
+      processList(
+        m_processContext.getPluginRegistry().getPluginThreadListeners(
+          m_context));
+
+      processList(m_context.getThreadLifeCycleListeners());
+    }
+
+    private void processList(List listeners) {
+      final Iterator iterator = listeners.iterator();
 
       while (iterator.hasNext()) {
-        final PluginThreadListener pluginThreadListener =
-          (PluginThreadListener)iterator.next();
-
-        doOne(pluginThreadListener);
+        doOne((ThreadLifeCycleListener)iterator.next());
       }
     }
 
-    protected abstract void doOne(PluginThreadListener pluginThreadListener)
-      throws PluginException;
+    protected abstract void doOne(ThreadLifeCycleListener threadListener);
   }
 
-  private final PluginThreadCaller m_beginRunPluginThreadCaller =
-    new PluginThreadCaller() {
-      protected void doOne(PluginThreadListener pluginThreadListener)
-        throws PluginException {
-        pluginThreadListener.beginRun();
+  private final ThreadLifeCycleListenerCaller m_beginRunCaller =
+    new ThreadLifeCycleListenerCaller() {
+      protected void doOne(ThreadLifeCycleListener threadListener) {
+        threadListener.beginRun();
       }
     };
 
-  private final PluginThreadCaller m_endRunPluginThreadCaller =
-    new PluginThreadCaller() {
-      protected void doOne(PluginThreadListener pluginThreadListener)
-        throws PluginException {
-        pluginThreadListener.endRun();
+  private final ThreadLifeCycleListenerCaller m_endRunCaller =
+    new ThreadLifeCycleListenerCaller() {
+      protected void doOne(ThreadLifeCycleListener threadListener) {
+        threadListener.endRun();
       }
     };
 }

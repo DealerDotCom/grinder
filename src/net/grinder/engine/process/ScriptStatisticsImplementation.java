@@ -24,6 +24,7 @@ package net.grinder.engine.process;
 import java.io.PrintWriter;
 
 import net.grinder.common.GrinderException;
+import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.script.StatisticsAlreadyReportedException;
@@ -44,7 +45,8 @@ import net.grinder.statistics.TestStatisticsFactory;
  * @author Philip Aston
  * @version $Revision$
  */
-final class ScriptStatisticsImplementation implements Statistics {
+final class ScriptStatisticsImplementation
+  implements Statistics, ThreadLifeCycleListener {
 
   private static final StatisticsIndexMap.LongIndex s_errorsIndex;
   private static final StatisticsIndexMap.LongIndex s_timedTransactionsIndex;
@@ -270,7 +272,10 @@ final class ScriptStatisticsImplementation implements Statistics {
     }
   }
 
-  void endRun() {
+  public void beginRun() {
+  }
+
+  public void endRun() {
     reportInternal();
   }
 

@@ -91,7 +91,7 @@ public final class PluginRegistryImplementation extends PluginRegistry {
     }
   }
 
-  List getPluginThreadListenerList(ThreadContext threadContext)
+  List getPluginThreadListeners(ThreadContext threadContext)
     throws EngineException {
     synchronized (m_plugins) {
       final List result = new ArrayList(m_plugins.size());
