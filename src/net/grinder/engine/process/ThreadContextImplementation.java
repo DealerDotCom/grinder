@@ -158,8 +158,16 @@ final class ThreadContextImplementation
         stopTimer();
       }
 
-      m_scriptStatistics.setSuccessNoChecks();
-      m_scriptStatistics.setTimeNoChecks(m_elapsedTime);
+      if (m_scriptStatistics.getSuccess()) {
+        m_scriptStatistics.setSuccessNoChecks();
+        m_scriptStatistics.setTimeNoChecks(m_elapsedTime);
+      }
+      else {
+        // The plug-in might have set timing information etc., or set errors to
+        // be greater than 1. For consistency, we override to a single error per
+        // Test with no associated timing information.
+        m_scriptStatistics.setErrorNoChecks();
+      }
 
       return testResult;
     }
