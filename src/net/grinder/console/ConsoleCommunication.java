@@ -32,6 +32,7 @@ import net.grinder.communication.ResetGrinderMessage;
 import net.grinder.communication.Sender;
 import net.grinder.communication.StartGrinderMessage;
 import net.grinder.communication.StopGrinderMessage;
+import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ConsoleExceptionHandler;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.model.ConsoleProperties;
@@ -88,6 +89,16 @@ class ConsoleCommunication
 	try {
 	    if (m_receiver != null) {
 		m_receiver.shutdown();
+	    }
+
+	    while (!m_deaf) {
+		try {
+		    synchronized(this) {
+			wait();
+		    }
+		}
+		catch (InterruptedException e) {
+		}
 	    }
 
 	    m_receiver =
@@ -174,13 +185,15 @@ class ConsoleCommunication
 		    // Current receiver has been shutdown.
 		    synchronized (this) {
 			m_deaf = true;
+			notifyAll();
 		    }
 		}
 
 		return message;
 	    }
 	    catch (CommunicationException e) {
-		System.err.println("Communication exception: " + e);
+		m_exceptionHandler.consoleExceptionOccurred(
+		    new ConsoleException(e.getMessage(), e));
 	    }
 	}
     }
