@@ -18,6 +18,9 @@
 
 package net.grinder.console;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Receiver;
@@ -52,7 +55,19 @@ class ConsoleCommunication
 	    properties.getMandatoryInt("grinder.multicastPort");
 	
 	m_receiver = new Receiver(multicastAddress, consolePort);
-	m_sender = new Sender(multicastAddress, grinderPort);
+
+	String host;
+
+	try {
+	    host= InetAddress.getLocalHost().getHostName();
+	}
+	catch (UnknownHostException e) {
+	    host = "UNNAMED HOST";
+	}
+
+	m_sender = new Sender("Console (" + host + " " +
+			      multicastAddress + ":" + consolePort + ")",
+			      multicastAddress, grinderPort);
     }
 
     void sendStartMessage()
@@ -74,16 +89,19 @@ class ConsoleCommunication
     }
 
     ReportStatisticsMessage waitForReport()
-	throws CommunicationException
     {
-	Message message;
-	
-	do
+	while (true)
 	{
-	    message = m_receiver.waitForMessage();
-	}
-	while (!(message instanceof ReportStatisticsMessage));
+	    try {
+		final Message message = m_receiver.waitForMessage();
 
-	return (ReportStatisticsMessage)message;
+		if (message instanceof ReportStatisticsMessage) {
+		    return (ReportStatisticsMessage)message;
+		}
+	    }
+	    catch (CommunicationException e) {
+		System.err.println("Communication exception: " + e);
+	    }
+	}
     }
 }
