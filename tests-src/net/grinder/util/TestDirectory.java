@@ -60,6 +60,9 @@ public class TestDirectory extends AbstractFileTestCase {
     final Directory directory = new Directory(getDirectory());
 
     final String[] files = {
+      "first/three",
+      "will-not-be-picked-up",
+      "because/they/are/too/old",
       "directory/foo/bah/blah",
       "directory/blah",
       "a/b/c/d/e",
@@ -69,6 +72,22 @@ public class TestDirectory extends AbstractFileTestCase {
       "y/z",
       "another",
     };
+
+    final Set expected = new HashSet();
+
+    for (int i=0; i<files.length; ++i) {
+      final File file = new File(getDirectory(), files[i]);
+      file.getParentFile().mkdirs();
+      file.createNewFile();
+
+      if (i < 3) {
+        file.setLastModified(10000L * (i + 1));
+      }
+      else {
+        // Result uses relative paths.
+        expected.add(new File(files[i]));
+      }
+    }
 
     final File[] badDirectories = {
       new File(getDirectory(), "directory/foo/bah/blah.cantread"),
@@ -81,21 +100,11 @@ public class TestDirectory extends AbstractFileTestCase {
       FileUtilities.setCanRead(badDirectories[i], false);
     }
 
-    final Set expected = new HashSet();
+    final File[] filesAfterTimeT = directory.listContents(50000L);
 
-    for (int i=0; i<files.length; ++i) {
-      final File file = new File(getDirectory(), files[i]);
-      file.getParentFile().mkdirs();
-      file.createNewFile();
-
-      // Result uses relative paths.
-      expected.add(new File(files[i]));
-    }
-
-    final File[] allFiles = directory.listContents();
-
-    for (int i=0; i<allFiles.length; ++i) {
-      assertTrue("Contains " + allFiles[i], expected.contains(allFiles[i]));
+    for (int i=0; i<filesAfterTimeT.length; ++i) {
+      assertTrue("Contains " + filesAfterTimeT[i],
+                 expected.contains(filesAfterTimeT[i]));
     }
 
     final String[] warnings = directory.getWarnings();
@@ -116,6 +125,10 @@ public class TestDirectory extends AbstractFileTestCase {
 
       FileUtilities.setCanRead(badDirectories[i], true);
     }
+
+    // Check that listContents() returns the lot.
+    final File[] allFiles = directory.listContents();
+    assertEquals(files.length, allFiles.length);
   }
 
   public void testDeleteContents() throws Exception {

@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Properties;
 import java.util.Random;
@@ -158,6 +159,13 @@ public class TestConsoleProperties extends TestCase {
 
     listener.assertCalledOnce();
     listener2.assertCalledOnce();
+
+    try {
+      properties.setConsoleHost("234.12.23.2");
+      fail("Expected a DisplayMessageConsoleException for multicast address");
+    }
+    catch (DisplayMessageConsoleException e) {
+    }
   }
 
   public void testConsolePort() throws Exception {
@@ -294,6 +302,15 @@ public class TestConsoleProperties extends TestCase {
 
     properties.setDistributionDirectory(null);
     assertNotNull(properties.getDistributionDirectory());
+
+    properties.saveDistributionDirectory();
+
+    final Properties rawProperties = new Properties();
+    rawProperties.load(new FileInputStream(file));
+    assertEquals(1, rawProperties.size());
+    assertEquals(rawProperties.getProperty(
+                   ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY),
+                 properties.getDistributionDirectory().getPath());
   }
 
   public void testLookAndFeel() throws Exception {
