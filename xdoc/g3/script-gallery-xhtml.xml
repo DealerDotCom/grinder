@@ -520,9 +520,198 @@ logTest = test1.wrap(log)
 
 <hr/>
 
-<h3><a name="jms">Java Message Service</a></h3>
+<h3><a name="jms">Java Message Service - Queue Sender</a></h3>
 
-<em>To be written.</em>
+<blockquote>
+<pre><span class="comment"># An example JMS sender.
+#
+# JMS objects are looked up and messages are created once during
+# initialisation. This default JNDI names are for the WebLogoic Server
+# 7.0 examples domain - change accordingly.
+#
+# Each worker thread:
+#  - Creates a queue session
+#  - Sends ten messages
+#  - Closes the queue session
+</span><span class="zmacs-region">
+</span><span class="keyword">from</span><span class="zmacs-region"> net.grinder.script </span><span class="keyword">import</span><span class="zmacs-region"> Test
+</span><span class="keyword">from</span><span class="zmacs-region"> jarray </span><span class="keyword">import</span><span class="zmacs-region"> zeros
+</span><span class="keyword">from</span><span class="zmacs-region"> java.util </span><span class="keyword">import</span><span class="zmacs-region"> Properties, Random
+</span><span class="keyword">from</span><span class="zmacs-region"> javax.jms </span><span class="keyword">import</span><span class="zmacs-region"> Session
+</span><span class="keyword">from</span><span class="zmacs-region"> javax.naming </span><span class="keyword">import</span><span class="zmacs-region"> Context, InitialContext
+</span><span class="keyword">from</span><span class="zmacs-region"> weblogic.jndi </span><span class="keyword">import</span><span class="zmacs-region"> WLInitialContextFactory
+
+log = grinder.logger.output
+
+</span><span class="comment"># Look up connection factory and queue in JNDI. 
+</span><span class="zmacs-region">properties = Properties()
+properties[Context.PROVIDER_URL] = &quot;</span><span class="string">t3://localhost:7001</span><span class="zmacs-region">&quot;
+properties[Context.INITIAL_CONTEXT_FACTORY] = WLInitialContextFactory.name
+
+initialContext = InitialContext(properties)
+
+connectionFactory = initialContext.lookup(&quot;</span><span class="string">weblogic.examples.jms.QueueConnectionFactory</span><span class="zmacs-region">&quot;)
+queue = initialContext.lookup(&quot;</span><span class="string">weblogic.examples.jms.exampleQueue</span><span class="zmacs-region">&quot;)
+initialContext.close()
+
+</span><span class="comment"># Create a connection.
+</span><span class="zmacs-region">connection = connectionFactory.createQueueConnection()
+connection.start()
+
+</span><span class="comment"># Create a couple of BytesMessages.
+</span><span class="zmacs-region">session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
+
+random = Random()
+
+</span><span class="keyword">def</span><span class="zmacs-region"> </span><span class="function-name">createBytesMessage</span><span class="zmacs-region">(size):
+    bytes = zeros(size, '</span><span class="string">b</span><span class="zmacs-region">')
+    random.nextBytes(bytes)
+    message = session.createBytesMessage()
+    message.writeBytes(bytes)
+    </span><span class="keyword">return</span><span class="zmacs-region"> message
+
+message = createBytesMessage(100)
+
+session.close()
+
+</span><span class="keyword">class</span><span class="zmacs-region"> </span><span class="type">TestRunner</span><span class="zmacs-region">:
+    </span><span class="keyword">def</span><span class="zmacs-region"> </span><span class="function-name">__call__</span><span class="zmacs-region">(self):
+        log(&quot;</span><span class="string">Creating queue session</span><span class="zmacs-region">&quot;)
+        session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
+
+        sender = session.createSender(queue)
+        instrumentedSender = Test(1, &quot;</span><span class="string">Send a message</span><span class="zmacs-region">&quot;).wrap(sender)
+
+        log(&quot;</span><span class="string">Sending ten messages</span><span class="zmacs-region">&quot;)
+
+        </span><span class="keyword">for</span><span class="zmacs-region"> i </span><span class="keyword">in</span><span class="zmacs-region"> range(0, 10):
+            instrumentedSender.send(message)
+            grinder.sleep(100)
+
+        log(&quot;</span><span class="string">Closing queue session</span><span class="zmacs-region">&quot;)
+        session.close()
+</span>
+</pre>
+</blockquote>
+
+<hr/>
+
+<h3><a name="jms">Java Message Service - Queue Receiver</a></h3>
+
+<blockquote>
+<pre><span class="comment"># An example JMS receiver.
+#
+# JMS objects are looked up and messages are created once during
+# initialisation. This default JNDI names are for the WebLogoic Server
+# 7.0 examples domain - change accordingly.
+#
+# Each worker thread:
+#  - Creates a queue session
+#  - Recieves ten messages
+#  - Closes the queue session
+#
+# This script demonstrates the use of The Grinder statistics API to
+# record a &quot;delivery time&quot; statistic.
+</span>
+<span class="keyword">from</span> java.lang <span class="keyword">import</span> System
+<span class="keyword">from</span> java.util <span class="keyword">import</span> Properties
+<span class="keyword">from</span> javax.jms <span class="keyword">import</span> MessageListener, Session
+<span class="keyword">from</span> javax.naming <span class="keyword">import</span> Context, InitialContext
+<span class="keyword">from</span> net.grinder.script <span class="keyword">import</span> Test
+<span class="keyword">from</span> net.grinder.statistics <span class="keyword">import</span> ExpressionView, StatisticsIndexMap, StatisticsView
+<span class="keyword">from</span> threading <span class="keyword">import</span> Condition
+<span class="keyword">from</span> weblogic.jndi <span class="keyword">import</span> WLInitialContextFactory
+
+log = grinder.logger.output
+
+<span class="comment"># Look up connection factory and queue in JNDI. 
+</span>properties = Properties()
+properties[Context.PROVIDER_URL] = &quot;<span class="string">t3://localhost:7001</span>&quot;
+properties[Context.INITIAL_CONTEXT_FACTORY] = WLInitialContextFactory.name
+
+initialContext = InitialContext(properties)
+
+connectionFactory = initialContext.lookup(&quot;<span class="string">weblogic.examples.jms.QueueConnectionFactory</span>&quot;)
+queue = initialContext.lookup(&quot;<span class="string">weblogic.examples.jms.exampleQueue</span>&quot;)
+initialContext.close()
+
+<span class="comment"># Create a connection.
+</span>connection = connectionFactory.createQueueConnection()
+connection.start()
+
+<span class="comment"># Use userLong0 statistic to represent the &quot;delivery time&quot;.
+</span>deliveryTimeIndex = StatisticsIndexMap.getInstance().getIndexForLong(&quot;<span class="string">userLong0</span>&quot;)
+
+<span class="comment"># Add two statistics views:
+# 1. Delivery time:- the mean time taken between the server sending
+# the message and the receiver receiving the message.
+# 2. Mean delivery time:- the delivery time averaged over all
+# transactions.
+</span>
+detailView = StatisticsView()
+detailView.add(ExpressionView(&quot;<span class="string">Delivery time</span>&quot;, &quot;&quot;, &quot;<span class="string">userLong0</span>&quot;))
+	    
+summaryView = StatisticsView()
+summaryView.add(ExpressionView(
+    &quot;<span class="string">Mean delivery time</span>&quot;,
+    &quot;<span class="string">statistic.deliveryTime</span>&quot;,
+    &quot;<span class="string">(/ userLong0(+ timedTransactions untimedTransactions))</span>&quot;))
+	    
+grinder.registerDetailStatisticsView(detailView)
+grinder.registerSummaryStatisticsView(summaryView)
+
+<span class="comment"># We record each message receipt against a single test. The
+# transaction time is meaningless.
+</span><span class="keyword">def</span> <span class="function-name">recordDeliveryTime</span>(deliveryTime):
+    grinder.currentTestStatistics.addValue(deliveryTimeIndex, deliveryTime)
+
+recordTest = Test(1, &quot;<span class="string">Receive messages</span>&quot;).wrap(recordDeliveryTime)
+        
+<span class="keyword">class</span> <span class="type">TestRunner</span>(MessageListener):
+    <span class="keyword">def</span> <span class="function-name">__init__</span>(self):
+        self.receivedMessages = 0
+        <span class="comment"># Use a Condition to synchronise thread activity.              
+</span>        self.cv = Condition()
+
+    <span class="keyword">def</span> <span class="function-name">__call__</span>(self):
+        log(&quot;<span class="string">Creating queue session and a receiver</span>&quot;)
+        session = connection.createQueueSession(0, Session.AUTO_ACKNOWLEDGE)
+
+        receiver = session.createReceiver(queue)
+        receiver.messageListener = self
+
+        <span class="comment"># Read ten messages from the queue.
+</span>        <span class="keyword">for</span> i <span class="keyword">in</span> range(0, 10):
+
+            <span class="comment"># Wait until we have received a message.            
+</span>            self.cv.acquire()
+            <span class="keyword">while</span> self.receivedMessages == 0: self.cv.wait()
+            self.receivedMessages -= 1
+            self.cv.release()
+
+            log(&quot;<span class="string">Received message</span>&quot;)            
+
+            <span class="comment"># We record the test a here rather than in onMessage
+</span>            <span class="comment"># because we must do so from a worker thread.
+</span>            recordTest(self.lastDeliveryTime)            
+            
+        log(&quot;<span class="string">Closing queue session</span>&quot;)
+        session.close()        
+
+    <span class="comment"># Called asynchronously by JMS when a message arrives.
+</span>    <span class="keyword">def</span> <span class="function-name">onMessage</span>(self, message):
+        self.cv.acquire()
+        
+        self.receivedMessages += 1
+
+        <span class="comment"># In WebLogic Server JMS, the JMS timestamp is set by the
+</span>        <span class="comment"># sender session. All we need to do is ensure our clocks are
+</span>        <span class="comment"># synchronised...
+</span>        self.lastDeliveryTime = System.currentTimeMillis() - message.getJMSTimestamp()
+        self.cv.notifyAll()
+        self.cv.release()
+</pre>
+</blockquote>
 
 </body>
 </html>
