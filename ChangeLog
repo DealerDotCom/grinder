@@ -1,4 +1,183 @@
-2004-02-08  Philip Aston  <philipa@mail.com>
+2004-02-19  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/util/Sleeper.java: Finality.
+
+	* tests-src/net/grinder/engine/process/TestScriptContextImplementation.java:
+	Test ScriptContextImplementation.
+
+	* tests-src/net/grinder/testutility/Time.java, tests-src/net/grinder/util/TestSleeper.java:
+	Separate out Time class.
+
+2004-02-18  Philip Aston  <paston@bea.com>
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	Allow direct access to CallData.
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	Fix synchronisation.
+
+	* CHANGES: Documentation.
+
+	* src/net/grinder/communication/CommunicationDefaults.java:
+	Shouldn't be able to construct this.
+
+	* src/net/grinder/engine/process/ConsoleListener.java:
+	Receiving an unknown message is an error.
+
+	* tests-src/net/grinder/engine/process/TestConsoleListener.java:
+	Coverage.
+
+	* TODO: Progress.
+
+	* tests-src/net/grinder/engine/process/TestExternalFilenameFactory.java:
+	Test ExternalFilenameFactory.
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	More null handling.
+
+	* tests-src/net/grinder/engine/process/TestExternalLogger.java:
+	Tighten assertions.
+
+	* tests-src/net/grinder/engine/process/StubThreadContextLocator.java:
+	Smarter stub.
+
+2004-02-17  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/ExternalFilenameFactory.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ThreadContextImplementation.java:
+	Add ExternalFilenameFactory, and refactor dependencies.
+
+	* src/net/grinder/engine/process/AbstractLogger.java, src/net/grinder/engine/process/ExternalLogger.java, src/net/grinder/engine/process/LoggerImplementation.java, tests-src/net/grinder/engine/process/TestExternalLogger.java:
+	Remove AbstractLogger and have ExternalLogger delegate every method
+	directly.
+
+	* build.xml: Don't gj-instrument if up to date.
+
+	* build.xml:
+	Unfortunately gj-report can't depend on gj-test as it then runs in the
+	same JVM and GJTK reports "no test cases were found.
+
+	* tests-src/net/grinder/engine/process/TestTestData.java:
+	Fully test TestData.
+
+	* tests-src/net/grinder/testutility/RandomObjectFactory.java:
+	Better names for DummyInvocationHandler instances.
+
+2004-02-16  Philip Aston  <paston@bea.com>
+
+	* tests-src/net/grinder/testutility/AssertingInvocationHandler.java, tests-src/net/grinder/testutility/DelegatingInvocationHandler.java:
+	invokeInternal now takes proxy.
+
+	* tests-src/net/grinder/testutility/CallRecorder.java: Copy with null.
+
+	* tests-src/net/grinder/engine/process/ThreadLoggerStubFactory.java:
+	Extend LoggerStubFactory for ThreadLogger.
+
+	* tests-src/net/grinder/engine/process/TestFilenameFactoryImplementation.java:
+	Test FilenameFactoryImplementation.
+
+	* tests-src/net/grinder/engine/process/TestExternalLogger.java:
+	More tests.
+
+	* src/net/grinder/engine/process/FilenameFactoryImplementation.java:
+	Layout.
+
+	* tests-src/net/grinder/common/LoggerStubFactory.java:
+	Allow subclasses to override proxy interface.
+
+	* tests-src/net/grinder/testutility/StubInvocationHandler.java:
+	Fix equals _again_.
+
+	* tests-src/net/grinder/testutility/StubInvocationHandler.java:
+	Remove silly equals(), hashCode().
+
+	* tests-src/net/grinder/testutility/RandomObjectFactory.java: Layout.
+
+	* tests-src/net/grinder/testutility/RandomObjectFactory.java:
+	Sensible DummyInvocationHandler.toString().
+
+	* tests-src/net/grinder/testutility/StubInvocationHandler.java:
+	Sensible implementations of toString(), equals(), hashCode().
+
+	* tests-src/net/grinder/testutility/CallRecorder.java: Useful messages.
+
+	* build.xml, etc/buildenv.sh: Fix gjreport.
+
+2004-02-15  Philip Aston  <paston@bea.com>
+
+	* src/HTTPClient/HTTPResponse.java, CHANGES:
+	Fix bug 805013 - mean time is not correct.
+
+	* tests-src/net/grinder/engine/process/StubThreadContextLocator.java:
+	Simple ThreadContextLocator stub.
+
+	* tests-src/net/grinder/engine/process/StubTestRegistry.java:
+	Allow tests to alter TestRegistry.
+
+	* tests-src/net/grinder/engine/process/TestExternalLogger.java:
+	Test ExternalLogger.
+
+	* tests-src/net/grinder/common/TestGrinderProperties.java:
+	Use LoggerStubFactory.
+
+	* tests-src/net/grinder/common/LogCounter.java, tests-src/net/grinder/common/LoggerStubFactory.java:
+	Replace LogCounter with dynamic LoggerStubFactory.
+
+	* tests-src/net/grinder/engine/process/TestConsoleListener.java:
+	Use LoggerStubFactory.
+
+	* tests-src/net/grinder/testutility/AssertingInvocationHandler.java, tests-src/net/grinder/testutility/CallRecorder.java, tests-src/net/grinder/testutility/DelegatingInvocationHandler.java, tests-src/net/grinder/testutility/RandomObjectFactory.java, tests-src/net/grinder/testutility/StubInvocationHandler.java:
+	Dynamic test utilities.
+
+2004-02-14  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/TestRegistry.java: Checkstyle.
+
+	* tests-src/net/grinder/util/TestSleeper.java, tests-src/net/grinder/communication/TestConnectionType.java, tests-src/net/grinder/communication/TestKernel.java, tests-src/net/grinder/statistics/TestExpressionView.java:
+	Improve coverage.
+
+	* src/net/grinder/communication/ThreadSafeQueue.java:
+	Remove unused method.
+
+	* TODO: *** empty log message ***
+
+	* src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestRegistry.java, tests-src/net/grinder/script/TestTest.java:
+	Allow unit tests to set TestRegistry singleton.
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	Don't implement Monitor, delegate.
+
+	* src/net/grinder/engine/process/ExternalLogger.java: Fix bug.
+
+	* etc/localpaths.properties: Incorporate Glass JAR coverage tool.
+
+	* .cvsignore, build.xml: Incorporate Glass JAR coverage tool.
+	Allow other things to work if Checkstyle is not available.
+
+2004-02-13  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/RegisteredPlugin.java:
+	Extract out a ThreadContext interface.
+
+	* TODO: Progress.
+
+	* tests-src/net/grinder/engine/process/TestTestData.java:
+	Update for changes to TestData.
+
+	* src/net/grinder/engine/process/RegisteredPlugin.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContext.java, src/net/grinder/engine/process/ThreadContextLocator.java, src/net/grinder/engine/process/ExternalLogger.java, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/PluginRegistry.java, src/net/grinder/engine/process/ProcessContext.java:
+	Add ThreadContextLocator to explicitly model dependencies.
+
+	* src/net/grinder/engine/process/ExitProcessException.java, src/net/grinder/engine/process/GrinderProcess.java:
+	ExitProcessException is only used by GrinderProcess. Make it an inner
+	class.
+
+2004-02-12  Philip Aston  <paston@bea.com>
+
+	* xdoc/book-xhtml.xml, xdoc/commercials-xhtml.xml, xdoc/documentation.xweb:
+	Add commercial for TestPros.
+
+2004-02-08  Philip Aston  <paston@bea.com>
+
+	* ChangeLog: *** empty log message ***
 
 	* src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/TestRegistry.java:
 	TestRegistry needs to be a singleton so that Test can find it. Remove
