@@ -1,4 +1,4 @@
-// Copyright (C) 2002 Philip Aston
+// Copyright (C) 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,37 +23,27 @@ package net.grinder.common;
 
 
 /**
- * Stub implementation of <code>AbstractTestSemantics</code> for the unit tests.
- *
+ * Stub implementation of <code>AbstractTestSemantics</code> for the unit
+ * tests.
+ * 
  * @author Philip Aston
  * @version $Revision$
- **/
-public class StubTest extends AbstractTestSemantics
-{
-    private final int m_number;
-    private final String m_description;
+ */
+public class StubTest extends AbstractTestSemantics {
 
-    private final GrinderProperties m_parameters =
-	new GrinderProperties();
+  private final int m_number;
+  private final String m_description;
 
-    public StubTest(int number, String description)
-    {
-	m_number = number;
-	m_description = description;
-    }
+  public StubTest(int number, String description) {
+    m_number = number;
+    m_description = description;
+  }
 
-    public final int getNumber()
-    {
-	return m_number;
-    }
+  public final int getNumber() {
+    return m_number;
+  }
 
-    public final String getDescription()
-    {
-	return m_description;
-    }
-
-    public final GrinderProperties getParameters()
-    {
-	return m_parameters;
-    }
+  public final String getDescription() {
+    return m_description;
+  }
 }
