@@ -452,6 +452,7 @@ what you want. Currently the conditionally built modules are:
 	<include name="net/grinder/plugin/http/*.java"/>
 	<exclude name="net/grinder/plugin/http/HTTPPlugin.java"/>
 	<exclude name="net/grinder/plugin/http/*Filter.java"/>
+        <include name="net/grinder/common/FilenameFactory.java"/>
         <include name="net/grinder/common/GrinderException.java"/>
         <include name="net/grinder/common/Logger.java"/>
         <include name="net/grinder/script/*.java"/>
@@ -509,7 +510,7 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <target name="all"
-          depends="assert-have-everything,jar,sniff-war,javadoc,xweb"/>
+  depends="assert-have-everything,jar,sniff-war,script-javadoc,xweb"/>
 
   <target name="dist" depends="all" description="Generates distribution.">
     <antcall target="do-dist">
@@ -550,7 +551,7 @@ what you want. Currently the conditionally built modules are:
     </antcall>
   </target>
 
-  <target name="release-doc" depends="xweb" 
+  <target name="release-doc" depends="script-javadoc,xweb"
           description="Packages docs for release.">
     <mkdir dir="${release.dir}"/>
     <zip zipfile="${release.dir}/${name}-docs.zip">
