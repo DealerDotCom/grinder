@@ -18,7 +18,7 @@
 
 package net.grinder.engine.process;
 
-import net.grinder.plugininterface.PluginContext;
+import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderProperties;
 
@@ -29,7 +29,7 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-class PluginContextImplementation implements PluginContext
+class PluginThreadContextImplementation implements PluginThreadContext
 {
     private GrinderThread m_grinderThread = null;
     private final GrinderProperties m_pluginParameters;
@@ -45,7 +45,7 @@ class PluginContextImplementation implements PluginContext
     private long m_startTime;
     private long m_elapsedTime;
 
-    public PluginContextImplementation(GrinderProperties pluginParameters,
+    public PluginThreadContextImplementation(GrinderProperties pluginParameters,
 				       String hostIDString,
 				       String processIDString,
 				       int threadID)
@@ -88,7 +88,7 @@ class PluginContextImplementation implements PluginContext
     }
 
     /*
-     * Implementation of PluginContext follows
+     * Implementation of PluginThreadContext follows
      */
     public String getHostIDString()
     {

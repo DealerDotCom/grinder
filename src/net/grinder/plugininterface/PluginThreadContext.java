@@ -29,7 +29,7 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface PluginContext {
+public interface PluginThreadContext {
     
     public String getHostIDString();
     public String getProcessIDString();

@@ -26,8 +26,8 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 import net.grinder.engine.*;
-import net.grinder.plugininterface.TestDefinition;
-import net.grinder.plugininterface.TestSetPlugin;
+import net.grinder.plugininterface.GrinderPlugin;
+import net.grinder.plugininterface.Test;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
 import net.grinder.util.PropertiesHelper;
@@ -62,16 +62,16 @@ public class Console implements ActionListener
 	final PropertiesHelper propertiesHelper =
 	    new PropertiesHelper(m_properties);
 
-	// Get Test Set plugin.
-	final TestSetPlugin testSetPlugin =
-	    propertiesHelper.getTestSetPlugin();
+	final GrinderPlugin grinderPlugin =
+	    propertiesHelper.getPlugin();
 
 	// Shove the tests into a TreeMap so that they're ordered.
-	final Iterator testSetIterator = testSetPlugin.getTests().iterator();
+	final Iterator testSetIterator =
+	    propertiesHelper.getTestSet().iterator();
 
 	while (testSetIterator.hasNext())
 	{
-	    final TestDefinition test = (TestDefinition)testSetIterator.next();
+	    final Test test = (Test)testSetIterator.next();
 	    final Integer testNumber = test.getTestNumber();
 	    m_tests.put(test.getTestNumber(), test);
 	}
@@ -129,7 +129,7 @@ public class Console implements ActionListener
 	int i = 0;
 	
 	while (testIterator.hasNext()) {
-	    final TestDefinition test = (TestDefinition)testIterator.next();
+	    final Test test = (Test)testIterator.next();
 
             m_gsi[i] = new GraphStatInfo(test.toString(), 0, 0);
             p.add(m_gsi[i]);

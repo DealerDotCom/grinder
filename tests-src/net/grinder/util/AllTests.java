@@ -39,7 +39,7 @@ public class AllTests
     {
 	final TestSuite suite = new TestSuite();
 	suite.addTest(new TestSuite(TestGrinderProperties.class));
-	suite.addTest(new TestSuite(TestPropertiesTestSet.class));
+	suite.addTest(new TestSuite(TestPropertiesHelper.class));
 	return suite;
     }
 }

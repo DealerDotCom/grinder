@@ -23,8 +23,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
-import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.util.GrinderProperties;
 
 
@@ -51,8 +51,8 @@ class GrinderThread implements java.lang.Runnable
 
     private static Random m_random = new Random();
 
-    private final GrinderPlugin m_plugin;
-    private final PluginContextImplementation m_pluginContext;
+    private final ThreadCallbacks m_threadCallbacks;
+    private final PluginThreadContextImplementation m_pluginThreadContext;
     private final Map m_tests;
     private final PrintWriter m_dataPrintWriter;
 
@@ -63,27 +63,27 @@ class GrinderThread implements java.lang.Runnable
 
     private int m_numberOfCycles;
 
-    /** This is a member so that PluginContextImplementation can
+    /** This is a member so that PluginThreadContextImplementation can
      * generate context sensitive log messages. */
     private int m_currentCycle = -1;
 
-    /** This is a member so that PluginContextImplementation can
+    /** This is a member so that PluginThreadContextImplementation can
      * generate context sensitive log messages. */
     private TestData m_currentTest = null;
 
     /**
      * The constructor.
      */        
-    public GrinderThread(GrinderPlugin plugin,
-			 PluginContextImplementation pluginContext,
+    public GrinderThread(ThreadCallbacks threadCallbacks,
+			 PluginThreadContextImplementation pluginThreadContext,
 			 PrintWriter dataPrintWriter, Map tests)
     {
-	m_plugin = plugin;
-	m_pluginContext = pluginContext;
+	m_threadCallbacks = threadCallbacks;
+	m_pluginThreadContext = pluginThreadContext;
 	m_dataPrintWriter = dataPrintWriter;
 	m_tests = tests;
 
-	m_pluginContext.setGrinderThread(this);
+	m_pluginThreadContext.setGrinderThread(this);
 
 	// Should really wrap all of this in a configuration class.
 	final GrinderProperties properties = GrinderProperties.getProperties();
@@ -112,7 +112,7 @@ class GrinderThread implements java.lang.Runnable
 
 	try{
 	    try {
-		m_plugin.initialize(m_pluginContext);
+		m_threadCallbacks.initialize(m_pluginThreadContext);
 	    }
 	    catch (PluginException e) {
 		logError("Plug-in initialize() threw " + e);
@@ -120,7 +120,7 @@ class GrinderThread implements java.lang.Runnable
 		return;
 	    }
 	    
-	    logMessage("Initialized " + m_plugin.getClass().getName());
+	    logMessage("Initialized " + m_threadCallbacks.getClass().getName());
 	    logMessage("About to run " + m_numberOfCycles + " cycles");
 
 	    CYCLE_LOOP:
@@ -131,7 +131,7 @@ class GrinderThread implements java.lang.Runnable
 		sleep(m_beginCycleSleepTime);
 
 		try {
-		    m_plugin.beginCycle();
+		    m_threadCallbacks.beginCycle();
 		}
 		catch (PluginException e) {
 		    logError("Aborting cycle - plug-in beginCycle() threw " +
@@ -148,21 +148,21 @@ class GrinderThread implements java.lang.Runnable
 		    final Integer testNumber = (Integer)entry.getKey();
 		    m_currentTest = (TestData)entry.getValue();
 
-		    m_pluginContext.reset();
+		    m_pluginThreadContext.reset();
 
 		    final long sleepTime = m_currentTest.getSleepTime();
 		    sleep(sleepTime >= 0 ? sleepTime : m_defaultSleepTime);
 
 		    boolean success = false;
 			
-		    m_pluginContext.startTimer();
+		    m_pluginThreadContext.startTimer();
 
 		    try {
 			try {
-			    success = m_plugin.doTest(m_currentTest);
+			    success = m_threadCallbacks.doTest(m_currentTest);
 			}
 			finally {
-			    m_pluginContext.stopTimer();		
+			    m_pluginThreadContext.stopTimer();		
 			}
 		    }
 		    catch (PluginException e) {
@@ -171,17 +171,17 @@ class GrinderThread implements java.lang.Runnable
 			continue CYCLE_LOOP;
 		    }
 
-		    if (m_pluginContext.getAborted()) {
+		    if (m_pluginThreadContext.getAborted()) {
 			logError("Plug-in aborted thread");
 			break CYCLE_LOOP;
 		    }
 
-		    if (m_pluginContext.getAbortedCycle()) {
+		    if (m_pluginThreadContext.getAbortedCycle()) {
 			logError("Plug-in aborted cycle");
 			continue CYCLE_LOOP;
 		    }
 
-		    final long time = m_pluginContext.getElapsedTime();
+		    final long time = m_pluginThreadContext.getElapsedTime();
 		    final TestStatistics statistics =
 			m_currentTest.getStatistics();
 
@@ -196,7 +196,7 @@ class GrinderThread implements java.lang.Runnable
 
 		    if (m_dataPrintWriter != null) {
 			m_dataPrintWriter.println(
-			    m_pluginContext.getThreadID() + ", " +
+			    m_pluginThreadContext.getThreadID() + ", " +
 			    m_currentCycle + ", " + testNumber + ", " + time);
 		    }
 		}
@@ -204,7 +204,7 @@ class GrinderThread implements java.lang.Runnable
 		m_currentTest = null;
 
 		try {
-		    m_plugin.endCycle();
+		    m_threadCallbacks.endCycle();
 		}
 		catch (PluginException e) {
 		    logError("Plugin endCycle() threw: " + e);
@@ -260,7 +260,7 @@ class GrinderThread implements java.lang.Runnable
 	final StringBuffer buffer = new StringBuffer();
 	
 	buffer.append("(thread ");
-	buffer.append(m_pluginContext.getThreadID());
+	buffer.append(m_pluginThreadContext.getThreadID());
 
 	if (m_currentCycle >= 0) {
 	    buffer.append(" cycle " + m_currentCycle);

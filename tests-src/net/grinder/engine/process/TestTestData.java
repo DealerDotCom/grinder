@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import net.grinder.plugininterface.TestDefinition;
+import net.grinder.plugininterface.Test;
 import net.grinder.util.GrinderProperties;
 
 
@@ -50,13 +50,13 @@ public class TestTestData extends TestCase
     {
     }
 
-    class MyTestDefinition implements TestDefinition
+    class MyTest implements Test
     {
 	private final Integer m_testNumber;
 	private final String m_description;
 	private final GrinderProperties m_parameters;
 
-	public MyTestDefinition(Integer testNumber, String description,
+	public MyTest(Integer testNumber, String description,
 				GrinderProperties parameters)
 	{
 	    m_testNumber = testNumber;
@@ -80,18 +80,12 @@ public class TestTestData extends TestCase
 	}
     }
 
-    private void applyCommonAssertions(TestData testData,
-				       TestDefinition testDefinition,
+    private void applyCommonAssertions(TestData testData, Test test, 
 				       long sleepTime)
     {
-	assertEquals(testDefinition.getTestNumber(),
-		     testData.getTestNumber());
-
-	assertEquals(testDefinition.getDescription(),
-		     testData.getDescription());
-
-	assertEquals(testDefinition.getParameters(),
-		     testData.getParameters());
+	assertEquals(test.getTestNumber(), testData.getTestNumber());
+	assertEquals(test.getDescription(), testData.getDescription());
+	assertEquals(test.getParameters(), testData.getParameters());
 
 	assertEquals(sleepTime, testData.getSleepTime());
 
@@ -101,15 +95,13 @@ public class TestTestData extends TestCase
 
     public void test0() throws Exception
     {
-	final MyTestDefinition testDefinition =
-	    new MyTestDefinition(new Integer(99),
-				 "Some stuff",
-				 new GrinderProperties());
+	final MyTest test = new MyTest(new Integer(99), "Some stuff",
+				       new GrinderProperties());
 	
 	final long sleepTime = 1234;
-	final TestData testData = new TestData(testDefinition, sleepTime);
+	final TestData testData = new TestData(test, sleepTime);
 
-	applyCommonAssertions(testData, testDefinition, sleepTime);
+	applyCommonAssertions(testData, test, sleepTime);
     }
 
     public void test1() throws Exception
@@ -117,12 +109,11 @@ public class TestTestData extends TestCase
 	final GrinderProperties properties = new GrinderProperties();
 	properties.put("Something", "blah");
 
-	final MyTestDefinition testDefinition =
-	    new MyTestDefinition(new Integer(-33), "", properties);
+	final MyTest test = new MyTest(new Integer(-33), "", properties);
 	
 	final long sleepTime = 1234;
-	final TestData testData = new TestData(testDefinition, sleepTime);
+	final TestData testData = new TestData(test, sleepTime);
 
-	applyCommonAssertions(testData, testDefinition, sleepTime);
+	applyCommonAssertions(testData, test, sleepTime);
     }
 }

@@ -20,6 +20,7 @@ package net.grinder.engine.process;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -30,8 +31,8 @@ import java.lang.reflect.Method;
 
 import net.grinder.engine.EngineException;
 import net.grinder.plugininterface.GrinderPlugin;
-import net.grinder.plugininterface.TestDefinition;
-import net.grinder.plugininterface.TestSetPlugin;
+import net.grinder.plugininterface.Test;
+import net.grinder.plugininterface.ThreadCallbacks;
 import net.grinder.util.FilenameFactory;
 import net.grinder.util.GrinderException;
 import net.grinder.util.GrinderProperties;
@@ -97,7 +98,7 @@ public class GrinderProcess
     private int m_consolePort = 0;
     private DatagramSocket m_datagramSocket = null;
 
-    private final Class m_pluginClass;
+    private final GrinderPlugin m_plugin;
     private final GrinderProperties m_pluginParameters;
     private final Map m_tests;
 
@@ -163,39 +164,23 @@ public class GrinderProcess
 	}
 
 	// Parse plugin class.
-	try{
-	    m_pluginClass =
-		Class.forName(properties.getProperty("grinder.plugin"));
-
-	    if (!GrinderPlugin.class.isAssignableFrom(m_pluginClass)) {
-		throw new EngineException(
-		    "The specified plug-in class ('" +
-		    m_pluginClass.getName() +
-		    "') does not implement the interface: '" +
-		    GrinderPlugin.class.getName() + "'");
-	    }
-	}
-	catch(ClassNotFoundException e){
-	    throw new EngineException(
-		"The specified plug-in class was not found.", e);
-	}
+	m_plugin = propertiesHelper.getPlugin();
 
 	// Plugin parameters.
 	m_pluginParameters =
 	    properties.getPropertySubset("grinder.plugin.parameter.");
 
-	// Get Test Set plugin.
-	final TestSetPlugin testSetPlugin =
-	    propertiesHelper.getTestSetPlugin();
+	// Get defined tests.
+	final Set tests = m_plugin.getTests();
 
 	// Wrap tests with our information.
 	m_tests = new TreeMap();
 	
-	final Iterator testSetIterator = testSetPlugin.getTests().iterator();
+	final Iterator testSetIterator = tests.iterator();
 
 	while (testSetIterator.hasNext())
 	{
-	    final TestDefinition test = (TestDefinition)testSetIterator.next();
+	    final Test test = (Test)testSetIterator.next();
 	    final Integer testNumber = test.getTestNumber();
 
 	    final String sleepTimePropertyName =
@@ -238,21 +223,15 @@ public class GrinderProcess
 	final GrinderThread runnable[] = new GrinderThread[m_numberOfThreads];
 
 	for (int i=0; i<m_numberOfThreads; i++) {
-	    final PluginContextImplementation pluginContext =
-		new PluginContextImplementation(m_pluginParameters,
+	    final PluginThreadContextImplementation pluginThreadContext =
+		new PluginThreadContextImplementation(m_pluginParameters,
 						m_hostID, m_jvmID, i);
 
-	    final GrinderPlugin pluginInstance;
+	    final ThreadCallbacks threadCallbackHandler =
+		m_plugin.createThreadCallbackHandler();
 
-	    try {
-		pluginInstance = (GrinderPlugin)m_pluginClass.newInstance();
-	    }
-	    catch (Exception e) {
-		throw new EngineException("Cannot instantate instance of '" +
-					  m_pluginClass + "'");
-	    }
-
-	    runnable[i] = new GrinderThread(pluginInstance, pluginContext,
+	    runnable[i] = new GrinderThread(threadCallbackHandler,
+					    pluginThreadContext,
 					    dataPrintWriter, m_tests);
 	}
         

@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
-// Copyright (C) 2000  Philip Aston
+// Copyright (C) 2001  Paco Gomez
+// Copyright (C) 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,38 +18,30 @@
 
 package net.grinder.plugininterface;
 
+import java.util.Set;
+
 import net.grinder.util.GrinderProperties;
 
 
 /**
- * The interface a valid Grinder plug-in must implement.
+ * This interface defines the callbacks that an individual Grinder
+ * thread can make on a plugin.
  *
- * @author Paco Gomez
  * @author Philip Aston
  * @version $Revision$
  */ 
 public interface GrinderPlugin
 {
     /**
-     * This method is executed the first time the plug-in is loaded. It
-     * is only executed once.
+     * This method is executed when the thread starts. It is only
+     * executed once.
      */
-    public void initialize(PluginContext pluginContext)
+    public ThreadCallbacks createThreadCallbackHandler()
 	throws PluginException;
-    
-    /**
-     * This method is executed at the beginning of evey cycle.
-     */
-    public void beginCycle() throws PluginException;
 
     /**
-     * This is called for each method name in grinder.plugin.methods.
+     * Returns a Set of Tests. Returns null if the tests are to be
+     * defined in the properties file.
      */
-    public boolean doTest(TestDefinition testDefinition)
-	throws PluginException;
-    
-    /**
-     * This method is executed at the end of every cycle.
-     */  
-    public void endCycle() throws PluginException;
+    public Set getTests() throws PluginException;
 }

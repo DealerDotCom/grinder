@@ -22,14 +22,34 @@ import net.grinder.util.GrinderProperties;
 
 
 /**
+ * This interface defines the callbacks that an individual Grinder
+ * thread can make on a plugin.
+ *
  * @author Philip Aston
  * @version $Revision$
  */ 
-public interface Test
+public interface ThreadCallbacks
 {
-    /** Test number is returned as an Integer so that plugins can use
-     * it as a Map key. */
-    public Integer getTestNumber();
-    public String getDescription();
-    public GrinderProperties getParameters();
+    /**
+     * This method is executed when the thread starts. It is only
+     * executed once.
+     */
+    public void initialize(PluginThreadContext pluginThreadContext)
+	throws PluginException;
+    
+    /**
+     * This method is executed at the beginning of evey cycle.
+     */
+    public void beginCycle() throws PluginException;
+
+    /**
+     * This is called for each method name in grinder.plugin.methods.
+     */
+    public boolean doTest(Test testDefinition)
+	throws PluginException;
+    
+    /**
+     * This method is executed at the end of every cycle.
+     */  
+    public void endCycle() throws PluginException;
 }

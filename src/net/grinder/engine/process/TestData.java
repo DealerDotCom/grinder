@@ -19,7 +19,7 @@
 package net.grinder.engine.process;
 
 import net.grinder.engine.EngineException;
-import net.grinder.plugininterface.TestDefinition;
+import net.grinder.plugininterface.Test;
 import net.grinder.util.GrinderProperties;
 
 
@@ -32,14 +32,14 @@ import net.grinder.util.GrinderProperties;
  * @author Philip Aston
  * @version $Revision$
  */
-class TestData implements TestDefinition
+class TestData implements Test
 {
-    private final TestDefinition m_testDefinition;
+    private final Test m_testDefinition;
     
     private final long m_sleepTime;
     private final TestStatistics m_statistics = new TestStatistics();
 
-    public TestData(TestDefinition testDefinition, long sleepTime)
+    public TestData(Test testDefinition, long sleepTime)
     {
 	m_testDefinition = testDefinition;
 	m_sleepTime = sleepTime;

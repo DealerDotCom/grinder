@@ -16,20 +16,42 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-package net.grinder.plugininterface;
+package net.grinder.util;
 
-import net.grinder.util.GrinderProperties;
+import java.util.Set;
+
+import net.grinder.plugininterface.GrinderPlugin;
+import net.grinder.plugininterface.PluginException;
+import net.grinder.plugininterface.ThreadCallbacks;
 
 
 /**
+ * Null plugin for tests.
+ *
+ * Package scope.
+ * 
  * @author Philip Aston
- * @version $Revision$
- */ 
-public interface Test
+ */
+public class NullPlugin implements GrinderPlugin
 {
-    /** Test number is returned as an Integer so that plugins can use
-     * it as a Map key. */
-    public Integer getTestNumber();
-    public String getDescription();
-    public GrinderProperties getParameters();
+    /**
+     * This method is executed when the thread starts. It is only
+     * executed once.
+     */
+    public ThreadCallbacks createThreadCallbackHandler()
+	throws PluginException
+    {
+	return null;
+    }
+    
+
+    /**
+     * Returns a Set of Tests. Returns null if the tests are to be
+     * defined in the properties file.
+     */
+    public Set getTests()
+    {
+	return null;
+    }
 }
+
