@@ -35,10 +35,10 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.ProcessStatus;
 import net.grinder.communication.CommunicationException;
+import net.grinder.communication.QueuedSender;
 import net.grinder.communication.RegisterTestsMessage;
 import net.grinder.communication.ReportStatisticsMessage;
 import net.grinder.communication.ReportStatusMessage;
-import net.grinder.communication.Sender;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
@@ -238,7 +238,7 @@ public final class GrinderProcess implements Monitor {
       runnable[i] = new GrinderThread(this, m_context, jythonScript, i);
     }
 
-    final Sender consoleSender = m_context.getConsoleSender();
+    final QueuedSender consoleSender = m_context.getConsoleSender();
 
     consoleSender.send(new ReportStatusMessage(ProcessStatus.STATE_STARTED,
                                                (short)0, m_numberOfThreads));
@@ -426,7 +426,7 @@ public final class GrinderProcess implements Monitor {
 
       LoggerImplementation.tick();
 
-      final Sender consoleSender = m_context.getConsoleSender();
+      final QueuedSender consoleSender = m_context.getConsoleSender();
 
       try {
         final Collection newTests = m_context.getTestRegistry().getNewTests();

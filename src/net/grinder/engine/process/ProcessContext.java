@@ -31,7 +31,8 @@ import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
-import net.grinder.communication.Sender;
+import net.grinder.communication.QueuedSender;
+import net.grinder.communication.QueuedSenderDecorator;
 import net.grinder.script.Grinder;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
@@ -49,7 +50,7 @@ class ProcessContext {
   private final boolean m_recordTime;
   private final LoggerImplementation m_loggerImplementation;
   private final Logger m_processLogger;
-  private final Sender m_consoleSender;
+  private final QueuedSender m_consoleSender;
   private final PluginRegistry m_pluginRegistry;
   private final TestRegistry m_testRegistry;
   private final Grinder.ScriptContext m_scriptContext;
@@ -79,7 +80,7 @@ class ProcessContext {
 
     m_processLogger = m_loggerImplementation.getProcessLogger();
 
-    Sender consoleSender = null;
+    QueuedSender consoleSender = null;
 
     if (properties.getBoolean("grinder.reportToConsole", true)) {
       final String consoleAddress =
@@ -92,7 +93,9 @@ class ProcessContext {
 
       try {
         consoleSender =
-          ClientSender.connectTo(getGrinderID(), consoleAddress, consolePort);
+          new QueuedSenderDecorator(
+            ClientSender.connectTo(getGrinderID(), consoleAddress,
+                                   consolePort));
       }
       catch (CommunicationException e) {
         m_processLogger.output(
@@ -111,7 +114,7 @@ class ProcessContext {
     }
     else {
       // Null Sender implementation.
-      m_consoleSender = new Sender() {
+      m_consoleSender = new QueuedSender() {
           public void send(Message message) { }
           public void flush() { }
           public void queue(Message message) { }
@@ -144,7 +147,7 @@ class ProcessContext {
     dataWriter.println();
   }
 
-  public final Sender getConsoleSender() {
+  public final QueuedSender getConsoleSender() {
     return m_consoleSender;
   }
 
