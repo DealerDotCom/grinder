@@ -1,6 +1,6 @@
 // The Grinder
-// Copyright (C) 2000  Paco Gomez
-// Copyright (C) 2000  Philip Aston
+// Copyright (C) 2000, 2001  Paco Gomez
+// Copyright (C) 2000, 2001  Philip Aston
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,12 +32,17 @@ import net.grinder.util.GrinderProperties;
 
 
 /**
+ * Currently each thread owns its own instance of
+ * ProcessContextImplementation (or derived class), so we don't need
+ * to worry about thread safety.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
 public class ProcessContextImplementation implements PluginProcessContext
 {
-    private final static DateFormat s_dateFormat =
+    private final StringBuffer m_buffer = new StringBuffer();
+    private final DateFormat m_dateFormat =
 	DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
 
     private final GrinderProperties m_pluginParameters;
@@ -205,16 +210,19 @@ public class ProcessContextImplementation implements PluginProcessContext
 
     private String formatMessage(String message)
     {
-	final StringBuffer buffer = new StringBuffer();
+	// Each ProcessContextImplementation is used by at most one
+	// thread, so we can safely reuse our StringBuffer and
+	// DateFormat.
+	m_buffer.delete(0, m_buffer.length());
 
-	buffer.append(s_dateFormat.format(new Date()));
-	buffer.append(": ");
+	m_buffer.append(m_dateFormat.format(new Date()));
+	m_buffer.append(": ");
 
-	appendMessageContext(buffer);
+	appendMessageContext(m_buffer);
 
-	buffer.append(message);
+	m_buffer.append(message);
 
-	return buffer.toString();
+	return m_buffer.toString();
     }
 
     protected void appendMessageContext(StringBuffer buffer)
@@ -226,4 +234,3 @@ public class ProcessContextImplementation implements PluginProcessContext
 	buffer.append(") ");
     }
 }
-
