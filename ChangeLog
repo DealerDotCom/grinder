@@ -1,4 +1,12 @@
-2003-09-30  Philip Aston  <philipa@mail.com>
+2003-10-01  Philip Aston  <paston@bea.com>
+
+	* AUTHORS, CHANGES, src/net/grinder/engine/process/GrinderProcess.java, xdoc/g3/getting-started-xhtml.xml, xdoc/welcome-xhtml.xml:
+	grinder.duration from Kalyanaraman Venkatasubramaniy.
+
+	* src/net/grinder/communication/SocketSet.java:
+	Fix checkstyle zealotry.
+
+2003-09-30  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/communication/StartGrinderMessage.java, src/net/grinder/communication/StopGrinderMessage.java, src/net/grinder/communication/UnicastReceiver.java, src/net/grinder/communication/UnicastSender.java, src/net/grinder/communication/AbstractReceiver.java, src/net/grinder/communication/AbstractSender.java, src/net/grinder/communication/CloseCommunicationMessage.java, src/net/grinder/communication/CommunicationDefaults.java, src/net/grinder/communication/CommunicationException.java, src/net/grinder/communication/Message.java, src/net/grinder/communication/MessageQueue.java, src/net/grinder/communication/MulticastReceiver.java, src/net/grinder/communication/MulticastSender.java, src/net/grinder/communication/Receiver.java, src/net/grinder/communication/RegisterStatisticsViewMessage.java, src/net/grinder/communication/ReportStatisticsMessage.java, src/net/grinder/communication/ReportStatusMessage.java, src/net/grinder/communication/ResetGrinderMessage.java, src/net/grinder/communication/Sender.java, src/net/grinder/communication/SocketSet.java:
 	Checkstyle compliance.
