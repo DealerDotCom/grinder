@@ -32,7 +32,7 @@ import java.util.Iterator;
  * @author Philip Aston
  * @version $Revision$
  */
-public abstract class AbstractFanOutSender extends AbstractSender {
+abstract class AbstractFanOutSender extends AbstractSender {
 
   private final Kernel m_kernel;
   private final ResourcePool m_resourcePool;
