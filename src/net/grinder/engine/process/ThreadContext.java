@@ -229,19 +229,12 @@ final class ThreadContext implements PluginThreadContext
 	catch (org.python.core.PyException e) {
 	    m_currentTestStatistics.addError();
 
-	    final JythonScriptExecutionException jythonException =
-		new JythonScriptExecutionException("invoking test", e);
-
-	    final Throwable unwrapped = jythonException.unwrap();
-
-	    // We don't log the stack trace. If the script doesn't
+	    // We don't log the exception. If the script doesn't
 	    // handle the exception it will be logged when the run is
 	    // aborted, otherwise we assume the script writer knows
 	    // what they're doing.
- 	    m_threadLogger.error("Test threw " + unwrapped.getClass() + ": " +
-				 unwrapped.getMessage());
 
-	    throw jythonException;
+	    throw e;
 	}
 	finally {
 	    if (m_dataWriter != null) {

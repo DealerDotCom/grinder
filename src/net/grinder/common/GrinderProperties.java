@@ -146,24 +146,6 @@ public class GrinderProperties extends Properties
     }
 
     /**
-     * Get the value of the property with the given name.
-     * @param propertyName The property name.
-     * @throws GrinderException If a property with the given name does not exist.
-     **/
-    public final String getMandatoryProperty(String propertyName)
-	throws GrinderException
-    {
-	final String s = getProperty(propertyName);
-
-	if (s == null) {
-	    throw new GrinderException("Mandatory property '" + propertyName +
-				       "' not specified");
-	}
-
-	return s;	
-    }
-
-    /**
      * Get the value of the property with the given name, return the
      * value as an <code>int</code>.
      * @param propertyName The property name.
@@ -185,32 +167,6 @@ public class GrinderProperties extends Properties
 	}
 
 	return defaultValue;
-    }
-
-    /**
-     * Get the value of the property with the given name, return the
-     * value as an <code>int</code>.
-     * @param propertyName The property name.
-     * @throws GrinderException If a property with the given name does
-     * not exist or is not an integer.
-     **/
-    public final int getMandatoryInt(String propertyName)
-	throws GrinderException
-    {
-	final String s = getProperty(propertyName);
-
-	if (s == null) {
-	    throw new GrinderException("Mandatory property '" + propertyName +
-				       "' not specified");
-	}
-	
-	try {
-	    return Integer.parseInt(s);
-	}
-	catch (NumberFormatException e) {
-	    throw new GrinderException("Mandatory property '" + propertyName +
-				       "' does not specify an integer value");
-	}
     }
 
     /**
@@ -250,32 +206,6 @@ public class GrinderProperties extends Properties
     }
 
     /**
-     * Get the value of the property with the given name, return the
-     * value as a <code>long</code>.
-     * @param propertyName The property name.
-     * @throws GrinderException If a property with the given name does
-     * not exist or is not a long.
-     **/
-    public final long getMandatoryLong(String propertyName)
-	throws GrinderException
-    {
-	final String s = getProperty(propertyName);
-
-	if (s == null) {
-	    throw new GrinderException("Mandatory property '" + propertyName +
-				       "' not specified");
-	}
-	
-	try {
-	    return Long.parseLong(s);
-	}
-	catch (NumberFormatException e) {
-	    throw new GrinderException("Mandatory property '" + propertyName +
-				       "' does not specify a long value");
-	}
-    }
-
-    /**
      * Set the property with the given name to a <code>long</code>
      * value.
      * @param propertyName The property name.
@@ -308,32 +238,6 @@ public class GrinderProperties extends Properties
 	}
 
 	return defaultValue;
-    }
-
-    /**
-     * Get the value of the property with the given name, return the
-     * value as a <code>short</code>.
-     * @param propertyName The property name.
-     * @throws GrinderException If a property with the given name does
-     * not exist or is not a short.
-     **/
-    public final short getMandatoryShort(String propertyName)
-	throws GrinderException
-    {
-	final String s = getProperty(propertyName);
-
-	if (s == null) {
-	    throw new GrinderException("Mandatory property '" + propertyName +
-				       "' not specified");
-	}
-	
-	try {
-	    return Short.parseShort(s);
-	}
-	catch (NumberFormatException e) {
-	    throw new GrinderException("Mandatory property '" + propertyName +
-				       "' does not specify a short value");
-	}
     }
 
     /**
@@ -372,32 +276,6 @@ public class GrinderProperties extends Properties
     }
 
     /**
-     * Get the value of the property with the given name, return the
-     * value as a <code>double</code>.
-     * @param propertyName The property name.
-     * @throws GrinderException If a property with the given name does
-     * not exist or is not a double.
-     **/
-    public final double getMandatoryDouble(String propertyName)
-	throws GrinderException
-    {
-	final String s = getProperty(propertyName);
-
-	if (s == null) {
-	    throw new GrinderException("Mandatory property '" + propertyName +
-				       "' not specified");
-	}
-	
-	try {
-	    return Double.parseDouble(s);
-	}
-	catch (NumberFormatException e) {
-	    throw new GrinderException("Mandatory property '" + propertyName +
-				       "' does not specify a double value");
-	}
-    }
-
-    /**
      * Set the property with the given name to a <code>double</code>
      * value.
      * @param propertyName The property name.
@@ -424,27 +302,6 @@ public class GrinderProperties extends Properties
 	}
 
 	return defaultValue;
-    }
-
-
-    /**
-     * Get the value of the property with the given name, return the
-     * value as a <code>boolean</code>.
-     * @param propertyName The property name.
-     * @throws GrinderException If a property with the given name does
-     * not exist.
-     **/
-    public final boolean getMandatoryBoolean(String propertyName)
-	throws GrinderException
-    {
-	final String s = getProperty(propertyName);
-
-	if (s == null) {
-	    throw new GrinderException("Mandatory property '" + propertyName +
-				       "' not specified");
-	}
-
-	return Boolean.valueOf(s).booleanValue();
     }
 
     /**

@@ -85,20 +85,31 @@ public final class GrinderProcess implements Monitor
 						args.length == 2 ?
 						new File(args[1]) : null);
 	}
+	catch (ExitProcessException e) {
+	    System.exit(-4);
+	    return;
+	}
 	catch (GrinderException e) {
-	    System.err.println("Error initialising worker process:\n" + e);
+	    System.err.println("Error initialising worker process (" +
+			       e.getMessage() + ")");
 	    e.printStackTrace();
 	    System.exit(-2);
 	    return;
 	}
 
+	final Logger logger = grinderProcess.m_context.getLogger();
+
 	try {
 	    final int status = grinderProcess.run();
 	    System.exit(status);
 	}
+	catch (ExitProcessException e) {
+	    System.exit(-5);
+	}
 	catch (GrinderException e) {
-	    final Logger logger = grinderProcess.m_context.getLogger();
-	    logger.error("Error running worker process");
+	    logger.error("Error running worker process (" + e.getMessage()
+			 + ")",
+			 Logger.LOG | Logger.TERMINAL);
 	    e.printStackTrace(logger.getErrorLogWriter());
 	    System.exit(-3);
 	}
@@ -121,6 +132,20 @@ public final class GrinderProcess implements Monitor
 
 	m_context = new ProcessContext(grinderID, properties);
 
+	m_scriptFile =
+	    new File(properties.getProperty("grinder.script", "grinder.py"));
+
+	final Logger logger = m_context.getLogger();
+
+	// Check that the script file is readable so we can chuck out
+	// a nicer error message up front.
+	if (!m_scriptFile.canRead()) {
+	    logger.error("The script file '" + m_scriptFile +
+			 "' does not exist or is not readable",
+			  Logger.LOG | Logger.TERMINAL);
+	    throw new ExitProcessException();
+	}
+
 	m_dataWriter = m_context.getLoggerImplementation().getDataWriter();
 
 	m_numberOfThreads = properties.getShort("grinder.threads", (short)1);
@@ -130,12 +155,24 @@ public final class GrinderProcess implements Monitor
 
 	m_context.initialiseDataWriter();
 
-	m_scriptFile =
-	    new File(properties.getMandatoryProperty("grinder.script"));
+	ConsoleListener consoleListener = null;
 
-	m_consoleListener =
-	    properties.getBoolean("grinder.receiveConsoleSignals", true) ?
-	    new ConsoleListener(properties, this, m_context.getLogger()): null;
+	if (properties.getBoolean("grinder.receiveConsoleSignals", true)) {
+	    try {
+		consoleListener =
+		    new ConsoleListener(properties, this, logger);
+	    }
+	    catch (CommunicationException e) {
+		logger.output(
+		    "Unable to receive signals from console (" +
+		    e.getMessage() + "); proceeding regardless. " +
+		    "Set grinder.receiveConsoleSignals=false to disable " +
+		    "this warning.",
+		    Logger.LOG | Logger.TERMINAL);
+	    }
+	}
+
+	m_consoleListener = consoleListener;
     }
 
     /**

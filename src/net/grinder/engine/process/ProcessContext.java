@@ -29,6 +29,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.common.Test;
 import net.grinder.communication.CommunicationDefaults;
+import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
 import net.grinder.communication.Sender;
 import net.grinder.communication.UnicastSender;
@@ -78,6 +79,8 @@ class ProcessContext
 
 	m_shouldWriteTitleToDataWriter = !appendLog;
 
+	Sender consoleSender = null;
+
 	if (properties.getBoolean("grinder.reportToConsole", true)) {
 	    final String consoleAddress =
 		properties.getProperty("grinder.consoleAddress",
@@ -87,21 +90,26 @@ class ProcessContext
 		properties.getInt("grinder.console.consolePort",
 				  CommunicationDefaults.CONSOLE_PORT);
 
-	    if (consoleAddress != null && consolePort > 0) {
-		m_consoleSender =
+	    try {
+		consoleSender =
 		    new UnicastSender(getGrinderID(), consoleAddress,
 				      consolePort);
 	    }
-	    else {
-		throw new EngineException(
-		    "Unable to report to console: " +
-		    "console address or console port not specified");
+	    catch (CommunicationException e) {
+		m_processLogger.output(
+		    "Unable to report to console (" + e.getMessage() +
+		    "); proceeding regardless. Set " +
+		    "grinder.reportToConsole=false to disable this warning.",
+		    Logger.LOG | Logger.TERMINAL);
 	    }
+	}
+
+	if (consoleSender != null) {
+	    m_consoleSender = consoleSender;
 	}
 	else {
 	    // Null Sender implementation.
-	    m_consoleSender =
-		new Sender() {
+	    m_consoleSender = new Sender() {
 		    public void send(Message message) {}
 		    public void flush() {}
 		    public void queue(Message message) {}

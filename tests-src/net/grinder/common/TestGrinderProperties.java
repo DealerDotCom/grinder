@@ -181,26 +181,6 @@ public class TestGrinderProperties extends TestCase
 	}
     }
 
-    public void testGetMandatoryProperty() throws Exception
-    {
-	try {
-	    m_emptyGrinderProperties.getMandatoryProperty("Not there");
-	    fail("Expected an exception");
-	}
-	catch (GrinderException e) {
-	}
-
-	(new IterateOverProperties(m_intSet) {
-		void match(String key, String value) throws Exception
-		{
-		    assertEquals(value,
-				 m_grinderProperties.
-				 getMandatoryProperty(key));
-		}
-	    }
-	 ).run();
-    }
-
     public void testGetInt() throws Exception
     {
 	assertEquals(1, m_grinderProperties.getInt("Not there", 1));
@@ -228,38 +208,6 @@ public class TestGrinderProperties extends TestCase
 		     m_logCounter.getNumberOfErrorLines());
     }
 
-    public void testGetMandatoryInt() throws Exception
-    {
-	try {
-	    m_emptyGrinderProperties.getMandatoryInt("Not there");
-	    fail("Expected an exception");
-	}
-	catch (GrinderException e) {
-	}
-
-	(new IterateOverProperties(m_intSet) {
-		void match(String key, String value) throws Exception
-		{
-		    assertEquals(Integer.parseInt(value),
-				 m_grinderProperties.getMandatoryInt(key));
-		}
-	    }
-	 ).run();
-
-	(new IterateOverProperties(m_brokenIntSet) {
-		void match(String key, String value)
-		{
-		    try {
-			m_grinderProperties.getMandatoryInt(key);
-			fail("Expected an exception");
-		    }
-		    catch (GrinderException e) {
-		    }
-		}
-	    }
-	 ).run();
-    }
-
     public void testGetLong() throws Exception
     {
 	assertEquals(1, m_grinderProperties.getLong("Not there", 1));
@@ -285,38 +233,6 @@ public class TestGrinderProperties extends TestCase
 
 	assertEquals(oldErrorLines + m_brokenLongSet.size(),
 		     m_logCounter.getNumberOfErrorLines());
-    }
-
-    public void testGetMandatoryLong() throws Exception
-    {
-	try {
-	    m_emptyGrinderProperties.getMandatoryLong("Not there");
-	    fail("Expected an exception");
-	}
-	catch (GrinderException e) {
-	}
-
-	(new IterateOverProperties(m_longSet) {
-		void match(String key, String value) throws Exception
-		{
-		    assertEquals(Long.parseLong(value),
-				 m_grinderProperties.getMandatoryLong(key));
-		}
-	    }
-	 ).run();
-
-	(new IterateOverProperties(m_brokenLongSet) {
-		void match(String key, String value)
-		{
-		    try {
-			m_grinderProperties.getMandatoryLong(key);
-			fail("Expected an exception");
-		    }
-		    catch (GrinderException e) {
-		    }
-		}
-	    }
-	 ).run();
     }
 
     public void testGetShort() throws Exception
@@ -348,38 +264,6 @@ public class TestGrinderProperties extends TestCase
 		     m_logCounter.getNumberOfErrorLines());
     }
 
-    public void testGetMandatoryShort() throws Exception
-    {
-	try {
-	    m_emptyGrinderProperties.getMandatoryShort("Not there");
-	    fail("Expected an exception");
-	}
-	catch (GrinderException e) {
-	}
-
-	(new IterateOverProperties(m_shortSet) {
-		void match(String key, String value) throws Exception
-		{
-		    assertEquals(Short.parseShort(value),
-				 m_grinderProperties.getMandatoryShort(key));
-		}
-	    }
-	 ).run();
-
-	(new IterateOverProperties(m_brokenShortSet) {
-		void match(String key, String value)
-		{
-		    try {
-			m_grinderProperties.getMandatoryShort(key);
-			fail("Expected an exception");
-		    }
-		    catch (GrinderException e) {
-		    }
-		}
-	    }
-	 ).run();
-    }
-
     public void testGetDouble() throws Exception
     {
 	assertEquals(1.0, m_grinderProperties.getDouble("Not there", 1.0), 0);
@@ -409,39 +293,6 @@ public class TestGrinderProperties extends TestCase
 		     m_logCounter.getNumberOfErrorLines());
     }
 
-    public void testGetMandatoryDouble() throws Exception
-    {
-	try {
-	    m_emptyGrinderProperties.getMandatoryDouble("Not there");
-	    fail("Expected an exception");
-	}
-	catch (GrinderException e) {
-	}
-
-	(new IterateOverProperties(m_doubleSet) {
-		void match(String key, String value) throws Exception
-		{
-		    assertEquals(Double.parseDouble(value),
-				 m_grinderProperties.getMandatoryDouble(key),
-				 0);
-		}
-	    }
-	 ).run();
-
-	(new IterateOverProperties(m_brokenDoubleSet) {
-		void match(String key, String value)
-		{
-		    try {
-			m_grinderProperties.getMandatoryDouble(key);
-			fail("Expected an exception");
-		    }
-		    catch (GrinderException e) {
-		    }
-		}
-	    }
-	 ).run();
-    }
-
     public void testGetBoolean() throws Exception
     {
 	assertTrue(m_grinderProperties.getBoolean("Not there", true));
@@ -467,35 +318,6 @@ public class TestGrinderProperties extends TestCase
 	 ).run();
     }
 
-    public void testGetMandatoryBoolean() throws Exception
-    {
-	try {
-	    m_emptyGrinderProperties.getMandatoryBoolean("Not there");
-	    fail("Expected an exception");
-	}
-	catch (GrinderException e) {
-	}
-
-	(new IterateOverProperties(m_booleanSet) {
-		void match(String key, String value) throws Exception
-		{
-		    assertTrue(!(Boolean.valueOf(value).booleanValue() ^
-				 m_grinderProperties.getMandatoryBoolean(key)));
-		}
-	    }
-	 ).run();
-
-	(new IterateOverProperties(m_brokenBooleanSet) {
-		void match(String key, String value) throws Exception
-		{
-		    // If the key exists, the boolean will always
-		    // parse as false.
-		    assertTrue(!m_grinderProperties.getMandatoryBoolean(key));
-		}
-	    }
-	 ).run();
-    }
-
     public void testSetInt() throws Exception
     {
 	final GrinderProperties properties = new GrinderProperties();
@@ -504,8 +326,7 @@ public class TestGrinderProperties extends TestCase
 		void match(String key, String value) throws Exception
 		{
 		    properties.setInt(key, Integer.parseInt(value));
-		    assertEquals(value,
-				 properties.getMandatoryProperty(key));
+		    assertEquals(value, properties.getProperty(key, null));
 		}
 	    }
 	 ).run();
@@ -519,8 +340,7 @@ public class TestGrinderProperties extends TestCase
 		void match(String key, String value) throws Exception
 		{
 		    properties.setLong(key, Long.parseLong(value));
-		    assertEquals(value,
-				 properties.getMandatoryProperty(key));
+		    assertEquals(value, properties.getProperty(key, null));
 		}
 	    }
 	 ).run();
@@ -534,8 +354,7 @@ public class TestGrinderProperties extends TestCase
 		void match(String key, String value) throws Exception
 		{
 		    properties.setShort(key, Short.parseShort(value));
-		    assertEquals(value,
-				 properties.getMandatoryProperty(key));
+		    assertEquals(value, properties.getProperty(key, null));
 		}
 	    }
 	 ).run();
@@ -551,7 +370,7 @@ public class TestGrinderProperties extends TestCase
 		    properties.setDouble(key, Double.parseDouble(value));
 		    assertEquals(Double.parseDouble(value),
 				 Double.parseDouble(
-				     properties.getMandatoryProperty(key)),
+				     properties.getProperty(key, null)),
 				 0);
 		}
 	    }
@@ -570,7 +389,7 @@ public class TestGrinderProperties extends TestCase
 					  Boolean.valueOf(value).
 					  booleanValue());
 		    assertEquals(new Boolean(value).toString(),
-				 properties.getMandatoryProperty(key));
+				 properties.getProperty(key, null));
 		}
 	    }
 	 ).run();
@@ -628,7 +447,7 @@ public class TestGrinderProperties extends TestCase
 		    void match(String key, String value) throws Exception
 		    {
 			assertEquals(value,
-				     properties2.getMandatoryProperty(key));
+				     properties2.getProperty(key, null));
 		    }
 		}
 	     ).run();
@@ -638,7 +457,7 @@ public class TestGrinderProperties extends TestCase
 		    void match(String key, String value) throws Exception
 		    {
 			assertEquals("not overridden",
-				     properties2.getMandatoryProperty(key));
+				     properties2.getProperty(key, null));
 		    }
 		}
 	     ).run();

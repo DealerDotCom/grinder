@@ -213,7 +213,7 @@ final class LoggerImplementation
 			   "\"), see error log for details",
 			   Logger.LOG);
 
-	    if (m_errorOccurred == false) {
+	    if (!m_errorOccurred && (where | Logger.TERMINAL) == 0) {
 		m_processLogger.output(
 		    "There were errors, see error log for details",
 		    Logger.TERMINAL);
