@@ -23,9 +23,10 @@ You invoke the sniffer with something like:
 Say "java net.grinder.TCPSniffer -?" to get a list of the command line
 options.
 
-To use it to generate a HTTP plugin script segment of a conversation
-with a server on host "server", port "7001", you should say something
-like:
+You can use the sniffer to generate a HTTP plugin script segment
+suitable for use with The Grinder. Suppose you want to capture a
+conversation with a server on host "server", port "7001", you should
+say something like:
 
   java net.grinder.TCPSniffer -httpPluginFilter -remoteHost server
 
@@ -41,9 +42,10 @@ like:
 You should then point your browser at "localhost:8001" and exercise
 the application.
 
-You should obtain the Jakarta Regexp package from
-http://jakarta.apache.org/. We don't include it with the Grinder
-distribution due to the restrictions of the GPL, see
+You only need the Jakarta Regexp package to use the HTTP plugin. You
+can obtain the Jakarta Regexp package from http://jakarta.apache.org/.
+We don't include it with the Grinder distribution due to the
+restrictions of the GPL, see
 http://www.gnu.org/philosophy/license-list.html for details.
 
 
