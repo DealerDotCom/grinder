@@ -217,11 +217,8 @@ public interface Statistics  {
    * Convenience method that sets whether the last test should be
    * considered a success or not.
    *
-   * @param success If <code>true</code>, <em>timedTests</em>
-   * (or <em>untimedTests</em> if this process isn't recording
-   * time) is set to one and <em>errors</em> is set to zero. Otherwise
-   * <em>untimedTests</em> and <em>timedTests</em> are
-   * set to zero and <em>errors</em> is set to one.
+   * TODO: check and update
+   *
    * @exception InvalidContextException If called from a different
    * thread to the thread in which the <code>Statistics</code> was was
    * acquired, or before the first test.
@@ -230,7 +227,7 @@ public interface Statistics  {
    * - see {@link #setDelayReports}.
    *  @see #availableForUpdate
    */
-  void setSuccess(boolean success)
+  void setError()
     throws InvalidContextException, StatisticsAlreadyReportedException;
 
   /**

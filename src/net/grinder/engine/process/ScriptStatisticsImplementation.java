@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,7 +36,6 @@ import net.grinder.statistics.TestStatistics;
 import net.grinder.statistics.TestStatisticsFactory;
 
 
-
 /**
  * Implement the script statistics interface.
  *
@@ -49,21 +48,16 @@ final class ScriptStatisticsImplementation
   implements Statistics, ThreadLifeCycleListener {
 
   private static final StatisticsIndexMap.LongIndex s_errorsIndex;
-  private static final StatisticsIndexMap.LongIndex s_timedTestsIndex;
   private static final StatisticsIndexMap.LongIndex s_untimedTestsIndex;
-  private static final StatisticsIndexMap.LongIndex s_testTimeIndex;
+  private static final StatisticsIndexMap.LongSampleIndex s_timedTestsIndex;
 
   static {
     final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
 
     try {
       s_errorsIndex = indexMap.getIndexForLong("errors");
-      s_timedTestsIndex =
-        indexMap.getIndexForLong("timedTests");
-      s_untimedTestsIndex =
-        indexMap.getIndexForLong("untimedTests");
-      s_testTimeIndex =
-        indexMap.getIndexForLong("timedTestTime");
+      s_untimedTestsIndex = indexMap.getIndexForLong("untimedTests");
+      s_timedTestsIndex = indexMap.getIndexForLongSample("timedTests");
     }
     catch (GrinderException e) {
       throw new ExceptionInInitializerError(
@@ -202,18 +196,13 @@ final class ScriptStatisticsImplementation
     return m_testStatistics.getValue(index);
   }
 
-  public void setSuccess(boolean success)
+  public void setError()
     throws InvalidContextException, StatisticsAlreadyReportedException {
 
     checkCallContext();
     checkNotAlreadyReported();
 
-    if (success) {
-      setSuccessNoChecks();
-    }
-    else {
-      setErrorNoChecks();
-    }
+    setErrorNoChecks();
   }
 
   public boolean getSuccess() {
@@ -221,17 +210,16 @@ final class ScriptStatisticsImplementation
   }
 
   public long getTime() {
-    return getValue(s_testTimeIndex);
+    return m_testStatistics.getSum(s_timedTestsIndex);
   }
 
-  void setSuccessNoChecks() {
+  void setSuccessNoChecks(long time) {
 
     if (m_recordTime) {
-      m_testStatistics.setValue(s_timedTestsIndex, 1);
-      m_testStatistics.setValue(s_untimedTestsIndex, 0);
+      m_testStatistics.reset(s_timedTestsIndex);
+      m_testStatistics.addSample(s_timedTestsIndex, time);
     }
     else {
-      m_testStatistics.setValue(s_timedTestsIndex, 0);
       m_testStatistics.setValue(s_untimedTestsIndex, 1);
     }
 
@@ -239,18 +227,9 @@ final class ScriptStatisticsImplementation
   }
 
   void setErrorNoChecks() {
-
     m_testStatistics.setValue(s_untimedTestsIndex, 0);
-    m_testStatistics.setValue(s_timedTestsIndex, 0);
-    m_testStatistics.setValue(s_testTimeIndex, 0);
+    m_testStatistics.reset(s_timedTestsIndex);
     m_testStatistics.setValue(s_errorsIndex, 1);
-  }
-
-  void setTimeNoChecks(long time) {
-
-    if (m_recordTime) {
-      m_testStatistics.setValue(s_testTimeIndex, time);
-    }
   }
 
   void beginTest(TestData testData, int runNumber) {

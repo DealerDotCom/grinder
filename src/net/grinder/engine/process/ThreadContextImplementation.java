@@ -159,8 +159,7 @@ final class ThreadContextImplementation
       }
 
       if (m_scriptStatistics.getSuccess()) {
-        m_scriptStatistics.setSuccessNoChecks();
-        m_scriptStatistics.setTimeNoChecks(m_elapsedTime);
+        m_scriptStatistics.setSuccessNoChecks(m_elapsedTime);
       }
       else {
         // The plug-in might have set timing information etc., or set

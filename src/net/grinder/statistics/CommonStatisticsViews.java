@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,23 +30,13 @@ import net.grinder.common.GrinderException;
  * @author Philip Aston
  * @version $Revision$
  * @stereotype singleton
- **/
+ */
 public final class CommonStatisticsViews {
   private static final CommonStatisticsViews s_instance =
     new CommonStatisticsViews();
 
-  /**
-   * @supplierCardinality 1
-   * @link aggregation
-   * @clientRole detailStatisticsView
-   **/
   private final StatisticsView m_detailStatisticsView = new StatisticsView();
 
-  /**
-   * @supplierCardinality 1
-   * @link aggregation
-   * @clientRole summaryStatisticsView
-   **/
   private final StatisticsView m_summaryStatisticsView =
     new StatisticsView();
 
@@ -55,7 +45,7 @@ public final class CommonStatisticsViews {
       final ExpressionView[] detailExpressionViews = {
         new ExpressionView("Test time",
                            "statistic.testTime",
-                           "timedTestTime"),
+                           "(sum timedTests)"),
         new ExpressionView("Errors", "statistic.errors", "errors"),
       };
 
@@ -65,13 +55,17 @@ public final class CommonStatisticsViews {
 
       final ExpressionView[] summaryExpressionViews = {
         new ExpressionView("Tests", "statistic.tests",
-                           "(+ timedTests untimedTests)"
+                           "(+ (count timedTests) untimedTests)"
                            ),
         new ExpressionView("Errors", "statistic.errors", "errors"),
         new ExpressionView(
           "Mean Test Time (ms)",
           "statistic.meanTestTime",
-          "(/ timedTestTime timedTests)"),
+          "(/ (sum timedTests) (count timedTests))"),
+        new ExpressionView(
+           "Test Time Standard Deviation (ms)",
+           "statistic.testTimeStandardDeviation",
+           "(sqrt (variance timedTests))"),
       };
 
       for (int i = 0; i < summaryExpressionViews.length; ++i) {
@@ -90,7 +84,7 @@ public final class CommonStatisticsViews {
    * Get the detail {@link StatisticsView}.
    *
    * @return The {@link StatisticsView}.
-   **/
+   */
   public static StatisticsView getDetailStatisticsView() {
     return s_instance.m_detailStatisticsView;
   }
@@ -99,7 +93,7 @@ public final class CommonStatisticsViews {
    * Get the summary {@link StatisticsView}.
    *
    * @return The {@link StatisticsView}.
-   **/
+   */
   public static StatisticsView getSummaryStatisticsView() {
     return s_instance.m_summaryStatisticsView;
   }
