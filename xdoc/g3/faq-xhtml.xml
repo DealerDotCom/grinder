@@ -228,6 +228,37 @@ are welcome.</p>
 href='http://sourceforge.net/mailarchive/forum.php?thread_id=1687434&amp;forum_id=2650'>
 this article</a> on <em>grinder-use</em>.</p>
 
+<h3><a name="statistics-reporting">Where is the raw data stored?</a></h3>
+
+<p>
+Liam Morley asked:
+
+<blockquote>
+I understand that all the information from the workers is sent back to
+the client, but all I see thus far is rough statistical data which
+seems to have been compiled from the raw data. When the data is sent
+back to the console, where is it stored?
+</blockquote>
+</p>
+
+<p>For efficiency, the worker processes only send back aggregate
+information to the console, not the raw data. Each worker process
+sends the console a report every 500ms. The report contains
+information for each test that was invoked during the period which
+includes the number of invocations, the total time taken, the number
+of errors, and any other custom statistics.</p>
+
+<p>Each worker process writes out the raw information to a process
+specific data file. This are the <em>data_...</em> files that are
+stored with the other log files.</p>
+
+<p>Apart from the raw data, another advantage that these files give
+you that the console doesn't is a record of the testing time line.
+Whilst the console graphs present this information graphically, the
+console only allows you to save snapshots of the current
+statistics.</p>
+
+
 <h3><a name="statistics">How does the Grinder calculate the mean time
 and TPS?</a></h3>
 
