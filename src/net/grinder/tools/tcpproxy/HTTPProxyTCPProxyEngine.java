@@ -217,11 +217,13 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
             additionalRequestBytes.write(
               line.substring(httpsConnectMatcher.end(2)).getBytes());
 
-            int n;
-
             // Non-blocking read.
-            while (in.available() > 0 && (n = in.read(buffer)) > 0) {
-              additionalRequestBytes.write(buffer, 0, n);
+            while (in.available() > 0) {
+              final int n = in.read(buffer);
+
+              if (n > 0) {
+                additionalRequestBytes.write(buffer, 0, n);
+              }
             }
 
             m_httpsProxySocketFactory.setAdditionalRequestBytes(
@@ -636,7 +638,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
       final long timeout =
         Long.getLong("tcpproxy.httpsproxy.connecttimeout", 5000).longValue();
 
-      for (int i = 0; i < timeout && inputStream.available() == 0; ++i) {
+      for (int i = 0; i < timeout && inputStream.available() == 0; i += 10) {
         try {
           Thread.sleep(10);
         }
@@ -653,12 +655,14 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
       // We've got a live one. Read its response.
       final ByteArrayOutputStream responseBytes = new ByteArrayOutputStream();
-      int n;
 
       // Non-blocking read.
-      while (inputStream.available() > 0 &&
-             (n = inputStream.read(buffer)) > 0) {
-        responseBytes.write(buffer, 0, n);
+      while (inputStream.available() > 0) {
+        final int n = inputStream.read(buffer);
+
+        if (n > 0) {
+          responseBytes.write(buffer, 0, n);
+        }
       }
 
       synchronized (this) {
