@@ -234,7 +234,8 @@ Idea from Nurul Choudhury:
  >       Unknown attribute GETx at "http.py", line 9 in __call__.
  > 
  > Is this what you're after?
-^^ To do this, might have to behave differently with 1 thread vs many.
+
+To do this, might have to behave differently with 1 thread vs many.
 
 ** Reports
 
@@ -328,6 +329,8 @@ efficiency here.
 Also http://www.nogoop.com/product_16.html#compare
 
 * Bugs
+
+(In addition to those on Sourceforge).
 
 ** Console/agent
 Each time L&F changes, the saveAs dialog gets another All Files
