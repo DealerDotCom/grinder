@@ -22,7 +22,6 @@
 package net.grinder.console.swingui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -31,6 +30,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -38,6 +38,8 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.CommunicationDefaults;
@@ -53,9 +55,10 @@ import net.grinder.console.model.ConsoleProperties;
  * @version $Revision$
  */
 abstract class OptionsDialogHandler {
-  private final JFrame m_frame;
+  private final JFrame m_parentFrame;
+  private final LookAndFeelInfo[] m_installedLookAndFeels;
 
-  /** A working copy of console properties. **/
+  /** A working copy of console properties. */
   private final ConsoleProperties m_properties;
 
   private final JTextField m_consoleHost = new JTextField();
@@ -65,21 +68,26 @@ abstract class OptionsDialogHandler {
   private final SamplingControlPanel m_samplingControlPanel;
   private final JSlider m_sfSlider = new JSlider(1, 6, 1);
   private final JCheckBox m_resetConsoleWithProcessesCheckBox;
-  private final JOptionPane m_optionPane;
+  private final JComboBox m_lookAndFeelComboBox;
   private final JOptionPaneDialog m_dialog;
 
   /**
    * Constructor.
    *
    * @param frame Parent frame.
+   * @param lookAndFeel The look and feel manager.
    * @param properties A {@link
    * net.grinder.console.model.ConsoleProperties} associated with
    * the properties file to save to.
    * @param resources Resources object to use for strings and things.
-   **/
-  public OptionsDialogHandler(JFrame frame, ConsoleProperties properties,
+   */
+  public OptionsDialogHandler(JFrame parentFrame,
+                              LookAndFeel lookAndFeel,
+                              ConsoleProperties properties,
                               final Resources resources) {
-    m_frame = frame;
+
+    m_parentFrame = parentFrame;
+    m_installedLookAndFeels = lookAndFeel.getInstalledLookAndFeels();
     m_properties = new ConsoleProperties(properties);
 
     final JPanel addressLabelPanel = new JPanel(new GridLayout(0, 1, 0, 1));
@@ -109,9 +117,9 @@ abstract class OptionsDialogHandler {
 
     m_samplingControlPanel = new SamplingControlPanel(resources);
 
-    final JPanel samplingControlTab = new JPanel(new GridLayout(0, 1));
+    final JPanel samplingControlTab = new JPanel(new BorderLayout());
+    samplingControlTab.add(m_samplingControlPanel, BorderLayout.NORTH);
     samplingControlTab.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-    samplingControlTab.add(m_samplingControlPanel);
 
     m_sfSlider.setMajorTickSpacing(1);
     m_sfSlider.setPaintLabels(true);
@@ -124,26 +132,23 @@ abstract class OptionsDialogHandler {
     sfPanel.add(new JLabel(resources.getString("significantFigures.label")));
     sfPanel.add(m_sfSlider);
 
-    // Add some consistency to J2SE 1.3 label and control colours.
-    final Color labelForegound = new JLabel().getForeground();
-
     m_resetConsoleWithProcessesCheckBox =
       new JCheckBox(resources.getString("resetConsoleWithProcesses.label"));
-    m_resetConsoleWithProcessesCheckBox.setForeground(labelForegound);
     final JPanel checkBoxPanel = new JPanel();
     checkBoxPanel.add(m_resetConsoleWithProcessesCheckBox);
 
-    final JComboBox lookAndFeelComboBox = new JComboBox(
-      new String[] {
-        resources.getString("metalLAF.label"),
-        resources.getString("motifLAF.label"),
-        resources.getString("windowsLAF.label"),
-      });
-    lookAndFeelComboBox.setForeground(labelForegound);
+    final String[] lookAndFeelLabels =
+      new String[m_installedLookAndFeels.length];
+
+    for (int i = 0; i < m_installedLookAndFeels.length; ++i) {
+      lookAndFeelLabels[i] = m_installedLookAndFeels[i].getName();
+    }
+
+    m_lookAndFeelComboBox = new JComboBox(lookAndFeelLabels);
 
     final JPanel lookAndFeelPanel = new JPanel(new GridLayout(0, 2));
     lookAndFeelPanel.add(new JLabel(resources.getString("lookAndFeel.label")));
-    lookAndFeelPanel.add(lookAndFeelComboBox);
+    lookAndFeelPanel.add(m_lookAndFeelComboBox);
 
     final JPanel miscellaneousPanel = new JPanel();
     miscellaneousPanel.setLayout(
@@ -176,7 +181,7 @@ abstract class OptionsDialogHandler {
       resources.getString("options.save.label"),
     };
 
-    m_optionPane =
+    final JOptionPane optionPane =
       new JOptionPane(tabbedPane, JOptionPane.PLAIN_MESSAGE, 0, null, options);
 
     // The SamplingControlPanel will automatically update m_properties.
@@ -184,21 +189,17 @@ abstract class OptionsDialogHandler {
 
     m_dialog =
       new JOptionPaneDialog(
-        m_frame, resources.getString("options.label"), true, m_optionPane) {
+        m_parentFrame, resources.getString("options.label"), true, optionPane) {
 
         protected boolean shouldClose() {
-          final Object value = m_optionPane.getValue();
+          final Object value = optionPane.getValue();
 
           if (value == options[1]) {
             return true;
           }
           else {
             try {
-              m_properties.setConsoleHost(m_consoleHost.getText());
-              m_properties.setConsolePort(m_consolePort.getValue());
-              m_properties.setSignificantFigures(m_sfSlider.getValue());
-              m_properties.setResetConsoleWithProcesses(
-                m_resetConsoleWithProcessesCheckBox.isSelected());
+              setProperties(m_properties);
             }
             catch (ConsoleException e) {
               new ErrorDialogHandler(m_dialog, resources).handleException(e);
@@ -218,25 +219,53 @@ abstract class OptionsDialogHandler {
                 new ErrorDialogHandler(m_dialog, resources).
                   handleErrorMessage(messsage,
                                      resources.getString("fileError.title"));
-
                 return false;
               }
             }
 
             // Success.
             setNewOptions(m_properties);
-
             return true;
           }
         }
       };
 
-    // Increase the width a bit so that all the tabs fit on a single
-    // line.
-    m_dialog.pack();
-    //    final Dimension dialogSize = m_dialog.getSize();
-    //    dialogSize.width += 50;
-    //    m_dialog.setSize(dialogSize);
+    lookAndFeel.addListener(
+      new LookAndFeel.ComponentListener(m_dialog) {
+        public void lookAndFeelChanged() {
+          super.lookAndFeelChanged();
+          packAndSize(m_dialog);
+        }
+      });
+
+    packAndSize(m_dialog);
+  }
+
+  private void packAndSize(JDialog dialog) {
+    dialog.pack();
+
+    // With J2SE 1.4.2 on W32, the tabs don't fit on a single line.
+    // Increase the width a little.
+    final Dimension dialogSize = dialog.getSize();
+    dialogSize.width += 30;
+    dialog.setSize(dialogSize);
+  }
+
+  private void setProperties(ConsoleProperties properties)
+    throws ConsoleException {
+
+    properties.setConsoleHost(m_consoleHost.getText());
+    properties.setConsolePort(m_consolePort.getValue());
+    properties.setSignificantFigures(m_sfSlider.getValue());
+    properties.setResetConsoleWithProcesses(
+      m_resetConsoleWithProcessesCheckBox.isSelected());
+
+    final int lookAndFeelIndex = m_lookAndFeelComboBox.getSelectedIndex();
+
+    if (lookAndFeelIndex > -1) {
+      properties.setLookAndFeel(
+        m_installedLookAndFeels[lookAndFeelIndex].getClassName());
+    }
   }
 
   /**
@@ -244,7 +273,7 @@ abstract class OptionsDialogHandler {
    *
    * @param initialProperties A set of properties to initialise the
    * options with.
-   **/
+   */
   public void showDialog(ConsoleProperties initialProperties) {
     m_properties.set(initialProperties);
 
@@ -255,14 +284,29 @@ abstract class OptionsDialogHandler {
     m_resetConsoleWithProcessesCheckBox.setSelected(
       m_properties.getResetConsoleWithProcesses());
 
+    final String currentLookAndFeel = m_properties.getLookAndFeel();
+    int currentLookAndFeelIndex = -1;
+
+    if (currentLookAndFeel != null) {
+      for (int i = 0; i < m_installedLookAndFeels.length; ++i) {
+        if (currentLookAndFeel.equals(
+              m_installedLookAndFeels[i].getClassName()))  {
+          currentLookAndFeelIndex = i;
+        }
+      }
+    }
+
+    m_lookAndFeelComboBox.setSelectedIndex(currentLookAndFeelIndex);
+
     m_samplingControlPanel.refresh();
 
-    m_dialog.setLocationRelativeTo(m_frame);
+    m_dialog.setLocationRelativeTo(m_parentFrame);
+    SwingUtilities.updateComponentTreeUI(m_dialog);
     m_dialog.setVisible(true);
   }
 
   /**
    * User should override this to handle new options set by the dialog.
-   **/
+   */
   protected abstract void setNewOptions(ConsoleProperties newOptions);
 }

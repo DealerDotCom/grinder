@@ -66,9 +66,8 @@ final class ErrorDialogHandler implements ErrorHandler {
    *
    * @param frame Parent frame.
    * @param resources Resources object to use for strings and things.
-   **/
-  public ErrorDialogHandler(JFrame frame, final Resources resources) {
-
+   */
+  public ErrorDialogHandler(JFrame frame, Resources resources) {
     this(resources);
 
     m_dialog = new JOptionPaneDialog(frame, null, true, m_optionPane) {
@@ -83,9 +82,8 @@ final class ErrorDialogHandler implements ErrorHandler {
    *
    * @param frame Parent frame.
    * @param resources Resources object to use for strings and things.
-   **/
-  public ErrorDialogHandler(JDialog dialog, final Resources resources) {
-
+   */
+  public ErrorDialogHandler(JDialog dialog, Resources resources) {
     this(resources);
 
     m_dialog = new JOptionPaneDialog(dialog, null, true, m_optionPane) {
@@ -93,6 +91,10 @@ final class ErrorDialogHandler implements ErrorHandler {
           return ErrorDialogHandler.this.shouldClose();
         }
       };
+  }
+
+  public void registerWithLookAndFeel(LookAndFeel lookAndFeel) {
+    lookAndFeel.addListener(new LookAndFeel.ComponentListener(m_dialog));
   }
 
   private ErrorDialogHandler(Resources resources) {

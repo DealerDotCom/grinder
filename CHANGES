@@ -6,6 +6,8 @@ Grinder 3.0-beta18
 
   Fix the TCPProxy SSL support that I inadvertently broke in beta 17.
 
+  Allow the console Look and Feel to be changed.
+
 
 Grinder 3.0-beta17
 ------------------

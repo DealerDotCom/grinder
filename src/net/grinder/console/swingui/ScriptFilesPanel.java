@@ -54,17 +54,20 @@ final class ScriptFilesPanel extends JPanel {
   private ScriptDistributionFiles m_scriptDistributionFiles =
     new ScriptDistributionFiles();
 
-  public ScriptFilesPanel(final JFrame frame, final Resources resources) {
+  public ScriptFilesPanel(final JFrame frame, LookAndFeel lookAndFeel,
+                          Resources resources) {
+
     m_resources = resources;
 
     final JButton chooseDirectoryButton = new CustomJButton();
 
     m_fileChooser.setDialogTitle(
-      resources.getString("script.chooseDirectory.tip"));
+      m_resources.getString("script.chooseDirectory.tip"));
     m_fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    lookAndFeel.addListener(new LookAndFeel.ComponentListener(m_fileChooser));
 
     chooseDirectoryButton.setAction(
-      new CustomAction(resources, "script.chooseDirectory") {
+      new CustomAction(m_resources, "script.chooseDirectory") {
         public void actionPerformed(ActionEvent event) {
           try {
             if (m_fileChooser.showOpenDialog(frame) ==
@@ -75,7 +78,7 @@ final class ScriptFilesPanel extends JPanel {
               if (!file.exists()) {
                 if (JOptionPane.showConfirmDialog(
                       frame,
-                      resources.getString("createDirectory.text"),
+                      m_resources.getString("createDirectory.text"),
                       file.toString(), JOptionPane.YES_NO_OPTION) ==
                     JOptionPane.NO_OPTION) {
                   return;
@@ -89,7 +92,7 @@ final class ScriptFilesPanel extends JPanel {
             }
           }
           catch (Exception e) {
-            new ErrorDialogHandler(frame, resources).handleException(e);
+            new ErrorDialogHandler(frame, m_resources).handleException(e);
           }
         }
       }

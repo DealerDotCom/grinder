@@ -22,7 +22,6 @@
 package net.grinder.console.swingui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -63,6 +62,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import org.syntax.jedit.JEditTextArea;
@@ -92,19 +92,19 @@ import net.grinder.statistics.TestStatistics;
  */
 public final class ConsoleUI implements ModelListener {
 
-  private static final Font s_tpsFont =
-    new Font("helvetica", Font.ITALIC | Font.BOLD, 40);
-  private static final Color s_defaultLabelForeground =
-    new JLabel().getForeground();
+  // Do not initialise any Swing components before the constructor has
+  // set the Look and Feel to avoid loading the default Look and Feel
+  // unnecessarily.
+  private final LookAndFeel m_lookAndFeel;
 
   private final Map m_actionTable = new HashMap();
   private final StartAction m_startAction;
   private final StopAction m_stopAction;
   private final Model m_model;
   private final JFrame m_frame;
-  private final JLabel m_stateLabel = new JLabel();
+  private final JLabel m_stateLabel;
   private final SamplingControlPanel m_samplingControlPanel;
-  private final ErrorHandler m_errorHandler;
+  private final ErrorDialogHandler m_errorHandler;
 
   private final CumulativeStatisticsTableModel m_cumulativeTableModel;
 
@@ -138,12 +138,16 @@ public final class ConsoleUI implements ModelListener {
     m_model = model;
     final Resources resources = m_model.getResources();
 
+    // LookAndFeel constructor will set initial Look and Feel from properties.
+    m_lookAndFeel = new LookAndFeel(m_model.getProperties());
+
     // Create the frame to contain the a menu and the top level
     // pane. Need to do this before our actions are constructed as
     // the use the frame to create dialogs.
     m_frame = new JFrame(resources.getString("title"));
 
     m_errorHandler = new ErrorDialogHandler(m_frame, resources);
+    m_errorHandler.registerWithLookAndFeel(m_lookAndFeel);
 
     m_stateIgnoringString = resources.getString("state.ignoring.label") + " ";
     m_stateWaitingString = resources.getString("state.waiting.label");
@@ -165,7 +169,7 @@ public final class ConsoleUI implements ModelListener {
 
     final JLabel tpsLabel = new JLabel();
     tpsLabel.setForeground(Colours.BLACK);
-    tpsLabel.setFont(s_tpsFont);
+    tpsLabel.setFont(new Font("helvetica", Font.ITALIC | Font.BOLD, 40));
     tpsLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
 
     m_model.addTotalSampleListener(
@@ -190,6 +194,7 @@ public final class ConsoleUI implements ModelListener {
     stateButton.setAction(m_stopAction);
     stateButton.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
     m_stopAction.registerButton(stateButton);
+    m_stateLabel = new JLabel();
     m_stateLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
 
     final JPanel statePanel = new JPanel();
@@ -344,7 +349,7 @@ public final class ConsoleUI implements ModelListener {
     scriptTextArea.setFirstLine(0);
 
     final ScriptFilesPanel scriptFilesPanel =
-      new ScriptFilesPanel(m_frame, resources);
+      new ScriptFilesPanel(m_frame, m_lookAndFeel, resources);
     scriptFilesPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
     scriptFilesPanel.setMinimumSize(new Dimension(100, 100));
 
@@ -406,19 +411,32 @@ public final class ConsoleUI implements ModelListener {
     m_model.addModelListener(new SwingDispatchedModelListener(this));
     update();
 
-    m_frame.pack();
+    m_lookAndFeel.addListener(
+      new LookAndFeel.ComponentListener(m_frame) {
+        public void lookAndFeelChanged() {
+          m_frame.setVisible(false);
+          super.lookAndFeelChanged();
+          packAndSize(m_frame);
+          m_frame.setVisible(true);
+        }
+      });
 
-    // Arbitary sizing that looks good for Phil.
-    m_frame.setSize(new Dimension(900, 600));
+    packAndSize(m_frame);
+    resultsPane.setDividerLocation(resultsPane.getMaximumDividerLocation());
 
     final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
     m_frame.setLocation(screenSize.width / 2 - m_frame.getSize().width / 2,
                         screenSize.height / 2 - m_frame.getSize().height / 2);
 
-    resultsPane.setDividerLocation(resultsPane.getMaximumDividerLocation());
+    m_frame.setVisible(true);
+  }
 
-    m_frame.show();
+  private void packAndSize(JFrame frame) {
+    frame.pack();
+
+    // Arbitary sizing that looks good for Phil.
+    frame.setSize(new Dimension(900, 600));
   }
 
   private JMenuBar createMenuBar() {
@@ -514,7 +532,7 @@ public final class ConsoleUI implements ModelListener {
       else {
         m_stateLabel.setText(m_stateWaitingString);
       }
-      m_stateLabel.setForeground(s_defaultLabelForeground);
+      m_stateLabel.setForeground(UIManager.getColor("Label.foreground"));
     }
     else if (state == Model.STATE_STOPPED) {
       if (receivedReport) {
@@ -600,6 +618,9 @@ public final class ConsoleUI implements ModelListener {
         m_model.getResources().getString("save.label"));
       m_fileChooser.setSelectedFile(
         new File(m_model.getResources().getString("default.filename")));
+
+      m_lookAndFeel.addListener(
+        new LookAndFeel.ComponentListener(m_fileChooser));
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -646,7 +667,8 @@ public final class ConsoleUI implements ModelListener {
       super(m_model.getResources(), "options", true);
 
       m_optionsDialogHandler =
-        new OptionsDialogHandler(m_frame, m_model.getProperties(),
+        new OptionsDialogHandler(m_frame, m_lookAndFeel,
+                                 m_model.getProperties(),
                                  m_model.getResources()) {
           protected void setNewOptions(ConsoleProperties newOptions) {
             m_model.getProperties().set(newOptions);
@@ -663,24 +685,25 @@ public final class ConsoleUI implements ModelListener {
   private final class AboutAction extends CustomAction {
 
     private final ImageIcon m_logoIcon;
-    private final String m_title;
-    private final Component m_contents;
 
     AboutAction(ImageIcon logoIcon) {
       super(m_model.getResources(), "about", true);
-
       m_logoIcon = logoIcon;
-      m_title = m_model.getResources().getString("about.label");
+    }
 
-      final String aboutText =
-        m_model.getResources().getStringFromFile("about.text", true);
+    public void actionPerformed(ActionEvent event) {
+
+      final Resources resources = m_model.getResources();
+
+      final String title = resources.getString("about.label");
+      final String aboutText = resources.getStringFromFile("about.text", true);
 
       final JEditorPane htmlPane = new JEditorPane("text/html", aboutText);
       htmlPane.setEditable(false);
       htmlPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
       htmlPane.setBackground(new JLabel().getBackground());
 
-      m_contents =
+      final JScrollPane contents =
         new JScrollPane(htmlPane,
                         JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                         JScrollPane.HORIZONTAL_SCROLLBAR_NEVER) {
@@ -691,10 +714,10 @@ public final class ConsoleUI implements ModelListener {
             return d;
           }
         };
-    }
 
-    public void actionPerformed(ActionEvent event) {
-      JOptionPane.showMessageDialog(m_frame, m_contents, m_title,
+      htmlPane.setCaretPosition(0);
+
+      JOptionPane.showMessageDialog(m_frame, contents, title,
                                     JOptionPane.PLAIN_MESSAGE,
                                     m_logoIcon);
     }
