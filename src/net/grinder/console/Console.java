@@ -29,6 +29,7 @@ import net.grinder.communication.Message;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ConsoleCommunication;
+import net.grinder.console.communication.ConsoleCommunicationImplementation;
 import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
 import net.grinder.console.messages.ReportStatisticsMessage;
@@ -71,7 +72,8 @@ public class Console {
 
     m_model = new Model(properties, resources);
 
-    m_communication = new ConsoleCommunication(resources, properties);
+    m_communication =
+      new ConsoleCommunicationImplementation(resources, properties);
 
     m_userInterface =
       new ConsoleUI(m_model, m_communication.getProcessControl());

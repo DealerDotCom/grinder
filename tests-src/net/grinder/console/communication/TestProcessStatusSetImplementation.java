@@ -30,12 +30,12 @@ import net.grinder.testutility.RandomStubFactory;
 
 
 /**
- *  Unit test case for {@link ProcessStatusSet}.
+ *  Unit test case for {@link ProcessStatusSetImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestProcessStatusSet extends TestCase {
+public class TestProcessStatusSetImplementation extends TestCase {
 
   public void testUpdate() throws Exception {
 
@@ -44,7 +44,8 @@ public class TestProcessStatusSet extends TestCase {
     final ProcessStatusListener listener =
       (ProcessStatusListener)listenerStubFactory.getStub();
 
-    final ProcessStatusSet processStatusSet = new ProcessStatusSet();
+    final ProcessStatusSetImplementation processStatusSet =
+      new ProcessStatusSetImplementation();
     processStatusSet.addListener(listener);
 
     processStatusSet.update();
@@ -81,7 +82,8 @@ public class TestProcessStatusSet extends TestCase {
     final ProcessStatusListener listener =
       (ProcessStatusListener)listenerStubFactory.getStub();
 
-    final ProcessStatusSet processStatusSet = new ProcessStatusSet();
+    final ProcessStatusSetImplementation processStatusSet =
+      new ProcessStatusSetImplementation();
     processStatusSet.addListener(listener);
 
     processStatusSet.update();
