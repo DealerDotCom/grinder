@@ -36,6 +36,8 @@ Grinder 3.0-beta17
   been changed to match HTTPClient. The clearAll methods have been
   removed from the API.
 
+  Add addValue() methods to the script Statistics API.
+
 
 Grinder 3.0-beta16
 ------------------

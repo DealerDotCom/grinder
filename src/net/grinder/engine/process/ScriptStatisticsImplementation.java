@@ -172,6 +172,22 @@ final class ScriptStatisticsImplementation implements Statistics {
     m_testStatistics.setValue(index, value);
   }
 
+  public void addValue(StatisticsIndexMap.LongIndex index, long value)
+    throws InvalidContextException, StatisticsAlreadyReportedException {
+
+    checkCallContext();
+    checkNotAlreadyReported();
+    m_testStatistics.addValue(index, value);
+  }
+
+  public void addValue(StatisticsIndexMap.DoubleIndex index, double value)
+    throws InvalidContextException, StatisticsAlreadyReportedException {
+
+    checkCallContext();
+    checkNotAlreadyReported();
+    m_testStatistics.addValue(index, value);
+  }
+
   public long getValue(StatisticsIndexMap.LongIndex index) {
 
     return m_testStatistics.getValue(index);

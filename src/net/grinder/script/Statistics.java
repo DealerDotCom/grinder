@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -129,8 +129,8 @@ public interface Statistics  {
   boolean availableForUpdate();
 
   /**
-   * Sets the long statistic for the last test with index
-   * <code>index</code> to the specified <code>value</code>.
+   * Sets the long statistic with index <code>index</code> to the
+   * specified <code>value</code> for the last test.
    *
    * @param index The statistic index.
    * @param value The value.
@@ -141,13 +141,13 @@ public interface Statistics  {
    * have already been sent for the last test performed by this thread
    * - see {@link #setDelayReports}.
    *  @see #availableForUpdate
-   **/
+   */
   void setValue(StatisticsIndexMap.LongIndex index, long value)
     throws InvalidContextException, StatisticsAlreadyReportedException;
 
   /**
-   * Sets the double statistic for the last test with index
-   * <code>index</code> to the specified <code>value</code>.
+   * Sets the double statistic with index <code>index</code> to the
+   * specified <code>value</code> for the last test .
    *
    * @param index The statistic index.
    * @param value The value.
@@ -158,13 +158,47 @@ public interface Statistics  {
    * have already been sent for the last test performed by this thread
    * - see {@link #setDelayReports}.
    *  @see #availableForUpdate
-   **/
+   */
   void setValue(StatisticsIndexMap.DoubleIndex index, double value)
     throws InvalidContextException, StatisticsAlreadyReportedException;
 
   /**
-   * Return the long value for the last test specified by
-   * <code>index</code>.
+   * Add <code>value</code> to the long statistic with index
+   * <code>index</code> for the last test.
+   *
+   * @param index The statistic index.
+   * @param value The value.
+   * @exception InvalidContextException If called from a different
+   * thread to the thread in which the <code>Statistics</code> was was
+   * acquired, or before the first test.
+   * @exception StatisticsAlreadyReportedException If the statistics
+   * have already been sent for the last test performed by this thread
+   * - see {@link #setDelayReports}.
+   *  @see #availableForUpdate
+   */
+  void addValue(StatisticsIndexMap.LongIndex index, long value)
+    throws InvalidContextException, StatisticsAlreadyReportedException;
+
+  /**
+   * Add <code>value</code> to the double statistic with index
+   * <code>index</code> for the last test.
+   *
+   * @param index The statistic index.
+   * @param value The value.
+   * @exception InvalidContextException If called from a different
+   * thread to the thread in which the <code>Statistics</code> was was
+   * acquired, or before the first test.
+   * @exception StatisticsAlreadyReportedException If the statistics
+   * have already been sent for the last test performed by this thread
+   * - see {@link #setDelayReports}.
+   *  @see #availableForUpdate
+   */
+  void addValue(StatisticsIndexMap.DoubleIndex index, double value)
+    throws InvalidContextException, StatisticsAlreadyReportedException;
+
+  /**
+   * Return the long value specified by <code>index</code> for the
+   * last test.
    *
    * @param index The statistic index.
    * @return The value.
@@ -172,8 +206,8 @@ public interface Statistics  {
   long getValue(StatisticsIndexMap.LongIndex index);
 
   /**
-   * Return the double value for the last test specified by
-   * <code>index</code>.
+   * Return the double value specified by <code>index</code> for the
+   * last test.
    *
    * @param index The statistic index.
    * @return The value.
