@@ -290,8 +290,8 @@ what you want. Currently the conditionally built modules are:
   <!-- =================================================================== -->
   <!-- Compilation rules                                    -->
   <!-- =================================================================== -->
-  <target name="compile" depends="init" description="Compiles the source."
-    depends="assert-have-jsse">
+  <target name="compile" depends="init,assert-have-jsse"
+    description="Compiles the source.">
     <mkdir dir="${classes.dir}"/>
 
     <echo message="Compiling third party code, ignore deprecation warnings..."/>
