@@ -19,19 +19,15 @@
 package net.grinder.console.swingui;
 
 import java.awt.Dimension;
-import java.awt.Font;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import javax.swing.JTable;
 
 import net.grinder.console.ConsoleException;
 import net.grinder.console.model.Model;
 import net.grinder.plugininterface.Test;
 import net.grinder.statistics.Statistics;
 import net.grinder.statistics.StatisticsTable;
-import net.grinder.statistics.TestStatisticsMap;
 
 
 /**
@@ -40,36 +36,26 @@ import net.grinder.statistics.TestStatisticsMap;
  */
 public class SummaryFrame extends JFrame
 {
-    private final static Font m_textFont = new Font("courier", Font.PLAIN, 12);
+    private final StatisticsTableModel m_tableModel;
 
-    private final JTextField m_text;
-    private final Model m_model;
-
-    public SummaryFrame(Model model, String title)
+    public SummaryFrame(Model model, String title) throws ConsoleException
     {
 	super(title);
 
-	m_model = model;
-	m_text = new JTextField();
-	m_text.setPreferredSize(new Dimension(800, 400));
-	m_text.setFont(m_textFont);
+	m_tableModel = new StatisticsTableModel(model);
 
-        final JScrollPane scrollPane = new JScrollPane(m_text);	
+	final JTable table = new JTable(m_tableModel);
+	table.setPreferredScrollableViewportSize(new Dimension(800, 400));
+        final JScrollPane scrollPane = new JScrollPane(table);
+
 	getContentPane().add(scrollPane);
 	pack();
     }
 
     public void displaySummary()
     {
-	final StatisticsTable table =
-	    new StatisticsTable(m_model.getSummaryStatistics());
-	
-	final StringWriter buffer = new StringWriter();
-
-	table.print(new PrintWriter(buffer));
-
-	m_text.setText(buffer.toString());
-
+	/* Fix to refresh
+	*/
 	show();
     }
 }

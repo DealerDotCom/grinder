@@ -24,6 +24,8 @@ that too :-). The list is roughly in priority order.]
   Allow String Beans to optionally capture request results. (Would
   invoke "set" methods).
 
+  Allow the saving of results from the console.
+
   Minor fixes to build.xml:
 	Fix the permissions in the distribution files.
 	

@@ -73,6 +73,11 @@ public class TestStatisticsMap implements java.io.Serializable
 	return result;
     }
 
+    public int getSize()
+    {
+	return m_data.size();
+    }
+
     public void add(TestStatisticsMap operand)
     {
 	final Iterator iterator = operand.new Iterator();
