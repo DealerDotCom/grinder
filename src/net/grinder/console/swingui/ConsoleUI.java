@@ -33,20 +33,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -64,6 +60,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import org.syntax.jedit.JEditTextArea;
@@ -182,10 +179,8 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	}
       });
 
-    final JButton stateButton = new MyJButton();
-    stateButton.putClientProperty("hideActionText", Boolean.TRUE);
+    final JButton stateButton = new CustomJButton();
     stateButton.setBorderPainted(true);
-    stateButton.setContentAreaFilled(false);
     stateButton.setAction(m_stopAction);
     stateButton.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
     m_stopAction.registerButton(stateButton);
@@ -278,11 +273,11 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 		      processStatusPane,
 		      m_resources.getString("processStatusTableTab.tip"));
 
-    final JEditTextArea textArea = new JEditTextArea();
-    textArea.setTokenMarker(new PythonTokenMarker());
+    final JEditTextArea scriptTextArea = new JEditTextArea();
+    scriptTextArea.setTokenMarker(new PythonTokenMarker());
 
     // Override ugly default colours.
-    final TextAreaPainter painter = textArea.getPainter();
+    final TextAreaPainter painter = scriptTextArea.getPainter();
 
     final SyntaxStyle[] styles = painter.getStyles();
     styles[Token.KEYWORD1] = new SyntaxStyle(Colours.RED, false, false);
@@ -298,9 +293,22 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     painter.setSelectionColor(Colours.GREY);
     // Initial focus?
 
+    final ScriptFilesPanel scriptFilesPanel =
+      new ScriptFilesPanel(m_resources);
+
+    scriptFilesPanel.set(m_model.getProperties().getScriptDistributionFiles());
+    
+
+    final JSplitPane scriptPane =
+      new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+		     scriptFilesPanel,
+		     scriptTextArea);
+
+    scriptPane.setOneTouchExpandable(true); 
+
     tabbedPane.addTab(m_resources.getString("scriptTab.title"),
 		      m_resources.getImageIcon("scriptTab.image"),
-		      textArea, //scriptPane,
+		      scriptPane,
 		      m_resources.getString("scriptTab.tip"));
 
     final JPanel contentPanel = new JPanel(new BorderLayout());
@@ -309,7 +317,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
     final ImageIcon logoIcon = m_resources.getImageIcon("logo.image");
 
-    final MyAction[] actions = {
+    final CustomAction[] actions = {
       new StartProcessesAction(startProcessesHandler),
       new ResetProcessesAction(resetProcessesHandler),
       new StopProcessesAction(stopProcessesHandler),
@@ -413,9 +421,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 	toolBar.addSeparator();
       }
       else {
-	final JButton button = new MyJButton();
-	button.putClientProperty("hideActionText", Boolean.TRUE);
-	button.setContentAreaFilled(false);
+	final JButton button = new CustomJButton();
 	toolBar.add(button);
 
 	// Must set the action _after_ adding to the toolbar or the
@@ -429,7 +435,7 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
 
   private final void setAction(AbstractButton button, String actionKey) {
 
-    final MyAction action = (MyAction)m_actionTable.get(actionKey);
+    final CustomAction action = (CustomAction)m_actionTable.get(actionKey);
 
     if (action != null) {
       button.setAction(action);
@@ -529,100 +535,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
 
-  private abstract class MyAction extends AbstractAction {
-
-    public static final String ROLLOVER_ICON = "RolloverIcon";
-
-    protected static final String SET_ACTION_PROPERTY = "setAction";
-
-    private final String m_key;
-    private final Set m_propertyChangeListenersByButton = new HashSet();
-
-    public MyAction(String key) {
-      this(key, false);
-    }
-	
-    public MyAction(String key, boolean isDialogAction) {
-      super();
-      
-      m_key = key;
-      
-      final String label = m_resources.getString(m_key + ".label", false);
-      
-      if (label != null) {
-	if (isDialogAction) {
-	  putValue(Action.NAME, label + "...");
-	}
-	else {
-	  putValue(Action.NAME, label);
-	}
-      }
-
-      final String tip = m_resources.getString(m_key + ".tip", false);
-      
-      if (tip != null) {
-	putValue(Action.SHORT_DESCRIPTION, tip);
-      }
-
-      final ImageIcon imageIcon = m_resources.getImageIcon(m_key + ".image");
-	    
-      if (imageIcon != null) {
-	putValue(Action.SMALL_ICON, imageIcon);
-      }
-
-      final ImageIcon rolloverImageIcon =
-	m_resources.getImageIcon(m_key + ".rollover-image");
-
-      if (rolloverImageIcon != null) {
-	putValue(ROLLOVER_ICON, rolloverImageIcon);
-      }
-    }
-
-    public final String getKey() {
-      return m_key;
-    }
-
-    public final void registerButton(final AbstractButton button) {
-      if (!m_propertyChangeListenersByButton.contains(button)) {
-	addPropertyChangeListener(
-	  new PropertyChangeListener() {
-	    public void propertyChange(PropertyChangeEvent e) {
-	      if (e.getPropertyName().equals(SET_ACTION_PROPERTY)) {
-
-		final MyAction newAction = (MyAction)e.getNewValue();
-
-		button.setAction(newAction);
-		newAction.registerButton(button);
-	      }
-	    }
-	  }
-	  );
-
-	m_propertyChangeListenersByButton.add(button);
-      }
-    }
-  }
-    
-  private final class MyJButton extends JButton {
-    
-    public void setAction(Action a) {
-      super.setAction(a);
-
-      final ImageIcon rolloverImageIcon = 
-	(ImageIcon)a.getValue(MyAction.ROLLOVER_ICON);
-
-      if (rolloverImageIcon != null) {
-	setRolloverIcon(rolloverImageIcon);
-      }
-    }
-  }
-
-  private final class SaveAction extends MyAction {
+  private final class SaveAction extends CustomAction {
 
     private final JFileChooser m_fileChooser = new JFileChooser(new File("."));
 
     SaveAction() {
-      super("save", true);
+      super(m_resources, "save", true);
 
       m_fileChooser.setDialogTitle(m_resources.getString("save.label"));
       m_fileChooser.setSelectedFile(
@@ -673,12 +591,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
 
-  private final class OptionsAction extends MyAction {
+  private final class OptionsAction extends CustomAction {
 
     private final OptionsDialogHandler m_optionsDialogHandler;
 
     OptionsAction() {
-      super("options", true);
+      super(m_resources, "options", true);
 
       m_optionsDialogHandler =
 	new OptionsDialogHandler(m_frame, m_model.getProperties(),
@@ -695,14 +613,14 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
 
-  private final class AboutAction extends MyAction {
+  private final class AboutAction extends CustomAction {
 
     private final ImageIcon m_logoIcon;
     private final String m_title;
     private final Component m_contents;
 
     AboutAction(ImageIcon logoIcon) {
-      super("about", true);
+      super(m_resources, "about", true);
 
       m_logoIcon = logoIcon;
       m_title = m_resources.getString("about.label");
@@ -740,9 +658,10 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
     
-  private final class ExitAction extends MyAction {
+  private final class ExitAction extends CustomAction {
+
     ExitAction() {
-      super("exit");
+      super(m_resources, "exit");
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -750,9 +669,10 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
 
-  private final class StartAction extends MyAction {
+  private final class StartAction extends CustomAction {
+
     StartAction() {
-      super("start");
+      super(m_resources, "start");
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -766,9 +686,10 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
 
-  private final class StopAction extends MyAction {
+  private final class StopAction extends CustomAction {
+
     StopAction() {
-      super("stop");
+      super(m_resources, "stop");
     }
 
     public final void actionPerformed(ActionEvent e) {
@@ -784,11 +705,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
 
-  private final class StartProcessesAction extends MyAction {
+  private final class StartProcessesAction extends CustomAction {
+
     private final ActionListener m_delegateAction;
 
     StartProcessesAction(ActionListener delegateAction) {
-      super("start-processes");
+      super(m_resources, "start-processes");
       m_delegateAction = delegateAction;
     }
 
@@ -797,11 +719,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
 
-  private  final class ResetProcessesAction extends MyAction {
+  private  final class ResetProcessesAction extends CustomAction {
+
     private final ActionListener m_delegateAction;
 
     ResetProcessesAction(ActionListener delegateAction) {
-      super("reset-processes");
+      super(m_resources, "reset-processes");
       m_delegateAction = delegateAction;
     }
 
@@ -861,11 +784,12 @@ public class ConsoleUI implements ModelListener, ConsoleExceptionHandler {
     }
   }
 
-  private final class StopProcessesAction extends MyAction {
+  private final class StopProcessesAction extends CustomAction {
+
     private final ActionListener m_delegateAction;
 
     StopProcessesAction(ActionListener delegateAction) {
-      super("stop-processes");
+      super(m_resources, "stop-processes");
       m_delegateAction = delegateAction;
     }
 
