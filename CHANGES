@@ -1,6 +1,10 @@
 Grinder 3.0-beta22
 ------------------
 
+  Major work on the console editing and script distribution. This is
+  now quite usable. See TODO for details of the additional releases to
+  be added before The Grinder 3.0 is promoted out of beta.
+
   Fix bug in HTTPPlugin. Now The Grinder doesn't automatically follow
   redirects by default.
 
