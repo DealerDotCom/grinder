@@ -185,7 +185,6 @@ public final class Buffer {
     try {
       writer = new FileWriter(m_file);
       writer.write(m_textSource.getText());
-      m_lastModified = m_file.lastModified();
     }
     catch (IOException e) {
       throw new DisplayMessageConsoleException(
@@ -201,6 +200,8 @@ public final class Buffer {
         }
       }
     }
+
+    m_lastModified = m_file.lastModified();
   }
 
   /**
