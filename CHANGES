@@ -1,6 +1,9 @@
    Fix sleepTimeVariation documentation. Thanks to Mika Laitio for the
    report.
 
+   Allow query strings to be passed with POSTs. Thanks to Kjetil JD
+   for the fix.
+
 
 Grinder 2.8.2
 -------------

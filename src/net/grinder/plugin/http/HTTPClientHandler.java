@@ -186,21 +186,24 @@ class HTTPClientHandler implements HTTPHandler
 		}
 	    }
 
+	    final String queryString =  uri.getQueryString();
+	    final String pathString;
+
+	    if ((queryString != null) && (queryString.length() > 0)) {  
+		pathString = uri.getPath() + '?' + queryString;
+	    }
+	    else {
+		pathString = uri.getPath();
+	    }
+
 	    HTTPResponse response;
 
 	    if (postString == null) {
-		String queryString =  uri.getQueryString();
-
-		if ((queryString != null) && (queryString.length() > 0)) {  
-		    // Don't pass the query string to the second
-		    // parameter, we don't want it to be URL encoded.
-		    response = httpConnection.Get(uri.getPath() + '?' +
-						  queryString, (String)null,
-						  additionalHeaders);
-		} else {
-		    response = httpConnection.Get(uri.getPath(), (String)null,
-						  additionalHeaders);
-		}
+		// We don't pass the query string to the second
+		// parameter of Get() as we don't want it to be URL
+		// encoded.
+		response = httpConnection.Get(pathString, (String)null,
+					      additionalHeaders);
 	    }
 	    else {
 		// HTTPClient defaults to application/octet-stream,
@@ -211,7 +214,7 @@ class HTTPClientHandler implements HTTPHandler
 				   "application/x-www-form-urlencoded");
 		}
 
-		response = httpConnection.Post(uri.getPath(), postString,
+		response = httpConnection.Post(pathString, postString,
 					       additionalHeaders);
 	    }
 

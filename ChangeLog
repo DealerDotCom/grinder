@@ -1,3 +1,8 @@
+2002-03-18  Philip Aston  <paston@bea.com>
+
+	* AUTHORS, CHANGES, src/net/grinder/plugin/http/HTTPClientHandler.java:
+	Allow query strings with POST's. Thanks to Kjetil JD.
+
 2002-03-10  Philip Aston  <paston@bea.com>
 
 	* src/net/grinder/TCPSniffer.java:
