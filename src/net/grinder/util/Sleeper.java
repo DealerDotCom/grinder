@@ -40,7 +40,7 @@ import net.grinder.common.Logger;
  * @author Philip Aston
  * @version $Revision$
  */
-public class Sleeper {
+public final class Sleeper {
 
   private static Random s_random = new Random();
   private static List s_allSleepers = new ArrayList();
@@ -75,7 +75,7 @@ public class Sleeper {
   /**
    * Shutdown all Sleepers that are currently constructed.
    */
-  public static final synchronized void shutdownAllCurrentSleepers() {
+  public static synchronized void shutdownAllCurrentSleepers() {
 
     final Iterator iterator = s_allSleepers.iterator();
 
@@ -97,7 +97,7 @@ public class Sleeper {
    * method invocations will throw {@link ShutdownException},
    * including those already sleeping.
    */
-  public final synchronized void shutdown() {
+  public synchronized void shutdown() {
 
     m_shutdown = true;
     notifyAll();
