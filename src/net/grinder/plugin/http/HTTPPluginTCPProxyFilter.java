@@ -47,6 +47,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
 
 import HTTPClient.Codecs;
 import HTTPClient.NVPair;
+import HTTPClient.ParseException;
 
 import net.grinder.TCPProxy;
 import net.grinder.tools.tcpproxy.ConnectionDetails;
@@ -136,12 +137,13 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	// Request-Line = Method SP Request-URI SP HTTP-Version CRLF
 	// HTTP-Version = "HTTP" "/" 1*DIGIT "." 1*DIGIT
 	// http_URL = "http:" "//" host [ ":" port ] [ abs_path [ "?" query ]]
+	// ";" can also be used as a query separator.
 	//  
 	// We're flexible about SP and CRLF, see RFC 2616, 19.3.
 
 	m_requestLinePattern =
 	    compiler.compile(
-		"^([A-Z]+)[ \\t]+(.+)[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?$", 
+		"^([A-Z]+)[ \\t]+([^\\?;]+)([\\?;].+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?$", 
 		Perl5Compiler.READ_ONLY_MASK | Perl5Compiler.MULTILINE_MASK);
 
 	m_contentLengthPattern =
@@ -351,6 +353,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 	private long m_time;
 	private String m_method = null;
 	private String m_url = null;
+	private String m_queryString = null;
 	private final List m_headers = new ArrayList();
 	private int m_contentLength = -1;
 	private String m_contentType = null;
@@ -387,18 +390,30 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		// out Matcher.
 		final String newMethod = matchResult.group(1);
 		final String newURL = matchResult.group(2);
+		final String newQueryString = matchResult.group(3);
 
 		endMessage();
 
 		m_method = newMethod;
-		m_url = newURL;
 		m_parsingHeaders = true;
 
-		if (m_method.equals("DELETE") ||
-		    m_method.equals("GET") ||
-		    m_method.equals("HEAD") ||
-		    m_method.equals("TRACE")) {
+		if (m_method.equals("GET") ||
+		    m_method.equals("HEAD")) {
 		    m_handlingBody = false;
+		    m_url = newURL;
+		    m_queryString = newQueryString;
+		}
+		else if (m_method.equals("DELETE") ||
+			 m_method.equals("TRACE")) {
+		    m_handlingBody = false;
+
+		    if (newQueryString != null) {
+			m_url = newURL + newQueryString;
+			m_queryString = null;
+		    }
+		    else {
+			m_url = newURL;
+		    }
 		}
 		else if (m_method.equals("OPTIONS") ||
 			 m_method.equals("PUT") ||
@@ -407,6 +422,14 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		    m_entityBodyByteStream.reset();
 		    m_contentLength = -1;
 		    m_contentType = null;
+
+		    if (newQueryString != null) {
+			m_url = newURL + newQueryString;
+			m_queryString = null;
+		    }
+		    else {
+			m_url = newURL;
+		    }
 		}
 		else {
 		    warn("Ignoring '" + m_method + "' from " +
@@ -529,7 +552,8 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		s_newLine);
 	}
 
-	public synchronized final void endMessage() throws IOException
+	public synchronized final void endMessage()
+	    throws IOException
 	{
 	    if (m_method == null) {
 		return;
@@ -565,32 +589,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		    final String bodyAsString =
 			m_entityBodyByteStream.toString("US-ASCII");
 
-		    int i = 0;
-		    int j = 0;
-		    
-		    while ((j = bodyAsString.indexOf("=", i)) >= 0) {
-			scriptOutput.append(s_newLine);
-			scriptOutput.append(s_indent);
-			scriptOutput.append(s_indent);
-			scriptOutput.append(s_indent);
-			scriptOutput.append("NVPair('");
-			scriptOutput.append(bodyAsString.substring(i, j));
-			scriptOutput.append("', '");
-
-			++j;
-			i = bodyAsString.indexOf("&", j);
-
-			if (i == -1) {
-			    scriptOutput.append(bodyAsString.substring(j));
-			    scriptOutput.append("')");
-			    break;
-			}
-
-			scriptOutput.append(bodyAsString.substring(j, i));
-			scriptOutput.append("'), ");
-
-			++i;
-		    }
+		    parseNameValueString(scriptOutput, bodyAsString, 3);
 
 		    dataParameter = "formData" + m_requestNumber;
 		    scriptOutput.append("]");
@@ -616,6 +615,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		dataParameter = null;
 	    }
 
+	    testOutput.append(s_newLine);
 	    testOutput.append(s_newLine);
 	    testOutput.append("request");
 	    testOutput.append(m_requestNumber);
@@ -655,14 +655,14 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 
 	    testOutput.append(")");
 
-	    // Base default description on test URL.
+	    // Base default description on method and URL.
 	    final String description;
 	    
 	    if (m_matcher.contains(m_url, m_lastURLPathElementPattern)) {
-		description = m_matcher.getMatch().group(1);
+		description = m_method + " " + m_matcher.getMatch().group(1);
 	    }
 	    else {
-		description = "";
+		description = m_method;
 	    }
 
 	    testOutput.append(s_newLine);
@@ -693,6 +693,12 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 		scriptOutput.append(", ");
 		scriptOutput.append(dataParameter);
 	    }
+	    else if (m_queryString != null && m_queryString.length() > 1) {
+		scriptOutput.append(", [");
+		parseNameValueString(scriptOutput, m_queryString.substring(1),
+				     3);
+		scriptOutput.append("]");
+	    }
 
 	    scriptOutput.append(")");
 
@@ -706,5 +712,60 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter
 
 	    m_method = null;
 	}
+    }
+
+    private final void parseNameValueString(StringBuffer resultBuffer,
+					    String input,
+					    int indentLevel)
+	throws IOException
+    {
+	final NVPair[] pairs;
+	
+	try {
+	    pairs = Codecs.query2nv(input);
+	}
+	catch (ParseException e) {
+	    throw new IOException("Failed to parse query string: " +
+				  e.getMessage());
+	}
+
+	for (int i=0; i<pairs.length; ++i) {
+	    resultBuffer.append(s_newLine);
+
+	    for (int k=0; k<indentLevel; ++k) {
+		resultBuffer.append(s_indent);
+	    }
+
+	    resultBuffer.append("NVPair(");
+	    appendQuotingQuotes(resultBuffer, pairs[i].getName());
+	    resultBuffer.append(", ");
+	    appendQuotingQuotes(resultBuffer, pairs[i].getValue());
+	    resultBuffer.append("), ");
+	}
+    }
+
+    private final void appendQuotingQuotes(StringBuffer resultBuffer,
+					   String value) 
+    {
+	final String quotes = value.indexOf("\n") > -1 ? "'''" : "'";
+
+	resultBuffer.append(quotes);
+
+	final int length = value.length();
+	
+	for (int i=0; i<length; ++i) {
+	    final char c = value.charAt(i);
+
+	    switch (c) {
+	    case '\'':
+	    case '\\':
+		resultBuffer.append('\\');
+		// fall through.
+	    default:
+		resultBuffer.append(c);
+	    }
+	}
+
+	resultBuffer.append(quotes);
     }
 }
