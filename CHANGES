@@ -1,13 +1,23 @@
-Grinder 2.6.6
+Grinder 2.7
 -------------
 
-  Enhancements from Kalle Burbeck:
+  Console enhancements:
+   - All text is now read from Console.properties.
+   - Highlight errors label if errors > 0.
+
+  Remove distinction between "abortions" and "errors" from the
+  recorded statistics. All tests now result in a "succesful
+  transaction" or an "error".
+
+  Removed deprectated BookHttpPlugin example. Use StringBeans instead.
+
+  Features from Kalle Burbeck:
    - New HTTP plugin parameter for POST requests, postContentType.
    - HTTP plugin sniffer filter now has limited support for
      multipart forms.
    - HTTP plugin sniffer filter now generates test descriptions.
 
-  Enchancements from Paddy Spencer:
+  Features from Paddy Spencer:
    - New "Sniff 'n' Grind" webapp (the management take no
      responsibility for Paddy's sense of humour).
 

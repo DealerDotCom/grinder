@@ -1,3 +1,27 @@
+2001-09-15  Philip Aston  <paston@bea.com>
+
+	* src/net/grinder/console/swingui/TestGraphPanel.java, src/net/grinder/console/swingui/TestTable.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/Resources.java, src/net/grinder/console/swingui/StatisticsTableModel.java:
+	All text is now read from Console.properties.
+	Highlight errors label if errors > 0.
+	Remove distinction between "abortions" and "errors" from the recorded
+	statistics. All tests now result in a "succesful transaction" or an
+	"error".
+
+	* doc/JUnitPlugin.txt, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/statistics/Statistics.java, src/net/grinder/statistics/StatisticsTable.java, README:
+	Remove distinction between "abortions" and "errors" from the recorded
+	statistics. All tests now result in a "succesful transaction" or an
+	"error".
+
+	* build.xml: Next is 2.7.
+
+	* src/net/grinder/plugin/http/BookHttpPlugin.java:
+	Removed. Use StringBeans instead.
+
+2001-09-10  Philip Aston  <paston@bea.com>
+
+	* CHANGES, doc/TCPSniffer.txt, src/net/grinder/TCPSniffer.java:
+	Remove -output sniffer option, shell redirection is fine.
+
 2001-09-09  Philip Aston  <paston@bea.com>
 
 	* examples/http/grinder.properties:
