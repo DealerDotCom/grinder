@@ -124,4 +124,29 @@ public abstract class Message implements Serializable
 	m_senderUniqueID = in.readUTF();
 	m_sequenceNumber = in.readLong();
     }
+
+    /**
+     * Compare two Messages. Sent messages have enhanced equality
+     * semantics - they are equivalent if they have the same sender ID
+     * and sequnce number.
+     *
+     * @param o The other object.
+     **/
+    public final boolean equals(Object o)
+    {
+	if (o == this) {
+	    return true;
+	}
+
+	if (!(o instanceof Message)) {
+	    return false;
+	}
+	
+	final Message message = (Message)o;
+
+	return
+	    m_sequenceNumber != -1 && 
+	    m_sequenceNumber == message.m_sequenceNumber &&
+	    m_senderUniqueID.equals(message.m_senderUniqueID);
+    }
 }

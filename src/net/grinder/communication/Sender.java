@@ -61,7 +61,7 @@ public class Sender
      * failed to generate a unique process identifer.
      **/    
     public Sender(String grinderID, String multicastAddressString,
-	      int multicastPort)
+		  int multicastPort)
 	throws CommunicationException
     {
 	m_grinderID = grinderID;

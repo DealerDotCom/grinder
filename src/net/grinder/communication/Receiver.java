@@ -42,9 +42,11 @@ public final class Receiver
     private final MulticastSocket m_socket;
     private final DatagramPacket m_packet;
     private final Map m_sequenceValues = new HashMap();
+    private boolean m_listening = false;
+
     private boolean m_shuttingDown = false;
     private boolean m_shutDown = false;
-    private boolean m_listening = false;
+    private Message m_shutdownMessage;
 
     /**
      * Constructor.
@@ -124,7 +126,7 @@ public final class Receiver
 		    "Error receving multicast packet", e);
 	    }
 
-	    if (message instanceof ShutdownMessage) {
+	    if (message.equals(m_shutdownMessage)) {
 		shutdownComplete();
 		return null;
 	    }
@@ -166,29 +168,34 @@ public final class Receiver
     public final void shutdown()
     {
 	if (!m_shutDown) {
-	    m_shuttingDown = true;
+	    if (!m_shuttingDown) {
+		m_shuttingDown = true;
 
-	    final boolean needSuicideMessage;
+		final boolean needSuicideMessage;
 
-	    synchronized(this) {
-		needSuicideMessage = m_listening;
-	    }
-
-	    if (needSuicideMessage) {
-		try {
-		    // Pretty hacky way of shutting down the receiver.
-		    // The packet goes out on the wire. Can't do much
-		    // else with the DatagramSocket API though.
-		    new Sender("suicide is painless", m_multicastAddressString,
-			       m_multicastPort).send(new ShutdownMessage());
+		synchronized(this) {
+		    needSuicideMessage = m_listening;
 		}
-		catch (CommunicationException e) {
-		    // We made our best effort.
+
+		if (needSuicideMessage) {
+		    try {
+			// Pretty hacky way of shutting down the receiver.
+			// The packet goes out on the wire. Can't do much
+			// else with the DatagramSocket API though.
+			m_shutdownMessage = new ShutdownMessage();
+
+			new Sender("suicide is painless",
+				   m_multicastAddressString,
+				   m_multicastPort).send(m_shutdownMessage);
+		    }
+		    catch (CommunicationException e) {
+			// We made our best effort.
+			shutdownComplete();
+		    }
+		}
+		else {
 		    shutdownComplete();
 		}
-	    }
-	    else {
-		shutdownComplete();
 	    }
 
 	    while (!m_shutDown) {

@@ -63,13 +63,14 @@ public class TestSenderAndReceiver extends TestCase
 	// Hmm.. can't think of an easy way to ensure the
 	// receiverThread is listening before we do this. Test seems
 	// to work anyway. Hey ho.
-	final Message sentMessage = new SimpleMessage(0);
+	final SimpleMessage sentMessage = new SimpleMessage(0);
 	m_sender.send(sentMessage);
 
 	receiverThread.join();
 
 	final Message receivedMessage = receiverThread.getMessage();
 	assertEquals(sentMessage, receivedMessage);
+	assert(sentMessage.payloadEquals(receivedMessage));
 	assert(sentMessage != receivedMessage);
     }
 
@@ -90,6 +91,8 @@ public class TestSenderAndReceiver extends TestCase
 		(SimpleMessage)receiverThread.getMessage();
 
 	    assertEquals(sentMessage, receivedMessage);
+	    assert(sentMessage.payloadEquals(receivedMessage));
+	    assert(sentMessage != receivedMessage);
 	}
     }
 
@@ -110,6 +113,8 @@ public class TestSenderAndReceiver extends TestCase
 	    (SimpleMessage)receiverThread.getMessage();
 
 	assertEquals(sentMessage, receivedMessage);
+	assert(sentMessage.payloadEquals(receivedMessage));
+	assert(sentMessage != receivedMessage);
     }
 
     public void testShutdownReciever() throws Exception
@@ -122,7 +127,7 @@ public class TestSenderAndReceiver extends TestCase
 	receiverThread.join();
 
 	assertNull(receiverThread.getMessage());
-	}
+    }
 
     public void testTwoListenersException() throws Exception
     {
@@ -186,7 +191,12 @@ public class TestSenderAndReceiver extends TestCase
 	    }
 	}
 
-	public boolean equals(Object o) 
+	public String toString()
+	{
+	    return "(" + m_text + ", " + m_random + ")";
+	}
+
+	public boolean payloadEquals(Message o) 
 	{
 	    if (o == this) {
 		return true;
@@ -201,11 +211,6 @@ public class TestSenderAndReceiver extends TestCase
 	    return
 		m_text.equals(other.m_text) &&
 		m_random == other.m_random;
-	}
-
-	public String toString()
-	{
-	    return "(" + m_text + ", " + m_random + ")";
 	}
     }
 }

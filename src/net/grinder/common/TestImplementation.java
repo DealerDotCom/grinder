@@ -71,11 +71,15 @@ public class TestImplementation implements Test
 
     public final boolean equals(Object o)
     {
-	if (o instanceof Test) {
-	    return m_number == ((Test)o).getNumber();
+	if (o == this) {
+	    return true;
 	}
 
-	return false;
+	if (!(o instanceof Test)) {
+	    return false;
+	}
+	
+	return m_number == ((Test)o).getNumber();
     }
 
     public final String toString()
