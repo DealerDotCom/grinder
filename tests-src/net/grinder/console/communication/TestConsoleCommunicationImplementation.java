@@ -331,6 +331,7 @@ public class TestConsoleCommunicationImplementation
     final AgentStatus agentStatus = m_consoleCommunication.getAgentStatus();
 
     assertEquals(0, agentStatus.getConnectedAgents().size());
+    assertTrue(!agentStatus.isAnAgentConnected());
 
     final RandomStubFactory listenerStubFactory =
       new RandomStubFactory(AgentStatus.ConnectionListener.class);
@@ -354,6 +355,7 @@ public class TestConsoleCommunicationImplementation
     listenerStubFactory.assertNoMoreCalls();
 
     assertEquals(2, agentStatus.getConnectedAgents().size());
+    assertTrue(agentStatus.isAnAgentConnected());
 
     socket.close();
 
@@ -370,6 +372,7 @@ public class TestConsoleCommunicationImplementation
 
     listenerStubFactory.assertSuccess("agentDisconnected");
     assertEquals(1, agentStatus.getConnectedAgents().size());
+    assertTrue(agentStatus.isAnAgentConnected());
     listenerStubFactory.assertNoMoreCalls();
 
     // Needed so the receiver shuts down.
