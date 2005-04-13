@@ -34,6 +34,10 @@ import net.grinder.util.ListenerSupport;
  * Wrapper for a {@link Socket} that is {ResourcePool.ResourcePool}
  * and understands our connection close protocol.
  *
+ * <p>This class makes no attempt to synchronise access to socket resources,
+ * callers are responsible for ensuring only a single thread uses the class
+ * at any one time.</p>
+ *
  * @author Philip Aston
  * @version $Revision$
  */
@@ -59,11 +63,6 @@ final class SocketWrapper
         ((ClosedListener)listener).socketClosed();
       }
     };
-
-  /**
-   * Needed because J2SE 1.3 does not have <code>Socket.isClosed()</code>.
-   */
-  private boolean m_closed = false;
 
   public SocketWrapper(Socket socket) throws CommunicationException {
     m_socket = socket;
@@ -92,6 +91,9 @@ final class SocketWrapper
   public boolean isPeerShutdown() {
 
     try {
+      // There's a potential race here. Another thread could read the bytes we
+      // detect as available and we could end up blocking. Not an issue as
+      // SocketWrapper doesn't claim thread safety.
       if (m_inputStream.available() > 0) {
         m_inputStream.mark(BUFFER_SIZE);
 
@@ -119,7 +121,7 @@ final class SocketWrapper
   }
 
   public void close() {
-    if (!m_closed) {
+    if (!m_socket.isClosed()) {
       // Java provides no way for socket code to enquire whether the
       // peer has closed the connection. We make an effort to tell the
       // peer.
@@ -137,8 +139,7 @@ final class SocketWrapper
         // Ignore errors, connection has probably been reset by peer.
       }
 
-      // Mark closed before informing listeners to prevent recursion.
-      m_closed = true;
+      // Close before informing listeners to prevent recursion.
       m_closedListeners.apply(m_closedInformer);
     }
   }
