@@ -227,7 +227,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
 
     m_requestLinePattern =
       Pattern.compile(
-        "^([A-Z]+)[ \\t]+([^\\?]+)(\\?.+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?$",
+        "^([A-Z]+)[ \\t]+([^\\?]+)(\\?.+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?\\n",
         Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     m_contentLengthPattern =
@@ -255,7 +255,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
 
     m_basicAuthorizationHeaderPattern =
       Pattern.compile(
-        "^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?$",
+        "^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?\\n",
         Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     // Ignore maximum amount of stuff thats not a '?' followed by
@@ -591,7 +591,7 @@ public class HTTPPluginTCPProxyFilter2 implements TCPProxyFilter {
    * @return The expression.
    */
   private String getHeaderExpression(String headerName) {
-    return "^" + headerName + ":[ \\t]*(.*)\\r?$";
+    return "^" + headerName + ":[ \\t]*(.*)\\r?\\n";
   }
 
   /**

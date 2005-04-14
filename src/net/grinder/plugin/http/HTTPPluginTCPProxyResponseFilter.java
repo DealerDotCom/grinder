@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // Copyright (C) 2003 Bertrand Ave
 // All rights reserved.
 //
@@ -59,7 +59,7 @@ public class HTTPPluginTCPProxyResponseFilter implements TCPProxyFilter {
     m_wwwAuthenticateHeaderPattern =
       Pattern.compile(
         "^WWW-Authenticate:[ \\t]*Basic realm[  \\t]*=" +
-        "[ \\t]*\"([^\"]*)\".*\\r?$",
+        "[ \\t]*\"([^\"]*)\".*\\r?\\n",
         Pattern.MULTILINE | Pattern.UNIX_LINES);
   }
 

@@ -62,7 +62,7 @@ import net.grinder.tools.tcpproxy.TCPProxyFilter;
  * every packet that starts with such a line is the start of a request.
  * <li>Should filter chunked transfer coding from POST data.
  * <li>Doesn't handle line continuations.
- * <li>Doesn't parse correctly if lines are broken accross message
+ * <li>Doesn't parse correctly if lines are broken across message
  * fragments.
  * </ul>
  *
@@ -151,7 +151,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
     m_requestLinePattern =
       Pattern.compile(
-        "^([A-Z]+)[ \\t]+([^\\?]+)(\\?.+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?$",
+        "^([A-Z]+)[ \\t]+([^\\?]+)(\\?.+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?\\n",
         Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     m_contentLengthPattern =
@@ -179,7 +179,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
     m_basicAuthorizationHeaderPattern =
       Pattern.compile(
-        "^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?$",
+        "^Authorization:[ \\t]*Basic[  \\t]*([a-zA-Z0-9+/]*=*).*\\r?\\n",
         Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     // Ignore maximum amount of stuff thats not a '?' followed by
@@ -339,13 +339,13 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
    * @return The expression.
    */
   private String getHeaderExpression(String headerName) {
-    return "^" + headerName + ":[ \\t]*(.*)\\r?$";
+    return "^" + headerName + ":[ \\t]*(.*)\\r?\\n";
   }
 
   /**
    * Class that handles a particular connection.
    *
-   * <p>Multithreaded calls for a given connection are
+   * <p>Multi-threaded calls for a given connection are
    * serialised.</p>
    **/
   private final class Handler {

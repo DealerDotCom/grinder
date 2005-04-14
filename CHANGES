@@ -10,6 +10,10 @@ Grinder 3.0-beta26 (Not yet released)
   incorrectly quoted when building the worker process command line.
   Thanks to Dietrich Bollmann for the report.
 
+  Be more strict about matching line endings in the HTTP TCPProxy
+  filters. Previously there was a platform specific bug. Thanks to
+  Alex Bolgarov for the report.
+
 
 Grinder 3.0-beta25
 ------------------

@@ -84,15 +84,25 @@ Task: If dirty buffers on play, optionally warn.
 
 ***** Release 4
 
+Task: Merge worker and agent process status models. Update process tab
+to show both.
+
+  Problems
+  - currently no communication from the agent to the console.
+  - console uses connection id to track agent id (for file cache).
+  - Make "CONTROL" channels bidirectional?
+    Wrap a sender/receiver pair around the existing CONNECT channel?
+    ConsoleCommunication needs another ServerReceiver on CONNECT.
+    (Can change existing one to listen to messages from both channels?)
+  - see note below about need for "agent initiation channel".
+
+
 Task: Console to watch local file system for edits.
 
 Task: Add warning if saving outside of distribution.
 
 Task: The agent should pick up secondary grinder.properties from file
 cache.
-
-Task: Merge worker and agent process status models. Update process tab
-to show both.
 
 Task: Console to optionally auto broadcast on play. Need some way of
 synchronising before starting run.
@@ -312,20 +322,20 @@ OK, this amounts to a campaign against HTTPClient!
 
 
 Reasons for HTTPClient:
-	- Its solid, (and not 'alpha' which is the case for
-	  HttpClient).
-	- Its small and comprehensible.
-	- It is efficient.
-	- Its extremely well written.
-	- Its the incumbent.
+  - Its solid, (and not 'alpha' which is the case for
+    HttpClient).
+  - Its small and comprehensible.
+  - It is efficient.
+  - Its extremely well written.
+  - Its the incumbent.
 
 Reasons for Commons HttpClient:
-	- Its actively maintained.
-	- It is more modular.
-	- It is richer.
+  - Its actively maintained.
+  - It is more modular.
+  - It is richer.
 
 Reasons for HttpUnit:
-	- nekohtml, parsing support
+  - nekohtml, parsing support
 
 I prefer HttpClient, HTTPClient over HttpUnit for The Grinder as they
 are "closer to the wire".
@@ -401,10 +411,10 @@ http://thread.gmane.org/gmane.comp.java.grinder.user/186
 Create back links from javadoc. This isn't trivial, e.g. this:
 
       <bottom>
-	<![CDATA[
-	<a class="noborder" href="../whats-new.html"
-	target="_top"><img src="../../images/grinder3.jpg"></img></a>
-	]]>
+  <![CDATA[
+  <a class="noborder" href="../whats-new.html"
+  target="_top"><img src="../../images/grinder3.jpg"></img></a>
+  ]]>
       </bottom>
 
 only works for top level javadoc.
