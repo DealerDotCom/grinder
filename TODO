@@ -14,6 +14,15 @@ against it too :-).
 - Philip Aston
 
 
+Re-check TCPProxy regexps (Alex Bolgarov - alex@bolgarov.net):
+
+ >   private String getHeaderExpression(String headerName) {
+ >     return "^" + headerName + ":[ \\t]*(.*)\\r?$";
+ >   }
+
+ >    return "[\\r\\n]" + headerName + ":[ \\t]*(.*)[\\r\\n]";
+
+
 
 * Enhancements
 
