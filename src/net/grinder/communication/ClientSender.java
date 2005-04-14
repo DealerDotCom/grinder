@@ -62,7 +62,7 @@ public final class ClientSender
   private ClientSender(SocketWrapper socketWrapper)
     throws CommunicationException, IOException {
 
-    super(socketWrapper.getOutputStream());
+    super(socketWrapper.getOutputStream(), socketWrapper);
     m_socketWrapper = socketWrapper;
   }
 

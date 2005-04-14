@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,7 +27,7 @@ import java.io.ObjectInputStream;
 
 
 /**
- * Manages reciept of messages from a server over a stream.
+ * Manages receipt of messages from a server over a stream.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -35,25 +35,35 @@ import java.io.ObjectInputStream;
 public class StreamReceiver implements Receiver {
 
   private final InputStream m_inputStream;
+  private final Object m_streamLock;
   private boolean m_shutdown = false;
 
   /**
    * Constructor.
    *
    * @param inputStream The input stream to read from.
-   **/
+   */
   public StreamReceiver(InputStream inputStream) {
+    this(inputStream, inputStream);
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param inputStream The input stream to read from.
+   * @param streamLock Lock on this object around all stream operations.
+   */
+  protected StreamReceiver(InputStream inputStream, Object streamLock) {
     m_inputStream = inputStream;
+    m_streamLock = streamLock;
   }
 
   /**
    * Block until a message is available. Typically called from a
    * message dispatch loop.
    *
-   * <p>Not thread safe.</p>
-   *
    * @return The message or <code>null</code> if shut down.
-   * @throws CommunicationException If an error occured receiving a message.
+   * @throws CommunicationException If an error occurred receiving a message.
    */
   public final Message waitForMessage() throws CommunicationException {
 
@@ -62,10 +72,14 @@ public class StreamReceiver implements Receiver {
     }
 
     try {
-      final ObjectInputStream objectStream =
-        new ObjectInputStream(m_inputStream);
+      final Message message;
 
-      final Message message = (Message)objectStream.readObject();
+      synchronized (m_streamLock) {
+        final ObjectInputStream objectStream =
+          new ObjectInputStream(m_inputStream);
+
+        message = (Message)objectStream.readObject();
+      }
 
       if (message instanceof CloseCommunicationMessage) {
         shutdown();
@@ -91,7 +105,9 @@ public class StreamReceiver implements Receiver {
     m_shutdown = true;
 
     try {
-      m_inputStream.close();
+      synchronized (m_streamLock) {
+        m_inputStream.close();
+      }
     }
     catch (IOException e) {
       // Ignore.

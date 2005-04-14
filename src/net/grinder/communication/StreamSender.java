@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,6 +35,7 @@ import java.io.OutputStream;
 public class StreamSender extends AbstractSender {
 
   private final OutputStream m_outputStream;
+  private final Object m_streamLock;
 
   /**
    * Constructor.
@@ -42,7 +43,18 @@ public class StreamSender extends AbstractSender {
    * @param outputStream The output stream to write to.
    */
   public StreamSender(OutputStream outputStream) {
+    this(outputStream, outputStream);
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param outputStream The output stream to write to.
+   * @param streamLock Lock on this object around all stream operations.
+   */
+  protected StreamSender(OutputStream outputStream, Object streamLock) {
     m_outputStream = new BufferedOutputStream(outputStream);
+    m_streamLock = streamLock;
   }
 
   /**
@@ -52,7 +64,9 @@ public class StreamSender extends AbstractSender {
    * @throws IOException If an error occurs.
    */
   protected final void writeMessage(Message message) throws IOException {
-    writeMessageToStream(message, m_outputStream);
+    synchronized (m_streamLock) {
+      writeMessageToStream(message, m_outputStream);
+    }
   }
 
   /**
@@ -64,7 +78,9 @@ public class StreamSender extends AbstractSender {
     super.shutdown();
 
     try {
-      m_outputStream.close();
+      synchronized (m_streamLock) {
+        m_outputStream.close();
+      }
     }
     catch (IOException e) {
       // Ignore.

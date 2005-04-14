@@ -34,9 +34,10 @@ import net.grinder.util.ListenerSupport;
  * Wrapper for a {@link Socket} that is {ResourcePool.ResourcePool}
  * and understands our connection close protocol.
  *
- * <p>This class makes no attempt to synchronise access to socket resources,
- * callers are responsible for ensuring only a single thread uses the class
- * at any one time.</p>
+ * <p>This class is thread safe, and synchronises its access to the underlying
+ * socket. Client classes that access the sockets streams through
+ * {@link #getInputStream} and {@link #getOutputStream} should synchronise on
+ * the SocketWrapper instance around any access to the stream objects.</p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -64,6 +65,14 @@ final class SocketWrapper
       }
     };
 
+  /**
+   * Constructor.
+   *
+   * @param socket Socket to wrap. We assume the caller doesn't maintain
+   * any references to the socket, and that we are now responsible for
+   * sychronising further access.
+   * @throws CommunicationException If an error occurred.
+   */
   public SocketWrapper(Socket socket) throws CommunicationException {
     m_socket = socket;
 
@@ -91,20 +100,20 @@ final class SocketWrapper
   public boolean isPeerShutdown() {
 
     try {
-      // There's a potential race here. Another thread could read the bytes we
-      // detect as available and we could end up blocking. Not an issue as
-      // SocketWrapper doesn't claim thread safety.
-      if (m_inputStream.available() > 0) {
-        m_inputStream.mark(BUFFER_SIZE);
+      synchronized (this) {
+        if (m_inputStream.available() > 0) {
+          m_inputStream.mark(BUFFER_SIZE);
 
-        try {
-          if (new StreamReceiver(m_inputStream).waitForMessage() == null) {
-            close();
-            return true;
+          try {
+            if (new StreamReceiver(m_inputStream, this)
+                .waitForMessage() == null) {
+              close();
+              return true;
+            }
           }
-        }
-        finally {
-          m_inputStream.reset();
+          finally {
+            m_inputStream.reset();
+          }
         }
       }
     }
@@ -120,13 +129,20 @@ final class SocketWrapper
     return false;
   }
 
+  /**
+   * Close the SocketWrapper and its underlying resources.
+   *
+   * <p>No need to synchronise access to the close, isClosed - they should be
+   * thread safe. Also, we're careful not to hold locks around the listener
+   * notification.</p>
+   */
   public void close() {
     if (!m_socket.isClosed()) {
       // Java provides no way for socket code to enquire whether the
       // peer has closed the connection. We make an effort to tell the
       // peer.
       try {
-        new StreamSender(getOutputStream()).shutdown();
+        new StreamSender(getOutputStream(), this).shutdown();
       }
       catch (CommunicationException e) {
         // Ignore.
@@ -148,16 +164,32 @@ final class SocketWrapper
     return m_connectionIdentity;
   }
 
+  /**
+   * See note in {@link SocketWrapper} class documentation about the need
+   * to synchronise around any usage of the returned <code>InputStream</code>.
+   *
+   * @return The input stream.
+   */
   public InputStream getInputStream() {
     return m_inputStream;
   }
 
-  public OutputStream getOutputStream() throws CommunicationException {
-    try {
-      return m_socket.getOutputStream();
-    }
-    catch (IOException e) {
-      throw new CommunicationException("Communication failed", e);
+  /**
+   * See note in {@link SocketWrapper} class documentation about the need
+   * to synchronise around any usage of the returned <code>OutputStream</code>.
+   *
+   * @return The output stream.
+   */
+  public OutputStream getOutputStream()
+    throws CommunicationException {
+
+    synchronized (this) {
+      try {
+        return m_socket.getOutputStream();
+      }
+      catch (IOException e) {
+        throw new CommunicationException("Communication failed", e);
+      }
     }
   }
 
@@ -172,4 +204,3 @@ final class SocketWrapper
     m_closedListeners.add(listener);
   }
 }
-

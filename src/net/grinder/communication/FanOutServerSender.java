@@ -73,6 +73,9 @@ public final class FanOutServerSender
   protected OutputStream resourceToOutputStream(
     ResourcePool.Resource resource) throws CommunicationException {
 
+    // We don't need to synchronise access to the SocketWrapper;
+    // access is protected through the socket set and only we hold
+    // the reservation.
     return ((SocketWrapper)resource).getOutputStream();
   }
 

@@ -23,7 +23,7 @@ package net.grinder.communication;
 
 
 /**
- * Manages reciept of messages from a server over a TCP connection.
+ * Manages receipt of messages from a server over a TCP connection.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -48,7 +48,7 @@ public final class ClientReceiver extends StreamReceiver {
   private final SocketWrapper m_socketWrapper;
 
   private ClientReceiver(SocketWrapper socketWrapper) {
-    super(socketWrapper.getInputStream());
+    super(socketWrapper.getInputStream(), socketWrapper);
     m_socketWrapper = socketWrapper;
   }
 

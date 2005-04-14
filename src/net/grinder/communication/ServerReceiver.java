@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -76,7 +76,7 @@ public final class ServerReceiver implements Receiver {
    * will receive a given message.</p>
    *
    * @return The message or <code>null</code> if shut down.
-   * @throws CommunicationException If an error occured receiving a message.
+   * @throws CommunicationException If an error occurred receiving a message.
    */
   public Message waitForMessage() throws CommunicationException {
 
@@ -126,10 +126,13 @@ public final class ServerReceiver implements Receiver {
             idle = true;
           }
           else {
-            final SocketWrapper socketResource =
+            final SocketWrapper socketWrapper =
               (SocketWrapper)reservation.getResource();
 
-            final InputStream inputStream = socketResource.getInputStream();
+            // We don't need to synchronise access to the SocketWrapper;
+            // access is protected through the socket set and only we hold
+            // the reservation.
+            final InputStream inputStream = socketWrapper.getInputStream();
 
             if (inputStream.available() > 0) {
 
