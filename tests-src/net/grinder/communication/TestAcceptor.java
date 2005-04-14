@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -72,12 +72,26 @@ public class TestAcceptor extends TestCase {
       assertNull(acceptor.getPendingException(false));
       acceptor.shutdown();
 
-      // Should also be able to use a Random port.
+      // Should also be able to use a OS allocated port.
       final Acceptor acceptor2 = new Acceptor(testAddresses[i], 0, 2);
       assertEquals(port, acceptor.getPort());
       assertNull(acceptor2.getPendingException(false));
       acceptor2.shutdown();
     }
+
+    final ServerSocket usedSocket = new ServerSocket(0);
+    final int usedPort = usedSocket.getLocalPort();
+
+    for (int i=0; i<testAddresses.length; ++i) {
+      try {
+        final Acceptor acceptor = new Acceptor(testAddresses[i], usedPort, 1);
+        fail("Expected CommunicationException");
+      }
+      catch (CommunicationException e) {
+      }
+    }
+
+    usedSocket.close();
   }
 
   public void testGetSocketSet() throws Exception {
@@ -183,7 +197,7 @@ public class TestAcceptor extends TestCase {
     while (!threadGroup.isDestroyed()) {
       Thread.sleep(10);
     }
-  } 
+  }
 
   public void testShutdown() throws Exception {
 
@@ -214,7 +228,7 @@ public class TestAcceptor extends TestCase {
     }
 
     assertTrue(socketSet.reserveNext().isSentinel());
-  } 
+  }
 
   public void testGetPendingException() throws Exception {
 
