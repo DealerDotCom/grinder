@@ -39,7 +39,7 @@ public final class ClientReceiver extends StreamReceiver {
    * @return The ClientReceiver.
    * @throws CommunicationException If failed to connect.
    */
-  public static Receiver connect(Connector connector)
+  public static ClientReceiver connect(Connector connector)
     throws CommunicationException {
 
     return new ClientReceiver(new SocketWrapper(connector.connect()));
@@ -59,5 +59,9 @@ public final class ClientReceiver extends StreamReceiver {
     // Close the socket wrapper first as that needs to use the socket.
     m_socketWrapper.close();
     super.shutdown();
+  }
+
+  SocketWrapper getSocketWrapper() {
+    return m_socketWrapper;
   }
 }

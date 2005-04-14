@@ -57,6 +57,26 @@ public final class ClientSender
     }
   }
 
+  /**
+   * Factory method that makes <code>Sender</code> around the existing TCP
+   * connection owned by the supplied <code>ClientReceiver</code>.
+   *
+   * @param clientReceiver We create a paired <code>Sender</code> for this
+   * <code>Receiver</code>.
+   * @return The ClientSender.
+   * @throws CommunicationException If failed to connect.
+   */
+  public static ClientSender connect(ClientReceiver clientReceiver)
+    throws CommunicationException {
+
+    try {
+      return new ClientSender(clientReceiver.getSocketWrapper());
+    }
+    catch (IOException e) {
+      throw new CommunicationException("Connection failed", e);
+    }
+  }
+
   private final SocketWrapper m_socketWrapper;
 
   private ClientSender(SocketWrapper socketWrapper)

@@ -23,6 +23,9 @@ package net.grinder.communication;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.net.Socket;
+
+import net.grinder.util.StreamCopier;
 
 import junit.framework.TestCase;
 
@@ -76,7 +79,7 @@ public class TestClientSender extends TestCase {
     assertEquals(0, socketInput.available());
 
     socketAcceptor.close();
-    
+
     try {
       ClientReceiver.connect(connector);
       fail("Expected CommunicationException");
@@ -144,5 +147,58 @@ public class TestClientSender extends TestCase {
     assertTrue(clientSender.isPeerShutdown());
 
     socketAcceptor.close();
+  }
+
+  public void testWithPairedClientReceiver() throws Exception {
+    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+
+    final Connector connector =
+      new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
+                    ConnectionType.CONTROL);
+
+    final ClientReceiver clientReceiver = ClientReceiver.connect(connector);
+    final ClientSender clientSender = ClientSender.connect(clientReceiver);
+
+    socketAcceptor.join();
+
+    // Wire up the remote end to simply copy the bytes back to us.
+    final Socket remoteSocket = socketAcceptor.getAcceptedSocket();
+    assertEquals(ConnectionType.CONTROL,
+                 ConnectionType.read(remoteSocket.getInputStream()));
+
+    new Thread(
+      new StreamCopier(1000, true).getRunnable(remoteSocket.getInputStream(),
+                                               remoteSocket.getOutputStream()),
+      "Echo stream").start();
+
+    final Message message = new SimpleMessage();
+    clientSender.send(message);
+    final Message receivedMessage = clientReceiver.waitForMessage();
+
+    assertEquals(receivedMessage, message);
+
+    assertFalse(clientSender.isPeerShutdown());
+
+    clientReceiver.shutdown();
+    assertTrue(clientSender.isPeerShutdown());
+
+  }
+
+  public void testWithBadPairedClientSender() throws Exception {
+    final SocketAcceptorThread socketAcceptor = new SocketAcceptorThread();
+
+    final Connector connector =
+      new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
+                    ConnectionType.CONTROL);
+
+    final ClientReceiver clientReceiver = ClientReceiver.connect(connector);
+    clientReceiver.shutdown();
+
+    try {
+      ClientSender.connect(clientReceiver);
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
   }
 }
