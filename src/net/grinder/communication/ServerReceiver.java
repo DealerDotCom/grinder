@@ -24,9 +24,14 @@ package net.grinder.communication;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
+import net.grinder.communication.ResourcePool.Reservation;
 import net.grinder.util.thread.ThreadPool;
 import net.grinder.util.thread.ThreadSafeQueue;
+import net.grinder.util.thread.ThreadSafeQueue.ShutdownException;
 
 
 /**
@@ -37,35 +42,72 @@ import net.grinder.util.thread.ThreadSafeQueue;
  */
 public final class ServerReceiver implements Receiver {
 
-  private final ResourcePool m_acceptedSocketSet;
   private final MessageQueue m_messageQueue = new MessageQueue(true);
-  private final ThreadPool m_threadPool;
+  private final List m_threadPools = new ArrayList();
 
   /**
    * Constructor.
-   *
-   * @param acceptor Acceptor.
-   * @param connectionType Connection type.
-   * @param numberOfThreads Number of listen threads to use.
    */
-  public ServerReceiver(Acceptor acceptor, ConnectionType connectionType,
-                        int numberOfThreads) {
+  public ServerReceiver() {
+  }
 
-    m_acceptedSocketSet = acceptor.getSocketSet(connectionType);
+  /**
+   * Registers a new (socket, connection type) pair which the
+   * <code>ServerReceiver</code> should process messages from.
+   *
+   * <p>
+   * A single <code>ServerReceiver</code> can listen to multiple (socket,
+   * connection type). You can register the same (socket, connection type) pair
+   * with multiple <code>ServerReceiver</code>s, but there is no way of
+   * controlling which receiver will receive messages from the pair.
+   * </p>
+   *
+   * @param acceptor
+   *          Acceptor.
+   * @param connectionType
+   *          Connection type.
+   * @param numberOfThreads
+   *          How many threads to dedicate to processing the (socket,
+   *          connectionType) pair.
+   * @exception CommunicationException
+   *              If this <code>ServerReceiver</code> has been shutdown.
+   */
+  public void receiveFrom(Acceptor acceptor,
+                          ConnectionType connectionType,
+                          int numberOfThreads)
+    throws CommunicationException {
+
+
+    final ResourcePool acceptedSocketSet =
+      acceptor.getSocketSet(connectionType);
 
     final ThreadPool.RunnableFactory runnableFactory =
       new ThreadPool.RunnableFactory() {
         public Runnable create() {
           return new Runnable() {
-              public void run() { process(); }
+              public void run() { process(acceptedSocketSet); }
             };
         }
       };
 
-    m_threadPool =
-      new ThreadPool("Server receiver", numberOfThreads, runnableFactory);
+    final ThreadPool threadPool =
+      new ThreadPool("ServerReceiver (" + acceptor.getPort() + ", " +
+                     connectionType + ")",
+                     numberOfThreads,
+                     runnableFactory);
 
-    m_threadPool.start();
+    synchronized (this) {
+      try {
+        m_messageQueue.checkIfShutdown();
+      }
+      catch (ShutdownException e) {
+        throw new CommunicationException("Shut down", e);
+      }
+
+      m_threadPools.add(threadPool);
+    }
+
+    threadPool.start();
   }
 
   /**
@@ -91,31 +133,42 @@ public final class ServerReceiver implements Receiver {
   /**
    * Shut down this receiver.
    */
-  public void shutdown() {
+  public synchronized void shutdown() {
 
     m_messageQueue.shutdown();
-    m_threadPool.stop();
+
+    final Iterator iterator = m_threadPools.iterator();
+
+    while (iterator.hasNext()) {
+      ((ThreadPool)iterator.next()).stop();
+    }
   }
 
   /**
-   * Return the thread group used for our threads. Package scope; used
-   * by the unit tests.
+   * Return the number of active threads. Package scope; used by the unit tests.
    *
-   * @return The thread group.
+   * @return The number of active threads.
    */
-  ThreadGroup getThreadGroup() {
-    return m_threadPool.getThreadGroup();
+  synchronized int getActveThreadCount() {
+    int result = 0;
+
+    final Iterator iterator = m_threadPools.iterator();
+
+    while (iterator.hasNext()) {
+      result += ((ThreadPool)iterator.next()).getThreadGroup().activeCount();
+    }
+
+    return result;
   }
 
-  private void process() {
+  private void process(ResourcePool acceptedSocketSet) {
 
     try {
       // Did we do some work on the last pass?
       boolean idle = false;
 
       while (true) {
-        final ResourcePool.Reservation reservation =
-          m_acceptedSocketSet.reserveNext();
+        final Reservation reservation = acceptedSocketSet.reserveNext();
 
         try {
           if (reservation.isSentinel()) {
