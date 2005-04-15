@@ -123,7 +123,13 @@ public final class ThreadSafeQueue {
     return m_messages.size();
   }
 
-  private void checkIfShutdown() throws ShutdownException {
+  /**
+   * Throw an ShutdownException if we are shutdown.
+   *
+   * @throws ShutdownException Thrown if the <code>ThreadSafeQueue</code> is
+   * shutdown.
+   */
+  public void checkIfShutdown() throws ShutdownException {
     if (m_shutdown) {
       throw new ShutdownException("ThreadSafeQueue shutdown");
     }
