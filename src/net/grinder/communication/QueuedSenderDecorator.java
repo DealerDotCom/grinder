@@ -85,9 +85,13 @@ public final class QueuedSenderDecorator implements QueuedSender {
 
     try {
       synchronized (m_messageQueue.getMutex()) {
-        Message message;
+        while (true) {
+          final Message message = m_messageQueue.dequeue(false);
 
-        while ((message = m_messageQueue.dequeue(false)) != null) {
+          if (message == null) {
+            break;
+          }
+
           m_delegate.send(message);
         }
       }
