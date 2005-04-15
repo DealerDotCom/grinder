@@ -132,7 +132,7 @@ public final class Agent {
                                    CommunicationDefaults.CONSOLE_HOST),
             properties.getInt("grinder.consolePort",
                               CommunicationDefaults.CONSOLE_PORT),
-            ConnectionType.CONTROL);
+            ConnectionType.AGENT);
 
         if (!connector.equals(lastConnector)) {
           // We only reconnect if the connection details have changed.
