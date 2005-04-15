@@ -24,7 +24,7 @@ package net.grinder.console.swingui;
 
 import javax.swing.table.AbstractTableModel;
 
-import net.grinder.common.ProcessStatus;
+import net.grinder.common.WorkerProcessStatus;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ProcessControl;
@@ -56,7 +56,7 @@ class ProcessStatusTableModel
   private final String m_stateRunningString;
   private final String m_stateFinishedString;
 
-  private ProcessStatus[] m_data = new ProcessStatus[0];
+  private WorkerProcessStatus[] m_data = new WorkerProcessStatus[0];
   private String m_totalDataString = "";
 
   public ProcessStatusTableModel(Resources resources,
@@ -75,7 +75,7 @@ class ProcessStatusTableModel
     processControl.addProcessStatusListener(
       new SwingDispatchedProcessStatusListener(
         new ProcessStatusListener() {
-          public void update(ProcessStatus[] data,
+          public void update(WorkerProcessStatus[] data,
                              int runningSum, int totalSum) {
             m_data = data;
             m_totalDataString = formatThreadCounts(runningSum, totalSum);
@@ -113,7 +113,7 @@ class ProcessStatusTableModel
   public Object getValueAt(int row, int column) {
 
     if (row < m_data.length) {
-      final ProcessStatus processStatus = m_data[row];
+      final WorkerProcessStatus processStatus = m_data[row];
 
       switch (column) {
       case ID_COLUMN_INDEX:
@@ -121,13 +121,13 @@ class ProcessStatusTableModel
 
       case STATE_COLUMN_INDEX:
         switch (processStatus.getState()) {
-        case ProcessStatus.STATE_STARTED:
+        case WorkerProcessStatus.STATE_STARTED:
           return m_stateStartedString;
 
-        case ProcessStatus.STATE_RUNNING:
+        case WorkerProcessStatus.STATE_RUNNING:
           return m_stateRunningString;
 
-        case ProcessStatus.STATE_FINISHED:
+        case WorkerProcessStatus.STATE_FINISHED:
           return m_stateFinishedString;
 
         default:
@@ -135,7 +135,7 @@ class ProcessStatusTableModel
         }
 
       case THREADS_COLUMN_INDEX:
-        if (processStatus.getState() != ProcessStatus.STATE_FINISHED) {
+        if (processStatus.getState() != WorkerProcessStatus.STATE_FINISHED) {
           return
             formatThreadCounts(
               processStatus.getNumberOfRunningThreads(),

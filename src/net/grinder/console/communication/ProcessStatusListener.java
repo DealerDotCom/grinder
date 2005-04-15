@@ -23,7 +23,7 @@ package net.grinder.console.communication;
 
 import java.util.EventListener;
 
-import net.grinder.common.ProcessStatus;
+import net.grinder.common.WorkerProcessStatus;
 
 
 /**
@@ -42,5 +42,5 @@ public interface ProcessStatusListener extends EventListener {
      * @param runningThreads The total number of running threads.
      * @param totalThreads The total number of potential threads.
      */
-  void update(ProcessStatus[] data, int runningThreads, int totalThreads);
+  void update(WorkerProcessStatus[] data, int runningThreads, int totalThreads);
 }

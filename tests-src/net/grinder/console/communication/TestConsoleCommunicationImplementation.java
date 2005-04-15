@@ -37,7 +37,7 @@ import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
-import net.grinder.console.messages.ReportStatusMessage;
+import net.grinder.console.messages.WorkerProcessStatusMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
@@ -146,7 +146,7 @@ public class TestConsoleCommunicationImplementation
   public void testProcessControl() throws Exception {
     final Socket socket = 
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.CONTROL.write(socket.getOutputStream());
+    ConnectionType.AGENT.write(socket.getOutputStream());
 
     final ProcessControl processControl =
       m_consoleCommunication.getProcessControl();
@@ -187,7 +187,7 @@ public class TestConsoleCommunicationImplementation
  
     final Socket socket2 =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.CONTROL.write(socket2.getOutputStream());
+    ConnectionType.AGENT.write(socket2.getOutputStream());
 
     processControl.resetWorkerProcesses();
     assertTrue(readMessage(socket2) instanceof ResetGrinderMessage);
@@ -196,14 +196,14 @@ public class TestConsoleCommunicationImplementation
   public void testDistributionControl() throws Exception {
     final Socket socket =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.CONTROL.write(socket.getOutputStream());
+    ConnectionType.AGENT.write(socket.getOutputStream());
 
     final DistributionControl distributionControl =
       m_consoleCommunication.getDistributionControl();
 
     final Socket socket2 =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.CONTROL.write(socket2.getOutputStream());
+    ConnectionType.AGENT.write(socket2.getOutputStream());
 
     // Closing the socket isn't enough for the ConsoleCommunication's
     // Sender to know we've gone, we need to send something too.
@@ -240,7 +240,7 @@ public class TestConsoleCommunicationImplementation
  
     final Socket socket3 =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.CONTROL.write(socket3.getOutputStream());
+    ConnectionType.AGENT.write(socket3.getOutputStream());
 
     distributionControl.clearFileCaches();
     assertTrue(readMessage(socket3) instanceof ClearCacheMessage);
@@ -257,10 +257,10 @@ public class TestConsoleCommunicationImplementation
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.REPORT.write(socket.getOutputStream());
+    ConnectionType.WORKER.write(socket.getOutputStream());
 
     sendMessage(socket,
-                new ReportStatusMessage("foo", "bah", (short)0,
+                new WorkerProcessStatusMessage("foo", "bah", (short)0,
                                         (short)0, (short)0));
 
     sendMessage(socket, new MyMessage());
@@ -359,14 +359,14 @@ public class TestConsoleCommunicationImplementation
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.CONTROL.write(socket.getOutputStream());
+    ConnectionType.AGENT.write(socket.getOutputStream());
 
     listenerStubFactory.assertSuccess("agentConnected");
     listenerStubFactory.assertNoMoreCalls();
 
     final Socket socket2 =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.CONTROL.write(socket2.getOutputStream());
+    ConnectionType.AGENT.write(socket2.getOutputStream());
 
     listenerStubFactory.assertSuccess("agentConnected");
     listenerStubFactory.assertNoMoreCalls();

@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.grinder.common.ProcessStatus;
+import net.grinder.common.WorkerProcessStatus;
 import net.grinder.util.ListenerSupport;
 
 
@@ -104,11 +104,12 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
 
     m_newData = false;
 
-    final ProcessStatus[] data;
+    final WorkerProcessStatus[] data;
 
     synchronized (this) {
-      data = (ProcessStatus[])
-        m_processes.values().toArray(new ProcessStatus[m_processes.size()]);
+      data = (WorkerProcessStatus[])
+        m_processes.values().toArray(
+          new WorkerProcessStatus[m_processes.size()]);
     }
 
     Arrays.sort(data, m_sorter);
@@ -146,7 +147,7 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
    *
    * @param processStatus Process status.
    */
-  public void addStatusReport(ProcessStatus processStatus) {
+  public void addStatusReport(WorkerProcessStatus processStatus) {
 
     synchronized (this) {
       ProcessStatusImplementation processStatusImplementation =
@@ -192,7 +193,9 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
     }
   }
 
-  private final class ProcessStatusImplementation implements ProcessStatus {
+  private final class ProcessStatusImplementation
+    implements WorkerProcessStatus {
+
     private final String m_identity;
     private final String m_name;
     private short m_state;
@@ -207,7 +210,7 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
       m_name = name;
     }
 
-    void set(ProcessStatus processStatus) {
+    void set(WorkerProcessStatus processStatus) {
       m_state = processStatus.getState();
       m_totalNumberOfThreads = processStatus.getTotalNumberOfThreads();
       m_numberOfRunningThreads =
@@ -253,8 +256,8 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
 
   private static final class ProcessStatusComparator implements Comparator {
     public int compare(Object o1, Object o2) {
-      final ProcessStatus p1 = (ProcessStatus)o1;
-      final ProcessStatus p2 = (ProcessStatus)o2;
+      final WorkerProcessStatus p1 = (WorkerProcessStatus)o1;
+      final WorkerProcessStatus p2 = (WorkerProcessStatus)o2;
 
       final int compareState = p1.getState() - p2.getState();
 

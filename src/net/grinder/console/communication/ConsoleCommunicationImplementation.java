@@ -38,14 +38,13 @@ import net.grinder.communication.ConnectionIdentity;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.FanOutServerSender;
 import net.grinder.communication.Message;
-import net.grinder.communication.Receiver;
 import net.grinder.communication.ServerReceiver;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ErrorQueue;
 import net.grinder.console.common.Resources;
-import net.grinder.console.messages.ReportStatusMessage;
+import net.grinder.console.messages.WorkerProcessStatusMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
@@ -93,7 +92,7 @@ public final class ConsoleCommunicationImplementation
     new ListenerSupport();
 
   private Acceptor m_acceptor = null;
-  private Receiver m_receiver = null;
+  private ServerReceiver m_receiver = null;
   private FanOutServerSender m_sender = null;
 
   /**
@@ -120,8 +119,9 @@ public final class ConsoleCommunicationImplementation
     addMessageHandler(
       new MessageHandler() {
         public boolean process(Message message) {
-          if (message instanceof ReportStatusMessage) {
-            m_processStatusSet.addStatusReport((ReportStatusMessage)message);
+          if (message instanceof WorkerProcessStatusMessage) {
+            m_processStatusSet.addStatusReport(
+              (WorkerProcessStatusMessage)message);
             return true;
           }
 
@@ -204,7 +204,7 @@ public final class ConsoleCommunicationImplementation
                                 1);
 
       m_acceptor.addListener(
-        ConnectionType.CONTROL,
+        ConnectionType.AGENT,
         new Acceptor.Listener() {
           public void connectionAccepted(ConnectionType connectionType,
                                          ConnectionIdentity connection) {
@@ -268,8 +268,17 @@ public final class ConsoleCommunicationImplementation
     acceptorProblemListener.setDaemon(true);
     acceptorProblemListener.start();
 
-    m_receiver = new ServerReceiver(m_acceptor, ConnectionType.REPORT, 5);
-    m_sender = new FanOutServerSender(m_acceptor, ConnectionType.CONTROL, 3);
+    m_receiver = new ServerReceiver();
+
+    try {
+      m_receiver.receiveFrom(m_acceptor, ConnectionType.WORKER, 5);
+      m_receiver.receiveFrom(m_acceptor, ConnectionType.AGENT, 2);
+    }
+    catch (CommunicationException e) {
+      throw new AssertionError(e);
+    }
+
+    m_sender = new FanOutServerSender(m_acceptor, ConnectionType.AGENT, 3);
 
     synchronized (this) {
       m_deaf = false;

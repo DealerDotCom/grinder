@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,37 +19,53 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.swingui;
+package net.grinder.console.messages;
 
-import javax.swing.SwingUtilities;
-
-import net.grinder.common.WorkerProcessStatus;
-import net.grinder.console.communication.ProcessStatusListener;
+import net.grinder.common.AgentProcessStatus;
+import net.grinder.communication.Message;
 
 
 /**
- * ProcessStatusSetListener Decorator that disptaches the update()
- * notifications via a Swing thread.
+ * Message for informing the console of agent process status.
  *
  * @author Philip Aston
  * @version $Revision$
- **/
-class SwingDispatchedProcessStatusListener implements ProcessStatusListener {
+ */
+public final class AgentProcessStatusMessage
+  implements Message, AgentProcessStatus {
 
-  private final ProcessStatusListener m_delegate;
+  private static final long serialVersionUID = -2073574340466531680L;
 
-  public SwingDispatchedProcessStatusListener(ProcessStatusListener delegate) {
-    m_delegate = delegate;
+  private final String m_name;
+  private final short m_state;
+
+  /**
+   * Creates a new <code>AgentProcessStatusMessage</code> instance.
+   *
+   * @param name Process name.
+   * @param state The process state. See {@link
+   * net.grinder.common.AgentProcessStatus}.
+   */
+  public AgentProcessStatusMessage(String name, short state) {
+    m_name = name;
+    m_state = state;
   }
 
-  public void update(final WorkerProcessStatus[] data,
-                     final int running,
-                     final int total) {
+  /**
+   * Accessor for the process name.
+   *
+   * @return The process name.
+   */
+  public String getName() {
+    return m_name;
+  }
 
-    SwingUtilities.invokeLater(
-      new Runnable() {
-        public void run() { m_delegate.update(data, running, total); }
-      }
-      );
+  /**
+   * Accessor for the process state.
+   *
+   * @return The process state.
+   */
+  public short getState() {
+    return m_state;
   }
 }

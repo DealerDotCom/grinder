@@ -26,7 +26,7 @@ import junit.framework.TestCase;
 
 import javax.swing.SwingUtilities;
 
-import net.grinder.common.ProcessStatus;
+import net.grinder.common.WorkerProcessStatus;
 import net.grinder.console.communication.ProcessStatusListener;
 
 
@@ -46,7 +46,7 @@ public class TestSwingDispatchedProcessStatusListener extends TestCase {
     final ProcessStatusListener swingDispatchedListener =
       new SwingDispatchedProcessStatusListener(listener);
 
-    final ProcessStatus[] data = new ProcessStatus[0];
+    final WorkerProcessStatus[] data = new WorkerProcessStatus[0];
     final int running = 1;
     final int total = 2;
 
@@ -64,11 +64,11 @@ public class TestSwingDispatchedProcessStatusListener extends TestCase {
 
   private class MyProcessStatusListener implements ProcessStatusListener {
     public boolean m_updateCalled = false;
-    public ProcessStatus[] m_updateData;
+    public WorkerProcessStatus[] m_updateData;
     public int m_updateRunning;
     public int m_updateTotal;
 
-    public void update(ProcessStatus[] data, int running, int total)
+    public void update(WorkerProcessStatus[] data, int running, int total)
     {
       m_updateCalled = true;
       m_updateData = data;

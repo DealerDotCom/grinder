@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.grinder.common.ProcessStatus;
+import net.grinder.common.WorkerProcessStatus;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
@@ -70,21 +70,21 @@ public class TestProcessStatusSetImplementation extends TestCase {
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
-    final ProcessStatus processStatus =
+    final WorkerProcessStatus processStatus =
       new ProcessStatusImplementation("identity", "name",
-                                      ProcessStatus.STATE_RUNNING, 3, 5);
+                                      WorkerProcessStatus.STATE_RUNNING, 3, 5);
 
     processStatusSet.addStatusReport(processStatus);
 
     updateTask.run();
     final CallData callData =
       listenerStubFactory.assertSuccess("update",
-                                        new ProcessStatus[0].getClass(),
+                                        new WorkerProcessStatus[0].getClass(),
                                         Integer.class,
                                         Integer.class);
 
-    final ProcessStatus[] processStatusArray =
-      (ProcessStatus[])callData.getParameters()[0];
+    final WorkerProcessStatus[] processStatusArray =
+      (WorkerProcessStatus[])callData.getParameters()[0];
 
     assertEquals(1, processStatusArray.length);
     assertEquals(processStatus, processStatusArray[0]);
@@ -114,19 +114,19 @@ public class TestProcessStatusSetImplementation extends TestCase {
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
-    final ProcessStatus[] processStatusArray = {
+    final WorkerProcessStatus[] processStatusArray = {
       new ProcessStatusImplementation(
-        "a", "a process A", ProcessStatus.STATE_STARTED, 1, 1),
+        "a", "a process A", WorkerProcessStatus.STATE_STARTED, 1, 1),
       new ProcessStatusImplementation(
-        "b", "a process B", ProcessStatus.STATE_STARTED, 1, 1),
+        "b", "a process B", WorkerProcessStatus.STATE_STARTED, 1, 1),
       new ProcessStatusImplementation(
-        "a", "a process A", ProcessStatus.STATE_RUNNING, 5, 10),
+        "a", "a process A", WorkerProcessStatus.STATE_RUNNING, 5, 10),
       new ProcessStatusImplementation(
-        "e", "another process name", ProcessStatus.STATE_RUNNING, 1, 1),
+        "e", "another process name", WorkerProcessStatus.STATE_RUNNING, 1, 1),
       new ProcessStatusImplementation(
-        "d", "name", ProcessStatus.STATE_FINISHED, 1, 1),
+        "d", "name", WorkerProcessStatus.STATE_FINISHED, 1, 1),
       new ProcessStatusImplementation(
-        "c", "some name", ProcessStatus.STATE_FINISHED, 3, 10),
+        "c", "some name", WorkerProcessStatus.STATE_FINISHED, 3, 10),
     };
 
     for (int i = 0; i < processStatusArray.length; ++i) {
@@ -137,26 +137,26 @@ public class TestProcessStatusSetImplementation extends TestCase {
 
     final CallData callData =
       listenerStubFactory.assertSuccess("update",
-                                        new ProcessStatus[0].getClass(),
+                                        new WorkerProcessStatus[0].getClass(),
                                         Integer.class,
                                         Integer.class);
 
-    final ProcessStatus[] expectedProcessStatusArray = {
+    final WorkerProcessStatus[] expectedProcessStatusArray = {
       new ProcessStatusImplementation(
-        "b", "a process B", ProcessStatus.STATE_STARTED, 1, 1),
+        "b", "a process B", WorkerProcessStatus.STATE_STARTED, 1, 1),
       new ProcessStatusImplementation(
-        "a", "a process A", ProcessStatus.STATE_RUNNING, 5, 10),
+        "a", "a process A", WorkerProcessStatus.STATE_RUNNING, 5, 10),
       new ProcessStatusImplementation(
-        "e", "another process name", ProcessStatus.STATE_RUNNING, 1, 1),
+        "e", "another process name", WorkerProcessStatus.STATE_RUNNING, 1, 1),
       new ProcessStatusImplementation(
-        "d", "name", ProcessStatus.STATE_FINISHED, 1, 1),
+        "d", "name", WorkerProcessStatus.STATE_FINISHED, 1, 1),
       new ProcessStatusImplementation(
-        "c", "some name", ProcessStatus.STATE_FINISHED, 3, 10),
+        "c", "some name", WorkerProcessStatus.STATE_FINISHED, 3, 10),
     };
 
     AssertUtilities.assertArraysEqual(
       expectedProcessStatusArray,
-      (ProcessStatus[])callData.getParameters()[0]);
+      (WorkerProcessStatus[])callData.getParameters()[0]);
 
     assertEquals(new Integer(11), callData.getParameters()[1]);
     assertEquals(new Integer(23), callData.getParameters()[2]);
@@ -174,13 +174,13 @@ public class TestProcessStatusSetImplementation extends TestCase {
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
-    final ProcessStatus[] processStatusArray2 = {
+    final WorkerProcessStatus[] processStatusArray2 = {
       new ProcessStatusImplementation(
-        "b", "a process B", ProcessStatus.STATE_RUNNING, 1, 1),
+        "b", "a process B", WorkerProcessStatus.STATE_RUNNING, 1, 1),
       new ProcessStatusImplementation(
-        "a", "a process A", ProcessStatus.STATE_RUNNING, 5, 10),
+        "a", "a process A", WorkerProcessStatus.STATE_RUNNING, 5, 10),
       new ProcessStatusImplementation(
-        "e", "another process name", ProcessStatus.STATE_FINISHED, 1, 1),
+        "e", "another process name", WorkerProcessStatus.STATE_FINISHED, 1, 1),
     };
 
     for (int i = 0; i < processStatusArray2.length; ++i) {
@@ -194,22 +194,22 @@ public class TestProcessStatusSetImplementation extends TestCase {
 
     final CallData callData2 =
       listenerStubFactory.assertSuccess("update",
-                                        new ProcessStatus[0].getClass(),
+                                        new WorkerProcessStatus[0].getClass(),
                                         Integer.class,
                                         Integer.class);
 
-    final ProcessStatus[] expectedProcessStatusArray2 = {
+    final WorkerProcessStatus[] expectedProcessStatusArray2 = {
       new ProcessStatusImplementation(
-        "a", "a process A", ProcessStatus.STATE_RUNNING, 5, 10),
+        "a", "a process A", WorkerProcessStatus.STATE_RUNNING, 5, 10),
       new ProcessStatusImplementation(
-        "b", "a process B", ProcessStatus.STATE_RUNNING, 1, 1),
+        "b", "a process B", WorkerProcessStatus.STATE_RUNNING, 1, 1),
       new ProcessStatusImplementation(
-        "e", "another process name", ProcessStatus.STATE_FINISHED, 1, 1),
+        "e", "another process name", WorkerProcessStatus.STATE_FINISHED, 1, 1),
     };
 
     AssertUtilities.assertArraysEqual(
       expectedProcessStatusArray2,
-      (ProcessStatus[])callData2.getParameters()[0]);
+      (WorkerProcessStatus[])callData2.getParameters()[0]);
 
     assertEquals(new Integer(7), callData2.getParameters()[1]);
     assertEquals(new Integer(12), callData2.getParameters()[2]);
@@ -219,7 +219,7 @@ public class TestProcessStatusSetImplementation extends TestCase {
   }
 
   private static final class ProcessStatusImplementation
-    implements ProcessStatus {
+    implements WorkerProcessStatus {
 
     private final String m_identity;
     private final String m_name;
@@ -268,11 +268,11 @@ public class TestProcessStatusSetImplementation extends TestCase {
         return true;
       }
 
-      if (!(o instanceof ProcessStatus)) {
+      if (!(o instanceof WorkerProcessStatus)) {
         return false;
       }
 
-      final ProcessStatus other = (ProcessStatus)o;
+      final WorkerProcessStatus other = (WorkerProcessStatus)o;
 
       return
         this.getState() == other.getState() &&

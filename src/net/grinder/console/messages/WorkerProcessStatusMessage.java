@@ -1,5 +1,5 @@
 // Copyright (C) 2001, 2002 Dirk Feufel
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,18 +22,19 @@
 
 package net.grinder.console.messages;
 
-import net.grinder.common.ProcessStatus;
+import net.grinder.common.WorkerProcessStatus;
 import net.grinder.communication.Message;
 
 
 /**
- * Message for informing the Console of worker process status.
+ * Message for informing the console of worker process status.
  *
  * @author Dirk Feufel
  * @author Philip Aston
  * @version $Revision$
  */
-public final class ReportStatusMessage implements Message, ProcessStatus {
+public final class WorkerProcessStatusMessage
+  implements Message, WorkerProcessStatus {
 
   private static final long serialVersionUID = -2073574340466531680L;
 
@@ -44,16 +45,16 @@ public final class ReportStatusMessage implements Message, ProcessStatus {
   private final short m_numberOfRunningThreads;
 
   /**
-   * Creates a new <code>ReportStatusMessage</code> instance.
+   * Creates a new <code>WorkerProcessStatusMessage</code> instance.
    *
    * @param identity Process identity.
    * @param name Process name.
    * @param state The process state. See {@link
-   * net.grinder.common.ProcessStatus}.
+   * net.grinder.common.WorkerProcessStatus}.
    * @param totalThreads The total number of threads.
    * @param runningThreads The number of threads that are still running.
    */
-  public ReportStatusMessage(String identity, String name, short state,
+  public WorkerProcessStatusMessage(String identity, String name, short state,
                              short runningThreads, short totalThreads) {
     m_identity = identity;
     m_name = name;

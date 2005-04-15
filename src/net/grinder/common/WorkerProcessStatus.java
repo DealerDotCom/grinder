@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // Copyright (C) 2001, 2002 Dirk Feufel
 // All rights reserved.
 //
@@ -29,7 +29,7 @@ package net.grinder.common;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface ProcessStatus {
+public interface WorkerProcessStatus {
 
   /**
    * Constant representing the "started" state.
@@ -50,14 +50,14 @@ public interface ProcessStatus {
    * Return a  unique String identifying the process.
    *
    * @return The process name.
-   **/
+   */
   String getIdentity();
 
   /**
    * Return the process name.
    *
    * @return The process name.
-   **/
+   */
   String getName();
 
   /**
@@ -65,21 +65,21 @@ public interface ProcessStatus {
    *
    * @return One of {@link #STATE_STARTED}, {@link #STATE_RUNNING},
    * {@link #STATE_FINISHED}.
-   **/
+   */
   short getState();
 
   /**
    * Get the number of running threads.
    *
-   * @return The number of threads that are stull running.
-   **/
+   * @return The number of threads that are running.
+   */
   short getNumberOfRunningThreads();
 
   /**
    * Get the total number of threads.
    *
    * @return The total number of threads.
-   **/
+   */
   short getTotalNumberOfThreads();
 }
 

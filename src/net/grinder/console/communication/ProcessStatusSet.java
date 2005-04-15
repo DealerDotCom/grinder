@@ -22,7 +22,7 @@
 package net.grinder.console.communication;
 
 
-import net.grinder.common.ProcessStatus;
+import net.grinder.common.WorkerProcessStatus;
 
 
 /**
@@ -52,5 +52,5 @@ interface ProcessStatusSet {
    *
    * @param processStatus Process status.
    */
-  void addStatusReport(ProcessStatus processStatus);
+  void addStatusReport(WorkerProcessStatus processStatus);
 }

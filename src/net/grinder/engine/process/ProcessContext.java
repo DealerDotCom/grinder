@@ -27,7 +27,7 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.communication.QueuedSender;
-import net.grinder.console.messages.ReportStatusMessage;
+import net.grinder.console.messages.WorkerProcessStatusMessage;
 import net.grinder.script.Grinder;
 import net.grinder.script.SSLControl;
 import net.grinder.util.Sleeper;
@@ -107,10 +107,10 @@ final class ProcessContext {
     return m_consoleSender;
   }
 
-  public ReportStatusMessage createStatusMessage(
+  public WorkerProcessStatusMessage createStatusMessage(
     short state, short numberOfThreads, short totalNumberOfThreads) {
 
-    return new ReportStatusMessage(m_uniqueProcessID, m_grinderID, state,
+    return new WorkerProcessStatusMessage(m_uniqueProcessID, m_grinderID, state,
                                    numberOfThreads, totalNumberOfThreads);
   }
 

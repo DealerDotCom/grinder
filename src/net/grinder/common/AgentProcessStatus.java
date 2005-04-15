@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,37 +19,46 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.swingui;
-
-import javax.swing.SwingUtilities;
-
-import net.grinder.common.WorkerProcessStatus;
-import net.grinder.console.communication.ProcessStatusListener;
+package net.grinder.common;
 
 
 /**
- * ProcessStatusSetListener Decorator that disptaches the update()
- * notifications via a Swing thread.
+ * Interface for enquiring about process status.
  *
  * @author Philip Aston
  * @version $Revision$
- **/
-class SwingDispatchedProcessStatusListener implements ProcessStatusListener {
+ */
+public interface AgentProcessStatus {
 
-  private final ProcessStatusListener m_delegate;
+  /**
+   * Constant representing the "started" state.
+   */
+  short STATE_STARTED = 1;
 
-  public SwingDispatchedProcessStatusListener(ProcessStatusListener delegate) {
-    m_delegate = delegate;
-  }
+  /**
+   * Constant representing the "running" state.
+   */
+  short STATE_RUNNING = 2;
 
-  public void update(final WorkerProcessStatus[] data,
-                     final int running,
-                     final int total) {
+  /**
+   * Constant representing the "finished" state.
+   */
+  short STATE_FINISHED = 3;
 
-    SwingUtilities.invokeLater(
-      new Runnable() {
-        public void run() { m_delegate.update(data, running, total); }
-      }
-      );
-  }
+
+  /**
+   * Return the process name.
+   *
+   * @return The process name.
+   */
+  String getName();
+
+  /**
+   * Return the process status.
+   *
+   * @return One of {@link #STATE_STARTED}, {@link #STATE_RUNNING},
+   * {@link #STATE_FINISHED}.
+   */
+  short getState();
 }
+

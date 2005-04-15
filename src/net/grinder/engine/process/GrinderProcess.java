@@ -34,7 +34,7 @@ import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.common.ProcessStatus;
+import net.grinder.common.WorkerProcessStatus;
 import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
@@ -166,7 +166,7 @@ public final class GrinderProcess {
                                  CommunicationDefaults.CONSOLE_HOST),
           properties.getInt("grinder.consolePort",
                             CommunicationDefaults.CONSOLE_PORT),
-          ConnectionType.REPORT);
+          ConnectionType.WORKER);
 
       consoleSender =
         new QueuedSenderDecorator(ClientSender.connect(connector));
@@ -259,7 +259,7 @@ public final class GrinderProcess {
 
     consoleSender.send(
       m_context.createStatusMessage(
-        ProcessStatus.STATE_STARTED, (short)0, numberOfThreads));
+        WorkerProcessStatus.STATE_STARTED, (short)0, numberOfThreads));
 
     logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
 
@@ -352,7 +352,7 @@ public final class GrinderProcess {
     if (!m_communicationShutdown) {
       consoleSender.send(
         m_context.createStatusMessage(
-          ProcessStatus.STATE_FINISHED, (short)0, (short)0));
+          WorkerProcessStatus.STATE_FINISHED, (short)0, (short)0));
     }
 
     consoleSender.shutdown();
@@ -402,7 +402,7 @@ public final class GrinderProcess {
           consoleSender.queue(new ReportStatisticsMessage(sample));
 
           consoleSender.send(
-            m_context.createStatusMessage(ProcessStatus.STATE_RUNNING,
+            m_context.createStatusMessage(WorkerProcessStatus.STATE_RUNNING,
                                           GrinderThread.getNumberOfThreads(),
                                           m_totalThreads));
         }

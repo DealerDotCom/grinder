@@ -99,8 +99,8 @@ public class TestConsoleMessages extends TestCase {
 
     final String uniqueID = "ID" + s_random.nextInt();
 
-    final ReportStatusMessage original =
-      new ReportStatusMessage(uniqueID, "test", (short)1, (short)2, (short)3);
+    final WorkerProcessStatusMessage original =
+      new WorkerProcessStatusMessage(uniqueID, "test", (short)1, (short)2, (short)3);
 
     assertEquals(uniqueID, original.getIdentity());
     assertEquals("test", original.getName());
@@ -108,8 +108,8 @@ public class TestConsoleMessages extends TestCase {
     assertEquals(2, original.getNumberOfRunningThreads());
     assertEquals(3, original.getTotalNumberOfThreads());
 
-    final ReportStatusMessage received =
-      (ReportStatusMessage) serialise(original);
+    final WorkerProcessStatusMessage received =
+      (WorkerProcessStatusMessage) serialise(original);
 
     assertEquals(uniqueID, received.getIdentity());
     assertEquals("test", received.getName());
