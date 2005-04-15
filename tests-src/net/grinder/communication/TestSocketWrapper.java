@@ -55,7 +55,7 @@ public class TestSocketWrapper extends TestCase {
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
-                    ConnectionType.CONTROL);
+                    ConnectionType.AGENT);
 
     final ClientSender clientSender = ClientSender.connect(connector);
 

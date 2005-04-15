@@ -145,5 +145,12 @@ public class TestQueuedSenderDecorator extends TestCase {
     queuedSender.shutdown();
 
     assertTrue(sender.getIsShutdown());
+
+    try {
+      queuedSender.queue(new SimpleMessage());
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
   }
 }

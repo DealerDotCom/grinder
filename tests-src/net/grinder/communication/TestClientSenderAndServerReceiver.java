@@ -41,7 +41,9 @@ public class TestClientSenderAndServerReceiver
   }
 
   private Receiver createReceiver() throws Exception {
-    return new ServerReceiver(getAcceptor(), getConnectionType(), 3);
+    final ServerReceiver receiver = new ServerReceiver();
+    receiver.receiveFrom(getAcceptor(), getConnectionType(), 3);
+    return receiver;
   }
 
   private Sender createSender() throws Exception {
@@ -74,7 +76,7 @@ public class TestClientSenderAndServerReceiver
         final Sender m_sender = createSender();
 
         final int n = s_random.nextInt(10);
-        
+
         for (int i=0; i<n; ++i) {
           m_sender.send(new SimpleMessage(1));
           sleep(s_random.nextInt(30));
@@ -91,7 +93,7 @@ public class TestClientSenderAndServerReceiver
       }
     }
   }
-  
+
   public void testManySenders() throws Exception {
     s_numberOfMessages = 0;
 

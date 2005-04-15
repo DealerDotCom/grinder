@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -69,7 +69,7 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
       final int port = socket.getLocalPort();
       socket.close();
 
-      m_connectionType = ConnectionType.CONTROL;
+      m_connectionType = ConnectionType.AGENT;
       m_connector = new Connector("localhost", port, m_connectionType);
       m_acceptor = new Acceptor("localhost", port, 1);
     }

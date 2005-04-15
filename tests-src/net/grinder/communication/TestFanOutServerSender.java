@@ -47,7 +47,7 @@ public class TestFanOutServerSender extends TestCase {
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final FanOutServerSender serverSender =
-      new FanOutServerSender(acceptor, ConnectionType.CONTROL, 3);
+      new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
 
     serverSender.shutdown();
     acceptor.shutdown();
@@ -58,19 +58,19 @@ public class TestFanOutServerSender extends TestCase {
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final FanOutServerSender serverSender =
-      new FanOutServerSender(acceptor, ConnectionType.CONTROL, 3);
+      new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
 
     final Socket[] socket = new Socket[5];
 
     for (int i=0; i<socket.length; ++i) {
       socket[i] = new Socket(InetAddress.getByName(null), acceptor.getPort());
-      ConnectionType.CONTROL.write(socket[i].getOutputStream());
+      ConnectionType.AGENT.write(socket[i].getOutputStream());
     }
 
     // Sleep until we've accepted all connections. Give up after a few
     // seconds.
     final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
+      acceptor.getSocketSet(ConnectionType.AGENT);
 
     for (int i=0; socketSet.countActive() != 5 && i<10; ++i) {
       Thread.sleep(i * i * 10);
@@ -100,7 +100,7 @@ public class TestFanOutServerSender extends TestCase {
 
       socket[i].close();
     }
-    
+
     serverSender.shutdown();
     acceptor.shutdown();
   }
@@ -110,19 +110,19 @@ public class TestFanOutServerSender extends TestCase {
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final FanOutServerSender serverSender =
-      new FanOutServerSender(acceptor, ConnectionType.CONTROL, 3);
+      new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
 
     assertEquals(1, acceptor.getThreadGroup().activeCount());
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
-    ConnectionType.CONTROL.write(socket.getOutputStream());
+    ConnectionType.AGENT.write(socket.getOutputStream());
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
     final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
+      acceptor.getSocketSet(ConnectionType.AGENT);
 
     for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
@@ -145,7 +145,7 @@ public class TestFanOutServerSender extends TestCase {
     }
     catch (CommunicationException e) {
     }
-    
+
     try {
       final ObjectInputStream inputStream2 =
         new ObjectInputStream(socketStream);
@@ -166,22 +166,29 @@ public class TestFanOutServerSender extends TestCase {
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
     final FanOutServerSender serverSender =
-      new FanOutServerSender(acceptor, ConnectionType.CONTROL, 3);
+      new FanOutServerSender(acceptor, ConnectionType.AGENT, 3);
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
-    ConnectionType.CONTROL.write(socket.getOutputStream());
+    ConnectionType.AGENT.write(socket.getOutputStream());
 
-    // Sleep until we've accepted the connection. Give up after a few
+    // Use a second socket to get cover freeing of other Reservations in
+    // isPeerShutdown.
+    final Socket socket2 =
+      new Socket(InetAddress.getByName(null), acceptor.getPort());
+
+    ConnectionType.AGENT.write(socket2.getOutputStream());
+
+    // Sleep until we've accepted the connections. Give up after a few
     // seconds.
     final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
+      acceptor.getSocketSet(ConnectionType.AGENT);
 
-    for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
+    for (int i=0; socketSet.countActive() != 2 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
-    
+
     assertTrue(!serverSender.isPeerShutdown());
 
     final Message message = new SimpleMessage();
@@ -189,7 +196,7 @@ public class TestFanOutServerSender extends TestCase {
 
     assertTrue(!serverSender.isPeerShutdown());
 
-    new SocketWrapper(socket).close();
+    new SocketWrapper(socket2).close();
 
     assertTrue(serverSender.isPeerShutdown());
 

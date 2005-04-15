@@ -48,7 +48,7 @@ public class TestClientSender extends TestCase {
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
-                    ConnectionType.CONTROL);
+                    ConnectionType.AGENT);
 
     final Sender clientSender = ClientSender.connect(connector);
 
@@ -63,7 +63,7 @@ public class TestClientSender extends TestCase {
     final InputStream socketInput =
       socketAcceptor.getAcceptedSocket().getInputStream();
 
-    assertEquals(ConnectionType.CONTROL, ConnectionType.read(socketInput));
+    assertEquals(ConnectionType.AGENT, ConnectionType.read(socketInput));
 
     // Need an ObjectInputStream for every message. See note in
     // ClientSender.writeMessage.
@@ -94,7 +94,7 @@ public class TestClientSender extends TestCase {
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
-                    ConnectionType.CONTROL);
+                    ConnectionType.AGENT);
 
     final Sender clientSender = ClientSender.connect(connector);
 
@@ -116,7 +116,7 @@ public class TestClientSender extends TestCase {
     final InputStream socketInput =
       socketAcceptor.getAcceptedSocket().getInputStream();
 
-    assertEquals(ConnectionType.CONTROL, ConnectionType.read(socketInput));
+    assertEquals(ConnectionType.AGENT, ConnectionType.read(socketInput));
 
     final ObjectInputStream inputStream1 = new ObjectInputStream(socketInput);
     final Object o1 = inputStream1.readObject();
@@ -134,7 +134,7 @@ public class TestClientSender extends TestCase {
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
-                    ConnectionType.CONTROL);
+                    ConnectionType.AGENT);
 
     final ClientSender clientSender = ClientSender.connect(connector);
 
@@ -154,7 +154,7 @@ public class TestClientSender extends TestCase {
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
-                    ConnectionType.CONTROL);
+                    ConnectionType.AGENT);
 
     final ClientReceiver clientReceiver = ClientReceiver.connect(connector);
     final ClientSender clientSender = ClientSender.connect(clientReceiver);
@@ -163,7 +163,7 @@ public class TestClientSender extends TestCase {
 
     // Wire up the remote end to simply copy the bytes back to us.
     final Socket remoteSocket = socketAcceptor.getAcceptedSocket();
-    assertEquals(ConnectionType.CONTROL,
+    assertEquals(ConnectionType.AGENT,
                  ConnectionType.read(remoteSocket.getInputStream()));
 
     new Thread(
@@ -189,7 +189,7 @@ public class TestClientSender extends TestCase {
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
-                    ConnectionType.CONTROL);
+                    ConnectionType.AGENT);
 
     final ClientReceiver clientReceiver = ClientReceiver.connect(connector);
     clientReceiver.shutdown();

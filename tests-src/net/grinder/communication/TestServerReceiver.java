@@ -44,8 +44,8 @@ public class TestServerReceiver extends TestCase {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
-    final ServerReceiver serverReceiver =
-      new ServerReceiver(acceptor, ConnectionType.CONTROL, 3);
+    final ServerReceiver serverReceiver = new ServerReceiver();
+    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3);
 
     serverReceiver.shutdown();
     acceptor.shutdown();
@@ -55,21 +55,21 @@ public class TestServerReceiver extends TestCase {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
-    final ServerReceiver serverReceiver =
-      new ServerReceiver(acceptor, ConnectionType.CONTROL, 3);
+    final ServerReceiver serverReceiver = new ServerReceiver();
+    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3);
 
     final Socket[] socket = new Socket[5];
 
     for (int i=0; i<socket.length; ++i) {
       socket[i] = new Socket(InetAddress.getByName(null), acceptor.getPort());
 
-      ConnectionType.CONTROL.write(socket[i].getOutputStream());
+      ConnectionType.AGENT.write(socket[i].getOutputStream());
     }
 
     // Sleep until we've accepted all connections. Give up after a few
     // seconds.
     final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
+      acceptor.getSocketSet(ConnectionType.AGENT);
 
     for (int i=0; socketSet.countActive() != 5 && i<10; ++i) {
       Thread.sleep(i * i * 10);
@@ -83,7 +83,7 @@ public class TestServerReceiver extends TestCase {
       new ObjectOutputStream(socket[0].getOutputStream());
     objectStream1.writeObject(message1);
     objectStream1.flush();
-        
+
     final ObjectOutputStream objectStream2 =
       new ObjectOutputStream(socket[1].getOutputStream());
     objectStream2.writeObject(message2);
@@ -131,21 +131,21 @@ public class TestServerReceiver extends TestCase {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
-    final ServerReceiver serverReceiver =
-      new ServerReceiver(acceptor, ConnectionType.CONTROL, 3);
+    final ServerReceiver serverReceiver = new ServerReceiver();
+    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3);
 
     assertEquals(1, acceptor.getThreadGroup().activeCount());
-    assertEquals(3, serverReceiver.getThreadGroup().activeCount());
+    assertEquals(3, serverReceiver.getActveThreadCount());
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
-    ConnectionType.CONTROL.write(socket.getOutputStream());
+    ConnectionType.AGENT.write(socket.getOutputStream());
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
     final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
+      acceptor.getSocketSet(ConnectionType.AGENT);
 
     for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
@@ -162,6 +162,13 @@ public class TestServerReceiver extends TestCase {
 
     serverReceiver.shutdown();
 
+    try {
+      serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3);
+      fail("Expected a CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+
     assertNull(serverReceiver.waitForMessage());
 
     acceptor.shutdown();
@@ -171,21 +178,21 @@ public class TestServerReceiver extends TestCase {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
 
-    final ServerReceiver serverReceiver =
-      new ServerReceiver(acceptor, ConnectionType.CONTROL, 5);
+    final ServerReceiver serverReceiver = new ServerReceiver();
+    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 5);
 
     assertEquals(1, acceptor.getThreadGroup().activeCount());
-    assertEquals(5, serverReceiver.getThreadGroup().activeCount());
+    assertEquals(5, serverReceiver.getActveThreadCount());
 
     final Socket socket =
       new Socket(InetAddress.getByName(null), acceptor.getPort());
 
-    ConnectionType.CONTROL.write(socket.getOutputStream());
+    ConnectionType.AGENT.write(socket.getOutputStream());
 
     // Sleep until we've accepted the connection. Give up after a few
     // seconds.
     final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
+      acceptor.getSocketSet(ConnectionType.AGENT);
 
     for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);

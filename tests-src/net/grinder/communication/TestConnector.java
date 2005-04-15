@@ -42,7 +42,7 @@ public class TestConnector extends TestCase {
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
-                    ConnectionType.REPORT);
+                    ConnectionType.WORKER);
 
     final Socket localSocket = connector.connect();
 
@@ -51,7 +51,7 @@ public class TestConnector extends TestCase {
     final Socket serverSocket = socketAcceptor.getAcceptedSocket();
     final InputStream inputStream = serverSocket.getInputStream();
 
-    assertEquals(ConnectionType.REPORT, ConnectionType.read(inputStream));
+    assertEquals(ConnectionType.WORKER, ConnectionType.read(inputStream));
 
     final byte[] text = "Hello".getBytes();
 
@@ -73,7 +73,7 @@ public class TestConnector extends TestCase {
 
   public void testEquality() throws Exception {
     final Connector connector =
-      new Connector("a", 1234, ConnectionType.REPORT);
+      new Connector("a", 1234, ConnectionType.WORKER);
 
     assertEquals(connector.hashCode(), connector.hashCode());
     assertEquals(connector, connector);
@@ -81,13 +81,13 @@ public class TestConnector extends TestCase {
     AssertUtilities.assertNotEquals(connector, this);
 
     final Connector[] equal = {
-      new Connector("a", 1234, ConnectionType.REPORT),
+      new Connector("a", 1234, ConnectionType.WORKER),
     };
 
     final Connector[] notEqual = {
-      new Connector("a", 6423, ConnectionType.REPORT),
-      new Connector("b", 1234, ConnectionType.REPORT),
-      new Connector("a", 1234, ConnectionType.CONTROL),
+      new Connector("a", 6423, ConnectionType.WORKER),
+      new Connector("b", 1234, ConnectionType.WORKER),
+      new Connector("a", 1234, ConnectionType.AGENT),
     };
 
     for (int i = 0; i < equal.length; ++i) {

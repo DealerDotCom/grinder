@@ -45,7 +45,7 @@ public class TestClientReceiver extends TestCase {
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
-                    ConnectionType.CONTROL);
+                    ConnectionType.AGENT);
 
     final Receiver clientReceiver = ClientReceiver.connect(connector);
 
@@ -90,7 +90,7 @@ public class TestClientReceiver extends TestCase {
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
-                    ConnectionType.CONTROL);
+                    ConnectionType.AGENT);
 
     final Receiver clientReceiver = ClientReceiver.connect(connector);
 
@@ -121,7 +121,7 @@ public class TestClientReceiver extends TestCase {
 
     final Connector connector =
       new Connector(socketAcceptor.getHostName(), socketAcceptor.getPort(),
-                    ConnectionType.CONTROL);
+                    ConnectionType.AGENT);
 
     final Receiver clientReceiver = ClientReceiver.connect(connector);
 

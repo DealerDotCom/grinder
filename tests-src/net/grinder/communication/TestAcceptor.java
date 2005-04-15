@@ -103,19 +103,19 @@ public class TestAcceptor extends TestCase {
     final Acceptor.Listener listener =
       (Acceptor.Listener)listenerStubFactory.getStub();
 
-    acceptor.addListener(ConnectionType.REPORT, listener);
+    acceptor.addListener(ConnectionType.WORKER, listener);
 
     final ResourcePool controlSocketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
+      acceptor.getSocketSet(ConnectionType.AGENT);
 
     assertNotNull(controlSocketSet);
     assertTrue(controlSocketSet.reserveNext().isSentinel());
 
     final Connector controlConnector =
-      new Connector("localhost", acceptor.getPort(), ConnectionType.CONTROL);
+      new Connector("localhost", acceptor.getPort(), ConnectionType.AGENT);
 
     final Connector reportConnector =
-      new Connector("localhost", acceptor.getPort(), ConnectionType.REPORT);
+      new Connector("localhost", acceptor.getPort(), ConnectionType.WORKER);
 
     controlConnector.connect();
     controlConnector.connect();
@@ -136,25 +136,25 @@ public class TestAcceptor extends TestCase {
                                         ConnectionType.class,
                                         ConnectionIdentity.class);
 
-    assertEquals(ConnectionType.REPORT, callData.getParameters()[0]);
+    assertEquals(ConnectionType.WORKER, callData.getParameters()[0]);
 
     listenerStubFactory.assertNoMoreCalls();
 
     assertSame(controlSocketSet,
-               acceptor.getSocketSet(ConnectionType.CONTROL));
+               acceptor.getSocketSet(ConnectionType.AGENT));
 
     final List controlSocketResources = controlSocketSet.reserveAll();
     assertEquals(2, controlSocketResources.size());
 
     // Now do a similar checks with report socket set.
     final ResourcePool reportSocketSet =
-      acceptor.getSocketSet(ConnectionType.REPORT);
+      acceptor.getSocketSet(ConnectionType.WORKER);
 
     for (int i=0; reportSocketSet.countActive() != 1 && i<10; ++i) {
       Thread.sleep(i * i * 10);
     }
 
-    assertSame(reportSocketSet, acceptor.getSocketSet(ConnectionType.REPORT));
+    assertSame(reportSocketSet, acceptor.getSocketSet(ConnectionType.WORKER));
 
     final List reportSocketResources = reportSocketSet.reserveAll();
     assertEquals(1, reportSocketResources.size());
@@ -204,10 +204,10 @@ public class TestAcceptor extends TestCase {
     final Acceptor acceptor = createAcceptor(3);
 
     final ResourcePool socketSet =
-      acceptor.getSocketSet(ConnectionType.CONTROL);
+      acceptor.getSocketSet(ConnectionType.AGENT);
 
     final Connector connector =
-      new Connector("localhost", acceptor.getPort(), ConnectionType.CONTROL);
+      new Connector("localhost", acceptor.getPort(), ConnectionType.AGENT);
 
     connector.connect();
 
