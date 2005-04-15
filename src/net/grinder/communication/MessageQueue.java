@@ -114,6 +114,22 @@ final class MessageQueue {
     m_queue.shutdown();
   }
 
+  /**
+   * Throw an ShutdownException if we are shutdown.
+   *
+   * @throws ThreadSafeQueue.ShutdownException
+   *           Thrown if the <code>ThreadSafeQueue</code> is shutdown.
+   */
+  public void checkIfShutdown() throws ThreadSafeQueue.ShutdownException {
+    m_queue.checkIfShutdown();
+  }
+
+  /**
+   * Synchronise on this object to make multiple <code>MessageQueue</code>
+   * operations thread safe.
+   *
+   * @return The object.
+   */
   public Object getMutex() {
     return m_queue.getMutex();
   }
