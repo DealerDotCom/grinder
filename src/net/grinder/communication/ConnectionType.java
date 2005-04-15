@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -36,10 +36,12 @@ import java.io.OutputStream;
 public final class ConnectionType {
 
   /** Connection type constant. */
-  public static final ConnectionType CONTROL = new ConnectionType(0);
+  public static final ConnectionType AGENT =
+    new ConnectionType(0, "AGENT connection type");
 
   /** Connection type constant. */
-  public static final ConnectionType REPORT = new ConnectionType(1);
+  public static final ConnectionType WORKER =
+    new ConnectionType(1, "WORKER connection type");
 
   /**
    * Serialisation method that reads a ConnectionType from a stream.
@@ -51,29 +53,33 @@ public final class ConnectionType {
   static ConnectionType read(InputStream in)
     throws CommunicationException {
 
+    final int i;
+
     try {
-      final int b = in.read();
-
-      switch (b) {
-      case 0:
-        return ConnectionType.CONTROL;
-
-      case 1:
-        return ConnectionType.REPORT;
-
-      default:
-        throw new CommunicationException("Unknown connection type");
-      }
+      i = in.read();
     }
     catch (IOException e) {
       throw new CommunicationException("Failed to read connection type", e);
     }
+
+    switch (i) {
+    case 0:
+      return ConnectionType.AGENT;
+
+    case 1:
+      return ConnectionType.WORKER;
+
+    default:
+      throw new CommunicationException("Unknown connection type (" + i + ")");
+    }
   }
 
   private final int m_identity;
+  private final String m_description;
 
-  private ConnectionType(int identity) {
+  private ConnectionType(int identity, String description) {
     m_identity = identity;
+    m_description = description;
   }
 
   /**
@@ -119,5 +125,14 @@ public final class ConnectionType {
 
     final ConnectionType otherConnectionType = (ConnectionType)other;
     return m_identity == otherConnectionType.m_identity;
+  }
+
+  /**
+   * Describe ourself.
+   *
+   * @return The description.
+   */
+  public String toString() {
+    return m_description;
   }
 }

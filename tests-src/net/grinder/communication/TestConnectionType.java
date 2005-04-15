@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,7 +23,9 @@ package net.grinder.communication;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import junit.framework.TestCase;
 
@@ -41,31 +43,68 @@ public class TestConnectionType extends TestCase {
   }
 
   public void testEquality() throws Exception {
-    assertEquals(ConnectionType.CONTROL.hashCode(),
-                 ConnectionType.CONTROL.hashCode());
+    assertEquals(ConnectionType.AGENT.hashCode(),
+                 ConnectionType.AGENT.hashCode());
 
-    assertEquals(ConnectionType.CONTROL, ConnectionType.CONTROL);
+    assertEquals(ConnectionType.AGENT, ConnectionType.AGENT);
 
-    assertEquals(ConnectionType.REPORT.hashCode(),
-                 ConnectionType.REPORT.hashCode());
+    assertEquals(ConnectionType.WORKER.hashCode(),
+                 ConnectionType.WORKER.hashCode());
 
-    assertEquals(ConnectionType.REPORT, ConnectionType.REPORT);
+    assertEquals(ConnectionType.WORKER, ConnectionType.WORKER);
 
-    assertTrue(!ConnectionType.CONTROL.equals(ConnectionType.REPORT));
-    assertTrue(!ConnectionType.REPORT.equals(ConnectionType.CONTROL));
+    assertTrue(!ConnectionType.AGENT.equals(ConnectionType.WORKER));
+    assertTrue(!ConnectionType.WORKER.equals(ConnectionType.AGENT));
 
-    assertTrue(!ConnectionType.REPORT.equals(new Object()));
+    assertTrue(!ConnectionType.WORKER.equals(new Object()));
   }
 
   public void testSerialisation() throws Exception {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    ConnectionType.CONTROL.write(outputStream);
-    ConnectionType.REPORT.write(outputStream);
+    ConnectionType.AGENT.write(outputStream);
+    ConnectionType.WORKER.write(outputStream);
 
     final InputStream inputSteam =
       new ByteArrayInputStream(outputStream.toByteArray());
 
-    assertEquals(ConnectionType.CONTROL, ConnectionType.read(inputSteam));
-    assertEquals(ConnectionType.REPORT, ConnectionType.read(inputSteam));
+    assertEquals(ConnectionType.AGENT, ConnectionType.read(inputSteam));
+    assertEquals(ConnectionType.WORKER, ConnectionType.read(inputSteam));
+
+    try {
+      ConnectionType.read(inputSteam);
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+
+    // ByteArrayInputStream isn't bad enough.
+
+    final InputStream badInputStream =
+      new InputStream() {
+        public int read() throws IOException {
+          throw new IOException("Eat me");
+        }
+    };
+
+    try {
+      ConnectionType.read(badInputStream);
+      fail("Exception CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+
+    final OutputStream badOutputStream =
+      new OutputStream() {
+        public void write(int b) throws IOException {
+          throw new IOException("Eat me");
+        }
+    };
+
+    try {
+      ConnectionType.AGENT.write(badOutputStream);
+      fail("Exception CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
   }
 }
