@@ -107,6 +107,7 @@ public final class FanOutServerSender
         try {
           if (((SocketWrapper)reservation.getResource()).isPeerShutdown()) {
             result = true;
+            break;
           }
         }
         finally {
