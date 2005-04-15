@@ -21,9 +21,6 @@
 
 package net.grinder.communication;
 
-import java.io.IOException;
-import java.net.Socket;
-
 
 /**
  * Class that manages the sending of messages to a server.
@@ -47,14 +44,7 @@ public final class ClientSender
   public static ClientSender connect(Connector connector)
     throws CommunicationException {
 
-    final Socket socket = connector.connect();
-
-    try {
-      return new ClientSender(new SocketWrapper(socket));
-    }
-    catch (IOException e) {
-      throw new CommunicationException("Connection failed", e);
-    }
+    return new ClientSender(new SocketWrapper(connector.connect()));
   }
 
   /**
@@ -69,18 +59,13 @@ public final class ClientSender
   public static ClientSender connect(ClientReceiver clientReceiver)
     throws CommunicationException {
 
-    try {
-      return new ClientSender(clientReceiver.getSocketWrapper());
-    }
-    catch (IOException e) {
-      throw new CommunicationException("Connection failed", e);
-    }
+    return new ClientSender(clientReceiver.getSocketWrapper());
   }
 
   private final SocketWrapper m_socketWrapper;
 
   private ClientSender(SocketWrapper socketWrapper)
-    throws CommunicationException, IOException {
+    throws CommunicationException {
 
     super(socketWrapper.getOutputStream(), socketWrapper);
     m_socketWrapper = socketWrapper;
