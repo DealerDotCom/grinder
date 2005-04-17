@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,61 +21,31 @@
 
 package net.grinder.communication;
 
-import java.util.Random;
+import java.lang.reflect.Constructor;
+
+import junit.framework.TestCase;
 
 
 /**
- *  Simple Message implementation.
+ *  Unit tests for <code>CommunicationDefaults</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class SimpleMessage implements Message {
+public class TestCommunicationDefaults extends TestCase {
 
-  private static Random s_random = new Random();
+  public void testThatIsStupidButImprovesCoverage() throws Exception {
+    final Class c = CommunicationDefaults.class;
+    final Constructor constructor = c.getDeclaredConstructor(new Class[0]);
 
-  private final String m_text = "Some message";
-  private final int m_random = s_random.nextInt();
-  private final int[] m_padding;
-  private Object m_payload;
-
-  public SimpleMessage() {
-    this(30);
-  }
-
-  public SimpleMessage(int paddingSize) {
-
-    m_padding = new int[paddingSize];
-
-    for (int i=0; i<paddingSize; i++) {
-      m_padding[i] = i;
+    try {
+      constructor.newInstance(new Object[0]);
+      fail("Expected IllegalAccessException");
     }
-  }
-
-  public void setPayload(Object payload) {
-    m_payload = payload;
-  }
-
-  public String toString() {
-    return "(" + m_text + ", " + m_random + ")";
-  }
-
-  public boolean equals(Object o) {
-    if (o == this) {
-      return true;
+    catch (IllegalAccessException e) {
     }
 
-    if (!(o instanceof SimpleMessage)) {
-      return false;
-    }
-
-    final SimpleMessage other = (SimpleMessage)o;
-
-    return m_text.equals(other.m_text) && m_random == other.m_random;
-  }
-
-  public int hashCode() {
-    return m_text.hashCode() ^ m_random;
+    constructor.setAccessible(true);
+    constructor.newInstance(new Object[0]);
   }
 }
-

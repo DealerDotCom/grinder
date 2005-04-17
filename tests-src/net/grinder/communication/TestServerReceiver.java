@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +25,8 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import net.grinder.testutility.IsolatedObjectFactory;
+
 import junit.framework.TestCase;
 
 
@@ -50,7 +52,6 @@ public class TestServerReceiver extends TestCase {
     serverReceiver.shutdown();
     acceptor.shutdown();
   }
-
   public void testWaitForMessage() throws Exception {
 
     final Acceptor acceptor = new Acceptor("localhost", 0, 1);
@@ -122,6 +123,45 @@ public class TestServerReceiver extends TestCase {
     assertEquals(message1, receivedMessage1);
     assertEquals(message2, receivedMessage2);
     assertEquals(message3, receivedMessage3);
+
+    serverReceiver.shutdown();
+    acceptor.shutdown();
+  }
+
+  public void testWaitForBadMessage() throws Exception {
+
+    final Acceptor acceptor = new Acceptor("localhost", 0, 1);
+
+    final ServerReceiver serverReceiver = new ServerReceiver();
+    serverReceiver.receiveFrom(acceptor, ConnectionType.AGENT, 3);
+
+    final Socket socket =
+      new Socket(InetAddress.getByName(null), acceptor.getPort());
+    ConnectionType.AGENT.write(socket.getOutputStream());
+
+    // Sleep until we've accepted the connections. Give up after a few
+    // seconds.
+    final ResourcePool socketSet = acceptor.getSocketSet(ConnectionType.AGENT);
+
+    for (int i=0; socketSet.countActive() != 1 && i<10; ++i) {
+      Thread.sleep(i * i * 10);
+    }
+
+    // Message that we can't read using the standard class loaders.
+    final SimpleMessage message = new SimpleMessage();
+    message.setPayload(IsolatedObjectFactory.getIsolatedObject());
+
+    final ObjectOutputStream objectStream =
+      new ObjectOutputStream(socket.getOutputStream());
+    objectStream.writeObject(message);
+    objectStream.flush();
+
+    try {
+      serverReceiver.waitForMessage();
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
 
     serverReceiver.shutdown();
     acceptor.shutdown();

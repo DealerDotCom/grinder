@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,6 +21,7 @@
 
 package net.grinder.communication;
 
+
 import java.io.InputStream;
 import java.io.PipedOutputStream;
 
@@ -38,6 +39,9 @@ public class TestMessagePump extends AbstractSenderAndReceiverTests {
   }
 
   private MessagePump m_messagePump;
+  private Sender m_intermediateSender;
+  private Receiver m_intermediateReceiver;
+
 
   /**
    * Sigh, JUnit treats setUp and tearDown as non-virtual methods -
@@ -46,22 +50,27 @@ public class TestMessagePump extends AbstractSenderAndReceiverTests {
   protected void setUp() throws Exception {
     super.setUp();
 
-    final PipedOutputStream outputStream1 = new PipedOutputStream();
-    final InputStream inputStream1 =
-      new BigBufferPipedInputStream(outputStream1);
+    // m_sender -> m_intermediateReceiver -> messagePump
+    // -> m_intermediateSender -> m_receiver
 
-    m_receiver = new StreamReceiver(inputStream1);
-    final Sender intermediateSender = new StreamSender(outputStream1);
+    final PipedOutputStream intermediateSenderOutputStream =
+      new PipedOutputStream();
+    m_intermediateSender = new StreamSender(intermediateSenderOutputStream);
 
-    final PipedOutputStream outputStream2 = new PipedOutputStream();
-    final InputStream inputStream2 =
-      new BigBufferPipedInputStream(outputStream2);
+    final InputStream receiverInputStream =
+      new BigBufferPipedInputStream(intermediateSenderOutputStream);
+    m_receiver = new StreamReceiver(receiverInputStream);
 
-    final Receiver intermediateReceiver = new StreamReceiver(inputStream2);
-    m_sender = new StreamSender(outputStream2);
+    final PipedOutputStream senderOutputStream = new PipedOutputStream();
+    m_sender = new StreamSender(senderOutputStream);
+
+    final InputStream intermediateReceiverInputStream =
+      new BigBufferPipedInputStream(senderOutputStream);
+    m_intermediateReceiver =
+      new StreamReceiver(intermediateReceiverInputStream);
 
     m_messagePump =
-      new MessagePump(intermediateReceiver, intermediateSender, 1);
+      new MessagePump(m_intermediateReceiver, m_intermediateSender, 1);
   }
 
   protected void tearDown() throws Exception {
@@ -75,13 +84,14 @@ public class TestMessagePump extends AbstractSenderAndReceiverTests {
 
   public void testShutdownOnNullMessage() throws Exception {
     m_sender.send(null);
+    assertEquals(null, m_intermediateReceiver.waitForMessage());
+  }
 
-    try {
-      m_sender.send(new SimpleMessage());
-      //      fail("Expected CommunicationException");
-    }
-    catch (CommunicationException e) {
-    }
+  public void testShutdownIfReceiverShutdown() throws Exception {
+    m_sender.shutdown();
+    assertEquals(null, m_intermediateReceiver.waitForMessage());
+    assertEquals(null, m_receiver.waitForMessage());
+
   }
 }
 

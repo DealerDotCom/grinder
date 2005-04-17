@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -62,9 +62,19 @@ public class TestConnector extends TestCase {
     }
 
     socketAcceptor.close();
-    
+
     try {
       connector.connect();
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+
+    final Connector badConnector =
+      new Connector("this is not a host name", 1234, ConnectionType.AGENT);
+
+    try {
+      badConnector.connect();
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {

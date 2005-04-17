@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+
+import net.grinder.testutility.IsolatedObjectFactory;
 
 import junit.framework.TestCase;
 
@@ -55,18 +57,35 @@ public class TestStreamReceiver extends TestCase {
     objectStream1.writeObject(message1);
     objectStream1.flush();
 
+    // Message that we can't read using the standard class loaders.
     final SimpleMessage message2 = new SimpleMessage();
+    message2.setPayload(IsolatedObjectFactory.getIsolatedObject());
 
     final ObjectOutputStream objectStream2 =
       new ObjectOutputStream(outputStream);
     objectStream2.writeObject(message2);
     objectStream2.flush();
 
+    final SimpleMessage message3 = new SimpleMessage();
+
+    final ObjectOutputStream objectStream3 =
+      new ObjectOutputStream(outputStream);
+    objectStream3.writeObject(message3);
+    objectStream3.flush();
+
     final Message receivedMessage1 = streamReceiver.waitForMessage();
+
+    try {
+      streamReceiver.waitForMessage();
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+
     final Message receivedMessage2 = streamReceiver.waitForMessage();
 
     assertEquals(message1, receivedMessage1);
-    assertEquals(message2, receivedMessage2);
+    assertEquals(message3, receivedMessage2);
 
     assertEquals(
       CommunicationException.class,
@@ -76,8 +95,9 @@ public class TestStreamReceiver extends TestCase {
         }
       }.getException().getClass());
 
+
     outputStream.close();
-    
+
     try {
       streamReceiver.waitForMessage();
       fail("Expected CommunicationException");
@@ -133,4 +153,4 @@ public class TestStreamReceiver extends TestCase {
     assertNull(streamReceiver.waitForMessage());
   }
 }
-  
+
