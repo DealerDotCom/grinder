@@ -50,10 +50,12 @@ public class StreamReceiver implements Receiver {
   /**
    * Constructor.
    *
+   * <p>Private, as current clients don't need to specify stream lock.</p>
+   *
    * @param inputStream The input stream to read from.
    * @param streamLock Lock on this object around all stream operations.
    */
-  protected StreamReceiver(InputStream inputStream, Object streamLock) {
+  private StreamReceiver(InputStream inputStream, Object streamLock) {
     m_inputStream = inputStream;
     m_streamLock = streamLock;
   }
@@ -74,6 +76,7 @@ public class StreamReceiver implements Receiver {
     try {
       final Message message;
 
+      // This blocks holding the lock, by design.
       synchronized (m_streamLock) {
         final ObjectInputStream objectStream =
           new ObjectInputStream(m_inputStream);
@@ -105,9 +108,7 @@ public class StreamReceiver implements Receiver {
     m_shutdown = true;
 
     try {
-      synchronized (m_streamLock) {
-        m_inputStream.close();
-      }
+      m_inputStream.close();
     }
     catch (IOException e) {
       // Ignore.

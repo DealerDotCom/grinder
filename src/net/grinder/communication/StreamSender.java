@@ -49,10 +49,12 @@ public class StreamSender extends AbstractSender {
   /**
    * Constructor.
    *
+   * <p>Private, as current clients don't need to specify stream lock.</p>
+   *
    * @param outputStream The output stream to write to.
    * @param streamLock Lock on this object around all stream operations.
    */
-  protected StreamSender(OutputStream outputStream, Object streamLock) {
+  private StreamSender(OutputStream outputStream, Object streamLock) {
     m_outputStream = new BufferedOutputStream(outputStream);
     m_streamLock = streamLock;
   }
@@ -78,9 +80,7 @@ public class StreamSender extends AbstractSender {
     super.shutdown();
 
     try {
-      synchronized (m_streamLock) {
-        m_outputStream.close();
-      }
+      m_outputStream.close();
     }
     catch (IOException e) {
       // Ignore.

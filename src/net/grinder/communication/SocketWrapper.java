@@ -105,8 +105,7 @@ final class SocketWrapper
           m_inputStream.mark(BUFFER_SIZE);
 
           try {
-            if (new StreamReceiver(m_inputStream, this)
-                .waitForMessage() == null) {
+            if (new StreamReceiver(m_inputStream).waitForMessage() == null) {
               close();
               return true;
             }
@@ -142,7 +141,7 @@ final class SocketWrapper
       // peer has closed the connection. We make an effort to tell the
       // peer.
       try {
-        new StreamSender(getOutputStream(), this).shutdown();
+        new StreamSender(getOutputStream()).shutdown();
       }
       catch (CommunicationException e) {
         // Ignore.

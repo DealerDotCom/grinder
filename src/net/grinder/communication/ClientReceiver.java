@@ -48,7 +48,7 @@ public final class ClientReceiver extends StreamReceiver {
   private final SocketWrapper m_socketWrapper;
 
   private ClientReceiver(SocketWrapper socketWrapper) {
-    super(socketWrapper.getInputStream(), socketWrapper);
+    super(socketWrapper.getInputStream());
     m_socketWrapper = socketWrapper;
   }
 
