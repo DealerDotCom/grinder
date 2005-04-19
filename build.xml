@@ -43,16 +43,16 @@ What do I do?
 
 Do the following:
 
-	1. Acquire and install Ant
-	   (http://jakarta.apache.org/ant/index.html).
+  1. Acquire and install Ant
+     (http://jakarta.apache.org/ant/index.html).
 
-	2. Set/export ANT_HOME, JAVA_HOME and PATH as described
-	   in the Ant user guide.
+  2. Set/export ANT_HOME, JAVA_HOME and PATH as described
+     in the Ant user guide.
 
-       	3. Type ant (or ant.bat on Windows platforms)
+         3. Type ant (or ant.bat on Windows platforms)
 
 Say
-	ant -projecthelp
+  ant -projecthelp
 
 for details of other targets. The compilation targets don't depend on
 the "clean" target, to rebuild you need to say "ant clean compile".
@@ -199,7 +199,7 @@ what you want. Currently the conditionally built modules are:
 
     <available classpathref="build.classpath"
                classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
-	       property="have.optional.tasks" />
+         property="have.optional.tasks" />
 
     <available classpathref="build.classpath"
                classname="org.python.core.PyObject"
@@ -225,7 +225,7 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <target name="assert-have-optional-tasks" depends="init"
-	  unless="have.optional.tasks">
+    unless="have.optional.tasks">
     <fail message="Install the Ant optional.jar to build this target"/>
   </target>
 
@@ -234,15 +234,15 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <target name="assert-have-everything"
-	  depends="assert-have-jsse,assert-have-junit,assert-have-optional-tasks">
+    depends="assert-have-jsse,assert-have-junit,assert-have-optional-tasks">
   </target>
 
   <!-- =================================================================== -->
   <!-- Copy resources into the classes hierarchy, and bundled libraries.    -->
   <!-- =================================================================== -->
   <target name="copy-resources"
-	  depends="init,assert-have-jython"
-	  description="Copies the resource files into build output">
+    depends="init,assert-have-jython"
+    description="Copies the resource files into build output">
 
     <copy todir="${classes.dir}">
       <fileset dir="${src.dir}"  includes="**/resources/*.gif"/>
@@ -286,7 +286,7 @@ what you want. Currently the conditionally built modules are:
            destdir="${classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
-	   deprecation="false"> <!-- Uses deprecated API's -->
+     deprecation="false"> <!-- Uses deprecated API's -->
        <classpath refid="build.classpath"/>
        <exclude name="net/grinder/**"/>
     </javac>
@@ -297,7 +297,7 @@ what you want. Currently the conditionally built modules are:
            destdir="${classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
-	   deprecation="${deprecation}">
+     deprecation="${deprecation}">
        <include name="net/grinder/**"/>
        <classpath refid="build.classpath"/>
     </javac>
@@ -323,15 +323,15 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <target name="compile-tests"
-	  depends="assert-have-junit,compile"
-	  description="Compiles the tests source">
+    depends="assert-have-junit,compile"
+    description="Compiles the tests source">
     <mkdir dir="${test-classes.dir}"/>
 
     <javac srcdir="${test-src.dir}"
            destdir="${test-classes.dir}"
            debug="${debug}"
            optimize="${optimize}"
-	   deprecation="${deprecation}">
+     deprecation="${deprecation}">
        <classpath refid="build.classpath"/>
    </javac>
   </target>
@@ -340,11 +340,11 @@ what you want. Currently the conditionally built modules are:
   <!-- Creates the jar                                                     -->
   <!-- =================================================================== -->
   <target name="jar" depends="compile, copy-resources, checkstyle"
-	  description="Default target, creates lib/grinder.jar.">
+    description="Default target, creates lib/grinder.jar.">
 
     <jar jarfile="${lib.dir}/${lib.jar}"
          basedir="${classes.dir}"
-	 manifest="${manifest.mf}">
+   manifest="${manifest.mf}">
     </jar>
   </target>
 
@@ -381,8 +381,8 @@ what you want. Currently the conditionally built modules are:
   <!-- Rules to run the tests                                              -->
   <!-- =================================================================== -->
   <target name="test"
-	  depends="compile-tests,copy-resources,assert-have-optional-tasks"
-	  description="Run the unit-tests.">
+    depends="compile-tests,copy-resources,assert-have-optional-tasks"
+    description="Run the unit-tests.">
 
     <path id="test.classpath">
       <pathelement path="${test-classes.dir}"/>
@@ -390,13 +390,9 @@ what you want. Currently the conditionally built modules are:
       <path refid="build.classpath"/>
     </path>
 
-    <pathconvert pathsep=":"
-                 property="test-classpath.line"
-                 refid="test.classpath"/>
-
     <junit printsummary="false" haltonfailure="true">
       <classpath>
-	<path refid="test.classpath"/>
+      <path refid="test.classpath"/>
       </classpath>
 
       <!-- Put Jython droppings in one place. -->
@@ -406,37 +402,34 @@ what you want. Currently the conditionally built modules are:
       <sysproperty key="classes.dir" path="${classes.dir}"/>
       <sysproperty key="test-classes.dir" path="${test-classes.dir}"/>
 
-      <sysproperty key="test.classpath" path="${test-classpath.line}"/>
       <sysproperty key="grinder.version" value="${version}"/>
       <sysproperty key="grinder.date" value="${TODAY}"/>
 
       <!-- Fork separate JVM's for tests to avoid OOMEs when running
       with Clover. -->
       <batchtest fork="true">
-	<formatter type="plain" usefile="false"/>
+        <formatter type="plain" usefile="false"/>
 
-	<fileset dir="${test-src.dir}">
-
-	  <depend targetdir="${build.dir}">
-	    <mapper type="merge" to="${lasttest.timestamp}"/>
-	  </depend>
-
-	  <include name="**/Test*.java"/>
-	  <exclude name="**/TestSleeper.java"/>
-	</fileset>
+        <fileset dir="${test-src.dir}">
+          <depend targetdir="${build.dir}">
+            <mapper type="merge" to="${lasttest.timestamp}"/>
+          </depend>
+          <include name="**/Test*.java"/>
+          <exclude name="**/TestSleeper.java"/>
+        </fileset>
       </batchtest>
 
       <!-- Fork a separate JVM for the Sleeper test to make the timings
       more consistent. -->
       <batchtest fork="true">
-	<formatter type="plain" usefile="false"/>
+        <formatter type="plain" usefile="false"/>
 
-	<fileset dir="${test-src.dir}">
-	  <depend targetdir="${build.dir}">
-	    <mapper type="merge" to="${lasttest.timestamp}"/>
-	  </depend>
-	  <include name="**/TestSleeper.java"/>
-	</fileset>
+        <fileset dir="${test-src.dir}">
+          <depend targetdir="${build.dir}">
+            <mapper type="merge" to="${lasttest.timestamp}"/>
+          </depend>
+          <include name="**/TestSleeper.java"/>
+        </fileset>
       </batchtest>
     </junit>
 
@@ -475,7 +468,7 @@ what you want. Currently the conditionally built modules are:
       <sysproperty key="python.home" path="${jython.dir}"/>
 
       <classpath>
-	<pathelement path="${jython.dir}/${jython.jar}"/>
+        <pathelement path="${jython.dir}/${jython.jar}"/>
       </classpath>
       <arg path="${changes2xml.py}"/>
       <arg value="CHANGES"/>
@@ -487,7 +480,7 @@ what you want. Currently the conditionally built modules are:
       <sysproperty key="python.home" path="${jython.dir}"/>
 
       <classpath>
-	<pathelement path="${jython.dir}/${jython.jar}"/>
+        <pathelement path="${jython.dir}/${jython.jar}"/>
       </classpath>
       <arg path="${outline2xml.py}"/>
       <arg value="TODO"/>
@@ -530,11 +523,11 @@ what you want. Currently the conditionally built modules are:
              doctitle="${Name}"
              bottom="Copyright &#169; ${year} Paco Gómez, Philip Aston. All Rights Reserved."
              stylesheetfile="${javadoc.css}"
-	     package="true">
-	    <sourcepath>
-	      <pathelement path="${src.dir}"/>
-	      <pathelement path="${test-src.dir}"/>
-	    </sourcepath>
+       package="true">
+      <sourcepath>
+        <pathelement path="${src.dir}"/>
+        <pathelement path="${test-src.dir}"/>
+      </sourcepath>
             <classpath>
               <path refid="build.classpath"/>
               <pathelement path="${java.class.path}"/>
@@ -548,15 +541,15 @@ what you want. Currently the conditionally built modules are:
   <target name="script-javadoc" depends="init"
           description="Generates the javadoc for classes used by scripts.">
     <property name="script-javadoc-src.dir"
-	      value="${build.dir}/script-javadoc-src"/>
+        value="${build.dir}/script-javadoc-src"/>
 
     <!-- Sigh, I'm tired of convincing the javadoc task to do the right thing
          so instead lets create a copy of the source it should process.
          This is faster too. -->
     <copy todir="${script-javadoc-src.dir}">
       <fileset dir="${src.dir}">
-	<include name="HTTPClient/*.java"/>
-	<exclude name="HTTPClient/HttpURLConnection.java"/>
+        <include name="HTTPClient/*.java"/>
+        <exclude name="HTTPClient/HttpURLConnection.java"/>
         <include name="net/grinder/common/AbstractTestSemantics.java"/>
         <include name="net/grinder/common/FilenameFactory.java"/>
         <include name="net/grinder/common/GrinderBuild.java"/>
@@ -565,10 +558,10 @@ what you want. Currently the conditionally built modules are:
         <include name="net/grinder/common/Logger.java"/>
         <include name="net/grinder/common/SSLContextFactory.java"/>
         <include name="net/grinder/common/Test.java"/>
-	<include name="net/grinder/plugin/http/*.java"/>
-	<exclude name="net/grinder/plugin/http/HTTPPlugin.java"/>
-	<exclude name="net/grinder/plugin/http/HTTPPluginThreadState.java"/>
-	<exclude name="net/grinder/plugin/http/HTTPPluginTCPProxy*.java"/>
+        <include name="net/grinder/plugin/http/*.java"/>
+        <exclude name="net/grinder/plugin/http/HTTPPlugin.java"/>
+        <exclude name="net/grinder/plugin/http/HTTPPluginThreadState.java"/>
+        <exclude name="net/grinder/plugin/http/HTTPPluginTCPProxy*.java"/>
         <include name="net/grinder/script/*.java"/>
         <include name="net/grinder/statistics/ExpressionView.java"/>
         <include name="net/grinder/statistics/StatisticsIndexMap.java"/>
@@ -589,7 +582,7 @@ what you want. Currently the conditionally built modules are:
              windowtitle="${Name}"
              doctitle="${Name}"
              stylesheetfile="${javadoc.css}"
-	     public="true"
+             public="true"
              overview="${script-javadoc-src.dir}/net/grinder/script/overview.html"
              sourcepath="${script-javadoc-src.dir}">
         <group title="The Grinder Scripting API"
@@ -687,7 +680,7 @@ what you want. Currently the conditionally built modules are:
   </target>
 
   <target name="realclean" depends="clean"
-	  description="Removes all generated files and temporary files.">
+    description="Removes all generated files and temporary files.">
     <delete dir="${dist.root}"/>
     <delete dir="${doc.dir}" quiet="true"/>
     <delete dir="${lib.dir}"/>
