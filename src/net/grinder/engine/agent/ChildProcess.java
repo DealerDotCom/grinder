@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,7 +31,7 @@ import net.grinder.util.StreamCopier;
 
 /**
  * This class knows how to start a child process. It redirects the
- * child process standard ouput and error streams to our streams.
+ * child process standard output and error streams to our streams.
  *
  * @author Paco Gomez
  * @author Philip Aston

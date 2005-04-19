@@ -62,7 +62,7 @@ public class Grinder {
      *
      * @return The id.
      */
-    String getGrinderID();
+    String getProcessID();
 
     /**
      * Return the thread ID, or -1 if not called from a worker thread.

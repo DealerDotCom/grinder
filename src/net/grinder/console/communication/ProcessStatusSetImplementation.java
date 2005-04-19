@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.grinder.common.AgentProcessStatus;
 import net.grinder.common.WorkerProcessStatus;
 import net.grinder.util.ListenerSupport;
 
@@ -51,14 +52,16 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
   private static final long UPDATE_PERIOD = 500;
 
   /**
-   * Every FLUSH_PERIOD, process statuses are checked. Those that
-   * haven't reported since a {start|stop|reset} event are marked, and
-   * are discarded if they still haven't been updated by the next
-   * FLUSH_PERIOD.
+   * We keep a record of processes for a few seconds after they have been
+   * terminated.
+   *
+   * Every FLUSH_PERIOD, process statuses are checked. Those that haven't
+   * reported since a {start|stop|reset} event are marked, and are discarded if
+   * they still haven't been updated by the next FLUSH_PERIOD.
    */
   private static final long FLUSH_PERIOD = 2000;
 
-  private final Map m_processes = new HashMap();
+  private final Map m_workerProcesses = new HashMap();
   private final Comparator m_sorter = new ProcessStatusComparator();
 
   private final ListenerSupport m_listeners = new ListenerSupport();
@@ -108,8 +111,8 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
 
     synchronized (this) {
       data = (WorkerProcessStatus[])
-        m_processes.values().toArray(
-          new WorkerProcessStatus[m_processes.size()]);
+        m_workerProcesses.values().toArray(
+          new WorkerProcessStatus[m_workerProcesses.size()]);
     }
 
     Arrays.sort(data, m_sorter);
@@ -145,25 +148,36 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
   /**
    * Add a status report.
    *
-   * @param processStatus Process status.
+   * @param agentProcessStatus Process status.
    */
-  public void addStatusReport(WorkerProcessStatus processStatus) {
+  public void addAgentStatusReport(AgentProcessStatus agentProcessStatus) {
+    // TODO Auto-generated method stub
+
+  }
+
+  /**
+   * Add a status report.
+   *
+   * @param workerProcessStatus Process status.
+   */
+  public void addWorkerStatusReport(WorkerProcessStatus workerProcessStatus) {
 
     synchronized (this) {
-      ProcessStatusImplementation processStatusImplementation =
-        (ProcessStatusImplementation)
-        m_processes.get(processStatus.getIdentity());
+      WorkerProcessStatusImplementation processStatusImplementation =
+        (WorkerProcessStatusImplementation)
+        m_workerProcesses.get(workerProcessStatus.getIdentity());
 
       if (processStatusImplementation == null) {
         processStatusImplementation =
-          new ProcessStatusImplementation(processStatus.getIdentity(),
-                                          processStatus.getName());
+          new WorkerProcessStatusImplementation(
+            workerProcessStatus.getIdentity(),
+            workerProcessStatus.getName());
 
-        m_processes.put(processStatus.getIdentity(),
-                        processStatusImplementation);
+        m_workerProcesses.put(workerProcessStatus.getIdentity(),
+                              processStatusImplementation);
       }
 
-      processStatusImplementation.set(processStatus);
+      processStatusImplementation.set(workerProcessStatus);
     }
 
     m_newData = true;
@@ -173,13 +187,13 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
     final Set zombies = new HashSet();
 
     synchronized (this) {
-      final Iterator iterator = m_processes.entrySet().iterator();
+      final Iterator iterator = m_workerProcesses.entrySet().iterator();
 
       while (iterator.hasNext()) {
         final Map.Entry entry = (Map.Entry)iterator.next();
         final String key = (String)entry.getKey();
-        final ProcessStatusImplementation processStatusImplementation =
-          (ProcessStatusImplementation)entry.getValue();
+        final WorkerProcessStatusImplementation processStatusImplementation =
+          (WorkerProcessStatusImplementation)entry.getValue();
 
         if (processStatusImplementation.shouldPurge()) {
           zombies.add(key);
@@ -187,40 +201,22 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
       }
 
       if (zombies.size() > 0) {
-        m_processes.keySet().removeAll(zombies);
+        m_workerProcesses.keySet().removeAll(zombies);
         m_newData = true;
       }
     }
   }
 
-  private final class ProcessStatusImplementation
-    implements WorkerProcessStatus {
-
-    private final String m_identity;
-    private final String m_name;
-    private short m_state;
-    private short m_totalNumberOfThreads;
-    private short m_numberOfRunningThreads;
-
+  private abstract class AbstractProcessStatusImplementation {
     private boolean m_reapable = false;
     private int m_lastTouchedGeneration;
 
-    ProcessStatusImplementation(String identity, String name) {
-      m_identity = identity;
-      m_name = name;
-    }
-
-    void set(WorkerProcessStatus processStatus) {
-      m_state = processStatus.getState();
-      m_totalNumberOfThreads = processStatus.getTotalNumberOfThreads();
-      m_numberOfRunningThreads =
-        processStatus.getNumberOfRunningThreads();
-
+    protected final void touch() {
       m_lastTouchedGeneration = m_currentGeneration;
       m_reapable = false;
     }
 
-    boolean shouldPurge() {
+    public final boolean shouldPurge() {
       if (m_reapable) {
         return true;
       }
@@ -231,6 +227,30 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
       }
 
       return false;
+    }
+  }
+
+  private final class WorkerProcessStatusImplementation
+    extends AbstractProcessStatusImplementation
+    implements WorkerProcessStatus {
+
+    private final String m_identity;
+    private final String m_name;
+    private short m_state;
+    private short m_totalNumberOfThreads;
+    private short m_numberOfRunningThreads;
+
+    WorkerProcessStatusImplementation(String identity, String name) {
+      m_identity = identity;
+      m_name = name;
+    }
+
+    public void set(WorkerProcessStatus processStatus) {
+      m_state = processStatus.getState();
+      m_totalNumberOfThreads = processStatus.getTotalNumberOfThreads();
+      m_numberOfRunningThreads =
+        processStatus.getNumberOfRunningThreads();
+      touch();
     }
 
     public String getIdentity() {

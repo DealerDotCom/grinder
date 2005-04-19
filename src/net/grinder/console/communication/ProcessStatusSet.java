@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,7 +21,7 @@
 
 package net.grinder.console.communication;
 
-
+import net.grinder.common.AgentProcessStatus;
 import net.grinder.common.WorkerProcessStatus;
 
 
@@ -50,7 +50,14 @@ interface ProcessStatusSet {
   /**
    * Add a status report.
    *
-   * @param processStatus Process status.
+   * @param agentProcessStatus Process status.
    */
-  void addStatusReport(WorkerProcessStatus processStatus);
+  void addAgentStatusReport(AgentProcessStatus agentProcessStatus);
+
+  /**
+   * Add a status report.
+   *
+   * @param workerProcessStatus Process status.
+   */
+  void addWorkerStatusReport(WorkerProcessStatus workerProcessStatus);
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,7 +45,7 @@ public class TestWorkerProcessCommandLine extends TestCase {
                                    null);
 
     assertEquals(
-      "java net.grinder.engine.process.GrinderProcess '<grinderID>'",
+      "java net.grinder.engine.process.GrinderProcess",
       workerProcessCommandLine.toString());
   }
 
@@ -65,11 +65,11 @@ public class TestWorkerProcessCommandLine extends TestCase {
                                    overrideProperties,
                                    alternateFile);
 
-    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '<grinderID>' '" + alternateFile.getPath() + "'",
+    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '" + alternateFile.getPath() + "'",
                  workerProcessCommandLine.toString());
 
     // Should work twice.
-    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '<grinderID>' '" + alternateFile.getPath() + "'",
+    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '" + alternateFile.getPath() + "'",
                  workerProcessCommandLine.toString());
   }
 
@@ -122,7 +122,7 @@ public class TestWorkerProcessCommandLine extends TestCase {
 
     final String expectedSuffix =
       "-classpath 'abc;def" + File.pathSeparatorChar + "jvd;vg;nc' " +
-      "net.grinder.engine.process.GrinderProcess '<grinderID>'";
+      "net.grinder.engine.process.GrinderProcess";
 
     assertEquals(expectedSuffix, commandLine);
   }

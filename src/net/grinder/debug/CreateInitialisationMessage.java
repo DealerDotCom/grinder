@@ -38,26 +38,32 @@ import net.grinder.engine.messages.InitialiseGrinderMessage;
 public final class CreateInitialisationMessage {
 
   /**
-   * Entry point. The process takes a single argument - the name of
-   * the script file to run. The message is output to stdout.
+   * Entry point. The process takes a single argument - the name of the script
+   * file to run. The message is output to stdout.
    *
-   * @param arguments The arguments.
-   * @exception Exception if an error occurs
+   * @param arguments
+   *          The arguments.
+   * @exception Exception
+   *              if an error occurs
    */
   public static void main(String[] arguments) throws Exception {
 
     if (arguments.length != 1) {
       System.err.println("Usage: java " +
-                         CreateInitialisationMessage.class.getName() +
-                         " scriptFile > message");
+          CreateInitialisationMessage.class.getName() +
+          " scriptFile > message");
       System.exit(-1);
     }
 
     final File scriptFile = new File(arguments[0]);
 
     final InitialiseGrinderMessage initialisationMessage =
-      new InitialiseGrinderMessage(
-        false, scriptFile, scriptFile.getAbsoluteFile().getParentFile());
+      new InitialiseGrinderMessage("agentID",
+                                   "processID",
+                                   false,
+                                   scriptFile,
+                                   scriptFile.getAbsoluteFile()
+                                     .getParentFile());
 
     new StreamSender(System.out).send(initialisationMessage);
   }

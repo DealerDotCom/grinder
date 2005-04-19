@@ -14,6 +14,9 @@ Grinder 3.0-beta26 (Not yet released)
   filters. Previously there was a platform specific bug. Thanks to
   Alex Bolgarov for the report.
 
+  Change to the script API: getGrinderID() has been renamed
+  getProcessID().
+
 
 Grinder 3.0-beta25
 ------------------

@@ -74,7 +74,7 @@ public class TestProcessStatusSetImplementation extends TestCase {
       new ProcessStatusImplementation("identity", "name",
                                       WorkerProcessStatus.STATE_RUNNING, 3, 5);
 
-    processStatusSet.addStatusReport(processStatus);
+    processStatusSet.addWorkerStatusReport(processStatus);
 
     updateTask.run();
     final CallData callData =
@@ -130,7 +130,7 @@ public class TestProcessStatusSetImplementation extends TestCase {
     };
 
     for (int i = 0; i < processStatusArray.length; ++i) {
-      processStatusSet.addStatusReport(processStatusArray[i]);
+      processStatusSet.addWorkerStatusReport(processStatusArray[i]);
     }
 
     updateTask.run();
@@ -184,7 +184,7 @@ public class TestProcessStatusSetImplementation extends TestCase {
     };
 
     for (int i = 0; i < processStatusArray2.length; ++i) {
-      processStatusSet.addStatusReport(processStatusArray2[i]);
+      processStatusSet.addWorkerStatusReport(processStatusArray2[i]);
     }
 
     // Second flush after processEvent will remove processes that

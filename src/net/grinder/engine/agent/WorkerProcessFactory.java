@@ -21,13 +21,14 @@
 
 package net.grinder.engine.agent;
 
+import java.io.File;
 import java.io.OutputStream;
 
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.FanOutStreamSender;
-import net.grinder.communication.Message;
 import net.grinder.communication.StreamSender;
 import net.grinder.engine.common.EngineException;
+import net.grinder.engine.messages.InitialiseGrinderMessage;
 
 
 /**
@@ -39,35 +40,48 @@ import net.grinder.engine.common.EngineException;
 final class WorkerProcessFactory implements ProcessFactory {
 
   private final WorkerProcessCommandLine m_commandLine;
-  private final String m_hostIDPrefix;
   private final FanOutStreamSender m_fanOutStreamSender;
-  private final Message m_initialisationMessage;
+  private final String m_agentID;
+  private final boolean m_reportToConsole;
+  private final File m_scriptFile;
+  private final File m_scriptDirectory;
 
   public WorkerProcessFactory(WorkerProcessCommandLine commandLine,
-                              String hostID,
                               FanOutStreamSender fanOutStreamSender,
-                              Message initialisationMessage) {
+                              String agentID,
+                              boolean reportToConsole,
+                              File scriptFile,
+                              File scriptDirectory) {
 
     m_commandLine = commandLine;
-    m_hostIDPrefix = hostID;
+    m_agentID = agentID;
     m_fanOutStreamSender = fanOutStreamSender;
-    m_initialisationMessage = initialisationMessage;
+    m_reportToConsole = reportToConsole;
+    m_scriptFile = scriptFile;
+    m_scriptDirectory = scriptDirectory;
   }
 
   public ChildProcess create(int processIndex,
                              OutputStream outputStream,
                              OutputStream errorStream) throws EngineException {
 
-    final String grinderID = m_hostIDPrefix + "-" + processIndex;
+    final String workerID = m_agentID + "-" + processIndex;
 
     final ChildProcess process =
-      new ChildProcess(grinderID, m_commandLine.getCommandArray(grinderID),
+      new ChildProcess(workerID, m_commandLine.getCommandArray(),
                        outputStream, errorStream);
 
     final OutputStream processStdin = process.getStdinStream();
 
     try {
-      new StreamSender(processStdin).send(m_initialisationMessage);
+      final InitialiseGrinderMessage initialisationMessage =
+        new InitialiseGrinderMessage(m_agentID,
+                                     workerID,
+                                     m_reportToConsole,
+                                     m_scriptFile,
+                                     m_scriptDirectory);
+
+      new StreamSender(processStdin).send(initialisationMessage);
     }
     catch (CommunicationException e) {
       throw new EngineException("Failed to send initialisation message", e);

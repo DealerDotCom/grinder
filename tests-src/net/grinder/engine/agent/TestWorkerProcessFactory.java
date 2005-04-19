@@ -30,7 +30,6 @@ import java.util.Properties;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.FanOutStreamSender;
-import net.grinder.communication.Message;
 import net.grinder.engine.process.GrinderProcess;
 
 
@@ -44,7 +43,7 @@ public class TestWorkerProcessFactory extends TestCase {
 
   private static final String s_classesDir = System.getProperty("classes.dir");
   private static final String s_testClasspath =
-    System.getProperty("test.classpath");
+    System.getProperty("java.class.path");
 
   public void testCreate() throws Exception {
     final GrinderProperties grinderProperties = new GrinderProperties() {{
@@ -58,10 +57,6 @@ public class TestWorkerProcessFactory extends TestCase {
 
     final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(1);
 
-    final Message initialisationMessage =
-      new ReadMessageEchoClass.CommandMessage(
-        ReadMessageEchoClass.ECHO_ARGUMENTS);
-
     final WorkerProcessCommandLine commandLine =
       new WorkerProcessCommandLine(
         grinderProperties, overrideProperties, alternateFile);
@@ -71,11 +66,17 @@ public class TestWorkerProcessFactory extends TestCase {
     commandList.set(commandList.indexOf(GrinderProcess.class.getName()),
                     ReadMessageEchoClass.class.getName());
 
+    final File scriptFile = new File("a");
+    final File scriptDirectory = new File("b");
+    final boolean reportToConsole = false;
+
     final WorkerProcessFactory workerProcessFactory =
       new WorkerProcessFactory(commandLine,
-                               "myhost",
                                fanOutStreamSender,
-                               initialisationMessage);
+                               "agent",
+                               reportToConsole,
+                               scriptFile,
+                               scriptDirectory);
 
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     final ByteArrayOutputStream errorStream = new ByteArrayOutputStream();

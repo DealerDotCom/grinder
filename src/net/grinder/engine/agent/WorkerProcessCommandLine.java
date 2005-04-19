@@ -44,7 +44,7 @@ import net.grinder.engine.process.GrinderProcess;
 final class WorkerProcessCommandLine {
 
   private final List m_command;
-  private final int m_commandGrinderIDIndex;
+  private final int m_commandClassIndex;
 
   public WorkerProcessCommandLine(GrinderProperties properties,
                                   Properties systemProperties,
@@ -104,18 +104,15 @@ final class WorkerProcessCommandLine {
       m_command.add(classpath.toString());
     }
 
+    m_commandClassIndex = m_command.size();
     m_command.add(GrinderProcess.class.getName());
-
-    m_commandGrinderIDIndex = m_command.size();
-    m_command.add("<grinderID>"); // Place holder for grinder ID.
 
     if (alternateFile != null) {
       m_command.add(alternateFile.getPath());
     }
   }
 
-  public String[] getCommandArray(String grinderID) {
-    m_command.set(m_commandGrinderIDIndex, grinderID);
+  public String[] getCommandArray() {
     return (String[])m_command.toArray(new String[0]);
   }
 
@@ -135,7 +132,7 @@ final class WorkerProcessCommandLine {
   } };
 
   public String toString() {
-    final String[] commandArray = getCommandArray("<grinderID>");
+    final String[] commandArray = getCommandArray();
 
     final StringBuffer buffer = new StringBuffer(commandArray.length * 10);
 
@@ -146,7 +143,7 @@ final class WorkerProcessCommandLine {
 
       final boolean shouldQuote =
         j != 0 &&
-        j != m_commandGrinderIDIndex - 1 &&
+        j != m_commandClassIndex &&
         !s_unquoted.contains(commandArray[j]);
 
       if (shouldQuote) {

@@ -39,7 +39,7 @@ import junit.framework.TestCase;
 public class TestChildProcess extends TestCase {
 
   private static final String s_testClasspath =
-    System.getProperty("test.classpath");
+    System.getProperty("java.class.path");
 
   private ByteArrayOutputStream m_outputStream = new ByteArrayOutputStream();
   private ByteArrayOutputStream m_errorStream = new ByteArrayOutputStream();
@@ -98,7 +98,7 @@ public class TestChildProcess extends TestCase {
     out.print(EchoClass.ECHO_ARGUMENTS);
     out.print('\n');
     out.flush();
-    
+
     childProcess.waitFor();
 
     final StringBuffer expected = new StringBuffer();

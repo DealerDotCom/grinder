@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // Copyright (C) 2004 Bertrand Ave
 // All rights reserved.
 //
@@ -35,18 +35,18 @@ import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
 import net.grinder.communication.ClientReceiver;
+import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Connector;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.MessagePump;
-import net.grinder.communication.Receiver;
 import net.grinder.communication.Sender;
 import net.grinder.communication.TeeSender;
+import net.grinder.console.messages.AgentProcessStatusMessage;
 import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
-import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.util.JVM;
 import net.grinder.util.SimpleLogger;
@@ -63,11 +63,15 @@ import net.grinder.util.SimpleLogger;
 public final class Agent {
 
   private final File m_alternateFile;
+  private final Logger m_logger;
+  private final Timer m_timer;
 
   /**
    * Constructor.
+   *
+   * @throws GrinderException If an error occurs.
    */
-  public Agent() {
+  public Agent() throws GrinderException {
     this(null);
   }
 
@@ -75,9 +79,19 @@ public final class Agent {
    * Constructor.
    *
    * @param alternateFile Alternative properties file.
+   * @throws GrinderException If an error occurs.
    */
-  public Agent(File alternateFile) {
+  public Agent(File alternateFile) throws GrinderException {
+
     m_alternateFile = alternateFile;
+    m_timer = new Timer(true);
+    m_logger = new SimpleLogger("agent",
+                                new PrintWriter(System.out),
+                                new PrintWriter(System.err));
+
+    if (!JVM.getInstance().haveRequisites(m_logger)) {
+      return;
+    }
   }
 
   /**
@@ -88,30 +102,22 @@ public final class Agent {
    * interrupted whilst waiting.
    */
   public void run() throws GrinderException, InterruptedException {
-    final Logger logger = new SimpleLogger("agent",
-                                           new PrintWriter(System.out),
-                                           new PrintWriter(System.err));
 
-    if (!JVM.getInstance().haveRequisites(logger)) {
-      return;
-    }
-
-    final Timer timer = new Timer(true);
     StartGrinderMessage nextStartMessage = null;
 
     // We use one file store throughout an agent's life, but can't
     // initialise it until we've read the properties.
     FileStore fileStore = null;
 
-    Receiver receiver = null;
+    ConsoleCommunication consoleCommunication = null;
     Connector lastConnector = null;
     final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(3);
     final Object eventSynchronisation = new Object();
     final ConsoleListener consoleListener =
-      new ConsoleListener(eventSynchronisation, logger);
+      new ConsoleListener(eventSynchronisation, m_logger);
 
     while (true) {
-      logger.output(GrinderBuild.getName());
+      m_logger.output(GrinderBuild.getName());
 
       final GrinderProperties properties =
         new GrinderProperties(m_alternateFile);
@@ -120,9 +126,9 @@ public final class Agent {
         new WorkerProcessCommandLine(
           properties, System.getProperties(), m_alternateFile);
 
-      logger.output("Worker process command line: " + workerCommandLine);
+      m_logger.output("Worker process command line: " + workerCommandLine);
 
-      final String hostID =
+      final String agentID =
         properties.getProperty("grinder.hostID", getHostName());
 
       if (properties.getBoolean("grinder.useConsole", true)) {
@@ -136,49 +142,54 @@ public final class Agent {
 
         if (!connector.equals(lastConnector)) {
           // We only reconnect if the connection details have changed.
-          // This is important as the console currently uses
-          // connections to track whether it needs to transmit the
-          // entire file distribution.
-          if (receiver != null) {
-            receiver.shutdown();
-            receiver = null;
+          if (consoleCommunication != null) {
+            consoleCommunication.shutdown();
+            consoleCommunication = null;
           }
 
           try {
-            receiver = ClientReceiver.connect(connector);
+            consoleCommunication =
+              new ConsoleCommunication(connector, agentID);
             lastConnector = connector;
 
             if (fileStore == null) {
               // Only create the file store if we connected.
               fileStore =
-                new FileStore(new File("./" + hostID + "-file-store"), logger);
+                new FileStore(new File("./" + agentID + "-file-store"),
+                              m_logger);
             }
 
             // Ordering of the TeeSender is important so the child
             // processes get the stop and reset signals before our
             // console listener.
-            final Sender sender =
+            // TODO - generalise the listener stuff in the console and
+            // use it to subscribe all three senders.
+            // The fanOutStreamSender can be subscribed above.
+            final Sender workerSender =
               fileStore.getSender(new TeeSender(fanOutStreamSender,
                                                 consoleListener.getSender()));
 
-            new MessagePump(receiver, sender, 1);
+            new MessagePump(consoleCommunication.getReceiver(),
+                            workerSender, 1);
           }
           catch (CommunicationException e) {
-            logger.error(
+            m_logger.error(
               e.getMessage() + ", proceeding without the console; set " +
               "grinder.useConsole=false to disable this warning.");
           }
         }
 
-        if (receiver != null && nextStartMessage == null) {
-          logger.output("waiting for console signal");
+        if (consoleCommunication != null && nextStartMessage == null) {
+          m_logger.output("waiting for console signal");
           consoleListener.waitForMessage();
         }
       }
 
-      final InitialiseGrinderMessage initialiseMessage;
+      // final to ensure we only take one path through the following.
+      final File scriptFile;
+      File scriptDirectory = null;
 
-      if (receiver == null ||
+      if (consoleCommunication == null ||
           nextStartMessage != null ||
           consoleListener.received(ConsoleListener.START)) {
 
@@ -197,8 +208,8 @@ public final class Agent {
         }
 
         if (scriptFromConsole != null && fileStore.getDirectory() == null) {
-          logger.error("Files have not been distributed from the console");
-          initialiseMessage = null;
+          m_logger.error("Files have not been distributed from the console");
+          scriptFile = null;
         }
         else if (scriptFromConsole != null) {
           final File fileStoreDirectory = fileStore.getDirectory().getAsFile();
@@ -207,17 +218,16 @@ public final class Agent {
             new File(fileStoreDirectory, scriptFromConsole.getPath());
 
           if (absoluteFile.canRead()) {
-            initialiseMessage =
-              new InitialiseGrinderMessage(
-              true, absoluteFile, fileStoreDirectory);
+            scriptFile = absoluteFile;
+            scriptDirectory = fileStoreDirectory;
           }
           else {
-            logger.error("The script file '" + scriptFromConsole +
+            m_logger.error("The script file '" + scriptFromConsole +
                          "' requested by the console does not exist " +
                          "or is not readable.",
                          Logger.LOG | Logger.TERMINAL);
 
-            initialiseMessage = null;
+            scriptFile = null;
           }
         }
         else {
@@ -225,35 +235,37 @@ public final class Agent {
             new File(properties.getProperty("grinder.script", "grinder.py"));
 
           if (scriptFromProperties.canRead()) {
-            initialiseMessage =
-              new InitialiseGrinderMessage(
-                receiver != null,
-                scriptFromProperties,
-                scriptFromProperties.getAbsoluteFile().getParentFile());
+            scriptFile = scriptFromProperties;
+            scriptDirectory =
+              scriptFromProperties.getAbsoluteFile().getParentFile();
           }
           else {
-            logger.error("The script file '" + scriptFromProperties +
+            m_logger.error("The script file '" + scriptFromProperties +
                          "' does not exist or is not readable. " +
                          "Check grinder.properties.",
                          Logger.LOG | Logger.TERMINAL);
 
-            initialiseMessage = null;
+            scriptFile = null;
           }
         }
       }
       else {
-        initialiseMessage = null;
+        scriptFile = null;
       }
 
-      if (initialiseMessage != null) {
+      if (scriptFile != null) {
         final ProcessFactory workerProcessFactory =
-          new WorkerProcessFactory(workerCommandLine, hostID,
-                                   fanOutStreamSender, initialiseMessage);
+          new WorkerProcessFactory(workerCommandLine,
+                                   fanOutStreamSender,
+                                   agentID,
+                                   consoleCommunication != null,
+                                   scriptFile,
+                                   scriptDirectory);
 
         final ProcessLauncher processLauncher =
           new ProcessLauncher(properties.getInt("grinder.processes", 1),
                               workerProcessFactory, eventSynchronisation,
-                              logger);
+                              m_logger);
 
         final int processIncrement =
           properties.getInt("grinder.processIncrement", 0);
@@ -270,7 +282,7 @@ public final class Agent {
             final RampUpTimerTask rampUpTimerTask =
               new RampUpTimerTask(processLauncher, processIncrement);
 
-            timer.scheduleAtFixedRate(
+            m_timer.scheduleAtFixedRate(
               rampUpTimerTask, incrementInterval, incrementInterval);
           }
         }
@@ -295,7 +307,7 @@ public final class Agent {
                 System.currentTimeMillis() - consoleSignalTime >
                 maximumShutdownTime) {
 
-              logger.output("forcibly terminating unresponsive processes");
+              m_logger.output("forcibly terminating unresponsive processes");
               processLauncher.destroyAllProcesses();
             }
 
@@ -304,7 +316,7 @@ public final class Agent {
         }
       }
 
-      if (receiver == null) {
+      if (consoleCommunication == null) {
         break;
       }
       else {
@@ -313,7 +325,7 @@ public final class Agent {
 
         if (!consoleListener.received(ConsoleListener.ANY)) {
           // We've got here naturally, without a console signal.
-          logger.output("finished, waiting for console signal");
+          m_logger.output("finished, waiting for console signal");
           consoleListener.waitForMessage();
         }
 
@@ -331,11 +343,11 @@ public final class Agent {
       }
     }
 
-    if (receiver != null) {
-      receiver.shutdown();
+    if (consoleCommunication != null) {
+      consoleCommunication.shutdown();
     }
 
-    logger.output("finished");
+    m_logger.output("finished");
   }
 
   private static String getHostName() {
@@ -378,6 +390,37 @@ public final class Agent {
         System.err.println("Failed to start processes");
         e.printStackTrace();
       }
+    }
+  }
+
+  private final class ConsoleCommunication {
+    private final ClientReceiver m_receiver;
+    private final ClientSender m_sender;
+    private final String m_agentID;
+
+    public ConsoleCommunication(Connector connector, String agentID)
+      throws CommunicationException {
+      m_receiver = ClientReceiver.connect(connector);
+      m_sender = ClientSender.connect(m_receiver);
+      m_agentID = agentID;
+
+      m_sender.send(
+        new AgentProcessStatusMessage(
+          m_agentID,
+          AgentProcessStatusMessage.STATE_STARTED));
+    }
+
+    public ClientReceiver getReceiver() {
+      return m_receiver;
+    }
+
+    public void shutdown() throws CommunicationException {
+      m_sender.send(
+        new AgentProcessStatusMessage(
+          m_agentID,
+          AgentProcessStatusMessage.STATE_FINISHED));
+      m_receiver.shutdown();
+      m_sender.shutdown();
     }
   }
 }

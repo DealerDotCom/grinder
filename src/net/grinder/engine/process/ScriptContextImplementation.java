@@ -44,7 +44,7 @@ import net.grinder.util.Sleeper;
  */
 final class ScriptContextImplementation implements ScriptContext {
 
-  private final String m_grinderID;
+  private final String m_workerID;
   private final ThreadContextLocator m_threadContextLocator;
   private final GrinderProperties m_properties;
   private final QueuedSender m_consoleSender;
@@ -53,7 +53,7 @@ final class ScriptContextImplementation implements ScriptContext {
   private final Sleeper m_sleeper;
   private final SSLControl m_sslControl;
 
-  public ScriptContextImplementation(String grinderID,
+  public ScriptContextImplementation(String workerID,
                                      ThreadContextLocator threadContextLocator,
                                      GrinderProperties properties,
                                      QueuedSender consoleSender,
@@ -61,7 +61,7 @@ final class ScriptContextImplementation implements ScriptContext {
                                      FilenameFactory filenameFactory,
                                      Sleeper sleeper,
                                      SSLControl sslControl) {
-    m_grinderID = grinderID;
+    m_workerID = workerID;
     m_threadContextLocator = threadContextLocator;
     m_properties = properties;
     m_consoleSender = consoleSender;
@@ -71,8 +71,8 @@ final class ScriptContextImplementation implements ScriptContext {
     m_sslControl = sslControl;
   }
 
-  public String getGrinderID() {
-    return m_grinderID;
+  public String getProcessID() {
+    return m_workerID;
   }
 
   public int getThreadID() {

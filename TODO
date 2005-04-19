@@ -79,12 +79,8 @@ Task: Merge worker and agent process status models. Update process tab
 to show both.
 
   Problems
-  - currently no communication from the agent to the console.
-  - console uses connection id to track agent id (for file cache).
-  - Make "CONTROL" channels bidirectional?
-    Wrap a sender/receiver pair around the existing CONNECT channel?
-    ConsoleCommunication needs another ServerReceiver on CONNECT.
-    (Can change existing one to listen to messages from both channels?)
+  - console used to use connection id to track agent id (for file cache).
+    Change this to reconnect every time???
   - see note below about need for "agent initiation channel".
 
 
@@ -171,8 +167,8 @@ its license terms are acceptable. Apparently now available.
 
 There should be an ExternalFilenameFactory, cf ExternalLogger.
 
-Consider having the agent pass the properties in
-InitialiseGrinderMessage.
+The agent should pass system properties, grinder properties, and
+alternate file via InitialiseGrinderMessage.
 
 *** Interactive mode
 

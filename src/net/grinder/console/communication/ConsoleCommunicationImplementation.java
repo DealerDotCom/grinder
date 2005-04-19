@@ -44,6 +44,7 @@ import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ErrorQueue;
 import net.grinder.console.common.Resources;
+import net.grinder.console.messages.AgentProcessStatusMessage;
 import net.grinder.console.messages.WorkerProcessStatusMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.engine.messages.ClearCacheMessage;
@@ -119,8 +120,14 @@ public final class ConsoleCommunicationImplementation
     addMessageHandler(
       new MessageHandler() {
         public boolean process(Message message) {
+          if (message instanceof AgentProcessStatusMessage) {
+            m_processStatusSet.addAgentStatusReport(
+              (AgentProcessStatusMessage)message);
+            return true;
+          }
+
           if (message instanceof WorkerProcessStatusMessage) {
-            m_processStatusSet.addStatusReport(
+            m_processStatusSet.addWorkerStatusReport(
               (WorkerProcessStatusMessage)message);
             return true;
           }

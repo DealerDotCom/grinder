@@ -80,16 +80,15 @@ public final class GrinderProcess {
     if (args.length < 1 || args.length > 2) {
       System.err.println("Usage: java " +
                          GrinderProcess.class.getName() +
-                         " <grinderID> [ propertiesFile ]");
+                         " [ propertiesFile ]");
       System.exit(-1);
     }
 
     final GrinderProcess grinderProcess;
 
     try {
-      grinderProcess = new GrinderProcess(args[0],
-                                          args.length == 2 ?
-                                          new File(args[1]) : null);
+      grinderProcess = new GrinderProcess(args.length == 1 ?
+                                          new File(args[0]) : null);
     }
     catch (ExitProcessException e) {
       System.exit(-4);
@@ -134,11 +133,10 @@ public final class GrinderProcess {
   /**
    * Creates a new <code>GrinderProcess</code> instance.
    *
-   * @param grinderID Process identifier string.
    * @param propertiesFile <code>grinder.properties</code> file.
    * @exception GrinderException if an error occurs
    */
-  public GrinderProcess(String grinderID, File propertiesFile)
+  public GrinderProcess(File propertiesFile)
     throws GrinderException {
 
     final Receiver receiver = new StreamReceiver(System.in);
@@ -152,7 +150,7 @@ public final class GrinderProcess {
     final GrinderProperties properties = new GrinderProperties(propertiesFile);
 
     m_loggerImplementation = new LoggerImplementation(
-      grinderID,
+      m_initialisationMessage.getWorkerID(),
       properties.getProperty("grinder.logDirectory", "."),
       properties.getBoolean("grinder.logProcessStreams", true),
       properties.getInt("grinder.numberOfOldLogs", 1));
@@ -182,7 +180,9 @@ public final class GrinderProcess {
     }
 
     m_context =
-      new ProcessContext(grinderID, properties,
+      new ProcessContext(m_initialisationMessage.getAgentID(),
+                         m_initialisationMessage.getWorkerID(),
+                         properties,
                          m_loggerImplementation.getProcessLogger(),
                          m_loggerImplementation.getFilenameFactory(),
                          consoleSender);

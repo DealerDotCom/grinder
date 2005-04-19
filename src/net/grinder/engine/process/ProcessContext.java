@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,7 +40,8 @@ import net.grinder.util.Sleeper;
  * @version $Revision$
  */
 final class ProcessContext {
-  private final String m_grinderID;
+  private final String m_agentID;
+  private final String m_workerID;
   private final String m_uniqueProcessID;
   private final GrinderProperties m_properties;
   private final boolean m_recordTime;
@@ -55,13 +56,14 @@ final class ProcessContext {
   private long m_executionStartTime;
   private boolean m_shutdown;
 
-  ProcessContext(String grinderID, GrinderProperties properties,
+  ProcessContext(String agentID, String workerID, GrinderProperties properties,
                  Logger logger, FilenameFactory filenameFactory,
                  QueuedSender consoleSender)
     throws GrinderException {
 
-    m_grinderID = grinderID;
-    m_uniqueProcessID = grinderID + ":" + System.currentTimeMillis();
+    m_agentID = agentID;
+    m_workerID = workerID;
+    m_uniqueProcessID = workerID + ":" + System.currentTimeMillis();
     m_properties = properties;
     m_recordTime = properties.getBoolean("grinder.recordTime", true);
     m_processLogger = logger;
@@ -83,7 +85,7 @@ final class ProcessContext {
       new SSLControlImplementation(m_threadContextLocator);
 
     m_scriptContext = new ScriptContextImplementation(
-      m_grinderID,
+      m_workerID,
       m_threadContextLocator,
       properties,
       m_consoleSender,
@@ -110,7 +112,7 @@ final class ProcessContext {
   public WorkerProcessStatusMessage createStatusMessage(
     short state, short numberOfThreads, short totalNumberOfThreads) {
 
-    return new WorkerProcessStatusMessage(m_uniqueProcessID, m_grinderID, state,
+    return new WorkerProcessStatusMessage(m_uniqueProcessID, m_workerID, state,
                                    numberOfThreads, totalNumberOfThreads);
   }
 

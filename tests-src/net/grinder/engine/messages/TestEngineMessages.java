@@ -44,22 +44,28 @@ public class TestEngineMessages extends AbstractFileTestCase {
 
   public void testInitialiseGrinderMessage() throws Exception {
 
+    final String string1 = "someID";
+    final String string2 = "anotherID";
     final File file0 = new File("/foo");
     final File file1 = new File("d:/foo/bah");
 
     final InitialiseGrinderMessage original =
-      new InitialiseGrinderMessage(false, file0, file1);
+      new InitialiseGrinderMessage(string1, string2, false, file0, file1);
 
     final InitialiseGrinderMessage received =
       (InitialiseGrinderMessage) serialise(original);
 
+    assertEquals(string1, original.getAgentID());
+    assertEquals(string2, original.getWorkerID());
     assertTrue(!original.getReportToConsole());
     assertEquals(file0, original.getScriptFile());
     assertEquals(file1, original.getScriptDirectory());
 
     final InitialiseGrinderMessage another =
-      new InitialiseGrinderMessage(true, file1, file0);
+      new InitialiseGrinderMessage(string2, string1, true, file1, file0);
 
+    assertEquals(string2, another.getAgentID());
+    assertEquals(string1, another.getWorkerID());
     assertTrue(another.getReportToConsole());
     assertEquals(file1, another.getScriptFile());
     assertEquals(file0, another.getScriptDirectory());
@@ -94,7 +100,7 @@ public class TestEngineMessages extends AbstractFileTestCase {
     final DistributeFileMessage received =
       (DistributeFileMessage)
       serialise(new DistributeFileMessage(fileContents));
-    
+
     assertEquals(fileContents.toString(),
                  received.getFileContents().toString());
   }

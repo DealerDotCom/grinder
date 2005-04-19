@@ -104,7 +104,7 @@ public class TestScriptContextImplementation extends TestCase {
         grinderID, threadContextLocator, properties, queuedSender, logger,
         filenameFactory, sleeper, sslControl);
 
-    assertEquals(grinderID, scriptContext.getGrinderID());
+    assertEquals(grinderID, scriptContext.getProcessID());
     assertEquals(threadID, scriptContext.getThreadID());
     assertEquals(runNumber, scriptContext.getRunNumber());
     assertEquals(logger, scriptContext.getLogger());

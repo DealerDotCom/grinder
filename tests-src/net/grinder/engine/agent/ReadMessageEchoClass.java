@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,61 +21,41 @@
 
 package net.grinder.engine.agent;
 
-import net.grinder.communication.Message;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+
 import net.grinder.communication.StreamReceiver;
+import net.grinder.engine.messages.InitialiseGrinderMessage;
 
 
 
 /**
- *  Simple process for <code>TestChildProcess</code> to play with.
+ * Simple process for <code>TestChildProcess</code> to play with.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class ReadMessageEchoClass extends EchoClass {
+public class ReadMessageEchoClass {
 
   public static void main(String arguments[]) throws Exception {
 
     final StreamReceiver receiver = new StreamReceiver(System.in);
 
-    final CommandMessage m = (CommandMessage)receiver.waitForMessage();
+    final InitialiseGrinderMessage message =
+      (InitialiseGrinderMessage)receiver.waitForMessage();
 
-    final String command = m.getCommand();
+    // Echo the initialisation message, followed by the arguments.
+    final ObjectOutput objectOutput = new ObjectOutputStream(System.out);
+    objectOutput.writeObject(message);
 
-    if (command.equals(ECHO_ARGUMENTS)) {
-      for (int i=0; i<arguments.length; ++i) {
-        System.out.print(arguments[i]);
-      }
-    }
-    else if (command.equals(ECHO_STREAMS)) {
-      while (true) {
-        final int b = System.in.read();
-
-        if (b == -1) {
-          break;
-        }
-
-        System.out.write(b);
-        System.err.write(b);
-      }
+    for (int i=0; i<arguments.length; ++i) {
+      System.out.print(arguments[i]);
     }
 
     // Testing shows that flushing our streams on exit is necessary to
     // prevent lossage on win32, and maybe elsewhere.
     System.out.flush();
     System.err.flush();
-  }
-
-  public static final class CommandMessage implements Message {
-    private final String m_command;
-
-    public CommandMessage(String command) {
-      m_command = command;
-    }
-
-    public String getCommand() {
-      return m_command;
-    }
   }
 }
 

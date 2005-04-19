@@ -29,13 +29,13 @@ import java.io.Writer;
 
 
 /**
- *  Simple process for <code>TestChildProcess</code> to play with.
+ * Simple process for <code>TestChildProcess</code> to play with.
  *
  * @author Philip Aston
  * @version $Revision$
  */
 public class EchoClass {
-  
+
   public static final String ECHO_ARGUMENTS = "echo arguments";
   public static final String ECHO_STREAMS = "echo streams";
 

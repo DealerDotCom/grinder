@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -42,7 +42,7 @@ import net.grinder.testutility.CallData;
 public class TestProcessLauncher extends TestCase {
 
   private static final String s_testClasspath =
-    System.getProperty("test.classpath");
+    System.getProperty("java.class.path");
 
   public void testConstructor() throws Exception {
     final ProcessLauncher processLauncher1 =
