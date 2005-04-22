@@ -52,14 +52,13 @@ from net.grinder.common import GrinderException
     <title>Test Definition</title>
 
 <source>
-import string
-import random
-from java.lang import String
-from java.net import URLEncoder
-from net.grinder.script import Test
-from net.grinder.statistics import TestStatistics
-from net.grinder.plugin.http import HTTPRequest
-from net.grinder.common import GrinderException
+tests = {
+    "News01"      : Test(1, "News 1 posting"),
+    "Sport01"     : Test(2, "Sport 1 posting"),
+    "Sport02"     : Test(3, "Sport 2 posting"),
+    "Trading01"   : Test(4, "Trading 1 query"),
+    "LifeStyle01" : Test(5, "LifeStyle 1 posting"),
+}
 </source>
 
     <p>To keep the script code easy to read, we next define all the
