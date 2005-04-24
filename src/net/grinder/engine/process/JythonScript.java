@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -63,7 +63,8 @@ final class JythonScript {
 
     m_interpreter.set(
       "grinder",
-      new ImplicitGrinderIsDeprecated(processContext.getScriptContext()));
+      new ImplicitGrinderIsDeprecated(processContext.getScriptContext())
+      .getScriptContext());
 
     if (scriptDirectory != null) {
       m_systemState.path.insert(0, new PyString(scriptDirectory.getPath()));
