@@ -31,7 +31,6 @@ import random
 from java.lang import String
 from java.net import URLEncoder
 from net.grinder.script import Test
-from net.grinder.statistics import TestStatistics
 from net.grinder.plugin.http import HTTPRequest
 from net.grinder.common import GrinderException
 </source>
@@ -236,7 +235,6 @@ from java.lang import String
 from java.net import URLEncoder
 
 from net.grinder.script import Test
-from net.grinder.statistics import TestStatistics
 from net.grinder.plugin.http import HTTPRequest
 from net.grinder.common import GrinderException
 
