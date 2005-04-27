@@ -1,5 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
-// Copyright (C) 2001, 2002 Dirk Feufel
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,41 +21,46 @@
 
 package net.grinder.common;
 
-
 /**
- * Interface for enquiring about worker process status.
+ * Common interface for enquiring about process status.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface WorkerProcessStatus extends ProcessStatus {
+public interface ProcessStatus {
 
   /**
-   * Return a unique String identifying the process.
+   * Constant representing the "started" state.
+   */
+  short STATE_STARTED = 1;
+
+  /**
+   * Constant representing the "running" state.
+   */
+  short STATE_RUNNING = 2;
+
+  /**
+   * Constant representing the "finished" state.
+   */
+  short STATE_FINISHED = 3;
+
+  /**
+   * Constant representing the "unknown" state.
+   */
+  short STATE_UNKNOWN = 4;
+
+  /**
+   * Return the process name.
    *
    * @return The process name.
    */
-  String getIdentity();
+  String getName();
 
   /**
-  * Return the name of the agent process.
-  *
-  * @return The agent process name.
-  */
-  String getAgentName();
-
-  /**
-   * Get the number of running threads.
+   * Return the process status.
    *
-   * @return The number of threads that are running.
+   * @return One of {@link #STATE_STARTED}, {@link #STATE_RUNNING},
+   * {@link #STATE_FINISHED}.
    */
-  short getNumberOfRunningThreads();
-
-  /**
-   * Get the maximum number of threads.
-   *
-   * @return The maximum number of threads.
-   */
-  short getMaximumNumberOfThreads();
+  short getState();
 }
-

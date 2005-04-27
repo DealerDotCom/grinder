@@ -23,42 +23,25 @@ package net.grinder.common;
 
 
 /**
- * Interface for enquiring about process status.
+ * Interface for enquiring about agent process status.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface AgentProcessStatus {
+public interface AgentProcessStatus extends ProcessStatus {
 
   /**
-   * Constant representing the "started" state.
-   */
-  short STATE_STARTED = 1;
-
-  /**
-   * Constant representing the "running" state.
-   */
-  short STATE_RUNNING = 2;
-
-  /**
-   * Constant representing the "finished" state.
-   */
-  short STATE_FINISHED = 3;
-
-
-  /**
-   * Return the process name.
+   * Get the number of running processes.
    *
-   * @return The process name.
+   * @return The number of processes that are running.
    */
-  String getName();
+  int getNumberOfRunningProcesses();
 
   /**
-   * Return the process status.
+   * Get the maximum number of processes.
    *
-   * @return One of {@link #STATE_STARTED}, {@link #STATE_RUNNING},
-   * {@link #STATE_FINISHED}.
+   * @return The maximum number of processes.
    */
-  short getState();
+  int getMaximumNumberOfProcesses();
 }
 
