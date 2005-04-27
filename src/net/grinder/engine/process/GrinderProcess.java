@@ -77,7 +77,7 @@ public final class GrinderProcess {
    * @param args Command line arguments.
    */
   public static void main(String[] args) {
-    if (args.length < 1 || args.length > 2) {
+    if (args.length > 1) {
       System.err.println("Usage: java " +
                          GrinderProcess.class.getName() +
                          " [ propertiesFile ]");
@@ -247,6 +247,12 @@ public final class GrinderProcess {
 
     dataWriter.println();
 
+    final QueuedSender consoleSender = m_context.getConsoleSender();
+
+    consoleSender.send(
+      m_context.createStatusMessage(
+        WorkerProcessStatus.STATE_STARTED, (short)0, numberOfThreads));
+
     final GrinderThread[] runnable = new GrinderThread[numberOfThreads];
 
     for (int i = 0; i < numberOfThreads; i++) {
@@ -254,12 +260,6 @@ public final class GrinderProcess {
         new GrinderThread(m_eventSynchronisation, m_context,
                           m_loggerImplementation, jythonScript, i);
     }
-
-    final QueuedSender consoleSender = m_context.getConsoleSender();
-
-    consoleSender.send(
-      m_context.createStatusMessage(
-        WorkerProcessStatus.STATE_STARTED, (short)0, numberOfThreads));
 
     logger.output("starting threads", Logger.LOG | Logger.TERMINAL);
 

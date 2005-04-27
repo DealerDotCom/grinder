@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,6 +23,7 @@ package net.grinder.console.communication;
 
 import java.util.EventListener;
 
+import net.grinder.common.AgentProcessStatus;
 import net.grinder.common.WorkerProcessStatus;
 
 
@@ -35,12 +36,32 @@ import net.grinder.common.WorkerProcessStatus;
  */
 public interface ProcessStatusListener extends EventListener {
 
+  /**
+   * Called with updates about process status.
+   *
+   * @param processStatuses
+   *          Process status information.
+   */
+  void update(AgentAndWorkers[] processStatuses);
+
+  /**
+   * Interface to the information the console has about an agent and its worker
+   * processes.
+   */
+  public interface AgentAndWorkers {
+
     /**
-     * Called with updates about process status.
+     * Returns the agent process status.
      *
-     * @param data The new process status data.
-     * @param runningThreads The total number of running threads.
-     * @param totalThreads The total number of potential threads.
+     * @return The agent process status.
      */
-  void update(WorkerProcessStatus[] data, int runningThreads, int totalThreads);
+    AgentProcessStatus getAgentProcessStatus();
+
+    /**
+     * Returns the worker process statuses.
+     *
+     * @return The worker process statuses.
+     */
+    WorkerProcessStatus[] getWorkerProcessStatuses();
+  }
 }

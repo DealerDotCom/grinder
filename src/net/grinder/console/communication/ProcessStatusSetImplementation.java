@@ -22,8 +22,6 @@
 
 package net.grinder.console.communication;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -33,12 +31,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import net.grinder.common.AgentProcessStatus;
+import net.grinder.common.ProcessStatus;
 import net.grinder.common.WorkerProcessStatus;
 import net.grinder.util.ListenerSupport;
 
 
 /**
  * Handles process status information.
+ *
+ * TODO change to remove reliance on timing. Listen to connection events instead.
  *
  * @author Dirk Feufel
  * @author Philip Aston
@@ -55,21 +56,21 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
    * We keep a record of processes for a few seconds after they have been
    * terminated.
    *
-   * Every FLUSH_PERIOD, process statuses are checked. Those that haven't
-   * reported since a {start|stop|reset} event are marked, and are discarded if
-   * they still haven't been updated by the next FLUSH_PERIOD.
+   * Every FLUSH_PERIOD, process statuses are checked. Those that are finished,
+   * or that are running and haven't reported for a while, are marked and are
+   * discarded if they still haven't been updated by the next FLUSH_PERIOD.
    */
   private static final long FLUSH_PERIOD = 2000;
 
-  private final Map m_workerProcesses = new HashMap();
-  private final Comparator m_sorter = new ProcessStatusComparator();
+  // Map of agent names to AgentAndWorkers instances. Access is synchronised on
+  // the map itself.
+  private final Map m_processData = new HashMap();
 
   private final ListenerSupport m_listeners = new ListenerSupport();
 
   // No need to synchronise access to these; operations are atomic on
   // booleans and ints.
   private boolean m_newData = false;
-  private int m_lastProcessEventGeneration = -1;
   private int m_currentGeneration = 0;
 
   /**
@@ -86,7 +87,11 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
 
     timer.schedule(
       new TimerTask() {
-        public void run() { flush(); }
+        public void run() {
+          synchronized (m_processData) {
+            purge(m_processData);
+          }
+        }
       },
       0, FLUSH_PERIOD);
   }
@@ -107,154 +112,162 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
 
     m_newData = false;
 
-    final WorkerProcessStatus[] data;
+    final AgentAndWorkers[] processStatuses;
 
-    synchronized (this) {
-      data = (WorkerProcessStatus[])
-        m_workerProcesses.values().toArray(
-          new WorkerProcessStatus[m_workerProcesses.size()]);
+    synchronized (m_processData) {
+      processStatuses = (AgentAndWorkers[])
+        m_processData.values().toArray(
+          new AgentAndWorkers[m_processData.size()]);
     }
-
-    Arrays.sort(data, m_sorter);
-
-    int runningThreads = 0;
-    int totalThreads = 0;
-
-    for (int i = 0; i < data.length; ++i) {
-      runningThreads += data[i].getNumberOfRunningThreads();
-      totalThreads += data[i].getTotalNumberOfThreads();
-    }
-
-    final int finalRunningThreads = runningThreads;
-    final int finalTotalThreads = totalThreads;
 
     m_listeners.apply(
       new ListenerSupport.Informer() {
         public void inform(Object listener) {
-          ((ProcessStatusListener)listener).update(data,
-                                                   finalRunningThreads,
-                                                   finalTotalThreads);
+          ((ProcessStatusListener)listener).update(processStatuses);
         }
       });
   }
 
-  /**
-   * Use to notify this object of a start/reset/stop event.
-   */
-  public void processEvent() {
-    m_lastProcessEventGeneration = ++m_currentGeneration;
+  private AgentAndWorkers getAgentAndWorkers(String agentName) {
+    synchronized (m_processData) {
+      final AgentAndWorkers existing =
+        (AgentAndWorkers)m_processData.get(agentName);
+
+      if (existing != null) {
+        return existing;
+      }
+
+      final AgentAndWorkers created = new AgentAndWorkers(agentName);
+      m_processData.put(agentName, created);
+      return created;
+    }
   }
 
   /**
-   * Add a status report.
+   * Add an agent status report.
    *
    * @param agentProcessStatus Process status.
    */
   public void addAgentStatusReport(AgentProcessStatus agentProcessStatus) {
-    // TODO Auto-generated method stub
 
+    getAgentAndWorkers(agentProcessStatus.getName())
+      .setAgentProcessStatus(agentProcessStatus);
+
+    m_newData = true;
   }
 
   /**
-   * Add a status report.
+   * Add a worker status report.
    *
    * @param workerProcessStatus Process status.
    */
   public void addWorkerStatusReport(WorkerProcessStatus workerProcessStatus) {
 
-    synchronized (this) {
-      WorkerProcessStatusImplementation processStatusImplementation =
-        (WorkerProcessStatusImplementation)
-        m_workerProcesses.get(workerProcessStatus.getIdentity());
-
-      if (processStatusImplementation == null) {
-        processStatusImplementation =
-          new WorkerProcessStatusImplementation(
-            workerProcessStatus.getIdentity(),
-            workerProcessStatus.getName());
-
-        m_workerProcesses.put(workerProcessStatus.getIdentity(),
-                              processStatusImplementation);
-      }
-
-      processStatusImplementation.set(workerProcessStatus);
-    }
+    getAgentAndWorkers(workerProcessStatus.getAgentName())
+      .setWorkerProcessStatus(workerProcessStatus);
 
     m_newData = true;
   }
 
-  private void flush() {
+  /**
+   * Callers are responsible for synchronisation.
+   */
+  private void purge(Map purgableMap) {
     final Set zombies = new HashSet();
 
-    synchronized (this) {
-      final Iterator iterator = m_workerProcesses.entrySet().iterator();
+    final Iterator iterator = purgableMap.entrySet().iterator();
 
-      while (iterator.hasNext()) {
-        final Map.Entry entry = (Map.Entry)iterator.next();
-        final String key = (String)entry.getKey();
-        final WorkerProcessStatusImplementation processStatusImplementation =
-          (WorkerProcessStatusImplementation)entry.getValue();
+    while (iterator.hasNext()) {
+      final Map.Entry entry = (Map.Entry)iterator.next();
+      final String key = (String)entry.getKey();
+      final Purgable purgable = (Purgable)entry.getValue();
 
-        if (processStatusImplementation.shouldPurge()) {
-          zombies.add(key);
-        }
-      }
-
-      if (zombies.size() > 0) {
-        m_workerProcesses.keySet().removeAll(zombies);
-        m_newData = true;
+      if (purgable.shouldPurge()) {
+        zombies.add(key);
       }
     }
+
+    if (zombies.size() > 0) {
+      purgableMap.keySet().removeAll(zombies);
+      m_newData = true;
+    }
+
+    ++m_currentGeneration;
   }
 
-  private abstract class AbstractProcessStatusImplementation {
-    private boolean m_reapable = false;
-    private int m_lastTouchedGeneration;
+  private interface Purgable {
+    boolean shouldPurge();
+  }
 
-    protected final void touch() {
-      m_lastTouchedGeneration = m_currentGeneration;
-      m_reapable = false;
+  private abstract class AbstractTimedReference implements Purgable {
+    private final int m_generation;
+    private int m_purgeDelayCount;
+
+    protected AbstractTimedReference() {
+      m_generation = m_currentGeneration;
     }
 
     public final boolean shouldPurge() {
-      if (m_reapable) {
+      // Processes have a short time to report after an event - see
+      // the javadoc for FLUSH_PERIOD.
+      if (m_purgeDelayCount > 1) {
         return true;
       }
-      else if (m_lastTouchedGeneration < m_lastProcessEventGeneration) {
-        // Processes have a short time to report after an event - see
-        // the javadoc for FLUSH_PERIOD.
-        m_reapable = true;
+
+      final int state = getState();
+
+      if (state == ProcessStatus.STATE_RUNNING &&
+          m_generation < m_currentGeneration - 1 ||
+          state == ProcessStatus.STATE_FINISHED ||
+          state == ProcessStatus.STATE_UNKNOWN) {
+        ++m_purgeDelayCount;
       }
 
       return false;
     }
+
+    protected abstract int getState();
   }
 
-  private final class WorkerProcessStatusImplementation
-    extends AbstractProcessStatusImplementation
-    implements WorkerProcessStatus {
+  private final class AgentReference extends AbstractTimedReference {
+    private final AgentProcessStatus m_agentProcessStatus;
 
-    private final String m_identity;
+    AgentReference(AgentProcessStatus agentProcessStatus) {
+      m_agentProcessStatus = agentProcessStatus;
+    }
+
+    public AgentProcessStatus getAgentProcessStatus() {
+      return m_agentProcessStatus;
+    }
+
+    protected int getState() {
+      return getAgentProcessStatus().getState();
+    }
+  }
+
+  private final class WorkerReference extends AbstractTimedReference {
+    private final WorkerProcessStatus m_workerProcessStatus;
+
+    WorkerReference(WorkerProcessStatus workerProcessStatus) {
+      m_workerProcessStatus = workerProcessStatus;
+    }
+
+    public WorkerProcessStatus getWorkerProcessStatus() {
+      return m_workerProcessStatus;
+    }
+
+    protected int getState() {
+      return getWorkerProcessStatus().getState();
+    }
+  }
+
+  private static final class UnknownAgentProcessStatus
+    implements AgentProcessStatus {
+
     private final String m_name;
-    private short m_state;
-    private short m_totalNumberOfThreads;
-    private short m_numberOfRunningThreads;
 
-    WorkerProcessStatusImplementation(String identity, String name) {
-      m_identity = identity;
+    public UnknownAgentProcessStatus(String name) {
       m_name = name;
-    }
-
-    public void set(WorkerProcessStatus processStatus) {
-      m_state = processStatus.getState();
-      m_totalNumberOfThreads = processStatus.getTotalNumberOfThreads();
-      m_numberOfRunningThreads =
-        processStatus.getNumberOfRunningThreads();
-      touch();
-    }
-
-    public String getIdentity() {
-      return m_identity;
     }
 
     public String getName() {
@@ -262,31 +275,74 @@ final class ProcessStatusSetImplementation implements ProcessStatusSet {
     }
 
     public short getState() {
-      return m_state;
+      return STATE_UNKNOWN;
     }
 
-    public short getNumberOfRunningThreads() {
-      return m_numberOfRunningThreads;
+    public int getNumberOfRunningProcesses() {
+      return 0;
     }
 
-    public short getTotalNumberOfThreads() {
-      return m_totalNumberOfThreads;
+    public int getMaximumNumberOfProcesses() {
+      return 0;
     }
   }
 
-  private static final class ProcessStatusComparator implements Comparator {
-    public int compare(Object o1, Object o2) {
-      final WorkerProcessStatus p1 = (WorkerProcessStatus)o1;
-      final WorkerProcessStatus p2 = (WorkerProcessStatus)o2;
+  /**
+   * Implementation of {@link ProcessStatusListener.AgentAndWorkers}.
+   */
+  public final class AgentAndWorkers
+    implements ProcessStatusListener.AgentAndWorkers, Purgable {
 
-      final int compareState = p1.getState() - p2.getState();
+    // Unsynchronised because changing the reference is atomic.
+    private AgentReference m_agentStatusReference;
 
-      if (compareState == 0) {
-        return p1.getName().compareTo(p2.getName());
+    // Synchronise on map before accessing.
+    private final Map m_workerStatusReferences = new HashMap();
+
+    AgentAndWorkers(String name) {
+      setAgentProcessStatus(new UnknownAgentProcessStatus(name));
+    }
+
+    void setAgentProcessStatus(AgentProcessStatus agentProcessStatus) {
+      m_agentStatusReference = new AgentReference(agentProcessStatus);
+    }
+
+    public AgentProcessStatus getAgentProcessStatus() {
+      return m_agentStatusReference.getAgentProcessStatus();
+    }
+
+    void setWorkerProcessStatus(WorkerProcessStatus workerProcessStatus) {
+
+      synchronized (m_workerStatusReferences) {
+        m_workerStatusReferences.put(workerProcessStatus.getIdentity(),
+                                     new WorkerReference(workerProcessStatus));
       }
-      else {
-        return compareState;
+    }
+
+    public WorkerProcessStatus[] getWorkerProcessStatuses() {
+
+      synchronized (m_workerStatusReferences) {
+        final WorkerProcessStatus[] result =
+          new WorkerProcessStatus[m_workerStatusReferences.size()];
+
+        final Iterator iterator = m_workerStatusReferences.values().iterator();
+        int i = 0;
+
+        while (iterator.hasNext()) {
+          result[i++] =
+            ((WorkerReference)iterator.next()).getWorkerProcessStatus();
+        }
+
+        return result;
       }
+    }
+
+    public boolean shouldPurge() {
+      synchronized (m_workerStatusReferences) {
+        purge(m_workerStatusReferences);
+      }
+
+      return m_agentStatusReference.shouldPurge();
     }
   }
 }

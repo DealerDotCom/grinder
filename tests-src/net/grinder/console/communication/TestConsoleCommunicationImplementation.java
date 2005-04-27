@@ -144,7 +144,7 @@ public class TestConsoleCommunicationImplementation
   }
 
   public void testProcessControl() throws Exception {
-    final Socket socket = 
+    final Socket socket =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.AGENT.write(socket.getOutputStream());
 
@@ -184,7 +184,7 @@ public class TestConsoleCommunicationImplementation
     final ServerSocket freeServerSocket = new ServerSocket(0);
     freeServerSocket.close();
     m_properties.setConsolePort(freeServerSocket.getLocalPort());
- 
+
     final Socket socket2 =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.AGENT.write(socket2.getOutputStream());
@@ -237,7 +237,7 @@ public class TestConsoleCommunicationImplementation
 
     // Reset by changing properties and do another test.
     m_properties.setConsoleHost("localhost");
- 
+
     final Socket socket3 =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.AGENT.write(socket3.getOutputStream());
@@ -246,7 +246,7 @@ public class TestConsoleCommunicationImplementation
     assertTrue(readMessage(socket3) instanceof ClearCacheMessage);
   }
 
-  public void testProcessOneMessage() throws Exception {    
+  public void testProcessOneMessage() throws Exception {
     final MessageHandlerStubFactory messageHandlerStubFactory =
       new MessageHandlerStubFactory();
 
@@ -260,8 +260,8 @@ public class TestConsoleCommunicationImplementation
     ConnectionType.WORKER.write(socket.getOutputStream());
 
     sendMessage(socket,
-                new WorkerProcessStatusMessage("foo", "bah", (short)0,
-                                        (short)0, (short)0));
+                new WorkerProcessStatusMessage("agent", "foo", "bah", (short)0,
+                                               (short)0, (short)0));
 
     sendMessage(socket, new MyMessage());
 
@@ -322,7 +322,7 @@ public class TestConsoleCommunicationImplementation
       new RandomStubFactory(ErrorHandler.class);
     final ErrorHandler errorHandler2 =
       (ErrorHandler)errorHandlerStubFactory2.getStub();
-    
+
     // Test a ConsoleCommunication with an invalid Sender.
     m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
     final ConsoleCommunication brokenConsoleCommunication =
@@ -408,7 +408,7 @@ public class TestConsoleCommunicationImplementation
 
   private static final class StubTimer extends Timer {
     private TimerTask m_lastScheduledTimerTask;
-    
+
     public void schedule(TimerTask timerTask, long delay, long period) {
       m_lastScheduledTimerTask = timerTask;
     }

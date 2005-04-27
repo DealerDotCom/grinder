@@ -70,6 +70,7 @@ public class TestConnector extends TestCase {
     catch (CommunicationException e) {
     }
 
+    //For some reason, this connection is sometimes established.
     final Connector badConnector =
       new Connector("this is not a host name", 1234, ConnectionType.AGENT);
 

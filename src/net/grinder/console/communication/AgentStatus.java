@@ -27,6 +27,8 @@ import java.util.Set;
 /**
  * Interface for enquiring about the currently connected agents.
  *
+ * TODO - revise this in the light of new agent status reporting.
+ *
  * @author Philip Aston
  * @version $Revision$
  */

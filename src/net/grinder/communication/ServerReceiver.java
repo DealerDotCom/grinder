@@ -179,6 +179,8 @@ public final class ServerReceiver implements Receiver {
             idle = true;
           }
           else {
+            // TODO Find a way of tunneling connection identity through to
+            // receiver. Can then use this in ProcessStatusSetImplementation.
             final SocketWrapper socketWrapper =
               (SocketWrapper)reservation.getResource();
 

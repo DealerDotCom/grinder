@@ -55,6 +55,8 @@ import net.grinder.util.SimpleLogger;
 /**
  * This is the entry point of The Grinder agent process.
  *
+ * TODO add regular status reports.
+ *
  * @author Paco Gomez
  * @author Philip Aston
  * @author Bertrand Ave
@@ -407,18 +409,28 @@ public final class Agent {
       m_sender.send(
         new AgentProcessStatusMessage(
           m_agentID,
-          AgentProcessStatusMessage.STATE_STARTED));
+          AgentProcessStatusMessage.STATE_STARTED,
+          0,
+          0));
     }
 
     public ClientReceiver getReceiver() {
       return m_receiver;
     }
 
-    public void shutdown() throws CommunicationException {
-      m_sender.send(
-        new AgentProcessStatusMessage(
-          m_agentID,
-          AgentProcessStatusMessage.STATE_FINISHED));
+    public void shutdown() {
+      try {
+        m_sender.send(
+          new AgentProcessStatusMessage(
+            m_agentID,
+            AgentProcessStatusMessage.STATE_FINISHED,
+            0,
+            0));
+      }
+      catch (CommunicationException e) {
+        // Ignore - peer has probably shut down.
+      }
+
       m_receiver.shutdown();
       m_sender.shutdown();
     }

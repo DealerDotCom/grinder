@@ -41,12 +41,6 @@ interface ProcessStatusSet {
    */
   void addListener(ProcessStatusListener listener);
 
-
-  /**
-   * Use to notify this object of a start/reset/stop event.
-   */
-  void processEvent();
-
   /**
    * Add a status report.
    *

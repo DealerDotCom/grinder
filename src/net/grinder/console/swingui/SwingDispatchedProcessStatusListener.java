@@ -23,7 +23,6 @@ package net.grinder.console.swingui;
 
 import javax.swing.SwingUtilities;
 
-import net.grinder.common.WorkerProcessStatus;
 import net.grinder.console.communication.ProcessStatusListener;
 
 
@@ -42,13 +41,11 @@ class SwingDispatchedProcessStatusListener implements ProcessStatusListener {
     m_delegate = delegate;
   }
 
-  public void update(final WorkerProcessStatus[] data,
-                     final int running,
-                     final int total) {
+  public void update(final AgentAndWorkers[] processStatuses) {
 
     SwingUtilities.invokeLater(
       new Runnable() {
-        public void run() { m_delegate.update(data, running, total); }
+        public void run() { m_delegate.update(processStatuses); }
       }
       );
   }

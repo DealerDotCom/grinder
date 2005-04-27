@@ -112,8 +112,12 @@ final class ProcessContext {
   public WorkerProcessStatusMessage createStatusMessage(
     short state, short numberOfThreads, short totalNumberOfThreads) {
 
-    return new WorkerProcessStatusMessage(m_uniqueProcessID, m_workerID, state,
-                                   numberOfThreads, totalNumberOfThreads);
+    return new WorkerProcessStatusMessage(m_agentID,
+                                          m_uniqueProcessID,
+                                          m_workerID,
+                                          state,
+                                          numberOfThreads,
+                                          totalNumberOfThreads);
   }
 
   public Logger getProcessLogger() {

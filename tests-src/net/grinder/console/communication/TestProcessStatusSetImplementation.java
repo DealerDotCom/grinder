@@ -71,7 +71,7 @@ public class TestProcessStatusSetImplementation extends TestCase {
     listenerStubFactory.assertNoMoreCalls();
 
     final WorkerProcessStatus processStatus =
-      new ProcessStatusImplementation("identity", "name",
+      new WorkerProcessStatusImplementation("identity", "name",
                                       WorkerProcessStatus.STATE_RUNNING, 3, 5);
 
     processStatusSet.addWorkerStatusReport(processStatus);
@@ -115,17 +115,17 @@ public class TestProcessStatusSetImplementation extends TestCase {
     listenerStubFactory.assertNoMoreCalls();
 
     final WorkerProcessStatus[] processStatusArray = {
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "a", "a process A", WorkerProcessStatus.STATE_STARTED, 1, 1),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "b", "a process B", WorkerProcessStatus.STATE_STARTED, 1, 1),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "a", "a process A", WorkerProcessStatus.STATE_RUNNING, 5, 10),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "e", "another process name", WorkerProcessStatus.STATE_RUNNING, 1, 1),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "d", "name", WorkerProcessStatus.STATE_FINISHED, 1, 1),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "c", "some name", WorkerProcessStatus.STATE_FINISHED, 3, 10),
     };
 
@@ -142,15 +142,15 @@ public class TestProcessStatusSetImplementation extends TestCase {
                                         Integer.class);
 
     final WorkerProcessStatus[] expectedProcessStatusArray = {
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "b", "a process B", WorkerProcessStatus.STATE_STARTED, 1, 1),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "a", "a process A", WorkerProcessStatus.STATE_RUNNING, 5, 10),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "e", "another process name", WorkerProcessStatus.STATE_RUNNING, 1, 1),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "d", "name", WorkerProcessStatus.STATE_FINISHED, 1, 1),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "c", "some name", WorkerProcessStatus.STATE_FINISHED, 3, 10),
     };
 
@@ -168,18 +168,18 @@ public class TestProcessStatusSetImplementation extends TestCase {
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
-    processStatusSet.processEvent();
+    // processStatusSet.processEvent();
 
     flushTask.run();
     updateTask.run();
     listenerStubFactory.assertNoMoreCalls();
 
     final WorkerProcessStatus[] processStatusArray2 = {
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "b", "a process B", WorkerProcessStatus.STATE_RUNNING, 1, 1),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "a", "a process A", WorkerProcessStatus.STATE_RUNNING, 5, 10),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "e", "another process name", WorkerProcessStatus.STATE_FINISHED, 1, 1),
     };
 
@@ -199,11 +199,11 @@ public class TestProcessStatusSetImplementation extends TestCase {
                                         Integer.class);
 
     final WorkerProcessStatus[] expectedProcessStatusArray2 = {
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "a", "a process A", WorkerProcessStatus.STATE_RUNNING, 5, 10),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "b", "a process B", WorkerProcessStatus.STATE_RUNNING, 1, 1),
-      new ProcessStatusImplementation(
+      new WorkerProcessStatusImplementation(
         "e", "another process name", WorkerProcessStatus.STATE_FINISHED, 1, 1),
     };
 
@@ -218,7 +218,7 @@ public class TestProcessStatusSetImplementation extends TestCase {
     listenerStubFactory.assertNoMoreCalls();
   }
 
-  private static final class ProcessStatusImplementation
+  private static final class WorkerProcessStatusImplementation
     implements WorkerProcessStatus {
 
     private final String m_identity;
@@ -227,11 +227,11 @@ public class TestProcessStatusSetImplementation extends TestCase {
     private final short m_totalNumberOfThreads;
     private final short m_numberOfRunningThreads;
 
-    public ProcessStatusImplementation(String identity,
-                                       String name,
-                                       short state,
-                                       int runningThreads,
-                                       int totalThreads) {
+    public WorkerProcessStatusImplementation(String identity,
+                                             String name,
+                                             short state,
+                                             int runningThreads,
+                                             int totalThreads) {
       m_identity = identity;
       m_name = name;
       m_state = state;
@@ -255,7 +255,7 @@ public class TestProcessStatusSetImplementation extends TestCase {
       return m_numberOfRunningThreads;
     }
 
-    public short getTotalNumberOfThreads() {
+    public short getMaximumNumberOfThreads() {
       return m_totalNumberOfThreads;
     }
 
@@ -278,19 +278,19 @@ public class TestProcessStatusSetImplementation extends TestCase {
         this.getState() == other.getState() &&
         this.getNumberOfRunningThreads() == other.getNumberOfRunningThreads()
         &&
-        this.getTotalNumberOfThreads() == other.getTotalNumberOfThreads() &&
+        this.getMaximumNumberOfThreads() == other.getMaximumNumberOfThreads() &&
         this.getIdentity().equals(other.getIdentity()) &&
         this.getName().equals(other.getName());
     }
 
     public String toString() {
       return
-        "ProcessStatusImplementation(" +
+        "WorkerProcessStatusImplementation(" +
         getIdentity() + ", " +
         getName() + ", " +
         getState() + ", " +
         getNumberOfRunningThreads() + ", " +
-        getTotalNumberOfThreads() + ")";
+        getMaximumNumberOfThreads() + ")";
     }
   }
 
@@ -300,7 +300,7 @@ public class TestProcessStatusSetImplementation extends TestCase {
 
     public void schedule(TimerTask timerTask, long delay, long period) {
       assertEquals(0, delay);
-      
+
       m_taskByPeriod.put(new Long(period), timerTask);
       ++m_numberOfScheduledTasks;
     }

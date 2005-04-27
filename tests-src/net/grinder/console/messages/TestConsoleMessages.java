@@ -106,7 +106,7 @@ public class TestConsoleMessages extends TestCase {
     assertEquals("test", original.getName());
     assertEquals(1, original.getState());
     assertEquals(2, original.getNumberOfRunningThreads());
-    assertEquals(3, original.getTotalNumberOfThreads());
+    assertEquals(3, original.getMaximumNumberOfThreads());
 
     final WorkerProcessStatusMessage received =
       (WorkerProcessStatusMessage) serialise(original);
@@ -115,6 +115,6 @@ public class TestConsoleMessages extends TestCase {
     assertEquals("test", received.getName());
     assertEquals(1, received.getState());
     assertEquals(2, received.getNumberOfRunningThreads());
-    assertEquals(3, received.getTotalNumberOfThreads());
+    assertEquals(3, received.getMaximumNumberOfThreads());
   }
 }

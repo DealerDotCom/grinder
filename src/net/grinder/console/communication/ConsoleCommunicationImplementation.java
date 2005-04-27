@@ -390,7 +390,6 @@ public final class ConsoleCommunicationImplementation
      * Signal the worker processes to start.
      */
     public void startWorkerProcesses(File scriptFile) {
-      m_processStatusSet.processEvent();
       send(new StartGrinderMessage(scriptFile));
     }
 
@@ -398,7 +397,6 @@ public final class ConsoleCommunicationImplementation
      * Signal the worker processes to reset.
      */
     public void resetWorkerProcesses() {
-      m_processStatusSet.processEvent();
       send(new ResetGrinderMessage());
     }
 
@@ -406,12 +404,13 @@ public final class ConsoleCommunicationImplementation
      * Signal the worker processes to stop.
      */
     public void stopWorkerProcesses() {
-      m_processStatusSet.processEvent();
       send(new StopGrinderMessage());
     }
 
     /**
      * Add a listener for process status data.
+     * TODO, move this to outer class. Replace use of AgentStatus with
+     * this.
      *
      * @param listener The listener.
      */

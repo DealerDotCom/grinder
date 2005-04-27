@@ -38,6 +38,8 @@ public final class AgentProcessStatusMessage
 
   private final String m_name;
   private final short m_state;
+  private final int m_numberOfRunningProcesses;
+  private final int m_maximumNumberOfProcesses;
 
   /**
    * Creates a new <code>AgentProcessStatusMessage</code> instance.
@@ -45,10 +47,17 @@ public final class AgentProcessStatusMessage
    * @param name Process name.
    * @param state The process state. See {@link
    * net.grinder.common.AgentProcessStatus}.
+   * @param numberOfRunningProcesses The number of running processes.
+   * @param maximumNumberOfProcesses The maximum number of processes.
    */
-  public AgentProcessStatusMessage(String name, short state) {
+  public AgentProcessStatusMessage(String name,
+                                   short state,
+                                   int numberOfRunningProcesses,
+                                   int maximumNumberOfProcesses) {
     m_name = name;
     m_state = state;
+    m_numberOfRunningProcesses = numberOfRunningProcesses;
+    m_maximumNumberOfProcesses = maximumNumberOfProcesses;
   }
 
   /**
@@ -67,5 +76,23 @@ public final class AgentProcessStatusMessage
    */
   public short getState() {
     return m_state;
+  }
+
+  /**
+   * Accessor for the number of running processes.
+   *
+   * @return The number of processes that are running.
+   */
+  public int getNumberOfRunningProcesses() {
+    return m_numberOfRunningProcesses;
+  }
+
+  /**
+   * Accessor for the maximum number of processes.
+   *
+   * @return The maximum number of processes.
+   */
+  public int getMaximumNumberOfProcesses() {
+    return m_maximumNumberOfProcesses;
   }
 }

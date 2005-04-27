@@ -38,6 +38,7 @@ public final class WorkerProcessStatusMessage
 
   private static final long serialVersionUID = -2073574340466531680L;
 
+  private final String m_agentName;
   private final String m_identity;
   private final String m_name;
   private final short m_state;
@@ -47,6 +48,7 @@ public final class WorkerProcessStatusMessage
   /**
    * Creates a new <code>WorkerProcessStatusMessage</code> instance.
    *
+   * @param agentName The name of the parent agent process.
    * @param identity Process identity.
    * @param name Process name.
    * @param state The process state. See {@link
@@ -54,13 +56,27 @@ public final class WorkerProcessStatusMessage
    * @param totalThreads The total number of threads.
    * @param runningThreads The number of threads that are still running.
    */
-  public WorkerProcessStatusMessage(String identity, String name, short state,
-                             short runningThreads, short totalThreads) {
+  public WorkerProcessStatusMessage(String agentName,
+                                    String identity,
+                                    String name,
+                                    short state,
+                                    short runningThreads,
+                                    short totalThreads) {
+    m_agentName = agentName;
     m_identity = identity;
     m_name = name;
     m_state = state;
     m_numberOfRunningThreads = runningThreads;
     m_totalNumberOfThreads = totalThreads;
+  }
+
+  /**
+   * Accessor for the name of the parent agent process.
+   *
+   * @return The agent name.
+   */
+  public String getAgentName() {
+    return m_agentName;
   }
 
   /**
@@ -100,11 +116,11 @@ public final class WorkerProcessStatusMessage
   }
 
   /**
-   * Accessor for the total number of threads for the process.
+   * Accessor for the maximum number of threads for the process.
    *
-   * @return The total number of threads for the process.
+   * @return The maximum number of threads for the process.
    */
-  public short getTotalNumberOfThreads() {
+  public short getMaximumNumberOfThreads() {
     return m_totalNumberOfThreads;
   }
 }
