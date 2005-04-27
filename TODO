@@ -14,6 +14,16 @@ against it too :-).
 - Philip Aston
 
 
+ > Jon Weygandt writes on 21 April 2005 16:01:
+ >  > Noticed a problem while using TCPProxy. While recording, at random
+ >  > times, the proxy server normally exits. I have noticed it with the
+ >  > public site <http://www.aa.com/>, as well as others.
+ >  >
+ >  > Notice in:
+ > net.grinder.tools.tcpproxy.HTTPProxyTCPProxyEngine.run()
+ >  >
+ >  > The main try/catch block is outside of the while(true) loop.
+
 
 * Enhancements
 
