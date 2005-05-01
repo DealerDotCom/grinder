@@ -93,7 +93,9 @@ public final class TCPProxy {
     }
     catch (Throwable e) {
       logger.error("Could not initialise engine:");
-      e.printStackTrace(logger.getErrorLogWriter());
+      final PrintWriter errorWriter = logger.getErrorLogWriter();
+      e.printStackTrace(errorWriter);
+      errorWriter.flush();
       System.exit(2);
     }
 
