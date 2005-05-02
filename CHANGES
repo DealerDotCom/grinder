@@ -17,6 +17,9 @@ Grinder 3.0-beta26 (Not yet released)
   Change to the script API: getGrinderID() has been renamed
   getProcessID().
 
+  Correct SSL documentation - The Grinder does not support the
+  javax.net.ssl.*	system properties.
+
 
 Grinder 3.0-beta25
 ------------------

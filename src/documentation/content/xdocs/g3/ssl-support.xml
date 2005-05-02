@@ -82,23 +82,8 @@ grinder.SSLControl.shareContextBetweenRuns = 1
     <title>Using client certificates</title>
 
     <p>If a server requests or requires a client certificate, The
-    Grinder must have some way of providing one - this usually
-    involves specifying key store. This can be done globally with the
-    Java system properties:</p>
-
-    <ul>
-      <li><code>javax.net.ssl.keyStore</code></li>
-      <li><code>javax.net.ssl.keyStoreType</code></li>
-      <li><code>javax.net.ssl.keyStorePassword</code></li>
-    </ul>
-
-    <p>The problem with specifying a key store using these properties
-    is that there can only be one an so all of the worker threads
-    would use the same client certificate. Most test scenarios require
-    different certificates to be used by each simulated user (worker
-    thread). Fortunately, The Grinder provides the
-    <code>setKeyStoreFile</code> method that can be used to specify
-    the key store that a thread should use.</p>
+    Grinder must have some way of providing one - this involves
+    specifying a key store.</p>
 
 <source>
 from net.grinder.script.Grinder import grinder
@@ -169,6 +154,19 @@ class TestRunner:
         <p>No. The Grinder does not validate certficates received from
         the server, so does not need a set of CA certificates.</p>
       </li>
+
+      <li>
+        <p><em>Can I use the properties
+        <code>javax.net.ssl.keyStore</code>,
+        <code>javax.net.ssl.keyStoreType</code>, and
+        <code>javax.net.ssl.keyStorePassword</code> to specify a
+        global keystore?</em>
+	</p>
+
+	<p>No. The Grinder does not use these properties, primarily
+        because the JSSE does not provide a way to access its default
+        SSLContext.</p>
+       </li>
     </ol>
   </section>
 
