@@ -25,7 +25,7 @@ import net.grinder.statistics.StatisticsIndexMap;
 
 
 /**
- * Script statisistics reporting API.
+ * Script statistics reporting API.
  *
  * <p>
  * An implementation of this interface can be obtained using {@link
@@ -79,7 +79,7 @@ import net.grinder.statistics.StatisticsIndexMap;
  * <p>For a list of the standard statistics, see {@link StatisticsIndexMap}.
  *
  * <p>
- * There is currently no script interface for updated sample statistics.
+ * There is currently no script interface for updating sample statistics.
  * Currently the only sample statistic is <em>timedTests</em>.
  * </p>
  *
@@ -107,7 +107,7 @@ public interface Statistics  {
    * </p>
    *
    * @param b <code>false</code> => enable automatic reporting when
-   * tests retrun (the default behaviour); <code>true</code> => delay
+   * tests return (the default behaviour); <code>true</code> => delay
    * reporting.
    * @see #report
    */
