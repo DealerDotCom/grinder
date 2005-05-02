@@ -34,7 +34,7 @@ import java.io.ObjectOutput;
  * <p>
  * Statistic expressions are composed of statistic names (see
  * {@link StatisticsIndexMap}) in a simple post-fix format using the symbols
- * <code>+</code>,<code>-</code>,<code>/</code> and <code>*</code>,
+ * <code>+</code>, <code>-</code>, <code>/</code> and <code>*</code>,
  * which have their usual meanings, in conjunction with simple statistic names
  * or sub-expressions. Precedence can be controlled by grouping expressions in
  * parentheses. For example, the error rate is
@@ -43,7 +43,7 @@ import java.io.ObjectOutput;
  *
  * <p>
  * Sample statistics, such as <em>timedTests</em>, must be introduced with
- * one of <code>sum</code>,<code>count</code>, or <code>variance</code>,
+ * one of <code>sum</code>, <code>count</code>, or <code>variance</code>,
  * depending on the attribute of interest.
  * </p>
  *
