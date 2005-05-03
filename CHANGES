@@ -18,7 +18,10 @@ Grinder 3.0-beta26 (Not yet released)
   getProcessID().
 
   Correct SSL documentation - The Grinder does not support the
-  javax.net.ssl.*	system properties.
+  javax.net.ssl.* system properties.
+
+  Fix to the JMS receiver example from Diertrich Bollmann: use a queue
+  to pass state between threads in a thread safe way.
 
 
 Grinder 3.0-beta25

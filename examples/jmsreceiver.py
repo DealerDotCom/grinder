@@ -11,6 +11,10 @@
 #
 # This script demonstrates the use of The Grinder statistics API to
 # record a "delivery time" custom statistic.
+#
+# Copyright (C) 2003, 2004, 2005 Philip Aston
+# Copyright (C) 2005 Dietrich Bollmann
+# Distributed under the terms of The Grinder license.
 
 from java.lang import System
 from java.util import Properties
@@ -68,7 +72,7 @@ recordTest = Test(1, "Receive messages").wrap(recordDeliveryTime)
 class TestRunner(MessageListener):
 
     def __init__(self):
-        self.receivedMessages = 0    
+        self.messageQueue = []          # Queue of received messages not yet recorded.
         self.cv = Condition()           # Used to synchronise thread activity.
 
     def __call__(self):
@@ -85,15 +89,16 @@ class TestRunner(MessageListener):
 
             # Wait until we have received a message.            
             self.cv.acquire()
-            while self.receivedMessages == 0: self.cv.wait()
-            self.receivedMessages -= 1
+            while not self.messageQueue: self.cv.wait()
+            # Pop delivery time from first message in message queue
+            deliveryTime = self.messageQueue.pop(0)
             self.cv.release()
 
             log("Received message")
 
             # We record the test a here rather than in onMessage
             # because we must do so from a worker thread.
-            recordTest(self.lastDeliveryTime)
+            recordTest(deliveryTime)
 
         log("Closing queue session")
         session.close()
@@ -101,17 +106,18 @@ class TestRunner(MessageListener):
         # Rather than over complicate things with explict message
         # acknowledgement, we simply discard any additional messages
         # we may have read.
-        log("Received %d additional messages" % self.receivedMessages)
+        log("Received %d additional messages" % len(self.messageQueue))
 
     # Called asynchronously by JMS when a message arrives.
     def onMessage(self, message):
         self.cv.acquire()
 
-        self.receivedMessages += 1
-
         # In WebLogic Server JMS, the JMS timestamp is set by the
         # sender session. All we need to do is ensure our clocks are
         # synchronised...
-        self.lastDeliveryTime = System.currentTimeMillis() - message.getJMSTimestamp()
+        deliveryTime = System.currentTimeMillis() - message.getJMSTimestamp()
+
+        self.messageQueue.append(deliveryTime)
+        
         self.cv.notifyAll()
         self.cv.release()
