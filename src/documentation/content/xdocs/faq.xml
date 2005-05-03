@@ -351,8 +351,8 @@ number of worker threads x number of worker processes x number test machines
 	    anyone is interested. I needed dynamic post data and the
 	    HTTP plugin post parameter only took a file name. The key
 	    was that the file can optionally contain a reference to a
-	    <a href="site:g2/http-plugin.html/string-bean">String
-	    Bean</a> method. I tried it on a fluke and it worked.</p>
+	    <a href="site:g2/http-plugin/string-bean">String Bean</a>
+	    method. I tried it on a fluke and it worked.</p>
 
 <source>
 grinder.test0.parameter.url=&lt;getLoginUrl&gt;
