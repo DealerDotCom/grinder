@@ -1,6 +1,148 @@
+2005-05-03  Philip Aston  <philipa@mail.com>
+
+	* src/documentation/content/xdocs/g3/script-gallery.xml, CHANGES, examples/jmsreceiver.py:
+	Apply Dietrich Bollmann's enhancement: use a queue to pass state
+	between threads in a thread safe way.
+
+	* src/documentation/content/xdocs/faq.xml: Fix link.
+
+2005-05-02  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/statistics/ExpressionView.java: Spacing of javadoc.
+
+	* src/net/grinder/script/Statistics.java: Fix javadoc spelling.
+
+	* CHANGES, src/documentation/content/xdocs/g3/ssl-support.xml:
+	Correct docs.
+
+2005-05-01  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/TCPProxy.java: Flush error writer before exiting.
+
+2005-04-27  Philip Aston  <philipa@mail.com>
+
+	* TODO: Note to fix TCPProxy.
+
+	* tests-src/net/grinder/communication/TestConnector.java, src/net/grinder/communication/ServerReceiver.java, src/net/grinder/console/messages/WorkerProcessStatusMessage.java, tests-src/net/grinder/console/messages/TestConsoleMessages.java, src/net/grinder/console/messages/AgentProcessStatusMessage.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/communication/AgentStatus.java, src/net/grinder/console/communication/ConsoleCommunicationImplementation.java, src/net/grinder/console/communication/ProcessStatusSet.java, src/net/grinder/console/swingui/SwingDispatchedProcessStatusListener.java, src/net/grinder/console/communication/ProcessStatusListener.java, src/net/grinder/console/communication/ProcessStatusSetImplementation.java, src/net/grinder/engine/agent/Agent.java, tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java, tests-src/net/grinder/console/communication/TestProcessStatusSetImplementation.java:
+	Check point console process status work before refactoring
+	to merge AgentStatus functionality into ProcessStatusSet.
+
+	* src/net/grinder/common/AgentProcessStatus.java, src/net/grinder/common/ProcessStatus.java, src/net/grinder/common/WorkerProcessStatus.java:
+	Extract out common ProcessStatus interface.
+
+2005-04-25  Philip Aston  <philipa@mail.com>
+
+	* src/documentation/content/xdocs/g3/tutorial-perks.xml:
+	Don't import TestStatistics.
+
+2005-04-24  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/process/JythonScript.java:
+	Fix use of ImplicitGrinderIsDeprecated.
+	Thanks to Anuj Kumar Jha for the report.
+
+2005-04-22  Philip Aston  <philipa@mail.com>
+
+	* src/documentation/content/xdocs/g3/tutorial-perks.xml:
+	Fix listing. Thanks to A. Rick Anderson for the report.
+
+2005-04-21  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/testutility/resources/SimpleObject.clazz:
+	Isolated class.
+
+2005-04-19  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/debug/CreateInitialisationMessage.java, src/net/grinder/engine/messages/InitialiseGrinderMessage.java, src/net/grinder/script/Grinder.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, tests-src/net/grinder/console/communication/TestProcessStatusSetImplementation.java, tests-src/net/grinder/engine/messages/TestEngineMessages.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/console/communication/ProcessStatusSet.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/console/communication/ConsoleCommunicationImplementation.java, src/net/grinder/console/communication/ProcessStatusSetImplementation.java, CHANGES, TODO, tests-src/net/grinder/engine/agent/EchoClass.java, tests-src/net/grinder/engine/agent/TestProcessLauncher.java, tests-src/net/grinder/engine/agent/TestWorkerProcessFactory.java, src/net/grinder/engine/agent/ChildProcess.java, src/net/grinder/engine/agent/WorkerProcessCommandLine.java, src/net/grinder/engine/agent/WorkerProcessFactory.java, tests-src/net/grinder/engine/agent/ReadMessageEchoClass.java, tests-src/net/grinder/engine/agent/TestChildProcess.java, tests-src/net/grinder/engine/agent/TestWorkerProcessCommandLine.java, src/net/grinder/engine/agent/Agent.java:
+	First part of reporting agent process status.
+
+	* build.xml: Unit tests should use java.class.path to determine test
+	class path.
+
+	* src/net/grinder/communication/ClientReceiver.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/SocketWrapper.java, src/net/grinder/communication/StreamReceiver.java, src/net/grinder/communication/StreamSender.java:
+	ClientReceiver, ClientSender locking was over aggressive.
+
+2005-04-17  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/communication/SimpleMessage.java, tests-src/net/grinder/communication/TestCommunicationDefaults.java, tests-src/net/grinder/communication/TestConnector.java, tests-src/net/grinder/communication/TestMessagePump.java, tests-src/net/grinder/communication/TestServerReceiver.java, tests-src/net/grinder/communication/TestStreamReceiver.java, tests-src/net/grinder/testutility/IsolatedObjectFactory.java:
+	Coverage.
+
+2005-04-15  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/messages/AgentProcessStatusMessage.java, src/net/grinder/console/messages/ReportStatusMessage.java, src/net/grinder/console/messages/WorkerProcessStatusMessage.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, tests-src/net/grinder/console/messages/TestConsoleMessages.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedProcessStatusListener.java, src/net/grinder/common/AgentProcessStatus.java, src/net/grinder/common/ProcessStatus.java, src/net/grinder/common/WorkerProcessStatus.java, src/net/grinder/console/communication/ConsoleCommunicationImplementation.java, src/net/grinder/console/communication/ProcessStatusListener.java, src/net/grinder/console/communication/ProcessStatusSet.java, src/net/grinder/console/communication/ProcessStatusSetImplementation.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/SwingDispatchedProcessStatusListener.java, tests-src/net/grinder/console/communication/TestProcessStatusSetImplementation.java, tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java:
+	Split ProcessStatus into WorkerProcessStatus and
+	AgentProcessStatus.
+	Communication connection types renamed.
+
+	* tests-src/net/grinder/communication/AbstractSenderAndReceiverTests.java, tests-src/net/grinder/communication/TestClientReceiver.java, tests-src/net/grinder/communication/TestClientSender.java, tests-src/net/grinder/communication/TestAcceptor.java, tests-src/net/grinder/communication/TestClientSenderAndServerReceiver.java, tests-src/net/grinder/communication/TestConnector.java, tests-src/net/grinder/communication/TestFanOutServerSender.java, tests-src/net/grinder/communication/TestQueuedSenderDecorator.java, tests-src/net/grinder/communication/TestServerReceiver.java, tests-src/net/grinder/communication/TestSocketWrapper.java:
+	Update communication tests for API changes and coverage.
+
+	* src/net/grinder/util/thread/ThreadSafeQueue.java:
+	Make checkIfShutdown() public.
+
+	* src/net/grinder/communication/ServerReceiver.java:
+	Support multiple (socket, connection type) pairs.
+
+	* src/net/grinder/communication/QueuedSenderDecorator.java:
+	Expand while condition for Clover.
+
+	* src/net/grinder/communication/MessageQueue.java:
+	Add checkIfShutdown().
+
+	* src/net/grinder/communication/FanOutServerSender.java:
+	isPeerShutdown: break once we have the result.
+
+	* src/net/grinder/engine/agent/Agent.java: Rename connection types.
+
+	* src/net/grinder/communication/ConnectionType.java, tests-src/net/grinder/communication/TestConnectionType.java:
+	Rename connection types:
+	 CONTROL -> AGENT (as it now also transmits agent status)
+	 REPORT -> WORKER
+	Add toString().
+
+	* src/net/grinder/communication/ClientSender.java:
+	Superclass no longer throws IOException, remove handling.
+
+2005-04-14  Philip Aston  <philipa@mail.com>
+
+	* TODO, CHANGES, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyResponseFilter2.java:
+	Be more strict about matching line endings in the HTTP TCPProxy
+	filters. Previously there was a platform specific bug. Thanks to
+	Alex Bolgarov for the report.
+
+	* TODO: Todo from Alex Bolgarov.
+
+	* tests-src/net/grinder/communication/TestAcceptor.java: Coverage.
+
+	* src/net/grinder/communication/ClientReceiver.java, src/net/grinder/communication/ClientSender.java, tests-src/net/grinder/communication/TestClientSender.java:
+	Support ClientSender/ClientReceiver pair.
+
+	* src/net/grinder/communication/ClientReceiver.java, src/net/grinder/communication/ClientSender.java, src/net/grinder/communication/FanOutServerSender.java, src/net/grinder/communication/Receiver.java, src/net/grinder/communication/SocketWrapper.java, src/net/grinder/communication/StreamReceiver.java, src/net/grinder/communication/ServerReceiver.java, src/net/grinder/communication/StreamSender.java:
+	SocketWrapper now supports thread safe use.
+	ClientSender, ClientReceiver synchronise use correctly.
+	FanOutServerSender, ServerReceiver do not need to synchronise
+	as SocketWrapper access is already serialised through the use of
+	the socket set ResourcePool.
+
+2005-04-13  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/communication/SocketWrapper.java:
+	Use Socket.isClosed().
+	Add notes on lack of thread safety.
+
 2005-04-06  Philip Aston  <philipa@mail.com>
 
+	* tests-src/net/grinder/engine/agent/TestWorkerProcessCommandLine.java, CHANGES, src/net/grinder/engine/agent/WorkerProcessCommandLine.java:
+	Fix a bug where system properties specified on the command line were
+	incorrectly quoted when building the worker process command line.
+	Thanks to Dietrich Bollmann for the report.
+
 	* TODO: Progress.
+
+	* src/net/grinder/tools/tcpproxy/HTTPResponse.java, tests-src/net/grinder/tools/tcpproxy/TestHTTPResponse.java:
+	No need for Host header.
+
+	* ChangeLog, TODO: Progress.
 
 	* src/net/grinder/communication/MessageQueue.java, tests-src/net/grinder/communication/TestMessageQueue.java:
 	Fix test.
