@@ -121,6 +121,26 @@
 
   </section>
 
+  <section id="anser-e">
+    <title>Anser Enterprise</title>
+
+    <p>One of my consulting services is helping performance analysts
+    to set up company-internal blogs on their performance activities
+    to help them communicate better with their developers and
+    management. As part of my consulting service I can offer usage and
+    customization tips on The Grinder and a separate data
+    visualization tool to show Grinder test results on their company's
+    intranet. Much of this is in the area of test automation and
+    mining test results.</p>
+
+    <p>Here's a <a href="ext:anser-e/run6">link</a> which provides
+    several example web pages on communicating WebLogic 8.1/Grinder
+    testing results. It requires downloading the Java 1.5 plug-in for
+    charting Grinder test results.</p>
+
+    <p>Todd Nichols, <a href="ext:anser-e">Anser Enterprise</a></p>
+  </section>
+
   <section id="testpros">
     <title>TestPros</title>
 
