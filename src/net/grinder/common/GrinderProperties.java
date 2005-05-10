@@ -58,7 +58,7 @@ public class GrinderProperties extends Properties {
    * Construct a GrinderProperties, reading initial values from the
    * specified file. System properties beginning with
    * "<code>grinder.</code>"are also added to allow values to be
-   * overriden on the command line.
+   * overridden on the command line.
    * @param file The file to read the properties from.
    * <code>null</code> => use grinder.properties.
    *
