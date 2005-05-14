@@ -23,13 +23,17 @@ package net.grinder.engine.agent;
 
 import junit.framework.TestCase;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.Properties;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.communication.FanOutStreamSender;
+import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.GrinderProcess;
 
 
@@ -70,10 +74,13 @@ public class TestWorkerProcessFactory extends TestCase {
     final File scriptDirectory = new File("b");
     final boolean reportToConsole = false;
 
+    final AgentIdentityImplementation agentIdentityImplementation =
+      new AgentIdentityImplementation("agent");
+
     final WorkerProcessFactory workerProcessFactory =
       new WorkerProcessFactory(commandLine,
                                fanOutStreamSender,
-                               "agent",
+                               agentIdentityImplementation,
                                reportToConsole,
                                scriptFile,
                                scriptDirectory);
@@ -82,17 +89,35 @@ public class TestWorkerProcessFactory extends TestCase {
     final ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 
     final ChildProcess childProcess =
-      workerProcessFactory.create(99, outputStream, errorStream);
+      workerProcessFactory.create(outputStream, errorStream);
 
-    assertTrue(childProcess.getProcessName().endsWith("-99"));
+    assertTrue(childProcess.getProcessName().endsWith("-0"));
 
     childProcess.waitFor();
 
     assertEquals("", new String(errorStream.toByteArray()));
 
-    final String echoedArguments = new String(outputStream.toByteArray());
+    final InputStream output =
+      new ByteArrayInputStream(outputStream.toByteArray());
+    final ObjectInputStream objectInputStream = new ObjectInputStream(output);
 
-    assertTrue(echoedArguments.indexOf("-99") > 0);
-    assertTrue(echoedArguments.endsWith(alternateFile.getPath()));
+    final InitialiseGrinderMessage echoedInitialiseGrinderMessage =
+      (InitialiseGrinderMessage)objectInputStream.readObject();
+
+    assertEquals(reportToConsole,
+                 echoedInitialiseGrinderMessage.getReportToConsole());
+    assertEquals(scriptDirectory,
+                 echoedInitialiseGrinderMessage.getScriptDirectory());
+    assertEquals(scriptFile,
+                 echoedInitialiseGrinderMessage.getScriptFile());
+    assertEquals(
+      agentIdentityImplementation,
+      echoedInitialiseGrinderMessage.getWorkerIdentity().getAgentIdentity());
+
+    final byte[] remainingBytes = new byte[500];
+    final int n = output.read(remainingBytes);
+    final String echoedArguments = new String(remainingBytes, 0, n);
+
+    assertEquals(alternateFile.getPath(), echoedArguments);
   }
 }

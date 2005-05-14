@@ -54,5 +54,12 @@ public interface ProcessControl {
    *
    * @param listener The listener.
    */
-  void addProcessStatusListener(ProcessStatusListener listener);
+  void addProcessStatusListener(ProcessStatus.Listener listener);
+
+  /**
+   * How many agents is connected?
+   *
+   * @return The number of agents.
+   */
+  int getNumberOfConnectedAgents();
 }

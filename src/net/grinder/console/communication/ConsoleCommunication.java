@@ -21,7 +21,7 @@
 
 package net.grinder.console.communication;
 
-import net.grinder.communication.Message;
+import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 
@@ -35,22 +35,6 @@ import net.grinder.console.common.ErrorHandler;
 public interface ConsoleCommunication {
 
   /**
-   * Interface for things that can handle messages.
-   */
-  public interface MessageHandler {
-
-    /**
-     * The handler implements this to receive a message.
-     *
-     * @param message The message.
-     * @return <code>true</code> => The handler processed the message.
-     * @throws ConsoleException If the handler attempted to process
-     * the message, but failed.
-     */
-    boolean process(Message message) throws ConsoleException;
-  }
-
-  /**
    * Add a message hander.
    *
    * @param messageHandler The message handler.
@@ -60,10 +44,9 @@ public interface ConsoleCommunication {
   /**
    * Wait to receive a message, then process it.
    *
-   * @return <code>true</code> => the message was processed by a handler.
    * @exception ConsoleException If an error occurred in message processing.
    */
-  boolean processOneMessage() throws ConsoleException;
+  void processOneMessage() throws ConsoleException;
 
   /**
    * Get a ProcessControl implementation.
@@ -78,13 +61,6 @@ public interface ConsoleCommunication {
    * @return The <code>DistributionControl</code>.
    */
   DistributionControl getDistributionControl();
-
-  /**
-   * Get an AgentStatus implementation.
-   *
-   * @return The <code>AgentStatus</code>.
-   */
-  AgentStatus getAgentStatus();
 
   /**
    * Set the error handler. Any errors the

@@ -34,12 +34,13 @@ import net.grinder.common.GrinderBuild;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
-import net.grinder.common.WorkerProcessStatus;
+import net.grinder.common.WorkerProcessReport;
 import net.grinder.communication.ClientSender;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.Connector;
+import net.grinder.communication.HandlerChainSender;
 import net.grinder.communication.Message;
 import net.grinder.communication.MessagePump;
 import net.grinder.communication.QueuedSender;
@@ -150,7 +151,7 @@ public final class GrinderProcess {
     final GrinderProperties properties = new GrinderProperties(propertiesFile);
 
     m_loggerImplementation = new LoggerImplementation(
-      m_initialisationMessage.getWorkerID(),
+      m_initialisationMessage.getWorkerIdentity().getName(),
       properties.getProperty("grinder.logDirectory", "."),
       properties.getBoolean("grinder.logProcessStreams", true),
       properties.getInt("grinder.numberOfOldLogs", 1));
@@ -180,8 +181,7 @@ public final class GrinderProcess {
     }
 
     m_context =
-      new ProcessContext(m_initialisationMessage.getAgentID(),
-                         m_initialisationMessage.getWorkerID(),
+      new ProcessContext(m_initialisationMessage.getWorkerIdentity(),
                          properties,
                          m_loggerImplementation.getProcessLogger(),
                          m_loggerImplementation.getFilenameFactory(),
@@ -198,7 +198,9 @@ public final class GrinderProcess {
     catch (Exception e) { /* Ignore */ }
 
     m_consoleListener = new ConsoleListener(m_eventSynchronisation, logger);
-    new MessagePump(receiver, m_consoleListener.getSender(), 1);
+    final HandlerChainSender handlerChainSender = new HandlerChainSender();
+    handlerChainSender.add(m_consoleListener.getMessageHandler());
+    new MessagePump(receiver, handlerChainSender, 1);
   }
 
   /**
@@ -251,7 +253,7 @@ public final class GrinderProcess {
 
     consoleSender.send(
       m_context.createStatusMessage(
-        WorkerProcessStatus.STATE_STARTED, (short)0, numberOfThreads));
+        WorkerProcessReport.STATE_STARTED, (short)0, numberOfThreads));
 
     final GrinderThread[] runnable = new GrinderThread[numberOfThreads];
 
@@ -352,7 +354,7 @@ public final class GrinderProcess {
     if (!m_communicationShutdown) {
       consoleSender.send(
         m_context.createStatusMessage(
-          WorkerProcessStatus.STATE_FINISHED, (short)0, (short)0));
+          WorkerProcessReport.STATE_FINISHED, (short)0, (short)0));
     }
 
     consoleSender.shutdown();
@@ -402,7 +404,7 @@ public final class GrinderProcess {
           consoleSender.queue(new ReportStatisticsMessage(sample));
 
           consoleSender.send(
-            m_context.createStatusMessage(WorkerProcessStatus.STATE_RUNNING,
+            m_context.createStatusMessage(WorkerProcessReport.STATE_RUNNING,
                                           GrinderThread.getNumberOfThreads(),
                                           m_totalThreads));
         }

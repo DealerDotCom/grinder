@@ -24,28 +24,24 @@ package net.grinder.console.communication;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import net.grinder.communication.Acceptor;
 import net.grinder.communication.CommunicationException;
-import net.grinder.communication.ConnectionIdentity;
 import net.grinder.communication.ConnectionType;
 import net.grinder.communication.FanOutServerSender;
+import net.grinder.communication.HandlerChainSender;
 import net.grinder.communication.Message;
 import net.grinder.communication.ServerReceiver;
+import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ErrorQueue;
 import net.grinder.console.common.Resources;
-import net.grinder.console.messages.AgentProcessStatusMessage;
-import net.grinder.console.messages.WorkerProcessStatusMessage;
+import net.grinder.console.messages.AgentProcessReportMessage;
+import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
@@ -53,7 +49,6 @@ import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
 import net.grinder.util.FileContents;
-import net.grinder.util.ListenerSupport;
 
 
 /**
@@ -69,7 +64,7 @@ public final class ConsoleCommunicationImplementation
 
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
-  private final ProcessStatusSet m_processStatusSet;
+  private final ProcessStatusImplementation m_processStatusSet;
 
   private final ErrorQueue m_errorQueue = new ErrorQueue();
 
@@ -77,20 +72,8 @@ public final class ConsoleCommunicationImplementation
     new ProcessControlImplementation();
   private final DistributionControl m_distributionControl =
     new DistributionControlImplementation();
-  private final AgentStatus m_agentStatus = new AgentStatusImplementation();
 
-  /**
-   * Synchronise on m_connectedAgents before accessing.
-   */
-  private final Set m_connectedAgents = new HashSet();
-
-  /**
-   * Synchronise on m_messageHandlers before accessing.
-   */
-  private final List m_messageHandlers = new LinkedList();
-
-  private final ListenerSupport m_agentConnectionListeners =
-    new ListenerSupport();
+  private final HandlerChainSender m_messageHandlers = new HandlerChainSender();
 
   private Acceptor m_acceptor = null;
   private ServerReceiver m_receiver = null;
@@ -120,19 +103,29 @@ public final class ConsoleCommunicationImplementation
     addMessageHandler(
       new MessageHandler() {
         public boolean process(Message message) {
-          if (message instanceof AgentProcessStatusMessage) {
-            m_processStatusSet.addAgentStatusReport(
-              (AgentProcessStatusMessage)message);
+          if (message instanceof AgentProcessReportMessage) {
+            final AgentProcessReportMessage agentProcessReportMessage =
+              (AgentProcessReportMessage)message;
+
+            m_processStatusSet.addAgentStatusReport(agentProcessReportMessage);
+
             return true;
           }
 
-          if (message instanceof WorkerProcessStatusMessage) {
+          if (message instanceof WorkerProcessReportMessage) {
+            final WorkerProcessReportMessage workerProcessReportMessage =
+              (WorkerProcessReportMessage)message;
+
             m_processStatusSet.addWorkerStatusReport(
-              (WorkerProcessStatusMessage)message);
+              workerProcessReportMessage);
+
             return true;
           }
 
           return false;
+        }
+
+        public void shutdown() {
         }
       });
 
@@ -148,9 +141,9 @@ public final class ConsoleCommunicationImplementation
         }
       });
 
-    reset();
+    m_processStatusSet = new ProcessStatusImplementation(timer);
 
-    m_processStatusSet = new ProcessStatusSetImplementation(timer);
+    reset();
 
     timer.schedule(new TimerTask() {
         public void run() {
@@ -209,43 +202,6 @@ public final class ConsoleCommunicationImplementation
       m_acceptor = new Acceptor(m_properties.getConsoleHost(),
                                 m_properties.getConsolePort(),
                                 1);
-
-      m_acceptor.addListener(
-        ConnectionType.AGENT,
-        new Acceptor.Listener() {
-          public void connectionAccepted(ConnectionType connectionType,
-                                         ConnectionIdentity connection) {
-            synchronized (m_connectedAgents) {
-              m_connectedAgents.add(connection);
-
-              m_agentConnectionListeners.apply(
-                new ListenerSupport.Informer() {
-                  public void inform(Object listener) {
-                    ((AgentStatus.ConnectionListener)listener)
-                      .agentConnected();
-                  }
-                });
-            }
-          }
-
-          public void connectionClosed(ConnectionType connectionType,
-                                       ConnectionIdentity connection) {
-            // If the acceptor is shutdown, this will fire for each
-            // connection - m_connectedAgents will be updated
-            // correctly on reset.
-            synchronized (m_connectedAgents) {
-              m_connectedAgents.remove(connection);
-
-              m_agentConnectionListeners.apply(
-                new ListenerSupport.Informer() {
-                  public void inform(Object listener) {
-                    ((AgentStatus.ConnectionListener)listener)
-                      .agentDisconnected();
-                  }
-                });
-            }
-          }
-        });
     }
     catch (CommunicationException e) {
       m_errorQueue.handleException(
@@ -312,33 +268,20 @@ public final class ConsoleCommunicationImplementation
   }
 
   /**
-   * Get a AgentStatus implementation.
-   *
-   * @return The <code>AgentStatus</code>.
-   */
-  public AgentStatus getAgentStatus() {
-    return m_agentStatus;
-  }
-
-  /**
    * Add a message hander.
    *
    * @param messageHandler The message handler.
    */
-  public void addMessageHandler(
-    ConsoleCommunication.MessageHandler messageHandler) {
-    synchronized (m_messageHandlers) {
-      m_messageHandlers.add(messageHandler);
-    }
+  public void addMessageHandler(MessageHandler messageHandler) {
+    m_messageHandlers.add(messageHandler);
   }
 
   /**
    * Wait to receive a message, then process it.
    *
-   * @return <code>true</code> => the message was processed by a handler.
    * @exception ConsoleException If an error occurred in message processing.
    */
-  public boolean processOneMessage() throws ConsoleException  {
+  public void processOneMessage() throws ConsoleException  {
     while (true) {
       synchronized (this) {
         while (m_deaf) {
@@ -360,23 +303,12 @@ public final class ConsoleCommunicationImplementation
             m_deaf = true;
             notifyAll();
           }
-
-          return false;
+        }
+        else {
+          m_messageHandlers.send(message);
         }
 
-        synchronized (m_messageHandlers) {
-          final Iterator iterator = m_messageHandlers.iterator();
-
-          while (iterator.hasNext()) {
-            final MessageHandler messageHandler =
-              (MessageHandler)iterator.next();
-
-            if (messageHandler.process(message)) {
-              return true;
-            }
-          }
-          return false;
-        }
+        break;
       }
       catch (CommunicationException e) {
         m_errorQueue.handleException(new ConsoleException(e.getMessage(), e));
@@ -409,13 +341,20 @@ public final class ConsoleCommunicationImplementation
 
     /**
      * Add a listener for process status data.
-     * TODO, move this to outer class. Replace use of AgentStatus with
-     * this.
      *
      * @param listener The listener.
      */
-    public void addProcessStatusListener(ProcessStatusListener listener) {
+    public void addProcessStatusListener(ProcessStatus.Listener listener) {
       m_processStatusSet.addListener(listener);
+    }
+
+    /**
+     * How many agents is connected?
+     *
+     * @return The number of agents.
+     */
+    public int getNumberOfConnectedAgents() {
+      return m_processStatusSet.getNumberOfConnectedAgents();
     }
   }
 
@@ -436,40 +375,6 @@ public final class ConsoleCommunicationImplementation
      */
     public void sendFile(FileContents fileContents) {
       send(new DistributeFileMessage(fileContents));
-    }
-  }
-
-  private class AgentStatusImplementation implements AgentStatus {
-
-    /**
-     * Get a Set&lt;ConnectionIdentity&gt; of connected agent
-     * processes.
-     *
-     * @return Copy of the set of connection identities.
-     */
-    public Set getConnectedAgents() {
-      synchronized (m_connectedAgents) {
-        return new HashSet(m_connectedAgents);
-      }
-    }
-
-    /**
-     * Return whether there are any connected agents. Cheaper query than
-     * {@link #getConnectedAgents}.
-     *
-     * @return Whether or not there are any connected agents.
-     */
-    public boolean isAnAgentConnected() {
-      return m_connectedAgents.size() > 0;
-    }
-
-    /**
-     * Register an {@link AgentStatus.ConnectionListener}.
-     *
-     * @param listener The listener.
-     */
-    public void addConnectionListener(ConnectionListener listener) {
-      m_agentConnectionListeners.add(listener);
     }
   }
 

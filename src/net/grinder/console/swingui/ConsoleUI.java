@@ -76,8 +76,8 @@ import net.grinder.common.GrinderException;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
-import net.grinder.console.communication.AgentStatus;
 import net.grinder.console.communication.ProcessControl;
+import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.distribution.AgentCacheState;
 import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.distribution.FileDistributionHandler;
@@ -118,7 +118,6 @@ public final class ConsoleUI implements ModelListener {
   private final SaveFileAsAction m_saveFileAsAction;
 
   private final Model m_model;
-  private final AgentStatus m_agentStatus;
   private final ProcessControl m_processControl;
   private final FileDistribution m_fileDistribution;
   private final EditorModel m_editorModel;
@@ -145,21 +144,18 @@ public final class ConsoleUI implements ModelListener {
    * Creates a new <code>ConsoleUI</code> instance.
    *
    * @param model The console model.
-   * @param processControl Process control.
+   * @param processControl ProcessReport control.
    * @param fileDistribution File distribution.
-   * @param agentStatus Agent status.
    * @exception ConsoleException if an error occurs
    */
   public ConsoleUI(Model model,
                    ProcessControl processControl,
-                   FileDistribution fileDistribution,
-                   AgentStatus agentStatus)
+                   FileDistribution fileDistribution)
     throws ConsoleException {
 
     m_model = model;
     m_processControl = processControl;
     m_fileDistribution = fileDistribution;
-    m_agentStatus = agentStatus;
 
     final Resources resources = m_model.getResources();
     m_editorModel =
@@ -1037,7 +1033,7 @@ public final class ConsoleUI implements ModelListener {
   }
 
   private abstract class AbstractEnableIfAgentsConnected
-    implements AgentStatus.ConnectionListener {
+    implements ProcessStatus.Listener {
 
     private final Action m_action;
 
@@ -1045,12 +1041,9 @@ public final class ConsoleUI implements ModelListener {
       m_action = action;
     }
 
-    public final void agentConnected() {
+    public final void update(ProcessStatus.ProcessReports[] processStatuses,
+                             boolean newAgent) {
       enableOrDisable();
-    }
-
-    public final void agentDisconnected() {
-      m_action.setEnabled(shouldEnable());
     }
 
     protected final void enableOrDisable() {
@@ -1069,7 +1062,7 @@ public final class ConsoleUI implements ModelListener {
     }
 
     protected boolean shouldEnable() {
-      return m_agentStatus.isAnAgentConnected();
+      return m_processControl.getNumberOfConnectedAgents() > 0;
     }
   }
 
@@ -1077,7 +1070,8 @@ public final class ConsoleUI implements ModelListener {
 
     StartProcessesAction() {
       super(m_model.getResources(), "start-processes");
-      m_agentStatus.addConnectionListener(new EnableIfAgentsConnected(this));
+      m_processControl.addProcessStatusListener(
+        new EnableIfAgentsConnected(this));
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1157,7 +1151,8 @@ public final class ConsoleUI implements ModelListener {
   private final class ResetProcessesAction extends CustomAction {
     ResetProcessesAction() {
       super(m_model.getResources(), "reset-processes");
-      m_agentStatus.addConnectionListener(new EnableIfAgentsConnected(this));
+      m_processControl.addProcessStatusListener(
+        new EnableIfAgentsConnected(this));
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1205,7 +1200,8 @@ public final class ConsoleUI implements ModelListener {
   private final class StopProcessesAction extends CustomAction {
     StopProcessesAction() {
       super(m_model.getResources(), "stop-processes");
-      m_agentStatus.addConnectionListener(new EnableIfAgentsConnected(this));
+      m_processControl.addProcessStatusListener(
+        new EnableIfAgentsConnected(this));
     }
 
     public void actionPerformed(ActionEvent event) {
@@ -1296,7 +1292,7 @@ public final class ConsoleUI implements ModelListener {
           }
         });
 
-      m_agentStatus.addConnectionListener(
+      m_processControl.addProcessStatusListener(
         new AbstractEnableIfAgentsConnected(this) {
           protected boolean shouldEnable() {
             return DistributeFilesAction.this.shouldEnable();
@@ -1307,7 +1303,7 @@ public final class ConsoleUI implements ModelListener {
     private boolean shouldEnable() {
       return
         m_fileDistribution.getAgentCacheState().getOutOfDate() &&
-        m_agentStatus.isAnAgentConnected();
+        m_processControl.getNumberOfConnectedAgents() > 0;
     }
 
     public void actionPerformed(ActionEvent event) {

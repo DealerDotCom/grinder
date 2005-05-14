@@ -23,6 +23,7 @@ package net.grinder.engine.messages;
 
 import java.io.File;
 
+import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
 
 
@@ -36,8 +37,7 @@ public final class InitialiseGrinderMessage implements Message {
 
   private static final long serialVersionUID = 2L;
 
-  private final String m_agentID;
-  private final String m_workerID;
+  private final WorkerIdentity m_workerID;
   private final boolean m_reportToConsole;
   private final File m_scriptFile;
   private final File m_scriptDirectory;
@@ -45,19 +45,16 @@ public final class InitialiseGrinderMessage implements Message {
   /**
    * Constructor.
    *
-   * @param agentID Agent process ID.
    * @param workerID Worker process ID.
    * @param reportToConsole Whether or not the worker process should
    * report to the console.
    * @param scriptFile The script file to run.
    * @param scriptDirectory The script root directory.
    */
-  public InitialiseGrinderMessage(String agentID,
-                                  String workerID,
+  public InitialiseGrinderMessage(WorkerIdentity workerID,
                                   boolean reportToConsole,
                                   File scriptFile,
                                   File scriptDirectory) {
-    m_agentID = agentID;
     m_workerID = workerID;
     m_reportToConsole = reportToConsole;
     m_scriptFile = scriptFile;
@@ -65,20 +62,11 @@ public final class InitialiseGrinderMessage implements Message {
   }
 
   /**
-   * Accessor for the agent ID of the launching process.
-   *
-   * @return The agent ID.
-   */
-  public String getAgentID() {
-    return m_agentID;
-  }
-
-  /**
    * Accessor for the worker ID.
    *
    * @return The worker ID.
    */
-  public String getWorkerID() {
+  public WorkerIdentity getWorkerIdentity() {
     return m_workerID;
   }
 

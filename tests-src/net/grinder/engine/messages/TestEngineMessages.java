@@ -23,7 +23,9 @@ package net.grinder.engine.messages;
 
 import java.io.File;
 
+import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
+import net.grinder.engine.agent.PublicAgentIdentityImplementation;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.Serializer;
 import net.grinder.util.FileContents;
@@ -44,28 +46,29 @@ public class TestEngineMessages extends AbstractFileTestCase {
 
   public void testInitialiseGrinderMessage() throws Exception {
 
-    final String string1 = "someID";
-    final String string2 = "anotherID";
     final File file0 = new File("/foo");
     final File file1 = new File("d:/foo/bah");
 
+    final PublicAgentIdentityImplementation agentIdentity =
+      new PublicAgentIdentityImplementation("Agent");
+    final WorkerIdentity workerIdentity =
+      agentIdentity.createWorkerIdentity();
+
     final InitialiseGrinderMessage original =
-      new InitialiseGrinderMessage(string1, string2, false, file0, file1);
+      new InitialiseGrinderMessage(workerIdentity, false, file0, file1);
 
     final InitialiseGrinderMessage received =
       (InitialiseGrinderMessage) serialise(original);
 
-    assertEquals(string1, original.getAgentID());
-    assertEquals(string2, original.getWorkerID());
+    assertEquals(workerIdentity, original.getWorkerIdentity());
     assertTrue(!original.getReportToConsole());
     assertEquals(file0, original.getScriptFile());
     assertEquals(file1, original.getScriptDirectory());
 
     final InitialiseGrinderMessage another =
-      new InitialiseGrinderMessage(string2, string1, true, file1, file0);
+      new InitialiseGrinderMessage(workerIdentity, true, file1, file0);
 
-    assertEquals(string2, another.getAgentID());
-    assertEquals(string1, another.getWorkerID());
+    assertEquals(workerIdentity, another.getWorkerIdentity());
     assertTrue(another.getReportToConsole());
     assertEquals(file1, another.getScriptFile());
     assertEquals(file0, another.getScriptDirectory());

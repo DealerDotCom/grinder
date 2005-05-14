@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,49 +19,14 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
-
-import java.util.EventListener;
-
-import net.grinder.common.AgentProcessStatus;
-import net.grinder.common.WorkerProcessStatus;
+package net.grinder.common;
 
 
 /**
- * Listener interface for receiving updates about worker process
- * status.
+ * Agent process identity.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface ProcessStatusListener extends EventListener {
-
-  /**
-   * Called with updates about process status.
-   *
-   * @param processStatuses
-   *          Process status information.
-   */
-  void update(AgentAndWorkers[] processStatuses);
-
-  /**
-   * Interface to the information the console has about an agent and its worker
-   * processes.
-   */
-  public interface AgentAndWorkers {
-
-    /**
-     * Returns the agent process status.
-     *
-     * @return The agent process status.
-     */
-    AgentProcessStatus getAgentProcessStatus();
-
-    /**
-     * Returns the worker process statuses.
-     *
-     * @return The worker process statuses.
-     */
-    WorkerProcessStatus[] getWorkerProcessStatuses();
-  }
+public interface AgentIdentity extends ProcessReport.ProcessIdentity {
 }

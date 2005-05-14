@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,7 +27,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Random;
 
+import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
+import net.grinder.engine.agent.PublicAgentIdentityImplementation;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatisticsMap;
@@ -97,22 +99,26 @@ public class TestConsoleMessages extends TestCase {
 
   public void testReportStatusMessage() throws Exception {
 
-    final String uniqueID = "ID" + s_random.nextInt();
+    final PublicAgentIdentityImplementation agentIdentity =
+      new PublicAgentIdentityImplementation("Agent");
+    final WorkerIdentity workerIdentity =
+      agentIdentity.createWorkerIdentity();
 
-    final WorkerProcessStatusMessage original =
-      new WorkerProcessStatusMessage(uniqueID, "test", (short)1, (short)2, (short)3);
+    final WorkerProcessReportMessage original =
+      new WorkerProcessReportMessage(
+        workerIdentity, (short)1, (short)2, (short)3);
 
-    assertEquals(uniqueID, original.getIdentity());
-    assertEquals("test", original.getName());
+    assertEquals(workerIdentity, original.getWorkerIdentity());
+    assertEquals(workerIdentity, original.getIdentity());
     assertEquals(1, original.getState());
     assertEquals(2, original.getNumberOfRunningThreads());
     assertEquals(3, original.getMaximumNumberOfThreads());
 
-    final WorkerProcessStatusMessage received =
-      (WorkerProcessStatusMessage) serialise(original);
+    final WorkerProcessReportMessage received =
+      (WorkerProcessReportMessage) serialise(original);
 
-    assertEquals(uniqueID, received.getIdentity());
-    assertEquals("test", received.getName());
+    assertEquals(workerIdentity, original.getWorkerIdentity());
+    assertEquals(workerIdentity, original.getIdentity());
     assertEquals(1, received.getState());
     assertEquals(2, received.getNumberOfRunningThreads());
     assertEquals(3, received.getMaximumNumberOfThreads());

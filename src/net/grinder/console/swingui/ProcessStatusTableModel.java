@@ -29,13 +29,13 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import net.grinder.common.AgentProcessStatus;
-import net.grinder.common.ProcessStatus;
-import net.grinder.common.WorkerProcessStatus;
+import net.grinder.common.AgentProcessReport;
+import net.grinder.common.ProcessReport;
+import net.grinder.common.WorkerProcessReport;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.communication.ProcessControl;
-import net.grinder.console.communication.ProcessStatusListener;
+import net.grinder.console.communication.ProcessStatus;
 
 
 /**
@@ -50,49 +50,44 @@ import net.grinder.console.communication.ProcessStatusListener;
 class ProcessStatusTableModel
   extends AbstractTableModel implements Table.TableModel {
 
-  private static final int ID_COLUMN_INDEX = 0;
+  private static final int NAME_COLUMN_INDEX = 0;
   private static final int TYPE_COLUMN_INDEX = 1;
   private static final int STATE_COLUMN_INDEX = 2;
 
-  private final ProcessStatusComparator m_processStatusComparator =
-    new ProcessStatusComparator();
+  private final ProcessReportComparator m_processReportComparator =
+    new ProcessReportComparator();
 
-  private final Comparator m_agentComparator = new Comparator() {
-    public int compare(Object o1, Object o2) {
-      return m_processStatusComparator.compare(
-        ((ProcessStatusListener.AgentAndWorkers)o1).getAgentProcessStatus(),
-        ((ProcessStatusListener.AgentAndWorkers)o2).getAgentProcessStatus());
-    }
-  };
+  private final ProcessReportsComparator m_processReportsComparator =
+    new ProcessReportsComparator();
 
   private final String[] m_columnHeadings;
-  private final String m_totalString;
-  private final String m_processesString;
+  private final String m_workerProcessesString;
   private final String m_threadsString;
   private final String m_agentString;
   private final String m_workerString;
   private final String m_stateStartedString;
   private final String m_stateRunningString;
   private final String m_stateFinishedString;
+  private final String m_stateConnectedString;
+  private final String m_stateDisconnectedString;
   private final String m_stateUnknownString;
 
   private RowData[] m_data = new RowData[0];
-  private String m_totalDataString = "";
 
   public ProcessStatusTableModel(Resources resources,
                                  ProcessControl processControl)
     throws ConsoleException {
 
     m_columnHeadings = new String[3];
-    m_columnHeadings[ID_COLUMN_INDEX] =
-      resources.getString("processTable.idColumn.label");
+    m_columnHeadings[NAME_COLUMN_INDEX] =
+      resources.getString("processTable.nameColumn.label");
     m_columnHeadings[TYPE_COLUMN_INDEX] =
       resources.getString("processTable.processTypeColumn.label");
     m_columnHeadings[STATE_COLUMN_INDEX] =
       resources.getString("processTable.stateColumn.label");
 
-    m_totalString = resources.getString("processTable.total.label");
-    m_processesString = resources.getString("processTable.processes.label");
+    m_workerProcessesString =
+      resources.getString("processTable.processes.label");
     m_threadsString = resources.getString("processTable.threads.label");
 
     m_agentString = resources.getString("processTable.agentProcess.label");
@@ -101,54 +96,56 @@ class ProcessStatusTableModel
     m_stateStartedString = resources.getString("processState.started.label");
     m_stateRunningString = resources.getString("processState.running.label");
     m_stateFinishedString = resources.getString("processState.finished.label");
+    m_stateConnectedString =
+      resources.getString("processState.connected.label");
+    m_stateDisconnectedString =
+      resources.getString("processState.connected.label");
     m_stateUnknownString = resources.getString("processState.unknown.label");
 
     processControl.addProcessStatusListener(
       new SwingDispatchedProcessStatusListener(
-        new ProcessStatusListener() {
-          public void update(AgentAndWorkers[] processStatuses) {
+        new ProcessStatus.Listener() {
+          public void update(ProcessStatus.ProcessReports[] processReports,
+                             boolean newAgent) {
             final List rows = new ArrayList();
-            int runningProcesses = 0;
-            int totalProcesses = 0;
             int runningThreads = 0;
             int totalThreads = 0;
+            int workerProcesses = 0;
 
-            Arrays.sort(processStatuses, m_agentComparator);
+            Arrays.sort(processReports, m_processReportsComparator);
 
-            for (int i = 0; i < processStatuses.length; ++i) {
-              final AgentProcessStatus agentProcessStatus =
-                processStatuses[i].getAgentProcessStatus();
-              runningProcesses +=
-                agentProcessStatus.getNumberOfRunningProcesses();
-              totalProcesses +=
-                agentProcessStatus.getMaximumNumberOfProcesses();
+            for (int i = 0; i < processReports.length; ++i) {
+              final AgentProcessReport agentProcessStatus =
+                processReports[i].getAgentProcessReport();
               rows.add(new RowData(agentProcessStatus));
 
-              final WorkerProcessStatus[] workerProcessStatuses =
-                processStatuses[i].getWorkerProcessStatuses();
+              final WorkerProcessReport[] workerProcessStatuses =
+                processReports[i].getWorkerProcessReports();
 
-              Arrays.sort(workerProcessStatuses, m_processStatusComparator);
+              Arrays.sort(workerProcessStatuses, m_processReportComparator);
 
               for (int j = 0; j < workerProcessStatuses.length; ++j) {
                 runningThreads +=
-                  workerProcessStatuses[i].getNumberOfRunningThreads();
+                  workerProcessStatuses[j].getNumberOfRunningThreads();
                 totalThreads +=
-                  workerProcessStatuses[i].getMaximumNumberOfThreads();
+                  workerProcessStatuses[j].getMaximumNumberOfThreads();
                 rows.add(new RowData(workerProcessStatuses[j]));
               }
+
+              workerProcesses += workerProcessStatuses.length;
             }
 
-            rows.add(new RowData(runningProcesses,
-                                 totalProcesses,
-                                 runningThreads,
-                                 totalThreads));
+            rows.add(
+              new RowData(runningThreads, totalThreads, workerProcesses));
 
             m_data = (RowData[])rows.toArray(new RowData[rows.size()]);
 
 
             fireTableDataChanged();
           }
-        }));
+        }
+      )
+    );
   }
 
   public int getColumnCount() {
@@ -183,54 +180,48 @@ class ProcessStatusTableModel
   }
 
   private final class RowData {
-    private final String m_id;
+    private final String m_name;
     private final String m_processType;
     private final String m_state;
 
-    public RowData(AgentProcessStatus agentProcessStatus) {
-      m_id = agentProcessStatus.getName();
+    public RowData(AgentProcessReport agentProcessStatus) {
+      m_name = agentProcessStatus.getAgentIdentity().getName();
       m_processType = m_agentString;
 
       switch (agentProcessStatus.getState()) {
-      case AgentProcessStatus.STATE_STARTED:
-        m_state = m_stateStartedString;
+      case AgentProcessReport.STATE_STARTED:
+      case AgentProcessReport.STATE_RUNNING:
+        m_state = m_stateConnectedString;
         break;
 
-      case AgentProcessStatus.STATE_RUNNING:
-        m_state = m_stateRunningString + " (" +
-                  agentProcessStatus.getNumberOfRunningProcesses() + "/" +
-                  agentProcessStatus.getMaximumNumberOfProcesses() + " " +
-                  m_processesString + ")";
+      case AgentProcessReport.STATE_FINISHED:
+        m_state = m_stateDisconnectedString;
         break;
 
-      case AgentProcessStatus.STATE_FINISHED:
-        m_state = m_stateFinishedString;
-        break;
-
-      case AgentProcessStatus.STATE_UNKNOWN:
+      case AgentProcessReport.STATE_UNKNOWN:
       default:
         m_state = m_stateUnknownString;
         break;
       }
     }
 
-    public RowData(WorkerProcessStatus workerProcessStatus) {
-      m_id = "  " + workerProcessStatus.getName();
+    public RowData(WorkerProcessReport workerProcessStatus) {
+      m_name = "  " + workerProcessStatus.getWorkerIdentity().getName();
       m_processType = m_workerString;
 
       switch (workerProcessStatus.getState()) {
-      case WorkerProcessStatus.STATE_STARTED:
+      case WorkerProcessReport.STATE_STARTED:
         m_state = m_stateStartedString;
         break;
 
-      case WorkerProcessStatus.STATE_RUNNING:
+      case WorkerProcessReport.STATE_RUNNING:
         m_state = m_stateRunningString + " (" +
                   workerProcessStatus.getNumberOfRunningThreads() + "/" +
                   workerProcessStatus.getMaximumNumberOfThreads() + " " +
                   m_threadsString + ")";
         break;
 
-      case WorkerProcessStatus.STATE_FINISHED:
+      case WorkerProcessReport.STATE_FINISHED:
         m_state = m_stateFinishedString;
         break;
 
@@ -240,24 +231,17 @@ class ProcessStatusTableModel
       }
     }
 
-    public RowData(int runningProcesses,
-                   int totalProcesses,
-                   int runningThreads,
-                   int totalThreads) {
-
-      m_id = m_totalString;
-      m_processType = "";
-      m_state = "" +
-                runningThreads + "/" + totalThreads +
-                " " + m_threadsString + ", " +
-                runningProcesses + "/" + totalProcesses +
-                " " + m_processesString;
+    public RowData(int runningThreads, int totalThreads, int workerProcesses) {
+      m_name = "";
+      m_processType = "" + workerProcesses + " " + m_workerProcessesString;
+      m_state =
+        "" + runningThreads + "/" + totalThreads + " " + m_threadsString;
     }
 
     public String getValueForColumn(int column) {
       switch (column) {
-      case ID_COLUMN_INDEX:
-        return m_id;
+      case NAME_COLUMN_INDEX:
+        return m_name;
 
       case TYPE_COLUMN_INDEX:
         return m_processType;
@@ -271,20 +255,29 @@ class ProcessStatusTableModel
     }
   }
 
-  private static final class ProcessStatusComparator implements Comparator {
+  private static final class ProcessReportComparator implements Comparator {
     public int compare(Object o1, Object o2) {
-      final ProcessStatus processStatus1 = (ProcessStatus)o1;
-      final ProcessStatus processStatus2 = (ProcessStatus)o2;
+      final ProcessReport processReport1 = (ProcessReport)o1;
+      final ProcessReport processReport2 = (ProcessReport)o2;
 
       final int compareState =
-        processStatus1.getState() - processStatus2.getState();
+        processReport1.getState() - processReport2.getState();
 
       if (compareState == 0) {
-        return processStatus1.getName().compareTo(processStatus2.getName());
+        return processReport1.getIdentity().getName().compareTo(
+               processReport2.getIdentity().getName());
       }
       else {
         return compareState;
       }
+    }
+  }
+
+  private final class ProcessReportsComparator implements Comparator {
+    public int compare(Object o1, Object o2) {
+      return m_processReportComparator.compare(
+        ((ProcessStatus.ProcessReports)o1).getAgentProcessReport(),
+        ((ProcessStatus.ProcessReports)o2).getAgentProcessReport());
     }
   }
 }

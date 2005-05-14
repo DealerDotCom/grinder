@@ -22,8 +22,8 @@
 package net.grinder.engine.common;
 
 import net.grinder.common.Logger;
+import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.communication.Message;
-import net.grinder.communication.Sender;
 import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
@@ -172,30 +172,33 @@ public final class ConsoleListener {
   }
 
   /**
-   * Returns a {@link Sender} that can be used to pass {@link
+   * Returns a {@link MessageHandler} that can be used to pass {@link
    * Message}s to the <code>ConsoleListener</code>.
    *
-   * @return The <code>Sender</code>.
+   * @return The <code>MessageHandler</code>.
    */
-  public Sender getSender() {
-    return new Sender() {
-        public void send(Message message) {
+  public MessageHandler getMessageHandler() {
+
+    return new MessageHandler() {
+        public boolean process(Message message) {
           if (message instanceof StartGrinderMessage) {
             m_logger.output("received a start message");
             m_lastStartGrinderMessage = (StartGrinderMessage) message;
             setReceived(START);
+            return true;
           }
           else if (message instanceof StopGrinderMessage) {
             m_logger.output("received a stop message");
             setReceived(STOP);
+            return true;
           }
           else if (message instanceof ResetGrinderMessage) {
             m_logger.output("received a reset message");
             setReceived(RESET);
+            return true;
           }
-          else {
-            m_logger.error("received an unknown message: " + message);
-          }
+
+          return false;
         }
 
         public void shutdown() {

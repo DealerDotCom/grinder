@@ -24,6 +24,7 @@ package net.grinder.engine.agent;
 import java.io.File;
 import java.io.OutputStream;
 
+import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.communication.StreamSender;
@@ -41,42 +42,43 @@ final class WorkerProcessFactory implements ProcessFactory {
 
   private final WorkerProcessCommandLine m_commandLine;
   private final FanOutStreamSender m_fanOutStreamSender;
-  private final String m_agentID;
+  private final AgentIdentityImplementation m_agentIdentity;
   private final boolean m_reportToConsole;
   private final File m_scriptFile;
   private final File m_scriptDirectory;
 
   public WorkerProcessFactory(WorkerProcessCommandLine commandLine,
                               FanOutStreamSender fanOutStreamSender,
-                              String agentID,
+                              AgentIdentityImplementation agentIdentity,
                               boolean reportToConsole,
                               File scriptFile,
                               File scriptDirectory) {
 
     m_commandLine = commandLine;
-    m_agentID = agentID;
+    m_agentIdentity = agentIdentity;
     m_fanOutStreamSender = fanOutStreamSender;
     m_reportToConsole = reportToConsole;
     m_scriptFile = scriptFile;
     m_scriptDirectory = scriptDirectory;
   }
 
-  public ChildProcess create(int processIndex,
-                             OutputStream outputStream,
+  public ChildProcess create(OutputStream outputStream,
                              OutputStream errorStream) throws EngineException {
 
-    final String workerID = m_agentID + "-" + processIndex;
+    final WorkerIdentity workerIdentity =
+      m_agentIdentity.createWorkerIdentity();
 
     final ChildProcess process =
-      new ChildProcess(workerID, m_commandLine.getCommandArray(),
-                       outputStream, errorStream);
+      new ChildProcess(workerIdentity.getName(),
+                       m_commandLine.getCommandArray(),
+                       outputStream,
+                       errorStream);
 
     final OutputStream processStdin = process.getStdinStream();
 
     try {
       final InitialiseGrinderMessage initialisationMessage =
-        new InitialiseGrinderMessage(m_agentID,
-                                     workerID,
+        new InitialiseGrinderMessage(workerIdentity,
                                      m_reportToConsole,
                                      m_scriptFile,
                                      m_scriptDirectory);

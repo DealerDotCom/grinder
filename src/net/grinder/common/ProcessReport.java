@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,48 +19,70 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.communication;
+package net.grinder.common;
+
+import java.io.Serializable;
 
 
 /**
- * Passive {@link Sender} class that delegates to two other {@link
- * Sender}s.
+ * Common interface for enquiring about a process.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public final class TeeSender implements Sender {
-
-  private final Sender m_delegate1;
-  private final Sender m_delegate2;
+public interface ProcessReport {
 
   /**
-   * Constructor.
+   * Constant representing the "started" state.
+   */
+  short STATE_STARTED = 1;
+
+  /**
+   * Constant representing the "running" state.
+   */
+  short STATE_RUNNING = 2;
+
+  /**
+   * Constant representing the "finished" state.
+   */
+  short STATE_FINISHED = 3;
+
+  /**
+   * Constant representing the "unknown" state.
+   */
+  short STATE_UNKNOWN = 4;
+
+  /**
+   * Return the unique process identity.
    *
-   * @param delegate1 The first <code>Sender</code>.
-   * @param delegate2 The seconds <code>Sender</code>.
+   * @return The process identity.
    */
-  public TeeSender(Sender delegate1, Sender delegate2) {
-    m_delegate1 = delegate1;
-    m_delegate2 = delegate2;
-  }
+  ProcessIdentity getIdentity();
 
   /**
-   * Send the given message.
+   * Return the process status.
    *
-   * @param message A {@link Message}.
-   * @exception CommunicationException If an error occurs.
+   * @return One of {@link #STATE_STARTED}, {@link #STATE_RUNNING},
+   * {@link #STATE_FINISHED}.
    */
-  public void send(Message message) throws CommunicationException {
-    m_delegate1.send(message);
-    m_delegate2.send(message);
-  }
+  short getState();
 
   /**
-   * Cleanly shutdown the <code>Sender</code>.
+   * The identity of a process.
+   *
+   * <p>Implementations should define equality so that instances are equal if
+   * and only they represent the same process.</p>
+   *
+   * @author Philip Aston
+   * @version $Revision$
    */
-  public void shutdown() {
-    m_delegate1.shutdown();
-    m_delegate2.shutdown();
+  interface ProcessIdentity extends Serializable {
+
+    /**
+     * Return the process name.
+     *
+     * @return The process name.
+     */
+    String getName();
   }
 }

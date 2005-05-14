@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,56 +19,22 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
-
-import java.util.Set;
+package net.grinder.common;
 
 
 /**
- * Interface for enquiring about the currently connected agents.
- *
- * TODO - revise this in the light of new agent status reporting.
+ * Interface for enquiring about an agent process.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface AgentStatus {
+public interface AgentProcessReport extends ProcessReport {
 
   /**
-   * Get a Set&lt;ConnectionIdentity&gt; of connected agent processes.
+   * Return the unique process identity.
    *
-   * @return Copy of the set of connection identities.
+   * @return The process identity.
    */
-  Set getConnectedAgents();
-
-  /**
-   * Return whether there are any connected agents. Cheaper query than
-   * {@link #getConnectedAgents}.
-   *
-   * @return Whether or not there are any connected agents.
-   */
-  boolean isAnAgentConnected();
-
-  /**
-   * Register a {@link ConnectionListener}.
-   *
-   * @param listener The listener.
-   */
-  void addConnectionListener(ConnectionListener listener);
-
-  /**
-   * Interface that clients can use to listen for agent connection
-   * events.
-   */
-  interface ConnectionListener {
-    /**
-     * Called when one or more agents connect.
-     */
-    void agentConnected();
-
-    /**
-     * Called when one or more agents disconnect.
-     */
-    void agentDisconnected();
-  }
+  AgentIdentity getAgentIdentity();
 }
+

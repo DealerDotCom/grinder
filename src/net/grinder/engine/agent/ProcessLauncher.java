@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,8 @@ package net.grinder.engine.agent;
 import net.grinder.common.Logger;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.thread.Kernel;
+
+
 /**
  * Manages launching a set of processes.
  *
@@ -82,8 +84,7 @@ final class ProcessLauncher {
       final int processIndex = m_nextProcessIndex;
 
       synchronized (m_processes) {
-        m_processes[processIndex] = m_processFactory.create(processIndex,
-                                                            System.out,
+        m_processes[processIndex] = m_processFactory.create(System.out,
                                                             System.err);
       }
 

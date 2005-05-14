@@ -25,6 +25,7 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.QueuedSender;
 import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.script.Grinder.ScriptContext;
@@ -44,7 +45,7 @@ import net.grinder.util.Sleeper;
  */
 final class ScriptContextImplementation implements ScriptContext {
 
-  private final String m_workerID;
+  private final WorkerIdentity m_workerIdentity;
   private final ThreadContextLocator m_threadContextLocator;
   private final GrinderProperties m_properties;
   private final QueuedSender m_consoleSender;
@@ -53,7 +54,7 @@ final class ScriptContextImplementation implements ScriptContext {
   private final Sleeper m_sleeper;
   private final SSLControl m_sslControl;
 
-  public ScriptContextImplementation(String workerID,
+  public ScriptContextImplementation(WorkerIdentity workerIdentity,
                                      ThreadContextLocator threadContextLocator,
                                      GrinderProperties properties,
                                      QueuedSender consoleSender,
@@ -61,7 +62,7 @@ final class ScriptContextImplementation implements ScriptContext {
                                      FilenameFactory filenameFactory,
                                      Sleeper sleeper,
                                      SSLControl sslControl) {
-    m_workerID = workerID;
+    m_workerIdentity = workerIdentity;
     m_threadContextLocator = threadContextLocator;
     m_properties = properties;
     m_consoleSender = consoleSender;
@@ -71,8 +72,8 @@ final class ScriptContextImplementation implements ScriptContext {
     m_sslControl = sslControl;
   }
 
-  public String getProcessID() {
-    return m_workerID;
+  public String getProcessName() {
+    return m_workerIdentity.getName();
   }
 
   public int getThreadID() {

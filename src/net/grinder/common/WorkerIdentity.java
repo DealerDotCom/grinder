@@ -1,5 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
-// Copyright (C) 2001, 2002 Dirk Feufel
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,39 +23,17 @@ package net.grinder.common;
 
 
 /**
- * Interface for enquiring about worker process status.
+ * Worker process identity.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface WorkerProcessStatus extends ProcessStatus {
+public interface WorkerIdentity extends ProcessReport.ProcessIdentity {
 
   /**
-   * Return a unique String identifying the process.
+   * Get the identity of the worker's agent process.
    *
-   * @return The process name.
+   * @return The agent identity.
    */
-  String getIdentity();
-
-  /**
-  * Return the name of the agent process.
-  *
-  * @return The agent process name.
-  */
-  String getAgentName();
-
-  /**
-   * Get the number of running threads.
-   *
-   * @return The number of threads that are running.
-   */
-  short getNumberOfRunningThreads();
-
-  /**
-   * Get the maximum number of threads.
-   *
-   * @return The maximum number of threads.
-   */
-  short getMaximumNumberOfThreads();
+  AgentIdentity getAgentIdentity();
 }
-

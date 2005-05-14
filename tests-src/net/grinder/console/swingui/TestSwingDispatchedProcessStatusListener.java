@@ -1,5 +1,4 @@
-// Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,8 +25,8 @@ import junit.framework.TestCase;
 
 import javax.swing.SwingUtilities;
 
-import net.grinder.common.WorkerProcessStatus;
-import net.grinder.console.communication.ProcessStatusListener;
+import net.grinder.console.communication.ProcessStatus;
+import net.grinder.console.communication.ProcessStatus.ProcessReports;
 
 
 /**
@@ -41,39 +40,42 @@ public class TestSwingDispatchedProcessStatusListener extends TestCase {
   private Runnable m_voidRunnable = new Runnable() { public void run() {} };
 
   public void testDispatch() throws Exception {
-    final MyProcessStatusListener listener = new MyProcessStatusListener();
+    final MyProcessStatusListener myListener = new MyProcessStatusListener();
+    final ProcessStatus.Listener listener = myListener;
 
-    final ProcessStatusListener swingDispatchedListener =
-      new SwingDispatchedProcessStatusListener(listener);
+    final ProcessStatus.Listener swingDispatchedListener =
+      new SwingDispatchedProcessStatusListener(myListener);
 
-    final WorkerProcessStatus[] data = new WorkerProcessStatus[0];
-    final int running = 1;
-    final int total = 2;
+    final ProcessReports[] processReports = new ProcessReports[0];
 
-    listener.update(data, running, total);
+    listener.update(processReports, true);
 
     // Wait for a dummy event to be processed by the swing event
     // queue.
     SwingUtilities.invokeAndWait(m_voidRunnable);
 
-    assertTrue(listener.m_updateCalled);
-    assertEquals(data, listener.m_updateData);
-    assertEquals(running, listener.m_updateRunning);
-    assertEquals(total, listener.m_updateTotal);
+    assertTrue(myListener.m_updateCalled);
+    assertEquals(processReports, myListener.m_processReports);
+    assertTrue(myListener.m_newAgent);
+
+    listener.update(processReports, false);
+
+    // Wait for a dummy event to be processed by the swing event
+    // queue.
+    SwingUtilities.invokeAndWait(m_voidRunnable);
+
+    assertFalse(myListener.m_newAgent);
   }
 
-  private class MyProcessStatusListener implements ProcessStatusListener {
+  private class MyProcessStatusListener implements ProcessStatus.Listener {
     public boolean m_updateCalled = false;
-    public WorkerProcessStatus[] m_updateData;
-    public int m_updateRunning;
-    public int m_updateTotal;
+    public ProcessReports[] m_processReports;
+    public boolean m_newAgent;
 
-    public void update(WorkerProcessStatus[] data, int running, int total)
-    {
+    public void update(ProcessReports[] processReports, boolean newAgent) {
       m_updateCalled = true;
-      m_updateData = data;
-      m_updateRunning = running;
-      m_updateTotal = total;
+      m_processReports = processReports;
+      m_newAgent = newAgent;
     }
   }
 }

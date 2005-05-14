@@ -23,29 +23,32 @@ package net.grinder.console.swingui;
 
 import javax.swing.SwingUtilities;
 
-import net.grinder.console.communication.ProcessStatusListener;
+import net.grinder.console.communication.ProcessStatus;
 
 
 /**
- * ProcessStatusSetListener Decorator that disptaches the update()
+ * ProcessStatusSetListener Decorator that dispatches the update()
  * notifications via a Swing thread.
  *
  * @author Philip Aston
  * @version $Revision$
  **/
-class SwingDispatchedProcessStatusListener implements ProcessStatusListener {
+class SwingDispatchedProcessStatusListener
+  implements ProcessStatus.Listener {
 
-  private final ProcessStatusListener m_delegate;
+  private final ProcessStatus.Listener m_delegate;
 
-  public SwingDispatchedProcessStatusListener(ProcessStatusListener delegate) {
+  public SwingDispatchedProcessStatusListener(
+    ProcessStatus.Listener delegate) {
     m_delegate = delegate;
   }
 
-  public void update(final AgentAndWorkers[] processStatuses) {
+  public void update(final ProcessStatus.ProcessReports[] processStatuses,
+                     final boolean newAgent) {
 
     SwingUtilities.invokeLater(
       new Runnable() {
-        public void run() { m_delegate.update(processStatuses); }
+        public void run() { m_delegate.update(processStatuses, newAgent); }
       }
       );
   }

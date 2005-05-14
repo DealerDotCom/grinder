@@ -26,8 +26,9 @@ import net.grinder.common.FilenameFactory;
 import net.grinder.common.GrinderException;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;
+import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.QueuedSender;
-import net.grinder.console.messages.WorkerProcessStatusMessage;
+import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.script.Grinder;
 import net.grinder.script.SSLControl;
 import net.grinder.util.Sleeper;
@@ -40,9 +41,7 @@ import net.grinder.util.Sleeper;
  * @version $Revision$
  */
 final class ProcessContext {
-  private final String m_agentID;
-  private final String m_workerID;
-  private final String m_uniqueProcessID;
+  private final WorkerIdentity m_workerIdentity;
   private final GrinderProperties m_properties;
   private final boolean m_recordTime;
   private final Logger m_processLogger;
@@ -56,14 +55,12 @@ final class ProcessContext {
   private long m_executionStartTime;
   private boolean m_shutdown;
 
-  ProcessContext(String agentID, String workerID, GrinderProperties properties,
-                 Logger logger, FilenameFactory filenameFactory,
-                 QueuedSender consoleSender)
+  ProcessContext(WorkerIdentity workerIdentity,
+                 GrinderProperties properties, Logger logger,
+                 FilenameFactory filenameFactory, QueuedSender consoleSender)
     throws GrinderException {
 
-    m_agentID = agentID;
-    m_workerID = workerID;
-    m_uniqueProcessID = workerID + ":" + System.currentTimeMillis();
+    m_workerIdentity = workerIdentity;
     m_properties = properties;
     m_recordTime = properties.getBoolean("grinder.recordTime", true);
     m_processLogger = logger;
@@ -85,7 +82,7 @@ final class ProcessContext {
       new SSLControlImplementation(m_threadContextLocator);
 
     m_scriptContext = new ScriptContextImplementation(
-      m_workerID,
+      m_workerIdentity,
       m_threadContextLocator,
       properties,
       m_consoleSender,
@@ -109,12 +106,10 @@ final class ProcessContext {
     return m_consoleSender;
   }
 
-  public WorkerProcessStatusMessage createStatusMessage(
+  public WorkerProcessReportMessage createStatusMessage(
     short state, short numberOfThreads, short totalNumberOfThreads) {
 
-    return new WorkerProcessStatusMessage(m_agentID,
-                                          m_uniqueProcessID,
-                                          m_workerID,
+    return new WorkerProcessReportMessage(m_workerIdentity,
                                           state,
                                           numberOfThreads,
                                           totalNumberOfThreads);

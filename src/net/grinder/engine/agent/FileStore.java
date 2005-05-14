@@ -27,8 +27,8 @@ import java.io.IOException;
 
 import net.grinder.common.Logger;
 import net.grinder.communication.CommunicationException;
+import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.communication.Message;
-import net.grinder.communication.Sender;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
@@ -38,7 +38,7 @@ import net.grinder.util.StreamCopier;
 
 
 /**
- * Process {@link ClearCacheMessage}s and {@link
+ * ProcessReport {@link ClearCacheMessage}s and {@link
  * DistributeFileMessage}s received from the console.
  *
  * @author Philip Aston
@@ -101,10 +101,10 @@ final class FileStore {
     }
   }
 
-  public Sender getSender(final Sender delegate) {
+  public MessageHandler getMessageHandler() {
 
-    return new Sender() {
-        public void send(Message message) throws CommunicationException {
+    return new MessageHandler() {
+        public boolean process(Message message) throws CommunicationException {
           if (message instanceof ClearCacheMessage) {
             m_logger.output("Clearing file store");
 
@@ -118,6 +118,7 @@ final class FileStore {
             }
 
             m_incremental = false;
+            return true;
           }
           else if (message instanceof DistributeFileMessage) {
             try {
@@ -130,9 +131,10 @@ final class FileStore {
                   ((DistributeFileMessage)message).getFileContents();
 
                 m_logger.output("Updating file store: " + fileContents);
-
                 fileContents.create(m_incomingDirectory);
               }
+
+              return true;
             }
             catch (FileContents.FileContentsException e) {
               m_logger.error(e.getMessage());
@@ -143,13 +145,11 @@ final class FileStore {
               throw new CommunicationException(e.getMessage(), e);
             }
           }
-          else {
-            delegate.send(message);
-          }
+
+          return false;
         }
 
         public void shutdown() {
-          delegate.shutdown();
         }
       };
   }

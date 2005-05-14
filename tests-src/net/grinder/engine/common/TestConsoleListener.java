@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,7 +30,7 @@ import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
-import net.grinder.communication.Sender;
+import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.engine.messages.ResetGrinderMessage;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.engine.messages.StopGrinderMessage;
@@ -60,8 +60,8 @@ public class TestConsoleListener extends TestCase {
     final ConsoleListener listener1 =
       new ConsoleListener(myMonitor, m_logger);
 
-    final Sender sender = listener0.getSender();
-    assertNotNull(sender);
+    final MessageHandler messageHandler = listener0.getMessageHandler();
+    assertNotNull(messageHandler);
 
     m_loggerFactory.assertNoMoreCalls();
   }
@@ -70,11 +70,11 @@ public class TestConsoleListener extends TestCase {
     final Object myMonitor = new Object();
     final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
 
-    final Sender sender = listener.getSender();
+    final MessageHandler messageHandler = listener.getMessageHandler();
 
     final WaitForNotification notified = new WaitForNotification(myMonitor);
 
-    sender.send(new StopGrinderMessage());
+    assertTrue(messageHandler.process(new StopGrinderMessage()));
 
     assertTrue(notified.wasNotified());
   }
@@ -89,14 +89,14 @@ public class TestConsoleListener extends TestCase {
                                          ConsoleListener.SHUTDOWN));
     assertFalse(listener.checkForMessage(ConsoleListener.SHUTDOWN));
 
-    final Sender sender = listener.getSender();
+    final MessageHandler messageHandler = listener.getMessageHandler();
 
-    sender.send(new StartGrinderMessage(new File("foo")));
-    sender.send(new MyMessage()); // Unknown message.
-    sender.send(new ResetGrinderMessage());
+    assertTrue(
+      messageHandler.process(new StartGrinderMessage(new File("foo"))));
+    assertFalse(messageHandler.process(new MyMessage()));
+    assertTrue(messageHandler.process(new ResetGrinderMessage()));
 
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
-    m_loggerFactory.assertSuccess("error", new Class[] { String.class });
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
     m_loggerFactory.assertNoMoreCalls();
 
@@ -125,8 +125,9 @@ public class TestConsoleListener extends TestCase {
     assertFalse(listener.checkForMessage(ConsoleListener.RESET));
     assertFalse(listener.received(ConsoleListener.RESET));
 
-    sender.send(new StartGrinderMessage(new File("bah")));
-    sender.send(new ResetGrinderMessage());
+    assertTrue(
+      messageHandler.process(new StartGrinderMessage(new File("bah"))));
+    assertTrue(messageHandler.process(new ResetGrinderMessage()));
 
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
@@ -134,7 +135,7 @@ public class TestConsoleListener extends TestCase {
 
     assertTrue(listener.checkForMessage(ConsoleListener.RESET |
                                         ConsoleListener.START));
-    sender.send(new ResetGrinderMessage());
+    assertTrue(messageHandler.process(new ResetGrinderMessage()));
 
     m_loggerFactory.assertSuccess("output", new Class[] { String.class });
     m_loggerFactory.assertNoMoreCalls();
@@ -146,7 +147,7 @@ public class TestConsoleListener extends TestCase {
                                          ConsoleListener.START));
     assertFalse(listener.received(ConsoleListener.START));
 
-    sender.shutdown();
+    messageHandler.shutdown();
 
     assertTrue(listener.checkForMessage(ConsoleListener.SHUTDOWN));
     assertTrue(listener.received(ConsoleListener.SHUTDOWN));
@@ -162,13 +163,13 @@ public class TestConsoleListener extends TestCase {
                                          ConsoleListener.SHUTDOWN));
     assertFalse(listener.checkForMessage(ConsoleListener.SHUTDOWN));
 
-    final Sender sender = listener.getSender();
+    final MessageHandler messageHandler = listener.getMessageHandler();
 
     listener.discardMessages(ConsoleListener.ANY);
 
-    sender.send(new StartGrinderMessage(new File("foo")));
-    sender.send(new MyMessage()); // Unknown message.
-    sender.send(new ResetGrinderMessage());
+    assertTrue(messageHandler.process(new StartGrinderMessage(new File("x"))));
+    assertFalse(messageHandler.process(new MyMessage()));
+    assertTrue(messageHandler.process(new ResetGrinderMessage()));
 
     assertTrue(listener.checkForMessage(ConsoleListener.START |
                                         ConsoleListener.STOP));
@@ -180,7 +181,7 @@ public class TestConsoleListener extends TestCase {
     assertFalse(listener.checkForMessage(ConsoleListener.RESET));
     assertFalse(listener.received(ConsoleListener.RESET));
 
-    sender.send(new ResetGrinderMessage());
+    assertTrue(messageHandler.process(new ResetGrinderMessage()));
 
     assertTrue(listener.checkForMessage(ConsoleListener.RESET));
 
@@ -192,7 +193,7 @@ public class TestConsoleListener extends TestCase {
 
     assertFalse(listener.received(ConsoleListener.RESET));
 
-    sender.shutdown();
+    messageHandler.shutdown();
 
     assertTrue(listener.checkForMessage(ConsoleListener.SHUTDOWN));
     assertTrue(listener.received(ConsoleListener.SHUTDOWN));
@@ -203,13 +204,13 @@ public class TestConsoleListener extends TestCase {
   public void testWaitForMessage() throws Exception {
     final Object myMonitor = new Object();
     final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
-    final Sender sender = listener.getSender();
+    final MessageHandler messageHandler = listener.getMessageHandler();
 
     final Thread t = new Thread() {
         public void run() {
           synchronized (myMonitor) {} // Wait until we're listening.
           try {
-            sender.send(new StartGrinderMessage(new File("lah")));
+            messageHandler.process(new StartGrinderMessage(new File("lah")));
           }
           catch (CommunicationException e) {
             e.printStackTrace();
@@ -232,11 +233,11 @@ public class TestConsoleListener extends TestCase {
 
     final Object myMonitor = new Object();
     final ConsoleListener listener = new ConsoleListener(myMonitor, m_logger);
-    final Sender sender = listener.getSender();
+    final MessageHandler messageHandler = listener.getMessageHandler();
 
     final WaitForNotification notified = new WaitForNotification(myMonitor);
 
-    sender.shutdown();
+    messageHandler.shutdown();
 
     assertTrue(notified.wasNotified());
 
@@ -304,17 +305,17 @@ public class TestConsoleListener extends TestCase {
     final Message m2 = new StartGrinderMessage(new File("a"));
     final Message m3 = new MyMessage();
 
-    final Sender sender = listener.getSender();
+    final MessageHandler messageHandler = listener.getMessageHandler();
 
     assertNull(listener.getLastStartGrinderMessage());
 
-    sender.send(m1);
+    assertTrue(messageHandler.process(m1));
     assertEquals(m1, listener.getLastStartGrinderMessage());
 
-    sender.send(m3);
+    assertFalse(messageHandler.process(m3));
     assertEquals(m1, listener.getLastStartGrinderMessage());
 
-    sender.send(m2);
+    assertTrue(messageHandler.process(m2));
     assertEquals(m2, listener.getLastStartGrinderMessage());
   }
 }

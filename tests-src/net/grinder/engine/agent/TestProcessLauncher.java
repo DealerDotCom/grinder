@@ -104,7 +104,7 @@ public class TestProcessLauncher extends TestCase {
 
     assertFalse(processLauncher.allFinished());
 
-    final ChildProcess[] processes = 
+    final ChildProcess[] processes =
       (ChildProcess[])
       myProcessFactory.getChildProcesses().toArray(new ChildProcess[0]);
 
@@ -160,7 +160,7 @@ public class TestProcessLauncher extends TestCase {
 
     assertEquals(9, myProcessFactory.getChildProcesses().size());
 
-    final ChildProcess[] processes = 
+    final ChildProcess[] processes =
       (ChildProcess[])
       myProcessFactory.getChildProcesses().toArray(new ChildProcess[0]);
 
@@ -209,7 +209,7 @@ public class TestProcessLauncher extends TestCase {
     assertFalse(processLauncher.allFinished());
     assertEquals(4, myProcessFactory.getChildProcesses().size());
 
-    final ChildProcess[] processes = 
+    final ChildProcess[] processes =
       (ChildProcess[])
       myProcessFactory.getChildProcesses().toArray(new ChildProcess[0]);
 
@@ -260,18 +260,16 @@ public class TestProcessLauncher extends TestCase {
   }
 
   private static class MyProcessFactory implements ProcessFactory {
- 
+
     private int m_lastProcessIndex = -1;
     private OutputStream m_lastOutputStream;
     private OutputStream m_lastErrorStream;
     private ArrayList m_childProcesses = new ArrayList();
 
-    public ChildProcess create(int processIndex,
-                               OutputStream outputStream,
+    public ChildProcess create(OutputStream outputStream,
                                OutputStream errorStream)
       throws EngineException {
 
-      m_lastProcessIndex = processIndex;
       m_lastOutputStream = outputStream;
       m_lastErrorStream = errorStream;
 
@@ -283,7 +281,7 @@ public class TestProcessLauncher extends TestCase {
       };
 
       final ChildProcess childProcess =
-        new ChildProcess("process " + processIndex, commandArray,
+        new ChildProcess("process " + ++m_lastProcessIndex, commandArray,
                          outputStream, errorStream);
 
       m_childProcesses.add(childProcess);

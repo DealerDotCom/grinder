@@ -22,7 +22,8 @@
 
 package net.grinder.console.messages;
 
-import net.grinder.common.WorkerProcessStatus;
+import net.grinder.common.WorkerIdentity;
+import net.grinder.common.WorkerProcessReport;
 import net.grinder.communication.Message;
 
 
@@ -33,68 +34,51 @@ import net.grinder.communication.Message;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class WorkerProcessStatusMessage
-  implements Message, WorkerProcessStatus {
+public final class WorkerProcessReportMessage
+  implements Message, WorkerProcessReport {
 
   private static final long serialVersionUID = -2073574340466531680L;
 
-  private final String m_agentName;
-  private final String m_identity;
-  private final String m_name;
+  private final WorkerIdentity m_identity;
   private final short m_state;
   private final short m_totalNumberOfThreads;
   private final short m_numberOfRunningThreads;
 
   /**
-   * Creates a new <code>WorkerProcessStatusMessage</code> instance.
+   * Creates a new <code>WorkerProcessReportMessage</code> instance.
    *
-   * @param agentName The name of the parent agent process.
    * @param identity Process identity.
-   * @param name Process name.
    * @param state The process state. See {@link
-   * net.grinder.common.WorkerProcessStatus}.
+   * net.grinder.common.WorkerProcessReport}.
    * @param totalThreads The total number of threads.
    * @param runningThreads The number of threads that are still running.
    */
-  public WorkerProcessStatusMessage(String agentName,
-                                    String identity,
-                                    String name,
+  public WorkerProcessReportMessage(WorkerIdentity identity,
                                     short state,
                                     short runningThreads,
                                     short totalThreads) {
-    m_agentName = agentName;
     m_identity = identity;
-    m_name = name;
     m_state = state;
     m_numberOfRunningThreads = runningThreads;
     m_totalNumberOfThreads = totalThreads;
   }
 
   /**
-   * Accessor for the name of the parent agent process.
+   * Accessor for the process identity.
    *
-   * @return The agent name.
+   * @return The process identity.
    */
-  public String getAgentName() {
-    return m_agentName;
+  public ProcessIdentity getIdentity() {
+    return m_identity;
   }
 
   /**
    * Accessor for the process identity.
    *
-   * @return The process name.
+   * @return The process identity.
    */
-  public String getIdentity() {
+  public WorkerIdentity getWorkerIdentity() {
     return m_identity;
-  }
-
-  /**
-   * Accessor for the process name.
-   *
-   * @return The process name.
-   */
-  public String getName() {
-    return m_name;
   }
 
   /**

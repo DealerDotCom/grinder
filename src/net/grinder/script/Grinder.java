@@ -58,11 +58,11 @@ public class Grinder {
   public static interface ScriptContext {
 
     /**
-     * Get an unique ID value for this worker process.
+     * Get an unique name for this worker process.
      *
      * @return The id.
      */
-    String getProcessID();
+    String getProcessName();
 
     /**
      * Return the thread ID, or -1 if not called from a worker thread.

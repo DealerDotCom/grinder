@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,39 +19,39 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.console.communication;
+package net.grinder.engine.agent;
 
-import net.grinder.common.AgentProcessStatus;
-import net.grinder.common.WorkerProcessStatus;
-
+import net.grinder.common.AgentIdentity;
+import net.grinder.common.WorkerIdentity;
 
 /**
- * Handles process status information.
+ * An AgentIdentityImplementation that is public so unit tests from other
+ * packages can use it.
  *
- * @author Dirk Feufel
  * @author Philip Aston
  * @version $Revision$
  */
-interface ProcessStatusSet {
+public final class PublicAgentIdentityImplementation implements AgentIdentity {
 
-  /**
-   * Add a new listener.
-   *
-   * @param listener A listener.
-   */
-  void addListener(ProcessStatusListener listener);
+  private final AgentIdentityImplementation m_agentIdentityImplementation;
 
-  /**
-   * Add a status report.
-   *
-   * @param agentProcessStatus Process status.
-   */
-  void addAgentStatusReport(AgentProcessStatus agentProcessStatus);
+  public PublicAgentIdentityImplementation(String name) {
+    m_agentIdentityImplementation = new AgentIdentityImplementation(name);
+  }
 
-  /**
-   * Add a status report.
-   *
-   * @param workerProcessStatus Process status.
-   */
-  void addWorkerStatusReport(WorkerProcessStatus workerProcessStatus);
+  public String getName() {
+    return m_agentIdentityImplementation.getName();
+  }
+
+  public WorkerIdentity createWorkerIdentity() {
+    return m_agentIdentityImplementation.createWorkerIdentity();
+  }
+
+  public int hashCode() {
+    return m_agentIdentityImplementation.hashCode();
+  }
+
+  public boolean equals(Object o) {
+    return m_agentIdentityImplementation.equals(o);
+  }
 }

@@ -32,13 +32,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import net.grinder.communication.ConnectionType;
+import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.communication.Message;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
-import net.grinder.console.messages.WorkerProcessStatusMessage;
+import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.console.model.ConsoleProperties;
+import net.grinder.engine.agent.PublicAgentIdentityImplementation;
 import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.engine.messages.ResetGrinderMessage;
@@ -50,7 +52,7 @@ import net.grinder.util.FileContents;
 
 
 /**
- *  Unit test case for {@link ConsoleControlImplementation}.
+ * Unit test case for {@link ConsoleControlImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -152,9 +154,9 @@ public class TestConsoleCommunicationImplementation
       m_consoleCommunication.getProcessControl();
 
     final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(ProcessStatusListener.class);
-    final ProcessStatusListener listener =
-      (ProcessStatusListener)listenerStubFactory.getStub();
+      new RandomStubFactory(ProcessStatus.Listener.class);
+    final ProcessStatus.Listener listener =
+      (ProcessStatus.Listener)listenerStubFactory.getStub();
 
     processControl.addProcessStatusListener(listener);
 
@@ -212,7 +214,7 @@ public class TestConsoleCommunicationImplementation
     distributionControl.clearFileCaches();
 
     for (int retry = 0;
-         m_consoleCommunication.getAgentStatus().getConnectedAgents().size()
+         m_consoleCommunication.getProcessControl().getNumberOfConnectedAgents()
            != 1 && retry < 10;
          ++retry) {
       Thread.sleep(10);
@@ -259,9 +261,11 @@ public class TestConsoleCommunicationImplementation
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.WORKER.write(socket.getOutputStream());
 
-    sendMessage(socket,
-                new WorkerProcessStatusMessage("agent", "foo", "bah", (short)0,
-                                               (short)0, (short)0));
+    sendMessage(
+      socket,
+      new WorkerProcessReportMessage(
+        new PublicAgentIdentityImplementation("agent").createWorkerIdentity(),
+        (short)0, (short)0, (short)0));
 
     sendMessage(socket, new MyMessage());
 
@@ -271,7 +275,6 @@ public class TestConsoleCommunicationImplementation
       Thread.sleep(10);
     }
 
-    assertTrue(m_processMessagesThread.getLastResult());
     messageHandlerStubFactory.assertSuccess("process", MyMessage.class);
 
     // ConsoleCommunication should have handled the original
@@ -287,7 +290,6 @@ public class TestConsoleCommunicationImplementation
       Thread.sleep(10);
     }
 
-    assertFalse(m_processMessagesThread.getLastResult());
     messageHandlerStubFactory.assertSuccess("process",
                                             StopGrinderMessage.class);
   }
@@ -343,67 +345,6 @@ public class TestConsoleCommunicationImplementation
     errorHandlerStubFactory2.assertNoMoreCalls();
   }
 
-  public void testAgentStatus() throws Exception {
-
-    final AgentStatus agentStatus = m_consoleCommunication.getAgentStatus();
-
-    assertEquals(0, agentStatus.getConnectedAgents().size());
-    assertTrue(!agentStatus.isAnAgentConnected());
-
-    final RandomStubFactory listenerStubFactory =
-      new RandomStubFactory(AgentStatus.ConnectionListener.class);
-    final AgentStatus.ConnectionListener
-      listener = (AgentStatus.ConnectionListener)listenerStubFactory.getStub();
-
-    agentStatus.addConnectionListener(listener);
-
-    final Socket socket =
-      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.AGENT.write(socket.getOutputStream());
-
-    listenerStubFactory.assertSuccess("agentConnected");
-    listenerStubFactory.assertNoMoreCalls();
-
-    final Socket socket2 =
-      new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
-    ConnectionType.AGENT.write(socket2.getOutputStream());
-
-    listenerStubFactory.assertSuccess("agentConnected");
-    listenerStubFactory.assertNoMoreCalls();
-
-    assertEquals(2, agentStatus.getConnectedAgents().size());
-    assertTrue(agentStatus.isAnAgentConnected());
-
-    socket.close();
-
-    // We send a message to force the connection close to be detected.
-    final DistributionControl distributionControl =
-      m_consoleCommunication.getDistributionControl();
-    distributionControl.clearFileCaches();
-
-    for (int retry = 0;
-         agentStatus.getConnectedAgents().size() != 1 && retry < 10;
-         ++retry) {
-      Thread.sleep(10);
-    }
-
-    listenerStubFactory.assertSuccess("agentDisconnected");
-    assertEquals(1, agentStatus.getConnectedAgents().size());
-    assertTrue(agentStatus.isAnAgentConnected());
-    listenerStubFactory.assertNoMoreCalls();
-
-    // Needed so the receiver shuts down.
-    m_processMessagesThread.start();
-
-    // Force the receiver to drop the remaining connections.
-    final ServerSocket freeServerSocket = new ServerSocket(0);
-    freeServerSocket.close();
-    m_properties.setConsolePort(freeServerSocket.getLocalPort());
-
-    listenerStubFactory.assertSuccess("agentDisconnected");
-    listenerStubFactory.assertNoMoreCalls();
-  }
-
   private static final class MyMessage implements Message, Serializable { }
 
   private static final class StubTimer extends Timer {
@@ -422,20 +363,19 @@ public class TestConsoleCommunicationImplementation
     extends RandomStubFactory {
 
     public MessageHandlerStubFactory() {
-      super(ConsoleCommunication.MessageHandler.class);
+      super(MessageHandler.class);
     }
 
     public boolean override_process(Object proxy, Message message) {
       return message instanceof MyMessage;
     }
 
-    public ConsoleCommunication.MessageHandler getMessageHandler() {
-      return (ConsoleCommunication.MessageHandler)getStub();
+    public MessageHandler getMessageHandler() {
+      return (MessageHandler)getStub();
     }
   };
 
   private final class ProcessMessagesThread extends Thread {
-    private boolean m_lastResult;
     private boolean m_shutdown = false;
 
     public ProcessMessagesThread() {
@@ -445,7 +385,7 @@ public class TestConsoleCommunicationImplementation
     public void run() {
       try {
         while (true) {
-          m_lastResult = m_consoleCommunication.processOneMessage();
+          m_consoleCommunication.processOneMessage();
 
           synchronized (this) {
             if (m_shutdown) {
@@ -460,10 +400,6 @@ public class TestConsoleCommunicationImplementation
 
     public synchronized void shutdown() {
       m_shutdown = true;
-    }
-
-    public boolean getLastResult() {
-      return m_lastResult;
     }
   }
 }

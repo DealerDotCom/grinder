@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,7 +34,6 @@ import net.grinder.engine.common.EngineException;
  */
 interface ProcessFactory {
 
-  ChildProcess create(int processIndex,
-                      OutputStream outputStream,
+  ChildProcess create(OutputStream outputStream,
                       OutputStream errorStream) throws EngineException;
 }

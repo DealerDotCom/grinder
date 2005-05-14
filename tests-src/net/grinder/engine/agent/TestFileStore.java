@@ -30,12 +30,11 @@ import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
 import net.grinder.communication.CommunicationException;
 import net.grinder.communication.Message;
-import net.grinder.communication.Sender;
 import net.grinder.communication.SimpleMessage;
+import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.testutility.AbstractFileTestCase;
-import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.FileContents;
 
 
@@ -53,7 +52,7 @@ public class TestFileStore extends AbstractFileTestCase {
     assertEquals(1, getDirectory().list().length);
 
     final FileStore fileStore = new FileStore(getDirectory(), null);
-    assertNotNull(fileStore.getSender(null));
+    assertNotNull(fileStore.getMessageHandler());
     final File currentDirectory = fileStore.getDirectory().getAsFile();
     assertNotNull(currentDirectory);
 
@@ -101,25 +100,16 @@ public class TestFileStore extends AbstractFileTestCase {
 
     final FileStore fileStore = new FileStore(getDirectory(), logger);
 
-    final RandomStubFactory delegateSenderStubFactory =
-      new RandomStubFactory(Sender.class);
-    final Sender delegateSender = (Sender)delegateSenderStubFactory.getStub();
+    final MessageHandler messageHandler = fileStore.getMessageHandler();
 
-    final Sender sender = fileStore.getSender(delegateSender);
-
-    // Messages that aren't DistributeFileMessages get passed through
-    // to delegate.
+    // Other Messages get passed through.
     final Message message0 = new SimpleMessage();
-    sender.send(message0);
+    assertFalse(messageHandler.process(message0));
     loggerStubFactory.assertNoMoreCalls();
-    delegateSenderStubFactory.assertSuccess("send", new Object[] { message0 });
-    delegateSenderStubFactory.assertNoMoreCalls();
 
-    // Shutdown is delegated.
-    sender.shutdown();
+    // Shutdown does nothing.
+    messageHandler.shutdown();
     loggerStubFactory.assertNoMoreCalls();
-    delegateSenderStubFactory.assertSuccess("shutdown", new Object[] {});
-    delegateSenderStubFactory.assertNoMoreCalls();
 
     // Test with a good message.
     final File sourceDirectory = new File(getDirectory(), "source");
@@ -147,10 +137,9 @@ public class TestFileStore extends AbstractFileTestCase {
     assertTrue(!currentDirectoryFile.exists());
 
     final Message message1 = new DistributeFileMessage(fileContents0);
-    sender.send(message1);
+    assertTrue(messageHandler.process(message1));
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
-    delegateSenderStubFactory.assertNoMoreCalls();
 
     // Message has been sent, the incoming directory and the read me exist.
     assertTrue(readmeFile.exists());
@@ -171,7 +160,7 @@ public class TestFileStore extends AbstractFileTestCase {
     targetFile.setReadOnly();
 
     try {
-      sender.send(message1);
+      messageHandler.process(message1);
       fail("Expected CommunicationException");
     }
     catch (CommunicationException e) {
@@ -180,13 +169,11 @@ public class TestFileStore extends AbstractFileTestCase {
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
     loggerStubFactory.assertSuccess("error", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
-    delegateSenderStubFactory.assertNoMoreCalls();
 
     final Message message2 = new ClearCacheMessage();
-    sender.send(message2);
+    assertTrue(messageHandler.process(message2));
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
-    delegateSenderStubFactory.assertNoMoreCalls();
 
     assertTrue(!targetFile.canRead());
   }

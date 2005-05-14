@@ -19,48 +19,63 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.common;
+package net.grinder.console.messages;
+
+import net.grinder.common.AgentIdentity;
+import net.grinder.common.AgentProcessReport;
+import net.grinder.communication.Message;
+
 
 /**
- * Common interface for enquiring about process status.
+ * Message for informing the console of agent process status.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public interface ProcessStatus {
+public final class AgentProcessReportMessage
+  implements Message, AgentProcessReport {
+
+  private static final long serialVersionUID = -2073574340466531680L;
+
+  private final AgentIdentity m_identity;
+  private final short m_state;
 
   /**
-   * Constant representing the "started" state.
-   */
-  short STATE_STARTED = 1;
-
-  /**
-   * Constant representing the "running" state.
-   */
-  short STATE_RUNNING = 2;
-
-  /**
-   * Constant representing the "finished" state.
-   */
-  short STATE_FINISHED = 3;
-
-  /**
-   * Constant representing the "unknown" state.
-   */
-  short STATE_UNKNOWN = 4;
-
-  /**
-   * Return the process name.
+   * Creates a new <code>AgentProcessReportMessage</code> instance.
    *
-   * @return The process name.
+   * @param identity Process identity.
+   * @param state The process state. See {@link
+   * net.grinder.common.AgentProcessReport}.
    */
-  String getName();
+  public AgentProcessReportMessage(AgentIdentity identity, short state) {
+    m_identity = identity;
+    m_state = state;
+  }
 
   /**
-   * Return the process status.
+   * Accessor for the process identity.
    *
-   * @return One of {@link #STATE_STARTED}, {@link #STATE_RUNNING},
-   * {@link #STATE_FINISHED}.
+   * @return The process identity.
    */
-  short getState();
+  public ProcessIdentity getIdentity() {
+    return m_identity;
+  }
+
+  /**
+   * Accessor for the process identity.
+   *
+   * @return The process identity.
+   */
+  public AgentIdentity getAgentIdentity() {
+    return m_identity;
+  }
+
+  /**
+   * Accessor for the process state.
+   *
+   * @return The process state.
+   */
+  public short getState() {
+    return m_state;
+  }
 }

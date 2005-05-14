@@ -28,8 +28,10 @@ import java.util.Arrays;
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.FilenameFactory;
 import net.grinder.common.Logger;
+import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.QueuedSender;
 import net.grinder.console.messages.RegisterStatisticsViewMessage;
+import net.grinder.engine.agent.PublicAgentIdentityImplementation;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.SSLControl;
@@ -57,7 +59,6 @@ public class TestScriptContextImplementation extends TestCase {
 
   public void testConstructorAndGetters() throws Exception {
 
-    final String grinderID = "test grinder ID";
     final GrinderProperties properties = new GrinderProperties();
 
     final RandomStubFactory queuedSenderStubFactory =
@@ -99,12 +100,17 @@ public class TestScriptContextImplementation extends TestCase {
       new RandomStubFactory(SSLControl.class);
     final SSLControl sslControl = (SSLControl)sslControlStubFactory.getStub();
 
+    final PublicAgentIdentityImplementation agentIdentity =
+      new PublicAgentIdentityImplementation("Agent");
+    final WorkerIdentity workerIdentity =
+      agentIdentity.createWorkerIdentity();
+
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
-        grinderID, threadContextLocator, properties, queuedSender, logger,
+        workerIdentity, threadContextLocator, properties, queuedSender, logger,
         filenameFactory, sleeper, sslControl);
 
-    assertEquals(grinderID, scriptContext.getProcessID());
+    assertEquals(workerIdentity.getName(), scriptContext.getProcessName());
     assertEquals(threadID, scriptContext.getThreadID());
     assertEquals(runNumber, scriptContext.getRunNumber());
     assertEquals(logger, scriptContext.getLogger());
@@ -162,9 +168,9 @@ public class TestScriptContextImplementation extends TestCase {
     threadContextLocator.set(threadContextStubFactory.getThreadContext());
 
     final ScriptContextImplementation scriptContext =
-      new ScriptContextImplementation(null, threadContextLocator, null, 
+      new ScriptContextImplementation(null, threadContextLocator, null,
                                       queuedSender, null, null, null, null);
-    
+
     final ExpressionView expressionView =
       new ExpressionView("display", "resource key", "errors");
     final StatisticsView statisticsView = new StatisticsView();
@@ -184,7 +190,7 @@ public class TestScriptContextImplementation extends TestCase {
     final ExpressionView[] summaryExpressionViews =
       CommonStatisticsViews.getSummaryStatisticsView().getExpressionViews();
     assertTrue(Arrays.asList(summaryExpressionViews).contains(expressionView));
-    
+
     try {
       scriptContext.registerDetailStatisticsView(statisticsView);
       fail("Expected InvalidContextException");

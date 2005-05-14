@@ -29,11 +29,12 @@ import java.util.Timer;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
+import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
-import net.grinder.console.communication.AgentStatus;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.ConsoleCommunicationImplementation;
+import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
@@ -85,15 +86,14 @@ public class Console {
     final FileDistribution fileDistribution =
       new FileDistribution(m_communication.getDistributionControl());
 
-    final AgentStatus agentStatus = m_communication.getAgentStatus();
-
-    agentStatus.addConnectionListener(
-      new AgentStatus.ConnectionListener() {
-        public void agentConnected() {
-          fileDistribution.getAgentCacheState().setOutOfDate();
+    m_communication.getProcessControl().addProcessStatusListener(
+      new ProcessStatus.Listener() {
+        public void update(ProcessStatus.ProcessReports[] processStatuses,
+                           boolean newAgent) {
+          if (newAgent) {
+            fileDistribution.getAgentCacheState().setOutOfDate();
+          }
         }
-
-        public void agentDisconnected() { }
       });
 
     properties.addPropertyChangeListener(
@@ -114,14 +114,13 @@ public class Console {
     m_userInterface =
       new ConsoleUI(m_model,
                     m_communication.getProcessControl(),
-                    fileDistribution,
-                    agentStatus);
+                    fileDistribution);
 
     m_communication.setErrorHandler(m_userInterface.getErrorHandler());
 
     m_communication.addMessageHandler(
-      new ConsoleCommunication.MessageHandler() {
-        public boolean process(Message message) throws ConsoleException {
+      new MessageHandler() {
+        public boolean process(Message message) {
           if (message instanceof RegisterTestsMessage) {
             m_model.registerTests(((RegisterTestsMessage)message).getTests());
             return true;
@@ -142,6 +141,9 @@ public class Console {
           }
 
           return false;
+        }
+
+        public void shutdown() {
         }
       });
   }
