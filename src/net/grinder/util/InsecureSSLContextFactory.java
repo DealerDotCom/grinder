@@ -68,7 +68,15 @@ public final class InsecureSSLContextFactory implements SSLContextFactory {
   private final KeyManager[] m_keyManagers;
 
   /**
-   * Constructor. Uses the default key manager.
+   * Constructor. Uses a null key manager.
+   *
+   * <p>
+   * The JSSE does not provide an way to access its default SSLContext, and we
+   * don't bother trying to replicate it. (The default context is specified by
+   * the System properties <code>javax.ssl.net.ssl.keyStore</code>,
+   * <code>javax.ssl.net.ssl.keyStorePassword</code>,
+   * <code>javax.ssl.net.ssl.keyStoreType</code>. These properties have no
+   * effect on The Grinder.)
    */
   public InsecureSSLContextFactory() {
     this(null);
