@@ -51,12 +51,29 @@ public final class ListenerSupport {
    * Adapter interface for use with an {@link #apply}.
    */
   public interface Informer {
+
     /**
      * Should notify the listener appropriately.
      *
      * @param listener The listener.
      */
     void inform(Object listener);
+  }
+
+  /**
+   * Adapter interface for use with an {@link #apply}.
+   */
+  public interface HandlingInformer {
+
+    /**
+     * Should notify the listener appropriately.
+     *
+     * @param listener
+     *          The listener.
+     * @return <code>true</code> => event handled, do not delegate to further
+     *          Handlers.
+     */
+    boolean inform(Object listener);
   }
 
   /**
@@ -70,6 +87,23 @@ public final class ListenerSupport {
 
       while (iterator.hasNext()) {
         informer.inform(iterator.next());
+      }
+    }
+  }
+
+  /**
+   * Notify the listeners of an event.
+   *
+   * @param handler An adapter to be applied to each listener.
+   */
+  public void apply(HandlingInformer handler) {
+    synchronized (m_listeners) {
+      final Iterator iterator = m_listeners.iterator();
+
+      while (iterator.hasNext()) {
+        if (handler.inform(iterator.next())) {
+          break;
+        }
       }
     }
   }

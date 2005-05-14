@@ -1,0 +1,120 @@
+// Copyright (C) 2005 Philip Aston
+// All rights reserved.
+//
+// This file is part of The Grinder software distribution. Refer to
+// the file LICENSE which is part of The Grinder distribution for
+// licensing details. The Grinder distribution is available on the
+// Internet at http://grinder.sourceforge.net/
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+// FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+// REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+// (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+// HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+// OF THE POSSIBILITY OF SUCH DAMAGE.
+
+package net.grinder.util;
+
+import java.util.List;
+import java.util.ArrayList;
+
+import junit.framework.TestCase;
+
+
+/**
+ * Unit test case for {@link ListenerSupport}.
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
+public class TestListenerSupport extends TestCase {
+
+  public void testWithInformer() throws Exception {
+
+    final ListenerSupport listenerSupport = new ListenerSupport();
+
+    final Object listener1 = new Object();
+    final Object listener2 = new Object();
+    final Object listener3 = new Object();
+
+    listenerSupport.add(listener1);
+    listenerSupport.add(listener2);
+    listenerSupport.add(listener3);
+    listenerSupport.add(listener1);
+
+    final List listeners = new ArrayList();
+
+    listenerSupport.apply(new ListenerSupport.Informer() {
+      public void inform(Object listener) {
+        listeners.add(listener);
+      }
+    });
+
+    final Object[] calledListeners = listeners.toArray();
+    assertEquals(4, calledListeners.length);
+
+    assertEquals(listener1, calledListeners[0]);
+    assertEquals(listener2, calledListeners[1]);
+    assertEquals(listener3, calledListeners[2]);
+    assertEquals(listener1, calledListeners[3]);
+  }
+
+  public void testWithHandlingInformer() throws Exception {
+
+    final ListenerSupport listenerSupport = new ListenerSupport();
+
+    final Object listener1 = new Object();
+    final Object listener2 = new Object();
+    final Object listener3 = new Object();
+
+    listenerSupport.add(listener1);
+    listenerSupport.add(listener2);
+    listenerSupport.add(listener1);
+    listenerSupport.add(listener3);
+    listenerSupport.add(listener2);
+
+    final List listeners = new ArrayList();
+
+    listenerSupport.apply(new ListenerSupport.HandlingInformer() {
+      public boolean inform(Object listener) {
+        if (listener == listener3) {
+          return true;
+        }
+
+        listeners.add(listener);
+        return false;
+      }
+    });
+
+    final Object[] calledListeners = listeners.toArray();
+    assertEquals(3, calledListeners.length);
+
+    assertEquals(listener1, calledListeners[0]);
+    assertEquals(listener2, calledListeners[1]);
+    assertEquals(listener1, calledListeners[2]);
+
+    listeners.clear();
+
+    listenerSupport.apply(new ListenerSupport.HandlingInformer() {
+      public boolean inform(Object listener) {
+        listeners.add(listener);
+        return false;
+      }
+    });
+
+    final Object[] calledListeners2 = listeners.toArray();
+    assertEquals(5, calledListeners2.length);
+
+    assertEquals(listener1, calledListeners2[0]);
+    assertEquals(listener2, calledListeners2[1]);
+    assertEquals(listener1, calledListeners2[2]);
+    assertEquals(listener3, calledListeners2[3]);
+    assertEquals(listener2, calledListeners2[4]);
+  }
+}
