@@ -35,7 +35,6 @@ import java.util.TreeSet;
 
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
-import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
@@ -56,7 +55,7 @@ import net.grinder.util.ListenerSupport;
  * <p>This class uses synchronisation sparingly. In particular, when
  * notifying listeners of changes to the number of tests it sends
  * copies of the new index arrays. This helps because most listeners
- * are Swing dispatched and so can't gurantee the model is in a
+ * are Swing dispatched and so can't guarantee the model is in a
  * reasonable state when they call back.</p>
  *
  * @author Philip Aston
@@ -72,14 +71,14 @@ public final class Model {
   public static final int STATE_WAITING_FOR_TRIGGER = 0;
 
   /**
-   * Constant that represents the model state of <em>stopped statisics
+   * Constant that represents the model state of <em>stopped statistics
    * capture</em>.
    * @see #getState
    */
   public static final int STATE_STOPPED = 1;
 
   /**
-   * Constant that represents the model state of <em>statisics capture
+   * Constant that represents the model state of <em>statistics capture
    * in progress</em>.
    * @see #getState
    */
@@ -311,7 +310,7 @@ public final class Model {
   }
 
   /**
-   * Register new statisics views.
+   * Register new statistics views.
    *
    * @param intervalStatisticsView a <code>StatisticsView</code> value
    * @param cumulativeStatisticsView a <code>StatisticsView</code> value
@@ -440,10 +439,8 @@ public final class Model {
   /**
    * Add a new test report.
    * @param testStatisticsMap The new test statistics.
-   * @exception ConsoleException If an error occurs.
    */
-  public void addTestReport(TestStatisticsMap testStatisticsMap)
-    throws ConsoleException {
+  public void addTestReport(TestStatisticsMap testStatisticsMap) {
 
     m_receivedReport = true;
 
