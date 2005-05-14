@@ -102,7 +102,7 @@ public final class BooleanProperty {
    * Setter method.
    *
    * @param value The new value of the property.
-   * @throws PropertyException If the value could not be writen.
+   * @throws PropertyException If the value could not be written.
    */
   public void set(boolean value) throws PropertyException {
     // Despite what the JavaDoc for
@@ -133,7 +133,7 @@ public final class BooleanProperty {
   }
 
   /**
-   * Indicates a propblem with accessing the property.
+   * Indicates a problem with accessing the property.
    */
   public static final class PropertyException extends GrinderException {
 
