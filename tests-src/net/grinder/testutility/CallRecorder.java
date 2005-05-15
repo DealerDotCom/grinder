@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -101,53 +101,58 @@ public class CallRecorder extends Assert {
    *  Check the given method was called.
    */
   public final CallData assertSuccess(String methodName, Object[] parameters) {
-    return assertCalledInternal(methodName, parameters);
+    final CallData result = assertCalledInternal(methodName, parameters);
+    assertNull(result.getThrowable());
+    return result;
   }
 
   public final CallData assertSuccess(String methodName,
                                       Class[] parameterTypes) {
-    return assertCalledInternal(methodName, parameterTypes);
+    final CallData result = assertCalledInternal(methodName, parameterTypes);
+    assertNull(result.getThrowable());
+    return result;
   }
 
 
   public final CallData assertSuccess(String methodName) {
-    return assertCalledInternal(methodName, new Class[0]);
+    final CallData result = assertCalledInternal(methodName, new Class[0]);
+    assertNull(result.getThrowable());
+    return result;
   }
 
   public final CallData assertSuccess(String methodName, Object object1) {
-    return assertCalledInternal(methodName, new Object[] { object1 });
+    return assertSuccess(methodName, new Object[] { object1 });
   }
 
   public final CallData assertSuccess(String methodName,
                                       Object object1,
                                       Object object2) {
-    return assertCalledInternal(methodName, new Object[] { object1, object2 });
+    return assertSuccess(methodName, new Object[] { object1, object2 });
   }
 
   public final CallData assertSuccess(String methodName,
                                       Object object1,
                                       Object object2,
                                       Object object3) {
-    return assertCalledInternal(methodName,
-                                new Object[] { object1, object2, object3 });
+    return assertSuccess(methodName,
+                         new Object[] { object1, object2, object3 });
   }
 
   public final CallData assertSuccess(String methodName, Class class1) {
-    return assertCalledInternal(methodName, new Class[] { class1 });
+    return assertSuccess(methodName, new Class[] { class1 });
   }
 
   public final CallData assertSuccess(String methodName,
                                       Class class1,
                                       Class class2) {
-    return assertCalledInternal(methodName, new Class[] { class1, class2 });
+    return assertSuccess(methodName, new Class[] { class1, class2 });
   }
 
   public final CallData assertSuccess(String methodName,
                                       Class class1,
                                       Class class2,
                                       Class class3) {
-    return assertCalledInternal(methodName,
-                                new Class[] { class1, class2, class3 });
+    return assertSuccess(methodName, new Class[] { class1, class2, class3 });
   }
 
   /**
