@@ -29,10 +29,12 @@ import net.grinder.util.UniqueIdentityGenerator;
 /**
  * Agent process identity.
  *
+ * Non-final so unit tests can extend.
+ *
  * @author Philip Aston
  * @version $Revision$
  */
-final class AgentIdentityImplementation
+class AgentIdentityImplementation
   extends AbstractProcessIdentityImplementation implements AgentIdentity {
 
   private static final UniqueIdentityGenerator s_identityGenerator =

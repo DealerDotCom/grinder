@@ -21,8 +21,8 @@
 
 package net.grinder.engine.agent;
 
-import net.grinder.common.AgentIdentity;
 import net.grinder.common.WorkerIdentity;
+
 
 /**
  * An AgentIdentityImplementation that is public so unit tests from other
@@ -31,36 +31,14 @@ import net.grinder.common.WorkerIdentity;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class PublicAgentIdentityImplementation implements AgentIdentity {
-
-  private final AgentIdentityImplementation m_agentIdentityImplementation;
+public final class PublicAgentIdentityImplementation
+  extends AgentIdentityImplementation {
 
   public PublicAgentIdentityImplementation(String name) {
-    m_agentIdentityImplementation = new AgentIdentityImplementation(name);
-  }
-
-  public String getName() {
-    return m_agentIdentityImplementation.getName();
+    super(name);
   }
 
   public WorkerIdentity createWorkerIdentity() {
-    return m_agentIdentityImplementation.createWorkerIdentity();
-  }
-
-  public int hashCode() {
-    return m_agentIdentityImplementation.hashCode();
-  }
-
-  public boolean equals(Object o) {
-
-    if (!(o instanceof PublicAgentIdentityImplementation)) {
-      return false;
-    }
-
-    final PublicAgentIdentityImplementation other =
-      (PublicAgentIdentityImplementation)o;
-
-    return m_agentIdentityImplementation.equals(
-      other.m_agentIdentityImplementation);
+    return super.createWorkerIdentity();
   }
 }
