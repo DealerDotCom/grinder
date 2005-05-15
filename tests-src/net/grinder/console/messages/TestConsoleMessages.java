@@ -97,7 +97,7 @@ public class TestConsoleMessages extends TestCase {
     assertEquals(original.getStatisticsDelta(), received.getStatisticsDelta());
   }
 
-  public void testReportStatusMessage() throws Exception {
+  public void testWorkerReportMessage() throws Exception {
 
     final PublicAgentIdentityImplementation agentIdentity =
       new PublicAgentIdentityImplementation("Agent");
@@ -122,5 +122,25 @@ public class TestConsoleMessages extends TestCase {
     assertEquals(1, received.getState());
     assertEquals(2, received.getNumberOfRunningThreads());
     assertEquals(3, received.getMaximumNumberOfThreads());
+  }
+
+  public void testAgentReportMessage() throws Exception {
+
+    final PublicAgentIdentityImplementation agentIdentity =
+      new PublicAgentIdentityImplementation("Agent");
+
+    final AgentProcessReportMessage original =
+      new AgentProcessReportMessage(agentIdentity, (short)1);
+
+    assertEquals(agentIdentity, original.getAgentIdentity());
+    assertEquals(agentIdentity, original.getIdentity());
+    assertEquals(1, original.getState());
+
+    final AgentProcessReportMessage received =
+      (AgentProcessReportMessage) serialise(original);
+
+    assertEquals(agentIdentity, original.getAgentIdentity());
+    assertEquals(agentIdentity, original.getIdentity());
+    assertEquals(1, received.getState());
   }
 }
