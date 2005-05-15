@@ -1,4 +1,66 @@
+2005-05-15  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta26 is released.	
+
+	* src/documentation/content/xdocs/links.xml: More links.
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Correct swap of try/finally and while(true).
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Move try/catch block inside while loop to make the proxy more resilient to connection problems. Thanks to Jon Weygandt for the suggestion.
+
+	* tests-src/net/grinder/util/TestSleeper.java: Coverage.
+
+	* etc/setenv.cmd: Update.
+
+	* src/net/grinder/engine/agent/AgentIdentityImplementation.java, tests-src/net/grinder/engine/agent/PublicAgentIdentityImplementation.java:
+	Fix PublicAgentIdentityImplementation so the WorkerIdentity's it creates have the correct AgentIdentity.
+
+	* tests-src/net/grinder/console/messages/TestConsoleMessages.java, tests-src/net/grinder/engine/agent/TestAgentIdentityImplementation.java:
+	Coverage.
+
+	* tests-src/net/grinder/engine/agent/PublicAgentIdentityImplementation.java:
+	Correct equals().
+
+	* src/net/grinder/communication/HandlerChainSender.java, tests-src/net/grinder/communication/TestHandlerChainSender.java:
+	Simplify Sender adapter, and add unit tests.
+
+	* tests-src/net/grinder/testutility/CallRecorder.java:
+	assertSuccess() now fails if an exception was thrown.
+
+	* src/net/grinder/util/ListenerSupport.java, tests-src/net/grinder/util/TestListenerSupport.java:
+	apply(HandlingInformer) now returns whether the event was handled.
+
+2005-05-14  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/messages/InitialiseGrinderMessage.java, src/net/grinder/script/Grinder.java, src/net/grinder/console/Console.java, src/net/grinder/engine/common/ConsoleListener.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/ScriptContextImplementation.java, tests-src/net/grinder/communication/TestTeeSender.java, tests-src/net/grinder/console/messages/TestConsoleMessages.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedProcessStatusListener.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, CHANGES, src/net/grinder/common/AgentIdentity.java, src/net/grinder/common/WorkerProcessReport.java, tests-src/net/grinder/engine/agent/PublicAgentIdentityImplementation.java, tests-src/net/grinder/engine/agent/TestFileStore.java, tests-src/net/grinder/engine/agent/TestProcessLauncher.java, tests-src/net/grinder/engine/agent/TestWorkerProcessFactory.java, src/net/grinder/common/ProcessReport.java, src/net/grinder/common/WorkerProcessStatus.java, src/net/grinder/common/AgentProcessReport.java, src/net/grinder/common/AgentProcessStatus.java, src/net/grinder/common/ProcessStatus.java, src/net/grinder/common/WorkerIdentity.java, src/net/grinder/console/messages/AgentProcessReportMessage.java, src/net/grinder/console/messages/AgentProcessStatusMessage.java, src/net/grinder/console/messages/WorkerProcessReportMessage.java, src/net/grinder/console/messages/WorkerProcessStatusMessage.java, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/communication/ProcessStatus.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/ProcessStatusTableModel.java, src/net/grinder/console/swingui/SwingDispatchedProcessStatusListener.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/debug/CreateInitialisationMessage.java, tests-src/net/grinder/engine/common/TestConsoleListener.java, tests-src/net/grinder/engine/messages/TestEngineMessages.java, src/net/grinder/console/communication/ProcessStatusImplementation.java, src/net/grinder/console/communication/ProcessStatusSet.java, src/net/grinder/console/communication/ConsoleCommunication.java, src/net/grinder/console/communication/ProcessControl.java, src/net/grinder/console/communication/AgentStatus.java, src/net/grinder/console/communication/ConsoleCommunicationImplementation.java, src/net/grinder/console/communication/ProcessStatusListener.java, src/net/grinder/console/communication/ProcessStatusSetImplementation.java, tests-src/net/grinder/console/communication/TestProcessStatusImplementation.java, tests-src/net/grinder/console/communication/TestProcessStatusSetImplementation.java, src/net/grinder/communication/ConnectionIdentity.java, src/net/grinder/communication/HandlerChainSender.java, src/net/grinder/communication/ServerReceiver.java, src/net/grinder/communication/TeeSender.java, src/net/grinder/engine/agent/AbstractProcessIdentityImplementation.java, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/AgentIdentityImplementation.java, src/net/grinder/engine/agent/FileStore.java, src/net/grinder/engine/agent/ProcessFactory.java, src/net/grinder/engine/agent/ProcessLauncher.java, src/net/grinder/engine/agent/WorkerProcessFactory.java, tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java:
+	Agent status is now reported to the console.
+
+	* src/net/grinder/util/BooleanProperty.java: Correct javadoc spelling.
+
+	* src/net/grinder/util/UniqueIdentityGenerator.java, tests-src/net/grinder/util/TestUniqueIdentityGenerator.java:
+	Unique identity generator.
+
+	* src/net/grinder/util/ListenerSupport.java, tests-src/net/grinder/util/TestListenerSupport.java:
+	Support "handler" listeners.
+
+	* src/net/grinder/util/InsecureSSLContextFactory.java:
+	Correct Javadoc for trivial constructor.
+
+	* src/net/grinder/console/model/Model.java:
+	No need for addTestReport to throw an exception.
+
+2005-05-10  Philip Aston  <philipa@mail.com>
+
+	* src/documentation/content/xdocs/links.xml, src/documentation/content/xdocs/site.xml:
+	anser-e.
+
+	* src/net/grinder/common/GrinderProperties.java: Fix javadoc spelling.
+
 2005-05-03  Philip Aston  <philipa@mail.com>
+
+	* CHANGES: Correct Dietrich's name.
 
 	* src/documentation/content/xdocs/g3/script-gallery.xml, CHANGES, examples/jmsreceiver.py:
 	Apply Dietrich Bollmann's enhancement: use a queue to pass state

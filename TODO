@@ -14,17 +14,6 @@ against it too :-).
 - Philip Aston
 
 
- > Jon Weygandt writes on 21 April 2005 16:01:
- >  > Noticed a problem while using TCPProxy. While recording, at random
- >  > times, the proxy server normally exits. I have noticed it with the
- >  > public site <http://www.aa.com/>, as well as others.
- >  >
- >  > Notice in:
- > net.grinder.tools.tcpproxy.HTTPProxyTCPProxyEngine.run()
- >  >
- >  > The main try/catch block is outside of the while(true) loop.
-
-
 * Enhancements
 
 ** Script Distribution
@@ -83,28 +72,21 @@ Task: Console should not enable worker process controls if no agent is
 connected.
 Task: If dirty buffers on play, optionally warn.
 
-***** Release 4
+***** Release 4 (done)
 
 Task: Merge worker and agent process status models. Update process tab
 to show both.
 
-  Problems
-  - console used to use connection id to track agent id (for file cache).
-    Change this to reconnect every time???
-  - see note below about need for "agent initiation channel".
-
+***** Release 5
 
 Task: Console to watch local file system for edits.
-
 Task: Add warning if saving outside of distribution.
-
 Task: The agent should pick up secondary grinder.properties from file
 cache.
-
 Task: Console to optionally auto broadcast on play. Need some way of
 synchronising before starting run.
 
-***** Release 5
+***** Release 6
 
 Task: Addressed messaging. Every Acceptor.SocketResource to know its
 remote EndPoint. Add FilteredFanOutServerSender (Extend
@@ -128,10 +110,6 @@ the console.
 
 Consider moving overwrite / save before close / ... handling to the
 model. Needs some kind of command pattern to represent choices.
-
-*** Process status
-
-Process status tab should show agent status as well.
 
 *** Add log panel
 

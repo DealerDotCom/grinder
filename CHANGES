@@ -3,6 +3,8 @@ Grinder 3.0-beta26 (Not yet released)
 
   The Grinder now requires J2SE 1.4.
 
+  The console now displays agent process status.
+
   Fix the TCPProxy to cope correctly with 8 bit strings in all
   locales (Bug 1167731). Thanks to Anton Malykh for the report.
 
@@ -18,10 +20,14 @@ Grinder 3.0-beta26 (Not yet released)
   getProcessName().
 
   Correct SSL documentation - The Grinder does not support the
-  javax.net.ssl.*	system properties.
+  javax.net.ssl.* system properties.
 
   Fix to the JMS receiver example from Dietrich Bollmann: use a queue
   to pass state between threads in a thread safe way.
+
+  Make the TCPProxy HTTP engine more resilient to connections being
+  dropped. Thanks to Jon Weygandt for the suggestion.
+
 
 Grinder 3.0-beta25
 ------------------
