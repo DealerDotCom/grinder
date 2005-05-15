@@ -23,6 +23,8 @@ package net.grinder.util;
 
 import junit.framework.TestCase;
 
+import net.grinder.common.Logger;
+import net.grinder.testutility.RandomStubFactory;
 import net.grinder.testutility.Time;
 
 
@@ -57,7 +59,7 @@ public class TestSleeper extends TestCase {
   }
 
   public void testSleepNormal() throws Exception {
-    // Warm up hotspot.
+    // Warm up Hot Spot.
     final Sleeper sleep0 = new Sleeper(1, 0, null);
 
     Time time0 = new Time(0, 1000) {
@@ -72,6 +74,11 @@ public class TestSleeper extends TestCase {
     assertTrue(
       new Time(50, 70) {
         public void doIt() throws Exception  { sleep1.sleepNormal(50); }
+      }.run());
+
+    assertTrue(
+      new Time(0, 10) {
+        public void doIt() throws Exception  { sleep1.sleepNormal(0); }
       }.run());
 
     final Sleeper sleep2 = new Sleeper(2, 0, null);
@@ -98,7 +105,7 @@ public class TestSleeper extends TestCase {
   }
 
   public void testSleepFlat() throws Exception {
-    // Warm up hotspot.
+    // Warm up Hot Spot.
     final Sleeper sleep0 = new Sleeper(1, 0, null);
 
     Time time0 = new Time(0, 1000) {
@@ -115,12 +122,26 @@ public class TestSleeper extends TestCase {
         public void doIt() throws Exception  { sleep1.sleepFlat(50); }
       }.run());
 
+    assertTrue(
+      new Time(0, 10) {
+        public void doIt() throws Exception  { sleep1.sleepFlat(0); }
+      }.run());
+
     final Sleeper sleep2 = new Sleeper(2, 0, null);
 
     assertTrue(
       new Time(0, 120) {
         public void doIt() throws Exception  { sleep2.sleepFlat(50); }
       }.run());
+
+    final RandomStubFactory loggerStubFactory =
+      new RandomStubFactory(Logger.class);
+    final Logger logger = (Logger)loggerStubFactory.getStub();
+
+    final Sleeper sleep3 = new Sleeper(1, 0, logger);
+    sleep3.sleepFlat(10);
+    loggerStubFactory.assertSuccess("output", String.class);
+    loggerStubFactory.assertNoMoreCalls();
   }
 
   public void testShutdown() throws Exception {
@@ -159,6 +180,9 @@ public class TestSleeper extends TestCase {
           t2.join();
         }
       }.run());
+
+    // No-op.
+    Sleeper.shutdownAllCurrentSleepers();
   }
 
   private final class TakeFifty extends Thread {
