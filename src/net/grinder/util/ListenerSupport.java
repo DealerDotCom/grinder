@@ -95,16 +95,19 @@ public final class ListenerSupport {
    * Notify the listeners of an event.
    *
    * @param handler An adapter to be applied to each listener.
+   * @return <code>true</code> => a listener handled the event.
    */
-  public void apply(HandlingInformer handler) {
+  public boolean apply(HandlingInformer handler) {
     synchronized (m_listeners) {
       final Iterator iterator = m_listeners.iterator();
 
       while (iterator.hasNext()) {
         if (handler.inform(iterator.next())) {
-          break;
+          return true;
         }
       }
     }
+
+    return false;
   }
 }

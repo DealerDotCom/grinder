@@ -73,24 +73,33 @@ public class TestListenerSupport extends TestCase {
     final Object listener2 = new Object();
     final Object listener3 = new Object();
 
+    final List listeners = new ArrayList();
+
+    final ListenerSupport.HandlingInformer informUpToListener3 =
+      new ListenerSupport.HandlingInformer() {
+        public boolean inform(Object listener) {
+          if (listener == listener3) {
+            return true;
+          }
+
+          listeners.add(listener);
+          return false;
+        }
+      };
+
+    assertFalse(listenerSupport.apply(informUpToListener3));
+
     listenerSupport.add(listener1);
     listenerSupport.add(listener2);
     listenerSupport.add(listener1);
+
+    assertFalse(listenerSupport.apply(informUpToListener3));
+    listeners.clear();
+
     listenerSupport.add(listener3);
     listenerSupport.add(listener2);
 
-    final List listeners = new ArrayList();
-
-    listenerSupport.apply(new ListenerSupport.HandlingInformer() {
-      public boolean inform(Object listener) {
-        if (listener == listener3) {
-          return true;
-        }
-
-        listeners.add(listener);
-        return false;
-      }
-    });
+    assertTrue(listenerSupport.apply(informUpToListener3));
 
     final Object[] calledListeners = listeners.toArray();
     assertEquals(3, calledListeners.length);
@@ -101,12 +110,15 @@ public class TestListenerSupport extends TestCase {
 
     listeners.clear();
 
-    listenerSupport.apply(new ListenerSupport.HandlingInformer() {
-      public boolean inform(Object listener) {
-        listeners.add(listener);
-        return false;
-      }
-    });
+    final ListenerSupport.HandlingInformer informAll =
+      new ListenerSupport.HandlingInformer() {
+        public boolean inform(Object listener) {
+          listeners.add(listener);
+          return false;
+        }
+      };
+
+    assertFalse(listenerSupport.apply(informAll));
 
     final Object[] calledListeners2 = listeners.toArray();
     assertEquals(5, calledListeners2.length);
