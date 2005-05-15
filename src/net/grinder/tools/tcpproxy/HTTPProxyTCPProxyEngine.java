@@ -162,8 +162,8 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     // Should be more than adequate.
     final byte[] buffer = new byte[4096];
 
-    try {
-      while (true) {
+    while (true) {
+      try {
         final Socket localSocket = accept();
 
         // Grab the first upstream packet and grep it for the
@@ -306,9 +306,9 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
           localSocket.close();
         }
       }
-    }
-    catch (IOException e) {
-      logIOException(e);
+      catch (IOException e) {
+        logIOException(e);
+      }
     }
   }
 
@@ -365,106 +365,108 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
 
       try {
         while (true) {
-          try {
-            // Read a buffer full. We're relying on the world conspiring
-            // to place request at start of buffer.
-            final int bytesRead = m_in.read(buffer);
+          // Read a buffer full. We're relying on the world conspiring
+          // to place request at start of buffer.
+          final int bytesRead = m_in.read(buffer);
 
-            if (bytesRead == -1) {
-              break;
+          if (bytesRead == -1) {
+            break;
+          }
+
+          final String bytesReadAsString =
+            new String(buffer, 0, bytesRead, "US-ASCII");
+
+          final Matcher matcher =
+            m_httpConnectPattern.matcher(bytesReadAsString);
+
+          if (matcher.find()) {
+
+            final String remoteHost = matcher.group(2);
+
+            int remotePort = 80;
+
+            try {
+              remotePort = Integer.parseInt(matcher.group(3));
+            }
+            catch (NumberFormatException e) {
+              // remotePort = 80;
             }
 
-            final String bytesReadAsString =
-              new String(buffer, 0, bytesRead, "US-ASCII");
+            final EndPoint remoteEndPoint =
+              new EndPoint(remoteHost, remotePort);
 
-            final Matcher matcher =
-              m_httpConnectPattern.matcher(bytesReadAsString);
+            final String key = remoteEndPoint.toString();
 
-            if (matcher.find()) {
+            m_lastRemoteStream =
+              (OutputStreamFilterTee) m_remoteStreamMap.get(key);
 
-              final String remoteHost = matcher.group(2);
+            if (m_lastRemoteStream == null) {
 
-              final int remotePort = parseInteger(matcher.group(3), 80);
+              // New connection.
 
-              final EndPoint remoteEndPoint =
-                new EndPoint(remoteHost, remotePort);
+              final Socket remoteSocket;
+              final TCPProxyFilter requestFilter;
 
-              final String key = remoteEndPoint.toString();
+              if (m_chainedHTTPProxy != null) {
+                // When running through a chained HTTP proxy, we still
+                // create a new thread pair to handle each target
+                // server. This allows us to reuse
+                // FilteredStreamThread and OutputStreamFilterTee to
+                // log the correct connection details. It may also be
+                // beneficial for performance.
+                remoteSocket =
+                  getSocketFactory().createClientSocket(m_chainedHTTPProxy);
+
+                requestFilter =
+                  new HTTPMethodAbsoluteURIFilterDecorator(
+                    new HTTPMethodRelativeURIFilterDecorator(
+                      getRequestFilter()), remoteEndPoint);
+              }
+              else {
+                remoteSocket =
+                  getSocketFactory().createClientSocket(remoteEndPoint);
+
+                requestFilter =
+                  new HTTPMethodRelativeURIFilterDecorator(getRequestFilter());
+              }
+
+              final ConnectionDetails connectionDetails =
+                new ConnectionDetails(m_clientEndPoint, remoteEndPoint, false);
 
               m_lastRemoteStream =
-                (OutputStreamFilterTee) m_remoteStreamMap.get(key);
+                new OutputStreamFilterTee(connectionDetails,
+                                          remoteSocket.getOutputStream(),
+                                          requestFilter,
+                                          getRequestColour());
 
-              if (m_lastRemoteStream == null) {
+              m_lastRemoteStream.connectionOpened();
 
-                // New connection.
+              m_remoteStreamMap.put(key, m_lastRemoteStream);
 
-                final Socket remoteSocket;
-                final TCPProxyFilter requestFilter;
-
-                if (m_chainedHTTPProxy != null) {
-                  // When running through a chained HTTP proxy, we still
-                  // create a new thread pair to handle each target
-                  // server. This allows us to reuse
-                  // FilteredStreamThread and OutputStreamFilterTee to
-                  // log the correct connection details. It may also be
-                  // beneficial for performance.
-                  remoteSocket =
-                    getSocketFactory().createClientSocket(m_chainedHTTPProxy);
-
-                  requestFilter =
-                    new HTTPMethodAbsoluteURIFilterDecorator(
-                      new HTTPMethodRelativeURIFilterDecorator(
-                        getRequestFilter()), remoteEndPoint);
-                }
-                else {
-                  remoteSocket =
-                    getSocketFactory().createClientSocket(remoteEndPoint);
-
-                  requestFilter =
-                    new HTTPMethodRelativeURIFilterDecorator(
-                      getRequestFilter());
-                }
-
-                final ConnectionDetails connectionDetails =
-                  new ConnectionDetails(m_clientEndPoint,
-                                        remoteEndPoint,
-                                        false);
-
-                m_lastRemoteStream =
-                  new OutputStreamFilterTee(connectionDetails,
-                                            remoteSocket.getOutputStream(),
-                                            requestFilter,
-                                            getRequestColour());
-
-                m_lastRemoteStream.connectionOpened();
-
-                m_remoteStreamMap.put(key, m_lastRemoteStream);
-
-                // Spawn a thread to handle everything coming back from
-                // the remote server.
-                new FilteredStreamThread(
-                  remoteSocket.getInputStream(),
-                  new OutputStreamFilterTee(connectionDetails.getOtherEnd(),
-                                            m_localSocket.getOutputStream(),
-                                            getResponseFilter(),
-                                            getResponseColour()));
-              }
+              // Spawn a thread to handle everything coming back from
+              // the remote server.
+              new FilteredStreamThread(
+                remoteSocket.getInputStream(),
+                new OutputStreamFilterTee(connectionDetails.getOtherEnd(),
+                                          m_localSocket.getOutputStream(),
+                                          getResponseFilter(),
+                                          getResponseColour()));
             }
-            else if (m_lastRemoteStream == null) {
-              throw new AssertionError("No last stream");
-            }
-
-            // Should do filtering etc.
-            m_lastRemoteStream.handle(buffer, bytesRead);
           }
-          catch (IOException e) {
-            // Perhaps we should decorate the OutputStreamFilterTee's so
-            // that we can return exceptions as some simple HTTP error
-            // page?
-
-            logIOException(e);
+          else if (m_lastRemoteStream == null) {
+            throw new AssertionError("No last stream");
           }
+
+          // Should do filtering etc.
+          m_lastRemoteStream.handle(buffer, bytesRead);
         }
+      }
+      catch (IOException e) {
+        // Perhaps we should decorate the OutputStreamFilterTee's so
+        // that we can return exceptions as some simple HTTP error
+        // page?
+
+        logIOException(e);
       }
       finally {
         // When exiting, close all our outgoing streams. This will
@@ -486,15 +488,6 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
         catch (IOException e) {
           // Ignore.
         }
-      }
-    }
-
-    private int parseInteger(String string, int defaultValue) {
-      try {
-        return Integer.parseInt(string);
-      }
-      catch (NumberFormatException e) {
-        return defaultValue;
       }
     }
   }
