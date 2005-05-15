@@ -52,6 +52,15 @@ public final class PublicAgentIdentityImplementation implements AgentIdentity {
   }
 
   public boolean equals(Object o) {
-    return m_agentIdentityImplementation.equals(o);
+
+    if (!(o instanceof PublicAgentIdentityImplementation)) {
+      return false;
+    }
+
+    final PublicAgentIdentityImplementation other =
+      (PublicAgentIdentityImplementation)o;
+
+    return m_agentIdentityImplementation.equals(
+      other.m_agentIdentityImplementation);
   }
 }
