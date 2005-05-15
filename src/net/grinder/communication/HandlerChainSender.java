@@ -75,14 +75,9 @@ public final class HandlerChainSender implements Sender {
   public void add(final Sender sender) {
     add(
       new MessageHandler() {
-        public boolean process(Message message) {
-          try {
-            sender.send(message);
-            return false;
-          }
-          catch (CommunicationException e) {
-            return true;
-          }
+        public boolean process(Message message) throws CommunicationException {
+          sender.send(message);
+          return false;
         }
 
         public void shutdown() {
