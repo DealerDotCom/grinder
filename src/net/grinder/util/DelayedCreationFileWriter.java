@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,7 +34,7 @@ import java.io.Writer;
  * @author Philip Aston
  * @version $Revision$
  **/
-public class DelayedCreationFileWriter extends Writer {
+public final class DelayedCreationFileWriter extends Writer {
 
   private final File m_file;
   private final boolean m_append;
@@ -54,7 +54,7 @@ public class DelayedCreationFileWriter extends Writer {
     if (!append) {
       // Delete the old file. Well it would get trashed anyway
       // if you used a standard FileWriter, so stop
-      // complaining, ok?
+      // complaining, OK?
       m_file.delete();
     }
   }
@@ -98,17 +98,6 @@ public class DelayedCreationFileWriter extends Writer {
         throw new IOException(e.getMessage());
       }
     }
-  }
-
-  /**
-   * Write a byte to the file.
-   *
-   * @param i an <code>int</code> value
-   * @exception IOException If an error occurs.
-   */
-  public void write(int i) throws IOException {
-    checkOpen();
-    m_delegate.write(i);
   }
 
   /**
