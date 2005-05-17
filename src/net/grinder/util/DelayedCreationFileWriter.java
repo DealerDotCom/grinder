@@ -22,7 +22,6 @@
 package net.grinder.util;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -89,17 +88,6 @@ public final class DelayedCreationFileWriter extends Writer {
     m_delegate.flush();
   }
 
-  private synchronized void checkOpen() throws IOException {
-    if (m_delegate == null) {
-      try {
-        m_delegate = new FileWriter(m_file.getPath(), m_append);
-      }
-      catch (FileNotFoundException e) {
-        throw new IOException(e.getMessage());
-      }
-    }
-  }
-
   /**
    * Write many bytes to the file.
    *
@@ -108,9 +96,12 @@ public final class DelayedCreationFileWriter extends Writer {
    * @param length How many bytes to write.
    * @exception IOException If an error occurs.
    */
-  public void write(char[] bytes, int offset, int length)
-    throws IOException {
-    checkOpen();
+  public void write(char[] bytes, int offset, int length) throws IOException {
+
+    if (m_delegate == null) {
+      m_delegate = new FileWriter(m_file.getPath(), m_append);
+    }
+
     m_delegate.write(bytes, offset, length);
   }
 }
