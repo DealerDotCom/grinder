@@ -162,7 +162,7 @@ public final class HTTPProxyTCPProxyEngine extends AbstractTCPProxyEngine {
     // Should be more than adequate.
     final byte[] buffer = new byte[4096];
 
-    while (true) {
+    while (!isStopped()) {
       try {
         final Socket localSocket = accept();
 
