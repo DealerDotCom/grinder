@@ -38,6 +38,7 @@ import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
+import net.grinder.console.messages.AgentProcessReportMessage;
 import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.engine.agent.PublicAgentIdentityImplementation;
@@ -257,15 +258,26 @@ public class TestConsoleCommunicationImplementation
 
     m_processMessagesThread.start();
 
+    assertEquals(
+      0,
+      m_consoleCommunication.getProcessControl().getNumberOfConnectedAgents());
+
     final Socket socket =
       new Socket(InetAddress.getByName(null), m_properties.getConsolePort());
     ConnectionType.WORKER.write(socket.getOutputStream());
 
+    final PublicAgentIdentityImplementation agentIdentity =
+      new PublicAgentIdentityImplementation("agent");
+
+    // We can currently send agent messages over a worker channel.
+    sendMessage(socket, new AgentProcessReportMessage(agentIdentity, (short)0));
+
     sendMessage(
       socket,
-      new WorkerProcessReportMessage(
-        new PublicAgentIdentityImplementation("agent").createWorkerIdentity(),
-        (short)0, (short)0, (short)0));
+      new WorkerProcessReportMessage(agentIdentity.createWorkerIdentity(),
+                                     (short)0,
+                                     (short)0,
+                                     (short)0));
 
     sendMessage(socket, new MyMessage());
 
@@ -277,9 +289,14 @@ public class TestConsoleCommunicationImplementation
 
     messageHandlerStubFactory.assertSuccess("process", MyMessage.class);
 
+    assertEquals(
+      1,
+      m_consoleCommunication.getProcessControl().getNumberOfConnectedAgents());
+
+
     // ConsoleCommunication should have handled the original
-    // ReportStatusMessage. We check here so we're sure the
-    // ReportStatusMessage has been processed.
+    // AgentProcessReportMessage and WorkerProcessReportMessage. We check here
+    // so we're sure the've been processed.
     messageHandlerStubFactory.assertNoMoreCalls();
 
     sendMessage(socket, new StopGrinderMessage());
