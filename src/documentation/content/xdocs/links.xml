@@ -12,6 +12,16 @@
   <title>Articles</title>
 
   <table class="noborder">
+
+    <tr>
+      <td>
+        <a href="http://www.anser-e.com/testing/GrinderAutomationTutorial.html">Grinder Test Automation for the WebLogic Server</a>
+      </td>
+
+      <td>An custom automated test environment for WebLogic built on
+      The Grinder.</td>
+    </tr>
+
     <tr>
       <td>
         <a
