@@ -1,6 +1,13 @@
 2005-05-18  Philip Aston  <philipa@mail.com>
 
+	* src/net/grinder/engine/process/JythonScriptExecutionException.java:
+	Cope with traceback with no frame.
+
+	* build.xml: Next is beta 27.
+
 	* The Grinder 3.0-beta26 is released.
+
+	* CHANGES, ChangeLog: Release docs.
 
 	* tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java:
 	Coverage.
