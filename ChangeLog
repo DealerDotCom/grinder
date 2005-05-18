@@ -1,6 +1,26 @@
+2005-05-18  Philip Aston  <philipa@mail.com>
+
+	* The Grinder 3.0-beta26 is released.
+
+	* tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java:
+	Coverage.
+
+2005-05-17  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/util/TestDelayedCreationFileWriter.java: Tests.
+
+	* src/net/grinder/util/DelayedCreationFileWriter.java:
+	Further simplification.
+
+	* src/net/grinder/util/DelayedCreationFileWriter.java:
+	No need to implement write(int).
+
+	* src/net/grinder/tools/tcpproxy/HTTPProxyTCPProxyEngine.java:
+	Exit cleanly if we've been stoped.
+
 2005-05-15  Philip Aston  <philipa@mail.com>
 
-	* The Grinder 3.0-beta26 is released.	
+	* CHANGES, ChangeLog, TODO: Document progress.
 
 	* src/documentation/content/xdocs/links.xml: More links.
 
