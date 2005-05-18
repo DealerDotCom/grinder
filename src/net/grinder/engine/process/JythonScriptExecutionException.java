@@ -85,9 +85,14 @@ public class JythonScriptExecutionException extends EngineException {
     public BriefPyException(Throwable wrapped, PyTraceback traceback) {
       super("", wrapped);
 
-      m_where = "(Passed through Jython script \"" +
-        traceback.tb_frame.f_code.co_filename +
-        "\" at line " + traceback.tb_lineno + ")";
+      if (traceback.tb_frame != null) {
+        m_where = "(Passed through Jython script \"" +
+          traceback.tb_frame.f_code.co_filename +
+          "\" at line " + traceback.tb_lineno + ")";
+      }
+      else {
+        m_where = "";
+      }
     }
 
     public void printStackTrace(PrintWriter s) {
