@@ -186,7 +186,7 @@ grinder.test0.parameter.url=http://localhost:80/index.html
 	  fractional range within which nearly all (99.75%) of the
 	  times will lie. E.g., if the sleep time is specified as 1000
 	  and the sleepTimeVariation is set to <code>0.1</code>, then
-	  99.75% of the actual sleep times will be between 990 and
+	  99.75% of the actual sleep times will be between 900 and
 	  1100 milliseconds. Default <code>0.2</code>.</td>
 	</tr>
 
