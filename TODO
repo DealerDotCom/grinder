@@ -187,6 +187,14 @@ would be correspondingly more complex.
 Needed for custom statistics that use 'period' so are valid in the
 console but not in the process logs.
 
+*** max(), min()
+
+(Requested by Venelin Mitov).
+
+Should store max, min values agains SampleStatistics, and add max(),
+min() to expressions.
+
+
 ** TCPProxy
 
 Tim McNerney writes:
