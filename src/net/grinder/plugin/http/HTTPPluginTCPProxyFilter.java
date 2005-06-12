@@ -151,7 +151,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
     m_requestLinePattern =
       Pattern.compile(
-        "^([A-Z]+)[ \\t]+([^\\?]+)(\\?.+)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?\\n",
+        "^([A-Z]+)[ \\t]+([^\\?]+)(\\?.*)?[ \\t]+HTTP/\\d.\\d[ \\t]*\\r?\\n",
         Pattern.MULTILINE | Pattern.UNIX_LINES);
 
     m_contentLengthPattern =
