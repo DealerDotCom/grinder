@@ -51,7 +51,7 @@ public final class StatisticsSetFactory {
   }
 
   /**
-   * Factory menthod.
+   * Factory method.
    *
    * @return A new <code>StatisticsSet</code>.
    */
