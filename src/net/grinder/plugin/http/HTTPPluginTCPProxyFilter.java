@@ -74,7 +74,6 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
   private static final String INITIAL_TEST_PROPERTY = "HTTPPlugin.initialTest";
 
-  private static final String FILENAME_PREFIX = "http-plugin-tcpproxy-post-";
   private static final String s_newLine =
     System.getProperty("line.separator");
   private static final String s_indent = "    ";

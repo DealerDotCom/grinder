@@ -130,9 +130,6 @@ public class TestStatisticsMap implements java.io.Externalizable {
   public TestStatisticsMap reset() {
     final TestStatisticsMap result = new TestStatisticsMap();
 
-    final StatisticsSetFactory testStatisticsFactory =
-      StatisticsSetFactory.getInstance();
-
     synchronized (this) {
       final Iterator iterator = new Iterator();
 

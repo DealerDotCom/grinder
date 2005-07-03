@@ -72,7 +72,7 @@ public class ExpressionView {
   static {
     // Ensure that the standard ExpressionViews are initialised
     // before any user ExpressionViews.
-    final Class dummy = CommonStatisticsViews.class;
+    CommonStatisticsViews.getSummaryStatisticsView();
   }
 
   /**

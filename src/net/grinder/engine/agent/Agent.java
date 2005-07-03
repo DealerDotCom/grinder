@@ -360,7 +360,6 @@ public final class Agent {
 
     private final ProcessLauncher m_processLauncher;
     private final int m_processIncrement;
-    private boolean m_rampUpFinished = false;
 
     public RampUpTimerTask(ProcessLauncher processLauncher,
                            int processIncrement) {
@@ -375,11 +374,6 @@ public final class Agent {
 
         if (!moreProcessesToStart) {
           super.cancel();
-
-          synchronized (this) {
-            m_rampUpFinished = true;
-            notifyAll();
-          }
         }
       }
       catch (EngineException e) {
