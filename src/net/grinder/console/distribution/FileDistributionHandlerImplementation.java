@@ -42,7 +42,6 @@ final class FileDistributionHandlerImplementation
   private final FileDistribution.UpdateAgentCacheState m_updateCacheState;
 
   private int m_fileIndex = 0;
-  private long m_earliestLastModifiedTime = -1;
 
   FileDistributionHandlerImplementation(
     File directory,
