@@ -201,7 +201,7 @@ public final class StatisticExpressionFactory {
   }
 
   /**
-   *  Create a constant float expresion.
+   *  Create a constant float expression.
    *
    * @param value The value.
    * @return The <code>StatisticExpression</code>.
