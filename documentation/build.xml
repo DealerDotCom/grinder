@@ -32,7 +32,7 @@ Say
 for details of other targets. 
 -->
 
-<project name="The Grinder Documentation" default="forrest" basedir=".">
+<project name="The Grinder Documentation" default="all" basedir=".">
 
   <property name="Name" value="The Grinder Documentation"/>
   <property name="name" value="grinder-documentation"/>
@@ -86,8 +86,9 @@ for details of other targets.
     </exec>
   </target>
 
-  <target name="release" depends="clean,forrest"
-          description="Generates a release.">
+  <target name="all" depends="clean,forrest"/>
+
+  <target name="release" depends="all" description="Generates a release.">
 
     <echo message=""/>
     <echo message=""/>
