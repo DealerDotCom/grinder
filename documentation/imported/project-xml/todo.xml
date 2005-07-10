@@ -1,0 +1,285 @@
+<?xml version="1.0"  encoding="iso-8859-1"?>
+
+<todo>
+<p>
+This is The Grinder TODO list. Its a collection of my thoughts on the future of The Grinder. </p>
+<p>
+If you want to implement something off this wish list, let me know first by discussion your ideas on the grinder-development list. There are instructions on how to contribute at http://grinder.sourceforge.net/development/contributing.html. </p>
+<p>
+The TODO list is part of the binary distribution. I'll accept patches against it too :-). </p>
+<p>
+</p>
+<ul>
+<li>
+ Philip Aston </li>
+</ul>
+<section name='Enhancements' depth='1' id='Enhancements'>
+<section name='Script Distribution' depth='2' id='Script Distribution'>
+<section name='Model' depth='3' id='Model'>
+<p>
+Agent process to manage file cache. (Need files as Jython can't have python path into memory). Agent is responsible for local file store below a directory based on the agent name. </p>
+<p>
+File cache should be up to date with directory structure below directory chosen by console. The root directory is part of python path. </p>
+<section name='Tasks' depth='4' id='Tasks'>
+<section name='Release 1 (done)' depth='5' id='Release 1 (done)'>
+<p>
+Task: Agent receives asynchronously. Task: Console to broadcast. Remove ScriptDistributionFiles work. Task: Allow editing in the console. Task: DistributeFilesMessage -&gt; DistributeFileMessage (send a single file). Send in a background thread with a progress bar. Task: Console to maintain map of remote agent address to last update time. For now assume that agent cache should be overwritten. For now, find the oldest time and broadcast since then. Null -&gt; send the lot. Task: Console to clear cache state on root change -&gt; broadcast full cache on distribution. Need a special "clear cache" message. Task: Console to allow selection of script. Warn on distribution if no script selected. Task: Agent to receive selection of script. Task: Agent FileStore to update copy of cache asynchronously. Main agent thread to move it into place at good point in lifecycle to prevent locking of stale files by worker processes. Task: Agent shouldn't create filestore directory until necessary. Task: Setting a new directory should require agents to refresh their cache. </p>
+</section>
+<section name='Release 2 (done)' depth='5' id='Release 2 (done)'>
+<p>
+Task: File Store directory should have a README describing what its for. Task: Guard against distributing agent cache directory. Can mark with a special file - maybe the README? Also prevent distribution of temporary files, CVS directories, grinder log files. </p>
+</section>
+<section name='Release 3 (done)' depth='5' id='Release 3 (done)'>
+<p>
+Task: Mature FileDistributionHandler model. Extract from comms package, leaving the comms bit of it behind. Task: Model agent cache state. Task: Console to indicate global dirty state. (Distinct from buffer "dirty" state). Task: Console to check dirty state on play and warn. Task: Console should not enable worker process controls if no agent is connected. Task: If dirty buffers on play, optionally warn. </p>
+</section>
+<section name='Release 4 (done)' depth='5' id='Release 4 (done)'>
+<p>
+Task: Merge worker and agent process status models. Update process tab to show both. </p>
+</section>
+<section name='Release 5' depth='5' id='Release 5'>
+<p>
+Task: Console to watch local file system for edits. Task: Add warning if saving outside of distribution. Task: The agent should pick up secondary grinder.properties from file cache. Task: Console to optionally auto broadcast on play. Need some way of synchronising before starting run. </p>
+</section>
+<section name='Release 6' depth='5' id='Release 6'>
+<p>
+Task: Addressed messaging. Every Acceptor.SocketResource to know its remote EndPoint. Add FilteredFanOutServerSender (Extend FanOutServerSender, allow resourceToOutputStream to return null indicating the resource shouldn't be sent anything. Supplied Filter method is given a SocketResource and the Message and can then veto.) </p>
+<p>
+Task: Add agent initiation channel so agent can send a checksum across file names/sizes. Console compares with its cache and generates a good last update time for the agent. Thus agents starting with a good cache skip sync. </p>
+<p>
+Task: Distribution file filter should be dynamically settable. </p>
+</section>
+</section>
+</section>
+</section>
+<section name='Console' depth='2' id='Console'>
+<p>
+Note: Klaus-Peter Berg is currently working on a major refactoring of the console. </p>
+<section name='Refactoring' depth='3' id='Refactoring'>
+<p>
+Consider moving overwrite / save before close / ... handling to the model. Needs some kind of command pattern to represent choices. </p>
+</section>
+<section name='Add log panel' depth='3' id='Add log panel'>
+<p>
+Report log messages that currently go to terminal, plus start, stop test runs etc. Logs should be timestamped. Use log to replace use of System.err for warnings. </p>
+</section>
+<section name='Future editor features' depth='3' id='Future editor features'>
+<p>
+Crtl-S -&gt; save. Revert file. Status bar. Undo. Copy and Paste menu items. File tree popup menu. </p>
+<p>
+Allow grinder properties to be set remotely. </p>
+<ul>
+<li>
+ This could just be another view in the editor? </li>
+</ul>
+<section name='jEdit' depth='4' id='jEdit'>
+<p>
+Replace jEdit-syntax with new jEdit syntax package when available, if its license terms are acceptable. Apparently now available. </p>
+<p>
+Clause 2b: </p>
+<p>
+b) You must cause any work that you distribute or publish, that in whole or in part contains or is derived from the Program or any part thereof, to be licensed as a whole at no charge to all third parties under the terms of this License. </p>
+<p>
+10. If you wish to incorporate parts of the Program into other free programs whose distribution conditions are different, write to the author to ask for permission. For software which is copyrighted by the Free Software Foundation, write to the Free Software Foundation; we sometimes make exceptions for this. Our decision will be guided by the two goals of preserving the free status of all derivatives of our free software and of promoting the sharing and reuse of software generally. </p>
+</section>
+</section>
+</section>
+<section name='Engine' depth='2' id='Engine'>
+<p>
+There should be an ExternalFilenameFactory, cf ExternalLogger. </p>
+<p>
+The agent should pass system properties, grinder properties, and alternate file via InitialiseGrinderMessage. </p>
+<section name='Interactive mode' depth='3' id='Interactive mode'>
+<p>
+Possible to have an interactive mode for debugging? E.g. a simple UI that can be launched from a thread which drops the user into a console? Can't just run the interpretter as the worker processes don't have access to the controlling terminals stdin. </p>
+</section>
+<section name='Instrumentation' depth='3' id='Instrumentation'>
+<p>
+Could we support a procedural "startTest()", "stopTest()" API? </p>
+<p>
+Perhaps. This procedural style would certainly be more obvious to the average user than "wrapping". OTOH, wrapping is powerful and I'm not sure we want to support two mechanisms to instrument code. </p>
+<p>
+Currently the engine only supports the concept of a single active test (transaction) per worker thread. It would be interesting to support multiple. nested tests. This would allow the recording of group statistics as well as individual statistics. The implementation would be correspondingly more complex. </p>
+</section>
+</section>
+<section name='Statistics' depth='2' id='Statistics'>
+<section name='Separate out console statistics views from summary statistics views' depth='3' id='Separate out console statistics views from summary statistics views'>
+<p>
+Needed for custom statistics that use 'period' so are valid in the console but not in the process logs. </p>
+</section>
+</section>
+<section name='TCPProxy' depth='2' id='TCPProxy'>
+<p>
+Tim McNerney writes: <br/>&gt; Obviously, I could edit the scripts by hand. But I'd like to have <br/>&gt; TCPProxy do this for me. So is there some existing method for doing <br/>&gt; such filtering? Say on target suffix ("filter=.gif,.js,.css") </p>
+<p>
+Change TCPProxy filters to a stream oriented model. This should cure another one of the TCPSniffer/HTTPPlugin bug when recording large outputs with posts? Also, consider having a filter instance pair per connection. </p>
+<p>
+Internationalise messages. </p>
+<p>
+Support different client certificates for proxied connection. </p>
+</section>
+<section name='HTTP Plugin' depth='2' id='HTTP Plugin'>
+<p>
+Remove ParseException, ProtocolNotSuppException from public APIs. </p>
+<p>
+Script support for HTTP "system property" options. </p>
+<p>
+Pablo Estades Fernández says: <br/>&gt; I need to use client cert on TCPProxy to be able to <br/>&gt; record the test case but also I need to configure <br/>&gt; grinder workers to run the test case presenting a <br/>&gt; client cert. </p>
+</section>
+<section name='Scripting' depth='2' id='Scripting'>
+<p>
+Consider forcing TestRunner to be registered with grinder. </p>
+<p>
+The Grinder should have error handling for attempts to call the ScriptStatistics report() or delayStatistics() methods from within wrapped code. </p>
+<p>
+Wrapped code should be able to use the ScriptStatistics interface and not have the settings overrwritten by the engine. </p>
+<p>
+Add per-run statistics. This would also allow number of aborted runs to be recorded. </p>
+<p>
+Script access to global statistics. </p>
+<section name='Events' depth='3' id='Events'>
+<p>
+Idea from Nurul Choudhury: <br/>&gt; Event counting - The Jython code can create a named event and fire <br/>&gt; the event when some condition was met. When the console polls for <br/>&gt; statistics the events and their count would be sent to the console. </p>
+</section>
+<section name='Error reporting' depth='3' id='Error reporting'>
+<p>
+<br/>&gt; It would be possible for certain classes of error (AttributeError <br/>&gt; being a good example) to spew out just <br/>&gt; <br/>&gt;       Unknown attribute GETx at "http.py", line 9 in __call__. <br/>&gt; <br/>&gt; Is this what you're after? </p>
+<p>
+To do this, might have to behave differently with 1 thread vs many. </p>
+</section>
+</section>
+<section name='Reports' depth='2' id='Reports'>
+<p>
+Perhaps JasperReports? </p>
+</section>
+<section name='Code' depth='2' id='Code'>
+<p>
+Review use of Kernel. Probably want to share them. </p>
+<p>
+Remove ThreadLocal from RegisteredPlugin. </p>
+<p>
+Figure out the UndeclaredThrowableException problem in TestRegisteredPlugin. </p>
+<p>
+Review use of InterruptedException </p>
+<p>
+Shouldn't really throw GrinderException anywhere. </p>
+</section>
+<section name='Other HTTP/HTML libraries' depth='2' id='Other HTTP/HTML libraries'>
+<p>
+DeSouza, Edwin writes: <br/>&gt; Instead of using: <br/>&gt; http://www.innovation.ch/java/HTTPClient/index.html <br/>&gt; &lt;http://www.innovation.ch/java/HTTPClient/FAQ.html&gt; <br/>&gt; <br/>&gt; How about using Jakarta Commons HttpClient (more popular and Apache <br/>&gt; License): <br/>&gt; http://jakarta.apache.org/commons/httpclient/index.html </p>
+<p>
+Justin Spears writes: <br/>&gt; I am new to grinder, however I found the built in HTTPClient a <br/>&gt; little lacking in functionality.  I might suggest using <br/>&gt; httpunit (http://httpunit.sourceforge.net) instead.  It <br/>&gt; works well with jython, and has extremely powerful methods <br/>&gt; for handling links, posts, gets, etc. <br/>&gt; <br/>&gt; It uses nekohtml to parse malformed HTML documents into <br/>&gt; valid XML then exposes a useful DOM based on these results. <br/>&gt; <br/>&gt; It also handles HTTPS connections, forms, links and other <br/>&gt; useful things in an easy to use easy to understand <br/>&gt; manner, (no more NVPAIRS or regex's, or patching HTTPClient!). <br/>&gt; <br/>&gt; ... </p>
+<p>
+OK, this amounts to a campaign against HTTPClient! </p>
+<p>
+Reasons for HTTPClient: </p>
+<ul>
+<li>
+ Its solid, (and not 'alpha' which is the case for HttpClient). </li>
+<li>
+ Its small and comprehensible. </li>
+<li>
+ It is efficient. </li>
+<li>
+ Its extremely well written. </li>
+<li>
+ Its the incumbent. </li>
+</ul>
+<p>
+Reasons for Commons HttpClient: </p>
+<ul>
+<li>
+ Its actively maintained. </li>
+<li>
+ It is more modular. </li>
+<li>
+ It is richer. </li>
+</ul>
+<p>
+Reasons for HttpUnit: </p>
+<ul>
+<li>
+ nekohtml, parsing support </li>
+</ul>
+<p>
+I prefer HttpClient, HTTPClient over HttpUnit for The Grinder as they are "closer to the wire". </p>
+<section name='Specific responses to Justin:' depth='3' id='Specific responses to Justin:'>
+<p>
+<br/>&gt;(no more NVPAIRS </p>
+<p>
+NameValuePair = NVPair # More readable alias </p>
+<p>
+<br/>&gt; or regex's, </p>
+<p>
+But they're lovely! </p>
+<p>
+<br/>&gt; or patching HTTPClient! </p>
+<p>
+In the next beta I'll supply HTTPClient pre-patched for JSSE. </p>
+</section>
+<section name='Summary' depth='3' id='Summary'>
+<p>
+On balance, yes HttpClient looks good and we should use it if it proves to be efficient. I'll add it to the TODO, but its a significant change =&gt; low priority. </p>
+<p>
+We perhaps need to look more closely at parsing support for functional assertions, but I don't want to lose The Grinder's efficiency here. </p>
+<p>
+Also http://www.nogoop.com/product_16.html#compare </p>
+</section>
+</section>
+</section>
+<section name='Bugs' depth='1' id='Bugs'>
+<p>
+(In addition to those on Sourceforge). </p>
+<section name='Console/agent' depth='2' id='Console/agent'>
+<p>
+Each time L&amp;F changes, the saveAs dialog gets another All Files filter! </p>
+</section>
+<section name='TCPProxy' depth='2' id='TCPProxy-1'>
+<p>
+Should listen on all interfaces if -localhost is not specified. </p>
+<p>
+Fix the proxy to record Authorization again. Can use connection ID. The G2 HTTPClient plugin implementation interprets basicAuthentication properties wrongly. It first sends a request without the authentication headers, then catches the 401 and automatically resends a request with the authentication headers. </p>
+</section>
+</section>
+<section name='Build' depth='1' id='Build'>
+<p>
+How to build clover reports during full build? </p>
+<ul>
+<li>
+ currently "with.clover" only works if clover is first thing on path, we need to do two "compile", "test" runs with different classes.dir. </li>
+<li>
+ could have with ant-call, modify compile, compile-tests, test </li>
+<li>
+ better to ant ourself? </li>
+</ul>
+<p>
+Include Clover history? </p>
+</section>
+<section name='Documentation' depth='1' id='Documentation'>
+<p>
+HTTP plug-in. </p>
+<p>
+Document G2 adapter. </p>
+<section name='Examples' depth='2' id='Examples'>
+<p>
+HTTPS. </p>
+<p>
+Basic authentication. </p>
+<p>
+http://thread.gmane.org/gmane.comp.java.grinder.user/186 </p>
+</section>
+<section name='Forrest TODO' depth='2' id='Forrest TODO'>
+<p>
+Create back links from javadoc. This isn't trivial, e.g. this: </p>
+<p>
+&lt;bottom&gt; &lt;![CDATA[ &lt;a class="noborder" href="../whats-new.html" target="_top"&gt;&lt;img src="../../images/grinder3.jpg"&gt;&lt;/img&gt;&lt;/a&gt; ]]&gt; &lt;/bottom&gt; </p>
+<p>
+only works for top level javadoc. </p>
+<p>
+Create menu links to the javadoc. </p>
+<p>
+How to include arbitrary HTML (e.g. for poll forms?) </p>
+</section>
+</section>
+</todo>
+

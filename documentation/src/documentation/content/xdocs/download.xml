@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document>
+<header>
+  <title>Downloading The Grinder</title>
+</header>
+<body>
+
+<section>
+  <title>Download</title>
+
+  <p>The Grinder 2 and The Grinder 3 can be downloaded from <a
+  href="ext:sourceforge/grinder">SourceForge.net</a>. They are
+  packaged as a <code>zip</code> format files which you should expand
+  using <code>unzip</code>, <a href="ext:winzip">WinZip</a> or
+  similar.</p>
+
+  <section>
+  <title>What else do I need?</title>
+
+  <p>To run The Grinder:</p>
+
+  <table class="noborder">
+    <tr>
+      <td><a href="ext:javasoft/j2se/">Java 2 Standard Edition
+      1.3.1</a>, equivalent, or later</td>
+    </tr>
+  </table>
+
+  <p>and optionally:</p>
+
+  <table class="noborder">
+    <tr>
+      <td><a href="ext:javasoft/jsse/">JSSE 1.0.2</a></td>
+      <td>for SSL support (see below)</td>
+    </tr>
+    <tr>
+      <td><a href="ext:jakarta/ant">Apache Jakarta Ant 1.5.1</a></td>
+      <td>to build The Grinder from source</td>
+    </tr>
+    <tr>
+      <td><a href="ext:sourceforge/junit/">JUnit 3.8.1</a></td>
+      <td>to test The Grinder itself</td>
+    </tr>
+    <tr>
+      <td><a href="ext:checkstyle">Checkstyle 3.3</a></td>
+      <td>to check the formatting of changes you may make to The Grinder</td>
+    </tr>
+  </table>
+
+  <p>Later versions of these packages should also work.</p>
+
+  <note>JSSE (Java Secure Socket Extension) is a standard part of Java 2
+  Standard Edition 1.4.1 and later. To simplify SSL and HTTPS
+  configuration, JSSE is now <em>required</em> for The Grinder 3.
+  Consequently you may find it easier to use J2SE 1.4.1 with The
+  Grinder 3.</note>
+
+  </section>
+</section>
+
+</body>
+</document>

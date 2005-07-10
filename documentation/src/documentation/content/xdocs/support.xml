@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document>
+<header>
+  <title>Support</title>
+</header>
+<body>
+  <section>
+    <title>Mailing lists</title>
+    <p>Requests for help should be send to <a
+    href="ext:mail/grinder-use">grinder-use@lists.sourceforge.net</a>.</p>
+
+    <p><a
+    href="ext:mail/grinder-announce">grinder-announce@lists.sourceforge.net</a>
+    is a low-volume mailing list which is used to announce new
+    releases and other items of interest to users of The Grinder.</p>
+
+    <p>Please <a href="site:contributing">contribute bug fixes and
+    enhancements</a> to <a
+    href="ext:mail/grinder-development">grinder-development@lists.sourceforge.net</a>.</p>
+
+    <p>Searchable archives of these mailing lists can be found on <a
+    href="ext:sourceforge/grinder">SourceForge.net</a>. <a
+    href="ext:gmane/grinder-lists">Gmane</a> provides alternative
+    searchable archives, together with NNTP feeds and an optonal
+    Blog-like interface.</p>
+
+    <p>You can also <a href="ext:sourceforge/grinder-mail">subscribe
+    and unsubscribe</a> to the lists.</p>
+
+    <p>When Philip Aston finds the time to respond to mail about The
+    Grinder, messages that are copied to one of the above mail lists
+    get priority. He freely copies responses to the lists; if there is
+    a particular reason why you want to keep your communication
+    private you must say so. Finally, if you can provide answers
+    yourself, please don't be shy!</p>
+
+    <note>The Grinder is free software. No one is under any obligation
+    to fix your problem. If all else fails, you have the
+    source.</note>
+  </section>
+
+</body>
+</document>

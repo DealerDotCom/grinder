@@ -1,0 +1,924 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE faqs PUBLIC "-//APACHE//DTD FAQ V2.0//EN" "http://forrest.apache.org/dtd/faq-v20.dtd">
+
+<faqs>
+  <title>Frequently Asked Questions</title>
+
+  <faqsection id="general">
+    <title>General Questions</title>
+
+    <faq id="name">
+      <question>
+	So its called "<em>The</em> Grinder" then?
+      </question>
+      <answer>
+	<p>Yes.</p>
+      </answer>
+    </faq>
+
+    <faq id="g2vsg3">
+      <question>
+	Should I use The Grinder 2 or The Grinder 3?
+      </question>
+      <answer>
+	<p>The Grinder 3. The Grinder 3 has many <a
+	href="site:g3/whats-new">enhancements</a> over The Grinder 2.
+	The Grinder 3 is in active development.</p>
+
+	<p>If you wish, you can continue to use The Grinder 2. You may
+	find it initially easier to get use for simple HTTP test
+	scenarios. Be aware that defects in The Grinder 2 (including
+	<a href="#premature-eof">this one</a> and <a
+	href="#extra-line">this one</a>) will not be fixed.</p>
+      </answer>
+    </faq>
+
+    <faq id="g3beta">
+      <question>
+	Why is The Grinder 3 still labelled <em>beta</em>?
+      </question>
+
+      <answer>
+	<p>The following features need to be completed before I will
+	remove the <em>beta</em> label from The Grinder 3:</p>
+
+	<ul>
+	<li>Script editing and distribution.</li>
+	<li>Documentation.</li>
+	</ul>
+
+	<p>These feature aside, The Grinder 3 is stable and
+	usable.</p>
+      </answer>
+    </faq>
+
+    <faq id="grinder-vs-loadrunner">
+      <question>
+	How does The Grinder stack up against a commercial tool like
+	Mercury Interactive's LoadRunner&#8482;?
+      </question>
+
+      <answer>
+	  <p>Here is an edited version of <a
+	  href="mailto:tom.braverman@bea.com">Tom Braverman</a>'s post
+	  to <a href="site:mail/grinder-use">grinder-use</a>.</p>
+
+	<dl>
+        <dt/>
+	<dd class="quote"> A few reasons:
+
+	  <ul>
+	    <li>The Grinder is lightweight
+
+	      <p>Compared to setting up LoadRunner or some other full
+	      featured tools, The Grinder is trivial to install and
+	      get running.</p>
+	    </li>
+
+	    <li>The Grinder is a <em>programmer's load tester</em>
+
+	      <p>Too often, programmers defer load testing to some
+	      other group (e.g., QA) and don't test their own
+	      components for scalability. The Grinder is designed for
+	      people who understand the code that they're hitting -
+	      it's not just a "black box" with a set of associated
+	      response times.</p>
+
+	      <p>Since tests can be coded - and not simply scripted,
+	      programmers get to test interior tiers of their
+	      application and not just response time via the user
+	      interface.</p>
+	    </li>
+
+	    <li>The Grinder is free 
+
+	      <p>I'm a consulting professional and I have to come up
+	      with solutions to deadlocks and slowdowns. Sometimes I
+	      only have hours to recreate a problem and then attempt
+	      to resolve it. I can't count on my client having a given
+	      load testing tool and many (most?) development teams
+	      don't have any such tool (they defer this type of
+	      testing to QA as mentioned above). I can bring The
+	      Grinder in and set it up and apply load quite
+	      quickly.</p>
+	    </li>
+	  </ul>
+
+	  <p>Summarizing: I don't try and persuade my clients that The
+	  Grinder is a replacement for LoadRunner, etc. I tell them
+	  that The Grinder is for use by the developers and that
+	  they'll still want the QA team to generate scalability
+	  metrics using LoadRunner or some other tool approved for the
+	  purpose by management.</p>
+
+	  <p>Story: One client was attempting to determine scalability
+	  based on LoadRunner. The LoadRunner team - with no
+	  understanding at all of the app - was telling them that some
+	  pages were giving response times of 30 seconds. The project
+	  manager knew this was patent BS since he could hit the enter
+	  key on his page and only count to 3 or 4 before the page
+	  displayed. The client spent many resource days attempting to
+	  understand LoadRunner numbers. Within a few hours, The
+	  Grinder was up and running and reporting numbers that
+	  appeared to track with the user experience. The Grinder
+	  became the gold standard that the client used to measure
+	  LoadRunner.</p>
+	  </dd>
+	</dl>
+
+	<p>Its worth adding to this that many companies <em>are</em>
+	using The Grinder for production load testing.</p>
+      </answer>
+    </faq>
+
+    <faq id="subscribe">
+      <question>
+	How do I subscribe/unsubscribe from The Grinder mailing lists?
+      </question>
+
+      <answer>
+	<p>You can subscirbe and unsubscribe at <a
+	href="ext:sourceforge/grinder-mail">Sourceforge</a>. <a
+	href="site:support">More details</a>.</p>
+      </answer>
+    </faq>
+  </faqsection>
+
+  <faqsection id="statistics">
+    <title>Statistics</title>
+    <faq id="raw-data">
+      <question>
+	Where is the raw data stored?
+      </question>
+
+      <answer>
+	<p>Liam Morley asked:</p>
+
+	<p class="quote">I understand that all the information from
+	the workers is sent back to the client, but all I see thus far
+	is rough statistical data which seems to have been compiled
+	from the raw data. When the data is sent back to the console,
+	where is it stored?</p>
+
+	<p>For efficiency, the worker processes only send back
+	aggregate information to the console, not the raw data. Each
+	worker process sends the console a report every 500ms. The
+	report contains information for each test that was invoked
+	during the period which includes the number of invocations,
+	the total time taken, the number of errors, and any other
+	custom statistics.</p>
+
+	<p>Each worker process writes out the raw information to a
+	process specific data file. This are the <em>data_...</em>
+	files that are stored with the other log files.</p>
+
+	<p>Apart from the raw data, another advantage that these files
+	give you that the console doesn't is a record of the testing
+	time line. Whilst the console graphs present this information
+	graphically, the console only allows you to save snapshots of
+	the current statistics.</p>
+      </answer>
+    </faq>
+
+    <faq id="calculation">
+      <question>
+	How does the Grinder calculate the mean time and TPS?
+      </question>
+
+      <answer>
+	<p>Each worker process records the time taken by each thread
+	for each test and regularly reports the mean time for each
+	test to the console. The console calculates the mean time for
+	each test across all worker processes. This is the <em>mean
+	time</em>.</p>
+
+	<p>Tests per second (TPS) is calculated by the console. It is
+	the sum of the number of tests performed by all worker
+	processes within the sampling period, divided by the duration
+	of the sampling period. Using longer sampling periods will
+	give better averages, but the console display will be updated
+	less frequently.</p>
+	</answer>
+    </faq>
+
+    <faq id="norelation">
+      <question>
+	What is the relation between mean time and TPS?
+      </question>
+
+      <answer>
+	<p>In general there is not a linear relationship between the
+	test time and the number of tests per second.</p>
+
+	<p>Most time in a typical server-side application is spent
+	waiting on I/O. Elapsed time is not the sum the time spent by
+	all of the threads. If I have a simple servlet or ejb that
+	does the following:</p>
+
+<source>
+void doit() { Thread.sleep(1000); // 1 second }
+</source>
+
+	<p>Say with this I get 100 TPS and a 1.2 second response time.
+	If I now change the code to:</p>
+
+<source>
+void doit() { Thread.sleep(10000); // 10 seconds }
+</source>
+
+	<p>the system isn't doing any more work and I'd expect to get
+	100 TPS and a 10.2 second repsonse time.</p>
+
+	<note>This is only true assuming we have infinite server side
+	threads. In practice, the size of a server side thread pool
+	has a significant effect on the behaviour of a system. I hope
+	that this discusssion helps you see that there is no direct
+	connection between TPS and test time.</note>
+      </answer>
+    </faq>
+  </faqsection>
+
+  <faqsection id="running">
+    <title>Running the tests</title>
+
+    <faq id="threads-vs-processes">
+      <question>
+        How do I control the number of simulated users?
+      </question>
+
+      <answer>	
+	<p>Typically a worker thread is thought of as a client context
+	which can simulate a concurrent user. You can control the
+	number of worker processes per agent and the number of threads
+	per process. You shouldn't need to run more than one agent
+	process per machine. The number of simulated users is then</p>
+
+	<source>
+number of worker threads x number of worker processes x number test machines
+	</source>
+
+	<p>To simulate additional users it is usually better to
+	increase the number of worker threads rather than the number
+	of processes except where:</p>
+
+	<ul>
+	  <li>Your JVM threading implementation is particularly
+	  inefficient. This is not such a problem nowadays. Running
+	  several hundred threads per process is usually fine.</li>
+
+	  <li>The protocol you are using will behave differently when
+	  distributed across multiple processes. For example, the
+	  WebLogic Server t3 protocol is optimised so that a single
+	  TCP/IP connection is used between any two processes.</li>
+	</ul>
+      </answer>
+    </faq>
+
+    <faq id="multiple-scripts">
+      <question>
+	Can I run different test scripts against the same console?
+      </question>
+
+      <answer>
+	<p>Yes.</p>
+
+	<p>The console receives reports and updates the graph based on
+	test number. Thus it is possible to have different agent
+	processes running scripts with different test numbers (e.g.
+	one process running tests 1 to 5 and another running tests 6
+	to 10)., reporting to the same console.</p>
+      </answer>
+    </faq>
+
+    <faq id="testrun-period">
+      <question>
+	How do I run the tests for a specific period of time?
+      </question>
+      
+      <answer>
+	<p>Use the console to control the test. If you want the tests
+	to run for an hour and your sample interval is set to 5
+	seconds, set the console to collect 720 samples.</p>
+
+	<p>If you're not using the console, see <a
+	href="site:getting-started/properties">grinder.duration</a>.</p>
+      </answer>
+    </faq>
+
+    <faq id="serverside-stats">
+      <question>
+	Is there any way to record CPU utilisation of the server?
+      </question>
+
+      <answer>
+	<p>No. The Grinder only measures the response of the test
+	server as a black box. Look to other tools such as
+	<code>sar</code> and <code>vmstat</code> to measure server CPU
+	utilisation.</p>
+      </answer>
+    </faq>
+  </faqsection>
+
+  <faqsection id="g2">
+    <title>The Grinder 2</title>
+    <faq id="string-beans">
+      <question>
+	How do I simulate different users with The Grinder 2?
+      </question>
+
+      <answer>
+	<p>You probably want to use a <a
+	href="site:g2/http-plugin/string-bean">String Bean</a>.</p>
+      </answer>
+    </faq>
+
+    <faq id="post-and-string-beans">
+      <question>
+	How do I generate POST data with a String Bean?
+      </question>
+
+      <answer>
+	<p>Sean Kroah writes:</p>
+
+	<dl>
+	  <dt/>
+	  <dd class="quote">
+	    <p><code>grinder.test0.parameter.post=&lt;getPostData&gt;</code>
+	    doesn't work.</p>
+
+	    <p>I didn't really see this in the docs anywhere so if
+	    anyone is interested. I needed dynamic post data and the
+	    HTTP plugin post parameter only took a file name. The key
+	    was that the file can optionally contain a reference to a
+	    <a href="site:g2/http-plugin/string-bean">String Bean</a>
+	    method. I tried it on a fluke and it worked.</p>
+
+<source>
+grinder.test0.parameter.url=&lt;getLoginUrl&gt;
+grinder.test0.parameter.post=getPostData.dat
+</source>
+	    <p><code>getPostData.dat</code> has one line in it:</p>
+
+<source>
+&lt;getPostData&gt;
+</source>
+
+	    <p>This tells The Grinder to call my String Bean method
+	    which returns my dynamic POST content based on the test
+	    description. I'm pretty pleased with that.</p>
+	  </dd>
+	</dl>
+      </answer>
+    </faq>
+
+    <faq id="multicast">
+      <question>
+	What do I need to do to set up multicast?
+      </question>
+
+      <answer>
+	<p>You must set up multicast if you want to use the console
+	with The Grinder 2. It is used to send signals from the
+	Console to the Grinder processes (start, stop). Multicast is
+	no longer necessary for The Grinder 3.</p>
+
+	<p>Multicast addresses lie in the range <code>224.0.0.0</code>
+	to <code>239.255.255.255</code>. Ports lie in the range
+	<code>0</code> to <code>65535</code>. You should ensure that
+	the address and ports you chose does not clash with other
+	applications running on your LAN. The example files uses the
+	address <code>228.1.1.1:1234</code>:</p>
+
+<source>
+grinder.receiveConsoleSignals=true
+grinder.grinderAddress=228.1.1.1
+grinder.grinderPort=1234
+</source>
+
+	<p>For most modern TCP stacks, e.g Windows 95/98/NT, Linux,
+	multicast works out of the box.</p>
+
+	<p>Under Linux, you may also need to set up the routing table.
+	Try:</p>
+
+<source>
+route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
+</source>
+
+	<p>Some Windows VPN clients (e.g Bay Networks Extranet)
+	interfere with multicast. You may need to disable them.</p>
+      </answer>
+    </faq>
+
+    <faq id="multicast-w2k">
+      <question>
+	What do I need to do to set up multicast under Windows 2000?
+      </question>
+
+      <answer>
+	<p>With a stand alone Windows 2000 machine, you might
+	experience similar grief to myself. I found that I could only
+	get multicast to work if my LAN NIC had a carrier and the MS
+	loop-back adapter is not installed (or disabled). The
+	following links contain experiences that tally with mine:</p>
+
+	<ul>
+	  <li><a
+	  href="http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html">
+	  http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0021.html</a></li>
+
+	  <li><a
+	  href="http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html">
+	  http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0023.html</a></li>
+
+	  <li><a
+	  href="http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html">
+	  http://www.web3d.org/WorkingGroups/vrtp/dis-java-vrml/hypermail/2001/0025.html</a></li>
+	</ul>
+
+	<p>The last of these says:</p>
+
+	<p class="quote">I have been looking for a solution for this
+	problem a long time without success :-( I found several dummy
+	loop-back IP stacks but none that supports multicast. The
+	solution I have been using is to bring along a tiny hub and
+	connect my laptop to that hub when doing demos. Windows is a
+	bit stupid in the way that it only checks if it has a carrier.
+	</p>
+
+	<p>I now use a slightly cheaper/lighter solution; namely I
+	have cropped a network cable short and twisted my own physical
+	loop-back adapter. Needless to say, if anyone figures out how
+	to get multicast working with a stand alone W2K machine, I'm
+	more than interested.</p>
+
+	<note>Multicast is no longer required by The Grinder 3.</note>
+      </answer>
+    </faq>
+
+    <faq id="premature-eof">
+      <question>
+	Why do I get <code>HTTPClient.RetryException: Premature EOF
+	encountered</code> errors when I increase HTTP load?
+      </question>
+
+      <answer>
+	<p>This is a known issue with The Grinder 2 that is fixed in
+	The Grinder 3.0b14. I have no plans to backport the fix to The
+	Grinder 2, but see <a
+	href="http://article.gmane.org/gmane.comp.java.grinder.user/893/match=premature+eof">this
+	e-mail</a> for details of how to do this yourself.</p>
+      </answer>
+    </faq>
+
+    <faq id="extra-line">
+      <question>
+	Why do my POSTs have an extra new line?
+      </question>
+
+      <answer>
+	<p>An anonymous user reports:</p>
+	<dl>
+	  <dt/>
+	  <dd class="quote">
+	    <p>The Grinder 2 appends a new line character to the end
+	    of file which contains post information for a test. This
+	    appears to happen only under Windows.</p>
+	  </dd>
+	</dl>
+
+	<p>This is a known issue with The Grinder 2 that is fixed in
+	The Grinder 3.0. I have no plans to backport the fix to The
+	Grinder 2, but see the <a
+	href="site:sourceforge/extra-line">bug report</a> for how to
+	do this yourself.</p>
+      </answer>
+    </faq>
+  </faqsection>
+
+  <faqsection id="g3">
+    <title>The Grinder 3</title>
+    <faq id="startup-time">
+      <question>
+	Why does The Grinder take a while to start up?
+      </question>
+      <answer>
+	<p>The Grinder 3 worker process start up time is marginally
+	slower than The Grinder 2. However, it is much slower when you
+	add new Java libraries to your <code>CLASSPATH</code>.</p>
+
+	<p>At start up, the Jython engine processes all new Java
+	libraries it finds. When it does this you'll see output
+	similar to the following in the window you used to start The
+	Grinder:</p>
+
+<source>
+*sys-package-mgr*: processing new jar, 'E:\src\grinder3\lib\jakarta-oro-2.0.6.jar'
+*sys-package-mgr*: processing new jar, 'E:\src\grinder3\lib\jython.jar'
+</source>
+
+	<p>Jython caches the result of this processing, so subsequent
+	start up times are much reduced. You can control the location
+	of the cache directory, see the information on <a
+	href="site:g3/scripts/jython-installation">Jython
+	installation</a>.</p>
+
+      </answer>
+    </faq>
+
+    <faq id="junit">
+      <question>
+	What happened to the JUnit plugin?
+      </question>
+
+      <answer>
+	<p>The Grinder 2 had a JUnit plugin which allowed JUnit test
+	cases to be called. There is no JUnit plugin in The Grinder 3
+	but you can call arbitrary Java code so you should be able to
+	invoke your JUnit test cases directly.</p>
+
+	<p>If you have a lot of JUnit test cases, it would be
+	appropriate to wrap up the steps necessary to invoke a test
+	case in a Jython library. Contributions to the <a
+	href="site:script-gallery">script gallery</a> are welcome.</p>
+
+	<p>See also <a
+	href='http://sourceforge.net/mailarchive/forum.php?thread_id=1687434&amp;forum_id=2650'>
+	this article</a> on <em>grinder-use</em>.</p>
+
+      </answer>
+    </faq>
+
+    <faq id="jython-libraries">
+      <question>How do I use standard Python
+      modules in my scripts?</question>
+
+      <answer>
+	<p>The Python standard library contains a number of very
+	useful modules. For example the regular expression module
+	<code>re</code>, the <code>threading</code> module, and the
+	<code>random</code> module. To use these modules you must <a
+	href="site:g3/scripts/jython-installation">install
+	Jython</a>.</p>
+      </answer>
+    </faq>
+
+    <faq id="simulating-users">
+      <question>
+	How do I simulate different users with The Grinder 3?
+      </question>
+
+      <answer>
+	<p><a
+	href="mailto:calum.fitzgerald@environment-agency.gov.uk">Calum
+	Fitzgerald</a> writes:</p>
+
+	<dl>
+          <dt/>
+	  <dd class="quote">
+	    <p>This is a method we use to generate random users for
+	    tests on web applications.</p>
+
+	    <p>We store the usernames and
+	    passwords in a text file (eg.users.txt) with the format:
+	    <code>user,password</code></p>
+
+	    <p>We then read in the file and grab the components. The
+	    reason for using a file to store the usernames is that if
+	    you are using hundreds or throusands of usernames then
+	    Jython/Java has a limitation with arrays over 64KB.</p>
+
+	    <source>
+#
+# testRandomise.py
+#
+import random
+import string
+
+class TestRandomise:
+  def __init__(self, filename):
+    self._users = []
+    infile = open(filename, "r")
+
+    for line in infile.readlines():
+      self._users.append(string.split((line),','))
+    infile.close()
+
+  def getUserInfo(self):
+    "Pick a random (user, password) from the list."
+    return random.choice(self._users)
+
+
+#
+# Test script. Originally recorded by the TCPProxy.
+#
+from testRandomise import TestRandomise
+tre = TestRandomise("users.txt") 
+
+class TestRunner:
+    def __call__(self):
+        # Get user for this run.
+        (user, passwd) = tre.getUserInfo()
+
+	# ...
+
+	# Use the user details to log in.
+
+        tests[2002].POST('https://host:443/securityservlet',
+          ( NVPair('functionname', 'Login'), 
+            NVPair('pagename', 'Login'), 
+            NVPair('ms_emailAddress', user),
+            NVPair('ms_password', passwd), ))
+	    </source>
+	  </dd>
+	</dl>
+      </answer>
+    </faq>
+
+    <faq id="parse-response">
+      <question>
+	Is there a way to make my requests depend on previous
+	responses?
+      </question>
+
+      <answer>
+	<p><a href="mailto:carlos.franco@xeridia.com">Carlos
+	Franco</a> asks:</p>
+
+	<p class="quote">Is there a way (with Grinder 3) to make that
+	my requests depends on the response?</p>
+
+	<p>Absolutely. This is one of the compelling reasons to use
+	The Grinder 3 over The Grinder 2.</p>
+
+	<p class="quote">I will make an example. Supose that when I
+	make a request the server gives me one list of, for example,
+	cars, and I want to edit the information of one, but I don't
+	know its ID, so I have to look into the response and look for
+	it. Can I do that?</p>
+
+	<p>I'm assuming HTTP and that the cars come back in a table
+	such as</p>
+
+<source>
+&lt;td&gt;Jaguar&lt;/td&gt;&lt;td&gt;1234&lt;/td&gt;
+&lt;td&gt;Bentley&lt;/td&gt;&lt;td&gt;0012&lt;/td&gt;
+&lt;td&gt;Rolls Royce&lt;/td&gt;&lt;td&gt;8323&lt;/td&gt;
+&lt;td&gt;Rover&lt;/td&gt;&lt;td&gt;9876&lt;/td&gt;
+</source>
+
+	<p>You can get the text of the HTTP response body with
+	something like:</p>
+
+<source>
+response = myrequest.GET(&quot;/carindex.html&quot;)
+text = response.text
+</source>
+
+	<p>See the <a href="g3/script-javadoc/index.html">script
+	API</a> for other things you can do with the
+	<code>HTTPResponse</code> object.</p>
+
+	<p>Now you have the choice of using Java or Python to extract
+	the appropriate ID. Lets do it in Python. Rather than write
+	low level string parsing, we'll use a regular expression for
+	capturing interesting information. To use the standard
+	<code>re</code> module, you should install Jython as described
+	in <a href="#jython-libraries">this FAQ</a>.</p>
+
+	<p>Regular expressions are faster if compiled, so we'll do
+	this up front:</p>
+
+<source>
+# Add to top of script
+import re
+expression = re.compile(r&quot;&lt;td&gt;([\w\s]*)&lt;/td&gt;\s*&lt;td&gt;(\d*)&lt;/td&gt;&quot;)
+</source>
+
+	<p>For eyes unused to magic of regular expressions, this one
+	matches pairs of table cells, the first cell containing
+	alphanumerics and white space, the second containing a number.
+	<code>\w</code> matches an alphanumeric ("word") character,
+	<code>\s</code> matches a white space character,
+	<code>()</code> captures its contents in a group.</p>
+
+	<p>We can then use the regular expression to parse the
+	response:</p>
+
+<source>
+response = myrequest.GET(&quot;/carindex.html&quot;)
+
+for car, id in expression.findall(response.text):
+    print car, id
+</source>
+
+	<p>Of course you want to use this to select an ID and use it
+	in a subsequent page. Lets pick a random one and use it for a
+	new request:</p>
+
+<source>
+response = myrequest.GET(&quot;/carindex.html&quot;)
+
+# Import random for this to work.
+car,id = random.choice(expression.findall(response.text))
+
+request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
+</source>
+      </answer>
+    </faq>
+
+    <faq id="http-caching">
+      <question>How do I replay a scenario, caching
+      image files but not text files?</question>
+
+      <answer>
+	<p>The Grinder itself does not cache files. It merely
+	simulates browser behaviour. The
+	<code>Not-Modified-Since</code> headers are recorded by the
+	TCPProxy filter, so what you record with the TCPProxy is the
+	caching behaviour of the browser you are using.</p>
+
+	<p>If this is not what you want you could add a function to
+	your test script which takes an HTTPRequest, decides whether
+	it should be considered as "cached" or not, and adds a
+	<code>Not-Modified-Since</code> header as appropriate.</p>
+      </answer>
+    </faq>
+
+    <faq id="distribution-directory">
+      <question>When using the script distribution feature, how can my scripts refer to other distributed files?</question>
+
+      <answer>
+	<p>The directory of the distributed script is prepended to the
+	Jython system path. You can do something like:</p>
+<source>
+  import sys
+  f = open("%s/myresources.properties" % sys.path[0])
+  # ...
+</source>
+      </answer>
+    </faq>
+  </faqsection>
+
+  <faqsection>
+    <title>The TCPProxy</title>
+
+    <faq id="what-happened-to-the-tcpsniffer">
+      <question>
+	What happened to the TCPSniffer?
+      </question>
+
+      <answer>
+	<p>Starting with The Grinder 3, the TCPSniffer was renamed to
+	the TCPProxy to more correctly reflect its nature. The
+	TCPProxy has also been significantly enhanced during the
+	development of The Grinder 3.</p>
+      </answer>
+    </faq>
+
+    <faq id="use-the-tcpproxy">
+      <question>My server works fine with a
+      browser but has errors when I use the HTTP plugin?</question>
+
+      <answer>
+	<p>This is probably down to one of the following:</p>
+
+	<ul>
+	  <li><p>Bugs in your server code. Particularly, those due to
+	  the way it handles multiple concurrent requests. Don't be
+	  disheartened, you did good; finding bugs like this is a key
+	  reason to use The Grinder.</p></li>
+
+	  <li>Differences between the HTTP requests that the browser
+	  uses and those that The Grinder sends.</li>
+	</ul>
+	
+	<p>The HTTP plugin sends requests that will have minor
+	differences between those that a browser send, but which
+	rarely affect server behaviour. Its worth knowing how to
+	examine the differences with the TCPProxy. First <a
+	href="site:g3/tcpproxy">set the TCPProxy as a browser
+	proxy</a> and record the output to a file. Secondly alter your
+	tests so that all requests go via the TCPProxy (the best way
+	is to set the test script connections to direct requests via
+	the TCPProxy acting an HTTP proxy); again record the output to
+	a file. Now grab a coffee and compare.</p>
+      </answer>
+    </faq>
+
+    <faq id="tcpproxy-colour-codes">
+      <question>
+	What are all those funny ^[[31 characters in the TCPProxy
+	output?
+      </question>
+      <answer>
+	<p>Did you use the <code>-colour</code> switch? If so, the
+	TCPProxy generates escape codes which work on ANSI compliant
+	terminals and look very pretty.</p>
+
+	<p>For those of you on Windows platforms, this <em>doesn't
+	work</em> with the <code>CMD.EXE</code> window unless you're
+	using <a href="ext:cygwin">Cygwin</a>. (Of course, if you're
+	using Cygwin you'd use <code>rxvt</code> in preference
+	:-)).</p>
+      </answer>
+    </faq>
+  </faqsection>
+
+  <faqsection id="problems">
+    <title>Problems</title>
+
+    <faq id="negative-times">
+      <question>
+	I've seen The Grinder report negative test times?!
+      </question>
+
+      <answer>
+	<p>Are you running Linux kernel 2.2.18? Mikael Suokas
+	reports:</p>
+
+	<dl>
+          <dt/>
+	  <dd class="quote">
+	    <p>In some load situations, on some hardware, older Linux
+	    kernels can generate system times that jump backwards. I
+	    have experienced this problem on one machine (Intel
+	    Pentium/150, 128M RAM, Adaptec AHA-2940, SCSI disks)
+	    running the stock Red Hat Linux 7.0 kernel (2.2.16).</p>
+
+	    <p>The Grinder occasionally reported negative response
+	    times in the -900 to -700 ms range whenever the load
+	    became high. Interestingly, the same OS + kernel version
+	    on several other machines never showed these negative
+	    response times. The problem was not Grinder or Java
+	    specific: a C program polling gettimeofday() also showed
+	    system time jumping backwards.</p>
+
+	    <p>Upgrading to kernel 2.2.19 fixed this issue for me.
+	    Since the release notes for Linux 2.2.18 mention time
+	    keeping locking fixes, I don't think that was a
+	    coincidence.</p>
+
+	    <p>Of course, you should upgrade any 2.2.x kernel to
+	    2.2.19 anyway, because because of the many security
+	    fixes.</p>
+	  </dd>
+	</dl>
+      </answer>
+    </faq>
+
+    <faq id="windows-address-in-use">
+      <question>
+	What can I do about <em>address in use</em> exceptions on
+	Microsoft Windows machines?
+      </question>
+
+      <answer>
+	<p>Answer courtesy of Venkat:</p>
+
+	<dl>
+          <dt/>
+	  <dd class="quote">
+	    <p>Recently, there have been a couple posts from people
+	    facing the <em>address in use</em> exception when running
+	    The Grinder. I also faced the same issue and here is what
+	    I found and how I resolved it.</p>
+
+	    <p>Windows OS TCP-IP system has a parameter that controls
+	    the maximum port number used when an application requests
+	    any available user port from the system. By default,
+	    ephemeral (that is, short-lived) ports are allocated
+	    between the values of 1024 and 5000 inclusive. During a
+	    Grinder test, if we exceed this limit, we get the
+	    <em>address in use</em> exception. To make it more
+	    complicated, there is another parameter that says once the
+	    application closes a TCP connection, how long the OS will
+	    wait before reclaiming the port for the connection. The
+	    default value for this is 4 minutes.</p>
+
+	    <p>Due to the above, often the default Windows
+	    configuration isn't sufficent to run load tests. To change
+	    this, modify the following Registry values under the key
+	    <code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</code>:</p>
+
+<source>
+MaxUserPort       = dword:00004e20 (20,000 decimal)
+TcpTimedWaitDelay = dword:0000001e (30 decimal)
+</source>
+
+	    <p>The above was sufficient for my testing. Adjust the
+	    <code>MaxUserPort</code> to a larger number if you still
+	    run into the exception. Of course, the OS needs to be
+	    rebooted once the setting is changed. MS documentation
+	    says the <code>MaxUserPort</code> setting is available
+	    since Windows NT 3.51 Service Pack 5. I am not sure which
+	    version introduced the <code>TcpTimedWaitDelayed</code>
+	    setting. You can confirm whether your OS version supports
+	    this by looking into the Registry location above.</p>
+	  </dd>
+	</dl>
+      </answer>
+    </faq>
+  </faqsection>
+</faqs>
