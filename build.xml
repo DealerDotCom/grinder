@@ -27,13 +27,12 @@ As well as Ant, to build and run The Grinder you need:
   - J2SE 1.4.1 or later
 
 The following additional packages are necesary to run The Grinder unit
-tests, reports, and to create the documentation:
+tests, reports.
 
   - JUnit 3.8.1
   - Xalan 2.3.1
   - Checkstyle 3.4
   - Clover 1.3.5
-  - Apache Forrest 0.6
 
   (You might not need these exact versions).
 
@@ -75,6 +74,9 @@ what you want. Currently the conditionally built modules are:
 
   <property name="year" value="2005"/>
 
+  <!-- local settings -->
+  <property file="etc/localpaths.properties"/>
+
   <!-- javac switches -->
   <property name="debug" value="on"/>
   <property name="optimize" value="on"/>
@@ -85,17 +87,12 @@ what you want. Currently the conditionally built modules are:
   <property name="native-src.dir" value="native"/>
   <property name="test-src.dir" value="tests-src"/>
   <property name="etc.dir" value="etc"/>
-  <property name="manifest.mf" value="etc/grinder-manifest.mf"/>
   <property name="changes2xml.py" value="etc/changes2xml.py"/>
   <property name="outline2xml.py" value="etc/outline2xml.py"/>
   <property name="examples.dir" value="examples"/>
   <property name="contrib.dir" value="contrib"/>
-  <property name="doc.dir" value="docs"/>
-  <property name="xdoc.dir" value="xdoc"/>
-  <property name="release.dir" value="releases"/>
-
-  <!-- local settings -->
-  <property file="${etc.dir}/localpaths.properties"/>
+  <property name="export-to-doc-build.dir"
+            value="${grinder-doc.dir}/imported"/>
 
   <!-- output -->
   <!-- classes.dir is calcuated in init. -->
@@ -109,12 +106,11 @@ what you want. Currently the conditionally built modules are:
   <property name="lasttest.timestamp" value="last-test-run.timestamp"/>
   <property name="build.log" value="${build.dir}/build.log"/>
   <property name="python.cachedir" value="${build.dir}/python.cache"/>
+  <property name="release.dir" value="releases"/>
+  <property name="doc.dir" value="docs"/>
 
   <!-- javadoc -->
   <property name="javadoc.dir" value="${doc.dir}/javadoc"/>
-  <property name="script-javadoc-working.dir"
-            value="${build.dir}/script-javadoc"/>
-  <property name="script-javadoc.dir" value="${doc.dir}/g3/script-javadoc"/>
   <property name="javadoc.css" value="${etc.dir}/javadoc.css"/>
   <property name="package-lists.dir" value="${etc.dir}/packagelists"/>
 
@@ -126,7 +122,6 @@ what you want. Currently the conditionally built modules are:
     <include name="${native-src.dir}/**"/>
     <include name="${test-src.dir}/**"/>
     <include name="${etc.dir}/**"/>
-    <include name="${xdoc.dir}/**"/>
     <include name="${javadoc.dir}/**"/>
     <exclude name="**/.xvpics/**"/>
     <exclude name="**/prj.el"/>
@@ -199,11 +194,14 @@ what you want. Currently the conditionally built modules are:
 
     <available classpathref="build.classpath"
                classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
-         property="have.optional.tasks" />
+               property="have.optional.tasks" />
 
     <available classpathref="build.classpath"
                classname="org.python.core.PyObject"
                property="have.jython"/>
+
+    <available file="${grinder-doc.dir}/build.xml"
+               property="have.grinder-doc-build"/>
 
     <!-- filter tokens -->
     <filter token="version" value="${version}"/>
@@ -231,6 +229,10 @@ what you want. Currently the conditionally built modules are:
 
   <target name="assert-have-jython" depends="init" unless="have.jython">
     <fail message="Define jython.dir and jython.jar in etc/localpaths.properties to build this target"/>
+  </target>
+
+  <target name="assert-have-grinder-doc-build" unless="have.grinder-doc-build">
+    <fail message="To build this target, edit etc/localpaths.properties and set grinder-doc.dir to a valid grinder documentation build"/>
   </target>
 
   <target name="assert-have-everything"
@@ -344,14 +346,14 @@ what you want. Currently the conditionally built modules are:
 
     <jar jarfile="${lib.dir}/${lib.jar}"
          basedir="${classes.dir}"
-   manifest="${manifest.mf}">
+         manifest="etc/grinder-manifest.mf">
     </jar>
   </target>
 
   <!-- =================================================================== -->
   <!-- Reports                                                             -->
   <!-- =================================================================== -->
-  <target name="checkstyle" description="Check code formatting">
+  <target name="checkstyle" description="Check code formatting.">
 
     <taskdef resource="checkstyletask.properties">
       <classpath>
@@ -456,14 +458,22 @@ what you want. Currently the conditionally built modules are:
   <!-- Rules to create the documentation                               -->
   <!-- =================================================================== -->
 
-  <target name="generate-project-xml" depends="init"
-    description="Generates the project XML files">
+  <target name="project-xml"
+          depends="init,assert-have-grinder-doc-build"
+          description="Generates the project XML files for a documentation build.">
 
-    <property name="forrest.tmpdir" value="${build.dir}/tmp"/>
-    <mkdir dir="${forrest.tmpdir}"/>
+    <property name="xml-output.dir"
+              value="${export-to-doc-build.dir}/project-xml"/>
+
+    <delete>
+      <fileset dir="${xml-output.dir}">
+        <exclude name="**/CVS"/>
+        <exclude name="**/CVS/**"/>
+      </fileset>
+    </delete>
 
     <java classname="org.python.util.jython" logError="true"
-      output="${forrest.tmpdir}/changes.xml">
+      output="${xml-output.dir}/changes.xml">
 
       <sysproperty key="python.home" path="${jython.dir}"/>
 
@@ -475,7 +485,7 @@ what you want. Currently the conditionally built modules are:
     </java>
 
     <java classname="org.python.util.jython" logError="true"
-      output="${forrest.tmpdir}/todo.xml">
+      output="${xml-output.dir}/todo.xml">
 
       <sysproperty key="python.home" path="${jython.dir}"/>
 
@@ -486,29 +496,6 @@ what you want. Currently the conditionally built modules are:
       <arg value="TODO"/>
     </java>
 
-  </target>
-
-  <!-- This should really depend on script-javadoc, but we don't for
-     speed when testing documentation. The "Release" targets always
-     call script-javadoc first. -->
-  <target name="forrest" depends="init,generate-project-xml"
-    description="Generates the documentation.">
-
-    <delete quiet="true">
-      <fileset dir="${script-javadoc.dir}"/>
-    </delete>
-
-    <!-- So we need not have this built. -->
-    <mkdir dir="${script-javadoc-working.dir}"/>
-
-    <copy todir="${script-javadoc.dir}">
-      <fileset dir="${script-javadoc-working.dir}"/>
-    </copy>
-
-    <!-- Quick hack for now. -->
-    <exec executable="${forrest.home}/bin/forrest.bat">
-     <env key="FORREST_HOME" path="${forrest.home}"/>
-    </exec>
   </target>
 
   <target name="javadoc" depends="init" description="Generates the javadoc.">
@@ -538,8 +525,9 @@ what you want. Currently the conditionally built modules are:
     </javadoc>
   </target>
 
-  <target name="script-javadoc" depends="init"
-          description="Generates the javadoc for classes used by scripts.">
+  <target name="script-javadoc" depends="init,assert-have-grinder-doc-build"
+          description="Generates the script javadoc for a documentation build.">
+
     <property name="script-javadoc-src.dir"
         value="${build.dir}/script-javadoc-src"/>
 
@@ -571,9 +559,17 @@ what you want. Currently the conditionally built modules are:
       </fileset>
     </copy>
 
-    <mkdir dir="${script-javadoc-working.dir}"/>
+    <property name="script-javadoc-output.dir"
+              value="${export-to-doc-build.dir}/script-javadoc"/>
 
-    <javadoc destdir="${script-javadoc-working.dir}"
+    <delete>
+      <fileset dir="${script-javadoc-output.dir}">
+        <exclude name="**/CVS"/>
+        <exclude name="**/CVS/**"/>
+      </fileset>
+    </delete>
+
+    <javadoc destdir="${script-javadoc-output.dir}"
              packagenames="net.grinder.*,HTTPClient.*"
              author="true"
              version="false"
@@ -593,6 +589,18 @@ what you want. Currently the conditionally built modules are:
               href="http://java.sun.com/j2se/1.4.1/docs/api/"
               packagelistLoc="${package-lists.dir}/jdk1.4.1"/>
     </javadoc>
+  </target>
+
+  <target name="documentation"
+          depends="init,assert-have-grinder-doc-build,project-xml,script-javadoc"
+          description="Update separate documentation build, run it, and copy the results back to our doc directory.">
+
+    <ant dir="${grinder-doc.dir}" target="all" inheritAll="false"/>
+
+    <copy todir="${doc.dir}">
+      <fileset dir="${grinder-doc.dir}/docs"/>
+    </copy>
+
   </target>
 
   <!-- =================================================================== -->
@@ -618,8 +626,7 @@ what you want. Currently the conditionally built modules are:
     </zip>
   </target>
 
-  <target name="all"
-          depends="assert-have-everything,jar,script-javadoc,forrest"/>
+  <target name="all" depends="assert-have-everything,jar,documentation"/>
 
   <target name="dist" depends="all" description="Generates distribution.">
     <antcall target="do-dist">
@@ -658,16 +665,6 @@ what you want. Currently the conditionally built modules are:
     <antcall target="do-dist">
       <param name="zip.prefix" value="${release.dir}/${name}-${version}"/>
     </antcall>
-  </target>
-
-  <target name="release-doc" depends="script-javadoc,forrest"
-          description="Packages docs for release.">
-    <mkdir dir="${release.dir}"/>
-    <zip zipfile="${release.dir}/${name}-docs.zip">
-      <fileset dir="${doc.dir}">
-        <exclude name="javadoc/**"/> <!-- shipped with source -->
-      </fileset>
-    </zip>
   </target>
 
   <!-- =================================================================== -->
