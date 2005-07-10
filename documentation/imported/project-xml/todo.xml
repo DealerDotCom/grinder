@@ -13,6 +13,10 @@ The TODO list is part of the binary distribution. I'll accept patches against it
 <li>
  Philip Aston </li>
 </ul>
+<p>
+Requested by Jose Antonio Zapata: </p>
+<p>
+Add an additional "milliseconds since the Epoch" entry to the data files. </p>
 <section name='Enhancements' depth='1' id='Enhancements'>
 <section name='Script Distribution' depth='2' id='Script Distribution'>
 <section name='Model' depth='3' id='Model'>
@@ -106,6 +110,12 @@ Currently the engine only supports the concept of a single active test (transact
 <section name='Separate out console statistics views from summary statistics views' depth='3' id='Separate out console statistics views from summary statistics views'>
 <p>
 Needed for custom statistics that use 'period' so are valid in the console but not in the process logs. </p>
+</section>
+<section name='max(), min()' depth='3' id='max(), min()'>
+<p>
+(Requested by Venelin Mitov). </p>
+<p>
+Should store max, min values agains SampleStatistics, and add max(), min() to expressions. </p>
 </section>
 </section>
 <section name='TCPProxy' depth='2' id='TCPProxy'>

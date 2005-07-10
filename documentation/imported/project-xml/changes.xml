@@ -2,6 +2,10 @@
 
 <changes>
 <section name='Grinder 3.0-beta27 (Not yet released)' id='Grinder 3.0-beta27 (Not yet released)'>
+<p>
+The TCPProxy is now relaxed about empty query strings. Thanks to John Sinclair for the suggestion. </p>
+<p>
+Updates to the Spanish translation from Jose Antonio Zapata. </p>
 </section>
 <section name='Grinder 3.0-beta26' id='Grinder 3.0-beta26'>
 <p>
