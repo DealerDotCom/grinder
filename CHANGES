@@ -6,6 +6,10 @@ Grinder 3.0-beta27 (Not yet released)
 
   Updates to the Spanish translation from Jose Antonio Zapata.
 
+  The documentation sources are now hosted on SourceForge CVS, and are
+  no longer part of the source distribution. See
+  http://sourceforge.net/cvs/?group_id=18598.
+
 
 Grinder 3.0-beta26
 ------------------
