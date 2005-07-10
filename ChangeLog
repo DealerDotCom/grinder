@@ -1,4 +1,38 @@
+2005-07-10  Philip Aston  <philipa@mail.com>
+
+	* CHANGES: Documentation moved.
+
+	* build.xml, etc/localpaths.properties:
+	Move documentation sources to a separate build hosted on SourceForge
+	CVS.
+
+	* TODO: More to do.
+
+2005-07-03  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/console/swingui/resources/Console_es.properties:
+	Spanish translation updates from Jose Antonio Zapata.
+
+	* src/net/grinder/engine/agent/Agent.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/TestStatisticsMap.java:
+	Remove unused constructs.
+
+	* src/net/grinder/console/distribution/FileDistributionHandlerImplementation.java:
+	Remove unused member.
+
+	* src/net/grinder/statistics/StatisticsSetFactory.java, src/net/grinder/statistics/StatisticExpressionFactory.java:
+	Spelling.
+
+2005-06-12  Philip Aston  <philipa@mail.com>
+
+	* TODO: Idea.
+
+	* CHANGES, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter2.java:
+	Be relaxed about empty query strings.
+	Thanks to John Sinclair for the suggestion.
+
 2005-05-18  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, ChangeLog: Docs.
 
 	* src/net/grinder/engine/process/JythonScriptExecutionException.java:
 	Cope with traceback with no frame.
