@@ -14,6 +14,11 @@ against it too :-).
 - Philip Aston
 
 
+Requested by Jose Antonio Zapata:
+
+Add an additional "milliseconds since the Epoch" entry to the data
+files.
+
 * Enhancements
 
 ** Script Distribution
