@@ -826,6 +826,69 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
     </faq>
   </faqsection>
 
+  <faqsection id="HTTP">
+    <title>HTTP</title>
+
+    <faq id="postsVsGets">
+      <question>
+	Why do POSTs take longer than GETs?
+      </question>
+
+      <answer>
+	<p>Dennis Linnell wondered this. This is what he found
+	out:</p>
+
+	<dl>
+          <dt/>
+	  <dd class="quote">
+	    <p>A network protocol trace revealed that the differences
+	    in POST vs. GET times were attributable to the following:</p>
+
+	    <ol>
+	      <li>The Grinder (HTTPClient) sends a GET request as a
+	      single TCP protocol data unit (PDU), which requires a
+	      single acknowledgment (ACK). This is normal and
+	      expected.</li>
+
+	      <li>HTTPClient sends a POST as two PDUs: The first
+	      includes everything but the Name/Value pairs and
+	      requires an ACK; the second includes only the Name/Value
+	      pairs and also requires an ACK. This is a consequence of
+	      the conservative implementation of HTTP/1.1 pipelining
+	      in HTTPClient.</li>
+
+	      <li>When the first PDU of the POST arrives at the
+	      Windows XP TCP/IP protocol stack on the server, the
+	      <em>delayed ACK</em> feature of TCP/IP RFC 1122 kicks
+	      in. If another request were to arrive, the stack would
+	      send an ACK; otherwise it waits up to 200 ms. and then
+	      sends an ACK. Since, in this case, no other request
+	      arrives, <a href="ext:microsoft/support/delayed-ack">the
+	      stack delays the ACK</a>. Naturally, I made the changes
+	      outlined in the Microsoft knowledge base and it solved
+	      the problem for me. Case closed? Maybe not.</li>
+
+	      <li>Still, the question remains, <em>Is the HTTPClient
+	      behavior reasonable?</em>. I traced Microsoft Internet
+	      Explorer 6 (latest patch level) and it sends a POST in
+	      one PDU and thus does not invoke the dreaded <em>delayed
+	      ACK</em>. On the other hand, Firefox 1.0.4 (oddly)
+	      requires 3 pairs of PDUs to get the job done. So
+	      HTTPClient is somewhere in between.</li>
+
+	      <li>As HTTPClient's behavior is not in violation of the
+	      HTTP/1.1 RFC, I have no reason to complain. And, looking
+	      at the HTTPClient code, I'm certainly not bold enough to
+	      touch it. Still, it doesn't quite model the behavior of
+	      the market-leading web browser accurately.</li>
+	    </ol>
+	  </dd>
+	</dl>
+      </answer>
+
+    </faq>
+  </faqsection>
+
   <faqsection id="problems">
     <title>Problems</title>
 

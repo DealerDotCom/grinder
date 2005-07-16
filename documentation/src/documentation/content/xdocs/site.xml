@@ -158,6 +158,12 @@ See http://forrest.apache.org/docs/linking.html for more info
       <grinder-use href="mailto:grinder-use@lists.sourceforge.net"/>
     </mail>
 
+    <microsoft>
+      <support href="http://support.microsoft.com/">
+	<delayed-ack href="kb/328890/"/>
+      </support>
+    </microsoft>
+
     <mozilla href="http://www.mozilla.com/"/>
 
     <oreilly href="http://www.oreilly.com/">
