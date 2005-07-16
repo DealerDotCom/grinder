@@ -313,6 +313,22 @@ class TestRunner:
         href="script-javadoc/net/grinder/script/Grinder.ScriptContext.html">Grinder.ScriptContext</a>
         object and automatically appear in the console and the data
         file.</p>
+
+	<p>All the statistics displayed in the console are aggregates
+	(totals or averages) of a number of tests received in the
+	appropriate period. The reason for this is efficency. The
+	Grinder would not perform or scale if every data point was
+	transfered back to the console. Custom statistics can be added
+	to console views using script context's <a
+	href="script-javadoc/net/grinder/script/Grinder.ScriptContext.html#registerSummaryStatisticsView(net.grinder.statistics.StatisticsView)">registerSummaryStatisticsView</a>
+	method.</p>
+
+	<p>The only place per-test statistics are available is in the
+	process <code>data_*</code> files. Custom statistics can be
+	added to data files using script context's <a
+	href="script-javadoc/net/grinder/script/Grinder.ScriptContext.html#registerDetailStatisticsView(net.grinder.statistics.StatisticsView)">registerDetailStatisticsView</a>
+	method.</p>
+
       </dd>
     </dl>
   </section>
