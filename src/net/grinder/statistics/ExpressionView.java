@@ -70,9 +70,10 @@ public class ExpressionView {
   private final StatisticExpression m_expression;
 
   static {
-    // Ensure that the standard ExpressionViews are initialised
-    // before any user ExpressionViews.
-    CommonStatisticsViews.getSummaryStatisticsView();
+    // Ensure that the standard ExpressionViews are initialised before
+    // any user ExpressionViews. Assigning this to a variable is
+    // necessary to avoid the compiler optimising it away.
+    final Class dummy = CommonStatisticsViews.class;
   }
 
   /**
