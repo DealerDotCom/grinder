@@ -50,37 +50,42 @@ See http://forrest.apache.org/docs/linking.html for more info
   <g2 label="The Grinder 2" href="g2/" tab="manual">
     <getting-started label="Getting started" href="getting-started.html"/>    
     <properties label="Properties" href="properties.html"/>
-    <http-plugin label="HTTP plug-in" href="http-plugin.html">
-      <string-bean href="#string-bean"/>
-    </http-plugin>  
-    <junit-plugin label="JUnit plug-in" href="junit-plugin.html"/>
     <console label="The Console" href="console.html"/>
     <tcpsniffer label="The TCPSniffer" href="tcpsniffer.html">
       <HttpPluginSnifferFilter href="#HttpPluginSnifferFilter"/>
     </tcpsniffer>
+    <http-plugin label="HTTP plug-in" href="http-plugin.html">
+      <string-bean href="#string-bean"/>
+    </http-plugin>  
+    <junit-plugin label="JUnit plug-in" href="junit-plugin.html"/>
+    <faq label="FAQ" href="../faq.html#g2"/>
   </g2>
 
   <g3 label="The Grinder 3" href="g3/" tab="manual">
     <whats-new label="What's new?" href="whats-new.html"/>
+    <features label="Features" href="features.html"/>
     <getting-started label="Getting started" href="getting-started.html">
       <properties href="#properties"/>
     </getting-started>
-    <scripts label="Scripts" href="scripts.html">
-      <jython-installation href="#jython-installation"/>
-    </scripts>
-    <http-plugin label="HTTP plug-in" href="http-plugin.html">
-      <string-bean href="#string-bean"/>
-    </http-plugin>
     <console label="The Console" href="console.html">
       <process-controls href="#process-controls"/>
     </console>
-    <script-gallery label="Script Gallery" href="script-gallery.html">
-      <helloworldfunctions href="#helloworldfunctions"/>
-    </script-gallery>
     <tcpproxy label="The TCPProxy" href="tcpproxy.html"/>
-    <tutorial label="Tutorial" href="tutorial-perks.html"/>
+    <http-plugin label="HTTP plug-in" href="http-plugin.html">
+      <string-bean href="#string-bean"/>
+    </http-plugin>
     <ssl label="SSL support" href="ssl-support.html"/>
-    <features label="Features" href="features.html"/>
+    <scripts label="Scripts">
+      <scripts-intro label="Introduction" href="scripts.html">
+         <jython-installation href="#jython-installation"/>
+      </scripts-intro>
+      <tutorial label="Tutorial" href="tutorial-perks.html"/>
+      <script-gallery label="Script Gallery" href="script-gallery.html">
+        <helloworldfunctions href="#helloworldfunctions"/>
+      </script-gallery>
+      <script-api label="Script API" href="http://grinder.sourceforge.net/g3/script-javadoc/index.html"/>
+    </scripts>
+    <faq label="FAQ" href="../faq.html#g3"/>
   </g3>
 
   <external-refs>
