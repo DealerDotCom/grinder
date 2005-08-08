@@ -65,7 +65,7 @@
 
     <p>A <em>test</em> is a unit of work against which statistics are
     recorded. Users specify which tests to run using a Jython <a
-    href="site:scripts">test script</a>. Tests are uniquely defined by
+    href="site:scripts-intro">test script</a>. Tests are uniquely defined by
     a <em>test number</em> and may also have a <em>description</em>.
     If you wish your scripts can report many different actions (e.g.
     different web page requests) against the same test, The Grinder
@@ -329,7 +329,7 @@ Totals        250           0             156.70
           </td>
 
           <td>The file name of the Jython <a
-          href="site:scripts">script</a> to run.</td>
+          href="site:scripts-intro">script</a> to run.</td>
 
           <td>grinder.py</td>
         </tr>
