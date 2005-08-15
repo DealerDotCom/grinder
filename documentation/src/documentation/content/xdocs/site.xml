@@ -19,13 +19,7 @@ See http://forrest.apache.org/docs/linking.html for more info
     <license label="License" href="license.html"/>
     <download label="Download" href="download.html"/>
     <support label="Support" href="support.html"/>
-    <faq label="FAQ" href="faq.html">
-      <g2vsg3 href="#g2vsg3"/>
-      <multicast href="#multicast"/>
-      <post-and-string-beans href="#post-and-string-beans"/>
-      <premature-eof href="#premature-eof"/>
-      <use-the-tcpproxy href="#use-the-tcpproxy"/>
-    </faq>
+    <faq label="FAQ" href="http://grinder.sourceforge.net/faq.html"/>
     <links label="Links" href="links.html">
       <book href="#book"/>
     </links>
@@ -48,12 +42,14 @@ See http://forrest.apache.org/docs/linking.html for more info
   </all>
 
   <g2 label="The Grinder 2" href="g2/" tab="manual">
-    <getting-started label="Getting started" href="getting-started.html"/>    
-    <properties label="Properties" href="properties.html"/>
-    <console label="The Console" href="console.html"/>
-    <tcpsniffer label="The TCPSniffer" href="tcpsniffer.html">
-      <HttpPluginSnifferFilter href="#HttpPluginSnifferFilter"/>
-    </tcpsniffer>
+    <getting-started label="Getting started" >
+       <getting-started-intro  label="Introduction" href="getting-started.html"/>     
+       <properties label="Properties" href="properties.html"/>
+       <console label="The Console" href="console.html"/>
+       <tcpsniffer label="The TCPSniffer" href="tcpsniffer.html">
+         <HttpPluginSnifferFilter href="#HttpPluginSnifferFilter"/>
+       </tcpsniffer>
+    </getting-started>
     <http-plugin label="HTTP plug-in" href="http-plugin.html">
       <string-bean href="#string-bean"/>
     </http-plugin>  
@@ -64,13 +60,14 @@ See http://forrest.apache.org/docs/linking.html for more info
   <g3 label="The Grinder 3" href="g3/" tab="manual">
     <whats-new label="What's new?" href="whats-new.html"/>
     <features label="Features" href="features.html"/>
-    <getting-started label="Getting started" href="getting-started.html">
+    <getting-started label="Getting started" >
+      <getting-started-intro label="Introduction" href="getting-started.html"/>
       <properties href="#properties"/>
-    </getting-started>
-    <console label="The Console" href="console.html">
+      <console label="The Console" href="console.html">
       <process-controls href="#process-controls"/>
-    </console>
-    <tcpproxy label="The TCPProxy" href="tcpproxy.html"/>
+      </console>
+      <tcpproxy label="The TCPProxy" href="tcpproxy.html"/>
+    </getting-started>
     <http-plugin label="HTTP plug-in" href="http-plugin.html">
       <string-bean href="#string-bean"/>
     </http-plugin>
@@ -83,10 +80,20 @@ See http://forrest.apache.org/docs/linking.html for more info
       <script-gallery label="Script Gallery" href="script-gallery.html">
         <helloworldfunctions href="#helloworldfunctions"/>
       </script-gallery>
-      <script-api label="Script API" href="http://grinder.sourceforge.net/g3/script-javadoc/index.html"/>
+      <script-api label="API Javadocs" href="http://grinder.sourceforge.net/g3/script-javadoc/index.html"/>
     </scripts>
     <faq label="FAQ" href="../faq.html#g3"/>
   </g3>
+
+  <faq-tab label="FAQ" tab="FAQ">
+    <faq label="FAQ" href="faq.html">
+      <g2vsg3 href="#g2vsg3"/>
+      <multicast href="#multicast"/>
+      <post-and-string-beans href="#post-and-string-beans"/>
+      <premature-eof href="#premature-eof"/>
+      <use-the-tcpproxy href="#use-the-tcpproxy"/>
+    </faq>
+  </faq-tab>
 
   <external-refs>
     <amazon href="http://www.amazon.com/">
