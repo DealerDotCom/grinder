@@ -85,7 +85,7 @@ finally {
     model.</p>
 
     <p>As of The Grinder 2.6.1 you can set the property <a
-    href="site:g2/properties">grinder.recordTime</a> to be
+    href="site:g2/getting-started/properties">grinder.recordTime</a> to be
     <code>false</code> which will cause the worker processes that use
     that <code>grinder.properties</code> file to not record the test
     times nor report them to the console. You should run all but one
@@ -94,10 +94,10 @@ finally {
 
     <p>You should copy the grinder.properties file to a dedicated
     <em>timer client</em> machine, change <a
-    href="site:g2/properties">grinder.recordTime</a> to be
+    href="site:g2/getting-started/properties">grinder.recordTime</a> to be
     <code>true</code>, and set <a
-    href="site:g2/properties">grinder.processes</a> and <a
-    href="site:g2/properties">grinder.threads</a> to <code>1</code>.
+    href="site:g2/getting-started/properties">grinder.processes</a> and <a
+    href="site:g2/getting-started/properties">grinder.threads</a> to <code>1</code>.
     The single worker process will run on the timing client, record
     all timing information and (optionally) report it to the console.
     The less other stuff you run on the timing client, the better.</p>

@@ -521,7 +521,7 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 	<p>Jython caches the result of this processing, so subsequent
 	start up times are much reduced. You can control the location
 	of the cache directory, see the information on <a
-	href="site:g3/scripts/jython-installation">Jython
+	href="site:g3/scripts/scripts-intro/jython-installation">Jython
 	installation</a>.</p>
 
       </answer>
@@ -559,7 +559,7 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 	useful modules. For example the regular expression module
 	<code>re</code>, the <code>threading</code> module, and the
 	<code>random</code> module. To use these modules you must <a
-	href="site:g3/scripts/jython-installation">install
+	href="site:g3/scripts/scripts-intro/jython-installation">install
 	Jython</a>.</p>
       </answer>
     </faq>
@@ -798,7 +798,7 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
 	differences between those that a browser send, but which
 	rarely affect server behaviour. Its worth knowing how to
 	examine the differences with the TCPProxy. First <a
-	href="site:g3/tcpproxy">set the TCPProxy as a browser
+	href="site:g3/getting-started/tcpproxy">set the TCPProxy as a browser
 	proxy</a> and record the output to a file. Secondly alter your
 	tests so that all requests go via the TCPProxy (the best way
 	is to set the test script connections to direct requests via
