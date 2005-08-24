@@ -759,6 +759,53 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
 </source>
       </answer>
     </faq>
+    <faq id="ssl-certificate-choice">
+      <question>
+      If I have several suitable certificates in my keystore, how does The Grinder chose between them?
+      </question>
+      <answer>
+      <p>The Grinder relies on the JVM's default
+      <code>KeyManager</code> implementations. This picks a
+      certificate from the store based on SSL negotiation with the
+      server. If there are several suitable certificates, the only
+      way to control which is used is to <a href="g3/ssl-support.html#own-key-manager">provide your own
+      <code>KeyManager</code></a>.</p>
+      </answer>
+    </faq>
+    <faq id="ssl-keystore-passphrase">
+      <question>
+      <code>setKeyStoreFile</code> has a parameter for the key store password. What about the pass phrase that protects
+      the private key in the key store?
+      </question>
+      <answer>
+      <p>The pass phrases for keys must be the same as the key store password. This is a restriction of the default
+        <code>KeyManager</code>s. If you don't like this, you can <a href="g3/ssl-support.html#own-key-manager">provide your own
+        <code>KeyManager</code></a>.</p>
+      </answer>
+    </faq>
+    <faq id="ssl-specify-certificates">
+      <question>
+      Shouldn't I need to specify a set of certificates for trusted Certificate Authorities?
+      </question>
+      <answer>
+      <p>No. The Grinder does not validate certficates received from
+        the server, so does not need a set of CA certificates.</p>
+      </answer>
+    </faq>
+    <faq id="ssl-global-keystore">
+      <question>
+      Can I use the properties
+        <code>javax.net.ssl.keyStore</code>,
+        <code>javax.net.ssl.keyStoreType</code>, and
+        <code>javax.net.ssl.keyStorePassword</code> to specify a
+        global keystore?
+      </question>
+      <answer>
+      <p>No. The Grinder does not use these properties, primarily
+        because the JSSE does not provide a way to access its default
+        SSLContext.</p>
+      </answer>
+    </faq>
   </faqsection>
 
   <faqsection>
@@ -826,16 +873,25 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
     </faq>
     <faq id="tcpproxy-with-ssl">
       <question>
-      How do I record an HTTP/S script for a server that uses SSL?
+      How do I record a script for a server that uses SSL?
       </question>
       <answer>
-      <p>You need to use a keystore containing relevant client and 
+      <p>By default, the TCPProxy will use a built-in certificate to handle
+      SSL traffic so you don't need to do anything extra, just record a script as normal.</p>
+      <p>Should you encounter problems with this, especially when using Internet Explorer to 
+      connect through the TCPProxy, you will need to provide a server certificate for grinder.
+      The easiest way to provide a server certificate is to copy the <em>testkeys</em> file 
+      from the JSSE samples distribution and start the proxy using:</p>
+<source>
+  java net.grinder.TCPProxy -keyStore testkeys -keyStorePassword passphrase
+</source>
+      <p>You can specify your own keystore containing relevant client and 
       root certificates. Tell the TCPProxy to use the keystore and ssl
       by using the following parameters when invoking the TCPProxy:</p>
 <source>
-  -ssl -keystore <em>(keystore)</em> -keystorepassword <em>(password)</em> 
+  -keystore <em>(keystore)</em> -keystorepassword <em>(password)</em> -keystoretype <em>(type)</em>
 </source>
-      <p>Should you encounter problems with your SSL connection you can
+      <p>Should you encounter further problems with your SSL connection you can
       turn on debug by using the following switch:</p>
 <source>
   -Djavax.net.debug=ssl 
