@@ -824,6 +824,48 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
 	:-)).</p>
       </answer>
     </faq>
+    <faq id="tcpproxy-with-ssl">
+      <question>
+      How do I record an HTTP/S script for a server that uses SSL?
+      </question>
+      <answer>
+      <p>You need to use a keystore containing relevant client and 
+      root certificates. Tell the TCPProxy to use the keystore and ssl
+      by using the following parameters when invoking the TCPProxy:</p>
+<source>
+  -ssl -keystore <em>(keystore)</em> -keystorepassword <em>(password)</em> 
+</source>
+      <p>Should you encounter problems with your SSL connection you can
+      turn on debug by using the following switch:</p>
+<source>
+  -Djavax.net.debug=ssl 
+</source>
+      <note>This will generate verbose output.</note>
+      </answer>
+    </faq>
+    <faq id="tcpproxy-initialtestnumbers">
+      <question>
+      How to I set different test numbers for httpscript.py and 
+      httpscript_tests.py without manually editing the scripts?
+      </question>
+      <answer>
+      <p>To do this you need to pass the following parameter to the
+      TCPProxy at invokation when recording your scripts:</p>
+<source>
+  -DHTTPPlugin.initialTest=<em>(integer)</em>
+</source> 
+      <p>The setting of the initial test number allows you to set different
+      test ranges for scripts with different functions. This is useful if 
+      you are running these different scripts concurrently and collating the
+      results in the same console window.</p>
+ 
+      <p>For example you could set sales.py to have an initial test number of 2000
+      and purchases.py to have an initial test number of 3000 (this assumes that
+      sales.py has less than 1000 tests). When you run these scripts concurrently 
+      all results in the console window with a test number of 2xxx relate to 
+      sales.py and those beginning with 3xxx relate to purchases.py.</p>
+      </answer>
+    </faq>
   </faqsection>
 
   <faqsection id="HTTP">
