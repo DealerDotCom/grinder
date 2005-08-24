@@ -129,6 +129,79 @@ java net.grinder.Grinder myproperties
     processes to exit and the agent process to start fresh worker
     processes which will update the console with the new test
     information.</p>
+
+    <p>Included below are some sample shell scripts, for both unix/linux and windows,
+    for starting grinder agents, its console, and the HTTPProxy.</p>
+    
+    <p><strong>Windows:</strong></p>
+    <ul>
+     <li>setGrinderEnv.cmd:
+<source>
+set GRINDERPATH=<em>(full path to grinder install directory)</em>
+set CLASSPATH=%CLASSPATH%;%GRINDERPATH%\lib\grinder.jar
+set CLASSPATH=%CLASSPATH%;%GRINDERPATH%\lib\jython.jar
+set JAVA_HOME=<em>(full path to java install directory)</em>
+set JAVA_BINDIR=%JAVA_HOME%\bin
+PATH=%JAVA_BINDIR%;%PATH%
+</source>    
+     </li>
+     <li>startAgent.cmd:
+<source>
+call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
+echo %CLASSPATH%
+java -cp %CLASSPATH% net.grinder.Grinder <em>(path to grinder.properties)</em>\grinder.properties
+</source>
+     </li>
+     <li>startConsole.cmd:
+<source>
+call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
+java -cp %CLASSPATH% net.grinder.Console
+</source>
+     </li>
+     <li>startProxy.cmd:
+<source>
+Call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
+java -cp %CLASSPATH% net.grinder.TCPProxy -console -httpPlugin
+</source>
+     </li>
+    </ul>
+
+    <p><strong>Unix:</strong></p>
+     <ul>
+      <li>setGrinderEnv.sh:
+<source>
+#!/usr/bin/ksh
+GRINDERPATH=<em>(full path to grinder install directory)</em>
+CLASSPATH=$CLASSPATH:$GRINDERPATH/lib/grinder.jar
+CLASSPATH=$CLASSPATH:$GRINDERPATH/lib/jython.jar
+JAVA_HOME=<em>(full path to java install directory)</em>
+JAVA_BINDIR=$JAVA_HOME/bin
+PATH=$JAVA_BINDIR:$PATH
+export CLASSPATH PATH
+</source>
+      </li>
+      <li>startAgent.sh:
+<source>
+#!/usr/bin/ksh
+. <em>(path to setGrinderEnv.sh)</em>/setGrinderEnv.sh
+java -cp $CLASSPATH net.grinder.Grinder <em>(path to grinder.properties)</em>/grinder.properties
+</source>
+      </li>
+      <li>startConsole.sh:
+<source>
+#!/usr/bin/ksh
+. <em>(path to setGrinderEnv.sh)</em>/setGrinderEnv.sh
+java -cp $CLASSPATH net.grinder.Console
+</source>
+      </li>
+      <li>startProxy.sh:
+<source>
+#!/usr/bin/ksh
+. <em>(path to setGrinderEnv.sh)</em>/setGrinderEnv.sh
+java -cp $CLASSPATH net.grinder.TCPProxy -console -httpPlugin 
+</source>
+      </li>
+     </ul>
   </section>
 
   <section>
