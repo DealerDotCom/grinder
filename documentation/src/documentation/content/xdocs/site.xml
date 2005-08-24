@@ -19,7 +19,14 @@ See http://forrest.apache.org/docs/linking.html for more info
     <license label="License" href="license.html"/>
     <download label="Download" href="download.html"/>
     <support label="Support" href="support.html"/>
-    <faq label="FAQ" href="http://grinder.sourceforge.net/faq.html"/>
+    <faq label="FAQ" href="faq.html">
+      <g2vsg3 href="#g2vsg3"/>
+      <multicast href="#multicast"/>
+      <post-and-string-beans href="#post-and-string-beans"/>
+      <premature-eof href="#premature-eof"/>
+      <use-the-tcpproxy href="#use-the-tcpproxy"/>
+    </faq>
+
     <links label="Links" href="links.html">
       <book href="#book"/>
     </links>
@@ -84,16 +91,6 @@ See http://forrest.apache.org/docs/linking.html for more info
     </scripts>
     <faq label="FAQ" href="../faq.html#g3"/>
   </g3>
-
-  <faq-tab label="FAQ" tab="FAQ">
-    <faq label="FAQ" href="faq.html">
-      <g2vsg3 href="#g2vsg3"/>
-      <multicast href="#multicast"/>
-      <post-and-string-beans href="#post-and-string-beans"/>
-      <premature-eof href="#premature-eof"/>
-      <use-the-tcpproxy href="#use-the-tcpproxy"/>
-    </faq>
-  </faq-tab>
 
   <external-refs>
     <amazon href="http://www.amazon.com/">
