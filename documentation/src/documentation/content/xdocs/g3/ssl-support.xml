@@ -148,10 +148,10 @@ class TestRunner:
       </li>
 
       <li>
-        <p><em>Shouldn't I need to specify a set of certficiates for
+        <p><em>Shouldn't I need to specify a set of certificates for
         trusted Certificate Authorities?</em></p>
 
-        <p>No. The Grinder does not validate certficates received from
+        <p>No. The Grinder does not validate certificates received from
         the server, so does not need a set of CA certificates.</p>
       </li>
 
