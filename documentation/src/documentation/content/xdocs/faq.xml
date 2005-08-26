@@ -879,7 +879,7 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
       <p>By default, the TCPProxy will use a built-in certificate to handle
       SSL traffic so you don't need to do anything extra, just record a script as normal.</p>
       <p>Should you encounter problems with this, especially when using Internet Explorer to 
-      connect through the TCPProxy, you will need to provide a server certificate for grinder.
+      connect through the TCPProxy, you will need to provide a server certificate for The Grinder.
       The easiest way to provide a server certificate is to copy the <em>testkeys</em> file 
       from the JSSE samples distribution and start the proxy using:</p>
 <source>
