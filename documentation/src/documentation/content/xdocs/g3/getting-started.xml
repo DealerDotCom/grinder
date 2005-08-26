@@ -138,6 +138,7 @@ java net.grinder.Grinder myproperties
      <li>setGrinderEnv.cmd:
 <source>
 set GRINDERPATH=<em>(full path to grinder install directory)</em>
+set GRINDERPROPERTIES=<em>(full path to grinder.properties)</em>\grinder.properties
 set CLASSPATH=%CLASSPATH%;%GRINDERPATH%\lib\grinder.jar
 set CLASSPATH=%CLASSPATH%;%GRINDERPATH%\lib\jython.jar
 set JAVA_HOME=<em>(full path to java install directory)</em>
@@ -149,7 +150,7 @@ PATH=%JAVA_BINDIR%;%PATH%
 <source>
 call <em>(path to setGrinderEnv.cmd)</em>\setGrinderEnv.cmd
 echo %CLASSPATH%
-java -cp %CLASSPATH% net.grinder.Grinder <em>(path to grinder.properties)</em>\grinder.properties
+java -cp %CLASSPATH% net.grinder.Grinder %GRINDERPROPERTIES%
 </source>
      </li>
      <li>startConsole.cmd:
@@ -172,19 +173,20 @@ java -cp %CLASSPATH% net.grinder.TCPProxy -console -httpPlugin
 <source>
 #!/usr/bin/ksh
 GRINDERPATH=<em>(full path to grinder install directory)</em>
+GRINDERPROPERTIES=<em>(full path to grinder.properties)</em>/grinder.properties
 CLASSPATH=$CLASSPATH:$GRINDERPATH/lib/grinder.jar
 CLASSPATH=$CLASSPATH:$GRINDERPATH/lib/jython.jar
 JAVA_HOME=<em>(full path to java install directory)</em>
 JAVA_BINDIR=$JAVA_HOME/bin
 PATH=$JAVA_BINDIR:$PATH
-export CLASSPATH PATH
+export CLASSPATH PATH GRINDERPROPERTIES
 </source>
       </li>
       <li>startAgent.sh:
 <source>
 #!/usr/bin/ksh
 . <em>(path to setGrinderEnv.sh)</em>/setGrinderEnv.sh
-java -cp $CLASSPATH net.grinder.Grinder <em>(path to grinder.properties)</em>/grinder.properties
+java -cp $CLASSPATH net.grinder.Grinder $GRINDERPROPERTIES
 </source>
       </li>
       <li>startConsole.sh:
@@ -203,7 +205,6 @@ java -cp $CLASSPATH net.grinder.TCPProxy -console -httpPlugin
       </li>
      </ul>
   </section>
-
   <section>
     <title>Network communication</title>
 
@@ -602,7 +603,109 @@ Totals        250           0             156.70
 java -Dgrinder.logDirectory="log/$(date +%y%m%d)" net.grinder.Grinder
 </source>
     </section>
-
   </section>
+  <section id="howtosetup">
+    <title>How Do I set up the Grinder</title>
+    <p>Well the short answer is however works best for you. Many people will already know how they want to setup
+    their directory structure and will have no issue implementing The Grinder as one of their many tools. For those 
+    looking for a little guidance it is worth asking yourself questions like:</p>
+    <ul>
+      <li>How many projects will I be working on?</li>
+      <li>Will I need to revisit projects from time to time?</li>
+      <li>Do I need repeatability?</li>
+      <li>Is this a shared implementation?</li>
+      <li>...etc.</li>
+    </ul>
+    <p>Below is given an example of a directory structure for setting up The Grinder.</p>
+<source>
+.
+`- <strong>Grinder</strong>
+    |
+    |-- <strong>bin</strong>
+    |   |-- grinder.properties
+    |   |-- setGrinderEnv.sh/cmd
+    |   |-- startAgent.sh/cmd
+    |   |-- startConsole.sh/cmd
+    |   `-- startProxy.sh/cmd
+    |
+    |-- <strong>engine</strong>
+    |   |-- grinder-3.0-beta25
+    |   |-- grinder-3.0-beta26    
+    |   `-- ...
+    |
+    |-- <strong>jvm</strong>
+    |   |-- jdk1.3
+    |   |-- jdk1.4.02
+    |   `-- ...
+    |
+    |-- <strong>lib</strong>
+    |   |-- jython2.1
+    |   |-- jdom-1.0
+    |   |-- xerces_2_6_0
+    |   |-- xerces-2_6_2
+    |   |-- oracle
+    |   `-- ...
+    |
+    |-- <strong>logs</strong>
+    |   `-- ...
+    |  
+    `-- <strong>projects</strong>
+        |-- website_project
+        |   |-- httpscript.py
+        |   |-- httpscript_tests.py
+        |   `-- ...
+        |
+        |-- db_project
+        |   |-- jdbc.py
+        |   `-- ...
+        |
+        `-- ...
+</source>
+    <p>First off the <strong>bin</strong> directory has been created for storing executable files for the implementation.
+    The sample start scripts from <a href="#howtostart"> "How do I start The Grinder?"</a> have been included in this directory
+    as well as the grinder.properties file. The <strong>engine</strong> directory has been created for storing the versions
+    of The Grinder that may be used. Strictly speaking the versions of The Grinder could be stored under the <strong>lib</strong>
+    directory but for this example The Grinder has been given its own directory. The <strong>jvm</strong> directory has been 
+    created to store the various jdks and their versions that could be used in testing. The <strong>lib</strong> directory has been 
+    created to store the various third pary libraries and their respective versions that projects may require. For example if you 
+    wanted to use the full set of <a href="site:g3/scripts/scripts-intro/jython-installation">libraries</a> which come with jython 
+    then this is the directory into which you would install. Remember to update your CLASSPATH with the libraries you require. The <strong>logs
+    </strong> has been created to store the various logs that the grinder generates during its runs.The <strong>projects</strong>
+    directory has been created to store the scripts to be run by The Grinder and organise them by project/body of work.</p>
+
+    <p>The above example would be useful for a simple implementation of for one person who works on one project at a time. 
+    As the number of projects grows, more people share the implementation, or projects need 
+    to be revisited with repeatability ensured, then it makes sense, in this example, to 
+    modularize the implementation around the projects. To do this simply create the bin and logs
+    directories under the respective projects like so:</p>
+<source>
+    |  
+    `-- <strong>projects</strong>
+        |-- website_project
+        |   |-- <strong>bin</strong>
+        |   |   |-- grinder.properties
+        |   |   |-- setGrinderEnv.sh/cmd
+        |   |   |-- startAgent.sh/cmd
+        |   |   |-- startConsole.sh/cmd
+        |   |   `-- startProxy.sh/cmd
+        |   |-- httpscript.py
+        |   |-- httpscript_tests.py
+        |   |-- <strong>logs</strong>
+        |   |   `-- ...
+        |   `-- ...
+        |
+        |-- db_project
+</source>
+   <p>Once this has been done the environment can be set to use the engine, jvm and libraries required by a particular project, rather
+   than setting the environment for all the projects (as would happen in the simple implementation). This allows you, for example, to 
+   retain projects which were run using legacy versions of libraries and/or engine and re-run them at a later date with the same setup.
+   Also different projects may require different versions of the same library which would have caused issues when using an implementation-wide
+   CLASSPATH. The grinder.properties file can also be customised on a per project basis.</p>
+
+   <p>Modularizing the implementation like this gives greater flexibility and repeatability and opens up the prospect of multiple
+   people using the implementation concurrently.</p>
+  </section>
+
+
 </body>
 </document>
