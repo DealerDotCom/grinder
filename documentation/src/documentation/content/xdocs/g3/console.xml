@@ -90,17 +90,203 @@
 
   <section>
     <title>Display</title>
+   
+    <p>On the console there are a number of tabs which display information about The Grinder and its tests. These are detailed below:</p>
 
-    <p>Each graph displays the 25 most recent Tests Per Second (TPS)
-    values for a particular test. A new value is added every console
-    sample period. The y-axis is scaled so that the full height
-    represents the peak TPS value received for the test since the
-    display was last reset.</p>
+    <section>
+      <title>Graphs</title>
 
-    <p>The colours are based on the relative response time. Long
-    response times are more red, short response times are more yellow.
-    This acts as an eye-catcher, allowing expensive tests to be easily
-    spotted.</p>
+      <p>Each graph displays the 25 most recent Tests Per Second (TPS) 
+      values for a particular test. A new value is added every console
+      sample period. The y-axis is scaled so that the full height
+      represents the peak TPS value received for the test since the
+      display was last reset.</p>
+
+      <p>The colours are based on the relative response time. Long
+      response times are more red, short response times are more yellow.
+      This acts as an eye-catcher, allowing expensive tests to be easily
+      spotted.</p>
+
+    </section>
+
+    <section>
+
+      <title>Results</title>
+
+      <p>The Results tab shows the results from The Grinder instrumentation.</p>
+ 
+      <table>
+
+        <tr>
+          <th>Instrument</th>
+          <th>Description</th>
+        </tr>
+
+        <tr>
+          <td><strong>Test</strong></td>
+
+          <td>The test number as specified in the test script, eg. tests[14000] will display as Test 14000.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>Description</strong></td>
+
+          <td>The test description as specified in the test script. If the HTTPProxy has been used to 
+          generate the scripts the description field can be found in the httpscript_tests.py file, eg.
+          tests[14000] = Test(14000, 'GET index.jsp').wrap(request14000) will display as 'Get index.jsp'.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>Successful Tests</strong></td>
+
+          <td>The total number of iterations of the test that were successfully executed by The Grinder during the test run.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>Errors</strong></td>
+
+          <td>The total number of iterations of the test that failed to be fully executed by The Grinder during the test run.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>Mean Time</strong></td>
+
+          <td>The mean time taken to execute the test and receive the full response from the target server/application, in milliseconds.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>Mean Time Standard Deviation</strong></td>
+
+          <td>The mean standard deviation of the time taken to execute the test and receive the full response from the target 
+          server/application, in milliseconds.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>TPS</strong></td>
+
+          <td>Transactions per second. The average number of iterations of the test that successfully ran in a one second interval.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>Peak TPS</strong></td>
+
+          <td>Peak Transactions per second. The maximum number of iterations of the test that successfully ran in a one second interval.</td>
+        </tr> 
+
+      </table>
+
+      <p>There is additional instrumentation for the HTTPPlugin.</p>
+
+      <table>
+
+        <tr>
+          <th>Instrument</th>
+          <th>Description</th>
+        </tr>
+
+        <tr>
+          <td><strong>Mean Response Length</strong></td>
+
+          <td>The mean size of HTTP response from the target server/application in response to the executed test, in bytes.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>Response Bytes per Second</strong></td>
+
+          <td>The mean number of bytes per second received from the target server/application, in bytes per second. This gives an indication of the amount of
+          bandwidth being consumed by the test. This does not take into account the amount of traffic being sent to the target server/application.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>Response Errors</strong></td>
+
+          <td>The total number of HTTP Response Error Codes (eg, 404, 500 etc) received during the test run.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>Mean Time to Resolve Host</strong></td>
+
+          <td>The mean time taken to resolve the ip address of the target server from the Fully Qualified 
+          Domain Name, via hosts file or DNS, in milliseconds. This is the time relative to the start of the test iteration.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>Mean Time to Establish Connection</strong></td>
+
+          <td>The mean time taken to establish a tcp connection to the target server/application, in milliseconds.
+           This is the time relative to the start of the test iteration.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>Mean Time to First Byte</strong></td>
+
+          <td>The mean time taken to receive the first byte of response from the target server/application, in milliseconds.
+           This is the time relative to the start of the test iteration.</td>
+        </tr> 
+
+      </table>
+
+
+    </section>
+
+    <section>
+
+      <title>Processes</title>
+
+      <p>This tab displays information about the Agents, their worker processes and associated threads.</p> 
+
+      <table>
+
+        <tr>
+          <th>Header</th>
+          <th>Description</th>
+        </tr>
+
+        <tr>
+          <td><strong>Process</strong></td>
+
+          <td>The name of the process. A parent process will take the hostname of the box on which it is running
+          Its child processes take the name of the parent process and add a suffix of "-x" where x is an integer,
+          eg. myserver-0.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>Type</strong></td>
+
+          <td>The type of process, eg. Agent or Worker.</td>
+        </tr> 
+
+        <tr>
+          <td><strong>State</strong></td>
+
+          <td>Information about the state of the process, eg. "Connected" for an agent process and "Running" and
+           "Finished" for a Worker process.</td>
+        </tr> 
+      </table>
+
+    </section>
+
+    <section>
+
+      <title>Script</title>
+
+      <p>This tab contains the beginnings of console support for script editing. It is under construction and is not currently functional.</p>
+      <p>Also on this tab are controls for the script distribution system (Also accessible through the <strong>Distribute</strong> menu)</p>
+      <p>This gives you the ability to:</p>
+      <ol>
+        <li><strong>Set the root directory for script distribution</strong>
+        <p>The directory on the console host that contains the scripts for distribution</p>
+        </li>
+        <li><strong>Set the script to run</strong>
+        <p>This selects the script from those in the distributed list that is to be run</p>
+        </li>
+        <li><strong>Send changed files to worker processes</strong>
+        <p>This pushes out the contents of the root directory to all connected worker processes</p>
+        </li>
+      </ol>
+
+    </section>
+
   </section>
 
   <section>
