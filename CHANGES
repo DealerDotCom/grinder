@@ -14,6 +14,9 @@ Grinder 3.0-beta27 (Not yet released)
   no longer part of the source distribution. See
   http://sourceforge.net/cvs/?group_id=18598.
 
+  Modify HTTPClient code so that HTTPResponse.getText() works with
+  more content types. (Bug 1297821).
+
 
 Grinder 3.0-beta26
 ------------------

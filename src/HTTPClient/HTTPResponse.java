@@ -553,10 +553,10 @@ public class HTTPResponse implements HTTPClientModuleConstants
 	if (ct == null) {
 	    return new String(getData(), "ISO-8859-1");
 	}
+
+	// if (ct == null  ||  !ct.toLowerCase().startsWith("text/"))
+        // throw new IOException("Content-Type `" + ct + "' is not a text type");
 	/** --GRINDER MODIFICATION **/
-	
-	if (ct == null  ||  !ct.toLowerCase().startsWith("text/"))
-	    throw new IOException("Content-Type `" + ct + "' is not a text type");
 
 	String charset = Util.getParameter("charset", ct);
 	if (charset == null)
