@@ -1,5 +1,7 @@
 2005-09-26  Philip Aston  <philipa@mail.com>
 
+	* The Grinder 3.0-beta27 is released.
+
 	* examples/sync.py: Python synchronisation example.
 
 	* TODO, examples/jmsreceiver.py, src/net/grinder/statistics/package.html, CHANGES:
