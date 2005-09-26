@@ -83,8 +83,8 @@ which will be used to configure the chosen Forrest skin.
   <favicon-url>images/grinder.gif</favicon-url>
 
   <!-- The following are used to construct a copyright statement -->
-  <year>2004</year>
-  <vendor>Philip Aston</vendor>
+  <year>2005</year>
+  <vendor>Philip Aston, Calum Fitzgerald</vendor>
   <!-- The optional copyright-link URL will be used as a link in the
     copyright statement
   <copyright-link>http://www.apache.org/licenses/</copyright-link>
