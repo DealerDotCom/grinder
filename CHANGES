@@ -1,5 +1,5 @@
-Grinder 3.0-beta27 (Not yet released)
--------------------------------------
+Grinder 3.0-beta27
+------------------
 
   The TCPProxy is now relaxed about empty query strings. Thanks to
   John Sinclair for the suggestion.
