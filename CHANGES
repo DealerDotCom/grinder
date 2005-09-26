@@ -17,6 +17,10 @@ Grinder 3.0-beta27 (Not yet released)
   Modify HTTPClient code so that HTTPResponse.getText() works with
   more content types. (Bug 1297821).
 
+  Fix out of date documentation references to getIndexForLong (it has
+  been renamed to getLongIndex). Thanks to Dietrich Bollmann for the
+  report.
+
 
 Grinder 3.0-beta26
 ------------------

@@ -13,12 +13,6 @@ against it too :-).
 
 - Philip Aston
 
-
-Requested by Jose Antonio Zapata:
-
-Add an additional "milliseconds since the Epoch" entry to the data
-files.
-
 * Enhancements
 
 ** Script Distribution
@@ -187,6 +181,13 @@ would be correspondingly more complex.
 
 ** Statistics
 
+*** Aligning data files
+
+Requested by Jose Antonio Zapata:
+
+Add an additional "milliseconds since the Epoch" entry to the data
+files.
+
 *** Separate out console statistics views from summary statistics views
 
 Needed for custom statistics that use 'period' so are valid in the
@@ -215,6 +216,12 @@ connection.
 Internationalise messages.
 
 Support different client certificates for proxied connection.
+
+Meo Bogliolo writes:
+ > What do You think about adding the possibility to insert remarks
+ > with the TCPProxy Console? Maybe it's usefull in complex
+ > navigation... I currently look at think time in the scripts to
+ > understand when the user "changes" page.
 
 ** HTTP Plugin
 
