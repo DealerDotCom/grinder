@@ -792,7 +792,7 @@ connection = connectionFactory.createQueueConnection()
 connection.start()
 
 # Use userLong0 statistic to represent the "delivery time".
-deliveryTimeIndex = StatisticsIndexMap.getInstance().getIndexForLong("userLong0")
+deliveryTimeIndex = StatisticsIndexMap.getInstance().getLongIndex("userLong0")
 
 # Add two statistics views:
 # 1. Delivery time:- the mean time taken between the server sending
