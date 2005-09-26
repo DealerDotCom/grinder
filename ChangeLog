@@ -1,3 +1,29 @@
+2005-09-26  Philip Aston  <philipa@mail.com>
+
+	* examples/sync.py: Python synchronisation example.
+
+	* TODO, examples/jmsreceiver.py, src/net/grinder/statistics/package.html, CHANGES:
+	Fix out of date documentation references to getIndexForLong (it has
+	been renamed to getLongIndex). Thanks to Dietrich Bollmann for the
+	report.
+
+2005-09-23  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/HTTPClient/HTTPResponse.java:
+	Modify HTTPClient code so that HTTPResponse.getText() works with more
+	content types. (Bug 1297821).
+
+2005-09-21  Philip Aston  <philipa@mail.com>
+
+	* AUTHORS, CHANGES, src/net/grinder/console/swingui/resources/Console_it.properties, src/net/grinder/console/swingui/resources/Console_pl.properties:
+	New Polish translation from KArol Muszynski.
+	New Italian translation from Meo Bogliolo.
+
+2005-08-01  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/statistics/ExpressionView.java:
+	Remove premature optimisation.
+
 2005-07-10  Philip Aston  <philipa@mail.com>
 
 	* CHANGES: Documentation moved.
