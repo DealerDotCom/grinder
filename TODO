@@ -353,6 +353,9 @@ On balance, yes HttpClient looks good and we should use it if it
 proves to be efficient. I'll add it to the TODO, but its a significant
 change => low priority.
 
+Update (Oct 05): Doubts about HttpClient's scalability:
+http://sourceforge.net/mailarchive/forum.php?thread_id=8372852&forum_id=2649
+
 We perhaps need to look more closely at parsing support for
 functional assertions, but I don't want to lose The Grinder's
 efficiency here.
