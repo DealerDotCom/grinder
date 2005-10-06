@@ -57,10 +57,12 @@ See http://forrest.apache.org/docs/linking.html for more info
          <HttpPluginSnifferFilter href="#HttpPluginSnifferFilter"/>
        </tcpsniffer>
     </getting-started>
-    <http-plugin label="HTTP plug-in" href="http-plugin.html">
-      <string-bean href="#string-bean"/>
-    </http-plugin>  
-    <junit-plugin label="JUnit plug-in" href="junit-plugin.html"/>
+    <plugins label="Plug-ins">
+    	<http-plugin label="HTTP plug-in" href="http-plugin.html">
+      		<string-bean href="#string-bean"/>
+    	</http-plugin>  
+    	<junit-plugin label="JUnit plug-in" href="junit-plugin.html"/>
+    </plugins>
     <faq label="FAQ" href="../faq.html#g2"/>
   </g2>
 
@@ -69,16 +71,17 @@ See http://forrest.apache.org/docs/linking.html for more info
     <features label="Features" href="features.html"/>
     <getting-started label="Getting started" >
       <getting-started-intro label="Introduction" href="getting-started.html"/>
-      <properties href="#properties"/>
+      <properties label="Properties" href="properties.html"/>
       <console label="The Console" href="console.html">
       <process-controls href="#process-controls"/>
       </console>
       <tcpproxy label="The TCPProxy" href="tcpproxy.html"/>
     </getting-started>
-    <http-plugin label="HTTP plug-in" href="http-plugin.html">
-      <string-bean href="#string-bean"/>
-    </http-plugin>
-    <ssl label="SSL support" href="ssl-support.html"/>
+    <plugins label="Plug-ins">
+    	<http-plugin label="HTTP plug-in" href="http-plugin.html" >
+    	  	<string-bean href="#string-bean"/>
+    	</http-plugin>
+    </plugins>
     <scripts label="Scripts">
       <scripts-intro label="Introduction" href="scripts.html">
          <jython-installation href="#jython-installation"/>
@@ -89,6 +92,7 @@ See http://forrest.apache.org/docs/linking.html for more info
       </script-gallery>
       <script-api label="API Javadocs" href="http://grinder.sourceforge.net/g3/script-javadoc/index.html"/>
     </scripts>
+    <ssl label="SSL support" href="ssl-support.html"/>
     <faq label="FAQ" href="../faq.html#g3"/>
   </g3>
 
