@@ -58,7 +58,7 @@
         be taken depending on the outcome of each test.</p>
 
         <p>The Grinder 2 HTTP plug-in's <a
-        href="site:g2/http-plugin/string-bean">string bean</a> feature
+        href="site:g2/plugins/http-plugin/string-bean">string bean</a> feature
         provides simple support for requests that contain dynamic
         data. The Grinder 3 can use the full power of Jython to create
         dynamic requests of arbitrary complexity.</p>
