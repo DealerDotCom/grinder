@@ -96,7 +96,7 @@ method is given a SocketResource and the Message and can then veto.)
 Task: Add agent initiation channel so agent can send a checksum across
 file names/sizes. Console compares with its cache and generates a good
 last update time for the agent. Thus agents starting with a good cache
-skip sync.
+skip sync. Can't rely on remote timestamps as clocks are not sync'd.
 
 Task: Distribution file filter should be dynamically settable.
 
