@@ -1,0 +1,7 @@
+#Sat Oct 08 11:21:27 BST 2005
+filenames.properties=/The Grinder/etc/checkstyle.properties
+filenames.suppression=/The Grinder/etc/checkstyle-suppressions.xml
+enabled=true
+projectclassloader=false
+filenames.config=/The Grinder/etc/checkstyle.xml
+filenames.filter=/The Grinder/etc/checkstyle.filters

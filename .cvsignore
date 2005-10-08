@@ -7,11 +7,7 @@ releases
 grinder.jpl
 together
 clover
-.externalToolBuilders
 .classpath
-.project
-.checkclipse
 .checkstyle
 .clover
-.metadata
 .byecycle
