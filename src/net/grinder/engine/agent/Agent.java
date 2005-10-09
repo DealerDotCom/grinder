@@ -48,6 +48,7 @@ import net.grinder.console.messages.AgentProcessReportMessage;
 import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.StartGrinderMessage;
+import net.grinder.util.Directory;
 import net.grinder.util.JVM;
 import net.grinder.util.SimpleLogger;
 
@@ -208,15 +209,14 @@ public final class Agent {
           scriptFile = null;
         }
         else if (scriptFromConsole != null) {
-          final File fileStoreDirectory =
-            m_fileStore.getDirectory().getAsFile();
+          final Directory fileStoreDirectory = m_fileStore.getDirectory();
 
           final File absoluteFile =
-            new File(fileStoreDirectory, scriptFromConsole.getPath());
+            fileStoreDirectory.getFile(scriptFromConsole.getPath());
 
           if (absoluteFile.canRead()) {
             scriptFile = absoluteFile;
-            scriptDirectory = fileStoreDirectory;
+            scriptDirectory = fileStoreDirectory.getFile();
           }
           else {
             m_logger.error("The script file '" + scriptFromConsole +

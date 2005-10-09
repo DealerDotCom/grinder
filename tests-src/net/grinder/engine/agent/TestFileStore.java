@@ -53,7 +53,7 @@ public class TestFileStore extends AbstractFileTestCase {
 
     final FileStore fileStore = new FileStore(getDirectory(), null);
     assertNotNull(fileStore.getMessageHandler());
-    final File currentDirectory = fileStore.getDirectory().getAsFile();
+    final File currentDirectory = fileStore.getDirectory().getFile();
     assertNotNull(currentDirectory);
 
     assertTrue(
@@ -129,7 +129,7 @@ public class TestFileStore extends AbstractFileTestCase {
     final File readmeFile = new File(getDirectory(), "README.txt");
     final File incomingDirectoryFile = new File(getDirectory(), "incoming");
     final File currentDirectoryFile = new File(getDirectory(), "current");
-    assertEquals(currentDirectoryFile, fileStore.getDirectory().getAsFile());
+    assertEquals(currentDirectoryFile, fileStore.getDirectory().getFile());
 
     // Before message sent, none of our files or directories exist.
     assertTrue(!readmeFile.exists());
@@ -149,7 +149,7 @@ public class TestFileStore extends AbstractFileTestCase {
     final File targetFile = new File(incomingDirectoryFile, "dir/file0");
     assertTrue(targetFile.canRead());
 
-    assertEquals(currentDirectoryFile, fileStore.getDirectory().getAsFile());
+    assertEquals(currentDirectoryFile, fileStore.getDirectory().getFile());
 
     // Now getDirectory() has been called, both directories exist.
     assertTrue(readmeFile.exists());

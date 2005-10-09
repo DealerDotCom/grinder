@@ -46,7 +46,7 @@ public final class FileContents implements Serializable {
   private final byte[] m_contents;
 
   /**
-   * Constructor. Builds a FileContents from local filesystem.
+   * Constructor. Builds a FileContents from local file system.
    *
    * @param baseDirectory Base directory used to resolve relative filenames.
    * @param file Relative filename.
@@ -106,8 +106,7 @@ public final class FileContents implements Serializable {
    */
   public void create(Directory baseDirectory) throws FileContentsException {
 
-    final File localFile = new File(baseDirectory.getAsFile(),
-                                    getFilename().getPath());
+    final File localFile = baseDirectory.getFile(getFilename().getPath());
 
     localFile.getParentFile().mkdirs();
 

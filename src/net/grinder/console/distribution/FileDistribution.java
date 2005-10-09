@@ -106,7 +106,7 @@ public final class FileDistribution {
     }
 
     return new FileDistributionHandlerImplementation(
-      directory.getAsFile(),
+      directory.getFile(),
       directory.listContents(
         new FileDistributionFilter(distributionFileFilterPattern,
                                    earliestFileTime)),
