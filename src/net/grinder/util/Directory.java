@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -40,7 +40,7 @@ import java.util.Set;
  * <p>A <code>Directory</code> be constructed with a path that
  * represents an existing directory, or a path that represents no
  * existing file. The physical directory can be created later using
- * {@link #create}.
+ * {@link #create}.</p>
  *
  * @author Philip Aston
  * @version $Revision$
@@ -51,6 +51,13 @@ public final class Directory  {
 
   private final File m_directory;
   private final List m_warnings = new ArrayList();
+
+  /**
+   * Constructor that builds a Directory for the current working directory.
+   */
+  public Directory() {
+    m_directory = new File(".");
+  }
 
   /**
    * Constructor.
@@ -75,10 +82,10 @@ public final class Directory  {
    * @exception DirectoryException If the directory could not be created.
    */
   public void create() throws DirectoryException {
-    if (!getAsFile().exists()) {
-      if (!getAsFile().mkdirs()) {
+    if (!getFile().exists()) {
+      if (!getFile().mkdirs()) {
         throw new DirectoryException(
-          "Could not create directory '" + getAsFile() + "'");
+          "Could not create directory '" + getFile() + "'");
       }
     }
   }
@@ -88,8 +95,19 @@ public final class Directory  {
    *
    * @return The <code>File</code>.
    */
-  public File getAsFile() {
+  public File getFile() {
     return m_directory;
+  }
+
+  /**
+   * Return a <code>java.io.File</code> representing the absolute path
+   * of a file in this directory.
+   *
+   * @param childName Relative filename in this directory.
+   * @return The <code>File</code>.
+   */
+  public File getFile(String childName) {
+    return new File(getFile(), childName);
   }
 
   /**
@@ -124,7 +142,7 @@ public final class Directory  {
     final Set visited = new HashSet();
     final List directoriesToVisit = new ArrayList();
 
-    if (getAsFile().exists()) {
+    if (getFile().exists()) {
       directoriesToVisit.add(null);
     }
 
@@ -139,7 +157,7 @@ public final class Directory  {
         final File relativeDirectory = directories[i];
         final File absoluteDirectory =
           relativeDirectory != null ?
-          new File(getAsFile(), relativeDirectory.getPath()) : getAsFile();
+          getFile(relativeDirectory.getPath()) : getFile();
 
         visited.add(relativeDirectory);
 
@@ -205,8 +223,8 @@ public final class Directory  {
    * @see #deleteContents
    */
   public void delete() throws DirectoryException {
-    if (!getAsFile().delete()) {
-      throw new DirectoryException("Could not delete '" + getAsFile() + "'");
+    if (!getFile().delete()) {
+      throw new DirectoryException("Could not delete '" + getFile() + "'");
     }
   }
 
@@ -224,7 +242,7 @@ public final class Directory  {
     final File[] contents = listContents(false, false, s_nullFileFilter);
 
     for (int i = 0; i < contents.length; ++i) {
-      if (new File(getAsFile(), contents[i].getPath()).equals(absoluteFile)) {
+      if (getFile(contents[i].getPath()).equals(absoluteFile)) {
         return contents[i];
       }
     }
@@ -244,9 +262,12 @@ public final class Directory  {
   public void copyTo(Directory target, boolean incremental)
     throws IOException {
 
-    if (getAsFile().exists()) {
-      target.create();
+    if (!getFile().exists()) {
+      throw new DirectoryException(
+        "Source directory '" + getFile() + "' does not exist");
     }
+
+    target.create();
 
     if (!incremental) {
       target.deleteContents();
@@ -257,8 +278,8 @@ public final class Directory  {
 
     for (int i = 0; i < files.length; ++i) {
       final String relativePath = files[i].getPath();
-      final File source = new File(getAsFile(), relativePath);
-      final File destination = new File(target.getAsFile(), relativePath);
+      final File source = getFile(relativePath);
+      final File destination = target.getFile(relativePath);
 
       if (source.isDirectory()) {
         destination.mkdirs();
@@ -282,7 +303,7 @@ public final class Directory  {
   }
 
   /**
-   * Return a list of warnings that have occured since the last time
+   * Return a list of warnings that have occurred since the last time
    * {@link #getWarnings} was called.
    *
    * @return The list of warnings.
@@ -312,7 +333,7 @@ public final class Directory  {
    * @return The hash code.
    */
   public int hashCode() {
-    return getAsFile().hashCode();
+    return getFile().hashCode();
   }
 
   /**
@@ -330,7 +351,7 @@ public final class Directory  {
       return false;
     }
 
-    return getAsFile().equals(((Directory)o).getAsFile());
+    return getFile().equals(((Directory)o).getFile());
   }
 
   private static class NullFileFilter implements FileFilter {
