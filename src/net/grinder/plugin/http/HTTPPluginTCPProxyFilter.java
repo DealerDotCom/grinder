@@ -756,7 +756,7 @@ public class HTTPPluginTCPProxyFilter implements TCPProxyFilter {
 
             for (int i = 0; i < bytes.length; ++i) {
               final int x =
-                bytes[i] < 0 ? (int)bytes[i] + 0x100 : (int)bytes[i];
+                bytes[i] < 0 ? bytes[i] + 0x100 : (int)bytes[i];
 
               testOutput.append(Integer.toString(x));
               testOutput.append(", ");

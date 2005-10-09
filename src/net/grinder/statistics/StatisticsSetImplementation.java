@@ -255,7 +255,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
     }
 
     final long t1 = count + 1;
-    final double t2 = newValue - sum / (double)count;
+    final double t2 = newValue - sum / count;
 
     return
       (count * variance) / (count + 1) +

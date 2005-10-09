@@ -531,7 +531,7 @@ public final class StatisticExpressionFactory {
   private abstract static class LongStatistic implements StatisticExpression {
 
     public final double getDoubleValue(StatisticsSet statisticsSet) {
-      return (double)getValue(statisticsSet);
+      return getValue(statisticsSet);
     }
 
     public final long getLongValue(StatisticsSet statisticsSet) {

@@ -87,7 +87,7 @@ public class Serialiser {
                ((long)(m_byteBuffer[4] & 0xFF) << 24) |
                ((long)(m_byteBuffer[5] & 0xFF) << 16) |
                ((long)(m_byteBuffer[6] & 0xFF) << 8) |
-               ((long)(m_byteBuffer[7] & 0xFF)));
+               ((long)(m_byteBuffer[7] & 0xFF) << 0));
     }
   }
 
@@ -149,7 +149,7 @@ public class Serialiser {
 
     final byte b = input.readByte();
     long length = (b & 0xF0) >>> 4;
-    long result = (long)(b & 0x0F);
+    long result = b & 0x0F;
 
     while (length-- > 0) {
       result = (result << 8) | input.readUnsignedByte();

@@ -140,7 +140,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
         final StatisticsSet snapshot;
 
         synchronized (statistics) {
-          snapshot = (StatisticsSet)statistics.snapshot();
+          snapshot = statistics.snapshot();
           statistics.reset();
         }
 
