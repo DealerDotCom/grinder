@@ -251,6 +251,11 @@ to be recorded.
 
 Script access to global statistics.
 
+*** Alternate test languages
+
+Should use AOP proxies (probably with CGLIB) to do test instrumentation.
+Should support Java, Groovy scripts.
+
 *** Events
 Idea from Nurul Choudhury:
  > Event counting - The Jython code can create a named event and fire
