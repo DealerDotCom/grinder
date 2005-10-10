@@ -23,6 +23,7 @@ package net.grinder.testutility;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import junit.framework.Assert;
 
@@ -30,7 +31,7 @@ import net.grinder.common.GrinderException;
 
 
 /**
- * File utilties missing from Java.
+ * File utilities missing from Java.
  *
  * @author    Philip Aston
  */
@@ -44,11 +45,15 @@ public class FileUtilities extends Assert {
     //           file.getAbsolutePath(),
     //         });
 
+    // Strewth: getCanonicalPath doesn't quote spaces correctly for cacls.
+    String path = file.getCanonicalPath();
+    path = path.replaceAll("%20", " ");
+
     // Sadly cygwin ntsec support doesn't allow us to ignore inherited
     // attributes. Do this instead:
     exec(new String[] {
            "cacls",
-           file.getAbsolutePath(),
+           path,
            "/E",
            "/P",
            System.getProperty("user.name") + ":" + (canAccess ? "F" : "N"),
@@ -81,9 +86,10 @@ public class FileUtilities extends Assert {
         "test for your platform?",
         e);
     }
-    
+
     process.waitFor();
 
-    assertEquals("exec suceeded", 0, process.exitValue());
+    assertEquals("exec of " + Arrays.asList(command) +
+      " succeeded", 0, process.exitValue());
   }
 }
