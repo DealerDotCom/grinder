@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -55,7 +55,15 @@ public class TestDirectory extends AbstractFileTestCase {
     final Directory directory = new Directory(getDirectory());
     assertEquals(0, directory.getWarnings().length);
 
-    assertEquals(getDirectory(), directory.getAsFile());
+    assertEquals(getDirectory(), directory.getFile());
+  }
+
+  public void testDefaultConstructor() throws Exception {
+
+    final Directory directory = new Directory();
+    final File cwd = new File(System.getProperty("user.dir"));
+    assertEquals(cwd.getCanonicalPath(),
+                 directory.getFile().getCanonicalPath());
   }
 
   public void testEquality() throws Exception {
@@ -180,7 +188,7 @@ public class TestDirectory extends AbstractFileTestCase {
       file.getParentFile().mkdirs();
       file.createNewFile();
     }
-    
+
     assertTrue(getDirectory().list().length > 0);
 
     directory.deleteContents();
@@ -189,7 +197,7 @@ public class TestDirectory extends AbstractFileTestCase {
 
     // Can't test that deleteContents() throws an exception if
     // contents couldn't be deleted as File.delete() ignores file
-    // permisions on W2K.
+    // permissions on W2K.
   }
 
   public void testCreate() throws Exception {
@@ -201,9 +209,9 @@ public class TestDirectory extends AbstractFileTestCase {
     for (int i=0; i<directories.length; ++i) {
       final Directory directory =
         new Directory(new File(getDirectory(), directories[i]));
-      assertFalse(directory.getAsFile().exists());
+      assertFalse(directory.getFile().exists());
       directory.create();
-      assertTrue(directory.getAsFile().exists());
+      assertTrue(directory.getFile().exists());
     }
 
     final File file = new File(getDirectory(), "readonly");
@@ -222,9 +230,9 @@ public class TestDirectory extends AbstractFileTestCase {
     final Directory directory1 =
       new Directory(new File(getDirectory(), "a/directory"));
     directory1.create();
-    assertTrue(directory1.getAsFile().exists());
+    assertTrue(directory1.getFile().exists());
     directory1.delete();
-    assertFalse(directory1.getAsFile().exists());
+    assertFalse(directory1.getFile().exists());
 
     final Directory directory2 =
       new Directory(new File(getDirectory(), "another"));
@@ -259,7 +267,7 @@ public class TestDirectory extends AbstractFileTestCase {
     }
 
     assertNull(directory.getRelativePath(null));
-    assertNull(directory.getRelativePath(new File(getDirectory(), "foo")));    
+    assertNull(directory.getRelativePath(new File(getDirectory(), "foo")));
   }
 
   public void testCopyTo() throws Exception {
@@ -322,5 +330,24 @@ public class TestDirectory extends AbstractFileTestCase {
     }
 
     assertEquals(files.size() * 2, contents2.length);
+
+    final Directory missingSourceDirectory =
+      new Directory(sourceDirectory.getFile("missing"));
+
+    final Directory missingOutputDirectory =
+      new Directory(outputDirectory.getFile("notthere"));
+
+    assertFalse(missingSourceDirectory.getFile().exists());
+    assertFalse(missingOutputDirectory.getFile().exists());
+
+    try {
+      missingSourceDirectory.copyTo(missingOutputDirectory, false);
+      fail("Expected DirectoryException");
+    }
+    catch (Directory.DirectoryException e) {
+    }
+
+    assertFalse(missingSourceDirectory.getFile().exists());
+    assertFalse(missingOutputDirectory.getFile().exists());
   }
 }
