@@ -78,8 +78,9 @@ to show both.
 
 ***** Release 5
 
-Task: Console to watch local file system for edits.
 Task: Add warning if saving outside of distribution.
+
+Task: Console to watch local file system for edits.
 Task: The agent should pick up secondary grinder.properties from file
 cache.
 Task: Console to optionally auto broadcast on play. Need some way of
@@ -280,6 +281,8 @@ Perhaps JasperReports?
 ** Code
 
 Review use of Kernel. Probably want to share them.
+
+Replace singletons with Constructor DI. Consider PicoContainer.
 
 Remove ThreadLocal from RegisteredPlugin.
 

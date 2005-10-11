@@ -405,7 +405,7 @@ public final class ConsoleUI implements ModelListener {
   private void packAndSize(JFrame frame) {
     frame.pack();
 
-    // Arbitary sizing that looks good for Phil.
+    // Arbitrary size that looks good for Phil.
     frame.setSize(new Dimension(900, 600));
   }
 
@@ -915,15 +915,14 @@ public final class ConsoleUI implements ModelListener {
 
     void saveBufferAs(Buffer buffer) throws ConsoleException {
       final File currentFile = buffer.getFile();
+      final Directory distributionDirectory =
+        m_model.getProperties().getDistributionDirectory();
 
       if (currentFile != null) {
         m_fileChooser.setSelectedFile(currentFile);
       }
       else {
-        final File distributionDirectory =
-          m_model.getProperties().getDistributionDirectory();
-
-        m_fileChooser.setCurrentDirectory(distributionDirectory);
+        m_fileChooser.setCurrentDirectory(distributionDirectory.getFile());
       }
 
       if (m_fileChooser.showSaveDialog(m_frame) !=
@@ -932,6 +931,16 @@ public final class ConsoleUI implements ModelListener {
       }
 
       final File file = m_fileChooser.getSelectedFile();
+
+      if (!distributionDirectory.isParentOf(file) &&
+        JOptionPane.showConfirmDialog(
+          m_frame,
+          m_model.getResources().getString(
+            "saveOutsideOfDistributionConfirmation.text"),
+          (String) getValue(NAME),
+          JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+        return;
+      }
 
       if (file.exists() &&
           (currentFile == null || !file.equals(currentFile)) &&
@@ -963,6 +972,10 @@ public final class ConsoleUI implements ModelListener {
 
         return;
       }
+      else {
+        // Saving as the same name.
+        buffer.save();
+      }
     }
   }
 
@@ -989,7 +1002,7 @@ public final class ConsoleUI implements ModelListener {
       if (buffer != null) {
         while (buffer.isDirty()) {
           // Loop until we've saved the buffer successfully or
-          // cancelled.
+          // canceled.
 
           final String confirmationMessage =
             MessageFormat.format(
@@ -1119,10 +1132,8 @@ public final class ConsoleUI implements ModelListener {
             }
           }
 
-          final File directoryFile =
+          final Directory directory =
             m_model.getProperties().getDistributionDirectory();
-
-          final Directory directory = new Directory(directoryFile);
           final File relativeScript = directory.getRelativePath(script);
 
           if (relativeScript == null) {
@@ -1136,10 +1147,6 @@ public final class ConsoleUI implements ModelListener {
 
           m_processControl.startWorkerProcesses(relativeScript);
         }
-      }
-      catch (Directory.DirectoryException e) {
-        getErrorHandler().handleException(e);
-        return;
       }
       catch (GrinderException e) {
         getErrorHandler().handleException(e);
@@ -1240,7 +1247,7 @@ public final class ConsoleUI implements ModelListener {
       m_fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
       m_fileChooser.setSelectedFile(
-        m_model.getProperties().getDistributionDirectory());
+        m_model.getProperties().getDistributionDirectory().getFile());
 
       m_lookAndFeel.addListener(
         new LookAndFeel.ComponentListener(m_fileChooser));
@@ -1253,7 +1260,9 @@ public final class ConsoleUI implements ModelListener {
                                        "choose-directory.label")) ==
             JFileChooser.APPROVE_OPTION) {
 
-          final File file = m_fileChooser.getSelectedFile();
+          final Directory directory =
+            new Directory(m_fileChooser.getSelectedFile());
+          final File file = directory.getFile();
 
           if (!file.exists()) {
             if (JOptionPane.showConfirmDialog(
@@ -1264,11 +1273,11 @@ public final class ConsoleUI implements ModelListener {
               return;
             }
 
-            file.mkdir();
+            directory.create();
           }
 
           final ConsoleProperties properties = m_model.getProperties();
-          properties.setDistributionDirectory(file);
+          properties.setDistributionDirectory(directory);
           properties.saveDistributionDirectory();
         }
       }
@@ -1308,16 +1317,8 @@ public final class ConsoleUI implements ModelListener {
 
     public void actionPerformed(ActionEvent event) {
 
-      final Directory directory;
-
-      try {
-        directory =
-          new Directory(m_model.getProperties().getDistributionDirectory());
-      }
-      catch (Directory.DirectoryException e) {
-        getErrorHandler().handleException(e);
-        return;
-      }
+      final Directory directory =
+        m_model.getProperties().getDistributionDirectory();
 
       final FileDistributionHandler distributionHandler =
         m_fileDistribution.getHandler(

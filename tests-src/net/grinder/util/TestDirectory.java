@@ -270,6 +270,21 @@ public class TestDirectory extends AbstractFileTestCase {
     assertNull(directory.getRelativePath(new File(getDirectory(), "foo")));
   }
 
+  public void testIsParentOf() throws Exception {
+    final File f1 = new File("xfoo");
+    final File f2 = new File("xfoo/bah");
+    final File f3 = new File("xfoo/bah/blah");
+    final File f4 = new File("xfoo/bah/dah");
+
+    assertTrue(new Directory(f1).isParentOf(f2));
+    assertTrue(new Directory(f1).isParentOf(f3));
+
+    assertFalse(new Directory(f2).isParentOf(f2));
+    assertFalse(new Directory(f2).isParentOf(f1));
+    assertFalse(new Directory(f3).isParentOf(f1));
+    assertFalse(new Directory(f3).isParentOf(f4));
+  }
+
   public void testCopyTo() throws Exception {
     final Set files = new HashSet() {{
       add(new File("a file"));

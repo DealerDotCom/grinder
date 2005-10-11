@@ -24,7 +24,6 @@ package net.grinder.console.model;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.regex.Pattern;
@@ -34,6 +33,7 @@ import net.grinder.common.GrinderProperties;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
+import net.grinder.util.Directory;
 
 
 /**
@@ -113,7 +113,7 @@ public final class ConsoleProperties {
   private int m_significantFigures;
   private boolean m_resetConsoleWithProcesses;
   private File m_scriptFile;
-  private File m_distributionDirectory;
+  private Directory m_distributionDirectory;
   private Pattern m_distributionFileFilterPattern;
   private String m_lookAndFeel;
 
@@ -279,7 +279,7 @@ public final class ConsoleProperties {
     }
 
     m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
-                         m_distributionDirectory);
+                         m_distributionDirectory.getFile());
 
     m_properties.setProperty(DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
                              m_distributionFileFilterPattern.pattern());
@@ -674,35 +674,41 @@ public final class ConsoleProperties {
   /**
    * Get the script distribution directory.
    *
-   * @return The directory. This is guaranteed never to be
-   * <code>null</code>.
+   * @return The directory.
    */
-  public File getDistributionDirectory() {
+  public Directory getDistributionDirectory() {
     return m_distributionDirectory;
+  }
+
+  /**
+   * Set the script distribution directory from a File.
+   *
+   * @param distributionDirectory The directory. <code>null</code> =>
+   * default to local directory.
+   */
+  private void setDistributionDirectory(File distributionDirectory) {
+
+    if (distributionDirectory == null) {
+      setDistributionDirectory(new Directory());
+    }
+    else {
+      try {
+        setDistributionDirectory(new Directory(distributionDirectory));
+      }
+      catch (Directory.DirectoryException e) {
+        setDistributionDirectory(new Directory());
+      }
+    }
   }
 
   /**
    * Set the script distribution directory.
    *
-   * @param distributionDirectory The directory. <code>null</code> =>
-   * default to local directory.
+   * @param distributionDirectory The directory.
    */
-  public void setDistributionDirectory(File distributionDirectory) {
-
-    final File old = m_distributionDirectory;
-
-    if (distributionDirectory != null) {
-      m_distributionDirectory = distributionDirectory;
-    }
-    else {
-      try {
-        m_distributionDirectory = new File(".").getCanonicalFile();
-      }
-      catch (IOException e) {
-        // Oh well...
-        m_distributionDirectory = new File(".");
-      }
-    }
+  public void setDistributionDirectory(Directory distributionDirectory) {
+    final Directory old = m_distributionDirectory;
+    m_distributionDirectory = distributionDirectory;
 
     m_changeSupport.firePropertyChange(
       DISTRIBUTION_DIRECTORY_PROPERTY, old, m_distributionDirectory);
@@ -717,7 +723,7 @@ public final class ConsoleProperties {
   public void saveDistributionDirectory()
     throws DisplayMessageConsoleException {
     m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
-                         m_distributionDirectory);
+                         m_distributionDirectory.getFile());
 
     try {
       m_properties.saveSingleProperty(DISTRIBUTION_DIRECTORY_PROPERTY);

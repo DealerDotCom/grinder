@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -37,6 +37,7 @@ import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.testutility.AssertUtilities;
+import net.grinder.util.Directory;
 
 
 /**
@@ -288,14 +289,17 @@ public class TestConsoleProperties extends TestCase {
 
   public void testDistributionDirectory() throws Exception {
 
-    new TestFileTemplate(ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY) {
+    new TestDirectoryTemplate(
+      ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY) {
 
-      protected File get(ConsoleProperties properties) {
-  return properties.getDistributionDirectory();
+      protected Directory getDirectory(ConsoleProperties properties) {
+        return properties.getDistributionDirectory();
       }
 
-      protected void set(ConsoleProperties properties, File file) {
-  properties.setDistributionDirectory(file);
+      protected void setDirectory(ConsoleProperties properties,
+                                 Directory directory)
+        throws Exception {
+          properties.setDistributionDirectory(directory);
       }
     }.doTest();
 
@@ -306,7 +310,6 @@ public class TestConsoleProperties extends TestCase {
     final ConsoleProperties properties =
       new ConsoleProperties(s_resources, file);
 
-    properties.setDistributionDirectory(null);
     assertNotNull(properties.getDistributionDirectory());
 
     properties.saveDistributionDirectory();
@@ -316,7 +319,7 @@ public class TestConsoleProperties extends TestCase {
     assertEquals(1, rawProperties.size());
     assertEquals(rawProperties.getProperty(
                    ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY),
-                 properties.getDistributionDirectory().getPath());
+                 properties.getDistributionDirectory().getFile().getPath());
   }
 
   public void testLookAndFeel() throws Exception {
@@ -388,7 +391,7 @@ public class TestConsoleProperties extends TestCase {
     p2.setStartWithUnsavedBuffersAsk(false);
     p2.setStopProcessesAsk(false);
     p2.setScriptFile(new File("foo"));
-    p2.setDistributionDirectory(new File("bah"));
+    p2.setDistributionDirectory(new Directory(new File("bah")));
     p2.setLookAndFeel("something");
 
     assertTrue(p1.getCollectSampleCount() != p2.getCollectSampleCount());
@@ -755,7 +758,7 @@ public class TestConsoleProperties extends TestCase {
       while (f3.equals(f2));
 
       final PropertyChangeEvent expected =
-  new PropertyChangeEvent(properties2, m_propertyName, f2, f3);
+        createPropertyChangeEvent(properties2, f2, f3);
 
       final ChangeListener listener = new ChangeListener(expected);
       final ChangeListener listener2 = new ChangeListener(expected);
@@ -769,10 +772,48 @@ public class TestConsoleProperties extends TestCase {
       listener2.assertCalledOnce();
     }
 
+    protected PropertyChangeEvent createPropertyChangeEvent(
+      ConsoleProperties properties2, File f2, File f3) throws Exception {
+      return new PropertyChangeEvent(properties2, getPropertyName(), f2, f3);
+    }
+
+    protected final String getPropertyName() {
+      return m_propertyName;
+    }
+
     protected abstract File get(ConsoleProperties properties);
 
     protected abstract void set(ConsoleProperties properties, File i)
-      throws DisplayMessageConsoleException;
+      throws Exception;
+  }
+
+  private abstract class TestDirectoryTemplate extends TestFileTemplate {
+
+    public TestDirectoryTemplate(String propertyName) {
+      super(propertyName);
+    }
+
+    protected File get(ConsoleProperties properties) {
+      return getDirectory(properties).getFile();
+    }
+
+    protected void set(ConsoleProperties properties, File i)
+      throws Exception {
+      setDirectory(properties, new Directory(i));
+    }
+
+    protected PropertyChangeEvent createPropertyChangeEvent(
+      ConsoleProperties properties, File f2, File f3) throws Exception {
+      return new PropertyChangeEvent(properties, getPropertyName(),
+                                     new Directory(f2),
+                                     new Directory(f3));
+    }
+
+    protected abstract Directory getDirectory(ConsoleProperties properties);
+
+    protected abstract void setDirectory(ConsoleProperties properties,
+                                         Directory i)
+      throws Exception;
   }
 
   private abstract class TestPatternTemplate {

@@ -251,6 +251,30 @@ public final class Directory  {
   }
 
   /**
+   * Test whether a File represents the name of affile that is a descendent of
+   * the directory.
+   *
+   * @param file File to test.
+   * @return <code>boolean</code> => file is a descendent.
+   */
+  public boolean isParentOf(File file) {
+    final File thisFile = getFile();
+
+    File candidate = file.getParentFile();
+
+    while (candidate != null) {
+      if (thisFile.equals(candidate)) {
+        return true;
+      }
+
+      candidate = candidate.getParentFile();
+    }
+
+
+    return false;
+  }
+
+  /**
    * Copy contents of the directory to the target directory.
    *
    * @param target Target directory.

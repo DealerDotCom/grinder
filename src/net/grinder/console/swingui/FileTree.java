@@ -90,7 +90,7 @@ final class FileTree {
 
     m_fileTreeModel = new FileTreeModel(m_editorModel);
     m_fileTreeModel.setRootDirectory(
-      consoleProperties.getDistributionDirectory());
+      consoleProperties.getDistributionDirectory().getFile());
 
     consoleProperties.addPropertyChangeListener(
       new PropertyChangeListener()  {
@@ -98,7 +98,7 @@ final class FileTree {
           if (e.getPropertyName().equals(
                 ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY)) {
             m_fileTreeModel.setRootDirectory(
-              consoleProperties.getDistributionDirectory());
+              consoleProperties.getDistributionDirectory().getFile());
           }
         }
       });
