@@ -166,7 +166,7 @@ public final class Directory  {
         final String[] children = absoluteDirectory.list();
 
         if (children == null) {
-          // This can happen if the user does not have permision to
+          // This can happen if the user does not have permission to
           // list the directory.
           m_warnings.add("Could not list '" + absoluteDirectory);
           continue;
@@ -251,7 +251,7 @@ public final class Directory  {
   }
 
   /**
-   * Test whether a File represents the name of affile that is a descendent of
+   * Test whether a File represents the name of a file that is a descendent of
    * the directory.
    *
    * @param file File to test.
