@@ -87,9 +87,9 @@ final class FileStore {
   public Directory getDirectory() throws FileStoreException {
     try {
       synchronized (m_incomingDirectory) {
-        // copyTo will only create the current directory if the
-        // incoming directory exists.
-        m_incomingDirectory.copyTo(m_currentDirectory, m_incremental);
+        if (m_incomingDirectory.getFile().exists()) {
+          m_incomingDirectory.copyTo(m_currentDirectory, m_incremental);
+        }
       }
 
       m_incremental = true;
