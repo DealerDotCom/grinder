@@ -123,8 +123,6 @@ public class StatisticsTable {
 
     out.println();
 
-    final StatisticsSet totals = StatisticsSetFactory.getInstance().create();
-
     synchronized (m_testStatisticsMap) {
 
       final TestStatisticsMap.Iterator iterator =
@@ -134,7 +132,6 @@ public class StatisticsTable {
         final TestStatisticsMap.Pair pair = iterator.next();
 
         final Test test = pair.getTest();
-        totals.add(pair.getStatistics());
 
         final StringBuffer output = formatLine("Test " + test.getNumber(),
                                                pair.getStatistics(),
@@ -150,7 +147,9 @@ public class StatisticsTable {
       }
 
       out.println();
-      out.println(formatLine("Totals", totals, expressionViews));
+      out.println(formatLine("Totals",
+                             m_testStatisticsMap.createTotalStatisticsSet(),
+                             expressionViews));
     }
   }
 

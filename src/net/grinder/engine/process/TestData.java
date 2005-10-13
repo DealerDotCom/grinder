@@ -53,12 +53,13 @@ final class TestData implements TestRegistry.RegisteredTest {
    * Cumulative statistics for our test that haven't yet been set to
    * the console.
    */
-  private final StatisticsSet m_statistics =
-    StatisticsSetFactory.getInstance().create();
+  private final StatisticsSet m_statistics;
 
-  TestData(ThreadContextLocator threadContextLocator, Test testDefinition) {
+  TestData(ThreadContextLocator threadContextLocator, Test testDefinition,
+           StatisticsSetFactory statisticsSetFactory) {
     m_threadContextLocator = threadContextLocator;
     m_test = testDefinition;
+    m_statistics = statisticsSetFactory.create();
   }
 
   Test getTest() {

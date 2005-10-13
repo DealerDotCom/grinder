@@ -45,6 +45,7 @@ import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.Statistics;
 import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
@@ -104,6 +105,8 @@ public class TestHTTPRequest extends TestCase {
                                               threadState);
     pluginProcessContextStubFactory.setResult("getScriptContext",
                                               scriptContext);
+    pluginProcessContextStubFactory.setResult("getStatisticsServices",
+      StatisticsServicesImplementation.getInstance());
 
     final PluginProcessContext pluginProcessContext =
       (PluginProcessContext)pluginProcessContextStubFactory.getStub();

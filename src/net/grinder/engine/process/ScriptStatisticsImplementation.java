@@ -26,12 +26,11 @@ import java.io.PrintWriter;
 import net.grinder.common.ThreadLifeCycleListener;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
-import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsIndexMap;
-import net.grinder.statistics.StatisticsSetFactory;
 
 
 /**
@@ -45,28 +44,16 @@ import net.grinder.statistics.StatisticsSetFactory;
 final class ScriptStatisticsImplementation
   implements Statistics, ThreadLifeCycleListener {
 
-  private static final StatisticsIndexMap.LongIndex s_errorsIndex;
-  private static final StatisticsIndexMap.LongIndex s_untimedTestsIndex;
-  private static final StatisticsIndexMap.LongSampleIndex s_timedTestsIndex;
-
-  static {
-    final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
-
-    s_errorsIndex = indexMap.getLongIndex("errors");
-    s_untimedTestsIndex = indexMap.getLongIndex("untimedTests");
-    s_timedTestsIndex = indexMap.getLongSampleIndex("timedTests");
-  }
-
   private final ThreadContextLocator m_threadContextLocator;
   private final PrintWriter m_dataWriter;
+  private final boolean m_recordTime;
   private final StringBuffer m_buffer = new StringBuffer();
   private final int m_bufferAfterThreadIDIndex;
-  private final boolean m_recordTime;
-  private final ExpressionView[] m_detailExpressionViews =
-    CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
-
-  private final StatisticsSet m_statistics =
-    StatisticsSetFactory.getInstance().create();
+  private final ExpressionView[] m_detailExpressionViews;
+  private final StatisticsSet m_statistics;
+  private final StatisticsIndexMap.LongIndex m_errorsIndex;
+  private final StatisticsIndexMap.LongIndex m_untimedTestsIndex;
+  private final StatisticsIndexMap.LongSampleIndex m_timedTestsIndex;
 
   private TestData m_currentTestData = null;
   private long m_currentTestStartTime = -1;
@@ -80,12 +67,23 @@ final class ScriptStatisticsImplementation
   public ScriptStatisticsImplementation(
     ThreadContextLocator threadContextLocator,
     PrintWriter dataWriter,
+    StatisticsServices statisticsServices,
     int threadID,
     boolean recordTime) {
 
     m_threadContextLocator = threadContextLocator;
     m_dataWriter = dataWriter;
     m_recordTime = recordTime;
+
+    m_detailExpressionViews =
+      statisticsServices.getDetailStatisticsView().getExpressionViews();
+    m_statistics = statisticsServices.getStatisticsSetFactory().create();
+
+    final StatisticsIndexMap indexMap =
+      statisticsServices.getStatisticsIndexMap();
+    m_errorsIndex = indexMap.getLongIndex("errors");
+    m_untimedTestsIndex = indexMap.getLongIndex("untimedTests");
+    m_timedTestsIndex = indexMap.getLongSampleIndex("timedTests");
 
     m_buffer.append(threadID);
     m_buffer.append(", ");
@@ -194,11 +192,11 @@ final class ScriptStatisticsImplementation
   }
 
   void setSuccessNoChecks(boolean success) {
-    m_statistics.setValue(s_errorsIndex, success ? 0 : 1);
+    m_statistics.setValue(m_errorsIndex, success ? 0 : 1);
   }
 
   public boolean getSuccess() {
-    return m_statistics.getValue(s_errorsIndex) == 0;
+    return m_statistics.getValue(m_errorsIndex) == 0;
   }
 
   public long getTime() {
@@ -238,23 +236,23 @@ final class ScriptStatisticsImplementation
     if (m_currentTestData != null) {
       if (getSuccess()) {
         if (m_recordTime) {
-          m_statistics.reset(s_timedTestsIndex);
-          m_statistics.addSample(s_timedTestsIndex, m_currentTestElapsedTime);
+          m_statistics.reset(m_timedTestsIndex);
+          m_statistics.addSample(m_timedTestsIndex, m_currentTestElapsedTime);
         }
         else {
-          m_statistics.setValue(s_untimedTestsIndex, 1);
+          m_statistics.setValue(m_untimedTestsIndex, 1);
         }
 
-        m_statistics.setValue(s_errorsIndex, 0);
+        m_statistics.setValue(m_errorsIndex, 0);
       }
       else {
         // The plug-in might have set timing information etc., or set
         // errors to be greater than 1. For consistency, we override
         // to a single error per Test with no associated timing
         // information.
-        m_statistics.setValue(s_untimedTestsIndex, 0);
-        m_statistics.reset(s_timedTestsIndex);
-        m_statistics.setValue(s_errorsIndex, 1);
+        m_statistics.setValue(m_untimedTestsIndex, 0);
+        m_statistics.reset(m_timedTestsIndex);
+        m_statistics.setValue(m_errorsIndex, 1);
         m_currentTestElapsedTime = -1;
       }
 

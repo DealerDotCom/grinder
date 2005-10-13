@@ -36,15 +36,16 @@ import java.util.TreeSet;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.console.common.Resources;
-import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.PeakStatisticExpression;
+import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticExpressionFactory;
 import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatisticsMap;
+import net.grinder.statistics.TestStatisticsQueries;
 import net.grinder.util.SignificantFigureFormat;
 import net.grinder.util.ListenerSupport;
 
@@ -107,6 +108,8 @@ public final class Model {
 
   private final ConsoleProperties m_properties;
   private final Resources m_resources;
+  private final StatisticsServices m_statisticsServices;
+
   private int m_sampleInterval;
   private NumberFormat m_numberFormat;
 
@@ -138,29 +141,28 @@ public final class Model {
    *
    * @param properties The console properties.
    * @param resources Resources.
+   * @param statisticsServices Statistics services.
    * @exception GrinderException if an error occurs
    */
-  public Model(ConsoleProperties properties, Resources resources)
+  public Model(ConsoleProperties properties, Resources resources,
+               StatisticsServices statisticsServices)
     throws GrinderException {
 
     m_properties = properties;
     m_resources = resources;
+    m_statisticsServices = statisticsServices;
 
     m_sampleInterval = m_properties.getSampleInterval();
     m_numberFormat =
       new SignificantFigureFormat(m_properties.getSignificantFigures());
 
-    final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
-
-    // Ensure that the common statistics views are registered before
-    // our new ones - otherwise the order can vary depending on how
-    // classes are packaged.. See bug 804272.
-    CommonStatisticsViews.getSummaryStatisticsView();
+    final StatisticsIndexMap indexMap =
+      statisticsServices.getStatisticsIndexMap();
 
     m_periodIndex = indexMap.getLongIndex("period");
 
     final StatisticExpressionFactory statisticExpressionFactory =
-      StatisticExpressionFactory.getInstance();
+      m_statisticsServices.getStatisticExpressionFactory();
 
     m_tpsExpression =
       statisticExpressionFactory.createExpression(
@@ -177,7 +179,8 @@ public final class Model {
       new ExpressionView("Peak TPS", "statistic.peakTPS", m_peakTPSExpression);
 
     m_totalSampleAccumulator =
-      new SampleAccumulator(m_peakTPSExpression, m_periodIndex);
+      new SampleAccumulator(m_peakTPSExpression, m_periodIndex,
+                            m_statisticsServices.getStatisticsSetFactory());
 
     createStatisticsViews();
 
@@ -207,7 +210,7 @@ public final class Model {
   private void createStatisticsViews() {
 
     final StatisticsView summaryStatisticsView =
-      CommonStatisticsViews.getSummaryStatisticsView();
+      m_statisticsServices.getSummaryStatisticsView();
 
     m_intervalStatisticsView = new StatisticsView();
     m_intervalStatisticsView.add(summaryStatisticsView);
@@ -256,6 +259,15 @@ public final class Model {
   }
 
   /**
+   * Return an object allowing access to common functions of test statistics.
+   *
+   * @return The {@link TestStatisticsQueries}.
+   */
+  public TestStatisticsQueries getTestStatisticsQueries() {
+    return m_statisticsServices.getTestStatisticsQueries();
+  }
+
+  /**
    * Register new tests.
    *
    * @param tests The new tests.
@@ -288,8 +300,10 @@ public final class Model {
     synchronized (m_accumulators) {
       while (newTestIterator.hasNext()) {
         m_accumulators.put(newTestIterator.next(),
-                           new SampleAccumulator(m_peakTPSExpression,
-                                                 m_periodIndex));
+                           new SampleAccumulator(
+                             m_peakTPSExpression,
+                             m_periodIndex,
+                             m_statisticsServices.getStatisticsSetFactory()));
       }
 
       for (int i = 0; i < accumulatorArray.length; i++) {

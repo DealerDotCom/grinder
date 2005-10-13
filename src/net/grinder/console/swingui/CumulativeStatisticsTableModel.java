@@ -28,7 +28,6 @@ import net.grinder.console.common.ConsoleException;
 import net.grinder.console.model.Model;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatisticsQueries;
 
 
 /**
@@ -111,7 +110,7 @@ final class CumulativeStatisticsTableModel
     else {
       return
         column == 3 &&
-        TestStatisticsQueries.getInstance().getNumberOfErrors(
+        getModel().getTestStatisticsQueries().getNumberOfErrors(
             getModel().getTotalCumulativeStatistics()) > 0;
     }
   }

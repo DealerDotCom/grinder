@@ -33,15 +33,18 @@ import junit.framework.TestCase;
  * @see StatisticsSet
  */
 public class TestTestStatisticsQueries extends TestCase {
-  
+
+  private final StatisticsServices m_statisticsServices =
+    StatisticsServicesImplementation.getInstance();
+
   public void testSingleton() throws Exception {
-    assertSame(TestStatisticsQueries.getInstance(),
-               TestStatisticsQueries.getInstance());
+    assertSame(m_statisticsServices.getTestStatisticsQueries(),
+      m_statisticsServices.getTestStatisticsQueries());
   }
 
   public void testTestStatisticsQueries() throws Exception {
     final StatisticsIndexMap statisticsIndexMap =
-      StatisticsIndexMap.getInstance();
+      m_statisticsServices.getStatisticsIndexMap();
     final StatisticsIndexMap.LongIndex errorStatisticIndex =
       statisticsIndexMap.getLongIndex("errors");
     final StatisticsIndexMap.LongIndex untimedTestsIndex =
@@ -49,41 +52,46 @@ public class TestTestStatisticsQueries extends TestCase {
     final StatisticsIndexMap.LongSampleIndex timedTestsIndex =
       statisticsIndexMap.getLongSampleIndex("timedTests");
 
-	final StatisticsSet statistics0 = new StatisticsSetImplementation();
-  
-	final TestStatisticsQueries queries = TestStatisticsQueries.getInstance();
+    final StatisticsSet statistics0 =
+      new StatisticsSetImplementation(
+        m_statisticsServices.getStatisticsIndexMap());
 
-	assertEquals(0, queries.getNumberOfErrors(statistics0));
-	assertEquals(0, queries.getNumberOfTests(statistics0));
-	assertTrue(Double.isNaN(queries.getAverageTestTime(statistics0)));
+    final TestStatisticsQueries queries =
+      m_statisticsServices.getTestStatisticsQueries();
 
-	final StatisticsSet statistics1 = new StatisticsSetImplementation();
+    assertEquals(0, queries.getNumberOfErrors(statistics0));
+    assertEquals(0, queries.getNumberOfTests(statistics0));
+    assertTrue(Double.isNaN(queries.getAverageTestTime(statistics0)));
 
-	assertTrue(statistics0 != statistics1);
-	assertEquals(statistics0, statistics1);
+    final StatisticsSet statistics1 =
+      new StatisticsSetImplementation(
+        m_statisticsServices.getStatisticsIndexMap());
 
-	statistics0.addValue(errorStatisticIndex, 1);
-	assertEquals(1, queries.getNumberOfErrors(statistics0));
-	assertTrue(!statistics0.equals(statistics1));
+    assertTrue(statistics0 != statistics1);
+    assertEquals(statistics0, statistics1);
 
-	statistics1.addValue(errorStatisticIndex, 1);
-	assertEquals(statistics0, statistics1);
+    statistics0.addValue(errorStatisticIndex, 1);
+    assertEquals(1, queries.getNumberOfErrors(statistics0));
+    assertTrue(!statistics0.equals(statistics1));
 
-	statistics0.addValue(untimedTestsIndex, 1);
-	assertEquals(1, queries.getNumberOfTests(statistics0));
-	assertTrue(!statistics0.equals(statistics1));
+    statistics1.addValue(errorStatisticIndex, 1);
+    assertEquals(statistics0, statistics1);
 
-	statistics1.addValue(untimedTestsIndex, 1);
-	assertEquals(statistics0, statistics1);
+    statistics0.addValue(untimedTestsIndex, 1);
+    assertEquals(1, queries.getNumberOfTests(statistics0));
+    assertTrue(!statistics0.equals(statistics1));
 
-	statistics0.addSample(timedTestsIndex, 5);
-	statistics1.addSample(timedTestsIndex, 10);
-	assertEquals(2, queries.getNumberOfTests(statistics0));
-	assertTrue(!statistics0.equals(statistics1));
+    statistics1.addValue(untimedTestsIndex, 1);
+    assertEquals(statistics0, statistics1);
 
-	statistics0.addSample(timedTestsIndex, 10);
-	statistics1.addSample(timedTestsIndex, 5);
-	assertEquals(statistics0, statistics1);
-	assertEquals(7.5d, queries.getAverageTestTime(statistics1), 0.01);
+    statistics0.addSample(timedTestsIndex, 5);
+    statistics1.addSample(timedTestsIndex, 10);
+    assertEquals(2, queries.getNumberOfTests(statistics0));
+    assertTrue(!statistics0.equals(statistics1));
+
+    statistics0.addSample(timedTestsIndex, 10);
+    statistics1.addSample(timedTestsIndex, 5);
+    assertEquals(statistics0, statistics1);
+    assertEquals(7.5d, queries.getAverageTestTime(statistics1), 0.01);
   }
 }

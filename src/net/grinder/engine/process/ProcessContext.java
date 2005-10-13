@@ -31,6 +31,7 @@ import net.grinder.communication.QueuedSender;
 import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.script.Grinder;
 import net.grinder.script.SSLControl;
+import net.grinder.statistics.StatisticsServices;
 import net.grinder.util.Sleeper;
 
 
@@ -51,13 +52,15 @@ final class ProcessContext {
   private final TestRegistry m_testRegistry;
   private final Grinder.ScriptContext m_scriptContext;
   private final Sleeper m_sleeper;
+  private final StatisticsServices m_statisticsServices;
 
   private long m_executionStartTime;
   private boolean m_shutdown;
 
   ProcessContext(WorkerIdentity workerIdentity,
                  GrinderProperties properties, Logger logger,
-                 FilenameFactory filenameFactory, QueuedSender consoleSender)
+                 FilenameFactory filenameFactory, QueuedSender consoleSender,
+                 StatisticsServices statisticsServices)
     throws GrinderException {
 
     m_workerIdentity = workerIdentity;
@@ -66,6 +69,7 @@ final class ProcessContext {
     m_processLogger = logger;
     m_consoleSender = consoleSender;
     m_threadContextLocator = new ThreadContextLocatorImplementation();
+    m_statisticsServices = statisticsServices;
 
     final Logger externalLogger =
       new ExternalLogger(m_processLogger, m_threadContextLocator);
@@ -89,13 +93,18 @@ final class ProcessContext {
       externalLogger,
       externalFilenameFactory,
       m_sleeper,
-      sslControl);
+      sslControl,
+      statisticsServices);
 
     m_pluginRegistry =
       new PluginRegistryImplementation(externalLogger, m_scriptContext,
-                                       m_threadContextLocator);
+                                       m_threadContextLocator,
+                                       statisticsServices);
 
-    m_testRegistry = new TestRegistry(m_threadContextLocator);
+    m_testRegistry =
+      new TestRegistry(m_threadContextLocator,
+                       statisticsServices.getStatisticsSetFactory());
+
     TestRegistry.setInstance(m_testRegistry);
 
     Grinder.grinder = m_scriptContext;
@@ -179,6 +188,10 @@ final class ProcessContext {
 
   public Sleeper getSleeper() {
     return m_sleeper;
+  }
+
+  public StatisticsServices getStatisticsServices() {
+    return m_statisticsServices;
   }
 
   private static final class ThreadContextLocatorImplementation

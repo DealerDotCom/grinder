@@ -24,6 +24,8 @@ package net.grinder.engine.process;
 import junit.framework.TestCase;
 
 import net.grinder.common.Test;
+import net.grinder.statistics.StatisticsServicesImplementation;
+import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -41,7 +43,11 @@ public class TestTestRegistry extends TestCase {
   public void testConstructorAndSingleton() throws Exception {
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
-    final TestRegistry testRegistry = new TestRegistry(threadContextLocator);
+    final StatisticsSetFactory statisticsSetFactory =
+      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
+
+    final TestRegistry testRegistry =
+      new TestRegistry(threadContextLocator, statisticsSetFactory);
 
     assertNotNull(testRegistry.getTestStatisticsMap());
 
@@ -55,7 +61,11 @@ public class TestTestRegistry extends TestCase {
   public void testRegister() throws Exception {
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
-    final TestRegistry testRegistry = new TestRegistry(threadContextLocator);
+    final StatisticsSetFactory statisticsSetFactory =
+      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
+
+    final TestRegistry testRegistry =
+      new TestRegistry(threadContextLocator, statisticsSetFactory);
 
     assertNull(testRegistry.getNewTests());
 

@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -80,6 +80,7 @@ class LabelledGraph extends JPanel {
   private final Graph m_graph;
   private final StatisticExpression m_tpsExpression;
   private final StatisticExpression m_peakTPSExpression;
+  private final TestStatisticsQueries m_testStatisticsQueries;
 
   private static class Label extends JLabel {
 
@@ -159,15 +160,19 @@ class LabelledGraph extends JPanel {
 
   public LabelledGraph(String title, Resources resources,
                        StatisticExpression tpsExpression,
-                       StatisticExpression peakTPSExpression) {
-    this(title, resources, null, tpsExpression, peakTPSExpression);
+                       StatisticExpression peakTPSExpression,
+                       TestStatisticsQueries testStatisticsQueries) {
+    this(title, resources, null, tpsExpression, peakTPSExpression,
+         testStatisticsQueries);
   }
 
   public LabelledGraph(String title, Resources resources, Color color,
                        StatisticExpression tpsExpression,
-                       StatisticExpression peakTPSExpression) {
+                       StatisticExpression peakTPSExpression,
+                       TestStatisticsQueries testStatisticsQueries) {
     m_tpsExpression = tpsExpression;
     m_peakTPSExpression = peakTPSExpression;
+    m_testStatisticsQueries = testStatisticsQueries;
 
     final String msUnit = resources.getString("ms.unit");
     final String msUnits = resources.getString("ms.units");
@@ -240,13 +245,11 @@ class LabelledGraph extends JPanel {
   public void add(StatisticsSet intervalStatistics,
                   StatisticsSet cumulativeStatistics,
                   NumberFormat numberFormat) {
-    final TestStatisticsQueries statisticsQueries =
-      TestStatisticsQueries.getInstance();
 
     final double averageTime =
-      statisticsQueries.getAverageTestTime(cumulativeStatistics);
+      m_testStatisticsQueries.getAverageTestTime(cumulativeStatistics);
     final long errors =
-      statisticsQueries.getNumberOfErrors(cumulativeStatistics);
+      m_testStatisticsQueries.getNumberOfErrors(cumulativeStatistics);
     final double peakTPS =
       m_peakTPSExpression.getDoubleValue(cumulativeStatistics);
 
@@ -267,7 +270,8 @@ class LabelledGraph extends JPanel {
 
     m_peakTPSLabel.set(peakTPS, numberFormat);
 
-    m_testsLabel.set(statisticsQueries.getNumberOfTests(cumulativeStatistics));
+    m_testsLabel.set(
+      m_testStatisticsQueries.getNumberOfTests(cumulativeStatistics));
 
     m_errorsLabel.set(errors);
     m_errorsLabel.setHighlight(errors > 0);
@@ -278,7 +282,7 @@ class LabelledGraph extends JPanel {
       return m_color;
     }
     else {
-      if (time > s_peak) { // Not worth the cost of synchronization.
+      if (time > s_peak) { // Not worth the cost of synchronisation.
         s_peak = time;
       }
 

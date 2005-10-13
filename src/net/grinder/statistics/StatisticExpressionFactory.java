@@ -24,6 +24,7 @@ package net.grinder.statistics;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Factory for StatisticExpressions.
  *
@@ -32,22 +33,10 @@ import java.util.List;
  */
 public final class StatisticExpressionFactory {
 
-  private static final StatisticExpressionFactory s_instance =
-    new StatisticExpressionFactory();
+  private final StatisticsIndexMap m_indexMap;
 
-  private final StatisticsIndexMap m_indexMap =
-    StatisticsIndexMap.getInstance();
-
-  private StatisticExpressionFactory() {
-  }
-
-  /**
-   * Singleton accessor.
-   *
-   * @return The singleton.
-   */
-  public static StatisticExpressionFactory getInstance() {
-    return s_instance;
+  StatisticExpressionFactory(StatisticsIndexMap statisticsIndexMap) {
+    m_indexMap = statisticsIndexMap;
   }
 
   /**

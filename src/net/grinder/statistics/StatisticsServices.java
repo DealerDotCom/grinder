@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -21,46 +21,55 @@
 
 package net.grinder.statistics;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
-import net.grinder.util.Serialiser;
-
 
 /**
- * Factory for {@link StatisticsSet} objects.
+ * Statistics services.
  *
  * @author Philip Aston
  * @version $Revision$
+ * @see StatisticsServicesImplementation
  */
-public final class StatisticsSetFactory {
-
-  private final Serialiser m_serialiser = new Serialiser();
-  private final StatisticsIndexMap m_statisticsIndexMap;
-
-  StatisticsSetFactory(StatisticsIndexMap statisticsIndexMap) {
-    m_statisticsIndexMap = statisticsIndexMap;
-  }
+public interface StatisticsServices {
 
   /**
-   * Factory method.
+   * Get the common detail {@link StatisticsView}.
    *
-   * @return A new <code>StatisticsSet</code>.
+   * @return The {@link StatisticsView}.
    */
-  public StatisticsSet create() {
-    return new StatisticsSetImplementation(m_statisticsIndexMap);
-  }
+  StatisticsView getDetailStatisticsView();
 
-  void writeStatisticsExternal(ObjectOutput out,
-                               StatisticsSetImplementation statistics)
-    throws IOException {
-    statistics.myWriteExternal(out, m_serialiser);
-  }
+  /**
+   * Get the common summary {@link StatisticsView}.
+   *
+   * @return The {@link StatisticsView}.
+   */
+  StatisticsView getSummaryStatisticsView();
 
-  StatisticsSet readStatisticsExternal(ObjectInput in) throws IOException {
-    return new StatisticsSetImplementation(m_statisticsIndexMap,
-                                           in,
-                                           m_serialiser);
-  }
+  /**
+   * Return a {@link StatisticExpression} factory.
+   *
+   * @return A {@link StatisticExpressionFactory}.
+   */
+  StatisticExpressionFactory getStatisticExpressionFactory();
+
+  /**
+   * Return a {@link StatisticsSet} factory.
+   *
+   * @return A {@link StatisticExpressionFactory}.
+   */
+  StatisticsSetFactory getStatisticsSetFactory();
+
+  /**
+   * Return the {@link StatisticsIndexMap} for the current process.
+   *
+   * @return The {@link StatisticsIndexMap}.
+   */
+  StatisticsIndexMap getStatisticsIndexMap();
+
+  /**
+   * Return an object allowing access to common functions of test statistics.
+   *
+   * @return The {@link TestStatisticsQueries}.
+   */
+  TestStatisticsQueries getTestStatisticsQueries();
 }

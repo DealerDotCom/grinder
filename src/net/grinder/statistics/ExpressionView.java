@@ -58,8 +58,11 @@ import java.io.ObjectOutput;
 public class ExpressionView {
 
   private static int s_creationOrder;
-  private static StatisticExpressionFactory s_statisticExpressionFactory =
-    StatisticExpressionFactory.getInstance();
+
+  private static StatisticExpressionFactory getExpressionFactory() {
+    return StatisticsServicesImplementation.getInstance()
+           .getStatisticExpressionFactory();
+  }
 
   private final String m_displayName;
   private final String m_displayNameResourceKey;
@@ -68,13 +71,6 @@ public class ExpressionView {
   private final int m_creationOrder;
 
   private final StatisticExpression m_expression;
-
-  static {
-    // Ensure that the standard ExpressionViews are initialised before
-    // any user ExpressionViews. Assigning this to a variable is
-    // necessary to avoid the compiler optimising it away.
-    final Class dummy = CommonStatisticsViews.class;
-  }
 
   /**
    * Creates a new <code>ExpressionView</code> instance.
@@ -91,18 +87,30 @@ public class ExpressionView {
                         String expressionString)
     throws StatisticsException {
     this(displayName, displayNameResourceKey,
-         s_statisticExpressionFactory.normaliseExpressionString(
-           expressionString),
-         s_statisticExpressionFactory.createExpression(expressionString));
+         getExpressionFactory().normaliseExpressionString(expressionString),
+         getExpressionFactory().createExpression(expressionString));
+  }
+
+  ExpressionView(String displayName,
+                 String displayNameResourceKey,
+                 String expressionString,
+                 StatisticExpressionFactory expressionFactory)
+    throws StatisticsException {
+    this(displayName, displayNameResourceKey,
+         expressionFactory.normaliseExpressionString(expressionString),
+         expressionFactory.createExpression(expressionString));
   }
 
   /**
    * Creates a new <code>ExpressionView</code> instance.
    *
-   * @param displayName A common display name.
-   * @param displayNameResourceKey A resource key to use to look up
-   * an internationalised display name.
-   * @param expression A {@link StatisticExpression}.
+   * @param displayName
+   *          A common display name.
+   * @param displayNameResourceKey
+   *          A resource key to use to look up an internationalised display
+   *          name.
+   * @param expression
+   *          A {@link StatisticExpression}.
    */
   public ExpressionView(String displayName, String displayNameResourceKey,
                         StatisticExpression expression) {
@@ -112,6 +120,10 @@ public class ExpressionView {
   private ExpressionView(String displayName, String displayNameResourceKey,
                          String expressionString,
                          StatisticExpression expression) {
+    // Ensure that the standard ExpressionViews are initialised before
+    // any user ExpressionViews.
+    StatisticsServicesImplementation.getInstance();
+
     m_displayName = displayName;
     m_displayNameResourceKey = displayNameResourceKey;
     m_expressionString = expressionString;

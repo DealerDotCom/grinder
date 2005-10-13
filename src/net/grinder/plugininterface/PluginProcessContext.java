@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,6 +24,7 @@ package net.grinder.plugininterface;
 
 import net.grinder.common.GrinderException;
 import net.grinder.script.Grinder;
+import net.grinder.statistics.StatisticsServices;
 
 
 /**
@@ -45,11 +46,18 @@ public interface PluginProcessContext {
 
   /**
    * Returns the {@link PluginThreadListener} for the current thread.
-   * Instances are created by the plug-in's implemenation of {@link
+   * Instances are created by the plug-in's implementation of {@link
    * GrinderPlugin#createThreadListener}.
    *
    * @return The thread listener for the current thread.
    * @exception GrinderException If the thread listener could not be obtained.
    */
   PluginThreadListener getPluginThreadListener() throws GrinderException;
+
+  /**
+   * Returns an interface through which statistics services can be obtained.
+   *
+   * @return A {@link StatisticsServices}.
+   */
+  StatisticsServices getStatisticsServices();
 }

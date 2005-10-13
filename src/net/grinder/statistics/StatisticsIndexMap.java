@@ -98,8 +98,6 @@ import java.util.Map;
  * @version $Revision$
  */
 public final class StatisticsIndexMap implements Serializable {
-  private static final StatisticsIndexMap s_processInstance =
-    new StatisticsIndexMap();
 
   private final Map m_doubleMap = new HashMap();
   private final Map m_longMap = new HashMap();
@@ -154,18 +152,9 @@ public final class StatisticsIndexMap implements Serializable {
     "httpplugin.firstByteTimeKey";
 
   /**
-   * Singleton accessor.
-   *
-   * @return The singleton <code>StatisticsIndexMap</code>.
-   */
-  public static StatisticsIndexMap getInstance() {
-    return s_processInstance;
-  }
-
-  /**
    * Constructor.
    */
-  private StatisticsIndexMap() {
+  StatisticsIndexMap() {
     // Set up standard statistic index values. When adding new values
     // or changing the order, you should also change the serialVersionUID
     // of TestStatisticsMap.

@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -34,6 +34,8 @@ import net.grinder.common.Test;
 import net.grinder.common.StubTest;
 import net.grinder.engine.common.EngineException;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.statistics.StatisticsServicesImplementation;
+import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 
@@ -49,16 +51,21 @@ public class TestTestData extends TestCase {
   public void testTestData() throws Exception {
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
-	
+
     final Test test1 = new StubTest(99, "Some stuff");
 
-    final TestData testData1 = new TestData(threadContextLocator, test1);
+    final StatisticsSetFactory statisticsSetFactory =
+      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
+
+    final TestData testData1 =
+      new TestData(threadContextLocator, test1, statisticsSetFactory);
     assertEquals(test1, testData1.getTest());
     assertNotNull(testData1.getStatistics());
 
     final Test test2 = new StubTest(-33, "");
 
-    final TestData testData2 = new TestData(threadContextLocator, test2);
+    final TestData testData2 =
+      new TestData(threadContextLocator, test2, statisticsSetFactory);
     assertEquals(test2, testData2.getTest());
     assertNotNull(testData2.getStatistics());
   }
@@ -67,9 +74,13 @@ public class TestTestData extends TestCase {
 
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
-	
+
+    final StatisticsSetFactory statisticsSetFactory =
+      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
+
     final Test test = new StubTest(2, "A description");
-    final TestData testData = new TestData(threadContextLocator, test);
+    final TestData testData =
+      new TestData(threadContextLocator, test, statisticsSetFactory);
 
     final TestData.Invokeable invokeable =
       (TestData.Invokeable)
@@ -100,7 +111,7 @@ public class TestTestData extends TestCase {
 
   /**
    * Creates dynamic ThreadContext stubs which implement invokeTest by
-   * delegating directly to the invokeable. Must be public so
+   * delegating directly to the invokable. Must be public so
    * override_ methods can be invoked.
    */
   public static class ThreadContextStubFactory extends RandomStubFactory {
@@ -136,8 +147,12 @@ public class TestTestData extends TestCase {
     final ThreadContextLocator threadContextLocator =
       new StubThreadContextLocator();
 
+    final StatisticsSetFactory statisticsSetFactory =
+      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
+
     final Test test = new StubTest(0, "");
-    final TestData testData = new TestData(threadContextLocator, test);
+    final TestData testData =
+      new TestData(threadContextLocator, test, statisticsSetFactory);
 
     final ThreadContextStubFactory threadContextStubFactory =
       new ThreadContextStubFactory(testData);
@@ -232,8 +247,11 @@ public class TestTestData extends TestCase {
 
     final Test test = new StubTest(0, "");
 
+    final StatisticsSetFactory statisticsSetFactory =
+      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
+
     final TestData testData =
-      new TestData(new StubThreadContextLocator(), test);
+      new TestData(new StubThreadContextLocator(), test, statisticsSetFactory);
 
     try {
       testData.createProxy(o);

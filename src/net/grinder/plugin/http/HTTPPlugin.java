@@ -231,7 +231,7 @@ public class HTTPPlugin implements GrinderPlugin {
       scriptContext.registerSummaryStatisticsView(summaryStatisticsView);
 
       final StatisticsIndexMap statisticsIndexMap =
-        StatisticsIndexMap.getInstance();
+        m_pluginProcessContext.getStatisticsServices().getStatisticsIndexMap();
 
       m_responseStatusIndex =
         statisticsIndexMap.getLongIndex(

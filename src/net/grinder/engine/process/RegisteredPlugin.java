@@ -29,6 +29,7 @@ import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginProcessContext;
 import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.script.Grinder.ScriptContext;
+import net.grinder.statistics.StatisticsServices;
 
 
 /**
@@ -42,13 +43,16 @@ final class RegisteredPlugin implements PluginProcessContext {
   private final GrinderPlugin m_plugin;
   private final ScriptContext m_scriptContext;
   private final ThreadContextLocator m_threadContextLocator;
+  private final StatisticsServices m_statisticsServices;
   private final ThreadLocal m_threadListenerThreadLocal = new ThreadLocal();
 
   public RegisteredPlugin(GrinderPlugin plugin, ScriptContext scriptContext,
-                          ThreadContextLocator threadContextLocator) {
+                          ThreadContextLocator threadContextLocator,
+                          StatisticsServices statisticsServices) {
     m_plugin = plugin;
     m_scriptContext = scriptContext;
     m_threadContextLocator = threadContextLocator;
+    m_statisticsServices = statisticsServices;
   }
 
   public ScriptContext getScriptContext() {
@@ -93,5 +97,9 @@ final class RegisteredPlugin implements PluginProcessContext {
 
       throw new EngineException("Thread could not initialise plugin", e);
     }
+  }
+
+  public StatisticsServices getStatisticsServices() {
+    return m_statisticsServices;
   }
 }

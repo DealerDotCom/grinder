@@ -30,34 +30,19 @@ package net.grinder.statistics;
  */
 public final class TestStatisticsQueries {
 
-  private static final StatisticsIndexMap.LongIndex s_errorsIndex;
-  private static final StatisticsIndexMap.LongIndex s_untimedTestsIndex;
-  private static final StatisticsIndexMap.LongSampleIndex s_timedTestsIndex;
-
-  static {
-    final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
-
-    s_errorsIndex = indexMap.getLongIndex("errors");
-    s_untimedTestsIndex = indexMap.getLongIndex("untimedTests");
-    s_timedTestsIndex = indexMap.getLongSampleIndex("timedTests");
-  }
-
-  private static final TestStatisticsQueries s_instance =
-    new TestStatisticsQueries();
-
-  /**
-   * Singleton accessor.
-   *
-   * @return The singleton.
-   */
-  public static TestStatisticsQueries getInstance() {
-    return s_instance;
-  }
+  private final StatisticsIndexMap.LongIndex m_errorsIndex;
+  private final StatisticsIndexMap.LongIndex m_untimedTestsIndex;
+  private final StatisticsIndexMap.LongSampleIndex m_timedTestsIndex;
 
   /**
    * Constructor.
+   *
+   * @statisticsIndexMap The index map to use.
    */
-  private TestStatisticsQueries() {
+  TestStatisticsQueries(StatisticsIndexMap statisticsIndexMap) {
+    m_errorsIndex = statisticsIndexMap.getLongIndex("errors");
+    m_untimedTestsIndex = statisticsIndexMap.getLongIndex("untimedTests");
+    m_timedTestsIndex = statisticsIndexMap.getLongSampleIndex("timedTests");
   }
 
   /**
@@ -70,8 +55,8 @@ public final class TestStatisticsQueries {
    */
   public long getNumberOfTests(StatisticsSet statistics) {
     return
-      statistics.getCount(s_timedTestsIndex) +
-      statistics.getValue(s_untimedTestsIndex);
+      statistics.getCount(m_timedTestsIndex) +
+      statistics.getValue(m_untimedTestsIndex);
   }
 
   /**
@@ -81,7 +66,7 @@ public final class TestStatisticsQueries {
    * @return a <code>long</code> value
    */
   public long getNumberOfErrors(StatisticsSet statistics) {
-    return statistics.getValue(s_errorsIndex);
+    return statistics.getValue(m_errorsIndex);
   }
 
   /**
@@ -92,10 +77,10 @@ public final class TestStatisticsQueries {
    * @return a <code>double</code> value
    */
   public double getAverageTestTime(StatisticsSet statistics) {
-    final long count = statistics.getCount(s_timedTestsIndex);
+    final long count = statistics.getCount(m_timedTestsIndex);
 
     return
       count == 0 ?
-      Double.NaN : statistics.getSum(s_timedTestsIndex) / (double)count;
+      Double.NaN : statistics.getSum(m_timedTestsIndex) / (double)count;
   }
 }

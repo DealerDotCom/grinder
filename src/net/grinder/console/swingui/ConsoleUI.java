@@ -416,7 +416,8 @@ public final class ConsoleUI implements ModelListener {
       new LabelledGraph(resources.getString("totalGraph.title"),
                         resources, Colours.DARK_GREY,
                         m_model.getTPSExpression(),
-                        m_model.getPeakTPSExpression());
+                        m_model.getPeakTPSExpression(),
+                        m_model.getTestStatisticsQueries());
 
     final JLabel tpsLabel = new JLabel();
     tpsLabel.setForeground(Colours.BLACK);

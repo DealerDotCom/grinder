@@ -28,22 +28,23 @@ package net.grinder.statistics;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class CommonStatisticsViews {
-  private static final CommonStatisticsViews s_instance =
-    new CommonStatisticsViews();
-
+final class CommonStatisticsViews {
   private final StatisticsView m_detailStatisticsView = new StatisticsView();
 
   private final StatisticsView m_summaryStatisticsView =
     new StatisticsView();
 
-  private CommonStatisticsViews() {
+  CommonStatisticsViews(StatisticExpressionFactory expressionFactory) {
     try {
       final ExpressionView[] detailExpressionViews = {
         new ExpressionView("Test time",
                            "statistic.testTime",
-                           "(sum timedTests)"),
-        new ExpressionView("Errors", "statistic.errors", "errors"),
+                           "(sum timedTests)",
+                           expressionFactory),
+        new ExpressionView("Errors",
+                           "statistic.errors",
+                           "errors",
+                           expressionFactory),
       };
 
       for (int i = 0; i < detailExpressionViews.length; ++i) {
@@ -51,18 +52,22 @@ public final class CommonStatisticsViews {
       }
 
       final ExpressionView[] summaryExpressionViews = {
-        new ExpressionView("Tests", "statistic.tests",
-                           "(+ (count timedTests) untimedTests)"
-                           ),
-        new ExpressionView("Errors", "statistic.errors", "errors"),
-        new ExpressionView(
-          "Mean Test Time (ms)",
-          "statistic.meanTestTime",
-          "(/ (sum timedTests) (count timedTests))"),
-        new ExpressionView(
-           "Test Time Standard Deviation (ms)",
-           "statistic.testTimeStandardDeviation",
-           "(sqrt (variance timedTests))"),
+        new ExpressionView("Tests",
+                           "statistic.tests",
+                           "(+ (count timedTests) untimedTests)",
+                           expressionFactory),
+        new ExpressionView("Errors",
+                           "statistic.errors",
+                           "errors",
+                           expressionFactory),
+        new ExpressionView("Mean Test Time (ms)",
+                           "statistic.meanTestTime",
+                           "(/ (sum timedTests) (count timedTests))",
+                           expressionFactory),
+        new ExpressionView("Test Time Standard Deviation (ms)",
+                           "statistic.testTimeStandardDeviation",
+                           "(sqrt (variance timedTests))",
+                           expressionFactory),
       };
 
       for (int i = 0; i < summaryExpressionViews.length; ++i) {
@@ -79,8 +84,8 @@ public final class CommonStatisticsViews {
    *
    * @return The {@link StatisticsView}.
    */
-  public static StatisticsView getDetailStatisticsView() {
-    return s_instance.m_detailStatisticsView;
+  public StatisticsView getDetailStatisticsView() {
+    return m_detailStatisticsView;
   }
 
   /**
@@ -88,7 +93,7 @@ public final class CommonStatisticsViews {
    *
    * @return The {@link StatisticsView}.
    */
-  public static StatisticsView getSummaryStatisticsView() {
-    return s_instance.m_summaryStatisticsView;
+  public StatisticsView getSummaryStatisticsView() {
+    return m_summaryStatisticsView;
   }
 }

@@ -44,75 +44,83 @@ public class TestStatisticsTable extends TestCase {
 
   private StatisticsView m_statisticsView;
 
+  private final StatisticsServices m_statisticsServices =
+    StatisticsServicesImplementation.getInstance();
+
   protected void setUp() throws Exception {
-	m_testStatisticsMap = new TestStatisticsMap();
+    m_testStatisticsMap = new TestStatisticsMap(m_statisticsServices
+        .getStatisticsSetFactory());
 
-	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
+    final StatisticsIndexMap indexMap =
+      m_statisticsServices.getStatisticsIndexMap();
 
-	final StatisticsIndexMap.LongIndex aIndex =
-	    indexMap.getLongIndex("userLong0");
-	final StatisticsIndexMap.LongIndex bIndex =
-	    indexMap.getLongIndex("userLong1");
+    final StatisticsIndexMap.LongIndex aIndex = indexMap
+        .getLongIndex("userLong0");
+    final StatisticsIndexMap.LongIndex bIndex = indexMap
+        .getLongIndex("userLong1");
 
-	final ExpressionView[] expressionViews = {
-	    new ExpressionView("A", "", "userLong0"),
-	    new ExpressionView("B", "", "userLong1"),
-	    new ExpressionView("A plus B", "", "(+ userLong0 userLong1)"),
-	    new ExpressionView("A divided by B", "",
-			       "(/ userLong0 userLong1)"),
-	};
+    final ExpressionView[] expressionViews = {
+        new ExpressionView("A", "", "userLong0"),
+        new ExpressionView("B", "", "userLong1"),
+        new ExpressionView("A plus B", "", "(+ userLong0 userLong1)"),
+        new ExpressionView("A divided by B", "", "(/ userLong0 userLong1)"), };
 
-	m_statisticsView = new StatisticsView();
+    m_statisticsView = new StatisticsView();
 
-	for (int i=0; i<expressionViews.length; ++i) {
-	    m_statisticsView.add(expressionViews[i]);
-	}
+    for (int i = 0; i < expressionViews.length; ++i) {
+      m_statisticsView.add(expressionViews[i]);
+    }
 
-	final Test[] tests = {
-	    new StubTest(9, "Test 9"),
-	    new StubTest(3, null),
-	    new StubTest(113, "Another test"),
-	};
+    final Test[] tests = { new StubTest(9, "Test 9"), new StubTest(3, null),
+        new StubTest(113, "Another test"), };
 
-	final StatisticsSet[] statistics = new StatisticsSet[tests.length];
+    final StatisticsSet[] statistics = new StatisticsSet[tests.length];
 
-	final StatisticsSetFactory factory =
-	    StatisticsSetFactory.getInstance();
+    final StatisticsSetFactory factory =
+      m_statisticsServices.getStatisticsSetFactory();
 
-	for (int i=0; i<tests.length; ++i) {
-	    statistics[i] = new StatisticsSetImplementation();
-	    statistics[i].addValue(aIndex, i);
-	    statistics[i].addValue(bIndex, i+1);
+    for (int i = 0; i < tests.length; ++i) {
+      statistics[i] =
+        new StatisticsSetImplementation(
+          m_statisticsServices.getStatisticsIndexMap());
+      statistics[i].addValue(aIndex, i);
+      statistics[i].addValue(bIndex, i + 1);
 
-	    final StatisticsSet statistics2 = factory.create();
-	    statistics2.add(statistics[i]);
+      final StatisticsSet statistics2 = factory.create();
+      statistics2.add(statistics[i]);
 
-	    m_testStatisticsMap.put(tests[i], statistics2);
-	}
+      m_testStatisticsMap.put(tests[i], statistics2);
+    }
   }
 
   public void testStatisticsTable() throws Exception {
-	final StringWriter expected = new StringWriter();
-	final PrintWriter in = new PrintWriter(expected);
-	in.println("             A            B            A plus B     A divided by ");
-	in.println("                                                    B            ");
-	in.println();
-	in.println("Test 3       1            2            3            0.50         ");
-	in.println("Test 9       0            1            1            0.00          \"Test 9\"");
-	in.println("Test 113     2            3            5            0.67          \"Another test\"");
-	in.println();
-	in.println("Totals       3            6            9            0.50         ");
-	in.close();
+    final StringWriter expected = new StringWriter();
+    final PrintWriter in = new PrintWriter(expected);
+    in
+        .println("             A            B            A plus B     A divided by ");
+    in
+        .println("                                                    B            ");
+    in.println();
+    in
+        .println("Test 3       1            2            3            0.50         ");
+    in
+        .println("Test 9       0            1            1            0.00          \"Test 9\"");
+    in
+        .println("Test 113     2            3            5            0.67          \"Another test\"");
+    in.println();
+    in
+        .println("Totals       3            6            9            0.50         ");
+    in.close();
 
-	final StatisticsTable table = new StatisticsTable(m_statisticsView,
-							  m_testStatisticsMap);
+    final StatisticsTable table = new StatisticsTable(m_statisticsView,
+      m_testStatisticsMap);
 
-	final StringWriter stringWriter = new StringWriter();
-	final PrintWriter out = new PrintWriter(stringWriter);
-	table.print(out);
-	out.close();
+    final StringWriter stringWriter = new StringWriter();
+    final PrintWriter out = new PrintWriter(stringWriter);
+    table.print(out);
+    out.close();
 
-	assertEquals(expected.getBuffer().toString(),
-		     stringWriter.getBuffer().toString());
+    assertEquals(expected.getBuffer().toString(), stringWriter.getBuffer()
+        .toString());
   }
 }

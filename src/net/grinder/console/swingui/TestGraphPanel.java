@@ -114,8 +114,11 @@ public class TestGraphPanel extends JPanel implements ModelListener {
         (description != null ? " (" + description + ")" : "");
 
       final LabelledGraph testGraph =
-        new LabelledGraph(label, m_resources, m_model.getTPSExpression(),
-                          m_model.getPeakTPSExpression());
+        new LabelledGraph(label,
+                          m_resources,
+                          m_model.getTPSExpression(),
+                          m_model.getPeakTPSExpression(),
+                          m_model.getTestStatisticsQueries());
 
       m_model.addSampleListener(
         test,

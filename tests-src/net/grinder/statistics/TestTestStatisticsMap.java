@@ -48,20 +48,27 @@ public class TestTestStatisticsMap extends TestCase {
   private StatisticsSet m_statistics1;
   private StatisticsIndexMap.LongIndex m_index;
 
+  private final StatisticsServices m_statisticsServices =
+    StatisticsServicesImplementation.getInstance();
+
   protected void setUp() throws Exception {
-    final StatisticsSetFactory factory = StatisticsSetFactory.getInstance();
+    final StatisticsSetFactory factory =
+      m_statisticsServices.getStatisticsSetFactory();
 
     m_statistics0 = factory.create();
     m_statistics1 = factory.create();
 
-    m_index = StatisticsIndexMap.getInstance().getLongIndex("userLong0");
+    m_index =
+      m_statisticsServices.getStatisticsIndexMap().getLongIndex("userLong0");
 
     m_statistics0.addValue(m_index, 10);
   }
 
   public void testPut() throws Exception {
 
-    final TestStatisticsMap map = new TestStatisticsMap();
+    final TestStatisticsMap map =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
+
     assertEquals(0, map.size());
 
     map.put(m_test0, m_statistics0);
@@ -72,10 +79,10 @@ public class TestTestStatisticsMap extends TestCase {
 
     map.put(m_test1, m_statistics1);
     assertEquals(2, map.size());
-    
+
     final StatisticsSet bogusStatisticsSetImplementation =
       (StatisticsSet)new RandomStubFactory(StatisticsSet.class).getStub();
-    
+
     try {
       map.put(m_test1, bogusStatisticsSetImplementation);
       fail("Expected RuntimeException");
@@ -86,8 +93,10 @@ public class TestTestStatisticsMap extends TestCase {
 
   public void testEqualsAndHashCode() throws Exception {
 
-    final TestStatisticsMap map0 = new TestStatisticsMap();
-    final TestStatisticsMap map1 = new TestStatisticsMap();
+    final TestStatisticsMap map0 =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
+    final TestStatisticsMap map1 =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
 
     assertEquals(map0, map0);
     assertEquals(map0, map1);
@@ -105,7 +114,7 @@ public class TestTestStatisticsMap extends TestCase {
 
     map1.put(m_test0, m_statistics1);
     assertFalse(map0.equals(map1));
-    
+
     assertFalse(map0.equals(this));
     assertEquals(map0.hashCode(), map0.hashCode());
     assertFalse(map0.hashCode() == map1.hashCode());
@@ -113,7 +122,8 @@ public class TestTestStatisticsMap extends TestCase {
 
   public void testIteratorAndOrder() throws Exception {
 
-    final TestStatisticsMap map = new TestStatisticsMap();
+    final TestStatisticsMap map =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
 
     final TestStatisticsMap.Iterator iterator1 = map.new Iterator();
     assertFalse(iterator1.hasNext());
@@ -151,22 +161,24 @@ public class TestTestStatisticsMap extends TestCase {
     catch (java.util.NoSuchElementException e) {
     }
   }
-  
+
   public void testAdd() throws Exception {
-    final TestStatisticsMap map0 = new TestStatisticsMap();
-    final TestStatisticsMap map1 = new TestStatisticsMap();
-    
+    final TestStatisticsMap map0 =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
+    final TestStatisticsMap map1 =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
+
     assertEquals(map0, map1);
 
     map0.put(m_test0, m_statistics0);
     assertFalse(map0.equals(map1));
-    
+
     map1.add(map0);
 
     assertEquals(map0, map1);
-    
+
     map1.add(map0);
-    
+
     assertEquals(1, map1.size());
     final TestStatisticsMap.Iterator iterator = map1.new Iterator();
     final StatisticsSet statistics = iterator.next().getStatistics();
@@ -174,15 +186,16 @@ public class TestTestStatisticsMap extends TestCase {
   }
 
   public void testReset() throws Exception {
-    final TestStatisticsMap map = new TestStatisticsMap();
+    final TestStatisticsMap map =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
     assertEquals(0, map.size());
-    
+
     final TestStatisticsMap snapshot0 = map.reset();
     assertEquals(map, snapshot0);
-    
+
     map.put(m_test0, m_statistics0);
     assertFalse(map.equals(snapshot0));
-    
+
     final TestStatisticsMap snapshot1 = map.reset();
     assertFalse(snapshot1.equals(snapshot0));
     assertFalse(snapshot1.equals(map));
@@ -190,14 +203,15 @@ public class TestTestStatisticsMap extends TestCase {
     assertEquals(1, map.size());
 
     assertEquals(0,
-        map.new Iterator().next().getStatistics().getValue(m_index));    
+        map.new Iterator().next().getStatistics().getValue(m_index));
 
     assertEquals(10,
-        snapshot1.new Iterator().next().getStatistics().getValue(m_index));    
+        snapshot1.new Iterator().next().getStatistics().getValue(m_index));
   }
-  
+
   public void testToString() throws Exception {
-    final TestStatisticsMap map = new TestStatisticsMap();
+    final TestStatisticsMap map =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
     final String s0 = map.toString();
     assertEquals("TestStatisticsMap = {}", s0);
 
@@ -209,11 +223,13 @@ public class TestTestStatisticsMap extends TestCase {
 
   public void testSerialisation() throws Exception {
 
-    final TestStatisticsMap original0 = new TestStatisticsMap();
+    final TestStatisticsMap original0 =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
     original0.put(m_test0, m_statistics0);
     original0.put(m_test1, m_statistics0);
 
-    final TestStatisticsMap original1 = new TestStatisticsMap();
+    final TestStatisticsMap original1 =
+      new TestStatisticsMap(m_statisticsServices.getStatisticsSetFactory());
 
     final ByteArrayOutputStream byteOutputStream =
       new ByteArrayOutputStream();
@@ -228,7 +244,7 @@ public class TestTestStatisticsMap extends TestCase {
 
     final ObjectInputStream objectInputStream =
       new ObjectInputStream(
-	new ByteArrayInputStream(byteOutputStream.toByteArray()));
+        new ByteArrayInputStream(byteOutputStream.toByteArray()));
 
     final TestStatisticsMap received0 =
       (TestStatisticsMap)objectInputStream.readObject();
@@ -248,5 +264,5 @@ public class TestTestStatisticsMap extends TestCase {
       // We get a simplified test object.
       assertEquals("", pair.getTest().getDescription());
     }
-  }	
+  }
 }

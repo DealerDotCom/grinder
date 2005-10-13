@@ -52,8 +52,8 @@ import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.engine.common.ConsoleListener;
 import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
-import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsTable;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.util.JVM;
@@ -124,9 +124,8 @@ public final class GrinderProcess {
   private final LoggerImplementation m_loggerImplementation;
   private final InitialiseGrinderMessage m_initialisationMessage;
   private final ConsoleListener m_consoleListener;
+  private final TestStatisticsMap m_accumulatedStatistics;
   private final Object m_eventSynchronisation = new Object();
-  private final TestStatisticsMap m_accumulatedStatistics =
-    new TestStatisticsMap();
 
   private boolean m_shutdownTriggered;
   private boolean m_communicationShutdown;
@@ -185,7 +184,8 @@ public final class GrinderProcess {
                          properties,
                          m_loggerImplementation.getProcessLogger(),
                          m_loggerImplementation.getFilenameFactory(),
-                         consoleSender);
+                         consoleSender,
+                         StatisticsServicesImplementation.getInstance());
 
     final Logger logger = m_context.getProcessLogger();
 
@@ -198,6 +198,10 @@ public final class GrinderProcess {
     catch (Exception e) { /* Ignore */ }
 
     m_consoleListener = new ConsoleListener(m_eventSynchronisation, logger);
+    m_accumulatedStatistics =
+      new TestStatisticsMap(
+        m_context.getStatisticsServices().getStatisticsSetFactory());
+
     final HandlerChainSender handlerChainSender = new HandlerChainSender();
     handlerChainSender.add(m_consoleListener.getMessageHandler());
     new MessagePump(receiver, handlerChainSender, 1);
@@ -241,7 +245,8 @@ public final class GrinderProcess {
     dataWriter.print("Thread, Run, Test, Milliseconds since start");
 
     final ExpressionView[] detailExpressionViews =
-      CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
+      m_context.getStatisticsServices()
+      .getDetailStatisticsView().getExpressionViews();
 
     for (int i = 0; i < detailExpressionViews.length; ++i) {
       dataWriter.print(", " + detailExpressionViews[i].getDisplayName());
@@ -362,8 +367,9 @@ public final class GrinderProcess {
     logger.output("Final statistics for this process:");
 
     final StatisticsTable statisticsTable =
-      new StatisticsTable(CommonStatisticsViews.getSummaryStatisticsView(),
-                          m_accumulatedStatistics);
+      new StatisticsTable(
+        m_context.getStatisticsServices().getSummaryStatisticsView(),
+        m_accumulatedStatistics);
 
     statisticsTable.print(logger.getOutputLogWriter());
 

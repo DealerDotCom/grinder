@@ -28,9 +28,11 @@ import net.grinder.common.StubTest;
 import net.grinder.common.Test;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
-import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.StatisticsServices;
+import net.grinder.statistics.StatisticsServicesImplementation;
+import net.grinder.statistics.StatisticsServicesTestFactory;
 import net.grinder.testutility.RandomStubFactory;
 
 import junit.framework.TestCase;
@@ -49,7 +51,8 @@ public class TestScriptStatisticsImplementation extends TestCase {
   private static final StatisticsIndexMap.DoubleIndex s_userDouble0Index;
 
   static {
-    final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
+    final StatisticsIndexMap indexMap =
+      StatisticsServicesImplementation.getInstance().getStatisticsIndexMap();
 
     s_errorsIndex = indexMap.getLongIndex("errors");
     s_untimedTestsIndex = indexMap.getLongIndex("untimedTests");
@@ -73,6 +76,7 @@ public class TestScriptStatisticsImplementation extends TestCase {
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
           m_dataWriter,
+          StatisticsServicesImplementation.getInstance(),
           3,
           false);
 
@@ -112,10 +116,14 @@ public class TestScriptStatisticsImplementation extends TestCase {
 
   public void testReport() throws Exception {
 
+    final StatisticsServices statisticsServices =
+      StatisticsServicesTestFactory.createTestInstance();
+
     final ScriptStatisticsImplementation scriptStatisticsImplementation =
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
           m_dataWriter,
+          statisticsServices,
           0,
           true);
 
@@ -125,7 +133,9 @@ public class TestScriptStatisticsImplementation extends TestCase {
     assertFalse(scriptStatisticsImplementation.availableForUpdate());
 
     final Test test = new StubTest(1, "A description");
-    final TestData testData = new TestData(m_threadContextLocator, test);
+    final TestData testData =
+      new TestData(m_threadContextLocator, test,
+                   statisticsServices.getStatisticsSetFactory());
 
     scriptStatisticsImplementation.beginRun();
 
@@ -189,10 +199,14 @@ public class TestScriptStatisticsImplementation extends TestCase {
 
   public void testReportWithRecordTimeFalse() throws Exception {
 
+    final StatisticsServices statisticsServices =
+      StatisticsServicesTestFactory.createTestInstance();
+
     final ScriptStatisticsImplementation scriptStatisticsImplementation =
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
           m_dataWriter,
+          statisticsServices,
           3,
           false);
 
@@ -200,7 +214,9 @@ public class TestScriptStatisticsImplementation extends TestCase {
     m_threadContextFactory.setScriptStatistics(scriptStatisticsImplementation);
 
     final Test test = new StubTest(22, "A description");
-    final TestData testData = new TestData(m_threadContextLocator, test);
+    final TestData testData =
+      new TestData(m_threadContextLocator, test,
+                   statisticsServices.getStatisticsSetFactory());
 
     scriptStatisticsImplementation.beginRun();
 
@@ -259,13 +275,17 @@ public class TestScriptStatisticsImplementation extends TestCase {
 
   public void testStatistics() throws Exception {
 
-    CommonStatisticsViews.getDetailStatisticsView().add(
+    final StatisticsServices statisticsServices =
+      StatisticsServicesTestFactory.createTestInstance();
+
+    statisticsServices.getDetailStatisticsView().add(
       new ExpressionView("foo", "foo", "userDouble0"));
 
     final ScriptStatisticsImplementation scriptStatisticsImplementation =
       new ScriptStatisticsImplementation(
           m_threadContextLocator,
           m_dataWriter,
+          statisticsServices,
           3,
           false);
 
@@ -273,7 +293,9 @@ public class TestScriptStatisticsImplementation extends TestCase {
     m_threadContextFactory.setScriptStatistics(scriptStatisticsImplementation);
 
     final Test test = new StubTest(22, "A description");
-    final TestData testData = new TestData(m_threadContextLocator, test);
+    final TestData testData =
+      new TestData(m_threadContextLocator, test,
+                   statisticsServices.getStatisticsSetFactory());
 
     scriptStatisticsImplementation.beginRun();
 

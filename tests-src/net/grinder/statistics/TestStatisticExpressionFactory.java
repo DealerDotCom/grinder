@@ -26,25 +26,27 @@ import junit.framework.TestCase;
 
 /**
  * Unit tests for {@link StatisticExpressionFactory}.
- * 
+ *
  * @author Philip Aston
  * @version $Revision$
  * @see StatisticsSet
  */
 public class TestStatisticExpressionFactory extends TestCase {
 
-  private final StatisticExpressionFactory m_factory =
-    StatisticExpressionFactory.getInstance();
-
-  private final StatisticsIndexMap m_indexMap =
-    StatisticsIndexMap.getInstance();
-
-  private final StatisticsSet m_statistics =
-    new StatisticsSetImplementation();
+  private StatisticExpressionFactory m_factory;
+  private StatisticsIndexMap m_indexMap;
+  private StatisticsSet m_statistics;
 
   protected void setUp() throws Exception {
+    final StatisticsServices statisticsServices =
+      StatisticsServicesImplementation.getInstance();
+    m_factory = statisticsServices.getStatisticExpressionFactory();
+    m_indexMap = statisticsServices.getStatisticsIndexMap();
+    m_statistics = new StatisticsSetImplementation(m_indexMap);
+
     m_statistics.addValue(m_indexMap.getLongIndex("userLong0"), 1);
     m_statistics.addValue(m_indexMap.getLongIndex("userLong1"), 2);
+
   }
 
   public void testConstant() throws Exception {
@@ -78,6 +80,7 @@ public class TestStatisticExpressionFactory extends TestCase {
 
     final StatisticsIndexMap.DoubleIndex anotherIndex = m_indexMap
         .getDoubleIndex("userDouble4");
+    assertNotNull(anotherIndex);
 
     final StatisticExpression doubleExpresson = m_factory
         .createExpression("  userDouble4");
@@ -297,7 +300,8 @@ public class TestStatisticExpressionFactory extends TestCase {
     final PeakStatisticExpression peak = m_factory.createPeak(peakIndex2,
         m_factory.createExpression("userLong4"));
 
-    final StatisticsSet statistics = new StatisticsSetImplementation();
+    final StatisticsSet statistics =
+      new StatisticsSetImplementation(m_indexMap);
 
     statistics.setValue(statIndex, 2);
     myAssertEquals(0, peak, statistics);
@@ -332,7 +336,8 @@ public class TestStatisticExpressionFactory extends TestCase {
     final PeakStatisticExpression peak = m_factory.createPeak(peakIndex2,
         m_factory.createExpression("userDouble4"));
 
-    final StatisticsSet statistics = new StatisticsSetImplementation();
+    final StatisticsSet statistics =
+      new StatisticsSetImplementation(m_indexMap);
 
     statistics.setValue(statIndex, 0.5);
     myAssertEquals(0d, peak, statistics);
@@ -347,7 +352,7 @@ public class TestStatisticExpressionFactory extends TestCase {
     peak.update(statistics, statistics);
     myAssertEquals(33d, peak, statistics);
   }
-  
+
   public void testLongSample() throws Exception {
     myAssertEquals(0, m_factory.createExpression("(count timedTests)"));
     myAssertEquals(0, m_factory.createExpression("(sum timedTests)"));
@@ -359,7 +364,7 @@ public class TestStatisticExpressionFactory extends TestCase {
     myAssertEquals(2, m_factory.createExpression("(count timedTests)"));
     myAssertEquals(1, m_factory.createExpression("(sum timedTests)"));
     myAssertEquals(2.25, m_factory.createExpression("(variance timedTests)"));
-    
+
     try {
       m_factory.createExpression("(sum userLong0)");
       fail("Expected ParseException");
@@ -380,7 +385,7 @@ public class TestStatisticExpressionFactory extends TestCase {
     catch (StatisticExpressionFactory.ParseContext.ParseException e) {
     }
   }
-  
+
   public void testDoubleSample() throws Exception {
     try {
       final StatisticsIndexMap.DoubleIndex sumIndex =
@@ -395,6 +400,7 @@ public class TestStatisticExpressionFactory extends TestCase {
                                            sumIndex,
                                            countIndex,
                                            varianceIndex);
+      assertNotNull(doubleSampleIndex);
 
       myAssertEquals(0, m_factory.createExpression(
                           "(count testDoubleSampleStatistic)"));
@@ -460,7 +466,7 @@ public class TestStatisticExpressionFactory extends TestCase {
         m_factory.createExpression(
         "(* 4 (+ userLong0 (/ userLong0 (* userLong1 userLong1)) userLong0))"));
   }
-  
+
   public void testParseInvalidExpessions() throws Exception {
     try {
       m_factory.createExpression("(+");
@@ -491,7 +497,7 @@ public class TestStatisticExpressionFactory extends TestCase {
     assertEquals("(+ userLong0 userLong1 (* userLong0 userLong1))",
                  m_factory.normaliseExpressionString(
                    "\t(+ userLong0 userLong1( \n  * userLong0 userLong1) )"));
-    
+
     try {
       m_factory.normaliseExpressionString("userLong0 userLong0");
       fail("Expected ParseException");

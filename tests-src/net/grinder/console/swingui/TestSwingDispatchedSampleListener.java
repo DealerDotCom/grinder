@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -29,6 +29,7 @@ import junit.swingui.TestRunner;
 import javax.swing.SwingUtilities;
 
 import net.grinder.console.model.SampleListener;
+import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsSetFactory;
 
@@ -37,57 +38,53 @@ import net.grinder.statistics.StatisticsSetFactory;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestSwingDispatchedSampleListener extends TestCase
-{
-    public static void main(String[] args)
-    {
-	TestRunner.run(TestSwingDispatchedSampleListener.class);
+public class TestSwingDispatchedSampleListener extends TestCase {
+  public static void main(String[] args) {
+    TestRunner.run(TestSwingDispatchedSampleListener.class);
+  }
+
+  public TestSwingDispatchedSampleListener(String name) {
+    super(name);
+  }
+
+  private Runnable m_voidRunnable = new Runnable() {
+    public void run() {
     }
+  };
 
-    public TestSwingDispatchedSampleListener(String name)
-    {
-	super(name);
+  public void testDispatch() throws Exception {
+    final MySampleListener listener = new MySampleListener();
+
+    final SampleListener swingDispatchedListener =
+      new SwingDispatchedSampleListener(listener);
+
+    final StatisticsSetFactory statisticsFactory =
+      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
+
+    final StatisticsSet intervalStatistics = statisticsFactory.create();
+
+    final StatisticsSet cumulativeStatistics = statisticsFactory.create();
+
+    swingDispatchedListener.update(intervalStatistics, cumulativeStatistics);
+
+    // Wait for a dummy event to be processed by the swing event
+    // queue.
+    SwingUtilities.invokeAndWait(m_voidRunnable);
+
+    assertSame(intervalStatistics, listener.m_intervalStatistics);
+    assertSame(cumulativeStatistics, listener.m_cumulativeStatistics);
+  }
+
+  private class MySampleListener implements SampleListener {
+    public StatisticsSet m_intervalStatistics;
+
+    public StatisticsSet m_cumulativeStatistics;
+
+    public void update(StatisticsSet intervalStatistics,
+      StatisticsSet cumulativeStatistics) {
+      m_intervalStatistics = intervalStatistics;
+      m_cumulativeStatistics = cumulativeStatistics;
     }
-
-    private Runnable m_voidRunnable = new Runnable() { public void run() {} };
-
-    public void testDispatch() throws Exception
-    {
-	final MySampleListener listener = new MySampleListener();
-
-	final SampleListener swingDispatchedListener =
-	    new SwingDispatchedSampleListener(listener);
-
-	final StatisticsSetFactory statisticsFactory =
-	    StatisticsSetFactory.getInstance();
-
-	final StatisticsSet intervalStatistics =
-	    statisticsFactory.create();
-
-	final StatisticsSet cumulativeStatistics =
-	    statisticsFactory.create();
-
-	listener.update(intervalStatistics, cumulativeStatistics);
-
-	// Wait for a dummy event to be processed by the swing event
-	// queue.
-	SwingUtilities.invokeAndWait(m_voidRunnable);
-
-	assertSame(intervalStatistics, listener.m_intervalStatistics);
-	assertSame(cumulativeStatistics, listener.m_cumulativeStatistics);
-    }
-
-    private class MySampleListener implements SampleListener
-    {
-	public StatisticsSet m_intervalStatistics;
-	public StatisticsSet m_cumulativeStatistics;
-	
-	public void update(StatisticsSet intervalStatistics,
-			   StatisticsSet cumulativeStatistics)
-	{
-	    m_intervalStatistics = intervalStatistics;
-	    m_cumulativeStatistics = cumulativeStatistics;
-	}
-    }
+  }
 }
 

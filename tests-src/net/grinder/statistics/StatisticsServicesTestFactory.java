@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -19,24 +19,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
-package net.grinder.engine.process;
+package net.grinder.statistics;
 
-import net.grinder.statistics.StatisticsServicesImplementation;
-import net.grinder.statistics.StatisticsSetFactory;
+public class StatisticsServicesTestFactory {
 
+  /**
+   * Create a test StatisticsServicesImplementation instance.
+   *
+   *
+   * @return The instance
+   */
+  public static StatisticsServices createTestInstance() {
+    final StatisticsIndexMap statisticsIndexMap = new StatisticsIndexMap();
+    final StatisticExpressionFactory statisticExpressionFactory =
+      new StatisticExpressionFactory(statisticsIndexMap);
 
-/**
- * Test utility that allows TestRegistry to be set from outside
- * package.
- *
- * @author Philip Aston
- * @version $Revision$
- */
-public class StubTestRegistry {
-
-  public static void stubTestRegistry() {
-    final StatisticsSetFactory statisticsSetFactory =
-      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
-    TestRegistry.setInstance(new TestRegistry(null, statisticsSetFactory));
+    return
+      new StatisticsServicesImplementation(
+         new CommonStatisticsViews(statisticExpressionFactory),
+         statisticExpressionFactory,
+         new StatisticsSetFactory(statisticsIndexMap),
+         statisticsIndexMap,
+         new TestStatisticsQueries(statisticsIndexMap));
   }
 }

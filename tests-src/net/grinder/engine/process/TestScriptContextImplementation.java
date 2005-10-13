@@ -36,8 +36,8 @@ import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.SSLControl;
 import net.grinder.script.Statistics;
-import net.grinder.statistics.CommonStatisticsViews;
 import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
@@ -108,7 +108,8 @@ public class TestScriptContextImplementation extends TestCase {
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(
         workerIdentity, threadContextLocator, properties, queuedSender, logger,
-        filenameFactory, sleeper, sslControl);
+        filenameFactory, sleeper, sslControl,
+        StatisticsServicesImplementation.getInstance());
 
     assertEquals(workerIdentity.getName(), scriptContext.getProcessName());
     assertEquals(threadID, scriptContext.getThreadID());
@@ -141,7 +142,7 @@ public class TestScriptContextImplementation extends TestCase {
 
     final ScriptContextImplementation scriptContext =
       new ScriptContextImplementation(null, null, null, null, null, null,
-                                      sleeper, null);
+                                      sleeper, null, null);
 
     assertTrue(
       new Time(50, 70) {
@@ -168,8 +169,10 @@ public class TestScriptContextImplementation extends TestCase {
     threadContextLocator.set(threadContextStubFactory.getThreadContext());
 
     final ScriptContextImplementation scriptContext =
-      new ScriptContextImplementation(null, threadContextLocator, null,
-                                      queuedSender, null, null, null, null);
+      new ScriptContextImplementation(
+        null, threadContextLocator, null,
+        queuedSender, null, null, null, null,
+        StatisticsServicesImplementation.getInstance());
 
     final ExpressionView expressionView =
       new ExpressionView("display", "resource key", "errors");
@@ -187,8 +190,11 @@ public class TestScriptContextImplementation extends TestCase {
     assertEquals(statisticsView, message.getStatisticsView());
     queuedSenderStubFactory.assertNoMoreCalls();
 
+    final StatisticsView summaryStatisticsView =
+      StatisticsServicesImplementation.getInstance().getSummaryStatisticsView();
+
     final ExpressionView[] summaryExpressionViews =
-      CommonStatisticsViews.getSummaryStatisticsView().getExpressionViews();
+      summaryStatisticsView.getExpressionViews();
     assertTrue(Arrays.asList(summaryExpressionViews).contains(expressionView));
 
     try {
@@ -202,8 +208,11 @@ public class TestScriptContextImplementation extends TestCase {
 
     scriptContext.registerDetailStatisticsView(statisticsView);
 
+    final StatisticsView detailStatisticsView =
+      StatisticsServicesImplementation.getInstance().getDetailStatisticsView();
+
     final ExpressionView[] detailExpressionViews =
-      CommonStatisticsViews.getDetailStatisticsView().getExpressionViews();
+      detailStatisticsView.getExpressionViews();
     assertTrue(Arrays.asList(detailExpressionViews).contains(expressionView));
   }
 

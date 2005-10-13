@@ -29,6 +29,7 @@ import java.util.TreeMap;
 import net.grinder.common.GrinderException;
 import net.grinder.common.Test;
 import net.grinder.script.NotWrappableTypeException;
+import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.statistics.TestStatisticsMap;
 
 
@@ -41,27 +42,6 @@ import net.grinder.statistics.TestStatisticsMap;
 public final class TestRegistry {
 
   private static TestRegistry s_instance;
-
-  private final ThreadContextLocator m_threadContextLocator;
-
-  /**
-   * A map of Test to TestData's. (TestData is the class this
-   * package uses to store information about Tests). Synchronize on
-   * instance when accessesing.
-   */
-  private final Map m_testMap = new TreeMap();
-
-  /**
-   * Tests received since {@link #getNewTests} was last called.
-   * Synchronise on this <code>TestRegistry</code> before accessing.
-   */
-  private Collection m_newTests = null;
-
-  /**
-   * A map of Tests to Statistics for passing elsewhere.
-   */
-  private final TestStatisticsMap m_testStatisticsMap =
-    new TestStatisticsMap();
 
   /**
    * Singleton accessor.
@@ -83,11 +63,35 @@ public final class TestRegistry {
     s_instance = testRegistry;
   }
 
+  private final ThreadContextLocator m_threadContextLocator;
+  private final StatisticsSetFactory m_statisticsSetFactory;
+
+  /**
+   * A map of Test to TestData's. (TestData is the class this
+   * package uses to store information about Tests). Synchronize on
+   * instance when accessing.
+   */
+  private final Map m_testMap = new TreeMap();
+
+  /**
+   * Tests received since {@link #getNewTests} was last called.
+   * Synchronise on this <code>TestRegistry</code> before accessing.
+   */
+  private Collection m_newTests = null;
+
+  /**
+   * A map of Tests to Statistics for passing elsewhere.
+   */
+  private final TestStatisticsMap m_testStatisticsMap;
+
   /**
    * Constructor.
    */
-  TestRegistry(ThreadContextLocator threadContextLocator) {
+  TestRegistry(ThreadContextLocator threadContextLocator,
+               StatisticsSetFactory statisticsSetFactory) {
     m_threadContextLocator = threadContextLocator;
+    m_statisticsSetFactory = statisticsSetFactory;
+    m_testStatisticsMap = new TestStatisticsMap(m_statisticsSetFactory);
   }
 
   /**
@@ -108,7 +112,8 @@ public final class TestRegistry {
         return existing;
       }
 
-      newTestData = new TestData(m_threadContextLocator, test);
+      newTestData =
+        new TestData(m_threadContextLocator, test, m_statisticsSetFactory);
       m_testMap.put(test, newTestData);
       m_testStatisticsMap.put(test, newTestData.getStatistics());
 

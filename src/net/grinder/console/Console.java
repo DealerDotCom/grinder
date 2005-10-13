@@ -42,6 +42,7 @@ import net.grinder.console.messages.ReportStatisticsMessage;
 import net.grinder.console.model.ConsoleProperties;
 import net.grinder.console.model.Model;
 import net.grinder.console.swingui.ConsoleUI;
+import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsView;
 
 
@@ -76,7 +77,9 @@ public class Console {
       new ConsoleProperties(resources,
                             new File(homeDirectory, ".grinder_console"));
 
-    m_model = new Model(properties, resources);
+    m_model =
+      new Model(properties, resources,
+                StatisticsServicesImplementation.getInstance());
 
     m_communication =
       new ConsoleCommunicationImplementation(resources,

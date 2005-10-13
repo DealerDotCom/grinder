@@ -40,23 +40,23 @@ final class SampleAccumulator {
 
   private final PeakStatisticExpression m_peakTPSExpression;
   private final StatisticsIndexMap.LongIndex m_periodIndex;
+  private final StatisticsSetFactory m_statisticsSetFactory;
 
   private final StatisticsSet m_cumulativeStatistics;
   private StatisticsSet m_intervalStatistics;
   private StatisticsSet m_lastSampleStatistics;
 
   public SampleAccumulator(PeakStatisticExpression peakTPSExpression,
-                           StatisticsIndexMap.LongIndex periodIndex) {
+                           StatisticsIndexMap.LongIndex periodIndex,
+                           StatisticsSetFactory statisticsSetFactory) {
 
     m_peakTPSExpression = peakTPSExpression;
     m_periodIndex = periodIndex;
+    m_statisticsSetFactory = statisticsSetFactory;
 
-    final StatisticsSetFactory statisticsFactory =
-      StatisticsSetFactory.getInstance();
-
-    m_cumulativeStatistics = statisticsFactory.create();
-    m_intervalStatistics = statisticsFactory.create();
-    m_lastSampleStatistics = statisticsFactory.create();
+    m_cumulativeStatistics = m_statisticsSetFactory.create();
+    m_intervalStatistics = m_statisticsSetFactory.create();
+    m_lastSampleStatistics = m_statisticsSetFactory.create();
   }
 
   public synchronized void addSampleListener(SampleListener listener) {
@@ -87,7 +87,7 @@ final class SampleAccumulator {
 
     // We create new statistics each time to ensure that
     // m_lastSampleStatistics is always valid and fixed.
-    m_intervalStatistics = StatisticsSetFactory.getInstance().create();
+    m_intervalStatistics = m_statisticsSetFactory.create();
   }
 
   public void zero() {

@@ -29,6 +29,7 @@ import net.grinder.plugininterface.PluginException;
 import net.grinder.plugininterface.PluginThreadContext;
 import net.grinder.plugininterface.PluginThreadListener;
 import net.grinder.script.Grinder.ScriptContext;
+import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.RandomStubFactory;
 
 
@@ -58,7 +59,10 @@ public class TestRegisteredPlugin extends TestCase {
       new StubThreadContextLocator();
 
     final RegisteredPlugin registeredPlugin =
-      new RegisteredPlugin(plugin, scriptContext, threadContextLocator);
+      new RegisteredPlugin(plugin,
+                           scriptContext,
+                           threadContextLocator,
+                           StatisticsServicesImplementation.getInstance());
 
     assertEquals(scriptContext, registeredPlugin.getScriptContext());
   }
@@ -79,7 +83,10 @@ public class TestRegisteredPlugin extends TestCase {
       new StubThreadContextLocator();
 
     final RegisteredPlugin registeredPlugin =
-      new RegisteredPlugin(grinderPlugin, scriptContext, threadContextLocator);
+      new RegisteredPlugin(grinderPlugin,
+                           scriptContext,
+                           threadContextLocator,
+                           StatisticsServicesImplementation.getInstance());
 
     try {
       registeredPlugin.getPluginThreadListener();

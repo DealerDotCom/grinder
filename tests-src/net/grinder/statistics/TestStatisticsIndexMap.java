@@ -29,7 +29,7 @@ import net.grinder.statistics.StatisticsSet;
 
 /**
  * Unit test case for <code>StatisticsIndexMap</code>.
- * 
+ *
  * @author Philip Aston
  * @version $Revision$
  * @see StatisticsSet
@@ -45,7 +45,7 @@ public class TestStatisticsIndexMap extends TestCase {
   }
 
   private final StatisticsIndexMap m_indexMap =
-    StatisticsIndexMap.getInstance();
+    StatisticsServicesImplementation.getInstance().getStatisticsIndexMap();
 
   public void testLongs() throws Exception {
     final String[] data = {

@@ -32,7 +32,7 @@ import net.grinder.script.Grinder.ScriptContext;
 import net.grinder.script.InvalidContextException;
 import net.grinder.script.Statistics;
 import net.grinder.script.SSLControl;
-import net.grinder.statistics.CommonStatisticsViews;
+import net.grinder.statistics.StatisticsServices;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.util.Sleeper;
 
@@ -53,6 +53,7 @@ final class ScriptContextImplementation implements ScriptContext {
   private final FilenameFactory m_filenameFactory;
   private final Sleeper m_sleeper;
   private final SSLControl m_sslControl;
+  private final StatisticsServices m_statisticsServices;
 
   public ScriptContextImplementation(WorkerIdentity workerIdentity,
                                      ThreadContextLocator threadContextLocator,
@@ -61,7 +62,8 @@ final class ScriptContextImplementation implements ScriptContext {
                                      Logger logger,
                                      FilenameFactory filenameFactory,
                                      Sleeper sleeper,
-                                     SSLControl sslControl) {
+                                     SSLControl sslControl,
+                                     StatisticsServices statisticsServices) {
     m_workerIdentity = workerIdentity;
     m_threadContextLocator = threadContextLocator;
     m_properties = properties;
@@ -70,6 +72,7 @@ final class ScriptContextImplementation implements ScriptContext {
     m_filenameFactory = filenameFactory;
     m_sleeper = sleeper;
     m_sslControl = sslControl;
+    m_statisticsServices = statisticsServices;
   }
 
   public String getProcessName() {
@@ -118,7 +121,7 @@ final class ScriptContextImplementation implements ScriptContext {
 
   public void registerSummaryStatisticsView(StatisticsView statisticsView)
     throws GrinderException {
-    CommonStatisticsViews.getSummaryStatisticsView().add(statisticsView);
+    m_statisticsServices.getSummaryStatisticsView().add(statisticsView);
 
     // Queue up, will get flushed with next process status or
     // statistics report.
@@ -135,7 +138,7 @@ final class ScriptContextImplementation implements ScriptContext {
 
     // DetailStatisticsViews are only for the data logs, so we don't
     // register the view with the console.
-    CommonStatisticsViews.getDetailStatisticsView().add(statisticsView);
+    m_statisticsServices.getDetailStatisticsView().add(statisticsView);
   }
 
   public Statistics getStatistics() throws InvalidContextException {

@@ -43,18 +43,19 @@ import net.grinder.util.Serialiser;
  */
 final class StatisticsSetImplementation implements StatisticsSet {
 
+  private final StatisticsIndexMap m_statisticsIndexMap;
   private final long[] m_longData;
   private final double[] m_doubleData;
 
   /**
    * Creates a new <code>StatisticsSetImplementation</code> instance.
+   *
+   * @param statisticsIndexMap The {@link StatisticsIndexMap} to use.
    */
-  StatisticsSetImplementation() {
-    m_longData =
-      new long[StatisticsIndexMap.getInstance().getNumberOfLongs()];
-
-    m_doubleData =
-      new double[StatisticsIndexMap.getInstance().getNumberOfDoubles()];
+  StatisticsSetImplementation(StatisticsIndexMap statisticsIndexMap) {
+    m_statisticsIndexMap = statisticsIndexMap;
+    m_longData = new long[m_statisticsIndexMap.getNumberOfLongs()];
+    m_doubleData = new double[m_statisticsIndexMap.getNumberOfDoubles()];
   }
 
   /**
@@ -74,7 +75,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * Clone this object.
    *
    * We don't use {@link Object#clone} as that's such a hog's arse of a
-   * mechanism. It prevents us from using final variables, requres a lot of
+   * mechanism. It prevents us from using final variables, requires a lot of
    * casting, and that we catch CloneNotSupported exceptions - even if we know
    * they won't be thrown.
    *
@@ -82,7 +83,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    */
   public synchronized StatisticsSet snapshot() {
     final StatisticsSetImplementation result =
-      new StatisticsSetImplementation();
+      new StatisticsSetImplementation(m_statisticsIndexMap);
 
     System.arraycopy(
         m_longData, 0, result.m_longData, 0, result.m_longData.length);
@@ -265,12 +266,12 @@ final class StatisticsSetImplementation implements StatisticsSet {
   /**
    * Calculate the variance resulting from combining two sample populations.
    *
-   * @param s1 Total of samples in first poulation.
-   * @param n1 Count of samples in first poulation.
-   * @param v1 Variance of samples in first poulation.
-   * @param s2 Total of samples in second poulation.
-   * @param n2 Count of samples in second poulation.
-   * @param v2 Variance of samples in second poulation.
+   * @param s1 Total of samples in first population.
+   * @param n1 Count of samples in first population.
+   * @param v1 Variance of samples in first population.
+   * @param s2 Total of samples in second population.
+   * @param n2 Count of samples in second population.
+   * @param v2 Variance of samples in second population.
    * @return Variance of combined population.
    */
   private double calculateVariance(double s1, long n1, double v1,
@@ -359,7 +360,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
     final boolean[] isVarianceIndex = new boolean[m_doubleData.length];
 
     final Iterator longSampleIndexIterator =
-      StatisticsIndexMap.getInstance().getLongSampleIndicies().iterator();
+      m_statisticsIndexMap.getLongSampleIndicies().iterator();
 
     while (longSampleIndexIterator.hasNext()) {
       final StatisticsIndexMap.LongSampleIndex index =
@@ -382,7 +383,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
     }
 
     final Iterator doubleSampleIndexIterator =
-      StatisticsIndexMap.getInstance().getDoubleSampleIndicies().iterator();
+      m_statisticsIndexMap.getDoubleSampleIndicies().iterator();
 
     while (doubleSampleIndexIterator.hasNext()) {
       final StatisticsIndexMap.DoubleSampleIndex index =
@@ -535,13 +536,15 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * Efficient externalisation method used by {@link
    * StatisticsSetFactory#readStatisticsExternal}.
    *
+   * @param statisticsIndexMap The {@link StatisticsIndexMap} to use.
    * @param in Handle to the input stream.
    * @param serialiser <code>Serialiser</code> helper object.
    * @exception IOException If an error occurs.
    */
-  protected StatisticsSetImplementation(ObjectInput in, Serialiser serialiser)
+  StatisticsSetImplementation(StatisticsIndexMap statisticsIndexMap,
+                              ObjectInput in, Serialiser serialiser)
     throws IOException {
-    this();
+    this(statisticsIndexMap);
 
     for (int i = 0; i < m_longData.length; i++) {
       m_longData[i] = serialiser.readLong(in);

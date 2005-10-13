@@ -31,6 +31,9 @@ import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
 import net.grinder.engine.agent.PublicAgentIdentityImplementation;
 import net.grinder.statistics.ExpressionView;
+import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.StatisticsServicesImplementation;
+import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.statistics.StatisticsView;
 import net.grinder.statistics.TestStatisticsMap;
 import net.grinder.testutility.Serializer;
@@ -43,8 +46,6 @@ import net.grinder.testutility.Serializer;
  * @version $Revision$
  */
 public class TestConsoleMessages extends TestCase {
-
-  private static Random s_random = new Random();
 
   private static Message serialise(Message original) throws Exception {
     return (Message) Serializer.serialize(original);
@@ -84,7 +85,10 @@ public class TestConsoleMessages extends TestCase {
 
   public void testReportStatisticsMessage() throws Exception {
 
-    final TestStatisticsMap statisticsDelta = new TestStatisticsMap();
+    final StatisticsSetFactory statisticsSetFactory =
+      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory();
+    final TestStatisticsMap statisticsDelta =
+      new TestStatisticsMap(statisticsSetFactory);
 
     final ReportStatisticsMessage original =
       new ReportStatisticsMessage(statisticsDelta);

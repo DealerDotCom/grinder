@@ -39,71 +39,74 @@ import java.util.Random;
  * @see StatisticsSet
  */
 public class TestStatisticsSetFactory extends TestCase {
-  
+
   public TestStatisticsSetFactory(String name) {
-	super(name);
+    super(name);
   }
 
-  public void testCreation() throws Exception {
-	final StatisticsSetFactory factory =
-	    StatisticsSetFactory.getInstance();
+  private final StatisticsServices m_statisticsServices =
+    StatisticsServicesImplementation.getInstance();
 
-	assertSame(factory, StatisticsSetFactory.getInstance());
+  public void testCreation() throws Exception {
+    final StatisticsSetFactory factory =
+      m_statisticsServices.getStatisticsSetFactory();
+
+    assertSame(factory, m_statisticsServices.getStatisticsSetFactory());
   }
 
   public void testFactory() throws Exception {
-	final StatisticsSetFactory factory =
-	    StatisticsSetFactory.getInstance();
+    final StatisticsSetFactory factory =
+      m_statisticsServices.getStatisticsSetFactory();
 
-	final StatisticsSet statistics = factory.create();
-	assertTrue(statistics instanceof StatisticsSetImplementation);
+    final StatisticsSet statistics = factory.create();
+    assertTrue(statistics instanceof StatisticsSetImplementation);
   }
 
   public void testSerialisation() throws Exception {
-	final StatisticsSetFactory factory =
-	    StatisticsSetFactory.getInstance();
+    final StatisticsSetFactory factory =
+      m_statisticsServices.getStatisticsSetFactory();
 
-	final Random random = new Random();
+    final Random random = new Random();
 
-	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
-	final StatisticsIndexMap.LongIndex aIndex =
-	    indexMap.getLongIndex("userLong0");
-	final StatisticsIndexMap.LongIndex bIndex =
-	    indexMap.getLongIndex("userLong1");
-	final StatisticsIndexMap.LongIndex cIndex =
-	    indexMap.getLongIndex("userLong2");
+    final StatisticsIndexMap indexMap =
+      m_statisticsServices.getStatisticsIndexMap();
 
-	final StatisticsSet original0 = factory.create();
-	original0.addValue(aIndex, Math.abs(random.nextLong()));
-	original0.addValue(bIndex, Math.abs(random.nextLong()));
-	original0.addValue(cIndex, Math.abs(random.nextLong()));
+    final StatisticsIndexMap.LongIndex aIndex = indexMap
+        .getLongIndex("userLong0");
+    final StatisticsIndexMap.LongIndex bIndex = indexMap
+        .getLongIndex("userLong1");
+    final StatisticsIndexMap.LongIndex cIndex = indexMap
+        .getLongIndex("userLong2");
 
-	final StatisticsSet original1 = factory.create();
+    final StatisticsSet original0 = factory.create();
+    original0.addValue(aIndex, Math.abs(random.nextLong()));
+    original0.addValue(bIndex, Math.abs(random.nextLong()));
+    original0.addValue(cIndex, Math.abs(random.nextLong()));
 
-	final ByteArrayOutputStream byteOutputStream =
-	    new ByteArrayOutputStream();
+    final StatisticsSet original1 = factory.create();
 
-	final ObjectOutputStream objectOutputStream =
-	    new ObjectOutputStream(byteOutputStream);
+    final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 
-	factory.writeStatisticsExternal(objectOutputStream,
-      (StatisticsSetImplementation)original0);
-	factory.writeStatisticsExternal(objectOutputStream,
-      (StatisticsSetImplementation)original1);
+    final ObjectOutputStream objectOutputStream = new ObjectOutputStream(
+      byteOutputStream);
 
-	objectOutputStream.close();
+    factory.writeStatisticsExternal(objectOutputStream,
+      (StatisticsSetImplementation) original0);
+    factory.writeStatisticsExternal(objectOutputStream,
+      (StatisticsSetImplementation) original1);
 
-	final ObjectInputStream objectInputStream =
-	    new ObjectInputStream(
-		new ByteArrayInputStream(byteOutputStream.toByteArray()));
+    objectOutputStream.close();
 
-	final StatisticsSet received0 =
-	    factory.readStatisticsExternal(objectInputStream);
+    final ObjectInputStream objectInputStream = new ObjectInputStream(
+      new ByteArrayInputStream(byteOutputStream.toByteArray()));
 
-	final StatisticsSet received1 =
-	    factory.readStatisticsExternal(objectInputStream);
+    final StatisticsSet received0 = factory
+        .readStatisticsExternal(objectInputStream);
 
-	assertEquals(original0, received0);
-	assertEquals(original1, received1);
-    }
+    final StatisticsSet received1 = factory
+        .readStatisticsExternal(objectInputStream);
+
+    assertEquals(original0, received0);
+    assertEquals(original1, received1);
+  }
 }

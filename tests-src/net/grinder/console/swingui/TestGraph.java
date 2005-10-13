@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,6 +35,8 @@ import net.grinder.statistics.PeakStatisticExpression;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticExpressionFactory;
 import net.grinder.statistics.StatisticsIndexMap;
+import net.grinder.statistics.StatisticsServices;
+import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticsSetFactory;
 
@@ -47,7 +49,7 @@ import net.grinder.statistics.StatisticsSetFactory;
 public class TestGraph extends TestCase {
 
   public TestGraph(String name) {
-	super(name);
+    super(name);
   }
 
   private int m_pauseTime = 1;
@@ -55,11 +57,11 @@ public class TestGraph extends TestCase {
   private JFrame m_frame;
 
   protected void setUp() throws Exception {
-	m_frame = new JFrame("Test Graph");
+    m_frame = new JFrame("Test Graph");
   }
 
   protected void tearDown() throws Exception {
-	m_frame.dispose();
+    m_frame.dispose();
   }
 
   private void createUI(JComponent component) throws Exception {
@@ -69,108 +71,107 @@ public class TestGraph extends TestCase {
   }
 
   public void testRamp() throws Exception {
-	final Graph graph = new Graph(25);
-	createUI(graph);
+    final Graph graph = new Graph(25);
+    createUI(graph);
 
-	graph.setMaximum(150);
+    graph.setMaximum(150);
 
-	for (int i=0; i<150; i++) {
-	    graph.add(i);
-	    pause();
-	}
+    for (int i = 0; i < 150; i++) {
+      graph.add(i);
+      pause();
+    }
   }
 
   public void testRandom() throws Exception {
-	final Graph graph = new Graph(100);
-	createUI(graph);
+    final Graph graph = new Graph(100);
+    createUI(graph);
 
-	graph.setMaximum(1);
+    graph.setMaximum(1);
 
-	for (int i=0; i<200; i++) {
-	    graph.add(s_random.nextDouble());
-	    pause();
-	}
+    for (int i = 0; i < 200; i++) {
+      graph.add(s_random.nextDouble());
+      pause();
+    }
   }
 
   public void testLabelledGraph() throws Exception {
-	final StatisticsSetFactory statisticsFactory
-	    = StatisticsSetFactory.getInstance();
+    final StatisticsServices statisticsServices =
+      StatisticsServicesImplementation.getInstance();
 
-	final StatisticsIndexMap indexMap = StatisticsIndexMap.getInstance();
+    final StatisticsIndexMap indexMap =
+      statisticsServices.getStatisticsIndexMap();
 
-	final StatisticsIndexMap.LongIndex periodIndex =
-	    indexMap.getLongIndex("period");
-    final StatisticsIndexMap.LongIndex errorStatisticIndex =
-      indexMap.getLongIndex("errors");
-    final StatisticsIndexMap.LongIndex untimedTestsIndex =
-      indexMap.getLongIndex("untimedTests");
-    final StatisticsIndexMap.LongSampleIndex timedTestsIndex =
-      indexMap.getLongSampleIndex("timedTests");
+    final StatisticsIndexMap.LongIndex periodIndex = indexMap
+        .getLongIndex("period");
+    final StatisticsIndexMap.LongIndex errorStatisticIndex = indexMap
+        .getLongIndex("errors");
+    final StatisticsIndexMap.LongIndex untimedTestsIndex = indexMap
+        .getLongIndex("untimedTests");
+    final StatisticsIndexMap.LongSampleIndex timedTestsIndex = indexMap
+        .getLongSampleIndex("timedTests");
 
-	final StatisticExpressionFactory statisticExpressionFactory =
-	    StatisticExpressionFactory.getInstance();
+    final StatisticExpressionFactory statisticExpressionFactory =
+      statisticsServices.getStatisticExpressionFactory();
 
-	final StatisticExpression tpsExpression =
-	    statisticExpressionFactory.createExpression(
-		"(* 1000 (/(+ (count timedTests) untimedTests) period))"
-		);
+    final StatisticExpression tpsExpression = statisticExpressionFactory
+        .createExpression("(* 1000 (/(+ (count timedTests) untimedTests) period))");
 
-	final PeakStatisticExpression peakTPSExpression =
-	    statisticExpressionFactory.createPeak(
-		indexMap.getDoubleIndex("peakTPS"), tpsExpression);
+    final PeakStatisticExpression peakTPSExpression = statisticExpressionFactory
+        .createPeak(indexMap.getDoubleIndex("peakTPS"), tpsExpression);
 
-	final LabelledGraph labelledGraph =
-	    new LabelledGraph(
-              "Test",
-              new Resources("net.grinder.console.swingui.resources.Console"),
-              tpsExpression,
-              peakTPSExpression);
+    final LabelledGraph labelledGraph =
+      new LabelledGraph(
+        "Test",
+        new Resources("net.grinder.console.swingui.resources.Console"),
+        tpsExpression,
+        peakTPSExpression,
+        statisticsServices.getTestStatisticsQueries());
 
-	createUI(labelledGraph);
+    createUI(labelledGraph);
 
-	double peak = 0d;
+    double peak = 0d;
 
-	final StatisticsSet cumulativeStatistics =
-	    statisticsFactory.create();
+    final StatisticsSetFactory statisticsSetFactory =
+      statisticsServices.getStatisticsSetFactory();
 
-	final DecimalFormat format = new DecimalFormat();
+    final StatisticsSet cumulativeStatistics = statisticsSetFactory.create();
 
-	final int period = 1000;
+    final DecimalFormat format = new DecimalFormat();
 
-	for (int i=0; i<200; i++) {
-      final StatisticsSet intervalStatistics =
-        statisticsFactory.create();
-  
+    final int period = 1000;
+
+    for (int i = 0; i < 200; i++) {
+      final StatisticsSet intervalStatistics = statisticsSetFactory.create();
+
       intervalStatistics.setValue(periodIndex, period);
-  
+
       while (s_random.nextInt() > 0) {
         intervalStatistics.addValue(untimedTestsIndex, 1);
       }
-  
+
       long time;
-  
+
       while ((time = s_random.nextInt()) > 0) {
         intervalStatistics.addSample(timedTestsIndex, time % 10000);
       }
-  
+
       while (s_random.nextFloat() > 0.95) {
         intervalStatistics.addValue(errorStatisticIndex, 1);
       }
-  
+
       cumulativeStatistics.add(intervalStatistics);
-      cumulativeStatistics.setValue(periodIndex, (1+i)*period);
-  
+      cumulativeStatistics.setValue(periodIndex, (1 + i) * period);
+
       peakTPSExpression.update(intervalStatistics, cumulativeStatistics);
-      labelledGraph.add(intervalStatistics, cumulativeStatistics,
-  		      format);
+      labelledGraph.add(intervalStatistics, cumulativeStatistics, format);
       pause();
-	}
+    }
   }
 
   private void pause() throws Exception {
-	if (m_pauseTime > 0) {
-	    Thread.sleep(m_pauseTime);
-	}
+    if (m_pauseTime > 0) {
+      Thread.sleep(m_pauseTime);
+    }
   }
 }
 

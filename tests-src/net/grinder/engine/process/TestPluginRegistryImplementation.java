@@ -30,6 +30,7 @@ import net.grinder.common.Logger;
 import net.grinder.plugininterface.GrinderPlugin;
 import net.grinder.plugininterface.PluginRegistry;
 import net.grinder.script.Grinder.ScriptContext;
+import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.testutility.CallRecorder;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
@@ -57,8 +58,9 @@ public class TestPluginRegistryImplementation extends TestCase {
       new StubThreadContextLocator();
 
     final PluginRegistry pluginRegistry =
-      new PluginRegistryImplementation(logger, scriptContext,
-                                       threadContextLocator);
+      new PluginRegistryImplementation(
+        logger, scriptContext, threadContextLocator,
+        StatisticsServicesImplementation.getInstance());
 
     assertEquals(pluginRegistry, PluginRegistry.getInstance());
   }
@@ -77,8 +79,9 @@ public class TestPluginRegistryImplementation extends TestCase {
       new StubThreadContextLocator();
 
     final PluginRegistry pluginRegistry =
-      new PluginRegistryImplementation(logger, scriptContext,
-                                       threadContextLocator);
+      new PluginRegistryImplementation(
+        logger, scriptContext, threadContextLocator,
+        StatisticsServicesImplementation.getInstance());
 
     final RandomStubFactory grinderPluginStubFactory =
       new RandomStubFactory(GrinderPlugin.class);
@@ -131,7 +134,7 @@ public class TestPluginRegistryImplementation extends TestCase {
     final Logger logger = (Logger)loggerStubFactory.getStub();
 
     final PluginRegistryImplementation pluginRegistryImplementation =
-      new PluginRegistryImplementation(logger, null, null);
+      new PluginRegistryImplementation(logger, null, null, null);
 
     final RandomStubFactory threadContextStubFactory =
       new RandomStubFactory(ThreadContext.class);

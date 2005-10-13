@@ -47,6 +47,8 @@ public class TestStatisticsMap implements java.io.Externalizable {
   // statistic indicies are changed in StatisticsIndexMap.
   private static final long serialVersionUID = 2L;
 
+  private final transient StatisticsSetFactory m_statisticsSetFactory;
+
   /**
    * Use a TreeMap so we store in test number order. Synchronise on
    * this TestStatisticsMap before accessing.
@@ -55,8 +57,19 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
   /**
    * Creates a new <code>TestStatisticsMap</code> instance.
+   *
+   * @param statisticsSetFactory A factory used to build {@link StatisticsSet}s.
+   */
+  public TestStatisticsMap(StatisticsSetFactory statisticsSetFactory) {
+    m_statisticsSetFactory = statisticsSetFactory;
+  }
+
+  /**
+   * Externalizable classes need a public default constructor.
    */
   public TestStatisticsMap() {
+    this(
+      StatisticsServicesImplementation.getInstance().getStatisticsSetFactory());
   }
 
   /**
@@ -93,9 +106,6 @@ public class TestStatisticsMap implements java.io.Externalizable {
    * @param other The other <code>TestStatisticsMap</code>.
    */
   public final void add(TestStatisticsMap other) {
-    final StatisticsSetFactory statisticsFactory =
-      StatisticsSetFactory.getInstance();
-
     synchronized (other) {
       final Iterator otherIterator = other.new Iterator();
 
@@ -109,7 +119,7 @@ public class TestStatisticsMap implements java.io.Externalizable {
             (StatisticsSet)m_data.get(othersPair.getTest());
 
           if (existingStatistics == null) {
-            statistics = statisticsFactory.create();
+            statistics = m_statisticsSetFactory.create();
             put(othersPair.getTest(), statistics);
           }
           else {
@@ -128,7 +138,8 @@ public class TestStatisticsMap implements java.io.Externalizable {
    * @return The snapshot.
    */
   public TestStatisticsMap reset() {
-    final TestStatisticsMap result = new TestStatisticsMap();
+    final TestStatisticsMap result =
+      new TestStatisticsMap(m_statisticsSetFactory);
 
     synchronized (this) {
       final Iterator iterator = new Iterator();
@@ -145,6 +156,26 @@ public class TestStatisticsMap implements java.io.Externalizable {
         }
 
         result.put(pair.getTest(), snapshot);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Add up all our statistics.
+   *
+   * @return The sum of all our statistics.
+   */
+  public StatisticsSet createTotalStatisticsSet() {
+    final StatisticsSet result = m_statisticsSetFactory.create();
+
+    synchronized (this) {
+      final Iterator iterator = new Iterator();
+
+      while (iterator.hasNext()) {
+        final TestStatisticsMap.Pair pair = iterator.next();
+        result.add(pair.getStatistics());
       }
     }
 
@@ -239,9 +270,6 @@ public class TestStatisticsMap implements java.io.Externalizable {
    */
   public void writeExternal(ObjectOutput out) throws IOException {
 
-    final StatisticsSetFactory statisticsFactory =
-      StatisticsSetFactory.getInstance();
-
     synchronized (this) {
       out.writeInt(m_data.size());
 
@@ -252,9 +280,9 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
         out.writeInt(pair.getTest().getNumber());
 
-        // Its a class invariant that our StatisticsSet are all
+        // Its a class invariant that our StatisticsSets are all
         // StatisticsSetImplementations.
-        statisticsFactory.writeStatisticsExternal(
+        m_statisticsSetFactory.writeStatisticsExternal(
           out, (StatisticsSetImplementation)pair.getStatistics());
       }
     }
@@ -271,14 +299,11 @@ public class TestStatisticsMap implements java.io.Externalizable {
 
     final int n = in.readInt();
 
-    final StatisticsSetFactory testStatisticsFactory =
-      StatisticsSetFactory.getInstance();
-
     m_data.clear();
 
     for (int i = 0; i < n; i++) {
       m_data.put(new LightweightTest(in.readInt()),
-                 testStatisticsFactory.readStatisticsExternal(in));
+                 m_statisticsSetFactory.readStatisticsExternal(in));
     }
   }
 

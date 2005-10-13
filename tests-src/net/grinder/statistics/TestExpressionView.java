@@ -54,9 +54,11 @@ public class TestExpressionView extends TestCase {
     assertTrue(view.getExpression() != null);
 
     final StatisticExpressionFactory statisticExpressionFactory =
-      StatisticExpressionFactory.getInstance();
+      StatisticsServicesImplementation.getInstance()
+      .getStatisticExpressionFactory();
+
     final ExpressionView view2 =
-      new ExpressionView("My view2", "my.view", 
+      new ExpressionView("My view2", "my.view",
                          statisticExpressionFactory.createExpression(
                            "userLong0"));
 
@@ -67,7 +69,7 @@ public class TestExpressionView extends TestCase {
 
   public void testEquality() throws Exception {
     final ExpressionView[] views = {
-      new ExpressionView("My view", "my.view", 
+      new ExpressionView("My view", "my.view",
                          "(+ userLong0 userLong1)"),
       new ExpressionView("My view", "my.view",
                          "(+ userLong0 userLong1)"),
@@ -111,9 +113,11 @@ public class TestExpressionView extends TestCase {
     assertEquals(original, received);
 
     final StatisticExpressionFactory statisticExpressionFactory =
-      StatisticExpressionFactory.getInstance();
+      StatisticsServicesImplementation.getInstance()
+      .getStatisticExpressionFactory();
+
     final ExpressionView cantStreamThis =
-      new ExpressionView("My view2", "my.view", 
+      new ExpressionView("My view2", "my.view",
                          statisticExpressionFactory.createExpression(
                            "userLong0"));
 

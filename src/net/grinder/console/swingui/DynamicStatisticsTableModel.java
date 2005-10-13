@@ -35,7 +35,6 @@ import net.grinder.statistics.ExpressionView;
 import net.grinder.statistics.StatisticsSet;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticsView;
-import net.grinder.statistics.TestStatisticsQueries;
 
 
 /**
@@ -197,7 +196,7 @@ abstract class DynamicStatisticsTableModel
   public boolean isRed(int row, int column) {
     return
       column == 3 &&
-      TestStatisticsQueries.getInstance().getNumberOfErrors(
+      getModel().getTestStatisticsQueries().getNumberOfErrors(
           getStatistics(row)) > 0;
   }
 

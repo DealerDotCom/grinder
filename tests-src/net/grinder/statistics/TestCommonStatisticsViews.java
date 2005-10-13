@@ -36,24 +36,31 @@ import junit.framework.TestCase;
 public class TestCommonStatisticsViews extends TestCase {
 
   public TestCommonStatisticsViews(String name) {
-	super(name);
+  super(name);
   }
 
   public void testGetViews() throws Exception {
-	final StatisticsView detail =
-	    CommonStatisticsViews.getDetailStatisticsView();
 
-	final ExpressionView[] detailExpressionViews =
-	    detail.getExpressionViews();
+    final StatisticsIndexMap statisticsIndexMap = new StatisticsIndexMap();
+    final StatisticExpressionFactory statisticExpressionFactory =
+      new StatisticExpressionFactory(statisticsIndexMap);
 
-	assertTrue(detailExpressionViews.length > 0);
+    final CommonStatisticsViews commonStatisticsViews =
+      new CommonStatisticsViews(statisticExpressionFactory);
 
-	final StatisticsView summary =
-	    CommonStatisticsViews.getSummaryStatisticsView();
+    final StatisticsView detail =
+      commonStatisticsViews.getDetailStatisticsView();
 
-	final ExpressionView[] summaryExpressionViews =
-	    summary.getExpressionViews();
+    final ExpressionView[] detailExpressionViews = detail.getExpressionViews();
 
-	assertTrue(summaryExpressionViews.length > 0);
+    assertTrue(detailExpressionViews.length > 0);
+
+    final StatisticsView summary =
+      commonStatisticsViews.getSummaryStatisticsView();
+
+    final ExpressionView[] summaryExpressionViews =
+      summary.getExpressionViews();
+
+    assertTrue(summaryExpressionViews.length > 0);
   }
 }

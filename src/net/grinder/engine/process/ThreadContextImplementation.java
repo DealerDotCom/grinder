@@ -71,6 +71,7 @@ final class ThreadContextImplementation
       new ScriptStatisticsImplementation(
         processContext.getThreadContextLocator(),
         dataWriter,
+        processContext.getStatisticsServices(),
         m_threadLogger.getThreadID(),
         processContext.getRecordTime());
 
