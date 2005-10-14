@@ -45,6 +45,7 @@ public abstract class AbstractStubFactory extends CallRecorder {
 
   private final Object m_stub;
   private final Map m_resultMap = new HashMap();
+  private final Map m_throwsMap = new HashMap();
 
   public AbstractStubFactory(Class stubbedInterface,
                              InvocationHandler invocationHandler) {
@@ -101,6 +102,10 @@ public abstract class AbstractStubFactory extends CallRecorder {
 
       final String methodName = method.getName();
 
+      if (m_throwsMap.containsKey(methodName)) {
+        throw (Throwable)m_throwsMap.get(methodName);
+      }
+
       if (m_resultMap.containsKey(methodName)) {
         return m_resultMap.get(methodName);
       }
@@ -115,6 +120,10 @@ public abstract class AbstractStubFactory extends CallRecorder {
 
   public final void setResult(String methodName, Object result) {
     m_resultMap.put(methodName, result);
+  }
+
+  public final void setThrows(String methodName, Throwable result) {
+    m_throwsMap.put(methodName, result);
   }
 
   public static Class[] getAllInterfaces(Class c) {
