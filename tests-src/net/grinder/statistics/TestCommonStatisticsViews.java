@@ -22,6 +22,8 @@
 
 package net.grinder.statistics;
 
+import net.grinder.statistics.StatisticExpressionFactoryImplementation.ParseContext;
+import net.grinder.testutility.RandomStubFactory;
 import junit.framework.TestCase;
 
 
@@ -43,7 +45,7 @@ public class TestCommonStatisticsViews extends TestCase {
 
     final StatisticsIndexMap statisticsIndexMap = new StatisticsIndexMap();
     final StatisticExpressionFactory statisticExpressionFactory =
-      new StatisticExpressionFactory(statisticsIndexMap);
+      new StatisticExpressionFactoryImplementation(statisticsIndexMap);
 
     final CommonStatisticsViews commonStatisticsViews =
       new CommonStatisticsViews(statisticExpressionFactory);
@@ -62,5 +64,28 @@ public class TestCommonStatisticsViews extends TestCase {
       summary.getExpressionViews();
 
     assertTrue(summaryExpressionViews.length > 0);
+  }
+
+  public void testGetViewsWithBrokenStatisticsExpressionFactory()
+    throws Exception {
+    final RandomStubFactory statisticExpressionFactoryStubFactory =
+      new RandomStubFactory(StatisticExpressionFactory.class);
+
+    final StatisticExpressionFactory statisticExpressionFactory =
+      (StatisticExpressionFactory)
+      statisticExpressionFactoryStubFactory.getStub();
+
+    final ParseContext parseContext = new ParseContext("");
+
+    statisticExpressionFactoryStubFactory.setThrows(
+      "normaliseExpressionString",
+      parseContext.new ParseException("Broken", 0));
+
+    try {
+      new CommonStatisticsViews(statisticExpressionFactory);
+      fail("Expected AssertionError");
+    }
+    catch (AssertionError e) {
+    }
   }
 }

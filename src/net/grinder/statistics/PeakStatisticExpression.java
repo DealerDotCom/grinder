@@ -27,11 +27,11 @@ package net.grinder.statistics;
  * {@link StatisticExpression}. The monitored {@link
  * StatisticExpression} is specified when the {@link
  * PeakStatisticExpression} is created, see {@link
- * StatisticExpressionFactory}.
+ * StatisticExpressionFactoryImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$
- * @see StatisticExpressionFactory
+ * @see StatisticExpressionFactoryImplementation
  **/
 public interface PeakStatisticExpression extends StatisticExpression {
   /**

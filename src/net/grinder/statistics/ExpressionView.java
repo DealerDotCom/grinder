@@ -81,7 +81,7 @@ public class ExpressionView {
    * @param expressionString An expression string, used to create
    * the {@link StatisticExpression}.
    * @exception StatisticsException If the expression is invalid.
-   * @see StatisticExpressionFactory
+   * @see StatisticExpressionFactoryImplementation
    */
   public ExpressionView(String displayName, String displayNameResourceKey,
                         String expressionString)

@@ -48,14 +48,14 @@ public interface StatisticsServices {
   /**
    * Return a {@link StatisticExpression} factory.
    *
-   * @return A {@link StatisticExpressionFactory}.
+   * @return A {@link StatisticExpressionFactoryImplementation}.
    */
   StatisticExpressionFactory getStatisticExpressionFactory();
 
   /**
    * Return a {@link StatisticsSet} factory.
    *
-   * @return A {@link StatisticExpressionFactory}.
+   * @return A {@link StatisticExpressionFactoryImplementation}.
    */
   StatisticsSetFactory getStatisticsSetFactory();
 

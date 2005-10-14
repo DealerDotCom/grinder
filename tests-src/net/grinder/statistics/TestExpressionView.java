@@ -32,7 +32,7 @@ import java.io.ObjectOutputStream;
 
 
 /**
- * Unit test case for <code>StatisticExpressionFactory</code>.
+ * Unit test case for <code>StatisticExpressionFactoryImplementation</code>.
  *
  * @author Philip Aston
  * @version $Revision$

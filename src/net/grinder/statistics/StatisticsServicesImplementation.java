@@ -41,7 +41,7 @@ public final class StatisticsServicesImplementation
   static {
     final StatisticsIndexMap statisticsIndexMap = new StatisticsIndexMap();
     final StatisticExpressionFactory statisticExpressionFactory =
-      new StatisticExpressionFactory(statisticsIndexMap);
+      new StatisticExpressionFactoryImplementation(statisticsIndexMap);
 
     s_instance = new StatisticsServicesImplementation(
                    new CommonStatisticsViews(statisticExpressionFactory),
@@ -101,7 +101,7 @@ public final class StatisticsServicesImplementation
   /**
    * Return a {@link StatisticExpression} factory.
    *
-   * @return A {@link StatisticExpressionFactory}.
+   * @return A {@link StatisticExpressionFactoryImplementation}.
    */
   public StatisticExpressionFactory getStatisticExpressionFactory() {
     return m_statisticExpressionFactory;
@@ -110,7 +110,7 @@ public final class StatisticsServicesImplementation
   /**
    * Return a {@link StatisticsSet} factory.
    *
-   * @return A {@link StatisticExpressionFactory}.
+   * @return A {@link StatisticExpressionFactoryImplementation}.
    */
   public StatisticsSetFactory getStatisticsSetFactory() {
     return m_statisticsSetFactory;

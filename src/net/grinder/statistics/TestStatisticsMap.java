@@ -68,6 +68,8 @@ public class TestStatisticsMap implements java.io.Externalizable {
    * Externalizable classes need a public default constructor.
    */
   public TestStatisticsMap() {
+    // No choice but to initialise the StatisticsSetFactory from a singleton.
+    // I hate Externalizable.
     this(
       StatisticsServicesImplementation.getInstance().getStatisticsSetFactory());
   }

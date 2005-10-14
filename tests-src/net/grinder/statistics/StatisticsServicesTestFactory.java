@@ -32,7 +32,7 @@ public class StatisticsServicesTestFactory {
   public static StatisticsServices createTestInstance() {
     final StatisticsIndexMap statisticsIndexMap = new StatisticsIndexMap();
     final StatisticExpressionFactory statisticExpressionFactory =
-      new StatisticExpressionFactory(statisticsIndexMap);
+      new StatisticExpressionFactoryImplementation(statisticsIndexMap);
 
     return
       new StatisticsServicesImplementation(
