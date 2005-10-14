@@ -3,6 +3,9 @@ Grinder 3.0-beta28 (Not yet released)
 
   Updates to the Italian translaton from Meo Bogliolo.
 
+  Refactoring of statistics package API that might affect existing custom
+  plugins. See PluginProcessContext.getStatistics.
+
 
 Grinder 3.0-beta27
 ------------------
