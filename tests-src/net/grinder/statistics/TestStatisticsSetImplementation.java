@@ -367,8 +367,8 @@ public class TestStatisticsSetImplementation extends TestCase {
 
     final Serialiser serialiser = new Serialiser();
 
-    original0.myWriteExternal(objectOutputStream, serialiser);
-    original1.myWriteExternal(objectOutputStream, serialiser);
+    original0.writeExternal(objectOutputStream, serialiser);
+    original1.writeExternal(objectOutputStream, serialiser);
 
     objectOutputStream.close();
 

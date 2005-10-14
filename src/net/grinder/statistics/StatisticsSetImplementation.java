@@ -515,13 +515,26 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * Efficient externalisation method used by {@link
    * StatisticsSetFactory#writeStatisticsExternal}.
    *
+   * <p>Why not implement java.io.Externalizable? Because I consider it
+   * morally dubious:
+   * <ul>
+   * <li>It requires a public default constructor which either has to bypass
+   * class constraints, or discover external dependencies through singletons or
+   * a service registry</li>
+   * <li><em>readExternal</em> should only be called by the serialisation
+   * engine, but needs to be public.</li>
+   * </ul>
+   * </p>
+   *
    * <p>Synchronised to ensure a consistent view.</p>.
    *
    * @param out Handle to the output stream.
    * @param serialiser <code>Serialiser</code> helper object.
    * @exception IOException If an error occurs.
+   * @see #StatisticsSetImplementation(StatisticsIndexMap, ObjectInput,
+   * Serialiser)
    */
-  synchronized void myWriteExternal(ObjectOutput out, Serialiser serialiser)
+  synchronized void writeExternal(ObjectOutput out, Serialiser serialiser)
     throws IOException {
     for (int i = 0; i < m_longData.length; i++) {
       serialiser.writeLong(out, m_longData[i]);
@@ -540,6 +553,7 @@ final class StatisticsSetImplementation implements StatisticsSet {
    * @param in Handle to the input stream.
    * @param serialiser <code>Serialiser</code> helper object.
    * @exception IOException If an error occurs.
+   * @see #writeExternal(ObjectOutput, Serialiser)
    */
   StatisticsSetImplementation(StatisticsIndexMap statisticsIndexMap,
                               ObjectInput in, Serialiser serialiser)

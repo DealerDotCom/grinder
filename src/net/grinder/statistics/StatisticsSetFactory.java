@@ -55,7 +55,7 @@ public final class StatisticsSetFactory {
   void writeStatisticsExternal(ObjectOutput out,
                                StatisticsSetImplementation statistics)
     throws IOException {
-    statistics.myWriteExternal(out, m_serialiser);
+    statistics.writeExternal(out, m_serialiser);
   }
 
   StatisticsSet readStatisticsExternal(ObjectInput in) throws IOException {
