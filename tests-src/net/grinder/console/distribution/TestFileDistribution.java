@@ -39,10 +39,10 @@ import net.grinder.util.Directory;
 public class TestFileDistribution extends AbstractFileTestCase {
 
   public void testGetHandler() throws Exception {
-    final DistributionControlStubFactory distributionControlStubFactory =
-      new DistributionControlStubFactory();
+    final RandomStubFactory distributionControlStubFactory =
+      new RandomStubFactory(DistributionControl.class);
     final DistributionControl distributionControl =
-      distributionControlStubFactory.getDistributionControl();
+      (DistributionControl)distributionControlStubFactory.getStub();
 
     final FileDistribution fileDistribution =
       new FileDistribution(distributionControl);
@@ -126,15 +126,98 @@ public class TestFileDistribution extends AbstractFileTestCase {
     distributionControlStubFactory.assertNoMoreCalls();
   }
 
-  public static class DistributionControlStubFactory
+  public void testScanDistributionFiles() throws Exception {
+    final RandomStubFactory distributionControlStubFactory =
+      new RandomStubFactory(DistributionControl.class);
+    final DistributionControl distributionControl =
+      (DistributionControl)distributionControlStubFactory.getStub();
+
+    final UpdateableAgentCacheStateStubFactory
+      agentCacheStateStubFactory =
+        new UpdateableAgentCacheStateStubFactory();
+
+    final UpdateableAgentCacheState agentCacheState =
+      agentCacheStateStubFactory.getUpdateableAgentCacheState();
+
+    final Pattern matchNonePattern = Pattern.compile("^$");
+
+    final Directory directory = new Directory(getDirectory());
+
+    final FileDistribution fileDistribution =
+      new FileDistribution(distributionControl, agentCacheState);
+
+    fileDistribution.scanDistributionFiles(directory, matchNonePattern);
+    assertEquals(0, agentCacheState.getEarliestFileTime());
+
+    final File file1 = new File(getDirectory(), "file1");
+    file1.createNewFile();
+    final File file2 = new File(getDirectory(), "file2");
+    file2.createNewFile();
+    final File oldFile = new File(getDirectory(), "file3");
+    oldFile.createNewFile();
+    oldFile.setLastModified(0);
+    file2.setLastModified(file1.lastModified() + 5000);
+
+    fileDistribution.scanDistributionFiles(directory, matchNonePattern);
+    assertEquals(file1.lastModified(),
+                 agentCacheStateStubFactory.getEarliestOutOfDateTime());
+
+    agentCacheStateStubFactory.setEarliestFileTime(file2.lastModified() - 10);
+    agentCacheStateStubFactory.resetOutOfDate();
+    fileDistribution.scanDistributionFiles(directory, matchNonePattern);
+    assertEquals(file2.lastModified(),
+                 agentCacheStateStubFactory.getEarliestOutOfDateTime());
+
+    // Even if the cache has older out of date times, we only scan from the
+    // last scan time.
+    agentCacheStateStubFactory.setEarliestFileTime(0);
+    agentCacheStateStubFactory.resetOutOfDate();
+    fileDistribution.scanDistributionFiles(directory, matchNonePattern);
+    assertEquals(file1.lastModified(),
+                 agentCacheStateStubFactory.getEarliestOutOfDateTime());
+
+    agentCacheStateStubFactory.setEarliestFileTime(0);
+    agentCacheStateStubFactory.resetOutOfDate();
+    final Pattern matchAllPattern = Pattern.compile(".*");
+    fileDistribution.scanDistributionFiles(directory, matchAllPattern);
+    assertEquals(Long.MAX_VALUE,
+                 agentCacheStateStubFactory.getEarliestOutOfDateTime());
+  }
+
+  public static class UpdateableAgentCacheStateStubFactory
     extends RandomStubFactory {
 
-    public DistributionControlStubFactory() {
-      super(DistributionControl.class);
+    private long m_earliestFileTime;
+    private long m_earliestOutOfDateTime = Long.MAX_VALUE;
+
+    public UpdateableAgentCacheStateStubFactory() {
+      super(UpdateableAgentCacheState.class);
     }
 
-    public DistributionControl getDistributionControl() {
-      return (DistributionControl)getStub();
+    public UpdateableAgentCacheState getUpdateableAgentCacheState() {
+      return (UpdateableAgentCacheState)getStub();
+    }
+
+    public long override_getEarliestFileTime(Object proxy) {
+      return m_earliestFileTime;
+    }
+
+    public void setEarliestFileTime(long t) {
+      m_earliestFileTime = t;
+    }
+
+    public long getEarliestOutOfDateTime() {
+      return m_earliestOutOfDateTime;
+    }
+
+    public void override_setOutOfDate(Object proxy, long t) {
+      if (t < m_earliestOutOfDateTime) {
+        m_earliestOutOfDateTime = t;
+      }
+    }
+
+    public void resetOutOfDate() {
+      m_earliestOutOfDateTime = Long.MAX_VALUE;
     }
   }
 }

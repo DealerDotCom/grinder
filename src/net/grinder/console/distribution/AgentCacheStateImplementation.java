@@ -32,7 +32,7 @@ import java.beans.PropertyChangeSupport;
  * @version $Revision$
  */
 final class AgentCacheStateImplementation
-  implements AgentCacheState, FileDistribution.UpdateAgentCacheState {
+  implements AgentCacheState, UpdateableAgentCacheState {
 
   private static final int UP_TO_DATE = 0;
   private static final int UPDATING = 1;

@@ -26,6 +26,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Timer;
+import java.util.TimerTask;
 
 import net.grinder.common.GrinderException;
 import net.grinder.communication.Message;
@@ -81,13 +82,23 @@ public class Console {
       new Model(properties, resources,
                 StatisticsServicesImplementation.getInstance());
 
+    final Timer timer = new Timer(true);
+
     m_communication =
-      new ConsoleCommunicationImplementation(resources,
-                                             properties,
-                                             new Timer(true));
+      new ConsoleCommunicationImplementation(resources, properties, timer);
 
     final FileDistribution fileDistribution =
       new FileDistribution(m_communication.getDistributionControl());
+
+    timer.schedule(new TimerTask() {
+        public void run() {
+          fileDistribution.scanDistributionFiles(
+            properties.getDistributionDirectory(),
+            properties.getDistributionFileFilterPattern());
+        }
+      },
+      properties.getScanDistributionFilesPeriod(),
+      properties.getScanDistributionFilesPeriod());
 
     m_communication.getProcessControl().addProcessStatusListener(
       new ProcessStatus.Listener() {

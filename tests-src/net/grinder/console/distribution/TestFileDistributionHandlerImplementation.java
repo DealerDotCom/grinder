@@ -45,11 +45,10 @@ public class TestFileDistributionHandlerImplementation
     final DistributionControl distributionControl =
       (DistributionControl)distributionControlStubFactory.getStub();
 
-    final RandomStubFactory updateAgentCacheStateStubFactory =
-      new RandomStubFactory(FileDistribution.UpdateAgentCacheState.class);
-    final FileDistribution.UpdateAgentCacheState updateAgentCacheState =
-      (FileDistribution.UpdateAgentCacheState)
-      updateAgentCacheStateStubFactory.getStub();
+    final RandomStubFactory updateableAgentCacheStateStubFactory =
+      new RandomStubFactory(UpdateableAgentCacheState.class);
+    final UpdateableAgentCacheState updateableAgentCacheState =
+      (UpdateableAgentCacheState)updateableAgentCacheStateStubFactory.getStub();
 
     final File[] files = {
       new File("a"),
@@ -64,7 +63,7 @@ public class TestFileDistributionHandlerImplementation
       new FileDistributionHandlerImplementation(getDirectory(),
                                                 files,
                                                 distributionControl,
-                                                updateAgentCacheState);
+                                                updateableAgentCacheState);
 
     final FileDistributionHandler.Result result0 =
       fileDistributionHandler.sendNextFile();
@@ -75,8 +74,8 @@ public class TestFileDistributionHandlerImplementation
     distributionControlStubFactory.assertSuccess("sendFile",
                                                  FileContents.class);
 
-    updateAgentCacheStateStubFactory.assertSuccess("updateStarted");
-    updateAgentCacheStateStubFactory.assertNoMoreCalls();
+    updateableAgentCacheStateStubFactory.assertSuccess("updateStarted");
+    updateableAgentCacheStateStubFactory.assertNoMoreCalls();
 
     final FileDistributionHandler.Result result1 =
       fileDistributionHandler.sendNextFile();
@@ -87,7 +86,7 @@ public class TestFileDistributionHandlerImplementation
     distributionControlStubFactory.assertSuccess("sendFile",
                                                  FileContents.class);
 
-    updateAgentCacheStateStubFactory.assertNoMoreCalls();
+    updateableAgentCacheStateStubFactory.assertNoMoreCalls();
 
     final FileDistributionHandler.Result result2 =
       fileDistributionHandler.sendNextFile();
@@ -96,7 +95,7 @@ public class TestFileDistributionHandlerImplementation
 
     distributionControlStubFactory.assertNoMoreCalls();
 
-    updateAgentCacheStateStubFactory.assertSuccess("updateComplete");
-    updateAgentCacheStateStubFactory.assertNoMoreCalls();
+    updateableAgentCacheStateStubFactory.assertSuccess("updateComplete");
+    updateableAgentCacheStateStubFactory.assertNoMoreCalls();
   }
 }

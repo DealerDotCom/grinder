@@ -168,7 +168,9 @@ public final class Directory  {
         if (children == null) {
           // This can happen if the user does not have permission to
           // list the directory.
-          m_warnings.add("Could not list '" + absoluteDirectory);
+          synchronized (m_warnings) {
+            m_warnings.add("Could not list '" + absoluteDirectory);
+          }
           continue;
         }
 
@@ -333,11 +335,13 @@ public final class Directory  {
    * @return The list of warnings.
    */
   public String[] getWarnings() {
-    try {
-      return (String[])m_warnings.toArray(new String[m_warnings.size()]);
-    }
-    finally {
-      m_warnings.clear();
+    synchronized (m_warnings) {
+      try {
+        return (String[])m_warnings.toArray(new String[m_warnings.size()]);
+      }
+      finally {
+        m_warnings.clear();
+      }
     }
   }
 

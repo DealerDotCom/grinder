@@ -101,6 +101,10 @@ public final class ConsoleProperties {
     "grinder.console.distributionFileFilterExpression";
 
   /** Property name. */
+  public static final String SCAN_DISTRIBUTION_FILES_PERIOD_PROPERTY =
+    "grinder.console.scanDistributionFilesPeriod";
+
+  /** Property name. */
   public static final String LOOK_AND_FEEL_PROPERTY =
     "grinder.console.lookAndFeel";
 
@@ -115,6 +119,7 @@ public final class ConsoleProperties {
   private File m_scriptFile;
   private Directory m_distributionDirectory;
   private Pattern m_distributionFileFilterPattern;
+  private int m_scanDistributionFilesPeriod;
   private String m_lookAndFeel;
 
   private AskBoolean m_resetConsoleWithProcessesAsk =
@@ -192,6 +197,9 @@ public final class ConsoleProperties {
       m_properties.getProperty(
         DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY, null));
 
+    setScanDistributionFilesPeriodInternal(
+      m_properties.getInt(SCAN_DISTRIBUTION_FILES_PERIOD_PROPERTY, 6000));
+
     setLookAndFeel(m_properties.getProperty(LOOK_AND_FEEL_PROPERTY, null));
 
     m_resetConsoleWithProcessesAsk.setFromProperties();
@@ -229,6 +237,8 @@ public final class ConsoleProperties {
     setDistributionDirectory(properties.getDistributionDirectory());
     setDistributionFileFilterPattern(
       properties.getDistributionFileFilterPattern());
+    setScanDistributionFilesPeriodInternal(
+      properties.getScanDistributionFilesPeriod());
     setLookAndFeel(properties.getLookAndFeel());
 
     m_resetConsoleWithProcessesAsk.set(
@@ -279,10 +289,13 @@ public final class ConsoleProperties {
     }
 
     m_properties.setFile(DISTRIBUTION_DIRECTORY_PROPERTY,
-                         m_distributionDirectory.getFile());
+      m_distributionDirectory.getFile());
 
     m_properties.setProperty(DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
-                             m_distributionFileFilterPattern.pattern());
+      m_distributionFileFilterPattern.pattern());
+
+    m_properties.setInt(SCAN_DISTRIBUTION_FILES_PERIOD_PROPERTY,
+      m_scanDistributionFilesPeriod);
 
     if (m_lookAndFeel != null) {
       m_properties.setProperty(LOOK_AND_FEEL_PROPERTY, m_lookAndFeel);
@@ -737,7 +750,7 @@ public final class ConsoleProperties {
   /**
    * Get the distribution file filter pattern.
    *
-   * <p>The original regular expresion can be obtained with
+   * <p>The original regular expression can be obtained with
    * <code>getDistributionFileFilterPattern().getPattern</code>.</p>
    *
    * @return The pattern.
@@ -751,7 +764,7 @@ public final class ConsoleProperties {
    * Set the distribution file filter regular expression.
    *
    * <p>Files and directory names (not full paths) that match the
-   * regular expresion are not distributed. Directory names are
+   * regular expression are not distributed. Directory names are
    * distinguished by a trailing '/'. The expression is in Perl 5
    * format.</p>
    *
@@ -787,6 +800,39 @@ public final class ConsoleProperties {
       DISTRIBUTION_FILE_FILTER_EXPRESSION_PROPERTY,
       old,
       m_distributionFileFilterPattern);
+  }
+
+  /**
+   * Get the period at which the distribution files should be scanned.
+   *
+   * @return The period, in milliseconds.
+   */
+  public int getScanDistributionFilesPeriod() {
+    return m_scanDistributionFilesPeriod;
+  }
+
+  /**
+   * Set the console port.
+   *
+   * @param i The port number.
+   * @throws DisplayMessageConsoleException If the port number is not sensible.
+   */
+  public void setScanDistributionFilesPeriod(int i)
+    throws DisplayMessageConsoleException {
+
+    if (i < 0) {
+      throw new DisplayMessageConsoleException(
+        m_resources, "scanDistributionFilesPeriodNegativeError.text");
+    }
+
+    setScanDistributionFilesPeriodInternal(i);
+  }
+
+  private void setScanDistributionFilesPeriodInternal(int i) {
+    final int old = m_scanDistributionFilesPeriod;
+    m_scanDistributionFilesPeriod = i;
+    m_changeSupport.firePropertyChange(SCAN_DISTRIBUTION_FILES_PERIOD_PROPERTY,
+                                       old, m_scanDistributionFilesPeriod);
   }
 
   /**

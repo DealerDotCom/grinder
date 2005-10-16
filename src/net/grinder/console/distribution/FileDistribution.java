@@ -21,6 +21,7 @@
 
 package net.grinder.console.distribution;
 
+import java.io.File;
 import java.util.regex.Pattern;
 
 import net.grinder.console.communication.DistributionControl;
@@ -45,8 +46,8 @@ import net.grinder.util.Directory;
 public final class FileDistribution {
 
   private final DistributionControl m_distributionControl;
-  private final AgentCacheStateImplementation m_cacheState =
-    new AgentCacheStateImplementation();
+  private final UpdateableAgentCacheState m_cacheState;
+  private long m_lastScanTime;
 
   private Directory m_lastDirectory;
   private Pattern m_lastFileFilterPattern;
@@ -57,8 +58,15 @@ public final class FileDistribution {
    * @param distributionControl A <code>DistributionControl</code>.
    */
   public FileDistribution(DistributionControl distributionControl) {
-    m_distributionControl = distributionControl;
+    this(distributionControl, new AgentCacheStateImplementation());
   }
+
+  FileDistribution(DistributionControl distributionControl,
+                   UpdateableAgentCacheState agentCacheState) {
+    m_distributionControl = distributionControl;
+    m_cacheState = agentCacheState;
+  }
+
 
   /**
    * Accessor for our {@link AgentCacheState}.
@@ -115,10 +123,30 @@ public final class FileDistribution {
   }
 
   /**
-   * Used to update the cache state.
+   * Scan the given directory for files that have been recently modified. Update
+   * the agent cache state appropriately.
+   *
+   * @param directory The directory to scan.
+   * @param distributionFileFilterPattern Identifies distribution files.
    */
-  interface UpdateAgentCacheState {
-    void updateStarted();
-    void updateComplete();
+  public void scanDistributionFiles(Directory directory,
+                                    Pattern distributionFileFilterPattern) {
+    final long now = System.currentTimeMillis();
+
+    // We back up a little from m_lastScanTime to protect against
+    // race conditions with processes that are modifying files.
+    final long scanTime =
+      Math.max(m_cacheState.getEarliestFileTime(), m_lastScanTime - 100);
+
+    final File[] laterFiles = directory.listContents(
+      new FileDistributionFilter(distributionFileFilterPattern, scanTime));
+
+    m_lastScanTime = now;
+
+    for (int i = 0; i < laterFiles.length; ++i) {
+      System.out.println("Found later file: " + laterFiles[i]);
+      m_cacheState.setOutOfDate(
+        directory.getFile(laterFiles[i].getPath()).lastModified());
+    }
   }
 }
