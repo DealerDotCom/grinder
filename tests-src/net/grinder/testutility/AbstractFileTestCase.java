@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -31,7 +31,7 @@ import java.util.Random;
 
 
 /**
- * Abstract test case that managaes a temporary directory.
+ * Abstract test case that manages a temporary directory.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -57,7 +57,7 @@ public abstract class AbstractFileTestCase extends TestCase {
 
     if (f.isDirectory()) {
       final File[] children = f.listFiles();
-      
+
       if (children == null) {
         System.err.println("Could not list directory '" + f + "'");
       }
