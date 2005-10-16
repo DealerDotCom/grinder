@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,8 +54,6 @@ public final class OverrideInvocationHandlerDecorator
     throws Throwable {
 
     final Method overriddenMethod = getOverriddenMethod(method);
-
-    final Object result;
 
     if (overriddenMethod != null) {
       final Object[] proxyAndParameters;
