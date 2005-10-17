@@ -25,6 +25,7 @@ import java.io.File;
 import java.util.regex.Pattern;
 
 import net.grinder.console.communication.DistributionControl;
+import net.grinder.console.distribution.FileDistribution.ChangedDirectoryListener;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.Directory;
@@ -139,12 +140,18 @@ public class TestFileDistribution extends AbstractFileTestCase {
     final UpdateableAgentCacheState agentCacheState =
       agentCacheStateStubFactory.getUpdateableAgentCacheState();
 
+    final RandomStubFactory directoryListenerStubFactory =
+      new RandomStubFactory(ChangedDirectoryListener.class);
+    final ChangedDirectoryListener directoryListener =
+      (ChangedDirectoryListener)directoryListenerStubFactory.getStub();
+
     final Pattern matchNonePattern = Pattern.compile("^$");
 
     final Directory directory = new Directory(getDirectory());
 
     final FileDistribution fileDistribution =
       new FileDistribution(distributionControl, agentCacheState);
+    fileDistribution.addChangedDirectoryListener(directoryListener);
 
     fileDistribution.scanDistributionFiles(directory, matchNonePattern);
     assertEquals(0, agentCacheState.getEarliestFileTime());
@@ -161,6 +168,10 @@ public class TestFileDistribution extends AbstractFileTestCase {
     fileDistribution.scanDistributionFiles(directory, matchNonePattern);
     assertEquals(file1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
+
+    directoryListenerStubFactory.assertSuccess("directoryChanged",
+                                               getDirectory());
+    directoryListenerStubFactory.assertNoMoreCalls();
 
     agentCacheStateStubFactory.setEarliestFileTime(file2.lastModified() - 10);
     agentCacheStateStubFactory.resetOutOfDate();

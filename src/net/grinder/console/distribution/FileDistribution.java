@@ -22,10 +22,16 @@
 package net.grinder.console.distribution;
 
 import java.io.File;
+import java.util.EventListener;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.grinder.console.communication.DistributionControl;
 import net.grinder.util.Directory;
+import net.grinder.util.ListenerSupport;
+import net.grinder.util.ListenerSupport.Informer;
 
 
 /**
@@ -44,6 +50,8 @@ import net.grinder.util.Directory;
  * @version $Revision$
  */
 public final class FileDistribution {
+
+  private final ListenerSupport m_directoryListeners = new ListenerSupport();
 
   private final DistributionControl m_distributionControl;
   private final UpdateableAgentCacheState m_cacheState;
@@ -143,10 +151,56 @@ public final class FileDistribution {
 
     m_lastScanTime = now;
 
-    for (int i = 0; i < laterFiles.length; ++i) {
-      System.out.println("Found later file: " + laterFiles[i]);
-      m_cacheState.setOutOfDate(
-        directory.getFile(laterFiles[i].getPath()).lastModified());
+    if (laterFiles.length > 0) {
+      final Set directories = new HashSet(laterFiles.length / 2);
+
+      for (int i = 0; i < laterFiles.length; ++i) {
+        System.out.println("Found later file: " + laterFiles[i]);
+
+        final File absoluteFile = directory.getFile(laterFiles[i].getPath());
+
+        m_cacheState.setOutOfDate(absoluteFile.lastModified());
+        directories.add(absoluteFile.getParentFile());
+      }
+
+      final Iterator iterator = directories.iterator();
+
+      while (iterator.hasNext()) {
+        final File changedDirectory = (File)iterator.next();
+
+        m_directoryListeners.apply(
+          new Informer() {
+            public void inform(Object listener) {
+              ((ChangedDirectoryListener)listener)
+              .directoryChanged(changedDirectory);
+            }
+          });
+      }
     }
+  }
+
+  /**
+   * Add a listener that will be sent events about directories that have changed
+   * when {@link scanDistributionFiles} is called.
+   *
+   * @param listener The listener.
+   */
+  public void addChangedDirectoryListener(ChangedDirectoryListener listener) {
+    m_directoryListeners.add(listener);
+  }
+
+  /**
+   * ChangedDirectoryListener.
+   *
+   * @see FileDistribution#addChangedDirectoryListener(ChangedDirectoryListener)
+   */
+  public static interface ChangedDirectoryListener extends EventListener {
+
+    /**
+     * Called with a changed directory.
+     *
+     * @param directory The directory that has changed.
+     */
+    void directoryChanged(File directory);
   }
 }
