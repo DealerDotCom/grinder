@@ -4,9 +4,10 @@
 
 <faqs>
   <title>Frequently Asked Questions</title>
-
-  <faqsection id="general">
-    <title>General Questions</title>
+  <faqsection id="common">
+   <title>Common Grinder Questions</title>
+   <faqsection id="general">
+    <title>General</title>
 
     <faq id="name">
       <question>
@@ -138,9 +139,89 @@
       </question>
 
       <answer>
-	<p>You can subscirbe and unsubscribe at <a
+	<p>You can subscribe and unsubscribe at <a
 	href="ext:sourceforge/grinder-mail">Sourceforge</a>. <a
 	href="site:support">More details</a>.</p>
+      </answer>
+    </faq>
+  </faqsection>
+  <faqsection id="running">
+    <title>Running the tests</title>
+
+    <faq id="threads-vs-processes">
+      <question>
+        How do I control the number of simulated users?
+      </question>
+
+      <answer>	
+	<p>Typically a worker thread is thought of as a client context
+	which can simulate a concurrent user. You can control the
+	number of worker processes per agent and the number of threads
+	per process. You shouldn't need to run more than one agent
+	process per machine. The number of simulated users is then</p>
+
+	<source>
+number of worker threads x number of worker processes x number test machines
+	</source>
+
+	<p>To simulate additional users it is usually better to
+	increase the number of worker threads rather than the number
+	of processes except where:</p>
+
+	<ul>
+	  <li>Your JVM threading implementation is particularly
+	  inefficient. This is not such a problem nowadays. Running
+	  several hundred threads per process is usually fine.</li>
+
+	  <li>The protocol you are using will behave differently when
+	  distributed across multiple processes. For example, the
+	  WebLogic Server t3 protocol is optimised so that a single
+	  TCP/IP connection is used between any two processes.</li>
+	</ul>
+      </answer>
+    </faq>
+
+    <faq id="multiple-scripts">
+      <question>
+	Can I run different test scripts against the same console?
+      </question>
+
+      <answer>
+	<p>Yes.</p>
+
+	<p>The console receives reports and updates the graph based on
+	test number. Thus it is possible to have different agent
+	processes running scripts with different test numbers (e.g.
+	one process running tests 1 to 5 and another running tests 6
+	to 10)., reporting to the same console.</p>
+      </answer>
+    </faq>
+
+    <faq id="testrun-period">
+      <question>
+	How do I run the tests for a specific period of time?
+      </question>
+      
+      <answer>
+	<p>Use the console to control the test. If you want the tests
+	to run for an hour and your sample interval is set to 5
+	seconds, set the console to collect 720 samples.</p>
+
+	<p>If you're not using the console, see <a
+	href="site:getting-started/properties">grinder.duration</a>.</p>
+      </answer>
+    </faq>
+
+    <faq id="serverside-stats">
+      <question>
+	Is there any way to record CPU utilisation of the server?
+      </question>
+
+      <answer>
+	<p>No. The Grinder only measures the response of the test
+	server as a black box. Look to other tools such as
+	<code>sar</code> and <code>vmstat</code> to measure server CPU
+	utilisation.</p>
       </answer>
     </faq>
   </faqsection>
@@ -239,139 +320,170 @@ void doit() { Thread.sleep(10000); // 10 seconds }
     </faq>
   </faqsection>
 
-  <faqsection id="running">
-    <title>Running the tests</title>
+  <faqsection id="HTTP">
+    <title>HTTP</title>
 
-    <faq id="threads-vs-processes">
+    <faq id="postsVsGets">
       <question>
-        How do I control the number of simulated users?
-      </question>
-
-      <answer>	
-	<p>Typically a worker thread is thought of as a client context
-	which can simulate a concurrent user. You can control the
-	number of worker processes per agent and the number of threads
-	per process. You shouldn't need to run more than one agent
-	process per machine. The number of simulated users is then</p>
-
-	<source>
-number of worker threads x number of worker processes x number test machines
-	</source>
-
-	<p>To simulate additional users it is usually better to
-	increase the number of worker threads rather than the number
-	of processes except where:</p>
-
-	<ul>
-	  <li>Your JVM threading implementation is particularly
-	  inefficient. This is not such a problem nowadays. Running
-	  several hundred threads per process is usually fine.</li>
-
-	  <li>The protocol you are using will behave differently when
-	  distributed across multiple processes. For example, the
-	  WebLogic Server t3 protocol is optimised so that a single
-	  TCP/IP connection is used between any two processes.</li>
-	</ul>
-      </answer>
-    </faq>
-
-    <faq id="multiple-scripts">
-      <question>
-	Can I run different test scripts against the same console?
+	Why do POSTs take longer than GETs?
       </question>
 
       <answer>
-	<p>Yes.</p>
+	<p>Dennis Linnell wondered this. This is what he found
+	out:</p>
 
-	<p>The console receives reports and updates the graph based on
-	test number. Thus it is possible to have different agent
-	processes running scripts with different test numbers (e.g.
-	one process running tests 1 to 5 and another running tests 6
-	to 10)., reporting to the same console.</p>
+	<dl>
+          <dt/>
+	  <dd class="quote">
+	    <p>A network protocol trace revealed that the differences
+	    in POST vs. GET times were attributable to the following:</p>
+
+	    <ol>
+	      <li>The Grinder (HTTPClient) sends a GET request as a
+	      single TCP protocol data unit (PDU), which requires a
+	      single acknowledgment (ACK). This is normal and
+	      expected.</li>
+
+	      <li>HTTPClient sends a POST as two PDUs: The first
+	      includes everything but the Name/Value pairs and
+	      requires an ACK; the second includes only the Name/Value
+	      pairs and also requires an ACK. This is a consequence of
+	      the conservative implementation of HTTP/1.1 pipelining
+	      in HTTPClient.</li>
+
+	      <li>When the first PDU of the POST arrives at the
+	      Windows XP TCP/IP protocol stack on the server, the
+	      <em>delayed ACK</em> feature of TCP/IP RFC 1122 kicks
+	      in. If another request were to arrive, the stack would
+	      send an ACK; otherwise it waits up to 200 ms. and then
+	      sends an ACK. Since, in this case, no other request
+	      arrives, <a href="ext:microsoft/support/delayed-ack">the
+	      stack delays the ACK</a>. Naturally, I made the changes
+	      outlined in the Microsoft knowledge base and it solved
+	      the problem for me. Case closed? Maybe not.</li>
+
+	      <li>Still, the question remains, <em>Is the HTTPClient
+	      behavior reasonable?</em>. I traced Microsoft Internet
+	      Explorer 6 (latest patch level) and it sends a POST in
+	      one PDU and thus does not invoke the dreaded <em>delayed
+	      ACK</em>. On the other hand, Firefox 1.0.4 (oddly)
+	      requires 3 pairs of PDUs to get the job done. So
+	      HTTPClient is somewhere in between.</li>
+
+	      <li>As HTTPClient's behavior is not in violation of the
+	      HTTP/1.1 RFC, I have no reason to complain. And, looking
+	      at the HTTPClient code, I'm certainly not bold enough to
+	      touch it. Still, it doesn't quite model the behavior of
+	      the market-leading web browser accurately.</li>
+	    </ol>
+	  </dd>
+	</dl>
       </answer>
-    </faq>
 
-    <faq id="testrun-period">
-      <question>
-	How do I run the tests for a specific period of time?
-      </question>
-      
-      <answer>
-	<p>Use the console to control the test. If you want the tests
-	to run for an hour and your sample interval is set to 5
-	seconds, set the console to collect 720 samples.</p>
-
-	<p>If you're not using the console, see <a
-	href="site:getting-started/properties">grinder.duration</a>.</p>
-      </answer>
-    </faq>
-
-    <faq id="serverside-stats">
-      <question>
-	Is there any way to record CPU utilisation of the server?
-      </question>
-
-      <answer>
-	<p>No. The Grinder only measures the response of the test
-	server as a black box. Look to other tools such as
-	<code>sar</code> and <code>vmstat</code> to measure server CPU
-	utilisation.</p>
-      </answer>
     </faq>
   </faqsection>
 
-  <faqsection id="g2">
-    <title>The Grinder 2</title>
-    <faq id="string-beans">
+  <faqsection id="problems">
+    <title>Problems</title>
+
+    <faq id="negative-times">
       <question>
-	How do I simulate different users with The Grinder 2?
+	I've seen The Grinder report negative test times?!
       </question>
 
       <answer>
-	<p>You probably want to use a <a
-	href="site:g2/http-plugin/string-bean">String Bean</a>.</p>
-      </answer>
-    </faq>
-
-    <faq id="post-and-string-beans">
-      <question>
-	How do I generate POST data with a String Bean?
-      </question>
-
-      <answer>
-	<p>Sean Kroah writes:</p>
+	<p>Are you running Linux kernel 2.2.18? Mikael Suokas
+	reports:</p>
 
 	<dl>
-	  <dt/>
+          <dt/>
 	  <dd class="quote">
-	    <p><code>grinder.test0.parameter.post=&lt;getPostData&gt;</code>
-	    doesn't work.</p>
+	    <p>In some load situations, on some hardware, older Linux
+	    kernels can generate system times that jump backwards. I
+	    have experienced this problem on one machine (Intel
+	    Pentium/150, 128M RAM, Adaptec AHA-2940, SCSI disks)
+	    running the stock Red Hat Linux 7.0 kernel (2.2.16).</p>
 
-	    <p>I didn't really see this in the docs anywhere so if
-	    anyone is interested. I needed dynamic post data and the
-	    HTTP plugin post parameter only took a file name. The key
-	    was that the file can optionally contain a reference to a
-	    <a href="site:g2/http-plugin/string-bean">String Bean</a>
-	    method. I tried it on a fluke and it worked.</p>
+	    <p>The Grinder occasionally reported negative response
+	    times in the -900 to -700 ms range whenever the load
+	    became high. Interestingly, the same OS + kernel version
+	    on several other machines never showed these negative
+	    response times. The problem was not Grinder or Java
+	    specific: a C program polling gettimeofday() also showed
+	    system time jumping backwards.</p>
 
-<source>
-grinder.test0.parameter.url=&lt;getLoginUrl&gt;
-grinder.test0.parameter.post=getPostData.dat
-</source>
-	    <p><code>getPostData.dat</code> has one line in it:</p>
+	    <p>Upgrading to kernel 2.2.19 fixed this issue for me.
+	    Since the release notes for Linux 2.2.18 mention time
+	    keeping locking fixes, I don't think that was a
+	    coincidence.</p>
 
-<source>
-&lt;getPostData&gt;
-</source>
-
-	    <p>This tells The Grinder to call my String Bean method
-	    which returns my dynamic POST content based on the test
-	    description. I'm pretty pleased with that.</p>
+	    <p>Of course, you should upgrade any 2.2.x kernel to
+	    2.2.19 anyway, because because of the many security
+	    fixes.</p>
 	  </dd>
 	</dl>
       </answer>
     </faq>
 
+    <faq id="windows-address-in-use">
+      <question>
+	What can I do about <em>address in use</em> exceptions on
+	Microsoft Windows machines?
+      </question>
+
+      <answer>
+	<p>Answer courtesy of Venkat:</p>
+
+	<dl>
+          <dt/>
+	  <dd class="quote">
+	    <p>Recently, there have been a couple posts from people
+	    facing the <em>address in use</em> exception when running
+	    The Grinder. I also faced the same issue and here is what
+	    I found and how I resolved it.</p>
+
+	    <p>Windows OS TCP-IP system has a parameter that controls
+	    the maximum port number used when an application requests
+	    any available user port from the system. By default,
+	    ephemeral (that is, short-lived) ports are allocated
+	    between the values of 1024 and 5000 inclusive. During a
+	    Grinder test, if we exceed this limit, we get the
+	    <em>address in use</em> exception. To make it more
+	    complicated, there is another parameter that says once the
+	    application closes a TCP connection, how long the OS will
+	    wait before reclaiming the port for the connection. The
+	    default value for this is 4 minutes.</p>
+
+	    <p>Due to the above, often the default Windows
+	    configuration isn't sufficent to run load tests. To change
+	    this, modify the following Registry values under the key
+	    <code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</code>:</p>
+
+<source>
+MaxUserPort       = dword:00004e20 (20,000 decimal)
+TcpTimedWaitDelay = dword:0000001e (30 decimal)
+</source>
+
+	    <p>The above was sufficient for my testing. Adjust the
+	    <code>MaxUserPort</code> to a larger number if you still
+	    run into the exception. Of course, the OS needs to be
+	    rebooted once the setting is changed. MS documentation
+	    says the <code>MaxUserPort</code> setting is available
+	    since Windows NT 3.51 Service Pack 5. I am not sure which
+	    version introduced the <code>TcpTimedWaitDelayed</code>
+	    setting. You can confirm whether your OS version supports
+	    this by looking into the Registry location above.</p>
+	  </dd>
+	</dl>
+      </answer>
+    </faq>
+  </faqsection>
+  </faqsection>
+
+  <faqsection id="g2">
+    <title>The Grinder 2</title>
+    <faqsection id="g2-general">
+    <title>General</title>
     <faq id="multicast">
       <question>
 	What do I need to do to set up multicast?
@@ -472,6 +584,58 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
       </answer>
     </faq>
 
+  </faqsection>
+  <faqsection id="g2-scripts">
+  <title>Scripts</title>
+    <faq id="string-beans">
+      <question>
+	How do I simulate different users with The Grinder 2?
+      </question>
+
+      <answer>
+	<p>You probably want to use a <a
+	href="site:g2/http-plugin/string-bean">String Bean</a>.</p>
+      </answer>
+    </faq>
+
+    <faq id="post-and-string-beans">
+      <question>
+	How do I generate POST data with a String Bean?
+      </question>
+
+      <answer>
+	<p>Sean Kroah writes:</p>
+
+	<dl>
+	  <dt/>
+	  <dd class="quote">
+	    <p><code>grinder.test0.parameter.post=&lt;getPostData&gt;</code>
+	    doesn't work.</p>
+
+	    <p>I didn't really see this in the docs anywhere so if
+	    anyone is interested. I needed dynamic post data and the
+	    HTTP plugin post parameter only took a file name. The key
+	    was that the file can optionally contain a reference to a
+	    <a href="site:g2/http-plugin/string-bean">String Bean</a>
+	    method. I tried it on a fluke and it worked.</p>
+
+<source>
+grinder.test0.parameter.url=&lt;getLoginUrl&gt;
+grinder.test0.parameter.post=getPostData.dat
+</source>
+	    <p><code>getPostData.dat</code> has one line in it:</p>
+
+<source>
+&lt;getPostData&gt;
+</source>
+
+	    <p>This tells The Grinder to call my String Bean method
+	    which returns my dynamic POST content based on the test
+	    description. I'm pretty pleased with that.</p>
+	  </dd>
+	</dl>
+      </answer>
+    </faq>
     <faq id="extra-line">
       <question>
 	Why do my POSTs have an extra new line?
@@ -494,11 +658,14 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 	href="site:sourceforge/extra-line">bug report</a> for how to
 	do this yourself.</p>
       </answer>
-    </faq>
+    </faq>  
+  </faqsection>
   </faqsection>
 
   <faqsection id="g3">
     <title>The Grinder 3</title>
+  <faqsection id="g3-general">
+  <title>General</title>
     <faq id="startup-time">
       <question>
 	Why does The Grinder take a while to start up?
@@ -549,7 +716,10 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 
       </answer>
     </faq>
-
+    
+  </faqsection>
+  <faqsection id="g3-scripts">
+    <title>Scripts</title>
     <faq id="jython-libraries">
       <question>How do I use standard Python
       modules in my scripts?</question>
@@ -759,6 +929,9 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
 </source>
       </answer>
     </faq>
+  </faqsection>
+  <faqsection id="g3-ssl">
+    <title>SSL</title>
     <faq id="ssl-certificate-choice">
       <question>
       If I have several suitable certificates in my keystore, how does The Grinder chose between them?
@@ -807,8 +980,7 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
       </answer>
     </faq>
   </faqsection>
-
-  <faqsection>
+  <faqsection id="tcpproxy">
     <title>The TCPProxy</title>
 
     <faq id="what-happened-to-the-tcpsniffer">
@@ -923,163 +1095,5 @@ request = myrequest.GET(&quot;/viewcar?id=%d&quot; % id)
       </answer>
     </faq>
   </faqsection>
-
-  <faqsection id="HTTP">
-    <title>HTTP</title>
-
-    <faq id="postsVsGets">
-      <question>
-	Why do POSTs take longer than GETs?
-      </question>
-
-      <answer>
-	<p>Dennis Linnell wondered this. This is what he found
-	out:</p>
-
-	<dl>
-          <dt/>
-	  <dd class="quote">
-	    <p>A network protocol trace revealed that the differences
-	    in POST vs. GET times were attributable to the following:</p>
-
-	    <ol>
-	      <li>The Grinder (HTTPClient) sends a GET request as a
-	      single TCP protocol data unit (PDU), which requires a
-	      single acknowledgment (ACK). This is normal and
-	      expected.</li>
-
-	      <li>HTTPClient sends a POST as two PDUs: The first
-	      includes everything but the Name/Value pairs and
-	      requires an ACK; the second includes only the Name/Value
-	      pairs and also requires an ACK. This is a consequence of
-	      the conservative implementation of HTTP/1.1 pipelining
-	      in HTTPClient.</li>
-
-	      <li>When the first PDU of the POST arrives at the
-	      Windows XP TCP/IP protocol stack on the server, the
-	      <em>delayed ACK</em> feature of TCP/IP RFC 1122 kicks
-	      in. If another request were to arrive, the stack would
-	      send an ACK; otherwise it waits up to 200 ms. and then
-	      sends an ACK. Since, in this case, no other request
-	      arrives, <a href="ext:microsoft/support/delayed-ack">the
-	      stack delays the ACK</a>. Naturally, I made the changes
-	      outlined in the Microsoft knowledge base and it solved
-	      the problem for me. Case closed? Maybe not.</li>
-
-	      <li>Still, the question remains, <em>Is the HTTPClient
-	      behavior reasonable?</em>. I traced Microsoft Internet
-	      Explorer 6 (latest patch level) and it sends a POST in
-	      one PDU and thus does not invoke the dreaded <em>delayed
-	      ACK</em>. On the other hand, Firefox 1.0.4 (oddly)
-	      requires 3 pairs of PDUs to get the job done. So
-	      HTTPClient is somewhere in between.</li>
-
-	      <li>As HTTPClient's behavior is not in violation of the
-	      HTTP/1.1 RFC, I have no reason to complain. And, looking
-	      at the HTTPClient code, I'm certainly not bold enough to
-	      touch it. Still, it doesn't quite model the behavior of
-	      the market-leading web browser accurately.</li>
-	    </ol>
-	  </dd>
-	</dl>
-      </answer>
-
-    </faq>
-  </faqsection>
-
-  <faqsection id="problems">
-    <title>Problems</title>
-
-    <faq id="negative-times">
-      <question>
-	I've seen The Grinder report negative test times?!
-      </question>
-
-      <answer>
-	<p>Are you running Linux kernel 2.2.18? Mikael Suokas
-	reports:</p>
-
-	<dl>
-          <dt/>
-	  <dd class="quote">
-	    <p>In some load situations, on some hardware, older Linux
-	    kernels can generate system times that jump backwards. I
-	    have experienced this problem on one machine (Intel
-	    Pentium/150, 128M RAM, Adaptec AHA-2940, SCSI disks)
-	    running the stock Red Hat Linux 7.0 kernel (2.2.16).</p>
-
-	    <p>The Grinder occasionally reported negative response
-	    times in the -900 to -700 ms range whenever the load
-	    became high. Interestingly, the same OS + kernel version
-	    on several other machines never showed these negative
-	    response times. The problem was not Grinder or Java
-	    specific: a C program polling gettimeofday() also showed
-	    system time jumping backwards.</p>
-
-	    <p>Upgrading to kernel 2.2.19 fixed this issue for me.
-	    Since the release notes for Linux 2.2.18 mention time
-	    keeping locking fixes, I don't think that was a
-	    coincidence.</p>
-
-	    <p>Of course, you should upgrade any 2.2.x kernel to
-	    2.2.19 anyway, because because of the many security
-	    fixes.</p>
-	  </dd>
-	</dl>
-      </answer>
-    </faq>
-
-    <faq id="windows-address-in-use">
-      <question>
-	What can I do about <em>address in use</em> exceptions on
-	Microsoft Windows machines?
-      </question>
-
-      <answer>
-	<p>Answer courtesy of Venkat:</p>
-
-	<dl>
-          <dt/>
-	  <dd class="quote">
-	    <p>Recently, there have been a couple posts from people
-	    facing the <em>address in use</em> exception when running
-	    The Grinder. I also faced the same issue and here is what
-	    I found and how I resolved it.</p>
-
-	    <p>Windows OS TCP-IP system has a parameter that controls
-	    the maximum port number used when an application requests
-	    any available user port from the system. By default,
-	    ephemeral (that is, short-lived) ports are allocated
-	    between the values of 1024 and 5000 inclusive. During a
-	    Grinder test, if we exceed this limit, we get the
-	    <em>address in use</em> exception. To make it more
-	    complicated, there is another parameter that says once the
-	    application closes a TCP connection, how long the OS will
-	    wait before reclaiming the port for the connection. The
-	    default value for this is 4 minutes.</p>
-
-	    <p>Due to the above, often the default Windows
-	    configuration isn't sufficent to run load tests. To change
-	    this, modify the following Registry values under the key
-	    <code>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters</code>:</p>
-
-<source>
-MaxUserPort       = dword:00004e20 (20,000 decimal)
-TcpTimedWaitDelay = dword:0000001e (30 decimal)
-</source>
-
-	    <p>The above was sufficient for my testing. Adjust the
-	    <code>MaxUserPort</code> to a larger number if you still
-	    run into the exception. Of course, the OS needs to be
-	    rebooted once the setting is changed. MS documentation
-	    says the <code>MaxUserPort</code> setting is available
-	    since Windows NT 3.51 Service Pack 5. I am not sure which
-	    version introduced the <code>TcpTimedWaitDelayed</code>
-	    setting. You can confirm whether your OS version supports
-	    this by looking into the Registry location above.</p>
-	  </dd>
-	</dl>
-      </answer>
-    </faq>
   </faqsection>
 </faqs>
