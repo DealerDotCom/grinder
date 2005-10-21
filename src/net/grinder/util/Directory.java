@@ -113,30 +113,52 @@ public final class Directory  {
   /**
    * List the files in the hierarchy below the directory.
    *
-   * @return The list of files. Files are relative to the directory,
-   * not absolute. More deeply nested files are later in the list. The
-   * list is empty if the directory does not exist.
+   * <p>
+   * Equivalent to <code>listContents(filter, false, false), where filter
+   * matches every file</code>.
+   * </p>
+   *
+   * @return The list of files. Files are relative to the directory, not
+   *         absolute. More deeply nested files are later in the list. The list
+   *         is empty if the directory does not exist.
+   * @see #listContents(FileFilter, boolean, boolean)
    */
   public File[] listContents() {
     return listContents(s_nullFileFilter);
   }
 
   /**
-   * List the files in the hierarchy below the directory that have
-   * been modified after <code>since</code>.
+   * Equivalent to <code>listContents(filter, false, false)</code>.
    *
-   * @param filter Filter that controls the files that are returned.
-   * @return The list of files. Files are relative to the directory,
-   * not absolute. More deeply nested files are later in the list. The
-   * list is empty if the directory does not exist.
+   * @param filter
+   *          Filter that controls the files that are returned.
+   * @return The list of files. Files are relative to the directory, not
+   *         absolute. More deeply nested files are later in the list. The list
+   *         is empty if the directory does not exist.
+   * @see #listContents(FileFilter, boolean, boolean)
    */
   public File[] listContents(FileFilter filter) {
-    return listContents(false, false, filter);
+    return listContents(filter, false, false);
   }
 
-  private File[] listContents(boolean includeDirectories,
-                              boolean absolutePaths,
-                              FileFilter filter) {
+  /**
+   * List the files in the hierarchy below the directory that have been modified
+   * after <code>since</code>.
+   *
+   * @param filter
+   *          Filter that controls the files that are returned.
+   * @param includeDirectories
+   *          Whether to include directories in the returned files. Only
+   *          directories that match the filter will be returned.
+   * @param absolutePaths
+   *          Whether returned files should be relative to the directory or
+   *          absolute.
+   * @return The list of files. More deeply nested files are later in the list.
+   *         The list is empty if the directory does not exist.
+   */
+  public File[] listContents(FileFilter filter,
+                             boolean includeDirectories,
+                             boolean absolutePaths) {
 
     final List resultList = new ArrayList();
     final Set visited = new HashSet();
@@ -207,7 +229,7 @@ public final class Directory  {
   public void deleteContents() throws DirectoryException {
     // We rely on the order of the listContents result: more deeply
     // nested files are later in the list.
-    final File[] deleteList = listContents(true, true, s_nullFileFilter);
+    final File[] deleteList = listContents(s_nullFileFilter, true, true);
 
     for (int i = deleteList.length - 1; i >= 0; --i) {
       if (!deleteList[i].delete()) {
@@ -241,7 +263,7 @@ public final class Directory  {
    */
   public File getRelativePath(File absoluteFile) {
 
-    final File[] contents = listContents(false, false, s_nullFileFilter);
+    final File[] contents = listContents(s_nullFileFilter, false, false);
 
     for (int i = 0; i < contents.length; ++i) {
       if (getFile(contents[i].getPath()).equals(absoluteFile)) {
@@ -299,7 +321,7 @@ public final class Directory  {
       target.deleteContents();
     }
 
-    final File[] files = listContents(true, false, s_nullFileFilter);
+    final File[] files = listContents(s_nullFileFilter, true, false);
     final StreamCopier streamCopier = new StreamCopier(4096, true);
 
     for (int i = 0; i < files.length; ++i) {

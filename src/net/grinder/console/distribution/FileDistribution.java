@@ -22,9 +22,9 @@
 package net.grinder.console.distribution;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.EventListener;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -51,7 +51,7 @@ import net.grinder.util.ListenerSupport.Informer;
  */
 public final class FileDistribution {
 
-  private final ListenerSupport m_directoryListeners = new ListenerSupport();
+  private final ListenerSupport m_filesChangedListeners = new ListenerSupport();
 
   private final DistributionControl m_distributionControl;
   private final UpdateableAgentCacheState m_cacheState;
@@ -135,10 +135,8 @@ public final class FileDistribution {
    * the agent cache state appropriately.
    *
    * @param directory The directory to scan.
-   * @param distributionFileFilterPattern Identifies distribution files.
    */
-  public void scanDistributionFiles(Directory directory,
-                                    Pattern distributionFileFilterPattern) {
+  public void scanDistributionFiles(Directory directory) {
     final long now = System.currentTimeMillis();
 
     // We back up a little from m_lastScanTime to protect against
@@ -146,61 +144,71 @@ public final class FileDistribution {
     final long scanTime =
       Math.max(m_cacheState.getEarliestFileTime(), m_lastScanTime - 100);
 
-    final File[] laterFiles = directory.listContents(
-      new FileDistributionFilter(distributionFileFilterPattern, scanTime));
+    // Don't filter directories by time here, it would prevent listContents
+    // from finding changes to files in directories.
+    final FileFilter timeFilter =
+      new FileFilter() {
+        public boolean accept(File file) {
+          return file.isDirectory() || file.lastModified() > scanTime;
+        }
+      };
+
+    final File[] laterFiles = directory.listContents(timeFilter, true, true);
 
     m_lastScanTime = now;
 
     if (laterFiles.length > 0) {
-      final Set directories = new HashSet(laterFiles.length / 2);
+      final Set changedFiles = new HashSet(laterFiles.length / 2);
 
       for (int i = 0; i < laterFiles.length; ++i) {
-        System.out.println("Found later file: " + laterFiles[i]);
+        final File laterFile = laterFiles[i];
 
-        final File absoluteFile = directory.getFile(laterFiles[i].getPath());
+        // We didn't filter directories by time when building up laterFiles,
+        // do so now.
+        if (laterFile.isDirectory() &&
+            laterFile.lastModified() <= scanTime) {
+          continue;
+        }
 
-        m_cacheState.setOutOfDate(absoluteFile.lastModified());
-        directories.add(absoluteFile.getParentFile());
+        m_cacheState.setOutOfDate(laterFile.lastModified());
+        changedFiles.add(laterFile);
       }
 
-      final Iterator iterator = directories.iterator();
+      final File[] changedFilesArray =
+        (File[])changedFiles.toArray(new File[changedFiles.size()]);
 
-      while (iterator.hasNext()) {
-        final File changedDirectory = (File)iterator.next();
-
-        m_directoryListeners.apply(
-          new Informer() {
-            public void inform(Object listener) {
-              ((ChangedDirectoryListener)listener)
-              .directoryChanged(changedDirectory);
-            }
-          });
-      }
+      m_filesChangedListeners.apply(
+        new Informer() {
+          public void inform(Object listener) {
+            ((FilesChangedListener)listener).filesChanged(changedFilesArray);
+          }
+        });
     }
   }
 
   /**
-   * Add a listener that will be sent events about directories that have changed
-   * when {@link scanDistributionFiles} is called.
+   * Add a listener that will be sent events about files that have changed when
+   * {@link scanDistributionFiles} is called.
    *
-   * @param listener The listener.
+   * @param listener
+   *          The listener.
    */
-  public void addChangedDirectoryListener(ChangedDirectoryListener listener) {
-    m_directoryListeners.add(listener);
+  public void addFilesChangedListener(FilesChangedListener listener) {
+    m_filesChangedListeners.add(listener);
   }
 
   /**
-   * ChangedDirectoryListener.
+   * ChangedFilesListener..
    *
-   * @see FileDistribution#addChangedDirectoryListener(ChangedDirectoryListener)
+   * @see FileDistribution#addFilesChangedListener(FilesChangedListener)
    */
-  public static interface ChangedDirectoryListener extends EventListener {
+  public static interface FilesChangedListener extends EventListener {
 
     /**
      * Called with a changed directory.
      *
      * @param directory The directory that has changed.
      */
-    void directoryChanged(File directory);
+    void filesChanged(File[] directory);
   }
 }

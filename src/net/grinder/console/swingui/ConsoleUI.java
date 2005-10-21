@@ -312,10 +312,29 @@ public final class ConsoleUI implements ModelListener {
 
     final Editor editor = new Editor(resources, m_editorModel, tabLabelFont);
 
-    m_fileTree = new FileTree(m_model.getProperties(),
-                              resources,
+    final FileTreeModel fileTreeModel = new FileTreeModel(m_editorModel);
+    fileTreeModel.setRootDirectory(
+      m_model.getProperties().getDistributionDirectory().getFile());
+
+    m_model.getProperties().addPropertyChangeListener(
+      new PropertyChangeListener()  {
+        public void propertyChange(PropertyChangeEvent e) {
+          if (e.getPropertyName().equals(
+                ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY)) {
+            fileTreeModel.setRootDirectory(
+              m_model.getProperties().getDistributionDirectory().getFile());
+          }
+        }
+      });
+
+    m_fileDistribution.addFilesChangedListener(
+      fileTreeModel.new RefreshChangedDirectoriesListener());
+
+    m_fileTree = new FileTree(resources,
                               getErrorHandler(),
-                              m_editorModel);
+                              m_editorModel,
+                              new BufferTreeModel(m_editorModel),
+                              fileTreeModel);
 
     addAction(m_fileTree.getOpenFileAction());
     addAction(m_fileTree.getSetScriptAction());
@@ -536,7 +555,7 @@ public final class ConsoleUI implements ModelListener {
         final JButton button = new CustomJButton();
         toolBar.add(button);
 
-        // Must set the action _after_ adding to the toolbar or the
+        // Must set the action _after_ adding to the tool bar or the
         // rollover image isn't set correctly.
         setAction(button, toolKey);
       }

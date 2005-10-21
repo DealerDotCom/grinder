@@ -29,8 +29,6 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import javax.swing.ActionMap;
 import javax.swing.Icon;
@@ -54,7 +52,6 @@ import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
-import net.grinder.console.model.ConsoleProperties;
 
 
 /**
@@ -71,37 +68,23 @@ final class FileTree {
   private final BufferTreeModel m_bufferTreeModel;
   private final FileTreeModel m_fileTreeModel;
 
-  // Can't initialise tree until model has a valid directory.
   private final JTree m_tree;
   private final CustomAction m_openFileAction;
   private final CustomAction m_setScriptAction;
   private final JScrollPane m_scrollPane;
 
-  public FileTree(final ConsoleProperties consoleProperties,
-                  Resources resources,
+  public FileTree(Resources resources,
                   ErrorHandler errorHandler,
-                  EditorModel editorModel) {
+                  EditorModel editorModel,
+                  BufferTreeModel bufferTreeModel,
+                  FileTreeModel fileTreeModel) {
 
     m_resources = resources;
     m_errorHandler = errorHandler;
     m_editorModel = editorModel;
 
-    m_bufferTreeModel = new BufferTreeModel(m_editorModel);
-
-    m_fileTreeModel = new FileTreeModel(m_editorModel);
-    m_fileTreeModel.setRootDirectory(
-      consoleProperties.getDistributionDirectory().getFile());
-
-    consoleProperties.addPropertyChangeListener(
-      new PropertyChangeListener()  {
-        public void propertyChange(PropertyChangeEvent e) {
-          if (e.getPropertyName().equals(
-                ConsoleProperties.DISTRIBUTION_DIRECTORY_PROPERTY)) {
-            m_fileTreeModel.setRootDirectory(
-              consoleProperties.getDistributionDirectory().getFile());
-          }
-        }
-      });
+    m_bufferTreeModel = bufferTreeModel;
+    m_fileTreeModel = fileTreeModel;
 
     final CompositeTreeModel compositeTreeModel = new CompositeTreeModel();
 

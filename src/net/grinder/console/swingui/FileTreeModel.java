@@ -1,4 +1,4 @@
-// Copyright (C) 2003, 2004 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,6 +33,7 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 import net.grinder.util.WeakValueHashMap;
@@ -186,7 +187,14 @@ final class FileTreeModel implements TreeModel {
       }
     };
 
-
+  /**
+   * Find the {Node} for a file. If a particular part of the file path
+   * isn't found in the model, that part of the model is refreshed and
+   * checked again.
+   *
+   * @param file The file to find the corresponding {@link Node} for.
+   * @return The node, or <code>null</code> if the file could not be found.
+   */
   public Node findNode(File file) {
     final Node existingNode = (Node)m_filesToNodes.get(file);
 
@@ -226,7 +234,7 @@ final class FileTreeModel implements TreeModel {
     return (Node)m_filesToNodes.get(file);
   }
 
-  public File[] fileToArrayOfParentPaths(File file) {
+  private File[] fileToArrayOfParentPaths(File file) {
     final List list = new ArrayList();
 
     File f = file;
@@ -243,6 +251,30 @@ final class FileTreeModel implements TreeModel {
 
   public FileNode findFileNode(Buffer buffer) {
     return (FileNode)m_buffersToFileNodes.get(buffer);
+  }
+
+  /**
+   * A {@link FileDistribution.FilesChangedListener} that listens for changed
+   * file notifications and updates the FileTreeModel appropriately.
+   *
+   */
+  public class RefreshChangedDirectoriesListener
+    implements FileDistribution.FilesChangedListener {
+    public void filesChanged(File[] files) {
+      // Refresh the tree path for every file. We could waste time here removing
+      // duplicate refreshes, but most times they'll only be a single file.
+
+      for (int i = 0; i < files.length; ++i) {
+        // findNode will refresh everything up to the file itself...
+        final Node node = findNode(files[i]);
+
+        // ...so if we find a directory node, we'd better refresh that too.
+        if (node instanceof DirectoryNode) {
+          ((DirectoryNode)node).refresh();
+          fireTreeStructureChanged(node);
+        }
+      }
+    }
   }
 
   /**

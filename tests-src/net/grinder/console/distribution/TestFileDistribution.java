@@ -25,8 +25,9 @@ import java.io.File;
 import java.util.regex.Pattern;
 
 import net.grinder.console.communication.DistributionControl;
-import net.grinder.console.distribution.FileDistribution.ChangedDirectoryListener;
+import net.grinder.console.distribution.FileDistribution.FilesChangedListener;
 import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
 import net.grinder.util.Directory;
 
@@ -140,20 +141,18 @@ public class TestFileDistribution extends AbstractFileTestCase {
     final UpdateableAgentCacheState agentCacheState =
       agentCacheStateStubFactory.getUpdateableAgentCacheState();
 
-    final RandomStubFactory directoryListenerStubFactory =
-      new RandomStubFactory(ChangedDirectoryListener.class);
-    final ChangedDirectoryListener directoryListener =
-      (ChangedDirectoryListener)directoryListenerStubFactory.getStub();
-
-    final Pattern matchNonePattern = Pattern.compile("^$");
+    final RandomStubFactory fileListenerStubFactory =
+      new RandomStubFactory(FilesChangedListener.class);
+    final FilesChangedListener filesChangedListener =
+      (FilesChangedListener)fileListenerStubFactory.getStub();
 
     final Directory directory = new Directory(getDirectory());
 
     final FileDistribution fileDistribution =
       new FileDistribution(distributionControl, agentCacheState);
-    fileDistribution.addChangedDirectoryListener(directoryListener);
+    fileDistribution.addFilesChangedListener(filesChangedListener);
 
-    fileDistribution.scanDistributionFiles(directory, matchNonePattern);
+    fileDistribution.scanDistributionFiles(directory);
     assertEquals(0, agentCacheState.getEarliestFileTime());
 
     final File file1 = new File(getDirectory(), "file1");
@@ -165,17 +164,23 @@ public class TestFileDistribution extends AbstractFileTestCase {
     oldFile.setLastModified(0);
     file2.setLastModified(file1.lastModified() + 5000);
 
-    fileDistribution.scanDistributionFiles(directory, matchNonePattern);
+    fileDistribution.scanDistributionFiles(directory);
     assertEquals(file1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
 
-    directoryListenerStubFactory.assertSuccess("directoryChanged",
-                                               getDirectory());
-    directoryListenerStubFactory.assertNoMoreCalls();
+    final CallData filesChangedCall = fileListenerStubFactory.getCallData();
+    assertEquals("filesChanged", filesChangedCall.getMethodName());
+    assertEquals(1, filesChangedCall.getParameters().length);
+    final File[] changedFiles = (File[])(filesChangedCall.getParameters()[0]);
+    assertEquals(2, changedFiles.length);
+    assertTrue(changedFiles[0].equals(file1) && changedFiles[1].equals(file2) ||
+               changedFiles[0].equals(file2) && changedFiles[1].equals(file1));
+
+    fileListenerStubFactory.assertNoMoreCalls();
 
     agentCacheStateStubFactory.setEarliestFileTime(file2.lastModified() - 10);
     agentCacheStateStubFactory.resetOutOfDate();
-    fileDistribution.scanDistributionFiles(directory, matchNonePattern);
+    fileDistribution.scanDistributionFiles(directory);
     assertEquals(file2.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
 
@@ -183,16 +188,41 @@ public class TestFileDistribution extends AbstractFileTestCase {
     // last scan time.
     agentCacheStateStubFactory.setEarliestFileTime(0);
     agentCacheStateStubFactory.resetOutOfDate();
-    fileDistribution.scanDistributionFiles(directory, matchNonePattern);
+    fileDistribution.scanDistributionFiles(directory);
     assertEquals(file1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
+    fileListenerStubFactory.resetCallHistory();
 
-    agentCacheStateStubFactory.setEarliestFileTime(0);
+    // Do some checks with directories
     agentCacheStateStubFactory.resetOutOfDate();
-    final Pattern matchAllPattern = Pattern.compile(".*");
-    fileDistribution.scanDistributionFiles(directory, matchAllPattern);
-    assertEquals(Long.MAX_VALUE,
+    final File testDirectory = new File(getDirectory(), "test");
+    testDirectory.mkdir();
+    final File directory1 = new File(getDirectory(), "test/dir1");
+    directory1.mkdir();
+    final File oldDirectory = new File(getDirectory(), "test/dir3");
+    oldDirectory.mkdir();
+    final File directory2 = new File(getDirectory(), "test/dir3/dir2");
+    directory2.mkdir();
+    oldDirectory.setLastModified(0);
+    file2.setLastModified(file1.lastModified() + 5000);
+
+    fileDistribution.scanDistributionFiles(new Directory(testDirectory));
+    assertEquals(directory1.lastModified(),
                  agentCacheStateStubFactory.getEarliestOutOfDateTime());
+
+    final CallData directoriesChangedCall =
+      fileListenerStubFactory.getCallData();
+    assertEquals("filesChanged", directoriesChangedCall.getMethodName());
+    assertEquals(1, directoriesChangedCall.getParameters().length);
+    final File[] changedDirectories =
+      (File[])(directoriesChangedCall.getParameters()[0]);
+    assertEquals(2, changedDirectories.length);
+    assertTrue(changedDirectories[0].equals(directory1) &&
+               changedDirectories[1].equals(directory2) ||
+               changedDirectories[0].equals(directory2) &&
+               changedDirectories[1].equals(directory1));
+
+    fileListenerStubFactory.assertNoMoreCalls();
   }
 
   public static class UpdateableAgentCacheStateStubFactory
