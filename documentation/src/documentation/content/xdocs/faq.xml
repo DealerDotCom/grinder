@@ -594,7 +594,7 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 
       <answer>
 	<p>You probably want to use a <a
-	href="site:g2/http-plugin/string-bean">String Bean</a>.</p>
+	href="site:g2/plugins/http-plugin/string-bean">String Bean</a>.</p>
       </answer>
     </faq>
 
@@ -616,7 +616,7 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 	    anyone is interested. I needed dynamic post data and the
 	    HTTP plugin post parameter only took a file name. The key
 	    was that the file can optionally contain a reference to a
-	    <a href="site:g2/http-plugin/string-bean">String Bean</a>
+	    <a href="site:g2/plugins/http-plugin/string-bean">String Bean</a>
 	    method. I tried it on a fluke and it worked.</p>
 
 <source>
