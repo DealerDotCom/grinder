@@ -30,7 +30,7 @@ import net.grinder.testutility.FileUtilities;
 
 
 /**
- *  Unit test case for {@link Resources}.
+ *  Unit test case for {@link ResourcesImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -41,8 +41,8 @@ public class TestResources extends TestCase {
     new CountingPrintWriter();
 
   public void testResources() throws Exception {
-    final Resources resources = new Resources(getClass().getName());
-    final Resources resources2 = new Resources("TestResources");
+    final ResourcesImplementation resources = new ResourcesImplementation(getClass().getName());
+    final ResourcesImplementation resources2 = new ResourcesImplementation("TestResources");
 
     resources.setErrorWriter(m_errorWriter);
     resources2.setErrorWriter(m_errorWriter);
@@ -54,7 +54,7 @@ public class TestResources extends TestCase {
   }
   
   public void testGetString() throws Exception {
-    final Resources resources = new Resources(getClass().getName());
+    final ResourcesImplementation resources = new ResourcesImplementation(getClass().getName());
     resources.setErrorWriter(m_errorWriter);
 
     assertEquals("", resources.getString("notthere"));
@@ -72,7 +72,7 @@ public class TestResources extends TestCase {
 
 
   public void testGetImageIcon() throws Exception {
-    final Resources resources = new Resources(getClass().getName());
+    final ResourcesImplementation resources = new ResourcesImplementation(getClass().getName());
     resources.setErrorWriter(m_errorWriter);
 
     assertNull(resources.getImageIcon("notthere"));
@@ -92,7 +92,7 @@ public class TestResources extends TestCase {
   }
 
   public void testGetStringFromFile() throws Exception {
-    final Resources resources = new Resources(getClass().getName());
+    final ResourcesImplementation resources = new ResourcesImplementation(getClass().getName());
     resources.setErrorWriter(m_errorWriter);
 
     assertNull(resources.getStringFromFile("notthere", false));
@@ -110,7 +110,7 @@ public class TestResources extends TestCase {
 
     final File file =
       new File(
-        Resources.class.getResource("resources/helloworld.txt").getFile());
+        ResourcesImplementation.class.getResource("resources/helloworld.txt").getFile());
 
     FileUtilities.setCanAccess(file, false);
 

@@ -29,6 +29,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import net.grinder.console.common.Resources;
+import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 
@@ -46,7 +47,7 @@ import net.grinder.testutility.RandomStubFactory;
 public class TestBufferTreeModel extends TestCase {
 
   private static final Resources s_resources =
-      new Resources("net.grinder.console.swingui.resources.Console");
+      new ResourcesImplementation("net.grinder.console.swingui.resources.Console");
 
   public void testConstructionAndGetChildMethods() throws Exception {
     final StringTextSource.Factory stringTextSourceFactory =

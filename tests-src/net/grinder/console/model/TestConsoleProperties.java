@@ -34,6 +34,7 @@ import java.util.regex.PatternSyntaxException;
 import net.grinder.communication.CommunicationDefaults;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
+import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 import net.grinder.testutility.FileUtilities;
@@ -48,7 +49,7 @@ import net.grinder.util.Directory;
  */
 public class TestConsoleProperties extends AbstractFileTestCase {
 
-  private static final Resources s_resources = new Resources(
+  private static final Resources s_resources = new ResourcesImplementation(
     "net.grinder.console.swingui.resources.Console");
 
   private File m_file;

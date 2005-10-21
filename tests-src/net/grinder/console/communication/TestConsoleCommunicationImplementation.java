@@ -38,6 +38,7 @@ import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
+import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.messages.AgentProcessReportMessage;
 import net.grinder.console.messages.WorkerProcessReportMessage;
 import net.grinder.console.model.ConsoleProperties;
@@ -62,7 +63,7 @@ public class TestConsoleCommunicationImplementation
   extends AbstractFileTestCase {
 
   private static final Resources s_resources =
-      new Resources("net.grinder.console.swingui.resources.Console");
+      new ResourcesImplementation("net.grinder.console.swingui.resources.Console");
 
   private ConsoleCommunication m_consoleCommunication;
   private ConsoleProperties m_properties;

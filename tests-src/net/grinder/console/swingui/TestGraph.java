@@ -30,7 +30,7 @@ import java.util.Random;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import net.grinder.console.common.Resources;
+import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.statistics.PeakStatisticExpression;
 import net.grinder.statistics.StatisticExpression;
 import net.grinder.statistics.StatisticExpressionFactory;
@@ -122,7 +122,7 @@ public class TestGraph extends TestCase {
     final LabelledGraph labelledGraph =
       new LabelledGraph(
         "Test",
-        new Resources("net.grinder.console.swingui.resources.Console"),
+        new ResourcesImplementation("net.grinder.console.swingui.resources.Console"),
         tpsExpression,
         peakTPSExpression,
         statisticsServices.getTestStatisticsQueries());

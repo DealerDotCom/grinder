@@ -59,7 +59,7 @@ public final class EditorModel {
   /**
    * Constructor.
    *
-   * @param resources Resources.
+   * @param resources ResourcesImplementation.
    * @param textSourceFactory Factory for {@link TextSource}s.
    * @param agentCacheState The agent cache state.
    */

@@ -33,6 +33,7 @@ import net.grinder.communication.Message;
 import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
+import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.ConsoleCommunicationImplementation;
 import net.grinder.console.communication.ProcessStatus;
@@ -72,7 +73,8 @@ public class Console {
       System.getProperty("user.home", System.getProperty("java.home"));
 
     final Resources resources =
-      new Resources("net.grinder.console.swingui.resources.Console");
+      new ResourcesImplementation(
+        "net.grinder.console.swingui.resources.Console");
 
     final ConsoleProperties properties =
       new ConsoleProperties(resources,

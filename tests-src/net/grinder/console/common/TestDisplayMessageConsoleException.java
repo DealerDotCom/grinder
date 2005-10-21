@@ -35,7 +35,7 @@ import net.grinder.testutility.CountingPrintWriter;
 public class TestDisplayMessageConsoleException extends TestCase {
 
   public void testDisplayMessageConsoleException() throws Exception {
-    final Resources resources = new Resources(getClass().getName());
+    final ResourcesImplementation resources = new ResourcesImplementation(getClass().getName());
     resources.setErrorWriter(new CountingPrintWriter());
 
     final DisplayMessageConsoleException e1 =

@@ -1,10 +1,5 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
-//
-// This file is part of The Grinder software distribution. Refer to
-// the file LICENSE which is part of The Grinder distribution for
-// licensing details. The Grinder distribution is available on the
-// Internet at http://grinder.sourceforge.net/
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -21,16 +16,7 @@
 
 package net.grinder.console.common;
 
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.net.URL;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 import javax.swing.ImageIcon;
-
 
 /**
  * Type safe interface to resource bundle.
@@ -38,41 +24,7 @@ import javax.swing.ImageIcon;
  * @author Philip Aston
  * @version $Revision$
  */
-public final class Resources {
-
-  private PrintWriter m_errorWriter = new PrintWriter(System.err, true);
-  private final ResourceBundle m_resources;
-  private final String m_package;
-
-  /**
-   * Constructor.
-   *
-   * @param bundleName Name of resource bundle. The package part of
-   * the name is used to resolve the location of resources referred to
-   * in the resource bundle.
-   */
-  public Resources(String bundleName) {
-
-    m_resources = ResourceBundle.getBundle(bundleName);
-
-    final int lastDot = bundleName.lastIndexOf(".");
-
-    if (lastDot > 0) {
-      m_package = "/" + bundleName.substring(0, lastDot + 1).replace('.', '/');
-    }
-    else {
-      m_package = "/";
-    }
-  }
-
-  /**
-   * Set a writer to report warnings to.
-   *
-   * @param writer The writer.
-   */
-  public void setErrorWriter(PrintWriter writer) {
-    m_errorWriter = writer;
-  }
+public interface Resources {
 
   /**
    * Overloaded version of {@link #getString(String, boolean)} which
@@ -80,9 +32,7 @@ public final class Resources {
    * @param key The resource key.
    * @return The string.
    */
-  public String getString(String key) {
-    return getString(key, true);
-  }
+  String getString(String key);
 
   /**
    * Use key to look up resource which names image URL. Return the image.
@@ -91,21 +41,7 @@ public final class Resources {
    * resource is missing.
    * @return The string.
    */
-  public String getString(String key, boolean warnIfMissing) {
-
-    try {
-      return m_resources.getString(key);
-    }
-    catch (MissingResourceException e) {
-      if (warnIfMissing) {
-        m_errorWriter.println(
-          "Warning - resource " + key + " not specified");
-        return "";
-      }
-
-      return null;
-    }
-  }
+  String getString(String key, boolean warnIfMissing);
 
   /**
    * Overloaded version of {@link #getImageIcon(String, boolean)}
@@ -114,9 +50,7 @@ public final class Resources {
    * @param key The resource key.
    * @return The image.
    */
-  public ImageIcon getImageIcon(String key) {
-    return getImageIcon(key, false);
-  }
+  ImageIcon getImageIcon(String key);
 
   /**
    * Use key to look up resource which names image URL. Return the image.
@@ -126,11 +60,7 @@ public final class Resources {
    * resource is missing.
    * @return The image
    */
-  public ImageIcon getImageIcon(String key, boolean warnIfMissing) {
-    final URL resource = get(key, warnIfMissing);
-
-    return resource != null ? new ImageIcon(resource) : null;
-  }
+  ImageIcon getImageIcon(String key, boolean warnIfMissing);
 
   /**
    * Use <code>key</code> to identify a file by URL. Return contents
@@ -141,54 +71,5 @@ public final class Resources {
    * resource is missing.
    * @return Contents of file.
    */
-  public String getStringFromFile(String key, boolean warnIfMissing) {
-
-    final URL resource = get(key, warnIfMissing);
-
-    if (resource != null) {
-      try {
-        final Reader in = new InputStreamReader(resource.openStream());
-
-        final StringWriter out = new StringWriter();
-
-        final char[] buffer = new char[128];
-
-        while (true) {
-          final int n = in.read(buffer);
-
-          if (n == -1) {
-            break;
-          }
-
-          out.write(buffer, 0, n);
-        }
-
-        in.close();
-        out.close();
-
-        return out.toString();
-      }
-      catch (IOException e) {
-        m_errorWriter.println("Warning - could not read " + resource);
-      }
-    }
-
-    return null;
-  }
-
-  private URL get(String key, boolean warnIfMissing) {
-    final String name = getString(key, warnIfMissing);
-
-    if (name == null || name.length() == 0) {
-      return null;
-    }
-
-    final URL url = this.getClass().getResource(m_package + name);
-
-    if (url == null) {
-      m_errorWriter.println("Warning - could not load resource " + name);
-    }
-
-    return url;
-  }
+  String getStringFromFile(String key, boolean warnIfMissing);
 }

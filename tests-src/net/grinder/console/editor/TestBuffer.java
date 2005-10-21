@@ -29,6 +29,7 @@ import java.net.UnknownHostException;
 
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.Resources;
+import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.AssertUtilities;
 
@@ -42,7 +43,7 @@ import net.grinder.testutility.AssertUtilities;
 public class TestBuffer extends AbstractFileTestCase {
 
   private static final Resources s_resources =
-      new Resources("net.grinder.console.swingui.resources.Console");
+      new ResourcesImplementation("net.grinder.console.swingui.resources.Console");
 
   public void testBufferWithNoFile() throws Exception {
     final String text = "Some text for testing with";

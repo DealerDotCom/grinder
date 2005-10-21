@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileWriter;
 
 import net.grinder.console.common.Resources;
+import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.distribution.AgentCacheState;
 
 import net.grinder.testutility.AbstractFileTestCase;
@@ -42,7 +43,7 @@ import net.grinder.testutility.RandomStubFactory;
 public class TestEditorModel extends AbstractFileTestCase {
 
   private static final Resources s_resources =
-      new Resources("net.grinder.console.swingui.resources.Console");
+      new ResourcesImplementation("net.grinder.console.swingui.resources.Console");
 
   public void testConstruction() throws Exception {
     final StringTextSource.Factory stringTextSourceFactory =
