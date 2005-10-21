@@ -173,7 +173,7 @@ which will be used to configure the chosen Forrest skin.
     }
 
     h5 {
-      text-decoration: underline;
+      text-decoration: underline; font-weight: bold;
     }
 
   </extra-css>
