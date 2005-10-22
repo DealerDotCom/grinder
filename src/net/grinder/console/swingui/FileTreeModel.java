@@ -211,10 +211,7 @@ final class FileTreeModel implements TreeModel {
 
         if (directoryNode.getChildForFile(paths[i + 1]) == null) {
           directoryNode.refresh();
-
-          if (treeStructureChangedNode == null) {
-            treeStructureChangedNode = directoryNode;
-          }
+          treeStructureChangedNode = directoryNode;
 
           if (directoryNode.getChildForFile(paths[i + 1]) == null) {
             return null;
