@@ -361,6 +361,8 @@ final class FileTreeModel implements TreeModel {
         final DirectoryNode oldDirectoryNode =
           (DirectoryNode)m_filesToNodes.remove(m_childDirectories[i]);
 
+        // Can be null if a DirectoryNode has never been created for the
+        // directory.
         if (oldDirectoryNode != null) {
           oldDirectoryNode.refresh();
         }
