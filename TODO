@@ -13,6 +13,7 @@ against it too :-).
 
 - Philip Aston
 
+
 * Enhancements
 
 ** Script Distribution
@@ -79,10 +80,13 @@ to show both.
 ***** Release 5
 
 Task: Add warning if saving outside of distribution.
-Task: Console to watch local file system for edits.
+Task: Console to watch local file system for edits, trigger need to distribute.
+Task: Regularly update the tree to match file system.
 
-Task: Add newly found files to tree.
+Task: Write some tests for FileTree.
+
 Task: Warnings for buffers modified outside of editor.
+Task: External editor integration.
 Task: The agent should pick up secondary grinder.properties from file
 cache.
 Task: Console to optionally auto broadcast on play. Need some way of
@@ -285,9 +289,6 @@ Perhaps JasperReports?
 Review use of Kernel. Probably want to share them.
 
 Remove ThreadLocal from RegisteredPlugin.
-
-Figure out the UndeclaredThrowableException problem in
-TestRegisteredPlugin.
 
 Review use of InterruptedException
 
