@@ -70,7 +70,7 @@ public final class EditorModel {
     m_textSourceFactory = textSourceFactory;
     m_agentCacheState = agentCacheState;
 
-    m_defaultBuffer = new Buffer(m_resources,
+    m_defaultBuffer = new BufferImplementation(m_resources,
                                  m_textSourceFactory.create(),
                                  createNewBufferName());
     addBuffer(m_defaultBuffer);
@@ -100,7 +100,7 @@ public final class EditorModel {
    * Select a new buffer.
    */
   public void selectNewBuffer() {
-    final Buffer buffer = new Buffer(m_resources,
+    final Buffer buffer = new BufferImplementation(m_resources,
                                      m_textSourceFactory.create(),
                                      createNewBufferName());
     addBuffer(buffer);
@@ -123,7 +123,10 @@ public final class EditorModel {
       buffer = existingBuffer;
     }
     else {
-      buffer = new Buffer(m_resources, m_textSourceFactory.create(), file);
+      buffer =
+        new BufferImplementation(m_resources,
+                                 m_textSourceFactory.create(),
+                                 file);
       buffer.load();
       addBuffer(buffer);
 
@@ -283,7 +286,7 @@ public final class EditorModel {
       });
 
     buffer.addListener(
-      new Buffer.Listener() {
+      new BufferImplementation.Listener() {
         public void bufferSaved(Buffer buffer) {
           m_agentCacheState.setOutOfDate(buffer.getFile().lastModified());
         }
