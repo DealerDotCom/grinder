@@ -89,9 +89,9 @@ public class TestEditorModel extends AbstractFileTestCase {
 
     assertNotNull(editorModel.getSelectedBuffer());
     assertNull(editorModel.getSelectedBuffer().getFile());
-    listener1StubFactory.assertSuccess("bufferChanged", Buffer.class);
+    listener1StubFactory.assertSuccess("bufferChanged", BufferImplementation.class);
     listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertSuccess("bufferChanged", Buffer.class);
+    listener2StubFactory.assertSuccess("bufferChanged", BufferImplementation.class);
     listener2StubFactory.assertNoMoreCalls();
 
     // Select same buffer is a noop.
@@ -163,23 +163,23 @@ public class TestEditorModel extends AbstractFileTestCase {
     assertNotSame(bufferForFile1, editorModel.getSelectedBuffer());
     textSourceFactoryStubFactory.assertSuccess("create");
     textSourceFactoryStubFactory.assertNoMoreCalls();
-    listener1StubFactory.assertSuccess("bufferAdded", Buffer.class);
+    listener1StubFactory.assertSuccess("bufferAdded", BufferImplementation.class);
     listener1StubFactory.assertSuccess("bufferChanged", bufferForFile1);
-    listener1StubFactory.assertSuccess("bufferChanged", Buffer.class);
+    listener1StubFactory.assertSuccess("bufferChanged", BufferImplementation.class);
     listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertSuccess("bufferAdded", Buffer.class);
+    listener2StubFactory.assertSuccess("bufferAdded", BufferImplementation.class);
     listener2StubFactory.assertSuccess("bufferChanged", bufferForFile1);
-    listener2StubFactory.assertSuccess("bufferChanged", Buffer.class);
+    listener2StubFactory.assertSuccess("bufferChanged", BufferImplementation.class);
     listener2StubFactory.assertNoMoreCalls();
 
     editorModel.selectBufferForFile(file1);
 
     textSourceFactoryStubFactory.assertNoMoreCalls();
     assertSame(bufferForFile1, editorModel.getSelectedBuffer());
-    listener1StubFactory.assertSuccess("bufferChanged", Buffer.class);
+    listener1StubFactory.assertSuccess("bufferChanged", BufferImplementation.class);
     listener1StubFactory.assertSuccess("bufferChanged", bufferForFile1);
     listener1StubFactory.assertNoMoreCalls();
-    listener2StubFactory.assertSuccess("bufferChanged", Buffer.class);
+    listener2StubFactory.assertSuccess("bufferChanged", BufferImplementation.class);
     listener2StubFactory.assertSuccess("bufferChanged", bufferForFile1);
     listener2StubFactory.assertNoMoreCalls();
 

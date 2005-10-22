@@ -35,7 +35,7 @@ import net.grinder.testutility.AssertUtilities;
 
 
 /**
- * Unit test for {@link Buffer}.
+ * Unit test for {@link BufferImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -52,7 +52,7 @@ public class TestBuffer extends AbstractFileTestCase {
 
     assertEquals(text, textSource.getText());
 
-    final Buffer buffer = new Buffer(s_resources, textSource, "My Buffer");
+    final Buffer buffer = new BufferImplementation(s_resources, textSource, "My Buffer");
 
     assertNotNull(textSource.getText());
     assertEquals(text, textSource.getText());
@@ -132,7 +132,7 @@ public class TestBuffer extends AbstractFileTestCase {
       final Expectation expectation = wordsOfExpectation[i];
 
       final Buffer buffer =
-        new Buffer(s_resources, textSource, expectation.getFile());
+        new BufferImplementation(s_resources, textSource, expectation.getFile());
 
       assertEquals(expectation.getType(), buffer.getType());
       assertEquals(textSource, buffer.getTextSource());
@@ -161,7 +161,7 @@ public class TestBuffer extends AbstractFileTestCase {
 
     final File file = new File(getDirectory(), "myfile.txt");
 
-    final Buffer buffer = new Buffer(s_resources, textSource, file);
+    final Buffer buffer = new BufferImplementation(s_resources, textSource, file);
 
     assertEquals(Buffer.TEXT_BUFFER, buffer.getType());
     assertTrue(!buffer.isDirty());
@@ -214,7 +214,7 @@ public class TestBuffer extends AbstractFileTestCase {
 
     final File file = new File(getDirectory(), "myfile.txt");
 
-    final Buffer buffer = new Buffer(s_resources, textSource, file);
+    final Buffer buffer = new BufferImplementation(s_resources, textSource, file);
 
     assertEquals(Buffer.TEXT_BUFFER, buffer.getType());
     assertTrue(!buffer.isDirty());
@@ -240,7 +240,7 @@ public class TestBuffer extends AbstractFileTestCase {
 
     final StringTextSource textSource = new StringTextSource("");
 
-    final Buffer buffer = new Buffer(s_resources, textSource, getDirectory());
+    final Buffer buffer = new BufferImplementation(s_resources, textSource, getDirectory());
 
     try {
       buffer.load();
@@ -298,7 +298,7 @@ public class TestBuffer extends AbstractFileTestCase {
       final ExtractReasonExpectation expectation = wordsOfExpectation[i];
 
       final String reason =
-        Buffer.extractReasonFromIOException(expectation.getIOException());
+        BufferImplementation.extractReasonFromIOException(expectation.getIOException());
 
       assertEquals(expectation.getReason(), reason);
     }
