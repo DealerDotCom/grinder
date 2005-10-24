@@ -36,6 +36,8 @@
 
   <tab id="manual" label="Manual" href="g3/whats-new.html"/>
 
+  <tab id="faq-tab" label="FAQ" href="faq.html"/>
+  
   <tab id="sourceforge" label="SourceForge" href="ext:sourceforge/grinder"/>
 
 </tabs>
