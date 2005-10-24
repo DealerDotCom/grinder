@@ -127,7 +127,7 @@ grinder.test0.parameter.url=http://localhost:80/index.html
 
 	  <td>The multicast address to use for communication from the
 	  console to the agent and worker processes. See <a
-	  href="site:faq/multicast">What do I need to do to set up
+	  href="site:gfaq/g2faq/multicast">What do I need to do to set up
 	  multicast?</a>. Default <code>228.1.1.1</code>.</td>
 	</tr>
 

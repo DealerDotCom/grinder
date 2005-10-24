@@ -35,7 +35,7 @@ grinder.plugin=net.grinder.plugin.http.HttpPlugin
 	  used unless <code>grinder.test0.parameter.post</code> is
 	  specified. The contents of the file can be varied using a
 	  <code>string bean</code>, see this <a
-	  href="site:faq/post-and-string-beans">FAQ</a>.</td>
+	  href="site:gfaq/g2faq/post-and-string-beans">FAQ</a>.</td>
 	</tr>
 
 	<tr>
