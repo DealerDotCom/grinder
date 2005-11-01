@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -152,9 +152,7 @@ final class BufferTreeModel implements TreeModel {
       new TreeModelEvent(this, new Object[] { getRoot() });
 
     for (int i = listeners.length - 2; i >= 0; i -= 2) {
-      if (listeners[i] == TreeModelListener.class) {
-        ((TreeModelListener)listeners[i + 1]).treeStructureChanged(event);
-      }
+      ((TreeModelListener)listeners[i + 1]).treeStructureChanged(event);
     }
   }
 
@@ -164,9 +162,7 @@ final class BufferTreeModel implements TreeModel {
     final TreeModelEvent event = new TreeModelEvent(this, path);
 
     for (int i = listeners.length - 2; i >= 0; i -= 2) {
-      if (listeners[i] == TreeModelListener.class) {
-        ((TreeModelListener)listeners[i + 1]).treeNodesChanged(event);
-      }
+      ((TreeModelListener)listeners[i + 1]).treeNodesChanged(event);
     }
   }
 
