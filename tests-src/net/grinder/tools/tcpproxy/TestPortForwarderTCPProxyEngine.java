@@ -116,7 +116,9 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
     m_loggerStubFactory.assertNoMoreCalls();
   }
 
-  private void engineTests(AbstractTCPProxyEngine engine) throws Exception {
+  private void engineTests(AbstractTCPProxyEngine engine,
+                           ConnectionDetails connectionDetails)
+    throws Exception {
 
     final Thread engineThread = new Thread(engine, "Run engine");
     engineThread.start();
@@ -157,8 +159,20 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
     engine.stop();
     engineThread.join();
 
-    m_requestFilterStubFactory.assertSuccess("connectionOpened",
-                                             ConnectionDetails.class);
+    final CallData callData =
+      m_requestFilterStubFactory.assertSuccess("connectionOpened",
+                                               ConnectionDetails.class);
+
+    // Check the remote endpoint and isSecure of the connection details matches
+    // those of our remote endpoint.
+    final ConnectionDetails localConnectionDetails =
+      (ConnectionDetails)callData.getParameters()[0];
+
+    assertEquals(connectionDetails.getRemoteEndPoint(),
+      localConnectionDetails.getRemoteEndPoint());
+    assertEquals(connectionDetails.isSecure(),
+      localConnectionDetails.isSecure());
+
     m_requestFilterStubFactory.assertSuccess("handle",
                                              ConnectionDetails.class,
                                              new byte[0].getClass(),
@@ -221,7 +235,7 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
     m_requestFilterStubFactory.resetCallHistory();
     m_responseFilterStubFactory.resetCallHistory();
 
-    engineTests(engine);
+    engineTests(engine, connectionDetails);
   }
 
   public void testColourEngine() throws Exception {
@@ -234,7 +248,7 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
     final ConnectionDetails connectionDetails =
       new ConnectionDetails(localEndPoint,
                             echoer.getEndPoint(),
-                            false);
+                            true);
 
     // Set the filters not to randomly generate output.
     m_requestFilterStubFactory.setResult(null);
@@ -262,7 +276,7 @@ public class TestPortForwarderTCPProxyEngine extends TestCase {
     m_requestFilterStubFactory.resetCallHistory();
     m_responseFilterStubFactory.resetCallHistory();
 
-    engineTests(engine);
+    engineTests(engine, connectionDetails);
   }
 
   public void testOutputStreamFilterTeeWithBadFilters() throws Exception {

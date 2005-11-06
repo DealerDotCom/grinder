@@ -8,6 +8,9 @@ Grinder 3.0-beta28 (Not yet released)
 
   New Russion translation from Konstantin Ignatyev.
 
+  Fix the TCPProxy port forwarding mode to correctly generate https URLs
+  (bug 1324640).
+
 
 Grinder 3.0-beta27
 ------------------
