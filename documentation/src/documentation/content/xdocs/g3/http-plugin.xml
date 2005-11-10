@@ -17,34 +17,173 @@
   <warning>Draft material follows.</warning>
 
   <section>
-    <title>Using a HTTP proxy</title>
+  <title>Controlling the HTTPPlugin</title>
+  <p>The HTTPPlugin behaviour can be controlled from within scripts run by The Grinder
+  through the use of the HTTPPluginControl facade.</p>
+  
+  <section>
+  <title>Levels of Control</title>
+  <p>There are three levels of control of the behaviour of the HTTPPlugin that
+  the HTTPPluginControl facade gives you access to:</p>
+  <ol>
+  <li><strong>Default Connection Behaviour</strong>
+    <ul>
+      <li><p>Method: <code>getConnectionDefaults</code></p></li>
+      <li><p>Returns a <code>HTTPPluginConnection</code> that can be used to set
+      the default behaviour of new connections.</p></li>
+    </ul>
+  </li>
+  <li><strong>Thread Connection Behaviour</strong>
+    <ul>
+      <li><p>Method: <code>getThreadConnection</code></p></li>    
+      <li><p>Returns a <code>HTTPPluginConnection</code> for a particular URL.</p></li>
+      <li><p>The resulting <code>HTTPPluginConnection</code> is valid for the current thread
+      and the current run. It can be used to set specific authentication details,
+      default headers, cookies, proxy servers, and so on for the current thread/run
+      on a per-URL basis.</p></li>
+      <li><p>This method will throw a <code>GrinderException</code> if not called from a worker thread.</p></li>
+    </ul>
+  </li>
+  <li><strong>Thread HTTPClient Context Object Behaviour</strong>
+    <ul>
+      <li><p>Method: <code>getThreadHTTPClientContext</code></p></li>        
+      <li><p>Returns the HTTPClient context object for the calling worker thread. This is useful when 
+      calling HTTPClient methods directly, e.g. <code>CookieModule.listAllCookies(Object)</code>.</p></li>
+      <li><p>This method will throw a <code>GrinderException</code> if not called from a worker thread.</p></li>
+    </ul>
+  </li>
+  </ol>
+  </section>
+  
+  <section>
+  <title>Importing the HTTPPluginControl</title>
+  <p>Place the following line at the top of your grinder script along with 
+  your other import statements</p>
+<source>
+from net.grinder.plugin.http import HTTPPluginControl
+</source>
+  </section>  
+  
+  <section>
+    <title>Setting an HTTP proxy</title>
+
+    <p>Should you need to specify an HTTP proxy to route requests through
+    the following code can be used to specify the default proxy used.</p>
+
 
 <source>
 control = HTTPPluginControl.getConnectionDefaults()
 control.setProxyServer("localhost", 8001)
 </source>
+   
+    <p>HTTP proxies can also be specified at the thread connection level. This
+    is useful to specify proxies on a per URL basis.</p>
+    
+<source>
+control = HTTPPluginControl.getThreadConnection()
+proxyURL1 = control("http://<em>(url1)</em>")
+proxyURL2 = control("http://<em>(url2)</em>")
+proxyURL1.setProxyServer("localhost", 8001)
+proxyURL2.setProxyServer("localhost", 8002)
+</source>
+
+
   </section>
 
   <section>
     <title>Setting HTTP proxy authentication:</title>
-
+    <p>The HTTPPlugin can handle two types of authentication, basic and digest.
+    Currently the HTTPPlugin does <strong>not</strong> support NTLM authentication.</p>
+    
+    <p>To set Basic Authentication:</p>
 <source>
 AuthorizationInfo.addBasicAuthorization("localhost",
     8001, "proxyrealm", "proxyusername", "proxypassword",
     HTTPPluginControl.getHTTPClientContext())
 </source>
 
-    <p>Must be done from a worker thread.</p>
+
+        <p>To set Digest Authentication:</p>
+<source>
+AuthorizationInfo.addDigestAuthorization("localhost",
+    8001, "proxyrealm", "proxyusername", "proxypassword",
+    HTTPPluginControl.getHTTPClientContext())
+</source>
+
+    <p>Both these methods must be done from a worker thread.</p>
+    
   </section>
 
   <section>
-    <title>Disabling persistent connections</title>
+    <title>Setting HTTP Headers</title>
+    <p>The HTTPlugin allows you to set the HTTP Headers sent with requests. 
+    The method takes the settings as header-name/value pairs</p>
+<source>
+control = HTTPPluginControl.getConnectionDefaults()
+control.setDefaultHeaders(NVPair("<em>(header-name)</em>", "<em>(value)</em>"),))
+</source>    
+    <p>Typical headers you might want to set here are <code>Accept</code> and its <code>Accept-*</code> 
+    relatives, <code>Connection</code>, <code>From</code>, <code>User-Agent</code>, etc.</p>
+  <p> For example to disable persistent connections:</p>
 <source>
 control = HTTPPluginControl.getConnectionDefaults()
 control.setDefaultHeaders(NVPair("Connection", "close"),))
 </source>
    </section>
 
+  <section>
+    <title>Setting Encoding</title>
+    <p>Encoding for Content or for Transfer can be switched on and off using boolean flags</p>
+<source>
+control = HTTPPluginControl.getConnectionDefaults()
+control.setUseContentEncoding(0)
+control.setUseTransferEncoding(1)
+</source>
+  </section>
+  
+  <section>
+    <title>Setting Redirect Behaviour</title>
+    <p>Setting the HTTPPlugin behaviour with regards to following redirects can 
+    be switched on and off using boolean flags</p>
+<source>
+control = HTTPPluginControl.getConnectionDefaults()
+control.setFollowRedirects(0)
+</source>
+  </section>  
+  
+  <section>
+    <title>Setting Local Address</title>
+    <p>Should you be conducting your tests on a server with multiple network interfaces
+    you can set the local IP address used by the HTTPPlugin for outbound connections.</p>
+<source>
+control = HTTPPluginControl.getConnectionDefaults()
+control.setLocalAddress("<em>(local IP Address)</em>")
+</source>
+  </section>    
+
+  <section>
+    <title>Setting Timeout Value</title>
+    <p>The timeout value for used for creating connections and reading responses can be 
+    controlled via the HTTPPlugin.</p>
+    <p>The following example sets a default timeout value of 30 seconds for all connections.</p>
+<source>
+control = HTTPPluginControl.getConnectionDefaults()
+control.setTimeout(30)
+</source>
+  </section>    
+
+  <section>
+    <title>Setting Cookie Behaviour</title>
+    <p>Setting the HTTPPlugin behaviour with regards to whether cookies are used or not can 
+    be switched on and off using boolean flags</p>
+<source>
+control = HTTPPluginControl.getConnectionDefaults()
+control.setUseCookies(0)
+</source>
+  </section>  
+
+  </section>
+  
   <section>
     <title>Recording of HTTP status codes</title>
 
@@ -55,5 +194,6 @@ control.setDefaultHeaders(NVPair("Connection", "close"),))
     <code>Test</code>, the status code of the last response is
     recorded.</p>
   </section>
+
 </body>
 </document>
