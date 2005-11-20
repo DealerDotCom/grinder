@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -20,8 +20,6 @@
 // OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package net.grinder.engine.process;
-
-import java.io.PrintWriter;
 
 import org.python.core.Py;
 import org.python.core.PyException;
@@ -80,32 +78,39 @@ public class JythonScriptExecutionException extends EngineException {
    * repeats a lot of information found in the Java exception).
    */
   private static final class BriefPyException extends EngineException {
-    private final String m_where;
-
     public BriefPyException(Throwable wrapped, PyTraceback traceback) {
-      super("", wrapped);
-
-      if (traceback.tb_frame != null) {
-        m_where = "(Passed through Jython script \"" +
-          traceback.tb_frame.f_code.co_filename +
-          "\" at line " + traceback.tb_lineno + ")";
-      }
-      else {
-        m_where = "";
-      }
+      super(tracebackToMessage(traceback), wrapped);
+      setStackTrace(new StackTraceElement[0]);
     }
 
-    public void printStackTrace(PrintWriter s) {
-      s.println(m_where);
-      getCause().printStackTrace(s);
-    }
-
-    public String getMessage() {
-      return getCause().getMessage();
-    }
-
+    /**
+     * Remove the class name from stack traces.
+     */
     public String toString() {
-      return getCause().toString();
+      return getLocalizedMessage();
     }
+  }
+
+  /**
+   * We fix various following problems with PyTraceback.dumpStack() to make it
+   * more suitable for incorporation with a Java stack trace.
+   * <ul>
+   * <li>PyTraceback doesn't use platform specific line separators.</li>
+   * <li>Stacks are printed with the innermost frame last.</li>
+   * <li>The indentation style is different.</li>
+   * </ul>
+   */
+  private static String tracebackToMessage(PyTraceback traceback) {
+    final StringBuffer result = new StringBuffer("Jython traceback");
+
+    final String[] frames = traceback.dumpStack().split("\n");
+
+    for (int i = frames.length - 1; i >= 1; --i) {
+      result.append(System.getProperty("line.separator"));
+      result.append("\t");
+      result.append(frames[i].trim());
+    }
+
+    return result.toString();
   }
 }

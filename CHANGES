@@ -11,6 +11,8 @@ Grinder 3.0-beta28 (Not yet released)
   Fix the TCPProxy port forwarding mode to correctly generate https URLs
   (bug 1324640).
 
+  Fix the exception logging to include Jython stack traces.
+
 
 Grinder 3.0-beta27
 ------------------
