@@ -13,6 +13,10 @@ Grinder 3.0-beta28 (Not yet released)
 
   Fix the exception logging to include Jython stack traces.
 
+  Java methods can now be wrapped. The resulting object should be invoked Python
+  style, i.e. non-static methods must be supplied with a 'self' instance as the
+  first argument.
+
 
 Grinder 3.0-beta27
 ------------------

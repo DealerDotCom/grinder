@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -27,6 +27,7 @@ import org.python.core.PyInstance;
 import org.python.core.PyMethod;
 import org.python.core.PyObject;
 import org.python.core.PyProxy;
+import org.python.core.PyReflectedFunction;
 
 import net.grinder.common.Test;
 import net.grinder.engine.common.EngineException;
@@ -88,45 +89,50 @@ final class TestData implements TestRegistry.RegisteredTest {
   }
 
   /**
-   * We could have defined overloaded createProxy methods that
-   * take a PyInstance, PyFunction etc., and return decorator
-   * PyObjects. There's no obvious way of doing this in a
-   * polymorphic way, so we would be forced to have n factories,
-   * n types of decorator, and probably run into identity
-   * issues. Instead we lean on Jython and force it to give us
-   * Java proxy which we then dynamically subclass with our own
-   * type of PyJavaInstance.
+   * We could have defined overloaded createProxy methods that take a
+   * PyInstance, PyFunction etc., and return decorator PyObjects. There's no
+   * obvious way of doing this in a polymorphic way, so we would be forced to
+   * have n factories, n types of decorator, and probably run into identity
+   * issues. Instead we lean on Jython and force it to give us Java proxy which
+   * we then dynamically subclass with our own type of PyJavaInstance.
    *
-   * <p>Later....
-   * <br>This works fine for wrapping the following:
+   * <p>
+   * Later.... <br>
+   * This works fine for wrapping the following:
    * <ul>
-   *   <li>Java instances and classes</li>
-   *   <li>PyClass</li>
-   *   <li>PyFunction</li>
-   *   <li>PyMethod</li>
-   *   <li>Python primitives (integers, strings, floats, complexes, ...)</li>
-   *   <li>Python tuples, lists, dictionaries</li>
-   *  </ul>
+   * <li>Java instances and classes</li>
+   * <li>PyClass</li>
+   * <li>PyFunction</li>
+   * <li>PyMethod</li>
+   * <li>PyReflectedFunction</li>
+   * <li>Python primitives (integers, strings, floats, complexes, ...)</li>
+   * <li>Python tuples, lists, dictionaries</li>
+   * </ul>
    * </p>
    *
-   * <p>Of course we're only really interested in the things we can
-   * invoke in some way. We throw NotWrappableTypeException for the
-   * things we don't want to handle.</p>
+   * <p>
+   * Of course we're only really interested in the things we can invoke in some
+   * way. We throw NotWrappableTypeException for the things we don't want to
+   * handle.
+   * </p>
    *
-   * <p>The specialised PyJavaInstance works suprisingly well for
-   * everything bar PyInstances. It can't work for PyInstances,
-   * because invoking on the PyJavaInstance calls the PyInstance which
-   * in turn attempts to call back on the PyJavaInstance. Use
-   * specialised PyInstance clone objects to handle this case.</p>
+   * <p>
+   * The specialised PyJavaInstance works surprisingly well for everything bar
+   * PyInstances. It can't work for PyInstances, because invoking on the
+   * PyJavaInstance calls the PyInstance which in turn attempts to call back on
+   * the PyJavaInstance. Use specialised PyInstance clone objects to handle this
+   * case. We also need to handle PyReflectedFunctions as an exception.
+   * </p>
    *
-   * <p>There's a subtle difference in the equlity semantics of
-   * TestPyInstances and TestPyJavaInstances. TestPyInstances compare
-   * do not equal to the wrapped objects, where as due to
-   * <code>PyJavaInstance._is()</code> semantics, TestPyJavaInstances
-   * <em>do</em> compare equal to the wrapped objects. We can only
-   * influence one side of the comparison (we can't easily alter the
-   * <code>_is</code> implementation of wrapped objects) so we can't
-   * do anything nice about this.</p>
+   * <p>
+   * There's a subtle difference in the equality semantics of TestPyInstances
+   * and TestPyJavaInstances. TestPyInstances compare do not equal to the
+   * wrapped objects, where as due to <code>PyJavaInstance._is()</code>
+   * semantics, TestPyJavaInstances <em>do</em> compare equal to the wrapped
+   * objects. We can only influence one side of the comparison (we can't easily
+   * alter the <code>_is</code> implementation of wrapped objects) so we can't
+   * do anything nice about this.
+   * </p>
    */
   public Object createProxy(Object o) throws NotWrappableTypeException {
 
@@ -140,6 +146,10 @@ final class TestData implements TestRegistry.RegisteredTest {
       }
       else if (o instanceof PyMethod) {
         return new TestPyJavaInstance(this, o);
+      }
+      else if (o instanceof PyReflectedFunction) {
+        return new InstrumentedPyReflectedFunction(this,
+                                                   (PyReflectedFunction)o);
       }
     }
     else if (o instanceof PyProxy) {
