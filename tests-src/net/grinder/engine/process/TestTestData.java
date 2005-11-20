@@ -179,7 +179,7 @@ public class TestTestData extends TestCase {
     interpreter.exec("x=Foo.bah");
     final PyObject pyMethod = interpreter.get("x");
     final PyObject pyMethodProxy = (PyObject)testData.createProxy(pyMethod);
-    final PyObject result3 = pyMethod.invoke("__call__", pyInstanceProxy);
+    final PyObject result3 = pyMethodProxy.invoke("__call__", pyInstanceProxy);
     assertEquals(new Integer(2), result3.__tojava__(Integer.class));
 
     // PyJavaInstance.
@@ -189,21 +189,30 @@ public class TestTestData extends TestCase {
     final PyObject result4 = pyJavaProxy.invoke("getClass");
     assertEquals(Random.class, result4.__tojava__(Class.class));
 
+    // PyReflectedFunction
+    interpreter.exec("y=Random.nextInt");
+    final PyObject pyJavaMethod = interpreter.get("y");
+    final PyObject pyJavaMethodProxy =
+      (PyObject)testData.createProxy(pyJavaMethod);
+    final PyObject result5 = pyJavaMethodProxy.__call__(pyJava);
+    assertTrue(result5.__tojava__(Object.class) instanceof Integer);
+
     // PyProxy. PyProxy's come paired with PyInstances - need to call
     // __tojava__ to get the PyProxy.
     interpreter.exec("class PyRandom(Random):\n def one(self): return 1\n" +
                      "x=PyRandom()");
     final Object pyProxy = interpreter.get("x").__tojava__(Object.class);
     final PyObject pyProxyProxy = (PyObject)testData.createProxy(pyProxy);
-    final PyObject result5 = pyProxyProxy.invoke("one");
-    assertEquals(new Integer(1), result5.__tojava__(Integer.class));
+    final PyObject result7 = pyProxyProxy.invoke("one");
+    assertEquals(new Integer(1), result7.__tojava__(Integer.class));
+
 
     // Java object.
     final Object java = new MyClass();
     final PyObject javaProxy = (PyObject)testData.createProxy(java);
-    final PyObject result6 = javaProxy.invoke("addOne",
+    final PyObject result8 = javaProxy.invoke("addOne",
                                               Py.java2py(new Integer(10)));
-    assertEquals(new Integer(11), result6.__tojava__(Integer.class));
+    assertEquals(new Integer(11), result8.__tojava__(Integer.class));
   }
 
   public static class MyClass {
