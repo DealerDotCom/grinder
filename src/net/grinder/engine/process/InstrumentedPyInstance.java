@@ -34,11 +34,11 @@ import org.python.core.PyObject;
  * @author Philip Aston
  * @version $Revision$
  */
-class TestPyInstance extends ClonePyInstance {
+class InstrumentedPyInstance extends ClonePyInstance {
   private final TestData m_testData;
   private final PyObject m_pyTest;
 
-  public TestPyInstance(TestData testData, PyInstance target) {
+  public InstrumentedPyInstance(TestData testData, PyInstance target) {
     super(target);
 
     m_testData = testData;
@@ -66,7 +66,7 @@ class TestPyInstance extends ClonePyInstance {
     return dispatch(
       new TestData.Invokeable() {
         public Object call() {
-          return TestPyInstance.super.invoke(name);
+          return InstrumentedPyInstance.super.invoke(name);
         }
       }
       );
@@ -76,7 +76,7 @@ class TestPyInstance extends ClonePyInstance {
     return dispatch(
       new TestData.Invokeable() {
         public Object call() {
-          return TestPyInstance.super.invoke(name, arg1);
+          return InstrumentedPyInstance.super.invoke(name, arg1);
         }
       }
       );
@@ -87,7 +87,7 @@ class TestPyInstance extends ClonePyInstance {
     return dispatch(
       new TestData.Invokeable() {
         public Object call() {
-          return TestPyInstance.super.invoke(name, arg1, arg2);
+          return InstrumentedPyInstance.super.invoke(name, arg1, arg2);
         }
       }
       );
@@ -97,7 +97,7 @@ class TestPyInstance extends ClonePyInstance {
     return dispatch(
       new TestData.Invokeable() {
         public Object call() {
-          return TestPyInstance.super.invoke(name, args);
+          return InstrumentedPyInstance.super.invoke(name, args);
         }
       }
       );
@@ -108,7 +108,7 @@ class TestPyInstance extends ClonePyInstance {
     return dispatch(
       new TestData.Invokeable() {
         public Object call() {
-          return TestPyInstance.super.invoke(name, args, keywords);
+          return InstrumentedPyInstance.super.invoke(name, args, keywords);
         }
       }
       );

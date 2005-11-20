@@ -139,13 +139,13 @@ final class TestData implements TestRegistry.RegisteredTest {
     if (o instanceof PyObject) {
       // Jython object.
       if (o instanceof PyInstance) {
-        return new TestPyInstance(this, (PyInstance)o);
+        return new InstrumentedPyInstance(this, (PyInstance)o);
       }
       else if (o instanceof PyFunction) {
-        return new TestPyJavaInstance(this, o);
+        return new InstrumentedPyJavaInstance(this, o);
       }
       else if (o instanceof PyMethod) {
-        return new TestPyJavaInstance(this, o);
+        return new InstrumentedPyJavaInstance(this, o);
       }
       else if (o instanceof PyReflectedFunction) {
         return new InstrumentedPyReflectedFunction(this,
@@ -154,7 +154,7 @@ final class TestData implements TestRegistry.RegisteredTest {
     }
     else if (o instanceof PyProxy) {
       // Jython object that extends a Java class.
-      return new TestPyInstance(this, ((PyProxy)o)._getPyInstance());
+      return new InstrumentedPyInstance(this, ((PyProxy)o)._getPyInstance());
     }
     else {
       // Java object.
@@ -165,7 +165,7 @@ final class TestData implements TestRegistry.RegisteredTest {
       if (!c.isArray() &&
           !(o instanceof Number) &&
           !(o instanceof String)) {
-        return new TestPyJavaInstance(this, o);
+        return new InstrumentedPyJavaInstance(this, o);
       }
     }
 

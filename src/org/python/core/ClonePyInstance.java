@@ -25,7 +25,7 @@ package org.python.core;
 /**
  * A <code>PyInstance</code> that shares the same class, dictionary,
  * and (optional) Java Proxy as another. <code>ClonePyInstance</code>
- * is subclassed by {@link net.grinder.engine.process.TestPyInstance}
+ * is subclassed by {@link net.grinder.engine.process.InstrumentedPyInstance}
  * which customises the invocation behaviour and becomes the "wrapped"
  * object for Python classes. It is in the
  * <code>org.python.core</code> package so that it can access the

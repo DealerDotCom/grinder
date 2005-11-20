@@ -32,11 +32,11 @@ import org.python.core.PyObject;
  * @author Philip Aston
  * @version $Revision$
  */
-class TestPyJavaInstance extends PyJavaInstance {
+class InstrumentedPyJavaInstance extends PyJavaInstance {
   private final TestData m_testData;
   private final PyObject m_pyTest;
 
-  public TestPyJavaInstance(TestData testData, Object target) {
+  public InstrumentedPyJavaInstance(TestData testData, Object target) {
     super(target);
 
     m_testData = testData;
@@ -64,7 +64,7 @@ class TestPyJavaInstance extends PyJavaInstance {
     return dispatch(
       new TestData.Invokeable() {
         public Object call() {
-          return TestPyJavaInstance.super.invoke(name);
+          return InstrumentedPyJavaInstance.super.invoke(name);
         }
       }
       );
@@ -74,7 +74,7 @@ class TestPyJavaInstance extends PyJavaInstance {
     return dispatch(
       new TestData.Invokeable() {
         public Object call() {
-          return TestPyJavaInstance.super.invoke(name, arg1);
+          return InstrumentedPyJavaInstance.super.invoke(name, arg1);
         }
       }
       );
@@ -85,7 +85,7 @@ class TestPyJavaInstance extends PyJavaInstance {
     return dispatch(
       new TestData.Invokeable() {
         public Object call() {
-          return TestPyJavaInstance.super.invoke(name, arg1, arg2);
+          return InstrumentedPyJavaInstance.super.invoke(name, arg1, arg2);
         }
       }
       );
@@ -95,7 +95,7 @@ class TestPyJavaInstance extends PyJavaInstance {
     return dispatch(
       new TestData.Invokeable() {
         public Object call() {
-          return TestPyJavaInstance.super.invoke(name, args);
+          return InstrumentedPyJavaInstance.super.invoke(name, args);
         }
       }
       );
@@ -106,7 +106,7 @@ class TestPyJavaInstance extends PyJavaInstance {
     return dispatch(
       new TestData.Invokeable() {
         public Object call() {
-          return TestPyJavaInstance.super.invoke(name, args, keywords);
+          return InstrumentedPyJavaInstance.super.invoke(name, args, keywords);
         }
       }
       );
