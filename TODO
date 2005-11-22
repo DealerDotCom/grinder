@@ -171,6 +171,11 @@ that can be launched from a thread which drops the user into a
 console? Can't just run the interpretter as the worker processes don't
 have access to the controlling terminals stdin.
 
+*** Debug option: spawn threads, not processes
+
+This would enable debugging, and might form the basis for an interactive
+mode (see above).
+
 *** Instrumentation
 
 Could we support a procedural "startTest()", "stopTest()" API?
