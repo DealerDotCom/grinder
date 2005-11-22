@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -33,12 +33,12 @@ import net.grinder.engine.messages.InitialiseGrinderMessage;
 
 
 /**
- * Class that can start worker processes.
+ * Class that starts workers as separate processes.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-final class WorkerProcessFactory implements ProcessFactory {
+final class ProcessWorkerFactory implements WorkerFactory {
 
   private final WorkerProcessCommandLine m_commandLine;
   private final FanOutStreamSender m_fanOutStreamSender;
@@ -47,7 +47,7 @@ final class WorkerProcessFactory implements ProcessFactory {
   private final File m_scriptFile;
   private final File m_scriptDirectory;
 
-  public WorkerProcessFactory(WorkerProcessCommandLine commandLine,
+  public ProcessWorkerFactory(WorkerProcessCommandLine commandLine,
                               FanOutStreamSender fanOutStreamSender,
                               AgentIdentityImplementation agentIdentity,
                               boolean reportToConsole,
@@ -62,19 +62,19 @@ final class WorkerProcessFactory implements ProcessFactory {
     m_scriptDirectory = scriptDirectory;
   }
 
-  public ChildProcess create(OutputStream outputStream,
-                             OutputStream errorStream) throws EngineException {
+  public Worker create(OutputStream outputStream,
+                       OutputStream errorStream) throws EngineException {
 
     final WorkerIdentity workerIdentity =
       m_agentIdentity.createWorkerIdentity();
 
-    final ChildProcess process =
-      new ChildProcess(workerIdentity.getName(),
-                       m_commandLine.getCommandArray(),
-                       outputStream,
-                       errorStream);
+    final Worker process =
+      new ProcessWorker(workerIdentity.getName(),
+                        m_commandLine.getCommandArray(),
+                        outputStream,
+                        errorStream);
 
-    final OutputStream processStdin = process.getStdinStream();
+    final OutputStream processStdin = process.getCommunicationStream();
 
     try {
       final InitialiseGrinderMessage initialisationMessage =

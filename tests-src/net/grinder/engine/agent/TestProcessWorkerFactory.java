@@ -38,12 +38,12 @@ import net.grinder.engine.process.GrinderProcess;
 
 
 /**
- *  Unit tests for <code>WorkerProcessFactory</code>.
+ *  Unit tests for <code>ProcessWorkerFactory</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestWorkerProcessFactory extends TestCase {
+public class TestProcessWorkerFactory extends TestCase {
 
   private static final String s_classesDir = System.getProperty("classes.dir");
   private static final String s_testClasspath =
@@ -77,8 +77,8 @@ public class TestWorkerProcessFactory extends TestCase {
     final AgentIdentityImplementation agentIdentityImplementation =
       new AgentIdentityImplementation("agent");
 
-    final WorkerProcessFactory workerProcessFactory =
-      new WorkerProcessFactory(commandLine,
+    final ProcessWorkerFactory processWorkerFactory =
+      new ProcessWorkerFactory(commandLine,
                                fanOutStreamSender,
                                agentIdentityImplementation,
                                reportToConsole,
@@ -88,12 +88,12 @@ public class TestWorkerProcessFactory extends TestCase {
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     final ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
 
-    final ChildProcess childProcess =
-      workerProcessFactory.create(outputStream, errorStream);
+    final Worker worker =
+      processWorkerFactory.create(outputStream, errorStream);
 
-    assertTrue(childProcess.getProcessName().endsWith("-0"));
+    assertTrue(worker.getName().endsWith("-0"));
 
-    childProcess.waitFor();
+    worker.waitFor();
 
     assertEquals("", new String(errorStream.toByteArray()));
 

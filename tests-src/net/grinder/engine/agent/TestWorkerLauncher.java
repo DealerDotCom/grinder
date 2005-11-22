@@ -34,26 +34,26 @@ import net.grinder.testutility.CallData;
 
 
 /**
- *  Unit tests for <code>ProcessLauncher</code>.
+ *  Unit tests for <code>WorkerLauncher</code>.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestProcessLauncher extends TestCase {
+public class TestWorkerLauncher extends TestCase {
 
   private static final String s_testClasspath =
     System.getProperty("java.class.path");
 
   public void testConstructor() throws Exception {
-    final ProcessLauncher processLauncher1 =
-      new ProcessLauncher(0, null, null, null);
+    final WorkerLauncher workerLauncher1 =
+      new WorkerLauncher(0, null, null, null);
 
-    assertTrue(processLauncher1.allFinished());
+    assertTrue(workerLauncher1.allFinished());
 
-    final ProcessLauncher processLauncher2 =
-      new ProcessLauncher(10, null, null, null);
+    final WorkerLauncher workerLauncher2 =
+      new WorkerLauncher(10, null, null, null);
 
-    assertFalse(processLauncher2.allFinished());
+    assertFalse(workerLauncher2.allFinished());
   }
 
   public void testStartSomeProcesses() throws Exception {
@@ -61,37 +61,37 @@ public class TestProcessLauncher extends TestCase {
     final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
     final Logger logger = loggerStubFactory.getLogger();
     final MyMonitor monitor = new MyMonitor();
-    final MyProcessFactory myProcessFactory = new MyProcessFactory();
+    final MyWorkerFactory myProcessFactory = new MyWorkerFactory();
 
-    final ProcessLauncher processLauncher =
-      new ProcessLauncher(5, myProcessFactory, monitor, logger);
+    final WorkerLauncher workerLauncher =
+      new WorkerLauncher(5, myProcessFactory, monitor, logger);
 
-    monitor.waitFor(processLauncher);
+    monitor.waitFor(workerLauncher);
     assertFalse(monitor.isFinished());
 
     assertEquals(-1, myProcessFactory.getLastProcessIndex());
 
-    processLauncher.startSomeProcesses(1);
+    workerLauncher.startSomeWorkers(1);
 
     assertEquals(0, myProcessFactory.getLastProcessIndex());
 
-    assertFalse(processLauncher.allFinished());
+    assertFalse(workerLauncher.allFinished());
     assertEquals(System.out, myProcessFactory.getLastOutputStream());
     assertEquals(System.err, myProcessFactory.getLastErrorStream());
 
     assertEquals(1, myProcessFactory.getChildProcesses().size());
-    final ChildProcess childProcess =
-      (ChildProcess)myProcessFactory.getChildProcesses().get(0);
+    final Worker childProcess =
+      (Worker)myProcessFactory.getChildProcesses().get(0);
 
     final CallData call = loggerStubFactory.getCallData();
     assertEquals("output", call.getMethodName());
     final Object[] parameters = call.getParameters();
     assertEquals(1, parameters.length);
     final String s = (String)parameters[0];
-    assertTrue(s.indexOf(childProcess.getProcessName()) >= 0);
+    assertTrue(s.indexOf(childProcess.getName()) >= 0);
     loggerStubFactory.assertNoMoreCalls();
 
-    processLauncher.startSomeProcesses(10);
+    workerLauncher.startSomeWorkers(10);
     assertEquals(4, myProcessFactory.getLastProcessIndex());
 
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
@@ -102,16 +102,16 @@ public class TestProcessLauncher extends TestCase {
 
     assertEquals(5, myProcessFactory.getChildProcesses().size());
 
-    assertFalse(processLauncher.allFinished());
+    assertFalse(workerLauncher.allFinished());
 
-    final ChildProcess[] processes =
-      (ChildProcess[])
-      myProcessFactory.getChildProcesses().toArray(new ChildProcess[0]);
+    final Worker[] processes =
+      (Worker[])
+      myProcessFactory.getChildProcesses().toArray(new Worker[0]);
 
     sendTerminationMessage(processes[0]);
     sendTerminationMessage(processes[2]);
 
-    assertFalse(processLauncher.allFinished());
+    assertFalse(workerLauncher.allFinished());
     assertFalse(monitor.isFinished());
 
     sendTerminationMessage(processes[1]);
@@ -124,12 +124,12 @@ public class TestProcessLauncher extends TestCase {
       Thread.sleep(20);
     }
 
-    assertTrue(processLauncher.allFinished());
+    assertTrue(workerLauncher.allFinished());
   }
 
-  private void sendTerminationMessage(ChildProcess process) {
+  private void sendTerminationMessage(Worker process) {
     final PrintWriter processStdin =
-      new PrintWriter(process.getStdinStream());
+      new PrintWriter(process.getCommunicationStream());
 
     processStdin.print("Foo\n");
     processStdin.flush();
@@ -140,29 +140,29 @@ public class TestProcessLauncher extends TestCase {
     final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
     final Logger logger = loggerStubFactory.getLogger();
     final MyMonitor monitor = new MyMonitor();
-    final MyProcessFactory myProcessFactory = new MyProcessFactory();
+    final MyWorkerFactory myProcessFactory = new MyWorkerFactory();
 
-    final ProcessLauncher processLauncher =
-      new ProcessLauncher(9, myProcessFactory, monitor, logger);
+    final WorkerLauncher workerLauncher =
+      new WorkerLauncher(9, myProcessFactory, monitor, logger);
 
-    monitor.waitFor(processLauncher);
+    monitor.waitFor(workerLauncher);
     assertFalse(monitor.isFinished());
 
     assertEquals(-1, myProcessFactory.getLastProcessIndex());
 
-    processLauncher.startAllProcesses();
+    workerLauncher.startAllWorkers();
 
     assertEquals(8, myProcessFactory.getLastProcessIndex());
 
-    assertFalse(processLauncher.allFinished());
+    assertFalse(workerLauncher.allFinished());
     assertEquals(System.out, myProcessFactory.getLastOutputStream());
     assertEquals(System.err, myProcessFactory.getLastErrorStream());
 
     assertEquals(9, myProcessFactory.getChildProcesses().size());
 
-    final ChildProcess[] processes =
-      (ChildProcess[])
-      myProcessFactory.getChildProcesses().toArray(new ChildProcess[0]);
+    final Worker[] processes =
+      (Worker[])
+      myProcessFactory.getChildProcesses().toArray(new Worker[0]);
 
     sendTerminationMessage(processes[0]);
     sendTerminationMessage(processes[6]);
@@ -170,7 +170,7 @@ public class TestProcessLauncher extends TestCase {
     sendTerminationMessage(processes[2]);
     sendTerminationMessage(processes[7]);
 
-    assertFalse(processLauncher.allFinished());
+    assertFalse(workerLauncher.allFinished());
     assertFalse(monitor.isFinished());
 
     sendTerminationMessage(processes[8]);
@@ -184,7 +184,7 @@ public class TestProcessLauncher extends TestCase {
       Thread.sleep(20);
     }
 
-    assertTrue(processLauncher.allFinished());
+    assertTrue(workerLauncher.allFinished());
   }
 
   public void testDestroyAllProcesses() throws Exception {
@@ -192,34 +192,34 @@ public class TestProcessLauncher extends TestCase {
     final LoggerStubFactory loggerStubFactory = new LoggerStubFactory();
     final Logger logger = loggerStubFactory.getLogger();
     final MyMonitor monitor = new MyMonitor();
-    final MyProcessFactory myProcessFactory = new MyProcessFactory();
+    final MyWorkerFactory myProcessFactory = new MyWorkerFactory();
 
-    final ProcessLauncher processLauncher =
-      new ProcessLauncher(4, myProcessFactory, monitor, logger);
+    final WorkerLauncher workerLauncher =
+      new WorkerLauncher(4, myProcessFactory, monitor, logger);
 
-    monitor.waitFor(processLauncher);
+    monitor.waitFor(workerLauncher);
     assertFalse(monitor.isFinished());
 
     assertEquals(-1, myProcessFactory.getLastProcessIndex());
 
-    processLauncher.startAllProcesses();
+    workerLauncher.startAllWorkers();
 
     assertEquals(3, myProcessFactory.getLastProcessIndex());
 
-    assertFalse(processLauncher.allFinished());
+    assertFalse(workerLauncher.allFinished());
     assertEquals(4, myProcessFactory.getChildProcesses().size());
 
-    final ChildProcess[] processes =
-      (ChildProcess[])
-      myProcessFactory.getChildProcesses().toArray(new ChildProcess[0]);
+    final Worker[] processes =
+      (Worker[])
+      myProcessFactory.getChildProcesses().toArray(new Worker[0]);
 
     sendTerminationMessage(processes[1]);
     sendTerminationMessage(processes[3]);
 
-    assertFalse(processLauncher.allFinished());
+    assertFalse(workerLauncher.allFinished());
     assertFalse(monitor.isFinished());
 
-    processLauncher.destroyAllProcesses();
+    workerLauncher.destroyAllWorkers();
 
     // Can't be bothered to add another layer of synchronisation, just
     // spin.
@@ -227,13 +227,13 @@ public class TestProcessLauncher extends TestCase {
       Thread.sleep(20);
     }
 
-    assertTrue(processLauncher.allFinished());
+    assertTrue(workerLauncher.allFinished());
   }
 
   private static class MyMonitor {
     private boolean m_finished;
 
-    public synchronized void waitFor(final ProcessLauncher processLauncher) {
+    public synchronized void waitFor(final WorkerLauncher workerLauncher) {
 
       m_finished = false;
 
@@ -241,7 +241,7 @@ public class TestProcessLauncher extends TestCase {
         public void run() {
           try {
             synchronized (MyMonitor.this) {
-              while (!processLauncher.allFinished()) {
+              while (!workerLauncher.allFinished()) {
                 MyMonitor.this.wait();
               }
             }
@@ -259,14 +259,14 @@ public class TestProcessLauncher extends TestCase {
     }
   }
 
-  private static class MyProcessFactory implements ProcessFactory {
+  private static class MyWorkerFactory implements WorkerFactory {
 
     private int m_lastProcessIndex = -1;
     private OutputStream m_lastOutputStream;
     private OutputStream m_lastErrorStream;
     private ArrayList m_childProcesses = new ArrayList();
 
-    public ChildProcess create(OutputStream outputStream,
+    public Worker create(OutputStream outputStream,
                                OutputStream errorStream)
       throws EngineException {
 
@@ -280,8 +280,8 @@ public class TestProcessLauncher extends TestCase {
         EchoClass.class.getName(),
       };
 
-      final ChildProcess childProcess =
-        new ChildProcess("process " + ++m_lastProcessIndex, commandArray,
+      final Worker childProcess =
+        new ProcessWorker("process " + ++m_lastProcessIndex, commandArray,
                          outputStream, errorStream);
 
       m_childProcesses.add(childProcess);

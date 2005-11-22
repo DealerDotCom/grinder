@@ -1,10 +1,5 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
-//
-// This file is part of The Grinder software distribution. Refer to
-// the file LICENSE which is part of The Grinder distribution for
-// licensing details. The Grinder distribution is available on the
-// Internet at http://grinder.sourceforge.net/
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -27,13 +22,40 @@ import net.grinder.engine.common.EngineException;
 
 
 /**
- * Interface implemented by classes that can start a process.
+ * A worker.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-interface ProcessFactory {
+interface Worker {
 
-  ChildProcess create(OutputStream outputStream,
-                      OutputStream errorStream) throws EngineException;
+  /**
+   * Return the worker name.
+   *
+   * @return The name.
+   */
+  String getName();
+
+  /**
+   * Return an output stream connected to the input stream for the worker.
+   *
+   * @return The stream.
+   */
+  OutputStream getCommunicationStream();
+
+  /**
+   * Wait until the worker has completed. Return the exit status.
+   *
+   * @return See {@link net.grinder.engine.process.GrinderProcess} for
+   * valid values.
+   * @throws EngineException If an error occurs.
+   * @throws InterruptedException If this thread is interrupted whilst
+   * waiting.
+   */
+  int waitFor() throws InterruptedException, EngineException;
+
+  /**
+   * Destroy the worker.
+   */
+  void destroy();
 }

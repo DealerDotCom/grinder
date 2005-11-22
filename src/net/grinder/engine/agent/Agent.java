@@ -238,9 +238,9 @@ public final class Agent {
           }
           else {
             m_logger.error("The script file '" + scriptFromProperties +
-                         "' does not exist or is not readable. " +
-                         "Check grinder.properties.",
-                         Logger.LOG | Logger.TERMINAL);
+                           "' does not exist or is not readable. " +
+                           "Check grinder.properties.",
+                           Logger.LOG | Logger.TERMINAL);
 
             scriptFile = null;
           }
@@ -251,25 +251,25 @@ public final class Agent {
       }
 
       if (scriptFile != null) {
-        final ProcessFactory workerProcessFactory =
-          new WorkerProcessFactory(workerCommandLine,
+        final WorkerFactory workerProcessFactory =
+          new ProcessWorkerFactory(workerCommandLine,
                                    m_fanOutStreamSender,
                                    m_agentIdentity,
                                    consoleCommunication != null,
                                    scriptFile,
                                    scriptDirectory);
 
-        final ProcessLauncher processLauncher =
-          new ProcessLauncher(properties.getInt("grinder.processes", 1),
-                              workerProcessFactory, m_eventSynchronisation,
-                              m_logger);
+        final WorkerLauncher workerLauncher =
+          new WorkerLauncher(properties.getInt("grinder.processes", 1),
+                             workerProcessFactory, m_eventSynchronisation,
+                             m_logger);
 
         final int processIncrement =
           properties.getInt("grinder.processIncrement", 0);
 
         if (processIncrement > 0) {
           final boolean moreProcessesToStart =
-            processLauncher.startSomeProcesses(
+            workerLauncher.startSomeWorkers(
               properties.getInt("grinder.initialProcesses", processIncrement));
 
           if (moreProcessesToStart) {
@@ -277,14 +277,14 @@ public final class Agent {
               properties.getInt("grinder.processIncrementInterval", 60000);
 
             final RampUpTimerTask rampUpTimerTask =
-              new RampUpTimerTask(processLauncher, processIncrement);
+              new RampUpTimerTask(workerLauncher, processIncrement);
 
             m_timer.scheduleAtFixedRate(
               rampUpTimerTask, incrementInterval, incrementInterval);
           }
         }
         else {
-          processLauncher.startAllProcesses();
+          workerLauncher.startAllWorkers();
         }
 
         // Wait for a termination event.
@@ -292,11 +292,11 @@ public final class Agent {
           final long maximumShutdownTime = 20000;
           long consoleSignalTime = -1;
 
-          while (!processLauncher.allFinished()) {
+          while (!workerLauncher.allFinished()) {
 
             if (m_consoleListener.checkForMessage(ConsoleListener.ANY ^
                                                 ConsoleListener.START)) {
-              processLauncher.dontStartAnyMore();
+              workerLauncher.dontStartAnyMore();
               consoleSignalTime = System.currentTimeMillis();
             }
 
@@ -305,7 +305,7 @@ public final class Agent {
                 maximumShutdownTime) {
 
               m_logger.output("forcibly terminating unresponsive processes");
-              processLauncher.destroyAllProcesses();
+              workerLauncher.destroyAllWorkers();
             }
 
             m_eventSynchronisation.wait(maximumShutdownTime);
@@ -358,10 +358,10 @@ public final class Agent {
 
   private class RampUpTimerTask extends TimerTask {
 
-    private final ProcessLauncher m_processLauncher;
+    private final WorkerLauncher m_processLauncher;
     private final int m_processIncrement;
 
-    public RampUpTimerTask(ProcessLauncher processLauncher,
+    public RampUpTimerTask(WorkerLauncher processLauncher,
                            int processIncrement) {
       m_processLauncher = processLauncher;
       m_processIncrement = processIncrement;
@@ -370,7 +370,7 @@ public final class Agent {
     public void run() {
       try {
         final boolean moreProcessesToStart =
-          m_processLauncher.startSomeProcesses(m_processIncrement);
+          m_processLauncher.startSomeWorkers(m_processIncrement);
 
         if (!moreProcessesToStart) {
           super.cancel();

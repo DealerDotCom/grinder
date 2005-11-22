@@ -36,7 +36,7 @@ import junit.framework.TestCase;
  * @author Philip Aston
  * @version $Revision$
  */
-public class TestChildProcess extends TestCase {
+public class TestProcessWorker extends TestCase {
 
   private static final String s_testClasspath =
     System.getProperty("java.class.path");
@@ -51,7 +51,7 @@ public class TestChildProcess extends TestCase {
     };
 
     try {
-      new ChildProcess("my process", commandArray, m_outputStream,
+      new ProcessWorker("my process", commandArray, m_outputStream,
                        m_errorStream);
       fail("Expected GrinderException");
     }
@@ -69,13 +69,13 @@ public class TestChildProcess extends TestCase {
       "some nonsense class",
     };
 
-    final ChildProcess childProcess =
-      new ChildProcess("my process", commandArray, m_outputStream,
+    final ProcessWorker childProcess =
+      new ProcessWorker("my process", commandArray, m_outputStream,
                        m_errorStream);
 
     childProcess.waitFor();
 
-    assertEquals("my process", childProcess.getProcessName());
+    assertEquals("my process", childProcess.getName());
     assertEquals(0, m_outputStream.toByteArray().length);
     assertTrue(m_errorStream.toByteArray().length > 0);
   }
@@ -91,10 +91,11 @@ public class TestChildProcess extends TestCase {
       "3810 32190 130100''''",
     };
 
-    final ChildProcess childProcess =
-      new ChildProcess("echo", commandArray, m_outputStream, m_errorStream);
+    final ProcessWorker childProcess =
+      new ProcessWorker("echo", commandArray, m_outputStream, m_errorStream);
 
-    final PrintWriter out = new PrintWriter(childProcess.getStdinStream());
+    final PrintWriter out =
+      new PrintWriter(childProcess.getCommunicationStream());
     out.print(EchoClass.ECHO_ARGUMENTS);
     out.print('\n');
     out.flush();
@@ -112,7 +113,7 @@ public class TestChildProcess extends TestCase {
     assertEquals(expected.toString(),
                  new String(m_outputStream.toByteArray()));
 
-    assertEquals("echo", childProcess.getProcessName());
+    assertEquals("echo", childProcess.getName());
   }
 
   public void testConcurrentProcessing() throws Exception {
@@ -123,15 +124,17 @@ public class TestChildProcess extends TestCase {
       EchoClass.class.getName(),
     };
 
-    final ChildProcess childProcess =
-      new ChildProcess("echo", commandArray, m_outputStream, m_errorStream);
+    final ProcessWorker childProcess =
+      new ProcessWorker("echo", commandArray, m_outputStream, m_errorStream);
 
-    final PrintWriter out = new PrintWriter(childProcess.getStdinStream());
+    final PrintWriter out =
+      new PrintWriter(childProcess.getCommunicationStream());
     out.print(EchoClass.ECHO_STREAMS);
     out.print('\n');
     out.flush();
 
-    final Thread t = new Thread(new WriteData(childProcess.getStdinStream()));
+    final Thread t =
+      new Thread(new WriteData(childProcess.getCommunicationStream()));
     t.start();
 
     childProcess.waitFor();
@@ -158,8 +161,8 @@ public class TestChildProcess extends TestCase {
       EchoClass.class.getName(),
     };
 
-    final ChildProcess childProcess =
-      new ChildProcess("echo", commandArray, m_outputStream, m_errorStream);
+    final ProcessWorker childProcess =
+      new ProcessWorker("echo", commandArray, m_outputStream, m_errorStream);
 
     childProcess.destroy();
 

@@ -27,72 +27,70 @@ import net.grinder.util.thread.Kernel;
 
 
 /**
- * Manages launching a set of processes.
+ * Manages launching a set of workers.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-final class ProcessLauncher {
+final class WorkerLauncher {
 
   private final Kernel m_kernel = new Kernel(1);
-  private final ProcessFactory m_processFactory;
+  private final WorkerFactory m_workerFactory;
   private final Object m_notifyOnFinish;
   private final Logger m_logger;
 
   /**
-   * Fixed size array with a slot for all potential processes.
-   * Synchronise on m_processes before accessing entries. If an
-   * entry is null and its index is less than m_nextProcessIndex,
-   * the process has finished or the ProcessLauncher has been
-   * shutdown.
+   * Fixed size array with a slot for all potential workers. Synchronise on
+   * m_workers before accessing entries. If an entry is null and its index is
+   * less than m_nextWorkerIndex, the worker has finished or the WorkerLauncher
+   * has been shutdown.
    */
-  private final ChildProcess[] m_processes;
+  private final Worker[] m_workers;
 
   /**
-   * The next process to start. Only increases.
+   * The next worker to start. Only increases.
    */
-  private int m_nextProcessIndex = 0;
+  private int m_nextWorkerIndex = 0;
 
-  public ProcessLauncher(int numberOfProcesses,
-                         ProcessFactory processFactory,
+  public WorkerLauncher(int numberOfWorkers,
+                         WorkerFactory workerFactory,
                          Object notifyOnFinish,
                          Logger logger) {
 
-    m_processFactory = processFactory;
+    m_workerFactory = workerFactory;
     m_notifyOnFinish = notifyOnFinish;
     m_logger = logger;
 
-    m_processes = new ChildProcess[numberOfProcesses];
+    m_workers = new Worker[numberOfWorkers];
 
     Runtime.getRuntime().addShutdownHook(
       new Thread("The Grim Reaper") {
-        public void run() { destroyAllProcesses(); }
+        public void run() { destroyAllWorkers(); }
       });
   }
 
-  public void startAllProcesses() throws EngineException {
-    startSomeProcesses(m_processes.length - m_nextProcessIndex);
+  public void startAllWorkers() throws EngineException {
+    startSomeWorkers(m_workers.length - m_nextWorkerIndex);
   }
 
-  public boolean startSomeProcesses(int numberOfProcesses)
+  public boolean startSomeWorkers(int numberOfWorkers)
     throws EngineException {
 
     final int numberToStart =
-      Math.min(numberOfProcesses, m_processes.length - m_nextProcessIndex);
+      Math.min(numberOfWorkers, m_workers.length - m_nextWorkerIndex);
 
     for (int i = 0; i < numberToStart; ++i) {
-      final int processIndex = m_nextProcessIndex;
+      final int workerIndex = m_nextWorkerIndex;
 
-      synchronized (m_processes) {
-        m_processes[processIndex] = m_processFactory.create(System.out,
-                                                            System.err);
+      synchronized (m_workers) {
+        m_workers[workerIndex] = m_workerFactory.create(System.out, System.err);
       }
 
-      m_logger.output("process " + m_processes[processIndex].getProcessName() +
+      m_logger.output("worker " + m_workers[workerIndex].getName() +
                       " started");
 
       try {
-        m_kernel.execute(new WaitForProcessTask(processIndex));
+        m_kernel.execute(new WaitForWorkerTask(workerIndex));
       }
       catch (Kernel.ShutdownException e) {
         m_logger.error("Kernel unexpectedly shutdown");
@@ -100,33 +98,33 @@ final class ProcessLauncher {
         return false;
       }
 
-      ++m_nextProcessIndex;
+      ++m_nextWorkerIndex;
     }
 
-    return m_processes.length > m_nextProcessIndex;
+    return m_workers.length > m_nextWorkerIndex;
   }
 
-  private final class WaitForProcessTask implements Runnable {
+  private final class WaitForWorkerTask implements Runnable {
 
-    private final int m_processIndex;
+    private final int m_workerIndex;
 
-    public WaitForProcessTask(int processIndex) {
-      m_processIndex = processIndex;
+    public WaitForWorkerTask(int workerIndex) {
+      m_workerIndex = workerIndex;
     }
 
     public void run() {
       try {
-        final ChildProcess process;
+        final Worker worker;
 
-        synchronized (m_processes) {
-          process = m_processes[m_processIndex];
+        synchronized (m_workers) {
+          worker = m_workers[m_workerIndex];
         }
 
-        if (process != null) {
-          process.waitFor();
+        if (worker != null) {
+          worker.waitFor();
 
-          synchronized (m_processes) {
-            m_processes[m_processIndex] = null;
+          synchronized (m_workers) {
+            m_workers[m_workerIndex] = null;
           }
         }
       }
@@ -150,13 +148,13 @@ final class ProcessLauncher {
   }
 
   public boolean allFinished() {
-    if (m_nextProcessIndex < m_processes.length) {
+    if (m_nextWorkerIndex < m_workers.length) {
       return false;
     }
 
-    synchronized (m_processes) {
-      for (int i = 0; i < m_processes.length; i++) {
-        if (m_processes[i] != null) {
+    synchronized (m_workers) {
+      for (int i = 0; i < m_workers.length; i++) {
+        if (m_workers[i] != null) {
           return false;
         }
       }
@@ -166,16 +164,16 @@ final class ProcessLauncher {
   }
 
   public void dontStartAnyMore() {
-    m_nextProcessIndex = m_processes.length;
+    m_nextWorkerIndex = m_workers.length;
   }
 
-  public void destroyAllProcesses() {
+  public void destroyAllWorkers() {
     dontStartAnyMore();
 
-    synchronized (m_processes) {
-      for (int i = 0; i < m_processes.length; i++) {
-        if (m_processes[i] != null) {
-          m_processes[i].destroy();
+    synchronized (m_workers) {
+      for (int i = 0; i < m_workers.length; i++) {
+        if (m_workers[i] != null) {
+          m_workers[i].destroy();
         }
       }
     }

@@ -39,7 +39,7 @@ import net.grinder.util.StreamCopier;
  * @see net.grinder.engine.process.GrinderProcess
  *
  */
-final class ChildProcess {
+final class ProcessWorker implements Worker {
 
   private final String m_processName;
   private final Process m_process;
@@ -57,7 +57,7 @@ final class ChildProcess {
    * should be redirected.
    * @throws EngineException If an error occurs.
    */
-  public ChildProcess(String processName,
+  public ProcessWorker(String processName,
                       String[] commandArray,
                       OutputStream outputStream,
                       OutputStream errorStream)
@@ -80,11 +80,11 @@ final class ChildProcess {
   }
 
   /**
-   * Return the process name.
+   * Return the worker name.
    *
-   * @return The process name.
+   * @return The worker name.
    */
-  public String getProcessName() {
+  public String getName() {
     return m_processName;
   }
 
@@ -94,12 +94,12 @@ final class ChildProcess {
    *
    * @return The stream.
    */
-  public OutputStream getStdinStream() {
+  public OutputStream getCommunicationStream() {
     return m_process.getOutputStream();
   }
 
   /**
-   * Wait until the process has completed. Return the exit status.
+   * Wait until the worker has completed. Return the exit status.
    *
    * @return See {@link net.grinder.engine.process.GrinderProcess} for
    * valid values.
@@ -124,7 +124,7 @@ final class ChildProcess {
   }
 
   /**
-   * Destroy the process.
+   * Destroy the worker.
    */
   public void destroy() {
     m_process.destroy();
