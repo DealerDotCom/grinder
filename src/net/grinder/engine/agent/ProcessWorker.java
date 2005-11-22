@@ -41,7 +41,7 @@ import net.grinder.util.StreamCopier;
  */
 final class ProcessWorker implements Worker {
 
-  private final String m_processName;
+  private final String m_workerName;
   private final Process m_process;
   private final Thread m_stdoutRedirectorThread;
   private final Thread m_stderrRedirectorThread;
@@ -49,7 +49,7 @@ final class ProcessWorker implements Worker {
   /**
    * Constructor.
    *
-   * @param processName The process name.
+   * @param workerName The process name.
    * @param commandArray Command line arguments.
    * @param outputStream Output stream to which child process stdout
    * should be redirected.
@@ -57,13 +57,13 @@ final class ProcessWorker implements Worker {
    * should be redirected.
    * @throws EngineException If an error occurs.
    */
-  public ProcessWorker(String processName,
-                      String[] commandArray,
-                      OutputStream outputStream,
-                      OutputStream errorStream)
+  public ProcessWorker(String workerName,
+                       String[] commandArray,
+                       OutputStream outputStream,
+                       OutputStream errorStream)
     throws EngineException {
 
-    m_processName = processName;
+    m_workerName = workerName;
 
     try {
       m_process = Runtime.getRuntime().exec(commandArray);
@@ -85,7 +85,7 @@ final class ProcessWorker implements Worker {
    * @return The worker name.
    */
   public String getName() {
-    return m_processName;
+    return m_workerName;
   }
 
   /**
