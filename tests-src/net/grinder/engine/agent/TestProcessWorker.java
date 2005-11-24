@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
+import net.grinder.common.AgentIdentity;
 import net.grinder.common.GrinderException;
 
 import junit.framework.TestCase;
@@ -43,6 +44,8 @@ public class TestProcessWorker extends TestCase {
 
   private ByteArrayOutputStream m_outputStream = new ByteArrayOutputStream();
   private ByteArrayOutputStream m_errorStream = new ByteArrayOutputStream();
+  private final PublicAgentIdentityImplementation m_agentIdentity =
+    new PublicAgentIdentityImplementation("test");
 
   public void testWithInvalidProcess() throws Exception {
     final String[] commandArray = {
@@ -51,8 +54,10 @@ public class TestProcessWorker extends TestCase {
     };
 
     try {
-      new ProcessWorker("my process", commandArray, m_outputStream,
-                       m_errorStream);
+      new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+                        commandArray,
+                        m_outputStream,
+                        m_errorStream);
       fail("Expected GrinderException");
     }
     catch (GrinderException e) {
@@ -70,12 +75,14 @@ public class TestProcessWorker extends TestCase {
     };
 
     final ProcessWorker childProcess =
-      new ProcessWorker("my process", commandArray, m_outputStream,
-                       m_errorStream);
+      new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+        commandArray,
+        m_outputStream,
+        m_errorStream);
 
     childProcess.waitFor();
 
-    assertEquals("my process", childProcess.getName());
+    assertEquals("test-0", childProcess.getIdentity().getName());
     assertEquals(0, m_outputStream.toByteArray().length);
     assertTrue(m_errorStream.toByteArray().length > 0);
   }
@@ -92,7 +99,10 @@ public class TestProcessWorker extends TestCase {
     };
 
     final ProcessWorker childProcess =
-      new ProcessWorker("echo", commandArray, m_outputStream, m_errorStream);
+      new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+        commandArray,
+        m_outputStream,
+        m_errorStream);
 
     final PrintWriter out =
       new PrintWriter(childProcess.getCommunicationStream());
@@ -113,7 +123,7 @@ public class TestProcessWorker extends TestCase {
     assertEquals(expected.toString(),
                  new String(m_outputStream.toByteArray()));
 
-    assertEquals("echo", childProcess.getName());
+    assertEquals("test-0", childProcess.getIdentity().getName());
   }
 
   public void testConcurrentProcessing() throws Exception {
@@ -125,7 +135,10 @@ public class TestProcessWorker extends TestCase {
     };
 
     final ProcessWorker childProcess =
-      new ProcessWorker("echo", commandArray, m_outputStream, m_errorStream);
+      new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+        commandArray,
+        m_outputStream,
+        m_errorStream);
 
     final PrintWriter out =
       new PrintWriter(childProcess.getCommunicationStream());
@@ -162,7 +175,10 @@ public class TestProcessWorker extends TestCase {
     };
 
     final ProcessWorker childProcess =
-      new ProcessWorker("echo", commandArray, m_outputStream, m_errorStream);
+      new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+        commandArray,
+        m_outputStream,
+        m_errorStream);
 
     childProcess.destroy();
 

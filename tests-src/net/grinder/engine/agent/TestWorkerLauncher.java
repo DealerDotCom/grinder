@@ -27,8 +27,10 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import net.grinder.common.AgentIdentity;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
+import net.grinder.common.WorkerIdentity;
 import net.grinder.engine.common.EngineException;
 import net.grinder.testutility.CallData;
 
@@ -69,11 +71,11 @@ public class TestWorkerLauncher extends TestCase {
     monitor.waitFor(workerLauncher);
     assertFalse(monitor.isFinished());
 
-    assertEquals(-1, myProcessFactory.getLastProcessIndex());
+    assertEquals(-1, myProcessFactory.getNumberOfProcesses());
 
     workerLauncher.startSomeWorkers(1);
 
-    assertEquals(0, myProcessFactory.getLastProcessIndex());
+    assertEquals(0, myProcessFactory.getNumberOfProcesses());
 
     assertFalse(workerLauncher.allFinished());
     assertEquals(System.out, myProcessFactory.getLastOutputStream());
@@ -88,11 +90,11 @@ public class TestWorkerLauncher extends TestCase {
     final Object[] parameters = call.getParameters();
     assertEquals(1, parameters.length);
     final String s = (String)parameters[0];
-    assertTrue(s.indexOf(childProcess.getName()) >= 0);
+    assertTrue(s.indexOf(childProcess.getIdentity().getName()) >= 0);
     loggerStubFactory.assertNoMoreCalls();
 
     workerLauncher.startSomeWorkers(10);
-    assertEquals(4, myProcessFactory.getLastProcessIndex());
+    assertEquals(4, myProcessFactory.getNumberOfProcesses());
 
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
@@ -148,11 +150,11 @@ public class TestWorkerLauncher extends TestCase {
     monitor.waitFor(workerLauncher);
     assertFalse(monitor.isFinished());
 
-    assertEquals(-1, myProcessFactory.getLastProcessIndex());
+    assertEquals(-1, myProcessFactory.getNumberOfProcesses());
 
     workerLauncher.startAllWorkers();
 
-    assertEquals(8, myProcessFactory.getLastProcessIndex());
+    assertEquals(8, myProcessFactory.getNumberOfProcesses());
 
     assertFalse(workerLauncher.allFinished());
     assertEquals(System.out, myProcessFactory.getLastOutputStream());
@@ -200,11 +202,11 @@ public class TestWorkerLauncher extends TestCase {
     monitor.waitFor(workerLauncher);
     assertFalse(monitor.isFinished());
 
-    assertEquals(-1, myProcessFactory.getLastProcessIndex());
+    assertEquals(-1, myProcessFactory.getNumberOfProcesses());
 
     workerLauncher.startAllWorkers();
 
-    assertEquals(3, myProcessFactory.getLastProcessIndex());
+    assertEquals(3, myProcessFactory.getNumberOfProcesses());
 
     assertFalse(workerLauncher.allFinished());
     assertEquals(4, myProcessFactory.getChildProcesses().size());
@@ -261,13 +263,15 @@ public class TestWorkerLauncher extends TestCase {
 
   private static class MyWorkerFactory implements WorkerFactory {
 
-    private int m_lastProcessIndex = -1;
+    private int numberOfProcesses = -1;
     private OutputStream m_lastOutputStream;
     private OutputStream m_lastErrorStream;
     private ArrayList m_childProcesses = new ArrayList();
+    private PublicAgentIdentityImplementation m_agentIdentity =
+      new PublicAgentIdentityImplementation("process");
 
     public Worker create(OutputStream outputStream,
-                               OutputStream errorStream)
+                         OutputStream errorStream)
       throws EngineException {
 
       m_lastOutputStream = outputStream;
@@ -281,9 +285,11 @@ public class TestWorkerLauncher extends TestCase {
       };
 
       final Worker childProcess =
-        new ProcessWorker("process " + ++m_lastProcessIndex, commandArray,
-                         outputStream, errorStream);
-
+        new ProcessWorker(m_agentIdentity.createWorkerIdentity(),
+                          commandArray,
+                          outputStream,
+                          errorStream);
+      ++numberOfProcesses;
       m_childProcesses.add(childProcess);
 
       return childProcess;
@@ -293,8 +299,8 @@ public class TestWorkerLauncher extends TestCase {
       return "description of process";
     }
 
-    public int getLastProcessIndex() {
-      return m_lastProcessIndex;
+    public int getNumberOfProcesses() {
+      return numberOfProcesses;
     }
 
     public OutputStream getLastOutputStream() {

@@ -129,12 +129,6 @@ public final class Agent {
       final GrinderProperties properties =
         new GrinderProperties(m_alternateFile);
 
-      final WorkerProcessCommandLine workerCommandLine =
-        new WorkerProcessCommandLine(
-          properties, System.getProperties(), m_alternateFile);
-
-      m_logger.output("Worker process command line: " + workerCommandLine);
-
       final String newHostName =
         properties.getProperty("grinder.hostID", getHostName());
 
@@ -251,13 +245,37 @@ public final class Agent {
       }
 
       if (scriptFile != null) {
-        final WorkerFactory workerProcessFactory =
-          new ProcessWorkerFactory(workerCommandLine,
-                                   m_fanOutStreamSender,
-                                   m_agentIdentity,
-                                   consoleCommunication != null,
-                                   scriptFile,
-                                   scriptDirectory);
+        final boolean singleProcess =
+          properties.getBoolean("grinder.debug.singleprocess", false);
+
+        final WorkerFactory workerProcessFactory;
+
+        if (!singleProcess) {
+          final WorkerProcessCommandLine workerCommandLine =
+            new WorkerProcessCommandLine(
+              properties, System.getProperties(), m_alternateFile);
+
+          m_logger.output("Worker process command line: " + workerCommandLine);
+
+          workerProcessFactory =
+            new ProcessWorkerFactory(workerCommandLine,
+                                     m_agentIdentity,
+                                     m_fanOutStreamSender,
+                                     consoleCommunication != null,
+                                     scriptFile,
+                                     scriptDirectory);
+        }
+        else {
+          m_logger.output("DEBUG MODE: Spawning threads rather than processes");
+
+          workerProcessFactory =
+            new DebugThreadWorkerFactory(m_alternateFile,
+                                         m_agentIdentity,
+                                         m_fanOutStreamSender,
+                                         consoleCommunication != null,
+                                         scriptFile,
+                                         scriptDirectory);
+        }
 
         final WorkerLauncher workerLauncher =
           new WorkerLauncher(properties.getInt("grinder.processes", 1),
@@ -295,7 +313,7 @@ public final class Agent {
           while (!workerLauncher.allFinished()) {
 
             if (m_consoleListener.checkForMessage(ConsoleListener.ANY ^
-                                                ConsoleListener.START)) {
+                                                  ConsoleListener.START)) {
               workerLauncher.dontStartAnyMore();
               consoleSignalTime = System.currentTimeMillis();
             }
@@ -330,7 +348,7 @@ public final class Agent {
           nextStartMessage = m_consoleListener.getLastStartGrinderMessage();
         }
         else if (m_consoleListener.received(ConsoleListener.STOP |
-                                          ConsoleListener.SHUTDOWN)) {
+                                            ConsoleListener.SHUTDOWN)) {
           break;
         }
         else {

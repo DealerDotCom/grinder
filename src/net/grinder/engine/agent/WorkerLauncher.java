@@ -86,7 +86,8 @@ final class WorkerLauncher {
         m_workers[workerIndex] = m_workerFactory.create(System.out, System.err);
       }
 
-      m_logger.output("worker " + m_workers[workerIndex].getName() +
+      m_logger.output("worker " +
+                      m_workers[workerIndex].getIdentity().getName() +
                       " started");
 
       try {

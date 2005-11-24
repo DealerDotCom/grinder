@@ -1,4 +1,4 @@
-// Copyright (C) 2004, 2005 Philip Aston
+// Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -30,38 +30,35 @@ import net.grinder.engine.common.EngineException;
 
 
 /**
- * Class that starts workers as separate processes.
+ * Class that starts workers in a separate thread and class loader. Used for
+ * debugging.
  *
  * @author Philip Aston
  * @version $Revision$
  */
-final class ProcessWorkerFactory extends AbstractWorkerFactory {
+final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
 
-  private final WorkerProcessCommandLine m_commandLine;
+  private final File m_alternativePropertiesFile;
 
-  public ProcessWorkerFactory(WorkerProcessCommandLine commandLine,
-                              AgentIdentityImplementation agentIdentity,
-                              FanOutStreamSender fanOutStreamSender,
-                              boolean reportToConsole,
-                              File scriptFile,
-                              File scriptDirectory) {
+  public DebugThreadWorkerFactory(File alternativePropertiesFile,
+                                  AgentIdentityImplementation agentIdentity,
+                                  FanOutStreamSender fanOutStreamSender,
+                                  boolean reportToConsole,
+                                  File scriptFile,
+                                  File scriptDirectory) {
     super(agentIdentity,
           fanOutStreamSender,
           reportToConsole,
           scriptFile,
           scriptDirectory);
 
-    m_commandLine = commandLine;
+    m_alternativePropertiesFile = alternativePropertiesFile;
   }
 
   protected Worker createWorker(WorkerIdentity workerIdentity,
                                 OutputStream outputStream,
                                 OutputStream errorStream)
     throws EngineException {
-
-    return new ProcessWorker(workerIdentity,
-                             m_commandLine.getCommandArray(),
-                             outputStream,
-                             errorStream);
+    return new DebugThreadWorker(workerIdentity, m_alternativePropertiesFile);
   }
 }

@@ -37,6 +37,8 @@ import net.grinder.util.UniqueIdentityGenerator;
 class AgentIdentityImplementation
   extends AbstractProcessIdentityImplementation implements AgentIdentity {
 
+  private static final long serialVersionUID = -2217064199726714227L;
+
   private static final UniqueIdentityGenerator s_identityGenerator =
     new UniqueIdentityGenerator();
 

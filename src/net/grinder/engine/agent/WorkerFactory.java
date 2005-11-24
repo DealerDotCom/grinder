@@ -34,6 +34,6 @@ import net.grinder.engine.common.EngineException;
  */
 interface WorkerFactory {
 
-  Worker create(OutputStream outputStream,
-                OutputStream errorStream) throws EngineException;
+  Worker create(OutputStream outputStream, OutputStream errorStream)
+    throws EngineException;
 }

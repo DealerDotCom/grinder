@@ -3,19 +3,26 @@ Grinder 3.0-beta28 (Not yet released)
 
   Updates to the Italian translaton from Meo Bogliolo.
 
-  Refactoring of statistics package API. This may affect existing custom
-  plugins. See PluginProcessContext.getStatistics.
+  Refactoring of statistics package API. This may affect existing
+  custom plugins. See PluginProcessContext.getStatistics.
 
   New Russion translation from Konstantin Ignatyev.
 
-  Fix the TCPProxy port forwarding mode to correctly generate https URLs
-  (bug 1324640).
+  Fix the TCPProxy port forwarding mode to correctly generate https
+  URLs (bug 1324640).
 
   Fix the exception logging to include Jython stack traces.
 
-  Java methods can now be wrapped. The resulting object should be invoked Python
-  style, i.e. non-static methods must be supplied with a 'self' instance as the
-  first argument.
+  Java methods can now be wrapped. The resulting object should be
+  invoked Python style, i.e. non-static methods must be supplied with
+  a 'self' instance as the first argument.
+
+  New grinder.debug.singleprocess property. If set to true, the agent
+  process spawns engines in threads rather than processes, using
+  special classloaders to isolate the engines. This allows the engine
+  to be easily run in a debugger. This is primarily a tool for
+  debugging The Grinder engine, but it might also be useful to
+  advanced users.
 
 
 Grinder 3.0-beta27

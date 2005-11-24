@@ -168,13 +168,9 @@ alternate file via InitialiseGrinderMessage.
 
 Possible to have an interactive mode for debugging? E.g. a simple UI
 that can be launched from a thread which drops the user into a
-console? Can't just run the interpretter as the worker processes don't
-have access to the controlling terminals stdin.
+console? Would need to launch with grinder.debug.singleprocess=true.
 
-*** Debug option: spawn threads, not processes
-
-This would enable debugging, and might form the basis for an interactive
-mode (see above).
+Need thread based WP to take alternative input stream.
 
 *** Instrumentation
 
@@ -192,6 +188,11 @@ group statistics as well as individual statistics. The implementation
 would be correspondingly more complex.
 
 ** Statistics
+
+Split out serializeable kernel of TestStatisticsMap? Look hard at where the
+message is deserialised.
+
+public ExpressionView ctor should probably be deprecated.
 
 *** Aligning data files
 
@@ -405,6 +406,8 @@ How to build clover reports during full build?
 Include Clover history?
 
 * Documentation
+
+grinder.debug.singleprocess
 
 HTTP plug-in.
 

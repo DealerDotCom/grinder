@@ -79,8 +79,8 @@ public class TestProcessWorkerFactory extends TestCase {
 
     final ProcessWorkerFactory processWorkerFactory =
       new ProcessWorkerFactory(commandLine,
-                               fanOutStreamSender,
                                agentIdentityImplementation,
+                               fanOutStreamSender,
                                reportToConsole,
                                scriptFile,
                                scriptDirectory);
@@ -91,7 +91,7 @@ public class TestProcessWorkerFactory extends TestCase {
     final Worker worker =
       processWorkerFactory.create(outputStream, errorStream);
 
-    assertTrue(worker.getName().endsWith("-0"));
+    assertTrue(worker.getIdentity().getName().endsWith("-0"));
 
     worker.waitFor();
 

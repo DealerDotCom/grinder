@@ -25,6 +25,7 @@ package net.grinder.engine.agent;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import net.grinder.common.WorkerIdentity;
 import net.grinder.engine.common.EngineException;
 import net.grinder.util.StreamCopier;
 
@@ -41,7 +42,7 @@ import net.grinder.util.StreamCopier;
  */
 final class ProcessWorker implements Worker {
 
-  private final String m_workerName;
+  private final WorkerIdentity m_workerIdentity;
   private final Process m_process;
   private final Thread m_stdoutRedirectorThread;
   private final Thread m_stderrRedirectorThread;
@@ -57,13 +58,13 @@ final class ProcessWorker implements Worker {
    * should be redirected.
    * @throws EngineException If an error occurs.
    */
-  public ProcessWorker(String workerName,
+  public ProcessWorker(WorkerIdentity workerIdentity,
                        String[] commandArray,
                        OutputStream outputStream,
                        OutputStream errorStream)
     throws EngineException {
 
-    m_workerName = workerName;
+    m_workerIdentity = workerIdentity;
 
     try {
       m_process = Runtime.getRuntime().exec(commandArray);
@@ -84,8 +85,8 @@ final class ProcessWorker implements Worker {
    *
    * @return The worker name.
    */
-  public String getName() {
-    return m_workerName;
+  public WorkerIdentity getIdentity() {
+    return m_workerIdentity;
   }
 
   /**

@@ -77,7 +77,7 @@ public final class GrinderProcess {
    *
    * @param args Command line arguments.
    */
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     if (args.length > 1) {
       System.err.println("Usage: java " +
                          GrinderProcess.class.getName() +
@@ -85,39 +85,67 @@ public final class GrinderProcess {
       System.exit(-1);
     }
 
-    final GrinderProcess grinderProcess;
+    final Runner runner = new Runner() {
+      protected GrinderProcess createGrinderProcess() throws GrinderException {
+        return new GrinderProcess(new StreamReceiver(System.in),
+                                  args.length == 1 ? new File(args[0]) : null);
+      }
+    };
 
-    try {
-      grinderProcess = new GrinderProcess(args.length == 1 ?
-                                          new File(args[0]) : null);
-    }
-    catch (ExitProcessException e) {
-      System.exit(-4);
-      return;
-    }
-    catch (GrinderException e) {
-      System.err.println("Error initialising worker process (" +
-                         e.getMessage() + ")");
-      e.printStackTrace();
-      System.exit(-2);
-      return;
+    System.exit(runner.run());
+  }
+
+  /**
+   * A template for the error handling for creating and running a process.
+   */
+  public abstract static class Runner {
+
+    /**
+     * Create and run a process.
+     *
+     * @return Process exit code.
+     */
+    public int run() {
+      final GrinderProcess grinderProcess;
+
+      try {
+        grinderProcess = createGrinderProcess();
+      }
+      catch (ExitProcessException e) {
+        return -4;
+      }
+      catch (GrinderException e) {
+        System.err.println("Error initialising worker process (" +
+                           e.getMessage() + ")");
+        e.printStackTrace();
+        return -2;
+      }
+
+      final Logger logger = grinderProcess.m_context.getProcessLogger();
+
+      try {
+        grinderProcess.run();
+        return 0;
+      }
+      catch (ExitProcessException e) {
+        return -5;
+      }
+      catch (Exception e) {
+        logger.error("Error running worker process (" + e.getMessage() + ")",
+                     Logger.LOG | Logger.TERMINAL);
+        e.printStackTrace(logger.getErrorLogWriter());
+        return -3;
+      }
     }
 
-    final Logger logger = grinderProcess.m_context.getProcessLogger();
-
-    try {
-      grinderProcess.run();
-      System.exit(0);
-    }
-    catch (ExitProcessException e) {
-      System.exit(-5);
-    }
-    catch (Exception e) {
-      logger.error("Error running worker process (" + e.getMessage() + ")",
-                   Logger.LOG | Logger.TERMINAL);
-      e.printStackTrace(logger.getErrorLogWriter());
-      System.exit(-3);
-    }
+    /**
+     * Template factory method.
+     *
+     * @return The process.
+     * @throws GrinderException If a process could not be created.
+     */
+    protected abstract GrinderProcess createGrinderProcess()
+      throws GrinderException;
   }
 
   private final ProcessContext m_context;
@@ -133,21 +161,26 @@ public final class GrinderProcess {
   /**
    * Creates a new <code>GrinderProcess</code> instance.
    *
-   * @param propertiesFile <code>grinder.properties</code> file.
-   * @exception GrinderException if an error occurs
+   * @param agentReceiver
+   *          Receiver used to listen to the agent.
+   * @param alternativePropertiesFile
+   *          Alternative <code>grinder.properties</code> file, or
+   *          <code>null</code>.
+   * @exception GrinderException
+   *          If the process could not be created.
    */
-  public GrinderProcess(File propertiesFile)
+  public GrinderProcess(Receiver agentReceiver, File alternativePropertiesFile)
     throws GrinderException {
 
-    final Receiver receiver = new StreamReceiver(System.in);
     m_initialisationMessage =
-      (InitialiseGrinderMessage)receiver.waitForMessage();
+      (InitialiseGrinderMessage)agentReceiver.waitForMessage();
 
     if (m_initialisationMessage == null) {
       throw new EngineException("No control stream from agent");
     }
 
-    final GrinderProperties properties = new GrinderProperties(propertiesFile);
+    final GrinderProperties properties =
+      new GrinderProperties(alternativePropertiesFile);
 
     m_loggerImplementation = new LoggerImplementation(
       m_initialisationMessage.getWorkerIdentity().getName(),
@@ -204,7 +237,7 @@ public final class GrinderProcess {
 
     final HandlerChainSender handlerChainSender = new HandlerChainSender();
     handlerChainSender.add(m_consoleListener.getMessageHandler());
-    new MessagePump(receiver, handlerChainSender, 1);
+    new MessagePump(agentReceiver, handlerChainSender, 1);
   }
 
   /**

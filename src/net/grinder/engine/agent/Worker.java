@@ -18,6 +18,7 @@ package net.grinder.engine.agent;
 
 import java.io.OutputStream;
 
+import net.grinder.common.WorkerIdentity;
 import net.grinder.engine.common.EngineException;
 
 
@@ -34,7 +35,7 @@ interface Worker {
    *
    * @return The name.
    */
-  String getName();
+  WorkerIdentity getIdentity();
 
   /**
    * Return an output stream connected to the input stream for the worker.
