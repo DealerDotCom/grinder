@@ -75,7 +75,7 @@
           </td>
 
           <td>Start all worker processes together.</td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -88,7 +88,7 @@
           worker processes.</td>
 
           <td>60000 ms</td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -138,7 +138,7 @@
           <code>PATH</code> is sensible.</td>
 
           <td>java</td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -150,7 +150,7 @@
           classpath used to start the Grinder processes.</td>
 
           <td></td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -160,7 +160,7 @@
           <td>Additional arguments to worker process JVMs.</td>
 
           <td></td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -171,7 +171,7 @@
           already exist.</td>
 
           <td>The local directory.</td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -182,7 +182,7 @@
           should be kept.</td>
 
           <td>1</td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -192,7 +192,7 @@
           <td>Override the "host" string used in log filenames and logs.</td>
 
           <td>The host name.</td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -203,7 +203,7 @@
           between the agent and worker processes and the console.</td>
 
           <td>All the network interfaces of the local machine.</td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -214,7 +214,7 @@
           worker processes use to contact to the console.</td>
 
           <td>>6372</td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -225,7 +225,7 @@
           processes not to use the console.</td>
 
           <td>true</td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -237,7 +237,7 @@
           files are flushed.</td>
 
           <td>500 ms</td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -251,9 +251,9 @@
           between 0 and the specified value. Affected by
           <code>grinder.sleepTimeFactor</code>, but not
           <code>grinder.sleepTimeVariation</code>.</td>
-  
+
           <td>0 ms</td>
-	</tr>
+  </tr>
 
         <tr>
           <td>
@@ -306,7 +306,21 @@
           other statistics are still reported.</td>
 
           <td>true</td>
-	</tr>
+    </tr>
+
+        <tr>
+          <td>
+            <code>grinder.debug.singleprocess</code>
+          </td>
+
+          <td>If set to <code>true</code>, the agent process spawns engines in
+          threads rather than processes, using special classloaders to isolate
+          the engines. This allows the engine to be easily run in a debugger.
+          This is primarily a tool for debugging The Grinder engine, but it
+          might also be useful to advanced users.</td>
+
+          <td>false</td>
+    </tr>
 
       </table>
     </section>
@@ -322,6 +336,6 @@
 <source>
 java -Dgrinder.logDirectory="log/$(date +%y%m%d)" net.grinder.Grinder
 </source>
-    </section> 
+    </section>
   </body>
 </document>
