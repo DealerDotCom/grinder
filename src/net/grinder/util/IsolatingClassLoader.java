@@ -82,7 +82,6 @@ public class IsolatingClassLoader extends URLClassLoader {
     m_sharedPrefixes = (String[])prefixes.toArray(new String[0]);
 
     m_isolateParentOnly = isolateParentOnly;
-    System.out.println(getParent().getParent().getParent());
   }
 
   /**
