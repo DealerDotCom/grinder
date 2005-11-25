@@ -247,13 +247,17 @@ public final class Agent {
       if (scriptFile != null) {
         final boolean singleProcess =
           properties.getBoolean("grinder.debug.singleprocess", false);
+        final String jvmArguments =
+          properties.getProperty("grinder.jvm.arguments");
 
         final WorkerFactory workerProcessFactory;
 
         if (!singleProcess) {
           final WorkerProcessCommandLine workerCommandLine =
-            new WorkerProcessCommandLine(
-              properties, System.getProperties(), m_alternateFile);
+            new WorkerProcessCommandLine(properties,
+                                         System.getProperties(),
+                                         m_alternateFile,
+                                         jvmArguments);
 
           m_logger.output("Worker process command line: " + workerCommandLine);
 
@@ -267,6 +271,11 @@ public final class Agent {
         }
         else {
           m_logger.output("DEBUG MODE: Spawning threads rather than processes");
+
+          if (jvmArguments != null) {
+            m_logger.output("WARNING grinder.jvm.arguments (" + jvmArguments +
+                            ") ignored in single process mode");
+          }
 
           workerProcessFactory =
             new DebugThreadWorkerFactory(m_alternateFile,

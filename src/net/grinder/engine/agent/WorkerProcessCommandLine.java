@@ -48,13 +48,11 @@ final class WorkerProcessCommandLine {
 
   public WorkerProcessCommandLine(GrinderProperties properties,
                                   Properties systemProperties,
-                                  File alternateFile) {
+                                  File alternateFile,
+                                  String jvmArguments) {
 
     m_command = new ArrayList();
     m_command.add(properties.getProperty("grinder.jvm", "java"));
-
-    final String jvmArguments =
-      properties.getProperty("grinder.jvm.arguments");
 
     if (jvmArguments != null) {
       // Really should allow whitespace to be escaped/quoted.
