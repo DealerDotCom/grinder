@@ -119,7 +119,6 @@ public final class Agent {
   public void run() throws GrinderException, InterruptedException {
 
     StartGrinderMessage nextStartMessage = null;
-
     ConsoleCommunication consoleCommunication = null;
     Connector lastConnector = null;
 
@@ -137,8 +136,7 @@ public final class Agent {
       }
 
       if (properties.getBoolean("grinder.useConsole", true)) {
-        final Connector connector =
-          new Connector(
+        final Connector connector = new Connector(
             properties.getProperty("grinder.consoleHost",
                                    CommunicationDefaults.CONSOLE_HOST),
             properties.getInt("grinder.consolePort",
@@ -215,8 +213,7 @@ public final class Agent {
           else {
             m_logger.error("The script file '" + scriptFromConsole +
                          "' requested by the console does not exist " +
-                         "or is not readable.",
-                         Logger.LOG | Logger.TERMINAL);
+                         "or is not readable.");
 
             scriptFile = null;
           }
@@ -233,8 +230,7 @@ public final class Agent {
           else {
             m_logger.error("The script file '" + scriptFromProperties +
                            "' does not exist or is not readable. " +
-                           "Check grinder.properties.",
-                           Logger.LOG | Logger.TERMINAL);
+                           "Check grinder.properties.");
 
             scriptFile = null;
           }
@@ -262,12 +258,9 @@ public final class Agent {
           m_logger.output("Worker process command line: " + workerCommandLine);
 
           workerProcessFactory =
-            new ProcessWorkerFactory(workerCommandLine,
-                                     m_agentIdentity,
-                                     m_fanOutStreamSender,
-                                     consoleCommunication != null,
-                                     scriptFile,
-                                     scriptDirectory);
+            new ProcessWorkerFactory(
+              workerCommandLine, m_agentIdentity, m_fanOutStreamSender,
+              consoleCommunication != null, scriptFile, scriptDirectory);
         }
         else {
           m_logger.output("DEBUG MODE: Spawning threads rather than processes");
@@ -278,12 +271,9 @@ public final class Agent {
           }
 
           workerProcessFactory =
-            new DebugThreadWorkerFactory(m_alternateFile,
-                                         m_agentIdentity,
-                                         m_fanOutStreamSender,
-                                         consoleCommunication != null,
-                                         scriptFile,
-                                         scriptDirectory);
+            new DebugThreadWorkerFactory(
+              m_alternateFile, m_agentIdentity, m_fanOutStreamSender,
+              consoleCommunication != null, scriptFile, scriptDirectory);
         }
 
         final WorkerLauncher workerLauncher =
