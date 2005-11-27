@@ -72,6 +72,11 @@ public class TestIsolatingClassLoader extends TestCase {
     final String name = "net.grinder.util.AnIsolatedClass";
 
     final Class c = Class.forName(name, true, clA);
+
+    // AFAICT, the SUN JVM/JDK never calls loadClass(.., true).
+    // Do so by here to force coverage.
+    assertSame(c, clA.loadClass(name, true));
+
     assertSame(c, Class.forName(name, false, clA));
   }
 }
