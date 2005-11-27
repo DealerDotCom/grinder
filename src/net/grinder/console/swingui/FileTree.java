@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -169,7 +169,7 @@ final class FileTree {
     m_setScriptAction = new SetScriptAction();
 
     // J2SE 1.4 drops the mapping from "ENTER" -> "toggle"
-    // (expand/collapse) that J2SE 1.3 has. I like it this mapping, so
+    // (expand/collapse) that J2SE 1.3 has. I like this mapping, so
     // we combine the "toggle" action with our OpenFileAction and let
     // TeeAction figure out which to call based on what's enabled.
     final InputMap inputMap = m_tree.getInputMap();
