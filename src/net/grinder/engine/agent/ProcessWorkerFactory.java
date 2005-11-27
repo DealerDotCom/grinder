@@ -24,6 +24,7 @@ package net.grinder.engine.agent;
 import java.io.File;
 import java.io.OutputStream;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.engine.common.EngineException;
@@ -44,12 +45,14 @@ final class ProcessWorkerFactory extends AbstractWorkerFactory {
                               FanOutStreamSender fanOutStreamSender,
                               boolean reportToConsole,
                               File scriptFile,
-                              File scriptDirectory) {
+                              File scriptDirectory,
+                              GrinderProperties properies) {
     super(agentIdentity,
           fanOutStreamSender,
           reportToConsole,
           scriptFile,
-          scriptDirectory);
+          scriptDirectory,
+          properies);
 
     m_commandLine = commandLine;
   }

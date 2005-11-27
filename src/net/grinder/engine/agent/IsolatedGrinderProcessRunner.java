@@ -21,7 +21,6 @@
 
 package net.grinder.engine.agent;
 
-import java.io.File;
 import java.io.InputStream;
 
 import net.grinder.common.GrinderException;
@@ -46,20 +45,15 @@ public class IsolatedGrinderProcessRunner
    *
    * @param agentInputStream
    *          {@link InputStream} used to listen to the agent.
-   * @param alternativePropertiesFile
-   *          Alternative <code>grinder.properties</code> file, or
-   *          <code>null</code>.
    * @return Process exit code.
    */
-  public int run(final InputStream agentInputStream,
-                 final File alternativePropertiesFile) {
+  public int run(final InputStream agentInputStream) {
 
     final GrinderProcess.Runner runner = new GrinderProcess.Runner() {
       protected GrinderProcess createGrinderProcess() throws GrinderException {
-        return new GrinderProcess(new StreamReceiver(agentInputStream),
-                                  alternativePropertiesFile);
-        }
-      };
+        return new GrinderProcess(new StreamReceiver(agentInputStream));
+      }
+    };
 
     return runner.run();
   }

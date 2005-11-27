@@ -50,20 +50,18 @@ public class TestProcessWorkerFactory extends TestCase {
     System.getProperty("java.class.path");
 
   public void testCreate() throws Exception {
-    final GrinderProperties grinderProperties = new GrinderProperties() {{
-      setProperty("grinder.jvm.classpath",
-                  s_testClasspath + File.pathSeparatorChar + s_classesDir);
-    }};
+    final GrinderProperties grinderProperties = new GrinderProperties();
+    grinderProperties.setProperty(
+      "grinder.jvm.classpath",
+      s_testClasspath + File.pathSeparatorChar + s_classesDir);
 
-    final Properties overrideProperties = new Properties();
-
-    final File alternateFile = new File("/tmp/my.properties");
+    final Properties systemProperties = new Properties();
 
     final FanOutStreamSender fanOutStreamSender = new FanOutStreamSender(1);
 
     final WorkerProcessCommandLine commandLine =
       new WorkerProcessCommandLine(
-        grinderProperties, overrideProperties, alternateFile, "");
+        grinderProperties, systemProperties, "");
 
     final List commandList = commandLine.getCommandList();
 
@@ -83,7 +81,8 @@ public class TestProcessWorkerFactory extends TestCase {
                                fanOutStreamSender,
                                reportToConsole,
                                scriptFile,
-                               scriptDirectory);
+                               scriptDirectory,
+                               grinderProperties);
 
     final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     final ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
@@ -116,8 +115,7 @@ public class TestProcessWorkerFactory extends TestCase {
 
     final byte[] remainingBytes = new byte[500];
     final int n = output.read(remainingBytes);
-    final String echoedArguments = new String(remainingBytes, 0, n);
 
-    assertEquals(alternateFile.getPath(), echoedArguments);
+    assertEquals(-1, n); // No arguments.
   }
 }

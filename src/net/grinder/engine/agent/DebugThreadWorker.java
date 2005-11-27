@@ -21,7 +21,6 @@
 
 package net.grinder.engine.agent;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,8 +51,7 @@ final class DebugThreadWorker implements Worker {
   private final PipedOutputStream m_communicationStream;
   private int m_result;
 
-  public DebugThreadWorker(WorkerIdentity workerIdentity,
-                           final File alternativeProperties)
+  public DebugThreadWorker(WorkerIdentity workerIdentity)
     throws EngineException {
     m_workerIdentity = workerIdentity;
 
@@ -90,7 +88,7 @@ final class DebugThreadWorker implements Worker {
 
     m_thread = new Thread(workerIdentity.getName()) {
           public void run() {
-            m_result = runner.run(inputStream, alternativeProperties);
+            m_result = runner.run(inputStream);
           }
         };
     m_thread.setDaemon(true);
@@ -126,11 +124,8 @@ final class DebugThreadWorker implements Worker {
      *
      * @param agentInputStream
      *          {@link InputStream} used to listen to the agent.
-     * @param propertiesFile
-     *          Alternative <code>grinder.properties</code> file, or
-     *          <code>null</code>.
      * @return Process exit code.
      */
-    int run(InputStream agentInputStream, File alternativePropertiesFile);
+    int run(InputStream agentInputStream);
   }
 }

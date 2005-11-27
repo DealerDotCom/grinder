@@ -24,6 +24,7 @@ package net.grinder.engine.agent;
 import java.io.File;
 import java.io.OutputStream;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.FanOutStreamSender;
 import net.grinder.engine.common.EngineException;
@@ -38,27 +39,24 @@ import net.grinder.engine.common.EngineException;
  */
 final class DebugThreadWorkerFactory extends AbstractWorkerFactory {
 
-  private final File m_alternativePropertiesFile;
-
-  public DebugThreadWorkerFactory(File alternativePropertiesFile,
-                                  AgentIdentityImplementation agentIdentity,
+  public DebugThreadWorkerFactory(AgentIdentityImplementation agentIdentity,
                                   FanOutStreamSender fanOutStreamSender,
                                   boolean reportToConsole,
                                   File scriptFile,
-                                  File scriptDirectory) {
+                                  File scriptDirectory,
+                                  GrinderProperties properties) {
     super(agentIdentity,
           fanOutStreamSender,
           reportToConsole,
           scriptFile,
-          scriptDirectory);
-
-    m_alternativePropertiesFile = alternativePropertiesFile;
+          scriptDirectory,
+          properties);
   }
 
   protected Worker createWorker(WorkerIdentity workerIdentity,
                                 OutputStream outputStream,
                                 OutputStream errorStream)
     throws EngineException {
-    return new DebugThreadWorker(workerIdentity, m_alternativePropertiesFile);
+    return new DebugThreadWorker(workerIdentity);
   }
 }

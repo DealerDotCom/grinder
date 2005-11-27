@@ -161,16 +161,11 @@ its license terms are acceptable. Apparently now available.
 
 There should be an ExternalFilenameFactory, cf ExternalLogger.
 
-The agent should pass system properties, grinder properties, and
-alternate file via InitialiseGrinderMessage.
-
 *** Interactive mode
 
 Possible to have an interactive mode for debugging? E.g. a simple UI
 that can be launched from a thread which drops the user into a
 console? Would need to launch with grinder.debug.singleprocess=true.
-
-Need thread based WP to take alternative input stream.
 
 *** Instrumentation
 

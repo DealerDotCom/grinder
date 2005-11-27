@@ -42,8 +42,7 @@ public class TestWorkerProcessCommandLine extends TestCase {
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(new GrinderProperties(),
                                    new Properties(),
-                                   null,
-                                   "");
+                                   null);
 
     assertEquals(
       "java net.grinder.engine.process.GrinderProcess",
@@ -59,19 +58,16 @@ public class TestWorkerProcessCommandLine extends TestCase {
 
     final Properties overrideProperties = new Properties();
 
-    final File alternateFile = new File("/tmp/my.properties");
-
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(grinderProperties,
                                    overrideProperties,
-                                   alternateFile,
                                    grinderProperties.getProperty("grinder.jvm.arguments"));
 
-    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '" + alternateFile.getPath() + "'",
+    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess",
                  workerProcessCommandLine.toString());
 
     // Should work twice.
-    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '" + alternateFile.getPath() + "'",
+    assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess",
                  workerProcessCommandLine.toString());
   }
 
@@ -81,22 +77,14 @@ public class TestWorkerProcessCommandLine extends TestCase {
       setProperty("grinder.jvm.classpath", "abc;def");
     }};
 
-    final Properties overrideGrinderProperties = new Properties() {{
-      setProperty("grinder.myproperty", "myvalue");
-      setProperty("grinder.processes", "99");
-    }};
-
-    final Properties overrideProperties = new Properties() {{
-      putAll(overrideGrinderProperties);
-      setProperty("some other stuff", "myvalue");
-      setProperty("Grinder.lah", "99");
+    final Properties systemProperties = new Properties() {{
+      setProperty("grinder.processes", "99"); // Ignored
       setProperty("java.class.path", "jvd;vg;nc");
     }};
 
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(grinderProperties,
-                                   overrideProperties,
-                                   null,
+                                   systemProperties,
                                    grinderProperties.getProperty("grinder.jvm.arguments"));
 
     String commandLine = workerProcessCommandLine.toString();
@@ -106,22 +94,6 @@ public class TestWorkerProcessCommandLine extends TestCase {
     assertTrue(commandLine.startsWith(expectedPrefix));
 
     commandLine = commandLine.substring(expectedPrefix.length());
-
-    final String expectedSystemProperty1 = "'-Dgrinder.myproperty=myvalue' ";
-    final String expectedSystemProperty2 = "'-Dgrinder.processes=99' ";
-
-    if (commandLine.startsWith(expectedSystemProperty1)) {
-      assertTrue(commandLine.substring(expectedSystemProperty1.length())
-                 .startsWith(expectedSystemProperty2));
-    }
-    else {
-      assertTrue(commandLine.startsWith(expectedSystemProperty2));
-      assertTrue(commandLine.substring(expectedSystemProperty2.length())
-                 .startsWith(expectedSystemProperty1));
-    }
-
-    commandLine = commandLine.substring(expectedSystemProperty1.length() +
-                                        expectedSystemProperty2.length());
 
     final String expectedSuffix =
       "-classpath 'abc;def" + File.pathSeparatorChar + "jvd;vg;nc' " +

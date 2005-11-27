@@ -23,6 +23,7 @@ package net.grinder.engine.messages;
 
 import java.io.File;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
 
@@ -35,12 +36,13 @@ import net.grinder.communication.Message;
  */
 public final class InitialiseGrinderMessage implements Message {
 
-  private static final long serialVersionUID = 2L;
+  private static final long serialVersionUID = 3L;
 
   private final WorkerIdentity m_workerID;
   private final boolean m_reportToConsole;
   private final File m_scriptFile;
   private final File m_scriptDirectory;
+  private final GrinderProperties m_properties;
 
   /**
    * Constructor.
@@ -50,15 +52,18 @@ public final class InitialiseGrinderMessage implements Message {
    * report to the console.
    * @param scriptFile The script file to run.
    * @param scriptDirectory The script root directory.
+   * @param properties Properties from the agent.
    */
   public InitialiseGrinderMessage(WorkerIdentity workerID,
                                   boolean reportToConsole,
                                   File scriptFile,
-                                  File scriptDirectory) {
+                                  File scriptDirectory,
+                                  GrinderProperties properties) {
     m_workerID = workerID;
     m_reportToConsole = reportToConsole;
     m_scriptFile = scriptFile;
     m_scriptDirectory = scriptDirectory;
+    m_properties = properties;
   }
 
   /**
@@ -96,5 +101,14 @@ public final class InitialiseGrinderMessage implements Message {
    */
   public File getScriptDirectory() {
     return m_scriptDirectory;
+  }
+
+  /**
+   * Accessor.
+   *
+   * @return Properties from the agent.
+   */
+  public GrinderProperties getProperties() {
+    return m_properties;
   }
 }

@@ -23,6 +23,7 @@ package net.grinder.engine.messages;
 
 import java.io.File;
 
+import net.grinder.common.GrinderProperties;
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
 import net.grinder.engine.agent.PublicAgentIdentityImplementation;
@@ -54,19 +55,24 @@ public class TestEngineMessages extends AbstractFileTestCase {
     final WorkerIdentity workerIdentity =
       agentIdentity.createWorkerIdentity();
 
+    final GrinderProperties properties = new GrinderProperties();
+
     final InitialiseGrinderMessage original =
-      new InitialiseGrinderMessage(workerIdentity, false, file0, file1);
+      new InitialiseGrinderMessage(workerIdentity, false, file0, file1,
+                                   properties);
 
     final InitialiseGrinderMessage received =
       (InitialiseGrinderMessage) serialise(original);
 
-    assertEquals(workerIdentity, original.getWorkerIdentity());
-    assertTrue(!original.getReportToConsole());
-    assertEquals(file0, original.getScriptFile());
-    assertEquals(file1, original.getScriptDirectory());
+    assertEquals(workerIdentity, received.getWorkerIdentity());
+    assertTrue(!received.getReportToConsole());
+    assertEquals(file0, received.getScriptFile());
+    assertEquals(file1, received.getScriptDirectory());
+    assertEquals(properties, received.getProperties());
 
     final InitialiseGrinderMessage another =
-      new InitialiseGrinderMessage(workerIdentity, true, file1, file0);
+      new InitialiseGrinderMessage(workerIdentity, true, file1, file0,
+                                   properties);
 
     assertEquals(workerIdentity, another.getWorkerIdentity());
     assertTrue(another.getReportToConsole());

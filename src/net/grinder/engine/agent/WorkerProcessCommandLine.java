@@ -24,9 +24,7 @@ package net.grinder.engine.agent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -48,7 +46,6 @@ final class WorkerProcessCommandLine {
 
   public WorkerProcessCommandLine(GrinderProperties properties,
                                   Properties systemProperties,
-                                  File alternateFile,
                                   String jvmArguments) {
 
     m_command = new ArrayList();
@@ -60,20 +57,6 @@ final class WorkerProcessCommandLine {
 
       while (tokenizer.hasMoreTokens()) {
         m_command.add(tokenizer.nextToken());
-      }
-    }
-
-    // Pass through any "grinder" system properties.
-    final Iterator systemPropertiesIterator =
-      systemProperties.entrySet().iterator();
-
-    while (systemPropertiesIterator.hasNext()) {
-      final Map.Entry entry = (Map.Entry)systemPropertiesIterator.next();
-      final String key = (String)entry.getKey();
-      final String value = (String)entry.getValue();
-
-      if (key.startsWith("grinder.")) {
-        m_command.add("-D" + key + "=" + value);
       }
     }
 
@@ -104,10 +87,6 @@ final class WorkerProcessCommandLine {
 
     m_commandClassIndex = m_command.size();
     m_command.add(GrinderProcess.class.getName());
-
-    if (alternateFile != null) {
-      m_command.add(alternateFile.getPath());
-    }
   }
 
   public String[] getCommandArray() {

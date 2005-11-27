@@ -24,7 +24,6 @@
 
 package net.grinder.engine.process;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Timer;
@@ -79,16 +78,13 @@ public final class GrinderProcess {
    */
   public static void main(final String[] args) {
     if (args.length > 1) {
-      System.err.println("Usage: java " +
-                         GrinderProcess.class.getName() +
-                         " [ propertiesFile ]");
+      System.err.println("Usage: java " + GrinderProcess.class.getName());
       System.exit(-1);
     }
 
     final Runner runner = new Runner() {
       protected GrinderProcess createGrinderProcess() throws GrinderException {
-        return new GrinderProcess(new StreamReceiver(System.in),
-                                  args.length == 1 ? new File(args[0]) : null);
+        return new GrinderProcess(new StreamReceiver(System.in));
       }
     };
 
@@ -163,14 +159,10 @@ public final class GrinderProcess {
    *
    * @param agentReceiver
    *          Receiver used to listen to the agent.
-   * @param alternativePropertiesFile
-   *          Alternative <code>grinder.properties</code> file, or
-   *          <code>null</code>.
    * @exception GrinderException
    *          If the process could not be created.
    */
-  public GrinderProcess(Receiver agentReceiver, File alternativePropertiesFile)
-    throws GrinderException {
+  public GrinderProcess(Receiver agentReceiver) throws GrinderException {
 
     m_initialisationMessage =
       (InitialiseGrinderMessage)agentReceiver.waitForMessage();
@@ -180,7 +172,7 @@ public final class GrinderProcess {
     }
 
     final GrinderProperties properties =
-      new GrinderProperties(alternativePropertiesFile);
+      m_initialisationMessage.getProperties();
 
     m_loggerImplementation = new LoggerImplementation(
       m_initialisationMessage.getWorkerIdentity().getName(),

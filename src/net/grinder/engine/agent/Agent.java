@@ -252,7 +252,6 @@ public final class Agent {
           final WorkerProcessCommandLine workerCommandLine =
             new WorkerProcessCommandLine(properties,
                                          System.getProperties(),
-                                         m_alternateFile,
                                          jvmArguments);
 
           m_logger.output("Worker process command line: " + workerCommandLine);
@@ -260,7 +259,8 @@ public final class Agent {
           workerProcessFactory =
             new ProcessWorkerFactory(
               workerCommandLine, m_agentIdentity, m_fanOutStreamSender,
-              consoleCommunication != null, scriptFile, scriptDirectory);
+              consoleCommunication != null, scriptFile, scriptDirectory,
+              properties);
         }
         else {
           m_logger.output("DEBUG MODE: Spawning threads rather than processes");
@@ -272,8 +272,9 @@ public final class Agent {
 
           workerProcessFactory =
             new DebugThreadWorkerFactory(
-              m_alternateFile, m_agentIdentity, m_fanOutStreamSender,
-              consoleCommunication != null, scriptFile, scriptDirectory);
+              m_agentIdentity, m_fanOutStreamSender,
+              consoleCommunication != null, scriptFile, scriptDirectory,
+              properties);
         }
 
         final WorkerLauncher workerLauncher =
