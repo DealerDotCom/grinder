@@ -34,7 +34,7 @@ import java.util.Properties;
 
 
 /**
- * Extend {@link java.util.Properties} to add typesafe accessors.
+ * Extend {@link java.util.Properties} to add type safe accessors.
  * Has an optional associated file.
  *
  * @author Philip Aston
@@ -44,7 +44,8 @@ import java.util.Properties;
 public class GrinderProperties extends Properties {
   private static final String DEFAULT_FILENAME = "grinder.properties";
 
-  private PrintWriter m_errorWriter = new PrintWriter(System.err, true);
+  private transient PrintWriter m_errorWriter =
+    new PrintWriter(System.err, true);
   private final File m_file;
 
   /**
@@ -409,5 +410,11 @@ public class GrinderProperties extends Properties {
     private PersistenceException(String message, Throwable t) {
       super(message, t);
     }
+  }
+
+  private void readObject(java.io.ObjectInputStream in)
+    throws IOException, ClassNotFoundException {
+    in.defaultReadObject();
+    setErrorWriter(new PrintWriter(System.err, true));
   }
 }
