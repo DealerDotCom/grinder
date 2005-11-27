@@ -22,7 +22,9 @@
 package net.grinder.util;
 
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -66,7 +68,7 @@ public class IsolatingClassLoader extends URLClassLoader {
                               boolean isolateParentOnly) {
     super(parent.getURLs(), parent);
 
-    final Set prefixes = new HashSet();
+    final List prefixes = new ArrayList();
 
     for (int i = 0; i < shared.length; i++) {
       final int index = shared[i].indexOf('*');
