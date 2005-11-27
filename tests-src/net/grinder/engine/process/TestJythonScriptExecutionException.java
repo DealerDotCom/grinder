@@ -29,6 +29,8 @@ import net.grinder.testutility.AbstractFileTestCase;
 
 import org.python.core.Py;
 import org.python.core.PyException;
+import org.python.core.PyString;
+import org.python.core.PySyntaxError;
 import org.python.core.PySystemState;
 
 
@@ -41,13 +43,31 @@ public class TestJythonScriptExecutionException extends AbstractFileTestCase {
     PySystemState.initialize(properties, null, null);
   }
 
-  public void testWithPlainJythonException() throws Exception {
+  public void testWithSimpleJythonException() throws Exception {
     final PyException pe = new PyException();
     final JythonScriptExecutionException e =
       new JythonScriptExecutionException("Hello", pe);
 
-    assertSame(pe, e.getCause());
-    assertSame(pe, e.unwrap());
+    assertNull(e.getCause());
+    assertTrue(e.getShortMessage().indexOf("Jython exception") >= 0);
+  }
+
+  public void testWithJythonStringException() throws Exception {
+    final PyException pe = new PyException(new PyString("lah"));
+    final JythonScriptExecutionException e =
+      new JythonScriptExecutionException("Hello", pe);
+
+    assertNull(e.getCause());
+    assertTrue(e.getShortMessage().indexOf("Jython exception") >= 0);
+  }
+
+  public void testWithJythonClassException() throws Exception {
+    final PyException pe = new PyException(Py.RuntimeError, "Its all wrong");
+    final JythonScriptExecutionException e =
+      new JythonScriptExecutionException("Hello", pe);
+
+    assertNull(e.getCause());
+    assertTrue(e.getShortMessage().indexOf("Jython exception") >= 0);
   }
 
   public void testWithWrappedJavaException() throws Exception {
@@ -57,14 +77,15 @@ public class TestJythonScriptExecutionException extends AbstractFileTestCase {
       new JythonScriptExecutionException("Hello", pe);
 
     assertNotSame(pe, e.getCause());
-    assertSame(wrapped, e.getCause().getCause());
+    assertSame(wrapped, e.getCause());
 
     final StringWriter writer = new StringWriter();
     e.printStackTrace(new PrintWriter(writer));
     final String stack = writer.toString();
 
-    assertTrue(stack.indexOf("Jython traceback") > 0);
-
-    assertSame(wrapped, e.unwrap());
+    assertTrue(stack.indexOf("whilst Hello") > 0);
+    assertTrue(stack.indexOf("java.lang.Throwable") > 0);
+    assertSame(wrapped, e.getCause());
+    assertTrue(e.getShortMessage().indexOf("Java exception") >= 0);
   }
 }

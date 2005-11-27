@@ -11,7 +11,8 @@ Grinder 3.0-beta28 (Not yet released)
   Fix the TCPProxy port forwarding mode to correctly generate https
   URLs (bug 1324640).
 
-  Fix the exception logging to include Jython stack traces.
+  Fix the exception logging to include Jython stack traces. Simplify
+  the exception log formatting.
 
   Java methods can now be wrapped. The resulting object should be
   invoked Python style, i.e. non-static methods must be supplied with

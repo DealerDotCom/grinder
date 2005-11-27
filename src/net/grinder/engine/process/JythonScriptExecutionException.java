@@ -22,6 +22,7 @@
 package net.grinder.engine.process;
 
 import org.python.core.Py;
+import org.python.core.PyClass;
 import org.python.core.PyException;
 import org.python.core.PyTraceback;
 
@@ -35,7 +36,11 @@ import net.grinder.engine.common.EngineException;
  * @author Philip Aston
  * @version $Revision$
  */
-public class JythonScriptExecutionException extends EngineException {
+public final class JythonScriptExecutionException extends EngineException {
+
+  private final String m_message;
+  private final String m_shortMessage;
+
   /**
    * Creates a new <code>JythonScriptExecutionException</code> instance.
    *
@@ -43,52 +48,71 @@ public class JythonScriptExecutionException extends EngineException {
    * @param e <code>PyException</code> that we caught.
    */
   public JythonScriptExecutionException(String doingWhat, PyException e) {
-    super("Jython error encountered " + doingWhat, stripPyException(e));
-  }
+    super("");
+    setStackTrace(new StackTraceElement[0]);
 
-  private static Throwable stripPyException(PyException e) {
     final Object javaError = e.value.__tojava__(Throwable.class);
 
     if (javaError == null || javaError == Py.NoConversion) {
-      return e;
-    }
+      // Duplicate logic from the package scope Py.formatException().
+      final StringBuffer pyExceptionMessage = new StringBuffer();
 
-    return new BriefPyException((Throwable)javaError, e.traceback);
+      if (e.type instanceof PyClass) {
+        pyExceptionMessage.append(((PyClass) e.type).__name__);
+      }
+      else {
+        pyExceptionMessage.append(e.type.__str__());
+      }
+
+      if (e.value != Py.None) {
+        pyExceptionMessage.append(": ");
+        // The original Py.formatException check's if e.value's type is
+        // Py.SyntaxError and if so treats it as a tuple. This is clearly wrong,
+        // it should check whether e.type is Py.SyntaxError. We do something
+        // simple instead.
+        pyExceptionMessage.append(e.value.__str__());
+      }
+
+      m_shortMessage =
+        "Jython exception \"" + pyExceptionMessage + "\" whilst " + doingWhat;
+      m_message =
+        tracebackToMessage(pyExceptionMessage.toString(), e.traceback);
+      initCause(null);
+    }
+    else {
+      m_shortMessage = "Java exception whilst " + doingWhat;
+      m_message = tracebackToMessage(m_shortMessage, e.traceback);
+      initCause((Throwable)javaError);
+    }
   }
 
   /**
-   * Remove any JythonScriptExecutionException wrapping and return
-   * the underlying exception thrown from the script.
+   * A short message, without the Jython stack trace. We override
+   * {@link getMessage} to include the Jython stack trace; sometimes we don't
+   * want the stack trace.
+   *
+   * @return A short message, without the Jython stack trace.
    */
-  final Throwable unwrap() {
-    Throwable result = this;
-
-    do {
-      result = ((EngineException)result).getCause();
-    }
-    while (result instanceof JythonScriptExecutionException ||
-           result instanceof BriefPyException);
-
-    return result;
+  public String getShortMessage() {
+    return m_shortMessage;
   }
 
   /**
-   * Used to replace PyExceptions that encapsulate Java exceptions.
-   * (The PyException stack trace is much too verbose my tastes and
-   * repeats a lot of information found in the Java exception).
+   * The detail message string for this throwable.
+   *
+   * @return The message.
    */
-  private static final class BriefPyException extends EngineException {
-    public BriefPyException(Throwable wrapped, PyTraceback traceback) {
-      super(tracebackToMessage(traceback), wrapped);
-      setStackTrace(new StackTraceElement[0]);
-    }
+  public String getMessage() {
+    return m_message;
+  }
 
-    /**
-     * Remove the class name from stack traces.
-     */
-    public String toString() {
-      return getLocalizedMessage();
-    }
+  /**
+   * Remove the class name from stack traces.
+   *
+   * @return A string representation of this instance.
+   */
+  public String toString() {
+    return getLocalizedMessage();
   }
 
   /**
@@ -100,8 +124,9 @@ public class JythonScriptExecutionException extends EngineException {
    * <li>The indentation style is different.</li>
    * </ul>
    */
-  private static String tracebackToMessage(PyTraceback traceback) {
-    final StringBuffer result = new StringBuffer("Jython traceback");
+  private static String tracebackToMessage(String prefix,
+                                           PyTraceback traceback) {
+    final StringBuffer result = new StringBuffer(prefix);
 
     final String[] frames = traceback.dumpStack().split("\n");
 

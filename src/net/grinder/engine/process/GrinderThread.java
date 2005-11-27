@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -128,22 +128,18 @@ class GrinderThread implements java.lang.Runnable {
           jythonRunnable.run();
         }
         catch (JythonScriptExecutionException e) {
-          final Throwable unwrapped = e.unwrap();
+          final Throwable cause = e.getCause();
 
-          if (unwrapped instanceof ShutdownException ||
-              unwrapped instanceof Sleeper.ShutdownException) {
+          if (cause instanceof ShutdownException ||
+              cause instanceof Sleeper.ShutdownException) {
             logger.output("shutdown");
             break;
           }
 
-          // Sadly PrintWriter only exposes its lock object
-          // to subclasses.
+          // Sadly PrintWriter only exposes its lock object to subclasses.
           synchronized (errorWriter) {
-            logger.error("Aborted run, script threw " +
-                         unwrapped.getClass() + ": " +
-                         unwrapped.getMessage());
-
-            unwrapped.printStackTrace(errorWriter);
+            logger.error("Aborted run due to " + e.getShortMessage());
+            e.printStackTrace(errorWriter);
           }
         }
 
@@ -159,18 +155,18 @@ class GrinderThread implements java.lang.Runnable {
         jythonRunnable.shutdown();
       }
       catch (JythonScriptExecutionException e) {
-        final Throwable unwrapped = e.unwrap();
-
-        // Sadly PrintWriter only exposes its lock object
-        // to subclasses.
+        // Sadly PrintWriter only exposes its lock object to subclasses.
         synchronized (errorWriter) {
-          logger.error("Script threw " +
-                       unwrapped.getClass() +
-                       " during test runner shutdown: " +
-                       unwrapped.getMessage());
-
-          unwrapped.printStackTrace(errorWriter);
+          logger.error(
+            "Aborted test runner shutdown due to " + e.getShortMessage());
+          e.printStackTrace(errorWriter);
         }
+      }
+    }
+    catch (JythonScriptExecutionException e) {
+      synchronized (errorWriter) {
+        logger.error("Aborting thread due to " + e.getShortMessage());
+        e.printStackTrace(errorWriter);
       }
     }
     catch (Exception e) {
