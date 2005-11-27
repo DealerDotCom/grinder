@@ -338,13 +338,24 @@ public final class Directory  {
             !destination.exists() ||
             source.lastModified() > destination.lastModified()) {
 
+          final FileInputStream in = new FileInputStream(source);
+          final FileOutputStream out;
+
           try {
-            streamCopier.copy(new FileInputStream(source),
-                              new FileOutputStream(destination));
+            out = new FileOutputStream(destination);
           }
           catch (IOException e) {
-            // Ignore.
+            try {
+              in.close();
+            }
+            catch (IOException closeException) {
+              // Ignore.
+            }
+
+            throw e;
           }
+
+          streamCopier.copy(in, out);
         }
       }
     }
