@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -26,13 +26,17 @@ import junit.framework.TestCase;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
 
 import net.grinder.common.GrinderProperties;
+import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.FanOutStreamSender;
+import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.InitialiseGrinderMessage;
 import net.grinder.engine.process.GrinderProcess;
 
@@ -117,5 +121,51 @@ public class TestProcessWorkerFactory extends TestCase {
     final int n = output.read(remainingBytes);
 
     assertEquals(-1, n); // No arguments.
+  }
+
+  public void testBadWorker() throws Exception {
+    // Test a dusty code path through AbstractWorkerFactory where
+    // the Worker communication stream doesn't work.
+    final AgentIdentityImplementation agentIdentityImplementation =
+      new AgentIdentityImplementation("agent");
+
+    final AbstractWorkerFactory myWorkerFactory =
+      new AbstractWorkerFactory(agentIdentityImplementation,
+                                null, false, null, null, null) {
+
+        protected Worker createWorker(WorkerIdentity workerIdentity,
+                                      OutputStream outputStream,
+                                      OutputStream errorStream)
+        throws EngineException {
+          return new Worker() {
+
+            public WorkerIdentity getIdentity() {
+              return null;
+            }
+
+            public OutputStream getCommunicationStream() {
+              return new OutputStream() {
+                public void write(int b) throws IOException {
+                  throw new IOException("Broken");
+                }
+              };
+            }
+
+            public int waitFor() throws InterruptedException, EngineException {
+              return 0;
+            }
+
+            public void destroy() {
+            }
+          };
+        }
+    };
+
+    try {
+      myWorkerFactory.create(null, null);
+      fail("Expected EngineException");
+    }
+    catch (EngineException e) {
+    }
   }
 }
