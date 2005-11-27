@@ -63,7 +63,7 @@ public class TestProcessWorkerFactory extends TestCase {
 
     final WorkerProcessCommandLine commandLine =
       new WorkerProcessCommandLine(
-        grinderProperties, overrideProperties, alternateFile);
+        grinderProperties, overrideProperties, alternateFile, "");
 
     final List commandList = commandLine.getCommandList();
 

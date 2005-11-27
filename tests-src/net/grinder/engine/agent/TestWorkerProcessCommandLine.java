@@ -42,7 +42,8 @@ public class TestWorkerProcessCommandLine extends TestCase {
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(new GrinderProperties(),
                                    new Properties(),
-                                   null);
+                                   null,
+                                   "");
 
     assertEquals(
       "java net.grinder.engine.process.GrinderProcess",
@@ -63,7 +64,8 @@ public class TestWorkerProcessCommandLine extends TestCase {
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(grinderProperties,
                                    overrideProperties,
-                                   alternateFile);
+                                   alternateFile,
+                                   grinderProperties.getProperty("grinder.jvm.arguments"));
 
     assertEquals("java -server '-Xmx1024M' -classpath 'abc;def' net.grinder.engine.process.GrinderProcess '" + alternateFile.getPath() + "'",
                  workerProcessCommandLine.toString());
@@ -94,7 +96,8 @@ public class TestWorkerProcessCommandLine extends TestCase {
     final WorkerProcessCommandLine workerProcessCommandLine =
       new WorkerProcessCommandLine(grinderProperties,
                                    overrideProperties,
-                                   null);
+                                   null,
+                                   grinderProperties.getProperty("grinder.jvm.arguments"));
 
     String commandLine = workerProcessCommandLine.toString();
 
