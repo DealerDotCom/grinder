@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -114,6 +114,7 @@ final class FileStore {
               }
             }
             catch (Directory.DirectoryException e) {
+              m_logger.error(e.getMessage());
               throw new CommunicationException(e.getMessage(), e);
             }
 
