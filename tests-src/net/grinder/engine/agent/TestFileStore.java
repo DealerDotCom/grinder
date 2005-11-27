@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -35,6 +35,8 @@ import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.engine.messages.ClearCacheMessage;
 import net.grinder.engine.messages.DistributeFileMessage;
 import net.grinder.testutility.AbstractFileTestCase;
+import net.grinder.testutility.FileUtilities;
+import net.grinder.util.Directory;
 import net.grinder.util.FileContents;
 
 
@@ -67,6 +69,19 @@ public class TestFileStore extends AbstractFileTestCase {
 
     // Can't use a plain file.
     final File file1 = File.createTempFile("file", "", getDirectory());
+
+    try {
+      new FileStore(file1, null);
+      fail("Expected FileStoreException");
+    }
+    catch (FileStore.FileStoreException e) {
+    }
+
+    // Nor a directory that contains a plain file clashing with one
+    // of the subdirectory names.
+    file1.delete();
+    file1.mkdir();
+    new File(file1, "current").createNewFile();
 
     try {
       new FileStore(file1, null);
@@ -137,6 +152,25 @@ public class TestFileStore extends AbstractFileTestCase {
     assertTrue(!currentDirectoryFile.exists());
 
     final Message message1 = new DistributeFileMessage(fileContents0);
+
+    // Can't receive a DFM if the incoming directory can't be created.
+    FileUtilities.setCanAccess(getDirectory(), false);
+
+    try {
+      messageHandler.process(message1);
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+
+    FileUtilities.setCanAccess(getDirectory(), true);
+
+    //loggerStubFactory.assertSuccess("output", new Class[] { String.class });
+    loggerStubFactory.assertSuccess("error", new Class[] { String.class });
+    loggerStubFactory.assertNoMoreCalls();
+
+    incomingDirectoryFile.delete();
+
     assertTrue(messageHandler.process(message1));
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
@@ -156,6 +190,22 @@ public class TestFileStore extends AbstractFileTestCase {
     assertTrue(incomingDirectoryFile.exists());
     assertTrue(currentDirectoryFile.exists());
 
+    // Frig with currentDirectory so that getDirectory() fails.
+    new Directory(currentDirectoryFile).deleteContents();
+    currentDirectoryFile.delete();
+    currentDirectoryFile.createNewFile();
+
+    try {
+      fileStore.getDirectory();
+      fail("Expected FileStoreException");
+    }
+    catch (FileStore.FileStoreException e) {
+    }
+
+    // Put things back again.
+    currentDirectoryFile.delete();
+    fileStore.getDirectory();
+
     // Test with a bad message.
     targetFile.setReadOnly();
 
@@ -171,11 +221,29 @@ public class TestFileStore extends AbstractFileTestCase {
     loggerStubFactory.assertNoMoreCalls();
 
     final Message message2 = new ClearCacheMessage();
+
+    FileUtilities.setCanAccess(targetFile, false);
+
+    try {
+      messageHandler.process(message2);
+      fail("Expected CommunicationException");
+    }
+    catch (CommunicationException e) {
+    }
+
+    FileUtilities.setCanAccess(targetFile, true);
+
+    loggerStubFactory.assertSuccess("output", new Class[] { String.class });
+    loggerStubFactory.assertSuccess("error", new Class[] { String.class });
+    loggerStubFactory.assertNoMoreCalls();
+
     assertTrue(messageHandler.process(message2));
     loggerStubFactory.assertSuccess("output", new Class[] { String.class });
     loggerStubFactory.assertNoMoreCalls();
 
     assertTrue(!targetFile.canRead());
+
+    assertEquals(currentDirectoryFile, fileStore.getDirectory().getFile());
   }
 
   public void testFileStoreException() throws Exception {
