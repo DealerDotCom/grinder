@@ -254,8 +254,6 @@ public final class GrinderProcess {
                        m_initialisationMessage.getScriptFile(),
                        m_initialisationMessage.getScriptDirectory());
 
-    // These properties are read here so they may be changed in the
-    // script.
     final GrinderProperties properties = m_context.getProperties();
     final short numberOfThreads =
       properties.getShort("grinder.threads", (short)1);
