@@ -40,9 +40,7 @@ public class TestDebugThreadWorkerFactory extends TestCase {
   public void testFactory() throws Exception {
 
     final AgentIdentityImplementation agentIdentity =
-      new AgentIdentityImplementation("test");
-
-    final GrinderProperties properties = new GrinderProperties();
+      new AgentIdentityImplementation(getClass().getName());
 
     final DebugThreadWorkerFactory factory =
       new DebugThreadWorkerFactory(agentIdentity,
@@ -50,16 +48,17 @@ public class TestDebugThreadWorkerFactory extends TestCase {
                                    false,
                                    null,
                                    null,
-                                   properties);
+                                   null);
 
     final ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
     final PrintStream redirectedStderr = new PrintStream(byteStream);
     final PrintStream oldStderr = System.err;
 
+    System.setErr(redirectedStderr);
+
     try {
-      System.setErr(redirectedStderr);
       final Worker worker = factory.create(null, null);
-      worker.destroy();
+      worker.waitFor();
     }
     finally {
       System.setErr(oldStderr);

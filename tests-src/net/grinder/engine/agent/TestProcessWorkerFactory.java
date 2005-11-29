@@ -77,7 +77,7 @@ public class TestProcessWorkerFactory extends TestCase {
     final boolean reportToConsole = false;
 
     final AgentIdentityImplementation agentIdentityImplementation =
-      new AgentIdentityImplementation("agent");
+      new AgentIdentityImplementation(getClass().getName());
 
     final ProcessWorkerFactory processWorkerFactory =
       new ProcessWorkerFactory(commandLine,
@@ -127,7 +127,7 @@ public class TestProcessWorkerFactory extends TestCase {
     // Test a dusty code path through AbstractWorkerFactory where
     // the Worker communication stream doesn't work.
     final AgentIdentityImplementation agentIdentityImplementation =
-      new AgentIdentityImplementation("agent");
+      new AgentIdentityImplementation(getClass().getName());
 
     final AbstractWorkerFactory myWorkerFactory =
       new AbstractWorkerFactory(agentIdentityImplementation,

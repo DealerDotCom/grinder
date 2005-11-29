@@ -43,7 +43,8 @@ public class TestDebugThreadWorker extends TestCase {
   public void testDebugThreadWorker() throws Exception {
 
     final WorkerIdentity workerIdentity =
-      new AgentIdentityImplementation("test-x").createWorkerIdentity();
+      new AgentIdentityImplementation(getClass().getName())
+      .createWorkerIdentity();
 
     final Worker worker = new DebugThreadWorker(workerIdentity);
 
