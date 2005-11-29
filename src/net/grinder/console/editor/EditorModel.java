@@ -178,7 +178,7 @@ public final class EditorModel {
   }
 
   /**
-   * Return a the current buffer list.
+   * Return a copy of the current buffer list.
    *
    * @return The buffer list.
    */

@@ -55,7 +55,12 @@ import net.grinder.console.editor.EditorModel;
 
 
 /**
- * Panel containing controls for choosing script file set.
+ * Panel containing buffer list and file tree.
+ *
+ * <p>
+ * Listens to the Editor Model, and updates a BufferTreeModel and FileTreeModel
+ * appropriately.
+ * </p>
  *
  * @author Philip Aston
  * @version $Revision$
