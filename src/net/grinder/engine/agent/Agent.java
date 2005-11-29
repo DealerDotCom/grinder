@@ -24,7 +24,6 @@
 package net.grinder.engine.agent;
 
 import java.io.File;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Timer;
@@ -50,7 +49,6 @@ import net.grinder.engine.common.EngineException;
 import net.grinder.engine.messages.StartGrinderMessage;
 import net.grinder.util.Directory;
 import net.grinder.util.JVM;
-import net.grinder.util.SimpleLogger;
 
 
 /**
@@ -71,6 +69,7 @@ public final class Agent {
   private final ConsoleListener m_consoleListener;
   private final FanOutStreamSender m_fanOutStreamSender =
     new FanOutStreamSender(3);
+  private ConsoleCommunication m_consoleCommunication = null;
 
   /**
    * We use an most one file store throughout an agent's life, but can't
@@ -81,25 +80,15 @@ public final class Agent {
   /**
    * Constructor.
    *
+   * @param logger Logger.
+   * @param alternateFile Alternative properties file, or <code>null</code>.
    * @throws GrinderException If an error occurs.
    */
-  public Agent() throws GrinderException {
-    this(null);
-  }
-
-  /**
-   * Constructor.
-   *
-   * @param alternateFile Alternative properties file.
-   * @throws GrinderException If an error occurs.
-   */
-  public Agent(File alternateFile) throws GrinderException {
+  public Agent(Logger logger, File alternateFile) throws GrinderException {
 
     m_alternateFile = alternateFile;
     m_timer = new Timer(true);
-    m_logger = new SimpleLogger("agent",
-                                new PrintWriter(System.out),
-                                new PrintWriter(System.err));
+    m_logger = logger;
 
     m_consoleListener = new ConsoleListener(m_eventSynchronisation, m_logger);
     m_agentIdentity = new AgentIdentityImplementation(getHostName());
@@ -119,7 +108,6 @@ public final class Agent {
   public void run() throws GrinderException, InterruptedException {
 
     StartGrinderMessage nextStartMessage = null;
-    ConsoleCommunication consoleCommunication = null;
     Connector lastConnector = null;
 
     while (true) {
@@ -145,12 +133,12 @@ public final class Agent {
 
         if (!connector.equals(lastConnector)) {
           // We only reconnect if the connection details have changed.
-          if (consoleCommunication != null) {
-            consoleCommunication.shutdown();
+          if (m_consoleCommunication != null) {
+            m_consoleCommunication.shutdown();
           }
 
           try {
-            consoleCommunication =
+            m_consoleCommunication =
               new ConsoleCommunication(connector, m_agentIdentity);
             lastConnector = connector;
           }
@@ -158,27 +146,27 @@ public final class Agent {
             m_logger.error(
               e.getMessage() + ", proceeding without the console; set " +
               "grinder.useConsole=false to disable this warning.");
-            consoleCommunication = null;
+            m_consoleCommunication = null;
           }
         }
 
-        if (consoleCommunication != null && nextStartMessage == null) {
+        if (m_consoleCommunication != null && nextStartMessage == null) {
           m_logger.output("waiting for console signal");
           m_consoleListener.waitForMessage();
         }
       }
       else {
-        if (consoleCommunication != null) {
-          consoleCommunication.shutdown();
+        if (m_consoleCommunication != null) {
+          m_consoleCommunication.shutdown();
         }
-        consoleCommunication = null;
+        m_consoleCommunication = null;
       }
 
       // final to ensure we only take one path through the following.
       final File scriptFile;
       File scriptDirectory = null;
 
-      if (consoleCommunication == null ||
+      if (m_consoleCommunication == null ||
           nextStartMessage != null ||
           m_consoleListener.received(ConsoleListener.START)) {
 
@@ -259,7 +247,7 @@ public final class Agent {
           workerProcessFactory =
             new ProcessWorkerFactory(
               workerCommandLine, m_agentIdentity, m_fanOutStreamSender,
-              consoleCommunication != null, scriptFile, scriptDirectory,
+              m_consoleCommunication != null, scriptFile, scriptDirectory,
               properties);
         }
         else {
@@ -273,7 +261,7 @@ public final class Agent {
           workerProcessFactory =
             new DebugThreadWorkerFactory(
               m_agentIdentity, m_fanOutStreamSender,
-              consoleCommunication != null, scriptFile, scriptDirectory,
+              m_consoleCommunication != null, scriptFile, scriptDirectory,
               properties);
         }
 
@@ -331,7 +319,7 @@ public final class Agent {
         }
       }
 
-      if (consoleCommunication == null) {
+      if (m_consoleCommunication == null) {
         break;
       }
       else {
@@ -357,10 +345,19 @@ public final class Agent {
         }
       }
     }
+  }
 
-    if (consoleCommunication != null) {
-      consoleCommunication.shutdown();
+  /**
+   * Clean up resources.
+   */
+  public void shutdown() {
+    m_timer.cancel();
+
+    if (m_consoleCommunication != null) {
+      m_consoleCommunication.shutdown();
     }
+
+    m_fanOutStreamSender.shutdown();
 
     m_logger.output("finished");
   }

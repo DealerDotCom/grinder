@@ -1,5 +1,5 @@
 // Copyright (C) 2000 Paco Gomez
-// Copyright (C) 2000, 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -23,8 +23,11 @@
 package net.grinder;
 
 import java.io.File;
+import java.io.PrintWriter;
 
+import net.grinder.common.Logger;
 import net.grinder.engine.agent.Agent;
+import net.grinder.util.SimpleLogger;
 
 
 /**
@@ -52,11 +55,16 @@ public final class Grinder {
                          " [alternatePropertiesFilename]");
       System.exit(1);
     }
-    else if (args.length == 1) {
-      new Agent(new File(args[0])).run();
-    }
-    else {
-      new Agent().run();
-    }
+
+    final Logger logger = new SimpleLogger("agent",
+                                           new PrintWriter(System.out),
+                                           new PrintWriter(System.err));
+
+    final Agent agent =
+      new Agent(logger, args.length == 1 ? new File(args[0]) : null);
+
+    agent.run();
+
+    agent.shutdown();
   }
 }
