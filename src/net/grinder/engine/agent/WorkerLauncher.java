@@ -161,6 +161,13 @@ final class WorkerLauncher {
       }
     }
 
+    try {
+      m_kernel.gracefulShutdown();
+    }
+    catch (InterruptedException e) {
+      // Oh well.
+    }
+
     return true;
   }
 
@@ -180,5 +187,3 @@ final class WorkerLauncher {
     }
   }
 }
-
-
