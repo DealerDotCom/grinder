@@ -106,7 +106,7 @@ final class LookAndFeel {
    */
   interface Listener extends EventListener {
     /**
-     * LookAndFeel dispatches notficiation in Swing thread.
+     * LookAndFeel dispatches notification in Swing thread.
      */
     void lookAndFeelChanged();
   }
