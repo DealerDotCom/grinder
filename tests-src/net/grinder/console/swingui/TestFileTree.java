@@ -22,6 +22,7 @@
 package net.grinder.console.swingui;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
 import java.io.File;
 
 import javax.swing.JComponent;
@@ -63,11 +64,8 @@ public class TestFileTree extends AbstractFileTestCase {
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
     final FileTreeModel fileTreeModel = new FileTreeModel(editorModel);
-
-    // TODO Crap that this needs to be done:
     fileTreeModel.setRootDirectory(new File("c:"));
 
-    // TODO Why doesn't it take a composite model?
     final FileTree fileTree = new FileTree(s_resources,
       m_errorHandler, editorModel, bufferTreeModel, fileTreeModel);
 
@@ -107,10 +105,9 @@ public class TestFileTree extends AbstractFileTestCase {
     f1.createNewFile();
     final Buffer buffer = editorModel.selectBufferForFile(f1);
     editorModel.saveBufferAs(buffer, f2);
-    editorModel.saveBufferAs(buffer, f2);
     editorModel.closeBuffer(buffer);
-    final Buffer buffer2 = editorModel.selectBufferForFile(f1);
 
+    final Buffer buffer2 = editorModel.selectBufferForFile(f1);
     fileTreeModel.setRootDirectory(getDirectory());
     fileTreeModel.refresh();
 
@@ -122,7 +119,7 @@ public class TestFileTree extends AbstractFileTestCase {
     fileTreeModel.refresh();     // Create new FileNodes.
     editorModel.selectBuffer(buffer2);
 
-    final Buffer buffer3 = editorModel.selectBufferForFile(f2);
+    editorModel.selectBufferForFile(f2);
     editorModel.closeBuffer(buffer2);
   }
 
