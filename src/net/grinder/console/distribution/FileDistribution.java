@@ -207,7 +207,7 @@ public final class FileDistribution {
     /**
      * Called with a changed file.
      *
-     * @param directory The file that has changed.
+     * @param file The file that has changed.
      */
     void filesChanged(File[] file);
   }
