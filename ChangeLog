@@ -1,7 +1,265 @@
+2005-11-29  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/console/swingui/TestFileTree.java: Tweak.
+
+	* src/net/grinder/console/editor/EditorModel.java, src/net/grinder/console/swingui/FileTree.java:
+	Comment.
+
+	* tests-src/net/grinder/console/swingui/TestFileTree.java:
+	Some tests for FileTree.
+
+	* src/net/grinder/console/swingui/LookAndFeel.java:
+	Fix comment spelliing.
+
+	* tests-src/net/grinder/engine/agent/TestAgent.java, tests-src/net/grinder/engine/agent/TestDebugThreadWorker.java, tests-src/net/grinder/engine/agent/TestDebugThreadWorkerFactory.java, tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java:
+	More agent tests.
+
+	* src/net/grinder/Grinder.java, src/net/grinder/engine/agent/Agent.java:
+	Shutdown cleanly.
+
+	* src/net/grinder/engine/agent/WorkerLauncher.java:
+	Shutdown our kernel when our work is done.
+
+2005-11-28  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/engine/agent/TestAgent.java: Basic test.
+
+	* tests-src/net/grinder/engine/agent/TestDebugThreadWorker.java, tests-src/net/grinder/engine/agent/TestDebugThreadWorkerFactory.java:
+	Tests for DebugThreadWorker classes.
+
+	* src/net/grinder/engine/process/GrinderProcess.java:
+	Remove misleading comment.
+
+2005-11-27  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java, tests-src/net/grinder/engine/agent/TestFileStore.java:
+	Coverage.
+
+	* src/net/grinder/engine/agent/FileStore.java:
+	Log error if we can't clear the cache.
+
+	* src/net/grinder/util/Directory.java:
+	Don't leak a file stream in copyTo() if the target cannot be written to.
+	Don't swallow exceptions in copyTo().
+
+	* src/net/grinder/console/swingui/FileTree.java: Fix comment.
+
+	* TODO, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/DebugThreadWorkerFactory.java, src/net/grinder/engine/messages/InitialiseGrinderMessage.java, src/net/grinder/engine/process/GrinderProcess.java, tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java, tests-src/net/grinder/engine/agent/TestWorkerProcessCommandLine.java, tests-src/net/grinder/engine/messages/TestEngineMessages.java, src/net/grinder/engine/agent/AbstractWorkerFactory.java, src/net/grinder/engine/agent/DebugThreadWorker.java, src/net/grinder/engine/agent/IsolatedGrinderProcessRunner.java, src/net/grinder/engine/agent/ProcessWorkerFactory.java, src/net/grinder/engine/agent/WorkerProcessCommandLine.java:
+	Pass GrinderProperties in the InitialiseGrinderMessage.
+
+	* src/net/grinder/common/GrinderProperties.java: Make serializable.
+
+	* tests-src/net/grinder/util/TestIsolatingClassLoader.java: Coverage.
+
+	* src/net/grinder/util/IsolatingClassLoader.java, tests-src/net/grinder/util/AnIsolatedClass.java, tests-src/net/grinder/util/TestIsolatingClassLoader.java:
+	Test IsolatingClassLoader.
+
+	* CHANGES, src/net/grinder/engine/process/GrinderThread.java, src/net/grinder/engine/process/JythonScriptExecutionException.java, tests-src/net/grinder/engine/process/TestJythonScriptExecutionException.java:
+	Further refinements to Jython exception logging.
+
+	* tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java, tests-src/net/grinder/engine/agent/TestWorkerProcessCommandLine.java:
+	WorkerProcessCommandLine now takes jvm arguments as an extra constructor parameter.
+
+2005-11-25  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/agent/Agent.java:
+	Squeeze in to comply with checkstyle method length restriction.
+
+	* src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/WorkerProcessCommandLine.java:
+	Warn if using single process mode and grinder.jvm.arguments is specified.
+
+	* src/net/grinder/util/IsolatingClassLoader.java: Remove debug logging.
+
+2005-11-24  Philip Aston  <philipa@mail.com>
+
+	* TODO, tests-src/net/grinder/engine/agent/TestProcessWorker.java, tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java, tests-src/net/grinder/engine/agent/TestWorkerLauncher.java, CHANGES, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/DebugThreadWorkerFactory.java, src/net/grinder/engine/agent/IsolatedGrinderProcessRunner.java, src/net/grinder/engine/agent/ProcessWorkerFactory.java, src/net/grinder/engine/agent/WorkerFactory.java, src/net/grinder/engine/agent/WorkerLauncher.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/util/IsolatingClassLoader.java, src/net/grinder/engine/agent/AbstractWorkerFactory.java, src/net/grinder/engine/agent/AgentIdentityImplementation.java, src/net/grinder/engine/agent/DebugThreadWorker.java, src/net/grinder/engine/agent/ProcessWorker.java, src/net/grinder/engine/agent/Worker.java:
+	New grinder.debug.singleprocess property.
+
+2005-11-22  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/engine/agent/ProcessWorker.java, src/net/grinder/engine/agent/Agent.java, src/net/grinder/engine/agent/ChildProcess.java, src/net/grinder/engine/agent/WorkerProcessFactory.java, tests-src/net/grinder/engine/agent/TestChildProcess.java, tests-src/net/grinder/engine/agent/TestProcessLauncher.java, tests-src/net/grinder/engine/agent/TestProcessWorker.java, tests-src/net/grinder/engine/agent/TestProcessWorkerFactory.java, tests-src/net/grinder/engine/agent/TestWorkerLauncher.java, tests-src/net/grinder/engine/agent/TestWorkerProcessFactory.java, src/net/grinder/engine/agent/ProcessFactory.java, src/net/grinder/engine/agent/ProcessLauncher.java, src/net/grinder/engine/agent/ProcessWorkerFactory.java, src/net/grinder/engine/agent/Worker.java, src/net/grinder/engine/agent/WorkerFactory.java, src/net/grinder/engine/agent/WorkerLauncher.java:
+	Refactor to replace "process" with abstract "worker". This is ground work for an implementation based on threads rather than processes for debugging purposes.
+
+	* TODO: Idea.
+
+2005-11-20  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/engine/process/TestTestData.java:
+	Allow Java methods to be wrapped.
+
+	* src/net/grinder/engine/process/InstrumentedPyInstance.java, src/net/grinder/engine/process/InstrumentedPyJavaInstance.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestPyInstance.java, src/net/grinder/engine/process/TestPyJavaInstance.java, src/org/python/core/ClonePyInstance.java:
+	Renamed TestPyInstance to InstrumentedPyInstance.
+	Renamed TestPyJavaInstance to InstrumentedPyJavaInstance.
+
+	* etc/checkstyle-suppressions.xml, CHANGES, src/net/grinder/engine/process/InstrumentedPyReflectedFunction.java, src/net/grinder/engine/process/TestData.java:
+	Allow Java methods to be wrapped.
+
+	* CHANGES, src/net/grinder/engine/process/JythonScriptExecutionException.java, tests-src/net/grinder/engine/process/TestJythonScriptExecutionException.java:
+	Fix the exception logging to include Jython stack traces.
+	The previous implementation broke under J2SE 1.4.
+
+2005-11-06  Philip Aston  <philipa@mail.com>
+
+	* CHANGES, src/net/grinder/tools/tcpproxy/PortForwarderTCPProxyEngine.java, tests-src/net/grinder/tools/tcpproxy/TestPortForwarderTCPProxyEngine.java:
+	Fix bug 1324640 (With SSL, generated scripts have http urls
+	instead of https).
+
+2005-11-01  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/swingui/BufferTreeModel.java:
+	Remove redundant checks.
+
+2005-10-22  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/console/swingui/TestFileTreeModel.java:
+	Test FileTreeModel.
+
+	* src/net/grinder/console/swingui/FileTreeModel.java:
+	Comment on reason for null check.
+
+	* tests-src/net/grinder/console/editor/TestBuffer.java, tests-src/net/grinder/console/editor/TestEditorModel.java:
+	Split out interface from Buffer.
+
+	* TODO: Progress.
+
+	* src/net/grinder/console/swingui/FileTreeModel.java:
+	Remove redundant check.
+
+	* src/net/grinder/console/editor/Buffer.java, src/net/grinder/console/editor/BufferImplementation.java, src/net/grinder/console/editor/EditorModel.java:
+	Split out interface from Buffer.
+
+	* src/net/grinder/console/swingui/FileTreeModel.java:
+	Fix bounds checking in DirectoryNode.getChild().
+	Remove redundant code.
+
+	* src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_ru.properties:
+	Fix Russian menu bar.
+
+	* AUTHORS, CHANGES, src/net/grinder/console/swingui/resources/Console_ru.properties:
+	Russian translation from Konstantin Ignatyev.
+
+2005-10-21  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/common/ResourcesImplementation.java, src/net/grinder/console/editor/EditorModel.java, src/net/grinder/console/common/Resources.java, tests-src/net/grinder/console/common/TestDisplayMessageConsoleException.java, tests-src/net/grinder/console/communication/TestConsoleCommunicationImplementation.java, tests-src/net/grinder/console/editor/TestBuffer.java, tests-src/net/grinder/console/editor/TestEditorModel.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, tests-src/net/grinder/console/swingui/TestBufferTreeModel.java, tests-src/net/grinder/console/swingui/TestGraph.java, src/net/grinder/console/Console.java, tests-src/net/grinder/console/common/TestResources.java:
+	Split Resources
+
+	* src/net/grinder/console/Console.java, src/net/grinder/console/distribution/FileDistribution.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/FileTreeModel.java, src/net/grinder/util/Directory.java, src/net/grinder/console/swingui/FileTree.java, tests-src/net/grinder/console/distribution/TestFileDistribution.java:
+	Console file tree now detects and displays external changes.
+
+2005-10-17  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/distribution/FileDistribution.java, tests-src/net/grinder/console/distribution/TestFileDistribution.java:
+	Can now listen for changed directories.
+
+2005-10-16  Philip Aston  <philipa@mail.com>
+
+	* .project, TODO, src/net/grinder/console/distribution/FileDistribution.java, src/net/grinder/console/distribution/FileDistributionHandlerImplementation.java, src/net/grinder/console/model/ConsoleProperties.java, src/net/grinder/console/distribution/AgentCacheStateImplementation.java, src/net/grinder/console/distribution/UpdateableAgentCacheState.java, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/Console_pl.properties, src/net/grinder/util/Directory.java, tests-src/net/grinder/console/distribution/TestFileDistribution.java, tests-src/net/grinder/console/distribution/TestFileDistributionHandlerImplementation.java, tests-src/net/grinder/console/model/TestConsoleProperties.java, src/net/grinder/console/Console.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_it.properties:
+	Console now detects changes to distribution files made outside
+	editor.
+	
+	* tests-src/net/grinder/testutility/OverrideInvocationHandlerDecorator.java:
+	Remove redundant reference.
+
+	* tests-src/net/grinder/testutility/AbstractFileTestCase.java:
+	Correct spelling.
+
+2005-10-14  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/console/model/Model.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/statistics/StatisticsServicesTestFactory.java, tests-src/net/grinder/statistics/TestCommonStatisticsViews.java, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/PeakStatisticExpression.java, src/net/grinder/statistics/StatisticExpression.java, src/net/grinder/statistics/StatisticExpressionFactoryImplementation.java, src/net/grinder/statistics/StatisticsServices.java, src/net/grinder/statistics/StatisticsServicesImplementation.java:
+	Split out StatisticExpressionFactory interface.
+
+	* tests-src/net/grinder/testutility/AbstractStubFactory.java:
+	setThrows()
+
+	* CHANGES: Note change to statistics API.
+
+	* src/net/grinder/statistics/StatisticsSetFactory.java, src/net/grinder/statistics/StatisticsSetImplementation.java, tests-src/net/grinder/statistics/TestStatisticsSetImplementation.java:
+	Notes about why java.io.Externalizable sucks.
+
+2005-10-13  Philip Aston  <philipa@mail.com>
+
+	* .project: Whatever.
+
+	* src/net/grinder/console/Console.java, src/net/grinder/console/model/Model.java, src/net/grinder/console/model/SampleAccumulator.java, src/net/grinder/plugin/http/HTTPPlugin.java, src/net/grinder/plugininterface/PluginProcessContext.java, tests-src/net/grinder/console/messages/TestConsoleMessages.java, src/net/grinder/console/swingui/DynamicStatisticsTableModel.java, src/net/grinder/console/swingui/LabelledGraph.java, src/net/grinder/console/swingui/TestGraphPanel.java, tests-src/net/grinder/console/swingui/TestGraph.java, tests-src/net/grinder/console/swingui/TestSwingDispatchedSampleListener.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/CumulativeStatisticsTableModel.java, tests-src/net/grinder/engine/process/TestScriptContextImplementation.java, tests-src/net/grinder/engine/process/TestTestRegistry.java, src/net/grinder/engine/process/RegisteredPlugin.java, tests-src/net/grinder/engine/process/StubTestRegistry.java, tests-src/net/grinder/engine/process/TestPluginRegistryImplementation.java, tests-src/net/grinder/engine/process/TestRegisteredPlugin.java, tests-src/net/grinder/engine/process/TestScriptStatisticsImplementation.java, tests-src/net/grinder/engine/process/TestTestData.java, src/net/grinder/engine/process/ProcessContext.java, src/net/grinder/engine/process/PluginRegistryImplementation.java, src/net/grinder/engine/process/ScriptContextImplementation.java, src/net/grinder/engine/process/TestData.java, src/net/grinder/engine/process/TestRegistry.java, src/net/grinder/engine/process/ThreadContextImplementation.java, src/net/grinder/engine/process/GrinderProcess.java, src/net/grinder/engine/process/ScriptStatisticsImplementation.java, src/net/grinder/statistics/StatisticsSetFactory.java, src/net/grinder/statistics/TestStatisticsMap.java, tests-src/net/grinder/plugin/http/TestHTTPRequest.java, tests-src/net/grinder/statistics/StatisticsServicesTestFactory.java, tests-src/net/grinder/statistics/TestCommonStatisticsViews.java, tests-src/net/grinder/statistics/TestExpressionView.java, tests-src/net/grinder/statistics/TestStatisticExpressionFactory.java, tests-src/net/grinder/statistics/TestStatisticsIndexMap.java, tests-src/net/grinder/statistics/TestStatisticsSetFactory.java, tests-src/net/grinder/statistics/TestStatisticsSetImplementation.java, tests-src/net/grinder/statistics/TestStatisticsTable.java, tests-src/net/grinder/statistics/TestTestStatisticsMap.java, tests-src/net/grinder/statistics/TestTestStatisticsQueries.java, src/net/grinder/statistics/CommonStatisticsViews.java, src/net/grinder/statistics/ExpressionView.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsIndexMap.java, src/net/grinder/statistics/StatisticsServices.java, src/net/grinder/statistics/StatisticsServicesImplementation.java, src/net/grinder/statistics/StatisticsSetImplementation.java, src/net/grinder/statistics/StatisticsTable.java, src/net/grinder/statistics/TestStatisticsQueries.java:
+	Refactor statistics package to replace a number of static
+	singletons with a single StatisticsServices singleton, and more
+	constructor dependency injection.
+
+2005-10-11  Philip Aston  <philipa@mail.com>
+
+	* src/net/grinder/util/Directory.java: Fix spelling.
+
+	* TODO, src/net/grinder/console/model/ConsoleProperties.java, tests-src/net/grinder/util/TestDirectory.java, src/net/grinder/console/swingui/ConsoleUI.java, src/net/grinder/console/swingui/FileTree.java, src/net/grinder/console/swingui/resources/Console.properties, src/net/grinder/console/swingui/resources/Console_de.properties, src/net/grinder/console/swingui/resources/Console_es.properties, src/net/grinder/console/swingui/resources/Console_fr.properties, src/net/grinder/console/swingui/resources/Console_it.properties, src/net/grinder/console/swingui/resources/Console_pl.properties, src/net/grinder/util/Directory.java, tests-src/net/grinder/console/model/TestConsoleProperties.java:
+	Warn if saving a file outside of the current distribution directory.
+	Save even if the filename is unchanged.
+
+	* src/net/grinder/engine/agent/FileStore.java:
+	Fix getDirectory not to fail if the incoming directory doesn't yet exist.
+
+	* src/net/grinder/console/swingui/resources/Console_it.properties, CHANGES:
+	Updates from Meo.
+
+2005-10-10  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/testutility/FileUtilities.java:
+	Fix cacls invocation for paths containing spaces.
+
+	* tests-src/net/grinder/util/TestDirectory.java:
+	Rename Directory.getAsFile() to getFile().
+	Add Directory.getFile(String childName).
+	Fail on attempt to copy non-existing directory.
+	Add default directory constructor that builds a Directory for cwd.
+
+2005-10-09  Philip Aston  <philipa@mail.com>
+
+	* tests-src/net/grinder/engine/agent/TestFileStore.java, src/net/grinder/console/distribution/FileDistribution.java, src/net/grinder/engine/agent/Agent.java, src/net/grinder/util/FileContents.java:
+	Rename Directory.getAsFile() to getFile().
+	Add Directory.getFile(String childName).
+
+	* src/net/grinder/util/Directory.java:
+	Rename Directory.getAsFile() to getFile().
+	Add Directory.getFile(String childName).
+	Try attempt to copy non-existing directory.
+	Add default directory constructor that builds a Directory for cwd.
+
+	* src/net/grinder/plugin/http/HTTPPluginTCPProxyFilter.java, src/net/grinder/statistics/StatisticExpressionFactory.java, src/net/grinder/statistics/StatisticsSetImplementation.java, src/net/grinder/statistics/TestStatisticsMap.java, src/net/grinder/util/Serialiser.java:
+	Remove unnecssary casts.
+
+	* TODO: Note about alternate test languages.
+
+	* CHANGES, build.xml: Next is beta 28.
+
+2005-10-08  Philip Aston  <philipa@mail.com>
+
+	* TODO: Note about clock sync.
+
+	* .settings/org.eclipse.jdt.ui.prefs, .checkclipse, .cvsignore, .project, .externalToolBuilders/ANT.launch:
+	Put eclipse project data under CVS control.
+
+	* etc/checkstyle.filters, etc/checkstyle.properties:
+	Renamed eclipse project.
+
+	* etc/checkstyle.filters: *** empty log message ***
+
+	* etc/checkstyle.filters: *** keyword substitution change ***
+
+2005-10-05  Philip Aston  <philipa@mail.com>
+
+	* .cvsignore: Ignore .byecycle.
+
+	* .settings/org.eclipse.jdt.core.prefs, .settings/org.eclipse.jdt.ui.prefs:
+	Eclipse artefacts.
+
+2005-10-03  Philip Aston  <philipa@mail.com>
+
+	* TODO: Doubts about Apache HttpClient's scalabilty.
+
 2005-09-26  Philip Aston  <philipa@mail.com>
 
 	* The Grinder 3.0-beta27 is released.
 
+	* CHANGES, ChangeLog: *** empty log message ***
+	
 	* examples/sync.py: Python synchronisation example.
 
 	* TODO, examples/jmsreceiver.py, src/net/grinder/statistics/package.html, CHANGES:
