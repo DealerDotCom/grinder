@@ -150,7 +150,7 @@ final class BufferImplementation implements Buffer {
         m_resources,
         "fileReadError.text",
         new Object[] { m_file,
-                       "./n(" + extractReasonFromIOException(e) + ")",
+                       ".\n(" + extractReasonFromIOException(e) + ")",
         },
         e);
     }
