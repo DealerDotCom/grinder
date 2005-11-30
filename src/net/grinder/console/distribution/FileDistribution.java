@@ -205,10 +205,10 @@ public final class FileDistribution {
   public static interface FilesChangedListener extends EventListener {
 
     /**
-     * Called with a changed directory.
+     * Called with a changed file.
      *
-     * @param directory The directory that has changed.
+     * @param directory The file that has changed.
      */
-    void filesChanged(File[] directory);
+    void filesChanged(File[] file);
   }
 }
