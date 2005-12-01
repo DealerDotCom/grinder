@@ -144,12 +144,12 @@ public final class ErrorQueue implements ErrorHandler {
   /**
    * Method that handles exceptions.
    *
-   * @param exception The exception.
+   * @param throwable The exception.
    */
-  public void handleException(final Exception exception) {
+  public void handleException(final Throwable throwable) {
     queue(new DelayedError() {
         public void apply(ErrorHandler errorHandler) {
-          errorHandler.handleException(exception);
+          errorHandler.handleException(throwable);
         }
       });
   }
@@ -157,13 +157,13 @@ public final class ErrorQueue implements ErrorHandler {
   /**
    * Method that handles exceptions.
    *
-   * @param exception The exception.
+   * @param throwable The exception.
    * @param title A title to use.
    */
-  public void handleException(final Exception exception, final String title) {
+  public void handleException(final Throwable throwable, final String title) {
     queue(new DelayedError() {
         public void apply(ErrorHandler errorHandler) {
-          errorHandler.handleException(exception, title);
+          errorHandler.handleException(throwable, title);
         }
       });
   }

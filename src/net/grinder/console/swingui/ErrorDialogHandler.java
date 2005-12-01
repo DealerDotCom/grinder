@@ -59,7 +59,7 @@ final class ErrorDialogHandler implements ErrorHandler {
   private final Object[] m_okDetailsOptions;
   private final Object[] m_detailsOptions;
 
-  private Exception m_exception;
+  private Throwable m_throwable;
 
   /**
    * Constructor.
@@ -119,7 +119,7 @@ final class ErrorDialogHandler implements ErrorHandler {
   private boolean shouldClose() {
     final Object value = m_optionPane.getValue();
 
-    if (m_exception != null &&
+    if (m_throwable != null &&
         value == m_okDetailsOptions[1]) {
 
       // Details dialog.
@@ -139,7 +139,7 @@ final class ErrorDialogHandler implements ErrorHandler {
 
         final StringWriter stringWriter = new StringWriter();
         final PrintWriter writer = new StackTraceHTMLPrintWriter(stringWriter);
-        m_exception.printStackTrace(writer);
+        m_throwable.printStackTrace(writer);
         writer.close();
 
         final JLabel label = new JLabel();
@@ -174,7 +174,7 @@ final class ErrorDialogHandler implements ErrorHandler {
                 final StringWriter plainStackStringWriter = new StringWriter();
                 final PrintWriter printWriter =
                   new PrintWriter(plainStackStringWriter);
-                m_exception.printStackTrace(printWriter);
+                m_throwable.printStackTrace(printWriter);
                 printWriter.close();
 
                 final StringSelection stringSelection =
@@ -222,7 +222,7 @@ final class ErrorDialogHandler implements ErrorHandler {
    */
   public void handleErrorMessage(String errorMessage, String title) {
 
-    m_exception = null;
+    m_throwable = null;
 
     m_optionPane.setMessage(errorMessage);
     m_optionPane.setOptions(m_okOptions);
@@ -266,28 +266,28 @@ final class ErrorDialogHandler implements ErrorHandler {
   /**
    * Method that handles exceptions.
    *
-   * @param exception The exception.
+   * @param throwable The exception.
    */
-  public void handleException(Exception exception) {
-    if (exception instanceof DisplayMessageConsoleException) {
-      handleException(exception, m_errorTitle);
+  public void handleException(Throwable throwable) {
+    if (throwable instanceof DisplayMessageConsoleException) {
+      handleException(throwable, m_errorTitle);
     }
     else {
-      handleException(exception, m_unexpectedErrorTitle);
+      handleException(throwable, m_unexpectedErrorTitle);
     }
   }
 
   /**
    * Method that handles exceptions.
    *
-   * @param exception The exception.
+   * @param throwable The exception.
    * @param title A title to use.
    */
-  public void handleException(Exception exception, String title) {
+  public void handleException(Throwable throwable, String title) {
 
-    m_exception = exception;
+    m_throwable = throwable;
 
-    m_optionPane.setMessage(m_exception.getMessage());
+    m_optionPane.setMessage(m_throwable.getMessage());
     m_optionPane.setOptions(m_okDetailsOptions);
 
     showDialog(title);

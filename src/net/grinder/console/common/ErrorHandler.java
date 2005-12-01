@@ -69,15 +69,15 @@ public interface ErrorHandler {
   /**
    * Method that handles exceptions.
    *
-   * @param exception The exception.
+   * @param throwable The exception.
    */
-  void handleException(Exception exception);
+  void handleException(Throwable throwable);
 
   /**
    * Method that handles exceptions.
    *
-   * @param exception The exception.
+   * @param throwable The exception.
    * @param title A title to use.
    */
-  void handleException(Exception exception, String title);
+  void handleException(Throwable throwable, String title);
 }
