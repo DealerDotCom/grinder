@@ -33,9 +33,9 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import net.grinder.console.distribution.FileDistribution;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
+import net.grinder.console.distribution.FileDistribution.FilesChangedListener;
 import net.grinder.util.WeakValueHashMap;
 
 
@@ -252,7 +252,8 @@ final class FileTreeModel implements TreeModel {
    *
    */
   public class RefreshChangedDirectoriesListener
-    implements FileDistribution.FilesChangedListener {
+    implements FilesChangedListener {
+
     public void filesChanged(File[] files) {
       // Refresh the tree path for every file. We could waste time here removing
       // duplicate refreshes, but most times they'll only be a single file.

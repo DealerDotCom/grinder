@@ -33,6 +33,7 @@ import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.distribution.AgentCacheState;
+import net.grinder.console.distribution.FileDistributionStubFactory;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 import net.grinder.console.editor.StringTextSource;
@@ -51,16 +52,24 @@ public class TestFileTree extends AbstractFileTestCase {
   private final ErrorHandler m_errorHandler =
     (ErrorHandler)m_errorHandlerStubFactory.getStub();
 
-  private StringTextSource.Factory m_stringTextSourceFactory =
+  private final StringTextSource.Factory m_stringTextSourceFactory =
     new StringTextSource.Factory();
-  private DelegatingStubFactory m_textSourceFactoryStubFactory =
+  private final DelegatingStubFactory m_textSourceFactoryStubFactory =
     new DelegatingStubFactory(m_stringTextSourceFactory);
-  private TextSource.Factory m_textSourceFactory =
+  private final TextSource.Factory m_textSourceFactory =
     (TextSource.Factory)m_textSourceFactoryStubFactory.getStub();
+  private final RandomStubFactory m_agentCacheStateStubFactory =
+    new RandomStubFactory(AgentCacheState.class);
+  private final AgentCacheState m_agentCacheState =
+    (AgentCacheState)m_agentCacheStateStubFactory.getStub();
+  private final FileDistributionStubFactory m_fileDistributionStubFactory =
+    new FileDistributionStubFactory(m_agentCacheState);
 
   public void testConstruction() throws Exception {
     final EditorModel editorModel =
-      new EditorModel(s_resources, m_textSourceFactory, null);
+      new EditorModel(s_resources,
+                      m_textSourceFactory,
+                      m_fileDistributionStubFactory.getFileDistribution());
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
     final FileTreeModel fileTreeModel = new FileTreeModel(editorModel);
@@ -77,13 +86,10 @@ public class TestFileTree extends AbstractFileTestCase {
   }
 
   public void testEditorModelListener() throws Exception {
-    final RandomStubFactory agentCacheStateStubFactory =
-      new RandomStubFactory(AgentCacheState.class);
-    final AgentCacheState agentCacheState =
-      (AgentCacheState)agentCacheStateStubFactory.getStub();
-
     final EditorModel editorModel =
-      new EditorModel(s_resources, m_textSourceFactory, agentCacheState);
+      new EditorModel(s_resources,
+                      m_textSourceFactory,
+                      m_fileDistributionStubFactory.getFileDistribution());
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
     final FileTreeModel fileTreeModel = new FileTreeModel(editorModel);
@@ -124,13 +130,10 @@ public class TestFileTree extends AbstractFileTestCase {
   }
 
   public void testDisplay() throws Exception {
-    final RandomStubFactory agentCacheStateStubFactory =
-      new RandomStubFactory(AgentCacheState.class);
-    final AgentCacheState agentCacheState =
-      (AgentCacheState)agentCacheStateStubFactory.getStub();
-
     final EditorModel editorModel =
-      new EditorModel(s_resources, m_textSourceFactory, agentCacheState);
+      new EditorModel(s_resources,
+                      m_textSourceFactory,
+                      m_fileDistributionStubFactory.getFileDistribution());
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
     final FileTreeModel fileTreeModel = new FileTreeModel(editorModel);

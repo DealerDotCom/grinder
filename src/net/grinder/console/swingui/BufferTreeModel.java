@@ -52,13 +52,10 @@ final class BufferTreeModel implements TreeModel {
 
     m_editorModel = editorModel;
 
-    m_editorModel.addListener(new EditorModel.Listener() {
+    m_editorModel.addListener(new EditorModel.AbstractListener() {
 
         public void bufferAdded(Buffer buffer) {
           bufferListChanged();
-        }
-
-        public void bufferChanged(Buffer buffer) {
         }
 
         public void bufferRemoved(Buffer buffer) {

@@ -38,6 +38,7 @@ import net.grinder.console.communication.ConsoleCommunication;
 import net.grinder.console.communication.ConsoleCommunicationImplementation;
 import net.grinder.console.communication.ProcessStatus;
 import net.grinder.console.distribution.FileDistribution;
+import net.grinder.console.distribution.FileDistributionImplementation;
 import net.grinder.console.messages.RegisterStatisticsViewMessage;
 import net.grinder.console.messages.RegisterTestsMessage;
 import net.grinder.console.messages.ReportStatisticsMessage;
@@ -90,7 +91,8 @@ public class Console {
       new ConsoleCommunicationImplementation(resources, properties, timer);
 
     final FileDistribution fileDistribution =
-      new FileDistribution(m_communication.getDistributionControl());
+      new FileDistributionImplementation(
+        m_communication.getDistributionControl());
 
     timer.schedule(new TimerTask() {
         public void run() {

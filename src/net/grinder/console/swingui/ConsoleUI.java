@@ -158,9 +158,19 @@ public final class ConsoleUI implements ModelListener {
     m_fileDistribution = fileDistribution;
 
     final Resources resources = m_model.getResources();
-    m_editorModel =
-      new EditorModel(resources, new Editor.TextSourceFactory(),
-                      m_fileDistribution.getAgentCacheState());
+    m_editorModel = new EditorModel(resources,
+                                    new Editor.TextSourceFactory(),
+                                    m_fileDistribution);
+
+    m_editorModel.addListener(new EditorModel.AbstractListener() {
+      public void bufferNotUpToDate(Buffer buffer) {
+        if (buffer.equals(m_editorModel.getSelectedBuffer())) {
+          // TODO
+          // Should be swing dispatched.
+          System.err.println(buffer.getFile());
+        }
+      }
+    });
 
     // LookAndFeel constructor will set initial Look and Feel from properties.
     m_lookAndFeel = new LookAndFeel(m_model.getProperties());
@@ -855,17 +865,12 @@ public final class ConsoleUI implements ModelListener {
     public SaveFileAction() {
       super(m_model.getResources(), "save-file");
 
-      m_editorModel.addListener(new EditorModel.Listener() {
-          public void bufferAdded(Buffer buffer) { }
-
-          public void bufferChanged(Buffer ignored) {
+      m_editorModel.addListener(new EditorModel.AbstractListener() {
+          public void bufferStateChanged(Buffer ignored) {
             final Buffer buffer = m_editorModel.getSelectedBuffer();
 
-            setEnabled(buffer != null &&
-                       buffer.isDirty());
+            setEnabled(buffer != null && buffer.isDirty());
           }
-
-          public void bufferRemoved(Buffer buffer) { }
         });
     }
 
@@ -893,14 +898,10 @@ public final class ConsoleUI implements ModelListener {
     public SaveFileAsAction() {
       super(m_model.getResources(), "save-file-as", true);
 
-      m_editorModel.addListener(new EditorModel.Listener() {
-          public void bufferAdded(Buffer buffer) { }
-
-          public void bufferChanged(Buffer ignored) {
+      m_editorModel.addListener(new EditorModel.AbstractListener() {
+          public void bufferStateChanged(Buffer ignored) {
             setEnabled(m_editorModel.getSelectedBuffer() != null);
           }
-
-          public void bufferRemoved(Buffer buffer) { }
         });
 
       m_fileChooser.setDialogTitle(
@@ -1003,14 +1004,10 @@ public final class ConsoleUI implements ModelListener {
     public CloseFileAction() {
       super(m_model.getResources(), "close-file");
 
-      m_editorModel.addListener(new EditorModel.Listener() {
-          public void bufferAdded(Buffer buffer) { }
-
-          public void bufferChanged(Buffer ignored) {
+      m_editorModel.addListener(new EditorModel.AbstractListener() {
+          public void bufferStateChanged(Buffer ignored) {
             setEnabled(m_editorModel.getSelectedBuffer() != null);
           }
-
-          public void bufferRemoved(Buffer buffer) { }
         });
     }
 

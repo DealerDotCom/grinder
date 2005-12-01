@@ -22,6 +22,7 @@
 package net.grinder.console.editor;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -30,6 +31,8 @@ import java.util.Map;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.distribution.AgentCacheState;
+import net.grinder.console.distribution.FileDistribution;
+import net.grinder.console.distribution.FileDistribution.FilesChangedListener;
 import net.grinder.util.ListenerSupport;
 
 
@@ -49,7 +52,7 @@ public final class EditorModel {
   private final ListenerSupport m_listeners = new ListenerSupport();
 
   private final LinkedList m_bufferList = new LinkedList();
-  private final Map m_fileBuffers = new HashMap();
+  private final Map m_fileBuffers = Collections.synchronizedMap(new HashMap());
 
   private int m_nextNewBufferNameIndex = 0;
 
@@ -61,23 +64,43 @@ public final class EditorModel {
    *
    * @param resources ResourcesImplementation.
    * @param textSourceFactory Factory for {@link TextSource}s.
-   * @param agentCacheState The agent cache state.
+   * @param fileDistribution A FileDistribution.
    */
   public EditorModel(Resources resources,
                      TextSource.Factory textSourceFactory,
-                     AgentCacheState agentCacheState) {
+                     FileDistribution fileDistribution) {
     m_resources = resources;
     m_textSourceFactory = textSourceFactory;
-    m_agentCacheState = agentCacheState;
+    m_agentCacheState = fileDistribution.getAgentCacheState();
 
     m_defaultBuffer = new BufferImplementation(m_resources,
-                                 m_textSourceFactory.create(),
-                                 createNewBufferName());
+                                               m_textSourceFactory.create(),
+                                               createNewBufferName());
     addBuffer(m_defaultBuffer);
 
     m_defaultBuffer.getTextSource().setText(
       m_resources.getStringFromFile(
         "scriptSupportUnderConstruction.text", true));
+
+    fileDistribution.addFilesChangedListener(new FilesChangedListener() {
+      public void filesChanged(File[] file) {
+        synchronized (m_fileBuffers) {
+          for (int i = 0; i < file.length; ++i) {
+            if (file[i].isDirectory()) {
+              // TODO
+              System.out.println("Directory: " + file[i]);
+            }
+            else {
+              final Buffer buffer = getBufferForFile(file[i]);
+
+              if (buffer != null) {
+                fireBufferNotUpToDate(buffer);
+              }
+            }
+          }
+        }
+      }
+    });
   }
 
   /**
@@ -101,8 +124,8 @@ public final class EditorModel {
    */
   public void selectNewBuffer() {
     final Buffer buffer = new BufferImplementation(m_resources,
-                                     m_textSourceFactory.create(),
-                                     createNewBufferName());
+                                                   m_textSourceFactory.create(),
+                                                   createNewBufferName());
     addBuffer(buffer);
 
     selectBuffer(buffer);
@@ -111,9 +134,11 @@ public final class EditorModel {
   /**
    * Select the buffer for the given file.
    *
-   * @param file The file.
+   * @param file
+   *          The file.
    * @return The buffer.
-   * @throws ConsoleException If a buffer could not be selected for the file.
+   * @throws ConsoleException
+   *           If a buffer could not be selected for the file.
    */
   public Buffer selectBufferForFile(File file) throws ConsoleException {
     final Buffer existingBuffer = getBufferForFile(file);
@@ -121,19 +146,26 @@ public final class EditorModel {
 
     if (existingBuffer != null) {
       buffer = existingBuffer;
+
+      selectBuffer(buffer);
+
+      if (!buffer.getUpToDate()) {
+        // The user's edits conflict with a file system change.
+        // We ensure the buffer is selected before firing this event because
+        // the UI might only raise out of date warnings for selected buffers.
+        fireBufferNotUpToDate(buffer);
+      }
     }
     else {
-      buffer =
-        new BufferImplementation(m_resources,
-                                 m_textSourceFactory.create(),
-                                 file);
+      buffer = new BufferImplementation(m_resources, m_textSourceFactory
+          .create(), file);
       buffer.load();
       addBuffer(buffer);
 
       m_fileBuffers.put(file, buffer);
-    }
 
-    selectBuffer(buffer);
+      selectBuffer(buffer);
+    }
 
     return buffer;
   }
@@ -141,7 +173,8 @@ public final class EditorModel {
   /**
    * Get the buffer for the given file.
    *
-   * @param file The file.
+   * @param file
+   *          The file.
    * @return The buffer; <code>null</code> => there is no buffer for the file.
    */
   public Buffer getBufferForFile(File file) {
@@ -173,7 +206,7 @@ public final class EditorModel {
 
       // Fire that bufferChanged because it is associated with a new
       // file.
-      fireBufferChanged(buffer);
+      fireBufferStateChanged(buffer);
     }
   }
 
@@ -216,11 +249,11 @@ public final class EditorModel {
       m_selectedBuffer = buffer;
 
       if (oldBuffer != null) {
-        fireBufferChanged(oldBuffer);
+        fireBufferStateChanged(oldBuffer);
       }
 
       if (buffer != null) {
-        fireBufferChanged(buffer);
+        fireBufferStateChanged(buffer);
       }
     }
   }
@@ -280,7 +313,7 @@ public final class EditorModel {
     buffer.getTextSource().addListener(new TextSource.Listener() {
         public void textSourceChanged(boolean dirtyStateChanged) {
           if (dirtyStateChanged) {
-            fireBufferChanged(buffer);
+            fireBufferStateChanged(buffer);
           }
         }
       });
@@ -303,11 +336,20 @@ public final class EditorModel {
       });
   }
 
-  private void fireBufferChanged(final Buffer buffer) {
+  private void fireBufferStateChanged(final Buffer buffer) {
     m_listeners.apply(
       new ListenerSupport.Informer() {
         public void inform(Object listener) {
-          ((Listener)listener).bufferChanged(buffer);
+          ((Listener)listener).bufferStateChanged(buffer);
+        }
+      });
+  }
+
+  private void fireBufferNotUpToDate(final Buffer buffer) {
+    m_listeners.apply(
+      new ListenerSupport.Informer() {
+        public void inform(Object listener) {
+          ((Listener)listener).bufferNotUpToDate(buffer);
         }
       });
   }
@@ -394,7 +436,15 @@ public final class EditorModel {
      *
      * @param buffer The buffer.
      */
-    void bufferChanged(Buffer buffer);
+    void bufferStateChanged(Buffer buffer);
+
+    /**
+     * Called when an independent modification to a buffer's associated
+     * file has been detected.
+     *
+     * @param buffer The buffer.
+     */
+    void bufferNotUpToDate(Buffer buffer);
 
     /**
      * Called when a buffer has been removed.
@@ -402,5 +452,35 @@ public final class EditorModel {
      * @param buffer The buffer.
      */
     void bufferRemoved(Buffer buffer);
+  }
+
+  /**
+   * Base {@link Listener} implementation that does nothing.
+   */
+  public abstract static class AbstractListener implements Listener {
+
+    /**
+     * @see Listener#bufferAdded
+     * @param buffer The buffer.
+     */
+    public void bufferAdded(Buffer buffer) { }
+
+    /**
+     * @see Listener#bufferAdded
+     * @param buffer The buffer.
+     */
+    public void bufferStateChanged(Buffer buffer) { }
+
+    /**
+     * @see Listener#bufferAdded
+     * @param buffer The buffer.
+     */
+    public void bufferNotUpToDate(Buffer buffer) { }
+
+    /**
+     * @see Listener#bufferAdded
+     * @param buffer The buffer.
+     */
+    public void bufferRemoved(Buffer buffer) { }
   }
 }

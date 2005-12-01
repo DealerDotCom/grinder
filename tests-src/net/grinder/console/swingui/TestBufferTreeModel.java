@@ -30,6 +30,8 @@ import javax.swing.tree.TreePath;
 
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
+import net.grinder.console.distribution.AgentCacheState;
+import net.grinder.console.distribution.FileDistributionStubFactory;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 
@@ -47,14 +49,25 @@ import net.grinder.testutility.RandomStubFactory;
 public class TestBufferTreeModel extends TestCase {
 
   private static final Resources s_resources =
-      new ResourcesImplementation("net.grinder.console.swingui.resources.Console");
+      new ResourcesImplementation(
+        "net.grinder.console.swingui.resources.Console");
+
+  private final RandomStubFactory m_agentCacheStateStubFactory =
+    new RandomStubFactory(AgentCacheState.class);
+  private final AgentCacheState m_agentCacheState =
+    (AgentCacheState)m_agentCacheStateStubFactory.getStub();
+
+  private final FileDistributionStubFactory m_fileDistributionStubFactory =
+    new FileDistributionStubFactory(m_agentCacheState);
 
   public void testConstructionAndGetChildMethods() throws Exception {
     final StringTextSource.Factory stringTextSourceFactory =
       new StringTextSource.Factory();
 
     final EditorModel editorModel =
-      new EditorModel(s_resources, stringTextSourceFactory, null);
+      new EditorModel(s_resources,
+                      stringTextSourceFactory,
+                      m_fileDistributionStubFactory.getFileDistribution());
     editorModel.selectDefaultBuffer();
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
@@ -100,7 +113,9 @@ public class TestBufferTreeModel extends TestCase {
       new StringTextSource.Factory();
 
     final EditorModel editorModel =
-      new EditorModel(s_resources, stringTextSourceFactory, null);
+      new EditorModel(s_resources,
+                      stringTextSourceFactory,
+                      m_fileDistributionStubFactory.getFileDistribution());
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
 
@@ -132,7 +147,7 @@ public class TestBufferTreeModel extends TestCase {
     listener2StubFactory.assertSuccess("treeNodesChanged",
                                        TreeModelEvent.class);
     listener2StubFactory.assertNoMoreCalls();
-    
+
     bufferTreeModel.removeTreeModelListener(listener1);
 
     // removeTreeModelListener() can calls equals() on the listeners.
@@ -145,7 +160,10 @@ public class TestBufferTreeModel extends TestCase {
     listener2StubFactory.assertNoMoreCalls();
 
     final EditorModel editorModel2 =
-      new EditorModel(s_resources, stringTextSourceFactory, null);
+      new EditorModel(s_resources,
+                      stringTextSourceFactory,
+                      m_fileDistributionStubFactory.getFileDistribution());
+
     editorModel2.selectNewBuffer();
     final Buffer anotherBuffer = editorModel2.getSelectedBuffer();
     bufferTreeModel.bufferChanged(anotherBuffer);

@@ -193,7 +193,7 @@ final class FileTree {
     updateActionState();
   }
 
-  private class EditorModelListener implements EditorModel.Listener {
+  private class EditorModelListener extends EditorModel.AbstractListener {
 
     public void bufferAdded(Buffer buffer) {
       // When a file is opened, the new buffer causes the view to
@@ -203,7 +203,7 @@ final class FileTree {
       verticalScrollBar.setValue(verticalScrollBar.getValue() + rowHeight);
     }
 
-    public void bufferChanged(Buffer buffer) {
+    public void bufferStateChanged(Buffer buffer) {
       final File file = buffer.getFile();
 
       if (file != null) {

@@ -114,11 +114,8 @@ final class Editor {
 
     m_scriptTextArea.setBorder(m_titledBorder);
 
-    m_editorModel.addListener(new EditorModel.Listener() {
-
-        public void bufferAdded(Buffer buffer) { }
-
-        public void bufferChanged(Buffer buffer) {
+    m_editorModel.addListener(new EditorModel.AbstractListener() {
+        public void bufferStateChanged(Buffer buffer) {
           final Buffer selectedBuffer = m_editorModel.getSelectedBuffer();
 
           if (selectedBuffer == null) {
@@ -146,8 +143,6 @@ final class Editor {
           // Repaint so the border is updated.
           m_scriptTextArea.repaint();
         }
-
-        public void bufferRemoved(Buffer buffer) { }
       });
 
     m_editorModel.selectDefaultBuffer();

@@ -33,7 +33,7 @@ import net.grinder.util.Directory;
 
 
 /**
- * Unit test for {@link FileDistribution}.
+ * Unit test for {@link FileDistributionImplementation}.
  *
  * @author Philip Aston
  * @version $Revision$
@@ -47,7 +47,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
       (DistributionControl)distributionControlStubFactory.getStub();
 
     final FileDistribution fileDistribution =
-      new FileDistribution(distributionControl);
+      new FileDistributionImplementation(distributionControl);
 
     distributionControlStubFactory.assertNoMoreCalls();
 
@@ -149,7 +149,7 @@ public class TestFileDistribution extends AbstractFileTestCase {
     final Directory directory = new Directory(getDirectory());
 
     final FileDistribution fileDistribution =
-      new FileDistribution(distributionControl, agentCacheState);
+      new FileDistributionImplementation(distributionControl, agentCacheState);
     fileDistribution.addFilesChangedListener(filesChangedListener);
 
     fileDistribution.scanDistributionFiles(directory);
