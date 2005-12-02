@@ -25,6 +25,8 @@ import junit.framework.TestCase;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.Serializable;
+
 import javax.swing.SwingUtilities;
 
 import net.grinder.console.common.ErrorHandler;
@@ -77,6 +79,21 @@ public class TestSwingDispatcherFactory extends TestCase {
     errorHandlerStubFactory.assertNoMoreCalls();
   }
 
+  public void testDelegateWithMultipleInterfaces() throws Exception {
+    final RandomStubFactory errorHandlerStubFactory =
+      new RandomStubFactory(ErrorHandler.class);
+    final ErrorHandler errorHandler =
+      (ErrorHandler)errorHandlerStubFactory.getStub();
+
+    final SwingDispatcherFactory swingDispatcherFactory =
+      new SwingDispatcherFactory(errorHandler);
+
+    final Object proxy = swingDispatcherFactory.create(new FooImpl());
+
+    assertTrue(proxy instanceof Foo);
+    assertTrue(proxy instanceof Serializable);
+  }
+
   private final class MyPropertyChangeListener
     implements PropertyChangeListener {
 
@@ -108,6 +125,14 @@ public class TestSwingDispatcherFactory extends TestCase {
     public void setThrowException(RuntimeException e) {
       m_nextException = e;
     }
+  }
+
+  public interface Foo extends PropertyChangeListener { }
+
+  public static class FooBase { }
+
+  public static class FooImpl extends FooBase implements Foo, Serializable {
+    public void propertyChange(PropertyChangeEvent e) { }
   }
 }
 
