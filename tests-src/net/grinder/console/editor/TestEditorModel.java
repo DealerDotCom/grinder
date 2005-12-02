@@ -27,7 +27,7 @@ import java.io.FileWriter;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.distribution.AgentCacheState;
-import net.grinder.console.distribution.FileDistributionStubFactory;
+import net.grinder.console.distribution.FileChangeWatcher;
 
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.CallData;
@@ -52,8 +52,10 @@ public class TestEditorModel extends AbstractFileTestCase {
   private final AgentCacheState m_agentCacheState =
     (AgentCacheState)m_agentCacheStateStubFactory.getStub();
 
-  private final FileDistributionStubFactory m_fileDistributionStubFactory =
-    new FileDistributionStubFactory(m_agentCacheState);
+  private final RandomStubFactory m_fileChangeWatcherStubFactory =
+    new RandomStubFactory(FileChangeWatcher.class);
+  private final FileChangeWatcher m_fileChangeWatcher =
+    (FileChangeWatcher)m_fileChangeWatcherStubFactory.getStub();
 
   public void testConstruction() throws Exception {
     final StringTextSource.Factory stringTextSourceFactory =
@@ -64,10 +66,10 @@ public class TestEditorModel extends AbstractFileTestCase {
     final TextSource.Factory textSourceFactory =
       (TextSource.Factory)textSourceFactoryStubFactory.getStub();
 
-    final EditorModel editorModel =
-      new EditorModel(s_resources,
-                      textSourceFactory,
-                      m_fileDistributionStubFactory.getFileDistribution());
+    final EditorModel editorModel = new EditorModel(s_resources,
+                                                    textSourceFactory,
+                                                    m_agentCacheState,
+                                                    m_fileChangeWatcher);
 
     textSourceFactoryStubFactory.assertSuccess("create");
     textSourceFactoryStubFactory.assertNoMoreCalls();
@@ -84,7 +86,8 @@ public class TestEditorModel extends AbstractFileTestCase {
     final EditorModel editorModel =
       new EditorModel(s_resources,
                       new StringTextSource.Factory(),
-                      m_fileDistributionStubFactory.getFileDistribution());
+                      m_agentCacheState,
+                      m_fileChangeWatcher);
 
     final RandomStubFactory listener1StubFactory =
       new RandomStubFactory(EditorModel.Listener.class);
@@ -126,10 +129,10 @@ public class TestEditorModel extends AbstractFileTestCase {
     final TextSource.Factory textSourceFactory =
       (TextSource.Factory)textSourceFactoryStubFactory.getStub();
 
-    final EditorModel editorModel =
-      new EditorModel(s_resources,
-                      textSourceFactory,
-                      m_fileDistributionStubFactory.getFileDistribution());
+    final EditorModel editorModel = new EditorModel(s_resources,
+                                                    textSourceFactory,
+                                                    m_agentCacheState,
+                                                    m_fileChangeWatcher);
 
     textSourceFactoryStubFactory.resetCallHistory();
 
@@ -228,10 +231,10 @@ public class TestEditorModel extends AbstractFileTestCase {
     final EditorModel.Listener listener1 =
       (EditorModel.Listener)listener1StubFactory.getStub();
 
-    final EditorModel editorModel =
-      new EditorModel(s_resources,
-                      textSourceFactory,
-                      m_fileDistributionStubFactory.getFileDistribution());
+    final EditorModel editorModel = new EditorModel(s_resources,
+                                                    textSourceFactory,
+                                                    m_agentCacheState,
+                                                    m_fileChangeWatcher);
 
     editorModel.selectDefaultBuffer();
     final Buffer defaultBuffer = editorModel.getSelectedBuffer();
@@ -276,7 +279,8 @@ public class TestEditorModel extends AbstractFileTestCase {
     final EditorModel editorModel =
       new EditorModel(s_resources,
                       new StringTextSource.Factory(),
-                      m_fileDistributionStubFactory.getFileDistribution());
+                      m_agentCacheState,
+                      m_fileChangeWatcher);
 
     final File[] boring = {
       new File("some.class"),
@@ -313,7 +317,8 @@ public class TestEditorModel extends AbstractFileTestCase {
     final EditorModel editorModel =
       new EditorModel(s_resources,
                       new StringTextSource.Factory(),
-                      m_fileDistributionStubFactory.getFileDistribution());
+                      m_agentCacheState,
+                      m_fileChangeWatcher);
 
     final File[] python = {
       new File("my file.py"),
@@ -345,7 +350,8 @@ public class TestEditorModel extends AbstractFileTestCase {
     final EditorModel editorModel =
       new EditorModel(s_resources,
                       new StringTextSource.Factory(),
-                      m_fileDistributionStubFactory.getFileDistribution());
+                      m_agentCacheState,
+                      m_fileChangeWatcher);
 
     final RandomStubFactory listenerStubFactory =
       new RandomStubFactory(EditorModel.Listener.class);
@@ -413,10 +419,10 @@ public class TestEditorModel extends AbstractFileTestCase {
     final StringTextSource.Factory stringTextSourceFactory =
       new StringTextSource.Factory();
 
-    final EditorModel editorModel =
-      new EditorModel(s_resources,
-                      stringTextSourceFactory,
-                      m_fileDistributionStubFactory.getFileDistribution());
+    final EditorModel editorModel = new EditorModel(s_resources,
+                                                    stringTextSourceFactory,
+                                                    m_agentCacheState,
+                                                    m_fileChangeWatcher);
 
     final RandomStubFactory listenerStubFactory =
       new RandomStubFactory(EditorModel.Listener.class);
@@ -463,13 +469,11 @@ public class TestEditorModel extends AbstractFileTestCase {
   }
 
   public void testGetAndSetMarkedScript() throws Exception {
-    final StringTextSource.Factory stringTextSourceFactory =
-      new StringTextSource.Factory();
-
     final EditorModel editorModel =
       new EditorModel(s_resources,
-                      stringTextSourceFactory,
-                      m_fileDistributionStubFactory.getFileDistribution());
+                      new StringTextSource.Factory(),
+                      m_agentCacheState,
+                      m_fileChangeWatcher);
 
     assertNull(editorModel.getMarkedScript());
 

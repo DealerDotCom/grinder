@@ -116,7 +116,7 @@ public interface Buffer {
    * @return <code>true</code> => the file has changed independently
    * of the buffer.
    */
-  boolean getUpToDate();
+  boolean isUpToDate();
 
   /**
    * Get the type of the buffer.

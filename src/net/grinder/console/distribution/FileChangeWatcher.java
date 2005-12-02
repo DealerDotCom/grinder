@@ -1,11 +1,6 @@
 // Copyright (C) 2005 Philip Aston
 // All rights reserved.
 //
-// This file is part of The Grinder software distribution. Refer to
-// the file LICENSE which is part of The Grinder distribution for
-// licensing details. The Grinder distribution is available on the
-// Internet at http://grinder.sourceforge.net/
-//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -21,24 +16,37 @@
 
 package net.grinder.console.distribution;
 
-import net.grinder.console.distribution.AgentCacheState;
-import net.grinder.console.distribution.FileDistribution;
-import net.grinder.testutility.RandomStubFactory;
+import java.io.File;
+import java.util.EventListener;
 
-public final class FileDistributionStubFactory extends RandomStubFactory {
+/**
+ * Something that can raise events about file changes.
+ *
+ * @author Philip Aston
+ * @version $Revision$
+ */
+public interface FileChangeWatcher {
 
-  private final AgentCacheState m_agentCacheState;
+  /**
+   * Add a listener that will be sent events about files that have changed.
+   *
+   * @param listener
+   *          The listener.
+   */
+  void addFileChangedListener(FileChangedListener listener);
 
-  public FileDistributionStubFactory(AgentCacheState agentCacheState) {
-    super(FileDistribution.class);
-    m_agentCacheState = agentCacheState;
-  }
+  /**
+   * Listener interface.
+   *
+   * @see FileChangeWatcher#addFileChangedListener(FileChangedListener)
+   */
+  interface FileChangedListener extends EventListener {
 
-  public AgentCacheState override_getAgentCacheState(Object proxy) {
-    return m_agentCacheState;
-  }
-
-  public FileDistribution getFileDistribution() {
-    return (FileDistribution)getStub();
+    /**
+     * Called with a changed file.
+     *
+     * @param file The file that has changed.
+     */
+    void filesChanged(File[] file);
   }
 }

@@ -74,14 +74,14 @@ public class TestBuffer extends AbstractFileTestCase {
     }
 
     assertTrue(!buffer.isDirty());
-    assertTrue(buffer.getUpToDate());
+    assertTrue(buffer.isUpToDate());
     assertNull(buffer.getFile());
     assertEquals(textSource, buffer.getTextSource());
 
     assertEquals(Buffer.UNKNOWN_BUFFER, buffer.getType());
 
     assertTrue(!buffer.isDirty());
-    assertTrue(buffer.getUpToDate());
+    assertTrue(buffer.isUpToDate());
     assertNull(buffer.getFile());
     assertEquals(textSource, buffer.getTextSource());
   }
@@ -165,14 +165,14 @@ public class TestBuffer extends AbstractFileTestCase {
 
     assertEquals(Buffer.TEXT_BUFFER, buffer.getType());
     assertTrue(!buffer.isDirty());
-    assertTrue(!buffer.getUpToDate());
+    assertTrue(!buffer.isUpToDate());
     assertEquals(file, buffer.getFile());
     assertEquals(textSource, buffer.getTextSource());
 
     buffer.save();
 
     assertTrue(!buffer.isDirty());
-    assertTrue(buffer.getUpToDate());
+    assertTrue(buffer.isUpToDate());
 
     assertSame(s0, textSource.getText());
 
@@ -180,23 +180,23 @@ public class TestBuffer extends AbstractFileTestCase {
     textSource.markDirty();
 
     assertTrue(buffer.isDirty());
-    assertTrue(buffer.getUpToDate());
+    assertTrue(buffer.isUpToDate());
     assertSame(s1, textSource.getText());
 
     buffer.load();
 
     assertTrue(!buffer.isDirty());
-    assertTrue(buffer.getUpToDate());
+    assertTrue(buffer.isUpToDate());
     assertEquals(s0, textSource.getText());
     assertNotSame(s0, textSource.getText());
 
     file.setLastModified(System.currentTimeMillis() + 1);
 
-    assertTrue(!buffer.getUpToDate());
+    assertTrue(!buffer.isUpToDate());
 
     buffer.load();
 
-    assertTrue(buffer.getUpToDate());
+    assertTrue(buffer.isUpToDate());
     assertEquals(textSource, buffer.getTextSource());
   }
 
@@ -218,20 +218,20 @@ public class TestBuffer extends AbstractFileTestCase {
 
     assertEquals(Buffer.TEXT_BUFFER, buffer.getType());
     assertTrue(!buffer.isDirty());
-    assertTrue(!buffer.getUpToDate());
+    assertTrue(!buffer.isUpToDate());
     assertEquals(file, buffer.getFile());
     assertEquals(textSource, buffer.getTextSource());
 
     buffer.save();
 
     assertTrue(!buffer.isDirty());
-    assertTrue(buffer.getUpToDate());
+    assertTrue(buffer.isUpToDate());
     assertSame(s0, textSource.getText());
 
     buffer.load();
 
     assertTrue(!buffer.isDirty());
-    assertTrue(buffer.getUpToDate());
+    assertTrue(buffer.isUpToDate());
     assertEquals(s0, textSource.getText());
     assertNotSame(s0, textSource.getText());
   }

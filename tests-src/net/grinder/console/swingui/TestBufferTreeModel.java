@@ -31,7 +31,7 @@ import javax.swing.tree.TreePath;
 import net.grinder.console.common.Resources;
 import net.grinder.console.common.ResourcesImplementation;
 import net.grinder.console.distribution.AgentCacheState;
-import net.grinder.console.distribution.FileDistributionStubFactory;
+import net.grinder.console.distribution.FileChangeWatcher;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 
@@ -57,17 +57,20 @@ public class TestBufferTreeModel extends TestCase {
   private final AgentCacheState m_agentCacheState =
     (AgentCacheState)m_agentCacheStateStubFactory.getStub();
 
-  private final FileDistributionStubFactory m_fileDistributionStubFactory =
-    new FileDistributionStubFactory(m_agentCacheState);
+  private final RandomStubFactory m_fileChangeWatcherStubFactory =
+    new RandomStubFactory(FileChangeWatcher.class);
+  private final FileChangeWatcher m_fileChangeWatcher =
+    (FileChangeWatcher)m_fileChangeWatcherStubFactory.getStub();
 
   public void testConstructionAndGetChildMethods() throws Exception {
     final StringTextSource.Factory stringTextSourceFactory =
       new StringTextSource.Factory();
 
-    final EditorModel editorModel =
-      new EditorModel(s_resources,
-                      stringTextSourceFactory,
-                      m_fileDistributionStubFactory.getFileDistribution());
+    final EditorModel editorModel = new EditorModel(s_resources,
+                                                    stringTextSourceFactory,
+                                                    m_agentCacheState,
+                                                    m_fileChangeWatcher);
+
     editorModel.selectDefaultBuffer();
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
@@ -112,10 +115,10 @@ public class TestBufferTreeModel extends TestCase {
     final StringTextSource.Factory stringTextSourceFactory =
       new StringTextSource.Factory();
 
-    final EditorModel editorModel =
-      new EditorModel(s_resources,
-                      stringTextSourceFactory,
-                      m_fileDistributionStubFactory.getFileDistribution());
+    final EditorModel editorModel = new EditorModel(s_resources,
+                                                    stringTextSourceFactory,
+                                                    m_agentCacheState,
+                                                    m_fileChangeWatcher);
 
     final BufferTreeModel bufferTreeModel = new BufferTreeModel(editorModel);
 
@@ -159,10 +162,10 @@ public class TestBufferTreeModel extends TestCase {
     listener1StubFactory.assertNoMoreCalls();
     listener2StubFactory.assertNoMoreCalls();
 
-    final EditorModel editorModel2 =
-      new EditorModel(s_resources,
-                      stringTextSourceFactory,
-                      m_fileDistributionStubFactory.getFileDistribution());
+    final EditorModel editorModel2 = new EditorModel(s_resources,
+                                                    stringTextSourceFactory,
+                                                    m_agentCacheState,
+                                                    m_fileChangeWatcher);
 
     editorModel2.selectNewBuffer();
     final Buffer anotherBuffer = editorModel2.getSelectedBuffer();

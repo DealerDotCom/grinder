@@ -201,7 +201,7 @@ final class BufferImplementation implements Buffer {
 
     try {
       writer = new FileWriter(file);
-      // Caling getText() causes the text source to be set to "clean"
+      // Calling getText() causes the text source to be set to "clean"
       // and a buffer changed event to be fired by the EditorModel.
       writer.write(m_textSource.getText());
       setFile(file);
@@ -268,7 +268,7 @@ final class BufferImplementation implements Buffer {
    * @return <code>true</code> => the file has changed independently
    * of the buffer.
    */
-  public boolean getUpToDate() {
+  public boolean isUpToDate() {
     return m_file == null || m_lastModified == m_file.lastModified();
   }
 

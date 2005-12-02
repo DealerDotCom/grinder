@@ -170,7 +170,7 @@ public final class FileDistributionImplementation implements FileDistribution {
       m_filesChangedListeners.apply(
         new Informer() {
           public void inform(Object listener) {
-            ((FilesChangedListener)listener).filesChanged(changedFilesArray);
+            ((FileChangedListener)listener).filesChanged(changedFilesArray);
           }
         });
     }
@@ -183,7 +183,7 @@ public final class FileDistributionImplementation implements FileDistribution {
    * @param listener
    *          The listener.
    */
-  public void addFilesChangedListener(FilesChangedListener listener) {
+  public void addFileChangedListener(FileChangedListener listener) {
     m_filesChangedListeners.add(listener);
   }
 }

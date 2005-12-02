@@ -16,8 +16,6 @@
 
 package net.grinder.console.distribution;
 
-import java.io.File;
-import java.util.EventListener;
 import java.util.regex.Pattern;
 
 import net.grinder.util.Directory;
@@ -38,7 +36,7 @@ import net.grinder.util.Directory;
  * @author Philip Aston
  * @version $Revision$
  */
-public interface FileDistribution {
+public interface FileDistribution extends FileChangeWatcher {
 
   /**
    * Accessor for our {@link AgentCacheState}.
@@ -66,34 +64,11 @@ public interface FileDistribution {
 
   /**
    * Scan the given directory for files that have been recently modified. Update
-   * the agent cache state appropriately.
+   * the agent cache state appropriately. Notify our listeners if changed files
+   * are discovered.
    *
-   * @param directory The directory to scan.
+   * @param directory
+   *          The directory to scan.
    */
   void scanDistributionFiles(Directory directory);
-
-  /**
-   * Add a listener that will be sent events about files that have changed when
-   * {@link scanDistributionFiles} is called.
-   *
-   * @param listener
-   *          The listener.
-   */
-  void addFilesChangedListener(FilesChangedListener listener);
-
-
-  /**
-   * ChangedFilesListener..
-   *
-   * @see FileDistribution#addFilesChangedListener(FilesChangedListener)
-   */
-  interface FilesChangedListener extends EventListener {
-
-    /**
-     * Called with a changed file.
-     *
-     * @param file The file that has changed.
-     */
-    void filesChanged(File[] file);
-  }
 }

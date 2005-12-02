@@ -35,7 +35,7 @@ import javax.swing.tree.TreePath;
 
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
-import net.grinder.console.distribution.FileDistribution.FilesChangedListener;
+import net.grinder.console.distribution.FileChangeWatcher.FileChangedListener;
 import net.grinder.util.WeakValueHashMap;
 
 
@@ -247,12 +247,12 @@ final class FileTreeModel implements TreeModel {
   }
 
   /**
-   * A {@link FileDistribution.FilesChangedListener} that listens for changed
+   * A {@link FileDistribution.FileChangedListener} that listens for changed
    * file notifications and updates the FileTreeModel appropriately.
    *
    */
   public class RefreshChangedDirectoriesListener
-    implements FilesChangedListener {
+    implements FileChangedListener {
 
     public void filesChanged(File[] files) {
       // Refresh the tree path for every file. We could waste time here removing

@@ -25,7 +25,7 @@ import java.io.File;
 import java.util.regex.Pattern;
 
 import net.grinder.console.communication.DistributionControl;
-import net.grinder.console.distribution.FileDistribution.FilesChangedListener;
+import net.grinder.console.distribution.FileChangeWatcher.FileChangedListener;
 import net.grinder.testutility.AbstractFileTestCase;
 import net.grinder.testutility.CallData;
 import net.grinder.testutility.RandomStubFactory;
@@ -142,15 +142,15 @@ public class TestFileDistribution extends AbstractFileTestCase {
       agentCacheStateStubFactory.getUpdateableAgentCacheState();
 
     final RandomStubFactory fileListenerStubFactory =
-      new RandomStubFactory(FilesChangedListener.class);
-    final FilesChangedListener filesChangedListener =
-      (FilesChangedListener)fileListenerStubFactory.getStub();
+      new RandomStubFactory(FileChangedListener.class);
+    final FileChangedListener filesChangedListener =
+      (FileChangedListener)fileListenerStubFactory.getStub();
 
     final Directory directory = new Directory(getDirectory());
 
     final FileDistribution fileDistribution =
       new FileDistributionImplementation(distributionControl, agentCacheState);
-    fileDistribution.addFilesChangedListener(filesChangedListener);
+    fileDistribution.addFileChangedListener(filesChangedListener);
 
     fileDistribution.scanDistributionFiles(directory);
     assertEquals(0, agentCacheState.getEarliestFileTime());

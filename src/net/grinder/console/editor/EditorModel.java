@@ -31,8 +31,8 @@ import java.util.Map;
 import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.Resources;
 import net.grinder.console.distribution.AgentCacheState;
-import net.grinder.console.distribution.FileDistribution;
-import net.grinder.console.distribution.FileDistribution.FilesChangedListener;
+import net.grinder.console.distribution.FileChangeWatcher;
+import net.grinder.console.distribution.FileChangeWatcher.FileChangedListener;
 import net.grinder.util.ListenerSupport;
 
 
@@ -64,14 +64,16 @@ public final class EditorModel {
    *
    * @param resources ResourcesImplementation.
    * @param textSourceFactory Factory for {@link TextSource}s.
-   * @param fileDistribution A FileDistribution.
+   * @param agentCacheState Notified when the model updates a file.
+   * @param fileChangeWatcher A FileDistribution.
    */
   public EditorModel(Resources resources,
                      TextSource.Factory textSourceFactory,
-                     FileDistribution fileDistribution) {
+                     AgentCacheState agentCacheState,
+                     FileChangeWatcher fileChangeWatcher) {
     m_resources = resources;
     m_textSourceFactory = textSourceFactory;
-    m_agentCacheState = fileDistribution.getAgentCacheState();
+    m_agentCacheState = agentCacheState;
 
     m_defaultBuffer = new BufferImplementation(m_resources,
                                                m_textSourceFactory.create(),
@@ -82,20 +84,14 @@ public final class EditorModel {
       m_resources.getStringFromFile(
         "scriptSupportUnderConstruction.text", true));
 
-    fileDistribution.addFilesChangedListener(new FilesChangedListener() {
+    fileChangeWatcher.addFileChangedListener(new FileChangedListener() {
       public void filesChanged(File[] file) {
         synchronized (m_fileBuffers) {
           for (int i = 0; i < file.length; ++i) {
-            if (file[i].isDirectory()) {
-              // TODO
-              System.out.println("Directory: " + file[i]);
-            }
-            else {
-              final Buffer buffer = getBufferForFile(file[i]);
+            final Buffer buffer = getBufferForFile(file[i]);
 
-              if (buffer != null) {
-                fireBufferNotUpToDate(buffer);
-              }
+            if (buffer != null && !buffer.isUpToDate()) {
+              fireBufferNotUpToDate(buffer);
             }
           }
         }
@@ -149,7 +145,7 @@ public final class EditorModel {
 
       selectBuffer(buffer);
 
-      if (!buffer.getUpToDate()) {
+      if (!buffer.isUpToDate()) {
         // The user's edits conflict with a file system change.
         // We ensure the buffer is selected before firing this event because
         // the UI might only raise out of date warnings for selected buffers.
@@ -345,6 +341,10 @@ public final class EditorModel {
       });
   }
 
+  /**
+   * The UI doesn't currently listen to this event, but might want to in the
+   * future.
+   */
   private void fireBufferNotUpToDate(final Buffer buffer) {
     m_listeners.apply(
       new ListenerSupport.Informer() {

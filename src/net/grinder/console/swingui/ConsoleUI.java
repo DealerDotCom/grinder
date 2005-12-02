@@ -38,6 +38,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -158,19 +159,6 @@ public final class ConsoleUI implements ModelListener {
     m_fileDistribution = fileDistribution;
 
     final Resources resources = m_model.getResources();
-    m_editorModel = new EditorModel(resources,
-                                    new Editor.TextSourceFactory(),
-                                    m_fileDistribution);
-
-    m_editorModel.addListener(new EditorModel.AbstractListener() {
-      public void bufferNotUpToDate(Buffer buffer) {
-        if (buffer.equals(m_editorModel.getSelectedBuffer())) {
-          // TODO
-          // Should be swing dispatched.
-          System.err.println(buffer.getFile());
-        }
-      }
-    });
 
     // Create the frame to contain the a menu and the top level pane.
     // Need to do this before our actions are constructed as we use
@@ -187,6 +175,11 @@ public final class ConsoleUI implements ModelListener {
       new LookAndFeel(m_model.getProperties(), swingDispatcherFactory);
 
     m_errorHandler.registerWithLookAndFeel(m_lookAndFeel);
+
+    m_editorModel = new EditorModel(resources,
+                                    new Editor.TextSourceFactory(),
+                                    m_fileDistribution.getAgentCacheState(),
+                                    m_fileDistribution);
 
     m_optionalConfirmDialog =
       new OptionalConfirmDialog(m_frame, resources, m_model.getProperties());
@@ -345,7 +338,7 @@ public final class ConsoleUI implements ModelListener {
         }
       });
 
-    m_fileDistribution.addFilesChangedListener(
+    m_fileDistribution.addFileChangedListener(
       fileTreeModel.new RefreshChangedDirectoriesListener());
 
     m_fileTree = new FileTree(resources,
@@ -971,30 +964,47 @@ public final class ConsoleUI implements ModelListener {
         return;
       }
 
-      if (file.exists() &&
-          (currentFile == null || !file.equals(currentFile)) &&
-          JOptionPane.showConfirmDialog(
-            m_frame,
-            m_model.getResources().getString("overwriteConfirmation.text"),
-            file.toString(),
-            JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
-        return;
-      }
-
       if (!file.equals(currentFile)) {
         final Buffer oldBuffer = m_editorModel.getBufferForFile(file);
 
         if (oldBuffer != null) {
+          final Resources resources = m_model.getResources();
+
+          final ArrayList messages = new ArrayList();
+          messages.add(
+            resources.getString("ignoreExistingBufferConfirmation.text"));
+
+          if (oldBuffer.isDirty()) {
+            messages.add(
+              resources.getString("existingBufferHasUnsavedChanges.text"));
+          }
+
+          if (!oldBuffer.isUpToDate()) {
+            messages.add(
+              resources.getString("existingBufferOutOfDate.text"));
+          }
+
+          messages.add(
+            resources.getString("ignoreExistingBufferConfirmation2.text"));
+
           if (JOptionPane.showConfirmDialog(
-                m_frame,
-                m_model.getResources().getString(
-                  "ignoreExistingBufferConfirmation.text"),
-                file.toString(),
+                m_frame, messages.toArray(), file.toString(),
                 JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
             return;
           }
 
           m_editorModel.closeBuffer(oldBuffer);
+        }
+        else {
+          // TODO Handle file not up to date.
+          if (file.exists() &&
+              JOptionPane.showConfirmDialog(
+                m_frame,
+                m_model.getResources().getString("overwriteConfirmation.text"),
+                file.toString(),
+                JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+            return;
+          }
         }
 
         m_editorModel.saveBufferAs(buffer, file);

@@ -28,8 +28,7 @@ import javax.swing.event.TreeModelListener;
 
 import net.grinder.console.common.Resources;
 import net.grinder.console.distribution.AgentCacheState;
-import net.grinder.console.distribution.FileDistribution.FilesChangedListener;
-import net.grinder.console.distribution.FileDistributionStubFactory;
+import net.grinder.console.distribution.FileChangeWatcher;
 import net.grinder.console.editor.Buffer;
 import net.grinder.console.editor.EditorModel;
 import net.grinder.console.editor.TextSource;
@@ -63,13 +62,15 @@ public class TestFileTreeModel extends AbstractFileTestCase {
   private AgentCacheState m_agentCacheState =
     (AgentCacheState)m_agentCacheStateStubFactory.getStub();
 
-  private final FileDistributionStubFactory m_fileDistributionStubFactory =
-    new FileDistributionStubFactory(m_agentCacheState);
+  private final RandomStubFactory m_fileChangeWatcherStubFactory =
+    new RandomStubFactory(FileChangeWatcher.class);
+  private final FileChangeWatcher m_fileChangeWatcher =
+    (FileChangeWatcher)m_fileChangeWatcherStubFactory.getStub();
 
-  private final EditorModel m_editorModel =
-    new EditorModel(m_resources,
-                    m_textSourceFactory,
-                    m_fileDistributionStubFactory.getFileDistribution());
+  final EditorModel m_editorModel = new EditorModel(m_resources,
+                                                    m_textSourceFactory,
+                                                    m_agentCacheState,
+                                                    m_fileChangeWatcher);
 
   public void testWithRootNode() throws Exception {
     final FileTreeModel fileTreeModel = new FileTreeModel(m_editorModel);
@@ -308,7 +309,7 @@ public class TestFileTreeModel extends AbstractFileTestCase {
       (TreeModelListener)listenerStubFactory.getStub();
     fileTreeModel.addTreeModelListener(listener);
 
-    final FilesChangedListener filesChangedListener =
+    final FileChangeWatcher.FileChangedListener filesChangedListener =
       fileTreeModel.new RefreshChangedDirectoriesListener();
 
     filesChangedListener.filesChanged(new File[0]);
