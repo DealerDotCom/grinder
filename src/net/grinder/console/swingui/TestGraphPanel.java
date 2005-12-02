@@ -60,6 +60,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
 
   private final Model m_model;
   private final Resources m_resources;
+  private final SwingDispatcherFactory m_swingDispatcherFactory;
   private final String m_testLabel;
 
   /**
@@ -68,12 +69,14 @@ public class TestGraphPanel extends JPanel implements ModelListener {
    **/
   private final Map m_components = new HashMap();
 
-  TestGraphPanel(final JComponent parentComponent, final Model model) {
+  TestGraphPanel(JComponent parentComponent,
+                 Model model,
+                 SwingDispatcherFactory swingDispatcherFactory) {
 
     m_parentComponent = parentComponent;
-
     m_model = model;
     m_resources = model.getResources();
+    m_swingDispatcherFactory = swingDispatcherFactory;
 
     m_testLabel = m_resources.getString("graph.test.label") + " ";
 
@@ -122,7 +125,7 @@ public class TestGraphPanel extends JPanel implements ModelListener {
 
       m_model.addSampleListener(
         test,
-        new SwingDispatchedSampleListener(
+        (SampleListener)m_swingDispatcherFactory.create(
           new SampleListener() {
             public void update(final StatisticsSet intervalStatistics,
                                final StatisticsSet cumulativeStatistics) {

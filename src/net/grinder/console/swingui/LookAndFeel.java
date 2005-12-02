@@ -47,11 +47,12 @@ final class LookAndFeel {
   private final UIManager.LookAndFeelInfo[] m_installedLookAndFeels =
     UIManager.getInstalledLookAndFeels();
 
-  public LookAndFeel(ConsoleProperties properties) {
+  public LookAndFeel(ConsoleProperties properties,
+                     SwingDispatcherFactory swingDispatcherFactory) {
 
     properties.addPropertyChangeListener(
       ConsoleProperties.LOOK_AND_FEEL_PROPERTY,
-      new SwingDispatchedPropertyChangeListener(
+      (PropertyChangeListener)swingDispatcherFactory.create(
         new PropertyChangeListener() {
           public void propertyChange(PropertyChangeEvent event) {
             setLookAndFeel((String)event.getNewValue());

@@ -172,15 +172,20 @@ public final class ConsoleUI implements ModelListener {
       }
     });
 
-    // LookAndFeel constructor will set initial Look and Feel from properties.
-    m_lookAndFeel = new LookAndFeel(m_model.getProperties());
-
     // Create the frame to contain the a menu and the top level pane.
     // Need to do this before our actions are constructed as we use
     // the frame to create dialogs.
     m_frame = new JFrame(resources.getString("title"));
 
     m_errorHandler = new ErrorDialogHandler(m_frame, resources);
+
+    final SwingDispatcherFactory swingDispatcherFactory =
+      new SwingDispatcherFactory(m_errorHandler);
+
+    // LookAndFeel constructor will set initial Look and Feel from properties.
+    m_lookAndFeel =
+      new LookAndFeel(m_model.getProperties(), swingDispatcherFactory);
+
     m_errorHandler.registerWithLookAndFeel(m_lookAndFeel);
 
     m_optionalConfirmDialog =
@@ -232,7 +237,8 @@ public final class ConsoleUI implements ModelListener {
     final Border threePixelBorder =
       BorderFactory.createEmptyBorder(3, 3, 3, 3);
 
-    final TestGraphPanel graphPanel = new TestGraphPanel(tabbedPane, model);
+    final TestGraphPanel graphPanel =
+      new TestGraphPanel(tabbedPane, model, swingDispatcherFactory);
     graphPanel.resetTestsAndStatisticsViews(); // Show logo.
 
     final JScrollPane graphTabPane =
@@ -298,7 +304,9 @@ public final class ConsoleUI implements ModelListener {
                       resources.getString("resultsTab.tip"));
 
     final ProcessStatusTableModel processStatusModel =
-      new ProcessStatusTableModel(resources, m_processControl);
+      new ProcessStatusTableModel(resources,
+                                  m_processControl,
+                                  swingDispatcherFactory);
 
     final JScrollPane processStatusPane =
       new JScrollPane(new Table(processStatusModel));

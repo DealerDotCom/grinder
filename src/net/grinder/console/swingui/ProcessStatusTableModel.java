@@ -75,7 +75,8 @@ class ProcessStatusTableModel
   private RowData[] m_data = new RowData[0];
 
   public ProcessStatusTableModel(Resources resources,
-                                 ProcessControl processControl)
+                                 ProcessControl processControl,
+                                 SwingDispatcherFactory swingDispatcherFactory)
     throws ConsoleException {
 
     m_columnHeadings = new String[3];
@@ -103,7 +104,7 @@ class ProcessStatusTableModel
     m_stateUnknownString = resources.getString("processState.unknown.label");
 
     processControl.addProcessStatusListener(
-      new SwingDispatchedProcessStatusListener(
+      (ProcessStatus.Listener)swingDispatcherFactory.create(
         new ProcessStatus.Listener() {
           public void update(ProcessStatus.ProcessReports[] processReports,
                              boolean newAgent) {
