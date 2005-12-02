@@ -1,4 +1,4 @@
-// Copyright (C) 2001, 2002, 2003 Philip Aston
+// Copyright (C) 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -22,8 +22,6 @@
 package net.grinder.console.swingui;
 
 import junit.framework.TestCase;
-import junit.swingui.TestRunner;
-//import junit.textui.TestRunner;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -41,14 +39,6 @@ import net.grinder.statistics.StatisticsView;
  */
 public class TestSwingDispatchedModelListener extends TestCase {
 
-  public static void main(String[] args) {
-    TestRunner.run(TestSwingDispatchedModelListener.class);
-  }
-
-  public TestSwingDispatchedModelListener(String name) {
-    super(name);
-  }
-
   private Runnable m_voidRunnable = new Runnable() { public void run() {} };
 
   public void testDispatch() throws Exception {
@@ -57,7 +47,7 @@ public class TestSwingDispatchedModelListener extends TestCase {
     final ModelListener swingDispatchedListener =
       new SwingDispatchedModelListener(listener);
 
-    listener.update();
+    swingDispatchedListener.update();
 
     // Wait for a dummy event to be processed by the swing event
     // queue.
@@ -93,7 +83,7 @@ public class TestSwingDispatchedModelListener extends TestCase {
     public boolean m_newStatisticsViewsCalled = false;
     public StatisticsView m_intervalStatisticsView;
     public StatisticsView m_cumulativeStatisticsView;
-	
+
     public void newTests(Set newTests, ModelTestIndex modelTestIndex) {
       m_newTestsCalled = true;
       m_newTests = newTests;
@@ -105,7 +95,7 @@ public class TestSwingDispatchedModelListener extends TestCase {
     }
 
     public void newStatisticsViews(StatisticsView intervalStatisticsView,
-				   StatisticsView cumulativeStatisticsView)
+           StatisticsView cumulativeStatisticsView)
     {
       m_newStatisticsViewsCalled = true;
       m_intervalStatisticsView = intervalStatisticsView;
