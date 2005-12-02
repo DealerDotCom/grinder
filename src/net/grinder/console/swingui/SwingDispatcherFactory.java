@@ -92,12 +92,7 @@ final class SwingDispatcherFactory {
     Class c = theClass;
 
     do {
-      final Class[] moreInterfaces = c.getInterfaces();
-
-      if (moreInterfaces != null) {
-        interfaces.addAll(Arrays.asList(moreInterfaces));
-      }
-
+      interfaces.addAll(Arrays.asList(c.getInterfaces()));
       c = c.getSuperclass();
     }
     while (c != null);
