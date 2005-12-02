@@ -89,10 +89,6 @@ final class SwingDispatcherFactory {
   private static Class[] getAllInterfaces(Class theClass) {
     final List interfaces = new ArrayList();
 
-    if (theClass.isInterface()) {
-      interfaces.add(theClass);
-    }
-
     Class c = theClass;
 
     do {
