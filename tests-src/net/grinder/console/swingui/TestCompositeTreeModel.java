@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -45,7 +45,6 @@ public class TestCompositeTreeModel extends TestCase {
 
   public void testConstruction() throws Exception {
     final CompositeTreeModel compositeTreeModel = new CompositeTreeModel();
-    assertTrue(compositeTreeModel instanceof TreeModel);
     assertNotNull(compositeTreeModel.getRoot());
     assertEquals(compositeTreeModel.getRoot(), compositeTreeModel.getRoot());
 
@@ -226,6 +225,6 @@ public class TestCompositeTreeModel extends TestCase {
       return (TreeModelListener)getStub();
     }
 
-    
+
   }
 }

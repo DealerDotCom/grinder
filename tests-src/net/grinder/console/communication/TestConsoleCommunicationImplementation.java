@@ -122,10 +122,9 @@ public class TestConsoleCommunicationImplementation
     m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
     timerTask.run();
 
-    final ConsoleCommunication consoleCommunicationWithNullSender =
-      new ConsoleCommunicationImplementation(s_resources,
-                                             m_properties,
-                                             m_timer);
+    new ConsoleCommunicationImplementation(s_resources,
+                                           m_properties,
+                                           m_timer);
 
     final TimerTask timerTask2 = m_timer.getLastScheduledTimerTask();
     assertNotSame(timerTask, timerTask2);
@@ -391,7 +390,7 @@ public class TestConsoleCommunicationImplementation
     public MessageHandler getMessageHandler() {
       return (MessageHandler)getStub();
     }
-  };
+  }
 
   private final class ProcessMessagesThread extends Thread {
     private boolean m_shutdown = false;

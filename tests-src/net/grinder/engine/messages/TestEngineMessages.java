@@ -87,9 +87,6 @@ public class TestEngineMessages extends AbstractFileTestCase {
   public void testStartGrinderMessage() throws Exception {
     final File file = new File("blah/blah");
 
-    final StartGrinderMessage startGrinderMessage =
-      new StartGrinderMessage(file);
-
     final StartGrinderMessage received =
       (StartGrinderMessage)serialise(new StartGrinderMessage(file));
 

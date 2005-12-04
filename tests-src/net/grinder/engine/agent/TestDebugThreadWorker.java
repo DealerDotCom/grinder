@@ -22,10 +22,7 @@
 package net.grinder.engine.agent;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.StreamSender;

@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -55,7 +55,7 @@ public class TestClientReceiver extends TestCase {
       socketAcceptor.getAcceptedSocket().getOutputStream();
 
     final SimpleMessage message1 = new SimpleMessage();
-    
+
     final ObjectOutputStream objectStream1 =
       new ObjectOutputStream(socketOutput);
     objectStream1.writeObject(message1);
@@ -100,13 +100,14 @@ public class TestClientReceiver extends TestCase {
       socketAcceptor.getAcceptedSocket().getOutputStream();
 
     final SimpleMessage message1 = new SimpleMessage();
-    
+
     final ObjectOutputStream objectStream1 =
       new ObjectOutputStream(socketOutput);
     objectStream1.writeObject(message1);
     objectStream1.flush();
 
     final Message receivedMessage = clientReceiver.waitForMessage();
+    assertNotNull(receivedMessage);
 
     clientReceiver.shutdown();
 
@@ -131,13 +132,14 @@ public class TestClientReceiver extends TestCase {
       socketAcceptor.getAcceptedSocket().getOutputStream();
 
     final SimpleMessage message1 = new SimpleMessage();
-    
+
     final ObjectOutputStream objectStream1 =
       new ObjectOutputStream(socketOutput);
     objectStream1.writeObject(message1);
     objectStream1.flush();
 
     final Message receivedMessage = clientReceiver.waitForMessage();
+    assertNotNull(receivedMessage);
 
     final Message closeCommunicationMessage = new CloseCommunicationMessage();
 
@@ -151,4 +153,4 @@ public class TestClientReceiver extends TestCase {
     socketAcceptor.close();
   }
 }
-  
+

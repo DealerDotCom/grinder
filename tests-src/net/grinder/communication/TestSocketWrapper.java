@@ -62,7 +62,10 @@ public class TestSocketWrapper extends TestCase {
     socketAcceptor.join();
 
     final Socket socket = socketAcceptor.getAcceptedSocket();
-    while (socket.getInputStream().read() > 0);  // Discard pending bytes.
+
+    while (socket.getInputStream().read() > 0) {
+      // Discard pending bytes.
+    }
 
     final SocketWrapper wrapper = new SocketWrapper(socket);
 
@@ -72,7 +75,9 @@ public class TestSocketWrapper extends TestCase {
 
     assertTrue(!wrapper.isPeerShutdown());
 
-    while (wrapper.getInputStream().read() > 0);  // Discard pending bytes.
+    while (wrapper.getInputStream().read() > 0) {
+      // Discard pending bytes.
+    }
 
     clientSender.send(new CloseCommunicationMessage());
 

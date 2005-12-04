@@ -57,9 +57,6 @@ public class TestConsoleListener extends TestCase {
     final ConsoleListener listener0 =
       new ConsoleListener(myMonitor, m_logger);
 
-    final ConsoleListener listener1 =
-      new ConsoleListener(myMonitor, m_logger);
-
     final MessageHandler messageHandler = listener0.getMessageHandler();
     assertNotNull(messageHandler);
 

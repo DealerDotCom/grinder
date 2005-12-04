@@ -56,6 +56,10 @@ public final class SimpleMessage implements Message {
     m_payload = payload;
   }
 
+  public Object getPayload() {
+    return m_payload;
+  }
+
   public String toString() {
     return "(" + m_text + ", " + m_random + ")";
   }

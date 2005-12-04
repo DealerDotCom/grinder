@@ -57,8 +57,7 @@ public class TestProcessStatusImplementation extends TestCase {
   public void testConstruction() throws Exception {
     final MyTimer myTimer = new MyTimer();
 
-    final ProcessStatusImplementation processStatusSet =
-      new ProcessStatusImplementation(myTimer);
+    new ProcessStatusImplementation(myTimer);
 
     assertEquals(2, myTimer.getNumberOfScheduledTasks());
   }

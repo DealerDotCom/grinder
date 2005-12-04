@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -69,15 +69,13 @@ public class TestQueuedSenderDecorator extends TestCase {
   public void testConstructor() throws Exception {
     final StubSender sender = new StubSender();
 
-    final QueuedSender queuedSender =
-      new QueuedSenderDecorator((Sender)sender);
+    new QueuedSenderDecorator(sender);
   }
 
   public void testSend() throws Exception {
     final StubSender sender = new StubSender();
 
-    final QueuedSender queuedSender =
-      new QueuedSenderDecorator((Sender)sender);
+    final QueuedSender queuedSender = new QueuedSenderDecorator(sender);
 
     final Message message1 = new SimpleMessage();
     final Message message2 = new SimpleMessage();
@@ -95,8 +93,7 @@ public class TestQueuedSenderDecorator extends TestCase {
   public void testQueueAndFlush() throws Exception {
     final StubSender sender = new StubSender();
 
-    final QueuedSender queuedSender =
-      new QueuedSenderDecorator((Sender)sender);
+    final QueuedSender queuedSender = new QueuedSenderDecorator(sender);
 
     final Message message1 = new SimpleMessage();
     final Message message2 = new SimpleMessage();
@@ -137,8 +134,7 @@ public class TestQueuedSenderDecorator extends TestCase {
   public void testShutdown() throws Exception {
     final StubSender sender = new StubSender();
 
-    final QueuedSender queuedSender =
-      new QueuedSenderDecorator((Sender)sender);
+    final QueuedSender queuedSender = new QueuedSenderDecorator(sender);
 
     assertTrue(!sender.getIsShutdown());
 

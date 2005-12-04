@@ -80,7 +80,6 @@ public class TestScriptStatisticsImplementation extends TestCase {
           3,
           false);
 
-    assertTrue(scriptStatisticsImplementation instanceof Statistics);
     assertFalse(scriptStatisticsImplementation.availableForUpdate());
 
     try {

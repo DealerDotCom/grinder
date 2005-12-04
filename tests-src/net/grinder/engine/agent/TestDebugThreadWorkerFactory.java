@@ -24,7 +24,6 @@ package net.grinder.engine.agent;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import net.grinder.common.GrinderProperties;
 import net.grinder.communication.FanOutStreamSender;
 import junit.framework.TestCase;
 

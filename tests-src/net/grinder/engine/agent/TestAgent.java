@@ -21,12 +21,8 @@
 
 package net.grinder.engine.agent;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
 import java.net.ServerSocket;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import net.grinder.common.GrinderProperties;
 import net.grinder.common.Logger;

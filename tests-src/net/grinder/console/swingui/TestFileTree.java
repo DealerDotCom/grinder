@@ -22,10 +22,8 @@
 package net.grinder.console.swingui;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
 import java.io.File;
 
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -98,8 +96,8 @@ public class TestFileTree extends AbstractFileTestCase {
 
     fileTreeModel.setRootDirectory(new File("c:"));
 
-    final FileTree fileTree = new FileTree(s_resources,
-      m_errorHandler, editorModel, bufferTreeModel, fileTreeModel);
+    new FileTree(s_resources, m_errorHandler, editorModel, bufferTreeModel,
+                 fileTreeModel);
 
     // Exercise the EditorModel listeners.
     editorModel.selectNewBuffer();

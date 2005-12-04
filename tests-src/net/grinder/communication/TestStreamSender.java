@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -24,7 +24,6 @@ package net.grinder.communication;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
-import java.io.OutputStream;
 
 import junit.framework.TestCase;
 
@@ -45,15 +44,14 @@ public class TestStreamSender extends TestCase {
 
     final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 
-    final StreamSender streamSender =
-      new StreamSender((OutputStream)byteOutputStream);
+    final StreamSender streamSender = new StreamSender(byteOutputStream);
 
     final SimpleMessage message1 = new SimpleMessage();
     final SimpleMessage message2 = new SimpleMessage();
 
     streamSender.send(message1);
     streamSender.send(message2);
-    
+
     final ByteArrayInputStream byteInputStream =
       new ByteArrayInputStream(byteOutputStream.toByteArray());
 
@@ -77,8 +75,7 @@ public class TestStreamSender extends TestCase {
 
     final ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 
-    final StreamSender streamSender =
-      new StreamSender((OutputStream)byteOutputStream);
+    final StreamSender streamSender = new StreamSender(byteOutputStream);
 
     final Message message = new SimpleMessage();
 
@@ -99,6 +96,7 @@ public class TestStreamSender extends TestCase {
     final ObjectInputStream inputStream1 =
       new ObjectInputStream(byteInputStream);
     final Object o1 = inputStream1.readObject();
+    assertNotNull(o1);
 
     final ObjectInputStream inputStream2 =
       new ObjectInputStream(byteInputStream);

@@ -129,8 +129,6 @@ public class TestGraph extends TestCase {
 
     createUI(labelledGraph);
 
-    double peak = 0d;
-
     final StatisticsSetFactory statisticsSetFactory =
       statisticsServices.getStatisticsSetFactory();
 

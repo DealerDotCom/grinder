@@ -38,8 +38,6 @@ import junit.framework.TestCase;
  */
 public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
-  private final boolean m_messagesNeedInitialising;
-
   private ConnectionType m_connectionType;
   private Acceptor m_acceptor;
   private Connector m_connector;
@@ -49,16 +47,9 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
   private ExecuteThread m_executeThread;
 
-  public AbstractSenderAndReceiverTests(String name) throws Exception {
-    this(name, false);
-  }
-
-  public AbstractSenderAndReceiverTests(String name,
-                                        boolean messagesNeedInitialising) 
+  public AbstractSenderAndReceiverTests(String name)
     throws Exception {
     super(name);
-
-    m_messagesNeedInitialising = messagesNeedInitialising;
   }
 
   private final void initialiseSockets() throws Exception {
@@ -101,7 +92,7 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
       m_acceptor.shutdown();
     }
   }
-  
+
 
   public void testSendSimpleMessage() throws Exception {
 
@@ -166,7 +157,7 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
 
     for (int i=0; i<messages.length; ++i) {
       final Message receivedMessage = m_executeThread.waitForMessage();
-      
+
       assertEquals(messages[i], receivedMessage);
       assertTrue(messages[i] != receivedMessage);
     }
@@ -260,7 +251,7 @@ public abstract class AbstractSenderAndReceiverTests extends TestCase {
           }
         }
         );
-    }    
+    }
 
     private abstract class Action {
 

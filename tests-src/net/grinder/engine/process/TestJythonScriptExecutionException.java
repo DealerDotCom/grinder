@@ -30,7 +30,6 @@ import net.grinder.testutility.AbstractFileTestCase;
 import org.python.core.Py;
 import org.python.core.PyException;
 import org.python.core.PyString;
-import org.python.core.PySyntaxError;
 import org.python.core.PySystemState;
 
 

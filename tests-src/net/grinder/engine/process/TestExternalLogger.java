@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -87,11 +87,6 @@ public class TestExternalLogger extends TestCase {
     final ThreadContext threadContext1 =
       threadContextFactory1.getThreadContext();
 
-    final ThreadContextStubFactory threadContextFactory2 =
-      new ThreadContextStubFactory(threadLogger2);
-    final ThreadContext threadContext2 =
-      threadContextFactory2.getThreadContext();
-    
     final ThreadContextLocator threadContextLocator =
        new StubThreadContextLocator();
 
@@ -125,6 +120,9 @@ public class TestExternalLogger extends TestCase {
     processLoggerFactory.assertNoMoreCalls();
     threadLoggerFactory1.assertNoMoreCalls();
     threadLoggerFactory2.assertNoMoreCalls();
+
+    threadLogger2.setCurrentRunNumber(10);
+    threadLoggerFactory1.assertNoMoreCalls();
   }
 
   public void testMultithreaded() throws Exception {
@@ -151,7 +149,7 @@ public class TestExternalLogger extends TestCase {
     }
 
     processLoggerFactory.assertNoMoreCalls();
-  } 
+  }
 
   private static class TestThread extends Thread {
     private final ExternalLogger m_externalLogger;
@@ -196,20 +194,6 @@ public class TestExternalLogger extends TestCase {
 
     public boolean getOK() {
       return m_ok;
-    }
-  }
-
-  private static final class ThreadContextLocatorImplementation
-    implements ThreadContextLocator  {
-
-    private final ThreadLocal m_threadContextThreadLocal = new ThreadLocal();
-
-    public ThreadContext get() {
-      return (ThreadContext)m_threadContextThreadLocal.get();
-    }
-
-    public void set(ThreadContext threadContext) {
-      m_threadContextThreadLocal.set(threadContext);
     }
   }
 

@@ -352,6 +352,7 @@ public class TestHTTPProxyTCPProxyEngine extends TestCase {
     clientWriter.flush();
 
     final String response2b = readResponse(clientSocket, "dah$");
+    assertNotNull(response2b);
 
     clientSocket.close();
 

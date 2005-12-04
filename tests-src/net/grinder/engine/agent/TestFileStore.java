@@ -50,7 +50,7 @@ public class TestFileStore extends AbstractFileTestCase {
 
   public void testConstruction() throws Exception {
 
-    final File file0 = File.createTempFile("file", "", getDirectory());
+    File.createTempFile("file", "", getDirectory());
     assertEquals(1, getDirectory().list().length);
 
     final FileStore fileStore = new FileStore(getDirectory(), null);
@@ -105,7 +105,7 @@ public class TestFileStore extends AbstractFileTestCase {
     // Perfectly fine to create a FileStore around a directory that
     // doens't yet exist.
     final File notThere = new File(getDirectory(), "notThere");
-    final FileStore fileStore2 = new FileStore(notThere, null);
+    new FileStore(notThere, null);
   }
 
   public void testSender() throws Exception {

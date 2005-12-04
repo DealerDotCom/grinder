@@ -199,6 +199,7 @@ public class TestServerReceiver extends TestCase {
     objectStream.flush();
 
     final Message receivedMessage = serverReceiver.waitForMessage();
+    assertNotNull(receivedMessage);
 
     serverReceiver.shutdown();
 
@@ -246,6 +247,7 @@ public class TestServerReceiver extends TestCase {
     objectStream1.flush();
 
     final Message receivedMessage = serverReceiver.waitForMessage();
+    assertNotNull(receivedMessage);
 
     final Message closeCommunicationMessage = new CloseCommunicationMessage();
 

@@ -46,8 +46,6 @@ public class TestNullFilter extends TestCase {
     final NullFilter nullFilter =
       new NullFilter(new PrintWriter(m_output,  true));
 
-    final String input = new String();
-
     nullFilter.handle(m_connectionDetails, "This is a campaign.".getBytes(), 5);
     assertNoOutput();
 

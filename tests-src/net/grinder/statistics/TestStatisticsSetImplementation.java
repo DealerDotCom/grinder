@@ -200,8 +200,6 @@ public class TestStatisticsSetImplementation extends TestCase {
   }
 
   public void testSnapshot() throws Exception {
-    final Random random = new Random();
-
     final StatisticsSetImplementation original =
       new StatisticsSetImplementation(m_indexMap);
     original.addValue(m_longIndex0, 10);

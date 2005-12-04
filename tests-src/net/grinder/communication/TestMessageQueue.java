@@ -78,7 +78,7 @@ public class TestMessageQueue extends TestCase {
 
     dequeuerThread.join();
 
-    final List receivedMessages = (List)dequeuerThread.getMessages();
+    final List receivedMessages = dequeuerThread.getMessages();
 
     assertEquals(messages.length, receivedMessages.size());
 

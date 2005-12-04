@@ -1,4 +1,4 @@
-// Copyright (C) 2000, 2001, 2002, 2003, 2004 Philip Aston
+// Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -82,11 +82,11 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     m_stringSet.put("Another_String", "Some text");
     m_stringSet.put("", "Some text");
     m_stringSet.put("-83*(&(*991(*&(*", "\n\r\n");
-    m_stringSet.put("Another_empty_string_test", ""); 
+    m_stringSet.put("Another_empty_string_test", "");
 
     // A couple of properties that are almost in m_grinderSet.
-    m_stringSet.put("grinder", ".no_dot_suffix"); 
-    m_stringSet.put("grinder_", "blah"); 
+    m_stringSet.put("grinder", ".no_dot_suffix");
+    m_stringSet.put("grinder_", "blah");
 
     m_intSet.put("An_integer", "9");
     m_intSet.put("Number", "-9");
@@ -317,7 +317,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
   public void testSetInt() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
-	
+
     (new IterateOverProperties(m_intSet) {
         void match(String key, String value) throws Exception {
           properties.setInt(key, Integer.parseInt(value));
@@ -329,7 +329,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
   public void testSetLong() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
-	
+
     (new IterateOverProperties(m_longSet) {
         void match(String key, String value) throws Exception {
           properties.setLong(key, Long.parseLong(value));
@@ -341,7 +341,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
   public void testSetShort() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
-	
+
     (new IterateOverProperties(m_shortSet) {
         void match(String key, String value) throws Exception {
           properties.setShort(key, Short.parseShort(value));
@@ -353,7 +353,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
   public void testSetDouble() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
-	
+
     (new IterateOverProperties(m_doubleSet) {
         void match(String key, String value) throws Exception {
           properties.setDouble(key, Double.parseDouble(value));
@@ -368,7 +368,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
   public void testSetBoolean() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
-	
+
     (new IterateOverProperties(m_booleanSet) {
         void match(String key, String value) throws Exception {
           properties.setBoolean(key,
@@ -383,7 +383,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
   public void testSetFile() throws Exception {
     final GrinderProperties properties = new GrinderProperties();
-	
+
     (new IterateOverProperties(m_fileSet) {
         void match(String key, String value) throws Exception {
           properties.setFile(key, new File(value));
@@ -407,7 +407,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
       restoreSystemProperties();
     }
   }
-    
+
   public void testPropertiesFileHanding() throws Exception {
     setSystemProperties();
 
@@ -416,7 +416,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
       final PrintWriter writer =
         new PrintWriter(new FileWriter(file), true);
-	
+
       (new IterateOverProperties(m_grinderSet) {
           void match(String key, String value) throws Exception {
             writer.println(key + ":" + "should be overridden");
@@ -578,21 +578,19 @@ public class TestGrinderProperties extends AbstractFileTestCase {
     }
 
     try {
-      final GrinderProperties properties2 =
-        new GrinderProperties(readOnlyFile);
-
+      new GrinderProperties(readOnlyFile);
       fail("Expected GrinderException");
     }
     catch (GrinderException e) {
     }
-  }    
+  }
 
   private void restoreSystemProperties() {
     // Do nothing! When run under Ant, System.getProperties()
     // returns an empty object, so we can't cache/restore the old
     // properties.
   }
-    
+
   private abstract class IterateOverProperties {
     private final Properties m_properties;
 
@@ -602,7 +600,7 @@ public class TestGrinderProperties extends AbstractFileTestCase {
 
     void run() throws Exception {
       final Iterator iterator = m_properties.entrySet().iterator();
-	
+
       while (iterator.hasNext()) {
         final Map.Entry entry = (Map.Entry)iterator.next();
         final String key = (String)entry.getKey();

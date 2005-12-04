@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -54,8 +54,8 @@ public class TestHTML extends TestCase {
     assertEquals("", parent.toText());
 
     final HTMLElement child = parent.addElement("child");
-    final HTMLElement grandChild = child.addElement("grandChild");
-    final HTMLElement child2 = parent.addElement("child2");
+    child.addElement("grandChild");
+    parent.addElement("child2");
     child.addText("Some text");
     assertEquals(
       "<parent><child><grandChild/>Some text</child><child2/></parent>",

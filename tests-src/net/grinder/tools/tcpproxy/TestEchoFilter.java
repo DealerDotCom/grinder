@@ -51,8 +51,6 @@ public class TestEchoFilter extends TestCase {
     final EchoFilter echoFilter =
       new EchoFilter(new PrintWriter(m_output,  true));
 
-    final String input = new String();
-
     echoFilter.handle(m_connectionDetails, "This is a campaign.".getBytes(), 5);
 
     assertOutput(m_connectionDetails.toString());

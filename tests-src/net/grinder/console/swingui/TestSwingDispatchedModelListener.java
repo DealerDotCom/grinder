@@ -106,6 +106,10 @@ public class TestSwingDispatchedModelListener extends TestCase {
     {
       m_resetTestsAndStatisticsViewsCalled = true;
     }
+
+    public boolean getResetTestsAndStatisticsViewsCalled() {
+      return m_resetTestsAndStatisticsViewsCalled;
+    }
   }
 }
 

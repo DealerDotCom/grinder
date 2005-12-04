@@ -1,4 +1,4 @@
-// Copyright (C) 2004 Philip Aston
+// Copyright (C) 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -87,11 +87,6 @@ public class TestExternalFilenameFactory extends TestCase {
     final ThreadContext threadContext1 =
       threadContextFactory1.getThreadContext();
 
-    final ThreadContextStubFactory threadContextFactory2 =
-      new ThreadContextStubFactory(threadFilenameFactory2);
-    final ThreadContext threadContext2 =
-      threadContextFactory2.getThreadContext();
-    
     final ThreadContextLocator threadContextLocator =
        new StubThreadContextLocator();
 
@@ -129,6 +124,9 @@ public class TestExternalFilenameFactory extends TestCase {
     processFilenameFactoryStubFactory.assertNoMoreCalls();
     threadFilenameFactoryStubFactory1.assertNoMoreCalls();
     threadFilenameFactoryStubFactory2.assertNoMoreCalls();
+
+    threadFilenameFactory2.createFilename("lah");
+    threadFilenameFactoryStubFactory1.assertNoMoreCalls();
   }
 
   public void testMultithreaded() throws Exception {
@@ -158,7 +156,7 @@ public class TestExternalFilenameFactory extends TestCase {
     }
 
     processFilenameFactoryStubFactory.assertNoMoreCalls();
-  } 
+  }
 
   private static class TestThread extends Thread {
     private final ExternalFilenameFactory m_externalFilenameFactory;
@@ -189,8 +187,11 @@ public class TestExternalFilenameFactory extends TestCase {
         final String result1 =
           m_externalFilenameFactory.createFilename("blab blah", "blugh");
 
-        threadFilenameFactoryStubFactory.assertSuccess("createFilename",
-                                                       "blab blah", "blugh");
+        final CallData callData1 =
+          threadFilenameFactoryStubFactory.assertSuccess("createFilename",
+                                                         "blab blah", "blugh");
+
+        assertEquals(result1, callData1.getResult());
 
         final String result2 = m_externalFilenameFactory.createFilename("xxx");
 

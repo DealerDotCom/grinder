@@ -136,6 +136,7 @@ public class TestFanOutServerSender extends TestCase {
     final ObjectInputStream inputStream1 =
       new ObjectInputStream(socketStream);
     final Object o1 = inputStream1.readObject();
+    assertNotNull(o1);
 
     serverSender.shutdown();
 

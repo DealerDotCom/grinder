@@ -1,4 +1,4 @@
-// Copyright (C) 2003 Philip Aston
+// Copyright (C) 2003, 2004, 2005 Philip Aston
 // All rights reserved.
 //
 // This file is part of The Grinder software distribution. Refer to
@@ -75,7 +75,7 @@ public class TestFanOutStreamSender extends TestCase {
 
       assertEquals(0, inputStreams[i].available());
     }
-    
+
     serverSender.shutdown();
   }
 
@@ -93,6 +93,7 @@ public class TestFanOutStreamSender extends TestCase {
     final ObjectInputStream inputStream1 =
       new ObjectInputStream(inputStream);
     final Object o1 = inputStream1.readObject();
+    assertNotNull(o1);
 
     serverSender.shutdown();
 

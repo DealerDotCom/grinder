@@ -808,8 +808,6 @@ public class TestHTTPRequest extends TestCase {
     assertEquals(200, response3.getStatusCode());
     assertEquals("TRACE / HTTP/1.1", handler.getRequestFirstHeader());
 
-    final byte[] data4 = { 0, 1, 2, 3, 4, };
-
     final NVPair[] headers4 = {
       new NVPair("key", "value"),
     };
@@ -887,6 +885,7 @@ public class TestHTTPRequest extends TestCase {
     m_statisticsStubFactory.setResult("availableForUpdate", Boolean.TRUE);
 
     final HTTPResponse response2 = request.GET(handler.getURL());
+    assertNotNull(response2);
 
     final CallData loggerCall2 = loggerStubFactory.getCallData();
     assertEquals("output", loggerCall2.getMethodName());
@@ -926,6 +925,7 @@ public class TestHTTPRequest extends TestCase {
     handler.setStatusString("400 Bad Request");
 
     final HTTPResponse response3 = request.GET(handler.getURL());
+    assertNotNull(response3);
 
     final CallData loggerCall3 = loggerStubFactory.getCallData();
     assertEquals("output", loggerCall3.getMethodName());

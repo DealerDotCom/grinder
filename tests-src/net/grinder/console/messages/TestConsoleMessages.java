@@ -25,13 +25,11 @@ import junit.framework.TestCase;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Random;
 
 import net.grinder.common.WorkerIdentity;
 import net.grinder.communication.Message;
 import net.grinder.engine.agent.PublicAgentIdentityImplementation;
 import net.grinder.statistics.ExpressionView;
-import net.grinder.statistics.StatisticsIndexMap;
 import net.grinder.statistics.StatisticsServicesImplementation;
 import net.grinder.statistics.StatisticsSetFactory;
 import net.grinder.statistics.StatisticsView;

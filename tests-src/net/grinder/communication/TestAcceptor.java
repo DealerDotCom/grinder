@@ -84,7 +84,7 @@ public class TestAcceptor extends TestCase {
 
     for (int i=0; i<testAddresses.length; ++i) {
       try {
-        final Acceptor acceptor = new Acceptor(testAddresses[i], usedPort, 1);
+        new Acceptor(testAddresses[i], usedPort, 1);
         fail("Expected CommunicationException");
       }
       catch (CommunicationException e) {

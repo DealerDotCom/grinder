@@ -121,6 +121,7 @@ public class TestStreamReceiver extends TestCase {
     objectStream.flush();
 
     final Message receivedMessage = streamReceiver.waitForMessage();
+    assertNotNull(receivedMessage);
 
     streamReceiver.shutdown();
 
@@ -142,6 +143,7 @@ public class TestStreamReceiver extends TestCase {
     objectStream1.flush();
 
     final Message receivedMessage = streamReceiver.waitForMessage();
+    assertNotNull(receivedMessage);
 
     final Message closeCommunicationMessage = new CloseCommunicationMessage();
 

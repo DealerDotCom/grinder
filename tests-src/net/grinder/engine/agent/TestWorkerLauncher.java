@@ -27,10 +27,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import net.grinder.common.AgentIdentity;
 import net.grinder.common.Logger;
 import net.grinder.common.LoggerStubFactory;
-import net.grinder.common.WorkerIdentity;
 import net.grinder.engine.common.EngineException;
 import net.grinder.testutility.CallData;
 
