@@ -1007,12 +1007,11 @@ public final class ConsoleUI implements ModelListener {
           }
         }
 
-        m_editorModel.saveBufferAs(buffer, file);
-
-        return;
+        buffer.save(file);
       }
       else {
         // Saving as the same name.
+        // TODO Handle file not up to date.
         buffer.save();
       }
     }

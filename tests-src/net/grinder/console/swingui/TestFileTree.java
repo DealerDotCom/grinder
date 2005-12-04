@@ -110,7 +110,7 @@ public class TestFileTree extends AbstractFileTestCase {
     final File f2 = new File(getDirectory(), "file2");
     f1.createNewFile();
     final Buffer buffer = editorModel.selectBufferForFile(f1);
-    editorModel.saveBufferAs(buffer, f2);
+    buffer.save(f2);
     editorModel.closeBuffer(buffer);
 
     final Buffer buffer2 = editorModel.selectBufferForFile(f1);
@@ -118,10 +118,10 @@ public class TestFileTree extends AbstractFileTestCase {
     fileTreeModel.refresh();
 
     editorModel.selectBufferForFile(f1);
-    editorModel.saveBufferAs(buffer2, f2);
+    buffer2.save(f2);
     editorModel.selectBuffer(buffer2);
 
-    editorModel.saveBufferAs(buffer2, f1);
+    buffer2.save(f1);
     fileTreeModel.refresh();     // Create new FileNodes.
     editorModel.selectBuffer(buffer2);
 

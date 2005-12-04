@@ -178,35 +178,6 @@ public final class EditorModel {
   }
 
   /**
-   * Save buffer as another file.
-   *
-   * @param buffer The buffer.
-   * @param file The file.
-   * @throws ConsoleException If a buffer could not be saved as the file.
-   */
-  public void saveBufferAs(Buffer buffer, File file) throws ConsoleException {
-
-    // Could redo this with EditorModel responding to a notification
-    // from the Buffer.
-    final File oldFile = buffer.getFile();
-
-    // This will fire bufferChanged if the buffer becomes clean.
-    buffer.save(file);
-
-    if (!file.equals(oldFile)) {
-      if (oldFile != null) {
-        m_fileBuffers.remove(oldFile);
-      }
-
-      m_fileBuffers.put(file, buffer);
-
-      // Fire that bufferChanged because it is associated with a new
-      // file.
-      fireBufferStateChanged(buffer);
-    }
-  }
-
-  /**
    * Return a copy of the current buffer list.
    *
    * @return The buffer list.
@@ -316,8 +287,22 @@ public final class EditorModel {
 
     buffer.addListener(
       new BufferImplementation.Listener() {
-        public void bufferSaved(Buffer buffer) {
-          m_agentCacheState.setOutOfDate(buffer.getFile().lastModified());
+        public void bufferSaved(Buffer buffer, File oldFile) {
+          final File newFile = buffer.getFile();
+
+          m_agentCacheState.setOutOfDate(newFile.lastModified());
+
+          if (!newFile.equals(oldFile)) {
+            if (oldFile != null) {
+              m_fileBuffers.remove(oldFile);
+            }
+
+            m_fileBuffers.put(newFile, buffer);
+
+            // Fire that bufferChanged because it is associated with a new
+            // file.
+            fireBufferStateChanged(buffer);
+          }
         }
       }
       );
@@ -466,19 +451,19 @@ public final class EditorModel {
     public void bufferAdded(Buffer buffer) { }
 
     /**
-     * @see Listener#bufferAdded
+     * @see Listener#bufferStateChanged
      * @param buffer The buffer.
      */
     public void bufferStateChanged(Buffer buffer) { }
 
     /**
-     * @see Listener#bufferAdded
+     * @see Listener#bufferNotUpToDate
      * @param buffer The buffer.
      */
     public void bufferNotUpToDate(Buffer buffer) { }
 
     /**
-     * @see Listener#bufferAdded
+     * @see Listener#bufferRemoved
      * @param buffer The buffer.
      */
     public void bufferRemoved(Buffer buffer) { }

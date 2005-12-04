@@ -197,6 +197,9 @@ final class BufferImplementation implements Buffer {
    * be written to.
    */
   public void save(File file) throws DisplayMessageConsoleException {
+
+    final File oldFile = getFile();
+
     Writer writer = null;
 
     try {
@@ -212,7 +215,8 @@ final class BufferImplementation implements Buffer {
       m_listeners.apply(
         new ListenerSupport.Informer() {
           public void inform(Object listener) {
-            ((Listener)listener).bufferSaved(BufferImplementation.this);
+            ((Listener)listener).bufferSaved(BufferImplementation.this,
+                                             oldFile);
           }
         });
     }
@@ -333,8 +337,9 @@ final class BufferImplementation implements Buffer {
      * Called when a buffer has been saved.
      *
      * @param buffer The buffer.
+     * @param oldFile The File the buffer was previously associated with.
      */
-    void bufferSaved(Buffer buffer);
+    void bufferSaved(Buffer buffer, File oldFile);
   }
 
   /**
