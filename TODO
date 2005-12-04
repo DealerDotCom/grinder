@@ -82,10 +82,11 @@ to show both.
 Task: Add warning if saving outside of distribution.
 Task: Console to watch local file system for edits, trigger need to distribute.
 Task: Regularly update the tree to match file system.
-
 Task: Write some tests for FileTree.
+Task: Warnings for buffers whose file is modified outside of editor.
 
-Task: Warnings for buffers modified outside of editor.
+BUG: Detection doesn't find files that have been deleted?
+
 Task: External editor integration.
 Task: The agent should pick up secondary grinder.properties from file
 cache.

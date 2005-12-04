@@ -880,6 +880,16 @@ public final class ConsoleUI implements ModelListener {
         final Buffer buffer = m_editorModel.getSelectedBuffer();
 
         if (buffer.getFile() != null) {
+          if (!buffer.isUpToDate() &&
+              JOptionPane.showConfirmDialog(
+                m_frame,
+                m_model.getResources().getString(
+                  "outOfDateOverwriteConfirmation.text"),
+                buffer.getFile().toString(),
+                JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+            return;
+          }
+
           buffer.save();
         }
         else {
@@ -965,6 +975,7 @@ public final class ConsoleUI implements ModelListener {
       }
 
       if (!file.equals(currentFile)) {
+        // Save as.
         final Buffer oldBuffer = m_editorModel.getBufferForFile(file);
 
         if (oldBuffer != null) {
@@ -996,7 +1007,6 @@ public final class ConsoleUI implements ModelListener {
           m_editorModel.closeBuffer(oldBuffer);
         }
         else {
-          // TODO Handle file not up to date.
           if (file.exists() &&
               JOptionPane.showConfirmDialog(
                 m_frame,
@@ -1006,14 +1016,22 @@ public final class ConsoleUI implements ModelListener {
             return;
           }
         }
-
-        buffer.save(file);
       }
       else {
-        // Saving as the same name.
-        // TODO Handle file not up to date.
-        buffer.save();
+        // We only need to check whether the current buffer is up to date
+        // for Save, not Save As.
+        if (!buffer.isUpToDate() &&
+            JOptionPane.showConfirmDialog(
+              m_frame,
+              m_model.getResources().getString(
+                "outOfDateOverwriteConfirmation.text"),
+              buffer.getFile().toString(),
+              JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+          return;
+        }
       }
+
+      buffer.save(file);
     }
   }
 
