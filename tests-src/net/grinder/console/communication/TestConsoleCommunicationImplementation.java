@@ -31,10 +31,13 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.grinder.communication.ClientSender;
+import net.grinder.communication.CommunicationException;
 import net.grinder.communication.ConnectionType;
+import net.grinder.communication.Connector;
+import net.grinder.communication.Sender;
 import net.grinder.communication.HandlerChainSender.MessageHandler;
 import net.grinder.communication.Message;
-import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.Resources;
@@ -88,7 +91,8 @@ public class TestConsoleCommunicationImplementation
     m_consoleCommunication =
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
-                                             m_timer);
+                                             m_timer,
+                                             10);
   }
 
   protected void tearDown() throws Exception {
@@ -97,12 +101,19 @@ public class TestConsoleCommunicationImplementation
       m_processMessagesThread.start();
     }
 
+    // We need another server socket to ensure setting the console port is not
+    // a no-op.
+    final ServerSocket anotherUsedSocket = new ServerSocket(0);
+    m_usedServerSocket.close();
+
     // ProcessMessagesThread will process next message, then shutdown.
     m_processMessagesThread.shutdown();
 
-    m_properties.setConsolePort(m_usedServerSocket.getLocalPort());
+    m_properties.setConsolePort(anotherUsedSocket.getLocalPort());
 
-    m_usedServerSocket.close();
+    anotherUsedSocket.close();
+
+    m_processMessagesThread.join();
 
     m_timer.cancel();
   }
@@ -114,8 +125,8 @@ public class TestConsoleCommunicationImplementation
     final TimerTask timerTask = m_timer.getLastScheduledTimerTask();
     timerTask.run();
 
-    // Need a thread to be attempting to process messages or the
-    // receiver will never be shutdown correctly.
+    // Need a thread to be attempting to process messages or
+    // ConsoleCommunicationImplementation.reset() will not complete.
     m_processMessagesThread.start();
 
     // Cause the sender to be invalid.
@@ -124,7 +135,8 @@ public class TestConsoleCommunicationImplementation
 
     new ConsoleCommunicationImplementation(s_resources,
                                            m_properties,
-                                           m_timer);
+                                           m_timer,
+                                           500);
 
     final TimerTask timerTask2 = m_timer.getLastScheduledTimerTask();
     assertNotSame(timerTask, timerTask2);
@@ -179,8 +191,8 @@ public class TestConsoleCommunicationImplementation
     // nothing's processing the messages.
     m_properties.setIgnoreSampleCount(99);
 
-    // Need a thread to be attempting to process messages or the
-    // receiver will never be shutdown correctly.
+    // Need a thread to be attempting to process messages or
+    // ConsoleCommunicationImplementation.reset() will not complete.
     m_processMessagesThread.start();
 
     // Reset by changing properties and do another test.
@@ -234,8 +246,8 @@ public class TestConsoleCommunicationImplementation
 
     assertTrue(readMessage(socket) instanceof DistributeFileMessage);
 
-    // Need a thread to be attempting to process messages or the
-    // receiver will never be shutdown correctly.
+    // Need a thread to be attempting to process messages or
+    // ConsoleCommunicationImplementation.reset() will not complete.
     m_processMessagesThread.start();
 
     // Reset by changing properties and do another test.
@@ -281,11 +293,7 @@ public class TestConsoleCommunicationImplementation
 
     sendMessage(socket, new MyMessage());
 
-    for (int retry = 0;
-         !messageHandlerStubFactory.hasBeenCalled() && retry < 100;
-         ++retry) {
-      Thread.sleep(10);
-    }
+    messageHandlerStubFactory.waitUntilCalled(10000);
 
     messageHandlerStubFactory.assertSuccess("process", MyMessage.class);
 
@@ -301,11 +309,7 @@ public class TestConsoleCommunicationImplementation
 
     sendMessage(socket, new StopGrinderMessage());
 
-    for (int retry = 0;
-         !messageHandlerStubFactory.hasBeenCalled() && retry < 100;
-         ++retry) {
-      Thread.sleep(10);
-    }
+    messageHandlerStubFactory.waitUntilCalled(10000);
 
     messageHandlerStubFactory.assertSuccess("process",
                                             StopGrinderMessage.class);
@@ -347,7 +351,8 @@ public class TestConsoleCommunicationImplementation
     final ConsoleCommunication brokenConsoleCommunication =
       new ConsoleCommunicationImplementation(s_resources,
                                              m_properties,
-                                             m_timer);
+                                             m_timer,
+                                             100);
 
     errorHandlerStubFactory2.assertNoMoreCalls();
     brokenConsoleCommunication.setErrorHandler(errorHandler2);
@@ -360,6 +365,53 @@ public class TestConsoleCommunicationImplementation
     errorHandlerStubFactory2.assertSuccess(
       "handleResourceErrorMessage", String.class, String.class);
     errorHandlerStubFactory2.assertNoMoreCalls();
+  }
+
+  public void testErrorHandlingWithFurtherCommunicationProblems()
+    throws Exception {
+
+    final RandomStubFactory errorHandlerStubFactory =
+      new RandomStubFactory(ErrorHandler.class);
+    final ErrorHandler errorHandler =
+      (ErrorHandler)errorHandlerStubFactory.getStub();
+
+    m_consoleCommunication.setErrorHandler(errorHandler);
+
+    final ServerSocket freeServerSocket = new ServerSocket(0);
+    freeServerSocket.close();
+
+    // Need a thread to be attempting to process messages or
+    // ConsoleCommunicationImplementation.reset() will not complete.
+    m_processMessagesThread.start();
+
+    m_properties.setConsolePort(freeServerSocket.getLocalPort());
+
+    final Socket socket = new Socket(freeServerSocket.getInetAddress(),
+                                     freeServerSocket.getLocalPort());
+
+    socket.getOutputStream().close();
+
+    // Will be called via the Acceptor problem listener.
+    errorHandlerStubFactory.waitUntilCalled(1000);
+
+    errorHandlerStubFactory.assertSuccess("handleException",
+                                          CommunicationException.class);
+    errorHandlerStubFactory.assertNoMoreCalls();
+
+    final Socket socket2 = new Socket(freeServerSocket.getInetAddress(),
+                                      freeServerSocket.getLocalPort());
+    ConnectionType.AGENT.write(socket2.getOutputStream());
+
+    socket2.getOutputStream().write(new byte[100]);
+
+    errorHandlerStubFactory.waitUntilCalled(1000);
+
+    errorHandlerStubFactory.assertSuccess("handleException",
+                                          CommunicationException.class);
+    socket.close();
+    socket2.close();
+
+    errorHandlerStubFactory.assertNoMoreCalls();
   }
 
   private static final class MyMessage implements Message, Serializable { }
@@ -400,18 +452,14 @@ public class TestConsoleCommunicationImplementation
     }
 
     public void run() {
-      try {
-        while (true) {
-          m_consoleCommunication.processOneMessage();
+      while (true) {
+        m_consoleCommunication.processOneMessage();
 
-          synchronized (this) {
-            if (m_shutdown) {
-              break;
-            }
+        synchronized (this) {
+          if (m_shutdown) {
+            break;
           }
         }
-      }
-      catch (ConsoleException e) {
       }
     }
 
