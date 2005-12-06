@@ -87,7 +87,7 @@ public class Console {
     final Timer timer = new Timer(true);
 
     m_communication =
-      new ConsoleCommunicationImplementation(resources, properties, timer);
+      new ConsoleCommunicationImplementation(resources, properties, timer, 500);
 
     final FileDistribution fileDistribution =
       new FileDistributionImplementation(

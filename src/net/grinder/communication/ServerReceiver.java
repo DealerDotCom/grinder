@@ -46,12 +46,6 @@ public final class ServerReceiver implements Receiver {
   private final List m_threadPools = new ArrayList();
 
   /**
-   * Constructor.
-   */
-  public ServerReceiver() {
-  }
-
-  /**
    * Registers a new (socket, connection type) pair which the
    * <code>ServerReceiver</code> should process messages from.
    *
@@ -69,12 +63,17 @@ public final class ServerReceiver implements Receiver {
    * @param numberOfThreads
    *          How many threads to dedicate to processing the (socket,
    *          connectionType) pair.
+   * @param idleThreadPollDelay
+   *          Time in milliseconds that an idle thread should sleep if there are
+   *          no sockets to process.
+   *
    * @exception CommunicationException
    *              If this <code>ServerReceiver</code> has been shutdown.
    */
   public void receiveFrom(Acceptor acceptor,
                           ConnectionType connectionType,
-                          int numberOfThreads)
+                          int numberOfThreads,
+                          final int idleThreadPollDelay)
     throws CommunicationException {
 
 
@@ -85,7 +84,9 @@ public final class ServerReceiver implements Receiver {
       new ThreadPool.RunnableFactory() {
         public Runnable create() {
           return new Runnable() {
-              public void run() { process(acceptedSocketSet); }
+              public void run() {
+                process(acceptedSocketSet, idleThreadPollDelay);
+              }
             };
         }
       };
@@ -161,7 +162,8 @@ public final class ServerReceiver implements Receiver {
     return result;
   }
 
-  private void process(ResourcePool acceptedSocketSet) {
+  private void process(ResourcePool acceptedSocketSet,
+                       int idleThreadPollDelay) {
 
     try {
       // Did we do some work on the last pass?
@@ -173,7 +175,7 @@ public final class ServerReceiver implements Receiver {
         try {
           if (reservation.isSentinel()) {
             if (idle) {
-              Thread.sleep(500);
+              Thread.sleep(idleThreadPollDelay);
             }
 
             idle = true;

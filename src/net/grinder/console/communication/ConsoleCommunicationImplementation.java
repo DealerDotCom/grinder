@@ -35,7 +35,6 @@ import net.grinder.communication.HandlerChainSender;
 import net.grinder.communication.Message;
 import net.grinder.communication.ServerReceiver;
 import net.grinder.communication.HandlerChainSender.MessageHandler;
-import net.grinder.console.common.ConsoleException;
 import net.grinder.console.common.DisplayMessageConsoleException;
 import net.grinder.console.common.ErrorHandler;
 import net.grinder.console.common.ErrorQueue;
@@ -63,6 +62,7 @@ public final class ConsoleCommunicationImplementation
 
   private static final long CHECK_PEER_STATUS_PERIOD = 1000;
 
+  private final int m_idlePollDelay;
   private final Resources m_resources;
   private final ConsoleProperties m_properties;
   private final ProcessStatusImplementation m_processStatusSet;
@@ -76,27 +76,36 @@ public final class ConsoleCommunicationImplementation
 
   private final HandlerChainSender m_messageHandlers = new HandlerChainSender();
 
+  private final WakeableCondition m_processing = new WakeableCondition();
+
   private Acceptor m_acceptor = null;
   private ServerReceiver m_receiver = null;
   private FanOutServerSender m_sender = null;
 
-  private WakeableCondition m_processing = new WakeableCondition();
-
   /**
    * Constructor.
    *
-   * @param resources Resources.
-   * @param properties Console properties.
-   * @param timer Timer that can be used to schedule housekeeping tasks.
-   * @throws DisplayMessageConsoleException If properties are invalid.
+   * @param resources
+   *          Resources.
+   * @param properties
+   *          Console properties.
+   * @param timer
+   *          Timer that can be used to schedule housekeeping tasks.
+   * @param idlePollDelay
+   *          Time in milliseconds that our ServerReceiver threads should sleep
+   *          for if there's no incoming messages.
+   * @throws DisplayMessageConsoleException
+   *           If properties are invalid.
    */
   public ConsoleCommunicationImplementation(Resources resources,
                                             ConsoleProperties properties,
-                                            Timer timer)
+                                            Timer timer,
+                                            int idlePollDelay)
     throws DisplayMessageConsoleException {
 
     m_resources = resources;
     m_properties = properties;
+    m_idlePollDelay = idlePollDelay;
 
     addMessageHandler(
       new MessageHandler() {
@@ -182,13 +191,13 @@ public final class ConsoleCommunicationImplementation
 
     if (m_receiver != null) {
       m_receiver.shutdown();
+
+      // Wait until we're deaf. This requires that some other thread executes
+      // processOneMessage(). We can't suck on m_receiver ourself as there may
+      // be valid pending messages queued up.
+
+      m_processing.await(false);
     }
-
-    // Wait until we're deaf. This requires that some other thread executes
-    // processOneMessage(). We can't suck on m_receiver ourself as there may be
-    // valid pending messages queued up.
-
-    m_processing.await(false);
 
     try {
       m_acceptor = new Acceptor(m_properties.getConsoleHost(),
@@ -229,8 +238,15 @@ public final class ConsoleCommunicationImplementation
     m_receiver = new ServerReceiver();
 
     try {
-      m_receiver.receiveFrom(m_acceptor, ConnectionType.WORKER, 5);
-      m_receiver.receiveFrom(m_acceptor, ConnectionType.AGENT, 2);
+      m_receiver.receiveFrom(m_acceptor,
+                             ConnectionType.WORKER,
+                             5,
+                             m_idlePollDelay);
+
+      m_receiver.receiveFrom(m_acceptor,
+                             ConnectionType.AGENT,
+                             2,
+                             m_idlePollDelay);
     }
     catch (CommunicationException e) {
       throw new AssertionError(e);
@@ -295,7 +311,7 @@ public final class ConsoleCommunicationImplementation
       }
       catch (CommunicationException e) {
         // TODO should set m_listening to false?
-        m_errorQueue.handleException(new ConsoleException(e.getMessage(), e));
+        m_errorQueue.handleException(e);
       }
     }
   }
