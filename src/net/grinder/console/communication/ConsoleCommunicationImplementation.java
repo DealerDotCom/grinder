@@ -310,7 +310,8 @@ public final class ConsoleCommunicationImplementation
         break;
       }
       catch (CommunicationException e) {
-        // TODO should set m_listening to false?
+        // The receive or send failed. We only set m_processing to false when
+        // our receiver has been shut down.
         m_errorQueue.handleException(e);
       }
     }
